@@ -41,12 +41,12 @@ def test_openReadOnly():
     os.chmod(newPath, 0666)
     os.unlink(newPath)
 
-def test_factAddDelete():
+def test_noteAddDelete():
     deck = getEmptyDeck()
-    # add a fact
-    f = deck.newFact()
+    # add a note
+    f = deck.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
-    n = deck.addFact(f)
+    n = deck.addNote(f)
     assert n == 1
     # test multiple cards - add another template
     m = deck.models.current(); mm = deck.models
@@ -61,10 +61,10 @@ def test_factAddDelete():
     # should generate cards on close
     mm.save(m, gencards=True)
     assert deck.cardCount() == 2
-    # creating new facts should use both cards
-    f = deck.newFact()
+    # creating new notes should use both cards
+    f = deck.newNote()
     f['Front'] = u"three"; f['Back'] = u"four"
-    n = deck.addFact(f)
+    n = deck.addNote(f)
     assert n == 2
     assert deck.cardCount() == 4
     # check q/a generation
@@ -74,7 +74,7 @@ def test_factAddDelete():
     for p in f.problems():
         assert not p
     # now let's make a duplicate and test uniqueness
-    f2 = deck.newFact()
+    f2 = deck.newNote()
     f2.model()['flds'][1]['req'] = True
     f2['Front'] = u"one"; f2['Back'] = u""
     p = f2.problems()
@@ -84,66 +84,66 @@ def test_factAddDelete():
     cards = f.cards()
     id1 = cards[0].id; id2 = cards[1].id
     assert deck.cardCount() == 4
-    assert deck.factCount() == 2
+    assert deck.noteCount() == 2
     deck.remCards([id1])
     assert deck.cardCount() == 3
-    assert deck.factCount() == 2
-    # and the second should clear the fact
+    assert deck.noteCount() == 2
+    # and the second should clear the note
     deck.remCards([id2])
     assert deck.cardCount() == 2
-    assert deck.factCount() == 1
+    assert deck.noteCount() == 1
 
 def test_fieldChecksum():
     deck = getEmptyDeck()
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u"new"; f['Back'] = u"new2"
-    deck.addFact(f)
+    deck.addNote(f)
     assert deck.db.scalar(
-        "select csum from fsums") == int("c2a6b03f", 16)
+        "select csum from nsums") == int("c2a6b03f", 16)
     # empty field should have no checksum
     f['Front'] = u""
     f.flush()
     assert deck.db.scalar(
-        "select count() from fsums") == 0
+        "select count() from nsums") == 0
     # changing the val should change the checksum
     f['Front'] = u"newx"
     f.flush()
     assert deck.db.scalar(
-        "select csum from fsums") == int("302811ae", 16)
-    # turning off unique and modifying the fact should delete the sum
+        "select csum from nsums") == int("302811ae", 16)
+    # turning off unique and modifying the note should delete the sum
     m = f.model()
     m['flds'][0]['uniq'] = False
     deck.models.save(m)
     f.flush()
     assert deck.db.scalar(
-        "select count() from fsums") == 0
+        "select count() from nsums") == 0
     # and turning on both should ensure two checksums generated
     m['flds'][0]['uniq'] = True
     m['flds'][1]['uniq'] = True
     deck.models.save(m)
     f.flush()
     assert deck.db.scalar(
-        "select count() from fsums") == 2
+        "select count() from nsums") == 2
 
 def test_selective():
     deck = getEmptyDeck()
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u"1"; f.tags = ["one", "three"]
-    deck.addFact(f)
-    f = deck.newFact()
+    deck.addNote(f)
+    f = deck.newNote()
     f['Front'] = u"2"; f.tags = ["two", "three", "four"]
-    deck.addFact(f)
-    f = deck.newFact()
+    deck.addNote(f)
+    f = deck.newNote()
     f['Front'] = u"3"; f.tags = ["one", "two", "three", "four"]
-    deck.addFact(f)
-    assert len(deck.tags.selTagFids(["one"], [])) == 2
-    assert len(deck.tags.selTagFids(["three"], [])) == 3
-    assert len(deck.tags.selTagFids([], ["three"])) == 0
-    assert len(deck.tags.selTagFids(["one"], ["three"])) == 0
-    assert len(deck.tags.selTagFids(["one"], ["two"])) == 1
-    assert len(deck.tags.selTagFids(["two", "three"], [])) == 3
-    assert len(deck.tags.selTagFids(["two", "three"], ["one"])) == 1
-    assert len(deck.tags.selTagFids(["one", "three"], ["two", "four"])) == 1
+    deck.addNote(f)
+    assert len(deck.tags.selTagNids(["one"], [])) == 2
+    assert len(deck.tags.selTagNids(["three"], [])) == 3
+    assert len(deck.tags.selTagNids([], ["three"])) == 0
+    assert len(deck.tags.selTagNids(["one"], ["three"])) == 0
+    assert len(deck.tags.selTagNids(["one"], ["two"])) == 1
+    assert len(deck.tags.selTagNids(["two", "three"], [])) == 3
+    assert len(deck.tags.selTagNids(["two", "three"], ["one"])) == 1
+    assert len(deck.tags.selTagNids(["one", "three"], ["two", "four"])) == 1
     deck.tags.setGroupForTags(["three"], [], 3)
     assert deck.db.scalar("select count() from cards where gid = 3") == 3
     deck.tags.setGroupForTags(["one"], [], 2)
@@ -151,12 +151,12 @@ def test_selective():
 
 def test_addDelTags():
     deck = getEmptyDeck()
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u"1"
-    deck.addFact(f)
-    f2 = deck.newFact()
+    deck.addNote(f)
+    f2 = deck.newNote()
     f2['Front'] = u"2"
-    deck.addFact(f2)
+    deck.addNote(f2)
     # adding for a given id
     deck.tags.bulkAdd([f.id], "foo")
     f.load(); f2.load()

@@ -10,7 +10,7 @@ Anki maintains a cache of used tags so it can quickly present a list of tags
 for autocomplete and in the browser. For efficiency, deletions are not
 tracked, so unused tags can only be removed from the list with a DB check.
 
-This module manages the tag cache and tags for facts.
+This module manages the tag cache and tags for notes.
 """
 
 class TagManager(object):
@@ -45,17 +45,17 @@ class TagManager(object):
     def all(self):
         return self.tags.keys()
 
-    def registerFacts(self, fids=None):
-        "Add any missing tags from facts to the tags list."
+    def registerNotes(self, nids=None):
+        "Add any missing tags from notes to the tags list."
         # when called without an argument, the old list is cleared first.
-        if fids:
-            lim = " where id in " + ids2str(fids)
+        if nids:
+            lim = " where id in " + ids2str(nids)
         else:
             lim = ""
             self.tags = {}
             self.changed = True
         self.register(set(self.split(
-            " ".join(self.deck.db.list("select distinct tags from facts"+lim)))))
+            " ".join(self.deck.db.list("select distinct tags from notes"+lim)))))
 
     def allItems(self):
         return self.tags.items()
@@ -63,7 +63,7 @@ class TagManager(object):
     def save(self):
         self.changed = True
 
-    # Bulk addition/removal from facts
+    # Bulk addition/removal from notes
     #############################################################
 
     def bulkAdd(self, ids, tags, add=True):
@@ -73,7 +73,7 @@ class TagManager(object):
             return
         # cache tag names
         self.register(newTags)
-        # find facts missing the tags
+        # find notes missing the tags
         if add:
             l = "tags not "
             fn = self.addToStr
@@ -83,18 +83,18 @@ class TagManager(object):
         lim = " or ".join(
             [l+"like :_%d" % c for c, t in enumerate(newTags)])
         res = self.deck.db.all(
-            "select id, tags from facts where id in %s and %s" % (
+            "select id, tags from notes where id in %s and %s" % (
                 ids2str(ids), lim),
             **dict([("_%d" % x, '%% %s %%' % y)
                     for x, y in enumerate(newTags)]))
         # update tags
-        fids = []
+        nids = []
         def fix(row):
-            fids.append(row[0])
+            nids.append(row[0])
             return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime(),
                 'u':self.deck.usn()}
         self.deck.db.executemany(
-            "update facts set tags=:t,mod=:n,usn=:u where id = :id",
+            "update notes set tags=:t,mod=:n,usn=:u where id = :id",
             [fix(row) for row in res])
 
     def bulkRem(self, ids, tags):
@@ -149,12 +149,12 @@ class TagManager(object):
     # Tag-based selective study
     ##########################################################################
 
-    def selTagFids(self, yes, no):
+    def selTagNids(self, yes, no):
         l = []
-        # find facts that match yes
+        # find notes that match yes
         lim = ""
         args = []
-        query = "select id from facts"
+        query = "select id from notes"
         if not yes and not no:
             pass
         else:
@@ -172,7 +172,7 @@ class TagManager(object):
         return self.deck.db.list(query, *args)
 
     def setGroupForTags(self, yes, no, gid):
-        fids = self.selTagFids(yes, no)
+        nids = self.selTagNids(yes, no)
         self.deck.db.execute(
-            "update cards set gid=?,mod=?,usn=? where fid in "+ids2str(fids),
+            "update cards set gid=?,mod=?,usn=? where nid in "+ids2str(nids),
             gid, intTime(), self.deck.usn())

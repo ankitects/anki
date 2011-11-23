@@ -185,7 +185,7 @@ def timestampID(db, table):
 def maxID(db):
     "Return the first safe ID to use."
     now = intTime(1000)
-    for tbl in "cards", "facts":
+    for tbl in "cards", "notes":
         now = max(now, db.scalar(
                 "select max(id) from %s" % tbl))
     return now + 1

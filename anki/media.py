@@ -161,7 +161,7 @@ If the same name exists, compare checksums."""
     def allMedia(self):
         "Return a set of all referenced filenames."
         files = set()
-        for mid, flds in self.deck.db.execute("select mid, flds from facts"):
+        for mid, flds in self.deck.db.execute("select mid, flds from notes"):
             for f in self.filesInStr(mid, flds):
                 files.add(f)
         return files

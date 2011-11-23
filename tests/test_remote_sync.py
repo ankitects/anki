@@ -8,7 +8,7 @@ from anki import Deck
 from anki.utils import intTime
 from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
     MediaSyncer, RemoteMediaServer
-from anki.facts import Fact
+from anki.notes import Note
 from anki.cards import Card
 from tests.shared import getEmptyDeck
 

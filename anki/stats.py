@@ -50,7 +50,7 @@ class CardStats(object):
         self.addLine(_("Model"), c.model()['name'])
         self.addLine(_("Template"), c.template()['name'])
         self.addLine(_("Current Group"), self.deck.groups.name(c.gid))
-        self.addLine(_("Home Group"), self.deck.groups.name(c.fact().gid))
+        self.addLine(_("Home Group"), self.deck.groups.name(c.note().gid))
         self.txt += "</table>"
         return self.txt
 
@@ -538,10 +538,10 @@ group by hour having count() > 30 order by hour""" % lim,
         # text data
         i = []
         (c, f) = self.deck.db.first("""
-select count(id), count(distinct fid) from cards
+select count(id), count(distinct nid) from cards
 where gid in %s """ % self._limit())
         self._line(i, _("Total cards"), c)
-        self._line(i, _("Total facts"), f)
+        self._line(i, _("Total notes"), f)
         (low, avg, high) = self._factors()
         if low:
             self._line(i, _("Lowest ease factor"), "%d%%" % low)

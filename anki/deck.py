@@ -16,7 +16,7 @@ from anki.consts import *
 from anki.errors import AnkiError
 
 import anki.latex # sets up hook
-import anki.cards, anki.facts, anki.template, anki.cram, anki.find
+import anki.cards, anki.notes, anki.template, anki.cram, anki.find
 
 defaultConf = {
     # scheduling options
@@ -29,7 +29,7 @@ defaultConf = {
     'fontFamilies': [
         [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
     ],
-    'sortType': "factFld",
+    'sortType': "noteFld",
     'sortBackwards': False,
 }
 
@@ -180,7 +180,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def beforeUpload(self):
         "Called before a full upload."
-        tbls = "facts", "cards", "revlog", "graves"
+        tbls = "notes", "cards", "revlog", "graves"
         for t in tbls:
             self.db.execute("update %s set usn=0 where usn=-1" % t)
         self._usn = 0
@@ -194,8 +194,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def getCard(self, id):
         return anki.cards.Card(self, id)
 
-    def getFact(self, id):
-        return anki.facts.Fact(self, id=id)
+    def getNote(self, id):
+        return anki.notes.Note(self, id=id)
 
     # Utils
     ##########################################################################
@@ -218,23 +218,23 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.db.executemany("insert into graves values (%d, ?, %d)" % (
             self.usn(), type), ([x] for x in ids))
 
-    # Facts
+    # Notes
     ##########################################################################
 
-    def factCount(self):
-        return self.db.scalar("select count() from facts")
+    def noteCount(self):
+        return self.db.scalar("select count() from notes")
 
-    def newFact(self):
-        "Return a new fact with the current model."
-        return anki.facts.Fact(self, self.models.current())
+    def newNote(self):
+        "Return a new note with the current model."
+        return anki.notes.Note(self, self.models.current())
 
-    def addFact(self, fact):
-        "Add a fact to the deck. Return number of new cards."
+    def addNote(self, note):
+        "Add a note to the deck. Return number of new cards."
         # check we have card models available, then save
-        cms = self.findTemplates(fact)
+        cms = self.findTemplates(note)
         if not cms:
             return 0
-        fact.flush()
+        note.flush()
         # randomize?
         if self.models.randomNew():
             due = self._randPos()
@@ -243,65 +243,65 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         # add cards
         ncards = 0
         for template in cms:
-            self._newCard(fact, template, due)
+            self._newCard(note, template, due)
             ncards += 1
         return ncards
 
     def _randPos(self):
         return random.randrange(1, sys.maxint)
 
-    def remFacts(self, ids):
-        self.remCards(self.db.list("select id from cards where fid in "+
+    def remNotes(self, ids):
+        self.remCards(self.db.list("select id from cards where nid in "+
                                    ids2str(ids)))
 
-    def _remFacts(self, ids):
-        "Bulk delete facts by ID. Don't call this directly."
+    def _remNotes(self, ids):
+        "Bulk delete notes by ID. Don't call this directly."
         if not ids:
             return
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
-        self._logRem(ids, REM_FACT)
-        self.db.execute("delete from facts where id in %s" % strids)
-        self.db.execute("delete from fsums where fid in %s" % strids)
+        self._logRem(ids, REM_NOTE)
+        self.db.execute("delete from notes where id in %s" % strids)
+        self.db.execute("delete from nsums where nid in %s" % strids)
 
     # Card creation
     ##########################################################################
 
-    def findTemplates(self, fact):
+    def findTemplates(self, note):
         "Return (active), non-empty templates."
         ok = []
-        model = fact.model()
-        avail = self.models.availOrds(model, joinFields(fact.fields))
+        model = note.model()
+        avail = self.models.availOrds(model, joinFields(note.fields))
         ok = []
         for t in model['tmpls']:
             if t['ord'] in avail:
                 ok.append(t)
         return ok
 
-    def genCards(self, fids):
+    def genCards(self, nids):
         "Generate cards for non-empty templates."
-        # build map of (fid,ord) so we don't create dupes
-        sfids = ids2str(fids)
+        # build map of (nid,ord) so we don't create dupes
+        snids = ids2str(nids)
         have = {}
-        for fid, ord in self.db.execute(
-            "select fid, ord from cards where fid in "+sfids):
-            have[(fid,ord)] = True
-        # build cards for each fact
+        for nid, ord in self.db.execute(
+            "select nid, ord from cards where nid in "+snids):
+            have[(nid,ord)] = True
+        # build cards for each note
         data = []
         ts = maxID(self.db)
         now = intTime()
-        for fid, mid, gid, flds in self.db.execute(
-            "select id, mid, gid, flds from facts where id in "+sfids):
+        for nid, mid, gid, flds in self.db.execute(
+            "select id, mid, gid, flds from notes where id in "+snids):
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
             ok = []
             for t in model['tmpls']:
-                if (fid,t['ord']) in have:
+                if (nid,t['ord']) in have:
                     continue
                 if t['ord'] in avail:
-                    data.append((ts, fid, t['gid'] or gid, t['ord'],
-                                 now, fid))
+                    data.append((ts, nid, t['gid'] or gid, t['ord'],
+                                 now, nid))
                     ts += 1
         # bulk update
         self.db.executemany("""
@@ -311,26 +311,26 @@ insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
     # type 0 - when previewing in add dialog, only non-empty
     # type 1 - when previewing edit, only existing
     # type 2 - when previewing in models dialog, all templates
-    def previewCards(self, fact, type=0):
+    def previewCards(self, note, type=0):
         if type == 0:
-            cms = self.findTemplates(fact)
+            cms = self.findTemplates(note)
         elif type == 1:
-            cms = [c.template() for c in fact.cards()]
+            cms = [c.template() for c in note.cards()]
         else:
-            cms = fact.model()['tmpls']
+            cms = note.model()['tmpls']
         if not cms:
             return []
         cards = []
         for template in cms:
-            cards.append(self._newCard(fact, template, 1, flush=False))
+            cards.append(self._newCard(note, template, 1, flush=False))
         return cards
 
-    def _newCard(self, fact, template, due, flush=True):
+    def _newCard(self, note, template, due, flush=True):
         "Create a new card."
         card = anki.cards.Card(self)
-        card.fid = fact.id
+        card.nid = note.id
         card.ord = template['ord']
-        card.gid = template['gid'] or fact.gid
+        card.gid = template['gid'] or note.gid
         card.due = due
         if flush:
             card.flush()
@@ -350,42 +350,42 @@ insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
         if not ids:
             return
         sids = ids2str(ids)
-        fids = self.db.list("select fid from cards where id in "+sids)
+        nids = self.db.list("select nid from cards where id in "+sids)
         # remove cards
         self._logRem(ids, REM_CARD)
         self.db.execute("delete from cards where id in "+sids)
         self.db.execute("delete from revlog where cid in "+sids)
-        # then facts
-        fids = self.db.list("""
-select id from facts where id in %s and id not in (select fid from cards)""" %
-                     ids2str(fids))
-        self._remFacts(fids)
+        # then notes
+        nids = self.db.list("""
+select id from notes where id in %s and id not in (select nid from cards)""" %
+                     ids2str(nids))
+        self._remNotes(nids)
 
     # Field checksums and sorting fields
     ##########################################################################
 
-    def _fieldData(self, sfids):
+    def _fieldData(self, snids):
         return self.db.execute(
-            "select id, mid, flds from facts where id in "+sfids)
+            "select id, mid, flds from notes where id in "+snids)
 
-    def updateFieldCache(self, fids, csum=True):
+    def updateFieldCache(self, nids, csum=True):
         "Update field checksums and sort cache, after find&replace, etc."
-        sfids = ids2str(fids)
+        snids = ids2str(nids)
         r = []
         r2 = []
-        for (fid, mid, flds) in self._fieldData(sfids):
+        for (nid, mid, flds) in self._fieldData(snids):
             fields = splitFields(flds)
             model = self.models.get(mid)
             if csum:
                 for f in model['flds']:
                     if f['uniq'] and fields[f['ord']]:
-                        r.append((fid, mid, fieldChecksum(fields[f['ord']])))
-            r2.append((stripHTML(fields[self.models.sortIdx(model)]), fid))
+                        r.append((nid, mid, fieldChecksum(fields[f['ord']])))
+            r2.append((stripHTML(fields[self.models.sortIdx(model)]), nid))
         if csum:
-            self.db.execute("delete from fsums where fid in "+sfids)
-            self.db.executemany("insert into fsums values (?,?,?)", r)
+            self.db.execute("delete from nsums where nid in "+snids)
+            self.db.executemany("insert into nsums values (?,?,?)", r)
         # rely on calling code to bump usn+mod
-        self.db.executemany("update facts set sfld = ? where id = ?", r2)
+        self.db.executemany("update notes set sfld = ? where id = ?", r2)
 
     # Q/A generation
     ##########################################################################
@@ -394,7 +394,7 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
         # gather metadata
         if type == "card":
             where = "and c.id in " + ids2str(ids)
-        elif type == "fact":
+        elif type == "note":
             where = "and f.id in " + ids2str(ids)
         elif type == "model":
             where = "and m.id in " + ids2str(ids)
@@ -407,7 +407,7 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
 
     def _renderQA(self, data):
         "Returns hash of id, question, answer."
-        # data is [cid, fid, mid, gid, ord, tags, flds]
+        # data is [cid, nid, mid, gid, ord, tags, flds]
         # unpack fields and create dict
         flist = splitFields(data[6])
         fields = {}
@@ -437,11 +437,11 @@ select id from facts where id in %s and id not in (select fid from cards)""" %
         return d
 
     def _qaData(self, where=""):
-        "Return [cid, fid, mid, gid, ord, tags, flds] db query"
+        "Return [cid, nid, mid, gid, ord, tags, flds] db query"
         return self.db.execute("""
 select c.id, f.id, f.mid, c.gid, c.ord, f.tags, f.flds
-from cards c, facts f
-where c.fid == f.id
+from cards c, notes f
+where c.nid == f.id
 %s""" % where)
 
     # Finding cards
@@ -450,8 +450,8 @@ where c.fid == f.id
     def findCards(self, query, full=False):
         return anki.find.Finder(self).findCards(query, full)
 
-    def findReplace(self, fids, src, dst, regex=None, field=None, fold=True):
-        return anki.find.findReplace(self, fids, src, dst, regex, field, fold)
+    def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
+        return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
 
     def findDuplicates(self, fmids):
         return anki.find.findDuplicates(self, fmids)
@@ -570,15 +570,15 @@ where c.fid == f.id
         problems = []
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
-        # delete any facts with missing cards
+        # delete any notes with missing cards
         ids = self.db.list("""
-select id from facts where id not in (select distinct fid from cards)""")
-        self._remFacts(ids)
+select id from notes where id not in (select distinct nid from cards)""")
+        self._remNotes(ids)
         # tags
-        self.tags.registerFacts()
+        self.tags.registerNotes()
         # field cache
         for m in self.models.all():
-            self.updateFieldCache(self.models.fids(m))
+            self.updateFieldCache(self.models.nids(m))
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]

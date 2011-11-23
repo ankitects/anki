@@ -7,9 +7,9 @@ from anki.hooks import addHook
 
 def test_stats():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = "foo"
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     # card stats
     assert d.cardStats(c)

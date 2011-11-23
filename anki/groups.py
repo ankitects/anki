@@ -15,7 +15,7 @@ from anki.lang import _
 #   appropriate
 
 # notes:
-# - it's difficult to enforce valid gids for models/facts/cards, as we
+# - it's difficult to enforce valid gids for models/notes/cards, as we
 #   may update the gid locally only to have it overwritten by a more recent
 #   change from somewhere else. to avoid this, we allow invalid gid
 #   references, and treat any invalid gids as the default group.
@@ -268,7 +268,7 @@ class GroupManager(object):
 
     def sendHome(self, cids):
         self.deck.db.execute("""
-update cards set gid=(select gid from facts f where f.id=fid),
+update cards set gid=(select gid from notes f where f.id=nid),
 usn=?,mod=? where id in %s""" % ids2str(cids),
                              self.deck.usn(), intTime(), gid)
 

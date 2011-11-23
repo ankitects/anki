@@ -46,14 +46,14 @@ def test_deckIntegration():
     # put a file into it
     file = unicode(os.path.join(testDir, "support/fake.png"))
     d.media.addFile(file)
-    # add a fact which references it
-    f = d.newFact()
+    # add a note which references it
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"<img src='fake.png'>"
-    d.addFact(f)
+    d.addNote(f)
     # and one which references a non-existent file
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"<img src='fake2.png'>"
-    d.addFact(f)
+    d.addNote(f)
     # and add another file which isn't used
     open(os.path.join(d.media.dir(), "foo.jpg"), "wb").write("test")
     # check media

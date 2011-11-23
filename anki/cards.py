@@ -12,7 +12,7 @@ from anki.utils import intTime, hexifyID, timestampID
 # Queue: same as above, and:
 #        -1=suspended, -2=user buried, -3=sched buried
 # Due is used differently for different queues.
-# - new queue: fact id or random int
+# - new queue: note id or random int
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
@@ -27,7 +27,7 @@ class Card(object):
             self.id = id
             self.load()
         else:
-            # to flush, set fid, ord, and due
+            # to flush, set nid, ord, and due
             self.id = timestampID(deck.db, "cards")
             self.gid = 1
             self.crt = intTime()
@@ -44,7 +44,7 @@ class Card(object):
 
     def load(self):
         (self.id,
-         self.fid,
+         self.nid,
          self.gid,
          self.ord,
          self.mod,
@@ -72,7 +72,7 @@ class Card(object):
 insert or replace into cards values
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
-            self.fid,
+            self.nid,
             self.gid,
             self.ord,
             self.mod,
@@ -108,21 +108,21 @@ lapses=?, left=?, edue=? where id = ?""",
 
     def _getQA(self, reload=False):
         if not self._qa or reload:
-            f = self.fact(); m = self.model()
+            f = self.note(); m = self.model()
             data = [self.id, f.id, m['id'], self.gid, self.ord, f.stringTags(),
                     f.joinedFields()]
             self._qa = self.deck._renderQA(data)
         return self._qa
 
     def _reviewData(self, reload=False):
-        "Fetch the model and fact."
+        "Fetch the model and note."
         if not self._rd or reload:
-            f = self.deck.getFact(self.fid)
+            f = self.deck.getNote(self.nid)
             m = self.deck.models.get(f.mid)
             self._rd = [f, m]
         return self._rd
 
-    def fact(self):
+    def note(self):
         return self._reviewData()[0]
 
     def model(self, reload=False):

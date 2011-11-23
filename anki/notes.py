@@ -7,7 +7,7 @@ from anki.errors import AnkiError
 from anki.utils import fieldChecksum, intTime, \
     joinFields, splitFields, ids2str, stripHTML, timestampID, guid64
 
-class Fact(object):
+class Note(object):
 
     def __init__(self, deck, model=None, id=None):
         assert not (model and id)
@@ -16,7 +16,7 @@ class Fact(object):
             self.id = id
             self.load()
         else:
-            self.id = timestampID(deck.db, "facts")
+            self.id = timestampID(deck.db, "notes")
             self.guid = guid64()
             self._model = model
             self.gid = model['gid']
@@ -38,7 +38,7 @@ class Fact(object):
          self.flags,
          self.data) = self.deck.db.first("""
 select guid, mid, gid, mod, usn, tags, flds, flags, data
-from facts where id = ?""", self.id)
+from notes where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = self.deck.tags.split(self.tags)
         self._model = self.deck.models.get(self.mid)
@@ -52,7 +52,7 @@ from facts where id = ?""", self.id)
         sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
         tags = self.stringTags()
         res = self.deck.db.execute("""
-insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.guid, self.mid, self.gid,
                             self.mod, self.usn, tags,
                             self.joinedFields(), sfld, self.flags, self.data)
@@ -66,7 +66,7 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         return joinFields(self.fields)
 
     def updateFieldChecksums(self):
-        self.deck.db.execute("delete from fsums where fid = ?", self.id)
+        self.deck.db.execute("delete from nsums where nid = ?", self.id)
         d = []
         for (ord, conf) in self._fmap.values():
             if not conf['uniq']:
@@ -75,11 +75,11 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             if not val:
                 continue
             d.append((self.id, self.mid, fieldChecksum(val)))
-        self.deck.db.executemany("insert into fsums values (?, ?, ?)", d)
+        self.deck.db.executemany("insert into nsums values (?, ?, ?)", d)
 
     def cards(self):
         return [self.deck.getCard(id) for id in self.deck.db.list(
-            "select id from cards where fid = ? order by ord", self.id)]
+            "select id from cards where nid = ? order by ord", self.id)]
 
     def model(self):
         return self._model
@@ -151,18 +151,18 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             return True
         csum = fieldChecksum(val)
         if self.id:
-            lim = "and fid != :fid"
+            lim = "and nid != :nid"
         else:
             lim = ""
-        fids = self.deck.db.list(
-            "select fid from fsums where csum = ? and fid != ? and mid = ?",
+        nids = self.deck.db.list(
+            "select nid from nsums where csum = ? and nid != ? and mid = ?",
             csum, self.id or 0, self.mid)
-        if not fids:
+        if not nids:
             return True
-        # grab facts with the same checksums, and see if they're actually
+        # grab notes with the same checksums, and see if they're actually
         # duplicates
-        for flds in self.deck.db.list("select flds from facts where id in "+
-                                      ids2str(fids)):
+        for flds in self.deck.db.list("select flds from notes where id in "+
+                                      ids2str(nids)):
             fields = splitFields(flds)
             if fields[ord] == val:
                 return False
@@ -185,19 +185,19 @@ insert or replace into facts values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 d.append((ord, None))
         return [x[1] for x in sorted(d)]
 
-    # Flushing cloze facts
+    # Flushing cloze notes
     ##################################################
 
     def _clozePreFlush(self):
         self.newlyAdded = not self.deck.db.scalar(
-            "select 1 from cards where fid = ?", self.id)
+            "select 1 from cards where nid = ?", self.id)
         tmpls = self.deck.findTemplates(self)
         ok = []
         for t in tmpls:
             ok.append(t['ord'])
         # check if there are cards referencing a deleted cloze
         if self.deck.db.scalar(
-            "select 1 from cards where fid = ? and ord not in %s" %
+            "select 1 from cards where nid = ? and ord not in %s" %
             ids2str(ok), self.id):
             # there are; abort, as the UI should have handled this
             raise Exception("UI should have deleted cloze")

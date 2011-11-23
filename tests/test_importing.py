@@ -8,23 +8,23 @@ from anki.errors import *
 from anki import Deck
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
     SupermemoXmlImporter
-from anki.facts import Fact
+from anki.notes import Note
 
 from anki.db import *
 
 testDir = os.path.dirname(__file__)
 
-srcFacts=None
+srcNotes=None
 srcCards=None
 
 def test_anki2():
-    global srcFacts, srcCards
+    global srcNotes, srcCards
     # get the deck to import
     tmp = getUpgradeDeckPath()
     u = Upgrader()
     src = u.upgrade(tmp)
     srcpath = src.path
-    srcFacts = src.factCount()
+    srcNotes = src.noteCount()
     srcCards = src.cardCount()
     srcRev = src.db.scalar("select count() from revlog")
     # add a media file for testing
@@ -36,14 +36,14 @@ def test_anki2():
     imp = Anki2Importer(dst, srcpath)
     imp.run()
     def check():
-        assert dst.factCount() == srcFacts
+        assert dst.noteCount() == srcNotes
         assert dst.cardCount() == srcCards
         assert srcRev == dst.db.scalar("select count() from revlog")
         mids = [int(x) for x in dst.models.models.keys()]
         assert not dst.db.scalar(
-            "select count() from facts where mid not in "+ids2str(mids))
+            "select count() from notes where mid not in "+ids2str(mids))
         assert not dst.db.scalar(
-            "select count() from cards where fid not in (select id from facts)")
+            "select count() from cards where nid not in (select id from notes)")
         assert not dst.db.scalar(
             "select count() from revlog where cid not in (select id from cards)")
         assert dst.fixIntegrity().startswith("Database rebuilt")
@@ -68,7 +68,7 @@ def test_anki1():
     imp = Anki1Importer(dst, tmp)
     imp.run()
     def check():
-        assert dst.factCount() == srcFacts
+        assert dst.noteCount() == srcNotes
         assert dst.cardCount() == srcCards
         assert len(os.listdir(dst.media.dir())) == 1
     check()
@@ -96,9 +96,9 @@ def test_csv_tags():
     file = unicode(os.path.join(testDir, "importing/text-tags.txt"))
     i = csvfile.TextImporter(deck, file)
     i.run()
-    facts = deck.db.query(Fact).all()
-    assert len(facts) == 2
-    assert facts[0].tags == "baz qux" or facts[1].tags == "baz qux"
+    notes = deck.db.query(Note).all()
+    assert len(notes) == 2
+    assert notes[0].tags == "baz qux" or notes[1].tags == "baz qux"
     deck.close()
 
 def test_supermemo_xml_01_unicode():

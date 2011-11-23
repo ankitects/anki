@@ -11,9 +11,9 @@ from anki.importing.base import Importer
 # shared decks, and import from a packaged deck.
 #
 # We can't rely on internal ids, so we:
-# - compare facts by guid
+# - compare notes by guid
 # - compare models by schema signature
-# - compare cards by fact guid + ordinal
+# - compare cards by note guid + ordinal
 # - compare groups by name
 #
 
@@ -44,53 +44,53 @@ class Anki2Importer(Importer):
             self.dst.groups.select(id)
         self._prepareTS()
         self._prepareModels()
-        self._importFacts()
+        self._importNotes()
         self._importCards()
         self._importMedia()
         self._postImport()
         self.dst.db.execute("vacuum")
         self.dst.db.execute("analyze")
 
-    # Facts
+    # Notes
     ######################################################################
     # - should note new for wizard
 
-    def _importFacts(self):
+    def _importNotes(self):
         # build guid -> (id,mod,mid) hash
-        self._facts = {}
+        self._notes = {}
         for id, guid, mod, mid in self.dst.db.execute(
-            "select id, guid, mod, mid from facts"):
-            self._facts[guid] = (id, mod, mid)
+            "select id, guid, mod, mid from notes"):
+            self._notes[guid] = (id, mod, mid)
         # iterate over source deck
         add = []
         dirty = []
-        for fact in self.src.db.execute(
-            "select * from facts"):
+        for note in self.src.db.execute(
+            "select * from notes"):
             # turn the db result into a mutable list
-            fact = list(fact)
-            guid, mid = fact[1:3]
+            note = list(note)
+            guid, mid = note[1:3]
             # missing from local deck?
-            if guid not in self._facts:
+            if guid not in self._notes:
                 # get corresponding local model
                 lmid = self._mid(mid)
                 # rewrite internal ids, models, etc
-                fact[0] = self.ts()
-                fact[2] = lmid
-                fact[3] = self._gid(fact[3])
-                fact[4] = intTime()
-                fact[5] = -1 # usn
-                add.append(fact)
-                dirty.append(fact[0])
-                # note we have the added fact
-                self._facts[guid] = (fact[0], fact[4], fact[2])
+                note[0] = self.ts()
+                note[2] = lmid
+                note[3] = self._gid(note[3])
+                note[4] = intTime()
+                note[5] = -1 # usn
+                add.append(note)
+                dirty.append(note[0])
+                # note we have the added note
+                self._notes[guid] = (note[0], note[4], note[2])
             else:
-                continue #raise Exception("merging facts nyi")
+                continue #raise Exception("merging notes nyi")
         # add to deck
         self.dst.db.executemany(
-            "insert or replace into facts values (?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             add)
         self.dst.updateFieldCache(dirty)
-        self.dst.tags.registerFacts(dirty)
+        self.dst.tags.registerNotes(dirty)
 
     # Models
     ######################################################################
@@ -168,24 +168,24 @@ class Anki2Importer(Importer):
         # build map of (guid, ord) -> cid
         self._cards = {}
         for guid, ord, cid in self.dst.db.execute(
-            "select f.guid, c.ord, c.id from cards c, facts f "
-            "where c.fid = f.id"):
+            "select f.guid, c.ord, c.id from cards c, notes f "
+            "where c.nid = f.id"):
             self._cards[(guid, ord)] = cid
         # loop through src
         cards = []
         revlog = []
         print "fixme: need to check schema issues in card import"
         for card in self.src.db.execute(
-            "select f.guid, f.mid, c.* from cards c, facts f "
-            "where c.fid = f.id"):
+            "select f.guid, f.mid, c.* from cards c, notes f "
+            "where c.nid = f.id"):
             guid = card[0]
-            # does the card's fact exist in dst deck?
-            if guid not in self._facts:
+            # does the card's note exist in dst deck?
+            if guid not in self._notes:
                 continue
-            dfid = self._facts[guid]
-            # does the fact share the same schema?
+            dnid = self._notes[guid]
+            # does the note share the same schema?
             # shash = self._srcModels[card[1]]
-            # mid = self._facts[guid][2]
+            # mid = self._notes[guid][2]
             # if shash != self._dstModels[mid]:
             #     continue
             # does the card already exist in the dst deck?
@@ -193,12 +193,12 @@ class Anki2Importer(Importer):
             if (guid, ord) in self._cards:
                 # fixme: in future, could update if newer mod time
                 continue
-            # doesn't exist. strip off fact info, and save src id for later
+            # doesn't exist. strip off note info, and save src id for later
             card = list(card[2:])
             scid = card[0]
-            # update cid, fid, etc
+            # update cid, nid, etc
             card[0] = self.ts()
-            card[1] = self._facts[guid][0]
+            card[1] = self._notes[guid][0]
             card[2] = self._gid(card[2])
             card[4] = intTime()
             cards.append(card)

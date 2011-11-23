@@ -13,10 +13,10 @@ def test_basics():
 def test_new():
     d = getEmptyDeck()
     assert d.sched.newCount == 0
-    # add a fact
-    f = d.newFact()
+    # add a note
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     assert d.sched.newCount == 1
     # fetch it
@@ -38,12 +38,12 @@ def test_new():
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"2"; f['Back'] = u"2"
-    d.addFact(f)
-    f = d.newFact()
+    d.addNote(f)
+    f = d.newNote()
     f['Front'] = u"3"; f['Back'] = u"3"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     qs = ("2", "3", "2", "3")
     for n in range(4):
@@ -53,14 +53,14 @@ def test_new():
 
 def test_newLimits():
     d = getEmptyDeck()
-    # add some facts
+    # add some notes
     g2 = d.groups.id("Default::foo")
     for i in range(30):
-        f = d.newFact()
+        f = d.newNote()
         f['Front'] = str(i)
         if i > 4:
             f.gid = g2
-        d.addFact(f)
+        d.addNote(f)
     # give the child group a different configuration
     c2 = d.groups.confId("new conf")
     d.groups.setConf(d.groups.get(g2), c2)
@@ -92,11 +92,11 @@ def test_newOrder():
         t['actv'] = i > 25
         d.models.addTemplate(m, t)
     d.models.save(m)
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
     # add first half
-    d.addFact(f)
+    d.addNote(f)
     # generate second half
     d.db.execute("update cards set gid = random()")
     d.conf['newPerDay'] = 100
@@ -106,9 +106,9 @@ def test_newOrder():
 
 def test_newBoxes():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     c = d.sched.getCard()
     d.sched._cardConf(c)['new']['delays'] = [1,2,3,4,5]
@@ -119,10 +119,10 @@ def test_newBoxes():
 
 def test_learn():
     d = getEmptyDeck()
-    # add a fact
-    f = d.newFact()
+    # add a note
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
-    f = d.addFact(f)
+    f = d.addNote(f)
     # set as a learn card and rebuild queues
     d.db.execute("update cards set queue=0, type=0")
     d.reset()
@@ -191,10 +191,10 @@ def test_learn():
 
 def test_reviews():
     d = getEmptyDeck()
-    # add a fact
-    f = d.newFact()
+    # add a note
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
-    d.addFact(f)
+    d.addNote(f)
     # set the card up as a review card, due 8 days ago
     c = f.cards()[0]
     c.type = 2
@@ -286,9 +286,9 @@ def test_finished():
     # nothing due
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
-    d.addFact(f)
+    d.addNote(f)
     # have a new card
     assert "new cards available" in d.sched.finishedMsg()
     # turn it into a review
@@ -301,9 +301,9 @@ def test_finished():
 
 def test_nextIvl():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     c = d.sched.getCard()
     d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
@@ -356,12 +356,12 @@ def test_nextIvl():
 
 def test_misc():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     # burying
-    d.sched.buryFact(c.fid)
+    d.sched.buryNote(c.nid)
     d.reset()
     assert not d.sched.getCard()
     d.sched.onClose()
@@ -370,9 +370,9 @@ def test_misc():
 
 def test_suspend():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     # suspending
     d.reset()
@@ -403,9 +403,9 @@ def test_cram():
     print "disabled for now"
     return
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     c.ivl = 100
     c.type = c.queue = 2
@@ -485,9 +485,9 @@ def test_cramLimits():
     d = getEmptyDeck()
     # create three cards, due tomorrow, the next, etc
     for i in range(3):
-        f = d.newFact()
+        f = d.newNote()
         f['Front'] = str(i)
-        d.addFact(f)
+        d.addNote(f)
         c = f.cards()[0]
         c.type = c.queue = 2
         c.due = d.sched.today + 1 + i
@@ -539,10 +539,10 @@ def test_adjIvl():
     t['afmt'] = "{{Back}}"
     d.models.addTemplate(m, t)
     d.models.save(m)
-    # create a new fact; it should have 4 cards
-    f = d.newFact()
+    # create a new note; it should have 4 cards
+    f = d.newNote()
     f['Front'] = "1"; f['Back'] = "1"
-    d.addFact(f)
+    d.addNote(f)
     assert d.cardCount() == 4
     d.reset()
     # immediately remove first; it should get ideal ivl
@@ -561,10 +561,10 @@ def test_adjIvl():
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
     assert c.ivl == 4
-    # try again with another fact
-    f = d.newFact()
+    # try again with another note
+    f = d.newNote()
     f['Front'] = "2"; f['Back'] = "2"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     # set a minSpacing of 0
     conf = d.sched._cardConf(c)
@@ -601,10 +601,10 @@ def test_ordcycle():
     t['afmt'] = "{{Back}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    # create a new fact; it should have 3 cards
-    f = d.newFact()
+    # create a new note; it should have 3 cards
+    f = d.newNote()
     f['Front'] = "1"; f['Back'] = "1"
-    d.addFact(f)
+    d.addNote(f)
     assert d.cardCount() == 3
     d.reset()
     # ordinals should arrive in order
@@ -620,10 +620,10 @@ def test_cardcounts():
     for type in range(3):
         # and each of the groups
         for gid in (1,grp):
-            # create a new fact
-            f = d.newFact()
+            # create a new note
+            f = d.newNote()
             f['Front'] = u"one"
-            d.addFact(f)
+            d.addNote(f)
             c = f.cards()[0]
             # set type/gid
             c.type = type
@@ -641,9 +641,9 @@ def test_cardcounts():
 
 def test_counts_idx():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     assert d.sched.cardCounts() == (1, 0, 0)
     c = d.sched.getCard()
@@ -663,9 +663,9 @@ def test_counts_idx():
 
 def test_repCounts():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     # lrnReps should be accurate on pass/fail
     assert d.sched.repCounts() == (1, 0, 0)
@@ -681,9 +681,9 @@ def test_repCounts():
     assert d.sched.repCounts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 2)
     assert d.sched.repCounts() == (0, 0, 0)
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"two"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     # initial pass should be correct too
     d.sched.answerCard(d.sched.getCard(), 2)
@@ -693,16 +693,16 @@ def test_repCounts():
     d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.repCounts() == (0, 0, 0)
     # immediate graduate should work
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"three"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.repCounts() == (0, 0, 0)
     # and failing a review should too
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"three"
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     c.type = 2
     c.queue = 2
@@ -717,9 +717,9 @@ def test_timing():
     d = getEmptyDeck()
     # add a few review cards, due today
     for i in range(5):
-        f = d.newFact()
+        f = d.newNote()
         f['Front'] = "num"+str(i)
-        d.addFact(f)
+        d.addNote(f)
         c = f.cards()[0]
         c.type = 2
         c.queue = 2
@@ -741,10 +741,10 @@ def test_timing():
 
 def test_collapse():
     d = getEmptyDeck()
-    # add a fact
-    f = d.newFact()
+    # add a note
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     # test collapsing
     c = d.sched.getCard()
@@ -755,30 +755,30 @@ def test_collapse():
 
 def test_groupCounts():
     d = getEmptyDeck()
-    # add a fact with default group
-    f = d.newFact()
+    # add a note with default group
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     # and one that's a child
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"two"
     default1 = f.gid = d.groups.id("Default::1")
-    d.addFact(f)
+    d.addNote(f)
     # make it a review card
     c = f.cards()[0]
     c.queue = 2
     c.due = 0
     c.flush()
     # add one more with a new group
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"two"
     foobar = f.gid = d.groups.id("foo::bar")
-    d.addFact(f)
+    d.addNote(f)
     # and one that's a sibling
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"three"
     foobaz = f.gid = d.groups.id("foo::baz")
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     assert len(d.groups.groups) == 5
     cnts = d.sched.groupCounts()
@@ -815,37 +815,37 @@ def test_groupTree():
 
 def test_groupFlow():
     d = getEmptyDeck()
-    # add a fact with default group
-    f = d.newFact()
+    # add a note with default group
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     # and one that's a child
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"two"
     default1 = f.gid = d.groups.id("Default::2")
-    d.addFact(f)
+    d.addNote(f)
     # and another that's higher up
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"three"
     default1 = f.gid = d.groups.id("Default::1")
-    d.addFact(f)
+    d.addNote(f)
     # should get top level one first, then ::1, then ::2
     d.reset()
     assert d.sched.cardCounts() == (3,0,0)
     for i in "one", "three", "two":
         c = d.sched.getCard()
-        assert c.fact()['Front'] == i
+        assert c.note()['Front'] == i
         d.sched.answerCard(c, 2)
 
 def test_reorder():
     d = getEmptyDeck()
-    # add a fact with default group
-    f = d.newFact()
+    # add a note with default group
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
-    f2 = d.newFact()
+    d.addNote(f)
+    f2 = d.newNote()
     f2['Front'] = u"two"
-    d.addFact(f2)
+    d.addNote(f2)
     assert f2.cards()[0].due == 2
     found=False
     # 50/50 chance of being reordered
@@ -858,12 +858,12 @@ def test_reorder():
     d.sched.orderCards()
     assert f.cards()[0].due == 1
     # shifting
-    f3 = d.newFact()
+    f3 = d.newNote()
     f3['Front'] = u"three"
-    d.addFact(f3)
-    f4 = d.newFact()
+    d.addNote(f3)
+    f4 = d.newNote()
     f4['Front'] = u"four"
-    d.addFact(f4)
+    d.addNote(f4)
     assert f.cards()[0].due == 1
     assert f2.cards()[0].due == 2
     assert f3.cards()[0].due == 3
@@ -877,9 +877,9 @@ def test_reorder():
 
 def test_forget():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     c.queue = 2; c.type = 2; c.ivl = 100; c.due = 0
     c.flush()
@@ -891,9 +891,9 @@ def test_forget():
 
 def test_resched():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     d.sched.reschedCards([c.id], 0, 0)
     c.load()
@@ -908,9 +908,9 @@ def test_resched():
 def test_revlim():
     d = getEmptyDeck()
     for i in range(20):
-        f = d.newFact()
+        f = d.newNote()
         f['Front'] = str(i)
-        d.addFact(f)
+        d.addNote(f)
     d.db.execute("update cards set due = 0, queue = 2, type = 2")
     d.reset()
     assert d.sched.repCounts()[2] == 20

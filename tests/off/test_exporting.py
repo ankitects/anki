@@ -15,12 +15,12 @@ def setup1():
     deck = Deck()
     deck.addModel(BasicModel())
     deck.currentModel.cardModels[1].active = True
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = u"tag, tag2"
-    deck.addFact(f)
-    f = deck.newFact()
+    deck.addNote(f)
+    f = deck.newNote()
     f['Front'] = u"baz"; f['Back'] = u"qux"
-    deck.addFact(f)
+    deck.addNote(f)
 
 ##########################################################################
 
@@ -53,8 +53,8 @@ def test_export_textcard():
     e.exportInto(f)
 
 @nose.with_setup(setup1)
-def test_export_textfact():
-    e = TextFactExporter(deck)
+def test_export_textnote():
+    e = TextNoteExporter(deck)
     f = unicode(tempfile.mkstemp(prefix="ankitest")[1])
     os.unlink(f)
     e.exportInto(f)

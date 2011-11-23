@@ -133,7 +133,7 @@ analyze;""")
         db.execute("pragma page_size = 4096")
         db.execute("pragma legacy_file_format = 0")
 
-        # facts
+        # notes
         ###########
         # tags should have a leading and trailing space if not empty, and not
         # use commas
@@ -177,7 +177,7 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
         # and put the facts into the new table
         db.execute("drop table facts")
         _addSchema(db, False)
-        db.executemany("insert into facts values (?,?,?,?,?,?,?,?,'',0,'')", data)
+        db.executemany("insert into notes values (?,?,?,?,?,?,?,?,'',0,'')", data)
         db.execute("drop table fields")
 
         # cards
@@ -336,7 +336,7 @@ insert or replace into deck select id, cast(created as int), :t,
             m['flds'] = self._fieldsForModel(row[0])
             m['tmpls'] = self._templatesForModel(row[0], m['flds'])
             mods[m['id']] = m
-            db.execute("update facts set mid = ? where mid = ?", t, row[0])
+            db.execute("update notes set mid = ? where mid = ?", t, row[0])
         # save and clean up
         db.execute("update deck set models = ?", simplejson.dumps(mods))
         db.execute("drop table fieldModels")
@@ -465,7 +465,7 @@ order by ordinal""", mid)):
     # Media references
     ######################################################################
     # In 2.0 we drop support for media and latex references in the template,
-    # since they require generating card templates to see what media a fact
+    # since they require generating card templates to see what media a note
     # uses, and are confusing for shared deck users. To ease the upgrade
     # process, we automatically convert the references to new fields.
 
@@ -500,16 +500,16 @@ order by ordinal""", mid)):
                 # add the new field
                 f = deck.models.newField(fld)
                 deck.models.addField(m, f)
-                # loop through facts and write reference into new field
+                # loop through notes and write reference into new field
                 data = []
                 for id, flds in self.deck.db.execute(
-                    "select id, flds from facts where id in "+
-                    ids2str(deck.models.fids(m))):
+                    "select id, flds from notes where id in "+
+                    ids2str(deck.models.nids(m))):
                     sflds = splitFields(flds)
                     ref = all.replace(fname, pre+sflds[idx]+suf)
                     data.append((flds+ref, id))
-                # update facts
-                deck.db.executemany("update facts set flds=? where id=?",
+                # update notes
+                deck.db.executemany("update notes set flds=? where id=?",
                                     data)
                 # note field for future
                 state['mflds'][fname] = fld
@@ -544,7 +544,7 @@ order by ordinal""", mid)):
             for t in m['tmpls']:
                 if not t['actv']:
                     if not d.db.scalar("""
-select 1 from cards where fid in (select id from facts where mid = ?)
+select 1 from cards where nid in (select id from notes where mid = ?)
 and ord = ? limit 1""", m['id'], t['ord']):
                         remove.append(t)
                 del t['actv']
@@ -582,7 +582,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         deck.crt = int(time.mktime(d.timetuple()))
         deck.sched._updateCutoff()
         # update uniq cache
-        deck.updateFieldCache(deck.db.list("select id from facts"))
+        deck.updateFieldCache(deck.db.list("select id from notes"))
         # remove old views
         for v in ("failedCards", "revCardsOld", "revCardsNew",
                   "revCardsDue", "revCardsRandom", "acqCardsRandom",
@@ -595,11 +595,11 @@ and ord = ? limit 1""", m['id'], t['ord']):
         deck.db.execute("update cards set queue=-2 where queue between 3 and 5")
         deck.db.execute("update cards set queue=-3 where queue between 6 and 8")
         # remove old deleted tables
-        for t in ("cards", "facts", "models", "media"):
+        for t in ("cards", "notes", "models", "media"):
             deck.db.execute("drop table if exists %sDeleted" % t)
         # rewrite due times for new cards
         deck.db.execute("""
-update cards set due = fid where type=0""")
+update cards set due = nid where type=0""")
         # and failed cards
         left = len(deck.groups.conf(1)['new']['delays'])
         deck.db.execute("update cards set edue = ?, left=? where type = 1",
@@ -614,7 +614,7 @@ update cards set due = cast(
         if deck.models.randomNew():
             deck.sched.randomizeCards()
         # update insertion id
-        deck.conf['nextPos'] = deck.db.scalar("select max(id) from facts")+1
+        deck.conf['nextPos'] = deck.db.scalar("select max(id) from notes")+1
         deck.save()
 
         # optimize and finish

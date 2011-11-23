@@ -128,10 +128,10 @@ class Syncer(object):
         # some basic checks to ensure the sync went ok. this is slow, so will
         # be removed before official release
         assert not self.deck.db.scalar("""
-select count() from cards where fid not in (select id from facts)""")
+select count() from cards where nid not in (select id from notes)""")
         assert not self.deck.db.scalar("""
-select count() from facts where id not in (select distinct fid from cards)""")
-        for t in "cards", "facts", "revlog", "graves":
+select count() from notes where id not in (select distinct nid from cards)""")
+        for t in "cards", "notes", "revlog", "graves":
             assert not self.deck.db.scalar(
                 "select count() from %s where usn = -1" % t)
         for g in self.deck.groups.all():
@@ -142,9 +142,9 @@ select count() from facts where id not in (select distinct fid from cards)""")
             assert m['usn'] != -1
         return [
             self.deck.db.scalar("select count() from cards"),
-            self.deck.db.scalar("select count() from facts"),
+            self.deck.db.scalar("select count() from notes"),
             self.deck.db.scalar("select count() from revlog"),
-            self.deck.db.scalar("select count() from fsums"),
+            self.deck.db.scalar("select count() from nsums"),
             self.deck.db.scalar("select count() from graves"),
             len(self.deck.models.all()),
             len(self.deck.tags.all()),
@@ -171,7 +171,7 @@ select count() from facts where id not in (select distinct fid from cards)""")
     ##########################################################################
 
     def prepareToChunk(self):
-        self.tablesLeft = ["revlog", "cards", "facts"]
+        self.tablesLeft = ["revlog", "cards", "notes"]
         self.cursor = None
 
     def cursorForTable(self, table):
@@ -184,12 +184,12 @@ select id, cid, %d, ease, ivl, lastIvl, factor, time, type
 from revlog where %s""" % d)
         elif table == "cards":
             return x("""
-select id, fid, gid, ord, mod, %d, type, queue, due, ivl, factor, reps,
+select id, nid, gid, ord, mod, %d, type, queue, due, ivl, factor, reps,
 lapses, left, edue, flags, data from cards where %s""" % d)
         else:
             return x("""
 select id, guid, mid, gid, mod, %d, tags, flds, '', flags, data
-from facts where %s""" % d)
+from notes where %s""" % d)
 
     def chunk(self):
         buf = dict(done=False)
@@ -221,15 +221,15 @@ from facts where %s""" % d)
             self.mergeRevlog(chunk['revlog'])
         if "cards" in chunk:
             self.mergeCards(chunk['cards'])
-        if "facts" in chunk:
-            self.mergeFacts(chunk['facts'])
+        if "notes" in chunk:
+            self.mergeNotes(chunk['notes'])
 
     # Deletions
     ##########################################################################
 
     def getGraves(self):
         cards = []
-        facts = []
+        notes = []
         groups = []
         if self.deck.server:
             curs = self.deck.db.execute(
@@ -240,18 +240,18 @@ from facts where %s""" % d)
         for oid, type in curs:
             if type == REM_CARD:
                 cards.append(oid)
-            elif type == REM_FACT:
-                facts.append(oid)
+            elif type == REM_NOTE:
+                notes.append(oid)
             else:
                 groups.append(oid)
         if not self.deck.server:
             self.deck.db.execute("update graves set usn=? where usn=-1",
                                  self.maxUsn)
-        return dict(cards=cards, facts=facts, groups=groups)
+        return dict(cards=cards, notes=notes, groups=groups)
 
     def mergeGraves(self, graves):
-        # facts first, so we don't end up with duplicate graves
-        self.deck._remFacts(graves['facts'])
+        # notes first, so we don't end up with duplicate graves
+        self.deck._remNotes(graves['notes'])
         self.deck.remCards(graves['cards'])
         for oid in graves['groups']:
             self.deck.groups.rem(oid)
@@ -326,7 +326,7 @@ from facts where %s""" % d)
     def mergeTags(self, tags):
         self.deck.tags.register(tags, usn=self.maxUsn)
 
-    # Cards/facts/revlog
+    # Cards/notes/revlog
     ##########################################################################
 
     def mergeRevlog(self, logs):
@@ -353,10 +353,10 @@ from facts where %s""" % d)
             "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             self.newerRows(cards, "cards", 4))
 
-    def mergeFacts(self, facts):
-        rows = self.newerRows(facts, "facts", 4)
+    def mergeNotes(self, notes):
+        rows = self.newerRows(notes, "notes", 4)
         self.deck.db.executemany(
-            "insert or replace into facts values (?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
         self.deck.updateFieldCache([f[0] for f in rows])
 

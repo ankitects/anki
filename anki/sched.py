@@ -269,7 +269,7 @@ select id, due from cards where gid = ? and queue = 0 limit ?""", gid, lim)
                 self._newQueue.insert(0, self._newQueue.pop())
                 n -= 1
                 if not n:
-                    # we only have one fact in the queue; stop rotating
+                    # we only have one note in the queue; stop rotating
                     break
         self.newCount -= 1
         return id
@@ -605,8 +605,8 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
         conf = self._cardConf(card)['rev']
         # find sibling positions
         dues = self.deck.db.list(
-            "select due from cards where fid = ? and queue = 2"
-            " and id != ?", card.fid, card.id)
+            "select due from cards where nid = ? and queue = 2"
+            " and id != ?", card.nid, card.id)
         if not dues or idealDue not in dues:
             return idealIvl
         else:
@@ -637,7 +637,7 @@ gid in %s and queue = 2 and due <= :lim %s limit %d""" % (
         if (lf >= card.lapses and
             (card.lapses-lf) % (max(lf/2, 1)) == 0):
             # add a leech tag
-            f = card.fact()
+            f = card.note()
             f.addTag("leech")
             f.flush()
             # handle
@@ -782,12 +782,12 @@ your short-term review workload will become."""))
             "where queue = -1 and id in "+ ids2str(ids),
             intTime(), self.deck.usn())
 
-    def buryFact(self, fid):
-        "Bury all cards for fact until next session."
+    def buryNote(self, nid):
+        "Bury all cards for note until next session."
         self.deck.setDirty()
         self.removeFailed(
-            self.deck.db.list("select id from cards where fid = ?", fid))
-        self.deck.db.execute("update cards set queue = -2 where fid = ?", fid)
+            self.deck.db.list("select id from cards where nid = ?", nid))
+        self.deck.db.execute("update cards set queue = -2 where nid = ?", nid)
 
     # Resetting
     ##########################################################################
@@ -818,18 +818,18 @@ your short-term review workload will become."""))
     def sortCards(self, cids, start=1, step=1, shuffle=False, shift=False):
         scids = ids2str(cids)
         now = intTime()
-        fids = self.deck.db.list(
-            ("select distinct fid from cards where type = 0 and id in %s "
-             "order by fid") % scids)
-        if not fids:
+        nids = self.deck.db.list(
+            ("select distinct nid from cards where type = 0 and id in %s "
+             "order by nid") % scids)
+        if not nids:
             # no new cards
             return
-        # determine fid ordering
+        # determine nid ordering
         due = {}
         if shuffle:
-            random.shuffle(fids)
-        for c, fid in enumerate(fids):
-            due[fid] = start+c*step
+            random.shuffle(nids)
+        for c, nid in enumerate(nids):
+            due[nid] = start+c*step
         high = start+c*step
         # shift?
         if shift:
@@ -844,9 +844,9 @@ update cards set mod=?, usn=?, due=due+? where id not in %s
 and due >= ?""" % scids, now, self.deck.usn(), shiftby, low)
         # reorder cards
         d = []
-        for id, fid in self.deck.db.execute(
-            "select id, fid from cards where type = 0 and id in "+scids):
-            d.append(dict(now=now, due=due[fid], usn=self.deck.usn(), cid=id))
+        for id, nid in self.deck.db.execute(
+            "select id, nid from cards where type = 0 and id in "+scids):
+            d.append(dict(now=now, due=due[nid], usn=self.deck.usn(), cid=id))
         self.deck.db.executemany(
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid""", d)
 

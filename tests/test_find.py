@@ -4,25 +4,25 @@ from tests.shared import getEmptyDeck
 
 def test_findCards():
     deck = getEmptyDeck()
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'dog'
     f['Back'] = u'cat'
     f.tags.append(u"monkey")
     f1id = f.id
-    deck.addFact(f)
+    deck.addNote(f)
     firstCardId = f.cards()[0].id
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'goats are fun'
     f['Back'] = u'sheep'
     f.tags.append(u"sheep goat horse")
-    deck.addFact(f)
+    deck.addNote(f)
     f2id = f.id
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'cat'
     f['Back'] = u'sheep'
-    deck.addFact(f)
+    deck.addNote(f)
     catCard = f.cards()[0]
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'template test'
     f['Back'] = u'foo bar'
     m = deck.models.current(); mm = deck.models
@@ -31,7 +31,7 @@ def test_findCards():
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    deck.addFact(f)
+    deck.addNote(f)
     latestCardIds = [c.id for c in f.cards()]
     # tag searches
     assert not deck.findCards("tag:donkey")
@@ -41,11 +41,11 @@ def test_findCards():
     assert len(deck.findCards("tag:monkey")) == 1
     assert len(deck.findCards("tag:sheep -tag:monkey")) == 1
     assert len(deck.findCards("-tag:sheep")) == 4
-    deck.tags.bulkAdd(deck.db.list("select id from facts"), "foo bar")
+    deck.tags.bulkAdd(deck.db.list("select id from notes"), "foo bar")
     assert (len(deck.findCards("tag:foo")) ==
             len(deck.findCards("tag:bar")) ==
             5)
-    deck.tags.bulkRem(deck.db.list("select id from facts"), "foo")
+    deck.tags.bulkRem(deck.db.list("select id from notes"), "foo")
     assert len(deck.findCards("tag:foo")) == 0
     assert len(deck.findCards("tag:bar")) == 5
     # text searches
@@ -71,10 +71,10 @@ def test_findCards():
     import time; time.sleep(1)
     c.flush()
     assert deck.findCards("is:suspended") == [c.id]
-    # fids
-    assert deck.findCards("fid:54321") == []
-    assert len(deck.findCards("fid:%d"%f.id)) == 2
-    assert len(deck.findCards("fid:%d,%d" % (f1id, f2id))) == 2
+    # nids
+    assert deck.findCards("nid:54321") == []
+    assert len(deck.findCards("nid:%d"%f.id)) == 2
+    assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
     assert len(deck.findCards("card:foo")) == 0
     assert len(deck.findCards("card:forward")) == 4
@@ -89,10 +89,10 @@ def test_findCards():
     assert len(deck.findCards("-back:sheep")) == 3
     assert len(deck.findCards("front:")) == 5
     # ordering
-    deck.conf['sortType'] = "factCrt"
+    deck.conf['sortType'] = "noteCrt"
     assert deck.findCards("front:")[-1] in latestCardIds
     assert deck.findCards("")[-1] in latestCardIds
-    deck.conf['sortType'] = "factFld"
+    deck.conf['sortType'] = "noteFld"
     assert deck.findCards("")[0] == catCard.id
     assert deck.findCards("")[-1] in latestCardIds
     deck.conf['sortType'] = "cardMod"
@@ -109,10 +109,10 @@ def test_findCards():
     assert len(deck.findCards("-group:default")) == 0
     assert len(deck.findCards("-group:foo")) == 5
     # full search
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'hello<b>world</b>'
     f['Back'] = u''
-    deck.addFact(f)
+    deck.addNote(f)
     assert len(deck.findCards("helloworld")) == 0
     assert len(deck.findCards("helloworld", full=True)) == 1
     assert len(deck.findCards("front:helloworld")) == 0
@@ -122,27 +122,27 @@ def test_findCards():
 
 def test_findReplace():
     deck = getEmptyDeck()
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'foo'
     f['Back'] = u'bar'
-    deck.addFact(f)
-    f2 = deck.newFact()
+    deck.addNote(f)
+    f2 = deck.newNote()
     f2['Front'] = u'baz'
     f2['Back'] = u'foo'
-    deck.addFact(f2)
-    fids = [f.id, f2.id]
+    deck.addNote(f2)
+    nids = [f.id, f2.id]
     # should do nothing
-    assert deck.findReplace(fids, "abc", "123") == 0
+    assert deck.findReplace(nids, "abc", "123") == 0
     # global replace
-    assert deck.findReplace(fids, "foo", "qux") == 2
+    assert deck.findReplace(nids, "foo", "qux") == 2
     f.load(); assert f['Front'] == "qux"
     f2.load(); assert f2['Back'] == "qux"
     # single field replace
-    assert deck.findReplace(fids, "qux", "foo", field="Front") == 1
+    assert deck.findReplace(nids, "qux", "foo", field="Front") == 1
     f.load(); assert f['Front'] == "foo"
     f2.load(); assert f2['Back'] == "qux"
     # regex replace
-    assert deck.findReplace(fids, "B.r", "reg") == 0
+    assert deck.findReplace(nids, "B.r", "reg") == 0
     f.load(); assert f['Back'] != "reg"
-    assert deck.findReplace(fids, "B.r", "reg", regex=True) == 1
+    assert deck.findReplace(nids, "B.r", "reg", regex=True) == 1
     f.load(); assert f['Back'] == "reg"

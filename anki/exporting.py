@@ -104,23 +104,23 @@ class AnkiExporter(Exporter):
         cards = self.deck.db.all("""
 select id, modified from cards
 where id in %s""" % cStrIds)
-        facts = self.deck.db.all("""
-select facts.id, facts.modified from cards, facts where
-facts.id = cards.factId and
+        notes = self.deck.db.all("""
+select notes.id, notes.modified from cards, notes where
+notes.id = cards.noteId and
 cards.id in %s""" % cStrIds)
         models = self.deck.db.all("""
-select models.id, models.modified from models, facts where
-facts.modelId = models.id and
-facts.id in %s""" % ids2str([f[0] for f in facts]))
+select models.id, models.modified from models, notes where
+notes.modelId = models.id and
+notes.id in %s""" % ids2str([f[0] for f in notes]))
         media = self.deck.db.all("""
 select id, modified from media""")
         return {
             # cards
             "cards": cards,
             "delcards": [],
-            # facts
-            "facts": facts,
-            "delfacts": [],
+            # notes
+            "notes": notes,
+            "delnotes": [],
             # models
             "models": models,
             "delmodels": [],
@@ -147,8 +147,8 @@ where cards.id in %s
 order by cards.created""" % strids)
         if self.includeTags:
             self.cardTags = dict(self.deck.db.all("""
-select cards.id, facts.tags from cards, facts
-where cards.factId = facts.id
+select cards.id, notes.tags from cards, notes
+where cards.noteId = notes.id
 and cards.id in %s
 order by cards.created""" % strids))
         out = u"\n".join(["%s\t%s%s" % (
@@ -166,7 +166,7 @@ order by cards.created""" % strids))
             return "\t" + ", ".join(parseTags(self.cardTags[id]))
         return ""
 
-class TextFactExporter(Exporter):
+class TextNoteExporter(Exporter):
 
     key = _("Text files (*.txt)")
     ext = ".txt"
@@ -177,20 +177,20 @@ class TextFactExporter(Exporter):
 
     def doExport(self, file):
         cardIds = self.cardIds()
-        facts = self.deck.db.all("""
-select factId, value, facts.created from facts, fields
+        notes = self.deck.db.all("""
+select noteId, value, notes.created from notes, fields
 where
-facts.id in
-(select distinct factId from cards
+notes.id in
+(select distinct noteId from cards
 where cards.id in %s)
-and facts.id = fields.factId
-order by factId, ordinal""" % ids2str(cardIds))
+and notes.id = fields.noteId
+order by noteId, ordinal""" % ids2str(cardIds))
         txt = ""
         if self.includeTags:
-            self.factTags = dict(self.deck.db.all(
-                "select id, tags from facts where id in %s" %
-                ids2str([fact[0] for fact in facts])))
-        groups = itertools.groupby(facts, itemgetter(0))
+            self.noteTags = dict(self.deck.db.all(
+                "select id, tags from notes where id in %s" %
+                ids2str([note[0] for note in notes])))
+        groups = itertools.groupby(notes, itemgetter(0))
         groups = [[x for x in y[1]] for y in groups]
         groups = [(group[0][2],
                    "\t".join([self.escapeText(x[1]) for x in group]) +
@@ -205,7 +205,7 @@ order by factId, ordinal""" % ids2str(cardIds))
 
     def tags(self, id):
         if self.includeTags:
-            return "\t" + self.factTags[id]
+            return "\t" + self.noteTags[id]
         return ""
 
 # Export modules
@@ -215,4 +215,4 @@ def exporters():
     return (
         (_("Anki Deck (*.anki)"), AnkiExporter),
         (_("Cards in tab-separated text file (*.txt)"), TextCardExporter),
-        (_("Facts in tab-separated text file (*.txt)"), TextFactExporter))
+        (_("Notes in tab-separated text file (*.txt)"), TextNoteExporter))

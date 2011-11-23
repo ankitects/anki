@@ -80,7 +80,7 @@ create table if not exists deck (
     tags            text not null
 );
 
-create table if not exists facts (
+create table if not exists notes (
     id              integer primary key,
     guid            integer not null,
     mid             integer not null,
@@ -94,14 +94,14 @@ create table if not exists facts (
     data            text not null
 );
 
-create table if not exists fsums (
-    fid             integer not null,
+create table if not exists nsums (
+    nid             integer not null,
     mid             integer not null,
     csum            integer not null
 );
 create table if not exists cards (
     id              integer primary key,
-    fid             integer not null,
+    nid             integer not null,
     gid             integer not null,
     ord             integer not null,
     mod             integer not null,
@@ -168,16 +168,16 @@ def _updateIndices(db):
     "Add indices to the DB."
     db.executescript("""
 -- syncing
-create index if not exists ix_facts_usn on facts (usn);
+create index if not exists ix_notes_usn on notes (usn);
 create index if not exists ix_cards_usn on cards (usn);
 create index if not exists ix_revlog_usn on revlog (usn);
 -- card spacing, etc
-create index if not exists ix_cards_fid on cards (fid);
+create index if not exists ix_cards_nid on cards (nid);
 -- scheduling and group limiting
 create index if not exists ix_cards_sched on cards (gid, queue, due);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
 -- field uniqueness check
-create index if not exists ix_fsums_fid on fsums (fid);
-create index if not exists ix_fsums_csum on fsums (csum);
+create index if not exists ix_nsums_nid on nsums (nid);
+create index if not exists ix_nsums_csum on nsums (csum);
 """)

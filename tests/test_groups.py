@@ -39,12 +39,12 @@ def test_remove():
     deck = getEmptyDeck()
     # can't remove the default group
     assertException(AssertionError, lambda: deck.groups.rem(1))
-    # create a new group, and add a fact/card to it
+    # create a new group, and add a note/card to it
     g1 = deck.groups.id("g1")
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u"1"
     f.gid = g1
-    deck.addFact(f)
+    deck.addNote(f)
     c = f.cards()[0]
     assert c.gid == g1
     # by default deleting the group leaves the cards with an invalid gid
@@ -58,10 +58,10 @@ def test_remove():
     # let's create another group and explicitly set the card to it
     g2 = deck.groups.id("g2")
     c.gid = g2; c.flush()
-    # this time we'll delete the card/fact too
+    # this time we'll delete the card/note too
     deck.groups.rem(g2, cardsToo=True)
     assert deck.cardCount() == 0
-    assert deck.factCount() == 0
+    assert deck.noteCount() == 0
 
 def test_rename():
     d = getEmptyDeck()

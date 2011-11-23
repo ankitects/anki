@@ -27,10 +27,10 @@ Refresh after a change:
 
 Edit the card:
 
-    fact = card.fact()
-    for (name, value) in fact.items():
-        fact[name] = value + " new"
-    fact.flush()
+    note = card.note()
+    for (name, value) in note.items():
+        note[name] = value + " new"
+    note.flush()
 
 Save & close:
 

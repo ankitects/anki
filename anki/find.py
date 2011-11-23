@@ -9,7 +9,7 @@ from anki.utils import ids2str, splitFields, joinFields, stripHTML, intTime
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
-SEARCH_FID = 3
+SEARCH_NID = 3
 SEARCH_TEMPLATE = 4
 SEARCH_FIELD = 5
 SEARCH_MODEL = 6
@@ -54,9 +54,9 @@ class Finder(object):
 
     def _whereClause(self):
         x = []
-        if self.lims['fact']:
-            x.append("fid in (select id from facts where %s)" % " and ".join(
-                self.lims['fact']))
+        if self.lims['note']:
+            x.append("nid in (select id from notes where %s)" % " and ".join(
+                self.lims['note']))
         if self.lims['card']:
             x.extend(self.lims['card'])
         q = " and ".join(x)
@@ -68,17 +68,17 @@ class Finder(object):
         type = self.deck.conf['sortType']
         if not type:
             return "select id from cards c where " + lim
-        elif type.startswith("fact"):
-            if type == "factCrt":
+        elif type.startswith("note"):
+            if type == "noteCrt":
                 sort = "f.id, c.ord"
-            elif type == "factMod":
+            elif type == "noteMod":
                 sort = "f.mod, c.ord"
-            elif type == "factFld":
+            elif type == "noteFld":
                 sort = "f.sfld collate nocase, c.ord"
             else:
                 raise Exception()
             return """
-select c.id from cards c, facts f where %s and c.fid=f.id
+select c.id from cards c, notes f where %s and c.nid=f.id
 order by %s""" % (lim, sort)
         elif type.startswith("card"):
             if type == "cardMod":
@@ -101,9 +101,9 @@ order by %s""" % (lim, sort)
             raise Exception()
 
     def _findLimits(self):
-        "Generate a list of fact/card limits for the query."
+        "Generate a list of note/card limits for the query."
         self.lims = {
-            'fact': [],
+            'note': [],
             'card': [],
             'args': {},
             'valid': True
@@ -113,8 +113,8 @@ order by %s""" % (lim, sort)
                 self._findTag(token, isNeg, c)
             elif type == SEARCH_TYPE:
                 self._findCardState(token, isNeg)
-            elif type == SEARCH_FID:
-                self._findFids(token)
+            elif type == SEARCH_NID:
+                self._findNids(token)
             elif type == SEARCH_TEMPLATE:
                 self._findTemplate(token, isNeg)
             elif type == SEARCH_FIELD:
@@ -128,7 +128,7 @@ order by %s""" % (lim, sort)
 
     def _findTag(self, val, neg, c):
         if val == "none":
-            self.lims['fact'].append("select id from facts where tags = ''")
+            self.lims['note'].append("select id from notes where tags = ''")
             return
         extra = "not" if neg else ""
         val = val.replace("*", "%")
@@ -137,7 +137,7 @@ order by %s""" % (lim, sort)
         if not val.endswith("%"):
             val += " %"
         self.lims['args']["_tag_%d" % c] = val
-        self.lims['fact'].append(
+        self.lims['note'].append(
             "tags %s like :_tag_%d""" % (extra, c))
 
     def _findCardState(self, val, neg):
@@ -168,20 +168,20 @@ order by %s""" % (lim, sort)
         extra = "not" if neg else ""
         if not self.full:
             self.lims['args']["_text_%d"%c] = "%"+val+"%"
-            self.lims['fact'].append("flds %s like :_text_%d escape '\\'" % (
+            self.lims['note'].append("flds %s like :_text_%d escape '\\'" % (
                 extra, c))
         else:
             # in the future we may want to apply this at the end to speed up
             # the case where there are other limits
-            fids = []
-            for fid, flds in self.deck.db.execute(
-                "select id, flds from facts"):
+            nids = []
+            for nid, flds in self.deck.db.execute(
+                "select id, flds from notes"):
                 if val in stripHTML(flds):
-                    fids.append(fid)
-            self.lims['fact'].append("id in " + ids2str(fids))
+                    nids.append(nid)
+            self.lims['note'].append("id in " + ids2str(nids))
 
-    def _findFids(self, val):
-        self.lims['fact'].append("id in (%s)" % val)
+    def _findNids(self, val):
+        self.lims['note'].append("id in (%s)" % val)
 
     def _findModel(self, val, isNeg):
         extra = "not" if isNeg else ""
@@ -189,7 +189,7 @@ order by %s""" % (lim, sort)
         for m in self.deck.models.all():
             if m['name'].lower() == val:
                 ids.append(m['id'])
-        self.lims['fact'].append("mid %s in %s" % (extra, ids2str(ids)))
+        self.lims['note'].append("mid %s in %s" % (extra, ids2str(ids)))
 
     def _findGroup(self, val, isNeg):
         extra = "!" if isNeg else ""
@@ -214,7 +214,7 @@ order by %s""" % (lim, sort)
                 # template name?
                 elif t['name'].lower() == val.lower():
                     lims.append((
-                        "(fid in (select id from facts where mid = %s) "
+                        "(nid in (select id from notes where mid = %s) "
                         "and ord %s %d)") % (m['id'], comp, t['ord']))
                     found = True
         if lims:
@@ -236,11 +236,11 @@ order by %s""" % (lim, sort)
             # nothing has that field
             self.lims['valid'] = False
             return
-        # gather fids
+        # gather nids
         regex = value.replace("%", ".*")
-        fids = []
+        nids = []
         for (id,mid,flds) in self.deck.db.execute("""
-select id, mid, flds from facts
+select id, mid, flds from notes
 where mid in %s and flds like ? escape '\\'""" % (
                          ids2str(mods.keys())),
                          "%" if self.full else value):
@@ -250,9 +250,9 @@ where mid in %s and flds like ? escape '\\'""" % (
             if self.full:
                 strg = stripHTML(strg)
             if re.search(regex, strg):
-                fids.append(id)
+                nids.append(id)
         extra = "not" if isNeg else ""
-        self.lims['fact'].append("id %s in %s" % (extra, ids2str(fids)))
+        self.lims['note'].append("id %s in %s" % (extra, ids2str(nids)))
 
     # Most of this function was written by Marcus
     def _parseQuery(self):
@@ -332,7 +332,7 @@ where mid in %s and flds like ? escape '\\'""" % (
                 elif token['value'].startswith("group:"):
                     token['value'] = token['value'][6:].lower()
                     type = SEARCH_GROUP
-                elif token['value'].startswith("fid:") and len(token['value']) > 4:
+                elif token['value'].startswith("nid:") and len(token['value']) > 4:
                     dec = token['value'][4:]
                     try:
                         int(dec)
@@ -344,7 +344,7 @@ where mid in %s and flds like ? escape '\\'""" % (
                             token['value'] = token['value'][4:]
                         except:
                             token['value'] = "0"
-                    type = SEARCH_FID
+                    type = SEARCH_NID
                 elif token['value'].startswith("card:"):
                     token['value'] = token['value'][5:]
                     type = SEARCH_TEMPLATE
@@ -370,8 +370,8 @@ where mid in %s and flds like ? escape '\\'""" % (
 # Find and replace
 ##########################################################################
 
-def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
-    "Find and replace fields in a fact."
+def findReplace(deck, nids, src, dst, regex=False, field=None, fold=True):
+    "Find and replace fields in a note."
     mmap = {}
     if field:
         for m in deck.models.all():
@@ -389,8 +389,8 @@ def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
     def repl(str):
         return re.sub(regex, dst, str)
     d = []
-    for fid, mid, flds in deck.db.execute(
-        "select id, mid, flds from facts where id in "+ids2str(fids)):
+    for nid, mid, flds in deck.db.execute(
+        "select id, mid, flds from notes where id in "+ids2str(nids)):
         origFlds = flds
         # does it match?
         sflds = splitFields(flds)
@@ -402,12 +402,12 @@ def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
                 sflds[c] = repl(sflds[c])
         flds = joinFields(sflds)
         if flds != origFlds:
-            d.append(dict(fid=fid,flds=flds,u=deck.usn(),m=intTime()))
+            d.append(dict(nid=nid,flds=flds,u=deck.usn(),m=intTime()))
     if not d:
         return 0
     # replace
-    deck.db.executemany("update facts set flds=:flds,mod=:m,usn=:u where id=:fid", d)
-    deck.updateFieldCache(fids)
+    deck.db.executemany("update notes set flds=:flds,mod=:m,usn=:u where id=:nid", d)
+    deck.updateFieldCache(nids)
     return len(d)
 
 # Find duplicates
@@ -415,14 +415,14 @@ def findReplace(deck, fids, src, dst, regex=False, field=None, fold=True):
 
 def findDuplicates(deck, fmids):
     data = deck.db.all(
-        "select fid, value from fdata where fmid in %s" %
+        "select nid, value from fdata where fmid in %s" %
         ids2str(fmids))
     vals = {}
-    for (fid, val) in data:
+    for (nid, val) in data:
         if not val.strip():
             continue
         if val not in vals:
-            vals[val] = [fid]
+            vals[val] = [nid]
         else:
-            vals[val].append(fid)
+            vals[val].append(nid)
     return [(k,v) for (k,v) in vals.items() if len(v) > 1]

@@ -8,7 +8,7 @@ from anki import Deck
 from anki.utils import intTime
 from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
     MediaSyncer, RemoteMediaServer
-from anki.facts import Fact
+from anki.notes import Note
 from anki.cards import Card
 from tests.shared import getEmptyDeck
 
@@ -24,17 +24,17 @@ server2=None
 def setup_basic():
     global deck1, deck2, client, server
     deck1 = getEmptyDeck()
-    # add a fact to deck 1
-    f = deck1.newFact()
+    # add a note to deck 1
+    f = deck1.newNote()
     f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = [u"foo"]
-    deck1.addFact(f)
+    deck1.addNote(f)
     # answer it
     deck1.reset(); deck1.sched.answerCard(deck1.sched.getCard(), 4)
     # repeat for deck2
     deck2 = getEmptyDeck(server=True)
-    f = deck2.newFact()
+    f = deck2.newNote()
     f['Front'] = u"bar"; f['Back'] = u"bar"; f.tags = [u"bar"]
-    deck2.addFact(f)
+    deck2.addNote(f)
     deck2.reset(); deck2.sched.answerCard(deck2.sched.getCard(), 4)
     # start with same schema and sync time
     deck1.scm = deck2.scm = 0
@@ -62,7 +62,7 @@ def test_changedSchema():
 def test_sync():
     def check(num):
         for d in deck1, deck2:
-            for t in ("revlog", "facts", "cards", "fsums"):
+            for t in ("revlog", "notes", "cards", "nsums"):
                 assert d.db.scalar("select count() from %s" % t) == num
             assert len(d.models.all()) == num*2
             # the default group and config have an id of 1, so always 1
@@ -107,31 +107,31 @@ def test_models():
     assert client.sync() == "fullSync"
 
 @nose.with_setup(setup_modified)
-def test_facts():
+def test_notes():
     test_sync()
     # modifications should be synced
-    fid = deck1.db.scalar("select id from facts")
-    fact = deck1.getFact(fid)
-    assert fact['Front'] != "abc"
-    fact['Front'] = "abc"
-    fact.flush()
+    nid = deck1.db.scalar("select id from notes")
+    note = deck1.getNote(nid)
+    assert note['Front'] != "abc"
+    note['Front'] = "abc"
+    note.flush()
     deck1.save()
     assert client.sync() == "success"
-    assert deck2.getFact(fid)['Front'] == "abc"
+    assert deck2.getNote(nid)['Front'] == "abc"
     # deletions too
-    assert deck1.db.scalar("select 1 from facts where id = ?", fid)
-    deck1.remFacts([fid])
+    assert deck1.db.scalar("select 1 from notes where id = ?", nid)
+    deck1.remNotes([nid])
     deck1.save()
     assert client.sync() == "success"
-    assert not deck1.db.scalar("select 1 from facts where id = ?", fid)
-    assert not deck2.db.scalar("select 1 from facts where id = ?", fid)
+    assert not deck1.db.scalar("select 1 from notes where id = ?", nid)
+    assert not deck2.db.scalar("select 1 from notes where id = ?", nid)
 
 @nose.with_setup(setup_modified)
 def test_cards():
     test_sync()
-    fid = deck1.db.scalar("select id from facts")
-    fact = deck1.getFact(fid)
-    card = fact.cards()[0]
+    nid = deck1.db.scalar("select id from notes")
+    note = deck1.getNote(nid)
+    card = note.cards()[0]
     # answer the card locally
     card.startTimer()
     deck1.sched.answerCard(card, 4)
@@ -215,26 +215,26 @@ def test_threeway():
     assert client2.sync() == "noChanges"
     # client 1 adds a card at time 1
     time.sleep(1)
-    f = deck1.newFact()
+    f = deck1.newNote()
     f['Front'] = u"1";
-    deck1.addFact(f)
+    deck1.addNote(f)
     deck1.save()
     # at time 2, client 2 syncs to server
     time.sleep(1)
     deck3.save()
     assert client2.sync() == "success"
-    # at time 3, client 1 syncs, adding the older fact
+    # at time 3, client 1 syncs, adding the older note
     time.sleep(1)
     assert client.sync() == "success"
-    assert deck1.factCount() == deck2.factCount()
+    assert deck1.noteCount() == deck2.noteCount()
     # syncing client2 should pick it up
     assert client2.sync() == "success"
-    assert deck1.factCount() == deck2.factCount() == deck3.factCount()
+    assert deck1.noteCount() == deck2.noteCount() == deck3.noteCount()
 
 def _test_speed():
     t = time.time()
     deck1 = Deck(os.path.expanduser("~/rapid.anki"))
-    for tbl in "revlog", "cards", "facts", "graves":
+    for tbl in "revlog", "cards", "notes", "graves":
         deck1.db.execute("update %s set usn = -1 where usn != -1"%tbl)
     for m in deck1.models.all():
         m['usn'] = -1

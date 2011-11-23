@@ -26,9 +26,9 @@ def test_op():
     assert not d.undoName()
     # and a review will, too
     d.save("add")
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     assert d.undoName() == "add"
     c = d.sched.getCard()
@@ -38,9 +38,9 @@ def test_op():
 def test_review():
     d = getEmptyDeck()
     d.conf['counts'] = COUNT_REMAINING
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u"one"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     assert not d.undoName()
     # answer
@@ -62,7 +62,7 @@ def test_review():
     assert not d.undoName()
     # we should be able to undo multiple answers too
     f['Front'] = u"two"
-    d.addFact(f)
+    d.addNote(f)
     d.reset()
     assert d.sched.cardCounts() == (2, 0, 0)
     c = d.sched.getCard()

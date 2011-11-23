@@ -8,7 +8,7 @@ from tests.shared import getEmptyDeck
 
 def test_previewCards():
     deck = getEmptyDeck()
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
     # non-empty and active
@@ -18,8 +18,8 @@ def test_previewCards():
     # all templates
     cards = deck.previewCards(f, 2)
     assert len(cards) == 1
-    # add the fact, and test existing preview
-    deck.addFact(f)
+    # add the note, and test existing preview
+    deck.addNote(f)
     cards = deck.previewCards(f, 1)
     assert len(cards) == 1
     assert cards[0].ord == 0
@@ -28,29 +28,29 @@ def test_previewCards():
 
 def test_delete():
     deck = getEmptyDeck()
-    f = deck.newFact()
+    f = deck.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
-    deck.addFact(f)
+    deck.addNote(f)
     cid = f.cards()[0].id
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
     assert deck.db.scalar("select count() from revlog") == 1
     deck.remCards([cid])
     assert deck.cardCount() == 0
-    assert deck.factCount() == 0
-    assert deck.db.scalar("select count() from facts") == 0
+    assert deck.noteCount() == 0
+    assert deck.db.scalar("select count() from notes") == 0
     assert deck.db.scalar("select count() from cards") == 0
-    assert deck.db.scalar("select count() from fsums") == 0
+    assert deck.db.scalar("select count() from nsums") == 0
     assert deck.db.scalar("select count() from revlog") == 0
     assert deck.db.scalar("select count() from graves") == 2
 
 def test_misc():
     d = getEmptyDeck()
-    f = d.newFact()
+    f = d.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
-    d.addFact(f)
+    d.addNote(f)
     c = f.cards()[0]
     id = d.models.current()['id']
     assert c.template()['ord'] == 0

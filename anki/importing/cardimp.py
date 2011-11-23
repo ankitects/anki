@@ -57,15 +57,15 @@ class CardImporter(Importer):
         cards = self.foreignCards()
         # grab data from db
         fields = self.deck.db.all("""
-select factId, value from fields where fieldModelId = :id
+select noteId, value from fields where fieldModelId = :id
 and value != ''""",
                                id=self.updateKey[1])
         # hash it
         vhash = {}
-        fids = []
-        for (fid, val) in fields:
-            fids.append(fid)
-            vhash[val] = fid
+        nids = []
+        for (nid, val) in fields:
+            nids.append(nid)
+            vhash[val] = nid
         # prepare tags
         tagsIdx = None
         try:
@@ -82,7 +82,7 @@ and value != ''""",
             if v in vhash:
                 # ignore empty keys
                 if v:
-                    # fid, card
+                    # nid, card
                     upcards.append((vhash[v], c))
             else:
                 newcards.append(c)
@@ -96,28 +96,28 @@ and value != ''""",
             except ValueError:
                 # not mapped
                 continue
-            data = [{'fid': fid,
+            data = [{'nid': nid,
                      'fmid': fm.id,
                      'v': c.fields[index],
                      'chk': self.maybeChecksum(c.fields[index], fm.unique)}
-                    for (fid, c) in upcards]
+                    for (nid, c) in upcards]
             self.deck.db.execute("""
-update fields set value = :v, chksum = :chk where factId = :fid
+update fields set value = :v, chksum = :chk where noteId = :nid
 and fieldModelId = :fmid""", data)
         # update tags
         if tagsIdx is not None:
-            data = [{'fid': fid,
+            data = [{'nid': nid,
                      't': c.fields[tagsIdx]}
-                    for (fid, c) in upcards]
+                    for (nid, c) in upcards]
             self.deck.db.execute(
-                "update facts set tags = :t where id = :fid",
+                "update notes set tags = :t where id = :nid",
                 data)
         # rebuild caches
         cids = self.deck.db.column0(
-            "select id from cards where factId in %s" %
-            ids2str(fids))
+            "select id from cards where noteId in %s" %
+            ids2str(nids))
         self.deck.updateCardTags(cids)
-        self.deck.updateCardsFromFactIds(fids)
+        self.deck.updateCardsFromNoteIds(nids)
         self.total = len(cards)
         self.deck.setModified()
 
@@ -166,7 +166,7 @@ and fieldModelId = :fmid""", data)
     model = property(getModel, setModel)
 
     def importCards(self, cards):
-        "Convert each card into a fact, apply attributes and add to deck."
+        "Convert each card into a note, apply attributes and add to deck."
         # ensure all unique and required fields are mapped
         for fm in self.model.fieldModels:
             if fm.required or fm.unique:
@@ -187,7 +187,7 @@ and fieldModelId = :fmid""", data)
         return cards
 
     def addCards(self, cards):
-        "Add facts in bulk from foreign cards."
+        "Add notes in bulk from foreign cards."
         # map tags field to attr
         try:
             idx = self.mapping.index(0)
@@ -195,31 +195,31 @@ and fieldModelId = :fmid""", data)
                 c.tags += " " + c.fields[idx]
         except ValueError:
             pass
-        # add facts
-        factIds = [genID() for n in range(len(cards))]
-        factCreated = {}
+        # add notes
+        noteIds = [genID() for n in range(len(cards))]
+        noteCreated = {}
         def fudgeCreated(d, tmp=[]):
             if not tmp:
                 tmp.append(time.time())
             else:
                 tmp[0] += 0.0001
             d['created'] = tmp[0]
-            factCreated[d['id']] = d['created']
+            noteCreated[d['id']] = d['created']
             return d
-        self.deck.db.execute(factsTable.insert(),
+        self.deck.db.execute(notesTable.insert(),
             [fudgeCreated({'modelId': self.model.id,
               'tags': canonifyTags(self.tagsToAdd + " " + cards[n].tags),
-              'id': factIds[n]}) for n in range(len(cards))])
+              'id': noteIds[n]}) for n in range(len(cards))])
         self.deck.db.execute("""
-delete from factsDeleted
-where factId in (%s)""" % ",".join([str(s) for s in factIds]))
+delete from notesDeleted
+where noteId in (%s)""" % ",".join([str(s) for s in noteIds]))
         # add all the fields
         for fm in self.model.fieldModels:
             try:
                 index = self.mapping.index(fm)
             except ValueError:
                 index = None
-            data = [{'factId': factIds[m],
+            data = [{'noteId': noteIds[m],
                      'fieldModelId': fm.id,
                      'ordinal': fm.ordinal,
                      'id': genID(),
@@ -239,8 +239,8 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                 active += 1
                 data = [self.addMeta({
                     'id': genID(),
-                    'factId': factIds[m],
-                    'factCreated': factCreated[factIds[m]],
+                    'noteId': noteIds[m],
+                    'noteCreated': noteCreated[noteIds[m]],
                     'cardModelId': cm.id,
                     'ordinal': cm.ordinal,
                     'question': u"",
@@ -248,14 +248,14 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
                     },cards[m]) for m in range(len(cards))]
                 self.deck.db.execute(cardsTable.insert(),
                                     data)
-        self.deck.updateCardsFromFactIds(factIds)
-        self.total = len(factIds)
+        self.deck.updateCardsFromNoteIds(noteIds)
+        self.total = len(noteIds)
 
     def addMeta(self, data, card):
         "Add any scheduling metadata to cards"
         if 'fields' in card.__dict__:
             del card.fields
-        t = data['factCreated'] + data['ordinal'] * 0.00001
+        t = data['noteCreated'] + data['ordinal'] * 0.00001
         data['created'] = t
         data['modified'] = t
         data['due'] = t
@@ -281,7 +281,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
         for n in range(len(self.mapping)):
             if self.mapping[n] and self.mapping[n].required:
                 if fieldNum <= n or not card.fields[n].strip():
-                    self.log.append("Fact is missing field '%s': %s" %
+                    self.log.append("Note is missing field '%s': %s" %
                                     (self.mapping[n].name,
                                      ", ".join(card.fields)))
                     return False
@@ -307,7 +307,7 @@ where factId in (%s)""" % ",".join([str(s) for s in factIds]))
             if self.mapping[n] and self.mapping[n].unique:
                 if card.fields[n] in self.uniqueCache[self.mapping[n].id]:
                     if not self.tagDuplicates:
-                        self.log.append("Fact has duplicate '%s': %s" %
+                        self.log.append("Note has duplicate '%s': %s" %
                                         (self.mapping[n].name,
                                          ", ".join(card.fields)))
                         return False
