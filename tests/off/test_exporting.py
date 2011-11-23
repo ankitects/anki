@@ -2,7 +2,7 @@
 
 import nose, os, tempfile
 import anki
-from anki import Deck
+from anki import open as aopen
 from anki.exporting import *
 from anki.stdmodels import *
 
@@ -12,7 +12,7 @@ testDir = os.path.dirname(__file__)
 
 def setup1():
     global deck
-    deck = Deck()
+    deck = aopen()
     deck.addModel(BasicModel())
     deck.currentModel.cardModels[1].active = True
     f = deck.newNote()
@@ -33,14 +33,14 @@ def test_export_anki():
     e.exportInto(newname)
     assert deck.modified == oldTime
     # connect to new deck
-    d2 = Deck(newname, backup=False)
+    d2 = aopen(newname, backup=False)
     assert d2.cardCount() == 4
     # try again, limited to a tag
     newname = unicode(tempfile.mkstemp(prefix="ankitest")[1])
     os.unlink(newname)
     e.limitTags = ['tag']
     e.exportInto(newname)
-    d2 = Deck(newname, backup=False)
+    d2 = aopen(newname, backup=False)
     assert d2.cardCount() == 2
 
 @nose.with_setup(setup1)

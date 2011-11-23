@@ -33,8 +33,8 @@ defaultConf = {
     'sortBackwards': False,
 }
 
-# this is initialized by storage.Deck
-class _Deck(object):
+# this is initialized by storage.Collection
+class _Collection(object):
 
     def __init__(self, db, server=False):
         self.db = db
@@ -82,7 +82,7 @@ class _Deck(object):
          gconf,
          tags) = self.db.first("""
 select crt, mod, scm, dty, usn, ls,
-conf, models, groups, gconf, tags from deck""")
+conf, models, groups, gconf, tags from col""")
         self.conf = simplejson.loads(self.conf)
         self.models.load(models)
         self.groups.load(groups, gconf)
@@ -92,7 +92,7 @@ conf, models, groups, gconf, tags from deck""")
         "Flush state to DB, updating mod time."
         self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
-            """update deck set
+            """update col set
 crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self._usn, self.ls, simplejson.dumps(self.conf))
@@ -114,7 +114,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.save()
 
     def lock(self):
-        self.db.execute("update deck set mod=mod")
+        self.db.execute("update col set mod=mod")
 
     def close(self, save=True):
         "Disconnect from DB."
@@ -229,7 +229,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return anki.notes.Note(self, self.models.current())
 
     def addNote(self, note):
-        "Add a note to the deck. Return number of new cards."
+        "Add a note to the collection. Return number of new cards."
         # check we have card models available, then save
         cms = self.findTemplates(note)
         if not cms:
@@ -464,8 +464,8 @@ where c.nid == f.id
         return CardStats(self, card).report()
 
     def stats(self):
-        from anki.stats import DeckStats
-        return DeckStats(self)
+        from anki.stats import CollectionStats
+        return CollectionStats(self)
 
     # Timeboxing
     ##########################################################################

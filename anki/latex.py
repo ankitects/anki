@@ -30,22 +30,22 @@ def stripLatex(text):
         text = text.replace(match.group(), "")
     return text
 
-def mungeQA(html, type, fields, model, data, deck):
+def mungeQA(html, type, fields, model, data, col):
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(html):
-        html = html.replace(match.group(), _imgLink(deck, match.group(1), model))
+        html = html.replace(match.group(), _imgLink(col, match.group(1), model))
     for match in regexps['expression'].finditer(html):
         html = html.replace(match.group(), _imgLink(
-            deck, "$" + match.group(1) + "$", model))
+            col, "$" + match.group(1) + "$", model))
     for match in regexps['math'].finditer(html):
         html = html.replace(match.group(), _imgLink(
-            deck,
+            col,
             "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}", model))
     return html
 
-def _imgLink(deck, latex, model):
+def _imgLink(col, latex, model):
     "Return an img link for LATEX, creating if necesssary."
-    txt = _latexFromHtml(deck, latex)
+    txt = _latexFromHtml(col, latex)
     fname = "latex-%s.png" % checksum(txt.encode("utf8"))
     link = '<img src="%s">' % fname
     if os.path.exists(fname):
@@ -53,13 +53,13 @@ def _imgLink(deck, latex, model):
     elif not build:
         return u"[latex]%s[/latex]" % latex
     else:
-        err = _buildImg(deck, txt, fname, model)
+        err = _buildImg(col, txt, fname, model)
         if err:
             return err
         else:
             return link
 
-def _latexFromHtml(deck, latex):
+def _latexFromHtml(col, latex):
     "Convert entities and fix newlines."
     for match in re.compile("&([a-z]+);", re.IGNORECASE).finditer(latex):
         if match.group(1) in entitydefs:
@@ -68,7 +68,7 @@ def _latexFromHtml(deck, latex):
     latex = stripHTML(latex)
     return latex
 
-def _buildImg(deck, latex, fname, model):
+def _buildImg(col, latex, fname, model):
     # add header/footer & convert to utf8
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
@@ -83,7 +83,7 @@ def _buildImg(deck, latex, fname, model):
     texfile = file(namedtmp("tmp.tex"), "w")
     texfile.write(latex)
     texfile.close()
-    mdir = deck.media.dir()
+    mdir = col.media.dir()
     oldcwd = os.getcwd()
     png = namedtmp("tmp.png")
     try:

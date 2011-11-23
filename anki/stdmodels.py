@@ -9,8 +9,8 @@ models = []
 # Basic
 ##########################################################################
 
-def addBasicModel(deck):
-    mm = deck.models
+def addBasicModel(col):
+    mm = col.models
     m = mm.new(_("Basic"))
     fm = mm.newField(_("Front"))
     fm['req'] = True
@@ -30,8 +30,8 @@ models.append((_("Basic"), addBasicModel))
 # Cloze
 ##########################################################################
 
-def addClozeModel(deck):
-    mm = deck.models
+def addClozeModel(col):
+    mm = col.models
     m = mm.new(_("Cloze"))
     fm = mm.newField(_("Text"))
     fm['req'] = True

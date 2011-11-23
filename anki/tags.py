@@ -18,8 +18,8 @@ class TagManager(object):
     # Registry save/load
     #############################################################
 
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, col):
+        self.col = col
 
     def load(self, json):
         self.tags = simplejson.loads(json)
@@ -27,7 +27,7 @@ class TagManager(object):
 
     def flush(self):
         if self.changed:
-            self.deck.db.execute("update deck set tags=?",
+            self.col.db.execute("update col set tags=?",
                                  simplejson.dumps(self.tags))
 
     # Registering and fetching tags
@@ -39,7 +39,7 @@ class TagManager(object):
         # versions of the same tag if they ignore the qt autocomplete.
         for t in tags:
             if t not in self.tags:
-                self.tags[t] = self.deck.usn() if usn is None else usn
+                self.tags[t] = self.col.usn() if usn is None else usn
                 self.changed = True
 
     def all(self):
@@ -55,7 +55,7 @@ class TagManager(object):
             self.tags = {}
             self.changed = True
         self.register(set(self.split(
-            " ".join(self.deck.db.list("select distinct tags from notes"+lim)))))
+            " ".join(self.col.db.list("select distinct tags from notes"+lim)))))
 
     def allItems(self):
         return self.tags.items()
@@ -82,7 +82,7 @@ class TagManager(object):
             fn = self.remFromStr
         lim = " or ".join(
             [l+"like :_%d" % c for c, t in enumerate(newTags)])
-        res = self.deck.db.all(
+        res = self.col.db.all(
             "select id, tags from notes where id in %s and %s" % (
                 ids2str(ids), lim),
             **dict([("_%d" % x, '%% %s %%' % y)
@@ -92,8 +92,8 @@ class TagManager(object):
         def fix(row):
             nids.append(row[0])
             return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime(),
-                'u':self.deck.usn()}
-        self.deck.db.executemany(
+                'u':self.col.usn()}
+        self.col.db.executemany(
             "update notes set tags=:t,mod=:n,usn=:u where id = :id",
             [fix(row) for row in res])
 
@@ -169,10 +169,10 @@ class TagManager(object):
                     lim = lim2
                 args += ['%% %s %%' % t for t in no]
             query += " where " + lim
-        return self.deck.db.list(query, *args)
+        return self.col.db.list(query, *args)
 
     def setGroupForTags(self, yes, no, gid):
         nids = self.selTagNids(yes, no)
-        self.deck.db.execute(
+        self.col.db.execute(
             "update cards set gid=?,mod=?,usn=? where nid in "+ids2str(nids),
-            gid, intTime(), self.deck.usn())
+            gid, intTime(), self.col.usn())

@@ -83,8 +83,8 @@ class GroupManager(object):
     # Registry save/load
     #############################################################
 
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, col):
+        self.col = col
 
     def load(self, groups, gconf):
         self.groups = simplejson.loads(groups)
@@ -95,12 +95,12 @@ class GroupManager(object):
         "Can be called with either a group or a group configuration."
         if g:
             g['mod'] = intTime()
-            g['usn'] = self.deck.usn()
+            g['usn'] = self.col.usn()
         self.changed = True
 
     def flush(self):
         if self.changed:
-            self.deck.db.execute("update deck set groups=?, gconf=?",
+            self.col.db.execute("update col set groups=?, gconf=?",
                                  simplejson.dumps(self.groups),
                                  simplejson.dumps(self.gconf))
 
@@ -144,10 +144,10 @@ class GroupManager(object):
             self.rem(id, cardsToo)
         # delete cards too?
         if cardsToo:
-            self.deck.remCards(self.cids(gid))
+            self.col.remCards(self.cids(gid))
         # delete the group and add a grave
         del self.groups[str(gid)]
-        self.deck._logRem([gid], REM_GROUP)
+        self.col._logRem([gid], REM_GROUP)
         # ensure we have an active group
         if gid in self.active():
             self.select(int(self.groups.keys()[0]))
@@ -239,7 +239,7 @@ class GroupManager(object):
     def remConf(self, id):
         "Remove a configuration and update all groups using it."
         assert int(id) != 1
-        self.deck.modSchema()
+        self.col.modSchema()
         del self.gconf[str(id)]
         for g in self.all():
             if str(g['conf']) == str(id):
@@ -257,9 +257,9 @@ class GroupManager(object):
         return self.get(gid)['name']
 
     def setGroup(self, cids, gid):
-        self.deck.db.execute(
+        self.col.db.execute(
             "update cards set gid=?,usn=?,mod=? where id in "+
-            ids2str(cids), gid, self.deck.usn(), intTime())
+            ids2str(cids), gid, self.col.usn(), intTime())
 
 
     def maybeAddToActive(self):
@@ -267,29 +267,29 @@ class GroupManager(object):
         self.select(self.selected())
 
     def sendHome(self, cids):
-        self.deck.db.execute("""
+        self.col.db.execute("""
 update cards set gid=(select gid from notes f where f.id=nid),
 usn=?,mod=? where id in %s""" % ids2str(cids),
-                             self.deck.usn(), intTime(), gid)
+                             self.col.usn(), intTime(), gid)
 
     def cids(self, gid):
-        return self.deck.db.list("select id from cards where gid=?", gid)
+        return self.col.db.list("select id from cards where gid=?", gid)
 
     # Group selection
     #############################################################
 
     def top(self):
         "The current top level group as an object."
-        g = self.get(self.deck.conf['topGroup'])
+        g = self.get(self.col.conf['topGroup'])
         return g
 
     def active(self):
         "The currrently active gids."
-        return self.deck.conf['activeGroups']
+        return self.col.conf['activeGroups']
 
     def selected(self):
         "The currently selected gid."
-        return self.deck.conf['curGroup']
+        return self.col.conf['curGroup']
 
     def current(self):
         return self.get(self.selected())
@@ -298,13 +298,13 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         "Select a new branch."
         # save the top level group
         name = self.groups[str(gid)]['name']
-        self.deck.conf['topGroup'] = self._topFor(name)
+        self.col.conf['topGroup'] = self._topFor(name)
         # current group
-        self.deck.conf['curGroup'] = gid
+        self.col.conf['curGroup'] = gid
         # and active groups (current + all children)
         actv = self.children(gid)
         actv.sort()
-        self.deck.conf['activeGroups'] = [gid] + [a[1] for a in actv]
+        self.col.conf['activeGroups'] = [gid] + [a[1] for a in actv]
 
     def children(self, gid):
         "All children of gid, as (name, id)."

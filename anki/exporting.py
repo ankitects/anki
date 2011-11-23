@@ -4,15 +4,15 @@
 
 import itertools, time, re, os, HTMLParser
 from operator import itemgetter
-from anki import Deck
+#from anki import Deck
 from anki.cards import Card
 from anki.sync import SyncClient, SyncServer, copyLocalMedia
 from anki.lang import _
 from anki.utils import parseTags, stripHTML, ids2str
 
 class Exporter(object):
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, col):
+        self.col = col
         self.limitTags = []
         self.limitCardIds = []
 
@@ -45,10 +45,10 @@ class Exporter(object):
         if self.limitCardIds:
             return self.limitCardIds
         if not self.limitTags:
-            cards = self.deck.db.column0("select id from cards")
+            cards = self.col.db.column0("select id from cards")
         else:
-            d = tagIds(self.deck.db, self.limitTags, create=False)
-            cards = self.deck.db.column0(
+            d = tagIds(self.col.db, self.limitTags, create=False)
+            cards = self.col.db.column0(
                 "select cardId from cardTags where tagid in %s" %
                 ids2str(d.values()))
         self.count = len(cards)
@@ -56,11 +56,11 @@ class Exporter(object):
 
 class AnkiExporter(Exporter):
 
-    key = _("Anki Deck (*.anki)")
+    key = _("Anki Collection (*.anki)")
     ext = ".anki"
 
-    def __init__(self, deck):
-        Exporter.__init__(self, deck)
+    def __init__(self, col):
+        Exporter.__init__(self, col)
         self.includeSchedulingInfo = False
         self.includeMedia = True
 
@@ -72,7 +72,7 @@ class AnkiExporter(Exporter):
             os.unlink(path)
         except (IOError, OSError):
             pass
-        self.newDeck = DeckStorage.Deck(path)
+        self.newCol = DeckStorage.Deck(path)
         client = SyncClient(self.deck)
         server = SyncServer(self.newDeck)
         client.setServer(server)

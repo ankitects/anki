@@ -10,7 +10,7 @@ from anki.lang import _
 
 Importers = (
     (_("Text separated by tabs or semicolons (*.txt,*.csv)"), TextImporter),
-    (_("Anki 2.0 Deck (*.anki2)"), Anki2Importer),
+    (_("Anki 2.0 Collection (*.anki2)"), Anki2Importer),
     (_("Anki 1.2 Deck (*.anki)"), Anki1Importer),
     (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
     )

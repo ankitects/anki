@@ -23,8 +23,8 @@ if simplejson.__version__ < "1.7.3":
 # todo:
 # - ensure all urllib references are converted to urllib2 for proxies
 # - ability to cancel
-# - need to make sure syncing doesn't bump the deck modified time if nothing was
-#    changed, since by default closing the deck bumps the mod time
+# - need to make sure syncing doesn't bump the col modified time if nothing was
+#    changed, since by default closing the col bumps the mod time
 # - ensure the user doesn't add foreign chars to passsword
 
 # Incremental syncing
@@ -34,8 +34,8 @@ from anki.consts import *
 
 class Syncer(object):
 
-    def __init__(self, deck, server=None):
-        self.deck = deck
+    def __init__(self, col, server=None):
+        self.col = col
         self.server = server
 
     def status(self, type):
@@ -90,7 +90,7 @@ class Syncer(object):
         return "success"
 
     def meta(self):
-        return (self.deck.mod, self.deck.scm, self.deck._usn, intTime(), None)
+        return (self.col.mod, self.col.scm, self.col._usn, intTime(), None)
 
     def changes(self):
         "Bundle up deletions and small objects, and apply if server."
@@ -104,7 +104,7 @@ class Syncer(object):
 
     def applyChanges(self, minUsn, lnewer, changes):
         # we're the server; save info
-        self.maxUsn = self.deck._usn
+        self.maxUsn = self.col._usn
         self.minUsn = minUsn
         self.lnewer = not lnewer
         self.rchg = changes
@@ -127,33 +127,33 @@ class Syncer(object):
     def sanityCheck(self):
         # some basic checks to ensure the sync went ok. this is slow, so will
         # be removed before official release
-        assert not self.deck.db.scalar("""
+        assert not self.col.db.scalar("""
 select count() from cards where nid not in (select id from notes)""")
-        assert not self.deck.db.scalar("""
+        assert not self.col.db.scalar("""
 select count() from notes where id not in (select distinct nid from cards)""")
         for t in "cards", "notes", "revlog", "graves":
-            assert not self.deck.db.scalar(
+            assert not self.col.db.scalar(
                 "select count() from %s where usn = -1" % t)
-        for g in self.deck.groups.all():
+        for g in self.col.groups.all():
             assert g['usn'] != -1
-        for t, usn in self.deck.tags.allItems():
+        for t, usn in self.col.tags.allItems():
             assert usn != -1
-        for m in self.deck.models.all():
+        for m in self.col.models.all():
             assert m['usn'] != -1
         return [
-            self.deck.db.scalar("select count() from cards"),
-            self.deck.db.scalar("select count() from notes"),
-            self.deck.db.scalar("select count() from revlog"),
-            self.deck.db.scalar("select count() from nsums"),
-            self.deck.db.scalar("select count() from graves"),
-            len(self.deck.models.all()),
-            len(self.deck.tags.all()),
-            len(self.deck.groups.all()),
-            len(self.deck.groups.allConf()),
+            self.col.db.scalar("select count() from cards"),
+            self.col.db.scalar("select count() from notes"),
+            self.col.db.scalar("select count() from revlog"),
+            self.col.db.scalar("select count() from nsums"),
+            self.col.db.scalar("select count() from graves"),
+            len(self.col.models.all()),
+            len(self.col.tags.all()),
+            len(self.col.groups.all()),
+            len(self.col.groups.allConf()),
         ]
 
     def usnLim(self):
-        if self.deck.server:
+        if self.col.server:
             return "usn >= %d" % self.minUsn
         else:
             return "usn = -1"
@@ -162,9 +162,9 @@ select count() from notes where id not in (select distinct nid from cards)""")
         if not mod:
             # server side; we decide new mod time
             mod = intTime(1000)
-        self.deck.ls = mod
-        self.deck._usn = self.maxUsn + 1
-        self.deck.save(mod=mod)
+        self.col.ls = mod
+        self.col._usn = self.maxUsn + 1
+        self.col.save(mod=mod)
         return mod
 
     # Chunked syncing
@@ -176,7 +176,7 @@ select count() from notes where id not in (select distinct nid from cards)""")
 
     def cursorForTable(self, table):
         lim = self.usnLim()
-        x = self.deck.db.execute
+        x = self.col.db.execute
         d = (self.maxUsn, lim)
         if table == "revlog":
             return x("""
@@ -206,8 +206,8 @@ from notes where %s""" % d)
                 self.tablesLeft.pop(0)
                 self.cursor = None
                 # if we're the client, mark the objects as having been sent
-                if not self.deck.server:
-                    self.deck.db.execute(
+                if not self.col.server:
+                    self.col.db.execute(
                         "update %s set usn=? where usn=-1"%curTable,
                         self.maxUsn)
             buf[curTable] = rows
@@ -231,11 +231,11 @@ from notes where %s""" % d)
         cards = []
         notes = []
         groups = []
-        if self.deck.server:
-            curs = self.deck.db.execute(
+        if self.col.server:
+            curs = self.col.db.execute(
                 "select oid, type from graves where usn >= ?", self.minUsn)
         else:
-            curs = self.deck.db.execute(
+            curs = self.col.db.execute(
                 "select oid, type from graves where usn = -1")
         for oid, type in curs:
             if type == REM_CARD:
@@ -244,100 +244,100 @@ from notes where %s""" % d)
                 notes.append(oid)
             else:
                 groups.append(oid)
-        if not self.deck.server:
-            self.deck.db.execute("update graves set usn=? where usn=-1",
+        if not self.col.server:
+            self.col.db.execute("update graves set usn=? where usn=-1",
                                  self.maxUsn)
         return dict(cards=cards, notes=notes, groups=groups)
 
     def mergeGraves(self, graves):
         # notes first, so we don't end up with duplicate graves
-        self.deck._remNotes(graves['notes'])
-        self.deck.remCards(graves['cards'])
+        self.col._remNotes(graves['notes'])
+        self.col.remCards(graves['cards'])
         for oid in graves['groups']:
-            self.deck.groups.rem(oid)
+            self.col.groups.rem(oid)
 
     # Models
     ##########################################################################
 
     def getModels(self):
-        if self.deck.server:
-            return [m for m in self.deck.models.all() if m['usn'] >= self.minUsn]
+        if self.col.server:
+            return [m for m in self.col.models.all() if m['usn'] >= self.minUsn]
         else:
-            mods = [m for m in self.deck.models.all() if m['usn'] == -1]
+            mods = [m for m in self.col.models.all() if m['usn'] == -1]
             for m in mods:
                 m['usn'] = self.maxUsn
-            self.deck.models.save()
+            self.col.models.save()
             return mods
 
     def mergeModels(self, rchg):
         for r in rchg:
-            l = self.deck.models.get(r['id'])
+            l = self.col.models.get(r['id'])
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
-                self.deck.models.update(r)
+                self.col.models.update(r)
 
     # Groups
     ##########################################################################
 
     def getGroups(self):
-        if self.deck.server:
+        if self.col.server:
             return [
-                [g for g in self.deck.groups.all() if g['usn'] >= self.minUsn],
-                [g for g in self.deck.groups.allConf() if g['usn'] >= self.minUsn]
+                [g for g in self.col.groups.all() if g['usn'] >= self.minUsn],
+                [g for g in self.col.groups.allConf() if g['usn'] >= self.minUsn]
             ]
         else:
-            groups = [g for g in self.deck.groups.all() if g['usn'] == -1]
+            groups = [g for g in self.col.groups.all() if g['usn'] == -1]
             for g in groups:
                 g['usn'] = self.maxUsn
-            gconf = [g for g in self.deck.groups.allConf() if g['usn'] == -1]
+            gconf = [g for g in self.col.groups.allConf() if g['usn'] == -1]
             for g in gconf:
                 g['usn'] = self.maxUsn
-            self.deck.groups.save()
+            self.col.groups.save()
             return [groups, gconf]
 
     def mergeGroups(self, rchg):
         for r in rchg[0]:
-            l = self.deck.groups.get(r['id'], False)
+            l = self.col.groups.get(r['id'], False)
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
-                self.deck.groups.update(r)
+                self.col.groups.update(r)
         for r in rchg[1]:
-            l = self.deck.groups.conf(r['id'])
+            l = self.col.groups.conf(r['id'])
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
-                self.deck.groups.updateConf(r)
+                self.col.groups.updateConf(r)
 
     # Tags
     ##########################################################################
 
     def getTags(self):
-        if self.deck.server:
-            return [t for t, usn in self.deck.tags.allItems()
+        if self.col.server:
+            return [t for t, usn in self.col.tags.allItems()
                     if usn >= self.minUsn]
         else:
             tags = []
-            for t, usn in self.deck.tags.allItems():
+            for t, usn in self.col.tags.allItems():
                 if usn == -1:
-                    self.deck.tags.tags[t] = self.maxUsn
+                    self.col.tags.tags[t] = self.maxUsn
                     tags.append(t)
-            self.deck.tags.save()
+            self.col.tags.save()
             return tags
 
     def mergeTags(self, tags):
-        self.deck.tags.register(tags, usn=self.maxUsn)
+        self.col.tags.register(tags, usn=self.maxUsn)
 
     # Cards/notes/revlog
     ##########################################################################
 
     def mergeRevlog(self, logs):
-        self.deck.db.executemany(
+        self.col.db.executemany(
             "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)",
             logs)
 
     def newerRows(self, data, table, modIdx):
         ids = (r[0] for r in data)
         lmods = {}
-        for id, mod in self.deck.db.execute(
+        for id, mod in self.col.db.execute(
             "select id, mod from %s where id in %s and %s" % (
                 table, ids2str(ids), self.usnLim())):
             lmods[id] = mod
@@ -348,26 +348,26 @@ from notes where %s""" % d)
         return update
 
     def mergeCards(self, cards):
-        self.deck.db.executemany(
+        self.col.db.executemany(
             "insert or replace into cards values "
             "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             self.newerRows(cards, "cards", 4))
 
     def mergeNotes(self, notes):
         rows = self.newerRows(notes, "notes", 4)
-        self.deck.db.executemany(
+        self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
-        self.deck.updateFieldCache([f[0] for f in rows])
+        self.col.updateFieldCache([f[0] for f in rows])
 
-    # Deck config
+    # Col config
     ##########################################################################
 
     def getConf(self):
-        return self.deck.conf
+        return self.col.conf
 
     def mergeConf(self, conf):
-        self.deck.conf = conf
+        self.col.conf = conf
 
 # Local syncing for unit tests
 ##########################################################################
@@ -375,7 +375,7 @@ from notes where %s""" % d)
 class LocalServer(Syncer):
 
     # serialize/deserialize payload, so we don't end up sharing objects
-    # between decks
+    # between cols
     def applyChanges(self, minUsn, lnewer, changes):
         l = simplejson.loads; d = simplejson.dumps
         return l(d(Syncer.applyChanges(self, minUsn, lnewer, l(d(changes)))))
@@ -499,30 +499,30 @@ class RemoteServer(Syncer, HttpSyncer):
 
 class FullSyncer(HttpSyncer):
 
-    def __init__(self, deck, hkey):
-        self.deck = deck
+    def __init__(self, col, hkey):
+        self.col = col
         self.hkey = hkey
 
     def _con(self):
         return httplib2.Http(timeout=60)
 
     def download(self):
-        self.deck.close()
+        self.col.close()
         resp, cont = self._con().request(
             SYNC_URL+"download?" + urllib.urlencode(self._vars()))
         if resp['status'] != '200':
             raise Exception("Invalid response code: %s" % resp['status'])
-        tpath = self.deck.path + ".tmp"
+        tpath = self.col.path + ".tmp"
         open(tpath, "wb").write(cont)
-        os.unlink(self.deck.path)
-        os.rename(tpath, self.deck.path)
-        d = DB(self.deck.path)
+        os.unlink(self.col.path)
+        os.rename(tpath, self.col.path)
+        d = DB(self.col.path)
         assert d.scalar("pragma integrity_check") == "ok"
-        self.deck = None
+        self.col = None
 
     def upload(self):
-        self.deck.beforeUpload()
-        assert self.postData(self._con(), "upload", open(self.deck.path, "rb"),
+        self.col.beforeUpload()
+        assert self.postData(self._con(), "upload", open(self.col.path, "rb"),
                              self._vars(), comp=6) == "OK"
 
 # Media syncing
@@ -530,16 +530,16 @@ class FullSyncer(HttpSyncer):
 
 class MediaSyncer(object):
 
-    def __init__(self, deck, server=None):
-        self.deck = deck
+    def __init__(self, col, server=None):
+        self.col = col
         self.server = server
         self.added = None
 
     def sync(self, mediaUsn):
         # step 1: check if there have been any changes
-        self.deck.media.findChanges()
-        lusn = self.deck.media.usn()
-        if lusn == mediaUsn and not self.deck.media.hasChanged():
+        self.col.media.findChanges()
+        lusn = self.col.media.usn()
+        if lusn == mediaUsn and not self.col.media.hasChanged():
             return "noChanges"
         # step 2: send/recv deletions
         runHook("mediaSync", "remove")
@@ -563,30 +563,30 @@ class MediaSyncer(object):
                 # when server has run out of files, it returns bumped usn
                 break
         # step 5: finalize
-        self.deck.media.setUsn(usn)
-        self.deck.media.clearLog()
+        self.col.media.setUsn(usn)
+        self.col.media.clearLog()
         # clear cursor so successive calls work
         self.added = None
         return "success"
 
     def removed(self):
-        return self.deck.media.removed()
+        return self.col.media.removed()
 
     def remove(self, fnames, minUsn=None):
-        self.deck.media.syncRemove(fnames)
+        self.col.media.syncRemove(fnames)
         if minUsn is not None:
             # we're the server
             self.minUsn = minUsn
-            return self.deck.media.removed()
+            return self.col.media.removed()
 
     def files(self):
         if not self.added:
-            self.added = self.deck.media.added()
-        return self.deck.media.zipFromAdded(self.added)
+            self.added = self.col.media.added()
+        return self.col.media.zipFromAdded(self.added)
 
     def addFiles(self, zip):
         "True if zip is the last in set. Server returns new usn instead."
-        return self.deck.media.syncAdd(zip)
+        return self.col.media.syncAdd(zip)
 
 # Remote media syncing
 ##########################################################################

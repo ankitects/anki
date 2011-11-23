@@ -18,10 +18,10 @@ SEARCH_GROUP = 7
 # Tools
 ##########################################################################
 
-def fieldNames(deck, downcase=True):
+def fieldNames(col, downcase=True):
     fields = set()
     names = []
-    for m in deck.models.all():
+    for m in col.models.all():
         for f in m['flds']:
             if f['name'].lower() not in fields:
                 names.append(f['name'])
@@ -35,8 +35,8 @@ def fieldNames(deck, downcase=True):
 
 class Finder(object):
 
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, col):
+        self.col = col
 
     def findCards(self, query, full=False):
         "Return a list of card ids for QUERY."
@@ -47,8 +47,8 @@ class Finder(object):
             return []
         (q, args) = self._whereClause()
         query = self._orderedSelect(q)
-        res = self.deck.db.list(query, **args)
-        if self.deck.conf['sortBackwards']:
+        res = self.col.db.list(query, **args)
+        if self.col.conf['sortBackwards']:
             res.reverse()
         return res
 
@@ -65,7 +65,7 @@ class Finder(object):
         return q, self.lims['args']
 
     def _orderedSelect(self, lim):
-        type = self.deck.conf['sortType']
+        type = self.col.conf['sortType']
         if not type:
             return "select id from cards c where " + lim
         elif type.startswith("note"):
@@ -153,7 +153,7 @@ order by %s""" % (lim, sort)
         elif val == "suspended":
             cond = "queue = -1"
         elif val == "due":
-            cond = "(queue = 2 and due <= %d)" % self.deck.sched.today
+            cond = "(queue = 2 and due <= %d)" % self.col.sched.today
         elif val == "recent":
             cond = "c.id in (select id from cards order by mod desc limit 100)"
         if neg:
@@ -174,7 +174,7 @@ order by %s""" % (lim, sort)
             # in the future we may want to apply this at the end to speed up
             # the case where there are other limits
             nids = []
-            for nid, flds in self.deck.db.execute(
+            for nid, flds in self.col.db.execute(
                 "select id, flds from notes"):
                 if val in stripHTML(flds):
                     nids.append(nid)
@@ -186,14 +186,14 @@ order by %s""" % (lim, sort)
     def _findModel(self, val, isNeg):
         extra = "not" if isNeg else ""
         ids = []
-        for m in self.deck.models.all():
+        for m in self.col.models.all():
             if m['name'].lower() == val:
                 ids.append(m['id'])
         self.lims['note'].append("mid %s in %s" % (extra, ids2str(ids)))
 
     def _findGroup(self, val, isNeg):
         extra = "!" if isNeg else ""
-        id = self.deck.groups.id(val, create=False) or 0
+        id = self.col.groups.id(val, create=False) or 0
         self.lims['card'].append("c.gid %s= %s" % (extra, id))
 
     def _findTemplate(self, val, isNeg):
@@ -205,7 +205,7 @@ order by %s""" % (lim, sort)
         except:
             num = None
         lims = []
-        for m in self.deck.models.all():
+        for m in self.col.models.all():
             for t in m['tmpls']:
                 # ordinal number?
                 if num is not None and t['ord'] == num:
@@ -228,7 +228,7 @@ order by %s""" % (lim, sort)
         value = "%" + parts[1].replace("*", "%") + "%"
         # find models that have that field
         mods = {}
-        for m in self.deck.models.all():
+        for m in self.col.models.all():
             for f in m['flds']:
                 if f['name'].lower() == field:
                     mods[m['id']] = (m, f['ord'])
@@ -239,7 +239,7 @@ order by %s""" % (lim, sort)
         # gather nids
         regex = value.replace("%", ".*")
         nids = []
-        for (id,mid,flds) in self.deck.db.execute("""
+        for (id,mid,flds) in self.col.db.execute("""
 select id, mid, flds from notes
 where mid in %s and flds like ? escape '\\'""" % (
                          ids2str(mods.keys())),
@@ -258,7 +258,7 @@ where mid in %s and flds like ? escape '\\'""" % (
     def _parseQuery(self):
         tokens = []
         res = []
-        allowedfields = fieldNames(self.deck)
+        allowedfields = fieldNames(self.col)
         def addSearchFieldToken(field, value, isNeg):
             if field.lower() in allowedfields:
                 res.append((field + ':' + value, isNeg, SEARCH_FIELD))
@@ -370,11 +370,11 @@ where mid in %s and flds like ? escape '\\'""" % (
 # Find and replace
 ##########################################################################
 
-def findReplace(deck, nids, src, dst, regex=False, field=None, fold=True):
+def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     "Find and replace fields in a note."
     mmap = {}
     if field:
-        for m in deck.models.all():
+        for m in col.models.all():
             for f in m['flds']:
                 if f['name'] == field:
                     mmap[m['id']] = f['ord']
@@ -389,7 +389,7 @@ def findReplace(deck, nids, src, dst, regex=False, field=None, fold=True):
     def repl(str):
         return re.sub(regex, dst, str)
     d = []
-    for nid, mid, flds in deck.db.execute(
+    for nid, mid, flds in col.db.execute(
         "select id, mid, flds from notes where id in "+ids2str(nids)):
         origFlds = flds
         # does it match?
@@ -402,19 +402,19 @@ def findReplace(deck, nids, src, dst, regex=False, field=None, fold=True):
                 sflds[c] = repl(sflds[c])
         flds = joinFields(sflds)
         if flds != origFlds:
-            d.append(dict(nid=nid,flds=flds,u=deck.usn(),m=intTime()))
+            d.append(dict(nid=nid,flds=flds,u=col.usn(),m=intTime()))
     if not d:
         return 0
     # replace
-    deck.db.executemany("update notes set flds=:flds,mod=:m,usn=:u where id=:nid", d)
-    deck.updateFieldCache(nids)
+    col.db.executemany("update notes set flds=:flds,mod=:m,usn=:u where id=:nid", d)
+    col.updateFieldCache(nids)
     return len(d)
 
 # Find duplicates
 ##########################################################################
 
-def findDuplicates(deck, fmids):
-    data = deck.db.all(
+def findDuplicates(col, fmids):
+    data = col.db.all(
         "select nid, value from fdata where fmid in %s" %
         ids2str(fmids))
     vals = {}

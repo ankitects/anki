@@ -17,10 +17,10 @@ class MediaManager(object):
     regexps = ("(?i)(\[sound:([^]]+)\])",
                "(?i)(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>)")
 
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, col):
+        self.col = col
         # media directory
-        self._dir = re.sub("(?i)\.(anki2)$", ".media", self.deck.path)
+        self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         os.chdir(self._dir)
@@ -87,8 +87,8 @@ If the same name exists, compare checksums."""
     def filesInStr(self, mid, string, includeRemote=False):
         l = []
         # convert latex first
-        model = self.deck.models.get(mid)
-        string = mungeQA(string, None, None, model, None, self.deck)
+        model = self.col.models.get(mid)
+        string = mungeQA(string, None, None, model, None, self.col)
         # extract filenames
         for reg in self.regexps:
             for (full, fname) in re.findall(reg, string):
@@ -161,7 +161,7 @@ If the same name exists, compare checksums."""
     def allMedia(self):
         "Return a set of all referenced filenames."
         files = set()
-        for mid, flds in self.deck.db.execute("select mid, flds from notes"):
+        for mid, flds in self.col.db.execute("select mid, flds from notes"):
             for f in self.filesInStr(mid, flds):
                 files.add(f)
         return files

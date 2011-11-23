@@ -4,13 +4,13 @@ import nose, os, tempfile, shutil, time
 from tests.shared import assertException
 
 from anki.errors import *
-from anki import Deck
 from anki.utils import intTime
 from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
     MediaSyncer, RemoteMediaServer
 from anki.notes import Note
 from anki.cards import Card
 from tests.shared import getEmptyDeck
+from anki import open as aopen
 
 deck1=None
 deck2=None
@@ -91,7 +91,7 @@ def test_remoteSync():
     lmod = ts.client.deck.mod
     f = FullSyncer(ts.client.deck, TEST_HKEY)
     f.download()
-    d = Deck(ts.client.deck.path)
+    d = aopen(ts.client.deck.path)
     assert d.mod == lmod
 
 # Remote　media tests

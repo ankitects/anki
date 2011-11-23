@@ -11,10 +11,10 @@ class Importer(object):
 
     needMapper = False
 
-    def __init__(self, deck, file):
+    def __init__(self, col, file):
         self.file = file
         self.log = []
-        self.deck = deck
+        self.col = col
         self.total = 0
 
     def run(self):

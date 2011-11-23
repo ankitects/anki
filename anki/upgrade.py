@@ -6,9 +6,9 @@ import os, time, simplejson, re, datetime, shutil
 from anki.lang import _
 from anki.utils import intTime, tmpfile, ids2str, splitFields
 from anki.db import DB
-from anki.deck import _Deck
+from anki.collection import _Collection
 from anki.consts import *
-from anki.storage import _addSchema, _getDeckVars, _addDeckVars, \
+from anki.storage import _addSchema, _getColVars, _addColVars, \
     _updateIndices
 
 #
@@ -31,9 +31,9 @@ class Upgrader(object):
         self.path = path
         self._openDB(path)
         self._upgradeSchema()
-        self._openDeck()
-        self._upgradeDeck()
-        return self.deck
+        self._openCol()
+        self._upgradeRest()
+        return self.col
 
     # Integrity checking
     ######################################################################
@@ -117,8 +117,8 @@ analyze;""")
         shutil.copy(path, self.tmppath)
         self.db = DB(self.tmppath)
 
-    def _openDeck(self):
-        self.deck = _Deck(self.db)
+    def _openCol(self):
+        self.col = _Collection(self.db)
 
     # Schema upgrade
     ######################################################################
@@ -270,7 +270,7 @@ yesCount from reviewHistory"""):
         tags = {}
         for t in db.list("select tag from tags"):
             tags[t] = intTime()
-        db.execute("update deck set tags = ?", simplejson.dumps(tags))
+        db.execute("update col set tags = ?", simplejson.dumps(tags))
         db.execute("drop table tags")
         db.execute("drop table cardTags")
 
@@ -282,15 +282,14 @@ yesCount from reviewHistory"""):
         _updateIndices(db)
 
     def _migrateDeckTbl(self):
-        import anki.deck
         db = self.db
-        db.execute("delete from deck")
+        db.execute("delete from col")
         db.execute("""
-insert or replace into deck select id, cast(created as int), :t,
+insert or replace into col select id, cast(created as int), :t,
 :t, 99, 0, 0, cast(lastSync as int),
 "", "", "", "", "" from decks""", t=intTime())
         # prepare a group to store the old deck options
-        g, gc, conf = _getDeckVars(db)
+        g, gc, conf = _getColVars(db)
         # delete old selective study settings, which we can't auto-upgrade easily
         keys = ("newActive", "newInactive", "revActive", "revInactive")
         for k in keys:
@@ -311,7 +310,7 @@ insert or replace into deck select id, cast(created as int), :t,
                 pass
             else:
                 conf[k] = v
-        _addDeckVars(db, g, gc, conf)
+        _addColVars(db, g, gc, conf)
         # clean up
         db.execute("drop table decks")
         db.execute("drop table deckVars")
@@ -338,7 +337,7 @@ insert or replace into deck select id, cast(created as int), :t,
             mods[m['id']] = m
             db.execute("update notes set mid = ? where mid = ?", t, row[0])
         # save and clean up
-        db.execute("update deck set models = ?", simplejson.dumps(mods))
+        db.execute("update col set models = ?", simplejson.dumps(mods))
         db.execute("drop table fieldModels")
         db.execute("drop table cardModels")
         db.execute("drop table models")
@@ -416,7 +415,7 @@ order by ordinal""", mid)):
     #   explicit on upgrade.
     # - likewise with alignment and background color
     def _upgradeTemplates(self):
-        d = self.deck
+        d = self.col
         for m in d.models.all():
             # cache field styles
             styles = {}
@@ -470,7 +469,7 @@ order by ordinal""", mid)):
     # process, we automatically convert the references to new fields.
 
     def _rewriteMediaRefs(self):
-        deck = self.deck
+        col = self.col
         def rewriteRef(key):
             all, fname = match
             if all in state['mflds']:
@@ -487,7 +486,7 @@ order by ordinal""", mid)):
                 pre, ofld, suf = m2.groups()
                 # get index of field name
                 try:
-                    idx = deck.models.fieldMap(m)[ofld][0]
+                    idx = col.models.fieldMap(m)[ofld][0]
                 except:
                     # invalid field or tag reference; don't rewrite
                     return
@@ -495,33 +494,33 @@ order by ordinal""", mid)):
                 while 1:
                     state['fields'] += 1
                     fld = "Media %d" % state['fields']
-                    if fld not in deck.models.fieldMap(m).keys():
+                    if fld not in col.models.fieldMap(m).keys():
                         break
                 # add the new field
-                f = deck.models.newField(fld)
-                deck.models.addField(m, f)
+                f = col.models.newField(fld)
+                col.models.addField(m, f)
                 # loop through notes and write reference into new field
                 data = []
-                for id, flds in self.deck.db.execute(
+                for id, flds in self.col.db.execute(
                     "select id, flds from notes where id in "+
-                    ids2str(deck.models.nids(m))):
+                    ids2str(col.models.nids(m))):
                     sflds = splitFields(flds)
                     ref = all.replace(fname, pre+sflds[idx]+suf)
                     data.append((flds+ref, id))
                 # update notes
-                deck.db.executemany("update notes set flds=? where id=?",
+                col.db.executemany("update notes set flds=? where id=?",
                                     data)
                 # note field for future
                 state['mflds'][fname] = fld
                 new = fld
             # rewrite reference in template
             t[key] = t[key].replace(all, "{{{%s}}}" % new)
-        regexps = deck.media.regexps + (
+        regexps = col.media.regexps + (
             r"(\[latex\](.+?)\[/latex\])",
             r"(\[\$\](.+?)\[/\$\])",
             r"(\[\$\$\](.+?)\[/\$\$\])")
         # process each model
-        for m in deck.models.all():
+        for m in col.models.all():
             state = dict(mflds={}, fields=0)
             for t in m['tmpls']:
                 for r in regexps:
@@ -530,7 +529,7 @@ order by ordinal""", mid)):
                     for match in re.findall(r, t['afmt']):
                         rewriteRef('afmt')
             if state['fields']:
-                deck.models.save(m)
+                col.models.save(m)
 
     # Inactive templates
     ######################################################################
@@ -538,7 +537,7 @@ order by ordinal""", mid)):
     # marked inactive and have no dependent cards.
 
     def _removeInactive(self):
-        d = self.deck
+        d = self.col
         for m in d.models.all():
             remove = []
             for t in m['tmpls']:
@@ -552,15 +551,14 @@ and ord = ? limit 1""", m['id'], t['ord']):
                 m['tmpls'].remove(t)
             d.models.save(m)
 
-    # Upgrading deck
+    # Post-schema upgrade
     ######################################################################
 
-    def _upgradeDeck(self):
+    def _upgradeRest(self):
         "Handle the rest of the upgrade to 2.0."
-        import anki.deck
-        deck = self.deck
+        col = self.col
         # make sure we have a current model id
-        deck.models.setCurrent(deck.models.models.values()[0])
+        col.models.setCurrent(col.models.models.values()[0])
         # remove unused templates that were marked inactive
         self._removeInactive()
         # rewrite media references in card template
@@ -568,58 +566,58 @@ and ord = ? limit 1""", m['id'], t['ord']):
         # template handling has changed
         self._upgradeTemplates()
         # set new card order
-        for m in deck.models.all():
-            m['newOrder'] = deck.conf['oldNewOrder']
-            deck.models.save(m)
-        del deck.conf['oldNewOrder']
+        for m in col.models.all():
+            m['newOrder'] = col.conf['oldNewOrder']
+            col.models.save(m)
+        del col.conf['oldNewOrder']
         # fix creation time
-        deck.sched._updateCutoff()
+        col.sched._updateCutoff()
         d = datetime.datetime.today()
         d -= datetime.timedelta(hours=4)
         d = datetime.datetime(d.year, d.month, d.day)
         d += datetime.timedelta(hours=4)
-        d -= datetime.timedelta(days=1+int((time.time()-deck.crt)/86400))
-        deck.crt = int(time.mktime(d.timetuple()))
-        deck.sched._updateCutoff()
+        d -= datetime.timedelta(days=1+int((time.time()-col.crt)/86400))
+        col.crt = int(time.mktime(d.timetuple()))
+        col.sched._updateCutoff()
         # update uniq cache
-        deck.updateFieldCache(deck.db.list("select id from notes"))
+        col.updateFieldCache(col.db.list("select id from notes"))
         # remove old views
         for v in ("failedCards", "revCardsOld", "revCardsNew",
                   "revCardsDue", "revCardsRandom", "acqCardsRandom",
                   "acqCardsOld", "acqCardsNew"):
-            deck.db.execute("drop view if exists %s" % v)
+            col.db.execute("drop view if exists %s" % v)
         # remove stats, as it's all in the revlog now
-        deck.db.execute("drop table if exists stats")
+        col.db.execute("drop table if exists stats")
         # suspended cards don't use ranges anymore
-        deck.db.execute("update cards set queue=-1 where queue between -3 and -1")
-        deck.db.execute("update cards set queue=-2 where queue between 3 and 5")
-        deck.db.execute("update cards set queue=-3 where queue between 6 and 8")
+        col.db.execute("update cards set queue=-1 where queue between -3 and -1")
+        col.db.execute("update cards set queue=-2 where queue between 3 and 5")
+        col.db.execute("update cards set queue=-3 where queue between 6 and 8")
         # remove old deleted tables
         for t in ("cards", "notes", "models", "media"):
-            deck.db.execute("drop table if exists %sDeleted" % t)
+            col.db.execute("drop table if exists %sDeleted" % t)
         # rewrite due times for new cards
-        deck.db.execute("""
+        col.db.execute("""
 update cards set due = nid where type=0""")
         # and failed cards
-        left = len(deck.groups.conf(1)['new']['delays'])
-        deck.db.execute("update cards set edue = ?, left=? where type = 1",
-                        deck.sched.today+1, left)
+        left = len(col.groups.conf(1)['new']['delays'])
+        col.db.execute("update cards set edue = ?, left=? where type = 1",
+                        col.sched.today+1, left)
         # and due cards
-        deck.db.execute("""
+        col.db.execute("""
 update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
 ((due-:stamp)/86400) as int)+:today where type = 2
-""", stamp=deck.sched.dayCutoff, today=deck.sched.today)
+""", stamp=col.sched.dayCutoff, today=col.sched.today)
         # possibly re-randomize
-        if deck.models.randomNew():
-            deck.sched.randomizeCards()
+        if col.models.randomNew():
+            col.sched.randomizeCards()
         # update insertion id
-        deck.conf['nextPos'] = deck.db.scalar("select max(id) from notes")+1
-        deck.save()
+        col.conf['nextPos'] = col.db.scalar("select max(id) from notes")+1
+        col.save()
 
         # optimize and finish
-        deck.db.commit()
-        deck.db.execute("vacuum")
-        deck.db.execute("analyze")
-        deck.db.execute("update deck set ver = ?", SCHEMA_VERSION)
-        deck.save()
+        col.db.commit()
+        col.db.execute("vacuum")
+        col.db.execute("analyze")
+        col.db.execute("update col set ver = ?", SCHEMA_VERSION)
+        col.save()

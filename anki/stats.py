@@ -14,8 +14,8 @@ from anki.hooks import runFilter
 
 class CardStats(object):
 
-    def __init__(self, deck, card):
-        self.deck = deck
+    def __init__(self, col, card):
+        self.col = col
         self.card = card
 
     def report(self):
@@ -23,23 +23,23 @@ class CardStats(object):
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%%>"
         self.addLine(_("Added"), self.date(c.id/1000))
-        first = self.deck.db.scalar(
+        first = self.col.db.scalar(
             "select min(id) from revlog where cid = ?", c.id)
-        last = self.deck.db.scalar(
+        last = self.col.db.scalar(
             "select max(id) from revlog where cid = ?", c.id)
         if first:
             self.addLine(_("First Review"), self.date(first/1000))
             self.addLine(_("Latest Review"), self.date(last/1000))
         if c.queue in (1,2):
             if c.queue == 2:
-                next = time.time()+((self.deck.sched.today - c.due)*86400)
+                next = time.time()+((self.col.sched.today - c.due)*86400)
             else:
                 next = c.due
             next = self.date(next)
             self.addLine(_("Due"), next)
             self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
-            (cnt, total) = self.deck.db.first(
+            (cnt, total) = self.col.db.first(
                 "select count(), sum(time)/1000 from revlog where cid = :id",
                 id=c.id)
             if cnt:
@@ -49,8 +49,8 @@ class CardStats(object):
             self.addLine(_("Position"), c.due)
         self.addLine(_("Model"), c.model()['name'])
         self.addLine(_("Template"), c.template()['name'])
-        self.addLine(_("Current Group"), self.deck.groups.name(c.gid))
-        self.addLine(_("Home Group"), self.deck.groups.name(c.note().gid))
+        self.addLine(_("Current Group"), self.col.groups.name(c.gid))
+        self.addLine(_("Home Group"), self.col.groups.name(c.note().gid))
         self.txt += "</table>"
         return self.txt
 
@@ -73,7 +73,7 @@ class CardStats(object):
             str += fmtTimeSpan(tm%60, point=2 if not str else -1, short=True)
         return str
 
-# Deck stats
+# Collection stats
 ##########################################################################
 
 colYoung = "#7c7"
@@ -88,10 +88,10 @@ colTime = "#770"
 colUnseen = "#000"
 colSusp = "#ff0"
 
-class DeckStats(object):
+class CollectionStats(object):
 
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, col):
+        self.col = col
         self._stats = None
         self.type = 0
         self.width = 600
@@ -173,7 +173,7 @@ table * { font-size: 14px; }
             lim += " and due-:today >= %d" % start
         if end is not None:
             lim += " and day < %d" % end
-        return self.deck.db.all("""
+        return self.col.db.all("""
 select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
@@ -181,7 +181,7 @@ from cards
 where gid in %s and queue = 2
 %s
 group by day order by day""" % (self._limit(), lim),
-                            today=self.deck.sched.today,
+                            today=self.col.sched.today,
                             chunk=chunk)
 
     # Reps and time spent
@@ -248,7 +248,7 @@ group by day order by day""" % (self._limit(), lim),
         tot = totd[-1][1]
         period = self._periodDays()
         if not period:
-            period = self.deck.sched.today - first + 1
+            period = self.col.sched.today - first + 1
         i = []
         self._line(i, _("Days studied"),
                    _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
@@ -303,7 +303,7 @@ group by day order by day""" % (self._limit(), lim),
         lims = []
         if num is not None:
             lims.append("id > %d" % (
-                (self.deck.sched.dayCutoff-(num*chunk*86400))*1000))
+                (self.col.sched.dayCutoff-(num*chunk*86400))*1000))
         lim = self._revlogLimit()
         if lim:
             lims.append(lim)
@@ -315,7 +315,7 @@ group by day order by day""" % (self._limit(), lim),
             tf = 60.0 # minutes
         else:
             tf = 3600.0 # hours
-        return self.deck.db.all("""
+        return self.col.db.all("""
 select
 (cast((id/1000 - :cut) / 86400.0 as int))/:chunk as day,
 sum(case when type = 0 then 1 else 0 end), -- lrn count
@@ -331,7 +331,7 @@ sum(case when type = 2 then time/1000 else 0 end)/:tf, -- lapse time
 sum(case when type = 3 then time/1000 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day""" % lim,
-                            cut=self.deck.sched.dayCutoff,
+                            cut=self.col.sched.dayCutoff,
                             tf=tf,
                             chunk=chunk)
 
@@ -341,7 +341,7 @@ group by day order by day""" % lim,
         if num:
             lims.append(
                 "id > %d" %
-                ((self.deck.sched.dayCutoff-(num*86400))*1000))
+                ((self.col.sched.dayCutoff-(num*86400))*1000))
         rlim = self._revlogLimit()
         if rlim:
             lims.append(rlim)
@@ -349,12 +349,12 @@ group by day order by day""" % lim,
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        return self.deck.db.first("""
+        return self.col.db.first("""
 select count(), abs(min(day)) from (select
 (cast((id/1000 - :cut) / 86400.0 as int)+1) as day
 from revlog %s
 group by day order by day)""" % lim,
-                                   cut=self.deck.sched.dayCutoff)
+                                   cut=self.col.sched.dayCutoff)
 
     # Intervals
     ######################################################################
@@ -389,12 +389,12 @@ group by day order by day)""" % lim,
             chunk = 7; lim = " and grp <= 52"
         else:
             chunk = 30; lim = ""
-        data = [self.deck.db.all("""
+        data = [self.col.db.all("""
 select ivl / :chunk as grp, count() from cards
 where gid in %s and queue = 2 %s
 group by grp
 order by grp""" % (self._limit(), lim), chunk=chunk)]
-        return data + list(self.deck.db.first("""
+        return data + list(self.col.db.first("""
 select count(), avg(ivl), max(ivl) from cards where gid in %s and queue = 2""" %
                                          self._limit()))
 
@@ -457,7 +457,7 @@ select count(), avg(ivl), max(ivl) from cards where gid in %s and queue = 2""" %
         lim = self._revlogLimit()
         if lim:
             lim = "where " + lim
-        return self.deck.db.all("""
+        return self.col.db.all("""
 select (case
 when type in (0,2) then 0
 when lastIvl < 21 then 1
@@ -511,8 +511,8 @@ order by thetype, ease""" % lim)
         lim = self._revlogLimit()
         if lim:
             lim = " and " + lim
-        sd = datetime.datetime.fromtimestamp(self.deck.crt)
-        return self.deck.db.all("""
+        sd = datetime.datetime.fromtimestamp(self.col.crt)
+        return self.col.db.all("""
 select
 23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
 sum(case when ease = 1 then 0 else 1 end) /
@@ -520,7 +520,7 @@ cast(count() as float) * 100,
 count()
 from revlog where type = 1 %s
 group by hour having count() > 30 order by hour""" % lim,
-                            cut=self.deck.sched.dayCutoff-(sd.hour*3600))
+                            cut=self.col.sched.dayCutoff-(sd.hour*3600))
 
     # Cards
     ######################################################################
@@ -537,7 +537,7 @@ group by hour having count() > 30 order by hour""" % lim,
             d.append(dict(data=div[c], label=t, color=col))
         # text data
         i = []
-        (c, f) = self.deck.db.first("""
+        (c, f) = self.col.db.first("""
 select count(id), count(distinct nid) from cards
 where gid in %s """ % self._limit())
         self._line(i, _("Total cards"), c)
@@ -547,7 +547,7 @@ where gid in %s """ % self._limit())
             self._line(i, _("Lowest ease factor"), "%d%%" % low)
             self._line(i, _("Average ease factor"), "%d%%" % avg)
             self._line(i, _("Highest ease factor"), "%d%%" % high)
-        min = self.deck.db.scalar(
+        min = self.col.db.scalar(
             "select min(id) from cards where gid in %s " % self._limit())
         if min:
             self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
@@ -557,7 +557,7 @@ where gid in %s """ % self._limit())
 A card's <i>ease factor</i> is the size of the next interval \
 when you answer "good" on a review.''')
         txt = self._title(_("Cards Types"),
-                          _("The division of cards in your deck."))
+                          _("The division of cards in your deck(s)."))
         txt += "<table width=%d><tr><td>%s</td><td>%s</td></table>" % (
             self.width,
             self._graph(id="cards", data=d, type="pie"),
@@ -574,7 +574,7 @@ when you answer "good" on a review.''')
         return "<table width=400>" + "".join(i) + "</table>"
 
     def _factors(self):
-        return self.deck.db.first("""
+        return self.col.db.first("""
 select
 min(factor) / 10.0,
 avg(factor) / 10.0,
@@ -582,7 +582,7 @@ max(factor) / 10.0
 from cards where gid in %s and queue = 2""" % self._limit())
 
     def _cards(self):
-        return self.deck.db.first("""
+        return self.col.db.first("""
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
 sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
@@ -668,11 +668,11 @@ $(function () {
     data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
 
     def _limit(self):
-        return self.deck.sched._groupLimit()
+        return self.col.sched._groupLimit()
 
     def _revlogLimit(self):
         return ("cid in (select id from cards where gid in %s)" %
-                ids2str(self.deck.groups.active()))
+                ids2str(self.col.groups.active()))
 
     def _title(self, title, subtitle=""):
         return '<h1>%s</h1>%s' % (title, subtitle)

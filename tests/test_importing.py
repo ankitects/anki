@@ -5,7 +5,6 @@ from tests.shared import assertException, getUpgradeDeckPath, getEmptyDeck
 from anki.upgrade import Upgrader
 from anki.utils import ids2str
 from anki.errors import *
-from anki import Deck
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
     SupermemoXmlImporter
 from anki.notes import Note

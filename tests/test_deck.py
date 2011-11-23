@@ -6,7 +6,7 @@ from tests.shared import assertException, getEmptyDeck, testDir, \
 from anki.stdmodels import addBasicModel
 from anki.consts import *
 
-from anki import Deck
+from anki import open as aopen
 
 newPath = None
 newMod = None
@@ -18,7 +18,7 @@ def test_create():
         os.unlink(path)
     except OSError:
         pass
-    deck = Deck(path)
+    deck = aopen(path)
     # for open()
     newPath = deck.path
     deck.close()
@@ -26,18 +26,18 @@ def test_create():
     del deck
 
 def test_open():
-    deck = Deck(newPath)
+    deck = aopen(newPath)
     assert deck.mod == newMod
     deck.close()
 
 def test_openReadOnly():
     # non-writeable dir
     assertException(Exception,
-                    lambda: Deck("/attachroot.anki2"))
+                    lambda: aopen("/attachroot.anki2"))
     # reuse tmp file from before, test non-writeable file
     os.chmod(newPath, 0)
     assertException(Exception,
-                    lambda: Deck(newPath))
+                    lambda: aopen(newPath))
     os.chmod(newPath, 0666)
     os.unlink(newPath)
 

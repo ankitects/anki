@@ -3,15 +3,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 """\
-Open a deck:
+Open a collection:
 
-    deck = anki.Deck(path)
+    col = anki.open(path)
 
 Get a due card:
 
-    card = deck.sched.getCard()
+    card = col.sched.getCard()
     if not card:
-        # deck is finished
+        # current deck is finished
 
 Show the card:
 
@@ -19,11 +19,11 @@ Show the card:
 
 Answer the card:
 
-    deck.sched.answerCard(card, ease)
+    col.sched.answerCard(card, ease)
 
 Refresh after a change:
 
-    deck.reset()
+    col.reset()
 
 Edit the card:
 
@@ -34,7 +34,7 @@ Edit the card:
 
 Save & close:
 
-    deck.close()
+    col.close()
 """
 
 import sys
@@ -50,4 +50,5 @@ if not os.path.exists(os.path.expanduser("~/.no-warranty")):
     raise Exception("Don't use this without reading the forum thread")
 
 version = "1.99"
-from anki.storage import Deck
+from anki.storage import Collection
+open = Collection

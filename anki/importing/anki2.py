@@ -2,13 +2,13 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki import Deck
+from anki import Collection
 from anki.utils import intTime
 from anki.importing.base import Importer
 
 #
-# Import a .anki2 file into the current deck. Used for migration from 1.x,
-# shared decks, and import from a packaged deck.
+# Import a .anki2 file into the current collection. Used for migration from
+# 1.x, shared decks, and import from a packaged deck.
 #
 # We can't rely on internal ids, so we:
 # - compare notes by guid
@@ -24,7 +24,7 @@ class Anki2Importer(Importer):
     needCards = True
 
     def run(self, media=None):
-        self._prepareDecks()
+        self._prepareFiles()
         if media is not None:
             # Anki1 importer has provided us with a custom media folder
             self.src.media._dir = media
@@ -33,9 +33,9 @@ class Anki2Importer(Importer):
         finally:
             self.src.close(save=False)
 
-    def _prepareDecks(self):
-        self.dst = self.deck
-        self.src = Deck(self.file, queue=False)
+    def _prepareFiles(self):
+        self.dst = self.col
+        self.src = Collection(self.file, queue=False)
 
     def _import(self):
         self._groups = {}
@@ -61,7 +61,7 @@ class Anki2Importer(Importer):
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"):
             self._notes[guid] = (id, mod, mid)
-        # iterate over source deck
+        # iterate over source collection
         add = []
         dirty = []
         for note in self.src.db.execute(
@@ -69,7 +69,7 @@ class Anki2Importer(Importer):
             # turn the db result into a mutable list
             note = list(note)
             guid, mid = note[1:3]
-            # missing from local deck?
+            # missing from local col?
             if guid not in self._notes:
                 # get corresponding local model
                 lmid = self._mid(mid)
@@ -85,7 +85,7 @@ class Anki2Importer(Importer):
                 self._notes[guid] = (note[0], note[4], note[2])
             else:
                 continue #raise Exception("merging notes nyi")
-        # add to deck
+        # add to col
         self.dst.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             add)
@@ -140,7 +140,7 @@ class Anki2Importer(Importer):
     ######################################################################
 
     def _gid(self, gid):
-        "Given gid in src deck, return local id."
+        "Given gid in src col, return local id."
         # already converted?
         if gid in self._groups:
             return self._groups[gid]
@@ -179,7 +179,7 @@ class Anki2Importer(Importer):
             "select f.guid, f.mid, c.* from cards c, notes f "
             "where c.nid = f.id"):
             guid = card[0]
-            # does the card's note exist in dst deck?
+            # does the card's note exist in dst col?
             if guid not in self._notes:
                 continue
             dnid = self._notes[guid]
@@ -188,7 +188,7 @@ class Anki2Importer(Importer):
             # mid = self._notes[guid][2]
             # if shash != self._dstModels[mid]:
             #     continue
-            # does the card already exist in the dst deck?
+            # does the card already exist in the dst col?
             ord = card[5]
             if (guid, ord) in self._cards:
                 # fixme: in future, could update if newer mod time

@@ -24,8 +24,8 @@ def test_graphs_empty():
     assert d.stats().report()
 
 def test_graphs():
-    from anki import Deck
-    d = Deck(os.path.expanduser("~/test.anki2"))
+    from anki import open as aopen
+    d = aopen(os.path.expanduser("~/test.anki2"))
     g = d.stats()
     rep = g.report()
     open(os.path.expanduser("~/test.html"), "w").write(rep)

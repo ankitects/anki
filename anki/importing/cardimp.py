@@ -30,9 +30,9 @@ class CardImporter(Importer):
     updateKey = None
     needDelimiter = False
 
-    def __init__(self, deck, file):
-        Importer.__init__(self, deck, file)
-        self._model = deck.currentModel
+    def __init__(self, col, file):
+        Importer.__init__(self, col, file)
+        self._model = col.currentModel
         self.tagsToAdd = u""
         self._mapping = None
 
@@ -40,23 +40,23 @@ class CardImporter(Importer):
         "Import."
         if self.updateKey is not None:
             return self.doUpdate()
-        random = self.deck.newCardOrder == NEW_CARDS_RANDOM
+        random = self.col.newCardOrder == NEW_CARDS_RANDOM
         num = 6
         if random:
             num += 1
         c = self.foreignCards()
         if self.importCards(c):
-            self.deck.updateCardTags(self.cardIds)
+            self.col.updateCardTags(self.cardIds)
             if random:
-                self.deck.randomizeNewCards(self.cardIds)
+                self.col.randomizeNewCards(self.cardIds)
         if c:
-            self.deck.setModified()
+            self.col.setModified()
 
     def doUpdate(self):
         # grab the data from the external file
         cards = self.foreignCards()
         # grab data from db
-        fields = self.deck.db.all("""
+        fields = self.col.db.all("""
 select noteId, value from fields where fieldModelId = :id
 and value != ''""",
                                id=self.updateKey[1])
@@ -101,7 +101,7 @@ and value != ''""",
                      'v': c.fields[index],
                      'chk': self.maybeChecksum(c.fields[index], fm.unique)}
                     for (nid, c) in upcards]
-            self.deck.db.execute("""
+            self.col.db.execute("""
 update fields set value = :v, chksum = :chk where noteId = :nid
 and fieldModelId = :fmid""", data)
         # update tags
@@ -109,17 +109,17 @@ and fieldModelId = :fmid""", data)
             data = [{'nid': nid,
                      't': c.fields[tagsIdx]}
                     for (nid, c) in upcards]
-            self.deck.db.execute(
+            self.col.db.execute(
                 "update notes set tags = :t where id = :nid",
                 data)
         # rebuild caches
-        cids = self.deck.db.column0(
+        cids = self.col.db.column0(
             "select id from cards where noteId in %s" %
             ids2str(nids))
-        self.deck.updateCardTags(cids)
-        self.deck.updateCardsFromNoteIds(nids)
+        self.col.updateCardTags(cids)
+        self.col.updateCardsFromNoteIds(nids)
         self.total = len(cards)
-        self.deck.setModified()
+        self.col.setModified()
 
     def fields(self):
         "The number of fields."
@@ -166,7 +166,7 @@ and fieldModelId = :fmid""", data)
     model = property(getModel, setModel)
 
     def importCards(self, cards):
-        "Convert each card into a note, apply attributes and add to deck."
+        "Convert each card into a note, apply attributes and add to col."
         # ensure all unique and required fields are mapped
         for fm in self.model.fieldModels:
             if fm.required or fm.unique:
@@ -206,11 +206,11 @@ and fieldModelId = :fmid""", data)
             d['created'] = tmp[0]
             noteCreated[d['id']] = d['created']
             return d
-        self.deck.db.execute(notesTable.insert(),
+        self.col.db.execute(notesTable.insert(),
             [fudgeCreated({'modelId': self.model.id,
               'tags': canonifyTags(self.tagsToAdd + " " + cards[n].tags),
               'id': noteIds[n]}) for n in range(len(cards))])
-        self.deck.db.execute("""
+        self.col.db.execute("""
 delete from notesDeleted
 where noteId in (%s)""" % ",".join([str(s) for s in noteIds]))
         # add all the fields
@@ -230,7 +230,7 @@ where noteId in (%s)""" % ",".join([str(s) for s in noteIds]))
                 cards[m].fields[index] or u"", fm.unique)
                      }
                     for m in range(len(cards))]
-            self.deck.db.execute(fieldsTable.insert(),
+            self.col.db.execute(fieldsTable.insert(),
                                 data)
         # and cards
         active = 0
@@ -246,9 +246,9 @@ where noteId in (%s)""" % ",".join([str(s) for s in noteIds]))
                     'question': u"",
                     'answer': u""
                     },cards[m]) for m in range(len(cards))]
-                self.deck.db.execute(cardsTable.insert(),
+                self.col.db.execute(cardsTable.insert(),
                                     data)
-        self.deck.updateCardsFromNoteIds(noteIds)
+        self.col.updateCardsFromNoteIds(noteIds)
         self.total = len(noteIds)
 
     def addMeta(self, data, card):
@@ -297,7 +297,7 @@ where noteId in (%s)""" % ",".join([str(s) for s in noteIds]))
 
     def getUniqueCache(self, field):
         "Return a dict with all fields, to test for uniqueness."
-        return dict(self.deck.db.all(
+        return dict(self.col.db.all(
             "select value, 1 from fields where fieldModelId = :fmid",
             fmid=field.id))
 

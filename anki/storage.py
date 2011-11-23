@@ -6,12 +6,12 @@ import os, simplejson
 from anki.lang import _
 from anki.utils import intTime
 from anki.db import DB
-from anki.deck import _Deck
+from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel
 
-def Deck(path, queue=True, lock=True, server=False):
-    "Open a new or existing deck. Path must be unicode."
+def Collection(path, queue=True, lock=True, server=False):
+    "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
     create = not os.path.exists(path)
@@ -27,30 +27,30 @@ def Deck(path, queue=True, lock=True, server=False):
         ver = _upgradeSchema(db)
     db.execute("pragma temp_store = memory")
     db.execute("pragma cache_size = 10000")
-    # add db to deck and do any remaining upgrades
-    deck = _Deck(db, server)
+    # add db to col and do any remaining upgrades
+    col = _Collection(db, server)
     if ver < SCHEMA_VERSION:
-        _upgradeDeck(deck, ver)
+        _upgrade(col, ver)
     elif create:
         # add in reverse order so basic is default
-        addClozeModel(deck)
-        addBasicModel(deck)
-        deck.save()
+        addClozeModel(col)
+        addBasicModel(col)
+        col.save()
     if lock:
-        deck.lock()
+        col.lock()
     if not queue:
-        return deck
+        return col
     # rebuild queue
-    deck.reset()
-    return deck
+    col.reset()
+    return col
 
 # no upgrades necessary at the moment
 def _upgradeSchema(db):
     return SCHEMA_VERSION
-def _upgradeDeck(deck, ver):
+def _upgrade(col, ver):
     return
 
-# Creating a new deck
+# Creating a new collection
 ######################################################################
 
 def _createDB(db):
@@ -62,9 +62,9 @@ def _createDB(db):
     db.execute("analyze")
     return SCHEMA_VERSION
 
-def _addSchema(db, setDeckConf=True):
+def _addSchema(db, setColConf=True):
     db.executescript("""
-create table if not exists deck (
+create table if not exists col (
     id              integer primary key,
     crt             integer not null,
     mod             integer not null,
@@ -137,14 +137,14 @@ create table if not exists graves (
     type            integer not null
 );
 
-insert or ignore into deck
+insert or ignore into col
 values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
 """ % ({'v':SCHEMA_VERSION}))
-    import anki.deck
-    if setDeckConf:
-        _addDeckVars(db, *_getDeckVars(db))
+    if setColConf:
+        _addColVars(db, *_getColVars(db))
 
-def _getDeckVars(db):
+def _getColVars(db):
+    import anki.collection
     import anki.groups
     g = anki.groups.defaultGroup.copy()
     for k,v in anki.groups.defaultTopConf.items():
@@ -155,11 +155,11 @@ def _getDeckVars(db):
     g['mod'] = intTime()
     gc = anki.groups.defaultConf.copy()
     gc['id'] = 1
-    return g, gc, anki.deck.defaultConf.copy()
+    return g, gc, anki.collection.defaultConf.copy()
 
-def _addDeckVars(db, g, gc, c):
+def _addColVars(db, g, gc, c):
     db.execute("""
-update deck set conf = ?, groups = ?, gconf = ?""",
+update col set conf = ?, groups = ?, gconf = ?""",
                    simplejson.dumps(c),
                    simplejson.dumps({'1': g}),
                    simplejson.dumps({'1': gc}))

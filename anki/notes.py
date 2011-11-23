@@ -9,14 +9,14 @@ from anki.utils import fieldChecksum, intTime, \
 
 class Note(object):
 
-    def __init__(self, deck, model=None, id=None):
+    def __init__(self, col, model=None, id=None):
         assert not (model and id)
-        self.deck = deck
+        self.col = col
         if id:
             self.id = id
             self.load()
         else:
-            self.id = timestampID(deck.db, "notes")
+            self.id = timestampID(col.db, "notes")
             self.guid = guid64()
             self._model = model
             self.gid = model['gid']
@@ -25,7 +25,7 @@ class Note(object):
             self.fields = [""] * len(self._model['flds'])
             self.flags = 0
             self.data = ""
-            self._fmap = self.deck.models.fieldMap(self._model)
+            self._fmap = self.col.models.fieldMap(self._model)
 
     def load(self):
         (self.guid,
@@ -36,29 +36,29 @@ class Note(object):
          self.tags,
          self.fields,
          self.flags,
-         self.data) = self.deck.db.first("""
+         self.data) = self.col.db.first("""
 select guid, mid, gid, mod, usn, tags, flds, flags, data
 from notes where id = ?""", self.id)
         self.fields = splitFields(self.fields)
-        self.tags = self.deck.tags.split(self.tags)
-        self._model = self.deck.models.get(self.mid)
-        self._fmap = self.deck.models.fieldMap(self._model)
+        self.tags = self.col.tags.split(self.tags)
+        self._model = self.col.models.get(self.mid)
+        self._fmap = self.col.models.fieldMap(self._model)
 
     def flush(self, mod=None):
         if self.model()['cloze']:
             self._clozePreFlush()
         self.mod = mod if mod else intTime()
-        self.usn = self.deck.usn()
-        sfld = stripHTML(self.fields[self.deck.models.sortIdx(self._model)])
+        self.usn = self.col.usn()
+        sfld = stripHTML(self.fields[self.col.models.sortIdx(self._model)])
         tags = self.stringTags()
-        res = self.deck.db.execute("""
+        res = self.col.db.execute("""
 insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                             self.id, self.guid, self.mid, self.gid,
                             self.mod, self.usn, tags,
                             self.joinedFields(), sfld, self.flags, self.data)
         self.id = res.lastrowid
         self.updateFieldChecksums()
-        self.deck.tags.register(self.tags)
+        self.col.tags.register(self.tags)
         if self.model()['cloze']:
             self._clozePostFlush()
 
@@ -66,7 +66,7 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         return joinFields(self.fields)
 
     def updateFieldChecksums(self):
-        self.deck.db.execute("delete from nsums where nid = ?", self.id)
+        self.col.db.execute("delete from nsums where nid = ?", self.id)
         d = []
         for (ord, conf) in self._fmap.values():
             if not conf['uniq']:
@@ -75,10 +75,10 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             if not val:
                 continue
             d.append((self.id, self.mid, fieldChecksum(val)))
-        self.deck.db.executemany("insert into nsums values (?, ?, ?)", d)
+        self.col.db.executemany("insert into nsums values (?, ?, ?)", d)
 
     def cards(self):
-        return [self.deck.getCard(id) for id in self.deck.db.list(
+        return [self.col.getCard(id) for id in self.col.db.list(
             "select id from cards where nid = ? order by ord", self.id)]
 
     def model(self):
@@ -119,13 +119,13 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     ##################################################
 
     def hasTag(self, tag):
-        return self.deck.tags.inList(tag, self.tags)
+        return self.col.tags.inList(tag, self.tags)
 
     def stringTags(self):
-        return self.deck.tags.join(self.deck.tags.canonify(self.tags))
+        return self.col.tags.join(self.col.tags.canonify(self.tags))
 
     def setTagsFromStr(self, str):
-        self.tags = self.deck.tags.split(str)
+        self.tags = self.col.tags.split(str)
 
     def delTag(self, tag):
         rem = []
@@ -154,14 +154,14 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             lim = "and nid != :nid"
         else:
             lim = ""
-        nids = self.deck.db.list(
+        nids = self.col.db.list(
             "select nid from nsums where csum = ? and nid != ? and mid = ?",
             csum, self.id or 0, self.mid)
         if not nids:
             return True
         # grab notes with the same checksums, and see if they're actually
         # duplicates
-        for flds in self.deck.db.list("select flds from notes where id in "+
+        for flds in self.col.db.list("select flds from notes where id in "+
                                       ids2str(nids)):
             fields = splitFields(flds)
             if fields[ord] == val:
@@ -189,14 +189,14 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     ##################################################
 
     def _clozePreFlush(self):
-        self.newlyAdded = not self.deck.db.scalar(
+        self.newlyAdded = not self.col.db.scalar(
             "select 1 from cards where nid = ?", self.id)
-        tmpls = self.deck.findTemplates(self)
+        tmpls = self.col.findTemplates(self)
         ok = []
         for t in tmpls:
             ok.append(t['ord'])
         # check if there are cards referencing a deleted cloze
-        if self.deck.db.scalar(
+        if self.col.db.scalar(
             "select 1 from cards where nid = ? and ord not in %s" %
             ids2str(ok), self.id):
             # there are; abort, as the UI should have handled this
@@ -205,4 +205,4 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     def _clozePostFlush(self):
         # generate missing cards
         if not self.newlyAdded:
-            self.deck.genCards([self.id])
+            self.col.genCards([self.id])

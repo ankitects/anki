@@ -192,7 +192,7 @@ def stopMplayer(*args):
         return
     mplayerManager.kill()
 
-addHook("deckClosed", stopMplayer)
+addHook("colClosed", stopMplayer)
 
 # PyAudio recording
 ##########################################################################

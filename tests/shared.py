@@ -1,5 +1,5 @@
 import tempfile, os, shutil
-from anki import Deck
+from anki import open as aopen
 
 def assertException(exception, func):
     found = False
@@ -12,7 +12,7 @@ def assertException(exception, func):
 def getEmptyDeck(**kwargs):
     (fd, nam) = tempfile.mkstemp(suffix=".anki2")
     os.unlink(nam)
-    return Deck(nam, **kwargs)
+    return aopen(nam, **kwargs)
 
 def getUpgradeDeckPath():
     src = os.path.join(testDir, "support", "anki12.anki")

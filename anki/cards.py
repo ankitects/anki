@@ -18,8 +18,8 @@ from anki.utils import intTime, hexifyID, timestampID
 
 class Card(object):
 
-    def __init__(self, deck, id=None):
-        self.deck = deck
+    def __init__(self, col, id=None):
+        self.col = col
         self.timerStarted = None
         self._qa = None
         self._rd = None
@@ -28,7 +28,7 @@ class Card(object):
             self.load()
         else:
             # to flush, set nid, ord, and due
-            self.id = timestampID(deck.db, "cards")
+            self.id = timestampID(col.db, "cards")
             self.gid = 1
             self.crt = intTime()
             self.type = 0
@@ -59,15 +59,15 @@ class Card(object):
          self.left,
          self.edue,
          self.flags,
-         self.data) = self.deck.db.first(
+         self.data) = self.col.db.first(
              "select * from cards where id = ?", self.id)
         self._qa = None
         self._rd = None
 
     def flush(self):
         self.mod = intTime()
-        self.usn = self.deck.usn()
-        self.deck.db.execute(
+        self.usn = self.col.usn()
+        self.col.db.execute(
             """
 insert or replace into cards values
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -91,8 +91,8 @@ insert or replace into cards values
 
     def flushSched(self):
         self.mod = intTime()
-        self.usn = self.deck.usn()
-        self.deck.db.execute(
+        self.usn = self.col.usn()
+        self.col.db.execute(
             """update cards set
 mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
 lapses=?, left=?, edue=? where id = ?""",
@@ -111,14 +111,14 @@ lapses=?, left=?, edue=? where id = ?""",
             f = self.note(); m = self.model()
             data = [self.id, f.id, m['id'], self.gid, self.ord, f.stringTags(),
                     f.joinedFields()]
-            self._qa = self.deck._renderQA(data)
+            self._qa = self.col._renderQA(data)
         return self._qa
 
     def _reviewData(self, reload=False):
         "Fetch the model and note."
         if not self._rd or reload:
-            f = self.deck.getNote(self.nid)
-            m = self.deck.models.get(f.mid)
+            f = self.col.getNote(self.nid)
+            m = self.col.models.get(f.mid)
             self._rd = [f, m]
         return self._rd
 
@@ -129,7 +129,7 @@ lapses=?, left=?, edue=? where id = ?""",
         return self._reviewData()[1]
 
     def groupConf(self):
-        return self.deck.groups.conf(self.gid)
+        return self.col.groups.conf(self.gid)
 
     def template(self):
         return self._reviewData()[1]['tmpls'][self.ord]

@@ -60,8 +60,8 @@ class ModelManager(object):
     # Saving/loading registry
     #############################################################
 
-    def __init__(self, deck):
-        self.deck = deck
+    def __init__(self, col):
+        self.col = col
 
     def load(self, json):
         "Load registry from JSON."
@@ -72,16 +72,16 @@ class ModelManager(object):
         "Mark M modified if provided, and schedule registry flush."
         if m:
             m['mod'] = intTime()
-            m['usn'] = self.deck.usn()
+            m['usn'] = self.col.usn()
             self._updateRequired(m)
             if gencards:
-                self.deck.genCards(self.nids(m))
+                self.col.genCards(self.nids(m))
         self.changed = True
 
     def flush(self):
         "Flush the registry if any models were changed."
         if self.changed:
-            self.deck.db.execute("update deck set models = ?",
+            self.col.db.execute("update col set models = ?",
                                  simplejson.dumps(self.models))
 
     # Retrieving and creating models
@@ -90,16 +90,16 @@ class ModelManager(object):
     def current(self):
         "Get current model."
         try:
-            m = self.get(self.deck.groups.top()['curModel'])
+            m = self.get(self.col.groups.top()['curModel'])
             assert m
             return m
         except:
             return self.models.values()[0]
 
     def setCurrent(self, m):
-        t = self.deck.groups.top()
+        t = self.col.groups.top()
         t['curModel'] = m['id']
-        self.deck.groups.save(t)
+        self.col.groups.save(t)
 
     def get(self, id):
         "Get model with ID, or None."
@@ -130,10 +130,10 @@ class ModelManager(object):
 
     def rem(self, m):
         "Delete model, and all its cards/notes."
-        self.deck.modSchema()
+        self.col.modSchema()
         current = self.current()['id'] == m['id']
         # delete notes/cards
-        self.deck.remCards(self.deck.db.list("""
+        self.col.remCards(self.col.db.list("""
 select id from cards where nid in (select id from notes where mid = ?)""",
                                       m['id']))
         # then the model
@@ -170,12 +170,12 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def nids(self, m):
         "Note ids for M."
-        return self.deck.db.list(
+        return self.col.db.list(
             "select id from notes where mid = ?", m['id'])
 
     def useCount(self, m):
         "Number of note using M."
-        return self.deck.db.scalar(
+        return self.col.db.scalar(
             "select count() from notes where mid = ?", m['id'])
 
     def randomNew(self):
@@ -210,9 +210,9 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def setSortIdx(self, m, idx):
         assert idx >= 0 and idx < len(m['flds'])
-        self.deck.modSchema()
+        self.col.modSchema()
         m['sortf'] = idx
-        self.deck.updateFieldCache(self.nids(m), csum=False)
+        self.col.updateFieldCache(self.nids(m), csum=False)
         self.save(m)
 
     def addField(self, m, field):
@@ -234,7 +234,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self._transformFields(m, delete)
         if idx == self.sortIdx(m):
             # need to rebuild
-            self.deck.updateFieldCache(self.nids(m), csum=False)
+            self.col.updateFieldCache(self.nids(m), csum=False)
         # saves
         self.renameField(m, field, None)
 
@@ -254,7 +254,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self._transformFields(m, move)
 
     def renameField(self, m, field, newName):
-        self.deck.modSchema()
+        self.col.modSchema()
         for t in m['tmpls']:
             types = ("{{%s}}", "{{text:%s}}", "{{#%s}}",
                      "{{^%s}}", "{{/%s}}")
@@ -273,13 +273,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             f['ord'] = c
 
     def _transformFields(self, m, fn):
-        self.deck.modSchema()
+        self.col.modSchema()
         r = []
-        for (id, flds) in self.deck.db.execute(
+        for (id, flds) in self.col.db.execute(
             "select id, flds from notes where mid = ?", m['id']):
             r.append((joinFields(fn(splitFields(flds))),
-                      intTime(), self.deck.usn(), id))
-        self.deck.db.executemany(
+                      intTime(), self.col.usn(), id))
+        self.col.db.executemany(
             "update notes set flds=?,mod=?,usn=? where id = ?", r)
 
     # Templates
@@ -291,8 +291,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         return t
 
     def addTemplate(self, m, template):
-        "Note: should deck.genCards() afterwards."
-        self.deck.modSchema()
+        "Note: should col.genCards() afterwards."
+        self.col.modSchema()
         m['tmpls'].append(template)
         self._updateTemplOrds(m)
         self.save(m)
@@ -301,12 +301,12 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         "False if removing template would leave orphan notes."
         # find cards using this template
         ord = m['tmpls'].index(template)
-        cids = self.deck.db.list("""
+        cids = self.col.db.list("""
 select c.id from cards c, notes f where c.nid=f.id and mid = ? and ord = ?""",
                                  m['id'], ord)
         # all notes with this template must have at least two cards, or we
         # could end up creating orphaned notes
-        if self.deck.db.scalar("""
+        if self.col.db.scalar("""
 select nid, count() from cards where
 nid in (select nid from cards where id in %s)
 group by nid
@@ -314,13 +314,13 @@ having count() < 2
 limit 1""" % ids2str(cids)):
             return False
         # ok to proceed; remove cards
-        self.deck.modSchema()
-        self.deck.remCards(cids)
+        self.col.modSchema()
+        self.col.remCards(cids)
         # shift ordinals
-        self.deck.db.execute("""
+        self.col.db.execute("""
 update cards set ord = ord - 1, usn = ?, mod = ?
  where nid in (select id from notes where mid = ?) and ord > ?""",
-                             self.deck.usn(), intTime(), m['id'], ord)
+                             self.col.usn(), intTime(), m['id'], ord)
         m['tmpls'].remove(template)
         self._updateTemplOrds(m)
         self.save(m)
@@ -344,10 +344,10 @@ update cards set ord = ord - 1, usn = ?, mod = ?
             map.append("when ord = %d then %d" % (oldidxs[id(t)], t['ord']))
         # apply
         self.save(m)
-        self.deck.db.execute("""
+        self.col.db.execute("""
 update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),
-                             self.deck.usn(), intTime(), m['id'])
+                             self.col.usn(), intTime(), m['id'])
 
     # Model changing
     ##########################################################################
@@ -355,7 +355,7 @@ select id from notes where mid = ?)""" % " ".join(map),
     # - newModel should be self if model is not changing
 
     def change(self, m, nids, newModel, fmap, cmap):
-        self.deck.modSchema()
+        self.col.modSchema()
         assert newModel['id'] == m['id'] or (fmap and cmap)
         if fmap:
             self._changeNotes(nids, newModel, fmap)
@@ -365,7 +365,7 @@ select id from notes where mid = ?)""" % " ".join(map),
     def _changeNotes(self, nids, newModel, map):
         d = []
         nfields = len(newModel['flds'])
-        for (nid, flds) in self.deck.db.execute(
+        for (nid, flds) in self.col.db.execute(
             "select id, flds from notes where id in "+ids2str(nids)):
             newflds = {}
             flds = splitFields(flds)
@@ -376,25 +376,25 @@ select id from notes where mid = ?)""" % " ".join(map),
                 flds.append(newflds.get(c, ""))
             flds = joinFields(flds)
             d.append(dict(nid=nid, flds=flds, mid=newModel['id'],
-                      m=intTime(),u=self.deck.usn()))
-        self.deck.db.executemany(
+                      m=intTime(),u=self.col.usn()))
+        self.col.db.executemany(
             "update notes set flds=:flds,mid=:mid,mod=:m,usn=:u where id = :nid", d)
-        self.deck.updateFieldCache(nids)
+        self.col.updateFieldCache(nids)
 
     def _changeCards(self, nids, newModel, map):
         d = []
         deleted = []
-        for (cid, ord) in self.deck.db.execute(
+        for (cid, ord) in self.col.db.execute(
             "select id, ord from cards where nid in "+ids2str(nids)):
             if map[ord] is not None:
                 d.append(dict(
-                    cid=cid,new=map[ord],u=self.deck.usn(),m=intTime()))
+                    cid=cid,new=map[ord],u=self.col.usn(),m=intTime()))
             else:
                 deleted.append(cid)
-        self.deck.db.executemany(
+        self.col.db.executemany(
             "update cards set ord=:new,usn=:u,mod=:m where id=:cid",
             d)
-        self.deck.remCards(deleted)
+        self.col.remCards(deleted)
 
     # Schema hash
     ##########################################################################
@@ -439,7 +439,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             a.append(cloze if cloze else "1")
             b.append("")
         data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b)]
-        empty = self.deck._renderQA(data)['q']
+        empty = self.col._renderQA(data)['q']
         start = a
         req = []
         for i in range(len(flds)):
@@ -448,7 +448,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             # blank out this field
             data[6] = joinFields(a)
             # if the result is same as empty, field is required
-            if self.deck._renderQA(data)['q'] == empty:
+            if self.col._renderQA(data)['q'] == empty:
                 req.append(i)
         return req, reqstrs
 
