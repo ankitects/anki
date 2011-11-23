@@ -288,7 +288,7 @@ yesCount from reviewHistory"""):
 insert or replace into col select id, cast(created as int), :t,
 :t, 99, 0, 0, cast(lastSync as int),
 "", "", "", "", "" from decks""", t=intTime())
-        # prepare a group to store the old deck options
+        # prepare a deck to store the old deck options
         g, gc, conf = _getColVars(db)
         # delete old selective study settings, which we can't auto-upgrade easily
         keys = ("newActive", "newInactive", "revActive", "revInactive")
@@ -599,7 +599,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         col.db.execute("""
 update cards set due = nid where type=0""")
         # and failed cards
-        left = len(col.groups.conf(1)['new']['delays'])
+        left = len(col.decks.conf(1)['new']['delays'])
         col.db.execute("update cards set edue = ?, left=? where type = 1",
                         col.sched.today+1, left)
         # and due cards

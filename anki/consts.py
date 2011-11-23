@@ -25,7 +25,7 @@ REV_CARDS_NEW_FIRST = 2
 # removal types
 REM_CARD = 0
 REM_NOTE = 1
-REM_GROUP = 2
+REM_DECK = 2
 
 # count display
 COUNT_ANSWERED = 0

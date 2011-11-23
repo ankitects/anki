@@ -66,8 +66,8 @@ class CramScheduler(Scheduler):
         else:
             maxlim = ""
         self.newQueue = self.col.db.list("""
-select id from cards where gid in %s and queue = 2 and due >= %d
-%s order by %s limit %d""" % (self._groupLimit(),
+select id from cards where did in %s and queue = 2 and due >= %d
+%s order by %s limit %d""" % (self._deckLimit(),
                               self.today+1+self.min,
                               maxlim,
                               self.order,

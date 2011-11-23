@@ -14,13 +14,13 @@ from anki.importing.base import Importer
 # - compare notes by guid
 # - compare models by schema signature
 # - compare cards by note guid + ordinal
-# - compare groups by name
+# - compare decks by name
 #
 
 class Anki2Importer(Importer):
 
     needMapper = False
-    groupPrefix = None
+    deckPrefix = None
     needCards = True
 
     def run(self, media=None):
@@ -38,10 +38,10 @@ class Anki2Importer(Importer):
         self.src = Collection(self.file, queue=False)
 
     def _import(self):
-        self._groups = {}
-        if self.groupPrefix:
-            id = self.dst.groups.id(self.groupPrefix)
-            self.dst.groups.select(id)
+        self._decks = {}
+        if self.deckPrefix:
+            id = self.dst.decks.id(self.deckPrefix)
+            self.dst.decks.select(id)
         self._prepareTS()
         self._prepareModels()
         self._importNotes()
@@ -76,7 +76,7 @@ class Anki2Importer(Importer):
                 # rewrite internal ids, models, etc
                 note[0] = self.ts()
                 note[2] = lmid
-                note[3] = self._gid(note[3])
+                note[3] = self._did(note[3])
                 note[4] = intTime()
                 note[5] = -1 # usn
                 add.append(note)
@@ -136,27 +136,27 @@ class Anki2Importer(Importer):
         else:
             dst['vers'] = [src['id']]
 
-    # Groups
+    # Decks
     ######################################################################
 
-    def _gid(self, gid):
-        "Given gid in src col, return local id."
+    def _did(self, did):
+        "Given did in src col, return local id."
         # already converted?
-        if gid in self._groups:
-            return self._groups[gid]
+        if did in self._decks:
+            return self._decks[did]
         # get the name in src
-        g = self.src.groups.get(gid)
+        g = self.src.decks.get(did)
         name = g['name']
-        # if there's a prefix, replace the top level group
-        if self.groupPrefix:
+        # if there's a prefix, replace the top level deck
+        if self.deckPrefix:
             tmpname = "::".join(name.split("::")[1:])
-            name = self.groupPrefix
+            name = self.deckPrefix
             if tmpname:
                 name += "::" + name
         # create in local
-        newid = self.dst.groups.id(name)
-        # add to group map and return
-        self._groups[gid] = newid
+        newid = self.dst.decks.id(name)
+        # add to deck map and return
+        self._decks[did] = newid
         return newid
 
     # Cards
@@ -199,7 +199,7 @@ class Anki2Importer(Importer):
             # update cid, nid, etc
             card[0] = self.ts()
             card[1] = self._notes[guid][0]
-            card[2] = self._gid(card[2])
+            card[2] = self._did(card[2])
             card[4] = intTime()
             cards.append(card)
             # we need to import revlog, rewriting card ids

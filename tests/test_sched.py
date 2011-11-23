@@ -54,29 +54,29 @@ def test_new():
 def test_newLimits():
     d = getEmptyDeck()
     # add some notes
-    g2 = d.groups.id("Default::foo")
+    g2 = d.decks.id("Default::foo")
     for i in range(30):
         f = d.newNote()
         f['Front'] = str(i)
         if i > 4:
-            f.gid = g2
+            f.did = g2
         d.addNote(f)
-    # give the child group a different configuration
-    c2 = d.groups.confId("new conf")
-    d.groups.setConf(d.groups.get(g2), c2)
+    # give the child deck a different configuration
+    c2 = d.decks.confId("new conf")
+    d.decks.setConf(d.decks.get(g2), c2)
     d.reset()
     # both confs have defaulted to a limit of 20
     assert d.sched.newCount == 20
     # first card we get comes from parent
     c = d.sched.getCard()
-    assert c.gid == 1
+    assert c.did == 1
     # limit the parent to 10 cards, meaning we get 10 in total
-    conf1 = d.groups.conf(1)
+    conf1 = d.decks.conf(1)
     conf1['new']['perDay'] = 10
     d.reset()
     assert d.sched.newCount == 10
     # if we limit child to 4, we should get 9
-    conf2 = d.groups.conf(g2)
+    conf2 = d.decks.conf(g2)
     conf2['new']['perDay'] = 4
     d.reset()
     assert d.sched.newCount == 9
@@ -98,7 +98,7 @@ def test_newOrder():
     # add first half
     d.addNote(f)
     # generate second half
-    d.db.execute("update cards set gid = random()")
+    d.db.execute("update cards set did = random()")
     d.conf['newPerDay'] = 100
     d.reset()
     # cards should be sorted by id
@@ -415,8 +415,8 @@ def test_cram():
     c.startTimer()
     c.flush()
     cardcopy = copy.copy(c)
-    d.conf['groups'] = [1]
-    d.cramGroups()
+    d.conf['decks'] = [1]
+    d.cramDecks()
     # first, test with initial intervals preserved
     conf = d.sched._lrnConf(c)
     conf['reset'] = False
@@ -452,7 +452,7 @@ def test_cram():
     # now try again with ivl rescheduling
     c = copy.copy(cardcopy)
     c.flush()
-    d.cramGroups()
+    d.cramDecks()
     conf = d.sched._lrnConf(c)
     conf['reset'] = False
     conf['resched'] = True
@@ -467,7 +467,7 @@ def test_cram():
     # try with ivl reset
     c = copy.copy(cardcopy)
     c.flush()
-    d.cramGroups()
+    d.cramDecks()
     conf = d.sched._lrnConf(c)
     conf['reset'] = True
     conf['resched'] = True
@@ -477,8 +477,8 @@ def test_cram():
     assert c.ivl == 1
     assert c.due == d.sched.today + 1
     # users should be able to cram entire deck too
-    d.conf['groups'] = []
-    d.cramGroups()
+    d.conf['decks'] = []
+    d.cramDecks()
     assert d.sched.cardCounts()[0] > 0
 
 def test_cramLimits():
@@ -493,30 +493,30 @@ def test_cramLimits():
         c.due = d.sched.today + 1 + i
         c.flush()
     # the default cram should return all three
-    d.conf['groups'] = [1]
-    d.cramGroups()
+    d.conf['decks'] = [1]
+    d.cramDecks()
     assert d.sched.cardCounts()[0] == 3
     # if we start from the day after tomorrow, it should be 2
-    d.cramGroups(min=1)
+    d.cramDecks(min=1)
     assert d.sched.cardCounts()[0] == 2
     # or after 2 days
-    d.cramGroups(min=2)
+    d.cramDecks(min=2)
     assert d.sched.cardCounts()[0] == 1
     # we may get nothing
-    d.cramGroups(min=3)
+    d.cramDecks(min=3)
     assert d.sched.cardCounts()[0] == 0
     # tomorrow(0) + dayAfter(1) = 2
-    d.cramGroups(max=1)
+    d.cramDecks(max=1)
     assert d.sched.cardCounts()[0] == 2
     # if max is tomorrow, we get only one
-    d.cramGroups(max=0)
+    d.cramDecks(max=0)
     assert d.sched.cardCounts()[0] == 1
     # both should work
-    d.cramGroups(min=0, max=0)
+    d.cramDecks(min=0, max=0)
     assert d.sched.cardCounts()[0] == 1
-    d.cramGroups(min=1, max=1)
+    d.cramDecks(min=1, max=1)
     assert d.sched.cardCounts()[0] == 1
-    d.cramGroups(min=0, max=1)
+    d.cramDecks(min=0, max=1)
     assert d.sched.cardCounts()[0] == 2
 
 def test_adjIvl():
@@ -614,28 +614,28 @@ def test_ordcycle():
 
 def test_cardcounts():
     d = getEmptyDeck()
-    # add a second group
-    grp = d.groups.id("Default::new group")
+    # add a second deck
+    grp = d.decks.id("Default::new deck")
     # for each card type
     for type in range(3):
-        # and each of the groups
-        for gid in (1,grp):
+        # and each of the decks
+        for did in (1,grp):
             # create a new note
             f = d.newNote()
             f['Front'] = u"one"
             d.addNote(f)
             c = f.cards()[0]
-            # set type/gid
+            # set type/did
             c.type = type
             c.queue = type
-            c.gid = gid
+            c.did = did
             c.due = 0
             c.flush()
     d.reset()
     # with the default settings, there's no count limit
     assert d.sched.cardCounts() == (2,2,2)
-    # check limit to one group
-    d.groups.select(grp)
+    # check limit to one deck
+    d.decks.select(grp)
     d.reset()
     assert d.sched.cardCounts() == (1,1,1)
 
@@ -753,42 +753,42 @@ def test_collapse():
     d.sched.answerCard(c, 3)
     assert not d.sched.getCard()
 
-def test_groupCounts():
+def test_deckCounts():
     d = getEmptyDeck()
-    # add a note with default group
+    # add a note with default deck
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
     # and one that's a child
     f = d.newNote()
     f['Front'] = u"two"
-    default1 = f.gid = d.groups.id("Default::1")
+    default1 = f.did = d.decks.id("Default::1")
     d.addNote(f)
     # make it a review card
     c = f.cards()[0]
     c.queue = 2
     c.due = 0
     c.flush()
-    # add one more with a new group
+    # add one more with a new deck
     f = d.newNote()
     f['Front'] = u"two"
-    foobar = f.gid = d.groups.id("foo::bar")
+    foobar = f.did = d.decks.id("foo::bar")
     d.addNote(f)
     # and one that's a sibling
     f = d.newNote()
     f['Front'] = u"three"
-    foobaz = f.gid = d.groups.id("foo::baz")
+    foobaz = f.did = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
-    assert len(d.groups.groups) == 5
-    cnts = d.sched.groupCounts()
+    assert len(d.decks.decks) == 5
+    cnts = d.sched.deckCounts()
     cnts.sort()
     assert cnts[0] == ["Default", 1, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0]
-    assert cnts[2] == ["foo", d.groups.id("foo"), 0, 0]
+    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0]
     assert cnts[3] == ["foo::bar", foobar, 0, 1]
     assert cnts[4] == ["foo::baz", foobaz, 0, 1]
-    tree = d.sched.groupCountTree()
+    tree = d.sched.deckCountTree()
     assert tree[0][0] == "Default"
     # sum of child and parent
     assert tree[0][1] == 1
@@ -799,35 +799,35 @@ def test_groupCounts():
     assert tree[0][4][0][1] == default1
     assert tree[0][4][0][2] == 1
     assert tree[0][4][0][3] == 0
-    # code should not fail if a card has an invalid group
-    c.gid = 12345; c.flush()
-    d.sched.groupCounts()
-    d.sched.groupCountTree()
+    # code should not fail if a card has an invalid deck
+    c.did = 12345; c.flush()
+    d.sched.deckCounts()
+    d.sched.deckCountTree()
 
-def test_groupTree():
+def test_deckTree():
     d = getEmptyDeck()
-    d.groups.id("new::b::c")
-    d.groups.id("new2")
+    d.decks.id("new::b::c")
+    d.decks.id("new2")
     # new should not appear twice in tree
-    names = [x[0] for x in d.sched.groupCountTree()]
+    names = [x[0] for x in d.sched.deckCountTree()]
     names.remove("new")
     assert "new" not in names
 
-def test_groupFlow():
+def test_deckFlow():
     d = getEmptyDeck()
-    # add a note with default group
+    # add a note with default deck
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
     # and one that's a child
     f = d.newNote()
     f['Front'] = u"two"
-    default1 = f.gid = d.groups.id("Default::2")
+    default1 = f.did = d.decks.id("Default::2")
     d.addNote(f)
     # and another that's higher up
     f = d.newNote()
     f['Front'] = u"three"
-    default1 = f.gid = d.groups.id("Default::1")
+    default1 = f.did = d.decks.id("Default::1")
     d.addNote(f)
     # should get top level one first, then ::1, then ::2
     d.reset()
@@ -839,7 +839,7 @@ def test_groupFlow():
 
 def test_reorder():
     d = getEmptyDeck()
-    # add a note with default group
+    # add a note with default deck
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -917,7 +917,7 @@ def test_revlim():
     for i in range(5):
         d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.repCounts()[2] == 15
-    t = d.groups.top()
+    t = d.decks.top()
     t['revLim'] = 10
     d.reset()
     assert d.sched.repCounts()[2] == 5

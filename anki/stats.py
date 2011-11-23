@@ -49,8 +49,8 @@ class CardStats(object):
             self.addLine(_("Position"), c.due)
         self.addLine(_("Model"), c.model()['name'])
         self.addLine(_("Template"), c.template()['name'])
-        self.addLine(_("Current Group"), self.col.groups.name(c.gid))
-        self.addLine(_("Home Group"), self.col.groups.name(c.note().gid))
+        self.addLine(_("Current Deck"), self.col.decks.name(c.did))
+        self.addLine(_("Original Deck"), self.col.decks.name(c.note().did))
         self.txt += "</table>"
         return self.txt
 
@@ -178,7 +178,7 @@ select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where gid in %s and queue = 2
+where did in %s and queue = 2
 %s
 group by day order by day""" % (self._limit(), lim),
                             today=self.col.sched.today,
@@ -391,11 +391,11 @@ group by day order by day)""" % lim,
             chunk = 30; lim = ""
         data = [self.col.db.all("""
 select ivl / :chunk as grp, count() from cards
-where gid in %s and queue = 2 %s
+where did in %s and queue = 2 %s
 group by grp
 order by grp""" % (self._limit(), lim), chunk=chunk)]
         return data + list(self.col.db.first("""
-select count(), avg(ivl), max(ivl) from cards where gid in %s and queue = 2""" %
+select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
                                          self._limit()))
 
     # Eases
@@ -539,7 +539,7 @@ group by hour having count() > 30 order by hour""" % lim,
         i = []
         (c, f) = self.col.db.first("""
 select count(id), count(distinct nid) from cards
-where gid in %s """ % self._limit())
+where did in %s """ % self._limit())
         self._line(i, _("Total cards"), c)
         self._line(i, _("Total notes"), f)
         (low, avg, high) = self._factors()
@@ -548,7 +548,7 @@ where gid in %s """ % self._limit())
             self._line(i, _("Average ease factor"), "%d%%" % avg)
             self._line(i, _("Highest ease factor"), "%d%%" % high)
         min = self.col.db.scalar(
-            "select min(id) from cards where gid in %s " % self._limit())
+            "select min(id) from cards where did in %s " % self._limit())
         if min:
             self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
             time.time() - (min/1000)))
@@ -579,7 +579,7 @@ select
 min(factor) / 10.0,
 avg(factor) / 10.0,
 max(factor) / 10.0
-from cards where gid in %s and queue = 2""" % self._limit())
+from cards where did in %s and queue = 2""" % self._limit())
 
     def _cards(self):
         return self.col.db.first("""
@@ -588,7 +588,7 @@ sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
 sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue=0 then 1 else 0 end), -- new
 sum(case when queue=-1 then 1 else 0 end) -- susp
-from cards where gid in %s""" % self._limit())
+from cards where did in %s""" % self._limit())
 
     # Tools
     ######################################################################
@@ -668,11 +668,11 @@ $(function () {
     data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
 
     def _limit(self):
-        return self.col.sched._groupLimit()
+        return self.col.sched._deckLimit()
 
     def _revlogLimit(self):
-        return ("cid in (select id from cards where gid in %s)" %
-                ids2str(self.col.groups.active()))
+        return ("cid in (select id from cards where did in %s)" %
+                ids2str(self.col.decks.active()))
 
     def _title(self, title, subtitle=""):
         return '<h1>%s</h1>%s' % (title, subtitle)

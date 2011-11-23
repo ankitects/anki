@@ -171,8 +171,8 @@ class TagManager(object):
             query += " where " + lim
         return self.col.db.list(query, *args)
 
-    def setGroupForTags(self, yes, no, gid):
+    def setDeckForTags(self, yes, no, did):
         nids = self.selTagNids(yes, no)
         self.col.db.execute(
-            "update cards set gid=?,mod=?,usn=? where nid in "+ids2str(nids),
-            gid, intTime(), self.col.usn())
+            "update cards set did=?,mod=?,usn=? where nid in "+ids2str(nids),
+            did, intTime(), self.col.usn())

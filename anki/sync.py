@@ -95,7 +95,7 @@ class Syncer(object):
     def changes(self):
         "Bundle up deletions and small objects, and apply if server."
         d = dict(models=self.getModels(),
-                 groups=self.getGroups(),
+                 decks=self.getDecks(),
                  tags=self.getTags(),
                  graves=self.getGraves())
         if self.lnewer:
@@ -118,7 +118,7 @@ class Syncer(object):
         self.mergeGraves(rchg['graves'])
         # then the other objects
         self.mergeModels(rchg['models'])
-        self.mergeGroups(rchg['groups'])
+        self.mergeDecks(rchg['decks'])
         self.mergeTags(rchg['tags'])
         if 'conf' in rchg:
             self.mergeConf(rchg['conf'])
@@ -134,7 +134,7 @@ select count() from notes where id not in (select distinct nid from cards)""")
         for t in "cards", "notes", "revlog", "graves":
             assert not self.col.db.scalar(
                 "select count() from %s where usn = -1" % t)
-        for g in self.col.groups.all():
+        for g in self.col.decks.all():
             assert g['usn'] != -1
         for t, usn in self.col.tags.allItems():
             assert usn != -1
@@ -148,8 +148,8 @@ select count() from notes where id not in (select distinct nid from cards)""")
             self.col.db.scalar("select count() from graves"),
             len(self.col.models.all()),
             len(self.col.tags.all()),
-            len(self.col.groups.all()),
-            len(self.col.groups.allConf()),
+            len(self.col.decks.all()),
+            len(self.col.decks.allConf()),
         ]
 
     def usnLim(self):
@@ -184,11 +184,11 @@ select id, cid, %d, ease, ivl, lastIvl, factor, time, type
 from revlog where %s""" % d)
         elif table == "cards":
             return x("""
-select id, nid, gid, ord, mod, %d, type, queue, due, ivl, factor, reps,
+select id, nid, did, ord, mod, %d, type, queue, due, ivl, factor, reps,
 lapses, left, edue, flags, data from cards where %s""" % d)
         else:
             return x("""
-select id, guid, mid, gid, mod, %d, tags, flds, '', flags, data
+select id, guid, mid, did, mod, %d, tags, flds, '', flags, data
 from notes where %s""" % d)
 
     def chunk(self):
@@ -230,7 +230,7 @@ from notes where %s""" % d)
     def getGraves(self):
         cards = []
         notes = []
-        groups = []
+        decks = []
         if self.col.server:
             curs = self.col.db.execute(
                 "select oid, type from graves where usn >= ?", self.minUsn)
@@ -243,18 +243,18 @@ from notes where %s""" % d)
             elif type == REM_NOTE:
                 notes.append(oid)
             else:
-                groups.append(oid)
+                decks.append(oid)
         if not self.col.server:
             self.col.db.execute("update graves set usn=? where usn=-1",
                                  self.maxUsn)
-        return dict(cards=cards, notes=notes, groups=groups)
+        return dict(cards=cards, notes=notes, decks=decks)
 
     def mergeGraves(self, graves):
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves['notes'])
         self.col.remCards(graves['cards'])
-        for oid in graves['groups']:
-            self.col.groups.rem(oid)
+        for oid in graves['decks']:
+            self.col.decks.rem(oid)
 
     # Models
     ##########################################################################
@@ -276,36 +276,36 @@ from notes where %s""" % d)
             if not l or r['mod'] > l['mod']:
                 self.col.models.update(r)
 
-    # Groups
+    # Decks
     ##########################################################################
 
-    def getGroups(self):
+    def getDecks(self):
         if self.col.server:
             return [
-                [g for g in self.col.groups.all() if g['usn'] >= self.minUsn],
-                [g for g in self.col.groups.allConf() if g['usn'] >= self.minUsn]
+                [g for g in self.col.decks.all() if g['usn'] >= self.minUsn],
+                [g for g in self.col.decks.allConf() if g['usn'] >= self.minUsn]
             ]
         else:
-            groups = [g for g in self.col.groups.all() if g['usn'] == -1]
-            for g in groups:
+            decks = [g for g in self.col.decks.all() if g['usn'] == -1]
+            for g in decks:
                 g['usn'] = self.maxUsn
-            gconf = [g for g in self.col.groups.allConf() if g['usn'] == -1]
-            for g in gconf:
+            dconf = [g for g in self.col.decks.allConf() if g['usn'] == -1]
+            for g in dconf:
                 g['usn'] = self.maxUsn
-            self.col.groups.save()
-            return [groups, gconf]
+            self.col.decks.save()
+            return [decks, dconf]
 
-    def mergeGroups(self, rchg):
+    def mergeDecks(self, rchg):
         for r in rchg[0]:
-            l = self.col.groups.get(r['id'], False)
+            l = self.col.decks.get(r['id'], False)
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
-                self.col.groups.update(r)
+                self.col.decks.update(r)
         for r in rchg[1]:
-            l = self.col.groups.conf(r['id'])
+            l = self.col.decks.conf(r['id'])
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
-                self.col.groups.updateConf(r)
+                self.col.decks.updateConf(r)
 
     # Tags
     ##########################################################################

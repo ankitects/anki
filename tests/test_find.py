@@ -104,10 +104,10 @@ def test_findCards():
     assert len(deck.findCards("model:basic")) == 5
     assert len(deck.findCards("-model:basic")) == 0
     assert len(deck.findCards("-model:foo")) == 5
-    # group
-    assert len(deck.findCards("group:default")) == 5
-    assert len(deck.findCards("-group:default")) == 0
-    assert len(deck.findCards("-group:foo")) == 5
+    # deck
+    assert len(deck.findCards("deck:default")) == 5
+    assert len(deck.findCards("-deck:default")) == 0
+    assert len(deck.findCards("-deck:foo")) == 5
     # full search
     f = deck.newNote()
     f['Front'] = u'hello<b>world</b>'

@@ -19,7 +19,7 @@ class Note(object):
             self.id = timestampID(col.db, "notes")
             self.guid = guid64()
             self._model = model
-            self.gid = model['gid']
+            self.did = model['did']
             self.mid = model['id']
             self.tags = []
             self.fields = [""] * len(self._model['flds'])
@@ -30,14 +30,14 @@ class Note(object):
     def load(self):
         (self.guid,
          self.mid,
-         self.gid,
+         self.did,
          self.mod,
          self.usn,
          self.tags,
          self.fields,
          self.flags,
          self.data) = self.col.db.first("""
-select guid, mid, gid, mod, usn, tags, flds, flags, data
+select guid, mid, did, mod, usn, tags, flds, flags, data
 from notes where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = self.col.tags.split(self.tags)
@@ -53,7 +53,7 @@ from notes where id = ?""", self.id)
         tags = self.stringTags()
         res = self.col.db.execute("""
 insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                            self.id, self.guid, self.mid, self.gid,
+                            self.id, self.guid, self.mid, self.did,
                             self.mod, self.usn, tags,
                             self.joinedFields(), sfld, self.flags, self.data)
         self.id = res.lastrowid
@@ -84,10 +84,10 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
     def model(self):
         return self._model
 
-    def updateCardGids(self):
+    def updateCardDids(self):
         for c in self.cards():
-            if c.gid != self.gid and not c.template()['gid']:
-                c.gid = self.gid
+            if c.did != self.did and not c.template()['did']:
+                c.did = self.did
                 c.flush()
 
     # Dict interface

@@ -10,7 +10,7 @@ from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
 from anki.models import ModelManager
 from anki.media import MediaManager
-from anki.groups import GroupManager
+from anki.decks import DeckManager
 from anki.tags import TagManager
 from anki.consts import *
 from anki.errors import AnkiError
@@ -20,9 +20,9 @@ import anki.cards, anki.notes, anki.template, anki.cram, anki.find
 
 defaultConf = {
     # scheduling options
-    'activeGroups': [1],
-    'topGroup': 1,
-    'curGroup': 1,
+    'activeDecks': [1],
+    'topDeck': 1,
+    'curDeck': 1,
     'revOrder': REV_CARDS_RANDOM,
     # other config
     'nextPos': 1,
@@ -44,7 +44,7 @@ class _Collection(object):
         self.clearUndo()
         self.media = MediaManager(self)
         self.models = ModelManager(self)
-        self.groups = GroupManager(self)
+        self.decks = DeckManager(self)
         self.tags = TagManager(self)
         self.load()
         if not self.crt:
@@ -78,14 +78,14 @@ class _Collection(object):
          self.ls,
          self.conf,
          models,
-         groups,
-         gconf,
+         decks,
+         dconf,
          tags) = self.db.first("""
 select crt, mod, scm, dty, usn, ls,
-conf, models, groups, gconf, tags from col""")
+conf, models, decks, dconf, tags from col""")
         self.conf = simplejson.loads(self.conf)
         self.models.load(models)
-        self.groups.load(groups, gconf)
+        self.decks.load(decks, dconf)
         self.tags.load(tags)
 
     def flush(self, mod=None):
@@ -97,7 +97,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self._usn, self.ls, simplejson.dumps(self.conf))
         self.models.flush()
-        self.groups.flush()
+        self.decks.flush()
         self.tags.flush()
 
     def save(self, name=None, mod=None):
@@ -291,8 +291,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         data = []
         ts = maxID(self.db)
         now = intTime()
-        for nid, mid, gid, flds in self.db.execute(
-            "select id, mid, gid, flds from notes where id in "+snids):
+        for nid, mid, did, flds in self.db.execute(
+            "select id, mid, did, flds from notes where id in "+snids):
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
             ok = []
@@ -300,7 +300,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 if (nid,t['ord']) in have:
                     continue
                 if t['ord'] in avail:
-                    data.append((ts, nid, t['gid'] or gid, t['ord'],
+                    data.append((ts, nid, t['did'] or did, t['ord'],
                                  now, nid))
                     ts += 1
         # bulk update
@@ -330,7 +330,7 @@ insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
         card = anki.cards.Card(self)
         card.nid = note.id
         card.ord = template['ord']
-        card.gid = template['gid'] or note.gid
+        card.did = template['did'] or note.did
         card.due = due
         if flush:
             card.flush()
@@ -407,7 +407,7 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
 
     def _renderQA(self, data):
         "Returns hash of id, question, answer."
-        # data is [cid, nid, mid, gid, ord, tags, flds]
+        # data is [cid, nid, mid, did, ord, tags, flds]
         # unpack fields and create dict
         flist = splitFields(data[6])
         fields = {}
@@ -416,7 +416,7 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
             fields[name] = flist[idx]
         fields['Tags'] = data[5]
         fields['Model'] = model['name']
-        fields['Group'] = self.groups.name(data[3])
+        fields['Deck'] = self.decks.name(data[3])
         template = model['tmpls'][data[4]]
         fields['Template'] = template['name']
         # render q & a
@@ -437,9 +437,9 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         return d
 
     def _qaData(self, where=""):
-        "Return [cid, nid, mid, gid, ord, tags, flds] db query"
+        "Return [cid, nid, mid, did, ord, tags, flds] db query"
         return self.db.execute("""
-select c.id, f.id, f.mid, c.gid, c.ord, f.tags, f.flds
+select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds
 from cards c, notes f
 where c.nid == f.id
 %s""" % where)
@@ -503,7 +503,7 @@ where c.nid == f.id
             self.sched = self._stdSched
             return True
 
-    def cramGroups(self, order="mod desc", min=0, max=None):
+    def cramDecks(self, order="mod desc", min=0, max=None):
         self.stdSched()
         self.sched = anki.cram.CramScheduler(self, order, min, max)
 

@@ -65,9 +65,9 @@ def test_sync():
             for t in ("revlog", "notes", "cards", "nsums"):
                 assert d.db.scalar("select count() from %s" % t) == num
             assert len(d.models.all()) == num*2
-            # the default group and config have an id of 1, so always 1
-            assert len(d.groups.all()) == 1
-            assert len(d.groups.gconf) == 1
+            # the default deck and config have an id of 1, so always 1
+            assert len(d.decks.all()) == 1
+            assert len(d.decks.dconf) == 1
             assert len(d.tags.all()) == num
     check(1)
     origUsn = deck1.usn()
@@ -173,35 +173,35 @@ def test_tags():
     assert deck1.tags.all() == deck2.tags.all()
 
 @nose.with_setup(setup_modified)
-def test_groups():
+def test_decks():
     test_sync()
-    assert len(deck1.groups.all()) == 1
-    assert len(deck1.groups.all()) == len(deck2.groups.all())
-    deck1.groups.id("new")
-    assert len(deck1.groups.all()) != len(deck2.groups.all())
+    assert len(deck1.decks.all()) == 1
+    assert len(deck1.decks.all()) == len(deck2.decks.all())
+    deck1.decks.id("new")
+    assert len(deck1.decks.all()) != len(deck2.decks.all())
     time.sleep(0.1)
-    deck2.groups.id("new2")
+    deck2.decks.id("new2")
     deck1.save()
     deck2.save()
     assert client.sync() == "success"
     assert deck1.tags.all() == deck2.tags.all()
-    assert len(deck1.groups.all()) == len(deck2.groups.all())
-    assert len(deck1.groups.all()) == 3
-    assert deck1.groups.conf(1)['maxTaken'] == 60
-    deck2.groups.conf(1)['maxTaken'] = 30
-    deck2.groups.save(deck2.groups.conf(1))
+    assert len(deck1.decks.all()) == len(deck2.decks.all())
+    assert len(deck1.decks.all()) == 3
+    assert deck1.decks.conf(1)['maxTaken'] == 60
+    deck2.decks.conf(1)['maxTaken'] = 30
+    deck2.decks.save(deck2.decks.conf(1))
     deck2.save()
     assert client.sync() == "success"
-    assert deck1.groups.conf(1)['maxTaken'] == 30
+    assert deck1.decks.conf(1)['maxTaken'] == 30
 
 @nose.with_setup(setup_modified)
 def test_conf():
     test_sync()
-    assert deck2.conf['topGroup'] == 1
-    deck1.conf['topGroup'] = 2
+    assert deck2.conf['topDeck'] == 1
+    deck1.conf['topDeck'] = 2
     deck1.save()
     assert client.sync() == "success"
-    assert deck2.conf['topGroup'] == 2
+    assert deck2.conf['topDeck'] == 2
 
 @nose.with_setup(setup_modified)
 def test_threeway():

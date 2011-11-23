@@ -15,7 +15,7 @@ from anki.consts import *
 
 defaultModel = {
     'sortf': 0,
-    'gid': 1,
+    'did': 1,
     'clozectx': False,
     'newOrder': NEW_CARDS_DUE,
     'latexPre': """\
@@ -52,7 +52,7 @@ defaultTemplate = {
     'qfmt': "",
     'afmt': "",
     'typeAns': None,
-    'gid': None,
+    'did': None,
 }
 
 class ModelManager(object):
@@ -90,16 +90,16 @@ class ModelManager(object):
     def current(self):
         "Get current model."
         try:
-            m = self.get(self.col.groups.top()['curModel'])
+            m = self.get(self.col.decks.top()['curModel'])
             assert m
             return m
         except:
             return self.models.values()[0]
 
     def setCurrent(self, m):
-        t = self.col.groups.top()
+        t = self.col.decks.top()
         t['curModel'] = m['id']
-        self.col.groups.save(t)
+        self.col.decks.save(t)
 
     def get(self, id):
         "Get model with ID, or None."

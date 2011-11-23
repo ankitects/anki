@@ -144,10 +144,10 @@ def test_selective():
     assert len(deck.tags.selTagNids(["two", "three"], [])) == 3
     assert len(deck.tags.selTagNids(["two", "three"], ["one"])) == 1
     assert len(deck.tags.selTagNids(["one", "three"], ["two", "four"])) == 1
-    deck.tags.setGroupForTags(["three"], [], 3)
-    assert deck.db.scalar("select count() from cards where gid = 3") == 3
-    deck.tags.setGroupForTags(["one"], [], 2)
-    assert deck.db.scalar("select count() from cards where gid = 2") == 2
+    deck.tags.setDeckForTags(["three"], [], 3)
+    assert deck.db.scalar("select count() from cards where did = 3") == 3
+    deck.tags.setDeckForTags(["one"], [], 2)
+    assert deck.db.scalar("select count() from cards where did = 2") == 2
 
 def test_addDelTags():
     deck = getEmptyDeck()

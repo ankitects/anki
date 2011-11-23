@@ -9,21 +9,21 @@ from anki.lang import _
 
 # fixmes:
 # - make sure users can't set grad interval < 1
-# - make sure lists like new[delays] are  not being shared by multiple groups
+# - make sure lists like new[delays] are  not being shared by multiple decks
 # - make sure all children have parents (create as necessary)
-# - when renaming a group, top level properties should be added or removed as
+# - when renaming a deck, top level properties should be added or removed as
 #   appropriate
 
 # notes:
-# - it's difficult to enforce valid gids for models/notes/cards, as we
-#   may update the gid locally only to have it overwritten by a more recent
-#   change from somewhere else. to avoid this, we allow invalid gid
-#   references, and treat any invalid gids as the default group.
-# - deletions of group config force a full sync
+# - it's difficult to enforce valid dids for models/notes/cards, as we
+#   may update the did locally only to have it overwritten by a more recent
+#   change from somewhere else. to avoid this, we allow invalid did
+#   references, and treat any invalid dids as the default deck.
+# - deletions of deck config force a full sync
 
 # these are a cache of the current day's reviews. they may be wrong after a
 # sync merge if someone reviewed from two locations
-defaultGroup = {
+defaultDeck = {
     'newToday': [0, 0], # currentDay, count
     'revToday': [0, 0],
     'lrnToday': [0, 0],
@@ -31,7 +31,7 @@ defaultGroup = {
     'conf': 1,
 }
 
-# configuration only available to top level groups
+# configuration only available to top level decks
 defaultTopConf = {
     'revLim': 100,
     'newSpread': NEW_CARDS_DISTRIBUTE,
@@ -41,7 +41,7 @@ defaultTopConf = {
     'curModel': None,
 }
 
-# configuration available to all groups
+# configuration available to all decks
 defaultConf = {
     'name': _("Default"),
     'new': {
@@ -78,7 +78,7 @@ defaultConf = {
     'usn': 0,
 }
 
-class GroupManager(object):
+class DeckManager(object):
 
     # Registry save/load
     #############################################################
@@ -86,13 +86,13 @@ class GroupManager(object):
     def __init__(self, col):
         self.col = col
 
-    def load(self, groups, gconf):
-        self.groups = simplejson.loads(groups)
-        self.gconf = simplejson.loads(gconf)
+    def load(self, decks, dconf):
+        self.decks = simplejson.loads(decks)
+        self.dconf = simplejson.loads(dconf)
         self.changed = False
 
     def save(self, g=None):
-        "Can be called with either a group or a group configuration."
+        "Can be called with either a deck or a deck configuration."
         if g:
             g['mod'] = intTime()
             g['usn'] = self.col.usn()
@@ -100,86 +100,86 @@ class GroupManager(object):
 
     def flush(self):
         if self.changed:
-            self.col.db.execute("update col set groups=?, gconf=?",
-                                 simplejson.dumps(self.groups),
-                                 simplejson.dumps(self.gconf))
+            self.col.db.execute("update col set decks=?, dconf=?",
+                                 simplejson.dumps(self.decks),
+                                 simplejson.dumps(self.dconf))
 
-    # Group save/load
+    # Deck save/load
     #############################################################
 
     def id(self, name, create=True):
-        "Add a group with NAME. Reuse group if already exists. Return id as int."
-        for id, g in self.groups.items():
+        "Add a deck with NAME. Reuse deck if already exists. Return id as int."
+        for id, g in self.decks.items():
             if g['name'].lower() == name.lower():
                 return int(id)
         if not create:
             return None
         if "::" not in name:
-            # if it's a top level group, it gets the top level config
+            # if it's a top level deck, it gets the top level config
             g = defaultTopConf.copy()
         else:
             # not top level; ensure all parents exist
             g = {}
             self._ensureParents(name)
-        for (k,v) in defaultGroup.items():
+        for (k,v) in defaultDeck.items():
             g[k] = v
         g['name'] = name
         while 1:
             id = intTime(1000)
-            if str(id) not in self.groups:
+            if str(id) not in self.decks:
                 break
         g['id'] = id
-        self.groups[str(id)] = g
+        self.decks[str(id)] = g
         self.save(g)
         self.maybeAddToActive()
         return int(id)
 
-    def rem(self, gid, cardsToo=False):
-        "Remove the group. If cardsToo, delete any cards inside."
-        assert gid != 1
-        if not str(gid) in self.groups:
+    def rem(self, did, cardsToo=False):
+        "Remove the deck. If cardsToo, delete any cards inside."
+        assert did != 1
+        if not str(did) in self.decks:
             return
         # delete children first
-        for name, id in self.children(gid):
+        for name, id in self.children(did):
             self.rem(id, cardsToo)
         # delete cards too?
         if cardsToo:
-            self.col.remCards(self.cids(gid))
-        # delete the group and add a grave
-        del self.groups[str(gid)]
-        self.col._logRem([gid], REM_GROUP)
-        # ensure we have an active group
-        if gid in self.active():
-            self.select(int(self.groups.keys()[0]))
+            self.col.remCards(self.cids(did))
+        # delete the deck and add a grave
+        del self.decks[str(did)]
+        self.col._logRem([did], REM_DECK)
+        # ensure we have an active deck
+        if did in self.active():
+            self.select(int(self.decks.keys()[0]))
         self.save()
 
     def allNames(self):
-        "An unsorted list of all group names."
-        return [x['name'] for x in self.groups.values()]
+        "An unsorted list of all deck names."
+        return [x['name'] for x in self.decks.values()]
 
     def all(self):
-        "A list of all groups."
-        return self.groups.values()
+        "A list of all decks."
+        return self.decks.values()
 
-    def get(self, gid, default=True):
-        id = str(gid)
-        if id in self.groups:
-            return self.groups[id]
+    def get(self, did, default=True):
+        id = str(did)
+        if id in self.decks:
+            return self.decks[id]
         elif default:
-            return self.groups['1']
+            return self.decks['1']
 
     def update(self, g):
-        "Add or update an existing group. Used for syncing and merging."
-        self.groups[str(g['id'])] = g
+        "Add or update an existing deck. Used for syncing and merging."
+        self.decks[str(g['id'])] = g
         self.maybeAddToActive()
         # mark registry changed, but don't bump mod time
         self.save()
 
     def rename(self, g, newName):
-        "Rename group prefix to NAME if not exists. Updates children."
+        "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
         if newName in self.allNames():
-            raise Exception("Group exists")
+            raise Exception("Deck exists")
         # rename children
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
@@ -209,18 +209,18 @@ class GroupManager(object):
                 s += "::" + p
             self.id(s)
 
-    # Group configurations
+    # Deck configurations
     #############################################################
 
     def allConf(self):
-        "A list of all group config."
-        return self.gconf.values()
+        "A list of all deck config."
+        return self.dconf.values()
 
-    def conf(self, gid):
-        return self.gconf[str(self.groups[str(gid)]['conf'])]
+    def conf(self, did):
+        return self.dconf[str(self.decks[str(did)]['conf'])]
 
     def updateConf(self, g):
-        self.gconf[str(g['id'])] = g
+        self.dconf[str(g['id'])] = g
         self.save()
 
     def confId(self, name):
@@ -228,19 +228,19 @@ class GroupManager(object):
         c = copy.deepcopy(defaultConf)
         while 1:
             id = intTime(1000)
-            if str(id) not in self.gconf:
+            if str(id) not in self.dconf:
                 break
         c['id'] = id
         c['name'] = name
-        self.gconf[str(id)] = c
+        self.dconf[str(id)] = c
         self.save(c)
         return id
 
     def remConf(self, id):
-        "Remove a configuration and update all groups using it."
+        "Remove a configuration and update all decks using it."
         assert int(id) != 1
         self.col.modSchema()
-        del self.gconf[str(id)]
+        del self.dconf[str(id)]
         for g in self.all():
             if str(g['conf']) == str(id):
                 g['conf'] = 1
@@ -250,16 +250,16 @@ class GroupManager(object):
         grp['conf'] = id
         self.save(grp)
 
-    # Group utils
+    # Deck utils
     #############################################################
 
-    def name(self, gid):
-        return self.get(gid)['name']
+    def name(self, did):
+        return self.get(did)['name']
 
-    def setGroup(self, cids, gid):
+    def setDeck(self, cids, did):
         self.col.db.execute(
-            "update cards set gid=?,usn=?,mod=? where id in "+
-            ids2str(cids), gid, self.col.usn(), intTime())
+            "update cards set did=?,usn=?,mod=? where id in "+
+            ids2str(cids), did, self.col.usn(), intTime())
 
 
     def maybeAddToActive(self):
@@ -268,59 +268,59 @@ class GroupManager(object):
 
     def sendHome(self, cids):
         self.col.db.execute("""
-update cards set gid=(select gid from notes f where f.id=nid),
+update cards set did=(select did from notes f where f.id=nid),
 usn=?,mod=? where id in %s""" % ids2str(cids),
-                             self.col.usn(), intTime(), gid)
+                             self.col.usn(), intTime(), did)
 
-    def cids(self, gid):
-        return self.col.db.list("select id from cards where gid=?", gid)
+    def cids(self, did):
+        return self.col.db.list("select id from cards where did=?", did)
 
-    # Group selection
+    # Deck selection
     #############################################################
 
     def top(self):
-        "The current top level group as an object."
-        g = self.get(self.col.conf['topGroup'])
+        "The current top level deck as an object."
+        g = self.get(self.col.conf['topDeck'])
         return g
 
     def active(self):
-        "The currrently active gids."
-        return self.col.conf['activeGroups']
+        "The currrently active dids."
+        return self.col.conf['activeDecks']
 
     def selected(self):
-        "The currently selected gid."
-        return self.col.conf['curGroup']
+        "The currently selected did."
+        return self.col.conf['curDeck']
 
     def current(self):
         return self.get(self.selected())
 
-    def select(self, gid):
+    def select(self, did):
         "Select a new branch."
-        # save the top level group
-        name = self.groups[str(gid)]['name']
-        self.col.conf['topGroup'] = self._topFor(name)
-        # current group
-        self.col.conf['curGroup'] = gid
-        # and active groups (current + all children)
-        actv = self.children(gid)
+        # save the top level deck
+        name = self.decks[str(did)]['name']
+        self.col.conf['topDeck'] = self._topFor(name)
+        # current deck
+        self.col.conf['curDeck'] = did
+        # and active decks (current + all children)
+        actv = self.children(did)
         actv.sort()
-        self.col.conf['activeGroups'] = [gid] + [a[1] for a in actv]
+        self.col.conf['activeDecks'] = [did] + [a[1] for a in actv]
 
-    def children(self, gid):
-        "All children of gid, as (name, id)."
-        name = self.get(gid)['name']
+    def children(self, did):
+        "All children of did, as (name, id)."
+        name = self.get(did)['name']
         actv = []
         for g in self.all():
             if g['name'].startswith(name + "::"):
                 actv.append((g['name'], g['id']))
         return actv
 
-    def parents(self, gid):
-        "All parents of gid."
-        path = self.get(gid)['name'].split("::")
+    def parents(self, did):
+        "All parents of did."
+        path = self.get(did)['name'].split("::")
         return [self.get(x) for x in path[:-1]]
 
     def _topFor(self, name):
-        "The top level gid for NAME."
+        "The top level did for NAME."
         path = name.split("::")
         return self.id(path[0])

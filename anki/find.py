@@ -13,7 +13,7 @@ SEARCH_NID = 3
 SEARCH_TEMPLATE = 4
 SEARCH_FIELD = 5
 SEARCH_MODEL = 6
-SEARCH_GROUP = 7
+SEARCH_DECK = 7
 
 # Tools
 ##########################################################################
@@ -121,8 +121,8 @@ order by %s""" % (lim, sort)
                 self._findField(token, isNeg)
             elif type == SEARCH_MODEL:
                 self._findModel(token, isNeg)
-            elif type == SEARCH_GROUP:
-                self._findGroup(token, isNeg)
+            elif type == SEARCH_DECK:
+                self._findDeck(token, isNeg)
             else:
                 self._findText(token, isNeg, c)
 
@@ -191,10 +191,10 @@ order by %s""" % (lim, sort)
                 ids.append(m['id'])
         self.lims['note'].append("mid %s in %s" % (extra, ids2str(ids)))
 
-    def _findGroup(self, val, isNeg):
+    def _findDeck(self, val, isNeg):
         extra = "!" if isNeg else ""
-        id = self.col.groups.id(val, create=False) or 0
-        self.lims['card'].append("c.gid %s= %s" % (extra, id))
+        id = self.col.decks.id(val, create=False) or 0
+        self.lims['card'].append("c.did %s= %s" % (extra, id))
 
     def _findTemplate(self, val, isNeg):
         lims = []
@@ -329,9 +329,9 @@ where mid in %s and flds like ? escape '\\'""" % (
                 elif token['value'].startswith("model:"):
                     token['value'] = token['value'][6:].lower()
                     type = SEARCH_MODEL
-                elif token['value'].startswith("group:"):
-                    token['value'] = token['value'][6:].lower()
-                    type = SEARCH_GROUP
+                elif token['value'].startswith("deck:"):
+                    token['value'] = token['value'][5:].lower()
+                    type = SEARCH_DECK
                 elif token['value'].startswith("nid:") and len(token['value']) > 4:
                     dec = token['value'][4:]
                     try:

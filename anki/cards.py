@@ -29,7 +29,7 @@ class Card(object):
         else:
             # to flush, set nid, ord, and due
             self.id = timestampID(col.db, "cards")
-            self.gid = 1
+            self.did = 1
             self.crt = intTime()
             self.type = 0
             self.queue = 0
@@ -45,7 +45,7 @@ class Card(object):
     def load(self):
         (self.id,
          self.nid,
-         self.gid,
+         self.did,
          self.ord,
          self.mod,
          self.usn,
@@ -73,7 +73,7 @@ insert or replace into cards values
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.nid,
-            self.gid,
+            self.did,
             self.ord,
             self.mod,
             self.usn,
@@ -109,7 +109,7 @@ lapses=?, left=?, edue=? where id = ?""",
     def _getQA(self, reload=False):
         if not self._qa or reload:
             f = self.note(); m = self.model()
-            data = [self.id, f.id, m['id'], self.gid, self.ord, f.stringTags(),
+            data = [self.id, f.id, m['id'], self.did, self.ord, f.stringTags(),
                     f.joinedFields()]
             self._qa = self.col._renderQA(data)
         return self._qa
@@ -128,8 +128,8 @@ lapses=?, left=?, edue=? where id = ?""",
     def model(self, reload=False):
         return self._reviewData()[1]
 
-    def groupConf(self):
-        return self.col.groups.conf(self.gid)
+    def deckConf(self):
+        return self.col.decks.conf(self.did)
 
     def template(self):
         return self._reviewData()[1]['tmpls'][self.ord]
@@ -140,4 +140,4 @@ lapses=?, left=?, edue=? where id = ?""",
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
         total = int((time.time() - self.timerStarted)*1000)
-        return min(total, self.groupConf()['maxTaken']*1000)
+        return min(total, self.deckConf()['maxTaken']*1000)

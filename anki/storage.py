@@ -75,8 +75,8 @@ create table if not exists col (
     ls              integer not null,
     conf            text not null,
     models          text not null,
-    groups          text not null,
-    gconf           text not null,
+    decks           text not null,
+    dconf           text not null,
     tags            text not null
 );
 
@@ -84,7 +84,7 @@ create table if not exists notes (
     id              integer primary key,
     guid            integer not null,
     mid             integer not null,
-    gid             integer not null,
+    did             integer not null,
     mod             integer not null,
     usn             integer not null,
     tags            text not null,
@@ -102,7 +102,7 @@ create table if not exists nsums (
 create table if not exists cards (
     id              integer primary key,
     nid             integer not null,
-    gid             integer not null,
+    did             integer not null,
     ord             integer not null,
     mod             integer not null,
     usn             integer not null,
@@ -145,21 +145,21 @@ values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
 
 def _getColVars(db):
     import anki.collection
-    import anki.groups
-    g = anki.groups.defaultGroup.copy()
-    for k,v in anki.groups.defaultTopConf.items():
+    import anki.decks
+    g = anki.decks.defaultDeck.copy()
+    for k,v in anki.decks.defaultTopConf.items():
         g[k] = v
     g['id'] = 1
     g['name'] = _("Default")
     g['conf'] = 1
     g['mod'] = intTime()
-    gc = anki.groups.defaultConf.copy()
+    gc = anki.decks.defaultConf.copy()
     gc['id'] = 1
     return g, gc, anki.collection.defaultConf.copy()
 
 def _addColVars(db, g, gc, c):
     db.execute("""
-update col set conf = ?, groups = ?, gconf = ?""",
+update col set conf = ?, decks = ?, dconf = ?""",
                    simplejson.dumps(c),
                    simplejson.dumps({'1': g}),
                    simplejson.dumps({'1': gc}))
@@ -173,8 +173,8 @@ create index if not exists ix_cards_usn on cards (usn);
 create index if not exists ix_revlog_usn on revlog (usn);
 -- card spacing, etc
 create index if not exists ix_cards_nid on cards (nid);
--- scheduling and group limiting
-create index if not exists ix_cards_sched on cards (gid, queue, due);
+-- scheduling and deck limiting
+create index if not exists ix_cards_sched on cards (did, queue, due);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
 -- field uniqueness check
