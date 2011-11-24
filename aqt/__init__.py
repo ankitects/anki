@@ -5,7 +5,7 @@ import os, sys
 from aqt.qt import *
 
 appName="Anki"
-appVersion="1.99"
+appVersion="2.0-alpha2"
 appWebsite="http://ankisrs.net/"
 appHelpSite="http://ankisrs.net/docs/dev/"
 appDonate="http://ankisrs.net/support/"
@@ -16,14 +16,6 @@ moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 # py2exe
 # if hasattr(sys, "frozen"):
 #     sys.path.append(moduleDir)
-
-def openHelp(name):
-    if "#" in name:
-        name = name.split("#")
-        name = name[0] + ".html#" + name[1]
-    else:
-        name = name + ".html"
-    QDesktopServices.openUrl(QUrl(appHelpSite + name))
 
 # Dialog manager - manages modeless windows
 ##########################################################################

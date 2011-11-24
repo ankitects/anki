@@ -7,9 +7,9 @@
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
 from aqt.qt import *
-import os, sys, time, random, cPickle, re
+import os, sys, time, random, cPickle, shutil
 from anki.db import DB
-from anki.utils import isMac, isWin, intTime
+from anki.utils import isMac, isWin, intTime, checksum
 
 metaConf = dict(
     ver=0,
@@ -18,6 +18,7 @@ metaConf = dict(
     id=random.randrange(0, 2**63),
     lastMsg=-1,
     suppressUpdate=False,
+    firstRun=True,
 )
 
 profileConf = dict(
@@ -81,23 +82,35 @@ documentation for information on using a flash drive.""")
     ######################################################################
 
     def profiles(self):
-        return [x for x in self.db.scalar("select name from profiles")
-                if x != "_global"]
+        return sorted(
+            x for x in self.db.list("select name from profiles")
+            if x != "_global")
 
-    def load(self, name):
-        self.name = name
-        self.idself.profile = cPickle.loads(
-            self.db.scalar("select oid, data from profiles where name = ?", name))
+    def load(self, name, passwd=None):
+        prof = cPickle.loads(
+            self.db.scalar("select data from profiles where name = ?", name))
+        if prof['key'] and prof['key'] != self._pwhash(passwd):
+            self.name = None
+            raise Exception("Invalid password")
+        if name != "_global":
+            self.name = name
+            self.profile = prof
 
     def save(self):
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, cPickle.dumps(self.profile), self.name)
-        self.db.execute(sql, cPickle.dumps(self.meta, "_global"))
+        self.db.execute(sql, cPickle.dumps(self.meta), "_global")
+        self.db.commit()
 
     def create(self, name):
-        assert re.match("^[A-Za-z0-9 ]+$", name)
         self.db.execute("insert into profiles values (?, ?)",
                         name, cPickle.dumps(profileConf))
+        self.db.commit()
+
+    def remove(self, name):
+        shutil.rmtree(self.profileFolder())
+        self.db.execute("delete from profiles where name = ?", name)
+        self.db.commit()
 
     # Folder handling
     ######################################################################
@@ -119,7 +132,7 @@ documentation for information on using a flash drive.""")
     ######################################################################
 
     def _ensureExists(self, path):
-        if not exists(path):
+        if not os.path.exists(path):
             os.makedirs(path)
         return path
 
@@ -136,16 +149,23 @@ documentation for information on using a flash drive.""")
 
     def _load(self):
         path = os.path.join(self.base, "prefs.db")
+        new = not os.path.exists(path)
         self.db = DB(path, text=str)
         self.db.execute("""
 create table if not exists profiles
 (name text primary key, data text not null);""")
-        try:
-            self.meta = self.loadProfile("_global")
-        except:
+        if new:
             # create a default global profile
             self.meta = metaConf.copy()
             self.db.execute("insert into profiles values ('_global', ?)",
                             cPickle.dumps(metaConf))
             # and save a default user profile for later (commits)
             self.create("User 1")
+        else:
+            # load previously created
+            self.meta = cPickle.loads(
+                self.db.scalar(
+                    "select data from profiles where name = '_global'"))
+
+    def _pwhash(self, passwd):
+        return checksum(unicode(self.meta['id'])+unicode(passwd))

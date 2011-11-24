@@ -7,6 +7,14 @@ import aqt
 from anki.sound import playFromText, stripSounds
 from anki.utils import call, isWin, isMac
 
+def openHelp(name):
+    if "#" in name:
+        name = name.split("#")
+        name = name[0] + ".html#" + name[1]
+    else:
+        name = name + ".html"
+    QDesktopServices.openUrl(QUrl(appHelpSite + name))
+
 def openLink(link):
     QDesktopServices.openUrl(QUrl(link))
 
@@ -210,7 +218,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     assert not dir or not key
     if not dir:
         dirkey = key+"Directory"
-        dir = aqt.mw.config.get(dirkey, "")
+        dir = aqt.mw.pm.profile.get(dirkey, "")
     else:
         dirkey = None
     d = QFileDialog(parent)
@@ -226,7 +234,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
         file = unicode(list(d.selectedFiles())[0])
         if dirkey:
             dir = os.path.dirname(file)
-            aqt.mw.config[dirkey] = dir
+            aqt.mw.pm.profile[dirkey] = dir
         cb(file)
     d.connect(d, SIGNAL("accepted()"), accept)
 
@@ -234,7 +242,7 @@ def getSaveFile(parent, title, dir, key, ext):
     "Ask the user for a file to save. Use DIR as config variable."
     dirkey = dir+"Directory"
     file = unicode(QFileDialog.getSaveFileName(
-        parent, title, aqt.mw.config.get(dirkey, ""), key,
+        parent, title, aqt.mw.pm.profile.get(dirkey, ""), key,
         None, QFileDialog.DontConfirmOverwrite))
     if file:
         # add extension
@@ -242,7 +250,7 @@ def getSaveFile(parent, title, dir, key, ext):
             file += ext
         # save new default
         dir = os.path.dirname(file)
-        aqt.mw.config[dirkey] = dir
+        aqt.mw.pm.profile[dirkey] = dir
         # check if it exists
         if os.path.exists(file):
             if not askUser(
@@ -253,12 +261,12 @@ def getSaveFile(parent, title, dir, key, ext):
 
 def saveGeom(widget, key):
     key += "Geom"
-    aqt.mw.config[key] = widget.saveGeometry()
+    aqt.mw.pm.profile[key] = widget.saveGeometry()
 
 def restoreGeom(widget, key, offset=None):
     key += "Geom"
-    if aqt.mw.config.get(key):
-        widget.restoreGeometry(aqt.mw.config[key])
+    if aqt.mw.pm.profile.get(key):
+        widget.restoreGeometry(aqt.mw.pm.profile[key])
         if isMac and offset:
             from aqt.main import QtConfig as q
             minor = (q.qt_version & 0x00ff00) >> 8
@@ -269,30 +277,30 @@ def restoreGeom(widget, key, offset=None):
 
 def saveState(widget, key):
     key += "State"
-    aqt.mw.config[key] = widget.saveState()
+    aqt.mw.pm.profile[key] = widget.saveState()
 
 def restoreState(widget, key):
     key += "State"
-    if aqt.mw.config.get(key):
-        widget.restoreState(aqt.mw.config[key])
+    if aqt.mw.pm.profile.get(key):
+        widget.restoreState(aqt.mw.pm.profile[key])
 
 def saveSplitter(widget, key):
     key += "Splitter"
-    aqt.mw.config[key] = widget.saveState()
+    aqt.mw.pm.profile[key] = widget.saveState()
 
 def restoreSplitter(widget, key):
     key += "Splitter"
-    if aqt.mw.config.get(key):
-        widget.restoreState(aqt.mw.config[key])
+    if aqt.mw.pm.profile.get(key):
+        widget.restoreState(aqt.mw.pm.profile[key])
 
 def saveHeader(widget, key):
     key += "Header"
-    aqt.mw.config[key] = widget.saveState()
+    aqt.mw.pm.profile[key] = widget.saveState()
 
 def restoreHeader(widget, key):
     key += "Header"
-    if aqt.mw.config.get(key):
-        widget.restoreState(aqt.mw.config[key])
+    if aqt.mw.pm.profile.get(key):
+        widget.restoreState(aqt.mw.pm.profile[key])
 
 def mungeQA(txt):
     txt = stripSounds(txt)
@@ -302,7 +310,7 @@ def mungeQA(txt):
 
 def applyStyles(widget):
     try:
-        styleFile = open(os.path.join(aqt.mw.config.confDir,
+        styleFile = open(os.path.join(aqt.mw.pm.profile.confDir,
                                       "style.css"))
         widget.setStyleSheet(styleFile.read())
     except (IOError, OSError):

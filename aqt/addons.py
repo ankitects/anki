@@ -10,6 +10,8 @@ from anki.hooks import runHook
 class AddonManager(object):
 
     def __init__(self, mw):
+        print "addons"
+        return
         self.mw = mw
         f = self.mw.form; s = SIGNAL("triggered()")
         self.mw.connect(f.actionOpenPluginFolder, s, self.onOpenPluginFolder)

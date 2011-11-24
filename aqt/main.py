@@ -20,38 +20,29 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical, getFile
 
-config = aqt.config
-
 ## fixme: open plugin folder broken on win32?
 
 ## models remembering the previous group
 
 class AnkiQt(QMainWindow):
-    def __init__(self, app, config, args):
+    def __init__(self, app, profileManager):
         QMainWindow.__init__(self)
         aqt.mw = self
         self.app = app
-        self.config = config
+        self.pm = profileManager
         try:
-            # initialize everything
-            self.setup()
-            # load plugins
+            self.setupUI()
             self.setupAddons()
-            # show main window
-            self.show()
-            # raise window for osx
-            self.activateWindow()
-            self.raise_()
-            # 
+            self.setupProfile()
         except:
             showInfo("Error during startup:\n%s" % traceback.format_exc())
             sys.exit(1)
 
-    def setup(self):
+    def setupUI(self):
         self.col = None
         self.state = None
+        self.setupLang("en") # bootstrap with english; profile will adjust
         self.setupThreads()
-        self.setupLang()
         self.setupMainWindow()
         self.setupStyle()
         self.setupProxy()
@@ -61,16 +52,135 @@ class AnkiQt(QMainWindow):
         self.setupErrorHandler()
         self.setupSystemSpecific()
         self.setupSignals()
-        self.setupVersion()
         self.setupAutoUpdate()
         self.setupUpgrade()
         self.setupCardStats()
         self.setupSchema()
         self.updateTitleBar()
         # screens
-        #self.setupColBrowser()
+        self.setupDeckBrowser()
         self.setupOverview()
         self.setupReviewer()
+
+    # Profiles
+    ##########################################################################
+
+    def setupProfile(self):
+        # profile not provided on command line?
+        if False: # not self.pm.name:
+            # if there's a single profile, load it automatically
+            profs = self.pm.profiles()
+            if len(profs) == 1:
+                try:
+                    self.pm.load(profs[0])
+                except:
+                    # password protected
+                    pass
+        if not self.pm.name:
+            self.showProfileManager()
+        else:
+            self.loadProfile()
+
+    def showProfileManager(self):
+        d = self.profileDiag = QDialog()
+        f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
+        f.setupUi(d)
+        d.connect(f.login, SIGNAL("clicked()"), self.onOpenProfile)
+        d.connect(f.quit, SIGNAL("clicked()"), lambda: sys.exit(0))
+        d.connect(f.add, SIGNAL("clicked()"), self.onAddProfile)
+        d.connect(f.delete_2, SIGNAL("clicked()"), self.onRemProfile)
+        d.connect(d, SIGNAL("rejected()"), lambda: d.close())
+        d.connect(f.profiles, SIGNAL("currentRowChanged(int)"),
+                  self.onProfileRowChange)
+        self.refreshProfilesList()
+        # raise first, for osx testing
+        d.show()
+        d.activateWindow()
+        d.raise_()
+        d.exec_()
+
+    def refreshProfilesList(self):
+        f = self.profileForm
+        f.profiles.clear()
+        f.profiles.addItems(self.pm.profiles())
+        f.profiles.setCurrentRow(0)
+
+    def onProfileRowChange(self, n):
+        if n < 0:
+            # called on .clear()
+            return
+        name = self.pm.profiles()[n]
+        f = self.profileForm
+        passwd = False
+        try:
+            self.pm.load(name)
+        except:
+            passwd = True
+        f.passEdit.setShown(passwd)
+        f.passLabel.setShown(passwd)
+
+    def openProfile(self):
+        name = self.pm.profiles()[self.profileForm.profiles.currentRow()]
+        passwd = self.profileForm.passEdit.text()
+        try:
+            self.pm.load(name, passwd)
+        except:
+            showWarning(_("Invalid password."))
+            return
+        return True
+
+    def onOpenProfile(self):
+        self.openProfile()
+        self.profileDiag.close()
+        self.loadProfile()
+        return True
+
+    def onAddProfile(self):
+        name = getOnlyText("Name:")
+        if name:
+            if name in self.pm.profiles():
+                return showWarning("Name exists.")
+            if not re.match("^[A-Za-z0-9 ]+$", name):
+                return showWarning(
+                    "Only numbers, letters and spaces can be used.")
+            self.pm.create(name)
+            self.refreshProfilesList()
+
+    def onRemProfile(self):
+        profs = self.pm.profiles()
+        if len(profs) < 2:
+            return showWarning("There must be at least one profile.")
+        # password correct?
+        if not self.openProfile():
+            return
+        # sure?
+        if not askUser("""\
+All cards, notes, and media for this profile will be deleted. \
+Are you sure?"""):
+            return
+        self.pm.remove(self.pm.name)
+        self.refreshProfilesList()
+
+    def loadProfile(self):
+        self.setupLang()
+        # show main window
+        if self.pm.profile['mainWindowState']:
+            restoreGeom(self, "mainWindow")
+            restoreState(self, "mainWindow")
+        else:
+            self.resize(500, 400)
+        self.show()
+        # raise window for osx
+        self.activateWindow()
+        self.raise_()
+        # maybe sync
+        self.onSync()
+        # then load collection and launch into the deck browser
+        self.col = Collection(self.pm.collectionPath())
+        self.moveToState("deckBrowser")
+
+    def unloadProfile(self):
+        self.col = None
 
     # State machine
     ##########################################################################
@@ -85,9 +195,8 @@ class AnkiQt(QMainWindow):
         getattr(self, "_"+state+"State")(oldState, *args)
 
     def _deckBrowserState(self, oldState):
-        # shouldn't call this directly; call close
-        self.disableColMenuItems()
-        self.closeAllColWindows()
+        self.disableDeckMenuItems()
+        self.closeAllWindows()
         self.deckBrowser.show()
 
     def _colLoadingState(self, oldState):
@@ -163,8 +272,7 @@ class AnkiQt(QMainWindow):
 
     sharedCSS = """
 body {
-background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
-/*background: #eee;*/
+background: #eee;
 margin: 2em;
 }
 a:hover { background-color: #aaa; }
@@ -198,13 +306,8 @@ title="%s">%s</button>''' % (
         self.mainLayout.setContentsMargins(0,0,0,0)
         self.form.centralwidget.setLayout(self.mainLayout)
         addHook("undoEnd", self.maybeEnableUndo)
-        if self.config['mainWindowState']:
-            restoreGeom(self, "mainWindow")
-            restoreState(self, "mainWindow")
-        else:
-            self.resize(500, 400)
 
-    def closeAllColWindows(self):
+    def closeAllWindows(self):
         aqt.dialogs.closeAll()
 
     # Components
@@ -222,19 +325,6 @@ title="%s">%s</button>''' % (
     def setupErrorHandler(self):
         import aqt.errors
         self.errorHandler = aqt.errors.ErrorHandler(self)
-
-    def setupVersion(self):
-        # check if we've been updated
-        if "version" not in self.config:
-            # could be new user, or upgrade from older version
-            # which didn't have version variable
-            self.appUpdated = "first"
-        elif self.config['version'] != aqt.appVersion:
-            self.appUpdated = self.config['version']
-        else:
-            self.appUpdated = False
-        if self.appUpdated:
-            self.config['version'] = aqt.appVersion
 
     def setupAddons(self):
         import aqt.addons
@@ -292,7 +382,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         finally:
             # we may have a progress window open if we were upgrading
             self.progress.finish()
-        self.config.addRecentDeck(self.col.path)
+        self.pm.profile.addRecentDeck(self.col.path)
         self.setupMedia(self.col)
         if not self.upgrading:
             self.progress.setupDB(self.col.db)
@@ -319,7 +409,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.col.reset()
         runHook("deckClosing")
         print "focusOut() should be handled with deckClosing now"
-        self.closeAllDeckWindows()
+        self.closeAllWindows()
         self.col.close()
         self.col = None
         if showBrowser:
@@ -329,7 +419,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onSync(self):
-        return showInfo("not yet implemented")
+        return
+        return showInfo("sync not yet implemented")
 
     # Tools
     ##########################################################################
@@ -344,7 +435,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.form.statusbar.showMessage(text, timeout)
 
     def setupStyle(self):
-        applyStyles(self)
+        print "applystyles"
+        #applyStyles(self)
 
     # App exit
     ##########################################################################
@@ -352,11 +444,11 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def prepareForExit(self):
         "Save config and window geometry."
         runHook("quit")
-        self.config['mainWindowGeom'] = self.saveGeometry()
-        self.config['mainWindowState'] = self.saveState()
+        self.pm.profile['mainWindowGeom'] = self.saveGeometry()
+        self.pm.profile['mainWindowState'] = self.saveState()
         # save config
         try:
-            self.config.save()
+            self.pm.save()
         except (IOError, OSError), e:
             showWarning(_("Anki was unable to save your "
                                    "configuration file:\n%s" % e))
@@ -368,7 +460,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             event.ignore()
             return self.moveToState("saveEdit")
         self.close(showBrowser=False)
-        # if self.config['syncOnProgramOpen']:
+        # if self.pm.profile['syncOnProgramOpen']:
         #     self.showBrowser = False
         #     self.syncDeck(interactive=False)
         self.prepareForExit()
@@ -392,18 +484,18 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         tb.addAction(frm.actionStats)
         tb.addAction(frm.actionMarkCard)
         tb.addAction(frm.actionRepeatAudio)
-        tb.setIconSize(QSize(self.config['iconSize'],
-                             self.config['iconSize']))
+        tb.setIconSize(QSize(self.pm.profile['iconSize'],
+                             self.pm.profile['iconSize']))
         toggle = tb.toggleViewAction()
         toggle.setText(_("Toggle Toolbar"))
         self.connect(toggle, SIGNAL("triggered()"),
                      self.onToolbarToggle)
-        if not self.config['showToolbar']:
+        if not self.pm.profile['showToolbar']:
             tb.hide()
 
     def onToolbarToggle(self):
         tb = self.form.toolBar
-        self.config['showToolbar'] = tb.isVisible()
+        self.pm.profile['showToolbar'] = tb.isVisible()
 
     # Dockable widgets
     ##########################################################################
@@ -564,7 +656,7 @@ Please choose a new deck name:"""))
     # Language handling
     ##########################################################################
 
-    def setupLang(self):
+    def setupLang(self, force=None):
         "Set the user interface language."
         import locale, gettext
         import anki.lang
@@ -572,15 +664,16 @@ Please choose a new deck name:"""))
             locale.setlocale(locale.LC_ALL, '')
         except:
             pass
-        languageDir=os.path.join(aqt.modDir, "locale")
+        lang = force if force else self.pm.profile["lang"]
+        languageDir=os.path.join(aqt.moduleDir, "locale")
         self.languageTrans = gettext.translation('aqt', languageDir,
-                                            languages=[self.config["interfaceLang"]],
+                                            languages=[lang],
                                             fallback=True)
         self.installTranslation()
         if getattr(self, 'form', None):
             self.form.retranslateUi(self)
-        anki.lang.setLang(self.config["interfaceLang"], local=False)
-        if self.config['interfaceLang'] in ("he","ar","fa"):
+        anki.lang.setLang(lang, local=False)
+        if lang in ("he","ar","fa"):
             self.app.setLayoutDirection(Qt.RightToLeft)
         else:
             self.app.setLayoutDirection(Qt.LeftToRight)
@@ -600,10 +693,8 @@ Please choose a new deck name:"""))
     ##########################################################################
 
     deckRelatedMenuItems = (
-        "Rename",
-        "Close",
-        "Addcards",
-        "Editdeck",
+        "Add",
+        "Browse",
         "Undo",
         "Export",
         "Stats",
@@ -647,9 +738,8 @@ Please choose a new deck name:"""))
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
-        for item in self.colRelatedMenuItems:
+        for item in self.deckRelatedMenuItems:
             getattr(self.form, "action" + item).setEnabled(enabled)
-        self.form.menuAdvanced.setEnabled(enabled)
         if not enabled:
             self.disableCardMenuItems()
         self.maybeEnableUndo()
@@ -697,7 +787,7 @@ Please choose a new deck name:"""))
         self.autoUpdate.start()
 
     def newVerAvail(self, data):
-        if self.config['suppressUpdate'] < data['latestVersion']:
+        if self.pm.profile['suppressUpdate'] < data['latestVersion']:
             aqt.update.askAndUpdate(self, data)
 
     def newMsg(self, data):
@@ -740,7 +830,7 @@ haven't been synced here yet. Continue?"""))
 #     def setupMedia(self, deck):
 #         print "setup media"
 #         return
-#         prefix = self.config['mediaLocation']
+#         prefix = self.pm.profile['mediaLocation']
 #         prev = deck.getVar("mediaLocation") or ""
 #         # set the media prefix
 #         if not prefix:
@@ -812,7 +902,7 @@ haven't been synced here yet. Continue?"""))
 #         return p
 
 #     def setupDropbox(self, deck):
-#         if not self.config['dropboxPublicFolder']:
+#         if not self.pm.profile['dropboxPublicFolder']:
 #             # put a file in the folder
 #             open(os.path.join(
 #                 deck.mediaPrefix, "right-click-me.txt"), "w").write("")
@@ -836,11 +926,11 @@ haven't been synced here yet. Continue?"""))
 # That doesn't appear to be a public link. You'll be asked again when the deck \
 # is next loaded."""))
 #                 else:
-#                     self.config['dropboxPublicFolder'] = os.path.dirname(txt[0])
-#         if self.config['dropboxPublicFolder']:
+#                     self.pm.profile['dropboxPublicFolder'] = os.path.dirname(txt[0])
+#         if self.pm.profile['dropboxPublicFolder']:
 #             # update media url
 #             deck.setVar(
-#                 "mediaURL", self.config['dropboxPublicFolder'] + "/" +
+#                 "mediaURL", self.pm.profile['dropboxPublicFolder'] + "/" +
 #                 os.path.basename(deck.mediaDir()) + "/")
 
     # Advanced features
@@ -913,11 +1003,10 @@ doubt."""))
     ##########################################################################
 
     def setupSystemSpecific(self):
-        self.setupDocumentDir()
         addHook("macLoadEvent", self.onMacLoad)
         if isMac:
             qt_mac_set_menubar_icons(False)
-            #self.setUnifiedTitleAndToolBarOnMac(self.config['showToolbar'])
+            #self.setUnifiedTitleAndToolBarOnMac(self.pm.profile['showToolbar'])
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+m", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
@@ -945,40 +1034,20 @@ doubt."""))
     def onMacLoad(self, fname):
         self.loadDeck(fname)
 
-    def setupDocumentDir(self):
-        if self.config['documentDir']:
-            return
-        if isWin:
-            s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
-            s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-            d = s.value("Personal")
-            if os.path.exists(d):
-                d = os.path.join(d, "Anki")
-            else:
-                d = os.path.expanduser("~/.anki/decks")
-        elif isMac:
-            d = os.path.expanduser("~/Documents/Anki")
-        else:
-            d = os.path.expanduser("~/.anki/decks")
-        try:
-            os.mkdir(d)
-        except (OSError, IOError):
-            # already exists
-            pass
-        self.config['documentDir'] = d
-
     # Proxy support
     ##########################################################################
 
     def setupProxy(self):
+        print "proxy"
+        return
         import urllib2
-        if self.config['proxyHost']:
+        if self.pm.profile['proxyHost']:
             proxy = "http://"
-            if self.config['proxyUser']:
-                proxy += (self.config['proxyUser'] + ":" +
-                          self.config['proxyPass'] + "@")
-            proxy += (self.config['proxyHost'] + ":" +
-                      str(self.config['proxyPort']))
+            if self.pm.profile['proxyUser']:
+                proxy += (self.pm.profile['proxyUser'] + ":" +
+                          self.pm.profile['proxyPass'] + "@")
+            proxy += (self.pm.profile['proxyHost'] + ":" +
+                      str(self.pm.profile['proxyPort']))
             os.environ["http_proxy"] = proxy
             proxy_handler = urllib2.ProxyHandler()
             opener = urllib2.build_opener(proxy_handler)

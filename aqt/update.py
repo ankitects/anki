@@ -14,6 +14,8 @@ class LatestVersionFinder(QThread):
 
     def __init__(self, main):
         QThread.__init__(self)
+        print "autoupdate"
+        return
         self.main = main
         self.config = main.config
         plat=sys.platform
@@ -27,6 +29,7 @@ class LatestVersionFinder(QThread):
         self.stats = d
 
     def run(self):
+        return
         if not self.config['checkForUpdates']:
             return
         d = self.stats
