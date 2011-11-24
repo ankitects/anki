@@ -273,6 +273,10 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             f['ord'] = c
 
     def _transformFields(self, m, fn):
+        if not self.col.db.scalar(
+            "select 1 from notes where mid = ? limit 1", m['id']):
+            # don't bump schema for a new model
+            return
         self.col.modSchema()
         r = []
         for (id, flds) in self.col.db.execute(
