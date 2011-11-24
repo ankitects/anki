@@ -41,7 +41,6 @@ def test_delete():
     assert deck.noteCount() == 0
     assert deck.db.scalar("select count() from notes") == 0
     assert deck.db.scalar("select count() from cards") == 0
-    assert deck.db.scalar("select count() from nsums") == 0
     assert deck.db.scalar("select count() from revlog") == 0
     assert deck.db.scalar("select count() from graves") == 2
 

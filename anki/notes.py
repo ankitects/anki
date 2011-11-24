@@ -51,31 +51,20 @@ from notes where id = ?""", self.id)
         self.usn = self.col.usn()
         sfld = stripHTML(self.fields[self.col.models.sortIdx(self._model)])
         tags = self.stringTags()
+        csum = fieldChecksum(self.fields[0])
         res = self.col.db.execute("""
-insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
                             self.id, self.guid, self.mid, self.did,
                             self.mod, self.usn, tags,
-                            self.joinedFields(), sfld, self.flags, self.data)
+                            self.joinedFields(), sfld, csum, self.flags,
+                            self.data)
         self.id = res.lastrowid
-        self.updateFieldChecksums()
         self.col.tags.register(self.tags)
         if self.model()['cloze']:
             self._clozePostFlush()
 
     def joinedFields(self):
         return joinFields(self.fields)
-
-    def updateFieldChecksums(self):
-        self.col.db.execute("delete from nsums where nid = ?", self.id)
-        d = []
-        for (ord, conf) in self._fmap.values():
-            if not conf['uniq']:
-                continue
-            val = self.fields[ord]
-            if not val:
-                continue
-            d.append((self.id, self.mid, fieldChecksum(val)))
-        self.col.db.executemany("insert into nsums values (?, ?, ?)", d)
 
     def cards(self):
         return [self.col.getCard(id) for id in self.col.db.list(
@@ -139,51 +128,22 @@ insert or replace into notes values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         # duplicates will be stripped on save
         self.tags.append(tag)
 
-    # Unique/duplicate checks
+    # Unique/duplicate check
     ##################################################
 
-    def fieldUnique(self, name):
-        (ord, conf) = self._fmap[name]
-        if not conf['uniq']:
-            return True
-        val = self[name]
-        if not val:
+    def dupeOrEmpty(self):
+        "True if first field is a duplicate or is empty."
+        val = self.fields[0]
+        if not val.strip():
             return True
         csum = fieldChecksum(val)
-        if self.id:
-            lim = "and nid != :nid"
-        else:
-            lim = ""
-        nids = self.col.db.list(
-            "select nid from nsums where csum = ? and nid != ? and mid = ?",
-            csum, self.id or 0, self.mid)
-        if not nids:
-            return True
-        # grab notes with the same checksums, and see if they're actually
-        # duplicates
-        for flds in self.col.db.list("select flds from notes where id in "+
-                                      ids2str(nids)):
-            fields = splitFields(flds)
-            if fields[ord] == val:
-                return False
-        return True
-
-    def fieldComplete(self, name, text=None):
-        (ord, conf) = self._fmap[name]
-        if not conf['req']:
-            return True
-        return self[name]
-
-    def problems(self):
-        d = []
-        for (k, (ord, conf)) in self._fmap.items():
-            if not self.fieldUnique(k):
-                d.append((ord, "unique"))
-            elif not self.fieldComplete(k):
-                d.append((ord, "required"))
-            else:
-                d.append((ord, None))
-        return [x[1] for x in sorted(d)]
+        # find any matching csums and compare
+        for flds in self.col.db.list(
+            "select flds from notes where csum = ? and id != ? and mid = ?",
+            csum, self.id or 0, self.mid):
+            if splitFields(flds)[0] == self.fields[0]:
+                return True
+        return False
 
     # Flushing cloze notes
     ##################################################

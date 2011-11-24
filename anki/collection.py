@@ -263,7 +263,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         # more card templates
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
-        self.db.execute("delete from nsums where nid in %s" % strids)
 
     # Card creation
     ##########################################################################
@@ -368,24 +367,18 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         return self.db.execute(
             "select id, mid, flds from notes where id in "+snids)
 
-    def updateFieldCache(self, nids, csum=True):
+    def updateFieldCache(self, nids):
         "Update field checksums and sort cache, after find&replace, etc."
         snids = ids2str(nids)
         r = []
-        r2 = []
         for (nid, mid, flds) in self._fieldData(snids):
             fields = splitFields(flds)
             model = self.models.get(mid)
-            if csum:
-                for f in model['flds']:
-                    if f['uniq'] and fields[f['ord']]:
-                        r.append((nid, mid, fieldChecksum(fields[f['ord']])))
-            r2.append((stripHTML(fields[self.models.sortIdx(model)]), nid))
-        if csum:
-            self.db.execute("delete from nsums where nid in "+snids)
-            self.db.executemany("insert into nsums values (?,?,?)", r)
-        # rely on calling code to bump usn+mod
-        self.db.executemany("update notes set sfld = ? where id = ?", r2)
+            r.append((stripHTML(fields[self.models.sortIdx(model)]),
+                      fieldChecksum(fields[0]),
+                      nid))
+        # apply, relying on calling code to bump usn+mod
+        self.db.executemany("update notes set sfld=?, csum=? where id=?", r)
 
     # Q/A generation
     ##########################################################################

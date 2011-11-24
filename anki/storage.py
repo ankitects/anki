@@ -90,15 +90,11 @@ create table if not exists notes (
     tags            text not null,
     flds            text not null,
     sfld            integer not null,
+    csum            integer not null,
     flags           integer not null,
     data            text not null
 );
 
-create table if not exists nsums (
-    nid             integer not null,
-    mid             integer not null,
-    csum            integer not null
-);
 create table if not exists cards (
     id              integer primary key,
     nid             integer not null,
@@ -177,7 +173,6 @@ create index if not exists ix_cards_nid on cards (nid);
 create index if not exists ix_cards_sched on cards (did, queue, due);
 -- revlog by card
 create index if not exists ix_revlog_cid on revlog (cid);
--- field uniqueness check
-create index if not exists ix_nsums_nid on nsums (nid);
-create index if not exists ix_nsums_csum on nsums (csum);
+-- field uniqueness
+create index if not exists ix_notes_csum on notes (csum);
 """)

@@ -177,7 +177,7 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
         # and put the facts into the new table
         db.execute("drop table facts")
         _addSchema(db, False)
-        db.executemany("insert into notes values (?,?,?,?,?,?,?,?,'',0,'')", data)
+        db.executemany("insert into notes values (?,?,?,?,?,?,?,?,'','',0,'')", data)
         db.execute("drop table fields")
 
         # cards
@@ -349,15 +349,12 @@ insert or replace into col select id, cast(created as int), :t,
         flds = []
         # note: qsize & qcol are used in upgrade then discarded
         for c, row in enumerate(db.all("""
-select name, features, required, "unique",
-quizFontFamily, quizFontSize, quizFontColour, editFontSize from fieldModels
-where modelId = ?
+select name, features, quizFontFamily, quizFontSize, quizFontColour,
+editFontSize from fieldModels where modelId = ?
 order by ordinal""", mid)):
             conf = dconf.copy()
             (conf['name'],
              conf['rtl'],
-             conf['req'],
-             conf['uniq'],
              conf['font'],
              conf['qsize'],
              conf['qcol'],

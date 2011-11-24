@@ -71,27 +71,14 @@ def test_noteAddDelete():
     c0 = f.cards()[0]
     assert re.sub("</?.+?>", "", c0.q()) == u"three"
     # it should not be a duplicate
-    for p in f.problems():
-        assert not p
-    # now let's make a duplicate and test uniqueness
+    assert not f.dupeOrEmpty()
+    # now let's make a duplicate
     f2 = deck.newNote()
-    f2.model()['flds'][1]['req'] = True
     f2['Front'] = u"one"; f2['Back'] = u""
-    p = f2.problems()
-    assert p[0] == "unique"
-    assert p[1] == "required"
-    # try delete the first card
-    cards = f.cards()
-    id1 = cards[0].id; id2 = cards[1].id
-    assert deck.cardCount() == 4
-    assert deck.noteCount() == 2
-    deck.remCards([id1])
-    assert deck.cardCount() == 3
-    assert deck.noteCount() == 2
-    # and the second should clear the note
-    deck.remCards([id2])
-    assert deck.cardCount() == 2
-    assert deck.noteCount() == 1
+    assert f2.dupeOrEmpty()
+    # empty first field should not be permitted either
+    f2['Front'] = " "
+    assert f2.dupeOrEmpty()
 
 def test_fieldChecksum():
     deck = getEmptyDeck()
@@ -99,31 +86,12 @@ def test_fieldChecksum():
     f['Front'] = u"new"; f['Back'] = u"new2"
     deck.addNote(f)
     assert deck.db.scalar(
-        "select csum from nsums") == int("c2a6b03f", 16)
-    # empty field should have no checksum
-    f['Front'] = u""
-    f.flush()
-    assert deck.db.scalar(
-        "select count() from nsums") == 0
+        "select csum from notes") == int("c2a6b03f", 16)
     # changing the val should change the checksum
     f['Front'] = u"newx"
     f.flush()
     assert deck.db.scalar(
-        "select csum from nsums") == int("302811ae", 16)
-    # turning off unique and modifying the note should delete the sum
-    m = f.model()
-    m['flds'][0]['uniq'] = False
-    deck.models.save(m)
-    f.flush()
-    assert deck.db.scalar(
-        "select count() from nsums") == 0
-    # and turning on both should ensure two checksums generated
-    m['flds'][0]['uniq'] = True
-    m['flds'][1]['uniq'] = True
-    deck.models.save(m)
-    f.flush()
-    assert deck.db.scalar(
-        "select count() from nsums") == 2
+        "select csum from notes") == int("302811ae", 16)
 
 def test_selective():
     deck = getEmptyDeck()

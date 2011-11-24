@@ -13,8 +13,6 @@ def addBasicModel(col):
     mm = col.models
     m = mm.new(_("Basic"))
     fm = mm.newField(_("Front"))
-    fm['req'] = True
-    fm['uniq'] = True
     mm.addField(m, fm)
     fm = mm.newField(_("Back"))
     mm.addField(m, fm)
@@ -34,8 +32,6 @@ def addClozeModel(col):
     mm = col.models
     m = mm.new(_("Cloze"))
     fm = mm.newField(_("Text"))
-    fm['req'] = True
-    fm['uniq'] = True
     mm.addField(m, fm)
     fm = mm.newField(_("Notes"))
     mm.addField(m, fm)

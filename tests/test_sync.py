@@ -62,7 +62,7 @@ def test_changedSchema():
 def test_sync():
     def check(num):
         for d in deck1, deck2:
-            for t in ("revlog", "notes", "cards", "nsums"):
+            for t in ("revlog", "notes", "cards"):
                 assert d.db.scalar("select count() from %s" % t) == num
             assert len(d.models.all()) == num*2
             # the default deck and config have an id of 1, so always 1

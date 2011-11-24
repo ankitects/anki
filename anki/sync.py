@@ -144,7 +144,6 @@ select count() from notes where id not in (select distinct nid from cards)""")
             self.col.db.scalar("select count() from cards"),
             self.col.db.scalar("select count() from notes"),
             self.col.db.scalar("select count() from revlog"),
-            self.col.db.scalar("select count() from nsums"),
             self.col.db.scalar("select count() from graves"),
             len(self.col.models.all()),
             len(self.col.tags.all()),
@@ -188,7 +187,7 @@ select id, nid, did, ord, mod, %d, type, queue, due, ivl, factor, reps,
 lapses, left, edue, flags, data from cards where %s""" % d)
         else:
             return x("""
-select id, guid, mid, did, mod, %d, tags, flds, '', flags, data
+select id, guid, mid, did, mod, %d, tags, flds, '', '', flags, data
 from notes where %s""" % d)
 
     def chunk(self):
@@ -356,7 +355,7 @@ from notes where %s""" % d)
     def mergeNotes(self, notes):
         rows = self.newerRows(notes, "notes", 4)
         self.col.db.executemany(
-            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
             rows)
         self.col.updateFieldCache([f[0] for f in rows])
 

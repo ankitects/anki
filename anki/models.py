@@ -36,8 +36,6 @@ defaultModel = {
 defaultField = {
     'name': "",
     'ord': None,
-    'req': False,
-    'uniq': False,
     'sticky': False,
     # the following alter editing, and are used as defaults for the
     # template wizard

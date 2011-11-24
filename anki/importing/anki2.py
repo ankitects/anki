@@ -87,7 +87,7 @@ class Anki2Importer(Importer):
                 continue #raise Exception("merging notes nyi")
         # add to col
         self.dst.db.executemany(
-            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
             add)
         self.dst.updateFieldCache(dirty)
         self.dst.tags.registerNotes(dirty)
