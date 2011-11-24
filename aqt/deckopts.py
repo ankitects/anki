@@ -6,13 +6,13 @@ import sys, re
 import aqt
 from aqt.utils import maybeHideClose
 
-class DeckOptions(QDialog):
+class ColOptions(QDialog):
 
     def __init__(self, mw):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
-        self.d = mw.deck
-        self.form = aqt.forms.deckopts.Ui_Dialog()
+        self.d = mw.col
+        self.form = aqt.forms.colopts.Ui_Dialog()
         self.form.setupUi(self)
         self.setup()
         self.exec_()
@@ -28,7 +28,7 @@ class DeckOptions(QDialog):
         self.form.mediaURL.setText(self.d.conf['mediaURL'])
 
     def helpRequested(self):
-        aqt.openHelp("DeckOptions")
+        aqt.openHelp("ColOptions")
 
     def reject(self):
         needSync = False
@@ -49,4 +49,4 @@ class DeckOptions(QDialog):
         self.d.conf['mediaURL'] = url
         QDialog.reject(self)
         if needSync:
-            aqt.mw.syncDeck(interactive=-1)
+            aqt.mw.syncCol(interactive=-1)

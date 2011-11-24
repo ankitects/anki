@@ -61,7 +61,7 @@ class UpdateMap(QDialog):
         for i in range(numFields):
             self.dialog.fileField.addItem("Field %d" % (i+1))
         for m in fieldModels:
-            self.dialog.deckField.addItem(m.name)
+            self.dialog.colField.addItem(m.name)
         self.exec_()
 
     def helpRequested(self):
@@ -70,7 +70,7 @@ class UpdateMap(QDialog):
     def accept(self):
         self.updateKey = (
             self.dialog.fileField.currentIndex(),
-            self.fieldModels[self.dialog.deckField.currentIndex()].id)
+            self.fieldModels[self.dialog.colField.currentIndex()].id)
         QDialog.accept(self)
 
 class ImportDialog(QDialog):
@@ -95,10 +95,10 @@ class ImportDialog(QDialog):
         self.exec_()
 
     def setupOptions(self):
-        self.model = self.parent.deck.currentModel
+        self.model = self.parent.col.currentModel
         self.modelChooser = ui.modelchooser.ModelChooser(self,
                                                          self.parent,
-                                                         self.parent.deck,
+                                                         self.parent.col,
                                                          self.modelChanged)
         self.dialog.modelArea.setLayout(self.modelChooser)
         self.connect(self.dialog.importButton, SIGNAL("clicked()"),
@@ -197,7 +197,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.importer.mapping = self.mapping
         try:
             n = _("Import")
-            self.parent.deck.setUndoStart(n)
+            self.parent.col.setUndoStart(n)
             try:
                 self.importer.doImport()
             except ImportFormatError, e:
@@ -211,8 +211,8 @@ you can enter it here. Use \\t to represent tab."""),
                 self.dialog.status.setText(msg)
                 return
         finally:
-            self.parent.deck.finishProgress()
-            self.parent.deck.setUndoEnd(n)
+            self.parent.col.finishProgress()
+            self.parent.col.setUndoEnd(n)
         txt = (
             _("Importing complete. %(num)d notes imported from %(file)s.\n") %
             {"num": self.importer.total, "file": os.path.basename(self.file)})
@@ -223,7 +223,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.dialog.status.setText(txt)
         self.file = None
         self.maybePreview()
-        self.parent.deck.db.flush()
+        self.parent.col.db.flush()
         self.parent.reset()
         self.modelChooser.deinit()
 
@@ -242,7 +242,7 @@ you can enter it here. Use \\t to represent tab."""),
     def showMapping(self, keepMapping=False, hook=None):
         # first, check that we can read the file
         try:
-            self.importer = self.importerFunc(self.parent.deck, self.file)
+            self.importer = self.importerFunc(self.parent.col, self.file)
             if hook:
                 hook()
             if not keepMapping:

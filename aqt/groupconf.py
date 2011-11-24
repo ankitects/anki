@@ -17,7 +17,7 @@ class GroupConf(QDialog):
         self.gcid = gcid
         self.form = aqt.forms.groupconf.Ui_Dialog()
         self.form.setupUi(self)
-        (self.name, self.conf) = self.mw.deck.db.first(
+        (self.name, self.conf) = self.mw.col.db.first(
             "select name, conf from gconf where id = ?", self.gcid)
         self.conf = simplejson.loads(self.conf)
         self.setWindowTitle(self.name)
@@ -131,7 +131,7 @@ class GroupConf(QDialog):
         c['maxTaken'] = f.maxTaken.value()
         # update db
         self.mw.checkpoint(_("Group Options"))
-        self.mw.deck.db.execute(
+        self.mw.col.db.execute(
             "update gconf set conf = ? where id = ?",
             simplejson.dumps(self.conf), self.gcid)
 
@@ -147,7 +147,7 @@ class GroupConfSelector(QDialog):
         self.form.setupUi(self)
         self.connect(self.form.list, SIGNAL("itemChanged(QListWidgetItem*)"),
                      self.onRename)
-        self.defaultId = self.mw.deck.db.scalar(
+        self.defaultId = self.mw.col.db.scalar(
             "select gcid from groups where id = ?", self.gids[0])
         self.reload()
         self.addButtons()
@@ -155,7 +155,7 @@ class GroupConfSelector(QDialog):
 
     def accept(self):
         # save
-        self.mw.deck.db.execute(
+        self.mw.col.db.execute(
             "update groups set gcid = ? where id in "+ids2str(self.gids),
             self.gcid())
         QDialog.accept(self)
@@ -164,7 +164,7 @@ class GroupConfSelector(QDialog):
         self.accept()
 
     def reload(self):
-        self.confs = self.mw.deck.groupConfs()
+        self.confs = self.mw.col.groupConfs()
         self.form.list.clear()
         deflt = None
         for c in self.confs:
@@ -190,7 +190,7 @@ class GroupConfSelector(QDialog):
 
     def onRename(self, item):
         gcid = self.gcid()
-        self.mw.deck.db.execute("update gconf set name = ? where id = ?",
+        self.mw.col.db.execute("update gconf set name = ? where id = ?",
                                 unicode(item.text()), gcid)
 
     def onEdit(self):
@@ -198,10 +198,10 @@ class GroupConfSelector(QDialog):
 
     def onCopy(self):
         gcid = self.gcid()
-        gc = list(self.mw.deck.db.first("select * from gconf where id = ?", gcid))
-        gc[0] = self.mw.deck.nextID("gcid")
+        gc = list(self.mw.col.db.first("select * from gconf where id = ?", gcid))
+        gc[0] = self.mw.col.nextID("gcid")
         gc[2] = _("%s copy")%gc[2]
-        self.mw.deck.db.execute("insert into gconf values (?,?,?,?)", *gc)
+        self.mw.col.db.execute("insert into gconf values (?,?,?,?)", *gc)
         self.reload()
 
     def onDelete(self):
@@ -210,8 +210,8 @@ class GroupConfSelector(QDialog):
             showInfo(_("The default configuration can't be removed."), self)
         else:
             self.mw.checkpoint(_("Delete Group Config"))
-            self.mw.deck.db.execute(
+            self.mw.col.db.execute(
                 "update groups set gcid = 1 where gcid = ?", gcid)
-            self.mw.deck.db.execute(
+            self.mw.col.db.execute(
                 "delete from gconf where id = ?", gcid)
             self.reload()

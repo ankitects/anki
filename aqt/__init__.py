@@ -9,13 +9,13 @@ appVersion="1.99"
 appWebsite="http://ankisrs.net/"
 appHelpSite="http://ankisrs.net/docs/dev/"
 appDonate="http://ankisrs.net/support/"
-modDir=os.path.dirname(os.path.abspath(__file__))
-runningDir=os.path.split(modDir)[0]
 mw = None # set on init
+
+moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+
 # py2exe
-if hasattr(sys, "frozen"):
-    sys.path.append(modDir)
-    modDir = os.path.dirname(sys.argv[0])
+# if hasattr(sys, "frozen"):
+#     sys.path.append(moduleDir)
 
 def openHelp(name):
     if "#" in name:
@@ -60,46 +60,6 @@ class DialogManager(object):
 
 dialogs = DialogManager()
 
-# Splash screen
-##########################################################################
-
-class SplashScreen(object):
-
-    def __init__(self, max=100):
-        self.finished = False
-        self.pixmap = QPixmap(":/icons/anki-logo.png")
-        self.splash = QSplashScreen(self.pixmap)
-        self.prog = QProgressBar(self.splash)
-        self.prog.setMaximum(max)
-        if QApplication.instance().style().objectName() != "plastique":
-            self.style = QStyleFactory.create("plastique")
-            self.prog.setStyle(self.style)
-        self.prog.setStyleSheet("""* {
-color: #ffffff;
-background-color: #061824;
-margin:0px;
-border:0px;
-padding: 0px;
-text-align: center;}
-*::chunk {
-color: #13486c;
-}
-""")
-        x = 8
-        self.prog.setGeometry(self.splash.width()/10, 8.85*self.splash.height()/10,
-                                x*self.splash.width()/10, self.splash.height()/10)
-        self.splash.show()
-        self.val = 1
-
-    def update(self):
-        self.prog.setValue(self.val)
-        self.val += 1
-        QApplication.instance().processEvents()
-
-    def finish(self, obj):
-        self.splash.finish(obj)
-        self.finished = True
-
 # App initialisation
 ##########################################################################
 
@@ -116,52 +76,26 @@ def run():
     global mw
     from anki.utils import isWin, isMac
 
-    # home on win32 is broken
-    mustQuit = False
-    if isWin:
-        # use appdata if available
-        if 'APPDATA' in os.environ:
-            os.environ['HOME'] = os.environ['APPDATA']
-        else:
-            mustQuit = True
-        # make and check accessible
-        try:
-            os.makedirs(os.path.expanduser("~/.anki"))
-        except:
-            pass
-        try:
-            os.listdir(os.path.expanduser("~/.anki"))
-        except:
-            mustQuit = True
-
     # on osx we'll need to add the qt plugins to the search path
-    rd = runningDir
     if isMac and getattr(sys, 'frozen', None):
-        rd = os.path.abspath(runningDir + "/../../..")
+        rd = os.path.abspath(moduleDir + "/../../..")
         QCoreApplication.setLibraryPaths([rd])
 
     # create the app
     app = AnkiApp(sys.argv)
     QCoreApplication.setApplicationName("Anki")
-    if mustQuit:
-        QMessageBox.warning(
-            None, "Anki", "Can't open APPDATA, nor c:\\anki.\n"
-            "Please try removing foreign characters from your username.")
-        sys.exit(1)
-    splash = SplashScreen(3)
 
     # parse args
     import optparse
     parser = optparse.OptionParser()
-    parser.usage = "%prog [<deck.anki>]"
-    parser.add_option("-c", "--config", help="path to config dir",
-                      default=os.path.expanduser("~/.anki"))
+    parser.usage = "%prog [OPTIONS]"
+    parser.add_option("-b", "--base", help="Path to base folder")
+    parser.add_option("-p", "--profile", help="Profile name to load")
     (opts, args) = parser.parse_args(sys.argv[1:])
 
-    # setup config
-    import aqt.config
-    conf = aqt.config.Config(
-        unicode(os.path.abspath(opts.config), sys.getfilesystemencoding()))
+    # profile manager
+    from aqt.profiles import ProfileManager
+    pm = ProfileManager(opts.base, opts.profile)
 
     # qt translations
     translationPath = ''
@@ -175,10 +109,8 @@ def run():
                qtTranslator.load("qt_" + short, translationPath):
             app.installTranslator(qtTranslator)
 
-    # load main window
-    splash.update()
     import aqt.main
-    mw = aqt.main.AnkiQt(app, conf, args, splash)
+    mw = aqt.main.AnkiQt(app, pm)
     app.exec_()
 
 if __name__ == "__main__":

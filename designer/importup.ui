@@ -41,7 +41,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="deckField"/>
+      <widget class="QComboBox" name="colField"/>
      </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="fileField"/>
@@ -75,7 +75,7 @@
  </widget>
  <tabstops>
   <tabstop>fileField</tabstop>
-  <tabstop>deckField</tabstop>
+  <tabstop>colField</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

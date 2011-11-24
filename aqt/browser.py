@@ -28,14 +28,14 @@ COLOUR_MARKED2 = "#aaaaff"
 # Data model
 ##########################################################################
 
-class DeckModel(QAbstractTableModel):
+class DataModel(QAbstractTableModel):
 
     def __init__(self, browser):
         QAbstractTableModel.__init__(self)
         self.browser = browser
-        self.deck = browser.deck
+        self.col = browser.col
         self.sortKey = None
-        self.activeCols = self.deck.conf.get(
+        self.activeCols = self.col.conf.get(
             "activeCols", ["noteFld", "template", "cardDue", "cardEase"])
         self.cards = []
         self.cardObjs = {}
@@ -43,7 +43,7 @@ class DeckModel(QAbstractTableModel):
     def getCard(self, index):
         id = self.cards[index.row()]
         if not id in self.cardObjs:
-            self.cardObjs[id] = self.deck.getCard(id)
+            self.cardObjs[id] = self.col.getCard(id)
         return self.cardObjs[id]
 
     def refreshNote(self, note):
@@ -112,7 +112,7 @@ class DeckModel(QAbstractTableModel):
         # the db progress handler may cause a refresh, so we need to zero out
         # old data first
         self.cards = []
-        self.cards = self.deck.findCards(txt, self.browser.mw.config['fullSearch'])
+        self.cards = self.col.findCards(txt, self.browser.mw.config['fullSearch'])
         print "fetch cards in %dms" % ((time.time() - t)*1000)
         if reset:
             self.endReset()
@@ -206,7 +206,7 @@ class DeckModel(QAbstractTableModel):
             return self.answer()
         elif type == "noteFld":
             f = c.note()
-            return self.formatQA(f.fields[self.deck.models.sortIdx(f.model())])
+            return self.formatQA(f.fields[self.col.models.sortIdx(f.model())])
         elif type == "template":
             return c.template()['name']
         elif type == "cardDue":
@@ -230,9 +230,9 @@ class DeckModel(QAbstractTableModel):
                 return _("(new)")
             return "%d%%" % (c.factor/10)
         elif type == "cardGroup":
-            return self.browser.mw.deck.groups.name(c.gid)
+            return self.browser.mw.col.groups.name(c.gid)
         elif type == "noteGroup":
-            return self.browser.mw.deck.groups.name(c.note().gid)
+            return self.browser.mw.col.groups.name(c.note().gid)
 
     def question(self):
         return self.formatQA(c.a())
@@ -255,7 +255,7 @@ class DeckModel(QAbstractTableModel):
         elif c.queue == 1:
             date = c.due
         elif c.queue == 2:
-            date = time.time() + ((c.due - self.deck.sched.today)*86400)
+            date = time.time() + ((c.due - self.col.sched.today)*86400)
         else:
             return _("(susp.)")
         return time.strftime("%Y-%m-%d", time.localtime(date))
@@ -301,7 +301,7 @@ class Browser(QMainWindow):
         QMainWindow.__init__(self, None)
         #applyStyles(self)
         self.mw = mw
-        self.deck = self.mw.deck
+        self.col = self.mw.col
         self.currentRow = None
         self.lastFilter = ""
         self.form = aqt.forms.browser.Ui_Dialog()
@@ -385,7 +385,7 @@ class Browser(QMainWindow):
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
-        self.deck.conf['activeCols'] = self.model.activeCols
+        self.col.conf['activeCols'] = self.model.activeCols
         self.hide()
         aqt.dialogs.close("Browser")
         self.teardownHooks()
@@ -467,7 +467,7 @@ class Browser(QMainWindow):
                                  cur) % {
             "cur": cur,
             "sel": ngettext("%d selected", "%d selected", selected) % selected
-            } + " - " + self.deck.name())
+            } + " - " + self.col.name())
         return selected
 
     def onReset(self):
@@ -478,7 +478,7 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupTable(self):
-        self.model = DeckModel(self)
+        self.model = DataModel(self)
         self.form.tableView.setSortingEnabled(True)
         self.form.tableView.setShowGrid(False)
         self.form.tableView.setModel(self.model)
@@ -537,28 +537,28 @@ class Browser(QMainWindow):
         if type in noSort:
             showInfo(_("Sorting on this column is not supported. Please "
                        "choose another."))
-            type = self.deck.conf['sortType']
-        if self.deck.conf['sortType'] != type:
-            self.deck.conf['sortType'] = type
+            type = self.col.conf['sortType']
+        if self.col.conf['sortType'] != type:
+            self.col.conf['sortType'] = type
             # default to descending for non-text fields
             if type == "noteFld":
                 ord = not ord
-            self.deck.conf['sortBackwards'] = ord
+            self.col.conf['sortBackwards'] = ord
             self.onSearch()
         else:
-            if self.deck.conf['sortBackwards'] != ord:
-                self.deck.conf['sortBackwards'] = ord
+            if self.col.conf['sortBackwards'] != ord:
+                self.col.conf['sortBackwards'] = ord
                 self.model.reverse()
         self.setSortIndicator()
 
     def setSortIndicator(self):
         hh = self.form.tableView.horizontalHeader()
-        type = self.deck.conf['sortType']
+        type = self.col.conf['sortType']
         if type not in self.model.activeCols:
             hh.setSortIndicatorShown(False)
             return
         idx = self.model.activeCols.index(type)
-        if self.deck.conf['sortBackwards']:
+        if self.col.conf['sortBackwards']:
             ord = Qt.DescendingOrder
         else:
             ord = Qt.AscendingOrder
@@ -649,7 +649,7 @@ class Browser(QMainWindow):
         self.onSearch()
 
     def _modelTree(self, root):
-        for m in sorted(self.deck.models.all(), key=itemgetter("name")):
+        for m in sorted(self.col.models.all(), key=itemgetter("name")):
             mitem = self.CallbackItem(
                 m['name'], lambda m=m: self.setFilter("model", m['name']))
             mitem.setIcon(0, QIcon(":/icons/product_design.png"))
@@ -662,7 +662,7 @@ class Browser(QMainWindow):
                 mitem.addChild(titem)
 
     def _groupTree(self, root):
-        grps = self.deck.sched.groupTree()
+        grps = self.col.sched.groupTree()
         def fillGroups(root, grps, head=""):
             for g in grps:
                 item = self.CallbackItem(
@@ -694,7 +694,7 @@ class Browser(QMainWindow):
         return root
 
     def _userTagTree(self, root):
-        for t in sorted(self.deck.tags.all()):
+        for t in sorted(self.col.tags.all()):
             item = self.CallbackItem(
                 t, lambda t=t: self.setFilter("tag", t))
             item.setIcon(0, QIcon(":/icons/anki-tag.png"))
@@ -706,7 +706,7 @@ class Browser(QMainWindow):
     def setupCardInfo(self):
         from anki.stats import CardStats
         self.card = None
-        self.cardStats = CardStats(self.deck, None)
+        self.cardStats = CardStats(self.col, None)
         self.connect(self.form.cardLabel,
                      SIGNAL("linkActivated(const QString&)"),
                      self.onCardLink)
@@ -717,7 +717,7 @@ class Browser(QMainWindow):
         rep = "<style>table * { font-size: 12px; }</style>" + rep
         m = self.card.model()
         # add sort field
-        sortf = m['flds'][self.mw.deck.models.sortIdx(m)]['name']
+        sortf = m['flds'][self.mw.col.models.sortIdx(m)]['name']
         extra = self.cardStats.makeLine(
             _("Sort Field"), "<a href=sort>%s</a>" % sortf)
         # and revlog
@@ -767,7 +767,7 @@ class Browser(QMainWindow):
         s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
         s += ("<th align=right>%s</th>" * 5) % (
             _("Type"), _("Ease"), _("Interval"), _("Factor"), _("Time"))
-        for (date, ease, ivl, factor, taken, type) in self.mw.deck.db.execute(
+        for (date, ease, ivl, factor, taken, type) in self.mw.col.db.execute(
             "select time/1000, ease, ivl, factor, taken/1000.0, type "
             "from revlog where cid = ?", self.card.id):
             s += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
@@ -810,14 +810,14 @@ class Browser(QMainWindow):
                 self.form.tableView.selectionModel().selectedRows()]
 
     def selectedNotes(self):
-        return self.deck.db.list("""
+        return self.col.db.list("""
 select distinct nid from cards
 where id in %s""" % ids2str(
     [self.model.cards[idx.row()] for idx in
     self.form.tableView.selectionModel().selectedRows()]))
 
     def selectedNotesAsCards(self):
-        return self.deck.db.list(
+        return self.col.db.list(
             "select id from cards where nid in (%s)" %
             ",".join([str(s) for s in self.selectedNotes()]))
 
@@ -825,7 +825,7 @@ where id in %s""" % ids2str(
         sf = self.selectedNotes()
         if not sf:
             return
-        mods = self.deck.db.scalar("""
+        mods = self.col.db.scalar("""
 select count(distinct mid) from notes
 where id in %s""" % ids2str(sf))
         if mods > 1:
@@ -861,7 +861,7 @@ where id in %s""" % ids2str(sf))
         self.mw.checkpoint(_("Delete Cards"))
         self.model.beginReset()
         oldRow = self.form.tableView.selectionModel().currentIndex().row()
-        self.deck.remCards(self.selectedCards())
+        self.col.remCards(self.selectedCards())
         self.onSearch(reset=False)
         if len(self.model.cards):
             new = min(oldRow, len(self.model.cards) - 1)
@@ -880,7 +880,7 @@ where id in %s""" % ids2str(sf))
         from aqt.tagedit import TagEdit
         te = TagEdit(d, type=1)
         frm.groupBox.layout().insertWidget(0, te)
-        te.setDeck(self.deck)
+        te.setCol(self.col)
         d.connect(d, SIGNAL("accepted()"), lambda: self.onSetGroup(frm, te))
         self.setTabOrder(frm.setCur, te)
         self.setTabOrder(te, frm.setInitial)
@@ -894,16 +894,16 @@ where id in %s""" % ids2str(sf))
         self.mw.checkpoint(_("Set Group"))
         mod = intTime()
         if frm.setCur.isChecked():
-            gid = self.deck.groups.id(unicode(te.text()))
-            self.deck.db.execute(
+            gid = self.col.groups.id(unicode(te.text()))
+            self.col.db.execute(
                 "update cards set mod=?, gid=? where id in " + ids2str(
                     self.selectedCards()), mod, gid)
             if frm.setInitial.isChecked():
-                self.deck.db.execute(
+                self.col.db.execute(
                     "update notes set mod=?, gid=? where id in " + ids2str(
                         self.selectedNotes()), mod, gid)
         else:
-            self.deck.db.execute("""
+            self.col.db.execute("""
 update cards set mod=?, gid=(select gid from notes where id = cards.nid)
 where id in %s""" % ids2str(self.selectedCards()), mod)
         self.onSearch(reset=False)
@@ -917,13 +917,13 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         if prompt is None:
             prompt = _("Enter tags to add:")
         if tags is None:
-            (tags, r) = getTag(self, self.deck, prompt)
+            (tags, r) = getTag(self, self.col, prompt)
         else:
             r = True
         if not r:
             return
         if func is None:
-            func = self.deck.tags.bulkAdd
+            func = self.col.tags.bulkAdd
         self.model.beginReset()
         if label is None:
             label = _("Add Tags")
@@ -938,7 +938,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         if label is None:
             label = _("Delete Tags")
         self.addTags(tags, label, _("Enter tags to delete:"),
-                     func=self.deck.tags.bulkRem)
+                     func=self.col.tags.bulkRem)
 
     # Suspending and marking
     ######################################################################
@@ -955,9 +955,9 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         self.editor.saveNow()
         c = self.selectedCards()
         if sus:
-            self.deck.sched.suspendCards(c)
+            self.col.sched.suspendCards(c)
         else:
-            self.deck.sched.unsuspendCards(c)
+            self.col.sched.unsuspendCards(c)
         self.model.reset()
         self.mw.requireReset()
 
@@ -975,7 +975,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
 
     def reposition(self):
         cids = self.selectedCards()
-        cids = self.deck.db.list(
+        cids = self.col.db.list(
             "select id from cards where type = 0 and id in " + ids2str(cids))
         if not cids:
             return showInfo(_("Only new cards can be repositioned."))
@@ -983,7 +983,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reposition.Ui_Dialog()
         frm.setupUi(d)
-        (pmin, pmax) = self.deck.db.first(
+        (pmin, pmax) = self.col.db.first(
             "select min(due), max(due) from cards where type=0")
         txt = _("Queue top: %d") % pmin
         txt += "\n" + _("Queue bottom: %d") % pmax
@@ -992,7 +992,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
             return
         self.model.beginReset()
         self.mw.checkpoint(_("Reposition"))
-        self.deck.sched.sortCards(
+        self.col.sched.sortCards(
             cids, start=frm.start.value(), step=frm.step.value(),
             shuffle=frm.randomize.isChecked(), shift=frm.shift.isChecked())
         self.onSearch(reset=False)
@@ -1012,9 +1012,9 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         self.model.beginReset()
         self.mw.checkpoint(_("Reschedule"))
         if frm.asNew.isChecked():
-            self.deck.sched.forgetCards(self.selectedCards())
+            self.col.sched.forgetCards(self.selectedCards())
         else:
-            self.deck.sched.reschedCards(
+            self.col.sched.reschedCards(
                 self.selectedCards(), frm.min.value(), frm.max.value())
         self.onSearch(reset=False)
         self.mw.requireReset()
@@ -1088,7 +1088,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         if not sf:
             return
         import anki.find
-        fields = sorted(anki.find.fieldNames(self.deck, downcase=False))
+        fields = sorted(anki.find.fieldNames(self.col, downcase=False))
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
@@ -1106,7 +1106,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         self.mw.progress.start()
         self.model.beginReset()
         try:
-            changed = self.deck.findReplace(sf,
+            changed = self.col.findReplace(sf,
                                             unicode(frm.find.text()),
                                             unicode(frm.replace.text()),
                                             frm.re.isChecked(),
@@ -1143,12 +1143,12 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         restoreGeom(win, "findDupes")
         fields = sorted(self.card.note.model.fieldModels, key=attrgetter("name"))
         # per-model data
-        data = self.deck.db.all("""
+        data = self.col.db.all("""
 select fm.id, m.name || '>' || fm.name from fieldmodels fm, models m
 where fm.modelId = m.id""")
         data.sort(key=itemgetter(1))
         # all-model data
-        data2 = self.deck.db.all("""
+        data2 = self.col.db.all("""
 select fm.id, fm.name from fieldmodels fm""")
         byName = {}
         for d in data2:
@@ -1187,9 +1187,9 @@ select fm.id, fm.name from fieldmodels fm""")
         win.show()
 
     def duplicatesReport(self, web, fmids):
-        self.deck.startProgress(2)
-        self.deck.updateProgress(_("Finding..."))
-        res = self.deck.findDuplicates(fmids)
+        self.col.startProgress(2)
+        self.col.updateProgress(_("Finding..."))
+        res = self.col.findDuplicates(fmids)
         t = "<html><body>"
         t += _("Duplicate Groups: %d") % len(res)
         t += "<p><ol>"
@@ -1202,7 +1202,7 @@ select fm.id, fm.name from fieldmodels fm""")
         t += "</ol>"
         t += "</body></html>"
         web.setHtml(t)
-        self.deck.finishProgress()
+        self.col.finishProgress()
 
     def dupeLinkClicked(self, link):
         self.form.searchEdit.setText(link.toString())
@@ -1262,7 +1262,7 @@ class GenCards(QDialog):
 
     def getSelection(self):
         # get cards to enable
-        f = self.browser.deck.getNote(self.nids[0])
+        f = self.browser.col.getNote(self.nids[0])
         self.model = f.model()
         self.items = []
         for t in self.model.templates:
@@ -1297,15 +1297,15 @@ class GenCards(QDialog):
         mw.checkpoint(_("Generate Cards"))
         mw.progress.start()
         for c, nid in enumerate(self.nids):
-            f = mw.deck.getNote(nid)
-            mw.deck.genCards(f, tplates)
+            f = mw.col.getNote(nid)
+            mw.col.genCards(f, tplates)
             if c % 100 == 0:
                 mw.progress.update()
         if unused:
-            cids = mw.deck.db.list("""
+            cids = mw.col.db.list("""
 select id from cards where nid in %s and ord in %s""" % (
                     ids2str(self.nids), ids2str(unused)))
-            mw.deck.remCards(cids)
+            mw.col.remCards(cids)
         mw.progress.finish()
         mw.requireReset()
         self.browser.onSearch()
@@ -1344,8 +1344,8 @@ class ChangeModel(QDialog):
         self.form.templateMap.setLayout(self.tlayout)
         # model chooser
         import aqt.modelchooser
-        self.oldCurrentModel = self.browser.deck.conf['currentModelId']
-        self.browser.deck.conf['currentModelId'] = self.oldModel.id
+        self.oldCurrentModel = self.browser.col.conf['currentModelId']
+        self.browser.col.conf['currentModelId'] = self.oldModel.id
         self.form.oldModelLabel.setText(self.oldModel.name)
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.browser.mw, self.form.modelChooserWidget, cards=False, label=False)
@@ -1356,7 +1356,7 @@ class ChangeModel(QDialog):
         self.pauseUpdate = False
 
     def onReset(self):
-        self.modelChanged(self.browser.deck.currentModel())
+        self.modelChanged(self.browser.col.currentModel())
 
     def modelChanged(self, model):
         self.targetModel = model
@@ -1446,7 +1446,7 @@ class ChangeModel(QDialog):
     def cleanup(self):
         removeHook("reset", self.onReset)
         removeHook("currentModelChanged", self.onReset)
-        self.oldCurrentModel = self.browser.deck.conf['currentModelId']
+        self.oldCurrentModel = self.browser.col.conf['currentModelId']
         self.modelChooser.cleanup()
         saveGeom(self, "changeModel")
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
-    <height>333</height>
+    <width>612</width>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -185,7 +185,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>436</width>
+     <width>612</width>
      <height>22</height>
     </rect>
    </property>
@@ -195,9 +195,8 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
-    <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
-    <addaction name="actionSelectFacts"/>
+    <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
     <addaction name="separator"/>
     <addaction name="actionOptions"/>
@@ -206,7 +205,7 @@
     <property name="title">
      <string>Cards</string>
     </property>
-    <addaction name="actionSetGroup"/>
+    <addaction name="actionSetDeck"/>
     <addaction name="separator"/>
     <addaction name="actionReposition"/>
     <addaction name="actionReschedule"/>
@@ -221,7 +220,7 @@
     </property>
     <addaction name="actionFind"/>
     <addaction name="actionTags"/>
-    <addaction name="actionFact"/>
+    <addaction name="actionNote"/>
     <addaction name="actionCardList"/>
     <addaction name="separator"/>
     <addaction name="actionPreviousCard"/>
@@ -233,12 +232,11 @@
     </property>
     <addaction name="actionGuide"/>
    </widget>
-   <widget class="QMenu" name="menuFacts">
+   <widget class="QMenu" name="menuNotes">
     <property name="title">
-     <string>Facts</string>
+     <string>Notes</string>
     </property>
     <addaction name="actionAddItems"/>
-    <addaction name="actionAddCards"/>
     <addaction name="separator"/>
     <addaction name="actionToggleMark"/>
     <addaction name="actionAddTag"/>
@@ -249,10 +247,10 @@
     <addaction name="separator"/>
     <addaction name="actionChangeModel"/>
     <addaction name="separator"/>
-    <addaction name="actionDeleteFacts"/>
+    <addaction name="actionDeleteNotes"/>
    </widget>
    <addaction name="menuCards"/>
-   <addaction name="menuFacts"/>
+   <addaction name="menuNotes"/>
    <addaction name="menuEdit"/>
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
@@ -263,9 +261,12 @@
    </property>
    <property name="iconSize">
     <size>
-     <width>32</width>
-     <height>32</height>
+     <width>24</width>
+     <height>24</height>
     </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -274,9 +275,9 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionAddItems"/>
-   <addaction name="actionAddCards"/>
    <addaction name="separator"/>
-   <addaction name="actionSetGroup"/>
+   <addaction name="actionSetDeck"/>
+   <addaction name="separator"/>
    <addaction name="actionAddTag"/>
    <addaction name="actionDeleteTag"/>
    <addaction name="separator"/>
@@ -313,15 +314,6 @@
    </property>
    <property name="text">
     <string>&amp;Delete Tags...</string>
-   </property>
-  </action>
-  <action name="actionAddCards">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/Anki_Card.png</normaloff>:/icons/Anki_Card.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Generate Cards...</string>
    </property>
   </action>
   <action name="actionReschedule">
@@ -373,7 +365,7 @@
     <string>Ctrl+F</string>
    </property>
   </action>
-  <action name="actionFact">
+  <action name="actionNote">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
@@ -433,15 +425,19 @@
     <string>Ctrl+Shift+M</string>
    </property>
   </action>
-  <action name="actionSelectFacts">
+  <action name="actionSelectNotes">
    <property name="text">
-    <string>Select &amp;Facts</string>
+    <string>Select &amp;Notes</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
    </property>
   </action>
   <action name="actionFindReplace">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/edit-find-replace.png</normaloff>:/icons/edit-find-replace.png</iconset>
+   </property>
    <property name="text">
     <string>Find and Re&amp;place...</string>
    </property>
@@ -554,17 +550,21 @@
    </property>
   </action>
   <action name="actionFindDuplicates">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/edit-find 2.png</normaloff>:/icons/edit-find 2.png</iconset>
+   </property>
    <property name="text">
     <string>Find &amp;Duplicates...</string>
    </property>
   </action>
-  <action name="actionSetGroup">
+  <action name="actionSetDeck">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/stock_group.png</normaloff>:/icons/stock_group.png</iconset>
+     <normaloff>:/icons/graphite_smooth_folder_noncommercial.png</normaloff>:/icons/graphite_smooth_folder_noncommercial.png</iconset>
    </property>
    <property name="text">
-    <string>Set Group...</string>
+    <string>Move to Deck...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
@@ -579,7 +579,7 @@
     <string>Reposition...</string>
    </property>
   </action>
-  <action name="actionDeleteFacts">
+  <action name="actionDeleteNotes">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>

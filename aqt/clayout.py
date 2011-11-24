@@ -28,8 +28,8 @@ class CardLayout(QDialog):
         self.note = note
         self.type = type
         self.ord = ord
-        self.deck = self.mw.deck
-        self.mm = self.mw.deck.models
+        self.col = self.mw.col
+        self.mm = self.mw.col.models
         self.model = note.model()
         self.form = aqt.forms.clayout.Ui_Dialog()
         self.form.setupUi(self)
@@ -50,7 +50,7 @@ class CardLayout(QDialog):
         self.exec_()
 
     def reload(self, first=False):
-        self.cards = self.deck.previewCards(self.note, self.type)
+        self.cards = self.col.previewCards(self.note, self.type)
         if not self.cards:
             self.accept()
             if first:
@@ -220,7 +220,7 @@ class CardLayout(QDialog):
         styles += "\n.cloze { font-weight: bold; color: blue; }"
         self.form.preview.setHtml(
             ('<html><head>%s</head><body class="%s">' %
-             (getBase(self.deck), c.cssClass())) +
+             (getBase(self.col), c.cssClass())) +
             "<style>" + styles + "</style>" +
             mungeQA(c.q(reload=True)) +
             self.maybeTextInput() +
@@ -251,22 +251,22 @@ class CardLayout(QDialog):
 
         modified = False
         self.mw.startProgress()
-        self.deck.updateProgress(_("Applying changes..."))
+        self.col.updateProgress(_("Applying changes..."))
         reset=True
         if len(self.fieldOrdinalUpdatedIds) > 0:
-            self.deck.rebuildFieldOrdinals(self.model.id, self.fieldOrdinalUpdatedIds)
+            self.col.rebuildFieldOrdinals(self.model.id, self.fieldOrdinalUpdatedIds)
             modified = True
         if self.needFieldRebuild:
             modified = True
         if modified:
             self.note.model.setModified()
-            self.deck.flushMod()
+            self.col.flushMod()
             if self.noteedit and self.noteedit.onChange:
                 self.noteedit.onChange("all")
                 reset=False
         if reset:
             self.mw.reset()
-        self.deck.finishProgress()
+        self.col.finishProgress()
         QDialog.reject(self)
 
     def onHelp(self):
@@ -358,7 +358,7 @@ class CardLayout(QDialog):
         if fld['name'] != name:
             self.mm.renameField(self.model, fld, name)
             # as the field name has changed, we have to regenerate cards
-            self.cards = self.deck.previewCards(self.note, self.type)
+            self.cards = self.col.previewCards(self.note, self.type)
             self.cardChanged(0)
         self.renderPreview()
         self.fillFieldList()

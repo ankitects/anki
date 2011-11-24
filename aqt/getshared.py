@@ -40,7 +40,7 @@ Error was:<pre>%s</pre>""")
         self.setupTable()
         self.onChangeType(type)
         if type == 0:
-            self.setWindowTitle(_("Download Shared Deck"))
+            self.setWindowTitle(_("Download Shared Col"))
         else:
             self.setWindowTitle(_("Download Shared Plugin"))
         if self.ok:
@@ -221,7 +221,7 @@ Error was:<pre>%s</pre>""")
         tit = re.sub("[^][A-Za-z0-9 ()\-]", "", tit)
         tit = tit[0:40]
         if self.type == 0:
-            # deck
+            # col
             dd = self.parent.config['documentDir']
             p = os.path.join(dd, tit + ".anki")
             if os.path.exists(p):
@@ -237,7 +237,7 @@ Error was:<pre>%s</pre>""")
                         pass
                     open(os.path.join(dd, tit + ".media",
                                       os.path.basename(l)),"wb").write(z.read(l))
-            self.parent.loadDeck(dpath)
+            self.parent.loadCol(dpath)
         else:
             pd = self.parent.pluginsFolder()
             if z:

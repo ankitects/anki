@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/">
+    <file>icons/edit-find 2.png</file>
+    <file>icons/edit-find-replace.png</file>
+    <file>icons/graphite_smooth_folder_noncommercial.png</file>
+    <file>icons/user-identity.png</file>
     <file>icons/layout.png</file>
     <file>icons/generate_07.png</file>
     <file>icons/view-sort-descending.png</file>

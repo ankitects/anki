@@ -19,7 +19,7 @@ system. It's free and open source.")
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
  testing and design from:<p>%(cont)s") % {'cont': u"""
 
-Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene
+Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene
 Barina, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen, Emilio
 Wuerges, Emmanuel Jarri, Frank Harper, H. Mijail, Ian Lewis, Iroiro, Jin
 Eun-Deok, Jarvik7, Jo Nakashima, Christian Krause, LaC, Laurent Steffan, Marco
@@ -30,6 +30,9 @@ Petr Michalec, Piotr Kubowicz, Richard Colley, Samson Melamed, Stefaan
 De Pooter, Susanna Björverud, Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor
 Suba, and Xtru.
 
+Anki icon by Alex Fraser (CC GNU GPL)
+Deck icon by Laurent Baumann (CC BY-NC-SA 3.0)
+Other icons under LGPL or public domain.
 """
 
 }

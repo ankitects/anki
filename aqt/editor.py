@@ -371,7 +371,7 @@ class Editor(object):
         self.note = note
         # change timer
         if self.note:
-            self.web.setHtml(_html % (getBase(self.mw.deck), anki.js.all,
+            self.web.setHtml(_html % (getBase(self.mw.col), anki.js.all,
                                   _("Show Duplicates")),
                              loadCB=self._loadFinished)
             self.updateTagsAndGroup()
@@ -490,28 +490,28 @@ class Editor(object):
         self.outerLayout.addWidget(g)
 
     def updateTagsAndGroup(self):
-        if self.tags.deck != self.mw.deck:
-            self.tags.setDeck(self.mw.deck)
+        if self.tags.col != self.mw.col:
+            self.tags.setCol(self.mw.col)
             if self.addMode:
-                self.group.setDeck(self.mw.deck)
+                self.group.setCol(self.mw.col)
         self.tags.setText(self.note.stringTags().strip())
         if getattr(self.note, 'gid', None):
             gid = self.note.gid
         else:
             gid = self.note.model().conf['gid']
-        self.group.setText(self.mw.deck.groups.name(gid))
+        self.group.setText(self.mw.col.groups.name(gid))
 
     def saveTagsAndGroup(self):
         if not self.note:
             return
-        self.note.tags = self.mw.deck.tags.split(unicode(self.tags.text()))
+        self.note.tags = self.mw.col.tags.split(unicode(self.tags.text()))
         if self.addMode:
             # save group and tags to model
-            self.note.gid = self.mw.deck.groups.id(unicode(self.group.text()))
+            self.note.gid = self.mw.col.groups.id(unicode(self.group.text()))
             m = self.note.model()
             m['gid'] = self.note.gid
             m['tags'] = self.note.tags
-            self.mw.deck.models.save(m)
+            self.mw.col.models.save(m)
         self.note.flush()
         runHook("tagsAndGroupUpdated", self.note)
 
@@ -696,7 +696,7 @@ class Editor(object):
     def _addMedia(self, path, canDelete=False):
         "Add to media folder and return basename."
         # copy to media folder
-        name = self.mw.deck.media.addFile(path)
+        name = self.mw.col.media.addFile(path)
         # remove original?
         if canDelete and self.mw.config['deleteMedia']:
             if os.path.abspath(name) != os.path.abspath(path):

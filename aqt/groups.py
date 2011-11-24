@@ -27,7 +27,7 @@ class Groups(QDialog):
 
     def reload(self):
         self.mw.progress.start()
-        grps = self.mw.deck.sched.groupCountTree()
+        grps = self.mw.col.sched.groupCountTree()
         self.mw.progress.finish()
         self.groupMap = {}
         self.fullNames = {}
@@ -107,7 +107,7 @@ class Groups(QDialog):
                 err.append(
                     _("The default group can't be deleted."))
                 continue
-            self.mw.deck.delGroup(gid)
+            self.mw.col.delGroup(gid)
             self.reload()
         if err:
             showInfo("\n".join(err))
@@ -127,7 +127,7 @@ class Groups(QDialog):
             gid = self.groupMap[cold]
             cnew = self.fullNames[cold].replace(old, txt)
             if gid:
-                self.mw.deck.db.execute(
+                self.mw.col.db.execute(
                     "update groups set name = ? where id = ?",
                     cnew, gid)
             for i in range(item.childCount()):
@@ -167,15 +167,15 @@ class Groups(QDialog):
         if len(gids) == self.gidCount:
             # all enabled is same as empty
             gids = []
-        # if gids != self.mw.deck.conf['groups']:
-        #     self.mw.deck.conf['groups'] = gids
+        # if gids != self.mw.col.conf['groups']:
+        #     self.mw.col.conf['groups'] = gids
         #     self.mw.reset()
         QDialog.accept(self)
 
     def _makeItems(self, grps):
         self.gidCount = 0
         on = {}
-        a = self.mw.deck.groups.active()
+        a = self.mw.col.groups.active()
         if not a:
             on = None
         else:
@@ -196,7 +196,7 @@ class Groups(QDialog):
                 branch.setCheckState(COLCHECK, Qt.Unchecked)
             branch.setText(COLNAME, grp[0])
             if gid:
-                branch.setText(COLOPTS, self.mw.deck.groups.name(gid))
+                branch.setText(COLOPTS, self.mw.col.groups.name(gid))
             branch.setText(COLCOUNT, "")
             branch.setText(COLDUE, str(grp[2]))
             branch.setText(COLNEW, str(grp[3]))

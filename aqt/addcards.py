@@ -76,7 +76,7 @@ class AddCards(QDialog):
 
     # FIXME: need to make sure to clean up note on exit
     def setupNewNote(self, set=True):
-        f = self.mw.deck.newNote()
+        f = self.mw.col.newNote()
         f.tags = f.model()['tags']
         if set:
             self.editor.setNote(f)
@@ -104,7 +104,7 @@ class AddCards(QDialog):
         if not note or not note.id:
             return
         # we don't have to worry about cards; just the note
-        self.mw.deck._remNotes([note.id])
+        self.mw.col._remNotes([note.id])
 
     def addHistory(self, note):
         txt = stripHTMLMedia(",".join(note.fields))[:30]
@@ -131,7 +131,7 @@ class AddCards(QDialog):
                 "Some fields are missing or not unique."),
                      help="AddItems#AddError")
             return
-        cards = self.mw.deck.addNote(note)
+        cards = self.mw.col.addNote(note)
         if not cards:
             showWarning(_("""\
 The input you have provided would make an empty
@@ -151,7 +151,7 @@ question or answer on all cards."""), help="AddItems")
         # stop anything playing
         clearAudioQueue()
         self.onReset(keep=True)
-        self.mw.deck.autosave()
+        self.mw.col.autosave()
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."

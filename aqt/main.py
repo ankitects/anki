@@ -9,7 +9,7 @@ from operator import itemgetter
 from aqt.qt import *
 QtConfig = pyqtconfig.Configuration()
 
-from anki import Deck
+from anki import Collection
 from anki.sound import playFromText, clearAudioQueue, stripSounds
 from anki.utils import stripHTML, checksum, isWin, isMac
 from anki.hooks import runHook, addHook, removeHook
@@ -27,40 +27,28 @@ config = aqt.config
 ## models remembering the previous group
 
 class AnkiQt(QMainWindow):
-    def __init__(self, app, config, args, splash):
+    def __init__(self, app, config, args):
         QMainWindow.__init__(self)
         aqt.mw = self
-        self.splash = splash
         self.app = app
         self.config = config
         try:
             # initialize everything
             self.setup()
-            splash.update()
             # load plugins
             self.setupAddons()
-            splash.update()
             # show main window
-            splash.finish(self)
             self.show()
             # raise window for osx
             self.activateWindow()
             self.raise_()
-            # sync on program open?
-            # if self.config['syncOnProgramOpen']:
-            #     if self.syncDeck(interactive=False):
-            #         return
-
-            # delay load so deck errors don't cause program to close
-            self.progress.timer(10, lambda a=args: \
-                                self.maybeLoadLastDeck(a),
-                                False)
+            # 
         except:
             showInfo("Error during startup:\n%s" % traceback.format_exc())
             sys.exit(1)
 
     def setup(self):
-        self.deck = None
+        self.col = None
         self.state = None
         self.setupThreads()
         self.setupLang()
@@ -80,7 +68,7 @@ class AnkiQt(QMainWindow):
         self.setupSchema()
         self.updateTitleBar()
         # screens
-        self.setupDeckBrowser()
+        #self.setupColBrowser()
         self.setupOverview()
         self.setupReviewer()
 
@@ -98,16 +86,16 @@ class AnkiQt(QMainWindow):
 
     def _deckBrowserState(self, oldState):
         # shouldn't call this directly; call close
-        self.disableDeckMenuItems()
-        self.closeAllDeckWindows()
+        self.disableColMenuItems()
+        self.closeAllColWindows()
         self.deckBrowser.show()
 
-    def _deckLoadingState(self, oldState):
-        "Run once, when deck is loaded."
-        self.enableDeckMenuItems()
+    def _colLoadingState(self, oldState):
+        "Run once, when col is loaded."
+        self.enableColMenuItems()
         # ensure cwd is set if media dir exists
-        self.deck.media.dir()
-        runHook("deckLoading", self.deck)
+        self.col.media.dir()
+        runHook("colLoading", self.col)
         self.moveToState("overview")
 
     def _overviewState(self, oldState):
@@ -132,8 +120,8 @@ class AnkiQt(QMainWindow):
 
     def reset(self, type="all", *args):
         "Called for non-trivial edits. Rebuilds queue and updates UI."
-        if self.deck:
-            self.deck.reset()
+        if self.col:
+            self.col.reset()
             runHook("reset")
             self.moveToState(self.state)
 
@@ -216,7 +204,7 @@ title="%s">%s</button>''' % (
         else:
             self.resize(500, 400)
 
-    def closeAllDeckWindows(self):
+    def closeAllColWindows(self):
         aqt.dialogs.closeAll()
 
     # Components
@@ -281,14 +269,14 @@ title="%s">%s</button>''' % (
         self.progress.setupDB(db)
         self.progress.start(label=_("Upgrading. Please be patient..."))
 
-    # Deck loading
+    # Collection loading
     ##########################################################################
 
     def loadDeck(self, deckPath, showErrors=True):
         "Load a deck and update the user interface."
         self.upgrading = False
         try:
-            self.deck = Deck(deckPath, queue=False)
+            self.col = Deck(deckPath, queue=False)
         except Exception, e:
             if not showErrors:
                 return 0
@@ -304,116 +292,12 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         finally:
             # we may have a progress window open if we were upgrading
             self.progress.finish()
-        self.config.addRecentDeck(self.deck.path)
-        self.setupMedia(self.deck)
+        self.config.addRecentDeck(self.col.path)
+        self.setupMedia(self.col)
         if not self.upgrading:
-            self.progress.setupDB(self.deck.db)
+            self.progress.setupDB(self.col.db)
         self.moveToState("deckLoading")
         return True
-
-    def onOpen(self):
-        self.raiseMain()
-        filter = _("Deck files (*.anki)")
-        if self.deck:
-            dir = os.path.dirname(self.deck.path)
-        else:
-            dir = self.config['documentDir']
-        def accept(file):
-            ret = self.loadDeck(file)
-            if not ret:
-                showWarning(_("Unable to load file."))
-                self.deck = None
-        getFile(self, _("Open deck"), accept, filter, dir)
-
-    def maybeLoadLastDeck(self, args):
-        "Open the last deck if possible."
-        # try a command line argument if available
-        if args:
-            f = unicode(args[0], sys.getfilesystemencoding())
-            if os.path.exists(f):
-                return self.loadDeck(f)
-        # try recent deck paths
-        for path in self.config.recentDecks():
-            r = self.loadDeck(path, showErrors=False)
-            if r:
-                return r
-        self.moveToState("deckBrowser")
-
-    # Open recent
-    ##########################################################################
-
-    def onSwitchToDeck(self):
-        diag = QDialog(self)
-        diag.setWindowTitle(_("Open Recent Deck"))
-        vbox = QVBoxLayout()
-        combo = QComboBox()
-        self.switchDecks = (
-            [(os.path.basename(x).replace(".anki", ""), x)
-             for x in self.config.recentDecks()
-             if not self.deck or self.deck.path != x and
-             os.path.exists(x)])
-        self.switchDecks.sort()
-        combo.addItems([x[0] for x in self.switchDecks])
-        self.connect(combo, SIGNAL("activated(int)"),
-                     self.onSwitchActivated)
-        vbox.addWidget(combo)
-        bbox = QDialogButtonBox(QDialogButtonBox.Cancel)
-        self.connect(bbox, SIGNAL("rejected()"),
-                     lambda: self.switchDeckDiag.close())
-        vbox.addWidget(bbox)
-        diag.setLayout(vbox)
-        diag.show()
-        self.app.processEvents()
-        combo.setFocus()
-        combo.showPopup()
-        self.switchDeckDiag = diag
-        diag.exec_()
-
-    def onSwitchActivated(self, idx):
-        self.switchDeckDiag.close()
-        self.loadDeck(self.switchDecks[idx][1])
-
-    # New deck
-    ##########################################################################
-
-    def onNew(self, path=None, prompt=None):
-        self.raiseMain()
-        self.close()
-        register = not path
-        bad = ":/\\"
-        name = _("mydeck")
-        if not path:
-            if not prompt:
-                prompt = _("Please give your deck a name:")
-            while 1:
-                name = getOnlyText(
-                    prompt, default=name, title=_("New Deck"))
-                if not name:
-                    self.moveToState("deckBrowser")
-                    return
-                found = False
-                for c in bad:
-                    if c in name:
-                        showInfo(
-                            _("Sorry, '%s' can't be used in deck names.") % c)
-                        found = True
-                        break
-                if found:
-                    continue
-                if not name.endswith(".anki"):
-                    name += ".anki"
-                break
-            path = os.path.join(self.config['documentDir'], name)
-            if os.path.exists(path):
-                if askUser(_("That deck already exists. Overwrite?"),
-                                    defaultno=True):
-                    os.unlink(path)
-                else:
-                    self.moveToState("deckBrowser")
-                    return
-        self.loadDeck(path)
-        if register:
-            self.config.addRecentDeck(self.deck.path)
 
     # Closing
     ##########################################################################
@@ -428,52 +312,18 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def close(self, showBrowser=True):
         "Close current deck."
-        if not self.deck:
+        if not self.col:
             return
         # if we were cramming, restore the standard scheduler
-        if self.deck.stdSched():
-            self.deck.reset()
+        if self.col.stdSched():
+            self.col.reset()
         runHook("deckClosing")
         print "focusOut() should be handled with deckClosing now"
         self.closeAllDeckWindows()
-        self.deck.close()
-        self.deck = None
+        self.col.close()
+        self.col = None
         if showBrowser:
             self.moveToState("deckBrowser")
-
-    # Downloading
-    ##########################################################################
-
-    def onOpenOnline(self):
-        return showInfo("not yet implemented")
-        self.raiseMain()
-        self.ensureSyncParams()
-        self.close()
-        # we need a disk-backed file for syncing
-        path = namedtmp(u"untitled.anki")
-        self.onNew(path=path)
-        # ensure all changes come to us
-        self.deck.modified = 0
-        self.deck.db.commit()
-        self.deck.syncName = u"something"
-        self.deck.lastLoaded = self.deck.modified
-        if self.config['syncUsername'] and self.config['syncPassword']:
-            if self.syncDeck(onlyMerge=True, reload=2, interactive=False):
-                return
-        self.deck = None
-        self.browserLastRefreshed = 0
-        self.moveToState("initial")
-
-    def onGetSharedDeck(self):
-        return showInfo("not yet implemented")
-        self.raiseMain()
-        aqt.getshared.GetShared(self, 0)
-        self.browserLastRefreshed = 0
-
-    def onGetSharedPlugin(self):
-        return showInfo("not yet implemented")
-        self.raiseMain()
-        aqt.getshared.GetShared(self, 1)
 
     # Syncing
     ##########################################################################
@@ -495,33 +345,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def setupStyle(self):
         applyStyles(self)
-
-    # Renaming
-    ##########################################################################
-
-    def onRename(self):
-        "Rename deck."
-        dir = os.path.dirname(self.deck.path)
-        path = QFileDialog.getSaveFileName(self, _("Rename Deck"),
-                                           dir,
-                                           _("Deck files (*.anki)"),
-                                           options=QFileDialog.DontConfirmOverwrite)
-        path = unicode(path)
-        if not path:
-            return
-        if not path.lower().endswith(".anki"):
-            path += ".anki"
-        if os.path.abspath(path) == os.path.abspath(self.deck.path):
-            return
-        if os.path.exists(path):
-            if not askUser(
-                "Selected file exists. Overwrite it?"):
-                return
-        old = self.deck.path
-        self.deck.rename(path)
-        self.config.addRecentDeck(path)
-        self.config.delRecentDeck(old)
-        return path
 
     # App exit
     ##########################################################################
@@ -556,6 +379,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def setupToolbar(self):
+        print "setup toolbar"
+        return
         frm = self.form
         tb = frm.toolBar
         tb.addAction(frm.actionAddcards)
@@ -615,31 +440,31 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onSuspend(self):
         self.checkpoint(_("Suspend"))
-        self.deck.sched.suspendCards([self.reviewer.card.id])
+        self.col.sched.suspendCards([self.reviewer.card.id])
         self.reviewer.nextCard()
 
     def onDelete(self):
         self.checkpoint(_("Delete"))
-        self.deck.remCards([self.reviewer.card.id])
+        self.col.remCards([self.reviewer.card.id])
         self.reviewer.nextCard()
 
     def onBuryNote(self):
         self.checkpoint(_("Bury"))
-        self.deck.sched.buryNote(self.reviewer.card.nid)
+        self.col.sched.buryNote(self.reviewer.card.nid)
         self.reviewer.nextCard()
 
     # Undo & autosave
     ##########################################################################
 
     def onUndo(self):
-        self.deck.undo()
+        self.col.undo()
         self.reset()
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self):
-        if self.deck and self.deck.undoName():
+        if self.col and self.col.undoName():
             self.form.actionUndo.setText(_("Undo %s") %
-                                            self.deck.undoName())
+                                            self.col.undoName())
             self.form.actionUndo.setEnabled(True)
             runHook("undoState", True)
         else:
@@ -647,11 +472,11 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             runHook("undoState", False)
 
     def checkpoint(self, name):
-        self.deck.save(name)
+        self.col.save(name)
         self.maybeEnableUndo()
 
     def autosave(self):
-        self.deck.autosave()
+        self.col.autosave()
         self.maybeEnableUndo()
 
     # Other menu operations
@@ -660,7 +485,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onAddCard(self):
         aqt.dialogs.open("AddCards", self)
 
-    def onEditDeck(self):
+    def onBrowse(self):
         aqt.dialogs.open("Browser", self)
 
     def onEditCurrent(self):
@@ -720,16 +545,16 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onImport(self):
         return showInfo("not yet implemented")
-        if self.deck is None:
+        if self.col is None:
             self.onNew(prompt=_("""\
 Importing copies cards to the current deck,
 and since you have no deck open, we need to
 create a new deck first.
 
 Please choose a new deck name:"""))
-        if not self.deck:
+        if not self.col:
             return
-        if self.deck.path:
+        if self.col.path:
             aqt.importing.ImportDialog(self)
 
     def onExport(self):
@@ -779,7 +604,6 @@ Please choose a new deck name:"""))
         "Close",
         "Addcards",
         "Editdeck",
-        "DeckProperties",
         "Undo",
         "Export",
         "Stats",
@@ -793,20 +617,12 @@ Please choose a new deck name:"""))
     def setupMenus(self):
         m = self.form
         s = SIGNAL("triggered()")
-        self.connect(m.actionNew, s, self.onNew)
-        self.connect(m.actionOpenOnline, s, self.onOpenOnline)
-        self.connect(m.actionDownloadSharedDeck, s, self.onGetSharedDeck)
-        self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
-        self.connect(m.actionOpenRecent, s, self.onSwitchToDeck)
-        self.connect(m.actionOpen, s, self.onOpen)
-        self.connect(m.actionRename, s, self.onRename)
-        self.connect(m.actionClose, s, self.onClose)
+        #self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
         self.connect(m.actionExit, s, self, SLOT("close()"))
-        self.connect(m.actionSyncdeck, s, self.onSync)
-        self.connect(m.actionDeckProperties, s, self.onDeckOpts)
+        self.connect(m.actionSync, s, self.onSync)
         self.connect(m.actionModels, s, self.onModels)
-        self.connect(m.actionAddcards, s, self.onAddCard)
-        self.connect(m.actionEditdeck, s, self.onEditDeck)
+        self.connect(m.actionAdd, s, self.onAddCard)
+        self.connect(m.actionBrowse, s, self.onBrowse)
         self.connect(m.actionEditCurrent, s, self.onEditCurrent)
         self.connect(m.actionPreferences, s, self.onPrefs)
         self.connect(m.actionStats, s, self.onStats)
@@ -822,8 +638,6 @@ Please choose a new deck name:"""))
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
-        self.connect(m.actionDownloadMissingMedia, s, self.onDownloadMissingMedia)
-        self.connect(m.actionLocalizeMedia, s, self.onLocalizeMedia)
         self.connect(m.actionStudyOptions, s, self.onStudyOptions)
         self.connect(m.actionOverview, s, self.onOverview)
         self.connect(m.actionGroups, s, self.onGroups)
@@ -833,7 +647,7 @@ Please choose a new deck name:"""))
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
-        for item in self.deckRelatedMenuItems:
+        for item in self.colRelatedMenuItems:
             getattr(self.form, "action" + item).setEnabled(enabled)
         self.form.menuAdvanced.setEnabled(enabled)
         if not enabled:
@@ -923,111 +737,111 @@ haven't been synced here yet. Continue?"""))
     # Media locations
     ##########################################################################
 
-    def setupMedia(self, deck):
-        print "setup media"
-        return
-        prefix = self.config['mediaLocation']
-        prev = deck.getVar("mediaLocation") or ""
-        # set the media prefix
-        if not prefix:
-            next = ""
-        elif prefix == "dropbox":
-            p = self.dropboxFolder()
-            next = os.path.join(p, "Public", "Anki")
-        else:
-            next = prefix
-        # check if the media has moved
-        migrateFrom = None
-        if prev != next:
-            # check if they were using plugin
-            if not prev:
-                p = self.dropboxFolder()
-                p = os.path.join(p, "Public")
-                deck.mediaPrefix = p
-                migrateFrom = deck.mediaDir()
-            if not migrateFrom:
-                # find the old location
-                deck.mediaPrefix = prev
-                dir = deck.mediaDir()
-                if dir and os.listdir(dir):
-                    # it contains files; we'll need to migrate
-                    migrateFrom = dir
-        # setup new folder
-        deck.mediaPrefix = next
-        if migrateFrom:
-            # force creation of new folder
-            dir = deck.mediaDir(create=True)
-            # migrate old files
-            self.migrateMedia(migrateFrom, dir)
-        else:
-            # chdir if dir exists
-            dir = deck.mediaDir()
-        # update location
-        deck.setVar("mediaLocation", next, mod=False)
-        if dir and prefix == "dropbox":
-            self.setupDropbox(deck)
+#     def setupMedia(self, deck):
+#         print "setup media"
+#         return
+#         prefix = self.config['mediaLocation']
+#         prev = deck.getVar("mediaLocation") or ""
+#         # set the media prefix
+#         if not prefix:
+#             next = ""
+#         elif prefix == "dropbox":
+#             p = self.dropboxFolder()
+#             next = os.path.join(p, "Public", "Anki")
+#         else:
+#             next = prefix
+#         # check if the media has moved
+#         migrateFrom = None
+#         if prev != next:
+#             # check if they were using plugin
+#             if not prev:
+#                 p = self.dropboxFolder()
+#                 p = os.path.join(p, "Public")
+#                 deck.mediaPrefix = p
+#                 migrateFrom = deck.mediaDir()
+#             if not migrateFrom:
+#                 # find the old location
+#                 deck.mediaPrefix = prev
+#                 dir = deck.mediaDir()
+#                 if dir and os.listdir(dir):
+#                     # it contains files; we'll need to migrate
+#                     migrateFrom = dir
+#         # setup new folder
+#         deck.mediaPrefix = next
+#         if migrateFrom:
+#             # force creation of new folder
+#             dir = deck.mediaDir(create=True)
+#             # migrate old files
+#             self.migrateMedia(migrateFrom, dir)
+#         else:
+#             # chdir if dir exists
+#             dir = deck.mediaDir()
+#         # update location
+#         deck.setVar("mediaLocation", next, mod=False)
+#         if dir and prefix == "dropbox":
+#             self.setupDropbox(deck)
 
-    def migrateMedia(self, from_, to):
-        if from_ == to:
-            return
-        files = os.listdir(from_)
-        skipped = False
-        for f in files:
-            src = os.path.join(from_, f)
-            dst = os.path.join(to, f)
-            if not os.path.isfile(src):
-                skipped = True
-                continue
-            if not os.path.exists(dst):
-                shutil.copy2(src, dst)
-        if not skipped:
-            # everything copied, we can remove old folder
-            shutil.rmtree(from_, ignore_errors=True)
+#     def migrateMedia(self, from_, to):
+#         if from_ == to:
+#             return
+#         files = os.listdir(from_)
+#         skipped = False
+#         for f in files:
+#             src = os.path.join(from_, f)
+#             dst = os.path.join(to, f)
+#             if not os.path.isfile(src):
+#                 skipped = True
+#                 continue
+#             if not os.path.exists(dst):
+#                 shutil.copy2(src, dst)
+#         if not skipped:
+#             # everything copied, we can remove old folder
+#             shutil.rmtree(from_, ignore_errors=True)
 
-    def dropboxFolder(self):
-        try:
-            import aqt.dropbox as db
-            p = db.getPath()
-        except:
-            if isWin:
-                s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
-                s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-                p = os.path.join(s.value("Personal"), "My Dropbox")
-            else:
-                p = os.path.expanduser("~/Dropbox")
-        return p
+#     def dropboxFolder(self):
+#         try:
+#             import aqt.dropbox as db
+#             p = db.getPath()
+#         except:
+#             if isWin:
+#                 s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
+#                 s.beginGroup("CurrentVersion/Explorer/Shell Folders")
+#                 p = os.path.join(s.value("Personal"), "My Dropbox")
+#             else:
+#                 p = os.path.expanduser("~/Dropbox")
+#         return p
 
-    def setupDropbox(self, deck):
-        if not self.config['dropboxPublicFolder']:
-            # put a file in the folder
-            open(os.path.join(
-                deck.mediaPrefix, "right-click-me.txt"), "w").write("")
-            # tell user what to do
-            showInfo(_("""\
-A file called right-click-me.txt has been placed in DropBox's public folder. \
-After clicking OK, this folder will appear. Please right click on the file (\
-command+click on a Mac), choose DropBox>Copy Public Link, and paste the \
-link into Anki."""))
-            # open folder and text prompt
-            self.onOpenPluginFolder(deck.mediaPrefix)
-            txt = getText(_("Paste path here:"), parent=self)
-            if txt[0]:
-                fail = False
-                if not txt[0].lower().startswith("http"):
-                    fail = True
-                if not txt[0].lower().endswith("right-click-me.txt"):
-                    fail = True
-                if fail:
-                    showInfo(_("""\
-That doesn't appear to be a public link. You'll be asked again when the deck \
-is next loaded."""))
-                else:
-                    self.config['dropboxPublicFolder'] = os.path.dirname(txt[0])
-        if self.config['dropboxPublicFolder']:
-            # update media url
-            deck.setVar(
-                "mediaURL", self.config['dropboxPublicFolder'] + "/" +
-                os.path.basename(deck.mediaDir()) + "/")
+#     def setupDropbox(self, deck):
+#         if not self.config['dropboxPublicFolder']:
+#             # put a file in the folder
+#             open(os.path.join(
+#                 deck.mediaPrefix, "right-click-me.txt"), "w").write("")
+#             # tell user what to do
+#             showInfo(_("""\
+# A file called right-click-me.txt has been placed in DropBox's public folder. \
+# After clicking OK, this folder will appear. Please right click on the file (\
+# command+click on a Mac), choose DropBox>Copy Public Link, and paste the \
+# link into Anki."""))
+#             # open folder and text prompt
+#             self.onOpenPluginFolder(deck.mediaPrefix)
+#             txt = getText(_("Paste path here:"), parent=self)
+#             if txt[0]:
+#                 fail = False
+#                 if not txt[0].lower().startswith("http"):
+#                     fail = True
+#                 if not txt[0].lower().endswith("right-click-me.txt"):
+#                     fail = True
+#                 if fail:
+#                     showInfo(_("""\
+# That doesn't appear to be a public link. You'll be asked again when the deck \
+# is next loaded."""))
+#                 else:
+#                     self.config['dropboxPublicFolder'] = os.path.dirname(txt[0])
+#         if self.config['dropboxPublicFolder']:
+#             # update media url
+#             deck.setVar(
+#                 "mediaURL", self.config['dropboxPublicFolder'] + "/" +
+#                 os.path.basename(deck.mediaDir()) + "/")
 
     # Advanced features
     ##########################################################################
@@ -1041,7 +855,7 @@ Any changes on the server since your last sync will be lost.<br><br>
 <b>This operation is not undoable.</b> Proceed?""")):
             return
         self.progress.start(immediate=True)
-        ret = self.deck.fixIntegrity()
+        ret = self.col.fixIntegrity()
         self.progress.finish()
         showText(ret)
         self.reset()
@@ -1074,7 +888,7 @@ doubt."""))
         else:
             return
         self.progress.start(immediate=True)
-        (nohave, unused) = self.deck.media.check(delete)
+        (nohave, unused) = self.col.media.check(delete)
         self.progress.finish()
         # generate report
         report = ""
@@ -1095,36 +909,6 @@ doubt."""))
             report = _("No unused or missing files found.")
         showText(report, parent=self, type="text")
 
-    def onDownloadMissingMedia(self):
-        res = downloadMissing(self.deck)
-        if res is None:
-            showInfo(_("No media URL defined for this deck."),
-                              help="MediaSupport")
-            return
-        if res[0] == True:
-            # success
-            (grabbed, missing) = res[1:]
-            msg = _("%d successfully retrieved.") % grabbed
-            if missing:
-                msg += "\n" + ngettext("%d missing.", "%d missing.", missing) % missing
-        else:
-            msg = _("Unable to download %s\nDownload aborted.") % res[1]
-        showInfo(msg)
-
-    def onLocalizeMedia(self):
-        if not askUser(_("""\
-This will look for remote images and sounds on your cards, download them to \
-your media folder, and convert the links to local ones. \
-It can take a long time. Proceed?""")):
-            return
-        res = downloadRemote(self.deck)
-        count = len(res[0])
-        msg = ngettext("%d successfully downloaded.",
-            "%d successfully downloaded.", count) % count
-        if len(res[1]):
-            msg += "\n\n" + _("Couldn't find:") + "\n" + "\n".join(res[1])
-        aqt.utils.showText(msg, parent=self, type="text")
-
     # System specific code
     ##########################################################################
 
@@ -1133,7 +917,7 @@ It can take a long time. Proceed?""")):
         addHook("macLoadEvent", self.onMacLoad)
         if isMac:
             qt_mac_set_menubar_icons(False)
-            self.setUnifiedTitleAndToolBarOnMac(self.config['showToolbar'])
+            #self.setUnifiedTitleAndToolBarOnMac(self.config['showToolbar'])
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+m", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
