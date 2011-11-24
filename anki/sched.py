@@ -117,10 +117,10 @@ order by due""" % self._deckLimit(),
             g[key][1] += cnt
             self.col.decks.save(g)
 
-    # Deck counts
+    # Deck list
     ##########################################################################
 
-    def deckCounts(self):
+    def deckDueList(self):
         "Returns [deckname, did, hasDue, hasNew]"
         # find decks with 1 or more due cards
         dids = {}
@@ -131,14 +131,8 @@ order by due""" % self._deckLimit(),
         return [[grp['name'], int(did)]+dids[int(did)] #.get(int(did))
                 for (did, grp) in self.col.decks.decks.items()]
 
-    def deckCountTree(self):
-        return self._groupChildren(self.deckCounts())
-
-    def deckTree(self):
-        "Like the count tree without the counts. Faster."
-        return self._groupChildren(
-            [[grp['name'], int(did), 0, 0, 0]
-             for (did, grp) in self.col.decks.decks.items()])
+    def deckDueTree(self):
+        return self._groupChildren(self.deckDueList())
 
     def _groupChildren(self, grps):
         # first, split the group names into components

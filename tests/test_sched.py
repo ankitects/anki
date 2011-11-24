@@ -753,7 +753,7 @@ def test_collapse():
     d.sched.answerCard(c, 3)
     assert not d.sched.getCard()
 
-def test_deckCounts():
+def test_deckDue():
     d = getEmptyDeck()
     # add a note with default deck
     f = d.newNote()
@@ -781,14 +781,14 @@ def test_deckCounts():
     d.addNote(f)
     d.reset()
     assert len(d.decks.decks) == 5
-    cnts = d.sched.deckCounts()
+    cnts = d.sched.deckDueList()
     cnts.sort()
     assert cnts[0] == ["Default", 1, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0]
     assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0]
     assert cnts[3] == ["foo::bar", foobar, 0, 1]
     assert cnts[4] == ["foo::baz", foobaz, 0, 1]
-    tree = d.sched.deckCountTree()
+    tree = d.sched.deckDueTree()
     assert tree[0][0] == "Default"
     # sum of child and parent
     assert tree[0][1] == 1
@@ -801,15 +801,15 @@ def test_deckCounts():
     assert tree[0][4][0][3] == 0
     # code should not fail if a card has an invalid deck
     c.did = 12345; c.flush()
-    d.sched.deckCounts()
-    d.sched.deckCountTree()
+    d.sched.deckDueList()
+    d.sched.deckDueTree()
 
 def test_deckTree():
     d = getEmptyDeck()
     d.decks.id("new::b::c")
     d.decks.id("new2")
     # new should not appear twice in tree
-    names = [x[0] for x in d.sched.deckCountTree()]
+    names = [x[0] for x in d.sched.deckDueTree()]
     names.remove("new")
     assert "new" not in names
 
