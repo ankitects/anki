@@ -30,6 +30,18 @@ class AnkiQt(QMainWindow):
         aqt.mw = self
         self.app = app
         self.pm = profileManager
+        # use the global language for early init; once a profile is loaded we
+        # can switch to a user's preferred language
+        self.setupLang(force=self.pm.meta['defaultLang'])
+        # running 2.0 for the first time?
+        if self.pm.meta['firstRun']:
+            # upgrade if necessary
+            from aqt.upgrade import Upgrader
+            u = Upgrader(self)
+            u.maybeUpgrade()
+            self.pm.meta['firstRun'] = False
+            self.pm.save()
+        # init rest of app
         try:
             self.setupUI()
             self.setupAddons()
@@ -41,7 +53,6 @@ class AnkiQt(QMainWindow):
     def setupUI(self):
         self.col = None
         self.state = None
-        self.setupLang("en") # bootstrap with english; profile will adjust
         self.setupThreads()
         self.setupMainWindow()
         self.setupStyle()
@@ -67,7 +78,7 @@ class AnkiQt(QMainWindow):
 
     def setupProfile(self):
         # profile not provided on command line?
-        if False: # not self.pm.name:
+        if not self.pm.name:
             # if there's a single profile, load it automatically
             profs = self.pm.profiles()
             if len(profs) == 1:
@@ -657,7 +668,7 @@ Please choose a new deck name:"""))
     ##########################################################################
 
     def setupLang(self, force=None):
-        "Set the user interface language."
+        "Set the user interface language for the current profile."
         import locale, gettext
         import anki.lang
         try:

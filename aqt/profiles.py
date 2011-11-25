@@ -7,9 +7,11 @@
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
 from aqt.qt import *
-import os, sys, time, random, cPickle, shutil
+import os, sys, time, random, cPickle, shutil, locale, re
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
+from anki.lang import langs
+import aqt.forms
 
 metaConf = dict(
     ver=0,
@@ -19,6 +21,7 @@ metaConf = dict(
     lastMsg=-1,
     suppressUpdate=False,
     firstRun=True,
+    defaultLang=None,
 )
 
 profileConf = dict(
@@ -103,8 +106,10 @@ documentation for information on using a flash drive.""")
         self.db.commit()
 
     def create(self, name):
+        prof = profileConf.copy()
+        prof['lang'] = self.meta['defaultLang']
         self.db.execute("insert into profiles values (?, ?)",
-                        name, cPickle.dumps(profileConf))
+                        name, cPickle.dumps(prof))
         self.db.commit()
 
     def remove(self, name):
@@ -159,6 +164,7 @@ create table if not exists profiles
             self.meta = metaConf.copy()
             self.db.execute("insert into profiles values ('_global', ?)",
                             cPickle.dumps(metaConf))
+            self._setDefaultLang()
             # and save a default user profile for later (commits)
             self.create("User 1")
         else:
@@ -169,3 +175,50 @@ create table if not exists profiles
 
     def _pwhash(self, passwd):
         return checksum(unicode(self.meta['id'])+unicode(passwd))
+
+
+    # Default language
+    ######################################################################
+    # On first run, allow the user to choose the default language
+
+    def _setDefaultLang(self):
+        # the dialog expects _ to be defined, but we're running before
+        # setLang() has been called. so we create a dummy op for now
+        import __builtin__
+        __builtin__.__dict__['_'] = lambda x: x
+        # create dialog
+        class NoCloseDiag(QDialog):
+            def reject(self):
+                pass
+        d = self.langDiag = NoCloseDiag()
+        f = self.langForm = aqt.forms.setlang.Ui_Dialog()
+        f.setupUi(d)
+        d.connect(d, SIGNAL("accepted()"), self._onLangSelected)
+        d.connect(d, SIGNAL("rejected()"), lambda: True)
+        # default to the system language
+        (lang, enc) = locale.getdefaultlocale()
+        if lang and lang not in ("pt_BR", "zh_CN", "zh_TW"):
+            lang = re.sub("(.*)_.*", "\\1", lang)
+        # find index
+        idx = None
+        en = None
+        for c, (name, code) in enumerate(langs):
+            if code == "en":
+                en = c
+            if code == lang:
+                idx = c
+        # if the system language isn't available, revert to english
+        if idx is None:
+            idx = en
+        # update list
+        f.lang.addItems([x[0] for x in langs])
+        f.lang.setCurrentRow(idx)
+        d.exec_()
+
+    def _onLangSelected(self):
+        f = self.langForm
+        code = langs[f.lang.currentRow()][1]
+        self.meta['defaultLang'] = code
+        sql = "update profiles set data = ? where name = ?"
+        self.db.execute(sql, cPickle.dumps(self.meta), "_global")
+        self.db.commit()
