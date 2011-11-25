@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, cPickle
+import os, cPickle, ctypes
 from aqt.qt import *
 from anki.utils import isMac, isWin
 from anki import Collection
 from anki.importing import Anki1Importer
+from anki.db import DB
 
 class Upgrader(object):
 
@@ -148,7 +149,7 @@ carefully, as a lot has changed since the previous Anki version."""))
                 v.addWidget(l2)
                 self.setLayout(v)
                 # run the upgrade in a different thread
-                self.thread = UpgradeThread(decks, colpath)
+                self.thread = UpgradeThread(decks, colpath, upgrader.conf)
                 self.thread.start()
                 # and periodically update the GUI
                 self.timer = QTimer(self)
@@ -191,15 +192,18 @@ Below is a log of the update:
         return FinishedPage()
 
 class UpgradeThread(QThread):
-    def __init__(self, paths, colpath):
+
+    def __init__(self, paths, colpath, oldprefs):
         QThread.__init__(self)
         self.paths = paths
         self.max = len(paths)
         self.current = 1
         self.finished = False
         self.colpath = colpath
+        self.oldprefs = oldprefs
         self.name = ""
         self.log = []
+
     def run(self):
         # open profile deck
         self.col = Collection(self.colpath)
@@ -214,18 +218,27 @@ class UpgradeThread(QThread):
             self.current += 1
         self.col.close()
         self.finished = True
+
     def progress(self):
         if self.finished:
             return
         return _("Upgrading deck %(a)s of %(b)s...\n%(c)s") % \
             dict(a=self.current, b=self.max, c=self.name)
+
     def upgrade(self, path):
         log = self._upgrade(path)
         self.log.append((self.name, log))
+
     def _upgrade(self, path):
         if not os.path.exists(path):
             return [_("File was missing.")]
         imp = Anki1Importer(self.col, path)
+        # try to copy over dropbox media first
+        try:
+            self.maybeCopyFromCustomFolder(path)
+        except Exception, e:
+            imp.log.append(unicode(e))
+        # then run the import
         try:
             imp.run()
         except Exception, e:
@@ -234,3 +247,32 @@ class UpgradeThread(QThread):
                 pass
         self.col.save()
         return imp.log
+
+    def maybeCopyFromCustomFolder(self, path):
+        folder = os.path.basename(path).replace(".anki", ".media")
+        loc = self.oldprefs.get("mediaLocation")
+        if not loc:
+            # no prefix; user had media next to deck
+            return
+        elif loc == "dropbox":
+            # dropbox no longer exports the folder location; try default
+            if isWin:
+                dll = ctypes.windll.shell32
+                buf = ctypes.create_string_buffer(300)
+                dll.SHGetSpecialFolderPathA(None, buf, 0x0005, False)
+                loc = os.path.join(buf.value, 'Dropbox')
+            else:
+                loc = os.path.expanduser("~/Dropbox")
+            loc = os.path.join(loc, "Public", "Anki")
+        # no media folder in custom location?
+        mfolder = os.path.join(loc, folder)
+        if not os.path.exists(mfolder):
+            return
+        # folder exists; copy data next to the deck. leave a copy in the
+        # custom location so users can revert easily.
+        mdir = self.col.media.dir()
+        for f in os.listdir(mfolder):
+            src = os.path.join(mfolder, f)
+            dst = os.path.join(mdir, f)
+            if not os.path.exists(dst):
+                shutil.copy2(src, dst)
