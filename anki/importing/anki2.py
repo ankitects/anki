@@ -5,6 +5,7 @@
 from anki import Collection
 from anki.utils import intTime
 from anki.importing.base import Importer
+from anki.lang import _
 
 #
 # Import a .anki2 file into the current collection. Used for migration from
@@ -175,6 +176,7 @@ class Anki2Importer(Importer):
         cards = []
         revlog = []
         print "fixme: need to check schema issues in card import"
+        cnt = 0
         for card in self.src.db.execute(
             "select f.guid, f.mid, c.* from cards c, notes f "
             "where c.nid = f.id"):
@@ -208,17 +210,21 @@ class Anki2Importer(Importer):
                 rev = list(rev)
                 rev[1] = card[0]
                 revlog.append(rev)
+            cnt += 1
         # apply
         self.dst.db.executemany("""
 insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", cards)
         self.dst.db.executemany("""
 insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
+        self.log.append(_("%d cards imported.") % cnt)
 
     # Media
     ######################################################################
 
     def _importMedia(self):
-        self.src.media.copyTo(self.dst.media.dir())
+        self.log.append(
+            _("%d media imported.") %
+            self.src.media.copyTo(self.dst.media.dir()))
 
     # Post-import cleanup
     ######################################################################

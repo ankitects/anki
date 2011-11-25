@@ -30,4 +30,3 @@ class Anki1Importer(Anki2Importer):
         self.deckPrefix = os.path.basename(self.file).replace(".anki", "")
         self.file = deck.path
         Anki2Importer.run(self, mdir)
-

@@ -172,14 +172,18 @@ If the same name exists, compare checksums."""
     # if necessary
 
     def copyTo(self, rdir):
+        "Copy media to RDIR. Return number of files copied."
         ldir = self.dir()
         if not os.path.exists(ldir):
             return
+        cnt = 0
         for f in os.listdir(ldir):
             src = os.path.join(ldir, f)
             dst = os.path.join(rdir, f)
             if not os.path.exists(dst):
                 shutil.copy2(src, dst)
+            cnt += 1
+        return cnt
 
     # Tracking changes (public)
     ##########################################################################
