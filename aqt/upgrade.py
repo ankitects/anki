@@ -19,8 +19,6 @@ class Upgrader(object):
         # does an old config file exist?
         if not os.path.exists(p):
             return
-        # load the new deck user profile
-        self.mw.pm.load(self.mw.pm.profiles()[0])
         # load old settings and copy over
         self._loadConf(p)
         self._copySettings()

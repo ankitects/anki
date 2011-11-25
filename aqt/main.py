@@ -35,6 +35,8 @@ class AnkiQt(QMainWindow):
         self.setupLang(force=self.pm.meta['defaultLang'])
         # running 2.0 for the first time?
         if self.pm.meta['firstRun']:
+            # load the new deck user profile
+            self.pm.load(self.pm.profiles()[0])
             # upgrade if necessary
             from aqt.upgrade import Upgrader
             u = Upgrader(self)
