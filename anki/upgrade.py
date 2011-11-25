@@ -609,7 +609,8 @@ update cards set due = cast(
         if col.models.randomNew():
             col.sched.randomizeCards()
         # update insertion id
-        col.conf['nextPos'] = col.db.scalar("select max(id) from notes")+1
+        col.conf['nextPos'] = (
+            col.db.scalar("select max(id) from notes") or 0)+1
         col.save()
 
         # optimize and finish
