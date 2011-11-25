@@ -14,7 +14,7 @@ class Anki1Importer(Anki2Importer):
         # check
         if not u.check(self.file):
             self.log.append(_(
-                "File is damaged; please run Tools>Advanced>Check DB "
+                "File is old or damaged; please run Tools>Advanced>Check DB "
                 "in Anki 1.2 first."))
             raise Exception("invalidFile")
         # upgrade
