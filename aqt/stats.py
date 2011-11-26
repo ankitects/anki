@@ -45,7 +45,7 @@ class CardStats(object):
             return
         txt = ""
         r = self.mw.reviewer
-        d = self.mw.deck
+        d = self.mw.col
         if r.card:
             txt += _("<h1>Current</h1>")
             txt += d.cardStats(r.card)
@@ -70,9 +70,9 @@ class DeckStats(QDialog):
         self.mw = mw
         self.name = "deckStats"
         self.period = 0
-        self.sel = True
         self.form = aqt.forms.stats.Ui_Dialog()
         self.oldPos = None
+        self.wholeCollection = False
         f = self.form
         f.setupUi(self)
         restoreGeom(self, self.name)
@@ -82,9 +82,9 @@ class DeckStats(QDialog):
         b.setAutoDefault(False)
         c = self.connect
         s = SIGNAL("clicked()")
-        c(f.groups, s, lambda: self.changeSel(True))
+        c(f.groups, s, lambda: self.changeScope("deck"))
         f.groups.setShortcut("g")
-        c(f.all, s, lambda: self.changeSel(False))
+        c(f.all, s, lambda: self.changeScope("collection"))
         c(f.month, s, lambda: self.changePeriod(0))
         c(f.year, s, lambda: self.changePeriod(1))
         c(f.life, s, lambda: self.changePeriod(2))
@@ -115,10 +115,8 @@ class DeckStats(QDialog):
         self.period = n
         self.refresh()
 
-    def changeSel(self, sel):
-        self.sel = sel
-        if sel:
-            self.mw.onGroups(self)
+    def changeScope(self, type):
+        self.wholeCollection = type == "collection"
         self.refresh()
 
     def loadFin(self, b):
@@ -127,8 +125,8 @@ class DeckStats(QDialog):
     def refresh(self):
         self.mw.progress.start(immediate=True)
         self.oldPos = self.form.web.page().mainFrame().scrollPosition()
-        self.report = self.mw.deck.stats().report(
-            type=self.period)
+        stats = self.mw.col.stats()
+        stats.wholeCollection = self.wholeCollection
+        self.report = stats.report(type=self.period)
         self.form.web.setHtml(self.report)
-
         self.mw.progress.finish()

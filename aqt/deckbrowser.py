@@ -25,8 +25,7 @@ class DeckBrowser(object):
         else:
             cmd = url
         if cmd == "open":
-            deck = self._decks[int(arg)]
-            self._selDeck(deck)
+            self._selDeck(arg)
         elif cmd == "opts":
             self._optsForRow(int(arg))
         elif cmd == "download":
@@ -42,8 +41,9 @@ class DeckBrowser(object):
         elif cmd == "refresh":
             self.refresh()
 
-    def _selDeck(self, rec):
-        print rec
+    def _selDeck(self, did):
+        self.mw.col.decks.select(did)
+        self.mw.moveToState("overview")
 
     # HTML generation
     ##########################################################################

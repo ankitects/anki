@@ -30,7 +30,7 @@ class StudyOptions(QDialog):
 
     def load(self):
         f = self.form
-        d = self.mw.deck
+        d = self.mw.col
         qc = d.conf
         f.newPerDay.setValue(qc['newPerDay'])
         f.newOrder.setCurrentIndex(qc['newOrder'])
@@ -47,7 +47,7 @@ class StudyOptions(QDialog):
 
     def accept(self):
         f = self.form
-        d = self.mw.deck
+        d = self.mw.col
         qc = d.conf
         old = qc['newOrder']
         qc['newOrder'] = f.newOrder.currentIndex()
@@ -71,7 +71,7 @@ class StudyOptions(QDialog):
             return
         self.mw.progress.start()
         if new == 1:
-            self.mw.deck.sched.orderCards()
+            self.mw.col.sched.orderCards()
         else:
-            self.mw.deck.sched.randomizeCards()
+            self.mw.col.sched.randomizeCards()
         self.mw.progress.finish()

@@ -17,7 +17,6 @@ class Overview(object):
         addHook("reset", self.refresh)
 
     def show(self):
-        self._setupToolbar()
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
         self.refresh()
@@ -41,11 +40,11 @@ class Overview(object):
     def _linkHandler(self, url):
         print "link", url
         if url == "study":
-            self.mw.deck.reset()
+            self.mw.col.reset()
             self.mw.moveToState("review")
         elif url == "cram":
             return showInfo("not yet implemented")
-            #self.mw.deck.cramGroups()
+            #self.mw.col.cramGroups()
             #self.mw.moveToState("review")
         elif url == "opts":
             self.mw.onStudyOptions()
@@ -60,18 +59,28 @@ class Overview(object):
         fc = self._ovForecast()
         tbl = self._overviewTable()
         but = self.mw.button
+        deck = self.mw.col.decks.current()
+        dname = deck['name']
+        sid = deck.get("sharedFrom")
+        if True: # sid:
+            shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
+        else:
+            shareLink = ""
         self.web.stdHtml(self._overviewBody % dict(
             title=_("Overview"),
             table=tbl,
             fcsub=_("Reviews over next two weeks"),
+            deck=deck['name'],
+            shareLink=shareLink,
+            desc="",
             fcdata=fc,
             ), css)
 
     _overviewBody = """
 <center>
-<h1>%(title)s</h1>
-<p>
-%(table)s
+<h3>%(deck)s</h3>
+%(shareLink)s
+%(desc)s
 <p>
 <div id="placeholder" style="width:350px; height:100px;"></div>
 <span class=sub>%(fcsub)s</span>
@@ -101,10 +110,12 @@ $(function () {
 .due { text-align: right; }
 .new { text-align: right; }
 .sub { font-size: 80%; color: #555; }
+.smallLink { font-size: 12px; }
+h3 { margin-bottom: 0; }
 """
 
     def _overviewTable(self):
-        counts = self._ovCounts()
+        return ""
         but = self.mw.button
         buf = "<table cellspacing=0 cellpadding=3 width=400>"
         buf += "<tr><th></th><th align=right>%s</th>" % _("Due")
@@ -129,27 +140,8 @@ $(function () {
     # Data
     ##########################################################################
 
-    def _ovCounts(self):
-        # we have the limited count already
-        selcnt = [0,0,0] #self.mw.deck.sched.selCounts()
-        allcnt = [0,0,0] #self.mw.deck.sched.allCounts()
-        return [
-            limitedCount(selcnt[1] + selcnt[2]),
-            selcnt[0],
-            limitedCount(allcnt[1] + allcnt[2]),
-            allcnt[0],
-        ]
-
     def _ovForecast(self):
-        fc = self.mw.deck.sched.dueForecast(14)
+        fc = self.mw.col.sched.dueForecast(14)
         if not sum(fc):
             return "'%s'" % _('No cards due in next two weeks')
         return simplejson.dumps(tuple(enumerate(fc)))
-
-    # Toolbar
-    ##########################################################################
-
-    def _setupToolbar(self):
-        if not self.mw.config['showToolbar']:
-            return
-        self.mw.form.toolBar.show()

@@ -15,7 +15,7 @@ class ModelChooser(QHBoxLayout):
         QHBoxLayout.__init__(self)
         self.widget = widget
         self.mw = mw
-        self.deck = mw.deck
+        self.deck = mw.col
         self.handleCards = cards
         self.label = label
         self._ignoreReset = False
@@ -151,7 +151,7 @@ class AddModel(QDialog):
     def __init__(self, mw, parent=None):
         self.parent = parent or mw
         self.mw = mw
-        self.deck = mw.deck
+        self.deck = mw.col
         QDialog.__init__(self, self.parent, Qt.Window)
         self.model = None
         self.dialog = aqt.forms.addmodel.Ui_Dialog()
@@ -191,7 +191,7 @@ class AddModel(QDialog):
             self.model = model(self.deck)
         else:
             # add copy to deck
-            self.mw.deck.addModel(model)
+            self.mw.col.addModel(model)
             self.model = model
         QDialog.accept(self)
 

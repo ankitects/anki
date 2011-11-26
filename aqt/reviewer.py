@@ -37,7 +37,7 @@ class Reviewer(object):
     def lastCard(self):
         if self._answeredIds:
             if not self.card or self._answeredIds[-1] != self.card.id:
-                return self.mw.deck.getCard(self._answeredIds[-1])
+                return self.mw.col.getCard(self._answeredIds[-1])
 
     def cleanup(self):
         self._hideStatus()
@@ -52,7 +52,7 @@ class Reviewer(object):
             # a card has been retrieved from undo
             c = self.cardQueue.pop()
         else:
-            c = self.mw.deck.sched.getCard()
+            c = self.mw.col.sched.getCard()
         self.card = c
         clearAudioQueue()
         if c:
@@ -65,7 +65,7 @@ class Reviewer(object):
         else:
             self._hideStatus()
             self.mw.disableCardMenuItems()
-            if self.mw.deck.cardCount():
+            if self.mw.col.cardCount():
                 self._showCongrats()
             else:
                 self._showEmpty()
@@ -184,7 +184,7 @@ $(".ansbut").focus();
         if self.mw.config['autoplaySounds']:
             playFromText(q)
         # render
-        esc = self.mw.deck.media.escapeImages
+        esc = self.mw.col.media.escapeImages
         q=esc(mungeQA(q)) + self.typeAnsInput()
         a=esc(mungeQA(a))
         self.web.eval("_updateQA(%s);" % simplejson.dumps(
@@ -208,13 +208,13 @@ $(".ansbut").focus();
     ##########################################################################
 
     def _defaultEase(self):
-        if self.mw.deck.sched.answerButtons(self.card) == 4:
+        if self.mw.col.sched.answerButtons(self.card) == 4:
             return 3
         else:
             return 2
 
     def _answerButtons(self):
-        if self.mw.deck.sched.answerButtons(self.card) == 4:
+        if self.mw.col.sched.answerButtons(self.card) == 4:
             labels = (_("Again"), _("Hard"), _("Good"), _("Easy"))
         else:
             labels = (_("Again"), _("Good"), _("Easy"))
@@ -240,7 +240,7 @@ $(".ansbut").focus();
     def _buttonTime(self, i, green):
         if self.mw.config['suppressEstimates']:
             return ""
-        txt = self.mw.deck.sched.nextIvlStr(self.card, i+1, True)
+        txt = self.mw.col.sched.nextIvlStr(self.card, i+1, True)
         if i == 0:
             txt = '<span style="color: #700">%s</span>' % txt
         elif i == green:
@@ -252,7 +252,7 @@ $(".ansbut").focus();
 
     def _answerCard(self, ease):
         "Reschedule card and show next."
-        self.mw.deck.sched.answerCard(self.card, ease)
+        self.mw.col.sched.answerCard(self.card, ease)
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
         self.nextCard()
@@ -373,7 +373,7 @@ div#filler {
 
     def _styles(self):
         css = self.mw.sharedCSS
-        css += self.mw.deck.models.css()
+        css += self.mw.col.models.css()
         css += self._css
         return css
 
@@ -401,7 +401,7 @@ div#filler {
     def processTypedAns(self, given):
         ord = self.typeAns()
         try:
-            cor = self.mw.deck.media.strip(
+            cor = self.mw.col.media.strip(
                 stripHTML(self.card.note().fields[ord]))
         except IndexError:
             self.card.template()['typeAns'] = None
@@ -481,7 +481,7 @@ div#filler {
 <p>
 %s
 <script>$("#ov").focus();</script>
-</center>""" % (self.mw.deck.sched.finishedMsg(),
+</center>""" % (self.mw.col.sched.finishedMsg(),
                 self.mw.button(key="o", name=_("Overview"), link="ov", id='ov'))
         self.web.stdHtml(buf, css=self.mw.sharedCSS)
         runHook('deckFinished')
@@ -574,8 +574,8 @@ div#filler {
 
     # fixme: only show progress for reviews, and only when revs due?
     def _updateRemaining(self):
-        counts = list(self.mw.deck.sched.repCounts())
-        idx = self.mw.deck.sched.countIdx(self.card)
+        counts = list(self.mw.col.sched.repCounts())
+        idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx]+1)
         space = "&nbsp;" * 2
         ctxt = '<font color="#000099">%s</font>' % counts[0]

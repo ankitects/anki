@@ -10,7 +10,7 @@ class Models(QDialog):
         self.mw = mw
         self.parent = parent or mw
         QDialog.__init__(self, self.parent, Qt.Window)
-        self.deck = mw.deck
+        self.deck = mw.col
         self.mw.checkpoint(_("Models"))
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)

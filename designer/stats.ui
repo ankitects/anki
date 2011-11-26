@@ -59,7 +59,7 @@
         <item>
          <widget class="QRadioButton" name="groups">
           <property name="text">
-           <string>groups</string>
+           <string>deck</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -69,7 +69,7 @@
         <item>
          <widget class="QRadioButton" name="all">
           <property name="text">
-           <string>all</string>
+           <string>collection</string>
           </property>
          </widget>
         </item>

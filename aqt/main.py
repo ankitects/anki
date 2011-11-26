@@ -190,7 +190,7 @@ Are you sure?"""):
         self.onSync()
         # then load collection and launch into the deck browser
         self.col = Collection(self.pm.collectionPath())
-        self.moveToState("deckBrowser")
+        self.moveToState("overview")
 
     def unloadProfile(self):
         self.col = None
@@ -227,6 +227,7 @@ Are you sure?"""):
         self.reviewer.show()
 
     def _reviewCleanup(self, newState):
+        print "rethink cleanup code?"
         if newState != "resetRequired":
             self.reviewer.cleanup()
 
