@@ -96,6 +96,7 @@ class CollectionStats(object):
         self.type = 0
         self.width = 600
         self.height = 200
+        self.wholeCollection = False
 
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
@@ -668,6 +669,8 @@ $(function () {
     data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
 
     def _limit(self):
+        if self.wholeCollection:
+            return ids2str([d['id'] for d in self.col.decks.all()])
         return self.col.sched._deckLimit()
 
     def _revlogLimit(self):
