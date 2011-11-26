@@ -286,7 +286,7 @@ Are you sure?"""):
 
     sharedCSS = """
 body {
-background: #eee;
+background: #f3f3f3;
 margin: 2em;
 }
 a:hover { background-color: #aaa; }

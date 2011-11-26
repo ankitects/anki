@@ -50,14 +50,14 @@ class DeckBrowser(object):
 
     _css = """
 .sub { color: #555; }
-a.deck { color: #000; text-decoration: none; font-size: 16px; }
+a.deck { color: #000; text-decoration: none; font-size: 12px; }
 .num { text-align: right; padding: 0 5 0 5; }
 td.opts { white-space: nowrap; }
 td.deck { width: 90% }
 a { font-size: 80%; }
 .extra { font-size: 90%; }
 .due { vertical-align: text-bottom; }
-table { margin: 1em; }
+body { margin: 1em; }
 """
 
     _body = """
@@ -92,7 +92,7 @@ table { margin: 1em; }
         buf += " <a class=deck href='open:%d'>%s</a></td>"% (did, name)
         # options
         buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
-            link="opts:%d"%did, name=_("Options")+'&#9660')
+            link="opts:%d"%did, name=_("Options")+'&#9662')
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
