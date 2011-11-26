@@ -548,11 +548,6 @@ where did in %s """ % self._limit())
             self._line(i, _("Lowest ease factor"), "%d%%" % low)
             self._line(i, _("Average ease factor"), "%d%%" % avg)
             self._line(i, _("Highest ease factor"), "%d%%" % high)
-        min = self.col.db.scalar(
-            "select min(id) from cards where did in %s " % self._limit())
-        if min:
-            self._line(i, _("First card created"), _("%s ago") % fmtTimeSpan(
-            time.time() - (min/1000)))
         info = "<table width=100%>" + "".join(i) + "</table><p>"
         info += _('''\
 A card's <i>ease factor</i> is the size of the next interval \

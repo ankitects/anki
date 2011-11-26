@@ -59,9 +59,11 @@ class Anki2Importer(Importer):
     def _importNotes(self):
         # build guid -> (id,mod,mid) hash
         self._notes = {}
+        existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"):
             self._notes[guid] = (id, mod, mid)
+            existing[id] = True
         # iterate over source collection
         add = []
         dirty = []
@@ -74,8 +76,11 @@ class Anki2Importer(Importer):
             if guid not in self._notes:
                 # get corresponding local model
                 lmid = self._mid(mid)
+                # ensure id is unique
+                while note[0] in existing:
+                    note[0] += 999
+                existing[note[0]] = True
                 # rewrite internal ids, models, etc
-                note[0] = self.ts()
                 note[2] = lmid
                 note[3] = self._did(note[3])
                 note[4] = intTime()
@@ -85,7 +90,7 @@ class Anki2Importer(Importer):
                 # note we have the added note
                 self._notes[guid] = (note[0], note[4], note[2])
             else:
-                continue #raise Exception("merging notes nyi")
+                print "merging notes nyi"
         # add to col
         self.dst.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -166,16 +171,17 @@ class Anki2Importer(Importer):
     def _importCards(self):
         if not self.needCards:
             return
-        # build map of (guid, ord) -> cid
+        # build map of (guid, ord) -> cid and used id cache
         self._cards = {}
+        existing = {}
         for guid, ord, cid in self.dst.db.execute(
             "select f.guid, c.ord, c.id from cards c, notes f "
             "where c.nid = f.id"):
+            existing[cid] = True
             self._cards[(guid, ord)] = cid
         # loop through src
         cards = []
         revlog = []
-        print "fixme: need to check schema issues in card import"
         cnt = 0
         for card in self.src.db.execute(
             "select f.guid, f.mid, c.* from cards c, notes f "
@@ -185,11 +191,6 @@ class Anki2Importer(Importer):
             if guid not in self._notes:
                 continue
             dnid = self._notes[guid]
-            # does the note share the same schema?
-            # shash = self._srcModels[card[1]]
-            # mid = self._notes[guid][2]
-            # if shash != self._dstModels[mid]:
-            #     continue
             # does the card already exist in the dst col?
             ord = card[5]
             if (guid, ord) in self._cards:
@@ -198,8 +199,11 @@ class Anki2Importer(Importer):
             # doesn't exist. strip off note info, and save src id for later
             card = list(card[2:])
             scid = card[0]
+            # ensure the card id is unique
+            while card[0] in existing:
+                card[0] += 999
+            existing[card[0]] = True
             # update cid, nid, etc
-            card[0] = self.ts()
             card[1] = self._notes[guid][0]
             card[2] = self._did(card[2])
             card[4] = intTime()
