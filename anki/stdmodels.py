@@ -20,7 +20,7 @@ def addBasicModel(col):
     t['qfmt'] = "{{" + _("Front") + "}}"
     t['afmt'] = "{{" + _("Back") + "}}"
     mm.addTemplate(m, t)
-    mm.save(m)
+    mm.add(m)
     return m
 
 models.append((_("Basic"), addBasicModel))
@@ -43,7 +43,7 @@ def addClozeModel(col):
         t['afmt'] = ("{{cloze:%d:" + _("Text") + "}}") % n
         t['afmt'] += "<br>{{" + _("Notes") + "}}"
         mm.addTemplate(m, t)
-    mm.save(m)
+    mm.add(m)
     return m
 
 models.append((_("Cloze"), addClozeModel))

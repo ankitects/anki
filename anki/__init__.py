@@ -45,10 +45,6 @@ elif sys.version_info[1] < 5:
 if sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
     raise Exception("Anki requires a UTF-8 locale.")
 
-import os
-if not os.path.exists(os.path.expanduser("~/.no-warranty")):
-    raise Exception("Don't use this without reading the forum thread")
-
 version = "1.99"
 from anki.storage import Collection
 open = Collection

@@ -68,7 +68,7 @@ class ModelManager(object):
 
     def save(self, m=None, gencards=False):
         "Mark M modified if provided, and schedule registry flush."
-        if m:
+        if m and m['id']:
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
             self._updateRequired(m)
@@ -124,7 +124,8 @@ class ModelManager(object):
         m['flds'] = []
         m['tmpls'] = []
         m['tags'] = []
-        return self._add(m)
+        m['id'] = None
+        return m
 
     def rem(self, m):
         "Delete model, and all its cards/notes."
@@ -141,11 +142,11 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         if current:
             self.setCurrent(self.models.values()[0])
 
-    def _add(self, m):
+    def add(self, m):
         self._setID(m)
         self.update(m)
         self.setCurrent(m)
-        return m
+        self.save(m)
 
     def update(self, m):
         "Add or update an existing model. Used for syncing and merging."
@@ -186,7 +187,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         "Copy, save and return."
         m2 = copy.deepcopy(m)
         m2['name'] = _("%s copy") % m2['name']
-        return self._add(m2)
+        self.add(m2)
+        return m2
 
     # Fields
     ##################################################
@@ -271,9 +273,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             f['ord'] = c
 
     def _transformFields(self, m, fn):
-        if not self.col.db.scalar(
-            "select 1 from notes where mid = ? limit 1", m['id']):
-            # don't bump schema for a new model
+        # model hasn't been added yet?
+        if not m['id']:
             return
         self.col.modSchema()
         r = []
@@ -294,7 +295,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def addTemplate(self, m, template):
         "Note: should col.genCards() afterwards."
-        self.col.modSchema()
+        if m['id']:
+            self.col.modSchema()
         m['tmpls'].append(template)
         self._updateTemplOrds(m)
         self.save(m)
