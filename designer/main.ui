@@ -137,11 +137,6 @@
    <addaction name="menu_Settings"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar">
-   <property name="sizeGripEnabled">
-    <bool>true</bool>
-   </property>
-  </widget>
   <action name="actionExit">
    <property name="icon">
     <iconset resource="icons.qrc">

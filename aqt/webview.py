@@ -28,8 +28,8 @@ class Bridge(QObject):
 
 class AnkiWebPage(QWebPage):
 
-    def __init__(self, parent, jsErr):
-        QWebPage.__init__(self, parent)
+    def __init__(self, jsErr):
+        QWebPage.__init__(self)
         self._jsErr = jsErr
     def javaScriptConsoleMessage(self, msg, line, srcID):
         self._jsErr(msg, line, srcID)
@@ -38,11 +38,11 @@ class AnkiWebPage(QWebPage):
 ##########################################################################
 
 class AnkiWebView(QWebView):
-    def __init__(self, parent):
-        QWebView.__init__(self, parent)
+    def __init__(self):
+        QWebView.__init__(self)
         self.setObjectName("mainText")
         self._bridge = Bridge()
-        self._page = AnkiWebPage(parent, self._jsErr)
+        self._page = AnkiWebPage(self._jsErr)
         self._loadFinishedCB = None
         self.setPage(self._page)
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)

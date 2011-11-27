@@ -67,25 +67,7 @@ class Overview(object):
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
-        header = """
-<table id=header width=100%%>
-<tr>
-<td width=20%>
-<a class="hitem" href="anki">Anki &#9662</a>
-</td>
-<td align=center>
-<a class=hitem href="decks">Decks</a>
-<a class=hitem href="study">Study</a>
-<a class=hitem href="add">Add</a>
-<a class=hitem href="browse">Browse</a>
-</td>
-<td width=20% align=right>
-<a class=hitem href="stats"><img src="qrc:/icons/view-statistics.png"></a>
-<a class=hitem href="sync"><img src="qrc:/icons/view-refresh.png"></a>
-</td></tr></table>
-<div id=headerSpace></div>
-""" #% deck['name']
-
+        header = ""
         self.web.stdHtml(self._overviewBody % dict(
             title=_("Overview"),
             table=tbl,
@@ -134,29 +116,6 @@ $(function () {
 .sub { font-size: 80%; color: #555; }
 .smallLink { font-size: 12px; }
 h3 { margin-bottom: 0; }
-#headerSpace { height: 22px; }
-#header {
-z-index: 100;
-position: fixed;
-height: 22px;
-font-size: 12px;
-margin:0;
-background: -webkit-gradient(linear, left top, left bottom,
-from(#ddd), to(#fff));
-border-bottom: 1px solid #ccc;
-font-weight: bold;
-}
-body { margin: 0; }
-.deck { }
-.hitem { display: inline-block; padding: 4px; padding-right: 6px;
-text-decoration: none; color: #000;
-}
-.hborder { border: 1px solid #ddd; }
-.hitem:hover {
-background: #333;
-color: #fff;
-}
-.icon { padding-top: 2px; }
 """
 
     def _overviewTable(self):

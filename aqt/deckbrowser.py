@@ -62,7 +62,6 @@ body { margin: 1em; }
 
     _body = """
 <center>
-<h1>%(title)s</h1>
 <table cellspacing=0 cellpading=3 width=100%%>
 %(tree)s
 </table>
@@ -98,12 +97,10 @@ body { margin: 1em; }
         return buf
 
     def _dueImg(self, due, new):
-        if due and new:
-            i = "both"
-        elif due:
-            i = "green"
+        if due:
+            i = "clock-icon"
         elif new:
-            i = "blue"
+            i = "plus-circle"
         else:
             i = "none"
         return '<img valign=bottom src="qrc:/icons/%s.png">' % i

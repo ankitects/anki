@@ -15,7 +15,7 @@ from anki.utils import stripHTML, checksum, isWin, isMac
 from anki.hooks import runHook, addHook, removeHook
 import anki.consts
 
-import aqt, aqt.progress, aqt.webview
+import aqt, aqt.progress, aqt.webview, aqt.toolbar
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical, getFile
@@ -182,8 +182,10 @@ Are you sure?"""):
             restoreState(self, "mainWindow")
         else:
             self.resize(500, 400)
+        # toolbar needs to be retranslated
+        self.toolbar.draw()
+        # show and raise window for osx
         self.show()
-        # raise window for osx
         self.activateWindow()
         self.raise_()
         # maybe sync
@@ -312,14 +314,23 @@ title="%s">%s</button>''' % (
         # main window
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
-        self.web = aqt.webview.AnkiWebView(self.form.centralwidget)
+        # toolbar
+        tweb = aqt.webview.AnkiWebView()
+        tweb.setObjectName("toolbarWeb")
+        tweb.setFocusPolicy(Qt.WheelFocus)
+        tweb.setFixedHeight(32)
+        self.toolbar = aqt.toolbar.Toolbar(self, tweb)
+        # main area
+        self.web = aqt.webview.AnkiWebView()
         self.web.setObjectName("mainText")
         self.web.setFocusPolicy(Qt.WheelFocus)
+        # add in a layout
         self.mainLayout = QVBoxLayout()
-        self.mainLayout.addWidget(self.web)
         self.mainLayout.setContentsMargins(0,0,0,0)
+        self.mainLayout.setSpacing(0)
+        self.mainLayout.addWidget(tweb)
+        self.mainLayout.addWidget(self.web)
         self.form.centralwidget.setLayout(self.mainLayout)
-        addHook("undoEnd", self.maybeEnableUndo)
 
     def closeAllWindows(self):
         aqt.dialogs.closeAll()
@@ -607,6 +618,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         aqt.studyopts.StudyOptions(self)
 
     def onOverview(self):
+        self.col.reset()
         self.moveToState("overview")
 
     def onGroups(self, parent=None):

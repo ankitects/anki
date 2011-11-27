@@ -526,6 +526,7 @@ div#filler {
     ##########################################################################
 
     def _setupStatus(self):
+        return
         self._statusWidgets = []
         sb = self.mw.form.statusbar
         def addWgt(w, stretch=0):

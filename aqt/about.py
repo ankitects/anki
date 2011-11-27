@@ -32,6 +32,9 @@ Suba, and Xtru.
 
 Anki icon by Alex Fraser (CC GNU GPL)
 Deck icon by Laurent Baumann (CC BY-NC-SA 3.0)
+Deck browser icons from:
+http://led24.de/iconset
+http://p.yusukekamiyamane.com/
 Other icons under LGPL or public domain.
 """
 
