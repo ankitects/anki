@@ -686,7 +686,7 @@ did in %s and queue = 2 and due <= :lim %s limit %d""" % (
 
     def finishedMsg(self):
         return ("<b>"+_(
-            "Congratulations! You have finished the selected deck for now.")+
+            "Congratulations! You have finished for now.")+
             "</b><br><br>" + self._nextDueMsg())
 
     def _nextDueMsg(self):

@@ -449,9 +449,13 @@ order by ordinal""", mid)):
                     else:
                         bg = t['bg']
                     t[k] = '''\
-<div style="text-align:%s;background-color:%s">\n\n%s\n\n</div>''' % (
-                        ("center", "left", "right")[t['align']],
-                        bg, t[k])
+<style>
+#card {
+ text-align:%s;
+ background-color:%s;
+}
+</style>\n\n%s''' % (("center", "left", "right")[t['align']],
+                     bg, t[k])
                 # remove obsolete
                 del t['bg']
                 del t['align']
