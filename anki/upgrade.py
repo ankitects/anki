@@ -552,7 +552,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
                         remove.append(t)
                 del t['actv']
             for r in remove:
-                m['tmpls'].remove(t)
+                d.models.remTemplate(m, r)
             d.models.save(m)
 
     # Post-schema upgrade
