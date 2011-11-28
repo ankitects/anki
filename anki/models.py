@@ -49,7 +49,6 @@ defaultTemplate = {
     'ord': None,
     'qfmt': "",
     'afmt': "",
-    'typeAns': None,
     'did': None,
 }
 

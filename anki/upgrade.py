@@ -374,7 +374,6 @@ order by ordinal""", mid)):
         db = self.db
         dconf = anki.models.defaultTemplate
         tmpls = []
-        # align and bg are used in upgrade then discarded
         for c, row in enumerate(db.all("""
 select name, active, qformat, aformat, questionInAnswer,
 questionAlign, lastFontColour, typeAnswer from cardModels
@@ -385,14 +384,12 @@ order by ordinal""", mid)):
              conf['actv'],
              conf['qfmt'],
              conf['afmt'],
+             # the following are used in upgrade then discarded
              hideq,
              conf['align'],
              conf['bg'],
-             conf['typeAns']) = row
+             typeAns) = row
             conf['ord'] = c
-            # q fields now in a
-            if not hideq:
-                conf['afmt'] = conf['qfmt'] + "\n\n<hr>\n\n" + conf['afmt']
             for type in ("qfmt", "afmt"):
                 # ensure the new style field format
                 conf[type] = re.sub("%\((.+?)\)s", "{{\\1}}", conf[type])
@@ -403,6 +400,12 @@ order by ordinal""", mid)):
                     "(?i){{cardModel}}", "{{Template}}", conf[type])
                 conf[type] = re.sub(
                     "(?i){{modelTags}}", "{{Model}}", conf[type])
+                # type answer is now embedded in the format
+                if typeAns:
+                    conf[type] += '{{type:%s}}' % typeAns
+            # q fields now in a
+            if not hideq:
+                conf['afmt'] = conf['qfmt'] + "\n\n<hr>\n\n" + conf['afmt']
             tmpls.append(conf)
         return tmpls
 

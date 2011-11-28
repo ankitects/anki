@@ -157,6 +157,10 @@ class Template(object):
             if txt:
                 return stripHTML(txt)
             return ""
+        elif tag_name.startswith("type:"):
+            # type answer field; convert it to [[type:...]] for the gui code
+            # to process
+            return "[[%s]]" % tag_name
         elif (tag_name.startswith("cq:") or
               tag_name.startswith("ca:") or
               tag_name.startswith("cactx:")):
