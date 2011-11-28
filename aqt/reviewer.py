@@ -364,6 +364,8 @@ div#filler {
 
     def typeAns(self):
         "None if answer typing disabled."
+        print "typeAns()"
+        return False
         self.card.template()['typeAns']
 
     def typeAnsInput(self):

@@ -10,7 +10,6 @@ from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      saveSplitter, restoreSplitter, showInfo, askUser, getOnlyText, \
      showWarning, openHelp
 from anki.utils import isMac, isWin
-import aqt.templates
 
 #        raise Exception("Remember to disallow media&latex refs in edit.")
 
@@ -106,21 +105,21 @@ Please create a new card first."""))
         help = QPushButton(_("Help"))
         help.setAutoDefault(False)
         l.addWidget(help)
-        c(l, SIGNAL("clicked()"), self.onHelp)
+        c(help, SIGNAL("clicked()"), self.onHelp)
         l.addStretch()
         rename = QPushButton(_("Rename"))
         rename.setAutoDefault(False)
         l.addWidget(rename)
-        c(l, SIGNAL("clicked()"), self.onRename)
+        c(rename, SIGNAL("clicked()"), self.onRename)
         repos = QPushButton(_("Reposition"))
         repos.setAutoDefault(False)
         l.addWidget(repos)
-        c(l, SIGNAL("clicked()"), self.onReorder)
+        c(repos, SIGNAL("clicked()"), self.onReorder)
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
         l.addWidget(close)
-        c(l, SIGNAL("clicked()"), self.accept)
+        c(close, SIGNAL("clicked()"), self.accept)
 
     # Cards
     ##########################################################################
@@ -158,16 +157,19 @@ Please create a new card first."""))
         c = self.card
         styles = "\n.cloze { font-weight: bold; color: blue; }"
         html = '<html><body id=card><style>%s</style>%s</body></html>'
+        ti = self.maybeTextInput
         self.tab['pform'].front.setHtml(
-            html % (styles, mungeQA(c.q(reload=True))))
+            html % (styles, ti(mungeQA(c.q(reload=True)))))
         self.tab['pform'].back.setHtml(
-            html % (styles, mungeQA(c.a())))
+            html % (styles, ti(mungeQA(c.a()), 'a')))
 
-    def maybeTextInput(self):
-        return "text input"
-        if self.card.template()['typeAns'] is not None:
-            return "<center><input type=text></center>"
-        return ""
+    def maybeTextInput(self, txt, type='q'):
+        if type == 'q':
+            repl = "<center><input type=text value='%s'></center>" % _(
+                "(text is typed in here)")
+        else:
+            repl = _("(typing comparison appears here)")
+        return re.sub("\[\[type:.+?\]\]", repl, txt)
 
     # Card operations
     ######################################################################

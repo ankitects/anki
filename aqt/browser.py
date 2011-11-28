@@ -201,9 +201,9 @@ class DataModel(QAbstractTableModel):
         type = self.columnType(col)
         c = self.getCard(index)
         if type == "question":
-            return self.question()
+            return self.question(c)
         elif type == "answer":
-            return self.answer()
+            return self.answer(c)
         elif type == "noteFld":
             f = c.note()
             return self.formatQA(f.fields[self.col.models.sortIdx(f.model())])
@@ -234,10 +234,10 @@ class DataModel(QAbstractTableModel):
         elif type == "noteGroup":
             return self.browser.mw.col.groups.name(c.note().gid)
 
-    def question(self):
+    def question(self, c):
         return self.formatQA(c.a())
 
-    def answer(self):
+    def answer(self, c):
         return self.formatQA(c.a())
 
     def formatQA(self, txt):
@@ -332,8 +332,7 @@ class Browser(QMainWindow):
         self.onSearch()
 
     def setupToolbar(self):
-        self.form.toolBar.setIconSize(QSize(self.mw.pm.profile['iconSize'],
-                                              self.mw.pm.profile['iconSize']))
+        self.form.toolBar.setIconSize(QSize(32, 32))
         self.form.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
 
     def setupMenus(self):
@@ -341,13 +340,12 @@ class Browser(QMainWindow):
         c = self.connect; f = self.form; s = SIGNAL("triggered()")
         c(f.actionAddItems, s, self.mw.onAddCard)
         c(f.actionDelete, s, self.deleteCards)
-        c(f.actionSetGroup, s, self.setGroup)
+        #c(f.actionSetGroup, s, self.setGroup)
         c(f.actionAddTag, s, self.addTags)
         c(f.actionDeleteTag, s, self.deleteTags)
         c(f.actionReposition, s, self.reposition)
         c(f.actionReschedule, s, self.reschedule)
         c(f.actionCram, s, self.cram)
-        c(f.actionAddCards, s, self.genCards)
         c(f.actionChangeModel, s, self.onChangeModel)
         c(f.actionToggleSuspend, SIGNAL("triggered(bool)"), self.onSuspend)
         c(f.actionToggleMark, SIGNAL("triggered(bool)"), self.onMark)
@@ -662,7 +660,7 @@ class Browser(QMainWindow):
                 mitem.addChild(titem)
 
     def _groupTree(self, root):
-        grps = self.col.sched.groupTree()
+        grps = self.col.sched.deckDueTree()
         def fillGroups(root, grps, head=""):
             for g in grps:
                 item = self.CallbackItem(
@@ -725,6 +723,8 @@ class Browser(QMainWindow):
             extra += self.cardStats.makeLine(
                 _("Reviews"), "<a href=revlog>%d</a>" % self.card.reps)
         rep = rep.replace("</table>", extra)
+        self.form.cardLabel.setMaximumWidth(250)
+        self.form.cardLabel.setWordWrap(True)
         self.form.cardLabel.setText(rep)
 
     def onCardLink(self, url):
@@ -750,7 +750,7 @@ class Browser(QMainWindow):
         d = QDialog(self)
         l = QVBoxLayout()
         l.setMargin(0)
-        w = AnkiWebView(self.mw)
+        w = AnkiWebView()
         l.addWidget(w)
         w.stdHtml(data)
         bb = QDialogButtonBox(QDialogButtonBox.Close)

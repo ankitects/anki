@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
+from operator import itemgetter
 from aqt.utils import showInfo, askUser, getText, maybeHideClose
 import aqt.modelchooser, aqt.clayout
 
@@ -10,7 +11,8 @@ class Models(QDialog):
         self.mw = mw
         self.parent = parent or mw
         QDialog.__init__(self, self.parent, Qt.Window)
-        self.deck = mw.col
+        self.col = mw.col
+        self.mm = self.col.models
         self.mw.checkpoint(_("Models"))
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
@@ -27,9 +29,6 @@ class Models(QDialog):
         c = self.connect; f = self.form; box = f.buttonBox
         s = SIGNAL("clicked()")
         t = QDialogButtonBox.ActionRole
-        b = box.addButton(_("Layout..."), t)
-        c(b, s, self.onLayout)
-        b.setDefault(True)
         b = box.addButton(_("Add"), t)
         c(b, s, self.onAdd)
         b = box.addButton(_("Rename"), t)
@@ -55,8 +54,8 @@ class Models(QDialog):
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
-        mids = self.deck.db.list("select id from models order by name")
-        self.models = [self.deck.getModel(mid) for mid in mids]
+        self.models = self.col.models.all()
+        self.models.sort(key=itemgetter("name"))
         self.form.modelsList.clear()
         for m in self.models:
             item = QListWidgetItem(_("%(name)s [%(notes)d notes]") % dict(
@@ -73,28 +72,28 @@ class Models(QDialog):
     def onAdd(self):
         m = aqt.modelchooser.AddModel(self.mw, self).get()
         if m:
-            self.deck.addModel(m)
+            self.col.addModel(m)
             self.updateModelsList()
 
     def onLayout(self):
         # set to current
         # # see if there's an available note
         dummy = False
-        id = self.deck.db.scalar(
+        id = self.col.db.scalar(
             "select id from notes where mid = ?", self.model.id)
         if id:
-            note = self.deck.getNote(id)
+            note = self.col.getNote(id)
         else:
             # generate a dummy one
-            self.deck.conf['currentModelId'] = self.model.id
-            note = self.deck.newNote()
+            self.col.conf['currentModelId'] = self.model.id
+            note = self.col.newNote()
             for f in note.keys():
                 note[f] = f
-            self.deck.addNote(note)
+            self.col.addNote(note)
             dummy = True
         aqt.clayout.CardLayout(self.mw, note, type=2, parent=self)
         if dummy:
-            self.deck._delNotes([note.id])
+            self.col._delNotes([note.id])
 
     def onDelete(self):
         if len(self.models) < 2:
@@ -105,7 +104,7 @@ class Models(QDialog):
             _("Delete this model and all its cards?"),
             parent=self):
             return
-        self.deck.delModel(self.model.id)
+        self.col.delModel(self.model.id)
         self.model = None
         self.updateModelsList()
 

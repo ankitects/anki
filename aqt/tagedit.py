@@ -9,7 +9,7 @@ class TagEdit(QLineEdit):
     # 0 = tags, 1 = groups
     def __init__(self, parent, type=0):
         QLineEdit.__init__(self, parent)
-        self.deck = None
+        self.col = None
         self.model = QStringListModel()
         self.type = type
         if type == 0:
@@ -20,13 +20,13 @@ class TagEdit(QLineEdit):
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompleter(self.completer)
 
-    def setDeck(self, deck):
-        "Set the current deck, updating list of available tags."
-        self.deck = deck
+    def setCol(self, col):
+        "Set the current col, updating list of available tags."
+        self.col = col
         if self.type == 0:
-            l = sorted(self.deck.tags.all())
+            l = sorted(self.col.tags.all())
         else:
-            l = self.deck.groups.all()
+            l = self.col.groups.all()
         self.model.setStringList(l)
 
     def addTags(self, tags):
@@ -50,7 +50,7 @@ class TagCompleter(QCompleter):
     def splitPath(self, str):
         str = unicode(str).strip()
         str = re.sub("  +", " ", str)
-        self.tags = self.parent.deck.tags.split(str)
+        self.tags = self.parent.col.tags.split(str)
         self.tags.append(u"")
         p = self.edit.cursorPosition()
         self.cursor = str.count(" ", 0, p)

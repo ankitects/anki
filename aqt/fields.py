@@ -5,7 +5,6 @@ from aqt.qt import *
 import re
 from anki.consts import *
 import aqt
-from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      saveSplitter, restoreSplitter, showInfo, askUser, getText, \
      openHelp

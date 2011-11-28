@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, cPickle, ctypes
+import os, cPickle, ctypes, shutil
 from aqt.qt import *
 from anki.utils import isMac, isWin
 from anki import Collection
@@ -132,6 +132,7 @@ carefully, as a lot has changed since the previous Anki version."""))
             def isComplete(self):
                 return False
             def initializePage(self):
+                self.setCommitPage(True)
                 self.setTitle(_("Upgrading"))
                 self.label = l = QLabel()
                 l.setTextInteractionFlags(Qt.TextSelectableByMouse)

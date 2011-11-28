@@ -28,7 +28,7 @@ _html = """
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
-.fname { font-size: 14px; vertical-align: middle; padding-right: 5px; }
+.fname { font-size: 12px; vertical-align: middle; padding-right: 5px; }
 img { max-width: 150; max-height: 150; }
 body { margin: 5px; }
 </style><script>
@@ -309,10 +309,10 @@ class Editor(object):
         from aqt.clayout import CardLayout
         self.saveNow()
         if self.card:
-            type = 1; ord = self.card.ord
+            ord = self.card.ord
         else:
-            type = 0; ord = 0
-        CardLayout(self.mw, self.note, type=type, ord=ord, parent=self.widget)
+            ord = 0
+        CardLayout(self.mw, self.note, ord=ord, parent=self.widget)
         self.loadNote()
 
     # JS->Python bridge
@@ -397,7 +397,7 @@ class Editor(object):
         self.web.setFocus()
 
     def fonts(self):
-        return [(f['font'], f['esize'])
+        return [(f['font'], f['size'])
                 for f in self.note.model()['flds']]
 
     def saveNow(self):
@@ -411,17 +411,14 @@ class Editor(object):
 
     def checkValid(self):
         cols = []
-        self.dupe = None
-        for c, p in enumerate(self.note.problems()):
-            if not p:
-                cols.append("#fff")
-            elif p == "unique":
-                cols.append("#fcc")
-                self.dupe = c
-            else:
-                cols.append("#ffc")
+        err = None
+        for f in self.note.fields:
+            cols.append("#fff")
+        err = self.note.dupeOrEmpty()
+        if err:
+            cols[0] = "#fcc"
         self.web.eval("setBackgrounds(%s);" % simplejson.dumps(cols))
-        if self.dupe is not None:
+        if err == 2:
             self.web.eval("showDupes();")
         else:
             self.web.eval("hideDupes();")
@@ -496,11 +493,11 @@ class Editor(object):
             if self.addMode:
                 self.group.setCol(self.mw.col)
         self.tags.setText(self.note.stringTags().strip())
-        if getattr(self.note, 'gid', None):
-            gid = self.note.gid
+        if getattr(self.note, 'did', None):
+            did = self.note.did
         else:
-            gid = self.note.model().conf['gid']
-        self.group.setText(self.mw.col.groups.name(gid))
+            did = self.note.model()['did']
+        self.group.setText(self.mw.col.decks.name(did))
 
     def saveTagsAndGroup(self):
         if not self.note:
@@ -508,9 +505,9 @@ class Editor(object):
         self.note.tags = self.mw.col.tags.split(unicode(self.tags.text()))
         if self.addMode:
             # save group and tags to model
-            self.note.gid = self.mw.col.groups.id(unicode(self.group.text()))
+            self.note.did = self.mw.col.decks.id(unicode(self.group.text()))
             m = self.note.model()
-            m['gid'] = self.note.gid
+            m['did'] = self.note.did
             m['tags'] = self.note.tags
             self.mw.col.models.save(m)
         self.note.flush()
@@ -771,7 +768,7 @@ class Editor(object):
 class EditorWebView(AnkiWebView):
 
     def __init__(self, parent, editor):
-        AnkiWebView.__init__(self, parent)
+        AnkiWebView.__init__(self)
         self.editor = editor
         self.errtxt = _("An error occured while opening %s")
         self.strip = self.editor.mw.pm.profile['stripHTML']
