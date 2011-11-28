@@ -26,18 +26,12 @@ class CardLayout(QDialog):
         self.mm = self.mw.col.models
         self.model = note.model()
         self.setupTabs()
+        self.setupButtons()
         self.setWindowTitle(_("%s Layout") % self.model['name'])
         v1 = QVBoxLayout()
         v1.addWidget(self.tabs)
-        self.bbox = QDialogButtonBox(
-            QDialogButtonBox.Close|QDialogButtonBox.Help)
-        v1.addWidget(self.bbox)
+        v1.addLayout(self.buttons)
         self.setLayout(v1)
-
-        self.connect(self.bbox, SIGNAL("helpRequested()"),
-                     self.onHelp)
-        self.bbox.button(QDialogButtonBox.Help).setAutoDefault(False)
-        self.bbox.button(QDialogButtonBox.Close).setAutoDefault(False)
         self.mw.checkpoint(_("Card Layout"))
         self.redraw()
         restoreGeom(self, "CardLayout")
@@ -71,19 +65,6 @@ class CardLayout(QDialog):
     def addTab(self, t):
         c = self.connect
         w = QWidget()
-        h = QHBoxLayout()
-        h.addStretch()
-        rename = QPushButton("Rename")
-        c(rename, SIGNAL("clicked()"), self.onRename)
-        h.addWidget(rename)
-        order = QPushButton(_("Reposition"))
-        h.addWidget(order)
-        c(order, SIGNAL("clicked()"), self.onReorder)
-        h.addStretch()
-        v = QVBoxLayout()
-        v.setMargin(3)
-        v.setSpacing(3)
-        v.addLayout(h)
         l = QHBoxLayout()
         l.setMargin(0)
         l.setSpacing(3)
@@ -91,8 +72,8 @@ class CardLayout(QDialog):
         # template area
         tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        c(tform.front, SIGNAL("textChanged()"), self.onTemplateEdit)
-        c(tform.back, SIGNAL("textChanged()"), self.onTemplateEdit)
+        c(tform.front, SIGNAL("textChanged()"), self.saveCard)
+        c(tform.back, SIGNAL("textChanged()"), self.saveCard)
         l.addWidget(left, 5)
         # preview area
         right = QWidget()
@@ -105,8 +86,7 @@ class CardLayout(QDialog):
                 QWebPage.DelegateExternalLinks)
             c(wig, SIGNAL("linkClicked(QUrl)"), linkClicked)
         l.addWidget(right, 5)
-        v.addLayout(l)
-        w.setLayout(v)
+        w.setLayout(l)
         self.forms.append({'tform': tform, 'pform': pform})
         self.tabs.addTab(w, t['name'])
 
@@ -117,7 +97,32 @@ Removing this card would cause one or more notes to be deleted. \
 Please create a new card first."""))
         self.redraw()
 
-    # Cards & Preview
+    # Buttons
+    ##########################################################################
+
+    def setupButtons(self):
+        c = self.connect
+        l = self.buttons = QHBoxLayout()
+        help = QPushButton(_("Help"))
+        help.setAutoDefault(False)
+        l.addWidget(help)
+        c(l, SIGNAL("clicked()"), self.onHelp)
+        l.addStretch()
+        rename = QPushButton(_("Rename"))
+        rename.setAutoDefault(False)
+        l.addWidget(rename)
+        c(l, SIGNAL("clicked()"), self.onRename)
+        repos = QPushButton(_("Reposition"))
+        repos.setAutoDefault(False)
+        l.addWidget(repos)
+        c(l, SIGNAL("clicked()"), self.onReorder)
+        l.addStretch()
+        close = QPushButton(_("Close"))
+        close.setAutoDefault(False)
+        l.addWidget(close)
+        c(l, SIGNAL("clicked()"), self.accept)
+
+    # Cards
     ##########################################################################
 
     def selectCard(self, idx):
@@ -137,7 +142,7 @@ Please create a new card first."""))
         self.tab['tform'].back.setPlainText(t['afmt'])
         self.redrawing = False
 
-    def onTemplateEdit(self):
+    def saveCard(self):
         if self.redrawing:
             return
         text = self.tab['tform'].front.toPlainText()
@@ -146,12 +151,10 @@ Please create a new card first."""))
         self.card.template()['afmt'] = text
         self.renderPreview()
 
-    def saveCard(self):
-        t = self.card.template()
-        self.renderPreview()
+    # Preview
+    ##########################################################################
 
     def renderPreview(self):
-        print "preview"
         c = self.card
         styles = "\n.cloze { font-weight: bold; color: blue; }"
         html = '<html><body id=card><style>%s</style>%s</body></html>'
@@ -166,8 +169,12 @@ Please create a new card first."""))
             return "<center><input type=text></center>"
         return ""
 
+    # Card operations
+    ######################################################################
+
     def onRename(self):
-        name = getOnlyText(_("New name:"))
+        name = getOnlyText(_("New name:"),
+                           default=self.card.template()['name'])
         if not name:
             return
         if name in [c.template()['name'] for c in self.cards
