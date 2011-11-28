@@ -223,7 +223,7 @@ and c.nid=n.id %s""" % (q, order)
         for m in self.col.models.all():
             for f in m['flds']:
                 if f['name'].lower() == field:
-                    mods[m['id']] = (m, f['ord'])
+                    mods[str(m['id'])] = (m, f['ord'])
         if not mods:
             # nothing has that field
             self.lims['valid'] = False
