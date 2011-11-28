@@ -369,7 +369,8 @@ order by ordinal""", mid)):
             # ensure data is good
             conf['rtl'] = not not conf['rtl']
             conf['font'] = conf['font'] or "Arial"
-            conf['size'] = conf['size'] or 20
+            conf['size'] = 12
+            # will be removed later in upgrade
             conf['qcol'] = conf['qcol'] or "#000"
             conf['qsize'] = conf['qsize'] or 20
             flds.append(conf)
@@ -408,7 +409,7 @@ order by ordinal""", mid)):
                     "(?i){{modelTags}}", "{{Model}}", conf[type])
                 # type answer is now embedded in the format
                 if typeAns:
-                    conf[type] += '{{type:%s}}' % typeAns
+                    conf[type] += '<br>{{type:%s}}' % typeAns
             # q fields now in a
             if not hideq:
                 conf['afmt'] = conf['qfmt'] + "\n\n<hr>\n\n" + conf['afmt']
