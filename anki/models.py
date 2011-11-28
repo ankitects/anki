@@ -211,7 +211,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         assert idx >= 0 and idx < len(m['flds'])
         self.col.modSchema()
         m['sortf'] = idx
-        self.col.updateFieldCache(self.nids(m), csum=False)
+        self.col.updateFieldCache(self.nids(m))
         self.save(m)
 
     def addField(self, m, field):
