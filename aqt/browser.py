@@ -719,12 +719,13 @@ class Browser(QMainWindow):
     def onChangeSortField(self):
         from aqt.utils import chooseList
         m = self.card.model()
-        fields = [f['name'] for f in m.fields]
+        fields = [f['name'] for f in m['flds']]
+        mm = self.col.models
         idx = chooseList(_("Choose field to sort this model by:"),
-                         fields, m.sortIdx())
-        if idx != m.sortIdx():
+                         fields, mm.sortIdx(m))
+        if idx != mm.sortIdx(m):
             self.mw.progress.start()
-            m.setSortIdx(idx)
+            mm.setSortIdx(m, idx)
             self.mw.progress.finish()
             self.onSearch()
 
