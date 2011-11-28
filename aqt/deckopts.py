@@ -4,7 +4,7 @@
 from aqt.qt import *
 import sys, re
 import aqt
-from aqt.utils import maybeHideClose
+from aqt.utils import maybeHideClose, openHelp
 
 class ColOptions(QDialog):
 
@@ -28,7 +28,7 @@ class ColOptions(QDialog):
         self.form.mediaURL.setText(self.d.conf['mediaURL'])
 
     def helpRequested(self):
-        aqt.openHelp("ColOptions")
+        openHelp("ColOptions")
 
     def reject(self):
         needSync = False

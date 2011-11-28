@@ -51,7 +51,7 @@ Error was:<pre>%s</pre>""")
             self.form.table, SIGNAL("currentCellChanged(int,int,int,int)"),
             self.onCellChanged)
         self.form.table.verticalHeader().setDefaultSectionSize(
-            self.parent.config['editLineSize'])
+            self.parent.pm.profile['editLineSize'])
         self.connect(self.form.search, SIGNAL("textChanged(QString)"),
                      self.limit)
 
@@ -222,7 +222,7 @@ Error was:<pre>%s</pre>""")
         tit = tit[0:40]
         if self.type == 0:
             # col
-            dd = self.parent.config['documentDir']
+            dd = self.parent.pm.profile['documentDir']
             p = os.path.join(dd, tit + ".anki")
             if os.path.exists(p):
                 tit += "%d" % time.time()

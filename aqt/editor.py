@@ -9,7 +9,8 @@ from anki.sound import play
 from anki.hooks import runHook
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
-from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile
+from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
+    openHelp
 import aqt
 import anki.js
 
@@ -449,7 +450,7 @@ class Editor(object):
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         d.connect(form.buttonBox, SIGNAL("helpRequested()"),
-                 lambda: aqt.openHelp("HtmlEditor"))
+                 lambda: openHelp("HtmlEditor"))
         form.textEdit.setPlainText(self.note.fields[self.currentField])
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
@@ -582,7 +583,7 @@ class Editor(object):
                                            txtcol)
 
     def colourChanged(self):
-        recent = self.mw.config['recentColours']
+        recent = self.mw.pm.profile['recentColours']
         self._updateForegroundButton(recent[-1])
 
     def onForeground(self):
@@ -606,7 +607,7 @@ class Editor(object):
         self.colourChoose = QShortcut(QKeySequence("F6"), p)
         p.connect(self.colourChoose, SIGNAL("activated()"),
                   self.onChooseColourKey)
-        for n, c in enumerate(reversed(self.mw.config['recentColours'])):
+        for n, c in enumerate(reversed(self.mw.pm.profile['recentColours'])):
             col = QToolButton()
             col.setAutoRaise(True)
             col.setFixedWidth(64)
@@ -640,7 +641,7 @@ class Editor(object):
         p.show()
 
     def onRemoveColour(self, colour):
-        recent = self.mw.config['recentColours']
+        recent = self.mw.pm.profile['recentColours']
         recent.remove(colour)
         if not recent:
             recent.append("#000000")
@@ -659,7 +660,7 @@ class Editor(object):
             pass
 
     def onChooseColour(self, colour):
-        recent = self.mw.config['recentColours']
+        recent = self.mw.pm.profile['recentColours']
         recent.remove(colour)
         recent.append(colour)
         self.web.eval("setFormat('forecolor', '%s')" % colour)
@@ -669,7 +670,7 @@ class Editor(object):
     def onNewColour(self):
         new = QColorDialog.getColor(Qt.white, self.widget)
         self.widget.raise_()
-        recent = self.mw.config['recentColours']
+        recent = self.mw.pm.profile['recentColours']
         if new.isValid():
             txtcol = unicode(new.name())
             if txtcol not in recent:
@@ -698,7 +699,7 @@ class Editor(object):
         # copy to media folder
         name = self.mw.col.media.addFile(path)
         # remove original?
-        if canDelete and self.mw.config['deleteMedia']:
+        if canDelete and self.mw.pm.profile['deleteMedia']:
             if os.path.abspath(name) != os.path.abspath(path):
                 try:
                     os.unlink(old)
@@ -738,7 +739,7 @@ class Editor(object):
     ######################################################################
 
     def setupKeyboard(self):
-        if isWin and self.mw.config['preserveKeyboard']:
+        if isWin and self.mw.pm.profile['preserveKeyboard']:
             a = ctypes.windll.user32.ActivateKeyboardLayout
             a.restype = ctypes.c_void_p
             a.argtypes = [ctypes.c_void_p, ctypes.c_uint]
@@ -773,7 +774,7 @@ class EditorWebView(AnkiWebView):
         AnkiWebView.__init__(self, parent)
         self.editor = editor
         self.errtxt = _("An error occured while opening %s")
-        self.strip = self.editor.mw.config['stripHTML']
+        self.strip = self.editor.mw.pm.profile['stripHTML']
 
     def keyPressEvent(self, evt):
         self._curKey = True

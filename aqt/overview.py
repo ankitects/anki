@@ -6,7 +6,7 @@ import simplejson
 from aqt.qt import *
 from anki.consts import NEW_CARDS_RANDOM
 from anki.hooks import addHook
-from aqt.utils import limitedCount, showInfo
+from aqt.utils import showInfo
 
 class Overview(object):
     "Deck overview."
@@ -57,9 +57,6 @@ class Overview(object):
     ############################################################
 
     def _renderPage(self):
-        css = self.mw.sharedCSS + self._overviewCSS
-        fc = self._ovForecast()
-        tbl = self._overviewTable()
         but = self.mw.button
         deck = self.mw.col.decks.current()
         sid = deck.get("sharedFrom")
@@ -67,85 +64,67 @@ class Overview(object):
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
-        header = ""
-        self.web.stdHtml(self._overviewBody % dict(
-            title=_("Overview"),
-            table=tbl,
-            fcsub=_("Reviews over next two weeks"),
+        print self._body % dict(
             deck=deck['name'],
             shareLink=shareLink,
-            desc="",
-            header=header,
-            fcdata=fc,
-            ), css)
+            desc=self._desc(deck),
+            table=self._table())
+        self.web.stdHtml(self._body % dict(
+            deck=deck['name'],
+            shareLink=shareLink,
+            desc=self._desc(deck),
+            table=self._table()
+            ), self.mw.sharedCSS + self._css)
 
-    _overviewBody = """
-%(header)s
+    def _desc(self, deck):
+        desc = deck.get("desc", "")
+        if not desc:
+            return ""
+        if len(desc) < 160:
+            return '<div class="descfont description">%s</div>' % desc
+        else:
+            return '''
+<div class="descfont description descmid" id=shortdesc>%s\
+<a href=# onclick="$('shortdesc').hide();$('fulldesc').show();">...More</a></div>
+<div class="descfont description descmid" id=fulldesc>%s</div>''' % (
+                 desc[:160], desc)
+
+    def _table(self):
+        counts = self.mw.col.sched.repCounts()
+        finished = not sum(counts)
+        but = self.mw.button
+        if finished:
+            return '<div class=fin style="white-space: pre-wrap;">%s</div>' % (
+                self.mw.col.sched.finishedMsg())
+        else:
+            return '''
+<table width=300 cellpadding=5>
+<tr><td align=center valign=top>
+<table cellspacing=5>
+<tr><td>%s:</td><td><b><font color=#00a>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color=#a00>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color=#0a0>%s</font></b></td></tr>
+</table>
+</td><td>%s</td></tr></table>''' % (_("New"), counts[0],
+                                    _("In Learning"), counts[1],
+                                    _("To Review"), counts[2],
+                                    but("study", _("Study")))
+
+    _body = """
 <center>
 <h3>%(deck)s</h3>
 %(shareLink)s
 %(desc)s
 <p>
-<div id="placeholder" style="width:350px; height:100px;"></div>
-<span class=sub>%(fcsub)s</span>
-<p>
+%(table)s
 </center>
-
-<script>
-$("#study").focus();
-$(function () {
-    var d = %(fcdata)s;
-    if (typeof(d) !== "string") {
-    $.plot($("#placeholder"), [
-    { data: d, bars: { show: true, barWidth: 0.8 }, color: "#0c0" }
-    ], {
-    xaxis: { ticks: [[0.4, "Today"]] },
-    yaxis: { tickDecimals: 0 }
-    });
-    } else {
-    $("#placeholder").text(d);
-    $(".sub").hide();
-    }
-});
-</script>
 """
 
-    _overviewCSS = """
-.due { text-align: right; }
-.new { text-align: right; }
-.sub { font-size: 80%; color: #555; }
-.smallLink { font-size: 12px; }
+    _css = """
+.smallLink { font-size: 10px; }
 h3 { margin-bottom: 0; }
+.fin { font-size: 12px; font-weight: normal; }
+td { font-size: 14px; }
 """
 
-    def _overviewTable(self):
-        return ""
-        but = self.mw.button
-        buf = "<table cellspacing=0 cellpadding=3 width=400>"
-        buf += "<tr><th></th><th align=right>%s</th>" % _("Due")
-        buf += "<th align=right>%s</th><th></th></tr>" % _("New")
-        line = "<tr><td><b>%s</b></td><td class=due>%s</td>"
-        line += "<td class=new>%s</td><td>%s</td></tr>"
-        buf += line % (
-            "<a href=chgrp>%s</a>" % _("Selected Groups"),
-            counts[0], counts[1],
-            but("study", _("Study"), _("s"), "gbut", id="study") +
-            but("cram", _("Cram"), "c"))
-        buf += line % (
-            _("Whole Deck"),
-            counts[2], counts[3],
-            but("opts", _("Study Options")))
-        buf += "</table>"
-        return buf
 
-    def _ovOpts(self):
-        return ""
-
-    # Data
-    ##########################################################################
-
-    def _ovForecast(self):
-        fc = self.mw.col.sched.dueForecast(14)
-        if not sum(fc):
-            return "'%s'" % _('No cards due in next two weeks')
-        return simplejson.dumps(tuple(enumerate(fc)))

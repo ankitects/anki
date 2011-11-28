@@ -6,546 +6,152 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
-    <height>560</height>
+    <width>1311</width>
+    <height>658</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
-   <item>
-    <widget class="QSplitter" name="splitter">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="childrenCollapsible">
-      <bool>false</bool>
-     </property>
-     <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QTabWidget" name="tabWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>2</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <widget class="QWidget" name="tab">
-          <attribute name="title">
-           <string>Appearance</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <item>
-            <layout class="QGridLayout" name="templateLayout">
-             <property name="verticalSpacing">
-              <number>6</number>
-             </property>
-             <item row="3" column="1">
-              <widget class="QTextEdit" name="cardQuestion">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>2</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="horizontalScrollBarPolicy">
-                <enum>Qt::ScrollBarAlwaysOff</enum>
-               </property>
-               <property name="tabChangesFocus">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QTextEdit" name="cardAnswer">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="horizontalScrollBarPolicy">
-                <enum>Qt::ScrollBarAlwaysOff</enum>
-               </property>
-               <property name="tabChangesFocus">
-                <bool>true</bool>
-               </property>
-               <property name="acceptRichText">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0" rowspan="2">
-              <layout class="QVBoxLayout" name="verticalLayout_6">
-               <item>
-                <widget class="QLabel" name="label_14">
-                 <property name="text">
-                  <string>Question</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="openExternalLinks">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="flipButton">
-                 <property name="text">
-                  <string>Flip</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="icons.qrc">
-                   <normaloff>:/icons/multisynk.png</normaloff>:/icons/multisynk.png</iconset>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_15">
-                 <property name="text">
-                  <string>Answer</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="openExternalLinks">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label_13">
-               <property name="text">
-                <string>Alignment</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QComboBox" name="alignment"/>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="label_16">
-               <property name="text">
-                <string>Background</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QPushButton" name="background">
-               <property name="text">
-                <string/>
-               </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="2">
-              <widget class="QLabel" name="templateType">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <widget class="QComboBox" name="cardList">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="editTemplates">
-                 <property name="text">
-                  <string>&amp;Manage...</string>
-                 </property>
-                 <property name="shortcut">
-                  <string>Ctrl+M</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QComboBox" name="typeAnswer"/>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="questionInAnswer">
-             <property name="text">
-              <string>Hide the question when showing answer</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="allowEmptyAnswer">
-             <property name="text">
-              <string>Add cards even if answer is blank</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="clozectx">
-             <property name="text">
-              <string>Include context in cloze answers</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="tab_2">
-          <attribute name="title">
-           <string>Fields</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QListWidget" name="fieldList">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>60</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_3">
-               <item>
-                <widget class="QPushButton" name="fieldAdd">
-                 <property name="text">
-                  <string>&amp;Add</string>
-                 </property>
-                 <property name="autoDefault">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="fieldUp">
-                 <property name="toolTip">
-                  <string>Move selected field up</string>
-                 </property>
-                 <property name="text">
-                  <string>&amp;Up</string>
-                 </property>
-                 <property name="autoDefault">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="fieldDown">
-                 <property name="toolTip">
-                  <string>Move selected field down</string>
-                 </property>
-                 <property name="text">
-                  <string>Dow&amp;n</string>
-                 </property>
-                 <property name="autoDefault">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="fieldDelete">
-                 <property name="text">
-                  <string>&amp;Delete</string>
-                 </property>
-                 <property name="autoDefault">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QGridLayout" name="_2">
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="fieldName"/>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_20">
-               <property name="text">
-                <string>Name</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>Font</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_6">
-               <property name="text">
-                <string>Size</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="label_7">
-               <property name="text">
-                <string>Color</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QFontComboBox" name="fontFamily">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>25</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPushButton" name="fontColour">
-               <property name="autoFillBackground">
-                <bool>true</bool>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <layout class="QGridLayout" name="gridLayout_2">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label">
-                 <property name="text">
-                  <string>Reviewing</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QSpinBox" name="fontSize">
-                 <property name="minimum">
-                  <number>5</number>
-                 </property>
-                 <property name="maximum">
-                  <number>300</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="3">
-                <widget class="QLabel" name="label_8">
-                 <property name="text">
-                  <string>Editing</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="4">
-                <widget class="QSpinBox" name="fontSizeEdit">
-                 <property name="minimum">
-                  <number>5</number>
-                 </property>
-                 <property name="maximum">
-                  <number>300</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="5">
-                <spacer name="horizontalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>1</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label_18">
-               <property name="text">
-                <string>Options</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
-              <widget class="QCheckBox" name="rtl">
-               <property name="text">
-                <string>Reverse text direction (RTL)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QCheckBox" name="fieldRequired">
-               <property name="text">
-                <string>Require text in field</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QCheckBox" name="fieldUnique">
-               <property name="text">
-                <string>Prevent duplicates</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="1">
-              <widget class="QCheckBox" name="preserveWhitespace">
-               <property name="text">
-                <string>Preserve whitespace</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QCheckBox" name="sticky">
-               <property name="text">
-                <string>Keep previous input when adding cards</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDialogButtonBox" name="buttonBox">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QGroupBox" name="previewGroup">
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>120</y>
+     <width>360</width>
+     <height>366</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="templateLayout">
+    <property name="verticalSpacing">
+     <number>6</number>
+    </property>
+    <item row="1" column="1">
+     <widget class="QTextEdit" name="cardQuestion">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>1</horstretch>
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>2</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="title">
-       <string>Preview</string>
+      <property name="minimumSize">
+       <size>
+        <width>50</width>
+        <height>0</height>
+       </size>
       </property>
-      <layout class="QVBoxLayout" name="_3">
-       <property name="margin">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QWebView" name="preview">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
-         </property>
-         <property name="url">
-          <url>
-           <string>about:blank</string>
-          </url>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="tabChangesFocus">
+       <bool>true</bool>
+      </property>
      </widget>
-    </widget>
-   </item>
-  </layout>
+    </item>
+    <item row="2" column="1">
+     <widget class="QTextEdit" name="cardAnswer">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>50</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="tabChangesFocus">
+       <bool>true</bool>
+      </property>
+      <property name="acceptRichText">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" rowspan="2">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>Question</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_15">
+        <property name="text">
+         <string>Answer</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QComboBox" name="typeAnswer">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>500</y>
+     <width>366</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="clozectx">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>540</y>
+     <width>371</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Include context in cloze answers</string>
+   </property>
+  </widget>
+  <widget class="QWebView" name="preview">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>90</y>
+     <width>308</width>
+     <height>499</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>1</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="url">
+    <url>
+     <string>about:blank</string>
+    </url>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
@@ -555,70 +161,11 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>cardList</tabstop>
-  <tabstop>editTemplates</tabstop>
   <tabstop>cardQuestion</tabstop>
-  <tabstop>flipButton</tabstop>
   <tabstop>cardAnswer</tabstop>
-  <tabstop>alignment</tabstop>
-  <tabstop>background</tabstop>
-  <tabstop>typeAnswer</tabstop>
-  <tabstop>questionInAnswer</tabstop>
-  <tabstop>allowEmptyAnswer</tabstop>
-  <tabstop>clozectx</tabstop>
-  <tabstop>buttonBox</tabstop>
-  <tabstop>fieldList</tabstop>
-  <tabstop>fieldAdd</tabstop>
-  <tabstop>fieldUp</tabstop>
-  <tabstop>fieldDown</tabstop>
-  <tabstop>fieldDelete</tabstop>
-  <tabstop>fieldName</tabstop>
-  <tabstop>fontFamily</tabstop>
-  <tabstop>fontSize</tabstop>
-  <tabstop>fontSizeEdit</tabstop>
-  <tabstop>fontColour</tabstop>
-  <tabstop>fieldUnique</tabstop>
-  <tabstop>fieldRequired</tabstop>
-  <tabstop>sticky</tabstop>
-  <tabstop>preserveWhitespace</tabstop>
-  <tabstop>rtl</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

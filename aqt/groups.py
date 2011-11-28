@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import aqt
-from aqt.utils import showInfo, getOnlyText
+from aqt.utils import showInfo, getOnlyText, openHelp
 
 COLNAME = 0
 COLOPTS = 1
@@ -79,7 +79,7 @@ class Groups(QDialog):
         button(f.delete_2, self.onDelete)
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: aqt.openHelp("Groups"))
+                     lambda: openHelp("Groups"))
 
     def onSelectAll(self):
         for i in self.items:

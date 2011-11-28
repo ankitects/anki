@@ -196,4 +196,4 @@ class AddModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self):
-        aqt.openHelp("AddModel")
+        openHelp("AddModel")

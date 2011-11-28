@@ -13,7 +13,7 @@ def openHelp(name):
         name = name[0] + ".html#" + name[1]
     else:
         name = name + ".html"
-    QDesktopServices.openUrl(QUrl(appHelpSite + name))
+    QDesktopServices.openUrl(QUrl(aqt.appHelpSite + name))
 
 def openLink(link):
     QDesktopServices.openUrl(QUrl(link))
@@ -44,7 +44,7 @@ def showInfo(text, parent=None, help="", type="info"):
     b.setDefault(True)
     if help:
         b = mb.addButton(QMessageBox.Help)
-        b.connect(b, SIGNAL("clicked()"), lambda: aqt.openHelp(help))
+        b.connect(b, SIGNAL("clicked()"), lambda: openHelp(help))
         b.setAutoDefault(False)
     return mb.exec_()
 
@@ -84,7 +84,8 @@ def askUser(text, parent=None, help="", defaultno=False):
         r = QMessageBox.question(parent, "Anki", text, sb,
                                  default)
         if r == QMessageBox.Help:
-            aqt.openHelp(help)
+
+            openHelp(help)
         else:
             break
     return r == QMessageBox.Yes
@@ -115,7 +116,7 @@ class ButtonedDialog(QMessageBox):
         but = self.clickedButton().text()
         if but == "Help":
             # FIXME stop dialog closing?
-            aqt.openHelp(self.help)
+            openHelp(self.help)
         return self.clickedButton().text()
 
     def setDefault(self, idx):
@@ -166,7 +167,7 @@ class GetTextDialog(QDialog):
         return QDialog.reject(self)
 
     def helpRequested(self):
-        aqt.openHelp(self.help)
+        openHelp(self.help)
 
 def getText(prompt, parent=None, help=None, edit=None, default=u"", title="Anki"):
     if not parent:
@@ -346,11 +347,6 @@ def maybeHideClose(bbox):
         b = bbox.button(QDialogButtonBox.Close)
         if b:
             bbox.removeButton(b)
-
-def limitedCount(count):
-    if count >= 1000:
-        return "1000+"
-    return str(count)
 
 # Tooltips
 ######################################################################

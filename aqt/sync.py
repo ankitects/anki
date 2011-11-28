@@ -25,8 +25,8 @@ class SyncManager(object):
         # vet input
         if interactive:
             self.ensureSyncParams()
-        u=self.config['syncUsername']
-        p=self.config['syncPassword']
+        u=self.pm.profile['syncUsername']
+        p=self.pm.profile['syncPassword']
         if not u or not p:
             return
         if self.deck:
@@ -35,7 +35,7 @@ class SyncManager(object):
                     return
         if self.deck and not self.deck.syncName:
             if interactive:
-                if (not self.config['mediaLocation']
+                if (not self.pm.profile['mediaLocation']
                     and self.deck.db.scalar("select 1 from media limit 1")):
                     showInfo(_("""\
 Syncing sounds and images requires a free file synchronization service like \
@@ -105,7 +105,7 @@ will sync automatically from then on."""))
 
     def decksToSync(self):
         ok = []
-        for d in self.config['recentDeckPaths']:
+        for d in self.pm.profile['recentDeckPaths']:
             if os.path.exists(d):
                 ok.append(d)
         return ok
@@ -159,7 +159,7 @@ Are you sure?""" % deckName),
                     elif self.loadAfterSync and self.deckPath:
                         if self.loadAfterSync == 2:
                             name = re.sub("[<>]", "", self.syncName)
-                            p = os.path.join(self.config['documentDir'], name + ".anki")
+                            p = os.path.join(self.pm.profile['documentDir'], name + ".anki")
                             shutil.copy2(self.deckPath, p)
                             self.deckPath = p
                             # since we've moved the deck, we have to set sync path
@@ -195,7 +195,7 @@ Are you sure?""" % deckName),
         self.syncName = name
         if name:
             # name chosen
-            p = os.path.join(self.config['documentDir'], name + ".anki")
+            p = os.path.join(self.pm.profile['documentDir'], name + ".anki")
             if os.path.exists(p):
                 d = askUserDialog(_("""\
 This deck already exists on your computer. Overwrite the local copy?"""),
@@ -237,7 +237,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
         self.setStatus("")
 
     def badUserPass(self):
-        aqt.preferences.Preferences(self, self.config).dialog.tabWidget.\
+        aqt.preferences.Preferences(self, self.pm.profile).dialog.tabWidget.\
                                          setCurrentIndex(1)
 
     def openSyncProgress(self):
@@ -282,7 +282,7 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             self.updateProgress(label=s % (val / 1024))
 
     def ensureSyncParams(self):
-        if not self.config['syncUsername'] or not self.config['syncPassword']:
+        if not self.pm.profile['syncUsername'] or not self.pm.profile['syncPassword']:
             d = QDialog(self)
             vbox = QVBoxLayout()
             l = QLabel(_(
@@ -310,8 +310,8 @@ This deck already exists on your computer. Overwrite the local copy?"""),
             vbox.addWidget(bb)
             d.setLayout(vbox)
             d.exec_()
-            self.config['syncUsername'] = unicode(user.text())
-            self.config['syncPassword'] = unicode(passwd.text())
+            self.pm.profile['syncUsername'] = unicode(user.text())
+            self.pm.profile['syncPassword'] = unicode(passwd.text())
 
 
 # Synchronising a deck with a public server

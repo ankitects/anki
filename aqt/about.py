@@ -29,13 +29,13 @@ Duggan, Matthew Holtz, Meelis Vasser, Michael Penkov, Michael Keppler, Michal
 Petr Michalec, Piotr Kubowicz, Richard Colley, Samson Melamed, Stefaan
 De Pooter, Susanna Björverud, Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor
 Suba, and Xtru.
-
-Anki icon by Alex Fraser (CC GNU GPL)
-Deck icon by Laurent Baumann (CC BY-NC-SA 3.0)
-Deck browser icons from:
-http://led24.de/iconset
-http://p.yusukekamiyamane.com/
-Other icons under LGPL or public domain.
+<p>
+Anki icon by Alex Fraser (CC GNU GPL)<br>
+Deck icon by Laurent Baumann (CC BY-NC-SA 3.0)<br>
+Deck browser icons from:<br>
+http://led24.de/iconset<br>
+http://p.yusukekamiyamane.com/<br>
+Other icons under LGPL or public domain.<br>
 """
 
 }

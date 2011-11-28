@@ -26,7 +26,7 @@ class StudyOptions(QDialog):
             0, c.revCardOrderLabels().values())
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: aqt.openHelp("StudyOptions"))
+                     lambda: openHelp("StudyOptions"))
 
     def load(self):
         f = self.form

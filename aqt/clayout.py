@@ -7,439 +7,217 @@ from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
-     saveSplitter, restoreSplitter, showInfo, askUser, getText
+     saveSplitter, restoreSplitter, showInfo, askUser, getOnlyText, \
+     showWarning, openHelp
 from anki.utils import isMac, isWin
 import aqt.templates
 
-# fixme: replace font substitutions with native comma list
-
-class ResizingTextEdit(QTextEdit):
-    def sizeHint(self):
-        return QSize(200, 800)
+#        raise Exception("Remember to disallow media&latex refs in edit.")
 
 class CardLayout(QDialog):
 
-    # type is previewCards() type
-    def __init__(self, mw, note, type=0, ord=0, parent=None):
+    def __init__(self, mw, note, ord=0, parent=None):
         QDialog.__init__(self, parent or mw, Qt.Window)
-        raise Exception("Remember to disallow media&latex refs in edit.")
         self.mw = aqt.mw
         self.parent = parent or mw
         self.note = note
-        self.type = type
         self.ord = ord
         self.col = self.mw.col
         self.mm = self.mw.col.models
         self.model = note.model()
-        self.form = aqt.forms.clayout.Ui_Dialog()
-        self.form.setupUi(self)
+        self.setupTabs()
         self.setWindowTitle(_("%s Layout") % self.model['name'])
-        self.plastiqueStyle = None
-        if isMac or isWin:
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-        self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
+        v1 = QVBoxLayout()
+        v1.addWidget(self.tabs)
+        self.bbox = QDialogButtonBox(
+            QDialogButtonBox.Close|QDialogButtonBox.Help)
+        v1.addWidget(self.bbox)
+        self.setLayout(v1)
+
+        self.connect(self.bbox, SIGNAL("helpRequested()"),
                      self.onHelp)
-        self.setupCards()
-        self.setupFields()
-        self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
-        self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
-        restoreSplitter(self.form.splitter, "clayout")
+        self.bbox.button(QDialogButtonBox.Help).setAutoDefault(False)
+        self.bbox.button(QDialogButtonBox.Close).setAutoDefault(False)
+        self.mw.checkpoint(_("Card Layout"))
+        self.redraw()
         restoreGeom(self, "CardLayout")
-        if not self.reload(first=True):
-            return
         self.exec_()
 
-    def reload(self, first=False):
-        self.cards = self.col.previewCards(self.note, self.type)
-        if not self.cards:
-            self.accept()
-            if first:
-                showInfo(_("Please enter some text first."))
-            else:
-                showInfo(_("The current note was deleted."))
-            return
-        self.fillCardList()
-        self.fillFieldList()
-        self.fieldChanged()
-        self.readField()
-        return True
+    def redraw(self):
+        self.cards = self.col.previewCards(self.note, 2)
+        self.redrawing = True
+        self.updateTabs()
+        self.redrawing = False
+        self.selectCard(self.ord)
+
+    def setupTabs(self):
+        c = self.connect
+        self.tabs = QTabWidget()
+        self.tabs.setTabsClosable(True)
+        self.tabs.setUsesScrollButtons(True)
+        add = QPushButton("+")
+        add.setFixedWidth(30)
+        c(add, SIGNAL("clicked()"), self.onAddCard)
+        self.tabs.setCornerWidget(add)
+        c(self.tabs, SIGNAL("currentChanged(int)"), self.selectCard)
+        c(self.tabs, SIGNAL("tabCloseRequested(int)"), self.onRemoveTab)
+
+    def updateTabs(self):
+        self.forms = []
+        self.tabs.clear()
+        for t in self.model['tmpls']:
+            self.addTab(t)
+
+    def addTab(self, t):
+        c = self.connect
+        w = QWidget()
+        h = QHBoxLayout()
+        h.addStretch()
+        rename = QPushButton("Rename")
+        c(rename, SIGNAL("clicked()"), self.onRename)
+        h.addWidget(rename)
+        order = QPushButton(_("Reposition"))
+        h.addWidget(order)
+        c(order, SIGNAL("clicked()"), self.onReorder)
+        h.addStretch()
+        v = QVBoxLayout()
+        v.setMargin(3)
+        v.setSpacing(3)
+        v.addLayout(h)
+        l = QHBoxLayout()
+        l.setMargin(0)
+        l.setSpacing(3)
+        left = QWidget()
+        # template area
+        tform = aqt.forms.template.Ui_Form()
+        tform.setupUi(left)
+        c(tform.front, SIGNAL("textChanged()"), self.onTemplateEdit)
+        c(tform.back, SIGNAL("textChanged()"), self.onTemplateEdit)
+        l.addWidget(left, 5)
+        # preview area
+        right = QWidget()
+        pform = aqt.forms.preview.Ui_Form()
+        pform.setupUi(right)
+        def linkClicked(url):
+            QDesktopServices.openUrl(QUrl(url))
+        for wig in pform.front, pform.back:
+            wig.page().setLinkDelegationPolicy(
+                QWebPage.DelegateExternalLinks)
+            c(wig, SIGNAL("linkClicked(QUrl)"), linkClicked)
+        l.addWidget(right, 5)
+        v.addLayout(l)
+        w.setLayout(v)
+        self.forms.append({'tform': tform, 'pform': pform})
+        self.tabs.addTab(w, t['name'])
+
+    def onRemoveTab(self, idx):
+        if not self.mm.remTemplate(self.model, self.cards[idx].template()):
+            return showWarning(_("""\
+Removing this card would cause one or more notes to be deleted. \
+Please create a new card first."""))
+        self.redraw()
 
     # Cards & Preview
     ##########################################################################
 
-    def setupCards(self):
-        self.updatingCards = False
-        self.playedAudio = {}
-        f = self.form
-        if self.type == 0:
-            f.templateType.setText(
-                _("Templates that will be created:"))
-        elif self.type == 1:
-            f.templateType.setText(
-                _("Templates used by note:"))
-        else:
-            f.templateType.setText(
-                _("All templates:"))
-        # replace with more appropriate size hints
-        for e in ("cardQuestion", "cardAnswer"):
-            w = getattr(f, e)
-            idx = f.templateLayout.indexOf(w)
-            r = f.templateLayout.getItemPosition(idx)
-            f.templateLayout.removeWidget(w)
-            w.hide()
-            w.deleteLater()
-            w = ResizingTextEdit(self)
-            setattr(f, e, w)
-            f.templateLayout.addWidget(w, r[0], r[1])
-        c = self.connect
-        c(f.cardList, SIGNAL("activated(int)"), self.cardChanged)
-        c(f.editTemplates, SIGNAL("clicked()"), self.onEdit)
-        c(f.cardQuestion, SIGNAL("textChanged()"), self.formatChanged)
-        c(f.cardAnswer, SIGNAL("textChanged()"), self.formatChanged)
-        c(f.alignment, SIGNAL("activated(int)"), self.saveCard)
-        c(f.background, SIGNAL("clicked()"),
-                     lambda w=f.background:\
-                     self.chooseColour(w, "card"))
-        c(f.questionInAnswer, SIGNAL("clicked()"), self.saveCard)
-        c(f.allowEmptyAnswer, SIGNAL("clicked()"), self.saveCard)
-        c(f.typeAnswer, SIGNAL("activated(int)"), self.saveCard)
-        c(f.flipButton, SIGNAL("clicked()"), self.onFlip)
-        c(f.clozectx, SIGNAL("clicked()"), self.saveCard)
-        def linkClicked(url):
-            QDesktopServices.openUrl(QUrl(url))
-        f.preview.page().setLinkDelegationPolicy(
-            QWebPage.DelegateExternalLinks)
-        self.connect(f.preview,
-                     SIGNAL("linkClicked(QUrl)"),
-                     linkClicked)
-        if self.plastiqueStyle:
-            f.background.setStyle(self.plastiqueStyle)
-        f.alignment.addItems(alignmentLabels().values())
-        self.typeFieldNames = self.mm.fieldMap(self.model)
-        s = [_("Don't ask me to type in the answer")]
-        s += [_("Compare with field '%s'") % fi
-              for fi in self.typeFieldNames.keys()]
-        f.typeAnswer.insertItems(0, s)
-
-    def formatToScreen(self, fmt):
-        fmt = fmt.replace("}}<br>", "}}\n")
-        return fmt
-
-    def screenToFormat(self, fmt):
-        fmt = fmt.replace("}}\n", "}}<br>")
-        return fmt
-
-    def onEdit(self):
-        aqt.templates.Templates(self.mw, self.model, self)
-        self.reload()
-
-    def formatChanged(self):
-        if self.updatingCards:
+    def selectCard(self, idx):
+        if self.redrawing:
             return
-        text = unicode(self.form.cardQuestion.toPlainText())
-        self.card.template()['qfmt'] = self.screenToFormat(text)
-        text = unicode(self.form.cardAnswer.toPlainText())
-        self.card.template()['afmt'] = self.screenToFormat(text)
-        self.renderPreview()
-
-    def onFlip(self):
-        q = unicode(self.form.cardQuestion.toPlainText())
-        a = unicode(self.form.cardAnswer.toPlainText())
-        self.form.cardAnswer.setPlainText(q)
-        self.form.cardQuestion.setPlainText(a)
-
-    def readCard(self):
-        self.updatingCards = True
-        t = self.card.template()
-        f = self.form
-        f.background.setPalette(QPalette(QColor(t['bg'])))
-        f.cardQuestion.setPlainText(self.formatToScreen(t['qfmt']))
-        f.cardAnswer.setPlainText(self.formatToScreen(t['afmt']))
-        f.questionInAnswer.setChecked(t['hideQ'])
-        f.allowEmptyAnswer.setChecked(t['emptyAns'])
-        f.alignment.setCurrentIndex(t['align'])
-        if t['typeAns'] is None:
-            f.typeAnswer.setCurrentIndex(0)
-        else:
-            f.typeAnswer.setCurrentIndex(t['typeAns'] + 1)
-        # model-level, but there's nowhere else to put this
-        f.clozectx.setChecked(self.model['clozectx'])
-        self.updatingCards = False
-
-    def fillCardList(self):
-        self.form.cardList.clear()
-        cards = []
-        idx = 0
-        for n, c in enumerate(self.cards):
-            if c.ord == self.ord:
-                cards.append(_("%s (current)") % c.template()['name'])
-                idx = n
-            else:
-                cards.append(c.template()['name'])
-        self.form.cardList.addItems(cards)
-        self.form.cardList.setCurrentIndex(idx)
-        self.cardChanged(idx)
-        self.form.cardList.setFocus()
-
-    def cardChanged(self, idx):
+        self.ord = idx
         self.card = self.cards[idx]
+        self.tab = self.forms[idx]
+        self.tabs.setCurrentIndex(idx)
         self.readCard()
         self.renderPreview()
 
-    def saveCard(self):
-        if self.updatingCards:
-            return
+    def readCard(self):
         t = self.card.template()
-        t['align'] = self.form.alignment.currentIndex()
-        t['bg'] = unicode(
-            self.form.background.palette().window().color().name())
-        t['hideQ'] = self.form.questionInAnswer.isChecked()
-        t['emptyAns'] = self.form.allowEmptyAnswer.isChecked()
-        idx = self.form.typeAnswer.currentIndex()
-        if not idx:
-            t['typeAns'] = None
-        else:
-            t['typeAns'] = idx-1
-        self.model['clozectx'] = self.form.clozectx.isChecked()
+        self.redrawing = True
+        self.tab['tform'].front.setPlainText(t['qfmt'])
+        self.tab['tform'].back.setPlainText(t['afmt'])
+        self.redrawing = False
+
+    def onTemplateEdit(self):
+        if self.redrawing:
+            return
+        text = self.tab['tform'].front.toPlainText()
+        self.card.template()['qfmt'] = text
+        text = self.tab['tform'].back.toPlainText()
+        self.card.template()['afmt'] = text
         self.renderPreview()
 
-    def chooseColour(self, button, type="field"):
-        new = QColorDialog.getColor(button.palette().window().color(), self,
-                                    _("Choose Color"),
-                                    QColorDialog.DontUseNativeDialog)
-        if new.isValid():
-            button.setPalette(QPalette(new))
-            if type == "field":
-                self.saveField()
-            else:
-                self.saveCard()
+    def saveCard(self):
+        t = self.card.template()
+        self.renderPreview()
 
     def renderPreview(self):
+        print "preview"
         c = self.card
-        styles = self.model['css']
-        styles += "\n.cloze { font-weight: bold; color: blue; }"
-        self.form.preview.setHtml(
-            ('<html><head>%s</head><body class="%s">' %
-             (getBase(self.col), c.cssClass())) +
-            "<style>" + styles + "</style>" +
-            mungeQA(c.q(reload=True)) +
-            self.maybeTextInput() +
-            "<hr>" +
-            mungeQA(c.a())
-            + "</body></html>")
-        clearAudioQueue()
-        if c.id not in self.playedAudio:
-            playFromText(c.q())
-            playFromText(c.a())
-            self.playedAudio[c.id] = True
+        styles = "\n.cloze { font-weight: bold; color: blue; }"
+        html = '<html><body id=card><style>%s</style>%s</body></html>'
+        self.tab['pform'].front.setHtml(
+            html % (styles, mungeQA(c.q(reload=True))))
+        self.tab['pform'].back.setHtml(
+            html % (styles, mungeQA(c.a())))
 
     def maybeTextInput(self):
+        return "text input"
         if self.card.template()['typeAns'] is not None:
             return "<center><input type=text></center>"
         return ""
+
+    def onRename(self):
+        name = getOnlyText(_("New name:"))
+        if not name:
+            return
+        if name in [c.template()['name'] for c in self.cards
+                    if c.template()['ord'] != self.ord]:
+            return showWarning(_("That name is already used."))
+        self.card.template()['name'] = name
+        self.tabs.setTabText(self.tabs.currentIndex(), name)
+
+    def onReorder(self):
+        n = len(self.cards)
+        cur = self.card.template()['ord']+1
+        pos = getOnlyText(
+            _("Enter new card position (1..%s):") % n,
+            default=str(cur))
+        if not pos:
+            return
+        try:
+            pos = int(pos)
+        except ValueError:
+            return
+        if pos < 1 or pos > n:
+            return
+        if pos == cur:
+            return
+        pos -= 1
+        self.mm.moveTemplate(self.model, self.card.template(), pos)
+        self.ord = pos
+        self.redraw()
+
+    def onAddCard(self):
+        name = getOnlyText(_("Name:"))
+        if not name:
+            return
+        if name in [c.template()['name'] for c in self.cards]:
+            return showWarning(_("That name is already used."))
+        t = self.mm.newTemplate(name)
+        self.mm.addTemplate(self.model, t)
+        self.redraw()
+
+    # Closing & Help
+    ######################################################################
 
     def accept(self):
         self.reject()
 
     def reject(self):
         self.mm.save(self.model)
-        saveGeom(self, "CardLayout")
-        saveSplitter(self.form.splitter, "clayout")
         self.mw.reset()
+        saveGeom(self, "CardLayout")
         return QDialog.reject(self)
 
-
-        modified = False
-        self.mw.startProgress()
-        self.col.updateProgress(_("Applying changes..."))
-        reset=True
-        if len(self.fieldOrdinalUpdatedIds) > 0:
-            self.col.rebuildFieldOrdinals(self.model.id, self.fieldOrdinalUpdatedIds)
-            modified = True
-        if self.needFieldRebuild:
-            modified = True
-        if modified:
-            self.note.model.setModified()
-            self.col.flushMod()
-            if self.noteedit and self.noteedit.onChange:
-                self.noteedit.onChange("all")
-                reset=False
-        if reset:
-            self.mw.reset()
-        self.col.finishProgress()
-        QDialog.reject(self)
-
     def onHelp(self):
-        aqt.openHelp("CardLayout")
-
-    # Fields
-    ##########################################################################
-
-    def setupFields(self):
-        self.fieldOrdinalUpdatedIds = []
-        self.updatingFields = False
-        self.needFieldRebuild = False
-        c = self.connect; f = self.form
-        sc = SIGNAL("stateChanged(int)")
-        cl = SIGNAL("clicked()")
-        c(f.fieldAdd, cl, self.addField)
-        c(f.fieldDelete, cl, self.deleteField)
-        c(f.fieldUp, cl, self.moveFieldUp)
-        c(f.fieldDown, cl, self.moveFieldDown)
-        c(f.preserveWhitespace, sc, self.saveField)
-        c(f.fieldUnique, sc, self.saveField)
-        c(f.fieldRequired, sc, self.saveField)
-        c(f.sticky, sc, self.saveField)
-        c(f.fieldList, SIGNAL("currentRowChanged(int)"),
-                     self.fieldChanged)
-        c(f.fieldName, SIGNAL("lostFocus()"),
-                     self.saveField)
-        c(f.fontFamily, SIGNAL("currentFontChanged(QFont)"),
-                     self.saveField)
-        c(f.fontSize, SIGNAL("valueChanged(int)"),
-                     self.saveField)
-        c(f.fontSizeEdit, SIGNAL("valueChanged(int)"),
-                     self.saveField)
-        w = self.form.fontColour
-        if self.plastiqueStyle:
-            w.setStyle(self.plastiqueStyle)
-        c(w, SIGNAL("clicked()"),
-                     lambda w=w: self.chooseColour(w))
-        c(self.form.rtl,
-                     SIGNAL("stateChanged(int)"),
-                     self.saveField)
-
-    def fieldChanged(self):
-        row = self.form.fieldList.currentRow()
-        if row == -1:
-            row = 0
-        self.field = self.model['flds'][row]
-        self.readField()
-        self.enableFieldMoveButtons()
-
-    def readField(self):
-        fld = self.field
-        f = self.form
-        self.updatingFields = True
-        f.fieldName.setText(fld['name'])
-        f.fieldUnique.setChecked(fld['uniq'])
-        f.fieldRequired.setChecked(fld['req'])
-        f.fontFamily.setCurrentFont(QFont(fld['font']))
-        f.fontSize.setValue(fld['qsize'])
-        f.fontSizeEdit.setValue(fld['esize'])
-        f.fontColour.setPalette(QPalette(QColor(fld['qcol'])))
-        f.rtl.setChecked(fld['rtl'])
-        f.preserveWhitespace.setChecked(fld['pre'])
-        f.sticky.setChecked(fld['sticky'])
-        self.updatingFields = False
-
-    def saveField(self, *args):
-        self.needFieldRebuild = True
-        if self.updatingFields:
-            return
-        self.updatingFields = True
-        fld = self.field
-        # get name; we'll handle it last
-        name = unicode(self.form.fieldName.text())
-        if not name:
-            return
-        fld['uniq'] = self.form.fieldUnique.isChecked()
-        fld['req'] = self.form.fieldRequired.isChecked()
-        fld['font'] = unicode(
-            self.form.fontFamily.currentFont().family())
-        fld['qsize'] = self.form.fontSize.value()
-        fld['esize'] = self.form.fontSizeEdit.value()
-        fld['qcol'] = str(
-            self.form.fontColour.palette().window().color().name())
-        fld['rtl'] = self.form.rtl.isChecked()
-        fld['pre'] = self.form.preserveWhitespace.isChecked()
-        fld['sticky'] = self.form.sticky.isChecked()
-        self.updatingFields = False
-        if fld['name'] != name:
-            self.mm.renameField(self.model, fld, name)
-            # as the field name has changed, we have to regenerate cards
-            self.cards = self.col.previewCards(self.note, self.type)
-            self.cardChanged(0)
-        self.renderPreview()
-        self.fillFieldList()
-
-    def fillFieldList(self, row = None):
-        oldRow = self.form.fieldList.currentRow()
-        if oldRow == -1:
-            oldRow = 0
-        self.form.fieldList.clear()
-        n = 1
-        for field in self.model['flds']:
-            label = field['name']
-            item = QListWidgetItem(label)
-            self.form.fieldList.addItem(item)
-            n += 1
-        count = self.form.fieldList.count()
-        if row != None:
-            self.form.fieldList.setCurrentRow(row)
-        else:
-            while (count > 0 and oldRow > (count - 1)):
-                    oldRow -= 1
-            self.form.fieldList.setCurrentRow(oldRow)
-        self.enableFieldMoveButtons()
-
-    def enableFieldMoveButtons(self):
-        row = self.form.fieldList.currentRow()
-        if row < 1:
-            self.form.fieldUp.setEnabled(False)
-        else:
-            self.form.fieldUp.setEnabled(True)
-        if row == -1 or row >= (self.form.fieldList.count() - 1):
-            self.form.fieldDown.setEnabled(False)
-        else:
-            self.form.fieldDown.setEnabled(True)
-
-    def addField(self):
-        f = self.mm.newField(self.model)
-        l = len(self.model['flds'])
-        f['name'] = _("Field %d") % l
-        self.mw.progress.start()
-        self.mm.addField(self.model, f)
-        self.mw.progress.finish()
-        self.reload()
-        self.form.fieldList.setCurrentRow(l)
-        self.form.fieldName.setFocus()
-        self.form.fieldName.selectAll()
-
-    def deleteField(self):
-        row = self.form.fieldList.currentRow()
-        if row == -1:
-            return
-        if len(self.model.fields) < 2:
-            showInfo(_("Please add a new field first."))
-            return
-        if askUser(_("Delete this field and its data from all notes?")):
-            self.mw.progress.start()
-            self.model.delField(self.field)
-            self.mw.progress.finish()
-        # need to update q/a format
-        self.reload()
-
-    def moveFieldUp(self):
-        row = self.form.fieldList.currentRow()
-        if row == -1:
-            return
-        if row == 0:
-            return
-        self.mw.progress.start()
-        self.model.moveField(self.field, row-1)
-        self.mw.progress.finish()
-        self.form.fieldList.setCurrentRow(row-1)
-        self.reload()
-
-    def moveFieldDown(self):
-        row = self.form.fieldList.currentRow()
-        if row == -1:
-            return
-        if row == len(self.model.fields) - 1:
-            return
-        self.mw.progress.start()
-        self.model.moveField(self.field, row+1)
-        self.mw.progress.finish()
-        self.form.fieldList.setCurrentRow(row+1)
-        self.reload()
+        openHelp("CardLayout")

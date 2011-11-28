@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.utils import askUser
+from aqt.utils import askUser, getOnlyText
 
 class DeckBrowser(object):
 
@@ -27,7 +27,7 @@ class DeckBrowser(object):
         if cmd == "open":
             self._selDeck(arg)
         elif cmd == "opts":
-            self._optsForRow(int(arg))
+            self._showOptions(arg)
         elif cmd == "download":
             self.mw.onGetSharedDeck()
         elif cmd == "new":
@@ -43,7 +43,7 @@ class DeckBrowser(object):
 
     def _selDeck(self, did):
         self.mw.col.decks.select(did)
-        self.mw.moveToState("overview")
+        self.mw.onOverview()
 
     # HTML generation
     ##########################################################################
@@ -85,13 +85,15 @@ body { margin: 1em; }
 
     def _deckRow(self, node, depth):
         name, did, due, new, children = node
+        def indent():
+            return "&nbsp;"*3*depth
         # due image
-        buf = "<tr><td colspan=5>" + self._dueImg(due, new)
+        buf = "<tr><td colspan=5>" + indent() + self._dueImg(due, new)
         # deck link
         buf += " <a class=deck href='open:%d'>%s</a></td>"% (did, name)
         # options
         buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
-            link="opts:%d"%did, name=_("Options")+'&#9662')
+            link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>&#9662")
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
@@ -108,25 +110,29 @@ body { margin: 1em; }
     # Options
     ##########################################################################
 
-    def _optsForRow(self, n):
+    def _showOptions(self, did):
         m = QMenu(self.mw)
-        # delete
-        a = m.addAction(QIcon(":/icons/editdelete.png"), _("Delete"))
-        a.connect(a, SIGNAL("triggered()"), lambda n=n: self._deleteRow(n))
+        a = m.addAction(_("Rename"))
+        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._rename(did))
+        a = m.addAction(_("Delete"))
+        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._delete(did))
         m.exec_(QCursor.pos())
 
-    def _deleteRow(self, c):
-        d = self._decks[c]
-        if d['state'] == 'missing':
-            return self._hideRow(c)
+    def _rename(self, did):
+        deck = self.mw.col.decks.get(did)
+        newName = getOnlyText(_("New deck name:"))
+        if not newName:
+            return
+        if deck in self.mw.col.decks.allNames():
+            return showWarning(_("That deck already exists."))
+        self.mw.col.decks.rename(deck, newName)
+        self.show()
+
+    def _delete(self, did):
+        if did == 1:
+            return showWarning(_("The default deck can't be deleted."))
+        deck = self.mw.col.decks.get(did)
         if askUser(_("""\
-Delete %s? If this deck is synchronized the online version will \
-not be touched.""") % d['name']):
-            deck = d['path']
-            os.unlink(deck)
-            try:
-                shutil.rmtree(re.sub(".anki$", ".media", deck))
-            except OSError:
-                pass
-            self.mw.config.delRecentDeck(deck)
-            self.refresh()
+Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
+            self.mw.col.decks.rem(did, True)
+            self.show()

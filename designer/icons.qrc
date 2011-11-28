@@ -1,6 +1,9 @@
 <RCC>
   <qresource prefix="/">
+    <file>icons/arrow-up.png</file>
+    <file>icons/arrow-down.png</file>
     <file>icons/blue.png</file>
+    <file>icons/gears.png</file>
     <file>icons/both.png</file>
     <file>icons/green.png</file>
     <file>icons/clock-icon.png</file>

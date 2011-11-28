@@ -191,8 +191,10 @@ Are you sure?"""):
         # maybe sync
         self.onSync()
         # then load collection and launch into the deck browser
+        print "fixme: safeguard against multiple instances"
         self.col = Collection(self.pm.collectionPath())
-        self.moveToState("overview")
+        # skip the reset step; open overview directly
+        self.moveToState("review")
 
     def unloadProfile(self):
         self.col = None
@@ -633,8 +635,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onCardLayout(self):
         from aqt.clayout import CardLayout
-        CardLayout(self, self.reviewer.card.note(), type=1,
-                   ord=self.reviewer.card.ord)
+        CardLayout(self, self.reviewer.card.note(), ord=self.reviewer.card.ord)
 
     def onDeckOpts(self):
         import aqt.deckopts
@@ -797,7 +798,7 @@ Please choose a new deck name:"""))
 	self.form.actionDelete.setEnabled(True)
 	self.form.actionBuryNote.setEnabled(True)
         self.form.actionEditCurrent.setEnabled(True)
-        self.form.actionEditdeck.setEnabled(True)
+        self.form.actionBrowse.setEnabled(True)
         self.updateMarkAction()
         runHook("enableCardMenuItems")
 

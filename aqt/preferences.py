@@ -13,12 +13,12 @@ class Preferences(QDialog):
     def __init__(self, mw):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
-        self.config = mw.config
+        self.config = mw.pm.config
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
         self.needDeckClose = False
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     lambda: aqt.openHelp("Preferences"))
+                     lambda: openHelp("Preferences"))
         self.setupLang()
         self.setupNetwork()
         self.setupBackup()

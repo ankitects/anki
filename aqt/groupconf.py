@@ -5,7 +5,7 @@
 from aqt.qt import *
 import aqt, simplejson
 from anki.utils import ids2str
-from aqt.utils import showInfo, showWarning
+from aqt.utils import showInfo, showWarning, openHelp
 
 # Configuration editing
 ##########################################################################
@@ -24,7 +24,7 @@ class GroupConf(QDialog):
         self.setup()
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: aqt.openHelp("GroupOptions"))
+                     lambda: openHelp("GroupOptions"))
         self.connect(self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults),
                      SIGNAL("clicked()"),
                      self.onRestore)

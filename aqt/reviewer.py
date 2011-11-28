@@ -89,36 +89,18 @@ class Reviewer(object):
     ##########################################################################
 
     _revHtml = """
-<table width=100%% height=100%%><tr valign=%(align)s><td>
-<div id=q></div>
-<hr class=inv id=midhr>
-<div id=a></div>
-<div id=filler></div>
-</td></tr></table>
-<a id=ansbut class="ansbut ansbutbig" href=ans onclick="_showans();">
-<div class=ansbuttxt>%(showans)s</div>
-</a>
-<div id=easebuts>
-</div>
+<div id=qa></div>
 <script>
 var ankiPlatform = "desktop";
 var hideq;
 var ans;
 var typeans;
-function _updateQA (qa) {
-    hideq = qa[4];
+function _updateQA (q) {
     location.hash = "";
-    $("#q").html(qa[0]);
-    if (hideq) {
-        ans = qa[1];
-        $("#a").html("");
-    } else {
-        $("#a").html(qa[1]).addClass("inv");
-    }
-    $("#midhr").addClass("inv");
-    $("#easebuts").html(qa[2]).addClass("inv");
-    $("#ansbut").show();
-    $("body").removeClass().addClass(qa[3]);
+    $("#qa").html(q[0]);
+    $("#qa:first").css("height", "100%%");
+    //$("#easebuts").html(q[1]).addClass("inv");
+    //$("#ansbut").show();
     typeans = document.getElementById("typeans");
     if (typeans) {
         typeans.focus();
@@ -128,7 +110,8 @@ function _updateQA (qa) {
         onQuestion();
     }
 };
-function _showans () {
+function _showans (a) {
+    $("#qa").html(a);
     if (typeans) {
         py.link("typeans:"+typeans.value);
     }
@@ -139,7 +122,7 @@ function _showans () {
     } else {
         location.hash = "a";
     }
-    $("#ansbut").hide();
+    //$("#ansbut").hide();
     $("#defease").focus();
     // user hook
     if (typeof(onAnswer) === "function") {
@@ -167,8 +150,8 @@ $(".ansbut").focus();
 
     def _initWeb(self):
         self.web.stdHtml(self._revHtml % dict(
-            align="middle" if self.mw.config['centerQA'] else "top",
             showans=_("Show Answer")), self._styles(),
+            bodyID="card",
             loadCB=lambda x: self._showQuestion())
 
     # Showing the question (and preparing answer)
@@ -181,15 +164,14 @@ $(".ansbut").focus();
         c = self.card
         q = c.q()
         a = c.a()
-        if self.mw.config['autoplaySounds']:
+        if self.mw.pm.profile['autoplay']:
             playFromText(q)
         # render
         esc = self.mw.col.media.escapeImages
         q=esc(mungeQA(q)) + self.typeAnsInput()
         a=esc(mungeQA(a))
         self.web.eval("_updateQA(%s);" % simplejson.dumps(
-            [q, a, self._answerButtons(), c.cssClass(),
-             c.template()['hideQ']]))
+            (q, self._answerButtons())))
         runHook('showQuestion')
 
     # Showing the answer
@@ -199,7 +181,7 @@ $(".ansbut").focus();
         self.state = "answer"
         c = self.card
         a = c.a()
-        if self.mw.config['autoplaySounds']:
+        if self.mw.pm.profile['autoplay']:
             playFromText(a)
         # render
         runHook('showAnswer')
@@ -238,7 +220,7 @@ $(".ansbut").focus();
         return buf
 
     def _buttonTime(self, i, green):
-        if self.mw.config['suppressEstimates']:
+        if self.mw.pm.profile['showDueTimes']:
             return ""
         txt = self.mw.col.sched.nextIvlStr(self.card, i+1, True)
         if i == 0:
@@ -335,9 +317,7 @@ div.ansbuttxt {
   position: relative; top: 25%;
 }
 
-div#q, div#a {
-margin: 0px;
-}
+body { margin:1em; }
 
 #easebuts {
   bottom: 1em;
@@ -373,7 +353,6 @@ div#filler {
 
     def _styles(self):
         css = self.mw.sharedCSS
-        css += self.mw.col.models.css()
         css += self._css
         return css
 
@@ -385,10 +364,10 @@ div#filler {
 
     def typeAns(self):
         "None if answer typing disabled."
-        return self.card.template()['typeAns']
+        self.card.template()['typeAns']
 
     def typeAnsInput(self):
-        if self.typeAns() is None:
+        if not self.typeAns():
             return ""
         return """
 <center>
@@ -412,6 +391,8 @@ div#filler {
             self.web.eval("_processTyped(%s);" % simplejson.dumps(res))
 
     def getFont(self):
+        print "fix getFont()"
+        return ("arial", 20)
         f = self.card.model().fields[self.typeAns()]
         return (f['font'], f['qsize'])
 
@@ -549,7 +530,7 @@ div#filler {
         addWgt(vertSep())
         class QClickableProgress(QProgressBar):
             def mouseReleaseEvent(self, evt):
-                aqt.openHelp("ProgressBars")
+                openHelp("ProgressBars")
         progressBarSize = (50, 14)
         self.progressBar = QClickableProgress()
         self.progressBar.setFixedSize(*progressBarSize)
@@ -561,6 +542,7 @@ div#filler {
         addWgt(self.progressBar, 0)
 
     def _showStatus(self):
+        return
         self._showStatusWidgets(True)
         self._updateRemaining()
         self._updateProgress()
@@ -569,6 +551,7 @@ div#filler {
         self._showStatusWidgets(False)
 
     def _showStatusWidgets(self, shown=True):
+        return
         for w in self._statusWidgets:
             w.setShown(shown)
         self.mw.form.statusbar.hideOrShow()

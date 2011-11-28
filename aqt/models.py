@@ -15,7 +15,7 @@ class Models(QDialog):
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     lambda: aqt.openHelp("Models"))
+                     lambda: openHelp("Models"))
         self.setupModels()
         self.exec_()
 

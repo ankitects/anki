@@ -9,7 +9,7 @@ import anki
 from anki.errors import *
 from anki.utils import stripHTML
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
-    tooltip
+    tooltip, openHelp
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, removeHook
 from anki.utils import stripHTMLMedia, isMac
@@ -46,7 +46,7 @@ class AddCards(QDialog):
             self.mw, self.form.modelArea)
 
     def helpRequested(self):
-        aqt.openHelp("AddItems")
+        openHelp("AddItems")
 
     def setupButtons(self):
         bb = self.form.buttonBox

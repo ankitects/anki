@@ -65,7 +65,7 @@ class UpdateMap(QDialog):
         self.exec_()
 
     def helpRequested(self):
-        aqt.openHelp("FileImport")
+        openHelp("FileImport")
 
     def accept(self):
         self.updateKey = (
@@ -311,4 +311,4 @@ you can enter it here. Use \\t to represent tab."""),
         QDialog.reject(self)
 
     def helpRequested(self):
-        aqt.openHelp("FileImport")
+        openHelp("FileImport")

@@ -17,7 +17,7 @@ class LatestVersionFinder(QThread):
         print "autoupdate"
         return
         self.main = main
-        self.config = main.config
+        self.config = main.pm.profile
         plat=sys.platform
         pver=platform.platform()
         d = {"ver": aqt.appVersion,

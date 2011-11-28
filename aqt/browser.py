@@ -10,7 +10,7 @@ import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip
+    showInfo, askUser, tooltip, openHelp
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, removeHook
@@ -69,7 +69,7 @@ class DataModel(QAbstractTableModel):
             return
         if role == Qt.FontRole:
             f = QFont()
-            f.setPixelSize(self.browser.mw.config['editFontSize'])
+            f.setPixelSize(self.browser.mw.pm.profile['editFontSize'])
             return f
         if role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
@@ -112,7 +112,7 @@ class DataModel(QAbstractTableModel):
         # the db progress handler may cause a refresh, so we need to zero out
         # old data first
         self.cards = []
-        self.cards = self.col.findCards(txt, self.browser.mw.config['fullSearch'])
+        self.cards = self.col.findCards(txt, self.browser.mw.pm.profile['fullSearch'])
         print "fetch cards in %dms" % ((time.time() - t)*1000)
         if reset:
             self.endReset()
@@ -332,8 +332,8 @@ class Browser(QMainWindow):
         self.onSearch()
 
     def setupToolbar(self):
-        self.form.toolBar.setIconSize(QSize(self.mw.config['iconSize'],
-                                              self.mw.config['iconSize']))
+        self.form.toolBar.setIconSize(QSize(self.mw.pm.profile['iconSize'],
+                                              self.mw.pm.profile['iconSize']))
         self.form.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
 
     def setupMenus(self):
@@ -372,10 +372,10 @@ class Browser(QMainWindow):
 
     def updateFont(self):
         self.form.tableView.setFont(QFont(
-            self.mw.config['editFontFamily'],
-            self.mw.config['editFontSize']))
+            self.mw.pm.profile['editFontFamily'],
+            self.mw.pm.profile['editFontSize']))
         self.form.tableView.verticalHeader().setDefaultSectionSize(
-            self.mw.config['editLineSize'])
+            self.mw.pm.profile['editLineSize'])
 
     def closeEvent(self, evt):
         saveSplitter(self.form.splitter_2, "editor2")
@@ -432,7 +432,7 @@ class Browser(QMainWindow):
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
         self.compModel = QStringListModel()
-        self.compModel.setStringList(self.mw.config['searchHistory'])
+        self.compModel.setStringList(self.mw.pm.profile['searchHistory'])
         self.searchComp = QCompleter(self.compModel, self.form.searchEdit)
         self.searchComp.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
         self.searchComp.setCaseSensitivity(Qt.CaseInsensitive)
@@ -441,18 +441,18 @@ class Browser(QMainWindow):
     def onSearch(self, reset=True):
         "Careful: if reset is true, the current note is saved."
         txt = unicode(self.form.searchEdit.text()).strip()
-        sh = self.mw.config['searchHistory']
+        sh = self.mw.pm.profile['searchHistory']
         if txt not in sh:
             sh.insert(0, txt)
             sh = sh[:30]
             self.compModel.setStringList(sh)
-            self.mw.config['searchHistory'] = sh
+            self.mw.pm.profile['searchHistory'] = sh
         self.model.search(txt, reset)
         if not self.model.cards:
             # no row change will fire
             self.onRowChanged(None, None)
             txt = _("No matches found.")
-            if not self.mw.config['fullSearch']:
+            if not self.mw.pm.profile['fullSearch']:
                 txt += "<p>" + _(
                 _("If your cards have formatting, you may want <br>"
                   "to enable 'search within formatting' in the<br>"
@@ -834,7 +834,7 @@ where id in %s""" % ids2str(sf))
         return sf
 
     def onHelp(self):
-        aqt.openHelp("Browser")
+        openHelp("Browser")
 
     # Misc menu options
     ######################################################################
@@ -1066,18 +1066,18 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         frm = aqt.forms.browseropts.Ui_Dialog()
         frm.setupUi(d)
         frm.fontCombo.setCurrentFont(QFont(
-            self.mw.config['editFontFamily']))
-        frm.fontSize.setValue(self.mw.config['editFontSize'])
-        frm.lineSize.setValue(self.mw.config['editLineSize'])
-        frm.fullSearch.setChecked(self.mw.config['fullSearch'])
+            self.mw.pm.profile['editFontFamily']))
+        frm.fontSize.setValue(self.mw.pm.profile['editFontSize'])
+        frm.lineSize.setValue(self.mw.pm.profile['editLineSize'])
+        frm.fullSearch.setChecked(self.mw.pm.profile['fullSearch'])
         if d.exec_():
-            self.mw.config['editFontFamily'] = (
+            self.mw.pm.profile['editFontFamily'] = (
                 unicode(frm.fontCombo.currentFont().family()))
-            self.mw.config['editFontSize'] = (
+            self.mw.pm.profile['editFontSize'] = (
                 int(frm.fontSize.value()))
-            self.mw.config['editLineSize'] = (
+            self.mw.pm.profile['editLineSize'] = (
                 int(frm.lineSize.value()))
-            self.mw.config['fullSearch'] = frm.fullSearch.isChecked()
+            self.mw.pm.profile['fullSearch'] = frm.fullSearch.isChecked()
             self.updateFont()
 
     # Edit: replacing
@@ -1130,7 +1130,7 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
             })
 
     def onFindReplaceHelp(self):
-        aqt.openHelp("Browser#FindReplace")
+        openHelp("Browser#FindReplace")
 
     # Edit: finding dupes
     ######################################################################
@@ -1311,7 +1311,7 @@ select id from cards where nid in %s and ord in %s""" % (
         self.browser.onSearch()
 
     def onHelp(self):
-        aqt.openHelp("Browser#GenerateCards")
+        openHelp("Browser#GenerateCards")
 
 # Change model dialog
 ######################################################################
@@ -1477,4 +1477,4 @@ Are you sure you want to continue?""")):
         return QDialog.accept(self)
 
     def onHelp(self):
-        aqt.openHelp("Browser#ChangeModel")
+        openHelp("Browser#ChangeModel")
