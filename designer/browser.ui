@@ -561,7 +561,7 @@
   <action name="actionSetDeck">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/graphite_smooth_folder_noncommercial.png</normaloff>:/icons/graphite_smooth_folder_noncommercial.png</iconset>
+     <normaloff>:/icons/stock_group.png</normaloff>:/icons/stock_group.png</iconset>
    </property>
    <property name="text">
     <string>Move to Deck...</string>

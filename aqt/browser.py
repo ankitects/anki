@@ -327,7 +327,7 @@ class Browser(QMainWindow):
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
         self.show()
-        self.form.searchEdit.setText("is:recent")
+        self.form.searchEdit.setText("deck:current is:recent")
         self.form.searchEdit.selectAll()
         self.onSearch()
 
@@ -465,7 +465,7 @@ class Browser(QMainWindow):
                                  cur) % {
             "cur": cur,
             "sel": ngettext("%d selected", "%d selected", selected) % selected
-            } + " - " + self.col.name())
+            })
         return selected
 
     def onReset(self):
@@ -613,8 +613,7 @@ class Browser(QMainWindow):
         self.form.tree.clear()
         root = self.form.tree.invisibleRootItem()
         self._systemTagTree(root)
-        self._modelTree(root)
-        self._groupTree(root)
+        self._decksTree(root)
         self._userTagTree(root)
         self.form.tree.expandToDepth(0)
         self.form.tree.setIndentation(15)
@@ -646,49 +645,21 @@ class Browser(QMainWindow):
         self.form.searchEdit.setText(txt)
         self.onSearch()
 
-    def _modelTree(self, root):
-        for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            mitem = self.CallbackItem(
-                m['name'], lambda m=m: self.setFilter("model", m['name']))
-            mitem.setIcon(0, QIcon(":/icons/product_design.png"))
-            root.addChild(mitem)
-            for t in m['tmpls']:
-                titem = self.CallbackItem(
-                t['name'], lambda m=m, t=t: self.setFilter(
-                    "model", m['name'], "card", t['name']))
-                titem.setIcon(0, QIcon(":/icons/stock_new_template.png"))
-                mitem.addChild(titem)
-
-    def _groupTree(self, root):
-        grps = self.col.sched.deckDueTree()
-        def fillGroups(root, grps, head=""):
-            for g in grps:
-                item = self.CallbackItem(
-                g[0], lambda g=g: self.setFilter(
-                    "group", head+g[0]))
-                item.setIcon(0, QIcon(":/icons/stock_group.png"))
-                root.addChild(item)
-                fillGroups(item, g[4], g[0]+"::")
-        fillGroups(root, grps)
-
     def _systemTagTree(self, root):
         tags = (
             (_("All cards"), "stock_new_template", ""),
-            (_("New"), "stock_new_template_blue.png", "is:new"),
-            (_("Learning"), "stock_new_template_red.png", "is:lrn"),
-            (_("Review"), "stock_new_template_green.png", "is:rev"),
+            (_("Current Deck"), "stock_new_template", "deck:current"),
+            (_("New"), "plus-circle.png", "is:new"),
+            (_("Learning"), "stock_new_template_red.png", "is:learn"),
+            (_("Review"), "clock-icon.png", "is:review"),
             (_("Marked"), "rating.png", "tag:marked"),
             (_("Suspended"), "media-playback-pause.png", "is:suspended"),
-            (_("Leech"), "emblem-important.png", "tag:leech"),
-            (_("Due"), "stock_new_template_green.png", "is:due"))
+            (_("Leech"), "emblem-important.png", "tag:leech"))
         for name, icon, cmd in tags:
             item = self.CallbackItem(
                 name, lambda c=cmd: self.setFilter(c))
             item.setIcon(0, QIcon(":/icons/" + icon))
             root.addChild(item)
-        item = self.CallbackItem(_("Refresh list"), self.buildTree)
-        item.setIcon(0, QIcon(":/icons/multisynk.png"))
-        root.addChild(item)
         return root
 
     def _userTagTree(self, root):
@@ -697,6 +668,18 @@ class Browser(QMainWindow):
                 t, lambda t=t: self.setFilter("tag", t))
             item.setIcon(0, QIcon(":/icons/anki-tag.png"))
             root.addChild(item)
+
+    def _decksTree(self, root):
+        grps = self.col.sched.deckDueTree()
+        def fillGroups(root, grps, head=""):
+            for g in grps:
+                item = self.CallbackItem(
+                g[0], lambda g=g: self.setFilter(
+                    "deck", head+g[0]))
+                item.setIcon(0, QIcon(":/icons/stock_group.png"))
+                root.addChild(item)
+                fillGroups(item, g[4], g[0]+"::")
+        fillGroups(root, grps)
 
     # Card info
     ######################################################################
@@ -1242,76 +1225,6 @@ select fm.id, fm.name from fieldmodels fm""")
 
     def onCardList(self):
         self.form.tableView.setFocus()
-
-# Generate cards
-######################################################################
-
-class GenCards(QDialog):
-
-    def __init__(self, browser, nids):
-        QDialog.__init__(self, browser)
-        self.browser = browser
-        self.nids = nids
-        self.form = aqt.forms.gencards.Ui_Dialog()
-        self.form.setupUi(self)
-        self.setWindowModality(Qt.WindowModal)
-        self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     self.onHelp)
-        restoreGeom(self, "addCardModels")
-        self.getSelection()
-
-    def getSelection(self):
-        # get cards to enable
-        f = self.browser.col.getNote(self.nids[0])
-        self.model = f.model()
-        self.items = []
-        for t in self.model.templates:
-            item = QListWidgetItem(t['name'], self.form.list)
-            self.form.list.addItem(item)
-            self.items.append(item)
-            idx = self.form.list.indexFromItem(item)
-            if t['actv']:
-                mode = QItemSelectionModel.Select
-            else:
-                mode = QItemSelectionModel.Deselect
-            self.form.list.selectionModel().select(idx, mode)
-        self.exec_()
-
-    def accept(self):
-        tplates = []
-        unused = []
-        for i, item in enumerate(self.items):
-            idx = self.form.list.indexFromItem(item)
-            if self.form.list.selectionModel().isSelected(idx):
-                tplates.append(self.model.templates[i])
-            else:
-                unused.append(self.model.templates[i]['ord'])
-        if not self.form.deleteUnsel.isChecked():
-            unused = None
-        self.genCards(tplates, unused)
-        saveGeom(self, "addCardModels")
-        QDialog.accept(self)
-
-    def genCards(self, tplates, unused):
-        mw = self.browser.mw
-        mw.checkpoint(_("Generate Cards"))
-        mw.progress.start()
-        for c, nid in enumerate(self.nids):
-            f = mw.col.getNote(nid)
-            mw.col.genCards(f, tplates)
-            if c % 100 == 0:
-                mw.progress.update()
-        if unused:
-            cids = mw.col.db.list("""
-select id from cards where nid in %s and ord in %s""" % (
-                    ids2str(self.nids), ids2str(unused)))
-            mw.col.remCards(cids)
-        mw.progress.finish()
-        mw.requireReset()
-        self.browser.onSearch()
-
-    def onHelp(self):
-        openHelp("Browser#GenerateCards")
 
 # Change model dialog
 ######################################################################

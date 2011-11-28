@@ -18,7 +18,7 @@ import anki.js
 # is focused, which is not good when the user is tabbing through the dialog
 # fixme: set rtl in div css
 
-# fixme: commit from tag/group area causes error
+# fixme: commit from tag area causes error
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
 audio =  ("wav", "mp3", "ogg", "flac")
@@ -29,6 +29,7 @@ _html = """
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
 .fname { font-size: 12px; vertical-align: middle; padding-right: 5px; }
+#dupes { font-size: 12px; }
 img { max-width: 150; max-height: 150; }
 body { margin: 5px; }
 </style><script>
@@ -204,7 +205,7 @@ class Editor(object):
         self.setupOuter()
         self.setupButtons()
         self.setupWeb()
-        self.setupTagsAndGroup()
+        self.setupTags()
         self.setupKeyboard()
 
     # Initial setup
@@ -375,7 +376,7 @@ class Editor(object):
             self.web.setHtml(_html % (getBase(self.mw.col), anki.js.all,
                                   _("Show Duplicates")),
                              loadCB=self._loadFinished)
-            self.updateTagsAndGroup()
+            self.updateTags()
             self.updateKeyboard()
         elif hide:
             self.widget.hide()
@@ -407,7 +408,7 @@ class Editor(object):
         self._keepButtons = True
         self.web.eval("saveField('blur');")
         self._keepButtons = False
-        self.saveTagsAndGroup()
+        self.saveTags()
 
     def checkValid(self):
         cols = []
@@ -424,10 +425,11 @@ class Editor(object):
             self.web.eval("hideDupes();")
 
     def showDupes(self):
-        contents = self.note.fields[self.dupe]
+        contents = self.note.fields[0]
+        print "conts", `self.note.fields`
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.setText(
-            "'model:%s' '%s'" % (self.note.model().name, contents))
+            "'model:%s' '%s'" % (self.note.model()['name'], contents))
         browser.onSearch()
 
     def fieldsAreBlank(self):
@@ -455,71 +457,43 @@ class Editor(object):
             form.textEdit.toPlainText())
         self.loadNote(self.currentField)
 
-    # Tag and group handling
+    # Tag handling
     ######################################################################
 
-    def setupTagsAndGroup(self):
+    def setupTags(self):
         import aqt.tagedit
         g = QGroupBox(self.widget)
         g.setFlat(True)
         tb = QGridLayout()
         tb.setSpacing(12)
         tb.setMargin(6)
-        # group
-        l = QLabel(_("Initial Group"))
-        tb.addWidget(l, 0, 0)
-        if not self.addMode:
-            self.group = QPushButton()
-            self.group.connect(self.group, SIGNAL("clicked()"),
-                               self.changeGroup)
-        else:
-            self.group = aqt.tagedit.TagEdit(self.widget, type=1)
-            self.group.connect(self.group, SIGNAL("lostFocus"),
-                               self.saveTagsAndGroup)
-        tb.addWidget(self.group, 0, 1)
         # tags
         l = QLabel(_("Tags"))
         tb.addWidget(l, 0, 2)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.saveTagsAndGroup)
+                          self.saveTags)
         tb.addWidget(self.tags, 0, 3)
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
 
-    def updateTagsAndGroup(self):
+    def updateTags(self):
         if self.tags.col != self.mw.col:
             self.tags.setCol(self.mw.col)
-            if self.addMode:
-                self.group.setCol(self.mw.col)
         self.tags.setText(self.note.stringTags().strip())
-        if getattr(self.note, 'did', None):
-            did = self.note.did
-        else:
-            did = self.note.model()['did']
-        self.group.setText(self.mw.col.decks.name(did))
 
-    def saveTagsAndGroup(self):
+    def saveTags(self):
         if not self.note:
             return
         self.note.tags = self.mw.col.tags.split(unicode(self.tags.text()))
         if self.addMode:
             # save group and tags to model
-            self.note.did = self.mw.col.decks.id(unicode(self.group.text()))
             m = self.note.model()
             m['did'] = self.note.did
             m['tags'] = self.note.tags
             self.mw.col.models.save(m)
         self.note.flush()
-        runHook("tagsAndGroupUpdated", self.note)
-
-    def changeGroup(self):
-        id = self.note.id
-        runHook("closeEditCurrent")
-        browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.setText("nid:%d" % id)
-        browser.onSearch()
-        browser.setGroup(True)
+        runHook("tagsUpdated", self.note)
 
     # Format buttons
     ######################################################################

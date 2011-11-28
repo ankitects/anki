@@ -31,7 +31,7 @@ De Pooter, Susanna Björverud, Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor
 Suba, and Xtru.
 <p>
 Anki icon by Alex Fraser (CC GNU GPL)<br>
-Deck icon by Laurent Baumann (CC BY-NC-SA 3.0)<br>
+Deck icon: Be Box Icons (free for non-commercial use)<br>
 Deck browser icons from:<br>
 http://led24.de/iconset<br>
 http://p.yusukekamiyamane.com/<br>

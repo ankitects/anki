@@ -162,6 +162,8 @@ $(".ansbut").focus();
         # fixme: timer
         self.state = "question"
         c = self.card
+        # mod the card so it shows up in the recently modified list
+        self.card.flush()
         q = c.q()
         a = c.a()
         if self.mw.pm.profile['autoplay']:
