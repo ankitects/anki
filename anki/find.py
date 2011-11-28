@@ -182,7 +182,10 @@ and c.nid=n.id %s""" % (q, order)
 
     def _findDeck(self, val, isNeg):
         extra = "!" if isNeg else ""
-        id = self.col.decks.id(val, create=False) or 0
+        if val.lower() == "current":
+            id = self.col.decks.current()['id']
+        else:
+            id = self.col.decks.id(val, create=False) or 0
         self.lims['preds'].append("c.did %s= %s" % (extra, id))
 
     def _findTemplate(self, val, isNeg):
