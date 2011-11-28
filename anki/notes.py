@@ -132,17 +132,17 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
     ##################################################
 
     def dupeOrEmpty(self):
-        "True if first field is a duplicate or is empty."
+        "1 if first is empty; 2 if first is a duplicate, False otherwise."
         val = self.fields[0]
         if not val.strip():
-            return True
+            return 1
         csum = fieldChecksum(val)
         # find any matching csums and compare
         for flds in self.col.db.list(
             "select flds from notes where csum = ? and id != ? and mid = ?",
             csum, self.id or 0, self.mid):
             if splitFields(flds)[0] == self.fields[0]:
-                return True
+                return 2
         return False
 
     # Flushing cloze notes
