@@ -60,29 +60,35 @@ create index if not exists ix_fields_factId on fieldModels (factId);
 analyze;""")
         # fields missing a field model?
         if db.list("""
-    select id from fields where fieldModelId not in (
-    select distinct id from fieldModels)"""):
+select id from fields where fieldModelId not in (
+select distinct id from fieldModels)"""):
             return
         # facts missing a field?
         if db.list("""
-    select distinct facts.id from facts, fieldModels where
-    facts.modelId = fieldModels.modelId and fieldModels.id not in
-    (select fieldModelId from fields where factId = facts.id)"""):
+select distinct facts.id from facts, fieldModels where
+facts.modelId = fieldModels.modelId and fieldModels.id not in
+(select fieldModelId from fields where factId = facts.id)"""):
             return
         # cards missing a fact?
         if db.list("""
-    select id from cards where factId not in (select id from facts)"""):
+select id from cards where factId not in (select id from facts)"""):
             return
         # cards missing a card model?
         if db.list("""
-    select id from cards where cardModelId not in
-    (select id from cardModels)"""):
+select id from cards where cardModelId not in
+(select id from cardModels)"""):
             return
         # cards with a card model from the wrong model?
         if db.list("""
-    select id from cards where cardModelId not in (select cm.id from
-    cardModels cm, facts f where cm.modelId = f.modelId and
-    f.id = cards.factId)"""):
+select id from cards where cardModelId not in (select cm.id from
+cardModels cm, facts f where cm.modelId = f.modelId and
+f.id = cards.factId)"""):
+            return
+        # cards with the wrong ordinal?
+        if db.list("""
+select c.id from cards c, cardModels cm
+where c.cardModelId = cm.id
+and c.ordinal != cm.ordinal"""):
             return
         # facts missing a card?
         if db.list("""

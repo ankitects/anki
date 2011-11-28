@@ -21,7 +21,7 @@ class CardStats(object):
     def report(self):
         c = self.card
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
-        self.txt = "<table width=100%%>"
+        self.txt = "<table width=100%>"
         self.addLine(_("Added"), self.date(c.id/1000))
         first = self.col.db.scalar(
             "select min(id) from revlog where cid = ?", c.id)
