@@ -175,7 +175,7 @@ If the same name exists, compare checksums."""
         "Copy media to RDIR. Return number of files copied."
         ldir = self.dir()
         if not os.path.exists(ldir):
-            return
+            return 0
         cnt = 0
         for f in os.listdir(ldir):
             src = os.path.join(ldir, f)
