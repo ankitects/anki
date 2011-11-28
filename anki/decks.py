@@ -283,6 +283,11 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         g = self.get(self.col.conf['topDeck'])
         return g
 
+    def topIds(self):
+        "All dids from top level."
+        t = self.top()
+        return [t['id']] + [a[1] for a in self.children(t['id'])]
+
     def active(self):
         "The currrently active dids."
         return self.col.conf['activeDecks']

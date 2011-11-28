@@ -5,7 +5,6 @@
 import re
 from anki.utils import ids2str, splitFields, joinFields, stripHTML, intTime
 
-
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
 SEARCH_PHRASE = 2
@@ -46,40 +45,34 @@ class Finder(object):
         if not self.lims['valid']:
             return []
         (q, args) = self._whereClause()
-        query = self._orderedSelect(q)
+        order = self._order()
+        query = """\
+select c.id from cards c, notes n where %s
+and c.nid=n.id %s""" % (q, order)
         res = self.col.db.list(query, **args)
         if self.col.conf['sortBackwards']:
             res.reverse()
         return res
 
     def _whereClause(self):
-        x = []
-        if self.lims['note']:
-            x.append("nid in (select id from notes where %s)" % " and ".join(
-                self.lims['note']))
-        if self.lims['card']:
-            x.extend(self.lims['card'])
-        q = " and ".join(x)
+        q = " and ".join(self.lims['preds'])
         if not q:
             q = "1"
         return q, self.lims['args']
 
-    def _orderedSelect(self, lim):
+    def _order(self):
         type = self.col.conf['sortType']
         if not type:
-            return "select id from cards c where " + lim
-        elif type.startswith("note"):
+            return
+        if type.startswith("note"):
             if type == "noteCrt":
-                sort = "f.id, c.ord"
+                sort = "n.id, c.ord"
             elif type == "noteMod":
-                sort = "f.mod, c.ord"
+                sort = "n.mod, c.ord"
             elif type == "noteFld":
-                sort = "f.sfld collate nocase, c.ord"
+                sort = "n.sfld collate nocase, c.ord"
             else:
                 raise Exception()
-            return """
-select c.id from cards c, notes f where %s and c.nid=f.id
-order by %s""" % (lim, sort)
         elif type.startswith("card"):
             if type == "cardMod":
                 sort = "c.mod"
@@ -95,16 +88,12 @@ order by %s""" % (lim, sort)
                 sort = "c.ivl"
             else:
                 raise Exception()
-            return "select c.id from cards c where %s order by %s" % (
-                lim, sort)
-        else:
-            raise Exception()
+        return " order by " + sort
 
     def _findLimits(self):
         "Generate a list of note/card limits for the query."
         self.lims = {
-            'note': [],
-            'card': [],
+            'preds': [],
             'args': {},
             'valid': True
         }
@@ -128,7 +117,7 @@ order by %s""" % (lim, sort)
 
     def _findTag(self, val, neg, c):
         if val == "none":
-            self.lims['note'].append("select id from notes where tags = ''")
+            self.lims['preds'].append("select id from notes where tags = ''")
             return
         extra = "not" if neg else ""
         val = val.replace("*", "%")
@@ -137,7 +126,7 @@ order by %s""" % (lim, sort)
         if not val.endswith("%"):
             val += " %"
         self.lims['args']["_tag_%d" % c] = val
-        self.lims['note'].append(
+        self.lims['preds'].append(
             "tags %s like :_tag_%d""" % (extra, c))
 
     def _findCardState(self, val, neg):
@@ -159,7 +148,7 @@ order by %s""" % (lim, sort)
         if neg:
             cond = "not (%s)" % cond
         if cond:
-            self.lims['card'].append(cond)
+            self.lims['preds'].append(cond)
         else:
             self.lims['valid'] = False
 
@@ -168,7 +157,7 @@ order by %s""" % (lim, sort)
         extra = "not" if neg else ""
         if not self.full:
             self.lims['args']["_text_%d"%c] = "%"+val+"%"
-            self.lims['note'].append("flds %s like :_text_%d escape '\\'" % (
+            self.lims['preds'].append("flds %s like :_text_%d escape '\\'" % (
                 extra, c))
         else:
             # in the future we may want to apply this at the end to speed up
@@ -178,10 +167,10 @@ order by %s""" % (lim, sort)
                 "select id, flds from notes"):
                 if val in stripHTML(flds):
                     nids.append(nid)
-            self.lims['note'].append("id in " + ids2str(nids))
+            self.lims['preds'].append("n.id in " + ids2str(nids))
 
     def _findNids(self, val):
-        self.lims['note'].append("id in (%s)" % val)
+        self.lims['preds'].append("n.id in (%s)" % val)
 
     def _findModel(self, val, isNeg):
         extra = "not" if isNeg else ""
@@ -189,12 +178,12 @@ order by %s""" % (lim, sort)
         for m in self.col.models.all():
             if m['name'].lower() == val:
                 ids.append(m['id'])
-        self.lims['note'].append("mid %s in %s" % (extra, ids2str(ids)))
+        self.lims['preds'].append("mid %s in %s" % (extra, ids2str(ids)))
 
     def _findDeck(self, val, isNeg):
         extra = "!" if isNeg else ""
         id = self.col.decks.id(val, create=False) or 0
-        self.lims['card'].append("c.did %s= %s" % (extra, id))
+        self.lims['preds'].append("c.did %s= %s" % (extra, id))
 
     def _findTemplate(self, val, isNeg):
         lims = []
@@ -209,7 +198,7 @@ order by %s""" % (lim, sort)
             for t in m['tmpls']:
                 # ordinal number?
                 if num is not None and t['ord'] == num:
-                    self.lims['card'].append("ord %s %d" % (comp, num))
+                    self.lims['preds'].append("ord %s %d" % (comp, num))
                     found = True
                 # template name?
                 elif t['name'].lower() == val.lower():
@@ -218,7 +207,7 @@ order by %s""" % (lim, sort)
                         "and ord %s %d)") % (m['id'], comp, t['ord']))
                     found = True
         if lims:
-            self.lims['card'].append("(" + " or ".join(lims) + ")")
+            self.lims['preds'].append("(" + " or ".join(lims) + ")")
         self.lims['valid'] = found
 
     def _findField(self, token, isNeg):
@@ -252,7 +241,7 @@ where mid in %s and flds like ? escape '\\'""" % (
             if re.search(regex, strg):
                 nids.append(id)
         extra = "not" if isNeg else ""
-        self.lims['note'].append("id %s in %s" % (extra, ids2str(nids)))
+        self.lims['preds'].append("n.id %s in %s" % (extra, ids2str(nids)))
 
     # Most of this function was written by Marcus
     def _parseQuery(self):

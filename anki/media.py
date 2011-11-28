@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, shutil, re, urllib, urllib2, time, unicodedata, \
-    urllib, sys, shutil, simplejson, zipfile
+    urllib, sys, simplejson, zipfile
 from cStringIO import StringIO
 from anki.utils import checksum, intTime, namedtmp, isWin
 from anki.lang import _
