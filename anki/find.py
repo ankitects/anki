@@ -131,8 +131,8 @@ and c.nid=n.id %s""" % (q, order)
 
     def _findCardState(self, val, neg):
         cond = None
-        if val in ("rev", "new", "lrn"):
-            if val == "rev":
+        if val in ("review", "new", "learn"):
+            if val == "review":
                 n = 2
             elif val == "new":
                 n = 0

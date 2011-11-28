@@ -58,9 +58,9 @@ def test_findCards():
     # card states
     c = f.cards()[0]
     c.type = 2
-    assert deck.findCards("is:rev") == []
+    assert deck.findCards("is:review") == []
     c.flush()
-    assert deck.findCards("is:rev") == [c.id]
+    assert deck.findCards("is:review") == [c.id]
     assert deck.findCards("is:due") == []
     c.due = 0; c.queue = 2
     c.flush()
