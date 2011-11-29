@@ -529,19 +529,23 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # Dockable widgets
     ##########################################################################
 
-    def addDockable(self, title, w, target=None):
+    def addDockable(self, title, w, target=None, startDocked=True):
         target = target or self
         dock = QDockWidget(title, target)
         dock.setObjectName(title)
         dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
-        dock.setFeatures(QDockWidget.DockWidgetClosable)
+        dock.setFeatures(QDockWidget.AllDockWidgetFeatures)
         dock.setWidget(w)
         if target.width() < 600:
             target.resize(QSize(600, target.height()))
-        target.addDockWidget(Qt.RightDockWidgetArea, dock)
+        if startDocked:
+            target.addDockWidget(Qt.NoDockWidgetArea, dock)
+        else:
+            dock.setFloating(True)
+            dock.show()
         return dock
 
-    def rmDockable(self, dock, target=None):
+    def remDockable(self, dock, target=None):
         target = target or self
         target.removeDockWidget(dock)
 

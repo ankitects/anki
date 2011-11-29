@@ -232,6 +232,8 @@ class DataModel(QAbstractTableModel):
             return "%d%%" % (c.factor/10)
         elif type == "deck":
             return self.browser.mw.col.decks.name(c.did)
+        elif type == "ndeck":
+            return self.browser.mw.col.decks.name(c.note().did)
 
     def question(self, c):
         return self.formatQA(c.a())
@@ -250,7 +252,7 @@ class DataModel(QAbstractTableModel):
 
     def nextDue(self, c, index):
         if c.queue == 0:
-            return str(c.due)
+            return _("(new)") # str(c.due)
         elif c.queue == 1:
             date = c.due
         elif c.queue == 2:
@@ -312,6 +314,7 @@ class Browser(QMainWindow):
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter.setChildrenCollapsible(False)
+        self.card = None
         self.setupColumns()
         self.setupTable()
         self.setupMenus()
@@ -321,7 +324,6 @@ class Browser(QMainWindow):
         self.setupHooks()
         self.setupEditor()
         self.setupToolbar()
-        #self.setupCardInfo()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
@@ -405,7 +407,8 @@ class Browser(QMainWindow):
             ('question', _("Question")),
             ('answer', _("Answer")),
             ('template', _("Card")),
-            ('deck', _("Deck")),
+            ('deck', _("Card Deck")),
+            ('ndeck', _("Note Deck")),
             ('noteFld', _("Sort Field")),
             ('noteCrt', _("Created")),
             ('noteMod', _("Edited")),
@@ -502,7 +505,6 @@ class Browser(QMainWindow):
                 self.form.tableView.selectionModel().currentIndex())
             self.editor.setNote(self.card.note())
             self.editor.card = self.card
-            self.showCardInfo(self.card)
         self.toolbar.draw()
 
     def refreshCurrentCard(self, note):
@@ -681,35 +683,40 @@ class Browser(QMainWindow):
                 fillGroups(item, g[4], g[0]+"::")
         fillGroups(root, grps)
 
-    # Card info
+    # Info
     ######################################################################
 
-    def setupCardInfo(self):
-        from anki.stats import CardStats
-        self.card = None
-        self.cardStats = CardStats(self.col, None)
-        self.connect(self.form.cardLabel,
-                     SIGNAL("linkActivated(const QString&)"),
-                     self.onCardLink)
+    def showCardInfo(self):
+        if not self.card:
+            return
+        info, cs = self._cardInfoData()
+        reps = self._revlogData(cs)
+        d = QDialog(self)
+        l = QVBoxLayout()
+        l.setMargin(0)
+        w = AnkiWebView()
+        l.addWidget(w)
+        w.stdHtml(info + "<p>" + reps)
+        bb = QDialogButtonBox(QDialogButtonBox.Close)
+        l.addWidget(bb)
+        bb.connect(bb, SIGNAL("rejected()"), d, SLOT("reject()"))
+        d.setLayout(l)
+        d.setWindowModality(Qt.WindowModal)
+        d.resize(500, 400)
+        restoreGeom(d, "revlog")
+        d.exec_()
+        saveGeom(d, "revlog")
 
-    def showCardInfo(self, card):
-        return
-        self.cardStats.card = self.card
-        rep = self.cardStats.report()
+    def _cardInfoData(self):
+        from anki.stats import CardStats
+        cs = CardStats(self.col, self.card)
+        rep = cs.report()
         rep = "<style>table * { font-size: 12px; }</style>" + rep
         m = self.card.model()
-        # add sort field
-        sortf = m['flds'][self.mw.col.models.sortIdx(m)]['name']
-        extra = self.cardStats.makeLine(
-            _("Sort Field"), "<a href=sort>%s</a>" % sortf)
-        # and revlog
-        if self.card.reps:
-            extra += self.cardStats.makeLine(
-                _("Reviews"), "<a href=revlog>%d</a>" % self.card.reps)
-        rep = rep.replace("</table>", extra)
-        self.form.cardLabel.setMaximumWidth(200)
-        self.form.cardLabel.setWordWrap(True)
-        self.form.cardLabel.setText(rep)
+        rep = """
+<div style='width: 300px; margin: 0 auto 0;
+border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
+        return rep, cs
 
     def onCardLink(self, url):
         if url == "sort":
@@ -748,14 +755,17 @@ class Browser(QMainWindow):
         d.exec_()
         saveGeom(d, "revlog")
 
-    def _revlogData(self):
+    def _revlogData(self, cs):
+        entries = self.mw.col.db.all(
+            "select id/1000.0, ease, ivl, factor, time/1000.0, type "
+            "from revlog where cid = ?", self.card.id)
+        if not entries:
+            return ""
         s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
         s += ("<th align=right>%s</th>" * 5) % (
             _("Type"), _("Ease"), _("Interval"), _("Factor"), _("Time"))
         cnt = 0
-        for (date, ease, ivl, factor, taken, type) in self.mw.col.db.execute(
-            "select id/1000.0, ease, ivl, factor, time/1000.0, type "
-            "from revlog where cid = ?", self.card.id):
+        for (date, ease, ivl, factor, taken, type) in reversed(entries):
             cnt += 1
             s += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
                                                    time.localtime(date))
@@ -780,19 +790,17 @@ class Browser(QMainWindow):
             elif ivl > 0:
                 ivl = fmtTimeSpan(ivl*86400, short=True)
             else:
-                ivl = self.cardStats.time(-ivl)
+                ivl = cs.time(-ivl)
             s += ("<td align=right>%s</td>" * 5) % (
                 tstr,
                 ease, ivl,
                 "%d%%" % (factor/10) if factor else "",
-                self.cardStats.time(taken)) + "</tr>"
+                cs.time(taken)) + "</tr>"
         s += "</table>"
         if cnt != self.card.reps:
-            s += "<p>" + _("""\
-Note: Review count does not match the history. This can happen \
-if your cards were reviewed in early Anki versions, if statistics \
-were lost in a sync conflict, or the deck was imported from \
-another program.""")
+            s += '<div style="font-size: 12px;">' + _("""\
+Note: Some of the history is missing. For more information, \
+please see the browser documentation.""") + "</div>"
         return s
 
     # Menu helpers
@@ -1412,15 +1420,6 @@ class BrowserToolbar(Toolbar):
         ["remTags", "Remove Tags"],
     ]
 
-    singleOnly = [
-        ["info", "Info"],
-    ]
-
-    rightIcons = [
-        ["mark", "qrc:/icons/star16.png"],
-        ["pause", "qrc:/icons/star_off16.png"],
-    ]
-
     def __init__(self, mw, web, browser):
         self.browser = browser
         Toolbar.__init__(self, mw, web)
@@ -1430,8 +1429,6 @@ class BrowserToolbar(Toolbar):
         mark = self.browser.isMarked()
         pause = self.browser.isSuspended()
         links = self.always[:]
-        if single:
-            links += self.singleOnly
         self.centerLinks = links
         def borderImg(link, icon, on):
             if on:
@@ -1443,10 +1440,12 @@ class BrowserToolbar(Toolbar):
 <a class=hitem href="%s"><img src="qrc:/icons/%s.png"></a>'''
             return fmt % (link, icon)
         right = ""
-        right += borderImg("mark", "star16", mark)
-        right += borderImg("pause", "pause16", pause)
+        if self.browser.card:
+            right += borderImg("info", "info", False)
+            right += borderImg("mark", "star16", mark)
+            right += borderImg("pause", "pause16", pause)
         self.web.stdHtml(self._body % (
-            '<a class="hitem" href="anki">Browser &#9662</a>',
+            '&nbsp;'*20, #<a class="hitem" href="anki">Browser &#9662</a>',
             self._centerLinks(),
             right), self._css, focus=False)
 
@@ -1462,6 +1461,8 @@ class BrowserToolbar(Toolbar):
             self.browser.addTags()
         elif l  == "remTags":
             self.browser.deleteTags()
+        elif l  == "info":
+            self.browser.showCardInfo()
         # icons
         elif l == "mark":
             self.browser.onMark()

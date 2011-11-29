@@ -34,7 +34,7 @@ class CardStats(object):
 
     def hide(self):
         if self.shown:
-            self.mw.rmDockable(self.shown)
+            self.mw.remDockable(self.shown)
             self.shown = None
 
     def _visChange(self, vis):

@@ -15,6 +15,8 @@ import aqt.templates
 
 # need to strip the field management code out of this
 
+# - add sort field
+
 class CardLayout(QDialog):
 
     def __init__(self, mw, note, ord=0, parent=None):

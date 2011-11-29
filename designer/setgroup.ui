@@ -17,7 +17,7 @@
    <item>
     <widget class="QRadioButton" name="setCur">
      <property name="text">
-      <string>Set current group to:</string>
+      <string>Move card(s) to deck:</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -33,7 +33,7 @@
       <item>
        <widget class="QCheckBox" name="setInitial">
         <property name="text">
-         <string>Set initial group too</string>
+         <string>Move notes too</string>
         </property>
        </widget>
       </item>
@@ -43,7 +43,7 @@
    <item>
     <widget class="QRadioButton" name="reset">
      <property name="text">
-      <string>Reset to initial group</string>
+      <string>Move card(s) to their note's deck</string>
      </property>
     </widget>
    </item>

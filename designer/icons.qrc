@@ -121,5 +121,6 @@
     <file>icons/star_off16.png</file>
     <file>icons/pause16.png</file>
     <file>icons/pause_off16.png</file>
+    <file>icons/info.png</file>
   </qresource>
 </RCC>

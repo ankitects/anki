@@ -319,7 +319,7 @@ div.ansbuttxt {
   position: relative; top: 25%;
 }
 
-body { margin:1em; }
+body { margin:1.5em; }
 
 #easebuts {
   bottom: 1em;
