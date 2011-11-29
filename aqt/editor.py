@@ -269,8 +269,10 @@ class Editor(object):
         # align to right
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         b = self._addButton
+        b("fields", self.onFields, "Ctrl+f",
+          shortcut(_("Layout (Ctrl+f)")), size=False, text=_("Fields"))
         b("layout", self.onCardLayout, "Ctrl+l",
-          shortcut(_("Layout (Ctrl+l)")), size=False, text=_("Layout..."))
+          shortcut(_("Layout (Ctrl+l)")), size=False, text=_("Layout"))
         b("text_bold", self.toggleBold, "Ctrl+b", _("Bold text (Ctrl+b)"),
           check=True)
         b("text_italic", self.toggleItalic, "Ctrl+i", _("Italic text (Ctrl+i)"),
@@ -305,6 +307,11 @@ class Editor(object):
 
     def disableButtons(self):
         self.enableButtons(False)
+
+    def onFields(self):
+        from aqt.fields import FieldDialog
+        self.saveNow()
+        FieldDialog(self.mw, self.note, parent=self.widget)
 
     def onCardLayout(self):
         from aqt.clayout import CardLayout

@@ -226,12 +226,8 @@
     <property name="title">
      <string>Cards</string>
     </property>
-    <addaction name="actionSetDeck"/>
-    <addaction name="separator"/>
     <addaction name="actionReposition"/>
     <addaction name="actionReschedule"/>
-    <addaction name="separator"/>
-    <addaction name="actionToggleSuspend"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
    </widget>
@@ -258,10 +254,6 @@
      <string>Notes</string>
     </property>
     <addaction name="actionAddItems"/>
-    <addaction name="separator"/>
-    <addaction name="actionToggleMark"/>
-    <addaction name="actionAddTag"/>
-    <addaction name="actionDeleteTag"/>
     <addaction name="separator"/>
     <addaction name="actionFindReplace"/>
     <addaction name="actionFindDuplicates"/>

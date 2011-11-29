@@ -9,114 +9,78 @@ from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      saveSplitter, restoreSplitter, showInfo, askUser, getText, \
      openHelp
 from anki.utils import isMac, isWin
-import aqt.templates
 
 #        raise Exception("Remember to disallow media&latex refs in edit.")
 
 # need to strip the field management code out of this
 
-# - add sort field
-
-class CardLayout(QDialog):
+class FieldDialog(QDialog):
 
     def __init__(self, mw, note, ord=0, parent=None):
         QDialog.__init__(self, parent or mw, Qt.Window)
         self.mw = aqt.mw
         self.parent = parent or mw
         self.note = note
-        self.ord = ord
         self.col = self.mw.col
         self.mm = self.mw.col.models
         self.model = note.model()
-        self.setupTabs()
-        v1 = QVBoxLayout()
-        v1.addWidget(self.tabs)
-        self.bbox = QDialogButtonBox(QDialogButtonBox.Close)
-        v1.addWidget(self.bbox)
-        self.setLayout(v1)
-        self.updateTabs()
-        self.exec_()
-        return
-
-    def setupTabs(self):
-        self.tabs = QTabWidget()
-        self.tabs.setTabsClosable(True)
-        self.tabs.setUsesScrollButtons(True)
-        self.tabs.setMovable(True)
-        add = QPushButton("+")
-        add.setFixedWidth(30)
-        self.tabs.setCornerWidget(add)
-
-    def updateTabs(self):
-        self.forms = []
-        self.tabs.clear()
-        for t in self.model['tmpls']:
-            self.addTab(t)
-
-    def addTab(self, t):
-        w = QWidget()
-        h = QHBoxLayout()
-        h.addStretch()
-        label = QLabel(_("Name:"))
-        h.addWidget(label)
-        edit = QLineEdit()
-        edit.setFixedWidth(200)
-        h.addWidget(edit)
-        h.addStretch()
-        v = QVBoxLayout()
-        v.addLayout(h)
-        l = QHBoxLayout()
-        l.setMargin(0)
-        l.setSpacing(3)
-        left = QWidget()
-        # template area
-        tform = aqt.forms.template.Ui_Form()
-        tform.setupUi(left)
-        l.addWidget(left, 5)
-        # preview area
-        right = QWidget()
-        pform = aqt.forms.preview.Ui_Form()
-        pform.setupUi(right)
-        l.addWidget(right, 5)
-        v.addLayout(l)
-        w.setLayout(v)
-        self.tabs.addTab(w, t['name'])
-        self.forms.append([tform, pform, edit])
-
-    def old():
-        self.form = aqt.forms.clayout.Ui_Dialog()
+        self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(_("%s Layout") % self.model['name'])
-        self.plastiqueStyle = None
-        if isMac or isWin:
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-        self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     self.onHelp)
-        self.setupCards()
-        self.setupFields()
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
-        restoreSplitter(self.form.splitter, "clayout")
-        restoreGeom(self, "CardLayout")
-        if not self.reload(first=True):
-            return
+        self.fillFields()
+        self.setupSignals()
+        self.form.fieldList.setCurrentRow(0)
         self.exec_()
 
+    ##########################################################################
 
-    def reload(self, first=False):
-        self.cards = self.col.previewCards(self.note, self.type)
-        if not self.cards:
-            self.accept()
-            if first:
-                showInfo(_("Please enter some text first."))
-            else:
-                showInfo(_("The current note was deleted."))
-            return
-        self.fillCardList()
-        self.fillFieldList()
-        self.fieldChanged()
-        self.readField()
-        return True
+    def fillFields(self):
+        self.form.fieldList.clear()
+        for f in self.model['flds']:
+            self.form.fieldList.addItem(f['name'])
+
+    def setupSignals(self):
+        c = self.connect
+        s = SIGNAL
+        f = self.form
+        c(f.fieldList, s("currentRowChanged(int)"), self.onRowChange)
+        c(f.fieldAdd, s("clicked()"), self.onAdd)
+        c(f.fieldDelete, s("clicked()"), self.onDelete)
+        c(f.fieldUp, s("clicked()"), self.onUp)
+        c(f.fieldDown, s("clicked()"), self.onDown)
+        c(f.sortField, s("clicked()"), self.onSortField)
+
+    def onRowChange(self, idx):
+        self.loadField(idx)
+
+    def onAdd(self):
+        pass
+
+    def onDelete(self):
+        pass
+
+    def onUp(self):
+        pass
+
+    def onDown(self):
+        pass
+
+    def onSortField(self):
+        # don't allow user to disable; it makes no sense
+        self.form.sortField.setChecked(True)
+        self.model['sortf'] = self.form.fieldList.currentRow()
+
+    def loadField(self, idx):
+        fld = self.model['flds'][idx]
+        f = self.form
+        f.fieldName.setText(fld['name'])
+        f.fontFamily.setCurrentFont(QFont(fld['font']))
+        f.fontSize.setValue(fld['size'])
+        f.sticky.setChecked(fld['sticky'])
+        print self.model['sortf'] == fld['ord']
+        f.sortField.setChecked(self.model['sortf'] == fld['ord'])
+        f.rtl.setChecked(fld['rtl'])
 
     # Cards & Preview
     ##########################################################################

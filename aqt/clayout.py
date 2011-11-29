@@ -156,12 +156,14 @@ Please create a new card first."""))
     def renderPreview(self):
         c = self.card
         styles = "\n.cloze { font-weight: bold; color: blue; }"
-        html = '<html><body id=card><style>%s</style>%s</body></html>'
+        html = '''<html><head>%s</head><body id=card>
+<style>%s</style>%s</body></html>'''
         ti = self.maybeTextInput
+        base = getBase(self.mw.col)
         self.tab['pform'].front.setHtml(
-            html % (styles, ti(mungeQA(c.q(reload=True)))))
+            html % (base, styles, ti(mungeQA(c.q(reload=True)))))
         self.tab['pform'].back.setHtml(
-            html % (styles, ti(mungeQA(c.a()), 'a')))
+            html % (base, styles, ti(mungeQA(c.a()), 'a')))
 
     def maybeTextInput(self, txt, type='q'):
         if type == 'q':

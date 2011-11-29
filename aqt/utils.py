@@ -317,9 +317,9 @@ def applyStyles(widget):
     except (IOError, OSError):
         pass
 
-def getBase(deck):
+def getBase(col):
     base = None
-    mdir = deck.media.dir()
+    mdir = col.media.dir()
     if isWin:
         prefix = u"file:///"
     else:
