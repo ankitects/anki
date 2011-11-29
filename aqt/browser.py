@@ -229,10 +229,8 @@ class DataModel(QAbstractTableModel):
             if c.type == 0:
                 return _("(new)")
             return "%d%%" % (c.factor/10)
-        elif type == "cardGroup":
-            return self.browser.mw.col.groups.name(c.gid)
-        elif type == "noteGroup":
-            return self.browser.mw.col.groups.name(c.note().gid)
+        elif type == "deck":
+            return self.browser.mw.col.decks.name(c.did)
 
     def question(self, c):
         return self.formatQA(c.a())
@@ -310,9 +308,9 @@ class Browser(QMainWindow):
         restoreGeom(self, "editor", 38)
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter_2, "editor2")
-        restoreSplitter(self.form.splitter_3, "editor3")
+        restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter_2.setChildrenCollapsible(False)
-        self.form.splitter_3.setChildrenCollapsible(False)
+        self.form.splitter.setChildrenCollapsible(False)
         self.setupColumns()
         self.setupToolbar()
         self.setupTable()
@@ -377,7 +375,7 @@ class Browser(QMainWindow):
 
     def closeEvent(self, evt):
         saveSplitter(self.form.splitter_2, "editor2")
-        saveSplitter(self.form.splitter_3, "editor3")
+        saveSplitter(self.form.splitter, "editor3")
         self.editor.saveNow()
         self.editor.setNote(None)
         saveGeom(self, "editor")
@@ -404,8 +402,7 @@ class Browser(QMainWindow):
             ('question', _("Question")),
             ('answer', _("Answer")),
             ('template', _("Card")),
-            ('cardGroup', _("C.Group")),
-            ('noteGroup', _("I.Group")),
+            ('deck', _("Deck")),
             ('noteFld', _("Sort Field")),
             ('noteCrt', _("Created")),
             ('noteMod', _("Edited")),
@@ -647,8 +644,8 @@ class Browser(QMainWindow):
 
     def _systemTagTree(self, root):
         tags = (
-            (_("All cards"), "stock_new_template", ""),
-            (_("Current Deck"), "stock_new_template", "deck:current"),
+            (_("Whole Collection"), "anki", ""),
+            (_("Current Deck"), "stock_group", "deck:current"),
             (_("New"), "plus-circle.png", "is:new"),
             (_("Learning"), "stock_new_template_red.png", "is:learn"),
             (_("Review"), "clock-icon.png", "is:review"),
