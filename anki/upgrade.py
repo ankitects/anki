@@ -247,7 +247,7 @@ yesCount from reviewHistory"""):
             # determine type, overwriting yesCount
             newInt = row[3]
             oldInt = row[4]
-            yesCnt = row[7]
+            yesCnt = row[8]
             # yesCnt included the current answer
             if row[2] > 1:
                 yesCnt -= 1
@@ -255,13 +255,13 @@ yesCount from reviewHistory"""):
                 # new or failed
                 if yesCnt:
                     # type=relrn
-                    row[7] = 2
+                    row[8] = 2
                 else:
                     # type=lrn
-                    row[7] = 0
+                    row[8] = 0
             else:
                 # type=rev
-                row[7] = 1
+                row[8] = 1
             r.append(row)
         db.executemany(
             "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)", r)
