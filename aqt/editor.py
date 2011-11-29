@@ -212,9 +212,9 @@ class Editor(object):
     ############################################################
 
     def setupOuter(self):
-        l = QVBoxLayout()#self.widget)
+        l = QVBoxLayout()
         l.setMargin(0)
-        l.setSpacing(3)
+        l.setSpacing(0)
         self.widget.setLayout(l)
         self.outerLayout = l
 

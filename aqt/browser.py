@@ -330,7 +330,7 @@ class Browser(QMainWindow):
         self.onSearch()
 
     def setupToolbar(self):
-        self.form.toolBar.setIconSize(QSize(32, 32))
+        self.form.toolBar.setIconSize(QSize(24, 24))
         self.form.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
 
     def setupMenus(self):
@@ -703,7 +703,7 @@ class Browser(QMainWindow):
             extra += self.cardStats.makeLine(
                 _("Reviews"), "<a href=revlog>%d</a>" % self.card.reps)
         rep = rep.replace("</table>", extra)
-        self.form.cardLabel.setMaximumWidth(250)
+        self.form.cardLabel.setMaximumWidth(200)
         self.form.cardLabel.setWordWrap(True)
         self.form.cardLabel.setText(rep)
 
@@ -748,9 +748,11 @@ class Browser(QMainWindow):
         s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
         s += ("<th align=right>%s</th>" * 5) % (
             _("Type"), _("Ease"), _("Interval"), _("Factor"), _("Time"))
+        cnt = 0
         for (date, ease, ivl, factor, taken, type) in self.mw.col.db.execute(
             "select id/1000.0, ease, ivl, factor, time/1000.0, type "
             "from revlog where cid = ?", self.card.id):
+            cnt += 1
             s += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
                                                    time.localtime(date))
             tstr = [_("Learn"), _("Review"), _("Relearn"), _("Cram"),
@@ -781,6 +783,12 @@ class Browser(QMainWindow):
                 "%d%%" % (factor/10) if factor else "",
                 self.cardStats.time(taken)) + "</tr>"
         s += "</table>"
+        if cnt != self.card.reps:
+            s += "<p>" + _("""\
+Note: Review count does not match the history. This can happen \
+if your cards were reviewed in early Anki versions, if statistics \
+were lost in a sync conflict, or the deck was imported from \
+another program.""")
         return s
 
     # Menu helpers
