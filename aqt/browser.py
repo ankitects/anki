@@ -749,7 +749,7 @@ class Browser(QMainWindow):
         s += ("<th align=right>%s</th>" * 5) % (
             _("Type"), _("Ease"), _("Interval"), _("Factor"), _("Time"))
         for (date, ease, ivl, factor, taken, type) in self.mw.col.db.execute(
-            "select time/1000, ease, ivl, factor, taken/1000.0, type "
+            "select id/1000.0, ease, ivl, factor, time/1000.0, type "
             "from revlog where cid = ?", self.card.id):
             s += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
                                                    time.localtime(date))
