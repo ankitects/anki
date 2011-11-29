@@ -23,8 +23,10 @@ class CardStats(object):
 
     def show(self):
         if not self.shown:
-            self.web = AnkiWebView()
-            self.web.setMaximumWidth(400)
+            class ThinAnkiWebView(AnkiWebView):
+                def sizeHint(self):
+                    return QSize(200, 100)
+            self.web = ThinAnkiWebView()
             self.shown = self.mw.addDockable(_("Card Info"), self.web)
             self.shown.connect(self.shown, SIGNAL("visibilityChanged(bool)"),
                                self._visChange)

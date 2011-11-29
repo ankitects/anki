@@ -15,6 +15,7 @@ from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, removeHook
 from aqt.webview import AnkiWebView
+from aqt.toolbar import Toolbar
 
 COLOUR_SUSPENDED1 = "#ffffcc"
 COLOUR_SUSPENDED2 = "#ffffaa"
@@ -304,15 +305,14 @@ class Browser(QMainWindow):
         self.lastFilter = ""
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
-        self.setUnifiedTitleAndToolBarOnMac(True)
-        restoreGeom(self, "editor", 38)
+        #self.setUnifiedTitleAndToolBarOnMac(True)
+        restoreGeom(self, "editor", 0)
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter_2, "editor2")
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter.setChildrenCollapsible(False)
         self.setupColumns()
-        self.setupToolbar()
         self.setupTable()
         self.setupMenus()
         self.setupSearch()
@@ -320,7 +320,8 @@ class Browser(QMainWindow):
         self.setupHeaders()
         self.setupHooks()
         self.setupEditor()
-        self.setupCardInfo()
+        self.setupToolbar()
+        #self.setupCardInfo()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
@@ -330,8 +331,10 @@ class Browser(QMainWindow):
         self.onSearch()
 
     def setupToolbar(self):
-        self.form.toolBar.setIconSize(QSize(24, 24))
-        self.form.toolBar.toggleViewAction().setText(_("Toggle Toolbar"))
+        self.toolbarWeb = AnkiWebView()
+        self.toolbarWeb.setFixedHeight(34)
+        self.toolbar = BrowserToolbar(self.mw, self.toolbarWeb, self)
+        self.form.verticalLayout_3.insertWidget(0, self.toolbarWeb)
 
     def setupMenus(self):
         # actions
@@ -491,7 +494,7 @@ class Browser(QMainWindow):
     def onRowChanged(self, current, previous):
         "Update current note and hide/show editor."
         show = self.model.cards and self.updateTitle() == 1
-        self.form.splitter_2.widget(1).setShown(not not show)
+        self.form.splitter.widget(1).setShown(not not show)
         if not show:
             self.editor.setNote(None)
         else:
@@ -500,7 +503,7 @@ class Browser(QMainWindow):
             self.editor.setNote(self.card.note())
             self.editor.card = self.card
             self.showCardInfo(self.card)
-        self.updateToggles()
+        self.toolbar.draw()
 
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
@@ -690,6 +693,7 @@ class Browser(QMainWindow):
                      self.onCardLink)
 
     def showCardInfo(self, card):
+        return
         self.cardStats.card = self.card
         rep = self.cardStats.report()
         rep = "<style>table * { font-size: 12px; }</style>" + rep
@@ -858,10 +862,10 @@ where id in %s""" % ids2str(sf))
         self.model.endReset()
         self.mw.requireReset()
 
-    # Group change
+    # Deck change
     ######################################################################
 
-    def setGroup(self, initial=False):
+    def setDeck(self, initial=False):
         d = QDialog(self)
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.setgroup.Ui_Dialog()
@@ -870,7 +874,7 @@ where id in %s""" % ids2str(sf))
         te = TagEdit(d, type=1)
         frm.groupBox.layout().insertWidget(0, te)
         te.setCol(self.col)
-        d.connect(d, SIGNAL("accepted()"), lambda: self.onSetGroup(frm, te))
+        d.connect(d, SIGNAL("accepted()"), lambda: self._onSetDeck(frm, te))
         self.setTabOrder(frm.setCur, te)
         self.setTabOrder(te, frm.setInitial)
         if initial:
@@ -878,22 +882,22 @@ where id in %s""" % ids2str(sf))
         d.show()
         te.setFocus()
 
-    def onSetGroup(self, frm, te):
+    def _onSetDeck(self, frm, te):
         self.model.beginReset()
-        self.mw.checkpoint(_("Set Group"))
+        self.mw.checkpoint(_("Set Deck"))
         mod = intTime()
         if frm.setCur.isChecked():
-            gid = self.col.groups.id(unicode(te.text()))
+            did = self.col.decks.id(unicode(te.text()))
             self.col.db.execute(
-                "update cards set mod=?, gid=? where id in " + ids2str(
-                    self.selectedCards()), mod, gid)
+                "update cards set mod=?, did=? where id in " + ids2str(
+                    self.selectedCards()), mod, did)
             if frm.setInitial.isChecked():
                 self.col.db.execute(
-                    "update notes set mod=?, gid=? where id in " + ids2str(
-                        self.selectedNotes()), mod, gid)
+                    "update notes set mod=?, did=? where id in " + ids2str(
+                        self.selectedNotes()), mod, did)
         else:
             self.col.db.execute("""
-update cards set mod=?, gid=(select gid from notes where id = cards.nid)
+update cards set mod=?, did=(select did from notes where id = cards.nid)
 where id in %s""" % ids2str(self.selectedCards()), mod)
         self.onSearch(reset=False)
         self.mw.requireReset()
@@ -932,14 +936,12 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
     # Suspending and marking
     ######################################################################
 
-    def updateToggles(self):
-        self.form.actionToggleSuspend.setChecked(self.isSuspended())
-        self.form.actionToggleMark.setChecked(self.isMarked())
-
     def isSuspended(self):
         return not not (self.card and self.card.queue == -1)
 
-    def onSuspend(self, sus):
+    def onSuspend(self, sus=None):
+        if sus is None:
+            sus = not self.isSuspended()
         # focus lost hook may not have chance to fire
         self.editor.saveNow()
         c = self.selectedCards()
@@ -953,7 +955,9 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
     def isMarked(self):
         return not not (self.card and self.card.note().hasTag("Marked"))
 
-    def onMark(self, mark):
+    def onMark(self, mark=None):
+        if mark is None:
+            mark = not self.isMarked()
         if mark:
             self.addTags(tags="marked", label=False)
         else:
@@ -1397,3 +1401,69 @@ Are you sure you want to continue?""")):
 
     def onHelp(self):
         openHelp("Browser#ChangeModel")
+
+# Toolbar
+######################################################################
+
+class BrowserToolbar(Toolbar):
+    always = [
+        ["setDeck", "Move to Deck"],
+        ["addTags", "Add Tags"],
+        ["remTags", "Remove Tags"],
+    ]
+
+    singleOnly = [
+        ["info", "Info"],
+    ]
+
+    rightIcons = [
+        ["mark", "qrc:/icons/star16.png"],
+        ["pause", "qrc:/icons/star_off16.png"],
+    ]
+
+    def __init__(self, mw, web, browser):
+        self.browser = browser
+        Toolbar.__init__(self, mw, web)
+
+    def draw(self):
+        single = self.browser.editor.note
+        mark = self.browser.isMarked()
+        pause = self.browser.isSuspended()
+        links = self.always[:]
+        if single:
+            links += self.singleOnly
+        self.centerLinks = links
+        def borderImg(link, icon, on):
+            if on:
+                fmt = '''\
+<a class=hitem href="%s">
+<img style='background: #000;' src="qrc:/icons/%s.png"></a>'''
+            else:
+                fmt = '''\
+<a class=hitem href="%s"><img src="qrc:/icons/%s.png"></a>'''
+            return fmt % (link, icon)
+        right = ""
+        right += borderImg("mark", "star16", mark)
+        right += borderImg("pause", "pause16", pause)
+        self.web.stdHtml(self._body % (
+            '<a class="hitem" href="anki">Browser &#9662</a>',
+            self._centerLinks(),
+            right), self._css, focus=False)
+
+    # Link handling
+    ######################################################################
+
+    def _linkHandler(self, l):
+        if l == "anki":
+            self.showMenu()
+        elif l  == "setDeck":
+            self.browser.setDeck()
+        elif l  == "addTags":
+            self.browser.addTags()
+        elif l  == "remTags":
+            self.browser.deleteTags()
+        # icons
+        elif l == "mark":
+            self.browser.onMark()
+        elif l == "pause":
+            self.browser.onSuspend()

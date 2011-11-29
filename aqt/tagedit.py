@@ -6,7 +6,7 @@ import re, sys
 
 class TagEdit(QLineEdit):
 
-    # 0 = tags, 1 = groups
+    # 0 = tags, 1 = decks
     def __init__(self, parent, type=0):
         QLineEdit.__init__(self, parent)
         self.col = None
@@ -26,7 +26,7 @@ class TagEdit(QLineEdit):
         if self.type == 0:
             l = sorted(self.col.tags.all())
         else:
-            l = self.col.groups.all()
+            l = sorted(self.col.decks.allNames())
         self.model.setStringList(l)
 
     def addTags(self, tags):
@@ -50,7 +50,7 @@ class TagCompleter(QCompleter):
     def splitPath(self, str):
         str = unicode(str).strip()
         str = re.sub("  +", " ", str)
-        self.tags = self.parent.col.tags.split(str)
+        self.tags = self.edit.col.tags.split(str)
         self.tags.append(u"")
         p = self.edit.cursorPosition()
         self.cursor = str.count(" ", 0, p)

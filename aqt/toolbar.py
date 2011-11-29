@@ -13,11 +13,13 @@ class Toolbar(object):
         self.web.page().mainFrame().setScrollBarPolicy(
             Qt.Vertical, Qt.ScrollBarAlwaysOff)
         self.web.setLinkHandler(self._linkHandler)
-        self.draw()
 
     def draw(self):
-        body = self._body % (self._centerLinks(), self._rightIcons())
-        self.web.stdHtml(body, self._css)
+        self.web.stdHtml(self._body % (
+            '<a class="hitem" href="anki">Anki &#9662</a>',
+            self._centerLinks(),
+            self._rightIcons()),
+                         self._css, focus=False)
 
     # Available links
     ######################################################################
@@ -38,6 +40,7 @@ class Toolbar(object):
         buf = ""
         for ln, name in self.centerLinks:
             buf += '<a class=hitem href="%s">%s</a>' % (ln, _(name))
+            buf += "&nbsp;"*3
         return buf
 
     def _rightIcons(self):
@@ -72,9 +75,9 @@ class Toolbar(object):
     _body = """
 <table id=header width=100%%>
 <tr>
-<td width=20%%><a class="hitem" href="anki">Anki &#9662</a></td>
+<td align=left>%s</td>
 <td align=center>%s</td>
-<td width=20%% align=right>%s</td>
+<td align=right>%s</td>
 </tr></table>
 """
 

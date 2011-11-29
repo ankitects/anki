@@ -117,5 +117,9 @@
     <file>icons/stock_new_template_green.png</file>
     <file>icons/stock_new_template_red.png</file>
     <file>icons/stock_group.png</file>
+    <file>icons/star16.png</file>
+    <file>icons/star_off16.png</file>
+    <file>icons/pause16.png</file>
+    <file>icons/pause_off16.png</file>
   </qresource>
 </RCC>

@@ -322,10 +322,12 @@ title="%s">%s</button>''' % (
         tweb.setFocusPolicy(Qt.WheelFocus)
         tweb.setFixedHeight(32)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
+        self.toolbar.draw()
         # main area
         self.web = aqt.webview.AnkiWebView()
         self.web.setObjectName("mainText")
         self.web.setFocusPolicy(Qt.WheelFocus)
+        self.web.setMinimumWidth(400)
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0,0,0,0)
@@ -527,17 +529,21 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # Dockable widgets
     ##########################################################################
 
-    def addDockable(self, title, w):
-        dock = QDockWidget(title, self)
+    def addDockable(self, title, w, target=None):
+        target = target or self
+        dock = QDockWidget(title, target)
         dock.setObjectName(title)
         dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         dock.setFeatures(QDockWidget.DockWidgetClosable)
         dock.setWidget(w)
-        self.addDockWidget(Qt.RightDockWidgetArea, dock)
+        if target.width() < 600:
+            target.resize(QSize(600, target.height()))
+        target.addDockWidget(Qt.RightDockWidgetArea, dock)
         return dock
 
-    def rmDockable(self, dock):
-        self.removeDockWidget(dock)
+    def rmDockable(self, dock, target=None):
+        target = target or self
+        target.removeDockWidget(dock)
 
     # Marking, suspending and deleting
     ##########################################################################
