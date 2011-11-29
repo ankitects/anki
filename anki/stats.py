@@ -39,6 +39,7 @@ class CardStats(object):
             self.addLine(_("Due"), next)
             self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
+            self.addLine(_("Reviews"), "%d" % c.reps)
             (cnt, total) = self.col.db.first(
                 "select count(), sum(time)/1000 from revlog where cid = :id",
                 id=c.id)
