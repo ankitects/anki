@@ -1445,9 +1445,7 @@ class BrowserToolbar(Toolbar):
         right += borderImg("mark", "star16", mark)
         right += borderImg("pause", "pause16", pause)
         self.web.stdHtml(self._body % (
-            "&nbsp;"+
-            "<span style='font-weight:normal;'>%s</span>"%_("On Selected:"),
-            #'&nbsp;'*20, #<a class="hitem" href="anki">Browser &#9662</a>',
+            "<span style='display:inline-block; width: 100px;'></span>",
             self._centerLinks(),
             right), self._css, focus=False)
 

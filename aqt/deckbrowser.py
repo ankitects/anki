@@ -43,15 +43,12 @@ class DeckBrowser(object):
     ##########################################################################
 
     _css = """
-.sub { color: #555; }
 a.deck { color: #000; text-decoration: none; font-size: 12px; }
-.num { text-align: right; padding: 0 5 0 5; }
+a.deck:hover { text-decoration: underline; }
 td.opts { white-space: nowrap; }
 td.deck { width: 90% }
-a { font-size: 80%; }
 .extra { font-size: 90%; }
-.due { vertical-align: text-bottom; }
-body { margin: 1em; }
+body { margin: 1em; -webkit-user-select: none; }
 """
 
     _body = """

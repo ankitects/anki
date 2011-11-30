@@ -291,7 +291,6 @@ body {
 background: #f3f3f3;
 margin: 2em;
 }
-a:hover { background-color: #aaa; }
 h1 { margin-bottom: 0.2em; }
 hr { margin:5 0 5 0; border:0; height:1px; background-color:#ccc; }
 """

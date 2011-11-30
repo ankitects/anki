@@ -91,13 +91,12 @@ margin:0;
 background: -webkit-gradient(linear, left top, left bottom,
 from(#ddd), to(#fff));
 font-weight: bold;
-margin-bottom: 1px;
-border-bottom: 1px solid #aaa;
 }
 
 body {
 margin: 0; padding: 0;
 -webkit-user-select: none;
+border-bottom: 1px solid #aaa;
 }
 
 * { -webkit-user-drag: none; }
@@ -119,9 +118,9 @@ background: -webkit-gradient(linear, left top, left bottom,
 from(#fff), to(#ddd));
 border-bottom: 0;
 border-top: 1px solid #aaa;
-font-weight: normal;
 margin-bottom: 6px;
 }
+td { font-size: 12px; }
 """
 
     _centerBody = """

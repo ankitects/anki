@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, stat, shutil, difflib, simplejson
+import time, os, stat, shutil, difflib, simplejson, re
 import unicodedata as ucd
 from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML
@@ -33,6 +33,8 @@ class Reviewer(object):
         else:
             self.nextCard()
         self.keep = False
+        self.bottom.web.setFixedHeight(60)
+        self.bottom.web.setLinkHandler(self._linkHandler)
 
     def lastCard(self):
         if self._answeredIds:
@@ -55,7 +57,6 @@ class Reviewer(object):
         clearAudioQueue()
         if c:
             #self.updateMarkAction()
-            self.state = "question"
             self._initWeb()
         else:
             self.mw.moveToState("overview")
@@ -82,18 +83,10 @@ var hideq;
 var ans;
 var typeans;
 function _updateQA (q) {
-    location.hash = "";
-    $("#qa").html(q[0]);
-    $("#qa:first").css("height", "100%%");
-    //$("#easebuts").html(q[1]).addClass("inv");
-    //$("#ansbut").show();
+    $("#qa").html(q);
     typeans = document.getElementById("typeans");
     if (typeans) {
         typeans.focus();
-    }
-    // user hook
-    if (typeof(onQuestion) === "function") {
-        onQuestion();
     }
 };
 function _showans (a) {
@@ -110,10 +103,6 @@ function _showans (a) {
     }
     //$("#ansbut").hide();
     $("#defease").focus();
-    // user hook
-    if (typeof(onAnswer) === "function") {
-        onAnswer();
-    }
 };
 function _processTyped (res) {
     $("#typeans").replaceWith(res);
@@ -135,32 +124,31 @@ $(".ansbut").focus();
 """
 
     def _initWeb(self):
-        self.web.stdHtml(self._revHtml % dict(
-            showans=_("Show Answer")), self._styles(),
-            bodyID="card",
-            loadCB=lambda x: self._showQuestion())
+        self.web.stdHtml(self._revHtml, self._styles(),
+            bodyID="card", loadCB=lambda x: self._showQuestion())
 
-    # Showing the question (and preparing answer)
+    # Showing the question
     ##########################################################################
 
+    def _mungeQA(self, buf):
+        return self.mw.col.media.escapeImages(
+            self.prepareTypeAns(mungeQA(buf)))
+
     def _showQuestion(self):
-        # fixme: timeboxing
-        # fixme: timer
         self.state = "question"
         c = self.card
         # mod the card so it shows up in the recently modified list
-        self.card.flush()
+        c.flush()
+        # grab the question and play audio
         q = c.q()
-        a = c.a()
         if self.mw.pm.profile['autoplay']:
             playFromText(q)
         # render
-        esc = self.mw.col.media.escapeImages
-        q=esc(mungeQA(q)) + self.typeAnsInput()
-        a=esc(mungeQA(a))
-        self.web.eval("_updateQA(%s);" % simplejson.dumps(
-            (q, self._answerButtons())))
+        q = self._mungeQA(q)
+        self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
         runHook('showQuestion')
+        # and refresh bottom bar
+        self._showAnswerButton()
 
     # Showing the answer
     ##########################################################################
@@ -254,6 +242,7 @@ $(".ansbut").focus();
 
     def _linkHandler(self, url):
         if url == "ans":
+            print "show ans"
             self._showAnswer()
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
@@ -350,22 +339,28 @@ div#filler {
     failedCharColour = "#FF0000"
     passedCharColour = "#00FF00"
 
-    def typeAns(self):
-        "None if answer typing disabled."
-        print "typeAns()"
-        return False
-        self.card.template()['typeAns']
-
-    def typeAnsInput(self):
-        if not self.typeAns():
-            return ""
-        return """
+    def prepareTypeAns(self, buf):
+        self.typeField = None
+        pat = "\[\[type:(.+?)\]\]"
+        m = re.search(pat, buf)
+        if not m:
+            return buf
+        fld = m.group(1)
+        print "got", fld
+        fobj = None
+        for f in self.card.model()['flds']:
+            if f['name'] == fld:
+                fobj = f
+                break
+        if not fobj:
+            return re.sub(pat, _("Type answer: unknown field %s") % fld, buf)
+        self.typeField = fobj
+        return re.sub(pat, """
 <center>
 <input type=text id=typeans onkeypress="_typeAnsPress();"
    style="font-family: '%s'; font-size: %s;">
 </center>
-""" % (
-    self.getFont())
+""" % (fobj['font'], fobj['size']), buf)
 
     def processTypedAns(self, given):
         ord = self.typeAns()
@@ -439,6 +434,49 @@ div#filler {
                 ret += self.applyStyle(a[j1], lastEqual, "-" * dashNum)
                 lastEqual = ""
         return ret + self.ok(lastEqual)
+
+    # Bottom bar
+    ##########################################################################
+
+    _bottomCSS = """
+body {
+background: -webkit-gradient(linear, left top, left bottom,
+from(#fff), to(#ddd));
+border-bottom: 0;
+border-top: 1px solid #aaa;
+margin: 0;
+padding: 5px;
+}
+td { font-weight: bold; font-size: 12px; }
+.hitem { padding: 0; }
+"""
+    _bottomQuestion = """
+<table width=100%% cellspacing=0 cellpadding=0>
+<tr>
+<td width=100>0 + 0 + 0</td>
+<td align=center>
+<button onclick='py.link(\"ans\");'>%s</button>
+</td>
+<td width=100 align=right>0:00</td>
+</tr>
+</table>
+<center>
+<table width=100%% cellspacing=0 cellpadding=0>
+<tr>
+<td align=left>
+<a class=hitem href="foo">Actions &#9662;</a>&nbsp;&nbsp;&nbsp;
+</td>
+<td align=right>
+<a class=hitem><img src="qrc:/icons/star16.png"></a>
+<a class=hitem><img src="qrc:/icons/star16.png"></a>
+</td>
+</tr></table>
+"""
+
+    def _showAnswerButton(self):
+        self.bottom.web.stdHtml(
+            self._bottomQuestion % _("Show Answer"),
+            self.bottom._css + self._bottomCSS)
 
     # Status bar
     ##########################################################################
