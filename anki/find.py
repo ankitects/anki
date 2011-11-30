@@ -88,6 +88,8 @@ and c.nid=n.id %s""" % (q, order)
                 sort = "c.ivl"
             else:
                 raise Exception()
+        else:
+            raise Exception()
         return " order by " + sort
 
     def _findLimits(self):
