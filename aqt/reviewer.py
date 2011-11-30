@@ -22,7 +22,6 @@ class Reviewer(object):
         self._answeredIds = []
         self.state = None
         self.keep = False
-        self._setupStatus()
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         addHook("leech", self.onLeech)
 
@@ -41,7 +40,6 @@ class Reviewer(object):
                 return self.mw.col.getCard(self._answeredIds[-1])
 
     def cleanup(self):
-        self._hideStatus()
         runHook("reviewCleanup")
 
     # Fetching a card
@@ -56,16 +54,11 @@ class Reviewer(object):
         self.card = c
         clearAudioQueue()
         if c:
-            self._showStatus()
             #self.updateMarkAction()
             self.state = "question"
             self._initWeb()
         else:
-            self._hideStatus()
-            if self.mw.col.cardCount():
-                self._showCongrats()
-            else:
-                self._showEmpty()
+            self.mw.moveToState("overview")
 
     # Audio
     ##########################################################################
@@ -447,114 +440,10 @@ div#filler {
                 lastEqual = ""
         return ret + self.ok(lastEqual)
 
-    # Deck finished case
-    ##########################################################################
-
-    def _showCongrats(self):
-        self.state = "congrats"
-        self.card = None
-        buf = """
-<center>
-%s
-<p>
-%s
-<script>$("#ov").focus();</script>
-</center>""" % (self.mw.col.sched.finishedMsg(),
-                self.mw.button(key="o", name=_("Overview"), link="ov", id='ov'))
-        self.web.stdHtml(buf, css=self.mw.sharedCSS)
-        runHook('deckFinished')
-
-    def drawDeckFinishedMessage(self):
-        "Tell the user the deck is finished."
-
-    # Deck empty case
-    ##########################################################################
-
-    def _showEmpty(self):
-        self.state = "empty"
-        buf = """
-<h1>%(welcome)s</h1>
-<p>
-<table>
-<tr>
-<td width=40>
-<a href="add"><img src="qrc:/icons/list-add.png"></a>
-</td>
-<td valign=middle><b><a href="add">%(add)s</a></b>
-<br>%(start)s</td>
-</tr>
-</table>
-<br>
-<table>
-<tr>
-<td width=40>
-<a href="welcome:back"><img src="qrc:/icons/go-previous.png"></a>
-</td>
-<td valign=middle><b><a href="dlist">%(back)s</a></b></td>
-</tr>
-</table>""" % \
-        {"welcome":_("Welcome to Anki!"),
-         "add":_("Add Cards"),
-         "start":_("Start adding your own material."),
-         "back":_("Deck List"),
-         }
-        self.web.stdHtml(buf, css=self.mw.sharedCSS)
-
     # Status bar
     ##########################################################################
 
-    def _setupStatus(self):
-        return
-        self._statusWidgets = []
-        sb = self.mw.form.statusbar
-        def addWgt(w, stretch=0):
-            w.setShown(False)
-            sb.addWidget(w, stretch)
-            self._statusWidgets.append(w)
-        def vertSep():
-            spacer = QFrame()
-            spacer.setFrameStyle(QFrame.VLine)
-            spacer.setFrameShadow(QFrame.Plain)
-            spacer.setStyleSheet("* { color: #888; }")
-            return spacer
-        # left spacer
-        space = QWidget()
-        addWgt(space, 1)
-        # remaining
-        self.remText = QLabel()
-        addWgt(self.remText, 0)
-        # progress
-        addWgt(vertSep())
-        class QClickableProgress(QProgressBar):
-            def mouseReleaseEvent(self, evt):
-                openHelp("ProgressBars")
-        progressBarSize = (50, 14)
-        self.progressBar = QClickableProgress()
-        self.progressBar.setFixedSize(*progressBarSize)
-        self.progressBar.setMaximum(100)
-        self.progressBar.setTextVisible(False)
-        if QApplication.instance().style().objectName() != "plastique":
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-            self.progressBar.setStyle(self.plastiqueStyle)
-        addWgt(self.progressBar, 0)
-
-    def _showStatus(self):
-        return
-        self._showStatusWidgets(True)
-        self._updateRemaining()
-        self._updateProgress()
-
-    def _hideStatus(self):
-        self._showStatusWidgets(False)
-
-    def _showStatusWidgets(self, shown=True):
-        return
-        for w in self._statusWidgets:
-            w.setShown(shown)
-        self.mw.form.statusbar.hideOrShow()
-
-    # fixme: only show progress for reviews, and only when revs due?
-    def _updateRemaining(self):
+    def _remaining(self):
         counts = list(self.mw.col.sched.repCounts())
         idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx]+1)
@@ -562,26 +451,7 @@ div#filler {
         ctxt = '<font color="#000099">%s</font>' % counts[0]
         ctxt += space + '<font color="#990000">%s</font>' % counts[1]
         ctxt += space + '<font color="#007700">%s</font>' % counts[2]
-        buf = _("Remaining: %s") % ctxt
-        self.remText.setText(buf)
-
-    def _updateProgress(self):
-        p = QPalette()
-        p.setColor(QPalette.Base, QColor("black"))
-        p.setColor(QPalette.Button, QColor("black"))
-        perc = 50
-        if perc == 0:
-            p.setColor(QPalette.Highlight, QColor("black"))
-        elif perc < 50:
-            p.setColor(QPalette.Highlight, QColor("#ee0000"))
-        elif perc < 65:
-            p.setColor(QPalette.Highlight, QColor("#ee7700"))
-        elif perc < 75:
-            p.setColor(QPalette.Highlight, QColor("#eeee00"))
-        else:
-            p.setColor(QPalette.Highlight, QColor("#00ee00"))
-        self.progressBar.setPalette(p)
-        self.progressBar.setValue(perc)
+        return ctxt
 
     # Leeches
     ##########################################################################
