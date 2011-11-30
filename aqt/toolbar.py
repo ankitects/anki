@@ -16,7 +16,8 @@ class Toolbar(object):
 
     def draw(self):
         self.web.stdHtml(self._body % (
-            '<a class="hitem" href="anki">Anki &#9662</a>',
+            # may want a context menu here in the future
+            '&nbsp;'*20,
             self._centerLinks(),
             self._rightIcons()),
                          self._css, focus=False)

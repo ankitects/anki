@@ -315,6 +315,7 @@ class Browser(QMainWindow):
         self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter.setChildrenCollapsible(False)
         self.card = None
+        self.setupToolbar()
         self.setupColumns()
         self.setupTable()
         self.setupMenus()
@@ -323,7 +324,6 @@ class Browser(QMainWindow):
         self.setupHeaders()
         self.setupHooks()
         self.setupEditor()
-        self.setupToolbar()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
@@ -337,6 +337,7 @@ class Browser(QMainWindow):
         self.toolbarWeb.setFixedHeight(34)
         self.toolbar = BrowserToolbar(self.mw, self.toolbarWeb, self)
         self.form.verticalLayout_3.insertWidget(0, self.toolbarWeb)
+        self.toolbar.draw()
 
     def setupMenus(self):
         # actions
@@ -1425,7 +1426,6 @@ class BrowserToolbar(Toolbar):
         Toolbar.__init__(self, mw, web)
 
     def draw(self):
-        single = self.browser.editor.note
         mark = self.browser.isMarked()
         pause = self.browser.isSuspended()
         links = self.always[:]
@@ -1440,10 +1440,9 @@ class BrowserToolbar(Toolbar):
 <a class=hitem href="%s"><img src="qrc:/icons/%s.png"></a>'''
             return fmt % (link, icon)
         right = ""
-        if self.browser.card:
-            right += borderImg("info", "info", False)
-            right += borderImg("mark", "star16", mark)
-            right += borderImg("pause", "pause16", pause)
+        right += borderImg("info", "info", False)
+        right += borderImg("mark", "star16", mark)
+        right += borderImg("pause", "pause16", pause)
         self.web.stdHtml(self._body % (
             "&nbsp;"+
             "<span style='font-weight:normal;'>%s</span>"%_("On Selected:"),
