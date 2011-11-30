@@ -41,7 +41,6 @@ class Reviewer(object):
 
     def cleanup(self):
         self._hideStatus()
-        self.mw.disableCardMenuItems()
         runHook("reviewCleanup")
 
     # Fetching a card
@@ -56,15 +55,12 @@ class Reviewer(object):
         self.card = c
         clearAudioQueue()
         if c:
-            self.mw.enableCardMenuItems()
             self._showStatus()
-            self._maybeEnableSound()
             #self.updateMarkAction()
             self.state = "question"
             self._initWeb()
         else:
             self._hideStatus()
-            self.mw.disableCardMenuItems()
             if self.mw.col.cardCount():
                 self._showCongrats()
             else:
@@ -72,10 +68,6 @@ class Reviewer(object):
 
     # Audio
     ##########################################################################
-
-    def _maybeEnableSound(self):
-        self.mw.form.actionRepeatAudio.setEnabled(
-            hasSound(self.card.q() + self.card.a()))
 
     def replayAudio(self):
         clearAudioQueue()

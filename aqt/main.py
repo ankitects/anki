@@ -60,7 +60,6 @@ class AnkiQt(QMainWindow):
         self.setupStyle()
         self.setupProxy()
         self.setupMenus()
-        self.setupToolbar()
         self.setupProgress()
         self.setupErrorHandler()
         self.setupSystemSpecific()
@@ -497,36 +496,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         event.accept()
         self.app.quit()
 
-    # Toolbar
-    ##########################################################################
-
-    def setupToolbar(self):
-        print "setup toolbar"
-        return
-        frm = self.form
-        tb = frm.toolBar
-        tb.addAction(frm.actionAddcards)
-        tb.addAction(frm.actionEditCurrent)
-        tb.addAction(frm.actionEditLayout)
-        tb.addAction(frm.actionEditdeck)
-        tb.addAction(frm.actionOverview)
-        tb.addAction(frm.actionGroups)
-        tb.addAction(frm.actionStats)
-        tb.addAction(frm.actionMarkCard)
-        tb.addAction(frm.actionRepeatAudio)
-        tb.setIconSize(QSize(self.pm.profile['iconSize'],
-                             self.pm.profile['iconSize']))
-        toggle = tb.toggleViewAction()
-        toggle.setText(_("Toggle Toolbar"))
-        self.connect(toggle, SIGNAL("triggered()"),
-                     self.onToolbarToggle)
-        if not self.pm.profile['showToolbar']:
-            tb.hide()
-
-    def onToolbarToggle(self):
-        tb = self.form.toolBar
-        self.pm.profile['showToolbar'] = tb.isVisible()
-
     # Dockable widgets
     ##########################################################################
 
@@ -748,38 +717,19 @@ Please choose a new deck name:"""))
         s = SIGNAL("triggered()")
         #self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
         self.connect(m.actionExit, s, self, SLOT("close()"))
-        self.connect(m.actionSync, s, self.onSync)
-        self.connect(m.actionModels, s, self.onModels)
-        self.connect(m.actionAdd, s, self.onAddCard)
-        self.connect(m.actionBrowse, s, self.onBrowse)
-        self.connect(m.actionEditCurrent, s, self.onEditCurrent)
         self.connect(m.actionPreferences, s, self.onPrefs)
-        self.connect(m.actionStats, s, self.onStats)
         self.connect(m.actionCstats, s, self.onCardStats)
-        self.connect(m.actionEditLayout, s, self.onCardLayout)
         self.connect(m.actionAbout, s, self.onAbout)
-        self.connect(m.actionImport, s, self.onImport)
-        self.connect(m.actionExport, s, self.onExport)
-        self.connect(m.actionMarkCard, SIGNAL("toggled(bool)"), self.onMark)
-        self.connect(m.actionSuspendCard, s, self.onSuspend)
-        self.connect(m.actionDelete, s, self.onDelete)
-        self.connect(m.actionRepeatAudio, s, self.onRepeatAudio)
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
-        self.connect(m.actionStudyOptions, s, self.onStudyOptions)
-        self.connect(m.actionOverview, s, self.onOverview)
-        self.connect(m.actionGroups, s, self.onGroups)
         self.connect(m.actionDocumentation, s, self.onDocumentation)
         self.connect(m.actionDonate, s, self.onDonate)
-        self.connect(m.actionBuryNote, s, self.onBuryNote)
 
     def enableDeckMenuItems(self, enabled=True):
         "setEnabled deck-related items."
         for item in self.deckRelatedMenuItems:
             getattr(self.form, "action" + item).setEnabled(enabled)
-        if not enabled:
-            self.disableCardMenuItems()
         self.maybeEnableUndo()
         runHook("enableDeckMenuItems", enabled)
 
@@ -789,29 +739,6 @@ Please choose a new deck name:"""))
 
     def updateTitleBar(self):
         self.setWindowTitle(aqt.appName)
-
-    def disableCardMenuItems(self):
-        self.maybeEnableUndo()
-        self.form.actionEditCurrent.setEnabled(False)
-        self.form.actionEditLayout.setEnabled(False)
-	self.form.actionMarkCard.setEnabled(False)
-	self.form.actionSuspendCard.setEnabled(False)
-	self.form.actionDelete.setEnabled(False)
-	self.form.actionBuryNote.setEnabled(False)
-        self.form.actionRepeatAudio.setEnabled(False)
-        runHook("disableCardMenuItems")
-
-    def enableCardMenuItems(self):
-        self.maybeEnableUndo()
-	self.form.actionEditLayout.setEnabled(True)
-	self.form.actionMarkCard.setEnabled(True)
-	self.form.actionSuspendCard.setEnabled(True)
-	self.form.actionDelete.setEnabled(True)
-	self.form.actionBuryNote.setEnabled(True)
-        self.form.actionEditCurrent.setEnabled(True)
-        self.form.actionBrowse.setEnabled(True)
-        self.updateMarkAction()
-        runHook("enableCardMenuItems")
 
     # Auto update
     ##########################################################################

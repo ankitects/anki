@@ -32,7 +32,6 @@ class AddonManager(object):
             except:
                 print "Error in %s" % plugin
                 traceback.print_exc()
-        self.mw.disableCardMenuItems()
         self.rebuildPluginsMenu()
         # run the obsolete init hook
         try:

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>397</width>
-    <height>444</height>
+    <width>395</width>
+    <height>442</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,13 +71,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="centerQA">
-         <property name="text">
-          <string>Center question and answer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
           <string>Show next times</string>
@@ -87,33 +80,9 @@
        <item>
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
-          <string>Show due count and progress</string>
+          <string>Show due counts while reviewing</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>&lt;b&gt;Media&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="mediaChoice"/>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="mediaPrefix">
-           <property name="text">
-            <string>Prefix:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="mediaPath"/>
-         </item>
-        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer">
@@ -161,7 +130,7 @@
            <item>
             <widget class="QLabel" name="label_16">
              <property name="text">
-              <string>&lt;b&gt;Synchronisation&lt;/b&gt;&lt;a href=&quot;http://ankiweb.net/&quot;&gt;&lt;br&gt;Create a free account&lt;/a&gt;.</string>
+              <string>&lt;b&gt;Synchronisation&lt;/b&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -172,42 +141,25 @@
             </widget>
            </item>
            <item>
+            <widget class="QRadioButton" name="radioButton">
+             <property name="text">
+              <string>Synchronize collection across devices</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_2">
+             <property name="text">
+              <string>Don't synchronize</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <layout class="QGridLayout">
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_18">
-               <property name="text">
-                <string>Password</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_17">
-               <property name="text">
-                <string>Username</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="syncUser"/>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="syncPass">
-               <property name="echoMode">
-                <enum>QLineEdit::Password</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" colspan="2">
+             <item row="0" column="0" colspan="2">
               <widget class="QCheckBox" name="syncOnProgramOpen">
                <property name="text">
-                <string>Sync on program open/close</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0" colspan="2">
-              <widget class="QCheckBox" name="disableWhenMoved">
-               <property name="text">
-                <string>Disable sync when deck moved</string>
+                <string>Automatically sync on profile open/close</string>
                </property>
               </widget>
              </item>
@@ -220,7 +172,10 @@
        <item>
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>&lt;b&gt;Proxy&lt;/b&gt;</string>
+          <string>&lt;b&gt;Proxy&lt;/b&gt;&lt;br&gt;If your system needs a proxy to access the internet, enter your details below.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -327,7 +282,7 @@
        <item>
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Decks are backed up when they are opened or synchronised, and only if they have been modified since the last backup.</string>
+          <string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Anki will create a backup of your collection each time it is closed or synchronized</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -391,7 +346,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Note that your media folders are &lt;b&gt;not&lt;/b&gt; backed up. It's recommended you keep your media in DropBox to avoid data loss.</string>
+          <string>Note: Media is not backed up. Please create a periodic backup of your Documents/Anki folder to be safe.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -430,13 +385,6 @@
       <layout class="QVBoxLayout">
        <item>
         <layout class="QGridLayout">
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="openLastDeck">
-           <property name="text">
-            <string>Always open last deck on startup</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QCheckBox" name="stripHTML">
            <property name="text">
@@ -444,31 +392,14 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="1" column="0">
           <widget class="QCheckBox" name="deleteMedia">
            <property name="text">
             <string>Delete original media on add</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QCheckBox" name="showToolbar">
-           <property name="text">
-            <string>Show toolbar</string>
-           </property>
-          </widget>
-         </item>
         </layout>
-       </item>
-       <item>
-        <widget class="QPushButton" name="documentFolder">
-         <property name="text">
-          <string>Change document folder...</string>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
        </item>
        <item>
         <spacer>
@@ -513,25 +444,16 @@
   <tabstop>tabWidget</tabstop>
   <tabstop>interfaceLang</tabstop>
   <tabstop>autoplaySounds</tabstop>
-  <tabstop>centerQA</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
-  <tabstop>mediaChoice</tabstop>
-  <tabstop>mediaPath</tabstop>
-  <tabstop>syncUser</tabstop>
-  <tabstop>syncPass</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
-  <tabstop>disableWhenMoved</tabstop>
   <tabstop>proxyHost</tabstop>
   <tabstop>proxyPort</tabstop>
   <tabstop>proxyUser</tabstop>
   <tabstop>proxyPass</tabstop>
   <tabstop>numBackups</tabstop>
   <tabstop>stripHTML</tabstop>
-  <tabstop>openLastDeck</tabstop>
   <tabstop>deleteMedia</tabstop>
-  <tabstop>showToolbar</tabstop>
-  <tabstop>documentFolder</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -543,8 +465,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>279</x>
-     <y>457</y>
+     <x>285</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -559,12 +481,44 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>457</y>
+     <x>332</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>syncOnProgramOpen</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>92</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>83</x>
+     <y>136</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>syncOnProgramOpen</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>146</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>146</x>
+     <y>134</y>
     </hint>
    </hints>
   </connection>

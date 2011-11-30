@@ -269,12 +269,12 @@ class Editor(object):
         self.iconsBox.setSpacing(0)
         self.outerLayout.addLayout(self.iconsBox)
         b = self._addButton
-        b("fields", self.onFields, "Ctrl+f",
-          shortcut(_("Layout (Ctrl+f)")), size=False, text=_("Fields..."),
+        b("fields", self.onFields, "",
+          shortcut(_("Customize Fields")), size=False, text=_("Fields..."),
           native=True)
         b("layout", self.onCardLayout, "Ctrl+l",
-          shortcut(_("Layout (Ctrl+l)")), size=False, text=_("Layout..."),
-          native=True)
+          shortcut(_("Customize Card Layout (Ctrl+l)")),
+          size=False, text=_("Layout..."), native=True)
         # align to right
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         b("text_bold", self.toggleBold, "Ctrl+b", _("Bold text (Ctrl+b)"),

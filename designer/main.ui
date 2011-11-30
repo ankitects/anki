@@ -63,15 +63,6 @@
      <string>&amp;Edit</string>
     </property>
     <addaction name="actionUndo"/>
-    <addaction name="separator"/>
-    <addaction name="actionAdd"/>
-    <addaction name="actionEditCurrent"/>
-    <addaction name="actionBrowse"/>
-    <addaction name="separator"/>
-    <addaction name="actionMarkCard"/>
-    <addaction name="actionBuryNote"/>
-    <addaction name="actionSuspendCard"/>
-    <addaction name="actionDelete"/>
    </widget>
    <widget class="QMenu" name="menuCol">
     <property name="title">
@@ -79,30 +70,11 @@
     </property>
     <addaction name="actionSwitchProfile"/>
     <addaction name="separator"/>
-    <addaction name="actionImport"/>
-    <addaction name="actionExport"/>
-    <addaction name="separator"/>
-    <addaction name="actionSync"/>
-    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>&amp;Tools</string>
-    </property>
-    <addaction name="actionDecks"/>
-    <addaction name="separator"/>
-    <addaction name="actionStats"/>
-    <addaction name="actionCstats"/>
-    <addaction name="separator"/>
-    <addaction name="actionRepeatAudio"/>
-    <addaction name="separator"/>
-    <addaction name="actionFullDatabaseCheck"/>
-    <addaction name="actionCheckMediaDatabase"/>
-   </widget>
-   <widget class="QMenu" name="menu_Settings">
-    <property name="title">
-     <string>&amp;Settings</string>
     </property>
     <widget class="QMenu" name="menuPlugins">
      <property name="title">
@@ -126,13 +98,10 @@
      <addaction name="menuStartup"/>
      <addaction name="separator"/>
     </widget>
-    <addaction name="actionOverview"/>
-    <addaction name="actionEditLayout"/>
-    <addaction name="actionGroups"/>
-    <addaction name="actionModels"/>
+    <addaction name="actionCstats"/>
     <addaction name="separator"/>
-    <addaction name="actionStudyOptions"/>
-    <addaction name="actionColProperties"/>
+    <addaction name="actionFullDatabaseCheck"/>
+    <addaction name="actionCheckMediaDatabase"/>
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>
     <addaction name="actionPreferences"/>
@@ -140,7 +109,6 @@
    <addaction name="menuCol"/>
    <addaction name="menuEdit"/>
    <addaction name="menuTools"/>
-   <addaction name="menu_Settings"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionExit">
@@ -153,51 +121,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
-   </property>
-  </action>
-  <action name="actionSync">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/multisynk.png</normaloff>:/icons/multisynk.png</iconset>
-   </property>
-   <property name="text">
-    <string>S&amp;ync</string>
-   </property>
-   <property name="statusTip">
-    <string>Synchronize with Anki Online</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionAdd">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Add Note...</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-   <property name="shortcut">
-    <string>A</string>
-   </property>
-  </action>
-  <action name="actionBrowse">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Browse...</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-   <property name="shortcut">
-    <string>B</string>
    </property>
   </action>
   <action name="actionPreferences">
@@ -245,114 +168,6 @@
     <string>Shift+C</string>
    </property>
   </action>
-  <action name="actionColProperties">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/contents.png</normaloff>:/icons/contents.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Col Options...</string>
-   </property>
-   <property name="statusTip">
-    <string>Customize models, syncing and scheduling</string>
-   </property>
-  </action>
-  <action name="actionImport">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/document-import.png</normaloff>:/icons/document-import.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Import...</string>
-   </property>
-   <property name="statusTip">
-    <string>Import cards into collection</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
-   </property>
-  </action>
-  <action name="actionStats">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/view-statistics.png</normaloff>:/icons/view-statistics.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Statistics...</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-   <property name="shortcut">
-    <string>Shift+S</string>
-   </property>
-  </action>
-  <action name="actionExport">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/document-export.png</normaloff>:/icons/document-export.png</iconset>
-   </property>
-   <property name="text">
-    <string>Expor&amp;t...</string>
-   </property>
-   <property name="statusTip">
-    <string>Export data to a text file or deck</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+T</string>
-   </property>
-  </action>
-  <action name="actionMarkCard">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/rating.png</normaloff>:/icons/rating.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Mark Note</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-   <property name="shortcut">
-    <string>M</string>
-   </property>
-  </action>
-  <action name="actionSuspendCard">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Suspend Card</string>
-   </property>
-   <property name="statusTip">
-    <string>Stop reviewing this card until it's unsuspended in the browser</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
-   </property>
-  </action>
-  <action name="actionRepeatAudio">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/media-playback-start.png</normaloff>:/icons/media-playback-start.png</iconset>
-   </property>
-   <property name="text">
-    <string>Repeat &amp;Audio</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-   <property name="shortcut">
-    <string>F5</string>
-   </property>
-  </action>
   <action name="actionUndo">
    <property name="enabled">
     <bool>false</bool>
@@ -374,7 +189,7 @@
      <normaloff>:/icons/text-speak.png</normaloff>:/icons/text-speak.png</iconset>
    </property>
    <property name="text">
-    <string>Check &amp;Media...</string>
+    <string>&amp;Unused Media...</string>
    </property>
    <property name="statusTip">
     <string>Check the files in the media directory</string>
@@ -395,44 +210,6 @@
     <string>&amp;Disable All</string>
    </property>
   </action>
-  <action name="actionEditCurrent">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-rename.png</normaloff>:/icons/edit-rename.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Edit Note...</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-   <property name="shortcut">
-    <string>E</string>
-   </property>
-  </action>
-  <action name="actionDelete">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Delete Card</string>
-   </property>
-   <property name="statusTip">
-    <string>Delete the currently displayed card</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Del</string>
-   </property>
-  </action>
-  <action name="actionStudyOptions">
-   <property name="text">
-    <string>&amp;Study Options...</string>
-   </property>
-   <property name="statusTip">
-    <string/>
-   </property>
-  </action>
   <action name="actionDonate">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -444,25 +221,10 @@
   </action>
   <action name="actionDownloadSharedPlugin">
    <property name="text">
-    <string>Download Shared...</string>
+    <string>Get Add-ons...</string>
    </property>
    <property name="statusTip">
     <string>Download a plugin to add new features or change Anki's behaviour</string>
-   </property>
-  </action>
-  <action name="actionBuryNote">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/khtml_kget.png</normaloff>:/icons/khtml_kget.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Bury Note</string>
-   </property>
-   <property name="statusTip">
-    <string>Suspend the current note until Anki is reopened</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+B</string>
    </property>
   </action>
   <action name="actionFullDatabaseCheck">
@@ -472,50 +234,6 @@
    </property>
    <property name="text">
     <string>&amp;Optimize...</string>
-   </property>
-  </action>
-  <action name="actionEditLayout">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/layout.png</normaloff>:/icons/layout.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Layout...</string>
-   </property>
-   <property name="shortcut">
-    <string>L</string>
-   </property>
-  </action>
-  <action name="actionOverview">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/chronometer.png</normaloff>:/icons/chronometer.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Overview...</string>
-   </property>
-   <property name="shortcut">
-    <string>O</string>
-   </property>
-  </action>
-  <action name="actionGroups">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/stock_group.png</normaloff>:/icons/stock_group.png</iconset>
-   </property>
-   <property name="text">
-    <string>Groups...</string>
-   </property>
-   <property name="shortcut">
-    <string>G</string>
-   </property>
-  </action>
-  <action name="actionModels">
-   <property name="text">
-    <string>Models...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+M</string>
    </property>
   </action>
   <action name="actionDocumentation">
@@ -537,18 +255,6 @@
    </property>
    <property name="text">
     <string>&amp;Profile...</string>
-   </property>
-  </action>
-  <action name="actionDecks">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/graphite_smooth_folder_noncommercial.png</normaloff>:/icons/graphite_smooth_folder_noncommercial.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Decks...</string>
    </property>
   </action>
  </widget>
