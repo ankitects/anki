@@ -215,6 +215,9 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.save(m)
 
     def addField(self, m, field):
+        # only mod schema if model isn't new
+        if m['id']:
+            self.col.modSchema()
         m['flds'].append(field)
         self._updateFieldOrds(m)
         self.save(m)
@@ -224,6 +227,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self._transformFields(m, add)
 
     def remField(self, m, field):
+        self.col.modSchema()
         idx = m['flds'].index(field)
         m['flds'].remove(field)
         self._updateFieldOrds(m)
@@ -238,6 +242,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.renameField(m, field, None)
 
     def moveField(self, m, field, idx):
+        self.col.modSchema()
         oldidx = m['flds'].index(field)
         if oldidx == idx:
             return
@@ -275,7 +280,6 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         # model hasn't been added yet?
         if not m['id']:
             return
-        self.col.modSchema()
         r = []
         for (id, flds) in self.col.db.execute(
             "select id, flds from notes where mid = ?", m['id']):
