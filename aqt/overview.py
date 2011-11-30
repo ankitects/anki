@@ -7,6 +7,7 @@ from aqt.qt import *
 from anki.consts import NEW_CARDS_RANDOM
 from anki.hooks import addHook
 from aqt.utils import showInfo
+import aqt
 
 class Overview(object):
     "Deck overview."
@@ -14,6 +15,7 @@ class Overview(object):
     def __init__(self, mw):
         self.mw = mw
         self.web = mw.web
+        self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         addHook("reset", self.refresh)
 
     def show(self):
@@ -23,8 +25,9 @@ class Overview(object):
 
     def refresh(self):
         self._renderPage()
+        self._renderBottom()
 
-        # Handlers
+    # Handlers
     ############################################################
 
     def _keyHandler(self, evt):
@@ -127,4 +130,8 @@ h3 { margin-bottom: 0; }
 td { font-size: 14px; }
 """
 
+    # Bottom area
+    ######################################################################
 
+    def _renderBottom(self):
+        self.bottom.draw("hello")

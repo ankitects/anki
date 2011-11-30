@@ -25,22 +25,24 @@ class Toolbar(object):
     # Available links
     ######################################################################
 
-    centerLinks = [
-        ["decks", "Decks"],
-        ["study", "Study"],
-        ["add", "Add"],
-        ["browse", "Browse"],
-    ]
-
     rightIcons = [
         ["stats", "qrc:/icons/view-statistics.png"],
         ["sync", "qrc:/icons/view-refresh.png"],
     ]
 
     def _centerLinks(self):
+        links = [
+            ["decks", _("Decks")],
+            ["study", _("Study")],
+            ["add", _("Add")],
+            ["browse", _("Browse")],
+        ]
+        return self._linkHTML(links)
+
+    def _linkHTML(self, links):
         buf = ""
-        for ln, name in self.centerLinks:
-            buf += '<a class=hitem href="%s">%s</a>' % (ln, _(name))
+        for ln, name in links:
+            buf += '<a class=hitem href="%s">%s</a>' % (ln, name)
             buf += "&nbsp;"*3
         return buf
 
@@ -89,12 +91,16 @@ margin:0;
 background: -webkit-gradient(linear, left top, left bottom,
 from(#ddd), to(#fff));
 font-weight: bold;
-height: 10px;
 margin-bottom: 1px;
 border-bottom: 1px solid #aaa;
 }
 
-body { margin: 0; padding: 0; }
+body {
+margin: 0; padding: 0;
+-webkit-user-select: none;
+}
+
+* { -webkit-user-drag: none; }
 
 .hitem { display: inline-block; padding: 4px; padding-right: 6px;
 text-decoration: none; color: #000;
@@ -104,3 +110,27 @@ background: #333;
 color: #fff;
 }
 """
+
+class BottomBar(Toolbar):
+
+    _css = Toolbar._css + """
+#header {
+background: -webkit-gradient(linear, left top, left bottom,
+from(#fff), to(#ddd));
+border-bottom: 0;
+border-top: 1px solid #aaa;
+font-weight: normal;
+margin-bottom: 6px;
+}
+"""
+
+    _centerBody = """
+<center><table width=100%% height=100%% id=header><tr><td align=center>
+%s</td></tr></table></center>
+"""
+
+    def draw(self, buf):
+        self.web.show()
+        self.web.stdHtml(
+            self._centerBody % buf,
+            self._css)

@@ -23,6 +23,7 @@ class Reviewer(object):
         self.state = None
         self.keep = False
         self._setupStatus()
+        self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         addHook("leech", self.onLeech)
 
     def show(self):

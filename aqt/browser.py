@@ -1415,21 +1415,22 @@ Are you sure you want to continue?""")):
 ######################################################################
 
 class BrowserToolbar(Toolbar):
-    always = [
-        ["setDeck", "Move to Deck"],
-        ["addTags", "Add Tags"],
-        ["remTags", "Remove Tags"],
-    ]
 
     def __init__(self, mw, web, browser):
         self.browser = browser
         Toolbar.__init__(self, mw, web)
 
+    def _centerLinks(self):
+        links = [
+            ["setDeck", _("Move to Deck")],
+            ["addTags", _("Add Tags")],
+            ["remTags", _("Remove Tags")],
+        ]
+        return self._linkHTML(links)
+
     def draw(self):
         mark = self.browser.isMarked()
         pause = self.browser.isSuspended()
-        links = self.always[:]
-        self.centerLinks = links
         def borderImg(link, icon, on):
             if on:
                 fmt = '''\

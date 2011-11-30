@@ -326,12 +326,20 @@ title="%s">%s</button>''' % (
         self.web.setObjectName("mainText")
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)
+        # bottom area
+        sweb = self.bottomWeb = aqt.webview.AnkiWebView()
+        #sweb.hide()
+        sweb.setFixedHeight(100)
+        sweb.setObjectName("bottomWeb")
+        sweb.setFocusPolicy(Qt.WheelFocus)
+        sweb.stdHtml("foo")
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0,0,0,0)
         self.mainLayout.setSpacing(0)
         self.mainLayout.addWidget(tweb)
         self.mainLayout.addWidget(self.web)
+        self.mainLayout.addWidget(sweb)
         self.form.centralwidget.setLayout(self.mainLayout)
 
     def closeAllWindows(self):
@@ -738,7 +746,7 @@ Please choose a new deck name:"""))
         self.enableDeckMenuItems(enabled=False)
 
     def updateTitleBar(self):
-        self.setWindowTitle(aqt.appName)
+        self.setWindowTitle("Anki")
 
     # Auto update
     ##########################################################################

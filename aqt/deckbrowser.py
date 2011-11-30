@@ -3,13 +3,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.utils import askUser, getOnlyText
+from aqt.utils import askUser, getOnlyText, openLink
+import aqt
 
 class DeckBrowser(object):
 
     def __init__(self, mw):
         self.mw = mw
         self.web = mw.web
+        self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
 
     def show(self, _init=True):
         if _init:
@@ -28,18 +30,10 @@ class DeckBrowser(object):
             self._selDeck(arg)
         elif cmd == "opts":
             self._showOptions(arg)
-        elif cmd == "download":
-            self.mw.onGetSharedDeck()
-        elif cmd == "new":
-            self.mw.onNew()
+        elif cmd == "shared":
+            self._onShared()
         elif cmd == "import":
             self.mw.onImport()
-        elif cmd == "opensel":
-            self.mw.onOpen()
-        elif cmd == "synced":
-            self.mw.onOpenOnline()
-        elif cmd == "refresh":
-            self.refresh()
 
     def _selDeck(self, did):
         self.mw.col.decks.select(did)
@@ -74,6 +68,7 @@ body { margin: 1em; }
         self.web.stdHtml(self._body%dict(
                 title=_("Decks"),
                 tree=tree), css=css)
+        self._drawButtons()
 
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:
@@ -136,3 +131,22 @@ body { margin: 1em; }
 Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
             self.mw.col.decks.rem(did, True)
             self.show()
+
+    # Top buttons
+    ######################################################################
+
+    def _drawButtons(self):
+        links = [
+            ["shared", _("Get Shared")],
+            ["import", _("Import File")],
+        ]
+        buf = ""
+        for b in links:
+            buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)
+        self.bottom.draw(buf)
+        self.bottom.web.setFixedHeight(32)
+        self.bottom.web.setLinkHandler(self._linkHandler)
+
+    def _onShared(self):
+        print "fixme: check & warn if schema modified first"
+        openLink(aqt.appShared)
