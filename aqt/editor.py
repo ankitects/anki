@@ -192,9 +192,10 @@ $(function () {
 
 # caller is responsible for resetting note on reset
 class Editor(object):
-    def __init__(self, mw, widget, addMode=False):
-        self.widget = widget
+    def __init__(self, mw, widget, parentWindow, addMode=False):
         self.mw = mw
+        self.widget = widget
+        self.parentWindow = parentWindow
         self.note = None
         self.stealFocus = True
         self.addMode = addMode
@@ -233,7 +234,7 @@ class Editor(object):
     ######################################################################
 
     def _addButton(self, name, func, key=None, tip=None, size=True, text="",
-                   check=False):
+                   check=False, native=False):
         b = QPushButton(text)
         if check:
             b.connect(b, SIGNAL("clicked(bool)"), func)
@@ -242,7 +243,8 @@ class Editor(object):
         if size:
             b.setFixedHeight(20)
             b.setFixedWidth(20)
-        b.setStyle(self.plastiqueStyle)
+        if not native:
+            b.setStyle(self.plastiqueStyle)
         b.setFocusPolicy(Qt.NoFocus)
         if not text:
             b.setIcon(QIcon(":/icons/%s.png" % name))
@@ -266,13 +268,15 @@ class Editor(object):
         self.iconsBox.setMargin(0)
         self.iconsBox.setSpacing(0)
         self.outerLayout.addLayout(self.iconsBox)
-        # align to right
-        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         b = self._addButton
         b("fields", self.onFields, "Ctrl+f",
-          shortcut(_("Layout (Ctrl+f)")), size=False, text=_("Fields"))
+          shortcut(_("Layout (Ctrl+f)")), size=False, text=_("Fields..."),
+          native=True)
         b("layout", self.onCardLayout, "Ctrl+l",
-          shortcut(_("Layout (Ctrl+l)")), size=False, text=_("Layout"))
+          shortcut(_("Layout (Ctrl+l)")), size=False, text=_("Layout..."),
+          native=True)
+        # align to right
+        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         b("text_bold", self.toggleBold, "Ctrl+b", _("Bold text (Ctrl+b)"),
           check=True)
         b("text_italic", self.toggleItalic, "Ctrl+i", _("Italic text (Ctrl+i)"),
@@ -311,7 +315,7 @@ class Editor(object):
     def onFields(self):
         from aqt.fields import FieldDialog
         self.saveNow()
-        FieldDialog(self.mw, self.note, parent=self.widget)
+        FieldDialog(self.mw, self.note, parent=self.parentWindow)
 
     def onCardLayout(self):
         from aqt.clayout import CardLayout
@@ -320,7 +324,7 @@ class Editor(object):
             ord = self.card.ord
         else:
             ord = 0
-        CardLayout(self.mw, self.note, ord=ord, parent=self.widget)
+        CardLayout(self.mw, self.note, ord=ord, parent=self.parentWindow)
         self.loadNote()
 
     # JS->Python bridge

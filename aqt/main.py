@@ -193,6 +193,7 @@ Are you sure?"""):
         # then load collection and launch into the deck browser
         print "fixme: safeguard against multiple instances"
         self.col = Collection(self.pm.collectionPath())
+        self.progress.setupDB(self.col.db)
         # skip the reset step; open overview directly
         self.moveToState("review")
 
@@ -212,8 +213,6 @@ Are you sure?"""):
         getattr(self, "_"+state+"State")(oldState, *args)
 
     def _deckBrowserState(self, oldState):
-        self.disableDeckMenuItems()
-        self.closeAllWindows()
         self.deckBrowser.show()
 
     def _colLoadingState(self, oldState):
@@ -429,27 +428,33 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         else:
             aw.close()
 
-    def close(self, showBrowser=True):
-        "Close current deck."
+    def close(self):
+        "Close and backup collection."
         if not self.col:
             return
-        # if we were cramming, restore the standard scheduler
-        if self.col.stdSched():
-            self.col.reset()
         runHook("deckClosing")
-        print "focusOut() should be handled with deckClosing now"
+        #self.col.close()
+        self.backup()
         self.closeAllWindows()
         self.col.close()
         self.col = None
-        if showBrowser:
-            self.moveToState("deckBrowser")
+
+    # Syncing
+    ##########################################################################
+
+    def backup(self):
+        print "backup"
 
     # Syncing
     ##########################################################################
 
     def onSync(self):
-        return
-        return showInfo("sync not yet implemented")
+        from aqt.sync import Syncer
+        # close collection if loaded
+        if self.col:
+            self.col.close()
+        # 
+        Syncer()
 
     # Tools
     ##########################################################################
@@ -484,11 +489,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def closeEvent(self, event):
         "User hit the X button, etc."
-        print "fixme: exit from edit current, review, etc"
-        if self.state == "editCurrentNote":
-            event.ignore()
-            return self.moveToState("saveEdit")
-        self.close(showBrowser=False)
+        self.close()
         # if self.pm.profile['syncOnProgramOpen']:
         #     self.showBrowser = False
         #     self.syncDeck(interactive=False)
@@ -857,118 +858,9 @@ Please choose a new deck name:"""))
 
     def onSchemaMod(self, arg):
         return askUser(_("""\
-This operation can't be merged when syncing, so the next \
-sync will overwrite any changes made on other devices that \
-haven't been synced here yet. Continue?"""))
-
-    # Media locations
-    ##########################################################################
-
-#     def setupMedia(self, deck):
-#         print "setup media"
-#         return
-#         prefix = self.pm.profile['mediaLocation']
-#         prev = deck.getVar("mediaLocation") or ""
-#         # set the media prefix
-#         if not prefix:
-#             next = ""
-#         elif prefix == "dropbox":
-#             p = self.dropboxFolder()
-#             next = os.path.join(p, "Public", "Anki")
-#         else:
-#             next = prefix
-#         # check if the media has moved
-#         migrateFrom = None
-#         if prev != next:
-#             # check if they were using plugin
-#             if not prev:
-#                 p = self.dropboxFolder()
-#                 p = os.path.join(p, "Public")
-#                 deck.mediaPrefix = p
-#                 migrateFrom = deck.mediaDir()
-#             if not migrateFrom:
-#                 # find the old location
-#                 deck.mediaPrefix = prev
-#                 dir = deck.mediaDir()
-#                 if dir and os.listdir(dir):
-#                     # it contains files; we'll need to migrate
-#                     migrateFrom = dir
-#         # setup new folder
-#         deck.mediaPrefix = next
-#         if migrateFrom:
-#             # force creation of new folder
-#             dir = deck.mediaDir(create=True)
-#             # migrate old files
-#             self.migrateMedia(migrateFrom, dir)
-#         else:
-#             # chdir if dir exists
-#             dir = deck.mediaDir()
-#         # update location
-#         deck.setVar("mediaLocation", next, mod=False)
-#         if dir and prefix == "dropbox":
-#             self.setupDropbox(deck)
-
-#     def migrateMedia(self, from_, to):
-#         if from_ == to:
-#             return
-#         files = os.listdir(from_)
-#         skipped = False
-#         for f in files:
-#             src = os.path.join(from_, f)
-#             dst = os.path.join(to, f)
-#             if not os.path.isfile(src):
-#                 skipped = True
-#                 continue
-#             if not os.path.exists(dst):
-#                 shutil.copy2(src, dst)
-#         if not skipped:
-#             # everything copied, we can remove old folder
-#             shutil.rmtree(from_, ignore_errors=True)
-
-#     def dropboxFolder(self):
-#         try:
-#             import aqt.dropbox as db
-#             p = db.getPath()
-#         except:
-#             if isWin:
-#                 s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
-#                 s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-#                 p = os.path.join(s.value("Personal"), "My Dropbox")
-#             else:
-#                 p = os.path.expanduser("~/Dropbox")
-#         return p
-
-#     def setupDropbox(self, deck):
-#         if not self.pm.profile['dropboxPublicFolder']:
-#             # put a file in the folder
-#             open(os.path.join(
-#                 deck.mediaPrefix, "right-click-me.txt"), "w").write("")
-#             # tell user what to do
-#             showInfo(_("""\
-# A file called right-click-me.txt has been placed in DropBox's public folder. \
-# After clicking OK, this folder will appear. Please right click on the file (\
-# command+click on a Mac), choose DropBox>Copy Public Link, and paste the \
-# link into Anki."""))
-#             # open folder and text prompt
-#             self.onOpenPluginFolder(deck.mediaPrefix)
-#             txt = getText(_("Paste path here:"), parent=self)
-#             if txt[0]:
-#                 fail = False
-#                 if not txt[0].lower().startswith("http"):
-#                     fail = True
-#                 if not txt[0].lower().endswith("right-click-me.txt"):
-#                     fail = True
-#                 if fail:
-#                     showInfo(_("""\
-# That doesn't appear to be a public link. You'll be asked again when the deck \
-# is next loaded."""))
-#                 else:
-#                     self.pm.profile['dropboxPublicFolder'] = os.path.dirname(txt[0])
-#         if self.pm.profile['dropboxPublicFolder']:
-#             # update media url
-#             deck.setVar(
-#                 "mediaURL", self.pm.profile['dropboxPublicFolder'] + "/" +
-#                 os.path.basename(deck.mediaDir()) + "/")
+This operation can't be merged when syncing, so if you have made \
+changes on other devices that haven't been synced to this device yet, \
+they will be lost. Are you sure you want to continue?"""))
 
     # Advanced features
     ##########################################################################

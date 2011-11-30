@@ -299,7 +299,7 @@ class StatusDelegate(QItemDelegate):
 class Browser(QMainWindow):
 
     def __init__(self, mw):
-        QMainWindow.__init__(self, None)
+        QMainWindow.__init__(self, mw)
         #applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
@@ -491,8 +491,8 @@ class Browser(QMainWindow):
                      self.onRowChanged)
 
     def setupEditor(self):
-        self.editor = aqt.editor.Editor(self.mw,
-                                        self.form.fieldsArea)
+        self.editor = aqt.editor.Editor(
+            self.mw, self.form.fieldsArea, self)
         self.editor.stealFocus = False
 
     def onRowChanged(self, current, previous):
@@ -534,7 +534,7 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "cardGroup", "noteGroup")
+        noSort = ("question", "answer", "template", "deck", "ndeck")
         if type in noSort:
             showInfo(_("Sorting on this column is not supported. Please "
                        "choose another."))

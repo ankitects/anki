@@ -191,7 +191,7 @@ Please create a new card first."""))
         n = len(self.cards)
         cur = self.card.template()['ord']+1
         pos = getOnlyText(
-            _("Enter new card position (1..%s):") % n,
+            _("Enter new card position (1...%s):") % n,
             default=str(cur))
         if not pos:
             return

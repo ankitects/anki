@@ -5,15 +5,14 @@ from aqt.qt import *
 import os, types, socket, time, traceback
 import aqt
 import anki
-from anki.sync import SyncClient, HttpSyncServerProxy, copyLocalMedia
-from anki.sync import SYNC_HOST, SYNC_PORT
+#from anki.sync import SyncClient, HttpSyncServerProxy, copyLocalMedia from
+#anki.sync import SYNC_HOST, SYNC_PORT
 from anki.errors import *
-from anki import Deck
 from anki.db import sqlite
 import aqt.forms
 from anki.hooks import addHook, removeHook
 
-class SyncManager(object):
+class Syncer(object):
 
     # Syncing
     ##########################################################################

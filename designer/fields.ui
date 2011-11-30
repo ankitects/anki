@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>403</width>
+    <width>412</width>
     <height>352</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Fields</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -37,62 +40,28 @@
        <item>
         <widget class="QPushButton" name="fieldAdd">
          <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
+          <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="fieldDelete">
          <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
+          <string>Delete</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="fieldUp">
-         <property name="toolTip">
-          <string>Move selected field up</string>
-         </property>
+        <widget class="QPushButton" name="fieldRename">
          <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/icons/arrow-up.png</normaloff>:/icons/arrow-up.png</iconset>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
+          <string>Rename</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="fieldDown">
-         <property name="toolTip">
-          <string>Move selected field down</string>
-         </property>
+        <widget class="QPushButton" name="fieldPosition">
          <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="icons.qrc">
-           <normaloff>:/icons/arrow-down.png</normaloff>:/icons/arrow-down.png</iconset>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
+          <string>Reposition</string>
          </property>
         </widget>
        </item>
@@ -115,27 +84,14 @@
    </item>
    <item>
     <layout class="QGridLayout" name="_2">
-     <item row="0" column="1" colspan="2">
-      <widget class="QLineEdit" name="fieldName"/>
-     </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="label_20">
-       <property name="text">
-        <string>Name</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>Editing Font</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="0" column="1">
       <widget class="QFontComboBox" name="fontFamily">
        <property name="minimumSize">
         <size>
@@ -145,14 +101,14 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="3" column="1">
       <widget class="QCheckBox" name="rtl">
        <property name="text">
         <string>Reverse text direction (RTL)</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="0" column="2">
       <widget class="QSpinBox" name="fontSize">
        <property name="minimum">
         <number>5</number>
@@ -162,21 +118,21 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="2" column="1">
       <widget class="QCheckBox" name="sticky">
        <property name="text">
-        <string>Remember last input</string>
+        <string>Remember last input when adding</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="label_18">
        <property name="text">
         <string>Options</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="1" column="1">
       <widget class="QRadioButton" name="sortField">
        <property name="text">
         <string>Sort by this field in the browser</string>
@@ -201,11 +157,11 @@
   <tabstop>fieldList</tabstop>
   <tabstop>fieldAdd</tabstop>
   <tabstop>fieldDelete</tabstop>
-  <tabstop>fieldUp</tabstop>
-  <tabstop>fieldDown</tabstop>
-  <tabstop>fieldName</tabstop>
+  <tabstop>fieldRename</tabstop>
+  <tabstop>fieldPosition</tabstop>
   <tabstop>fontFamily</tabstop>
   <tabstop>fontSize</tabstop>
+  <tabstop>sortField</tabstop>
   <tabstop>sticky</tabstop>
   <tabstop>rtl</tabstop>
   <tabstop>buttonBox</tabstop>
