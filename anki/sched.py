@@ -611,7 +611,7 @@ did in %s and queue = 2 and due <= :lim %s limit %d""" % (
                 # loop through possible due dates for an empty one
                 for diff in range(1, leeway+1):
                     # ensure we're due at least tomorrow
-                    if idealDue - diff >= 1 and (idealDue - diff) not in dues:
+                    if idealIvl - diff >= 1 and (idealDue - diff) not in dues:
                         fudge = -diff
                         break
                     elif (idealDue + diff) not in dues:
@@ -749,10 +749,7 @@ your short-term review workload will become."""))
             # early removal
             return self._graduatingIvl(card, conf, True) * 86400
         else:
-            if card.queue == 0:
-                left = self._startingLeft(card) - 1
-            else:
-                left = card.left - 1
+            left = card.left - 1
             if left <= 0:
                 # graduate
                 return self._graduatingIvl(card, conf, False) * 86400
