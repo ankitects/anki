@@ -364,18 +364,38 @@ button { font-weight: normal; }
         return """
 <table width=100%% cellspacing=0 cellpadding=0>
 <tr>
-<td align=left width=50 valign=top class=stat><span class=stattxt>%(rem)s</span><br>
+<td align=left width=50 valign=top class=stat>
+<span class=stattxt>%(rem)s</span><br>
 <button onclick="py.link('edit');">%(edit)s</button></td>
 <td align=center valign=top>
 %(middle)s
 </td>
-<td width=75 align=right valign=top class=stat><span class=stattxt>0:53</span><br>
+<td width=75 align=right valign=top class=stat><span id=time class=stattxt>
+</span><br>
 <button onclick="py.link('more');">%(more)s &#9662;</button>
 </td>
 </tr>
 </table>
-<script>$(function () { $("#ansbut").focus(); });</script>
-""" % dict(middle=middle, rem=self._remaining(), edit=_("Edit"), more=_("More"))
+<script>
+var time = %(time)d;
+$(function () {
+$("#ansbut").focus();
+updateTime();
+setInterval(function () { time += 1; updateTime() }, 1000);
+});
+
+var updateTime = function () {
+    var m = Math.floor(time / 60);
+    var s = time %% 60;
+    if (s < 10) {
+        s = "0" + s;
+    }
+    var e = $("#time").text(time);
+    e.text(m + ":" + s);
+}
+</script>
+""" % dict(middle=middle, rem=self._remaining(), edit=_("Edit"),
+           more=_("More"), time=self.card.timeTaken()/1000)
 
     def _showAnswerButton(self):
         self.bottom.web.setFocus()
@@ -389,7 +409,6 @@ button { font-weight: normal; }
             self.bottom._css + self._bottomCSS)
 
     def _showEaseButtons(self):
-        print self._answerButtons()
         self.bottom.web.stdHtml(
             self._bottomHTML(self._answerButtons()),
             self.bottom._css + self._bottomCSS)

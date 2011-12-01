@@ -477,6 +477,28 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         print "applystyles"
         #applyStyles(self)
 
+    # Key handling
+    ##########################################################################
+
+    def setupKeys(self):
+        self.keyDelegate = None
+
+    def keyPressEvent(self, evt):
+        QMainWindow.keyPressEvent(self, evt)
+        # check global keys
+        key = unicode(evt.text())
+        if key == "d":
+            self.moveToState("deckBrowser")
+        elif key == "s":
+            if self.state == "overview":
+                self.moveToState("review")
+            else:
+                self.moveToState("overview")
+        elif key == "a":
+            self.onAddCard()
+        elif key == "b":
+            self.onBrowse()
+
     # App exit
     ##########################################################################
 
