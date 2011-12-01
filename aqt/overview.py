@@ -19,7 +19,6 @@ class Overview(object):
         addHook("reset", self.refresh)
 
     def show(self):
-        self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
         self.refresh()
 
@@ -29,16 +28,6 @@ class Overview(object):
 
     # Handlers
     ############################################################
-
-    def _keyHandler(self, evt):
-        txt = evt.text()
-        if txt == "s":
-            self._linkHandler("study")
-        elif txt == "c":
-            self._linkHandler("cram")
-        else:
-            return
-        return True
 
     def _linkHandler(self, url):
         print "link", url

@@ -26,8 +26,9 @@ class Reviewer(object):
         addHook("leech", self.onLeech)
 
     def show(self):
-        self.web.setKeyHandler(self._keyHandler)
+        self.mw.keyHandler = self._keyHandler
         self.web.setLinkHandler(self._linkHandler)
+        self.web.setKeyHandler(self._catchEsc)
         self.bottom.web.setFixedHeight(46)
         self.bottom.web.setLinkHandler(self._linkHandler)
         self.nextCard()
@@ -152,6 +153,9 @@ function _typeAnsPress() {
         q = self._mungeQA(q)
         self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
         self._showAnswerButton()
+        # if we have a type answer field, focus main web
+        if self.typeField:
+            self.mw.web.setFocus()
         # user hook
         runHook('showQuestion')
 
@@ -184,6 +188,11 @@ function _typeAnsPress() {
 
     # Handlers
     ############################################################
+
+    def _catchEsc(self, evt):
+        if evt.key() == Qt.Key_Escape:
+            self.web.eval("$('#typeans').blur();")
+            return True
 
     def _keyHandler(self, evt):
         print "rev event", evt.key()
@@ -248,7 +257,6 @@ body { margin:1.5em; }
         if not m:
             return buf
         fld = m.group(1)
-        print "got", fld
         fobj = None
         for f in self.card.model()['flds']:
             if f['name'] == fld:

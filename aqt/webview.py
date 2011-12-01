@@ -52,15 +52,7 @@ class AnkiWebView(QWebView):
         self.connect(self, SIGNAL("loadFinished(bool)"), self._loadFinished)
         self._curKey = None
         self.allowDrops = False
-    def keyPressEvent(self, evt):
-        self._curKey = True
-        return QWebView.keyPressEvent(self, evt)
     def keyReleaseEvent(self, evt):
-        if not self._curKey:
-            # event didn't start with us
-            evt.ignore()
-            return
-        self._curKey = None
         if self._keyHandler:
             if self._keyHandler(evt):
                 evt.accept()

@@ -223,6 +223,7 @@ Are you sure?"""):
         self.moveToState("overview")
 
     def _overviewState(self, oldState):
+        self.col.reset()
         self.overview.show()
 
     def _reviewState(self, oldState):
@@ -272,7 +273,6 @@ Are you sure?"""):
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
-        self.web.setKeyHandler(None)
         self.web.setLinkHandler(lambda url: self.maybeReset())
         i = _("Close the browser to resume.")
         b = self.button("refresh", _("Resume Now"))
@@ -481,9 +481,15 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def setupKeys(self):
-        self.keyDelegate = None
+        self.keyHandler = None
 
     def keyPressEvent(self, evt):
+        # do we have a delegate?
+        if self.keyHandler:
+            # did it eat the key?
+            if self.keyHandler(evt):
+                return
+        # run standard handler
         QMainWindow.keyPressEvent(self, evt)
         # check global keys
         key = unicode(evt.text())
@@ -498,6 +504,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.onAddCard()
         elif key == "b":
             self.onBrowse()
+        elif key == "S":
+            self.onStats()
+        elif key == "y":
+            self.onSync()
 
     # App exit
     ##########################################################################
