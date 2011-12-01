@@ -1447,7 +1447,7 @@ class BrowserToolbar(Toolbar):
         self.web.stdHtml(self._body % (
             "<span style='display:inline-block; width: 100px;'></span>",
             self._centerLinks(),
-            right), self._css, focus=False)
+            right), self._css)
 
     # Link handling
     ######################################################################

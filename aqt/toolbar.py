@@ -20,7 +20,7 @@ class Toolbar(object):
             '&nbsp;'*20,
             self._centerLinks(),
             self._rightIcons()),
-                         self._css, focus=False)
+                         self._css)
 
     # Available links
     ######################################################################
@@ -62,7 +62,11 @@ class Toolbar(object):
         elif l  == "decks":
             self.mw.moveToState("deckBrowser")
         elif l == "study":
-            self.mw.onOverview()
+            # if overview already shown, switch to review
+            if self.mw.state == "overview":
+                self.mw.moveToState("review")
+            else:
+                self.mw.onOverview()
         elif l == "add":
             self.mw.onAddCard()
         elif l == "browse":

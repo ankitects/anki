@@ -33,7 +33,7 @@ class Reviewer(object):
         else:
             self.nextCard()
         self.keep = False
-        self.bottom.web.setFixedHeight(60)
+        self.bottom.web.setFixedHeight(46)
         self.bottom.web.setLinkHandler(self._linkHandler)
 
     def lastCard(self):
@@ -82,11 +82,16 @@ var ankiPlatform = "desktop";
 var hideq;
 var ans;
 var typeans;
-function _updateQA (q) {
+function _updateQA (q, answerMode) {
     $("#qa").html(q);
     typeans = document.getElementById("typeans");
     if (typeans) {
         typeans.focus();
+    }
+    if (answerMode) {
+        window.location = "#answerStart";
+    } else {
+        window.location = "";
     }
 };
 function _showans (a) {
@@ -117,15 +122,14 @@ function _typeAnsPress() {
         _showans();
     }
 }
-$(document).ready(function () {
-$(".ansbut").focus();
-});
 </script>
 """
 
     def _initWeb(self):
+        base = getBase(self.mw.col)
         self.web.stdHtml(self._revHtml, self._styles(),
-            bodyID="card", loadCB=lambda x: self._showQuestion())
+            bodyID="card", loadCB=lambda x: self._showQuestion(),
+            head=base)
 
     # Showing the question
     ##########################################################################
@@ -143,12 +147,12 @@ $(".ansbut").focus();
         q = c.q()
         if self.mw.pm.profile['autoplay']:
             playFromText(q)
-        # render
+        # render & update bottom
         q = self._mungeQA(q)
         self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
-        runHook('showQuestion')
-        # and refresh bottom bar
         self._showAnswerButton()
+        # user hook
+        runHook('showQuestion')
 
     # Showing the answer
     ##########################################################################
@@ -157,53 +161,15 @@ $(".ansbut").focus();
         self.state = "answer"
         c = self.card
         a = c.a()
+        # play audio?
         if self.mw.pm.profile['autoplay']:
             playFromText(a)
-        # render
+        # render and update bottom
+        a = self._mungeQA(a)
+        self.web.eval("_updateQA(%s, true);" % simplejson.dumps(a))
+        self._showEaseButtons()
+        # user hook
         runHook('showAnswer')
-
-    # Ease buttons
-    ##########################################################################
-
-    def _defaultEase(self):
-        if self.mw.col.sched.answerButtons(self.card) == 4:
-            return 3
-        else:
-            return 2
-
-    def _answerButtons(self):
-        if self.mw.col.sched.answerButtons(self.card) == 4:
-            labels = (_("Again"), _("Hard"), _("Good"), _("Easy"))
-        else:
-            labels = (_("Again"), _("Good"), _("Easy"))
-        times = []
-        buttons = []
-        default = self._defaultEase()
-        def but(label, i):
-            if i == default:
-                extra=" id=defease"
-            else:
-                extra = ""
-            return '''
-<a %s class="ansbut easebut" href=ease%d>%s</a>''' % (extra, i, label)
-        for i in range(0, len(labels)):
-            l = labels[i]
-            l += "<br><small>%s</small>" % self._buttonTime(i, default-1)
-            buttons.append(but(l, i+1))
-        buf = ("<table><tr><td>" +
-               "</td><td>".join(buttons) + "</td></tr></table>")
-        return "<center>" + buf + "</center>"
-        return buf
-
-    def _buttonTime(self, i, green):
-        if self.mw.pm.profile['showDueTimes']:
-            return ""
-        txt = self.mw.col.sched.nextIvlStr(self.card, i+1, True)
-        if i == 0:
-            txt = '<span style="color: #700">%s</span>' % txt
-        elif i == green:
-            txt = '<span style="color: #070">%s</span>' % txt
-        return txt
 
     # Answering a card
     ############################################################
@@ -445,38 +411,89 @@ from(#fff), to(#ddd));
 border-bottom: 0;
 border-top: 1px solid #aaa;
 margin: 0;
-padding: 5px;
+padding: 0px;
+padding-left: 5px; padding-right: 5px;
 }
 td { font-weight: bold; font-size: 12px; }
-.hitem { padding: 0; }
-"""
-    _bottomQuestion = """
-<table width=100%% cellspacing=0 cellpadding=0>
-<tr>
-<td width=100>0 + 0 + 0</td>
-<td align=center>
-<button onclick='py.link(\"ans\");'>%s</button>
-</td>
-<td width=100 align=right>0:00</td>
-</tr>
-</table>
-<center>
-<table width=100%% cellspacing=0 cellpadding=0>
-<tr>
-<td align=left>
-<a class=hitem href="foo">Actions &#9662;</a>&nbsp;&nbsp;&nbsp;
-</td>
-<td align=right>
-<a class=hitem><img src="qrc:/icons/star16.png"></a>
-<a class=hitem><img src="qrc:/icons/star16.png"></a>
-</td>
-</tr></table>
+.hitem { margin-top: 2px; }
+.stat { padding-top: 5px; }
+.stattxt { padding-left: 5px; padding-right: 5px; }
+.nobold { font-weight: normal; display: inline-block; padding-top: 3px; }
+.spacer { height: 18px; }
+.spacer2 { height: 16px; }
+button { font-weight: normal; }
 """
 
+    def _bottomHTML(self, middle):
+        return """
+<table width=100%% cellspacing=0 cellpadding=0>
+<tr>
+<td align=left width=50 valign=top class=stat><span class=stattxt>1 + 7 + 3</span><br>
+<button>Edit Note</button></td>
+<td align=center valign=top>
+%(middle)s
+</td>
+<td width=50 align=right valign=top class=stat><span class=stattxt>0:53</span><br>
+<button>More &#9662;</button>
+</td>
+</tr>
+</table>
+<script>$(function () { $("#ansbut").focus(); });</script>
+""" % dict(middle=middle)
+
     def _showAnswerButton(self):
+        self.bottom.web.setFocus()
+        middle = '''
+<div class=spacer2></div>
+<button id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % _("Show Answer")
+        # wrap it in a table so it has the same top margin as the ease buttons
+        middle = "<table cellpadding=0><tr><td>%s</td></tr></table>" % middle
         self.bottom.web.stdHtml(
-            self._bottomQuestion % _("Show Answer"),
+            self._bottomHTML(middle),
             self.bottom._css + self._bottomCSS)
+
+    def _showEaseButtons(self):
+        print self._answerButtons()
+        self.bottom.web.stdHtml(
+            self._bottomHTML(self._answerButtons()),
+            self.bottom._css + self._bottomCSS)
+
+    def _defaultEase(self):
+        if self.mw.col.sched.answerButtons(self.card) == 4:
+            return 3
+        else:
+            return 2
+
+    def _answerButtons(self):
+        if self.mw.col.sched.answerButtons(self.card) == 4:
+            labels = (_("Again"), _("Hard"), _("Good"), _("Easy"))
+        else:
+            labels = (_("Again"), _("Good"), _("Easy"))
+        times = []
+        buttons = []
+        default = self._defaultEase()
+        def but(label, i):
+            if i == default:
+                extra = "id=defease"
+            else:
+                extra = ""
+            due = self._buttonTime(i-1, default-1)
+            return '''
+<td align=center>%s<button %s onclick='py.link("ease%d");'>\
+%s</button></td>''' % (due, extra, i, label)
+        buf = "<center><table cellpading=0 cellspacing=0><tr>"
+        for i in range(0, len(labels)):
+            buf += but(labels[i], i+1)
+        buf += "</tr></table>"
+        script = """
+<script>$(function () { $("#defease").focus(); });</script>"""
+        return buf + script
+
+    def _buttonTime(self, i, green):
+        if not self.mw.pm.profile['showDueTimes']:
+            return "<div class=spacer></div>"
+        txt = self.mw.col.sched.nextIvlStr(self.card, i+1, True)
+        return '<span class=nobold>%s</span><br>' % txt
 
     # Status bar
     ##########################################################################

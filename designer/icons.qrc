@@ -2,26 +2,21 @@
   <qresource prefix="/">
     <file>icons/arrow-up.png</file>
     <file>icons/arrow-down.png</file>
-    <file>icons/blue.png</file>
     <file>icons/gears.png</file>
-    <file>icons/both.png</file>
     <file>icons/green.png</file>
     <file>icons/clock-icon.png</file>
     <file>icons/plus-circle.png</file>
     <file>icons/none.png</file>
     <file>icons/edit-find 2.png</file>
     <file>icons/edit-find-replace.png</file>
-    <file>icons/graphite_smooth_folder_noncommercial.png</file>
     <file>icons/user-identity.png</file>
     <file>icons/layout.png</file>
-    <file>icons/generate_07.png</file>
     <file>icons/view-sort-descending.png</file>
     <file>icons/view-refresh.png</file>
     <file>icons/emblem-important.png</file>
     <file>icons/view-sort-ascending.png</file>
     <file>icons/media-playback-start2.png</file>
     <file>icons/anki-logo-thin.png</file>
-    <file>icons/anki-logo.png</file>
     <file>icons/download.png</file>
     <file>icons/preferences-plugin.png</file>
     <file>icons/system-software-update.png</file>
@@ -43,34 +38,22 @@
     <file>icons/anki-tag.png</file>
     <file>icons/edit-redo.png</file>
     <file>icons/text-xml.png</file>
-    <file>icons/document-preview.png</file>
     <file>icons/media-record.png</file>
     <file>icons/edit-rename.png</file>
     <file>icons/kblogger.png</file>
-    <file>icons/chronometer.png</file>
-    <file>icons/Anki_Card.png</file>
-    <file>icons/document-open-remote.png</file>
-    <file>icons/document-open-recent.png</file>
     <file>icons/khtml_kget.png</file>
     <file>icons/edit-find.png</file>
     <file>icons/colors.png</file>
     <file>icons/anki.png</file>
     <file>icons/Anki_Add_Tag.png</file>
-    <file>icons/Anki_Card.png</file>
     <file>icons/Anki_Del_Tag.png</file>
-    <file>icons/Anki_Fact.png</file>
     <file>icons/application-exit.png</file>
-    <file>icons/colorscm.png</file>
     <file>icons/configure.png</file>
     <file>icons/contents.png</file>
     <file>icons/contents2.png</file>
     <file>icons/document-export.png</file>
     <file>icons/document-import.png</file>
     <file>icons/document-new.png</file>
-    <file>icons/document-open-recent.png</file>
-    <file>icons/document-open.png</file>
-    <file>icons/document-save-as.png</file>
-    <file>icons/document-save.png</file>
     <file>icons/edit-undo.png</file>
     <file>icons/edit.png</file>
     <file>icons/editdelete.png</file>
@@ -79,11 +62,9 @@
     <file>icons/folder_sound.png</file>
     <file>icons/format-stroke-color.png</file>
     <file>icons/games-solve.png</file>
-    <file>icons/go-home.png</file>
     <file>icons/help-contents.png</file>
     <file>icons/help.png</file>
     <file>icons/image.png</file>
-    <file>icons/kanji.png</file>
     <file>icons/kbugbuster.png</file>
     <file>icons/kexi.png</file>
     <file>icons/kpersonalizer.png</file>
@@ -93,7 +74,6 @@
     <file>icons/media-playback-pause.png</file>
     <file>icons/media-playback-start.png</file>
     <file>icons/media-playback-stop.png</file>
-    <file>icons/multisynk.png</file>
     <file>icons/package_games_card.png</file>
     <file>icons/preferences-desktop-font.png</file>
     <file>icons/rating.png</file>
