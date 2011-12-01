@@ -8,7 +8,7 @@ from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, hasSound
-from aqt.utils import mungeQA, getBase
+from aqt.utils import mungeQA, getBase, shortcut
 import aqt
 
 class Reviewer(object):
@@ -68,9 +68,9 @@ class Reviewer(object):
     def replayAudio(self):
         clearAudioQueue()
         c = self.card
-        if not c.template()['hideQ'] or self.state == "question":
+        if self.state == "question":
             playFromText(c.q())
-        if self.state == "answer":
+        elif self.state == "answer":
             playFromText(c.a())
 
     # Initializing the webview
@@ -186,6 +186,7 @@ function _typeAnsPress() {
     ############################################################
 
     def _keyHandler(self, evt):
+        print "rev event", evt.key()
         if self.state == "question":
             show = False
             if evt.key() == Qt.Key_Space and self.typeAns() is None:
@@ -363,7 +364,7 @@ button { font-weight: normal; }
         return """
 <table width=100%% cellspacing=0 cellpadding=0>
 <tr>
-<td align=left width=50 valign=top class=stat><span class=stattxt>1 + 7 + 3</span><br>
+<td align=left width=50 valign=top class=stat><span class=stattxt>%(rem)s</span><br>
 <button onclick="py.link('edit');">%(edit)s</button></td>
 <td align=center valign=top>
 %(middle)s
@@ -374,7 +375,7 @@ button { font-weight: normal; }
 </tr>
 </table>
 <script>$(function () { $("#ansbut").focus(); });</script>
-""" % dict(middle=middle, edit=_("Edit"), more=_("More"))
+""" % dict(middle=middle, rem=self._remaining(), edit=_("Edit"), more=_("More"))
 
     def _showAnswerButton(self):
         self.bottom.web.setFocus()
@@ -392,6 +393,16 @@ button { font-weight: normal; }
         self.bottom.web.stdHtml(
             self._bottomHTML(self._answerButtons()),
             self.bottom._css + self._bottomCSS)
+
+    def _remaining(self):
+        counts = list(self.mw.col.sched.repCounts())
+        idx = self.mw.col.sched.countIdx(self.card)
+        counts[idx] = "<u>%s</u>" % (counts[idx]+1)
+        space = " + "
+        ctxt = '<font color="#000099">%s</font>' % counts[0]
+        ctxt += space + '<font color="#990000">%s</font>' % counts[1]
+        ctxt += space + '<font color="#007700">%s</font>' % counts[2]
+        return ctxt
 
     def _defaultEase(self):
         if self.mw.col.sched.answerButtons(self.card) == 4:
@@ -430,19 +441,6 @@ button { font-weight: normal; }
         txt = self.mw.col.sched.nextIvlStr(self.card, i+1, True)
         return '<span class=nobold>%s</span><br>' % txt
 
-    # Status bar
-    ##########################################################################
-
-    def _remaining(self):
-        counts = list(self.mw.col.sched.repCounts())
-        idx = self.mw.col.sched.countIdx(self.card)
-        counts[idx] = "<u>%s</u>" % (counts[idx]+1)
-        space = "&nbsp;" * 2
-        ctxt = '<font color="#000099">%s</font>' % counts[0]
-        ctxt += space + '<font color="#990000">%s</font>' % counts[1]
-        ctxt += space + '<font color="#007700">%s</font>' % counts[2]
-        return ctxt
-
     # Leeches
     ##########################################################################
 
@@ -457,3 +455,21 @@ Card was a <a href="%s">leech</a>.""") % link)
             "select 1 from cards where id = :id and type < 0", id=cardId):
             txt += _(" It has been suspended.")
         self.setNotice(txt)
+
+
+    # Context menu
+    ##########################################################################
+
+    def showContextMenu(self):
+        opts = [
+            [_("Replay Audio (r)"), self.replayAudio],
+            [_("Mark Note (m)"), self.mw.onMark],
+            [_("Bury Note (b)"), self.mw.onBuryNote],
+            [_("Suspend Note (!)"), self.mw.onSuspend],
+            [shortcut(_("Delete Note (Ctrl+delete)")), self.mw.onDelete]
+        ]
+        m = QMenu(self.mw)
+        for label, func in opts:
+            a = m.addAction(label)
+            a.connect(a, SIGNAL("triggered()"), func)
+        m.exec_(QCursor.pos())

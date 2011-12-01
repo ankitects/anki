@@ -529,7 +529,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.reviewer.card.note().hasTag("marked"))
         self.form.actionMarkCard.blockSignals(False)
 
-    def onMark(self, toggled):
+    def onMark(self):
         f = self.reviewer.card.note()
         if f.hasTag("marked"):
             f.delTag("marked")
@@ -539,12 +539,13 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onSuspend(self):
         self.checkpoint(_("Suspend"))
-        self.col.sched.suspendCards([self.reviewer.card.id])
+        self.col.sched.suspendCards(
+            [c.id for c in self.reviewer.card.note().cards()])
         self.reviewer.nextCard()
 
     def onDelete(self):
         self.checkpoint(_("Delete"))
-        self.col.remCards([self.reviewer.card.id])
+        self.col.remNotes([self.reviewer.card.note().id])
         self.reviewer.nextCard()
 
     def onBuryNote(self):
@@ -770,12 +771,6 @@ Please choose a new deck name:"""))
                 % {"sec": abs(diff), "type": ret} +
             _(" Please ensure it is set correctly and then restart Anki.")
          )
-
-    # Sounds
-    ##########################################################################
-
-    def onRepeatAudio(self):
-        self.reviewer.replayAudio()
 
     # Schema modifications
     ##########################################################################

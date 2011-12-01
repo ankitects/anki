@@ -66,11 +66,6 @@ class Overview(object):
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
-        print self._body % dict(
-            deck=deck['name'],
-            shareLink=shareLink,
-            desc=self._desc(deck),
-            table=self._table())
         self.web.stdHtml(self._body % dict(
             deck=deck['name'],
             shareLink=shareLink,
@@ -110,7 +105,7 @@ class Overview(object):
 </td><td>%s</td></tr></table>''' % (_("New"), counts[0],
                                     _("In Learning"), counts[1],
                                     _("To Review"), counts[2],
-                                    but("study", _("Study")))
+                                    but("study", _("Study"), id="study"))
 
     _body = """
 <center>
@@ -120,6 +115,7 @@ class Overview(object):
 <p>
 %(table)s
 </center>
+<script>$(function () { $("#study").focus(); });</script>
 """
 
     _css = """

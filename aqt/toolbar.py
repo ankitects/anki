@@ -57,9 +57,10 @@ class Toolbar(object):
     ######################################################################
 
     def _linkHandler(self, l):
-        if l == "anki":
-            self.showMenu()
-        elif l  == "decks":
+        # first set focus back to main window, or we're left with an ugly
+        # focus ring around the clicked item
+        self.mw.web.setFocus()
+        if l  == "decks":
             self.mw.moveToState("deckBrowser")
         elif l == "study":
             # if overview already shown, switch to review
@@ -92,12 +93,13 @@ class Toolbar(object):
 #header {
 font-size: 12px;
 margin:0;
-background: -webkit-gradient(linear, left top, left bottom,
-from(#ddd), to(#fff));
+margin-top: 4px;
 font-weight: bold;
 }
 
 body {
+background: -webkit-gradient(linear, left top, left bottom,
+  from(#ddd), to(#fff));
 margin: 0; padding: 0;
 -webkit-user-select: none;
 border-bottom: 1px solid #aaa;
@@ -105,12 +107,13 @@ border-bottom: 1px solid #aaa;
 
 * { -webkit-user-drag: none; }
 
-.hitem { display: inline-block; padding: 4px; padding-right: 6px;
-text-decoration: none; color: #000;
+.hitem {
+padding-right: 6px;
+text-decoration: none;
+color: #000;
 }
 .hitem:hover {
-background: #333;
-color: #fff;
+text-decoration: underline;
 }
 """
 
@@ -123,6 +126,7 @@ from(#fff), to(#ddd));
 border-bottom: 0;
 border-top: 1px solid #aaa;
 margin-bottom: 6px;
+margin-top: 0;
 }
 td { font-size: 12px; }
 """
