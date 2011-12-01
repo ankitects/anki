@@ -361,11 +361,11 @@ padding-left: 5px; padding-right: 5px;
 td { font-weight: bold; font-size: 12px; }
 .hitem { margin-top: 2px; }
 .stat { padding-top: 5px; }
+.stat2 { padding-top: 3px; font-weight: normal; }
 .stattxt { padding-left: 5px; padding-right: 5px; white-space: nowrap; }
-.nobold { font-weight: normal; display: inline-block; padding-top: 3px; }
+.nobold { font-weight: normal; display: inline-block; padding-top: 4px; }
 .spacer { height: 18px; }
 .spacer2 { height: 16px; }
-button { font-weight: normal; }
 """
 
     def _bottomHTML(self, middle):
@@ -373,12 +373,12 @@ button { font-weight: normal; }
 <table width=100%% cellspacing=0 cellpadding=0>
 <tr>
 <td align=left width=50 valign=top class=stat>
-<span class=stattxt>%(rem)s</span><br>
+<br>
 <button onclick="py.link('edit');">%(edit)s</button></td>
 <td align=center valign=top>
 %(middle)s
 </td>
-<td width=75 align=right valign=top class=stat><span id=time class=stattxt>
+<td width=50 align=right valign=top class=stat><span id=time class=stattxt>
 </span><br>
 <button onclick="py.link('more');">%(more)s &#9662;</button>
 </td>
@@ -393,6 +393,7 @@ setInterval(function () { time += 1; updateTime() }, 1000);
 });
 
 var updateTime = function () {
+    return;
     var m = Math.floor(time / 60);
     var s = time %% 60;
     if (s < 10) {
@@ -408,10 +409,12 @@ var updateTime = function () {
     def _showAnswerButton(self):
         self.bottom.web.setFocus()
         middle = '''
-<div class=spacer2></div>
-<button id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % _("Show Answer")
+<span class=stattxt>%s</span><br>
+<button id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % (
+        self._remaining(), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
-        middle = "<table cellpadding=0><tr><td>%s</td></tr></table>" % middle
+        middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
+
         self.bottom.web.stdHtml(
             self._bottomHTML(middle),
             self.bottom._css + self._bottomCSS)

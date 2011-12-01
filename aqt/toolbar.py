@@ -117,7 +117,7 @@ text-decoration: underline;
 }
 
 button {
-font-weight: normal;
+font-weight: bold;
 }
 """
 

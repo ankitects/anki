@@ -25,6 +25,7 @@ class Overview(object):
     def refresh(self):
         self._renderPage()
         self._renderBottom()
+        self.mw.web.setFocus()
 
     # Handlers
     ############################################################
@@ -112,6 +113,7 @@ class Overview(object):
 h3 { margin-bottom: 0; }
 .fin { font-size: 12px; font-weight: normal; }
 td { font-size: 14px; }
+button { font-weight: bold; }
 """
 
     # Bottom area
