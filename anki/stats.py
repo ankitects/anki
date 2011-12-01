@@ -59,7 +59,7 @@ class CardStats(object):
         self.txt += self.makeLine(k, v)
 
     def makeLine(self, k, v):
-        txt = "<tr><td align=right style='padding-right: 3px;'>"
+        txt = "<tr><td align=left style='padding-right: 3px;'>"
         txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
         return txt
 
