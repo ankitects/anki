@@ -292,7 +292,6 @@ background: #f3f3f3;
 margin: 2em;
 }
 h1 { margin-bottom: 0.2em; }
-hr { background-color:#ccc; margin: 1em; }
 """
 
     def button(self, link, name, key=None, class_="", id=""):

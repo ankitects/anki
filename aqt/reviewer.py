@@ -19,22 +19,18 @@ class Reviewer(object):
         self.web = mw.web
         self.card = None
         self.cardQueue = []
+        self.hadCardQueue = False
         self._answeredIds = []
         self.state = None
-        self.keep = False
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         addHook("leech", self.onLeech)
 
     def show(self):
         self.web.setKeyHandler(self._keyHandler)
         self.web.setLinkHandler(self._linkHandler)
-        if self.keep:
-            self._initWeb()
-        else:
-            self.nextCard()
-        self.keep = False
         self.bottom.web.setFixedHeight(46)
         self.bottom.web.setLinkHandler(self._linkHandler)
+        self.nextCard()
 
     def lastCard(self):
         if self._answeredIds:
@@ -49,14 +45,19 @@ class Reviewer(object):
 
     def nextCard(self):
         if self.cardQueue:
-            # a card has been retrieved from undo
+            # undone/edited cards to show
             c = self.cardQueue.pop()
+            self.hadCardQueue = True
         else:
+            if self.hadCardQueue:
+                # the undone/edited cards may be sitting in the regular queue;
+                # need to reset
+                self.mw.col.reset()
+                self.hadCardQueue = False
             c = self.mw.col.sched.getCard()
         self.card = c
         clearAudioQueue()
         if c:
-            #self.updateMarkAction()
             self._initWeb()
         else:
             self.mw.moveToState("overview")
@@ -208,16 +209,13 @@ function _typeAnsPress() {
 
     def _linkHandler(self, url):
         if url == "ans":
-            print "show ans"
             self._showAnswer()
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
-        elif url == "add":
-            self.mw.onAddCard()
-        elif url == "dlist":
-            self.mw.close()
-        elif url == "ov":
-            self.mw.moveToState("overview")
+        elif url == "edit":
+            self.mw.onEditCurrent()
+        elif url == "more":
+            self.showContextMenu()
         elif url.startswith("typeans:"):
             (cmd, arg) = url.split(":")
             self.processTypedAns(arg)
@@ -228,76 +226,13 @@ function _typeAnsPress() {
     ##########################################################################
 
     _css = """
-.ansbut {
-    -webkit-box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-    -webkit-user-drag: none;
-    -webkit-user-select: none;
-    background-color: #ddd;
-    border-radius: 5px;
-    border: 1px solid #aaa;
-    color: #000;
-    display: inline-block;
-    font-size: 80%;
-    margin: 0 5 0 5;
-    padding: 3;
-    text-decoration: none;
-    text-align: center;
-}
-.but:focus, .but:hover { background-color: #aaa; }
-.ansbutbig {
-    bottom: 1em;
-    height: 40px;
-    left: 50%;
-    margin-left: -125px !important;
-    position: fixed;
-    width: 250px;
-    font-size: 100%;
-}
-.ansbut:focus {
-font-weight: bold;
-}
-div.ansbuttxt {
-  position: relative; top: 25%;
-}
-
+hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
-
-#easebuts {
-  bottom: 1em;
-  height: 47px;
-  left: 50%;
-  margin-left: -200px;
-  position: fixed;
-  width: 400px;
-  font-size: 100%;
-}
-
-.easebut {
-  width: 60px;
-  font-size: 100%;
-}
-
-.time {
-  background: #eee;
-  padding: 5px;
-  border-radius: 10px;
-}
-
-div#filler {
-  height: 30px;
-}
-
-.q { margin-bottom: 1em; }
-.a { margin-top: 1em; }
-.inv { visibility: hidden; }
-
 .cloze { font-weight: bold; color: blue; }
 """
 
     def _styles(self):
-        css = self.mw.sharedCSS
-        css += self._css
-        return css
+        return self._css
 
     # Type in the answer
     ##########################################################################
@@ -417,7 +352,7 @@ padding-left: 5px; padding-right: 5px;
 td { font-weight: bold; font-size: 12px; }
 .hitem { margin-top: 2px; }
 .stat { padding-top: 5px; }
-.stattxt { padding-left: 5px; padding-right: 5px; }
+.stattxt { padding-left: 5px; padding-right: 5px; white-space: nowrap; }
 .nobold { font-weight: normal; display: inline-block; padding-top: 3px; }
 .spacer { height: 18px; }
 .spacer2 { height: 16px; }
@@ -429,17 +364,17 @@ button { font-weight: normal; }
 <table width=100%% cellspacing=0 cellpadding=0>
 <tr>
 <td align=left width=50 valign=top class=stat><span class=stattxt>1 + 7 + 3</span><br>
-<button>Edit Note</button></td>
+<button onclick="py.link('edit');">%(edit)s</button></td>
 <td align=center valign=top>
 %(middle)s
 </td>
-<td width=50 align=right valign=top class=stat><span class=stattxt>0:53</span><br>
-<button>More &#9662;</button>
+<td width=75 align=right valign=top class=stat><span class=stattxt>0:53</span><br>
+<button onclick="py.link('more');">%(more)s &#9662;</button>
 </td>
 </tr>
 </table>
 <script>$(function () { $("#ansbut").focus(); });</script>
-""" % dict(middle=middle)
+""" % dict(middle=middle, edit=_("Edit"), more=_("More"))
 
     def _showAnswerButton(self):
         self.bottom.web.setFocus()

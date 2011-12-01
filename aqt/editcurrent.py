@@ -23,8 +23,9 @@ class EditCurrent(QDialog):
         self.connect(self,
                      SIGNAL("rejected()"),
                      self.onSave)
-        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea)
+        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         self.editor.setNote(self.mw.reviewer.card.note())
+        self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
         restoreGeom(self, "editcurrent")
         addHook("closeEditCurrent", self.onSave)
         self.mw.requireReset(modal=True)
@@ -39,8 +40,6 @@ class EditCurrent(QDialog):
         r = self.mw.reviewer
         r.card.load()
         r.keep = True
-        # we don't need to reset the col, but there may be new groups
-        self.mw.col.sched._resetConf()
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
         self.close()
