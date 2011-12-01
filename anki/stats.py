@@ -499,7 +499,7 @@ order by thetype, ease""" % lim)
         txt = self._title(_("Hourly Retention"),
                           _("Review success rate for each hour of the day."))
         txt += self._graph(id="hour", data=[
-            dict(data=shifted, color=colHour, label=_("% Failed")),
+            dict(data=shifted, color=colHour, label=_("% Correct")),
             dict(data=trend, color=colCum, label=_("Trend"),
              bars={'show': False}, lines=dict(show=True), stack=False)
         ], conf=dict(
@@ -520,7 +520,7 @@ select
 sum(case when ease = 1 then 0 else 1 end) /
 cast(count() as float) * 100,
 count()
-from revlog where type = 1 %s
+from revlog where type in (0,1,2) %s
 group by hour having count() > 30 order by hour""" % lim,
                             cut=self.col.sched.dayCutoff-(sd.hour*3600))
 
@@ -670,6 +670,8 @@ $(function () {
         return self.col.sched._deckLimit()
 
     def _revlogLimit(self):
+        if self.wholeCollection:
+            return ""
         return ("cid in (select id from cards where did in %s)" %
                 ids2str(self.col.decks.active()))
 
