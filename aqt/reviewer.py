@@ -81,8 +81,6 @@ class Reviewer(object):
 <div id=qa></div>
 <script>
 var ankiPlatform = "desktop";
-var hideq;
-var ans;
 var typeans;
 function _updateQA (q, answerMode) {
     $("#qa").html(q);
@@ -92,36 +90,16 @@ function _updateQA (q, answerMode) {
     }
     if (answerMode) {
         window.location = "#answerStart";
-    } else {
-        window.location = "";
     }
 };
-function _showans (a) {
-    $("#qa").html(a);
+function _getTypedText () {
     if (typeans) {
         py.link("typeans:"+typeans.value);
     }
-    $(".inv").removeClass('inv');
-    if (hideq) {
-        $("#q").html(ans);
-        $("#midhr").addClass("inv");
-    } else {
-        location.hash = "a";
-    }
-    //$("#ansbut").hide();
-    $("#defease").focus();
 };
-function _processTyped (res) {
-    $("#typeans").replaceWith(res);
-}
-function _onSpace() {
-    if (/^ease/.test(document.activeElement.href)) {
-        py.link(document.activeElement.href);
-    }
-}
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
-        _showans();
+        py.link("ans");
     }
 }
 </script>
@@ -138,7 +116,7 @@ function _typeAnsPress() {
 
     def _mungeQA(self, buf):
         return self.mw.col.media.escapeImages(
-            self.prepareTypeAns(mungeQA(buf)))
+            self.typeAnsFilter(mungeQA(buf)))
 
     def _showQuestion(self):
         self.state = "question"
@@ -181,6 +159,8 @@ function _typeAnsPress() {
 
     def _answerCard(self, ease):
         "Reschedule card and show next."
+        if self.mw.col.sched.answerButtons(self.card) < ease:
+            return
         self.mw.col.sched.answerCard(self.card, ease)
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
@@ -208,29 +188,10 @@ function _typeAnsPress() {
             self.mw.onBuryNote()
         elif key == "=":
             self.mw.onSuspend()
+        elif key in ("1", "2", "3", "4"):
+            self._answerCard(int(key))
         elif evt.key() == Qt.Key_Delete:
             self.mw.onDelete()
-        print "key", evt.key()
-        # if self.state == "question":
-        #     show = False
-        #     if evt.key() == Qt.Key_Space and self.typeAns() is None:
-        #         show = True
-        #     elif evt.key() == Qt.Key_Escape:
-        #         self.web.eval("$('#typeans').blur();")
-        #     if show:
-        #         self._showAnswer()
-        #         self.web.eval("_showans();")
-        #         return True
-        # elif self.state == "answer":
-        #     if evt.key() == Qt.Key_Space:
-        #         self.web.eval("_onSpace();")
-        #     else:
-        #         key = unicode(evt.text())
-        #         if key and key >= "1" and key <= "4":
-        #             key=int(key)
-        #             if self.card.queue == 2 or key < 4:
-        #                 self._answerCard(key)
-        #                 return True
 
     def _linkHandler(self, url):
         if url == "ans":
@@ -243,7 +204,7 @@ function _typeAnsPress() {
             self.showContextMenu()
         elif url.startswith("typeans:"):
             (cmd, arg) = url.split(":")
-            self.processTypedAns(arg)
+            self.typedAnswer = arg
         else:
             QDesktopServices.openUrl(QUrl(url))
 
@@ -264,54 +225,58 @@ body { margin:1.5em; }
 
     failedCharColour = "#FF0000"
     passedCharColour = "#00FF00"
+    typeAnsPat = "\[\[type:(.+?)\]\]"
 
-    def prepareTypeAns(self, buf):
+    def typeAnsFilter(self, buf):
+        if self.state == "question":
+            return self.typeAnsQuestionFilter(buf)
+        else:
+            return self.typeAnsAnswerFilter(buf)
+
+    def typeAnsQuestionFilter(self, buf):
         self.typeField = None
-        pat = "\[\[type:(.+?)\]\]"
-        m = re.search(pat, buf)
+        m = re.search(self.typeAnsPat, buf)
         if not m:
             return buf
         fld = m.group(1)
-        fobj = None
         for f in self.card.model()['flds']:
             if f['name'] == fld:
-                fobj = f
+                self.typeField = f
+                self.typeFont = f['font']
+                self.typeSize = f['size']
                 break
-        if not fobj:
-            return re.sub(pat, _("Type answer: unknown field %s") % fld, buf)
-        self.typeField = fobj
-        return re.sub(pat, """
+        if not self.typeField:
+            return re.sub(
+                self.typeAnsPat, _("Type answer: unknown field %s") % fld, buf)
+        return re.sub(self.typeAnsPat, """
 <center>
 <input type=text id=typeans onkeypress="_typeAnsPress();"
-   style="font-family: '%s'; font-size: %s;">
+   style="font-family: '%s'; font-size: %spx;">
 </center>
-""" % (fobj['font'], fobj['size']), buf)
+""" % (self.typeFont, self.typeSize), buf)
 
-    def processTypedAns(self, given):
-        ord = self.typeAns()
-        try:
-            cor = self.mw.col.media.strip(
-                stripHTML(self.card.note().fields[ord]))
-        except IndexError:
-            self.card.template()['typeAns'] = None
-            self.card.model().flush()
-            cor = ""
-        if cor:
-            res = self.correct(cor, given)
-            self.web.eval("_processTyped(%s);" % simplejson.dumps(res))
+    def typeAnsAnswerFilter(self, buf):
+        if not self.typeField:
+            return buf
+        # tell webview to call us back with the input content
+        self.web.eval("_getTypedText();")
+        # get the correct value from the field
+        cor = self.mw.col.media.strip(
+                stripHTML(self.card.note()[self.typeField['name']]))
+        # compare with typed answer
+        res = self.correct(cor, self.typedAnswer)
+        # and update the type answer area
+        return re.sub(self.typeAnsPat, """
+<span style="font-family: '%s'; font-size: %spx">%s</span>""" %
+                      (self.typeFont, self.typeSize, res), buf)
 
-    def getFont(self):
-        print "fix getFont()"
-        return ("arial", 20)
-        f = self.card.model().fields[self.typeAns()]
-        return (f['font'], f['qsize'])
 
+    # following type answer functions thanks to Bernhard
     def calculateOkBadStyle(self):
         "Precalculates styles for correct and incorrect part of answer"
-        (fn, sz) = self.getFont()
-        st = "background: %s; color: #000; font-size: %dpx; font-family: %s;"
-        self.styleOk  = st % (self.passedCharColour, sz, fn)
-        self.styleBad = st % (self.failedCharColour, sz, fn)
+        st = "background: %s; color: #000;"
+        self.styleOk  = st % self.passedCharColour
+        self.styleBad = st % self.failedCharColour
 
     def ok(self, a):
         "returns given sring in style correct (green)"
@@ -355,7 +320,10 @@ body { margin:1.5em; }
                 ret += self.applyStyle(b[i1], lastEqual, b[i1:i2])
                 lastEqual = ""
             elif tag == "insert":
-                dashNum = (j2 - j1) if ucd.category(a[j1]) != 'Mn' else ((j2 - j1) - 1)
+                if ucd.category(a[j1]) != 'Mn':
+                    dashNum = (j2 - j1)
+                else:
+                    dashNum = ((j2 - j1) - 1)
                 ret += self.applyStyle(a[j1], lastEqual, "-" * dashNum)
                 lastEqual = ""
         return ret + self.ok(lastEqual)

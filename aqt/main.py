@@ -331,7 +331,6 @@ title="%s">%s</button>''' % (
         sweb.setFixedHeight(100)
         sweb.setObjectName("bottomWeb")
         sweb.setFocusPolicy(Qt.WheelFocus)
-        sweb.stdHtml("foo")
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0,0,0,0)
