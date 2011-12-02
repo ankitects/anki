@@ -111,6 +111,7 @@ body { margin: 1em; -webkit-user-select: none; }
         m.exec_(QCursor.pos())
 
     def _rename(self, did):
+        self.mw.checkpoint(_("Rename Deck"))
         deck = self.mw.col.decks.get(did)
         newName = getOnlyText(_("New deck name:"))
         if not newName:
@@ -121,12 +122,15 @@ body { margin: 1em; -webkit-user-select: none; }
         self.show()
 
     def _delete(self, did):
+        self.mw.checkpoint(_("Delete Deck"))
         if did == 1:
             return showWarning(_("The default deck can't be deleted."))
         deck = self.mw.col.decks.get(did)
         if askUser(_("""\
 Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
+            self.mw.progress.start(immediate=True)
             self.mw.col.decks.rem(did, True)
+            self.mw.progress.finish()
             self.show()
 
     # Top buttons
