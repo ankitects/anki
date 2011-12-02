@@ -37,7 +37,5 @@ echo "]" >> $init
 cat $temp >> $init
 rm $temp
 
-if [ designer/icons.qrc -nt aqt/forms/icons_rc.py ]; then
-    echo "Building resources.."
-    pyrcc4 designer/icons.qrc -o aqt/forms/icons_rc.py
-fi
+echo "Building resources.."
+pyrcc4 designer/icons.qrc -o aqt/forms/icons_rc.py
