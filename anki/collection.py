@@ -559,7 +559,6 @@ where c.nid == f.id
 
     def fixIntegrity(self):
         "Fix possible problems and rebuild caches."
-        self.modSchema(check=False)
         problems = []
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
