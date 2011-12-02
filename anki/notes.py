@@ -45,8 +45,7 @@ from notes where id = ?""", self.id)
         self._fmap = self.col.models.fieldMap(self._model)
 
     def flush(self, mod=None):
-        if self.model()['cloze']:
-            self._clozePreFlush()
+        self._preFlush()
         self.mod = mod if mod else intTime()
         self.usn = self.col.usn()
         sfld = stripHTML(self.fields[self.col.models.sortIdx(self._model)])
@@ -60,8 +59,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
                             self.data)
         self.id = res.lastrowid
         self.col.tags.register(self.tags)
-        if self.model()['cloze']:
-            self._clozePostFlush()
+        self._postFlush()
 
     def joinedFields(self):
         return joinFields(self.fields)
@@ -148,21 +146,12 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
     # Flushing cloze notes
     ##################################################
 
-    def _clozePreFlush(self):
+    def _preFlush(self):
+        # have we been added yet?
         self.newlyAdded = not self.col.db.scalar(
             "select 1 from cards where nid = ?", self.id)
-        tmpls = self.col.findTemplates(self)
-        ok = []
-        for t in tmpls:
-            ok.append(t['ord'])
-        # check if there are cards referencing a deleted cloze
-        if self.col.db.scalar(
-            "select 1 from cards where nid = ? and ord not in %s" %
-            ids2str(ok), self.id):
-            # there are; abort, as the UI should have handled this
-            raise Exception("UI should have deleted cloze")
 
-    def _clozePostFlush(self):
+    def _postFlush(self):
         # generate missing cards
         if not self.newlyAdded:
             self.col.genCards([self.id])

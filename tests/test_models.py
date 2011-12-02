@@ -166,13 +166,8 @@ def test_cloze():
     assert d.addNote(f) == 0
     f['Text'] = "hello {{c1::foo}}"
     assert d.addNote(f) == 1
-    # deleting a cloze should fail; the ui should clean up invalid cards
-    cnt = d.cardCount()
-    f['Text'] = "hello"
-    assertException(Exception, lambda: f.flush())
-    f['Text'] = "hello {{c1::foo}}"
-    f.flush()
     # if we add another cloze, a card should be generated
+    cnt = d.cardCount()
     f['Text'] = "{{c2::hello}} {{c1::foo}}"
     f.flush()
     assert d.cardCount() == cnt + 1
