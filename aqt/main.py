@@ -826,12 +826,6 @@ they will be lost. Are you sure you want to continue?"""))
 
     def onCheckDB(self):
         "True if no problems"
-        if not askUser(_("""\
-This operation will find and fix some common problems.<br><br>
-On the next sync, all cards will be sent to the server. \
-Any changes on the server since your last sync will be lost.<br><br>
-<b>This operation is not undoable.</b> Proceed?""")):
-            return
         self.progress.start(immediate=True)
         ret = self.col.fixIntegrity()
         self.progress.finish()
