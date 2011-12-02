@@ -216,19 +216,19 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
+    <addaction name="actionReschedule"/>
+    <addaction name="actionReposition"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeModel"/>
+    <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
     <addaction name="separator"/>
-    <addaction name="actionOptions"/>
-   </widget>
-   <widget class="QMenu" name="menuCards">
-    <property name="title">
-     <string>Cards</string>
-    </property>
-    <addaction name="actionReposition"/>
-    <addaction name="actionReschedule"/>
+    <addaction name="actionFindDuplicates"/>
+    <addaction name="actionFindReplace"/>
     <addaction name="separator"/>
+    <addaction name="actionOptions"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -248,47 +248,14 @@
     </property>
     <addaction name="actionGuide"/>
    </widget>
-   <widget class="QMenu" name="menuNotes">
-    <property name="title">
-     <string>Notes</string>
-    </property>
-    <addaction name="actionAddItems"/>
-    <addaction name="separator"/>
-    <addaction name="actionFindReplace"/>
-    <addaction name="actionFindDuplicates"/>
-    <addaction name="separator"/>
-    <addaction name="actionChangeModel"/>
-    <addaction name="separator"/>
-    <addaction name="actionDeleteNotes"/>
-   </widget>
-   <addaction name="menuCards"/>
-   <addaction name="menuNotes"/>
    <addaction name="menuEdit"/>
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
   </widget>
-  <action name="actionAddTag">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/Anki_Add_Tag.png</normaloff>:/icons/Anki_Add_Tag.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Add Tags...</string>
-   </property>
-  </action>
-  <action name="actionDeleteTag">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/Anki_Del_Tag.png</normaloff>:/icons/Anki_Del_Tag.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Delete Tags...</string>
-   </property>
-  </action>
   <action name="actionReschedule">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
+     <normaloff>:/icons/view-pim-calendar.png</normaloff>:/icons/view-pim-calendar.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Reschedule...</string>
@@ -306,15 +273,6 @@
    </property>
    <property name="text">
     <string>&amp;Undo</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-redo.png</normaloff>:/icons/edit-redo.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Redo</string>
    </property>
   </action>
   <action name="actionInvertSelection">
@@ -388,7 +346,7 @@
      <normaloff>:/icons/system-software-update.png</normaloff>:/icons/system-software-update.png</iconset>
    </property>
    <property name="text">
-    <string>Change &amp;Model...</string>
+    <string>Change Fact Type...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+M</string>
@@ -428,24 +386,6 @@
     <string>Browser Options...</string>
    </property>
   </action>
-  <action name="actionSuspend">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Suspend Cards</string>
-   </property>
-  </action>
-  <action name="actionUnsuspend">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/media-playback-start2.png</normaloff>:/icons/media-playback-start2.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Unsuspend Cards</string>
-   </property>
-  </action>
   <action name="actionTags">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -456,54 +396,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
-   </property>
-  </action>
-  <action name="actionSort">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/view-sort-ascending.png</normaloff>:/icons/view-sort-ascending.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Sort</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
-   </property>
-  </action>
-  <action name="actionAddItems">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+D</string>
-   </property>
-  </action>
-  <action name="actionToggleSuspend">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/media-playback-pause.png</normaloff>:/icons/media-playback-pause.png</iconset>
-   </property>
-   <property name="text">
-    <string>Toggle Suspend</string>
-   </property>
-  </action>
-  <action name="actionToggleMark">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/rating.png</normaloff>:/icons/rating.png</iconset>
-   </property>
-   <property name="text">
-    <string>Toggle Mark</string>
    </property>
   </action>
   <action name="actionCardList">
@@ -527,18 +419,6 @@
     <string>Find &amp;Duplicates...</string>
    </property>
   </action>
-  <action name="actionSetDeck">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/stock_group.png</normaloff>:/icons/stock_group.png</iconset>
-   </property>
-   <property name="text">
-    <string>Move to Deck...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+G</string>
-   </property>
-  </action>
   <action name="actionReposition">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -546,15 +426,6 @@
    </property>
    <property name="text">
     <string>Reposition...</string>
-   </property>
-  </action>
-  <action name="actionDeleteNotes">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
-   </property>
-   <property name="text">
-    <string>Delete</string>
    </property>
   </action>
  </widget>

@@ -271,7 +271,12 @@ class StatusDelegate(QItemDelegate):
         self.model = model
 
     def paint(self, painter, option, index):
-        c = self.model.getCard(index)
+        try:
+            c = self.model.getCard(index)
+        except:
+            # in the the middle of a reset; return nothing so this row is not
+            # rendered until we have a chance to reset the model
+            return
         if c.queue < 0:
             # custom render
             if index.row() % 2 == 0:
@@ -342,16 +347,10 @@ class Browser(QMainWindow):
     def setupMenus(self):
         # actions
         c = self.connect; f = self.form; s = SIGNAL("triggered()")
-        c(f.actionAddItems, s, self.mw.onAddCard)
-        c(f.actionDeleteNotes, s, self.deleteNotes)
-        c(f.actionAddTag, s, self.addTags)
-        c(f.actionDeleteTag, s, self.deleteTags)
         c(f.actionReposition, s, self.reposition)
         c(f.actionReschedule, s, self.reschedule)
         c(f.actionCram, s, self.cram)
         c(f.actionChangeModel, s, self.onChangeModel)
-        c(f.actionToggleSuspend, SIGNAL("triggered(bool)"), self.onSuspend)
-        c(f.actionToggleMark, SIGNAL("triggered(bool)"), self.onMark)
         # edit
         c(f.actionOptions, s, self.onOptions)
         c(f.actionUndo, s, self.mw.onUndo)
@@ -365,7 +364,6 @@ class Browser(QMainWindow):
         c(f.actionFind, s, self.onFind)
         c(f.actionNote, s, self.onNote)
         c(f.actionTags, s, self.onTags)
-        c(f.actionSort, s, self.onSort)
         c(f.actionCardList, s, self.onCardList)
         # help
         c(f.actionGuide, s, self.onHelp)
@@ -1230,9 +1228,6 @@ select fm.id, fm.name from fieldmodels fm""")
 
     def onTags(self):
         self.form.tree.setFocus()
-
-    def onSort(self):
-        self.form.sortBox.setFocus()
 
     def onCardList(self):
         self.form.tableView.setFocus()
