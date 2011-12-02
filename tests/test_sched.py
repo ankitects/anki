@@ -305,9 +305,10 @@ def test_nextIvl():
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addNote(f)
     d.reset()
+    conf = d.decks.conf(1)
+    conf['new']['delays'] = [0.5, 3, 10]
+    conf['lapse']['delays'] = [1, 5, 9]
     c = d.sched.getCard()
-    d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
-    d.sched._cardConf(c)['lapse']['delays'] = [0.5, 3, 10]
     # new cards
     ##################################################
     ni = d.sched.nextIvl
@@ -333,7 +334,7 @@ def test_nextIvl():
     c.type = 2
     c.ivl = 100
     c.factor = 2500
-    assert ni(c, 1) == 30
+    assert ni(c, 1) == 60
     assert ni(c, 2) == 100*86400
     assert ni(c, 3) == 100*86400
     # review cards
@@ -341,8 +342,8 @@ def test_nextIvl():
     c.queue = 2
     c.ivl = 100
     c.factor = 2500
-    # failing it should put it at 30s
-    assert ni(c, 1) == 30
+    # failing it should put it at 60s
+    assert ni(c, 1) == 60
     # or 1 day if relearn is false
     d.sched._cardConf(c)['lapse']['relearn']=False
     assert ni(c, 1) == 1*86400

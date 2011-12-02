@@ -741,6 +741,9 @@ your short-term review workload will become."""))
 
     # this isn't easily extracted from the learn code
     def _nextLrnIvl(self, card, ease):
+        if card.queue == 0:
+            card.type = 1
+            card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
         if ease == 1:
             # fail
