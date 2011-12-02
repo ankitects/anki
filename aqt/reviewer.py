@@ -195,27 +195,42 @@ function _typeAnsPress() {
             return True
 
     def _keyHandler(self, evt):
-        print "rev event", evt.key()
-        if self.state == "question":
-            show = False
-            if evt.key() == Qt.Key_Space and self.typeAns() is None:
-                show = True
-            elif evt.key() == Qt.Key_Escape:
-                self.web.eval("$('#typeans').blur();")
-            if show:
-                self._showAnswer()
-                self.web.eval("_showans();")
-                return True
-        elif self.state == "answer":
-            if evt.key() == Qt.Key_Space:
-                self.web.eval("_onSpace();")
-            else:
-                key = unicode(evt.text())
-                if key and key >= "1" and key <= "4":
-                    key=int(key)
-                    if self.card.queue == 2 or key < 4:
-                        self._answerCard(key)
-                        return True
+        key = unicode(evt.text())
+        if key == "e":
+            self.mw.onEditCurrent()
+        elif key == " " and self.state == "question":
+            self._showAnswer()
+        elif key == "r":
+            self.replayAudio()
+        elif key == "*":
+            self.mw.onMark()
+        elif key == "-":
+            self.mw.onBuryNote()
+        elif key == "=":
+            self.mw.onSuspend()
+        elif evt.key() == Qt.Key_Delete:
+            self.mw.onDelete()
+        print "key", evt.key()
+        # if self.state == "question":
+        #     show = False
+        #     if evt.key() == Qt.Key_Space and self.typeAns() is None:
+        #         show = True
+        #     elif evt.key() == Qt.Key_Escape:
+        #         self.web.eval("$('#typeans').blur();")
+        #     if show:
+        #         self._showAnswer()
+        #         self.web.eval("_showans();")
+        #         return True
+        # elif self.state == "answer":
+        #     if evt.key() == Qt.Key_Space:
+        #         self.web.eval("_onSpace();")
+        #     else:
+        #         key = unicode(evt.text())
+        #         if key and key >= "1" and key <= "4":
+        #             key=int(key)
+        #             if self.card.queue == 2 or key < 4:
+        #                 self._answerCard(key)
+        #                 return True
 
     def _linkHandler(self, url):
         if url == "ans":
@@ -492,14 +507,15 @@ Card was a <a href="%s">leech</a>.""") % link)
 
     def showContextMenu(self):
         opts = [
-            [_("Replay Audio (r)"), self.replayAudio],
-            [_("Mark Note (m)"), self.mw.onMark],
-            [_("Bury Note (b)"), self.mw.onBuryNote],
-            [_("Suspend Note (!)"), self.mw.onSuspend],
-            [shortcut(_("Delete Note (Ctrl+delete)")), self.mw.onDelete]
+            [_("Replay Audio"), "r", self.replayAudio],
+            [_("Mark Note"), "*", self.mw.onMark],
+            [_("Bury Note"), "-", self.mw.onBuryNote],
+            [_("Suspend Note"), "=", self.mw.onSuspend],
+            [_("Delete Note"), "Delete", self.mw.onDelete]
         ]
         m = QMenu(self.mw)
-        for label, func in opts:
+        for label, scut, func in opts:
             a = m.addAction(label)
+            a.setShortcut(QKeySequence(scut))
             a.connect(a, SIGNAL("triggered()"), func)
         m.exec_(QCursor.pos())

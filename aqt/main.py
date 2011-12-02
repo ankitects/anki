@@ -18,7 +18,8 @@ import anki.consts
 import aqt, aqt.progress, aqt.webview, aqt.toolbar
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
-    askUserDialog, applyStyles, getText, showText, showCritical, getFile
+    askUserDialog, applyStyles, getText, showText, showCritical, getFile, \
+    tooltip
 
 ## fixme: open plugin folder broken on win32?
 
@@ -565,8 +566,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         f = self.reviewer.card.note()
         if f.hasTag("marked"):
             f.delTag("marked")
+            tooltip("Mark Removed.")
         else:
             f.addTag("marked")
+            tooltip("Mark Added.")
         f.flush()
 
     def onSuspend(self):
@@ -574,16 +577,19 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.col.sched.suspendCards(
             [c.id for c in self.reviewer.card.note().cards()])
         self.reviewer.nextCard()
+        tooltip("Note suspended.")
 
     def onDelete(self):
         self.checkpoint(_("Delete"))
         self.col.remNotes([self.reviewer.card.note().id])
         self.reviewer.nextCard()
+        tooltip("Note and its cards deleted.")
 
     def onBuryNote(self):
         self.checkpoint(_("Bury"))
         self.col.sched.buryNote(self.reviewer.card.nid)
         self.reviewer.nextCard()
+        tooltip("Note buried.")
 
     # Undo & autosave
     ##########################################################################

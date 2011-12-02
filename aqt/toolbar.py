@@ -4,6 +4,7 @@
 
 from aqt.qt import *
 from aqt.webview import AnkiWebView
+from anki.lang import _
 
 class Toolbar(object):
 
@@ -26,31 +27,34 @@ class Toolbar(object):
     ######################################################################
 
     rightIcons = [
-        ["stats", "qrc:/icons/view-statistics.png"],
-        ["sync", "qrc:/icons/view-refresh.png"],
+        ["stats", "qrc:/icons/view-statistics.png",
+         _("Show statistics. Shortcut key: %s") % "S"],
+        ["sync", "qrc:/icons/view-refresh.png",
+         _("Synchronize with AnkiWeb. Shortcut key: %s") % "y"],
     ]
 
     def _centerLinks(self):
         links = [
-            ["decks", _("Decks")],
-            ["study", _("Study")],
-            ["add", _("Add")],
-            ["browse", _("Browse")],
+            ["decks", _("Decks"), _("Shortcut key: %s") % "d"],
+            ["study", _("Study"), _("Shortcut key: %s") % "s"],
+            ["add", _("Add"), _("Shortcut key: %s") % "a"],
+            ["browse", _("Browse"), _("Shortcut key: %s") % "b"],
         ]
         return self._linkHTML(links)
 
     def _linkHTML(self, links):
         buf = ""
-        for ln, name in links:
-            buf += '<a class=hitem href="%s">%s</a>' % (ln, name)
+        for ln, name, title in links:
+            buf += '<a class=hitem title="%s" href="%s">%s</a>' % (
+                title, ln, name)
             buf += "&nbsp;"*3
         return buf
 
     def _rightIcons(self):
         buf = ""
-        for ln, icon in self.rightIcons:
-            buf += '<a class=hitem href="%s"><img src="%s"></a>' % (
-                ln, icon)
+        for ln, icon, title in self.rightIcons:
+            buf += '<a class=hitem title="%s" href="%s"><img src="%s"></a>' % (
+                title, ln, icon)
         return buf
 
     # Link handling

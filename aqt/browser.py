@@ -1422,9 +1422,9 @@ class BrowserToolbar(Toolbar):
 
     def _centerLinks(self):
         links = [
-            ["setDeck", _("Move to Deck")],
-            ["addTags", _("Add Tags")],
-            ["remTags", _("Remove Tags")],
+            ["setDeck", _("Move to Deck"), ""],
+            ["addTags", _("Add Tags"), ""],
+            ["remTags", _("Remove Tags"), ""],
         ]
         return self._linkHTML(links)
 

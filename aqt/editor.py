@@ -234,7 +234,7 @@ class Editor(object):
     ######################################################################
 
     def _addButton(self, name, func, key=None, tip=None, size=True, text="",
-                   check=False, native=False):
+                   check=False, native=False, canDisable=True):
         b = QPushButton(text)
         if check:
             b.connect(b, SIGNAL("clicked(bool)"), func)
@@ -255,7 +255,8 @@ class Editor(object):
         if check:
             b.setCheckable(True)
         self.iconsBox.addWidget(b)
-        self._buttons[name] = b
+        if canDisable:
+            self._buttons[name] = b
         return b
 
     def setupButtons(self):
@@ -271,10 +272,10 @@ class Editor(object):
         b = self._addButton
         b("fields", self.onFields, "",
           shortcut(_("Customize Fields")), size=False, text=_("Fields..."),
-          native=True)
+          native=True, canDisable=False)
         b("layout", self.onCardLayout, "Ctrl+l",
           shortcut(_("Customize Card Layout (Ctrl+l)")),
-          size=False, text=_("Layout..."), native=True)
+          size=False, text=_("Layout..."), native=True, canDisable=False)
         # align to right
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         b("text_bold", self.toggleBold, "Ctrl+b", _("Bold text (Ctrl+b)"),
