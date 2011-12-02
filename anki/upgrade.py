@@ -406,7 +406,8 @@ order by ordinal""", mid)):
                     "(?i){{modelTags}}", "{{Model}}", conf[type])
                 # type answer is now embedded in the format
                 if typeAns:
-                    conf[type] += '<br>{{type:%s}}' % typeAns
+                    if type == "qfmt" or hideq:
+                        conf[type] += '<br>{{type:%s}}' % typeAns
             # q fields now in a
             if not hideq:
                 conf['afmt'] = (
