@@ -834,52 +834,52 @@ they will be lost. Are you sure you want to continue?"""))
         return ret
 
     def onCheckMediaDB(self):
-        mb = QMessageBox(self)
-        mb.setWindowTitle(_("Anki"))
-        mb.setIcon(QMessageBox.Warning)
-        mb.setText(_("""\
-This operation finds media that is missing or unused.
-
-If you choose Scan+Delete, any media in your media folder that is not \
-used by cards will be deleted. Please note that media is only \
-counted as used if it appears on the question or answer of a card. If \
-media is in a field that is not on your cards, the media will \
-be deleted, and there is no way to undo this. Please make a backup if in \
-doubt."""))
-        bScan = QPushButton(_("Scan"))
-        mb.addButton(bScan, QMessageBox.RejectRole)
-        bDelete = QPushButton(_("Scan+Delete"))
-        mb.addButton(bDelete, QMessageBox.RejectRole)
-        bCancel = QPushButton(_("Cancel"))
-        mb.addButton(bCancel, QMessageBox.RejectRole)
-        mb.exec_()
-        if mb.clickedButton() == bScan:
-            delete = False
-        elif mb.clickedButton() == bDelete:
-            delete = True
-        else:
-            return
         self.progress.start(immediate=True)
-        (nohave, unused) = self.col.media.check(delete)
+        (nohave, unused) = self.col.media.check()
         self.progress.finish()
         # generate report
         report = ""
+        if unused:
+            report += _(
+                "In media folder but not used by any cards:")
+            report += "\n" + "\n".join(unused)
         if nohave:
+            if report:
+                report += "\n\n\n"
             report += _(
                 "Used on cards but missing from media folder:")
             report += "\n" + "\n".join(nohave)
-        if unused:
-            if report:
-                report += "\n\n"
-            if delete:
-                report += _("Deleted unused:")
-            else:
-                report += _(
-                    "In media folder but not used by any cards:")
-            report += "\n" + "\n".join(unused)
         if not report:
             report = _("No unused or missing files found.")
-        showText(report, parent=self, type="text")
+        # show report and offer to delete
+        diag = QDialog(self)
+        diag.setWindowTitle("Anki")
+        layout = QVBoxLayout(diag)
+        diag.setLayout(layout)
+        text = QTextEdit()
+        text.setReadOnly(True)
+        text.setPlainText(report)
+        layout.addWidget(text)
+        box = QDialogButtonBox(QDialogButtonBox.Close)
+        layout.addWidget(box)
+        b = QPushButton(_("Deleted Unused"))
+        b.setAutoDefault(False)
+        box.addButton(b, QDialogButtonBox.ActionRole)
+        b.connect(b, SIGNAL("clicked()"), lambda u=unused: self.deleteUnused(u))
+        diag.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
+        diag.setMinimumHeight(400)
+        diag.setMinimumWidth(500)
+        diag.exec_()
+
+    def deleteUnused(self, unused):
+        if not askUser(
+            _("Delete unused media? This operation can not be undone.")):
+            return
+        mdir = self.col.media.dir()
+        for f in unused:
+            path = os.path.join(mdir, f)
+            os.unlink(path)
+        tooltip("Deleted.")
 
     # System specific code
     ##########################################################################
