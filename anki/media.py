@@ -122,7 +122,7 @@ If the same name exists, compare checksums."""
     # Rebuilding DB
     ##########################################################################
 
-    def check(self, delete=False, local=None):
+    def check(self, local=None):
         "Return (missingFiles, unusedFiles)."
         mdir = self.dir()
         # generate card q/a and look through all references
@@ -150,11 +150,6 @@ If the same name exists, compare checksums."""
                 unused.append(file)
             else:
                 del normrefs[nfile]
-        # optionally delete
-        if delete:
-            for f in unused:
-                path = os.path.join(mdir, f)
-                os.unlink(path)
         nohave = normrefs.keys()
         return (nohave, unused)
 

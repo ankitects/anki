@@ -27,6 +27,7 @@ def Collection(path, queue=True, lock=True, server=False):
         ver = _upgradeSchema(db)
     db.execute("pragma temp_store = memory")
     db.execute("pragma cache_size = 10000")
+    db.execute("pragma journal_mode = wal")
     # add db to col and do any remaining upgrades
     col = _Collection(db, server)
     if ver < SCHEMA_VERSION:

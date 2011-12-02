@@ -124,6 +124,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 self.save()
             else:
                 self.rollback()
+            self.db.execute("pragma journal_mode = delete")
             self.db.close()
             self.db = None
             self.media.close()
