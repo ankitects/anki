@@ -92,10 +92,13 @@ class Overview(object):
 <tr><td>%s:</td><td><b><font color=#a00>%s</font></b></td></tr>
 <tr><td>%s:</td><td><b><font color=#0a0>%s</font></b></td></tr>
 </table>
-</td><td>%s</td></tr></table>''' % (_("New"), counts[0],
-                                    _("In Learning"), counts[1],
-                                    _("To Review"), counts[2],
-                                    but("study", _("Study"), id="study"))
+</td><td align=center>
+%s</td></tr></table>''' % (
+    _("New"), counts[0],
+    _("In Learning"), counts[1],
+    _("To Review"), counts[2],
+    but("study", _("Study Now"), id="study"))
+
 
     _body = """
 <center>
@@ -120,4 +123,14 @@ button { font-weight: bold; }
     ######################################################################
 
     def _renderBottom(self):
-        self.bottom.draw("hello")
+        links = [
+            ["opts", _("Options")],
+            ["cram", _("Cram")],
+        ]
+        buf = ""
+        for b in links:
+            buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)
+        self.bottom.draw(buf)
+        self.bottom.web.setFixedHeight(32)
+        self.bottom.web.setLinkHandler(self._linkHandler)
+
