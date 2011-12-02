@@ -52,7 +52,7 @@ class Overview(object):
         but = self.mw.button
         deck = self.mw.col.decks.current()
         sid = deck.get("sharedFrom")
-        if True: # sid:
+        if sid:
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""

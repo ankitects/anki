@@ -343,8 +343,7 @@ class Browser(QMainWindow):
         # actions
         c = self.connect; f = self.form; s = SIGNAL("triggered()")
         c(f.actionAddItems, s, self.mw.onAddCard)
-        c(f.actionDelete, s, self.deleteCards)
-        #c(f.actionSetGroup, s, self.setGroup)
+        c(f.actionDeleteNotes, s, self.deleteNotes)
         c(f.actionAddTag, s, self.addTags)
         c(f.actionDeleteTag, s, self.deleteTags)
         c(f.actionReposition, s, self.reposition)
@@ -593,7 +592,7 @@ class Browser(QMainWindow):
     def setColumnSizes(self):
         hh = self.form.tableView.horizontalHeader()
         for c, i in enumerate(self.model.activeCols):
-            if i in ("question", "answer", "noteFld"):
+            if c == len(self.model.activeCols) - 1:
                 hh.setResizeMode(c, QHeaderView.Stretch)
             else:
                 hh.setResizeMode(c, QHeaderView.Interactive)
@@ -841,11 +840,6 @@ where id in %s""" % ids2str(sf))
     # Misc menu options
     ######################################################################
 
-    def genCards(self):
-        nids = self.oneModelNotes()
-        if nids:
-            GenCards(self, nids)
-
     def onChangeModel(self):
         nids = self.oneModelNotes()
         if nids:
@@ -859,11 +853,11 @@ where id in %s""" % ids2str(sf))
     # Card deletion
     ######################################################################
 
-    def deleteCards(self):
-        self.mw.checkpoint(_("Delete Cards"))
+    def deleteNotes(self):
+        self.mw.checkpoint(_("Delete Notes"))
         self.model.beginReset()
         oldRow = self.form.tableView.selectionModel().currentIndex().row()
-        self.col.remCards(self.selectedCards())
+        self.col.remNotes(self.selectedNotes())
         self.onSearch(reset=False)
         if len(self.model.cards):
             new = min(oldRow, len(self.model.cards) - 1)
@@ -926,15 +920,13 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
             return
         if func is None:
             func = self.col.tags.bulkAdd
-        self.model.beginReset()
         if label is None:
             label = _("Add Tags")
         if label:
             self.mw.checkpoint(label)
         func(self.selectedNotes(), tags)
-        self.onSearch(reset=False)
+        self.model.reset()
         self.mw.requireReset()
-        self.model.endReset()
 
     def deleteTags(self, tags=None, label=None):
         if label is None:
@@ -1276,16 +1268,16 @@ class ChangeModel(QDialog):
         self.form.templateMap.setLayout(self.tlayout)
         # model chooser
         import aqt.modelchooser
-        self.oldCurrentModel = self.browser.col.conf['currentModelId']
-        self.browser.col.conf['currentModelId'] = self.oldModel.id
-        self.form.oldModelLabel.setText(self.oldModel.name)
+        self.oldModel = self.browser.col.decks.current()
+        self.form.oldModelLabel.setText(self.oldModel['name'])
         self.modelChooser = aqt.modelchooser.ModelChooser(
-            self.browser.mw, self.form.modelChooserWidget, cards=False, label=False)
+            self.browser.mw, self.form.modelChooserWidget, label=False)
         self.modelChooser.models.setFocus()
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
         self.modelChanged(self.oldModel)
         self.pauseUpdate = False
+        print "make sure we start with the model's old model"
 
     def onReset(self):
         self.modelChanged(self.browser.col.currentModel())
@@ -1378,7 +1370,6 @@ class ChangeModel(QDialog):
     def cleanup(self):
         removeHook("reset", self.onReset)
         removeHook("currentModelChanged", self.onReset)
-        self.oldCurrentModel = self.browser.col.conf['currentModelId']
         self.modelChooser.cleanup()
         saveGeom(self, "changeModel")
 
@@ -1422,28 +1413,30 @@ class BrowserToolbar(Toolbar):
 
     def _centerLinks(self):
         links = [
-            ["setDeck", _("Move to Deck"), ""],
-            ["addTags", _("Add Tags"), ""],
-            ["remTags", _("Remove Tags"), ""],
+            ["add", _("Add Notes"), ""],
+            ["delete", _("Delete Notes"), ""],
+            ["setDeck", _("Change Deck"), ""],
         ]
         return self._linkHTML(links)
 
     def draw(self):
         mark = self.browser.isMarked()
         pause = self.browser.isSuspended()
-        def borderImg(link, icon, on):
+        def borderImg(link, icon, on, title):
             if on:
                 fmt = '''\
-<a class=hitem href="%s">
+<a class=hitem title="%s" href="%s">
 <img style='background: #000;' src="qrc:/icons/%s.png"></a>'''
             else:
                 fmt = '''\
-<a class=hitem href="%s"><img src="qrc:/icons/%s.png"></a>'''
-            return fmt % (link, icon)
+<a class=hitem title="%s" href="%s"><img src="qrc:/icons/%s.png"></a>'''
+            return fmt % (title, link, icon)
         right = ""
-        right += borderImg("info", "info", False)
-        right += borderImg("mark", "star16", mark)
-        right += borderImg("pause", "pause16", pause)
+        right += borderImg("info", "info", False, _("Card Info"))
+        right += borderImg("mark", "star16", mark, _("Mark Note"))
+        right += borderImg("pause", "pause16", pause, _("Suspend Cards"))
+        right += borderImg("addtag", "addtag16", False, _("Bulk Tag Add"))
+        right += borderImg("deletetag", "deletetag16", False, _("Bulk Tag Delete"))
         self.web.stdHtml(self._body % (
             "<span style='display:inline-block; width: 100px;'></span>",
             self._centerLinks(),
@@ -1455,16 +1448,20 @@ class BrowserToolbar(Toolbar):
     def _linkHandler(self, l):
         if l == "anki":
             self.showMenu()
+        elif l  == "add":
+            self.browser.mw.onAddCard()
+        elif l  == "delete":
+            self.browser.deleteNotes()
         elif l  == "setDeck":
             self.browser.setDeck()
-        elif l  == "addTags":
-            self.browser.addTags()
-        elif l  == "remTags":
-            self.browser.deleteTags()
+        # icons
         elif l  == "info":
             self.browser.showCardInfo()
-        # icons
         elif l == "mark":
             self.browser.onMark()
         elif l == "pause":
             self.browser.onSuspend()
+        elif l == "addtag":
+            self.browser.addTags()
+        elif l == "deletetag":
+            self.browser.deleteTags()

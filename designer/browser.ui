@@ -229,7 +229,6 @@
     <addaction name="actionReposition"/>
     <addaction name="actionReschedule"/>
     <addaction name="separator"/>
-    <addaction name="actionDelete"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -268,18 +267,6 @@
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
   </widget>
-  <action name="actionDelete">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/editdelete.png</normaloff>:/icons/editdelete.png</iconset>
-   </property>
-   <property name="text">
-    <string>Delete</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+Backspace</string>
-   </property>
-  </action>
   <action name="actionAddTag">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -337,7 +324,7 @@
   </action>
   <action name="actionFind">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/icons/document-preview.png</normaloff>:/icons/document-preview.png</iconset>
    </property>
    <property name="text">
@@ -349,7 +336,7 @@
   </action>
   <action name="actionNote">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
    </property>
    <property name="text">
@@ -521,7 +508,7 @@
   </action>
   <action name="actionCardList">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/icons/generate_07.png</normaloff>:/icons/generate_07.png</iconset>
    </property>
    <property name="text">

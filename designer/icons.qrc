@@ -102,5 +102,9 @@
     <file>icons/pause16.png</file>
     <file>icons/pause_off16.png</file>
     <file>icons/info.png</file>
+    <file>icons/add16.png</file>
+    <file>icons/delete16.png</file>
+    <file>icons/addtag16.png</file>
+    <file>icons/deletetag16.png</file>
   </qresource>
 </RCC>
