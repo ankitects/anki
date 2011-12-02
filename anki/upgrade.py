@@ -12,10 +12,7 @@ from anki.storage import _addSchema, _getColVars, _addColVars, \
     _updateIndices
 
 #
-# Upgrading is the first step in migrating to 2.0. The ids are temporary and
-# may not be unique across multiple decks. After each of a user's v1.2 decks
-# are upgraded, they need to be merged via the import code.
-#
+# Upgrading is the first step in migrating to 2.0.
 # Caller should have called check() on path before calling upgrade().
 #
 
@@ -412,7 +409,8 @@ order by ordinal""", mid)):
                     conf[type] += '<br>{{type:%s}}' % typeAns
             # q fields now in a
             if not hideq:
-                conf['afmt'] = conf['qfmt'] + "\n\n<hr>\n\n" + conf['afmt']
+                conf['afmt'] = (
+                    conf['qfmt'] + "\n\n<hr id=answerStart>\n\n" + conf['afmt'])
             tmpls.append(conf)
         return tmpls
 
