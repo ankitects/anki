@@ -35,16 +35,14 @@ class Syncer(object):
         self.col = col
         self.server = server
 
-    def status(self, type):
-        "Override to trace sync progress."
-        #print "sync:", type
-        pass
-
     def sync(self):
         "Returns 'noChanges', 'fullSync', or 'success'."
         # step 1: login & metadata
-        self.status("login")
-        self.rmod, rscm, self.maxUsn, rts, self.mediaUsn = self.server.meta()
+        runHook("sync", "login")
+        ret = self.server.meta()
+        if not ret:
+            return "badAuth"
+        self.rmod, rscm, self.maxUsn, rts, self.mediaUsn = ret
         self.lmod, lscm, self.minUsn, lts, dummy = self.meta()
         if abs(rts - lts) > 300:
             return "clockOff"
@@ -54,34 +52,34 @@ class Syncer(object):
             return "fullSync"
         self.lnewer = self.lmod > self.rmod
         # step 2: deletions and small objects
-        self.status("meta")
+        runHook("sync", "meta")
         lchg = self.changes()
         rchg = self.server.applyChanges(
             minUsn=self.minUsn, lnewer=self.lnewer, changes=lchg)
         self.mergeChanges(lchg, rchg)
         # step 3: stream large tables from server
-        self.status("server")
+        runHook("sync", "server")
         while 1:
-            self.status("stream")
+            runHook("sync", "stream")
             chunk = self.server.chunk()
             self.applyChunk(chunk=chunk)
             if chunk['done']:
                 break
         # step 4: stream to server
-        self.status("client")
+        runHook("sync", "client")
         while 1:
-            self.status("stream")
+            runHook("sync", "stream")
             chunk = self.chunk()
             self.server.applyChunk(chunk=chunk)
             if chunk['done']:
                 break
         # step 5: sanity check during beta testing
-        self.status("sanity")
+        runHook("sync", "sanity")
         c = self.sanityCheck()
         s = self.server.sanityCheck()
         assert c == s
         # finalize
-        self.status("finalize")
+        runHook("sync", "finalize")
         mod = self.server.finish()
         self.finish(mod)
         return "success"
@@ -381,16 +379,6 @@ class LocalServer(Syncer):
 
 class HttpSyncer(object):
 
-    # retrieving a host key for future operations
-    def hostKey(self, pw):
-        h = httpCon()
-        resp, cont = h.request(
-            SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=self.user,p=pw)))
-        if resp['status'] != '200':
-            raise Exception("Invalid response code: %s" % resp['status'])
-        self.hkey = simplejson.loads(cont)['key']
-        return self.hkey
-
     def _vars(self):
         return dict(k=self.hkey)
 
@@ -449,23 +437,38 @@ Content-Type: application/octet-stream\r\n\r\n""")
 
 class RemoteServer(Syncer, HttpSyncer):
 
-    def __init__(self, user, hkey):
-        self.user = user
+    def __init__(self, hkey):
         self.hkey = hkey
         self.con = httpCon()
 
+    def hostKey(self, user, pw):
+        "Returns hkey or none if user/pw incorrect."
+        user = user.encode("utf-8")
+        pw = pw.encode("utf-8")
+        resp, cont = self.con.request(
+            SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=user,p=pw)))
+        if resp['status'] == '200':
+            self.hkey = simplejson.loads(cont)['key']
+            return self.hkey
+        elif resp['status'] == '403':
+            # invalid auth
+            return
+        else:
+            raise Exception("Unknown response code: %s" % resp['status'])
+        return
+
     def meta(self):
         resp, cont = self.con.request(
-            SYNC_URL+"meta?" + urllib.urlencode(dict(u=self.user,v=SYNC_VER)))
-        # fixme: convert these into easily-catchable errors
-        if resp['status'] in ('503', '504'):
+            SYNC_URL+"meta?" + urllib.urlencode(dict(k=self.hkey,v=SYNC_VER)))
+        if resp['status'] == '403':
+            # auth failure
+            return
+        elif resp['status'] in ('503', '504'):
             raise Exception("Server is too busy; please try again later.")
         elif resp['status'] == '501':
             raise Exception("Your client is out of date; please upgrade.")
-        elif resp['status'] == '403':
-            raise Exception("Invalid key; please authenticate.")
         elif resp['status'] != '200':
-            raise Exception("Invalid response code: %s" % resp['status'])
+            raise Exception("Unknown response code: %s" % resp['status'])
         return simplejson.loads(cont)
 
     def applyChanges(self, **kw):

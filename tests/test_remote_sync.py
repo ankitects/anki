@@ -34,19 +34,23 @@ def setup_remote():
     setup_basic()
     # mark deck1 as changed
     ts.deck1.save()
-    ts.server = RemoteServer(TEST_USER, TEST_HKEY)
+    ts.server = RemoteServer(TEST_HKEY)
     ts.client.server = ts.server
 
 @nose.with_setup(setup_remote)
 def test_meta():
     global TEST_REMOTE
     try:
-        (mod, scm, usn, tstamp, dummy) = ts.server.meta()
+        # if the key is wrong, meta returns nothing
+        ts.server.hkey = "abc"
+        assert not ts.server.meta()
     except Exception, e:
         if e.errno == 61:
             TEST_REMOTE = False
             print "aborting; server offline"
             return
+    ts.server.hkey = TEST_HKEY
+    (mod, scm, usn, tstamp, mediaUSN) = ts.server.meta()
     assert mod
     assert scm
     assert mod != ts.client.col.mod
@@ -56,9 +60,9 @@ def test_meta():
 def test_hkey():
     if not TEST_REMOTE:
         return
-    assertException(Exception, lambda: ts.server.hostKey("wrongpass"))
-    ts.server.hkey = "abc"
-    k = ts.server.hostKey(TEST_PASS)
+    assert not ts.server.hostKey(TEST_USER, "wrongpass")
+    ts.server.hkey = "willchange"
+    k = ts.server.hostKey(TEST_USER, TEST_PASS)
     assert k == ts.server.hkey == TEST_HKEY
 
 @nose.with_setup(setup_remote)
@@ -103,7 +107,7 @@ def setup_remoteMedia():
     setup_basic()
     con = httpCon()
     ts.server = RemoteMediaServer(TEST_HKEY, con)
-    ts.server2 = RemoteServer(TEST_USER, TEST_HKEY)
+    ts.server2 = RemoteServer(TEST_HKEY)
     ts.client = MediaSyncer(ts.deck1, ts.server)
 
 @nose.with_setup(setup_remoteMedia)
