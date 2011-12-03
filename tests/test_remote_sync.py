@@ -4,7 +4,7 @@ import nose, os, tempfile, shutil, time
 from tests.shared import assertException
 
 from anki.errors import *
-from anki.utils import intTime
+from anki.utils import intTime, httpCon
 from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
     MediaSyncer, RemoteMediaServer
 from anki.notes import Note
@@ -65,7 +65,7 @@ def test_hkey():
 def test_download():
     if not TEST_REMOTE:
         return
-    f = FullSyncer(ts.client.col, "abc")
+    f = FullSyncer(ts.client.col, "abc", ts.server.con)
     assertException(Exception, f.download)
     f.hkey = TEST_HKEY
     f.download()
@@ -77,7 +77,7 @@ def test_remoteSync():
     # not yet associated, so will require a full sync
     assert ts.client.sync() == "fullSync"
     # upload
-    f = FullSyncer(ts.client.col, TEST_HKEY)
+    f = FullSyncer(ts.client.col, TEST_HKEY, ts.server.con)
     f.upload()
     ts.client.col.reopen()
     # should report no changes
@@ -89,7 +89,7 @@ def test_remoteSync():
     assert ts.client.sync() == "noChanges"
     # downloading the remote col should give us the same mod
     lmod = ts.client.col.mod
-    f = FullSyncer(ts.client.col, TEST_HKEY)
+    f = FullSyncer(ts.client.col, TEST_HKEY, ts.server.con)
     f.download()
     d = aopen(ts.client.col.path)
     assert d.mod == lmod
@@ -101,7 +101,8 @@ def test_remoteSync():
 
 def setup_remoteMedia():
     setup_basic()
-    ts.server = RemoteMediaServer(TEST_HKEY)
+    con = httpCon()
+    ts.server = RemoteMediaServer(TEST_HKEY, con)
     ts.server2 = RemoteServer(TEST_USER, TEST_HKEY)
     ts.client = MediaSyncer(ts.deck1, ts.server)
 

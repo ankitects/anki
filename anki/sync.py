@@ -7,7 +7,7 @@ from cStringIO import StringIO
 from datetime import date
 from anki.db import DB
 from anki.errors import *
-from anki.utils import ids2str, checksum, intTime
+from anki.utils import ids2str, checksum, intTime, httpCon
 from anki.consts import *
 from anki.lang import _
 from hooks import runHook
@@ -383,7 +383,7 @@ class HttpSyncer(object):
 
     # retrieving a host key for future operations
     def hostKey(self, pw):
-        h = httplib2.Http(timeout=60)
+        h = httpCon()
         resp, cont = h.request(
             SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=self.user,p=pw)))
         if resp['status'] != '200':
@@ -452,11 +452,10 @@ class RemoteServer(Syncer, HttpSyncer):
     def __init__(self, user, hkey):
         self.user = user
         self.hkey = hkey
-        self.con = None
+        self.con = httpCon()
 
     def meta(self):
-        h = httplib2.Http(timeout=60)
-        resp, cont = h.request(
+        resp, cont = self.con.request(
             SYNC_URL+"meta?" + urllib.urlencode(dict(u=self.user,v=SYNC_VER)))
         # fixme: convert these into easily-catchable errors
         if resp['status'] in ('503', '504'):
@@ -470,7 +469,6 @@ class RemoteServer(Syncer, HttpSyncer):
         return simplejson.loads(cont)
 
     def applyChanges(self, **kw):
-        self.con = httplib2.Http(timeout=60)
         return self._run("applyChanges", kw)
 
     def chunk(self, **kw):
@@ -495,16 +493,14 @@ class RemoteServer(Syncer, HttpSyncer):
 
 class FullSyncer(HttpSyncer):
 
-    def __init__(self, col, hkey):
+    def __init__(self, col, hkey, con):
         self.col = col
         self.hkey = hkey
-
-    def _con(self):
-        return httplib2.Http(timeout=60)
+        self.con = con
 
     def download(self):
         self.col.close()
-        resp, cont = self._con().request(
+        resp, cont = self.con.request(
             SYNC_URL+"download?" + urllib.urlencode(self._vars()))
         if resp['status'] != '200':
             raise Exception("Invalid response code: %s" % resp['status'])
@@ -518,7 +514,7 @@ class FullSyncer(HttpSyncer):
 
     def upload(self):
         self.col.beforeUpload()
-        assert self.postData(self._con(), "upload", open(self.col.path, "rb"),
+        assert self.postData(self.con, "upload", open(self.col.path, "rb"),
                              self._vars(), comp=6) == "OK"
 
 # Media syncing
@@ -589,9 +585,9 @@ class MediaSyncer(object):
 
 class RemoteMediaServer(MediaSyncer, HttpSyncer):
 
-    def __init__(self, hkey):
+    def __init__(self, hkey, con):
         self.hkey = hkey
-        self.con = httplib2.Http(timeout=60)
+        self.con = con
 
     def remove(self, **kw):
         return simplejson.loads(

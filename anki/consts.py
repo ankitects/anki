@@ -43,6 +43,8 @@ SYNC_HOST = os.environ.get("SYNC_HOST") or "dev.ankiweb.net"
 SYNC_PORT = int(os.environ.get("SYNC_PORT") or 80)
 SYNC_URL = "http://%s:%d/sync/" % (SYNC_HOST, SYNC_PORT)
 SYNC_VER = 0
+HTTP_CERTS = os.path.join(os.path.basename(__file__), "ankiweb.certs")
+HTTP_TIMEOUT = 60
 
 # deck schema
 SCHEMA_VERSION = 1

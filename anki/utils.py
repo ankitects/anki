@@ -3,9 +3,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, os, random, time, types, math, htmlentitydefs, subprocess, \
-    tempfile, shutil, string
+    tempfile, shutil, string, httplib2
 from hashlib import sha1
 from anki.lang import _, ngettext
+from anki.consts import *
 import locale, sys
 
 if sys.version_info[1] < 5:
@@ -297,3 +298,13 @@ def call(argv, wait=True, **kwargs):
 
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
+
+# OS helpers
+##############################################################################
+
+def httpCon():
+    disable = os.environ.get("SSL_NOVALIDATE") or False
+    return httplib2.Http(
+        timeout=HTTP_TIMEOUT,
+        disable_ssl_certificate_validation=disable,
+        ca_certs=HTTP_CERTS)
