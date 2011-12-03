@@ -509,10 +509,13 @@ class FullSyncer(HttpSyncer):
             raise Exception("Invalid response code: %s" % resp['status'])
         tpath = self.col.path + ".tmp"
         open(tpath, "wb").write(cont)
+        # check the received file is ok
+        d = DB(tpath)
+        assert d.scalar("pragma integrity_check") == "ok"
+        d.close()
+        # overwrite existing collection
         os.unlink(self.col.path)
         os.rename(tpath, self.col.path)
-        d = DB(self.col.path)
-        assert d.scalar("pragma integrity_check") == "ok"
         self.col = None
 
     def upload(self):
