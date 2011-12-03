@@ -7,10 +7,11 @@
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
 from aqt.qt import *
-import os, sys, time, random, cPickle, shutil, locale, re
+import os, sys, time, random, cPickle, shutil, locale, re, atexit
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
-from anki.lang import langs
+from anki.lang import langs, _
+from aqt.utils import showWarning
 import aqt.forms
 
 metaConf = dict(
@@ -63,6 +64,23 @@ class ProfileManager(object):
         # instantiate base folder
         if not base:
             base = self._defaultBase()
+        self.ensureBaseExists(base)
+        self.checkPid(base)
+        self.base = base
+        # load database and cmdline-provided profile
+        self._load()
+        if profile:
+            try:
+                self.load(profile)
+            except TypeError:
+                raise Exception("Provided profile does not exist.")
+
+    # Startup checks
+    ######################################################################
+    # These routines run before the language code is initialized, so they
+    # can't be translated
+
+    def ensureBaseExists(self, base):
         if not os.path.exists(base):
             try:
                 os.makedirs(base)
@@ -72,14 +90,30 @@ class ProfileManager(object):
 Anki can't write to the harddisk. Please see the \
 documentation for information on using a flash drive.""")
                 raise
-        self.base = base
-        # load database and cmdline-provided profile
-        self._load()
-        if profile:
+
+    def checkPid(self, base):
+        p = os.path.join(base, "pid")
+        # check if an existing instance is running
+        if os.path.exists(p):
+            pid = int(open(p).read())
+            exists = False
             try:
-                self.load(profile)
-            except TypeError:
-                raise Exception("Provided profile does not exist.")
+                os.kill(pid, 0)
+                exists = True
+            except OSError:
+                pass
+            if exists:
+                QMessageBox.warning(
+                    None, "Error", """\
+Anki is already running. Please close the existing copy or restart your \
+computer.""")
+                raise Exception("Already running")
+        # write out pid to the file
+        open(p, "w").write(str(os.getpid()))
+        # add handler to cleanup on exit
+        def cleanup():
+            os.unlink(p)
+        atexit.register(cleanup)
 
     # Profile load/save
     ######################################################################
