@@ -203,7 +203,7 @@ function _typeAnsPress() {
         elif url == "more":
             self.showContextMenu()
         elif url.startswith("typeans:"):
-            (cmd, arg) = url.split(":")
+            (cmd, arg) = url.split(":", 1)
             self.typedAnswer = arg
         else:
             QDesktopServices.openUrl(QUrl(url))
