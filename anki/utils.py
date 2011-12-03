@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, os, random, time, types, math, htmlentitydefs, subprocess, \
-    tempfile, shutil
+    tempfile, shutil, string
 from hashlib import sha1
 from anki.lang import _, ngettext
 import locale, sys
@@ -190,12 +190,19 @@ def maxID(db):
                 "select max(id) from %s" % tbl))
     return now + 1
 
-def guid64():
-    return random.randint(-sys.maxint-1, sys.maxint)
+def base91(num):
+    s = string
+    # all printable characters minus quotes, backslash and separators
+    table = s.letters + s.digits + "!#$%&()*+,-./:;<=>?@[]^_`{|}~"
+    buf = ""
+    while num:
+        num, i = divmod(num, len(table))
+        buf = table[i] + buf
+    return buf
 
-def guid32():
-    max = 2**32
-    return random.randint(0, max-1)
+def guid64():
+    "Return a base91-encoded 64bit random number."
+    return base91(random.randint(0, 2**64-1))
 
 # Fields
 ##############################################################################

@@ -83,7 +83,7 @@ create table if not exists col (
 
 create table if not exists notes (
     id              integer primary key,
-    guid            integer not null,
+    guid            text not null,
     mid             integer not null,
     did             integer not null,
     mod             integer not null,

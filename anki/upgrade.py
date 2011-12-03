@@ -4,7 +4,7 @@
 
 import os, time, simplejson, re, datetime, shutil
 from anki.lang import _
-from anki.utils import intTime, tmpfile, ids2str, splitFields
+from anki.utils import intTime, tmpfile, ids2str, splitFields, base91
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *
@@ -175,6 +175,8 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
             row[0] = row[4]
             del row[4]
             map[oldid] = row[0]
+            # convert old 64bit id into a string, discarding sign bit
+            row[1] = base91(abs(row[1]))
             row.append(minimizeHTML("\x1f".join([x[1] for x in sorted(fields[oldid])])))
             data.append(row)
         # and put the facts into the new table

@@ -15,13 +15,10 @@ from hooks import runHook
 if simplejson.__version__ < "1.7.3":
     raise Exception("SimpleJSON must be 1.7.3 or later.")
 
-# - 64 bit guid will be munged in js; need to escape or rethink
-
 # - make sure /sync/download is compressed
 # - status() should be using the hooks instead
 
 # todo:
-# - ensure all urllib references are converted to urllib2 for proxies
 # - ability to cancel
 # - need to make sure syncing doesn't bump the col modified time if nothing was
 #    changed, since by default closing the col bumps the mod time
