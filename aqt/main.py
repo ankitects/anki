@@ -805,13 +805,16 @@ Please choose a new deck name:"""))
             ret = _("late")
         else:
             ret = _("early")
-        showWarning(
-            _("The time or date on your computer is not correct.\n") +
-            ngettext("It is %(sec)d second %(type)s.\n",
-                "It is %(sec)d seconds %(type)s.\n", abs(diff))
-                % {"sec": abs(diff), "type": ret} +
-            _(" Please ensure it is set correctly and then restart Anki.")
-         )
+        showWarning("""\
+In order to ensure your collection works correctly when moved between \
+devices, Anki requires the system clock to be set correctly. Your system \
+clock appears to be wrong by more than 5 minutes.
+
+This can be because the \
+clock is slow or fast, because the date is set incorrectly, or because \
+the timezone or daylight savings information is incorrect. Please correct \
+the problem and restart Anki.""")
+        sys.exit(0)
 
     # Schema modifications
     ##########################################################################
