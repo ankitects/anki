@@ -26,6 +26,7 @@ class Note(object):
             self.flags = 0
             self.data = ""
             self._fmap = self.col.models.fieldMap(self._model)
+            self.scm = self.col.scm
 
     def load(self):
         (self.guid,
@@ -43,8 +44,10 @@ from notes where id = ?""", self.id)
         self.tags = self.col.tags.split(self.tags)
         self._model = self.col.models.get(self.mid)
         self._fmap = self.col.models.fieldMap(self._model)
+        self.scm = self.col.scm
 
     def flush(self, mod=None):
+        assert self.scm == self.col.scm
         self._preFlush()
         self.mod = mod if mod else intTime()
         self.usn = self.col.usn()
