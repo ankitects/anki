@@ -80,6 +80,7 @@ class ModelManager(object):
         if self.changed:
             self.col.db.execute("update col set models = ?",
                                  simplejson.dumps(self.models))
+            self.changed = False
 
     # Retrieving and creating models
     #############################################################

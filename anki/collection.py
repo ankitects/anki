@@ -88,6 +88,13 @@ conf, models, decks, dconf, tags from col""")
         self.decks.load(decks, dconf)
         self.tags.load(tags)
 
+    def setMod(self):
+        """Mark DB modified.
+
+DB operations and the deck/tag/model managers do this automatically, so this
+is only necessary if you modify properties of this object or the conf dict."""
+        self.db.mod = True
+
     def flush(self, mod=None):
         "Flush state to DB, updating mod time."
         self.mod = intTime(1000) if mod is None else mod
@@ -108,6 +115,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.flush(mod=mod)
             self.db.commit()
             self.lock()
+            self.db.mod = False
         self._markOp(name)
         self._lastSave = time.time()
 
@@ -117,7 +125,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.save()
 
     def lock(self):
+        # make sure we don't accidentally bump mod time
+        mod = self.db.mod
         self.db.execute("update col set mod=mod")
+        self.db.mod = mod
 
     def close(self, save=True):
         "Disconnect from DB."

@@ -37,6 +37,9 @@ class Syncer(object):
 
     def sync(self):
         "Returns 'noChanges', 'fullSync', or 'success'."
+        # if the deck has any pending changes, flush them first and bump mod
+        # time
+        self.col.save()
         # step 1: login & metadata
         runHook("sync", "login")
         ret = self.server.meta()
@@ -135,7 +138,9 @@ select count() from notes where id not in (select distinct nid from cards)""")
             assert usn != -1
         for m in self.col.models.all():
             assert m['usn'] != -1
+        self.col.sched.reset()
         return [
+            self.col.sched.repCounts(),
             self.col.db.scalar("select count() from cards"),
             self.col.db.scalar("select count() from notes"),
             self.col.db.scalar("select count() from revlog"),

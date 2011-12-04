@@ -47,6 +47,7 @@ def setup_basic():
 def setup_modified():
     setup_basic()
     # mark deck1 as changed
+    deck1.setMod()
     deck1.save()
 
 @nose.with_setup(setup_basic)
@@ -56,6 +57,7 @@ def test_nochange():
 @nose.with_setup(setup_modified)
 def test_changedSchema():
     deck1.scm += 1
+    deck1.setMod()
     assert client.sync() == "fullSync"
 
 @nose.with_setup(setup_modified)
@@ -84,6 +86,7 @@ def test_sync():
     assert client.sync() == "noChanges"
     # if we bump mod time, everything is copied across again because of the
     # 600 second sync leeway. but the decks should remain the same.
+    deck1.setMod()
     deck1.save()
     assert client.sync() == "success"
     check(2)
@@ -168,6 +171,7 @@ def test_tags():
     deck2.tags.register(["xyz"])
     assert deck1.tags.all() != deck2.tags.all()
     deck1.save()
+    time.sleep(0.1)
     deck2.save()
     assert client.sync() == "success"
     assert deck1.tags.all() == deck2.tags.all()
@@ -182,6 +186,7 @@ def test_decks():
     time.sleep(0.1)
     deck2.decks.id("new2")
     deck1.save()
+    time.sleep(0.1)
     deck2.save()
     assert client.sync() == "success"
     assert deck1.tags.all() == deck2.tags.all()
@@ -199,6 +204,7 @@ def test_conf():
     test_sync()
     assert deck2.conf['topDeck'] == 1
     deck1.conf['topDeck'] = 2
+    deck1.setMod()
     deck1.save()
     assert client.sync() == "success"
     assert deck2.conf['topDeck'] == 2
@@ -221,6 +227,7 @@ def test_threeway():
     deck1.save()
     # at time 2, client 2 syncs to server
     time.sleep(1)
+    deck3.setMod()
     deck3.save()
     assert client2.sync() == "success"
     # at time 3, client 1 syncs, adding the older note

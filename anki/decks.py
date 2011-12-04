@@ -104,6 +104,7 @@ class DeckManager(object):
             self.col.db.execute("update col set decks=?, dconf=?",
                                  simplejson.dumps(self.decks),
                                  simplejson.dumps(self.dconf))
+            self.changed = False
 
     # Deck save/load
     #############################################################

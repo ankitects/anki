@@ -29,6 +29,7 @@ class TagManager(object):
         if self.changed:
             self.col.db.execute("update col set tags=?",
                                  simplejson.dumps(self.tags))
+            self.changed = False
 
     # Registering and fetching tags
     #############################################################
