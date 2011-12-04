@@ -51,6 +51,7 @@ class SyncManager(QObject):
         self.mw.progress.finish()
 
     def onEvent(self, evt, *args):
+        pu = self.mw.progress.update
         if evt == "badAuth":
             tooltip(
                 _("AnkiWeb ID or password was incorrect; please try again."),
@@ -59,30 +60,27 @@ class SyncManager(QObject):
             self.pm.profile['syncKey'] = args[0]
             self.pm.save()
         elif evt == "sync":
-            self.mw.progress.update(label="sync: "+args[0])
-        elif evt == "mediaSync":
-            self.mw.progress.update(label="media: "+args[0])
+            m = None; t = args[0]
+            if t == "login":
+                m = _("Syncing...")
+            elif t == "upload":
+                m = _("Uploading to AnkiWeb...")
+            elif t == "download":
+                m = _("Downloading from AnkiWeb...")
+            elif t == "sanity":
+                m = _("Checking...")
+            if m:
+                print m
+                self.mw.progress.update(label=m)
         elif evt == "error":
             showWarning(_("Syncing failed:\n%s")%
                         self._rewriteError(args[0]))
         elif evt == "clockOff":
-            print "clock is wrong"
+            self._clockOff()
         elif evt == "noChanges":
             pass
         elif evt == "fullSync":
             self._confirmFullSync()
-        elif evt == "success":
-            print "sync successful"
-        elif evt == "upload":
-            print "upload successful"
-        elif evt == "download":
-            print "download successful"
-        elif evt == "noMediaChanges":
-            print "no media changes"
-        elif evt == "mediaSuccess":
-            print "media sync successful"
-        else:
-            print "unknown evt", evt
 
     def _rewriteError(self, err):
         if "Errno 61" in err:
@@ -149,15 +147,10 @@ do you want to keep the AnkiWeb version, overwriting the version here?"""),
         else:
             self.thread.fullSyncChoice = "cancel"
 
-    def syncClockOff(self, diff):
-        showWarning(
-            _("The time or date on your computer is not correct.\n") +
-            ngettext("It is off by %d second.\n\n",
-                "It is off by %d seconds.\n\n", diff) % diff +
-            _("Since this can cause many problems with syncing,\n"
-              "syncing is disabled until you fix the problem.")
-            )
-        self.onSyncFinished()
+    def _clockOff(self):
+        showWarning(_("""\
+Syncing requires the clock on your computer to be set correctly. Please \
+fix the clock and try again."""))
 
     def badUserPass(self):
         aqt.preferences.Preferences(self, self.pm.profile).dialog.tabWidget.\
@@ -181,10 +174,7 @@ class SyncThread(QThread):
         self.client = Syncer(self.col, self.server)
         def syncEvent(type):
             self.fireEvent("sync", type)
-        def mediaSync(type):
-            self.fireEvent("mediaSync", type)
         addHook("sync", syncEvent)
-        addHook("mediaSync", mediaSync)
         # run sync and catch any errors
         try:
             self._sync()
@@ -195,6 +185,7 @@ class SyncThread(QThread):
         finally:
             # don't bump mod time unless we explicitly save
             self.col.close(save=False)
+            removeHook("sync", syncEvent)
 
     def _sync(self):
         if self.auth:
@@ -239,10 +230,8 @@ class SyncThread(QThread):
         self.client = FullSyncer(self.col, self.hkey, self.server.con)
         if f == "upload":
             self.client.upload()
-            self.fireEvent("upload")
         else:
             self.client.download()
-            self.fireEvent("download")
         # move on to media sync
         self._syncMedia()
 
