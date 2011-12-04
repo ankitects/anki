@@ -74,7 +74,4 @@ class DB(object):
         return self
 
     def __exit__(self, exc_type, *args):
-        if not exc_type:
-            # no exception, so commit
-            self._db.commit()
         self._db.close()
