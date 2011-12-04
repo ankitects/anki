@@ -51,6 +51,7 @@ profileConf = dict(
 
     # syncing
     syncKey=None,
+    syncMedia=True,
     proxyHost='',
     proxyPass='',
     proxyPort=8080,

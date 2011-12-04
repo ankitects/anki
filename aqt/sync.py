@@ -8,7 +8,7 @@ from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, removeHook
-from aqt.utils import tooltip, askUserDialog
+from aqt.utils import tooltip, askUserDialog, showWarning
 
 # Sync manager
 ######################################################################
@@ -40,7 +40,8 @@ class SyncManager(QObject):
         gc.collect()
         # create the thread, setup signals and start running
         t = self.thread = SyncThread(
-            self.pm.collectionPath(), self.pm.profile['syncKey'], auth)
+            self.pm.collectionPath(), self.pm.profile['syncKey'],
+            auth=auth, media=self.pm.profile['syncMedia'])
         print "created thread"
         self.connect(t, SIGNAL("event"), self.onEvent)
         self.mw.progress.start(immediate=True, label=_("Connecting..."))
@@ -66,7 +67,8 @@ class SyncManager(QObject):
         elif evt == "mediaSync":
             self.mw.progress.update(label="media: "+args[0])
         elif evt == "error":
-            print "error occurred", args[0]
+            showWarning(_("Syncing failed:\n%s")%
+                        self._rewriteError(args[0]))
         elif evt == "clockOff":
             print "clock is wrong"
         elif evt == "noChanges":
@@ -85,6 +87,13 @@ class SyncManager(QObject):
             print "media sync successful"
         else:
             print "unknown evt", evt
+
+    def _rewriteError(self, err):
+        if "Errno 61" in err:
+            return _("""\
+Couldn't connect to AnkiWeb. Please check your network connection \
+and try again.""")
+        return err
 
     def _getUserPass(self):
         d = QDialog(self.mw)
@@ -163,11 +172,12 @@ do you want to keep the AnkiWeb version, overwriting the version here?"""),
 
 class SyncThread(QThread):
 
-    def __init__(self, path, hkey, auth=None):
+    def __init__(self, path, hkey, auth=None, media=True):
         QThread.__init__(self)
         self.path = path
         self.hkey = hkey
         self.auth = auth
+        self.media = media
 
     def run(self):
         self.col = Collection(self.path)
@@ -241,6 +251,8 @@ class SyncThread(QThread):
         self._syncMedia()
 
     def _syncMedia(self):
+        if not self.media:
+            return
         self.server = RemoteMediaServer(self.hkey, self.server.con)
         self.client = MediaSyncer(self.col, self.server)
         ret = self.client.sync(self.mediaUsn)

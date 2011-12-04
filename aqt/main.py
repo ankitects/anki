@@ -190,6 +190,8 @@ Are you sure?"""):
         self.activateWindow()
         self.raise_()
         # maybe sync (will load DB)
+        self.pm.profile['syncMedia'] = False
+        self.pm.save()
         self.onSync(auto=True)
         # skip the reset step; open overview directly
         self.moveToState("overview")
