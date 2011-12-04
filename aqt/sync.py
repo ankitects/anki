@@ -56,6 +56,9 @@ class SyncManager(QObject):
             tooltip(
                 _("AnkiWeb ID or password was incorrect; please try again."),
                 parent=self.mw)
+            # blank the key so we prompt user again
+            self.pm.profile['syncKey'] = None
+            self.pm.save()
         elif evt == "newKey":
             self.pm.profile['syncKey'] = args[0]
             self.pm.save()
@@ -87,6 +90,10 @@ class SyncManager(QObject):
             return _("""\
 Couldn't connect to AnkiWeb. Please check your network connection \
 and try again.""")
+        elif "timed out" in err:
+            return _("""\
+The connection with the server timed out. Please check your network \
+connection and try again.""")
         return err
 
     def _getUserPass(self):
