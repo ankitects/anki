@@ -354,14 +354,14 @@ def maybeHideClose(bbox):
 _tooltipTimer = None
 _tooltipLabel = None
 
-def tooltip(msg, period=3000):
+def tooltip(msg, period=3000, parent=None):
     global _tooltipTimer, _tooltipLabel
     class CustomLabel(QLabel):
         def mousePressEvent(self, evt):
             evt.accept()
             self.hide()
     closeTooltip()
-    aw = aqt.mw.app.activeWindow()
+    aw = parent or aqt.mw.app.activeWindow()
     lab = CustomLabel("""\
 <table cellpadding=10>
 <tr>

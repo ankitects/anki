@@ -55,7 +55,8 @@ class AnkiQt(QMainWindow):
 
     def setupUI(self):
         self.col = None
-        self.state = None
+        self.state = "overview"
+        self.setupKeys()
         self.setupThreads()
         self.setupMainWindow()
         self.setupStyle()
@@ -188,14 +189,10 @@ Are you sure?"""):
         self.show()
         self.activateWindow()
         self.raise_()
-        # maybe sync
-        self.onSync()
-        # then load collection and launch into the deck browser
-        print "fixme: safeguard against multiple instances"
-        self.col = Collection(self.pm.collectionPath())
-        self.progress.setupDB(self.col.db)
+        # maybe sync (will load DB)
+        self.onSync(auto=True)
         # skip the reset step; open overview directly
-        self.moveToState("review")
+        self.moveToState("overview")
 
     def unloadProfile(self):
         self.col = None
@@ -245,10 +242,11 @@ Are you sure?"""):
     # Resetting state
     ##########################################################################
 
-    def reset(self, type="all", *args):
+    def reset(self, guiOnly=False):
         "Called for non-trivial edits. Rebuilds queue and updates UI."
         if self.col:
-            self.col.reset()
+            if not guiOnly:
+                self.col.reset()
             runHook("reset")
             self.moveToState(self.state)
 
@@ -453,13 +451,17 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # Syncing
     ##########################################################################
 
-    def onSync(self):
-        from aqt.sync import Syncer
+    def onSync(self, auto=False):
+        from aqt.sync import SyncManager
         # close collection if loaded
         if self.col:
             self.col.close()
-        # 
-        Syncer()
+        self.syncer = SyncManager(self, self.pm)
+        self.syncer.sync(auto)
+        # then load collection and launch into the deck browser
+        self.col = Collection(self.pm.collectionPath())
+        self.progress.setupDB(self.col.db)
+        self.reset(guiOnly=True)
 
     # Tools
     ##########################################################################

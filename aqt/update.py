@@ -49,8 +49,7 @@ class LatestVersionFinder(QThread):
         if resp['latestVersion'] > aqt.appVersion:
             self.emit(SIGNAL("newVerAvail"), resp)
         diff = resp['currentTime'] - time.time()
-        # a fairly liberal time check - sync is more strict
-        if abs(diff) > 86400:
+        if abs(diff) > 300:
             self.emit(SIGNAL("clockIsOff"), diff)
 
 def askAndUpdate(parent, version=None):
