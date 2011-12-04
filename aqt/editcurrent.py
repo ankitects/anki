@@ -27,14 +27,20 @@ class EditCurrent(QDialog):
         self.editor.setNote(self.mw.reviewer.card.note())
         self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
         restoreGeom(self, "editcurrent")
-        addHook("closeEditCurrent", self.onSave)
+        addHook("reset", self.onReset)
         self.mw.requireReset(modal=True)
         self.open()
         # reset focus after open
         self.editor.web.setFocus()
 
+    def onReset(self):
+        # lazy approach for now: throw away edits
+        n = self.mw.reviewer.card.note()
+        n.load()
+        self.editor.setNote(n)
+
     def onSave(self):
-        removeHook("closeEditCurrent", self.onSave)
+        removeHook("reset", self.onReset)
         self.editor.saveNow()
         self.editor.setNote(None)
         r = self.mw.reviewer
