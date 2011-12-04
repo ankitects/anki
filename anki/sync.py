@@ -507,6 +507,7 @@ class FullSyncer(HttpSyncer):
         self.con = con
 
     def download(self):
+        runHook("sync", "download")
         self.col.close()
         resp, cont = self.con.request(
             SYNC_URL+"download?" + urllib.urlencode(self._vars()))
@@ -524,6 +525,7 @@ class FullSyncer(HttpSyncer):
         self.col = None
 
     def upload(self):
+        runHook("sync", "upload")
         self.col.beforeUpload()
         assert self.postData(self.con, "upload", open(self.col.path, "rb"),
                              self._vars(), comp=6) == "OK"
@@ -540,26 +542,27 @@ class MediaSyncer(object):
 
     def sync(self, mediaUsn):
         # step 1: check if there have been any changes
+        runHook("sync", "findMedia")
         self.col.media.findChanges()
         lusn = self.col.media.usn()
         if lusn == mediaUsn and not self.col.media.hasChanged():
             return "noChanges"
         # step 2: send/recv deletions
-        runHook("mediaSync", "remove")
+        runHook("sync", "removeMedia")
         lrem = self.removed()
         rrem = self.server.remove(fnames=lrem, minUsn=lusn)
         self.remove(rrem)
         # step 3: stream files from server
-        runHook("mediaSync", "server")
+        runHook("sync", "server")
         while 1:
-            runHook("mediaSync", "stream")
+            runHook("sync", "streamMedia")
             zip = self.server.files()
             if self.addFiles(zip=zip) != "continue":
                 break
         # step 4: stream files to the server
-        runHook("mediaSync", "client")
+        runHook("sync", "client")
         while 1:
-            runHook("mediaSync", "stream")
+            runHook("sync", "streamMedia")
             zip = self.files()
             usn = self.server.addFiles(zip=zip)
             if usn != "continue":
