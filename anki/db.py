@@ -17,8 +17,14 @@ class DB(object):
             self._db.text_factory = text
         self._path = path
         self.echo = os.environ.get("DBECHO")
+        self.mod = False
 
     def execute(self, sql, *a, **ka):
+        s = sql.strip().lower()
+        # mark modified?
+        for stmt in "insert", "update", "delete":
+            if s.startswith(stmt):
+                self.mod = True
         if self.echo:
             print sql #, a, ka
         if ka:
@@ -30,6 +36,7 @@ class DB(object):
         return res
 
     def executemany(self, sql, l):
+        self.mod = True
         if self.echo:
             print sql #, l
         self._db.executemany(sql, l)
@@ -38,6 +45,7 @@ class DB(object):
         self._db.commit()
 
     def executescript(self, sql):
+        self.mod = True
         if self.echo:
             print sql
         self._db.executescript(sql)

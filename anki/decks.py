@@ -29,6 +29,7 @@ defaultDeck = {
     'lrnToday': [0, 0],
     'timeToday': [0, 0], # time in ms
     'conf': 1,
+    'usn': 0,
 }
 
 # configuration only available to top level decks

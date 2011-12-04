@@ -96,15 +96,18 @@ conf, models, decks, dconf, tags from col""")
 crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self._usn, self.ls, simplejson.dumps(self.conf))
-        self.models.flush()
-        self.decks.flush()
-        self.tags.flush()
 
     def save(self, name=None, mod=None):
         "Flush, commit DB, and take out another write lock."
-        self.flush(mod=mod)
-        self.db.commit()
-        self.lock()
+        # let the managers conditionally flush
+        self.models.flush()
+        self.decks.flush()
+        self.tags.flush()
+        # and flush deck + bump mod if db has been changed
+        if self.db.mod:
+            self.flush(mod=mod)
+            self.db.commit()
+            self.lock()
         self._markOp(name)
         self._lastSave = time.time()
 
