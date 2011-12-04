@@ -193,6 +193,7 @@ If the same name exists, compare checksums."""
 
     def clearLog(self):
         self.db.execute("delete from log")
+        self.db.commit()
 
     def hasChanged(self):
         return self.db.scalar("select 1 from log limit 1")
@@ -218,9 +219,11 @@ create table log (fname text primary key, type int);
 
     def setUsn(self, usn):
         self.db.execute("update meta set usn = ?", usn)
+        self.db.commit()
 
     def syncMod(self):
         self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
+        self.db.commit()
 
     def _changed(self):
         "Return dir mtime if it has changed since the last findChanges()"
@@ -297,6 +300,7 @@ create table log (fname text primary key, type int);
                 os.unlink(f)
                 self.db.execute("delete from log where fname = ?", f)
                 self.db.execute("delete from media where fname = ?", f)
+                self.db.commit()
 
     def syncAdd(self, zipData):
         "Extract zip data; true if finished."
@@ -337,6 +341,7 @@ create table log (fname text primary key, type int);
         if media:
             self.db.executemany(
                 "insert or replace into media values (?,?,?)", media)
+        self.db.commit()
         # if we have finished adding, we need to record the new folder mtime
         # so that we don't trigger a needless scan
         if finished:
