@@ -71,6 +71,10 @@ class ProgressManager(object):
     # Creating progress dialogs
     ##########################################################################
 
+    class ProgressNoCancel(QProgressDialog):
+        def closeEvent(self, evt):
+            evt.ignore()
+
     def start(self, max=0, min=0, label=None, parent=None, immediate=False):
         self._levels += 1
         if self._levels > 1:
@@ -78,7 +82,7 @@ class ProgressManager(object):
         # setup window
         parent = parent or self.app.activeWindow() or self.mw
         label = label or _("Processing...")
-        self._win = QProgressDialog(label, "", min, max, parent)
+        self._win = self.ProgressNoCancel(label, "", min, max, parent)
         self._win.setWindowTitle("Anki")
         self._win.setCancelButton(None)
         self._win.setAutoClose(False)
