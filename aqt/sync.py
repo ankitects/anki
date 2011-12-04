@@ -197,13 +197,13 @@ class SyncThread(QThread):
     def _sync(self):
         if self.auth:
             # need to authenticate and obtain host key
-            hkey = self.server.hostKey(*self.auth)
-            if not hkey:
+            self.hkey = self.server.hostKey(*self.auth)
+            if not self.hkey:
                 # provided details were invalid
                 return self.fireEvent("badAuth")
             else:
                 # write new details and tell calling thread to save
-                self.fireEvent("newKey", hkey)
+                self.fireEvent("newKey", self.hkey)
         # run sync and check state
         ret = self.client.sync()
         if ret == "badAuth":
