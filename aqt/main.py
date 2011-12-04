@@ -250,6 +250,7 @@ Are you sure?"""):
             if not guiOnly:
                 self.col.reset()
             runHook("reset")
+            self.maybeEnableUndo()
             self.moveToState(self.state)
 
     def requireReset(self, modal=False):
@@ -460,7 +461,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.col.close()
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync(auto)
-        # then load collection and launch into the deck browser
+        self.loadCollection()
+
+    def loadCollection(self):
         self.col = Collection(self.pm.collectionPath())
         self.progress.setupDB(self.col.db)
         self.reset(guiOnly=True)
@@ -609,6 +612,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.form.actionUndo.setEnabled(True)
             runHook("undoState", True)
         else:
+            self.form.actionUndo.setText(_("Undo"))
             self.form.actionUndo.setEnabled(False)
             runHook("undoState", False)
 
@@ -767,17 +771,6 @@ Please choose a new deck name:"""))
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDocumentation, s, self.onDocumentation)
         self.connect(m.actionDonate, s, self.onDonate)
-
-    def enableDeckMenuItems(self, enabled=True):
-        "setEnabled deck-related items."
-        for item in self.deckRelatedMenuItems:
-            getattr(self.form, "action" + item).setEnabled(enabled)
-        self.maybeEnableUndo()
-        runHook("enableDeckMenuItems", enabled)
-
-    def disableDeckMenuItems(self):
-        "Disable deck-related items."
-        self.enableDeckMenuItems(enabled=False)
 
     def updateTitleBar(self):
         self.setWindowTitle("Anki")
