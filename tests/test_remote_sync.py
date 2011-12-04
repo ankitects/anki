@@ -87,6 +87,7 @@ def test_remoteSync():
     # should report no changes
     assert ts.client.sync() == "noChanges"
     # bump local col
+    ts.client.col.setMod()
     ts.client.col.save()
     assert ts.client.sync() == "success"
     # again, no changes

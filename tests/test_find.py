@@ -22,15 +22,15 @@ def test_findCards():
     f['Back'] = u'sheep'
     deck.addNote(f)
     catCard = f.cards()[0]
-    f = deck.newNote()
-    f['Front'] = u'template test'
-    f['Back'] = u'foo bar'
     m = deck.models.current(); mm = deck.models
     t = mm.newTemplate("Reverse")
     t['qfmt'] = "{{Back}}"
     t['afmt'] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
+    f = deck.newNote()
+    f['Front'] = u'template test'
+    f['Back'] = u'foo bar'
     deck.addNote(f)
     latestCardIds = [c.id for c in f.cards()]
     # tag searches
