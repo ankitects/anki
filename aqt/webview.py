@@ -77,8 +77,7 @@ class AnkiWebView(QWebView):
         # handler should return true if event should be swallowed
         self._keyHandler = handler
     def setHtml(self, html, loadCB=None):
-        if loadCB:
-            self._loadFinishedCB = loadCB
+        self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
     def stdHtml(self, body, css="", bodyID="", loadCB=None, head=""):
         self.setHtml("""
