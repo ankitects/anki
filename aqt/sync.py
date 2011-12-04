@@ -129,20 +129,20 @@ enter your details below."""))
 
     def _confirmFullSync(self):
         diag = askUserDialog(_("""\
-Because this is your first time synchronizing, or because unmergable \
-changes have been made, your collection needs to be either uploaded or \
-downloaded in full.
+Your decks here and on AnkiWeb differ in such a way that they can't \
+be merged together, so it's necessary to overwrite the decks on one \
+side with the decks from the other.
 
-Do you want to keep the local version, overwriting the AnkiWeb version? Or \
-do you want to keep the AnkiWeb version, overwriting the version here?"""),
-                [_("Keep Local"),
-                 _("Keep AnkiWeb"),
+Do you want to upload the decks from here, or download the decks \
+from AnkiWeb?"""),
+                [_("Upload to AnkiWeb"),
+                 _("Download from AnkiWeb"),
                  _("Cancel")])
         diag.setDefault(2)
         ret = diag.run()
-        if ret == _("Keep Local"):
+        if ret == _("Upload to AnkiWeb"):
             self.thread.fullSyncChoice = "upload"
-        elif ret == _("Keep AnkiWeb"):
+        elif ret == _("Download from AnkiWeb"):
             self.thread.fullSyncChoice = "download"
         else:
             self.thread.fullSyncChoice = "cancel"
