@@ -42,26 +42,22 @@ class SyncManager(QObject):
         t = self.thread = SyncThread(
             self.pm.collectionPath(), self.pm.profile['syncKey'],
             auth=auth, media=self.pm.profile['syncMedia'])
-        print "created thread"
         self.connect(t, SIGNAL("event"), self.onEvent)
-        self.mw.progress.start(immediate=True, label=_("Connecting..."))
-        print "starting thread"
+        self.mw.progress.start(immediate=True, label=_("Syncing..."))
         self.thread.start()
         while not self.thread.isFinished():
             self.mw.app.processEvents()
             self.thread.wait(100)
-        print "finished"
         self.mw.progress.finish()
 
     def onEvent(self, evt, *args):
         if evt == "badAuth":
-            return tooltip(
+            tooltip(
                 _("AnkiWeb ID or password was incorrect; please try again."),
                 parent=self.mw)
         elif evt == "newKey":
             self.pm.profile['syncKey'] = args[0]
             self.pm.save()
-            print "saved hkey"
         elif evt == "sync":
             self.mw.progress.update(label="sync: "+args[0])
         elif evt == "mediaSync":
@@ -72,7 +68,7 @@ class SyncManager(QObject):
         elif evt == "clockOff":
             print "clock is wrong"
         elif evt == "noChanges":
-            print "no changes found"
+            pass
         elif evt == "fullSync":
             self._confirmFullSync()
         elif evt == "success":
@@ -192,9 +188,10 @@ class SyncThread(QThread):
         # run sync and catch any errors
         try:
             self._sync()
-        except Exception, e:
-            print e
-            self.fireEvent("error", unicode(e))
+        except:
+            err = traceback.format_exc()
+            print err
+            self.fireEvent("error", err)
         finally:
             # don't bump mod time unless we explicitly save
             self.col.close(save=False)
@@ -203,7 +200,6 @@ class SyncThread(QThread):
         if self.auth:
             # need to authenticate and obtain host key
             hkey = self.server.hostKey(*self.auth)
-            print "hkey was", hkey
             if not hkey:
                 # provided details were invalid
                 return self.fireEvent("badAuth")

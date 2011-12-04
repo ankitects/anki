@@ -820,6 +820,9 @@ Please choose a new deck name:"""))
         addHook("modSchema", self.onSchemaMod)
 
     def onSchemaMod(self, arg):
+        # if triggered in sync, make sure we don't use the gui
+        if not self.inMainThread():
+            return True
         return askUser(_("""\
 This operation can't be merged when syncing, so if you have made \
 changes on other devices that haven't been synced to this device yet, \
