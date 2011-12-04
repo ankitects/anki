@@ -121,8 +121,6 @@ function _typeAnsPress() {
     def _showQuestion(self):
         self.state = "question"
         c = self.card
-        # mod the card so it shows up in the recently modified list
-        c.flush()
         # grab the question and play audio
         q = c.q()
         if self.mw.pm.profile['autoplay']:
