@@ -565,7 +565,7 @@ class MediaSyncer(object):
             runHook("sync", "streamMedia")
             zip = self.files()
             usn = self.server.addFiles(zip=zip)
-            if usn:
+            if usn is not False:
                 # when server has run out of files, it returns bumped usn
                 break
         # step 5: finalize

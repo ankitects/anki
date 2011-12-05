@@ -163,6 +163,9 @@ class DeckManager(object):
         "A list of all decks."
         return self.decks.values()
 
+    def count(self):
+        return len(self.decks)
+
     def get(self, did, default=True):
         id = str(did)
         if id in self.decks:
