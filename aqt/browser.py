@@ -13,7 +13,7 @@ from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     showInfo, askUser, tooltip, openHelp
 from anki.errors import *
 from anki.db import *
-from anki.hooks import runHook, addHook, removeHook
+from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
 
@@ -1040,10 +1040,10 @@ where id in %s""" % ids2str(self.selectedCards()), mod)
         addHook("editFocusLost", self.refreshCurrentCard)
 
     def teardownHooks(self):
-        removeHook("reset", self.onReset)
-        removeHook("editTimer", self.refreshCurrentCard)
-        removeHook("editFocusLost", self.refreshCurrentCard)
-        removeHook("undoState", self.onUndoState)
+        remHook("reset", self.onReset)
+        remHook("editTimer", self.refreshCurrentCard)
+        remHook("editFocusLost", self.refreshCurrentCard)
+        remHook("undoState", self.onUndoState)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
@@ -1363,8 +1363,8 @@ class ChangeModel(QDialog):
             new=self.targetModel.fields)
 
     def cleanup(self):
-        removeHook("reset", self.onReset)
-        removeHook("currentModelChanged", self.onReset)
+        remHook("reset", self.onReset)
+        remHook("currentModelChanged", self.onReset)
         self.modelChooser.cleanup()
         saveGeom(self, "changeModel")
 

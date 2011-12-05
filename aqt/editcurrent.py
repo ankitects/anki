@@ -5,7 +5,7 @@
 from aqt.qt import *
 import aqt.editor
 from aqt.utils import saveGeom, restoreGeom
-from anki.hooks import addHook, removeHook
+from anki.hooks import addHook, remHook
 
 class EditCurrent(QDialog):
 
@@ -40,7 +40,7 @@ class EditCurrent(QDialog):
         self.editor.setNote(n)
 
     def onSave(self):
-        removeHook("reset", self.onReset)
+        remHook("reset", self.onReset)
         self.editor.saveNow()
         self.editor.setNote(None)
         r = self.mw.reviewer

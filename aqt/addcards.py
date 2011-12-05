@@ -11,7 +11,7 @@ from anki.utils import stripHTML
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip, openHelp
 from anki.sound import clearAudioQueue
-from anki.hooks import addHook, removeHook
+from anki.hooks import addHook, remHook
 from anki.utils import stripHTMLMedia, isMac
 import aqt.editor, aqt.modelchooser
 
@@ -164,8 +164,8 @@ question or answer on all cards."""), help="AddItems")
     def reject(self):
         if not self.canClose():
             return
-        removeHook('reset', self.onReset)
-        removeHook('currentModelChanged', self.onReset)
+        remHook('reset', self.onReset)
+        remHook('currentModelChanged', self.onReset)
         clearAudioQueue()
         self.removeTempNote(self.editor.note)
         self.editor.setNote(None)

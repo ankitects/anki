@@ -5,7 +5,7 @@ from aqt.qt import *
 from operator import itemgetter
 from anki import stdmodels
 from anki.lang import ngettext
-from anki.hooks import addHook, removeHook, runHook
+from anki.hooks import addHook, remHook, runHook
 from aqt.utils import isMac
 import aqt
 
@@ -64,7 +64,7 @@ class ModelChooser(QHBoxLayout):
             self.updateTemplates()
 
     def cleanup(self):
-        removeHook('reset', self.onReset)
+        remHook('reset', self.onReset)
 
     def onReset(self):
         if not self._ignoreReset:
