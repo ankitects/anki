@@ -239,7 +239,8 @@ class SyncThread(QThread):
             self.client.upload()
         else:
             self.client.download()
-        # move on to media sync
+        # reopen db and move on to media sync
+        self.col.reopen()
         self._syncMedia()
 
     def _syncMedia(self):
