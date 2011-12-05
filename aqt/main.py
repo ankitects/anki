@@ -100,7 +100,7 @@ class AnkiQt(QMainWindow):
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
         d.connect(f.login, SIGNAL("clicked()"), self.onOpenProfile)
-        d.connect(f.quit, SIGNAL("clicked()"), lambda: sys.exit(0))
+        d.connect(f.quit, SIGNAL("clicked()"), self.onQuit)
         d.connect(f.add, SIGNAL("clicked()"), self.onAddProfile)
         d.connect(f.delete_2, SIGNAL("clicked()"), self.onRemProfile)
         d.connect(d, SIGNAL("rejected()"), lambda: d.close())
@@ -190,8 +190,6 @@ Are you sure?"""):
         self.activateWindow()
         self.raise_()
         # maybe sync (will load DB)
-        self.pm.profile['syncMedia'] = False
-        self.pm.save()
         self.onSync(auto=True)
         # skip the reset step; open overview directly
         self.moveToState("overview")
@@ -341,7 +339,7 @@ title="%s">%s</button>''' % (
         self.mainLayout.addWidget(sweb)
         self.form.centralwidget.setLayout(self.mainLayout)
 
-    def closeAllWindows(self):
+    def closeAllCollectionWindows(self):
         aqt.dialogs.closeAll()
 
     # Components
@@ -441,7 +439,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         runHook("deckClosing")
         #self.col.close()
         self.backup()
-        self.closeAllWindows()
+        self.closeAllCollectionWindows()
         self.col.close()
         self.col = None
 
@@ -454,14 +452,15 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # Syncing
     ##########################################################################
 
-    def onSync(self, auto=False):
+    def onSync(self, auto=False, reload=True):
         from aqt.sync import SyncManager
         # close collection if loaded
         if self.col:
             self.col.close()
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync(auto)
-        self.loadCollection()
+        if reload:
+            self.loadCollection()
 
     def loadCollection(self):
         self.col = Collection(self.pm.collectionPath())
@@ -519,17 +518,15 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # App exit
     ##########################################################################
 
+    def onQuit(self):
+        self.app.closeAllWindows()
+
     def prepareForExit(self):
         "Save config and window geometry."
         runHook("quit")
         self.pm.profile['mainWindowGeom'] = self.saveGeometry()
         self.pm.profile['mainWindowState'] = self.saveState()
-        # save config
-        try:
-            self.pm.save()
-        except (IOError, OSError), e:
-            showWarning(_("Anki was unable to save your "
-                                   "configuration file:\n%s" % e))
+        self.pm.save()
 
     def closeEvent(self, event):
         "User hit the X button, etc."
@@ -538,7 +535,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         #     self.showBrowser = False
         #     self.syncDeck(interactive=False)
         self.prepareForExit()
-        event.accept()
+        if event:
+            event.accept()
         self.app.quit()
 
     # Dockable widgets
@@ -745,24 +743,11 @@ Please choose a new deck name:"""))
     # Menu, title bar & status
     ##########################################################################
 
-    deckRelatedMenuItems = (
-        "Add",
-        "Browse",
-        "Undo",
-        "Export",
-        "Stats",
-        "Cstats",
-        "StudyOptions",
-        "Overview",
-        "Groups",
-        "Models",
-        )
-
     def setupMenus(self):
         m = self.form
         s = SIGNAL("triggered()")
         #self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
-        self.connect(m.actionExit, s, self, SLOT("close()"))
+        self.connect(m.actionExit, s, self.onQuit)
         self.connect(m.actionPreferences, s, self.onPrefs)
         self.connect(m.actionCstats, s, self.onCardStats)
         self.connect(m.actionAbout, s, self.onAbout)
@@ -807,7 +792,7 @@ This can be because the \
 clock is slow or fast, because the date is set incorrectly, or because \
 the timezone or daylight savings information is incorrect. Please correct \
 the problem and restart Anki.""")
-        sys.exit(0)
+        self.onQuit()
 
     # Schema modifications
     ##########################################################################
