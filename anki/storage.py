@@ -10,7 +10,7 @@ from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel
 
-def Collection(path, queue=True, lock=True, server=False):
+def Collection(path, lock=True, server=False):
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
@@ -39,8 +39,6 @@ def Collection(path, queue=True, lock=True, server=False):
         col.save()
     if lock:
         col.lock()
-    if not queue:
-        return col
     return col
 
 # no upgrades necessary at the moment
