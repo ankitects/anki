@@ -94,6 +94,9 @@ and try again.""")
             return _("""\
 The connection with the server timed out. Please check your network \
 connection and try again.""")
+        elif "502" in err:
+            return _("""\
+AnkiWeb appears to be down. Please try again in a few minutes.""")
         return err
 
     def _getUserPass(self):
