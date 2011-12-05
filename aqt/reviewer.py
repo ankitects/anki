@@ -26,6 +26,7 @@ class Reviewer(object):
         addHook("leech", self.onLeech)
 
     def show(self):
+        self.mw.col.reset()
         self.mw.keyHandler = self._keyHandler
         self.web.setLinkHandler(self._linkHandler)
         self.web.setKeyHandler(self._catchEsc)

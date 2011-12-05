@@ -23,6 +23,7 @@ class Overview(object):
         self.refresh()
 
     def refresh(self):
+        self.mw.col.reset()
         self._renderPage()
         self._renderBottom()
         self.mw.web.setFocus()
