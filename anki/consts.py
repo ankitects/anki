@@ -36,8 +36,7 @@ MEDIA_ADD = 0
 MEDIA_REM = 1
 
 # syncing vars
-SYNC_ZIP_SIZE = 10*1024*1024
-CHUNK_SIZE = 65536
+SYNC_ZIP_SIZE = int(2.5*1024*1024)
 MIME_BOUNDARY = "Anki-sync-boundary"
 SYNC_URL = os.environ.get("SYNC_URL") or "https://ankiweb.net/sync/"
 SYNC_VER = 0
