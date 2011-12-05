@@ -39,7 +39,7 @@ def addHook(hook, func):
     if func not in _hooks[hook]:
         _hooks[hook].append(func)
 
-def removeHook(hook, func):
+def remHook(hook, func):
     "Remove a function if is on hook."
     hook = _hooks.get(hook, [])
     if func in hook:
