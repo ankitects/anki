@@ -191,8 +191,11 @@ Are you sure?"""):
         self.raise_()
         # maybe sync (will load DB)
         self.onSync(auto=True)
-        # skip the reset step; open overview directly
-        self.moveToState("overview")
+        # load overview if a single deck, otherwise deck list
+        if self.col.decks.count() > 1:
+            self.moveToState("deckBrowser")
+        else:
+            self.moveToState("overview")
 
     def unloadProfile(self):
         self.col = None
