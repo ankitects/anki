@@ -80,7 +80,9 @@ class Syncer(object):
         runHook("sync", "sanity")
         c = self.sanityCheck()
         s = self.server.sanityCheck()
-        assert c == s
+        if c != s:
+            raise Exception("""\
+Sanity check failed. Please copy and paste the text below:\n%s\n%s""" % (c, s))
         # finalize
         runHook("sync", "finalize")
         mod = self.server.finish()
@@ -192,8 +194,7 @@ from notes where %s""" % d)
 
     def chunk(self):
         buf = dict(done=False)
-        # gather up to 5000 records
-        lim = 5000
+        lim = 2500
         while self.tablesLeft and lim:
             curTable = self.tablesLeft[0]
             if not self.cursor:
@@ -249,11 +250,16 @@ from notes where %s""" % d)
         return dict(cards=cards, notes=notes, decks=decks)
 
     def mergeGraves(self, graves):
+        # make sure the deletions don't get a usn of -1k
+        server = self.col.server
+        self.col.server = True
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves['notes'])
+        # then cards and decks
         self.col.remCards(graves['cards'])
         for oid in graves['decks']:
             self.col.decks.rem(oid)
+        self.col.server = server
 
     # Models
     ##########################################################################

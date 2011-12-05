@@ -266,10 +266,10 @@ class DeckManager(object):
             "update cards set did=?,usn=?,mod=? where id in "+
             ids2str(cids), did, self.col.usn(), intTime())
 
-
     def maybeAddToActive(self):
-        # since order is important, we can't just append to the end
-        self.select(self.selected())
+        # reselect current deck, or default if current has disappeared
+        c = self.current()
+        self.select(c['id'])
 
     def sendHome(self, cids):
         self.col.db.execute("""
@@ -334,3 +334,13 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         "The top level did for NAME."
         path = name.split("::")
         return self.id(path[0])
+
+    # Sync handling
+    ##########################################################################
+
+    def beforeUpload(self):
+        for d in self.all():
+            d['usn'] = 0
+        for c in self.allConf():
+            c['usn'] = 0
+        self.save()

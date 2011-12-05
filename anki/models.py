@@ -483,3 +483,11 @@ select id from notes where mid = ?)""" % " ".join(map),
             if ok:
                 avail.append(ord)
         return avail
+
+    # Sync handling
+    ##########################################################################
+
+    def beforeUpload(self):
+        for m in self.all():
+            m['usn'] = 0
+        self.save()

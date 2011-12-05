@@ -177,3 +177,11 @@ class TagManager(object):
         self.col.db.execute(
             "update cards set did=?,mod=?,usn=? where nid in "+ids2str(nids),
             did, intTime(), self.col.usn())
+
+    # Sync handling
+    ##########################################################################
+
+    def beforeUpload(self):
+        for k in self.tags.keys():
+            self.tags[k] = 0
+        self.save()
