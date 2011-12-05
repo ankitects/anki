@@ -72,6 +72,8 @@ class SyncManager(QObject):
                 m = _("Downloading from AnkiWeb...")
             elif t == "sanity":
                 m = _("Checking...")
+            elif t == "findChanges":
+                m = _("Syncing Media...")
             if m:
                 print m
                 self.mw.progress.update(label=m)
