@@ -72,7 +72,7 @@ class SyncManager(QObject):
                 m = _("Downloading from AnkiWeb...")
             elif t == "sanity":
                 m = _("Checking...")
-            elif t == "findChanges":
+            elif t == "findMedia":
                 m = _("Syncing Media...")
             if m:
                 print m
@@ -94,11 +94,16 @@ Couldn't connect to AnkiWeb. Please check your network connection \
 and try again.""")
         elif "timed out" in err:
             return _("""\
-The connection with the server timed out. Please check your network \
+The connection to AnkiWeb timed out. Please check your network \
 connection and try again.""")
-        elif "502" in err:
+        elif "501" in err:
             return _("""\
-AnkiWeb appears to be down. Please try again in a few minutes.""")
+Please upgrade to the latest version of Anki.""")
+        # 502 is technically due to the server restarting, but we reuse the
+        # error message
+        elif "502" in err or "503" in err or "504" in err:
+            return _("""\
+AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         return err
 
     def _getUserPass(self):
