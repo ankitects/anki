@@ -352,7 +352,7 @@ title="%s">%s</button>''' % (
         signal.signal(signal.SIGINT, self.onSigInt)
 
     def onSigInt(self, signum, frame):
-        self.close()
+        self.onQuit()
 
     def setupProgress(self):
         self.progress = aqt.progress.ProgressManager(self)
