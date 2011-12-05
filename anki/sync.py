@@ -402,7 +402,7 @@ class HttpSyncer(object):
     # costly. We could send it as a raw post, but more HTTP clients seem to
     # support file uploading, so this is the more compatible choice.
 
-    def postData(self, http, method, fobj, vars, comp=1):
+    def postData(self, http, method, fobj, vars, comp=6):
         bdry = "--"+MIME_BOUNDARY
         # write out post vars, including session key and compression flag
         buf = StringIO()
@@ -425,7 +425,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
             else:
                 tgt = buf
             while 1:
-                data = fobj.read(CHUNK_SIZE)
+                data = fobj.read(65536)
                 if not data:
                     if comp:
                         tgt.close()
@@ -527,7 +527,7 @@ class FullSyncer(HttpSyncer):
         runHook("sync", "upload")
         self.col.beforeUpload()
         assert self.postData(self.con, "upload", open(self.col.path, "rb"),
-                             self._vars(), comp=6) == "OK"
+                             self._vars()) == "OK"
 
 # Media syncing
 ##########################################################################
@@ -621,4 +621,3 @@ class RemoteMediaServer(MediaSyncer, HttpSyncer):
         return simplejson.loads(
             self.postData(self.con, "mediatest", StringIO(
                 simplejson.dumps(dict(n=n))), self._vars()))
-
