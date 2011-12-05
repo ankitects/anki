@@ -348,6 +348,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 self.lrnCount -= 1
+                self.lrnRepCount -= 1
                 return id
 
     def _answerLrnCard(self, card, ease):
