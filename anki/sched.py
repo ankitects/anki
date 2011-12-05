@@ -66,8 +66,15 @@ class Scheduler(object):
         card.usn = self.col.usn()
         card.flushSched()
 
-    def counts(self):
-        return (self.newCount, self.lrnCount, self.revCount)
+    def counts(self, card=None):
+        counts = [self.newCount, self.lrnCount, self.revCount]
+        if card:
+            idx = self.countIdx(card)
+            if idx == 1:
+                counts[1] += card.left
+            else:
+                counts[idx] += 1
+        return tuple(counts)
 
     def dueForecast(self, days=7):
         "Return counts over next DAYS. Includes today."
