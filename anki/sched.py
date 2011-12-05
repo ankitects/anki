@@ -29,11 +29,10 @@ class Scheduler(object):
     def getCard(self):
         "Pop the next card from the queue. None if finished."
         self._checkDay()
-        id = self._getCardId()
-        if id:
-            c = self.col.getCard(id)
-            c.startTimer()
-            return c
+        card = self._getCard()
+        if card:
+            card.startTimer()
+            return card
 
     def reset(self):
         self._updateCutoff()
@@ -52,7 +51,6 @@ class Scheduler(object):
             card.queue = 1
             card.type = 1
             card.left = self._startingLeft(card)
-            self.lrnRepCount += card.left
             self._updateStats(card, 'new')
         if card.queue == 1:
             self._answerLrnCard(card, ease)
@@ -68,10 +66,7 @@ class Scheduler(object):
         card.usn = self.col.usn()
         card.flushSched()
 
-    def repCounts(self):
-        return (self.newCount, self.lrnRepCount, self.revCount)
-
-    def cardCounts(self):
+    def counts(self):
         return (self.newCount, self.lrnCount, self.revCount)
 
     def dueForecast(self, days=7):
@@ -175,23 +170,23 @@ order by due""" % self._deckLimit(),
     # Getting the next card
     ##########################################################################
 
-    def _getCardId(self):
+    def _getCard(self):
         "Return the next due card id, or None."
         # learning card due?
-        id = self._getLrnCard()
-        if id:
-            return id
+        c = self._getLrnCard()
+        if c:
+            return c
         # new first, or time for one?
         if self._timeForNewCard():
             return self._getNewCard()
         # card due for review?
-        id = self._getRevCard()
-        if id:
-            return id
+        c = self._getRevCard()
+        if c:
+            return c
         # new cards left?
-        id = self._getNewCard()
-        if id:
-            return id
+        c = self._getNewCard()
+        if c:
+            return c
         # collapse or finish
         return self._getLrnCard(collapse=True)
 
@@ -266,7 +261,7 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
                     # we only have one note in the queue; stop rotating
                     break
         self.newCount -= 1
-        return id
+        return self.col.getCard(id)
 
     def _updateNewCardRatio(self):
         if self.col.decks.top()['newSpread'] == NEW_CARDS_DISTRIBUTE:
@@ -316,12 +311,11 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
     ##########################################################################
 
     def _resetLrnCount(self):
-        (self.lrnCount, self.lrnRepCount) = self.col.db.first("""
-select count(), sum(left) from (select left from cards where
+        self.lrnCount = self.col.db.scalar("""
+select sum(left) from (select left from cards where
 did in %s and queue = 1 and due < ? limit %d)""" % (
             self._deckLimit(), self.reportLimit),
-            self.dayCutoff)
-        self.lrnRepCount = self.lrnRepCount or 0
+            self.dayCutoff) or 0
 
     def _resetLrn(self):
         self._resetLrnCount()
@@ -347,9 +341,9 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
                 cutoff += self.col.decks.top()['collapseTime']
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
-                self.lrnCount -= 1
-                self.lrnRepCount -= 1
-                return id
+                card = self.col.getCard(id)
+                self.lrnCount -= card.left
+                return card
 
     def _answerLrnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
@@ -359,29 +353,30 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
         else:
             type = 0
         leaving = False
+        # lrnCount was decremented once when card was fetched
         lastLeft = card.left
+        # immediate graduate?
         if ease == 3:
             self._rescheduleAsRev(card, conf, True)
-            self.lrnRepCount -= lastLeft
             leaving = True
+        # graduation time?
         elif ease == 2 and card.left-1 <= 0:
             self._rescheduleAsRev(card, conf, False)
-            self.lrnRepCount -= 1
             leaving = True
         else:
+            # one step towards graduation
             if ease == 2:
                 card.left -= 1
-                self.lrnRepCount -= 1
+            # failed
             else:
                 card.left = self._startingLeft(card)
-                self.lrnRepCount += card.left - lastLeft
+            self.lrnCount += card.left
             delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
             card.due = int(time.time() + delay)
             heappush(self._lrnQueue, (card.due, card.id))
-            self.lrnCount += 1
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _delayForGrade(self, conf, left):
@@ -501,7 +496,7 @@ did in %s and queue = 2 and due <= :lim %s limit %d""" % (
     def _getRevCard(self):
         if self._fillRev():
             self.revCount -= 1
-            return self._revQueue.pop()
+            return self.col.getCard(self._revQueue.pop())
 
     def _revOrder(self):
         if self.col.conf['revOrder']:
@@ -531,8 +526,7 @@ did in %s and queue = 2 and due <= :lim %s limit %d""" % (
             card.due = int(self._delayForGrade(conf, 0) + time.time())
             card.left = len(conf['delays'])
             card.queue = 1
-            self.lrnCount += 1
-            self.lrnRepCount += card.left
+            self.lrnCount += card.left
         # leech?
         if not self._checkLeech(card, conf) and conf['relearn']:
             heappush(self._lrnQueue, (card.due, card.id))

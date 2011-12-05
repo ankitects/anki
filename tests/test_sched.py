@@ -426,10 +426,10 @@ def test_cram():
     conf = d.sched._lrnConf(c)
     conf['reset'] = False
     conf['resched'] = False
-    assert d.sched.cardCounts() == (1, 0, 0)
+    assert d.sched.counts() == (1, 0, 0)
     c = d.sched.getCard()
     d.sched._cardConf(c)['cram']['delays'] = [0.5, 3, 10]
-    assert d.sched.cardCounts() == (0, 0, 0)
+    assert d.sched.counts() == (0, 0, 0)
     # check that estimates work
     assert d.sched.nextIvl(c, 1) == 30
     assert d.sched.nextIvl(c, 2) == 180
@@ -439,7 +439,7 @@ def test_cram():
     d.sched.answerCard(c, 1)
     assert c.ivl == 100
     # and should have incremented lrn count
-    assert d.sched.cardCounts()[1] == 1
+    assert d.sched.counts()[1] == 1
     # reset ivl for exit test, and pass card
     d.sched.answerCard(c, 2)
     delta = c.due - time.time()
@@ -453,7 +453,7 @@ def test_cram():
     assert c.due == d.sched.today + c.ivl
     # and if the queue is reset, it shouldn't appear in the new queue again
     d.reset()
-    assert d.sched.cardCounts() == (0, 0, 0)
+    assert d.sched.counts() == (0, 0, 0)
     # now try again with ivl rescheduling
     c = copy.copy(cardcopy)
     c.flush()
@@ -484,7 +484,7 @@ def test_cram():
     # users should be able to cram entire deck too
     d.conf['decks'] = []
     d.cramDecks()
-    assert d.sched.cardCounts()[0] > 0
+    assert d.sched.counts()[0] > 0
 
 def test_cramLimits():
     d = getEmptyDeck()
@@ -500,29 +500,29 @@ def test_cramLimits():
     # the default cram should return all three
     d.conf['decks'] = [1]
     d.cramDecks()
-    assert d.sched.cardCounts()[0] == 3
+    assert d.sched.counts()[0] == 3
     # if we start from the day after tomorrow, it should be 2
     d.cramDecks(min=1)
-    assert d.sched.cardCounts()[0] == 2
+    assert d.sched.counts()[0] == 2
     # or after 2 days
     d.cramDecks(min=2)
-    assert d.sched.cardCounts()[0] == 1
+    assert d.sched.counts()[0] == 1
     # we may get nothing
     d.cramDecks(min=3)
-    assert d.sched.cardCounts()[0] == 0
+    assert d.sched.counts()[0] == 0
     # tomorrow(0) + dayAfter(1) = 2
     d.cramDecks(max=1)
-    assert d.sched.cardCounts()[0] == 2
+    assert d.sched.counts()[0] == 2
     # if max is tomorrow, we get only one
     d.cramDecks(max=0)
-    assert d.sched.cardCounts()[0] == 1
+    assert d.sched.counts()[0] == 1
     # both should work
     d.cramDecks(min=0, max=0)
-    assert d.sched.cardCounts()[0] == 1
+    assert d.sched.counts()[0] == 1
     d.cramDecks(min=1, max=1)
-    assert d.sched.cardCounts()[0] == 1
+    assert d.sched.counts()[0] == 1
     d.cramDecks(min=0, max=1)
-    assert d.sched.cardCounts()[0] == 2
+    assert d.sched.counts()[0] == 2
 
 def test_adjIvl():
     d = getEmptyDeck()
@@ -617,54 +617,27 @@ def test_ordcycle():
     assert d.sched.getCard().ord == 1
     assert d.sched.getCard().ord == 2
 
-def test_cardcounts():
-    d = getEmptyDeck()
-    # add a second deck
-    grp = d.decks.id("Default::new deck")
-    # for each card type
-    for type in range(3):
-        # and each of the decks
-        for did in (1,grp):
-            # create a new note
-            f = d.newNote()
-            f['Front'] = u"one"
-            d.addNote(f)
-            c = f.cards()[0]
-            # set type/did
-            c.type = type
-            c.queue = type
-            c.did = did
-            c.due = 0
-            c.flush()
-    d.reset()
-    # with the default settings, there's no count limit
-    assert d.sched.cardCounts() == (2,2,2)
-    # check limit to one deck
-    d.decks.select(grp)
-    d.reset()
-    assert d.sched.cardCounts() == (1,1,1)
-
 def test_counts_idx():
     d = getEmptyDeck()
     f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addNote(f)
     d.reset()
-    assert d.sched.cardCounts() == (1, 0, 0)
+    assert d.sched.counts() == (1, 0, 0)
     c = d.sched.getCard()
     # counter's been decremented but idx indicates 1
-    assert d.sched.cardCounts() == (0, 0, 0)
+    assert d.sched.counts() == (0, 0, 0)
     assert d.sched.countIdx(c) == 0
     # answer to move to learn queue
     d.sched.answerCard(c, 1)
-    assert d.sched.cardCounts() == (0, 1, 0)
+    assert d.sched.counts() == (0, 2, 0)
     # fetching again will decrement the count
     c = d.sched.getCard()
-    assert d.sched.cardCounts() == (0, 0, 0)
+    assert d.sched.counts() == (0, 0, 0)
     assert d.sched.countIdx(c) == 1
     # answering should add it back again
     d.sched.answerCard(c, 1)
-    assert d.sched.cardCounts() == (0, 1, 0)
+    assert d.sched.counts() == (0, 2, 0)
 
 def test_repCounts():
     d = getEmptyDeck()
@@ -673,37 +646,37 @@ def test_repCounts():
     d.addNote(f)
     d.reset()
     # lrnReps should be accurate on pass/fail
-    assert d.sched.repCounts() == (1, 0, 0)
+    assert d.sched.counts() == (1, 0, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.repCounts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 2, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.repCounts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 2, 0)
     d.sched.answerCard(d.sched.getCard(), 2)
-    assert d.sched.repCounts() == (0, 1, 0)
+    assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.repCounts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 2, 0)
     d.sched.answerCard(d.sched.getCard(), 2)
-    assert d.sched.repCounts() == (0, 1, 0)
+    assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 2)
-    assert d.sched.repCounts() == (0, 0, 0)
+    assert d.sched.counts() == (0, 0, 0)
     f = d.newNote()
     f['Front'] = u"two"
     d.addNote(f)
     d.reset()
     # initial pass should be correct too
     d.sched.answerCard(d.sched.getCard(), 2)
-    assert d.sched.repCounts() == (0, 1, 0)
+    assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.repCounts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 2, 0)
     d.sched.answerCard(d.sched.getCard(), 3)
-    assert d.sched.repCounts() == (0, 0, 0)
+    assert d.sched.counts() == (0, 0, 0)
     # immediate graduate should work
     f = d.newNote()
     f['Front'] = u"three"
     d.addNote(f)
     d.reset()
     d.sched.answerCard(d.sched.getCard(), 3)
-    assert d.sched.repCounts() == (0, 0, 0)
+    assert d.sched.counts() == (0, 0, 0)
     # and failing a review should too
     f = d.newNote()
     f['Front'] = u"three"
@@ -714,9 +687,9 @@ def test_repCounts():
     c.due = d.sched.today
     c.flush()
     d.reset()
-    assert d.sched.repCounts() == (0, 0, 1)
+    assert d.sched.counts() == (0, 0, 1)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.repCounts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 2, 0)
 
 def test_timing():
     d = getEmptyDeck()
@@ -836,7 +809,7 @@ def test_deckFlow():
     d.addNote(f)
     # should get top level one first, then ::1, then ::2
     d.reset()
-    assert d.sched.cardCounts() == (3,0,0)
+    assert d.sched.counts() == (3,0,0)
     for i in "one", "three", "two":
         c = d.sched.getCard()
         assert c.note()['Front'] == i
@@ -889,10 +862,10 @@ def test_forget():
     c.queue = 2; c.type = 2; c.ivl = 100; c.due = 0
     c.flush()
     d.reset()
-    assert d.sched.cardCounts() == (0, 0, 1)
+    assert d.sched.counts() == (0, 0, 1)
     d.sched.forgetCards([c.id])
     d.reset()
-    assert d.sched.cardCounts() == (1, 0, 0)
+    assert d.sched.counts() == (1, 0, 0)
 
 def test_resched():
     d = getEmptyDeck()
@@ -918,12 +891,12 @@ def test_revlim():
         d.addNote(f)
     d.db.execute("update cards set due = 0, queue = 2, type = 2")
     d.reset()
-    assert d.sched.repCounts()[2] == 20
+    assert d.sched.counts()[2] == 20
     for i in range(5):
         d.sched.answerCard(d.sched.getCard(), 3)
-    assert d.sched.repCounts()[2] == 15
+    assert d.sched.counts()[2] == 15
     t = d.decks.top()
     t['revLim'] = 10
     d.reset()
-    assert d.sched.repCounts()[2] == 5
+    assert d.sched.counts()[2] == 5
 

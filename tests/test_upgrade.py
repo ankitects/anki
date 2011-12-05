@@ -28,7 +28,7 @@ def test_upgrade():
     # 3 new, 2 failed, 1 due
     deck.reset()
     deck.conf['counts'] = COUNT_REMAINING
-    assert deck.sched.cardCounts() == (3,2,1)
+    assert deck.sched.counts() == (3,4,1)
     # now's a good time to test the integrity check too
     deck.fixIntegrity()
     # c = deck.sched.getCard()

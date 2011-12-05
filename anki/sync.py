@@ -140,7 +140,7 @@ select count() from notes where id not in (select distinct nid from cards)""")
             assert m['usn'] != -1
         self.col.sched.reset()
         return [
-            list(self.col.sched.repCounts()),
+            list(self.col.sched.counts()),
             self.col.db.scalar("select count() from cards"),
             self.col.db.scalar("select count() from notes"),
             self.col.db.scalar("select count() from revlog"),
