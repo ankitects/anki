@@ -191,15 +191,19 @@ def maxID(db):
                 "select max(id) from %s" % tbl))
     return now + 1
 
-def base91(num):
+# used in ankiweb
+def base62(num, extra=""):
     s = string
-    # all printable characters minus quotes, backslash and separators
-    table = s.letters + s.digits + "!#$%&()*+,-./:;<=>?@[]^_`{|}~"
+    table = s.letters + s.digits + extra
     buf = ""
     while num:
         num, i = divmod(num, len(table))
         buf = table[i] + buf
     return buf
+
+def base91(num):
+    # all printable characters minus quotes, backslash and separators
+    return base62(num, "!#$%&()*+,-./:;<=>?@[]^_`{|}~")
 
 def guid64():
     "Return a base91-encoded 64bit random number."
