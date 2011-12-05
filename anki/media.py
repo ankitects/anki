@@ -347,7 +347,6 @@ create table log (fname text primary key, type int);
         if finished:
             self.syncMod()
         # also need to clear log after sync finished
-
         return finished
 
     # Streaming zips

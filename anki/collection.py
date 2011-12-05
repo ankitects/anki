@@ -144,7 +144,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.media.close()
 
     def reopen(self):
-        "Reconnect to DB (after changing threads, etc). Doesn't reload."
+        "Reconnect to DB (after changing threads, etc)."
         import anki.db
         if not self.db:
             self.db = anki.db.DB(self.path)
