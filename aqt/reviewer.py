@@ -407,9 +407,9 @@ var updateTime = function () {
             self.bottom._css + self._bottomCSS)
 
     def _remaining(self):
-        counts = list(self.mw.col.sched.counts())
+        counts = list(self.mw.col.sched.counts(self.card))
         idx = self.mw.col.sched.countIdx(self.card)
-        counts[idx] = "<u>%s</u>" % (counts[idx]+1)
+        counts[idx] = "<u>%s</u>" % (counts[idx])
         space = " + "
         ctxt = '<font color="#000099">%s</font>' % counts[0]
         ctxt += space + '<font color="#990000">%s</font>' % counts[1]
