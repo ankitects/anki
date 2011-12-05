@@ -8,10 +8,12 @@ from anki.consts import *
 
 def test_basics():
     d = getEmptyDeck()
+    d.reset()
     assert not d.sched.getCard()
 
 def test_new():
     d = getEmptyDeck()
+    d.reset()
     assert d.sched.newCount == 0
     # add a note
     f = d.newNote()
@@ -212,6 +214,7 @@ def test_reviews():
     # failing it should put it in the learn queue with the default options
     ##################################################
     # different delay to new
+    d.reset()
     d.sched._cardConf(c)['lapse']['delays'] = [2, 20]
     d.sched.answerCard(c, 1)
     assert c.queue == 1
@@ -292,6 +295,7 @@ def test_finished():
     # have a new card
     assert "new cards available" in d.sched.finishedMsg()
     # turn it into a review
+    d.reset()
     c = f.cards()[0]
     c.startTimer()
     d.sched.answerCard(c, 3)

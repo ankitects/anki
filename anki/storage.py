@@ -41,8 +41,6 @@ def Collection(path, queue=True, lock=True, server=False):
         col.lock()
     if not queue:
         return col
-    # rebuild queue
-    col.reset()
     return col
 
 # no upgrades necessary at the moment

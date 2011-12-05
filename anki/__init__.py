@@ -7,6 +7,10 @@ Open a collection:
 
     col = anki.open(path)
 
+Prepare scheduler, or reset scheduler after changes:
+
+    col.reset()
+
 Get a due card:
 
     card = col.sched.getCard()
@@ -20,10 +24,6 @@ Show the card:
 Answer the card:
 
     col.sched.answerCard(card, ease)
-
-Refresh after a change:
-
-    col.reset()
 
 Edit the card:
 
