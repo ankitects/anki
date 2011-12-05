@@ -7,7 +7,7 @@ import aqt
 from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
-from anki.hooks import addHook, removeHook
+from anki.hooks import addHook, remHook
 from aqt.utils import tooltip, askUserDialog, showWarning
 
 # Sync manager
@@ -43,12 +43,22 @@ class SyncManager(QObject):
             self.pm.collectionPath(), self.pm.profile['syncKey'],
             auth=auth, media=self.pm.profile['syncMedia'])
         self.connect(t, SIGNAL("event"), self.onEvent)
-        self.mw.progress.start(immediate=True, label=_("Syncing..."))
+        self.label = _("Connecting...")
+        self.mw.progress.start(immediate=True, label=self.label)
+        self.sentBytes = self.recvBytes = 0
+        self._updateLabel()
         self.thread.start()
         while not self.thread.isFinished():
             self.mw.app.processEvents()
             self.thread.wait(100)
         self.mw.progress.finish()
+
+    def _updateLabel(self):
+        self.mw.progress.update(label="%s\n%s" % (
+            self.label,
+            _("%(a)dKB up, %(b)dKB down") % dict(
+                a=self.sentBytes/1024,
+                b=self.recvBytes/1024)))
 
     def onEvent(self, evt, *args):
         pu = self.mw.progress.update
@@ -75,8 +85,8 @@ class SyncManager(QObject):
             elif t == "findMedia":
                 m = _("Syncing Media...")
             if m:
-                print m
-                self.mw.progress.update(label=m)
+                self.label = m
+                self._updateLabel()
         elif evt == "error":
             showWarning(_("Syncing failed:\n%s")%
                         self._rewriteError(args[0]))
@@ -86,6 +96,13 @@ class SyncManager(QObject):
             pass
         elif evt == "fullSync":
             self._confirmFullSync()
+        elif evt == "send":
+            # posted events not guaranteed to arrive in order
+            self.sentBytes = max(self.sentBytes, args[0])
+            self._updateLabel()
+        elif evt == "recv":
+            self.recvBytes = max(self.recvBytes, args[0])
+            self._updateLabel()
 
     def _rewriteError(self, err):
         if "Errno 61" in err:
@@ -189,9 +206,27 @@ class SyncThread(QThread):
         self.col = Collection(self.path)
         self.server = RemoteServer(self.hkey)
         self.client = Syncer(self.col, self.server)
+        self.sentTotal = 0
+        self.recvTotal = 0
+        # throttle updates; qt doesn't handle lots of posted events well
+        self.byteUpdate = time.time()
         def syncEvent(type):
             self.fireEvent("sync", type)
+        def canPost():
+            if (time.time() - self.byteUpdate) > 0.1:
+                self.byteUpdate = time.time()
+                return True
+        def sendEvent(bytes):
+            self.sentTotal += bytes
+            if canPost():
+                self.fireEvent("send", self.sentTotal)
+        def recvEvent(bytes):
+            self.recvTotal += bytes
+            if canPost():
+                self.fireEvent("recv", self.recvTotal)
         addHook("sync", syncEvent)
+        addHook("httpSend", sendEvent)
+        addHook("httpRecv", recvEvent)
         # run sync and catch any errors
         try:
             self._sync()
@@ -202,7 +237,9 @@ class SyncThread(QThread):
         finally:
             # don't bump mod time unless we explicitly save
             self.col.close(save=False)
-            removeHook("sync", syncEvent)
+            remHook("sync", syncEvent)
+            remHook("httpSend", sendEvent)
+            remHook("httpRecv", recvEvent)
 
     def _sync(self):
         if self.auth:
@@ -266,3 +303,102 @@ class SyncThread(QThread):
 
     def fireEvent(self, *args):
         self.emit(SIGNAL("event"), *args)
+
+
+# Monkey-patch httplib & httplib2 so we can get progress info
+######################################################################
+
+CHUNK_SIZE = 65536
+import httplib, httplib2, socket, errno
+from cStringIO import StringIO
+from anki.hooks import runHook
+
+# sending in httplib
+def _incrementalSend(self, data):
+    """Send `data' to the server."""
+    if self.sock is None:
+        if self.auto_open:
+            self.connect()
+        else:
+            raise httplib.NotConnected()
+    # if it's not a file object, make it one
+    if not hasattr(data, 'read'):
+        data = StringIO(data)
+    while 1:
+        block = data.read(CHUNK_SIZE)
+        if not block:
+            break
+        self.sock.sendall(block)
+        runHook("httpSend", len(block))
+
+httplib.HTTPConnection.send = _incrementalSend
+
+# receiving in httplib2
+def _conn_request(self, conn, request_uri, method, body, headers):
+    for i in range(2):
+        try:
+            if conn.sock is None:
+              conn.connect()
+            conn.request(method, request_uri, body, headers)
+        except socket.timeout:
+            raise
+        except socket.gaierror:
+            conn.close()
+            raise httplib2.ServerNotFoundError(
+                "Unable to find the server at %s" % conn.host)
+        except httplib2.ssl_SSLError:
+            conn.close()
+            raise
+        except socket.error, e:
+            err = 0
+            if hasattr(e, 'args'):
+                err = getattr(e, 'args')[0]
+            else:
+                err = e.errno
+            if err == errno.ECONNREFUSED: # Connection refused
+                raise
+        except httplib.HTTPException:
+            # Just because the server closed the connection doesn't apparently mean
+            # that the server didn't send a response.
+            if conn.sock is None:
+                if i == 0:
+                    conn.close()
+                    conn.connect()
+                    continue
+                else:
+                    conn.close()
+                    raise
+            if i == 0:
+                conn.close()
+                conn.connect()
+                continue
+            pass
+        try:
+            response = conn.getresponse()
+        except (socket.error, httplib.HTTPException):
+            if i == 0:
+                conn.close()
+                conn.connect()
+                continue
+            else:
+                raise
+        else:
+            content = ""
+            if method == "HEAD":
+                response.close()
+            else:
+                buf = StringIO()
+                while 1:
+                    data = response.read(CHUNK_SIZE)
+                    if not data:
+                        break
+                    buf.write(data)
+                    runHook("httpRecv", len(data))
+                content = buf.getvalue()
+            response = httplib2.Response(response)
+            if method != "HEAD":
+                content = httplib2._decompressContent(response, content)
+        break
+    return (response, content)
+
+httplib2.Http._conn_request = _conn_request
