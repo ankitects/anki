@@ -78,7 +78,7 @@ class Overview(object):
                  desc[:160], desc)
 
     def _table(self):
-        counts = self.mw.col.sched.repCounts()
+        counts = self.mw.col.sched.counts()
         finished = not sum(counts)
         but = self.mw.button
         if finished:
