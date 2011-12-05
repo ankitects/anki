@@ -382,10 +382,19 @@ class LocalServer(Syncer):
 # HTTP syncing tools
 ##########################################################################
 
+# Calling code should catch the following codes:
+# - 501: client needs upgrade
+# - 502: ankiweb down
+# - 503/504: server too busy
+
 class HttpSyncer(object):
 
     def _vars(self):
         return dict(k=self.hkey)
+
+    def assertOk(self, resp):
+        if resp['status'] != '200':
+            raise Exception("Unknown response code: %s" % resp['status'])
 
     # Posting data as a file
     ######################################################################
@@ -433,8 +442,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
         buf.close()
         resp, cont = http.request(
             SYNC_URL+method, "POST", headers=headers, body=body)
-        if resp['status'] != '200':
-            raise Exception("Invalid response code: %s" % resp['status'])
+        self.assertOk(resp)
         return cont
 
 # Incremental sync over HTTP
@@ -452,15 +460,12 @@ class RemoteServer(Syncer, HttpSyncer):
         pw = pw.encode("utf-8")
         resp, cont = self.con.request(
             SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=user,p=pw)))
-        if resp['status'] == '200':
-            self.hkey = simplejson.loads(cont)['key']
-            return self.hkey
-        elif resp['status'] == '403':
+        if resp['status'] == '403':
             # invalid auth
             return
-        else:
-            raise Exception("Unknown response code: %s" % resp['status'])
-        return
+        self.assertOk(resp)
+        self.hkey = simplejson.loads(cont)['key']
+        return self.hkey
 
     def meta(self):
         resp, cont = self.con.request(
@@ -468,12 +473,7 @@ class RemoteServer(Syncer, HttpSyncer):
         if resp['status'] == '403':
             # auth failure
             return
-        elif resp['status'] in ('503', '504'):
-            raise Exception("Server is too busy; please try again later.")
-        elif resp['status'] == '501':
-            raise Exception("Your client is out of date; please upgrade.")
-        elif resp['status'] != '200':
-            raise Exception("Unknown response code: %s" % resp['status'])
+        self.assertOk(resp)
         return simplejson.loads(cont)
 
     def applyChanges(self, **kw):
@@ -511,8 +511,7 @@ class FullSyncer(HttpSyncer):
         self.col.close()
         resp, cont = self.con.request(
             SYNC_URL+"download?" + urllib.urlencode(self._vars()))
-        if resp['status'] != '200':
-            raise Exception("Invalid response code: %s" % resp['status'])
+        self.assertOk(resp)
         tpath = self.col.path + ".tmp"
         open(tpath, "wb").write(cont)
         # check the received file is ok
