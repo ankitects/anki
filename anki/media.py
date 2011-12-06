@@ -259,7 +259,7 @@ If the same name exists, compare checksums."""
     def zipAdded(self):
         "Add files to a zip until over SYNC_ZIP_SIZE. Return zip data."
         f = StringIO()
-        z = zipfile.ZipFile(f, "w")
+        z = zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED)
         sz = 0
         cnt = 0
         files = {}
@@ -382,3 +382,8 @@ create table log (fname text primary key, type int);
             if not v[2]:
                 removed.append(k)
         return added, removed
+
+    def sanityCheck(self):
+        assert not self.db.scalar("select count() from log")
+        cnt = self.db.scalar("select count() from media")
+        return cnt

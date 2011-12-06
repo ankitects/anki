@@ -577,6 +577,15 @@ class MediaSyncer(object):
             # after server has replied, safe to remove from log
             self.col.media.forgetAdded(fnames)
             self.col.media.setUsn(usn)
+        # step 5: sanity check during beta testing
+        # NOTE: when removing this, need to move server tidyup
+        # back from sanity check to addFiles
+        s = self.server.mediaSanity()
+        c = self.mediaSanity()
+        if c != s:
+            raise Exception("""\
+Sanity check failed. Please copy and paste the text below:\n%s\n%s""" %
+                            (c, s))
         return "success"
 
     def removed(self):
@@ -594,6 +603,9 @@ class MediaSyncer(object):
     def addFiles(self, zip):
         "True if zip is the last in set. Server returns new usn instead."
         return self.col.media.syncAdd(zip)
+
+    def mediaSanity(self):
+        return self.col.media.sanityCheck()
 
 # Remote media syncing
 ##########################################################################
@@ -615,9 +627,14 @@ class RemoteMediaServer(MediaSyncer, HttpSyncer):
             self.con, "files", StringIO(simplejson.dumps(kw)), self._vars())
 
     def addFiles(self, zip):
+        # no compression, as we compress the zip file instead
         return simplejson.loads(
             self.postData(self.con, "addFiles", StringIO(zip),
                           self._vars(), comp=0))
+
+    def mediaSanity(self):
+        return simplejson.loads(
+            self.postData(self.con, "mediaSanity", None, self._vars()))
 
     # only for unit tests
     def mediatest(self, n):
