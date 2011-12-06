@@ -264,11 +264,12 @@ If the same name exists, compare checksums."""
         cnt = 0
         files = {}
         cur = self.db.execute(
-            "select fname from log where type = ? limit 300", MEDIA_ADD)
+            "select fname from log where type = ?", MEDIA_ADD)
         fnames = []
         while 1:
             fname = cur.fetchone()
             if not fname:
+                # add a flag so the server knows it can clean up
                 z.writestr("_finished", "")
                 break
             fname = fname[0]

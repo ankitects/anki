@@ -570,15 +570,13 @@ class MediaSyncer(object):
         while 1:
             runHook("sync", "streamMedia")
             zip, fnames = self.files()
+            if not fnames:
+                # finished
+                break
             usn = self.server.addFiles(zip=zip)
             # after server has replied, safe to remove from log
             self.col.media.forgetAdded(fnames)
-            # when server has run out of files, it returns bumped usn
-            if usn is not False:
-                break
-        # update usn from addFiles() and cached mtime
-        self.col.media.setUsn(usn)
-        #self.col.media.syncMod()
+            self.col.media.setUsn(usn)
         return "success"
 
     def removed(self):
