@@ -162,8 +162,6 @@ def test_media():
     ts.deck1.media.close()
     os.unlink(ts.deck1.media.dir()+".db")
     ts.deck1.media.connect()
-    changes = ts.deck1.media.added().fetchall()
-    assert len(changes) == 2
     assert ts.client.sync(ts.server2.meta()[4]) == "success"
     assert ts.client.sync(ts.server2.meta()[4]) == "noChanges"
     assert len(os.listdir(ts.deck1.media.dir())) == 2

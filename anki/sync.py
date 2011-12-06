@@ -561,23 +561,24 @@ class MediaSyncer(object):
         runHook("sync", "server")
         while 1:
             runHook("sync", "streamMedia")
-            zip = self.server.files()
+            usn = self.col.media.usn()
+            zip = self.server.files(minUsn=usn)
             if self.addFiles(zip=zip):
                 break
         # step 4: stream files to the server
         runHook("sync", "client")
         while 1:
             runHook("sync", "streamMedia")
-            zip = self.files()
+            zip, fnames = self.files()
             usn = self.server.addFiles(zip=zip)
+            # after server has replied, safe to remove from log
+            self.col.media.forgetAdded(fnames)
+            # when server has run out of files, it returns bumped usn
             if usn is not False:
-                # when server has run out of files, it returns bumped usn
                 break
-        # step 5: finalize
+        # update usn from addFiles() and cached mtime
         self.col.media.setUsn(usn)
-        self.col.media.clearLog()
-        # clear cursor so successive calls work
-        self.added = None
+        #self.col.media.syncMod()
         return "success"
 
     def removed(self):
@@ -587,13 +588,10 @@ class MediaSyncer(object):
         self.col.media.syncRemove(fnames)
         if minUsn is not None:
             # we're the server
-            self.minUsn = minUsn
             return self.col.media.removed()
 
     def files(self):
-        if not self.added:
-            self.added = self.col.media.added()
-        return self.col.media.zipFromAdded(self.added)
+        return self.col.media.zipAdded()
 
     def addFiles(self, zip):
         "True if zip is the last in set. Server returns new usn instead."
@@ -614,8 +612,9 @@ class RemoteMediaServer(MediaSyncer, HttpSyncer):
                 self.con, "remove", StringIO(simplejson.dumps(kw)),
                           self._vars()))
 
-    def files(self):
-        return self.postData(self.con, "files", None, self._vars())
+    def files(self, **kw):
+        return self.postData(
+            self.con, "files", StringIO(simplejson.dumps(kw)), self._vars())
 
     def addFiles(self, zip):
         return simplejson.loads(
