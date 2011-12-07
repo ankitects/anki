@@ -198,6 +198,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         tbls = "notes", "cards", "revlog", "graves"
         for t in tbls:
             self.db.execute("update %s set usn=0 where usn=-1" % t)
+        self._usn += 1
         self.models.beforeUpload()
         self.tags.beforeUpload()
         self.decks.beforeUpload()
