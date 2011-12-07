@@ -109,7 +109,7 @@ function _typeAnsPress() {
     def _initWeb(self):
         base = getBase(self.mw.col)
         self.web.stdHtml(self._revHtml, self._styles(),
-            bodyID="card", loadCB=lambda x: self._showQuestion(),
+            bodyClass="card", loadCB=lambda x: self._showQuestion(),
             head=base)
 
     # Showing the question

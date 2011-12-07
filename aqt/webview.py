@@ -79,14 +79,14 @@ class AnkiWebView(QWebView):
     def setHtml(self, html, loadCB=None):
         self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
-    def stdHtml(self, body, css="", bodyID="", loadCB=None, head=""):
+    def stdHtml(self, body, css="", bodyClass="", loadCB=None, head=""):
         self.setHtml("""
 <html><head><style>%s</style>
 <script>%s</script>
 %s
 </head>
-<body id="%s">%s</body></html>""" % (
-    css, anki.js.all, head, bodyID, body), loadCB)
+<body class="%s">%s</body></html>""" % (
+    css, anki.js.all, head, bodyClass, body), loadCB)
     def setBridge(self, bridge):
         self._bridge.setBridge(bridge)
     def eval(self, js):

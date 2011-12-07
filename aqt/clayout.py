@@ -156,7 +156,7 @@ Please create a new card first."""))
     def renderPreview(self):
         c = self.card
         styles = "\n.cloze { font-weight: bold; color: blue; }"
-        html = '''<html><head>%s</head><body id=card>
+        html = '''<html><head>%s</head><body class=card>
 <style>%s</style>%s</body></html>'''
         ti = self.maybeTextInput
         base = getBase(self.mw.col)
