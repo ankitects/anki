@@ -222,6 +222,7 @@ Are you sure?"""):
             self.col.close()
             self.col = None
             self.backup()
+            self.onSync(auto=True, reload=False)
 
     # Backup and auto-optimize
     ##########################################################################

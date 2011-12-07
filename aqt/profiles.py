@@ -33,6 +33,7 @@ profileConf = dict(
     numBackups=30,
     lastOptimize=intTime(),
     lang="en",
+    disabledAddons=[],
 
     # editing
     fullSearch=False,
