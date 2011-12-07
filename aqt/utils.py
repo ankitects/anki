@@ -310,12 +310,9 @@ def mungeQA(txt):
     return txt
 
 def applyStyles(widget):
-    try:
-        styleFile = open(os.path.join(aqt.mw.pm.profile.confDir,
-                                      "style.css"))
-        widget.setStyleSheet(styleFile.read())
-    except (IOError, OSError):
-        pass
+    p = os.path.join(aqt.mw.pm.base, "style.css")
+    if os.path.exists(p):
+        widget.setStyleSheet(open(p).read())
 
 def getBase(col):
     base = None

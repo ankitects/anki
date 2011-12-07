@@ -305,7 +305,7 @@ class Browser(QMainWindow):
 
     def __init__(self, mw):
         QMainWindow.__init__(self, mw)
-        #applyStyles(self)
+        applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
         self.currentRow = None

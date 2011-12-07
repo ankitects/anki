@@ -518,8 +518,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.form.statusbar.showMessage(text, timeout)
 
     def setupStyle(self):
-        print "applystyles"
-        #applyStyles(self)
+        applyStyles(self)
 
     # Key handling
     ##########################################################################
@@ -941,15 +940,4 @@ they will be lost. Are you sure you want to continue?"""))
     def setupProxy(self):
         print "proxy"
         return
-        import urllib2
-        if self.pm.profile['proxyHost']:
-            proxy = "http://"
-            if self.pm.profile['proxyUser']:
-                proxy += (self.pm.profile['proxyUser'] + ":" +
-                          self.pm.profile['proxyPass'] + "@")
-            proxy += (self.pm.profile['proxyHost'] + ":" +
-                      str(self.pm.profile['proxyPort']))
-            os.environ["http_proxy"] = proxy
-            proxy_handler = urllib2.ProxyHandler()
-            opener = urllib2.build_opener(proxy_handler)
-            urllib2.install_opener(opener)
+        # need to bundle socksipy and install a default socket handler
