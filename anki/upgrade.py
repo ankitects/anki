@@ -461,7 +461,7 @@ order by ordinal""", mid)):
                         bg = t['bg']
                     t[k] = '''\
 <style>
-#card {
+.card {
  text-align:%s;
  background-color:%s;
 }
