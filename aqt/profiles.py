@@ -31,6 +31,7 @@ profileConf = dict(
     mainWindowGeom=None,
     mainWindowState=None,
     numBackups=30,
+    lastOptimize=intTime(),
     lang="en",
 
     # editing
@@ -54,9 +55,10 @@ profileConf = dict(
     syncMedia=True,
     autoSync=True,
     proxyHost='',
-    proxyPass='',
     proxyPort=8080,
     proxyUser='',
+    proxyPass='',
+    proxyType=3,
 )
 
 class ProfileManager(object):

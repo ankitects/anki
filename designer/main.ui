@@ -233,7 +233,7 @@
      <normaloff>:/icons/sqlitebrowser.png</normaloff>:/icons/sqlitebrowser.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Optimize...</string>
+    <string>&amp;Check DB...</string>
    </property>
   </action>
   <action name="actionDocumentation">
@@ -254,7 +254,7 @@
      <normaloff>:/icons/user-identity.png</normaloff>:/icons/user-identity.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Profile...</string>
+    <string>&amp;Switch Profile...</string>
    </property>
   </action>
  </widget>

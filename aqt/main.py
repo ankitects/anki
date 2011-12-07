@@ -11,7 +11,7 @@ QtConfig = pyqtconfig.Configuration()
 
 from anki import Collection
 from anki.sound import playFromText, clearAudioQueue, stripSounds
-from anki.utils import stripHTML, checksum, isWin, isMac
+from anki.utils import stripHTML, checksum, isWin, isMac, intTime
 from anki.hooks import runHook, addHook, remHook
 import anki.consts
 
@@ -218,6 +218,7 @@ Are you sure?"""):
     def unloadCollection(self):
         if self.col:
             self.closeAllCollectionWindows()
+            self.maybeOptimize()
             self.col.close()
             self.col = None
             self.backup()
@@ -254,6 +255,16 @@ Are you sure?"""):
             delete = backups[:delete]
             for file in delete:
                 os.unlink(os.path.join(dir, file[1]))
+
+    def maybeOptimize(self):
+        # has two weeks passed?
+        if (intTime() - self.pm.profile['lastOptimize']) < 86400*14:
+            return
+        self.progress.start(label=_("Optimizing..."), immediate=True)
+        self.col.optimize()
+        self.pm.profile['lastOptimize'] = intTime()
+        self.pm.save()
+        self.progress.finish()
 
     # State machine
     ##########################################################################
