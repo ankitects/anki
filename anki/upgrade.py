@@ -132,6 +132,7 @@ and c.ordinal != cm.ordinal"""):
         # speed up the upgrade
         db.execute("pragma temp_store = memory")
         db.execute("pragma cache_size = 10000")
+        db.execute("pragma synchronous = off")
         # these weren't always correctly set
         db.execute("pragma page_size = 4096")
         db.execute("pragma legacy_file_format = 0")
