@@ -242,13 +242,13 @@ yesCount from reviewHistory"""):
                 # id doesn't exist
                 continue
             # no ease 0 anymore
-            row[2] = row[2] or 1
+            row[3] = row[3] or 1
             # determine type, overwriting yesCount
-            newInt = row[3]
-            oldInt = row[4]
+            newInt = row[4]
+            oldInt = row[5]
             yesCnt = row[8]
             # yesCnt included the current answer
-            if row[2] > 1:
+            if row[3] > 1:
                 yesCnt -= 1
             if oldInt < 1:
                 # new or failed
