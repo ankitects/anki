@@ -75,6 +75,7 @@ class DeckStats(QDialog):
         self.form = aqt.forms.stats.Ui_Dialog()
         self.oldPos = None
         self.wholeCollection = False
+        self.setMinimumWidth(700)
         f = self.form
         f.setupUi(self)
         restoreGeom(self, self.name)
