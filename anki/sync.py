@@ -532,6 +532,9 @@ class FullSyncer(HttpSyncer):
 
     def upload(self):
         runHook("sync", "upload")
+        # make sure it's ok before we try to upload
+        assert self.col.db.scalar("pragma integrity_check") == "ok"
+        # apply some adjustments, then upload
         self.col.beforeUpload()
         assert self.req("upload", open(self.col.path, "rb")) == "OK"
 
