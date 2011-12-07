@@ -5,6 +5,7 @@
 import os, cPickle, ctypes, shutil
 from aqt.qt import *
 from anki.utils import isMac, isWin
+from aqt.utils import openHelp
 from anki import Collection
 from anki.importing import Anki1Importer
 from anki.db import DB
@@ -132,6 +133,7 @@ carefully, as a lot has changed since the previous Anki version."""))
             def isComplete(self):
                 return False
             def initializePage(self):
+                openHelp("changes")
                 self.setCommitPage(True)
                 self.setTitle(_("Upgrading"))
                 self.label = l = QLabel()
