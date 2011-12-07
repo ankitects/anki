@@ -148,7 +148,6 @@ select count() from notes where id not in (select distinct nid from cards)""")
             self.col.db.scalar("select count() from revlog"),
             self.col.db.scalar("select count() from graves"),
             len(self.col.models.all()),
-            len(self.col.tags.all()),
             len(self.col.decks.all()),
             len(self.col.decks.allConf()),
         ]
