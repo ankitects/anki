@@ -315,6 +315,7 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         actv = self.children(did)
         actv.sort()
         self.col.conf['activeDecks'] = [did] + [a[1] for a in actv]
+        self.changed = True
 
     def children(self, did):
         "All children of did, as (name, id)."
