@@ -36,7 +36,7 @@ class Anki2Importer(Importer):
 
     def _prepareFiles(self):
         self.dst = self.col
-        self.src = Collection(self.file, queue=False)
+        self.src = Collection(self.file)
 
     def _import(self):
         self._decks = {}
