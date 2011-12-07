@@ -100,7 +100,7 @@ class AnkiQt(QMainWindow):
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
         d.connect(f.login, SIGNAL("clicked()"), self.onOpenProfile)
-        d.connect(f.quit, SIGNAL("clicked()"), self.onQuit)
+        d.connect(f.quit, SIGNAL("clicked()"), self.app.closeAllWindows)
         d.connect(f.add, SIGNAL("clicked()"), self.onAddProfile)
         d.connect(f.delete_2, SIGNAL("clicked()"), self.onRemProfile)
         d.connect(d, SIGNAL("rejected()"), lambda: d.close())
@@ -197,8 +197,15 @@ Are you sure?"""):
         else:
             self.moveToState("overview")
 
-    def unloadProfile(self):
-        self.col = None
+    def unloadProfile(self, browser=True):
+        runHook("unloadProfile")
+        self.unloadCollection()
+        self.pm.profile['mainWindowGeom'] = self.saveGeometry()
+        self.pm.profile['mainWindowState'] = self.saveState()
+        self.pm.save()
+        self.close()
+        if browser:
+            self.showProfileManager()
 
     # State machine
     ##########################################################################
@@ -352,7 +359,7 @@ title="%s">%s</button>''' % (
         signal.signal(signal.SIGINT, self.onSigInt)
 
     def onSigInt(self, signum, frame):
-        self.onQuit()
+        self.onClose()
 
     def setupProgress(self):
         self.progress = aqt.progress.ProgressManager(self)
@@ -424,28 +431,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.moveToState("deckLoading")
         return True
 
-    # Closing
-    ##########################################################################
-
-    def onClose(self):
-        "Called from a shortcut key. Close current active window."
-        aw = self.app.activeWindow()
-        if not aw or aw == self:
-            self.close()
-        else:
-            aw.close()
-
-    def close(self):
-        "Close and backup collection."
-        if not self.col:
-            return
-        runHook("deckClosing")
-        #self.col.close()
-        self.backup()
-        self.closeAllCollectionWindows()
-        self.col.close()
-        self.col = None
-
     # Syncing
     ##########################################################################
 
@@ -458,12 +443,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onSync(self, auto=False, reload=True):
         if not auto or (self.pm.profile['syncKey'] and
                         self.pm.profile['autoSync']):
-            self.closeAllCollectionWindows()
             from aqt.sync import SyncManager
-            # close collection if loaded
-            if self.col:
-                self.col.close()
-                self.col = None
+            self.unloadCollection()
             self.syncer = SyncManager(self, self.pm)
             self.syncer.sync()
         if reload:
@@ -474,6 +455,13 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.col = Collection(self.pm.collectionPath())
         self.progress.setupDB(self.col.db)
         self.reset(guiOnly=True)
+
+    def unloadCollection(self):
+        if self.col:
+            self.backup()
+            self.closeAllCollectionWindows()
+            self.col.close()
+            self.col = None
 
     # Tools
     ##########################################################################
@@ -526,26 +514,18 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # App exit
     ##########################################################################
 
-    def onQuit(self):
-        self.app.closeAllWindows()
-
-    def prepareForExit(self):
-        "Save config and window geometry."
-        runHook("quit")
-        self.pm.profile['mainWindowGeom'] = self.saveGeometry()
-        self.pm.profile['mainWindowState'] = self.saveState()
-        self.pm.save()
-
     def closeEvent(self, event):
         "User hit the X button, etc."
-        self.close()
-        # if self.pm.profile['syncOnProgramOpen']:
-        #     self.showBrowser = False
-        #     self.syncDeck(interactive=False)
-        self.prepareForExit()
-        if event:
-            event.accept()
-        self.app.quit()
+        event.accept()
+        self.onClose()
+
+    def onClose(self):
+        "Called from a shortcut key. Close current active window."
+        aw = self.app.activeWindow()
+        if not aw or aw == self:
+            self.unloadProfile(browser=False)
+        else:
+            aw.close()
 
     # Dockable widgets
     ##########################################################################
@@ -755,7 +735,8 @@ Please choose a new deck name:"""))
         m = self.form
         s = SIGNAL("triggered()")
         #self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
-        self.connect(m.actionExit, s, self.onQuit)
+        self.connect(m.actionSwitchProfile, s, self.unloadProfile)
+        self.connect(m.actionExit, s, self.onClose)
         self.connect(m.actionPreferences, s, self.onPrefs)
         self.connect(m.actionCstats, s, self.onCardStats)
         self.connect(m.actionAbout, s, self.onAbout)
@@ -800,7 +781,7 @@ This can be because the \
 clock is slow or fast, because the date is set incorrectly, or because \
 the timezone or daylight savings information is incorrect. Please correct \
 the problem and restart Anki.""")
-        self.onQuit()
+        self.onClose()
 
     # Schema modifications
     ##########################################################################
