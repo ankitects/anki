@@ -395,8 +395,9 @@ class LocalServer(Syncer):
 
 class HttpSyncer(object):
 
-    def _vars(self):
-        return dict(k=self.hkey)
+    def __init__(self, hkey=None, con=None):
+        self.hkey = hkey
+        self.con = con or httpCon()
 
     def assertOk(self, resp):
         if resp['status'] != '200':
@@ -408,19 +409,23 @@ class HttpSyncer(object):
     # costly. We could send it as a raw post, but more HTTP clients seem to
     # support file uploading, so this is the more compatible choice.
 
-    def postData(self, http, method, fobj, vars, comp=6):
+    def req(self, method, fobj=None, comp=6,
+                 badAuthRaises=True, hkey=True):
         bdry = "--"+MIME_BOUNDARY
-        # write out post vars, including session key and compression flag
         buf = StringIO()
-        vars = vars or {}
+        # compression flag and session key as post vars
+        vars = {}
         vars['c'] = 1 if comp else 0
+        if hkey:
+            vars['k'] = self.hkey
         for (key, value) in vars.items():
             buf.write(bdry + "\r\n")
             buf.write(
                 'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
                 (key, value))
-        # file header
+        # payload as raw data or json
         if fobj:
+            # header
             buf.write(bdry + "\r\n")
             buf.write("""\
 Content-Disposition: form-data; name="data"; filename="data"\r\n\
@@ -446,8 +451,12 @@ Content-Type: application/octet-stream\r\n\r\n""")
         }
         body = buf.getvalue()
         buf.close()
-        resp, cont = http.request(
+        resp, cont = self.con.request(
             SYNC_URL+method, "POST", headers=headers, body=body)
+        if not badAuthRaises:
+            # return false if bad auth instead of raising
+            if resp['status'] == '403':
+                return False
         self.assertOk(resp)
         return cont
 
@@ -457,30 +466,27 @@ Content-Type: application/octet-stream\r\n\r\n""")
 class RemoteServer(Syncer, HttpSyncer):
 
     def __init__(self, hkey):
-        self.hkey = hkey
-        self.con = httpCon()
+        HttpSyncer.__init__(self, hkey)
 
     def hostKey(self, user, pw):
         "Returns hkey or none if user/pw incorrect."
-        user = user.encode("utf-8")
-        pw = pw.encode("utf-8")
-        resp, cont = self.con.request(
-            SYNC_URL+"hostKey?" + urllib.urlencode(dict(u=user,p=pw)))
-        if resp['status'] == '403':
+        ret = self.req(
+            "hostKey", StringIO(simplejson.dumps(dict(u=user, p=pw))),
+            badAuthRaises=False, hkey=False)
+        if not ret:
             # invalid auth
             return
-        self.assertOk(resp)
-        self.hkey = simplejson.loads(cont)['key']
+        self.hkey = simplejson.loads(ret)['key']
         return self.hkey
 
     def meta(self):
-        resp, cont = self.con.request(
-            SYNC_URL+"meta?" + urllib.urlencode(dict(k=self.hkey,v=SYNC_VER)))
-        if resp['status'] == '403':
-            # auth failure
+        ret = self.req(
+            "meta", StringIO(simplejson.dumps(dict(v=SYNC_VER))),
+            badAuthRaises=False)
+        if not ret:
+            # invalid auth
             return
-        self.assertOk(resp)
-        return simplejson.loads(cont)
+        return simplejson.loads(ret)
 
     def applyChanges(self, **kw):
         return self._run("applyChanges", kw)
@@ -499,8 +505,7 @@ class RemoteServer(Syncer, HttpSyncer):
 
     def _run(self, cmd, data):
         return simplejson.loads(
-            self.postData(self.con, cmd, StringIO(simplejson.dumps(data)),
-                          self._vars()))
+            self.req(cmd, StringIO(simplejson.dumps(data))))
 
 # Full syncing
 ##########################################################################
@@ -508,16 +513,13 @@ class RemoteServer(Syncer, HttpSyncer):
 class FullSyncer(HttpSyncer):
 
     def __init__(self, col, hkey, con):
+        HttpSyncer.__init__(self, hkey, con)
         self.col = col
-        self.hkey = hkey
-        self.con = con
 
     def download(self):
         runHook("sync", "download")
         self.col.close()
-        resp, cont = self.con.request(
-            SYNC_URL+"download?" + urllib.urlencode(self._vars()))
-        self.assertOk(resp)
+        cont = self.req("download")
         tpath = self.col.path + ".tmp"
         open(tpath, "wb").write(cont)
         # check the received file is ok
@@ -532,8 +534,7 @@ class FullSyncer(HttpSyncer):
     def upload(self):
         runHook("sync", "upload")
         self.col.beforeUpload()
-        assert self.postData(self.con, "upload", open(self.col.path, "rb"),
-                             self._vars()) == "OK"
+        assert self.req("upload", open(self.col.path, "rb")) == "OK"
 
 # Media syncing
 ##########################################################################
@@ -610,34 +611,29 @@ Sanity check failed. Please copy and paste the text below:\n%s\n%s""" %
 # Remote media syncing
 ##########################################################################
 
-class RemoteMediaServer(MediaSyncer, HttpSyncer):
+class RemoteMediaServer(HttpSyncer):
 
     def __init__(self, hkey, con):
-        self.hkey = hkey
-        self.con = con
+        HttpSyncer.__init__(self, hkey, con)
 
     def remove(self, **kw):
         return simplejson.loads(
-            self.postData(
-                self.con, "remove", StringIO(simplejson.dumps(kw)),
-                          self._vars()))
+            self.req("remove", StringIO(simplejson.dumps(kw))))
 
     def files(self, **kw):
-        return self.postData(
-            self.con, "files", StringIO(simplejson.dumps(kw)), self._vars())
+        return self.req("files", StringIO(simplejson.dumps(kw)))
 
     def addFiles(self, zip):
         # no compression, as we compress the zip file instead
         return simplejson.loads(
-            self.postData(self.con, "addFiles", StringIO(zip),
-                          self._vars(), comp=0))
+            self.req("addFiles", StringIO(zip), comp=0))
 
     def mediaSanity(self):
         return simplejson.loads(
-            self.postData(self.con, "mediaSanity", None, self._vars()))
+            self.req("mediaSanity"))
 
     # only for unit tests
     def mediatest(self, n):
         return simplejson.loads(
-            self.postData(self.con, "mediatest", StringIO(
-                simplejson.dumps(dict(n=n))), self._vars()))
+            self.req("mediatest", StringIO(
+                simplejson.dumps(dict(n=n)))))
