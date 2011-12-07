@@ -74,6 +74,9 @@ class ProgressManager(object):
     class ProgressNoCancel(QProgressDialog):
         def closeEvent(self, evt):
             evt.ignore()
+        def keyPressEvent(self, evt):
+            if evt.key() == Qt.Key_Escape:
+                evt.ignore()
 
     def start(self, max=0, min=0, label=None, parent=None, immediate=False):
         self._levels += 1
