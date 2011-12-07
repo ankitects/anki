@@ -214,6 +214,7 @@ function _typeAnsPress() {
 hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
 .cloze { font-weight: bold; color: blue; }
+img { max-width: 95%; max-height: 95%; }
 """
 
     def _styles(self):
