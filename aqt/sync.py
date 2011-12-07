@@ -13,9 +13,6 @@ from aqt.utils import tooltip, askUserDialog, showWarning
 # Sync manager
 ######################################################################
 
-# are we doing this in main?
-#            self.closeAllDeckWindows()
-
 class SyncManager(QObject):
 
     def __init__(self, mw, pm):
@@ -23,10 +20,8 @@ class SyncManager(QObject):
         self.mw = mw
         self.pm = pm
 
-    def sync(self, auto=False):
+    def sync(self):
         if not self.pm.profile['syncKey']:
-            if auto:
-                return
             auth = self._getUserPass()
             if not auth:
                 return

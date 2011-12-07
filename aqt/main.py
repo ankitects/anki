@@ -456,14 +456,19 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onSync(self, auto=False, reload=True):
-        from aqt.sync import SyncManager
-        # close collection if loaded
-        if self.col:
-            self.col.close()
-        self.syncer = SyncManager(self, self.pm)
-        self.syncer.sync(auto)
+        if not auto or (self.pm.profile['syncKey'] and
+                        self.pm.profile['autoSync']):
+            self.closeAllCollectionWindows()
+            from aqt.sync import SyncManager
+            # close collection if loaded
+            if self.col:
+                self.col.close()
+                self.col = None
+            self.syncer = SyncManager(self, self.pm)
+            self.syncer.sync()
         if reload:
-            self.loadCollection()
+            if not self.col:
+                self.loadCollection()
 
     def loadCollection(self):
         self.col = Collection(self.pm.collectionPath())
