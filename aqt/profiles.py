@@ -23,6 +23,7 @@ metaConf = dict(
     suppressUpdate=False,
     firstRun=True,
     defaultLang=None,
+    disabledAddons=[],
 )
 
 profileConf = dict(
@@ -33,7 +34,6 @@ profileConf = dict(
     numBackups=30,
     lastOptimize=intTime(),
     lang="en",
-    disabledAddons=[],
 
     # editing
     fullSearch=False,
