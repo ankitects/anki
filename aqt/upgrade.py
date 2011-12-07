@@ -244,6 +244,8 @@ class UpgradeThread(QThread):
             if unicode(e) == "invalidFile":
                 # already logged
                 pass
+            else:
+                imp.log.append(unicode(e))
         self.col.save()
         return imp.log
 
