@@ -207,6 +207,54 @@ Are you sure?"""):
         if browser:
             self.showProfileManager()
 
+    # Collection load/unload
+    ##########################################################################
+
+    def loadCollection(self):
+        self.col = Collection(self.pm.collectionPath())
+        self.progress.setupDB(self.col.db)
+        self.reset(guiOnly=True)
+
+    def unloadCollection(self):
+        if self.col:
+            self.closeAllCollectionWindows()
+            self.col.close()
+            self.col = None
+            self.backup()
+
+    # Backup and auto-optimize
+    ##########################################################################
+
+    def backup(self):
+        nbacks = self.pm.profile['numBackups']
+        if not nbacks:
+            return
+        dir = self.pm.backupFolder()
+        path = self.pm.collectionPath()
+        # find existing backups
+        backups = []
+        for file in os.listdir(dir):
+            m = re.search("backup-(\d+).anki2", file)
+            if not m:
+                # unknown file
+                continue
+            backups.append((int(m.group(1)), file))
+        backups.sort()
+        # get next num
+        if not backups:
+            n = 1
+        else:
+            n = backups[-1][0] + 1
+        # do backup
+        newpath = os.path.join(dir, "backup-%d.anki2" % n)
+        shutil.copy2(path, newpath)
+        # remove if over
+        if len(backups) + 1 > nbacks:
+            delete = len(backups) + 1 - nbacks
+            delete = backups[:delete]
+            for file in delete:
+                os.unlink(os.path.join(dir, file[1]))
+
     # State machine
     ##########################################################################
 
@@ -434,12 +482,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # Syncing
     ##########################################################################
 
-    def backup(self):
-        print "backup"
-
-    # Syncing
-    ##########################################################################
-
     def onSync(self, auto=False, reload=True):
         if not auto or (self.pm.profile['syncKey'] and
                         self.pm.profile['autoSync']):
@@ -450,18 +492,6 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         if reload:
             if not self.col:
                 self.loadCollection()
-
-    def loadCollection(self):
-        self.col = Collection(self.pm.collectionPath())
-        self.progress.setupDB(self.col.db)
-        self.reset(guiOnly=True)
-
-    def unloadCollection(self):
-        if self.col:
-            self.backup()
-            self.closeAllCollectionWindows()
-            self.col.close()
-            self.col = None
 
     # Tools
     ##########################################################################
