@@ -41,7 +41,7 @@ MIME_BOUNDARY = "Anki-sync-boundary"
 SYNC_URL = os.environ.get("SYNC_URL") or "https://ankiweb.net/sync/"
 SYNC_VER = 0
 HTTP_CERTS = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
-HTTP_TIMEOUT = 60
+HTTP_TIMEOUT = 30
 
 # deck schema
 SCHEMA_VERSION = 1

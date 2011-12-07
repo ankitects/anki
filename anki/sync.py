@@ -585,7 +585,7 @@ class MediaSyncer(object):
         c = self.mediaSanity()
         if c != s:
             raise Exception("""\
-Sanity check failed. Please copy and paste the text below:\n%s\n%s""" %
+Media sanity check failed. Please copy and paste the text below:\n%s\n%s""" %
                             (c, s))
         return "success"
 
