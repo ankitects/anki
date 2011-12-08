@@ -5,7 +5,7 @@
 import os, shutil, re, urllib, urllib2, time, unicodedata, \
     urllib, sys, simplejson, zipfile
 from cStringIO import StringIO
-from anki.utils import checksum, intTime, namedtmp, isWin
+from anki.utils import checksum, intTime, namedtmp, isWin, isMac
 from anki.lang import _
 from anki.db import DB
 from anki.consts import *
@@ -230,9 +230,9 @@ If the same name exists, compare checksums."""
                 data = z.read(i)
                 csum = checksum(data)
                 name = meta[i.filename]
-                # malicious chars?
-                for c in '/\\':
-                    assert c not in name
+                # can we store the file on this system?
+                if self.illegal(i.filename):
+                    continue
                 # save file
                 open(name, "wb").write(data)
                 # update db
@@ -249,6 +249,16 @@ If the same name exists, compare checksums."""
         if finished:
             self.syncMod()
         return finished
+
+    def illegal(self, f):
+        if isWin:
+            for c in f:
+                if c in "<>:\"/\\|?*^":
+                    return True
+        elif isMac:
+            for c in f:
+                if c in ":\\/":
+                    return True
 
     # Media syncing - bundling zip files to send to server
     ##########################################################################
