@@ -298,13 +298,15 @@ class Editor(object):
         # fixme: better image names
         b("text-speak", self.onAddMedia, "F3", _("Add pictures/audio/video (F3)"))
         b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
-        b("tex", self.insertLatex, "Ctrl+t, t", _("LaTeX (Ctrl+t then t)"))
-        b("math_sqrt", self.insertLatexEqn, "Ctrl+t, e",
-                _("LaTeX equation (Ctrl+t then e)"))
-        b("math_matrix", self.insertLatexMathEnv, "Ctrl+t, m",
-                _("LaTeX math environment (Ctrl+t then m)"))
-        but = b("text-xml", self.onHtmlEdit, "Ctrl+Shift+x",
-                _("Source (Ctrl+Shift+x)"))
+        b("adv", self.onAdvanced, text=u"▼")
+        s = QShortcut(QKeySequence("Ctrl+t, t"), self.widget)
+        s.connect(s, SIGNAL("activated()"), self.insertLatex)
+        s = QShortcut(QKeySequence("Ctrl+t, e"), self.widget)
+        s.connect(s, SIGNAL("activated()"), self.insertLatexEqn)
+        s = QShortcut(QKeySequence("Ctrl+t, m"), self.widget)
+        s.connect(s, SIGNAL("activated()"), self.insertLatexMathEnv)
+        s = QShortcut(QKeySequence("Ctrl+shift+x"), self.widget)
+        s.connect(s, SIGNAL("activated()"), self.onHtmlEdit)
 
     def enableButtons(self, val=True):
         for b in self._buttons.values():
@@ -704,6 +706,21 @@ class Editor(object):
                         "\n\n" + unicode(e))
             return
         self.addMedia(file)
+
+    # Advanced menu
+    ######################################################################
+
+    def onAdvanced(self):
+        m = QMenu(self.mw)
+        a = m.addAction(_("LaTeX"))
+        a.connect(a, SIGNAL("triggered()"), self.insertLatex)
+        a = m.addAction(_("LaTeX Equation"))
+        a.connect(a, SIGNAL("triggered()"), self.insertLatexEqn)
+        a = m.addAction(_("LaTeX Math Env."))
+        a.connect(a, SIGNAL("triggered()"), self.insertLatexMathEnv)
+        a = m.addAction(_("Edit HTML"))
+        a.connect(a, SIGNAL("triggered()"), self.onHtmlEdit)
+        m.exec_(QCursor.pos())
 
     # LaTeX
     ######################################################################

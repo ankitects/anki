@@ -85,7 +85,7 @@ body { margin: 1em; -webkit-user-select: none; }
         buf += " <a class=deck href='open:%d'>%s</a></td>"% (did, name)
         # options
         buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
-            link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>&#9662")
+            link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>&#9662;")
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf

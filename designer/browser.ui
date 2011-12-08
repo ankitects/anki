@@ -334,7 +334,7 @@
      <normaloff>:/icons/help.png</normaloff>:/icons/help.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Documentation</string>
+    <string>&amp;Guide</string>
    </property>
    <property name="shortcut">
     <string>F1</string>
@@ -395,7 +395,7 @@
     <string>Fil&amp;ters</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+T</string>
+    <string>Ctrl+Shift+T</string>
    </property>
   </action>
   <action name="actionCardList">
