@@ -557,14 +557,14 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         card.factor = max(1300, card.factor-200)
         card.due = self.today + card.ivl
         # put back in the learn queue?
-        if conf['relearn']:
+        if conf['delays']:
             card.edue = card.due
             card.due = int(self._delayForGrade(conf, 0) + time.time())
             card.left = len(conf['delays'])
             card.queue = 1
             self.lrnCount += card.left
         # leech?
-        if not self._checkLeech(card, conf) and conf['relearn']:
+        if not self._checkLeech(card, conf) and conf['delays']:
             heappush(self._lrnQueue, (card.due, card.id))
 
     def _nextLapseIvl(self, card, conf):
@@ -763,7 +763,7 @@ your short-term review workload will become."""))
         elif ease == 1:
             # lapsed
             conf = self._cardConf(card)['lapse']
-            if conf['relearn']:
+            if conf['delays']:
                 return conf['delays'][0]*60
             return self._nextLapseIvl(card, conf)*86400
         else:

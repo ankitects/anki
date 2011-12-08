@@ -349,7 +349,7 @@ def test_nextIvl():
     # failing it should put it at 60s
     assert ni(c, 1) == 60
     # or 1 day if relearn is false
-    d.sched._cardConf(c)['lapse']['relearn']=False
+    d.sched._cardConf(c)['lapse']['delays']=[]
     assert ni(c, 1) == 1*86400
     # (* 100 1.2 86400)10368000.0
     assert ni(c, 2) == 10368000

@@ -32,7 +32,6 @@ defaultConf = {
         'delays': [1, 10],
         'mult': 0,
         'minInt': 1,
-        'relearn': True,
         'leechFails': 8,
         # type 0=suspend, 1=tagonly
         'leechAction': 0,
