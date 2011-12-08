@@ -111,12 +111,18 @@ def test_findCards():
     # full search
     f = deck.newNote()
     f['Front'] = u'hello<b>world</b>'
-    f['Back'] = u''
+    f['Back'] = u'abc'
     deck.addNote(f)
+    # as it's the sort field, it matches
+    assert len(deck.findCards("helloworld")) == 2
+    assert len(deck.findCards("helloworld", full=True)) == 2
+    # if we put it on the back, it won't
+    (f['Front'], f['Back']) = (f['Back'], f['Front'])
+    f.flush()
     assert len(deck.findCards("helloworld")) == 0
-    assert len(deck.findCards("helloworld", full=True)) == 1
+    assert len(deck.findCards("helloworld", full=True)) == 2
     assert len(deck.findCards("front:helloworld")) == 0
-    assert len(deck.findCards("front:helloworld", full=True)) == 1
+    assert len(deck.findCards("back:helloworld", full=True)) == 2
     # searching for an invalid special tag should not error
     assert len(deck.findCards("is:invalid")) == 0
 

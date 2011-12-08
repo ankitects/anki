@@ -159,8 +159,9 @@ and c.nid=n.id %s""" % (q, order)
         extra = "not" if neg else ""
         if not self.full:
             self.lims['args']["_text_%d"%c] = "%"+val+"%"
-            self.lims['preds'].append("flds %s like :_text_%d escape '\\'" % (
-                extra, c))
+            self.lims['preds'].append("""\
+(sfld %s like :_text_%d escape '\\' or
+flds %s like :_text_%d escape '\\')""" % (extra, c, extra, c))
         else:
             # in the future we may want to apply this at the end to speed up
             # the case where there are other limits
