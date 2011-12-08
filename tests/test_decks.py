@@ -17,23 +17,19 @@ def test_basic():
     # we start with the default deck selected
     assert deck.decks.selected() == 1
     assert deck.decks.active() == [1]
-    assert deck.decks.top()['id'] == 1
     # we can select a different deck
     deck.decks.select(parentId)
     assert deck.decks.selected() == parentId
     assert deck.decks.active() == [parentId]
-    assert deck.decks.top()['id'] == parentId
     # let's create a child
     childId = deck.decks.id("new deck::child")
     # it should have been added to the active list
     assert deck.decks.selected() == parentId
     assert deck.decks.active() == [parentId, childId]
-    assert deck.decks.top()['id'] == parentId
     # we can select the child individually too
     deck.decks.select(childId)
     assert deck.decks.selected() == childId
     assert deck.decks.active() == [childId]
-    assert deck.decks.top()['id'] == parentId
 
 def test_remove():
     deck = getEmptyDeck()
@@ -83,14 +79,3 @@ def test_rename():
     d.decks.rename(d.decks.get(id), "yo")
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
-
-def test_topRename():
-    d = getEmptyDeck()
-    id = d.decks.id("hello::world")
-    # when moving to or from top level, properties should be updated
-    assert 'newSpread' in d.decks.get(d.decks.id("hello"))
-    assert 'newSpread' not in d.decks.get(d.decks.id("hello::world"))
-    d.decks.rename(d.decks.get(d.decks.id("hello")), "foo::bar")
-    assert 'newSpread' not in d.decks.get(d.decks.id("foo::bar"))
-    d.decks.rename(d.decks.get(d.decks.id("foo::bar")), "hello")
-    assert 'newSpread' in d.decks.get(d.decks.id("hello"))

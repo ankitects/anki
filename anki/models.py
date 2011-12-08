@@ -87,17 +87,12 @@ class ModelManager(object):
 
     def current(self):
         "Get current model."
-        try:
-            m = self.get(self.col.decks.top()['curModel'])
-            assert m
-            return m
-        except:
-            return self.models.values()[0]
+        m = self.get(self.col.conf['curModel'])
+        return m or self.models.values()[0]
 
     def setCurrent(self, m):
-        t = self.col.decks.top()
-        t['curModel'] = m['id']
-        self.col.decks.save(t)
+        self.col.conf['curModel'] = m['id']
+        self.col.setMod()
 
     def get(self, id):
         "Get model with ID, or None."

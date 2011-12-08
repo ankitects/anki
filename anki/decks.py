@@ -9,20 +9,7 @@ from anki.lang import _
 
 # fixmes:
 # - make sure users can't set grad interval < 1
-# - make sure lists like new[delays] are  not being shared by multiple decks
-# - make sure all children have parents (create as necessary)
-# - when renaming a deck, top level properties should be added or removed as
-#   appropriate
 
-# notes:
-# - it's difficult to enforce valid dids for models/notes/cards, as we
-#   may update the did locally only to have it overwritten by a more recent
-#   change from somewhere else. to avoid this, we allow invalid did
-#   references, and treat any invalid dids as the default deck.
-# - deletions of deck config force a full sync
-
-# these are a cache of the current day's reviews. they may be wrong after a
-# sync merge if someone reviewed from two locations
 defaultDeck = {
     'newToday': [0, 0], # currentDay, count
     'revToday': [0, 0],
@@ -32,16 +19,6 @@ defaultDeck = {
     'usn': 0,
 }
 
-# configuration only available to top level decks
-defaultTopConf = {
-    'newSpread': NEW_CARDS_DISTRIBUTE,
-    'collapseTime': 1200,
-    'repLim': 0,
-    'timeLim': 600,
-    'curModel': None,
-}
-
-# configuration available to all decks
 defaultConf = {
     'name': _("Default"),
     'new': {
@@ -117,15 +94,10 @@ class DeckManager(object):
                 return int(id)
         if not create:
             return None
-        if "::" not in name:
-            # if it's a top level deck, it gets the top level config
-            g = defaultTopConf.copy()
-        else:
+        g = copy.deepcopy(defaultDeck)
+        if "::" in name:
             # not top level; ensure all parents exist
-            g = {}
             self._ensureParents(name)
-        for (k,v) in defaultDeck.items():
-            g[k] = v
         g['name'] = name
         while 1:
             id = intTime(1000)
@@ -192,13 +164,6 @@ class DeckManager(object):
                 grp['name'] = grp['name'].replace(g['name']+ "::",
                                                   newName + "::")
                 self.save(grp)
-        # adjust top level conf
-        if "::" in newName and "::" not in g['name']:
-            for k in defaultTopConf.keys():
-                del g[k]
-        elif "::" not in newName and "::" in g['name']:
-            for k,v in defaultTopConf.items():
-                g[k] = v
         # adjust name and save
         g['name'] = newName
         self.save(g)
@@ -284,16 +249,6 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
     # Deck selection
     #############################################################
 
-    def top(self):
-        "The current top level deck as an object."
-        g = self.get(self.col.conf['topDeck'])
-        return g
-
-    def topIds(self):
-        "All dids from top level."
-        t = self.top()
-        return [t['id']] + [a[1] for a in self.children(t['id'])]
-
     def active(self):
         "The currrently active dids."
         return self.col.conf['activeDecks']
@@ -307,9 +262,7 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
 
     def select(self, did):
         "Select a new branch."
-        # save the top level deck
         name = self.decks[str(did)]['name']
-        self.col.conf['topDeck'] = self._topFor(name)
         # current deck
         self.col.conf['curDeck'] = did
         # and active decks (current + all children)
@@ -331,11 +284,6 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
         "All parents of did."
         path = self.get(did)['name'].split("::")
         return [self.get(x) for x in path[:-1]]
-
-    def _topFor(self, name):
-        "The top level did for NAME."
-        path = name.split("::")
-        return self.id(path[0])
 
     # Sync handling
     ##########################################################################

@@ -202,12 +202,12 @@ def test_decks():
 @nose.with_setup(setup_modified)
 def test_conf():
     test_sync()
-    assert deck2.conf['topDeck'] == 1
-    deck1.conf['topDeck'] = 2
+    assert deck2.conf['curDeck'] == 1
+    deck1.conf['curDeck'] = 2
     deck1.setMod()
     deck1.save()
     assert client.sync() == "success"
-    assert deck2.conf['topDeck'] == 2
+    assert deck2.conf['curDeck'] == 2
 
 @nose.with_setup(setup_modified)
 def test_threeway():

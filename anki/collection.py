@@ -21,9 +21,12 @@ import anki.cards, anki.notes, anki.template, anki.cram, anki.find
 defaultConf = {
     # scheduling options
     'activeDecks': [1],
-    'topDeck': 1,
     'curDeck': 1,
+    'newSpread': NEW_CARDS_DISTRIBUTE,
+    'collapseTime': 1200,
+    'timeLim': 0,
     # other config
+    'curModel': None,
     'nextPos': 1,
     'sortType': "noteFld",
     'sortBackwards': False,

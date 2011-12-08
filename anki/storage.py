@@ -140,8 +140,6 @@ def _getColVars(db):
     import anki.collection
     import anki.decks
     g = anki.decks.defaultDeck.copy()
-    for k,v in anki.decks.defaultTopConf.items():
-        g[k] = v
     g['id'] = 1
     g['name'] = _("Default")
     g['conf'] = 1

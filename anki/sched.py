@@ -276,7 +276,7 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         return self.col.getCard(id)
 
     def _updateNewCardRatio(self):
-        if self.col.decks.top()['newSpread'] == NEW_CARDS_DISTRIBUTE:
+        if self.col.conf['newSpread'] == NEW_CARDS_DISTRIBUTE:
             if self.newCount:
                 self.newCardModulus = (
                     (self.newCount + self.revCount) / self.newCount)
@@ -290,9 +290,9 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
-        if self.col.decks.top()['newSpread'] == NEW_CARDS_LAST:
+        if self.col.conf['newSpread'] == NEW_CARDS_LAST:
             return False
-        elif self.col.decks.top()['newSpread'] == NEW_CARDS_FIRST:
+        elif self.col.conf['newSpread'] == NEW_CARDS_FIRST:
             return True
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
@@ -352,7 +352,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
         if self._fillLrn():
             cutoff = time.time()
             if collapse:
-                cutoff += self.col.decks.top()['collapseTime']
+                cutoff += self.col.conf['collapseTime']
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 card = self.col.getCard(id)
@@ -467,7 +467,7 @@ where queue = 1 and type = 2
         return self.col.db.scalar(
             "select 1 from cards where did = ? and queue = 1 "
             "and due < ? limit 1",
-            did, intTime() + self.col.decks.top()['collapseTime'])
+            did, intTime() + self.col.conf['collapseTime'])
 
     # Reviews
     ##########################################################################
