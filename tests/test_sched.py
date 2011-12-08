@@ -883,20 +883,3 @@ def test_resched():
     assert c.due == d.sched.today+1
     assert c.ivl == +1
 
-def test_revlim():
-    d = getEmptyDeck()
-    for i in range(20):
-        f = d.newNote()
-        f['Front'] = str(i)
-        d.addNote(f)
-    d.db.execute("update cards set due = 0, queue = 2, type = 2")
-    d.reset()
-    assert d.sched.counts()[2] == 20
-    for i in range(5):
-        d.sched.answerCard(d.sched.getCard(), 3)
-    assert d.sched.counts()[2] == 15
-    t = d.decks.top()
-    t['revLim'] = 10
-    d.reset()
-    assert d.sched.counts()[2] == 5
-

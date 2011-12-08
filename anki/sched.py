@@ -119,6 +119,34 @@ order by due""" % self._deckLimit(),
             g[key][1] += cnt
             self.col.decks.save(g)
 
+    def _walkingCount(self, limFn=None, cntFn=None):
+        tot = 0
+        pcounts = {}
+        # for each of the active decks
+        for did in self.col.decks.active():
+            # get the individual deck's limit
+            lim = limFn(self.col.decks.get(did))
+            if not lim:
+                continue
+            # check the parents
+            parents = self.col.decks.parents(did)
+            for p in parents:
+                # add if missing
+                if p['id'] not in pcounts:
+                    pcounts[p['id']] = limFn(p)
+                # take minimum of child and parent
+                lim = min(pcounts[p['id']], lim)
+            # see how many cards we actually have
+            cnt = cntFn(did, lim)
+            # if non-zero, decrement from parent counts
+            for p in parents:
+                pcounts[p['id']] -= cnt
+            # we may also be a parent
+            pcounts[did] = lim - cnt
+            # and add to running total
+            tot += cnt
+        return tot
+
     # Deck list
     ##########################################################################
 
@@ -201,37 +229,14 @@ order by due""" % self._deckLimit(),
     ##########################################################################
 
     def _resetNewCount(self):
-        self.newCount = 0
-        pcounts = {}
-        # for each of the active decks
-        for did in self.col.decks.active():
-            # get the individual deck's limit
-            lim = self._deckNewLimitSingle(self.col.decks.get(did))
-            if not lim:
-                continue
-            # check the parents
-            parents = self.col.decks.parents(did)
-            for p in parents:
-                # add if missing
-                if p['id'] not in pcounts:
-                    pcounts[p['id']] = self._deckNewLimitSingle(p)
-                # take minimum of child and parent
-                lim = min(pcounts[p['id']], lim)
-            # see how many cards we actually have
-            cnt = self.col.db.scalar("""
+        cntFn = lambda did, lim: self.col.db.scalar("""
 select count() from (select 1 from cards where
 did = ? and queue = 0 limit ?)""", did, lim)
-            # if non-zero, decrement from parent counts
-            for p in parents:
-                pcounts[p['id']] -= cnt
-            # we may also be a parent
-            pcounts[did] = lim - cnt
-            # and add to running total
-            self.newCount += cnt
+        self.newCount = self._walkingCount(self._deckNewLimitSingle, cntFn)
 
     def _resetNew(self):
         self._resetNewCount()
-        self.newDids = self.col.decks.active()
+        self._newDids = self.col.decks.active()
         self._newQueue = []
         self._updateNewCardRatio()
 
@@ -240,8 +245,8 @@ did = ? and queue = 0 limit ?)""", did, lim)
             return True
         if not self.newCount:
             return False
-        while self.newDids:
-            did = self.newDids[0]
+        while self._newDids:
+            did = self._newDids[0]
             lim = min(self.queueLimit, self._deckNewLimit(did))
             if lim:
                 # fill the queue with the current did
@@ -251,14 +256,14 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
                     self._newQueue.reverse()
                     return True
             # nothing left in the deck; move to next
-            self.newDids.pop(0)
+            self._newDids.pop(0)
 
     def _getNewCard(self):
         if not self._fillNew():
             return
         (id, due) = self._newQueue.pop()
         # move any siblings to the end?
-        conf = self.col.decks.conf(self.newDids[0])
+        conf = self.col.decks.conf(self._newDids[0])
         if conf['new']['order'] == NEW_TODAY_ORD:
             n = len(self._newQueue)
             while self._newQueue and self._newQueue[-1][1] == due:
@@ -298,12 +303,14 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         return self.col.db.scalar(
             "select 1 from cards where did = ? and queue = 0 limit 1", did)
 
-    def _deckNewLimit(self, did):
+    def _deckNewLimit(self, did, fn=None):
+        if not fn:
+            fn = self._deckNewLimitSingle
         sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
         for g in [sel] + self.col.decks.parents(did):
-            rem = self._deckNewLimitSingle(g)
+            rem = fn(g)
             if lim == -1:
                 lim = rem
             else:
@@ -465,39 +472,59 @@ where queue = 1 and type = 2
     # Reviews
     ##########################################################################
 
+    def _deckRevLimit(self, did):
+        return self._deckNewLimit(did, self._deckRevLimitSingle)
+
+    def _deckRevLimitSingle(self, d):
+        c = self.col.decks.conf(d['id'])
+        return max(0, c['rev']['perDay'] - d['revToday'][1])
+
     def _deckHasRev(self, did):
+        if not self._deckRevLimit(did):
+            return False
         return self.col.db.scalar(
             "select 1 from cards where did = ? and queue = 2 "
-            "and due <= ? limit 1",
-            did, self.today)
+            "and due <= ? limit 1", did, self.today)
 
     def _resetRevCount(self):
-        top = self.col.decks.top()
-        lim = min(self.reportLimit,
-                  max(0, top['revLim'] - top['revToday'][1]))
-        self.revCount = self.col.db.scalar("""
+        def cntFn(did, lim):
+            return self.col.db.scalar("""
 select count() from (select id from cards where
-did in %s and queue = 2 and due <= :day limit %d)""" % (
-            self._deckLimit(), lim), day=self.today)
+did = ? and queue = 2 and due <= ? limit %d)""" % lim,
+                                      did, self.today)
+        self.revCount = self._walkingCount(
+            self._deckRevLimitSingle, cntFn)
 
     def _resetRev(self):
         self._resetRevCount()
         self._revQueue = []
+        self._revDids = self.col.decks.active()
 
     def _fillRev(self):
-        if not self.revCount:
-            return False
         if self._revQueue:
             return True
-        self._revQueue = self.col.db.list("""
+        if not self.revCount:
+            return False
+        while self._revDids:
+            did = self._newDids[0]
+            lim = min(self.queueLimit, self._deckRevLimit(did))
+            order = self._revOrder(did)
+            if lim:
+                # fill the queue with the current did
+                self._revQueue = self.col.db.list("""
 select id from cards where
-did in %s and queue = 2 and due <= :lim %s limit %d""" % (
-            self._deckLimit(), self._revOrder(), self.queueLimit),
-                                          lim=self.today)
-        if not self.col.conf['revOrder']:
+did = ? and queue = 2 and due <= ? %s limit ?""" % order,
+                                                  did, self.today, lim)
+                if self._revQueue:
+                    return True
+            # nothing left in the deck; move to next
+            self._newDids.pop(0)
+        if not order:
             r = random.Random()
             r.seed(self.today)
             r.shuffle(self._revQueue)
+        else:
+            self._revQueue.reverse()
         return True
 
     def _getRevCard(self):
@@ -505,9 +532,11 @@ did in %s and queue = 2 and due <= :lim %s limit %d""" % (
             self.revCount -= 1
             return self.col.getCard(self._revQueue.pop())
 
-    def _revOrder(self):
-        if self.col.conf['revOrder']:
-            return "order by %s" % ("ivl desc", "ivl")[self.col.conf['revOrder']-1]
+    def _revOrder(self, did):
+        d = self.col.decks.conf(did)
+        o = d['rev']['order']
+        if o:
+            return "order by %s" % ("ivl desc", "ivl")[o-1]
         return ""
 
     # Answering a review card

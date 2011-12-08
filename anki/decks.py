@@ -34,7 +34,6 @@ defaultDeck = {
 
 # configuration only available to top level decks
 defaultTopConf = {
-    'revLim': 100,
     'newSpread': NEW_CARDS_DISTRIBUTE,
     'collapseTime': 1200,
     'repLim': 0,
@@ -69,10 +68,12 @@ defaultConf = {
         'minInt': 1,
     },
     'rev': {
+        'perDay': 100,
         'ease4': 1.3,
         'fuzz': 0.05,
         'minSpace': 1,
         'fi': [0.1, 0.1],
+        'order': REV_CARDS_RANDOM,
     },
     'maxTaken': 60,
     'mod': 0,

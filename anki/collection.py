@@ -23,12 +23,8 @@ defaultConf = {
     'activeDecks': [1],
     'topDeck': 1,
     'curDeck': 1,
-    'revOrder': REV_CARDS_RANDOM,
     # other config
     'nextPos': 1,
-    'fontFamilies': [
-        [u'ＭＳ 明朝',u'ヒラギノ明朝 Pro W3',u'Kochi Mincho', u'東風明朝']
-    ],
     'sortType': "noteFld",
     'sortBackwards': False,
 }
