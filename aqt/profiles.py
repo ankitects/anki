@@ -133,10 +133,11 @@ computer.""")
             self.db.scalar("select data from profiles where name = ?", name))
         if prof['key'] and prof['key'] != self._pwhash(passwd):
             self.name = None
-            raise Exception("Invalid password")
+            return False
         if name != "_global":
             self.name = name
             self.profile = prof
+        return True
 
     def save(self):
         sql = "update profiles set data = ? where name = ?"

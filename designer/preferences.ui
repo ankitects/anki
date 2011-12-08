@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
+    <width>461</width>
     <height>442</height>
    </rect>
   </property>
@@ -73,14 +73,14 @@
        <item>
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
-          <string>Show next times</string>
+          <string>Show next review time above answer buttons</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
-          <string>Show due counts while reviewing</string>
+          <string>Show remaining card count during review</string>
          </property>
         </widget>
        </item>
@@ -125,9 +125,6 @@
          <item>
           <layout class="QVBoxLayout">
            <item>
-            <layout class="QGridLayout"/>
-           </item>
-           <item>
             <widget class="QLabel" name="label_16">
              <property name="text">
               <string>&lt;b&gt;Synchronisation&lt;/b&gt;</string>
@@ -141,27 +138,40 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButton">
+            <widget class="QCheckBox" name="syncMedia">
              <property name="text">
-              <string>Synchronize collection across devices</string>
+              <string>Synchronize audio and images too</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButton_2">
+            <widget class="QCheckBox" name="syncOnProgramOpen">
              <property name="text">
-              <string>Don't synchronize</string>
+              <string>Automatically sync on profile open/close</string>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QGridLayout">
-             <item row="0" column="0" colspan="2">
-              <widget class="QCheckBox" name="syncOnProgramOpen">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QPushButton" name="syncDeauth">
                <property name="text">
-                <string>Automatically sync on profile open/close</string>
+                <string>Deauthorize</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </item>
@@ -172,7 +182,7 @@
        <item>
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>&lt;b&gt;Proxy&lt;/b&gt;&lt;br&gt;If your system needs a proxy to access the internet, enter your details below.</string>
+          <string>&lt;b&gt;Proxy&lt;/b&gt;&lt;br&gt;If your system needs a proxy to access the internet, enter your details below. Leave &quot;Host&quot; blank to disable proxy support.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -282,7 +292,7 @@
        <item>
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Anki will create a backup of your collection each time it is closed or synchronized</string>
+          <string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Anki will create a backup of your collection each time it is closed or synchronized.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -395,11 +405,18 @@
          <item row="1" column="0">
           <widget class="QCheckBox" name="deleteMedia">
            <property name="text">
-            <string>Delete original media on add</string>
+            <string>Move instead of copying media when adding</string>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="profilePass">
+         <property name="text">
+          <string>Profile Password...</string>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer>
@@ -441,12 +458,15 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>buttonBox</tabstop>
   <tabstop>interfaceLang</tabstop>
   <tabstop>autoplaySounds</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>syncMedia</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
+  <tabstop>syncDeauth</tabstop>
   <tabstop>proxyHost</tabstop>
   <tabstop>proxyPort</tabstop>
   <tabstop>proxyUser</tabstop>
@@ -454,7 +474,7 @@
   <tabstop>numBackups</tabstop>
   <tabstop>stripHTML</tabstop>
   <tabstop>deleteMedia</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>profilePass</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -487,38 +507,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>syncOnProgramOpen</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>81</x>
-     <y>92</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>83</x>
-     <y>136</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_2</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>syncOnProgramOpen</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>146</x>
-     <y>110</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>146</x>
-     <y>134</y>
     </hint>
    </hints>
   </connection>

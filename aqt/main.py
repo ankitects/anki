@@ -100,7 +100,7 @@ class AnkiQt(QMainWindow):
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
         d.connect(f.login, SIGNAL("clicked()"), self.onOpenProfile)
-        d.connect(f.quit, SIGNAL("clicked()"), self.app.closeAllWindows)
+        d.connect(f.quit, SIGNAL("clicked()"), lambda: sys.exit(0))
         d.connect(f.add, SIGNAL("clicked()"), self.onAddProfile)
         d.connect(f.delete_2, SIGNAL("clicked()"), self.onRemProfile)
         d.connect(d, SIGNAL("rejected()"), lambda: d.close())
@@ -125,26 +125,19 @@ class AnkiQt(QMainWindow):
             return
         name = self.pm.profiles()[n]
         f = self.profileForm
-        passwd = False
-        try:
-            self.pm.load(name)
-        except:
-            passwd = True
+        passwd = not self.pm.load(name)
         f.passEdit.setShown(passwd)
         f.passLabel.setShown(passwd)
 
     def openProfile(self):
         name = self.pm.profiles()[self.profileForm.profiles.currentRow()]
         passwd = self.profileForm.passEdit.text()
-        try:
-            self.pm.load(name, passwd)
-        except:
-            showWarning(_("Invalid password."))
-            return
-        return True
+        return self.pm.load(name, passwd)
 
     def onOpenProfile(self):
-        self.openProfile()
+        if not self.openProfile():
+            showWarning(_("Invalid password."))
+            return
         self.profileDiag.close()
         self.loadProfile()
         return True

@@ -5,7 +5,7 @@
 import os
 from aqt.qt import *
 from anki.lang import langs
-from aqt.utils import openFolder, showWarning
+from aqt.utils import openFolder, showWarning, getText
 import aqt
 
 class Preferences(QDialog):
@@ -13,152 +13,40 @@ class Preferences(QDialog):
     def __init__(self, mw):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
-        self.config = mw.pm.config
+        self.prof = self.mw.pm.profile
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
-        self.needDeckClose = False
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      lambda: openHelp("Preferences"))
         self.setupLang()
         self.setupNetwork()
         self.setupBackup()
         self.setupOptions()
-        self.setupMedia()
         self.show()
 
     def accept(self):
         self.updateNetwork()
         self.updateBackup()
         self.updateOptions()
-        self.updateMedia()
-        self.config.save()
-        self.mw.setupLang()
-        if self.needDeckClose:
-            self.mw.close()
-        else:
-            self.mw.reset()
+        self.mw.pm.save()
+        self.mw.reset()
         self.done(0)
 
     def reject(self):
         self.accept()
+
+    # Language handling
+    ######################################################################
 
     def setupLang(self):
         # interface lang
         for (lang, code) in langs:
             self.form.interfaceLang.addItem(lang)
         self.form.interfaceLang.setCurrentIndex(
-            self.codeToIndex(self.config['interfaceLang']))
+            self.codeToIndex(self.prof['lang']))
         self.connect(self.form.interfaceLang,
                      SIGNAL("currentIndexChanged(QString)"),
                      self.interfaceLangChanged)
-
-    def interfaceLangChanged(self):
-        self.config['interfaceLang'] = (
-            langs[self.form.interfaceLang.currentIndex()])[1]
-        self.mw.setupLang()
-        self.form.retranslateUi(self)
-
-    def setupMedia(self):
-        self.form.mediaChoice.addItems([
-            _("Keep media next to deck"),
-            _("Keep media in DropBox"),
-            _("Keep media in custom folder"),
-            ])
-        if not self.config['mediaLocation']:
-            idx = 0
-        elif self.config['mediaLocation'] == "dropbox":
-            idx = 1
-        else:
-            idx = 2
-        self.form.mediaChoice.setCurrentIndex(idx)
-        self.mediaChoiceChanged(idx)
-        self.connect(self.form.mediaChoice,
-                     SIGNAL("currentIndexChanged(int)"),
-                     self.mediaChoiceChanged)
-        self.origMediaChoice = idx
-
-    def mediaChoiceChanged(self, idx):
-        mp = self.form.mediaPath
-        mpl = self.form.mediaPrefix
-        if idx == 2:
-            mp.setText(self.config['mediaLocation'])
-            mp.setShown(True)
-            mpl.setShown(True)
-        else:
-            mp.setShown(False)
-            mpl.setShown(False)
-
-    def setupNetwork(self):
-        self.form.syncOnProgramOpen.setChecked(self.config['syncOnProgramOpen'])
-        self.form.disableWhenMoved.setChecked(self.config['syncDisableWhenMoved'])
-        self.form.syncUser.setText(self.config['syncUsername'])
-        self.form.syncPass.setText(self.config['syncPassword'])
-        self.form.proxyHost.setText(self.config['proxyHost'])
-        self.form.proxyPort.setValue(self.config['proxyPort'])
-        self.form.proxyUser.setText(self.config['proxyUser'])
-        self.form.proxyPass.setText(self.config['proxyPass'])
-
-    def updateNetwork(self):
-        self.config['syncOnProgramOpen'] = self.form.syncOnProgramOpen.isChecked()
-        self.config['syncDisableWhenMoved'] = self.form.disableWhenMoved.isChecked()
-        self.config['syncUsername'] = unicode(self.form.syncUser.text())
-        self.config['syncPassword'] = unicode(self.form.syncPass.text())
-        self.config['proxyHost'] = unicode(self.form.proxyHost.text())
-        self.config['proxyPort'] = int(self.form.proxyPort.value())
-        self.config['proxyUser'] = unicode(self.form.proxyUser.text())
-        self.config['proxyPass'] = unicode(self.form.proxyPass.text())
-
-    def setupBackup(self):
-        self.form.numBackups.setValue(self.config['numBackups'])
-        self.connect(self.form.openBackupFolder,
-                     SIGNAL("linkActivated(QString)"),
-                     self.onOpenBackup)
-
-    def onOpenBackup(self):
-        path = os.path.join(self.config.confDir, "backups")
-        openFolder(path)
-
-    def updateMedia(self):
-        orig = self.origMediaChoice
-        new = self.form.mediaChoice.currentIndex()
-        if orig == new and orig != 2:
-            return
-        if new == 0:
-            p = ""
-        elif new == 1:
-            p = "dropbox"
-            # reset public folder location
-            self.config['dropboxPublicFolder'] = ""
-        else:
-            p = unicode(self.form.mediaPath.text())
-        self.config['mediaLocation'] = p
-        self.needDeckClose = True
-
-    def updateBackup(self):
-        self.config['numBackups'] = self.form.numBackups.value()
-
-    def setupOptions(self):
-        self.form.showEstimates.setChecked(not self.config['suppressEstimates'])
-        self.form.centerQA.setChecked(self.config['centerQA'])
-        self.form.showProgress.setChecked(self.config['showProgress'])
-        self.form.openLastDeck.setChecked(self.config['loadLastDeck'])
-        self.form.deleteMedia.setChecked(self.config['deleteMedia'])
-        self.form.stripHTML.setChecked(self.config['stripHTML'])
-        self.form.autoplaySounds.setChecked(self.config['autoplaySounds'])
-        self.form.showToolbar.setChecked(self.config['showToolbar'])
-        self.connect(self.form.documentFolder,
-                     SIGNAL("clicked()"),
-                     self.onChangeFolder)
-
-    def updateOptions(self):
-        self.config['suppressEstimates'] = not self.form.showEstimates.isChecked()
-        self.config['centerQA'] = self.form.centerQA.isChecked()
-        self.config['showProgress'] = self.form.showProgress.isChecked()
-        self.config['stripHTML'] = self.form.stripHTML.isChecked()
-        self.config['autoplaySounds'] = self.form.autoplaySounds.isChecked()
-        self.config['loadLastDeck'] = self.form.openLastDeck.isChecked()
-        self.config['deleteMedia'] = self.form.deleteMedia.isChecked()
-        self.config['showToolbar'] = self.form.showToolbar.isChecked()
 
     def codeToIndex(self, code):
         n = 0
@@ -169,22 +57,89 @@ class Preferences(QDialog):
         # default to english
         return self.codeToIndex("en")
 
-    def onChangeFolder(self):
-        d = QFileDialog(self)
-        d.setWindowModality(Qt.WindowModal)
-        d.setFileMode(QFileDialog.Directory)
-        d.setOption(QFileDialog.ShowDirsOnly, True)
-        d.setDirectory(self.config['documentDir'])
-        d.show()
-        def accept():
-            dir = unicode(list(d.selectedFiles())[0])
-            # make sure we can write into it
-            try:
-                f = os.path.join(dir, "test.txt")
-                open(f, "w").write("test")
-                os.unlink(f)
-            except (OSError, IOError):
-                showWarning(_("Can't write to folder."))
-                return
-            self.config['documentDir'] = dir
-        d.connect(d, SIGNAL("accepted()"), accept)
+    def interfaceLangChanged(self):
+        self.prof['lang'] = (
+            langs[self.form.interfaceLang.currentIndex()])[1]
+        self.mw.setupLang()
+        self.form.retranslateUi(self)
+
+
+    # Network
+    ######################################################################
+
+    def setupNetwork(self):
+        self.form.syncOnProgramOpen.setChecked(
+            self.prof['autoSync'])
+        self.form.syncMedia.setChecked(
+            self.prof['syncMedia'])
+        if not self.prof['syncKey']:
+            self.form.syncDeauth.setShown(False)
+        else:
+            self.connect(self.form.syncDeauth, SIGNAL("clicked()"),
+                         self.onSyncDeauth)
+        self.form.proxyHost.setText(self.prof['proxyHost'])
+        self.form.proxyPort.setValue(self.prof['proxyPort'])
+        self.form.proxyUser.setText(self.prof['proxyUser'])
+        self.form.proxyPass.setText(self.prof['proxyPass'])
+
+    def onSyncDeauth(self):
+        self.prof['syncKey'] = None
+
+    def updateNetwork(self):
+        self.prof['autoSync'] = self.form.syncOnProgramOpen.isChecked()
+        self.prof['syncMedia'] = self.form.syncMedia.isChecked()
+        self.prof['proxyHost'] = unicode(self.form.proxyHost.text())
+        self.prof['proxyPort'] = int(self.form.proxyPort.value())
+        self.prof['proxyUser'] = unicode(self.form.proxyUser.text())
+        self.prof['proxyPass'] = unicode(self.form.proxyPass.text())
+
+    # Backup
+    ######################################################################
+
+    def setupBackup(self):
+        self.form.numBackups.setValue(self.prof['numBackups'])
+        self.connect(self.form.openBackupFolder,
+                     SIGNAL("linkActivated(QString)"),
+                     self.onOpenBackup)
+
+    def onOpenBackup(self):
+        openFolder(self.mw.pm.backupFolder())
+
+    def updateBackup(self):
+        self.prof['numBackups'] = self.form.numBackups.value()
+
+    # Basic & Advanced Options
+    ######################################################################
+
+    def setupOptions(self):
+        self.form.showEstimates.setChecked(self.prof['showDueTimes'])
+        self.form.showProgress.setChecked(self.prof['showProgress'])
+        self.form.deleteMedia.setChecked(self.prof['deleteMedia'])
+        self.form.stripHTML.setChecked(self.prof['stripHTML'])
+        self.form.autoplaySounds.setChecked(self.prof['autoplay'])
+        self.connect(
+            self.form.profilePass, SIGNAL("clicked()"),
+            self.onProfilePass)
+
+    def updateOptions(self):
+        self.prof['showDueTimes'] = self.form.showEstimates.isChecked()
+        self.prof['showProgress'] = self.form.showProgress.isChecked()
+        self.prof['stripHTML'] = self.form.stripHTML.isChecked()
+        self.prof['autoplay'] = self.form.autoplaySounds.isChecked()
+        self.prof['deleteMedia'] = self.form.deleteMedia.isChecked()
+        self.prof['deleteMedia'] = self.form.deleteMedia.isChecked()
+
+    def onProfilePass(self):
+        pw, ret = getText(_("""\
+Lock account with password, or leave blank:"""))
+        if not ret:
+            return
+        if not pw:
+            self.prof['key'] = None
+            return
+        pw2, ret = getText(_("Confirm password:"))
+        if not ret:
+            return
+        if pw != pw2:
+            showWarning(_("Passwords didn't match"))
+        self.prof['key'] = self.mw.pm._pwhash(pw)
