@@ -227,6 +227,13 @@ class DeckManager(object):
                 dids.append(deck['id'])
         return dids
 
+    def restoreToDefault(self, conf):
+        new = copy.deepcopy(defaultConf)
+        new['id'] = conf['id']
+        new['name'] = conf['name']
+        self.dconf[str(conf['id'])] = new
+        self.save(new)
+
     # Deck utils
     #############################################################
 
