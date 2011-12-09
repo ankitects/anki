@@ -6,11 +6,55 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>453</width>
-    <height>325</height>
+    <width>500</width>
+    <height>437</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_31">
+       <property name="text">
+        <string>Options group:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="dconf">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>3</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="confOpts">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/gears.png</normaloff>:/icons/gears.png</iconset>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -24,68 +68,14 @@
        <item>
         <layout class="QGridLayout" name="gridLayout">
          <item row="1" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Graduating interval</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="lrnGradInt"/>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_7">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>days</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Easy</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="lrnEasyInt"/>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>days</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Easy on first sight</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="lrnFirstInt"/>
-         </item>
-         <item row="3" column="2">
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>days</string>
+            <string>Order</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Starting factor</string>
-           </property>
-          </widget>
+         <item row="1" column="1" colspan="2">
+          <widget class="QComboBox" name="newOrder"/>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
@@ -97,7 +87,56 @@
          <item row="0" column="1" colspan="2">
           <widget class="QLineEdit" name="lrnSteps"/>
          </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>New cards/day</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="newPerDay">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Graduating interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Easy</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Starting factor</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="lrnGradInt">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="1">
+          <widget class="QSpinBox" name="lrnEasyInt">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
           <widget class="QSpinBox" name="lrnFactor">
            <property name="minimum">
             <number>130</number>
@@ -110,7 +149,27 @@
            </property>
           </widget>
          </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_7">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="2">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
           <widget class="QLabel" name="label_27">
            <property name="text">
             <string>%</string>
@@ -128,6 +187,176 @@
           <size>
            <width>20</width>
            <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Reviews</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Space siblings by up to</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="revSpace">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_18">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Minimum sibling range</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>Easy bonus</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="label_21">
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="revMinSpace"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="easyBonus">
+           <property name="minimum">
+            <number>100</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QComboBox" name="revOrder"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_32">
+           <property name="text">
+            <string>Order</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_33">
+           <property name="text">
+            <string>Desired forgetting index</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="fi1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="label_34">
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_35">
+           <property name="text">
+            <string>Assumed forgetting index</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_37">
+           <property name="text">
+            <string>Maximum reviews/day</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="revPerDay">
+           <property name="minimum">
+            <number>25</number>
+           </property>
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QLabel" name="label_36">
+           <property name="text">
+            <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QSpinBox" name="fi2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>152</height>
           </size>
          </property>
         </spacer>
@@ -154,14 +383,14 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>New interval</string>
+            <string>New Interval</string>
            </property>
           </widget>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Leech threshold</string>
+            <string>Leech Threshold</string>
            </property>
           </widget>
          </item>
@@ -184,14 +413,7 @@
          <item row="4" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>Leech action</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0" colspan="3">
-          <widget class="QCheckBox" name="lapRelearn">
-           <property name="text">
-            <string>Automatically relearn lapsed cards</string>
+            <string>Leech Action</string>
            </property>
           </widget>
          </item>
@@ -208,7 +430,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>Minimum interval</string>
+            <string>Minimum Interval</string>
            </property>
           </widget>
          </item>
@@ -289,209 +511,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Reviews</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Space siblings by up to</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="revSpace">
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="singleStep">
-            <number>5</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_18">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Minimum sibling range</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_19">
-           <property name="text">
-            <string>days</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string>Easy bonus</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="label_21">
-           <property name="text">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="revMinSpace"/>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="easyBonus">
-           <property name="minimum">
-            <number>100</number>
-           </property>
-           <property name="maximum">
-            <number>1000</number>
-           </property>
-           <property name="singleStep">
-            <number>5</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>152</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_4">
-      <attribute name="title">
-       <string>Cramming</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_22">
-           <property name="text">
-            <string>Steps (in minutes)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QLineEdit" name="cramSteps"/>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_23">
-           <property name="text">
-            <string>New interval</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="3">
-          <widget class="QCheckBox" name="cramReset">
-           <property name="text">
-            <string>Reset interval of cards failed during cram</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QSpinBox" name="cramMinInt">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_24">
-           <property name="text">
-            <string>Minimal interval</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="3">
-          <widget class="QCheckBox" name="cramBoost">
-           <property name="text">
-            <string>Boost regular interval</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="cramMult">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="singleStep">
-            <number>5</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QLabel" name="label_29">
-           <property name="text">
-            <string>days</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLabel" name="label_30">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>93</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
        <string>General</string>
@@ -529,6 +548,92 @@
         </layout>
        </item>
        <item>
+        <widget class="QLabel" name="label_22">
+         <property name="text">
+          <string>&lt;b&gt;Collection Options&lt;/b&gt;&lt;br&gt;The settings below are shared between all decks.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="newSpread"/>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Next day starts at</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="dayOffset">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>23</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Learn ahead limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="lrnCutoff">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_30">
+           <property name="text">
+            <string>Timebox time limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="timeLimit">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_39">
+           <property name="text">
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_40">
+           <property name="text">
+            <string>hours past midnight</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -558,30 +663,37 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>dconf</tabstop>
+  <tabstop>confOpts</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>lrnSteps</tabstop>
+  <tabstop>newOrder</tabstop>
+  <tabstop>newPerDay</tabstop>
   <tabstop>lrnGradInt</tabstop>
   <tabstop>lrnEasyInt</tabstop>
-  <tabstop>lrnFirstInt</tabstop>
   <tabstop>lrnFactor</tabstop>
+  <tabstop>revOrder</tabstop>
+  <tabstop>revPerDay</tabstop>
+  <tabstop>revSpace</tabstop>
+  <tabstop>revMinSpace</tabstop>
+  <tabstop>easyBonus</tabstop>
+  <tabstop>fi1</tabstop>
+  <tabstop>fi2</tabstop>
   <tabstop>lapSteps</tabstop>
   <tabstop>lapMult</tabstop>
   <tabstop>lapMinInt</tabstop>
   <tabstop>leechThreshold</tabstop>
   <tabstop>leechAction</tabstop>
-  <tabstop>lapRelearn</tabstop>
-  <tabstop>revSpace</tabstop>
-  <tabstop>revMinSpace</tabstop>
-  <tabstop>easyBonus</tabstop>
-  <tabstop>cramSteps</tabstop>
-  <tabstop>cramBoost</tabstop>
-  <tabstop>cramReset</tabstop>
-  <tabstop>cramMult</tabstop>
-  <tabstop>cramMinInt</tabstop>
   <tabstop>maxTaken</tabstop>
+  <tabstop>newSpread</tabstop>
+  <tabstop>dayOffset</tabstop>
+  <tabstop>lrnCutoff</tabstop>
+  <tabstop>timeLimit</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
@@ -612,38 +724,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cramReset</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cramMult</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>103</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>187</x>
-     <y>133</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cramReset</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cramMinInt</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>103</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>187</x>
-     <y>168</y>
     </hint>
    </hints>
   </connection>

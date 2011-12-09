@@ -48,10 +48,12 @@ class AnkiQt(QMainWindow):
         try:
             self.setupUI()
             self.setupAddons()
-            self.setupProfile()
         except:
             showInfo("Error during startup:\n%s" % traceback.format_exc())
             sys.exit(1)
+        # Load profile in a timer so we can let the window finish init and not
+        # close on profile load error.
+        self.progress.timer(10, self.setupProfile, False)
 
     def setupUI(self):
         self.col = None
@@ -661,9 +663,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         import aqt.stats
         self.cardStats = aqt.stats.CardStats(self)
 
-    def onStudyOptions(self):
-        import aqt.studyopts
-        aqt.studyopts.StudyOptions(self)
+    def onDeckConf(self):
+        import aqt.deckconf
+        aqt.deckconf.DeckConf(self)
 
     def onOverview(self):
         self.col.reset()

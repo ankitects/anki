@@ -44,3 +44,20 @@
                 self.moveToState("initial")
             if not self.deck.finishScheduler:
                 showInfo(_("No cards matched the provided tags."))
+
+
+# cram options
+
+        c = self.conf['cram']
+        f.cramSteps.setText(self.listToUser(c['delays']))
+        f.cramBoost.setChecked(c['resched'])
+        f.cramReset.setChecked(c['reset'])
+        f.cramMult.setValue(c['mult']*100)
+        f.cramMinInt.setValue(c['minInt'])
+
+        c = self.conf['cram']
+        self.updateList(c, 'delays', f.cramSteps)
+        c['resched'] = f.cramBoost.isChecked()
+        c['reset'] = f.cramReset.isChecked()
+        c['mult'] = f.cramMult.value()/100.0
+        c['minInt'] = f.cramMinInt.value()

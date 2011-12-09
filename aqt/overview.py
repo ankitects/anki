@@ -42,7 +42,7 @@ class Overview(object):
             #self.mw.col.cramGroups()
             #self.mw.moveToState("review")
         elif url == "opts":
-            self.mw.onStudyOptions()
+            self.mw.onDeckConf()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
 
