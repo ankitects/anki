@@ -193,9 +193,9 @@ class DeckManager(object):
         self.dconf[str(g['id'])] = g
         self.save()
 
-    def confId(self, name):
+    def confId(self, name, cloneFrom=defaultConf):
         "Create a new configuration and return id."
-        c = copy.deepcopy(defaultConf)
+        c = copy.deepcopy(cloneFrom)
         while 1:
             id = intTime(1000)
             if str(id) not in self.dconf:
