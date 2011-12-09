@@ -613,7 +613,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
 
     def _ivlForFI(self, conf, ivl):
         new, old = conf['rev']['fi']
-        return ivl * math.log(1-new) / math.log(1-old)
+        return ivl * math.log(1-new/100.0) / math.log(1-old/100.0)
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
@@ -875,10 +875,18 @@ and due >= ?""" % scids, now, self.col.usn(), shiftby, low)
         self.col.db.executemany(
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid""", d)
 
-    # fixme: because it's a model property now, these should be done on a
-    # per-model basis
-    def randomizeCards(self):
-        self.sortCards(self.col.db.list("select id from cards"), shuffle=True)
+    def randomizeCards(self, did):
+        cids = self.col.db.list("select id from cards where did = ?", did)
+        self.sortCards(cids, shuffle=True)
 
-    def orderCards(self):
-        self.sortCards(self.col.db.list("select id from cards"))
+    def orderCards(self, did):
+        cids = self.col.db.list("select id from cards where did = ?", did)
+        self.sortCards(cids)
+
+    def resortConf(self, conf):
+        for did in self.mw.decks.didsForConf(conf):
+            if conf['new']['order'] == 0:
+                self.randomizeCards(did)
+            else:
+                self.orderCards(did)
+

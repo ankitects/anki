@@ -48,7 +48,7 @@ defaultConf = {
         'ease4': 1.3,
         'fuzz': 0.05,
         'minSpace': 1,
-        'fi': [0.1, 0.1],
+        'fi': [10, 10],
         'order': REV_CARDS_RANDOM,
     },
     'maxTaken': 60,
@@ -219,6 +219,13 @@ class DeckManager(object):
     def setConf(self, grp, id):
         grp['conf'] = id
         self.save(grp)
+
+    def didsForConf(self, conf):
+        dids = []
+        for deck in self.decks:
+            if deck['conf'] == conf['id']:
+                dids.append(deck['id'])
+        return dids
 
     # Deck utils
     #############################################################
