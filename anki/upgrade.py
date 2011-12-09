@@ -623,7 +623,7 @@ update cards set due = cast(
 """, stamp=col.sched.dayCutoff, today=col.sched.today)
         # possibly re-randomize
         if col.models.randomNew():
-            col.sched.randomizeCards()
+            col.sched.randomizeCards(1)
         # update insertion id
         col.conf['nextPos'] = (
             col.db.scalar("select max(id) from notes") or 0)+1
