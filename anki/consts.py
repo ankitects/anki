@@ -64,9 +64,9 @@ def newCardSchedulingLabels():
 
 def revCardOrderLabels():
     return {
-        0: _("Review cards from largest interval"),
-        1: _("Review cards from smallest interval"),
-        2: _("Review cards in order due"),
+        0: _("Review cards in date due order"),
+        1: _("Review cards from largest interval"),
+        2: _("Review cards from smallest interval"),
         }
 
 def alignmentLabels():

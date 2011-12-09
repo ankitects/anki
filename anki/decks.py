@@ -23,7 +23,7 @@ defaultConf = {
     'name': _("Default"),
     'new': {
         'delays': [1, 10],
-        'ints': [1, 4],
+        'ints': [1, 4, 7], # 7 is not currently used
         'initialFactor': 2500,
         'order': NEW_TODAY_ORD,
         'perDay': 20,
