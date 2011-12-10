@@ -19,12 +19,14 @@ import anki.latex # sets up hook
 import anki.cards, anki.notes, anki.template, anki.cram, anki.find
 
 defaultConf = {
-    # scheduling options
+    # review options
     'activeDecks': [1],
     'curDeck': 1,
     'newSpread': NEW_CARDS_DISTRIBUTE,
     'collapseTime': 1200,
     'timeLim': 0,
+    'estTimes': True,
+    'dueCounts': True,
     # other config
     'curModel': None,
     'nextPos': 1,

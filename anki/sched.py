@@ -884,7 +884,7 @@ and due >= ?""" % scids, now, self.col.usn(), shiftby, low)
         self.sortCards(cids)
 
     def resortConf(self, conf):
-        for did in self.mw.decks.didsForConf(conf):
+        for did in self.col.decks.didsForConf(conf):
             if conf['new']['order'] == 0:
                 self.randomizeCards(did)
             else:
