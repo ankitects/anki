@@ -74,7 +74,7 @@ class ModelChooser(QHBoxLayout):
 
     def onModelChange(self, idx):
         model = self._models[idx]
-        self.deck.conf['curModel'] = model.id
+        self.deck.conf['curModel'] = model['id']
         self._ignoreReset = True
         runHook("currentModelChanged")
         self._ignoreReset = False

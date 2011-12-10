@@ -93,7 +93,6 @@ class Models(QDialog):
         d = QDialog(self)
         frm = aqt.forms.modelopts.Ui_Dialog()
         frm.setupUi(d)
-        frm.clozeCtx.setChecked(self.model['clozectx'])
         frm.latexHeader.setText(self.model['latexPre'])
         frm.latexFooter.setText(self.model['latexPost'])
         d.setWindowTitle(_("Options for %s") % self.model['name'])
@@ -101,7 +100,6 @@ class Models(QDialog):
             frm.buttonBox, SIGNAL("helpRequested()"),
             lambda: openHelp("NoteOptions"))
         d.exec_()
-        self.model['clozectx'] = frm.clozeCtx.isChecked()
         self.model['latexPre'] = unicode(frm.latexHeader.toPlainText())
         self.model['latexPost'] = unicode(frm.latexFooter.toPlainText())
 

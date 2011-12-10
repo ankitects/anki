@@ -536,14 +536,9 @@ class Editor(object):
 
     def onCloze(self):
         # check that the model is set up for cloze deletion
-        ok = False
-        for t in self.note.model().templates:
-            if "cloze" in t['qfmt'] or "cloze" in t['afmt']:
-                ok = True
-                break
-        if not ok:
-            showInfo(_("Please use a cloze deletion model."),
-                 help="ClozeDeletion")
+        if 'cloze' not in self.note.model()['tmpls'][0]['qfmt']:
+            showInfo(_("Please select the cloze deletion note type first."),
+                     help="ClozeDeletion")
             return
         f = self.note.fields[self.currentField]
         # find the highest existing cloze
