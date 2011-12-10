@@ -154,6 +154,7 @@ class DeckConf(QDialog):
         f.lrnFactor.setValue(c['initialFactor']/10.0)
         f.newOrder.setCurrentIndex(c['order'])
         f.newPerDay.setValue(c['perDay'])
+        f.separate.setChecked(c['separate'])
         # rev
         c = self.conf['rev']
         f.revPerDay.setValue(c['perDay'])
@@ -224,6 +225,7 @@ class DeckConf(QDialog):
         c['initialFactor'] = f.lrnFactor.value()*10
         c['order'] = f.newOrder.currentIndex()
         c['perDay'] = f.newPerDay.value()
+        c['separate'] = f.separate.isChecked()
         # rev
         c = self.conf['rev']
         c['perDay'] = f.revPerDay.value()
