@@ -78,19 +78,6 @@ mplayerReader = None
 mplayerEvt = threading.Event()
 mplayerClear = False
 
-# fixme from robert: can we do away with this with stderr=file(os.devnull,
-# 'w') in the popen call?
-class MplayerReader(threading.Thread):
-    "Read any debugging info to prevent mplayer from blocking."
-
-    def run(self):
-        while 1:
-            mplayerEvt.wait()
-            try:
-                mplayerManager.mplayer.stdout.read()
-            except:
-                pass
-
 class MplayerMonitor(threading.Thread):
 
     def run(self):
@@ -144,9 +131,10 @@ class MplayerMonitor(threading.Thread):
     def startProcess(self):
         try:
             cmd = mplayerCmd + ["-slave", "-idle"]
+            devnull = file(os.devnull, "w")
             self.mplayer = subprocess.Popen(
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                stdout=devnull, stderr=devnull)
         except OSError:
             mplayerEvt.clear()
             raise Exception("Audio player not found")
@@ -178,21 +166,18 @@ def clearMplayerQueue():
     mplayerEvt.set()
 
 def ensureMplayerThreads():
-    global mplayerManager, mplayerReader
+    global mplayerManager
     if not mplayerManager:
         mplayerManager = MplayerMonitor()
         mplayerManager.daemon = True
         mplayerManager.start()
-        mplayerReader = MplayerReader()
-        mplayerReader.daemon = True
-        mplayerReader.start()
 
 def stopMplayer(*args):
     if not mplayerManager:
         return
     mplayerManager.kill()
 
-addHook("colClosed", stopMplayer)
+addHook("unloadProfile", stopMplayer)
 
 # PyAudio recording
 ##########################################################################
