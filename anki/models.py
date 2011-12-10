@@ -17,11 +17,9 @@ defaultModel = {
     'sortf': 0,
     'did': 1,
     'clozectx': False,
-    'newOrder': NEW_CARDS_DUE,
     'latexPre': """\
 \\documentclass[12pt]{article}
 \\special{papersize=3in,5in}
-% \\usepackage[utf8x]{inputenc} % uncomment this for foreign characters
 \\usepackage{amssymb,amsmath}
 \\pagestyle{empty}
 \\setlength{\\parindent}{0in}
@@ -171,9 +169,6 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         "Number of note using M."
         return self.col.db.scalar(
             "select count() from notes where mid = ?", m['id'])
-
-    def randomNew(self):
-        return self.current()['newOrder'] == NEW_CARDS_RANDOM
 
     # Copying
     ##################################################

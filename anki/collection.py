@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, random, re, stat, simplejson, datetime, copy, shutil
+import time, os, random, re, stat, simplejson, datetime, copy, shutil, sys
 from anki.lang import _, ngettext
 from anki.utils import ids2str, hexifyID, checksum, fieldChecksum, stripHTML, \
     intTime, splitFields, joinFields, maxID
@@ -252,20 +252,14 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         if not cms:
             return 0
         note.flush()
-        # randomize?
-        if self.models.randomNew():
-            due = self._randPos()
-        else:
-            due = self.nextID("pos")
+        # deck conf governs which of these are used
+        due = self.nextID("pos")
         # add cards
         ncards = 0
         for template in cms:
             self._newCard(note, template, due)
             ncards += 1
         return ncards
-
-    def _randPos(self):
-        return random.randrange(1, sys.maxint)
 
     def remNotes(self, ids):
         self.remCards(self.db.list("select id from cards where nid in "+
@@ -347,10 +341,22 @@ insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
         card.nid = note.id
         card.ord = template['ord']
         card.did = template['did'] or note.did
-        card.due = due
+        card.due = self._dueForDid(card.did, due)
         if flush:
             card.flush()
         return card
+
+    def _dueForDid(self, did, due):
+        conf = self.decks.conf(did)
+        # in order due?
+        if conf['new']['order']:
+            return due
+        else:
+            # random mode; seed with note ts so all cards of this note get the
+            # same random number
+            r = random.Random()
+            r.seed(due)
+            return r.randrange(1, 2**32-1)
 
     # Cards
     ##########################################################################

@@ -578,11 +578,6 @@ and ord = ? limit 1""", m['id'], t['ord']):
         self._rewriteMediaRefs()
         # template handling has changed
         self._upgradeTemplates()
-        # set new card order
-        for m in col.models.all():
-            m['newOrder'] = col.conf['oldNewOrder']
-            col.models.save(m)
-        del col.conf['oldNewOrder']
         # fix creation time
         col.sched._updateCutoff()
         d = datetime.datetime.today()
@@ -621,8 +616,13 @@ update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
 ((due-:stamp)/86400) as int)+:today where type = 2
 """, stamp=col.sched.dayCutoff, today=col.sched.today)
+        # set new card order
+        conf = col.decks.allConf()[0]
+        conf['new']['order'] = col.conf['oldNewOrder']
+        col.decks.save(conf)
+        del col.conf['oldNewOrder']
         # possibly re-randomize
-        if col.models.randomNew():
+        if not conf['new']['order']:
             col.sched.randomizeCards(1)
         # update insertion id
         col.conf['nextPos'] = (

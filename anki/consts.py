@@ -13,10 +13,6 @@ NEW_CARDS_FIRST = 2
 NEW_CARDS_RANDOM = 0
 NEW_CARDS_DUE = 1
 
-# sort order for day's new cards
-NEW_TODAY_ORD = 0
-NEW_TODAY_DUE = 1
-
 # review card sort order
 REV_CARDS_RANDOM = 0
 REV_CARDS_OLD_FIRST = 1
@@ -64,9 +60,9 @@ def newCardSchedulingLabels():
 
 def revCardOrderLabels():
     return {
-        0: _("Review cards in date due order"),
-        1: _("Review cards from largest interval"),
-        2: _("Review cards from smallest interval"),
+        0: _("Sort by due date"),
+        1: _("Sort by decreasing interval (slower)"),
+        2: _("Sort by increasing interval (slower)"),
         }
 
 def alignmentLabels():

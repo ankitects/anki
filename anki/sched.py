@@ -264,7 +264,7 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         (id, due) = self._newQueue.pop()
         # move any siblings to the end?
         conf = self.col.decks.conf(self._newDids[0])
-        if conf['new']['order'] == NEW_TODAY_ORD:
+        if conf['new']['separate']:
             n = len(self._newQueue)
             while self._newQueue and self._newQueue[-1][1] == due:
                 self._newQueue.insert(0, self._newQueue.pop())
@@ -823,7 +823,7 @@ your short-term review workload will become."""))
             "update cards set type=0,queue=0,ivl=0 where id in "+ids2str(ids))
         pmax = self.col.db.scalar("select max(due) from cards where type=0")
         # takes care of mod + usn
-        self.sortCards(ids, start=pmax+1, shuffle=self.col.models.randomNew())
+        self.sortCards(ids, start=pmax+1)
 
     def reschedCards(self, ids, imin, imax):
         "Put cards in review queue with a new interval in days (min, max)."
