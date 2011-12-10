@@ -443,11 +443,7 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
             if type == "q":
                 format = format.replace("cloze:", "cq:")
             else:
-                if model['clozectx']:
-                    name = "cactx:"
-                else:
-                    name = "ca:"
-                format = format.replace("cloze:", name)
+                format = format.replace("cloze:", "ca:")
             fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter(

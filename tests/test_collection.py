@@ -69,7 +69,7 @@ def test_noteAddDelete():
     assert deck.cardCount() == 4
     # check q/a generation
     c0 = f.cards()[0]
-    assert re.sub("</?.+?>", "", c0.q()) == u"three"
+    assert "three" in c0.q()
     # it should not be a duplicate
     assert not f.dupeOrEmpty()
     # now let's make a duplicate

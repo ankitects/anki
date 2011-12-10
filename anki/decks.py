@@ -224,17 +224,21 @@ class DeckManager(object):
 
     def didsForConf(self, conf):
         dids = []
-        for deck in self.decks:
+        for deck in self.decks.values():
             if deck['conf'] == conf['id']:
                 dids.append(deck['id'])
         return dids
 
     def restoreToDefault(self, conf):
+        oldOrder = conf['new']['order']
         new = copy.deepcopy(defaultConf)
         new['id'] = conf['id']
         new['name'] = conf['name']
         self.dconf[str(conf['id'])] = new
         self.save(new)
+        # if it was previously randomized, resort
+        if not oldOrder:
+            self.col.sched.resortConf(new)
 
     # Deck utils
     #############################################################

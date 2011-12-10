@@ -50,7 +50,7 @@ def test_new():
     qs = ("2", "3", "2", "3")
     for n in range(4):
         c = d.sched.getCard()
-        assert(stripHTML(c.q()) == qs[n])
+        assert qs[n] in c.q()
         d.sched.answerCard(c, 2)
 
 def test_newLimits():

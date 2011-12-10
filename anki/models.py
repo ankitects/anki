@@ -16,7 +16,6 @@ from anki.consts import *
 defaultModel = {
     'sortf': 0,
     'did': 1,
-    'clozectx': False,
     'latexPre': """\
 \\documentclass[12pt]{article}
 \\special{papersize=3in,5in}

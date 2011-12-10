@@ -35,7 +35,7 @@ def test_fields():
     m = d.models.current()
     # make sure renaming a field updates the templates
     d.models.renameField(m, m['flds'][0], "NewFront")
-    assert m['tmpls'][0]['qfmt'] == "{{NewFront}}"
+    assert "{{NewFront}}" in m['tmpls'][0]['qfmt']
     h = d.models.scmhash(m)
     # add a field
     f = d.models.newField(m)
@@ -127,11 +127,6 @@ def test_cloze():
     f['Text'] = "hello {{c1::world}}"
     assert d.addNote(f) == 1
     assert "hello <span class=cloze>[...]</span>" in f.cards()[0].q()
-    # the default is no context
-    assert "<span class=cloze>world</span>" in f.cards()[0].a()
-    assert "hello <span class=cloze>world</span>" not in f.cards()[0].a()
-    # check context works too
-    f.model()['clozectx'] = True
     assert "hello <span class=cloze>world</span>" in f.cards()[0].a()
     # and with a comment
     f = d.newNote()
@@ -150,11 +145,10 @@ def test_cloze():
     assert "world <span class=cloze>bar</span>" in c2.a()
     # if there are multiple answers for a single cloze, they are given in a
     # list
-    f.model()['clozectx'] = False
     f = d.newNote()
     f['Text'] = "a {{c1::b}} {{c1::c}}"
     assert d.addNote(f) == 1
-    assert "<span class=cloze>b</span>, <span class=cloze>c</span>" in (
+    assert "<span class=cloze>b</span> <span class=cloze>c</span>" in (
         f.cards()[0].a())
     # clozes should be supported in sections too
     m = d.models.current()
@@ -196,14 +190,14 @@ def test_modelChange():
     # switch cards
     c0 = f.cards()[0]
     c1 = f.cards()[1]
-    assert stripHTML(c0.q()) == "b"
-    assert stripHTML(c1.q()) == "f"
+    assert ">b<" in c0.q()
+    assert "f" in c1.q()
     assert c0.ord == 0
     assert c1.ord == 1
     deck.models.change(basic, [f.id], basic, None, map)
     f.load(); c0.load(); c1.load()
-    assert stripHTML(c0.q()) == "f"
-    assert stripHTML(c1.q()) == "b"
+    assert "f" in c0.q()
+    assert ">b<" in c1.q()
     assert c0.ord == 1
     assert c1.ord == 0
     # .cards() returns cards in order

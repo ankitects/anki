@@ -162,8 +162,7 @@ class Template(object):
             # to process
             return "[[%s]]" % tag_name
         elif (tag_name.startswith("cq:") or
-              tag_name.startswith("ca:") or
-              tag_name.startswith("cactx:")):
+              tag_name.startswith("ca:")):
             m = re.match("c(.+):(\d+):(.+)", tag_name)
             (type, ord, tag) = (m.group(1), m.group(2), m.group(3))
             txt = get_or_attr(context, tag)
@@ -184,15 +183,8 @@ class Template(object):
                 txt = re.sub(reg%ord, "<span class=cloze>[...(\\3)]</span>", txt)
             else:
                 txt = re.sub(reg%ord, "<span class=cloze>[...]</span>", txt)
-        elif type == "actx":
+        elif type == "a":
             txt = re.sub(reg%ord, "<span class=cloze>\\1</span>", txt)
-        else:
-            # just the answers
-            ans = re.findall(reg%ord, txt)
-            ans = ["<span class=cloze>"+a[0]+"</span>" for a in ans]
-            ans = ", ".join(ans)
-            # but we want to preserve the outer field styling
-            return ans
         # and display other clozes normally
         return re.sub(reg%".*?", "\\1", txt)
 
