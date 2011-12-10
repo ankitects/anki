@@ -358,7 +358,7 @@ def tooltip(msg, period=3000, parent=None):
             evt.accept()
             self.hide()
     closeTooltip()
-    aw = parent or aqt.mw.app.activeWindow()
+    aw = parent or aqt.mw.app.activeWindow() or aqt.mw
     lab = CustomLabel("""\
 <table cellpadding=10>
 <tr>

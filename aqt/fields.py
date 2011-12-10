@@ -18,7 +18,6 @@ class FieldDialog(QDialog):
         self.mm = self.mw.col.models
         self.model = note.model()
         self.mw.checkpoint(_("Fields"))
-        self.setWindowModality(Qt.WindowModal)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)

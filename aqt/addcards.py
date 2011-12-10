@@ -39,7 +39,8 @@ class AddCards(QDialog):
         self.setupNewNote()
 
     def setupEditor(self):
-        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, True)
+        self.editor = aqt.editor.Editor(
+            self.mw, self.form.fieldsArea, self, True)
 
     def setupChooser(self):
         self.modelChooser = aqt.modelchooser.ModelChooser(
@@ -69,7 +70,7 @@ class AddCards(QDialog):
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
         # history
         b = bb.addButton(
-            _("History")+ u'▼', ar)
+            _("History")+ u" ▾", ar)
         self.connect(b, SIGNAL("clicked()"), self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
@@ -126,10 +127,10 @@ class AddCards(QDialog):
         browser.onSearch()
 
     def addNote(self, note):
-        if any(note.problems()):
+        if note.dupeOrEmpty():
             showWarning(_(
-                "Some fields are missing or not unique."),
-                     help="AddItems#AddError")
+                "The first field is empty or not unique."),
+                help="AddItems#AddError")
             return
         cards = self.mw.col.addNote(note)
         if not cards:

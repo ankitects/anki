@@ -104,6 +104,7 @@
     <addaction name="actionCheckMediaDatabase"/>
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>
+    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
    <addaction name="menuCol"/>
@@ -112,10 +113,6 @@
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionExit">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/application-exit.png</normaloff>:/icons/application-exit.png</iconset>
-   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
@@ -124,12 +121,8 @@
    </property>
   </action>
   <action name="actionPreferences">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/configure.png</normaloff>:/icons/configure.png</iconset>
-   </property>
    <property name="text">
-    <string>&amp;Preferences</string>
+    <string>&amp;Preferences...</string>
    </property>
    <property name="statusTip">
     <string>Configure interface language and options</string>
@@ -142,10 +135,6 @@
    </property>
   </action>
   <action name="actionAbout">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;About...</string>
    </property>
@@ -154,10 +143,6 @@
    </property>
   </action>
   <action name="actionCstats">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/package_games_card.png</normaloff>:/icons/package_games_card.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Card Info</string>
    </property>
@@ -172,10 +157,6 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Undo</string>
    </property>
@@ -184,10 +165,6 @@
    </property>
   </action>
   <action name="actionCheckMediaDatabase">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/text-speak.png</normaloff>:/icons/text-speak.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Unused Media...</string>
    </property>
@@ -211,10 +188,6 @@
    </property>
   </action>
   <action name="actionDonate">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/emblem-favorite.png</normaloff>:/icons/emblem-favorite.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Support Anki...</string>
    </property>
@@ -228,19 +201,11 @@
    </property>
   </action>
   <action name="actionFullDatabaseCheck">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/sqlitebrowser.png</normaloff>:/icons/sqlitebrowser.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Check DB...</string>
    </property>
   </action>
   <action name="actionDocumentation">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/help-hint.png</normaloff>:/icons/help-hint.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Guide...</string>
    </property>
@@ -249,10 +214,6 @@
    </property>
   </action>
   <action name="actionSwitchProfile">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/user-identity.png</normaloff>:/icons/user-identity.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Switch Profile...</string>
    </property>

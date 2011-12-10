@@ -671,27 +671,11 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.col.reset()
         self.moveToState("overview")
 
-    def onGroups(self, parent=None):
-        from aqt.groups import Groups
-        g = Groups(self, parent)
-
     def onCardStats(self):
         self.cardStats.show()
 
     def onStats(self):
         aqt.stats.DeckStats(self)
-
-    def onCardLayout(self):
-        from aqt.clayout import CardLayout
-        CardLayout(self, self.reviewer.card.note(), ord=self.reviewer.card.ord)
-
-    def onDeckOpts(self):
-        import aqt.deckopts
-        aqt.deckopts.DeckOptions(self)
-
-    def onModels(self):
-        import aqt.models
-        aqt.models.Models(self)
 
     def onPrefs(self):
         import aqt.preferences

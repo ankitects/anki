@@ -275,7 +275,7 @@ class Editor(object):
           native=True, canDisable=False)
         b("layout", self.onCardLayout, "Ctrl+l",
           shortcut(_("Customize Card Layout (Ctrl+l)")),
-          size=False, text=_("Layout..."), native=True, canDisable=False)
+          size=False, text=_("Cards..."), native=True, canDisable=False)
         # align to right
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
         b("text_bold", self.toggleBold, "Ctrl+b", _("Bold text (Ctrl+b)"),
@@ -298,7 +298,7 @@ class Editor(object):
         # fixme: better image names
         b("text-speak", self.onAddMedia, "F3", _("Add pictures/audio/video (F3)"))
         b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
-        b("adv", self.onAdvanced, text=u"▼")
+        b("adv", self.onAdvanced, text=u"▾")
         s = QShortcut(QKeySequence("Ctrl+t, t"), self.widget)
         s.connect(s, SIGNAL("activated()"), self.insertLatex)
         s = QShortcut(QKeySequence("Ctrl+t, e"), self.widget)
@@ -442,7 +442,10 @@ class Editor(object):
         contents = self.note.fields[0]
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.setText(
-            "'model:%s' '%s'" % (self.note.model()['name'], contents))
+            "'model:%s' '%s:%s'" % (
+                self.note.model()['name'],
+                self.note.model()['flds'][0]['name'],
+                contents))
         browser.onSearch()
 
     def fieldsAreBlank(self):

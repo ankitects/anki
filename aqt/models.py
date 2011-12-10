@@ -3,8 +3,9 @@
 
 from aqt.qt import *
 from operator import itemgetter
-from aqt.utils import showInfo, askUser, getText, maybeHideClose
+from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
 import aqt.modelchooser, aqt.clayout
+from anki import stdmodels
 
 class Models(QDialog):
     def __init__(self, mw, parent=None):
@@ -35,7 +36,7 @@ class Models(QDialog):
         c(b, s, self.onRename)
         b = box.addButton(_("Delete"), t)
         c(b, s, self.onDelete)
-        b = box.addButton(_("Advanced..."), t)
+        b = box.addButton(_("Options..."), t)
         c(b, s, self.onAdvanced)
         c(f.modelsList, SIGNAL("currentRowChanged(int)"), self.modelChanged)
         c(f.modelsList, SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
@@ -45,9 +46,10 @@ class Models(QDialog):
         maybeHideClose(box)
 
     def onRename(self):
-        txt = getText(_("New name?"), default=self.model.name)
+        txt = getText(_("New name:"), default=self.model.name)
         if txt[0]:
-            self.model.name = txt[0]
+            self.model['name'] = txt[0]
+            self.mm.save(self.model)
         self.updateModelsList()
 
     def updateModelsList(self):
@@ -59,7 +61,7 @@ class Models(QDialog):
         self.form.modelsList.clear()
         for m in self.models:
             item = QListWidgetItem(_("%(name)s [%(notes)d notes]") % dict(
-                name=m.name, notes=m.useCount()))
+                name=m['name'], notes=self.mm.useCount(m)))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
@@ -70,30 +72,9 @@ class Models(QDialog):
         self.model = self.models[idx]
 
     def onAdd(self):
-        m = aqt.modelchooser.AddModel(self.mw, self).get()
+        m = AddModel(self.mw, self).get()
         if m:
-            self.col.addModel(m)
             self.updateModelsList()
-
-    def onLayout(self):
-        # set to current
-        # # see if there's an available note
-        dummy = False
-        id = self.col.db.scalar(
-            "select id from notes where mid = ?", self.model.id)
-        if id:
-            note = self.col.getNote(id)
-        else:
-            # generate a dummy one
-            self.col.conf['currentModelId'] = self.model.id
-            note = self.col.newNote()
-            for f in note.keys():
-                note[f] = f
-            self.col.addNote(note)
-            dummy = True
-        aqt.clayout.CardLayout(self.mw, note, type=2, parent=self)
-        if dummy:
-            self.col._delNotes([note.id])
 
     def onDelete(self):
         if len(self.models) < 2:
@@ -104,7 +85,7 @@ class Models(QDialog):
             _("Delete this model and all its cards?"),
             parent=self):
             return
-        self.col.delModel(self.model.id)
+        self.mm.rem(self.model)
         self.model = None
         self.updateModelsList()
 
@@ -112,14 +93,20 @@ class Models(QDialog):
         d = QDialog(self)
         frm = aqt.forms.modelopts.Ui_Dialog()
         frm.setupUi(d)
-        frm.latexHeader.setText(self.model.conf['latexPre'])
-        frm.latexFooter.setText(self.model.conf['latexPost'])
+        frm.clozeCtx.setChecked(self.model['clozectx'])
+        frm.latexHeader.setText(self.model['latexPre'])
+        frm.latexFooter.setText(self.model['latexPost'])
+        d.setWindowTitle(_("Options for %s") % self.model['name'])
+        self.connect(
+            frm.buttonBox, SIGNAL("helpRequested()"),
+            lambda: openHelp("NoteOptions"))
         d.exec_()
-        self.model.conf['latexPre'] = unicode(frm.latexHeader.toPlainText())
-        self.model.conf['latexPost'] = unicode(frm.latexFooter.toPlainText())
+        self.model['clozectx'] = frm.clozeCtx.isChecked()
+        self.model['latexPre'] = unicode(frm.latexHeader.toPlainText())
+        self.model['latexPost'] = unicode(frm.latexFooter.toPlainText())
 
     def saveModel(self):
-        self.model.flush()
+        self.mm.save(self.model)
 
     # Cleanup
     ##########################################################################
@@ -130,3 +117,53 @@ class Models(QDialog):
         self.saveModel()
         self.mw.reset()
         QDialog.reject(self)
+
+
+class AddModel(QDialog):
+
+    def __init__(self, mw, parent=None):
+        self.parent = parent or mw
+        self.mw = mw
+        self.col = mw.col
+        QDialog.__init__(self, self.parent, Qt.Window)
+        self.model = None
+        self.dialog = aqt.forms.addmodel.Ui_Dialog()
+        self.dialog.setupUi(self)
+        # standard models
+        self.models = []
+        for (name, func) in stdmodels.models:
+            item = QListWidgetItem(_("Add: %s") % name)
+            self.dialog.models.addItem(item)
+            self.models.append((True, func))
+        # add copies
+        for m in self.col.models.all():
+            item = QListWidgetItem(_("Clone: %s") % m['name'])
+            self.dialog.models.addItem(item)
+            self.models.append((False, m))
+        self.dialog.models.setCurrentRow(0)
+        # the list widget will swallow the enter key
+        s = QShortcut(QKeySequence("Return"), self)
+        self.connect(s, SIGNAL("activated()"), self.accept)
+        # help
+        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.onHelp)
+
+    def get(self):
+        self.exec_()
+        return self.model
+
+    def reject(self):
+        self.accept()
+
+    def accept(self):
+        (isStd, model) = self.models[self.dialog.models.currentRow()]
+        if isStd:
+            # create
+            self.model = model(self.col)
+        else:
+            # add copy to deck
+            self.model = self.mw.col.models.copy(model)
+            self.mw.col.models.setCurrent(self.model)
+        QDialog.accept(self)
+
+    def onHelp(self):
+        openHelp("AddModel")
