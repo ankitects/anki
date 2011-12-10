@@ -124,7 +124,7 @@ function _typeAnsPress() {
         c = self.card
         # grab the question and play audio
         q = c.q()
-        if self.mw.pm.profile['autoplay']:
+        if self.mw.col.decks.conf(self.card.did)['autoplay']:
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
@@ -144,7 +144,7 @@ function _typeAnsPress() {
         c = self.card
         a = c.a()
         # play audio?
-        if self.mw.pm.profile['autoplay']:
+        if self.mw.col.decks.conf(self.card.did)['autoplay']:
             playFromText(a)
         # render and update bottom
         a = self._mungeQA(a)
@@ -408,6 +408,8 @@ var updateTime = function () {
             self.bottom._css + self._bottomCSS)
 
     def _remaining(self):
+        if not self.mw.col.conf['dueCounts']:
+            return ""
         counts = list(self.mw.col.sched.counts(self.card))
         idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx])
@@ -449,7 +451,7 @@ var updateTime = function () {
         return buf + script
 
     def _buttonTime(self, i, green):
-        if not self.mw.pm.profile['showDueTimes']:
+        if not self.mw.col.conf['estTimes']:
             return "<div class=spacer></div>"
         txt = self.mw.col.sched.nextIvlStr(self.card, i+1, True)
         return '<span class=nobold>%s</span><br>' % txt

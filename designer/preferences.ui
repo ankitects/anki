@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>461</width>
-    <height>442</height>
+    <width>439</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,47 +28,28 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
-        <number>6</number>
+        <number>12</number>
        </property>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>&lt;b&gt;Language&lt;/b&gt;</string>
-         </property>
-         <property name="wordWrap">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="interfaceLang">
-         <property name="minimumSize">
-          <size>
-           <width>300</width>
-           <height>0</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>&lt;b&gt;Reviewing&lt;/b&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="autoplaySounds">
-         <property name="text">
-          <string>Automatically play audio</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Language:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="interfaceLang">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QCheckBox" name="showEstimates">
@@ -85,25 +66,121 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
+        <widget class="QCheckBox" name="stripHTML">
+         <property name="text">
+          <string>Strip HTML when pasting text</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="deleteMedia">
+         <property name="text">
+          <string>When adding media, move instead of copying</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="newSpread"/>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Next day starts at</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="dayOffset">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>23</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Learn ahead limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="lrnCutoff">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_30">
+           <property name="text">
+            <string>Timebox time limit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="timeLimit">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_39">
+           <property name="text">
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_40">
+           <property name="text">
+            <string>hours past midnight</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Preferred</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>0</height>
+           <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QPushButton" name="profilePass">
          <property name="text">
-          <string>Some settings will take effect after you restart Anki.</string>
+          <string>Profile Password...</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -125,7 +202,7 @@
          <item>
           <layout class="QVBoxLayout">
            <item>
-            <widget class="QLabel" name="label_16">
+            <widget class="QLabel" name="syncLabel">
              <property name="text">
               <string>&lt;b&gt;Synchronisation&lt;/b&gt;</string>
              </property>
@@ -388,61 +465,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Advanced</string>
-      </attribute>
-      <layout class="QVBoxLayout">
-       <item>
-        <layout class="QGridLayout">
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="stripHTML">
-           <property name="text">
-            <string>Strip HTML when pasting text</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="deleteMedia">
-           <property name="text">
-            <string>Move instead of copying media when adding</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QPushButton" name="profilePass">
-         <property name="text">
-          <string>Profile Password...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Some settings will take effect after you restart Anki.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item>
@@ -458,12 +480,16 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>buttonBox</tabstop>
   <tabstop>interfaceLang</tabstop>
-  <tabstop>autoplaySounds</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>stripHTML</tabstop>
+  <tabstop>deleteMedia</tabstop>
+  <tabstop>newSpread</tabstop>
+  <tabstop>dayOffset</tabstop>
+  <tabstop>lrnCutoff</tabstop>
+  <tabstop>timeLimit</tabstop>
+  <tabstop>profilePass</tabstop>
   <tabstop>syncMedia</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>syncDeauth</tabstop>
@@ -472,9 +498,8 @@
   <tabstop>proxyUser</tabstop>
   <tabstop>proxyPass</tabstop>
   <tabstop>numBackups</tabstop>
-  <tabstop>stripHTML</tabstop>
-  <tabstop>deleteMedia</tabstop>
-  <tabstop>profilePass</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

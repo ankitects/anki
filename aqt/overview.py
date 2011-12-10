@@ -125,7 +125,7 @@ button { font-weight: bold; }
 
     def _renderBottom(self):
         links = [
-            ["opts", _("Options")],
+            ["opts", _("Study Options")],
             ["cram", _("Cram")],
         ]
         buf = ""

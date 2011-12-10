@@ -46,11 +46,6 @@ profileConf = dict(
     deleteMedia=False,
     preserveKeyboard=True,
 
-    # reviewing
-    autoplay=True,
-    showDueTimes=True,
-    showProgress=True,
-
     # syncing
     syncKey=None,
     syncMedia=True,

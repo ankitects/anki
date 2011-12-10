@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>437</height>
+    <height>438</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -555,90 +555,11 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="label_22">
+        <widget class="QCheckBox" name="autoplaySounds">
          <property name="text">
-          <string>&lt;b&gt;Collection Options&lt;/b&gt;&lt;br&gt;The settings below are shared between all decks.</string>
+          <string>Automatically play audio</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="newSpread"/>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_23">
-           <property name="text">
-            <string>Next day starts at</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="dayOffset">
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="maximum">
-            <number>23</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_24">
-           <property name="text">
-            <string>Learn ahead limit</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="lrnCutoff">
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_29">
-           <property name="text">
-            <string>mins</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_30">
-           <property name="text">
-            <string>Timebox time limit</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="timeLimit">
-           <property name="maximum">
-            <number>9999</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="label_39">
-           <property name="text">
-            <string>mins</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_40">
-           <property name="text">
-            <string>hours past midnight</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer_5">
@@ -693,10 +614,7 @@
   <tabstop>leechThreshold</tabstop>
   <tabstop>leechAction</tabstop>
   <tabstop>maxTaken</tabstop>
-  <tabstop>newSpread</tabstop>
-  <tabstop>dayOffset</tabstop>
-  <tabstop>lrnCutoff</tabstop>
-  <tabstop>timeLimit</tabstop>
+  <tabstop>autoplaySounds</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>

@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
+import datetime, time, os
 from aqt.qt import *
 from anki.lang import langs
 from aqt.utils import openFolder, showWarning, getText
@@ -18,6 +18,7 @@ class Preferences(QDialog):
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      lambda: openHelp("Preferences"))
+        self.setupCollection()
         self.setupLang()
         self.setupNetwork()
         self.setupBackup()
@@ -25,6 +26,7 @@ class Preferences(QDialog):
         self.show()
 
     def accept(self):
+        self.updateCollection()
         self.updateNetwork()
         self.updateBackup()
         self.updateOptions()
@@ -34,6 +36,38 @@ class Preferences(QDialog):
 
     def reject(self):
         self.accept()
+
+    # Collection options
+    ######################################################################
+
+    def setupCollection(self):
+        import anki.consts as c
+        f = self.form
+        qc = self.mw.col.conf
+        self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
+        f.dayOffset.setValue(self.startDate.hour)
+        f.lrnCutoff.setValue(qc['collapseTime']/60.0)
+        f.timeLimit.setValue(qc['timeLim']/60.0)
+        f.showEstimates.setChecked(qc['estTimes'])
+        f.showProgress.setChecked(qc['dueCounts'])
+        f.newSpread.addItems(c.newCardSchedulingLabels().values())
+        f.newSpread.setCurrentIndex(qc['newSpread'])
+
+    def updateCollection(self):
+        f = self.form
+        d = self.mw.col
+        qc = d.conf
+        qc['dueCounts'] = f.showProgress.isChecked()
+        qc['estTimes'] = f.showEstimates.isChecked()
+        qc['newSpread'] = f.newSpread.currentIndex()
+        qc['timeLim'] = f.timeLimit.value()*60
+        qc['collapseTime'] = f.lrnCutoff.value()*60
+        hrs = f.dayOffset.value()
+        old = self.startDate
+        date = datetime.datetime(
+            old.year, old.month, old.day, hrs)
+        d.crt = int(time.mktime(date.timetuple()))
+        d.setMod()
 
     # Language handling
     ######################################################################
@@ -74,6 +108,9 @@ class Preferences(QDialog):
             self.prof['syncMedia'])
         if not self.prof['syncKey']:
             self.form.syncDeauth.setShown(False)
+            self.form.syncLabel.setText(_("""\
+<b>Synchronization</b><br>
+Not currently enabled; click the sync button in the main window to enable."""))
         else:
             self.connect(self.form.syncDeauth, SIGNAL("clicked()"),
                          self.onSyncDeauth)
@@ -112,21 +149,14 @@ class Preferences(QDialog):
     ######################################################################
 
     def setupOptions(self):
-        self.form.showEstimates.setChecked(self.prof['showDueTimes'])
-        self.form.showProgress.setChecked(self.prof['showProgress'])
         self.form.deleteMedia.setChecked(self.prof['deleteMedia'])
         self.form.stripHTML.setChecked(self.prof['stripHTML'])
-        self.form.autoplaySounds.setChecked(self.prof['autoplay'])
         self.connect(
             self.form.profilePass, SIGNAL("clicked()"),
             self.onProfilePass)
 
     def updateOptions(self):
-        self.prof['showDueTimes'] = self.form.showEstimates.isChecked()
-        self.prof['showProgress'] = self.form.showProgress.isChecked()
         self.prof['stripHTML'] = self.form.stripHTML.isChecked()
-        self.prof['autoplay'] = self.form.autoplaySounds.isChecked()
-        self.prof['deleteMedia'] = self.form.deleteMedia.isChecked()
         self.prof['deleteMedia'] = self.form.deleteMedia.isChecked()
 
     def onProfilePass(self):

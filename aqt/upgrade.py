@@ -46,11 +46,8 @@ class Upgrader(object):
         for k in (
             "recentColours", "stripHTML", "editFontFamily", "editFontSize",
             "editLineSize", "deleteMedia", "preserveKeyboard", "numBackups",
-            "proxyHost", "proxyPass", "proxyPort", "proxyUser",
-            "showProgress"):
+            "proxyHost", "proxyPass", "proxyPort", "proxyUser"):
             p[k] = self.conf[k]
-        p['autoplay'] = self.conf['autoplaySounds']
-        p['showDueTimes'] = not self.conf['suppressEstimates']
         self.mw.pm.save()
 
     # Wizard

@@ -7,7 +7,6 @@ import aqt, simplejson
 from anki.utils import ids2str
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
 from operator import itemgetter
-import datetime, time
 
 class DeckConf(QDialog):
     def __init__(self, mw):
@@ -27,7 +26,6 @@ class DeckConf(QDialog):
                      SIGNAL("clicked()"),
                      self.onRestore)
         self.setupCombos()
-        self.setupCollection()
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         self.exec_()
 
@@ -36,7 +34,6 @@ class DeckConf(QDialog):
         f = self.form
         f.newOrder.addItems(cs.newCardOrderLabels().values())
         f.revOrder.addItems(cs.revCardOrderLabels().values())
-        f.newSpread.addItems(cs.newCardSchedulingLabels().values())
         self.connect(f.newOrder, SIGNAL("currentIndexChanged(int)"),
                      self.onNewOrderChanged)
 
@@ -111,32 +108,6 @@ class DeckConf(QDialog):
         self.conf['name'] = name
         self.loadConfs()
 
-    # Collection options
-    ######################################################################
-
-    def setupCollection(self):
-        import anki.consts as c
-        f = self.form
-        qc = self.mw.col.conf
-        self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
-        f.dayOffset.setValue(self.startDate.hour)
-        f.lrnCutoff.setValue(qc['collapseTime']/60.0)
-        f.newSpread.setCurrentIndex(qc['newSpread'])
-        f.timeLimit.setValue(qc['timeLim']/60.0)
-
-    def saveCollection(self):
-        f = self.form
-        d = self.mw.col
-        qc = d.conf
-        qc['newSpread'] = f.newSpread.currentIndex()
-        qc['timeLim'] = f.timeLimit.value()*60
-        qc['collapseTime'] = f.lrnCutoff.value()*60
-        hrs = f.dayOffset.value()
-        old = self.startDate
-        date = datetime.datetime(
-            old.year, old.month, old.day, hrs)
-        d.crt = int(time.mktime(date.timetuple()))
-
     # Loading
     ##################################################
 
@@ -174,6 +145,7 @@ class DeckConf(QDialog):
         # general
         c = self.conf
         f.maxTaken.setValue(c['maxTaken'])
+        f.autoplaySounds.setChecked(c['autoplay'])
 
     def onRestore(self):
         self.mw.col.decks.restoreToDefault(self.conf)
@@ -181,7 +153,6 @@ class DeckConf(QDialog):
         f = self.form
         f.dayOffset.setValue(4)
         f.lrnCutoff.setValue(20)
-        f.newSpread.setCurrentIndex(0)
         f.timeLimit.setValue(0)
 
     # New order
@@ -244,16 +215,13 @@ class DeckConf(QDialog):
         # general
         c = self.conf
         c['maxTaken'] = f.maxTaken.value()
+        c['autoplay'] = f.autoplaySounds.isChecked()
         self.mw.col.decks.save(self.conf)
-
-
-#make sure to save() deck and conf (on saveConf())
 
     def reject(self):
         self.accept()
 
     def accept(self):
-        self.saveCollection()
         self.saveConf()
         self.mw.reset()
         QDialog.accept(self)
