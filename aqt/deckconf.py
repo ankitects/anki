@@ -16,7 +16,9 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         self.mw.checkpoint(_("Options"))
+        self.setupCombos()
         self.setupConfs()
+        self.setWindowModality(Qt.WindowModal)
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
                      lambda: openHelp("StudyOptions"))
@@ -25,7 +27,6 @@ class DeckConf(QDialog):
         self.connect(self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults),
                      SIGNAL("clicked()"),
                      self.onRestore)
-        self.setupCombos()
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         self.exec_()
 
@@ -148,12 +149,10 @@ class DeckConf(QDialog):
         f.autoplaySounds.setChecked(c['autoplay'])
 
     def onRestore(self):
+        self.mw.progress.start()
         self.mw.col.decks.restoreToDefault(self.conf)
+        self.mw.progress.finish()
         self.loadConf()
-        f = self.form
-        f.dayOffset.setValue(4)
-        f.lrnCutoff.setValue(20)
-        f.timeLimit.setValue(0)
 
     # New order
     ##################################################

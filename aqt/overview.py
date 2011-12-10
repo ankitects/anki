@@ -125,7 +125,7 @@ button { font-weight: bold; }
 
     def _renderBottom(self):
         links = [
-            ["opts", _("Study Options")],
+            ["opts", _("Options")],
             ["cram", _("Cram")],
         ]
         buf = ""
@@ -134,4 +134,3 @@ button { font-weight: bold; }
         self.bottom.draw(buf)
         self.bottom.web.setFixedHeight(32)
         self.bottom.web.setLinkHandler(self._linkHandler)
-
