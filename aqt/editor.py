@@ -245,7 +245,9 @@ class Editor(object):
             b.setFixedWidth(20)
         if not native:
             b.setStyle(self.plastiqueStyle)
-        b.setFocusPolicy(Qt.NoFocus)
+            b.setFocusPolicy(Qt.NoFocus)
+        else:
+            b.setAutoDefault(False)
         if not text:
             b.setIcon(QIcon(":/icons/%s.png" % name))
         if key:

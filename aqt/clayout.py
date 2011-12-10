@@ -107,14 +107,18 @@ Please create a new card first."""))
         l.addWidget(help)
         c(help, SIGNAL("clicked()"), self.onHelp)
         l.addStretch()
-        rename = QPushButton(_("Rename"))
+        rename = QPushButton(_("Rename..."))
         rename.setAutoDefault(False)
         l.addWidget(rename)
         c(rename, SIGNAL("clicked()"), self.onRename)
-        repos = QPushButton(_("Reposition"))
+        repos = QPushButton(_("Reposition..."))
         repos.setAutoDefault(False)
         l.addWidget(repos)
         c(repos, SIGNAL("clicked()"), self.onReorder)
+        tgt = QPushButton(_("Deck..."))
+        tgt.setAutoDefault(False)
+        l.addWidget(tgt)
+        c(tgt, SIGNAL("clicked()"), self.onTargetDeck)
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
@@ -217,6 +221,34 @@ Please create a new card first."""))
         t = self.mm.newTemplate(name)
         self.mm.addTemplate(self.model, t)
         self.redraw()
+
+    def onTargetDeck(self):
+        from aqt.tagedit import TagEdit
+        t = self.card.template()
+        d = QDialog(self)
+        d.setWindowTitle("Anki")
+        d.setMinimumWidth(400)
+        l = QVBoxLayout()
+        lab = QLabel(_("""\
+Enter deck to place new %s cards in, or leave blank:""") %
+                           self.card.template()['name'])
+        lab.setWordWrap(True)
+        l.addWidget(lab)
+        te = TagEdit(d, type=1)
+        te.setCol(self.col)
+        l.addWidget(te)
+        if t['did']:
+            te.setText(self.col.decks.get(t['did'])['name'])
+            te.selectAll()
+        bb = QDialogButtonBox(QDialogButtonBox.Close)
+        self.connect(bb, SIGNAL("rejected()"), d, SLOT("close()"))
+        l.addWidget(bb)
+        d.setLayout(l)
+        d.exec_()
+        if not te.text().strip():
+            t['did'] = None
+        else:
+            t['did'] = self.col.decks.id(te.text())
 
     # Closing & Help
     ######################################################################
