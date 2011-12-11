@@ -257,7 +257,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
         self.reject()
 
     def reject(self):
-        self.mm.save(self.model)
+        self.mm.save(self.model, templates=True)
         self.mw.reset()
         saveGeom(self, "CardLayout")
         return QDialog.reject(self)

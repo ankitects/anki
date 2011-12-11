@@ -135,7 +135,7 @@ class AddCards(QDialog):
         cards = self.mw.col.addNote(note)
         if not cards:
             showWarning(_("""\
-The input you have provided would make an empty
+The input you have provided would make an empty \
 question or answer on all cards."""), help="AddItems")
             return
         self.addHistory(note)

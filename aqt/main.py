@@ -69,9 +69,9 @@ class AnkiQt(QMainWindow):
         self.setupSystemSpecific()
         self.setupSignals()
         self.setupAutoUpdate()
-        self.setupUpgrade()
         self.setupCardStats()
         self.setupSchema()
+        self.setupEmptyCardDel()
         self.updateTitleBar()
         # screens
         self.setupDeckBrowser()
@@ -445,17 +445,6 @@ title="%s">%s</button>''' % (
         from aqt.reviewer import Reviewer
         self.reviewer = Reviewer(self)
 
-    # Upgrading from previous versions
-    ##########################################################################
-
-    def setupUpgrade(self):
-        addHook("1.x upgrade", self.onUpgrade)
-
-    def onUpgrade(self, db):
-        self.upgrading = True
-        self.progress.setupDB(db)
-        self.progress.start(label=_("Upgrading. Please be patient..."))
-
     # Collection loading
     ##########################################################################
 
@@ -817,6 +806,16 @@ the problem and restart Anki.""")
 This operation can't be merged when syncing, so if you have made \
 changes on other devices that haven't been synced to this device yet, \
 they will be lost. Are you sure you want to continue?"""))
+
+    # Empty card deletion
+    ##########################################################################
+
+    def setupEmptyCardDel(self):
+        addHook("remEmptyCards", self.onEmptyCards)
+
+    def onEmptyCards(self, val, *args):
+        return askUser(_("""\
+Your edits have left some cards empty. Do you want to delete them?"""))
 
     # Advanced features
     ##########################################################################
