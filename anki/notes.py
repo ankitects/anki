@@ -157,5 +157,8 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
     def _postFlush(self):
         # generate missing cards
         if not self.newlyAdded:
-            ids = self.col.genCards([self.id])
-            self.col.remEmptyCards(ids)
+            rem = self.col.genCards([self.id])
+            # popping up a dialog while editing is confusing; instead we can
+            # document that the user should open the templates window to
+            # garbage collect empty cards
+            #self.col.remEmptyCards(ids)
