@@ -292,26 +292,31 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return ok
 
     def genCards(self, nids):
-        "Generate cards for non-empty templates."
+        "Generate cards for non-empty templates, return ids to remove."
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
         have = {}
-        for nid, ord in self.db.execute(
-            "select nid, ord from cards where nid in "+snids):
-            have[(nid,ord)] = True
+        for id, nid, ord in self.db.execute(
+            "select id, nid, ord from cards where nid in "+snids):
+            if nid not in have:
+                have[nid] = {}
+            have[nid][ord] = id
         # build cards for each note
         data = []
         ts = maxID(self.db)
         now = intTime()
+        rem = []
         for nid, mid, did, flds in self.db.execute(
             "select id, mid, did, flds from notes where id in "+snids):
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
             ok = []
             for t in model['tmpls']:
-                if (nid,t['ord']) in have:
-                    continue
-                if t['ord'] in avail:
+                # if have ord but empty, add cid to remove list
+                if t['ord'] in have[nid] and t['ord'] not in avail:
+                    rem.append(have[nid][t['ord']])
+                # if missing ord and is available, generate
+                if t['ord'] not in have[nid] and t['ord'] in avail:
                     data.append((ts, nid, t['did'] or did, t['ord'],
                                  now, nid))
                     ts += 1
@@ -319,6 +324,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.db.executemany("""
 insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
                             data)
+        return rem
 
     # type 0 - when previewing in add dialog, only non-empty
     # type 1 - when previewing edit, only existing

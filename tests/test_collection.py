@@ -59,7 +59,7 @@ def test_noteAddDelete():
     assert deck.cardCount() == 1
     # but when templates are edited such as in the card layout screen, it
     # should generate cards on close
-    mm.save(m, gencards=True)
+    mm.save(m, templates=True)
     assert deck.cardCount() == 2
     # creating new notes should use both cards
     f = deck.newNote()

@@ -436,10 +436,10 @@ order by ordinal""", mid)):
                     "white-space:pre-wrap",
                 ]
                 if f['rtl']:
-                    attrs.append("direction:rtl;unicode-bidi:embed")
+                    attrs.append("direction:rtl; unicode-bidi:embed")
                     attrs.append()
                 styles[f['name']] = '<span style="%s">{{%s}}</span>' % (
-                    ";".join(attrs), f['name'])
+                    "; ".join(attrs), f['name'])
                 # obsolete
                 del f['qcol']
                 del f['qsize']

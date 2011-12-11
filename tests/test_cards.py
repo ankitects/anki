@@ -53,3 +53,28 @@ def test_misc():
     c = f.cards()[0]
     id = d.models.current()['id']
     assert c.template()['ord'] == 0
+
+def test_genrem():
+    d = getEmptyDeck()
+    f = d.newNote()
+    f['Front'] = u'1'
+    f['Back'] = u''
+    d.addNote(f)
+    assert len(f.cards()) == 1
+    m = d.models.current()
+    mm = d.models
+    # adding a new template should automatically create cards
+    t = mm.newTemplate("rev")
+    t['qfmt'] = '{{Front}}'
+    t['afmt'] = ""
+    mm.addTemplate(m, t)
+    mm.save(m, templates=True)
+    assert len(f.cards()) == 2
+    # if the template is changed to remove cards, they'll be removed
+    t['qfmt'] = "{{Back}}"
+    mm.save(m, templates=True)
+    assert len(f.cards()) == 1
+    # if we add to the note, a card should be automatically generated
+    f['Back'] = "1"
+    f.flush()
+    assert len(f.cards()) == 2

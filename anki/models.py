@@ -62,14 +62,14 @@ class ModelManager(object):
         self.changed = False
         self.models = simplejson.loads(json)
 
-    def save(self, m=None, gencards=False):
+    def save(self, m=None, templates=False):
         "Mark M modified if provided, and schedule registry flush."
         if m and m['id']:
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
             self._updateRequired(m)
-            if gencards:
-                self.col.genCards(self.nids(m))
+            if templates:
+                self._syncTemplates(m)
         self.changed = True
 
     def flush(self):
@@ -346,6 +346,10 @@ update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),
                              self.col.usn(), intTime(), m['id'])
 
+    def _syncTemplates(self, m):
+        rem = self.col.genCards(self.nids(m))
+        self.col.remCards(rem)
+
     # Model changing
     ##########################################################################
     # - maps are ord->ord, and there should not be duplicate targets
@@ -412,9 +416,9 @@ select id from notes where mid = ?)""" % " ".join(map),
         cloze = False
         for t in m['tmpls']:
             ret = self._reqForTemplate(m, flds, t)
-            if ret[1]:
+            if ret[2]:
                 cloze = True
-            req.append((t['ord'], ret[0], ret[1]))
+            req.append((t['ord'], ret[0], ret[1], ret[2]))
         m['req'] = req
         m['cloze'] = cloze
 
@@ -435,42 +439,76 @@ select id from notes where mid = ?)""" % " ".join(map),
         for f in flds:
             a.append(cloze if cloze else "1")
             b.append("")
+        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a)]
+        full = self.col._renderQA(data)['q']
         data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b)]
         empty = self.col._renderQA(data)['q']
-        start = a
+        # if full and empty are the same, the template is invalid and there is
+        # no way to satisfy it
+        if full == empty:
+            return "none", [], []
+        type = 'all'
         req = []
         for i in range(len(flds)):
-            a = start[:]
-            a[i] = ""
-            # blank out this field
-            data[6] = joinFields(a)
+            tmp = a[:]
+            tmp[i] = ""
+            data[6] = joinFields(tmp)
             # if the result is same as empty, field is required
             if self.col._renderQA(data)['q'] == empty:
                 req.append(i)
-        return req, reqstrs
+        if req:
+            return type, req, reqstrs
+        # if there are no required fields, switch to any mode
+        type = 'any'
+        req = []
+        for i in range(len(flds)):
+            tmp = b[:]
+            tmp[i] = "1"
+            data[6] = joinFields(tmp)
+            # if not the same as empty, this field can make the card non-blank
+            if self.col._renderQA(data)['q'] != empty:
+                req.append(i)
+        return type, req, reqstrs
 
     def availOrds(self, m, flds):
         "Given a joined field string, return available template ordinals."
-        have = {}
+        fields = {}
         for c, f in enumerate(splitFields(flds)):
-            have[c] = f.strip()
+            fields[c] = f.strip()
         avail = []
-        for ord, req, reqstrs in m['req']:
-            ok = True
-            for f in req:
-                if not have[f]:
-                    # missing and was required
-                    ok = False
-                    break
-            if not ok:
+        for ord, type, req, reqstrs in m['req']:
+            # unsatisfiable template
+            if type == "none":
                 continue
+            # AND requirement?
+            elif type == "all":
+                ok = True
+                for idx in req:
+                    if not fields[idx]:
+                        # missing and was required
+                        ok = False
+                        break
+                if not ok:
+                    continue
+            # OR requirement?
+            elif type == "any":
+                ok = False
+                for idx in req:
+                    if fields[idx]:
+                        ok = True
+                        break
+                if not ok:
+                    continue
+            # extra cloze requirement?
+            ok = True
             for s in reqstrs:
                 if s not in flds:
                     # required cloze string was missing
                     ok = False
                     break
-            if ok:
-                avail.append(ord)
+            if not ok:
+                continue
+            avail.append(ord)
         return avail
 
     # Sync handling
