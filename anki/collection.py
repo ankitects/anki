@@ -391,6 +391,10 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
                      ids2str(nids))
         self._remNotes(nids)
 
+    def remEmptyCards(self, ids):
+        if runFilter("remEmptyCards", len(ids), True):
+            self.remCards(ids)
+
     # Field checksums and sorting fields
     ##########################################################################
 

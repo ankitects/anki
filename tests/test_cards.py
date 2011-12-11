@@ -5,6 +5,7 @@ from anki.db import DB
 from anki.consts import *
 from anki.utils import hexifyID
 from tests.shared import getEmptyDeck
+from anki.hooks import addHook, remHook
 
 def test_previewCards():
     deck = getEmptyDeck()
@@ -75,6 +76,18 @@ def test_genrem():
     mm.save(m, templates=True)
     assert len(f.cards()) == 1
     # if we add to the note, a card should be automatically generated
+    f.load()
     f['Back'] = "1"
     f.flush()
     assert len(f.cards()) == 2
+    # deleteion calls a hook to let the user abort the delete. let's abort it:
+    def abort(val, *args):
+        return False
+    addHook("remEmptyCards", abort)
+    f['Back'] = ""
+    f.flush()
+    assert len(f.cards()) == 2
+    # if there's no filter, or it returns true, the cards get deleted
+    remHook("remEmptyCards", abort)
+    f.flush()
+    assert len(f.cards()) == 1

@@ -157,4 +157,5 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
     def _postFlush(self):
         # generate missing cards
         if not self.newlyAdded:
-            self.col.genCards([self.id])
+            ids = self.col.genCards([self.id])
+            self.col.remEmptyCards(ids)

@@ -348,7 +348,7 @@ select id from notes where mid = ?)""" % " ".join(map),
 
     def _syncTemplates(self, m):
         rem = self.col.genCards(self.nids(m))
-        self.col.remCards(rem)
+        self.col.remEmptyCards(rem)
 
     # Model changing
     ##########################################################################
