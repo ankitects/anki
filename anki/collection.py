@@ -445,10 +445,10 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         for (name, (idx, conf)) in self.models.fieldMap(model).items():
             fields[name] = flist[idx]
         fields['Tags'] = data[5]
-        fields['Model'] = model['name']
+        fields['Type'] = model['name']
         fields['Deck'] = self.decks.name(data[3])
         template = model['tmpls'][data[4]]
-        fields['Template'] = template['name']
+        fields['Card'] = template['name']
         # render q & a
         d = dict(id=data[0])
         for (type, format) in (("q", template['qfmt']), ("a", template['afmt'])):

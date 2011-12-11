@@ -404,9 +404,9 @@ order by ordinal""", mid)):
                 conf[type] = re.sub(
                     "(?i){{tags}}", "{{Tags}}", conf[type])
                 conf[type] = re.sub(
-                    "(?i){{cardModel}}", "{{Template}}", conf[type])
+                    "(?i){{cardModel}}", "{{Card}}", conf[type])
                 conf[type] = re.sub(
-                    "(?i){{modelTags}}", "{{Model}}", conf[type])
+                    "(?i){{modelTags}}", "{{Type}}", conf[type])
                 # type answer is now embedded in the format
                 if typeAns:
                     if type == "qfmt" or hideq:
