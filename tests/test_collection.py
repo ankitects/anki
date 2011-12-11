@@ -6,7 +6,7 @@ from tests.shared import assertException, getEmptyDeck, testDir, \
 from anki.stdmodels import addBasicModel
 from anki.consts import *
 
-from anki import open as aopen
+from anki import Collection as aopen
 
 newPath = None
 newMod = None

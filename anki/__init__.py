@@ -5,7 +5,7 @@
 """\
 Open a collection:
 
-    col = anki.open(path)
+    col = anki.Collection(path)
 
 Prepare scheduler, or reset scheduler after changes:
 
@@ -47,4 +47,3 @@ if sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
 
 version = "1.99"
 from anki.storage import Collection
-open = Collection

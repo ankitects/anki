@@ -10,7 +10,7 @@ from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
 from anki.notes import Note
 from anki.cards import Card
 from tests.shared import getEmptyDeck
-from anki import open as aopen
+from anki import Collection as aopen
 
 deck1=None
 deck2=None

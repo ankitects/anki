@@ -4,7 +4,7 @@ import nose, os, tempfile, shutil, time
 from tests.shared import assertException
 
 from anki.errors import *
-from anki import open as aopen
+from anki import Collection as aopen
 from anki.utils import intTime
 from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
     MediaSyncer, RemoteMediaServer

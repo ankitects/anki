@@ -1,5 +1,5 @@
 import tempfile, os, shutil
-from anki import open as aopen
+from anki import Collection as aopen
 
 def assertException(exception, func):
     found = False
