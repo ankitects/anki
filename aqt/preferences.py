@@ -107,10 +107,7 @@ class Preferences(QDialog):
         self.form.syncMedia.setChecked(
             self.prof['syncMedia'])
         if not self.prof['syncKey']:
-            self.form.syncDeauth.setShown(False)
-            self.form.syncLabel.setText(_("""\
-<b>Synchronization</b><br>
-Not currently enabled; click the sync button in the main window to enable."""))
+            self._hideAuth()
         else:
             self.connect(self.form.syncDeauth, SIGNAL("clicked()"),
                          self.onSyncDeauth)
@@ -119,8 +116,15 @@ Not currently enabled; click the sync button in the main window to enable."""))
         self.form.proxyUser.setText(self.prof['proxyUser'])
         self.form.proxyPass.setText(self.prof['proxyPass'])
 
+    def _hideAuth(self):
+        self.form.syncDeauth.setShown(False)
+        self.form.syncLabel.setText(_("""\
+<b>Synchronization</b><br>
+Not currently enabled; click the sync button in the main window to enable."""))
+
     def onSyncDeauth(self):
         self.prof['syncKey'] = None
+        self._hideAuth()
 
     def updateNetwork(self):
         self.prof['autoSync'] = self.form.syncOnProgramOpen.isChecked()
