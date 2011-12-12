@@ -206,7 +206,7 @@ class Editor(object):
         self.setupOuter()
         self.setupButtons()
         self.setupWeb()
-        self.setupTags()
+        self.setupTagsAndDeck()
         self.setupKeyboard()
 
     # Initial setup
@@ -298,7 +298,8 @@ class Editor(object):
                 _("Cloze (Ctrl+Shift+c)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
-        b("text-speak", self.onAddMedia, "F3", _("Add pictures/audio/video (F3)"))
+        b("mail-attachment", self.onAddMedia, "F3",
+          _("Attach pictures/audio/video (F3)"))
         b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
         b("adv", self.onAdvanced, text=u"▾")
         s = QShortcut(QKeySequence("Ctrl+t, t"), self.widget)
@@ -392,7 +393,7 @@ class Editor(object):
             self.web.setHtml(_html % (getBase(self.mw.col), anki.js.all,
                                   _("Show Duplicates")),
                              loadCB=self._loadFinished)
-            self.updateTags()
+            self.updateTagsAndDeck()
             self.updateKeyboard()
         elif hide:
             self.widget.hide()
@@ -424,7 +425,7 @@ class Editor(object):
         self._keepButtons = True
         self.web.eval("saveField('blur');")
         self._keepButtons = False
-        self.saveTags()
+        self.saveTagsAndDeck()
 
     def checkValid(self):
         cols = []
@@ -475,36 +476,51 @@ class Editor(object):
             form.textEdit.toPlainText())
         self.loadNote(self.currentField)
 
-    # Tag handling
+    # Tag & deck handling
     ######################################################################
 
-    def setupTags(self):
+    def setupTagsAndDeck(self):
         import aqt.tagedit
         g = QGroupBox(self.widget)
         g.setFlat(True)
         tb = QGridLayout()
         tb.setSpacing(12)
         tb.setMargin(6)
+        # deck
+        if self.addMode:
+            l = QLabel(_("Deck"))
+            tb.addWidget(l, 0, 0)
+            self.deck = aqt.tagedit.TagEdit(self.widget, type=1)
+            self.deck.connect(self.deck, SIGNAL("lostFocus"),
+                              self.saveTagsAndDeck)
+            tb.addWidget(self.deck, 0, 1)
+        else:
+            self.deck = None
         # tags
         l = QLabel(_("Tags"))
-        tb.addWidget(l, 0, 2)
+        tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.saveTags)
-        tb.addWidget(self.tags, 0, 3)
+                          self.saveTagsAndDeck)
+        tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
 
-    def updateTags(self):
+    def updateTagsAndDeck(self):
         if self.tags.col != self.mw.col:
+            if self.deck:
+                self.deck.setCol(self.mw.col)
             self.tags.setCol(self.mw.col)
+        if self.addMode:
+            self.deck.setText(self.mw.col.decks.name(self.note.did))
         self.tags.setText(self.note.stringTags().strip())
 
-    def saveTags(self):
+    def saveTagsAndDeck(self):
         if not self.note:
             return
-        self.note.tags = self.mw.col.tags.split(unicode(self.tags.text()))
+        self.note.tags = self.mw.col.tags.split(self.tags.text())
         if self.addMode:
+            self.note.did = self.mw.col.decks.id(self.deck.text())
             # save group and tags to model
             m = self.note.model()
             m['did'] = self.note.did

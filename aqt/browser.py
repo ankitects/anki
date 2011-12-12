@@ -450,13 +450,14 @@ class Browser(QMainWindow):
         if not self.model.cards:
             # no row change will fire
             self.onRowChanged(None, None)
-            txt = _("No matches found.")
-            if not self.mw.pm.profile['fullSearch']:
-                txt += "<p>" + _(
-                _("If your cards have formatting, you may want <br>"
-                  "to enable 'search within formatting' in the<br>"
-                  "browser options."))
-            tooltip(txt)
+            # somewhat distracting
+            # txt = _("No matches found.")
+            # if not self.mw.pm.profile['fullSearch']:
+            #     txt += "<p>" + _(
+            #     _("If your cards have formatting, you may want <br>"
+            #       "to enable 'search within formatting' in the<br>"
+            #       "browser options."))
+            # tooltip(txt)
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())

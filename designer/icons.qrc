@@ -106,5 +106,6 @@
     <file>icons/delete16.png</file>
     <file>icons/addtag16.png</file>
     <file>icons/deletetag16.png</file>
+    <file>icons/mail-attachment.png</file>
   </qresource>
 </RCC>
