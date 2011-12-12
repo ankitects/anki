@@ -24,9 +24,18 @@ class Anki1Importer(Anki2Importer):
             traceback.print_exc()
             self.log.append(traceback.format_exc())
             return
+        # save the conf for later
+        conf = deck.decks.conf(1)
         # merge
         deck.close()
         mdir = self.file.replace(".anki", ".media")
         self.deckPrefix = os.path.basename(self.file).replace(".anki", "")
         self.file = deck.path
         Anki2Importer.run(self, mdir)
+        # set imported deck to saved conf
+        id = self.col.decks.confId(self.deckPrefix)
+        conf['id'] = id
+        self.col.decks.updateConf(conf)
+        did = self.col.decks.id(self.deckPrefix)
+        d = self.col.decks.get(did)
+        self.col.decks.setConf(d, id)

@@ -301,14 +301,11 @@ insert or replace into col select id, cast(created as int), :t,
         for k in keys:
             db.execute("delete from deckVars where key=:k", k=k)
         # copy other settings, ignoring deck order as there's a new default
-        g['newSpread'] = db.scalar("select newCardSpacing from decks")
-        g['newPerDay'] = db.scalar("select newCardsPerDay from decks")
-        g['repLim'] = db.scalar("select sessionRepLimit from decks")
-        g['timeLim'] = db.scalar("select sessionTimeLimit from decks")
-        # this needs to be placed in the model later on
-        conf['oldNewOrder'] = db.scalar("select newCardOrder from decks")
-        # no reverse option anymore
-        conf['oldNewOrder'] = min(1, conf['oldNewOrder'])
+        gc['new']['perDay'] = db.scalar("select newCardsPerDay from decks")
+        gc['new']['order'] = min(1, db.scalar("select newCardOrder from decks"))
+        # these are collection level, and can't be imported on a per-deck basis
+        # conf['newSpread'] = db.scalar("select newCardSpacing from decks")
+        # conf['timeLim'] = db.scalar("select sessionTimeLimit from decks")
         # add any deck vars and save
         dkeys = ("hexCache", "cssCache")
         for (k, v) in db.execute("select * from deckVars").fetchall():
@@ -616,12 +613,8 @@ update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
 ((due-:stamp)/86400) as int)+:today where type = 2
 """, stamp=col.sched.dayCutoff, today=col.sched.today)
-        # set new card order
-        conf = col.decks.allConf()[0]
-        conf['new']['order'] = col.conf['oldNewOrder']
-        col.decks.save(conf)
-        del col.conf['oldNewOrder']
         # possibly re-randomize
+        conf = col.decks.allConf()[0]
         if not conf['new']['order']:
             col.sched.randomizeCards(1)
         # update insertion id
