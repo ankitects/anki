@@ -177,20 +177,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.sched.onClose()
             self.dty = False
 
-    def rename(self, path):
-        raise "nyi"
-        # close our DB connection
-        self.close()
-        # move to new path
-        shutil.copy2(self.path, path)
-        os.unlink(self.path)
-        # record old dir
-        olddir = self.media.dir()
-        # reconnect & move media
-        self.path = path
-        self.reopen()
-        self.media.move(olddir)
-
     def usn(self):
         return self._usn if self.server else -1
 

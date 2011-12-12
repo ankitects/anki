@@ -90,7 +90,8 @@ class Anki2Importer(Importer):
                 # note we have the added note
                 self._notes[guid] = (note[0], note[4], note[2])
             else:
-                print "merging notes nyi"
+                # not yet implemented
+                pass
         # add to col
         self.dst.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -183,6 +184,7 @@ class Anki2Importer(Importer):
         cards = []
         revlog = []
         cnt = 0
+        aheadBy = self.src.sched.today - self.dst.sched.today
         for card in self.src.db.execute(
             "select f.guid, f.mid, c.* from cards c, notes f "
             "where c.nid = f.id"):
@@ -207,6 +209,9 @@ class Anki2Importer(Importer):
             card[1] = self._notes[guid][0]
             card[2] = self._did(card[2])
             card[4] = intTime()
+            # review cards have a due date relative to collection
+            if card[7] == 2:
+                card[8] -= aheadBy
             cards.append(card)
             # we need to import revlog, rewriting card ids
             for rev in self.src.db.execute(

@@ -628,7 +628,6 @@ update cards set due = cast(
         col.conf['nextPos'] = (
             col.db.scalar("select max(id) from notes") or 0)+1
         col.save()
-
         # optimize and finish
         col.db.commit()
         col.db.execute("vacuum")
