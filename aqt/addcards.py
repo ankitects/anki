@@ -75,7 +75,6 @@ class AddCards(QDialog):
         b.setEnabled(False)
         self.historyButton = b
 
-    # FIXME: need to make sure to clean up note on exit
     def setupNewNote(self, set=True):
         f = self.mw.col.newNote()
         f.tags = f.model()['tags']

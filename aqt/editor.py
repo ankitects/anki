@@ -330,7 +330,8 @@ class Editor(object):
             ord = self.card.ord
         else:
             ord = 0
-        CardLayout(self.mw, self.note, ord=ord, parent=self.parentWindow)
+        CardLayout(self.mw, self.note, ord=ord, parent=self.parentWindow,
+               addMode=self.addMode)
         self.loadNote()
 
     # JS->Python bridge
@@ -345,7 +346,8 @@ class Editor(object):
             (type, txt) = str.split(":", 1)
             self.note.fields[self.currentField] = self.mungeHTML(txt)
             self.mw.requireReset()
-            self.note.flush()
+            if not self.addMode:
+                self.note.flush()
             if type == "blur":
                 if not self._keepButtons:
                     self.disableButtons()
@@ -526,7 +528,8 @@ class Editor(object):
             m['did'] = self.note.did
             m['tags'] = self.note.tags
             self.mw.col.models.save(m)
-        self.note.flush()
+        if not self.addMode:
+            self.note.flush()
         runHook("tagsUpdated", self.note)
 
     # Format buttons

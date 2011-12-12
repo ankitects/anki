@@ -11,11 +11,9 @@ from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      showWarning, openHelp
 from anki.utils import isMac, isWin
 
-#        raise Exception("Remember to disallow media&latex refs in edit.")
-
 class CardLayout(QDialog):
 
-    def __init__(self, mw, note, ord=0, parent=None):
+    def __init__(self, mw, note, ord=0, parent=None, addMode=False):
         QDialog.__init__(self, parent or mw, Qt.Window)
         self.mw = aqt.mw
         self.parent = parent or mw
@@ -24,6 +22,11 @@ class CardLayout(QDialog):
         self.col = self.mw.col
         self.mm = self.mw.col.models
         self.model = note.model()
+        self.mw.checkpoint(_("Card Layout"))
+        self.addMode = addMode
+        if addMode:
+            # save it to DB temporarily
+            note.flush()
         self.setupTabs()
         self.setupButtons()
         self.setWindowTitle(_("%s Layout") % self.model['name'])
@@ -31,7 +34,6 @@ class CardLayout(QDialog):
         v1.addWidget(self.tabs)
         v1.addLayout(self.buttons)
         self.setLayout(v1)
-        self.mw.checkpoint(_("Card Layout"))
         self.redraw()
         restoreGeom(self, "CardLayout")
         self.exec_()
@@ -257,6 +259,9 @@ Enter deck to place new %s cards in, or leave blank:""") %
         self.reject()
 
     def reject(self):
+        if self.addMode:
+            self.mw.col.db.execute("delete from notes where id = ?",
+                                   self.note.id)
         self.mm.save(self.model, templates=True)
         self.mw.reset()
         saveGeom(self, "CardLayout")
