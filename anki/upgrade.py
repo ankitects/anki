@@ -604,7 +604,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         col.db.execute("""
 update cards set due = nid where type=0""")
         # and failed cards
-        left = len(col.decks.conf(1)['new']['delays'])
+        left = len(col.decks.confForDid(1)['new']['delays'])
         col.db.execute("update cards set edue = ?, left=? where type = 1",
                         col.sched.today+1, left)
         # and due cards

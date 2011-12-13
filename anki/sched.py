@@ -263,7 +263,7 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
             return
         (id, due) = self._newQueue.pop()
         # move any siblings to the end?
-        conf = self.col.decks.conf(self._newDids[0])
+        conf = self.col.decks.confForDid(self._newDids[0])
         if conf['new']['separate']:
             n = len(self._newQueue)
             while self._newQueue and self._newQueue[-1][1] == due:
@@ -318,7 +318,7 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         return lim
 
     def _deckNewLimitSingle(self, g):
-        c = self.col.decks.conf(g['id'])
+        c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
     # Learning queue
@@ -479,7 +479,7 @@ where queue = 1 and type = 2
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
     def _deckRevLimitSingle(self, d):
-        c = self.col.decks.conf(d['id'])
+        c = self.col.decks.confForDid(d['id'])
         return max(0, c['rev']['perDay'] - d['revToday'][1])
 
     def _deckHasRev(self, did):
@@ -536,7 +536,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
             return self.col.getCard(self._revQueue.pop())
 
     def _revOrder(self, did):
-        d = self.col.decks.conf(did)
+        d = self.col.decks.confForDid(did)
         o = d['rev']['order']
         if o:
             return "order by %s" % ("ivl desc", "ivl")[o-1]
@@ -681,7 +681,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
     ##########################################################################
 
     def _cardConf(self, card):
-        return self.col.decks.conf(card.did)
+        return self.col.decks.confForDid(card.did)
 
     def _deckLimit(self):
         return ids2str(self.col.decks.active())

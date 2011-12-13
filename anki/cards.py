@@ -129,7 +129,7 @@ lapses=?, left=?, edue=? where id = ?""",
         return self._reviewData()[1]
 
     def deckConf(self):
-        return self.col.decks.conf(self.did)
+        return self.col.decks.confForDid(self.did)
 
     def template(self):
         return self._reviewData()[1]['tmpls'][self.ord]

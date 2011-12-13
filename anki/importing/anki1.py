@@ -25,7 +25,7 @@ class Anki1Importer(Anki2Importer):
             self.log.append(traceback.format_exc())
             return
         # save the conf for later
-        conf = deck.decks.conf(1)
+        conf = deck.decks.confForDid(1)
         # merge
         deck.close()
         mdir = self.file.replace(".anki", ".media")

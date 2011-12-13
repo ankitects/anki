@@ -73,12 +73,12 @@ def test_newLimits():
     c = d.sched.getCard()
     assert c.did == 1
     # limit the parent to 10 cards, meaning we get 10 in total
-    conf1 = d.decks.conf(1)
+    conf1 = d.decks.confForDid(1)
     conf1['new']['perDay'] = 10
     d.reset()
     assert d.sched.newCount == 10
     # if we limit child to 4, we should get 9
-    conf2 = d.decks.conf(g2)
+    conf2 = d.decks.confForDid(g2)
     conf2['new']['perDay'] = 4
     d.reset()
     assert d.sched.newCount == 9
@@ -309,7 +309,7 @@ def test_nextIvl():
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addNote(f)
     d.reset()
-    conf = d.decks.conf(1)
+    conf = d.decks.confForDid(1)
     conf['new']['delays'] = [0.5, 3, 10]
     conf['lapse']['delays'] = [1, 5, 9]
     c = d.sched.getCard()

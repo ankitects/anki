@@ -342,7 +342,7 @@ insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
         return card
 
     def _dueForDid(self, did, due):
-        conf = self.decks.conf(did)
+        conf = self.decks.confForDid(did)
         # in order due?
         if conf['new']['order']:
             return due

@@ -188,8 +188,11 @@ class DeckManager(object):
         "A list of all deck config."
         return self.dconf.values()
 
-    def conf(self, did):
-        return self.dconf[str(self.decks[str(did)]['conf'])]
+    def confForDid(self, did):
+        return self.getConf(self.get(did)['conf'])
+
+    def getConf(self, confId):
+        return self.dconf[str(confId)]
 
     def updateConf(self, g):
         self.dconf[str(g['id'])] = g

@@ -192,12 +192,12 @@ def test_decks():
     assert deck1.tags.all() == deck2.tags.all()
     assert len(deck1.decks.all()) == len(deck2.decks.all())
     assert len(deck1.decks.all()) == 3
-    assert deck1.decks.conf(1)['maxTaken'] == 60
-    deck2.decks.conf(1)['maxTaken'] = 30
-    deck2.decks.save(deck2.decks.conf(1))
+    assert deck1.decks.confForDid(1)['maxTaken'] == 60
+    deck2.decks.confForDid(1)['maxTaken'] = 30
+    deck2.decks.save(deck2.decks.confForDid(1))
     deck2.save()
     assert client.sync() == "success"
-    assert deck1.decks.conf(1)['maxTaken'] == 30
+    assert deck1.decks.confForDid(1)['maxTaken'] == 30
 
 @nose.with_setup(setup_modified)
 def test_conf():
