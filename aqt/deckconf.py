@@ -116,7 +116,7 @@ class DeckConf(QDialog):
         return " ".join([str(x) for x in l])
 
     def loadConf(self):
-        self.conf = self.mw.col.decks.conf(self.deck['id'])
+        self.conf = self.mw.col.decks.confForDid(self.deck['id'])
         # new
         c = self.conf['new']
         f = self.form
