@@ -131,8 +131,8 @@ create table if not exists graves (
 );
 
 insert or ignore into col
-values(1,0,0,0,%(v)s,0,0,0,'','{}','','','{}');
-""" % ({'v':SCHEMA_VERSION}))
+values(1,0,0,%(s)s,%(v)s,0,0,0,'','{}','','','{}');
+""" % ({'v':SCHEMA_VERSION, 's':intTime(1000)}))
     if setColConf:
         _addColVars(db, *_getColVars(db))
 
