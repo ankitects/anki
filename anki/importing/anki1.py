@@ -35,6 +35,7 @@ class Anki1Importer(Anki2Importer):
         # set imported deck to saved conf
         id = self.col.decks.confId(self.deckPrefix)
         conf['id'] = id
+        conf['name'] = self.deckPrefix
         self.col.decks.updateConf(conf)
         did = self.col.decks.id(self.deckPrefix)
         d = self.col.decks.get(did)
