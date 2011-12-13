@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
+import os, time
 try:
     from pysqlite2 import dbapi2 as sqlite
 except ImportError:
@@ -25,24 +25,30 @@ class DB(object):
         for stmt in "insert", "update", "delete":
             if s.startswith(stmt):
                 self.mod = True
-        if self.echo:
-            print sql #, a, ka
+        t = time.time()
         if ka:
             # execute("...where id = :id", id=5)
             res = self._db.execute(sql, ka)
         else:
             # execute("...where id = ?", 5)
             res = self._db.execute(sql, a)
+        if self.echo:
+            #print a, ka
+            print sql, "%0.3fms" % ((time.time() - t)*1000)
         return res
 
     def executemany(self, sql, l):
         self.mod = True
-        if self.echo:
-            print sql #, l
+        t = time.time()
         self._db.executemany(sql, l)
+        if self.echo:
+            print sql, "%0.3fms" % ((time.time() - t)*1000)
 
     def commit(self):
+        t = time.time()
         self._db.commit()
+        if self.echo:
+            print "commit %0.3fms" % ((time.time() - t)*1000)
 
     def executescript(self, sql):
         self.mod = True
