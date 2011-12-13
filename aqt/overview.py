@@ -97,7 +97,7 @@ class Overview(object):
 %s</td></tr></table>''' % (
     _("New"), counts[0],
     _("Learning"), counts[1],
-    _("Reviewing"), counts[2],
+    _("To Review"), counts[2],
     but("study", _("Study Now"), id="study"))
 
 

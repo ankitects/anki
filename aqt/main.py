@@ -191,14 +191,19 @@ Are you sure?"""):
             self.moveToState("deckBrowser")
         else:
             self.moveToState("overview")
+        runHook("profileLoaded")
 
     def unloadProfile(self, browser=True):
+        if not self.pm.profile:
+            # already unloaded
+            return
         runHook("unloadProfile")
         self.unloadCollection()
+        self.onSync(auto=True, reload=False)
         self.pm.profile['mainWindowGeom'] = self.saveGeometry()
         self.pm.profile['mainWindowState'] = self.saveState()
         self.pm.save()
-        self.close()
+        self.pm.profile = None
         if browser:
             self.showProfileManager()
 
@@ -217,7 +222,6 @@ Are you sure?"""):
             self.col.close()
             self.col = None
             self.backup()
-            self.onSync(auto=True, reload=False)
 
     # Backup and auto-optimize
     ##########################################################################
@@ -549,6 +553,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         aw = self.app.activeWindow()
         if not aw or aw == self:
             self.unloadProfile(browser=False)
+            self.app.closeAllWindows()
         else:
             aw.close()
 
@@ -745,7 +750,7 @@ Please choose a new deck name:"""))
         s = SIGNAL("triggered()")
         #self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
         self.connect(m.actionSwitchProfile, s, self.unloadProfile)
-        self.connect(m.actionExit, s, self.onClose)
+        self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionPreferences, s, self.onPrefs)
         self.connect(m.actionCstats, s, self.onCardStats)
         self.connect(m.actionAbout, s, self.onAbout)
