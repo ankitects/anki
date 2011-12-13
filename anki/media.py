@@ -28,6 +28,8 @@ class MediaManager(object):
         self.connect()
 
     def connect(self):
+        if self.col.server:
+            return
         path = self.dir()+".db"
         create = not os.path.exists(path)
         self.db = DB(path)
@@ -35,6 +37,8 @@ class MediaManager(object):
             self._initDB()
 
     def close(self):
+        if self.col.server:
+            return
         self.db.close()
         self.db = None
 
