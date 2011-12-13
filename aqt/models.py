@@ -46,7 +46,7 @@ class Models(QDialog):
         maybeHideClose(box)
 
     def onRename(self):
-        txt = getText(_("New name:"), default=self.model.name)
+        txt = getText(_("New name:"), default=self.model['name'])
         if txt[0]:
             self.model['name'] = txt[0]
             self.mm.save(self.model)
@@ -74,6 +74,10 @@ class Models(QDialog):
     def onAdd(self):
         m = AddModel(self.mw, self).get()
         if m:
+            txt = getText(_("Name:"), default=m['name'])[0]
+            if txt:
+                m['name'] = txt
+            self.mm.save(m)
             self.updateModelsList()
 
     def onDelete(self):
