@@ -10,7 +10,7 @@ from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel
 
-def Collection(path, lock=True, server=False):
+def Collection(path, lock=True, server=False, sync=True):
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
@@ -26,8 +26,11 @@ def Collection(path, lock=True, server=False):
     else:
         ver = _upgradeSchema(db)
     db.execute("pragma temp_store = memory")
-    db.execute("pragma cache_size = 10000")
-    db.execute("pragma journal_mode = wal")
+    if sync:
+        db.execute("pragma cache_size = 10000")
+        db.execute("pragma journal_mode = wal")
+    else:
+        db.execute("pragma synchronous = off")
     # add db to col and do any remaining upgrades
     col = _Collection(db, server)
     if ver < SCHEMA_VERSION:
