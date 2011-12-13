@@ -419,7 +419,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
     def _startingLeft(self, card):
         return len(self._cardConf(card)['new']['delays'])
 
-    def _graduatingIvl(self, card, conf, early):
+    def _graduatingIvl(self, card, conf, early, adj=True):
         if card.type == 2:
             # lapsed card being relearnt
             return card.ivl
@@ -429,7 +429,10 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
         else:
             # early remove
             ideal = conf['ints'][1]
-        return self._adjRevIvl(card, ideal)
+        if adj:
+            return self._adjRevIvl(card, ideal)
+        else:
+            return ideal
 
     def _rescheduleNew(self, card, conf, early):
         card.ivl = self._graduatingIvl(card, conf, early)
@@ -781,12 +784,12 @@ your short-term review workload will become."""))
             return self._delayForGrade(conf, len(conf['delays']))
         elif ease == 3:
             # early removal
-            return self._graduatingIvl(card, conf, True) * 86400
+            return self._graduatingIvl(card, conf, True, adj=False) * 86400
         else:
             left = card.left - 1
             if left <= 0:
                 # graduate
-                return self._graduatingIvl(card, conf, False) * 86400
+                return self._graduatingIvl(card, conf, False, adj=False) * 86400
             else:
                 return self._delayForGrade(conf, left)
 
