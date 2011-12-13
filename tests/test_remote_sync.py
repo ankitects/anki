@@ -4,9 +4,9 @@ import nose, os, tempfile, shutil, time
 from tests.shared import assertException
 
 from anki.errors import *
-from anki.utils import intTime, httpCon
+from anki.utils import intTime
 from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
-    MediaSyncer, RemoteMediaServer
+    MediaSyncer, RemoteMediaServer, httpCon
 from anki.notes import Note
 from anki.cards import Card
 from tests.shared import getEmptyDeck

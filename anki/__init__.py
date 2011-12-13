@@ -37,13 +37,15 @@ Save & close:
     col.close()
 """
 
-import sys
+import sys, simplejson as _simplejson
 if sys.version_info[0] > 2:
     raise Exception("Anki should be run with python2.x.")
 elif sys.version_info[1] < 5:
     raise Exception("Anki requires Python 2.5+")
-if sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
+elif sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
     raise Exception("Anki requires a UTF-8 locale.")
+elif _simplejson.__version__ < "1.7.3":
+    raise Exception("SimpleJSON must be 1.7.3 or later.")
 
 version = "1.99"
 from anki.storage import Collection

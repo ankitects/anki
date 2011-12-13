@@ -7,22 +7,20 @@ from cStringIO import StringIO
 from datetime import date
 from anki.db import DB
 from anki.errors import *
-from anki.utils import ids2str, checksum, intTime, httpCon
+from anki.utils import ids2str, checksum, intTime
 from anki.consts import *
 from anki.lang import _
 from hooks import runHook
 
-if simplejson.__version__ < "1.7.3":
-    raise Exception("SimpleJSON must be 1.7.3 or later.")
+# syncing vars
+HTTP_CERTS = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
+HTTP_TIMEOUT = 30
 
-# - make sure /sync/download is compressed
-# - status() should be using the hooks instead
-
-# todo:
-# - ability to cancel
-# - need to make sure syncing doesn't bump the col modified time if nothing was
-#    changed, since by default closing the col bumps the mod time
-# - ensure the user doesn't add foreign chars to passsword
+def httpCon():
+    return httplib2.Http(
+        timeout=HTTP_TIMEOUT, ca_certs=HTTP_CERTS,
+        # python2 doesn't support SNI
+        disable_ssl_certificate_validation="beta" in SYNC_URL)
 
 # Incremental syncing
 ##########################################################################
@@ -410,7 +408,8 @@ class HttpSyncer(object):
 
     def req(self, method, fobj=None, comp=6,
                  badAuthRaises=True, hkey=True):
-        bdry = "--"+MIME_BOUNDARY
+        BOUNDARY="Anki-sync-boundary"
+        bdry = "--"+BOUNDARY
         buf = StringIO()
         # compression flag and session key as post vars
         vars = {}
@@ -445,7 +444,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
         size = buf.tell()
         # connection headers
         headers = {
-            'Content-Type': 'multipart/form-data; boundary=%s' % MIME_BOUNDARY,
+            'Content-Type': 'multipart/form-data; boundary=%s' % BOUNDARY,
             'Content-Length': str(size),
         }
         body = buf.getvalue()

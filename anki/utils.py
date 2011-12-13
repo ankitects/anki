@@ -302,13 +302,3 @@ def call(argv, wait=True, **kwargs):
 
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
-
-# OS helpers
-##############################################################################
-
-def httpCon():
-    disable = os.environ.get("SSL_NOVALIDATE") or False
-    return httplib2.Http(
-        timeout=HTTP_TIMEOUT,
-        disable_ssl_certificate_validation=disable,
-        ca_certs=HTTP_CERTS)
