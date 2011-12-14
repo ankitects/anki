@@ -186,11 +186,6 @@ Are you sure?"""):
         self.raise_()
         # maybe sync (will load DB)
         self.onSync(auto=True)
-        # load overview if a single deck, otherwise deck list
-        if self.col.decks.count() > 1:
-            self.moveToState("deckBrowser")
-        else:
-            self.moveToState("overview")
         runHook("profileLoaded")
 
     def unloadProfile(self, browser=True):
@@ -213,7 +208,11 @@ Are you sure?"""):
     def loadCollection(self):
         self.col = Collection(self.pm.collectionPath())
         self.progress.setupDB(self.col.db)
-        self.reset(guiOnly=True)
+        # load overview if a single deck, otherwise deck list
+        if self.col.decks.count() > 1:
+            self.moveToState("deckBrowser")
+        else:
+            self.moveToState("overview")
 
     def unloadCollection(self):
         if self.col:
