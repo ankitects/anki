@@ -67,6 +67,7 @@ class Anki2Importer(Importer):
         # iterate over source collection
         add = []
         dirty = []
+        usn = self.dst.usn()
         for note in self.src.db.execute(
             "select * from notes"):
             # turn the db result into a mutable list
@@ -84,7 +85,7 @@ class Anki2Importer(Importer):
                 note[2] = lmid
                 note[3] = self._did(note[3])
                 note[4] = intTime()
-                note[5] = -1 # usn
+                note[5] = usn
                 add.append(note)
                 dirty.append(note[0])
                 # note we have the added note
@@ -189,6 +190,7 @@ class Anki2Importer(Importer):
         cards = []
         revlog = []
         cnt = 0
+        usn = self.dst.usn()
         aheadBy = self.src.sched.today - self.dst.sched.today
         for card in self.src.db.execute(
             "select f.guid, f.mid, c.* from cards c, notes f "
@@ -214,6 +216,7 @@ class Anki2Importer(Importer):
             card[1] = self._notes[guid][0]
             card[2] = self._did(card[2])
             card[4] = intTime()
+            card[5] = usn
             # review cards have a due date relative to collection
             if card[7] == 2:
                 card[8] -= aheadBy
