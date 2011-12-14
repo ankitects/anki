@@ -8,7 +8,7 @@ appVersion="2.0-alpha2"
 appWebsite="http://ankisrs.net/"
 appHelpSite="http://ankisrs.net/docs/dev/"
 appDonate="http://ankisrs.net/support/"
-appShared="http://test.ankiweb.net/shared/decks/"
+appShared="http://beta.ankiweb.net/shared/"
 mw = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]

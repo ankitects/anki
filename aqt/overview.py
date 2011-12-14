@@ -6,7 +6,7 @@ import simplejson
 from aqt.qt import *
 from anki.consts import NEW_CARDS_RANDOM
 from anki.hooks import addHook
-from aqt.utils import showInfo
+from aqt.utils import showInfo, openLink
 import aqt
 
 class Overview(object):
@@ -45,6 +45,8 @@ class Overview(object):
             self.mw.onDeckConf()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
+        elif url == "review":
+            openLink(aqt.appShared+"info/%s?v=%s"%(self.sid, self.sidVer))
 
     # HTML
     ############################################################
@@ -52,8 +54,9 @@ class Overview(object):
     def _renderPage(self):
         but = self.mw.button
         deck = self.mw.col.decks.current()
-        sid = deck.get("sharedFrom")
-        if sid:
+        self.sid = deck.get("sharedFrom")
+        if self.sid:
+            self.sidVer = deck.get("ver", None)
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
@@ -67,7 +70,7 @@ class Overview(object):
     def _desc(self, deck):
         desc = deck.get("desc", "")
         if not desc:
-            return ""
+            return "<p>"
         if len(desc) < 160:
             return '<div class="descfont descmid description">%s</div>' % desc
         else:
@@ -106,7 +109,6 @@ class Overview(object):
 <h3>%(deck)s</h3>
 %(shareLink)s
 %(desc)s
-<p>
 %(table)s
 </center>
 <script>$(function () { $("#study").focus(); });</script>

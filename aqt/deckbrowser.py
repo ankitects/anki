@@ -150,4 +150,4 @@ Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
 
     def _onShared(self):
         print "fixme: check & warn if schema modified first"
-        openLink(aqt.appShared)
+        openLink(aqt.appShared+"decks")
