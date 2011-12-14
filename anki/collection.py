@@ -293,23 +293,26 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         ts = maxID(self.db)
         now = intTime()
         rem = []
+        usn = self.usn()
         for nid, mid, did, flds in self.db.execute(
             "select id, mid, did, flds from notes where id in "+snids):
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
             ok = []
             for t in model['tmpls']:
+                doHave = nid in have and t['ord'] in have[nid]
                 # if have ord but empty, add cid to remove list
-                if t['ord'] in have[nid] and t['ord'] not in avail:
+                # (may not have nid if generating before any cards added)
+                if doHave and t['ord'] not in avail:
                     rem.append(have[nid][t['ord']])
                 # if missing ord and is available, generate
-                if t['ord'] not in have[nid] and t['ord'] in avail:
+                if not doHave and t['ord'] in avail:
                     data.append((ts, nid, t['did'] or did, t['ord'],
-                                 now, nid))
+                                 now, usn, nid))
                     ts += 1
         # bulk update
         self.db.executemany("""
-insert into cards values (?,?,?,?,?,-1,0,0,?,0,0,0,0,0,0,0,"")""",
+insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,"")""",
                             data)
         return rem
 
