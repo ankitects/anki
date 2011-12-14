@@ -69,11 +69,11 @@ class Overview(object):
         if not desc:
             return ""
         if len(desc) < 160:
-            return '<div class="descfont description">%s</div>' % desc
+            return '<div class="descfont descmid description">%s</div>' % desc
         else:
             return '''
 <div class="descfont description descmid" id=shortdesc>%s\
-<a href=# onclick="$('shortdesc').hide();$('fulldesc').show();">...More</a></div>
+ <a class=smallLink href=# onclick="$('#shortdesc').hide();$('#fulldesc').show();">...More</a></div>
 <div class="descfont description descmid" id=fulldesc>%s</div>''' % (
                  desc[:160], desc)
 
@@ -118,6 +118,21 @@ h3 { margin-bottom: 0; }
 .fin { font-size: 12px; font-weight: normal; }
 td { font-size: 14px; }
 button { font-weight: bold; }
+.descfont {
+font: 12px/18px "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
+padding: 1em; color: #333;
+}
+.description {
+white-space: pre-wrap;
+}
+#fulldesc {
+display:none;
+}
+.descmid {
+width: 70%;
+margin: 0 auto 0;
+text-align: left;
+}
 """
 
     # Bottom area
