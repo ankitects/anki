@@ -52,11 +52,15 @@ class Syncer(object):
         elif lscm != rscm:
             return "fullSync"
         self.lnewer = self.lmod > self.rmod
-        # step 2: deletions and small objects
+        # step 2: deletions
         runHook("sync", "meta")
+        lrem = self.removed()
+        rrem = self.server.start(
+            minUsn=self.minUsn, lnewer=self.lnewer, graves=lrem)
+        self.remove(rrem)
+        # ...and small objects
         lchg = self.changes()
-        rchg = self.server.applyChanges(
-            minUsn=self.minUsn, lnewer=self.lnewer, changes=lchg)
+        rchg = self.server.applyChanges(changes=lchg)
         self.mergeChanges(lchg, rchg)
         # step 3: stream large tables from server
         runHook("sync", "server")
@@ -91,20 +95,15 @@ Sanity check failed. Please copy and paste the text below:\n%s\n%s""" % (c, s))
         return (self.col.mod, self.col.scm, self.col._usn, intTime(), None)
 
     def changes(self):
-        "Bundle up deletions and small objects, and apply if server."
+        "Bundle up small objects."
         d = dict(models=self.getModels(),
                  decks=self.getDecks(),
-                 tags=self.getTags(),
-                 graves=self.getGraves())
+                 tags=self.getTags())
         if self.lnewer:
             d['conf'] = self.getConf()
         return d
 
-    def applyChanges(self, minUsn, lnewer, changes):
-        # we're the server; save info
-        self.maxUsn = self.col._usn
-        self.minUsn = minUsn
-        self.lnewer = not lnewer
+    def applyChanges(self, changes):
         self.rchg = changes
         lchg = self.changes()
         # merge our side before returning
@@ -112,8 +111,6 @@ Sanity check failed. Please copy and paste the text below:\n%s\n%s""" % (c, s))
         return lchg
 
     def mergeChanges(self, lchg, rchg):
-        # first, handle the deletions
-        self.mergeGraves(rchg['graves'])
         # then the other objects
         self.mergeModels(rchg['models'])
         self.mergeDecks(rchg['decks'])
@@ -224,7 +221,7 @@ from notes where %s""" % d)
     # Deletions
     ##########################################################################
 
-    def getGraves(self):
+    def removed(self):
         cards = []
         notes = []
         decks = []
@@ -246,17 +243,26 @@ from notes where %s""" % d)
                                  self.maxUsn)
         return dict(cards=cards, notes=notes, decks=decks)
 
-    def mergeGraves(self, graves):
-        # make sure the deletions don't get a usn of -1k
-        server = self.col.server
+    def start(self, minUsn, lnewer, graves):
+        self.maxUsn = self.col._usn
+        self.minUsn = minUsn
+        self.lnewer = not lnewer
+        lgraves = self.removed()
+        self.remove(graves)
+        return lgraves
+
+    def remove(self, graves):
+        # pretend to be the server so we don't set usn = -1
+        wasServer = self.col.server
         self.col.server = True
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves['notes'])
-        # then cards and decks
+        # then cards
         self.col.remCards(graves['cards'])
+        # and decks
         for oid in graves['decks']:
             self.col.decks.rem(oid)
-        self.col.server = server
+        self.col.server = wasServer
 
     # Models
     ##########################################################################
@@ -378,9 +384,9 @@ class LocalServer(Syncer):
 
     # serialize/deserialize payload, so we don't end up sharing objects
     # between cols
-    def applyChanges(self, minUsn, lnewer, changes):
+    def applyChanges(self, changes):
         l = simplejson.loads; d = simplejson.dumps
-        return l(d(Syncer.applyChanges(self, minUsn, lnewer, l(d(changes)))))
+        return l(d(Syncer.applyChanges(self, l(d(changes)))))
 
 # HTTP syncing tools
 ##########################################################################
@@ -461,7 +467,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
 # Incremental sync over HTTP
 ######################################################################
 
-class RemoteServer(Syncer, HttpSyncer):
+class RemoteServer(HttpSyncer):
 
     def __init__(self, hkey):
         HttpSyncer.__init__(self, hkey)
@@ -488,6 +494,9 @@ class RemoteServer(Syncer, HttpSyncer):
 
     def applyChanges(self, **kw):
         return self._run("applyChanges", kw)
+
+    def start(self, **kw):
+        return self._run("start", kw)
 
     def chunk(self, **kw):
         return self._run("chunk", kw)
