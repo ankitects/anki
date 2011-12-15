@@ -352,6 +352,10 @@ td { font-weight: bold; font-size: 12px; }
 """
 
     def _bottomHTML(self, middle):
+        if not self.card.deckConf().get('timer'):
+            maxTime = 0
+        else:
+            maxTime = self.card.deckConf()['maxTaken']
         return """
 <table width=100%% cellspacing=0 cellpadding=0>
 <tr>
@@ -376,7 +380,10 @@ setInterval(function () { time += 1; updateTime() }, 1000);
 });
 
 var updateTime = function () {
-    return;
+    if (!%(maxTime)s) {
+        return;
+    }
+    time = Math.min(%(maxTime)s, time);
     var m = Math.floor(time / 60);
     var s = time %% 60;
     if (s < 10) {
@@ -387,7 +394,8 @@ var updateTime = function () {
 }
 </script>
 """ % dict(middle=middle, rem=self._remaining(), edit=_("Edit"),
-           more=_("More"), time=self.card.timeTaken()/1000)
+           more=_("More"), time=self.card.timeTaken()/1000,
+           maxTime=maxTime)
 
     def _showAnswerButton(self):
         self.bottom.web.setFocus()

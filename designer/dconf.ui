@@ -555,6 +555,13 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="showTimer">
+         <property name="text">
+          <string>Show answer timer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="autoplaySounds">
          <property name="text">
           <string>Automatically play audio</string>
@@ -631,8 +638,10 @@
   <tabstop>leechThreshold</tabstop>
   <tabstop>leechAction</tabstop>
   <tabstop>maxTaken</tabstop>
+  <tabstop>showTimer</tabstop>
   <tabstop>autoplaySounds</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>desc</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>

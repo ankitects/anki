@@ -146,6 +146,7 @@ class DeckConf(QDialog):
         # general
         c = self.conf
         f.maxTaken.setValue(c['maxTaken'])
+        f.showTimer.setChecked(c.get('timer', 0))
         f.autoplaySounds.setChecked(c['autoplay'])
         # description
         f.desc.setPlainText(self.deck['desc'])
@@ -216,6 +217,7 @@ class DeckConf(QDialog):
         # general
         c = self.conf
         c['maxTaken'] = f.maxTaken.value()
+        c['timer'] = f.showTimer.isChecked() and 1 or 0
         c['autoplay'] = f.autoplaySounds.isChecked()
         # description
         self.deck['desc'] = f.desc.toPlainText()
