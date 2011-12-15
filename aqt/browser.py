@@ -339,7 +339,7 @@ class Browser(QMainWindow):
 
     def setupToolbar(self):
         self.toolbarWeb = AnkiWebView()
-        self.toolbarWeb.setFixedHeight(34)
+        self.toolbarWeb.setFixedHeight(32)
         self.toolbar = BrowserToolbar(self.mw, self.toolbarWeb, self)
         self.form.verticalLayout_3.insertWidget(0, self.toolbarWeb)
         self.toolbar.draw()
@@ -713,7 +713,7 @@ class Browser(QMainWindow):
         rep = "<style>table * { font-size: 12px; }</style>" + rep
         m = self.card.model()
         rep = """
-<div style='width: 300px; margin: 0 auto 0;
+<div style='width: 400px; margin: 0 auto 0;
 border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
         return rep, cs
 
@@ -1411,14 +1411,6 @@ class BrowserToolbar(Toolbar):
         self.browser = browser
         Toolbar.__init__(self, mw, web)
 
-    def _centerLinks(self):
-        links = [
-            ["add", _("Add Notes"), ""],
-            ["delete", _("Delete Notes"), ""],
-            ["setDeck", _("Change Deck"), ""],
-        ]
-        return self._linkHTML(links)
-
     def draw(self):
         mark = self.browser.isMarked()
         pause = self.browser.isSuspended()
@@ -1429,18 +1421,23 @@ class BrowserToolbar(Toolbar):
 <img style='background: #000;' src="qrc:/icons/%s.png"></a>'''
             else:
                 fmt = '''\
-<a class=hitem title="%s" href="%s"><img src="qrc:/icons/%s.png"></a>'''
-            return fmt % (title, link, icon)
+<a class=hitem title="%s" href="%s"><img valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
+            return fmt % (title, link, icon, title)
         right = ""
-        right += borderImg("info", "info", False, _("Card Info"))
-        right += borderImg("mark", "star16", mark, _("Mark Note"))
-        right += borderImg("pause", "pause16", pause, _("Suspend Cards"))
-        right += borderImg("addtag", "addtag16", False, _("Bulk Tag Add"))
-        right += borderImg("deletetag", "deletetag16", False, _("Bulk Tag Delete"))
+        right += borderImg("info", "info", False, _("Info"))
+        right += borderImg("mark", "star16", mark, _("Mark"))
+        right += borderImg("pause", "pause16", pause, _("Suspend"))
+        right += borderImg("setDeck", "deck16", pause, _("Change Deck"))
+        right += borderImg("addtag", "addtag16", False, _("Tags"))
+        right += borderImg("deletetag", "deletetag16", False, _("Remove Tags"))
+        right += borderImg("delete", "delete16", False, _("Delete"))
         self.web.stdHtml(self._body % (
-            "<span style='display:inline-block; width: 100px;'></span>",
-            self._centerLinks(),
-            right), self._css)
+            "", #<span style='display:inline-block; width: 100px;'></span>",
+            #self._centerLinks(),
+            right, ""), self._css + """
+#header { font-weight: normal; }
+a { margin-right: 1em; }
+""")
 
     # Link handling
     ######################################################################
