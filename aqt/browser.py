@@ -608,6 +608,9 @@ class Browser(QMainWindow):
         self.connect(
             self.form.tree, SIGNAL("itemClicked(QTreeWidgetItem*,int)"),
             self.onTreeClick)
+        p = QPalette()
+        p.setColor(QPalette.Base, QColor("#d6dde0"))
+        self.form.tree.setPalette(p)
         self.buildTree()
 
     def buildTree(self):
@@ -1417,8 +1420,8 @@ class BrowserToolbar(Toolbar):
         def borderImg(link, icon, on, title):
             if on:
                 fmt = '''\
-<a class=hitem title="%s" href="%s">
-<img style='background: #000;' src="qrc:/icons/%s.png"></a>'''
+<a class=hitem title="%s" href="%s">\
+<img valign=bottom style='background: #000;' src="qrc:/icons/%s.png"> %s</a>'''
             else:
                 fmt = '''\
 <a class=hitem title="%s" href="%s"><img valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
@@ -1427,8 +1430,8 @@ class BrowserToolbar(Toolbar):
         right += borderImg("info", "info", False, _("Info"))
         right += borderImg("mark", "star16", mark, _("Mark"))
         right += borderImg("pause", "pause16", pause, _("Suspend"))
-        right += borderImg("setDeck", "deck16", pause, _("Change Deck"))
-        right += borderImg("addtag", "addtag16", False, _("Tags"))
+        right += borderImg("setDeck", "deck16", False, _("Change Deck"))
+        right += borderImg("addtag", "addtag16", False, _("Add Tags"))
         right += borderImg("deletetag", "deletetag16", False, _("Remove Tags"))
         right += borderImg("delete", "delete16", False, _("Delete"))
         self.web.stdHtml(self._body % (
