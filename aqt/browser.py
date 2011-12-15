@@ -17,12 +17,8 @@ from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
 
-COLOUR_SUSPENDED1 = "#ffffcc"
-COLOUR_SUSPENDED2 = "#ffffaa"
-COLOUR_INACTIVE1 = "#ffcccc"
-COLOUR_INACTIVE2 = "#ffaaaa"
-COLOUR_MARKED1 = "#ccccff"
-COLOUR_MARKED2 = "#aaaaff"
+COLOUR_SUSPENDED = "#fffff0"
+COLOUR_MARKED = "#eeeeff"
 
 # fixme: need to refresh after undo
 
@@ -279,18 +275,12 @@ class StatusDelegate(QItemDelegate):
             return
         if c.queue < 0:
             # custom render
-            if index.row() % 2 == 0:
-                brush = QBrush(QColor(COLOUR_SUSPENDED1))
-            else:
-                brush = QBrush(QColor(COLOUR_SUSPENDED2))
+            brush = QBrush(QColor(COLOUR_SUSPENDED))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
         elif c.note().hasTag("Marked"):
-            if index.row() % 2 == 0:
-                brush = QBrush(QColor(COLOUR_MARKED1))
-            else:
-                brush = QBrush(QColor(COLOUR_MARKED2))
+            brush = QBrush(QColor(COLOUR_MARKED))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
