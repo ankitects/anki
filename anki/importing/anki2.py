@@ -121,8 +121,9 @@ class Anki2Importer(Importer):
             # if we're importing with a prefix, make the model default to it
             if self.deckPrefix:
                 src['did'] = self.dst.decks.current()['id']
-                # and give it a unique name
-                src['name'] += " (%s)" % self.deckPrefix
+                # and give it a unique name if it's not a shared deck
+                if self.deckPrefix != "shared":
+                    src['name'] += " (%s)" % self.deckPrefix
             # make sure to bump usn
             self.dst.models.save(src)
             self._modelMap[mid] = mid
