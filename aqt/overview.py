@@ -16,7 +16,6 @@ class Overview(object):
         self.mw = mw
         self.web = mw.web
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
-        addHook("reset", self.refresh)
 
     def show(self):
         self.web.setLinkHandler(self._linkHandler)
