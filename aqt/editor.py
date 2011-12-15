@@ -435,13 +435,12 @@ class Editor(object):
         for f in self.note.fields:
             cols.append("#fff")
         err = self.note.dupeOrEmpty()
-        if err:
-            cols[0] = "#fcc"
-        self.web.eval("setBackgrounds(%s);" % simplejson.dumps(cols))
         if err == 2:
+            cols[0] = "#fcc"
             self.web.eval("showDupes();")
         else:
             self.web.eval("hideDupes();")
+        self.web.eval("setBackgrounds(%s);" % simplejson.dumps(cols))
 
     def showDupes(self):
         contents = self.note.fields[0]
