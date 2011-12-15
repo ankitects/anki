@@ -92,6 +92,7 @@ class DeckManager(object):
 
     def id(self, name, create=True):
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
+        name = name.replace("'", "").replace('"', '')
         for id, g in self.decks.items():
             if g['name'].lower() == name.lower():
                 return int(id)
