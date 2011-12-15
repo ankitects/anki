@@ -576,6 +576,23 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Description</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_22">
+         <property name="text">
+          <string>Description to show on study screen:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="desc"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>

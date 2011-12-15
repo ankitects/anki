@@ -147,6 +147,8 @@ class DeckConf(QDialog):
         c = self.conf
         f.maxTaken.setValue(c['maxTaken'])
         f.autoplaySounds.setChecked(c['autoplay'])
+        # description
+        f.desc.setPlainText(self.deck['desc'])
 
     def onRestore(self):
         self.mw.progress.start()
@@ -215,6 +217,8 @@ class DeckConf(QDialog):
         c = self.conf
         c['maxTaken'] = f.maxTaken.value()
         c['autoplay'] = f.autoplaySounds.isChecked()
+        # description
+        self.deck['desc'] = f.desc.toPlainText()
         self.mw.col.decks.save(self.conf)
 
     def reject(self):

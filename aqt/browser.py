@@ -840,6 +840,9 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def onChangeModel(self):
+        return showInfo("not yet implemented")
+        # given implicit card generation now, we need to fix model changing:
+        # need to generate any unmapped cards
         nids = self.oneModelNotes()
         if nids:
             ChangeModel(self, nids)
@@ -1264,7 +1267,7 @@ class ChangeModel(QDialog):
         self.form.templateMap.setLayout(self.tlayout)
         # model chooser
         import aqt.modelchooser
-        self.oldModel = self.browser.col.decks.current()
+        self.oldModel = self.browser.col.models.current()
         self.form.oldModelLabel.setText(self.oldModel['name'])
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.browser.mw, self.form.modelChooserWidget, label=False)
@@ -1286,11 +1289,11 @@ class ChangeModel(QDialog):
     def rebuildTemplateMap(self, key=None, attr=None):
         if not key:
             key = "t"
-            attr = "templates"
+            attr = "tmpls"
         map = getattr(self, key + "widg")
         lay = getattr(self, key + "layout")
-        src = getattr(self.oldModel, attr)
-        dst = getattr(self.targetModel, attr)
+        src = self.oldModel[attr]
+        dst = self.targetModel[attr]
         if map:
             lay.removeWidget(map)
             map.deleteLater()
@@ -1319,7 +1322,7 @@ class ChangeModel(QDialog):
         setattr(self, key + "indices", indices)
 
     def rebuildFieldMap(self):
-        return self.rebuildTemplateMap(key="f", attr="fields")
+        return self.rebuildTemplateMap(key="f", attr="flds")
 
     def onComboChanged(self, i, cb, key):
         indices = getattr(self, key + "indices")
@@ -1343,9 +1346,9 @@ class ChangeModel(QDialog):
 
     def getTemplateMap(self, old=None, combos=None, new=None):
         if not old:
-            old = self.oldModel.templates
+            old = self.oldModel['tmpls']
             combos = self.tcombos
-            new = self.targetModel.templates
+            new = self.targetModel['tmpls']
         map = {}
         for i, f in enumerate(old):
             idx = combos[i].currentIndex()
@@ -1359,9 +1362,9 @@ class ChangeModel(QDialog):
 
     def getFieldMap(self):
         return self.getTemplateMap(
-            old=self.oldModel.fields,
+            old=self.oldModel['flds'],
             combos=self.fcombos,
-            new=self.targetModel.fields)
+            new=self.targetModel['flds'])
 
     def cleanup(self):
         remHook("reset", self.onReset)
@@ -1387,7 +1390,8 @@ Are you sure you want to continue?""")):
         b = self.browser
         b.mw.progress.start()
         b.model.beginReset()
-        self.oldModel.changeModel(self.nids, self.targetModel, fmap, cmap)
+        mm = b.mw.col.models
+        mm.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
         b.onSearch(reset=False)
         b.model.endReset()
         b.mw.progress.finish()
