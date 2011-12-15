@@ -652,11 +652,11 @@ class Browser(QMainWindow):
     def _systemTagTree(self, root):
         tags = (
             (_("Whole Collection"), "anki", ""),
-            (_("Current Deck"), "stock_group", "deck:current"),
-            (_("New"), "plus-circle.png", "is:new"),
+            (_("Current Deck"), "deck16", "deck:current"),
+            (_("New"), "plus16.png", "is:new"),
             (_("Learning"), "stock_new_template_red.png", "is:learn"),
-            (_("Review"), "clock-icon.png", "is:review"),
-            (_("Marked"), "rating.png", "tag:marked"),
+            (_("Review"), "clock16.png", "is:review"),
+            (_("Marked"), "star16.png", "tag:marked"),
             (_("Suspended"), "media-playback-pause.png", "is:suspended"),
             (_("Leech"), "emblem-important.png", "tag:leech"))
         for name, icon, cmd in tags:
@@ -680,7 +680,7 @@ class Browser(QMainWindow):
                 item = self.CallbackItem(
                 g[0], lambda g=g: self.setFilter(
                     "deck", head+g[0]))
-                item.setIcon(0, QIcon(":/icons/stock_group.png"))
+                item.setIcon(0, QIcon(":/icons/deck16.png"))
                 root.addChild(item)
                 fillGroups(item, g[4], g[0]+"::")
         fillGroups(root, grps)
