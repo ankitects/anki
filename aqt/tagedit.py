@@ -16,7 +16,7 @@ class TagEdit(QLineEdit):
             self.completer = TagCompleter(self.model, parent, self)
         else:
             self.completer = QCompleter(self.model, parent)
-        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+        self.completer.setCompletionMode(QCompleter.PopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompleter(self.completer)
 
@@ -29,11 +29,11 @@ class TagEdit(QLineEdit):
             l = sorted(self.col.decks.allNames())
         self.model.setStringList(l)
 
-    def addTags(self, tags):
-        l = list(set([unicode(x) for x in list(self.model.stringList())] +
-                 tags))
-        l.sort(key=lambda x: x.lower())
-        self.model.setStringList(l)
+    # def addTags(self, tags):
+    #     l = list(set([unicode(x) for x in list(self.model.stringList())] +
+    #              tags))
+    #     l.sort(key=lambda x: x.lower())
+    #     self.model.setStringList(l)
 
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
@@ -54,7 +54,7 @@ class TagCompleter(QCompleter):
         self.tags.append(u"")
         p = self.edit.cursorPosition()
         self.cursor = str.count(" ", 0, p)
-        return self.tags[self.cursor]
+        return [self.tags[self.cursor]]
 
     def pathFromIndex(self, idx):
         if self.cursor is None:
