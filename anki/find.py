@@ -184,12 +184,13 @@ flds %s like :_text_%d escape '\\')""" % (extra, c, extra, c))
         self.lims['preds'].append("mid %s in %s" % (extra, ids2str(ids)))
 
     def _findDeck(self, val, isNeg):
-        extra = "!" if isNeg else ""
+        extra = "not" if isNeg else ""
         if val.lower() == "current":
             id = self.col.decks.current()['id']
         else:
             id = self.col.decks.id(val, create=False) or 0
-        self.lims['preds'].append("c.did %s= %s" % (extra, id))
+        ids = [id] + [a[1] for a in self.col.decks.children(id)]
+        self.lims['preds'].append("c.did %s in %s" % (extra, ids2str(ids)))
 
     def _findTemplate(self, val, isNeg):
         lims = []
