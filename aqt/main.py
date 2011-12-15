@@ -300,9 +300,6 @@ Are you sure?"""):
         if newState != "resetRequired":
             self.reviewer.cleanup()
 
-    def _editCurrentState(self, oldState):
-        pass
-
     def noteChanged(self, nid):
         "Called when a card or note is edited (but not deleted)."
         runHook("noteChanged", nid)
@@ -323,11 +320,8 @@ Are you sure?"""):
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
-        if self.state in ("overview", "review"):
+        if self.state in ("overview", "review", "deckBrowser"):
             self.moveToState("resetRequired")
-        elif self.state == "editCurrent":
-            # reload current card
-            pass
 
     def maybeReset(self):
         self.autosave()
