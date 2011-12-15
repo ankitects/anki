@@ -22,7 +22,7 @@ class Card(object):
         self.col = col
         self.timerStarted = None
         self._qa = None
-        self._rd = None
+        self._note = None
         if id:
             self.id = id
             self.load()
@@ -62,7 +62,7 @@ class Card(object):
          self.data) = self.col.db.first(
              "select * from cards where id = ?", self.id)
         self._qa = None
-        self._rd = None
+        self._note = None
 
     def flush(self):
         self.mod = intTime()
@@ -114,25 +114,19 @@ lapses=?, left=?, edue=? where id = ?""",
             self._qa = self.col._renderQA(data)
         return self._qa
 
-    def _reviewData(self, reload=False):
-        "Fetch the model and note."
-        if not self._rd or reload:
-            f = self.col.getNote(self.nid)
-            m = self.col.models.get(f.mid)
-            self._rd = [f, m]
-        return self._rd
+    def note(self, reload=False):
+        if not self._note or reload:
+            self._note = self.col.getNote(self.nid)
+        return self._note
 
-    def note(self):
-        return self._reviewData()[0]
-
-    def model(self, reload=False):
-        return self._reviewData()[1]
+    def model(self):
+        return self.col.models.get(self.note().mid)
 
     def deckConf(self):
         return self.col.decks.confForDid(self.did)
 
     def template(self):
-        return self._reviewData()[1]['tmpls'][self.ord]
+        return self.model()['tmpls'][self.ord]
 
     def startTimer(self):
         self.timerStarted = time.time()
