@@ -53,7 +53,9 @@ defaultConf = {
         'order': REV_CARDS_RANDOM,
     },
     'maxTaken': 60,
+    'timer': 0,
     'autoplay': True,
+    'desc': "",
     'mod': 0,
     'usn': 0,
 }
