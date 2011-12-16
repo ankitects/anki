@@ -248,7 +248,7 @@ class DataModel(QAbstractTableModel):
 
     def nextDue(self, c, index):
         if c.queue == 0:
-            return _("(new)") # str(c.due)
+            return str(c.due)
         elif c.queue == 1:
             date = c.due
         elif c.queue == 2:
