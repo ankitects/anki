@@ -108,6 +108,10 @@ and try again.""")
             return _("""\
 The connection to AnkiWeb timed out. Please check your network \
 connection and try again.""")
+        elif "500" in err:
+            return _("""\
+AnkiWeb encountered an error. Please try again in a few minutes, and if \
+the problem persists, please file a bug report.""")
         elif "501" in err:
             return _("""\
 Please upgrade to the latest version of Anki.""")
