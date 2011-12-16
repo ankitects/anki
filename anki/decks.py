@@ -17,6 +17,7 @@ defaultDeck = {
     'timeToday': [0, 0], # time in ms
     'conf': 1,
     'usn': 0,
+    'desc': "",
 }
 
 defaultConf = {
@@ -55,7 +56,6 @@ defaultConf = {
     'maxTaken': 60,
     'timer': 0,
     'autoplay': True,
-    'desc': "",
     'mod': 0,
     'usn': 0,
 }
