@@ -561,6 +561,24 @@ and ord = ? limit 1""", m['id'], t['ord']):
                 d.models.remTemplate(m, r)
             d.models.save(m)
 
+    # New due times
+    ######################################################################
+    # New cards now use a user-friendly increasing integer rather than a
+    # timestamp
+
+    def _rewriteNewDue(self):
+        col = self.col
+        pos = 0
+        lastDue = None
+        data = []
+        for id, due in col.db.execute(
+            "select id, due from cards where type = 0"):
+            if due != lastDue:
+                pos += 1
+                lastDue = due
+            data.append((pos, id))
+        col.db.executemany("update cards set due = ? where id = ?", data)
+
     # Post-schema upgrade
     ######################################################################
 
@@ -601,8 +619,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         for t in ("cards", "notes", "models", "media"):
             col.db.execute("drop table if exists %sDeleted" % t)
         # rewrite due times for new cards
-        col.db.execute("""
-update cards set due = nid where type=0""")
+        self._rewriteNewDue()
         # and failed cards
         left = len(col.decks.confForDid(1)['new']['delays'])
         col.db.execute("update cards set edue = ?, left=? where type = 1",
