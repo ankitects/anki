@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>610</width>
-    <height>430</height>
+    <width>700</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>0</height>
+    <width>700</width>
+    <height>500</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
       <widget class="QTreeWidget" name="tree">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
+         <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -62,6 +62,12 @@
        </column>
       </widget>
       <widget class="QSplitter" name="splitter">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -69,7 +75,7 @@
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>3</horstretch>
-          <verstretch>0</verstretch>
+          <verstretch>1</verstretch>
          </sizepolicy>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -117,8 +123,14 @@
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
-             <verstretch>4</verstretch>
+             <verstretch>1</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>150</height>
+            </size>
            </property>
            <property name="contextMenuPolicy">
             <enum>Qt::ActionsContextMenu</enum>
@@ -187,7 +199,7 @@
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
+               <verstretch>1</verstretch>
               </sizepolicy>
              </property>
              <property name="minimumSize">
@@ -212,7 +224,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>610</width>
+     <width>700</width>
      <height>22</height>
     </rect>
    </property>

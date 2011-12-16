@@ -302,7 +302,6 @@ class Browser(QMainWindow):
         self.lastFilter = ""
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
-        #self.setUnifiedTitleAndToolBarOnMac(True)
         restoreGeom(self, "editor", 0)
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter_2, "editor2")
@@ -470,7 +469,6 @@ class Browser(QMainWindow):
     def setupTable(self):
         self.model = DataModel(self)
         self.form.tableView.setSortingEnabled(True)
-        self.form.tableView.setShowGrid(False)
         self.form.tableView.setModel(self.model)
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
