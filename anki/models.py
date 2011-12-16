@@ -39,6 +39,8 @@ defaultField = {
     'rtl': False,
     'font': "Arial",
     'size': 20,
+    # reserved for future use
+    'media': [],
 }
 
 defaultTemplate = {
