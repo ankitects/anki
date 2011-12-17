@@ -168,6 +168,7 @@ function setFonts(fonts) {
     for (var i=0; i<fonts.length; i++) {
         $("#f"+i).css("font-family", fonts[i][0]);
         $("#f"+i).css("font-size", fonts[i][1]);
+        $("#f"+i)[0].dir = fonts[i][2] ? "rtl" : "ltr";
     }
 }
 
@@ -425,7 +426,7 @@ class Editor(object):
         self.web.setFocus()
 
     def fonts(self):
-        return [(f['font'], f['size'])
+        return [(f['font'], f['size'], f['rtl'])
                 for f in self.note.model()['flds']]
 
     def saveNow(self):
