@@ -157,6 +157,7 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
             "select factId, ordinal, value from fields order by factId, ordinal"):
             if fid not in fields:
                 fields[fid] = []
+            val = self._mungeField(val)
             fields[fid].append((ord, val))
         # build insert data and transform ids, and minimize qt's
         # bold/italics/underline cruft.
@@ -415,6 +416,16 @@ order by ordinal""", mid)):
             tmpls.append(conf)
         return tmpls
 
+    # Field munging
+    ######################################################################
+
+    def _mungeField(self, val):
+        # we no longer wrap fields in white-space: pre-wrap, so we need to
+        # convert previous whitespace into non-breaking spaces
+        def repl(match):
+            return match.group(1).replace(" ", "&nbsp;")
+        return re.sub("(  +)", repl, val)
+
     # Template upgrading
     ######################################################################
     # - {{field}} no longer inserts an implicit span, so we make the span
@@ -426,17 +437,18 @@ order by ordinal""", mid)):
             # cache field styles
             styles = {}
             for f in m['flds']:
-                attrs = [
-                    "font-family:%s" % f['font'],
-                    "font-size:%spx" % f['qsize'],
-                    "color:%s" % f['qcol'],
-                    "white-space:pre-wrap",
-                ]
+                attrs = []
+                if f['font'].lower() != 'arial':
+                    attrs.append("font-family: %s" % f['font'])
+                if f['qsize'] != 20:
+                    attrs.append("font-size: %spx" % f['qsize'])
+                if f['qcol'] not in ("black", "#000"):
+                    attrs.append("color: %s" % f['qcol'])
                 if f['rtl']:
-                    attrs.append("direction:rtl; unicode-bidi:embed")
-                    attrs.append()
-                styles[f['name']] = '<span style="%s">{{%s}}</span>' % (
-                    "; ".join(attrs), f['name'])
+                    attrs.append("direction: rtl; unicode-bidi: embed")
+                if attrs:
+                    styles[f['name']] = '<span style="%s">{{%s}}</span>' % (
+                        "; ".join(attrs), f['name'])
                 # obsolete
                 del f['qcol']
                 del f['qsize']
@@ -451,20 +463,19 @@ order by ordinal""", mid)):
                 for k in 'qfmt', 'afmt':
                     # replace old field references
                     t[k] = re.sub("(^|[^{]){{([^{}]+)?}}", repl, t[k])
-                    # then template properties.
-                    if t['bg'].lower() == "#ffffff":
-                        # a bit more intuitive default
-                        bg = "white"
-                    else:
-                        bg = t['bg']
-                    t[k] = '''\
-<style>
-.card {
- text-align:%s;
- background-color:%s;
-}
-</style>\n\n%s''' % (("center", "left", "right")[t['align']],
-                     bg, t[k])
+                    # then strip extra {}s from other fields
+                    t[k] = t[k].replace("{{{", "{{").replace("}}}", "}}")
+                    if "{{{" in t[k]:
+                        print t[k]
+                        raise Exception()
+                # adjust css
+                if t['bg'].lower() == "#ffffff":
+                    # a bit more intuitive default
+                    bg = "white"
+                else:
+                    bg = t['bg']
+                t['css'] = t['css'].replace("white", bg).replace(
+                    "center", ("center", "left", "right")[t['align']])
                 # remove obsolete
                 del t['bg']
                 del t['align']

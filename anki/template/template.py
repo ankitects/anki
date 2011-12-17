@@ -138,7 +138,7 @@ class Template(object):
     # {{{ functions just like {{ in anki
     @modifier('{')
     def render_tag(self, tag_name, context):
-        return render_unescaped(tag_name, context)
+        return self.render_unescaped(tag_name, context)
 
     @modifier('!')
     def render_comment(self, tag_name=None, context=None):
