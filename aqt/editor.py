@@ -28,7 +28,7 @@ _html = """
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
-.fname { font-size: 12px; vertical-align: middle; padding-right: 5px; }
+.fname { font-size: 10px; vertical-align: middle; padding: 0; }
 #dupes { font-size: 12px; }
 img { max-width: 150; max-height: 150; }
 body { margin: 5px; }
@@ -137,13 +137,13 @@ function setFields(fields, focusTo) {
     for (var i=0; i<fields.length; i++) {
         var n = fields[i][0];
         var f = fields[i][1];
-        txt += "<tr><td class=fname>{0}</td><td width=100%%>".format(n);
+        txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%%>".format(n);
         txt += "<div id=f{0} onkeydown='onKey();' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "contentEditable=true>{0}</div>".format(f);
         txt += "</td></tr>";
     }
-    $("#fields").html("<table cellpadding=3>"+txt+"</table>");
+    $("#fields").html("<table cellpadding=0 width=100%%>"+txt+"</table>");
     if (!focusTo) {
         focusTo = 0;
     }
