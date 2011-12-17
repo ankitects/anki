@@ -90,7 +90,7 @@ function _updateQA (q, answerMode) {
         typeans.focus();
     }
     if (answerMode) {
-        window.location = "#answerStart";
+        window.location = "#answer";
     }
 };
 function _getTypedText () {
@@ -213,7 +213,6 @@ function _typeAnsPress() {
     _css = """
 hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
-.cloze { font-weight: bold; color: blue; }
 img { max-width: 95%; max-height: 95%; }
 """
 

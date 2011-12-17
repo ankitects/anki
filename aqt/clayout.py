@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -73,7 +74,12 @@ class CardLayout(QDialog):
         # template area
         tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
+        tform.label1.setText(u" →")
+        tform.label2.setText(u" →")
+        tform.labelc1.setText(u" ↗")
+        tform.labelc2.setText(u" ↘")
         c(tform.front, SIGNAL("textChanged()"), self.saveCard)
+        c(tform.css, SIGNAL("textChanged()"), self.saveCard)
         c(tform.back, SIGNAL("textChanged()"), self.saveCard)
         l.addWidget(left, 5)
         # preview area
@@ -144,6 +150,7 @@ Please create a new card first."""))
         t = self.card.template()
         self.redrawing = True
         self.tab['tform'].front.setPlainText(t['qfmt'])
+        self.tab['tform'].css.setPlainText(t['css'])
         self.tab['tform'].back.setPlainText(t['afmt'])
         self.redrawing = False
 
@@ -152,6 +159,8 @@ Please create a new card first."""))
             return
         text = self.tab['tform'].front.toPlainText()
         self.card.template()['qfmt'] = text
+        text = self.tab['tform'].css.toPlainText()
+        self.card.template()['css'] = text
         text = self.tab['tform'].back.toPlainText()
         self.card.template()['afmt'] = text
         self.renderPreview()
@@ -161,15 +170,14 @@ Please create a new card first."""))
 
     def renderPreview(self):
         c = self.card
-        styles = "\n.cloze { font-weight: bold; color: blue; }"
         html = '''<html><head>%s</head><body class=card>
 <style>%s</style>%s</body></html>'''
         ti = self.maybeTextInput
         base = getBase(self.mw.col)
         self.tab['pform'].front.setHtml(
-            html % (base, styles, ti(mungeQA(c.q(reload=True)))))
+            html % (base, "", ti(mungeQA(c.q(reload=True)))))
         self.tab['pform'].back.setHtml(
-            html % (base, styles, ti(mungeQA(c.a()), 'a')))
+            html % (base, "", ti(mungeQA(c.a()), 'a')))
 
     def maybeTextInput(self, txt, type='q'):
         if type == 'q':

@@ -564,7 +564,7 @@ class Editor(object):
     def onCloze(self):
         # check that the model is set up for cloze deletion
         if 'cloze' not in self.note.model()['tmpls'][0]['qfmt']:
-            showInfo(_("Please select the cloze deletion note type first."),
+            showInfo(_("Cloze deletion requires a Cloze note type."),
                      help="ClozeDeletion")
             return
         f = self.note.fields[self.currentField]
@@ -643,6 +643,7 @@ class Editor(object):
         spc = QSpacerItem(5,10, QSizePolicy.Fixed)
         g.addItem(spc, n+1, 0)
         cb = QPushButton(_("+"))
+        cb.setShortcut(QKeySequence("F5"))
         cb.connect(cb, SIGNAL("clicked()"), self.onNewColour)
         cb.setFixedWidth(80)
         cb.setFixedHeight(16)
