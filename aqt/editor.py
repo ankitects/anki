@@ -88,6 +88,14 @@ function onFocus(elem) {
     $(elem).css("-webkit-user-select", "none");
     setTimeout(function () { unfocusHack() }, 1);
     py.run("focus:" + currentField.id.substring(1));
+    function pos(obj) {
+    	var cur = 0;
+        do {
+          cur += obj.offsetTop;
+         } while (obj = obj.offsetParent);
+    	return cur;
+    }
+    window.scroll(0,pos(elem)-15);
 }
 
 // restore cursor
