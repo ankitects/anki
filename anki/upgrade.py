@@ -411,7 +411,7 @@ order by ordinal""", mid)):
             # q fields now in a
             if not hideq:
                 conf['afmt'] = (
-                    conf['qfmt'] + "\n\n<hr id=answerStart>\n\n" + conf['afmt'])
+                    conf['qfmt'] + "\n\n<hr id=answer>\n\n" + conf['afmt'])
             tmpls.append(conf)
         return tmpls
 

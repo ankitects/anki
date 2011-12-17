@@ -132,7 +132,7 @@ def test_cloze():
     f = d.newNote()
     f['Text'] = "hello {{c1::world::typical}}"
     assert d.addNote(f) == 1
-    assert "<span class=cloze>[...(typical)]</span>" in f.cards()[0].q()
+    assert "<span class=cloze>[...typical]</span>" in f.cards()[0].q()
     assert "<span class=cloze>world</span>" in f.cards()[0].a()
     # and with 2 clozes
     f = d.newNote()
@@ -150,16 +150,6 @@ def test_cloze():
     assert d.addNote(f) == 1
     assert "<span class=cloze>b</span> <span class=cloze>c</span>" in (
         f.cards()[0].a())
-    # clozes should be supported in sections too
-    m = d.models.current()
-    m['tmpls'][0]['qfmt'] = "{{#cloze:1:Text}}{{Notes}}{{/cloze:1:Text}}"
-    d.models.save(m)
-    f = d.newNote()
-    f['Text'] = "hello"
-    f['Notes'] = "world"
-    assert d.addNote(f) == 0
-    f['Text'] = "hello {{c1::foo}}"
-    assert d.addNote(f) == 1
     # if we add another cloze, a card should be generated
     cnt = d.cardCount()
     f['Text'] = "{{c2::hello}} {{c1::foo}}"
@@ -179,25 +169,25 @@ def test_modelChange():
     mm.save(m)
     f = deck.newNote()
     f['Front'] = u'f'
-    f['Back'] = u'b'
+    f['Back'] = u'b123'
     deck.addNote(f)
     # switch fields
     map = {0: 1, 1: 0}
     deck.models.change(basic, [f.id], basic, map, None)
     f.load()
-    assert f['Front'] == 'b'
+    assert f['Front'] == 'b123'
     assert f['Back'] == 'f'
     # switch cards
     c0 = f.cards()[0]
     c1 = f.cards()[1]
-    assert ">b<" in c0.q()
+    assert "b123" in c0.q()
     assert "f" in c1.q()
     assert c0.ord == 0
     assert c1.ord == 1
     deck.models.change(basic, [f.id], basic, None, map)
     f.load(); c0.load(); c1.load()
     assert "f" in c0.q()
-    assert ">b<" in c1.q()
+    assert "b123" in c1.q()
     assert c0.ord == 1
     assert c1.ord == 0
     # .cards() returns cards in order
@@ -214,7 +204,7 @@ def test_modelChange():
         pass
     assert len(f.cards()) == 1
     # an unmapped field becomes blank
-    assert f['Front'] == 'b'
+    assert f['Front'] == 'b123'
     assert f['Back'] == 'f'
     deck.models.change(basic, [f.id], basic, map, None)
     f.load()

@@ -6,32 +6,19 @@ from anki.lang import _
 
 models = []
 
-header = """\
-<style>
-.card {
- text-align:center;
- background-color:white;
-}
-</style>\n\n"""
-
-def field(name, family="arial", size=20):
-    return """\
-<span style="font-family:%s; font-size:%spx; color:black; \
-white-space:pre-wrap;">{{%s}}</span>\n""" % (family, size, name)
-
 # Basic
 ##########################################################################
 
 def addBasicModel(col):
     mm = col.models
-    m = mm.new(_("Basic")) #2 field note"))
+    m = mm.new(_("Basic"))
     fm = mm.newField(_("Front"))
     mm.addField(m, fm)
     fm = mm.newField(_("Back"))
     mm.addField(m, fm)
     t = mm.newTemplate(_("Forward"))
-    t['qfmt'] = header + field(_("Front"))
-    t['afmt'] = t['qfmt'] + "\n\n<hr id=answerStart>\n\n" + field(_("Back"))
+    t['qfmt'] = "{{Front}}"
+    t['afmt'] = t['qfmt'] + "\n\n<hr id=answer>\n\n{{Back}}"
     mm.addTemplate(m, t)
     mm.add(m)
     return m
@@ -51,10 +38,14 @@ def addClozeModel(col):
     for i in range(8):
         n = i+1
         t = mm.newTemplate(_("Cloze") + " %d" % n)
-        t['qfmt'] = header + ("{{#cloze:%d:Text}}\n"+
-                               field("cloze:%d:Text" % n)+
-                               "{{/cloze:%d:Text}}") % (n, n)
-        t['afmt'] = t['qfmt'] + "<br>\n"+field("Notes")
+        fmt = "{{cloze:%d:Text}}%%s" % n
+        t['css'] += """
+.cloze {
+ font-weight: bold;
+ color: blue;
+}"""
+        t['qfmt'] = fmt % ""
+        t['afmt'] = fmt % "\n{{Notes}}"
         mm.addTemplate(m, t)
     mm.add(m)
     return m

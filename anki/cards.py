@@ -101,10 +101,13 @@ lapses=?, left=?, edue=? where id = ?""",
             self.left, self.edue, self.id)
 
     def q(self, reload=False):
-        return self._getQA(reload)['q']
+        return self.css() + self._getQA(reload)['q']
 
     def a(self):
-        return self._getQA()['a']
+        return self.css() + self._getQA()['a']
+
+    def css(self):
+        return "<style>%s</style>" % self.template()['css']
 
     def _getQA(self, reload=False):
         if not self._qa or reload:

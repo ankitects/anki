@@ -138,10 +138,7 @@ class Template(object):
     # {{{ functions just like {{ in anki
     @modifier('{')
     def render_tag(self, tag_name, context):
-        raw = get_or_attr(context, tag_name, '')
-        if not raw and raw is not 0:
-            return ''
-        return raw
+        return render_unescaped(tag_name, context)
 
     @modifier('!')
     def render_comment(self, tag_name=None, context=None):
@@ -152,6 +149,7 @@ class Template(object):
     def render_unescaped(self, tag_name=None, context=None):
         """Render a tag without escaping it."""
         if tag_name.startswith("text:"):
+            # strip html
             tag = tag_name[5:]
             txt = get_or_attr(context, tag)
             if txt:
@@ -163,12 +161,14 @@ class Template(object):
             return "[[%s]]" % tag_name
         elif (tag_name.startswith("cq:") or
               tag_name.startswith("ca:")):
+            # cloze deletion
             m = re.match("c(.+):(\d+):(.+)", tag_name)
             (type, ord, tag) = (m.group(1), m.group(2), m.group(3))
             txt = get_or_attr(context, tag)
             if txt:
                 return self.clozeText(txt, ord, type)
             return ""
+        # regular field
         return get_or_attr(context, tag_name, '{unknown field %s}' % tag_name)
 
     def clozeText(self, txt, ord, type):

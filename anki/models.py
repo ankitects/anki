@@ -49,6 +49,15 @@ defaultTemplate = {
     'qfmt': "",
     'afmt': "",
     'did': None,
+    'css': """\
+.card {
+ font-family: arial;
+ font-size: 20px;
+ text-align: center;
+ color: black;
+ background-color: white;
+}
+"""
 }
 
 class ModelManager(object):
@@ -432,7 +441,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         if cloze:
             # need a cloze-specific filler
             cloze = ""
-            nums = re.findall("\{\{#cloze:(\d+):", t['qfmt'])
+            nums = re.findall("\{\{cloze:(\d+):", t['qfmt'])
             for n in nums:
                 n = int(n)
                 cloze += "{{c%d::foo}}" % n
