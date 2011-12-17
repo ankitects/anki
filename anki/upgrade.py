@@ -465,9 +465,12 @@ order by ordinal""", mid)):
                     t[k] = re.sub("(^|[^{]){{([^{}]+)?}}", repl, t[k])
                     # then strip extra {}s from other fields
                     t[k] = t[k].replace("{{{", "{{").replace("}}}", "}}")
-                    if "{{{" in t[k]:
-                        print t[k]
-                        raise Exception()
+                    # remove superfluous formatting from 1.0 -> 1.2 upgrade
+                    t[k] = re.sub("font-size: ?20px;?", "", t[k])
+                    t[k] = re.sub("(?i)font-family: ?arial;?", "", t[k])
+                    t[k] = re.sub("color: ?#000(000)?;?", "", t[k])
+                    t[k] = re.sub("white-space: ?pre-wrap;?", "", t[k])
+                    t[k] = re.sub('<span style=" *">(.+?)</span>', '\\1', t[k])
                 # adjust css
                 if t['bg'].lower() == "#ffffff":
                     # a bit more intuitive default
