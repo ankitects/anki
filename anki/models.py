@@ -438,6 +438,7 @@ select id from notes where mid = ?)""" % " ".join(map),
                 cloze += "{{c%d::foo}}" % n
                 # record that we require a specific string for generation
                 reqstrs.append("{{c%d::" % n)
+            return 'all', [], reqstrs
         for f in flds:
             a.append(cloze if cloze else "1")
             b.append("")
