@@ -113,7 +113,8 @@ body { margin: 1em; -webkit-user-select: none; }
     def _rename(self, did):
         self.mw.checkpoint(_("Rename Deck"))
         deck = self.mw.col.decks.get(did)
-        newName = getOnlyText(_("New deck name:"))
+        newName = getOnlyText(_("New deck name:"), default=deck['name'])
+        newName = newName.replace("'", "").replace('"', "")
         if not newName:
             return
         if deck in self.mw.col.decks.allNames():
