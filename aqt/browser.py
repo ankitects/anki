@@ -1210,9 +1210,11 @@ select fm.id, fm.name from fieldmodels fm""")
 
     def onPreviousCard(self):
         self._moveCur(QAbstractItemView.MoveUp)
+        self.editor.web.setFocus()
 
     def onNextCard(self):
         self._moveCur(QAbstractItemView.MoveDown)
+        self.editor.web.setFocus()
 
     def onFind(self):
         self.form.searchEdit.setFocus()
