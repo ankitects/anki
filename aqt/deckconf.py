@@ -172,10 +172,12 @@ class DeckConf(QDialog):
     # Saving
     ##################################################
 
-    def updateList(self, conf, key, w):
+    def updateList(self, conf, key, w, minSize=1):
         items = unicode(w.text()).split(" ")
         ret = []
         for i in items:
+            if not i:
+                continue
             try:
                 i = float(i)
                 assert i > 0
@@ -186,6 +188,9 @@ class DeckConf(QDialog):
                 # invalid, don't update
                 showWarning(_("Steps must be numbers."))
                 return
+        if len(ret) < minSize:
+            showWarning(_("At least one step is required."))
+            return
         conf[key] = ret
 
     def saveConf(self):
@@ -209,7 +214,7 @@ class DeckConf(QDialog):
         c['fi'] = [f.fi1.value(), f.fi2.value()]
         # lapse
         c = self.conf['lapse']
-        self.updateList(c, 'delays', f.lapSteps)
+        self.updateList(c, 'delays', f.lapSteps, minSize=0)
         c['mult'] = f.lapMult.value()/100.0
         c['minInt'] = f.lapMinInt.value()
         c['leechFails'] = f.leechThreshold.value()
