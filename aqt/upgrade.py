@@ -31,6 +31,7 @@ class Upgrader(object):
 
     def _oldConfigPath(self):
         if isWin:
+            os.environ['HOME'] = os.environ['APPDATA']
             p = "~/.anki/config.db"
         elif isMac:
             p = "~/Library/Application Support/Anki/config.db"
