@@ -63,6 +63,8 @@ def _latexFromHtml(col, latex):
     "Convert entities and fix newlines."
     for match in re.compile("&([a-z]+);", re.IGNORECASE).finditer(latex):
         if match.group(1) in entitydefs:
+            if match.group() == "&nbsp;":
+                continue
             latex = latex.replace(match.group(), entitydefs[match.group(1)])
     latex = re.sub("<br( /)?>", "\n", latex)
     latex = stripHTML(latex)
