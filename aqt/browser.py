@@ -33,7 +33,7 @@ class DataModel(QAbstractTableModel):
         self.col = browser.col
         self.sortKey = None
         self.activeCols = self.col.conf.get(
-            "activeCols", ["noteFld", "template", "cardDue", "cardEase"])
+            "activeCols", ["noteFld", "template", "cardDue", "deck"])
         self.cards = []
         self.cardObjs = {}
 
