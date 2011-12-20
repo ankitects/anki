@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openLink
+from aqt.utils import askUser, getOnlyText, openLink, showWarning
 import aqt
 
 class DeckBrowser(object):
@@ -124,7 +124,7 @@ body { margin: 1em; -webkit-user-select: none; }
 
     def _delete(self, did):
         self.mw.checkpoint(_("Delete Deck"))
-        if did == 1:
+        if str(did) == '1':
             return showWarning(_("The default deck can't be deleted."))
         deck = self.mw.col.decks.get(did)
         if askUser(_("""\
