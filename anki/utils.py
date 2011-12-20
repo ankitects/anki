@@ -194,7 +194,7 @@ def maxID(db):
 # used in ankiweb
 def base62(num, extra=""):
     s = string
-    table = s.letters + s.digits + extra
+    table = s.ascii_letters + s.digits + extra
     buf = ""
     while num:
         num, i = divmod(num, len(table))
