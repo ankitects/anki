@@ -407,7 +407,7 @@
          <item row="0" column="2">
           <widget class="QLabel" name="label_11">
            <property name="text">
-            <string>backups of each deck</string>
+            <string>backups</string>
            </property>
           </widget>
          </item>
