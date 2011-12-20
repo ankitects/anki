@@ -522,6 +522,8 @@ order by ordinal""", mid)):
                         break
                 # add the new field
                 f = col.models.newField(fld)
+                f['qsize'] = 20
+                f['qcol'] = '#000'
                 col.models.addField(m, f)
                 # loop through notes and write reference into new field
                 data = []
