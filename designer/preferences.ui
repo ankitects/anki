@@ -75,7 +75,7 @@
        <item>
         <widget class="QCheckBox" name="deleteMedia">
          <property name="text">
-          <string>When adding media, move instead of copying</string>
+          <string>When adding media, move files instead of copying</string>
          </property>
         </widget>
        </item>
