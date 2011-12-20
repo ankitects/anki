@@ -21,7 +21,7 @@ echo "__all__ = [" >> $init
 echo "Generating forms.."
 for i in designer/*.ui
 do
-    base=$(basename -s.ui $i)
+    base=$(basename $i .ui)
     py="aqt/forms/${base}.py"
     echo "	\"$base\"," >> $init
     echo "import $base" >> $temp
