@@ -199,6 +199,7 @@ Are you sure?"""):
         self.pm.profile['mainWindowState'] = self.saveState()
         self.pm.save()
         self.pm.profile = None
+        self.hide()
         if browser:
             self.showProfileManager()
 
