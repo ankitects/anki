@@ -115,7 +115,7 @@ class DeckManager(object):
 
     def rem(self, did, cardsToo=False):
         "Remove the deck. If cardsToo, delete any cards inside."
-        assert did != 1
+        assert str(did) != '1'
         if not str(did) in self.decks:
             return
         # delete children first
