@@ -91,9 +91,8 @@ def run():
 
     # qt translations
     translationPath = ''
-    if not isWin and not isMac:
+    if False: # not isWin and not isMac:
         translationPath = "/usr/share/qt4/translations/"
-    if translationPath:
         long = conf['interfaceLang']
         short = long.split('_')[0]
         qtTranslator = QTranslator()
