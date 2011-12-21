@@ -60,7 +60,6 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
                             self.mod, self.usn, tags,
                             self.joinedFields(), sfld, csum, self.flags,
                             self.data)
-        self.id = res.lastrowid
         self.col.tags.register(self.tags)
         self._postFlush()
 
