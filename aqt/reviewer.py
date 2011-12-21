@@ -5,7 +5,7 @@
 import time, os, stat, shutil, difflib, simplejson, re
 import unicodedata as ucd
 from aqt.qt import *
-from anki.utils import fmtTimeSpan, stripHTML
+from anki.utils import fmtTimeSpan, stripHTML, isWin
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, hasSound
 from aqt.utils import mungeQA, getBase, shortcut
@@ -30,7 +30,10 @@ class Reviewer(object):
         self.mw.keyHandler = self._keyHandler
         self.web.setLinkHandler(self._linkHandler)
         self.web.setKeyHandler(self._catchEsc)
-        self.bottom.web.setFixedHeight(46)
+        if isWin:
+            self.bottom.web.setFixedHeight(52)
+        else:
+            self.bottom.web.setFixedHeight(46)
         self.bottom.web.setLinkHandler(self._linkHandler)
         self.nextCard()
 
