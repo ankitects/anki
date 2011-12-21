@@ -35,7 +35,7 @@ class AddCards(QDialog):
         addHook('reset', self.onReset)
         addHook('currentModelChanged', self.onReset)
         self.mw.requireReset(modal=True)
-        self.open()
+        self.show()
         self.setupNewNote()
 
     def setupEditor(self):
