@@ -19,6 +19,8 @@ class Overview(object):
 
     def show(self):
         self.web.setLinkHandler(self._linkHandler)
+        self.web.setKeyHandler(None)
+        self.mw.keyHandler = None
         self.refresh()
 
     def refresh(self):

@@ -13,9 +13,10 @@ class DeckBrowser(object):
         self.web = mw.web
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
 
-    def show(self, _init=True):
-        if _init:
-            self.web.setLinkHandler(self._linkHandler)
+    def show(self):
+        self.web.setLinkHandler(self._linkHandler)
+        self.web.setKeyHandler(None)
+        self.mw.keyHandler = None
         self._renderPage()
 
     # Event handlers

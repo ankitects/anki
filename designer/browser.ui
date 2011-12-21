@@ -316,7 +316,7 @@
      <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
    </property>
    <property name="text">
-    <string>F&amp;act</string>
+    <string>N&amp;ote</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+F</string>
