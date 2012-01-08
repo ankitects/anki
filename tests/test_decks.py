@@ -79,3 +79,49 @@ def test_rename():
     d.decks.rename(d.decks.get(id), "yo")
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
+
+def test_renameForDragAndDrop():
+    d = getEmptyDeck()
+
+    def deckNames():
+        return [ name for name in sorted(d.decks.allNames()) if name <> u'Default' ]
+
+    languages_did = d.decks.id('Languages')
+    chinese_did = d.decks.id('Chinese')
+    hsk_did = d.decks.id('Chinese::HSK')
+
+    # Renaming also renames children
+    d.decks.renameForDragAndDrop(chinese_did, languages_did)
+    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+
+    # Dragging a deck onto itself is a no-op
+    d.decks.renameForDragAndDrop(languages_did, languages_did)
+    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+
+    # Dragging a deck onto its parent is a no-op
+    d.decks.renameForDragAndDrop(hsk_did, chinese_did)
+    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+
+    # Dragging a deck onto a descendant is a no-op
+    d.decks.renameForDragAndDrop(languages_did, hsk_did)
+    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+
+    # Can drag a grandchild onto its grandparent.  It becomes a child
+    d.decks.renameForDragAndDrop(hsk_did, languages_did)
+    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::HSK' ]
+
+    # Can drag a deck onto its sibling
+    d.decks.renameForDragAndDrop(hsk_did, chinese_did)
+    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+
+    # Can drag a deck back to the top level
+    d.decks.renameForDragAndDrop(chinese_did, None)
+    assert deckNames() == [ 'Chinese', 'Chinese::HSK', 'Languages' ]
+
+    # Dragging a top level deck to the top level is a no-op
+    d.decks.renameForDragAndDrop(chinese_did, None)
+    assert deckNames() == [ 'Chinese', 'Chinese::HSK', 'Languages' ]
+
+    # '' is a convenient alias for the top level DID
+    d.decks.renameForDragAndDrop(hsk_did, '')
+    assert deckNames() == [ 'Chinese', 'HSK', 'Languages' ]
