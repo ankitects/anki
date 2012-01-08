@@ -14,12 +14,11 @@ The translations are stored in a bazaar repo for integration with launchpad's
 translation services. If you want to use a language other than English:
 
 $ cd ..
-$ mv libanki lib
 $ mv ankiqt qt
 $ bzr clone lp:anki
 $ cd anki
 $ ./update-mos.sh
-$ cd ../ankiqt
+$ cd ../qt
 
 And now you're ready to run Anki:
 $ ./anki
