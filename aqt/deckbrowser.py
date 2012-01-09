@@ -114,9 +114,10 @@ body { margin: 1em; -webkit-user-select: none; }
     def _rename(self, did):
         self.mw.checkpoint(_("Rename Deck"))
         deck = self.mw.col.decks.get(did)
-        newName = getOnlyText(_("New deck name:"), default=deck['name'])
+        oldName = deck['name']
+        newName = getOnlyText(_("New deck name:"), default=oldName)
         newName = newName.replace("'", "").replace('"', "")
-        if not newName:
+        if not newName or newName == oldName:
             return
         if deck in self.mw.col.decks.allNames():
             return showWarning(_("That deck already exists."))
