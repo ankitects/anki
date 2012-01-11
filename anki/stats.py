@@ -689,7 +689,7 @@ $(function () {
     def _avgDay(self, tot, num, unit):
         vals = []
         try:
-            vals.append(_("%d %s/day") % (tot/float(num), unit))
+            vals.append(_("%(a)d %(b)s/day") % dict(a=tot/float(num), b=unit))
             return ", ".join(vals)
         except ZeroDivisionError:
             return ""
