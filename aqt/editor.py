@@ -28,7 +28,7 @@ _html = """
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
-.fname { font-size: 10px; vertical-align: middle; padding: 0; }
+.fname { font-size: 12px; vertical-align: middle; padding: 0; }
 #dupes { font-size: 12px; }
 img { max-width: 150; max-height: 150; }
 body { margin: 5px; }
