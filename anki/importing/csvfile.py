@@ -69,6 +69,7 @@ class TextImporter(CardImporter):
         self.data = self.fileobj.read()
         if self.data.startswith(codecs.BOM_UTF8):
             self.data = self.data[len(codecs.BOM_UTF8):]
+        print "fixme: don't strip leading whitespace"
         def sub(s):
             return re.sub(
                 "^\#.*", "", re.sub(
