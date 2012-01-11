@@ -712,10 +712,10 @@ Please choose a new deck name:"""))
         except:
             pass
         lang = force if force else self.pm.profile["lang"]
-        languageDir=os.path.join(aqt.moduleDir, "locale")
-        self.languageTrans = gettext.translation('aqt', languageDir,
-                                            languages=[lang],
-                                            fallback=True)
+        languageDir=os.path.join(aqt.moduleDir,  "aqt", "locale")
+        self.languageTrans = gettext.translation('ankiqt', languageDir,
+                                                 languages=[lang],
+                                                 fallback=True)
         self.installTranslation()
         if getattr(self, 'form', None):
             self.form.retranslateUi(self)
