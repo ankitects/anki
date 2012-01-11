@@ -10,7 +10,7 @@ import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip, openHelp
+    showInfo, askUser, tooltip, openHelp, fontForPlatform
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, remHook
@@ -599,6 +599,9 @@ class Browser(QMainWindow):
         p = QPalette()
         p.setColor(QPalette.Base, QColor("#d6dde0"))
         self.form.tree.setPalette(p)
+        f = QFont()
+        f.setFamily(fontForPlatform())
+        self.form.tree.setFont(f)
         self.buildTree()
 
     def buildTree(self):

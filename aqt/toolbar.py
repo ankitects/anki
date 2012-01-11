@@ -119,10 +119,6 @@ color: #000;
 .hitem:hover {
 text-decoration: underline;
 }
-
-button {
-font-weight: bold;
-}
 """
 
 class BottomBar(Toolbar):

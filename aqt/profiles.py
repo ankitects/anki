@@ -11,7 +11,7 @@ import os, sys, time, random, cPickle, shutil, locale, re, atexit
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
 from anki.lang import langs, _
-from aqt.utils import showWarning
+from aqt.utils import showWarning, fontForPlatform
 import aqt.forms
 
 metaConf = dict(
@@ -40,7 +40,7 @@ profileConf = dict(
     searchHistory=[],
     recentColours=["#000000", "#0000ff"],
     stripHTML=True,
-    editFontFamily='Arial',
+    editFontFamily=fontForPlatform(),
     editFontSize=12,
     editLineSize=20,
     deleteMedia=False,

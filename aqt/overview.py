@@ -122,7 +122,7 @@ h3 { margin-bottom: 0; }
 td { font-size: 14px; }
 button { font-weight: bold; }
 .descfont {
-font: 12px/18px "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
+font-size: 12px;
 padding: 1em; color: #333;
 }
 .description {

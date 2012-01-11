@@ -4,6 +4,8 @@
 
 import sys
 from aqt.qt import *
+from aqt.utils import fontForPlatform
+from anki.utils import isMac
 import anki.js
 QtConfig = pyqtconfig.Configuration()
 
@@ -80,13 +82,23 @@ class AnkiWebView(QWebView):
         self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
     def stdHtml(self, body, css="", bodyClass="", loadCB=None, head=""):
+        if isMac:
+            button = "font-weight: bold; height: 24px;"
+        else:
+            button = ""
         self.setHtml("""
-<html><head><style>%s</style>
+<html><head><style>
+body { font-family: "%s"; }
+button {
+%s
+}
+%s</style>
 <script>%s</script>
 %s
+
 </head>
 <body class="%s">%s</body></html>""" % (
-    css, anki.js.all, head, bodyClass, body), loadCB)
+    fontForPlatform(), button, css, anki.js.all, head, bodyClass, body), loadCB)
     def setBridge(self, bridge):
         self._bridge.setBridge(bridge)
     def eval(self, js):
