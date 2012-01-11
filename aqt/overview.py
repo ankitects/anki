@@ -7,7 +7,7 @@ from aqt.qt import *
 from anki.consts import NEW_CARDS_RANDOM
 from anki.hooks import addHook
 from aqt.utils import showInfo, openLink
-from anki.utils import isWin
+from anki.utils import isMac
 import aqt
 
 class Overview(object):
@@ -150,5 +150,5 @@ text-align: left;
         for b in links:
             buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)
         self.bottom.draw(buf)
-        self.bottom.web.setFixedHeight(isWin and 36 or 32)
+        self.bottom.web.setFixedHeight(isMac and 28 or 36)
         self.bottom.web.setLinkHandler(self._linkHandler)

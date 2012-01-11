@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import re, os, sys, urllib2, ctypes, simplejson, traceback
-from anki.utils import stripHTML, isWin, namedtmp
+from anki.utils import stripHTML, isWin, isMac, namedtmp
 from anki.sound import play
 from anki.hooks import runHook
 from aqt.sound import getAudio
@@ -277,7 +277,7 @@ class Editor(object):
         self.widget.setStyle(self.plastiqueStyle)
         # icons
         self.iconsBox = QHBoxLayout()
-        if isWin:
+        if not isMac:
             self.iconsBox.setMargin(6)
         else:
             self.iconsBox.setMargin(0)

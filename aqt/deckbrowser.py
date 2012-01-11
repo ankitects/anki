@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning
-from anki.utils import isWin
+from anki.utils import isMac
 import aqt
 
 class DeckBrowser(object):
@@ -149,7 +149,7 @@ Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
         for b in links:
             buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)
         self.bottom.draw(buf)
-        self.bottom.web.setFixedHeight(isWin and 36 or 32)
+        self.bottom.web.setFixedHeight(isMac and 28 or 36)
         self.bottom.web.setLinkHandler(self._linkHandler)
 
     def _onShared(self):
