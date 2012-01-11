@@ -106,7 +106,7 @@ button {
     def _openLinksExternally(self, url):
         QDesktopServices.openUrl(QUrl(url))
     def _jsErr(self, msg, line, srcID):
-        sys.stderr.write(_("JS error on line %d: %s") % (line, msg+"\n"))
+        sys.stderr.write(_("JS error on line %(a)d: %(b)s") % dict(a=line, b=msg+"\n"))
     def _linkHandler(self, url):
         self.linkHandler(url.toString())
     def _loadFinished(self):
