@@ -277,7 +277,10 @@ class Editor(object):
         self.widget.setStyle(self.plastiqueStyle)
         # icons
         self.iconsBox = QHBoxLayout()
-        self.iconsBox.setMargin(0)
+        if isWin:
+            self.iconsBox.setMargin(6)
+        else:
+            self.iconsBox.setMargin(0)
         self.iconsBox.setSpacing(0)
         self.outerLayout.addLayout(self.iconsBox)
         b = self._addButton

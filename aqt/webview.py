@@ -85,7 +85,7 @@ class AnkiWebView(QWebView):
         if isMac:
             button = "font-weight: bold; height: 24px;"
         else:
-            button = ""
+            button = "font-weight: normal; font-size: 12px;"
         self.setHtml("""
 <html><head><style>
 body { font-family: "%s"; }

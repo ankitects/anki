@@ -343,6 +343,9 @@ margin: 0;
 padding: 0px;
 padding-left: 5px; padding-right: 5px;
 }
+button {
+min-width: 60px;
+}
 td { font-weight: bold; font-size: 12px; }
 .hitem { margin-top: 2px; }
 .stat { padding-top: 5px; }
