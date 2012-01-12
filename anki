@@ -16,7 +16,7 @@ if __name__ == "__main__":
         import aqt.forms
     except ImportError, e:
         if "aqt.forms" in str(e):
-            raise Exception("Please read README.development.")
-        else:
-            raise
+            print "If you're running from git, did you run build_ui.sh?"
+            print
+        raise
     aqt.run()
