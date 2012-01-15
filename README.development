@@ -22,3 +22,6 @@ $ cd ../qt
 
 And now you're ready to run Anki:
 $ ./anki
+
+Windows users may find the following document useful: 
+http://ankisrs.net/docs/WindowsDevEnvironment.html
