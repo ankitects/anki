@@ -45,7 +45,8 @@ class DeckBrowser(object):
     ##########################################################################
 
     _css = """
-a.deck { color: #000; text-decoration: none; font-size: 12px; }
+tr { font-size: 12px; }
+a.deck { color: #000; text-decoration: none; }
 a.deck:hover { text-decoration: underline; }
 td.opts { white-space: nowrap; }
 td.deck { width: 90% }
@@ -72,7 +73,10 @@ body { margin: 1em; -webkit-user-select: none; }
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:
             return ""
-        buf = ""
+        buf = """
+<tr><th colspan=5 align=left>%s</th><th align=right>%s</th>
+<th align=right>%s</th></tr>""" % (
+            _("Deck"), _("Due"), _("New"))
         for node in nodes:
             buf += self._deckRow(node, depth)
         return buf
@@ -81,10 +85,17 @@ body { margin: 1em; -webkit-user-select: none; }
         name, did, due, new, children = node
         def indent():
             return "&nbsp;"*3*depth
-        # due image
-        buf = "<tr><td colspan=5>" + indent() + self._dueImg(due, new)
+        buf = "<tr>"
         # deck link
-        buf += " <a class=deck href='open:%d'>%s</a></td>"% (did, name)
+        buf += "<td colspan=5><a class=deck href='open:%d'>%s</a></td>"% (did, name)
+        # due counts
+        def nonzeroColour(cnt, colour):
+            if not cnt:
+                colour = "#aaa"
+            return "<font color='%s'>%s</font>" % (colour, cnt)
+        buf += "<td align=right>%s</td><td align=right>%s</td>" % (
+            nonzeroColour(due, "#007700"),
+            nonzeroColour(new, "#000099"))
         # options
         buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
             link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>&#9662;")
