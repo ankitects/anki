@@ -73,10 +73,13 @@ body { margin: 1em; -webkit-user-select: none; }
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:
             return ""
-        buf = """
+        if depth == 0:
+            buf = """
 <tr><th colspan=5 align=left>%s</th><th align=right>%s</th>
 <th align=right>%s</th></tr>""" % (
             _("Deck"), _("Due"), _("New"))
+        else:
+            buf = ""
         for node in nodes:
             buf += self._deckRow(node, depth)
         return buf
@@ -87,7 +90,8 @@ body { margin: 1em; -webkit-user-select: none; }
             return "&nbsp;"*3*depth
         buf = "<tr>"
         # deck link
-        buf += "<td colspan=5><a class=deck href='open:%d'>%s</a></td>"% (did, name)
+        buf += "<td colspan=5>%s<a class=deck href='open:%d'>%s</a></td>"% (
+            indent(), did, name)
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
