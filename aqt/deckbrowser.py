@@ -95,7 +95,7 @@ body { margin: 1em; -webkit-user-select: none; }
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
-                colour = "#aaa"
+                colour = "#e0e0e0"
             return "<font color='%s'>%s</font>" % (colour, cnt)
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
             nonzeroColour(due, "#007700"),
