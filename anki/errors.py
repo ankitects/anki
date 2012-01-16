@@ -11,3 +11,9 @@ class AnkiError(Exception):
         if self.data:
             m += ": %s" % repr(self.data)
         return m
+
+class DeckRenameError(Exception):
+    def __init__(self, description):
+        self.description = description
+    def __str__(self):
+        return "Couldn't rename deck: " + description
