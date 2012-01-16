@@ -262,12 +262,6 @@ class DeckManager(object):
         c = self.current()
         self.select(c['id'])
 
-    def sendHome(self, cids):
-        self.col.db.execute("""
-update cards set did=(select did from notes f where f.id=nid),
-usn=?,mod=? where id in %s""" % ids2str(cids),
-                             self.col.usn(), intTime(), did)
-
     def cids(self, did):
         return self.col.db.list("select id from cards where did=?", did)
 
@@ -287,7 +281,6 @@ usn=?,mod=? where id in %s""" % ids2str(cids),
 
     def select(self, did):
         "Select a new branch."
-        name = self.decks[str(did)]['name']
         # current deck
         self.col.conf['curDeck'] = did
         # and active decks (current + all children)
