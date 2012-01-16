@@ -303,7 +303,7 @@ class Editor(object):
         b("text_sub", self.toggleSub, "Ctrl+Shift+=",
           _("Subscript (Ctrl+Shift+=)"), check=True)
         b("text_remove", self.removeFormat, "Ctrl+r",
-          _("Subscript (Ctrl+r)"))
+          _("Remove Formatting (Ctrl+r)"))
         but = b("foreground", self.onForeground, "F7", text=" ")
         self.setupForegroundButton(but)
         but = b("cloze", self.onCloze, "Ctrl+Shift+c",
