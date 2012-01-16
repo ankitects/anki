@@ -5,10 +5,10 @@
 import os, cPickle, ctypes, shutil
 from aqt.qt import *
 from anki.utils import isMac, isWin
-from aqt.utils import openHelp
 from anki import Collection
 from anki.importing import Anki1Importer
 from anki.db import DB
+import aqt
 
 class Upgrader(object):
 
@@ -131,7 +131,8 @@ carefully, as a lot has changed since the previous Anki version."""))
             def isComplete(self):
                 return False
             def initializePage(self):
-                openHelp("changes")
+                # can't use openLink; gui not ready for tooltips
+                QDesktopServices.openUrl(QUrl(aqt.appChanges))
                 self.setCommitPage(True)
                 self.setTitle(_("Upgrading"))
                 self.label = l = QLabel()

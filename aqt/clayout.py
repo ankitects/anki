@@ -9,7 +9,7 @@ import aqt
 from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      saveSplitter, restoreSplitter, showInfo, askUser, getOnlyText, \
-     showWarning, openHelp
+     showWarning, openHelp, openLink
 from anki.utils import isMac, isWin
 
 class CardLayout(QDialog):
@@ -87,7 +87,7 @@ class CardLayout(QDialog):
         pform = aqt.forms.preview.Ui_Form()
         pform.setupUi(right)
         def linkClicked(url):
-            QDesktopServices.openUrl(QUrl(url))
+            openLink(url)
         for wig in pform.front, pform.back:
             wig.page().setLinkDelegationPolicy(
                 QWebPage.DelegateExternalLinks)
@@ -276,4 +276,4 @@ Enter deck to place new %s cards in, or leave blank:""") %
         return QDialog.reject(self)
 
     def onHelp(self):
-        openHelp("CardLayout")
+        openHelp("templates")

@@ -65,7 +65,7 @@ class UpdateMap(QDialog):
         self.exec_()
 
     def helpRequested(self):
-        openHelp("FileImport")
+        openHelp("importing")
 
     def accept(self):
         self.updateKey = (
@@ -147,7 +147,7 @@ class ImportDialog(QDialog):
 By default, Anki will detect the character between fields, such as
 a tab, comma, and so on. If Anki is detecting the character incorrectly,
 you can enter it here. Use \\t to represent tab."""),
-                self, help="FileImport")
+                self, help="importing")
         str = str.replace("\\t", "\t")
         str = str.encode("ascii")
         self.hideMapping()

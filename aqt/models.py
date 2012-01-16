@@ -18,7 +18,7 @@ class Models(QDialog):
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     lambda: openHelp("Models"))
+                     lambda: openHelp("notetypes"))
         self.setupModels()
         self.exec_()
 
@@ -102,7 +102,7 @@ class Models(QDialog):
         d.setWindowTitle(_("Options for %s") % self.model['name'])
         self.connect(
             frm.buttonBox, SIGNAL("helpRequested()"),
-            lambda: openHelp("NoteOptions"))
+            lambda: openHelp("latex"))
         d.exec_()
         self.model['latexPre'] = unicode(frm.latexHeader.toPlainText())
         self.model['latexPost'] = unicode(frm.latexFooter.toPlainText())
@@ -168,4 +168,4 @@ class AddModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self):
-        openHelp("AddModel")
+        openHelp("notetypes")

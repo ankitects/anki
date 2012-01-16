@@ -47,7 +47,7 @@ class AddCards(QDialog):
             self.mw, self.form.modelArea)
 
     def helpRequested(self):
-        openHelp("AddItems")
+        openHelp("addingnotes")
 
     def setupButtons(self):
         bb = self.form.buttonBox

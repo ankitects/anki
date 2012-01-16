@@ -4,7 +4,7 @@
 
 import sys
 from aqt.qt import *
-from aqt.utils import fontForPlatform
+from aqt.utils import fontForPlatform, openLink
 from anki.utils import isMac
 import anki.js
 QtConfig = pyqtconfig.Configuration()
@@ -105,7 +105,7 @@ button {
     def eval(self, js):
         self.page().mainFrame().evaluateJavaScript(js)
     def _openLinksExternally(self, url):
-        QDesktopServices.openUrl(QUrl(url))
+        openLink(url)
     def _jsErr(self, msg, line, srcID):
         sys.stderr.write(_("JS error on line %(a)d: %(b)s") % dict(a=line, b=msg+"\n"))
     def _linkHandler(self, url):

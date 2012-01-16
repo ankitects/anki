@@ -21,7 +21,7 @@ class DeckConf(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: openHelp("StudyOptions"))
+                     lambda: openHelp("deckoptions"))
         self.connect(self.form.confOpts, SIGNAL("clicked()"), self.confOpts)
         self.form.confOpts.setText(u"▾")
         self.connect(self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults),

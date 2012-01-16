@@ -155,4 +155,4 @@ class FieldDialog(QDialog):
         self.reject()
 
     def onHelp(self):
-        openHelp("Fields")
+        openHelp("fields")

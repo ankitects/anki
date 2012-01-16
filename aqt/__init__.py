@@ -6,7 +6,8 @@ from aqt.qt import *
 
 appVersion="2.0-alpha3"
 appWebsite="http://ankisrs.net/"
-appHelpSite="http://ankisrs.net/docs/dev/"
+appHelpSite="http://ankisrs.net/docs/dev/manual.html"
+appChanges="http://ankisrs.net/docs/dev/changes.html"
 appDonate="http://ankisrs.net/support/"
 appShared="http://beta.ankiweb.net/shared/"
 mw = None # set on init

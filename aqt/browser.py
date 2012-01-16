@@ -828,7 +828,7 @@ where id in %s""" % ids2str(sf))
         return sf
 
     def onHelp(self):
-        openHelp("Browser")
+        openHelp("browser")
 
     # Misc menu options
     ######################################################################
@@ -1121,7 +1121,7 @@ where id in %s""" % ids2str(self.selectedCards()), usn, mod)
             })
 
     def onFindReplaceHelp(self):
-        openHelp("Browser#FindReplace")
+        openHelp("findreplace")
 
     # Edit: finding dupes
     ######################################################################
@@ -1397,7 +1397,7 @@ Are you sure you want to continue?""")):
         return QDialog.accept(self)
 
     def onHelp(self):
-        openHelp("Browser#ChangeModel")
+        openHelp("browsermisc")
 
 # Toolbar
 ######################################################################

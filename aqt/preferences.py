@@ -17,7 +17,7 @@ class Preferences(QDialog):
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     lambda: openHelp("Preferences"))
+                     lambda: openHelp("profileprefs"))
         self.setupCollection()
         self.setupLang()
         self.setupNetwork()

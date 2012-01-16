@@ -481,7 +481,7 @@ class Editor(object):
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         d.connect(form.buttonBox, SIGNAL("helpRequested()"),
-                 lambda: openHelp("HtmlEditor"))
+                 lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[self.currentField])
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()

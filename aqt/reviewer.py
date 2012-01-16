@@ -8,7 +8,7 @@ from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML, isMac
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, hasSound
-from aqt.utils import mungeQA, getBase, shortcut
+from aqt.utils import mungeQA, getBase, shortcut, openLink
 import aqt
 
 class Reviewer(object):
@@ -208,7 +208,7 @@ function _typeAnsPress() {
             (cmd, arg) = url.split(":", 1)
             self.typedAnswer = arg
         else:
-            QDesktopServices.openUrl(QUrl(url))
+            openLink(url)
 
     # CSS
     ##########################################################################

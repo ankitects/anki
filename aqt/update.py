@@ -6,6 +6,7 @@ import urllib, urllib2, os, sys, time, httplib
 import anki, anki.utils, anki.lang, anki.stats
 import aqt
 import simplejson, platform
+from aqt.utils import openLink
 
 baseUrl = "http://ankiweb.net/update/"
 #baseUrl = "http://localhost:8001/update/"
@@ -65,7 +66,7 @@ def askAndUpdate(parent, version=None):
         # ignore this update
         parent.config['suppressUpdate'] = version
     elif ret == QMessageBox.Yes:
-        QDesktopServices.openUrl(QUrl(aqt.appWebsite))
+        openLink(aqt.appWebsite)
 
 def showMessages(main, data):
     aqt.ui.utils.showText(data['msg'], main, type="html")

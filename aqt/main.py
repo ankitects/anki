@@ -19,7 +19,7 @@ import aqt, aqt.progress, aqt.webview, aqt.toolbar
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical, getFile, \
-    tooltip
+    tooltip, openHelp, openLink
 
 ## fixme: open plugin folder broken on win32?
 
@@ -674,10 +674,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         aqt.about.show(self)
 
     def onDonate(self):
-        QDesktopServices.openUrl(QUrl(aqt.appDonate))
+        openLink(aqt.appDonate)
 
     def onDocumentation(self):
-        QDesktopServices.openUrl(QUrl(aqt.appHelpSite))
+        openHelp("")
 
     # Importing & exporting
     ##########################################################################

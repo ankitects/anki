@@ -7,15 +7,14 @@ import aqt
 from anki.sound import playFromText, stripSounds
 from anki.utils import call, isWin, isMac
 
-def openHelp(name):
-    if "#" in name:
-        name = name.split("#")
-        name = name[0] + ".html#" + name[1]
-    else:
-        name = name + ".html"
-    QDesktopServices.openUrl(QUrl(aqt.appHelpSite + name))
+def openHelp(section):
+    link = aqt.appHelpSite
+    if section:
+        link += "#%s" % section
+    openLink(link)
 
 def openLink(link):
+    tooltip(_("Loading..."), period=1000)
     QDesktopServices.openUrl(QUrl(link))
 
 def showWarning(text, parent=None, help=""):
