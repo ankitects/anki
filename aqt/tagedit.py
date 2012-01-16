@@ -29,11 +29,17 @@ class TagEdit(QLineEdit):
             l = sorted(self.col.decks.allNames())
         self.model.setStringList(l)
 
-    # def addTags(self, tags):
-    #     l = list(set([unicode(x) for x in list(self.model.stringList())] +
-    #              tags))
-    #     l.sort(key=lambda x: x.lower())
-    #     self.model.setStringList(l)
+    def focusInEvent(self, evt):
+        QLineEdit.focusInEvent(self, evt)
+        self.showCompleter()
+
+    def keyPressEvent(self, evt):
+        QLineEdit.keyPressEvent(self, evt)
+        self.showCompleter()
+
+    def showCompleter(self):
+        self.completer.setCompletionPrefix(self.text())
+        self.completer.complete()
 
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
