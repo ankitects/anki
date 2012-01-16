@@ -5,6 +5,7 @@
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning
 from anki.utils import isMac
+from anki.errors import DeckRenameError
 import aqt
 
 class DeckBrowser(object):
@@ -36,6 +37,9 @@ class DeckBrowser(object):
             self._onShared()
         elif cmd == "import":
             self.mw.onImport()
+        elif cmd == "drag":
+            draggedDeckDid, ontoDeckDid = arg.split(',')
+            self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
 
     def _selDeck(self, did):
         self.mw.col.decks.select(did)
@@ -48,7 +52,7 @@ class DeckBrowser(object):
 a.deck { color: #000; text-decoration: none; font-size: 12px; }
 a.deck:hover { text-decoration: underline; }
 td.opts { white-space: nowrap; }
-td.deck { width: 90% }
+.drag-hover { background-color: #448; }
 .extra { font-size: 90%; }
 body { margin: 1em; -webkit-user-select: none; }
 """
@@ -59,11 +63,42 @@ body { margin: 1em; -webkit-user-select: none; }
 %(tree)s
 </table>
 </center>
+<script>
+    $( init );
+
+    function init() {
+        $("tr.deck").draggable({
+            scroll: false,
+
+            // can't use "helper: 'clone'" because of a bug in jQuery 1.5
+            helper: function (event) {
+                return $(this).clone(false);
+            },
+            opacity: 0.7
+        });
+        $("tr.deck").droppable({
+            drop: handleDropEvent,
+            hoverClass: 'drag-hover',
+        });
+        $("tr.bottom-row").droppable({
+            drop: handleDropEvent,
+            hoverClass: 'drag-hover',
+        });
+    }
+
+    function handleDropEvent(event, ui) {
+        var draggedDeckId = ui.draggable.attr('id');
+        var ontoDeckId = $(this).attr('id');
+
+        py.link("drag:" + draggedDeckId + "," + ontoDeckId);
+    }
+</script>
 """
 
     def _renderPage(self):
         css = self.mw.sharedCSS + self._css
-        tree = self._renderDeckTree(self.mw.col.sched.deckDueTree())
+        tree = self._renderDeckTree(self.mw.col.sched.deckDueTree()) \
+                + self._bogusBottomRowForDraggingDeckToTopLevel()
         self.web.stdHtml(self._body%dict(
                 title=_("Decks"),
                 tree=tree), css=css)
@@ -82,7 +117,7 @@ body { margin: 1em; -webkit-user-select: none; }
         def indent():
             return "&nbsp;"*3*depth
         # due image
-        buf = "<tr><td colspan=5>" + indent() + self._dueImg(due, new)
+        buf = "<tr class='deck' id='%d'><td colspan=5>"%did + indent() + self._dueImg(due, new)
         # deck link
         buf += " <a class=deck href='open:%d'>%s</a></td>"% (did, name)
         # options
@@ -91,6 +126,9 @@ body { margin: 1em; -webkit-user-select: none; }
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
+
+    def _bogusBottomRowForDraggingDeckToTopLevel(self):
+        return "<tr class='bottom-row'><td colspan='6'>&nbsp;</td></tr>"
 
     def _dueImg(self, due, new):
         if due:
@@ -120,9 +158,20 @@ body { margin: 1em; -webkit-user-select: none; }
         newName = newName.replace("'", "").replace('"', "")
         if not newName or newName == oldName:
             return
-        if deck in self.mw.col.decks.allNames():
-            return showWarning(_("That deck already exists."))
-        self.mw.col.decks.rename(deck, newName)
+
+        try:
+            self.mw.col.decks.rename(deck, newName)
+        except DeckRenameError, e:
+            return showWarning(e.description)
+
+        self.show()
+
+    def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
+        try:
+            self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
+        except DeckRenameError, e:
+            return showWarning(e.description)
+
         self.show()
 
     def _delete(self, did):
