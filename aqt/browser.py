@@ -885,19 +885,20 @@ where id in %s""" % ids2str(sf))
         self.model.beginReset()
         self.mw.checkpoint(_("Set Deck"))
         mod = intTime()
+        usn = self.col.usn()
         if frm.setCur.isChecked():
             did = self.col.decks.id(unicode(te.text()))
             self.col.db.execute(
-                "update cards set mod=?, did=? where id in " + ids2str(
-                    self.selectedCards()), mod, did)
+                "update cards set usn=?, mod=?, did=? where id in " + ids2str(
+                    self.selectedCards()), usn, mod, did)
             if frm.setInitial.isChecked():
                 self.col.db.execute(
-                    "update notes set mod=?, did=? where id in " + ids2str(
-                        self.selectedNotes()), mod, did)
+                    "update notes set usn=?, mod=?, did=? where id in " + ids2str(
+                        self.selectedNotes()), usn, mod, did)
         else:
             self.col.db.execute("""
-update cards set mod=?, did=(select did from notes where id = cards.nid)
-where id in %s""" % ids2str(self.selectedCards()), mod)
+update cards set usn=?, mod=?, did=(select did from notes where id = cards.nid)
+where id in %s""" % ids2str(self.selectedCards()), usn, mod)
         self.onSearch(reset=False)
         self.mw.requireReset()
         self.model.endReset()
