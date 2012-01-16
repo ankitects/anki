@@ -760,7 +760,6 @@ def test_deckDue():
     d.reset()
     assert len(d.decks.decks) == 5
     cnts = d.sched.deckDueList()
-    cnts.sort()
     assert cnts[0] == ["Default", 1, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0]
     assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0]

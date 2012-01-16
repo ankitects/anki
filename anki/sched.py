@@ -151,15 +151,36 @@ order by due""" % self._deckLimit(),
     ##########################################################################
 
     def deckDueList(self):
-        "Returns [deckname, did, hasDue, hasNew]"
-        # find decks with 1 or more due cards
-        dids = {}
-        for g in self.col.decks.all():
-            hasDue = self._deckHasLrn(g['id']) or self._deckHasRev(g['id'])
-            hasNew = self._deckHasNew(g['id'])
-            dids[g['id']] = [hasDue or 0, hasNew or 0]
-        return [[grp['name'], int(did)]+dids[int(did)] #.get(int(did))
-                for (did, grp) in self.col.decks.decks.items()]
+        "Returns [deckname, did, due, new]"
+        decks = self.col.decks.all()
+        decks.sort(key=itemgetter('name'))
+        lims = {}
+        data = []
+        def parent(name):
+            parts = name.split("::")
+            if len(parts) < 2:
+                return None
+            parts = parts[:-1]
+            return "::".join(parts)
+        for deck in decks:
+            p = parent(deck['name'])
+            # new
+            nlim = self._deckNewLimitSingle(deck)
+            if p:
+                nlim = min(nlim, lims[p][0])
+            new = self._newForDeck(deck['id'], nlim)
+            # learning
+            lrn = self._lrnForDeck(deck['id'])
+            # reviews
+            rlim = self._deckRevLimitSingle(deck)
+            if p:
+                rlim = min(rlim, lims[p][1])
+            rev = self._revForDeck(deck['id'], rlim)
+            # save to list
+            data.append([deck['name'], deck['id'], lrn+rev, new])
+            # add deck as a parent
+            lims[deck['name']] = [nlim, rlim]
+        return data
 
     def deckDueTree(self):
         return self._groupChildren(self.deckDueList())
@@ -199,6 +220,10 @@ order by due""" % self._deckLimit(),
             for ch in children:
                 rev += ch[2]
                 new += ch[3]
+            # limit the counts to the deck's limits
+            conf = self.col.decks.confForDid(did)
+            rev = min(rev, conf['rev']['perDay'])
+            new = min(new, conf['new']['perDay'])
             tree.append((head, did, rev, new, children))
         return tuple(tree)
 
@@ -297,12 +322,6 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
 
-    def _deckHasNew(self, did):
-        if not self._deckNewLimit(did):
-            return False
-        return self.col.db.scalar(
-            "select 1 from cards where did = ? and queue = 0 limit 1", did)
-
     def _deckNewLimit(self, did, fn=None):
         if not fn:
             fn = self._deckNewLimitSingle
@@ -317,7 +336,17 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
                 lim = min(rem, lim)
         return lim
 
+    def _newForDeck(self, did, lim):
+        "New count for a single deck."
+        if not lim:
+            return 0
+        lim = min(lim, self.reportLimit)
+        return self.col.db.scalar("""
+select count() from
+(select 1 from cards where did = ? and queue = 0 limit ?)""", did, lim)
+
     def _deckNewLimitSingle(self, g):
+        "Limit for deck without parent limits."
         c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
@@ -466,11 +495,12 @@ where queue = 1 and type = 2
 %s
 """ % (intTime(), self.col.usn(), extra))
 
-    def _deckHasLrn(self, did):
+    def _lrnForDeck(self, did):
         return self.col.db.scalar(
-            "select 1 from cards where did = ? and queue = 1 "
-            "and due < ? limit 1",
-            did, intTime() + self.col.conf['collapseTime'])
+            """
+select count() from
+(select 1 from cards where did = ? and queue = 1 and due < ? limit ?)""",
+            did, intTime() + self.col.conf['collapseTime'], self.reportLimit)
 
     # Reviews
     ##########################################################################
@@ -482,12 +512,14 @@ where queue = 1 and type = 2
         c = self.col.decks.confForDid(d['id'])
         return max(0, c['rev']['perDay'] - d['revToday'][1])
 
-    def _deckHasRev(self, did):
-        if not self._deckRevLimit(did):
-            return False
+    def _revForDeck(self, did, lim):
+        lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
-            "select 1 from cards where did = ? and queue = 2 "
-            "and due <= ? limit 1", did, self.today)
+            """
+select count() from
+(select 1 from cards where did = ? and queue = 2
+and due <= ? limit ?)""",
+            did, self.today, lim)
 
     def _resetRevCount(self):
         def cntFn(did, lim):
