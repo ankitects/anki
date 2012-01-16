@@ -409,8 +409,10 @@ class Editor(object):
                              loadCB=self._loadFinished)
             self.updateTagsAndDeck()
             self.updateKeyboard()
-        elif hide:
-            self.widget.hide()
+        else:
+            self.hideCompleters()
+            if hide:
+                self.widget.hide()
 
     def loadNote(self, field=0):
         if not self._loaded:
@@ -533,7 +535,11 @@ class Editor(object):
             return
         self.note.tags = self.mw.col.tags.split(self.tags.text())
         if self.addMode:
-            self.note.did = self.mw.col.decks.id(self.deck.text())
+            name = self.deck.text()
+            if not name.strip():
+                self.note.did = 1
+            else:
+                self.note.did = self.mw.col.decks.id(name)
             # save group and tags to model
             m = self.note.model()
             m['did'] = self.note.did
@@ -542,6 +548,11 @@ class Editor(object):
         if not self.addMode:
             self.note.flush()
         runHook("tagsUpdated", self.note)
+
+    def hideCompleters(self):
+        self.tags.hideCompleter()
+        if self.addMode:
+            self.deck.hideCompleter()
 
     # Format buttons
     ######################################################################

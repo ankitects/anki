@@ -35,6 +35,9 @@ class TagEdit(QLineEdit):
 
     def keyPressEvent(self, evt):
         QLineEdit.keyPressEvent(self, evt)
+        if not evt.text():
+            # if it's a modifier, don't show
+            return
         self.showCompleter()
 
     def showCompleter(self):
@@ -44,6 +47,9 @@ class TagEdit(QLineEdit):
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
         self.emit(SIGNAL("lostFocus"))
+
+    def hideCompleter(self):
+        self.completer.popup().hide()
 
 class TagCompleter(QCompleter):
 
