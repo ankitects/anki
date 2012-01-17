@@ -52,8 +52,9 @@ class DeckBrowser(object):
 tr { font-size: 12px; }
 a.deck { color: #000; text-decoration: none; }
 a.deck:hover { text-decoration: underline; }
+tr.deck td { border-bottom: thick solid transparent; }
 td.opts { white-space: nowrap; }
-.drag-hover { background-color: #448; }
+tr.drag-hover td { border-bottom: thick solid #448; }
 .extra { font-size: 90%; }
 body { margin: 1em; -webkit-user-select: none; }
 """
@@ -123,7 +124,7 @@ body { margin: 1em; -webkit-user-select: none; }
         name, did, due, new, children = node
         def indent():
             return "&nbsp;"*3*depth
-        buf = "<tr>"
+        buf = "<tr class='deck' id='%d'>"% did
         # deck link
         buf += "<td colspan=5>%s<a class=deck href='open:%d'>%s</a></td>"% (
             indent(), did, name)
