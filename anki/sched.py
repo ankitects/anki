@@ -551,16 +551,15 @@ select id from cards where
 did = ? and queue = 2 and due <= ? %s limit ?""" % order,
                                                   did, self.today, lim)
                 if self._revQueue:
+                    if not order:
+                        r = random.Random()
+                        r.seed(self.today)
+                        r.shuffle(self._revQueue)
+                    else:
+                        self._revQueue.reverse()
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
-        if not order:
-            r = random.Random()
-            r.seed(self.today)
-            r.shuffle(self._revQueue)
-        else:
-            self._revQueue.reverse()
-        return True
 
     def _getRevCard(self):
         if self._fillRev():
