@@ -6,6 +6,7 @@ import simplejson, copy
 from anki.utils import intTime, ids2str
 from anki.consts import *
 from anki.lang import _
+from anki.errors import DeckRenameError
 
 # fixmes:
 # - make sure users can't set grad interval < 1
@@ -161,7 +162,7 @@ class DeckManager(object):
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
         if newName in self.allNames():
-            raise Exception("Deck exists")
+            raise DeckRenameError(_("That deck already exists."))
         # rename children
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
@@ -174,10 +175,40 @@ class DeckManager(object):
         # finally, ensure we have parents
         self._ensureParents(newName)
 
+    def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid):
+        draggedDeck = self.get(draggedDeckDid)
+        draggedDeckName = draggedDeck['name']
+        ontoDeckName = self.get(ontoDeckDid)['name']
+
+        if ontoDeckDid == None or ontoDeckDid == '':
+            if len(self._path(draggedDeckName)) > 1:
+                self.rename(draggedDeck, self._basename(draggedDeckName))
+        elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
+            draggedDeck = self.get(draggedDeckDid)
+            draggedDeckName = draggedDeck['name']
+            ontoDeckName = self.get(ontoDeckDid)['name']
+            self.rename(draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName))
+
+    def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
+        return draggedDeckName <> ontoDeckName \
+                and not self._isParent(ontoDeckName, draggedDeckName) \
+                and not self._isAncestor(draggedDeckName, ontoDeckName)
+
+    def _isParent(self, parentDeckName, childDeckName):
+        return self._path(childDeckName) == self._path(parentDeckName) + [ self._basename(childDeckName) ]
+
+    def _isAncestor(self, ancestorDeckName, descendantDeckName):
+        ancestorPath = self._path(ancestorDeckName)
+        return ancestorPath == self._path(descendantDeckName)[0:len(ancestorPath)]
+
+    def _path(self, name):
+        return name.split("::")
+    def _basename(self, name):
+        return self._path(name)[-1]
+
     def _ensureParents(self, name):
-        path = name.split("::")
         s = ""
-        for p in path[:-1]:
+        for p in self._path(name)[:-1]:
             if not s:
                 s += p
             else:
