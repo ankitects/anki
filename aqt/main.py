@@ -104,6 +104,7 @@ class AnkiQt(QMainWindow):
         d.connect(f.login, SIGNAL("clicked()"), self.onOpenProfile)
         d.connect(f.quit, SIGNAL("clicked()"), lambda: sys.exit(0))
         d.connect(f.add, SIGNAL("clicked()"), self.onAddProfile)
+        d.connect(f.rename, SIGNAL("clicked()"), self.onRenameProfile)
         d.connect(f.delete_2, SIGNAL("clicked()"), self.onRemProfile)
         d.connect(d, SIGNAL("rejected()"), lambda: d.close())
         d.connect(f.profiles, SIGNAL("currentRowChanged(int)"),
@@ -154,6 +155,22 @@ class AnkiQt(QMainWindow):
                     "Only numbers, letters and spaces can be used.")
             self.pm.create(name)
             self.refreshProfilesList()
+
+    def onRenameProfile(self):
+        name = getOnlyText("New name:", default=self.pm.name)
+        if not self.openProfile():
+            return showWarning(_("Invalid password."))
+        if not name:
+            return
+        if name == self.pm.name:
+            return
+        if name in self.pm.profiles():
+            return showWarning("Name exists.")
+        if not re.match("^[A-Za-z0-9 ]+$", name):
+            return showWarning(
+                "Only numbers, letters and spaces can be used.")
+        self.pm.rename(name)
+        self.refreshProfilesList()
 
     def onRemProfile(self):
         profs = self.pm.profiles()

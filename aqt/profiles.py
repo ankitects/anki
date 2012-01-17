@@ -152,6 +152,16 @@ computer.""")
         self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
+    def rename(self, name):
+        oldFolder = self.profileFolder()
+        # update name
+        self.db.execute("update profiles set name = ? where name = ?",
+                        name, self.name)
+        # rename folder
+        self.name = name
+        os.rename(oldFolder, self.profileFolder())
+        self.db.commit()
+
     # Folder handling
     ######################################################################
 

@@ -61,6 +61,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="rename">
+         <property name="text">
+          <string>Rename</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="delete_2">
          <property name="text">
           <string>Delete</string>
@@ -93,6 +100,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>profiles</tabstop>
+  <tabstop>passEdit</tabstop>
+  <tabstop>login</tabstop>
+  <tabstop>add</tabstop>
+  <tabstop>rename</tabstop>
+  <tabstop>delete_2</tabstop>
+  <tabstop>quit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
