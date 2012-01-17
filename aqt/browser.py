@@ -673,7 +673,8 @@ class Browser(QMainWindow):
                     "deck", head+g[0]))
                 item.setIcon(0, QIcon(":/icons/deck16.png"))
                 root.addChild(item)
-                fillGroups(item, g[4], g[0]+"::")
+                newhead = head + g[0]+"::"
+                fillGroups(item, g[4], newhead)
         fillGroups(root, grps)
 
     # Info
