@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib, time
+import re, os, sys, urllib, time, subprocess
 import aqt
 from anki.sound import playFromText, stripSounds
 from anki.utils import call, isWin, isMac
@@ -329,7 +329,7 @@ def openFolder(path):
     if isWin:
         if isinstance(path, unicode):
             path = path.encode(sys.getfilesystemencoding())
-        call(["explorer", path], wait=False)
+        subprocess.Popen(["explorer", path])
     else:
         QDesktopServices.openUrl(QUrl("file://" + path))
 
