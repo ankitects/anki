@@ -2,6 +2,7 @@ import re
 import cgi
 import collections
 from anki.utils import stripHTML
+from anki.hooks import runFilter
 
 clozeReg = r"\{\{c%s::(.*?)(::(.*?))?\}\}"
 
@@ -148,28 +149,47 @@ class Template(object):
     @modifier(None)
     def render_unescaped(self, tag_name=None, context=None):
         """Render a tag without escaping it."""
-        if tag_name.startswith("text:"):
+        txt = get_or_attr(context, tag_name)
+        if txt is not None:
+            # some field names could have colons in them
+            # avoid interpreting these as field modifiers
+            # better would probably be to put some restrictions on field names
+            return txt
+
+        # field modifiers
+        parts = tag_name.split(':',2)
+        extra = None
+        if len(parts) == 1 or parts[0] == '':
+            return '{unknown field %s}' % tag_name
+        elif len(parts) == 2:
+            (mod, tag) = parts
+        elif len(parts) == 3:
+            (mod, extra, tag) = parts
+
+        txt = get_or_attr(context, tag)
+
+        # built-in modifiers
+        if mod == 'text':
             # strip html
-            tag = tag_name[5:]
-            txt = get_or_attr(context, tag)
             if txt:
                 return stripHTML(txt)
             return ""
-        elif tag_name.startswith("type:"):
+        elif mod == 'type':
             # type answer field; convert it to [[type:...]] for the gui code
             # to process
             return "[[%s]]" % tag_name
-        elif (tag_name.startswith("cq:") or
-              tag_name.startswith("ca:")):
+        elif mod == 'cq' or mod == 'ca':
             # cloze deletion
-            m = re.match("c(.+):(\d+):(.+)", tag_name)
-            (type, ord, tag) = (m.group(1), m.group(2), m.group(3))
-            txt = get_or_attr(context, tag)
-            if txt:
-                return self.clozeText(txt, ord, type)
-            return ""
-        # regular field
-        return get_or_attr(context, tag_name, '{unknown field %s}' % tag_name)
+            if txt and extra:
+                return self.clozeText(txt, extra, mod[1])
+            else:
+                return ""
+        else:
+            # hook-based modifier
+            txt = runFilter('fieldModifier_' + mod, txt, extra, context, tag, tag_name);
+            if txt is None:
+                return '{unknown field %s}' % tag_name
+            return txt
 
     def clozeText(self, txt, ord, type):
         reg = clozeReg
