@@ -331,8 +331,17 @@ class DeckManager(object):
 
     def parents(self, did):
         "All parents of did."
-        path = self.get(did)['name'].split("::")
-        return [self.get(x) for x in path[:-1]]
+        # get parent and grandparent names
+        parents = []
+        for part in self.get(did)['name'].split("::")[:-1]:
+            if not parents:
+                parents.append(part)
+            else:
+                parents.append(parents[-1] + "::" + part)
+        # convert to objects
+        for c, p in enumerate(parents):
+            parents[c] = self.get(self.id(p))
+        return parents
 
     # Sync handling
     ##########################################################################
