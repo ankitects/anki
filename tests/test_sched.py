@@ -191,6 +191,32 @@ def test_learn():
     assert c.queue == 2
     assert c.due == 321
 
+def test_learn_collapsed():
+    d = getEmptyDeck()
+    # add 2 notes
+    f = d.newNote()
+    f['Front'] = u"1"
+    f = d.addNote(f)
+    f = d.newNote()
+    f['Front'] = u"2"
+    f = d.addNote(f)
+    # set as a learn card and rebuild queues
+    d.db.execute("update cards set queue=0, type=0")
+    d.reset()
+    # should get '1' first
+    c = d.sched.getCard()
+    assert c.q().endswith("1")
+    # pass it so it's due in 10 minutes
+    d.sched.answerCard(c, 2)
+    # get the other card
+    c = d.sched.getCard()
+    assert c.q().endswith("2")
+    # fail it so it's due in 1 minute
+    d.sched.answerCard(c, 1)
+    # we shouldn't get the same card again
+    c = d.sched.getCard()
+    assert not c.q().endswith("2")
+
 def test_reviews():
     d = getEmptyDeck()
     # add a note
@@ -881,4 +907,3 @@ def test_resched():
     c.load()
     assert c.due == d.sched.today+1
     assert c.ivl == +1
-

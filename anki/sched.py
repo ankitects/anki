@@ -421,6 +421,12 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
             card.due = int(time.time() + delay)
+            # if the queue is not empty and there's nothing else to do, make
+            # sure we don't put it at the head of the queue and end up showing
+            # it twice in a row
+            if self._lrnQueue and not self.revCount and not self.newCount:
+                smallestDue = self._lrnQueue[0][0]
+                card.due = max(card.due, smallestDue+1)
             heappush(self._lrnQueue, (card.due, card.id))
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
