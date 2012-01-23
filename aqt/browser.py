@@ -922,8 +922,9 @@ where id in %s""" % ids2str(self.selectedCards()), usn, mod)
             label = _("Add Tags")
         if label:
             self.mw.checkpoint(label)
+        self.model.beginReset()
         func(self.selectedNotes(), tags)
-        self.model.reset()
+        self.model.endReset()
         self.mw.requireReset()
 
     def deleteTags(self, tags=None, label=None):
