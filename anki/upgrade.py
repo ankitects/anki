@@ -577,6 +577,48 @@ and ord = ? limit 1""", m['id'], t['ord']):
                 d.models.remTemplate(m, r)
             d.models.save(m)
 
+    # Conditional templates
+    ######################################################################
+    # For models that don't use a given template in all cards, we'll need to
+    # add a new field to notes to indicate if the card should be generated or not
+
+    def _addFlagFields(self):
+        for m in self.col.models.all():
+            nids = self.col.models.nids(m)
+            changed = False
+            for tmpl in m['tmpls']:
+                if self._addFlagFieldsForTemplate(m, nids, tmpl):
+                    changed = True
+            if changed:
+                # save model
+                self.col.models.save(m, templates=True)
+
+    def _addFlagFieldsForTemplate(self, m, nids, tmpl):
+        cids = self.col.db.list(
+            "select id from cards where nid in %s and ord = ?" %
+            ids2str(nids), tmpl['ord'])
+        if len(cids) == len(nids):
+            # not selectively used
+            return
+        # add a flag field
+        name = tmpl['name']
+        have = [f['name'] for f in m['flds']]
+        while name in have:
+            name += "_"
+        f = self.col.models.newField(name)
+        self.col.models.addField(m, f)
+        # find the notes that have that card
+        haveNids = self.col.db.list(
+            "select nid from cards where id in "+ids2str(cids))
+        # add "y" to the appended field for those notes
+        self.col.db.execute(
+            "update notes set flds = flds || 'y' where id in "+ids2str(
+                haveNids))
+        # wrap the template in a conditional
+        tmpl['qfmt'] = "{{#%s}}\n%s\n{{/%s}}" % (
+            f['name'], tmpl['qfmt'], f['name'])
+        return True
+
     # New due times
     ######################################################################
     # New cards now use a user-friendly increasing integer rather than a
@@ -609,6 +651,8 @@ and ord = ? limit 1""", m['id'], t['ord']):
         self._rewriteMediaRefs()
         # template handling has changed
         self._upgradeTemplates()
+        # add fields for selectively used templates
+        self._addFlagFields()
         # fix creation time
         col.sched._updateCutoff()
         d = datetime.datetime.today()

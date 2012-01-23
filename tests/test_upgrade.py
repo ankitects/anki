@@ -29,6 +29,12 @@ def test_upgrade():
     deck.reset()
     deck.conf['counts'] = COUNT_REMAINING
     assert deck.sched.counts() == (3,4,1)
+    # modifying each note should not cause new cards to be generated
+    assert deck.cardCount() == 6
+    for nid in deck.db.list("select id from notes"):
+        note = deck.getNote(nid)
+        note.flush()
+    assert deck.cardCount() == 6
     # now's a good time to test the integrity check too
     deck.fixIntegrity()
     # c = deck.sched.getCard()
