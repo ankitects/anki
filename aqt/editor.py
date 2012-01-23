@@ -586,6 +586,8 @@ class Editor(object):
         m = re.findall("\{\{c(\d+)::", f)
         if m:
             next = sorted([int(x) for x in m])[-1] + 1
+            if self.mw.app.keyboardModifiers() & Qt.AltModifier:
+                next -= 1
         else:
             next = 1
         self.web.eval("wrap('{{c%d::', '}}');" % next)
