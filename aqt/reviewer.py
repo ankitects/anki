@@ -8,7 +8,7 @@ from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML, isMac
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, hasSound
-from aqt.utils import mungeQA, getBase, shortcut, openLink
+from aqt.utils import mungeQA, getBase, shortcut, openLink, tooltip
 import aqt
 
 class Reviewer(object):
@@ -474,7 +474,8 @@ var updateTime = function () {
 
     # fixme: update; clear on card transition
     def onLeech(self, card):
-        print "leech"
+        # for now
+        tooltip("Card was a leech.")
         return
         link = aqt.appHelpSite + "Leeches.html"
         txt = (_("""\
@@ -483,7 +484,6 @@ Card was a <a href="%s">leech</a>.""") % link)
             "select 1 from cards where id = :id and type < 0", id=cardId):
             txt += _(" It has been suspended.")
         self.setNotice(txt)
-
 
     # Context menu
     ##########################################################################
