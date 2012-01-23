@@ -46,7 +46,14 @@ class Finder(object):
             return []
         (q, args) = self._whereClause()
         order = self._order()
-        query = """\
+        if self.lims['recent']:
+            query = """
+select c.id from cards c, notes n where c.id in (
+select id from cards c where %s limit 100)
+and c.nid=n.id
+%s""" % (q, order)
+        else:
+            query = """\
 select c.id from cards c, notes n where %s
 and c.nid=n.id %s""" % (q, order)
         res = self.col.db.list(query, **args)
@@ -97,7 +104,8 @@ and c.nid=n.id %s""" % (q, order)
         self.lims = {
             'preds': [],
             'args': {},
-            'valid': True
+            'valid': True,
+            'recent': False,
         }
         for c, (token, isNeg, type) in enumerate(self._parseQuery()):
             if type == SEARCH_TAG:
@@ -146,7 +154,8 @@ and c.nid=n.id %s""" % (q, order)
         elif val == "due":
             cond = "(queue = 2 and due <= %d)" % self.col.sched.today
         elif val == "recent":
-            cond = "c.id in (select id from cards order by mod desc limit 100)"
+            self.lims['recent'] = True
+            return
         if neg:
             cond = "not (%s)" % cond
         if cond:
