@@ -17,22 +17,21 @@ system. It's free and open source.")
     abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + \
 "</span>"
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
- testing and design from:<p>%(cont)s") % {'cont': u"""
+ testing and design from:<p>%(cont)s") % {'cont': u"""Aaron Harsh, Alex
+Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene Barina,
+Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen,
+Emilio Wuerges, Emmanuel Jarri, Frank Harper, H. Mijail, Ian Lewis, Iroiro,
+Jin Eun-Deok, Jarvik7, Jo Nakashima, Kieran Clancy, LaC, Laurent Steffan,
+Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
+Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
+Montague, Michael Penkov, Michal Čadil, Nathanael Law, Nick Cook, Niklas
+Laxström, Nguyễn Hào Khôi, Norbert Nagold, Pcsl88, Petr Michalec, Piotr
+Kubowicz, Richard Colley, Samson Melamed, Stefaan De Pooter, Susanna
+Björverud, Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, and Xtru.
 
-Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene
-Barina, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen, Emilio
-Wuerges, Emmanuel Jarri, Frank Harper, H. Mijail, Ian Lewis, Iroiro, Jin
-Eun-Deok, Jarvik7, Jo Nakashima, Christian Krause, LaC, Laurent Steffan, Marco
-Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur, Matthew
-Duggan, Matthew Holtz, Meelis Vasser, Michael Penkov, Michael Keppler, Michal
-Čadil, Nathanael Law, Nick Cook, Niklas Laxström, Nguyễn Hào Khôi, Pcsl88,
-Petr Michalec, Piotr Kubowicz, Richard Colley, Samson Melamed, Stefaan
-De Pooter, Susanna Björverud, Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor
-Suba, and Xtru.
-<p>
-The icons were obtained from various sources; please see the Anki source
+<p> The icons were obtained from various sources; please see the Anki source
 for credits.
-"""
+                                          """
 
 }
     abouttext += '<p>' + _("If you have contributed and are not on this list, \
