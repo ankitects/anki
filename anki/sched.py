@@ -711,7 +711,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
             a = conf['leechAction']
             if a == 0:
                 self.suspendCards([card.id])
-                card.queue = -1
+                card.load()
             # notify UI
             runHook("leech", card)
             return True
