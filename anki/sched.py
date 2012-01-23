@@ -124,6 +124,8 @@ order by due""" % self._deckLimit(),
         pcounts = {}
         # for each of the active decks
         for did in self.col.decks.active():
+            # early alphas were setting the active ids as a str
+            did = int(did)
             # get the individual deck's limit
             lim = limFn(self.col.decks.get(did))
             if not lim:

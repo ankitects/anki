@@ -312,6 +312,8 @@ class DeckManager(object):
 
     def select(self, did):
         "Select a new branch."
+        # make sure arg is an int
+        did = int(did)
         # current deck
         self.col.conf['curDeck'] = did
         # and active decks (current + all children)
