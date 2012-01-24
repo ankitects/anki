@@ -163,7 +163,8 @@ def queueMplayer(path):
     mplayerEvt.set()
 
 def clearMplayerQueue():
-    global mplayerClear
+    global mplayerClear, mplayerQueue
+    mplayerQueue = []
     mplayerClear = True
     mplayerEvt.set()
 
