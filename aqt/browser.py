@@ -568,6 +568,8 @@ class Browser(QMainWindow):
     def toggleField(self, type):
         self.model.beginReset()
         if type in self.model.activeCols:
+            if len(self.model.activeCols) < 2:
+                return showInfo(_("You must have at least one column."))
             self.model.activeCols.remove(type)
         else:
             self.model.activeCols.append(type)
