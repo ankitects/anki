@@ -563,6 +563,10 @@ where c.nid == f.id
             "select id from revlog where cid = ? "
             "order by id desc limit 1", c.id)
         self.db.execute("delete from revlog where id = ?", last)
+        # and finally, update daily counts
+        # fixme: what to do in cramming case?
+        type = ("new", "lrn", "rev")[c.queue]
+        self.sched._updateStats(c, type, -1)
 
     def _markOp(self, name):
         "Call via .save()"
