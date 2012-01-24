@@ -18,7 +18,7 @@ import aqt.editor, aqt.modelchooser
 class AddCards(QDialog):
 
     def __init__(self, mw):
-        QDialog.__init__(self, mw)
+        QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
