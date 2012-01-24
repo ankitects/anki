@@ -5,7 +5,8 @@
 from aqt.qt import *
 import os
 from aqt.webview import AnkiWebView
-from aqt.utils import saveGeom, restoreGeom, maybeHideClose, openFolder
+from aqt.utils import saveGeom, restoreGeom, maybeHideClose, openFolder, \
+    fontForPlatform
 from anki.utils import namedtmp
 from anki.hooks import addHook
 import aqt
@@ -131,5 +132,6 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.setHtml(self.report)
+        css = '<style>body { font-family: "%s"; } </style>' % fontForPlatform()
+        self.form.web.setHtml(css + self.report)
         self.mw.progress.finish()
