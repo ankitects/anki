@@ -81,12 +81,6 @@ select id from cards where cardModelId not in (select cm.id from
 cardModels cm, facts f where cm.modelId = f.modelId and
 f.id = cards.factId)"""):
             return
-        # cards with the wrong ordinal?
-        if db.list("""
-select c.id from cards c, cardModels cm
-where c.cardModelId = cm.id
-and c.ordinal != cm.ordinal"""):
-            return
         # facts missing a card?
         if db.list("""
     select facts.id from facts
@@ -136,6 +130,12 @@ and c.ordinal != cm.ordinal"""):
         # these weren't always correctly set
         db.execute("pragma page_size = 4096")
         db.execute("pragma legacy_file_format = 0")
+
+        # previous versions sometimes had cards with incorrect ordinals and
+        # the db check didn't fix that. so we fix it here:
+        db.execute("""
+update cards set ordinal = (select ordinal from cardModels
+where id = cards.cardModelId)""")
 
         # notes
         ###########
