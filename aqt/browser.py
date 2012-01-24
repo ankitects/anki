@@ -861,6 +861,7 @@ where id in %s""" % ids2str(sf))
             self.model.focusedCard = self.model.cards[new]
         self.model.endReset()
         self.mw.requireReset()
+        tooltip(_("Notes deleted."))
 
     # Deck change
     ######################################################################
