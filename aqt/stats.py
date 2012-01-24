@@ -60,8 +60,9 @@ class CardStats(object):
             txt = _("No current card or last card.")
         self.web.setHtml("""
 <html><head>
-<style>table { font-size: 12px; } h1 { font-size: 14px; }</style>
-</head><body><center>%s</center></body></html>"""%txt)
+<style>table { font-size: 12px; } h1 { font-size: 14px; }
+body { font-family: "%s"; } </style>
+</head><body><center>%s</center></body></html>"""% (fontForPlatform(), txt))
 
 # Deck Stats
 ######################################################################
