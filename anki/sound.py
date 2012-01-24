@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, sys, threading, time, subprocess, os, signal, errno, atexit
-import shutil
+import shutil, random, atexit
 from anki.hooks import addHook, runHook
 from anki.utils import namedtmp, tmpdir, isWin, isMac
 
@@ -86,27 +86,30 @@ class MplayerMonitor(threading.Thread):
         self.deadPlayers = []
         while 1:
             mplayerEvt.wait()
-            if mplayerQueue:
+            mplayerEvt.clear()
+            # loop through files to play
+            while mplayerQueue:
                 # ensure started
                 if not self.mplayer:
                     self.startProcess()
-                # loop through files to play
-                while mplayerQueue:
-                    item = mplayerQueue.pop(0)
-                    if mplayerClear:
-                        mplayerClear = False
-                        extra = ""
-                    else:
-                        extra = " 1"
-                    cmd = 'loadfile "%s"%s\n' % (item, extra)
-                    try:
-                        self.mplayer.stdin.write(cmd)
-                    except:
-                        # mplayer has quit and needs restarting
-                        self.deadPlayers.append(self.mplayer)
-                        self.mplayer = None
-                        self.startProcess()
-                        self.mplayer.stdin.write(cmd)
+                # pop a file
+                item = mplayerQueue.pop(0)
+                if mplayerClear:
+                    mplayerClear = False
+                    extra = ""
+                else:
+                    extra = " 1"
+                cmd = 'loadfile "%s"%s\n' % (item, extra)
+                try:
+                    self.mplayer.stdin.write(cmd)
+                except:
+                    # mplayer has quit and needs restarting
+                    self.deadPlayers.append(self.mplayer)
+                    self.mplayer = None
+                    self.startProcess()
+                    self.mplayer.stdin.write(cmd)
+                # if we feed mplayer too fast it loses files
+                time.sleep(1)
             # wait() on finished processes. we don't want to block on the
             # wait, so we keep trying each time we're reactivated
             def clean(pl):
@@ -141,14 +144,13 @@ class MplayerMonitor(threading.Thread):
 
 def queueMplayer(path):
     ensureMplayerThreads()
-    while mplayerEvt.isSet():
-        time.sleep(0.1)
     if isWin and os.path.exists(path):
         # mplayer on windows doesn't like the encoding, so we create a
         # temporary file instead. oddly, foreign characters in the dirname
         # don't seem to matter.
         dir = unicode(tmpdir(), sys.getfilesystemencoding())
-        name = os.path.join(dir, "audio"+os.path.splitext(path)[1])
+        name = os.path.join(dir, "audio%s%s" % (
+            random.randrange(0, 1000000), os.path.splitext(path)[1]))
         f = open(name, "wb")
         f.write(open(path, "rb").read())
         f.close()
@@ -171,6 +173,11 @@ def ensureMplayerThreads():
         mplayerManager = MplayerMonitor()
         mplayerManager.daemon = True
         mplayerManager.start()
+        # ensure the tmpdir() exit handler is registered first so it runs
+        # after the mplayer exit
+        tmpdir()
+        # clean up mplayer on exit
+        atexit.register(stopMplayer)
 
 def stopMplayer(*args):
     if not mplayerManager:
