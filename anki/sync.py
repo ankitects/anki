@@ -159,6 +159,8 @@ select count() from notes where id not in (select distinct nid from cards)""")
             mod = intTime(1000)
         self.col.ls = mod
         self.col._usn = self.maxUsn + 1
+        # ensure we save the mod time even if no changes made
+        self.col.db.mod = True
         self.col.save(mod=mod)
         return mod
 
