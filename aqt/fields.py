@@ -23,6 +23,7 @@ class FieldDialog(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         self.currentIdx = None
+        self.oldSortField = self.model['sortf']
         self.fillFields()
         self.setupSignals()
         self.form.fieldList.setCurrentRow(0)
@@ -147,6 +148,10 @@ class FieldDialog(QDialog):
 
     def reject(self):
         self.saveField()
+        if self.oldSortField != self.model['sortf']:
+            self.mw.progress.start()
+            self.mw.col.updateFieldCache(self.mm.nids(self.model))
+            self.mw.progress.finish()
         self.mm.save(self.model)
         self.mw.reset()
         QDialog.reject(self)
