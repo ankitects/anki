@@ -627,15 +627,15 @@ and ord = ? limit 1""", m['id'], t['ord']):
     def _rewriteNewDue(self):
         col = self.col
         pos = 0
-        lastDue = None
         data = []
         for id, due in col.db.execute(
-            "select id, due from cards where type = 0"):
-            if due != lastDue:
-                pos += 1
-                lastDue = due
+            "select id, due from cards where type = 0 order by id"):
+            pos += 1
             data.append((pos, id))
         col.db.executemany("update cards set due = ? where id = ?", data)
+        # update insertion id
+        col.conf['nextPos'] = pos + 1
+        col.save()
 
     # Post-schema upgrade
     ######################################################################
@@ -694,10 +694,6 @@ update cards set due = cast(
         conf = col.decks.allConf()[0]
         if not conf['new']['order']:
             col.sched.randomizeCards(1)
-        # update insertion id
-        col.conf['nextPos'] = (
-            col.db.scalar("select max(id) from notes") or 0)+1
-        col.save()
         # optimize and finish
         col.db.commit()
         col.db.execute("vacuum")
