@@ -312,7 +312,10 @@ from notes where %s""" % d)
             if not l or r['mod'] > l['mod']:
                 self.col.decks.update(r)
         for r in rchg[1]:
-            l = self.col.decks.getConf(r['id'])
+            try:
+                l = self.col.decks.getConf(r['id'])
+            except KeyError:
+                l = None
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
                 self.col.decks.updateConf(r)

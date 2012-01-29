@@ -119,7 +119,6 @@ class MplayerMonitor(threading.Thread):
                 else:
                     return True
             self.deadPlayers = [pl for pl in self.deadPlayers if clean(pl)]
-            mplayerEvt.clear()
 
     def kill(self):
         if not self.mplayer:
