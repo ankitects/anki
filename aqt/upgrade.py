@@ -55,6 +55,9 @@ class Upgrader(object):
     ######################################################################
 
     def _showWizard(self):
+        if not self.conf['recentDeckPaths']:
+            # if there are no decks to upgrade, don't show wizard
+            return
         class Wizard(QWizard):
             def reject(self):
                 pass
