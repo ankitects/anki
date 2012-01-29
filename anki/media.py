@@ -23,6 +23,7 @@ class MediaManager(object):
         self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
+        self._oldcwd = os.getcwd()
         os.chdir(self._dir)
         # change database
         self.connect()
@@ -41,10 +42,8 @@ class MediaManager(object):
             return
         self.db.close()
         self.db = None
-        # reset our path to ~/Anki
-        anki_dir = os.path.dirname( os.path.dirname(self.col.path) )
-        os.chdir(anki_dir)
-        
+        # change cwd back to old location
+        os.chdir(self._oldcwd)
 
     def dir(self):
         return self._dir
