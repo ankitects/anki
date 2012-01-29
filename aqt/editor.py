@@ -832,11 +832,12 @@ class EditorWebView(AnkiWebView):
         if self.origClip:
             self.restoreClip()
 
-    def contextMenuEvent(self, evt):
-        # adjust in case the user is going to paste
-        self.prepareClip()
-        QWebView.contextMenuEvent(self, evt)
-        self.restoreClip()
+    # Buggy; disable for now.
+    # def contextMenuEvent(self, evt):
+    #     # adjust in case the user is going to paste
+    #     self.prepareClip()
+    #     QWebView.contextMenuEvent(self, evt)
+    #     self.restoreClip()
 
     def dropEvent(self, evt):
         oldmime = evt.mimeData()
