@@ -226,6 +226,7 @@ class DeckConf(QDialog):
         c['autoplay'] = f.autoplaySounds.isChecked()
         # description
         self.deck['desc'] = f.desc.toPlainText()
+        self.mw.col.decks.save(self.deck)
         self.mw.col.decks.save(self.conf)
 
     def reject(self):
