@@ -48,7 +48,7 @@ class Upgrader(object):
         except:
             return
         # old version?
-        if db.scalar("select version from decks") != 65:
+        if db.scalar("select version from decks") < 65:
             return
         # ensure we have indices for checks below
         db.executescript("""
