@@ -192,9 +192,9 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
         ###########
         # we need to pull this into memory, to rewrite the creation time if
         # it's not unique and update the fact id
-        times = {}
         rows = []
         cardidmap = {}
+        highest = 0
         for row in db.execute("""
 select id, cast(created*1000 as int), factId, ordinal,
 cast(modified as int), 0,
@@ -212,9 +212,11 @@ cast(factor*1000 as int), reps, noCount from cards
 order by created"""):
             # find an unused time
             row = list(row)
-            while row[1] in times:
-                row[1] += 1000
-            times[row[1]] = True
+            if row[1] <= highest:
+                highest = max(highest, row[1]) + 1
+                row[1] = highest
+            else:
+                highest = row[1]
             # rewrite fact id
             row[2] = factidmap[row[2]]
             # note id change and save all but old id
