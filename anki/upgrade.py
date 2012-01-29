@@ -164,15 +164,16 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
         map = {}
         data = []
         factidmap = {}
-        times = {}
         from anki.utils import minimizeHTML
+        highest = 0
         for c, row in enumerate(facts):
             oldid = row[0]
             row = list(row)
-            # get rid of old created column and update id
-            while row[4] in times:
-                row[4] += 1000
-            times[row[4]] = True
+            if row[4] <= highest:
+                highest = max(highest, row[4]) + 1
+                row[4] = highest
+            else:
+                highest = row[4]
             factidmap[row[0]] = row[4]
             row[0] = row[4]
             del row[4]
