@@ -493,6 +493,7 @@ class Browser(QMainWindow):
             self.editor.setNote(self.card.note())
             self.editor.card = self.card
         self.toolbar.draw()
+        self.buildTree()
 
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
