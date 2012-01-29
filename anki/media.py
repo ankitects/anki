@@ -41,6 +41,10 @@ class MediaManager(object):
             return
         self.db.close()
         self.db = None
+        # reset our path to ~/Anki
+        anki_dir = os.path.dirname( os.path.dirname(self.col.path) )
+        os.chdir(anki_dir)
+        
 
     def dir(self):
         return self._dir
