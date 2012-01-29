@@ -161,6 +161,8 @@ function _typeAnsPress() {
 
     def _answerCard(self, ease):
         "Reschedule card and show next."
+        if self.state != "answer":
+            return
         if self.mw.col.sched.answerButtons(self.card) < ease:
             return
         self.mw.col.sched.answerCard(self.card, ease)
