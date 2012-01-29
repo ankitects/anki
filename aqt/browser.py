@@ -611,6 +611,7 @@ class Browser(QMainWindow):
         root = self.form.tree.invisibleRootItem()
         self._systemTagTree(root)
         self._decksTree(root)
+        self._modelTree(root)
         self._userTagTree(root)
         self.form.tree.expandToDepth(0)
         self.form.tree.setIndentation(15)
@@ -678,6 +679,19 @@ class Browser(QMainWindow):
                 newhead = head + g[0]+"::"
                 fillGroups(item, g[4], newhead)
         fillGroups(root, grps)
+
+    def _modelTree(self, root):
+        for m in sorted(self.col.models.all(), key=itemgetter("name")):
+            mitem = self.CallbackItem(
+                m['name'], lambda m=m: self.setFilter("model", m['name']))
+            mitem.setIcon(0, QIcon(":/icons/product_design.png"))
+            root.addChild(mitem)
+            # for t in m['tmpls']:
+            #     titem = self.CallbackItem(
+            #     t['name'], lambda m=m, t=t: self.setFilter(
+            #         "model", m['name'], "card", t['name']))
+            #     titem.setIcon(0, QIcon(":/icons/stock_new_template.png"))
+            #     mitem.addChild(titem)
 
     # Info
     ######################################################################
