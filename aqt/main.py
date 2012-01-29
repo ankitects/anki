@@ -609,8 +609,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.checkpoint(_("Suspend"))
         self.col.sched.suspendCards(
             [c.id for c in self.reviewer.card.note().cards()])
-        self.reviewer.nextCard()
         tooltip("Note suspended.")
+        self.reset()
 
     def onDelete(self):
         self.checkpoint(_("Delete"))
