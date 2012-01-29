@@ -210,6 +210,7 @@ class Editor(object):
         self.addMode = addMode
         self._loaded = False
         self._keepButtons = False
+        self.currentField = 0
         # current card, for card layout
         self.card = None
         self.setupOuter()
@@ -414,7 +415,8 @@ class Editor(object):
             if hide:
                 self.widget.hide()
 
-    def loadNote(self, field=0):
+    def loadNote(self):
+        field = self.currentField
         if not self._loaded:
             # will be loaded when page is ready
             return
@@ -489,7 +491,7 @@ class Editor(object):
         d.exec_()
         self.note.fields[self.currentField] = unicode(
             form.textEdit.toPlainText())
-        self.loadNote(self.currentField)
+        self.loadNote()
 
     # Tag & deck handling
     ######################################################################
