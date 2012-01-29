@@ -877,13 +877,14 @@ Your edits have left some cards empty. Do you want to delete them?"""))
         b = QPushButton(_("Deleted Unused"))
         b.setAutoDefault(False)
         box.addButton(b, QDialogButtonBox.ActionRole)
-        b.connect(b, SIGNAL("clicked()"), lambda u=unused: self.deleteUnused(u))
+        b.connect(
+            b, SIGNAL("clicked()"), lambda u=unused, d=diag: self.deleteUnused(u, d))
         diag.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
         diag.exec_()
 
-    def deleteUnused(self, unused):
+    def deleteUnused(self, unused, diag):
         if not askUser(
             _("Delete unused media? This operation can not be undone.")):
             return
@@ -892,6 +893,7 @@ Your edits have left some cards empty. Do you want to delete them?"""))
             path = os.path.join(mdir, f)
             os.unlink(path)
         tooltip("Deleted.")
+        diag.close()
 
     # System specific code
     ##########################################################################
