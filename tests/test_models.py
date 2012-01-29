@@ -221,6 +221,4 @@ def test_modelChange():
     deck.models.change(basic, [f.id], cloze, map, map)
     f.load()
     assert f['Text'] == "f2"
-    assert f['Notes'] == "b2"
     assert len(f.cards()) == 2
-    assert "b2" in f.cards()[0].a()

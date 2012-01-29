@@ -33,19 +33,17 @@ def addClozeModel(col):
     m = mm.new(_("Cloze"))
     fm = mm.newField(("Text"))
     mm.addField(m, fm)
-    fm = mm.newField(_("Notes"))
-    mm.addField(m, fm)
     for i in range(8):
         n = i+1
         t = mm.newTemplate(_("Cloze") + " %d" % n)
-        fmt = "{{cloze:%d:Text}}%%s" % n
+        fmt = "{{cloze:%d:Text}}" % n
         t['css'] += """
 .cloze {
  font-weight: bold;
  color: blue;
 }"""
-        t['qfmt'] = fmt % ""
-        t['afmt'] = fmt % "\n{{Notes}}"
+        t['qfmt'] = fmt
+        t['afmt'] = fmt
         mm.addTemplate(m, t)
     mm.add(m)
     return m
