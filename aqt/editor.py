@@ -135,8 +135,6 @@ function wrap(front, back) {
     var content = r.cloneContents();
     var span = document.createElement("span")
     span.appendChild(content);
-    s.removeAllRanges();
-    s.addRange(r);
     var new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
     setFormat('inserthtml', new_);
 };
