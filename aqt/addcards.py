@@ -98,6 +98,7 @@ class AddCards(QDialog):
                         note.fields[n] = ""
                 except IndexError:
                     break
+        self.editor.currentField = 0
         self.editor.setNote(note)
 
     def removeTempNote(self, note):
