@@ -159,7 +159,9 @@ computer.""")
                         name, self.name)
         # rename folder
         self.name = name
-        os.rename(oldFolder, self.profileFolder())
+        newFolder = self.profileFolder()
+        os.rmdir(newFolder)
+        os.rename(oldFolder, newFolder)
         self.db.commit()
 
     # Folder handling
