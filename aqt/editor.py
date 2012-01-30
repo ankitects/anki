@@ -127,7 +127,7 @@ function wrap(front, back) {
     setFormat('removeFormat', null, true);
     var s = window.getSelection();
     var r = s.getRangeAt(0);
-    var content = r.extractContents();
+    var content = r.cloneContents();
     var span = document.createElement("span")
     span.appendChild(content);
     s.removeAllRanges();
