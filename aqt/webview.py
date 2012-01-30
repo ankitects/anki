@@ -18,7 +18,6 @@ class Bridge(QObject):
         return unicode(self._bridge(unicode(str)))
     @pyqtSlot(str)
     def link(self, str):
-        print "link", str
         self._linkHandler(unicode(str))
     def setBridge(self, func):
         self._bridge = func
