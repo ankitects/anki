@@ -123,6 +123,11 @@ function saveField(type) {
     clearChangeTimer();
 };
 
+function wrappedExceptForWhitespace(text, front, back) {
+    var match = text.match(/^(\s*)([^]*?)(\s*)$/);
+    return match[1] + front + match[2] + back + match[3];
+};
+
 function wrap(front, back) {
     setFormat('removeFormat', null, true);
     var s = window.getSelection();
@@ -132,11 +137,7 @@ function wrap(front, back) {
     span.appendChild(content);
     s.removeAllRanges();
     s.addRange(r);
-    var new_ = front + span.innerHTML + back;
-    var f = currentField.innerHTML;
-    if (f.length && f[f.length-1] === " ") {
-        new_ = " " + new_;
-    }
+    var new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
     setFormat('inserthtml', new_);
 };
 
