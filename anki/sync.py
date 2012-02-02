@@ -263,7 +263,7 @@ from notes where %s""" % d)
         self.col.remCards(graves['cards'])
         # and decks
         for oid in graves['decks']:
-            self.col.decks.rem(oid)
+            self.col.decks.rem(oid, childrenToo=False)
         self.col.server = wasServer
 
     # Models

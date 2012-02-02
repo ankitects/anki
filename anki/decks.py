@@ -114,20 +114,24 @@ class DeckManager(object):
         self.maybeAddToActive()
         return int(id)
 
-    def rem(self, did, cardsToo=False):
+    def rem(self, did, cardsToo=False, childrenToo=True):
         "Remove the deck. If cardsToo, delete any cards inside."
         assert str(did) != '1'
+        # log the removal regardless of whether we have the deck or not
+        self.col._logRem([did], REM_DECK)
+        # do nothing else if doesn't exist
         if not str(did) in self.decks:
             return
         # delete children first
-        for name, id in self.children(did):
-            self.rem(id, cardsToo)
+        if childrenToo:
+            # we don't want to delete children when syncing
+            for name, id in self.children(did):
+                self.rem(id, cardsToo)
         # delete cards too?
         if cardsToo:
             self.col.remCards(self.cids(did))
         # delete the deck and add a grave
         del self.decks[str(did)]
-        self.col._logRem([did], REM_DECK)
         # ensure we have an active deck
         if did in self.active():
             self.select(int(self.decks.keys()[0]))
