@@ -28,7 +28,11 @@ class ProgressManager(object):
         "Install a handler in the current DB."
         self.lastDbProgress = 0
         self.inDB = False
-        db.set_progress_handler(self._dbProgress, 10000)
+        try:
+            db.set_progress_handler(self._dbProgress, 10000)
+        except:
+            print """\
+Your pysqlite2 is too old. Anki will appear frozen during long operations."""
 
     def _dbProgress(self):
         "Called from SQLite."
