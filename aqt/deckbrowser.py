@@ -103,9 +103,7 @@ body { margin: 1em; -webkit-user-select: none; }
     def _renderPage(self):
         css = self.mw.sharedCSS + self._css
         tree = self._renderDeckTree(self.mw.col.sched.deckDueTree())
-        self.web.stdHtml(self._body%dict(
-                title=_("Decks"),
-                tree=tree), css=css)
+        self.web.stdHtml(self._body%dict(tree=tree), css=css)
         self._drawButtons()
 
     def _renderDeckTree(self, nodes, depth=0):
