@@ -79,6 +79,7 @@ body { margin: 1em; -webkit-user-select: none; }
             helper: function (event) {
                 return $(this).clone(false);
             },
+            delay: 200,
             opacity: 0.7
         });
         $("tr.deck").droppable({
