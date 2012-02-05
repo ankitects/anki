@@ -82,7 +82,7 @@ body { margin: 1em; -webkit-user-select: none; }
             drop: handleDropEvent,
             hoverClass: 'drag-hover',
         });
-        $("tr.bottom-row").droppable({
+        $("tr.top-level-drag-row").droppable({
             drop: handleDropEvent,
             hoverClass: 'drag-hover',
         });
@@ -113,13 +113,13 @@ body { margin: 1em; -webkit-user-select: none; }
 <tr><th colspan=5 align=left>%s</th><th align=right>%s</th>
 <th align=right>%s</th></tr>""" % (
             _("Deck"), _("Due"), _("New"))
-            buf += self._bogusBottomRowForDraggingDeckToTopLevel()
+            buf += self._topLevelDragRow()
         else:
             buf = ""
         for node in nodes:
             buf += self._deckRow(node, depth)
         if depth == 0:
-            buf += self._bogusBottomRowForDraggingDeckToTopLevel()
+            buf += self._topLevelDragRow()
         return buf
 
     def _deckRow(self, node, depth):
@@ -145,8 +145,8 @@ body { margin: 1em; -webkit-user-select: none; }
         buf += self._renderDeckTree(children, depth+1)
         return buf
 
-    def _bogusBottomRowForDraggingDeckToTopLevel(self):
-        return "<tr class='bottom-row'><td colspan='6'>&nbsp;</td></tr>"
+    def _topLevelDragRow(self):
+        return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
     def _dueImg(self, due, new):
         if due:
