@@ -48,16 +48,19 @@ class DeckBrowser(object):
     # HTML generation
     ##########################################################################
 
+    _dragIndicatorBorderWidth = "1px"
+
     _css = """
 tr { font-size: 12px; }
 a.deck { color: #000; text-decoration: none; }
 a.deck:hover { text-decoration: underline; }
-tr.deck td { border-bottom: thick solid transparent; }
+tr.deck td { border-bottom: %(width)s solid transparent; }
+tr.top-level-drag-row td { border-bottom: %(width)s solid transparent; }
 td.opts { white-space: nowrap; }
-tr.drag-hover td { border-bottom: 1px solid #aaa; }
-.extra { font-size: 90%; }
+tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
+.extra { font-size: 90%%; }
 body { margin: 1em; -webkit-user-select: none; }
-"""
+""" % dict(width=_dragIndicatorBorderWidth)
 
     _body = """
 <center>
@@ -82,7 +85,7 @@ body { margin: 1em; -webkit-user-select: none; }
             drop: handleDropEvent,
             hoverClass: 'drag-hover',
         });
-        $("tr.bottom-row").droppable({
+        $("tr.top-level-drag-row").droppable({
             drop: handleDropEvent,
             hoverClass: 'drag-hover',
         });
@@ -99,11 +102,8 @@ body { margin: 1em; -webkit-user-select: none; }
 
     def _renderPage(self):
         css = self.mw.sharedCSS + self._css
-        tree = self._renderDeckTree(self.mw.col.sched.deckDueTree()) \
-                + self._bogusBottomRowForDraggingDeckToTopLevel()
-        self.web.stdHtml(self._body%dict(
-                title=_("Decks"),
-                tree=tree), css=css)
+        tree = self._renderDeckTree(self.mw.col.sched.deckDueTree())
+        self.web.stdHtml(self._body%dict(tree=tree), css=css)
         self._drawButtons()
 
     def _renderDeckTree(self, nodes, depth=0):
@@ -114,10 +114,13 @@ body { margin: 1em; -webkit-user-select: none; }
 <tr><th colspan=5 align=left>%s</th><th align=right>%s</th>
 <th align=right>%s</th></tr>""" % (
             _("Deck"), _("Due"), _("New"))
+            buf += self._topLevelDragRow()
         else:
             buf = ""
         for node in nodes:
             buf += self._deckRow(node, depth)
+        if depth == 0:
+            buf += self._topLevelDragRow()
         return buf
 
     def _deckRow(self, node, depth):
@@ -143,8 +146,8 @@ body { margin: 1em; -webkit-user-select: none; }
         buf += self._renderDeckTree(children, depth+1)
         return buf
 
-    def _bogusBottomRowForDraggingDeckToTopLevel(self):
-        return "<tr class='bottom-row'><td colspan='6'>&nbsp;</td></tr>"
+    def _topLevelDragRow(self):
+        return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
     def _dueImg(self, due, new):
         if due:
