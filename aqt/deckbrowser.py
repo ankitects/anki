@@ -99,8 +99,7 @@ body { margin: 1em; -webkit-user-select: none; }
 
     def _renderPage(self):
         css = self.mw.sharedCSS + self._css
-        tree = self._renderDeckTree(self.mw.col.sched.deckDueTree()) \
-                + self._bogusBottomRowForDraggingDeckToTopLevel()
+        tree = self._renderDeckTree(self.mw.col.sched.deckDueTree())
         self.web.stdHtml(self._body%dict(
                 title=_("Decks"),
                 tree=tree), css=css)
@@ -114,10 +113,13 @@ body { margin: 1em; -webkit-user-select: none; }
 <tr><th colspan=5 align=left>%s</th><th align=right>%s</th>
 <th align=right>%s</th></tr>""" % (
             _("Deck"), _("Due"), _("New"))
+            buf += self._bogusBottomRowForDraggingDeckToTopLevel()
         else:
             buf = ""
         for node in nodes:
             buf += self._deckRow(node, depth)
+        if depth == 0:
+            buf += self._bogusBottomRowForDraggingDeckToTopLevel()
         return buf
 
     def _deckRow(self, node, depth):
