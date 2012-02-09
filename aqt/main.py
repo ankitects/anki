@@ -677,7 +677,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.moveToState("overview")
 
     def onCardStats(self):
-        self.cardStats.show()
+        self.cardStats.toggle()
 
     def onStats(self):
         aqt.stats.DeckStats(self)

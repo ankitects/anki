@@ -37,6 +37,13 @@ class CardStats(object):
         if self.shown:
             self.mw.remDockable(self.shown)
             self.shown = None
+            self.mw.form.actionCstats.setChecked(False)
+
+    def toggle(self):
+        if self.shown:
+            self.hide()
+        else:
+            self.show()
 
     def _visChange(self, vis):
         if not vis:

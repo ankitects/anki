@@ -143,6 +143,9 @@
    </property>
   </action>
   <action name="actionCstats">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Card Info</string>
    </property>
