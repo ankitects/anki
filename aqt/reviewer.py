@@ -240,13 +240,28 @@ img { max-width: 95%; max-height: 95%; }
 
     def typeAnsQuestionFilter(self, buf):
         self.typeCorrect = None
+        clozeIdx = None
         m = re.search(self.typeAnsPat, buf)
         if not m:
             return buf
         fld = m.group(1)
+        # if it's a cloze, extract data
+        if fld.startswith("cq:"):
+            # get field and cloze position
+            m = re.match("cq:(\d+):(.+)", fld)
+            if not m:
+                return re.sub(
+                    self.typeAnsPat, _("Type answer: invalid cloze pattern"),
+                    buf)
+            clozeIdx = m.group(1)
+            fld = m.group(2)
+        # loop through fields for a match
         for f in self.card.model()['flds']:
             if f['name'] == fld:
                 self.typeCorrect = self.card.note()[f['name']]
+                if clozeIdx:
+                    # narrow to cloze
+                    self.typeCorrect = self._contentForCloze(self.typeCorrect, clozeIdx)
                 self.typeFont = f['font']
                 self.typeSize = f['size']
                 break
@@ -278,6 +293,13 @@ img { max-width: 95%; max-height: 95%; }
 <span style="font-family: '%s'; font-size: %spx">%s</span>""" %
                       (self.typeFont, self.typeSize, res), buf)
 
+    def _contentForCloze(self, txt, idx):
+        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
+        if len(matches) > 1:
+            txt = ", ".join(matches)
+        else:
+            txt = matches[0]
+        return txt
 
     # following type answer functions thanks to Bernhard
     def calculateOkBadStyle(self):
