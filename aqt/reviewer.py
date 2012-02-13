@@ -418,6 +418,7 @@ var updateTime = function () {
             self.bottom._css + self._bottomCSS)
 
     def _showEaseButtons(self):
+        self.bottom.web.setFocus()
         self.bottom.web.stdHtml(
             self._bottomHTML(self._answerButtons()),
             self.bottom._css + self._bottomCSS)
