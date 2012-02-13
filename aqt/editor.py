@@ -830,8 +830,17 @@ class EditorWebView(AnkiWebView):
         if shiftPaste:
             self.triggerPageAction(QWebPage.Paste)
         QWebView.keyPressEvent(self, evt)
-        if self.origClip:
-            self.restoreClip()
+        self.restoreClip()
+
+    def mouseReleaseEvent(self, evt):
+        if not isMac and not isWin and evt.button() == Qt.MidButton:
+            # middle click on x11; munge the clipboard before standard
+            # handling
+            self.prepareClip(mode=QClipboard.Selection)
+            AnkiWebView.mouseReleaseEvent(self, evt)
+            self.restoreClip(mode=QClipboard.Selection)
+        else:
+            AnkiWebView.mouseReleaseEvent(self, evt)
 
     # Buggy; disable for now.
     # def contextMenuEvent(self, evt):
@@ -863,10 +872,10 @@ class EditorWebView(AnkiWebView):
         evt.accept()
         QWebView.dropEvent(self, new)
 
-    def prepareClip(self, keep=False):
+    def prepareClip(self, keep=False, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
-        mime = clip.mimeData()
-        self.saveClip()
+        mime = clip.mimeData(mode=mode)
+        self.saveClip(mode=mode)
         if keep:
             new = QMimeData()
             if mime.hasHtml():
@@ -876,15 +885,17 @@ class EditorWebView(AnkiWebView):
             mime = new
         else:
             mime = self._processMime(mime)
-        clip.setMimeData(mime)
+        clip.setMimeData(mime, mode=mode)
 
-    def restoreClip(self):
+    def restoreClip(self, mode=QClipboard.Clipboard):
+        if not self.origClip:
+            return
         clip = self.editor.mw.app.clipboard()
-        clip.setMimeData(self.origClip)
+        clip.setMimeData(self.origClip, mode=mode)
 
-    def saveClip(self):
+    def saveClip(self, mode):
         # we don't own the clipboard object, so we need to copy it
-        mime = self.editor.mw.app.clipboard().mimeData()
+        mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
         n = QMimeData()
         if mime.hasText():
             n.setText(mime.text())
