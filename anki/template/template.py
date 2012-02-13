@@ -131,7 +131,7 @@ class Template(object):
                 func = modifiers[tag_type]
                 replacement = func(self, tag_name, context)
                 template = template.replace(tag, replacement)
-            except SyntaxError:
+            except (SyntaxError, KeyError):
                 return u"{{invalid template}}"
 
         return template
