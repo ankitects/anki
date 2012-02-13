@@ -35,6 +35,8 @@ body { margin: 5px; }
 </style><script>
 %s
 
+insertHTMLOK = %s;
+
 String.prototype.format = function() {
     var args = arguments;
     return this.replace(/\{\d+\}/g, function(m){
@@ -129,14 +131,20 @@ function wrappedExceptForWhitespace(text, front, back) {
 };
 
 function wrap(front, back) {
-    setFormat('removeFormat', null, true);
     var s = window.getSelection();
     var r = s.getRangeAt(0);
     var content = r.cloneContents();
     var span = document.createElement("span")
     span.appendChild(content);
     var new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
-    setFormat('inserthtml', new_);
+    if (insertHTMLOK) {
+        setFormat("inserthtml", new_);
+    } else {
+        r.deleteContents();
+        r.collapse(true);
+        r.insertNode(document.createTextNode(new_));
+        saveField('key');
+    }
 };
 
 function setFields(fields, focusTo) {
@@ -405,6 +413,7 @@ class Editor(object):
         # change timer
         if self.note:
             self.web.setHtml(_html % (getBase(self.mw.col), anki.js.all,
+                                      (isMac or isWin) and 1 or 0,
                                   _("Show Duplicates")),
                              loadCB=self._loadFinished)
             self.updateTagsAndDeck()
