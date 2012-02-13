@@ -140,6 +140,8 @@ Please create a new card first."""))
         if self.redrawing:
             return
         self.ord = idx
+        if idx >= len(self.cards):
+            idx = len(self.cards) - 1
         self.card = self.cards[idx]
         self.tab = self.forms[idx]
         self.tabs.setCurrentIndex(idx)
