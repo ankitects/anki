@@ -135,7 +135,7 @@ function _typeAnsPress() {
         self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
         self._showAnswerButton()
         # if we have a type answer field, focus main web
-        if self.typeField:
+        if self.typeCorrect:
             self.mw.web.setFocus()
         # user hook
         runHook('showQuestion')
@@ -239,20 +239,24 @@ img { max-width: 95%; max-height: 95%; }
             return self.typeAnsAnswerFilter(buf)
 
     def typeAnsQuestionFilter(self, buf):
-        self.typeField = None
+        self.typeCorrect = None
         m = re.search(self.typeAnsPat, buf)
         if not m:
             return buf
         fld = m.group(1)
         for f in self.card.model()['flds']:
             if f['name'] == fld:
-                self.typeField = f
+                self.typeCorrect = self.card.note()[f['name']]
                 self.typeFont = f['font']
                 self.typeSize = f['size']
                 break
-        if not self.typeField:
-            return re.sub(
-                self.typeAnsPat, _("Type answer: unknown field %s") % fld, buf)
+        if not self.typeCorrect:
+            if self.typeCorrect is None:
+                return re.sub(
+                    self.typeAnsPat, _("Type answer: unknown field %s") % fld, buf)
+            else:
+                # empty field, remove type answer pattern
+                return re.sub(self.typeAnsPat, "", buf)
         return re.sub(self.typeAnsPat, """
 <center>
 <input type=text id=typeans onkeypress="_typeAnsPress();"
@@ -261,13 +265,12 @@ img { max-width: 95%; max-height: 95%; }
 """ % (self.typeFont, self.typeSize), buf)
 
     def typeAnsAnswerFilter(self, buf):
-        if not self.typeField:
-            return buf
+        if not self.typeCorrect:
+            return re.sub(self.typeAnsPat, "", buf)
         # tell webview to call us back with the input content
         self.web.eval("_getTypedText();")
-        # get the correct value from the field
-        cor = self.mw.col.media.strip(
-                stripHTML(self.card.note()[self.typeField['name']]))
+        # munge correct value
+        cor = self.mw.col.media.strip(stripHTML(self.typeCorrect))
         # compare with typed answer
         res = self.correct(cor, self.typedAnswer)
         # and update the type answer area
