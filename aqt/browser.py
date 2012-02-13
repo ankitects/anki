@@ -490,7 +490,7 @@ class Browser(QMainWindow):
         else:
             self.card = self.model.getCard(
                 self.form.tableView.selectionModel().currentIndex())
-            self.editor.setNote(self.card.note())
+            self.editor.setNote(self.card.note(reload=True))
             self.editor.card = self.card
         self.toolbar.draw()
         self.buildTree()
