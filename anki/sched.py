@@ -759,7 +759,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
 
     def finishedMsg(self):
         return ("<b>"+_(
-            "Congratulations! You have finished for now.")+
+            "Congratulations! You have finished this deck for now.")+
             "</b><br><br>" + self._nextDueMsg())
 
     def _nextDueMsg(self):
