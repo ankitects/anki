@@ -25,7 +25,6 @@ class CardLayout(QDialog):
         self.model = note.model()
         self.mw.checkpoint(_("Card Layout"))
         self.addMode = addMode
-        self.playedAudio = {}
         if addMode:
             # save it to DB temporarily
             note.flush()
@@ -146,6 +145,7 @@ Please create a new card first."""))
         self.card = self.cards[idx]
         self.tab = self.forms[idx]
         self.tabs.setCurrentIndex(idx)
+        self.playedAudio = {}
         self.readCard()
         self.renderPreview()
 
