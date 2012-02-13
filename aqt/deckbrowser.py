@@ -60,6 +60,7 @@ td.opts { white-space: nowrap; }
 tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
 .extra { font-size: 90%%; }
 body { margin: 1em; -webkit-user-select: none; }
+.current { background-color: #ececec; }
 """ % dict(width=_dragIndicatorBorderWidth)
 
     _body = """
@@ -128,7 +129,11 @@ body { margin: 1em; -webkit-user-select: none; }
         name, did, due, new, children = node
         def indent():
             return "&nbsp;"*3*depth
-        buf = "<tr class='deck' id='%d'>"% did
+        if did == self.mw.col.conf['curDeck']:
+            klass = 'deck current'
+        else:
+            klass = 'deck'
+        buf = "<tr class='%s' id='%d'>" % (klass, did)
         # deck link
         buf += "<td colspan=5>%s<a class=deck href='open:%d'>%s</a></td>"% (
             indent(), did, name)
