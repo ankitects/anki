@@ -539,7 +539,7 @@ where c.nid == f.id
 
     def undo(self):
         if self._undo[0] == 1:
-            self._undoReview()
+            return self._undoReview()
         else:
             self._undoOp()
 
@@ -567,6 +567,7 @@ where c.nid == f.id
         # fixme: what to do in cramming case?
         type = ("new", "lrn", "rev")[c.queue]
         self.sched._updateStats(c, type, -1)
+        return c.id
 
     def _markOp(self, name):
         "Call via .save()"
