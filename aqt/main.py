@@ -628,7 +628,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onUndo(self):
-        self.col.undo()
+        cid = self.col.undo()
+        if cid:
+            card = self.col.getCard(cid)
+            self.reviewer.cardQueue.append(card)
         self.reset()
         self.maybeEnableUndo()
 

@@ -52,6 +52,7 @@ class Reviewer(object):
         if self.cardQueue:
             # undone/edited cards to show
             c = self.cardQueue.pop()
+            c.startTimer()
             self.hadCardQueue = True
         else:
             if self.hadCardQueue:
