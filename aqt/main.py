@@ -629,7 +629,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 
     def onUndo(self):
         cid = self.col.undo()
-        if cid:
+        if cid and self.state == "review":
             card = self.col.getCard(cid)
             self.reviewer.cardQueue.append(card)
         self.reset()

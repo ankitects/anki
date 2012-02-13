@@ -452,7 +452,11 @@ var updateTime = function () {
     def _remaining(self):
         if not self.mw.col.conf['dueCounts']:
             return ""
-        counts = list(self.mw.col.sched.counts(self.card))
+        if self.hadCardQueue:
+            # if it's come from the undo queue, don't count it separately
+            counts = list(self.mw.col.sched.counts())
+        else:
+            counts = list(self.mw.col.sched.counts(self.card))
         idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx])
         space = " + "

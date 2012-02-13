@@ -45,7 +45,6 @@ class EditCurrent(QDialog):
         self.editor.setNote(None)
         r = self.mw.reviewer
         r.card.load()
-        r.keep = True
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
         self.close()
