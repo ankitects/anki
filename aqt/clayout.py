@@ -25,6 +25,7 @@ class CardLayout(QDialog):
         self.model = note.model()
         self.mw.checkpoint(_("Card Layout"))
         self.addMode = addMode
+        self.playedAudio = {}
         if addMode:
             # save it to DB temporarily
             note.flush()
@@ -180,6 +181,11 @@ Please create a new card first."""))
             html % (base, "", ti(mungeQA(c.q(reload=True)))))
         self.tab['pform'].back.setHtml(
             html % (base, "", ti(mungeQA(c.a()), 'a')))
+        clearAudioQueue()
+        if c.id not in self.playedAudio:
+            playFromText(c.q())
+            playFromText(c.a())
+            self.playedAudio[c.id] = True
 
     def maybeTextInput(self, txt, type='q'):
         if type == 'q':
