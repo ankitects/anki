@@ -1443,6 +1443,7 @@ class BrowserToolbar(Toolbar):
 <a class=hitem title="%s" href="%s"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
             return fmt % (title, link, icon, title)
         right = ""
+        right += borderImg("add", "add16", False, _("Add"))
         right += borderImg("info", "info", False, _("Info"))
         right += borderImg("mark", "star16", mark, _("Mark"))
         right += borderImg("pause", "pause16", pause, _("Suspend"))
