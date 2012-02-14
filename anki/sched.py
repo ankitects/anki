@@ -506,9 +506,9 @@ where queue = 1 and type = 2
     def _lrnForDeck(self, did):
         return self.col.db.scalar(
             """
-select count() from
-(select 1 from cards where did = ? and queue = 1 and due < ? limit ?)""",
-            did, intTime() + self.col.conf['collapseTime'], self.reportLimit)
+select sum(left) from
+(select left from cards where did = ? and queue = 1 and due < ? limit ?)""",
+            did, intTime() + self.col.conf['collapseTime'], self.reportLimit) or 0
 
     # Reviews
     ##########################################################################
