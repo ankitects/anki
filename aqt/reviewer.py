@@ -401,10 +401,6 @@ td { font-weight: bold; font-size: 12px; }
 """
 
     def _bottomHTML(self):
-        if not self.card.deckConf().get('timer'):
-            maxTime = 0
-        else:
-            maxTime = self.card.deckConf()['maxTaken']
         return """
 <table width=100%% cellspacing=0 cellpadding=0>
 <tr>
@@ -421,6 +417,7 @@ td { font-weight: bold; font-size: 12px; }
 </table>
 <script>
 var time = %(time)d;
+var maxTime = 0;
 $(function () {
 $("#ansbut").focus();
 updateTime();
@@ -428,10 +425,10 @@ setInterval(function () { time += 1; updateTime() }, 1000);
 });
 
 var updateTime = function () {
-    if (!%(maxTime)s) {
+    if (!maxTime) {
         return;
     }
-    time = Math.min(%(maxTime)s, time);
+    time = Math.min(maxTime, time);
     var m = Math.floor(time / 60);
     var s = time %% 60;
     if (s < 10) {
@@ -441,10 +438,12 @@ var updateTime = function () {
     e.text(m + ":" + s);
 }
 
-function showQuestion(txt) {
+function showQuestion(txt, maxTime_) {
   // much faster than jquery's .html()
   $("#middle")[0].innerHTML = txt;
   $("#ansbut").focus();
+  time = 0;
+  maxTime = maxTime_;
 }
 
 function showAnswer(txt) {
@@ -454,8 +453,7 @@ function showAnswer(txt) {
 
 </script>
 """ % dict(rem=self._remaining(), edit=_("Edit"),
-           more=_("More"), time=self.card.timeTaken()/1000,
-           maxTime=maxTime)
+           more=_("More"), time=self.card.timeTaken()/1000)
 
     def _showAnswerButton(self):
         self._bottomReady = True
@@ -466,7 +464,12 @@ function showAnswer(txt) {
         self._remaining(), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
-        self.bottom.web.eval("showQuestion(%s);" % simplejson.dumps(middle))
+        if not self.card.deckConf().get('timer'):
+            maxTime = 0
+        else:
+            maxTime = self.card.deckConf()['maxTaken']
+        self.bottom.web.eval("showQuestion(%s,%d);" % (
+            simplejson.dumps(middle), maxTime))
 
     def _showEaseButtons(self):
         self.bottom.web.setFocus()
