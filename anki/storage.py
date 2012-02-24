@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, simplejson
+import os, simplejson, copy
 from anki.lang import _
 from anki.utils import intTime
 from anki.db import DB
@@ -142,12 +142,12 @@ values(1,0,0,%(s)s,%(v)s,0,0,0,'','{}','','','{}');
 def _getColVars(db):
     import anki.collection
     import anki.decks
-    g = anki.decks.defaultDeck.copy()
+    g = copy.deepcopy(anki.decks.defaultDeck)
     g['id'] = 1
     g['name'] = _("Default")
     g['conf'] = 1
     g['mod'] = intTime()
-    gc = anki.decks.defaultConf.copy()
+    gc = copy.deepcopy(anki.decks.defaultConf)
     gc['id'] = 1
     return g, gc, anki.collection.defaultConf.copy()
 
