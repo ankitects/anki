@@ -147,7 +147,6 @@ function _typeAnsPress() {
         # render & update bottom
         q = self._mungeQA(q)
         self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
-        t = time.time()
         if self._bottomReady:
             self._showAnswerButton()
         # if we have a type answer field, focus main web
