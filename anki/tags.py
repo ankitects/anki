@@ -151,7 +151,6 @@ class TagManager(object):
     ##########################################################################
 
     def selTagNids(self, yes, no):
-        l = []
         # find notes that match yes
         lim = ""
         args = []

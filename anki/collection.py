@@ -269,7 +269,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def findTemplates(self, note):
         "Return (active), non-empty templates."
-        ok = []
         model = note.model()
         avail = self.models.availOrds(model, joinFields(note.fields))
         ok = []
@@ -298,7 +297,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             "select id, mid, did, flds from notes where id in "+snids):
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
-            ok = []
             for t in model['tmpls']:
                 doHave = nid in have and t['ord'] in have[nid]
                 # if have ord but empty, add cid to remove list
