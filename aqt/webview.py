@@ -81,7 +81,7 @@ class AnkiWebView(QWebView):
     def setHtml(self, html, loadCB=None):
         self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
-    def stdHtml(self, body, css="", bodyClass="", loadCB=None, head=""):
+    def stdHtml(self, body, css="", bodyClass="", loadCB=None, js=None, head=""):
         if isMac:
             button = "font-weight: bold; height: 24px;"
         else:
@@ -98,7 +98,8 @@ button {
 
 </head>
 <body class="%s">%s</body></html>""" % (
-    fontForPlatform(), button, css, anki.js.all, head, bodyClass, body), loadCB)
+    fontForPlatform(), button, css, js or anki.js.jquery, head,
+    bodyClass, body), loadCB)
     def setBridge(self, bridge):
         self._bridge.setBridge(bridge)
     def eval(self, js):

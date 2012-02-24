@@ -5,6 +5,7 @@
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning
 from anki.utils import isMac
+import anki.js
 from anki.errors import DeckRenameError
 import aqt
 
@@ -105,7 +106,8 @@ body { margin: 1em; -webkit-user-select: none; }
     def _renderPage(self):
         css = self.mw.sharedCSS + self._css
         tree = self._renderDeckTree(self.mw.col.sched.deckDueTree())
-        self.web.stdHtml(self._body%dict(tree=tree), css=css)
+        self.web.stdHtml(self._body%dict(tree=tree), css=css,
+                         js=anki.js.jquery+anki.js.ui)
         self._drawButtons()
 
     def _renderDeckTree(self, nodes, depth=0):
