@@ -35,6 +35,7 @@ class Reviewer(object):
         else:
             self.bottom.web.setFixedHeight(52)
         self.bottom.web.setLinkHandler(self._linkHandler)
+        self._reps = None
         self.nextCard()
 
     def lastCard(self):
@@ -63,10 +64,14 @@ class Reviewer(object):
             c = self.mw.col.sched.getCard()
         self.card = c
         clearAudioQueue()
-        if c:
+        if not c:
+            self.mw.moveToState("overview")
+            return
+        if self._reps is None or self._reps % 100 == 0:
+            # we recycle the webview periodically so webkit can free memory
             self._initWeb()
         else:
-            self.mw.moveToState("overview")
+            self._showQuestion()
 
     # Audio
     ##########################################################################
@@ -111,6 +116,7 @@ function _typeAnsPress() {
 """
 
     def _initWeb(self):
+        self._reps = 0
         base = getBase(self.mw.col)
         self.web.stdHtml(self._revHtml, self._styles(),
             bodyClass="card", loadCB=lambda x: self._showQuestion(),
@@ -124,6 +130,7 @@ function _typeAnsPress() {
             self.typeAnsFilter(mungeQA(buf)))
 
     def _showQuestion(self):
+        self._reps += 1
         self.state = "question"
         c = self.card
         # grab the question and play audio
@@ -133,7 +140,9 @@ function _typeAnsPress() {
         # render & update bottom
         q = self._mungeQA(q)
         self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
+        t = time.time()
         self._showAnswerButton()
+        print (time.time() - t)*1000
         # if we have a type answer field, focus main web
         if self.typeCorrect:
             self.mw.web.setFocus()
@@ -438,7 +447,6 @@ var updateTime = function () {
         self._remaining(), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
-
         self.bottom.web.stdHtml(
             self._bottomHTML(middle),
             self.bottom._css + self._bottomCSS)
