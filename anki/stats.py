@@ -111,7 +111,8 @@ class CollectionStats(object):
         txt += self.hourGraph()
         txt += self.easeGraph()
         txt += self.cardGraph()
-        return "<script>%s\n</script><center>%s</center>" % (anki.js.all, txt)
+        return "<script>%s\n</script><center>%s</center>" % (
+            anki.js.jquery+anki.js.plot, txt)
 
     css = """
 <style>
