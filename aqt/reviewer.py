@@ -93,7 +93,7 @@ class Reviewer(object):
 var ankiPlatform = "desktop";
 var typeans;
 function _updateQA (q, answerMode) {
-    $("#qa").html(q);
+    $("#qa")[0].innerHTML = q;
     typeans = document.getElementById("typeans");
     if (typeans) {
         typeans.focus();
@@ -117,10 +117,17 @@ function _typeAnsPress() {
 
     def _initWeb(self):
         self._reps = 0
+        self._bottomReady = False
         base = getBase(self.mw.col)
+        # main window
         self.web.stdHtml(self._revHtml, self._styles(),
             bodyClass="card", loadCB=lambda x: self._showQuestion(),
             head=base)
+        # show answer / ease buttons
+        self.bottom.web.stdHtml(
+            self._bottomHTML(),
+            self.bottom._css + self._bottomCSS,
+        loadCB=lambda x: self._showAnswerButton())
 
     # Showing the question
     ##########################################################################
@@ -141,8 +148,8 @@ function _typeAnsPress() {
         q = self._mungeQA(q)
         self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
         t = time.time()
-        self._showAnswerButton()
-        print (time.time() - t)*1000
+        if self._bottomReady:
+            self._showAnswerButton()
         # if we have a type answer field, focus main web
         if self.typeCorrect:
             self.mw.web.setFocus()
@@ -393,7 +400,7 @@ td { font-weight: bold; font-size: 12px; }
 .spacer2 { height: 16px; }
 """
 
-    def _bottomHTML(self, middle):
+    def _bottomHTML(self):
         if not self.card.deckConf().get('timer'):
             maxTime = 0
         else:
@@ -404,8 +411,7 @@ td { font-weight: bold; font-size: 12px; }
 <td align=left width=50 valign=top class=stat>
 <br>
 <button onclick="py.link('edit');">%(edit)s</button></td>
-<td align=center valign=top>
-%(middle)s
+<td align=center valign=top id=middle>
 </td>
 <td width=50 align=right valign=top class=stat><span id=time class=stattxt>
 </span><br>
@@ -434,12 +440,25 @@ var updateTime = function () {
     var e = $("#time").text(time);
     e.text(m + ":" + s);
 }
+
+function showQuestion(txt) {
+  // much faster than jquery's .html()
+  $("#middle")[0].innerHTML = txt;
+  $("#ansbut").focus();
+}
+
+function showAnswer(txt) {
+  $("#middle")[0].innerHTML = txt;
+  $("#defease").focus();
+}
+
 </script>
-""" % dict(middle=middle, rem=self._remaining(), edit=_("Edit"),
+""" % dict(rem=self._remaining(), edit=_("Edit"),
            more=_("More"), time=self.card.timeTaken()/1000,
            maxTime=maxTime)
 
     def _showAnswerButton(self):
+        self._bottomReady = True
         self.bottom.web.setFocus()
         middle = '''
 <span class=stattxt>%s</span><br>
@@ -447,15 +466,12 @@ var updateTime = function () {
         self._remaining(), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
-        self.bottom.web.stdHtml(
-            self._bottomHTML(middle),
-            self.bottom._css + self._bottomCSS)
+        self.bottom.web.eval("showQuestion(%s);" % simplejson.dumps(middle))
 
     def _showEaseButtons(self):
         self.bottom.web.setFocus()
-        self.bottom.web.stdHtml(
-            self._bottomHTML(self._answerButtons()),
-            self.bottom._css + self._bottomCSS)
+        middle = self._answerButtons()
+        self.bottom.web.eval("showAnswer(%s);" % simplejson.dumps(middle))
 
     def _remaining(self):
         if not self.mw.col.conf['dueCounts']:

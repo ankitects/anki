@@ -412,7 +412,7 @@ class Editor(object):
         self.note = note
         # change timer
         if self.note:
-            self.web.setHtml(_html % (getBase(self.mw.col), anki.js.all,
+            self.web.setHtml(_html % (getBase(self.mw.col), anki.js.jquery,
                                       (isMac or isWin) and 1 or 0,
                                   _("Show Duplicates")),
                              loadCB=self._loadFinished)
