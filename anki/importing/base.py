@@ -10,6 +10,7 @@ from anki.utils import intTime, maxID
 class Importer(object):
 
     needMapper = False
+    needDelimiter = False
 
     def __init__(self, col, file):
         self.file = file
