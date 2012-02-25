@@ -2,13 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import itertools, time, re, os, HTMLParser
+import itertools, time, re, os, HTMLParser, zipfile, simplejson
 from operator import itemgetter
 from anki.cards import Card
 from anki.lang import _
 from anki.utils import stripHTML, ids2str, splitFields
-
-# remove beautifulsoup dependency
+from anki import Collection
 
 class Exporter(object):
     def __init__(self, col, did=None):
@@ -39,46 +38,44 @@ class Exporter(object):
 ######################################################################
 
 class TextCardExporter(Exporter):
+    pass
 
-    key = _("Text files (*.txt)")
-    ext = ".txt"
+#     key = _("Text files (*.txt)")
+#     ext = ".txt"
 
-    # add option to strip html
+#     def __init__(self, col):
+#         Exporter.__init__(self, col)
 
+#     def doExport(self, file):
+#         ids = self.cardIds()
+#         strids = ids2str(ids)
+#         cards = self.col.db.all("""
+# select cards.question, cards.answer, cards.id from cards
+# where cards.id in %s
+# order by cards.created""" % strids)
+#         self.cardTags = dict(self.col.db.all("""
+# select cards.id, notes.tags from cards, notes
+# where cards.noteId = notes.id
+# and cards.id in %s
+# order by cards.created""" % strids))
+#         out = u"\n".join(["%s\t%s%s" % (
+#             self.escapeText(c[0], removeFields=True),
+#             self.escapeText(c[1], removeFields=True),
+#             self.tags(c[2]))
+#                           for c in cards])
+#         if out:
+#             out += "\n"
+#         file.write(out.encode("utf-8"))
 
-    def __init__(self, col):
-        Exporter.__init__(self, col)
-
-    def doExport(self, file):
-        ids = self.cardIds()
-        strids = ids2str(ids)
-        cards = self.col.db.all("""
-select cards.question, cards.answer, cards.id from cards
-where cards.id in %s
-order by cards.created""" % strids)
-        self.cardTags = dict(self.col.db.all("""
-select cards.id, notes.tags from cards, notes
-where cards.noteId = notes.id
-and cards.id in %s
-order by cards.created""" % strids))
-        out = u"\n".join(["%s\t%s%s" % (
-            self.escapeText(c[0], removeFields=True),
-            self.escapeText(c[1], removeFields=True),
-            self.tags(c[2]))
-                          for c in cards])
-        if out:
-            out += "\n"
-        file.write(out.encode("utf-8"))
-
-    def tags(self, id):
-        return "\t" + ", ".join(parseTags(self.cardTags[id]))
+#     def tags(self, id):
+#         return "\t" + ", ".join(parseTags(self.cardTags[id]))
 
 # Notes as TSV
 ######################################################################
 
 class TextNoteExporter(Exporter):
 
-    key = _("Text files (*.txt)")
+    key = _("Notes in Plain Text")
     ext = ".txt"
 
     def __init__(self, col):
@@ -108,94 +105,133 @@ where cards.id in %s)""" % ids2str(cardIds)):
         out = "\n".join(data)
         file.write(out.encode("utf-8"))
 
-    def tags(self, id):
-        if self.includeTags:
-            return "\t" + self.noteTags[id]
-        return ""
-
-# Anki collection exporter
+# Anki decks
 ######################################################################
+# media files are stored in self.mediaFiles, but not exported.
 
 class AnkiExporter(Exporter):
 
-    key = _("Anki Collection (*.anki)")
-    ext = ".anki"
+    key = _("Anki 2.0 Deck")
+    ext = ".anki2"
 
     def __init__(self, col):
         Exporter.__init__(self, col)
-        self.includeSchedulingInfo = False
+        self.includeSched = False
         self.includeMedia = True
 
     def exportInto(self, path):
-        n = 3
-        if not self.includeSchedulingInfo:
-            n += 1
+        # create a new collection at the target
         try:
             os.unlink(path)
         except (IOError, OSError):
             pass
-        self.newCol = DeckStorage.Deck(path)
-        client = SyncClient(self.col)
-        server = SyncServer(self.newDeck)
-        client.setServer(server)
-        client.localTime = self.col.modified
-        client.remoteTime = 0
-        self.col.db.flush()
-        # set up a custom change list and sync
-        lsum = self.localSummary()
-        rsum = server.summary(0)
-        payload = client.genPayload((lsum, rsum))
-        res = server.applyPayload(payload)
-        if not self.includeSchedulingInfo:
-            self.newCol.resetCards()
-        # media
+        self.dst = Collection(path)
+        self.src = self.col
+        # find cards
+        if not self.did:
+            cids = self.src.db.list("select id from cards")
+        else:
+            cids = self.src.decks.cids(self.did, children=True)
+        # copy cards, noting used nids
+        nids = {}
+        data = []
+        for row in self.src.db.execute(
+            "select * from cards where id in "+ids2str(cids)):
+            nids[row[1]] = True
+            data.append(row)
+        self.dst.db.executemany(
+            "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            data)
+        # notes
+        strnids = ids2str(nids.keys())
+        notedata = self.src.db.all("select * from notes where id in "+
+                               strnids)
+        self.dst.db.executemany(
+            "insert into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
+            notedata)
+        # models used by the notes
+        mids = self.dst.db.list("select distinct mid from notes where id in "+
+                                strnids)
+        # card history and revlog
+        if self.includeSched:
+            data = self.src.db.all(
+                "select * from revlog where cid in "+ids2str(cids))
+            self.dst.db.executemany(
+                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
+                data)
+        else:
+            # need to reset card state
+            self.dst.sched.forgetCards(cids)
+        # models
+        for m in self.src.models.all():
+            if m['id'] in mids:
+                self.dst.models.update(m)
+        # decks
+        if not self.did:
+            dids = []
+        else:
+            dids = [self.did] + self.src.decks.children(self.did)
+        dconfs = {}
+        for d in self.src.decks.all():
+            if d['id'] == 1:
+                continue
+            if dids and d['id'] not in dids:
+                continue
+            if d['conf'] != 1:
+                dconfs[d['conf']] = True
+            self.dst.decks.update(d)
+        # copy used deck confs
+        for dc in self.src.decks.allConf():
+            if dc['id'] in dconfs:
+                self.dst.decks.updateConf(dc)
+        # find used media
+        media = {}
         if self.includeMedia:
-            server.col.mediaPrefix = ""
-            copyLocalMedia(client.col, server.col)
-        # need to save manually
-        self.newCol.rebuildCounts()
-        # FIXME
-        #self.exportedCards = self.newCol.cardCount
-        self.newCol.crt = 0
-        self.newCol.db.commit()
-        self.newCol.close()
+            for row in notedata:
+                flds = row[7]
+                mid = row[2]
+                for file in self.src.media.filesInStr(mid, flds):
+                    media[file] = True
+        self.mediaFiles = media.keys()
+        # todo: tags?
+        self.dst.setMod()
+        self.dst.close()
 
-    def localSummary(self):
-        cardIds = self.cardIds()
-        cStrIds = ids2str(cardIds)
-        cards = self.col.db.all("""
-select id, modified from cards
-where id in %s""" % cStrIds)
-        notes = self.col.db.all("""
-select notes.id, notes.modified from cards, notes where
-notes.id = cards.noteId and
-cards.id in %s""" % cStrIds)
-        models = self.col.db.all("""
-select models.id, models.modified from models, notes where
-notes.modelId = models.id and
-notes.id in %s""" % ids2str([f[0] for f in notes]))
-        media = self.col.db.all("""
-select id, modified from media""")
-        return {
-            # cards
-            "cards": cards,
-            "delcards": [],
-            # notes
-            "notes": notes,
-            "delnotes": [],
-            # models
-            "models": models,
-            "delmodels": [],
-            # media
-            "media": media,
-            "delmedia": [],
-            }
+# Packaged Anki decks
+######################################################################
+
+class AnkiPackageExporter(AnkiExporter):
+
+    key = _("Packaged Anki Deck")
+    ext = ".apkg"
+
+    def __init__(self, col):
+        AnkiExporter.__init__(self, col)
+
+    def exportInto(self, path):
+        # export into the anki2 file
+        colfile = path.replace(".apkg", ".anki2")
+        AnkiExporter.exportInto(self, colfile)
+        # zip the deck up
+        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED)
+        z.write(colfile, "collection.anki2")
+        # and media
+        media = {}
+        for c, file in enumerate(self.mediaFiles):
+            c = str(c)
+            z.write(file, c)
+            media[c] = file
+        # media map
+        z.writestr("media", simplejson.dumps(media))
+        z.close()
 
 # Export modules
 ##########################################################################
 
 def exporters():
+    def id(obj):
+        return "%s (*%s)" % (obj.key, obj.ext)
     return (
-        (_("Anki Deck (*.anki)"), AnkiExporter),
-        (_("Cards in tab-separated text file (*.txt)"), TextCardExporter),
-        (_("Notes in tab-separated text file (*.txt)"), TextNoteExporter))
+        id(TextNoteExporter),
+        id(AnkiPackageExporter),
+    )
