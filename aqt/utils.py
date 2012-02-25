@@ -227,7 +227,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     d.setDirectory(dir)
     d.setWindowTitle(title)
     d.setNameFilter(filter)
-    d.show()
+    ret = []
     def accept():
         # work around an osx crash
         aqt.mw.app.processEvents()
@@ -235,8 +235,12 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
         if dirkey:
             dir = os.path.dirname(file)
             aqt.mw.pm.profile[dirkey] = dir
-        cb(file)
+        if cb:
+            cb(file)
+        ret.append(file)
     d.connect(d, SIGNAL("accepted()"), accept)
+    d.exec_()
+    return ret and ret[0]
 
 def getSaveFile(parent, title, dir, key, ext):
     "Ask the user for a file to save. Use DIR as config variable."

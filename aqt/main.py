@@ -204,7 +204,7 @@ Are you sure?"""):
         # maybe sync (will load DB)
         self.onSync(auto=True)
         runHook("profileLoaded")
-        self.onExport()
+        self.onImport()
 
     def unloadProfile(self, browser=True):
         if not self.pm.profile:
@@ -704,18 +704,8 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     ##########################################################################
 
     def onImport(self):
-        return showInfo("not yet implemented")
-        if self.col is None:
-            self.onNew(prompt=_("""\
-Importing copies cards to the current deck,
-and since you have no deck open, we need to
-create a new deck first.
-
-Please choose a new deck name:"""))
-        if not self.col:
-            return
-        if self.col.path:
-            aqt.importing.ImportDialog(self)
+        import aqt.importing
+        aqt.importing.onImport(self)
 
     def onExport(self):
         import aqt.exporting

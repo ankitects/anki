@@ -5,34 +5,33 @@ import os, copy, time, sys, re, traceback
 from aqt.qt import *
 import anki
 import anki.importing as importing
-from aqt.ui.utils import getOnlyText
+from aqt.utils import getOnlyText, getFile, showText
 from anki.errors import *
-import aqt.forms
-from aqt import ui
+import aqt.forms, aqt.modelchooser
 
 class ChangeMap(QDialog):
-    def __init__(self, parent, model, current):
-        QDialog.__init__(self, parent, Qt.Window)
-        self.parent = parent
+    def __init__(self, mw, model, current):
+        QDialog.__init__(self, mw, Qt.Window)
+        self.mw = mw
         self.model = model
-        self.dialog = aqt.forms.changemap.Ui_ChangeMap()
-        self.dialog.setupUi(self)
+        self.frm = aqt.forms.changemap.Ui_ChangeMap()
+        self.frm.setupUi(self)
         n = 0
         setCurrent = False
         for field in self.model.fieldModels:
             item = QListWidgetItem(_("Map to %s") % field.name)
-            self.dialog.fields.addItem(item)
+            self.frm.fields.addItem(item)
             if current and current.name == field.name:
                 setCurrent = True
-                self.dialog.fields.setCurrentRow(n)
+                self.frm.fields.setCurrentRow(n)
             n += 1
-        self.dialog.fields.addItem(QListWidgetItem(_("Map to Tags")))
-        self.dialog.fields.addItem(QListWidgetItem(_("Discard field")))
+        self.frm.fields.addItem(QListWidgetItem(_("Map to Tags")))
+        self.frm.fields.addItem(QListWidgetItem(_("Discard field")))
         if not setCurrent:
             if current == 0:
-                self.dialog.fields.setCurrentRow(n)
+                self.frm.fields.setCurrentRow(n)
             else:
-                self.dialog.fields.setCurrentRow(n+1)
+                self.frm.fields.setCurrentRow(n+1)
         self.field = None
 
     def getField(self):
@@ -40,28 +39,28 @@ class ChangeMap(QDialog):
         return self.field
 
     def accept(self):
-        row = self.dialog.fields.currentRow()
+        row = self.frm.fields.currentRow()
         if row < len(self.model.fieldModels):
             self.field = self.model.fieldModels[row]
-        elif row == self.dialog.fields.count() - 1:
+        elif row == self.frm.fields.count() - 1:
             self.field = None
         else:
             self.field = 0
         QDialog.accept(self)
 
 class UpdateMap(QDialog):
-    def __init__(self, parent, numFields, fieldModels):
-        QDialog.__init__(self, parent, Qt.Window)
-        self.parent = parent
+    def __init__(self, mw, numFields, fieldModels):
+        QDialog.__init__(self, mw, Qt.Window)
+        self.mw = mw
         self.fieldModels = fieldModels
-        self.dialog = aqt.forms.importup.Ui_Dialog()
-        self.dialog.setupUi(self)
-        self.connect(self.dialog.buttonBox.button(QDialogButtonBox.Help),
+        self.frm = aqt.forms.importup.Ui_Dialog()
+        self.frm.setupUi(self)
+        self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
                      SIGNAL("clicked()"), self.helpRequested)
         for i in range(numFields):
-            self.dialog.fileField.addItem("Field %d" % (i+1))
+            self.frm.fileField.addItem("Field %d" % (i+1))
         for m in fieldModels:
-            self.dialog.colField.addItem(m.name)
+            self.frm.colField.addItem(m.name)
         self.exec_()
 
     def helpRequested(self):
@@ -69,71 +68,52 @@ class UpdateMap(QDialog):
 
     def accept(self):
         self.updateKey = (
-            self.dialog.fileField.currentIndex(),
-            self.fieldModels[self.dialog.colField.currentIndex()].id)
+            self.frm.fileField.currentIndex(),
+            self.fieldModels[self.frm.colField.currentIndex()].id)
         QDialog.accept(self)
 
 class ImportDialog(QDialog):
 
-    def __init__(self, parent):
-        QDialog.__init__(self, parent, Qt.Window)
-        self.parent = parent
-        self.dialog = aqt.forms.importing.Ui_ImportDialog()
-        self.dialog.setupUi(self)
-        self.connect(self.dialog.buttonBox.button(QDialogButtonBox.Help),
+    def __init__(self, mw, importer):
+        QDialog.__init__(self, mw, Qt.Window)
+        self.mw = mw
+        self.frm = aqt.forms.importing.Ui_ImportDialog()
+        self.frm.setupUi(self)
+        self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
                      SIGNAL("clicked()"), self.helpRequested)
         self.setupMappingFrame()
         self.setupOptions()
-        self.getFile()
+
+        if self.importer.needMapper:
+            self.modelChooser.show()
+        else:
+            self.modelChooser.hide()
+            self.frm.groupBox.setShown(False)
+            self.frm.mappingGroup.setTitle("")
+        self.frm.autoDetect.setShown(self.importer.needDelimiter)
+
+
         if not self.file:
             return
-        self.dialog.groupBox.setTitle(os.path.basename(self.file))
+        self.frm.groupBox.setTitle(os.path.basename(self.file))
         self.maybePreview()
-        self.connect(self.dialog.autoDetect, SIGNAL("clicked()"),
+        self.connect(self.frm.autoDetect, SIGNAL("clicked()"),
                      self.onDelimiter)
         self.updateDelimiterButtonText()
         self.exec_()
 
     def setupOptions(self):
-        self.model = self.parent.col.currentModel
-        self.modelChooser = ui.modelchooser.ModelChooser(self,
-                                                         self.parent,
-                                                         self.parent.col,
-                                                         self.modelChanged)
-        self.dialog.modelArea.setLayout(self.modelChooser)
-        self.connect(self.dialog.importButton, SIGNAL("clicked()"),
+        self.model = self.mw.col.models.current()
+        self.modelChooser = aqt.modelchooser.ModelChooser(
+            self.mw, self.frm.modelArea)
+        self.connect(self.frm.importButton, SIGNAL("clicked()"),
                      self.doImport)
-        self.connect(self.dialog.updateButton, SIGNAL("clicked()"),
+        self.connect(self.frm.updateButton, SIGNAL("clicked()"),
                      self.doUpdate)
 
-    def getFile(self):
-        key = ";;".join([x[0] for x in importing.Importers])
-        file = ui.utils.getFile(self.parent, _("Import"), "import", key)
-        if not file:
-            self.file = None
-            return
-        self.file = unicode(file)
-        ext = os.path.splitext(self.file)[1]
-        self.importer = None
-        for i in importing.Importers:
-            for mext in re.findall("[( ]?\*\.(.+?)[) ]", i[0]):
-                if ext == "." + mext:
-                    self.importer = i
-                    break
-        if not self.importer:
-            self.importer = importing.Importers[0]
-        self.importerFunc = self.importer[1]
-        if self.importerFunc.needMapper:
-            self.modelChooser.show()
-        else:
-            self.modelChooser.hide()
-            self.dialog.groupBox.setShown(False)
-            self.dialog.mappingGroup.setTitle("")
-        self.dialog.autoDetect.setShown(self.importerFunc.needDelimiter)
-
     def maybePreview(self):
-        if self.file and self.model:
-            self.dialog.status.setText("")
+        if self.file and self.importer.needMapper:
+            self.frm.status.setText("")
             self.showMapping()
         else:
             self.hideMapping()
@@ -157,7 +137,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.updateDelimiterButtonText()
 
     def updateDelimiterButtonText(self):
-        if not self.importerFunc.needDelimiter:
+        if not self.importer.needDelimiter:
             return
         if self.importer.delimiter:
             d = self.importer.delimiter
@@ -179,7 +159,7 @@ you can enter it here. Use \\t to represent tab."""),
             txt = _("Manual &delimiter: %s") % d
         else:
             txt = _("Auto-detected &delimiter: %s") % d
-        self.dialog.autoDetect.setText(txt)
+        self.frm.autoDetect.setText(txt)
 
     def doUpdate(self):
         f = UpdateMap(self,
@@ -192,76 +172,69 @@ you can enter it here. Use \\t to represent tab."""),
         self.doImport(True)
 
     def doImport(self, update=False):
-        self.dialog.status.setText(_("Importing..."))
+        self.frm.status.setText(_("Importing..."))
         t = time.time()
         self.importer.mapping = self.mapping
         try:
             n = _("Import")
-            self.parent.col.setUndoStart(n)
+            self.mw.col.setUndoStart(n)
             try:
-                self.importer.doImport()
-            except ImportFormatError, e:
-                msg = _("Importing failed.\n")
-                msg += e.data['info']
-                self.dialog.status.setText(msg)
-                return
+                self.importer.run()
             except Exception, e:
                 msg = _("Import failed.\n")
                 msg += unicode(traceback.format_exc(), "ascii", "replace")
-                self.dialog.status.setText(msg)
+                self.frm.status.setText(msg)
                 return
         finally:
-            self.parent.col.finishProgress()
-            self.parent.col.setUndoEnd(n)
+            self.mw.col.finishProgress()
+            self.mw.col.setUndoEnd(n)
         txt = (
             _("Importing complete. %(num)d notes imported from %(file)s.\n") %
             {"num": self.importer.total, "file": os.path.basename(self.file)})
-        self.dialog.groupBox.setShown(False)
-        self.dialog.buttonBox.button(QDialogButtonBox.Close).setFocus()
+        self.frm.groupBox.setShown(False)
+        self.frm.buttonBox.button(QDialogButtonBox.Close).setFocus()
         if self.importer.log:
             txt += _("Log of import:\n") + "\n".join(self.importer.log)
-        self.dialog.status.setText(txt)
+        self.frm.status.setText(txt)
         self.file = None
         self.maybePreview()
-        self.parent.col.db.flush()
-        self.parent.reset()
+        self.mw.col.db.flush()
+        self.mw.reset()
         self.modelChooser.deinit()
 
     def setupMappingFrame(self):
         # qt seems to have a bug with adding/removing from a grid, so we add
         # to a separate object and add/remove that instead
-        self.frame = QFrame(self.dialog.mappingArea)
-        self.dialog.mappingArea.setWidget(self.frame)
+        self.frame = QFrame(self.frm.mappingArea)
+        self.frm.mappingArea.setWidget(self.frame)
         self.mapbox = QVBoxLayout(self.frame)
         self.mapbox.setContentsMargins(0,0,0,0)
         self.mapwidget = None
 
     def hideMapping(self):
-        self.dialog.mappingGroup.hide()
+        self.frm.mappingGroup.hide()
 
     def showMapping(self, keepMapping=False, hook=None):
         # first, check that we can read the file
         try:
-            self.importer = self.importerFunc(self.parent.col, self.file)
+            self.importer = self.importer(self.mw.col, self.file)
             if hook:
                 hook()
             if not keepMapping:
                 self.mapping = self.importer.mapping
-        except ImportFormatError, e:
-            self.dialog.status.setText(
-                _("Unable to read file.\n\n%(info)s") % {
-                'type': e.data.get('type', ""),
-                'info': e.data.get('info', ""),
-                })
+        except Exception, e:
+            self.frm.status.setText(
+                _("Unable to read file.\n\n%s") % unicode(
+                    traceback.format_exc(), "ascii", "replace"))
             self.file = None
             self.maybePreview()
             return
-        self.dialog.mappingGroup.show()
+        self.frm.mappingGroup.show()
         if self.importer.fields():
-            self.dialog.mappingArea.show()
+            self.frm.mappingArea.show()
         else:
-            self.dialog.mappingArea.hide()
-            self.dialog.updateButton.hide()
+            self.frm.mappingArea.hide()
+            self.frm.updateButton.hide()
             return
         # set up the mapping grid
         if self.mapwidget:
@@ -290,7 +263,7 @@ you can enter it here. Use \\t to represent tab."""),
                          lambda s=self,n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n):
-        f = ChangeMap(self.parent, self.model, self.mapping[n]).getField()
+        f = ChangeMap(self.mw, self.model, self.mapping[n]).getField()
         try:
             # make sure we don't have it twice
             index = self.mapping.index(f)
@@ -312,3 +285,41 @@ you can enter it here. Use \\t to represent tab."""),
 
     def helpRequested(self):
         openHelp("FileImport")
+
+def onImport(mw):
+    filt = ";;".join([x[0] for x in importing.Importers])
+    file = getFile(mw, _("Import"), None, key="import",
+                   filter=filt)
+    if not file:
+        return
+    file = unicode(file)
+    ext = os.path.splitext(file)[1]
+    importer = None
+    done = False
+    for i in importing.Importers:
+        if done:
+            break
+        for mext in re.findall("[( ]?\*\.(.+?)[) ]", i[0]):
+            if ext == "." + mext:
+                importer = i[1]
+                done = True
+                break
+    if not importer:
+        # if no matches, assume TSV
+        importer = importing.Importers[0][1]
+    importer = importer(mw.col, file)
+    # need to show import dialog?
+    if importer.needMapper:
+        diag = ImportDialog(mw, importer)
+        self.modelChooser.show()
+    else:
+        try:
+            mw.progress.start(immediate=True)
+            importer.run()
+            mw.progress.finish()
+        except Exception, e:
+            msg = _("Import failed.\n")
+            msg += unicode(traceback.format_exc(), "ascii", "replace")
+            showText(msg)
+        else:
+            showText("\n".join(importer.log))
