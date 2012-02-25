@@ -23,8 +23,8 @@ class ExportDialog(QDialog):
         self.connect(self.frm.format, SIGNAL("activated(int)"),
                      self.exporterChanged)
         self.exporterChanged(0)
-        self.frm.deck.addItems([_("All Decks")] + sorted(
-            self.col.decks.allNames()))
+        self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
+        self.frm.deck.addItems(self.decks)
         # save button
         b = QPushButton(_("Export..."))
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
@@ -41,7 +41,6 @@ class ExportDialog(QDialog):
             self, _("Choose file to export to"), "export",
             self.exporter.key, self.exporter.ext)
         self.hide()
-        print file
         if file:
             self.exporter.includeSched = (
                 self.frm.includeSched.isChecked())
@@ -50,7 +49,8 @@ class ExportDialog(QDialog):
             if not self.frm.deck.currentIndex():
                 self.exporter.did = None
             else:
-                self.exporter.did = self.frm.deck.currentIndex() - 1
+                name = self.decks[self.frm.deck.currentIndex()]
+                self.exporter.did = self.col.decks.id(name)
             self.mw.progress.start(immediate=True)
             self.exporter.exportInto(file)
             self.mw.progress.finish()
