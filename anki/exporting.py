@@ -99,7 +99,7 @@ where cards.id in %s)""" % ids2str(cardIds)):
             row.extend([self.escapeText(f) for f in splitFields(flds)])
             # tags
             if self.includeTags:
-                row.append(tags)
+                row.append(tags.strip())
             data.append("\t".join(row))
         self.count = len(data)
         out = "\n".join(data)
@@ -230,7 +230,7 @@ class AnkiPackageExporter(AnkiExporter):
 
 def exporters():
     def id(obj):
-        return "%s (*%s)" % (obj.key, obj.ext)
+        return ("%s (*%s)" % (obj.key, obj.ext), obj)
     return (
         id(TextNoteExporter),
         id(AnkiPackageExporter),
