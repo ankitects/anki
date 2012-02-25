@@ -8,10 +8,10 @@ from anki.exporting import exporters
 
 class ExportDialog(QDialog):
 
-    def __init__(self, parent):
-        QDialog.__init__(self, parent, Qt.Window)
-        self.parent = parent
-        self.col = parent.col
+    def __init__(self, mw):
+        QDialog.__init__(self, mw, Qt.Window)
+        self.mw = mw
+        self.col = mw.col
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
@@ -51,6 +51,8 @@ class ExportDialog(QDialog):
                 self.exporter.did = None
             else:
                 self.exporter.did = self.frm.deck.currentIndex() - 1
+            self.mw.progress.start(immediate=True)
             self.exporter.exportInto(file)
+            self.mw.progress.finish()
             tooltip(_("%d exported.") % self.exporter.count)
         QDialog.accept(self)
