@@ -194,6 +194,7 @@ class AnkiExporter(Exporter):
                     media[file] = True
         self.mediaFiles = media.keys()
         # todo: tags?
+        self.count = self.dst.cardCount()
         self.dst.setMod()
         self.dst.close()
 
@@ -219,11 +220,16 @@ class AnkiPackageExporter(AnkiExporter):
         media = {}
         for c, file in enumerate(self.mediaFiles):
             c = str(c)
-            z.write(file, c)
-            media[c] = file
+            if os.path.exists(file):
+                z.write(file, c)
+                media[c] = file
         # media map
         z.writestr("media", simplejson.dumps(media))
         z.close()
+        # tidy up intermediate files
+        os.unlink(colfile)
+        os.unlink(path.replace(".apkg", ".media.db"))
+        os.rmdir(path.replace(".apkg", ".media"))
 
 # Export modules
 ##########################################################################
