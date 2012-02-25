@@ -4,17 +4,16 @@
 
 import itertools, time, re, os, HTMLParser
 from operator import itemgetter
-#from anki import Deck
 from anki.cards import Card
-from anki.sync import SyncClient, SyncServer, copyLocalMedia
 from anki.lang import _
-from anki.utils import parseTags, stripHTML, ids2str
+from anki.utils import stripHTML, ids2str, splitFields
+
+# remove beautifulsoup dependency
 
 class Exporter(object):
-    def __init__(self, col):
+    def __init__(self, col, did=None):
         self.col = col
-        self.limitTags = []
-        self.limitCardIds = []
+        self.did = did
 
     def exportInto(self, path):
         self._escapeCount = 0
@@ -22,37 +21,100 @@ class Exporter(object):
         self.doExport(file)
         file.close()
 
-    def escapeText(self, text, removeFields=False):
+    def escapeText(self, text):
         "Escape newlines and tabs, and strip Anki HTML."
-        from BeautifulSoup import BeautifulSoup as BS
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
-        if removeFields:
-            # beautifulsoup is slow
-            self._escapeCount += 1
-            try:
-                s = BS(text)
-                all = s('span', {'class': re.compile("fm.*")})
-                for e in all:
-                    e.replaceWith("".join([unicode(x) for x in e.contents]))
-                text = unicode(s)
-            except HTMLParser.HTMLParseError:
-                pass
         return text
 
     def cardIds(self):
-        "Return all cards, limited by tags or provided ids."
-        if self.limitCardIds:
-            return self.limitCardIds
-        if not self.limitTags:
-            cards = self.col.db.column0("select id from cards")
+        if not self.did:
+            cids = self.col.db.list("select id from cards")
         else:
-            d = tagIds(self.col.db, self.limitTags, create=False)
-            cards = self.col.db.column0(
-                "select cardId from cardTags where tagid in %s" %
-                ids2str(d.values()))
-        self.count = len(cards)
-        return cards
+            cids = self.col.decks.cids(self.did, children=True)
+        self.count = len(cids)
+        return cids
+
+# Cards as TSV
+######################################################################
+
+class TextCardExporter(Exporter):
+
+    key = _("Text files (*.txt)")
+    ext = ".txt"
+
+    # add option to strip html
+
+
+    def __init__(self, col):
+        Exporter.__init__(self, col)
+
+    def doExport(self, file):
+        ids = self.cardIds()
+        strids = ids2str(ids)
+        cards = self.col.db.all("""
+select cards.question, cards.answer, cards.id from cards
+where cards.id in %s
+order by cards.created""" % strids)
+        self.cardTags = dict(self.col.db.all("""
+select cards.id, notes.tags from cards, notes
+where cards.noteId = notes.id
+and cards.id in %s
+order by cards.created""" % strids))
+        out = u"\n".join(["%s\t%s%s" % (
+            self.escapeText(c[0], removeFields=True),
+            self.escapeText(c[1], removeFields=True),
+            self.tags(c[2]))
+                          for c in cards])
+        if out:
+            out += "\n"
+        file.write(out.encode("utf-8"))
+
+    def tags(self, id):
+        return "\t" + ", ".join(parseTags(self.cardTags[id]))
+
+# Notes as TSV
+######################################################################
+
+class TextNoteExporter(Exporter):
+
+    key = _("Text files (*.txt)")
+    ext = ".txt"
+
+    def __init__(self, col):
+        Exporter.__init__(self, col)
+        self.includeID = False
+        self.includeTags = True
+
+    def doExport(self, file):
+        cardIds = self.cardIds()
+        data = []
+        for id, flds, tags in self.col.db.execute("""
+select guid, flds, tags from notes
+where id in
+(select nid from cards
+where cards.id in %s)""" % ids2str(cardIds)):
+            row = []
+            # note id
+            if self.includeID:
+                row.append(str(id))
+            # fields
+            row.extend([self.escapeText(f) for f in splitFields(flds)])
+            # tags
+            if self.includeTags:
+                row.append(tags)
+            data.append("\t".join(row))
+        self.count = len(data)
+        out = "\n".join(data)
+        file.write(out.encode("utf-8"))
+
+    def tags(self, id):
+        if self.includeTags:
+            return "\t" + self.noteTags[id]
+        return ""
+
+# Anki collection exporter
+######################################################################
 
 class AnkiExporter(Exporter):
 
@@ -73,46 +135,46 @@ class AnkiExporter(Exporter):
         except (IOError, OSError):
             pass
         self.newCol = DeckStorage.Deck(path)
-        client = SyncClient(self.deck)
+        client = SyncClient(self.col)
         server = SyncServer(self.newDeck)
         client.setServer(server)
-        client.localTime = self.deck.modified
+        client.localTime = self.col.modified
         client.remoteTime = 0
-        self.deck.db.flush()
+        self.col.db.flush()
         # set up a custom change list and sync
         lsum = self.localSummary()
         rsum = server.summary(0)
         payload = client.genPayload((lsum, rsum))
         res = server.applyPayload(payload)
         if not self.includeSchedulingInfo:
-            self.newDeck.resetCards()
+            self.newCol.resetCards()
         # media
         if self.includeMedia:
-            server.deck.mediaPrefix = ""
-            copyLocalMedia(client.deck, server.deck)
+            server.col.mediaPrefix = ""
+            copyLocalMedia(client.col, server.col)
         # need to save manually
-        self.newDeck.rebuildCounts()
+        self.newCol.rebuildCounts()
         # FIXME
-        #self.exportedCards = self.newDeck.cardCount
-        self.newDeck.crt = 0
-        self.newDeck.db.commit()
-        self.newDeck.close()
+        #self.exportedCards = self.newCol.cardCount
+        self.newCol.crt = 0
+        self.newCol.db.commit()
+        self.newCol.close()
 
     def localSummary(self):
         cardIds = self.cardIds()
         cStrIds = ids2str(cardIds)
-        cards = self.deck.db.all("""
+        cards = self.col.db.all("""
 select id, modified from cards
 where id in %s""" % cStrIds)
-        notes = self.deck.db.all("""
+        notes = self.col.db.all("""
 select notes.id, notes.modified from cards, notes where
 notes.id = cards.noteId and
 cards.id in %s""" % cStrIds)
-        models = self.deck.db.all("""
+        models = self.col.db.all("""
 select models.id, models.modified from models, notes where
 notes.modelId = models.id and
 notes.id in %s""" % ids2str([f[0] for f in notes]))
-        media = self.deck.db.all("""
+        media = self.col.db.all("""
 select id, modified from media""")
         return {
             # cards
@@ -128,85 +190,6 @@ select id, modified from media""")
             "media": media,
             "delmedia": [],
             }
-
-class TextCardExporter(Exporter):
-
-    key = _("Text files (*.txt)")
-    ext = ".txt"
-
-    def __init__(self, deck):
-        Exporter.__init__(self, deck)
-        self.includeTags = False
-
-    def doExport(self, file):
-        ids = self.cardIds()
-        strids = ids2str(ids)
-        cards = self.deck.db.all("""
-select cards.question, cards.answer, cards.id from cards
-where cards.id in %s
-order by cards.created""" % strids)
-        if self.includeTags:
-            self.cardTags = dict(self.deck.db.all("""
-select cards.id, notes.tags from cards, notes
-where cards.noteId = notes.id
-and cards.id in %s
-order by cards.created""" % strids))
-        out = u"\n".join(["%s\t%s%s" % (
-            self.escapeText(c[0], removeFields=True),
-            self.escapeText(c[1], removeFields=True),
-            self.tags(c[2]))
-                          for c in cards])
-        if out:
-            out += "\n"
-        file.write(out.encode("utf-8"))
-        self.deck.finishProgress()
-
-    def tags(self, id):
-        if self.includeTags:
-            return "\t" + ", ".join(parseTags(self.cardTags[id]))
-        return ""
-
-class TextNoteExporter(Exporter):
-
-    key = _("Text files (*.txt)")
-    ext = ".txt"
-
-    def __init__(self, deck):
-        Exporter.__init__(self, deck)
-        self.includeTags = False
-
-    def doExport(self, file):
-        cardIds = self.cardIds()
-        notes = self.deck.db.all("""
-select noteId, value, notes.created from notes, fields
-where
-notes.id in
-(select distinct noteId from cards
-where cards.id in %s)
-and notes.id = fields.noteId
-order by noteId, ordinal""" % ids2str(cardIds))
-        txt = ""
-        if self.includeTags:
-            self.noteTags = dict(self.deck.db.all(
-                "select id, tags from notes where id in %s" %
-                ids2str([note[0] for note in notes])))
-        groups = itertools.groupby(notes, itemgetter(0))
-        groups = [[x for x in y[1]] for y in groups]
-        groups = [(group[0][2],
-                   "\t".join([self.escapeText(x[1]) for x in group]) +
-                   self.tags(group[0][0]))
-                  for group in groups]
-        groups.sort(key=itemgetter(0))
-        out = [ret[1] for ret in groups]
-        self.count = len(out)
-        out = "\n".join(out)
-        file.write(out.encode("utf-8"))
-        self.deck.finishProgress()
-
-    def tags(self, id):
-        if self.includeTags:
-            return "\t" + self.noteTags[id]
-        return ""
 
 # Export modules
 ##########################################################################

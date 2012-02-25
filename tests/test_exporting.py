@@ -2,9 +2,10 @@
 
 import nose, os, tempfile
 import anki
-from anki import open as aopen
+from anki import Collection as aopen
 from anki.exporting import *
 from anki.stdmodels import *
+from shared import getEmptyDeck
 
 deck = None
 ds = None
@@ -12,11 +13,9 @@ testDir = os.path.dirname(__file__)
 
 def setup1():
     global deck
-    deck = aopen()
-    deck.addModel(BasicModel())
-    deck.currentModel.cardModels[1].active = True
+    deck = getEmptyDeck()
     f = deck.newNote()
-    f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = u"tag, tag2"
+    f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = ["tag", "tag2"]
     deck.addNote(f)
     f = deck.newNote()
     f['Front'] = u"baz"; f['Back'] = u"qux"
