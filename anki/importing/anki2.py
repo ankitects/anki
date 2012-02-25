@@ -240,9 +240,7 @@ insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
     ######################################################################
 
     def _importMedia(self):
-        self.log.append(
-            _("%d media imported.") %
-            self.src.media.copyTo(self.dst.media.dir()))
+        self.src.media.copyTo(self.dst.media.dir())
 
     # Post-import cleanup
     ######################################################################
