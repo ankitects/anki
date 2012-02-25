@@ -297,8 +297,14 @@ class DeckManager(object):
         c = self.current()
         self.select(c['id'])
 
-    def cids(self, did):
-        return self.col.db.list("select id from cards where did=?", did)
+    def cids(self, did, children=False):
+        if not children:
+            return self.col.db.list("select id from cards where did=?", did)
+        dids = [did]
+        for name, id in self.children(did):
+            dids.append(id)
+        return self.col.db.list("select id from cards where did in "+
+                                ids2str(dids))
 
     # Deck selection
     #############################################################
