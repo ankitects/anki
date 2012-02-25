@@ -204,6 +204,7 @@ Are you sure?"""):
         # maybe sync (will load DB)
         self.onSync(auto=True)
         runHook("profileLoaded")
+        self.onExport()
 
     def unloadProfile(self, browser=True):
         if not self.pm.profile:
@@ -717,7 +718,7 @@ Please choose a new deck name:"""))
             aqt.importing.ImportDialog(self)
 
     def onExport(self):
-        return showInfo("not yet implemented")
+        import aqt.exporting
         aqt.exporting.ExportDialog(self)
 
     # Language handling
@@ -764,6 +765,8 @@ Please choose a new deck name:"""))
         s = SIGNAL("triggered()")
         #self.connect(m.actionDownloadSharedPlugin, s, self.onGetSharedPlugin)
         self.connect(m.actionSwitchProfile, s, self.unloadProfile)
+        self.connect(m.actionImport, s, self.onImport)
+        self.connect(m.actionExport, s, self.onExport)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionPreferences, s, self.onPrefs)
         self.connect(m.actionCstats, s, self.onCardStats)
@@ -809,7 +812,7 @@ This can be because the \
 clock is slow or fast, because the date is set incorrectly, or because \
 the timezone or daylight savings information is incorrect. Please correct \
 the problem and restart Anki.""")
-        self.onClose()
+        self.app.closeAllWindows()
 
     # Schema modifications
     ##########################################################################

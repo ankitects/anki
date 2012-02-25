@@ -70,6 +70,9 @@
     </property>
     <addaction name="actionSwitchProfile"/>
     <addaction name="separator"/>
+    <addaction name="actionImport"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuTools">
@@ -219,6 +222,16 @@
   <action name="actionSwitchProfile">
    <property name="text">
     <string>&amp;Switch Profile...</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>&amp;Export...</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>&amp;Import...</string>
    </property>
   </action>
  </widget>

@@ -1,57 +1,68 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ExportDialog</class>
- <widget class="QDialog" name="ExportDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="ExportDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>295</width>
-    <height>154</height>
+    <height>202</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Export</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <layout class="QGridLayout" >
-     <item row="0" column="0" >
-      <widget class="QLabel" name="label" >
-       <property name="minimumSize" >
+    <layout class="QGridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="minimumSize">
         <size>
          <width>100</width>
          <height>0</height>
         </size>
        </property>
-       <property name="text" >
-        <string>&lt;b>Export format&lt;/b>:</string>
+       <property name="text">
+        <string>&lt;b&gt;Export format&lt;/b&gt;:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" >
-      <widget class="QComboBox" name="format" />
+     <item row="0" column="1">
+      <widget class="QComboBox" name="format"/>
      </item>
-     <item row="1" column="0" >
-      <widget class="QLabel" name="label_2" >
-       <property name="text" >
-        <string>&lt;b>Limit to tags&lt;/b>:</string>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>&lt;b&gt;Limit to deck&lt;/b&gt;:</string>
        </property>
       </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="deck"/>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" >
+    <layout class="QVBoxLayout">
      <item>
-      <widget class="QCheckBox" name="includeScheduling" >
-       <property name="text" >
+      <widget class="QCheckBox" name="includeSched">
+       <property name="text">
         <string>Include scheduling information</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="includeTags" >
-       <property name="text" >
+      <widget class="QCheckBox" name="includeMedia">
+       <property name="text">
+        <string>Include media</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="includeTags">
+       <property name="text">
         <string>Include tags</string>
        </property>
       </widget>
@@ -59,11 +70,11 @@
     </layout>
    </item>
    <item>
-    <spacer name="verticalSpacer" >
-     <property name="orientation" >
+    <spacer name="verticalSpacer">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>40</height>
@@ -72,17 +83,25 @@
     </spacer>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>format</tabstop>
+  <tabstop>deck</tabstop>
+  <tabstop>includeSched</tabstop>
+  <tabstop>includeMedia</tabstop>
+  <tabstop>includeTags</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -91,11 +110,11 @@
    <receiver>ExportDialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -107,11 +126,11 @@
    <receiver>ExportDialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
