@@ -20,7 +20,7 @@ class TextImporter(NoteImporter):
         self.tagsToAdd = []
 
     def foreignNotes(self):
-        self.sniff()
+        self.open()
         # process all lines
         log = []
         notes = []
@@ -31,12 +31,7 @@ class TextImporter(NoteImporter):
         else:
             reader = csv.reader(self.data, self.dialect, doublequote=True)
         for row in reader:
-            try:
-                row = [unicode(x, "utf-8") for x in row]
-            except UnicodeDecodeError, e:
-                raise ImportFormatError(
-                    type="encodingError",
-                    info=_("Please save in UTF-8 format. Click help for info."))
+            row = [unicode(x, "utf-8") for x in row]
             if len(row) != self.numFields:
                 log.append(_(
                     "'%(row)s' had %(num1)d fields, "
@@ -54,7 +49,7 @@ class TextImporter(NoteImporter):
         self.fileobj.close()
         return notes
 
-    def sniff(self):
+    def open(self):
         "Parse the top line and determine the pattern and number of fields."
         # load & look for the right pattern
         self.cacheFile()
@@ -79,15 +74,11 @@ class TextImporter(NoteImporter):
                 del self.data[0]
             self.updateDelimiter()
         if not self.dialect and not self.delimiter:
-            raise ImportFormatError(
-                type="encodingError",
-                info=_("Couldn't determine format of file."))
+            raise Exception("unknownFormat")
 
     def updateDelimiter(self):
         def err():
-            raise ImportFormatError(
-                type="encodingError",
-                info=_("File is not encoded in UTF-8."))
+            raise Exception("unknownFormat")
         self.dialect = None
         sniffer = csv.Sniffer()
         delims = [',', '\t', ';', ':']
@@ -123,7 +114,7 @@ class TextImporter(NoteImporter):
 
     def fields(self):
         "Number of fields."
-        self.sniff()
+        self.open()
         return self.numFields
 
     def noteFromFields(self, fields):

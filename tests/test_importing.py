@@ -80,7 +80,7 @@ def test_csv():
     deck = getEmptyDeck()
     file = unicode(os.path.join(testDir, "support/text-2fields.txt"))
     i = TextImporter(deck, file)
-    i.mapping = ['Front', 'Back']
+    i.initMapping()
     i.run()
     # four problems - too many & too few fields, a missing front, and a
     # duplicate entry

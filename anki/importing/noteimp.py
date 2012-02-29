@@ -51,13 +51,20 @@ class NoteImporter(Importer):
         "The number of fields."
         return 0
 
-    def maybeChecksum(self, data, unique):
-        if not unique:
-            return ""
-        return fieldChecksum(data)
+    def initMapping(self):
+        flds = [f['name'] for f in self.model['flds']]
+        # truncate to provided count
+        flds = flds[0:self.fields()]
+        # if provided count is greater, pad
+        flds = flds + [None] * (self.fields() - len(flds))
+        self.mapping = flds
 
     def foreignNotes(self):
         "Return a list of foreign notes for importing."
+        assert 0
+
+    def open(self):
+        "Open file and ensure it's in the right format."
         assert 0
 
     def importNotes(self, notes):
