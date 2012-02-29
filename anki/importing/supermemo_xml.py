@@ -4,7 +4,7 @@
 
 import sys
 
-from anki.importing.cardimp import CardImporter, ForeignCard
+from anki.importing.noteimp import NoteImporter, ForeignNote
 from anki.lang import _
 from anki.errors import *
 
@@ -63,7 +63,7 @@ class SuperMemoElement(SmartDict):
 
 
 # This is an AnkiImporter
-class SupermemoXmlImporter(CardImporter):
+class SupermemoXmlImporter(NoteImporter):
     """
     Supermemo XML export's to Anki parser.
     Goes through a SM collection and fetch all elements.

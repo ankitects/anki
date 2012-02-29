@@ -3,26 +3,26 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import codecs, csv, re
-from anki.importing.cardimp import CardImporter, ForeignCard
+from anki.importing.noteimp import NoteImporter, ForeignNote
 from anki.lang import _
 from anki.errors import *
 
-class TextImporter(CardImporter):
+class TextImporter(NoteImporter):
 
     needDelimiter = True
     patterns = ("\t", ";")
 
     def __init__(self, *args):
-        Importer.__init__(self, *args)
+        NoteImporter.__init__(self, *args)
         self.lines = None
         self.fileobj = None
         self.delimiter = None
 
-    def foreignCards(self):
+    def foreignNotes(self):
         self.sniff()
         # process all lines
         log = []
-        cards = []
+        notes = []
         lineNum = 0
         ignored = 0
         if self.delimiter:
@@ -46,12 +46,12 @@ class TextImporter(CardImporter):
                     })
                 ignored += 1
                 continue
-            card = self.cardFromFields(row)
-            cards.append(card)
+            note = self.noteFromFields(row)
+            notes.append(note)
         self.log = log
         self.ignored = ignored
         self.fileobj.close()
-        return cards
+        return notes
 
     def sniff(self):
         "Parse the top line and determine the pattern and number of fields."
@@ -77,7 +77,7 @@ class TextImporter(CardImporter):
         self.data = [sub(x) for x in self.data.split("\n") if sub(x)]
         if self.data:
             if self.data[0].startswith("tags:"):
-                self.tagsToAdd = self.data[0][5:]
+                self.tagsToAdd = self.data[0][5:].split(" ")
                 del self.data[0]
             self.updateDelimiter()
         if not self.dialect and not self.delimiter:
@@ -128,7 +128,8 @@ class TextImporter(CardImporter):
         self.sniff()
         return self.numFields
 
-    def cardFromFields(self, fields):
-        card = ForeignCard()
-        card.fields.extend([x.strip() for x in fields])
-        return card
+    def noteFromFields(self, fields):
+        note = ForeignNote()
+        note.fields.extend([x.strip() for x in fields])
+        print "fixme - add tagsToAdd to note tags"
+        return note

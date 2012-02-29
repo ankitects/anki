@@ -77,23 +77,24 @@ def test_anki1():
     check()
 
 def test_csv():
-    print "disabled"; return
-    deck = Deck()
-    deck.addModel(BasicModel())
-    file = unicode(os.path.join(testDir, "importing/text-2fields.txt"))
-    i = csvfile.TextImporter(deck, file)
+    deck = getEmptyDeck()
+    file = unicode(os.path.join(testDir, "support/text-2fields.txt"))
+    i = TextImporter(deck, file)
+    i.mapping = ['Front', 'Back']
     i.run()
-    # four problems - missing front, dupe front, wrong num of fields
+    print i.log
+    # four problems - too many & too few fields, a missing front, and a
+    # duplicate entry
     assert len(i.log) == 4
     assert i.total == 5
+    print deck.db.all("select * from notes")
     deck.close()
 
 def test_csv_tags():
     print "disabled"; return
-    deck = Deck()
-    deck.addModel(BasicModel())
-    file = unicode(os.path.join(testDir, "importing/text-tags.txt"))
-    i = csvfile.TextImporter(deck, file)
+    deck = getEmptyDeck()
+    file = unicode(os.path.join(testDir, "support/text-tags.txt"))
+    i = TextImporter(deck, file)
     i.run()
     notes = deck.db.query(Note).all()
     assert len(notes) == 2
