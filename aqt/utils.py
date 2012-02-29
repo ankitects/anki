@@ -222,7 +222,6 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     else:
         dirkey = None
     d = QFileDialog(parent)
-    d.setWindowModality(Qt.WindowModal)
     d.setFileMode(QFileDialog.ExistingFile)
     d.setDirectory(dir)
     d.setWindowTitle(title)

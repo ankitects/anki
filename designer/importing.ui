@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>527</width>
-    <height>430</height>
+    <width>553</width>
+    <height>466</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,12 +20,6 @@
       <string>Import options</string>
      </property>
      <layout class="QVBoxLayout">
-      <property name="spacing">
-       <number>6</number>
-      </property>
-      <property name="margin">
-       <number>9</number>
-      </property>
       <item>
        <widget class="QPushButton" name="autoDetect">
         <property name="text">
@@ -51,12 +45,6 @@
       <string>Field mapping</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="spacing">
-       <number>6</number>
-      </property>
-      <property name="margin">
-       <number>9</number>
-      </property>
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="1">
@@ -65,13 +53,6 @@
            <widget class="QPushButton" name="importButton">
             <property name="text">
              <string>&amp;Import</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="updateButton">
-            <property name="text">
-             <string>&amp;Update</string>
             </property>
            </widget>
           </item>
@@ -102,36 +83,14 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>400</width>
-             <height>150</height>
+             <width>402</width>
+             <height>271</height>
             </rect>
            </property>
           </widget>
          </widget>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Status</string>
-     </property>
-     <layout class="QVBoxLayout">
-      <property name="spacing">
-       <number>6</number>
-      </property>
-      <property name="margin">
-       <number>9</number>
-      </property>
-      <item>
-       <widget class="QTextEdit" name="status">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -151,8 +110,6 @@
  <tabstops>
   <tabstop>autoDetect</tabstop>
   <tabstop>importButton</tabstop>
-  <tabstop>updateButton</tabstop>
-  <tabstop>status</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
