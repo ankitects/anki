@@ -5,10 +5,9 @@
 import time
 from anki.lang import _
 from anki.utils import fieldChecksum, ids2str, guid64, timestampID, \
-    joinFields, intTime
+    joinFields, intTime, splitFields
 from anki.errors import *
 from anki.importing.base import Importer
-#from anki.deck import NEW_CARDS_RANDOM
 
 # Stores a list of fields, tags and deck
 ######################################################################
@@ -20,11 +19,8 @@ class ForeignNote(object):
         self.tags = []
         self.deck = None
 
-# Base class for csv/supermemo/etc importers
+# Base class for CSV and similar text-based imports
 ######################################################################
-
-# - instead of specifying an update key, do it by default using first field
-
 
 # The mapping is list of input fields, like:
 # ['Expression', 'Reading', '_tags', None]
@@ -47,7 +43,6 @@ class NoteImporter(Importer):
 
     def run(self):
         "Import."
-        print "fixme: randomize"
         assert self.mapping
         c = self.foreignNotes()
         self.importNotes(c)
@@ -103,9 +98,12 @@ class NoteImporter(Importer):
                         "select flds from notes where id = ?", id)
                     if fld0 == splitFields(flds)[0]:
                         # duplicate
-                        data = self.updateData(n, id)
-                        if data:
-                            updates.append(data)
+                        if self.update:
+                            data = self.updateData(n, id)
+                            if data:
+                                updates.append(data)
+                        # note that we've seen this note once already
+                        csums[fieldChecksum(n.fields[0])] = -1
                         break
             # newly add
             else:

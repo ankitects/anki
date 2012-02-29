@@ -17,6 +17,7 @@ class TextImporter(NoteImporter):
         self.lines = None
         self.fileobj = None
         self.delimiter = None
+        self.tagsToAdd = []
 
     def foreignNotes(self):
         self.sniff()
@@ -131,5 +132,5 @@ class TextImporter(NoteImporter):
     def noteFromFields(self, fields):
         note = ForeignNote()
         note.fields.extend([x.strip() for x in fields])
-        print "fixme - add tagsToAdd to note tags"
+        note.tags.extend(self.tagsToAdd)
         return note

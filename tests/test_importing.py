@@ -82,12 +82,18 @@ def test_csv():
     i = TextImporter(deck, file)
     i.mapping = ['Front', 'Back']
     i.run()
-    print i.log
     # four problems - too many & too few fields, a missing front, and a
     # duplicate entry
     assert len(i.log) == 4
     assert i.total == 5
-    print deck.db.all("select * from notes")
+    # if we run the import again, it should update instead
+    i.run()
+    assert len(i.log) == 4
+    assert i.total == 5
+    # if updating is disabled, count will be 0
+    i.update = False
+    i.run()
+    assert i.total == 0
     deck.close()
 
 def test_csv_tags():
