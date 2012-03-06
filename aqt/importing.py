@@ -284,3 +284,4 @@ def onImport(mw):
             showText("\n".join(importer.log))
         finally:
             mw.progress.finish()
+        mw.reset()
