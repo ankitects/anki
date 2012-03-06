@@ -250,7 +250,7 @@ insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
         if self.needCards:
             # make sure new position is correct
             self.dst.conf['nextPos'] = self.dst.db.scalar(
-                "select max(due)+1 from cards where type = 0")
+                "select max(due)+1 from cards where type = 0") or 0
         else:
             # newly added models will have been flagged with needWizard=1; we
             # need to mark reused models with needWizard=2 so the new cards
