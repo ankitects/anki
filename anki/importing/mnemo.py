@@ -11,6 +11,9 @@ from anki.stdmodels import addBasicModel
 
 class MnemosyneImporter(NoteImporter):
 
+    needMapper = False
+    update = False
+
     def run(self):
         db = DB(self.file)
         ver = db.scalar(

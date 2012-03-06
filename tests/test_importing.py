@@ -119,30 +119,6 @@ def test_supermemo_xml_01_unicode():
     assert i.total == 1
     deck.close()
 
-def test_updating():
-    print "disabled"; return
-    # get the standard csv deck first
-    deck = Deck()
-    deck.addModel(BasicModel())
-    file = unicode(os.path.join(testDir, "importing/text-2fields.txt"))
-    i = csvfile.TextImporter(deck, file)
-    i.run()
-    # now update
-    file = unicode(os.path.join(testDir, "importing/text-update.txt"))
-    i = csvfile.TextImporter(deck, file)
-    # first field
-    i.updateKey = (0, deck.currentModel.fieldModels[0].id)
-    i.multipleCardsAllowed = False
-    i.run()
-    ans = deck.db.scalar(
-        u"select answer from cards where question like '%食べる%'")
-    assert "to ate" in ans
-    # try again with tags
-    i.updateKey = (0, deck.currentModel.fieldModels[0].id)
-    i.mapping[1] = 0
-    i.run()
-    deck.close()
-
 def test_mnemo():
     deck = getEmptyDeck()
     file = unicode(os.path.join(testDir, "support/mnemo.db"))

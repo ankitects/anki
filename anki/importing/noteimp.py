@@ -74,7 +74,7 @@ class NoteImporter(Importer):
 
     def open(self):
         "Open file and ensure it's in the right format."
-        assert 0
+        return
 
     def importNotes(self, notes):
         "Convert each card into a note, apply attributes and add to col."
