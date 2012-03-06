@@ -132,7 +132,7 @@ def test_cloze():
     f = d.newNote()
     f['Text'] = "hello {{c1::world::typical}}"
     assert d.addNote(f) == 1
-    assert "<span class=cloze>[...typical]</span>" in f.cards()[0].q()
+    assert "<span class=cloze>[typical...]</span>" in f.cards()[0].q()
     assert "<span class=cloze>world</span>" in f.cards()[0].a()
     # and with 2 clozes
     f = d.newNote()
