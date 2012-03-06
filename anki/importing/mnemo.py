@@ -8,6 +8,7 @@ from anki.importing.base import Importer
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.utils import checksum, base91
 from anki.stdmodels import addBasicModel
+from anki.lang import _
 
 class MnemosyneImporter(NoteImporter):
 
