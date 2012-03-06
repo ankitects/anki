@@ -244,7 +244,7 @@ class SupermemoXmlImporter(NoteImporter):
             card.lapses = int(item.Lapses)
             card.reps = int(item.Repetitions) + int(item.Lapses)
             nextDue = tLastrep + (float(item.Interval) * 86400.0)
-            remDays = max(0, int((nextDue - time.time())/86400))
+            remDays = int((nextDue - time.time())/86400)
             card.due = self.col.sched.today+remDays
             card.factor = int(float(item.AFactor.replace(',','.'))*1000)
             note.cards[0] = card

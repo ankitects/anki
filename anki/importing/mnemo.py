@@ -70,7 +70,7 @@ acq_reps+ret_reps, lapses from cards"""):
             c.ivl = max(1, (next - prev)/86400)
             # work out how long we've got left
             rem = int((next - time.time())/86400)
-            c.due = max(0, self.col.sched.today+rem)
+            c.due = self.col.sched.today+rem
             # get ord
             m = re.match("\d+\.(\d+)", row[1])
             ord = int(m.group(1))-1
