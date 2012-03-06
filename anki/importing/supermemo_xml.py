@@ -61,6 +61,9 @@ class SuperMemoElement(SmartDict):
 
 # This is an AnkiImporter
 class SupermemoXmlImporter(NoteImporter):
+
+    needMapper = False
+
     """
     Supermemo XML export's to Anki parser.
     Goes through a SM collection and fetch all elements.
@@ -210,6 +213,8 @@ class SupermemoXmlImporter(NoteImporter):
         self.logger(u'Parsing done.')
 
         # Return imported cards
+        self.total = len(self.notes)
+        self.log.append(_("%d cards imported.") % self.total)
         return self.notes
 
     def fields(self):
