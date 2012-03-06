@@ -77,8 +77,12 @@ acq_reps+ret_reps, lapses from cards"""):
                 note['cards'] = {}
             note['cards'][ord] = c
         self._addFronts(front)
+        total = self.total
         self._addFrontBacks(frontback)
+        total += self.total
         self._addVocabulary(vocabulary)
+        self.total += total
+        self.log.append(_("%d notes imported.") % self.total)
 
     def fields(self):
         return self._fields
