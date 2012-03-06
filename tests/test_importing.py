@@ -6,7 +6,7 @@ from anki.upgrade import Upgrader
 from anki.utils import ids2str
 from anki.errors import *
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
-    SupermemoXmlImporter
+    SupermemoXmlImporter, MnemosyneImporter
 from anki.notes import Note
 
 from anki.db import *
@@ -142,3 +142,12 @@ def test_updating():
     i.mapping[1] = 0
     i.run()
     deck.close()
+
+def test_mnemo():
+    deck = getEmptyDeck()
+    file = unicode(os.path.join(testDir, "support/mnemo.db"))
+    i = MnemosyneImporter(deck, file)
+    i.run()
+    assert deck.cardCount() == 7
+    assert "a_longer_tag" in deck.tags.all()
+    assert deck.db.scalar("select count() from cards where type = 0") == 1

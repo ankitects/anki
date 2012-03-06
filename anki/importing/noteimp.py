@@ -18,6 +18,15 @@ class ForeignNote(object):
         self.fields = []
         self.tags = []
         self.deck = None
+        self.cards = {} # map of ord -> card
+
+class ForeignCard(object):
+    def __init__(self):
+        self.due = 0
+        self.ivl = 1
+        self.factor = 2.5
+        self.reps = 0
+        self.lapses = 0
 
 # Base class for CSV and similar text-based imports
 ######################################################################
@@ -84,6 +93,7 @@ class NoteImporter(Importer):
         updates = []
         new = []
         self._ids = []
+        self._cards = []
         for n in notes:
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
@@ -122,7 +132,10 @@ class NoteImporter(Importer):
         self.addNew(new)
         self.addUpdates(updates)
         self.col.updateFieldCache(self._ids)
+        # generate cards
         assert not self.col.genCards(self._ids)
+        # apply scheduling updates
+        self.updateCards()
         # make sure to update sflds, etc
         self.total = len(self._ids)
 
@@ -133,6 +146,10 @@ class NoteImporter(Importer):
         if not self.processFields(n):
             print "no cards generated"
             return
+        # note id for card updates later
+        for ord, c in n.cards.items():
+            self._cards.append((id, ord, c))
+        self.col.tags.register(n.tags)
         return [id, guid64(), self.model['id'], self.didForNote(n),
                 intTime(), self.col.usn(), self.col.tags.join(n.tags),
                 n.fieldsStr, "", "", 0, ""]
@@ -148,6 +165,7 @@ class NoteImporter(Importer):
         if not self.processFields(n):
             print "no cards generated"
             return
+        self.col.tags.register(n.tags)
         tags = self.col.tags.join(n.tags)
         return [intTime(), self.col.usn(), n.fieldsStr, tags,
                 id, n.fieldsStr, tags]
@@ -178,3 +196,12 @@ where id = ? and (flds != ? or tags != ?)""", rows)
                 fields[sidx] = note.fields[c]
         note.fieldsStr = joinFields(fields)
         return self.col.models.availOrds(self.model, note.fieldsStr)
+
+    def updateCards(self):
+        data = []
+        for nid, ord, c in self._cards:
+            data.append((c.ivl, c.due, c.factor, c.reps, c.lapses, nid, ord))
+        # we assume any updated cards are reviews
+        self.col.db.executemany("""
+update cards set type = 2, queue = 2, ivl = ?, due = ?,
+factor = ?, reps = ?, lapses = ? where nid = ? and ord = ?""", data)

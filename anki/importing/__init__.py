@@ -7,6 +7,7 @@ from anki.importing.apkg import AnkiPackageImporter
 from anki.importing.anki2 import Anki2Importer
 from anki.importing.anki1 import Anki1Importer
 from anki.importing.supermemo_xml import SupermemoXmlImporter
+from anki.importing.mnemo import MnemosyneImporter
 from anki.lang import _
 
 Importers = (
