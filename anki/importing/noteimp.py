@@ -24,7 +24,7 @@ class ForeignCard(object):
     def __init__(self):
         self.due = 0
         self.ivl = 1
-        self.factor = 2.5
+        self.factor = 2500
         self.reps = 0
         self.lapses = 0
 

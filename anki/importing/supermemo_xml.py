@@ -4,7 +4,8 @@
 
 import sys
 
-from anki.importing.noteimp import NoteImporter, ForeignNote
+from anki.stdmodels import addBasicModel
+from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.lang import _
 from anki.errors import *
 
@@ -12,10 +13,6 @@ from xml.dom import minidom, Node
 from types import DictType, InstanceType
 from string import capwords, maketrans
 import re, unicodedata, time
-#import chardet
-
-
-#from anki import Deck
 
 class SmartDict(dict):
     """
@@ -81,8 +78,12 @@ class SupermemoXmlImporter(NoteImporter):
     def __init__(self, *args):
         """Initialize internal varables.
         Pameters to be exposed to GUI are stored in self.META"""
+        NoteImporter.__init__(self, *args)
+        m = addBasicModel(self.col)
+        m['name'] = "Supermemo"
+        self.col.models.save(m)
+        self.initMapping()
 
-        Importer.__init__(self, *args)
         self.lines = None
         self.numFields=int(2)
 
@@ -110,7 +111,7 @@ class SupermemoXmlImporter(NoteImporter):
         self.META.tagMemorizedItems = True              # implemented
         self.META.logToStdOutput   = False              # implemented
 
-        self.cards = []
+        self.notes = []
 
 ## TOOLS
 
@@ -197,7 +198,7 @@ class SupermemoXmlImporter(NoteImporter):
 
 ## DEFAULT IMPORTER METHODS
 
-    def foreignCards(self):
+    def foreignNotes(self):
 
         # Load file and parse it by minidom
         self.loadSource(self.file)
@@ -209,7 +210,7 @@ class SupermemoXmlImporter(NoteImporter):
         self.logger(u'Parsing done.')
 
         # Return imported cards
-        return self.cards
+        return self.notes
 
     def fields(self):
         return 2
@@ -220,38 +221,28 @@ class SupermemoXmlImporter(NoteImporter):
         "This method actually do conversion"
 
         # new anki card
-        card = ForeignCard()
+        note = ForeignNote()
 
         # clean Q and A
-        card.fields.append(self._fudgeText(self._decode_htmlescapes(item.Question)))
-        card.fields.append(self._fudgeText(self._decode_htmlescapes(item.Answer)))
-        card.tags = u""
+        note.fields.append(self._fudgeText(self._decode_htmlescapes(item.Question)))
+        note.fields.append(self._fudgeText(self._decode_htmlescapes(item.Answer)))
+        note.tags = []
 
         # pre-process scheduling data
-        tLastrep = time.mktime(time.strptime(item.LastRepetition, '%d.%m.%Y'))
-        tToday = time.time()
-
         # convert learning data
-        if not self.META.resetLearningData:
+        if not self.META.resetLearningData and item.Interval >= 1:
             # migration of LearningData algorithm
-            card.interval = item.Interval
-            card.successive = item.Repetitions
-            ##card.due = tToday + (float(item.Interval) * 86400.0) - tLastrep
-            card.due = tLastrep + (float(item.Interval) * 86400.0)
-            card.lastDue = 0
-
-            card.factor = float(item.AFactor.replace(',','.'))
-            card.lastFactor = float(item.AFactor.replace(',','.'))
-
-            # SM is not exporting all the information Anki keeps track off, so it
-            # needs to be fudged
-            card.youngEase0 = item.Lapses
-            card.youngEase3 = item.Repetitions + item.Lapses
-            card.yesCount = item.Repetitions
-            card.noCount  = item.Lapses
-            card.reps = card.yesCount + card.noCount
-            card.spaceUntil = card.due
-            card.combinedDue = card.due
+            tLastrep = time.mktime(time.strptime(item.LastRepetition, '%d.%m.%Y'))
+            tToday = time.time()
+            card = ForeignCard()
+            card.ivl = int(item.Interval)
+            card.lapses = int(item.Lapses)
+            card.reps = int(item.Repetitions) + int(item.Lapses)
+            nextDue = tLastrep + (float(item.Interval) * 86400.0)
+            remDays = max(0, int((nextDue - time.time())/86400))
+            card.due = self.col.sched.today+remDays
+            card.factor = int(float(item.AFactor.replace(',','.'))*1000)
+            note.cards[0] = card
 
         # categories & tags
         # it's worth to have every theme (tree structure of sm collection) stored in tags, but sometimes not
@@ -275,14 +266,14 @@ class SupermemoXmlImporter(NoteImporter):
           tmp = list(set([ capwords(i).replace(' ','')  for i in tmp ]))
           tags = [ j[0].lower() + j[1:] for j in tmp if j.strip() <> '']
 
-          card.tags += u" ".join(tags)
+          note.tags += tags
 
           if self.META.tagMemorizedItems and item.Interval >0:
-            card.tags += " Memorized"
+            note.tags.append("Memorized")
 
-          self.logger(u'Element tags\t- ' + card.tags, level=3)
+          self.logger(u'Element tags\t- ' + `note.tags`, level=3)
 
-        self.cards.append(card)
+        self.notes.append(note)
 
     def logger(self,text,level=1):
         "Wrapper for Anki logger"
@@ -323,7 +314,7 @@ class SupermemoXmlImporter(NoteImporter):
         """Load source file and parse with xml.dom.minidom"""
         self.source = source
         self.logger(u'Load started...')
-        sock = self.openAnything(self.source)
+        sock = open(self.source)
         self.xmldoc = minidom.parse(sock).documentElement
         sock.close()
         self.logger(u'Load done.')

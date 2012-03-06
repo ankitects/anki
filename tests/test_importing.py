@@ -96,27 +96,17 @@ def test_csv():
     assert i.total == 0
     deck.close()
 
-def test_csv_tags():
-    print "disabled"; return
-    deck = getEmptyDeck()
-    file = unicode(os.path.join(testDir, "support/text-tags.txt"))
-    i = TextImporter(deck, file)
-    i.run()
-    notes = deck.db.query(Note).all()
-    assert len(notes) == 2
-    assert notes[0].tags == "baz qux" or notes[1].tags == "baz qux"
-    deck.close()
-
 def test_supermemo_xml_01_unicode():
-    print "disabled"; return
-    deck = Deck()
-    deck.addModel(BasicModel())
-    file = unicode(os.path.join(testDir, "importing/supermemo1.xml"))
-    i = supermemo_xml.SupermemoXmlImporter(deck, file)
+    deck = getEmptyDeck()
+    file = unicode(os.path.join(testDir, "support/supermemo1.xml"))
+    i = SupermemoXmlImporter(deck, file)
     #i.META.logToStdOutput = True
     i.run()
-    # only returning top-level elements?
     assert i.total == 1
+    cid = deck.db.scalar("select id from cards")
+    c = deck.getCard(cid)
+    assert c.factor == 5701
+    assert c.reps == 7
     deck.close()
 
 def test_mnemo():
@@ -127,3 +117,4 @@ def test_mnemo():
     assert deck.cardCount() == 7
     assert "a_longer_tag" in deck.tags.all()
     assert deck.db.scalar("select count() from cards where type = 0") == 1
+    deck.close()

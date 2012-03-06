@@ -62,7 +62,7 @@ acq_reps+ret_reps, lapses from cards"""):
                 continue
             # add the card
             c = ForeignCard()
-            c.factor = row[5]
+            c.factor = int(row[5]*1000)
             c.reps = row[6]
             c.lapses = row[7]
             # ivl is inferred in mnemosyne
