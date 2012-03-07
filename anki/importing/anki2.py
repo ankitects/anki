@@ -222,11 +222,12 @@ class Anki2Importer(Importer):
             if card[7] == 2:
                 card[8] -= aheadBy
             cards.append(card)
-            # we need to import revlog, rewriting card ids
+            # we need to import revlog, rewriting card ids and bumping usn
             for rev in self.src.db.execute(
                 "select * from revlog where cid = ?", scid):
                 rev = list(rev)
                 rev[1] = card[0]
+                rev[2] = self.dst.usn()
                 revlog.append(rev)
             cnt += 1
         # apply
