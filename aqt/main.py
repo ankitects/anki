@@ -204,7 +204,6 @@ Are you sure?"""):
         # maybe sync (will load DB)
         self.onSync(auto=True)
         runHook("profileLoaded")
-        self.onImport()
 
     def unloadProfile(self, browser=True):
         if not self.pm.profile:
