@@ -122,14 +122,20 @@ class DeckManager(object):
         # do nothing else if doesn't exist
         if not str(did) in self.decks:
             return
-        # delete children first
-        if childrenToo:
-            # we don't want to delete children when syncing
-            for name, id in self.children(did):
-                self.rem(id, cardsToo)
-        # delete cards too?
-        if cardsToo:
-            self.col.remCards(self.cids(did))
+        deck = self.get(did)
+        if deck.get('cram'):
+            # deleting a cramming deck returns cards to their previous deck
+            # rather than deleting the cards
+            self.col.sched.remCram(did)
+        else:
+            # delete children first
+            if childrenToo:
+                # we don't want to delete children when syncing
+                for name, id in self.children(did):
+                    self.rem(id, cardsToo)
+            # delete cards too?
+            if cardsToo:
+                self.col.remCards(self.cids(did))
         # delete the deck and add a grave
         del self.decks[str(did)]
         # ensure we have an active deck

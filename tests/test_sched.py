@@ -453,33 +453,52 @@ def test_cram():
     assert sorted(d.sched.deckDueList())[0][3] == 1
     # and should appear in the counts
     assert d.sched.counts() == (1,0,0)
-    # grab it and make one step
+    # grab it and check estimates
     c = d.sched.getCard()
+    assert d.sched.nextIvl(c, 1) == 60
+    assert d.sched.nextIvl(c, 2) == 600
+    assert d.sched.nextIvl(c, 3) == 138*60*60*24
     d.sched.answerCard(c, 2)
     # elapsed time was 75 days
     # factor = 2.5+1.2/2 = 1.85
-    # int(75*1.85)+1 = 139
-    assert c.ivl == 139
-    assert c.odue == 139
+    # int(75*1.85) = 138
+    assert c.ivl == 138
+    assert c.odue == 138
     assert c.queue == 1
+    # check ivls again
+    assert d.sched.nextIvl(c, 1) == 60
+    assert d.sched.nextIvl(c, 2) == 138*60*60*24
+    assert d.sched.nextIvl(c, 3) == 138*60*60*24
     # when it graduates, due is updated
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
-    assert c.ivl == 139
-    assert c.due == 139
+    assert c.ivl == 138
+    assert c.due == 138
     assert c.queue == 2
     # and it will have moved back to the previous deck
     assert c.did == 1
-
-
-    # card will have moved b
-    #assert sorted(d.sched.deckDueList())[0][3] == 1
-
-    return
-    # check that estimates work
-    assert d.sched.nextIvl(c, 1) == 30
-    assert d.sched.nextIvl(c, 2) == 180
-    assert d.sched.nextIvl(c, 3) == 86400*100
+    # cram the deck again
+    d.sched.cram("")
+    d.reset()
+    c = d.sched.getCard()
+    # check ivls again - passing should be idempotent
+    assert d.sched.nextIvl(c, 1) == 60
+    assert d.sched.nextIvl(c, 2) == 600
+    assert d.sched.nextIvl(c, 3) == 138*60*60*24
+    d.sched.answerCard(c, 2)
+    assert c.ivl == 138
+    assert c.odue == 138
+    # fail
+    d.sched.answerCard(c, 1)
+    assert d.sched.nextIvl(c, 1) == 60
+    assert d.sched.nextIvl(c, 2) == 600
+    assert d.sched.nextIvl(c, 3) == 86400
+    # delete the deck, returning the card mid-study
+    d.decks.rem(d.decks.selected())
+    assert len(d.sched.deckDueList()) == 1
+    c.load()
+    assert c.ivl == 1
+    assert c.due == d.sched.today+1
 
 def test_adjIvl():
     d = getEmptyDeck()

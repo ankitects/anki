@@ -64,10 +64,7 @@ class Scheduler(object):
             # cramming?
             if self._cramming and card.type == 2:
                 # reviews get their ivl boosted on first sight
-                elapsed = card.ivl - card.odue - self.today
-                assert card.factor
-                factor = ((card.factor/1000.0)+1.2)/2.0
-                card.ivl = int(max(card.ivl, elapsed * factor, 1))+1
+                card.ivl = self._cramIvlBoost(card)
                 card.odue = self.today + card.ivl
             self._updateStats(card, 'new')
         if card.queue == 1:
@@ -437,6 +434,10 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             # failed
             else:
                 card.left = self._startingLeft(card)
+                if self._cramming:
+                    print "fixme: configurable failure handling"
+                    card.ivl = 1
+                    card.odue = self.today + 1
             self.lrnCount += card.left
             delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
@@ -485,6 +486,8 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
     def _graduatingIvl(self, card, conf, early, adj=True):
         if card.type == 2:
             # lapsed card being relearnt
+            if self._cramming:
+                return self._cramIvlBoost(card)
             return card.ivl
         if not early:
             # graduate
@@ -739,6 +742,11 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         # and change to our new deck
         self.col.decks.select(did)
 
+    def remCram(self, did):
+        self.col.db.execute("""
+update cards set did = odid, queue = type, due = odue, odue = 0, odid = 0,
+usn = ?, mod = ? where did = ?""", self.col.usn(), intTime(), did)
+
     def _cramOrder(self, order):
         if order == "due":
             return "order by c.due"
@@ -769,6 +777,13 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         self.col.db.executemany("""
 update cards set odid = did, odue = due, did = ?, queue = 0, due = ?,
 mod = ?, usn = ? where id = ?""", data)
+
+    def _cramIvlBoost(self, card):
+        assert self._cramming and card.type == 2
+        assert card.factor
+        elapsed = card.ivl - card.odue - self.today
+        factor = ((card.factor/1000.0)+1.2)/2.0
+        return int(max(card.ivl, elapsed * factor, 1))
 
     # Leeches
     ##########################################################################
@@ -893,7 +908,6 @@ your short-term review workload will become."""))
     # this isn't easily extracted from the learn code
     def _nextLrnIvl(self, card, ease):
         if card.queue == 0:
-            card.type = 1
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
         if ease == 1:
