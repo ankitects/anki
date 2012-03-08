@@ -11,11 +11,10 @@ from anki.lang import _, ngettext
 from anki.consts import *
 from anki.hooks import runHook
 
-# revlog:
-# types: 0=lrn, 1=rev, 2=relrn, 3=cram
+# revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
+# other queue types: -1=suspended, -2=buried
 # positive intervals are in days (rev), negative intervals in seconds (lrn)
 
-# the standard Anki scheduler
 class Scheduler(object):
     name = "std"
     def __init__(self, col):
@@ -104,9 +103,9 @@ order by due""" % self._deckLimit(),
             return 3
 
     def onClose(self):
-        "Unbury and remove temporary suspends on close."
+        "Unbury cards when closing."
         self.col.db.execute(
-            "update cards set queue = type where queue between -3 and -2")
+            "update cards set queue = type where queue = -2")
 
     # Rev/lrn/time daily stats
     ##########################################################################
@@ -447,7 +446,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
     def _rescheduleAsRev(self, card, conf, early):
         if card.type == 2:
             # failed; put back entry due
-            card.due = card.edue
+            card.due = card.odue
         else:
             self._rescheduleNew(card, conf, early)
         card.queue = 2
@@ -498,7 +497,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             extra = " and id in "+ids2str(ids)
         self.col.db.execute("""
 update cards set
-due = edue, queue = 2, mod = %d, usn = %d
+due = odue, queue = 2, mod = %d, usn = %d
 where queue = 1 and type = 2
 %s
 """ % (intTime(), self.col.usn(), extra))
@@ -600,7 +599,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         card.due = self.today + card.ivl
         # put back in the learn queue?
         if conf['delays']:
-            card.edue = card.due
+            card.odue = card.due
             card.due = int(self._delayForGrade(conf, 0) + time.time())
             card.left = len(conf['delays'])
             card.queue = 1

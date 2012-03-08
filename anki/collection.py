@@ -310,7 +310,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     ts += 1
         # bulk update
         self.db.executemany("""
-insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,"")""",
+insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
                             data)
         return rem
 

@@ -176,7 +176,7 @@ def test_learn():
     # now failed card handling
     c.type = 2
     c.queue = 1
-    c.edue = 123
+    c.odue = 123
     d.sched.answerCard(c, 3)
     assert c.due == 123
     assert c.type == 2
@@ -184,7 +184,7 @@ def test_learn():
     # we should be able to remove manually, too
     c.type = 2
     c.queue = 1
-    c.edue = 321
+    c.odue = 321
     c.flush()
     d.sched.removeFailed()
     c.load()
@@ -245,7 +245,7 @@ def test_reviews():
     d.sched.answerCard(c, 1)
     assert c.queue == 1
     # it should be due tomorrow, with an interval of 1
-    assert c.edue == d.sched.today + 1
+    assert c.odue == d.sched.today + 1
     assert c.ivl == 1
     # but because it's in the learn queue, its current due time should be in
     # the future

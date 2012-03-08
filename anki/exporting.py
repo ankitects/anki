@@ -140,7 +140,7 @@ class AnkiExporter(Exporter):
             nids[row[1]] = True
             data.append(row)
         self.dst.db.executemany(
-            "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             data)
         # notes
         strnids = ids2str(nids.keys())

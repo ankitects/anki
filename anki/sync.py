@@ -182,7 +182,7 @@ from revlog where %s""" % d)
         elif table == "cards":
             return x("""
 select id, nid, did, ord, mod, %d, type, queue, due, ivl, factor, reps,
-lapses, left, edue, flags, data from cards where %s""" % d)
+lapses, left, odue, odid, flags, data from cards where %s""" % d)
         else:
             return x("""
 select id, guid, mid, did, mod, %d, tags, flds, '', '', flags, data
@@ -363,7 +363,7 @@ from notes where %s""" % d)
     def mergeCards(self, cards):
         self.col.db.executemany(
             "insert or replace into cards values "
-            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             self.newerRows(cards, "cards", 4))
 
     def mergeNotes(self, notes):

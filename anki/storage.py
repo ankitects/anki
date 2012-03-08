@@ -46,7 +46,19 @@ def Collection(path, lock=True, server=False, sync=True):
 
 # no upgrades necessary at the moment
 def _upgradeSchema(db):
+    if db.scalar("select ver from col") < SCHEMA_VERSION:
+        print "upgrading"
+        db.execute("alter table cards rename to cards2")
+        _addSchema(db)
+        db.execute("""
+insert into cards select
+id, nid, did, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses,
+left, edue, 0, flags, data from cards2""")
+        db.execute("drop table cards2")
+        db.execute("update col set ver = 2")
+        _updateIndices(db)
     return SCHEMA_VERSION
+
 def _upgrade(col, ver):
     return
 
@@ -110,7 +122,8 @@ create table if not exists cards (
     reps            integer not null,
     lapses          integer not null,
     left            integer not null,
-    edue            integer not null,
+    odue            integer not null,
+    odid            integer not null,
     flags           integer not null,
     data            text not null
 );

@@ -51,7 +51,7 @@ def test_anki2():
     imp.run()
     check()
     assert len(os.listdir(dst.media.dir())) == 1
-    print dst.path
+    #print dst.path
 
 def test_anki1():
     # get the deck path to import

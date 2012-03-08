@@ -38,7 +38,8 @@ class Card(object):
             self.reps = 0
             self.lapses = 0
             self.left = 0
-            self.edue = 0
+            self.odue = 0
+            self.odid = 0
             self.flags = 0
             self.data = ""
 
@@ -57,7 +58,8 @@ class Card(object):
          self.reps,
          self.lapses,
          self.left,
-         self.edue,
+         self.odue,
+         self.odid,
          self.flags,
          self.data) = self.col.db.first(
              "select * from cards where id = ?", self.id)
@@ -70,7 +72,7 @@ class Card(object):
         self.col.db.execute(
             """
 insert or replace into cards values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             self.id,
             self.nid,
             self.did,
@@ -85,7 +87,8 @@ insert or replace into cards values
             self.reps,
             self.lapses,
             self.left,
-            self.edue,
+            self.odue,
+            self.odid,
             self.flags,
             self.data)
 
@@ -95,10 +98,10 @@ insert or replace into cards values
         self.col.db.execute(
             """update cards set
 mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
-lapses=?, left=?, edue=? where id = ?""",
+lapses=?, left=?, odue=? where id = ?""",
             self.mod, self.usn, self.type, self.queue, self.due, self.ivl,
             self.factor, self.reps, self.lapses,
-            self.left, self.edue, self.id)
+            self.left, self.odue, self.id)
 
     def q(self, reload=False):
         return self.css() + self._getQA(reload)['q']

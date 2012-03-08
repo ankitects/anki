@@ -226,7 +226,7 @@ order by created"""):
         db.execute("drop table cards")
         _addSchema(db, False)
         db.executemany("""
-insert into cards values (?,?,1,?,?,?,?,?,?,?,?,?,?,0,0,0,"")""",
+insert into cards values (?,?,1,?,?,?,?,?,?,?,?,?,?,0,0,0,0,"")""",
                        rows)
 
         # reviewHistory -> revlog
@@ -679,7 +679,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         # suspended cards don't use ranges anymore
         col.db.execute("update cards set queue=-1 where queue between -3 and -1")
         col.db.execute("update cards set queue=-2 where queue between 3 and 5")
-        col.db.execute("update cards set queue=-3 where queue between 6 and 8")
+        col.db.execute("update cards set queue=type where queue between 6 and 8")
         # remove old deleted tables
         for t in ("cards", "notes", "models", "media"):
             col.db.execute("drop table if exists %sDeleted" % t)
@@ -687,7 +687,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         self._rewriteNewDue()
         # and failed cards
         left = len(col.decks.confForDid(1)['new']['delays'])
-        col.db.execute("update cards set edue = ?, left=? where type = 1",
+        col.db.execute("update cards set odue = ?, left=? where type = 1",
                         col.sched.today+1, left)
         # and due cards
         col.db.execute("""
