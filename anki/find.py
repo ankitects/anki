@@ -37,8 +37,9 @@ class Finder(object):
     def __init__(self, col):
         self.col = col
 
-    def findCards(self, query, full=False):
+    def findCards(self, query, full=False, order=None):
         "Return a list of card ids for QUERY."
+        self.order = order
         self.query = query
         self.full = full
         self._findLimits()
@@ -57,7 +58,7 @@ and c.nid=n.id
 select c.id from cards c, notes n where %s
 and c.nid=n.id %s""" % (q, order)
         res = self.col.db.list(query, **args)
-        if self.col.conf['sortBackwards']:
+        if not self.order and self.col.conf['sortBackwards']:
             res.reverse()
         return res
 
@@ -68,6 +69,9 @@ and c.nid=n.id %s""" % (q, order)
         return q, self.lims['args']
 
     def _order(self):
+        # user provided override?
+        if self.order:
+            return self.order
         type = self.col.conf['sortType']
         if not type:
             return

@@ -58,8 +58,7 @@ class _Collection(object):
         self.sessionStartReps = 0
         self.sessionStartTime = 0
         self.lastSessionStart = 0
-        self._stdSched = Scheduler(self)
-        self.sched = self._stdSched
+        self.sched = Scheduler(self)
         # check for improper shutdown
         self.cleanup()
 
@@ -461,8 +460,8 @@ where c.nid == f.id
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query, full=False):
-        return anki.find.Finder(self).findCards(query, full)
+    def findCards(self, query, full=False, order=None):
+        return anki.find.Finder(self).findCards(query, full, order)
 
     def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
@@ -506,20 +505,6 @@ where c.nid == f.id
             self.repsToday - self.sessionStartReps):
             return True
         return False
-
-    # Schedulers and cramming
-    ##########################################################################
-
-    def stdSched(self):
-        "True if scheduler changed."
-        if self.sched.name != "std":
-            self.cleanup()
-            self.sched = self._stdSched
-            return True
-
-    def cramDecks(self, order="mod desc", min=0, max=None):
-        self.stdSched()
-        self.sched = anki.cram.CramScheduler(self, order, min, max)
 
     # Undo
     ##########################################################################

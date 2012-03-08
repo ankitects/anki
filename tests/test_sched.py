@@ -431,8 +431,6 @@ def test_suspend():
     assert c.due == 1
 
 def test_cram():
-    print "disabled for now"
-    return
     d = getEmptyDeck()
     f = d.newNote()
     f['Front'] = u"one"
@@ -443,112 +441,45 @@ def test_cram():
     # due in 25 days, so it's been waiting 75 days
     c.due = d.sched.today + 25
     c.mod = 1
+    c.factor = 2500
     c.startTimer()
     c.flush()
+    d.reset()
+    assert d.sched.counts() == (0,0,0)
     cardcopy = copy.copy(c)
-    d.conf['decks'] = [1]
-    d.cramDecks()
-    # first, test with initial intervals preserved
-    conf = d.sched._lrnConf(c)
-    conf['reset'] = False
-    conf['resched'] = False
-    assert d.sched.counts() == (1, 0, 0)
+    d.sched.cram("")
+    d.reset()
+    # should appear as new in the deck list
+    assert sorted(d.sched.deckDueList())[0][3] == 1
+    # and should appear in the counts
+    assert d.sched.counts() == (1,0,0)
+    # grab it and make one step
     c = d.sched.getCard()
-    d.sched._cardConf(c)['cram']['delays'] = [0.5, 3, 10]
-    assert d.sched.counts() == (0, 0, 0)
+    d.sched.answerCard(c, 2)
+    # elapsed time was 75 days
+    # factor = 2.5+1.2/2 = 1.85
+    # int(75*1.85)+1 = 139
+    assert c.ivl == 139
+    assert c.odue == 139
+    assert c.queue == 1
+    # when it graduates, due is updated
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 2)
+    assert c.ivl == 139
+    assert c.due == 139
+    assert c.queue == 2
+    # and it will have moved back to the previous deck
+    assert c.did == 1
+
+
+    # card will have moved b
+    #assert sorted(d.sched.deckDueList())[0][3] == 1
+
+    return
     # check that estimates work
     assert d.sched.nextIvl(c, 1) == 30
     assert d.sched.nextIvl(c, 2) == 180
     assert d.sched.nextIvl(c, 3) == 86400*100
-    # failing it should not reset ivl
-    assert c.ivl == 100
-    d.sched.answerCard(c, 1)
-    assert c.ivl == 100
-    # and should have incremented lrn count
-    assert d.sched.counts()[1] == 1
-    # reset ivl for exit test, and pass card
-    d.sched.answerCard(c, 2)
-    delta = c.due - time.time()
-    assert delta > 175 and delta <= 180
-    # another two answers should reschedule it
-    assert c.queue == 1
-    d.sched.answerCard(c, 2)
-    d.sched.answerCard(c, 2)
-    assert c.queue == -3
-    assert c.ivl == 100
-    assert c.due == d.sched.today + c.ivl
-    # and if the queue is reset, it shouldn't appear in the new queue again
-    d.reset()
-    assert d.sched.counts() == (0, 0, 0)
-    # now try again with ivl rescheduling
-    c = copy.copy(cardcopy)
-    c.flush()
-    d.cramDecks()
-    conf = d.sched._lrnConf(c)
-    conf['reset'] = False
-    conf['resched'] = True
-    # failures shouldn't matter
-    d.sched.answerCard(c, 1)
-    # graduating the card will keep the same interval, but shift the card
-    # forward the number of days it had been waiting (75)
-    assert d.sched.nextIvl(c, 3) == 75*86400
-    d.sched.answerCard(c, 3)
-    assert c.ivl == 100
-    assert c.due == d.sched.today + 75
-    # try with ivl reset
-    c = copy.copy(cardcopy)
-    c.flush()
-    d.cramDecks()
-    conf = d.sched._lrnConf(c)
-    conf['reset'] = True
-    conf['resched'] = True
-    d.sched.answerCard(c, 1)
-    assert d.sched.nextIvl(c, 3) == 1*86400
-    d.sched.answerCard(c, 3)
-    assert c.ivl == 1
-    assert c.due == d.sched.today + 1
-    # users should be able to cram entire deck too
-    d.conf['decks'] = []
-    d.cramDecks()
-    assert d.sched.counts()[0] > 0
-
-def test_cramLimits():
-    d = getEmptyDeck()
-    # create three cards, due tomorrow, the next, etc
-    for i in range(3):
-        f = d.newNote()
-        f['Front'] = str(i)
-        d.addNote(f)
-        c = f.cards()[0]
-        c.type = c.queue = 2
-        c.due = d.sched.today + 1 + i
-        c.flush()
-    # the default cram should return all three
-    d.conf['decks'] = [1]
-    d.cramDecks()
-    assert d.sched.counts()[0] == 3
-    # if we start from the day after tomorrow, it should be 2
-    d.cramDecks(min=1)
-    assert d.sched.counts()[0] == 2
-    # or after 2 days
-    d.cramDecks(min=2)
-    assert d.sched.counts()[0] == 1
-    # we may get nothing
-    d.cramDecks(min=3)
-    assert d.sched.counts()[0] == 0
-    # tomorrow(0) + dayAfter(1) = 2
-    d.cramDecks(max=1)
-    assert d.sched.counts()[0] == 2
-    # if max is tomorrow, we get only one
-    d.cramDecks(max=0)
-    assert d.sched.counts()[0] == 1
-    # both should work
-    d.cramDecks(min=0, max=0)
-    assert d.sched.counts()[0] == 1
-    d.cramDecks(min=1, max=1)
-    assert d.sched.counts()[0] == 1
-    d.cramDecks(min=0, max=1)
-    assert d.sched.counts()[0] == 2
 
 def test_adjIvl():
     d = getEmptyDeck()

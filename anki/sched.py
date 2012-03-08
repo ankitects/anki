@@ -15,6 +15,11 @@ from anki.hooks import runHook
 # other queue types: -1=suspended, -2=buried
 # positive intervals are in days (rev), negative intervals in seconds (lrn)
 
+# fixme:
+# - should log cram reps as cramming
+# - later we should set conf=None for the cram deck to catch where we're
+#   pulling from the original conf instead of the cram conf
+
 class Scheduler(object):
     name = "std"
     def __init__(self, col):
@@ -23,6 +28,7 @@ class Scheduler(object):
         self.reportLimit = 1000
         # fixme: replace reps with deck based counts
         self.reps = 0
+        self._cramming = False
         self._updateCutoff()
 
     def getCard(self):
@@ -34,6 +40,8 @@ class Scheduler(object):
             return card
 
     def reset(self):
+        deck = self.col.decks.current()
+        self._cramming = deck.get('cram')
         self._updateCutoff()
         self._resetLrn()
         self._resetRev()
@@ -44,12 +52,23 @@ class Scheduler(object):
         self.col.markReview(card)
         self.reps += 1
         card.reps += 1
-        wasNew = (card.queue == 0) and card.type != 2
+        wasNew = card.queue == 0
         if wasNew:
-            # put it in the learn queue
+            # came from the new queue, move to learning
             card.queue = 1
-            card.type = 1
+            # if it was a new card, it's now a learning card
+            if card.type == 0:
+                card.type = 1
+            # init reps to graduation
             card.left = self._startingLeft(card)
+            # cramming?
+            if self._cramming and card.type == 2:
+                # reviews get their ivl boosted on first sight
+                elapsed = card.ivl - card.odue - self.today
+                assert card.factor
+                factor = ((card.factor/1000.0)+1.2)/2.0
+                card.ivl = int(max(card.ivl, elapsed * factor, 1))+1
+                card.odue = self.today + card.ivl
             self._updateStats(card, 'new')
         if card.queue == 1:
             self._answerLrnCard(card, ease)
@@ -316,6 +335,8 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
+        if self._cramming:
+            return True
         if self.col.conf['newSpread'] == NEW_CARDS_LAST:
             return False
         elif self.col.conf['newSpread'] == NEW_CARDS_FIRST:
@@ -348,6 +369,8 @@ select count() from
 
     def _deckNewLimitSingle(self, g):
         "Limit for deck without parent limits."
+        if self._cramming:
+            return self.reportLimit
         c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
@@ -445,12 +468,16 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
 
     def _rescheduleAsRev(self, card, conf, early):
         if card.type == 2:
-            # failed; put back entry due
             card.due = card.odue
         else:
             self._rescheduleNew(card, conf, early)
         card.queue = 2
         card.type = 2
+        # if we were cramming, graduating means moving back to the old deck
+        if self._cramming:
+            card.did = card.odid
+            card.odue = 0
+            card.odid = 0
 
     def _startingLeft(self, card):
         return len(self._cardConf(card)['new']['delays'])
@@ -471,6 +498,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             return ideal
 
     def _rescheduleNew(self, card, conf, early):
+        "Reschedule a new card that's graduated for the first time."
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today+card.ivl
         card.factor = conf['initialFactor']
@@ -690,6 +718,57 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
                         fudge = diff
                         break
             return idealIvl + fudge
+
+    # Creation of cramming decks
+    ##########################################################################
+
+    # type is one of all, due, rev
+    # order is one of due, added, random, relative, lapses
+    def cram(self, search, type="all", order="due",
+             limit=100, sched=[1, 10]):
+        # gather card ids and sort
+        order = self._cramOrder(order)
+        limit = " limit %d" % limit
+        ids = self.col.findCards(search, order=order+limit)
+        if not order:
+            random.shuffle(ids)
+        # get a cram deck
+        did = self._cramDeck()
+        # move the cards over
+        self._moveToCram(did, ids)
+        # and change to our new deck
+        self.col.decks.select(did)
+
+    def _cramOrder(self, order):
+        if order == "due":
+            return "order by c.due"
+        elif order == "added":
+            return "order by n.id"
+        elif order == "random":
+            return ""
+        elif order == "relative":
+            pass
+        elif order == "lapses":
+            return "order by lapses desc"
+        elif order == "failed":
+            pass
+
+    def _cramDeck(self):
+        did = self.col.decks.id(_("Cram"))
+        deck = self.col.decks.get(did)
+        # mark it as a cram deck
+        deck['cram'] = True
+        self.col.decks.save(deck)
+        return did
+
+    def _moveToCram(self, did, ids):
+        data = []
+        t = intTime(); u = self.col.usn()
+        for c, id in enumerate(ids):
+            data.append((did, c, t, u, id))
+        self.col.db.executemany("""
+update cards set odid = did, odue = due, did = ?, queue = 0, due = ?,
+mod = ?, usn = ? where id = ?""", data)
 
     # Leeches
     ##########################################################################

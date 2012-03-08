@@ -98,10 +98,10 @@ insert or replace into cards values
         self.col.db.execute(
             """update cards set
 mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
-lapses=?, left=?, odue=? where id = ?""",
+lapses=?, left=?, odue=?, did=? where id = ?""",
             self.mod, self.usn, self.type, self.queue, self.due, self.ivl,
             self.factor, self.reps, self.lapses,
-            self.left, self.odue, self.id)
+            self.left, self.odue, self.did, self.id)
 
     def q(self, reload=False):
         return self.css() + self._getQA(reload)['q']
