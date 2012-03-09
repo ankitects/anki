@@ -228,8 +228,6 @@ class DataModel(QAbstractTableModel):
             return "%d%%" % (c.factor/10)
         elif type == "deck":
             return self.browser.mw.col.decks.name(c.did)
-        elif type == "ndeck":
-            return self.browser.mw.col.decks.name(c.note().did)
 
     def question(self, c):
         return self.formatQA(c.a())
@@ -395,7 +393,6 @@ class Browser(QMainWindow):
             ('answer', _("Answer")),
             ('template', _("Card")),
             ('deck', _("Card Deck")),
-            ('ndeck', _("Note Deck")),
             ('noteFld', _("Sort Field")),
             ('noteCrt', _("Created")),
             ('noteMod', _("Edited")),
@@ -885,20 +882,16 @@ where id in %s""" % ids2str(sf))
     # Deck change
     ######################################################################
 
-    def setDeck(self, initial=False):
+    def setDeck(self):
         d = QDialog(self)
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.setgroup.Ui_Dialog()
         frm.setupUi(d)
         from aqt.tagedit import TagEdit
         te = TagEdit(d, type=1)
-        frm.groupBox.layout().insertWidget(0, te)
+        frm.verticalLayout_2.insertWidget(1, te)
         te.setCol(self.col)
         d.connect(d, SIGNAL("accepted()"), lambda: self._onSetDeck(frm, te))
-        self.setTabOrder(frm.setCur, te)
-        self.setTabOrder(te, frm.setInitial)
-        if initial:
-            frm.setInitial.setChecked(True)
         d.show()
         te.setFocus()
 
@@ -907,19 +900,10 @@ where id in %s""" % ids2str(sf))
         self.mw.checkpoint(_("Set Deck"))
         mod = intTime()
         usn = self.col.usn()
-        if frm.setCur.isChecked():
-            did = self.col.decks.id(unicode(te.text()))
-            self.col.db.execute(
-                "update cards set usn=?, mod=?, did=? where id in " + ids2str(
-                    self.selectedCards()), usn, mod, did)
-            if frm.setInitial.isChecked():
-                self.col.db.execute(
-                    "update notes set usn=?, mod=?, did=? where id in " + ids2str(
-                        self.selectedNotes()), usn, mod, did)
-        else:
-            self.col.db.execute("""
-update cards set usn=?, mod=?, did=(select did from notes where id = cards.nid)
-where id in %s""" % ids2str(self.selectedCards()), usn, mod)
+        did = self.col.decks.id(unicode(te.text()))
+        self.col.db.execute(
+            "update cards set usn=?, mod=?, did=? where id in " + ids2str(
+                self.selectedCards()), usn, mod, did)
         self.onSearch(reset=False)
         self.mw.requireReset()
         self.model.endReset()

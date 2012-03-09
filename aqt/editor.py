@@ -537,7 +537,7 @@ class Editor(object):
                 self.deck.setCol(self.mw.col)
             self.tags.setCol(self.mw.col)
         if self.addMode:
-            self.deck.setText(self.mw.col.decks.name(self.note.did))
+            self.deck.setText(self.mw.col.decks.name(self.note.model()['did']))
         self.tags.setText(self.note.stringTags().strip())
 
     def saveTagsAndDeck(self):
@@ -547,12 +547,11 @@ class Editor(object):
         if self.addMode:
             name = self.deck.text()
             if not name.strip():
-                self.note.did = 1
+                self.note.model()['did'] = 1
             else:
-                self.note.did = self.mw.col.decks.id(name)
-            # save group and tags to model
+                self.note.model()['did'] = self.mw.col.decks.id(name)
+            # save tags to model
             m = self.note.model()
-            m['did'] = self.note.did
             m['tags'] = self.note.tags
             self.mw.col.models.save(m)
         if not self.addMode:

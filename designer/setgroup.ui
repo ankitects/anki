@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>291</width>
-    <height>188</height>
+    <width>276</width>
+    <height>151</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,37 +15,24 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QRadioButton" name="setCur">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Move card(s) to deck:</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
+      <string>Move cards to deck:</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string/>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QCheckBox" name="setInitial">
-        <property name="text">
-         <string>Move notes too</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="reset">
-     <property name="text">
-      <string>Move card(s) to their note's deck</string>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -60,9 +47,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>setCur</tabstop>
-  <tabstop>setInitial</tabstop>
-  <tabstop>reset</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -96,22 +80,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>213</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>setCur</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>188</x>
-     <y>19</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>343</x>
-     <y>53</y>
     </hint>
    </hints>
   </connection>
