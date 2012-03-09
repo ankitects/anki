@@ -814,9 +814,10 @@ the problem and restart Anki.""")
         if not self.inMainThread():
             return True
         return askUser(_("""\
-This operation can't be merged when syncing, so if you have made \
-changes on other devices that haven't been synced to this device yet, \
-they will be lost. Are you sure you want to continue?"""))
+The requested change will require a full upload of the database when \
+you next synchronize your collection. If you have reviews or other changes \
+waiting on another device that haven't been synchronized here yet, they \
+will be lost. Continue?"""))
 
     # Empty card deletion
     ##########################################################################
