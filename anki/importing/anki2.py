@@ -83,19 +83,18 @@ class Anki2Importer(Importer):
                 existing[note[0]] = True
                 # rewrite internal ids, models, etc
                 note[2] = lmid
-                note[3] = self._did(note[3])
-                note[4] = intTime()
-                note[5] = usn
+                note[3] = intTime()
+                note[4] = usn
                 add.append(note)
                 dirty.append(note[0])
                 # note we have the added note
-                self._notes[guid] = (note[0], note[4], note[2])
+                self._notes[guid] = (note[0], note[3], note[2])
             else:
                 # not yet implemented
                 pass
         # add to col
         self.dst.db.executemany(
-            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             add)
         self.dst.updateFieldCache(dirty)
         self.dst.tags.registerNotes(dirty)

@@ -46,8 +46,11 @@ def Collection(path, lock=True, server=False, sync=True):
 
 # no upgrades necessary at the moment
 def _upgradeSchema(db):
-    if db.scalar("select ver from col") < SCHEMA_VERSION:
-        print "upgrading"
+    if db.scalar("select ver from col") == SCHEMA_VERSION:
+        return SCHEMA_VERSION
+    # add odid to cards, edue->odue
+    ######################################################################
+    if db.scalar("select ver from col") == 1:
         db.execute("alter table cards rename to cards2")
         _addSchema(db)
         db.execute("""
@@ -56,6 +59,17 @@ id, nid, did, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses,
 left, edue, 0, flags, data from cards2""")
         db.execute("drop table cards2")
         db.execute("update col set ver = 2")
+        _updateIndices(db)
+    # remove did from notes
+    ######################################################################
+    if db.scalar("select ver from col") == 2:
+        db.execute("alter table notes rename to notes2")
+        _addSchema(db)
+        db.execute("""
+insert into notes select
+id, guid, mid, mod, usn, tags, flds, sfld, csum, flags, data from notes2""")
+        db.execute("drop table notes2")
+        db.execute("update col set ver = 3")
         _updateIndices(db)
     return SCHEMA_VERSION
 
@@ -96,7 +110,6 @@ create table if not exists notes (
     id              integer primary key,
     guid            text not null,
     mid             integer not null,
-    did             integer not null,
     mod             integer not null,
     usn             integer not null,
     tags            text not null,

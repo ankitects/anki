@@ -50,8 +50,7 @@ class CardStats(object):
             self.addLine(_("Position"), c.due)
         self.addLine(_("Card Type"), c.template()['name'])
         self.addLine(_("Note Type"), c.model()['name'])
-        self.addLine(_("Card Deck"), self.col.decks.name(c.did))
-        self.addLine(_("Note Deck"), self.col.decks.name(c.note().did))
+        self.addLine(_("Deck"), self.col.decks.name(c.did))
         self.txt += "</table>"
         return self.txt
 

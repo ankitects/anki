@@ -292,10 +292,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         now = intTime()
         rem = []
         usn = self.usn()
-        for nid, mid, did, flds in self.db.execute(
-            "select id, mid, did, flds from notes where id in "+snids):
+        for nid, mid, flds in self.db.execute(
+            "select id, mid, flds from notes where id in "+snids):
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
+            did = model['did']
             for t in model['tmpls']:
                 doHave = nid in have and t['ord'] in have[nid]
                 # if have ord but empty, add cid to remove list
@@ -335,7 +336,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card = anki.cards.Card(self)
         card.nid = note.id
         card.ord = template['ord']
-        card.did = template['did'] or note.did
+        card.did = template['did'] or note.model()['did']
         card.due = self._dueForDid(card.did, due)
         if flush:
             card.flush()

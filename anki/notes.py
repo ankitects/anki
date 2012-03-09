@@ -19,7 +19,6 @@ class Note(object):
             self.id = timestampID(col.db, "notes")
             self.guid = guid64()
             self._model = model
-            self.did = model['did']
             self.mid = model['id']
             self.tags = []
             self.fields = [""] * len(self._model['flds'])
@@ -31,14 +30,13 @@ class Note(object):
     def load(self):
         (self.guid,
          self.mid,
-         self.did,
          self.mod,
          self.usn,
          self.tags,
          self.fields,
          self.flags,
          self.data) = self.col.db.first("""
-select guid, mid, did, mod, usn, tags, flds, flags, data
+select guid, mid, mod, usn, tags, flds, flags, data
 from notes where id = ?""", self.id)
         self.fields = splitFields(self.fields)
         self.tags = self.col.tags.split(self.tags)
@@ -55,8 +53,8 @@ from notes where id = ?""", self.id)
         tags = self.stringTags()
         csum = fieldChecksum(self.fields[0])
         res = self.col.db.execute("""
-insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
-                            self.id, self.guid, self.mid, self.did,
+insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
+                            self.id, self.guid, self.mid,
                             self.mod, self.usn, tags,
                             self.joinedFields(), sfld, csum, self.flags,
                             self.data)
@@ -72,12 +70,6 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)""",
 
     def model(self):
         return self._model
-
-    def updateCardDids(self):
-        for c in self.cards():
-            if c.did != self.did and not c.template()['did']:
-                c.did = self.did
-                c.flush()
 
     # Dict interface
     ##################################################

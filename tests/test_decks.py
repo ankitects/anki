@@ -39,7 +39,7 @@ def test_remove():
     g1 = deck.decks.id("g1")
     f = deck.newNote()
     f['Front'] = u"1"
-    f.did = g1
+    f.model()['did'] = g1
     deck.addNote(f)
     c = f.cards()[0]
     assert c.did == g1

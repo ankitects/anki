@@ -150,13 +150,13 @@ class NoteImporter(Importer):
         for ord, c in n.cards.items():
             self._cards.append((id, ord, c))
         self.col.tags.register(n.tags)
-        return [id, guid64(), self.model['id'], self.didForNote(n),
+        return [id, guid64(), self.model['id'],
                 intTime(), self.col.usn(), self.col.tags.join(n.tags),
                 n.fieldsStr, "", "", 0, ""]
 
     def addNew(self, rows):
         self.col.db.executemany(
-            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
 
     # need to document that deck is ignored in this case
@@ -174,13 +174,6 @@ class NoteImporter(Importer):
         self.col.db.executemany("""
 update notes set mod = ?, usn = ?, flds = ?, tags = ?
 where id = ? and (flds != ? or tags != ?)""", rows)
-
-    def didForNote(self, n):
-        if not n.deck:
-            n.deck = _("Imported")
-        if n.deck not in self._deckMap:
-            self._deckMap[n.deck] = self.col.decks.id(n.deck)
-        return self._deckMap[n.deck]
 
     def processFields(self, note):
         fields = [""]*len(self.model['flds'])

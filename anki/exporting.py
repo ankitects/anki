@@ -147,7 +147,7 @@ class AnkiExporter(Exporter):
         notedata = self.src.db.all("select * from notes where id in "+
                                strnids)
         self.dst.db.executemany(
-            "insert into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
+            "insert into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             notedata)
         # models used by the notes
         mids = self.dst.db.list("select distinct mid from notes where id in "+

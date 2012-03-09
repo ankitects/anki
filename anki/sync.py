@@ -185,7 +185,7 @@ select id, nid, did, ord, mod, %d, type, queue, due, ivl, factor, reps,
 lapses, left, odue, odid, flags, data from cards where %s""" % d)
         else:
             return x("""
-select id, guid, mid, did, mod, %d, tags, flds, '', '', flags, data
+select id, guid, mid, mod, %d, tags, flds, '', '', flags, data
 from notes where %s""" % d)
 
     def chunk(self):
@@ -369,7 +369,7 @@ from notes where %s""" % d)
     def mergeNotes(self, notes):
         rows = self.newerRows(notes, "notes", 4)
         self.col.db.executemany(
-            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
         self.col.updateFieldCache([f[0] for f in rows])
 

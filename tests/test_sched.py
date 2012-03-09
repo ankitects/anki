@@ -61,7 +61,7 @@ def test_newLimits():
         f = d.newNote()
         f['Front'] = str(i)
         if i > 4:
-            f.did = g2
+            f.model()['did'] = g2
         d.addNote(f)
     # give the child deck a different configuration
     c2 = d.decks.confId("new conf")
@@ -716,7 +716,7 @@ def test_deckDue():
     # and one that's a child
     f = d.newNote()
     f['Front'] = u"two"
-    default1 = f.did = d.decks.id("Default::1")
+    default1 = f.model()['did'] = d.decks.id("Default::1")
     d.addNote(f)
     # make it a review card
     c = f.cards()[0]
@@ -726,12 +726,12 @@ def test_deckDue():
     # add one more with a new deck
     f = d.newNote()
     f['Front'] = u"two"
-    foobar = f.did = d.decks.id("foo::bar")
+    foobar = f.model()['did'] = d.decks.id("foo::bar")
     d.addNote(f)
     # and one that's a sibling
     f = d.newNote()
     f['Front'] = u"three"
-    foobaz = f.did = d.decks.id("foo::baz")
+    foobaz = f.model()['did'] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
     assert len(d.decks.decks) == 5
@@ -775,12 +775,12 @@ def test_deckFlow():
     # and one that's a child
     f = d.newNote()
     f['Front'] = u"two"
-    default1 = f.did = d.decks.id("Default::2")
+    default1 = f.model()['did'] = d.decks.id("Default::2")
     d.addNote(f)
     # and another that's higher up
     f = d.newNote()
     f['Front'] = u"three"
-    default1 = f.did = d.decks.id("Default::1")
+    default1 = f.model()['did'] = d.decks.id("Default::1")
     d.addNote(f)
     # should get top level one first, then ::1, then ::2
     d.reset()

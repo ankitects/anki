@@ -149,7 +149,7 @@ end)
 """)
         # pull facts into memory, so we can merge them with fields efficiently
         facts = db.all("""
-select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
+select id, id, modelId, cast(created*1000 as int), cast(modified as int),
 0, tags from facts order by created""")
         # build field hash
         fields = {}
@@ -185,7 +185,7 @@ select id, id, modelId, 1, cast(created*1000 as int), cast(modified as int),
         # and put the facts into the new table
         db.execute("drop table facts")
         _addSchema(db, False)
-        db.executemany("insert into notes values (?,?,?,?,?,?,?,?,'','',0,'')", data)
+        db.executemany("insert into notes values (?,?,?,?,?,?,?,'','',0,'')", data)
         db.execute("drop table fields")
 
         # cards

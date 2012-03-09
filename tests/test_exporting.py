@@ -20,7 +20,7 @@ def setup1():
     # with a different deck
     f = deck.newNote()
     f['Front'] = u"baz"; f['Back'] = u"qux"
-    f.did = deck.decks.id("new deck")
+    f.model()['did'] = deck.decks.id("new deck")
     deck.addNote(f)
 
 ##########################################################################
