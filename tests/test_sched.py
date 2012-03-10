@@ -447,7 +447,9 @@ def test_cram():
     d.reset()
     assert d.sched.counts() == (0,0,0)
     cardcopy = copy.copy(c)
-    d.sched.cram("")
+    # create a dynamic deck and refresh it
+    did = d.decks.newDyn("Cram")
+    d.sched.rebuildDyn(did)
     d.reset()
     # should appear as new in the deck list
     assert sorted(d.sched.deckDueList())[0][3] == 1
@@ -478,7 +480,7 @@ def test_cram():
     # and it will have moved back to the previous deck
     assert c.did == 1
     # cram the deck again
-    d.sched.cram("")
+    d.sched.rebuildDyn(did)
     d.reset()
     c = d.sched.getCard()
     # check ivls again - passing should be idempotent

@@ -19,6 +19,24 @@ defaultDeck = {
     'conf': 1,
     'usn': 0,
     'desc': "",
+    'dyn': 0,
+}
+
+defaultDynamicDeck = {
+    'newToday': [0, 0],
+    'revToday': [0, 0],
+    'lrnToday': [0, 0],
+    'timeToday': [0, 0],
+    'dyn': 1,
+    'desc': "",
+    'usn': 0,
+    'delays': [1, 10],
+    'separate': True,
+    'fmult': 0,
+    'cramRev': True,
+    'search': "",
+    'limit': 100,
+    'order': 'oldestSeen',
 }
 
 defaultConf = {
@@ -38,13 +56,6 @@ defaultConf = {
         'leechFails': 8,
         # type 0=suspend, 1=tagonly
         'leechAction': 0,
-    },
-    'cram': {
-        'delays': [1, 5, 10],
-        'resched': True,
-        'reset': True,
-        'mult': 0,
-        'minInt': 1,
     },
     'rev': {
         'perDay': 100,
@@ -91,7 +102,7 @@ class DeckManager(object):
     # Deck save/load
     #############################################################
 
-    def id(self, name, create=True):
+    def id(self, name, create=True, type=defaultDeck):
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         name = name.replace("'", "").replace('"', '')
         for id, g in self.decks.items():
@@ -99,7 +110,7 @@ class DeckManager(object):
                 return int(id)
         if not create:
             return None
-        g = copy.deepcopy(defaultDeck)
+        g = copy.deepcopy(type)
         if "::" in name:
             # not top level; ensure all parents exist
             self._ensureParents(name)
@@ -123,10 +134,11 @@ class DeckManager(object):
         if not str(did) in self.decks:
             return
         deck = self.get(did)
-        if deck.get('cram'):
+        print "fixme: add dyn to old decks"
+        if deck['dyn']:
             # deleting a cramming deck returns cards to their previous deck
             # rather than deleting the cards
-            self.col.sched.remCram(did)
+            self.col.sched.remDyn(did)
         else:
             # delete children first
             if childrenToo:
@@ -233,7 +245,13 @@ class DeckManager(object):
         return self.dconf.values()
 
     def confForDid(self, did):
-        return self.getConf(self.get(did)['conf'])
+        deck = self.get(did)
+        if 'conf' in deck:
+            conf = self.getConf(deck['conf'])
+            conf['dyn'] = False
+            return conf
+        # dynamic decks have embedded conf
+        return deck
 
     def getConf(self, confId):
         return self.dconf[str(confId)]
@@ -370,3 +388,10 @@ class DeckManager(object):
         for c in self.allConf():
             c['usn'] = 0
         self.save()
+
+    # Dynamic decks
+    ##########################################################################
+
+    def newDyn(self, name):
+        "Return a new dynamic deck and set it as the current deck."
+        return self.id(name, type=defaultDynamicDeck)

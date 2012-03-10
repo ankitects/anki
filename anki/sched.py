@@ -28,7 +28,6 @@ class Scheduler(object):
         self.reportLimit = 1000
         # fixme: replace reps with deck based counts
         self.reps = 0
-        self._cramming = False
         self._updateCutoff()
 
     def getCard(self):
@@ -41,7 +40,6 @@ class Scheduler(object):
 
     def reset(self):
         deck = self.col.decks.current()
-        self._cramming = deck.get('cram')
         self._updateCutoff()
         self._resetLrn()
         self._resetRev()
@@ -61,10 +59,10 @@ class Scheduler(object):
                 card.type = 1
             # init reps to graduation
             card.left = self._startingLeft(card)
-            # cramming?
-            if self._cramming and card.type == 2:
+            # dynamic?
+            if card.odid and card.type == 2:
                 # reviews get their ivl boosted on first sight
-                card.ivl = self._cramIvlBoost(card)
+                card.ivl = self._dynIvlBoost(card)
                 card.odue = self.today + card.ivl
             self._updateStats(card, 'new')
         if card.queue == 1:
@@ -306,7 +304,7 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         (id, due) = self._newQueue.pop()
         # move any siblings to the end?
         conf = self.col.decks.confForDid(self._newDids[0])
-        if conf['new']['separate']:
+        if conf['dyn'] or conf['new']['separate']:
             n = len(self._newQueue)
             while self._newQueue and self._newQueue[-1][1] == due:
                 self._newQueue.insert(0, self._newQueue.pop())
@@ -332,8 +330,6 @@ select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
-        if self._cramming:
-            return True
         if self.col.conf['newSpread'] == NEW_CARDS_LAST:
             return False
         elif self.col.conf['newSpread'] == NEW_CARDS_FIRST:
@@ -366,7 +362,7 @@ select count() from
 
     def _deckNewLimitSingle(self, g):
         "Limit for deck without parent limits."
-        if self._cramming:
+        if g['dyn']:
             return self.reportLimit
         c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
@@ -434,7 +430,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             # failed
             else:
                 card.left = self._startingLeft(card)
-                if self._cramming:
+                if card.odid:
                     print "fixme: configurable failure handling"
                     card.ivl = 1
                     card.odue = self.today + 1
@@ -463,9 +459,9 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
     def _lrnConf(self, card):
         conf = self._cardConf(card)
         if card.type == 2:
-            return conf['lapse']
+            return self._lapseConf(card)
         else:
-            return conf['new']
+            return self._newConf(card)
 
     def _rescheduleAsRev(self, card, conf, early):
         if card.type == 2:
@@ -474,20 +470,21 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             self._rescheduleNew(card, conf, early)
         card.queue = 2
         card.type = 2
-        # if we were cramming, graduating means moving back to the old deck
-        if self._cramming:
+        # if we were dynamic, graduating means moving back to the old deck
+        if card.odid:
             card.did = card.odid
             card.odue = 0
             card.odid = 0
 
     def _startingLeft(self, card):
-        return len(self._cardConf(card)['new']['delays'])
+        conf = self._newConf(card)
+        return len(conf['delays'])
 
     def _graduatingIvl(self, card, conf, early, adj=True):
         if card.type == 2:
             # lapsed card being relearnt
-            if self._cramming:
-                return self._cramIvlBoost(card)
+            if card.odid:
+                return self._dynIvlBoost(card)
             return card.ivl
         if not early:
             # graduate
@@ -547,6 +544,8 @@ select sum(left) from
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
     def _deckRevLimitSingle(self, d):
+        if d['dyn']:
+            return self.reportLimit
         c = self.col.decks.confForDid(d['id'])
         return max(0, c['rev']['perDay'] - d['revToday'][1])
 
@@ -606,6 +605,8 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
 
     def _revOrder(self, did):
         d = self.col.decks.confForDid(did)
+        if d['dyn']:
+            return ""
         o = d['rev']['order']
         if o:
             return "order by %s" % ("ivl desc", "ivl")[o-1]
@@ -622,7 +623,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         self._logRev(card, ease)
 
     def _rescheduleLapse(self, card):
-        conf = self._cardConf(card)['lapse']
+        conf = self._lapseConf(card)
         card.lapses += 1
         card.lastIvl = card.ivl
         card.ivl = self._nextLapseIvl(card, conf)
@@ -722,64 +723,66 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
                         break
             return idealIvl + fudge
 
-    # Creation of cramming decks
+    # Dynamic deck handling
     ##########################################################################
 
-    # type is one of all, due, rev
-    # order is one of due, added, random, relative, lapses
-    def cram(self, search, type="all", order="due",
-             limit=100, sched=[1, 10]):
+    def rebuildDyn(self, did=None):
+        "Rebuild a dynamic deck."
+        did = did or self.col.decks.selected()
+        deck = self.col.decks.get(did)
+        assert deck['dyn']
         # gather card ids and sort
-        order = self._cramOrder(order)
-        limit = " limit %d" % limit
-        ids = self.col.findCards(search, order=order+limit)
-        if not order:
+        order = self._dynOrder(deck)
+        limit = " limit %d" % deck['limit']
+        ids = self.col.findCards(deck['search'], order=order+limit)
+        if deck['order'] == "random":
             random.shuffle(ids)
-        # get a cram deck
-        did = self._cramDeck()
         # move the cards over
-        self._moveToCram(did, ids)
+        self._moveToDyn(did, ids)
         # and change to our new deck
         self.col.decks.select(did)
 
-    def remCram(self, did):
+    def remDyn(self, did):
         self.col.db.execute("""
 update cards set did = odid, queue = type, due = odue, odue = 0, odid = 0,
 usn = ?, mod = ? where did = ?""", self.col.usn(), intTime(), did)
 
-    def _cramOrder(self, order):
-        if order == "due":
-            return "order by c.due"
-        elif order == "added":
-            return "order by n.id"
-        elif order == "random":
-            return ""
-        elif order == "relative":
-            pass
-        elif order == "lapses":
-            return "order by lapses desc"
-        elif order == "failed":
-            pass
+    def _dynOrder(self, deck):
+        o = deck['order']
+        if o == "oldestSeen":
+            return "order by c.mod"
+        # elif o == "added":
+        #     return "order by n.id"
+        # elif o == "random":
+        #     return ""
+        # elif o == "relative":
+        #     pass
+        # elif o == "lapses":
+        #     return "order by lapses desc"
+        # elif o == "failed":
+        #     pass
 
-    def _cramDeck(self):
-        did = self.col.decks.id(_("Cram"))
+    def _moveToDyn(self, did, ids):
         deck = self.col.decks.get(did)
-        # mark it as a cram deck
-        deck['cram'] = True
-        self.col.decks.save(deck)
-        return did
-
-    def _moveToCram(self, did, ids):
         data = []
         t = intTime(); u = self.col.usn()
         for c, id in enumerate(ids):
             data.append((did, c, t, u, id))
+        if deck['cramRev']:
+            # everything in the new queue
+            queue = "0"
+        else:
+            # due reviews stay in the review queue
+            queue = "(case when queue=2 and due <= %d then 2 else 0 end)"
+            queue %= self.today
         self.col.db.executemany("""
-update cards set odid = did, odue = due, did = ?, queue = 0, due = ?,
-mod = ?, usn = ? where id = ?""", data)
+update cards set
+odid = (case when odid then odid else did end),
+odue = (case when odue then odue else due end),
+did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
 
-    def _cramIvlBoost(self, card):
-        assert self._cramming and card.type == 2
+    def _dynIvlBoost(self, card):
+        assert card.odid and card.type == 2
         assert card.factor
         elapsed = card.ivl - card.odue - self.today
         factor = ((card.factor/1000.0)+1.2)/2.0
@@ -814,6 +817,42 @@ mod = ?, usn = ? where id = ?""", data)
 
     def _cardConf(self, card):
         return self.col.decks.confForDid(card.did)
+
+    def _newConf(self, card):
+        conf = self._cardConf(card)
+        # normal deck
+        if not card.odid:
+            return conf['new']
+        # dynamic deck; override some attributes, use original deck for others
+        oconf = self.col.decks.confForDid(card.odid)
+        return dict(
+            # original deck
+            ints=oconf['new']['ints'],
+            initialFactor=oconf['new']['initialFactor'],
+            # overrides
+            delays=conf['delays'],
+            separate=conf['separate'],
+            order=NEW_CARDS_DUE,
+            perDay=self.reportLimit
+        )
+
+
+    def _lapseConf(self, card):
+        conf = self._cardConf(card)
+        # normal deck
+        if not card.odid:
+            return conf['lapse']
+        # dynamic deck; override some attributes, use original deck for others
+        oconf = self.col.decks.confForDid(card.odid)
+        return dict(
+            # original deck
+            minInt=oconf['lapse']['minInt'],
+            leechFails=oconf['lapse']['leechFails'],
+            leechAction=oconf['lapse']['leechAction'],
+            # overrides
+            delays=conf['delays'],
+            mult=conf['fmult'],
+        )
 
     def _deckLimit(self):
         return ids2str(self.col.decks.active())
@@ -897,7 +936,7 @@ your short-term review workload will become."""))
             return self._nextLrnIvl(card, ease)
         elif ease == 1:
             # lapsed
-            conf = self._cardConf(card)['lapse']
+            conf = self._lapseConf(card)
             if conf['delays']:
                 return conf['delays'][0]*60
             return self._nextLapseIvl(card, conf)*86400
@@ -953,6 +992,7 @@ your short-term review workload will become."""))
 
     def forgetCards(self, ids):
         "Put cards at the end of the new queue."
+        print "fixme: make sure this works with dynamic decks, and mv too"
         self.col.db.execute(
             "update cards set type=0,queue=0,ivl=0 where id in "+ids2str(ids))
         pmax = self.col.db.scalar(
@@ -1024,4 +1064,3 @@ and due >= ?""" % scids, now, self.col.usn(), shiftby, low)
                 self.randomizeCards(did)
             else:
                 self.orderCards(did)
-

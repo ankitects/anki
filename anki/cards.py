@@ -128,9 +128,6 @@ lapses=?, left=?, odue=?, did=? where id = ?""",
     def model(self):
         return self.col.models.get(self.note().mid)
 
-    def deckConf(self):
-        return self.col.decks.confForDid(self.did)
-
     def template(self):
         return self.model()['tmpls'][self.ord]
 
@@ -140,4 +137,5 @@ lapses=?, left=?, odue=?, did=? where id = ?""",
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
         total = int((time.time() - self.timerStarted)*1000)
-        return min(total, self.deckConf()['maxTaken']*1000)
+        conf = self.col.decks.confForDid(self.odid or self.did)
+        return min(total, conf['maxTaken']*1000)
