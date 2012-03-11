@@ -397,6 +397,9 @@ class Editor(object):
     def mungeHTML(self, txt):
         if txt == "<br>":
             txt = ""
+        fa = re.findall('(<font class="Apple-style-span" size="\d+"><span class="Apple-style-span" style="font-size: \d+px;">(.*)</span></font>)', txt)
+        if fa:
+            txt = txt.replace(fa[0][0], fa[0][1])
         return txt
 
     # Setting/unsetting the current note
