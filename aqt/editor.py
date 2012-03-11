@@ -240,7 +240,7 @@ class Editor(object):
         self.web = EditorWebView(self.widget, self)
         self.web.allowDrops = True
         self.web.setBridge(self.bridge)
-        self.outerLayout.addWidget(self.web)
+        self.outerLayout.addWidget(self.web, 1)
         # pick up the window colour
         p = self.web.palette()
         p.setBrush(QPalette.Base, Qt.transparent)
