@@ -703,7 +703,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         conf = self._revConf(card)
         # find sibling positions
         dues = self.col.db.list(
-            "select due from cards where nid = ? and queue = 2"
+            "select due from cards where nid = ? and type = 2"
             " and id != ?", card.nid, card.id)
         if not dues or idealDue not in dues:
             return idealIvl
@@ -864,7 +864,9 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         return dict(
             # original deck
             ease4=oconf['rev']['ease4'],
-            fi=oconf['rev']['fi']
+            fi=oconf['rev']['fi'],
+            minSpace=oconf['rev']['minSpace'],
+            fuzz=oconf['rev']['fuzz']
         )
 
     def _deckLimit(self):

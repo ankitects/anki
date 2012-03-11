@@ -508,6 +508,7 @@ def test_cram():
     d.reset()
     assert d.sched.counts() == (0,0,0)
     c.due = 0
+    c.ivl = 100
     c.flush()
     d.reset()
     assert d.sched.counts() == (0,0,1)
@@ -521,6 +522,13 @@ def test_cram():
     d.sched.rebuildDyn(did)
     d.reset()
     assert d.sched.counts() == (0,0,1)
+    # add a sibling so we can test minSpace, etc
+    c2 = copy.deepcopy(c)
+    c2.id = 123
+    c2.ord = 1
+    c2.due = 325
+    c2.col = c.col
+    c2.flush()
     # should be able to answer it
     c = d.sched.getCard()
     d.sched.answerCard(c, 4)
