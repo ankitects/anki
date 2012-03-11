@@ -12,13 +12,11 @@ from anki.consts import *
 from anki.hooks import runHook
 
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
-# other queue types: -1=suspended, -2=buried
+# queue types: 0=new/cram, 1=lrn, 2=rev, -1=suspended, -2=buried
 # positive intervals are in days (rev), negative intervals in seconds (lrn)
 
 # fixme:
 # - should log cram reps as cramming
-# - later we should set conf=None for the cram deck to catch where we're
-#   pulling from the original conf instead of the cram conf
 
 class Scheduler(object):
     name = "std"
@@ -408,7 +406,9 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
     def _answerLrnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
         conf = self._lrnConf(card)
-        if card.type == 2:
+        if card.odid:
+            type = 3
+        elif card.type == 2:
             type = 2
         else:
             type = 0
@@ -671,21 +671,21 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
     def _nextRevIvl(self, card, ease):
         "Ideal next interval for CARD, given EASE."
         delay = self._daysLate(card)
-        conf = self._cardConf(card)
+        conf = self._revConf(card)
         fct = card.factor / 1000.0
         if ease == 2:
             interval = (card.ivl + delay/4) * 1.2
         elif ease == 3:
             interval = (card.ivl + delay/2) * fct
         elif ease == 4:
-            interval = (card.ivl + delay) * fct * conf['rev']['ease4']
+            interval = (card.ivl + delay) * fct * conf['ease4']
         # apply forgetting index transform
         interval = self._ivlForFI(conf, interval)
         # must be at least one day greater than previous interval; two if easy
         return max(card.ivl + (2 if ease==4 else 1), int(interval))
 
     def _ivlForFI(self, conf, ivl):
-        new, old = conf['rev']['fi']
+        new, old = conf['fi']
         return ivl * math.log(1-new/100.0) / math.log(1-old/100.0)
 
     def _daysLate(self, card):
@@ -700,7 +700,7 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
     def _adjRevIvl(self, card, idealIvl):
         "Given IDEALIVL, return an IVL away from siblings."
         idealDue = self.today + idealIvl
-        conf = self._cardConf(card)['rev']
+        conf = self._revConf(card)
         # find sibling positions
         dues = self.col.db.list(
             "select due from cards where nid = ? and queue = 2"
@@ -773,7 +773,7 @@ usn = ?, mod = ? where did = ?""", self.col.usn(), intTime(), did)
             queue = "0"
         else:
             # due reviews stay in the review queue
-            queue = "(case when queue=2 and due <= %d then 2 else 0 end)"
+            queue = "(case when type=2 and (odue or due) <= %d then 2 else 0 end)"
             queue %= self.today
         self.col.db.executemany("""
 update cards set
@@ -852,6 +852,19 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             # overrides
             delays=conf['delays'],
             mult=conf['fmult'],
+        )
+
+    def _revConf(self, card):
+        conf = self._cardConf(card)
+        # normal deck
+        if not card.odid:
+            return conf['rev']
+        # dynamic deck; override some attributes, use original deck for others
+        oconf = self.col.decks.confForDid(card.odid)
+        return dict(
+            # original deck
+            ease4=oconf['rev']['ease4'],
+            fi=oconf['rev']['fi']
         )
 
     def _deckLimit(self):

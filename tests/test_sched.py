@@ -467,6 +467,9 @@ def test_cram():
     assert c.ivl == 138
     assert c.odue == 138
     assert c.queue == 1
+    # should be logged as a cram rep
+    assert d.db.scalar(
+        "select type from revlog order by id desc limit 1") == 3
     # check ivls again
     assert d.sched.nextIvl(c, 1) == 60
     assert d.sched.nextIvl(c, 2) == 138*60*60*24
@@ -501,6 +504,26 @@ def test_cram():
     c.load()
     assert c.ivl == 1
     assert c.due == d.sched.today+1
+    # make it due
+    d.reset()
+    assert d.sched.counts() == (0,0,0)
+    c.due = 0
+    c.flush()
+    d.reset()
+    assert d.sched.counts() == (0,0,1)
+    # cram again, by default it's treated like a review
+    did = d.decks.newDyn("Cram")
+    d.sched.rebuildDyn(did)
+    d.reset()
+    assert d.sched.counts() == (1,0,0)
+    # but if cramRev is false, it's placed in the review queue instead
+    d.decks.get(did)['cramRev'] = False
+    d.sched.rebuildDyn(did)
+    d.reset()
+    assert d.sched.counts() == (0,0,1)
+    # should be able to answer it
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 4)
 
 def test_adjIvl():
     d = getEmptyDeck()
