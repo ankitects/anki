@@ -134,8 +134,12 @@ lapses=?, left=?, odue=?, did=? where id = ?""",
     def startTimer(self):
         self.timerStarted = time.time()
 
+    def timeLimit(self):
+        "Time limit for answering in milliseconds."
+        conf = self.col.decks.confForDid(self.odid or self.did)
+        return conf['maxTaken']*1000
+
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
         total = int((time.time() - self.timerStarted)*1000)
-        conf = self.col.decks.confForDid(self.odid or self.did)
-        return min(total, conf['maxTaken']*1000)
+        return min(total, self.timeLimit())
