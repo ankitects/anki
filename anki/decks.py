@@ -35,7 +35,7 @@ defaultDynamicDeck = {
     'delays': [1, 10],
     'separate': True,
     'fmult': 0,
-    'cramRev': True,
+    'cramRev': False,
     'search': "",
     'limit': 100,
     'order': 'oldestSeen',
