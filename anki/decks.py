@@ -396,4 +396,6 @@ class DeckManager(object):
 
     def newDyn(self, name):
         "Return a new dynamic deck and set it as the current deck."
-        return self.id(name, type=defaultDynamicDeck)
+        did = self.id(name, type=defaultDynamicDeck)
+        self.select(did)
+        return did
