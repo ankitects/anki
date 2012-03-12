@@ -463,10 +463,7 @@ function showAnswer(txt) {
         self._remaining(), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
-        if not self.card.deckConf().get('timer'):
-            maxTime = 0
-        else:
-            maxTime = self.card.deckConf()['maxTaken']
+        maxTime = self.card.timeLimit()
         self.bottom.web.eval("showQuestion(%s,%d);" % (
             simplejson.dumps(middle), maxTime))
 
