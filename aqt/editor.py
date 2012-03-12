@@ -97,7 +97,11 @@ function onFocus(elem) {
          } while (obj = obj.offsetParent);
     	return cur;
     }
-    window.scroll(0,pos(elem)-15);
+    var y = pos(elem);
+    if ((window.pageYOffset+window.innerHeight) < (y+elem.offsetHeight)) 
+        window.scroll(0,y+elem.offsetHeight-window.innerHeight);
+    else if (window.pageYOffset > y) 
+        window.scroll(0, y-15);
 }
 
 // restore cursor
@@ -240,7 +244,7 @@ class Editor(object):
         self.web = EditorWebView(self.widget, self)
         self.web.allowDrops = True
         self.web.setBridge(self.bridge)
-        self.outerLayout.addWidget(self.web)
+        self.outerLayout.addWidget(self.web, 1)
         # pick up the window colour
         p = self.web.palette()
         p.setBrush(QPalette.Base, Qt.transparent)
@@ -397,6 +401,9 @@ class Editor(object):
     def mungeHTML(self, txt):
         if txt == "<br>":
             txt = ""
+        fa = re.findall('(<font class="Apple-style-span" size="\d+"><span class="Apple-style-span" style="font-size: \d+px;">(.*)</span></font>)', txt)
+        if fa:
+            txt = txt.replace(fa[0][0], fa[0][1])
         return txt
 
     # Setting/unsetting the current note
