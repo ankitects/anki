@@ -1007,7 +1007,6 @@ your short-term review workload will become."""))
 
     def forgetCards(self, ids):
         "Put cards at the end of the new queue."
-        print "fixme: make sure this works with dynamic decks, and mv too"
         self.col.db.execute(
             "update cards set type=0,queue=0,ivl=0 where id in "+ids2str(ids))
         pmax = self.col.db.scalar(
@@ -1023,9 +1022,9 @@ your short-term review workload will become."""))
         for id in ids:
             r = random.randint(imin, imax)
             d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod))
-        self.col.db.executemany(
-            "update cards set type=2,queue=2,ivl=:ivl,due=:due where id=:id",
-            d)
+        self.col.db.executemany("""
+update cards set type=2,queue=2,ivl=:ivl,due=:due where id=:id and odid=0""",
+                                d)
 
     # Repositioning new cards
     ##########################################################################
