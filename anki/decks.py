@@ -20,6 +20,7 @@ defaultDeck = {
     'usn': 0,
     'desc': "",
     'dyn': 0,
+    'collapsed': False
 }
 
 defaultDynamicDeck = {
@@ -27,6 +28,7 @@ defaultDynamicDeck = {
     'revToday': [0, 0],
     'lrnToday': [0, 0],
     'timeToday': [0, 0],
+    'collapsed': False,
     'dyn': 1,
     'desc': "",
     'usn': 0,

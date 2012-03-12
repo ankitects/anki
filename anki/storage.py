@@ -46,8 +46,9 @@ def Collection(path, lock=True, server=False, sync=True):
 
 # no upgrades necessary at the moment
 def _upgradeSchema(db):
-    if db.scalar("select ver from col") == SCHEMA_VERSION:
-        return SCHEMA_VERSION
+    ver = db.scalar("select ver from col")
+    if ver == SCHEMA_VERSION:
+        return ver
     # add odid to cards, edue->odue
     ######################################################################
     if db.scalar("select ver from col") == 1:
@@ -71,10 +72,15 @@ id, guid, mid, mod, usn, tags, flds, sfld, csum, flags, data from notes2""")
         db.execute("drop table notes2")
         db.execute("update col set ver = 3")
         _updateIndices(db)
-    return SCHEMA_VERSION
+    return ver
 
 def _upgrade(col, ver):
-    return
+    if ver < 3:
+        # new deck properties
+        for d in col.decks.all():
+            d['dyn'] = 0
+            d['collapsed'] = False
+            col.decks.save(d)
 
 # Creating a new collection
 ######################################################################
