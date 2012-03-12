@@ -650,6 +650,10 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         # then the rest
         card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
         card.due = self.today + card.ivl
+        if card.odid:
+            card.did = card.odid
+            card.odid = 0
+            card.odue = 0
 
     def _logRev(self, card, ease):
         def log():

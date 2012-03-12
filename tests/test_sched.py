@@ -531,6 +531,8 @@ def test_cram():
     # should be able to answer it
     c = d.sched.getCard()
     d.sched.answerCard(c, 4)
+    # it should have been moved back to the original deck
+    assert c.did == 1
 
 def test_adjIvl():
     d = getEmptyDeck()
