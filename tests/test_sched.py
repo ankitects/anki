@@ -428,7 +428,6 @@ def test_suspend():
     c.load()
     assert c.queue == 2
     assert c.type == 2
-    assert c.due == 1
 
 def test_cram():
     d = getEmptyDeck()

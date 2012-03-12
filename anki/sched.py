@@ -983,7 +983,6 @@ your short-term review workload will become."""))
 
     def suspendCards(self, ids):
         "Suspend cards."
-        self.removeFailed(ids)
         self.col.db.execute(
             "update cards set queue=-1,mod=?,usn=? where id in "+
             ids2str(ids), intTime(), self.col.usn())
