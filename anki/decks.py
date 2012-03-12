@@ -39,6 +39,7 @@ defaultDynamicDeck = {
     'search': "",
     'limit': 100,
     'order': 'oldestSeen',
+    'shift': True,
 }
 
 defaultConf = {
