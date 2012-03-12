@@ -1,8 +1,9 @@
 # coding: utf-8
 
-import datetime
+import datetime, shutil
+from anki import Collection
 from anki.consts import *
-from shared import getUpgradeDeckPath, getEmptyDeck
+from shared import getUpgradeDeckPath, getEmptyDeck, testDir
 from anki.upgrade import Upgrader
 from anki.importing import Anki2Importer
 from anki.utils import ids2str, checksum
@@ -15,7 +16,7 @@ def test_check():
     open(dst, "w+").write("foo")
     assert not u.check(dst)
 
-def test_upgrade():
+def test_upgrade1():
     dst = getUpgradeDeckPath()
     csum = checksum(open(dst).read())
     u = Upgrader()
@@ -41,3 +42,11 @@ def test_upgrade():
     # print "--q", c.q()
     # print
     # print "--a", c.a()
+
+def test_upgrade2():
+    p = "/tmp/alpha-upgrade.anki2"
+    if os.path.exists(p):
+        os.unlink(p)
+    shutil.copy2(os.path.join(testDir, "support/anki2-alpha.anki2"), p)
+    col = Collection(p)
+    assert col.db.scalar("select ver from col") == SCHEMA_VERSION
