@@ -997,8 +997,6 @@ your short-term review workload will become."""))
     def buryNote(self, nid):
         "Bury all cards for note until next session."
         self.col.setDirty()
-        self.removeFailed(
-            self.col.db.list("select id from cards where nid = ?", nid))
         self.col.db.execute("update cards set queue = -2 where nid = ?", nid)
 
     # Resetting
