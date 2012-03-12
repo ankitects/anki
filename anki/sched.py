@@ -235,8 +235,9 @@ order by due""" % self._deckLimit(),
                 new += ch[3]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
-            rev = min(rev, conf['rev']['perDay'])
-            new = min(new, conf['new']['perDay'])
+            if not conf['dyn']:
+                rev = min(rev, conf['rev']['perDay'])
+                new = min(new, conf['new']['perDay'])
             tree.append((head, did, rev, new, children))
         return tuple(tree)
 
