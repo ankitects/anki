@@ -695,6 +695,11 @@ update cards set due = cast(
 (case when due < :stamp then 0 else 1 end) +
 ((due-:stamp)/86400) as int)+:today where type = 2
 """, stamp=col.sched.dayCutoff, today=col.sched.today)
+        # lapses were counted differently in 1.0, so we should have a higher
+        # default lapse threshold
+        for d in col.decks.allConf():
+            d['lapse']['leechFails'] = 16
+            col.decks.save(d)
         # possibly re-randomize
         conf = col.decks.allConf()[0]
         if not conf['new']['order']:
