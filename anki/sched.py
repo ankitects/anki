@@ -740,8 +740,6 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         order = self._dynOrder(deck)
         limit = " limit %d" % deck['limit']
         ids = self.col.findCards(deck['search'], order=order+limit)
-        if deck['order'] == DYN_RANDOM:
-            random.shuffle(ids)
         # move the cards over
         self._moveToDyn(did, ids)
         # and change to our new deck
@@ -756,6 +754,8 @@ usn = ?, mod = ? where did = ?""", self.col.usn(), intTime(), did)
         o = deck['order']
         if o == DYN_OLDEST:
             return "order by c.mod"
+        elif o == DYN_RANDOM:
+            return "order by random()"
         # elif o == "added":
         #     return "order by n.id"
         # elif o == "random":
@@ -772,7 +772,8 @@ usn = ?, mod = ? where did = ?""", self.col.usn(), intTime(), did)
         data = []
         t = intTime(); u = self.col.usn()
         for c, id in enumerate(ids):
-            data.append((did, c, t, u, id))
+            # start at -1000 so that reviews are all due
+            data.append((did, -1000+c, t, u, id))
         if deck['cramRev']:
             # everything in the new queue
             queue = "0"
