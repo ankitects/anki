@@ -31,6 +31,10 @@ COUNT_REMAINING = 1
 MEDIA_ADD = 0
 MEDIA_REM = 1
 
+# dynamic deck order
+DYN_OLDEST = 0
+DYN_RANDOM = 1
+
 # deck schema & syncing vars
 SCHEMA_VERSION = 3
 SYNC_ZIP_SIZE = int(2.5*1024*1024)
@@ -65,4 +69,11 @@ def alignmentLabels():
         0: _("Center"),
         1: _("Left"),
         2: _("Right"),
+        }
+
+# todo: expand
+def dynOrderLabels():
+    return {
+        0: _("Oldest seen first"),
+        1: _("Random"),
         }

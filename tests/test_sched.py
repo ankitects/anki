@@ -511,8 +511,9 @@ def test_cram():
     c.flush()
     d.reset()
     assert d.sched.counts() == (0,0,1)
-    # cram again, by default it's treated like a review
+    # cram again, with the review treated as a cram
     did = d.decks.newDyn("Cram")
+    d.decks.get(did)['cramRev'] = True
     d.sched.rebuildDyn(did)
     d.reset()
     assert d.sched.counts() == (1,0,0)

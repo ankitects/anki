@@ -38,7 +38,7 @@ defaultDynamicDeck = {
     'cramRev': False,
     'search': "",
     'limit': 100,
-    'order': 'oldestSeen',
+    'order': 0,
     'shift': True,
 }
 
