@@ -16,7 +16,7 @@ from anki.consts import *
 from anki.errors import AnkiError
 
 import anki.latex # sets up hook
-import anki.cards, anki.notes, anki.template, anki.cram, anki.find
+import anki.cards, anki.notes, anki.template, anki.find
 
 defaultConf = {
     # review options
