@@ -723,7 +723,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         while _("Cram %d") % n in decks:
             n += 1
         name = _("Cram %d") % n
-        name = getOnlyText(_("Please name your cram deck."), default=name)
+        name = getOnlyText(_("Please name your cram deck:"), default=name)
         if not name:
             return
         if name in decks:
