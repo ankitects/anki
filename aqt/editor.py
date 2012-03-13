@@ -736,6 +736,7 @@ class Editor(object):
 
     def addMedia(self, path, canDelete=False):
         html = self._addMedia(path, canDelete)
+        self.mw.app.processEvents()
         self.web.eval("setFormat('inserthtml', %s);" % simplejson.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
