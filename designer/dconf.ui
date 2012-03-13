@@ -207,14 +207,14 @@
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="2" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="label_15">
            <property name="text">
             <string>Space siblings by up to</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="1" column="1">
           <widget class="QSpinBox" name="revSpace">
            <property name="maximum">
             <number>100</number>
@@ -224,7 +224,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
+         <item row="1" column="2">
           <widget class="QLabel" name="label_18">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -237,38 +237,38 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="label_16">
            <property name="text">
             <string>Minimum sibling range</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
+         <item row="2" column="2">
           <widget class="QLabel" name="label_19">
            <property name="text">
             <string>days</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="label_20">
            <property name="text">
             <string>Easy bonus</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
+         <item row="3" column="2">
           <widget class="QLabel" name="label_21">
            <property name="text">
             <string>%</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="2" column="1">
           <widget class="QSpinBox" name="revMinSpace"/>
          </item>
-         <item row="4" column="1">
+         <item row="3" column="1">
           <widget class="QSpinBox" name="easyBonus">
            <property name="minimum">
             <number>100</number>
@@ -281,24 +281,14 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QComboBox" name="revOrder"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_32">
-           <property name="text">
-            <string>Order</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_33">
            <property name="text">
             <string>Desired forgetting index</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="4" column="1">
           <widget class="QSpinBox" name="fi1">
            <property name="minimum">
             <number>1</number>
@@ -308,28 +298,28 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="4" column="2">
           <widget class="QLabel" name="label_34">
            <property name="text">
             <string>%</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_35">
            <property name="text">
             <string>Assumed forgetting index</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="0" column="0">
           <widget class="QLabel" name="label_37">
            <property name="text">
             <string>Maximum reviews/day</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="0" column="1">
           <widget class="QSpinBox" name="revPerDay">
            <property name="minimum">
             <number>25</number>
@@ -339,14 +329,14 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
+         <item row="5" column="2">
           <widget class="QLabel" name="label_36">
            <property name="text">
             <string>%</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="5" column="1">
           <widget class="QSpinBox" name="fi2">
            <property name="minimum">
             <number>1</number>
@@ -625,7 +615,6 @@
   <tabstop>lrnEasyInt</tabstop>
   <tabstop>lrnFactor</tabstop>
   <tabstop>separate</tabstop>
-  <tabstop>revOrder</tabstop>
   <tabstop>revPerDay</tabstop>
   <tabstop>revSpace</tabstop>
   <tabstop>revMinSpace</tabstop>

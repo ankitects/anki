@@ -34,7 +34,6 @@ class DeckConf(QDialog):
         import anki.consts as cs
         f = self.form
         f.newOrder.addItems(cs.newCardOrderLabels().values())
-        f.revOrder.addItems(cs.revCardOrderLabels().values())
         self.connect(f.newOrder, SIGNAL("currentIndexChanged(int)"),
                      self.onNewOrderChanged)
 
@@ -130,7 +129,6 @@ class DeckConf(QDialog):
         # rev
         c = self.conf['rev']
         f.revPerDay.setValue(c['perDay'])
-        f.revOrder.setCurrentIndex(c['order'])
         f.revSpace.setValue(c['fuzz']*100)
         f.revMinSpace.setValue(c['minSpace'])
         f.easyBonus.setValue(c['ease4']*100)
@@ -210,7 +208,6 @@ class DeckConf(QDialog):
         c['fuzz'] = f.revSpace.value()/100.0
         c['minSpace'] = f.revMinSpace.value()
         c['ease4'] = f.easyBonus.value()/100.0
-        c['order'] = f.revOrder.currentIndex()
         c['fi'] = [f.fi1.value(), f.fi2.value()]
         # lapse
         c = self.conf['lapse']
