@@ -142,7 +142,7 @@ function _typeAnsPress() {
         c = self.card
         # grab the question and play audio
         q = c.q()
-        if self.mw.col.decks.confForDid(self.card.did)['autoplay']:
+        if self._autoplay(c):
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
@@ -155,6 +155,10 @@ function _typeAnsPress() {
         # user hook
         runHook('showQuestion')
 
+    def _autoplay(self, card):
+        return self.mw.col.decks.confForDid(
+            self.card.odid or self.card.did)['autoplay']
+
     # Showing the answer
     ##########################################################################
 
@@ -163,7 +167,7 @@ function _typeAnsPress() {
         c = self.card
         a = c.a()
         # play audio?
-        if self.mw.col.decks.confForDid(self.card.did)['autoplay']:
+        if self._autoplay(c):
             playFromText(a)
         # render and update bottom
         a = self._mungeQA(a)
