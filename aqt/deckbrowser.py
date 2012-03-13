@@ -208,7 +208,7 @@ body { margin: 1em; -webkit-user-select: none; }
         if str(did) == '1':
             return showWarning(_("The default deck can't be deleted."))
         deck = self.mw.col.decks.get(did)
-        if askUser(_("""\
+        if deck['dyn'] or askUser(_("""\
 Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
             self.mw.progress.start(immediate=True)
             self.mw.col.decks.rem(did, True)
