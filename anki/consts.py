@@ -58,13 +58,6 @@ def newCardSchedulingLabels():
         2: _("Show new cards before reviews"),
         }
 
-def revCardOrderLabels():
-    return {
-        0: _("Sort by due date"),
-        1: _("Sort by decreasing interval (slower)"),
-        2: _("Sort by increasing interval (slower)"),
-        }
-
 def alignmentLabels():
     return {
         0: _("Center"),
