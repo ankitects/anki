@@ -39,10 +39,6 @@ class Overview(object):
             self.mw.moveToState("review")
         elif url == "anki":
             print "anki menu"
-        elif url == "cram":
-            return showInfo("not yet implemented")
-            #self.mw.col.cramGroups()
-            #self.mw.moveToState("review")
         elif url == "opts":
             self.mw.onDeckConf()
         elif url == "decks":
@@ -144,7 +140,6 @@ text-align: left;
     def _renderBottom(self):
         links = [
             ["opts", _("Options")],
-            ["cram", _("Cram")],
         ]
         buf = ""
         for b in links:

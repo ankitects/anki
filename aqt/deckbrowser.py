@@ -38,6 +38,8 @@ class DeckBrowser(object):
             self._onShared()
         elif cmd == "import":
             self.mw.onImport()
+        elif cmd == "cram":
+            self.mw.onCram()
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(',')
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
@@ -220,6 +222,7 @@ Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
         links = [
             ["shared", _("Get Shared")],
             ["import", _("Import File")],
+            ["cram", _("Cram")],
         ]
         buf = ""
         for b in links:

@@ -672,8 +672,12 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.cardStats = aqt.stats.CardStats(self)
 
     def onDeckConf(self):
-        import aqt.deckconf
-        aqt.deckconf.DeckConf(self)
+        if self.col.decks.current()['dyn']:
+            import aqt.dyndeckconf
+            aqt.dyndeckconf.DeckConf(self)
+        else:
+            import aqt.deckconf
+            aqt.deckconf.DeckConf(self)
 
     def onOverview(self):
         self.col.reset()
@@ -709,6 +713,24 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onExport(self):
         import aqt.exporting
         aqt.exporting.ExportDialog(self)
+
+    # Cramming
+    ##########################################################################
+
+    def onCram(self):
+        n = 1
+        decks = self.col.decks.allNames()
+        while _("Cram %d") % n in decks:
+            n += 1
+        name = _("Cram %d") % n
+        name = getOnlyText(_("Please name your cram deck."), default=name)
+        if not name:
+            return
+        if name in decks:
+            showWarning(_("The provided name was already in use."))
+            return
+        did = self.col.decks.newDyn(name)
+        self.onDeckConf()
 
     # Language handling
     ##########################################################################
