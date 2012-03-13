@@ -13,11 +13,6 @@ NEW_CARDS_FIRST = 2
 NEW_CARDS_RANDOM = 0
 NEW_CARDS_DUE = 1
 
-# review card sort order
-REV_CARDS_RANDOM = 0
-REV_CARDS_OLD_FIRST = 1
-REV_CARDS_NEW_FIRST = 2
-
 # removal types
 REM_CARD = 0
 REM_NOTE = 1

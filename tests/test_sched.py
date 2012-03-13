@@ -511,13 +511,10 @@ def test_cram():
     c.flush()
     d.reset()
     assert d.sched.counts() == (0,0,1)
-    # cram again, with the review treated as a cram
+    # cram again
     did = d.decks.newDyn("Cram")
-    d.decks.get(did)['cramRev'] = True
-    d.sched.rebuildDyn(did)
-    d.reset()
-    assert d.sched.counts() == (1,0,0)
-    # but if cramRev is false, it's placed in the review queue instead
+    # if cramRev is false, it's placed in the review queue instead
+    # fixme: cards pulled from a deck with cramRev=True remain in that state
     d.decks.get(did)['cramRev'] = False
     d.sched.rebuildDyn(did)
     d.reset()

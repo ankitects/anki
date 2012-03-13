@@ -581,20 +581,21 @@ did = ? and queue = 2 and due <= ? limit %d)""" % lim,
         while self._revDids:
             did = self._newDids[0]
             lim = min(self.queueLimit, self._deckRevLimit(did))
-            order = self._revOrder(did)
             if lim:
                 # fill the queue with the current did
                 self._revQueue = self.col.db.list("""
 select id from cards where
-did = ? and queue = 2 and due <= ? %s limit ?""" % order,
+did = ? and queue = 2 and due <= ? limit ?""",
                                                   did, self.today, lim)
                 if self._revQueue:
-                    if not order:
+                    if self.col.decks.get(did)['dyn']:
+                        # dynamic decks need due order preserved
+                        self._revQueue.reverse()
+                    else:
+                        # random order for regular reviews
                         r = random.Random()
                         r.seed(self.today)
                         r.shuffle(self._revQueue)
-                    else:
-                        self._revQueue.reverse()
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
@@ -603,15 +604,6 @@ did = ? and queue = 2 and due <= ? %s limit ?""" % order,
         if self._fillRev():
             self.revCount -= 1
             return self.col.getCard(self._revQueue.pop())
-
-    def _revOrder(self, did):
-        d = self.col.decks.confForDid(did)
-        if d['dyn']:
-            return ""
-        o = d['rev']['order']
-        if o:
-            return "order by %s" % ("ivl desc", "ivl")[o-1]
-        return ""
 
     # Answering a review card
     ##########################################################################

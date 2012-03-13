@@ -66,7 +66,6 @@ defaultConf = {
         'fuzz': 0.05,
         'minSpace': 1,
         'fi': [10, 10],
-        'order': REV_CARDS_RANDOM,
     },
     'maxTaken': 60,
     'timer': 0,
