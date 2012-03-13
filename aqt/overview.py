@@ -41,6 +41,9 @@ class Overview(object):
             print "anki menu"
         elif url == "opts":
             self.mw.onDeckConf()
+        elif url == "refresh":
+            self.mw.col.sched.rebuildDyn()
+            self.mw.reset()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
         elif url == "review":
@@ -140,6 +143,7 @@ text-align: left;
     def _renderBottom(self):
         links = [
             ["opts", _("Options")],
+            ["refresh", _("Rebuild")],
         ]
         buf = ""
         for b in links:
