@@ -53,7 +53,7 @@ def _upgradeSchema(db):
     ######################################################################
     if db.scalar("select ver from col") == 1:
         db.execute("alter table cards rename to cards2")
-        _addSchema(db)
+        _addSchema(db, setColConf=False)
         db.execute("""
 insert into cards select
 id, nid, did, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses,
@@ -65,7 +65,7 @@ left, edue, 0, flags, data from cards2""")
     ######################################################################
     if db.scalar("select ver from col") == 2:
         db.execute("alter table notes rename to notes2")
-        _addSchema(db)
+        _addSchema(db, setColConf=False)
         db.execute("""
 insert into notes select
 id, guid, mid, mod, usn, tags, flds, sfld, csum, flags, data from notes2""")
