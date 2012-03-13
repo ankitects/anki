@@ -1025,9 +1025,11 @@ your short-term review workload will become."""))
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod))
+            d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod,
+                          usn=self.col.usn()))
         self.col.db.executemany("""
-update cards set type=2,queue=2,ivl=:ivl,due=:due where id=:id and odid=0""",
+update cards set type=2,queue=2,ivl=:ivl,due=:due,
+usn=:usn, mod=:mod where id=:id and odid=0""",
                                 d)
 
     # Repositioning new cards
