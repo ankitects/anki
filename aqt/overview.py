@@ -4,7 +4,7 @@
 
 import simplejson
 from aqt.qt import *
-from anki.consts import NEW_CARDS_RANDOM
+from anki.consts import NEW_CARDS_RANDOM, dynOrderLabels
 from anki.hooks import addHook
 from aqt.utils import showInfo, openLink
 from anki.utils import isMac
@@ -69,11 +69,22 @@ class Overview(object):
             ), self.mw.sharedCSS + self._css)
 
     def _desc(self, deck):
-        desc = deck.get("desc", "")
+        if deck['dyn']:
+            desc = "%s<br>%s<br>%s" % (
+                _("Search: %s") % deck['search'],
+                _("Order: %s") % dynOrderLabels()[deck['order']],
+                _("Steps: %s") % " ".join([str(x) for x in deck['steps']]))
+        else:
+            desc = deck.get("desc", "")
         if not desc:
             return "<p>"
-        if len(desc) < 160:
-            return '<div class="descfont descmid description">%s</div>' % desc
+        if deck['dyn']:
+            dyn = "dyn"
+        else:
+            dyn = ""
+        if len(desc) < 160 or dyn:
+            return '<div class="descfont descmid description %s">%s</div>' % (
+                dyn, desc)
         else:
             return '''
 <div class="descfont description descmid" id=shortdesc>%s\
@@ -134,6 +145,9 @@ display:none;
 width: 70%;
 margin: 0 auto 0;
 text-align: left;
+}
+.dyn {
+text-align: center;
 }
 """
 
