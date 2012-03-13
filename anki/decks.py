@@ -136,7 +136,6 @@ class DeckManager(object):
         if not str(did) in self.decks:
             return
         deck = self.get(did)
-        print "fixme: add dyn to old decks"
         if deck['dyn']:
             # deleting a cramming deck returns cards to their previous deck
             # rather than deleting the cards

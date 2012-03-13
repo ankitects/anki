@@ -29,6 +29,12 @@ MEDIA_REM = 1
 # dynamic deck order
 DYN_OLDEST = 0
 DYN_RANDOM = 1
+DYN_SMALLINT = 2
+DYN_BIGINT = 3
+DYN_LAPSES = 4
+DYN_FAILED = 5
+DYN_ADDED = 6
+DYN_DUE = 7
 
 # deck schema & syncing vars
 SCHEMA_VERSION = 3
@@ -66,9 +72,14 @@ def alignmentLabels():
         2: _("Right"),
         }
 
-# todo: expand
 def dynOrderLabels():
     return {
         0: _("Oldest seen first"),
         1: _("Random"),
+        2: _("Increasing intervals"),
+        3: _("Decreasing intervals"),
+        4: _("Most lapses"),
+        5: _("Failed today"),
+        6: _("Order added"),
+        7: _("Order due"),
         }

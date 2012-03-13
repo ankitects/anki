@@ -728,10 +728,15 @@ did = ? and queue = 2 and due <= ? limit ?""",
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
         assert deck['dyn']
+        # move any existing cards back first
+        self.remDyn(did)
         # gather card ids and sort
         order = self._dynOrder(deck)
         limit = " limit %d" % deck['limit']
-        ids = self.col.findCards(deck['search'], order=order+limit)
+        try:
+            ids = self.col.findCards(deck['search'], order=order+limit)
+        except:
+            ids = []
         # move the cards over
         self._moveToDyn(did, ids)
         # and change to our new deck
@@ -748,16 +753,20 @@ usn = ?, mod = ? where did = ?""", self.col.usn(), intTime(), did)
             return "order by c.mod"
         elif o == DYN_RANDOM:
             return "order by random()"
-        # elif o == "added":
-        #     return "order by n.id"
-        # elif o == "random":
-        #     return ""
-        # elif o == "relative":
-        #     pass
-        # elif o == "lapses":
-        #     return "order by lapses desc"
-        # elif o == "failed":
-        #     pass
+        elif o == DYN_SMALLINT:
+            return "order by ivl"
+        elif o == DYN_BIGINT:
+            return "order by ivl desc"
+        elif o == DYN_LAPSES:
+            return "order by lapses desc"
+        elif o == DYN_FAILED:
+            return """
+and c.id in (select cid from revlog where ease = 1 and time > %d)
+order by c.mod""" % ((self.dayCutoff-86400)*1000)
+        elif o == DYN_ADDED:
+            return "order by n.id"
+        elif o == DYN_DUE:
+            return "order by c.due"
 
     def _moveToDyn(self, did, ids):
         deck = self.col.decks.get(did)
