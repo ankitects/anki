@@ -21,6 +21,9 @@ class MediaManager(object):
         self.col = col
         # media directory
         self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
+        # convert dir to unicode if it's not already
+        if isinstance(self._dir, str):
+            self._dir = unicode(self._dir, sys.getfilesystemencoding())
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         try:
