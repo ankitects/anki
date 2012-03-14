@@ -21,7 +21,11 @@ class Upgrader(object):
         if not os.path.exists(p):
             return
         # load old settings and copy over
-        self._loadConf(p)
+        try:
+            self._loadConf(p)
+        except:
+            # can't load old config file
+            return
         self._copySettings()
         # and show the wizard
         self._showWizard()
