@@ -388,8 +388,10 @@ create table log (fname text primary key, type int);
         removed = []
         # loop through on-disk files
         for f in os.listdir(self.dir()):
-            # ignore folders
+            # ignore folders and thumbs.db
             if os.path.isdir(f):
+                continue
+            if f.lower() == "thumbs.db":
                 continue
             # newly added?
             if f not in self.cache:
