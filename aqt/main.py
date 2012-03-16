@@ -731,6 +731,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             return
         did = self.col.decks.newDyn(name)
         self.onDeckConf()
+        self.moveToState("overview")
 
     # Language handling
     ##########################################################################
