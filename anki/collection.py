@@ -485,27 +485,17 @@ where c.nid == f.id
     ##########################################################################
 
     def startTimebox(self):
-        self.lastSessionStart = self.sessionStartTime
-        self.sessionStartTime = time.time()
-        self.sessionStartReps = self.repsToday
-
-    def stopTimebox(self):
-        self.sessionStartTime = 0
-
-    def timeboxStarted(self):
-        return self.sessionStartTime
+        self._startTime = time.time()
+        self._startReps = self.sched.reps
 
     def timeboxReached(self):
-        if not self.sessionStartTime:
-            # not started
+        "Return (elapsedTime, reps) if timebox reached, or False."
+        if not self.conf['timeLim']:
+            # timeboxing disabled
             return False
-        if (self.sessionTimeLimit and time.time() >
-            (self.sessionStartTime + self.sessionTimeLimit)):
-            return True
-        if (self.sessionRepLimit and self.sessionRepLimit <=
-            self.repsToday - self.sessionStartReps):
-            return True
-        return False
+        elapsed = time.time() - self._startTime
+        if elapsed > self.conf['timeLim']:
+            return (self.conf['timeLim'], self.sched.reps - self._startReps)
 
     # Undo
     ##########################################################################

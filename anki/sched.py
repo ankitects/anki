@@ -24,7 +24,6 @@ class Scheduler(object):
         self.col = col
         self.queueLimit = 50
         self.reportLimit = 1000
-        # fixme: replace reps with deck based counts
         self.reps = 0
         self._updateCutoff()
 
