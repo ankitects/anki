@@ -72,6 +72,11 @@ class Reviewer(object):
             self._initWeb()
         else:
             self._showQuestion()
+        elapsed = self.mw.col.timeboxReached()
+        if elapsed:
+            tooltip(_("%(cards)d cards studied in %(mins)s minutes.") %
+                    dict(cards=elapsed[1], mins=elapsed[0]/60))
+            self.mw.col.startTimebox()
 
     # Audio
     ##########################################################################

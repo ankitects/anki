@@ -36,6 +36,7 @@ class Overview(object):
     def _linkHandler(self, url):
         print "link", url
         if url == "study":
+            self.mw.col.startTimebox()
             self.mw.moveToState("review")
         elif url == "anki":
             print "anki menu"

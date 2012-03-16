@@ -539,6 +539,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             self.moveToState("deckBrowser")
         elif key == "s":
             if self.state == "overview":
+                self.col.startTimebox()
                 self.moveToState("review")
             else:
                 self.moveToState("overview")
