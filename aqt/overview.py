@@ -157,8 +157,9 @@ text-align: center;
     def _renderBottom(self):
         links = [
             ["opts", _("Options")],
-            ["refresh", _("Rebuild")],
         ]
+        if self.mw.col.decks.current()['dyn']:
+            links.append(["refresh", _("Rebuild")])
         buf = ""
         for b in links:
             buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)
