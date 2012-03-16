@@ -442,8 +442,12 @@ var updateTime = function () {
     if (s < 10) {
         s = "0" + s;
     }
-    var e = $("#time").text(time);
-    e.text(m + ":" + s);
+    var e = $("#time");
+    if (maxTime == time) {
+        e.html("<font color=red>" + m + ":" + s + "</font>");
+    } else {
+        e.text(m + ":" + s);
+    }
 }
 
 function showQuestion(txt, maxTime_) {
