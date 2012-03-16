@@ -687,7 +687,8 @@ did = ? and queue = 2 and due <= ? limit ?""",
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
-        return max(0, self.today - card.due)
+        due = card.odue if card.odid else card.due
+        return max(0, self.today - due)
 
     def _updateRevIvl(self, card, ease):
         "Update CARD's interval, trying to avoid siblings."
