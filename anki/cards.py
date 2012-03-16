@@ -137,6 +137,8 @@ lapses=?, left=?, odue=?, did=? where id = ?""",
     def timeLimit(self):
         "Time limit for answering in milliseconds."
         conf = self.col.decks.confForDid(self.odid or self.did)
+        if not conf['timer']:
+            return 0
         return conf['maxTaken']*1000
 
     def timeTaken(self):
