@@ -8,7 +8,7 @@ from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, remHook
-from aqt.utils import tooltip, askUserDialog, showWarning
+from aqt.utils import tooltip, askUserDialog, showWarning, showText
 
 # Sync manager
 ######################################################################
@@ -83,8 +83,8 @@ class SyncManager(QObject):
                 self.label = m
                 self._updateLabel()
         elif evt == "error":
-            showWarning(_("Syncing failed:\n%s")%
-                        self._rewriteError(args[0]))
+            showText(_("Syncing failed:\n%s")%
+                     self._rewriteError(args[0]))
         elif evt == "clockOff":
             self._clockOff()
         elif evt == "noChanges":
