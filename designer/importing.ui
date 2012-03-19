@@ -19,7 +19,7 @@
      <property name="title">
       <string>Import options</string>
      </property>
-     <layout class="QVBoxLayout">
+     <layout class="QVBoxLayout" name="toplayout">
       <item>
        <widget class="QPushButton" name="autoDetect">
         <property name="text">
@@ -28,7 +28,25 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="modelArea" native="true"/>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="1">
+         <widget class="QWidget" name="modelArea" native="true"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Note type:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Deck:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -84,7 +102,7 @@
              <x>0</x>
              <y>0</y>
              <width>402</width>
-             <height>271</height>
+             <height>237</height>
             </rect>
            </property>
           </widget>

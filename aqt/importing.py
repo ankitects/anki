@@ -62,6 +62,10 @@ class ImportDialog(QDialog):
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
+        from aqt.tagedit import TagEdit
+        self.deck = TagEdit(self, type=1)
+        self.frm.gridLayout_2.addWidget(self.deck, 1, 1)
+        self.deck.setCol(self.mw.col)
         self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
                      SIGNAL("clicked()"), self.helpRequested)
         self.setupMappingFrame()
@@ -77,15 +81,16 @@ class ImportDialog(QDialog):
     def setupOptions(self):
         self.model = self.mw.col.models.current()
         self.modelChooser = aqt.modelchooser.ModelChooser(
-            self.mw, self.frm.modelArea)
+            self.mw, self.frm.modelArea, label=False)
         self.connect(self.frm.importButton, SIGNAL("clicked()"),
                      self.doImport)
 
     def modelChanged(self):
-        print "model changed"
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
+        self.deck.setText(self.mw.col.decks.name(
+            self.importer.model['did']))
 
     def onDelimiter(self):
         str = getOnlyText(_("""\
@@ -128,6 +133,13 @@ you can enter it here. Use \\t to represent tab."""),
 
     def doImport(self, update=False):
         t = time.time()
+        deck = self.deck.text().strip()
+        if not deck:
+            deck = _("Default")
+        did = self.mw.col.decks.id(deck)
+        if did != self.importer.model['did']:
+            self.importer.model['did'] = did
+            self.mw.col.models.save(self.importer.model)
         self.importer.mapping = self.mapping
         self.mw.progress.start(immediate=True)
         self.mw.checkpoint(_("Import"))
