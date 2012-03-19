@@ -942,14 +942,10 @@ class EditorWebView(AnkiWebView):
             return QMimeData()
 
     def _processUrls(self, mime):
-        links = []
-        for url in mime.urls():
-            url = url.toString()
-            link = self._retrieveURL(url)
-            if link:
-                links.append(link)
+        url = mime.urls()[0].toString()
+        link = self._retrieveURL(url)
         mime = QMimeData()
-        mime.setHtml("".join(links))
+        mime.setHtml(link)
         return mime
 
     def _processText(self, mime):
