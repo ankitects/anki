@@ -312,7 +312,7 @@ where mid in %s and flds like ? escape '\\'""" % (
                              'type': SEARCH_PHRASE})
                         if parts[1]:
                             #value is included with the :, so wrap it up
-                            addSearchFieldToken(field, parts[1], isNeg, 'none')
+                            addSearchFieldToken(field, parts[1], isNeg)
                             intoken = doprocess = False
                         doprocess = False
                     else:
