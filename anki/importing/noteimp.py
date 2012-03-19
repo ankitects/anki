@@ -64,7 +64,13 @@ class NoteImporter(Importer):
         flds = [f['name'] for f in self.model['flds']]
         # truncate to provided count
         flds = flds[0:self.fields()]
-        # if provided count is greater, pad
+        # if there's room left, add deck
+        if self.fields() > len(flds):
+            flds.append("_deck")
+        # and tags
+        if self.fields() > len(flds):
+            flds.append("_tags")
+        # and if there's still room left, pad
         flds = flds + [None] * (self.fields() - len(flds))
         self.mapping = flds
 
