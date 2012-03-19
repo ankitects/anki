@@ -707,6 +707,7 @@ class Editor(object):
         recent = self.mw.pm.profile['recentColours']
         recent.remove(colour)
         recent.append(colour)
+        self.mw.app.processEvents()
         self.web.eval("setFormat('forecolor', '%s')" % colour)
         self.colourDiag.close()
         self.colourChanged()
