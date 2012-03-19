@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Change Model</string>
+   <string>Change Note Type</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -25,7 +25,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>&lt;b&gt;Old Model&lt;/b&gt;:</string>
+        <string>Current note type:</string>
        </property>
       </widget>
      </item>
@@ -48,7 +48,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>&lt;b&gt;New Model&lt;/b&gt;:</string>
+        <string>New note type:</string>
        </property>
       </widget>
      </item>
@@ -73,7 +73,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Templates</string>
+      <string>Cards</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="margin">

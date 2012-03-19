@@ -857,9 +857,6 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def onChangeModel(self):
-        return showInfo("not yet implemented")
-        # given implicit card generation now, we need to fix model changing:
-        # need to generate any unmapped cards
         nids = self.oneModelNotes()
         if nids:
             ChangeModel(self, nids)
@@ -1276,7 +1273,9 @@ class ChangeModel(QDialog):
         self.form.templateMap.setLayout(self.tlayout)
         # model chooser
         import aqt.modelchooser
-        self.oldModel = self.browser.col.models.current()
+        self.oldModel = self.browser.col.models.get(
+            self.browser.col.db.scalar(
+                "select mid from notes where id = ?", self.nids[0]))
         self.form.oldModelLabel.setText(self.oldModel['name'])
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.browser.mw, self.form.modelChooserWidget, label=False)
@@ -1285,10 +1284,9 @@ class ChangeModel(QDialog):
                      self.onHelp)
         self.modelChanged(self.oldModel)
         self.pauseUpdate = False
-        print "make sure we start with the model's old model"
 
     def onReset(self):
-        self.modelChanged(self.browser.col.currentModel())
+        self.modelChanged(self.browser.col.models.current())
 
     def modelChanged(self, model):
         self.targetModel = model
@@ -1391,11 +1389,11 @@ class ChangeModel(QDialog):
         cmap = self.getTemplateMap()
         if any(True for c in cmap.values() if c is None):
             if not askUser(_("""\
-Any cards with templates mapped to nothing will be deleted. \
+Any cards mapped to nothing will be deleted. \
 If a note has no remaining cards, it will be lost. \
 Are you sure you want to continue?""")):
                 return
-        self.browser.mw.checkpoint(_("Change Model"))
+        self.browser.mw.checkpoint(_("Change Note Type"))
         b = self.browser
         b.mw.progress.start()
         b.model.beginReset()
