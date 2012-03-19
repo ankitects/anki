@@ -894,7 +894,7 @@ Your edits have left some cards empty. Do you want to delete them?"""))
         layout.addWidget(text)
         box = QDialogButtonBox(QDialogButtonBox.Close)
         layout.addWidget(box)
-        b = QPushButton(_("Deleted Unused"))
+        b = QPushButton(_("Delete Unused"))
         b.setAutoDefault(False)
         box.addButton(b, QDialogButtonBox.ActionRole)
         b.connect(
