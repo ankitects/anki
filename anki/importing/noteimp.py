@@ -100,6 +100,7 @@ class NoteImporter(Importer):
         new = []
         self._ids = []
         self._cards = []
+        self._cdecks = []
         for n in notes:
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
@@ -140,8 +141,9 @@ class NoteImporter(Importer):
         self.col.updateFieldCache(self._ids)
         # generate cards
         assert not self.col.genCards(self._ids)
-        # apply scheduling updates
+        # apply scheduling updates and decks
         self.updateCards()
+        self.updateDecks()
         # make sure to update sflds, etc
         self.total = len(self._ids)
 
@@ -155,6 +157,10 @@ class NoteImporter(Importer):
         # note id for card updates later
         for ord, c in n.cards.items():
             self._cards.append((id, ord, c))
+        # did they override the default deck?
+        if n.deck:
+            did = self.col.decks.id(n.deck)
+            self._cdecks.append((did, id))
         self.col.tags.register(n.tags)
         return [id, guid64(), self.model['id'],
                 intTime(), self.col.usn(), self.col.tags.join(n.tags),
@@ -204,3 +210,7 @@ where id = ? and (flds != ? or tags != ?)""", rows)
         self.col.db.executemany("""
 update cards set type = 2, queue = 2, ivl = ?, due = ?,
 factor = ?, reps = ?, lapses = ? where nid = ? and ord = ?""", data)
+
+    def updateDecks(self):
+        self.col.db.executemany(
+            "update cards set did = ? where nid = ?", self._cdecks)
