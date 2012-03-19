@@ -27,15 +27,12 @@ class ChangeMap(QDialog):
                 self.frm.fields.setCurrentRow(n)
             n += 1
         self.frm.fields.addItem(QListWidgetItem(_("Map to Tags")))
-        self.frm.fields.addItem(QListWidgetItem(_("Map to Deck")))
         self.frm.fields.addItem(QListWidgetItem(_("Discard field")))
         if not setCurrent:
             if current == "_tags":
                 self.frm.fields.setCurrentRow(n)
-            elif current == "_deck":
-                self.frm.fields.setCurrentRow(n+1)
             else:
-                self.frm.fields.setCurrentRow(n+2)
+                self.frm.fields.setCurrentRow(n+1)
         self.field = None
 
     def getField(self):
@@ -46,10 +43,8 @@ class ChangeMap(QDialog):
         row = self.frm.fields.currentRow()
         if row < len(self.model['flds']):
             self.field = self.model['flds'][row]['name']
-        elif row == self.frm.fields.count() - 3:
-            self.field = "_tags"
         elif row == self.frm.fields.count() - 2:
-            self.field = "_deck"
+            self.field = "_tags"
         else:
             self.field = None
         QDialog.accept(self)
@@ -205,8 +200,6 @@ you can enter it here. Use \\t to represent tab."""),
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num] == "_tags":
                 text = _("mapped to <b>Tags</b>")
-            elif self.mapping[num] == "_deck":
-                text = _("mapped to <b>Deck</b>")
             elif self.mapping[num]:
                 text = _("mapped to <b>%s</b>") % self.mapping[num]
             else:
