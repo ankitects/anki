@@ -869,17 +869,10 @@ class EditorWebView(AnkiWebView):
         oldmime = evt.mimeData()
         # coming from this program?
         if evt.source():
-            # if they're copying just an image, we need to turn it into html
-            # again
-            txt = ""
+            assert oldmime.hasHtml()
             mime = QMimeData()
-            if not oldmime.hasHtml() and oldmime.hasUrls():
-                # qt gives it to us twice
-                txt += '<img src="%s">' % os.path.basename(
-                    oldmime.urls()[0].toString())
-                mime.setHtml(txt)
-            else:
-                mime.setHtml(oldmime.html())
+            # fix img src links
+            mime.setHtml(self._relativeFiles(oldmime.html()))
         else:
             mime = self._processMime(oldmime)
         # create a new event with the new mime data
@@ -1001,3 +994,10 @@ class EditorWebView(AnkiWebView):
         file.write(filecontents)
         file.close()
         return self.editor._addMedia(path)
+
+    def _relativeFiles(self, html):
+        # when an image is dragged, the relative img src= links end up as a
+        # full local path. we want to strip that back to a relative path
+        def repl(match):
+            return '<img src="%s">' % os.path.basename(match.group(2))
+        return re.sub(self.editor.mw.col.media.regexps[1], repl, html)
