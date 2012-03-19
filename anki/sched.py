@@ -431,8 +431,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             else:
                 card.left = self._startingLeft(card)
                 if card.odid:
-                    print "fixme: configurable failure handling"
-                    card.ivl = 1
+                    card.ivl = max(1, card.ivl*conf['mult'])
                     card.odue = self.today + 1
             self.lrnCount += card.left
             delay = self._delayForGrade(conf, card.left)
