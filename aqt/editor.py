@@ -98,9 +98,9 @@ function onFocus(elem) {
     	return cur;
     }
     var y = pos(elem);
-    if ((window.pageYOffset+window.innerHeight) < (y+elem.offsetHeight)) 
+    if ((window.pageYOffset+window.innerHeight) < (y+elem.offsetHeight))
         window.scroll(0,y+elem.offsetHeight-window.innerHeight);
-    else if (window.pageYOffset > y) 
+    else if (window.pageYOffset > y)
         window.scroll(0, y-15);
 }
 
