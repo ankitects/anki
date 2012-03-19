@@ -373,6 +373,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             self._changeNotes(nids, newModel, fmap)
         if cmap:
             self._changeCards(nids, newModel, cmap)
+        self.col.genCards(nids)
 
     def _changeNotes(self, nids, newModel, map):
         d = []

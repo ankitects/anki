@@ -197,12 +197,14 @@ def test_modelChange():
     deck.models.change(basic, [f.id], basic, None, map)
     f.load()
     c0.load()
+    # the card was deleted
     try:
         c1.load()
         assert 0
     except TypeError:
         pass
-    assert len(f.cards()) == 1
+    # but we have two cards, as a new one was generated
+    assert len(f.cards()) == 2
     # an unmapped field becomes blank
     assert f['Front'] == 'b123'
     assert f['Back'] == 'f'
