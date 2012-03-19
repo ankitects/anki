@@ -358,7 +358,7 @@
      <normaloff>:/icons/system-software-update.png</normaloff>:/icons/system-software-update.png</iconset>
    </property>
    <property name="text">
-    <string>Change Fact Type...</string>
+    <string>Change Note Type...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+M</string>

@@ -616,7 +616,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onDelete(self):
         self.checkpoint(_("Delete"))
         self.col.remNotes([self.reviewer.card.note().id])
-        self.reviewer.nextCard()
+        self.reset()
         tooltip("Note and its cards deleted.")
 
     def onBuryNote(self):
