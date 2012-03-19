@@ -208,7 +208,7 @@
   </action>
   <action name="actionFullDatabaseCheck">
    <property name="text">
-    <string>&amp;Check DB...</string>
+    <string>&amp;Check Database...</string>
    </property>
   </action>
   <action name="actionDocumentation">
