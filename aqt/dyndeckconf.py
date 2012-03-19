@@ -19,7 +19,7 @@ class DeckConf(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: openHelp("deckoptions"))
+                     lambda: openHelp("cramming"))
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         self.setupCombos()
         self.loadConf()

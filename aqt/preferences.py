@@ -5,7 +5,7 @@
 import datetime, time, os
 from aqt.qt import *
 from anki.lang import langs
-from aqt.utils import openFolder, showWarning, getText
+from aqt.utils import openFolder, showWarning, getText, openHelp
 import aqt
 
 class Preferences(QDialog):
