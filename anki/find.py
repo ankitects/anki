@@ -209,8 +209,9 @@ flds %s like :_text_%d escape '\\')""" % (extra, c, extra, c))
                 "(c.odid in %s or c.did in %s)" % (sids, sids))
         else:
             # inverted search
-            self.lims['preds'].append(
-                "(c.odid not in %s and c.did not in %s)" % (sids, sids))
+            self.lims['preds'].append("""
+((case c.odid when 0 then 1 else c.odid not in %s end) and c.did not in %s)
+""" % (sids, sids))
 
     def _findTemplate(self, val, isNeg):
         lims = []
