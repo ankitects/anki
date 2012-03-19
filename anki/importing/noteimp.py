@@ -35,7 +35,6 @@ class ForeignCard(object):
 # ['Expression', 'Reading', '_tags', None]
 # - None means that the input should be discarded
 # - _tags maps to note tags
-# - _deck maps to card deck
 # If the first field of the model is not in the map, the map is invalid.
 
 class NoteImporter(Importer):
@@ -64,10 +63,7 @@ class NoteImporter(Importer):
         flds = [f['name'] for f in self.model['flds']]
         # truncate to provided count
         flds = flds[0:self.fields()]
-        # if there's room left, add deck
-        if self.fields() > len(flds):
-            flds.append("_deck")
-        # and tags
+        # if there's room left, add tags
         if self.fields() > len(flds):
             flds.append("_tags")
         # and if there's still room left, pad
@@ -188,8 +184,6 @@ where id = ? and (flds != ? or tags != ?)""", rows)
                 continue
             elif f == "_tags":
                 note.tags.extend(self.col.tags.split(note.fields[c]))
-            elif f == "_deck":
-                note.deck = note.fields[c]
             else:
                 sidx = self._fmap[f][0]
                 fields[sidx] = note.fields[c]
