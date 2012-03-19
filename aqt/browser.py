@@ -227,6 +227,12 @@ class DataModel(QAbstractTableModel):
                 return _("(new)")
             return "%d%%" % (c.factor/10)
         elif type == "deck":
+            if c.odid:
+                # in a cram deck
+                return "%s (%s)" % (
+                    self.browser.mw.col.decks.name(c.did),
+                    self.browser.mw.col.decks.name(c.odid))
+            # normal deck
             return self.browser.mw.col.decks.name(c.did)
 
     def question(self, c):
@@ -518,7 +524,7 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "deck", "ndeck")
+        noSort = ("question", "answer", "template", "deck")
         if type in noSort:
             showInfo(_("Sorting on this column is not supported. Please "
                        "choose another."))
