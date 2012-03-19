@@ -8,6 +8,7 @@ from anki.utils import isMac, isWin
 from anki import Collection
 from anki.importing import Anki1Importer
 from anki.db import DB
+from aqt.utils import showWarning
 import aqt
 
 class Upgrader(object):
@@ -24,7 +25,9 @@ class Upgrader(object):
         try:
             self._loadConf(p)
         except:
-            # can't load old config file
+            showWarning(_("""\
+Anki wasn't able to load your old config file. Please use File>Import \
+to import your decks from previous Anki versions."""))
             return
         self._copySettings()
         # and show the wizard
