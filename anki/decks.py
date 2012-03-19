@@ -335,7 +335,7 @@ class DeckManager(object):
     #############################################################
 
     def active(self):
-        "The currrently active dids."
+        "The currrently active dids. Make sure to copy before modifying."
         return self.col.conf['activeDecks']
 
     def selected(self):

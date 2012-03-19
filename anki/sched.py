@@ -274,7 +274,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
 
     def _resetNew(self):
         self._resetNewCount()
-        self._newDids = self.col.decks.active()
+        self._newDids = self.col.decks.active()[:]
         self._newQueue = []
         self._updateNewCardRatio()
 
@@ -569,7 +569,7 @@ did = ? and queue = 2 and due <= ? limit %d)""" % lim,
     def _resetRev(self):
         self._resetRevCount()
         self._revQueue = []
-        self._revDids = self.col.decks.active()
+        self._revDids = self.col.decks.active()[:]
 
     def _fillRev(self):
         if self._revQueue:
