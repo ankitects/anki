@@ -169,14 +169,14 @@ select id, id, modelId, cast(created*1000 as int), cast(modified as int),
         for c, row in enumerate(facts):
             oldid = row[0]
             row = list(row)
-            if row[4] <= highest:
-                highest = max(highest, row[4]) + 1
-                row[4] = highest
+            if row[3] <= highest:
+                highest = max(highest, row[3]) + 1
+                row[3] = highest
             else:
-                highest = row[4]
-            factidmap[row[0]] = row[4]
-            row[0] = row[4]
-            del row[4]
+                highest = row[3]
+            factidmap[row[0]] = row[3]
+            row[0] = row[3]
+            del row[3]
             map[oldid] = row[0]
             # convert old 64bit id into a string, discarding sign bit
             row[1] = base91(abs(row[1]))
