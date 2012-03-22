@@ -199,8 +199,10 @@ class Template(object):
             return ""
         # replace chosen cloze with type
         if type == "q":
-            if m.group(2):
-                txt = re.sub(reg%ord, "<span class=cloze>[\\3...]</span>", txt)
+            if m.group(3):
+                txt = re.sub(
+                    reg%ord, "<span class=cloze>[%s...]</span>" % m.group(3),
+                    txt)
             else:
                 txt = re.sub(reg%ord, "<span class=cloze>[...]</span>", txt)
         elif type == "a":
