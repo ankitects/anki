@@ -368,7 +368,10 @@ class Editor(object):
         # focus lost or key/button pressed?
         if str.startswith("blur") or str.startswith("key"):
             (type, txt) = str.split(":", 1)
-            self.note.fields[self.currentField] = self.mungeHTML(txt)
+            txt = self.mungeHTML(txt)
+            # misbehaving apps may include a null byte in the text
+            txt = txt.replace("\x00", "")
+            self.note.fields[self.currentField] = txt
             self.mw.requireReset()
             if not self.addMode:
                 self.note.flush()
