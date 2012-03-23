@@ -28,6 +28,13 @@ _html = """
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
+.field:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
 .fname { font-size: 12px; vertical-align: middle; padding: 0; }
 #dupes { font-size: 12px; }
 img { max-width: 150; max-height: 150; }
@@ -156,6 +163,9 @@ function setFields(fields, focusTo) {
     for (var i=0; i<fields.length; i++) {
         var n = fields[i][0];
         var f = fields[i][1];
+        if (!f) {
+            f = "<br>";
+        }
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%%>".format(n);
         txt += "<div id=f{0} onkeydown='onKey();' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
