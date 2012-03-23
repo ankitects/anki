@@ -842,7 +842,6 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             perDay=self.reportLimit
         )
 
-
     def _lapseConf(self, card):
         conf = self._cardConf(card)
         # normal deck

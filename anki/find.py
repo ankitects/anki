@@ -412,8 +412,12 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
         # does it match?
         sflds = splitFields(flds)
         if field:
-            ord = mmap[str(mid)]
-            sflds[ord] = repl(sflds[ord])
+            try:
+                ord = mmap[str(mid)]
+                sflds[ord] = repl(sflds[ord])
+            except KeyError:
+                # note doesn't have that field
+                continue
         else:
             for c in range(len(sflds)):
                 sflds[c] = repl(sflds[c])
