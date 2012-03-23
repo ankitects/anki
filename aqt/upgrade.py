@@ -77,6 +77,7 @@ to import your decks from previous Anki versions."""))
         w.addPage(self._finishedPage())
         w.setWindowTitle("Upgrade Wizard")
         w.setWizardStyle(QWizard.ModernStyle)
+        w.setOptions(QWizard.NoCancelButton)
         w.exec_()
 
     def _labelPage(self, title, txt):
