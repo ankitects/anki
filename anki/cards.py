@@ -137,9 +137,11 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def timeLimit(self):
         "Time limit for answering in milliseconds."
         conf = self.col.decks.confForDid(self.odid or self.did)
-        if not conf['timer']:
-            return 0
         return conf['maxTaken']*1000
+
+    def shouldShowTimer(self):
+        conf = self.col.decks.confForDid(self.odid or self.did)
+        return conf['timer']
 
     def timeTaken(self):
         "Time taken to answer card, in integer MS."
