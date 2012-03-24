@@ -97,7 +97,11 @@ class MplayerMonitor(threading.Thread):
                 if not self.mplayer:
                     self.startProcess()
                 # pop a file
-                item = mplayerQueue.pop(0)
+                try:
+                    item = mplayerQueue.pop(0)
+                except IndexError:
+                    # queue was cleared by main thread
+                    continue
                 if mplayerClear:
                     mplayerClear = False
                     extra = ""
