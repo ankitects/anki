@@ -13,6 +13,7 @@ from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
     openHelp
 import aqt
 import anki.js
+from BeautifulSoup import BeautifulSoup
 
 # fixme: when tab order returns to the webview, the previously focused field
 # is focused, which is not good when the user is tabbing through the dialog
@@ -414,9 +415,6 @@ class Editor(object):
     def mungeHTML(self, txt):
         if txt == "<br>":
             txt = ""
-        fa = re.findall('(<font class="Apple-style-span" size="\d+"><span class="Apple-style-span" style="font-size: \d+px;">(.*)</span></font>)', txt)
-        if fa:
-            txt = txt.replace(fa[0][0], fa[0][1])
         return txt
 
     # Setting/unsetting the current note
@@ -885,8 +883,7 @@ class EditorWebView(AnkiWebView):
         if evt.source():
             assert oldmime.hasHtml()
             mime = QMimeData()
-            # fix img src links
-            mime.setHtml(self._relativeFiles(oldmime.html()))
+            mime.setHtml(self._filteredHTML(oldmime.html()))
         else:
             mime = self._processMime(oldmime)
         # create a new event with the new mime data
@@ -902,7 +899,7 @@ class EditorWebView(AnkiWebView):
         if keep:
             new = QMimeData()
             if mime.hasHtml():
-                new.setHtml(mime.html())
+                new.setHtml(self._filteredHTML(mime.html()))
             else:
                 new.setText(mime.text())
             mime = new
@@ -950,7 +947,14 @@ class EditorWebView(AnkiWebView):
 
     def _processUrls(self, mime):
         url = mime.urls()[0].toString()
-        link = self._retrieveURL(url)
+        link = None
+        for suffix in pics+audio:
+            if url.lower().endswith(suffix):
+                link = self._retrieveURL(url)
+                break
+        if not link:
+            # not a supported media type; include link verbatim
+            link = url
         mime = QMimeData()
         mime.setHtml(link)
         return mime
@@ -974,6 +978,8 @@ class EditorWebView(AnkiWebView):
         html = mime.html()
         if self.strip:
             html = stripHTML(html)
+        else:
+            html = self._filteredHTML(html)
         mime = QMimeData()
         mime.setHtml(html)
         return mime
@@ -1009,9 +1015,18 @@ class EditorWebView(AnkiWebView):
         file.close()
         return self.editor._addMedia(path)
 
-    def _relativeFiles(self, html):
-        # when an image is dragged, the relative img src= links end up as a
-        # full local path. we want to strip that back to a relative path
-        def repl(match):
-            return '<img src="%s">' % os.path.basename(match.group(2))
-        return re.sub(self.editor.mw.col.media.regexps[1], repl, html)
+    def _filteredHTML(self, html):
+        doc = BeautifulSoup(html)
+        # filter out implicit formatting from webkit
+        for tag in doc("span", "Apple-style-span"):
+            tag.replaceWithChildren()
+        # turn file:/// links into relative ones
+        for tag in doc("img"):
+            if tag['src'].lower().startswith("file://"):
+                tag['src'] = os.path.basename(tag['src'])
+        # strip superfluous elements
+        for elem in "html", "head", "body", "meta":
+            for tag in doc(elem):
+                tag.replaceWithChildren()
+        html = unicode(doc)
+        return html
