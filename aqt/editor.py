@@ -585,22 +585,22 @@ class Editor(object):
     ######################################################################
 
     def toggleBold(self, bool):
-        self.web.eval("setFormat('bold');")
+        self._eval("setFormat('bold');")
 
     def toggleItalic(self, bool):
-        self.web.eval("setFormat('italic');")
+        self._eval("setFormat('italic');")
 
     def toggleUnderline(self, bool):
-        self.web.eval("setFormat('underline');")
+        self._eval("setFormat('underline');")
 
     def toggleSuper(self, bool):
-        self.web.eval("setFormat('superscript');")
+        self._eval("setFormat('superscript');")
 
     def toggleSub(self, bool):
-        self.web.eval("setFormat('subscript');")
+        self._eval("setFormat('subscript');")
 
     def removeFormat(self):
-        self.web.eval("setFormat('removeFormat');")
+        self._eval("setFormat('removeFormat');")
 
     def onCloze(self):
         # check that the model is set up for cloze deletion
@@ -617,7 +617,13 @@ class Editor(object):
                 next -= 1
         else:
             next = 1
-        self.web.eval("wrap('{{c%d::', '}}');" % next)
+        self._eval("wrap('{{c%d::', '}}');" % next)
+
+    def _eval(self, str):
+        # some versions of webkit crash if we try a dom-modifying operation
+        # before outstanding UI events have been processed
+        self.mw.app.processEvents()
+        self.mw.progress.timer(100, lambda: self.web.eval(str), False)
 
     # Foreground colour
     ######################################################################
@@ -718,8 +724,7 @@ class Editor(object):
         recent = self.mw.pm.profile['recentColours']
         recent.remove(colour)
         recent.append(colour)
-        self.mw.app.processEvents()
-        self.web.eval("setFormat('forecolor', '%s')" % colour)
+        self._eval("setFormat('forecolor', '%s')" % colour)
         self.colourDiag.close()
         self.colourChanged()
 
@@ -748,8 +753,7 @@ class Editor(object):
 
     def addMedia(self, path, canDelete=False):
         html = self._addMedia(path, canDelete)
-        self.mw.app.processEvents()
-        self.web.eval("setFormat('inserthtml', %s);" % simplejson.dumps(html))
+        self._eval("setFormat('inserthtml', %s);" % simplejson.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
         "Add to media folder and return basename."
@@ -799,13 +803,13 @@ class Editor(object):
     ######################################################################
 
     def insertLatex(self):
-        self.web.eval("wrap('[latex]', '[/latex]');")
+        self._eval("wrap('[latex]', '[/latex]');")
 
     def insertLatexEqn(self):
-        self.web.eval("wrap('[$]', '[/$]');")
+        self._eval("wrap('[$]', '[/$]');")
 
     def insertLatexMathEnv(self):
-        self.web.eval("wrap('[$$]', '[/$$]');")
+        self._eval("wrap('[$$]', '[/$$]');")
 
     # Keyboard layout
     ######################################################################
