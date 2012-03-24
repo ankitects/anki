@@ -204,9 +204,9 @@ body { margin: 1em; -webkit-user-select: none; }
         self.show()
 
     def _delete(self, did):
-        self.mw.checkpoint(_("Delete Deck"))
         if str(did) == '1':
             return showWarning(_("The default deck can't be deleted."))
+        self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
         if deck['dyn'] or askUser(_("""\
 Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
