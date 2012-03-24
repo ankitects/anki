@@ -98,6 +98,8 @@ class CardLayout(QDialog):
         self.tabs.addTab(w, t['name'])
 
     def onRemoveTab(self, idx):
+        if not askUser(_("Remove template and all its cards?")):
+            return
         if not self.mm.remTemplate(self.model, self.cards[idx].template()):
             return showWarning(_("""\
 Removing this card would cause one or more notes to be deleted. \
