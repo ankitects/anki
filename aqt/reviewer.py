@@ -87,7 +87,7 @@ class Reviewer(object):
         if self.state == "question":
             playFromText(c.q())
         elif self.state == "answer":
-            playFromText(c.a())
+            playFromText(c.q() + c.a())
 
     # Initializing the webview
     ##########################################################################
