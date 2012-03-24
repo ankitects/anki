@@ -282,9 +282,13 @@ def onImport(mw):
         try:
             importer.run()
         except Exception, e:
-            msg = _("Import failed.\n")
-            msg += unicode(traceback.format_exc(), "ascii", "replace")
-            showText(msg)
+            if "invalidFile" in unicode(e):
+                showWarning(_("""\
+Invalid file. Please run a DB check in Anki 1.2 and try again."""))
+            else:
+                msg = _("Import failed.\n")
+                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                showText(msg)
         else:
             showText("\n".join(importer.log))
         finally:
