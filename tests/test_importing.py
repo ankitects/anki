@@ -96,6 +96,29 @@ def test_csv():
     assert i.total == 0
     deck.close()
 
+def test_csv2():
+    deck = getEmptyDeck()
+    mm = deck.models
+    m = mm.current()
+    f = mm.newField("Three")
+    mm.addField(m, f)
+    mm.save(m)
+    n = deck.newNote()
+    n['Front'] = "1"
+    n['Back'] = "2"
+    n['Three'] = "3"
+    deck.addNote(n)
+    # an update with unmapped fields should not clobber those fields
+    file = unicode(os.path.join(testDir, "support/text-update.txt"))
+    i = TextImporter(deck, file)
+    i.initMapping()
+    i.run()
+    n.load()
+    assert n['Front'] == "1"
+    assert n['Back'] == "x"
+    assert n['Three'] == "3"
+    deck.close()
+
 def test_supermemo_xml_01_unicode():
     deck = getEmptyDeck()
     file = unicode(os.path.join(testDir, "support/supermemo1.xml"))

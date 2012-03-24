@@ -115,10 +115,11 @@ class NoteImporter(Importer):
                 for id in csums[csum]:
                     flds = self.col.db.scalar(
                         "select flds from notes where id = ?", id)
-                    if fld0 == splitFields(flds)[0]:
+                    sflds = splitFields(flds)
+                    if fld0 == sflds[0]:
                         # duplicate
                         if self.update:
-                            data = self.updateData(n, id)
+                            data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
                         # note that we've seen this note once already
@@ -162,9 +163,9 @@ class NoteImporter(Importer):
             rows)
 
     # need to document that deck is ignored in this case
-    def updateData(self, n, id):
+    def updateData(self, n, id, sflds):
         self._ids.append(id)
-        if not self.processFields(n):
+        if not self.processFields(n, sflds):
             print "no cards generated"
             return
         self.col.tags.register(n.tags)
@@ -177,8 +178,9 @@ class NoteImporter(Importer):
 update notes set mod = ?, usn = ?, flds = ?, tags = ?
 where id = ? and (flds != ? or tags != ?)""", rows)
 
-    def processFields(self, note):
-        fields = [""]*len(self.model['flds'])
+    def processFields(self, note, fields=None):
+        if not fields:
+            fields = [""]*len(self.model['flds'])
         for c, f in enumerate(self.mapping):
             if not f:
                 continue
