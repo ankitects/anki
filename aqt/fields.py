@@ -5,7 +5,7 @@ from aqt.qt import *
 import re
 from anki.consts import *
 import aqt
-from aqt.utils import showWarning, openHelp, getOnlyText
+from aqt.utils import showWarning, openHelp, getOnlyText, askUser
 
 class FieldDialog(QDialog):
 
@@ -93,6 +93,8 @@ class FieldDialog(QDialog):
     def onDelete(self):
         if len(self.model['flds']) < 3:
             return showWarning(_("Notes require at least two fields."))
+        if not askUser(_("Delete field?")):
+            return
         f = self.model['flds'][self.form.fieldList.currentRow()]
         self.mw.progress.start()
         self.mm.remField(self.model, f)
