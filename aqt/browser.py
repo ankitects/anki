@@ -617,7 +617,7 @@ class Browser(QMainWindow):
         self._decksTree(root)
         self._modelTree(root)
         self._userTagTree(root)
-        self.form.tree.expandToDepth(0)
+        self.form.tree.expandToDepth(5)
         self.form.tree.setIndentation(15)
 
     def onTreeClick(self, item, col):
