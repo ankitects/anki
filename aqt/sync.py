@@ -67,6 +67,8 @@ class SyncManager(QObject):
         elif evt == "newKey":
             self.pm.profile['syncKey'] = args[0]
             self.pm.save()
+        elif evt == "offline":
+            tooltip(_("Syncing failed; internet offline."))
         elif evt == "sync":
             m = None; t = args[0]
             if t == "login":
@@ -253,7 +255,12 @@ class SyncThread(QThread):
                 # write new details and tell calling thread to save
                 self.fireEvent("newKey", self.hkey)
         # run sync and check state
-        ret = self.client.sync()
+        try:
+            ret = self.client.sync()
+        except Exception, e:
+            if "Unable to find the server" in unicode(e):
+                self.fireEvent("offline")
+                return
         if ret == "badAuth":
             return self.fireEvent("badAuth")
         elif ret == "clockOff":
