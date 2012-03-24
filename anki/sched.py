@@ -431,7 +431,12 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             else:
                 card.left = self._startingLeft(card)
                 if card.odid:
-                    card.ivl = max(1, card.ivl*conf['mult'])
+                    if 'mult' in conf:
+                        # review that's lapsed
+                        card.ivl = max(1, card.ivl*conf['mult'])
+                    else:
+                        # new card; no ivl adjustment
+                        pass
                     card.odue = self.today + 1
             self.lrnCount += card.left
             delay = self._delayForGrade(conf, card.left)
