@@ -394,7 +394,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
         for m in col.models.all():
             for f in m['flds']:
                 if f['name'] == field:
-                    mmap[m['id']] = f['ord']
+                    mmap[str(m['id'])] = f['ord']
         if not mmap:
             return 0
     # find and gather replacements
