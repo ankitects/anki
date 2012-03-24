@@ -40,6 +40,7 @@ class MediaManager(object):
             return
         path = self.dir()+".db"
         create = not os.path.exists(path)
+        os.chdir(self._dir)
         self.db = DB(path)
         if create:
             self._initDB()
