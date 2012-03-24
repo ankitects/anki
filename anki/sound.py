@@ -11,7 +11,11 @@ from anki.utils import namedtmp, tmpdir, isWin, isMac
 ##########################################################################
 
 def playFromText(text):
+    fnames = {}
     for match in re.findall("\[sound:(.*?)\]", text):
+        if match in fnames:
+            continue
+        fnames[match] = True
         play(match)
 
 def stripSounds(text):
