@@ -582,7 +582,7 @@ did = ? and queue = 2 and due <= ? limit %d)""" % lim,
         if not self.revCount:
             return False
         while self._revDids:
-            did = self._newDids[0]
+            did = self._revDids[0]
             lim = min(self.queueLimit, self._deckRevLimit(did))
             if lim:
                 # fill the queue with the current did
