@@ -622,7 +622,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     def onBuryNote(self):
         self.checkpoint(_("Bury"))
         self.col.sched.buryNote(self.reviewer.card.nid)
-        self.reviewer.nextCard()
+        self.reset()
         tooltip("Note buried.")
 
     # Undo & autosave
