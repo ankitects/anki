@@ -793,12 +793,16 @@ class Editor(object):
     def onAdvanced(self):
         m = QMenu(self.mw)
         a = m.addAction(_("LaTeX"))
+        a.setShortcut(QKeySequence("Ctrl+t, t"))
         a.connect(a, SIGNAL("triggered()"), self.insertLatex)
         a = m.addAction(_("LaTeX Equation"))
+        a.setShortcut(QKeySequence("Ctrl+t, e"))
         a.connect(a, SIGNAL("triggered()"), self.insertLatexEqn)
         a = m.addAction(_("LaTeX Math Env."))
+        a.setShortcut(QKeySequence("Ctrl+t, m"))
         a.connect(a, SIGNAL("triggered()"), self.insertLatexMathEnv)
         a = m.addAction(_("Edit HTML"))
+        a.setShortcut(QKeySequence("Ctrl+shift+x"))
         a.connect(a, SIGNAL("triggered()"), self.onHtmlEdit)
         m.exec_(QCursor.pos())
 
