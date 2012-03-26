@@ -515,8 +515,11 @@ class Editor(object):
         form.textEdit.setPlainText(self.note.fields[self.currentField])
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
-        self.note.fields[self.currentField] = unicode(
-            form.textEdit.toPlainText())
+        html = form.textEdit.toPlainText()
+        # filter html through beautifulsoup so we can strip out things like a
+        # leading </div>
+        html = unicode(BeautifulSoup(html))
+        self.note.fields[self.currentField] = html
         self.loadNote()
 
     # Tag & deck handling
