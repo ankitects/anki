@@ -902,6 +902,7 @@ class EditorWebView(AnkiWebView):
                          evt.mouseButtons(), evt.keyboardModifiers())
         evt.accept()
         QWebView.dropEvent(self, new)
+        self.editor.saveNow()
 
     def prepareClip(self, keep=False, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
