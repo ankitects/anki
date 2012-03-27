@@ -434,6 +434,7 @@ setInterval(function () { time += 1; updateTime() }, 1000);
 
 var updateTime = function () {
     if (!maxTime) {
+        $("#time").text("");
         return;
     }
     time = Math.min(maxTime, time);
