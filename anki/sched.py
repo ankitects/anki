@@ -601,7 +601,7 @@ did = ? and queue = 2 and due <= ? limit ?""",
                         r.shuffle(self._revQueue)
                     return True
             # nothing left in the deck; move to next
-            self._newDids.pop(0)
+            self._revDids.pop(0)
 
     def _getRevCard(self):
         if self._fillRev():
