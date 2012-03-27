@@ -1394,6 +1394,7 @@ Any cards mapped to nothing will be deleted. \
 If a note has no remaining cards, it will be lost. \
 Are you sure you want to continue?""")):
                 return
+        QDialog.accept(self)
         self.browser.mw.checkpoint(_("Change Note Type"))
         b = self.browser
         b.mw.progress.start()
@@ -1405,7 +1406,6 @@ Are you sure you want to continue?""")):
         b.mw.progress.finish()
         b.mw.requireReset()
         self.cleanup()
-        return QDialog.accept(self)
 
     def onHelp(self):
         openHelp("browsermisc")
