@@ -1283,7 +1283,7 @@ class ChangeModel(QDialog):
         self.modelChooser.models.setFocus()
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      self.onHelp)
-        self.modelChanged(self.oldModel)
+        self.modelChanged(self.browser.mw.col.models.current())
         self.pauseUpdate = False
 
     def onReset(self):
