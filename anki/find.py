@@ -131,7 +131,11 @@ and c.nid=n.id %s""" % (q, order)
 
     def _findTag(self, val, neg, c):
         if val == "none":
-            self.lims['preds'].append("select id from notes where tags = ''")
+            if neg:
+                t = "tags != ''"
+            else:
+                t = "tags = ''"
+            self.lims['preds'].append(t)
             return
         extra = "not" if neg else ""
         val = val.replace("*", "%")
