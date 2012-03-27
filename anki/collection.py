@@ -54,10 +54,6 @@ class _Collection(object):
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
-        self.undoEnabled = False
-        self.sessionStartReps = 0
-        self.sessionStartTime = 0
-        self.lastSessionStart = 0
         self.sched = Scheduler(self)
         # check for improper shutdown
         self.cleanup()
