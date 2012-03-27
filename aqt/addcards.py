@@ -136,7 +136,7 @@ class AddCards(QDialog):
         if not cards:
             showWarning(_("""\
 The input you have provided would make an empty \
-question or answer on all cards."""), help="AddItems")
+question on all cards."""), help="AddItems")
             return
         self.addHistory(note)
         # FIXME: return to overview on add?
