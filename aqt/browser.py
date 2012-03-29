@@ -298,7 +298,7 @@ class StatusDelegate(QItemDelegate):
 class Browser(QMainWindow):
 
     def __init__(self, mw):
-        QMainWindow.__init__(self, mw)
+        QMainWindow.__init__(self, None, Qt.Window)
         applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
