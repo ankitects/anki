@@ -402,7 +402,7 @@ class Browser(QMainWindow):
             ('noteFld', _("Sort Field")),
             ('noteCrt', _("Created")),
             ('noteMod', _("Edited")),
-            ('cardMod', _("Reviewed")),
+            ('cardMod', _("Changed")),
             ('cardDue', _("Due")),
             ('cardIvl', _("Interval")),
             ('cardEase', _("Ease")),
