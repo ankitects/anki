@@ -347,7 +347,7 @@ where mid in %s and flds like ? escape '\\'""" % (
                 elif token['value'].startswith("is:"):
                     token['value'] = token['value'][3:].lower()
                     type = SEARCH_TYPE
-                elif token['value'].startswith("model:"):
+                elif token['value'].startswith("ntype:"):
                     token['value'] = token['value'][6:].lower()
                     type = SEARCH_MODEL
                 elif token['value'].startswith("deck:"):
