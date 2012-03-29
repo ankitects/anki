@@ -739,7 +739,7 @@ did = ? and queue = 2 and due <= ? limit ?""",
         limit = " limit %d" % deck['limit']
         search = deck['search'] + " -is:suspended"
         try:
-            ids = self.col.findCards(deck['search'], order=order+limit)
+            ids = self.col.findCards(search, order=order+limit)
         except:
             ids = []
         # move the cards over
