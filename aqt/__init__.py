@@ -4,7 +4,7 @@
 import os, sys
 from aqt.qt import *
 
-appVersion="2.0-alpha9"
+appVersion="2.0-beta1"
 appWebsite="http://ankisrs.net/"
 appHelpSite="http://ankisrs.net/docs/dev/manual.html"
 appChanges="http://ankisrs.net/docs/dev/changes.html"
@@ -13,10 +13,6 @@ appShared="http://beta.ankiweb.net/shared/"
 mw = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-
-# py2exe
-# if hasattr(sys, "frozen"):
-#     sys.path.append(moduleDir)
 
 # Dialog manager - manages modeless windows
 ##########################################################################
