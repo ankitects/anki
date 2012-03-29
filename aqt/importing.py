@@ -211,7 +211,7 @@ you can enter it here. Use \\t to represent tab."""),
                          lambda s=self,n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n):
-        f = ChangeMap(self.mw, self.model, self.mapping[n]).getField()
+        f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
         try:
             # make sure we don't have it twice
             index = self.mapping.index(f)
