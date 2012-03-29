@@ -49,6 +49,9 @@ class ChangeMap(QDialog):
             self.field = None
         QDialog.accept(self)
 
+    def reject(self):
+        self.accept()
+
 class ImportDialog(QDialog):
 
     def __init__(self, mw, importer):
