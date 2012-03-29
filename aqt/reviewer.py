@@ -144,6 +144,7 @@ function _typeAnsPress() {
     def _showQuestion(self):
         self._reps += 1
         self.state = "question"
+        self.typedAnswer = None
         c = self.card
         # grab the question and play audio
         q = c.q()
