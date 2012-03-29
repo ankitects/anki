@@ -74,7 +74,7 @@ class Overview(object):
             desc = "%s<br>%s<br>%s" % (
                 _("Search: %s") % deck['search'],
                 _("Order: %s") % dynOrderLabels()[deck['order']],
-                _("Steps: %s") % " ".join([str(x) for x in deck['steps']]))
+                _("Steps: %s") % " ".join([str(x) for x in deck['delays']]))
         else:
             desc = deck.get("desc", "")
         if not desc:

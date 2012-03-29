@@ -45,7 +45,7 @@ class DeckConf(QDialog):
         steps = self.userToList(f.steps)
         if not steps:
             return
-        d['steps'] = steps
+        d['delays'] = steps
         d['search'] = f.search.text()
         d['order'] = f.order.currentIndex()
         d['limit'] = f.limit.value()
