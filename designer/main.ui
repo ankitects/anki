@@ -223,15 +223,24 @@
    <property name="text">
     <string>&amp;Switch Profile...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
+   </property>
   </action>
   <action name="actionExport">
    <property name="text">
     <string>&amp;Export...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
   </action>
   <action name="actionImport">
    <property name="text">
     <string>&amp;Import...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>
