@@ -10,7 +10,7 @@ import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip, openHelp, fontForPlatform
+    showInfo, askUser, tooltip, openHelp, fontForPlatform, showWarning
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, remHook
@@ -900,6 +900,11 @@ where id in %s""" % ids2str(sf))
         te.setFocus()
 
     def _onSetDeck(self, frm, te):
+        did = self.col.decks.id(unicode(te.text()))
+        deck = self.col.decks.get(did)
+        if deck['dyn']:
+            showWarning(_("Cards can't be manually moved into a cram deck."))
+            return
         self.model.beginReset()
         self.mw.checkpoint(_("Set Deck"))
         mod = intTime()
