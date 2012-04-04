@@ -461,7 +461,6 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
         return delay*60
 
     def _lrnConf(self, card):
-        conf = self._cardConf(card)
         if card.type == 2:
             return self._lapseConf(card)
         else:

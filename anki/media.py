@@ -247,7 +247,7 @@ If the same name exists, compare checksums."""
                 csum = checksum(data)
                 name = meta[i.filename]
                 # can we store the file on this system?
-                if self.illegal(i.filename):
+                if self.illegal(name):
                     continue
                 # save file
                 open(name, "wb").write(data)
