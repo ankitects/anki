@@ -892,9 +892,11 @@ class EditorWebView(AnkiWebView):
         oldmime = evt.mimeData()
         # coming from this program?
         if evt.source():
-            assert oldmime.hasHtml()
-            mime = QMimeData()
-            mime.setHtml(self._filteredHTML(oldmime.html()))
+            if oldmime.hasHtml():
+                mime = QMimeData()
+                mime.setHtml(self._filteredHTML(oldmime.html()))
+            else:
+                mime = oldmime
         else:
             mime = self._processMime(oldmime)
         # create a new event with the new mime data
