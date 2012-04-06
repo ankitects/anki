@@ -326,8 +326,8 @@ class Browser(QMainWindow):
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
         self.show()
-        self.form.searchEdit.setText("deck:current is:recent")
-        self.form.searchEdit.selectAll()
+        self.form.searchEdit.lineEdit().setText("deck:current is:recent")
+        self.form.searchEdit.lineEdit().selectAll()
         self.onSearch()
 
     def setupToolbar(self):
@@ -418,25 +418,27 @@ class Browser(QMainWindow):
         self.connect(self.form.searchButton,
                      SIGNAL("clicked()"),
                      self.onSearch)
-        self.connect(self.form.searchEdit,
+        self.connect(self.form.searchEdit.lineEdit(),
                      SIGNAL("returnPressed()"),
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
-        self.compModel = QStringListModel()
-        self.compModel.setStringList(self.mw.pm.profile['searchHistory'])
-        self.searchComp = QCompleter(self.compModel, self.form.searchEdit)
-        self.searchComp.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-        self.searchComp.setCaseSensitivity(Qt.CaseInsensitive)
-        self.form.searchEdit.setCompleter(self.searchComp)
+        # self.compModel = QStringListModel()
+        self.form.searchEdit.addItems(self.mw.pm.profile['searchHistory'])
+        #self.compModel.setStringList(self.mw.pm.profile['searchHistory'])
+        #self.searchComp = QCompleter(self.compModel, self.form.searchEdit)
+        #self.searchComp.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+        #self.searchComp.setCaseSensitivity(Qt.CaseInsensitive)
+        #self.form.searchEdit.setCompleter(self.searchComp)
 
     def onSearch(self, reset=True):
         "Careful: if reset is true, the current note is saved."
-        txt = unicode(self.form.searchEdit.text()).strip()
+        txt = unicode(self.form.searchEdit.lineEdit().text()).strip()
         sh = self.mw.pm.profile['searchHistory']
         if txt not in sh:
             sh.insert(0, txt)
             sh = sh[:30]
-            self.compModel.setStringList(sh)
+            self.form.searchEdit.clear()
+            self.form.searchEdit.addItems(sh)
             self.mw.pm.profile['searchHistory'] = sh
         self.model.search(txt, reset)
         if not self.model.cards:
@@ -648,7 +650,7 @@ class Browser(QMainWindow):
             cur = unicode(self.form.searchEdit.text())
             if cur:
                 txt = cur + " " + txt
-        self.form.searchEdit.setText(txt)
+        self.form.searchEdit.lineEdit().setText(txt)
         self.onSearch()
 
     def _systemTagTree(self, root):
@@ -1032,7 +1034,7 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
 
     def selectNotes(self):
         nids = self.selectedNotes()
-        self.form.searchEdit.setText("nid:"+",".join([str(x) for x in nids]))
+        self.form.searchEdit.lineEdit().setText("nid:"+",".join([str(x) for x in nids]))
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
         tv.selectionModel().clear()
@@ -1212,7 +1214,7 @@ select fm.id, fm.name from fieldmodels fm""")
         self.col.finishProgress()
 
     def dupeLinkClicked(self, link):
-        self.form.searchEdit.setText(link.toString())
+        self.form.searchEdit.lineEdit().setText(link.toString())
         self.onSearch()
         self.onNote()
 
@@ -1238,7 +1240,7 @@ select fm.id, fm.name from fieldmodels fm""")
 
     def onFind(self):
         self.form.searchEdit.setFocus()
-        self.form.searchEdit.selectAll()
+        self.form.searchEdit.lineEdit().selectAll()
 
     def onNote(self):
         self.editor.focus()
