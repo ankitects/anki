@@ -67,7 +67,7 @@ class TextImporter(NoteImporter):
             self.data = self.data[len(codecs.BOM_UTF8):]
         def sub(s):
             return re.sub("^\#.*", "", s)
-        self.data = [sub(x) for x in self.data.split("\n") if sub(x)]
+        self.data = [sub(x)+"\n" for x in self.data.split("\n") if sub(x)]
         if self.data:
             if self.data[0].startswith("tags:"):
                 self.tagsToAdd = self.data[0][5:].split(" ")
@@ -119,6 +119,6 @@ class TextImporter(NoteImporter):
 
     def noteFromFields(self, fields):
         note = ForeignNote()
-        note.fields.extend([x.strip() for x in fields])
+        note.fields.extend([x.strip().replace("\n", "<br>") for x in fields])
         note.tags.extend(self.tagsToAdd)
         return note
