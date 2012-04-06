@@ -23,14 +23,14 @@ class CardLayout(QDialog):
         self.col = self.mw.col
         self.mm = self.mw.col.models
         self.model = note.model()
-        self.mw.checkpoint(_("Card Layout"))
+        self.mw.checkpoint(_("Card Types"))
         self.addMode = addMode
         if addMode:
             # save it to DB temporarily
             note.flush()
         self.setupTabs()
         self.setupButtons()
-        self.setWindowTitle(_("%s Layout") % self.model['name'])
+        self.setWindowTitle(_("Card Types for %s") % self.model['name'])
         v1 = QVBoxLayout()
         v1.addWidget(self.tabs)
         v1.addLayout(self.buttons)
@@ -98,12 +98,12 @@ class CardLayout(QDialog):
         self.tabs.addTab(w, t['name'])
 
     def onRemoveTab(self, idx):
-        if not askUser(_("Remove template and all its cards?")):
+        if not askUser(_("Remove all cards of this type?")):
             return
         if not self.mm.remTemplate(self.model, self.cards[idx].template()):
             return showWarning(_("""\
-Removing this card would cause one or more notes to be deleted. \
-Please create a new card first."""))
+Removing this card type would cause one or more notes to be deleted. \
+Please create a new card type first."""))
         self.redraw()
 
     # Buttons

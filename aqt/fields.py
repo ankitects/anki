@@ -20,6 +20,7 @@ class FieldDialog(QDialog):
         self.mw.checkpoint(_("Fields"))
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowTitle(_("Fields for %s") % self.model['name'])
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         self.currentIdx = None

@@ -738,25 +738,6 @@ class Browser(QMainWindow):
 border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
         return rep, cs
 
-    def onCardLink(self, url):
-        if url == "sort":
-            self.onChangeSortField()
-        else:
-            self.onRevlog()
-
-    def onChangeSortField(self):
-        from aqt.utils import chooseList
-        m = self.card.model()
-        fields = [f['name'] for f in m['flds']]
-        mm = self.col.models
-        idx = chooseList(_("Choose field to sort this model by:"),
-                         fields, mm.sortIdx(m))
-        if idx != mm.sortIdx(m):
-            self.mw.progress.start()
-            mm.setSortIdx(m, idx)
-            self.mw.progress.finish()
-            self.onSearch()
-
     def onRevlog(self):
         data = self._revlogData()
         d = QDialog(self)
