@@ -154,7 +154,7 @@ class AddModel(QDialog):
         return self.model
 
     def reject(self):
-        self.accept()
+        QDialog.reject(self)
 
     def accept(self):
         (isStd, model) = self.models[self.dialog.models.currentRow()]
