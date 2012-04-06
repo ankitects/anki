@@ -3,7 +3,7 @@
 
 from aqt.qt import *
 import anki, aqt, aqt.tagedit
-from aqt.utils import getSaveFile, tooltip
+from aqt.utils import getSaveFile, tooltip, showWarning
 from anki.exporting import exporters
 
 class ExportDialog(QDialog):
@@ -52,7 +52,12 @@ class ExportDialog(QDialog):
                 name = self.decks[self.frm.deck.currentIndex()]
                 self.exporter.did = self.col.decks.id(name)
             self.mw.progress.start(immediate=True)
-            self.exporter.exportInto(file)
-            self.mw.progress.finish()
-            tooltip(_("%d exported.") % self.exporter.count)
+            try:
+                self.exporter.exportInto(file)
+            except (OSError, IOError), e:
+                showWarning(_("Couldn't save file: %s") % unicode(e))
+            else:
+                tooltip(_("%d exported.") % self.exporter.count)
+            finally:
+                self.mw.progress.finish()
         QDialog.accept(self)
