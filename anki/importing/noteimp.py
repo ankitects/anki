@@ -70,6 +70,9 @@ class NoteImporter(Importer):
         flds = flds + [None] * (self.fields() - len(flds))
         self.mapping = flds
 
+    def mappingOk(self):
+        return self.model['flds'][0]['name'] in self.mapping
+
     def foreignNotes(self):
         "Return a list of foreign notes for importing."
         assert 0
@@ -80,6 +83,7 @@ class NoteImporter(Importer):
 
     def importNotes(self, notes):
         "Convert each card into a note, apply attributes and add to col."
+        assert self.mappingOk()
         # gather checks for duplicate comparison
         csums = {}
         for csum, id in self.col.db.execute(
