@@ -130,7 +130,11 @@ you can enter it here. Use \\t to represent tab."""),
         self.frm.autoDetect.setText(txt)
 
     def doImport(self, update=False):
-        t = time.time()
+        self.importer.mapping = self.mapping
+        if not self.importer.mappingOk():
+            showWarning(
+                _("The first field of the note type must be mapped."))
+            return
         deck = self.deck.text().strip()
         if not deck:
             deck = _("Default")
@@ -138,7 +142,6 @@ you can enter it here. Use \\t to represent tab."""),
         if did != self.importer.model['did']:
             self.importer.model['did'] = did
             self.mw.col.models.save(self.importer.model)
-        self.importer.mapping = self.mapping
         self.mw.progress.start(immediate=True)
         self.mw.checkpoint(_("Import"))
         try:
