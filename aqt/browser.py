@@ -486,7 +486,8 @@ class Browser(QMainWindow):
 
     def onRowChanged(self, current, previous):
         "Update current note and hide/show editor."
-        show = self.model.cards and self.updateTitle() == 1
+        update = self.updateTitle()
+        show = self.model.cards and update == 1
         self.form.splitter.widget(1).setShown(not not show)
         if not show:
             self.editor.setNote(None)
