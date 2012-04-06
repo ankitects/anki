@@ -235,7 +235,9 @@ class SupermemoXmlImporter(NoteImporter):
 
         # pre-process scheduling data
         # convert learning data
-        if not self.META.resetLearningData and item.Interval >= 1:
+        if (not self.META.resetLearningData
+            and item.Interval >= 1
+            and getattr(item, "LastRepetition", None)):
             # migration of LearningData algorithm
             tLastrep = time.mktime(time.strptime(item.LastRepetition, '%d.%m.%Y'))
             tToday = time.time()
