@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import sys
-from aqt.utils import showText
+from aqt.utils import showText, showWarning
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
@@ -45,19 +45,21 @@ class ErrorHandler(QObject):
     def onTimeout(self):
         error = self.pool
         self.pool = ""
+        self.mw.progress.clear()
+        if "abortSchemaMod" in error:
+            return
+        if "Pyaudio not" in error:
+            return showWarning(_("Please install PyAudio"))
         stdText = _("""\
 An error occurred. It may have been caused by a harmless bug, <br>
 or your deck may have a problem.
 <p>To confirm it's not a problem with your deck, please run
-<b>Tools > Advanced > Check Database</b>.
+<b>Tools > Check Database</b>.
 <p>If that doesn't fix the problem, please copy the following<br>
 into a bug report:""")
         pluginText = _("""\
 An error occurred in a plugin. Please contact the plugin author.<br>
 Please do not file a bug report with Anki.<br>""")
-        self.mw.progress.clear()
-        if "abortSchemaMod" in error:
-            return
         if "addon" in error:
             txt = pluginText
         else:
