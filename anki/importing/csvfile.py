@@ -70,7 +70,8 @@ class TextImporter(NoteImporter):
         self.data = [sub(x)+"\n" for x in self.data.split("\n") if sub(x)]
         if self.data:
             if self.data[0].startswith("tags:"):
-                self.tagsToAdd = self.data[0][5:].split(" ")
+                tags = unicode(self.data[0][5:], "utf8")
+                self.tagsToAdd = tags.split(" ")
                 del self.data[0]
             self.updateDelimiter()
         if not self.dialect and not self.delimiter:
