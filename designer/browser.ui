@@ -286,6 +286,9 @@
    <property name="text">
     <string>&amp;Undo</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
   </action>
   <action name="actionInvertSelection">
    <property name="text">
