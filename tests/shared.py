@@ -14,8 +14,8 @@ def getEmptyDeck(**kwargs):
     os.unlink(nam)
     return aopen(nam, **kwargs)
 
-def getUpgradeDeckPath():
-    src = os.path.join(testDir, "support", "anki12.anki")
+def getUpgradeDeckPath(name="anki12.anki"):
+    src = os.path.join(testDir, "support", name)
     (fd, dst) = tempfile.mkstemp(suffix=".anki2")
     shutil.copy(src, dst)
     return dst

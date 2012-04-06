@@ -43,6 +43,12 @@ def test_upgrade1():
     # print
     # print "--a", c.a()
 
+def test_upgrade1_due():
+    dst = getUpgradeDeckPath("anki12-due.anki")
+    u = Upgrader()
+    deck = u.upgrade(dst)
+    print deck.db.all("select nid, due from cards")
+
 def test_upgrade2():
     p = "/tmp/alpha-upgrade.anki2"
     if os.path.exists(p):

@@ -624,24 +624,6 @@ and ord = ? limit 1""", m['id'], t['ord']):
             f['name'], tmpl['qfmt'], f['name'])
         return True
 
-    # New due times
-    ######################################################################
-    # New cards now use a user-friendly increasing integer rather than a
-    # timestamp
-
-    def _rewriteNewDue(self):
-        col = self.col
-        pos = 0
-        data = []
-        for id, due in col.db.execute(
-            "select id, due from cards where type = 0 order by id"):
-            pos += 1
-            data.append((pos, id))
-        col.db.executemany("update cards set due = ? where id = ?", data)
-        # update insertion id
-        col.conf['nextPos'] = pos + 1
-        col.save()
-
     # Post-schema upgrade
     ######################################################################
 
@@ -683,8 +665,6 @@ and ord = ? limit 1""", m['id'], t['ord']):
         # remove old deleted tables
         for t in ("cards", "notes", "models", "media"):
             col.db.execute("drop table if exists %sDeleted" % t)
-        # rewrite due times for new cards
-        self._rewriteNewDue()
         # and failed cards
         left = len(col.decks.confForDid(1)['new']['delays'])
         col.db.execute("update cards set odue = ?, left=? where type = 1",
@@ -704,6 +684,8 @@ update cards set due = cast(
         conf = col.decks.allConf()[0]
         if not conf['new']['order']:
             col.sched.randomizeCards(1)
+        else:
+            col.sched.orderCards(1)
         # optimize and finish
         col.db.commit()
         col.db.execute("vacuum")
