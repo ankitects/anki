@@ -47,7 +47,7 @@ def test_upgrade1_due():
     dst = getUpgradeDeckPath("anki12-due.anki")
     u = Upgrader()
     deck = u.upgrade(dst)
-    print deck.db.all("select nid, due from cards")
+    assert not deck.db.scalar("select 1 from cards where due != 1")
 
 def test_upgrade2():
     p = "/tmp/alpha-upgrade.anki2"

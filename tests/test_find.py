@@ -101,9 +101,9 @@ def test_findCards():
     deck.conf['sortBackwards'] = True
     assert deck.findCards("")[0] in latestCardIds
     # model
-    assert len(deck.findCards("model:basic")) == 5
-    assert len(deck.findCards("-model:basic")) == 0
-    assert len(deck.findCards("-model:foo")) == 5
+    assert len(deck.findCards("ntype:basic")) == 5
+    assert len(deck.findCards("-ntype:basic")) == 0
+    assert len(deck.findCards("-ntype:foo")) == 5
     # deck
     assert len(deck.findCards("deck:default")) == 5
     assert len(deck.findCards("-deck:default")) == 0
