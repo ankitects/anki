@@ -947,10 +947,10 @@ class EditorWebView(AnkiWebView):
         # print "html", mime.html()
         # print "urls", mime.urls()
         # print "text", mime.text()
-        if mime.hasUrls():
-            return self._processUrls(mime)
-        elif mime.hasImage():
+        if mime.hasImage():
             return self._processImage(mime)
+        elif mime.hasUrls():
+            return self._processUrls(mime)
         elif mime.hasText() and (self.strip or not mime.hasHtml()):
             return self._processText(mime)
         elif mime.hasHtml():
