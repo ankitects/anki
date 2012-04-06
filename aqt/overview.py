@@ -42,6 +42,9 @@ class Overview(object):
             print "anki menu"
         elif url == "opts":
             self.mw.onDeckConf()
+        elif url == "cram":
+            deck = self.mw.col.decks.current()
+            self.mw.onCram("'deck:%s'" % deck['name'])
         elif url == "refresh":
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
@@ -161,6 +164,8 @@ text-align: center;
         ]
         if self.mw.col.decks.current()['dyn']:
             links.append(["refresh", _("Rebuild")])
+        else:
+            links.append(["cram", _("Cram")])
         buf = ""
         for b in links:
             buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)

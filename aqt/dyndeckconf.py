@@ -9,7 +9,7 @@ from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
 from operator import itemgetter
 
 class DeckConf(QDialog):
-    def __init__(self, mw, first=False):
+    def __init__(self, mw, first=False, search=""):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
@@ -29,6 +29,8 @@ class DeckConf(QDialog):
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         self.setupCombos()
         self.loadConf()
+        if first and search:
+            self.form.search.setText(search)
         self.exec_()
 
     def setupCombos(self):

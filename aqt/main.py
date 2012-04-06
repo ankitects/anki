@@ -718,7 +718,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
     # Cramming
     ##########################################################################
 
-    def onCram(self):
+    def onCram(self, search=""):
         import aqt.dyndeckconf
         n = 1
         decks = self.col.decks.allNames()
@@ -732,7 +732,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             showWarning(_("The provided name was already in use."))
             return
         did = self.col.decks.newDyn(name)
-        diag = aqt.dyndeckconf.DeckConf(self, first=True)
+        diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
             # user cancelled first config
             self.col.decks.rem(did)
