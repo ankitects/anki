@@ -9,12 +9,18 @@ from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
 from operator import itemgetter
 
 class DeckConf(QDialog):
-    def __init__(self, mw):
+    def __init__(self, mw, first=False):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
         self.form = aqt.forms.dyndconf.Ui_Dialog()
         self.form.setupUi(self)
+        if first:
+            label = _("Build")
+        else:
+            label = _("Rebuild")
+        self.ok = self.form.buttonBox.addButton(
+            label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(_("Options"))
         self.setWindowModality(Qt.WindowModal)
         self.connect(self.form.buttonBox,
@@ -54,7 +60,8 @@ class DeckConf(QDialog):
         return True
 
     def reject(self):
-        self.accept()
+        self.ok = False
+        QDialog.reject(self)
 
     def accept(self):
         if not self.saveConf():
