@@ -188,7 +188,7 @@ class AnkiExporter(Exporter):
         media = {}
         if self.includeMedia:
             for row in notedata:
-                flds = row[7]
+                flds = row[6]
                 mid = row[2]
                 for file in self.src.media.filesInStr(mid, flds):
                     media[file] = True
