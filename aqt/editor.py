@@ -326,11 +326,12 @@ class Editor(object):
         b("text_sub", self.toggleSub, "Ctrl+Shift+=",
           _("Subscript (Ctrl+Shift+=)"), check=True)
         b("text_remove", self.removeFormat, "Ctrl+r",
-          _("Remove Formatting (Ctrl+r)"))
+          _("Remove formatting (Ctrl+r)"))
         but = b("foreground", self.onForeground, "F7", text=" ")
+        but.setToolTip(_("Set foreground colour (F7)"))
         self.setupForegroundButton(but)
         but = b("cloze", self.onCloze, "Ctrl+Shift+c",
-                _("Cloze (Ctrl+Shift+c)"), text="[...]")
+                _("Cloze deletion (Ctrl+Shift+c)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
         b("mail-attachment", self.onAddMedia, "F3",
@@ -794,10 +795,10 @@ class Editor(object):
         a = m.addAction(_("LaTeX"))
         a.setShortcut(QKeySequence("Ctrl+t, t"))
         a.connect(a, SIGNAL("triggered()"), self.insertLatex)
-        a = m.addAction(_("LaTeX Equation"))
+        a = m.addAction(_("LaTeX equation"))
         a.setShortcut(QKeySequence("Ctrl+t, e"))
         a.connect(a, SIGNAL("triggered()"), self.insertLatexEqn)
-        a = m.addAction(_("LaTeX Math Env."))
+        a = m.addAction(_("LaTeX math env."))
         a.setShortcut(QKeySequence("Ctrl+t, m"))
         a.connect(a, SIGNAL("triggered()"), self.insertLatexMathEnv)
         a = m.addAction(_("Edit HTML"))
