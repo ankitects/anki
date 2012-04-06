@@ -1,6 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import os
 from aqt.qt import *
 import anki, aqt, aqt.tagedit
 from aqt.utils import getSaveFile, tooltip, showWarning
@@ -53,10 +54,13 @@ class ExportDialog(QDialog):
                 self.exporter.did = self.col.decks.id(name)
             self.mw.progress.start(immediate=True)
             try:
-                self.exporter.exportInto(file)
+                f = open(file, "wb")
+                f.close()
             except (OSError, IOError), e:
                 showWarning(_("Couldn't save file: %s") % unicode(e))
             else:
+                os.unlink(file)
+                self.exporter.exportInto(file)
                 tooltip(_("%d exported.") % self.exporter.count)
             finally:
                 self.mw.progress.finish()
