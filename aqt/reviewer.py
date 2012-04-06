@@ -472,7 +472,8 @@ function showAnswer(txt) {
 
     def _showAnswerButton(self):
         self._bottomReady = True
-        self.bottom.web.setFocus()
+        if not self.typeCorrect:
+            self.bottom.web.setFocus()
         middle = '''
 <span class=stattxt>%s</span><br>
 <button id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % (
