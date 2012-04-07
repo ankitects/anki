@@ -201,20 +201,6 @@ function showDupes() {
 function hideDupes() {
     $("#dupes").hide();
 }
-
-$(function () {
-    // ignore drops outside the editable area
-    document.body.ondragover = function () {
-        e = window.event.srcElement;
-        do {
-            if (e.contentEditable == "true") {
-                return;
-            }
-            e = window.parentNode;
-        } while (e);
-        window.event.preventDefault();
-    }
-});
 </script></head><body>
 <div id="fields"></div>
 <div id="dupes"><a href="#" onclick="py.run('dupes');return false;">%s</a></div>
