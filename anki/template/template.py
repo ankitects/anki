@@ -3,9 +3,9 @@ import cgi
 import collections
 from anki.utils import stripHTML
 from anki.hooks import runFilter
+from anki.template import furigana; furigana.install()
 
 clozeReg = r"\{\{c%s::(.*?)(::(.*?))?\}\}"
-
 
 modifiers = {}
 def modifier(symbol):
@@ -185,8 +185,8 @@ class Template(object):
             else:
                 return ""
         else:
-            # hook-based modifier
-            txt = runFilter('fieldModifier_' + mod, txt, extra, context, tag, tag_name);
+            # hook-based field modifier
+            txt = runFilter('fmod_' + mod, txt, extra, context, tag, tag_name);
             if txt is None:
                 return '{unknown field %s}' % tag_name
             return txt
