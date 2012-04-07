@@ -287,7 +287,7 @@ Are you sure?"""):
     ##########################################################################
 
     def moveToState(self, state, *args):
-        print "-> move from", self.state, "to", state
+        #print "-> move from", self.state, "to", state
         oldState = self.state or "dummy"
         cleanup = getattr(self, "_"+oldState+"Cleanup", None)
         if cleanup:
@@ -314,7 +314,6 @@ Are you sure?"""):
         self.reviewer.show()
 
     def _reviewCleanup(self, newState):
-        print "rethink cleanup code?"
         if newState != "resetRequired":
             self.reviewer.cleanup()
 
@@ -959,6 +958,5 @@ Your edits have left some cards empty. Do you want to delete them?"""))
     ##########################################################################
 
     def setupProxy(self):
-        print "proxy"
         return
         # need to bundle socksipy and install a default socket handler
