@@ -115,7 +115,7 @@ class DeckManager(object):
         g = copy.deepcopy(type)
         if "::" in name:
             # not top level; ensure all parents exist
-            self._ensureParents(name)
+            name = self._ensureParents(name)
         g['name'] = name
         while 1:
             id = intTime(1000)
@@ -230,13 +230,20 @@ class DeckManager(object):
         return self._path(name)[-1]
 
     def _ensureParents(self, name):
+        "Ensure parents exist, and return name with case matching parents."
         s = ""
-        for p in self._path(name)[:-1]:
+        path = self._path(name)
+        for p in path[:-1]:
             if not s:
                 s += p
             else:
                 s += "::" + p
-            self.id(s)
+            # fetch or create
+            did = self.id(s)
+            # get original case
+            s = self.name(did)
+        name = s + "::" + path[-1]
+        return name
 
     # Deck configurations
     #############################################################

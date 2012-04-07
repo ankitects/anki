@@ -30,6 +30,16 @@ def test_basic():
     deck.decks.select(childId)
     assert deck.decks.selected() == childId
     assert deck.decks.active() == [childId]
+    # parents with a different case should be handled correctly
+    deck.decks.id("ONE")
+    m = deck.models.current()
+    m['did'] = deck.decks.id("one::two")
+    deck.models.save(m)
+    n = deck.newNote()
+    n['Front'] = "abc"
+    deck.addNote(n)
+    # this will error if child and parent case don't match
+    deck.sched.deckDueList()
 
 def test_remove():
     deck = getEmptyDeck()
