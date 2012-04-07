@@ -230,7 +230,6 @@ def test_reviews():
     c.due = d.sched.today - 8
     c.factor = 2500
     c.reps = 3
-    c.streak = 2
     c.lapses = 1
     c.ivl = 100
     c.startTimer()
@@ -309,6 +308,29 @@ def test_reviews():
     assert c.queue == -1
     c.load()
     assert c.queue == -1
+
+def test_overdue_lapse():
+    d = getEmptyDeck()
+    # add a note
+    f = d.newNote()
+    f['Front'] = u"one"
+    d.addNote(f)
+    # simulate a review that was lapsed and is now due for its normal review
+    c = f.cards()[0]
+    c.type = 2
+    c.queue = 1
+    c.due = -1
+    c.odue = -1
+    c.factor = 2500
+    c.left = 2
+    c.ivl = 0
+    c.flush()
+    d.sched.reset()
+    assert d.sched.counts() == (0, 2, 0)
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    # it should be due tomorrow
+    assert c.due == d.sched.today + 1
 
 def test_finished():
     d = getEmptyDeck()

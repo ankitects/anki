@@ -468,7 +468,8 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
 
     def _rescheduleAsRev(self, card, conf, early):
         if card.type == 2:
-            card.due = card.odue
+            card.due = max(self.today+1, card.odue)
+            card.odue = 0
         else:
             self._rescheduleNew(card, conf, early)
         card.queue = 2
