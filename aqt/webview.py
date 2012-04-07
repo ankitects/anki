@@ -5,7 +5,7 @@
 import sys
 from aqt.qt import *
 from aqt.utils import fontForPlatform, openLink
-from anki.utils import isMac
+from anki.utils import isMac, isWin
 import anki.js
 QtConfig = pyqtconfig.Configuration()
 
@@ -57,6 +57,10 @@ class AnkiWebView(QWebView):
         if evt.matches(QKeySequence.Copy):
             self.triggerPageAction(QWebPage.Copy)
             evt.accept()
+        # work around a bug with windows qt where shift triggers buttons
+        if isWin and evt.modifiers() == Qt.ShiftModifier and not evt.text():
+            evt.accept()
+            return
         QWebView.keyPressEvent(self, evt)
     def keyReleaseEvent(self, evt):
         if self._keyHandler:
