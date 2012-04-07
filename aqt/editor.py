@@ -94,10 +94,12 @@ function clearChangeTimer() {
 
 function onFocus(elem) {
     currentField = elem;
-    // prevent webkit from highlighting the whole field
-    $(elem).css("-webkit-user-select", "none");
-    setTimeout(function () { unfocusHack() }, 1);
     py.run("focus:" + currentField.id.substring(1));
+    // don't adjust cursor on mouse clicks
+    if (mouseDown) { return; }
+    // move cursor
+    caretToEnd();
+    // scroll if bottom of element off the screen
     function pos(obj) {
     	var cur = 0;
         do {
@@ -106,19 +108,18 @@ function onFocus(elem) {
     	return cur;
     }
     var y = pos(elem);
-    if ((window.pageYOffset+window.innerHeight) < (y+elem.offsetHeight))
+    if ((window.pageYOffset+window.innerHeight) < (y+elem.offsetHeight) ||
+        window.pageYOffset > y) {
         window.scroll(0,y+elem.offsetHeight-window.innerHeight);
-    else if (window.pageYOffset > y)
-        window.scroll(0, y-15);
+    }
 }
 
-// restore cursor
-function unfocusHack() {
-    $(currentField).css("-webkit-user-select", "text");
+function caretToEnd() {
     var r = document.createRange()
     r.selectNodeContents(currentField);
-    r.collapse();
+    r.collapse(false);
     var s = document.getSelection();
+    s.removeAllRanges();
     s.addRange(r);
 };
 
@@ -177,7 +178,6 @@ function setFields(fields, focusTo) {
     if (!focusTo) {
         focusTo = 0;
     }
-    $("#f"+focusTo).focus();
 };
 
 function setBackgrounds(cols) {
@@ -201,6 +201,18 @@ function showDupes() {
 function hideDupes() {
     $("#dupes").hide();
 }
+
+var mouseDown = 0;
+
+$(function () {
+document.body.onmousedown = function () {
+    mouseDown++;
+}
+
+document.body.onmouseup = function () {
+    mouseDown--;
+}});
+
 </script></head><body>
 <div id="fields"></div>
 <div id="dupes"><a href="#" onclick="py.run('dupes');return false;">%s</a></div>
