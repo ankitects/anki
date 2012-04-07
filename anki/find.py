@@ -349,7 +349,7 @@ n.mid in %s and n.id %s in %s""" % (
                 elif token['value'].startswith("is:"):
                     token['value'] = token['value'][3:].lower()
                     type = SEARCH_TYPE
-                elif token['value'].startswith("ntype:"):
+                elif token['value'].startswith("note:"):
                     token['value'] = token['value'][6:].lower()
                     type = SEARCH_MODEL
                 elif token['value'].startswith("deck:"):
