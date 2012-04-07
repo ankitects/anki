@@ -258,7 +258,7 @@ flds %s like :_text_%d escape '\\')""" % (extra, c, extra, c))
             self.lims['valid'] = False
             return
         # gather nids
-        regex = value.replace("%", ".*")
+        regex = value.replace("_", ".").replace("%", ".*")
         nids = []
         for (id,mid,flds) in self.col.db.execute("""
 select id, mid, flds from notes
@@ -273,7 +273,9 @@ where mid in %s and flds like ? escape '\\'""" % (
             if re.search(regex, strg):
                 nids.append(id)
         extra = "not" if isNeg else ""
-        self.lims['preds'].append("n.id %s in %s" % (extra, ids2str(nids)))
+        self.lims['preds'].append("""
+n.mid in %s and n.id %s in %s""" % (
+    ids2str(mods.keys()), extra, ids2str(nids)))
 
     # Most of this function was written by Marcus
     def _parseQuery(self):
