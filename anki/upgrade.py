@@ -476,6 +476,14 @@ order by ordinal""", mid)):
                     t[k] = re.sub("color: ?#000(000)?;?", "", t[k])
                     t[k] = re.sub("white-space: ?pre-wrap;?", "", t[k])
                     t[k] = re.sub('<span style=" *">(.+?)</span>', '\\1', t[k])
+                    # new furigana handling
+                    if "japanese" in m['name'].lower():
+                        if k == 'qfmt':
+                            t[k] = t[k].replace(
+                                "{{Reading}}", "{{kana:Reading}}")
+                        else:
+                            t[k] = t[k].replace(
+                                "{{Reading}}", "{{furigana:Reading}}")
                 # adjust css
                 if t['bg'].lower() == "#ffffff":
                     # a bit more intuitive default
