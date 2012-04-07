@@ -133,6 +133,10 @@ function onBlur() {
 };
 
 function saveField(type) {
+    if (!currentField) {
+        // no field has been focused yet
+        return;
+    }
     // type is either 'blur' or 'key'
     py.run(type + ":" + currentField.innerHTML);
     clearChangeTimer();
