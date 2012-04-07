@@ -97,6 +97,8 @@ function onFocus(elem) {
     py.run("focus:" + currentField.id.substring(1));
     // don't adjust cursor on mouse clicks
     if (mouseDown) { return; }
+    // do this twice so that there's no flicker on newer versions
+    caretToEnd();
     // need to do this in a timeout for older qt versions
     setTimeout(function () { caretToEnd() }, 1);
     // scroll if bottom of element off the screen
