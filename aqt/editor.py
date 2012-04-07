@@ -900,7 +900,10 @@ class EditorWebView(AnkiWebView):
                 mime = QMimeData()
                 mime.setHtml(self._filteredHTML(oldmime.html()))
             else:
-                mime = oldmime
+                # old qt on linux won't give us html when dragging an image;
+                # in that case just do the default action (which is to ignore
+                # the drag)
+                return AnkiWebView.dropEvent(self, evt)
         else:
             mime = self._processMime(oldmime)
         # create a new event with the new mime data
