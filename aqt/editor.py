@@ -116,6 +116,10 @@ function onFocus(elem) {
     }
 }
 
+function onDragOver(elem) {
+    elem.focus();
+}
+
 function caretToEnd() {
     var r = document.createRange()
     r.selectNodeContents(currentField);
@@ -177,6 +181,7 @@ function setFields(fields, focusTo) {
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%%>".format(n);
         txt += "<div id=f{0} onkeydown='onKey();' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
+        txt += "ondragover='onDragOver(this);' ";
         txt += "contentEditable=true>{0}</div>".format(f);
         txt += "</td></tr>";
     }
@@ -911,7 +916,6 @@ class EditorWebView(AnkiWebView):
                          evt.mouseButtons(), evt.keyboardModifiers())
         evt.accept()
         QWebView.dropEvent(self, new)
-        self.editor.saveNow()
 
     def prepareClip(self, keep=False, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
