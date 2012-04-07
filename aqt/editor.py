@@ -489,7 +489,7 @@ class Editor(object):
         contents = self.note.fields[0]
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.setText(
-            "'ntype:%s' '%s:%s'" % (
+            "'note:%s' '%s:%s'" % (
                 self.note.model()['name'],
                 self.note.model()['flds'][0]['name'],
                 contents))

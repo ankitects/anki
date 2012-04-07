@@ -693,7 +693,7 @@ class Browser(QMainWindow):
     def _modelTree(self, root):
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
             mitem = self.CallbackItem(
-                m['name'], lambda m=m: self.setFilter("ntype", m['name']))
+                m['name'], lambda m=m: self.setFilter("note", m['name']))
             mitem.setIcon(0, QIcon(":/icons/product_design.png"))
             root.addChild(mitem)
             # for t in m['tmpls']:
