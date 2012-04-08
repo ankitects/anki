@@ -186,7 +186,8 @@ class Template(object):
                 return ""
         else:
             # hook-based field modifier
-            txt = runFilter('fmod_' + mod, txt, extra, context, tag, tag_name);
+            txt = runFilter('fmod_' + mod, txt or '', extra, context,
+                            tag, tag_name);
             if txt is None:
                 return '{unknown field %s}' % tag_name
             return txt

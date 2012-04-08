@@ -147,6 +147,7 @@ def test_furigana():
     deck = getEmptyDeck()
     mm = deck.models
     m = mm.current()
+    # filter should work
     m['tmpls'][0]['qfmt'] = '{{kana:Front}}'
     mm.save(m)
     n = deck.newNote()
@@ -154,6 +155,11 @@ def test_furigana():
     deck.addNote(n)
     c = n.cards()[0]
     assert c.q().endswith("abc")
+    # and should avoid sound
     n['Front'] = 'foo[sound:abc.mp3]'
     n.flush()
     assert "sound:" in c.q(reload=True)
+    # it shouldn't throw an error while people are editing
+    m['tmpls'][0]['qfmt'] = '{{kana:}}'
+    mm.save(m)
+    c.q(reload=True)
