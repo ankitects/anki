@@ -231,6 +231,8 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.col.modSchema()
         idx = m['flds'].index(field)
         m['flds'].remove(field)
+        if m['sortf'] >= len(m['flds']):
+            m['sortf'] -= 1
         self._updateFieldOrds(m)
         def delete(fields):
             del fields[idx]
@@ -238,7 +240,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self._transformFields(m, delete)
         if idx == self.sortIdx(m):
             # need to rebuild
-            self.col.updateFieldCache(self.nids(m), csum=False)
+            self.col.updateFieldCache(self.nids(m))
         # saves
         self.renameField(m, field, None)
 
