@@ -136,6 +136,9 @@ select count() from notes where id not in (select distinct nid from cards)""")
         for m in self.col.models.all():
             assert m['usn'] != -1
         self.col.sched.reset()
+        # check for missing parent decks
+        self.col.sched.deckDueList()
+        # return summary of deck
         return [
             list(self.col.sched.counts()),
             self.col.db.scalar("select count() from cards"),
