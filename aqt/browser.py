@@ -651,7 +651,7 @@ class Browser(QMainWindow):
         if self.mw.app.keyboardModifiers() & Qt.AltModifier:
             txt = "-"+txt
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
-            cur = unicode(self.form.searchEdit.text())
+            cur = unicode(self.form.searchEdit.lineEdit().text())
             if cur:
                 txt = cur + " " + txt
         self.form.searchEdit.lineEdit().setText(txt)
