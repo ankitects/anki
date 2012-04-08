@@ -86,6 +86,5 @@ class ModelChooser(QHBoxLayout):
         self.models.addItems([m['name'] for m in self._models])
         for c, m in enumerate(self._models):
             if m['id'] == self.deck.conf['curModel']:
-                print "current", c
                 self.models.setCurrentIndex(c)
                 break

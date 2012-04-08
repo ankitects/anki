@@ -6,7 +6,7 @@ from aqt.qt import *
 import re, os, sys, urllib2, ctypes, simplejson, traceback
 from anki.utils import stripHTML, isWin, isMac, namedtmp
 from anki.sound import play
-from anki.hooks import runHook
+from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
@@ -399,10 +399,19 @@ class Editor(object):
             if type == "blur":
                 if not self._keepButtons:
                     self.disableButtons()
-                runHook("editFocusLost", self.note)
+                # run any filters
+                if runFilter(
+                    "editFocusLost", False, self.note, self.currentField):
+                    # something updated the note; schedule reload
+                    def onUpdate():
+                        self.loadNote()
+                        self.checkValid()
+                    self.mw.progress.timer(100, onUpdate, False)
+                else:
+                    self.checkValid()
             else:
                 runHook("editTimer", self.note)
-            self.checkValid()
+                self.checkValid()
         # focused into field?
         elif str.startswith("focus"):
             (type, num) = str.split(":", 1)
