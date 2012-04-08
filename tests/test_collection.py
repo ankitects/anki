@@ -143,3 +143,17 @@ def test_timestamps():
         addBasicModel(deck)
     assert len(deck.models.models) == 102
 
+def test_furigana():
+    deck = getEmptyDeck()
+    mm = deck.models
+    m = mm.current()
+    m['tmpls'][0]['qfmt'] = '{{kana:Front}}'
+    mm.save(m)
+    n = deck.newNote()
+    n['Front'] = 'foo[abc]'
+    deck.addNote(n)
+    c = n.cards()[0]
+    assert c.q().endswith("abc")
+    n['Front'] = 'foo[sound:abc.mp3]'
+    n.flush()
+    assert "sound:" in c.q(reload=True)
