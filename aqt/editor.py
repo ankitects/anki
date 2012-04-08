@@ -189,6 +189,9 @@ function setFields(fields, focusTo) {
     if (!focusTo) {
         focusTo = 0;
     }
+    if (focusTo >= 0) {
+        $("#f"+focusTo).focus();
+    }
 };
 
 function setBackgrounds(cols) {
@@ -444,9 +447,10 @@ class Editor(object):
         if self.note:
             self.loadNote()
 
-    def setNote(self, note, hide=True):
+    def setNote(self, note, hide=True, focus=False):
         "Make NOTE the current note."
         self.note = note
+        self.currentField = 0
         # change timer
         if self.note:
             self.web.setHtml(_html % (getBase(self.mw.col), anki.js.jquery,
@@ -461,7 +465,10 @@ class Editor(object):
                 self.widget.hide()
 
     def loadNote(self):
-        field = self.currentField
+        if self.stealFocus:
+            field = self.currentField
+        else:
+            field = -1
         if not self._loaded:
             # will be loaded when page is ready
             return
