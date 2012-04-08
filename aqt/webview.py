@@ -111,7 +111,11 @@ button {
     def _openLinksExternally(self, url):
         openLink(url)
     def _jsErr(self, msg, line, srcID):
-        sys.stderr.write(_("JS error on line %(a)d: %(b)s") % dict(a=line, b=msg+"\n"))
+        if getattr(sys, 'frozen', None):
+            obj = sys.stderr
+        else:
+            obj = sys.stdout
+        obj.write(_("JS error on line %(a)d: %(b)s") % dict(a=line, b=msg+"\n"))
     def _linkHandler(self, url):
         self.linkHandler(url.toString())
     def _loadFinished(self):
