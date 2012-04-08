@@ -504,6 +504,10 @@ class Browser(QMainWindow):
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
 
+    def refreshCurrentCardFilter(self, flag, note, fidx):
+        self.refreshCurrentCard(note)
+        return flag
+
     # Headers & sorting
     ######################################################################
 
@@ -1035,7 +1039,7 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         addHook("undoState", self.onUndoState)
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
-        addHook("editFocusLost", self.refreshCurrentCard)
+        addHook("editFocusLost", self.refreshCurrentCardFilter)
 
     def teardownHooks(self):
         remHook("reset", self.onReset)
