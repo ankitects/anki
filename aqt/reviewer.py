@@ -129,6 +129,7 @@ function _typeAnsPress() {
             bodyClass="card", loadCB=lambda x: self._showQuestion(),
             head=base)
         # show answer / ease buttons
+        self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
             self.bottom._css + self._bottomCSS,

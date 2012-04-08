@@ -361,6 +361,7 @@ Are you sure?"""):
 %s<br>
 %s</div></div></center>
 """ % (i, b), css=self.sharedCSS)
+        self.bottomWeb.hide()
 
     # HTML helpers
     ##########################################################################
