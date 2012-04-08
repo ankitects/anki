@@ -11,6 +11,7 @@ from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      saveSplitter, restoreSplitter, showInfo, askUser, getOnlyText, \
      showWarning, openHelp, openLink
 from anki.utils import isMac, isWin
+from aqt.webview import AnkiWebView
 
 class CardLayout(QDialog):
 
@@ -86,9 +87,13 @@ class CardLayout(QDialog):
         right = QWidget()
         pform = aqt.forms.preview.Ui_Form()
         pform.setupUi(right)
+        self.frontWeb = AnkiWebView()
+        pform.frontPrevBox.addWidget(self.frontWeb)
+        self.backWeb = AnkiWebView()
+        pform.backPrevBox.addWidget(self.backWeb)
         def linkClicked(url):
             openLink(url)
-        for wig in pform.front, pform.back:
+        for wig in self.frontWeb, self.backWeb:
             wig.page().setLinkDelegationPolicy(
                 QWebPage.DelegateExternalLinks)
             c(wig, SIGNAL("linkClicked(QUrl)"), linkClicked)
@@ -179,10 +184,12 @@ Please create a new card type first."""))
 <style>%s</style>%s</body></html>'''
         ti = self.maybeTextInput
         base = getBase(self.mw.col)
-        self.tab['pform'].front.setHtml(
-            html % (base, "", ti(mungeQA(c.q(reload=True)))))
-        self.tab['pform'].back.setHtml(
-            html % (base, "", ti(mungeQA(c.a()), 'a')))
+        self.frontWeb.stdHtml(
+            ti(mungeQA(c.q(reload=True))), self.mw.reviewer._styles(),
+            bodyClass="card", head=base)
+        self.backWeb.stdHtml(
+            ti(mungeQA(c.a())), self.mw.reviewer._styles(),
+            bodyClass="card", head=base)
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())

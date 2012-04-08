@@ -102,8 +102,8 @@ button {
 
 </head>
 <body class="%s">%s</body></html>""" % (
-    fontForPlatform(), button, css, js or anki.js.jquery, head,
-    bodyClass, body), loadCB)
+    fontForPlatform(), button, css, js or anki.js.jquery+anki.js.browserSel,
+    head, bodyClass, body), loadCB)
     def setBridge(self, bridge):
         self._bridge.setBridge(bridge)
     def eval(self, js):
