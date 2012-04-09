@@ -337,7 +337,7 @@ class Editor(object):
           _("Superscript (Ctrl+=)"), check=True)
         b("text_sub", self.toggleSub, "Ctrl+Shift+=",
           _("Subscript (Ctrl+Shift+=)"), check=True)
-        b("text_remove", self.removeFormat, "Ctrl+r",
+        b("text_clear", self.removeFormat, "Ctrl+r",
           _("Remove formatting (Ctrl+r)"))
         but = b("foreground", self.onForeground, "F7", text=" ")
         but.setToolTip(_("Set foreground colour (F7)"))
