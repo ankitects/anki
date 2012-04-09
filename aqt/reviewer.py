@@ -75,7 +75,8 @@ class Reviewer(object):
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
             tooltip(_("%(cards)d cards studied in %(mins)s minutes.") %
-                    dict(cards=elapsed[1], mins=elapsed[0]/60))
+                    dict(cards=elapsed[1], mins=elapsed[0]/60),
+                    period=5000)
             self.mw.col.startTimebox()
 
     # Audio
