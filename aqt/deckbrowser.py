@@ -57,7 +57,7 @@ class DeckBrowser(object):
 tr { font-size: 12px; }
 a.deck { color: #000; text-decoration: none; }
 a.deck:hover { text-decoration: underline; }
-tr.deck td { border-bottom: %(width)s solid transparent; }
+tr.deck td { border-bottom: %(width)s solid #e7e7e7; }
 tr.top-level-drag-row td { border-bottom: %(width)s solid transparent; }
 td.opts { white-space: nowrap; }
 tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
