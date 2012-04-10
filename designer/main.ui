@@ -200,7 +200,7 @@
   </action>
   <action name="actionDownloadSharedPlugin">
    <property name="text">
-    <string>Get Add-ons...</string>
+    <string>Browse &amp;&amp; Install...</string>
    </property>
    <property name="statusTip">
     <string>Download a plugin to add new features or change Anki's behaviour</string>
