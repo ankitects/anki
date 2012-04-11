@@ -43,7 +43,9 @@ body { margin: 5px; }
 </style><script>
 %s
 
-insertHTMLOK = %s;
+var insertHTMLOK = %s;
+var savedSel = null;
+
 
 String.prototype.format = function() {
     var args = arguments;
@@ -114,6 +116,17 @@ function onFocus(elem) {
         window.pageYOffset > y) {
         window.scroll(0,y+elem.offsetHeight-window.innerHeight);
     }
+}
+
+function saveSel() {
+    sel = document.getSelection();
+    savedSel = sel.getRangeAt(0);
+}
+
+function restoreSel() {
+    sel = document.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedSel);
 }
 
 function onDragOver(elem) {
@@ -675,6 +688,7 @@ class Editor(object):
         self._updateForegroundButton(recent[-1])
 
     def onForeground(self):
+        self.web.eval("saveSel();")
         class ColourPopup(QDialog):
             def __init__(self, parent):
                 QDialog.__init__(self, parent, Qt.FramelessWindowHint)
@@ -752,7 +766,7 @@ class Editor(object):
         recent = self.mw.pm.profile['recentColours']
         recent.remove(colour)
         recent.append(colour)
-        self._eval("setFormat('forecolor', '%s')" % colour)
+        self._eval("restoreSel(); setFormat('forecolor', '%s')" % colour)
         self.colourDiag.close()
         self.colourChanged()
 
