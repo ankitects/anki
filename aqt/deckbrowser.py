@@ -8,6 +8,7 @@ from anki.utils import isMac
 import anki.js
 from anki.errors import DeckRenameError
 import aqt
+from anki.sound import clearAudioQueue
 
 class DeckBrowser(object):
 
@@ -17,6 +18,7 @@ class DeckBrowser(object):
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
 
     def show(self):
+        clearAudioQueue()
         self.web.setLinkHandler(self._linkHandler)
         self.web.setKeyHandler(None)
         self.mw.keyHandler = None

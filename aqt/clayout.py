@@ -282,6 +282,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
         self.reject()
 
     def reject(self):
+        clearAudioQueue()
         if self.addMode:
             self.mw.col.db.execute("delete from notes where id = ?",
                                    self.note.id)

@@ -9,6 +9,7 @@ from anki.hooks import addHook
 from aqt.utils import showInfo, openLink
 from anki.utils import isMac
 import aqt
+from anki.sound import clearAudioQueue
 
 class Overview(object):
     "Deck overview."
@@ -19,6 +20,7 @@ class Overview(object):
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
 
     def show(self):
+        clearAudioQueue()
         self.web.setLinkHandler(self._linkHandler)
         self.web.setKeyHandler(None)
         self.mw.keyHandler = None
