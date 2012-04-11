@@ -91,6 +91,9 @@ class MplayerMonitor(threading.Thread):
         while 1:
             mplayerEvt.wait()
             mplayerEvt.clear()
+            # clearing queue?
+            if mplayerClear and self.mplayer:
+                self.mplayer.stdin.write("stop\n")
             # loop through files to play
             while mplayerQueue:
                 # ensure started
