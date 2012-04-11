@@ -4,7 +4,7 @@
 import os, sys
 from aqt.qt import *
 
-appVersion="2.0-beta2"
+appVersion="2.0-beta3"
 appWebsite="http://ankisrs.net/"
 appHelpSite="http://ankisrs.net/docs/dev/manual.html"
 appChanges="http://ankisrs.net/docs/dev/changes.html"
