@@ -754,6 +754,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             pass
         lang = force if force else self.pm.profile["lang"]
         languageDir=os.path.join(aqt.moduleDir,  "aqt", "locale")
+        if not os.path.exists(languageDir):
+            languageDir = os.path.join(
+                os.path.dirname(sys.argv[0]), "locale")
         self.languageTrans = gettext.translation('ankiqt', languageDir,
                                                  languages=[lang],
                                                  fallback=True)
