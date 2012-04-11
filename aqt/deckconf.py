@@ -9,10 +9,10 @@ from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
 from operator import itemgetter
 
 class DeckConf(QDialog):
-    def __init__(self, mw):
+    def __init__(self, mw, deck):
         QDialog.__init__(self, mw)
         self.mw = mw
-        self.deck = self.mw.col.decks.current()
+        self.deck = deck
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         self.mw.checkpoint(_("Options"))

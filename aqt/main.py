@@ -672,13 +672,15 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         import aqt.stats
         self.cardStats = aqt.stats.CardStats(self)
 
-    def onDeckConf(self):
-        if self.col.decks.current()['dyn']:
+    def onDeckConf(self, deck=None):
+        if not deck:
+            deck = self.col.decks.current()
+        if deck['dyn']:
             import aqt.dyndeckconf
             aqt.dyndeckconf.DeckConf(self)
         else:
             import aqt.deckconf
-            aqt.deckconf.DeckConf(self)
+            aqt.deckconf.DeckConf(self, deck)
 
     def onOverview(self):
         self.col.reset()

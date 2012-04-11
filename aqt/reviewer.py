@@ -220,6 +220,8 @@ function _typeAnsPress() {
             self.mw.onBuryNote()
         elif key == "=":
             self.mw.onSuspend()
+        elif key == "o":
+            self.onOptions()
         elif key in ("1", "2", "3", "4"):
             self._answerCard(int(key))
         elif evt.key() == Qt.Key_Delete:
@@ -566,13 +568,15 @@ Card was a <a href="%s">leech</a>.""") % link)
     # Context menu
     ##########################################################################
 
+    # note the shortcuts listed here also need to be defined above
     def showContextMenu(self):
         opts = [
             [_("Replay Audio"), "r", self.replayAudio],
             [_("Mark Note"), "*", self.mw.onMark],
             [_("Bury Note"), "-", self.mw.onBuryNote],
             [_("Suspend Note"), "=", self.mw.onSuspend],
-            [_("Delete Note"), "Delete", self.mw.onDelete]
+            [_("Delete Note"), "Delete", self.mw.onDelete],
+            [_("Card Options"), "o", self.onOptions]
         ]
         m = QMenu(self.mw)
         for label, scut, func in opts:
@@ -580,3 +584,8 @@ Card was a <a href="%s">leech</a>.""") % link)
             a.setShortcut(QKeySequence(scut))
             a.connect(a, SIGNAL("triggered()"), func)
         m.exec_(QCursor.pos())
+
+    def onOptions(self):
+        self.mw.onDeckConf(self.mw.col.decks.get(
+            self.card.odid or self.card.did))
+
