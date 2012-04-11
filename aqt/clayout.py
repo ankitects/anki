@@ -87,13 +87,13 @@ class CardLayout(QDialog):
         right = QWidget()
         pform = aqt.forms.preview.Ui_Form()
         pform.setupUi(right)
-        self.frontWeb = AnkiWebView()
-        pform.frontPrevBox.addWidget(self.frontWeb)
-        self.backWeb = AnkiWebView()
-        pform.backPrevBox.addWidget(self.backWeb)
+        pform.frontWeb = AnkiWebView()
+        pform.frontPrevBox.addWidget(pform.frontWeb)
+        pform.backWeb = AnkiWebView()
+        pform.backPrevBox.addWidget(pform.backWeb)
         def linkClicked(url):
             openLink(url)
-        for wig in self.frontWeb, self.backWeb:
+        for wig in pform.frontWeb, pform.backWeb:
             wig.page().setLinkDelegationPolicy(
                 QWebPage.DelegateExternalLinks)
             c(wig, SIGNAL("linkClicked(QUrl)"), linkClicked)
@@ -180,14 +180,12 @@ Please create a new card type first."""))
 
     def renderPreview(self):
         c = self.card
-        html = '''<html><head>%s</head><body class=card>
-<style>%s</style>%s</body></html>'''
         ti = self.maybeTextInput
         base = getBase(self.mw.col)
-        self.frontWeb.stdHtml(
+        self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(c.q(reload=True))), self.mw.reviewer._styles(),
             bodyClass="card", head=base)
-        self.backWeb.stdHtml(
+        self.tab['pform'].backWeb.stdHtml(
             ti(mungeQA(c.a())), self.mw.reviewer._styles(),
             bodyClass="card", head=base)
         clearAudioQueue()
