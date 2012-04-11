@@ -335,33 +335,33 @@ class Editor(object):
         b("fields", self.onFields, "",
           shortcut(_("Customize Fields")), size=False, text=_("Fields..."),
           native=True, canDisable=False)
-        b("layout", self.onCardLayout, "Ctrl+l",
+        b("layout", self.onCardLayout, _("Ctrl+l"),
           shortcut(_("Customize Card Layout (Ctrl+l)")),
           size=False, text=_("Cards..."), native=True, canDisable=False)
         # align to right
         self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
-        b("text_bold", self.toggleBold, "Ctrl+b", _("Bold text (Ctrl+b)"),
+        b("text_bold", self.toggleBold, _("Ctrl+b"), _("Bold text (Ctrl+b)"),
           check=True)
-        b("text_italic", self.toggleItalic, "Ctrl+i", _("Italic text (Ctrl+i)"),
+        b("text_italic", self.toggleItalic, _("Ctrl+i"), _("Italic text (Ctrl+i)"),
           check=True)
-        b("text_under", self.toggleUnderline, "Ctrl+u",
+        b("text_under", self.toggleUnderline, _("Ctrl+u"),
           _("Underline text (Ctrl+u)"), check=True)
-        b("text_super", self.toggleSuper, "Ctrl+=",
+        b("text_super", self.toggleSuper, _("Ctrl+="),
           _("Superscript (Ctrl+=)"), check=True)
-        b("text_sub", self.toggleSub, "Ctrl+Shift+=",
+        b("text_sub", self.toggleSub, _("Ctrl+Shift+="),
           _("Subscript (Ctrl+Shift+=)"), check=True)
-        b("text_clear", self.removeFormat, "Ctrl+r",
+        b("text_clear", self.removeFormat, _("Ctrl+r"),
           _("Remove formatting (Ctrl+r)"))
-        but = b("foreground", self.onForeground, "F7", text=" ")
+        but = b("foreground", self.onForeground, _("F7"), text=" ")
         but.setToolTip(_("Set foreground colour (F7)"))
         self.setupForegroundButton(but)
-        but = b("cloze", self.onCloze, "Ctrl+Shift+c",
+        but = b("cloze", self.onCloze, _("Ctrl+Shift+c"),
                 _("Cloze deletion (Ctrl+Shift+c)"), text="[...]")
         but.setFixedWidth(24)
         # fixme: better image names
-        b("mail-attachment", self.onAddMedia, "F3",
+        b("mail-attachment", self.onAddMedia, _("F3"),
           _("Attach pictures/audio/video (F3)"))
-        b("media-record", self.onRecSound, "F5", _("Record audio (F5)"))
+        b("media-record", self.onRecSound, _("F5"), _("Record audio (F5)"))
         b("adv", self.onAdvanced, text=u"▾")
         s = QShortcut(QKeySequence("Ctrl+t, t"), self.widget)
         s.connect(s, SIGNAL("activated()"), self.insertLatex)
