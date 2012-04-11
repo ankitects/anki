@@ -21,7 +21,7 @@ class DeckBrowser(object):
         clearAudioQueue()
         self.web.setLinkHandler(self._linkHandler)
         self.web.setKeyHandler(None)
-        self.mw.keyHandler = None
+        self.mw.keyHandler = self._keyHandler
         self._renderPage()
 
     # Event handlers
@@ -45,6 +45,11 @@ class DeckBrowser(object):
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(',')
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
+
+    def _keyHandler(self, evt):
+        key = unicode(evt.text())
+        if key == "c":
+            self.mw.onCram()
 
     def _selDeck(self, did):
         self.mw.col.decks.select(did)

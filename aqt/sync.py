@@ -235,7 +235,6 @@ class SyncThread(QThread):
             self._sync()
         except:
             err = traceback.format_exc()
-            print err
             self.fireEvent("error", err)
         finally:
             # don't bump mod time unless we explicitly save

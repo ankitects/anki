@@ -23,7 +23,7 @@ class Overview(object):
         clearAudioQueue()
         self.web.setLinkHandler(self._linkHandler)
         self.web.setKeyHandler(None)
-        self.mw.keyHandler = None
+        self.mw.keyHandler = self._keyHandler
         self.refresh()
 
     def refresh(self):
@@ -36,7 +36,6 @@ class Overview(object):
     ############################################################
 
     def _linkHandler(self, url):
-        print "link", url
         if url == "study":
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
@@ -54,6 +53,13 @@ class Overview(object):
             self.mw.moveToState("deckBrowser")
         elif url == "review":
             openLink(aqt.appShared+"info/%s?v=%s"%(self.sid, self.sidVer))
+
+    def _keyHandler(self, evt):
+        key = unicode(evt.text())
+        if key == "o":
+            self.mw.onDeckConf()
+        if key == "c":
+            self.mw.onCram()
 
     # HTML
     ############################################################
