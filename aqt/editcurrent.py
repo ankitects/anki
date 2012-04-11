@@ -29,7 +29,7 @@ class EditCurrent(QDialog):
         restoreGeom(self, "editcurrent")
         addHook("reset", self.onReset)
         self.mw.requireReset(modal=True)
-        self.open()
+        self.exec_()
         # reset focus after open
         self.editor.web.setFocus()
 
