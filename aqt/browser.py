@@ -326,9 +326,9 @@ class Browser(QMainWindow):
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
         self.show()
-        self.form.searchEdit.lineEdit().setText("deck:current is:recent")
+        self.form.searchEdit.lineEdit().setText("deck:current")
         self.form.searchEdit.lineEdit().selectAll()
-        self.onSearch()
+        #self.onSearch()
 
     def setupToolbar(self):
         self.toolbarWeb = AnkiWebView()
@@ -423,6 +423,7 @@ class Browser(QMainWindow):
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
         # self.compModel = QStringListModel()
+        self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.addItems(self.mw.pm.profile['searchHistory'])
         #self.compModel.setStringList(self.mw.pm.profile['searchHistory'])
         #self.searchComp = QCompleter(self.compModel, self.form.searchEdit)
