@@ -574,6 +574,9 @@ select id from notes where id not in (select distinct nid from cards)""")
         # field cache
         for m in self.models.all():
             self.updateFieldCache(self.models.nids(m))
+        # new card position
+        self.conf['nextPos'] = self.db.scalar(
+            "select max(due)+1 from cards where type = 0") or 0
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
