@@ -122,7 +122,6 @@ class DeckConf(QDialog):
         f.lrnSteps.setText(self.listToUser(c['delays']))
         f.lrnGradInt.setValue(c['ints'][0])
         f.lrnEasyInt.setValue(c['ints'][1])
-        f.lrnFactor.setValue(c['initialFactor']/10.0)
         f.newOrder.setCurrentIndex(c['order'])
         f.newPerDay.setValue(c['perDay'])
         f.separate.setChecked(c['separate'])
@@ -198,7 +197,6 @@ class DeckConf(QDialog):
         self.updateList(c, 'delays', f.lrnSteps)
         c['ints'][0] = f.lrnGradInt.value()
         c['ints'][1] = f.lrnEasyInt.value()
-        c['initialFactor'] = f.lrnFactor.value()*10
         c['order'] = f.newOrder.currentIndex()
         c['perDay'] = f.newPerDay.value()
         c['separate'] = f.separate.isChecked()

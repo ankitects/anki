@@ -74,6 +74,47 @@
            </property>
           </widget>
          </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="lrnGradInt">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="lrnEasyInt">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_7">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="3">
+          <widget class="QCheckBox" name="separate">
+           <property name="text">
+            <string>Try not to show sibling notes next to each other</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1" colspan="2">
           <widget class="QComboBox" name="newOrder"/>
          </item>
@@ -112,74 +153,6 @@
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Easy</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Starting factor</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="lrnGradInt">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QSpinBox" name="lrnEasyInt">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QSpinBox" name="lrnFactor">
-           <property name="minimum">
-            <number>130</number>
-           </property>
-           <property name="maximum">
-            <number>1000</number>
-           </property>
-           <property name="singleStep">
-            <number>5</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLabel" name="label_7">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>days</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>days</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QLabel" name="label_27">
-           <property name="text">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0" colspan="3">
-          <widget class="QCheckBox" name="separate">
-           <property name="text">
-            <string>Try not to show sibling notes next to each other</string>
            </property>
           </widget>
          </item>
@@ -613,7 +586,6 @@
   <tabstop>newPerDay</tabstop>
   <tabstop>lrnGradInt</tabstop>
   <tabstop>lrnEasyInt</tabstop>
-  <tabstop>lrnFactor</tabstop>
   <tabstop>separate</tabstop>
   <tabstop>revPerDay</tabstop>
   <tabstop>revSpace</tabstop>
