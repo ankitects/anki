@@ -53,7 +53,7 @@ defaultConf = {
         'perDay': 20,
     },
     'lapse': {
-        'delays': [1, 10],
+        'delays': [10],
         'mult': 0,
         'minInt': 1,
         'leechFails': 8,
