@@ -575,9 +575,11 @@ class Editor(object):
         if self.addMode:
             l = QLabel(_("Deck"))
             tb.addWidget(l, 0, 0)
-            self.deck = aqt.tagedit.TagEdit(self.widget, type=1)
+            self.deck = QComboBox()
             self.deck.connect(self.deck, SIGNAL("lostFocus"),
                               self.saveTagsAndDeck)
+            self.deck.setEditable(True)
+            self.deck.addItems(sorted(self.mw.col.decks.allNames()))
             tb.addWidget(self.deck, 0, 1)
         else:
             self.deck = None
@@ -594,10 +596,11 @@ class Editor(object):
     def updateTagsAndDeck(self):
         if self.tags.col != self.mw.col:
             if self.deck:
-                self.deck.setCol(self.mw.col)
+                self.deck.clear()
+                self.deck.addItems(sorted(self.mw.col.decks.allNames()))
             self.tags.setCol(self.mw.col)
         if self.addMode:
-            self.deck.setText(self.mw.col.decks.name(self.note.model()['did']))
+            self.deck.lineEdit().setText(self.mw.col.decks.name(self.note.model()['did']))
         self.tags.setText(self.note.stringTags().strip())
 
     def saveTagsAndDeck(self):
@@ -605,7 +608,7 @@ class Editor(object):
             return
         self.note.tags = self.mw.col.tags.split(self.tags.text())
         if self.addMode:
-            name = self.deck.text()
+            name = self.deck.lineEdit().text()
             if not name.strip():
                 self.note.model()['did'] = 1
             else:
@@ -620,8 +623,6 @@ class Editor(object):
 
     def hideCompleters(self):
         self.tags.hideCompleter()
-        if self.addMode:
-            self.deck.hideCompleter()
 
     # Format buttons
     ######################################################################
