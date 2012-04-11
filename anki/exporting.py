@@ -193,6 +193,7 @@ class AnkiExporter(Exporter):
                 for file in self.src.media.filesInStr(mid, flds):
                     media[file] = True
         self.mediaFiles = media.keys()
+        self.dst.crt = self.src.crt
         # todo: tags?
         self.count = self.dst.cardCount()
         self.dst.setMod()
