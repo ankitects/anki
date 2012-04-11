@@ -246,6 +246,24 @@ document.body.onmouseup = function () {
 </body></html>
 """
 
+def _filterHTML(html):
+    doc = BeautifulSoup(html)
+    # filter out implicit formatting from webkit
+    for tag in doc("span", "Apple-style-span"):
+        tag.replaceWithChildren()
+    for tag in doc("font", "Apple-style-span"):
+        tag.replaceWithChildren()
+    # turn file:/// links into relative ones
+    for tag in doc("img"):
+        if tag['src'].lower().startswith("file://"):
+            tag['src'] = os.path.basename(tag['src'])
+    # strip superfluous elements
+    for elem in "html", "head", "body", "meta":
+        for tag in doc(elem):
+            tag.replaceWithChildren()
+    html = unicode(doc)
+    return html
+
 # caller is responsible for resetting note on reset
 class Editor(object):
     def __init__(self, mw, widget, parentWindow, addMode=False):
@@ -450,7 +468,7 @@ class Editor(object):
     def mungeHTML(self, txt):
         if txt == "<br>":
             txt = ""
-        return txt
+        return _filterHTML(txt)
 
     # Setting/unsetting the current note
     ######################################################################
@@ -767,7 +785,8 @@ class Editor(object):
         recent = self.mw.pm.profile['recentColours']
         recent.remove(colour)
         recent.append(colour)
-        self._eval("restoreSel(); setFormat('forecolor', '%s')" % colour)
+        self._eval("restoreSel(); wrap('<font color=\"%s\">', '</font>');"%
+                   colour)
         self.colourDiag.close()
         self.colourChanged()
 
@@ -934,7 +953,7 @@ class EditorWebView(AnkiWebView):
         if evt.source():
             if oldmime.hasHtml():
                 mime = QMimeData()
-                mime.setHtml(self._filteredHTML(oldmime.html()))
+                mime.setHtml(_filterHTML(oldmime.html()))
             else:
                 # old qt on linux won't give us html when dragging an image;
                 # in that case just do the default action (which is to ignore
@@ -955,7 +974,7 @@ class EditorWebView(AnkiWebView):
         if keep:
             new = QMimeData()
             if mime.hasHtml():
-                new.setHtml(self._filteredHTML(mime.html()))
+                new.setHtml(_filterHTML(mime.html()))
             else:
                 new.setText(mime.text())
             mime = new
@@ -1035,7 +1054,7 @@ class EditorWebView(AnkiWebView):
         if self.strip:
             html = stripHTML(html)
         else:
-            html = self._filteredHTML(html)
+            html = _filterHTML(html)
         mime = QMimeData()
         mime.setHtml(html)
         return mime
@@ -1070,19 +1089,3 @@ class EditorWebView(AnkiWebView):
         file.write(filecontents)
         file.close()
         return self.editor._addMedia(path)
-
-    def _filteredHTML(self, html):
-        doc = BeautifulSoup(html)
-        # filter out implicit formatting from webkit
-        for tag in doc("span", "Apple-style-span"):
-            tag.replaceWithChildren()
-        # turn file:/// links into relative ones
-        for tag in doc("img"):
-            if tag['src'].lower().startswith("file://"):
-                tag['src'] = os.path.basename(tag['src'])
-        # strip superfluous elements
-        for elem in "html", "head", "body", "meta":
-            for tag in doc(elem):
-                tag.replaceWithChildren()
-        html = unicode(doc)
-        return html
