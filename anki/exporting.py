@@ -164,7 +164,7 @@ class AnkiExporter(Exporter):
             self.dst.sched.forgetCards(cids)
         # models
         for m in self.src.models.all():
-            if m['id'] in mids:
+            if int(m['id']) in mids:
                 self.dst.models.update(m)
         # decks
         if not self.did:
