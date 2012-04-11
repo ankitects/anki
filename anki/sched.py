@@ -1065,7 +1065,7 @@ usn=:usn, mod=:mod where id=:id and odid=0""",
                 shiftby = high - low + 1
                 self.col.db.execute("""
 update cards set mod=?, usn=?, due=due+? where id not in %s
-and due >= ?""" % scids, now, self.col.usn(), shiftby, low)
+and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
         # reorder cards
         d = []
         for id, nid in self.col.db.execute(
