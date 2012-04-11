@@ -301,8 +301,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     rem.append(have[nid][t['ord']])
                 # if missing ord and is available, generate
                 if not doHave and t['ord'] in avail:
+                    # we'd like to use the same due# as sibling cards, but we
+                    # can't retrieve that quickly, so we give it a new id
+                    # instead
                     data.append((ts, nid, t['did'] or did, t['ord'],
-                                 now, usn, nid))
+                                 now, usn, self.nextID("pos")))
                     ts += 1
         # bulk update
         self.db.executemany("""
