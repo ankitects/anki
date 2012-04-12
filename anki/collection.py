@@ -577,6 +577,14 @@ select id from notes where id not in (select distinct nid from cards)""")
         # new card position
         self.conf['nextPos'] = self.db.scalar(
             "select max(due)+1 from cards where type = 0") or 0
+        # reviews should have a reasonable due #
+        ids = self.db.list(
+            "select id from cards where queue = 2 and due > 10000")
+        if ids:
+            problems.append("Reviews had incorrect due date.")
+            self.db.execute(
+                "update cards set due = 0, mod = ?, usn = ? where id in %s"
+                % ids2str(ids), intTime(), self.usn())
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
