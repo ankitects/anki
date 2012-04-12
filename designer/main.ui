@@ -105,6 +105,7 @@
     <addaction name="separator"/>
     <addaction name="actionFullDatabaseCheck"/>
     <addaction name="actionCheckMediaDatabase"/>
+    <addaction name="actionFullSync"/>
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>
     <addaction name="separator"/>
@@ -241,6 +242,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionFullSync">
+   <property name="text">
+    <string>Full Sync...</string>
    </property>
   </action>
  </widget>

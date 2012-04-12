@@ -58,6 +58,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self):
         self.col = None
         self.state = "overview"
+        self.forceFullSync = False
         self.setupKeys()
         self.setupThreads()
         self.setupMainWindow()
@@ -504,6 +505,13 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
             if not self.col:
                 self.loadCollection()
 
+    def onFullSync(self):
+        self.forceFullSync = True
+        self.col.modSchema()
+        self.col.setMod()
+        self.forceFullSync = False
+        self.onSync()
+
     # Tools
     ##########################################################################
 
@@ -799,6 +807,7 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDocumentation, s, self.onDocumentation)
         self.connect(m.actionDonate, s, self.onDonate)
+        self.connect(m.actionFullSync, s, self.onFullSync)
 
     def updateTitleBar(self):
         self.setWindowTitle("Anki")
@@ -846,6 +855,9 @@ the problem and restart Anki.""")
     def onSchemaMod(self, arg):
         # if triggered in sync, make sure we don't use the gui
         if not self.inMainThread():
+            return True
+        # if from the full sync menu, ignore
+        if self.forceFullSync:
             return True
         return askUser(_("""\
 The requested change will require a full upload of the database when \
