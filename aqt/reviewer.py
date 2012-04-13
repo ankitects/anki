@@ -518,35 +518,37 @@ function showAnswer(txt) {
         else:
             return 2
 
-    def _answerButtons(self):
+    def _answerButtonList(self):
+        l = ((1, _("Again")), (2, _("Hard")), (3, _("Good")))
         if self.mw.col.sched.answerButtons(self.card) == 4:
-            labels = (_("Again"), _("Hard"), _("Good"), _("Easy"))
+            return l + ((4, _("Easy")),)
         else:
-            labels = (_("Again"), _("Good"), _("Easy"))
+            return l
+
+    def _answerButtons(self):
         times = []
-        buttons = []
         default = self._defaultEase()
-        def but(label, i):
+        def but(i, label):
             if i == default:
                 extra = "id=defease"
             else:
                 extra = ""
-            due = self._buttonTime(i-1, default-1)
+            due = self._buttonTime(i)
             return '''
 <td align=center>%s<button %s onclick='py.link("ease%d");'>\
 %s</button></td>''' % (due, extra, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
-        for i in range(0, len(labels)):
-            buf += but(labels[i], i+1)
+        for ease, label in self._answerButtonList():
+            buf += but(ease, label)
         buf += "</tr></table>"
         script = """
 <script>$(function () { $("#defease").focus(); });</script>"""
         return buf + script
 
-    def _buttonTime(self, i, green):
+    def _buttonTime(self, i):
         if not self.mw.col.conf['estTimes']:
             return "<div class=spacer></div>"
-        txt = self.mw.col.sched.nextIvlStr(self.card, i+1, True)
+        txt = self.mw.col.sched.nextIvlStr(self.card, i, True)
         return '<span class=nobold>%s</span><br>' % txt
 
     # Leeches
