@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib2, ctypes, simplejson, traceback
+import re, os, sys, urllib2, ctypes, simplejson, traceback, urllib2
 from anki.utils import stripHTML, isWin, isMac, namedtmp
 from anki.sound import play
 from anki.hooks import runHook, runFilter
@@ -426,6 +426,8 @@ class Editor(object):
             txt = self.mungeHTML(txt)
             # misbehaving apps may include a null byte in the text
             txt = txt.replace("\x00", "")
+            # reverse the url quoting we added to get images to display
+            txt = unicode(urllib2.unquote(txt.encode("utf")), "utf8")
             self.note.fields[self.currentField] = txt
             self.mw.requireReset()
             if not self.addMode:
@@ -503,8 +505,11 @@ class Editor(object):
         if not self._loaded:
             # will be loaded when page is ready
             return
+        data = []
+        for fld, val in self.note.items():
+            data.append((fld, self.mw.col.media.escapeImages(val)))
         self.web.eval("setFields(%s, %d);" % (
-            simplejson.dumps(self.note.items()), field))
+            simplejson.dumps(data), field))
         self.web.eval("setFonts(%s);" % (
             simplejson.dumps(self.fonts())))
         self.checkValid()
