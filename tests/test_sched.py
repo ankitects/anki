@@ -719,7 +719,7 @@ def test_repCounts():
     d.reset()
     assert d.sched.counts() == (0, 0, 1)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 1, 0)
 
 def test_timing():
     d = getEmptyDeck()
