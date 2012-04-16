@@ -216,7 +216,7 @@ body { margin: 1em; -webkit-user-select: none; }
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
         if deck['dyn'] or askUser(_("""\
-Are you sure you wish to delete all of the cards in %s?""")%deck['name']):
+Are you sure you wish to delete %s and all its cards?""")%deck['name']):
             self.mw.progress.start(immediate=True)
             self.mw.col.decks.rem(did, True)
             self.mw.progress.finish()
