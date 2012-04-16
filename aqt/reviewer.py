@@ -171,6 +171,9 @@ function _typeAnsPress() {
     ##########################################################################
 
     def _showAnswer(self):
+        if self.mw.state != "review":
+            # showing resetRequired screen; ignore space
+            return
         self.state = "answer"
         c = self.card
         a = c.a()
@@ -189,6 +192,9 @@ function _typeAnsPress() {
 
     def _answerCard(self, ease):
         "Reschedule card and show next."
+        if self.mw.state != "review":
+            # showing resetRequired screen; ignore key
+            return
         if self.state != "answer":
             return
         if self.mw.col.sched.answerButtons(self.card) < ease:
