@@ -506,6 +506,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                 self.loadCollection()
 
     def onFullSync(self):
+        if not askUser(_("""\
+If you proceed, you will need to choose between a full download or full \
+upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
+            return
         self.forceFullSync = True
         self.col.modSchema()
         self.col.setMod()
