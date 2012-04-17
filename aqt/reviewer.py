@@ -560,18 +560,12 @@ function showAnswer(txt) {
     # Leeches
     ##########################################################################
 
-    # fixme: update; clear on card transition
     def onLeech(self, card):
         # for now
-        tooltip("Card was a leech.")
-        return
-        link = aqt.appHelpSite + "Leeches.html"
-        txt = (_("""\
-Card was a <a href="%s">leech</a>.""") % link)
-        if isLeech and self.deck.db.scalar(
-            "select 1 from cards where id = :id and type < 0", id=cardId):
-            txt += _(" It has been suspended.")
-        self.setNotice(txt)
+        s = _("Card was a leech.")
+        if card.queue < 0:
+            s += " " + _("It has been suspended.")
+        tooltip(s)
 
     # Context menu
     ##########################################################################
