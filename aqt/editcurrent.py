@@ -29,7 +29,7 @@ class EditCurrent(QDialog):
         restoreGeom(self, "editcurrent")
         addHook("reset", self.onReset)
         self.mw.requireReset(modal=True)
-        self.exec_()
+        self.open()
         # reset focus after open
         self.editor.web.setFocus()
 
@@ -47,4 +47,6 @@ class EditCurrent(QDialog):
         r.card.load()
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
-        self.close()
+        # close()ing immediately causes intermittent crashes on osx
+        self.hide()
+        self.mw.progress.timer(2000, self.close, False)
