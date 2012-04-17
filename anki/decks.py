@@ -287,6 +287,9 @@ class DeckManager(object):
         self.col.modSchema()
         del self.dconf[str(id)]
         for g in self.all():
+            # ignore cram decks
+            if 'conf' not in g:
+                continue
             if str(g['conf']) == str(id):
                 g['conf'] = 1
                 self.save(g)
