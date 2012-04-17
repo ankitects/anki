@@ -525,11 +525,14 @@ function showAnswer(txt) {
             return 2
 
     def _answerButtonList(self):
-        l = ((1, _("Again")), (2, _("Hard")), (3, _("Good")))
-        if self.mw.col.sched.answerButtons(self.card) == 4:
-            return l + ((4, _("Easy")),)
+        l = ((1, _("Again")),)
+        cnt = self.mw.col.sched.answerButtons(self.card)
+        if cnt == 2:
+            return l + ((2, _("Good")),)
+        elif cnt == 3:
+            return l + ((2, _("Good")), (3, _("Easy")))
         else:
-            return l
+            return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
 
     def _answerButtons(self):
         times = []
