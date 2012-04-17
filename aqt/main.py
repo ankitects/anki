@@ -887,9 +887,12 @@ Your edits have left some cards empty. Do you want to delete them?"""))
     def onCheckDB(self):
         "True if no problems"
         self.progress.start(immediate=True)
-        ret = self.col.fixIntegrity()
+        ret, ok = self.col.fixIntegrity()
         self.progress.finish()
-        showText(ret)
+        if not ok:
+            showText(ret)
+        else:
+            tooltip(ret)
         self.reset()
         return ret
 
