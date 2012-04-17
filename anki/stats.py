@@ -563,10 +563,11 @@ when you answer "good" on a review.''')
         return txt
 
     def _line(self, i, a, b, bold=True):
+        colon = _(":")
         if bold:
-            i.append(("<tr><td width=200 align=right>%s:</td><td><b>%s</b></td></tr>") % (a,b))
+            i.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (a,colon,b))
         else:
-            i.append(("<tr><td width=200 align=right>%s:</td><td>%s</td></tr>") % (a,b))
+            i.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (a,colon,b))
 
     def _lineTbl(self, i):
         return "<table width=400>" + "".join(i) + "</table>"
