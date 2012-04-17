@@ -87,15 +87,13 @@ def run():
     pm = ProfileManager(opts.base, opts.profile)
 
     # qt translations
-    translationPath = ''
-    if False: # not isWin and not isMac:
-        translationPath = "/usr/share/qt4/translations/"
-        long = conf['interfaceLang']
-        short = long.split('_')[0]
-        qtTranslator = QTranslator()
-        if qtTranslator.load("qt_" + long, translationPath) or \
-               qtTranslator.load("qt_" + short, translationPath):
-            app.installTranslator(qtTranslator)
+    qtTranslator = QTranslator()
+    languageDir = os.path.join(moduleDir,  "aqt", "locale")
+    if not os.path.exists(languageDir):
+        languageDir = os.path.join(
+            os.path.dirname(sys.argv[0]), "locale")
+    if qtTranslator.load("qt_" + pm.meta['defaultLang'], languageDir):
+        app.installTranslator(qtTranslator)
 
     import aqt.main
     mw = aqt.main.AnkiQt(app, pm)
