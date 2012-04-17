@@ -25,7 +25,6 @@ class EditCurrent(QDialog):
                      self.onSave)
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         self.editor.setNote(self.mw.reviewer.card.note())
-        self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
         restoreGeom(self, "editcurrent")
         addHook("reset", self.onReset)
         self.mw.requireReset(modal=True)
@@ -44,7 +43,13 @@ class EditCurrent(QDialog):
         self.editor.saveNow()
         self.editor.setNote(None)
         r = self.mw.reviewer
-        r.card.load()
+        try:
+            r.card.load()
+        except TypeError:
+            # card was removed by clayout
+            pass
+        else:
+            self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
         # close()ing immediately causes intermittent crashes on osx
