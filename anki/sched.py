@@ -747,10 +747,15 @@ did = ? and queue = 2 and due <= ? limit ?""",
         # and change to our new deck
         self.col.decks.select(did)
 
-    def remDyn(self, did):
+    def remDyn(self, did, lim=None):
+        if not lim:
+            lim = "did = %d" % did
         self.col.db.execute("""
 update cards set did = odid, queue = type, due = odue, odue = 0, odid = 0,
-usn = ?, mod = ? where did = ?""", self.col.usn(), intTime(), did)
+usn = ?, mod = ? where %s""" % lim, self.col.usn(), intTime())
+
+    def remFromDyn(self, cids):
+        self.remDyn(None, "id in %s and odid" % ids2str(cids))
 
     def _dynOrder(self, deck):
         o = deck['order']
@@ -994,6 +999,8 @@ your short-term review workload will become."""))
 
     def suspendCards(self, ids):
         "Suspend cards."
+        self.remFromDyn(ids)
+        self.removeFailed(ids)
         self.col.db.execute(
             "update cards set queue=-1,mod=?,usn=? where id in "+
             ids2str(ids), intTime(), self.col.usn())
@@ -1008,6 +1015,9 @@ your short-term review workload will become."""))
     def buryNote(self, nid):
         "Bury all cards for note until next session."
         self.col.setDirty()
+        cids = self.col.db.list("select id from cards where nid = ?", nid)
+        self.remFromDyn(cids)
+        self.removeFailed(cids)
         self.col.db.execute("update cards set queue = -2 where nid = ?", nid)
 
     # Resetting
