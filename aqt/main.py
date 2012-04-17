@@ -878,9 +878,11 @@ will be lost. Continue?"""))
     def setupEmptyCardDel(self):
         addHook("remEmptyCards", self.onEmptyCards)
 
-    def onEmptyCards(self, val, *args):
-        return askUser(_("""\
-Your edits have left some cards empty. Do you want to delete them?"""))
+    def onEmptyCards(self, flag, cnt):
+        if flag and askUser(_("""\
+Your edits have left %d cards empty. Do you want to delete them?""" % cnt)):
+            return flag
+        return False
 
     # Advanced features
     ##########################################################################
