@@ -108,7 +108,12 @@ order by due""" % self._deckLimit(),
         return card.queue
 
     def answerButtons(self, card):
-        if card.queue == 2:
+        if not card.odid and card.odue:
+            conf = self._lapseConf(card)
+            if len(conf['delays']) > 1:
+                return 3
+            return 2
+        elif card.queue == 2:
             return 4
         else:
             return 3
