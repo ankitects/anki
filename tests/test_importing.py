@@ -45,7 +45,7 @@ def test_anki2():
             "select count() from cards where nid not in (select id from notes)")
         assert not dst.db.scalar(
             "select count() from revlog where cid not in (select id from cards)")
-        assert dst.fixIntegrity().startswith("Database rebuilt")
+        assert dst.fixIntegrity()[0].startswith("Database rebuilt")
     check()
     # importing should be idempotent
     imp.run()
