@@ -10,7 +10,7 @@ from aqt.qt import *
 import os, sys, time, random, cPickle, shutil, locale, re, atexit
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
-from anki.lang import langs, _
+from anki.lang import langs
 from aqt.utils import showWarning, fontForPlatform
 import aqt.forms
 

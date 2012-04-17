@@ -31,8 +31,9 @@ class AnkiQt(QMainWindow):
         aqt.mw = self
         self.app = app
         self.pm = profileManager
-        # use the global language for early init; once a profile is loaded we
-        # can switch to a user's preferred language
+        # use the global language for early init; once a profile or the
+        # profile manager is loaded we can switch to a user's preferred
+        # language
         self.setupLang(force=self.pm.meta['defaultLang'])
         # running 2.0 for the first time?
         if self.pm.meta['firstRun']:
@@ -99,6 +100,7 @@ class AnkiQt(QMainWindow):
             self.loadProfile()
 
     def showProfileManager(self):
+        self.setupLang(force=self.pm.meta['defaultLang'])
         d = self.profileDiag = QDialog()
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
