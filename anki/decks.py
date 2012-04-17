@@ -319,8 +319,8 @@ class DeckManager(object):
     # Deck utils
     #############################################################
 
-    def name(self, did):
-        deck = self.get(did, default=False)
+    def name(self, did, default=False):
+        deck = self.get(did, default=default)
         if deck:
             return deck['name']
         return _("[no deck]")
