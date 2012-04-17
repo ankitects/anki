@@ -128,13 +128,12 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         d = QDialog(self.mw)
         d.setWindowTitle("Anki")
         vbox = QVBoxLayout()
-        # FIXME: not translated for now, as we'll need to switch from beta to
-        # live all at once
-        l = QLabel(("""\
+        l = QLabel(_("""\
 <h1>Account Required</h1>
 A free account is required to keep your collection synchronized. Please \
-<a href="http://beta.ankiweb.net/account/login">sign up</a> for an account, then \
-enter your details below."""))
+<a href="%s">sign up</a> for an account, then \
+enter your details below.""") %
+                   "http://beta.ankiweb.net/account/login")
         l.setOpenExternalLinks(True)
         l.setWordWrap(True)
         vbox.addWidget(l)
