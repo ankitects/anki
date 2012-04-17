@@ -20,20 +20,20 @@ system. It's free and open source.")
  testing and design from:<p>%(cont)s") % {'cont': u"""Aaron Harsh, Alex
 Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene Barina,
 Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen,
-Emilio Wuerges, Emmanuel Jarri, Frank Harper, H. Mijail, Ian Lewis, Iroiro,
+Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail,
+Ian Lewis, Immanuel Asmus, Iroiro,
 Jin Eun-Deok, Jarvik7, Jo Nakashima, Kieran Clancy, LaC, Laurent Steffan,
-Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
+Luca Ban, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
 Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
 Montague, Michael Penkov, Michal Čadil, Nathanael Law, Nick Cook, Niklas
-Laxström, Nguyễn Hào Khôi, Norbert Nagold, Pcsl88, Petr Michalec, Piotr
-Kubowicz, Richard Colley, Samson Melamed, Stefaan De Pooter, Susanna
-Björverud, Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, and Xtru.
-
-<p> The icons were obtained from various sources; please see the Anki source
-for credits.
-                                          """
-
-}
+Laxström, Nguyễn Hào Khôi, Norbert Nagold, Ole Guldberg,
+Pcsl88, Petr Michalec, Piotr Kubowicz, Richard Colley, Samson Melamed,
+Stefaan De Pooter, Susanna Björverud, Sylvain Durand,
+Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, %s
+Xtru."""% _("<!--about diag--> and")}
+    abouttext += '<p>' + _("""\
+The icons were obtained from various sources; please see the Anki source
+for credits.""")
     abouttext += '<p>' + _("If you have contributed and are not on this list, \
 please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \
