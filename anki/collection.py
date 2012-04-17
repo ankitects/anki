@@ -592,9 +592,10 @@ select id from notes where id not in (select distinct nid from cards)""")
         txt = _("Database rebuilt and optimized.")
         if save > 0:
             txt += "\n" + _("Saved %dKB.") % save
+        ok = not problems
         problems.append(txt)
         self.save()
-        return "\n".join(problems)
+        return ("\n".join(problems), ok)
 
     def optimize(self):
         self.db.execute("vacuum")
