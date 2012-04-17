@@ -4,7 +4,6 @@
 
 from aqt.qt import *
 from aqt.webview import AnkiWebView
-from anki.lang import _
 
 class Toolbar(object):
 
@@ -26,12 +25,13 @@ class Toolbar(object):
     # Available links
     ######################################################################
 
-    rightIcons = [
-        ["stats", "qrc:/icons/view-statistics.png",
-         _("Show statistics. Shortcut key: %s") % "S"],
-        ["sync", "qrc:/icons/view-refresh.png",
-         _("Synchronize with AnkiWeb. Shortcut key: %s") % "y"],
-    ]
+    def _rightIconsList(self):
+        return [
+            ["stats", "qrc:/icons/view-statistics.png",
+             _("Show statistics. Shortcut key: %s") % "S"],
+            ["sync", "qrc:/icons/view-refresh.png",
+             _("Synchronize with AnkiWeb. Shortcut key: %s") % "y"],
+        ]
 
     def _centerLinks(self):
         links = [
@@ -52,7 +52,7 @@ class Toolbar(object):
 
     def _rightIcons(self):
         buf = ""
-        for ln, icon, title in self.rightIcons:
+        for ln, icon, title in self._rightIconsList():
             buf += '<a class=hitem title="%s" href="%s"><img src="%s"></a>' % (
                 title, ln, icon)
         return buf
