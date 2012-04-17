@@ -326,9 +326,9 @@ class Browser(QMainWindow):
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
         self.show()
-        self.form.searchEdit.lineEdit().setText("deck:current")
+        self.form.searchEdit.lineEdit().setText("is:current")
         self.form.searchEdit.lineEdit().selectAll()
-        #self.onSearch()
+        self.onSearch()
 
     def setupToolbar(self):
         self.toolbarWeb = AnkiWebView()
@@ -441,6 +441,12 @@ class Browser(QMainWindow):
             self.form.searchEdit.clear()
             self.form.searchEdit.addItems(sh)
             self.mw.pm.profile['searchHistory'] = sh
+        if self.mw.reviewer.card:
+            txt = txt.replace("is:current", "nid:%d"%self.mw.reviewer.card.nid)
+        elif "is:current" in txt:
+            self.form.searchEdit.lineEdit().setText(
+                _("<type here to search>"))
+            self.form.searchEdit.lineEdit().selectAll()
         self.model.search(txt, reset)
         if not self.model.cards:
             # no row change will fire
