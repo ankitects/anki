@@ -435,6 +435,7 @@ class Browser(QMainWindow):
         "Careful: if reset is true, the current note is saved."
         txt = unicode(self.form.searchEdit.lineEdit().text()).strip()
         sh = self.mw.pm.profile['searchHistory']
+        prompt = _("<type here to search; hit enter to show current deck>")
         if txt not in sh:
             sh.insert(0, txt)
             sh = sh[:30]
@@ -444,21 +445,15 @@ class Browser(QMainWindow):
         if self.mw.reviewer.card:
             txt = txt.replace("is:current", "nid:%d"%self.mw.reviewer.card.nid)
         elif "is:current" in txt:
-            self.form.searchEdit.lineEdit().setText(
-                _("<type here to search>"))
+            self.form.searchEdit.lineEdit().setText(prompt)
             self.form.searchEdit.lineEdit().selectAll()
+        elif txt == prompt:
+            self.form.searchEdit.lineEdit().setText("deck:current")
+            txt = "deck:current"
         self.model.search(txt, reset)
         if not self.model.cards:
             # no row change will fire
             self.onRowChanged(None, None)
-            # somewhat distracting
-            # txt = _("No matches found.")
-            # if not self.mw.pm.profile['fullSearch']:
-            #     txt += "<p>" + _(
-            #     _("If your cards have formatting, you may want <br>"
-            #       "to enable 'search within formatting' in the<br>"
-            #       "browser options."))
-            # tooltip(txt)
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
