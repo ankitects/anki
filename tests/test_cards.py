@@ -92,3 +92,36 @@ def test_genrem():
     # remHook("remEmptyCards", abort)
     # f.flush()
     # assert len(f.cards()) == 1
+
+def test_gendeck():
+    d = getEmptyDeck()
+    cloze = d.models.byName("Cloze")
+    d.models.setCurrent(cloze)
+    f = d.newNote()
+    f['Text'] = u'{{c1::one}}'
+    d.addNote(f)
+    assert d.cardCount() == 1
+    assert f.cards()[0].did == 1
+    # set the model to a new default deck
+    newId = d.decks.id("new")
+    cloze['did'] = newId
+    d.models.save(cloze)
+    # a newly generated card should share the first card's deck
+    f['Text'] += u'{{c2::two}}'
+    f.flush()
+    assert f.cards()[1].did == 1
+    # and same with multiple cards
+    f['Text'] += u'{{c3::three}}'
+    f.flush()
+    assert f.cards()[2].did == 1
+    # if one of the cards is in a different deck, it should revert to the
+    # model default
+    c = f.cards()[1]
+    c.did = newId
+    c.flush()
+    f['Text'] += u'{{c4::four}}'
+    f.flush()
+    assert f.cards()[3].did == newId
+
+
+

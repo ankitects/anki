@@ -277,11 +277,22 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
         have = {}
-        for id, nid, ord in self.db.execute(
-            "select id, nid, ord from cards where nid in "+snids):
+        dids = {}
+        for id, nid, ord, did in self.db.execute(
+            "select id, nid, ord, did from cards where nid in "+snids):
+            # existing cards
             if nid not in have:
                 have[nid] = {}
             have[nid][ord] = id
+            # and their dids
+            if nid in dids:
+                if dids[nid] and dids[nid] != did:
+                    # cards are in two or more different decks; revert to
+                    # model default
+                    dids[nid] = None
+            else:
+                # first card or multiple cards in same deck
+                dids[nid] = did
         # build cards for each note
         data = []
         ts = maxID(self.db)
@@ -292,7 +303,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             "select id, mid, flds from notes where id in "+snids):
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
-            did = model['did']
+            did = dids.get(nid) or model['did']
             for t in model['tmpls']:
                 doHave = nid in have and t['ord'] in have[nid]
                 # if have ord but empty, add cid to remove list
