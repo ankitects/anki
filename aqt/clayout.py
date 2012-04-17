@@ -54,6 +54,7 @@ class CardLayout(QDialog):
         self.tabs.setUsesScrollButtons(True)
         add = QPushButton("+")
         add.setFixedWidth(30)
+        add.setToolTip(_("Add new card"))
         c(add, SIGNAL("clicked()"), self.onAddCard)
         self.tabs.setCornerWidget(add)
         c(self.tabs, SIGNAL("currentChanged(int)"), self.selectCard)
