@@ -320,7 +320,10 @@ class DeckManager(object):
     #############################################################
 
     def name(self, did):
-        return self.get(did)['name']
+        deck = self.get(did, default=False)
+        if deck:
+            return deck['name']
+        return _("[no deck]")
 
     def setDeck(self, cids, did):
         self.col.db.execute(
