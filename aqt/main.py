@@ -21,20 +21,12 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     askUserDialog, applyStyles, getText, showText, showCritical, getFile, \
     tooltip, openHelp, openLink
 
-## fixme: open plugin folder broken on win32?
-
-## models remembering the previous group
-
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager):
         QMainWindow.__init__(self)
         aqt.mw = self
         self.app = app
         self.pm = profileManager
-        # use the global language for early init; once a profile or the
-        # profile manager is loaded we can switch to a user's preferred
-        # language
-        self.setupLang(force=self.pm.meta['defaultLang'])
         # running 2.0 for the first time?
         if self.pm.meta['firstRun']:
             # load the new deck user profile
@@ -100,7 +92,6 @@ class AnkiQt(QMainWindow):
             self.loadProfile()
 
     def showProfileManager(self):
-        self.setupLang(force=self.pm.meta['defaultLang'])
         d = self.profileDiag = QDialog()
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
@@ -191,7 +182,6 @@ Are you sure?"""):
         self.refreshProfilesList()
 
     def loadProfile(self):
-        self.setupLang()
         # show main window
         if self.pm.profile['mainWindowState']:
             restoreGeom(self, "mainWindow")
@@ -754,45 +744,6 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
             self.col.decks.rem(did)
         else:
             self.moveToState("overview")
-
-    # Language handling
-    ##########################################################################
-
-    def setupLang(self, force=None):
-        "Set the user interface language for the current profile."
-        import locale, gettext
-        import anki.lang
-        try:
-            locale.setlocale(locale.LC_ALL, '')
-        except:
-            pass
-        lang = force if force else self.pm.profile["lang"]
-        languageDir=os.path.join(aqt.moduleDir,  "aqt", "locale")
-        if not os.path.exists(languageDir):
-            languageDir = os.path.join(
-                os.path.dirname(sys.argv[0]), "locale")
-        self.languageTrans = gettext.translation('ankiqt', languageDir,
-                                                 languages=[lang],
-                                                 fallback=True)
-        self.installTranslation()
-        if getattr(self, 'form', None):
-            self.form.retranslateUi(self)
-        anki.lang.setLang(lang, local=False)
-        if lang in ("he","ar","fa"):
-            self.app.setLayoutDirection(Qt.RightToLeft)
-        else:
-            self.app.setLayoutDirection(Qt.LeftToRight)
-
-    def getTranslation(self, text):
-        return self.languageTrans.ugettext(text)
-
-    def getTranslation2(self, text1, text2, n):
-        return self.languageTrans.ungettext(text1, text2, n)
-
-    def installTranslation(self):
-        import __builtin__
-        __builtin__.__dict__['_'] = self.getTranslation
-        __builtin__.__dict__['ngettext'] = self.getTranslation2
 
     # Menu, title bar & status
     ##########################################################################

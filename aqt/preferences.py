@@ -4,7 +4,6 @@
 
 import datetime, time, os
 from aqt.qt import *
-from anki.lang import langs
 from aqt.utils import openFolder, showWarning, getText, openHelp
 import aqt
 
@@ -19,7 +18,6 @@ class Preferences(QDialog):
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
                      lambda: openHelp("profileprefs"))
         self.setupCollection()
-        self.setupLang()
         self.setupNetwork()
         self.setupBackup()
         self.setupOptions()
@@ -68,35 +66,6 @@ class Preferences(QDialog):
             old.year, old.month, old.day, hrs)
         d.crt = int(time.mktime(date.timetuple()))
         d.setMod()
-
-    # Language handling
-    ######################################################################
-
-    def setupLang(self):
-        # interface lang
-        for (lang, code) in langs:
-            self.form.interfaceLang.addItem(lang)
-        self.form.interfaceLang.setCurrentIndex(
-            self.codeToIndex(self.prof['lang']))
-        self.connect(self.form.interfaceLang,
-                     SIGNAL("currentIndexChanged(QString)"),
-                     self.interfaceLangChanged)
-
-    def codeToIndex(self, code):
-        n = 0
-        for (lang, type) in langs:
-            if code == type:
-                return n
-            n += 1
-        # default to english
-        return self.codeToIndex("en")
-
-    def interfaceLangChanged(self):
-        self.prof['lang'] = (
-            langs[self.form.interfaceLang.currentIndex()])[1]
-        self.mw.setupLang()
-        self.form.retranslateUi(self)
-
 
     # Network
     ######################################################################

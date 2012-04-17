@@ -33,7 +33,6 @@ profileConf = dict(
     mainWindowState=None,
     numBackups=30,
     lastOptimize=intTime(),
-    lang="en",
 
     # editing
     fullSearch=False,
@@ -142,7 +141,6 @@ computer.""")
 
     def create(self, name):
         prof = profileConf.copy()
-        prof['lang'] = self.meta['defaultLang']
         self.db.execute("insert into profiles values (?, ?)",
                         name, cPickle.dumps(prof))
         self.db.commit()

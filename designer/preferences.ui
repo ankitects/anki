@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>439</width>
-    <height>420</height>
+    <width>441</width>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,27 +30,6 @@
        <property name="spacing">
         <number>12</number>
        </property>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Language:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="interfaceLang">
-           <property name="minimumSize">
-            <size>
-             <width>300</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item>
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
@@ -483,7 +462,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>interfaceLang</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>stripHTML</tabstop>

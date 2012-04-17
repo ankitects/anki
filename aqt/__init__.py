@@ -1,8 +1,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, sys
+import os, sys, __builtin__
 from aqt.qt import *
+import locale, gettext
+import anki.lang
 
 appVersion="2.0-beta3"
 appWebsite="http://ankisrs.net/"
@@ -49,6 +51,44 @@ class DialogManager(object):
 
 dialogs = DialogManager()
 
+# Language handling
+##########################################################################
+# Qt requires its translator to be installed before any GUI widgets are
+# loaded, and we need the Qt language to match the gettext language or
+# translated shortcuts will not work.
+
+_gtrans = None
+_qtrans = None
+
+def langDir():
+    dir = os.path.join(moduleDir,  "aqt", "locale")
+    if not os.path.exists(dir):
+        dir = os.path.join(os.path.dirname(sys.argv[0]), "locale")
+    return dir
+
+def setupLang(pm, app, force=None):
+    global _gtrans, _qtrans
+    try:
+        locale.setlocale(locale.LC_ALL, '')
+    except:
+        pass
+    lang = force or pm.meta["defaultLang"]
+    dir = langDir()
+    # gettext
+    _gtrans = gettext.translation(
+        'ankiqt', dir, languages=[lang], fallback=True)
+    __builtin__.__dict__['_'] = _gtrans.ugettext
+    __builtin__.__dict__['ngettext'] = _gtrans.ungettext
+    anki.lang.setLang(lang, local=False)
+    if lang in ("he","ar","fa"):
+        app.setLayoutDirection(Qt.RightToLeft)
+    else:
+        app.setLayoutDirection(Qt.LeftToRight)
+    # qt
+    _qtrans = QTranslator()
+    if _qtrans.load("qt_" + lang, dir):
+        app.installTranslator(_qtrans)
+
 # App initialisation
 ##########################################################################
 
@@ -80,20 +120,15 @@ def run():
     parser.usage = "%prog [OPTIONS]"
     parser.add_option("-b", "--base", help="Path to base folder")
     parser.add_option("-p", "--profile", help="Profile name to load")
+    parser.add_option("-l", "--lang", help="Interface language (en, de, etc)")
     (opts, args) = parser.parse_args(sys.argv[1:])
 
     # profile manager
     from aqt.profiles import ProfileManager
     pm = ProfileManager(opts.base, opts.profile)
 
-    # qt translations
-    qtTranslator = QTranslator()
-    languageDir = os.path.join(moduleDir,  "aqt", "locale")
-    if not os.path.exists(languageDir):
-        languageDir = os.path.join(
-            os.path.dirname(sys.argv[0]), "locale")
-    if qtTranslator.load("qt_" + pm.meta['defaultLang'], languageDir):
-        app.installTranslator(qtTranslator)
+    # i18n
+    setupLang(pm, app, opts.lang)
 
     import aqt.main
     mw = aqt.main.AnkiQt(app, pm)
