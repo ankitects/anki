@@ -6,7 +6,7 @@ import simplejson
 from aqt.qt import *
 from anki.consts import NEW_CARDS_RANDOM, dynOrderLabels
 from anki.hooks import addHook
-from aqt.utils import showInfo, openLink
+from aqt.utils import showInfo, openLink, shortcut
 from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue
@@ -55,11 +55,15 @@ class Overview(object):
             openLink(aqt.appShared+"info/%s?v=%s"%(self.sid, self.sidVer))
 
     def _keyHandler(self, evt):
+        cram = self.mw.col.decks.current()['dyn']
         key = unicode(evt.text())
         if key == "o":
             self.mw.onDeckConf()
-        if key == "c":
+        if key == "c" and not cram:
             self.mw.onCram()
+        if key == "r" and cram:
+            self.mw.col.sched.rebuildDyn()
+            self.mw.reset()
 
     # HTML
     ############################################################
@@ -168,15 +172,18 @@ text-align: center;
 
     def _renderBottom(self):
         links = [
-            ["opts", _("Options")],
+            ["o", "opts", _("Options")],
         ]
         if self.mw.col.decks.current()['dyn']:
-            links.append(["refresh", _("Rebuild")])
+            links.append(["r", "refresh", _("Rebuild")])
         else:
-            links.append(["cram", _("Cram")])
+            links.append(["c", "cram", _("Cram")])
         buf = ""
         for b in links:
-            buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)
+            if b[0]:
+                b[0] = _("Shortcut key: %s") % shortcut(b[0])
+            buf += """
+<button title="%s" onclick='py.link(\"%s\");'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
         self.bottom.web.setFixedHeight(isMac and 28 or 36)
         self.bottom.web.setLinkHandler(self._linkHandler)

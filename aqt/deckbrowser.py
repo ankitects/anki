@@ -3,7 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openLink, showWarning, showInfo
+from aqt.utils import askUser, getOnlyText, openLink, showWarning, showInfo, \
+    shortcut
 from anki.utils import isMac
 import anki.js
 from anki.errors import DeckRenameError
@@ -232,14 +233,17 @@ Are you sure you wish to delete %s and all its cards?""")%deck['name']):
 
     def _drawButtons(self):
         links = [
-            ["shared", _("Get Shared")],
-            ["create", _("Create")],
-            ["import", _("Import File")],
-            ["cram", _("Cram")],
+            ["", "shared", _("Get Shared")],
+            ["", "create", _("Create")],
+            ["Ctrl+i", "import", _("Import File")],
+            ["c", "cram", _("Cram")],
         ]
         buf = ""
         for b in links:
-            buf += "<button onclick='py.link(\"%s\");'>%s</button>" % tuple(b)
+            if b[0]:
+                b[0] = _("Shortcut key: %s") % shortcut(b[0])
+            buf += """
+<button title='%s' onclick='py.link(\"%s\");'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
         self.bottom.web.setFixedHeight(isMac and 28 or 36)
         self.bottom.web.setLinkHandler(self._linkHandler)
