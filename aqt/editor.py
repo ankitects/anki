@@ -623,7 +623,9 @@ class Editor(object):
                 self.deck.addItems(sorted(self.mw.col.decks.allNames()))
             self.tags.setCol(self.mw.col)
         if self.addMode:
-            self.deck.lineEdit().setText(self.mw.col.decks.name(self.note.model()['did']))
+            self.deck.lineEdit().setText(
+                self.mw.col.decks.name(
+                    self.note.model()['did'], default=True))
         self.tags.setText(self.note.stringTags().strip())
 
     def saveTagsAndDeck(self):
