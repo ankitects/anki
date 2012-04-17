@@ -77,6 +77,8 @@ tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
 .extra { font-size: 90%%; }
 body { margin: 1em; -webkit-user-select: none; }
 .current { background-color: #ececec; }
+
+    .count { width: 6em; text-align: right; }
 """ % dict(width=_dragIndicatorBorderWidth)
 
     _body = """
@@ -130,8 +132,8 @@ body { margin: 1em; -webkit-user-select: none; }
             return ""
         if depth == 0:
             buf = """
-<tr><th colspan=5 align=left>%s</th><th align=right>%s</th>
-<th align=right>%s</th></tr>""" % (
+<tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
+<th class=count>%s</th><th class=count></th></tr>""" % (
             _("Deck"), _("Due"), _("New"))
             buf += self._topLevelDragRow()
         else:
