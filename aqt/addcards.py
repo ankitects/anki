@@ -123,7 +123,7 @@ class AddCards(QDialog):
 
     def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.setText("nid:%d" % nid)
+        browser.form.searchEdit.lineEdit().setText("nid:%d" % nid)
         browser.onSearch()
 
     def addNote(self, note):

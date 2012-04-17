@@ -549,7 +549,7 @@ class Editor(object):
     def showDupes(self):
         contents = self.note.fields[0]
         browser = aqt.dialogs.open("Browser", self.mw)
-        browser.form.searchEdit.setText(
+        browser.form.searchEdit.lineEdit().setText(
             "'note:%s' '%s:%s'" % (
                 self.note.model()['name'],
                 self.note.model()['flds'][0]['name'],
