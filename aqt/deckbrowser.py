@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openLink, showWarning
+from aqt.utils import askUser, getOnlyText, openLink, showWarning, showInfo
 from anki.utils import isMac
 import anki.js
 from anki.errors import DeckRenameError
@@ -42,6 +42,11 @@ class DeckBrowser(object):
             self.mw.onImport()
         elif cmd == "cram":
             self.mw.onCram()
+        elif cmd == "create":
+            showInfo(_("""\
+To create a new deck, simply enter its name into any place that ask for \
+a deck name, such as when adding notes, changing a card's deck while browsing,
+or importing text files."""))
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(',')
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
@@ -228,6 +233,7 @@ Are you sure you wish to delete %s and all its cards?""")%deck['name']):
     def _drawButtons(self):
         links = [
             ["shared", _("Get Shared")],
+            ["create", _("Create")],
             ["import", _("Import File")],
             ["cram", _("Cram")],
         ]

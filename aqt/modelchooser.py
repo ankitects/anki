@@ -4,7 +4,6 @@
 
 from aqt.qt import *
 from operator import itemgetter
-from anki.lang import ngettext
 from anki.hooks import addHook, remHook, runHook
 from aqt.utils import isMac
 import aqt
