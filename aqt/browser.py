@@ -325,10 +325,10 @@ class Browser(QMainWindow):
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.form.searchEdit.setFocus()
-        self.show()
         self.form.searchEdit.lineEdit().setText("is:current")
         self.form.searchEdit.lineEdit().selectAll()
         self.onSearch()
+        self.show()
 
     def setupToolbar(self):
         self.toolbarWeb = AnkiWebView()
