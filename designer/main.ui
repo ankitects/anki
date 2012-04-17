@@ -101,6 +101,8 @@
      <addaction name="menuStartup"/>
      <addaction name="separator"/>
     </widget>
+    <addaction name="actionStudyDeck"/>
+    <addaction name="separator"/>
     <addaction name="actionCstats"/>
     <addaction name="separator"/>
     <addaction name="actionFullDatabaseCheck"/>
@@ -247,6 +249,14 @@
   <action name="actionFullSync">
    <property name="text">
     <string>Full Sync...</string>
+   </property>
+  </action>
+  <action name="actionStudyDeck">
+   <property name="text">
+    <string>Study Deck...</string>
+   </property>
+   <property name="shortcut">
+    <string>/</string>
    </property>
   </action>
  </widget>

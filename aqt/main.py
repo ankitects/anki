@@ -814,6 +814,7 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         self.connect(m.actionDocumentation, s, self.onDocumentation)
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionFullSync, s, self.onFullSync)
+        self.connect(m.actionStudyDeck, s, self.onStudyDeck)
 
     def updateTitleBar(self):
         self.setWindowTitle("Anki")
@@ -945,6 +946,10 @@ Your edits have left some cards empty. Do you want to delete them?"""))
             os.unlink(path)
         tooltip("Deleted.")
         diag.close()
+
+    def onStudyDeck(self):
+        from aqt.studydeck import StudyDeck
+        StudyDeck(self)
 
     # System specific code
     ##########################################################################
