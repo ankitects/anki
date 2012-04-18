@@ -51,7 +51,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self):
         self.col = None
         self.state = "overview"
-        self.forceFullSync = False
+        self.hideSchemaMsg = False
         self.setupKeys()
         self.setupThreads()
         self.setupMainWindow()
@@ -217,7 +217,9 @@ Are you sure?"""):
     ##########################################################################
 
     def loadCollection(self):
+        self.hideSchemaMsg = True
         self.col = Collection(self.pm.collectionPath())
+        self.hideSchemaMsg = False
         self.progress.setupDB(self.col.db)
         # load overview if a single deck, otherwise deck list
         if self.col.decks.count() > 1:
@@ -502,10 +504,10 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
 If you proceed, you will need to choose between a full download or full \
 upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
             return
-        self.forceFullSync = True
+        self.hideSchemaMsg = True
         self.col.modSchema()
         self.col.setMod()
-        self.forceFullSync = False
+        self.hideSchemaMsg = False
         self.onSync()
 
     # Tools
@@ -815,7 +817,7 @@ the problem and restart Anki.""")
         if not self.inMainThread():
             return True
         # if from the full sync menu, ignore
-        if self.forceFullSync:
+        if self.hideSchemaMsg:
             return True
         return askUser(_("""\
 The requested change will require a full upload of the database when \
