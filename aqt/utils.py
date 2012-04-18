@@ -208,7 +208,9 @@ def getTag(parent, deck, question, tags="user", **kwargs):
     from aqt.tagedit import TagEdit
     te = TagEdit(parent)
     te.setCol(deck)
-    return getText(question, parent, edit=te, **kwargs)
+    ret = getText(question, parent, edit=te, **kwargs)
+    te.hideCompleter()
+    return ret
 
 # File handling
 ######################################################################
