@@ -901,21 +901,15 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         self.today = int((time.time() - self.col.crt) / 86400)
         # end of day cutoff
         self.dayCutoff = self.col.crt + (self.today+1)*86400
-        # update all selected decks
+        # update all daily counts, but don't save decks to prevent needless
+        # conflicts. we'll save on card answer instead
         def update(g):
-            save = False
             for t in "new", "rev", "lrn", "time":
                 key = t+"Today"
                 if g[key][0] != self.today:
-                    save = True
                     g[key] = [self.today, 0]
-            if save:
-                self.col.decks.save(g)
-        for did in self.col.decks.active():
-            update(self.col.decks.get(did))
-        # update parents too
-        for grp in self.col.decks.parents(self.col.decks.selected()):
-            update(grp)
+        for deck in self.col.decks.all():
+            update(deck)
 
     def _checkDay(self):
         # check if the day has rolled over
