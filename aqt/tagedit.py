@@ -47,6 +47,7 @@ class TagEdit(QLineEdit):
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
         self.emit(SIGNAL("lostFocus"))
+        self.completer.popup().hide()
 
     def hideCompleter(self):
         self.completer.popup().hide()
