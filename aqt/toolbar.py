@@ -28,17 +28,17 @@ class Toolbar(object):
     def _rightIconsList(self):
         return [
             ["stats", "qrc:/icons/view-statistics.png",
-             _("Show statistics. Shortcut key: %s") % "S"],
+             _("Show statistics. Shortcut key: %s") % "Shift+S"],
             ["sync", "qrc:/icons/view-refresh.png",
-             _("Synchronize with AnkiWeb. Shortcut key: %s") % "y"],
+             _("Synchronize with AnkiWeb. Shortcut key: %s") % "Y"],
         ]
 
     def _centerLinks(self):
         links = [
-            ["decks", _("Decks"), _("Shortcut key: %s") % "d"],
-            ["study", _("Study"), _("Shortcut key: %s") % "s"],
-            ["add", _("Add"), _("Shortcut key: %s") % "a"],
-            ["browse", _("Browse"), _("Shortcut key: %s") % "b"],
+            ["decks", _("Decks"), _("Shortcut key: %s") % "D"],
+            ["study", _("Study"), _("Shortcut key: %s") % "S"],
+            ["add", _("Add"), _("Shortcut key: %s") % "A"],
+            ["browse", _("Browse"), _("Shortcut key: %s") % "B"],
         ]
         return self._linkHTML(links)
 

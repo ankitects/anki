@@ -913,7 +913,7 @@ Your edits have left %d cards empty. Do you want to delete them?""" % cnt)):
             qt_mac_set_menubar_icons(False)
             #self.setUnifiedTitleAndToolBarOnMac(self.pm.profile['showToolbar'])
             # mac users expect a minimize option
-            self.minimizeShortcut = QShortcut("Ctrl+m", self)
+            self.minimizeShortcut = QShortcut("Ctrl+M", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
                          self.onMacMinimize)
             self.hideAccelerators()

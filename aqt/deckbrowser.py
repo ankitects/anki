@@ -237,8 +237,8 @@ Are you sure you wish to delete %s and all its cards?""")%deck['name']):
         links = [
             ["", "shared", _("Get Shared")],
             ["", "create", _("Create")],
-            ["Ctrl+i", "import", _("Import File")],
-            ["c", "cram", _("Cram")],
+            ["Ctrl+I", "import", _("Import File")],
+            ["C", "cram", _("Cram")],
         ]
         buf = ""
         for b in links:
