@@ -33,12 +33,13 @@ def addClozeModel(col):
     mm = col.models
     m = mm.new(_("Cloze"))
     m['type'] = MODEL_CLOZE
-    fm = mm.newField(_("Text"))
+    txt = _("Text")
+    fm = mm.newField(txt)
     mm.addField(m, fm)
     fm = mm.newField(_("Extra"))
     mm.addField(m, fm)
     t = mm.newTemplate(_("Cloze"))
-    fmt = "{{Cloze}}"
+    fmt = "{{cloze:%s}}" % txt
     t['css'] += """
 .cloze {
  font-weight: bold;

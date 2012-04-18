@@ -509,7 +509,7 @@ select id from notes where mid = ?)""" % " ".join(map),
 
     def _availClozeOrds(self, m, flds):
         ret = [int(m)-1 for m in re.findall(
-            "{{c(\d)::[^}]*?}}", splitFields(flds)[0])]
+            "{{c(\d+)::[^}]*?}}", splitFields(flds)[0])]
         return list(set(ret))
 
     # Sync handling

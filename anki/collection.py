@@ -451,10 +451,7 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         flist = splitFields(data[6])
         fields = {}
         model = self.models.get(data[2])
-        firstName = None
         for (name, (idx, conf)) in self.models.fieldMap(model).items():
-            if idx == 0:
-                firstName = name
             fields[name] = flist[idx]
         fields['Tags'] = data[5]
         fields['Type'] = model['name']
@@ -468,11 +465,11 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         d = dict(id=data[0])
         for (type, format) in (("q", template['qfmt']), ("a", template['afmt'])):
             if type == "q":
-                format = format.replace("{{Cloze}}", "{{cq:%d:%s}}" % (
-                    data[4]+1, firstName))
+                format = format.replace("{{cloze:", "{{cq:%d:" % (
+                    data[4]+1))
             else:
-                format = format.replace("{{Cloze}}", "{{ca:%d:%s}}" % (
-                    data[4]+1, firstName))
+                format = format.replace("{{cloze:", "{{ca:%d:" % (
+                    data[4]+1))
             fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter(

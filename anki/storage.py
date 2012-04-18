@@ -2,9 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, simplejson, copy
+import os, simplejson, copy, re
 from anki.lang import _
-from anki.utils import intTime
+from anki.utils import intTime, ids2str
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *
@@ -81,11 +81,31 @@ def _upgrade(col, ver):
             d['collapsed'] = False
             col.decks.save(d)
     if ver < 4:
+        col.modSchema()
         for m in col.models.all():
-            if not "{{cloze::" in m['tmpls'][0]['qfmt']:
+            if not "{{cloze:" in m['tmpls'][0]['qfmt']:
                 m['type'] = MODEL_STD
             else:
-                pass
+                _upgradeClozeModel(col, m)
+            col.models.save(m)
+        col.db.execute("update col set ver = 4")
+
+def _upgradeClozeModel(col, m):
+    m['type'] = MODEL_CLOZE
+    # convert first template
+    t = m['tmpls'][0]
+    for type in 'qfmt', 'afmt':
+        t[type] = re.sub("{{cloze:1:(.+?)}}", r"{{cloze:\1}}", t[type])
+    t['name'] = _("Cloze")
+    # delete non-cloze cards for the model
+    rem = []
+    for t in m['tmpls'][1:]:
+        if "{{cloze:" not in t['qfmt']:
+            rem.append(t)
+    for r in rem:
+        col.models.remTemplate(m, r)
+    del m['tmpls'][1:]
+    col.models._updateTemplOrds(m)
 
 # Creating a new collection
 ######################################################################
