@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, stat, shutil, difflib, simplejson, re, cgi
+import time, os, stat, shutil, difflib, simplejson, re
 import unicodedata as ucd
 from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML, isMac
@@ -359,12 +359,11 @@ img { max-width: 95%; max-height: 95%; }
         "Calculates answer fragment depending on testChar's unicode category"
         ZERO_SIZE = 'Mn'
         def head(a):
-            return cgi.escape(a[:len(a) - 1])
+            return a[:len(a) - 1]
         def tail(a):
-            return cgi.escape(a[len(a) - 1:])
+            return a[len(a) - 1:]
         if ucd.category(testChar) == ZERO_SIZE:
-            return self.ok(head(correct)) + self.bad(
-                tail(correct) + cgi.escape(wrong))
+            return self.ok(head(correct)) + self.bad(tail(correct) + wrong)
         return self.ok(correct) + self.bad(wrong)
 
     def correct(self, a, b):
@@ -377,7 +376,7 @@ img { max-width: 95%; max-height: 95%; }
         s = difflib.SequenceMatcher(None, b, a)
         for tag, i1, i2, j1, j2 in s.get_opcodes():
             if tag == "equal":
-                lastEqual = cgi.escape(b[i1:i2])
+                lastEqual = b[i1:i2]
             elif tag == "replace":
                 ret += self.applyStyle(b[i1], lastEqual,
                                  b[i1:i2] + ("-" * ((j2 - j1) - (i2 - i1))))
