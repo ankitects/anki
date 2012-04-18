@@ -11,3 +11,9 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import QWebPage, QWebView
 from PyQt4 import pyqtconfig
+
+def debug():
+  from PyQt4.QtCore import pyqtRemoveInputHook
+  from pdb import set_trace
+  pyqtRemoveInputHook()
+  set_trace()
