@@ -2,8 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, stat, shutil, difflib, simplejson, re
+import time, os, stat, shutil, difflib, simplejson, re, cgi
 import unicodedata as ucd
+import HTMLParser
 from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML, isMac
 from anki.hooks import addHook, runHook, runFilter
@@ -320,9 +321,11 @@ img { max-width: 95%; max-height: 95%; }
         # tell webview to call us back with the input content
         self.web.eval("_getTypedText();")
         # munge correct value
-        cor = self.mw.col.media.strip(stripHTML(self.typeCorrect))
+        parser = HTMLParser.HTMLParser()
+        cor = parser.unescape(self.typeCorrect)
+        given = self.typedAnswer
         # compare with typed answer
-        res = self.correct(cor, self.typedAnswer)
+        res = self.correct(cor, given)
         # and update the type answer area
         return re.sub(self.typeAnsPat, """
 <span style="font-family: '%s'; font-size: %spx">%s</span>""" %
@@ -347,13 +350,13 @@ img { max-width: 95%; max-height: 95%; }
         "returns given sring in style correct (green)"
         if len(a) == 0:
             return ""
-        return "<span style='%s'>%s</span>" % (self.styleOk, a)
+        return "<span style='%s'>%s</span>" % (self.styleOk, cgi.escape(a))
 
     def bad(self, a):
         "returns given sring in style incorrect (red)"
         if len(a) == 0:
             return ""
-        return "<span style='%s'>%s</span>" % (self.styleBad, a)
+        return "<span style='%s'>%s</span>" % (self.styleBad, cgi.escape(a))
 
     def applyStyle(self, testChar, correct, wrong):
         "Calculates answer fragment depending on testChar's unicode category"
