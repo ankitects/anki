@@ -486,7 +486,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             card.odid = 0
 
     def _startingLeft(self, card):
-        conf = self._newConf(card)
+        conf = self._lrnConf(card)
         return len(conf['delays'])
 
     def _graduatingIvl(self, card, conf, early, adj=True):
