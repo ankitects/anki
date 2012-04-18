@@ -37,11 +37,15 @@ DYN_FAILED = 5
 DYN_ADDED = 6
 DYN_DUE = 7
 
+# model types
+MODEL_STD = 0
+MODEL_CLOZE = 1
+
 # deck schema & syncing vars
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 SYNC_ZIP_SIZE = int(2.5*1024*1024)
 SYNC_URL = os.environ.get("SYNC_URL") or "https://beta.ankiweb.net/sync/"
-SYNC_VER = 1
+SYNC_VER = 2
 
 # Labels
 ##########################################################################

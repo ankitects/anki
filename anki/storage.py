@@ -44,7 +44,6 @@ def Collection(path, lock=True, server=False, sync=True):
         col.lock()
     return col
 
-# no upgrades necessary at the moment
 def _upgradeSchema(db):
     ver = db.scalar("select ver from col")
     if ver == SCHEMA_VERSION:
@@ -81,6 +80,12 @@ def _upgrade(col, ver):
             d['dyn'] = 0
             d['collapsed'] = False
             col.decks.save(d)
+    if ver < 4:
+        for m in col.models.all():
+            if not "{{cloze::" in m['tmpls'][0]['qfmt']:
+                m['type'] = MODEL_STD
+            else:
+                pass
 
 # Creating a new collection
 ######################################################################

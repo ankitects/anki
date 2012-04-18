@@ -4,6 +4,7 @@
 
 import time
 from anki.utils import intTime, hexifyID, timestampID
+from anki.consts import *
 
 # Cards
 ##########################################################################
@@ -129,7 +130,11 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         return self.col.models.get(self.note().mid)
 
     def template(self):
-        return self.model()['tmpls'][self.ord]
+        m = self.model()
+        if m['type'] == MODEL_STD:
+            return self.model()['tmpls'][self.ord]
+        else:
+            return self.model()['tmpls'][0]
 
     def startTimer(self):
         self.timerStarted = time.time()

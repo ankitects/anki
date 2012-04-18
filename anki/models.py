@@ -28,6 +28,7 @@ defaultModel = {
     'mod': 0,
     'usn': 0,
     'vers': [],
+    'type': MODEL_STD,
 }
 
 defaultField = {
@@ -425,34 +426,21 @@ select id from notes where mid = ?)""" % " ".join(map),
     ##########################################################################
 
     def _updateRequired(self, m):
+        if m['type'] == MODEL_CLOZE:
+            # nothing to do
+            return
         req = []
         flds = [f['name'] for f in m['flds']]
-        cloze = False
         for t in m['tmpls']:
             ret = self._reqForTemplate(m, flds, t)
-            if ret[2]:
-                cloze = True
-            req.append((t['ord'], ret[0], ret[1], ret[2]))
+            req.append((t['ord'], ret[0], ret[1]))
         m['req'] = req
-        m['cloze'] = cloze
 
     def _reqForTemplate(self, m, flds, t):
         a = []
         b = []
-        cloze = "cloze" in t['qfmt']
-        reqstrs = []
-        if cloze:
-            # need a cloze-specific filler
-            cloze = ""
-            nums = re.findall("\{\{cloze:(\d+):", t['qfmt'])
-            for n in nums:
-                n = int(n)
-                cloze += "{{c%d::foo}}" % n
-                # record that we require a specific string for generation
-                reqstrs.append("{{c%d::" % n)
-            return 'all', [], reqstrs
         for f in flds:
-            a.append(cloze if cloze else "1")
+            a.append("1")
             b.append("")
         data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a)]
         full = self.col._renderQA(data)['q']
@@ -472,7 +460,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             if self.col._renderQA(data)['q'] == empty:
                 req.append(i)
         if req:
-            return type, req, reqstrs
+            return type, req
         # if there are no required fields, switch to any mode
         type = 'any'
         req = []
@@ -483,15 +471,17 @@ select id from notes where mid = ?)""" % " ".join(map),
             # if not the same as empty, this field can make the card non-blank
             if self.col._renderQA(data)['q'] != empty:
                 req.append(i)
-        return type, req, reqstrs
+        return type, req
 
     def availOrds(self, m, flds):
         "Given a joined field string, return available template ordinals."
+        if m['type'] == MODEL_CLOZE:
+            return self._availClozeOrds(m, flds)
         fields = {}
         for c, f in enumerate(splitFields(flds)):
             fields[c] = f.strip()
         avail = []
-        for ord, type, req, reqstrs in m['req']:
+        for ord, type, req in m['req']:
             # unsatisfiable template
             if type == "none":
                 continue
@@ -514,17 +504,13 @@ select id from notes where mid = ?)""" % " ".join(map),
                         break
                 if not ok:
                     continue
-            # extra cloze requirement?
-            ok = True
-            for s in reqstrs:
-                if s not in flds:
-                    # required cloze string was missing
-                    ok = False
-                    break
-            if not ok:
-                continue
             avail.append(ord)
         return avail
+
+    def _availClozeOrds(self, m, flds):
+        ret = [int(m)-1 for m in re.findall(
+            "{{c(\d)::[^}]*?}}", splitFields(flds)[0])]
+        return list(set(ret))
 
     # Sync handling
     ##########################################################################

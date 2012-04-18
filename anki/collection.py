@@ -266,9 +266,19 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         "Return (active), non-empty templates."
         model = note.model()
         avail = self.models.availOrds(model, joinFields(note.fields))
+        return self._tmplsFromOrds(model, avail)
+
+    def _tmplsFromOrds(self, model, avail):
         ok = []
-        for t in model['tmpls']:
-            if t['ord'] in avail:
+        if model['type'] == MODEL_STD:
+            for t in model['tmpls']:
+                if t['ord'] in avail:
+                    ok.append(t)
+        else:
+            # cloze - generate temporary templates from first
+            for ord in avail:
+                t = copy.copy(model['tmpls'][0])
+                t['ord'] = ord
                 ok.append(t)
         return ok
 
@@ -304,20 +314,21 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
             did = dids.get(nid) or model['did']
-            for t in model['tmpls']:
+            # add any missing cards
+            for t in self._tmplsFromOrds(model, avail):
                 doHave = nid in have and t['ord'] in have[nid]
-                # if have ord but empty, add cid to remove list
-                # (may not have nid if generating before any cards added)
-                if doHave and t['ord'] not in avail:
-                    rem.append(have[nid][t['ord']])
-                # if missing ord and is available, generate
-                if not doHave and t['ord'] in avail:
+                if not doHave:
                     # we'd like to use the same due# as sibling cards, but we
                     # can't retrieve that quickly, so we give it a new id
                     # instead
                     data.append((ts, nid, t['did'] or did, t['ord'],
                                  now, usn, self.nextID("pos")))
                     ts += 1
+            # note any cards that need removing
+            if nid in have:
+                for ord, id in have[nid].items():
+                    if ord not in avail:
+                        rem.append(id)
         # bulk update
         self.db.executemany("""
 insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
@@ -440,20 +451,28 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         flist = splitFields(data[6])
         fields = {}
         model = self.models.get(data[2])
+        firstName = None
         for (name, (idx, conf)) in self.models.fieldMap(model).items():
+            if idx == 0:
+                firstName = name
             fields[name] = flist[idx]
         fields['Tags'] = data[5]
         fields['Type'] = model['name']
         fields['Deck'] = self.decks.name(data[3])
-        template = model['tmpls'][data[4]]
+        if model['type'] == MODEL_STD:
+            template = model['tmpls'][data[4]]
+        else:
+            template = model['tmpls'][0]
         fields['Card'] = template['name']
         # render q & a
         d = dict(id=data[0])
         for (type, format) in (("q", template['qfmt']), ("a", template['afmt'])):
             if type == "q":
-                format = format.replace("cloze:", "cq:")
+                format = format.replace("{{Cloze}}", "{{cq:%d:%s}}" % (
+                    data[4]+1, firstName))
             else:
-                format = format.replace("cloze:", "ca:")
+                format = format.replace("{{Cloze}}", "{{ca:%d:%s}}" % (
+                    data[4]+1, firstName))
             fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter(

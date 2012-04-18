@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.lang import _
+from anki.consts import MODEL_CLOZE
 
 models = []
 
@@ -31,20 +32,21 @@ models.append((_("Basic"), addBasicModel))
 def addClozeModel(col):
     mm = col.models
     m = mm.new(_("Cloze"))
-    fm = mm.newField(("Text"))
+    m['type'] = MODEL_CLOZE
+    fm = mm.newField(_("Text"))
     mm.addField(m, fm)
-    for i in range(8):
-        n = i+1
-        t = mm.newTemplate(_("Cloze") + " %d" % n)
-        fmt = "{{cloze:%d:Text}}" % n
-        t['css'] += """
+    fm = mm.newField(_("Extra"))
+    mm.addField(m, fm)
+    t = mm.newTemplate(_("Cloze"))
+    fmt = "{{Cloze}}"
+    t['css'] += """
 .cloze {
  font-weight: bold;
  color: blue;
 }"""
-        t['qfmt'] = fmt
-        t['afmt'] = fmt
-        mm.addTemplate(m, t)
+    t['qfmt'] = fmt
+    t['afmt'] = fmt + "<br>\n{{%s}}" % _("Extra")
+    mm.addTemplate(m, t)
     mm.add(m)
     return m
 
