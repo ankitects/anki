@@ -58,7 +58,7 @@
       <widget class="QSplitter" name="splitter">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>1</horstretch>
+         <horstretch>4</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -107,7 +107,7 @@
             <widget class="QComboBox" name="searchEdit">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
+               <horstretch>9</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
@@ -125,7 +125,7 @@
           <widget class="QTableView" name="tableView">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
+             <horstretch>9</horstretch>
              <verstretch>1</verstretch>
             </sizepolicy>
            </property>
