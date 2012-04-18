@@ -260,8 +260,10 @@
     <addaction name="actionNote"/>
     <addaction name="actionCardList"/>
     <addaction name="separator"/>
+    <addaction name="actionFirstCard"/>
     <addaction name="actionPreviousCard"/>
     <addaction name="actionNextCard"/>
+    <addaction name="actionLastCard"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -453,6 +455,30 @@
    </property>
    <property name="text">
     <string>Reposition...</string>
+   </property>
+  </action>
+  <action name="actionFirstCard">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/arrow-up.png</normaloff>:/icons/arrow-up.png</iconset>
+   </property>
+   <property name="text">
+    <string>First Card</string>
+   </property>
+   <property name="shortcut">
+    <string>Home</string>
+   </property>
+  </action>
+  <action name="actionLastCard">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/arrow-down.png</normaloff>:/icons/arrow-down.png</iconset>
+   </property>
+   <property name="text">
+    <string>Last Card</string>
+   </property>
+   <property name="shortcut">
+    <string>End</string>
    </property>
   </action>
  </widget>

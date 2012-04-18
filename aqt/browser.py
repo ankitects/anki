@@ -354,6 +354,8 @@ class Browser(QMainWindow):
         # jumps
         c(f.actionPreviousCard, s, self.onPreviousCard)
         c(f.actionNextCard, s, self.onNextCard)
+        c(f.actionFirstCard, s, self.onFirstCard)
+        c(f.actionLastCard, s, self.onLastCard)
         c(f.actionFind, s, self.onFind)
         c(f.actionNote, s, self.onNote)
         c(f.actionTags, s, self.onTags)
@@ -1208,12 +1210,13 @@ select fm.id, fm.name from fieldmodels fm""")
     # Jumping
     ######################################################################
 
-    def _moveCur(self, dir):
+    def _moveCur(self, dir=None, idx=None):
         if not self.model.cards:
             return
         self.editor.saveNow()
         tv = self.form.tableView
-        idx = tv.moveCursor(dir, Qt.NoModifier)
+        if idx is None:
+            idx = tv.moveCursor(dir, self.mw.app.keyboardModifiers())
         tv.selectionModel().clear()
         tv.setCurrentIndex(idx)
 
@@ -1224,6 +1227,13 @@ select fm.id, fm.name from fieldmodels fm""")
     def onNextCard(self):
         self._moveCur(QAbstractItemView.MoveDown)
         self.editor.web.setFocus()
+
+    def onFirstCard(self):
+        self._moveCur(None, self.model.index(0, 0))
+
+    def onLastCard(self):
+        self._moveCur(
+            None, self.model.index(len(self.model.cards) - 1, 0))
 
     def onFind(self):
         self.form.searchEdit.setFocus()
