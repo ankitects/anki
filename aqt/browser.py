@@ -16,6 +16,7 @@ from anki.db import *
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
+from anki.consts import *
 
 COLOUR_SUSPENDED = "#fffff0"
 COLOUR_MARKED = "#eeeeff"
@@ -205,7 +206,10 @@ class DataModel(QAbstractTableModel):
             f = c.note()
             return self.formatQA(f.fields[self.col.models.sortIdx(f.model())])
         elif type == "template":
-            return c.template()['name']
+            t = c.template()['name']
+            if c.model()['type'] == MODEL_CLOZE:
+                t += " (%d)" % (c.ord+1)
+            return t
         elif type == "cardDue":
             return self.nextDue(c, index)
         elif type == "noteCrt":
