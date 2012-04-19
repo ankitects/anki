@@ -52,13 +52,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="deleteMedia">
-         <property name="text">
-          <string>When adding media, move files instead of copying</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QComboBox" name="newSpread"/>
        </item>
        <item>
@@ -465,7 +458,6 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>stripHTML</tabstop>
-  <tabstop>deleteMedia</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>

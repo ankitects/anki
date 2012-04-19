@@ -125,7 +125,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
     ######################################################################
 
     def setupOptions(self):
-        self.form.deleteMedia.setChecked(self.prof['deleteMedia'])
         self.form.stripHTML.setChecked(self.prof['stripHTML'])
         self.connect(
             self.form.profilePass, SIGNAL("clicked()"),
@@ -133,7 +132,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def updateOptions(self):
         self.prof['stripHTML'] = self.form.stripHTML.isChecked()
-        self.prof['deleteMedia'] = self.form.deleteMedia.isChecked()
 
     def onProfilePass(self):
         pw, ret = getText(_("""\
