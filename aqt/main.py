@@ -65,7 +65,6 @@ class AnkiQt(QMainWindow):
         self.setupAutoUpdate()
         self.setupCardStats()
         self.setupSchema()
-        self.setupEmptyCardDel()
         self.updateTitleBar()
         # screens
         self.setupDeckBrowser()
@@ -768,6 +767,7 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionFullSync, s, self.onFullSync)
         self.connect(m.actionStudyDeck, s, self.onStudyDeck)
+        self.connect(m.actionEmptyCards, s, self.onEmptyCards)
 
     def updateTitleBar(self):
         self.setWindowTitle("Anki")
@@ -824,18 +824,6 @@ The requested change will require a full upload of the database when \
 you next synchronize your collection. If you have reviews or other changes \
 waiting on another device that haven't been synchronized here yet, they \
 will be lost. Continue?"""))
-
-    # Empty card deletion
-    ##########################################################################
-
-    def setupEmptyCardDel(self):
-        addHook("remEmptyCards", self.onEmptyCards)
-
-    def onEmptyCards(self, flag, cnt):
-        if flag and askUser(_("""\
-Your edits have left %d cards empty. Do you want to delete them?""" % cnt)):
-            return flag
-        return False
 
     # Advanced features
     ##########################################################################
@@ -905,6 +893,27 @@ Your edits have left %d cards empty. Do you want to delete them?""" % cnt)):
     def onStudyDeck(self):
         from aqt.studydeck import StudyDeck
         StudyDeck(self)
+
+    def onEmptyCards(self):
+        self.progress.start(immediate=True)
+        cids = self.col.emptyCids()
+        if not cids:
+            self.progress.finish()
+            tooltip(_("No empty cards."))
+            return
+        report = self.col.emptyCardReport(cids)
+        self.progress.finish()
+        diag, box = showText(
+            _("%d cards to delete:\n\n%s") % (len(cids), report), run=False)
+        box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
+        box.button(QDialogButtonBox.Close).setDefault(True)
+        def onDelete():
+            QDialog.accept(diag)
+            self.checkpoint(_("Delete Empty"))
+            self.col.remCards(cids)
+            tooltip(_("%d cards deleted.") % len(cids))
+        diag.connect(box, SIGNAL("accepted()"), onDelete)
+        diag.exec_()
 
     # System specific code
     ##########################################################################

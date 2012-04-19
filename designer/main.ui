@@ -101,13 +101,20 @@
      <addaction name="menuStartup"/>
      <addaction name="separator"/>
     </widget>
+    <widget class="QMenu" name="menuMaintenance">
+     <property name="title">
+      <string>Maintenance</string>
+     </property>
+     <addaction name="actionFullDatabaseCheck"/>
+     <addaction name="actionCheckMediaDatabase"/>
+     <addaction name="actionEmptyCards"/>
+     <addaction name="actionFullSync"/>
+    </widget>
     <addaction name="actionStudyDeck"/>
     <addaction name="separator"/>
     <addaction name="actionCstats"/>
     <addaction name="separator"/>
-    <addaction name="actionFullDatabaseCheck"/>
-    <addaction name="actionCheckMediaDatabase"/>
-    <addaction name="actionFullSync"/>
+    <addaction name="menuMaintenance"/>
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>
     <addaction name="separator"/>
@@ -257,6 +264,11 @@
    </property>
    <property name="shortcut">
     <string>/</string>
+   </property>
+  </action>
+  <action name="actionEmptyCards">
+   <property name="text">
+    <string>Empty Cards...</string>
    </property>
   </action>
  </widget>

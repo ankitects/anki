@@ -47,7 +47,7 @@ def showInfo(text, parent=None, help="", type="info"):
         b.setAutoDefault(False)
     return mb.exec_()
 
-def showText(txt, parent=None, type="text"):
+def showText(txt, parent=None, type="text", run=True):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
@@ -66,7 +66,10 @@ def showText(txt, parent=None, type="text"):
     diag.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
     diag.setMinimumHeight(400)
     diag.setMinimumWidth(500)
-    diag.exec_()
+    if run:
+        diag.exec_()
+    else:
+        return diag, box
 
 def askUser(text, parent=None, help="", defaultno=False):
     "Show a yes/no question. Return true if yes."
