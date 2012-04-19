@@ -754,7 +754,7 @@ did = ? and queue = 2 and due <= ? limit ?""",
 
     def remDyn(self, did, lim=None):
         if not lim:
-            lim = "did = %d" % did
+            lim = "did = %s" % did
         self.col.db.execute("""
 update cards set did = odid, queue = type, due = odue, odue = 0, odid = 0,
 usn = ?, mod = ? where %s""" % lim, self.col.usn(), intTime())
