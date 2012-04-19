@@ -897,24 +897,30 @@ will be lost. Continue?"""))
     ######################################################################
 
     def onDebug(self):
-        d = QDialog()
+        d = self.debugDiag = QDialog()
         frm = aqt.forms.debug.Ui_Dialog()
         frm.setupUi(d)
         d.connect(frm.line, SIGNAL("returnPressed()"), lambda: self.onDebugRet(frm))
-        d.exec_()
+        d.show()
 
     def onDebugRet(self, frm):
-        import pprint
+        import pprint, traceback
         line = frm.line.text()
         if not line:
             return
         def card():
             return self.reviewer.card.__dict__
         locals = dict(mw=self, card=card)
-        ret = eval(line, globals(), locals)
+        newline = "\n"
+        try:
+            ret = eval(line, globals(), locals)
+        except Exception, e:
+            newline = ""
+            ret = traceback.format_exc()
         if not isinstance(ret, basestring):
             ret = pprint.pformat(ret)
-        frm.log.appendPlainText(">>> %s\n%s\n" % (line, ret))
+        frm.log.appendPlainText(">>> %s\n%s%s" % (line, ret, newline))
+        frm.log.ensureCursorVisible()
 
     # System specific code
     ##########################################################################
