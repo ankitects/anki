@@ -82,12 +82,15 @@ def _upgrade(col, ver):
             col.decks.save(d)
     if ver < 4:
         col.modSchema()
+        clozes = []
         for m in col.models.all():
             if not "{{cloze:" in m['tmpls'][0]['qfmt']:
                 m['type'] = MODEL_STD
+                col.models.save(m)
             else:
-                _upgradeClozeModel(col, m)
-            col.models.save(m)
+                clozes.append(m)
+        for m in clozes:
+            _upgradeClozeModel(col, m)
         col.db.execute("update col set ver = 4")
 
 def _upgradeClozeModel(col, m):
@@ -106,6 +109,7 @@ def _upgradeClozeModel(col, m):
         col.models.remTemplate(m, r)
     del m['tmpls'][1:]
     col.models._updateTemplOrds(m)
+    col.models.save(m)
 
 # Creating a new collection
 ######################################################################
