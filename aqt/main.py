@@ -528,6 +528,10 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
 
     def setupKeys(self):
         self.keyHandler = None
+        # debug shortcut
+        self.debugShortcut = QShortcut(QKeySequence("Ctrl+:"), self)
+        self.connect(
+            self.debugShortcut, SIGNAL("activated()"), self.onDebug)
 
     def keyPressEvent(self, evt):
         # do we have a delegate?
@@ -888,6 +892,29 @@ will be lost. Continue?"""))
             tooltip(_("%d cards deleted.") % len(cids))
         diag.connect(box, SIGNAL("accepted()"), onDelete)
         diag.exec_()
+
+    # Debugging
+    ######################################################################
+
+    def onDebug(self):
+        d = QDialog()
+        frm = aqt.forms.debug.Ui_Dialog()
+        frm.setupUi(d)
+        d.connect(frm.line, SIGNAL("returnPressed()"), lambda: self.onDebugRet(frm))
+        d.exec_()
+
+    def onDebugRet(self, frm):
+        import pprint
+        line = frm.line.text()
+        if not line:
+            return
+        def card():
+            return self.reviewer.card.__dict__
+        locals = dict(mw=self, card=card)
+        ret = eval(line, globals(), locals)
+        if not isinstance(ret, basestring):
+            ret = pprint.pformat(ret)
+        frm.log.appendPlainText(">>> %s\n%s\n" % (line, ret))
 
     # System specific code
     ##########################################################################

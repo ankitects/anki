@@ -99,7 +99,6 @@
      <addaction name="actionOpenPluginFolder"/>
      <addaction name="separator"/>
      <addaction name="menuStartup"/>
-     <addaction name="separator"/>
     </widget>
     <widget class="QMenu" name="menuMaintenance">
      <property name="title">
