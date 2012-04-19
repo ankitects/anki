@@ -11,66 +11,6 @@ from anki.utils import namedtmp
 from anki.hooks import addHook
 import aqt
 
-# Card stats
-######################################################################
-
-class CardStats(object):
-    def __init__(self, mw):
-        self.mw = mw
-        self.shown = False
-        addHook("showQuestion", self._update)
-        addHook("deckClosing", self.hide)
-        addHook("reviewCleanup", self.hide)
-
-    def show(self):
-        if not self.shown:
-            class ThinAnkiWebView(AnkiWebView):
-                def sizeHint(self):
-                    return QSize(200, 100)
-            self.web = ThinAnkiWebView()
-            self.shown = self.mw.addDockable(_("Card Info"), self.web)
-            self.shown.connect(self.shown, SIGNAL("visibilityChanged(bool)"),
-                               self._visChange)
-        self._update()
-
-    def hide(self):
-        if self.shown:
-            self.mw.remDockable(self.shown)
-            self.shown = None
-            self.mw.form.actionCstats.setChecked(False)
-
-    def toggle(self):
-        if self.shown:
-            self.hide()
-        else:
-            self.show()
-
-    def _visChange(self, vis):
-        if not vis:
-            # schedule removal for after evt has finished
-            self.mw.progress.timer(100, self.hide, False)
-
-    def _update(self):
-        if not self.shown:
-            return
-        txt = ""
-        r = self.mw.reviewer
-        d = self.mw.col
-        if r.card:
-            txt += _("<h1>Current</h1>")
-            txt += d.cardStats(r.card)
-        lc = r.lastCard()
-        if lc:
-            txt += _("<h1>Last</h1>")
-            txt += d.cardStats(lc)
-        if not txt:
-            txt = _("No current card or last card.")
-        self.web.setHtml("""
-<html><head>
-<style>table { font-size: 12px; } h1 { font-size: 14px; }
-body { font-family: "%s"; } </style>
-</head><body><center>%s</center></body></html>"""% (fontForPlatform(), txt))
-
 # Deck Stats
 ######################################################################
 

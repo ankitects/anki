@@ -112,8 +112,6 @@
     </widget>
     <addaction name="actionStudyDeck"/>
     <addaction name="separator"/>
-    <addaction name="actionCstats"/>
-    <addaction name="separator"/>
     <addaction name="menuMaintenance"/>
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>
@@ -153,20 +151,6 @@
    </property>
    <property name="menuRole">
     <enum>QAction::AboutRole</enum>
-   </property>
-  </action>
-  <action name="actionCstats">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Card Info</string>
-   </property>
-   <property name="statusTip">
-    <string>Show statistics about the current card and last card</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+C</string>
    </property>
   </action>
   <action name="actionUndo">

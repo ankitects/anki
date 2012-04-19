@@ -63,7 +63,6 @@ class AnkiQt(QMainWindow):
         self.setupSystemSpecific()
         self.setupSignals()
         self.setupAutoUpdate()
-        self.setupCardStats()
         self.setupSchema()
         self.updateTitleBar()
         # screens
@@ -574,23 +573,6 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         else:
             aw.close()
 
-    # Dockable widgets
-    ##########################################################################
-
-    def addDockable(self, title, w):
-        dock = QDockWidget(title, self)
-        dock.setObjectName(title)
-        dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
-        dock.setFeatures(QDockWidget.DockWidgetClosable)
-        dock.setWidget(w)
-        if self.width() < 600:
-            self.resize(QSize(600, self.height()))
-        self.addDockWidget(Qt.RightDockWidgetArea, dock)
-        return dock
-
-    def remDockable(self, dock):
-        self.removeDockWidget(dock)
-
     # Marking, suspending and deleting
     ##########################################################################
     # These are only available while reviewing
@@ -673,10 +655,6 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         from aqt.editcurrent import EditCurrent
         EditCurrent(self)
 
-    def setupCardStats(self):
-        import aqt.stats
-        self.cardStats = aqt.stats.CardStats(self)
-
     def onDeckConf(self, deck=None):
         if not deck:
             deck = self.col.decks.current()
@@ -690,9 +668,6 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
     def onOverview(self):
         self.col.reset()
         self.moveToState("overview")
-
-    def onCardStats(self):
-        self.cardStats.toggle()
 
     def onStats(self):
         aqt.stats.DeckStats(self)
@@ -758,7 +733,6 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         self.connect(m.actionExport, s, self.onExport)
         self.connect(m.actionExit, s, self, SLOT("close()"))
         self.connect(m.actionPreferences, s, self.onPrefs)
-        self.connect(m.actionCstats, s, self.onCardStats)
         self.connect(m.actionAbout, s, self.onAbout)
         self.connect(m.actionUndo, s, self.onUndo)
         self.connect(m.actionFullDatabaseCheck, s, self.onCheckDB)
