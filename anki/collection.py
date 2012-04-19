@@ -400,11 +400,20 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
                      ids2str(nids))
         self._remNotes(nids)
 
-    def remEmptyCards(self, ids):
-        if not ids:
-            return
-        if runFilter("remEmptyCards", True, len(ids)):
-            self.remCards(ids)
+    def emptyCids(self):
+        rem = []
+        for m in self.models.all():
+            rem += self.genCards(self.models.nids(m))
+        return rem
+
+    def emptyCardReport(self, cids):
+        rep = ""
+        for ords, flds in self.db.all("""
+select group_concat(ord+1), flds from cards c, notes n
+where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
+            rep += "Cards: %s\nFields: %s\n\n" % (
+                ords, flds.replace("\x1f", " / "))
+        return rep
 
     # Field checksums and sorting fields
     ##########################################################################
