@@ -49,14 +49,16 @@ class CardLayout(QDialog):
 
     def setupTabs(self):
         c = self.connect
+        cloze = self.model['type'] == MODEL_CLOZE
         self.tabs = QTabWidget()
-        self.tabs.setTabsClosable(True)
+        self.tabs.setTabsClosable(not cloze)
         self.tabs.setUsesScrollButtons(True)
-        add = QPushButton("+")
-        add.setFixedWidth(30)
-        add.setToolTip(_("Add new card"))
-        c(add, SIGNAL("clicked()"), self.onAddCard)
-        self.tabs.setCornerWidget(add)
+        if not cloze:
+            add = QPushButton("+")
+            add.setFixedWidth(30)
+            add.setToolTip(_("Add new card"))
+            c(add, SIGNAL("clicked()"), self.onAddCard)
+            self.tabs.setCornerWidget(add)
         c(self.tabs, SIGNAL("currentChanged(int)"), self.selectCard)
         c(self.tabs, SIGNAL("tabCloseRequested(int)"), self.onRemoveTab)
 

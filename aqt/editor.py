@@ -669,7 +669,7 @@ class Editor(object):
 
     def onCloze(self):
         # check that the model is set up for cloze deletion
-        if 'cloze' not in self.note.model()['tmpls'][0]['qfmt']:
+        if '{{cloze:' not in self.note.model()['tmpls'][0]['qfmt']:
             openHelp("cloze")
             return
         f = self.note.fields[self.currentField]
