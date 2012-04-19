@@ -4,12 +4,15 @@
 
 import datetime, time, os
 from aqt.qt import *
-from aqt.utils import openFolder, showWarning, getText, openHelp
+from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo
 import aqt
 
 class Preferences(QDialog):
 
     def __init__(self, mw):
+        if not mw.col:
+            showInfo(_("Please open a profile first."))
+            return
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.prof = self.mw.pm.profile
