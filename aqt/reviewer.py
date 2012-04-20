@@ -428,7 +428,7 @@ td { font-weight: bold; font-size: 12px; }
 <tr>
 <td align=left width=50 valign=top class=stat>
 <br>
-<button onclick="py.link('edit');">%(edit)s</button></td>
+<button title="%(editkey)s" onclick="py.link('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
 <td width=50 align=right valign=top class=stat><span id=time class=stattxt>
@@ -480,6 +480,7 @@ function showAnswer(txt) {
 
 </script>
 """ % dict(rem=self._remaining(), edit=_("Edit"),
+           editkey=_("Shortcut key: %s") % "E",
            more=_("More"), time=self.card.timeTaken()/1000)
 
     def _showAnswerButton(self):
@@ -488,8 +489,8 @@ function showAnswer(txt) {
             self.bottom.web.setFocus()
         middle = '''
 <span class=stattxt>%s</span><br>
-<button id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % (
-        self._remaining(), _("Show Answer"))
+<button title="%s" id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % (
+        self._remaining(), _("Shortcut key: %s") % _("Space"), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
         if self.card.shouldShowTimer():
@@ -546,8 +547,8 @@ function showAnswer(txt) {
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s onclick='py.link("ease%d");'>\
-%s</button></td>''' % (due, extra, i, label)
+<td align=center>%s<button %s title="%s" onclick='py.link("ease%d");'>\
+%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
