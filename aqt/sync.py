@@ -51,7 +51,7 @@ class SyncManager(QObject):
     def _updateLabel(self):
         self.mw.progress.update(label="%s\n%s" % (
             self.label,
-            _("%(a)dKB up, %(b)dKB down") % dict(
+            _("%(a)dkB up, %(b)dkB down") % dict(
                 a=self.sentBytes/1024,
                 b=self.recvBytes/1024)))
 
