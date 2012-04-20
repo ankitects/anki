@@ -366,14 +366,14 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     def _dueForDid(self, did, due):
         conf = self.decks.confForDid(did)
         # in order due?
-        if conf['new']['order']:
+        if conf['new']['order'] == NEW_CARDS_DUE:
             return due
         else:
             # random mode; seed with note ts so all cards of this note get the
             # same random number
             r = random.Random()
             r.seed(due)
-            return r.randrange(1, 2**32-1)
+            return r.randrange(1, max(due, 1000))
 
     # Cards
     ##########################################################################
