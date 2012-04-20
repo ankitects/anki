@@ -892,7 +892,7 @@ will be lost. Continue?"""))
             self.col.remCards(cids)
             tooltip(_("%d cards deleted.") % len(cids))
         diag.connect(box, SIGNAL("accepted()"), onDelete)
-        diag.exec_()
+        diag.show()
 
     # Debugging
     ######################################################################
