@@ -38,7 +38,7 @@ _html = """
 }
 .fname { font-size: 12px; vertical-align: middle; padding: 0; }
 #dupes { font-size: 12px; }
-img { max-width: 150; max-height: 150; }
+img { max-width: 100%%; max-height: 90%%; }
 body { margin: 5px; }
 </style><script>
 %s
