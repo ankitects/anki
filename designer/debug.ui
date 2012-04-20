@@ -31,7 +31,7 @@
    <item>
     <widget class="QPlainTextEdit" name="log">
      <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
+      <enum>Qt::ClickFocus</enum>
      </property>
      <property name="readOnly">
       <bool>true</bool>

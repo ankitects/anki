@@ -106,6 +106,8 @@ class CardLayout(QDialog):
         self.tabs.addTab(w, t['name'])
 
     def onRemoveTab(self, idx):
+        if len(self.model['tmpls']) < 2:
+            return showInfo(_("At least one template is required."))
         if not askUser(_("Remove all cards of this type?")):
             return
         if not self.mm.remTemplate(self.model, self.cards[idx].template()):
