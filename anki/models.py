@@ -310,6 +310,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def remTemplate(self, m, template):
         "False if removing template would leave orphan notes."
+        assert len(m['tmpls']) > 1
         # find cards using this template
         ord = m['tmpls'].index(template)
         cids = self.col.db.list("""
