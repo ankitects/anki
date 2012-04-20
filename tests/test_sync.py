@@ -80,12 +80,11 @@ def test_sync():
     assert deck1.mod == deck1.ls
     assert deck1._usn != origUsn
     # because everything was created separately it will be merged in. in
-    # actual use we use a full sync to ensure initial a common starting point.
+    # actual use, we use a full sync to ensure a common starting point.
     check(2)
     # repeating it does nothing
     assert client.sync() == "noChanges"
-    # if we bump mod time, everything is copied across again because of the
-    # 600 second sync leeway. but the decks should remain the same.
+    # if we bump mod time, the decks will sync but should remain the same.
     deck1.setMod()
     deck1.save()
     assert client.sync() == "success"
