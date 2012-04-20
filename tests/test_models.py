@@ -103,6 +103,8 @@ def test_templates():
     assert c.ord == 0
     stripHTML(c.q()) == "2"
     # it shouldn't be possible to orphan notes by removing templates
+    t = mm.newTemplate(m)
+    mm.addTemplate(m, t)
     assert not d.models.remTemplate(m, m['tmpls'][0])
 
 def test_text():
