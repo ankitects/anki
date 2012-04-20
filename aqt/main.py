@@ -882,7 +882,8 @@ will be lost. Continue?"""))
         report = self.col.emptyCardReport(cids)
         self.progress.finish()
         diag, box = showText(
-            _("%d cards to delete:\n\n%s") % (len(cids), report), run=False)
+            _("%(cnt)d cards to delete:\n\n%(rep)s") % dict(
+                cnt=len(cids), rep=report), run=False)
         box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
         box.button(QDialogButtonBox.Close).setDefault(True)
         def onDelete():
