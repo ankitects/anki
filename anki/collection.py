@@ -408,11 +408,11 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
 
     def emptyCardReport(self, cids):
         rep = ""
-        for ords, flds in self.db.all("""
-select group_concat(ord+1), flds from cards c, notes n
+        for ords, cnt, flds in self.db.all("""
+select group_concat(ord+1), count(), flds from cards c, notes n
 where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
-            rep += "Cards: %s\nFields: %s\n\n" % (
-                ords, flds.replace("\x1f", " / "))
+            rep += _("Cards: %(c)s\nFields: %(f)s\n\n") % dict(
+                c=ords, f=flds.replace("\x1f", " / "))
         return rep
 
     # Field checksums and sorting fields
