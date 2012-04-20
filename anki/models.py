@@ -509,9 +509,16 @@ select id from notes where mid = ?)""" % " ".join(map),
         return avail
 
     def _availClozeOrds(self, m, flds):
-        ret = [int(m)-1 for m in re.findall(
-            "{{c(\d+)::[^}]*?}}", splitFields(flds)[0])]
-        return list(set(ret))
+        sflds = splitFields(flds)
+        map = self.fieldMap(m)
+        ords = set()
+        for fname in re.findall("{{cloze:(.+?)}}", m['tmpls'][0]['qfmt']):
+            if fname not in map:
+                continue
+            ord = map[fname][0]
+            ords.update([int(m)-1 for m in re.findall(
+                "{{c(\d+)::[^}]*?}}", sflds[ord])])
+        return list(ords)
 
     # Sync handling
     ##########################################################################
