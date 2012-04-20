@@ -45,6 +45,8 @@ class ExportDialog(QDialog):
         if file:
             self.exporter.includeSched = (
                 self.frm.includeSched.isChecked())
+            self.exporter.includeMedia = (
+                self.frm.includeMedia.isChecked())
             self.exporter.includeTags = (
                 self.frm.includeTags.isChecked())
             if not self.frm.deck.currentIndex():
