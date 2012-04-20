@@ -35,6 +35,8 @@ class DB(object):
         if self.echo:
             #print a, ka
             print sql, "%0.3fms" % ((time.time() - t)*1000)
+            if self.echo == "2":
+                print a, ka
         return res
 
     def executemany(self, sql, l):
@@ -43,6 +45,8 @@ class DB(object):
         self._db.executemany(sql, l)
         if self.echo:
             print sql, "%0.3fms" % ((time.time() - t)*1000)
+            if self.echo == "2":
+                print l
 
     def commit(self):
         t = time.time()
