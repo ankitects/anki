@@ -148,7 +148,7 @@ question on all cards."""), help="AddItems")
         note = self.addNote(note)
         if not note:
             return
-        tooltip("Added", period=500)
+        tooltip(_("Added"), period=500)
         # stop anything playing
         clearAudioQueue()
         self.onReset(keep=True)
