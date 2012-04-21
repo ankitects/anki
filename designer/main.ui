@@ -87,18 +87,8 @@
       <iconset resource="icons.qrc">
        <normaloff>:/icons/preferences-plugin.png</normaloff>:/icons/preferences-plugin.png</iconset>
      </property>
-     <widget class="QMenu" name="menuStartup">
-      <property name="title">
-       <string>Startup</string>
-      </property>
-      <addaction name="actionEnableAllPlugins"/>
-      <addaction name="actionDisableAllPlugins"/>
-      <addaction name="separator"/>
-     </widget>
      <addaction name="actionDownloadSharedPlugin"/>
      <addaction name="actionOpenPluginFolder"/>
-     <addaction name="separator"/>
-     <addaction name="menuStartup"/>
     </widget>
     <widget class="QMenu" name="menuMaintenance">
      <property name="title">
