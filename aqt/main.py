@@ -219,11 +219,7 @@ Are you sure?"""):
         self.col = Collection(self.pm.collectionPath())
         self.hideSchemaMsg = False
         self.progress.setupDB(self.col.db)
-        # load overview if a single deck, otherwise deck list
-        if self.col.decks.count() > 1:
-            self.moveToState("deckBrowser")
-        else:
-            self.moveToState("overview")
+        self.moveToState("deckBrowser")
 
     def unloadCollection(self):
         if self.col:
