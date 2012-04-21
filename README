@@ -6,7 +6,7 @@ Prerequisites for Linux/FreeBSD/etc:
 - Python 2.5+
 - Python-Qt/PyQt 4.6+
 - SimpleJSON 1.7.3+
-- Beautiful Soup
+- BeautifulSoup 3.2+
 - Httplib2 0.7+
 
 For audio playing support:
@@ -18,10 +18,29 @@ For audio recording support:
 - pyaudio
 - lame
 
-Running / Installation
--------------------------------------
+Old Distros
+-------------
 
-<todo>
+If your Linux distribution doesn't have the required versions of BeautifulSoup
+or Httplib2, you'll need to bypass the system version. Below is an example for
+Ubuntu and BeautifulSoup. Run the following from a terminal:
+
+ $ sudo dpkg -P python-beautifulsoup # remove any system version
+ $ sudo apt-get install python-pip
+ $ sudo pip install beautifulsoup
+
+Installation & Running
+------------------------
+
+Anki does not need installing, and can be run from the directory it is
+extracted to. If you extracted it to ~/anki-2.0 for example, you can run Anki
+by simply typing ~/anki-2.0/anki in a terminal.
+
+If you don't want the source folder cluttering your home folder, you can move
+it to /usr/local/lib/anki or another folder of your choice.
+
+More information
+-----------------
 
 For more information and the latest version, please see the website at:
 
