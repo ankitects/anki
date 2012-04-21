@@ -89,6 +89,7 @@
      </property>
      <addaction name="actionDownloadSharedPlugin"/>
      <addaction name="actionOpenPluginFolder"/>
+     <addaction name="separator"/>
     </widget>
     <widget class="QMenu" name="menuMaintenance">
      <property name="title">

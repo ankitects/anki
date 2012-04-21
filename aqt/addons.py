@@ -5,7 +5,8 @@
 import sys, os, re, traceback, time
 from cStringIO import StringIO
 from aqt.qt import *
-from aqt.utils import showInfo, showWarning, openFolder, isWin, openLink
+from aqt.utils import showInfo, showWarning, openFolder, isWin, openLink, \
+    askUser
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from zipfile import ZipFile
@@ -14,6 +15,9 @@ import aqt
 from anki.sync import httpCon
 import aqt.sync # monkey-patches httplib2
 
+# in the future, it would be nice to save the addon id and unzippped file list
+# to the config so that we can clear up all files and check for updates
+
 class AddonManager(object):
 
     def __init__(self, mw):
@@ -21,6 +25,7 @@ class AddonManager(object):
         f = self.mw.form; s = SIGNAL("triggered()")
         self.mw.connect(f.actionOpenPluginFolder, s, self.onOpenAddonFolder)
         self.mw.connect(f.actionDownloadSharedPlugin, s, self.onGetAddons)
+        self._menus = []
         if isWin:
             self.clearAddonCache()
         sys.path.insert(0, self.addonsFolder())
@@ -36,6 +41,7 @@ class AddonManager(object):
                 __import__(file.replace(".py", ""))
             except:
                 traceback.print_exc()
+        self.rebuildAddonsMenu()
 
     # Menus
     ######################################################################
@@ -44,6 +50,44 @@ class AddonManager(object):
         if path is None:
             path = self.addonsFolder()
         openFolder(path)
+
+    def rebuildAddonsMenu(self):
+        for m in self._menus:
+            self.mw.form.menuPlugins.removeAction(m.menuAction())
+        for file in self.files():
+            m = self.mw.form.menuPlugins.addMenu(
+                os.path.splitext(file)[0])
+            self._menus.append(m)
+            a = QAction(_("Edit..."), self.mw)
+            p = os.path.join(self.addonsFolder(), file)
+            self.mw.connect(a, SIGNAL("triggered()"),
+                            lambda p=p: self.onEdit(p))
+            m.addAction(a)
+            a = QAction(_("Delete..."), self.mw)
+            self.mw.connect(a, SIGNAL("triggered()"),
+                            lambda p=p: self.onRem(p))
+            m.addAction(a)
+
+    def onEdit(self, path):
+        d = QDialog(self.mw)
+        frm = aqt.forms.editaddon.Ui_Dialog()
+        frm.setupUi(d)
+        d.setWindowTitle(os.path.basename(path))
+        frm.text.setPlainText(open(path).read())
+        d.connect(frm.buttonBox, SIGNAL("accepted()"),
+                  lambda: self.onAcceptEdit(path, frm))
+        d.exec_()
+
+    def onAcceptEdit(self, path, frm):
+        open(path, "w").write(frm.text.toPlainText())
+        showInfo(_("Edits saved. Please restart Anki."))
+
+    def onRem(self, path):
+        if not askUser(_("Delete %s?") % os.path.basename(path)):
+            return
+        os.unlink(path)
+        self.rebuildAddonsMenu()
+        showInfo(_("Deleted. Please restart Anki."))
 
     # Tools
     ######################################################################
