@@ -296,6 +296,10 @@ Are you sure?"""):
         self.moveToState("overview")
 
     def _overviewState(self, oldState):
+        did = self.col.decks.selected()
+        if not self.col.decks.nameOrNone(did):
+            showInfo(_("Please select a deck."))
+            return self.moveToState("deckBrowser")
         self.col.reset()
         self.overview.show()
 
