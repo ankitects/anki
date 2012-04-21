@@ -56,8 +56,8 @@ class FieldDialog(QDialog):
         self.saveField()
         self.loadField(idx)
 
-    def _uniqueName(self, prompt, ignoreOrd=None):
-        txt = getOnlyText(prompt)
+    def _uniqueName(self, prompt, ignoreOrd=None, old=""):
+        txt = getOnlyText(prompt, default=old)
         if not txt:
             return
         for f in self.model['flds']:
@@ -69,11 +69,11 @@ class FieldDialog(QDialog):
         return txt
 
     def onRename(self):
-        name = self._uniqueName(_("New name:"), self.currentIdx)
-        if not name:
-            return
         idx = self.currentIdx
         f = self.model['flds'][idx]
+        name = self._uniqueName(_("New name:"), self.currentIdx, f['name'])
+        if not name:
+            return
         self.mm.renameField(self.model, f, name)
         self.saveField()
         self.fillFields()
@@ -104,8 +104,9 @@ class FieldDialog(QDialog):
         self.form.fieldList.setCurrentRow(0)
 
     def onPosition(self, delta=-1):
+        idx = self.currentIdx
         l = len(self.model['flds'])
-        txt = getOnlyText(_("New position (1...%d):") % l)
+        txt = getOnlyText(_("New position (1...%d):") % l, default=str(idx+1))
         if not txt:
             return
         try:

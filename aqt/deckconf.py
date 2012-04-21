@@ -109,8 +109,9 @@ class DeckConf(QDialog):
             self.loadConfs()
 
     def renameGroup(self):
-        name = getOnlyText(_("New name:"))
-        if not name:
+        old = self.conf['name']
+        name = getOnlyText(_("New name:"), default=old)
+        if not name or name == old:
             return
         self.conf['name'] = name
         self.loadConfs()
