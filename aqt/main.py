@@ -254,7 +254,7 @@ Are you sure?"""):
             n = backups[-1][0] + 1
         # do backup
         newpath = os.path.join(dir, "backup-%d.anki2" % n)
-        shutil.copy2(path, newpath)
+        shutil.copyfile(path, newpath)
         # remove if over
         if len(backups) + 1 > nbacks:
             delete = len(backups) + 1 - nbacks

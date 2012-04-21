@@ -288,4 +288,4 @@ class UpgradeThread(QThread):
             src = os.path.join(mfolder, f)
             dst = os.path.join(mdir, f)
             if not os.path.exists(dst):
-                shutil.copy2(src, dst)
+                shutil.copyfile(src, dst)
