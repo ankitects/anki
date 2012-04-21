@@ -325,6 +325,12 @@ class DeckManager(object):
             return deck['name']
         return _("[no deck]")
 
+    def nameOrNone(self, did):
+        deck = self.get(did, default=False)
+        if deck:
+            return deck['name']
+        return None
+
     def setDeck(self, cids, did):
         self.col.db.execute(
             "update cards set did=?,usn=?,mod=? where id in "+
