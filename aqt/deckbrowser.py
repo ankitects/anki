@@ -46,7 +46,7 @@ class DeckBrowser(object):
         elif cmd == "create":
             showInfo(_("""\
 To create a new deck, simply enter its name into any place that ask for \
-a deck name, such as when adding notes, changing a card's deck while browsing,
+a deck name, such as when adding notes, changing a card's deck while browsing, \
 or importing text files."""))
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(',')
