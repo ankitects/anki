@@ -264,16 +264,15 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def renameField(self, m, field, newName):
         self.col.modSchema()
+        pat = "({{|[:#^/])%s(}})"
         for t in m['tmpls']:
-            types = ("{{%s}}", "{{text:%s}}", "{{#%s}}",
-                     "{{^%s}}", "{{/%s}}")
-            for type in types:
-                for fmt in ('qfmt', 'afmt'):
-                    if newName:
-                        repl = type%newName
-                    else:
-                        repl = ""
-                    t[fmt] = t[fmt].replace(type%field['name'], repl)
+            for fmt in ('qfmt', 'afmt'):
+                if newName:
+                    t[fmt] = re.sub(
+                        pat % field['name'], "\\1%s\\2" % newName, t[fmt])
+                else:
+                    t[fmt] = re.sub(
+                        pat  % field['name'], "", t[fmt])
         field['name'] = newName
         self.save(m)
 
