@@ -376,6 +376,9 @@ class Editor(object):
         but = b("cloze", self.onCloze, _("Ctrl+Shift+C"),
                 _("Cloze deletion (Ctrl+Shift+C)"), text="[...]")
         but.setFixedWidth(24)
+        s = self.clozeShortcut2 = QShortcut(
+            QKeySequence(_("Ctrl+Alt+Shift+C")), self.parentWindow)
+        s.connect(s, SIGNAL("activated()"), self.onCloze)
         # fixme: better image names
         b("mail-attachment", self.onAddMedia, _("F3"),
           _("Attach pictures/audio/video (F3)"))
