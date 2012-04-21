@@ -10,7 +10,7 @@ from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      saveSplitter, restoreSplitter, showInfo, askUser, getOnlyText, \
      showWarning, openHelp, openLink
-from anki.utils import isMac, isWin
+from anki.utils import isMac, isWin, joinFields
 from aqt.webview import AnkiWebView
 
 class CardLayout(QDialog):
@@ -90,6 +90,12 @@ class CardLayout(QDialog):
         right = QWidget()
         pform = aqt.forms.preview.Ui_Form()
         pform.setupUi(right)
+        # for cloze notes, show that it's one of n cards
+        if self.model['type'] == MODEL_CLOZE:
+            cnt = len(self.mm.availOrds(
+                self.model, joinFields(self.note.fields)))
+            for g in pform.groupBox, pform.groupBox_2:
+                g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
         pform.frontWeb = AnkiWebView()
         pform.frontPrevBox.addWidget(pform.frontWeb)
         pform.backWeb = AnkiWebView()
@@ -131,14 +137,15 @@ Please create a new card type first."""))
         rename.setAutoDefault(False)
         l.addWidget(rename)
         c(rename, SIGNAL("clicked()"), self.onRename)
-        repos = QPushButton(_("Reposition..."))
-        repos.setAutoDefault(False)
-        l.addWidget(repos)
-        c(repos, SIGNAL("clicked()"), self.onReorder)
-        tgt = QPushButton(_("Deck..."))
-        tgt.setAutoDefault(False)
-        l.addWidget(tgt)
-        c(tgt, SIGNAL("clicked()"), self.onTargetDeck)
+        if self.model['type'] != MODEL_CLOZE:
+            repos = QPushButton(_("Reposition..."))
+            repos.setAutoDefault(False)
+            l.addWidget(repos)
+            c(repos, SIGNAL("clicked()"), self.onReorder)
+            tgt = QPushButton(_("Deck..."))
+            tgt.setAutoDefault(False)
+            l.addWidget(tgt)
+            c(tgt, SIGNAL("clicked()"), self.onTargetDeck)
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
