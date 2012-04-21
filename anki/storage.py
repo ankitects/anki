@@ -92,6 +92,9 @@ def _upgrade(col, ver):
         for m in clozes:
             _upgradeClozeModel(col, m)
         col.db.execute("update col set ver = 4")
+    if ver < 5:
+        col.db.execute("update cards set odue = 0 where queue = 2")
+        col.db.execute("update col set ver = 5")
 
 def _upgradeClozeModel(col, m):
     m['type'] = MODEL_CLOZE
