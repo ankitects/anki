@@ -69,7 +69,7 @@ If the same name exists, compare checksums."""
         dst = os.path.join(mdir, base)
         # if it doesn't exist, copy it directly
         if not os.path.exists(dst):
-            shutil.copy2(opath, dst)
+            shutil.copyfile(opath, dst)
             return base
         # if it's identical, reuse
         if self.filesIdentical(opath, dst):
@@ -89,7 +89,7 @@ If the same name exists, compare checksums."""
             else:
                 root = re.sub(reg, repl, root)
         # copy and return
-        shutil.copy2(opath, path)
+        shutil.copyfile(opath, path)
         return os.path.basename(os.path.basename(path))
 
     def filesIdentical(self, path1, path2):
@@ -192,7 +192,7 @@ If the same name exists, compare checksums."""
             src = os.path.join(ldir, f)
             dst = os.path.join(rdir, f)
             if not os.path.exists(dst):
-                shutil.copy2(src, dst)
+                shutil.copyfile(src, dst)
             cnt += 1
         return cnt
 

@@ -98,8 +98,7 @@ def _buildImg(col, latex, fname, model):
                 stdout=log, stderr=log):
             return _errMsg("dvipng")
         # add to media
-        shutil.copy2(png,
-                     os.path.join(mdir, fname))
+        shutil.copyfile(png, os.path.join(mdir, fname))
         return
     finally:
         os.chdir(oldcwd)
