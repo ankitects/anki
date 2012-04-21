@@ -534,7 +534,7 @@ class Editor(object):
         self._keepButtons = True
         self.web.eval("saveField('blur');")
         self._keepButtons = False
-        self.saveTagsAndDeck()
+        self.saveTags()
 
     def checkValid(self):
         cols = []
@@ -603,7 +603,7 @@ class Editor(object):
             tb.addWidget(l, 0, 0)
             self.deck = aqt.tagedit.TagEdit(self.widget, type=1)
             self.deck.connect(self.deck, SIGNAL("lostFocus"),
-                              self.saveTagsAndDeck)
+                              self.saveTags)
             tb.addWidget(self.deck, 0, 1)
         else:
             self.deck = None
@@ -612,7 +612,7 @@ class Editor(object):
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.saveTagsAndDeck)
+                          self.saveTags)
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
@@ -623,14 +623,21 @@ class Editor(object):
                 self.deck.setCol(self.mw.col)
             self.tags.setCol(self.mw.col)
         if self.addMode:
-            self.deck.setText(self.mw.col.decks.name(self.note.model()['did']))
+            self.deck.setText(self.mw.col.decks.nameOrNone(
+                self.note.model()['did']) or _("Default"))
         self.tags.setText(self.note.stringTags().strip())
 
-    def saveTagsAndDeck(self):
+    def saveTags(self):
         if not self.note:
             return
         self.note.tags = self.mw.col.tags.split(self.tags.text())
+        if not self.addMode:
+            self.note.flush()
+        runHook("tagsUpdated", self.note)
+
+    def saveAddModeVars(self):
         if self.addMode:
+            # save deck name
             name = self.deck.text()
             if not name.strip():
                 self.note.model()['did'] = 1
@@ -640,9 +647,6 @@ class Editor(object):
             m = self.note.model()
             m['tags'] = self.note.tags
             self.mw.col.models.save(m)
-        if not self.addMode:
-            self.note.flush()
-        runHook("tagsUpdated", self.note)
 
     def hideCompleters(self):
         self.tags.hideCompleter()

@@ -143,6 +143,7 @@ question on all cards."""), help="AddItems")
 
     def addCards(self):
         self.editor.saveNow()
+        self.editor.saveAddModeVars()
         note = self.editor.note
         note = self.addNote(note)
         if not note:
