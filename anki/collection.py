@@ -318,6 +318,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             for t in self._tmplsFromOrds(model, avail):
                 doHave = nid in have and t['ord'] in have[nid]
                 if not doHave:
+                    # check deck is not a cram deck
+                    did = t['did'] or did
+                    if self.decks.isDyn(did):
+                        did = 1
                     # we'd like to use the same due# as sibling cards, but we
                     # can't retrieve that quickly, so we give it a new id
                     # instead

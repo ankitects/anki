@@ -417,3 +417,6 @@ class DeckManager(object):
         did = self.id(name, type=defaultDynamicDeck)
         self.select(did)
         return did
+
+    def isDyn(self, did):
+        return self.get(did)['dyn']
