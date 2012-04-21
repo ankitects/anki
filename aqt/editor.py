@@ -642,7 +642,12 @@ class Editor(object):
             if not name.strip():
                 self.note.model()['did'] = 1
             else:
-                self.note.model()['did'] = self.mw.col.decks.id(name)
+                did = self.mw.col.decks.id(name)
+                deck = self.mw.col.decks.get(did)
+                if deck['dyn']:
+                    did = 1
+                    showInfo(_("Using default deck instead of cram deck."))
+                self.note.model()['did'] = did
             # save tags to model
             m = self.note.model()
             m['tags'] = self.note.tags
