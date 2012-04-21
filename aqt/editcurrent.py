@@ -27,7 +27,7 @@ class EditCurrent(QDialog):
         self.editor.setNote(self.mw.reviewer.card.note())
         restoreGeom(self, "editcurrent")
         addHook("reset", self.onReset)
-        self.mw.requireReset(modal=True)
+        self.mw.requireReset()
         self.open()
         # reset focus after open
         self.editor.web.setFocus()

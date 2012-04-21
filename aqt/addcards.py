@@ -34,7 +34,6 @@ class AddCards(QDialog):
         restoreGeom(self, "add")
         addHook('reset', self.onReset)
         addHook('currentModelChanged', self.onReset)
-        self.mw.requireReset(modal=True)
         self.show()
         self.setupNewNote()
 
@@ -139,7 +138,7 @@ The input you have provided would make an empty \
 question on all cards."""), help="AddItems")
             return
         self.addHistory(note)
-        # FIXME: return to overview on add?
+        self.mw.requireReset()
         return note
 
     def addCards(self):

@@ -346,7 +346,7 @@ Are you sure?"""):
             # we don't have to change the webview, as we have a covering window
             return
         self.web.setLinkHandler(lambda url: self.maybeReset())
-        i = _("Close the browser to resume.")
+        i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"))
         self.web.stdHtml("""
 <center><div style="height: 100%%">
