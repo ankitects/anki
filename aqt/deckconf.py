@@ -79,6 +79,13 @@ class DeckConf(QDialog):
         conf = self.confList[idx]
         self.deck['conf'] = conf['id']
         self.loadConf()
+        cnt = 0
+        for d in self.mw.col.decks.all():
+            if d['dyn']:
+                continue
+            if d['conf'] == conf['id']:
+                cnt += 1
+        self.form.count.setText(_("%d decks use this options group") % cnt)
 
     def addGroup(self):
         name = getOnlyText(_("New options group name:"))
