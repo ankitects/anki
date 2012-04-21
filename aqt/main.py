@@ -891,6 +891,7 @@ will be lost. Continue?"""))
             self.checkpoint(_("Delete Empty"))
             self.col.remCards(cids)
             tooltip(_("%d cards deleted.") % len(cids))
+            self.reset()
         diag.connect(box, SIGNAL("accepted()"), onDelete)
         diag.show()
 

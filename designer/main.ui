@@ -96,8 +96,11 @@
       <string>Maintenance</string>
      </property>
      <addaction name="actionFullDatabaseCheck"/>
+     <addaction name="separator"/>
      <addaction name="actionCheckMediaDatabase"/>
+     <addaction name="separator"/>
      <addaction name="actionEmptyCards"/>
+     <addaction name="separator"/>
      <addaction name="actionFullSync"/>
     </widget>
     <addaction name="actionStudyDeck"/>
