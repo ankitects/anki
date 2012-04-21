@@ -148,7 +148,10 @@ you can enter it here. Use \\t to represent tab."""),
             self.importer.run()
         except Exception, e:
             msg = _("Import failed.\n")
-            msg += unicode(traceback.format_exc(), "ascii", "replace")
+            if "1-character string" in unicode(e):
+                msg += unicode(e)
+            else:
+                msg += unicode(traceback.format_exc(), "ascii", "replace")
             showText(msg)
             return
         finally:

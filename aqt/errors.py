@@ -50,6 +50,8 @@ class ErrorHandler(QObject):
             return
         if "Pyaudio not" in error:
             return showWarning(_("Please install PyAudio"))
+        if "no default output" in error:
+            return showWarning(_("Please connect a microphone."))
         stdText = _("""\
 An error occurred. It may have been caused by a harmless bug, <br>
 or your deck may have a problem.
