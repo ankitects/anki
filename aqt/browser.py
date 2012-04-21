@@ -448,7 +448,7 @@ class Browser(QMainWindow):
             self.form.searchEdit.clear()
             self.form.searchEdit.addItems(sh)
             self.mw.pm.profile['searchHistory'] = sh
-        if self.mw.reviewer.card:
+        if self.mw.state == "review":
             txt = txt.replace("is:current", "nid:%d"%self.mw.reviewer.card.nid)
         elif "is:current" in txt:
             self.form.searchEdit.lineEdit().setText(prompt)
