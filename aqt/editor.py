@@ -118,17 +118,6 @@ function onFocus(elem) {
     }
 }
 
-function saveSel() {
-    sel = document.getSelection();
-    savedSel = sel.getRangeAt(0);
-}
-
-function restoreSel() {
-    sel = document.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(savedSel);
-}
-
 function onDragOver(elem) {
     elem.focus();
 }
@@ -252,7 +241,14 @@ def _filterHTML(html):
     for tag in doc("span", "Apple-style-span"):
         tag.replaceWithChildren()
     for tag in doc("font", "Apple-style-span"):
-        tag.replaceWithChildren()
+        # strip all but colour attr from implicit font tags
+        if 'color' in dict(tag.attrs):
+            tag.attrs = ((u"color", tag['color']),)
+            # and apple class
+            del tag['class']
+        else:
+            # remove completely
+            tag.replaceWithChildren()
     # turn file:/// links into relative ones
     for tag in doc("img"):
         if tag['src'].lower().startswith("file://"):
@@ -730,13 +726,13 @@ class Editor(object):
 
     # use last colour
     def onForeground(self):
-        self.web.eval("saveSel();")
         self._wrapWithColour(self.fcolour)
 
     # choose new colour
     def onChangeCol(self):
-        self.web.eval("saveSel();")
-        new = QColorDialog.getColor(QColor(self.fcolour), self.widget)
+        new = QColorDialog.getColor(QColor(self.fcolour), None)
+        # native dialog doesn't refocus us for some reason
+        self.parentWindow.activateWindow()
         if new.isValid():
             self.fcolour = new.name()
             self.onColourChanged()
@@ -750,8 +746,7 @@ class Editor(object):
         self.mw.pm.profile['lastColour'] = self.fcolour
 
     def _wrapWithColour(self, colour):
-        self._eval("restoreSel(); wrap('<font color=\"%s\">', '</font>');"%
-                   colour)
+        self._eval("setFormat('forecolor', '%s')" % colour)
 
     # Audio/video/images
     ######################################################################
