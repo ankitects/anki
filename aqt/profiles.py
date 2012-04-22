@@ -221,7 +221,6 @@ create table if not exists profiles
     def _pwhash(self, passwd):
         return checksum(unicode(self.meta['id'])+unicode(passwd))
 
-
     # Default language
     ######################################################################
     # On first run, allow the user to choose the default language

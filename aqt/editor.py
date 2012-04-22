@@ -373,6 +373,9 @@ class Editor(object):
         but = b("foreground", self.onForeground, _("F7"), text=" ")
         but.setToolTip(_("Set foreground colour (F7)"))
         self.setupForegroundButton(but)
+        but = b("change_colour", self.onChangeCol, _("F8"),
+          _("Change colour (F8)"), text=u"▾")
+        but.setFixedWidth(12)
         but = b("cloze", self.onCloze, _("Ctrl+Shift+C"),
                 _("Cloze deletion (Ctrl+Shift+C)"), text="[...]")
         but.setFixedWidth(24)
@@ -707,115 +710,38 @@ class Editor(object):
     def setupForegroundButton(self, but):
         self.foregroundFrame = QFrame()
         self.foregroundFrame.setAutoFillBackground(True)
-        self.colourChanged()
+        self.foregroundFrame.setFocusPolicy(Qt.NoFocus)
+        self.fcolour = self.mw.pm.profile.get("lastColour", "#00f")
+        self.onColourChanged()
         hbox = QHBoxLayout()
         hbox.addWidget(self.foregroundFrame)
         hbox.setMargin(5)
         but.setLayout(hbox)
 
-    def _updateForegroundButton(self, txtcol):
-        self.foregroundFrame.setPalette(QPalette(QColor(txtcol)))
-        self.foregroundFrame.setStyleSheet("* {background-color: %s}" %
-                                           txtcol)
-
-    def colourChanged(self):
-        recent = self.mw.pm.profile['recentColours']
-        self._updateForegroundButton(recent[-1])
-
+    # use last colour
     def onForeground(self):
         self.web.eval("saveSel();")
-        class ColourPopup(QDialog):
-            def __init__(self, parent):
-                QDialog.__init__(self, parent, Qt.FramelessWindowHint)
-            def event(self, evt):
-                if evt.type() == QEvent.WindowDeactivate:
-                    self.close()
-                return QDialog.event(self, evt)
-        p = ColourPopup(self.widget)
-        p.move(self.foregroundFrame.mapToGlobal(QPoint(0,0)))
-        g = QGridLayout(p)
-        g.setMargin(4)
-        g.setSpacing(0)
-        p.setLayout(g)
-        lastWidget = None
-        self.colourNext = QShortcut(QKeySequence("F7"), p)
-        p.connect(self.colourNext, SIGNAL("activated()"),
-                  self.onNextColour)
-        self.colourChoose = QShortcut(QKeySequence("F6"), p)
-        p.connect(self.colourChoose, SIGNAL("activated()"),
-                  self.onChooseColourKey)
-        for n, c in enumerate(reversed(self.mw.pm.profile['recentColours'])):
-            col = QToolButton()
-            col.setAutoRaise(True)
-            col.setFixedWidth(64)
-            col.setFixedHeight(16)
-            col.setAutoFillBackground(True)
-            col.setPalette(QPalette(QColor(c)))
-            col.setStyleSheet("* {background-color: %s}" %
-                              c)
-            col.connect(col, SIGNAL("clicked()"),
-                        lambda c=c: self.onChooseColour(c))
-            g.addWidget(col, n, 0)
-            if lastWidget:
-                p.setTabOrder(lastWidget, col)
-            lastWidget = col
-            but = QPushButton("X")
-            but.setFixedWidth(16)
-            but.setFixedHeight(16)
-            but.setAutoDefault(False)
-            but.connect(but, SIGNAL("clicked()"),
-                        lambda c=c: self.onRemoveColour(c))
-            g.addWidget(but, n, 1)
-        spc = QSpacerItem(5,10, QSizePolicy.Fixed)
-        g.addItem(spc, n+1, 0)
-        cb = QPushButton(_("+"))
-        cb.setShortcut(QKeySequence("F5"))
-        cb.connect(cb, SIGNAL("clicked()"), self.onNewColour)
-        cb.setFixedWidth(80)
-        cb.setFixedHeight(16)
-        cb.setAutoDefault(False)
-        g.addWidget(cb, n+2, 0, 1, 2)
-        self.colourDiag = p
-        p.show()
+        self._wrapWithColour(self.fcolour)
 
-    def onRemoveColour(self, colour):
-        recent = self.mw.pm.profile['recentColours']
-        recent.remove(colour)
-        if not recent:
-            recent.append("#000000")
-        self.colourDiag.close()
-        self.onForeground()
-        self.colourChanged()
+    # choose new colour
+    def onChangeCol(self):
+        self.web.eval("saveSel();")
+        new = QColorDialog.getColor(QColor(self.fcolour), self.widget)
+        if new.isValid():
+            self.fcolour = new.name()
+            self.onColourChanged()
+            self._wrapWithColour(self.fcolour)
 
-    def onNextColour(self):
-        self.colourDiag.focusWidget().nextInFocusChain().setFocus()
+    def _updateForegroundButton(self):
+        self.foregroundFrame.setPalette(QPalette(QColor(self.fcolour)))
 
-    def onChooseColourKey(self):
-        try:
-            self.colourDiag.focusWidget().click()
-        except:
-            # dialog focused
-            pass
+    def onColourChanged(self):
+        self._updateForegroundButton()
+        self.mw.pm.profile['lastColour'] = self.fcolour
 
-    def onChooseColour(self, colour):
-        recent = self.mw.pm.profile['recentColours']
-        recent.remove(colour)
-        recent.append(colour)
+    def _wrapWithColour(self, colour):
         self._eval("restoreSel(); wrap('<font color=\"%s\">', '</font>');"%
                    colour)
-        self.colourDiag.close()
-        self.colourChanged()
-
-    def onNewColour(self):
-        new = QColorDialog.getColor(Qt.white, self.widget)
-        self.widget.raise_()
-        recent = self.mw.pm.profile['recentColours']
-        if new.isValid():
-            txtcol = unicode(new.name())
-            if txtcol not in recent:
-                recent.append(txtcol)
-            self.colourChanged()
-            self.onChooseColour(txtcol)
 
     # Audio/video/images
     ######################################################################
