@@ -22,6 +22,7 @@ class Reviewer(object):
         self.cardQueue = []
         self.hadCardQueue = False
         self._answeredIds = []
+        self.typeCorrect = None # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         addHook("leech", self.onLeech)
@@ -95,6 +96,7 @@ class Reviewer(object):
     ##########################################################################
 
     _revHtml = """
+<img src="qrc:/icons/rating.png" class=marked>
 <div id=qa></div>
 <script>
 var ankiPlatform = "desktop";
@@ -109,6 +111,15 @@ function _updateQA (q, answerMode) {
         window.location = "#answer";
     }
 };
+
+function _toggleStar (show) {
+    if (show) {
+        $(".marked").show();
+    } else {
+        $(".marked").hide();
+    }
+}
+
 function _getTypedText () {
     if (typeans) {
         py.link("typeans:"+typeans.value);
@@ -155,7 +166,8 @@ function _typeAnsPress() {
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        self.web.eval("_updateQA(%s);" % simplejson.dumps(q))
+        self.web.eval("_updateQA(%s, false);" % simplejson.dumps(q))
+        self._toggleStar()
         if self._bottomReady:
             self._showAnswerButton()
         # if we have a type answer field, focus main web
@@ -167,6 +179,10 @@ function _typeAnsPress() {
     def _autoplay(self, card):
         return self.mw.col.decks.confForDid(
             self.card.odid or self.card.did)['autoplay']
+
+    def _toggleStar(self):
+        self.web.eval("_toggleStar(%s);" % simplejson.dumps(
+            self.card.note().hasTag("marked")))
 
     # Showing the answer
     ##########################################################################
@@ -222,7 +238,7 @@ function _typeAnsPress() {
         elif key == "r":
             self.replayAudio()
         elif key == "*":
-            self.mw.onMark()
+            self.onMark()
         elif key == "-":
             self.mw.onBuryNote()
         elif key == "=":
@@ -256,6 +272,7 @@ function _typeAnsPress() {
 hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
 img { max-width: 95%; max-height: 95%; }
+.marked { position:absolute; right: 7; top: 7; display: none; }
 """
 
     def _styles(self):
@@ -576,7 +593,7 @@ function showAnswer(txt) {
     def showContextMenu(self):
         opts = [
             [_("Replay Audio"), "r", self.replayAudio],
-            [_("Mark Note"), "*", self.mw.onMark],
+            [_("Mark Note"), "*", self.onMark],
             [_("Bury Note"), "-", self.mw.onBuryNote],
             [_("Suspend Note"), "=", self.mw.onSuspend],
             [_("Delete Note"), "Delete", self.mw.onDelete],
@@ -593,3 +610,10 @@ function showAnswer(txt) {
         self.mw.onDeckConf(self.mw.col.decks.get(
             self.card.odid or self.card.did))
 
+    def onMark(self):
+        f = self.card.note()
+        if f.hasTag("marked"):
+            f.delTag("marked")
+        else:
+            f.addTag("marked")
+        self._toggleStar()
