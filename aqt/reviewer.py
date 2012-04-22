@@ -240,15 +240,15 @@ function _typeAnsPress() {
         elif key == "*":
             self.onMark()
         elif key == "-":
-            self.mw.onBuryNote()
+            self.onBuryNote()
         elif key == "=":
-            self.mw.onSuspend()
+            self.onSuspend()
         elif key == "o":
             self.onOptions()
         elif key in ("1", "2", "3", "4"):
             self._answerCard(int(key))
         elif evt.key() == Qt.Key_Delete:
-            self.mw.onDelete()
+            self.onDelete()
 
     def _linkHandler(self, url):
         if url == "ans":
@@ -594,9 +594,9 @@ function showAnswer(txt) {
         opts = [
             [_("Replay Audio"), "r", self.replayAudio],
             [_("Mark Note"), "*", self.onMark],
-            [_("Bury Note"), "-", self.mw.onBuryNote],
-            [_("Suspend Note"), "=", self.mw.onSuspend],
-            [_("Delete Note"), "Delete", self.mw.onDelete],
+            [_("Bury Note"), "-", self.onBuryNote],
+            [_("Suspend Note"), "=", self.onSuspend],
+            [_("Delete Note"), "Delete", self.onDelete],
             [_("Card Options"), "o", self.onOptions]
         ]
         m = QMenu(self.mw)
@@ -617,3 +617,23 @@ function showAnswer(txt) {
         else:
             f.addTag("marked")
         self._toggleStar()
+
+    def onSuspend(self):
+        self.mw.checkpoint(_("Suspend"))
+        self.mw.col.sched.suspendCards(
+            [c.id for c in self.card.note().cards()])
+        tooltip(_("Note suspended."))
+        self.mw.reset()
+
+    def onDelete(self):
+        self.mw.checkpoint(_("Delete"))
+        self.mw.col.remNotes([self.card.note().id])
+        self.mw.reset()
+        tooltip(_("Note and its cards deleted."))
+
+    def onBuryNote(self):
+        self.mw.checkpoint(_("Bury"))
+        self.mw.col.sched.buryNote(self.card.nid)
+        self.mw.reset()
+        tooltip(_("Note buried."))
+

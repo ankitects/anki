@@ -42,7 +42,7 @@ class AnkiQt(QMainWindow):
             self.setupUI()
             self.setupAddons()
         except:
-            showInfo("Error during startup:\n%s" % traceback.format_exc())
+            showInfo(_("Error during startup:\n%s") % traceback.format_exc())
             sys.exit(1)
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
@@ -139,18 +139,18 @@ class AnkiQt(QMainWindow):
         return True
 
     def onAddProfile(self):
-        name = getOnlyText("Name:")
+        name = getOnlyText(_("Name:"))
         if name:
             if name in self.pm.profiles():
-                return showWarning("Name exists.")
+                return showWarning(_("Name exists."))
             if not re.match("^[A-Za-z0-9 ]+$", name):
                 return showWarning(
-                    "Only numbers, letters and spaces can be used.")
+                    _("Only numbers, letters and spaces can be used."))
             self.pm.create(name)
             self.refreshProfilesList()
 
     def onRenameProfile(self):
-        name = getOnlyText("New name:", default=self.pm.name)
+        name = getOnlyText(_("New name:"), default=self.pm.name)
         if not self.openProfile():
             return showWarning(_("Invalid password."))
         if not name:
@@ -158,24 +158,24 @@ class AnkiQt(QMainWindow):
         if name == self.pm.name:
             return
         if name in self.pm.profiles():
-            return showWarning("Name exists.")
+            return showWarning(_("Name exists."))
         if not re.match("^[A-Za-z0-9 ]+$", name):
             return showWarning(
-                "Only numbers, letters and spaces can be used.")
+                _("Only numbers, letters and spaces can be used."))
         self.pm.rename(name)
         self.refreshProfilesList()
 
     def onRemProfile(self):
         profs = self.pm.profiles()
         if len(profs) < 2:
-            return showWarning("There must be at least one profile.")
+            return showWarning(_("There must be at least one profile."))
         # password correct?
         if not self.openProfile():
             return
         # sure?
-        if not askUser("""\
+        if not askUser(_("""\
 All cards, notes, and media for this profile will be deleted. \
-Are you sure?"""):
+Are you sure?""")):
             return
         self.pm.remove(self.pm.name)
         self.refreshProfilesList()
@@ -577,45 +577,6 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
             self.app.closeAllWindows()
         else:
             aw.close()
-
-    # Marking, suspending and deleting
-    ##########################################################################
-    # These are only available while reviewing
-
-    def updateMarkAction(self, ):
-        self.form.actionMarkCard.blockSignals(True)
-        self.form.actionMarkCard.setChecked(
-            self.reviewer.card.note().hasTag("marked"))
-        self.form.actionMarkCard.blockSignals(False)
-
-    def onMark(self):
-        f = self.reviewer.card.note()
-        if f.hasTag("marked"):
-            f.delTag("marked")
-            tooltip("Mark Removed.")
-        else:
-            f.addTag("marked")
-            tooltip("Mark Added.")
-        f.flush()
-
-    def onSuspend(self):
-        self.checkpoint(_("Suspend"))
-        self.col.sched.suspendCards(
-            [c.id for c in self.reviewer.card.note().cards()])
-        tooltip("Note suspended.")
-        self.reset()
-
-    def onDelete(self):
-        self.checkpoint(_("Delete"))
-        self.col.remNotes([self.reviewer.card.note().id])
-        self.reset()
-        tooltip("Note and its cards deleted.")
-
-    def onBuryNote(self):
-        self.checkpoint(_("Bury"))
-        self.col.sched.buryNote(self.reviewer.card.nid)
-        self.reset()
-        tooltip("Note buried.")
 
     # Undo & autosave
     ##########################################################################
