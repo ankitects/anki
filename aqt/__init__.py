@@ -130,6 +130,11 @@ def run():
     # i18n
     setupLang(pm, app, opts.lang)
 
+    # remaining pm init
+    pm.checkPid()
+    pm.ensureProfile()
+
+    # load the main window
     import aqt.main
     mw = aqt.main.AnkiQt(app, pm)
     app.exec_()

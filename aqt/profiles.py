@@ -62,37 +62,36 @@ class ProfileManager(object):
     def __init__(self, base=None, profile=None):
         self.name = None
         # instantiate base folder
-        if not base:
-            base = self._defaultBase()
-        self.ensureBaseExists(base)
-        self.checkPid(base)
-        self.base = base
-        # load database and cmdline-provided profile
-        self._load()
+        self.base = base or self._defaultBase()
+        self.ensureBaseExists()
+        # load metadata
+        self.firstRun = self._loadMeta()
+        # did the user request a profile to start up with?
         if profile:
             try:
                 self.load(profile)
             except TypeError:
                 raise Exception("Provided profile does not exist.")
 
-    # Startup checks
+    # Base creation
     ######################################################################
-    # These routines run before the language code is initialized, so they
-    # can't be translated
 
-    def ensureBaseExists(self, base):
-        if not os.path.exists(base):
-            try:
-                os.makedirs(base)
-            except:
-                QMessageBox.critical(
-                    None, "Error", """\
+    def ensureBaseExists(self):
+        try:
+            self._ensureExists(self.base)
+        except:
+            # can't translate, as lang not initialized
+            QMessageBox.critical(
+                None, "Error", """\
 Anki can't write to the harddisk. Please see the \
 documentation for information on using a flash drive.""")
-                raise
+            raise
 
-    def checkPid(self, base):
-        p = os.path.join(base, "pid")
+    # Pid checking
+    ######################################################################
+
+    def checkPid(self):
+        p = os.path.join(self.base, "pid")
         # check if an existing instance is running
         if os.path.exists(p):
             pid = int(open(p).read())
@@ -104,9 +103,9 @@ documentation for information on using a flash drive.""")
                 pass
             if exists:
                 QMessageBox.warning(
-                    None, "Error", """\
+                    None, "Error", _("""\
 Anki is already running. Please close the existing copy or restart your \
-computer.""")
+computer."""))
                 raise Exception("Already running")
         # write out pid to the file
         open(p, "w").write(str(os.getpid()))
@@ -198,7 +197,7 @@ computer.""")
         else:
             return os.path.expanduser("~/Anki")
 
-    def _load(self):
+    def _loadMeta(self):
         path = os.path.join(self.base, "prefs.db")
         new = not os.path.exists(path)
         self.db = DB(path, text=str)
@@ -211,13 +210,17 @@ create table if not exists profiles
             self.db.execute("insert into profiles values ('_global', ?)",
                             cPickle.dumps(metaConf))
             self._setDefaultLang()
-            # and save a default user profile for later (commits)
-            self.create("User 1")
+            return True
         else:
             # load previously created
             self.meta = cPickle.loads(
                 self.db.scalar(
                     "select data from profiles where name = '_global'"))
+
+    def ensureProfile(self):
+        "Create a new profile if none exists."
+        if self.firstRun:
+            self.create(_("User 1"))
 
     def _pwhash(self, passwd):
         return checksum(unicode(self.meta['id'])+unicode(passwd))
@@ -228,7 +231,7 @@ create table if not exists profiles
 
     def _setDefaultLang(self):
         # the dialog expects _ to be defined, but we're running before
-        # setLang() has been called. so we create a dummy op for now
+        # setupLang() has been called. so we create a dummy op for now
         import __builtin__
         __builtin__.__dict__['_'] = lambda x: x
         # create dialog
