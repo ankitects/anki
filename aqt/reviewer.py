@@ -616,6 +616,7 @@ function showAnswer(txt) {
             f.delTag("marked")
         else:
             f.addTag("marked")
+        f.flush()
         self._toggleStar()
 
     def onSuspend(self):
