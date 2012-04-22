@@ -807,7 +807,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
     def _dynIvlBoost(self, card):
         assert card.odid and card.type == 2
         assert card.factor
-        elapsed = card.ivl - card.odue - self.today
+        elapsed = card.ivl - (card.odue - self.today)
         factor = ((card.factor/1000.0)+1.2)/2.0
         return int(max(card.ivl, elapsed * factor, 1))
 
