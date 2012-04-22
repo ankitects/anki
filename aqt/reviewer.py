@@ -282,22 +282,18 @@ img { max-width: 95%; max-height: 95%; }
             return buf
         fld = m.group(1)
         # if it's a cloze, extract data
-        if fld.startswith("cq:"):
+        if fld.startswith("cloze:"):
             # get field and cloze position
-            m = re.match("cq:(\d+):(.+)", fld)
-            if not m:
-                return re.sub(
-                    self.typeAnsPat, _("Type answer: invalid cloze pattern"),
-                    buf)
-            clozeIdx = m.group(1)
-            fld = m.group(2)
+            clozeIdx = self.card.ord + 1
+            fld = fld.split(":")[1]
         # loop through fields for a match
         for f in self.card.model()['flds']:
             if f['name'] == fld:
                 self.typeCorrect = self.card.note()[f['name']]
                 if clozeIdx:
                     # narrow to cloze
-                    self.typeCorrect = self._contentForCloze(self.typeCorrect, clozeIdx)
+                    self.typeCorrect = self._contentForCloze(
+                        self.typeCorrect, clozeIdx)
                 self.typeFont = f['font']
                 self.typeSize = f['size']
                 break
