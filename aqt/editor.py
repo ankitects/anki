@@ -274,7 +274,6 @@ class Editor(object):
         self.stealFocus = True
         self.addMode = addMode
         self._loaded = False
-        self._keepButtons = False
         self.currentField = 0
         # current card, for card layout
         self.card = None
@@ -440,8 +439,7 @@ class Editor(object):
             if not self.addMode:
                 self.note.flush()
             if type == "blur":
-                if not self._keepButtons:
-                    self.disableButtons()
+                self.disableButtons()
                 # run any filters
                 if runFilter(
                     "editFocusLost", False, self.note, self.currentField):
@@ -535,10 +533,14 @@ class Editor(object):
         "Must call this before adding cards, closing dialog, etc."
         if not self.note:
             return
-        self._keepButtons = True
-        self.web.eval("saveField('blur');")
-        self._keepButtons = False
+        if self.mw.app.focusWidget() != self.web:
+            # if no fields are focused, there's nothing to save
+            return
+        # move focus out of fields and save tags
+        self.parentWindow.setFocus()
         self.saveTags()
+        # and process events so any focus-lost hooks fire
+        self.mw.app.processEvents()
 
     def checkValid(self):
         cols = []
