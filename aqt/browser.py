@@ -240,7 +240,7 @@ class DataModel(QAbstractTableModel):
             return self.browser.mw.col.decks.name(c.did)
 
     def question(self, c):
-        return self.formatQA(c.a())
+        return self.formatQA(c.q())
 
     def answer(self, c):
         return self.formatQA(c.a())
