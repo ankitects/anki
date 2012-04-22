@@ -80,13 +80,13 @@ tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
 .extra { font-size: 90%%; }
 body { margin: 1em; -webkit-user-select: none; }
 .current { background-color: #ececec; }
-
-    .count { width: 6em; text-align: right; }
+.decktd { min-width: 15em; }
+.count { width: 6em; text-align: right; }
 """ % dict(width=_dragIndicatorBorderWidth)
 
     _body = """
 <center>
-<table cellspacing=0 cellpading=3 width=100%%>
+<table cellspacing=0 cellpading=3>
 %(tree)s
 </table>
 </center>
@@ -157,7 +157,8 @@ body { margin: 1em; -webkit-user-select: none; }
             klass = 'deck'
         buf = "<tr class='%s' id='%d'>" % (klass, did)
         # deck link
-        buf += "<td colspan=5>%s<a class=deck href='open:%d'>%s</a></td>"% (
+        buf += """
+<td class=decktd colspan=5>%s<a class=deck href='open:%d'>%s</a></td>"""% (
             indent(), did, name)
         # due counts
         def nonzeroColour(cnt, colour):
