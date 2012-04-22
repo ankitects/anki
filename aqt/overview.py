@@ -24,13 +24,13 @@ class Overview(object):
         self.web.setLinkHandler(self._linkHandler)
         self.web.setKeyHandler(None)
         self.mw.keyHandler = self._keyHandler
+        self.mw.web.setFocus()
         self.refresh()
 
     def refresh(self):
         self.mw.col.reset()
         self._renderPage()
         self._renderBottom()
-        self.mw.web.setFocus()
 
     # Handlers
     ############################################################

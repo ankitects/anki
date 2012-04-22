@@ -25,6 +25,9 @@ class DeckBrowser(object):
         self.mw.keyHandler = self._keyHandler
         self._renderPage()
 
+    def refresh(self):
+        self._renderPage()
+
     # Event handlers
     ##########################################################################
 

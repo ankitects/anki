@@ -64,6 +64,7 @@ class AnkiQt(QMainWindow):
         self.setupSignals()
         self.setupAutoUpdate()
         self.setupSchema()
+        self.setupRefreshTimer()
         self.updateTitleBar()
         # screens
         self.setupDeckBrowser()
@@ -783,6 +784,19 @@ clock is slow or fast, because the date is set incorrectly, or because \
 the timezone or daylight savings information is incorrect. Please correct \
 the problem and restart Anki.""")
         self.app.closeAllWindows()
+
+    # Count refreshing
+    ##########################################################################
+
+    def setupRefreshTimer(self):
+        # every 10 minutes
+        self.progress.timer(10*60*1000, self.onRefreshTimer, True)
+
+    def onRefreshTimer(self):
+        if self.state == "deckbrowser":
+            self.deckbrowser.refresh()
+        elif self.state == "overview":
+            self.overview.refresh()
 
     # Schema modifications
     ##########################################################################
