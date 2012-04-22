@@ -15,7 +15,7 @@ from anki.utils import stripHTML, checksum, isWin, isMac, intTime
 from anki.hooks import runHook, addHook, remHook
 import anki.consts
 
-import aqt, aqt.progress, aqt.webview, aqt.toolbar
+import aqt, aqt.progress, aqt.webview, aqt.toolbar, aqt.stats
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical, getFile, \
