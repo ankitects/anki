@@ -1440,7 +1440,7 @@ class BrowserToolbar(Toolbar):
                 fmt = '''\
 <a class=hitem title="%s" href="%s"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
             return fmt % (title, link, icon, title)
-        right = ""
+        right = "<div>"
         right += borderImg("add", "add16", False, _("Add"))
         right += borderImg("info", "info", False, _("Info"))
         right += borderImg("mark", "star16", mark, _("Mark"))
@@ -1449,12 +1449,16 @@ class BrowserToolbar(Toolbar):
         right += borderImg("addtag", "addtag16", False, _("Add Tags"))
         right += borderImg("deletetag", "deletetag16", False, _("Remove Tags"))
         right += borderImg("delete", "delete16", False, _("Delete"))
+        right += "</div>"
+        self.web.page().currentFrame().setScrollBarPolicy(
+            Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self.web.stdHtml(self._body % (
             "", #<span style='display:inline-block; width: 100px;'></span>",
             #self._centerLinks(),
             right, ""), self._css + """
 #header { font-weight: normal; }
 a { margin-right: 1em; }
+.hitem { overflow: hidden; white-space: nowrap;}
 """)
 
     # Link handling
