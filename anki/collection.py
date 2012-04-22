@@ -32,6 +32,7 @@ defaultConf = {
     'nextPos': 1,
     'sortType': "noteFld",
     'sortBackwards': False,
+    'addToCur': True,
 }
 
 # this is initialized by storage.Collection
