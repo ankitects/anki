@@ -18,8 +18,8 @@ def addBasicModel(col):
     fm = mm.newField(_("Back"))
     mm.addField(m, fm)
     t = mm.newTemplate(_("Forward"))
-    t['qfmt'] = "{{Front}}"
-    t['afmt'] = t['qfmt'] + "\n\n<hr id=answer>\n\n{{Back}}"
+    t['qfmt'] = _("{{Front}}")
+    t['afmt'] = t['qfmt'] + "\n\n<hr id=answer>\n\n"+_("{{Back}}")
     mm.addTemplate(m, t)
     mm.add(m)
     return m
