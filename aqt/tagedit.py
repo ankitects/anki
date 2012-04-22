@@ -38,7 +38,8 @@ class TagEdit(QLineEdit):
         if not evt.text():
             # if it's a modifier, don't show
             return
-        self.showCompleter()
+        if evt.key() not in (Qt.Key_Enter, Qt.Key_Return):
+            self.showCompleter()
 
     def showCompleter(self):
         self.completer.setCompletionPrefix(self.text())
