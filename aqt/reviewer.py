@@ -241,7 +241,7 @@ function _typeAnsPress() {
             self.onMark()
         elif key == "-":
             self.onBuryNote()
-        elif key == "=":
+        elif key == "!":
             self.onSuspend()
         elif key == "o":
             self.onOptions()
@@ -595,7 +595,7 @@ function showAnswer(txt) {
             [_("Replay Audio"), "r", self.replayAudio],
             [_("Mark Note"), "*", self.onMark],
             [_("Bury Note"), "-", self.onBuryNote],
-            [_("Suspend Note"), "=", self.onSuspend],
+            [_("Suspend Note"), "!", self.onSuspend],
             [_("Delete Note"), "Delete", self.onDelete],
             [_("Card Options"), "o", self.onOptions]
         ]
