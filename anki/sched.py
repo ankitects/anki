@@ -169,6 +169,7 @@ order by due""" % self._deckLimit(),
 
     def deckDueList(self):
         "Returns [deckname, did, due, new]"
+        self._checkDay()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
         lims = {}
