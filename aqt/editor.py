@@ -875,8 +875,12 @@ class EditorWebView(AnkiWebView):
                       and evt.key() == Qt.Key_V)
         if evt.matches(QKeySequence.Paste) or shiftPaste:
             self.prepareClip(shiftPaste)
-        if shiftPaste:
-            self.triggerPageAction(QWebPage.Paste)
+            if shiftPaste:
+                self.triggerPageAction(QWebPage.Paste)
+        elif evt.matches(QKeySequence.Copy):
+            self.triggerPageAction(QWebPage.Copy)
+            self._flagAnkiText()
+            return evt.accept()
         QWebView.keyPressEvent(self, evt)
         self.restoreClip()
 
@@ -920,6 +924,10 @@ class EditorWebView(AnkiWebView):
     def prepareClip(self, keep=False, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
         mime = clip.mimeData(mode=mode)
+        if mime.hasHtml() and mime.html().startswith("<!--anki-->"):
+            # pasting from another field
+            mime.setHtml(mime.html()[11:])
+            return
         self.saveClip(mode=mode)
         if keep:
             new = QMimeData()
@@ -1039,3 +1047,13 @@ class EditorWebView(AnkiWebView):
         file.write(filecontents)
         file.close()
         return self.editor._addMedia(path)
+
+    def _flagAnkiText(self):
+        # add a comment in the clipboard html so we can tell text is copied
+        # from us and doesn't need to be stripped
+        clip = self.editor.mw.app.clipboard()
+        mime = clip.mimeData()
+        if not mime.hasHtml():
+            return
+        html = mime.html()
+        mime.setHtml("<!--anki-->" + mime.html())
