@@ -37,11 +37,12 @@ profileConf = dict(
     # editing
     fullSearch=False,
     searchHistory=[],
-    recentColours=["#000000", "#0000ff"],
+    lastColour="#00f",
     stripHTML=True,
     editFontFamily=fontForPlatform(),
     editFontSize=12,
     editLineSize=20,
+    # not exposed in gui
     deleteMedia=False,
     preserveKeyboard=True,
 
