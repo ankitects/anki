@@ -395,6 +395,7 @@ class Editor(object):
         s.connect(s, SIGNAL("activated()"), self.insertLatexMathEnv)
         s = QShortcut(QKeySequence("Ctrl+Shift+X"), self.widget)
         s.connect(s, SIGNAL("activated()"), self.onHtmlEdit)
+        runHook("setupEditorButtons", self)
 
     def enableButtons(self, val=True):
         for b in self._buttons.values():
