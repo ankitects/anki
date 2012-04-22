@@ -25,11 +25,14 @@ class Scheduler(object):
         self.queueLimit = 50
         self.reportLimit = 1000
         self.reps = 0
+        self._haveQueues = False
         self._updateCutoff()
 
     def getCard(self):
         "Pop the next card from the queue. None if finished."
         self._checkDay()
+        if not self._haveQueues:
+            self.reset()
         card = self._getCard()
         if card:
             card.startTimer()
@@ -41,6 +44,7 @@ class Scheduler(object):
         self._resetLrn()
         self._resetRev()
         self._resetNew()
+        self._haveQueues = True
 
     def answerCard(self, card, ease):
         assert ease >= 1 and ease <= 4
