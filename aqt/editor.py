@@ -627,8 +627,15 @@ class Editor(object):
                 self.deck.setCol(self.mw.col)
             self.tags.setCol(self.mw.col)
         if self.addMode:
-            self.deck.setText(self.mw.col.decks.nameOrNone(
-                self.note.model()['did']) or _("Default"))
+            if self.mw.col.conf.get("addToCur", True):
+                col = self.mw.col
+                did = col.conf['curDeck']
+                if col.decks.isDyn(did):
+                    did = 1
+                self.deck.setText(self.mw.col.decks.name(did))
+            else:
+                self.deck.setText(self.mw.col.decks.nameOrNone(
+                    self.note.model()['did']) or _("Default"))
         self.tags.setText(self.note.stringTags().strip())
 
     def saveTags(self):

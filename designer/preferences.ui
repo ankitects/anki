@@ -52,6 +52,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="useCurrent">
+         <property name="text">
+          <string>Use the current deck as the default when adding notes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="newSpread"/>
        </item>
        <item>
@@ -458,6 +465,7 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>stripHTML</tabstop>
+  <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
