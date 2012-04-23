@@ -325,12 +325,22 @@ def test_overdue_lapse():
     c.left = 2
     c.ivl = 0
     c.flush()
+    d.sched._clearOverdue = False
+    # checkpoint
+    d.save()
     d.sched.reset()
     assert d.sched.counts() == (0, 2, 0)
     c = d.sched.getCard()
     d.sched.answerCard(c, 3)
     # it should be due tomorrow
     assert c.due == d.sched.today + 1
+    # revert to before
+    d.rollback()
+    d.sched._clearOverdue = True
+    # with the default settings, the overdue card should be removed from the
+    # learning queue
+    d.sched.reset()
+    assert d.sched.counts() == (0, 0, 1)
 
 def test_finished():
     d = getEmptyDeck()

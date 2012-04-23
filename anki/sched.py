@@ -26,6 +26,7 @@ class Scheduler(object):
         self.reportLimit = 1000
         self.reps = 0
         self._haveQueues = False
+        self._clearOverdue = True
         self._updateCutoff()
 
     def getCard(self):
@@ -41,6 +42,8 @@ class Scheduler(object):
     def reset(self):
         deck = self.col.decks.current()
         self._updateCutoff()
+        if self._clearOverdue:
+            self.removeFailed(expiredOnly=True)
         self._resetLrn()
         self._resetRev()
         self._resetNew()
@@ -532,11 +535,16 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             time.sleep(0.01)
             log()
 
-    def removeFailed(self, ids=None):
+    def removeFailed(self, ids=None, expiredOnly=False):
         "Remove failed cards from the learning queue."
-        extra = ""
         if ids:
             extra = " and id in "+ids2str(ids)
+        else:
+            # benchmarks indicate it's about 10x faster to search all decks
+            # with the index than scan the table
+            extra = " and did in "+ids2str(self.col.decks.allIds())
+        if expiredOnly:
+            extra += " and odue <= %d" % self.today
         self.col.db.execute("""
 update cards set
 due = odue, queue = 2, mod = %d, usn = %d

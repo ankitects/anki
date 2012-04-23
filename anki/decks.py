@@ -164,6 +164,9 @@ class DeckManager(object):
         "A list of all decks."
         return self.decks.values()
 
+    def allIds(self):
+        return self.decks.keys()
+
     def count(self):
         return len(self.decks)
 
