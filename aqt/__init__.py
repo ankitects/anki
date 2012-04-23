@@ -130,6 +130,8 @@ def run():
     parser.add_option("-p", "--profile", help="Profile name to load")
     parser.add_option("-l", "--lang", help="Interface language (en, de, etc)")
     (opts, args) = parser.parse_args(sys.argv[1:])
+    opts.base = unicode(opts.base or "", sys.getfilesystemencoding())
+    opts.profile = unicode(opts.profile or "", sys.getfilesystemencoding())
 
     # profile manager
     from aqt.profiles import ProfileManager
