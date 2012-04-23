@@ -316,8 +316,12 @@ img { max-width: 95%; max-height: 95%; }
                 break
         if not self.typeCorrect:
             if self.typeCorrect is None:
-                return re.sub(
-                    self.typeAnsPat, _("Type answer: unknown field %s") % fld, buf)
+                if clozeIdx:
+                    warn = _("""\
+Please run Tools>Maintenance>Empty Cards""")
+                else:
+                    warn = _("Type answer: unknown field %s") % fld
+                return re.sub(self.typeAnsPat, warn, buf)
             else:
                 # empty field, remove type answer pattern
                 return re.sub(self.typeAnsPat, "", buf)
@@ -346,7 +350,9 @@ img { max-width: 95%; max-height: 95%; }
 
     def _contentForCloze(self, txt, idx):
         matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
-        if len(matches) > 1:
+        if not matches:
+            return None
+        elif len(matches) > 1:
             txt = ", ".join(matches)
         else:
             txt = matches[0]
