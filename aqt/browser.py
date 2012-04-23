@@ -398,6 +398,9 @@ class Browser(QMainWindow):
             if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
                 item = self.form.tree.currentItem()
                 self.onTreeClick(item, 0)
+        elif self.mw.app.focusWidget() == self.form.tableView:
+            if evt.key() in (Qt.Key_Delete,Qt.Key_Backspace):
+                self.deleteNotes()
 
     def setupColumns(self):
         self.columns = [
