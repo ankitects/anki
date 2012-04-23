@@ -119,6 +119,10 @@ function onFocus(elem) {
     }
 }
 
+function focusField(n) {
+    $("#f"+n).focus();
+}
+
 function onDragOver(elem) {
     elem.focus();
 }
@@ -893,6 +897,14 @@ class EditorWebView(AnkiWebView):
             self.restoreClip(mode=QClipboard.Selection)
         else:
             AnkiWebView.mouseReleaseEvent(self, evt)
+
+    def focusInEvent(self, evt):
+        AnkiWebView.focusInEvent(self, evt)
+        if evt.reason() == Qt.TabFocusReason:
+            self.eval("focusField(0);")
+        elif evt.reason() == Qt.BacktabFocusReason:
+            n = len(self.editor.note.fields) - 1
+            self.eval("focusField(%d);" % n)
 
     # Buggy; disable for now.
     # def contextMenuEvent(self, evt):
