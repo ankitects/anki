@@ -5,7 +5,8 @@
 from aqt.qt import *
 import aqt, simplejson
 from anki.utils import ids2str
-from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
+from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
+    tooltip
 from operator import itemgetter
 
 class DeckConf(QDialog):
@@ -13,6 +14,8 @@ class DeckConf(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck
+        self.childDids = [
+            d[1] for d in self.mw.col.decks.children(self.deck['id'])]
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         self.mw.checkpoint(_("Options"))
@@ -69,6 +72,10 @@ class DeckConf(QDialog):
         a.connect(a, SIGNAL("triggered()"), self.remGroup)
         a = m.addAction(_("Rename"))
         a.connect(a, SIGNAL("triggered()"), self.renameGroup)
+        a = m.addAction(_("Set for all subdecks"))
+        a.connect(a, SIGNAL("triggered()"), self.setChildren)
+        if not self.childDids:
+            a.setEnabled(False)
         m.exec_(QCursor.pos())
 
     def onConfChange(self, idx):
@@ -115,6 +122,17 @@ class DeckConf(QDialog):
             return
         self.conf['name'] = name
         self.loadConfs()
+
+    def setChildren(self):
+        if not askUser(
+            _("Set all decks below %s to this option group?") %
+            self.deck['name']):
+            return
+        for did in self.childDids:
+            deck = self.mw.col.decks.get(did)
+            deck['conf'] = self.deck['conf']
+            self.mw.col.decks.save(deck)
+        tooltip(_("%d decks updated.") % len(self.childDids))
 
     # Loading
     ##################################################
