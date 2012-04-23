@@ -10,7 +10,7 @@ from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
-    openHelp
+    openHelp, fontForPlatform
 import aqt
 import anki.js
 from BeautifulSoup import BeautifulSoup
@@ -36,7 +36,8 @@ _html = """
     clear: both;
     visibility: hidden;
 }
-.fname { font-size: 12px; vertical-align: middle; padding: 0; }
+.fname { font-size: 10px; vertical-align: middle; padding: 0;
+         font-family: "%s"; }
 #dupes { font-size: 12px; }
 img { max-width: 100%%; max-height: 90%%; }
 body { margin: 5px; }
@@ -487,10 +488,10 @@ class Editor(object):
         self.currentField = 0
         # change timer
         if self.note:
-            self.web.setHtml(_html % (getBase(self.mw.col), anki.js.jquery,
-                                      (isMac or isWin) and 1 or 0,
-                                  _("Show Duplicates")),
-                             loadCB=self._loadFinished)
+            self.web.setHtml(_html % (
+                getBase(self.mw.col), fontForPlatform(), anki.js.jquery,
+                (isMac or isWin) and 1 or 0,
+                _("Show Duplicates")), loadCB=self._loadFinished)
             self.updateTagsAndDeck()
             self.updateKeyboard()
         else:
