@@ -201,6 +201,7 @@ Are you sure?""")):
         if not self.pm.profile:
             # already unloaded
             return
+        self.state = "profileManager"
         runHook("unloadProfile")
         self.unloadCollection()
         self.onSync(auto=True, reload=False)
@@ -754,8 +755,8 @@ the problem and restart Anki.""")
         self.progress.timer(10*60*1000, self.onRefreshTimer, True)
 
     def onRefreshTimer(self):
-        if self.state == "deckbrowser":
-            self.deckbrowser.refresh()
+        if self.state == "deckBrowser":
+            self.deckBrowser.refresh()
         elif self.state == "overview":
             self.overview.refresh()
 
