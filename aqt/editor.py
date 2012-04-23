@@ -693,16 +693,18 @@ class Editor(object):
         if '{{cloze:' not in self.note.model()['tmpls'][0]['qfmt']:
             openHelp("cloze")
             return
-        f = self.note.fields[self.currentField]
         # find the highest existing cloze
-        m = re.findall("\{\{c(\d+)::", f)
-        if m:
-            next = sorted([int(x) for x in m])[-1] + 1
-            if self.mw.app.keyboardModifiers() & Qt.AltModifier:
-                next -= 1
-        else:
-            next = 1
-        self._eval("wrap('{{c%d::', '}}');" % next)
+        highest = 0
+        for name, val in self.note.items():
+            m = re.findall("\{\{c(\d+)::", val)
+            if m:
+                highest = max(highest, sorted([int(x) for x in m])[-1])
+        # reuse last?
+        if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
+            highest += 1
+        # must start at 1
+        highest = max(1, highest)
+        self._eval("wrap('{{c%d::', '}}');" % highest)
 
     def _eval(self, str):
         # some versions of webkit crash if we try a dom-modifying operation
