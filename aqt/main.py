@@ -138,14 +138,22 @@ class AnkiQt(QMainWindow):
         self.loadProfile()
         return True
 
+    def profileNameOk(self, str):
+        from anki.utils import invalidFilename, invalidFilenameChars
+        if invalidFilename(str):
+            showWarning(
+                _("A profile name cannot contain these characters: %s") %
+                " ".join(invalidFilenameChars))
+            return
+        return True
+
     def onAddProfile(self):
         name = getOnlyText(_("Name:"))
         if name:
             if name in self.pm.profiles():
                 return showWarning(_("Name exists."))
-            if not re.match("^[A-Za-z0-9 ]+$", name):
-                return showWarning(
-                    _("Only numbers, letters and spaces can be used."))
+            if not self.profileNameOk(name):
+                return
             self.pm.create(name)
             self.refreshProfilesList()
 
@@ -159,9 +167,8 @@ class AnkiQt(QMainWindow):
             return
         if name in self.pm.profiles():
             return showWarning(_("Name exists."))
-        if not re.match("^[A-Za-z0-9 ]+$", name):
-            return showWarning(
-                _("Only numbers, letters and spaces can be used."))
+        if not self.profileNameOk(name):
+            return
         self.pm.rename(name)
         self.refreshProfilesList()
 

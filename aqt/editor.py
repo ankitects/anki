@@ -39,7 +39,7 @@ _html = """
 .fname { font-size: 10px; vertical-align: middle; padding: 0;
          font-family: "%s"; }
 #dupes { font-size: 12px; }
-img { max-width: 100%%; max-height: 90%%; }
+img { max-width: 100%%; }
 body { margin: 5px; }
 </style><script>
 %s

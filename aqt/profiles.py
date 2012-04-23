@@ -119,12 +119,14 @@ computer."""))
 
     def profiles(self):
         return sorted(
-            x for x in self.db.list("select name from profiles")
+            unicode(x, "utf8") for x in
+            self.db.list("select name from profiles")
             if x != "_global")
 
     def load(self, name, passwd=None):
         prof = cPickle.loads(
-            self.db.scalar("select data from profiles where name = ?", name))
+            self.db.scalar("select data from profiles where name = ?",
+                           name.encode("utf8")))
         if prof['key'] and prof['key'] != self._pwhash(passwd):
             self.name = None
             return False
@@ -135,26 +137,28 @@ computer."""))
 
     def save(self):
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, cPickle.dumps(self.profile), self.name)
+        self.db.execute(sql, cPickle.dumps(self.profile),
+                        self.name.encode("utf8"))
         self.db.execute(sql, cPickle.dumps(self.meta), "_global")
         self.db.commit()
 
     def create(self, name):
         prof = profileConf.copy()
         self.db.execute("insert into profiles values (?, ?)",
-                        name, cPickle.dumps(prof))
+                        name.encode("utf8"), cPickle.dumps(prof))
         self.db.commit()
 
     def remove(self, name):
         shutil.rmtree(self.profileFolder())
-        self.db.execute("delete from profiles where name = ?", name)
+        self.db.execute("delete from profiles where name = ?",
+                        name.encode("utf8"))
         self.db.commit()
 
     def rename(self, name):
         oldFolder = self.profileFolder()
         # update name
         self.db.execute("update profiles set name = ? where name = ?",
-                        name, self.name)
+                        name.encode("utf8"), self.name.encode("utf-8"))
         # rename folder
         self.name = name
         newFolder = self.profileFolder()
