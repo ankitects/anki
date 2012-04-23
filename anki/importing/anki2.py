@@ -101,6 +101,11 @@ class Anki2Importer(Importer):
 
     # Models
     ######################################################################
+    # Models in the two decks may share an ID but not a schema, so we need to
+    # compare the field & template signature rather than just rely on ID. If
+    # we created a new model on a conflict then multiple imports would end up
+    # with lots of models however, so we store a list of "alternate versions"
+    # of a model in the model, so that importing a model is idempotent.
 
     def _prepareModels(self):
         "Prepare index of schema hashes."
@@ -129,25 +134,28 @@ class Anki2Importer(Importer):
             return mid
         # if it does exist, do the schema match?
         dst = self.dst.models.get(mid)
+        shash = self.src.models.scmhash(src)
         dhash = self.src.models.scmhash(dst)
-        if self.src.models.scmhash(src) == dhash:
+        if shash == dhash:
             # reuse without modification
             self._modelMap[mid] = mid
             return mid
         # try any alternative versions
-        vers = src.get("vers")
+        vers = dst.get("vers")
         for v in vers:
-            m = self.src.models.get(v)
-            if self.src.models.scmhash(m) == dhash:
+            m = self.dst.models.get(v)
+            if self.dst.models.scmhash(m) == shash:
                 # valid alternate found; use that
                 self._modelMap[mid] = m['id']
                 return m['id']
         # need to add a new alternate version, with new id
-        self.dst.models._add(src)
+        self.dst.models.add(src)
         if vers:
             dst['vers'].append(src['id'])
         else:
             dst['vers'] = [src['id']]
+        self.dst.models.save(dst)
+        return src['id']
 
     # Decks
     ######################################################################
@@ -231,9 +239,9 @@ class Anki2Importer(Importer):
             cnt += 1
         # apply
         self.dst.db.executemany("""
-insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", cards)
+insert or ignore into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", cards)
         self.dst.db.executemany("""
-insert into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
+insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
         self.log.append(_("%d cards imported.") % cnt)
 
     # Media
