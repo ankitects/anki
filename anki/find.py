@@ -4,6 +4,7 @@
 
 import re
 from anki.utils import ids2str, splitFields, joinFields, stripHTML, intTime
+from anki.consts import *
 
 SEARCH_TAG = 0
 SEARCH_TYPE = 1
@@ -215,18 +216,27 @@ flds %s like :_text_%d escape '\\')""" % (extra, c, extra, c))
         except:
             num = None
         lims = []
-        for m in self.col.models.all():
-            for t in m['tmpls']:
-                # ordinal number?
-                if num is not None and t['ord'] == num:
-                    self.lims['preds'].append("ord %s %d" % (comp, num))
-                    found = True
-                # template name?
-                elif t['name'].lower() == val.lower():
-                    lims.append((
-                        "(nid in (select id from notes where mid = %s) "
-                        "and ord %s %d)") % (m['id'], comp, t['ord']))
-                    found = True
+        # were we given an ordinal number?
+        if num is not None:
+            found = True
+            self.lims['preds'].append("ord %s %d" % (comp, num))
+        else:
+            # search for template names
+            for m in self.col.models.all():
+                for t in m['tmpls']:
+                    # template name?
+                    if t['name'].lower() == val.lower():
+                        if m['type'] == MODEL_CLOZE:
+                            # if the user has asked for a cloze card, we want
+                            # to give all ordinals, so we just limit to the
+                            # model instead
+                            lims.append("(mid = %s)" % m['id'])
+                            found = True
+                        else:
+                            lims.append((
+                                "(nid in (select id from notes where mid = %s) "
+                                "and ord %s %d)") % (m['id'], comp, t['ord']))
+                            found = True
         if lims:
             self.lims['preds'].append("(" + " or ".join(lims) + ")")
         self.lims['valid'] = found
