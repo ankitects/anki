@@ -17,7 +17,7 @@ def addBasicModel(col):
     mm.addField(m, fm)
     fm = mm.newField(_("Back"))
     mm.addField(m, fm)
-    t = mm.newTemplate(_("Forward"))
+    t = mm.newTemplate(_("Card 1"))
     t['qfmt'] = _("{{Front}}")
     t['afmt'] = t['qfmt'] + "\n\n<hr id=answer>\n\n"+_("{{Back}}")
     mm.addTemplate(m, t)
