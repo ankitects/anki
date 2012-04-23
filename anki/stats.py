@@ -251,7 +251,12 @@ group by day order by day""" % (self._limit(), lim),
         tot = totd[-1][1]
         period = self._periodDays()
         if not period:
-            period = first
+            # base off earliest repetition date
+            t = self.col.db.scalar("select id from revlog limit 1")
+            if not t:
+                period = 1
+            else:
+                period = (self.col.sched.dayCutoff - (t/1000)) / 86400
         i = []
         self._line(i, _("Days studied"),
                    _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
