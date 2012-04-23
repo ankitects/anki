@@ -177,6 +177,8 @@ order by due""" % self._deckLimit(),
     def deckDueList(self):
         "Returns [deckname, did, due, new]"
         self._checkDay()
+        if self._clearOverdue:
+            self.removeFailed(expiredOnly=True)
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
         lims = {}
