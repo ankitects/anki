@@ -208,7 +208,7 @@ class DataModel(QAbstractTableModel):
         elif type == "template":
             t = c.template()['name']
             if c.model()['type'] == MODEL_CLOZE:
-                t += " (%d)" % (c.ord+1)
+                t += " %d" % (c.ord+1)
             return t
         elif type == "cardDue":
             return self.nextDue(c, index)

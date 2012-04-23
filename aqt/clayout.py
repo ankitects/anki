@@ -28,6 +28,12 @@ class CardLayout(QDialog):
         self.addMode = addMode
         if addMode:
             # save it to DB temporarily
+            self.emptyFields = []
+            for name, val in note.items():
+                if val.strip():
+                    continue
+                self.emptyFields.append(name)
+                note[name] = "(%s)" % name
             note.flush()
         self.setupTabs()
         self.setupButtons()
@@ -133,6 +139,11 @@ Please create a new card type first."""))
         l.addWidget(help)
         c(help, SIGNAL("clicked()"), self.onHelp)
         l.addStretch()
+        if self.model['type'] != MODEL_CLOZE:
+            flip = QPushButton(_("Flip Front/Back"))
+            flip.setAutoDefault(False)
+            l.addWidget(flip)
+            c(flip, SIGNAL("clicked()"), self.onFlip)
         rename = QPushButton(_("Rename..."))
         rename.setAutoDefault(False)
         l.addWidget(rename)
@@ -249,15 +260,41 @@ Please create a new card type first."""))
         self.ord = pos
         self.redraw()
 
+    def _newCardName(self):
+        n = len(self.cards) + 1
+        while 1:
+            name = _("Card %d") % n
+            if name not in [c.template()['name'] for c in self.cards]:
+                break
+            n += 1
+        return name
+
     def onAddCard(self):
-        name = getOnlyText(_("Name:"))
-        if not name:
-            return
-        if name in [c.template()['name'] for c in self.cards]:
-            return showWarning(_("That name is already used."))
+        name = self._newCardName()
         t = self.mm.newTemplate(name)
+        old = self.card.template()
+        t['qfmt'] = "%s<br>\n%s" % (_("Edit to customize"), old['qfmt'])
+        t['afmt'] = old['afmt']
         self.mm.addTemplate(self.model, t)
         self.redraw()
+        self.selectCard(t['ord'])
+
+    def onFlip(self):
+        old = self.card.template()
+        self._flipQA(old, old)
+        self.redraw()
+
+    def _flipQA(self, src, dst):
+        m = re.match("(?s)(.+)<hr id=answer>(.+)", src['afmt'])
+        if not m:
+            showInfo(_("""\
+Anki couldn't find the line between the question and answer. Please \
+adjust the template manually to switch the question and answer."""))
+            return
+        dst['qfmt'] = m.group(2).strip()
+        dst['afmt'] = "%s\n\n<hr id=answer>\n\n%s" % (m.group(2).strip(),
+                                                      m.group(1).strip())
+        return True
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
@@ -296,6 +333,9 @@ Enter deck to place new %s cards in, or leave blank:""") %
     def reject(self):
         clearAudioQueue()
         if self.addMode:
+            # remove the filler fields we added
+            for name in self.emptyFields:
+                self.note[name] = ""
             self.mw.col.db.execute("delete from notes where id = ?",
                                    self.note.id)
         self.mm.save(self.model, templates=True)
