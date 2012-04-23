@@ -5,7 +5,7 @@
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, showInfo, \
     shortcut
-from anki.utils import isMac
+from anki.utils import isMac, ids2str
 import anki.js
 from anki.errors import DeckRenameError
 import aqt
@@ -227,8 +227,18 @@ body { margin: 1em; -webkit-user-select: none; }
             return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
-        if deck['dyn'] or askUser(_("""\
-Are you sure you wish to delete %s and all its cards?""")%deck['name']):
+        if not deck['dyn']:
+            dids = [did] + [r[1] for r in self.mw.col.decks.children(did)]
+            cnt = self.mw.col.db.scalar(
+                "select count() from cards where did in %s" %
+                ids2str(dids))
+            if cnt:
+                extra = _(" It has %d cards.") % cnt
+            else:
+                extra = ""
+        if deck['dyn'] or askUser(
+            _("Are you sure you wish to delete %s?" % deck['name']) +
+            extra):
             self.mw.progress.start(immediate=True)
             self.mw.col.decks.rem(did, True)
             self.mw.progress.finish()
