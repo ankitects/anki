@@ -112,15 +112,15 @@ you can enter it here. Use \\t to represent tab."""),
         else:
             d = self.importer.dialect.delimiter
         if d == "\t":
-            d = "Tab"
+            d = _("Tab")
         elif d == ",":
-            d = "Comma"
+            d = _("Comma")
         elif d == " ":
-            d = "Space"
+            d = _("Space")
         elif d == ";":
-            d = "Semicolon"
+            d = _("Semicolon")
         elif d == ":":
-            d = "Colon"
+            d = _("Colon")
         else:
             d = `d`
         if self.importer.delimiter:

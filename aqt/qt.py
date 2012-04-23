@@ -3,7 +3,7 @@
 
 # imports are all in this file to make moving to pyside easier in the future
 
-import sip
+import sip, os
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 sip.setapi('QUrl', 2)
@@ -17,3 +17,13 @@ def debug():
   from pdb import set_trace
   pyqtRemoveInputHook()
   set_trace()
+
+if os.environ.get("DEBUG"):
+    import sys, traceback
+    traceback.print_exc()
+    def info(type, value, tb):
+        from PyQt4.QtCore import pyqtRemoveInputHook
+        pyqtRemoveInputHook()
+        from pdb import pm
+        pm()
+    sys.excepthook = info
