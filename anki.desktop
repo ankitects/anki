@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=Anki
 Comment=An intelligent spaced-repetition memory training program
-GenericName=Language Learning Flashcards
-Exec=anki %f
+GenericName=Flashcards
+Exec=anki
 TryExec=anki
 Icon=anki
 Categories=Education;Languages;KDE;

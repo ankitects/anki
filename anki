@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 import os, sys
-if __name__ == "__main__":
-    try:
-        modDir=os.path.dirname(os.path.realpath(__file__))
-        runningDir=os.path.split(modDir)[0]
-    except NameError:
-        # py2exe
-        runningDir=os.path.dirname(sys.argv[0])
-        modDir=runningDir
-    sys.path.insert(0, os.path.join(modDir, "libanki"))
-    sys.path.insert(0, os.path.join(os.path.join(modDir, ".."), "libanki"))
-    import anki, aqt
-    aqt.run()
+# system-wide install
+sys.path.insert(0, "/usr/share/anki")
+sys.path.insert(0, "/usr/share/anki/libanki")
+# running from extracted folder
+base = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, base)
+sys.path.insert(0, os.path.join(base, "libanki"))
+# or git
+sys.path.insert(0, os.path.join(base, "..", "libanki"))
+# start
+import anki, aqt
+aqt.run()
