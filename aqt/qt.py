@@ -20,9 +20,9 @@ def debug():
 
 if os.environ.get("DEBUG"):
     import sys, traceback
-    traceback.print_exc()
     def info(type, value, tb):
         from PyQt4.QtCore import pyqtRemoveInputHook
+        traceback.print_exc()
         pyqtRemoveInputHook()
         from pdb import pm
         pm()
