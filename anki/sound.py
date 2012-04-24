@@ -292,7 +292,7 @@ class PyAudioRecorder(_Recorder):
             os.rename(processingDst, tgt)
             return tgt
         else:
-            return recFiles[1]
+            return processingSrc
 
 # Audio interface
 ##########################################################################
