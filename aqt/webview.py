@@ -69,8 +69,11 @@ class AnkiWebView(QWebView):
                 return
         QWebView.keyPressEvent(self, evt)
     def contextMenuEvent(self, evt):
-        return
-        #QWebView.contextMenuEvent(self, evt)
+        m = QMenu(self)
+        m.addAction(self.pageAction(QWebPage.Cut))
+        m.addAction(self.pageAction(QWebPage.Copy))
+        m.addAction(self.pageAction(QWebPage.Paste))
+        m.popup(QCursor.pos())
     def dropEvent(self, evt):
         pass
     def setLinkHandler(self, handler=None):
