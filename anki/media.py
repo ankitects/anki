@@ -65,7 +65,7 @@ class MediaManager(object):
 If the same name exists, compare checksums."""
         mdir = self.dir()
         # remove any dangerous characters
-        base = re.sub(r"[][<>:/\\&]", "", os.path.basename(opath))
+        base = re.sub(r"[][<>:/\\&?\"\|]", "", os.path.basename(opath))
         dst = os.path.join(mdir, base)
         # if it doesn't exist, copy it directly
         if not os.path.exists(dst):
