@@ -36,8 +36,8 @@ Anki does not need installing, and can be run from the directory it is
 extracted to. If you extracted it to ~/anki-2.0 for example, you can run Anki
 by simply typing ~/anki-2.0/anki in a terminal.
 
-If you don't want the source folder cluttering your home folder, you can move
-it to /usr/local/lib/anki or another folder of your choice.
+If you'd like to install it system wide, change to the folder you extracted it
+to, and run 'sudo make install'. The makefile also supports uninstalling.
 
 More information
 -----------------
