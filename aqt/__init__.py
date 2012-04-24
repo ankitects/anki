@@ -126,9 +126,9 @@ def run():
     import optparse
     parser = optparse.OptionParser()
     parser.usage = "%prog [OPTIONS]"
-    parser.add_option("-b", "--base", help="Path to base folder")
-    parser.add_option("-p", "--profile", help="Profile name to load")
-    parser.add_option("-l", "--lang", help="Interface language (en, de, etc)")
+    parser.add_option("-b", "--base", help="path to base folder")
+    parser.add_option("-p", "--profile", help="profile name to load")
+    parser.add_option("-l", "--lang", help="interface language (en, de, etc)")
     (opts, args) = parser.parse_args(sys.argv[1:])
     opts.base = unicode(opts.base or "", sys.getfilesystemencoding())
     opts.profile = unicode(opts.profile or "", sys.getfilesystemencoding())
