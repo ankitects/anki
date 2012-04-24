@@ -69,6 +69,9 @@ class AnkiWebView(QWebView):
                 return
         QWebView.keyPressEvent(self, evt)
     def contextMenuEvent(self, evt):
+        if isWin:
+            # broken on windows for now; events are being fired at the popup
+            return
         m = QMenu(self)
         m.addAction(self.pageAction(QWebPage.Cut))
         m.addAction(self.pageAction(QWebPage.Copy))
