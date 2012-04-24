@@ -29,6 +29,7 @@ _html = """
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
+/* prevent floated images from being displayed outside field */
 .field:after {
     content: ".";
     display: block;
@@ -64,9 +65,17 @@ function onKey() {
         return;
     }
     clearChangeTimer();
-    changeTimer = setTimeout(function () {
-        sendState();
-        saveField("key"); }, 600);
+    if (currentField.innerHTML == "<div><br></div>") {
+        // fix empty div bug. slight flicker, but must be done in a timer
+        changeTimer = setTimeout(function () {
+            currentField.innerHTML = "<br>";
+            sendState();
+            saveField("key"); }, 1);
+    } else {
+        changeTimer = setTimeout(function () {
+            sendState();
+            saveField("key"); }, 600);
+    }
 };
 
 function sendState() {
