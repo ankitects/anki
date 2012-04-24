@@ -1051,12 +1051,14 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
         addHook("editFocusLost", self.refreshCurrentCardFilter)
+        addHook("newTag", self.buildTree)
 
     def teardownHooks(self):
         remHook("reset", self.onReset)
         remHook("editTimer", self.refreshCurrentCard)
         remHook("editFocusLost", self.refreshCurrentCard)
         remHook("undoState", self.onUndoState)
+        remHook("newTag", self.buildTree)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
