@@ -148,8 +148,9 @@ you can enter it here. Use \\t to represent tab."""),
             self.importer.run()
         except Exception, e:
             msg = _("Import failed.\n")
-            if "1-character string" in unicode(e):
-                msg += unicode(e)
+            err = unicode(e)
+            if "1-character string" in err:
+                msg += err
             else:
                 msg += unicode(traceback.format_exc(), "ascii", "replace")
             showText(msg)
@@ -160,7 +161,7 @@ you can enter it here. Use \\t to represent tab."""),
             _("Importing complete. %(num)d notes imported or updated.\n") %
             {"num": self.importer.total})
         if self.importer.log:
-            txt += _("Log of import:\n") + "\n".join(self.importer.log)
+            txt += "\n".join(self.importer.log)
         self.close()
         showText(txt)
         self.mw.reset()
@@ -276,7 +277,8 @@ def onImport(mw):
             showWarning(_("Selected file was not in UTF-8 format."))
             return
         except Exception, e:
-            if e.message == "unknownFormat":
+            msg = unicode(e)
+            if msg == "unknownFormat":
                 showWarning(_("Unknown file format."))
             else:
                 msg = _("Import failed. Debugging info:\n")
