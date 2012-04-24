@@ -32,7 +32,8 @@ defaultConf = {
     'nextPos': 1,
     'sortType': "noteFld",
     'sortBackwards': False,
-    'addToCur': True,
+    'addToCur': True, # add new to currently selected deck?
+    'replayBoth': True, # include question when replaying answer?
 }
 
 # this is initialized by storage.Collection
