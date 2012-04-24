@@ -8,8 +8,9 @@ import HTMLParser
 from aqt.qt import *
 from anki.utils import fmtTimeSpan, stripHTML, isMac
 from anki.hooks import addHook, runHook, runFilter
-from anki.sound import playFromText, clearAudioQueue, hasSound
+from anki.sound import playFromText, clearAudioQueue, hasSound, play
 from aqt.utils import mungeQA, getBase, shortcut, openLink, tooltip
+from aqt.sound import getAudio
 import aqt
 
 class Reviewer(object):
@@ -22,6 +23,7 @@ class Reviewer(object):
         self.cardQueue = []
         self.hadCardQueue = False
         self._answeredIds = []
+        self._recordedAudio = None
         self.typeCorrect = None # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
@@ -243,10 +245,14 @@ function _typeAnsPress() {
             self.onBuryNote()
         elif key == "!":
             self.onSuspend()
+        elif key == "V":
+            self.onRecordVoice()
         elif key == "o":
             self.onOptions()
         elif key in ("1", "2", "3", "4"):
             self._answerCard(int(key))
+        elif key == "v":
+            self.onReplayRecorded()
         elif evt.key() == Qt.Key_Delete:
             self.onDelete()
 
@@ -598,15 +604,22 @@ function showAnswer(txt) {
     # note the shortcuts listed here also need to be defined above
     def showContextMenu(self):
         opts = [
-            [_("Replay Audio"), "r", self.replayAudio],
             [_("Mark Note"), "*", self.onMark],
             [_("Bury Note"), "-", self.onBuryNote],
             [_("Suspend Note"), "!", self.onSuspend],
             [_("Delete Note"), "Delete", self.onDelete],
-            [_("Card Options"), "o", self.onOptions]
+            [_("Card Options"), "O", self.onOptions],
+            None,
+            [_("Replay Audio"), "R", self.replayAudio],
+            [_("Record Own Voice"), "Shift+V", self.onRecordVoice],
+            [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
         m = QMenu(self.mw)
-        for label, scut, func in opts:
+        for row in opts:
+            if not row:
+                m.addSeparator()
+                continue
+            label, scut, func = row
             a = m.addAction(label)
             a.setShortcut(QKeySequence(scut))
             a.connect(a, SIGNAL("triggered()"), func)
@@ -644,3 +657,13 @@ function showAnswer(txt) {
         self.mw.reset()
         tooltip(_("Note buried."))
 
+    def onRecordVoice(self):
+        self._recordedAudio = getAudio(self.mw, encode=False)
+        self.onReplayRecorded()
+
+    def onReplayRecorded(self):
+        print "replay"
+        if not self._recordedAudio:
+            return tooltip(_("You haven't recorded your voice yet."))
+        clearAudioQueue()
+        play(self._recordedAudio)

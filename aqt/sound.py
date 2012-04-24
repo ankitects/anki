@@ -7,7 +7,7 @@ import time
 from anki.sound import Recorder, play
 from aqt.utils import saveGeom, restoreGeom
 
-def getAudio(parent, string="", encode=True):
+def getAudio(parent, encode=True):
     "Record and return filename"
     # record first
     r = Recorder()
@@ -27,8 +27,8 @@ def getAudio(parent, string="", encode=True):
         mb.setText(txt % (time.time() - t))
         mb.show()
         QApplication.instance().processEvents()
-    # ensure at least a second captured
     saveGeom(mb, "audioRecorder")
+    # ensure at least a second captured
     while time.time() - t < 1:
         time.sleep(0.1)
     r.stop()
