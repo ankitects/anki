@@ -77,7 +77,7 @@ def test_findCards():
     assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
     assert len(deck.findCards("card:foo")) == 0
-    assert len(deck.findCards("card:forward")) == 4
+    assert len(deck.findCards("'card:card 1'")) == 4
     assert len(deck.findCards("card:reverse")) == 1
     assert len(deck.findCards("card:1")) == 4
     assert len(deck.findCards("card:2")) == 1

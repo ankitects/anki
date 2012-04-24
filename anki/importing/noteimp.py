@@ -140,7 +140,9 @@ class NoteImporter(Importer):
         self.addUpdates(updates)
         self.col.updateFieldCache(self._ids)
         # generate cards
-        assert not self.col.genCards(self._ids)
+        if self.col.genCards(self._ids):
+            self.log.insert(0, _(
+                "Empty cards found. Please run Tools>Maintenance>Empty Cards."))
         # apply scheduling updates
         self.updateCards()
         # make sure to update sflds, etc
