@@ -4,6 +4,7 @@
 
 import simplejson
 from anki.utils import intTime, ids2str
+from anki.hooks import runHook
 
 """
 Anki maintains a cache of used tags so it can quickly present a list of tags
@@ -38,10 +39,14 @@ class TagManager(object):
         "Given a list of tags, add any missing ones to tag registry."
         # case is stored as received, so user can create different case
         # versions of the same tag if they ignore the qt autocomplete.
+        found = False
         for t in tags:
             if t not in self.tags:
+                found = True
                 self.tags[t] = self.col.usn() if usn is None else usn
                 self.changed = True
+        if found:
+            runHook("newTag")
 
     def all(self):
         return self.tags.keys()
