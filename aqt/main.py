@@ -348,13 +348,18 @@ Are you sure?""")):
             self.state = self.returnState
             self.reset()
 
+    def delayedMaybeReset(self):
+        # if we redraw the page in a button click event it will often crash on
+        # windows
+        self.progress.timer(100, self.maybeReset, False)
+
     def _resetRequiredState(self, oldState):
         if oldState != "resetRequired":
             self.returnState = oldState
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
-        self.web.setLinkHandler(lambda url: self.maybeReset())
+        self.web.setLinkHandler(lambda url: self.delayedMaybeReset())
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"))
         self.web.stdHtml("""
