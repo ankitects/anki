@@ -43,7 +43,7 @@ class ModelChooser(QHBoxLayout):
             self.edit.setFixedWidth(32)
         self.edit.setIcon(QIcon(":/icons/gears.png"))
         self.edit.setShortcut(_("Shift+Alt+e"))
-        self.edit.setToolTip(_("Customize Models"))
+        self.edit.setToolTip(_("Customize Note Types"))
         self.edit.setAutoDefault(False)
         self.addWidget(self.edit)
         self.connect(self.edit, SIGNAL("clicked()"), self.onEdit)

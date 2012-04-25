@@ -14,7 +14,7 @@ class Models(QDialog):
         QDialog.__init__(self, self.parent, Qt.Window)
         self.col = mw.col
         self.mm = self.col.models
-        self.mw.checkpoint(_("Models"))
+        self.mw.checkpoint(_("Note Types"))
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
@@ -82,11 +82,11 @@ class Models(QDialog):
 
     def onDelete(self):
         if len(self.models) < 2:
-            showInfo(_("Please add another model first."),
+            showInfo(_("Please add another note type first."),
                      parent=self)
             return
         if not askUser(
-            _("Delete this model and all its cards?"),
+            _("Delete this note type and all its cards?"),
             parent=self):
             return
         self.mm.rem(self.model)

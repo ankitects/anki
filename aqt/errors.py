@@ -60,8 +60,7 @@ or your deck may have a problem.
 <p>If that doesn't fix the problem, please copy the following<br>
 into a bug report:""")
         pluginText = _("""\
-An error occurred in a plugin. Please contact the plugin author.<br>
-Please do not file a bug report with Anki.<br>""")
+An error occurred in an add-on. Please contact the add-on author.<br>""")
         if "addon" in error:
             txt = pluginText
         else:

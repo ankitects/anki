@@ -846,7 +846,7 @@ where id in %s""" % ids2str(
 select count(distinct mid) from notes
 where id in %s""" % ids2str(sf))
         if mods > 1:
-            showInfo(_("Please select cards from only one model."))
+            showInfo(_("Please select cards from only one note type."))
             return
         return sf
 

@@ -190,7 +190,7 @@
     <string>Browse &amp;&amp; Install...</string>
    </property>
    <property name="statusTip">
-    <string>Download a plugin to add new features or change Anki's behaviour</string>
+    <string></string>
    </property>
   </action>
   <action name="actionFullDatabaseCheck">
