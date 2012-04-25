@@ -375,7 +375,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         if fmap:
             self._changeNotes(nids, newModel, fmap)
         if cmap:
-            self._changeCards(nids, newModel, cmap)
+            self._changeCards(nids, m, newModel, cmap)
         self.col.genCards(nids)
 
     def _changeNotes(self, nids, newModel, map):
@@ -397,14 +397,26 @@ select id from notes where mid = ?)""" % " ".join(map),
             "update notes set flds=:flds,mid=:mid,mod=:m,usn=:u where id = :nid", d)
         self.col.updateFieldCache(nids)
 
-    def _changeCards(self, nids, newModel, map):
+    def _changeCards(self, nids, oldModel, newModel, map):
         d = []
         deleted = []
         for (cid, ord) in self.col.db.execute(
             "select id, ord from cards where nid in "+ids2str(nids)):
-            if map[ord] is not None:
+            # if the src model is a cloze, we ignore the map, as the gui
+            # doesn't currently support mapping them
+            if oldModel['type'] == MODEL_CLOZE:
+                new = ord
+                if newModel['type'] != MODEL_CLOZE:
+                    # if we're mapping to a regular note, we need to check if
+                    # the destination ord is valid
+                    if len(newModel['flds']) <= ord:
+                        new = None
+            else:
+                # mapping from a regular note, so the map should be valid
+                new = map[ord]
+            if new is not None:
                 d.append(dict(
-                    cid=cid,new=map[ord],u=self.col.usn(),m=intTime()))
+                    cid=cid,new=new,u=self.col.usn(),m=intTime()))
             else:
                 deleted.append(cid)
         self.col.db.executemany(
