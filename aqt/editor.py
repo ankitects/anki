@@ -254,7 +254,21 @@ def _filterHTML(html):
     doc = BeautifulSoup(html)
     # filter out implicit formatting from webkit
     for tag in doc("span", "Apple-style-span"):
-        tag.replaceWithChildren()
+        preserve = ""
+        for item in tag['style'].split(";"):
+            try:
+                k, v = item.split(":")
+            except ValueError:
+                continue
+            if k.strip() == "color":
+                preserve += "color:%s;" % v
+        if preserve:
+            # preserve colour attribute, delete implicit class
+            tag.attrs = ((u"style", preserve),)
+            del tag['class']
+        else:
+            # strip completely
+            tag.replaceWithChildren()
     for tag in doc("font", "Apple-style-span"):
         # strip all but colour attr from implicit font tags
         if 'color' in dict(tag.attrs):
@@ -949,8 +963,10 @@ class EditorWebView(AnkiWebView):
         clip = self.editor.mw.app.clipboard()
         mime = clip.mimeData(mode=mode)
         if mime.hasHtml() and mime.html().startswith("<!--anki-->"):
-            # pasting from another field
-            mime.setHtml(mime.html()[11:])
+            # pasting from another field, filter extraneous webkit formatting
+            html = mime.html()[11:]
+            html = _filterHTML(html)
+            mime.setHtml(html)
             return
         self.saveClip(mode=mode)
         if keep:
