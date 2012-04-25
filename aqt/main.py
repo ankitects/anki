@@ -885,26 +885,57 @@ will be lost. Continue?"""))
         d = self.debugDiag = QDialog()
         frm = aqt.forms.debug.Ui_Dialog()
         frm.setupUi(d)
-        d.connect(frm.line, SIGNAL("returnPressed()"), lambda: self.onDebugRet(frm))
-        d.show()
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
+        self.connect(s, SIGNAL("activated()"),
+                     lambda: self.onDebugRet(frm))
+        s = self.debugDiagShort = QShortcut(
+            QKeySequence("ctrl+shift+return"), d)
+        self.connect(s, SIGNAL("activated()"),
+                     lambda: self.onDebugPrint(frm))
+        d.exec_()
+
+    def _captureOutput(self, on):
+        mw = self
+        class Stream(object):
+            def write(self, data):
+                mw._output += data
+        if on:
+            self._output = ""
+            self._oldStderr = sys.stderr
+            self._oldStdout = sys.stdout
+            s = Stream()
+            sys.stderr = s
+            sys.stdout = s
+        else:
+            sys.stderr = self._oldStderr
+            sys.stdout = self._oldStdout
+
+    def _debugCard(self):
+        return self.reviewer.card.__dict__
+
+    def onDebugPrint(self, frm):
+        frm.text.setPlainText("pp(%s)" % frm.text.toPlainText())
+        self.onDebugRet(frm)
 
     def onDebugRet(self, frm):
         import pprint, traceback
-        line = frm.line.text()
-        if not line:
-            return
-        def card():
-            return self.reviewer.card.__dict__
-        locals = dict(mw=self, card=card)
-        newline = "\n"
+        text = frm.text.toPlainText()
+        card = self._debugCard
+        mw = self
+        pp = pprint.pprint
+        self._captureOutput(True)
         try:
-            ret = eval(line, globals(), locals)
-        except Exception, e:
-            newline = ""
-            ret = traceback.format_exc()
-        if not isinstance(ret, basestring):
-            ret = pprint.pformat(ret)
-        frm.log.appendPlainText(">>> %s\n%s%s" % (line, ret, newline))
+            exec text
+        except:
+            self._output += traceback.format_exc()
+        self._captureOutput(False)
+        buf = ""
+        for c, line in enumerate(text.strip().split("\n")):
+            if c == 0:
+                buf += ">>> %s\n" % line
+            else:
+                buf += "... %s\n" % line
+        frm.log.appendPlainText(buf + (self._output or "<no output>"))
         frm.log.ensureCursorVisible()
 
     # System specific code
