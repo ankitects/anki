@@ -283,6 +283,7 @@ hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
 img { max-width: 95%; max-height: 95%; }
 .marked { position:absolute; right: 7; top: 7; display: none; }
+#typeans { width: 100%; }
 """
 
     def _styles(self):
