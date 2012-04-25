@@ -45,18 +45,17 @@ body { margin: 5px; }
 </style><script>
 %s
 
+var currentField = null;
+var changeTimer = null;
 var insertHTMLOK = %s;
 var savedSel = null;
-
+var dropTarget = null;
 
 String.prototype.format = function() {
     var args = arguments;
     return this.replace(/\{\d+\}/g, function(m){
             return args[m.match(/\d+/)]; });
 };
-
-var currentField = null;
-var changeTimer = null;
 
 function onKey() {
     // esc clears focus, allowing dialog to close
@@ -133,7 +132,9 @@ function focusField(n) {
 }
 
 function onDragOver(elem) {
-    elem.focus();
+    // if we focus the target element immediately, the drag&drop turns into a
+    // copy, so note it down for later instead
+    dropTarget = elem;
 }
 
 function caretToEnd() {
@@ -936,11 +937,13 @@ class EditorWebView(AnkiWebView):
                 return AnkiWebView.dropEvent(self, evt)
         else:
             mime = self._processMime(oldmime)
-        # create a new event with the new mime data
+        # create a new event with the new mime data and run it
         new = QDropEvent(evt.pos(), evt.possibleActions(), mime,
                          evt.mouseButtons(), evt.keyboardModifiers())
         evt.accept()
         QWebView.dropEvent(self, new)
+        # tell the drop target to take focus so the drop contents are saved
+        self.eval("dropTarget.focus();")
 
     def prepareClip(self, keep=False, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
