@@ -40,7 +40,7 @@ _html = """
 .fname { font-size: 10px; vertical-align: middle; padding: 0;
          font-family: "%s"; }
 #dupes { font-size: 12px; }
-img { max-width: 100%%; }
+img { max-width: 90%%; }
 body { margin: 5px; }
 </style><script>
 %s
@@ -199,7 +199,7 @@ function setFields(fields, focusTo) {
         txt += "<div id=f{0} onkeydown='onKey();' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "ondragover='onDragOver(this);' ";
-        txt += "contentEditable=true>{0}</div>".format(f);
+        txt += "contentEditable=true class=field>{0}</div>".format(f);
         txt += "</td></tr>";
     }
     $("#fields").html("<table cellpadding=0 width=100%%>"+txt+"</table>");
@@ -242,7 +242,23 @@ document.body.onmousedown = function () {
 
 document.body.onmouseup = function () {
     mouseDown--;
-}});
+}
+
+document.onclick = function (evt) {
+    var src = window.event.srcElement;
+    if (src.tagName == "IMG") {
+        // image clicked; find contenteditable parent
+        var p = src;
+        while (p = p.parentNode) {
+            if (p.className == "field") {
+                $("#"+p.id).focus();
+                break;
+            }
+        }
+    }
+}
+
+});
 
 </script></head><body>
 <div id="fields"></div>
