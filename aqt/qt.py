@@ -22,7 +22,8 @@ if os.environ.get("DEBUG"):
     import sys, traceback
     def info(type, value, tb):
         from PyQt4.QtCore import pyqtRemoveInputHook
-        traceback.print_exc()
+        for line in traceback.format_exception(type, value, tb):
+            sys.stdout.write(line)
         pyqtRemoveInputHook()
         from pdb import pm
         pm()
