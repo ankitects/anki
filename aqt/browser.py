@@ -407,7 +407,7 @@ class Browser(QMainWindow):
             ('question', _("Question")),
             ('answer', _("Answer")),
             ('template', _("Card")),
-            ('deck', _("Card Deck")),
+            ('deck', _("Deck")),
             ('noteFld', _("Sort Field")),
             ('noteCrt', _("Created")),
             ('noteMod', _("Edited")),
