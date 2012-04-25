@@ -411,8 +411,10 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     def repl(str):
         return re.sub(regex, dst, str)
     d = []
+    snids = ids2str(nids)
+    nids = []
     for nid, mid, flds in col.db.execute(
-        "select id, mid, flds from notes where id in "+ids2str(nids)):
+        "select id, mid, flds from notes where id in "+snids):
         origFlds = flds
         # does it match?
         sflds = splitFields(flds)
@@ -428,12 +430,14 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
                 sflds[c] = repl(sflds[c])
         flds = joinFields(sflds)
         if flds != origFlds:
+            nids.append(nid)
             d.append(dict(nid=nid,flds=flds,u=col.usn(),m=intTime()))
     if not d:
         return 0
     # replace
     col.db.executemany("update notes set flds=:flds,mod=:m,usn=:u where id=:nid", d)
     col.updateFieldCache(nids)
+    col.genCards(nids)
     return len(d)
 
 # Find duplicates
