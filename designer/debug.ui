@@ -28,6 +28,9 @@
        <height>100</height>
       </size>
      </property>
+     <property name="lineWrapMode">
+      <enum>QPlainTextEdit::NoWrap</enum>
+     </property>
     </widget>
    </item>
    <item>
