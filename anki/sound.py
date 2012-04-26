@@ -150,7 +150,7 @@ class MplayerMonitor(threading.Thread):
                 stdout=devnull, stderr=devnull)
         except OSError:
             mplayerEvt.clear()
-            raise Exception("Audio player not found")
+            raise Exception("Did you install mplayer?")
 
 def queueMplayer(path):
     ensureMplayerThreads()
