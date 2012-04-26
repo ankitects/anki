@@ -50,6 +50,8 @@ class ErrorHandler(QObject):
             return
         if "Pyaudio not" in error:
             return showWarning(_("Please install PyAudio"))
+        if "install mplayer" in error:
+            return showWarning(_("Please install mplayer"))
         if "no default output" in error:
             return showWarning(_("Please connect a microphone."))
         stdText = _("""\
