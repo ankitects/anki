@@ -2,11 +2,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import itertools, time, re, os, HTMLParser, zipfile, simplejson
+import itertools, time, re, os, HTMLParser, zipfile
 from operator import itemgetter
 from anki.cards import Card
 from anki.lang import _
-from anki.utils import stripHTML, ids2str, splitFields
+from anki.utils import stripHTML, ids2str, splitFields, json
 from anki import Collection
 
 class Exporter(object):
@@ -225,7 +225,7 @@ class AnkiPackageExporter(AnkiExporter):
                 z.write(file, c)
                 media[c] = file
         # media map
-        z.writestr("media", simplejson.dumps(media))
+        z.writestr("media", json.dumps(media))
         z.close()
         # tidy up intermediate files
         os.unlink(colfile)

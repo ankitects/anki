@@ -2,9 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, simplejson, copy, re
+import os, copy, re
 from anki.lang import _
-from anki.utils import intTime, ids2str
+from anki.utils import intTime, ids2str, json
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *
@@ -218,9 +218,9 @@ def _getColVars(db):
 def _addColVars(db, g, gc, c):
     db.execute("""
 update col set conf = ?, decks = ?, dconf = ?""",
-                   simplejson.dumps(c),
-                   simplejson.dumps({'1': g}),
-                   simplejson.dumps({'1': gc}))
+                   json.dumps(c),
+                   json.dumps({'1': g}),
+                   json.dumps({'1': gc}))
 
 def _updateIndices(db):
     "Add indices to the DB."

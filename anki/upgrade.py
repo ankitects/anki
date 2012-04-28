@@ -2,9 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
-import os, time, simplejson, re, datetime, shutil
+import os, time, re, datetime, shutil
 from anki.lang import _
-from anki.utils import intTime, tmpfile, ids2str, splitFields, base91
+from anki.utils import intTime, tmpfile, ids2str, splitFields, base91, json
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *
@@ -280,7 +280,7 @@ yesCount from reviewHistory"""):
         tags = {}
         for t in db.list("select tag from tags"):
             tags[t] = intTime()
-        db.execute("update col set tags = ?", simplejson.dumps(tags))
+        db.execute("update col set tags = ?", json.dumps(tags))
         db.execute("drop table tags")
         db.execute("drop table cardTags")
 
@@ -346,7 +346,7 @@ insert or replace into col select id, cast(created as int), :t,
             mods[m['id']] = m
             db.execute("update notes set mid = ? where mid = ?", t, row[0])
         # save and clean up
-        db.execute("update col set models = ?", simplejson.dumps(mods))
+        db.execute("update col set models = ?", json.dumps(mods))
         db.execute("drop table fieldModels")
         db.execute("drop table cardModels")
         db.execute("drop table models")

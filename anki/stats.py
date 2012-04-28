@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, sys, os, datetime, simplejson
+import time, sys, os, datetime, json
 import anki.js
 from anki.utils import fmtTimeSpan, fmtFloat, ids2str
 from anki.consts import *
@@ -670,7 +670,7 @@ $(function () {
 </script>""" % dict(
     id=id, w=width, h=height,
     ylab=ylabel,
-    data=simplejson.dumps(data), conf=simplejson.dumps(conf)))
+    data=json.dumps(data), conf=json.dumps(conf)))
 
     def _limit(self):
         if self.wholeCollection:

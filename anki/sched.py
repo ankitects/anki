@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, datetime, simplejson, random, itertools, math
+import time, datetime, random, itertools, math
 from operator import itemgetter
 from heapq import *
 #from anki.cards import Card

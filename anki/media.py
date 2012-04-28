@@ -3,9 +3,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, shutil, re, urllib, urllib2, time, unicodedata, \
-    urllib, sys, simplejson, zipfile
+    urllib, sys, zipfile
 from cStringIO import StringIO
-from anki.utils import checksum, intTime, namedtmp, isWin, isMac
+from anki.utils import checksum, intTime, namedtmp, isWin, isMac, json
 from anki.lang import _
 from anki.db import DB
 from anki.consts import *
@@ -229,7 +229,7 @@ If the same name exists, compare checksums."""
         sizecnt = 0
         # get meta info first
         assert z.getinfo("_meta").file_size < 100000
-        meta = simplejson.loads(z.read("_meta"))
+        meta = json.loads(z.read("_meta"))
         nextUsn = int(z.read("_usn"))
         # then loop through all files
         for i in z.infolist():
@@ -306,7 +306,7 @@ If the same name exists, compare checksums."""
             if sz > SYNC_ZIP_SIZE:
                 break
             cnt += 1
-        z.writestr("_meta", simplejson.dumps(files))
+        z.writestr("_meta", json.dumps(files))
         z.close()
         return f.getvalue(), fnames
 

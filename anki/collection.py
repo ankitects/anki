@@ -2,10 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, random, re, stat, simplejson, datetime, copy, shutil, sys
+import time, os, random, re, stat, datetime, copy, shutil, sys
 from anki.lang import _, ngettext
 from anki.utils import ids2str, hexifyID, checksum, fieldChecksum, stripHTML, \
-    intTime, splitFields, joinFields, maxID
+    intTime, splitFields, joinFields, maxID, json
 from anki.hooks import runHook, runFilter
 from anki.sched import Scheduler
 from anki.models import ModelManager
@@ -81,7 +81,7 @@ class _Collection(object):
          tags) = self.db.first("""
 select crt, mod, scm, dty, usn, ls,
 conf, models, decks, dconf, tags from col""")
-        self.conf = simplejson.loads(self.conf)
+        self.conf = json.loads(self.conf)
         self.models.load(models)
         self.decks.load(decks, dconf)
         self.tags.load(tags)
@@ -100,7 +100,7 @@ is only necessary if you modify properties of this object or the conf dict."""
             """update col set
 crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
-            self._usn, self.ls, simplejson.dumps(self.conf))
+            self._usn, self.ls, json.dumps(self.conf))
 
     def save(self, name=None, mod=None):
         "Flush, commit DB, and take out another write lock."

@@ -2,12 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib, simplejson, os, sys, httplib2, gzip
+import urllib, os, sys, httplib2, gzip
 from cStringIO import StringIO
 from datetime import date
 from anki.db import DB
 from anki.errors import *
-from anki.utils import ids2str, checksum, intTime
+from anki.utils import ids2str, checksum, intTime, json
 from anki.consts import *
 from anki.lang import _
 from hooks import runHook
@@ -393,7 +393,7 @@ class LocalServer(Syncer):
     # serialize/deserialize payload, so we don't end up sharing objects
     # between cols
     def applyChanges(self, changes):
-        l = simplejson.loads; d = simplejson.dumps
+        l = json.loads; d = json.dumps
         return l(d(Syncer.applyChanges(self, l(d(changes)))))
 
 # HTTP syncing tools
@@ -483,22 +483,22 @@ class RemoteServer(HttpSyncer):
     def hostKey(self, user, pw):
         "Returns hkey or none if user/pw incorrect."
         ret = self.req(
-            "hostKey", StringIO(simplejson.dumps(dict(u=user, p=pw))),
+            "hostKey", StringIO(json.dumps(dict(u=user, p=pw))),
             badAuthRaises=False, hkey=False)
         if not ret:
             # invalid auth
             return
-        self.hkey = simplejson.loads(ret)['key']
+        self.hkey = json.loads(ret)['key']
         return self.hkey
 
     def meta(self):
         ret = self.req(
-            "meta", StringIO(simplejson.dumps(dict(v=SYNC_VER))),
+            "meta", StringIO(json.dumps(dict(v=SYNC_VER))),
             badAuthRaises=False)
         if not ret:
             # invalid auth
             return
-        return simplejson.loads(ret)
+        return json.loads(ret)
 
     def applyChanges(self, **kw):
         return self._run("applyChanges", kw)
@@ -519,8 +519,8 @@ class RemoteServer(HttpSyncer):
         return self._run("finish", kw)
 
     def _run(self, cmd, data):
-        return simplejson.loads(
-            self.req(cmd, StringIO(simplejson.dumps(data))))
+        return json.loads(
+            self.req(cmd, StringIO(json.dumps(data))))
 
 # Full syncing
 ##########################################################################
@@ -635,23 +635,23 @@ class RemoteMediaServer(HttpSyncer):
         HttpSyncer.__init__(self, hkey, con)
 
     def remove(self, **kw):
-        return simplejson.loads(
-            self.req("remove", StringIO(simplejson.dumps(kw))))
+        return json.loads(
+            self.req("remove", StringIO(json.dumps(kw))))
 
     def files(self, **kw):
-        return self.req("files", StringIO(simplejson.dumps(kw)))
+        return self.req("files", StringIO(json.dumps(kw)))
 
     def addFiles(self, zip):
         # no compression, as we compress the zip file instead
-        return simplejson.loads(
+        return json.loads(
             self.req("addFiles", StringIO(zip), comp=0))
 
     def mediaSanity(self):
-        return simplejson.loads(
+        return json.loads(
             self.req("mediaSanity"))
 
     # only for unit tests
     def mediatest(self, n):
-        return simplejson.loads(
+        return json.loads(
             self.req("mediatest", StringIO(
-                simplejson.dumps(dict(n=n)))))
+                json.dumps(dict(n=n)))))

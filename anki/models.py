@@ -2,9 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import simplejson, copy, re
+import copy, re
 from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
-    timestampID, fieldChecksum
+    timestampID, fieldChecksum, json
 from anki.lang import _
 from anki.consts import *
 
@@ -69,10 +69,10 @@ class ModelManager(object):
     def __init__(self, col):
         self.col = col
 
-    def load(self, json):
+    def load(self, json_):
         "Load registry from JSON."
         self.changed = False
-        self.models = simplejson.loads(json)
+        self.models = json.loads(json_)
 
     def save(self, m=None, templates=False):
         "Mark M modified if provided, and schedule registry flush."
@@ -88,7 +88,7 @@ class ModelManager(object):
         "Flush the registry if any models were changed."
         if self.changed:
             self.col.db.execute("update col set models = ?",
-                                 simplejson.dumps(self.models))
+                                 json.dumps(self.models))
             self.changed = False
 
     # Retrieving and creating models

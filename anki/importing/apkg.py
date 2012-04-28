@@ -2,8 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import zipfile, simplejson, os
-from anki.utils import tmpfile
+import zipfile, os
+from anki.utils import tmpfile, json
 from anki.importing.anki2 import Anki2Importer
 
 class AnkiPackageImporter(Anki2Importer):
@@ -18,7 +18,7 @@ class AnkiPackageImporter(Anki2Importer):
         self.file = colpath
         Anki2Importer.run(self)
         # import media
-        media = simplejson.loads(z.read("media"))
+        media = json.loads(z.read("media"))
         for c, file in media.items():
             path = os.path.join(self.col.media.dir(), file)
             if not os.path.exists(path):

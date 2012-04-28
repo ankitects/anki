@@ -2,8 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import simplejson, copy
-from anki.utils import intTime, ids2str
+import copy
+from anki.utils import intTime, ids2str, json
 from anki.consts import *
 from anki.lang import _
 from anki.errors import DeckRenameError
@@ -83,8 +83,8 @@ class DeckManager(object):
         self.col = col
 
     def load(self, decks, dconf):
-        self.decks = simplejson.loads(decks)
-        self.dconf = simplejson.loads(dconf)
+        self.decks = json.loads(decks)
+        self.dconf = json.loads(dconf)
         self.changed = False
 
     def save(self, g=None):
@@ -97,8 +97,8 @@ class DeckManager(object):
     def flush(self):
         if self.changed:
             self.col.db.execute("update col set decks=?, dconf=?",
-                                 simplejson.dumps(self.decks),
-                                 simplejson.dumps(self.dconf))
+                                 json.dumps(self.decks),
+                                 json.dumps(self.dconf))
             self.changed = False
 
     # Deck save/load

@@ -14,6 +14,11 @@ if sys.version_info[1] < 5:
         return a % b
     locale.format_string = format_string
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 # Time handling
 ##############################################################################
 

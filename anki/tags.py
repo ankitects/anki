@@ -2,8 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import simplejson
-from anki.utils import intTime, ids2str
+from anki.utils import intTime, ids2str, json
 from anki.hooks import runHook
 
 """
@@ -22,14 +21,14 @@ class TagManager(object):
     def __init__(self, col):
         self.col = col
 
-    def load(self, json):
-        self.tags = simplejson.loads(json)
+    def load(self, json_):
+        self.tags = json.loads(json_)
         self.changed = False
 
     def flush(self):
         if self.changed:
             self.col.db.execute("update col set tags=?",
-                                 simplejson.dumps(self.tags))
+                                 json.dumps(self.tags))
             self.changed = False
 
     # Registering and fetching tags
