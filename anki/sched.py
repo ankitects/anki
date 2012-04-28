@@ -834,7 +834,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         if not lf:
             return
         # if over threshold or every half threshold reps after that
-        if (lf >= card.lapses and
+        if (card.lapses >= lf and
             (card.lapses-lf) % (max(lf/2, 1)) == 0):
             # add a leech tag
             f = card.note()
