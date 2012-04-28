@@ -2,7 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import simplejson
 from aqt.qt import *
 from anki.consts import NEW_CARDS_RANDOM, dynOrderLabels
 from anki.hooks import addHook

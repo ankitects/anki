@@ -3,8 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib2, ctypes, simplejson, traceback, urllib2
-from anki.utils import stripHTML, isWin, isMac, namedtmp
+import re, os, sys, urllib2, ctypes, traceback, urllib2
+from anki.utils import stripHTML, isWin, isMac, namedtmp, json
 from anki.sound import play
 from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
@@ -502,7 +502,7 @@ class Editor(object):
         # state buttons changed?
         elif str.startswith("state"):
             (cmd, txt) = str.split(":", 1)
-            r = simplejson.loads(txt)
+            r = json.loads(txt)
             self._buttons['text_bold'].setChecked(r['bold'])
             self._buttons['text_italic'].setChecked(r['italic'])
             self._buttons['text_under'].setChecked(r['under'])
@@ -555,9 +555,9 @@ class Editor(object):
         for fld, val in self.note.items():
             data.append((fld, self.mw.col.media.escapeImages(val)))
         self.web.eval("setFields(%s, %d);" % (
-            simplejson.dumps(data), field))
+            json.dumps(data), field))
         self.web.eval("setFonts(%s);" % (
-            simplejson.dumps(self.fonts())))
+            json.dumps(self.fonts())))
         self.checkValid()
         self.widget.show()
         if self.stealFocus:
@@ -594,7 +594,7 @@ class Editor(object):
             self.web.eval("showDupes();")
         else:
             self.web.eval("hideDupes();")
-        self.web.eval("setBackgrounds(%s);" % simplejson.dumps(cols))
+        self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
         contents = self.note.fields[0]
@@ -809,7 +809,7 @@ class Editor(object):
 
     def addMedia(self, path, canDelete=False):
         html = self._addMedia(path, canDelete)
-        self._eval("setFormat('inserthtml', %s);" % simplejson.dumps(html))
+        self._eval("setFormat('inserthtml', %s);" % json.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
         "Add to media folder and return basename."

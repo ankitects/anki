@@ -5,8 +5,9 @@ from aqt.qt import *
 import urllib, urllib2, os, sys, time, httplib
 import anki, anki.utils, anki.lang, anki.stats
 import aqt
-import simplejson, platform
+import platform
 from aqt.utils import openLink
+from anki.utils import json
 
 baseUrl = "http://ankiweb.net/update/"
 #baseUrl = "http://localhost:8001/update/"
@@ -38,7 +39,7 @@ class LatestVersionFinder(QThread):
             resp = f.read()
             if not resp:
                 return
-            resp = simplejson.loads(resp)
+            resp = json.loads(resp)
         except:
             # behind proxy, corrupt message, etc
             return

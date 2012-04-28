@@ -2,11 +2,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, stat, shutil, difflib, simplejson, re, cgi
+import time, os, stat, shutil, difflib, re, cgi
 import unicodedata as ucd
 import HTMLParser
 from aqt.qt import *
-from anki.utils import fmtTimeSpan, stripHTML, isMac
+from anki.utils import fmtTimeSpan, stripHTML, isMac, json
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, hasSound, play
 from aqt.utils import mungeQA, getBase, shortcut, openLink, tooltip
@@ -172,7 +172,7 @@ function _typeAnsPress() {
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        self.web.eval("_updateQA(%s, false);" % simplejson.dumps(q))
+        self.web.eval("_updateQA(%s, false);" % json.dumps(q))
         self._toggleStar()
         if self._bottomReady:
             self._showAnswerButton()
@@ -187,7 +187,7 @@ function _typeAnsPress() {
             self.card.odid or self.card.did)['autoplay']
 
     def _toggleStar(self):
-        self.web.eval("_toggleStar(%s);" % simplejson.dumps(
+        self.web.eval("_toggleStar(%s);" % json.dumps(
             self.card.note().hasTag("marked")))
 
     # Showing the answer
@@ -205,7 +205,7 @@ function _typeAnsPress() {
             playFromText(a)
         # render and update bottom
         a = self._mungeQA(a)
-        self.web.eval("_updateQA(%s, true);" % simplejson.dumps(a))
+        self.web.eval("_updateQA(%s, true);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
         runHook('showAnswer')
@@ -528,12 +528,12 @@ function showAnswer(txt) {
         else:
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (
-            simplejson.dumps(middle), maxTime))
+            json.dumps(middle), maxTime))
 
     def _showEaseButtons(self):
         self.bottom.web.setFocus()
         middle = self._answerButtons()
-        self.bottom.web.eval("showAnswer(%s);" % simplejson.dumps(middle))
+        self.bottom.web.eval("showAnswer(%s);" % json.dumps(middle))
 
     def _remaining(self):
         if not self.mw.col.conf['dueCounts']:
