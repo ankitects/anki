@@ -5,28 +5,8 @@ Prerequisites for Linux/FreeBSD/etc:
 
 - Python 2.6 or 2.7 (not 3.0+)
 - Python-Qt/PyQt 4.6+
-- BeautifulSoup 3.2+
-- Httplib2 0.7+
-
-For audio playing support:
-
 - mplayer
-
-For audio recording support:
-
-- pyaudio
 - lame
-
-Old Distros
--------------
-
-If your Linux distribution doesn't have the required versions of BeautifulSoup
-or Httplib2, you'll need to bypass the system version. Below is an example for
-Ubuntu and BeautifulSoup. Run the following from a terminal:
-
- $ sudo dpkg -P python-beautifulsoup # remove any system version
- $ sudo apt-get install python-pip
- $ sudo pip install beautifulsoup
 
 Installation & Running
 ------------------------
@@ -36,7 +16,8 @@ extracted to. If you extracted it to ~/anki-2.0 for example, you can run Anki
 by simply typing ~/anki-2.0/anki in a terminal.
 
 If you'd like to install it system wide, change to the folder you extracted it
-to, and run 'sudo make install'. The makefile also supports uninstalling.
+to, and run 'sudo make install'. If you need to uninstall Anki in the future,
+you can do so by typing 'sudo make uninstall'.
 
 More information
 -----------------
