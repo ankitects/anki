@@ -248,7 +248,11 @@ create table if not exists profiles
         d.connect(d, SIGNAL("accepted()"), self._onLangSelected)
         d.connect(d, SIGNAL("rejected()"), lambda: True)
         # default to the system language
-        (lang, enc) = locale.getdefaultlocale()
+        try:
+            (lang, enc) = locale.getdefaultlocale()
+        except:
+            # fails on osx
+            lang = "en"
         if lang and lang not in ("pt_BR", "zh_CN", "zh_TW"):
             lang = re.sub("(.*)_.*", "\\1", lang)
         # find index
