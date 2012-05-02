@@ -95,6 +95,8 @@ class AnkiQt(QMainWindow):
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
         d.connect(f.login, SIGNAL("clicked()"), self.onOpenProfile)
+        d.connect(f.profiles, SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+                  self.onOpenProfile)
         d.connect(f.quit, SIGNAL("clicked()"), lambda: sys.exit(0))
         d.connect(f.add, SIGNAL("clicked()"), self.onAddProfile)
         d.connect(f.rename, SIGNAL("clicked()"), self.onRenameProfile)
