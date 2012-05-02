@@ -853,7 +853,7 @@ will be lost. Continue?"""))
         for f in unused:
             path = os.path.join(mdir, f)
             os.unlink(path)
-        tooltip("Deleted.")
+        tooltip(_("Deleted."))
         diag.close()
 
     def onStudyDeck(self):
