@@ -177,6 +177,12 @@ class DeckManager(object):
         elif default:
             return self.decks['1']
 
+    def byName(self, name):
+        "Get deck with NAME."
+        for m in self.decks.values():
+            if m['name'] == name:
+                return m
+
     def update(self, g):
         "Add or update an existing deck. Used for syncing and merging."
         self.decks[str(g['id'])] = g
