@@ -507,6 +507,9 @@ Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
                         self.pm.profile['autoSync']):
             from aqt.sync import SyncManager
             self.unloadCollection()
+            # set a sync state so the refresh timer doesn't fire while deck
+            # unloaded
+            self.state = "sync"
             self.syncer = SyncManager(self, self.pm)
             self.syncer.sync()
         if reload:
