@@ -163,21 +163,22 @@ and c.nid=n.id %s""" % (q, order)
 
     def _findText(self, val, neg, c):
         val = val.replace("*", "%")
-        extra = "not" if neg else ""
         if not self.full:
             self.lims['args']["_text_%d"%c] = "%"+val+"%"
-            self.lims['preds'].append("""\
-(sfld %s like :_text_%d escape '\\' or
-flds %s like :_text_%d escape '\\')""" % (extra, c, extra, c))
+            txt = """
+(sfld like :_text_%d escape '\\' or flds like :_text_%d escape '\\')""" % (c,c)
+            if not neg:
+                self.lims['preds'].append(txt)
+            else:
+                self.lims['preds'].append("not " + txt)
         else:
-            # in the future we may want to apply this at the end to speed up
-            # the case where there are other limits
             nids = []
+            extra = "not" if neg else ""
             for nid, flds in self.col.db.execute(
                 "select id, flds from notes"):
                 if val in stripHTML(flds):
                     nids.append(nid)
-            self.lims['preds'].append("n.id in " + ids2str(nids))
+            self.lims['preds'].append("n.id %s in %s " % (extra, ids2str(nids)))
 
     def _findNids(self, val):
         self.lims['preds'].append("n.id in (%s)" % val)
