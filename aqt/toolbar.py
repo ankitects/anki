@@ -69,6 +69,7 @@ class Toolbar(object):
         elif l == "study":
             # if overview already shown, switch to review
             if self.mw.state == "overview":
+                self.mw.col.startTimebox()
                 self.mw.moveToState("review")
             else:
                 self.mw.onOverview()
