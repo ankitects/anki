@@ -925,6 +925,10 @@ class EditorWebView(AnkiWebView):
             self.triggerPageAction(QWebPage.Copy)
             self._flagAnkiText()
             return evt.accept()
+        elif evt.matches(QKeySequence.Cut):
+            self.triggerPageAction(QWebPage.Cut)
+            self._flagAnkiText()
+            return evt.accept()
         QWebView.keyPressEvent(self, evt)
         self.restoreClip()
 
