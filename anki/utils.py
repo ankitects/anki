@@ -247,11 +247,8 @@ def tmpdir():
         import atexit
         atexit.register(cleanup)
         _tmpdir = os.path.join(tempfile.gettempdir(), "anki_temp")
-        try:
-            shutil.rmtree(_tmpdir)
-        except (IOError, OSError):
-            pass
-        os.mkdir(_tmpdir)
+        if not os.path.exists(_tmpdir):
+            os.mkdir(_tmpdir)
     return _tmpdir
 
 def tmpfile(prefix="", suffix=""):
