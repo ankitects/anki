@@ -843,8 +843,12 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             # handle
             a = conf['leechAction']
             if a == 0:
-                self.suspendCards([card.id])
-                card.load()
+                # if it has an old due, remove it from cram/relearning
+                if card.odue:
+                    card.due = card.odue
+                if card.odid:
+                    card.did = card.odid
+                card.queue = -1
             # notify UI
             runHook("leech", card)
             return True
