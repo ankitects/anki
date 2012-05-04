@@ -917,49 +917,54 @@ class EditorWebView(AnkiWebView):
         self.strip = self.editor.mw.pm.profile['stripHTML']
 
     def keyPressEvent(self, evt):
-        self._curKey = True
-        self.origClip = None
-        shiftPaste = (evt.modifiers() == (Qt.ShiftModifier | Qt.ControlModifier)
-                      and evt.key() == Qt.Key_V)
-        if evt.matches(QKeySequence.Paste) or shiftPaste:
-            self.prepareClip(shiftPaste)
-            if shiftPaste:
-                self.triggerPageAction(QWebPage.Paste)
+        if evt.matches(QKeySequence.Paste):
+            self.onPaste()
+            return evt.accept()
         elif evt.matches(QKeySequence.Copy):
-            self.triggerPageAction(QWebPage.Copy)
-            self._flagAnkiText()
+            self.onCopy()
             return evt.accept()
         elif evt.matches(QKeySequence.Cut):
-            self.triggerPageAction(QWebPage.Cut)
-            self._flagAnkiText()
+            self.onCut()
             return evt.accept()
         QWebView.keyPressEvent(self, evt)
-        self.restoreClip()
+
+    def onCut(self):
+        self.triggerPageAction(QWebPage.Cut)
+        self._flagAnkiText()
+
+    def onCopy(self):
+        self.triggerPageAction(QWebPage.Copy)
+        self._flagAnkiText()
+
+    def onPaste(self):
+        mime = self.prepareClip()
+        self.triggerPageAction(QWebPage.Paste)
+        self.restoreClip(mime)
 
     def mouseReleaseEvent(self, evt):
         if not isMac and not isWin and evt.button() == Qt.MidButton:
             # middle click on x11; munge the clipboard before standard
             # handling
-            self.prepareClip(mode=QClipboard.Selection)
+            mime = self.prepareClip(mode=QClipboard.Selection)
             AnkiWebView.mouseReleaseEvent(self, evt)
-            self.restoreClip(mode=QClipboard.Selection)
+            self.restoreClip(mime, mode=QClipboard.Selection)
         else:
             AnkiWebView.mouseReleaseEvent(self, evt)
 
     def focusInEvent(self, evt):
+        window = False
+        if evt.reason() in (Qt.ActiveWindowFocusReason, Qt.PopupFocusReason):
+            # editor area got focus again; need to tell js not to adjust cursor
+            self.eval("mouseDown++;")
+            window = True
         AnkiWebView.focusInEvent(self, evt)
         if evt.reason() == Qt.TabFocusReason:
             self.eval("focusField(0);")
         elif evt.reason() == Qt.BacktabFocusReason:
             n = len(self.editor.note.fields) - 1
             self.eval("focusField(%d);" % n)
-
-    # Buggy; disable for now.
-    # def contextMenuEvent(self, evt):
-    #     # adjust in case the user is going to paste
-    #     self.prepareClip()
-    #     QWebView.contextMenuEvent(self, evt)
-    #     self.restoreClip()
+        elif window:
+            self.eval("mouseDown--;")
 
     def dropEvent(self, evt):
         oldmime = evt.mimeData()
@@ -983,7 +988,7 @@ class EditorWebView(AnkiWebView):
         # tell the drop target to take focus so the drop contents are saved
         self.eval("dropTarget.focus();")
 
-    def prepareClip(self, keep=False, mode=QClipboard.Clipboard):
+    def prepareClip(self, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
         mime = clip.mimeData(mode=mode)
         if mime.hasHtml() and mime.html().startswith("<!--anki-->"):
@@ -993,22 +998,14 @@ class EditorWebView(AnkiWebView):
             mime.setHtml(html)
             return
         self.saveClip(mode=mode)
-        if keep:
-            new = QMimeData()
-            if mime.hasHtml():
-                new.setHtml(_filterHTML(mime.html()))
-            else:
-                new.setText(mime.text())
-            mime = new
-        else:
-            mime = self._processMime(mime)
+        mime = self._processMime(mime)
         clip.setMimeData(mime, mode=mode)
 
-    def restoreClip(self, mode=QClipboard.Clipboard):
-        if not self.origClip:
+    def restoreClip(self, mime, mode=QClipboard.Clipboard):
+        if not mime:
             return
         clip = self.editor.mw.app.clipboard()
-        clip.setMimeData(self.origClip, mode=mode)
+        clip.setMimeData(mime, mode=mode)
 
     def saveClip(self, mode):
         # we don't own the clipboard object, so we need to copy it
@@ -1022,7 +1019,7 @@ class EditorWebView(AnkiWebView):
             n.setUrls(mime.urls())
         if mime.hasImage():
             n.setImageData(mime.imageData())
-        self.origClip = n
+        return n
 
     def _processMime(self, mime):
         # print "html=%s image=%s urls=%s txt=%s" % (

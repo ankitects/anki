@@ -39,6 +39,7 @@ class AnkiWebPage(QWebPage):
 ##########################################################################
 
 class AnkiWebView(QWebView):
+
     def __init__(self):
         QWebView.__init__(self)
         self.setObjectName("mainText")
@@ -51,8 +52,8 @@ class AnkiWebView(QWebView):
         self.setKeyHandler()
         self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
         self.connect(self, SIGNAL("loadFinished(bool)"), self._loadFinished)
-        self._curKey = None
         self.allowDrops = False
+
     def keyPressEvent(self, evt):
         if evt.matches(QKeySequence.Copy):
             self.triggerPageAction(QWebPage.Copy)
@@ -62,35 +63,42 @@ class AnkiWebView(QWebView):
             evt.accept()
             return
         QWebView.keyPressEvent(self, evt)
+
     def keyReleaseEvent(self, evt):
         if self._keyHandler:
             if self._keyHandler(evt):
                 evt.accept()
                 return
         QWebView.keyPressEvent(self, evt)
+
     def contextMenuEvent(self, evt):
-        if isWin:
-            # broken on windows for now; events are being fired at the popup
-            return
         m = QMenu(self)
-        m.addAction(self.pageAction(QWebPage.Cut))
-        m.addAction(self.pageAction(QWebPage.Copy))
-        m.addAction(self.pageAction(QWebPage.Paste))
+        a = m.addAction(_("Cut"))
+        a.connect(a, SIGNAL("activated()"), self.onCut)
+        a = m.addAction(_("Copy"))
+        a.connect(a, SIGNAL("activated()"), self.onCopy)
+        a = m.addAction(_("Paste"))
+        a.connect(a, SIGNAL("activated()"), self.onPaste)
         m.popup(QCursor.pos())
+
     def dropEvent(self, evt):
         pass
+
     def setLinkHandler(self, handler=None):
         if handler:
             self.linkHandler = handler
         else:
             self.linkHandler = self._openLinksExternally
         self._bridge.setLinkHandler(self.linkHandler)
+
     def setKeyHandler(self, handler=None):
         # handler should return true if event should be swallowed
         self._keyHandler = handler
+
     def setHtml(self, html, loadCB=None):
         self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
+
     def stdHtml(self, body, css="", bodyClass="", loadCB=None, js=None, head=""):
         if isMac:
             button = "font-weight: bold; height: 24px;"
@@ -110,20 +118,26 @@ button {
 <body class="%s">%s</body></html>""" % (
     fontForPlatform(), button, css, js or anki.js.jquery+anki.js.browserSel,
     head, bodyClass, body), loadCB)
+
     def setBridge(self, bridge):
         self._bridge.setBridge(bridge)
+
     def eval(self, js):
         self.page().mainFrame().evaluateJavaScript(js)
+
     def _openLinksExternally(self, url):
         openLink(url)
+
     def _jsErr(self, msg, line, srcID):
         if getattr(sys, 'frozen', None):
             obj = sys.stderr
         else:
             obj = sys.stdout
         obj.write(_("JS error on line %(a)d: %(b)s") % dict(a=line, b=msg+"\n"))
+
     def _linkHandler(self, url):
         self.linkHandler(url.toString())
+
     def _loadFinished(self):
         self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
         if self._loadFinishedCB:
