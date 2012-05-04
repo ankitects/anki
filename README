@@ -1,12 +1,19 @@
 Anki
 -------------------------------------
 
-Prerequisites for Linux/FreeBSD/etc:
+Prerequisites
+---------------
 
-- Python 2.6 or 2.7 (not 3.0+)
-- Python-Qt/PyQt 4.6+
-- mplayer
-- lame
+To install the prerequisites on Ubuntu/Debian, please use the following
+command:
+
+sudo apt-get install python-qt4 mplayer lame libportaudio2
+
+If you're on another distribution the packages may be named differently, so
+please consult your package manager.
+
+Your Python version will need to be 2.6 or 2.7 (not 3+), and PyQt needs to be
+4.6 or later.
 
 Installation & Running
 ------------------------
