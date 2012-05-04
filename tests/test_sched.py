@@ -462,7 +462,7 @@ def test_suspend():
     assert c.type == 2
     assert c.due == 1
     # should cope with cards in cram decks
-    c.due = 0
+    c.due = 1
     c.flush()
     cram = d.decks.newDyn("tmp")
     d.sched.rebuildDyn()
