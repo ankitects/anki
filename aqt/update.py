@@ -19,7 +19,13 @@ class LatestVersionFinder(QThread):
         self.main = main
         self.config = main.pm.meta
         plat=sys.platform
-        pver=platform.platform()
+        while 1:
+            try:
+                pver=platform.platform()
+                break
+            except IOError:
+                # interrupted system call
+                continue
         d = {"ver": aqt.appVersion,
              "pver": pver,
              "plat": plat,
