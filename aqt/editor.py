@@ -1075,14 +1075,19 @@ class EditorWebView(AnkiWebView):
 
     def _processImage(self, mime):
         im = QImage(mime.imageData())
-        name = namedtmp("paste-%d.png" % im.cacheKey())
+        name = namedtmp("paste-%d" % im.cacheKey())
         uname = unicode(name, sys.getfilesystemencoding())
-        if im.hasAlphaChannel():
-            im.save(uname)
+        if self.editor.mw.pm.profile.get("pastePNG", False):
+            ext = ".png"
+            im.save(uname+ext, None, 50)
         else:
-            im.save(uname, None, 95)
+            ext = ".jpg"
+            im.save(uname+ext, None, 80)
+        # invalid image?
+        if not os.path.exists(uname+ext):
+            return QMimeData()
         mime = QMimeData()
-        mime.setHtml(self.editor._addMedia(uname))
+        mime.setHtml(self.editor._addMedia(uname+ext))
         return mime
 
     def _retrieveURL(self, url):

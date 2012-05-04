@@ -128,12 +128,14 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupOptions(self):
         self.form.stripHTML.setChecked(self.prof['stripHTML'])
+        self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
         self.connect(
             self.form.profilePass, SIGNAL("clicked()"),
             self.onProfilePass)
 
     def updateOptions(self):
         self.prof['stripHTML'] = self.form.stripHTML.isChecked()
+        self.prof['pastePNG'] = self.form.pastePNG.isChecked()
 
     def onProfilePass(self):
         pw, ret = getText(_("""\

@@ -42,6 +42,7 @@ profileConf = dict(
     editFontFamily=fontForPlatform(),
     editFontSize=12,
     editLineSize=20,
+    pastePNG=False,
     # not exposed in gui
     deleteMedia=False,
     preserveKeyboard=True,

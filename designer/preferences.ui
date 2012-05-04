@@ -45,6 +45,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="useCurrent">
+         <property name="text">
+          <string>Use the current deck as the default when adding notes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="stripHTML">
          <property name="text">
           <string>Strip HTML when pasting text</string>
@@ -52,9 +59,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="useCurrent">
+        <widget class="QCheckBox" name="pastePNG">
          <property name="text">
-          <string>Use the current deck as the default when adding notes</string>
+          <string>Paste clipboard images as PNG</string>
          </property>
         </widget>
        </item>
@@ -464,8 +471,9 @@
  <tabstops>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
-  <tabstop>stripHTML</tabstop>
   <tabstop>useCurrent</tabstop>
+  <tabstop>stripHTML</tabstop>
+  <tabstop>pastePNG</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
