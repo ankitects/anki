@@ -496,7 +496,7 @@ def test_cram():
     d.sched.rebuildDyn(did)
     d.reset()
     # should appear as new in the deck list
-    assert sorted(d.sched.deckDueList())[0][3] == 1
+    assert sorted(d.sched.deckDueList())[0][4] == 1
     # and should appear in the counts
     assert d.sched.counts() == (1,0,0)
     # grab it and check estimates
@@ -833,22 +833,22 @@ def test_deckDue():
     d.reset()
     assert len(d.decks.decks) == 5
     cnts = d.sched.deckDueList()
-    assert cnts[0] == ["Default", 1, 0, 1]
-    assert cnts[1] == ["Default::1", default1, 1, 0]
-    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0]
-    assert cnts[3] == ["foo::bar", foobar, 0, 1]
-    assert cnts[4] == ["foo::baz", foobaz, 0, 1]
+    assert cnts[0] == ["Default", 1, 0, 0, 1]
+    assert cnts[1] == ["Default::1", default1, 1, 0, 0]
+    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0, 0]
+    assert cnts[3] == ["foo::bar", foobar, 0, 0, 1]
+    assert cnts[4] == ["foo::baz", foobaz, 0, 0, 1]
     tree = d.sched.deckDueTree()
     assert tree[0][0] == "Default"
     # sum of child and parent
     assert tree[0][1] == 1
     assert tree[0][2] == 1
-    assert tree[0][3] == 1
+    assert tree[0][4] == 1
     # child count is just review
-    assert tree[0][4][0][0] == "1"
-    assert tree[0][4][0][1] == default1
-    assert tree[0][4][0][2] == 1
-    assert tree[0][4][0][3] == 0
+    assert tree[0][5][0][0] == "1"
+    assert tree[0][5][0][1] == default1
+    assert tree[0][5][0][2] == 1
+    assert tree[0][5][0][4] == 0
     # code should not fail if a card has an invalid deck
     c.did = 12345; c.flush()
     d.sched.deckDueList()

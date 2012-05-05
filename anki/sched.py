@@ -175,7 +175,7 @@ order by due""" % self._deckLimit(),
     ##########################################################################
 
     def deckDueList(self):
-        "Returns [deckname, did, due, new]"
+        "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
         if self._clearOverdue:
             self.removeFailed(expiredOnly=True)
@@ -204,7 +204,7 @@ order by due""" % self._deckLimit(),
                 rlim = min(rlim, lims[p][1])
             rev = self._revForDeck(deck['id'], rlim)
             # save to list
-            data.append([deck['name'], deck['id'], lrn+rev, new])
+            data.append([deck['name'], deck['id'], rev, lrn, new])
             # add deck as a parent
             lims[deck['name']] = [nlim, rlim]
         return data
@@ -231,13 +231,15 @@ order by due""" % self._deckLimit(),
             did = None
             rev = 0
             new = 0
+            lrn = 0
             children = []
             for c in tail:
                 if len(c[0]) == 1:
                     # current node
                     did = c[1]
                     rev += c[2]
-                    new += c[3]
+                    lrn += c[3]
+                    new += c[4]
                 else:
                     # set new string to tail
                     c[0] = c[0][1:]
@@ -246,13 +248,14 @@ order by due""" % self._deckLimit(),
             # tally up children counts
             for ch in children:
                 rev += ch[2]
-                new += ch[3]
+                lrn += ch[3]
+                new += ch[4]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
             if not conf['dyn']:
                 rev = min(rev, conf['rev']['perDay'])
                 new = min(new, conf['new']['perDay'])
-            tree.append((head, did, rev, new, children))
+            tree.append((head, did, rev, lrn, new, children))
         return tuple(tree)
 
     # Getting the next card
