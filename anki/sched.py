@@ -770,9 +770,12 @@ did = ? and queue = 2 and due <= ? limit ?""",
     def remDyn(self, did, lim=None):
         if not lim:
             lim = "did = %s" % did
+        # move out of cram queue
         self.col.db.execute("""
-update cards set did = odid, queue = type, due = odue, odue = 0, odid = 0,
-usn = ?, mod = ? where %s""" % lim, self.col.usn(), intTime())
+update cards set did = odid, queue = (case when type = 1 then 0
+else type end), type = (case when type = 1 then 0 else type end),
+due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
+                            self.col.usn(), intTime())
 
     def remFromDyn(self, cids):
         self.remDyn(None, "id in %s and odid" % ids2str(cids))

@@ -577,6 +577,26 @@ def test_cram():
     # it should have been moved back to the original deck
     assert c.did == 1
 
+def test_cram_rem():
+    d = getEmptyDeck()
+    f = d.newNote()
+    f['Front'] = u"one"
+    d.addNote(f)
+    oldDue = f.cards()[0].due
+    did = d.decks.newDyn("Cram")
+    d.sched.rebuildDyn(did)
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 2)
+    # answering the card will put it in the learning queue
+    assert c.type == c.queue == 1
+    assert c.due != oldDue
+    # if we terminate cramming prematurely it should be set back to new
+    d.sched.remDyn(did)
+    c.load()
+    assert c.type == c.queue == 0
+    assert c.due == oldDue
+
 def test_adjIvl():
     d = getEmptyDeck()
     # add two more templates and set second active
