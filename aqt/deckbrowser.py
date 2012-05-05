@@ -148,7 +148,8 @@ body { margin: 1em; -webkit-user-select: none; }
         return buf
 
     def _deckRow(self, node, depth):
-        name, did, due, new, children = node
+        name, did, due, lrn, new, children = node
+        due += lrn
         def indent():
             return "&nbsp;"*3*depth
         if did == self.mw.col.conf['curDeck']:
