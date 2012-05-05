@@ -195,6 +195,8 @@ class DeckManager(object):
         # make sure target node doesn't already exist
         if newName in self.allNames():
             raise DeckRenameError(_("That deck already exists."))
+        # ensure we have parents
+        newName = self._ensureParents(newName)
         # rename children
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
@@ -204,8 +206,6 @@ class DeckManager(object):
         # adjust name and save
         g['name'] = newName
         self.save(g)
-        # finally, ensure we have parents
-        self._ensureParents(newName)
 
     def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid):
         draggedDeck = self.get(draggedDeckDid)
@@ -242,6 +242,8 @@ class DeckManager(object):
         "Ensure parents exist, and return name with case matching parents."
         s = ""
         path = self._path(name)
+        if len(path) < 2:
+            return name
         for p in path[:-1]:
             if not s:
                 s += p
