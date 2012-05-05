@@ -194,6 +194,14 @@ and c.nid=n.id %s""" % (q, order)
     def _findDeck(self, val, isNeg):
         if val.lower() == "current":
             id = self.col.decks.current()['id']
+        elif val.lower() == "none":
+            if isNeg:
+                extra = ""
+            else:
+                extra = "not"
+            self.lims['preds'].append(
+                "c.did %s in %s" % (extra, ids2str(self.col.decks.allIds())))
+            return
         else:
             id = self.col.decks.id(val, create=False) or 0
         ids = [id] + [a[1] for a in self.col.decks.children(id)]
