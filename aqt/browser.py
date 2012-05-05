@@ -366,10 +366,13 @@ class Browser(QMainWindow):
         c(f.actionTags, s, self.onTags)
         c(f.actionCardList, s, self.onCardList)
         # keyboard shortcut for shift+home/end
-        self.pgUpCut = QShortcut(QKeySequence("shift+home"), self)
+        self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
         c(self.pgUpCut, SIGNAL("activated()"), self.onFirstCard)
-        self.pgDownCut = QShortcut(QKeySequence("shift+end"), self)
+        self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         c(self.pgDownCut, SIGNAL("activated()"), self.onLastCard)
+        # card info
+        self.infoCut = QShortcut(QKeySequence("Ctrl+Shift+i"), self)
+        c(self.infoCut, SIGNAL("activated()"), self.showCardInfo)
         # help
         c(f.actionGuide, s, self.onHelp)
         runHook('browser.setupMenus', self)
