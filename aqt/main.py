@@ -902,7 +902,7 @@ will be lost. Continue?"""))
             QKeySequence("ctrl+shift+return"), d)
         self.connect(s, SIGNAL("activated()"),
                      lambda: self.onDebugPrint(frm))
-        d.exec_()
+        d.show()
 
     def _captureOutput(self, on):
         mw = self
