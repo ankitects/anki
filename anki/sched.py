@@ -803,8 +803,8 @@ order by c.mod""" % ((self.dayCutoff-86400)*1000)
         data = []
         t = intTime(); u = self.col.usn()
         for c, id in enumerate(ids):
-            # start at -1000 so that reviews are all due
-            data.append((did, -1000+c, t, u, id))
+            # start at -100000 so that reviews are all due
+            data.append((did, -100000+c, t, u, id))
         if deck['cramRev']:
             # everything in the new queue
             queue = "0"
