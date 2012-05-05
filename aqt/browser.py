@@ -281,7 +281,7 @@ class StatusDelegate(QItemDelegate):
             # in the the middle of a reset; return nothing so this row is not
             # rendered until we have a chance to reset the model
             return
-        if c.queue < 0:
+        if c.queue == -1:
             # custom render
             brush = QBrush(QColor(COLOUR_SUSPENDED))
             painter.save()
