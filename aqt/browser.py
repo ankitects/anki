@@ -306,7 +306,6 @@ class Browser(QMainWindow):
         applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
-        self.currentRow = None
         self.lastFilter = ""
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
@@ -364,6 +363,11 @@ class Browser(QMainWindow):
         c(f.actionNote, s, self.onNote)
         c(f.actionTags, s, self.onTags)
         c(f.actionCardList, s, self.onCardList)
+        # keyboard shortcut for shift+home/end
+        self.pgUpCut = QShortcut(QKeySequence("shift+home"), self)
+        c(self.pgUpCut, SIGNAL("activated()"), self.onFirstCard)
+        self.pgDownCut = QShortcut(QKeySequence("shift+end"), self)
+        c(self.pgDownCut, SIGNAL("activated()"), self.onLastCard)
         # help
         c(f.actionGuide, s, self.onHelp)
         runHook('browser.setupMenus', self)
@@ -1238,11 +1242,27 @@ select fm.id, fm.name from fieldmodels fm""")
         self.editor.web.setFocus()
 
     def onFirstCard(self):
+        sm = self.form.tableView.selectionModel()
+        idx = sm.currentIndex()
         self._moveCur(None, self.model.index(0, 0))
+        if not self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
+            return
+        idx2 = sm.currentIndex()
+        item = QItemSelection(idx2, idx)
+        sm.select(item, QItemSelectionModel.SelectCurrent|
+                  QItemSelectionModel.Rows)
 
     def onLastCard(self):
+        sm = self.form.tableView.selectionModel()
+        idx = sm.currentIndex()
         self._moveCur(
             None, self.model.index(len(self.model.cards) - 1, 0))
+        if not self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
+            return
+        idx2 = sm.currentIndex()
+        item = QItemSelection(idx, idx2)
+        sm.select(item, QItemSelectionModel.SelectCurrent|
+                  QItemSelectionModel.Rows)
 
     def onFind(self):
         self.form.searchEdit.setFocus()
