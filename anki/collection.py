@@ -324,10 +324,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     did = t['did'] or did
                     if self.decks.isDyn(did):
                         did = 1
+                    # if the deck doesn't exist, use default instead
+                    did = self.decks.get(did)['id']
                     # we'd like to use the same due# as sibling cards, but we
                     # can't retrieve that quickly, so we give it a new id
                     # instead
-                    data.append((ts, nid, t['did'] or did, t['ord'],
+                    data.append((ts, nid, did, t['ord'],
                                  now, usn, self.nextID("pos")))
                     ts += 1
             # note any cards that need removing
