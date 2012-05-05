@@ -923,6 +923,9 @@ will be lost. Continue?"""))
     def _debugCard(self):
         return self.reviewer.card.__dict__
 
+    def _debugBrowserCard(self):
+        return aqt.dialogs._dialogs['Browser'][1].card.__dict__
+
     def onDebugPrint(self, frm):
         frm.text.setPlainText("pp(%s)" % frm.text.toPlainText())
         self.onDebugRet(frm)
@@ -931,6 +934,7 @@ will be lost. Continue?"""))
         import pprint, traceback
         text = frm.text.toPlainText()
         card = self._debugCard
+        bcard = self._debugBrowserCard
         mw = self
         pp = pprint.pprint
         self._captureOutput(True)
