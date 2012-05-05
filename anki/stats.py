@@ -35,7 +35,10 @@ class CardStats(object):
                 next = time.time()+((c.due - self.col.sched.today)*86400)
             else:
                 next = c.due
-            next = self.date(next)
+            if c.odid:
+                next = _("(cram)")
+            else:
+                next = self.date(next)
             self.addLine(_("Due"), next)
             self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
