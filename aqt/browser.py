@@ -711,7 +711,7 @@ class Browser(QMainWindow):
                 item.setIcon(0, QIcon(":/icons/deck16.png"))
                 root.addChild(item)
                 newhead = head + g[0]+"::"
-                fillGroups(item, g[4], newhead)
+                fillGroups(item, g[5], newhead)
         fillGroups(root, grps)
 
     def _modelTree(self, root):
