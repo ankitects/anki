@@ -157,9 +157,7 @@ you can enter it here. Use \\t to represent tab."""),
             return
         finally:
             self.mw.progress.finish()
-        txt = (
-            _("Importing complete. %(num)d notes imported or updated.\n") %
-            {"num": self.importer.total})
+        txt = _("Importing complete.") + "\n"
         if self.importer.log:
             txt += "\n".join(self.importer.log)
         self.close()

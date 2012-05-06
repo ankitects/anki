@@ -72,6 +72,9 @@
             <property name="text">
              <string>&amp;Import</string>
             </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
