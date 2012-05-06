@@ -150,6 +150,8 @@ class NoteImporter(Importer):
         # apply scheduling updates
         self.updateCards()
         # make sure to update sflds, etc
+        self.log.append(_("%(a)d notes added, %(b)d notes updated.") %
+                        dict(a=len(new), b=len(updates)))
         self.total = len(self._ids)
 
     def newData(self, n):
