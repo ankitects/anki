@@ -311,10 +311,12 @@ insert or replace into col select id, cast(created as int), :t,
         # conf['newSpread'] = db.scalar("select newCardSpacing from decks")
         # conf['timeLim'] = db.scalar("select sessionTimeLimit from decks")
         # add any deck vars and save
-        dkeys = ("hexCache", "cssCache")
         for (k, v) in db.execute("select * from deckVars").fetchall():
-            if k in dkeys:
+            if k in ("hexCache", "cssCache"):
+                # ignore
                 pass
+            elif k == "leechFails":
+                gc['lapse']['leechFails'] = int(v)
             else:
                 conf[k] = v
         # don't use a learning mode for upgrading users
