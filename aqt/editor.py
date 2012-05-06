@@ -990,6 +990,7 @@ class EditorWebView(AnkiWebView):
         QWebView.dropEvent(self, new)
         # tell the drop target to take focus so the drop contents are saved
         self.eval("dropTarget.focus();")
+        self.setFocus()
 
     def prepareClip(self, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
