@@ -350,7 +350,7 @@ Please run Tools>Maintenance>Empty Cards""")
         self.web.eval("_getTypedText();")
         # munge correct value
         parser = HTMLParser.HTMLParser()
-        cor = self.mw.col.media.strip(self.typeCorrect)
+        cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
         cor = parser.unescape(cor)
         given = self.typedAnswer
         # compare with typed answer
