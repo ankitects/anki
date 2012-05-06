@@ -492,8 +492,14 @@ order by ordinal""", mid)):
                     bg = "white"
                 else:
                     bg = t['bg']
-                t['css'] = t['css'].replace("white", bg).replace(
-                    "center", ("center", "left", "right")[t['align']])
+                css = ""
+                if t['bg'] != "white":
+                    css = "background-color: %s;" % t['bg']
+                if t['align']:
+                    css += "text-align: %s" % ("left", "right")[t['align']-1]
+                if css:
+                    css = '\n.card%d { %s }' % (t['ord']+1, css)
+                m['css'] += css
                 # remove obsolete
                 del t['bg']
                 del t['align']

@@ -29,6 +29,15 @@ defaultModel = {
     'usn': 0,
     'vers': [],
     'type': MODEL_STD,
+    'css': """\
+.card {
+ font-family: arial;
+ font-size: 20px;
+ text-align: center;
+ color: black;
+ background-color: white;
+}
+"""
 }
 
 defaultField = {
@@ -50,15 +59,6 @@ defaultTemplate = {
     'qfmt': "",
     'afmt': "",
     'did': None,
-    'css': """\
-.card {
- font-family: arial;
- font-size: 20px;
- text-align: center;
- color: black;
- background-color: white;
-}
-"""
 }
 
 class ModelManager(object):

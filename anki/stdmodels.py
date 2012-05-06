@@ -40,7 +40,7 @@ def addClozeModel(col):
     mm.addField(m, fm)
     t = mm.newTemplate(_("Cloze"))
     fmt = "{{cloze:%s}}" % txt
-    t['css'] += """
+    m['css'] += """
 .cloze {
  font-weight: bold;
  color: blue;

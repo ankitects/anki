@@ -95,6 +95,17 @@ def _upgrade(col, ver):
     if ver < 5:
         col.db.execute("update cards set odue = 0 where queue = 2")
         col.db.execute("update col set ver = 5")
+    if ver < 6:
+        col.modSchema()
+        import anki.models
+        for m in col.models.all():
+            m['css'] = anki.models.defaultModel['css']
+            for t in m['tmpls']:
+                m['css'] += "\n" + t['css'].replace(
+                    ".card ", ".card%d "%(t['ord']+1))
+                del t['css']
+            col.models.save(m)
+        col.db.execute("update col set ver = 6")
 
 def _upgradeClozeModel(col, m):
     m['type'] = MODEL_CLOZE
