@@ -87,7 +87,7 @@ colLearn = "#00F"
 colRelearn = "#c00"
 colCram = "#ff0"
 colIvl = "#077"
-colHour = "#777"
+colHour = "#ccc"
 colTime = "#770"
 colUnseen = "#000"
 colSusp = "#ff0"
@@ -488,6 +488,8 @@ order by thetype, ease""" % lim)
         if not data:
             return ""
         shifted = []
+        counts = []
+        mcount = 0
         trend = []
         peak = 0
         for d in data:
@@ -496,7 +498,11 @@ order by thetype, ease""" % lim)
             if pct > peak:
                 peak = pct
             shifted.append((hour, pct))
+            counts.append((hour, d[2]))
+            if d[2] > mcount:
+                mcount = d[2]
         shifted.sort()
+        counts.sort()
         for d in shifted:
             hour = d[0]
             pct = d[1]
@@ -508,17 +514,18 @@ order by thetype, ease""" % lim)
                 diff /= 3.0
                 diff = round(diff, 1)
                 trend.append((hour, prev+diff))
-        txt = self._title(_("Hourly Retention"),
+        txt = self._title(_("Hourly Breakdown"),
                           _("Review success rate for each hour of the day."))
         txt += self._graph(id="hour", data=[
-            dict(data=shifted, color=colHour, label=_("% Correct")),
-            dict(data=trend, color=colCum, label=_("Trend"),
-             bars={'show': False}, lines=dict(show=True), stack=False)
+            dict(data=shifted, color=colCum, label=_("% Correct")),
+            dict(data=counts, color=colHour, label=_("Answers"), yaxis=2,
+             bars=dict(barWidth=0.2), stack=False)
         ], conf=dict(
             xaxis=dict(ticks=[[0, _("4AM")], [6, _("10AM")],
                            [12, _("4PM")], [18, _("10PM")], [23, _("3AM")]]),
-            yaxis=dict(max=peak)),
-        ylabel=_("%Correct"))
+            yaxes=[dict(max=peak), dict(position="right", max=mcount)]),
+        ylabel=_("% Correct"), ylabel2=_("Reviews"))
+        txt += _("Hours with less than 30 reviews are not shown.")
         return txt
 
     def _hourRet(self):
