@@ -48,7 +48,6 @@ body { margin: 5px; }
 var currentField = null;
 var changeTimer = null;
 var insertHTMLOK = %s;
-var savedSel = null;
 var dropTarget = null;
 
 String.prototype.format = function() {
@@ -184,6 +183,14 @@ function wrap(front, back) {
         r.collapse(true);
         r.insertNode(document.createTextNode(new_));
         saveField('key');
+    }
+    if (!span.innerHTML) {
+        // run with an empty selection; move cursor back past postfix
+        r = s.getRangeAt(0);
+        r.setStart(r.startContainer, r.startOffset - back.length);
+        r.collapse(true);
+        s.removeAllRanges();
+        s.addRange(r);
     }
 };
 
