@@ -177,7 +177,7 @@ class AnkiExporter(Exporter):
                 continue
             if dids and d['id'] not in dids:
                 continue
-            if d['conf'] != 1:
+            if not d['dyn'] and d['conf'] != 1:
                 dconfs[d['conf']] = True
             self.dst.decks.update(d)
         # copy used deck confs
