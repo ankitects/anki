@@ -183,7 +183,7 @@ Please create a new card type first."""))
         t = self.card.template()
         self.redrawing = True
         self.tab['tform'].front.setPlainText(t['qfmt'])
-        self.tab['tform'].css.setPlainText(t['css'])
+        self.tab['tform'].css.setPlainText(self.model['css'])
         self.tab['tform'].back.setPlainText(t['afmt'])
         self.redrawing = False
 
@@ -193,7 +193,7 @@ Please create a new card type first."""))
         text = self.tab['tform'].front.toPlainText()
         self.card.template()['qfmt'] = text
         text = self.tab['tform'].css.toPlainText()
-        self.card.template()['css'] = text
+        self.card.model()['css'] = text
         text = self.tab['tform'].back.toPlainText()
         self.card.template()['afmt'] = text
         self.renderPreview()
@@ -207,10 +207,10 @@ Please create a new card type first."""))
         base = getBase(self.mw.col)
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(c.q(reload=True))), self.mw.reviewer._styles(),
-            bodyClass="card", head=base)
+            bodyClass="card card%d" % (c.ord+1), head=base)
         self.tab['pform'].backWeb.stdHtml(
             ti(mungeQA(c.a())), self.mw.reviewer._styles(),
-            bodyClass="card", head=base)
+            bodyClass="card card%d" % (c.ord+1), head=base)
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
