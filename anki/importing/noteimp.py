@@ -92,6 +92,7 @@ class NoteImporter(Importer):
                 csums[csum].append(id)
             else:
                 csums[csum] = [id]
+        firsts = {}
         fld0idx = self.mapping.index(self.model['flds'][0]['name'])
         self._fmap = self.col.models.fieldMap(self.model)
         self._nextID = timestampID(self.col.db, "notes")
@@ -108,13 +109,16 @@ class NoteImporter(Importer):
                 self.log.append(_("Empty first field: %s") %
                                 " ".join(n.fields))
                 continue
+            # earlier in import?
+            if fld0 in firsts:
+                # duplicates in source file; log and ignore
+                self.log.append(_("Appeared twice in file: %s") %
+                                fld0)
+                continue
+            firsts[fld0] = True
             # already exists?
+            found = False
             if csum in csums:
-                if csums[csum] == -1:
-                    # duplicates in source file; log and ignore
-                    self.log.append(_("Appeared twice in file: %s") %
-                                    fld0)
-                    continue
                 # csum is not a guarantee; have to check
                 for id in csums[csum]:
                     flds = self.col.db.scalar(
@@ -122,20 +126,20 @@ class NoteImporter(Importer):
                     sflds = splitFields(flds)
                     if fld0 == sflds[0]:
                         # duplicate
+                        found = True
                         if self.update:
                             data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
-                        # note that we've seen this note once already
-                        csums[fieldChecksum(n.fields[0])] = -1
-                        break
+                                found = True
+                            break
             # newly add
-            else:
+            if not found:
                 data = self.newData(n)
                 if data:
                     new.append(data)
                     # note that we've seen this note once already
-                    csums[fieldChecksum(n.fields[0])] = -1
+                    firsts[fld0] = True
         self.addNew(new)
         self.addUpdates(updates)
         self.col.updateFieldCache(self._ids)
