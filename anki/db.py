@@ -93,3 +93,7 @@ class DB(object):
 
     def __exit__(self, exc_type, *args):
         self._db.close()
+
+    def totalChanges(self):
+        return self._db.total_changes
+

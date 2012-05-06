@@ -151,7 +151,7 @@ class NoteImporter(Importer):
         self.updateCards()
         # make sure to update sflds, etc
         self.log.append(_("%(a)d notes added, %(b)d notes updated.") %
-                        dict(a=len(new), b=len(updates)))
+                        dict(a=len(new), b=self.updateCount))
         self.total = len(self._ids)
 
     def newData(self, n):
@@ -186,9 +186,11 @@ class NoteImporter(Importer):
                 id, n.fieldsStr, tags]
 
     def addUpdates(self, rows):
+        old = self.col.db.totalChanges()
         self.col.db.executemany("""
 update notes set mod = ?, usn = ?, flds = ?, tags = ?
 where id = ? and (flds != ? or tags != ?)""", rows)
+        self.updateCount = self.col.db.totalChanges() - old
 
     def processFields(self, note, fields=None):
         if not fields:
