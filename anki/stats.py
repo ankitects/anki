@@ -160,9 +160,10 @@ table * { font-size: 14px; }
         xaxis = dict(tickDecimals=0, min=-0.5)
         if end is not None:
             xaxis['max'] = end-0.5
-        txt += self._graph(id="due", data=data, conf=dict(
-                xaxis=xaxis,
-                yaxes=[dict(), dict(tickDecimals=0, position="right")]))
+        txt += self._graph(id="due", data=data,
+                           ylabel2=_("Cumulative Cards"), conf=dict(
+                xaxis=xaxis, yaxes=[dict(), dict(
+                    tickDecimals=0, position="right")]))
         txt += self._dueInfo(tot, len(totd)*chunk)
         return txt
 
@@ -214,9 +215,9 @@ group by day order by day""" % (self._limit(), lim),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
             conf['xaxis']['min'] = -days-0.5
-        def plot(id, data, ylabel):
+        def plot(id, data, ylabel, ylabel2):
             return self._graph(
-                id, data=data, conf=conf, ylabel=ylabel)
+                id, data=data, conf=conf, ylabel=ylabel, ylabel2=ylabel2)
         # reps
         (repdata, repsum) = self._splitRepData(d, (
             (3, colMature, _("Mature")),
@@ -226,7 +227,8 @@ group by day order by day""" % (self._limit(), lim),
             (5, colCram, _("Cram"))))
         txt = self._title(
             reptitle, _("The number of questions you have answered."))
-        txt += plot("reps", repdata, ylabel=_("Answers"))
+        txt += plot("reps", repdata, ylabel=_("Answers"), ylabel2=_(
+            "Cumulative Answers"))
         (daysStud, fstDay) = self._daysStudied()
         txt += self._ansInfo(repsum, daysStud, fstDay, _("reviews"))
 
@@ -244,7 +246,7 @@ group by day order by day""" % (self._limit(), lim),
             t = _("Hours")
             convHours = True
         txt += self._title(timetitle, _("The time taken to answer the questions."))
-        txt += plot("time", timdata, ylabel=t)
+        txt += plot("time", timdata, ylabel=t, ylabel2=_("Cumulative %s") % t)
         txt += self._ansInfo(timsum, daysStud, fstDay, _("minutes"), convHours)
         return txt
 
@@ -382,9 +384,9 @@ group by day order by day)""" % lim,
             totd.append((grp, tot/float(all)*100))
         txt = self._title(_("Intervals"),
                           _("Delays until reviews are shown again."))
-        txt += self._graph(id="ivl", data=[
-            dict(data=ivls, color=colIvl, label=_("All Types")),
-            dict(data=totd, color=colCum, label=_("% Total"), yaxis=2,
+        txt += self._graph(id="ivl", ylabel2=_("Deck Percentage"), data=[
+            dict(data=ivls, color=colIvl),
+            dict(data=totd, color=colCum, yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
                 xaxis=dict(min=-0.5, max=ivls[-1][0]+0.5),
@@ -602,7 +604,7 @@ from cards where did in %s""" % self._limit())
     ######################################################################
 
     def _graph(self, id, data, conf={},
-               type="bars", ylabel=_("Cards"), timeTicks=True):
+               type="bars", ylabel=_("Cards"), timeTicks=True, ylabel2=""):
         # display settings
         if type == "pie":
             conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':2}
@@ -649,12 +651,23 @@ from cards where did in %s""" % self._limit())
 """
 <table cellpadding=0 cellspacing=10>
 <tr>
-<td><div style="width: 10px; -webkit-transform: rotate(-90deg);
--moz-transform: rotate(-90deg);">%(ylab)s</div></td>
+
+<td><div style="width: 150px; text-align: center; position:absolute;
+ -webkit-transform: rotate(-90deg) translateY(-85px);
+font-weight: bold;
+">%(ylab)s</div></td>
+
 <td>
 <center><div id=%(id)sLegend></div></center>
 <div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div>
-</td></tr></table>
+</td>
+
+<td><div style="width: 150px; text-align: center; position:absolute;
+ -webkit-transform: rotate(90deg) translateY(65px);
+font-weight: bold;
+">%(ylab2)s</div></td>
+
+</tr></table>
 <script>
 $(function () {
     var conf = %(conf)s;
@@ -672,7 +685,7 @@ $(function () {
 });
 </script>""" % dict(
     id=id, w=width, h=height,
-    ylab=ylabel,
+    ylab=ylabel, ylab2=ylabel2,
     data=json.dumps(data), conf=json.dumps(conf)))
 
     def _limit(self):
