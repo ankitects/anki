@@ -84,11 +84,11 @@ def test_csv():
     i.run()
     # four problems - too many & too few fields, a missing front, and a
     # duplicate entry
-    assert len(i.log) == 4
+    assert len(i.log) == 5
     assert i.total == 5
     # if we run the import again, it should update instead
     i.run()
-    assert len(i.log) == 4
+    assert len(i.log) == 5
     assert i.total == 5
     # if updating is disabled, count will be 0
     i.update = False
