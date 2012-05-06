@@ -167,7 +167,11 @@ function _typeAnsPress() {
         self.typedAnswer = None
         c = self.card
         # grab the question and play audio
-        q = c.q()
+        if c.isEmpty():
+            q = _("""\
+The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
+        else:
+            q = c.q()
         if self._autoplay(c):
             playFromText(q)
         # render & update bottom
