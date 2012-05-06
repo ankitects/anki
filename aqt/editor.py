@@ -47,7 +47,6 @@ body { margin: 5px; }
 
 var currentField = null;
 var changeTimer = null;
-var insertHTMLOK = %s;
 var dropTarget = null;
 
 String.prototype.format = function() {
@@ -176,14 +175,7 @@ function wrap(front, back) {
     var span = document.createElement("span")
     span.appendChild(content);
     var new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
-    if (insertHTMLOK) {
-        setFormat("inserthtml", new_);
-    } else {
-        r.deleteContents();
-        r.collapse(true);
-        r.insertNode(document.createTextNode(new_));
-        saveField('key');
-    }
+    setFormat("inserthtml", new_);
     if (!span.innerHTML) {
         // run with an empty selection; move cursor back past postfix
         r = s.getRangeAt(0);
@@ -546,7 +538,6 @@ class Editor(object):
         if self.note:
             self.web.setHtml(_html % (
                 getBase(self.mw.col), fontForPlatform(), anki.js.jquery,
-                (isMac or isWin) and 1 or 0,
                 _("Show Duplicates")), loadCB=self._loadFinished)
             self.updateTagsAndDeck()
             self.updateKeyboard()
