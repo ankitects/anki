@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-from anki.utils import intTime, hexifyID, timestampID
+from anki.utils import intTime, hexifyID, timestampID, joinFields
 from anki.consts import *
 
 # Cards
@@ -156,3 +156,9 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         "Time taken to answer card, in integer MS."
         total = int((time.time() - self.timerStarted)*1000)
         return min(total, self.timeLimit())
+
+    def isEmpty(self):
+        ords = self.col.models.availOrds(
+            self.model(), joinFields(self.note().fields))
+        if self.ord not in ords:
+            return True
