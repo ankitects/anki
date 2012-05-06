@@ -108,8 +108,11 @@ class Overview(object):
                  desc[:160], desc)
 
     def _table(self):
-        counts = self.mw.col.sched.counts()
+        counts = list(self.mw.col.sched.counts())
         finished = not sum(counts)
+        for n in range(len(counts)):
+            if counts[n] == 1000:
+                counts[n] = "1000+"
         but = self.mw.button
         if finished:
             return '<div class=fin style="white-space: pre-wrap;">%s</div>' % (

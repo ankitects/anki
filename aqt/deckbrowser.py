@@ -165,6 +165,8 @@ body { margin: 1em; -webkit-user-select: none; }
         def nonzeroColour(cnt, colour):
             if not cnt:
                 colour = "#e0e0e0"
+            if cnt >= 1000:
+                cnt = "1000+"
             return "<font color='%s'>%s</font>" % (colour, cnt)
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
             nonzeroColour(due, "#007700"),
