@@ -170,7 +170,8 @@ class AnkiExporter(Exporter):
         if not self.did:
             dids = []
         else:
-            dids = [self.did] + self.src.decks.children(self.did)
+            dids = [self.did] + [
+                x[1] for x in self.src.decks.children(self.did)]
         dconfs = {}
         for d in self.src.decks.all():
             if d['id'] == 1:
