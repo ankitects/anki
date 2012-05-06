@@ -157,6 +157,10 @@ def test_cloze():
     f['Text'] = "{{c2::hello}} {{c1::foo}}"
     f.flush()
     assert d.cardCount() == cnt + 1
+    # 0 or negative indices are not supported
+    f['Text'] += "{{c0::zero}} {{c-1:foo}}"
+    f.flush()
+    assert len(f.cards()) == 2
 
 def test_modelChange():
     deck = getEmptyDeck()
