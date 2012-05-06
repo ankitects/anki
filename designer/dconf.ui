@@ -166,6 +166,13 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="newplim">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -323,6 +330,13 @@
           <widget class="QSpinBox" name="fi2">
            <property name="minimum">
             <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="revplim">
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>

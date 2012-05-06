@@ -140,6 +140,20 @@ class DeckConf(QDialog):
     def listToUser(self, l):
         return " ".join([str(x) for x in l])
 
+    def parentLimText(self, type="new"):
+        # top level?
+        if "::" not in self.deck['name']:
+            return ""
+        lim = -1
+        for d in self.mw.col.decks.parents(self.deck['id']):
+            c = self.mw.col.decks.confForDid(d)
+            x = c[type]['perDay']
+            if lim == -1:
+                lim = x
+            else:
+                lim = min(x, lim)
+        return _("(parent limit: %d)") % lim
+
     def loadConf(self):
         self.conf = self.mw.col.decks.confForDid(self.deck['id'])
         # new
@@ -151,6 +165,7 @@ class DeckConf(QDialog):
         f.newOrder.setCurrentIndex(c['order'])
         f.newPerDay.setValue(c['perDay'])
         f.separate.setChecked(c['separate'])
+        f.newplim.setText(self.parentLimText('new'))
         # rev
         c = self.conf['rev']
         f.revPerDay.setValue(c['perDay'])
@@ -159,6 +174,7 @@ class DeckConf(QDialog):
         f.easyBonus.setValue(c['ease4']*100)
         f.fi1.setValue(c['fi'][0])
         f.fi2.setValue(c['fi'][1])
+        f.revplim.setText(self.parentLimText('rev'))
         # lapse
         c = self.conf['lapse']
         f.lapSteps.setText(self.listToUser(c['delays']))
