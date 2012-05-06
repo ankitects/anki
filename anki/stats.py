@@ -533,6 +533,9 @@ order by thetype, ease""" % lim)
         if lim:
             lim = " and " + lim
         sd = datetime.datetime.fromtimestamp(self.col.crt)
+        pd = self._periodDays()
+        if pd:
+            lim += " and id > %d" % ((self.col.sched.dayCutoff-(86400*pd))*1000)
         return self.col.db.all("""
 select
 23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
