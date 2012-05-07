@@ -6,6 +6,16 @@ import time
 from anki.utils import intTime, hexifyID, timestampID, joinFields
 from anki.consts import *
 
+# temporary
+_warned = False
+def warn():
+    global _warned
+    if _warned:
+        return
+    import sys
+    sys.stderr.write("Ignore the above, please download the fix assertion addon.")
+    _warned = True
+
 # Cards
 ##########################################################################
 
@@ -71,7 +81,8 @@ class Card(object):
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
-        assert not (self.queue == 2 and self.odue)
+        if (self.queue == 2 and self.odue):
+            warn()
         self.col.db.execute(
             """
 insert or replace into cards values
@@ -99,7 +110,8 @@ insert or replace into cards values
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
-        assert not (self.queue == 2 and self.odue)
+        if (self.queue == 2 and self.odue):
+            warn()
         self.col.db.execute(
             """update cards set
 mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
