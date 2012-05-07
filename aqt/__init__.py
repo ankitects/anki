@@ -6,7 +6,7 @@ from aqt.qt import *
 import locale, gettext
 import anki.lang
 
-appVersion="2.0-beta8"
+appVersion="2.0-beta9"
 appWebsite="http://ankisrs.net/"
 appHelpSite="http://ankisrs.net/docs/dev/manual.html"
 appChanges="http://ankisrs.net/docs/dev/changes.html"
