@@ -264,7 +264,8 @@ class DeckManager(object):
         return self.dconf.values()
 
     def confForDid(self, did):
-        deck = self.get(did)
+        deck = self.get(did, default=False)
+        assert deck
         if 'conf' in deck:
             conf = self.getConf(deck['conf'])
             conf['dyn'] = False
