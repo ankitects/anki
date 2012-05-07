@@ -146,7 +146,7 @@ class DeckConf(QDialog):
             return ""
         lim = -1
         for d in self.mw.col.decks.parents(self.deck['id']):
-            c = self.mw.col.decks.confForDid(d)
+            c = self.mw.col.decks.confForDid(d['id'])
             x = c[type]['perDay']
             if lim == -1:
                 lim = x

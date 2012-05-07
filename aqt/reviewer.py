@@ -676,7 +676,6 @@ function showAnswer(txt) {
         self.onReplayRecorded()
 
     def onReplayRecorded(self):
-        print "replay"
         if not self._recordedAudio:
             return tooltip(_("You haven't recorded your voice yet."))
         clearAudioQueue()
