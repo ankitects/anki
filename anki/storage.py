@@ -106,6 +106,12 @@ def _upgrade(col, ver):
                 del t['css']
             col.models.save(m)
         col.db.execute("update col set ver = 6")
+    if ver < 7:
+        col.modSchema()
+        col.db.execute(
+            "update cards set odue = 0 where (type = 1 or queue = 2) "
+            "and not odid")
+        col.db.execute("update col set ver = 7")
 
 def _upgradeClozeModel(col, m):
     m['type'] = MODEL_CLOZE
