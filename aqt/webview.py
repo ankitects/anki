@@ -72,13 +72,14 @@ class AnkiWebView(QWebView):
         QWebView.keyPressEvent(self, evt)
 
     def contextMenuEvent(self, evt):
+        # lazy: only run in reviewer
+        import aqt
+        if aqt.mw.state != "review":
+            return
         m = QMenu(self)
-        a = m.addAction(_("Cut"))
-        a.connect(a, SIGNAL("activated()"), self.onCut)
         a = m.addAction(_("Copy"))
-        a.connect(a, SIGNAL("activated()"), self.onCopy)
-        a = m.addAction(_("Paste"))
-        a.connect(a, SIGNAL("activated()"), self.onPaste)
+        a.connect(a, SIGNAL("activated()"),
+                  lambda: self.triggerPageAction(QWebPage.Copy))
         m.popup(QCursor.pos())
 
     def dropEvent(self, evt):

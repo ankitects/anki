@@ -1127,3 +1127,13 @@ class EditorWebView(AnkiWebView):
             return
         html = mime.html()
         mime.setHtml("<!--anki-->" + mime.html())
+
+    def contextMenuEvent(self, evt):
+        m = QMenu(self)
+        a = m.addAction(_("Cut"))
+        a.connect(a, SIGNAL("activated()"), self.onCut)
+        a = m.addAction(_("Copy"))
+        a.connect(a, SIGNAL("activated()"), self.onCopy)
+        a = m.addAction(_("Paste"))
+        a.connect(a, SIGNAL("activated()"), self.onPaste)
+        m.popup(QCursor.pos())
