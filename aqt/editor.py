@@ -21,7 +21,7 @@ from BeautifulSoup import BeautifulSoup
 
 # fixme: commit from tag area causes error
 
-pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif")
+pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg")
 audio =  ("wav", "mp3", "ogg", "flac")
 
 _html = """
