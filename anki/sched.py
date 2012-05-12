@@ -614,6 +614,7 @@ select id from cards where
 did = ? and queue = 2 and due <= ? limit ?""",
                                                   did, self.today, lim)
                 if self._revQueue:
+                    # ordering
                     if self.col.decks.get(did)['dyn']:
                         # dynamic decks need due order preserved
                         self._revQueue.reverse()
@@ -622,6 +623,9 @@ did = ? and queue = 2 and due <= ? limit ?""",
                         r = random.Random()
                         r.seed(self.today)
                         r.shuffle(self._revQueue)
+                    # is the current did empty?
+                    if len(self._revQueue) < lim:
+                        self._revDids.pop(0)
                     return True
             # nothing left in the deck; move to next
             self._revDids.pop(0)
