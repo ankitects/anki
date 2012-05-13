@@ -115,7 +115,7 @@ class AddCards(QDialog):
     def onHistory(self):
         m = QMenu(self)
         for nid, txt in self.history:
-            a = m.addAction(_("Edit %s" % txt))
+            a = m.addAction(_("Edit %s") % txt)
             a.connect(a, SIGNAL("triggered()"),
                       lambda nid=nid: self.editHistory(nid))
         m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
