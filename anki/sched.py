@@ -550,12 +550,16 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             extra = " and did in "+ids2str(self.col.decks.allIds())
         if expiredOnly:
             extra += " and odue <= %d" % self.today
+        mod = self.col.db.mod
         self.col.db.execute("""
 update cards set
 due = odue, queue = 2, mod = %d, usn = %d, odue = 0
 where queue = 1 and type = 2
 %s
 """ % (intTime(), self.col.usn(), extra))
+        if expiredOnly:
+            # we don't want to bump the mod time when removing expired
+            self.col.db.mod = mod
 
     def _lrnForDeck(self, did):
         return self.col.db.scalar(
