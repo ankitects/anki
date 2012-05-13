@@ -686,6 +686,10 @@ $(function () {
             return val.toFixed(0)+conf.timeTicks;
         }
     }
+    conf.yaxis.minTickSize = 1;
+    conf.yaxis.tickFormatter = function (val, axis) {
+            return val.toFixed(0);
+    }
     if (conf.series.pie) {
         conf.series.pie.label.formatter = function(label, series){
             return '<div class=pielabel>'+Math.round(series.percent)+'%%</div>';
