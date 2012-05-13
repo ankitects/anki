@@ -73,13 +73,13 @@ class AddonManager(object):
         frm = aqt.forms.editaddon.Ui_Dialog()
         frm.setupUi(d)
         d.setWindowTitle(os.path.basename(path))
-        frm.text.setPlainText(open(path).read())
+        frm.text.setPlainText(unicode(open(path).read(), "utf8"))
         d.connect(frm.buttonBox, SIGNAL("accepted()"),
                   lambda: self.onAcceptEdit(path, frm))
         d.exec_()
 
     def onAcceptEdit(self, path, frm):
-        open(path, "w").write(frm.text.toPlainText())
+        open(path, "w").write(frm.text.toPlainText().encode("utf8"))
         showInfo(_("Edits saved. Please restart Anki."))
 
     def onRem(self, path):
