@@ -97,11 +97,17 @@ documentation for information on using a flash drive.""")
         if os.path.exists(p):
             pid = int(open(p).read())
             exists = False
-            try:
-                os.kill(pid, 0)
-                exists = True
-            except OSError:
-                pass
+            if isWin:
+                # no posix on windows, sigh
+                from win32process import EnumProcesses as enum
+                if pid in enum():
+                    exists = True
+            else:
+                try:
+                    os.kill(pid, 0)
+                    exists = True
+                except OSError:
+                    pass
             if exists:
                 QMessageBox.warning(
                     None, "Error", _("""\
