@@ -372,7 +372,12 @@ Please run Tools>Maintenance>Empty Cards""")
         matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
         if not matches:
             return None
-        elif len(matches) > 1:
+        def noHint(txt):
+            if "::" in txt:
+                return txt.split("::")[0]
+            return txt
+        matches = [noHint(txt) for txt in matches]
+        if len(matches) > 1:
             txt = ", ".join(matches)
         else:
             txt = matches[0]
