@@ -384,7 +384,7 @@ group by day order by day)""" % lim,
             totd.append((grp, tot/float(all)*100))
         txt = self._title(_("Intervals"),
                           _("Delays until reviews are shown again."))
-        txt += self._graph(id="ivl", ylabel2=_("Deck Percentage"), data=[
+        txt += self._graph(id="ivl", ylabel2=_("Percentage"), data=[
             dict(data=ivls, color=colIvl),
             dict(data=totd, color=colCum, yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
