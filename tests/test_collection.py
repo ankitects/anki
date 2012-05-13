@@ -93,30 +93,6 @@ def test_fieldChecksum():
     assert deck.db.scalar(
         "select csum from notes") == int("302811ae", 16)
 
-def test_selective():
-    deck = getEmptyDeck()
-    f = deck.newNote()
-    f['Front'] = u"1"; f.tags = ["one", "three"]
-    deck.addNote(f)
-    f = deck.newNote()
-    f['Front'] = u"2"; f.tags = ["two", "three", "four"]
-    deck.addNote(f)
-    f = deck.newNote()
-    f['Front'] = u"3"; f.tags = ["one", "two", "three", "four"]
-    deck.addNote(f)
-    assert len(deck.tags.selTagNids(["one"], [])) == 2
-    assert len(deck.tags.selTagNids(["three"], [])) == 3
-    assert len(deck.tags.selTagNids([], ["three"])) == 0
-    assert len(deck.tags.selTagNids(["one"], ["three"])) == 0
-    assert len(deck.tags.selTagNids(["one"], ["two"])) == 1
-    assert len(deck.tags.selTagNids(["two", "three"], [])) == 3
-    assert len(deck.tags.selTagNids(["two", "three"], ["one"])) == 1
-    assert len(deck.tags.selTagNids(["one", "three"], ["two", "four"])) == 1
-    deck.tags.setDeckForTags(["three"], [], 3)
-    assert deck.db.scalar("select count() from cards where did = 3") == 3
-    deck.tags.setDeckForTags(["one"], [], 2)
-    assert deck.db.scalar("select count() from cards where did = 2") == 2
-
 def test_addDelTags():
     deck = getEmptyDeck()
     f = deck.newNote()
