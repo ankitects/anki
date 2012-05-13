@@ -313,7 +313,7 @@ class DeckManager(object):
     def didsForConf(self, conf):
         dids = []
         for deck in self.decks.values():
-            if deck['conf'] == conf['id']:
+            if 'conf' in deck and deck['conf'] == conf['id']:
                 dids.append(deck['id'])
         return dids
 
