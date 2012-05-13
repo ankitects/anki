@@ -112,6 +112,11 @@ def _upgrade(col, ver):
             "update cards set odue = 0 where (type = 1 or queue = 2) "
             "and not odid")
         col.db.execute("update col set ver = 7")
+    if ver < 8:
+        col.modSchema()
+        col.db.execute(
+            "update cards set due = due / 1000 where due > 4294967296")
+        col.db.execute("update col set ver = 8")
 
 def _upgradeClozeModel(col, m):
     m['type'] = MODEL_CLOZE

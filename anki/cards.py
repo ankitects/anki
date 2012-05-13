@@ -81,8 +81,9 @@ class Card(object):
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
-        if (self.queue == 2 and self.odue):
+        if self.queue == 2 and self.odue:
             warn()
+        assert due < 4294967296
         self.col.db.execute(
             """
 insert or replace into cards values
@@ -109,9 +110,10 @@ insert or replace into cards values
     def flushSched(self):
         self.mod = intTime()
         self.usn = self.col.usn()
-        # bug check
-        if (self.queue == 2 and self.odue):
+        # bug checks
+        if self.queue == 2 and self.odue:
             warn()
+        assert due < 4294967296
         self.col.db.execute(
             """update cards set
 mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
