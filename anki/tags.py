@@ -151,36 +151,6 @@ class TagManager(object):
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
 
-    # Tag-based selective study
-    ##########################################################################
-
-    def selTagNids(self, yes, no):
-        # find notes that match yes
-        lim = ""
-        args = []
-        query = "select id from notes"
-        if not yes and not no:
-            pass
-        else:
-            if yes:
-                lim += " or ".join(["tags like ?" for t in yes])
-                args += ['%% %s %%' % t for t in yes]
-            if no:
-                lim2 = " and ".join(["tags not like ?" for t in no])
-                if lim:
-                    lim = "(%s) and %s" % (lim, lim2)
-                else:
-                    lim = lim2
-                args += ['%% %s %%' % t for t in no]
-            query += " where " + lim
-        return self.col.db.list(query, *args)
-
-    def setDeckForTags(self, yes, no, did):
-        nids = self.selTagNids(yes, no)
-        self.col.db.execute(
-            "update cards set did=?,mod=?,usn=? where nid in "+ids2str(nids),
-            did, intTime(), self.col.usn())
-
     # Sync handling
     ##########################################################################
 
