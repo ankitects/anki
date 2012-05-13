@@ -134,8 +134,8 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def _getQA(self, reload=False):
         if not self._qa or reload:
             f = self.note(reload); m = self.model()
-            data = [self.id, f.id, m['id'], self.did, self.ord, f.stringTags(),
-                    f.joinedFields()]
+            data = [self.id, f.id, m['id'], self.did, self.odid or self.ord,
+                    f.stringTags(), f.joinedFields()]
             self._qa = self.col._renderQA(data)
         return self._qa
 
