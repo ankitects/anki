@@ -151,7 +151,7 @@ body { margin: 1em; -webkit-user-select: none; }
         name, did, due, lrn, new, children = node
         due += lrn
         def indent():
-            return "&nbsp;"*3*depth
+            return "&nbsp;"*6*depth
         if did == self.mw.col.conf['curDeck']:
             klass = 'deck current'
         else:
