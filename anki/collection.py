@@ -366,6 +366,8 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card.nid = note.id
         card.ord = template['ord']
         card.did = template['did'] or note.model()['did']
+        # if invalid did, use default instead
+        card.did = self.decks.get(card.did)['id']
         card.due = self._dueForDid(card.did, due)
         if flush:
             card.flush()
