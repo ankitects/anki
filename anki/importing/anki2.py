@@ -176,6 +176,12 @@ class Anki2Importer(Importer):
                 name += "::" + name
         # create in local
         newid = self.dst.decks.id(name)
+        # pull conf over
+        if 'conf' in g and g['conf'] != 1:
+            self.dst.decks.updateConf(self.src.decks.getConf(g['conf']))
+            g2 = self.dst.decks.get(newid)
+            g2['conf'] = g['conf']
+            self.dst.decks.save(g2)
         # add to deck map and return
         self._decks[did] = newid
         return newid
