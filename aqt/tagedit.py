@@ -38,7 +38,9 @@ class TagEdit(QLineEdit):
         if not evt.text():
             # if it's a modifier, don't show
             return
-        if evt.key() not in (Qt.Key_Enter, Qt.Key_Return):
+        if evt.key() not in (
+            Qt.Key_Enter, Qt.Key_Return, Qt.Key_Escape, Qt.Key_Space,
+            Qt.Key_Tab, Qt.Key_Backspace, Qt.Key_Delete):
             self.showCompleter()
 
     def showCompleter(self):
