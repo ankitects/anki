@@ -153,7 +153,7 @@ Please create a new card type first."""))
             repos.setAutoDefault(False)
             l.addWidget(repos)
             c(repos, SIGNAL("clicked()"), self.onReorder)
-            tgt = QPushButton(_("Deck..."))
+            self.deckButton = tgt = QPushButton(_("Deck..."))
             tgt.setAutoDefault(False)
             l.addWidget(tgt)
             c(tgt, SIGNAL("clicked()"), self.onTargetDeck)
@@ -185,6 +185,10 @@ Please create a new card type first."""))
         self.tab['tform'].front.setPlainText(t['qfmt'])
         self.tab['tform'].css.setPlainText(self.model['css'])
         self.tab['tform'].back.setPlainText(t['afmt'])
+        if t['did']:
+            self.deckButton.setText("Specific Deck...")
+        else:
+            self.deckButton.setText("Default Deck...")
         self.redrawing = False
 
     def saveCard(self):
