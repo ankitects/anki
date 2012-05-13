@@ -24,7 +24,7 @@ def addBasicModel(col):
     mm.add(m)
     return m
 
-models.append((_("Basic"), addBasicModel))
+models.append((lambda: _("Basic"), addBasicModel))
 
 # Cloze
 ##########################################################################
@@ -51,4 +51,4 @@ def addClozeModel(col):
     mm.add(m)
     return m
 
-models.append((_("Cloze"), addClozeModel))
+models.append((lambda: _("Cloze"), addClozeModel))
