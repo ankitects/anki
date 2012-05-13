@@ -87,8 +87,13 @@ class ImportDialog(QDialog):
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
-        self.deck.setText(self.mw.col.decks.name(
-            self.importer.model['did']))
+        if self.mw.col.conf.get("addToCur", True):
+            did = self.mw.col.conf['curDeck']
+            if self.mw.col.decks.isDyn(did):
+                did = 1
+        else:
+            did = self.importer.model['did']
+        self.deck.setText(self.mw.col.decks.name(did))
 
     def onDelimiter(self):
         str = getOnlyText(_("""\
