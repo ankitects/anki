@@ -139,6 +139,7 @@ class GetTextDialog(QDialog):
         self.question = question
         self.help = help
         self.qlabel = QLabel(question)
+        self.setMinimumWidth(400)
         v = QVBoxLayout()
         v.addWidget(self.qlabel)
         if not edit:
