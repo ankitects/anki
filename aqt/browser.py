@@ -553,8 +553,17 @@ class Browser(QMainWindow):
         type = self.model.activeCols[idx]
         noSort = ("question", "answer", "template", "deck")
         if type in noSort:
-            showInfo(_("Sorting on this column is not supported. Please "
-                       "choose another."))
+            if type == "template":
+                showInfo(_("""\
+This column can't be sorted on, but you can search for individual card types,
+such as 'card:Card 1'."""))
+            elif type == "deck":
+                showInfo(_("""\
+This column can't be sorted on, but you can search for specific decks
+by clicking on one on the left."""))
+            else:
+                showInfo(_("Sorting on this column is not supported. Please "
+                           "choose another."))
             type = self.col.conf['sortType']
         if self.col.conf['sortType'] != type:
             self.col.conf['sortType'] = type
