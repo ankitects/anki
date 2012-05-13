@@ -185,10 +185,11 @@ Please create a new card type first."""))
         self.tab['tform'].front.setPlainText(t['qfmt'])
         self.tab['tform'].css.setPlainText(self.model['css'])
         self.tab['tform'].back.setPlainText(t['afmt'])
-        if t['did']:
-            self.deckButton.setText("Specific Deck...")
-        else:
-            self.deckButton.setText("Default Deck...")
+        if self.model['type'] != MODEL_CLOZE:
+            if t['did']:
+                self.deckButton.setText("Specific Deck...")
+            else:
+                self.deckButton.setText("Default Deck...")
         self.redrawing = False
 
     def saveCard(self):
