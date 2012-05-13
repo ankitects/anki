@@ -209,7 +209,7 @@ Please create a new card type first."""))
             ti(mungeQA(c.q(reload=True))), self.mw.reviewer._styles(),
             bodyClass="card card%d" % (c.ord+1), head=base)
         self.tab['pform'].backWeb.stdHtml(
-            ti(mungeQA(c.a())), self.mw.reviewer._styles(),
+            ti(mungeQA(c.a()), type='a'), self.mw.reviewer._styles(),
             bodyClass="card card%d" % (c.ord+1), head=base)
         clearAudioQueue()
         if c.id not in self.playedAudio:
@@ -219,10 +219,11 @@ Please create a new card type first."""))
 
     def maybeTextInput(self, txt, type='q'):
         if type == 'q':
-            repl = "<center><input type=text value='%s'></center>" % _(
+            repl = "<center><input type=text size=30 value='%s'></center>" % _(
                 "(text is typed in here)")
         else:
             repl = _("(typing comparison appears here)")
+        repl = "<font size=2>%s</font>" % repl
         return re.sub("\[\[type:.+?\]\]", repl, txt)
 
     # Card operations
