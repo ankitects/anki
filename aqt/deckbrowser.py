@@ -79,7 +79,7 @@ td.opts { white-space: nowrap; }
 tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
 .extra { font-size: 90%%; }
 body { margin: 1em; -webkit-user-select: none; }
-.current { background-color: #ececec; }
+.current { background-color: #e7e7e7; }
 .decktd { min-width: 15em; }
 .count { width: 6em; text-align: right; }
 """ % dict(width=_dragIndicatorBorderWidth)
