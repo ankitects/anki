@@ -134,6 +134,8 @@ class AddModel(QDialog):
         # standard models
         self.models = []
         for (name, func) in stdmodels.models:
+            if callable(name):
+                name = name()
             item = QListWidgetItem(_("Add: %s") % name)
             self.dialog.models.addItem(item)
             self.models.append((True, func))
