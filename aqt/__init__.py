@@ -19,7 +19,7 @@ moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 try:
     import aqt.forms
 except ImportError, e:
-    if "aqt.forms" in str(e):
+    if "forms" in str(e):
         print "If you're running from git, did you run build_ui.sh?"
         print
     raise
