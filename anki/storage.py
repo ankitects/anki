@@ -117,6 +117,21 @@ def _upgrade(col, ver):
         col.db.execute(
             "update cards set due = due / 1000 where due > 4294967296")
         col.db.execute("update col set ver = 8")
+    if ver < 9:
+        # adding an empty file to a zip makes python's zip code think it's a
+        # folder, so remove any empty files
+        changed = False
+        for f in os.listdir(col.media.dir()):
+            if not os.path.getsize(f):
+                os.unlink(f)
+                col.media.db.execute(
+                    "delete from log where fname = ?", f)
+                col.media.db.execute(
+                    "delete from media where fname = ?", f)
+                changed = True
+        if changed:
+            col.media.db.commit()
+        col.db.execute("update col set ver = 9")
 
 def _upgradeClozeModel(col, m):
     m['type'] = MODEL_CLOZE

@@ -394,6 +394,10 @@ create table log (fname text primary key, type int);
                 continue
             if f.lower() == "thumbs.db":
                 continue
+            # empty files are invalid; clean them up and continue
+            if not os.path.getsize(f):
+                os.unlink(f)
+                continue
             # newly added?
             if f not in self.cache:
                 added.append(f)
