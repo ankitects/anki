@@ -47,6 +47,7 @@ def setup_basic():
 def setup_modified():
     setup_basic()
     # mark deck1 as changed
+    time.sleep(0.1)
     deck1.setMod()
     deck1.save()
 
@@ -203,6 +204,7 @@ def test_conf():
     test_sync()
     assert deck2.conf['curDeck'] == 1
     deck1.conf['curDeck'] = 2
+    time.sleep(0.1)
     deck1.setMod()
     deck1.save()
     assert client.sync() == "success"
