@@ -275,7 +275,7 @@ def _filterHTML(html):
                 k, v = item.split(":")
             except ValueError:
                 continue
-            if k.strip() == "color":
+            if k.strip() == "color" and not v.strip() == "rgb(0, 0, 0)":
                 preserve += "color:%s;" % v
         if preserve:
             # preserve colour attribute, delete implicit class
