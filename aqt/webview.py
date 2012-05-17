@@ -42,6 +42,10 @@ class AnkiWebView(QWebView):
 
     def __init__(self):
         QWebView.__init__(self)
+        self.setRenderHints(
+            QPainter.TextAntialiasing |
+            QPainter.SmoothPixmapTransform |
+            QPainter.HighQualityAntialiasing)
         self.setObjectName("mainText")
         self._bridge = Bridge()
         self._page = AnkiWebPage(self._jsErr)
