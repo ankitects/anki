@@ -83,29 +83,6 @@ def test_newLimits():
     d.reset()
     assert d.sched.newCount == 9
 
-def test_newOrder():
-    d = getEmptyDeck()
-    m = d.models.current()
-    for i in range(50):
-        t = d.models.newTemplate(m)
-        t['name'] = str(i)
-        t['qfmt'] = "{{Front}}"
-        t['afmt'] = "{{Back}}"
-        t['actv'] = i > 25
-        d.models.addTemplate(m, t)
-    d.models.save(m)
-    f = d.newNote()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
-    # add first half
-    d.addNote(f)
-    # generate second half
-    d.db.execute("update cards set did = random()")
-    d.conf['newPerDay'] = 100
-    d.reset()
-    # cards should be sorted by id
-    assert d.sched._newQueue == list(reversed(sorted(d.sched._newQueue)))
-
 def test_newBoxes():
     d = getEmptyDeck()
     f = d.newNote()
