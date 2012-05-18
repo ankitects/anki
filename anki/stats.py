@@ -214,7 +214,7 @@ group by day order by day""" % (self._limit(), lim),
             xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(), dict(position="right")])
         if days is not None:
-            conf['xaxis']['min'] = -days-0.5
+            conf['xaxis']['min'] = -days+0.5
         def plot(id, data, ylabel, ylabel2):
             return self._graph(
                 id, data=data, conf=conf, ylabel=ylabel, ylabel2=ylabel2)
