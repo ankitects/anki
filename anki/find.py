@@ -84,7 +84,7 @@ and c.nid=n.id %s""" % (q, order)
             elif type == "cardReps":
                 sort = "c.reps"
             elif type == "cardDue":
-                sort = "c.due"
+                sort = "c.type, c.due"
             elif type == "cardEase":
                 sort = "c.factor"
             elif type == "cardLapses":
