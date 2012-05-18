@@ -101,6 +101,9 @@ def _upgrade(col, ver):
         for m in col.models.all():
             m['css'] = anki.models.defaultModel['css']
             for t in m['tmpls']:
+                if 'css' not in t:
+                    # ankidroid didn't bump version
+                    continue
                 m['css'] += "\n" + t['css'].replace(
                     ".card ", ".card%d "%(t['ord']+1))
                 del t['css']
