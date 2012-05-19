@@ -743,7 +743,9 @@ class Editor(object):
     def onCloze(self):
         # check that the model is set up for cloze deletion
         if '{{cloze:' not in self.note.model()['tmpls'][0]['qfmt']:
-            openHelp("cloze")
+            showInfo(_("""\
+To use this button, please select the Cloze note type. To learn more, \
+please click the help button."""), help="cloze")
             return
         # find the highest existing cloze
         highest = 0
