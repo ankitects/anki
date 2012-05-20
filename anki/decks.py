@@ -140,6 +140,9 @@ class DeckManager(object):
             # deleting a cramming deck returns cards to their previous deck
             # rather than deleting the cards
             self.col.sched.remDyn(did)
+            if childrenToo:
+                for name, id in self.children(did):
+                    self.rem(id, cardsToo)
         else:
             # delete children first
             if childrenToo:
