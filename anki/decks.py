@@ -68,7 +68,8 @@ defaultConf = {
         'ease4': 1.3,
         'fuzz': 0.05,
         'minSpace': 1,
-        'fi': [10, 10],
+        # in beta11+
+        'ivlfct': 1
     },
     'maxTaken': 60,
     'timer': 0,

@@ -790,14 +790,13 @@ did = ? and queue = 2 and due <= ? limit ?""",
             interval = (card.ivl + delay/2) * fct
         elif ease == 4:
             interval = (card.ivl + delay) * fct * conf['ease4']
-        # apply forgetting index transform
-        interval = self._ivlForFI(conf, interval)
+        # apply interval factor adjustment
+        interval = self._ivlWithFactor(conf, interval)
         # must be at least one day greater than previous interval; two if easy
         return max(card.ivl + (2 if ease==4 else 1), int(interval))
 
-    def _ivlForFI(self, conf, ivl):
-        new, old = conf['fi']
-        return ivl * math.log(1-new/100.0) / math.log(1-old/100.0)
+    def _ivlWithFactor(self, conf, ivl):
+        return ivl * conf.get('ivlfct', 1)
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
@@ -1002,7 +1001,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         return dict(
             # original deck
             ease4=oconf['rev']['ease4'],
-            fi=oconf['rev']['fi'],
+            ivlfct=oconf['rev']['ivlfct'],
             minSpace=oconf['rev']['minSpace'],
             fuzz=oconf['rev']['fuzz']
         )
