@@ -456,12 +456,13 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
                         # new card; no ivl adjustment
                         pass
                     card.odue = self.today + 1
-            self.lrnCount += card.left
             delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
             card.due = int(time.time() + delay)
+            if card.due < self.dayCutoff:
+                self.lrnCount += card.left
             # if the queue is not empty and there's nothing else to do, make
             # sure we don't put it at the head of the queue and end up showing
             # it twice in a row
