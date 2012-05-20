@@ -140,7 +140,10 @@ order by due""" % self._deckLimit(),
 
     def extendLimits(self, new, rev):
         cur = self.col.decks.current()
-        for g in [cur] + self.col.decks.parents(cur['id']):
+        parents = self.col.decks.parents(cur['id'])
+        children = [self.col.decks.get(did) for (name, did) in
+                    self.col.decks.children(cur['id'])]
+        for g in [cur] + parents + children:
             # add
             g['newToday'][1] -= new
             g['revToday'][1] -= rev
