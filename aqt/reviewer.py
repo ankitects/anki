@@ -45,7 +45,11 @@ class Reviewer(object):
     def lastCard(self):
         if self._answeredIds:
             if not self.card or self._answeredIds[-1] != self.card.id:
-                return self.mw.col.getCard(self._answeredIds[-1])
+                try:
+                    return self.mw.col.getCard(self._answeredIds[-1])
+                except TypeError:
+                    # id was deleted
+                    return
 
     def cleanup(self):
         runHook("reviewCleanup")
