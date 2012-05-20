@@ -185,7 +185,7 @@ select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where did in %s and queue = 2
+where did in %s and queue in (2,3)
 %s
 group by day order by day""" % (self._limit(), lim),
                             today=self.col.sched.today,
