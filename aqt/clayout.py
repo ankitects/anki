@@ -12,6 +12,7 @@ from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
      showWarning, openHelp, openLink
 from anki.utils import isMac, isWin, joinFields
 from aqt.webview import AnkiWebView
+import anki.js
 
 class CardLayout(QDialog):
 
@@ -212,10 +213,12 @@ Please create a new card type first."""))
         base = getBase(self.mw.col)
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(c.q(reload=True))), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base)
+            bodyClass="card card%d" % (c.ord+1), head=base,
+            js=anki.js.browserSel)
         self.tab['pform'].backWeb.stdHtml(
             ti(mungeQA(c.a()), type='a'), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base)
+            bodyClass="card card%d" % (c.ord+1), head=base,
+            js=anki.js.browserSel)
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
