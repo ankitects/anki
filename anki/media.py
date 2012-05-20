@@ -161,6 +161,9 @@ If the same name exists, compare checksums."""
                 if not os.path.isfile(path):
                     # ignore directories
                     continue
+                if file.startswith("_"):
+                    # leading _ says to ignore file
+                    continue
             nfile = norm(file)
             if nfile not in normrefs:
                 unused.append(file)
