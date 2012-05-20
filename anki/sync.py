@@ -15,10 +15,12 @@ from hooks import runHook
 # syncing vars
 HTTP_CERTS = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
 HTTP_TIMEOUT = 30
+HTTP_PROXY = None
 
 def httpCon():
     return httplib2.Http(
         timeout=HTTP_TIMEOUT, ca_certs=HTTP_CERTS,
+        proxy_info=HTTP_PROXY,
         # python2 doesn't support SNI
         disable_ssl_certificate_validation="beta" in SYNC_URL)
 
