@@ -20,7 +20,10 @@ defaultDeck = {
     'usn': 0,
     'desc': "",
     'dyn': 0,
-    'collapsed': False
+    'collapsed': False,
+    # added in beta11
+    'extendNew': 10,
+    'extendRev': 50,
 }
 
 defaultDynamicDeck = {

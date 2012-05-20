@@ -138,6 +138,14 @@ order by due""" % self._deckLimit(),
             g[key][1] += cnt
             self.col.decks.save(g)
 
+    def extendLimits(self, new, rev):
+        cur = self.col.decks.current()
+        for g in [cur] + self.col.decks.parents(cur['id']):
+            # add
+            g['newToday'][1] -= new
+            g['revToday'][1] -= rev
+            self.col.decks.save(g)
+
     def _walkingCount(self, limFn=None, cntFn=None):
         tot = 0
         pcounts = {}
