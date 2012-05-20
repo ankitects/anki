@@ -585,7 +585,8 @@ where c.nid == f.id
         self.db.execute("delete from revlog where id = ?", last)
         # and finally, update daily counts
         # fixme: what to do in cramming case?
-        type = ("new", "lrn", "rev")[c.queue]
+        n = 1 if c.queue == 3 else c.queue
+        type = ("new", "lrn", "rev")[n]
         self.sched._updateStats(c, type, -1)
         return c.id
 

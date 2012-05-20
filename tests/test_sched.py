@@ -197,6 +197,53 @@ def test_learn_collapsed():
     c = d.sched.getCard()
     assert not c.q().endswith("2")
 
+def test_learn_day():
+    d = getEmptyDeck()
+    # add a note
+    f = d.newNote()
+    f['Front'] = u"one"
+    f = d.addNote(f)
+    d.sched.reset()
+    c = d.sched.getCard()
+    d.sched._cardConf(c)['new']['delays'] = [1, 10, 1440, 2880]
+    # pass it
+    d.sched.answerCard(c, 2)
+    # two reps to graduate, 1 more today
+    assert c.left%1000 == 3
+    assert c.left/1000 == 1
+    assert d.sched.counts() == (0, 1, 0)
+    c = d.sched.getCard()
+    ni = d.sched.nextIvl
+    assert ni(c, 2) == 86400
+    # answering it will place it in queue 3
+    d.sched.answerCard(c, 2)
+    assert c.due == d.sched.today+1
+    assert c.queue == 3
+    assert not d.sched.getCard()
+    # for testing, move it back a day
+    c.due -= 1
+    c.flush()
+    d.reset()
+    assert d.sched.counts() == (0, 1, 0)
+    c = d.sched.getCard()
+    # nextIvl should work
+    assert ni(c, 2) == 86400*2
+    # if we fail it, it should be back in the correct queue
+    d.sched.answerCard(c, 1)
+    assert c.queue == 1
+    d.undo()
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 2)
+    # simulate the passing of another two days
+    c.due -= 2
+    c.flush()
+    d.reset()
+    # the last pass should graduate it into a review card
+    assert ni(c, 2) == 86400
+    d.sched.answerCard(c, 2)
+    assert c.queue == c.type == 2
+
 def test_reviews():
     d = getEmptyDeck()
     # add a note

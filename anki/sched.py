@@ -11,12 +11,9 @@ from anki.lang import _, ngettext
 from anki.consts import *
 from anki.hooks import runHook
 
+# queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
-# queue types: 0=new/cram, 1=lrn, 2=rev, -1=suspended, -2=buried
-# positive intervals are in days (rev), negative intervals in seconds (lrn)
-
-# fixme:
-# - should log cram reps as cramming
+# positive revlog intervals are in days (rev), negative in seconds (lrn)
 
 class Scheduler(object):
     name = "std"
@@ -69,7 +66,7 @@ class Scheduler(object):
                 card.ivl = self._dynIvlBoost(card)
                 card.odue = self.today + card.ivl
             self._updateStats(card, 'new')
-        if card.queue == 1:
+        if card.queue in (1, 3):
             self._answerLrnCard(card, ease)
             if not wasNew:
                 self._updateStats(card, 'lrn')
@@ -274,6 +271,10 @@ order by due""" % self._deckLimit(),
         c = self._getRevCard()
         if c:
             return c
+        # day learning card due?
+        c = self._getLrnDayCard()
+        if c:
+            return c
         # new cards left?
         c = self._getNewCard()
         if c:
@@ -383,20 +384,29 @@ select count() from
         c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
-    # Learning queue
+    # Learning queues
     ##########################################################################
 
     def _resetLrnCount(self):
+        # sub-day
         self.lrnCount = self.col.db.scalar("""
 select sum(left/1000) from (select left from cards where
 did in %s and queue = 1 and due < ? limit %d)""" % (
             self._deckLimit(), self.reportLimit),
             self.dayCutoff) or 0
+        # day
+        self.lrnCount += self.col.db.scalar("""
+select count() from cards where did in %s and queue = 3
+and due <= ? limit %d""" % (self._deckLimit(), self.reportLimit),
+                                            self.today)
 
     def _resetLrn(self):
         self._resetLrnCount()
         self._lrnQueue = []
+        self._lrnDayQueue = []
+        self._lrnDids = self.col.decks.active()[:]
 
+    # sub-day learning
     def _fillLrn(self):
         if not self.lrnCount:
             return False
@@ -420,6 +430,36 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
                 card = self.col.getCard(id)
                 self.lrnCount -= card.left/1000
                 return card
+
+    # daily learning
+    def _fillLrnDay(self):
+        if not self.lrnCount:
+            return False
+        if self._lrnDayQueue:
+            return True
+        while self._lrnDids:
+            did = self._lrnDids[0]
+            # fill the queue with the current did
+            self._lrnDayQueue = self.col.db.list("""
+select id from cards where
+did = ? and queue = 3 and due <= ? limit ?""",
+                                    did, self.today, self.queueLimit)
+            if self._lrnDayQueue:
+                # order
+                r = random.Random()
+                r.seed(self.today)
+                r.shuffle(self._lrnDayQueue)
+                # is the current did empty?
+                if len(self._lrnDayQueue) < self.queueLimit:
+                    self._lrnDids.pop(0)
+                return True
+            # nothing left in the deck; move to next
+            self._lrnDids.pop(0)
+
+    def _getLrnDayCard(self):
+        if self._fillLrnDay():
+            self.lrnCount -= 1
+            return self.col.getCard(self._lrnDayQueue.pop())
 
     def _answerLrnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
@@ -463,15 +503,23 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
                 # not collapsed; add some randomness
                 delay *= random.uniform(1, 1.25)
             card.due = int(time.time() + delay)
+            # due today?
             if card.due < self.dayCutoff:
                 self.lrnCount += card.left/1000
-            # if the queue is not empty and there's nothing else to do, make
-            # sure we don't put it at the head of the queue and end up showing
-            # it twice in a row
-            if self._lrnQueue and not self.revCount and not self.newCount:
-                smallestDue = self._lrnQueue[0][0]
-                card.due = max(card.due, smallestDue+1)
-            heappush(self._lrnQueue, (card.due, card.id))
+                # if the queue is not empty and there's nothing else to do, make
+                # sure we don't put it at the head of the queue and end up showing
+                # it twice in a row
+                card.queue = 1
+                if self._lrnQueue and not self.revCount and not self.newCount:
+                    smallestDue = self._lrnQueue[0][0]
+                    card.due = max(card.due, smallestDue+1)
+                heappush(self._lrnQueue, (card.due, card.id))
+            else:
+                # the card is due in one or more days, so we need to use the
+                # day learn queue
+                ahead = ((card.due - self.dayCutoff) / 86400) + 1
+                card.due = self.today + ahead
+                card.queue = 3
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _delayForGrade(self, conf, left):
@@ -1019,7 +1067,7 @@ your short-term review workload will become."""))
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
-        if card.queue in (0,1):
+        if card.queue in (0,1,3):
             return self._nextLrnIvl(card, ease)
         elif ease == 1:
             # lapsed
