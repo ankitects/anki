@@ -146,13 +146,12 @@ def test_learn():
     # or normal removal
     c.type = 0
     c.queue = 1
-    c.cycles = 1
     d.sched.answerCard(c, 3)
     assert c.type == 2
     assert c.queue == 2
     assert c.ivl == 4
     # revlog should have been updated each time
-    d.db.scalar("select count() from revlog where type = 0") == 6
+    assert d.db.scalar("select count() from revlog where type = 0") == 5
     # now failed card handling
     c.type = 2
     c.queue = 1
