@@ -256,7 +256,7 @@ body { margin: 1em; -webkit-user-select: none; }
             ["", "shared", _("Get Shared")],
             ["", "create", _("Create")],
             ["Ctrl+I", "import", _("Import File")],
-            ["C", "cram", _("Cram")],
+            ["C", "cram", _("Filter/Cram")],
         ]
         buf = ""
         for b in links:

@@ -48,6 +48,9 @@ class Overview(object):
         elif url == "refresh":
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
+        elif url == "empty":
+            self.mw.col.sched.remDyn(self.mw.col.decks.selected())
+            self.mw.reset()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
         elif url == "review":
@@ -62,6 +65,9 @@ class Overview(object):
             self.mw.onCram()
         if key == "r" and cram:
             self.mw.col.sched.rebuildDyn()
+            self.mw.reset()
+        if key == "e" and cram:
+            self.mw.col.sched.remDyn(self.mw.col.decks.selected())
             self.mw.reset()
 
     # HTML
@@ -177,9 +183,10 @@ text-align: center;
             ["o", "opts", _("Options")],
         ]
         if self.mw.col.decks.current()['dyn']:
-            links.append(["r", "refresh", _("Rebuild")])
+            links.append(["R", "refresh", _("Rebuild")])
+            links.append(["E", "empty", _("Empty")])
         else:
-            links.append(["c", "cram", _("Cram")])
+            links.append(["C", "cram", _("Filter/Cram")])
         buf = ""
         for b in links:
             if b[0]:
