@@ -12,6 +12,8 @@ from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
 from anki.lang import langs
 from aqt.utils import showWarning, fontForPlatform
+from httplib2 import ProxyInfo
+import anki.sync
 import aqt.forms
 
 metaConf = dict(
@@ -51,10 +53,7 @@ profileConf = dict(
     syncKey=None,
     syncMedia=True,
     autoSync=True,
-    proxyHost='',
-    proxyPort=8080,
-    proxyUser='',
-    proxyPass='',
+    proxyHost='', # despite the name, stores full URL
     proxyType=3,
 )
 
@@ -140,6 +139,20 @@ computer."""))
         if name != "_global":
             self.name = name
             self.profile = prof
+            # export proxy settings
+            if prof['proxyHost'] == "off":
+                # force off; override environment
+                anki.sync.HTTP_PROXY = None
+            elif prof['proxyHost']:
+                url = prof['proxyHost']
+                if url.lower().startswith("https"):
+                    method = "https"
+                else:
+                    method = "http"
+                anki.sync.HTTP_PROXY = ProxyInfo.from_url(url, method)
+            else:
+                # use environment
+                anki.sync.HTTP_PROXY = ProxyInfo.from_environment()
         return True
 
     def save(self):

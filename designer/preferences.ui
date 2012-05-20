@@ -251,7 +251,7 @@
        <item>
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>&lt;b&gt;Proxy&lt;/b&gt;&lt;br&gt;If your system needs a proxy to access the internet, enter your details below. Leave &quot;Host&quot; blank to disable proxy support.</string>
+          <string>&lt;b&gt;Proxy&lt;/b&gt;&lt;br&gt;If your system needs a proxy to access the internet, enter your details below.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -266,62 +266,12 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_14">
            <property name="text">
-            <string>Host</string>
+            <string>URL</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="proxyHost"/>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>Port</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="QSpinBox" name="proxyPort">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>65535</number>
-           </property>
-           <property name="value">
-            <number>8080</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_19">
-           <property name="text">
-            <string>Username</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="proxyUser"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string>Password</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="proxyPass">
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-          </widget>
          </item>
         </layout>
        </item>
@@ -486,9 +436,6 @@
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>proxyHost</tabstop>
-  <tabstop>proxyPort</tabstop>
-  <tabstop>proxyUser</tabstop>
-  <tabstop>proxyPass</tabstop>
   <tabstop>numBackups</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
