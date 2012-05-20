@@ -176,6 +176,7 @@ order by due""" % self._deckLimit(),
         self._checkDay()
         if self._clearOverdue:
             self.removeFailed(expiredOnly=True)
+        self.col.decks.recoverOrphans()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
         lims = {}

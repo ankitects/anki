@@ -368,6 +368,13 @@ class DeckManager(object):
         return self.col.db.list("select id from cards where did in "+
                                 ids2str(dids))
 
+    def recoverOrphans(self):
+        dids = self.decks.keys()
+        mod = self.col.db.mod
+        self.col.db.execute("update cards set did = 1 where did not in "+
+                            ids2str(dids))
+        self.col.db.mod = mod
+
     # Deck selection
     #############################################################
 
