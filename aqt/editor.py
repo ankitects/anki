@@ -674,12 +674,13 @@ class Editor(object):
             self.tags.setCol(self.mw.col)
         if self.addMode:
             if self.mw.col.conf.get("addToCur", True):
-                col = self.mw.col
-                did = col.conf['curDeck']
-                if col.decks.isDyn(did):
-                    did = 1
-                self.deck.setText(self.mw.col.decks.nameOrNone(
-                    did) or _("Default"))
+                if not self.deck.text():
+                    col = self.mw.col
+                    did = col.conf['curDeck']
+                    if col.decks.isDyn(did):
+                        did = 1
+                    self.deck.setText(self.mw.col.decks.nameOrNone(
+                        did) or _("Default"))
             else:
                 self.deck.setText(self.mw.col.decks.nameOrNone(
                     self.note.model()['did']) or _("Default"))
