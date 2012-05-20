@@ -678,7 +678,8 @@ class Editor(object):
                 did = col.conf['curDeck']
                 if col.decks.isDyn(did):
                     did = 1
-                self.deck.setText(self.mw.col.decks.name(did))
+                self.deck.setText(self.mw.col.decks.nameOrNone(
+                    did) or _("Default"))
             else:
                 self.deck.setText(self.mw.col.decks.nameOrNone(
                     self.note.model()['did']) or _("Default"))
