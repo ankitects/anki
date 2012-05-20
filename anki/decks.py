@@ -148,7 +148,10 @@ class DeckManager(object):
                     self.rem(id, cardsToo)
             # delete cards too?
             if cardsToo:
-                self.col.remCards(self.cids(did))
+                # don't use cids(), as we want cards in cram decks too
+                cids = self.col.db.list(
+                    "select id from cards where did=? or odid=?", did, did)
+                self.col.remCards(cids)
         # delete the deck and add a grave
         del self.decks[str(did)]
         # ensure we have an active deck
