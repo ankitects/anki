@@ -172,8 +172,7 @@ class DeckConf(QDialog):
         f.revSpace.setValue(c['fuzz']*100)
         f.revMinSpace.setValue(c['minSpace'])
         f.easyBonus.setValue(c['ease4']*100)
-        f.fi1.setValue(c['fi'][0])
-        f.fi2.setValue(c['fi'][1])
+        f.fi1.setValue(c.get('ivlfct', 1))
         f.revplim.setText(self.parentLimText('rev'))
         # lapse
         c = self.conf['lapse']
@@ -248,7 +247,7 @@ class DeckConf(QDialog):
         c['fuzz'] = f.revSpace.value()/100.0
         c['minSpace'] = f.revMinSpace.value()
         c['ease4'] = f.easyBonus.value()/100.0
-        c['fi'] = [f.fi1.value(), f.fi2.value()]
+        c['ivlfct'] = f.fi1.value()
         # lapse
         c = self.conf['lapse']
         self.updateList(c, 'delays', f.lapSteps, minSize=0)
