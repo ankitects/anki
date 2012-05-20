@@ -682,7 +682,7 @@ and ord = ? limit 1""", m['id'], t['ord']):
         for t in ("cards", "notes", "models", "media"):
             col.db.execute("drop table if exists %sDeleted" % t)
         # and failed cards
-        left = len(col.decks.confForDid(1)['new']['delays'])
+        left = len(col.decks.confForDid(1)['new']['delays'])*1001
         col.db.execute("update cards set odue = ?, left=? where type = 1",
                         col.sched.today+1, left)
         # and due cards

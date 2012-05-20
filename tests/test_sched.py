@@ -112,7 +112,8 @@ def test_learn():
     # fail it
     d.sched.answerCard(c, 1)
     # it should have three reps left to graduation
-    assert c.left == 3
+    assert c.left%1000 == 3
+    assert c.left/1000 == 3
     # it should by due in 30 seconds
     t = round(c.due - time.time())
     assert t >= 25 and t <= 40
@@ -120,7 +121,8 @@ def test_learn():
     d.sched.answerCard(c, 2)
     # it should by due in 3 minutes
     assert round(c.due - time.time()) in (179, 180)
-    assert c.left == 2
+    assert c.left%1000 == 2
+    assert c.left/1000 == 2
     # check log is accurate
     log = d.db.first("select * from revlog order by id desc")
     assert log[3] == 2
@@ -130,7 +132,8 @@ def test_learn():
     d.sched.answerCard(c, 2)
     # it should by due in 10 minutes
     assert round(c.due - time.time()) in (599, 600)
-    assert c.left == 1
+    assert c.left%1000 == 1
+    assert c.left/1000 == 1
     # the next pass should graduate the card
     assert c.queue == 1
     assert c.type == 1
@@ -299,7 +302,7 @@ def test_overdue_lapse():
     c.due = -1
     c.odue = -1
     c.factor = 2500
-    c.left = 2
+    c.left = 2002
     c.ivl = 0
     c.flush()
     d.sched._clearOverdue = False

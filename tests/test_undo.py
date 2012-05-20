@@ -48,7 +48,7 @@ def test_review():
     c = d.sched.getCard()
     assert c.queue == 0
     d.sched.answerCard(c, 2)
-    assert c.left == 1
+    assert c.left == 1001
     assert d.sched.counts() == (0, 1, 0)
     assert c.queue == 1
     # undo
@@ -58,7 +58,7 @@ def test_review():
     assert d.sched.counts() == (1, 0, 0)
     c.load()
     assert c.queue == 0
-    assert c.left != 1
+    assert c.left != 1001
     assert not d.undoName()
     # we should be able to undo multiple answers too
     f['Front'] = u"two"

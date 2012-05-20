@@ -42,10 +42,10 @@ MODEL_STD = 0
 MODEL_CLOZE = 1
 
 # deck schema & syncing vars
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 SYNC_ZIP_SIZE = int(2.5*1024*1024)
 SYNC_URL = os.environ.get("SYNC_URL") or "https://beta.ankiweb.net/sync/"
-SYNC_VER = 3
+SYNC_VER = 4
 
 # Labels
 ##########################################################################

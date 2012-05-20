@@ -135,6 +135,10 @@ def _upgrade(col, ver):
         if changed:
             col.media.db.commit()
         col.db.execute("update col set ver = 9")
+    if ver < 10:
+        col.db.execute("""
+update cards set left = left + left*1000 where queue = 1""")
+        col.db.execute("update col set ver = 10")
 
 def _upgradeClozeModel(col, m):
     m['type'] = MODEL_CLOZE

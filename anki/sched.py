@@ -88,7 +88,7 @@ class Scheduler(object):
         if card:
             idx = self.countIdx(card)
             if idx == 1:
-                counts[1] += card.left
+                counts[1] += card.left/1000
             else:
                 counts[idx] += 1
         return tuple(counts)
@@ -388,7 +388,7 @@ select count() from
 
     def _resetLrnCount(self):
         self.lrnCount = self.col.db.scalar("""
-select sum(left) from (select left from cards where
+select sum(left/1000) from (select left from cards where
 did in %s and queue = 1 and due < ? limit %d)""" % (
             self._deckLimit(), self.reportLimit),
             self.dayCutoff) or 0
@@ -418,7 +418,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 card = self.col.getCard(id)
-                self.lrnCount -= card.left
+                self.lrnCount -= card.left/1000
                 return card
 
     def _answerLrnCard(self, card, ease):
@@ -438,13 +438,15 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             self._rescheduleAsRev(card, conf, True)
             leaving = True
         # graduation time?
-        elif ease == 2 and card.left-1 <= 0:
+        elif ease == 2 and (card.left%1000)-1 <= 0:
             self._rescheduleAsRev(card, conf, False)
             leaving = True
         else:
             # one step towards graduation
             if ease == 2:
-                card.left -= 1
+                # decrement real left count and recalculate left today
+                left = (card.left % 1000) - 1
+                card.left = self._leftToday(conf['delays'], left)*1000 + left
             # failed
             else:
                 card.left = self._startingLeft(card)
@@ -462,7 +464,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
                 delay *= random.uniform(1, 1.25)
             card.due = int(time.time() + delay)
             if card.due < self.dayCutoff:
-                self.lrnCount += card.left
+                self.lrnCount += card.left/1000
             # if the queue is not empty and there's nothing else to do, make
             # sure we don't put it at the head of the queue and end up showing
             # it twice in a row
@@ -473,6 +475,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _delayForGrade(self, conf, left):
+        left = left % 1000
         try:
             delay = conf['delays'][-left]
         except IndexError:
@@ -501,7 +504,22 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
 
     def _startingLeft(self, card):
         conf = self._lrnConf(card)
-        return len(conf['delays'])
+        tot = len(conf['delays'])
+        tod = self._leftToday(conf['delays'], tot)
+        return tot + tod*1000
+
+    def _leftToday(self, delays, left, now=None):
+        "The number of steps that can be completed by the day cutoff."
+        if not now:
+            now = intTime()
+        delays = delays[-left:]
+        ok = 0
+        for i in range(len(delays)):
+            now += delays[i]*60
+            if now > self.dayCutoff:
+                break
+            ok = i
+        return ok+1
 
     def _graduatingIvl(self, card, conf, early, adj=True):
         if card.type == 2:
@@ -565,7 +583,7 @@ where queue = 1 and type = 2
     def _lrnForDeck(self, did):
         return self.col.db.scalar(
             """
-select sum(left) from
+select sum(left/1000) from
 (select left from cards where did = ? and queue = 1 and due < ? limit ?)""",
             did, intTime() + self.col.conf['collapseTime'], self.reportLimit) or 0
 
@@ -662,8 +680,9 @@ did = ? and queue = 2 and due <= ? limit ?""",
             card.odue = card.due
             card.due = int(self._delayForGrade(conf, 0) + time.time())
             card.left = len(conf['delays'])
+            card.left += self._leftToday(conf['delays'], card.left)*1000
             card.queue = 1
-            self.lrnCount += card.left
+            self.lrnCount += card.left/1000
         # leech?
         if not self._checkLeech(card, conf) and conf['delays']:
             heappush(self._lrnQueue, (card.due, card.id))
@@ -1024,7 +1043,7 @@ your short-term review workload will become."""))
             # early removal
             return self._graduatingIvl(card, conf, True, adj=False) * 86400
         else:
-            left = card.left - 1
+            left = card.left%1000 - 1
             if left <= 0:
                 # graduate
                 return self._graduatingIvl(card, conf, False, adj=False) * 86400
