@@ -706,10 +706,6 @@ class Editor(object):
                     did = 1
                     showInfo(_("Using default deck instead of cram deck."))
                 self.note.model()['did'] = did
-                # if adding to the current and the user specified a different
-                # deck, make that the current
-                if self.mw.col.conf.get("addToCur", True):
-                    self.mw.col.decks.select(did)
             # save tags to model
             m = self.note.model()
             m['tags'] = self.note.tags
