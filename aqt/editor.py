@@ -684,7 +684,8 @@ class Editor(object):
             else:
                 self.deck.setText(self.mw.col.decks.nameOrNone(
                     self.note.model()['did']) or _("Default"))
-        self.tags.setText(self.note.stringTags().strip())
+        if not self.tags.text():
+            self.tags.setText(self.note.stringTags().strip())
 
     def saveTags(self):
         if not self.note:
