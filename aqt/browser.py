@@ -71,7 +71,8 @@ class DataModel(QAbstractTableModel):
             return f
         if role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
-            if index.column() > 1:
+            if self.activeCols[index.column()] not in ("question", "answer",
+               "template", "deck", "noteFld"):
                 align |= Qt.AlignHCenter
             return align
         elif role == Qt.DisplayRole or role == Qt.EditRole:
