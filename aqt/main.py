@@ -318,7 +318,7 @@ Are you sure?""")):
         self.reviewer.show()
 
     def _reviewCleanup(self, newState):
-        if newState != "resetRequired":
+        if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
 
     def noteChanged(self, nid):
