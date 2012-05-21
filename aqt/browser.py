@@ -247,7 +247,7 @@ class DataModel(QAbstractTableModel):
         q = self.question(c)
         a = self.formatQA(c.a())
         if a.startswith(q):
-            return a[len(q):]
+            return a[len(q):].strip()
         return a
 
     def formatQA(self, txt):
