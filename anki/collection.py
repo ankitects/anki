@@ -490,6 +490,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
             else:
                 format = format.replace("{{cloze:", "{{ca:%d:" % (
                     data[4]+1))
+                fields['FrontSide'] = d['q']
             fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter(
