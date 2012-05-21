@@ -260,7 +260,7 @@ class DataModel(QAbstractTableModel):
             return str(c.due)
         elif c.queue == 1:
             date = c.due
-        elif c.queue == 2:
+        elif c.queue in (2,3):
             date = time.time() + ((c.due - self.col.sched.today)*86400)
         else:
             return _("(susp.)")
