@@ -293,7 +293,7 @@ where mid in %s and flds like ? escape '\\'""" % (
             strg = flds[ord]
             if self.full:
                 strg = stripHTML(strg)
-            if re.search(regex, strg):
+            if re.search("(?i)"+regex, strg):
                 nids.append(id)
         extra = "not" if isNeg else ""
         self.lims['preds'].append("""
