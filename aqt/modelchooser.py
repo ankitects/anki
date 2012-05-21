@@ -74,6 +74,9 @@ class ModelChooser(QHBoxLayout):
     def onModelChange(self, idx):
         model = self._models[idx]
         self.deck.conf['curModel'] = model['id']
+        cdeck = self.deck.decks.current()
+        cdeck['mid'] = model['id']
+        self.deck.decks.save(cdeck)
         self._ignoreReset = True
         runHook("currentModelChanged")
         self._ignoreReset = False
@@ -83,7 +86,8 @@ class ModelChooser(QHBoxLayout):
         self._models = sorted(self.deck.models.all(),
                               key=itemgetter("name"))
         self.models.addItems([m['name'] for m in self._models])
+        cur = self.deck.models.current()
         for c, m in enumerate(self._models):
-            if m['id'] == self.deck.conf['curModel']:
+            if m['id'] == cur['id']:
                 self.models.setCurrentIndex(c)
                 break
