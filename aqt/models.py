@@ -87,9 +87,11 @@ class Models(QDialog):
             showInfo(_("Please add another note type first."),
                      parent=self)
             return
-        if not askUser(
-            _("Delete this note type and all its cards?"),
-            parent=self):
+        if self.mm.useCount(self.model):
+            msg = _("Delete this note type and all its cards?")
+        else:
+            msg = _("Delete this unused note type?")
+        if not askUser(msg, parent=self):
             return
         self.mm.rem(self.model)
         self.model = None
