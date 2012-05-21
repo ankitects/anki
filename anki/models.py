@@ -96,7 +96,9 @@ class ModelManager(object):
 
     def current(self):
         "Get current model."
-        m = self.get(self.col.conf['curModel'])
+        m = self.get(self.col.decks.current().get('mid'))
+        if not m:
+            m = self.get(self.col.conf['curModel'])
         return m or self.models.values()[0]
 
     def setCurrent(self, m):
