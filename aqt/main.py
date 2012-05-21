@@ -863,7 +863,10 @@ will be lost. Continue?"""))
 
     def onStudyDeck(self):
         from aqt.studydeck import StudyDeck
-        StudyDeck(self)
+        ret = StudyDeck(self)
+        if ret.name:
+            self.col.decks.select(self.col.decks.id(ret.name))
+            self.moveToState("overview")
 
     def onEmptyCards(self):
         self.progress.start(immediate=True)

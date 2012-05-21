@@ -16,7 +16,6 @@ class ModelChooser(QHBoxLayout):
         self.mw = mw
         self.deck = mw.col
         self.label = label
-        self._ignoreReset = False
         self.setMargin(0)
         self.setSpacing(8)
         self.setupModels()
@@ -27,13 +26,14 @@ class ModelChooser(QHBoxLayout):
         if self.label:
             self.modelLabel = QLabel(_("Note Type:"))
             self.addWidget(self.modelLabel)
-        # models dropdown
-        self.models = QComboBox()
-        s = QShortcut(QKeySequence(_("Shift+Alt+m")), self.widget)
-        s.connect(s, SIGNAL("activated()"),
-                  lambda: self.models.showPopup())
+        # models box
+        self.models = QPushButton()
+        self.models.setStyleSheet("* { text-align: left; }")
+        self.models.setToolTip(_("Change Note Type (Ctrl+N)"))
+        s = QShortcut(QKeySequence(_("Ctrl+N")), self.widget)
+        s.connect(s, SIGNAL("activated()"), self.onModelChange)
         self.addWidget(self.models)
-        self.connect(self.models, SIGNAL("activated(int)"), self.onModelChange)
+        self.connect(self.models, SIGNAL("clicked()"), self.onModelChange)
         # edit button
         self.edit = QPushButton()
         if isMac:
@@ -42,7 +42,6 @@ class ModelChooser(QHBoxLayout):
         else:
             self.edit.setFixedWidth(32)
         self.edit.setIcon(QIcon(":/icons/gears.png"))
-        self.edit.setShortcut(_("Shift+Alt+e"))
         self.edit.setToolTip(_("Customize Note Types"))
         self.edit.setAutoDefault(False)
         self.addWidget(self.edit)
@@ -58,8 +57,7 @@ class ModelChooser(QHBoxLayout):
         remHook('reset', self.onReset)
 
     def onReset(self):
-        if not self._ignoreReset:
-            self.updateModels()
+        self.updateModels()
 
     def show(self):
         self.widget.show()
@@ -71,23 +69,21 @@ class ModelChooser(QHBoxLayout):
         import aqt.models
         aqt.models.Models(self.mw, self.widget)
 
-    def onModelChange(self, idx):
-        model = self._models[idx]
-        self.deck.conf['curModel'] = model['id']
+    def onModelChange(self):
+        from aqt.studydeck import StudyDeck
+        ret = StudyDeck(self.mw, names=sorted(self.deck.models.allNames()),
+                        accept=_("Select"), title=_("Choose Note Type"),
+                        help="_notes", parent=self.widget)
+        if not ret.name:
+            return
+        print ret.name
+        m = self.deck.models.byName(ret.name)
+        self.deck.conf['curModel'] = m['id']
         cdeck = self.deck.decks.current()
-        cdeck['mid'] = model['id']
+        cdeck['mid'] = m['id']
         self.deck.decks.save(cdeck)
-        self._ignoreReset = True
         runHook("currentModelChanged")
-        self._ignoreReset = False
+        self.updateModels()
 
     def updateModels(self):
-        self.models.clear()
-        self._models = sorted(self.deck.models.all(),
-                              key=itemgetter("name"))
-        self.models.addItems([m['name'] for m in self._models])
-        cur = self.deck.models.current()
-        for c, m in enumerate(self._models):
-            if m['id'] == cur['id']:
-                self.models.setCurrentIndex(c)
-                break
+        self.models.setText(self.deck.models.current()['name'])

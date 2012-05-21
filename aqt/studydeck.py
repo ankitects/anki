@@ -9,18 +9,25 @@ from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
 from operator import itemgetter
 
 class StudyDeck(QDialog):
-    def __init__(self, mw, first=False, search=""):
-        QDialog.__init__(self, mw)
+    def __init__(self, mw, names=None, accept=None, title=None,
+                 help="studydeck", parent=None):
+        QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
+        if title:
+            self.setWindowTitle(title)
+        if not names:
+            names = sorted(self.mw.col.decks.allNames())
+        self.origNames = names
+        self.name = None
         self.ok = self.form.buttonBox.addButton(
-            _("Study"), QDialogButtonBox.AcceptRole)
+            accept or _("Study"), QDialogButtonBox.AcceptRole)
         self.setWindowModality(Qt.WindowModal)
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: openHelp("studydeck"))
+                     lambda: openHelp(help))
         self.connect(self.form.filter,
                      SIGNAL("textEdited(QString)"),
                      self.redraw)
@@ -46,8 +53,7 @@ class StudyDeck(QDialog):
         return False
 
     def redraw(self, filt):
-        names = sorted(self.mw.col.decks.allNames())
-        self.names = [n for n in names if self._matches(n, filt)]
+        self.names = [n for n in self.origNames if self._matches(n, filt)]
         self.form.list.clear()
         self.form.list.addItems(self.names)
         self.form.list.setCurrentRow(0)
@@ -64,7 +70,5 @@ class StudyDeck(QDialog):
         return True
 
     def accept(self):
-        name = self.names[self.form.list.currentRow()]
-        self.mw.col.decks.select(self.mw.col.decks.id(name))
-        self.mw.moveToState("overview")
+        self.name = self.names[self.form.list.currentRow()]
         QDialog.accept(self)
