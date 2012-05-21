@@ -192,6 +192,7 @@ and c.nid=n.id %s""" % (q, order)
         self.lims['preds'].append("mid %s in %s" % (extra, ids2str(ids)))
 
     def _findDeck(self, val, isNeg):
+        ids = []
         if val.lower() == "current":
             id = self.col.decks.current()['id']
         elif val.lower() == "none":
@@ -202,9 +203,23 @@ and c.nid=n.id %s""" % (q, order)
             self.lims['preds'].append(
                 "c.did %s in %s" % (extra, ids2str(self.col.decks.allIds())))
             return
-        else:
+        elif "*" not in val:
+            # single deck
             id = self.col.decks.id(val, create=False) or 0
-        ids = [id] + [a[1] for a in self.col.decks.children(id)]
+        else:
+            # wildcard
+            val = val.replace("*", ".*")
+            for d in self.col.decks.all():
+                if re.match("(?i)"+val, d['name']):
+                    id = d['id']
+                    ids.extend([id] + [
+                        a[1] for a in self.col.decks.children(id)])
+            if not ids:
+                # invalid search
+                self.lims['valid'] = False
+                return
+        if not ids:
+            ids = [id] + [a[1] for a in self.col.decks.children(id)]
         sids = ids2str(ids)
         if not isNeg:
             # normal search

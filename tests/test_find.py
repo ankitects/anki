@@ -108,6 +108,9 @@ def test_findCards():
     assert len(deck.findCards("deck:default")) == 5
     assert len(deck.findCards("-deck:default")) == 0
     assert len(deck.findCards("-deck:foo")) == 5
+    assert len(deck.findCards("deck:def*")) == 5
+    assert len(deck.findCards("deck:*EFAULT")) == 5
+    assert len(deck.findCards("deck:*cefault")) == 0
     # full search
     f = deck.newNote()
     f['Front'] = u'hello<b>world</b>'
@@ -125,6 +128,13 @@ def test_findCards():
     assert len(deck.findCards("back:helloworld", full=True)) == 2
     # searching for an invalid special tag should not error
     assert len(deck.findCards("is:invalid")) == 0
+    # should be able to limit to parent deck, no children
+    id = deck.db.scalar("select id from cards limit 1")
+    deck.db.execute("update cards set did = ? where id = ?",
+                    deck.decks.id("Default::Child"), id)
+    assert len(deck.findCards("deck:default")) == 7
+    assert len(deck.findCards("deck:default::child")) == 1
+    assert len(deck.findCards("deck:default -deck:default::*")) == 6
 
 def test_findReplace():
     deck = getEmptyDeck()
