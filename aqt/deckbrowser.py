@@ -239,8 +239,8 @@ body { margin: 1em; -webkit-user-select: none; }
             if cnt:
                 extra = _(" It has %d cards.") % cnt
             else:
-                extra = ""
-        if deck['dyn'] or askUser(
+                extra = None
+        if deck['dyn'] or not extra or askUser(
             _("Are you sure you wish to delete %s?" % deck['name']) +
             extra):
             self.mw.progress.start(immediate=True)
