@@ -83,7 +83,7 @@ class DataModel(QAbstractTableModel):
     def headerData(self, section, orientation, role):
         if orientation == Qt.Vertical:
             return
-        elif role == Qt.DisplayRole:
+        elif role == Qt.DisplayRole and section < len(self.activeCols):
             type = self.columnType(section)
             for stype, name in self.browser.columns:
                 if type == stype:
@@ -186,13 +186,7 @@ class DataModel(QAbstractTableModel):
     ######################################################################
 
     def columnType(self, column):
-        try:
-            type = self.activeCols[column]
-        except:
-            # debugging
-            print column, self.activeCols
-            return "noteFld"
-        return type
+        return self.activeCols[column]
 
     def columnData(self, index):
         row = index.row()
@@ -398,6 +392,7 @@ class Browser(QMainWindow):
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
         self.col.conf['activeCols'] = self.model.activeCols
+        self.col.setMod()
         self.hide()
         aqt.dialogs.close("Browser")
         self.teardownHooks()
