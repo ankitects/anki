@@ -1001,7 +1001,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         return dict(
             # original deck
             ease4=oconf['rev']['ease4'],
-            ivlfct=oconf['rev']['ivlfct'],
+            ivlfct=oconf['rev'].get('ivlfct', 1),
             minSpace=oconf['rev']['minSpace'],
             fuzz=oconf['rev']['fuzz']
         )
