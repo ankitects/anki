@@ -181,6 +181,7 @@ class AddonDownloader(QThread):
     def __init__(self, code):
         QThread.__init__(self)
         self.code = code
+        self.error = None
 
     def run(self):
         # setup progress handler
@@ -200,7 +201,7 @@ class AddonDownloader(QThread):
             resp, cont = con.request(
                 aqt.appShared + "download/%d" % self.code)
         except Exception, e:
-            self.error = unicode(e)
+            self.error = unicode(e, "utf8", "replace")
             return
         finally:
             remHook("httpRecv", recvEvent)
