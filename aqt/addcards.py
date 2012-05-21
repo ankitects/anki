@@ -109,7 +109,7 @@ class AddCards(QDialog):
     def addHistory(self, note):
         txt = stripHTMLMedia(",".join(note.fields))[:30]
         self.history.insert(0, (note.id, txt))
-        self.history = self.history[-15:]
+        self.history = self.history[:15]
         self.historyButton.setEnabled(True)
 
     def onHistory(self):
