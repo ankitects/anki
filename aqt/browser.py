@@ -243,7 +243,11 @@ class DataModel(QAbstractTableModel):
         return self.formatQA(c.q())
 
     def answer(self, c):
-        return self.formatQA(c.a())
+        q = self.question(c)
+        a = self.formatQA(c.a())
+        if a.startswith(q):
+            return a[len(q):]
+        return a
 
     def formatQA(self, txt):
         s = txt.replace("<br>", u" ")
