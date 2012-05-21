@@ -440,14 +440,8 @@ class Browser(QMainWindow):
                      SIGNAL("returnPressed()"),
                      self.onSearch)
         self.setTabOrder(self.form.searchEdit, self.form.tableView)
-        # self.compModel = QStringListModel()
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.addItems(self.mw.pm.profile['searchHistory'])
-        #self.compModel.setStringList(self.mw.pm.profile['searchHistory'])
-        #self.searchComp = QCompleter(self.compModel, self.form.searchEdit)
-        #self.searchComp.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-        #self.searchComp.setCaseSensitivity(Qt.CaseInsensitive)
-        #self.form.searchEdit.setCompleter(self.searchComp)
 
     def onSearch(self, reset=True):
         "Careful: if reset is true, the current note is saved."
@@ -548,6 +542,8 @@ class Browser(QMainWindow):
         self.setSortIndicator()
         hh.connect(hh, SIGNAL("sortIndicatorChanged(int, Qt::SortOrder)"),
                    self.onSortChanged)
+        hh.connect(hh, SIGNAL("sectionMoved(int,int,int)"),
+                   self.onColumnMoved)
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
@@ -620,11 +616,14 @@ by clicking on one on the left."""))
 
     def setColumnSizes(self):
         hh = self.form.tableView.horizontalHeader()
-        for c, i in enumerate(self.model.activeCols):
-            if c == len(self.model.activeCols) - 1:
-                hh.setResizeMode(c, QHeaderView.Stretch)
+        for i in range(len(self.model.activeCols)):
+            if hh.visualIndex(i) == len(self.model.activeCols) - 1:
+                hh.setResizeMode(i, QHeaderView.Stretch)
             else:
-                hh.setResizeMode(c, QHeaderView.Interactive)
+                hh.setResizeMode(i, QHeaderView.Interactive)
+
+    def onColumnMoved(self, a, b, c):
+        self.setColumnSizes()
 
     # Filter tree
     ######################################################################
