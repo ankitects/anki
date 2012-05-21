@@ -115,6 +115,9 @@ class ModelManager(object):
         "Get all models."
         return self.models.values()
 
+    def allNames(self):
+        return [m['name'] for m in self.all()]
+
     def byName(self, name):
         "Get model with NAME."
         for m in self.models.values():
