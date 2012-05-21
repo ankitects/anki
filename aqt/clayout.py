@@ -231,7 +231,7 @@ Please create a new card type first."""))
                 "(text is typed in here)")
         else:
             repl = _("(typing comparison appears here)")
-        repl = "<font size=2>%s</font>" % repl
+        repl = "<center><font size=2>%s</font></center>" % repl
         return re.sub("\[\[type:.+?\]\]", repl, txt)
 
     # Card operations
