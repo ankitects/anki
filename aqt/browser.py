@@ -498,6 +498,7 @@ class Browser(QMainWindow):
     def setupEditor(self):
         self.editor = aqt.editor.Editor(
             self.mw, self.form.fieldsArea, self)
+        self.editor.outerLayout.setContentsMargins(0, 6, 6, 0)
         self.editor.stealFocus = False
 
     def onRowChanged(self, current, previous):
