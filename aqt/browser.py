@@ -251,6 +251,7 @@ class DataModel(QAbstractTableModel):
         s = s.replace("<br />", u" ")
         s = s.replace("\n", u" ")
         s = re.sub("\[sound:[^]]+\]", "", s)
+        s = re.sub("\[\[type:[^]]+\]\]", "", s)
         s = stripHTMLMedia(s)
         s = s.strip()
         return s
