@@ -72,7 +72,7 @@ class DataModel(QAbstractTableModel):
         if role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
             if self.activeCols[index.column()] not in ("question", "answer",
-               "template", "deck", "noteFld"):
+               "template", "deck", "noteFld", "note"):
                 align |= Qt.AlignHCenter
             return align
         elif role == Qt.DisplayRole or role == Qt.EditRole:
@@ -217,6 +217,8 @@ class DataModel(QAbstractTableModel):
             return str(c.reps)
         elif type == "cardLapses":
             return str(c.lapses)
+        elif type == "note":
+            return c.model()['name']
         elif type == "cardIvl":
             if c.type == 0:
                 return _("(new)")
@@ -413,8 +415,8 @@ class Browser(QMainWindow):
 
     def setupColumns(self):
         self.columns = [
-            ('question', _("Question")),
-            ('answer', _("Answer")),
+            ('question', _("Front")),
+            ('answer', _("Back")),
             ('template', _("Card")),
             ('deck', _("Deck")),
             ('noteFld', _("Sort Field")),
@@ -426,7 +428,9 @@ class Browser(QMainWindow):
             ('cardEase', _("Ease")),
             ('cardReps', _("Reviews")),
             ('cardLapses', _("Lapses")),
+            ('note', _("Note")),
         ]
+        self.columns.sort(key=itemgetter(1))
 
     # Searching
     ######################################################################
@@ -548,7 +552,7 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "deck")
+        noSort = ("question", "answer", "template", "deck", "note")
         if type in noSort:
             if type == "template":
                 showInfo(_("""\
