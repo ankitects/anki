@@ -40,7 +40,8 @@ class CardStats(object):
             else:
                 next = self.date(next)
             self.addLine(_("Due"), next)
-            self.addLine(_("Interval"), fmt(c.ivl * 86400))
+            if c.queue == 2:
+                self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
             self.addLine(_("Reviews"), "%d" % c.reps)
             self.addLine(_("Lapses"), "%d" % c.lapses)
