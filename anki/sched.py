@@ -724,11 +724,12 @@ did = ? and queue = 2 and due <= ? limit ?""",
     ##########################################################################
 
     def _answerRevCard(self, card, ease):
+        delay = 0
         if ease == 1:
-            self._rescheduleLapse(card)
+            delay = self._rescheduleLapse(card)
         else:
             self._rescheduleRev(card, ease)
-        self._logRev(card, ease)
+        self._logRev(card, ease, delay)
 
     def _rescheduleLapse(self, card):
         conf = self._lapseConf(card)
@@ -738,9 +739,11 @@ did = ? and queue = 2 and due <= ? limit ?""",
         card.factor = max(1300, card.factor-200)
         card.due = self.today + card.ivl
         # put back in the learn queue?
+        delay = 0
         if conf['delays']:
             card.odue = card.due
-            card.due = int(self._delayForGrade(conf, 0) + time.time())
+            delay = self._delayForGrade(conf, 0)
+            card.due = int(delay + time.time())
             card.left = len(conf['delays'])
             card.left += self._leftToday(conf['delays'], card.left)*1000
             card.queue = 1
@@ -748,6 +751,7 @@ did = ? and queue = 2 and due <= ? limit ?""",
         # leech?
         if not self._checkLeech(card, conf) and conf['delays']:
             heappush(self._lrnQueue, (card.due, card.id))
+        return delay
 
     def _nextLapseIvl(self, card, conf):
         return int(card.ivl*conf['mult']) + 1
@@ -764,12 +768,12 @@ did = ? and queue = 2 and due <= ? limit ?""",
             card.odid = 0
             card.odue = 0
 
-    def _logRev(self, card, ease):
+    def _logRev(self, card, ease, delay):
         def log():
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
                 int(time.time()*1000), card.id, self.col.usn(), ease,
-                card.ivl, card.lastIvl, card.factor, card.timeTaken(),
+                -delay or card.ivl, card.lastIvl, card.factor, card.timeTaken(),
                 1)
         try:
             log()
