@@ -241,7 +241,7 @@ body { margin: 1em; -webkit-user-select: none; }
             else:
                 extra = None
         if deck['dyn'] or not extra or askUser(
-            _("Are you sure you wish to delete %s?" % deck['name']) +
+            (_("Are you sure you wish to delete %s?") % deck['name']) +
             extra):
             self.mw.progress.start(immediate=True)
             self.mw.col.decks.rem(did, True)
