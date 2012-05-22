@@ -7,7 +7,7 @@ from cStringIO import StringIO
 from datetime import date
 from anki.db import DB
 from anki.errors import *
-from anki.utils import ids2str, checksum, intTime, json
+from anki.utils import ids2str, checksum, intTime, json, isWin, isMac
 from anki.consts import *
 from anki.lang import _
 from hooks import runHook
@@ -17,12 +17,49 @@ HTTP_CERTS = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
 HTTP_TIMEOUT = 30
 HTTP_PROXY = None
 
+# Httplib2 connection object
+######################################################################
+
 def httpCon():
     return httplib2.Http(
         timeout=HTTP_TIMEOUT, ca_certs=HTTP_CERTS,
         proxy_info=HTTP_PROXY,
         # python2 doesn't support SNI
         disable_ssl_certificate_validation="beta" in SYNC_URL)
+
+# Proxy handling
+######################################################################
+
+def _setupProxy():
+    global HTTP_PROXY
+    # set in env?
+    p = httplib2.ProxyInfo.from_environment()
+    if not p:
+        # platform-specific fetch
+        url = None
+        if isWin:
+            r = urllib.getproxies_registry()
+            if 'https' in r:
+                url = r['https']
+            elif 'http' in r:
+                url = r['http']
+        elif isMac:
+            r = urllib.getproxies_macosx_sysconf()
+            if 'https' in r:
+                url = r['https']
+            elif 'http' in r:
+                url = r['http']
+        if url:
+            p = ProxyInfo.from_url(url, _proxyMethod(url))
+    HTTP_PROXY = p
+
+def _proxyMethod(url):
+    if url.lower().startswith("https"):
+        return "https"
+    else:
+        return "http"
+
+_setupProxy()
 
 # Incremental syncing
 ##########################################################################
