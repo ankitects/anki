@@ -50,7 +50,7 @@ def _setupProxy():
             elif 'http' in r:
                 url = r['http']
         if url:
-            p = ProxyInfo.from_url(url, _proxyMethod(url))
+            p = httplib2.ProxyInfo.from_url(url, _proxyMethod(url))
     HTTP_PROXY = p
 
 def _proxyMethod(url):
