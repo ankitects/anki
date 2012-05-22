@@ -122,8 +122,8 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self.factor, self.reps, self.lapses,
             self.left, self.odue, self.odid, self.did, self.id)
 
-    def q(self, reload=False):
-        return self.css() + self._getQA(reload)['q']
+    def q(self, reload=False, browser=False):
+        return self.css() + self._getQA(reload, browser)['q']
 
     def a(self):
         return self.css() + self._getQA()['a']
@@ -131,12 +131,16 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def css(self):
         return "<style>%s</style>" % self.model()['css']
 
-    def _getQA(self, reload=False):
+    def _getQA(self, reload=False, browser=False):
         if not self._qa or reload:
-            f = self.note(reload); m = self.model()
+            f = self.note(reload); m = self.model(); t = self.template()
             data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
                     f.stringTags(), f.joinedFields()]
-            self._qa = self.col._renderQA(data)
+            if browser:
+                args = (t.get('bqfmt'), t.get('bafmt'))
+            else:
+                args = tuple()
+            self._qa = self.col._renderQA(data, *args)
         return self._qa
 
     def note(self, reload=False):

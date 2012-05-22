@@ -463,7 +463,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         return [self._renderQA(row)
                 for row in self._qaData(where)]
 
-    def _renderQA(self, data):
+    def _renderQA(self, data, qfmt=None, afmt=None):
         "Returns hash of id, question, answer."
         # data is [cid, nid, mid, did, ord, tags, flds]
         # unpack fields and create dict
@@ -483,7 +483,9 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         fields['c%d' % (data[4]+1)] = "1"
         # render q & a
         d = dict(id=data[0])
-        for (type, format) in (("q", template['qfmt']), ("a", template['afmt'])):
+        qfmt = qfmt or template['qfmt']
+        afmt = afmt or template['afmt']
+        for (type, format) in (("q", qfmt), ("a", afmt)):
             if type == "q":
                 format = format.replace("{{cloze:", "{{cq:%d:" % (
                     data[4]+1))
