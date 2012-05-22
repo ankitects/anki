@@ -125,7 +125,7 @@ def _upgrade(col, ver):
         # folder, so remove any empty files
         changed = False
         for f in os.listdir(col.media.dir()):
-            if not os.path.getsize(f):
+            if os.path.isfile(f) and not os.path.getsize(f):
                 os.unlink(f)
                 col.media.db.execute(
                     "delete from log where fname = ?", f)
