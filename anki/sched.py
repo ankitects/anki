@@ -109,6 +109,8 @@ order by due""" % self._deckLimit(),
         return ret
 
     def countIdx(self, card):
+        if card.queue == 3:
+            return 1
         return card.queue
 
     def answerButtons(self, card):
