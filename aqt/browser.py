@@ -237,9 +237,14 @@ class DataModel(QAbstractTableModel):
             return self.browser.mw.col.decks.name(c.did)
 
     def question(self, c):
-        return self.formatQA(c.q())
+        return self.formatQA(c.q(browser=True))
 
     def answer(self, c):
+        if c.template().get('bafmt'):
+            # they have provided a template, use it verbatim
+            c.q(browser=True)
+            return self.formatQA(c.a())
+        # need to strip question from answer
         q = self.question(c)
         a = self.formatQA(c.a())
         if a.startswith(q):

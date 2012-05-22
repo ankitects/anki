@@ -145,19 +145,10 @@ Please create a new card type first."""))
             flip.setAutoDefault(False)
             l.addWidget(flip)
             c(flip, SIGNAL("clicked()"), self.onFlip)
-        rename = QPushButton(_("Rename..."))
-        rename.setAutoDefault(False)
-        l.addWidget(rename)
-        c(rename, SIGNAL("clicked()"), self.onRename)
-        if self.model['type'] != MODEL_CLOZE:
-            repos = QPushButton(_("Reposition..."))
-            repos.setAutoDefault(False)
-            l.addWidget(repos)
-            c(repos, SIGNAL("clicked()"), self.onReorder)
-            self.deckButton = tgt = QPushButton(_("Deck..."))
-            tgt.setAutoDefault(False)
-            l.addWidget(tgt)
-            c(tgt, SIGNAL("clicked()"), self.onTargetDeck)
+        more = QPushButton(_("More") + u" ▾")
+        more.setAutoDefault(False)
+        l.addWidget(more)
+        c(more, SIGNAL("clicked()"), lambda: self.onMore(more))
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
@@ -186,11 +177,6 @@ Please create a new card type first."""))
         self.tab['tform'].front.setPlainText(t['qfmt'])
         self.tab['tform'].css.setPlainText(self.model['css'])
         self.tab['tform'].back.setPlainText(t['afmt'])
-        if self.model['type'] != MODEL_CLOZE:
-            if t['did']:
-                self.deckButton.setText(_("Specific Deck..."))
-            else:
-                self.deckButton.setText(_("Default Deck..."))
         self.redrawing = False
 
     def saveCard(self):
@@ -304,6 +290,44 @@ adjust the template manually to switch the question and answer."""))
         dst['afmt'] = "%s\n\n<hr id=answer>\n\n%s" % (m.group(2).strip(),
                                                       m.group(1).strip())
         return True
+
+    def onMore(self, button):
+        m = QMenu(self)
+        a = m.addAction(_("Rename"))
+        a.connect(a, SIGNAL("triggered()"),
+                  self.onRename)
+        if self.model['type'] != MODEL_CLOZE:
+            a = m.addAction(_("Reposition"))
+            a.connect(a, SIGNAL("triggered()"),
+                      self.onReorder)
+            t = self.card.template()
+            if t['did']:
+                s = _(" (on)")
+            else:
+                s = _(" (off)")
+            a = m.addAction(_("Deck Override") + s)
+            a.connect(a, SIGNAL("triggered()"),
+                      self.onTargetDeck)
+        a = m.addAction(_("Column Templates"))
+        a.connect(a, SIGNAL("triggered()"),
+                  self.onBrowserDisplay)
+        m.exec_(button.mapToGlobal(QPoint(0,0)))
+
+    def onBrowserDisplay(self):
+        d = QDialog()
+        f = aqt.forms.browserdisp.Ui_Dialog()
+        f.setupUi(d)
+        t = self.card.template()
+        f.qfmt.setText(t.get('bqfmt', ""))
+        f.afmt.setText(t.get('bafmt', ""))
+        d.connect(f.buttonBox, SIGNAL("accepted()"),
+                  lambda: self.onBrowserDisplayOk(f))
+        d.exec_()
+
+    def onBrowserDisplayOk(self, f):
+        t = self.card.template()
+        t['bqfmt'] = f.qfmt.text().strip()
+        t['bafmt'] = f.afmt.text().strip()
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
