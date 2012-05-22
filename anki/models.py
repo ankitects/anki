@@ -464,7 +464,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         a = []
         b = []
         for f in flds:
-            a.append("1")
+            a.append("ankiflag")
             b.append("")
         data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a)]
         full = self.col._renderQA(data)['q']
@@ -480,8 +480,8 @@ select id from notes where mid = ?)""" % " ".join(map),
             tmp = a[:]
             tmp[i] = ""
             data[6] = joinFields(tmp)
-            # if the result is same as empty, field is required
-            if self.col._renderQA(data)['q'] == empty:
+            # if no field content appeared, field is required
+            if "ankiflag" not in self.col._renderQA(data)['q']:
                 req.append(i)
         if req:
             return type, req

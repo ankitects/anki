@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from tests.shared import getEmptyDeck, assertException
-from anki.utils import stripHTML
+from anki.utils import stripHTML, joinFields
 
 def test_modelDelete():
     deck = getEmptyDeck()
@@ -230,3 +230,29 @@ def test_modelChange():
     f.load()
     assert f['Text'] == "f2"
     assert len(f.cards()) == 2
+
+def test_availOrds():
+    d = getEmptyDeck()
+    m = d.models.current(); mm = d.models
+    t = m['tmpls'][0]
+    f = d.newNote()
+    f['Front'] = "1"
+    # simple templates
+    assert mm.availOrds(m, joinFields(f.fields)) == [0]
+    t['qfmt'] = "{{Back}}"
+    mm.save(m, templates=True)
+    assert not mm.availOrds(m, joinFields(f.fields))
+    # AND
+    t['qfmt'] = "{{#Front}}{{#Back}}{{Front}}{{/Back}}{{/Front}}"
+    mm.save(m, templates=True)
+    assert not mm.availOrds(m, joinFields(f.fields))
+    t['qfmt'] = "{{#Front}}\n{{#Back}}\n{{Front}}\n{{/Back}}\n{{/Front}}"
+    mm.save(m, templates=True)
+    assert not mm.availOrds(m, joinFields(f.fields))
+    # OR
+    t['qfmt'] = "{{Front}}\n{{Back}}"
+    mm.save(m, templates=True)
+    assert mm.availOrds(m, joinFields(f.fields)) == [0]
+    t['Front'] = ""
+    t['Back'] = "1"
+    assert mm.availOrds(m, joinFields(f.fields)) == [0]
