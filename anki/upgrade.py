@@ -684,7 +684,10 @@ and ord = ? limit 1""", m['id'], t['ord']):
         # and failed cards
         left = len(col.decks.confForDid(1)['lapse']['delays'])*1001
         col.db.execute("""
-update cards set odue = ?, left=?, type=2, ivl=max(ivl, 1) where type=1""",
+update cards set left=?,type=1,queue=1,ivl=1 where type=1 and ivl <= 1""",
+                       left)
+        col.db.execute("""
+update cards set odue=?,left=?,type=2 where type=1 and ivl > 1""",
                        col.sched.today+1, left)
         # and due cards
         col.db.execute("""
