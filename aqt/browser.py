@@ -614,9 +614,9 @@ by clicking on one on the left."""))
             self.model.activeCols.remove(type)
         else:
             self.model.activeCols.append(type)
-        self.setColumnSizes()
         # sorted field may have been hidden
         self.setSortIndicator()
+        self.setColumnSizes()
         self.model.endReset()
 
     def setColumnSizes(self):
