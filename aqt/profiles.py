@@ -12,7 +12,6 @@ from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
 from anki.lang import langs
 from aqt.utils import showWarning, fontForPlatform
-from httplib2 import ProxyInfo
 import anki.sync
 import aqt.forms
 
@@ -53,8 +52,6 @@ profileConf = dict(
     syncKey=None,
     syncMedia=True,
     autoSync=True,
-    proxyHost='', # despite the name, stores full URL
-    proxyType=3,
 )
 
 class ProfileManager(object):
@@ -139,7 +136,6 @@ computer."""))
         if name != "_global":
             self.name = name
             self.profile = prof
-            self.setupProxy()
         return True
 
     def save(self):
@@ -285,44 +281,3 @@ create table if not exists profiles
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, cPickle.dumps(self.meta), "_global")
         self.db.commit()
-
-    # Proxy handling
-    ######################################################################
-
-    def setupProxy(self):
-        prof = self.profile
-        # export proxy settings
-        if prof['proxyHost'] == "off":
-            # force off; override environment
-            anki.sync.HTTP_PROXY = None
-        elif prof['proxyHost']:
-            url = prof['proxyHost']
-            anki.sync.HTTP_PROXY = ProxyInfo.from_url(
-                url, self.proxyMethod(url))
-        else:
-            # set in env?
-            p = ProxyInfo.from_environment()
-            if not p:
-                # platform-specific fetch
-                url = None
-                if isWin:
-                    r = urllib.getproxies_registry()
-                    if 'https' in r:
-                        url = r['https']
-                    elif 'http' in r:
-                        url = r['http']
-                elif isMac:
-                    r = urllib.getproxies_macosx_sysconf()
-                    if 'https' in r:
-                        url = r['https']
-                    elif 'http' in r:
-                        url = r['http']
-                if url:
-                    p = ProxyInfo.from_url(url, self.proxyMethod(url))
-            anki.sync.HTTP_PROXY = p
-
-    def proxyMethod(self, url):
-        if url.lower().startswith("https"):
-            return "https"
-        else:
-            return "http"

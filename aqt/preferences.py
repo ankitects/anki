@@ -85,7 +85,6 @@ class Preferences(QDialog):
         else:
             self.connect(self.form.syncDeauth, SIGNAL("clicked()"),
                          self.onSyncDeauth)
-        self.form.proxyHost.setText(self.prof['proxyHost'])
 
     def _hideAuth(self):
         self.form.syncDeauth.setShown(False)
@@ -100,7 +99,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
     def updateNetwork(self):
         self.prof['autoSync'] = self.form.syncOnProgramOpen.isChecked()
         self.prof['syncMedia'] = self.form.syncMedia.isChecked()
-        self.prof['proxyHost'] = unicode(self.form.proxyHost.text())
 
     # Backup
     ######################################################################
