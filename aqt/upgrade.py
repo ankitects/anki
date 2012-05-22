@@ -29,7 +29,8 @@ class Upgrader(object):
 Anki wasn't able to load your old config file. Please use File>Import \
 to import your decks from previous Anki versions."""))
             return
-        self._copySettings()
+        if not self._copySettings():
+            return
         # and show the wizard
         self._showWizard()
 
@@ -55,8 +56,15 @@ to import your decks from previous Anki versions."""))
             "recentColours", "stripHTML", "editFontFamily", "editFontSize",
             "editLineSize", "deleteMedia", "preserveKeyboard", "numBackups",
             "proxyHost", "proxyPass", "proxyPort", "proxyUser"):
-            p[k] = self.conf[k]
-        self.mw.pm.save()
+            try:
+                p[k] = self.conf[k]
+            except:
+                showWarning(_("""\
+Anki 2.0 only supports automatic upgrading from Anki 1.2. To load old \
+decks, please open them in Anki 1.2 to upgrade them, and then import them \
+into Anki 2.0."""))
+                return
+        return True
 
     # Wizard
     ######################################################################
