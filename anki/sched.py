@@ -988,9 +988,9 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             minInt=oconf['lapse']['minInt'],
             leechFails=oconf['lapse']['leechFails'],
             leechAction=oconf['lapse']['leechAction'],
+            mult=oconf['lapse']['mult'],
             # overrides
             delays=conf['delays'],
-            mult=conf['fmult'],
         )
 
     def _revConf(self, card):

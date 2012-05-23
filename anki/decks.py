@@ -37,7 +37,6 @@ defaultDynamicDeck = {
     'usn': 0,
     'delays': [1, 10],
     'separate': True,
-    'fmult': 0,
     'search': "",
     'limit': 100,
     'order': 0,
