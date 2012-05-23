@@ -504,6 +504,8 @@ order by thetype, ease""" % lim)
                 mcount = d[2]
         shifted.sort()
         counts.sort()
+        if len(counts) < 4:
+            return ""
         for d in shifted:
             hour = d[0]
             pct = d[1]
