@@ -107,6 +107,7 @@ class Finder(object):
                     s['q'] += " and "
             if s['isnot']:
                 s['q'] += " not "
+                s['isnot'] = False
             if wrap:
                 txt = "(" + txt + ")"
             s['q'] += txt
