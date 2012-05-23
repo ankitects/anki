@@ -510,8 +510,8 @@ where c.nid == f.id
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query, full=False, order=None):
-        return anki.find.Finder(self).findCards(query, full, order)
+    def findCards(self, query, order=False):
+        return anki.find.Finder(self).findCards(query, order)
 
     def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)

@@ -880,23 +880,23 @@ due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
     def _dynOrder(self, deck):
         o = deck['order']
         if o == DYN_OLDEST:
-            return "order by c.mod"
+            return "c.mod"
         elif o == DYN_RANDOM:
-            return "order by random()"
+            return "random()"
         elif o == DYN_SMALLINT:
-            return "order by ivl"
+            return "ivl"
         elif o == DYN_BIGINT:
-            return "order by ivl desc"
+            return "ivl desc"
         elif o == DYN_LAPSES:
-            return "order by lapses desc"
-        elif o == DYN_FAILED:
-            return """
-and c.id in (select cid from revlog where ease = 1 and time > %d)
-order by c.mod""" % ((self.dayCutoff-86400)*1000)
+            return "lapses desc"
+#         elif o == DYN_FAILED:
+#             return """
+# and c.id in (select cid from revlog where ease = 1 and time > %d)
+# order by c.mod""" % ((self.dayCutoff-86400)*1000)
         elif o == DYN_ADDED:
-            return "order by n.id"
+            return "n.id"
         elif o == DYN_DUE:
-            return "order by c.due"
+            return "c.due"
 
     def _moveToDyn(self, did, ids):
         deck = self.col.decks.get(did)
