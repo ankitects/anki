@@ -161,6 +161,7 @@ def test_findCards():
     assert len(deck.findCards("prop:ivl>=5")) == 1
     assert len(deck.findCards("prop:ivl=9")) == 0
     assert len(deck.findCards("prop:ivl=10")) == 1
+    assert len(deck.findCards("prop:ivl!=10")) > 1
     assert len(deck.findCards("prop:due>0")) == 1
     # due dates should work
     deck.sched.today = 15

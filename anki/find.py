@@ -256,7 +256,7 @@ class Finder(object):
 
     def _findProp(self, val):
         # extract
-        m = re.match("(^.+?)(<=|>=|=|<|>)(.+?$)", val)
+        m = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
         if not m:
             return
         prop, cmp, val = m.groups()
