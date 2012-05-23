@@ -854,7 +854,7 @@ did = ? and queue = 2 and due <= ? limit ?""",
         # gather card ids and sort
         order = self._dynOrder(deck)
         limit = " limit %d" % deck['limit']
-        search = deck['search'] + " -is:suspended"
+        search = deck['search'] + " -is:suspended is:regulardeck"
         try:
             ids = self.col.findCards(search, order=order+limit)
         except:
