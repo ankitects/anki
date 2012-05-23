@@ -160,6 +160,19 @@ def test_findCards():
     assert len(deck.findCards("prop:ease=2.2")) == 1
     assert len(deck.findCards("prop:ease>2")) == 1
     assert len(deck.findCards("-prop:ease>2")) > 1
+    # recently failed
+    assert len(deck.findCards("rated:1:1")) == 0
+    assert len(deck.findCards("rated:2:1")) == 0
+    c = deck.sched.getCard()
+    deck.sched.answerCard(c, 2)
+    assert len(deck.findCards("rated:1:1")) == 0
+    assert len(deck.findCards("rated:2:1")) == 1
+    c = deck.sched.getCard()
+    deck.sched.answerCard(c, 1)
+    assert len(deck.findCards("rated:1:1")) == 1
+    assert len(deck.findCards("rated:2:1")) == 1
+    assert len(deck.findCards("rated:2:0")) == 0
+    assert len(deck.findCards("rated:2:2")) == 1
 
 def test_findReplace():
     deck = getEmptyDeck()

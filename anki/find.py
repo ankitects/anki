@@ -15,6 +15,7 @@ SEARCH_FIELD = 5
 SEARCH_MODEL = 6
 SEARCH_DECK = 7
 SEARCH_PROP = 8
+SEARCH_RATED = 9
 
 # Tools
 ##########################################################################
@@ -122,6 +123,8 @@ and c.nid=n.id %s""" % (q, order)
                 self._findDeck(token, isNeg)
             elif type == SEARCH_PROP:
                 self._findProp(token, isNeg)
+            elif type == SEARCH_RATED:
+                self._findRated(token, isNeg)
             else:
                 self._findText(token, isNeg, c)
 
@@ -163,6 +166,23 @@ and c.nid=n.id %s""" % (q, order)
             self.lims['preds'].append(cond)
         else:
             self.lims['valid'] = False
+
+    def _findRated(self, val, neg):
+        r = val.split(":")
+        if len(r) != 2 or r[0] not in ("1", "2", "3", "4"):
+            self.lims['valid'] = False
+            return
+        try:
+            days = int(r[1])
+        except ValueError:
+            self.lims['valid'] = False
+            return
+        # bound the search
+        days = min(days, 31)
+        lim = self.col.sched.dayCutoff - 86400*days
+        self.lims['preds'].append(
+            "c.id in (select cid from revlog where ease=%s and id>%d)" %
+            (r[0], (lim*1000)))
 
     def _findProp(self, val, neg):
         # extract
@@ -418,6 +438,9 @@ n.mid in %s and n.id %s in %s""" % (
                 elif token['value'].startswith("prop:"):
                     token['value'] = token['value'][5:].lower()
                     type = SEARCH_PROP
+                elif token['value'].startswith("rated:"):
+                    token['value'] = token['value'][6:].lower()
+                    type = SEARCH_RATED
                 elif token['value'].startswith("nid:") and len(token['value']) > 4:
                     dec = token['value'][4:]
                     try:
