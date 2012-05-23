@@ -111,7 +111,8 @@ class DataModel(QAbstractTableModel):
         # the db progress handler may cause a refresh, so we need to zero out
         # old data first
         self.cards = []
-        self.cards = self.col.findCards(txt, self.browser.mw.pm.profile['fullSearch'])
+        self.cards = self.col.findCards(txt, order=True)
+        #self.browser.mw.pm.profile['fullSearch'])
         #print "fetch cards in %dms" % ((time.time() - t)*1000)
         if reset:
             self.endReset()
