@@ -904,16 +904,12 @@ order by c.mod""" % ((self.dayCutoff-86400)*1000)
         for c, id in enumerate(ids):
             # start at -100000 so that reviews are all due
             data.append((did, -100000+c, t, u, id))
-        if deck['cramRev']:
-            # everything in the new queue
-            queue = "0"
-        else:
-            # due reviews stay in the review queue. careful: can't use
-            # "odid or did", as sqlite converts to boolean
-            queue = """
+        # due reviews stay in the review queue. careful: can't use
+        # "odid or did", as sqlite converts to boolean
+        queue = """
 (case when type=2 and (case when odue then odue <= %d else due <= %d end)
  then 2 else 0 end)"""
-            queue %= (self.today, self.today)
+        queue %= (self.today, self.today)
         self.col.db.executemany("""
 update cards set
 odid = (case when odid then odid else did end),
