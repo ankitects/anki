@@ -68,8 +68,8 @@ def test_findCards():
     assert len(deck.findCards("-is:due")) == 4
     c.queue = -1
     # ensure this card gets a later mod time
-    import time; time.sleep(1)
     c.flush()
+    deck.db.execute("update cards set mod = mod + 1 where id = ?", c.id)
     assert deck.findCards("is:suspended") == [c.id]
     # nids
     assert deck.findCards("nid:54321") == []
@@ -135,6 +135,31 @@ def test_findCards():
     assert len(deck.findCards("deck:default")) == 7
     assert len(deck.findCards("deck:default::child")) == 1
     assert len(deck.findCards("deck:default -deck:default::*")) == 6
+    # properties
+    id = deck.db.scalar("select id from cards limit 1")
+    deck.db.execute(
+        "update cards set queue=2, ivl=10, reps=20, due=30, factor=2200 "
+        "where id = ?", id)
+    assert len(deck.findCards("prop:ivl>5")) == 1
+    assert len(deck.findCards("prop:ivl<5")) > 1
+    assert len(deck.findCards("prop:ivl>=5")) == 1
+    assert len(deck.findCards("prop:ivl=9")) == 0
+    assert len(deck.findCards("prop:ivl=10")) == 1
+    assert len(deck.findCards("prop:due>0")) == 1
+    # due dates should work
+    deck.sched.today = 15
+    assert len(deck.findCards("prop:due=14")) == 0
+    assert len(deck.findCards("prop:due=15")) == 1
+    assert len(deck.findCards("prop:due=16")) == 0
+    # including negatives
+    deck.sched.today = 32
+    assert len(deck.findCards("prop:due=-1")) == 0
+    assert len(deck.findCards("prop:due=-2")) == 1
+    # ease factors
+    assert len(deck.findCards("prop:ease=2.3")) == 0
+    assert len(deck.findCards("prop:ease=2.2")) == 1
+    assert len(deck.findCards("prop:ease>2")) == 1
+    assert len(deck.findCards("-prop:ease>2")) > 1
 
 def test_findReplace():
     deck = getEmptyDeck()

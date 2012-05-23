@@ -14,6 +14,7 @@ SEARCH_TEMPLATE = 4
 SEARCH_FIELD = 5
 SEARCH_MODEL = 6
 SEARCH_DECK = 7
+SEARCH_PROP = 8
 
 # Tools
 ##########################################################################
@@ -119,6 +120,8 @@ and c.nid=n.id %s""" % (q, order)
                 self._findModel(token, isNeg)
             elif type == SEARCH_DECK:
                 self._findDeck(token, isNeg)
+            elif type == SEARCH_PROP:
+                self._findProp(token, isNeg)
             else:
                 self._findText(token, isNeg, c)
 
@@ -160,6 +163,40 @@ and c.nid=n.id %s""" % (q, order)
             self.lims['preds'].append(cond)
         else:
             self.lims['valid'] = False
+
+    def _findProp(self, val, neg):
+        # extract
+        m = re.match("(^.+?)(<=|>=|=|<|>)(.+?$)", val)
+        if not m:
+            self.lims['valid'] = False
+            return
+        prop, cmp, val = m.groups()
+        prop = prop.lower()
+        # is val valid?
+        try:
+            if prop == "ease":
+                val = float(val)
+            else:
+                val = int(val)
+        except ValueError:
+            self.lims['valid'] = False
+            return
+        # is prop valid?
+        if prop not in ("due", "ivl", "reps", "lapses", "ease"):
+            self.lims['valid'] = False
+            return
+        # query
+        extra = "not" if neg else ""
+        if prop == "due":
+            val += self.col.sched.today
+            # only valid for review/daily learning
+            self.lims['preds'].append("queue in (2,3)")
+        elif prop == "ease":
+            prop = "factor"
+            val = int(val*1000)
+        sql = "%s (%s %s %s)" % ("not" if neg else "",
+                                 prop, cmp, val)
+        self.lims['preds'].append(sql)
 
     def _findText(self, val, neg, c):
         val = val.replace("*", "%")
@@ -378,6 +415,9 @@ n.mid in %s and n.id %s in %s""" % (
                 elif token['value'].startswith("deck:"):
                     token['value'] = token['value'][5:].lower()
                     type = SEARCH_DECK
+                elif token['value'].startswith("prop:"):
+                    token['value'] = token['value'][5:].lower()
+                    type = SEARCH_PROP
                 elif token['value'].startswith("nid:") and len(token['value']) > 4:
                     dec = token['value'][4:]
                     try:
