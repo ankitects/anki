@@ -122,7 +122,7 @@ Please upgrade to the latest version of Anki.""")
         elif "502" in err or "503" in err or "504" in err:
             return _("""\
 AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
-        return unicode(err, "utf8", "replace")
+        return err
 
     def _getUserPass(self):
         d = QDialog(self.mw)
@@ -234,6 +234,8 @@ class SyncThread(QThread):
             self._sync()
         except:
             err = traceback.format_exc()
+            if not isinstance(err, unicode):
+                err = unicode(err, "utf8", "replace")
             self.fireEvent("error", err)
         finally:
             # don't bump mod time unless we explicitly save
