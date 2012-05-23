@@ -98,6 +98,8 @@ class Finder(object):
                 else:
                     s['bad'] = True
                     return
+            elif txt == "skip":
+                return
             # do we need a conjunction?
             if s['join']:
                 if s['isor']:
@@ -303,6 +305,9 @@ class Finder(object):
         return "n.mid in %s" % ids2str(ids)
 
     def _findDeck(self, val):
+        # if searching for all decks, skip
+        if val == "*":
+            return "skip"
         def dids(did):
             if not did:
                 return None
