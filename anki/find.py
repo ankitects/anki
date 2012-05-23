@@ -154,9 +154,9 @@ and c.nid=n.id %s""" % (q, order)
             cond = "queue = -1"
         elif val == "due":
             cond = "(queue = 2 and due <= %d)" % self.col.sched.today
-        if neg:
-            cond = "not (%s)" % cond
         if cond:
+            if neg:
+                cond = "not (%s)" % cond
             self.lims['preds'].append(cond)
         else:
             self.lims['valid'] = False
