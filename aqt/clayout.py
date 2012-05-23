@@ -286,9 +286,8 @@ Please create a new card type first."""))
 Anki couldn't find the line between the question and answer. Please \
 adjust the template manually to switch the question and answer."""))
             return
+        dst['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src['qfmt']
         dst['qfmt'] = m.group(2).strip()
-        dst['afmt'] = "%s\n\n<hr id=answer>\n\n%s" % (m.group(2).strip(),
-                                                      m.group(1).strip())
         return True
 
     def onMore(self, button):
