@@ -62,9 +62,10 @@ class Scheduler(object):
             card.left = self._startingLeft(card)
             # dynamic?
             if card.odid and card.type == 2:
-                # reviews get their ivl boosted on first sight
-                card.ivl = self._dynIvlBoost(card)
-                card.odue = self.today + card.ivl
+                if self._cardConf(card)['resched']:
+                    # reviews get their ivl boosted on first sight
+                    card.ivl = self._dynIvlBoost(card)
+                    card.odue = self.today + card.ivl
             self._updateStats(card, 'new')
         if card.queue in (1, 3):
             self._answerLrnCard(card, ease)
@@ -586,7 +587,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
     def _graduatingIvl(self, card, conf, early, adj=True):
         if card.type == 2:
             # lapsed card being relearnt
-            if card.odid:
+            if card.odid and conf['resched']:
                 return self._dynIvlBoost(card)
             return card.ivl
         if not early:
@@ -991,6 +992,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             mult=oconf['lapse']['mult'],
             # overrides
             delays=conf['delays'],
+            resched=conf['resched'],
         )
 
     def _revConf(self, card):

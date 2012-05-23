@@ -40,7 +40,8 @@ defaultDynamicDeck = {
     'search': "",
     'limit': 100,
     'order': 0,
-    'shift': True,
+    # added in beta13
+    'resched': True,
 }
 
 defaultConf = {
