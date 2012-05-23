@@ -29,7 +29,7 @@ def test_upgrade1():
     # 3 new, 2 failed, 1 due
     deck.reset()
     deck.conf['counts'] = COUNT_REMAINING
-    assert deck.sched.counts() == (3,4,1)
+    assert deck.sched.counts() == (3,2,1)
     # modifying each note should not cause new cards to be generated
     assert deck.cardCount() == 6
     for nid in deck.db.list("select id from notes"):
