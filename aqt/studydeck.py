@@ -11,7 +11,7 @@ from operator import itemgetter
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,
                  help="studydeck", current=None, cancel=True,
-                 parent=None):
+                 parent=None, dyn=False):
         QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
@@ -24,7 +24,7 @@ class StudyDeck(QDialog):
         if title:
             self.setWindowTitle(title)
         if not names:
-            names = sorted(self.mw.col.decks.allNames())
+            names = sorted(self.mw.col.decks.allNames(dyn=dyn))
             current = self.mw.col.decks.current()['name']
         self.origNames = names
         self.name = None

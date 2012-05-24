@@ -863,7 +863,7 @@ will be lost. Continue?"""))
 
     def onStudyDeck(self):
         from aqt.studydeck import StudyDeck
-        ret = StudyDeck(self)
+        ret = StudyDeck(self, dyn=True)
         if ret.name:
             self.col.decks.select(self.col.decks.id(ret.name))
             self.moveToState("overview")
