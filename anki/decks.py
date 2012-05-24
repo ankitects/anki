@@ -35,13 +35,13 @@ defaultDynamicDeck = {
     'dyn': 1,
     'desc': "",
     'usn': 0,
-    'delays': [1, 10],
+    'delays': None,
     'separate': True,
-    'search': "",
-    'limit': 100,
-    'order': 0,
     # added in beta13
     'resched': True,
+     # list of (search, limit, order); we only use first element for now
+    'terms': [["", 100, 0]],
+    'return': True, # currently unused
 }
 
 defaultConf = {
@@ -142,7 +142,7 @@ class DeckManager(object):
         if deck['dyn']:
             # deleting a cramming deck returns cards to their previous deck
             # rather than deleting the cards
-            self.col.sched.remDyn(did)
+            self.col.sched.emptyDyn(did)
             if childrenToo:
                 for name, id in self.children(did):
                     self.rem(id, cardsToo)

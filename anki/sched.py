@@ -115,7 +115,7 @@ order by due""" % self._deckLimit(),
         return card.queue
 
     def answerButtons(self, card):
-        if not card.odid and card.odue:
+        if card.odue:
             conf = self._lapseConf(card)
             if len(conf['delays']) > 1:
                 return 3
@@ -849,22 +849,29 @@ did = ? and queue = 2 and due <= ? limit ?""",
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
         assert deck['dyn']
-        # move any existing cards back first
-        self.remDyn(did)
-        # gather card ids and sort
-        order = self._dynOrder(deck)
-        limit = " limit %d" % deck['limit']
-        search = deck['search'] + " -is:suspended is:regulardeck"
-        try:
-            ids = self.col.findCards(search, order=order+limit)
-        except:
-            ids = []
-        # move the cards over
-        self._moveToDyn(did, ids)
+        # move any existing cards back first, then fill
+        self.emptyDyn(did)
+        ids = self._fillDyn(deck)
+        if not ids:
+            return
         # and change to our new deck
         self.col.decks.select(did)
+        return ids
 
-    def remDyn(self, did, lim=None):
+    def _fillDyn(self, deck):
+        search, limit, order = deck['terms'][0]
+        orderlimit = self._dynOrder(order, limit)
+        search += " -is:suspended -deck:filtered"
+        try:
+            ids = self.col.findCards(search, order=orderlimit)
+        except:
+            ids = []
+            return ids
+        # move the cards over
+        self._moveToDyn(deck['id'], ids)
+        return ids
+
+    def emptyDyn(self, did, lim=None):
         if not lim:
             lim = "did = %s" % did
         # move out of cram queue
@@ -875,28 +882,26 @@ due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
                             self.col.usn(), intTime())
 
     def remFromDyn(self, cids):
-        self.remDyn(None, "id in %s and odid" % ids2str(cids))
+        self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
-    def _dynOrder(self, deck):
-        o = deck['order']
+    def _dynOrder(self, o, l):
         if o == DYN_OLDEST:
-            return "c.mod"
+            t = "c.mod"
         elif o == DYN_RANDOM:
-            return "random()"
+            t = "random()"
         elif o == DYN_SMALLINT:
-            return "ivl"
+            t = "ivl"
         elif o == DYN_BIGINT:
-            return "ivl desc"
+            t = "ivl desc"
         elif o == DYN_LAPSES:
-            return "lapses desc"
-#         elif o == DYN_FAILED:
-#             return """
-# and c.id in (select cid from revlog where ease = 1 and time > %d)
-# order by c.mod""" % ((self.dayCutoff-86400)*1000)
+            t = "lapses desc"
         elif o == DYN_ADDED:
-            return "n.id"
+            t = "n.id"
         elif o == DYN_DUE:
-            return "c.due"
+            t = "c.due"
+        else:
+            raise Exception()
+        return t + " limit %d" % l
 
     def _moveToDyn(self, did, ids):
         deck = self.col.decks.get(did)
@@ -966,12 +971,13 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             return conf['new']
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
+        delays = conf['delays'] or oconf['new']['delays']
         return dict(
             # original deck
             ints=oconf['new']['ints'],
             initialFactor=oconf['new']['initialFactor'],
             # overrides
-            delays=conf['delays'],
+            delays=delays,
             separate=conf['separate'],
             order=NEW_CARDS_DUE,
             perDay=self.reportLimit
@@ -984,6 +990,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             return conf['lapse']
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
+        delays = conf['delays'] or oconf['lapse']['delays']
         return dict(
             # original deck
             minInt=oconf['lapse']['minInt'],
@@ -991,7 +998,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             leechAction=oconf['lapse']['leechAction'],
             mult=oconf['lapse']['mult'],
             # overrides
-            delays=conf['delays'],
+            delays=delays,
             resched=conf['resched'],
         )
 

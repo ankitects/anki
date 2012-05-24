@@ -527,6 +527,12 @@ def test_cram():
     assert d.sched.counts() == (1,0,0)
     # grab it and check estimates
     c = d.sched.getCard()
+    assert d.sched.answerButtons(c) == 2
+    assert d.sched.nextIvl(c, 1) == 600
+    assert d.sched.nextIvl(c, 2) == 138*60*60*24
+    cram = d.decks.get(did)
+    cram['delays'] = [1, 10]
+    assert d.sched.answerButtons(c) == 3
     assert d.sched.nextIvl(c, 1) == 60
     assert d.sched.nextIvl(c, 2) == 600
     assert d.sched.nextIvl(c, 3) == 138*60*60*24
@@ -618,7 +624,7 @@ def test_cram_rem():
     assert c.type == c.queue == 1
     assert c.due != oldDue
     # if we terminate cramming prematurely it should be set back to new
-    d.sched.remDyn(did)
+    d.sched.emptyDyn(did)
     c.load()
     assert c.type == c.queue == 0
     assert c.due == oldDue

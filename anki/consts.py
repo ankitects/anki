@@ -33,9 +33,8 @@ DYN_RANDOM = 1
 DYN_SMALLINT = 2
 DYN_BIGINT = 3
 DYN_LAPSES = 4
-DYN_FAILED = 5
-DYN_ADDED = 6
-DYN_DUE = 7
+DYN_ADDED = 5
+DYN_DUE = 6
 
 # model types
 MODEL_STD = 0
@@ -77,7 +76,6 @@ def dynOrderLabels():
         2: _("Increasing intervals"),
         3: _("Decreasing intervals"),
         4: _("Most lapses"),
-        5: _("Failed today"),
-        6: _("Order added"),
-        7: _("Order due"),
+        5: _("Order added"),
+        6: _("Order due"),
         }

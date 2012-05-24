@@ -236,10 +236,6 @@ class Finder(object):
             return "type = %d" % n
         elif val == "suspended":
             return "c.queue = -1"
-        elif val == "regulardeck":
-            return "not c.odid"
-        elif val == "filterdeck":
-            return "c.odid"
         elif val == "due":
             return """
 (c.queue in (2,3) and c.due <= %d) or
@@ -312,6 +308,9 @@ class Finder(object):
         # if searching for all decks, skip
         if val == "*":
             return "skip"
+        # deck types
+        elif val == "filtered":
+            return "c.odid"
         def dids(did):
             if not did:
                 return None
