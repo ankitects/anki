@@ -23,6 +23,10 @@ class StudyDeck(QDialog):
                 self.form.buttonBox.button(QDialogButtonBox.Cancel))
         for b in buttons:
             self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
+        else:
+            b = QPushButton(_("Add"))
+            self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
+            b.connect(b, SIGNAL("clicked()"), self.onAddDeck)
         if title:
             self.setWindowTitle(title)
         if not names:
@@ -97,3 +101,9 @@ class StudyDeck(QDialog):
             return self.accept()
         QDialog.reject(self)
 
+    def onAddDeck(self):
+        n = getOnlyText(_("New deck name:"))
+        if n:
+            self.mw.col.decks.id(n)
+            self.name = n
+            QDialog.accept(self)
