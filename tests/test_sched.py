@@ -650,6 +650,24 @@ def test_cram_resched():
     assert d.sched.nextIvlStr(c, 3) == ""
     d.sched.answerCard(c, 3)
     assert c.queue == c.type == 0
+    # undue reviews should also be unaffected
+    c.ivl = 100
+    c.type = c.queue = 2
+    c.due = d.sched.today + 25
+    c.factor = 2500
+    c.flush()
+    cardcopy = copy.copy(c)
+    d.sched.rebuildDyn(did)
+    d.reset()
+    c = d.sched.getCard()
+    assert ni(c, 1) == 600
+    assert ni(c, 2) == 0
+    assert ni(c, 3) == 0
+    d.sched.answerCard(c, 2)
+    assert c.ivl == 100
+    assert c.due == d.sched.today + 25
+    # check failure too
+
 
 def test_adjIvl():
     d = getEmptyDeck()

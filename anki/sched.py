@@ -552,8 +552,12 @@ did = ? and queue = 3 and due <= ? limit ?""",
             return self._newConf(card)
 
     def _rescheduleAsRev(self, card, conf, early):
-        if card.type == 2:
-            card.due = max(self.today+1, card.odue)
+        lapse = card.type == 2
+        if lapse:
+            if self._resched(card):
+                card.due = max(self.today+1, card.odue)
+            else:
+                card.due = card.odue
             card.odue = 0
         else:
             self._rescheduleNew(card, conf, early)
@@ -566,7 +570,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
             card.odue = 0
             card.odid = 0
             # if rescheduling is off, it needs to be set back to a new card
-            if not resched:
+            if not resched and not lapse:
                 card.queue = card.type = 0
                 card.due = self.col.nextID("pos")
 
@@ -592,8 +596,9 @@ did = ? and queue = 3 and due <= ? limit ?""",
     def _graduatingIvl(self, card, conf, early, adj=True):
         if card.type == 2:
             # lapsed card being relearnt
-            if card.odid and conf['resched']:
-                return self._dynIvlBoost(card)
+            if card.odid:
+                if conf['resched']:
+                    return self._dynIvlBoost(card)
             return card.ivl
         if not early:
             # graduate
@@ -1128,6 +1133,8 @@ your short-term review workload will become."""))
             left = card.left%1000 - 1
             if left <= 0:
                 # graduate
+                if not self._resched(card):
+                    return 0
                 return self._graduatingIvl(card, conf, False, adj=False) * 86400
             else:
                 return self._delayForGrade(conf, left)
