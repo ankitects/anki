@@ -37,10 +37,9 @@ defaultDynamicDeck = {
     'usn': 0,
     'delays': None,
     'separate': True,
-    # added in beta13
-    'resched': True,
      # list of (search, limit, order); we only use first element for now
     'terms': [["", 100, 0]],
+    'resched': True,
     'return': True, # currently unused
 }
 

@@ -139,6 +139,29 @@ def _upgrade(col, ver):
         col.db.execute("""
 update cards set left = left + left*1000 where queue = 1""")
         col.db.execute("update col set ver = 10")
+    if ver < 11:
+        col.modSchema()
+        for d in col.decks.all():
+            if d['dyn']:
+                d['terms'] = [[d['search'], d['limit'], d['order']]]
+                del d['search']
+                del d['limit']
+                del d['order']
+                d['resched'] = True
+                d['return'] = True
+            else:
+                if 'extendNew' not in d:
+                    d['extendNew'] = 10
+                    d['extendRev'] = 50
+            col.decks.save(d)
+        for c in col.decks.allConf():
+            r = c['rev']
+            r['ivlFct'] = r.get("ivlfct", 1)
+            if 'ivlfct' in r:
+                del r['ivlfct']
+            r['maxIvl'] = 36500
+            col.decks.save(c)
+        col.db.execute("update col set ver = 11")
 
 def _upgradeClozeModel(col, m):
     m['type'] = MODEL_CLOZE
