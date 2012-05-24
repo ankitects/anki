@@ -39,6 +39,9 @@ class StudyDeck(QDialog):
         self.connect(self.form.filter,
                      SIGNAL("textEdited(QString)"),
                      self.redraw)
+        self.connect(self.form.list,
+                     SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+                     self.accept)
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)
