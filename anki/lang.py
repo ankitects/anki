@@ -7,6 +7,7 @@ import gettext
 import threading
 
 langs = [
+    (u"Afrikaans", "af"),
     (u"Bahasa Melayu", "ms"),
     (u"Dansk", "da"),
     (u"Deutsch", "de"),
@@ -16,10 +17,12 @@ langs = [
     (u"Esperanto", "eo"),
     (u"Français", "fr"),
     (u"Italiano", "it"),
+    (u"Lenga d'òc", "oc"),
     (u"Magyar", "hu"),
     (u"Nederlands","nl"),
     (u"Norsk","nb"),
     (u"Occitan","oc"),
+    (u"Plattdüütsch", "nds"),
     (u"Polski", "pl"),
     (u"Português Brasileiro", "pt_BR"),
     (u"Português", "pt"),
@@ -31,6 +34,7 @@ langs = [
     (u"Türkçe", "tr"),
     (u"Čeština", "cs"),
     (u"Ελληνικά", "el"),
+    (u"босански", "bs"),
     (u"Български", "bg"),
     (u"Монгол хэл","mn"),
     (u"русский язык", "ru"),
@@ -38,6 +42,7 @@ langs = [
     (u"עִבְרִית", "he"),
     (u"العربية", "ar"),
     (u"فارسی", "fa"),
+    (u"ภาษาไทย", "th"),
     (u"日本語", "ja"),
     (u"简体中文", "zh_CN"),
     (u"繁體中文", "zh_TW"),
