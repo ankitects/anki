@@ -95,6 +95,10 @@ class StudyDeck(QDialog):
         return True
 
     def accept(self):
+        row = self.form.list.currentRow()
+        if row < 0:
+            showInfo(_("Please select something."))
+            return
         self.name = self.names[self.form.list.currentRow()]
         QDialog.accept(self)
 
