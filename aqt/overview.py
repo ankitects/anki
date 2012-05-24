@@ -49,7 +49,7 @@ class Overview(object):
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
         elif url == "empty":
-            self.mw.col.sched.remDyn(self.mw.col.decks.selected())
+            self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
             self.mw.reset()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
@@ -69,7 +69,7 @@ class Overview(object):
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
         if key == "e" and cram:
-            self.mw.col.sched.remDyn(self.mw.col.decks.selected())
+            self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
             self.mw.reset()
         if key == "l":
             self.onLimits()
