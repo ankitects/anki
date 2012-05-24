@@ -667,7 +667,29 @@ def test_cram_resched():
     assert c.ivl == 100
     assert c.due == d.sched.today + 25
     # check failure too
-
+    c = cardcopy
+    c.flush()
+    d.sched.rebuildDyn(did)
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    d.sched.emptyDyn(did)
+    c.load()
+    assert c.ivl == 100
+    assert c.due == d.sched.today + 25
+    # fail+grad early
+    c = cardcopy
+    c.flush()
+    d.sched.rebuildDyn(did)
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    d.sched.answerCard(c, 3)
+    d.sched.emptyDyn(did)
+    c.load()
+    assert c.ivl == 100
+    assert c.due == d.sched.today + 25
+    # due cards
 
 def test_adjIvl():
     d = getEmptyDeck()
