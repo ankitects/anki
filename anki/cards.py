@@ -81,7 +81,7 @@ class Card(object):
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
-        if self.queue == 2 and self.odue:
+        if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
             warn()
         assert self.due < 4294967296
         self.col.db.execute(
@@ -111,7 +111,7 @@ insert or replace into cards values
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug checks
-        if self.queue == 2 and self.odue:
+        if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
             warn()
         assert self.due < 4294967296
         self.col.db.execute(
