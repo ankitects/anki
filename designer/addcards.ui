@@ -21,30 +21,27 @@
    <property name="spacing">
     <number>3</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>12</number>
+   </property>
+   <property name="bottomMargin">
     <number>12</number>
    </property>
    <item>
-    <layout class="QGridLayout">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>4</number>
-     </property>
-     <property name="rightMargin">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
       <number>0</number>
      </property>
      <property name="bottomMargin">
-      <number>4</number>
-     </property>
-     <property name="horizontalSpacing">
       <number>0</number>
      </property>
-     <property name="verticalSpacing">
-      <number>4</number>
-     </property>
-     <item row="0" column="0">
+     <item>
       <widget class="QWidget" name="modelArea" native="true">
        <property name="minimumSize">
         <size>
@@ -54,14 +51,17 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
+     <item>
+      <widget class="QWidget" name="deckArea" native="true"/>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QWidget" name="fieldsArea" native="true">

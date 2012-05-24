@@ -325,7 +325,7 @@ class Editor(object):
         self.setupOuter()
         self.setupButtons()
         self.setupWeb()
-        self.setupTagsAndDeck()
+        self.setupTags()
         self.setupKeyboard()
 
     # Initial setup
@@ -539,7 +539,7 @@ class Editor(object):
             self.web.setHtml(_html % (
                 getBase(self.mw.col), fontForPlatform(), anki.js.jquery,
                 _("Show Duplicates")), loadCB=self._loadFinished)
-            self.updateTagsAndDeck()
+            self.updateTags()
             self.updateKeyboard()
         else:
             self.hideCompleters()
@@ -637,36 +637,16 @@ class Editor(object):
         self.note.fields[self.currentField] = html
         self.loadNote()
 
-    # Tag & deck handling
+    # Tag handling
     ######################################################################
 
-    def setupTagsAndDeck(self):
+    def setupTags(self):
         import aqt.tagedit
         g = QGroupBox(self.widget)
         g.setFlat(True)
         tb = QGridLayout()
         tb.setSpacing(12)
         tb.setMargin(6)
-        # deck
-        if self.addMode:
-            l = QLabel(_("Deck"))
-            tb.addWidget(l, 0, 0)
-            self.deck = QPushButton()
-            self.deck.setAutoDefault(False)
-            self.deck.setStyleSheet("* { text-align: left; }")
-            # not working for some reason
-            #self.deck.setShortcut("Ctrl+D")
-            self.deckShortcut = QShortcut(
-                QKeySequence("Ctrl+D"), self.widget)
-            self.deckShortcut.connect(
-                self.deckShortcut, SIGNAL("activated()"),
-                self.deck.click)
-            self.deck.connect(self.deck, SIGNAL("clicked()"),
-                              self.onChangeDeck)
-            self.deck.setToolTip("Change Deck (Ctrl+D)")
-            tb.addWidget(self.deck, 0, 1)
-        else:
-            self.deck = None
         # tags
         l = QLabel(_("Tags"))
         tb.addWidget(l, 1, 0)
@@ -677,21 +657,9 @@ class Editor(object):
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
 
-    def updateTagsAndDeck(self):
+    def updateTags(self):
         if self.tags.col != self.mw.col:
             self.tags.setCol(self.mw.col)
-        if self.addMode:
-            if self.mw.col.conf.get("addToCur", True):
-                if not self.deck.text():
-                    col = self.mw.col
-                    did = col.conf['curDeck']
-                    if col.decks.isDyn(did):
-                        did = 1
-                    self.deck.setText(self.mw.col.decks.nameOrNone(
-                        did) or _("Default"))
-            else:
-                self.deck.setText(self.mw.col.decks.nameOrNone(
-                    self.note.model()['did']) or _("Default"))
         if not self.tags.text() or not self.addMode:
             self.tags.setText(self.note.stringTags().strip())
 
@@ -705,30 +673,10 @@ class Editor(object):
 
     def saveAddModeVars(self):
         if self.addMode:
-            # save deck name
-            name = self.deck.text()
-            if not name.strip():
-                self.note.model()['did'] = 1
-            else:
-                did = self.mw.col.decks.id(name)
-                deck = self.mw.col.decks.get(did)
-                if deck['dyn']:
-                    did = 1
-                    showInfo(_("Using default deck instead of cram deck."))
-                self.note.model()['did'] = did
             # save tags to model
             m = self.note.model()
             m['tags'] = self.note.tags
             self.mw.col.models.save(m)
-
-    def onChangeDeck(self):
-        from aqt.studydeck import StudyDeck
-        cur = self.deck.text()
-        ret = StudyDeck(
-            self.mw, current=cur, accept=_("Choose"),
-            title=_("Select Deck"), help="addingnotes",
-            cancel=False, parent=self.parentWindow)
-        self.deck.setText(ret.name)
 
     def hideCompleters(self):
         self.tags.hideCompleter()

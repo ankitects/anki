@@ -11,7 +11,7 @@ from operator import itemgetter
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,
                  help="studydeck", current=None, cancel=True,
-                 parent=None, dyn=False):
+                 parent=None, dyn=False, buttons=[]):
         QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
@@ -21,6 +21,8 @@ class StudyDeck(QDialog):
         if not cancel:
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel))
+        for b in buttons:
+            self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
         if title:
             self.setWindowTitle(title)
         if not names:

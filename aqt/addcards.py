@@ -13,7 +13,7 @@ from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook
 from anki.utils import stripHTMLMedia, isMac
-import aqt.editor, aqt.modelchooser
+import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
 class AddCards(QDialog):
 
@@ -25,7 +25,7 @@ class AddCards(QDialog):
         self.setWindowTitle(_("Add"))
         self.setMinimumHeight(400)
         self.setMinimumWidth(500)
-        self.setupChooser()
+        self.setupChoosers()
         self.setupEditor()
         self.setupButtons()
         self.onReset()
@@ -41,9 +41,11 @@ class AddCards(QDialog):
         self.editor = aqt.editor.Editor(
             self.mw, self.form.fieldsArea, self, True)
 
-    def setupChooser(self):
+    def setupChoosers(self):
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.mw, self.form.modelArea)
+        self.deckChooser = aqt.deckchooser.DeckChooser(
+            self.mw, self.form.deckArea)
 
     def helpRequested(self):
         openHelp("addingnotes")
@@ -126,6 +128,7 @@ class AddCards(QDialog):
         browser.onSearch()
 
     def addNote(self, note):
+        note.model()['did'] = self.deckChooser.selectedId()
         if note.dupeOrEmpty():
             showWarning(_(
                 "The first field is empty or not unique."),
@@ -171,6 +174,7 @@ question on all cards."""), help="AddItems")
         self.removeTempNote(self.editor.note)
         self.editor.setNote(None)
         self.modelChooser.cleanup()
+        self.deckChooser.cleanup()
         self.mw.maybeReset()
         saveGeom(self, "add")
         aqt.dialogs.close("AddCards")

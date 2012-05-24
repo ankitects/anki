@@ -23,29 +23,18 @@ class ModelChooser(QHBoxLayout):
         self.widget.setLayout(self)
 
     def setupModels(self):
+
         if self.label:
-            self.modelLabel = QLabel(_("Note Type:"))
+            self.modelLabel = QLabel(_("Type"))
             self.addWidget(self.modelLabel)
         # models box
         self.models = QPushButton()
-        self.models.setStyleSheet("* { text-align: left; }")
+        #self.models.setStyleSheet("* { text-align: left; }")
         self.models.setToolTip(_("Change Note Type (Ctrl+N)"))
         s = QShortcut(QKeySequence(_("Ctrl+N")), self.widget)
         s.connect(s, SIGNAL("activated()"), self.onModelChange)
         self.addWidget(self.models)
         self.connect(self.models, SIGNAL("clicked()"), self.onModelChange)
-        # edit button
-        self.edit = QPushButton()
-        if isMac:
-            self.edit.setFixedWidth(24)
-            self.edit.setFixedHeight(21)
-        else:
-            self.edit.setFixedWidth(32)
-        self.edit.setIcon(QIcon(":/icons/gears.png"))
-        self.edit.setToolTip(_("Customize Note Types"))
-        self.edit.setAutoDefault(False)
-        self.addWidget(self.edit)
-        self.connect(self.edit, SIGNAL("clicked()"), self.onEdit)
         # layout
         sizePolicy = QSizePolicy(
             QSizePolicy.Policy(7),
@@ -72,9 +61,13 @@ class ModelChooser(QHBoxLayout):
     def onModelChange(self):
         from aqt.studydeck import StudyDeck
         current = self.deck.models.current()['name']
+        # edit button
+        edit = QPushButton(_("Manage"))
+        self.connect(edit, SIGNAL("clicked()"), self.onEdit)
         ret = StudyDeck(self.mw, names=sorted(self.deck.models.allNames()),
                         accept=_("Select"), title=_("Choose Note Type"),
-                        help="_notes", current=current, parent=self.widget)
+                        help="_notes", current=current, parent=self.widget,
+                        buttons=[edit], cancel=False)
         if not ret.name:
             return
         m = self.deck.models.byName(ret.name)
