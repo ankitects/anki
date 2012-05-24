@@ -651,9 +651,19 @@ class Editor(object):
         if self.addMode:
             l = QLabel(_("Deck"))
             tb.addWidget(l, 0, 0)
-            self.deck = aqt.tagedit.TagEdit(self.widget, type=1)
-            self.deck.connect(self.deck, SIGNAL("lostFocus"),
-                              self.saveTags)
+            self.deck = QPushButton()
+            self.deck.setAutoDefault(False)
+            self.deck.setStyleSheet("* { text-align: left; }")
+            # not working for some reason
+            #self.deck.setShortcut("Ctrl+D")
+            self.deckShortcut = QShortcut(
+                QKeySequence("Ctrl+D"), self.widget)
+            self.deckShortcut.connect(
+                self.deckShortcut, SIGNAL("activated()"),
+                self.deck.click)
+            self.deck.connect(self.deck, SIGNAL("clicked()"),
+                              self.onChangeDeck)
+            self.deck.setToolTip("Change Deck (Ctrl+D)")
             tb.addWidget(self.deck, 0, 1)
         else:
             self.deck = None
@@ -669,8 +679,6 @@ class Editor(object):
 
     def updateTagsAndDeck(self):
         if self.tags.col != self.mw.col:
-            if self.deck:
-                self.deck.setCol(self.mw.col)
             self.tags.setCol(self.mw.col)
         if self.addMode:
             if self.mw.col.conf.get("addToCur", True):
@@ -713,10 +721,17 @@ class Editor(object):
             m['tags'] = self.note.tags
             self.mw.col.models.save(m)
 
+    def onChangeDeck(self):
+        from aqt.studydeck import StudyDeck
+        cur = self.deck.text()
+        ret = StudyDeck(
+            self.mw, current=cur, accept=_("Choose"),
+            title=_("Select Deck"), help="addingnotes",
+            cancel=False, parent=self.parentWindow)
+        self.deck.setText(ret.name)
+
     def hideCompleters(self):
         self.tags.hideCompleter()
-        if self.addMode:
-            self.deck.hideCompleter()
 
     # Format buttons
     ######################################################################

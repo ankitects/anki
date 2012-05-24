@@ -10,12 +10,17 @@ from operator import itemgetter
 
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,
-                 help="studydeck", current=None, parent=None):
+                 help="studydeck", current=None, cancel=True,
+                 parent=None):
         QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
+        self.cancel = cancel
+        if not cancel:
+            self.form.buttonBox.removeButton(
+                self.form.buttonBox.button(QDialogButtonBox.Cancel))
         if title:
             self.setWindowTitle(title)
         if not names:
@@ -81,3 +86,9 @@ class StudyDeck(QDialog):
     def accept(self):
         self.name = self.names[self.form.list.currentRow()]
         QDialog.accept(self)
+
+    def reject(self):
+        if not self.cancel:
+            return self.accept()
+        QDialog.reject(self)
+
