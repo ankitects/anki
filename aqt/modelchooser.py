@@ -76,7 +76,6 @@ class ModelChooser(QHBoxLayout):
                         help="_notes", parent=self.widget)
         if not ret.name:
             return
-        print ret.name
         m = self.deck.models.byName(ret.name)
         self.deck.conf['curModel'] = m['id']
         cdeck = self.deck.decks.current()
