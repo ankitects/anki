@@ -165,6 +165,11 @@ update cards set left = left + left*1000 where queue = 1""")
                 del r['ivlfct']
             r['maxIvl'] = 36500
             col.decks.save(c)
+        for m in col.models.all():
+            for t in m['tmpls']:
+                t['bqfmt'] = ''
+                t['bafmt'] = ''
+            col.models.save(m)
         col.db.execute("update col set ver = 11")
 
 def _upgradeClozeModel(col, m):

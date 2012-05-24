@@ -60,7 +60,6 @@ defaultTemplate = {
     'qfmt': "",
     'afmt': "",
     'did': None,
-    # added in beta 13
     'bqfmt': "",
     'bafmt': "",
 }
