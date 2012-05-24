@@ -197,13 +197,24 @@
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="revSpace">
-           <property name="maximum">
-            <number>100</number>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>Easy bonus</string>
            </property>
-           <property name="singleStep">
-            <number>5</number>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Minimum sibling range</string>
            </property>
           </widget>
          </item>
@@ -220,24 +231,13 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Minimum sibling range</string>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="revSpace">
+           <property name="maximum">
+            <number>100</number>
            </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="label_19">
-           <property name="text">
-            <string>days</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string>Easy bonus</string>
+           <property name="singleStep">
+            <number>5</number>
            </property>
           </widget>
          </item>
@@ -319,6 +319,30 @@
            </property>
            <property name="value">
             <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Maximum interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="maxIvl">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>days</string>
            </property>
           </widget>
          </item>
@@ -598,6 +622,7 @@
   <tabstop>revMinSpace</tabstop>
   <tabstop>easyBonus</tabstop>
   <tabstop>fi1</tabstop>
+  <tabstop>maxIvl</tabstop>
   <tabstop>lapSteps</tabstop>
   <tabstop>lapMult</tabstop>
   <tabstop>lapMinInt</tabstop>
