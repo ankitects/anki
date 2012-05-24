@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>300</height>
+    <width>445</width>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,29 +15,26 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QComboBox" name="examples"/>
-   </item>
-   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Create deck from search</string>
+      <string>Filter</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Limit to</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Search</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QSpinBox" name="limit">
         <property name="maximumSize">
          <size>
@@ -53,18 +50,28 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="2" column="2">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>cards selected by</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="6">
+      <item row="1" column="1" colspan="6">
        <widget class="QLineEdit" name="search"/>
       </item>
-      <item row="1" column="3" colspan="4">
+      <item row="2" column="3" colspan="4">
        <widget class="QComboBox" name="order"/>
+      </item>
+      <item row="0" column="1" colspan="6">
+       <widget class="QComboBox" name="examples"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Preset</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -138,7 +145,6 @@
   <tabstop>stepsOn</tabstop>
   <tabstop>steps</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>examples</tabstop>
  </tabstops>
  <resources/>
  <connections>
