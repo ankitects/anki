@@ -47,10 +47,10 @@ class DeckBrowser(object):
         elif cmd == "cram":
             self.mw.onCram()
         elif cmd == "create":
-            n = getOnlyText(_("New deck name:"))
-            if n:
-                self.mw.col.decks.id(n)
-                self.mw.reset()
+            showInfo(_("""\
+To create a new deck, simply enter its name into any place that ask for \
+a deck name, such as when adding notes, changing a card's deck while browsing, \
+or importing text files."""))
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(',')
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
