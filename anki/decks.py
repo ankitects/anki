@@ -166,9 +166,12 @@ class DeckManager(object):
             self.select(int(self.decks.keys()[0]))
         self.save()
 
-    def allNames(self):
+    def allNames(self, dyn=True):
         "An unsorted list of all deck names."
-        return [x['name'] for x in self.decks.values()]
+        if dyn:
+            return [x['name'] for x in self.decks.values()]
+        else:
+            return [x['name'] for x in self.decks.values() if not x['dyn']]
 
     def all(self):
         "A list of all decks."
