@@ -528,7 +528,6 @@ class Browser(QMainWindow):
             self.editor.setNote(self.card.note(reload=True))
             self.editor.card = self.card
         self.toolbar.draw()
-        self.buildTree()
 
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
@@ -1075,14 +1074,16 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
         addHook("editFocusLost", self.refreshCurrentCardFilter)
-        addHook("newTag", self.buildTree)
+        for t in "newTag", "newModel", "newDeck":
+            addHook(t, self.buildTree)
 
     def teardownHooks(self):
         remHook("reset", self.onReset)
         remHook("editTimer", self.refreshCurrentCard)
         remHook("editFocusLost", self.refreshCurrentCard)
         remHook("undoState", self.onUndoState)
-        remHook("newTag", self.buildTree)
+        for t in "newTag", "newModel", "newDeck":
+            remHook(t, self.buildTree)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
