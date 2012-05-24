@@ -7,6 +7,7 @@ from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
     timestampID, fieldChecksum, json
 from anki.lang import _
 from anki.consts import *
+from anki.hooks import runHook
 
 # Models
 ##########################################################################
@@ -86,6 +87,7 @@ class ModelManager(object):
             if templates:
                 self._syncTemplates(m)
         self.changed = True
+        runHook("newModel")
 
     def flush(self):
         "Flush the registry if any models were changed."

@@ -4,6 +4,7 @@
 
 import copy
 from anki.utils import intTime, ids2str, json
+from anki.hooks import runHook
 from anki.consts import *
 from anki.lang import _
 from anki.errors import DeckRenameError
@@ -127,6 +128,7 @@ class DeckManager(object):
         self.decks[str(id)] = g
         self.save(g)
         self.maybeAddToActive()
+        runHook("newDeck")
         return int(id)
 
     def rem(self, did, cardsToo=False, childrenToo=True):
