@@ -42,7 +42,7 @@ class CardStats(object):
             self.addLine(_("Due"), next)
             if c.queue == 2:
                 self.addLine(_("Interval"), fmt(c.ivl * 86400))
-            self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
+            self.addLine(_("Factor"), "%d%%" % (c.factor/10.0))
             self.addLine(_("Reviews"), "%d" % c.reps)
             self.addLine(_("Lapses"), "%d" % c.lapses)
             (cnt, total) = self.col.db.first(
@@ -571,12 +571,12 @@ where did in %s """ % self._limit())
         self._line(i, _("Total notes"), f)
         (low, avg, high) = self._factors()
         if low:
-            self._line(i, _("Lowest ease factor"), "%d%%" % low)
-            self._line(i, _("Average ease factor"), "%d%%" % avg)
-            self._line(i, _("Highest ease factor"), "%d%%" % high)
+            self._line(i, _("Lowest factor"), "%d%%" % low)
+            self._line(i, _("Average factor"), "%d%%" % avg)
+            self._line(i, _("Highest factor"), "%d%%" % high)
         info = "<table width=100%>" + "".join(i) + "</table><p>"
         info += _('''\
-A card's <i>ease factor</i> is the size of the next interval \
+A card's <i>factor</i> is the size of the next interval \
 when you answer "good" on a review.''')
         txt = self._title(_("Cards Types"),
                           _("The division of cards in your deck(s)."))
