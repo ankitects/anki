@@ -102,7 +102,7 @@ class StudyDeck(QDialog):
         QDialog.reject(self)
 
     def onAddDeck(self):
-        n = getOnlyText(_("New deck name:"))
+        n = getOnlyText(_("New deck name:"), default=self.form.filter.text())
         if n:
             self.mw.col.decks.id(n)
             self.name = n
