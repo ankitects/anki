@@ -1100,6 +1100,8 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
             self.mw.pm.profile['editFontFamily']))
         frm.fontSize.setValue(self.mw.pm.profile['editFontSize'])
         frm.lineSize.setValue(self.mw.pm.profile['editLineSize'])
+        # disabled for now
+        frm.fullSearch.setShown(False)
         frm.fullSearch.setChecked(self.mw.pm.profile['fullSearch'])
         if d.exec_():
             self.mw.pm.profile['editFontFamily'] = (
