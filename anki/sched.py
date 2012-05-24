@@ -800,10 +800,12 @@ did = ? and queue = 2 and due <= ? limit ?""",
         # apply interval factor adjustment
         interval = self._ivlWithFactor(conf, interval)
         # must be at least one day greater than previous interval; two if easy
-        return max(card.ivl + (2 if ease==4 else 1), int(interval))
+        interval = max(card.ivl + (2 if ease==4 else 1), int(interval))
+        # interval capped?
+        return min(interval, conf['maxIvl'])
 
     def _ivlWithFactor(self, conf, ivl):
-        return ivl * conf.get('ivlfct', 1)
+        return ivl * conf.get('ivlFct', 1)
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
@@ -927,7 +929,9 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         assert card.factor
         elapsed = card.ivl - (card.odue - self.today)
         factor = ((card.factor/1000.0)+1.2)/2.0
-        return int(max(card.ivl, elapsed * factor, 1))
+        ivl = int(max(card.ivl, elapsed * factor, 1))
+        conf = self._revConf(card)
+        return min(conf['maxIvl'], ivl)
 
     # Leeches
     ##########################################################################
@@ -1007,15 +1011,8 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         # normal deck
         if not card.odid:
             return conf['rev']
-        # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
-        return dict(
-            # original deck
-            ease4=oconf['rev']['ease4'],
-            ivlfct=oconf['rev'].get('ivlfct', 1),
-            minSpace=oconf['rev']['minSpace'],
-            fuzz=oconf['rev']['fuzz']
-        )
+        # dynamic deck
+        return self.col.decks.confForDid(card.odid)['rev']
 
     def _deckLimit(self):
         return ids2str(self.col.decks.active())
