@@ -8,7 +8,7 @@ import anki.importing as importing
 from aqt.utils import getOnlyText, getFile, showText, showWarning
 from anki.errors import *
 from anki.hooks import addHook, remHook
-import aqt.forms, aqt.modelchooser
+import aqt.forms, aqt.modelchooser, aqt.deckchooser
 
 class ChangeMap(QDialog):
     def __init__(self, mw, model, current):
@@ -61,9 +61,6 @@ class ImportDialog(QDialog):
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
         from aqt.tagedit import TagEdit
-        self.deck = TagEdit(self, type=1)
-        self.frm.gridLayout_2.addWidget(self.deck, 1, 1)
-        self.deck.setCol(self.mw.col)
         self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
                      SIGNAL("clicked()"), self.helpRequested)
         self.setupMappingFrame()
@@ -80,6 +77,8 @@ class ImportDialog(QDialog):
         self.model = self.mw.col.models.current()
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.mw, self.frm.modelArea, label=False)
+        self.deck = aqt.deckchooser.DeckChooser(
+            self.mw, self.frm.deckArea, label=False)
         self.connect(self.frm.importButton, SIGNAL("clicked()"),
                      self.doImport)
 
@@ -93,7 +92,7 @@ class ImportDialog(QDialog):
                 did = 1
         else:
             did = self.importer.model['did']
-        self.deck.setText(self.mw.col.decks.name(did))
+        #self.deck.setText(self.mw.col.decks.name(did))
 
     def onDelimiter(self):
         str = getOnlyText(_("""\
@@ -140,10 +139,7 @@ you can enter it here. Use \\t to represent tab."""),
             showWarning(
                 _("The first field of the note type must be mapped."))
             return
-        deck = self.deck.text().strip()
-        if not deck:
-            deck = _("Default")
-        did = self.mw.col.decks.id(deck)
+        did = self.deck.selectedId()
         if did != self.importer.model['did']:
             self.importer.model['did'] = did
             self.mw.col.models.save(self.importer.model)

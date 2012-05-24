@@ -46,6 +46,9 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="1">
+         <widget class="QWidget" name="deckArea" native="true"/>
+        </item>
        </layout>
       </item>
      </layout>
