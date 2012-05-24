@@ -25,6 +25,8 @@ class StudyDeck(QDialog):
             self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
         else:
             b = QPushButton(_("Add"))
+            b.setShortcut(QKeySequence("Ctrl+N"))
+            b.setToolTip(_("Add New Deck (Ctrl+N)"))
             self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
             b.connect(b, SIGNAL("clicked()"), self.onAddDeck)
         if title:
