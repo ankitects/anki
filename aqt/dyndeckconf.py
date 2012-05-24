@@ -5,7 +5,7 @@
 from aqt.qt import *
 import aqt
 from anki.utils import ids2str
-from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
+from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser
 from operator import itemgetter
 
 class DeckConf(QDialog):
@@ -116,7 +116,11 @@ class DeckConf(QDialog):
     def accept(self):
         if not self.saveConf():
             return
-        self.mw.col.sched.rebuildDyn()
+        if not self.mw.col.sched.rebuildDyn():
+            if askUser(_("""\
+The provided search did not match any cards. Would you like to revise \
+it?""")):
+                return
         self.mw.reset()
         QDialog.accept(self)
 
