@@ -629,6 +629,28 @@ def test_cram_rem():
     assert c.type == c.queue == 0
     assert c.due == oldDue
 
+def test_cram_resched():
+    # add card
+    d = getEmptyDeck()
+    f = d.newNote()
+    f['Front'] = u"one"
+    d.addNote(f)
+    # cram deck
+    did = d.decks.newDyn("Cram")
+    cram = d.decks.get(did)
+    cram['resched'] = False
+    d.sched.rebuildDyn(did)
+    d.reset()
+    # graduate should return it to new
+    c = d.sched.getCard()
+    ni = d.sched.nextIvl
+    assert ni(c, 1) == 60
+    assert ni(c, 2) == 600
+    assert ni(c, 3) == 0
+    assert d.sched.nextIvlStr(c, 3) == ""
+    d.sched.answerCard(c, 3)
+    assert c.queue == c.type == 0
+
 def test_adjIvl():
     d = getEmptyDeck()
     # add two more templates and set second active

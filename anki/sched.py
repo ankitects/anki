@@ -62,7 +62,7 @@ class Scheduler(object):
             card.left = self._startingLeft(card)
             # dynamic?
             if card.odid and card.type == 2:
-                if self._cardConf(card)['resched']:
+                if self._resched(card):
                     # reviews get their ivl boosted on first sight
                     card.ivl = self._dynIvlBoost(card)
                     card.odue = self.today + card.ivl
@@ -560,10 +560,15 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.queue = 2
         card.type = 2
         # if we were dynamic, graduating means moving back to the old deck
+        resched = self._resched(card)
         if card.odid:
             card.did = card.odid
             card.odue = 0
             card.odid = 0
+            # if rescheduling is off, it needs to be set back to a new card
+            if not resched:
+                card.queue = card.type = 0
+                card.due = self.col.nextID("pos")
 
     def _startingLeft(self, card):
         conf = self._lrnConf(card)
@@ -1017,6 +1022,12 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
     def _deckLimit(self):
         return ids2str(self.col.decks.active())
 
+    def _resched(self, card):
+        conf = self._cardConf(card)
+        if not conf['dyn']:
+            return True
+        return conf['resched']
+
     # Daily cutoff
     ##########################################################################
 
@@ -1081,8 +1092,10 @@ your short-term review workload will become."""))
 
     def nextIvlStr(self, card, ease, short=False):
         "Return the next interval for CARD as a string."
-        return fmtTimeSpan(
-            self.nextIvl(card, ease), short=short)
+        ivl = self.nextIvl(card, ease)
+        if not ivl:
+            return ""
+        return fmtTimeSpan(ivl, short=short)
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
@@ -1108,6 +1121,8 @@ your short-term review workload will become."""))
             return self._delayForGrade(conf, len(conf['delays']))
         elif ease == 3:
             # early removal
+            if not self._resched(card):
+                return 0
             return self._graduatingIvl(card, conf, True, adj=False) * 86400
         else:
             left = card.left%1000 - 1
