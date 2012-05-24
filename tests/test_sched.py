@@ -689,7 +689,42 @@ def test_cram_resched():
     c.load()
     assert c.ivl == 100
     assert c.due == d.sched.today + 25
-    # due cards
+    # due cards - pass
+    c = cardcopy
+    c.due = -25
+    c.flush()
+    d.sched.rebuildDyn(did)
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    d.sched.emptyDyn(did)
+    c.load()
+    assert c.ivl == 100
+    assert c.due == -25
+    # fail
+    c = cardcopy
+    c.due = -25
+    c.flush()
+    d.sched.rebuildDyn(did)
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    d.sched.emptyDyn(did)
+    c.load()
+    assert c.ivl == 100
+    assert c.due == -25
+    # fail with normal grad
+    c = cardcopy
+    c.due = -25
+    c.flush()
+    d.sched.rebuildDyn(did)
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    d.sched.answerCard(c, 3)
+    c.load()
+    assert c.ivl == 100
+    assert c.due == -25
 
 def test_adjIvl():
     d = getEmptyDeck()

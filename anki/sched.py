@@ -746,15 +746,17 @@ did = ? and queue = 2 and due <= ? limit ?""",
 
     def _rescheduleLapse(self, card):
         conf = self._lapseConf(card)
-        card.lapses += 1
         card.lastIvl = card.ivl
-        card.ivl = self._nextLapseIvl(card, conf)
-        card.factor = max(1300, card.factor-200)
-        card.due = self.today + card.ivl
+        if self._resched(card):
+            card.lapses += 1
+            card.ivl = self._nextLapseIvl(card, conf)
+            card.factor = max(1300, card.factor-200)
+            card.due = self.today + card.ivl
         # put back in the learn queue?
         delay = 0
         if conf['delays']:
-            card.odue = card.due
+            if not card.odue:
+                card.odue = card.due
             delay = self._delayForGrade(conf, 0)
             card.due = int(delay + time.time())
             card.left = len(conf['delays'])
@@ -772,10 +774,13 @@ did = ? and queue = 2 and due <= ? limit ?""",
     def _rescheduleRev(self, card, ease):
         # update interval
         card.lastIvl = card.ivl
-        self._updateRevIvl(card, ease)
-        # then the rest
-        card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
-        card.due = self.today + card.ivl
+        if self._resched(card):
+            self._updateRevIvl(card, ease)
+            # then the rest
+            card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
+            card.due = self.today + card.ivl
+        else:
+            card.due = card.odue
         if card.odid:
             card.did = card.odid
             card.odid = 0
