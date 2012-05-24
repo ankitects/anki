@@ -915,29 +915,21 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def setDeck(self):
-        d = QDialog(self)
-        d.setWindowModality(Qt.WindowModal)
-        frm = aqt.forms.setgroup.Ui_Dialog()
-        frm.setupUi(d)
-        from aqt.tagedit import TagEdit
-        te = TagEdit(d, type=1)
-        frm.verticalLayout_2.insertWidget(1, te)
-        te.setCol(self.col)
-        d.connect(d, SIGNAL("accepted()"), lambda: self._onSetDeck(frm, te))
-        d.show()
-        te.setFocus()
-
-    def _onSetDeck(self, frm, te):
-        did = self.col.decks.id(unicode(te.text()))
+        from aqt.studydeck import StudyDeck
+        ret = StudyDeck(
+            self.mw, current=None, accept=_("Move Cards"),
+            title=_("Change Deck"), help="browse", parent=self)
+        if not ret.name:
+            return
+        did = self.col.decks.id(ret.name)
         deck = self.col.decks.get(did)
         if deck['dyn']:
-            showWarning(_("Cards can't be manually moved into a cram deck."))
+            showWarning(_("Cards can't be manually moved into a filtered deck."))
             return
         self.model.beginReset()
-        self.mw.checkpoint(_("Set Deck"))
+        self.mw.checkpoint(_("Change Deck"))
         mod = intTime()
         usn = self.col.usn()
-        did = self.col.decks.id(unicode(te.text()))
         self.col.db.execute("""
 update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
                 self.selectedCards()), usn, mod, did)
