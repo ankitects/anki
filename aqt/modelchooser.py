@@ -71,9 +71,10 @@ class ModelChooser(QHBoxLayout):
 
     def onModelChange(self):
         from aqt.studydeck import StudyDeck
+        current = self.deck.models.current()['name']
         ret = StudyDeck(self.mw, names=sorted(self.deck.models.allNames()),
                         accept=_("Select"), title=_("Choose Note Type"),
-                        help="_notes", parent=self.widget)
+                        help="_notes", current=current, parent=self.widget)
         if not ret.name:
             return
         m = self.deck.models.byName(ret.name)

@@ -10,7 +10,7 @@ from operator import itemgetter
 
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,
-                 help="studydeck", parent=None):
+                 help="studydeck", current=None, parent=None):
         QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
@@ -20,6 +20,7 @@ class StudyDeck(QDialog):
             self.setWindowTitle(title)
         if not names:
             names = sorted(self.mw.col.decks.allNames())
+            current = self.mw.col.decks.current()['name']
         self.origNames = names
         self.name = None
         self.ok = self.form.buttonBox.addButton(
@@ -31,7 +32,9 @@ class StudyDeck(QDialog):
         self.connect(self.form.filter,
                      SIGNAL("textEdited(QString)"),
                      self.redraw)
-        self.redraw("")
+        self.show()
+        # redraw after show so position at center correct
+        self.redraw("", current)
         self.exec_()
 
     def eventFilter(self, obj, evt):
@@ -52,11 +55,17 @@ class StudyDeck(QDialog):
                 return True
         return False
 
-    def redraw(self, filt):
+    def redraw(self, filt, focus=None):
         self.names = [n for n in self.origNames if self._matches(n, filt)]
-        self.form.list.clear()
-        self.form.list.addItems(self.names)
-        self.form.list.setCurrentRow(0)
+        l = self.form.list
+        l.clear()
+        l.addItems(self.names)
+        if focus in self.names:
+            idx = self.names.index(focus)
+        else:
+            idx = 0
+        l.setCurrentRow(idx)
+        l.scrollToItem(l.item(idx), QAbstractItemView.PositionAtCenter)
 
     def _matches(self, name, filt):
         name = name.lower()
