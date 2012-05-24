@@ -143,7 +143,11 @@ update cards set left = left + left*1000 where queue = 1""")
         col.modSchema()
         for d in col.decks.all():
             if d['dyn']:
-                d['terms'] = [[d['search'], d['limit'], d['order']]]
+                order = d['order']
+                # failed order was removed
+                if order >= 5:
+                    order -= 1
+                d['terms'] = [[d['search'], d['limit'], order]]
                 del d['search']
                 del d['limit']
                 del d['order']
