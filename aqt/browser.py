@@ -381,6 +381,9 @@ class Browser(QMainWindow):
         # card info
         self.infoCut = QShortcut(QKeySequence("Ctrl+Shift+i"), self)
         c(self.infoCut, SIGNAL("activated()"), self.showCardInfo)
+        # set deck
+        self.changeDeckCut = QShortcut(QKeySequence("Ctrl+d"), self)
+        c(self.changeDeckCut, SIGNAL("activated()"), self.setDeck)
         # help
         c(f.actionGuide, s, self.onHelp)
         runHook('browser.setupMenus', self)
@@ -1473,7 +1476,7 @@ class BrowserToolbar(Toolbar):
     def draw(self):
         mark = self.browser.isMarked()
         pause = self.browser.isSuspended()
-        def borderImg(link, icon, on, title):
+        def borderImg(link, icon, on, title, tooltip=None):
             if on:
                 fmt = '''\
 <a class=hitem title="%s" href="%s">\
@@ -1481,13 +1484,15 @@ class BrowserToolbar(Toolbar):
             else:
                 fmt = '''\
 <a class=hitem title="%s" href="%s"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
-            return fmt % (title, link, icon, title)
+            return fmt % (tooltip or title, link, icon, title)
         right = "<div>"
         right += borderImg("add", "add16", False, _("Add"))
-        right += borderImg("info", "info", False, _("Info"))
+        right += borderImg("info", "info", False, _("Info"),
+                       _("Card Info (Ctrl+Shift+I)"))
         right += borderImg("mark", "star16", mark, _("Mark"))
         right += borderImg("pause", "pause16", pause, _("Suspend"))
-        right += borderImg("setDeck", "deck16", False, _("Change Deck"))
+        right += borderImg("setDeck", "deck16", False, _("Change Deck"),
+                           _("Move To Deck (Ctrl+D)"))
         right += borderImg("addtag", "addtag16", False, _("Add Tags"))
         right += borderImg("deletetag", "deletetag16", False, _("Remove Tags"))
         right += borderImg("delete", "delete16", False, _("Delete"))
