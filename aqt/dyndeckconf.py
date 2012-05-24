@@ -41,23 +41,28 @@ class DeckConf(QDialog):
     def loadConf(self):
         f = self.form
         d = self.deck
-        f.search.setText(d['search'])
-        f.steps.setText(self.listToUser(d['delays']))
-        f.order.setCurrentIndex(d['order'])
-        f.limit.setValue(d['limit'])
-        f.fmult.setValue(d['fmult']*100)
+        search, limit, order = d['terms'][0]
+        f.search.setText(search)
+        if d['delays']:
+            f.steps.setText(self.listToUser(d['delays']))
+            f.stepsOn.setChecked(True)
+        else:
+            f.steps.setText("1 10")
+            f.stepsOn.setChecked(False)
+        f.order.setCurrentIndex(order)
+        f.limit.setValue(limit)
 
     def saveConf(self):
         f = self.form
         d = self.deck
-        steps = self.userToList(f.steps)
-        if not steps:
-            return
-        d['delays'] = steps
-        d['search'] = f.search.text()
-        d['order'] = f.order.currentIndex()
-        d['limit'] = f.limit.value()
-        d['fmult'] = f.fmult.value() / 100.0
+        d['delays'] = None
+        if f.stepsOn.isChecked():
+            steps = self.userToList(f.steps)
+            if steps:
+                d['delays'] = steps
+        d['terms'][0] = [f.search.text(),
+                         f.limit.value(),
+                         f.order.currentIndex()]
         self.mw.col.decks.save(d)
         return True
 

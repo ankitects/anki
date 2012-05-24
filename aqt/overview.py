@@ -95,10 +95,10 @@ class Overview(object):
 
     def _desc(self, deck):
         if deck['dyn']:
-            desc = "%s<br>%s<br>%s" % (
-                _("Search: %s") % deck['search'],
-                _("Order: %s") % dynOrderLabels()[deck['order']],
-                _("Steps: %s") % " ".join([str(x) for x in deck['delays']]))
+            search, limit, order  = deck['terms'][0]
+            desc = "%s<br>%s" % (
+                _("Search: %s") % search,
+                _("Order: %s") % dynOrderLabels()[order].lower())
         else:
             desc = deck.get("desc", "")
         if not desc:
