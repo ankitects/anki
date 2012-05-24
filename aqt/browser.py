@@ -1257,12 +1257,16 @@ select fm.id, fm.name from fieldmodels fm""")
         tv.setCurrentIndex(idx)
 
     def onPreviousCard(self):
+        f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveUp)
         self.editor.web.setFocus()
+        self.editor.web.eval("focusField(%d)" % f)
 
     def onNextCard(self):
+        f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveDown)
         self.editor.web.setFocus()
+        self.editor.web.eval("focusField(%d)" % f)
 
     def onFirstCard(self):
         sm = self.form.tableView.selectionModel()
