@@ -5,6 +5,7 @@ from anki.utils import stripHTML
 from anki.hooks import runFilter
 from anki.template import furigana; furigana.install()
 from anki.consts import HELP_SITE
+from anki.lang import _
 
 clozeReg = r"\{\{c%s::(.*?)(::(.*?))?\}\}"
 
