@@ -243,18 +243,22 @@ class Finder(object):
     self.col.sched.today, self.col.sched.dayCutoff)
 
     def _findRated(self, val):
+        # days(:optional_ease)
         r = val.split(":")
-        if len(r) != 2 or r[0] not in ("1", "2", "3", "4"):
-            return
         try:
-            days = int(r[1])
+            days = int(r[0])
         except ValueError:
             return
-        # bound the search
         days = min(days, 31)
-        lim = self.col.sched.dayCutoff - 86400*days
-        return ("c.id in (select cid from revlog where ease=%s and id>%d)" %
-                (r[0], (lim*1000)))
+        # ease
+        ease = ""
+        if len(r) > 1:
+            if r[1] not in ("1", "2", "3", "4"):
+                return
+            ease = "and ease=%s" % r[1]
+        cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
+        return ("c.id in (select cid from revlog where id>%d %s)" %
+                (cutoff, ease))
 
     def _findProp(self, val):
         # extract
