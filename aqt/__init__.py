@@ -5,10 +5,10 @@ import os, sys, __builtin__
 from aqt.qt import *
 import locale, gettext
 import anki.lang
+from anki.consts import HELP_SITE as appHelpSite
 
 appVersion="2.0-beta12"
 appWebsite="http://ankisrs.net/"
-appHelpSite="http://ankisrs.net/docs/dev/manual.html"
 appChanges="http://ankisrs.net/docs/dev/changes.html"
 appDonate="http://ankisrs.net/support/"
 appShared="http://beta.ankiweb.net/shared/"
