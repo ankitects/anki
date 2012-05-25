@@ -608,7 +608,7 @@ function showAnswer(txt) {
     def _buttonTime(self, i):
         if not self.mw.col.conf['estTimes']:
             return "<div class=spacer></div>"
-        txt = self.mw.col.sched.nextIvlStr(self.card, i, True)
+        txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
         return '<span class=nobold>%s</span><br>' % txt
 
     # Leeches
