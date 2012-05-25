@@ -63,7 +63,7 @@ class Overview(object):
         key = unicode(evt.text())
         if key == "o":
             self.mw.onDeckConf()
-        if key == "c" and not cram:
+        if key == "f" and not cram:
             self.mw.onCram()
         if key == "r" and cram:
             self.mw.col.sched.rebuildDyn()
@@ -194,7 +194,7 @@ text-align: center;
                 if self.mw.col.sched.newDue() or \
                    self.mw.col.sched.revDue():
                     links.append(["L", "limits", _("Study More")])
-            links.append(["C", "cram", _("Filter/Cram")])
+            links.append(["F", "cram", _("Filter/Cram")])
         buf = ""
         for b in links:
             if b[0]:

@@ -57,7 +57,7 @@ or importing text files."""))
 
     def _keyHandler(self, evt):
         key = unicode(evt.text())
-        if key == "c":
+        if key == "f":
             self.mw.onCram()
 
     def _selDeck(self, did):
@@ -256,7 +256,7 @@ body { margin: 1em; -webkit-user-select: none; }
             ["", "shared", _("Get Shared")],
             ["", "create", _("Create")],
             ["Ctrl+I", "import", _("Import File")],
-            ["C", "cram", _("Filter/Cram")],
+            ["F", "cram", _("Filter/Cram")],
         ]
         buf = ""
         for b in links:
