@@ -21,8 +21,9 @@ class StudyDeck(QDialog):
         if not cancel:
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel))
-        for b in buttons:
-            self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
+        if buttons:
+            for b in buttons:
+                self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
         else:
             b = QPushButton(_("Add"))
             b.setShortcut(QKeySequence("Ctrl+N"))
