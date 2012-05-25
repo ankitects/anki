@@ -101,7 +101,7 @@ def test_templates():
     # and should have updated the other cards' ordinals
     c = f.cards()[0]
     assert c.ord == 0
-    stripHTML(c.q()) == "2"
+    assert stripHTML(c.q()) == "1"
     # it shouldn't be possible to orphan notes by removing templates
     t = mm.newTemplate(m)
     mm.addTemplate(m, t)
