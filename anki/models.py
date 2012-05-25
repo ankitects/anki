@@ -544,6 +544,9 @@ select id from notes where mid = ?)""" % " ".join(map),
                 "{{c(\d+)::[^}]*?}}", sflds[ord])])
         if -1 in ords:
             ords.remove(-1)
+        if not ords:
+            # empty clozes use first ord
+            return [0]
         return list(ords)
 
     # Sync handling

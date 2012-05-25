@@ -46,6 +46,8 @@ SYNC_ZIP_SIZE = int(2.5*1024*1024)
 SYNC_URL = os.environ.get("SYNC_URL") or "https://beta.ankiweb.net/sync/"
 SYNC_VER = 5
 
+HELP_SITE="http://ankisrs.net/docs/dev/manual.html"
+
 # Labels
 ##########################################################################
 
