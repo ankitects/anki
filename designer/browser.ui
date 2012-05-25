@@ -198,34 +198,19 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QGroupBox" name="groupBox">
-             <property name="title">
-              <string>Card's Note:</string>
+            <widget class="QWidget" name="fieldsArea" native="true">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
              </property>
-             <property name="flat">
-              <bool>true</bool>
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>200</height>
+              </size>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <property name="margin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QWidget" name="fieldsArea" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>1</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>50</width>
-                  <height>200</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-             </layout>
             </widget>
            </item>
           </layout>
