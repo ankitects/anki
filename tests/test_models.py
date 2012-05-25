@@ -122,10 +122,11 @@ def test_cloze():
     d.models.setCurrent(d.models.byName("Cloze"))
     f = d.newNote()
     assert f.model()['name'] == "Cloze"
-    # a cloze model with no clozes is empty
+    # a cloze model with no clozes is not empty
     f['Text'] = u'nothing'
-    assert d.addNote(f) == 0
+    assert d.addNote(f)
     # try with one cloze
+    f = d.newNote()
     f['Text'] = "hello {{c1::world}}"
     assert d.addNote(f) == 1
     assert "hello <span class=cloze>[...]</span>" in f.cards()[0].q()
