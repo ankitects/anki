@@ -105,6 +105,8 @@ class DeckConf(QDialog):
             steps = self.userToList(f.steps)
             if steps:
                 d['delays'] = steps
+        else:
+            d['delays'] = None
         d['terms'][0] = [f.search.text(),
                          f.limit.value(),
                          f.order.currentIndex()]
