@@ -688,9 +688,9 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         import aqt.dyndeckconf
         n = 1
         decks = self.col.decks.allNames()
-        while _("Filter/Cram %d") % n in decks:
+        while _("Filtered Deck %d") % n in decks:
             n += 1
-        name = _("Filter/Cram %d") % n
+        name = _("Filtered Deck %d") % n
         name = getOnlyText(_("New deck name:"), default=name)
         if not name:
             return
