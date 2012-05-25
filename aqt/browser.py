@@ -700,8 +700,10 @@ by clicking on one on the left."""))
 
     def _systemTagTree(self, root):
         tags = (
-            (_("Whole Collection"), "anki", ""),
+            (_("Whole Collection"), "ankibw", ""),
             (_("Current Deck"), "deck16", "deck:current"),
+            (_("Studied Today"), "view-pim-calendar.png", "rated:1"),
+            (_("Again Today"), "view-pim-calendar.png", "rated:1:1"),
             (_("New"), "plus16.png", "is:new"),
             (_("Learning"), "stock_new_template_red.png", "is:learn"),
             (_("Review"), "clock16.png", "is:review"),
