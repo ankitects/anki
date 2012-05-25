@@ -303,6 +303,7 @@ class Finder(object):
 
     def _findModel(self, val):
         ids = []
+        val = val.lower()
         for m in self.col.models.all():
             if m['name'].lower() == val:
                 ids.append(m['id'])
