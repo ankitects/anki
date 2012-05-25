@@ -91,7 +91,7 @@ def dynExamples():
         [_("Review today's forgotten cards"), dict(
             search="rated:1:1", order=4)],
         [_("Review ahead by two days"), dict(
-            search="prop:due<2", order=6)],
+            search="prop:due<=2", order=6)],
         [_("Study all cards in random order"), dict(
             search="", order=1, steps="1 10")],
         [_("Review due cards with tag 'important'"), dict(
