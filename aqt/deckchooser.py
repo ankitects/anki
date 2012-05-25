@@ -69,7 +69,7 @@ class DeckChooser(QHBoxLayout):
         current = self.deck.text()
         ret = StudyDeck(
             self.mw, current=current, accept=_("Choose"),
-            title=_("Select Deck"), help="addingnotes",
+            title=_("Choose Deck"), help="addingnotes",
             cancel=False, parent=self.widget)
         self.deck.setText(ret.name)
 
