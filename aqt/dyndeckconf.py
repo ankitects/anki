@@ -32,6 +32,9 @@ class DeckConf(QDialog):
         self.setupExamples()
         self.setupOrder()
         self.loadConf()
+        self.show()
+        if first:
+            self.form.examples.showPopup()
         self.exec_()
 
     def setupOrder(self):
@@ -69,7 +72,6 @@ class DeckConf(QDialog):
         if self.search:
             search.append(self.search)
         f.search.setText(" ".join(search))
-        print "set order to", p['order']
         f.order.setCurrentIndex(p['order'])
         f.resched.setChecked(p.get("resched", True))
         if p.get("steps"):
