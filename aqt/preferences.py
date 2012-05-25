@@ -53,7 +53,7 @@ class Preferences(QDialog):
         f.showProgress.setChecked(qc['dueCounts'])
         f.newSpread.addItems(c.newCardSchedulingLabels().values())
         f.newSpread.setCurrentIndex(qc['newSpread'])
-        f.useCurrent.setChecked(qc.get("addToCur", True))
+        f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
 
     def updateCollection(self):
         f = self.form
@@ -64,7 +64,7 @@ class Preferences(QDialog):
         qc['newSpread'] = f.newSpread.currentIndex()
         qc['timeLim'] = f.timeLimit.value()*60
         qc['collapseTime'] = f.lrnCutoff.value()*60
-        qc['addToCur'] = f.useCurrent.isChecked()
+        qc['addToCur'] = not f.useCurrent.currentIndex()
         hrs = f.dayOffset.value()
         old = self.startDate
         date = datetime.datetime(
