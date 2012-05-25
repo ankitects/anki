@@ -94,6 +94,7 @@ class DeckConf(QDialog):
         else:
             f.steps.setText("1 10")
             f.stepsOn.setChecked(False)
+        f.resched.setChecked(d['resched'])
         f.order.setCurrentIndex(order)
         f.limit.setValue(limit)
 
@@ -110,6 +111,7 @@ class DeckConf(QDialog):
         d['terms'][0] = [f.search.text(),
                          f.limit.value(),
                          f.order.currentIndex()]
+        d['resched'] = f.resched.isChecked()
         self.mw.col.decks.save(d)
         return True
 
