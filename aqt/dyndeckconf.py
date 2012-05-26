@@ -45,7 +45,11 @@ class DeckConf(QDialog):
         import anki.consts as cs
         f = self.form
         d = self.dynExamples = cs.dynExamples()
-        f.examples.addItems([x[0] for x in d])
+        for c, row in enumerate(d):
+            if not row:
+                f.examples.insertSeparator(c)
+            else:
+                f.examples.addItem(row[0])
         self.connect(f.examples, SIGNAL("activated(int)"),
                      self.onExample)
         # we'll need to reset whenever something is changed
