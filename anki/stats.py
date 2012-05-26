@@ -30,16 +30,17 @@ class CardStats(object):
         if first:
             self.addLine(_("First Review"), self.date(first/1000))
             self.addLine(_("Latest Review"), self.date(last/1000))
-        if c.queue in (1,2):
-            if c.queue == 2:
-                next = time.time()+((c.due - self.col.sched.today)*86400)
+        if c.type in (1,2):
+            if c.odid or c.queue < 0:
+                next = None
             else:
-                next = c.due
-            if c.odid:
-                next = _("(cram)")
-            else:
+                if c.queue in (2,3):
+                    next = time.time()+((c.due - self.col.sched.today)*86400)
+                else:
+                    next = c.due
                 next = self.date(next)
-            self.addLine(_("Due"), next)
+            if next:
+                self.addLine(_("Due"), next)
             if c.queue == 2:
                 self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor/10.0))
