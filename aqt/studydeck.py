@@ -92,7 +92,7 @@ class StudyDeck(QDialog):
         for c in filt:
             if c not in name:
                 return False
-            name = name[name.index(c):]
+            name = name[name.index(c)+1:]
         return True
 
     def accept(self):
