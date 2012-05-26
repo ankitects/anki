@@ -421,7 +421,7 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
         for ords, cnt, flds in self.db.all("""
 select group_concat(ord+1), count(), flds from cards c, notes n
 where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
-            rep += _("Cards: %(c)s\nFields: %(f)s\n\n") % dict(
+            rep += _("Empty card numbers: %(c)s\nFields: %(f)s\n\n") % dict(
                 c=ords, f=flds.replace("\x1f", " / "))
         return rep
 
