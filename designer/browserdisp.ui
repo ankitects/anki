@@ -27,7 +27,7 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Template for back column in browser</string>
+      <string>Template for back column in browser:</string>
      </property>
     </widget>
    </item>
