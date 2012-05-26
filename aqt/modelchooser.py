@@ -23,7 +23,6 @@ class ModelChooser(QHBoxLayout):
         self.widget.setLayout(self)
 
     def setupModels(self):
-
         if self.label:
             self.modelLabel = QLabel(_("Type"))
             self.addWidget(self.modelLabel)
@@ -64,10 +63,13 @@ class ModelChooser(QHBoxLayout):
         # edit button
         edit = QPushButton(_("Manage"))
         self.connect(edit, SIGNAL("clicked()"), self.onEdit)
-        ret = StudyDeck(self.mw, names=sorted(self.deck.models.allNames()),
-                        accept=_("Choose"), title=_("Choose Note Type"),
-                        help="_notes", current=current, parent=self.widget,
-                        buttons=[edit], cancel=False)
+        def nameFunc():
+            return sorted(self.deck.models.allNames())
+        ret = StudyDeck(
+            self.mw, names=nameFunc,
+            accept=_("Choose"), title=_("Choose Note Type"),
+            help="_notes", current=current, parent=self.widget,
+            buttons=[edit], cancel=False)
         if not ret.name:
             return
         m = self.deck.models.byName(ret.name)

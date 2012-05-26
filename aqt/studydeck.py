@@ -7,6 +7,7 @@ import aqt
 from anki.utils import ids2str
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText
 from operator import itemgetter
+from anki.hooks import addHook, remHook
 
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,
@@ -18,6 +19,7 @@ class StudyDeck(QDialog):
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
         self.cancel = cancel
+        addHook('reset', self.onReset)
         if not cancel:
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel))
@@ -35,7 +37,11 @@ class StudyDeck(QDialog):
         if not names:
             names = sorted(self.mw.col.decks.allNames(dyn=dyn))
             current = self.mw.col.decks.current()['name']
-        self.origNames = names
+            self.nameFunc = None
+            self.origNames = names
+        else:
+            self.nameFunc = names
+            self.origNames = names()
         self.name = None
         self.ok = self.form.buttonBox.addButton(
             accept or _("Study"), QDialogButtonBox.AcceptRole)
@@ -73,6 +79,8 @@ class StudyDeck(QDialog):
         return False
 
     def redraw(self, filt, focus=None):
+        self.filt = filt
+        self.focus = focus
         self.names = [n for n in self.origNames if self._matches(n, filt)]
         l = self.form.list
         l.clear()
@@ -95,7 +103,14 @@ class StudyDeck(QDialog):
             name = name[name.index(c)+1:]
         return True
 
+    def onReset(self):
+        # model updated?
+        if self.nameFunc:
+            self.origNames = self.nameFunc()
+        self.redraw(self.filt, self.focus)
+
     def accept(self):
+        remHook('reset', self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
             showInfo(_("Please select something."))
@@ -104,6 +119,7 @@ class StudyDeck(QDialog):
         QDialog.accept(self)
 
     def reject(self):
+        remHook('reset', self.onReset)
         if not self.cancel:
             return self.accept()
         QDialog.reject(self)
