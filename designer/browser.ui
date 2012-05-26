@@ -248,8 +248,6 @@
     <addaction name="separator"/>
     <addaction name="actionFindDuplicates"/>
     <addaction name="actionFindReplace"/>
-    <addaction name="separator"/>
-    <addaction name="actionOptions"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -408,11 +406,6 @@
    </property>
    <property name="text">
     <string>&amp;Cram...</string>
-   </property>
-  </action>
-  <action name="actionOptions">
-   <property name="text">
-    <string>Browser Options...</string>
    </property>
   </action>
   <action name="actionTags">

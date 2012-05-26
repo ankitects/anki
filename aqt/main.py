@@ -54,13 +54,13 @@ class AnkiQt(QMainWindow):
         self.hideSchemaMsg = False
         self.setupKeys()
         self.setupThreads()
+        self.setupSystemSpecific()
         self.setupMainWindow()
         self.setupStyle()
         self.setupProxy()
         self.setupMenus()
         self.setupProgress()
         self.setupErrorHandler()
-        self.setupSystemSpecific()
         self.setupSignals()
         self.setupAutoUpdate()
         self.setupSchema()
@@ -416,7 +416,7 @@ title="%s">%s</button>''' % (
         tweb = aqt.webview.AnkiWebView()
         tweb.setObjectName("toolbarWeb")
         tweb.setFocusPolicy(Qt.WheelFocus)
-        tweb.setFixedHeight(32)
+        tweb.setFixedHeight(32+self.fontHeightDelta)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
@@ -980,6 +980,15 @@ will be lost. Continue?"""))
     ##########################################################################
 
     def setupSystemSpecific(self):
+        # use system font for webviews
+        f = QFontInfo(self.font())
+        ws = QWebSettings.globalSettings()
+        self.fontHeight = f.pixelSize()
+        self.fontFamily = f.family()
+        self.fontHeightDelta = max(0, self.fontHeight - 13)
+        ws.setFontFamily(QWebSettings.StandardFont, self.fontFamily)
+        ws.setFontSize(QWebSettings.DefaultFontSize, self.fontHeight)
+        # mac tweaks
         addHook("macLoadEvent", self.onMacLoad)
         if isMac:
             qt_mac_set_menubar_icons(False)

@@ -96,7 +96,6 @@ class Toolbar(object):
 
     _css = """
 #header {
-font-size: 12px;
 margin:0;
 margin-top: 4px;
 font-weight: bold;
@@ -133,7 +132,6 @@ border-top: 1px solid #aaa;
 margin-bottom: 6px;
 margin-top: 0;
 }
-td { font-size: 12px; }
 """
 
     _centerBody = """

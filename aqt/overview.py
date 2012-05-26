@@ -125,7 +125,7 @@ class Overview(object):
                 counts[n] = "1000+"
         but = self.mw.button
         if finished:
-            return '<div class=fin style="white-space: pre-wrap;">%s</div>' % (
+            return '<div style="white-space: pre-wrap;">%s</div>' % (
                 self.mw.col.sched.finishedMsg())
         else:
             return '''
@@ -157,10 +157,7 @@ class Overview(object):
     _css = """
 .smallLink { font-size: 10px; }
 h3 { margin-bottom: 0; }
-.fin { font-size: 12px; font-weight: normal; }
-td { font-size: 14px; }
 .descfont {
-font-size: 12px;
 padding: 1em; color: #333;
 }
 .description {
@@ -202,7 +199,11 @@ text-align: center;
             buf += """
 <button title="%s" onclick='py.link(\"%s\");'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
-        self.bottom.web.setFixedHeight(isMac and 28 or 36)
+        if isMac:
+            size = 28
+        else:
+            size = 36 + self.mw.fontHeightDelta*3
+        self.bottom.web.setFixedHeight(size)
         self.bottom.web.setLinkHandler(self._linkHandler)
 
     # Today's limits

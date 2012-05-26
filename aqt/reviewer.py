@@ -37,7 +37,7 @@ class Reviewer(object):
         if isMac:
             self.bottom.web.setFixedHeight(46)
         else:
-            self.bottom.web.setFixedHeight(52)
+            self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
         self.bottom.web.setLinkHandler(self._linkHandler)
         self._reps = None
         self.nextCard()
@@ -458,9 +458,8 @@ padding: 0px;
 padding-left: 5px; padding-right: 5px;
 }
 button {
-min-width: 60px;
+min-width: 60px; white-space: nowrap;
 }
-td { font-weight: bold; font-size: 12px; }
 .hitem { margin-top: 2px; }
 .stat { padding-top: 5px; }
 .stat2 { padding-top: 3px; font-weight: normal; }

@@ -70,7 +70,6 @@ or importing text files."""))
     _dragIndicatorBorderWidth = "1px"
 
     _css = """
-tr { font-size: 12px; }
 a.deck { color: #000; text-decoration: none; min-width: 5em;
          display:inline-block; }
 a.deck:hover { text-decoration: underline; }
@@ -78,7 +77,6 @@ tr.deck td { border-bottom: %(width)s solid #e7e7e7; }
 tr.top-level-drag-row td { border-bottom: %(width)s solid transparent; }
 td { white-space: nowrap; }
 tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
-.extra { font-size: 90%%; }
 body { margin: 1em; -webkit-user-select: none; }
 .current { background-color: #e7e7e7; }
 .decktd { min-width: 15em; }
@@ -265,7 +263,11 @@ body { margin: 1em; -webkit-user-select: none; }
             buf += """
 <button title='%s' onclick='py.link(\"%s\");'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
-        self.bottom.web.setFixedHeight(isMac and 28 or 36)
+        if isMac:
+            size = 28
+        else:
+            size = 36 + self.mw.fontHeightDelta*3
+        self.bottom.web.setFixedHeight(size)
         self.bottom.web.setLinkHandler(self._linkHandler)
 
     def _onShared(self):

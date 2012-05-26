@@ -353,11 +353,6 @@ def maybeHideClose(bbox):
         if b:
             bbox.removeButton(b)
 
-def fontForPlatform():
-    if isMac:
-        return "Lucida Grande"
-    return "Arial"
-
 # Tooltips
 ######################################################################
 

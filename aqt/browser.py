@@ -10,7 +10,7 @@ import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip, openHelp, fontForPlatform, showWarning
+    showInfo, askUser, tooltip, openHelp, showWarning
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, remHook
@@ -345,7 +345,7 @@ class Browser(QMainWindow):
 
     def setupToolbar(self):
         self.toolbarWeb = AnkiWebView()
-        self.toolbarWeb.setFixedHeight(32)
+        self.toolbarWeb.setFixedHeight(32 + self.mw.fontHeightDelta)
         self.toolbar = BrowserToolbar(self.mw, self.toolbarWeb, self)
         self.form.verticalLayout_3.insertWidget(0, self.toolbarWeb)
         self.toolbar.draw()
@@ -358,7 +358,6 @@ class Browser(QMainWindow):
         c(f.actionCram, s, self.cram)
         c(f.actionChangeModel, s, self.onChangeModel)
         # edit
-        c(f.actionOptions, s, self.onOptions)
         c(f.actionUndo, s, self.mw.onUndo)
         c(f.actionInvertSelection, s, self.invertSelection)
         c(f.actionSelectNotes, s, self.selectNotes)
@@ -389,11 +388,8 @@ class Browser(QMainWindow):
         runHook('browser.setupMenus', self)
 
     def updateFont(self):
-        self.form.tableView.setFont(QFont(
-            self.mw.pm.profile['editFontFamily'],
-            self.mw.pm.profile['editFontSize']))
         self.form.tableView.verticalHeader().setDefaultSectionSize(
-            self.mw.pm.profile['editLineSize'])
+            max(16, self.mw.fontHeight * 1.4))
 
     def closeEvent(self, evt):
         saveSplitter(self.form.splitter_2, "editor2")
@@ -653,9 +649,6 @@ by clicking on one on the left."""))
         p = QPalette()
         p.setColor(QPalette.Base, QColor("#d6dde0"))
         self.form.tree.setPalette(p)
-        f = QFont()
-        f.setFamily(fontForPlatform())
-        self.form.tree.setFont(f)
         self.buildTree()
 
     def buildTree(self):
@@ -779,7 +772,6 @@ by clicking on one on the left."""))
         from anki.stats import CardStats
         cs = CardStats(self.col, self.card)
         rep = cs.report()
-        rep = "<style>table * { font-size: 12px; }</style>" + rep
         m = self.card.model()
         rep = """
 <div style='width: 400px; margin: 0 auto 0;
@@ -847,9 +839,9 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
                 cs.time(taken)) + "</tr>"
         s += "</table>"
         if cnt != self.card.reps:
-            s += '<div style="font-size: 12px;">' + _("""\
+            s += _("""\
 Note: Some of the history is missing. For more information, \
-please see the browser documentation.""") + "</div>"
+please see the browser documentation.""")
         return s
 
     # Menu helpers
@@ -1091,30 +1083,6 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         self.form.actionUndo.setEnabled(on)
         if on:
             self.form.actionUndo.setText(self.mw.form.actionUndo.text())
-
-    # Options
-    ######################################################################
-
-    def onOptions(self):
-        d = QDialog(self)
-        frm = aqt.forms.browseropts.Ui_Dialog()
-        frm.setupUi(d)
-        frm.fontCombo.setCurrentFont(QFont(
-            self.mw.pm.profile['editFontFamily']))
-        frm.fontSize.setValue(self.mw.pm.profile['editFontSize'])
-        frm.lineSize.setValue(self.mw.pm.profile['editLineSize'])
-        # disabled for now
-        frm.fullSearch.setShown(False)
-        frm.fullSearch.setChecked(self.mw.pm.profile['fullSearch'])
-        if d.exec_():
-            self.mw.pm.profile['editFontFamily'] = (
-                unicode(frm.fontCombo.currentFont().family()))
-            self.mw.pm.profile['editFontSize'] = (
-                int(frm.fontSize.value()))
-            self.mw.pm.profile['editLineSize'] = (
-                int(frm.lineSize.value()))
-            self.mw.pm.profile['fullSearch'] = frm.fullSearch.isChecked()
-            self.updateFont()
 
     # Edit: replacing
     ######################################################################

@@ -11,7 +11,7 @@ import os, sys, time, random, cPickle, shutil, locale, re, atexit, urllib
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
 from anki.lang import langs
-from aqt.utils import showWarning, fontForPlatform
+from aqt.utils import showWarning
 import anki.sync
 import aqt.forms
 
@@ -40,9 +40,6 @@ profileConf = dict(
     searchHistory=[],
     lastColour="#00f",
     stripHTML=True,
-    editFontFamily=fontForPlatform(),
-    editFontSize=12,
-    editLineSize=20,
     pastePNG=False,
     # not exposed in gui
     deleteMedia=False,

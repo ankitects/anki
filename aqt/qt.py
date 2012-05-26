@@ -9,7 +9,7 @@ sip.setapi('QVariant', 2)
 sip.setapi('QUrl', 2)
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from PyQt4.QtWebKit import QWebPage, QWebView
+from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from PyQt4 import pyqtconfig
 
 def debug():
