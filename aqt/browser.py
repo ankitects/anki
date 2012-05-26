@@ -811,7 +811,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
             return ""
         s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
         s += ("<th align=right>%s</th>" * 5) % (
-            _("Type"), _("Ease"), _("Interval"), _("Factor"), _("Time"))
+            _("Type"), _("Rating"), _("Interval"), _("Ease"), _("Time"))
         cnt = 0
         for (date, ease, ivl, factor, taken, type) in reversed(entries):
             cnt += 1
