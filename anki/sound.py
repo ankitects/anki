@@ -93,7 +93,12 @@ class MplayerMonitor(threading.Thread):
             mplayerEvt.clear()
             # clearing queue?
             if mplayerClear and self.mplayer:
-                self.mplayer.stdin.write("stop\n")
+                try:
+                    self.mplayer.stdin.write("stop\n")
+                except:
+                    # mplayer quit by user (likely video)
+                    self.deadPlayers.append(self.mplayer)
+                    self.mplayer = None
             # loop through files to play
             while mplayerQueue:
                 # ensure started
