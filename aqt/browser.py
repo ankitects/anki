@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import sre_constants
+import sre_constants, cgi
 from aqt.qt import *
 import time, types, sys, re
 from operator import attrgetter, itemgetter
@@ -1140,73 +1140,45 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
     ######################################################################
 
     def onFindDupes(self):
-        return showInfo("not yet implemented")
-        win = QDialog(self)
-        aqt = ankiqt.forms.finddupes.Ui_Dialog()
-        dialog.setupUi(win)
-        restoreGeom(win, "findDupes")
-        fields = sorted(self.card.note.model.fieldModels, key=attrgetter("name"))
-        # per-model data
-        data = self.col.db.all("""
-select fm.id, m.name || '>' || fm.name from fieldmodels fm, models m
-where fm.modelId = m.id""")
-        data.sort(key=itemgetter(1))
-        # all-model data
-        data2 = self.col.db.all("""
-select fm.id, fm.name from fieldmodels fm""")
-        byName = {}
-        for d in data2:
-            if d[1] in byName:
-                byName[d[1]].append(d[0])
-            else:
-                byName[d[1]] = [d[0]]
-        names = byName.keys()
-        names.sort()
-        alldata = [(byName[n], n) for n in names] + data
-        dialog.searchArea.addItems([d[1] for d in alldata])
+        d = QDialog(self)
+        frm = aqt.forms.finddupes.Ui_Dialog()
+        frm.setupUi(d)
+        restoreGeom(d, "findDupes")
+        fields = sorted(anki.find.fieldNames(self.col, downcase=False))
+        frm.fields.addItems(fields)
         # links
-        dialog.webView.page().setLinkDelegationPolicy(
+        frm.webView.page().setLinkDelegationPolicy(
             QWebPage.DelegateAllLinks)
-        self.connect(dialog.webView,
+        self.connect(frm.webView,
                      SIGNAL("linkClicked(QUrl)"),
                      self.dupeLinkClicked)
-
         def onFin(code):
-            saveGeom(win, "findDupes")
-        self.connect(win, SIGNAL("finished(int)"), onFin)
-
+            saveGeom(d, "findDupes")
+        self.connect(d, SIGNAL("finished(int)"), onFin)
         def onClick():
-            idx = dialog.searchArea.currentIndex()
-            data = alldata[idx]
-            if isinstance(data[0], list):
-                # all models
-                fmids = data[0]
-            else:
-                # single model
-                fmids = [data[0]]
-            self.duplicatesReport(dialog.webView, fmids)
+            field = fields[frm.fields.currentIndex()]
+            self.duplicatesReport(frm.webView, field, frm.search.text())
+        search = frm.buttonBox.addButton(
+            _("Search"), QDialogButtonBox.ActionRole)
+        self.connect(search, SIGNAL("clicked()"), onClick)
+        d.show()
 
-        self.connect(dialog.searchButton, SIGNAL("clicked()"),
-                     onClick)
-        win.show()
-
-    def duplicatesReport(self, web, fmids):
-        self.col.startProgress(2)
-        self.col.updateProgress(_("Finding..."))
-        res = self.col.findDuplicates(fmids)
+    def duplicatesReport(self, web, fname, search):
+        self.mw.progress.start()
+        res = self.mw.col.findDupes(fname, search)
         t = "<html><body>"
-        t += _("Duplicate Groups: %d") % len(res)
+        t += _("Found %d duplicates in %d notes.") % (
+            sum(len(r[1]) for r in res), len(res))
         t += "<p><ol>"
-
-        for group in res:
-            t += '<li><a href="%s">%s</a>' % (
-                "nid:" + ",".join(str(id) for id in group[1]),
-                group[0])
-
+        for val, nids in res:
+            t += '<li><a href="%s">%s</a>: %s</a>' % (
+                "nid:" + ",".join(str(id) for id in nids),
+                _("%d notes") % len(nids),
+                cgi.escape(val))
         t += "</ol>"
         t += "</body></html>"
         web.setHtml(t)
-        self.col.finishProgress()
+        self.mw.progress.finish()
 
     def dupeLinkClicked(self, link):
         self.form.searchEdit.lineEdit().setText(link.toString())
