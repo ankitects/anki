@@ -532,7 +532,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             avail.append(ord)
         return avail
 
-    def _availClozeOrds(self, m, flds):
+    def _availClozeOrds(self, m, flds, allowEmpty=True):
         sflds = splitFields(flds)
         map = self.fieldMap(m)
         ords = set()
@@ -544,7 +544,7 @@ select id from notes where mid = ?)""" % " ".join(map),
                 "{{c(\d+)::[^}]*?}}", sflds[ord])])
         if -1 in ords:
             ords.remove(-1)
-        if not ords:
+        if not ords and allowEmpty:
             # empty clozes use first ord
             return [0]
         return list(ords)

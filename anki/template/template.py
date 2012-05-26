@@ -4,7 +4,6 @@ import collections
 from anki.utils import stripHTML
 from anki.hooks import runFilter
 from anki.template import furigana; furigana.install()
-from anki.consts import HELP_SITE
 from anki.lang import _
 
 clozeReg = r"\{\{c%s::(.*?)(::(.*?))?\}\}"
@@ -198,11 +197,7 @@ class Template(object):
         reg = clozeReg
         m = re.search(reg%ord, txt)
         if not m:
-            # cloze doesn't exist; return whole text
-            return (txt + "<p><font size=2>" + _(
-                "No cloze deletions found; showing whole field. (%s)") % (
-                    "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))) +
-                    "</font>")
+            return ""
         # replace chosen cloze with type
         if type == "q":
             if m.group(3):
