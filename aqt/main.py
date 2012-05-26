@@ -306,10 +306,15 @@ Are you sure?""")):
         runHook("colLoading", self.col)
         self.moveToState("overview")
 
-    def _overviewState(self, oldState):
+    def _selectedDeck(self):
         did = self.col.decks.selected()
         if not self.col.decks.nameOrNone(did):
             showInfo(_("Please select a deck."))
+            return
+        return self.col.decks.get(did)
+
+    def _overviewState(self, oldState):
+        if not self._selectedDeck():
             return self.moveToState("deckBrowser")
         self.col.reset()
         self.overview.show()
@@ -654,6 +659,9 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         self.moveToState("overview")
 
     def onStats(self):
+        deck = self._selectedDeck()
+        if not deck:
+            return
         aqt.stats.DeckStats(self)
 
     def onPrefs(self):
