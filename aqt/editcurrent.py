@@ -6,11 +6,17 @@ from aqt.qt import *
 import aqt.editor
 from aqt.utils import saveGeom, restoreGeom
 from anki.hooks import addHook, remHook
+from anki.utils import isMac
 
 class EditCurrent(QDialog):
 
     def __init__(self, mw):
-        QDialog.__init__(self, mw)
+        if isMac:
+            # use a separate window on os x so we can a clean menu
+            QDialog.__init__(self, None, Qt.Window)
+        else:
+            QDialog.__init__(self, mw)
+        QDialog.__init__(self, None, Qt.Window)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
