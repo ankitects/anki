@@ -22,7 +22,11 @@ class Finder(object):
             return []
         order, rev = self._order(order)
         sql = self._query(preds, order)
-        res = self.col.db.list(sql, *args)
+        try:
+            res = self.col.db.list(sql, *args)
+        except:
+            # invalid grouping
+            return []
         if rev:
             res.reverse()
         return res

@@ -204,6 +204,9 @@ def test_findCards():
     assert len(deck.findCards("-(tag:monkey OR tag:sheep)")) == 6
     assert len(deck.findCards("tag:monkey or (tag:sheep sheep)")) == 2
     assert len(deck.findCards("tag:monkey or (tag:sheep octopus)")) == 1
+    # invalid grouping shouldn't error
+    assert len(deck.findCards(")")) == 0
+    assert len(deck.findCards("(()")) == 0
 
 def test_findReplace():
     deck = getEmptyDeck()
