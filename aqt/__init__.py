@@ -30,10 +30,11 @@ except ImportError, e:
 class DialogManager(object):
 
     def __init__(self):
-        from aqt import addcards, browser
+        from aqt import addcards, browser, editcurrent
         self._dialogs = {
             "AddCards": [addcards.AddCards, None],
             "Browser": [browser.Browser, None],
+            "EditCurrent": [editcurrent.EditCurrent, None],
         }
 
     def open(self, name, *args):

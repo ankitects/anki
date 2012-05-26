@@ -647,8 +647,7 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
         aqt.dialogs.open("Browser", self)
 
     def onEditCurrent(self):
-        from aqt.editcurrent import EditCurrent
-        EditCurrent(self)
+        aqt.dialogs.open("EditCurrent", self)
 
     def onDeckConf(self, deck=None):
         if not deck:
