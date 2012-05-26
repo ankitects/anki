@@ -114,8 +114,13 @@ class AnkiQt(QMainWindow):
     def refreshProfilesList(self):
         f = self.profileForm
         f.profiles.clear()
-        f.profiles.addItems(self.pm.profiles())
-        f.profiles.setCurrentRow(0)
+        profs = self.pm.profiles()
+        f.profiles.addItems(profs)
+        try:
+            idx = profs.index(self.pm.name)
+        except:
+            idx = 0
+        f.profiles.setCurrentRow(idx)
 
     def onProfileRowChange(self, n):
         if n < 0:
