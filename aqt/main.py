@@ -162,6 +162,7 @@ class AnkiQt(QMainWindow):
             if not self.profileNameOk(name):
                 return
             self.pm.create(name)
+            self.pm.name = name
             self.refreshProfilesList()
 
     def onRenameProfile(self):
