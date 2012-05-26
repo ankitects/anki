@@ -65,7 +65,7 @@ class ModelChooser(QHBoxLayout):
         edit = QPushButton(_("Manage"))
         self.connect(edit, SIGNAL("clicked()"), self.onEdit)
         ret = StudyDeck(self.mw, names=sorted(self.deck.models.allNames()),
-                        accept=_("Select"), title=_("Choose Note Type"),
+                        accept=_("Choose"), title=_("Choose Note Type"),
                         help="_notes", current=current, parent=self.widget,
                         buttons=[edit], cancel=False)
         if not ret.name:
