@@ -122,8 +122,6 @@ class CollectionStats(object):
     css = """
 <style>
 h1 { margin-bottom: 0; margin-top: 1em; }
-body { font-size: 14px; }
-table * { font-size: 14px; }
 .pielabel { text-align:center; padding:0px; color:white; }
 </style>
 """
