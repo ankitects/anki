@@ -240,3 +240,34 @@ def test_findReplace():
     f.load(); assert f['Back'] != "reg"
     assert deck.findReplace(nids, "B.r", "reg", regex=True) == 1
     f.load(); assert f['Back'] == "reg"
+
+def test_findDupes():
+    deck = getEmptyDeck()
+    f = deck.newNote()
+    f['Front'] = u'foo'
+    f['Back'] = u'bar'
+    deck.addNote(f)
+    f2 = deck.newNote()
+    f2['Front'] = u'baz'
+    f2['Back'] = u'bar'
+    deck.addNote(f2)
+    f3 = deck.newNote()
+    f3['Front'] = u'quux'
+    f3['Back'] = u'bar'
+    deck.addNote(f3)
+    f4 = deck.newNote()
+    f4['Front'] = u'quuux'
+    f4['Back'] = u'nope'
+    deck.addNote(f4)
+    r = deck.findDupes("Back")
+    assert r[0][0] == "bar"
+    assert len(r[0][1]) == 3
+    # valid search
+    r = deck.findDupes("Back", "bar")
+    assert r[0][0] == "bar"
+    assert len(r[0][1]) == 3
+    # excludes everything
+    r = deck.findDupes("Back", "invalid")
+    assert not r
+    # front isn't dupe
+    assert deck.findDupes("Front") == []

@@ -519,11 +519,14 @@ where c.nid == f.id
     def findCards(self, query, order=False):
         return anki.find.Finder(self).findCards(query, order)
 
+    def findNotes(self, query):
+        return anki.find.Finder(self).findNotes(query)
+
     def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
 
-    def findDuplicates(self, fmids):
-        return anki.find.findDuplicates(self, fmids)
+    def findDupes(self, fieldName, search=""):
+        return anki.find.findDupes(self, fieldName, search)
 
     # Stats
     ##########################################################################

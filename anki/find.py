@@ -31,6 +31,24 @@ class Finder(object):
             res.reverse()
         return res
 
+    def findNotes(self, query):
+        tokens = self._tokenize(query)
+        preds, args = self._where(tokens)
+        if preds is None:
+            return []
+        if preds:
+            preds = "(" + preds + ")"
+        else:
+            preds = "1"
+        sql = """
+select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
+        try:
+            res = self.col.db.list(sql, *args)
+        except:
+            # invalid grouping
+            return []
+        return res
+
     # Tokenizing
     ######################################################################
 
@@ -472,16 +490,29 @@ def fieldNames(col, downcase=True):
 # Find duplicates
 ##########################################################################
 
-def findDuplicates(col, fmids):
-    data = col.db.all(
-        "select nid, value from fdata where fmid in %s" %
-        ids2str(fmids))
+def findDupes(col, fieldName, search=""):
+    # limit search to notes with applicable field name
+    search += " '%s:*'" % fieldName
+    # go through notes
     vals = {}
-    for (nid, val) in data:
-        if not val.strip():
+    dupes = []
+    fields = {}
+    def ordForMid(mid):
+        if mid not in fields:
+            model = col.models.get(mid)
+            fields[mid] = col.models.fieldMap(model)[fieldName][0]
+        return fields[mid]
+    for nid, mid, flds in col.db.all(
+        "select id, mid, flds from notes where id in "+ids2str(
+            col.findNotes(search))):
+        flds = splitFields(flds)
+        val = flds[ordForMid(mid)]
+        # empty does not count as duplicate
+        if not val:
             continue
         if val not in vals:
-            vals[val] = [nid]
-        else:
-            vals[val].append(nid)
-    return [(k,v) for (k,v) in vals.items() if len(v) > 1]
+            vals[val] = []
+        vals[val].append(nid)
+        if len(vals[val]) == 2:
+            dupes.append((val, vals[val]))
+    return dupes
