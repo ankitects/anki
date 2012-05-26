@@ -86,8 +86,10 @@ def dynExamples():
     # defaults are resched=True, steps=None, deck=True
     return [
         [_("<select preset>"), None],
-        [_("Preview new cards"), dict(
+        [_("Preview all new cards"), dict(
             search="is:new", resched=False, steps="1", order=5)],
+        [_("Preview cards added today"), dict(
+            search="added:1", resched=False, steps="1", order=5)],
         [_("Review today's forgotten cards"), dict(
             search="rated:1:1", order=4)],
         [_("Review ahead by two days"), dict(

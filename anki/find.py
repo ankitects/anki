@@ -151,6 +151,8 @@ class Finder(object):
                     add(self._findProp(val))
                 elif cmd == "rated":
                     add(self._findRated(val))
+                elif cmd == "added":
+                    add(self._findAdded(val))
                 else:
                     add(self._findField(cmd, val))
             # normal text search
@@ -263,6 +265,14 @@ class Finder(object):
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return ("c.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
+
+    def _findAdded(self, val):
+        try:
+            days = int(val)
+        except ValueError:
+            return
+        cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
+        return "c.id > %d" % cutoff
 
     def _findProp(self, val):
         # extract

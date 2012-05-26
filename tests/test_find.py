@@ -207,6 +207,12 @@ def test_findCards():
     # invalid grouping shouldn't error
     assert len(deck.findCards(")")) == 0
     assert len(deck.findCards("(()")) == 0
+    # added
+    assert len(deck.findCards("added:0")) == 0
+    deck.db.execute("update cards set id = id - 86400*1000 where id = ?",
+                    id)
+    assert len(deck.findCards("added:1")) == deck.cardCount() - 1
+    assert len(deck.findCards("added:2")) == deck.cardCount()
 
 def test_findReplace():
     deck = getEmptyDeck()
