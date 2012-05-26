@@ -702,6 +702,7 @@ by clicking on one on the left."""))
         tags = (
             (_("Whole Collection"), "ankibw", ""),
             (_("Current Deck"), "deck16", "deck:current"),
+            (_("Added Today"), "view-pim-calendar.png", "added:1"),
             (_("Studied Today"), "view-pim-calendar.png", "rated:1"),
             (_("Again Today"), "view-pim-calendar.png", "rated:1:1"),
             (_("New"), "plus16.png", "is:new"),
