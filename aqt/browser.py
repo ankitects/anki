@@ -66,9 +66,7 @@ class DataModel(QAbstractTableModel):
         if not index.isValid():
             return
         if role == Qt.FontRole:
-            f = QFont()
-            f.setPixelSize(self.browser.mw.pm.profile['editFontSize'])
-            return f
+            return
         if role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
             if self.activeCols[index.column()] not in ("question", "answer",
