@@ -22,11 +22,6 @@
      <layout class="QVBoxLayout">
       <item>
        <widget class="QListWidget" name="models">
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
