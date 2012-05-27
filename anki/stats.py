@@ -389,7 +389,6 @@ group by day order by day)""" % lim,
             dict(data=totd, color=colCum, yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
-                xaxis=dict(min=-0.5, max=ivls[-1][0]+0.5),
                 yaxes=[dict(), dict(position="right", max=105)]))
         i = []
         self._line(i, _("Average interval"), fmtTimeSpan(avg*86400))
