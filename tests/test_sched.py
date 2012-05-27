@@ -583,19 +583,18 @@ def test_cram():
     # make it due
     d.reset()
     assert d.sched.counts() == (0,0,0)
-    c.due = 0
+    c.due = -5
     c.ivl = 100
     c.flush()
     d.reset()
     assert d.sched.counts() == (0,0,1)
     # cram again
     did = d.decks.newDyn("Cram")
-    # if cramRev is false, it's placed in the review queue instead
-    # fixme: cards pulled from a deck with cramRev=True remain in that state
-    d.decks.get(did)['cramRev'] = False
     d.sched.rebuildDyn(did)
     d.reset()
     assert d.sched.counts() == (0,0,1)
+    c.load()
+    assert d.sched.answerButtons(c) == 4
     # add a sibling so we can test minSpace, etc
     c2 = copy.deepcopy(c)
     c2.id = 123
