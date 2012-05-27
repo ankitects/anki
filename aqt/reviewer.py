@@ -119,6 +119,8 @@ function _updateQA (q, answerMode, klass) {
     }
     if (answerMode) {
         window.location = "#answer";
+    } else {
+        window.scrollTo(0, 0);
     }
     if (klass) {
         document.body.className = klass;
