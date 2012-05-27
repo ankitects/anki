@@ -12,6 +12,7 @@ from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
 from anki.lang import langs
 from aqt.utils import showWarning
+from aqt import appHelpSite
 import anki.sync
 import aqt.forms
 
@@ -225,6 +226,14 @@ create table if not exists profiles
         "Create a new profile if none exists."
         if self.firstRun:
             self.create(_("User 1"))
+            p = os.path.join(self.base, "README.txt")
+            open(p, "w").write(_("""\
+This folder stores all of your Anki data in a single location,
+to make backups easy. To tell Anki to use a different location,
+please see:
+
+%s#%s
+""") % (appHelpSite, "startupopts"))
 
     def _pwhash(self, passwd):
         return checksum(unicode(self.meta['id'])+unicode(passwd))
