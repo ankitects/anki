@@ -88,10 +88,6 @@ class DataModel(QAbstractTableModel):
                     txt = name
                     break
             return txt
-        elif role == Qt.FontRole:
-            f = QFont()
-            f.setPixelSize(10)
-            return f
         else:
             return
 
