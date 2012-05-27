@@ -39,7 +39,7 @@ class ExportDialog(QDialog):
 
     def accept(self):
         file = getSaveFile(
-            self, _("Choose file to export to"), "export",
+            self, _("Export"), "export",
             self.exporter.key, self.exporter.ext)
         self.hide()
         if file:
