@@ -89,6 +89,11 @@ class CardLayout(QDialog):
         tform.label2.setText(u" →")
         tform.labelc1.setText(u" ↗")
         tform.labelc2.setText(u" ↘")
+        if self.style().objectName() == "gtk+":
+            # gtk+ requires margins in inner layout
+            tform.tlayout1.setContentsMargins(0, 11, 0, 0)
+            tform.tlayout2.setContentsMargins(0, 11, 0, 0)
+            tform.tlayout3.setContentsMargins(0, 11, 0, 0)
         c(tform.front, SIGNAL("textChanged()"), self.saveCard)
         c(tform.css, SIGNAL("textChanged()"), self.saveCard)
         c(tform.back, SIGNAL("textChanged()"), self.saveCard)
@@ -97,6 +102,10 @@ class CardLayout(QDialog):
         right = QWidget()
         pform = aqt.forms.preview.Ui_Form()
         pform.setupUi(right)
+        if self.style().objectName() == "gtk+":
+            # gtk+ requires margins in inner layout
+            pform.frontPrevBox.setContentsMargins(0, 11, 0, 0)
+            pform.backPrevBox.setContentsMargins(0, 11, 0, 0)
         # for cloze notes, show that it's one of n cards
         if self.model['type'] == MODEL_CLOZE:
             cnt = len(self.mm.availOrds(

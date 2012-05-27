@@ -36,7 +36,7 @@
        <property name="title">
         <string>Front Template</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="tlayout1">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -68,7 +68,7 @@
        <property name="title">
         <string>Styling</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="tlayout2">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -165,7 +165,7 @@
        <property name="title">
         <string>Back Template</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="tlayout3">
         <property name="spacing">
          <number>0</number>
         </property>
