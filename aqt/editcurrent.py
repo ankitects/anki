@@ -58,3 +58,4 @@ class EditCurrent(QDialog):
             self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
+        aqt.dialogs.close("EditCurrent")
