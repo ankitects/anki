@@ -374,7 +374,7 @@ group by day order by day)""" % lim,
     ######################################################################
 
     def ivlGraph(self):
-        (ivls, all, avg, max) = self._ivls()
+        (ivls, all, avg, max_) = self._ivls()
         tot = 0
         totd = []
         if not ivls or not all:
@@ -382,6 +382,12 @@ group by day order by day)""" % lim,
         for (grp, cnt) in ivls:
             tot += cnt
             totd.append((grp, tot/float(all)*100))
+        if self.type == 0:
+            ivlmax = 31
+        elif self.type == 1:
+            ivlmax = 52
+        else:
+            ivlmax = max(5, ivls[-1][0] / 31)
         txt = self._title(_("Intervals"),
                           _("Delays until reviews are shown again."))
         txt += self._graph(id="ivl", ylabel2=_("Percentage"), data=[
@@ -389,11 +395,11 @@ group by day order by day)""" % lim,
             dict(data=totd, color=colCum, yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
             ], conf=dict(
-                xaxis=dict(min=-0.5, max=ivls[-1][0]+0.5),
+                xaxis=dict(min=-0.5, max=ivlmax+0.5),
                 yaxes=[dict(), dict(position="right", max=105)]))
         i = []
         self._line(i, _("Average interval"), fmtTimeSpan(avg*86400))
-        self._line(i, _("Longest interval"), fmtTimeSpan(max*86400))
+        self._line(i, _("Longest interval"), fmtTimeSpan(max_*86400))
         return txt + self._lineTbl(i)
 
     def _ivls(self):
