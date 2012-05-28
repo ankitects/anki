@@ -17,8 +17,10 @@ class MediaManager(object):
     regexps = ("(?i)(\[sound:([^]]+)\])",
                "(?i)(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>)")
 
-    def __init__(self, col):
+    def __init__(self, col, server):
         self.col = col
+        if server:
+            return
         # media directory
         self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
         # convert dir to unicode if it's not already

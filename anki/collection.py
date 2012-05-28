@@ -45,7 +45,7 @@ class _Collection(object):
         self.server = server
         self._lastSave = time.time()
         self.clearUndo()
-        self.media = MediaManager(self)
+        self.media = MediaManager(self, server)
         self.models = ModelManager(self)
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
