@@ -455,11 +455,6 @@
                <string>Tag Only</string>
               </property>
              </item>
-             <item>
-              <property name="text">
-               <string>Reset as New</string>
-              </property>
-             </item>
             </widget>
            </item>
            <item>
