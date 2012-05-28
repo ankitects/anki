@@ -470,6 +470,8 @@ class Browser(QMainWindow):
         if not self.model.cards:
             # no row change will fire
             self.onRowChanged(None, None)
+        elif self.mw.state == "review":
+            self.focusCid(self.mw.reviewer.card.id)
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
@@ -1239,6 +1241,13 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
 
     def onCardList(self):
         self.form.tableView.setFocus()
+
+    def focusCid(self, cid):
+        try:
+            row = self.model.cards.index(cid)
+        except:
+            return
+        self.form.tableView.selectRow(row)
 
 # Change model dialog
 ######################################################################
