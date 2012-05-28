@@ -648,10 +648,7 @@ select id from notes where id not in (select distinct nid from cards)""")
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
-        save = (oldSize - newSize)/1024
         txt = _("Database rebuilt and optimized.")
-        if save > 0:
-            txt += "\n" + _("Saved %dKB.") % save
         ok = not problems
         problems.append(txt)
         self.save()
