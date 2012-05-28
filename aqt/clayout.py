@@ -222,11 +222,10 @@ Please create a new card type first."""))
 
     def maybeTextInput(self, txt, type='q'):
         if type == 'q':
-            repl = "<center><input type=text size=30 value='%s'></center>" % _(
-                "(text is typed in here)")
+            repl = "<center><input type=text value=''></center>"
         else:
             repl = _("(typing comparison appears here)")
-        repl = "<center><font size=2>%s</font></center>" % repl
+        repl = "<center>%s</center>" % repl
         return re.sub("\[\[type:.+?\]\]", repl, txt)
 
     # Card operations
