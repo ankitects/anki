@@ -124,16 +124,18 @@ def _upgrade(col, ver):
         # adding an empty file to a zip makes python's zip code think it's a
         # folder, so remove any empty files
         changed = False
-        for f in os.listdir(col.media.dir()):
-            if os.path.isfile(f) and not os.path.getsize(f):
-                os.unlink(f)
-                col.media.db.execute(
-                    "delete from log where fname = ?", f)
-                col.media.db.execute(
-                    "delete from media where fname = ?", f)
-                changed = True
-        if changed:
-            col.media.db.commit()
+        dir = col.media.dir()
+        if dir:
+            for f in os.listdir(col.media.dir()):
+                if os.path.isfile(f) and not os.path.getsize(f):
+                    os.unlink(f)
+                    col.media.db.execute(
+                        "delete from log where fname = ?", f)
+                    col.media.db.execute(
+                        "delete from media where fname = ?", f)
+                    changed = True
+            if changed:
+                col.media.db.commit()
         col.db.execute("update col set ver = 9")
     if ver < 10:
         col.db.execute("""

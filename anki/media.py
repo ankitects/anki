@@ -20,6 +20,7 @@ class MediaManager(object):
     def __init__(self, col, server):
         self.col = col
         if server:
+            self._dir = None
             return
         # media directory
         self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
