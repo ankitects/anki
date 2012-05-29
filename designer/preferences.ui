@@ -345,7 +345,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Note: Media is not backed up. Please create a periodic backup of your Documents/Anki folder to be safe.</string>
+          <string>Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
