@@ -33,6 +33,7 @@ class Scheduler(object):
             self.reset()
         card = self._getCard()
         if card:
+            self.reps += 1
             card.startTimer()
             return card
 
@@ -49,7 +50,6 @@ class Scheduler(object):
     def answerCard(self, card, ease):
         assert ease >= 1 and ease <= 4
         self.col.markReview(card)
-        self.reps += 1
         card.reps += 1
         wasNew = card.queue == 0
         if wasNew:
