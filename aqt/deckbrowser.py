@@ -252,7 +252,7 @@ body { margin: 1em; -webkit-user-select: none; }
     def _drawButtons(self):
         links = [
             ["", "shared", _("Get Shared")],
-            ["", "create", _("Create")],
+            #["", "create", _("Create")],
             ["Ctrl+I", "import", _("Import File")],
             ["F", "cram", _("Filter/Cram")],
         ]
