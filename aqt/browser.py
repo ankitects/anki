@@ -1278,6 +1278,10 @@ class ChangeModel(QDialog):
         self.tlayout.setMargin(0)
         self.twidg = None
         self.form.templateMap.setLayout(self.tlayout)
+        if self.style().objectName() == "gtk+":
+            # gtk+ requires margins in inner layout
+            self.form.verticalLayout_2.setContentsMargins(0, 11, 0, 0)
+            self.form.verticalLayout_3.setContentsMargins(0, 11, 0, 0)
         # model chooser
         import aqt.modelchooser
         self.oldModel = self.browser.col.models.get(
