@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import aqt
-from anki.utils import ids2str
+from anki.utils import ids2str, isWin, isMac
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser
 from operator import itemgetter
 
@@ -34,7 +34,10 @@ class DeckConf(QDialog):
         self.loadConf()
         self.show()
         if first:
-            self.form.examples.showPopup()
+            if isMac or isWin:
+                self.form.examples.showPopup()
+            else:
+                mw.progress.timer(200, self.form.examples.showPopup, False)
         self.exec_()
 
     def setupOrder(self):
