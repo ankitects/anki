@@ -81,6 +81,9 @@ class SyncManager(QObject):
                 m = _("Checking...")
             elif t == "findMedia":
                 m = _("Syncing Media...")
+            elif t == "upgradeRequired":
+                showText(_("""\
+Please visit AnkiWeb, upgrade your deck, then try again."""))
             if m:
                 self.label = m
                 self._updateLabel()
