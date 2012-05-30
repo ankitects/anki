@@ -18,8 +18,8 @@ from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
 from anki.consts import *
 
-COLOUR_SUSPENDED = "#fffff0"
-COLOUR_MARKED = "#eeeeff"
+COLOUR_SUSPENDED = "#ff0"
+COLOUR_MARKED = "#aaf"
 
 # fixme: need to refresh after undo
 
