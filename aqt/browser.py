@@ -285,14 +285,13 @@ class StatusDelegate(QItemDelegate):
             # in the the middle of a reset; return nothing so this row is not
             # rendered until we have a chance to reset the model
             return
-        if c.queue == -1:
-            # custom render
-            brush = QBrush(QColor(COLOUR_SUSPENDED))
-            painter.save()
-            painter.fillRect(option.rect, brush)
-            painter.restore()
-        elif c.note().hasTag("Marked"):
-            brush = QBrush(QColor(COLOUR_MARKED))
+        col = None
+        if c.note().hasTag("Marked"):
+            col = COLOUR_MARKED
+        elif c.queue == -1:
+            col = COLOUR_SUSPENDED
+        if col:
+            brush = QBrush(QColor(col))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
