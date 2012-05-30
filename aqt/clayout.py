@@ -58,7 +58,6 @@ class CardLayout(QDialog):
         c = self.connect
         cloze = self.model['type'] == MODEL_CLOZE
         self.tabs = QTabWidget()
-        self.tabs.setTabsClosable(not cloze)
         self.tabs.setUsesScrollButtons(True)
         if not cloze:
             add = QPushButton("+")
@@ -67,7 +66,6 @@ class CardLayout(QDialog):
             c(add, SIGNAL("clicked()"), self.onAddCard)
             self.tabs.setCornerWidget(add)
         c(self.tabs, SIGNAL("currentChanged(int)"), self.selectCard)
-        c(self.tabs, SIGNAL("tabCloseRequested(int)"), self.onRemoveTab)
 
     def updateTabs(self):
         self.forms = []
@@ -318,6 +316,10 @@ adjust the template manually to switch the question and answer."""))
         a = m.addAction(_("Column Templates"))
         a.connect(a, SIGNAL("triggered()"),
                   self.onBrowserDisplay)
+        if self.model['type'] != MODEL_CLOZE:
+            a = m.addAction(_("Delete"))
+            a.connect(a, SIGNAL("triggered()"),
+                      lambda: self.onRemoveTab(self.tabs.currentIndex()))
         m.exec_(button.mapToGlobal(QPoint(0,0)))
 
     def onBrowserDisplay(self):
