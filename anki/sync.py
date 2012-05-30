@@ -573,6 +573,9 @@ class FullSyncer(HttpSyncer):
         self.col.close()
         cont = self.req("download")
         tpath = self.col.path + ".tmp"
+        if cont == "upgradeRequired":
+            runHook("sync", "upgradeRequired")
+            return
         open(tpath, "wb").write(cont)
         # check the received file is ok
         d = DB(tpath)
