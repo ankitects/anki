@@ -230,8 +230,8 @@ group by day order by day""" % (self._limit(), lim),
         txt += plot("reps", repdata, ylabel=_("Answers"), ylabel2=_(
             "Cumulative Answers"))
         (daysStud, fstDay) = self._daysStudied()
-        txt += self._ansInfo(repsum, daysStud, fstDay, _("reviews"))
-
+        rep, tot = self._ansInfo(repsum, daysStud, fstDay, _("reviews"))
+        txt += rep
         # time
         (timdata, timsum) = self._splitRepData(d, (
             (8, colMature, _("Mature")),
@@ -247,10 +247,12 @@ group by day order by day""" % (self._limit(), lim),
             convHours = True
         txt += self._title(timetitle, _("The time taken to answer the questions."))
         txt += plot("time", timdata, ylabel=t, ylabel2=_("Cumulative %s") % t)
-        txt += self._ansInfo(timsum, daysStud, fstDay, _("minutes"), convHours)
+        rep, tot2 = self._ansInfo(
+            timsum, daysStud, fstDay, _("minutes"), convHours, total=tot)
+        txt += rep
         return txt
 
-    def _ansInfo(self, totd, studied, first, unit, convHours=False):
+    def _ansInfo(self, totd, studied, first, unit, convHours=False, total=None):
         if not totd:
             return
         tot = totd[-1][1]
@@ -281,7 +283,12 @@ group by day order by day""" % (self._limit(), lim),
             tot, studied, unit))
         self._line(i, _("If you studied every day"), self._avgDay(
             tot, period, unit))
-        return self._lineTbl(i)
+        if total and tot:
+            self._line(
+                i, _("Average answer time"),
+                _("%(a)0.1fs (%(b)d cards/5 minutes)") % dict(
+                    a=(tot*60)/total, b=(total / float(tot))*5))
+        return self._lineTbl(i), int(tot)
 
     def _splitRepData(self, data, spec):
         sep = {}
