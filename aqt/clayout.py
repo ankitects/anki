@@ -92,6 +92,9 @@ class CardLayout(QDialog):
             tform.tlayout1.setContentsMargins(0, 11, 0, 0)
             tform.tlayout2.setContentsMargins(0, 11, 0, 0)
             tform.tlayout3.setContentsMargins(0, 11, 0, 0)
+        if len(self.cards) > 1:
+            tform.groupBox_3.setTitle(_(
+                "Styling (shared between cards)"))
         c(tform.front, SIGNAL("textChanged()"), self.saveCard)
         c(tform.css, SIGNAL("textChanged()"), self.saveCard)
         c(tform.back, SIGNAL("textChanged()"), self.saveCard)
