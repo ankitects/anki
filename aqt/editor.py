@@ -546,6 +546,8 @@ class Editor(object):
                 self.widget.hide()
 
     def loadNote(self):
+        if not self.note:
+            return
         if self.stealFocus:
             field = self.currentField
         else:
