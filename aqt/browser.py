@@ -10,7 +10,7 @@ import anki, anki.utils, aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip, openHelp, showWarning
+    showInfo, askUser, tooltip, openHelp, showWarning, shortcut
 from anki.errors import *
 from anki.db import *
 from anki.hooks import runHook, addHook, remHook
@@ -18,8 +18,8 @@ from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
 from anki.consts import *
 
-COLOUR_SUSPENDED = "#ff0"
-COLOUR_MARKED = "#aaf"
+COLOUR_SUSPENDED = "#FFFFB2"
+COLOUR_MARKED = "#D9B2E9"
 
 # fixme: need to refresh after undo
 
@@ -365,19 +365,25 @@ class Browser(QMainWindow):
         c(f.actionNote, s, self.onNote)
         c(f.actionTags, s, self.onTags)
         c(f.actionCardList, s, self.onCardList)
+        # help
+        c(f.actionGuide, s, self.onHelp)
         # keyboard shortcut for shift+home/end
         self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
         c(self.pgUpCut, SIGNAL("activated()"), self.onFirstCard)
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         c(self.pgDownCut, SIGNAL("activated()"), self.onLastCard)
         # card info
-        self.infoCut = QShortcut(QKeySequence("Ctrl+Shift+i"), self)
+        self.infoCut = QShortcut(QKeySequence("Ctrl+Shift+I"), self)
         c(self.infoCut, SIGNAL("activated()"), self.showCardInfo)
         # set deck
-        self.changeDeckCut = QShortcut(QKeySequence("Ctrl+d"), self)
+        self.changeDeckCut = QShortcut(QKeySequence("Ctrl+D"), self)
         c(self.changeDeckCut, SIGNAL("activated()"), self.setDeck)
-        # help
-        c(f.actionGuide, s, self.onHelp)
+        # add/remove tags
+        self.tagCut1 = QShortcut(QKeySequence("Ctrl+T"), self)
+        c(self.tagCut1, SIGNAL("activated()"), self.addTags)
+        self.tagCut2 = QShortcut(QKeySequence("Ctrl+Alt+T"), self)
+        c(self.tagCut2, SIGNAL("activated()"), self.deleteTags)
+        # add-on hook
         runHook('browser.setupMenus', self)
 
     def updateFont(self):
@@ -1443,13 +1449,16 @@ class BrowserToolbar(Toolbar):
         right = "<div>"
         right += borderImg("add", "add16", False, _("Add"))
         right += borderImg("info", "info", False, _("Info"),
-                       _("Card Info (Ctrl+Shift+I)"))
+                       shortcut(_("Card Info (Ctrl+Shift+I)")))
         right += borderImg("mark", "star16", mark, _("Mark"))
         right += borderImg("pause", "pause16", pause, _("Suspend"))
         right += borderImg("setDeck", "deck16", False, _("Change Deck"),
                            _("Move To Deck (Ctrl+D)"))
-        right += borderImg("addtag", "addtag16", False, _("Add Tags"))
-        right += borderImg("deletetag", "deletetag16", False, _("Remove Tags"))
+        right += borderImg("addtag", "addtag16", False, _("Add Tags"),
+                       shortcut(_("Bulk Add Tags (Ctrl+T)")))
+        right += borderImg("deletetag", "deletetag16", False,
+                           _("Remove Tags"), shortcut(_(
+                               "Bulk Remove Tags (Ctrl+Alt+T)")))
         right += borderImg("delete", "delete16", False, _("Delete"))
         right += "</div>"
         self.web.page().currentFrame().setScrollBarPolicy(
