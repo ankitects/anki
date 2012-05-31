@@ -383,6 +383,8 @@ class Browser(QMainWindow):
         c(self.tagCut1, SIGNAL("activated()"), self.addTags)
         self.tagCut2 = QShortcut(QKeySequence("Ctrl+Alt+T"), self)
         c(self.tagCut2, SIGNAL("activated()"), self.deleteTags)
+        self.tagCut3 = QShortcut(QKeySequence("Ctrl+K"), self)
+        c(self.tagCut3, SIGNAL("activated()"), self.onMark)
         # add-on hook
         runHook('browser.setupMenus', self)
 
@@ -1450,7 +1452,8 @@ class BrowserToolbar(Toolbar):
         right += borderImg("add", "add16", False, _("Add"))
         right += borderImg("info", "info", False, _("Info"),
                        shortcut(_("Card Info (Ctrl+Shift+I)")))
-        right += borderImg("mark", "star16", mark, _("Mark"))
+        right += borderImg("mark", "star16", mark, _("Mark"),
+                       shortcut(_("Mark Note (Ctrl+K)")))
         right += borderImg("pause", "pause16", pause, _("Suspend"))
         right += borderImg("setDeck", "deck16", False, _("Change Deck"),
                            _("Move To Deck (Ctrl+D)"))
