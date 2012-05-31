@@ -637,6 +637,9 @@ class Editor(object):
         html = unicode(BeautifulSoup(html))
         self.note.fields[self.currentField] = html
         self.loadNote()
+        # focus field so it's saved
+        self.web.setFocus()
+        self.web.eval("focusField(%d);" % self.currentField)
 
     # Tag handling
     ######################################################################
