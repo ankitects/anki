@@ -400,6 +400,14 @@ create table log (fname text primary key, type int);
                 continue
             if f.lower() == "thumbs.db":
                 continue
+            # and files with invalid chars
+            bad = False
+            for c in "\0", "/", "\\", ":":
+                if c in f:
+                    bad = True
+                    break
+            if bad:
+                continue
             # empty files are invalid; clean them up and continue
             if not os.path.getsize(f):
                 os.unlink(f)
