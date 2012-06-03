@@ -13,7 +13,6 @@ from anki.lang import _
 from hooks import runHook
 
 # syncing vars
-HTTP_CERTS = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
 HTTP_TIMEOUT = 30
 HTTP_PROXY = None
 
@@ -21,8 +20,20 @@ HTTP_PROXY = None
 ######################################################################
 
 def httpCon():
+    certs = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
+    if not os.path.exists(certs):
+        if isWin:
+            certs = os.path.join(
+                os.path.dirname(os.path.abspath(sys.argv[0])),
+                "ankiweb.certs")
+        elif isMac:
+            certs = os.path.join(
+                os.path.dirname(os.path.abspath(sys.argv[0])),
+                "../Resources/ankiweb.certs")
+        else:
+            assert 0
     return httplib2.Http(
-        timeout=HTTP_TIMEOUT, ca_certs=HTTP_CERTS,
+        timeout=HTTP_TIMEOUT, ca_certs=certs,
         proxy_info=HTTP_PROXY)
 
 # Proxy handling
