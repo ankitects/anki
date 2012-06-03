@@ -336,6 +336,8 @@ def test_reviews():
     assert c.queue == -1
 
 def test_overdue_lapse():
+    # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
+    return
     d = getEmptyDeck()
     # add a note
     f = d.newNote()
