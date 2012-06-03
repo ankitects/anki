@@ -232,7 +232,7 @@ class Anki2Importer(Importer):
             card[4] = intTime()
             card[5] = usn
             # review cards have a due date relative to collection
-            if card[7] == 2:
+            if card[7] in (2, 3):
                 card[8] -= aheadBy
             cards.append(card)
             # we need to import revlog, rewriting card ids and bumping usn
