@@ -23,7 +23,6 @@ class Scheduler(object):
         self.reportLimit = 1000
         self.reps = 0
         self._haveQueues = False
-        self._clearOverdue = True
         self._updateCutoff()
 
     def getCard(self):
@@ -40,8 +39,6 @@ class Scheduler(object):
     def reset(self):
         deck = self.col.decks.current()
         self._updateCutoff()
-        if self._clearOverdue:
-            self.removeFailed(expiredOnly=True)
         self._resetLrn()
         self._resetRev()
         self._resetNew()
@@ -191,8 +188,6 @@ order by due""" % self._deckLimit(),
     def deckDueList(self):
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
-        if self._clearOverdue:
-            self.removeFailed(expiredOnly=True)
         self.col.decks.recoverOrphans()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
