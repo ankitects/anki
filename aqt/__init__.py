@@ -7,7 +7,7 @@ import locale, gettext
 import anki.lang
 from anki.consts import HELP_SITE as appHelpSite
 
-appVersion="2.0-beta15"
+appVersion="2.0-beta16"
 appWebsite="http://ankisrs.net/"
 appChanges="http://ankisrs.net/docs/dev/changes.html"
 appDonate="http://ankisrs.net/support/"
