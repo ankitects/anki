@@ -23,9 +23,6 @@ class EditCurrent(QDialog):
         self.setWindowTitle(_("Edit Current"))
         self.setMinimumHeight(400)
         self.setMinimumWidth(500)
-        self.connect(self.form.buttonBox.button(QDialogButtonBox.Close),
-                     SIGNAL("clicked()"),
-                     self.onSave)
         self.connect(self,
                      SIGNAL("rejected()"),
                      self.onSave)
