@@ -242,6 +242,17 @@ def test_learn_day():
     assert ni(c, 2) == 86400
     d.sched.answerCard(c, 2)
     assert c.queue == c.type == 2
+    # if the lapse step is tomorrow, failing it should handle the counts
+    # correctly
+    c.due = 0
+    c.flush()
+    d.reset()
+    assert d.sched.counts() == (0, 0, 1)
+    d.sched._cardConf(c)['lapse']['delays'] = [1440]
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    assert c.queue == 3
+    assert d.sched.counts() == (0, 0, 0)
 
 def test_reviews():
     d = getEmptyDeck()
