@@ -477,7 +477,7 @@ class Editor(object):
             # misbehaving apps may include a null byte in the text
             txt = txt.replace("\x00", "")
             # reverse the url quoting we added to get images to display
-            txt = unicode(urllib2.unquote(txt.encode("utf")), "utf8")
+            txt = unicode(urllib2.unquote(txt.encode("utf8")), "utf8")
             self.note.fields[self.currentField] = txt
             self.mw.requireReset()
             if not self.addMode:
