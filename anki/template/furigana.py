@@ -6,10 +6,11 @@
 import re
 from anki.hooks import addHook
 
-r = r' ?([^ ]+?)\[(.+?)\]'
+r = r' ?([^[]+?)\[(.+?)\]([^ ]+?|$)'
 ruby = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
 
 def noSound(repl):
+    repl += r"\3"
     def func(match):
         if match.group(2).startswith("sound:"):
             # return without modification
