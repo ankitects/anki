@@ -121,7 +121,7 @@
          <item row="5" column="0" colspan="3">
           <widget class="QCheckBox" name="separate">
            <property name="text">
-            <string>Try not to show sibling notes next to each other</string>
+            <string>Try not to show sibling cards next to each other</string>
            </property>
           </widget>
          </item>
