@@ -541,7 +541,7 @@ select id from notes where mid = ?)""" % " ".join(map),
                 continue
             ord = map[fname][0]
             ords.update([int(m)-1 for m in re.findall(
-                "{{c(\d+)::[^}]*?}}", sflds[ord])])
+                "{{c(\d+)::.+?}}", sflds[ord])])
         if -1 in ords:
             ords.remove(-1)
         if not ords and allowEmpty:
