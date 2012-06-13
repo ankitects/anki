@@ -37,7 +37,7 @@ class Upgrader(object):
 
     def check(self, path):
         "True if deck looks ok."
-        with DB(path) as db:
+        with DB(self._utf8(path)) as db:
             return self._check(db)
 
     def _check(self, db):
@@ -111,11 +111,16 @@ f.id = cards.factId)"""):
 
     def _openDB(self, path):
         self.tmppath = tmpfile(suffix=".anki2")
-        shutil.copy(path, self.tmppath)
+        shutil.copy(path, self._utf8(self.tmppath))
         self.db = DB(self.tmppath)
 
     def _openCol(self):
         self.col = _Collection(self.db)
+
+    def _utf8(self, txt):
+        if isinstance(txt, unicode):
+            return txt.encode("utf8")
+        return txt
 
     # Schema upgrade
     ######################################################################
