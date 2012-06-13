@@ -67,6 +67,8 @@ def _latexFromHtml(col, latex):
                 continue
             latex = latex.replace(match.group(), entitydefs[match.group(1)])
     latex = re.sub("<br( /)?>", "\n", latex)
+    # replace <div> etc with spaces
+    latex = re.sub("<.+?>", " ", latex)
     latex = stripHTML(latex)
     return latex
 
