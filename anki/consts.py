@@ -96,8 +96,11 @@ def dynExamples():
             search="rated:1:1", order=4)],
         [_("Review ahead by two days"), dict(
             search="prop:due<=2", order=6)],
+        None,
         [_("Review due cards with tag"), dict(
             search="is:due tag:%s" % _("type_tag_here"), order=6)],
+        [_("Review due cards with decreasing intervals"), dict(
+            search="is:due", order=3)],
         None,
         [_("Cram all cards"), dict(
             search="", order=0, steps="1 10 20")],
