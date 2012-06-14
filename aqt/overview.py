@@ -64,7 +64,8 @@ class Overview(object):
         if key == "o":
             self.mw.onDeckConf()
         if key == "f" and not cram:
-            self.mw.onCram()
+            deck = self.mw.col.decks.current()
+            self.mw.onCram("'deck:%s'" % deck['name'])
         if key == "r" and cram:
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
