@@ -1007,26 +1007,30 @@ class EditorWebView(AnkiWebView):
 
     def _processUrls(self, mime):
         url = mime.urls()[0].toString()
-        link = None
-        for suffix in pics+audio:
-            if url.lower().endswith(suffix):
-                link = self._retrieveURL(url)
-                break
-        if not link:
-            # not a supported media type; include link verbatim
-            link = url
+        link = self._localizedMediaLink(url)
         mime = QMimeData()
         mime.setHtml(link)
         return mime
+
+    def _localizedMediaLink(self, url):
+        l = url.lower()
+        for suffix in pics+audio:
+            if l.endswith(suffix):
+                return self._retrieveURL(url)
+        # not a supported type; return link verbatim
+        return url
 
     def _processText(self, mime):
         txt = unicode(mime.text())
         l = txt.lower()
         html = None
-        # firefox on linux just gives us a url for an image
-        if "\n" in l and (l.startswith("http://") or l.startswith("file://")):
+        # if the user is pasting an image or sound link, convert it to local
+        if l.startswith("http://") or l.startswith("file://"):
             txt = txt.split("\r\n")[0]
-            html = self._retrieveURL(txt)
+            html = self._localizedMediaLink(txt)
+            if html == txt:
+                # wasn't of a supported media type; don't change
+                html = None
         new = QMimeData()
         if html:
             new.setHtml(html)
@@ -1067,6 +1071,7 @@ class EditorWebView(AnkiWebView):
         if ext not in pics and ext not in audio:
             return
         # fetch it into a temporary folder
+        self.editor.mw.progress.start(immediate=True)
         try:
             req = urllib2.Request(url, None, {
                 'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
@@ -1078,6 +1083,7 @@ class EditorWebView(AnkiWebView):
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
+        self.editor.mw.progress.finish()
         return self.editor._addMedia(path)
 
     def _flagAnkiText(self):
