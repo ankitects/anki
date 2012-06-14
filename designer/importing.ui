@@ -21,35 +21,45 @@
      </property>
      <layout class="QVBoxLayout" name="toplayout">
       <item>
-       <widget class="QPushButton" name="autoDetect">
-        <property name="text">
-         <string>Auto-detect file format</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="3">
+         <widget class="QWidget" name="deckArea" native="true"/>
+        </item>
         <item row="0" column="1">
          <widget class="QWidget" name="modelArea" native="true"/>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Note type:</string>
+           <string>Type</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="0" column="2">
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Deck:</string>
+           <string>Deck</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QWidget" name="deckArea" native="true"/>
-        </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QPushButton" name="autoDetect">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="updateNotes">
+        <property name="text">
+         <string>Update existing notes when first field matches</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -108,7 +118,7 @@
              <x>0</x>
              <y>0</y>
              <width>402</width>
-             <height>237</height>
+             <height>236</height>
             </rect>
            </property>
           </widget>
@@ -132,7 +142,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>autoDetect</tabstop>
   <tabstop>importButton</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

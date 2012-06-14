@@ -127,10 +127,7 @@ you can enter it here. Use \\t to represent tab."""),
             d = _("Colon")
         else:
             d = `d`
-        if self.importer.delimiter:
-            txt = _("Manual &delimiter: %s") % d
-        else:
-            txt = _("Auto-detected &delimiter: %s") % d
+        txt = _("Fields separated by: %s") % d
         self.frm.autoDetect.setText(txt)
 
     def doImport(self, update=False):
@@ -139,6 +136,7 @@ you can enter it here. Use \\t to represent tab."""),
             showWarning(
                 _("The first field of the note type must be mapped."))
             return
+        self.importer.update = self.frm.updateNotes.isChecked()
         did = self.deck.selectedId()
         if did != self.importer.model['did']:
             self.importer.model['did'] = did
