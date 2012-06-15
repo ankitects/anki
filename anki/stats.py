@@ -642,7 +642,7 @@ from cards where did in %s""" % self._limit())
         if 'xaxis' not in conf:
             conf['xaxis'] = {}
         if timeTicks:
-            conf['timeTicks'] = (_("d"), _("w"), _("m"))[self.type]
+            conf['timeTicks'] = (_("d"), _("w"), _("mo"))[self.type]
         # types
         width = self.width
         height = self.height
