@@ -81,18 +81,6 @@ def test_genrem():
     f['Back'] = "1"
     f.flush()
     assert len(f.cards()) == 2
-    # deleteion calls a hook to let the user abort the delete. let's abort it:
-    def abort(val, *args):
-        return False
-    addHook("remEmptyCards", abort)
-    f['Back'] = ""
-    f.flush()
-    assert len(f.cards()) == 2
-    # if there's no filter, or it returns true, the cards get deleted
-    # .. not currently
-    # remHook("remEmptyCards", abort)
-    # f.flush()
-    # assert len(f.cards()) == 1
 
 def test_gendeck():
     d = getEmptyDeck()
