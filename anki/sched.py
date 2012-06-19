@@ -750,20 +750,30 @@ did = ? and queue = 2 and due <= ? limit ?""",
             card.ivl = self._nextLapseIvl(card, conf)
             card.factor = max(1300, card.factor-200)
             card.due = self.today + card.ivl
-        # put back in the learn queue?
+        # if suspended as a leech, nothing to do
         delay = 0
-        if conf['delays']:
-            if not card.odue:
-                card.odue = card.due
-            delay = self._delayForGrade(conf, 0)
-            card.due = int(delay + time.time())
+        if self._checkLeech(card, conf) and card.queue == -1:
+            return delay
+        # if no relearning steps, nothing to do
+        if not conf['delays']:
+            return delay
+        # record rev due date for later
+        if not card.odue:
+            card.odue = card.due
+        delay = self._delayForGrade(conf, 0)
+        card.due = int(delay + time.time())
+        # queue 1
+        if card.due < self.dayCutoff:
             card.left = len(conf['delays'])
             card.left += self._leftToday(conf['delays'], card.left)*1000
-            card.queue = 1
             self.lrnCount += card.left/1000
-        # leech?
-        if not self._checkLeech(card, conf) and conf['delays']:
+            card.queue = 1
             heappush(self._lrnQueue, (card.due, card.id))
+        else:
+            # day learn queue
+            ahead = ((card.due - self.dayCutoff) / 86400) + 1
+            card.due = self.today + ahead
+            card.queue = 3
         return delay
 
     def _nextLapseIvl(self, card, conf):
