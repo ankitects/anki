@@ -4,6 +4,7 @@ import collections
 from anki.utils import stripHTML
 from anki.hooks import runFilter
 from anki.template import furigana; furigana.install()
+from anki.template import hint; hint.install()
 from anki.lang import _
 
 clozeReg = r"\{\{c%s::(.*?)(::(.*?))?\}\}"
