@@ -449,7 +449,12 @@ title="%s">%s</button>''' % (
         signal.signal(signal.SIGINT, self.onSigInt)
 
     def onSigInt(self, signum, frame):
-        self.onClose()
+        # interrupt any current transaction and schedule a rollback & quit
+        self.col.db.interrupt()
+        def quit():
+            self.col.db.rollback()
+            self.close()
+        self.progress.timer(100, quit, False)
 
     def setupProgress(self):
         self.progress = aqt.progress.ProgressManager(self)
