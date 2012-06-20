@@ -5,6 +5,7 @@
 import re
 from anki.utils import ids2str, splitFields, joinFields, stripHTML, intTime
 from anki.consts import *
+import sre_constants
 
 # Find
 ##########################################################################
@@ -417,8 +418,11 @@ where mid in %s and flds like ? escape '\\'""" % (
             flds = splitFields(flds)
             ord = mods[str(mid)][1]
             strg = flds[ord]
-            if re.search("(?i)^"+regex+"$", strg):
-                nids.append(id)
+            try:
+                if re.search("(?i)^"+regex+"$", strg):
+                    nids.append(id)
+            except sre_constants.error:
+                return
         if not nids:
             return
         return "n.id in %s" % ids2str(nids)
