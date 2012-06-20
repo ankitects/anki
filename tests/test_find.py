@@ -7,9 +7,10 @@ def test_parse():
     f = Finder(None)
     assert f._tokenize("hello world") == ["hello", "world"]
     assert f._tokenize("hello  world") == ["hello", "world"]
-    assert f._tokenize("one -two") == ["one", "not", "two"]
-    assert f._tokenize("one --two") == ["one", "not", "two"]
-    assert f._tokenize("one or -two") == ["one", "or", "not", "two"]
+    assert f._tokenize("one -two") == ["one", "-", "two"]
+    assert f._tokenize("one --two") == ["one", "-", "two"]
+    assert f._tokenize("one - two") == ["one", "-", "two"]
+    assert f._tokenize("one or -two") == ["one", "or", "-", "two"]
     assert f._tokenize("'hello \"world\"'") == ["hello \"world\""]
     assert f._tokenize('"hello world"') == ["hello world"]
     assert f._tokenize("one (two or ( three or four))") == [

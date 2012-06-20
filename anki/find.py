@@ -93,8 +93,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             elif c == "-":
                 if token:
                     token += c
-                elif not tokens or tokens[-1] != "not":
-                    tokens.append("not")
+                elif not tokens or tokens[-1] != "-":
+                    tokens.append("-")
             # normal character
             else:
                 token += c
@@ -140,7 +140,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             if s['bad']:
                 return None, None
             # special tokens
-            if token == "not":
+            if token == "-":
                 s['isnot'] = True
             elif token.lower() == "or":
                 s['isor'] = True
