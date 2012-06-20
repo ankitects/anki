@@ -97,3 +97,5 @@ class DB(object):
     def totalChanges(self):
         return self._db.total_changes
 
+    def interrupt(self):
+        self._db.interrupt()
