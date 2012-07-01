@@ -5,7 +5,7 @@ import os, copy, time, sys, re, traceback
 from aqt.qt import *
 import anki
 import anki.importing as importing
-from aqt.utils import getOnlyText, getFile, showText, showWarning
+from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp
 from anki.errors import *
 from anki.hooks import addHook, remHook
 import aqt.forms, aqt.modelchooser, aqt.deckchooser
