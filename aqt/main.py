@@ -54,8 +54,9 @@ class AnkiQt(QMainWindow):
         self.hideSchemaMsg = False
         self.setupKeys()
         self.setupThreads()
-        self.setupSystemSpecific()
+        self.setupFonts()
         self.setupMainWindow()
+        self.setupSystemSpecific()
         self.setupStyle()
         self.setupProxy()
         self.setupMenus()
@@ -983,8 +984,7 @@ will be lost. Continue?"""))
     # System specific code
     ##########################################################################
 
-    def setupSystemSpecific(self):
-        # use system font for webviews
+    def setupFonts(self):
         f = QFontInfo(self.font())
         ws = QWebSettings.globalSettings()
         self.fontHeight = f.pixelSize()
@@ -992,6 +992,9 @@ will be lost. Continue?"""))
         self.fontHeightDelta = max(0, self.fontHeight - 13)
         ws.setFontFamily(QWebSettings.StandardFont, self.fontFamily)
         ws.setFontSize(QWebSettings.DefaultFontSize, self.fontHeight)
+
+    def setupSystemSpecific(self):
+        # use system font for webviews
         # mac tweaks
         addHook("macLoadEvent", self.onMacLoad)
         if isMac:
