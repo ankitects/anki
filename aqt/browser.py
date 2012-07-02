@@ -258,7 +258,7 @@ class DataModel(QAbstractTableModel):
 
     def nextDue(self, c, index):
         if c.odid:
-            return _("(cram)")
+            return _("(filtered)")
         elif c.queue == 0:
             return str(c.due)
         elif c.queue == 1:
@@ -813,7 +813,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
             cnt += 1
             s += "<tr><td>%s</td>" % time.strftime(_("<b>%Y-%m-%d</b> @ %H:%M"),
                                                    time.localtime(date))
-            tstr = [_("Learn"), _("Review"), _("Relearn"), _("Cram"),
+            tstr = [_("Learn"), _("Review"), _("Relearn"), _("Filtered"),
                     _("Resched")][type]
             import anki.stats as st
             fmt = "<span style='color:%s'>%s</span>"
