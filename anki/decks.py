@@ -134,7 +134,8 @@ class DeckManager(object):
 
     def rem(self, did, cardsToo=False, childrenToo=True):
         "Remove the deck. If cardsToo, delete any cards inside."
-        assert str(did) != '1'
+        if str(did) == '1':
+            return
         # log the removal regardless of whether we have the deck or not
         self.col._logRem([did], REM_DECK)
         # do nothing else if doesn't exist

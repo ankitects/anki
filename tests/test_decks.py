@@ -43,8 +43,6 @@ def test_basic():
 
 def test_remove():
     deck = getEmptyDeck()
-    # can't remove the default deck
-    assertException(AssertionError, lambda: deck.decks.rem(1))
     # create a new deck, and add a note/card to it
     g1 = deck.decks.id("g1")
     f = deck.newNote()
