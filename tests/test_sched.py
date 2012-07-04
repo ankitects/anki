@@ -737,6 +737,14 @@ def test_cram_resched():
     c.load()
     assert c.ivl == 100
     assert c.due == -25
+    # lapsed card pulled into cram
+    # d.sched._cardConf(c)['lapse']['mult']=0.5
+    # d.sched.answerCard(c, 1)
+    # d.sched.rebuildDyn(did)
+    # d.reset()
+    # c = d.sched.getCard()
+    # d.sched.answerCard(c, 2)
+    # print c.__dict__
 
 def test_adjIvl():
     d = getEmptyDeck()
