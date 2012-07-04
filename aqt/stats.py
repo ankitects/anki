@@ -16,7 +16,7 @@ import aqt
 class DeckStats(QDialog):
 
     def __init__(self, mw):
-        QDialog.__init__(self, mw)
+        QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.name = "deckStats"
         self.period = 0
