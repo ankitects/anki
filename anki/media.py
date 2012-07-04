@@ -121,6 +121,9 @@ If the same name exists, compare checksums."""
             txt = re.sub(reg, "", txt)
         return txt
 
+    def stripAudio(self, txt):
+        return re.sub(self.regexps[0], "", txt)
+
     def escapeImages(self, string):
         # Feeding webkit unicode can result in it not finding images, so on
         # linux/osx we percent escape the image paths as utf8. On Windows the
