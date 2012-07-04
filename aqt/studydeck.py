@@ -134,4 +134,6 @@ class StudyDeck(QDialog):
         if n:
             self.mw.col.decks.id(n)
             self.name = n
+            # make sure we clean up reset hook when manually exiting
+            remHook('reset', self.onReset)
             QDialog.accept(self)
