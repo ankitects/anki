@@ -1421,7 +1421,7 @@ Are you sure you want to continue?""")):
         b.onSearch(reset=False)
         b.model.endReset()
         b.mw.progress.finish()
-        b.mw.requireReset()
+        b.mw.reset()
         self.cleanup()
 
     def onHelp(self):
