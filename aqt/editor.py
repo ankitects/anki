@@ -579,12 +579,12 @@ class Editor(object):
         "Must call this before adding cards, closing dialog, etc."
         if not self.note:
             return
+        self.saveTags()
         if self.mw.app.focusWidget() != self.web:
             # if no fields are focused, there's nothing to save
             return
         # move focus out of fields and save tags
         self.parentWindow.setFocus()
-        self.saveTags()
         # and process events so any focus-lost hooks fire
         self.mw.app.processEvents()
 
