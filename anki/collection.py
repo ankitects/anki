@@ -394,7 +394,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     def cardCount(self):
         return self.db.scalar("select count() from cards")
 
-    def remCards(self, ids):
+    def remCards(self, ids, notes=True):
         "Bulk delete cards by ID."
         if not ids:
             return
@@ -405,6 +405,8 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         self.db.execute("delete from cards where id in "+sids)
         self.db.execute("delete from revlog where cid in "+sids)
         # then notes
+        if not notes:
+            return
         nids = self.db.list("""
 select id from notes where id in %s and id not in (select nid from cards)""" %
                      ids2str(nids))
