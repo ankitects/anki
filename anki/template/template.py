@@ -196,19 +196,16 @@ class Template(object):
 
     def clozeText(self, txt, ord, type):
         reg = clozeReg
-        m = re.search(reg%ord, txt)
-        if not m:
-            return ""
-        # replace chosen cloze with type
-        if type == "q":
-            if m.group(3):
-                txt = re.sub(
-                    reg%ord, "<span class=cloze>[%s...]</span>" % m.group(3),
-                    txt)
+        def repl(m):
+            # replace chosen cloze with type
+            if type == "q":
+                if m.group(3):
+                    return "<span class=cloze>[%s...]</span>" % m.group(3)
+                else:
+                    return "<span class=cloze>[...]</span>"
             else:
-                txt = re.sub(reg%ord, "<span class=cloze>[...]</span>", txt)
-        elif type == "a":
-            txt = re.sub(reg%ord, "<span class=cloze>\\1</span>", txt)
+                return "<span class=cloze>%s</span>" % m.group(1)
+        txt = re.sub(reg%ord, repl, txt)
         # and display other clozes normally
         return re.sub(reg%".*?", "\\1", txt)
 
