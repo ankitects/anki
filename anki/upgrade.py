@@ -600,7 +600,12 @@ and ord = ? limit 1""", m['id'], t['ord']):
                         remove.append(t)
                 del t['actv']
             for r in remove:
-                d.models.remTemplate(m, r)
+                try:
+                    d.models.remTemplate(m, r)
+                except AssertionError:
+                    # if the model was unused this could result in all
+                    # templates being removed; ignore error
+                    pass
             d.models.save(m)
 
     # Conditional templates
