@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>438</height>
+    <width>481</width>
+    <height>401</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -557,6 +557,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="replayQuestion">
+         <property name="text">
+          <string>When answer shown, replay both question and answer audio</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -626,6 +636,7 @@
   <tabstop>maxTaken</tabstop>
   <tabstop>showTimer</tabstop>
   <tabstop>autoplaySounds</tabstop>
+  <tabstop>replayQuestion</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>desc</tabstop>
  </tabstops>

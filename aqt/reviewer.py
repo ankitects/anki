@@ -97,10 +97,12 @@ class Reviewer(object):
             playFromText(c.q())
         elif self.state == "answer":
             txt = ""
-            if self.mw.col.conf.get("replayBoth", True):
+            exclude = c.q()
+            if self._replayq(c):
                 txt = c.q()
+                exclude = ""
             txt += c.a()
-            playFromText(txt)
+            playFromText(txt, exclude)
 
     # Initializing the webview
     ##########################################################################
@@ -199,6 +201,10 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
     def _autoplay(self, card):
         return self.mw.col.decks.confForDid(
             self.card.odid or self.card.did)['autoplay']
+
+    def _replayq(self, card):
+        return self.mw.col.decks.confForDid(
+            self.card.odid or self.card.did).get('replayq', True)
 
     def _toggleStar(self):
         self.web.eval("_toggleStar(%s);" % json.dumps(
