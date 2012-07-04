@@ -496,7 +496,7 @@ def fieldNames(col, downcase=True):
 
 def findDupes(col, fieldName, search=""):
     # limit search to notes with applicable field name
-    search += " '%s:*'" % fieldName
+    search = "(%s) '%s:*'" % (search, fieldName)
     # go through notes
     vals = {}
     dupes = []
