@@ -14,6 +14,7 @@ from anki.decks import DeckManager
 from anki.tags import TagManager
 from anki.consts import *
 from anki.errors import AnkiError
+from anki.sound import stripSounds
 
 import anki.latex # sets up hook
 import anki.cards, anki.notes, anki.template, anki.find
@@ -491,7 +492,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
             else:
                 format = format.replace("{{cloze:", "{{ca:%d:" % (
                     data[4]+1))
-                fields['FrontSide'] = self.media.stripAudio(d['q'])
+                fields['FrontSide'] = stripSounds(d['q'])
             fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
             d[type] = runFilter(
