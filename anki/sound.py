@@ -10,9 +10,12 @@ from anki.utils import namedtmp, tmpdir, isWin, isMac
 # Shared utils
 ##########################################################################
 
-def playFromText(text):
+def playFromText(text, exclude=""):
+    reg = "\[sound:(.*?)\]"
     fnames = {}
-    for match in re.findall("\[sound:(.*?)\]", text):
+    for match in re.findall(reg, exclude):
+        fnames[match] = True
+    for match in re.findall(reg, text):
         if match in fnames:
             continue
         fnames[match] = True
