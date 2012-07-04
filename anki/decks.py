@@ -221,6 +221,8 @@ class DeckManager(object):
         # adjust name and save
         g['name'] = newName
         self.save(g)
+        # renaming may have altered active did order
+        self.maybeAddToActive()
 
     def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid):
         draggedDeck = self.get(draggedDeckDid)
