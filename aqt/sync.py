@@ -289,13 +289,17 @@ class SyncThread(QThread):
         self._syncMedia()
 
     def _fullSync(self):
-        # tell the calling thread we need a decision on sync direction, and
-        # wait for a reply
-        self.fullSyncChoice = False
-        self.fireEvent("fullSync")
-        while not self.fullSyncChoice:
-            time.sleep(0.1)
-        f = self.fullSyncChoice
+        # if the local deck is empty, assume user is trying to download
+        if self.col.isEmpty():
+            f = "download"
+        else:
+            # tell the calling thread we need a decision on sync direction, and
+            # wait for a reply
+            self.fullSyncChoice = False
+            self.fireEvent("fullSync")
+            while not self.fullSyncChoice:
+                time.sleep(0.1)
+            f = self.fullSyncChoice
         if f == "cancel":
             return
         self.client = FullSyncer(self.col, self.hkey, self.server.con)
