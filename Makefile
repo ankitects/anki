@@ -4,6 +4,7 @@ all:
 	@echo "Uninstall with 'sudo make uninstall'"
 
 install:
+	@test ! -d .git || (echo "Install from git is not supported. Please use a tarball."; false)
 	rm -rf /usr/share/anki
 	mkdir -p /usr/share/anki
 	cp -av * /usr/share/anki/
