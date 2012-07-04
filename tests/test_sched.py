@@ -1095,3 +1095,24 @@ def test_resched():
     c.load()
     assert c.due == d.sched.today+1
     assert c.ivl == +1
+
+def test_norelearn():
+    d = getEmptyDeck()
+    # add a note
+    f = d.newNote()
+    f['Front'] = u"one"
+    d.addNote(f)
+    c = f.cards()[0]
+    c.type = 2
+    c.queue = 2
+    c.due = 0
+    c.factor = 2500
+    c.reps = 3
+    c.lapses = 1
+    c.ivl = 100
+    c.startTimer()
+    c.flush()
+    d.reset()
+    d.sched.answerCard(c, 1)
+    d.sched._cardConf(c)['lapse']['delays'] = []
+    d.sched.answerCard(c, 1)

@@ -542,7 +542,11 @@ did = ? and queue = 3 and due <= ? limit ?""",
         try:
             delay = conf['delays'][-left]
         except IndexError:
-            delay = conf['delays'][0]
+            if conf['delays']:
+                delay = conf['delays'][0]
+            else:
+                # user deleted final step; use dummy value
+                delay = 1
         return delay*60
 
     def _lrnConf(self, card):
