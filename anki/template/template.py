@@ -215,6 +215,10 @@ class Template(object):
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None):
         """Changes the Mustache delimiter."""
-        self.otag, self.ctag = tag_name.split(' ')
+        try:
+            self.otag, self.ctag = tag_name.split(' ')
+        except ValueError:
+            # invalid
+            return
         self.compile_regexps()
         return ''
