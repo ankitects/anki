@@ -422,7 +422,7 @@ select id from notes where mid = ?)""" % " ".join(map),
                 if newModel['type'] != MODEL_CLOZE:
                     # if we're mapping to a regular note, we need to check if
                     # the destination ord is valid
-                    if len(newModel['flds']) <= ord:
+                    if len(newModel['tmpls']) <= ord:
                         new = None
             else:
                 # mapping from a regular note, so the map should be valid

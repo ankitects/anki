@@ -231,6 +231,11 @@ def test_modelChange():
     f.load()
     assert f['Text'] == "f2"
     assert len(f.cards()) == 2
+    # back the other way, with deletion of second ord
+    deck.models.remTemplate(basic, basic['tmpls'][1])
+    assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 2
+    deck.models.change(cloze, [f.id], basic, map, map)
+    assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
 
 def test_availOrds():
     d = getEmptyDeck()
