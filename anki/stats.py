@@ -279,7 +279,7 @@ group by day order by day""" % (self._limit(), lim),
         if convHours:
             # convert to minutes
             tot *= 60
-        self._line(i, _("Average over studied"), self._avgDay(
+        self._line(i, _("Average for days studied"), self._avgDay(
             tot, studied, unit))
         self._line(i, _("If you studied every day"), self._avgDay(
             tot, period, unit))
