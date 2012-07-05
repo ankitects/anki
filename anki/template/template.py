@@ -196,6 +196,8 @@ class Template(object):
 
     def clozeText(self, txt, ord, type):
         reg = clozeReg
+        if not re.search(reg%ord, txt):
+            return ""
         def repl(m):
             # replace chosen cloze with type
             if type == "q":
