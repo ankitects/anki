@@ -36,13 +36,11 @@ def test_delete():
     cid = f.cards()[0].id
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
-    assert deck.db.scalar("select count() from revlog") == 1
     deck.remCards([cid])
     assert deck.cardCount() == 0
     assert deck.noteCount() == 0
     assert deck.db.scalar("select count() from notes") == 0
     assert deck.db.scalar("select count() from cards") == 0
-    assert deck.db.scalar("select count() from revlog") == 0
     assert deck.db.scalar("select count() from graves") == 2
 
 def test_misc():

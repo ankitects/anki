@@ -403,7 +403,6 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         # remove cards
         self._logRem(ids, REM_CARD)
         self.db.execute("delete from cards where id in "+sids)
-        self.db.execute("delete from revlog where cid in "+sids)
         # then notes
         if not notes:
             return
