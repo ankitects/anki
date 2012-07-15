@@ -1026,7 +1026,7 @@ class EditorWebView(AnkiWebView):
         l = txt.lower()
         html = None
         # if the user is pasting an image or sound link, convert it to local
-        if l.startswith("http://") or l.startswith("file://"):
+        if l.startswith("http://") or l.startswith("https://") or l.startswith("file://"):
             txt = txt.split("\r\n")[0]
             html = self._localizedMediaLink(txt)
             if html == txt:
