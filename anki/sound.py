@@ -10,22 +10,17 @@ from anki.utils import namedtmp, tmpdir, isWin, isMac
 # Shared utils
 ##########################################################################
 
-def playFromText(text, exclude=""):
-    reg = "\[sound:(.*?)\]"
-    fnames = {}
-    for match in re.findall(reg, exclude):
-        fnames[match] = True
-    for match in re.findall(reg, text):
-        if match in fnames:
-            continue
-        fnames[match] = True
+_soundReg = "\[sound:(.*?)\]"
+
+def playFromText(text):
+    for match in re.findall(_soundReg, text):
         play(match)
 
 def stripSounds(text):
-    return re.sub("\[sound:.*?\]", "", text)
+    return re.sub(_soundReg, "", text)
 
 def hasSound(text):
-    return re.search("\[sound:.*?\]", text) is not None
+    return re.search(_soundReg, text) is not None
 
 ##########################################################################
 
