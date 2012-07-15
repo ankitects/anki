@@ -97,12 +97,10 @@ class Reviewer(object):
             playFromText(c.q())
         elif self.state == "answer":
             txt = ""
-            exclude = c.q()
             if self._replayq(c):
                 txt = c.q()
-                exclude = ""
             txt += c.a()
-            playFromText(txt, exclude)
+            playFromText(txt)
 
     # Initializing the webview
     ##########################################################################

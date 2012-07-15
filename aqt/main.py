@@ -10,7 +10,6 @@ from aqt.qt import *
 QtConfig = pyqtconfig.Configuration()
 
 from anki import Collection
-from anki.sound import playFromText, clearAudioQueue, stripSounds
 from anki.utils import stripHTML, checksum, isWin, isMac, intTime
 from anki.hooks import runHook, addHook, remHook
 import anki.consts
