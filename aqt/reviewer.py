@@ -375,8 +375,8 @@ Please run Tools>Maintenance>Empty Cards""")
         res = self.correct(cor, given)
         if cor != given:
             # Wrap the extra text in an id-ed span.
-            res += '<span id=rightanswer><br> {0} <br> {1} </span>'.format(
-                _("Correct answer was:"), cor)
+            res += u"<span id=rightanswer><br> {0} <br> {1} </span>".format(
+                _(u"Correct answer was:"), cor)
         # and update the type answer area
         return re.sub(self.typeAnsPat, """
 <span style="font-family: '%s'; font-size: %spx">%s</span>""" %
