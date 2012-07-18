@@ -149,6 +149,7 @@ Sanity check failed. Please copy and paste the text below:\n%s\n%s""" % (c, s))
                  tags=self.getTags())
         if self.lnewer:
             d['conf'] = self.getConf()
+            d['crt'] = self.col.crt
         return d
 
     def applyChanges(self, changes):
@@ -165,6 +166,9 @@ Sanity check failed. Please copy and paste the text below:\n%s\n%s""" % (c, s))
         self.mergeTags(rchg['tags'])
         if 'conf' in rchg:
             self.mergeConf(rchg['conf'])
+        # this was left out of earlier betas
+        if 'crt' in rchg:
+            self.col.crt = rchg['crt']
         self.prepareToChunk()
 
     def sanityCheck(self):

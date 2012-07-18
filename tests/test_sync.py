@@ -90,6 +90,11 @@ def test_sync():
     deck1.save()
     assert client.sync() == "success"
     check(2)
+    # crt should be synced
+    deck1.crt = 123
+    deck1.setMod()
+    assert client.sync() == "success"
+    assert deck1.crt == deck2.crt
 
 @nose.with_setup(setup_modified)
 def test_models():
