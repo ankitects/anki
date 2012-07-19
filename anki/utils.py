@@ -3,11 +3,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, os, random, time, types, math, htmlentitydefs, subprocess, \
-    tempfile, shutil, string, httplib2
+    tempfile, shutil, string, httplib2, sys, locale
 from hashlib import sha1
 from anki.lang import _, ngettext
 from anki.consts import *
-import locale, sys
 
 if sys.version_info[1] < 5:
     def format_string(a, b):
@@ -254,7 +253,7 @@ def tmpdir():
 def tmpfile(prefix="", suffix=""):
     (fd, name) = tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
     os.close(fd)
-    return name
+    return unicode(name, sys.getfilesystemencoding())
 
 def namedtmp(name, rm=True):
     "Return tmpdir+name. Deletes any existing file."
