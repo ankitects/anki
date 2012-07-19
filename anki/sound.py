@@ -161,7 +161,7 @@ def queueMplayer(path):
         # mplayer on windows doesn't like the encoding, so we create a
         # temporary file instead. oddly, foreign characters in the dirname
         # don't seem to matter.
-        dir = unicode(tmpdir(), sys.getfilesystemencoding())
+        dir = tmpdir()
         name = os.path.join(dir, "audio%s%s" % (
             random.randrange(0, 1000000), os.path.splitext(path)[1]))
         f = open(name, "wb")
