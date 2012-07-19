@@ -1456,7 +1456,7 @@ class BrowserToolbar(Toolbar):
                        shortcut(_("Mark Note (Ctrl+K)")))
         right += borderImg("pause", "pause16", pause, _("Suspend"))
         right += borderImg("setDeck", "deck16", False, _("Change Deck"),
-                           _("Move To Deck (Ctrl+D)"))
+                           shortcut(_("Move To Deck (Ctrl+D)")))
         right += borderImg("addtag", "addtag16", False, _("Add Tags"),
                        shortcut(_("Bulk Add Tags (Ctrl+Shift+T)")))
         right += borderImg("deletetag", "deletetag16", False,
