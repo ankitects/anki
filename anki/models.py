@@ -259,9 +259,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         oldidx = m['flds'].index(field)
         if oldidx == idx:
             return
+        # remember old sort field
+        sortf = m['flds'][m['sortf']]
+        # move
         m['flds'].remove(field)
         m['flds'].insert(idx, field)
-        m['sortf'] = idx
+        # restore sort field
+        m['sortf'] = m['flds'].index(sortf)
         self._updateFieldOrds(m)
         self.save(m)
         def move(fields, oldidx=oldidx):
