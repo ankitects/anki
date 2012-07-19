@@ -245,7 +245,7 @@ def tmpdir():
             shutil.rmtree(_tmpdir)
         import atexit
         atexit.register(cleanup)
-        _tmpdir = os.path.join(tempfile.gettempdir(), "anki_temp")
+        _tmpdir = unicode(os.path.join(tempfile.gettempdir(), "anki_temp"), sys.getfilesystemencoding())
         if not os.path.exists(_tmpdir):
             os.mkdir(_tmpdir)
     return _tmpdir
@@ -253,7 +253,7 @@ def tmpdir():
 def tmpfile(prefix="", suffix=""):
     (fd, name) = tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
     os.close(fd)
-    return unicode(name, sys.getfilesystemencoding())
+    return name
 
 def namedtmp(name, rm=True):
     "Return tmpdir+name. Deletes any existing file."
