@@ -1051,8 +1051,7 @@ class EditorWebView(AnkiWebView):
 
     def _processImage(self, mime):
         im = QImage(mime.imageData())
-        name = namedtmp("paste-%d" % im.cacheKey())
-        uname = unicode(name, sys.getfilesystemencoding())
+        uname = namedtmp("paste-%d" % im.cacheKey())
         if self.editor.mw.pm.profile.get("pastePNG", False):
             ext = ".png"
             im.save(uname+ext, None, 50)
