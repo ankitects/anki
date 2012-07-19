@@ -90,11 +90,9 @@ f.id = cards.factId)"""):
         if db.list("""
     select id from fields where factId not in (select id from facts)"""):
             return
-        # fields without matching interval
-        if db.list("""
-    select id from fields where ordinal != (select ordinal from fieldModels
-    where id = fieldModelId)"""):
-            return
+        # fix ordinal numbers
+        db.execute("""update fields set ordinal = (select ordinal from
+fieldModels where id = fieldModelId)""")
         # incorrect types
         if db.list("""
     select id from cards where relativeDelay != (case
