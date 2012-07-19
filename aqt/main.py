@@ -374,7 +374,7 @@ Are you sure?""")):
             return
         self.web.setLinkHandler(lambda url: self.delayedMaybeReset())
         i = _("Waiting for editing to finish.")
-        b = self.button("refresh", _("Resume Now"))
+        b = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml("""
 <center><div style="height: 100%%">
 <div style="position:relative; vertical-align: middle;">
@@ -382,6 +382,8 @@ Are you sure?""")):
 %s</div></div></center>
 """ % (i, b), css=self.sharedCSS)
         self.bottomWeb.hide()
+        self.web.setFocus()
+        self.web.eval("$('#resume').focus()")
 
     # HTML helpers
     ##########################################################################
