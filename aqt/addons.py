@@ -201,7 +201,7 @@ class AddonDownloader(QThread):
             resp, cont = con.request(
                 aqt.appShared + "download/%d" % self.code)
         except Exception, e:
-            self.error = unicode(e)
+            self.error = unicode(e[0], "utf8", "ignore")
             return
         finally:
             remHook("httpRecv", recvEvent)
