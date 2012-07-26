@@ -1119,7 +1119,10 @@ your short-term review workload will become."""))
         ivl = self.nextIvl(card, ease)
         if not ivl:
             return ""
-        return fmtTimeSpan(ivl, short=short)
+        s = fmtTimeSpan(ivl, short=short)
+        if ivl < self.col.conf['collapseTime']:
+            s = "<"+s
+        return s
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
