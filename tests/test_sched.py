@@ -346,6 +346,26 @@ def test_reviews():
     c.load()
     assert c.queue == -1
 
+def test_button_spacing():
+    d = getEmptyDeck()
+    f = d.newNote()
+    f['Front'] = u"one"
+    d.addNote(f)
+    # 1 day ivl review card due now
+    c = f.cards()[0]
+    c.type = 2
+    c.queue = 2
+    c.due = d.sched.today
+    c.reps = 1
+    c.ivl = 1
+    c.startTimer()
+    c.flush()
+    d.reset()
+    ni = d.sched.nextIvlStr
+    assert ni(c, 2) == "2 days"
+    assert ni(c, 3) == "3 days"
+    assert ni(c, 4) == "4 days"
+
 def test_overdue_lapse():
     # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
     return

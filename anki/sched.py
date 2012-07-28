@@ -820,21 +820,23 @@ did = ? and queue = 2 and due <= ? limit ?""",
         delay = self._daysLate(card)
         conf = self._revConf(card)
         fct = card.factor / 1000.0
+        ivl2 = self._constrainedIvl((card.ivl + delay/4) * 1.2, conf, card.ivl)
+        ivl3 = self._constrainedIvl((card.ivl + delay/2) * fct, conf, ivl2)
+        ivl4 = self._constrainedIvl(
+            (card.ivl + delay) * fct * conf['ease4'], conf, ivl3)
         if ease == 2:
-            interval = (card.ivl + delay/4) * 1.2
+            interval = ivl2
         elif ease == 3:
-            interval = (card.ivl + delay/2) * fct
+            interval = ivl3
         elif ease == 4:
-            interval = (card.ivl + delay) * fct * conf['ease4']
-        # apply interval factor adjustment
-        interval = self._ivlWithFactor(conf, interval)
-        # must be at least one day greater than previous interval; two if easy
-        interval = max(card.ivl + (2 if ease==4 else 1), int(interval))
+            interval = ivl4
         # interval capped?
         return min(interval, conf['maxIvl'])
 
-    def _ivlWithFactor(self, conf, ivl):
-        return ivl * conf.get('ivlFct', 1)
+    def _constrainedIvl(self, ivl, conf, prev):
+        "Integer interval after interval factor and prev+1 constraints applied."
+        new = ivl * conf.get('ivlFct', 1)
+        return int(max(new, prev+1))
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
