@@ -155,3 +155,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations."""
     def _unsetBusy(self):
         self._disabled = False
         self.app.restoreOverrideCursor()
+
+    def busy(self):
+        "True if processing."
+        return self._levels

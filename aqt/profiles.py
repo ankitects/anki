@@ -82,39 +82,6 @@ Anki can't write to the harddisk. Please see the \
 documentation for information on using a flash drive.""")
             raise
 
-    # Pid checking
-    ######################################################################
-
-    def checkPid(self):
-        p = os.path.join(self.base, "pid")
-        # check if an existing instance is running
-        if os.path.exists(p):
-            pid = int(open(p).read())
-            exists = False
-            if isWin:
-                # no posix on windows, sigh
-                from win32process import EnumProcesses as enum
-                if pid in enum():
-                    exists = True
-            else:
-                try:
-                    os.kill(pid, 0)
-                    exists = True
-                except OSError:
-                    pass
-            if exists:
-                QMessageBox.warning(
-                    None, "Error", _("""\
-Anki is already running. Please close the existing copy or restart your \
-computer."""))
-                raise Exception("Already running")
-        # write out pid to the file
-        open(p, "w").write(str(os.getpid()))
-        # add handler to cleanup on exit
-        def cleanup():
-            os.unlink(p)
-        atexit.register(cleanup)
-
     # Profile load/save
     ######################################################################
 

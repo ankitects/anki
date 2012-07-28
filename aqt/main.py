@@ -21,8 +21,9 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     tooltip, openHelp, openLink
 
 class AnkiQt(QMainWindow):
-    def __init__(self, app, profileManager):
+    def __init__(self, app, profileManager, args):
         QMainWindow.__init__(self)
+        self.state = "startup"
         aqt.mw = self
         self.app = app
         self.pm = profileManager
@@ -43,21 +44,23 @@ class AnkiQt(QMainWindow):
         except:
             showInfo(_("Error during startup:\n%s") % traceback.format_exc())
             sys.exit(1)
+        # were we given a file to import?
+        if args and args[0]:
+            self.onAppMsg(args[0])
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
         self.progress.timer(10, self.setupProfile, False)
 
     def setupUI(self):
         self.col = None
-        self.state = "overview"
         self.hideSchemaMsg = False
+        self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
         self.setupFonts()
         self.setupMainWindow()
         self.setupSystemSpecific()
         self.setupStyle()
-        self.setupProxy()
         self.setupMenus()
         self.setupProgress()
         self.setupErrorHandler()
@@ -75,6 +78,7 @@ class AnkiQt(QMainWindow):
     ##########################################################################
 
     def setupProfile(self):
+        self.pendingImport = None
         # profile not provided on command line?
         if not self.pm.name:
             # if there's a single profile, load it automatically
@@ -91,6 +95,7 @@ class AnkiQt(QMainWindow):
             self.loadProfile()
 
     def showProfileManager(self):
+        self.state = "profileManager"
         d = self.profileDiag = QDialog()
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
@@ -210,6 +215,15 @@ Are you sure?""")):
         self.raise_()
         # maybe sync (will load DB)
         self.onSync(auto=True)
+        # import pending?
+        if self.pendingImport:
+            if self.pm.profile['key']:
+                showInfo(_("""\
+To import into a password protected profile, please open the profile before attempting to import."""))
+            else:
+                import aqt.importing
+                aqt.importing.importFile(self, self.pendingImport)
+            self.pendingImport = None
         runHook("profileLoaded")
 
     def unloadProfile(self, browser=True):
@@ -352,8 +366,12 @@ Are you sure?""")):
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
-        if self.state in ("overview", "review", "deckBrowser"):
+        if self.interactiveState():
             self.moveToState("resetRequired")
+
+    def interactiveState(self):
+        "True if not in profile manager, syncing, etc."
+        return self.state in ("overview", "review", "deckBrowser")
 
     def maybeReset(self):
         self.autosave()
@@ -995,12 +1013,8 @@ will be lost. Continue?"""))
         ws.setFontSize(QWebSettings.DefaultFontSize, self.fontHeight)
 
     def setupSystemSpecific(self):
-        # use system font for webviews
-        # mac tweaks
-        addHook("macLoadEvent", self.onMacLoad)
         if isMac:
             qt_mac_set_menubar_icons(False)
-            #self.setUnifiedTitleAndToolBarOnMac(self.pm.profile['showToolbar'])
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+M", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
@@ -1025,12 +1039,40 @@ will be lost. Continue?"""))
     def onMacMinimize(self):
         self.setWindowState(self.windowState() | Qt.WindowMinimized)
 
-    def onMacLoad(self, fname):
-        self.loadDeck(fname)
-
-    # Proxy support
+    # Single instance support
     ##########################################################################
 
-    def setupProxy(self):
-        return
-        # need to bundle socksipy and install a default socket handler
+    def setupAppMsg(self):
+        self.connect(self.app, SIGNAL("appMsg"), self.onAppMsg)
+
+    def onAppMsg(self, buf):
+        if self.state == "startup":
+            # try again in a second
+            return self.progress.timer(1000, lambda: self.onAppMsg(buf), False)
+        elif self.state == "profileManager":
+            self.pendingImport = buf
+            return showInfo(_("Deck will be imported when a profile is opened."))
+        if not self.interactiveState() or self.progress.busy():
+            # we can't raise the main window while in profile dialog, syncing, etc
+            if buf != "raise":
+                showInfo(_("""\
+Please ensure a profile is open and Anki is not busy, then try again."""),
+                     parent=None)
+            return
+        # raise window
+        if isWin:
+            # on windows we can raise the window by minimizing and restoring
+            self.showMinimized()
+            self.setWindowState(Qt.WindowActive)
+            self.showNormal()
+        else:
+            # on osx we can raise the window. on unity the icon in the tray will just flash.
+            self.activateWindow()
+            self.raise_()
+        if buf == "raise":
+            return
+        # import
+        if not os.path.exists(buf):
+            return showInfo(_("Provided file does not exist."))
+        import aqt.importing
+        aqt.importing.importFile(self, buf)

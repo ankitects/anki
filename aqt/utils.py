@@ -25,9 +25,9 @@ def showCritical(text, parent=None, help=""):
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, "critical")
 
-def showInfo(text, parent=None, help="", type="info"):
+def showInfo(text, parent=False, help="", type="info"):
     "Show a small info window with an OK button."
-    if not parent:
+    if parent is False:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     if type == "warning":
         icon = QMessageBox.Warning

@@ -249,6 +249,9 @@ def onImport(mw):
     if not file:
         return
     file = unicode(file)
+    importFile(mw, file)
+
+def importFile(mw, file):
     ext = os.path.splitext(file)[1]
     importer = None
     done = False
