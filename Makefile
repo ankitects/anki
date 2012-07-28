@@ -13,6 +13,9 @@ install:
 	mv anki.xpm anki.png /usr/share/pixmaps/;\
 	mv anki.desktop /usr/share/applications;\
 	mv anki.1 /usr/share/man/man1/)
+	xdg-mime install anki.xml
+	xdg-mime default anki.desktop application/x-anki
+	xdg-mime default anki.desktop application/x-apkg
 	@echo
 	@echo "Install complete."
 
@@ -22,5 +25,6 @@ uninstall:
 	rm -rf /usr/share/pixmaps/anki.{xpm,png}
 	rm -rf /usr/share/applications/anki.desktop
 	rm -rf /usr/share/man/man1/anki.1
+	xdg-mime uninstall /usr/share/mime/packages/anki.xml
 	@echo
 	@echo "Uninstall complete."

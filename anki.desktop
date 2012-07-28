@@ -9,3 +9,4 @@ Categories=Education;Languages;KDE;
 Terminal=false
 Type=Application
 Version=1.0
+MimeType=application/x-apkg;application/x-anki
