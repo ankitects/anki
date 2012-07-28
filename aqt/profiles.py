@@ -227,13 +227,13 @@ create table if not exists profiles
         if self.firstRun:
             self.create(_("User 1"))
             p = os.path.join(self.base, "README.txt")
-            open(p, "w").write(_("""\
+            open(p, "w").write((_("""\
 This folder stores all of your Anki data in a single location,
 to make backups easy. To tell Anki to use a different location,
 please see:
 
 %s
-""") % (appHelpSite +  "#startupopts"))
+""") % (appHelpSite +  "#startupopts")).encode("utf8"))
 
     def _pwhash(self, passwd):
         return checksum(unicode(self.meta['id'])+unicode(passwd))
