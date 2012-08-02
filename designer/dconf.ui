@@ -162,7 +162,7 @@
          <item row="4" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Easy</string>
+            <string>Easy interval</string>
            </property>
           </widget>
          </item>
