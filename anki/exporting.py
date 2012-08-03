@@ -198,7 +198,13 @@ class AnkiExporter(Exporter):
         # todo: tags?
         self.count = self.dst.cardCount()
         self.dst.setMod()
+        self.postExport()
         self.dst.close()
+
+    def postExport(self):
+        # overwrite to apply customizations to the deck before it's closed,
+        # such as update the deck description
+        pass
 
 # Packaged Anki decks
 ######################################################################
