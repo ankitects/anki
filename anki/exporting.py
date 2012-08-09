@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import itertools, time, re, os, HTMLParser, zipfile
+import itertools, time, re, os, HTMLParser, zipfile, shutil
 from operator import itemgetter
 from anki.cards import Card
 from anki.lang import _
@@ -194,6 +194,7 @@ class AnkiExporter(Exporter):
                 for file in self.src.media.filesInStr(mid, flds):
                     media[file] = True
         self.mediaFiles = media.keys()
+        self.mediaDir = self.src.media.dir()
         self.dst.crt = self.src.crt
         # todo: tags?
         self.count = self.dst.cardCount()
@@ -225,11 +226,13 @@ class AnkiPackageExporter(AnkiExporter):
         z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED)
         z.write(colfile, "collection.anki2")
         # and media
+        self.prepareMedia()
         media = {}
         for c, file in enumerate(self.mediaFiles):
             c = str(c)
-            if os.path.exists(file):
-                z.write(file, c)
+            mpath = os.path.join(self.mediaDir, file)
+            if os.path.exists(mpath):
+                z.write(mpath, c)
                 media[c] = file
         # media map
         z.writestr("media", json.dumps(media))
@@ -237,7 +240,12 @@ class AnkiPackageExporter(AnkiExporter):
         # tidy up intermediate files
         os.unlink(colfile)
         os.unlink(path.replace(".apkg", ".media.db"))
-        os.rmdir(path.replace(".apkg", ".media"))
+        shutil.rmtree(path.replace(".apkg", ".media"))
+
+    def prepareMedia(self):
+        # chance to move each file in self.mediaFiles into place before media
+        # is zipped up
+        pass
 
 # Export modules
 ##########################################################################
