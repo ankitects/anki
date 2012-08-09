@@ -22,7 +22,6 @@ class Anki2Importer(Importer):
 
     needMapper = False
     deckPrefix = None
-    needCards = True
 
     def run(self, media=None):
         self._prepareFiles()
@@ -117,8 +116,6 @@ class Anki2Importer(Importer):
         if mid in self._modelMap:
             return self._modelMap[mid]
         src = self.src.models.get(mid).copy()
-        if not self.needCards:
-            src['needWizard'] = 1
         # if it doesn't exist, we'll copy it over, preserving id
         if not self.dst.models.have(mid):
             self.dst.models.update(src)
@@ -190,8 +187,6 @@ class Anki2Importer(Importer):
     ######################################################################
 
     def _importCards(self):
-        if not self.needCards:
-            return
         # build map of (guid, ord) -> cid and used id cache
         self._cards = {}
         existing = {}
@@ -261,17 +256,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
     # fixme: we could be handling new card order more elegantly on import
 
     def _postImport(self):
-        if self.needCards:
-            # make sure new position is correct
-            self.dst.conf['nextPos'] = self.dst.db.scalar(
-                "select max(due)+1 from cards where type = 0") or 0
-        else:
-            # newly added models will have been flagged with needWizard=1; we
-            # need to mark reused models with needWizard=2 so the new cards
-            # can be generated
-            for mid in self._modelMap.values():
-                m = self.dst.models.get(mid)
-                if not m.get("needWizard"):
-                    m['needWizard'] = 2
-                    self.dst.models.save(m)
+        # make sure new position is correct
+        self.dst.conf['nextPos'] = self.dst.db.scalar(
+            "select max(due)+1 from cards where type = 0") or 0
         self.dst.save()
