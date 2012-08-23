@@ -36,7 +36,6 @@ class StudyDeck(QDialog):
             self.setWindowTitle(title)
         if not names:
             names = sorted(self.mw.col.decks.allNames(dyn=dyn))
-            current = self.mw.col.decks.current()['name']
             self.nameFunc = None
             self.origNames = names
         else:
