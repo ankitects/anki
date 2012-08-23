@@ -11,9 +11,9 @@ def hint(txt, extra, context, tag, fullname):
     # random id
     domid = "hint%d" % id(txt)
     return """
-<a href="#"
+<a class=hint href="#"
 onclick="this.style.display='none';document.getElementById('%s').style.display='block';return false;">
-%s</a><div id="%s" style="display: none">%s</div>
+%s</a><div id="%s" class=hint style="display: none">%s</div>
 """ % (domid, _("Show %s") % tag, domid, txt)
 
 def install():
