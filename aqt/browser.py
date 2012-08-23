@@ -387,6 +387,7 @@ class Browser(QMainWindow):
         c(self.tagCut3, SIGNAL("activated()"), self.onMark)
         # add-on hook
         runHook('browser.setupMenus', self)
+        self.mw.maybeHideAccelerators(self)
 
     def updateFont(self):
         self.form.tableView.verticalHeader().setDefaultSectionSize(

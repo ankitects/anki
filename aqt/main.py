@@ -983,20 +983,25 @@ will be lost. Continue?"""))
         ws.setFontSize(QWebSettings.DefaultFontSize, self.fontHeight)
 
     def setupSystemSpecific(self):
+        self.hideMenuAccels = False
         if isMac:
             qt_mac_set_menubar_icons(False)
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+M", self)
             self.connect(self.minimizeShortcut, SIGNAL("activated()"),
                          self.onMacMinimize)
-            self.hideAccelerators()
+            self.hideMenuAccels = True
+            self.maybeHideAccelerators()
             self.hideStatusTips()
         elif isWin:
             # make sure ctypes is bundled
             from ctypes import windll, wintypes
 
-    def hideAccelerators(self):
-        for action in self.findChildren(QAction):
+    def maybeHideAccelerators(self, tgt=None):
+        if not self.hideMenuAccels:
+            return
+        tgt = tgt or self
+        for action in tgt.findChildren(QAction):
             txt = unicode(action.text())
             m = re.match("^(.+)\(&.+\)(.+)?", txt)
             if m:
