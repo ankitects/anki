@@ -7,7 +7,7 @@ from aqt.qt import *
 import time, types, sys, re
 from operator import attrgetter, itemgetter
 import anki, anki.utils, aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime
+from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime, isMac
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut
@@ -417,7 +417,10 @@ class Browser(QMainWindow):
                 item = self.form.tree.currentItem()
                 self.onTreeClick(item, 0)
         elif self.mw.app.focusWidget() == self.form.tableView:
-            if evt.key() in (Qt.Key_Delete,Qt.Key_Backspace):
+            keys = [Qt.Key_Delete]
+            if isMac:
+                keys.append(Qt.Key_Backspace)
+            if evt.key() in keys:
                 self.deleteNotes()
 
     def setupColumns(self):
