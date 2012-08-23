@@ -133,14 +133,18 @@ documentation for information on using a flash drive.""")
         self.db.commit()
 
     def rename(self, name):
+        oldName = self.name
         oldFolder = self.profileFolder()
+        self.name = name
+        newFolder = self.profileFolder()
+        if os.path.exists(newFolder):
+            showWarning(_("Folder already exists."))
+            self.name = oldName
+            return
         # update name
         self.db.execute("update profiles set name = ? where name = ?",
                         name.encode("utf8"), self.name.encode("utf-8"))
         # rename folder
-        self.name = name
-        newFolder = self.profileFolder()
-        os.rmdir(newFolder)
         os.rename(oldFolder, newFolder)
         self.db.commit()
 
