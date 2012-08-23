@@ -505,36 +505,6 @@ title="%s">%s</button>''' % (
         from aqt.reviewer import Reviewer
         self.reviewer = Reviewer(self)
 
-    # Collection loading
-    ##########################################################################
-
-    def loadDeck(self, deckPath, showErrors=True):
-        "Load a deck and update the user interface."
-        self.upgrading = False
-        try:
-            self.col = Deck(deckPath, queue=False)
-        except Exception, e:
-            if not showErrors:
-                return 0
-            # FIXME: this needs updating
-            if hasattr(e, 'data') and e.data.get('type') == 'inuse':
-                showWarning(_("Deck is already open."))
-            else:
-                showCritical(_("""\
-File is corrupt or not an Anki database. Click help for more info.\n
-Debug info:\n%s""") % traceback.format_exc(), help="DeckErrors")
-            self.moveToState("deckBrowser")
-            return 0
-        finally:
-            # we may have a progress window open if we were upgrading
-            self.progress.finish()
-        self.pm.profile.addRecentDeck(self.col.path)
-        self.setupMedia(self.col)
-        if not self.upgrading:
-            self.progress.setupDB(self.col.db)
-        self.moveToState("deckLoading")
-        return True
-
     # Syncing
     ##########################################################################
 
