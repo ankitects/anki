@@ -261,7 +261,10 @@ class SyncThread(QThread):
         try:
             ret = self.client.sync()
         except Exception, e:
-            err = unicode(e[0], "utf8", "ignore")
+            if isinstance(e[0], str):
+                err = unicode(e[0], "utf8", "ignore")
+            else:
+                err = ""
             if "Unable to find the server" in err:
                 self.fireEvent("offline")
             else:
