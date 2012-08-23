@@ -1184,10 +1184,11 @@ your short-term review workload will become."""))
     def buryNote(self, nid):
         "Bury all cards for note until next session."
         self.col.setDirty()
-        cids = self.col.db.list("select id from cards where nid = ?", nid)
+        cids = self.col.db.list(
+            "select id from cards where nid = ? and queue >= 0", nid)
         self.remFromDyn(cids)
         self.removeFailed(cids)
-        self.col.db.execute("update cards set queue = -2 where nid = ?", nid)
+        self.col.db.execute("update cards set queue = -2 where id in "+ids2str(cids))
 
     # Resetting
     ##########################################################################
