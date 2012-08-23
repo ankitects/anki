@@ -112,7 +112,7 @@ class Reviewer(object):
 var ankiPlatform = "desktop";
 var typeans;
 function _updateQA (q, answerMode, klass) {
-    $("#qa")[0].innerHTML = q;
+    $("#qa").html(q);
     typeans = document.getElementById("typeans");
     if (typeans) {
         typeans.focus();
