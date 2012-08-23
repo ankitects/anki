@@ -161,7 +161,7 @@ class AnkiExporter(Exporter):
                 data)
         else:
             # need to reset card state
-            self.dst.sched.forgetCards(cids)
+            self.dst.sched.resetCards(cids)
         # models
         for m in self.src.models.all():
             if int(m['id']) in mids:

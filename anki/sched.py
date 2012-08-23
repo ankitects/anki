@@ -1216,6 +1216,12 @@ update cards set type=2,queue=2,ivl=:ivl,due=:due,
 usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0""",
                                 d)
 
+    def resetCards(self, ids):
+        "Completely reset cards for export."
+        self.col.db.execute(
+            "update cards set reps=0, lapses=0 where id in " + ids2str(ids))
+        self.forgetCards(ids)
+
     # Repositioning new cards
     ##########################################################################
 
