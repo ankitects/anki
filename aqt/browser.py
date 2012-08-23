@@ -901,10 +901,13 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def deleteNotes(self):
+        nids = self.selectedNotes()
+        if not nids:
+            return
         self.mw.checkpoint(_("Delete Notes"))
         self.model.beginReset()
         oldRow = self.form.tableView.selectionModel().currentIndex().row()
-        self.col.remNotes(self.selectedNotes())
+        self.col.remNotes(nids)
         self.onSearch(reset=False)
         if len(self.model.cards):
             new = min(oldRow, len(self.model.cards) - 1)
