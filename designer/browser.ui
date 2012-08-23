@@ -417,7 +417,7 @@
     <string>Fil&amp;ters</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+T</string>
+    <string>Ctrl+Shift+R</string>
    </property>
   </action>
   <action name="actionCardList">
