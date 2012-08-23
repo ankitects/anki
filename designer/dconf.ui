@@ -271,7 +271,7 @@
          <item row="4" column="2">
           <widget class="QLabel" name="label_34">
            <property name="text">
-            <string>x</string>
+            <string>%</string>
            </property>
           </widget>
          </item>
@@ -311,14 +311,20 @@
          </item>
          <item row="4" column="1">
           <widget class="QDoubleSpinBox" name="fi1">
+           <property name="decimals">
+            <number>0</number>
+           </property>
            <property name="minimum">
-            <double>0.300000000000000</double>
+            <double>0.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>999.000000000000000</double>
            </property>
            <property name="singleStep">
             <double>0.050000000000000</double>
            </property>
            <property name="value">
-            <double>1.000000000000000</double>
+            <double>100.000000000000000</double>
            </property>
           </widget>
          </item>
