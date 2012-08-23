@@ -17,10 +17,18 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="3">
-      <widget class="QSpinBox" name="revToday"/>
+      <widget class="QSpinBox" name="revToday">
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QSpinBox" name="newToday"/>
+      <widget class="QSpinBox" name="newToday">
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
      </item>
      <item row="0" column="2">
       <widget class="QLabel" name="label_4">
