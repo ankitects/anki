@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>481</width>
-    <height>401</height>
+    <height>419</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -77,24 +77,65 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_8">
+         <item row="2" column="2">
+          <widget class="QLabel" name="newplim">
            <property name="text">
-            <string>Order</string>
+            <string/>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="lrnGradInt">
-           <property name="minimum">
-            <number>1</number>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Easy interval</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QSpinBox" name="lrnEasyInt">
-           <property name="minimum">
-            <number>1</number>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Graduating interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="newPerDay">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>New cards/day</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QLineEdit" name="lrnSteps"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Steps (in minutes)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QComboBox" name="newOrder"/>
+         </item>
+         <item row="6" column="0" colspan="3">
+          <widget class="QCheckBox" name="separate">
+           <property name="text">
+            <string>Try not to show sibling cards next to each other</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>days</string>
            </property>
           </widget>
          </item>
@@ -111,65 +152,48 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>days</string>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="lrnEasyInt">
+           <property name="minimum">
+            <number>1</number>
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="3">
-          <widget class="QCheckBox" name="separate">
-           <property name="text">
-            <string>Try not to show sibling cards next to each other</string>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="lrnGradInt">
+           <property name="minimum">
+            <number>1</number>
            </property>
           </widget>
          </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QComboBox" name="newOrder"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_2">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>Steps (in minutes)</string>
+            <string>Order</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QLineEdit" name="lrnSteps"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>New cards/day</string>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="lrnFactor">
+           <property name="minimum">
+            <number>100</number>
            </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="newPerDay">
            <property name="maximum">
-            <number>9999</number>
+            <number>999</number>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_4">
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>Graduating interval</string>
+            <string>Starting ease</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_5">
+         <item row="5" column="2">
+          <widget class="QLabel" name="label_27">
            <property name="text">
-            <string>Easy interval</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="newplim">
-           <property name="text">
-            <string/>
+            <string>%</string>
            </property>
           </widget>
          </item>
@@ -389,14 +413,14 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>New Interval</string>
+            <string>New interval</string>
            </property>
           </widget>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Leech Threshold</string>
+            <string>Leech threshold</string>
            </property>
           </widget>
          </item>
@@ -419,7 +443,7 @@
          <item row="4" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>Leech Action</string>
+            <string>Leech action</string>
            </property>
           </widget>
          </item>
@@ -436,7 +460,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>Minimum Interval</string>
+            <string>Minimum interval</string>
            </property>
           </widget>
          </item>
@@ -627,6 +651,7 @@
   <tabstop>newPerDay</tabstop>
   <tabstop>lrnGradInt</tabstop>
   <tabstop>lrnEasyInt</tabstop>
+  <tabstop>lrnFactor</tabstop>
   <tabstop>separate</tabstop>
   <tabstop>revPerDay</tabstop>
   <tabstop>revSpace</tabstop>
