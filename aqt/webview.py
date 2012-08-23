@@ -134,7 +134,8 @@ button {
 
     def _jsErr(self, msg, line, srcID):
         sys.stdout.write(
-            _("JS error on line %(a)d: %(b)s") % dict(a=line, b=msg+"\n"))
+            (_("JS error on line %(a)d: %(b)s") %
+              dict(a=line, b=msg+"\n")).encode("utf8"))
 
     def _linkHandler(self, url):
         self.linkHandler(url.toString())
