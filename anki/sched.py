@@ -1222,9 +1222,13 @@ usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0""",
     def sortCards(self, cids, start=1, step=1, shuffle=False, shift=False):
         scids = ids2str(cids)
         now = intTime()
-        nids = self.col.db.list(
-            ("select distinct nid from cards where type = 0 and id in %s "
-             "order by nid") % scids)
+        nids = []
+        nidsSet = set()
+        for id in cids:
+            nid = self.col.db.scalar("select nid from cards where id = ?", id)
+            if nid not in nidsSet:
+                nids.append(nid)
+                nidsSet.add(nid)
         if not nids:
             # no new cards
             return
