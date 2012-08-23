@@ -1000,9 +1000,9 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
 
     def reposition(self):
         cids = self.selectedCards()
-        cids = self.col.db.list(
+        cids2 = self.col.db.list(
             "select id from cards where type = 0 and id in " + ids2str(cids))
-        if not cids:
+        if not cids2:
             return showInfo(_("Only new cards can be repositioned."))
         d = QDialog(self)
         d.setWindowModality(Qt.WindowModal)
