@@ -196,6 +196,8 @@ body { margin: 1em; -webkit-user-select: none; }
         m = QMenu(self.mw)
         a = m.addAction(_("Rename"))
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._rename(did))
+        a = m.addAction(_("Options"))
+        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._options(did))
         a = m.addAction(_("Delete"))
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._delete(did))
         m.exec_(QCursor.pos())
@@ -208,13 +210,14 @@ body { margin: 1em; -webkit-user-select: none; }
         newName = newName.replace("'", "").replace('"', "")
         if not newName or newName == oldName:
             return
-
         try:
             self.mw.col.decks.rename(deck, newName)
         except DeckRenameError, e:
             return showWarning(e.description)
-
         self.show()
+
+    def _options(self, did):
+        self.mw.onDeckConf(self.mw.col.decks.get(did))
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
