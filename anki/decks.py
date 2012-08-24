@@ -182,6 +182,12 @@ class DeckManager(object):
     def allIds(self):
         return self.decks.keys()
 
+    def collapse(self, did):
+        deck = self.get(did)
+        deck['collapsed'] = not deck['collapsed']
+        self.save()
+            
+
     def count(self):
         return len(self.decks)
 
