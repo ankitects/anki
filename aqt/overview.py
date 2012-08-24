@@ -57,6 +57,8 @@ class Overview(object):
             openLink(aqt.appShared+"info/%s?v=%s"%(self.sid, self.sidVer))
         elif url == "limits":
             self.onLimits()
+        else:
+            openLink(url)
 
     def _keyHandler(self, evt):
         cram = self.mw.col.decks.current()['dyn']

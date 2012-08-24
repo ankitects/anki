@@ -288,5 +288,4 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.bottom.web.setLinkHandler(self._linkHandler)
 
     def _onShared(self):
-        print "fixme: check & warn if schema modified first"
         openLink(aqt.appShared+"decks/")
