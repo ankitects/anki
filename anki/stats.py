@@ -286,8 +286,8 @@ group by day order by day""" % (self._limit(), lim),
         if total and tot:
             self._line(
                 i, _("Average answer time"),
-                _("%(a)0.1fs (%(b)d cards/5 minutes)") % dict(
-                    a=(tot*60)/total, b=(total / float(tot))*5))
+                _("%(a)0.1fs (%(b)d cards/minute)") % dict(
+                    a=(tot*60)/total, b=(total / float(tot))))
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(self, data, spec):
