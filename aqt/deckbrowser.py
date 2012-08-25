@@ -54,6 +54,8 @@ or importing text files."""))
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(',')
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
+        elif cmd == "collapse":
+            self._collapse(arg)
 
     def _keyHandler(self, evt):
         key = unicode(evt.text())
@@ -162,6 +164,14 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _deckRow(self, node, depth):
         name, did, due, lrn, new, children = node
+        # parent toggled for collapsing
+        for parent in self.mw.col.decks.parents(did):
+            if parent['collapsed']:
+                buff = ""
+                return buff
+        prefix = "(-)"
+        if self.mw.col.decks.get(did)['collapsed']:
+            prefix = "(+)"
         due += lrn
         def indent():
             return "&nbsp;"*6*depth
@@ -172,8 +182,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf = "<tr class='%s' id='%d'>" % (klass, did)
         # deck link
         buf += """
-<td class=decktd colspan=5>%s<a class=deck href='open:%d'>%s</a></td>"""% (
-            indent(), did, name)
+<td class=decktd colspan=5>%s<a class=collapse href='collapse:%d'>%s</a><a class=deck href='open:%d'>%s</a></td>"""% (
+            indent(), did, prefix, did, name)
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
@@ -208,6 +218,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _showOptions(self, did):
         m = QMenu(self.mw)
+        a = m.addAction(_("Collapse"))
+        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._collapse(did))
         a = m.addAction(_("Rename"))
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._rename(did))
         a = m.addAction(_("Options"))
@@ -232,6 +244,10 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _options(self, did):
         self.mw.onDeckConf(self.mw.col.decks.get(did))
+
+    def _collapse(self, did):
+        self.mw.col.decks.collapse(did)
+        self.show()
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
