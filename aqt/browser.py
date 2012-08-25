@@ -217,6 +217,8 @@ class DataModel(QAbstractTableModel):
         elif type == "cardIvl":
             if c.type == 0:
                 return _("(new)")
+            elif c.type == 1:
+                return _("(learning)")
             return fmtTimeSpan(c.ivl*86400)
         elif type == "cardEase":
             if c.type == 0:
