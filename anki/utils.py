@@ -43,14 +43,15 @@ afterTimeTable = {
     "seconds": lambda n: ngettext("%s second<!--after-->", "%s seconds<!--after-->", n),
     }
 
-shortTimeTable = {
+def shortTimeFmt(type):
+    return {
     "years": _("%sy"),
     "months": _("%smo"),
     "days": _("%sd"),
     "hours": _("%sh"),
     "minutes": _("%sm"),
     "seconds": _("%ss"),
-    }
+    }[type]
 
 def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
     "Return a string representing a time span (eg '2 days')."
@@ -59,7 +60,7 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
     if not point:
         time = math.floor(time)
     if short:
-        fmt = shortTimeTable[type]
+        fmt = shortTimeFmt(type)
     else:
         if after:
             fmt = afterTimeTable[type](_pluralCount(time, point))
