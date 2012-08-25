@@ -179,7 +179,12 @@ class AnkiExporter(Exporter):
             if dids and d['id'] not in dids:
                 continue
             if not d['dyn'] and d['conf'] != 1:
-                dconfs[d['conf']] = True
+                if self.includeSched:
+                    dconfs[d['conf']] = True
+            if not self.includeSched:
+                # scheduling not included, so reset deck settings to default
+                d = dict(d)
+                d['conf'] = 1
             self.dst.decks.update(d)
         # copy used deck confs
         for dc in self.src.decks.allConf():

@@ -28,13 +28,33 @@ def setup1():
 
 @nose.with_setup(setup1)
 def test_export_anki():
+    # create a new deck with its own conf to test conf copying
+    did = deck.decks.id("test")
+    dobj = deck.decks.get(did)
+    confId = deck.decks.confId("newconf")
+    conf = deck.decks.getConf(confId)
+    conf['new']['perDay'] = 5
+    deck.decks.save(conf)
+    deck.decks.setConf(dobj, confId)
+    # export
     e = AnkiExporter(deck)
     newname = unicode(tempfile.mkstemp(prefix="ankitest", suffix=".anki2")[1])
     os.unlink(newname)
     e.exportInto(newname)
+    # exporting should not have changed conf for original deck
+    conf = deck.decks.confForDid(did)
+    assert conf['id'] != 1
     # connect to new deck
     d2 = aopen(newname)
     assert d2.cardCount() == 2
+    # as scheduling was reset, should also revert decks to default conf
+    did = d2.decks.id("test", create=False)
+    assert did
+    conf2 = d2.decks.confForDid(did)
+    assert conf2['new']['perDay'] == 20
+    dobj = d2.decks.get(did)
+    # conf should be 1
+    assert dobj['conf'] == 1
     # try again, limited to a deck
     newname = unicode(tempfile.mkstemp(prefix="ankitest", suffix=".anki2")[1])
     os.unlink(newname)
