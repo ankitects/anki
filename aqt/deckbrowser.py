@@ -83,6 +83,8 @@ body { margin: 1em; -webkit-user-select: none; }
 .current { background-color: #e7e7e7; }
 .decktd { min-width: 15em; }
 .count { width: 6em; text-align: right; }
+.collapse { color: #000; text-decoration:none; display:inline-block;
+    width: 1em; }
 """ % dict(width=_dragIndicatorBorderWidth)
 
     _body = """
@@ -127,9 +129,11 @@ body { margin: 1em; -webkit-user-select: none; }
 </script>
 """
 
-    def _renderPage(self):
+    def _renderPage(self, reuse=False):
         css = self.mw.sharedCSS + self._css
-        tree = self._renderDeckTree(self.mw.col.sched.deckDueTree())
+        if not reuse:
+            self._dueTree = self.mw.col.sched.deckDueTree()
+        tree = self._renderDeckTree(self._dueTree)
         stats = self._renderStats()
         self.web.stdHtml(self._body%dict(tree=tree, stats=stats), css=css,
                          js=anki.js.jquery+anki.js.ui)
@@ -169,9 +173,9 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             if parent['collapsed']:
                 buff = ""
                 return buff
-        prefix = "(-)"
+        prefix = "-"
         if self.mw.col.decks.get(did)['collapsed']:
-            prefix = "(+)"
+            prefix = "+"
         due += lrn
         def indent():
             return "&nbsp;"*6*depth
@@ -181,9 +185,13 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             klass = 'deck'
         buf = "<tr class='%s' id='%d'>" % (klass, did)
         # deck link
+        if children:
+            collapse = "<a class=collapse href='collapse:%d'>%s</a>" % (did, prefix)
+        else:
+            collapse = "<span class=collapse></span>"
         buf += """
-<td class=decktd colspan=5>%s<a class=collapse href='collapse:%d'>%s</a><a class=deck href='open:%d'>%s</a></td>"""% (
-            indent(), did, prefix, did, name)
+<td class=decktd colspan=5>%s%s<a class=deck href='open:%d'>%s</a></td>"""% (
+            indent(), collapse, did, name)
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
@@ -247,7 +255,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _collapse(self, did):
         self.mw.col.decks.collapse(did)
-        self.show()
+        self._renderPage(reuse=True)
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
