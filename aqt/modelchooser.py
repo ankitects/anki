@@ -5,7 +5,7 @@
 from aqt.qt import *
 from operator import itemgetter
 from anki.hooks import addHook, remHook, runHook
-from aqt.utils import isMac
+from aqt.utils import isMac, shortcut
 import aqt
 
 class ModelChooser(QHBoxLayout):
@@ -29,7 +29,7 @@ class ModelChooser(QHBoxLayout):
         # models box
         self.models = QPushButton()
         #self.models.setStyleSheet("* { text-align: left; }")
-        self.models.setToolTip(_("Change Note Type (Ctrl+N)"))
+        self.models.setToolTip(shortcut(_("Change Note Type (Ctrl+N)")))
         s = QShortcut(QKeySequence(_("Ctrl+N")), self.widget)
         s.connect(s, SIGNAL("activated()"), self.onModelChange)
         self.addWidget(self.models)

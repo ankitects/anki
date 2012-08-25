@@ -5,7 +5,7 @@
 from aqt.qt import *
 from operator import itemgetter
 from anki.hooks import addHook, remHook, runHook
-from aqt.utils import isMac
+from aqt.utils import isMac, shortcut
 import aqt
 
 class DeckChooser(QHBoxLayout):
@@ -28,7 +28,7 @@ class DeckChooser(QHBoxLayout):
             self.addWidget(self.deckLabel)
         # decks box
         self.deck = QPushButton()
-        self.deck.setToolTip(_("Target Deck (Ctrl+D)"))
+        self.deck.setToolTip(shortcut(_("Target Deck (Ctrl+D)")))
         s = QShortcut(QKeySequence(_("Ctrl+D")), self.widget)
         s.connect(s, SIGNAL("activated()"), self.onDeckChange)
         self.addWidget(self.deck)
