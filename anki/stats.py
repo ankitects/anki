@@ -481,9 +481,23 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
                 "</td></tr></table></center>")
 
     def _eases(self):
+        lims = []
         lim = self._revlogLimit()
         if lim:
-            lim = "where " + lim
+            lims.append(lim)
+        if self.type == 0:
+            days = 30
+        elif self.type == 1:
+            days = 365
+        else:
+            days = None
+        if days is not None:
+            lims.append("id > %d" % (
+                (self.col.sched.dayCutoff-(days*86400))*1000))
+        if lims:
+            lim = "where " + " and ".join(lims)
+        else:
+            lim = ""
         return self.col.db.all("""
 select (case
 when type in (0,2) then 0
