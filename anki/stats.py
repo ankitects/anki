@@ -259,7 +259,10 @@ group by day order by day""" % (self._limit(), lim),
         period = self._periodDays()
         if not period:
             # base off earliest repetition date
-            t = self.col.db.scalar("select id from revlog limit 1")
+            lim = self._revlogLimit()
+            if lim:
+                lim = " where " + lim
+            t = self.col.db.scalar("select id from revlog %s order by id limit 1" % lim)
             if not t:
                 period = 1
             else:
