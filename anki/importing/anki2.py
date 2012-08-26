@@ -22,6 +22,7 @@ class Anki2Importer(Importer):
 
     needMapper = False
     deckPrefix = None
+    allowUpdate = True
 
     def run(self, media=None):
         self._prepareFiles()
@@ -82,15 +83,21 @@ class Anki2Importer(Importer):
                 existing[note[0]] = True
                 # rewrite internal ids, models, etc
                 note[2] = lmid
-                note[3] = intTime()
                 note[4] = usn
                 add.append(note)
                 dirty.append(note[0])
                 # note we have the added note
                 self._notes[guid] = (note[0], note[3], note[2])
             else:
-                # not yet implemented
                 pass
+                ## update existing note - not yet tested; for post 2.0
+                # newer = note[3] > mod
+                # if self.allowUpdate and self._mid(mid) == mid and newer:
+                #     localNid = self._notes[guid][0]
+                #     note[0] = localNid
+                #     note[4] = usn
+                #     add.append(note)
+                #     dirty.append(note[0])
         # add to col
         self.dst.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
