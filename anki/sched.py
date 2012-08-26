@@ -781,7 +781,7 @@ did = ? and queue = 2 and due <= ? limit ?""",
         return delay
 
     def _nextLapseIvl(self, card, conf):
-        return int(card.ivl*conf['mult']) + 1
+        return max(conf['minInt'], int(card.ivl*conf['mult']))
 
     def _rescheduleRev(self, card, ease):
         # update interval
