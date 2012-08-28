@@ -625,7 +625,7 @@ where c.nid == f.id
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
         if self.db.scalar("pragma integrity_check") != "ok":
-            return _("Collection is corrupt. Please see the manual.")
+            return (_("Collection is corrupt. Please see the manual."), False)
         # delete any notes with missing cards
         ids = self.db.list("""
 select id from notes where id not in (select distinct nid from cards)""")
