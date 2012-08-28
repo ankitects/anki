@@ -226,8 +226,6 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _showOptions(self, did):
         m = QMenu(self.mw)
-        a = m.addAction(_("Collapse"))
-        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._collapse(did))
         a = m.addAction(_("Rename"))
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._rename(did))
         a = m.addAction(_("Options"))
