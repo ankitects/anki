@@ -681,7 +681,7 @@ select sum(left/1000) from
         return self.col.db.scalar(
             """
 select count() from
-(select 1 from cards where did = ? and queue = 2
+(select 1 from cards where did = ? and queue in (2,3) and
 and due <= ? limit ?)""",
             did, self.today, lim)
 
