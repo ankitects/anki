@@ -6,7 +6,7 @@ import time, os, stat, shutil, difflib, re, cgi
 import unicodedata as ucd
 import HTMLParser
 from aqt.qt import *
-from anki.utils import fmtTimeSpan, stripHTML, isMac, json
+from anki.utils import fmtTimeSpan, stripHTML, isMac, json, isWin
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, hasSound, play
 from aqt.utils import mungeQA, getBase, shortcut, openLink, tooltip
@@ -110,6 +110,7 @@ class Reviewer(object):
 <div id=qa></div>
 <script>
 var ankiPlatform = "desktop";
+var isWin = %s;
 var typeans;
 function _updateQA (q, answerMode, klass) {
     $("#qa").html(q);
@@ -125,6 +126,7 @@ function _updateQA (q, answerMode, klass) {
     if (klass) {
         document.body.className = klass;
     }
+    if (isWin) { setTimeout(200, function () { _imageLoadHack(0); }); }
 };
 
 function _toggleStar (show) {
@@ -140,13 +142,32 @@ function _getTypedText () {
         py.link("typeans:"+typeans.value);
     }
 };
+
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
         py.link("ans");
     }
 }
+
+function _imageLoadHack (tries) {
+    var spacing = [1000, 2000];
+    var checkAgain = false;
+    /* try to work around win32 intermittently failing to load images in qt4.7 */
+    $('img').each(function (idx) {
+        if (!this.complete) {
+            checkAgain = true;
+            this.src += '?'+(new Date().getTime());
+        }
+    });
+    if (checkAgain && tries < spacing.length) {
+        // check again later
+        console.log("resched for " + spacing[tries]);
+        setTimeout(function () { _imageLoadHack(tries+1); },
+            spacing[tries]);
+    }
+}
 </script>
-"""
+""" % json.dumps(isWin)
 
     def _initWeb(self):
         self._reps = 0
