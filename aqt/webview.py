@@ -57,6 +57,8 @@ class AnkiWebView(QWebView):
         self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
         self.connect(self, SIGNAL("loadFinished(bool)"), self._loadFinished)
         self.allowDrops = False
+        # reset each time new html is set; used to detect if still in same state
+        self.key = None
 
     def keyPressEvent(self, evt):
         if evt.matches(QKeySequence.Copy):
@@ -101,6 +103,7 @@ class AnkiWebView(QWebView):
         self._keyHandler = handler
 
     def setHtml(self, html, loadCB=None):
+        self.key = None
         self._loadFinishedCB = loadCB
         QWebView.setHtml(self, html)
 

@@ -100,6 +100,7 @@ body { margin: 1em; -webkit-user-select: none; }
     $( init );
 
     function init() {
+
         $("tr.deck").draggable({
             scroll: false,
 
@@ -135,11 +136,18 @@ body { margin: 1em; -webkit-user-select: none; }
             self._dueTree = self.mw.col.sched.deckDueTree()
         tree = self._renderDeckTree(self._dueTree)
         stats = self._renderStats()
-        oldPos = self.web.page().mainFrame().scrollPosition()
+        op = self._oldPos()
         self.web.stdHtml(self._body%dict(tree=tree, stats=stats), css=css,
                          js=anki.js.jquery+anki.js.ui, loadCB=lambda ok:\
-                         self.web.page().mainFrame().setScrollPosition(oldPos))
+                         self.web.page().mainFrame().setScrollPosition(op))
+        self.web.key = "deckBrowser"
         self._drawButtons()
+
+    def _oldPos(self):
+        if self.web.key == "deckBrowser":
+            return self.web.page().mainFrame().scrollPosition()
+        else:
+            return QPoint(0,0)
 
     def _renderStats(self):
         cards, thetime = self.mw.col.db.first("""
