@@ -55,7 +55,11 @@ class MediaManager(object):
         self.db = None
         # change cwd back to old location
         if self._oldcwd:
-            os.chdir(self._oldcwd)
+            try:
+                os.chdir(self._oldcwd)
+            except:
+                # may have been deleted
+                pass
 
     def dir(self):
         return self._dir
