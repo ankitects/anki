@@ -649,7 +649,7 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
             deck = self.col.decks.current()
         if deck['dyn']:
             import aqt.dyndeckconf
-            aqt.dyndeckconf.DeckConf(self)
+            aqt.dyndeckconf.DeckConf(self, deck=deck)
         else:
             import aqt.deckconf
             aqt.deckconf.DeckConf(self, deck)
