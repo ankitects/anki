@@ -74,7 +74,7 @@ def test_findCards():
     assert len(deck.findCards('"goats are"')) == 1
     # card states
     c = f.cards()[0]
-    c.type = 2
+    c.queue = 2
     assert deck.findCards("is:review") == []
     c.flush()
     assert deck.findCards("is:review") == [c.id]

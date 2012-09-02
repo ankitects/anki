@@ -257,8 +257,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             elif val == "new":
                 n = 0
             else:
-                n = 1
-            return "type = %d" % n
+                return "queue in (1, 3)"
+            return "queue = %d" % n
         elif val == "suspended":
             return "c.queue = -1"
         elif val == "due":
