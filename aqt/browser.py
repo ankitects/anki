@@ -847,7 +847,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
                 "%d%%" % (factor/10) if factor else "",
                 cs.time(taken)) + "</tr>"
         s += "</table>"
-        if cnt != self.card.reps:
+        if cnt < self.card.reps:
             s += _("""\
 Note: Some of the history is missing. For more information, \
 please see the browser documentation.""")
