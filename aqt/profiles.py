@@ -136,14 +136,14 @@ documentation for information on using a flash drive.""")
         oldName = self.name
         oldFolder = self.profileFolder()
         self.name = name
-        newFolder = self.profileFolder()
+        newFolder = self.profileFolder(create=False)
         if os.path.exists(newFolder):
             showWarning(_("Folder already exists."))
             self.name = oldName
             return
         # update name
         self.db.execute("update profiles set name = ? where name = ?",
-                        name.encode("utf8"), self.name.encode("utf-8"))
+                        name.encode("utf8"), oldName.encode("utf-8"))
         # rename folder
         os.rename(oldFolder, newFolder)
         self.db.commit()
@@ -151,8 +151,11 @@ documentation for information on using a flash drive.""")
     # Folder handling
     ######################################################################
 
-    def profileFolder(self):
-        return self._ensureExists(os.path.join(self.base, self.name))
+    def profileFolder(self, create=True):
+        path = os.path.join(self.base, self.name)
+        if create:
+            self._ensureExists(path)
+        return path
 
     def addonFolder(self):
         return self._ensureExists(os.path.join(self.base, "addons"))
