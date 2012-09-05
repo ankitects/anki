@@ -129,9 +129,10 @@ class AddCards(QDialog):
 
     def addNote(self, note):
         note.model()['did'] = self.deckChooser.selectedId()
-        if note.dupeOrEmpty():
+        ret = note.dupeOrEmpty()
+        if ret == 1:
             showWarning(_(
-                "The first field is empty or not unique."),
+                "The first field is empty."),
                 help="AddItems#AddError")
             return
         cards = self.mw.col.addNote(note)
