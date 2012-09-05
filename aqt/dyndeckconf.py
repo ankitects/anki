@@ -27,7 +27,7 @@ class DeckConf(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.connect(self.form.buttonBox,
                      SIGNAL("helpRequested()"),
-                     lambda: openHelp("cramming"))
+                     lambda: openHelp("filtered"))
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         self.setupExamples()
         self.setupOrder()
