@@ -23,7 +23,7 @@ Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen,
 Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail,
 Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
 Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Kieran Clancy, LaC, Laurent Steffan,
-Luca Ban, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
+Luca Ban, Luciano Esposito, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
 Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
 Montague, Michael Penkov, Michal Čadil, Nathanael Law, Nick Cook, Niklas
 Laxström, Nguyễn Hào Khôi, Norbert Nagold, Ole Guldberg,
