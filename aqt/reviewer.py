@@ -142,7 +142,7 @@ function _getTypedText () {
 };
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
-        py.link("ans");
+        py.link("ansHack");
     }
 }
 </script>
@@ -253,12 +253,18 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
             self.web.eval("$('#typeans').blur();")
             return True
 
+    def _showAnswerHack(self):
+        # on <qt4.8, calling _showAnswer() directly fails to show images on
+        # the answer side. But if we trigger it via the bottom web's python
+        # link, it inexplicably works.
+        self.bottom.web.eval("py.link('ans');")
+
     def _keyHandler(self, evt):
         key = unicode(evt.text())
         if key == "e":
             self.mw.onEditCurrent()
         elif key == " " and self.state == "question":
-            self._showAnswer()
+            self._showAnswerHack()
         elif key == "r":
             self.replayAudio()
         elif key == "*":
@@ -281,6 +287,8 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
     def _linkHandler(self, url):
         if url == "ans":
             self._showAnswer()
+        elif url == "ansHack":
+            self.mw.progress.timer(100, self._showAnswerHack, False)
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
         elif url == "edit":
