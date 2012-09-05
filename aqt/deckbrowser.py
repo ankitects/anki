@@ -171,13 +171,17 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         else:
             buf = ""
         for node in nodes:
-            buf += self._deckRow(node, depth)
+            buf += self._deckRow(node, depth, len(nodes))
         if depth == 0:
             buf += self._topLevelDragRow()
         return buf
 
-    def _deckRow(self, node, depth):
+    def _deckRow(self, node, depth, cnt):
         name, did, due, lrn, new, children = node
+        if did == 1 and cnt > 1 and not children:
+            # if the default deck is empty, hide it
+            if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
+                return ""
         # parent toggled for collapsing
         for parent in self.mw.col.decks.parents(did):
             if parent['collapsed']:
