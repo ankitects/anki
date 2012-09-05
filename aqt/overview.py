@@ -136,7 +136,7 @@ class Overview(object):
 <tr><td align=center valign=top>
 <table cellspacing=5>
 <tr><td>%s:</td><td><b><font color=#00a>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color=#a00>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><font color=#C35617>%s</font></b></td></tr>
 <tr><td>%s:</td><td><b><font color=#0a0>%s</font></b></td></tr>
 </table>
 </td><td align=center>

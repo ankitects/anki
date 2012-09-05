@@ -582,7 +582,7 @@ function showAnswer(txt) {
         counts[idx] = "<u>%s</u>" % (counts[idx])
         space = " + "
         ctxt = '<font color="#000099">%s</font>' % counts[0]
-        ctxt += space + '<font color="#990000">%s</font>' % counts[1]
+        ctxt += space + '<font color="#C35617">%s</font>' % counts[1]
         ctxt += space + '<font color="#007700">%s</font>' % counts[2]
         return ctxt
 
