@@ -162,6 +162,7 @@ class AnkiQt(QMainWindow):
     def onAddProfile(self):
         name = getOnlyText(_("Name:"))
         if name:
+            name = name.strip()
             if name in self.pm.profiles():
                 return showWarning(_("Name exists."))
             if not self.profileNameOk(name):
