@@ -36,7 +36,6 @@ class Toolbar(object):
     def _centerLinks(self):
         links = [
             ["decks", _("Decks"), _("Shortcut key: %s") % "D"],
-            ["study", _("Study"), _("Shortcut key: %s") % "S"],
             ["add", _("Add"), _("Shortcut key: %s") % "A"],
             ["browse", _("Browse"), _("Shortcut key: %s") % "B"],
         ]
