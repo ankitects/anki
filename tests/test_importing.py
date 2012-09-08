@@ -57,7 +57,7 @@ def test_anki1():
     # get the deck path to import
     tmp = getUpgradeDeckPath()
     # make sure media is imported properly through the upgrade
-    mdir = tmp.replace(".anki", ".media")
+    mdir = tmp.replace(".anki2", ".media")
     if not os.path.exists(mdir):
         os.mkdir(mdir)
     open(os.path.join(mdir, "foo.jpg"), "w").write("foo")
