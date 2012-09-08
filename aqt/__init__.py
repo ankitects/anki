@@ -6,6 +6,7 @@ from aqt.qt import *
 import locale, gettext
 import anki.lang
 from anki.consts import HELP_SITE as appHelpSite
+from anki.hooks import runHook
 
 appVersion="2.0-rc4"
 appWebsite="http://ankisrs.net/"
@@ -160,7 +161,6 @@ class AnkiApp(QApplication):
     ##################################################
 
     def event(self, evt):
-        from anki.hooks import runHook
         if evt.type() == QEvent.FileOpen:
             self.emit(SIGNAL("appMsg"), evt.file() or "raise")
             return True
