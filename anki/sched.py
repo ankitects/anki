@@ -759,7 +759,10 @@ did = ? and queue = 2 and due <= ? limit ?""",
             card.lapses += 1
             card.ivl = self._nextLapseIvl(card, conf)
             card.factor = max(1300, card.factor-200)
-            card.odue = card.due = self.today + card.ivl
+            card.due = self.today + card.ivl
+            # if it's a filtered deck, update odue as well
+            if card.odid:
+                card.odue = card.due
         # if suspended as a leech, nothing to do
         delay = 0
         if self._checkLeech(card, conf) and card.queue == -1:
