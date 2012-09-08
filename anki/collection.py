@@ -626,10 +626,25 @@ where c.nid == f.id
         oldSize = os.stat(self.path)[stat.ST_SIZE]
         if self.db.scalar("pragma integrity_check") != "ok":
             return (_("Collection is corrupt. Please see the manual."), False)
+        # note types with a missing model
+        ids = self.db.list("""
+select id from notes where mid not in """ + ids2str(self.models.ids()))
+        if ids:
+            print self.db.list("select distinct mid from notes where id in " + ids2str(ids))
+            problems.append(
+                ngettext("Deleted %d note with missing note type.",
+                         "Deleted %d notes with missing note type.", len(ids))
+                         % len(ids))
+            self.remNotes(ids)
         # delete any notes with missing cards
         ids = self.db.list("""
 select id from notes where id not in (select distinct nid from cards)""")
-        self._remNotes(ids)
+        if ids:
+            cnt = len(ids)
+            problems.append(
+                ngettext("Deleted %d note with no cards.",
+                         "Deleted %d notes with no cards.", cnt) % cnt)
+            self._remNotes(ids)
         # tags
         self.tags.registerNotes()
         # field cache

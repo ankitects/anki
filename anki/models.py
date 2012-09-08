@@ -177,6 +177,9 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     def have(self, id):
         return str(id) in self.models
 
+    def ids(self):
+        return self.models.keys()
+
     # Tools
     ##################################################
 
