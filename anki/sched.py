@@ -658,11 +658,17 @@ where queue = 1 and type = 2
             self.col.db.mod = mod
 
     def _lrnForDeck(self, did):
-        return self.col.db.scalar(
+        cnt = self.col.db.scalar(
             """
 select sum(left/1000) from
 (select left from cards where did = ? and queue = 1 and due < ? limit ?)""",
             did, intTime() + self.col.conf['collapseTime'], self.reportLimit) or 0
+        return cnt + self.col.db.scalar(
+            """
+select count() from
+(select 1 from cards where did = ? and queue = 3
+and due <= ? limit ?)""",
+            did, self.today, self.reportLimit)
 
     # Reviews
     ##########################################################################
@@ -681,7 +687,7 @@ select sum(left/1000) from
         return self.col.db.scalar(
             """
 select count() from
-(select 1 from cards where did = ? and queue in (2,3)
+(select 1 from cards where did = ? and queue = 2
 and due <= ? limit ?)""",
             did, self.today, lim)
 
