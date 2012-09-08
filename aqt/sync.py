@@ -125,6 +125,8 @@ Please upgrade to the latest version of Anki.""")
         elif "502" in err or "503" in err or "504" in err:
             return _("""\
 AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
+        elif "409" in err:
+            return _("A previous sync failed; please try again in a few minutes.")
         return err
 
     def _getUserPass(self):
