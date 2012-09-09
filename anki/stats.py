@@ -169,7 +169,7 @@ h1 { margin-bottom: 0; margin-top: 1em; }
 
     def _dueInfo(self, tot, num):
         i = []
-        self._line(i, _("Total"), _("%d reviews") % tot)
+        self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
         self._line(i, _("Average"), self._avgDay(
             tot, num, _("reviews")))
         return self._lineTbl(i)
@@ -289,8 +289,8 @@ group by day order by day""" % (self._limit(), lim),
         if total and tot:
             self._line(
                 i, _("Average answer time"),
-                _("%(a)0.1fs (%(b)d cards/minute)") % dict(
-                    a=(tot*60)/total, b=(total / float(tot))))
+                ngettext("%0.1fs (%d card/minute)", "%0.1fs (%d cards/minute)", \
+                            (total / float(tot))) % ((tot*60)/total, total / float(tot)) )
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(self, data, spec):

@@ -6,6 +6,7 @@ from anki import Collection
 from anki.utils import intTime
 from anki.importing.base import Importer
 from anki.lang import _
+from anki.lang import ngettext
 
 #
 # Import a .anki2 file into the current collection. Used for migration from
@@ -254,7 +255,7 @@ class Anki2Importer(Importer):
 insert or ignore into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", cards)
         self.dst.db.executemany("""
 insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
-        self.log.append(_("%d cards imported.") % cnt)
+        self.log.append(ngettext("%d card imported.", "%d cards imported.", cnt) % cnt)
 
     # Media
     ######################################################################

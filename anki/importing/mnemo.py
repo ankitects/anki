@@ -9,6 +9,7 @@ from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.utils import checksum, base91
 from anki.stdmodels import addBasicModel
 from anki.lang import _
+from anki.lang import ngettext
 
 class MnemosyneImporter(NoteImporter):
 
@@ -83,7 +84,7 @@ acq_reps+ret_reps, lapses from cards"""):
         total += self.total
         self._addVocabulary(vocabulary)
         self.total += total
-        self.log.append(_("%d notes imported.") % self.total)
+        self.log.append(ngettext("%d note imported.", "%d notes imported.", self.total) % self.total)
 
     def fields(self):
         return self._fields
