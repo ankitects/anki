@@ -1179,8 +1179,8 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
         t = "<html><body>"
-        t += _("Found %(a)d duplicates in %(b)d notes.") % dict(
-            a=sum(len(r[1]) for r in res), b=len(res))
+        t += _("Found %(a)d group of duplicates across %(b)d notes.") % dict(
+            b=sum(len(r[1]) for r in res), a=len(res))
         t += "<p><ol>"
         for val, nids in res:
             t += '<li><a href="%s">%s</a>: %s</a>' % (
