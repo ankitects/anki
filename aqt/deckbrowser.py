@@ -10,6 +10,7 @@ import anki.js
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
+from anki.lang import ngettext
 
 class DeckBrowser(object):
 
@@ -155,8 +156,8 @@ select count(), sum(time)/1000 from revlog
 where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         cards = cards or 0
         thetime = thetime or 0
-        buf = _("Studied %(a)d cards in %(b)s today.") % dict(
-            a=cards, b=fmtTimeSpan(thetime))
+        msgp1 = ngettext("Studied %d card", "Studied %d cards", cards) % cards
+        buf = "%s in %s today." % (msgp1, fmtTimeSpan(thetime))
         return buf
 
     def _renderDeckTree(self, nodes, depth=0):
@@ -288,7 +289,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                 "select count() from cards where did in {0} or "
                 "odid in {0}".format(ids2str(dids)))
             if cnt:
-                extra = _(" It has %d cards.") % cnt
+                extra = ngettext(" It has %d card.", " It has %d cards.", cnt) % cnt
             else:
                 extra = None
         if deck['dyn'] or not extra or askUser(

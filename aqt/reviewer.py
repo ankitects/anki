@@ -12,6 +12,7 @@ from anki.sound import playFromText, clearAudioQueue, hasSound, play
 from aqt.utils import mungeQA, getBase, shortcut, openLink, tooltip
 from aqt.sound import getAudio
 import aqt
+from anki.lang import ngettext
 
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."
@@ -82,9 +83,9 @@ class Reviewer(object):
             self._showQuestion()
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
-            tooltip(_("%(cards)d cards studied in %(mins)s minutes.") %
-                    dict(cards=elapsed[1], mins=elapsed[0]/60),
-                    period=5000)
+            part1 = ngettext("%d card studied in", "%d cards studied in", elapsed[1]) % elapsed[1]
+            part2 = ngettext("%s minute.", "%s minutes.", elapsed[0]/60) % (elapsed[0]/60)
+            tooltip("%s %s" % (part1, part2), period=5000)
             self.mw.col.startTimebox()
 
     # Audio
