@@ -156,8 +156,8 @@ select count(), sum(time)/1000 from revlog
 where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         cards = cards or 0
         thetime = thetime or 0
-        msgp1 = ngettext("Studied %d card", "Studied %d cards", cards) % cards
-        buf = "%s in %s today." % (msgp1, fmtTimeSpan(thetime))
+        msgp1 = ngettext("%d card", "%d cards", cards) % cards
+        buf = _("Studied %(a)s in %(b)s today.") % dict(a=msgp1, b=fmtTimeSpan(thetime))
         return buf
 
     def _renderDeckTree(self, nodes, depth=0):
