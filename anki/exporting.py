@@ -192,14 +192,17 @@ class AnkiExporter(Exporter):
                 self.dst.decks.updateConf(dc)
         # find used media
         media = {}
+        self.mediaDir = self.src.media.dir()
         if self.includeMedia:
             for row in notedata:
                 flds = row[6]
                 mid = row[2]
                 for file in self.src.media.filesInStr(mid, flds):
                     media[file] = True
+            for fname in os.listdir(self.mediaDir):
+                if fname.startswith("_"):
+                    media[fname] = True
         self.mediaFiles = media.keys()
-        self.mediaDir = self.src.media.dir()
         self.dst.crt = self.src.crt
         # todo: tags?
         self.count = self.dst.cardCount()
