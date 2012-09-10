@@ -7,6 +7,7 @@ from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
 import aqt.modelchooser, aqt.clayout
 from anki import stdmodels
 from aqt.utils import saveGeom, restoreGeom
+from anki.lang import ngettext
 
 class Models(QDialog):
     def __init__(self, mw, parent=None):
@@ -62,8 +63,9 @@ class Models(QDialog):
         self.models.sort(key=itemgetter("name"))
         self.form.modelsList.clear()
         for m in self.models:
-            item = QListWidgetItem(_("%(name)s [%(notes)d notes]") % dict(
-                name=m['name'], notes=self.mm.useCount(m)))
+            item = QListWidgetItem(ngettext("%s [%d note]", "%s [%d notes]", \
+                            self.mm.useCount(m)) % (
+                                    m['name'], self.mm.useCount(m)))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 

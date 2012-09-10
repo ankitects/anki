@@ -19,6 +19,7 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical, getFile, \
     tooltip, openHelp, openLink
+from anki.lang import ngettext
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -893,16 +894,16 @@ will be lost. Continue?"""))
             return
         report = self.col.emptyCardReport(cids)
         self.progress.finish()
-        diag, box = showText(
-            _("%(cnt)d cards to delete:\n\n%(rep)s") % dict(
-                cnt=len(cids), rep=report), run=False)
+        part1 = ngettext("%d card", "%d cards", len(cids))
+        part2 = "to delete:\n\n%s" % report
+        diag, box = showText("%s %s" % (part1, part2), run=False)
         box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
         box.button(QDialogButtonBox.Close).setDefault(True)
         def onDelete():
             QDialog.accept(diag)
             self.checkpoint(_("Delete Empty"))
             self.col.remCards(cids)
-            tooltip(_("%d cards deleted.") % len(cids))
+            tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
             self.reset()
         diag.connect(box, SIGNAL("accepted()"), onDelete)
         diag.show()

@@ -17,6 +17,7 @@ from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
 from anki.consts import *
+from anki.lang import ngettext
 
 COLOUR_SUSPENDED = "#FFFFB2"
 COLOUR_MARKED = "#D9B2E9"
@@ -1179,13 +1180,15 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
         t = "<html><body>"
-        t += _("Found %(a)d duplicates in %(b)d notes.") % dict(
-            a=sum(len(r[1]) for r in res), b=len(res))
+        part1 = ngettext("Found %d duplicate in", "Found %d duplicates in", \
+                        sum(len(r[1]) for r in res)) % sum(len(r[1]) for r in res)
+        part2 = ngettext("%d note.", "%d notes.", len(res)) % len(res)
+        t += "%s %s" % (part1, part2)
         t += "<p><ol>"
         for val, nids in res:
             t += '<li><a href="%s">%s</a>: %s</a>' % (
                 "nid:" + ",".join(str(id) for id in nids),
-                _("%d notes") % len(nids),
+                ngettext("%d note", "%d notes", len(nids)) % len(nids),
                 cgi.escape(val))
         t += "</ol>"
         t += "</body></html>"
