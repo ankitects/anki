@@ -8,6 +8,7 @@ from anki.utils import ids2str
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
     tooltip
 from operator import itemgetter
+from anki.lang import ngettext
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):
@@ -92,7 +93,8 @@ class DeckConf(QDialog):
                 continue
             if d['conf'] == conf['id']:
                 cnt += 1
-        self.form.count.setText(_("%d decks use this options group") % cnt)
+        self.form.count.setText(ngettext("%d deck uses this options group", \
+                "%d decks use this options group", cnt) % cnt)
 
     def addGroup(self):
         name = getOnlyText(_("New options group name:"))
@@ -132,7 +134,9 @@ class DeckConf(QDialog):
             deck = self.mw.col.decks.get(did)
             deck['conf'] = self.deck['conf']
             self.mw.col.decks.save(deck)
-        tooltip(_("%d decks updated.") % len(self.childDids))
+        
+        tooltip(ngettext("%d deck updated.", "%d decks updated.", \
+                        len(self.childDids)) % len(self.childDids))
 
     # Loading
     ##################################################

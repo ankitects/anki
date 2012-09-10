@@ -6,6 +6,7 @@ from aqt.qt import *
 import anki, aqt, aqt.tagedit
 from aqt.utils import getSaveFile, tooltip, showWarning
 from anki.exporting import exporters
+from anki.lang import ngettext
 
 class ExportDialog(QDialog):
 
@@ -63,7 +64,8 @@ class ExportDialog(QDialog):
             else:
                 os.unlink(file)
                 self.exporter.exportInto(file)
-                tooltip(_("%d exported.") % self.exporter.count)
+                tooltip(ngettext("%d card exported.", "%d cards exported.", \
+                                self.exporter.count) % self.exporter.count)
             finally:
                 self.mw.progress.finish()
         QDialog.accept(self)
