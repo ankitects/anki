@@ -894,9 +894,9 @@ will be lost. Continue?"""))
             return
         report = self.col.emptyCardReport(cids)
         self.progress.finish()
-        part1 = ngettext("%d card", "%d cards", len(cids))
-        part2 = "to delete:\n\n%s" % report
-        diag, box = showText("%s %s" % (part1, part2), run=False)
+        part1 = ngettext("%d card", "%d cards", len(cids)) % len(cids)
+        part1 = _("%s to delete:") % part1
+        diag, box = showText(part1 + "\n\n" + report, run=False)
         box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
         box.button(QDialogButtonBox.Close).setDefault(True)
         def onDelete():
