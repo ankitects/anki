@@ -1180,10 +1180,11 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
         t = "<html><body>"
-        part1 = ngettext("Found %d duplicate in", "Found %d duplicates in", \
-                        sum(len(r[1]) for r in res)) % sum(len(r[1]) for r in res)
-        part2 = ngettext("%d note.", "%d notes.", len(res)) % len(res)
-        t += "%s %s" % (part1, part2)
+        groups = len(res)
+        notes = sum(len(r[1]) for r in res)
+        part1 = ngettext("%d group", "%d groups", groups) % groups
+        part2 = ngettext("%d note.", "%d notes.", notes) % notes
+        t += _("Found %(a)s across %(b)s") % dict(a=part1, b=part2)
         t += "<p><ol>"
         for val, nids in res:
             t += '<li><a href="%s">%s</a>: %s</a>' % (
