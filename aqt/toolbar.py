@@ -87,9 +87,9 @@ class Toolbar(object):
     _body = """
 <table id=header width=100%%>
 <tr>
-<td align=left>%s</td>
+<td width=16%% align=left>%s</td>
 <td align=center>%s</td>
-<td align=right>%s</td>
+<td width=15%% align=right>%s</td>
 </tr></table>
 """
 
