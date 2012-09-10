@@ -63,9 +63,9 @@ class Models(QDialog):
         self.models.sort(key=itemgetter("name"))
         self.form.modelsList.clear()
         for m in self.models:
-            item = QListWidgetItem(ngettext("%s [%d note]", "%s [%d notes]", \
-                            self.mm.useCount(m)) % (
-                                    m['name'], self.mm.useCount(m)))
+            mUse = self.mm.useCount(m)
+            mUse = ngettext("%d note", "%d notes", mUse) % mUse
+            item = QListWidgetItem("%s [%s]" % (m['name'], mUse))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
