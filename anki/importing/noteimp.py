@@ -8,6 +8,7 @@ from anki.utils import fieldChecksum, ids2str, guid64, timestampID, \
     joinFields, intTime, splitFields
 from anki.errors import *
 from anki.importing.base import Importer
+from anki.lang import ngettext
 
 # Stores a list of fields, tags and deck
 ######################################################################
@@ -150,8 +151,10 @@ class NoteImporter(Importer):
         # apply scheduling updates
         self.updateCards()
         # make sure to update sflds, etc
-        self.log.append(_("%(a)d notes added, %(b)d notes updated.") %
-                        dict(a=len(new), b=self.updateCount))
+
+        part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
+        part2 = ngettext("%d note updated", "%d notes updated", self.updateCount) % self.updateCount
+        self.log.append("%s, %s." % (part1, part2))
         self.total = len(self._ids)
 
     def newData(self, n):

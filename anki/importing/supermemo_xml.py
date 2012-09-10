@@ -7,6 +7,7 @@ import sys
 from anki.stdmodels import addBasicModel
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.lang import _
+from anki.lang import ngettext
 from anki.errors import *
 
 from xml.dom import minidom, Node
@@ -214,7 +215,7 @@ class SupermemoXmlImporter(NoteImporter):
 
         # Return imported cards
         self.total = len(self.notes)
-        self.log.append(_("%d cards imported.") % self.total)
+        self.log.append(ngettext("%d card imported.", "%d cards imported.", self.total) % self.total)
         return self.notes
 
     def fields(self):
