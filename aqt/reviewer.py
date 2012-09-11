@@ -264,7 +264,7 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
         key = unicode(evt.text())
         if key == "e":
             self.mw.onEditCurrent()
-        elif key == " " and self.state == "question":
+        elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)) and self.state == "question":
             self._showAnswerHack()
         elif key == "r":
             self.replayAudio()
