@@ -687,7 +687,7 @@ by clicking on one on the left."""))
                     txt += a + ":"
                 else:
                     txt += a
-                    if " " in txt:
+                    if " " in txt or "(" in txt or ")" in txt:
                         txt = "'%s'" % txt
                     items.append(txt)
                     txt = ""
