@@ -35,6 +35,7 @@ DYN_BIGINT = 3
 DYN_LAPSES = 4
 DYN_ADDED = 5
 DYN_DUE = 6
+DYN_REVADDED = 7
 
 # model types
 MODEL_STD = 0
@@ -80,6 +81,7 @@ def dynOrderLabels():
         4: _("Most lapses"),
         5: _("Order added"),
         6: _("Order due"),
+        7: _("Latest added first"),
         }
 
 def dynExamples():

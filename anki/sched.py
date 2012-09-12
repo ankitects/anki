@@ -939,10 +939,13 @@ due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
             t = "lapses desc"
         elif o == DYN_ADDED:
             t = "n.id"
+        elif o == DYN_REVADDED:
+            t = "n.id desc"
         elif o == DYN_DUE:
             t = "c.due"
         else:
-            raise Exception()
+            # if we don't understand the term, default to due order
+            t = "c.due"
         return t + " limit %d" % l
 
     def _moveToDyn(self, did, ids):
