@@ -73,7 +73,7 @@ def optimalPeriod(time, point, unit):
     if abs(time) < 60 or unit < 1:
         type = "seconds"
         point -= 1
-    elif abs(time) < 3599 or unit < 2:
+    elif abs(time) < 3600 or unit < 2:
         type = "minutes"
     elif abs(time) < 60 * 60 * 24 or unit < 3:
         type = "hours"
