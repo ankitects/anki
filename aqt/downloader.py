@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, re
+import time, re, traceback
 from aqt.qt import *
 from anki.sync import httpCon
 from aqt.utils import showWarning
@@ -59,7 +59,10 @@ class Downloader(QThread):
             resp, cont = con.request(
                 aqt.appShared + "download/%d" % self.code)
         except Exception, e:
-            self.error = unicode(e[0], "utf8", "ignore")
+            try:
+                self.error = unicode(e[0], "utf8", "ignore")
+            except:
+                self.error = traceback.format_exc()
             return
         finally:
             remHook("httpRecv", recvEvent)
