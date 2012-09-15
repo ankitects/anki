@@ -279,7 +279,12 @@ def importFile(mw, file):
         except Exception, e:
             msg = unicode(e)
             if msg == "unknownFormat":
-                showWarning(_("Unknown file format."))
+                if ext == ".anki2":
+                    showWarning(_("""\
+.anki2 files are not designed for importing. If you're trying to restore from a \
+backup, please see the 'Backups' section of the user manual."""))
+                else:
+                    showWarning(_("Unknown file format."))
             else:
                 msg = _("Import failed. Debugging info:\n")
                 msg += unicode(traceback.format_exc(), "ascii", "replace")
