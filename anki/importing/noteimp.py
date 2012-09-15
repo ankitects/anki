@@ -151,7 +151,6 @@ class NoteImporter(Importer):
         # apply scheduling updates
         self.updateCards()
         # make sure to update sflds, etc
-
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated", self.updateCount) % self.updateCount
         self.log.append("%s, %s." % (part1, part2))

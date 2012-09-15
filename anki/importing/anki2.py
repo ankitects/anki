@@ -69,6 +69,7 @@ class Anki2Importer(Importer):
         add = []
         dirty = []
         usn = self.dst.usn()
+        dupes = 0
         for note in self.src.db.execute(
             "select * from notes"):
             # turn the db result into a mutable list
@@ -90,6 +91,7 @@ class Anki2Importer(Importer):
                 # note we have the added note
                 self._notes[guid] = (note[0], note[3], note[2])
             else:
+                dupes += 1
                 pass
                 ## update existing note - not yet tested; for post 2.0
                 # newer = note[3] > mod
@@ -99,6 +101,9 @@ class Anki2Importer(Importer):
                 #     note[4] = usn
                 #     add.append(note)
                 #     dirty.append(note[0])
+        if dupes:
+            self.log.append(_("Already in collection: %s.") % (ngettext(
+                "%d note", "%d notes", dupes) % dupes))
         # add to col
         self.dst.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
