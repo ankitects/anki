@@ -475,7 +475,6 @@ order by ordinal""", mid)):
                     t[k] = re.sub("(?i)font-family: ?arial;?", "", t[k])
                     t[k] = re.sub("color: ?#000(000)?;?", "", t[k])
                     t[k] = re.sub("white-space: ?pre-wrap;?", "", t[k])
-                    t[k] = re.sub('<span style=" *">(.+?)</span>', '\\1', t[k])
                     # new furigana handling
                     if "japanese" in m['name'].lower():
                         if k == 'qfmt':
