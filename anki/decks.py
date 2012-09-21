@@ -135,6 +135,12 @@ class DeckManager(object):
     def rem(self, did, cardsToo=False, childrenToo=True):
         "Remove the deck. If cardsToo, delete any cards inside."
         if str(did) == '1':
+            # we won't allow the default deck to be deleted, but if it's a
+            # child of an existing deck then it needs to be renamed
+            deck = self.get(did)
+            if '::' in deck['name']:
+                deck['name'] = _("Default")
+                self.save(deck)
             return
         # log the removal regardless of whether we have the deck or not
         self.col._logRem([did], REM_DECK)
