@@ -271,7 +271,10 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
     def _importStaticMedia(self):
         # Import any '_foo' prefixed media files regardless of whether
         # they're used on notes or not
-        for fname in os.listdir(self.src.media.dir()):
+        dir = self.src.media.dir()
+        if not os.path.exists(dir):
+            return
+        for fname in os.listdir(dir):
             if fname.startswith("_") and not self.dst.media.have(fname):
                 self._writeDstMedia(fname, self._srcMediaData(fname))
 
