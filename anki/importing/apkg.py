@@ -10,16 +10,27 @@ class AnkiPackageImporter(Anki2Importer):
 
     def run(self):
         # extract the deck from the zip file
-        z = zipfile.ZipFile(self.file)
+        self.zip = z = zipfile.ZipFile(self.file)
         col = z.read("collection.anki2")
         colpath = tmpfile(suffix=".anki2")
         open(colpath, "wb").write(col)
-        # pass it to the anki2 importer
         self.file = colpath
+        # we need the media dict in advance, and we'll need a map of fname ->
+        # number to use during the import
+        self.nameToNum = {}
+        for k, v in json.loads(z.read("media")).items():
+            self.nameToNum[v] = k
+        # run anki2 importer
         Anki2Importer.run(self)
-        # import media
-        media = json.loads(z.read("media"))
-        for c, file in media.items():
+        # import static media
+        for file, c in self.nameToNum.items():
+            if not file.startswith("_"):
+                continue
             path = os.path.join(self.col.media.dir(), file)
             if not os.path.exists(path):
                 open(path, "wb").write(z.read(c))
+
+    def _srcMediaData(self, fname):
+        if fname in self.nameToNum:
+            return self.zip.read(self.nameToNum[fname])
+        return None

@@ -6,7 +6,7 @@ from anki.upgrade import Upgrader
 from anki.utils import ids2str
 from anki.errors import *
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
-    SupermemoXmlImporter, MnemosyneImporter
+    SupermemoXmlImporter, MnemosyneImporter, AnkiPackageImporter
 from anki.notes import Note
 from anki.db import *
 
@@ -50,7 +50,6 @@ def test_anki2():
     imp.run()
     check()
     assert len(os.listdir(dst.media.dir())) == 1
-    #print dst.path
 
 def test_anki2_mediadupes():
     tmp = getEmptyDeck()
@@ -97,7 +96,24 @@ def test_anki2_mediadupes():
     n = empty.getNote(empty.db.scalar("select id from notes"))
     assert "_" in n.fields[0]
 
-    #print dst.path
+def test_apkg():
+    tmp = getEmptyDeck()
+    apkg = unicode(os.path.join(testDir, "support/media.apkg"))
+    imp = AnkiPackageImporter(tmp, apkg)
+    assert os.listdir(tmp.media.dir()) == []
+    imp.run()
+    assert os.listdir(tmp.media.dir()) == ['foo.wav']
+    # importing again should be idempotent in terms of media
+    tmp.remCards(tmp.db.list("select id from cards"))
+    imp = AnkiPackageImporter(tmp, apkg)
+    imp.run()
+    assert os.listdir(tmp.media.dir()) == ['foo.wav']
+    # but if the local file has different data, it will rename
+    tmp.remCards(tmp.db.list("select id from cards"))
+    open(os.path.join(tmp.media.dir(), "foo.wav"), "w").write("xyz")
+    imp = AnkiPackageImporter(tmp, apkg)
+    imp.run()
+    assert len(os.listdir(tmp.media.dir())) == 2
 
 def test_anki1():
     # get the deck path to import
