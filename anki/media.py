@@ -120,6 +120,11 @@ If the same name exists, compare checksums."""
                     l.append(fname)
         return l
 
+    def transformNames(self, txt, func):
+        for reg in self.regexps:
+            txt = re.sub(reg, func, txt)
+        return txt
+
     def strip(self, txt):
         for reg in self.regexps:
             txt = re.sub(reg, "", txt)
@@ -205,6 +210,9 @@ If the same name exists, compare checksums."""
                 shutil.copyfile(src, dst)
             cnt += 1
         return cnt
+
+    def have(self, fname):
+        return os.path.exists(os.path.join(self.dir(), fname))
 
     # Media syncing - changes and removal
     ##########################################################################

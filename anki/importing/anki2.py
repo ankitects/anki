@@ -2,8 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import os
 from anki import Collection
-from anki.utils import intTime
+from anki.utils import intTime, splitFields, joinFields, checksum
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.lang import ngettext
@@ -48,7 +49,7 @@ class Anki2Importer(Importer):
         self._prepareModels()
         self._importNotes()
         self._importCards()
-        self._importMedia()
+        self._importStaticMedia()
         self._postImport()
         self.dst.db.execute("vacuum")
         self.dst.db.execute("analyze")
@@ -86,6 +87,8 @@ class Anki2Importer(Importer):
                 # rewrite internal ids, models, etc
                 note[2] = lmid
                 note[4] = usn
+                # update media references in case of dupes
+                note[6] = self._mungeMedia(mid, note[6])
                 add.append(note)
                 dirty.append(note[0])
                 # note we have the added note
@@ -265,8 +268,60 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
     # Media
     ######################################################################
 
-    def _importMedia(self):
-        self.src.media.copyTo(self.dst.media.dir())
+    def _importStaticMedia(self):
+        # Import any '_foo' prefixed media files regardless of whether
+        # they're used on notes or not
+        for fname in os.listdir(self.src.media.dir()):
+            if fname.startswith("_") and not self.dst.media.have(fname):
+                self._writeDstMedia(fname, self._srcMediaData(fname))
+
+    def _mediaData(self, fname, dir=None):
+        if not dir:
+            dir = self.src.media.dir()
+        path = os.path.join(dir, fname)
+        try:
+            return open(path).read()
+        except IOError, OSError:
+            return
+
+    def _srcMediaData(self, fname):
+        "Data for FNAME in src collection."
+        return self._mediaData(fname, self.src.media.dir())
+
+    def _dstMediaData(self, fname):
+        "Data for FNAME in dst collection."
+        return self._mediaData(fname, self.dst.media.dir())
+
+    def _writeDstMedia(self, fname, data):
+        path = os.path.join(self.dst.media.dir(), fname)
+        open(path, "wb").write(data)
+
+    def _mungeMedia(self, mid, fields):
+        fields = splitFields(fields)
+        def repl(match):
+            fname = match.group(2)
+            srcData = self._srcMediaData(fname)
+            dstData = self._dstMediaData(fname)
+            if not srcData:
+                # file was not in source, ignore
+                return match.group(0)
+            # if model-local file exists from a previous import, use that
+            name, ext = os.path.splitext(fname)
+            lname = "%s_%s%s" % (name, mid, ext)
+            if self.dst.media.have(lname):
+                return match.group(0).replace(fname, lname)
+            # if missing or the same, pass unmodified
+            elif not dstData or srcData == dstData:
+                # need to copy?
+                if not dstData:
+                    self._writeDstMedia(fname, srcData)
+                return match.group(0)
+            # exists but does not match, so we need to dedupe
+            self._writeDstMedia(lname, srcData)
+            return match.group(0).replace(fname, lname)
+        for i in range(len(fields)):
+            fields[i] = self.dst.media.transformNames(fields[i], repl)
+        return joinFields(fields)
 
     # Post-import cleanup
     ######################################################################

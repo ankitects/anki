@@ -630,7 +630,6 @@ where c.nid == f.id
         ids = self.db.list("""
 select id from notes where mid not in """ + ids2str(self.models.ids()))
         if ids:
-            print self.db.list("select distinct mid from notes where id in " + ids2str(ids))
             problems.append(
                 ngettext("Deleted %d note with missing note type.",
                          "Deleted %d notes with missing note type.", len(ids))

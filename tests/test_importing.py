@@ -8,7 +8,6 @@ from anki.errors import *
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
     SupermemoXmlImporter, MnemosyneImporter
 from anki.notes import Note
-
 from anki.db import *
 
 testDir = os.path.dirname(__file__)
@@ -27,7 +26,7 @@ def test_anki2():
     srcCards = src.cardCount()
     srcRev = src.db.scalar("select count() from revlog")
     # add a media file for testing
-    open(os.path.join(src.media.dir(), "foo.jpg"), "w").write("foo")
+    open(os.path.join(src.media.dir(), "_foo.jpg"), "w").write("foo")
     src.close()
     # create a new empty deck
     dst = getEmptyDeck()
@@ -53,6 +52,53 @@ def test_anki2():
     assert len(os.listdir(dst.media.dir())) == 1
     #print dst.path
 
+def test_anki2_mediadupes():
+    tmp = getEmptyDeck()
+    # add a note that references a sound
+    n = tmp.newNote()
+    n['Front'] = "[sound:foo.mp3]"
+    mid = n.model()['id']
+    tmp.addNote(n)
+    # add that sound to media folder
+    open(os.path.join(tmp.media.dir(), "foo.mp3"), "w").write("foo")
+    tmp.close()
+    # it should be imported correctly into an empty deck
+    empty = getEmptyDeck()
+    imp = Anki2Importer(empty, tmp.path)
+    imp.run()
+    assert os.listdir(empty.media.dir()) == ["foo.mp3"]
+    # and importing again will not duplicate, as the file content matches
+    empty.remCards(empty.db.list("select id from cards"))
+    imp = Anki2Importer(empty, tmp.path)
+    imp.run()
+    assert os.listdir(empty.media.dir()) == ["foo.mp3"]
+    n = empty.getNote(empty.db.scalar("select id from notes"))
+    assert "foo.mp3" in n.fields[0]
+    # if the local file content is different, and import should trigger a
+    # rename
+    empty.remCards(empty.db.list("select id from cards"))
+    open(os.path.join(empty.media.dir(), "foo.mp3"), "w").write("bar")
+    imp = Anki2Importer(empty, tmp.path)
+    imp.run()
+    assert sorted(os.listdir(empty.media.dir())) == [
+        "foo.mp3", "foo_%s.mp3" % mid]
+    n = empty.getNote(empty.db.scalar("select id from notes"))
+    assert "_" in n.fields[0]
+    # if the localized media file already exists, we rewrite the note and
+    # media
+    empty.remCards(empty.db.list("select id from cards"))
+    open(os.path.join(empty.media.dir(), "foo.mp3"), "w").write("bar")
+    imp = Anki2Importer(empty, tmp.path)
+    imp.run()
+    assert sorted(os.listdir(empty.media.dir())) == [
+        "foo.mp3", "foo_%s.mp3" % mid]
+    assert sorted(os.listdir(empty.media.dir())) == [
+        "foo.mp3", "foo_%s.mp3" % mid]
+    n = empty.getNote(empty.db.scalar("select id from notes"))
+    assert "_" in n.fields[0]
+
+    #print dst.path
+
 def test_anki1():
     # get the deck path to import
     tmp = getUpgradeDeckPath()
@@ -60,7 +106,7 @@ def test_anki1():
     mdir = tmp.replace(".anki2", ".media")
     if not os.path.exists(mdir):
         os.mkdir(mdir)
-    open(os.path.join(mdir, "foo.jpg"), "w").write("foo")
+    open(os.path.join(mdir, "_foo.jpg"), "w").write("foo")
     # create a new empty deck
     dst = getEmptyDeck()
     # import src into dst
