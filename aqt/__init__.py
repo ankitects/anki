@@ -8,11 +8,12 @@ import anki.lang
 from anki.consts import HELP_SITE as appHelpSite
 from anki.hooks import runHook
 
-appVersion="2.0-rc4"
+appVersion="2.0-rc5"
 appWebsite="http://ankisrs.net/"
-appChanges="http://ankisrs.net/docs/dev/changes.html"
+appChanges="http://ankisrs.net/docs/changes.html"
 appDonate="http://ankisrs.net/support/"
-appShared="http://beta.ankiweb.net/shared/"
+appShared="https://ankiweb.net/shared/"
+appUpdate="https://ankiweb.net/update/desktop"
 mw = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
