@@ -59,7 +59,6 @@ class LatestVersionFinder(QThread):
         except:
             # behind proxy, corrupt message, etc
             return
-        print resp
         if resp['msg']:
             self.emit(SIGNAL("newMsg"), resp)
         if resp['ver']:
