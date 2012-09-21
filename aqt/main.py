@@ -758,18 +758,14 @@ and check the statistics for a home deck instead."""))
         self.connect(self.autoUpdate, SIGNAL("clockIsOff"), self.clockIsOff)
         self.autoUpdate.start()
 
-    def newVerAvail(self, data):
-        if self.pm.profile['suppressUpdate'] < data['latestVersion']:
-            aqt.update.askAndUpdate(self, data)
+    def newVerAvail(self, ver):
+        if self.pm.meta['suppressUpdate'] != ver:
+            aqt.update.askAndUpdate(self, ver)
 
     def newMsg(self, data):
         aqt.update.showMessages(self, data)
 
-    def clockIsOff(self, diff):
-        if diff < 0:
-            ret = _("late")
-        else:
-            ret = _("early")
+    def clockIsOff(self):
         showWarning("""\
 In order to ensure your collection works correctly when moved between \
 devices, Anki requires the system clock to be set correctly. Your system \

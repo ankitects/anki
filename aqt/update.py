@@ -7,10 +7,8 @@ import anki, anki.utils, anki.lang, anki.stats
 import aqt
 import platform
 from aqt.utils import openLink
-from anki.utils import json
-
-baseUrl = "http://ankiweb.net/update/"
-#baseUrl = "http://localhost:8001/update/"
+from anki.utils import json, isWin, isMac
+from aqt.utils import showText
 
 class LatestVersionFinder(QThread):
 
@@ -18,30 +16,42 @@ class LatestVersionFinder(QThread):
         QThread.__init__(self)
         self.main = main
         self.config = main.pm.meta
-        plat=sys.platform
-        while 1:
+
+    def _data(self):
+        # we may get an interrupted system call, so try this in a loop
+        n = 0
+        theos = "unknown"
+        while n < 100:
+            n += 1
             try:
-                pver=platform.platform()
+                system = platform.system()
+                if isMac:
+                    theos = "mac:%s" % (platform.mac_ver()[0])
+                elif isWin:
+                    theos = "win:%s" % (platform.win32_ver()[0])
+                elif system == "Linux":
+                    dist = platform.dist()
+                    theos = "lin:%s:%s" % (dist[0], dist[1])
+                else:
+                    theos = system
                 break
-            except IOError:
-                # interrupted system call
+            except:
                 continue
         d = {"ver": aqt.appVersion,
-             "pver": pver,
-             "plat": plat,
+             "os": theos,
              "id": self.config['id'],
              "lm": self.config['lastMsg'],
-             "conf": self.config['created']}
-        self.stats = d
+             "crt": self.config['created']}
+        return d
 
     def run(self):
         if not self.config['updates']:
             return
-        d = self.stats
-        d['proto'] = 2
+        d = self._data()
+        d['proto'] = 1
         d = urllib.urlencode(d)
         try:
-            f = urllib2.urlopen(baseUrl + "getQtVersion", d)
+            f = urllib2.urlopen(aqt.appUpdate, d)
             resp = f.read()
             if not resp:
                 return
@@ -49,32 +59,33 @@ class LatestVersionFinder(QThread):
         except:
             # behind proxy, corrupt message, etc
             return
+        print resp
         if resp['msg']:
             self.emit(SIGNAL("newMsg"), resp)
-        if resp['latestVersion'] > aqt.appVersion:
-            self.emit(SIGNAL("newVerAvail"), resp)
-        diff = resp['currentTime'] - time.time()
+        if resp['ver']:
+            self.emit(SIGNAL("newVerAvail"), resp['ver'])
+        diff = resp['time'] - time.time()
         if abs(diff) > 300:
-            self.emit(SIGNAL("clockIsOff"), diff)
+            self.emit(SIGNAL("clockIsOff"))
 
-def askAndUpdate(parent, version=None):
-    version = version['latestVersion']
+def askAndUpdate(mw, ver):
     baseStr = (
         _('''<h1>Anki Updated</h1>Anki %s has been released.<br><br>''') %
-        version)
-    msg = QMessageBox(parent)
+        ver)
+    msg = QMessageBox(mw)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
     msg.setIcon(QMessageBox.Information)
     msg.setText(baseStr + _("Would you like to download it now?"))
     button = QPushButton(_("Ignore this update"))
     msg.addButton(button, QMessageBox.RejectRole)
+    msg.setDefaultButton(QMessageBox.Yes)
     ret = msg.exec_()
     if msg.clickedButton() == button:
         # ignore this update
-        parent.config['suppressUpdate'] = version
+        mw.pm.meta['suppressUpdate'] = ver
     elif ret == QMessageBox.Yes:
         openLink(aqt.appWebsite)
 
-def showMessages(main, data):
-    aqt.ui.utils.showText(data['msg'], main, type="html")
-    main.config['lastMsg'] = data['msgId']
+def showMessages(mw, data):
+    showText(data['msg'], parent=mw, type="html")
+    mw.pm.meta['lastMsg'] = data['msgId']
