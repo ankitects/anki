@@ -96,6 +96,9 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     def __setitem__(self, key, value):
         self.fields[self._fieldOrd(key)] = value
 
+    def __contains__(self, key):
+        return key in self._fmap.keys()
+
     # Tags
     ##################################################
 
