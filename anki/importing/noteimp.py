@@ -85,6 +85,11 @@ class NoteImporter(Importer):
     def importNotes(self, notes):
         "Convert each card into a note, apply attributes and add to col."
         assert self.mappingOk()
+        # note whether tags are mapped
+        self._tagsMapped = False
+        for f in self.mapping:
+            if f == "_tags":
+                self._tagsMapped = True
         # gather checks for duplicate comparison
         csums = {}
         for csum, id in self.col.db.execute(
@@ -182,16 +187,25 @@ class NoteImporter(Importer):
         if not self.processFields(n, sflds):
             print "no cards generated"
             return
-        self.col.tags.register(n.tags)
-        tags = self.col.tags.join(n.tags)
-        return [intTime(), self.col.usn(), n.fieldsStr, tags,
-                id, n.fieldsStr, tags]
+        if self._tagsMapped:
+            self.col.tags.register(n.tags)
+            tags = self.col.tags.join(n.tags)
+            return [intTime(), self.col.usn(), n.fieldsStr, tags,
+                    id, n.fieldsStr, tags]
+        else:
+            return [intTime(), self.col.usn(), n.fieldsStr,
+                    id, n.fieldsStr]
 
     def addUpdates(self, rows):
         old = self.col.db.totalChanges()
-        self.col.db.executemany("""
+        if self._tagsMapped:
+            self.col.db.executemany("""
 update notes set mod = ?, usn = ?, flds = ?, tags = ?
 where id = ? and (flds != ? or tags != ?)""", rows)
+        else:
+            self.col.db.executemany("""
+update notes set mod = ?, usn = ?, flds = ?
+where id = ? and flds != ?""", rows)
         self.updateCount = self.col.db.totalChanges() - old
 
     def processFields(self, note, fields=None):

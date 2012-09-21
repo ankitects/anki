@@ -152,6 +152,13 @@ def test_csv():
     i.run()
     assert len(i.log) == 5
     assert i.total == 5
+    # but importing should not clobber tags if they're unmapped
+    n = deck.getNote(deck.db.scalar("select id from notes"))
+    n.addTag("test")
+    n.flush()
+    i.run()
+    n.load()
+    assert n.tags == ['test']
     # if updating is disabled, count will be 0
     i.update = False
     i.run()
