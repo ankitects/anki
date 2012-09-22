@@ -249,7 +249,14 @@ To import into a password protected profile, please open the profile before atte
 
     def loadCollection(self):
         self.hideSchemaMsg = True
-        self.col = Collection(self.pm.collectionPath())
+        try:
+            self.col = Collection(self.pm.collectionPath())
+        except:
+            # move back to profile manager
+            showWarning("""\
+Your collection is corrupt. Please see the manual for \
+how to restore from a backup.""")
+            return self.unloadProfile()
         self.hideSchemaMsg = False
         self.progress.setupDB(self.col.db)
         self.moveToState("deckBrowser")
