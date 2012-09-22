@@ -199,9 +199,10 @@ class AnkiExporter(Exporter):
                 mid = row[2]
                 for file in self.src.media.filesInStr(mid, flds):
                     media[file] = True
-            for fname in os.listdir(self.mediaDir):
-                if fname.startswith("_"):
-                    media[fname] = True
+            if self.mediaDir:
+                for fname in os.listdir(self.mediaDir):
+                    if fname.startswith("_"):
+                        media[fname] = True
         self.mediaFiles = media.keys()
         self.dst.crt = self.src.crt
         # todo: tags?
