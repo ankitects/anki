@@ -64,6 +64,8 @@ class SyncManager(QObject):
             # blank the key so we prompt user again
             self.pm.profile['syncKey'] = None
             self.pm.save()
+        elif evt == "corrupt":
+            pass
         elif evt == "newKey":
             self.pm.profile['syncKey'] = args[0]
             self.pm.save()
@@ -210,7 +212,11 @@ class SyncThread(QThread):
         self.media = media
 
     def run(self):
-        self.col = Collection(self.path)
+        try:
+            self.col = Collection(self.path)
+        except:
+            self.fireEvent("corrupt")
+            return
         self.server = RemoteServer(self.hkey)
         self.client = Syncer(self.col, self.server)
         self.sentTotal = 0
