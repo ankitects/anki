@@ -638,7 +638,7 @@ from cards where did in %s and queue = 2""" % self._limit())
         return self.col.db.first("""
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue=1 or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue=0 then 1 else 0 end), -- new
 sum(case when queue=-1 then 1 else 0 end) -- susp
 from cards where did in %s""" % self._limit())
