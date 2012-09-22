@@ -280,7 +280,7 @@ how to restore from a backup.""")
         # find existing backups
         backups = []
         for file in os.listdir(dir):
-            m = re.search("backup-(\d+).anki2", file)
+            m = re.search("backup-(\d+).apkg", file)
             if not m:
                 # unknown file
                 continue
@@ -292,8 +292,11 @@ how to restore from a backup.""")
         else:
             n = backups[-1][0] + 1
         # do backup
-        newpath = os.path.join(dir, "backup-%d.anki2" % n)
-        shutil.copyfile(path, newpath)
+        newpath = os.path.join(dir, "backup-%d.apkg" % n)
+        z = zipfile.ZipFile(newpath, "w", zipfile.ZIP_DEFLATED)
+        z.write(path, "collection.anki2")
+        z.writestr("media", "{}")
+        z.close()
         # remove if over
         if len(backups) + 1 > nbacks:
             delete = len(backups) + 1 - nbacks
