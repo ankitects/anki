@@ -19,7 +19,6 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
     askUserDialog, applyStyles, getText, showText, showCritical, getFile, \
     tooltip, openHelp, openLink
-from anki.lang import ngettext
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):

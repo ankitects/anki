@@ -12,7 +12,6 @@ from anki.sound import playFromText, clearAudioQueue, hasSound, play
 from aqt.utils import mungeQA, getBase, shortcut, openLink, tooltip
 from aqt.sound import getAudio
 import aqt
-from anki.lang import ngettext
 
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."

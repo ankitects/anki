@@ -6,7 +6,6 @@ from aqt.qt import *
 import anki, aqt, aqt.tagedit
 from aqt.utils import getSaveFile, tooltip, showWarning
 from anki.exporting import exporters
-from anki.lang import ngettext
 
 class ExportDialog(QDialog):
 

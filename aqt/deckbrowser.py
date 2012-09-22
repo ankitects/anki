@@ -10,7 +10,6 @@ import anki.js
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
-from anki.lang import ngettext
 
 class DeckBrowser(object):
 

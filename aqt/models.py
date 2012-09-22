@@ -7,7 +7,6 @@ from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
 import aqt.modelchooser, aqt.clayout
 from anki import stdmodels
 from aqt.utils import saveGeom, restoreGeom
-from anki.lang import ngettext
 
 class Models(QDialog):
     def __init__(self, mw, parent=None):

@@ -8,7 +8,6 @@ from anki.utils import ids2str
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
     tooltip
 from operator import itemgetter
-from anki.lang import ngettext
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):
@@ -134,7 +133,6 @@ class DeckConf(QDialog):
             deck = self.mw.col.decks.get(did)
             deck['conf'] = self.deck['conf']
             self.mw.col.decks.save(deck)
-        
         tooltip(ngettext("%d deck updated.", "%d decks updated.", \
                         len(self.childDids)) % len(self.childDids))
 
