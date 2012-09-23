@@ -35,7 +35,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>&lt;b&gt;Limit to deck&lt;/b&gt;:</string>
+        <string>&lt;b&gt;Include&lt;/b&gt;:</string>
        </property>
       </widget>
      </item>
@@ -51,6 +51,9 @@
        <property name="text">
         <string>Include scheduling information</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -58,12 +61,18 @@
        <property name="text">
         <string>Include media</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="includeTags">
        <property name="text">
         <string>Include tags</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
