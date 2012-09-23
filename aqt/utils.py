@@ -71,10 +71,12 @@ def showText(txt, parent=None, type="text", run=True):
     else:
         return diag, box
 
-def askUser(text, parent=None, help="", defaultno=False):
+def askUser(text, parent=None, help="", defaultno=False, msgfunc=None):
     "Show a yes/no question. Return true if yes."
     if not parent:
         parent = aqt.mw.app.activeWindow()
+    if not msgfunc:
+        msgfunc = QMessageBox.question
     sb = QMessageBox.Yes | QMessageBox.No
     if help:
         sb |= QMessageBox.Help
@@ -83,7 +85,7 @@ def askUser(text, parent=None, help="", defaultno=False):
             default = QMessageBox.No
         else:
             default = QMessageBox.Yes
-        r = QMessageBox.question(parent, "Anki", text, sb,
+        r = msgfunc(parent, "Anki", text, sb,
                                  default)
         if r == QMessageBox.Help:
 
