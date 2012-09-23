@@ -321,7 +321,7 @@ Unable to import from a read-only file."""))
 
 def setupApkgImport(mw, importer):
     diag = askUserDialog(_("""\
-Wolud you like to add to your collection, or replace it?"""),
+Would you like to add to your collection, or replace it?"""),
             [_("Add"),
              _("Replace"),
              _("Cancel")])
