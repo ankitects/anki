@@ -221,18 +221,29 @@ class AnkiExporter(Exporter):
 
 class AnkiPackageExporter(AnkiExporter):
 
-    key = _("Packaged Anki Deck")
+    key = _("Anki Deck Package")
     ext = ".apkg"
 
     def __init__(self, col):
         AnkiExporter.__init__(self, col)
 
     def exportInto(self, path):
+        # open a zip file
+        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED)
+        # if all decks and scheduling included, full export
+        if self.includeSched and not self.did:
+            media = self.exportVerbatim(z)
+        else:
+            # otherwise, filter
+            media = self.exportFiltered(z, path)
+        # media map
+        z.writestr("media", json.dumps(media))
+        z.close()
+
+    def exportFiltered(self, z, path):
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
-        # zip the deck up
-        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED)
         z.write(colfile, "collection.anki2")
         # and media
         self.prepareMedia()
@@ -243,13 +254,30 @@ class AnkiPackageExporter(AnkiExporter):
             if os.path.exists(mpath):
                 z.write(mpath, c)
                 media[c] = file
-        # media map
-        z.writestr("media", json.dumps(media))
-        z.close()
         # tidy up intermediate files
         os.unlink(colfile)
         os.unlink(path.replace(".apkg", ".media.db"))
         shutil.rmtree(path.replace(".apkg", ".media"))
+        return media
+
+    def exportVerbatim(self, z):
+        # close our deck & write it into the zip file, and reopen
+        self.count = self.col.cardCount()
+        self.col.close()
+        z.write(self.col.path, "collection.anki2")
+        self.col.reopen()
+        # copy all media
+        if not self.includeMedia:
+            return {}
+        media = {}
+        mdir = self.col.media.dir()
+        for c, file in enumerate(os.listdir(mdir)):
+            c = str(c)
+            mpath = os.path.join(mdir, file)
+            if os.path.exists(mpath):
+                z.write(mpath, c)
+                media[c] = file
+        return media
 
     def prepareMedia(self):
         # chance to move each file in self.mediaFiles into place before media
@@ -263,6 +291,6 @@ def exporters():
     def id(obj):
         return ("%s (*%s)" % (obj.key, obj.ext), obj)
     return (
-        id(TextNoteExporter),
         id(AnkiPackageExporter),
+        id(TextNoteExporter),
     )
