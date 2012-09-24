@@ -304,8 +304,11 @@ backup, please see the 'Backups' section of the user manual."""))
             importer.run()
         except Exception, e:
             if "invalidFile" in unicode(e):
-                showWarning(_("""\
-Invalid file. Please run a DB check in Anki 1.2 and try again."""))
+                msg = _("""\
+Invalid file. Please run a DB check in Anki 1.2 and try again.""")
+                msg += _(""" \
+Even if the DB check reports 'no problems found', a subsequent import should work.""")
+                showWarning(msg)
             elif "readonly" in unicode(e):
                 showWarning(_("""\
 Unable to import from a read-only file."""))
