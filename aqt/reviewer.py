@@ -265,7 +265,7 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
             self.mw.onEditCurrent()
         elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)) and self.state == "question":
             self._showAnswerHack()
-        elif key == "r":
+        elif key == "r" or evt.key() == Qt.Key_F5:
             self.replayAudio()
         elif key == "*":
             self.onMark()
