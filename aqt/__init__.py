@@ -128,7 +128,6 @@ class AnkiApp(QApplication):
             self._srv = QLocalServer(self)
             self.connect(self._srv, SIGNAL("newConnection()"), self.onRecv)
             self._srv.listen(self.KEY)
-            # if we were given a file on startup, send import it
         else:
             # we accept only one command line argument. if it's missing, send
             # a blank screen to just raise the existing window
@@ -155,7 +154,7 @@ class AnkiApp(QApplication):
             sys.stderr.write(sock.errorString())
             return
         buf = sock.readAll()
-        self.emit(SIGNAL("appMsg"), unicode(buf))
+        self.emit(SIGNAL("appMsg"), buf)
         sock.disconnectFromServer()
 
     # OS X file/url handler

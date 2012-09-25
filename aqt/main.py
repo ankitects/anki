@@ -1055,6 +1055,6 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
             return
         # import
         if not os.path.exists(buf):
-            return showInfo(_("Provided file does not exist."))
+            return showInfo(_("Please use File>Import to import this file."))
         import aqt.importing
         aqt.importing.importFile(self, buf)
