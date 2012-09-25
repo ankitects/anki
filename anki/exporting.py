@@ -7,6 +7,7 @@ from operator import itemgetter
 from anki.cards import Card
 from anki.lang import _
 from anki.utils import stripHTML, ids2str, splitFields, json
+from anki.hooks import runHook
 from anki import Collection
 
 class Exporter(object):
@@ -290,7 +291,9 @@ class AnkiPackageExporter(AnkiExporter):
 def exporters():
     def id(obj):
         return ("%s (*%s)" % (obj.key, obj.ext), obj)
-    return (
+    exps = [
         id(AnkiPackageExporter),
         id(TextNoteExporter),
-    )
+    ]
+    runHook("exportersList", exps)
+    return exps
