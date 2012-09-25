@@ -386,9 +386,13 @@ Please run Tools>Maintenance>Empty Cards""")
             res += u"<span id=rightanswer><br> {0} <br> {1} </span>".format(
                 _(u"Correct answer was:"), cor)
         # and update the type answer area
-        return re.sub(self.typeAnsPat, """
-<span style="font-family: '%s'; font-size: %spx">%s</span>""" %
-                      (self.typeFont, self.typeSize, res), buf)
+        def repl(match):
+            # can't pass a string in directly, and can't use re.escape as it
+            # escapes too much
+            return """
+<span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
+                self.typeFont, self.typeSize, res)
+        return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
         matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
