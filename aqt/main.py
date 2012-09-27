@@ -1032,6 +1032,9 @@ will be lost. Continue?"""))
             # try again in a second
             return self.progress.timer(1000, lambda: self.onAppMsg(buf), False)
         elif self.state == "profileManager":
+            # can't raise window while in profile manager
+            if buf == "raise":
+                return
             self.pendingImport = buf
             return showInfo(_("Deck will be imported when a profile is opened."))
         if not self.interactiveState() or self.progress.busy():
