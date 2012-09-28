@@ -710,6 +710,7 @@ by clicking on one on the left."""))
             (_("New"), "plus16.png", "is:new"),
             (_("Learning"), "stock_new_template_red.png", "is:learn"),
             (_("Review"), "clock16.png", "is:review"),
+            (_("Due"), "clock16.png", "is:due"),
             (_("Marked"), "star16.png", "tag:marked"),
             (_("Suspended"), "media-playback-pause.png", "is:suspended"),
             (_("Leech"), "emblem-important.png", "tag:leech"))
