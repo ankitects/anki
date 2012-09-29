@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, sys, optparse, atexit, __builtin__
+import os, sys, optparse, atexit, tempfile, __builtin__
 from aqt.qt import *
 import locale, gettext
 import anki.lang
@@ -189,6 +189,16 @@ def run():
     QCoreApplication.setApplicationName("Anki")
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
+        return
+
+    # we must have a usable temp dir
+    try:
+        tempfile.gettempdir()
+    except:
+        QMessageBox.critical(
+            None, "Error", """\
+No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
+environment points to a valid, writable folder.""")
         return
 
     # parse args
