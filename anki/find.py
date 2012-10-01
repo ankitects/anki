@@ -241,7 +241,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 
     def _findTag(self, val, args):
         if val == "none":
-            return 'tags = ""'
+            return 'n.tags = ""'
         val = val.replace("*", "%")
         if not val.startswith("%"):
             val = "% " + val
