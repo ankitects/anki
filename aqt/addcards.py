@@ -23,7 +23,7 @@ class AddCards(QDialog):
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(_("Add"))
-        self.setMinimumHeight(400)
+        self.setMinimumHeight(300)
         self.setMinimumWidth(400)
         self.setupChoosers()
         self.setupEditor()
