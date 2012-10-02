@@ -507,7 +507,7 @@ select (case
 when type in (0,2) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-ease, count() from revlog %s
+(case when type in (0,2) and ease = 4 then 3 else ease end), count() from revlog %s
 group by thetype, ease
 order by thetype, ease""" % lim)
 
