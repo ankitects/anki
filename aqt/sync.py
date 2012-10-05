@@ -129,6 +129,9 @@ Please upgrade to the latest version of Anki.""")
 AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "409" in err:
             return _("A previous sync failed; please try again in a few minutes.")
+        elif "10060" in err:
+            return _(
+                "Antivirus or firewall software is preventing Anki from connecting to the internet.")
         return err
 
     def _getUserPass(self):
