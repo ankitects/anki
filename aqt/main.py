@@ -1057,6 +1057,8 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
         if buf == "raise":
             return
         # import
+        if not isinstance(buf, unicode):
+            buf = unicode(buf, "utf8", "ignore")
         if not os.path.exists(buf):
             return showInfo(_("Please use File>Import to import this file."))
         import aqt.importing
