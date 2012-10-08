@@ -106,6 +106,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.hideMapping()
         def updateDelim():
             self.importer.delimiter = str
+            self.importer.updateDelimiter()
         self.showMapping(hook=updateDelim)
         self.updateDelimiterButtonText()
 
@@ -181,17 +182,8 @@ you can enter it here. Use \\t to represent tab."""),
             hook()
         if not keepMapping:
             self.mapping = self.importer.mapping
-
-        # except Exception, e:
-        #     self.frm.status.setText(
-        #         _("Unable to read file.\n\n%s") % unicode(
-        #             traceback.format_exc(), "ascii", "replace"))
-        #     self.file = None
-        #     self.maybePreview()
-        #     return
         self.frm.mappingGroup.show()
         assert self.importer.fields()
-
         # set up the mapping grid
         if self.mapwidget:
             self.mapbox.removeWidget(self.mapwidget)
