@@ -112,6 +112,7 @@ class TextImporter(NoteImporter):
             self.numFields = len(reader.next())
         except:
             err()
+        self.initMapping()
 
     def fields(self):
         "Number of fields."
