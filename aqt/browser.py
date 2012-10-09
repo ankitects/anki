@@ -1183,8 +1183,8 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
-        part2 = ngettext("%d note.", "%d notes.", notes) % notes
-        t += _("Found %(a)s across %(b)s") % dict(a=part1, b=part2)
+        part2 = ngettext("%d note", "%d notes", notes) % notes
+        t += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
         t += "<p><ol>"
         for val, nids in res:
             t += '<li><a href="%s">%s</a>: %s</a>' % (
