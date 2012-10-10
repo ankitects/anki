@@ -5,14 +5,14 @@ all:
 
 install:
 	@test ! -d .git || (echo "Install from git is not supported. Please use a tarball."; false)
-	rm -rf /usr/share/anki
-	mkdir -p /usr/share/anki
-	cp -av * /usr/share/anki/
-	cd /usr/share/anki && (\
-	mv anki /usr/local/bin/;\
-	mv anki.xpm anki.png /usr/share/pixmaps/;\
-	mv anki.desktop /usr/share/applications;\
-	mv anki.1 /usr/share/man/man1/)
+	rm -rf ${DESTDIR}/usr/share/anki
+	mkdir -p ${DESTDIR}/usr/share/anki
+	cp -av * ${DESTDIR}/usr/share/anki/
+	cd ${DESTDIR}/usr/share/anki && (\
+	mv anki ${DESTDIR}/usr/local/bin/;\
+	mv anki.xpm anki.png ${DESTDIR}/usr/share/pixmaps/;\
+	mv anki.desktop ${DESTDIR}/usr/share/applications;\
+	mv anki.1 ${DESTDIR}/usr/share/man/man1/)
 	xdg-mime install anki.xml
 	xdg-mime default anki.desktop application/x-anki
 	xdg-mime default anki.desktop application/x-apkg
@@ -20,11 +20,11 @@ install:
 	@echo "Install complete."
 
 uninstall:
-	rm -rf /usr/share/anki
-	rm -rf /usr/local/bin/anki
-	rm -rf /usr/share/pixmaps/anki.{xpm,png}
-	rm -rf /usr/share/applications/anki.desktop
-	rm -rf /usr/share/man/man1/anki.1
-	xdg-mime uninstall /usr/share/mime/packages/anki.xml
+	rm -rf ${DESTDIR}/usr/share/anki
+	rm -rf ${DESTDIR}/usr/local/bin/anki
+	rm -rf ${DESTDIR}/usr/share/pixmaps/anki.{xpm,png}
+	rm -rf ${DESTDIR}/usr/share/applications/anki.desktop
+	rm -rf ${DESTDIR}/usr/share/man/man1/anki.1
+	xdg-mime uninstall ${DESTDIR}/usr/share/mime/packages/anki.xml
 	@echo
 	@echo "Uninstall complete."
