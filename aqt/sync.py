@@ -132,6 +132,8 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "10060" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
+        elif "407" in err:
+            return _("Proxy authentication required.")
         return err
 
     def _getUserPass(self):
