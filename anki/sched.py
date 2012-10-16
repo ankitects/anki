@@ -1275,7 +1275,7 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
             "select id, nid from cards where type = 0 and id in "+scids):
             d.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
         self.col.db.executemany(
-            "update cards set due=:due,mod=:now,usn=:usn where id = :cid""", d)
+            "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d)
 
     def randomizeCards(self, did):
         cids = self.col.db.list("select id from cards where did = ?", did)
