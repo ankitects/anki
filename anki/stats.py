@@ -342,18 +342,18 @@ group by day order by day""" % (self._limit(), lim),
             tf = 3600.0 # hours
         return self.col.db.all("""
 select
-(cast((id/1000 - :cut) / 86400.0 as int))/:chunk as day,
+(cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
 sum(case when type = 0 then 1 else 0 end), -- lrn count
 sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = 2 then 1 else 0 end), -- lapse count
 sum(case when type = 3 then 1 else 0 end), -- cram count
-sum(case when type = 0 then time/1000 else 0 end)/:tf, -- lrn time
+sum(case when type = 0 then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
-sum(case when type = 1 and lastIvl < 21 then time/1000 else 0 end)/:tf,
-sum(case when type = 1 and lastIvl >= 21 then time/1000 else 0 end)/:tf,
-sum(case when type = 2 then time/1000 else 0 end)/:tf, -- lapse time
-sum(case when type = 3 then time/1000 else 0 end)/:tf -- cram time
+sum(case when type = 1 and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = 1 and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = 2 then time/1000.0 else 0 end)/:tf, -- lapse time
+sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day""" % lim,
                             cut=self.col.sched.dayCutoff,
