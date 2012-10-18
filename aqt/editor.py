@@ -789,7 +789,7 @@ please click the help button."""), help="cloze")
         if canDelete and self.mw.pm.profile['deleteMedia']:
             if os.path.abspath(name) != os.path.abspath(path):
                 try:
-                    os.unlink(old)
+                    os.unlink(path)
                 except:
                     pass
         # return a local html link
