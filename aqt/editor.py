@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib2, ctypes, traceback, urllib2
+import re, os, sys, urllib2, ctypes, traceback
 from anki.utils import stripHTML, isWin, isMac, namedtmp, json
 from anki.sound import play
 from anki.hooks import runHook, runFilter
@@ -789,7 +789,7 @@ please click the help button."""), help="cloze")
         if canDelete and self.mw.pm.profile['deleteMedia']:
             if os.path.abspath(name) != os.path.abspath(path):
                 try:
-                    os.unlink(old)
+                    os.unlink(path)
                 except:
                     pass
         # return a local html link

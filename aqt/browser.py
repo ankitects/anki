@@ -1130,8 +1130,7 @@ update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
                                             field,
                                             frm.ignoreCase.isChecked())
         except sre_constants.error:
-            ui.utils.showInfo(_("Invalid regular expression."),
-                              parent=self)
+            showInfo(_("Invalid regular expression."), parent=self)
             return
         else:
             self.onSearch()
