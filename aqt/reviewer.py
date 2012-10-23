@@ -263,8 +263,11 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
         key = unicode(evt.text())
         if key == "e":
             self.mw.onEditCurrent()
-        elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)) and self.state == "question":
-            self._showAnswerHack()
+        elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)):
+            if self.state == "question":
+                self._showAnswerHack()
+            elif self.state == "answer":
+                self._answerCard(self._defaultEase())
         elif key == "r" or evt.key() == Qt.Key_F5:
             self.replayAudio()
         elif key == "*":
