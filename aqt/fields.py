@@ -92,8 +92,8 @@ class FieldDialog(QDialog):
         self.form.fieldList.setCurrentRow(len(self.model['flds'])-1)
 
     def onDelete(self):
-        if len(self.model['flds']) < 3:
-            return showWarning(_("Notes require at least two fields."))
+        if len(self.model['flds']) < 2:
+            return showWarning(_("Notes require at least one field."))
         if not askUser(_("Delete field?")):
             return
         f = self.model['flds'][self.form.fieldList.currentRow()]
