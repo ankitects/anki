@@ -149,27 +149,30 @@ class DataModel(QAbstractTableModel):
         sm.clear()
         # restore selection
         items = QItemSelection()
-        focused = None
-        first = None
         count = 0
+        firstIdx = None
+        focusedIdx = None
         for row, id in enumerate(self.cards):
+            # if the id matches the focused card, note the index
+            if self.focusedCard == id:
+                focusedIdx = self.index(row, 0)
+                items.select(focusedIdx, focusedIdx)
+                self.focusedCard = None
+            # if the card was previously selected, select again
             if id in self.selectedCards:
                 count += 1
                 idx = self.index(row, 0)
                 items.select(idx, idx)
-                if not first:
-                    first = idx
-                # note idx of focused card
-                if self.focusedCard:
-                    focused = idx
-                    # avoid further comparisons
-                    self.focusedCard = None
-        # and focus previously focused or first in selection
-        focus = focused or first
+                # note down the first card of the selection, in case we don't
+                # have a focused card
+                if not firstIdx:
+                    firstIdx = idx
+        # focus previously focused or first in selection
+        idx = focusedIdx or firstIdx
         tv = self.browser.form.tableView
-        if focus:
-            tv.selectRow(focus.row())
-            tv.scrollTo(focus, tv.PositionAtCenter)
+        if idx:
+            tv.selectRow(idx.row())
+            tv.scrollTo(idx, tv.PositionAtCenter)
             if count < 500:
                 # discard large selections; they're too slow
                 sm.select(items, QItemSelectionModel.SelectCurrent |
