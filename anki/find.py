@@ -208,6 +208,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             return " order by " + order, False
         # use deck default
         type = self.col.conf['sortType']
+        sort = None
         if type.startswith("note"):
             if type == "noteCrt":
                 sort = "n.id, c.ord"
@@ -215,8 +216,6 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 sort = "n.mod, c.ord"
             elif type == "noteFld":
                 sort = "n.sfld collate nocase, c.ord"
-            else:
-                raise Exception()
         elif type.startswith("card"):
             if type == "cardMod":
                 sort = "c.mod"
@@ -230,10 +229,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 sort = "c.lapses"
             elif type == "cardIvl":
                 sort = "c.ivl"
-            else:
-                raise Exception()
-        else:
-            raise Exception()
+        if not sort:
+            # deck has invalid sort order; revert to noteCrt
+            sort = "n.id, c.ord"
         return " order by " + sort, self.col.conf['sortBackwards']
 
     # Commands
