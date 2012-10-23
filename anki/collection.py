@@ -640,6 +640,19 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
                          "Deleted %d notes with missing note type.", len(ids))
                          % len(ids))
             self.remNotes(ids)
+        # cards with invalid ordinal
+        for m in self.models.all():
+            ids = self.db.list("""
+select id from cards where ord not in %s and nid in (
+select id from notes where mid = ?)""" %
+                               ids2str([t['ord'] for t in m['tmpls']]),
+                               m['id'])
+            if ids:
+                problems.append(
+                    ngettext("Deleted %d card with missing template.",
+                             "Deleted %d cards with missing template.",
+                             len(ids)) % len(ids))
+                self.remCards(ids)
         # delete any notes with missing cards
         ids = self.db.list("""
 select id from notes where id not in (select distinct nid from cards)""")
