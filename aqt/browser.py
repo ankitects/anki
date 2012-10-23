@@ -264,11 +264,11 @@ class DataModel(QAbstractTableModel):
     def nextDue(self, c, index):
         if c.odid:
             return _("(filtered)")
-        elif c.queue == 0:
-            return str(c.due)
         elif c.queue == 1:
             date = c.due
-        elif c.queue in (2,3):
+        elif c.queue == 0 or c.type == 0:
+            return str(c.due)
+        elif c.queue in (2,3) or c.type == 2:
             date = time.time() + ((c.due - self.col.sched.today)*86400)
         else:
             return _("(susp.)")
