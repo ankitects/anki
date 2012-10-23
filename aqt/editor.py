@@ -710,9 +710,14 @@ class Editor(object):
     def onCloze(self):
         # check that the model is set up for cloze deletion
         if '{{cloze:' not in self.note.model()['tmpls'][0]['qfmt']:
-            showInfo(_("""\
+            if self.addMode:
+                showInfo(_("""\
 To use this button, please select the Cloze note type. To learn more, \
 please click the help button."""), help="cloze")
+            else:
+                showInfo(_("""\
+To make a cloze deletion on an existing note, you need to change it \
+to a cloze type first, via Edit>Change Note Type."""))
             return
         # find the highest existing cloze
         highest = 0
