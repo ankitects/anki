@@ -37,18 +37,26 @@ class EditCurrent(QDialog):
 
     def onReset(self):
         # lazy approach for now: throw away edits
-        n = self.mw.reviewer.card.note()
-        n.load()
+        try:
+            n = self.mw.reviewer.card.note()
+            n.load()
+        except:
+            # card's been deleted
+            remHook("reset", self.onReset)
+            self.editor.setNote(None)
+            self.mw.reset()
+            aqt.dialogs.close("EditCurrent")
+            self.close()
+            return
         self.editor.setNote(n)
 
     def onSave(self):
         remHook("reset", self.onReset)
         self.editor.saveNow()
-        self.editor.setNote(None)
         r = self.mw.reviewer
         try:
             r.card.load()
-        except TypeError:
+        except:
             # card was removed by clayout
             pass
         else:
