@@ -776,6 +776,7 @@ please click the help button."""), help="cloze")
         def accept(file):
             self.addMedia(file, canDelete=True)
         file = getFile(self.widget, _("Add Media"), accept, key, key="media")
+        self.parentWindow.activateWindow()
 
     def addMedia(self, path, canDelete=False):
         html = self._addMedia(path, canDelete)
