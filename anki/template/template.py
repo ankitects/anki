@@ -202,7 +202,7 @@ class Template(object):
             # replace chosen cloze with type
             if type == "q":
                 if m.group(3):
-                    return "<span class=cloze>[%s...]</span>" % m.group(3)
+                    return "<span class=cloze>[%s]</span>" % m.group(3)
                 else:
                     return "<span class=cloze>[...]</span>"
             else:
