@@ -473,14 +473,19 @@ class Browser(QMainWindow):
             self.form.searchEdit.clear()
             self.form.searchEdit.addItems(sh)
             self.mw.pm.profile['searchHistory'] = sh
-        if self.mw.state == "review":
-            txt = txt.replace("is:current", "nid:%d"%self.mw.reviewer.card.nid)
+        if self.mw.state == "review" and "is:current" in txt:
+            # search for current card, but set search to easily display whole
+            # deck
+            self.model.search("nid:%d"%self.mw.reviewer.card.nid, reset)
+            self.form.searchEdit.lineEdit().setText(prompt)
+            self.form.searchEdit.lineEdit().selectAll()
+            return
         elif "is:current" in txt:
             self.form.searchEdit.lineEdit().setText(prompt)
             self.form.searchEdit.lineEdit().selectAll()
         elif txt == prompt:
-            self.form.searchEdit.lineEdit().setText("deck:current")
-            txt = "deck:current"
+            self.form.searchEdit.lineEdit().setText("deck:current ")
+            txt = "deck:current "
         self.model.search(txt, reset)
         if not self.model.cards:
             # no row change will fire
