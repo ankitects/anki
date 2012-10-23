@@ -227,11 +227,11 @@ class DeckManager(object):
                 grp['name'] = grp['name'].replace(g['name']+ "::",
                                                   newName + "::")
                 self.save(grp)
+        # ensure we have parents
+        newName = self._ensureParents(newName)
         # adjust name and save
         g['name'] = newName
         self.save(g)
-        # ensure we have parents
-        newName = self._ensureParents(newName)
         # renaming may have altered active did order
         self.maybeAddToActive()
 
