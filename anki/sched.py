@@ -1198,8 +1198,6 @@ your short-term review workload will become."""))
         self.col.setDirty()
         cids = self.col.db.list(
             "select id from cards where nid = ? and queue >= 0", nid)
-        self.remFromDyn(cids)
-        self.removeFailed(cids)
         self.col.db.execute("update cards set queue = -2 where id in "+ids2str(cids))
 
     # Resetting
