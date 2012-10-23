@@ -318,7 +318,7 @@ group by day order by day""" % (self._limit(), lim),
             alltot.append((row[0], allcnt))
         ret = []
         for (n, col, lab) in spec:
-            if len(totd[n]) > 1 and totcnt[n]:
+            if len(totd[n]) and totcnt[n]:
                 # bars
                 ret.append(dict(data=sep[n], color=col, label=lab))
                 # lines
