@@ -480,9 +480,9 @@ class Editor(object):
             txt = unicode(urllib2.unquote(
                 txt.encode("utf8")), "utf8", "replace")
             self.note.fields[self.currentField] = txt
-            self.mw.requireReset()
             if not self.addMode:
                 self.note.flush()
+                self.mw.requireReset()
             if type == "blur":
                 self.disableButtons()
                 # run any filters
