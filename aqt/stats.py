@@ -52,6 +52,10 @@ class DeckStats(QDialog):
     def browser(self):
         # dump to a temporary file
         self.refresh(background=True)
+        # give webkit a second to load the background image
+        self.mw.progress.timer(200, self._browser, False)
+
+    def _browser(self):
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.png",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
