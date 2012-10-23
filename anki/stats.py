@@ -104,18 +104,22 @@ class CollectionStats(object):
         self.height = 200
         self.wholeCollection = False
 
-    def report(self, type=0):
+    def report(self, type=0, background=False):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
         self.type = type
-        txt = self.css
+        from statsbg import bg
+        if not background:
+            bg = ""
+        txt = self.css % bg
         txt += self.dueGraph()
         txt += self.repsGraph()
         txt += self.ivlGraph()
-        # other graphs
+        # other graphs & info
         txt += self.hourGraph()
         txt += self.easeGraph()
         txt += self.cardGraph()
+        txt += self.footer()
         return "<script>%s\n</script><center>%s</center>" % (
             anki.js.jquery+anki.js.plot, txt)
 
@@ -123,6 +127,7 @@ class CollectionStats(object):
 <style>
 h1 { margin-bottom: 0; margin-top: 1em; }
 .pielabel { text-align:center; padding:0px; color:white; }
+body {background-image: url(data:image/png;base64,%s); }
 </style>
 """
 
@@ -642,6 +647,26 @@ sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yn
 sum(case when queue=0 then 1 else 0 end), -- new
 sum(case when queue=-1 then 1 else 0 end) -- susp
 from cards where did in %s""" % self._limit())
+
+    # Footer
+    ######################################################################
+
+    def footer(self):
+        b = "<br><br><font size=1>"
+        b += _("Generated on %s") % time.asctime(time.localtime(time.time()))
+        b += "<br>"
+        if self.wholeCollection:
+            deck = _("whole collection")
+        else:
+            deck = self.col.decks.current()['name']
+        b += _("Scope: %s") % deck
+        b += "<br>"
+        b += _("Period: %s") % [
+            _("1 month"),
+            _("1 year"),
+            _("deck life")
+            ][self.type]
+        return b
 
     # Tools
     ######################################################################
