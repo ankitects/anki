@@ -53,12 +53,12 @@ class DeckConf(QDialog):
         current = self.deck['conf']
         self.confList = self.mw.col.decks.allConf()
         self.confList.sort(key=itemgetter('name'))
-        startOn = None
+        startOn = 0
         self.ignoreConfChange = True
         self.form.dconf.clear()
         for idx, conf in enumerate(self.confList):
             self.form.dconf.addItem(conf['name'])
-            if conf['id'] == current:
+            if str(conf['id']) == str(current):
                 startOn = idx
         self.ignoreConfChange = False
         self.form.dconf.setCurrentIndex(startOn)
