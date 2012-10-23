@@ -401,7 +401,7 @@ group by day order by day)""" % lim,
         elif self.type == 1:
             ivlmax = 52
         else:
-            ivlmax = max(5, ivls[-1][0] / 31)
+            ivlmax = max(5, ivls[-1][0])
         txt = self._title(_("Intervals"),
                           _("Delays until reviews are shown again."))
         txt += self._graph(id="ivl", ylabel2=_("Percentage"), data=[
