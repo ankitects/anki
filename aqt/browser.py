@@ -939,9 +939,15 @@ where id in %s""" % ids2str(sf))
         self.mw.checkpoint(_("Change Deck"))
         mod = intTime()
         usn = self.col.usn()
+        # normal cards
+        cids = self.selectedCards()
+        scids = ids2str(cids)
+        # remove any cards from filtered deck first
+        self.col.sched.remFromDyn(cids)
+        # then move into new deck
         self.col.db.execute("""
-update cards set usn=?, mod=?, did=? where odid=0 and id in """ + ids2str(
-                self.selectedCards()), usn, mod, did)
+update cards set usn=?, mod=?, did=? where id in """ + scids,
+                            usn, mod, did)
         self.onSearch(reset=False)
         self.mw.requireReset()
         self.model.endReset()
