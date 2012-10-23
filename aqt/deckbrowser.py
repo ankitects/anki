@@ -47,10 +47,10 @@ class DeckBrowser(object):
         elif cmd == "cram":
             self.mw.onCram()
         elif cmd == "create":
-            showInfo(_("""\
-To create a new deck, simply enter its name into any place that ask for \
-a deck name, such as when adding notes, changing a card's deck while browsing, \
-or importing text files."""))
+            deck = getOnlyText(_("New deck name:"))
+            if deck:
+                self.mw.col.decks.id(deck)
+                self.refresh()
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(',')
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
@@ -309,7 +309,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _drawButtons(self):
         links = [
             ["", "shared", _("Get Shared")],
-            #["", "create", _("Create")],
+            ["", "create", _("Create Deck")],
             ["Ctrl+I", "import", _("Import File")],
             ["F", "cram", _("Filter/Cram")],
         ]
