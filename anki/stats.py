@@ -104,13 +104,11 @@ class CollectionStats(object):
         self.height = 200
         self.wholeCollection = False
 
-    def report(self, type=0, background=False):
+    def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         # period-dependent graphs
         self.type = type
         from statsbg import bg
-        if not background:
-            bg = ""
         txt = self.css % bg
         txt += self.dueGraph()
         txt += self.repsGraph()
