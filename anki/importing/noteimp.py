@@ -112,6 +112,7 @@ class NoteImporter(Importer):
         new = []
         self._ids = []
         self._cards = []
+        self._emptyNotes = False
         for n in notes:
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
@@ -167,6 +168,10 @@ class NoteImporter(Importer):
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated", self.updateCount) % self.updateCount
         self.log.append("%s, %s." % (part1, part2))
+        self.log.append(_("""\
+One or more notes were not imported, because they didn't generate any cards. \
+This can happen when you have empty fields or when you have not mapped the \
+content in the text file to the correct fields."""))
         self.total = len(self._ids)
 
     def newData(self, n):
@@ -174,7 +179,6 @@ class NoteImporter(Importer):
         self._nextID += 1
         self._ids.append(id)
         if not self.processFields(n):
-            print "no cards generated"
             return
         # note id for card updates later
         for ord, c in n.cards.items():
@@ -193,7 +197,6 @@ class NoteImporter(Importer):
     def updateData(self, n, id, sflds):
         self._ids.append(id)
         if not self.processFields(n, sflds):
-            print "no cards generated"
             return
         if self._tagsMapped:
             self.col.tags.register(n.tags)
@@ -228,7 +231,10 @@ where id = ? and flds != ?""", rows)
                 sidx = self._fmap[f][0]
                 fields[sidx] = note.fields[c]
         note.fieldsStr = joinFields(fields)
-        return self.col.models.availOrds(self.model, note.fieldsStr)
+        ords = self.col.models.availOrds(self.model, note.fieldsStr)
+        if not ords:
+            self._emptyNotes = True
+        return ords
 
     def updateCards(self):
         data = []
