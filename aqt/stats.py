@@ -3,9 +3,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import os
+import os, time
 from aqt.webview import AnkiWebView
-from aqt.utils import saveGeom, restoreGeom, maybeHideClose, openFolder
+from aqt.utils import saveGeom, restoreGeom, maybeHideClose, openFolder, \
+    showInfo
 from anki.utils import namedtmp
 from anki.hooks import addHook
 import aqt
@@ -50,7 +51,12 @@ class DeckStats(QDialog):
 
     def browser(self):
         # dump to a temporary file
-        path = namedtmp("report.png")
+        name = time.strftime("-%Y-%m-%d@%H-%M-%S.png",
+                             time.localtime(time.time()))
+        name = "anki-"+_("stats")+name
+        path = os.path.join(
+            QDesktopServices.storageLocation(QDesktopServices.DesktopLocation),
+            name)
         p = self.form.web.page()
         oldsize = p.viewportSize()
         p.setViewportSize(p.mainFrame().contentsSize())
@@ -60,7 +66,7 @@ class DeckStats(QDialog):
         painter.end()
         image.save(path, "png")
         p.setViewportSize(oldsize)
-        openFolder(path)
+        showInfo(_("An image was saved to your desktop."))
 
     def changePeriod(self, n):
         self.period = n
