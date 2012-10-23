@@ -159,10 +159,17 @@ def test_csv():
     i.run()
     n.load()
     assert n.tags == ['test']
-    # if updating is disabled, count will be 0
-    i.update = False
+    # if add-only mode, count will be 0
+    i.importMode = 1
     i.run()
     assert i.total == 0
+    # and if dupes mode, will reimport everything
+    assert deck.cardCount() == 5
+    i.importMode = 2
+    i.run()
+    # includes repeated field
+    assert i.total == 6
+    assert deck.cardCount() == 11
     deck.close()
 
 def test_csv2():

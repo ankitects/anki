@@ -38,11 +38,16 @@ class ForeignCard(object):
 # - _tags maps to note tags
 # If the first field of the model is not in the map, the map is invalid.
 
+# The import mode is one of:
+# 0: update if first field matches existing note
+# 1: ignore if first field matches existing note
+# 2: import even if first field matches existing note
+
 class NoteImporter(Importer):
 
     needMapper = True
     needDelimiter = False
-    update = True
+    importMode = 0
 
     def __init__(self, col, file):
         Importer.__init__(self, col, file)
@@ -116,7 +121,7 @@ class NoteImporter(Importer):
                                 " ".join(n.fields))
                 continue
             # earlier in import?
-            if fld0 in firsts:
+            if fld0 in firsts and self.importMode != 2:
                 # duplicates in source file; log and ignore
                 self.log.append(_("Appeared twice in file: %s") %
                                 fld0)
@@ -133,12 +138,15 @@ class NoteImporter(Importer):
                     if fld0 == sflds[0]:
                         # duplicate
                         found = True
-                        if self.update:
+                        if self.importMode == 0:
                             data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
                                 found = True
                             break
+                        elif self.importMode == 2:
+                            # allow duplicates in this case
+                            found = False
             # newly add
             if not found:
                 data = self.newData(n)
