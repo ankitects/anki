@@ -50,12 +50,6 @@ class DeckStats(QDialog):
         QDialog.reject(self)
 
     def browser(self):
-        # dump to a temporary file
-        self.refresh(background=True)
-        # give webkit a second to load the background image
-        self.mw.progress.timer(200, self._browser, False)
-
-    def _browser(self):
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.png",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
@@ -71,7 +65,6 @@ class DeckStats(QDialog):
         painter.end()
         image.save(path, "png")
         p.setViewportSize(oldsize)
-        self.close()
         showInfo(_("An image was saved to your desktop."))
 
     def changePeriod(self, n):
@@ -85,11 +78,11 @@ class DeckStats(QDialog):
     def loadFin(self, b):
         self.form.web.page().mainFrame().setScrollPosition(self.oldPos)
 
-    def refresh(self, background=False):
+    def refresh(self):
         self.mw.progress.start(immediate=True)
         self.oldPos = self.form.web.page().mainFrame().scrollPosition()
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
-        self.report = stats.report(type=self.period, background=background)
+        self.report = stats.report(type=self.period)
         self.form.web.setHtml(self.report)
         self.mw.progress.finish()
