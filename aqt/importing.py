@@ -138,7 +138,7 @@ you can enter it here. Use \\t to represent tab."""),
             showWarning(
                 _("The first field of the note type must be mapped."))
             return
-        self.importer.update = self.frm.updateNotes.isChecked()
+        self.importer.importMode = self.frm.importMode.currentIndex()
         did = self.deck.selectedId()
         if did != self.importer.model['did']:
             self.importer.model['did'] = did

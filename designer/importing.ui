@@ -52,13 +52,22 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="updateNotes">
-        <property name="text">
-         <string>Update existing notes when first field matches</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
+       <widget class="QComboBox" name="importMode">
+        <item>
+         <property name="text">
+          <string>Update existing notes when first field matches</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Ignore lines where first field matches existing note</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Import even if existing note has same first field</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
@@ -118,7 +127,7 @@
              <x>0</x>
              <y>0</y>
              <width>402</width>
-             <height>236</height>
+             <height>229</height>
             </rect>
            </property>
           </widget>
