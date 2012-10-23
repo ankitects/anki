@@ -387,6 +387,14 @@ class Browser(QMainWindow):
         c(self.tagCut2, SIGNAL("activated()"), self.deleteTags)
         self.tagCut3 = QShortcut(QKeySequence("Ctrl+K"), self)
         c(self.tagCut3, SIGNAL("activated()"), self.onMark)
+        # deletion
+        self.delCut1 = QShortcut(QKeySequence("Delete"), self)
+        self.delCut1.setAutoRepeat(False)
+        c(self.delCut1, SIGNAL("activated()"), self.deleteNotes)
+        if isMac:
+            self.delCut2 = QShortcut(QKeySequence("Backspace"), self)
+            self.delCut2.setAutoRepeat(False)
+            c(self.delCut2, SIGNAL("activated()"), self.deleteNotes)
         # add-on hook
         runHook('browser.setupMenus', self)
         self.mw.maybeHideAccelerators(self)
@@ -419,12 +427,6 @@ class Browser(QMainWindow):
             if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
                 item = self.form.tree.currentItem()
                 self.onTreeClick(item, 0)
-        elif self.mw.app.focusWidget() == self.form.tableView:
-            keys = [Qt.Key_Delete]
-            if isMac:
-                keys.append(Qt.Key_Backspace)
-            if evt.key() in keys:
-                self.deleteNotes()
 
     def setupColumns(self):
         self.columns = [
