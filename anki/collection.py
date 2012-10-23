@@ -172,7 +172,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def cleanup(self):
         "Unsuspend any temporarily suspended cards."
         if self.dty:
-            self.sched.onClose()
+            self.sched.unburyCards()
             self.dty = False
 
     def usn(self):

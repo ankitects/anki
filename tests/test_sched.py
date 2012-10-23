@@ -486,7 +486,7 @@ def test_misc():
     d.sched.buryNote(c.nid)
     d.reset()
     assert not d.sched.getCard()
-    d.sched.onClose()
+    d.sched.unburyCards()
     d.reset()
     assert d.sched.getCard()
 

@@ -125,7 +125,7 @@ order by due""" % self._deckLimit(),
         else:
             return 3
 
-    def onClose(self):
+    def unburyCards(self):
         "Unbury cards when closing."
         self.col.db.execute(
             "update cards set queue = type where queue = -2")
@@ -189,6 +189,7 @@ order by due""" % self._deckLimit(),
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
         self.col.decks.recoverOrphans()
+        self.unburyCards()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
         lims = {}
