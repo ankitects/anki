@@ -6,7 +6,7 @@ from aqt.qt import *
 import anki
 import anki.importing as importing
 from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp, \
-    askUserDialog, askUser
+    askUserDialog, askUser, tooltip
 from anki.errors import *
 from anki.hooks import addHook, remHook
 import aqt.forms, aqt.modelchooser, aqt.deckchooser
@@ -309,7 +309,11 @@ Unable to import from a read-only file."""))
                 msg += unicode(traceback.format_exc(), "ascii", "replace")
                 showText(msg)
         else:
-            showText("\n".join(importer.log))
+            log = "\n".join(importer.log)
+            if "\n" not in log:
+                tooltip(log)
+            else:
+                showText(log)
         finally:
             mw.progress.finish()
         mw.reset()
