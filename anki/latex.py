@@ -64,7 +64,7 @@ def _latexFromHtml(col, latex):
     # entitydefs defines nbsp as \xa0 instead of a standard space, so we
     # replace it first
     latex = latex.replace("&nbsp;", " ")
-    latex = re.sub("<br( /)?>", "\n", latex)
+    latex = re.sub("<br( /)?>|</div>", "\n", latex)
     # replace <div> etc with spaces
     latex = re.sub("<.+?>", " ", latex)
     latex = stripHTML(latex)
@@ -82,7 +82,8 @@ def _buildImg(col, latex, fname, model):
         assert bad not in latex
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
-    texfile = file(namedtmp("tmp.tex"), "w")
+    texpath = namedtmp("tmp.tex")
+    texfile = file(texpath, "w")
     texfile.write(latex)
     texfile.close()
     mdir = col.media.dir()
@@ -92,19 +93,20 @@ def _buildImg(col, latex, fname, model):
         # generate dvi
         os.chdir(tmpdir())
         if call(latexCmd + ["tmp.tex"], stdout=log, stderr=log):
-            return _errMsg("latex")
+            return _errMsg("latex", texpath)
         # and png
         if call(latexDviPngCmd + ["tmp.dvi", "-o", "tmp.png"],
                 stdout=log, stderr=log):
-            return _errMsg("dvipng")
+            return _errMsg("dvipng", texpath)
         # add to media
         shutil.copyfile(png, os.path.join(mdir, fname))
         return
     finally:
         os.chdir(oldcwd)
 
-def _errMsg(type):
+def _errMsg(type, texpath):
     msg = (_("Error executing %s.") % type) + "<br>"
+    msg += (_("Generated file: %s") % texpath) + "<br>"
     try:
         log = open(namedtmp("latex_log.txt", rm=False)).read()
         if not log:
