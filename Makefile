@@ -27,6 +27,6 @@ uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.{xpm,png}
 	rm -rf ${DESTDIR}${PREFIX}/share/applications/anki.desktop
 	rm -rf ${DESTDIR}${PREFIX}/share/man/man1/anki.1
-	xdg-mime uninstall ${DESTDIR}${PREFIX}/share/mime/packages/anki.xml
+	-xdg-mime uninstall ${DESTDIR}${PREFIX}/share/mime/packages/anki.xml
 	@echo
 	@echo "Uninstall complete."
