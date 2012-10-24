@@ -315,6 +315,17 @@ Unable to import from a read-only file."""))
         mw.reset()
 
 def setupApkgImport(mw, importer):
+    meta = None
+    try:
+        z = zipfile.ZipFile(importer.file)
+        meta = json.load(z.open("meta"))
+        if not meta['full']:
+            # add
+            return True
+    except:
+        # no meta attribute on broken file
+        pass
+    # if old file or full collection, we have to prompt user
     diag = askUserDialog(_("""\
 Would you like to add to your collection, or replace it?"""),
             [_("Add"),
