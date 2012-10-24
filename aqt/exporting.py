@@ -4,7 +4,7 @@
 import os
 from aqt.qt import *
 import anki, aqt, aqt.tagedit
-from aqt.utils import getSaveFile, tooltip, showWarning
+from aqt.utils import getSaveFile, tooltip, showWarning, askUser
 from anki.exporting import exporters
 
 class ExportDialog(QDialog):
@@ -32,28 +32,44 @@ class ExportDialog(QDialog):
 
     def exporterChanged(self, idx):
         self.exporter = exporters()[idx][1](self.col)
-        isAnki = hasattr(self.exporter, "includeSched")
-        self.frm.includeSched.setShown(isAnki)
-        self.frm.includeMedia.setShown(isAnki)
-        self.frm.includeTags.setShown(not isAnki)
+        self.isApkg = hasattr(self.exporter, "includeSched")
+        self.frm.includeSched.setShown(self.isApkg)
+        self.frm.includeMedia.setShown(self.isApkg)
+        self.frm.includeTags.setShown(not self.isApkg)
 
     def accept(self):
-        file = getSaveFile(
-            self, _("Export"), "export",
-            self.exporter.key, self.exporter.ext)
+        self.exporter.includeSched = (
+            self.frm.includeSched.isChecked())
+        self.exporter.includeMedia = (
+            self.frm.includeMedia.isChecked())
+        self.exporter.includeTags = (
+            self.frm.includeTags.isChecked())
+        if not self.frm.deck.currentIndex():
+            self.exporter.did = None
+        else:
+            name = self.decks[self.frm.deck.currentIndex()]
+            self.exporter.did = self.col.decks.id(name)
+        if (self.isApkg and self.exporter.includeSched and not
+            self.exporter.did):
+            verbatim = True
+            # it's a verbatim apkg export, so place on desktop instead of
+            # choosing file
+            file = os.path.join(QDesktopServices.storageLocation(
+                QDesktopServices.DesktopLocation), "collection.apkg")
+            if os.path.exists(file):
+                if not askUser(
+                    _("%s already exists on your desktop. Overwrite it?")%
+                    "collection.apkg"):
+                    return
+        else:
+            verbatim = False
+            file = getSaveFile(
+                self, _("Export"), "export",
+                self.exporter.key, self.exporter.ext)
+            if not file:
+                return
         self.hide()
         if file:
-            self.exporter.includeSched = (
-                self.frm.includeSched.isChecked())
-            self.exporter.includeMedia = (
-                self.frm.includeMedia.isChecked())
-            self.exporter.includeTags = (
-                self.frm.includeTags.isChecked())
-            if not self.frm.deck.currentIndex():
-                self.exporter.did = None
-            else:
-                name = self.decks[self.frm.deck.currentIndex()]
-                self.exporter.did = self.col.decks.id(name)
             self.mw.progress.start(immediate=True)
             try:
                 f = open(file, "wb")
@@ -63,8 +79,14 @@ class ExportDialog(QDialog):
             else:
                 os.unlink(file)
                 self.exporter.exportInto(file)
-                tooltip(ngettext("%d card exported.", "%d cards exported.", \
-                                self.exporter.count) % self.exporter.count)
+                if verbatim:
+                    msg = _("A file called collection.apkg was saved on your desktop.")
+                    period = 5000
+                else:
+                    period = 3000
+                    msg = ngettext("%d card exported.", "%d cards exported.", \
+                                self.exporter.count) % self.exporter.count
+                tooltip(msg, period=period)
             finally:
                 self.mw.progress.finish()
         QDialog.accept(self)
