@@ -8,6 +8,7 @@ from anki.utils import intTime, splitFields, joinFields, checksum
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.lang import ngettext
+from anki.hooks import runFilter
 
 #
 # Import a .anki2 file into the current collection. Used for migration from
@@ -42,6 +43,7 @@ class Anki2Importer(Importer):
 
     def _import(self):
         self._decks = {}
+        self._prepareDeckPrefix()
         if self.deckPrefix:
             id = self.dst.decks.id(self.deckPrefix)
             self.dst.decks.select(id)
@@ -53,6 +55,17 @@ class Anki2Importer(Importer):
         self._postImport()
         self.dst.db.execute("vacuum")
         self.dst.db.execute("analyze")
+
+    def _prepareDeckPrefix(self):
+        prefix = None
+        for deck in self.src.decks.all():
+            head = deck['name'].split("::")[0]
+            if not prefix:
+                prefix = head
+            else:
+                if prefix != head:
+                    return
+        self.deckPrefix = runFilter("prepareImportPrefix", prefix)
 
     # Notes
     ######################################################################
@@ -186,7 +199,7 @@ class Anki2Importer(Importer):
             tmpname = "::".join(name.split("::")[1:])
             name = self.deckPrefix
             if tmpname:
-                name += "::" + name
+                name += "::" + tmpname
         # create in local
         newid = self.dst.decks.id(name)
         # pull conf over
