@@ -315,33 +315,10 @@ Unable to import from a read-only file."""))
         mw.reset()
 
 def setupApkgImport(mw, importer):
-    meta = None
-    forceFull = False
-    try:
-        z = zipfile.ZipFile(importer.file)
-        meta = json.load(z.open("meta"))
-        if not meta['full']:
-            # add
-            return True
-        elif meta['full'] == "force":
-            forceFull = True
-    except:
-        # no meta attribute on broken file
-        pass
-    # if old file or full collection, we have to prompt user
-    if not forceFull:
-        diag = askUserDialog(_("""\
-Would you like to add to your collection, or replace it?"""),
-                [_("Add"),
-                 _("Replace"),
-                 _("Cancel")])
-        diag.setIcon(QMessageBox.Question)
-        diag.setDefault(0)
-        ret = diag.run()
-        if ret == _("Add"):
-            return True
-        elif ret == _("Cancel"):
-            return False
+    base = os.path.basename(importer.file).lower()
+    full = (base == "collection.apkg") or re.match("backup-\d+.apkg", base)
+    if not full:
+        return True
     if not askUser(_("""\
 This will delete your existing collection and replace it with the data in \
 the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning):

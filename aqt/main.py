@@ -296,7 +296,6 @@ how to restore from a backup.""")
         z = zipfile.ZipFile(newpath, "w", zipfile.ZIP_DEFLATED)
         z.write(path, "collection.anki2")
         z.writestr("media", "{}")
-        z.writestr("meta", json.dumps(dict(full="force")))
         z.close()
         # remove if over
         if len(backups) + 1 > nbacks:
