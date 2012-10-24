@@ -146,11 +146,11 @@ def test_csv():
     i.run()
     # four problems - too many & too few fields, a missing front, and a
     # duplicate entry
-    assert len(i.log) == 6
+    assert len(i.log) == 5
     assert i.total == 5
     # if we run the import again, it should update instead
     i.run()
-    assert len(i.log) == 6
+    assert len(i.log) == 5
     assert i.total == 5
     # but importing should not clobber tags if they're unmapped
     n = deck.getNote(deck.db.scalar("select id from notes"))

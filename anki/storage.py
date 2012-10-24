@@ -223,38 +223,38 @@ create table if not exists col (
 );
 
 create table if not exists notes (
-    id              integer primary key,
-    guid            text not null,
-    mid             integer not null,
-    mod             integer not null,
-    usn             integer not null,
-    tags            text not null,
-    flds            text not null,
-    sfld            integer not null,
-    csum            integer not null,
-    flags           integer not null,
-    data            text not null
+    id              integer primary key,   /* 0 */
+    guid            text not null,         /* 1 */
+    mid             integer not null,      /* 2 */
+    mod             integer not null,      /* 3 */
+    usn             integer not null,      /* 4 */
+    tags            text not null,         /* 5 */
+    flds            text not null,         /* 6 */
+    sfld            integer not null,      /* 7 */
+    csum            integer not null,      /* 8 */
+    flags           integer not null,      /* 9 */
+    data            text not null          /* 10 */
 );
 
 create table if not exists cards (
-    id              integer primary key,
-    nid             integer not null,
-    did             integer not null,
-    ord             integer not null,
-    mod             integer not null,
-    usn             integer not null,
-    type            integer not null,
-    queue           integer not null,
-    due             integer not null,
-    ivl             integer not null,
-    factor          integer not null,
-    reps            integer not null,
-    lapses          integer not null,
-    left            integer not null,
-    odue            integer not null,
-    odid            integer not null,
-    flags           integer not null,
-    data            text not null
+    id              integer primary key,   /* 0 */
+    nid             integer not null,      /* 1 */
+    did             integer not null,      /* 2 */
+    ord             integer not null,      /* 3 */
+    mod             integer not null,      /* 4 */
+    usn             integer not null,      /* 5 */
+    type            integer not null,      /* 6 */
+    queue           integer not null,      /* 7 */
+    due             integer not null,      /* 8 */
+    ivl             integer not null,      /* 9 */
+    factor          integer not null,      /* 10 */
+    reps            integer not null,      /* 11 */
+    lapses          integer not null,      /* 12 */
+    left            integer not null,      /* 13 */
+    odue            integer not null,      /* 14 */
+    odid            integer not null,      /* 15 */
+    flags           integer not null,      /* 16 */
+    data            text not null          /* 17 */
 );
 
 create table if not exists revlog (
