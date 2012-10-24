@@ -49,6 +49,14 @@ def test_upgrade1_due():
     deck = u.upgrade(dst)
     assert not deck.db.scalar("select 1 from cards where due != 1")
 
+def test_invalid_ords():
+    dst = getUpgradeDeckPath("invalid-ords.anki")
+    u = Upgrader()
+    u.check(dst)
+    deck = u.upgrade(dst)
+    assert deck.db.scalar("select count() from cards where ord = 0") == 1
+    assert deck.db.scalar("select count() from cards where ord = 1") == 1
+
 def test_upgrade2():
     p = "/tmp/alpha-upgrade.anki2"
     if os.path.exists(p):

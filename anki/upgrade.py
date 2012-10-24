@@ -90,9 +90,6 @@ f.id = cards.factId)"""):
         if db.list("""
     select id from fields where factId not in (select id from facts)"""):
             return
-        # fix ordinal numbers
-        db.execute("""update fields set ordinal = (select ordinal from
-fieldModels where id = fieldModelId)""")
         # incorrect types
         if db.list("""
     select id from cards where relativeDelay != (case
@@ -129,11 +126,24 @@ fieldModels where id = fieldModelId)""")
         db.execute("pragma page_size = 4096")
         db.execute("pragma legacy_file_format = 0")
 
-        # previous versions sometimes had cards with incorrect ordinals and
-        # the db check didn't fix that. so we fix it here:
-        db.execute("""
-update cards set ordinal = (select ordinal from cardModels
-where id = cards.cardModelId)""")
+        for mid in db.list("select id from models"):
+            # ensure the ordinals are correct for each cardModel
+            for c, cmid in enumerate(db.list(
+                "select id from cardModels where modelId = ? order by ordinal",
+                mid)):
+                db.execute("update cardModels set ordinal = ? where id = ?",
+                           c, cmid)
+            # and fieldModel
+            for c, fmid in enumerate(db.list(
+                "select id from fieldModels where modelId = ? order by ordinal",
+                mid)):
+                db.execute("update fieldModels set ordinal = ? where id = ?",
+                           c, fmid)
+        # then fix ordinals numbers on cards & fields
+        db.execute("""update cards set ordinal = (select ordinal from
+cardModels where cardModels.id = cardModelId)""")
+        db.execute("""update fields set ordinal = (select ordinal from
+fieldModels where id = fieldModelId)""")
 
         # notes
         ###########
