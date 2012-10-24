@@ -246,6 +246,7 @@ class AnkiPackageExporter(AnkiExporter):
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
         z.write(colfile, "collection.anki2")
+        z.writestr("meta", json.dumps(dict(full=False)))
         # and media
         self.prepareMedia()
         media = {}
@@ -266,6 +267,7 @@ class AnkiPackageExporter(AnkiExporter):
         self.count = self.col.cardCount()
         self.col.close()
         z.write(self.col.path, "collection.anki2")
+        z.writestr("meta", json.dumps(dict(full=True)))
         self.col.reopen()
         # copy all media
         if not self.includeMedia:
