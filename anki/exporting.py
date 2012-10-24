@@ -175,7 +175,7 @@ class AnkiExporter(Exporter):
                 x[1] for x in self.src.decks.children(self.did)]
         dconfs = {}
         for d in self.src.decks.all():
-            if d['id'] == 1:
+            if str(d['id']) == "1":
                 continue
             if dids and d['id'] not in dids:
                 continue

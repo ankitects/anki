@@ -59,6 +59,11 @@ class Anki2Importer(Importer):
     def _prepareDeckPrefix(self):
         prefix = None
         for deck in self.src.decks.all():
+            if str(deck['id']) == "1":
+                # we can ignore the default deck if it's empty
+                if not self.src.db.scalar(
+                    "select 1 from cards where did = ? limit 1", deck['id']):
+                    continue
             head = deck['name'].split("::")[0]
             if not prefix:
                 prefix = head
@@ -262,6 +267,21 @@ class Anki2Importer(Importer):
             # review cards have a due date relative to collection
             if card[7] in (2, 3):
                 card[8] -= aheadBy
+            # if odid true, convert card from filtered to normal
+            if card[15]:
+                # odid
+                card[15] = 0
+                # odue
+                card[8] = card[14]
+                card[14] = 0
+                # queue
+                if card[6] == 1: # type
+                    card[7] = 0
+                else:
+                    card[7] = card[6]
+                # type
+                if card[6] == 1:
+                    card[6] = 0
             cards.append(card)
             # we need to import revlog, rewriting card ids and bumping usn
             for rev in self.src.db.execute(
