@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time
+import time, cgi
 from anki.lang import _
 from anki.utils import fieldChecksum, ids2str, guid64, timestampID, \
     joinFields, intTime, splitFields
@@ -47,6 +47,7 @@ class NoteImporter(Importer):
 
     needMapper = True
     needDelimiter = False
+    allowHTML = False
     importMode = 0
 
     def __init__(self, col, file):
@@ -114,6 +115,9 @@ class NoteImporter(Importer):
         self._cards = []
         self._emptyNotes = False
         for n in notes:
+            if not self.allowHTML:
+                for c in range(len(n.fields)):
+                    n.fields[c] = cgi.escape(n.fields[c])
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
             # first field must exist
@@ -168,7 +172,8 @@ class NoteImporter(Importer):
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated", self.updateCount) % self.updateCount
         self.log.append("%s, %s." % (part1, part2))
-        self.log.append(_("""\
+        if self._emptyNotes:
+            self.log.append(_("""\
 One or more notes were not imported, because they didn't generate any cards. \
 This can happen when you have empty fields or when you have not mapped the \
 content in the text file to the correct fields."""))
