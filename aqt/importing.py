@@ -139,6 +139,7 @@ you can enter it here. Use \\t to represent tab."""),
                 _("The first field of the note type must be mapped."))
             return
         self.importer.importMode = self.frm.importMode.currentIndex()
+        self.importer.allowHTML = self.frm.allowHTML.isChecked()
         did = self.deck.selectedId()
         if did != self.importer.model['did']:
             self.importer.model['did'] = did
@@ -291,6 +292,13 @@ backup, please see the 'Backups' section of the user manual."""))
         if importer.__class__.__name__ == "AnkiPackageImporter":
             if not setupApkgImport(mw, importer):
                 return
+        def prepareImportPrefix(name):
+            mw.progress.finish()
+            new = getOnlyText(_("""\
+Deck to import into (if blank, will import into current deck):"""), default=name)
+            mw.progress.start()
+            return new or mw.col.decks.current()['name']
+        addHook("prepareImportPrefix", prepareImportPrefix)
         mw.progress.start(immediate=True)
         try:
             importer.run()
@@ -316,12 +324,14 @@ Unable to import from a read-only file."""))
                 showText(log)
         finally:
             mw.progress.finish()
+            remHook("prepareImportPrefix", prepareImportPrefix)
         mw.reset()
 
 def setupApkgImport(mw, importer):
     base = os.path.basename(importer.file).lower()
     full = (base == "collection.apkg") or re.match("backup-\d+.apkg", base)
     if not full:
+        # adding
         return True
     if not askUser(_("""\
 This will delete your existing collection and replace it with the data in \

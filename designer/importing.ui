@@ -70,6 +70,13 @@
         </item>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="allowHTML">
+        <property name="text">
+         <string>Allow HTML in fields</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -127,7 +134,7 @@
              <x>0</x>
              <y>0</y>
              <width>402</width>
-             <height>229</height>
+             <height>206</height>
             </rect>
            </property>
           </widget>
