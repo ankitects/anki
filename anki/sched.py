@@ -1128,7 +1128,7 @@ There are more new cards available, but the daily limit has been
 reached. You can increase the limit in the options, but please
 bear in mind that the more new cards you introduce, the higher
 your short-term review workload will become."""))
-        if self.haveCustomStudy:
+        if self.haveCustomStudy and not self.col.decks.current()['dyn']:
             line.append(_("""\
 To study outside of the normal schedule, click the Custom Study button below."""))
         return "<p>".join(line)
