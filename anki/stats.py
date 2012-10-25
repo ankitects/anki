@@ -106,14 +106,13 @@ class CollectionStats(object):
 
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
-        # period-dependent graphs
         self.type = type
         from statsbg import bg
         txt = self.css % bg
+        txt += self.todayStats()
         txt += self.dueGraph()
         txt += self.repsGraph()
         txt += self.ivlGraph()
-        # other graphs & info
         txt += self.hourGraph()
         txt += self.easeGraph()
         txt += self.cardGraph()
@@ -128,6 +127,47 @@ h1 { margin-bottom: 0; margin-top: 1em; }
 body {background-image: url(data:image/png;base64,%s); }
 </style>
 """
+
+    # Today stats
+    ######################################################################
+
+    def todayStats(self):
+        b = self._title(_("Today"))
+        # studied today
+        lim = self._revlogLimit()
+        if lim:
+            lim = " and " + lim
+        cards, thetime, failed, lrn, rev, relrn, filt = self.col.db.first("""
+select count(), sum(time)/1000,
+sum(case when ease = 0 then 1 else 0 end), /* failed */
+sum(case when type = 0 then 1 else 0 end), /* learning */
+sum(case when type = 1 then 1 else 0 end), /* review */
+sum(case when type = 2 then 1 else 0 end), /* relearn */
+sum(case when type = 3 then 1 else 0 end) /* filter */
+from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
+        cards = cards or 0
+        thetime = thetime or 0
+        failed = failed or 0
+        lrn = lrn or 0
+        rev = rev or 0
+        relrn = relrn or 0
+        filt = filt or 0
+        # studied
+        def bold(s):
+            return "<b>"+str(s)+"</b>"
+        msgp1 = ngettext("%d card", "%d cards", cards) % cards
+        b += _("Studied %(a)s in %(b)s today.") % dict(
+            a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1)))
+        # again/pass count
+        b += "<br>" + _("Again count: %s") % bold(failed)
+        if cards:
+            b += " " + _("(%s correct)") % bold(
+                "%0.1f%%" %((1-failed/float(cards))*100))
+        # type breakdown
+        b += "<br>"
+        b += (_("Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s")
+              % dict(a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)))
+        return b
 
     # Due and cumulative due
     ######################################################################
@@ -175,6 +215,11 @@ body {background-image: url(data:image/png;base64,%s); }
         self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
         self._line(i, _("Average"), self._avgDay(
             tot, num, _("reviews")))
+        tomorrow = self.col.db.scalar("""
+select count() from cards where did in %s and queue in (2,3)
+and due = ?""" % self._limit(), self.col.sched.today+1)
+        tomorrow = ngettext("%d card", "%d cards", tomorrow) % tomorrow
+        self._line(i, _("Due tomorrow"), tomorrow)
         return self._lineTbl(i)
 
     def _due(self, start=None, end=None, chunk=1):
