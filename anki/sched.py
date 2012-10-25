@@ -399,6 +399,13 @@ select count() from
         c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
+    def totalNewForCurrentDeck(self):
+        return self.col.db.scalar(
+            """
+select count() from cards where id in (
+select id from cards where did in %s and queue = 0 limit ?)"""
+            % ids2str(self.col.decks.active()), self.reportLimit)
+
     # Learning queues
     ##########################################################################
 
@@ -742,6 +749,13 @@ did = ? and queue = 2 and due <= ? limit ?""",
         if self._fillRev():
             self.revCount -= 1
             return self.col.getCard(self._revQueue.pop())
+
+    def totalRevForCurrentDeck(self):
+        return self.col.db.scalar(
+            """
+select count() from cards where id in (
+select id from cards where did in %s and queue = 2 limit ?)"""
+            % ids2str(self.col.decks.active()), self.reportLimit)
 
     # Answering a review card
     ##########################################################################
