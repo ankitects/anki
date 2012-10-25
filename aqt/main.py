@@ -46,7 +46,7 @@ class AnkiQt(QMainWindow):
             sys.exit(1)
         # were we given a file to import?
         if args and args[0]:
-            self.onAppMsg(args[0])
+            self.onAppMsg(unicode(args[0], "utf8", "ignore"))
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
         self.progress.timer(10, self.setupProfile, False)
@@ -717,12 +717,6 @@ and check the statistics for a home deck instead."""))
         while _("Filtered Deck %d") % n in decks:
             n += 1
         name = _("Filtered Deck %d") % n
-        name = getOnlyText(_("New deck name:"), default=name)
-        if not name:
-            return
-        if name in decks:
-            showWarning(_("The provided name was already in use."))
-            return
         did = self.col.decks.newDyn(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
@@ -1036,7 +1030,7 @@ will be lost. Continue?"""))
             if buf == "raise":
                 return
             self.pendingImport = buf
-            return showInfo(_("Deck will be imported when a profile is opened."))
+            return tooltip(_("Deck will be imported when a profile is opened."))
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":
