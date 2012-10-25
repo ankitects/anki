@@ -57,6 +57,8 @@ class Anki2Importer(Importer):
         self.dst.db.execute("analyze")
 
     def _prepareDeckPrefix(self):
+        if self.deckPrefix:
+            return runFilter("prepareImportPrefix", self.deckPrefix)
         prefix = None
         for deck in self.src.decks.all():
             if str(deck['id']) == "1":
