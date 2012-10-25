@@ -83,27 +83,3 @@ def dynOrderLabels():
         6: _("Order due"),
         7: _("Latest added first"),
         }
-
-def dynExamples():
-    # defaults are resched=True, steps=None, deck=True
-    return [
-        [_("<select preset>"), None],
-        None,
-        [_("Preview all new cards"), dict(
-            search="is:new", resched=False, steps="1", order=5)],
-        [_("Preview cards added today"), dict(
-            search="added:1", resched=False, steps="1", order=5)],
-        None,
-        [_("Review today's forgotten cards"), dict(
-            search="rated:1:1", order=4)],
-        [_("Review ahead by two days"), dict(
-            search="prop:due<=2", order=6)],
-        None,
-        [_("Review due cards with tag"), dict(
-            search="is:due tag:%s" % _("type_tag_here"), order=6)],
-        [_("Review due cards with decreasing intervals"), dict(
-            search="is:due", order=3)],
-        None,
-        [_("Cram all cards"), dict(
-            search="", order=0, steps="1 10 20")],
-    ]
