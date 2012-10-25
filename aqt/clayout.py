@@ -150,8 +150,12 @@ Please create a new card type first."""))
         l.addWidget(help)
         c(help, SIGNAL("clicked()"), self.onHelp)
         l.addStretch()
+        addField = QPushButton(_("Add Field"))
+        addField.setAutoDefault(False)
+        l.addWidget(addField)
+        c(addField, SIGNAL("clicked()"), self.onAddField)
         if self.model['type'] != MODEL_CLOZE:
-            flip = QPushButton(_("Flip Front/Back"))
+            flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
             l.addWidget(flip)
             c(flip, SIGNAL("clicked()"), self.onFlip)
@@ -368,6 +372,33 @@ Enter deck to place new %s cards in, or leave blank:""") %
             t['did'] = None
         else:
             t['did'] = self.col.decks.id(te.text())
+
+    def onAddField(self):
+        obj = self.mw.app.focusWidget()
+        if obj not in (self.tab['tform'].front, self.tab['tform'].back):
+            return showInfo(_("Please click in the front or back template first."))
+        diag = QDialog(self)
+        form = aqt.forms.addfield.Ui_Dialog()
+        form.setupUi(diag)
+        fields = [f['name'] for f in self.model['flds']]
+        form.fields.addItems(fields)
+        form.font.setCurrentFont(QFont("Arial"))
+        form.size.setValue(20)
+        diag.show()
+        form.fields.showPopup()
+        if not diag.exec_():
+            return
+        self._addField(obj,
+                       fields[form.fields.currentIndex()],
+                       form.font.currentFont().family(),
+                       form.size.value())
+
+    def _addField(self, widg, field, font, size):
+        t = widg.toPlainText()
+        t +="\n<div style='font-family: %s; font-size: %s;'>{{%s}}</div>\n" % (
+            font, size, field)
+        widg.setPlainText(t)
+        self.saveCard()
 
     # Closing & Help
     ######################################################################
