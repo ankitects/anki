@@ -8,7 +8,8 @@ from anki.utils import intTime, ids2str, json
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *
-from anki.stdmodels import addBasicModel, addClozeModel
+from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
+    addForwardOptionalReverse
 
 def Collection(path, lock=True, server=False, sync=True):
     "Open a new or existing collection. Path must be unicode."
@@ -38,6 +39,8 @@ def Collection(path, lock=True, server=False, sync=True):
     elif create:
         # add in reverse order so basic is default
         addClozeModel(col)
+        addForwardOptionalReverse(col)
+        addForwardReverse(col)
         addBasicModel(col)
         col.save()
     if lock:
