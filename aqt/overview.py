@@ -55,8 +55,8 @@ class Overview(object):
             self.mw.moveToState("deckBrowser")
         elif url == "review":
             openLink(aqt.appShared+"info/%s?v=%s"%(self.sid, self.sidVer))
-        elif url == "limits":
-            self.onLimits()
+        elif url == "studymore":
+            self.onStudyMore()
         else:
             openLink(url)
 
@@ -65,17 +65,14 @@ class Overview(object):
         key = unicode(evt.text())
         if key == "o":
             self.mw.onDeckConf()
-        if key == "f" and not cram:
-            deck = self.mw.col.decks.current()
-            self.mw.onCram("'deck:%s'" % deck['name'])
         if key == "r" and cram:
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
         if key == "e" and cram:
             self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
             self.mw.reset()
-        if key == "l":
-            self.onLimits()
+        if key == "c" and not cram:
+            self.onStudyMore()
 
     # HTML
     ############################################################
@@ -98,10 +95,14 @@ class Overview(object):
 
     def _desc(self, deck):
         if deck['dyn']:
-            search, limit, order  = deck['terms'][0]
-            desc = "%s<br>%s" % (
-                _("Search: %s") % search,
-                _("Order: %s") % dynOrderLabels()[order].lower())
+            desc = _("""\
+This is a special deck for studying outside of the normal schedule.""")
+            desc += " " + _("""\
+Cards will be automatically returned to their original decks after you review \
+them.""")
+            desc += " " + _("""\
+Deleting this deck from the deck list will return all remaining cards \
+to their original deck.""")
         else:
             desc = deck.get("desc", "")
         if not desc:
@@ -190,11 +191,8 @@ text-align: center;
             links.append(["R", "refresh", _("Rebuild")])
             links.append(["E", "empty", _("Empty")])
         else:
-            if not sum(self.mw.col.sched.counts()):
-                if self.mw.col.sched.newDue() or \
-                   self.mw.col.sched.revDue():
-                    links.append(["L", "limits", _("Study More")])
-            links.append(["F", "cram", _("Filter/Cram")])
+            links.append(["C", "studymore", _("Custom Study")])
+            #links.append(["F", "cram", _("Filter/Cram")])
         buf = ""
         for b in links:
             if b[0]:
@@ -209,22 +207,9 @@ text-align: center;
         self.bottom.web.setFixedHeight(size)
         self.bottom.web.setLinkHandler(self._linkHandler)
 
-    # Today's limits
+    # Studying more
     ######################################################################
 
-    def onLimits(self):
-        d = QDialog(self.mw)
-        frm = aqt.forms.limits.Ui_Dialog()
-        frm.setupUi(d)
-        deck = self.mw.col.decks.current()
-        frm.newToday.setValue(deck.get('extendNew', 10))
-        frm.revToday.setValue(deck.get('extendRev', 50))
-        def accept():
-            n = deck['extendNew'] = frm.newToday.value()
-            r = deck['extendRev'] = frm.revToday.value()
-            self.mw.col.decks.save(deck)
-            self.mw.col.sched.extendLimits(n, r)
-            self.mw.reset()
-        d.connect(frm.buttonBox, SIGNAL("accepted()"), accept)
-        d.exec_()
-
+    def onStudyMore(self):
+        import aqt.customstudy
+        aqt.customstudy.CustomStudy(self.mw)

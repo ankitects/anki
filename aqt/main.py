@@ -745,6 +745,7 @@ and check the statistics for a home deck instead."""))
         self.connect(m.actionDonate, s, self.onDonate)
         self.connect(m.actionFullSync, s, self.onFullSync)
         self.connect(m.actionStudyDeck, s, self.onStudyDeck)
+        self.connect(m.actionCreateFiltered, s, self.onCram)
         self.connect(m.actionEmptyCards, s, self.onEmptyCards)
 
     def updateTitleBar(self):

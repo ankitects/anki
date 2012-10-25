@@ -44,8 +44,6 @@ class DeckBrowser(object):
             self._onShared()
         elif cmd == "import":
             self.mw.onImport()
-        elif cmd == "cram":
-            self.mw.onCram()
         elif cmd == "create":
             deck = getOnlyText(_("New deck name:"))
             if deck:
@@ -58,9 +56,8 @@ class DeckBrowser(object):
             self._collapse(arg)
 
     def _keyHandler(self, evt):
+        # currently does nothing
         key = unicode(evt.text())
-        if key == "f":
-            self.mw.onCram()
 
     def _selDeck(self, did):
         self.mw.col.decks.select(did)
@@ -85,6 +82,7 @@ body { margin: 1em; -webkit-user-select: none; }
 .count { width: 6em; text-align: right; }
 .collapse { color: #000; text-decoration:none; display:inline-block;
     width: 1em; }
+.filtered { color: #00a !important; }
 """ % dict(width=_dragIndicatorBorderWidth)
 
     _body = """
@@ -179,6 +177,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _deckRow(self, node, depth, cnt):
         name, did, due, lrn, new, children = node
+        deck = self.mw.col.decks.get(did)
         if did == 1 and cnt > 1 and not children:
             # if the default deck is empty, hide it
             if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
@@ -204,9 +203,14 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             collapse = "<a class=collapse href='collapse:%d'>%s</a>" % (did, prefix)
         else:
             collapse = "<span class=collapse></span>"
+        if deck['dyn']:
+            extraclass = "filtered"
+        else:
+            extraclass = ""
         buf += """
-<td class=decktd colspan=5>%s%s<a class=deck href='open:%d'>%s</a></td>"""% (
-            indent(), collapse, did, name)
+
+        <td class=decktd colspan=5>%s%s<a class="deck %s" href='open:%d'>%s</a></td>"""% (
+            indent(), collapse, extraclass, did, name)
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
@@ -311,7 +315,6 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             ["", "shared", _("Get Shared")],
             ["", "create", _("Create Deck")],
             ["Ctrl+I", "import", _("Import File")],
-            ["F", "cram", _("Filter/Cram")],
         ]
         buf = ""
         for b in links:

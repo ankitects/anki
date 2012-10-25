@@ -104,6 +104,7 @@
      <addaction name="actionFullSync"/>
     </widget>
     <addaction name="actionStudyDeck"/>
+    <addaction name="actionCreateFiltered"/>
     <addaction name="separator"/>
     <addaction name="menuMaintenance"/>
     <addaction name="separator"/>
@@ -190,7 +191,7 @@
     <string>Browse &amp;&amp; Install...</string>
    </property>
    <property name="statusTip">
-    <string></string>
+    <string/>
    </property>
   </action>
   <action name="actionFullDatabaseCheck">
@@ -246,6 +247,14 @@
   <action name="actionEmptyCards">
    <property name="text">
     <string>Empty Cards...</string>
+   </property>
+  </action>
+  <action name="actionCreateFiltered">
+   <property name="text">
+    <string>Create Filtered Deck...</string>
+   </property>
+   <property name="shortcut">
+    <string>F</string>
    </property>
   </action>
  </widget>
