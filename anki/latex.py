@@ -79,7 +79,11 @@ def _buildImg(col, latex, fname, model):
     # it's only really secure if run in a jail, but these are the most common
     for bad in ("write18", "\\readline", "\\input", "\\include", "\\catcode",
                 "\\openout", "\\write", "\\loop", "\\def", "\\shipout"):
-        assert bad not in latex
+        if bad in latex:
+            return _("""\
+For security reasons, '%s' is not allowed on cards. You can still use \
+it by placing the command in a different package, and importing that \
+package in the LaTeX header instead.""") % bad
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
     texpath = namedtmp("tmp.tex")
