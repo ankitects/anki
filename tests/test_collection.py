@@ -114,10 +114,10 @@ def test_addDelTags():
 
 def test_timestamps():
     deck = getEmptyDeck()
-    assert len(deck.models.models) == 2
+    assert len(deck.models.models) == 4
     for i in range(100):
         addBasicModel(deck)
-    assert len(deck.models.models) == 102
+    assert len(deck.models.models) == 104
 
 def test_furigana():
     deck = getEmptyDeck()

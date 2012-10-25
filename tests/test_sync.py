@@ -67,7 +67,7 @@ def test_sync():
         for d in deck1, deck2:
             for t in ("revlog", "notes", "cards"):
                 assert d.db.scalar("select count() from %s" % t) == num
-            assert len(d.models.all()) == num*2
+            assert len(d.models.all()) == num*4
             # the default deck and config have an id of 1, so always 1
             assert len(d.decks.all()) == 1
             assert len(d.decks.dconf) == 1
