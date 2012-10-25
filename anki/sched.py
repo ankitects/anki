@@ -17,6 +17,8 @@ from anki.hooks import runHook
 
 class Scheduler(object):
     name = "std"
+    haveCustomStudy = True
+
     def __init__(self, col):
         self.col = col
         self.queueLimit = 50
@@ -1126,7 +1128,10 @@ There are more new cards available, but the daily limit has been
 reached. You can increase the limit in the options, but please
 bear in mind that the more new cards you introduce, the higher
 your short-term review workload will become."""))
-        return "<br>".join(line)
+        if self.haveCustomStudy:
+            line.append(_("""\
+To study outside of the normal schedule, click the Custom Study button below."""))
+        return "<p>".join(line)
 
     def revDue(self):
         "True if there are any rev cards due."
