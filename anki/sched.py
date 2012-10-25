@@ -754,8 +754,8 @@ did = ? and queue = 2 and due <= ? limit ?""",
         return self.col.db.scalar(
             """
 select count() from cards where id in (
-select id from cards where did in %s and queue = 2 limit ?)"""
-            % ids2str(self.col.decks.active()), self.reportLimit)
+select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
+            % ids2str(self.col.decks.active()), self.today, self.reportLimit)
 
     # Answering a review card
     ##########################################################################
