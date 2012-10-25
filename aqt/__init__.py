@@ -8,7 +8,7 @@ import anki.lang
 from anki.consts import HELP_SITE as appHelpSite
 from anki.hooks import runHook
 
-appVersion="2.0.0"
+appVersion="2.0.1"
 appWebsite="http://ankisrs.net/"
 appChanges="http://ankisrs.net/docs/changes.html"
 appDonate="http://ankisrs.net/support/"
