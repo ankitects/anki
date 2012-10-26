@@ -319,7 +319,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
         path = os.path.join(dir, fname)
         try:
             return open(path, "rb").read()
-        except IOError, OSError:
+        except (IOError, OSError):
             return
 
     def _srcMediaData(self, fname):
