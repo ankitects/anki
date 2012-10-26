@@ -479,7 +479,12 @@ class Browser(QMainWindow):
         if self.mw.state == "review" and "is:current" in txt:
             # search for current card, but set search to easily display whole
             # deck
-            self.model.search("nid:%d"%self.mw.reviewer.card.nid, reset)
+            if reset:
+                self.model.beginReset()
+                self.model.focusedCard = self.mw.reviewer.card.id
+            self.model.search("nid:%d"%self.mw.reviewer.card.nid, False)
+            if reset:
+                self.model.endReset()
             self.form.searchEdit.lineEdit().setText(prompt)
             self.form.searchEdit.lineEdit().selectAll()
             return
