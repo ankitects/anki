@@ -154,7 +154,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         filt = filt or 0
         # studied
         def bold(s):
-            return "<b>"+str(s)+"</b>"
+            return "<b>"+unicode(s)+"</b>"
         msgp1 = ngettext("%d card", "%d cards", cards) % cards
         b += _("Studied %(a)s in %(b)s today.") % dict(
             a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1)))
