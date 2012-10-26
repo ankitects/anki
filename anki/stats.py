@@ -139,7 +139,7 @@ body {background-image: url(data:image/png;base64,%s); }
             lim = " and " + lim
         cards, thetime, failed, lrn, rev, relrn, filt = self.col.db.first("""
 select count(), sum(time)/1000,
-sum(case when ease = 0 then 1 else 0 end), /* failed */
+sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = 0 then 1 else 0 end), /* learning */
 sum(case when type = 1 then 1 else 0 end), /* review */
 sum(case when type = 2 then 1 else 0 end), /* relearn */
