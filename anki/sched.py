@@ -119,7 +119,7 @@ order by due""" % self._deckLimit(),
             if card.odid and card.queue == 2:
                 return 4
             conf = self._lapseConf(card)
-            if len(conf['delays']) > 1:
+            if card.type == 0 or len(conf['delays']) > 1:
                 return 3
             return 2
         elif card.queue == 2:
