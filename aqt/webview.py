@@ -113,6 +113,7 @@ class AnkiWebView(QWebView):
         else:
             button = "font-weight: normal;"
         self.setHtml("""
+<!doctype html>
 <html><head><style>
 button {
 %s
