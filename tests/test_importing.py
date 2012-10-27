@@ -177,6 +177,8 @@ def test_anki2_diffmodels():
     after = dst.noteCount()
     # as the model schemas differ, should have been imported as new model
     assert after == before + 1
+    # and the new model should have both cards
+    assert dst.cardCount() == 3
 
 def test_csv():
     deck = getEmptyDeck()

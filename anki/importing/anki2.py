@@ -86,6 +86,9 @@ class Anki2Importer(Importer):
             "select id, guid, mod, mid from notes"):
             self._notes[guid] = (id, mod, mid)
             existing[id] = True
+        # we may need to rewrite the guid if the model schemas don't match,
+        # so we need to keep track of the changes for the card import stage
+        self._changedGuids = {}
         # iterate over source collection
         add = []
         dirty = []
@@ -96,11 +99,11 @@ class Anki2Importer(Importer):
             # turn the db result into a mutable list
             note = list(note)
             guid, mid = note[1:3]
-            duplicate = False
-            first = True
+            canUseExisting = False
+            alreadyHaveGuid = False
             # do we have the same guid?
             if guid in self._notes:
-                first = False
+                alreadyHaveGuid = True
                 # and do they share the same model id?
                 if self._notes[guid][2] == mid:
                     # and do they share the same schema?
@@ -108,10 +111,10 @@ class Anki2Importer(Importer):
                     dstM = self.dst.models.get(self._notes[guid][2])
                     if (self.src.models.scmhash(srcM) ==
                         self.src.models.scmhash(dstM)):
-                        # then it's safe to treat as a duplicate
-                        duplicate = True
-            # missing from local col or divergent model?
-            if not duplicate:
+                        # then it's safe to treat as an exact duplicate
+                        canUseExisting = True
+            # if we can't reuse an existing one, we'll need to add new
+            if not canUseExisting:
                 # get corresponding local model
                 lmid = self._mid(mid)
                 # ensure id is unique
@@ -127,8 +130,9 @@ class Anki2Importer(Importer):
                 dirty.append(note[0])
                 # if it was originally the same as a note in this deck but the
                 # models have diverged, we need to change the guid
-                if not first:
+                if alreadyHaveGuid:
                     guid = guid64()
+                    self._changedGuids[note[1]] = guid
                     note[1] = guid
                 # note we have the added note
                 self._notes[guid] = (note[0], note[3], note[2])
@@ -263,6 +267,8 @@ class Anki2Importer(Importer):
             "select f.guid, f.mid, c.* from cards c, notes f "
             "where c.nid = f.id"):
             guid = card[0]
+            if guid in self._changedGuids:
+                guid = self._changedGuids[guid]
             # does the card's note exist in dst col?
             if guid not in self._notes:
                 continue
