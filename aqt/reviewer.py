@@ -311,7 +311,7 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
 hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
 img { max-width: 95%; max-height: 95%; }
-.marked { position:absolute; right: 7; top: 7; display: none; }
+.marked { position:absolute; right: 7px; top: 7px; display: none; }
 #typeans { width: 100%; }
 """
 
