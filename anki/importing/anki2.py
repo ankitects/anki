@@ -97,9 +97,10 @@ class Anki2Importer(Importer):
             note = list(note)
             guid, mid = note[1:3]
             duplicate = False
-            guidChange = False
+            first = True
             # do we have the same guid?
             if guid in self._notes:
+                first = False
                 # and do they share the same model id?
                 if self._notes[guid][2] == mid:
                     # and do they share the same schema?
@@ -109,9 +110,6 @@ class Anki2Importer(Importer):
                         self.src.models.scmhash(dstM)):
                         # then it's safe to treat as a duplicate
                         duplicate = True
-                if not duplicate:
-                    # not identical models, so we need to change guid
-                    guidChange = True
             # missing from local col or divergent model?
             if not duplicate:
                 # get corresponding local model
@@ -129,8 +127,9 @@ class Anki2Importer(Importer):
                 dirty.append(note[0])
                 # if it was originally the same as a note in this deck but the
                 # models have diverged, we need to change the guid
-                if guidChange:
+                if not first:
                     guid = guid64()
+                    note[1] = guid
                 # note we have the added note
                 self._notes[guid] = (note[0], note[3], note[2])
             else:

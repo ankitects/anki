@@ -158,6 +158,26 @@ def test_anki1_diffmodels():
     # as the model schemas differ, should have been imported as new model
     assert after == before + 1
 
+def test_anki2_diffmodels():
+    # create a new empty deck
+    dst = getEmptyDeck()
+    # import the 1 card version of the model
+    tmp = getUpgradeDeckPath("diffmodels2-1.apkg")
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.run()
+    before = dst.noteCount()
+    # repeating the process should do nothing
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.run()
+    assert before == dst.noteCount()
+    # then the 2 card version
+    tmp = getUpgradeDeckPath("diffmodels2-2.apkg")
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.run()
+    after = dst.noteCount()
+    # as the model schemas differ, should have been imported as new model
+    assert after == before + 1
+
 def test_csv():
     deck = getEmptyDeck()
     file = unicode(os.path.join(testDir, "support/text-2fields.txt"))
