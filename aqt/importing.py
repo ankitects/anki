@@ -292,13 +292,6 @@ backup, please see the 'Backups' section of the user manual."""))
         if importer.__class__.__name__ == "AnkiPackageImporter":
             if not setupApkgImport(mw, importer):
                 return
-        def prepareImportPrefix(name):
-            mw.progress.finish()
-            new = getOnlyText(_("""\
-Deck to import into (if blank, will import into current deck):"""), default=name)
-            mw.progress.start()
-            return new or mw.col.decks.current()['name']
-        addHook("prepareImportPrefix", prepareImportPrefix)
         mw.progress.start(immediate=True)
         try:
             importer.run()
@@ -324,7 +317,6 @@ Unable to import from a read-only file."""))
                 showText(log)
         finally:
             mw.progress.finish()
-            remHook("prepareImportPrefix", prepareImportPrefix)
         mw.reset()
 
 def setupApkgImport(mw, importer):
