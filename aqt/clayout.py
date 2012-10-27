@@ -374,9 +374,6 @@ Enter deck to place new %s cards in, or leave blank:""") %
             t['did'] = self.col.decks.id(te.text())
 
     def onAddField(self):
-        obj = self.mw.app.focusWidget()
-        if obj not in (self.tab['tform'].front, self.tab['tform'].back):
-            return showInfo(_("Please click in the front or back template first."))
         diag = QDialog(self)
         form = aqt.forms.addfield.Ui_Dialog()
         form.setupUi(diag)
@@ -388,6 +385,10 @@ Enter deck to place new %s cards in, or leave blank:""") %
         form.fields.showPopup()
         if not diag.exec_():
             return
+        if form.radioQ.isChecked():
+            obj = self.tab['tform'].front
+        else:
+            obj = self.tab['tform'].back
         self._addField(obj,
                        fields[form.fields.currentIndex()],
                        form.font.currentFont().family(),
