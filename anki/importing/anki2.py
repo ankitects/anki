@@ -4,7 +4,7 @@
 
 import os
 from anki import Collection
-from anki.utils import intTime, splitFields, joinFields, checksum
+from anki.utils import intTime, splitFields, joinFields, checksum, guid64
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.lang import ngettext
@@ -96,8 +96,24 @@ class Anki2Importer(Importer):
             # turn the db result into a mutable list
             note = list(note)
             guid, mid = note[1:3]
-            # missing from local col?
-            if guid not in self._notes:
+            duplicate = False
+            guidChange = False
+            # do we have the same guid?
+            if guid in self._notes:
+                # and do they share the same model id?
+                if self._notes[guid][2] == mid:
+                    # and do they share the same schema?
+                    srcM = self.src.models.get(mid)
+                    dstM = self.dst.models.get(self._notes[guid][2])
+                    if (self.src.models.scmhash(srcM) ==
+                        self.src.models.scmhash(dstM)):
+                        # then it's safe to treat as a duplicate
+                        duplicate = True
+                if not duplicate:
+                    # not identical models, so we need to change guid
+                    guidChange = True
+            # missing from local col or divergent model?
+            if not duplicate:
                 # get corresponding local model
                 lmid = self._mid(mid)
                 # ensure id is unique
@@ -111,11 +127,14 @@ class Anki2Importer(Importer):
                 note[6] = self._mungeMedia(mid, note[6])
                 add.append(note)
                 dirty.append(note[0])
+                # if it was originally the same as a note in this deck but the
+                # models have diverged, we need to change the guid
+                if guidChange:
+                    guid = guid64()
                 # note we have the added note
                 self._notes[guid] = (note[0], note[3], note[2])
             else:
                 dupes += 1
-                pass
                 ## update existing note - not yet tested; for post 2.0
                 # newer = note[3] > mod
                 # if self.allowUpdate and self._mid(mid) == mid and newer:
