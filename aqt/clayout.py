@@ -396,7 +396,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
 
     def _addField(self, widg, field, font, size):
         t = widg.toPlainText()
-        t +="\n<div style='font-family: %s; font-size: %s;'>{{%s}}</div>\n" % (
+        t +="\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
             font, size, field)
         widg.setPlainText(t)
         self.saveCard()
