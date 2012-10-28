@@ -129,8 +129,10 @@ order by due""" % self._deckLimit(),
 
     def unburyCards(self):
         "Unbury cards when closing."
+        mod = self.col.db.mod
         self.col.db.execute(
             "update cards set queue = type where queue = -2")
+        self.col.db.mod = mod
 
     # Rev/lrn/time daily stats
     ##########################################################################
