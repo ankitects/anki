@@ -642,6 +642,9 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
             self.remNotes(ids)
         # cards with invalid ordinal
         for m in self.models.all():
+            # ignore clozes
+            if m['type'] != MODEL_STD:
+                continue
             ids = self.db.list("""
 select id from cards where ord not in %s and nid in (
 select id from notes where mid = ?)""" %

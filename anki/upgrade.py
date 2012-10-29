@@ -341,11 +341,8 @@ insert or replace into col select id, cast(created as int), :t,
         mods = {}
         for row in db.all(
             "select id, name from models"):
-            while 1:
-                t = intTime(1000)
-                if t not in times:
-                    times[t] = True
-                    break
+            # use only first 31 bits
+            t = abs(row[0]) >> 32
             m = anki.models.defaultModel.copy()
             m['id'] = t
             m['name'] = row[1]

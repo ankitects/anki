@@ -139,7 +139,7 @@ body {background-image: url(data:image/png;base64,%s); }
             lim = " and " + lim
         cards, thetime, failed, lrn, rev, relrn, filt = self.col.db.first("""
 select count(), sum(time)/1000,
-sum(case when ease = 0 then 1 else 0 end), /* failed */
+sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = 0 then 1 else 0 end), /* learning */
 sum(case when type = 1 then 1 else 0 end), /* review */
 sum(case when type = 2 then 1 else 0 end), /* relearn */
@@ -154,7 +154,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         filt = filt or 0
         # studied
         def bold(s):
-            return "<b>"+str(s)+"</b>"
+            return "<b>"+unicode(s)+"</b>"
         msgp1 = ngettext("%d card", "%d cards", cards) % cards
         b += _("Studied %(a)s in %(b)s today.") % dict(
             a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1)))
@@ -828,7 +828,7 @@ $(function () {
     def _avgDay(self, tot, num, unit):
         vals = []
         try:
-            vals.append(_("%(a)d %(b)s/day") % dict(a=tot/float(num), b=unit))
+            vals.append(_("%(a)0.1f %(b)s/day") % dict(a=tot/float(num), b=unit))
             return ", ".join(vals)
         except ZeroDivisionError:
             return ""

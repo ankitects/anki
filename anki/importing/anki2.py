@@ -4,11 +4,10 @@
 
 import os
 from anki import Collection
-from anki.utils import intTime, splitFields, joinFields, checksum
+from anki.utils import intTime, splitFields, joinFields, checksum, guid64
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.lang import ngettext
-from anki.hooks import runFilter
 
 #
 # Import a .anki2 file into the current collection. Used for migration from
@@ -43,7 +42,6 @@ class Anki2Importer(Importer):
 
     def _import(self):
         self._decks = {}
-        self._prepareDeckPrefix()
         if self.deckPrefix:
             id = self.dst.decks.id(self.deckPrefix)
             self.dst.decks.select(id)
@@ -55,24 +53,6 @@ class Anki2Importer(Importer):
         self._postImport()
         self.dst.db.execute("vacuum")
         self.dst.db.execute("analyze")
-
-    def _prepareDeckPrefix(self):
-        if self.deckPrefix:
-            return runFilter("prepareImportPrefix", self.deckPrefix)
-        prefix = None
-        for deck in self.src.decks.all():
-            if str(deck['id']) == "1":
-                # we can ignore the default deck if it's empty
-                if not self.src.db.scalar(
-                    "select 1 from cards where did = ? limit 1", deck['id']):
-                    continue
-            head = deck['name'].split("::")[0]
-            if not prefix:
-                prefix = head
-            else:
-                if prefix != head:
-                    return
-        self.deckPrefix = runFilter("prepareImportPrefix", prefix)
 
     # Notes
     ######################################################################
@@ -86,6 +66,9 @@ class Anki2Importer(Importer):
             "select id, guid, mod, mid from notes"):
             self._notes[guid] = (id, mod, mid)
             existing[id] = True
+        # we may need to rewrite the guid if the model schemas don't match,
+        # so we need to keep track of the changes for the card import stage
+        self._changedGuids = {}
         # iterate over source collection
         add = []
         dirty = []
@@ -96,8 +79,22 @@ class Anki2Importer(Importer):
             # turn the db result into a mutable list
             note = list(note)
             guid, mid = note[1:3]
-            # missing from local col?
-            if guid not in self._notes:
+            canUseExisting = False
+            alreadyHaveGuid = False
+            # do we have the same guid?
+            if guid in self._notes:
+                alreadyHaveGuid = True
+                # and do they share the same model id?
+                if self._notes[guid][2] == mid:
+                    # and do they share the same schema?
+                    srcM = self.src.models.get(mid)
+                    dstM = self.dst.models.get(self._notes[guid][2])
+                    if (self.src.models.scmhash(srcM) ==
+                        self.src.models.scmhash(dstM)):
+                        # then it's safe to treat as an exact duplicate
+                        canUseExisting = True
+            # if we can't reuse an existing one, we'll need to add new
+            if not canUseExisting:
                 # get corresponding local model
                 lmid = self._mid(mid)
                 # ensure id is unique
@@ -111,11 +108,16 @@ class Anki2Importer(Importer):
                 note[6] = self._mungeMedia(mid, note[6])
                 add.append(note)
                 dirty.append(note[0])
+                # if it was originally the same as a note in this deck but the
+                # models have diverged, we need to change the guid
+                if alreadyHaveGuid:
+                    guid = guid64()
+                    self._changedGuids[note[1]] = guid
+                    note[1] = guid
                 # note we have the added note
                 self._notes[guid] = (note[0], note[3], note[2])
             else:
                 dupes += 1
-                pass
                 ## update existing note - not yet tested; for post 2.0
                 # newer = note[3] > mod
                 # if self.allowUpdate and self._mid(mid) == mid and newer:
@@ -245,6 +247,8 @@ class Anki2Importer(Importer):
             "select f.guid, f.mid, c.* from cards c, notes f "
             "where c.nid = f.id"):
             guid = card[0]
+            if guid in self._changedGuids:
+                guid = self._changedGuids[guid]
             # does the card's note exist in dst col?
             if guid not in self._notes:
                 continue

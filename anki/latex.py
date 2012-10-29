@@ -64,7 +64,7 @@ def _latexFromHtml(col, latex):
     # entitydefs defines nbsp as \xa0 instead of a standard space, so we
     # replace it first
     latex = latex.replace("&nbsp;", " ")
-    latex = re.sub("<br( /)?>|</div>", "\n", latex)
+    latex = re.sub("<br( /)?>|<div>", "\n", latex)
     # replace <div> etc with spaces
     latex = re.sub("<.+?>", " ", latex)
     latex = stripHTML(latex)
