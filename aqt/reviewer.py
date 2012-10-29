@@ -655,7 +655,7 @@ function showAnswer(txt) {
             [_("Bury Note"), "-", self.onBuryNote],
             [_("Suspend Note"), "!", self.onSuspend],
             [_("Delete Note"), "Delete", self.onDelete],
-            [_("Card Options"), "O", self.onOptions],
+            [_("Options"), "O", self.onOptions],
             None,
             [_("Replay Audio"), "R", self.replayAudio],
             [_("Record Own Voice"), "Shift+V", self.onRecordVoice],
