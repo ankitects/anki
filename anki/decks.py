@@ -221,16 +221,18 @@ class DeckManager(object):
         # make sure target node doesn't already exist
         if newName in self.allNames():
             raise DeckRenameError(_("That deck already exists."))
+        # ensure we have parents
+        newName = self._ensureParents(newName)
         # rename children
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
                 grp['name'] = grp['name'].replace(g['name']+ "::",
                                                   newName + "::")
                 self.save(grp)
-        # ensure we have parents
-        newName = self._ensureParents(newName)
-        # adjust name and save
+        # adjust name
         g['name'] = newName
+        # ensure we have parents again, as we may have renamed parent->child
+        newName = self._ensureParents(newName)
         self.save(g)
         # renaming may have altered active did order
         self.maybeAddToActive()
