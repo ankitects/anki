@@ -266,7 +266,9 @@ how to restore from a backup.""")
             self.maybeOptimize()
             self.col.close()
             self.col = None
+            self.progress.start(immediate=True)
             self.backup()
+            self.progress.finish()
 
     # Backup and auto-optimize
     ##########################################################################
