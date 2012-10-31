@@ -205,14 +205,19 @@ order by due""" % self._deckLimit(),
             parts = parts[:-1]
             return "::".join(parts)
         for deck in decks:
+            # if we've already seen the exact same deck name, remove the
+            # invalid duplicate and reload
+            if deck['name'] in lims:
+                self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
+                return self.deckDueList()
             p = parent(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
-                # if parent was missing, add and restart
                 if p not in lims:
-                    deck['name'] = self.col.decks._ensureParents(deck['name'])
-                    self.col.decks.save(deck)
+                    # if parent was missing, this deck is invalid, and we
+                    # need to reload the deck list
+                    self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
                     return self.deckDueList()
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
