@@ -715,6 +715,10 @@ and check the statistics for a home deck instead."""))
     def onCram(self, search=""):
         import aqt.dyndeckconf
         n = 1
+        if not search:
+            deck = self.col.decks.current()
+            if not deck['dyn']:
+                search = 'deck:%s ' % deck['name']
         decks = self.col.decks.allNames()
         while _("Filtered Deck %d") % n in decks:
             n += 1

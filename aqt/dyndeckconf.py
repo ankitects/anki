@@ -13,7 +13,6 @@ class DeckConf(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck or self.mw.col.decks.current()
-        # context-sensitive extras like deck:foo
         self.search = search
         self.form = aqt.forms.dyndconf.Ui_Dialog()
         self.form.setupUi(self)
@@ -31,6 +30,9 @@ class DeckConf(QDialog):
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         self.setupOrder()
         self.loadConf()
+        if search:
+            self.form.search.setText(search)
+        self.form.search.selectAll()
         self.show()
         self.exec_()
 
