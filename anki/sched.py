@@ -209,6 +209,10 @@ order by due""" % self._deckLimit(),
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
+                # if parent was missing, add and restart
+                if p not in lims:
+                    self.col.decks.id(p)
+                    return self.deckDueList()
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
             # learning
