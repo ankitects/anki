@@ -211,7 +211,8 @@ order by due""" % self._deckLimit(),
             if p:
                 # if parent was missing, add and restart
                 if p not in lims:
-                    self.col.decks.id(p)
+                    deck['name'] = self.col.decks._ensureParents(deck['name'])
+                    self.col.decks.save(deck)
                     return self.deckDueList()
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
