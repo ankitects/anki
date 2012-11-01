@@ -157,6 +157,13 @@ def test_anki1_diffmodels():
     after = dst.noteCount()
     # as the model schemas differ, should have been imported as new model
     assert after == before + 1
+    # repeating the process should do nothing
+    beforeModels = len(dst.models.all())
+    imp = Anki1Importer(dst, tmp)
+    imp.run()
+    after = dst.noteCount()
+    assert after == before + 1
+    assert beforeModels == len(dst.models.all())
 
 def test_anki2_diffmodels():
     # create a new empty deck
@@ -178,6 +185,12 @@ def test_anki2_diffmodels():
     # as the model schemas differ, should have been imported as new model
     assert after == before + 1
     # and the new model should have both cards
+    assert dst.cardCount() == 3
+    # repeating the process should do nothing
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.run()
+    after = dst.noteCount()
+    assert after == before + 1
     assert dst.cardCount() == 3
 
 def test_csv():

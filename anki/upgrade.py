@@ -345,6 +345,7 @@ insert or replace into col select id, cast(created as int), :t,
             t = abs(row[0])
             if t > 4294967296:
                 t >>= 32
+            assert t > 0
             m = anki.models.defaultModel.copy()
             m['id'] = t
             m['name'] = row[1]

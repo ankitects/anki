@@ -28,7 +28,7 @@ defaultModel = {
     'latexPost': "\\end{document}",
     'mod': 0,
     'usn': 0,
-    'vers': [],
+    'vers': [], # FIXME: remove when other clients have caught up
     'type': MODEL_STD,
     'css': """\
 .card {
