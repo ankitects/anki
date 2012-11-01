@@ -58,6 +58,12 @@ class Reviewer(object):
     ##########################################################################
 
     def nextCard(self):
+        elapsed = self.mw.col.timeboxReached()
+        if elapsed:
+            part1 = ngettext("%d card studied in", "%d cards studied in", elapsed[1]) % elapsed[1]
+            part2 = ngettext("%s minute.", "%s minutes.", elapsed[0]/60) % (elapsed[0]/60)
+            tooltip("%s %s" % (part1, part2), period=5000)
+            self.mw.col.startTimebox()
         if self.cardQueue:
             # undone/edited cards to show
             c = self.cardQueue.pop()
@@ -80,12 +86,6 @@ class Reviewer(object):
             self._initWeb()
         else:
             self._showQuestion()
-        elapsed = self.mw.col.timeboxReached()
-        if elapsed:
-            part1 = ngettext("%d card studied in", "%d cards studied in", elapsed[1]) % elapsed[1]
-            part2 = ngettext("%s minute.", "%s minutes.", elapsed[0]/60) % (elapsed[0]/60)
-            tooltip("%s %s" % (part1, part2), period=5000)
-            self.mw.col.startTimebox()
 
     # Audio
     ##########################################################################
