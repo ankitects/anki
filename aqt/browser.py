@@ -204,7 +204,14 @@ class DataModel(QAbstractTableModel):
                 t += " %d" % (c.ord+1)
             return t
         elif type == "cardDue":
-            return self.nextDue(c, index)
+            # catch invalid dates
+            try:
+                t = self.nextDue(c, index)
+            except:
+                t = ""
+            if c.queue < 0:
+                t = "(" + t + ")"
+            return t
         elif type == "noteCrt":
             return time.strftime("%Y-%m-%d", time.localtime(c.note().id/1000))
         elif type == "noteMod":
@@ -268,10 +275,10 @@ class DataModel(QAbstractTableModel):
             date = c.due
         elif c.queue == 0 or c.type == 0:
             return str(c.due)
-        elif c.queue in (2,3) or c.type == 2:
+        elif c.queue in (2,3) or (c.type == 2 and c.queue < 0):
             date = time.time() + ((c.due - self.col.sched.today)*86400)
         else:
-            return _("(susp.)")
+            return ""
         return time.strftime("%Y-%m-%d", time.localtime(date))
 
 # Line painter
