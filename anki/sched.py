@@ -601,8 +601,8 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 card.queue = card.type = 0
                 card.due = self.col.nextID("pos")
 
-    def _startingLeft(self, card, relrn=False):
-        if relrn:
+    def _startingLeft(self, card):
+        if card.type == 2:
             conf = self._lapseConf(card)
         else:
             conf = self._lrnConf(card)
@@ -806,7 +806,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             card.odue = card.due
         delay = self._delayForGrade(conf, 0)
         card.due = int(delay + time.time())
-        card.left = self._startingLeft(card, relrn=True)
+        card.left = self._startingLeft(card)
         # queue 1
         if card.due < self.dayCutoff:
             self.lrnCount += card.left/1000
