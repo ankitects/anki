@@ -230,6 +230,9 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     else:
         dirkey = None
     d = QFileDialog(parent)
+    # fix #233 crash
+    if isMac:
+        d.setOptions(QFileDialog.DontUseNativeDialog)
     d.setFileMode(QFileDialog.ExistingFile)
     d.setDirectory(dir)
     d.setWindowTitle(title)
