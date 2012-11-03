@@ -129,8 +129,10 @@ order by due""" % self._deckLimit(),
 
     def unburyCards(self):
         "Unbury cards when closing."
+        mod = self.col.db.mod
         self.col.db.execute(
             "update cards set queue = type where queue = -2")
+        self.col.db.mod = mod
 
     # Rev/lrn/time daily stats
     ##########################################################################
@@ -203,10 +205,20 @@ order by due""" % self._deckLimit(),
             parts = parts[:-1]
             return "::".join(parts)
         for deck in decks:
+            # if we've already seen the exact same deck name, remove the
+            # invalid duplicate and reload
+            if deck['name'] in lims:
+                self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
+                return self.deckDueList()
             p = parent(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
+                if p not in lims:
+                    # if parent was missing, this deck is invalid, and we
+                    # need to reload the deck list
+                    self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
+                    return self.deckDueList()
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
             # learning
@@ -590,7 +602,10 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 card.due = self.col.nextID("pos")
 
     def _startingLeft(self, card):
-        conf = self._lrnConf(card)
+        if card.type == 2:
+            conf = self._lapseConf(card)
+        else:
+            conf = self._lrnConf(card)
         tot = len(conf['delays'])
         tod = self._leftToday(conf['delays'], tot)
         return tot + tod*1000
@@ -647,26 +662,24 @@ did = ? and queue = 3 and due <= ? limit ?""",
             time.sleep(0.01)
             log()
 
-    def removeFailed(self, ids=None, expiredOnly=False):
-        "Remove failed cards from the learning queue."
+    def removeLrn(self, ids=None):
+        "Remove cards from the learning queues."
         if ids:
             extra = " and id in "+ids2str(ids)
         else:
             # benchmarks indicate it's about 10x faster to search all decks
             # with the index than scan the table
             extra = " and did in "+ids2str(self.col.decks.allIds())
-        if expiredOnly:
-            extra += " and odue <= %d" % self.today
-        mod = self.col.db.mod
+        # review cards in relearning
         self.col.db.execute("""
 update cards set
 due = odue, queue = 2, mod = %d, usn = %d, odue = 0
-where queue = 1 and type = 2
+where queue in (1,3) and type = 2
 %s
 """ % (intTime(), self.col.usn(), extra))
-        if expiredOnly:
-            # we don't want to bump the mod time when removing expired
-            self.col.db.mod = mod
+        # new cards in learning
+        self.forgetCards(self.col.db.list(
+            "select id from cards where queue in (1,3) %s" % extra))
 
     def _lrnForDeck(self, did):
         cnt = self.col.db.scalar(
@@ -793,10 +806,9 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             card.odue = card.due
         delay = self._delayForGrade(conf, 0)
         card.due = int(delay + time.time())
+        card.left = self._startingLeft(card)
         # queue 1
         if card.due < self.dayCutoff:
-            card.left = len(conf['delays'])
-            card.left += self._leftToday(conf['delays'], card.left)*1000
             self.lrnCount += card.left/1000
             card.queue = 1
             heappush(self._lrnQueue, (card.due, card.id))
@@ -1202,7 +1214,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
     def suspendCards(self, ids):
         "Suspend cards."
         self.remFromDyn(ids)
-        self.removeFailed(ids)
+        self.removeLrn(ids)
         self.col.db.execute(
             "update cards set queue=-1,mod=?,usn=? where id in "+
             ids2str(ids), intTime(), self.col.usn())

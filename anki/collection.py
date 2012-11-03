@@ -602,10 +602,10 @@ where c.nid == f.id
             "order by id desc limit 1", c.id)
         self.db.execute("delete from revlog where id = ?", last)
         # and finally, update daily counts
-        # fixme: what to do in cramming case?
         n = 1 if c.queue == 3 else c.queue
         type = ("new", "lrn", "rev")[n]
         self.sched._updateStats(c, type, -1)
+        self.sched.reps -= 1
         return c.id
 
     def _markOp(self, name):
@@ -670,6 +670,10 @@ select id from notes where id not in (select distinct nid from cards)""")
         # field cache
         for m in self.models.all():
             self.updateFieldCache(self.models.nids(m))
+        # new cards can't have a due position > 32 bits
+        self.db.execute("""
+update cards set due = 1000000, mod = ?, usn = ? where due > 1000000
+and queue = 0""", intTime(), self.usn())
         # new card position
         self.conf['nextPos'] = self.db.scalar(
             "select max(due)+1 from cards where type = 0") or 0

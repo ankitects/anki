@@ -341,8 +341,11 @@ insert or replace into col select id, cast(created as int), :t,
         mods = {}
         for row in db.all(
             "select id, name from models"):
-            # use only first 31 bits
-            t = abs(row[0]) >> 32
+            # use only first 31 bits if not old anki id
+            t = abs(row[0])
+            if t > 4294967296:
+                t >>= 32
+            assert t > 0
             m = anki.models.defaultModel.copy()
             m['id'] = t
             m['name'] = row[1]

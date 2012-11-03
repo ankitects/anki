@@ -4,21 +4,14 @@
 
 import os
 from anki import Collection
-from anki.utils import intTime, splitFields, joinFields, checksum, guid64
+from anki.utils import intTime, splitFields, joinFields, checksum, guid64, \
+    incGuid
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.lang import ngettext
 
-#
-# Import a .anki2 file into the current collection. Used for migration from
-# 1.x, shared decks, and import from a packaged deck.
-#
-# We can't rely on internal ids, so we:
-# - compare notes by guid
-# - compare models by schema signature
-# - compare cards by note guid + ordinal
-# - compare decks by name
-#
+MID = 2
+GUID = 1
 
 class Anki2Importer(Importer):
 
@@ -56,10 +49,9 @@ class Anki2Importer(Importer):
 
     # Notes
     ######################################################################
-    # - should note new for wizard
 
     def _importNotes(self):
-        # build guid -> (id,mod,mid) hash
+        # build guid -> (id,mod,mid) hash & map of existing note ids
         self._notes = {}
         existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
@@ -78,44 +70,20 @@ class Anki2Importer(Importer):
             "select * from notes"):
             # turn the db result into a mutable list
             note = list(note)
-            guid, mid = note[1:3]
-            canUseExisting = False
-            alreadyHaveGuid = False
-            # do we have the same guid?
-            if guid in self._notes:
-                alreadyHaveGuid = True
-                # and do they share the same model id?
-                if self._notes[guid][2] == mid:
-                    # and do they share the same schema?
-                    srcM = self.src.models.get(mid)
-                    dstM = self.dst.models.get(self._notes[guid][2])
-                    if (self.src.models.scmhash(srcM) ==
-                        self.src.models.scmhash(dstM)):
-                        # then it's safe to treat as an exact duplicate
-                        canUseExisting = True
-            # if we can't reuse an existing one, we'll need to add new
-            if not canUseExisting:
-                # get corresponding local model
-                lmid = self._mid(mid)
+            shouldAdd = self._uniquifyNote(note)
+            if shouldAdd:
                 # ensure id is unique
                 while note[0] in existing:
                     note[0] += 999
                 existing[note[0]] = True
-                # rewrite internal ids, models, etc
-                note[2] = lmid
+                # bump usn
                 note[4] = usn
                 # update media references in case of dupes
-                note[6] = self._mungeMedia(mid, note[6])
+                note[6] = self._mungeMedia(note[MID], note[6])
                 add.append(note)
                 dirty.append(note[0])
-                # if it was originally the same as a note in this deck but the
-                # models have diverged, we need to change the guid
-                if alreadyHaveGuid:
-                    guid = guid64()
-                    self._changedGuids[note[1]] = guid
-                    note[1] = guid
-                # note we have the added note
-                self._notes[guid] = (note[0], note[3], note[2])
+                # note we have the added the guid
+                self._notes[note[GUID]] = (note[0], note[3], note[MID])
             else:
                 dupes += 1
                 ## update existing note - not yet tested; for post 2.0
@@ -136,61 +104,69 @@ class Anki2Importer(Importer):
         self.dst.updateFieldCache(dirty)
         self.dst.tags.registerNotes(dirty)
 
+    # determine if note is a duplicate, and adjust mid and/or guid as required
+    # returns true if note should be added
+    def _uniquifyNote(self, note):
+        origGuid = note[GUID]
+        srcMid = note[MID]
+        dstMid = self._mid(srcMid)
+        # duplicate schemas?
+        if srcMid == dstMid:
+            return origGuid not in self._notes
+        # differing schemas
+        note[MID] = dstMid
+        if origGuid not in self._notes:
+            return True
+        # as the schemas differ and we already have a note with a different
+        # note type, this note needs a new guid
+        while True:
+            note[GUID] = incGuid(note[GUID])
+            self._changedGuids[origGuid] = note[GUID]
+            # if we don't have an existing guid, we can add
+            if note[GUID] not in self._notes:
+                return True
+            # if the existing guid shares the same mid, we can reuse
+            if dstMid == self._notes[note[GUID]][MID]:
+                return False
+
     # Models
     ######################################################################
     # Models in the two decks may share an ID but not a schema, so we need to
     # compare the field & template signature rather than just rely on ID. If
-    # we created a new model on a conflict then multiple imports would end up
-    # with lots of models however, so we store a list of "alternate versions"
-    # of a model in the model, so that importing a model is idempotent.
+    # the schemas don't match, we increment the mid and try again, creating a
+    # new model if necessary.
 
     def _prepareModels(self):
         "Prepare index of schema hashes."
         self._modelMap = {}
 
-    def _mid(self, mid):
+    def _mid(self, srcMid):
         "Return local id for remote MID."
         # already processed this mid?
-        if mid in self._modelMap:
-            return self._modelMap[mid]
-        src = self.src.models.get(mid).copy()
-        # if it doesn't exist, we'll copy it over, preserving id
-        if not self.dst.models.have(mid):
-            self.dst.models.update(src)
-            # if we're importing with a prefix, make the model default to it
-            if self.deckPrefix:
-                src['did'] = self.dst.decks.current()['id']
-                # and give it a unique name if it's not a shared deck
-                if self.deckPrefix != "shared":
-                    src['name'] += " (%s)" % self.deckPrefix
-            # make sure to bump usn
-            self.dst.models.save(src)
-            self._modelMap[mid] = mid
-            return mid
-        # if it does exist, do the schema match?
-        dst = self.dst.models.get(mid)
-        shash = self.src.models.scmhash(src)
-        dhash = self.src.models.scmhash(dst)
-        if shash == dhash:
-            # reuse without modification
-            self._modelMap[mid] = mid
-            return mid
-        # try any alternative versions
-        vers = dst.get("vers")
-        for v in vers:
-            m = self.dst.models.get(v)
-            if self.dst.models.scmhash(m) == shash:
-                # valid alternate found; use that
-                self._modelMap[mid] = m['id']
-                return m['id']
-        # need to add a new alternate version, with new id
-        self.dst.models.add(src)
-        if vers:
-            dst['vers'].append(src['id'])
-        else:
-            dst['vers'] = [src['id']]
-        self.dst.models.save(dst)
-        return src['id']
+        if srcMid in self._modelMap:
+            return self._modelMap[srcMid]
+        mid = srcMid
+        srcModel = self.src.models.get(srcMid)
+        srcScm = self.src.models.scmhash(srcModel)
+        while True:
+            # missing from target col?
+            if not self.dst.models.have(mid):
+                # copy it over
+                model = srcModel.copy()
+                model['id'] = mid
+                self.dst.models.update(model)
+                break
+            # there's an existing model; do the schemas match?
+            dstModel = self.dst.models.get(mid)
+            dstScm = self.dst.models.scmhash(dstModel)
+            if srcScm == dstScm:
+                # they do; we can reuse this mid
+                break
+            # as they don't match, try next id
+            mid += 1
+        # save map and return new mid
+        self._modelMap[srcMid] = mid
+        return mid
 
     # Decks
     ######################################################################

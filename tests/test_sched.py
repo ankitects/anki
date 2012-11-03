@@ -165,7 +165,7 @@ def test_learn():
     c.queue = 1
     c.odue = 321
     c.flush()
-    d.sched.removeFailed()
+    d.sched.removeLrn()
     c.load()
     assert c.queue == 2
     assert c.due == 321
