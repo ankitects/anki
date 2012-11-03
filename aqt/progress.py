@@ -101,6 +101,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations."""
         if immediate:
             self._shown = True
             self._win.show()
+            self.app.processEvents()
         else:
             self._shown = False
         self._counter = min
