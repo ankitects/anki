@@ -127,7 +127,7 @@ class CustomStudy(QDialog):
         # and then set various options
         if i == RADIO_FORGOT:
             dyn['delays'] = [1]
-            dyn['terms'][0] = ['rated:1:%d' % spin, 9999, DYN_RANDOM]
+            dyn['terms'][0] = ['rated:%d:1' % spin, 9999, DYN_RANDOM]
             dyn['resched'] = False
         elif i == RADIO_AHEAD:
             dyn['delays'] = None
