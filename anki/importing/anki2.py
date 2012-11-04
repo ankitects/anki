@@ -283,6 +283,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
     # Media
     ######################################################################
 
+    # note: this func only applies to imports of .anki2. for .apkg files, the
+    # apkg importer does the copying
     def _importStaticMedia(self):
         # Import any '_foo' prefixed media files regardless of whether
         # they're used on notes or not

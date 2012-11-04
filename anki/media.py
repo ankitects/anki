@@ -194,22 +194,6 @@ If the same name exists, compare checksums."""
 
     # Copying on import
     ##########################################################################
-    # FIXME: check if the files are actually identical, and rewrite references
-    # if necessary
-
-    def copyTo(self, rdir):
-        "Copy media to RDIR. Return number of files copied."
-        ldir = self.dir()
-        if not os.path.exists(ldir):
-            return 0
-        cnt = 0
-        for f in os.listdir(ldir):
-            src = os.path.join(ldir, f)
-            dst = os.path.join(rdir, f)
-            if not os.path.exists(dst):
-                shutil.copyfile(src, dst)
-            cnt += 1
-        return cnt
 
     def have(self, fname):
         return os.path.exists(os.path.join(self.dir(), fname))
