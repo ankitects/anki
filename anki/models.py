@@ -125,7 +125,7 @@ class ModelManager(object):
     def byName(self, name):
         "Get model with NAME."
         for m in self.models.values():
-            if m['name'].lower() == name.lower():
+            if m['name'] == name:
                 return m
 
     def new(self, name):
