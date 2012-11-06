@@ -146,7 +146,7 @@ class CustomStudy(QDialog):
             dyn['terms'][0] = ["(is:new or is:due) "+tags, 9999, DYN_RANDOM]
             dyn['resched'] = True
         # add deck limit
-        dyn['terms'][0][0] = "deck:'%s' %s " % (self.deck['name'], dyn['terms'][0][0])
+        dyn['terms'][0][0] = "deck:\"%s\" %s " % (self.deck['name'], dyn['terms'][0][0])
         # generate cards
         if not self.mw.col.sched.rebuildDyn():
             return showWarning(_("No cards matched the criteria you provided."))
