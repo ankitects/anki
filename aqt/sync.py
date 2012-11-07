@@ -145,7 +145,7 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
 A free account is required to keep your collection synchronized. Please \
 <a href="%s">sign up</a> for an account, then \
 enter your details below.""") %
-                   "http://beta.ankiweb.net/account/login")
+                   "https://ankiweb.net/account/login")
         l.setOpenExternalLinks(True)
         l.setWordWrap(True)
         vbox.addWidget(l)
