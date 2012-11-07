@@ -494,13 +494,8 @@ order by ordinal""", mid)):
                             t[k] = t[k].replace(
                                 "{{Reading}}", "{{furigana:Reading}}")
                 # adjust css
-                if t['bg'].lower() == "#ffffff":
-                    # a bit more intuitive default
-                    bg = "white"
-                else:
-                    bg = t['bg']
                 css = ""
-                if t['bg'] != "white":
+                if t['bg'] != "white" and t['bg'].lower() != "#ffffff":
                     css = "background-color: %s;" % t['bg']
                 if t['align']:
                     css += "text-align: %s" % ("left", "right")[t['align']-1]
