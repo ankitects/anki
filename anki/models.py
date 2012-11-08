@@ -454,6 +454,8 @@ select id from notes where mid = ?)""" % " ".join(map),
             s += f['name']
         for t in m['tmpls']:
             s += t['name']
+            s += t['qfmt']
+            s += t['afmt']
         return fieldChecksum(s)
 
     # Required field/text cache
