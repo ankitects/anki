@@ -691,6 +691,9 @@ and queue = 0""", intTime(), self.usn())
         txt = _("Database rebuilt and optimized.")
         ok = not problems
         problems.append(txt)
+        # if any problems were found, force a full sync
+        if problems:
+            self.modSchema()
         self.save()
         return ("\n".join(problems), ok)
 
