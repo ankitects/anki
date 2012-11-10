@@ -445,6 +445,9 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         for (nid, mid, flds) in self._fieldData(snids):
             fields = splitFields(flds)
             model = self.models.get(mid)
+            if not model:
+                # note points to invalid model
+                continue
             r.append((stripHTML(fields[self.models.sortIdx(model)]),
                       fieldChecksum(fields[0]),
                       nid))
