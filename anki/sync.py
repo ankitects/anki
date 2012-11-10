@@ -185,8 +185,17 @@ select count() from notes where id not in (select distinct nid from cards)""")
             assert g['usn'] != -1
         for t, usn in self.col.tags.allItems():
             assert usn != -1
+        found = False
         for m in self.col.models.all():
-            assert m['usn'] != -1
+            if self.col.server:
+                # the web upgrade was mistakenly setting usn
+                if m['usn'] < 0:
+                    m['usn'] = 0
+                    found = True
+            else:
+                assert m['usn'] != -1
+        if found:
+            self.col.models.save()
         self.col.sched.reset()
         # check for missing parent decks
         self.col.sched.deckDueList()
