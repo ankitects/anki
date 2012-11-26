@@ -3,7 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.webview import AnkiWebView
 
 class Toolbar(object):
 
@@ -13,6 +12,14 @@ class Toolbar(object):
         self.web.page().mainFrame().setScrollBarPolicy(
             Qt.Vertical, Qt.ScrollBarAlwaysOff)
         self.web.setLinkHandler(self._linkHandler)
+        self.link_handlers = {
+            "decks": self._deckLinkHandler,
+            "study": self._studyLinkHandler,
+            "add": self._addLinkHandler,
+            "browse": self._browseLinkHandler,
+            "stats": self._studyLinkHandler,
+            "sync": self._syncLinkHandler,
+        }
 
     def draw(self):
         self.web.stdHtml(self._body % (
@@ -52,34 +59,42 @@ class Toolbar(object):
     def _rightIcons(self):
         buf = ""
         for ln, icon, title in self._rightIconsList():
-            buf += '<a class=hitem title="%s" href="%s"><img src="%s"></a>' % (
+            buf += '<a class=hitem title="%s" href="%s"><img width="16px" height="16px" src="%s"></a>' % (
                 title, ln, icon)
         return buf
 
     # Link handling
     ######################################################################
 
-    def _linkHandler(self, l):
+    def _linkHandler(self, link):
         # first set focus back to main window, or we're left with an ugly
         # focus ring around the clicked item
         self.mw.web.setFocus()
-        if l  == "decks":
-            self.mw.moveToState("deckBrowser")
-        elif l == "study":
-            # if overview already shown, switch to review
-            if self.mw.state == "overview":
-                self.mw.col.startTimebox()
-                self.mw.moveToState("review")
-            else:
-                self.mw.onOverview()
-        elif l == "add":
-            self.mw.onAddCard()
-        elif l == "browse":
-            self.mw.onBrowse()
-        elif l == "stats":
-            self.mw.onStats()
-        elif l == "sync":
-            self.mw.onSync()
+        if link in self.link_handlers:
+          self.link_handlers[link]()
+
+    def _deckLinkHandler(self):
+      self.mw.moveToState("deckBrowser")
+
+    def _studyLinkHandler(self):
+      # if overview already shown, switch to review
+      if self.mw.state == "overview":
+          self.mw.col.startTimebox()
+          self.mw.moveToState("review")
+      else:
+          self.mw.onOverview()
+
+    def _addLinkHandler(self):
+      self.mw.onAddCard()
+
+    def _browseLinkHandler(self):
+      self.mw.onBrowse()
+
+    def _statsLinkHandler(self):
+      self.mw.onStats()
+
+    def _syncLinkHandler(self):
+      self.mw.onSync()
 
     # HTML & CSS
     ######################################################################
