@@ -382,7 +382,14 @@ Enter deck to place new %s cards in, or leave blank:""") %
         form.font.setCurrentFont(QFont("Arial"))
         form.size.setValue(20)
         diag.show()
-        form.fields.showPopup()
+        # Work around a Qt bug,
+        # https://bugreports.qt-project.org/browse/QTBUG-1894
+        if isMac or isWin:
+            # No problems on Macs or Windows.
+            form.fields.showPopup()
+        else:
+            # Delay showing the pop-up.
+            self.mw.progress.timer(200, form.fields.showPopup, False)
         if not diag.exec_():
             return
         if form.radioQ.isChecked():
