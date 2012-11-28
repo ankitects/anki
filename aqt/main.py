@@ -26,6 +26,9 @@ class AnkiQt(QMainWindow):
         self.state = "startup"
         aqt.mw = self
         self.app = app
+        if isWin:
+            self._xpstyle = QStyleFactory.create("WindowsXP")
+            self.app.setStyle(self._xpstyle)
         self.pm = profileManager
         # running 2.0 for the first time?
         if self.pm.meta['firstRun']:
