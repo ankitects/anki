@@ -140,7 +140,7 @@ class CustomStudy(QDialog):
         elif i == RADIO_PREVIEW:
             dyn['delays'] = None
             dyn['terms'][0] = ['is:new added:%s'%spin, 9999, DYN_OLDEST]
-            dyn['resched'] = True
+            dyn['resched'] = False
         elif i == RADIO_TAGS:
             dyn['delays'] = None
             dyn['terms'][0] = ["(is:new or is:due) "+tags, 9999, DYN_RANDOM]
