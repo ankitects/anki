@@ -154,6 +154,8 @@ class Anki2Importer(Importer):
                 # copy it over
                 model = srcModel.copy()
                 model['id'] = mid
+                model['mod'] = intTime()
+                model['usn'] = self.col.usn()
                 self.dst.models.update(model)
                 break
             # there's an existing model; do the schemas match?
