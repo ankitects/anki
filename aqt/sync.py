@@ -297,7 +297,6 @@ class SyncThread(QThread):
         if ret == "fullSync":
             return self._fullSync()
         # save and note success state
-        self.col.save()
         if ret == "noChanges":
             self.fireEvent("noChanges")
         else:
