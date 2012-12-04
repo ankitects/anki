@@ -29,3 +29,8 @@ if os.environ.get("DEBUG"):
         from pdb import pm
         pm()
     sys.excepthook = info
+
+qtconf = pyqtconfig.Configuration()
+qtmajor = (qtconf.qt_version & 0xff0000) >> 16
+qtminor = (qtconf.qt_version & 0x00ff00) >> 8
+

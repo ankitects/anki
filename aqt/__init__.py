@@ -201,6 +201,12 @@ No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""")
         return
 
+    # qt version must be up to date
+    if qtmajor <= 4 and qtminor <= 6:
+        QMessageBox.critical(
+            None, "Error", "Anki requires Qt4.7 or later.")
+        return
+
     # parse args
     opts, args = parseArgs(sys.argv)
     opts.base = unicode(opts.base or "", sys.getfilesystemencoding())
