@@ -668,6 +668,15 @@ select id from notes where id not in (select distinct nid from cards)""")
                 ngettext("Deleted %d note with no cards.",
                          "Deleted %d notes with no cards.", cnt) % cnt)
             self._remNotes(ids)
+        # cards with missing notes
+        ids = self.db.list("""
+select id from cards where nid not in (select id from notes)""")
+        if ids:
+            cnt = len(ids)
+            problems.append(
+                ngettext("Deleted %d card with missing note.",
+                         "Deleted %d cards with missing note.", cnt) % cnt)
+            self.remCards(ids)
         # tags
         self.tags.registerNotes()
         # field cache
