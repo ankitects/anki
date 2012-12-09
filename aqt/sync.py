@@ -111,7 +111,7 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
             return _("""\
 Couldn't connect to AnkiWeb. Please check your network connection \
 and try again.""")
-        elif "timed out" in err:
+        elif "timed out" in err or "10060" in err:
             return _("""\
 The connection to AnkiWeb timed out. Please check your network \
 connection and try again.""")
@@ -129,7 +129,7 @@ Please upgrade to the latest version of Anki.""")
 AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "409" in err:
             return _("A previous sync failed; please try again in a few minutes.")
-        elif "10060" in err:
+        elif "10061" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
         elif "407" in err:
