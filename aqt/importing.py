@@ -321,7 +321,7 @@ Unable to import from a read-only file."""))
 
 def setupApkgImport(mw, importer):
     base = os.path.basename(importer.file).lower()
-    full = (base == "collection.apkg") or re.match("backup-\d+.apkg", base)
+    full = (base == "collection.apkg") or re.match("backup-.*\\.apkg", base)
     if not full:
         # adding
         return True
