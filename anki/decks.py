@@ -227,7 +227,7 @@ class DeckManager(object):
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
                 grp['name'] = grp['name'].replace(g['name']+ "::",
-                                                  newName + "::")
+                                                  newName + "::", 1)
                 self.save(grp)
         # adjust name
         g['name'] = newName
