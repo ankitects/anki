@@ -24,7 +24,7 @@ class AnkiPackageImporter(Anki2Importer):
         Anki2Importer.run(self)
         # import static media
         for file, c in self.nameToNum.items():
-            if not file.startswith("_"):
+            if not file.startswith("_") and not file.startswith("latex-"):
                 continue
             path = os.path.join(self.col.media.dir(), file)
             if not os.path.exists(path):
