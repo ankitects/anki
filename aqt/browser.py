@@ -945,7 +945,7 @@ where id in %s""" % ids2str(sf))
             self.model.focusedCard = self.model.cards[new]
         self.model.endReset()
         self.mw.requireReset()
-        tooltip(_("Notes deleted."))
+        tooltip(_("%s deleted.") % (ngettext("%d note", "%d notes", len(nids)) % len(nids)))
 
     # Deck change
     ######################################################################
