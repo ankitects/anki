@@ -261,6 +261,7 @@ class DataModel(QAbstractTableModel):
     def formatQA(self, txt):
         s = txt.replace("<br>", u" ")
         s = s.replace("<br />", u" ")
+        s = s.replace("<div>", u" ")
         s = s.replace("\n", u" ")
         s = re.sub("\[sound:[^]]+\]", "", s)
         s = re.sub("\[\[type:[^]]+\]\]", "", s)
