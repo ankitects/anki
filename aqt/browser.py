@@ -745,6 +745,8 @@ by clicking on one on the left."""))
 
     def _userTagTree(self, root):
         for t in sorted(self.col.tags.all()):
+            if t.lower() == "marked":
+                continue
             item = self.CallbackItem(
                 t, lambda t=t: self.setFilter("tag", t))
             item.setIcon(0, QIcon(":/icons/anki-tag.png"))
