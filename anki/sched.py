@@ -50,8 +50,8 @@ class Scheduler(object):
         assert ease >= 1 and ease <= 4
         self.col.markReview(card)
         card.reps += 1
-        wasNew = card.queue == 0
-        if wasNew:
+        card.wasNew = card.queue == 0
+        if card.wasNew:
             # came from the new queue, move to learning
             card.queue = 1
             # if it was a new card, it's now a learning card
@@ -68,7 +68,7 @@ class Scheduler(object):
             self._updateStats(card, 'new')
         if card.queue in (1, 3):
             self._answerLrnCard(card, ease)
-            if not wasNew:
+            if not card.wasNew:
                 self._updateStats(card, 'lrn')
         elif card.queue == 2:
             self._answerRevCard(card, ease)
@@ -500,7 +500,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
     def _answerLrnCard(self, card, ease):
         # ease 1=no, 2=yes, 3=remove
         conf = self._lrnConf(card)
-        if card.odid:
+        if card.odid and not card.wasNew:
             type = 3
         elif card.type == 2:
             type = 2
