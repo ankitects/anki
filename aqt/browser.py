@@ -689,7 +689,7 @@ by clicking on one on the left."""))
         self._decksTree(root)
         self._modelTree(root)
         self._userTagTree(root)
-        self.form.tree.expandToDepth(5)
+        self.form.tree.expandAll()
         self.form.tree.setItemsExpandable(False)
         self.form.tree.setIndentation(15)
 
