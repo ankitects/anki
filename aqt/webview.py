@@ -75,7 +75,7 @@ class AnkiWebView(QWebView):
             if self._keyHandler(evt):
                 evt.accept()
                 return
-        QWebView.keyPressEvent(self, evt)
+        QWebView.keyReleaseEvent(self, evt)
 
     def contextMenuEvent(self, evt):
         # lazy: only run in reviewer
