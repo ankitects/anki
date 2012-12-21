@@ -1,0 +1,34 @@
+Please see the README file for basic requirements.
+
+You also need to have the python-pyqt development packages installed
+(specifically, you need the binary pyuic4).
+
+To use the development version:
+
+$ git clone https://github.com/dae/anki.git
+$ cd anki
+$ ./tools/build_ui.sh
+
+Make sure you rebuild the UI every time you update the sources.
+
+The translations are stored in a bazaar repo for integration with Launchpad's
+translation services. If you want to use a language other than English:
+
+$ cd ..
+$ mv anki dtop # i18n code expects anki folder to be called dtop
+$ bzr clone lp:anki i18n
+$ cd i18n
+$ ./update-mos.sh
+$ cd ../dtop
+
+And now you're ready to run Anki:
+$ ./anki
+
+Windows users may find the following document useful: 
+http://ankisrs.net/docs/WindowsDevEnvironment.html
+
+Before contributing code, please read the LICENSE file.
+
+If you'd like to contribute translations, please see the translations section
+of http://ankisrs.net/docs/manual.html#_contributing
+

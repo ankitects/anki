@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+ <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+
+   <mime-type type="application/x-anki">  
+   <comment>Anki 1.2 deck</comment>
+   <glob pattern="*.anki"/>
+   </mime-type>
+
+   <mime-type type="application/x-apkg">  
+   <comment>Anki 2.0 deck</comment>
+   <glob pattern="*.apkg"/>
+   </mime-type>
+
+ </mime-info>

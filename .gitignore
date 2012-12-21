@@ -1,0 +1,8 @@
+*.pyc
+*~
+*.mo
+*\#
+.*.swp
+samples
+unihan.db
+.coverage
