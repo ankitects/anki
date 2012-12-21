@@ -3,8 +3,7 @@
 *.mo
 *\#
 .*.swp
-samples
-unihan.db
 .coverage
 aqt/forms
 locale
+.idea

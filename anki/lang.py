@@ -73,11 +73,13 @@ def langDir():
         os.path.abspath(__file__)), "locale")
     if not os.path.exists(dir):
         dir = os.path.join(os.path.dirname(sys.argv[0]), "locale")
+    if not os.path.exists(dir):
+        dir = "/usr/share/anki/locale"
     return dir
 
 def setLang(lang, local=True):
     trans = gettext.translation(
-        'libanki', langDir(), languages=[lang], fallback=True)
+        'anki', langDir(), languages=[lang], fallback=True)
     if local:
         threadLocal.currentLang = lang
         threadLocal.currentTranslation = trans

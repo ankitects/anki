@@ -5,8 +5,8 @@ import os, sys, optparse, atexit, tempfile, __builtin__
 from aqt.qt import *
 import locale, gettext
 import anki.lang
-from anki.consts import HELP_SITE as appHelpSite
-from anki.hooks import runHook
+from anki.consts import HELP_SITE
+from anki.lang import langDir
 
 appVersion="2.0.3"
 appWebsite="http://ankisrs.net/"
@@ -14,6 +14,7 @@ appChanges="http://ankisrs.net/docs/changes.html"
 appDonate="http://ankisrs.net/support/"
 appShared="https://ankiweb.net/shared/"
 appUpdate="https://ankiweb.net/update/desktop"
+appHelpSite=HELP_SITE
 mw = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -71,12 +72,6 @@ dialogs = DialogManager()
 _gtrans = None
 _qtrans = None
 
-def langDir():
-    dir = os.path.join(moduleDir,  "aqt", "locale")
-    if not os.path.exists(dir):
-        dir = os.path.join(os.path.dirname(sys.argv[0]), "locale")
-    return dir
-
 def setupLang(pm, app, force=None):
     global _gtrans, _qtrans
     try:
@@ -87,7 +82,7 @@ def setupLang(pm, app, force=None):
     dir = langDir()
     # gettext
     _gtrans = gettext.translation(
-        'ankiqt', dir, languages=[lang], fallback=True)
+        'anki', dir, languages=[lang], fallback=True)
     __builtin__.__dict__['_'] = _gtrans.ugettext
     __builtin__.__dict__['ngettext'] = _gtrans.ungettext
     anki.lang.setLang(lang, local=False)
