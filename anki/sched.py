@@ -50,8 +50,10 @@ class Scheduler(object):
         assert ease >= 1 and ease <= 4
         self.col.markReview(card)
         card.reps += 1
-        card.wasNew = card.queue == 0
-        if card.wasNew:
+        # former is for logging new cards, latter also covers filt. decks
+        card.wasNew = card.type == 0
+        wasNewQ = card.queue == 0
+        if wasNewQ:
             # came from the new queue, move to learning
             card.queue = 1
             # if it was a new card, it's now a learning card
@@ -68,7 +70,7 @@ class Scheduler(object):
             self._updateStats(card, 'new')
         if card.queue in (1, 3):
             self._answerLrnCard(card, ease)
-            if not card.wasNew:
+            if not wasNewQ:
                 self._updateStats(card, 'lrn')
         elif card.queue == 2:
             self._answerRevCard(card, ease)
