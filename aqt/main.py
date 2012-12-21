@@ -695,6 +695,10 @@ and check the statistics for a home deck instead."""))
         import aqt.preferences
         aqt.preferences.Preferences(self)
 
+    def onNoteTypes(self):
+        import aqt.models
+        aqt.models.Models(self, self, fromMain=True)
+
     def onAbout(self):
         import aqt.about
         aqt.about.show(self)
@@ -760,6 +764,7 @@ and check the statistics for a home deck instead."""))
         self.connect(m.actionStudyDeck, s, self.onStudyDeck)
         self.connect(m.actionCreateFiltered, s, self.onCram)
         self.connect(m.actionEmptyCards, s, self.onEmptyCards)
+        self.connect(m.actionNoteTypes, s, self.onNoteTypes)
 
     def updateTitleBar(self):
         self.setWindowTitle("Anki")

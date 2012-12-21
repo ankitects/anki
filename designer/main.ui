@@ -110,6 +110,7 @@
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>
     <addaction name="separator"/>
+    <addaction name="actionNoteTypes"/>
     <addaction name="actionPreferences"/>
    </widget>
    <addaction name="menuCol"/>
@@ -255,6 +256,11 @@
    </property>
    <property name="shortcut">
     <string>F</string>
+   </property>
+  </action>
+  <action name="actionNoteTypes">
+   <property name="text">
+    <string>Note Types...</string>
    </property>
   </action>
  </widget>

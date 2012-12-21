@@ -9,9 +9,10 @@ from anki import stdmodels
 from aqt.utils import saveGeom, restoreGeom
 
 class Models(QDialog):
-    def __init__(self, mw, parent=None):
+    def __init__(self, mw, parent=None, fromMain=False):
         self.mw = mw
         self.parent = parent or mw
+        self.fromMain = fromMain
         QDialog.__init__(self, self.parent, Qt.Window)
         self.col = mw.col
         self.mm = self.col.models
@@ -38,6 +39,11 @@ class Models(QDialog):
         c(b, s, self.onRename)
         b = box.addButton(_("Delete"), t)
         c(b, s, self.onDelete)
+        if self.fromMain:
+            b = box.addButton(_("Fields..."), t)
+            c(b, s, self.onFields)
+            b = box.addButton(_("Cards..."), t)
+            c(b, s, self.onCards)
         b = box.addButton(_("Options..."), t)
         c(b, s, self.onAdvanced)
         c(f.modelsList, SIGNAL("currentRowChanged(int)"), self.modelChanged)
@@ -114,6 +120,25 @@ class Models(QDialog):
 
     def saveModel(self):
         self.mm.save(self.model)
+
+    def _tmpNote(self):
+        self.mm.setCurrent(self.model)
+        n = self.col.newNote()
+        for name in n.keys():
+            n[name] = "("+name+")"
+        if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
+            n['Text'] = _("This is a {{c1::sample}} cloze deletion.")
+        return n
+
+    def onFields(self):
+        from aqt.fields import FieldDialog
+        n = self._tmpNote()
+        FieldDialog(self.mw, n, parent=self)
+
+    def onCards(self):
+        from aqt.clayout import CardLayout
+        n = self._tmpNote()
+        CardLayout(self.mw, n, ord=0, parent=self, addMode=True)
 
     # Cleanup
     ##########################################################################
