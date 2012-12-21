@@ -33,9 +33,11 @@ class ExportDialog(QDialog):
     def exporterChanged(self, idx):
         self.exporter = exporters()[idx][1](self.col)
         self.isApkg = hasattr(self.exporter, "includeSched")
+        self.hideTags = hasattr(self.exporter, "hideTags")
         self.frm.includeSched.setShown(self.isApkg)
         self.frm.includeMedia.setShown(self.isApkg)
-        self.frm.includeTags.setShown(not self.isApkg)
+        self.frm.includeTags.setShown(
+            not self.isApkg and not self.hideTags)
 
     def accept(self):
         self.exporter.includeSched = (

@@ -22,9 +22,10 @@ class Exporter(object):
         file.close()
 
     def escapeText(self, text):
-        "Escape newlines and tabs, and strip Anki HTML."
+        "Escape newlines, tabs and CSS."
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
+        text = re.sub("(?i)<style>.*?</style>", "", text)
         return text
 
     def cardIds(self):
@@ -39,37 +40,27 @@ class Exporter(object):
 ######################################################################
 
 class TextCardExporter(Exporter):
-    pass
 
-#     key = _("Text files (*.txt)")
-#     ext = ".txt"
+    key = _("Cards in Plain Text")
+    ext = ".txt"
+    hideTags = True
 
-#     def __init__(self, col):
-#         Exporter.__init__(self, col)
+    def __init__(self, col):
+        Exporter.__init__(self, col)
 
-#     def doExport(self, file):
-#         ids = self.cardIds()
-#         strids = ids2str(ids)
-#         cards = self.col.db.all("""
-# select cards.question, cards.answer, cards.id from cards
-# where cards.id in %s
-# order by cards.created""" % strids)
-#         self.cardTags = dict(self.col.db.all("""
-# select cards.id, notes.tags from cards, notes
-# where cards.noteId = notes.id
-# and cards.id in %s
-# order by cards.created""" % strids))
-#         out = u"\n".join(["%s\t%s%s" % (
-#             self.escapeText(c[0], removeFields=True),
-#             self.escapeText(c[1], removeFields=True),
-#             self.tags(c[2]))
-#                           for c in cards])
-#         if out:
-#             out += "\n"
-#         file.write(out.encode("utf-8"))
-
-#     def tags(self, id):
-#         return "\t" + ", ".join(parseTags(self.cardTags[id]))
+    def doExport(self, file):
+        ids = sorted(self.cardIds())
+        strids = ids2str(ids)
+        def esc(s):
+            # strip off the repeated question in answer if exists
+            s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
+            return self.escapeText(s)
+        out = ""
+        for cid in ids:
+            c = self.col.getCard(cid)
+            out += esc(c.q())
+            out += "\t" + esc(c.a()) + "\n"
+        file.write(out.encode("utf-8"))
 
 # Notes as TSV
 ######################################################################
@@ -294,6 +285,7 @@ def exporters():
     exps = [
         id(AnkiPackageExporter),
         id(TextNoteExporter),
+        id(TextCardExporter),
     ]
     runHook("exportersList", exps)
     return exps
