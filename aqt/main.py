@@ -623,10 +623,13 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
     ##########################################################################
 
     def onUndo(self):
+        n = self.col.undoName()
         cid = self.col.undo()
         if cid and self.state == "review":
             card = self.col.getCard(cid)
             self.reviewer.cardQueue.append(card)
+        else:
+            tooltip(_("Reverted to state prior to '%s'.") % n.lower())
         self.reset()
         self.maybeEnableUndo()
 
