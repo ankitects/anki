@@ -1,4 +1,3 @@
-set PYTHONPATH=../lib
 cd /d %~dp0
-python anki
+python runanki
 rem pause
