@@ -1,9 +1,16 @@
 #!/bin/bash
+#
+# Usage:
+# tools/tests.sh  # run all tests
+# tools/tests.sh decks # test only test_decks.py
+# coverage=1 tools/tests.sh # run with coverage test
 
-if [ -d 'locale' ]; then
-    dir=..
+dir=.
+
+if [ x$1 = x ]; then
+    lim="tests"
 else
-    dir=.
+    lim="tests.test_$1"
 fi
 
 if [ x$coverage != x ]; then
@@ -12,4 +19,5 @@ else
     args=""
     echo "Call with coverage=1 to run coverage tests"
 fi
-(cd $dir && nosetests -vs $args --cover-package=anki $@)
+(cd $dir && nosetests -vs $lim $args --cover-package=anki)
+
