@@ -6,12 +6,11 @@ all:
 	@echo "Uninstall with 'sudo make uninstall'"
 
 install:
-	@test ! -d .git || (echo "Install from git is not supported. Please use a tarball."; false)
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
 	mkdir -p ${DESTDIR}${PREFIX}/share/anki
 	cp -av * ${DESTDIR}${PREFIX}/share/anki/
 	cd ${DESTDIR}${PREFIX}/share/anki && (\
-	mv runanki ${DESTDIR}${PREFIX}/local/bin/;\
+	mv runanki ${DESTDIR}${PREFIX}/local/bin/anki;\
 	mv anki.xpm anki.png ${DESTDIR}${PREFIX}/share/pixmaps/;\
 	mv anki.desktop ${DESTDIR}${PREFIX}/share/applications;\
 	mv anki.1 ${DESTDIR}${PREFIX}/share/man/man1/)
