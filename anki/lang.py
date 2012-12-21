@@ -71,9 +71,9 @@ def ngettext(single, plural, n):
 def langDir():
     dir = os.path.join(os.path.dirname(
         os.path.abspath(__file__)), "locale")
-    if not os.path.exists(dir):
+    if not os.path.isdir(dir):
         dir = os.path.join(os.path.dirname(sys.argv[0]), "locale")
-    if not os.path.exists(dir):
+    if not os.path.isdir(dir):
         dir = "/usr/share/anki/locale"
     return dir
 
