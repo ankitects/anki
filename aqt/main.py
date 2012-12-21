@@ -261,6 +261,7 @@ how to restore from a backup.""")
             return self.unloadProfile()
         self.hideSchemaMsg = False
         self.progress.setupDB(self.col.db)
+        self.maybeEnableUndo()
         self.moveToState("deckBrowser")
 
     def unloadCollection(self):
