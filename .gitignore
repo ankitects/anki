@@ -6,3 +6,5 @@
 samples
 unihan.db
 .coverage
+aqt/forms
+locale
