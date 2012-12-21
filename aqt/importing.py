@@ -325,6 +325,7 @@ def setupApkgImport(mw, importer):
     if not full:
         # adding
         return True
+    backup = re.match("backup-.*\\.apkg", base)
     if not askUser(_("""\
 This will delete your existing collection and replace it with the data in \
 the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning):
@@ -333,9 +334,9 @@ the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning):
     # called as part of the startup routine
     mw.progress.start(immediate=True)
     mw.progress.timer(
-        100, lambda mw=mw, f=importer.file: replaceWithApkg(mw, f), False)
+        100, lambda mw=mw, f=importer.file: replaceWithApkg(mw, f, backup), False)
 
-def replaceWithApkg(mw, file):
+def replaceWithApkg(mw, file, backup):
     # unload collection, which will also trigger a backup
     mw.unloadCollection()
     # overwrite collection
@@ -351,4 +352,6 @@ def replaceWithApkg(mw, file):
     z.close()
     # reload
     mw.loadCollection()
+    if backup:
+        mw.col.modSchema(check=False)
     mw.progress.finish()
