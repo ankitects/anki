@@ -1144,3 +1144,25 @@ def test_norelearn():
     d.sched.answerCard(c, 1)
     d.sched._cardConf(c)['lapse']['delays'] = []
     d.sched.answerCard(c, 1)
+
+def test_failmult():
+    d = getEmptyDeck()
+    f = d.newNote()
+    f['Front'] = u"one"; f['Back'] = u"two"
+    d.addNote(f)
+    c = f.cards()[0]
+    c.type = 2
+    c.queue = 2
+    c.ivl = 100
+    c.due = d.sched.today - c.ivl
+    c.factor = 2500
+    c.reps = 3
+    c.lapses = 1
+    c.startTimer()
+    c.flush()
+    d.sched._cardConf(c)['lapse']['mult'] = 0.5
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    assert c.ivl == 50
+    d.sched.answerCard(c, 1)
+    assert c.ivl == 25

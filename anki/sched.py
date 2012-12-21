@@ -528,16 +528,15 @@ did = ? and queue = 3 and due <= ? limit ?""",
             # failed
             else:
                 card.left = self._startingLeft(card)
-                if card.odid:
-                    resched = self._resched(card)
-                    if 'mult' in conf and resched:
-                        # review that's lapsed
-                        card.ivl = max(1, card.ivl*conf['mult'])
-                    else:
-                        # new card; no ivl adjustment
-                        pass
-                    if resched:
-                        card.odue = self.today + 1
+                resched = self._resched(card)
+                if 'mult' in conf and resched:
+                    # review that's lapsed
+                    card.ivl = max(1, card.ivl*conf['mult'])
+                else:
+                    # new card; no ivl adjustment
+                    pass
+                if resched and card.odid:
+                    card.odue = self.today + 1
             delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
                 # not collapsed; add some randomness
