@@ -22,7 +22,7 @@ $ ./update-mos.sh
 $ cd ../dtop
 
 And now you're ready to run Anki:
-$ ./anki
+$ ./runanki
 
 Windows users may find the following document useful: 
 http://ankisrs.net/docs/WindowsDevEnvironment.html
