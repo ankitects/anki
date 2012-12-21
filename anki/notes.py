@@ -136,7 +136,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         for flds in self.col.db.list(
             "select flds from notes where csum = ? and id != ? and mid = ?",
             csum, self.id or 0, self.mid):
-            if splitFields(flds)[0] == self.fields[0]:
+            if stripHTML(splitFields(flds)[0]) == stripHTML(self.fields[0]):
                 return 2
         return False
 

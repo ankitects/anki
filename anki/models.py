@@ -4,7 +4,7 @@
 
 import copy, re
 from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
-    timestampID, fieldChecksum, json
+    timestampID, checksum, json
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
@@ -456,7 +456,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             s += t['name']
             s += t['qfmt']
             s += t['afmt']
-        return fieldChecksum(s)
+        return checksum(s)
 
     # Required field/text cache
     ##########################################################################

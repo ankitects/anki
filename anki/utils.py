@@ -245,7 +245,7 @@ def checksum(data):
 
 def fieldChecksum(data):
     # 32 bit unsigned number from first 8 digits of sha1 hash
-    return int(checksum(data.encode("utf-8"))[:8], 16)
+    return int(checksum(stripHTML(data).encode("utf-8"))[:8], 16)
 
 # Temp files
 ##############################################################################
