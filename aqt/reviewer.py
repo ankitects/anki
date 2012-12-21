@@ -27,6 +27,10 @@ class Reviewer(object):
         self.typeCorrect = None # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
+        # qshortcut so we don't autorepeat
+        self.delShortcut = QShortcut(QKeySequence("Delete"), self.mw)
+        self.delShortcut.setAutoRepeat(False)
+        self.mw.connect(self.delShortcut, SIGNAL("activated()"), self.onDelete)
         addHook("leech", self.onLeech)
 
     def show(self):
@@ -284,8 +288,6 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
             self._answerCard(int(key))
         elif key == "v":
             self.onReplayRecorded()
-        elif evt.key() == Qt.Key_Delete:
-            self.onDelete()
 
     def _linkHandler(self, url):
         if url == "ans":
@@ -693,6 +695,10 @@ function showAnswer(txt) {
         self.mw.reset()
 
     def onDelete(self):
+        # need to check state because the shortcut is global to the main
+        # window
+        if self.mw.state != "review" or not self.card:
+            return
         self.mw.checkpoint(_("Delete"))
         cnt = len(self.card.note().cards())
         self.mw.col.remNotes([self.card.note().id])
