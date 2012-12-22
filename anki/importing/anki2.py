@@ -186,6 +186,14 @@ class Anki2Importer(Importer):
             name = self.deckPrefix
             if tmpname:
                 name += "::" + tmpname
+        # manually create any parents so we can pull in descriptions
+        head = ""
+        for parent in name.split("::")[:-1]:
+            if head:
+                head += "::"
+            head += parent
+            idInSrc = self.src.decks.id(head)
+            self._did(idInSrc)
         # create in local
         newid = self.dst.decks.id(name)
         # pull conf over
