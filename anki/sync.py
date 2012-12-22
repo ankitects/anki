@@ -31,7 +31,8 @@ def httpCon():
             assert 0
     return httplib2.Http(
         timeout=HTTP_TIMEOUT, ca_certs=certs,
-        proxy_info=HTTP_PROXY)
+        proxy_info=HTTP_PROXY,
+        disable_ssl_certificate_validation=not not HTTP_PROXY)
 
 # Proxy handling
 ######################################################################
