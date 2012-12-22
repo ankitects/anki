@@ -18,6 +18,7 @@ from anki.hooks import runHook
 class Scheduler(object):
     name = "std"
     haveCustomStudy = True
+    _spreadRev = True
 
     def __init__(self, col):
         self.col = col
@@ -873,6 +874,25 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         # interval capped?
         return min(interval, conf['maxIvl'])
 
+    def _fuzzedIvl(self, ivl):
+        min, max = self._fuzzIvlRange(ivl)
+        return random.randint(min, max)
+
+    def _fuzzIvlRange(self, ivl):
+        if ivl < 2:
+            return [1, 1]
+        elif ivl == 2:
+            return [2, 3]
+        elif ivl < 7:
+            fuzz = int(ivl*0.25)
+        elif ivl < 30:
+            fuzz = max(2, int(ivl*0.15))
+        else:
+            fuzz = max(4, int(ivl*0.05))
+        # fuzz at least a day
+        fuzz = max(fuzz, 1)
+        return [ivl-fuzz, ivl+fuzz]
+
     def _constrainedIvl(self, ivl, conf, prev):
         "Integer interval after interval factor and prev+1 constraints applied."
         new = ivl * conf.get('ivlFct', 1)
@@ -890,6 +910,8 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _adjRevIvl(self, card, idealIvl):
         "Given IDEALIVL, return an IVL away from siblings."
+        if self._spreadRev:
+            idealIvl = self._fuzzedIvl(idealIvl)
         idealDue = self.today + idealIvl
         conf = self._revConf(card)
         # find sibling positions
