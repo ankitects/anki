@@ -13,6 +13,15 @@ from hooks import runHook
 HTTP_TIMEOUT = 30
 HTTP_PROXY = None
 
+try:
+    # httplib2 >=0.7.7
+    _proxy_info_from_environment = httplib2.proxy_info_from_environment
+    _proxy_info_from_url = httplib2.proxy_info_from_url
+except AttributeError:
+    # httplib2 <0.7.7
+    _proxy_info_from_environment = httplib2.ProxyInfo.from_environment
+    _proxy_info_from_url = httplib2.ProxyInfo.from_url
+
 # Httplib2 connection object
 ######################################################################
 
@@ -40,7 +49,7 @@ def httpCon():
 def _setupProxy():
     global HTTP_PROXY
     # set in env?
-    p = httplib2.ProxyInfo.from_environment()
+    p = _proxy_info_from_environment()
     if not p:
         # platform-specific fetch
         url = None
@@ -57,7 +66,7 @@ def _setupProxy():
             elif 'http' in r:
                 url = r['http']
         if url:
-            p = httplib2.ProxyInfo.from_url(url, _proxyMethod(url))
+            p = _proxy_info_from_url(url, _proxyMethod(url))
     HTTP_PROXY = p
 
 def _proxyMethod(url):
