@@ -1087,7 +1087,7 @@ class EditorWebView(AnkiWebView):
         except urllib2.URLError, e:
             showWarning(self.errtxt % e)
             return
-        path = namedtmp(os.path.basename(url))
+        path = namedtmp(os.path.basename(urllib2.unquote(url)))
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
