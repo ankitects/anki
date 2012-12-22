@@ -34,7 +34,6 @@ profileConf = dict(
     mainWindowState=None,
     numBackups=30,
     lastOptimize=intTime(),
-
     # editing
     fullSearch=False,
     searchHistory=[],
@@ -44,11 +43,12 @@ profileConf = dict(
     # not exposed in gui
     deleteMedia=False,
     preserveKeyboard=True,
-
     # syncing
     syncKey=None,
     syncMedia=True,
     autoSync=True,
+    # importing
+    allowHTML=False,
 )
 
 class ProfileManager(object):

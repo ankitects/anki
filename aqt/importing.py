@@ -69,6 +69,7 @@ class ImportDialog(QDialog):
         self.connect(self.frm.autoDetect, SIGNAL("clicked()"),
                      self.onDelimiter)
         self.updateDelimiterButtonText()
+        self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', False))
         self.exec_()
 
     def setupOptions(self):
@@ -137,6 +138,7 @@ you can enter it here. Use \\t to represent tab."""),
             return
         self.importer.importMode = self.frm.importMode.currentIndex()
         self.importer.allowHTML = self.frm.allowHTML.isChecked()
+        self.mw.pm.profile['allowHTML'] = self.importer.allowHTML
         did = self.deck.selectedId()
         if did != self.importer.model['did']:
             self.importer.model['did'] = did
