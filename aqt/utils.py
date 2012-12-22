@@ -358,6 +358,13 @@ def maybeHideClose(bbox):
         if b:
             bbox.removeButton(b)
 
+def addCloseShortcut(widg):
+    if not isMac:
+        return
+    widg._closeShortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
+    widg.connect(widg._closeShortcut, SIGNAL("activated()"),
+                 widg, SLOT("reject()"))
+
 # Tooltips
 ######################################################################
 

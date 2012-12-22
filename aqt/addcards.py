@@ -9,7 +9,7 @@ import anki
 from anki.errors import *
 from anki.utils import stripHTML
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
-    tooltip, openHelp
+    tooltip, openHelp, addCloseShortcut
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook
 from anki.utils import stripHTMLMedia, isMac
@@ -34,6 +34,7 @@ class AddCards(QDialog):
         restoreGeom(self, "add")
         addHook('reset', self.onReset)
         addHook('currentModelChanged', self.onReset)
+        addCloseShortcut(self)
         self.show()
         self.setupNewNote()
 
