@@ -62,6 +62,8 @@ defaultTemplate = {
     'did': None,
     'bqfmt': "",
     'bafmt': "",
+    'bfont': "Arial",
+    'bsize': 12,
 }
 
 class ModelManager(object):

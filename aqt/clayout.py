@@ -320,7 +320,7 @@ adjust the template manually to switch the question and answer."""))
             a = m.addAction(_("Deck Override") + s)
             a.connect(a, SIGNAL("triggered()"),
                       self.onTargetDeck)
-        a = m.addAction(_("Column Templates"))
+        a = m.addAction(_("Browser Appearance"))
         a.connect(a, SIGNAL("triggered()"),
                   self.onBrowserDisplay)
         if self.model['type'] != MODEL_CLOZE:
@@ -336,6 +336,8 @@ adjust the template manually to switch the question and answer."""))
         t = self.card.template()
         f.qfmt.setText(t.get('bqfmt', ""))
         f.afmt.setText(t.get('bafmt', ""))
+        f.font.setCurrentFont(QFont(t.get('bfont', "Arial")))
+        f.fontSize.setValue(t.get('bsize', 12))
         d.connect(f.buttonBox, SIGNAL("accepted()"),
                   lambda: self.onBrowserDisplayOk(f))
         d.exec_()
@@ -344,6 +346,8 @@ adjust the template manually to switch the question and answer."""))
         t = self.card.template()
         t['bqfmt'] = f.qfmt.text().strip()
         t['bafmt'] = f.afmt.text().strip()
+        t['bfont'] = f.font.currentFont().family()
+        t['bsize'] = f.fontSize.value()
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit

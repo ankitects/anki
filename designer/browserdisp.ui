@@ -7,17 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>412</width>
-    <height>204</height>
+    <height>241</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Column Templates</string>
+   <string>Browser Appearance</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Template for front column in browser:</string>
+      <string>Override front template:</string>
      </property>
     </widget>
    </item>
@@ -27,12 +27,43 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Template for back column in browser:</string>
+      <string>Override back template:</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLineEdit" name="afmt"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Override font:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QFontComboBox" name="font">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>5</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="fontSize">
+       <property name="minimum">
+        <number>6</number>
+       </property>
+       <property name="maximum">
+        <number>18</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -62,6 +93,8 @@
  <tabstops>
   <tabstop>qfmt</tabstop>
   <tabstop>afmt</tabstop>
+  <tabstop>font</tabstop>
+  <tabstop>fontSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
