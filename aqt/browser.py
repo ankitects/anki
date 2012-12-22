@@ -973,9 +973,8 @@ where id in %s""" % ids2str(sf))
         self.col.db.execute("""
 update cards set usn=?, mod=?, did=? where id in """ + scids,
                             usn, mod, did)
-        self.onSearch(reset=False)
-        self.mw.requireReset()
         self.model.endReset()
+        self.mw.requireReset()
 
     # Tags
     ######################################################################
