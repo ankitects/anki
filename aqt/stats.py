@@ -4,11 +4,7 @@
 
 from aqt.qt import *
 import os, time
-from aqt.webview import AnkiWebView
-from aqt.utils import saveGeom, restoreGeom, maybeHideClose, openFolder, \
-    showInfo, addCloseShortcut
-from anki.utils import namedtmp
-from anki.hooks import addHook
+from aqt.utils import saveGeom, restoreGeom, maybeHideClose, showInfo, addCloseShortcut
 import aqt
 
 # Deck Stats

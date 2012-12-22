@@ -43,7 +43,6 @@ mainly to merge bug fixes found in Sourceforge
 import base64
 import socket
 import struct
-import sys
 
 if getattr(socket, 'socket', None) is None:
     raise ImportError('socket.socket missing, proxy support unusable')

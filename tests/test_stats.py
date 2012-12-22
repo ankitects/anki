@@ -1,9 +1,7 @@
 # coding: utf-8
 
-import time, copy, os
-from tests.shared import assertException, getEmptyDeck
-from anki.utils import stripHTML, intTime
-from anki.hooks import addHook
+import  os
+from tests.shared import  getEmptyDeck
 
 def test_stats():
     d = getEmptyDeck()

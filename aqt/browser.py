@@ -4,15 +4,13 @@
 
 import sre_constants, cgi
 from aqt.qt import *
-import time, types, sys, re
-from operator import attrgetter, itemgetter
-import anki, anki.utils, aqt.forms
+import time, re
+from operator import  itemgetter
+import anki, aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime, isMac
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut
-from anki.errors import *
-from anki.db import *
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar

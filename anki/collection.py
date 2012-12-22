@@ -2,11 +2,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, random, re, stat, datetime, copy, shutil, sys
+import time, os, random, stat, datetime, copy
 from anki.lang import _, ngettext
-from anki.utils import ids2str, hexifyID, checksum, fieldChecksum, stripHTML, \
+from anki.utils import ids2str, fieldChecksum, stripHTML, \
     intTime, splitFields, joinFields, maxID, json
-from anki.hooks import runHook, runFilter
+from anki.hooks import  runFilter
 from anki.sched import Scheduler
 from anki.models import ModelManager
 from anki.media import MediaManager

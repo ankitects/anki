@@ -2,12 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, datetime, random, itertools, math
+import time, random, itertools
 from operator import itemgetter
 from heapq import *
 #from anki.cards import Card
 from anki.utils import ids2str, intTime, fmtTimeSpan
-from anki.lang import _, ngettext
+from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
 

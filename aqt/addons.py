@@ -2,18 +2,14 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import sys, os, re, traceback, time
+import sys, os, traceback
 from cStringIO import StringIO
 from aqt.qt import *
-from aqt.utils import showInfo, showWarning, openFolder, isWin, openLink, \
+from aqt.utils import showInfo, openFolder, isWin, openLink, \
     askUser
-from anki.hooks import runHook, addHook, remHook
-from aqt.webview import AnkiWebView
 from zipfile import ZipFile
 import aqt.forms
 import aqt
-from anki.sync import httpCon
-import aqt.sync # monkey-patches httplib2
 from aqt.downloader import download
 
 # in the future, it would be nice to save the addon id and unzippped file list

@@ -1,13 +1,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, copy, time, sys, re, traceback, zipfile, json
+import os, re, traceback, zipfile, json
 from aqt.qt import *
-import anki
 import anki.importing as importing
-from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp, \
-    askUserDialog, askUser, tooltip
-from anki.errors import *
+from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp,\
+    askUser, tooltip
 from anki.hooks import addHook, remHook
 import aqt.forms, aqt.modelchooser, aqt.deckchooser
 
@@ -61,7 +59,6 @@ class ImportDialog(QDialog):
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
-        from aqt.tagedit import TagEdit
         self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
                      SIGNAL("clicked()"), self.helpRequested)
         self.setupMappingFrame()

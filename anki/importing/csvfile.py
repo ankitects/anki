@@ -5,7 +5,6 @@
 import codecs, csv, re
 from anki.importing.noteimp import NoteImporter, ForeignNote
 from anki.lang import _
-from anki.errors import *
 
 class TextImporter(NoteImporter):
 

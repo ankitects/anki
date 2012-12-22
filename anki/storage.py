@@ -4,7 +4,7 @@
 
 import os, copy, re
 from anki.lang import _
-from anki.utils import intTime, ids2str, json
+from anki.utils import intTime, json
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *

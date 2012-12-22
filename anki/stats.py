@@ -2,12 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, sys, os, datetime, json
+import time, datetime, json
 import anki.js
-from anki.utils import fmtTimeSpan, fmtFloat, ids2str
-from anki.consts import *
+from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
-from anki.hooks import runFilter
 
 # Card stats
 ##########################################################################

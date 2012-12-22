@@ -3,7 +3,7 @@
 
 import os
 from aqt.qt import *
-import anki, aqt, aqt.tagedit
+import  aqt
 from aqt.utils import getSaveFile, tooltip, showWarning, askUser
 from anki.exporting import exporters
 

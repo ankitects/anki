@@ -4,7 +4,6 @@
 
 from aqt.qt import *
 import aqt
-from anki.utils import ids2str
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
     tooltip
 from operator import itemgetter

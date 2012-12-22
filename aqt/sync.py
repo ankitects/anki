@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import os, types, socket, time, traceback, gc
+import   socket, time, traceback, gc
 import aqt
 from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
@@ -346,7 +346,7 @@ class SyncThread(QThread):
 ######################################################################
 
 CHUNK_SIZE = 65536
-import httplib, httplib2, socket, errno
+import httplib, httplib2, errno
 from cStringIO import StringIO
 from anki.hooks import runHook
 

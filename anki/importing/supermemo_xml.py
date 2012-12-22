@@ -8,11 +8,10 @@ from anki.stdmodels import addBasicModel
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.lang import _
 from anki.lang import ngettext
-from anki.errors import *
 
-from xml.dom import minidom, Node
+from xml.dom import minidom
 from types import DictType, InstanceType
-from string import capwords, maketrans
+from string import capwords
 import re, unicodedata, time
 
 class SmartDict(dict):

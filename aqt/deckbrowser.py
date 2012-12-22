@@ -3,8 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openLink, showWarning, showInfo, \
-    shortcut
+from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut
 from anki.utils import isMac, ids2str, fmtTimeSpan
 import anki.js
 from anki.errors import DeckRenameError

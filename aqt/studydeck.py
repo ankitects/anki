@@ -4,9 +4,7 @@
 
 from aqt.qt import *
 import aqt
-from anki.utils import ids2str
-from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, shortcut
-from operator import itemgetter
+from aqt.utils import showInfo, openHelp, getOnlyText, shortcut
 from anki.hooks import addHook, remHook
 
 class StudyDeck(QDialog):

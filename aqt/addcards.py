@@ -3,16 +3,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import sys, re
 import aqt.forms
-import anki
-from anki.errors import *
-from anki.utils import stripHTML
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip, openHelp, addCloseShortcut
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook
-from anki.utils import stripHTMLMedia, isMac
+from anki.utils import stripHTMLMedia
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
 class AddCards(QDialog):

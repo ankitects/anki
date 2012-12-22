@@ -7,7 +7,6 @@ from aqt.qt import *
 from anki.utils import isMac, isWin
 from anki import Collection
 from anki.importing import Anki1Importer
-from anki.db import DB
 from aqt.utils import showWarning
 import aqt
 

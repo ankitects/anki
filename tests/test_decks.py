@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from tests.shared import assertException, getEmptyDeck, testDir
+from tests.shared import assertException, getEmptyDeck
 
 def test_basic():
     deck = getEmptyDeck()

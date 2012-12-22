@@ -1,10 +1,8 @@
 # coding: utf-8
 
-import os, re, datetime
-from tests.shared import assertException, getEmptyDeck, testDir, \
-    getUpgradeDeckPath
+import os
+from tests.shared import assertException, getEmptyDeck
 from anki.stdmodels import addBasicModel
-from anki.consts import *
 
 from anki import Collection as aopen
 

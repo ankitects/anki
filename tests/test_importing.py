@@ -1,14 +1,11 @@
 # coding: utf-8
 
-import nose, os, shutil
-from tests.shared import assertException, getUpgradeDeckPath, getEmptyDeck
+import  os
+from tests.shared import  getUpgradeDeckPath, getEmptyDeck
 from anki.upgrade import Upgrader
 from anki.utils import ids2str
-from anki.errors import *
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
     SupermemoXmlImporter, MnemosyneImporter, AnkiPackageImporter
-from anki.notes import Note
-from anki.db import *
 
 testDir = os.path.dirname(__file__)
 

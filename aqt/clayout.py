@@ -7,8 +7,8 @@ import re
 from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
-from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA, \
-     saveSplitter, restoreSplitter, showInfo, askUser, getOnlyText, \
+from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA,\
+    showInfo, askUser, getOnlyText, \
      showWarning, openHelp, openLink
 from anki.utils import isMac, isWin, joinFields
 from aqt.webview import AnkiWebView

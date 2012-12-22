@@ -3,10 +3,9 @@
 import datetime, shutil
 from anki import Collection
 from anki.consts import *
-from shared import getUpgradeDeckPath, getEmptyDeck, testDir
+from shared import getUpgradeDeckPath, testDir
 from anki.upgrade import Upgrader
-from anki.importing import Anki2Importer
-from anki.utils import ids2str, checksum
+from anki.utils import  checksum
 
 def test_check():
     dst = getUpgradeDeckPath()

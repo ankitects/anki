@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import tempfile, os, time
-from anki.utils import checksum
 from shared import getEmptyDeck, testDir
 
 # copying files to media folder

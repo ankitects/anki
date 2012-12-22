@@ -2,11 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, cgi
+import  cgi
 from anki.lang import _
-from anki.utils import fieldChecksum, ids2str, guid64, timestampID, \
+from anki.utils import fieldChecksum, guid64, timestampID, \
     joinFields, intTime, splitFields
-from anki.errors import *
 from anki.importing.base import Importer
 from anki.lang import ngettext
 

@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
-from anki.utils import ids2str, splitFields, joinFields, stripHTML, intTime
+from anki.utils import ids2str, splitFields, joinFields, intTime
 from anki.consts import *
 import sre_constants
 

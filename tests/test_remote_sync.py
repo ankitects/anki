@@ -1,15 +1,10 @@
 # coding: utf-8
 
-import nose, os, tempfile, shutil, time
+import nose, os, time
 from tests.shared import assertException
 
-from anki.errors import *
-from anki.utils import intTime
-from anki.sync import Syncer, FullSyncer, LocalServer, RemoteServer, \
+from anki.sync import Syncer, FullSyncer, RemoteServer, \
     MediaSyncer, RemoteMediaServer, httpCon
-from anki.notes import Note
-from anki.cards import Card
-from tests.shared import getEmptyDeck
 from anki import Collection as aopen
 
 deck1=None

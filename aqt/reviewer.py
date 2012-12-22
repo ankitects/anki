@@ -2,14 +2,14 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, stat, shutil, difflib, re, cgi
+import    difflib, re, cgi
 import unicodedata as ucd
 import HTMLParser
 from aqt.qt import *
-from anki.utils import fmtTimeSpan, stripHTML, isMac, json
-from anki.hooks import addHook, runHook, runFilter
-from anki.sound import playFromText, clearAudioQueue, hasSound, play
-from aqt.utils import mungeQA, getBase, shortcut, openLink, tooltip
+from anki.utils import  stripHTML, isMac, json
+from anki.hooks import addHook, runHook
+from anki.sound import playFromText, clearAudioQueue, play
+from aqt.utils import mungeQA, getBase, openLink, tooltip
 from aqt.sound import getAudio
 import aqt
 

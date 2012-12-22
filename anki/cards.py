@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-from anki.utils import intTime, hexifyID, timestampID, joinFields
+from anki.utils import intTime, timestampID, joinFields
 from anki.consts import *
 
 # temporary

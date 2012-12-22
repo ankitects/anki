@@ -2,8 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import urllib, urllib2, os, sys, time, httplib
-import anki, anki.utils, anki.lang, anki.stats
+import urllib, urllib2, time
 import aqt
 import platform
 from aqt.utils import openLink

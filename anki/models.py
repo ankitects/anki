@@ -3,8 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import copy, re
-from anki.utils import intTime, hexifyID, joinFields, splitFields, ids2str, \
-    timestampID, checksum, json
+from anki.utils import intTime, joinFields, splitFields, ids2str,\
+    checksum, json
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook

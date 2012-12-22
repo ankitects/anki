@@ -2,23 +2,19 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, sys, re, stat, traceback, signal
-import shutil, time, zipfile
-from operator import itemgetter
+import os, sys, re, traceback, signal
+import  zipfile
 
 from aqt.qt import *
 QtConfig = pyqtconfig.Configuration()
 
 from anki import Collection
-from anki.utils import stripHTML, checksum, isWin, isMac, intTime, json
-from anki.hooks import runHook, addHook, remHook
-import anki.consts
+from anki.utils import  isWin, isMac, intTime
+from anki.hooks import runHook, addHook
 
 import aqt, aqt.progress, aqt.webview, aqt.toolbar, aqt.stats
-from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
-    saveState, restoreState, getOnlyText, askUser, GetTextDialog, \
-    askUserDialog, applyStyles, getText, showText, showCritical, getFile, \
-    tooltip, openHelp, openLink
+from aqt.utils import  restoreGeom, showInfo, showWarning,\
+    restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, openHelp, openLink
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):

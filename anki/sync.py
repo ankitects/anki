@@ -4,12 +4,9 @@
 
 import urllib, os, sys, httplib2, gzip
 from cStringIO import StringIO
-from datetime import date
 from anki.db import DB
-from anki.errors import *
-from anki.utils import ids2str, checksum, intTime, json, isWin, isMac
+from anki.utils import ids2str, intTime, json, isWin, isMac
 from anki.consts import *
-from anki.lang import _
 from hooks import runHook
 
 # syncing vars
@@ -72,8 +69,6 @@ _setupProxy()
 
 # Incremental syncing
 ##########################################################################
-
-from anki.consts import *
 
 class Syncer(object):
 

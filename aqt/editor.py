@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib2, ctypes, traceback
+import re, os, urllib2, ctypes
 from anki.utils import stripHTML, isWin, isMac, namedtmp, json
 from anki.sound import play
 from anki.hooks import runHook, runFilter

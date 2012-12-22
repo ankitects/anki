@@ -3,9 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from operator import itemgetter
 from anki.hooks import addHook, remHook, runHook
-from aqt.utils import isMac, shortcut
+from aqt.utils import  shortcut
 import aqt
 
 class ModelChooser(QHBoxLayout):

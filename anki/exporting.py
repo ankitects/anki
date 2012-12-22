@@ -2,11 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import itertools, time, re, os, HTMLParser, zipfile, shutil
-from operator import itemgetter
-from anki.cards import Card
+import   re, os, zipfile, shutil
 from anki.lang import _
-from anki.utils import stripHTML, ids2str, splitFields, json
+from anki.utils import  ids2str, splitFields, json
 from anki.hooks import runHook
 from anki import Collection
 

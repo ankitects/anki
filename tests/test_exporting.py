@@ -1,11 +1,9 @@
 # coding: utf-8
 
 import nose, os, tempfile
-import anki
 from anki import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
-from anki.stdmodels import *
 from shared import getEmptyDeck
 
 deck = None

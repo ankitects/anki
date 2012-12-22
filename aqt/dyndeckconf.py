@@ -4,9 +4,7 @@
 
 from aqt.qt import *
 import aqt
-from anki.utils import ids2str, isWin, isMac
-from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser
-from operator import itemgetter
+from aqt.utils import  showWarning, openHelp, askUser
 
 class DeckConf(QDialog):
     def __init__(self, mw, first=False, search="", deck=None):

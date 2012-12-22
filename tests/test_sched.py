@@ -1,10 +1,9 @@
 # coding: utf-8
 
 import time, copy
-from tests.shared import assertException, getEmptyDeck
-from anki.utils import stripHTML, intTime
+from tests.shared import  getEmptyDeck
+from anki.utils import  intTime
 from anki.hooks import addHook
-from anki.consts import *
 
 def test_basics():
     d = getEmptyDeck()

@@ -2,10 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re, sys, threading, time, subprocess, os, signal, errno, atexit
-import shutil, random
-from anki.hooks import addHook, runHook
-from anki.utils import namedtmp, tmpdir, isWin, isMac
+import re, sys, threading, time, subprocess, os, atexit
+import  random
+from anki.hooks import addHook
+from anki.utils import  tmpdir, isWin, isMac
 
 # Shared utils
 ##########################################################################

@@ -2,8 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
-import os, time, re, datetime, shutil
-from anki.lang import _
+import  time, re, datetime, shutil
 from anki.utils import intTime, tmpfile, ids2str, splitFields, base91, json
 from anki.db import DB
 from anki.collection import _Collection

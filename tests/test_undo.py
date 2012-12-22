@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import time
-from tests.shared import assertException, getEmptyDeck
+from tests.shared import  getEmptyDeck
 from anki.consts import *
 
 def test_op():

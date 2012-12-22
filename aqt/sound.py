@@ -4,7 +4,7 @@
 from aqt.qt import *
 
 import time
-from anki.sound import Recorder, play
+from anki.sound import Recorder
 from aqt.utils import saveGeom, restoreGeom
 
 def getAudio(parent, encode=True):

@@ -2,10 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time
-from anki.errors import AnkiError
 from anki.utils import fieldChecksum, intTime, \
-    joinFields, splitFields, ids2str, stripHTML, timestampID, guid64
+    joinFields, splitFields, stripHTML, timestampID, guid64
 
 class Note(object):
 

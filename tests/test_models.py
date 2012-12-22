@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from tests.shared import getEmptyDeck, assertException
+from tests.shared import getEmptyDeck
 from anki.utils import stripHTML, joinFields
 
 def test_modelDelete():

@@ -2,11 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re, os, random, time, types, math, htmlentitydefs, subprocess, \
+import re, os, random, time, math, htmlentitydefs, subprocess, \
     tempfile, shutil, string, httplib2, sys, locale
 from hashlib import sha1
 from anki.lang import _, ngettext
-from anki.consts import *
 
 if sys.version_info[1] < 5:
     def format_string(a, b):

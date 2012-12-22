@@ -1,11 +1,6 @@
 # coding: utf-8
 
-import time
-from anki.db import DB
-from anki.consts import *
-from anki.utils import hexifyID
 from tests.shared import getEmptyDeck
-from anki.hooks import addHook, remHook
 
 def test_previewCards():
     deck = getEmptyDeck()

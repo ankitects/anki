@@ -4,8 +4,7 @@
 
 import os
 from anki import Collection
-from anki.utils import intTime, splitFields, joinFields, checksum, guid64, \
-    incGuid
+from anki.utils import intTime, splitFields, joinFields, incGuid
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.lang import ngettext

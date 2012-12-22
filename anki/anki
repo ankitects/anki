@@ -11,5 +11,5 @@ sys.path.insert(0, os.path.join(base, "libanki"))
 # or git
 sys.path.insert(0, os.path.join(base, "..", "libanki"))
 # start
-import anki, aqt
+import  aqt
 aqt.run()

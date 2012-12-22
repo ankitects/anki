@@ -2,11 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, shutil, re, urllib, urllib2, time, unicodedata, \
+import os, shutil, re, urllib, unicodedata, \
     sys, zipfile
 from cStringIO import StringIO
-from anki.utils import checksum, intTime, namedtmp, isWin, isMac, json
-from anki.lang import _
+from anki.utils import checksum, isWin, isMac, json
 from anki.db import DB
 from anki.consts import *
 from anki.latex import mungeQA

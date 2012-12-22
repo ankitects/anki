@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import datetime, time, os
+import datetime, time
 from aqt.qt import *
 from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo
 import aqt

@@ -4,9 +4,7 @@
 
 from aqt.qt import *
 import aqt
-from anki.utils import ids2str, isWin, isMac
-from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser
-from operator import itemgetter
+from aqt.utils import showInfo, showWarning
 from anki.consts import *
 
 RADIO_NEW = 1

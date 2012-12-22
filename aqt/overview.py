@@ -2,10 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-from anki.consts import NEW_CARDS_RANDOM, dynOrderLabels
-from anki.hooks import addHook
-from aqt.utils import showInfo, openLink, shortcut
+from aqt.utils import  openLink, shortcut
 from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue

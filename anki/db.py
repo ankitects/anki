@@ -8,8 +8,6 @@ try:
 except ImportError:
     from sqlite3 import dbapi2 as sqlite
 
-from anki.hooks import runHook
-
 class DB(object):
     def __init__(self, path, text=None, timeout=0):
         encpath = path
