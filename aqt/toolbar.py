@@ -17,7 +17,7 @@ class Toolbar(object):
             "study": self._studyLinkHandler,
             "add": self._addLinkHandler,
             "browse": self._browseLinkHandler,
-            "stats": self._studyLinkHandler,
+            "stats": self._statsLinkHandler,
             "sync": self._syncLinkHandler,
         }
 
@@ -74,27 +74,27 @@ class Toolbar(object):
           self.link_handlers[link]()
 
     def _deckLinkHandler(self):
-      self.mw.moveToState("deckBrowser")
+        self.mw.moveToState("deckBrowser")
 
     def _studyLinkHandler(self):
-      # if overview already shown, switch to review
-      if self.mw.state == "overview":
-          self.mw.col.startTimebox()
-          self.mw.moveToState("review")
-      else:
+        # if overview already shown, switch to review
+        if self.mw.state == "overview":
+            self.mw.col.startTimebox()
+            self.mw.moveToState("review")
+        else:
           self.mw.onOverview()
 
     def _addLinkHandler(self):
-      self.mw.onAddCard()
+        self.mw.onAddCard()
 
     def _browseLinkHandler(self):
-      self.mw.onBrowse()
+        self.mw.onBrowse()
 
     def _statsLinkHandler(self):
-      self.mw.onStats()
+        self.mw.onStats()
 
     def _syncLinkHandler(self):
-      self.mw.onSync()
+        self.mw.onSync()
 
     # HTML & CSS
     ######################################################################
