@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.utils import fieldChecksum, intTime, \
-    joinFields, splitFields, stripHTML, timestampID, guid64
+    joinFields, splitFields, stripHTMLMedia, timestampID, guid64
 
 class Note(object):
 
@@ -47,7 +47,7 @@ from notes where id = ?""", self.id)
         self._preFlush()
         self.mod = mod if mod else intTime()
         self.usn = self.col.usn()
-        sfld = stripHTML(self.fields[self.col.models.sortIdx(self._model)])
+        sfld = stripHTMLMedia(self.fields[self.col.models.sortIdx(self._model)])
         tags = self.stringTags()
         csum = fieldChecksum(self.fields[0])
         res = self.col.db.execute("""
@@ -134,7 +134,8 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         for flds in self.col.db.list(
             "select flds from notes where csum = ? and id != ? and mid = ?",
             csum, self.id or 0, self.mid):
-            if stripHTML(splitFields(flds)[0]) == stripHTML(self.fields[0]):
+            if stripHTMLMedia(
+                splitFields(flds)[0]) == stripHTMLMedia(self.fields[0]):
                 return 2
         return False
 
