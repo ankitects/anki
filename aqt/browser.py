@@ -755,7 +755,7 @@ by clicking on one on the left."""))
 
     def _userTagTree(self, root):
         for t in sorted(self.col.tags.all()):
-            if t.lower() == "marked":
+            if t.lower() == "marked" or t.lower() == "leech":
                 continue
             item = self.CallbackItem(
                 t, lambda t=t: self.setFilter("tag", t))
