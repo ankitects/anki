@@ -704,8 +704,8 @@ and queue = 0""", intTime(), self.usn())
         ok = not problems
         problems.append(txt)
         # if any problems were found, force a full sync
-        if problems:
-            self.modSchema()
+        if not ok:
+            self.modSchema(check=False)
         self.save()
         return ("\n".join(problems), ok)
 
