@@ -260,7 +260,7 @@
   </action>
   <action name="actionNoteTypes">
    <property name="text">
-    <string>Note Types...</string>
+    <string>Manage Note Types...</string>
    </property>
   </action>
  </widget>
