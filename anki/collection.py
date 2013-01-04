@@ -498,8 +498,12 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
             if type == "q":
                 format = format.replace("{{cloze:", "{{cq:%d:" % (
                     data[4]+1))
+                format = format.replace("<%cloze:", "<%%cq:%d:" % (
+                    data[4]+1))
             else:
                 format = format.replace("{{cloze:", "{{ca:%d:" % (
+                    data[4]+1))
+                format = format.replace("<%cloze:", "<%%ca:%d:" % (
                     data[4]+1))
                 fields['FrontSide'] = stripSounds(d['q'])
             fields = runFilter("mungeFields", fields, model, data, self)

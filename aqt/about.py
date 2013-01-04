@@ -28,7 +28,7 @@ Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
 Montague, Michael Penkov, Michal Čadil, Nathanael Law, Nick Cook, Niklas
 Laxström, Nguyễn Hào Khôi, Norbert Nagold, Ole Guldberg,
 Pcsl88, Petr Michalec, Piotr Kubowicz, Richard Colley, Roland Sieker,
-Samson Melamed, Stefaan De Pooter, Susanna Björverud, Sylvain Durand,
+Samson Melamed, Stefaan De Pooter, Silja Ijas, Susanna Björverud, Sylvain Durand,
 Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, %s
 Xtru."""% _("<!--about diag--> and")}
     abouttext += '<p>' + _("""\
