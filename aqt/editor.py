@@ -13,7 +13,7 @@ from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
     openHelp
 import aqt
 import anki.js
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 # fixme: when tab order returns to the webview, the previously focused field
 # is focused, which is not good when the user is tabbing through the dialog
