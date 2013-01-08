@@ -48,11 +48,6 @@ Save & close:
 """
 __docformat__ = 'restructuredtext'
 
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-except ImportError:
-    pass
-
 version = "1.2.11"
 
 from oldanki.deck import DeckStorage
