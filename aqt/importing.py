@@ -70,6 +70,7 @@ class ImportDialog(QDialog):
                      self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', False))
+        self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 0))
         self.exec_()
 
     def setupOptions(self):
@@ -137,6 +138,7 @@ you can enter it here. Use \\t to represent tab."""),
                 _("The first field of the note type must be mapped."))
             return
         self.importer.importMode = self.frm.importMode.currentIndex()
+        self.mw.pm.profile['importMode'] = self.importer.importMode
         self.importer.allowHTML = self.frm.allowHTML.isChecked()
         self.mw.pm.profile['allowHTML'] = self.importer.allowHTML
         did = self.deck.selectedId()
