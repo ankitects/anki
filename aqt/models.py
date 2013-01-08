@@ -170,7 +170,7 @@ class AddModel(QDialog):
             self.dialog.models.addItem(item)
             self.models.append((True, func))
         # add copies
-        for m in self.col.models.all():
+        for m in sorted(self.col.models.all(), key=itemgetter("name")):
             item = QListWidgetItem(_("Clone: %s") % m['name'])
             self.dialog.models.addItem(item)
             self.models.append((False, m))
