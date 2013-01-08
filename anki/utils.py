@@ -240,6 +240,8 @@ def splitFields(string):
 ##############################################################################
 
 def checksum(data):
+    if isinstance(data, unicode):
+        data = data.encode("utf-8")
     return sha1(data).hexdigest()
 
 def fieldChecksum(data):
