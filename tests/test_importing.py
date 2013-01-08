@@ -17,7 +17,8 @@ def test_anki2():
     # get the deck to import
     tmp = getUpgradeDeckPath()
     u = Upgrader()
-    src = u.upgrade(tmp)
+    u.check(tmp)
+    src = u.upgrade()
     srcpath = src.path
     srcNotes = src.noteCount()
     srcCards = src.cardCount()

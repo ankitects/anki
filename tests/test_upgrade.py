@@ -10,16 +10,21 @@ from anki.utils import  checksum
 def test_check():
     dst = getUpgradeDeckPath()
     u = Upgrader()
-    assert u.check(dst)
+    assert u.check(dst) == "ok"
     # if it's corrupted, will fail
     open(dst, "w+").write("foo")
-    assert not u.check(dst)
+    assert u.check(dst) == "invalid"
+    # the upgrade should be able to fix non-fatal errors -
+    # test with a deck that has cards with missing notes
+    dst = getUpgradeDeckPath("anki12-broken.anki")
+    assert "with missing fact" in u.check(dst)
 
 def test_upgrade1():
     dst = getUpgradeDeckPath()
     csum = checksum(open(dst).read())
     u = Upgrader()
-    deck = u.upgrade(dst)
+    u.check(dst)
+    deck = u.upgrade()
     # src file must not have changed
     assert csum == checksum(open(dst).read())
     # creation time should have been adjusted
@@ -45,14 +50,15 @@ def test_upgrade1():
 def test_upgrade1_due():
     dst = getUpgradeDeckPath("anki12-due.anki")
     u = Upgrader()
-    deck = u.upgrade(dst)
+    u.check(dst)
+    deck = u.upgrade()
     assert not deck.db.scalar("select 1 from cards where due != 1")
 
 def test_invalid_ords():
     dst = getUpgradeDeckPath("invalid-ords.anki")
     u = Upgrader()
     u.check(dst)
-    deck = u.upgrade(dst)
+    deck = u.upgrade()
     assert deck.db.scalar("select count() from cards where ord = 0") == 1
     assert deck.db.scalar("select count() from cards where ord = 1") == 1
 

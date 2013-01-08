@@ -12,14 +12,17 @@ class Anki1Importer(Anki2Importer):
     def run(self):
         u = Upgrader()
         # check
-        if not u.check(self.file):
+        res = u.check(self.file)
+        if res == "invalid":
             self.log.append(_(
-                "File is old or damaged; please run Tools>Advanced>Check DB "
-                "in Anki 1.2 first."))
+                "File is invalid. Please restore from backup."))
             raise Exception("invalidFile")
         # upgrade
+        if res != "ok":
+            self.log.append(
+                "Problems fixed during upgrade:\n***\n%s\n***\n" % res)
         try:
-            deck = u.upgrade(self.file)
+            deck = u.upgrade()
         except:
             traceback.print_exc()
             self.log.append(traceback.format_exc())

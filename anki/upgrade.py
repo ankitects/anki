@@ -18,34 +18,35 @@ from anki.storage import _addSchema, _getColVars, _addColVars, \
 class Upgrader(object):
 
     def __init__(self):
-        pass
+        self.tmppath = None
 
-    # Upgrading
-    ######################################################################
-
-    def upgrade(self, path):
-        self.path = path
-        self._openDB(path)
-        self._upgradeSchema()
-        self._openCol()
-        self._upgradeRest()
-        return self.col
-
-    # Integrity checking
+    # Integrity checking & initial setup
     ######################################################################
 
     def check(self, path):
-        "True if deck looks ok."
-        with DB(path) as db:
-            return self._check(db)
+        "Returns 'ok', 'invalid', or log of fixes applied."
+        # copy into a temp file before we open
+        self.tmppath = tmpfile(suffix=".anki2")
+        shutil.copy(path, self.tmppath)
+        # run initial check
+        with DB(self.tmppath) as db:
+            res = self._check(db)
+        # needs fixing?
+        if res not in ("ok", "invalid"):
+            res = self._fix(self.tmppath)
+        # don't allow .upgrade() if invalid
+        if res == "invalid":
+            os.unlink(self.tmppath)
+            self.tmppath = None
+        return res
 
     def _check(self, db):
         # corrupt?
         try:
             if db.scalar("pragma integrity_check") != "ok":
-                return
+                return "invalid"
         except:
-            return
+            return "invalid"
         # old version?
         if db.scalar("select version from decks") < 65:
             return
@@ -98,18 +99,35 @@ f.id = cards.factId)"""):
     select id from cards where type != (case
     when type >= 0 then relativeDelay else relativeDelay - 3 end)"""):
             return
-        return True
+        return "ok"
 
-    # DB/Deck opening
+    def _fix(self, path):
+        from oldanki import DeckStorage
+        try:
+            deck = DeckStorage.Deck(path, backup=False)
+        except:
+            # if we can't open the file, it's invalid
+            return "invalid"
+        # run a db check
+        res = deck.fixIntegrity()
+        if "Database file is damaged" in res:
+            # we can't recover from a corrupt db
+            return "invalid"
+        # other errors are non-fatal
+        deck.close()
+        return res
+
+    # Upgrading
     ######################################################################
 
-    def _openDB(self, path):
-        self.tmppath = tmpfile(suffix=".anki2")
-        shutil.copy(path, self.tmppath)
+    def upgrade(self):
+        assert self.tmppath
         self.db = DB(self.tmppath)
-
-    def _openCol(self):
+        self._upgradeSchema()
         self.col = _Collection(self.db)
+        self._upgradeRest()
+        self.tmppath = None
+        return self.col
 
     # Schema upgrade
     ######################################################################

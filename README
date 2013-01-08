@@ -7,7 +7,7 @@ Prerequisites
 To install the prerequisites on Ubuntu/Debian, please use the following
 command:
 
-sudo apt-get install python-qt4 mplayer lame libportaudio2
+sudo apt-get install python-qt4 mplayer lame libportaudio2 python-sqlalchemy
 
 If you're on another distribution the packages may be named differently, so
 please consult your package manager.

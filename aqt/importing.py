@@ -297,9 +297,7 @@ backup, please see the 'Backups' section of the user manual."""))
         except Exception, e:
             if "invalidFile" in unicode(e):
                 msg = _("""\
-Invalid file. Please run a DB check in Anki 1.2 and try again.""")
-                msg += _(""" \
-Even if the DB check reports 'no problems found', a subsequent import should work.""")
+Invalid file. Please restore from backup.""")
                 showWarning(msg)
             elif "readonly" in unicode(e):
                 showWarning(_("""\
