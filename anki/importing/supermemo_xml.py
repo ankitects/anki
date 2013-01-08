@@ -131,7 +131,7 @@ class SupermemoXmlImporter(NoteImporter):
     def _decode_htmlescapes(self,s):
         """Unescape HTML code."""
         #In case of bad formated html you can import MinimalSoup etc.. see btflsoup source code
-        from BeautifulSoup import BeautifulStoneSoup as btflsoup
+        from bs4 import BeautifulStoneSoup as btflsoup
 
         #my sm2004 also ecaped & char in escaped sequences.
         s = re.sub(u'&amp;',u'&',s)
