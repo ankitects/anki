@@ -55,7 +55,7 @@ class Models(QDialog):
 
     def onRename(self):
         txt = getText(_("New name:"), default=self.model['name'])
-        if txt[0]:
+        if txt[1] and txt[0]:
             self.model['name'] = txt[0]
             self.mm.save(self.model)
         self.updateModelsList()
