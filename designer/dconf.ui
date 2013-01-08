@@ -619,7 +619,7 @@
        <item>
         <widget class="QLabel" name="label_22">
          <property name="text">
-          <string>Description to show on study screen:</string>
+          <string>Description to show on study screen (current deck only):</string>
          </property>
         </widget>
        </item>
