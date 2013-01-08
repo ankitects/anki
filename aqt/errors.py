@@ -53,7 +53,8 @@ class ErrorHandler(QObject):
         if "install mplayer" in error:
             return showWarning(_("Please install mplayer"))
         if "no default output" in error:
-            return showWarning(_("Please connect a microphone."))
+            return showWarning(_("Please connect a microphone, and ensure "
+                                 "other programs are not using the audio device."))
         stdText = _("""\
 An error occurred. It may have been caused by a harmless bug, <br>
 or your deck may have a problem.
