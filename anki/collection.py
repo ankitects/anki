@@ -227,9 +227,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def noteCount(self):
         return self.db.scalar("select count() from notes")
 
-    def newNote(self):
+    def newNote(self, forDeck=True):
         "Return a new note with the current model."
-        return anki.notes.Note(self, self.models.current())
+        return anki.notes.Note(self, self.models.current(forDeck))
 
     def addNote(self, note):
         "Add a note to the collection. Return number of new cards."

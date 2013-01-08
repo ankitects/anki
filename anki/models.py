@@ -100,10 +100,10 @@ class ModelManager(object):
     # Retrieving and creating models
     #############################################################
 
-    def current(self):
+    def current(self, forDeck=True):
         "Get current model."
         m = self.get(self.col.decks.current().get('mid'))
-        if not m:
+        if not forDeck or not m:
             m = self.get(self.col.conf['curModel'])
         return m or self.models.values()[0]
 

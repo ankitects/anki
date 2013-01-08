@@ -123,7 +123,7 @@ class Models(QDialog):
 
     def _tmpNote(self):
         self.mm.setCurrent(self.model)
-        n = self.col.newNote()
+        n = self.col.newNote(forDeck=False)
         for name in n.keys():
             n[name] = "("+name+")"
         if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
