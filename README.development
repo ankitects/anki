@@ -24,9 +24,6 @@ $ cd ../dtop
 And now you're ready to run Anki:
 $ ./runanki
 
-Windows users may find the following document useful: 
-http://ankisrs.net/docs/WindowsDevEnvironment.html
-
 Before contributing code, please read the LICENSE file.
 
 If you'd like to contribute translations, please see the translations section
