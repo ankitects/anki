@@ -153,7 +153,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         # studied
         def bold(s):
             return "<b>"+unicode(s)+"</b>"
-        msgp1 = ngettext("%d card", "%d cards", cards) % cards
+        msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
         b += _("Studied %(a)s in %(b)s today.") % dict(
             a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1)))
         # again/pass count
