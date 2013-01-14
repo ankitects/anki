@@ -67,6 +67,8 @@ def _setupProxy():
                 url = r['http']
         if url:
             p = _proxy_info_from_url(url, _proxyMethod(url))
+    if p:
+        p.proxy_rdns = True
     HTTP_PROXY = p
 
 def _proxyMethod(url):
