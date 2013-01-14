@@ -323,7 +323,11 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
 
     def _writeDstMedia(self, fname, data):
         path = os.path.join(self.dst.media.dir(), fname)
-        open(path, "wb").write(data)
+        try:
+            open(path, "wb").write(data)
+        except (OSError, IOError):
+            # the user likely used subdirectories
+            pass
 
     def _mungeMedia(self, mid, fields):
         fields = splitFields(fields)
