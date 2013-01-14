@@ -63,6 +63,7 @@ class SuperMemoElement(SmartDict):
 class SupermemoXmlImporter(NoteImporter):
 
     needMapper = False
+    allowHTML = True
 
     """
     Supermemo XML export's to Anki parser.
@@ -136,8 +137,8 @@ class SupermemoXmlImporter(NoteImporter):
         #my sm2004 also ecaped & char in escaped sequences.
         s = re.sub(u'&amp;',u'&',s)
         #unescaped solitary chars < or > that were ok for minidom confuse btfl soup
-        s = re.sub(u'>',u'&gt;',s)
-        s = re.sub(u'<',u'&lt;',s)
+        #s = re.sub(u'>',u'&gt;',s)
+        #s = re.sub(u'<',u'&lt;',s)
 
         return unicode(btflsoup(s,convertEntities=btflsoup.HTML_ENTITIES ))
 
