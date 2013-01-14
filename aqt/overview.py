@@ -54,7 +54,7 @@ class Overview(object):
             openLink(aqt.appShared+"info/%s?v=%s"%(self.sid, self.sidVer))
         elif url == "studymore":
             self.onStudyMore()
-        else:
+        elif url.lower().startswith("http"):
             openLink(url)
 
     def _keyHandler(self, evt):
