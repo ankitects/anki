@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import re, os, urllib2, ctypes
-from anki.utils import stripHTML, isWin, isMac, namedtmp, json
+from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia
 from anki.sound import play
 from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
@@ -605,7 +605,7 @@ class Editor(object):
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        contents = self.note.fields[0]
+        contents = stripHTMLMedia(self.note.fields[0])
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
             "'note:%s' '%s:%s'" % (
