@@ -284,9 +284,11 @@ class SyncThread(QThread):
             if "Unable to find the server" in err:
                 self.fireEvent("offline")
             else:
-                if not isinstance(log, unicode):
-                    err = unicode(log, "utf8", "replace")
-                self.fireEvent("error", log)
+                if not err:
+                    err = log
+                if not isinstance(err, unicode):
+                    err = unicode(err, "utf8", "replace")
+                self.fireEvent("error", err)
             return
         if ret == "badAuth":
             return self.fireEvent("badAuth")
