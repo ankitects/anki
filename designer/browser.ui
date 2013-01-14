@@ -248,6 +248,8 @@
     <addaction name="separator"/>
     <addaction name="actionFindDuplicates"/>
     <addaction name="actionFindReplace"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuJump">
     <property name="title">
@@ -474,6 +476,14 @@
     <string>End</string>
    </property>
   </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="icons.qrc"/>
@@ -492,6 +502,22 @@
     <hint type="destinationlabel">
      <x>299</x>
      <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>activated()</signal>
+   <receiver>Dialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>199</y>
     </hint>
    </hints>
   </connection>
