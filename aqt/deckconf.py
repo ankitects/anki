@@ -130,6 +130,8 @@ class DeckConf(QDialog):
             return
         for did in self.childDids:
             deck = self.mw.col.decks.get(did)
+            if deck['dyn']:
+                continue
             deck['conf'] = self.deck['conf']
             self.mw.col.decks.save(deck)
         tooltip(ngettext("%d deck updated.", "%d decks updated.", \
