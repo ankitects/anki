@@ -1254,6 +1254,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         self.col.setDirty()
         cids = self.col.db.list(
             "select id from cards where nid = ? and queue >= 0", nid)
+        self.removeLrn(cids)
         self.col.db.execute("update cards set queue = -2 where id in "+ids2str(cids))
 
     # Resetting
