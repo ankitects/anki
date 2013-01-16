@@ -4383,7 +4383,6 @@ this message. (ERR-0101)""") % {
             for m in deck.models:
                 deck.updateCardsFromModel(m, dirty=False)
             # rebuild the media db based on new format
-            rebuildMediaDir(deck, dirty=False)
             deck.version = 61
             deck.s.commit()
         if deck.version < 62:
