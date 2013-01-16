@@ -492,8 +492,8 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         fields['c%d' % (data[4]+1)] = "1"
         # render q & a
         d = dict(id=data[0])
-        qfmt = (qfmt or template['qfmt']).replace("}}\n", "}}<br>")
-        afmt = (afmt or template['afmt']).replace("}}\n", "}}<br>")
+        qfmt = qfmt or template['qfmt']
+        afmt = afmt or template['afmt']
         for (type, format) in (("q", qfmt), ("a", afmt)):
             if type == "q":
                 format = format.replace("{{cloze:", "{{cq:%d:" % (
