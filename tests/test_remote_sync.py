@@ -87,12 +87,6 @@ def test_remoteSync():
     assert ts.client.sync() == "success"
     # again, no changes
     assert ts.client.sync() == "noChanges"
-    # downloading the remote col should give us the same mod
-    lmod = ts.client.col.mod
-    f = FullSyncer(ts.client.col, TEST_HKEY, ts.server.con)
-    f.download()
-    d = aopen(ts.client.col.path)
-    assert d.mod == lmod
 
 # Remote　media tests
 ##########################################################################
