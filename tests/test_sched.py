@@ -5,9 +5,9 @@ from tests.shared import  getEmptyDeck
 from anki.utils import  intTime
 from anki.hooks import addHook
 
-def checkRevIvl(d, targetIvl):
+def checkRevIvl(d, c, targetIvl):
     min, max = d.sched._fuzzIvlRange(targetIvl)
-    return min <= targetIvl <= max
+    return min <= c.ivl <= max
 
 def test_basics():
     d = getEmptyDeck()
@@ -152,7 +152,7 @@ def test_learn():
     d.sched.answerCard(c, 3)
     assert c.type == 2
     assert c.queue == 2
-    assert checkRevIvl(d, 4)
+    assert checkRevIvl(d, c, 4)
     # revlog should have been updated each time
     assert d.db.scalar("select count() from revlog where type = 0") == 5
     # now failed card handling
@@ -306,7 +306,7 @@ def test_reviews():
     d.sched.answerCard(c, 2)
     assert c.queue == 2
     # the new interval should be (100 + 8/4) * 1.2 = 122
-    assert checkRevIvl(d, 122)
+    assert checkRevIvl(d, c, 122)
     assert c.due == d.sched.today + c.ivl
     # factor should have been decremented
     assert c.factor == 2350
@@ -319,7 +319,7 @@ def test_reviews():
     c.flush()
     d.sched.answerCard(c, 3)
     # the new interval should be (100 + 8/2) * 2.5 = 260
-    assert checkRevIvl(d, 260)
+    assert checkRevIvl(d, c, 260)
     assert c.due == d.sched.today + c.ivl
     # factor should have been left alone
     assert c.factor == 2500
@@ -329,7 +329,7 @@ def test_reviews():
     c.flush()
     d.sched.answerCard(c, 4)
     # the new interval should be (100 + 8) * 2.5 * 1.3 = 351
-    assert checkRevIvl(d, 351)
+    assert checkRevIvl(d, c, 351)
     assert c.due == d.sched.today + c.ivl
     # factor should have been increased
     assert c.factor == 2650
