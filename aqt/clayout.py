@@ -227,7 +227,7 @@ Please create a new card type first."""))
 
     def maybeTextInput(self, txt, type='q'):
         if type == 'q':
-            repl = "<center><input type=text value=''></center>"
+            repl = "<input id='typeans' type=text value=''>"
         else:
             repl = _("(typing comparison appears here)")
         repl = "<center>%s</center>" % repl
