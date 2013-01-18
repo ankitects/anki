@@ -24,8 +24,10 @@ $ cd ../dtop
 And now you're ready to run Anki:
 $ ./runanki
 
+If you get any errors, please make sure you don't have an older version of
+Anki installed in a system location.
+
 Before contributing code, please read the LICENSE file.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
-
