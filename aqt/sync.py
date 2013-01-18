@@ -134,6 +134,10 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
         elif "407" in err:
             return _("Proxy authentication required.")
+        elif "sanity check failed" in err:
+            return _("After syncing, the collection was in an inconsistent \
+state. To fix this problem, Anki will force a full sync. Please sync again, and \
+choose which side you would like to keep.")
         return err
 
     def _getUserPass(self):

@@ -133,13 +133,16 @@ class Syncer(object):
             self.server.applyChunk(chunk=chunk)
             if chunk['done']:
                 break
-        # step 5: sanity check during beta testing
+        # step 5: sanity check
         runHook("sync", "sanity")
         c = self.sanityCheck()
-        s = self.server.sanityCheck()
-        if c != s:
-            raise Exception("""\
-Sanity check failed. Please copy and paste the text below:\n%s\n%s""" % (c, s))
+        ret = self.server.sanityCheck2(client=c)
+        if ret['status'] != "ok":
+            # roll back and force full sync
+            self.col.rollback()
+            self.col.modSchema()
+            self.col.save()
+            raise Exception("sanity check failed")
         # finalize
         runHook("sync", "finalize")
         mod = self.server.finish()
@@ -179,19 +182,22 @@ Sanity check failed. Please copy and paste the text below:\n%s\n%s""" % (c, s))
         self.prepareToChunk()
 
     def sanityCheck(self):
-        # some basic checks to ensure the sync went ok. this is slow, so will
-        # be removed before official release
-        assert not self.col.db.scalar("""
-select count() from cards where nid not in (select id from notes)""")
-        assert not self.col.db.scalar("""
-select count() from notes where id not in (select distinct nid from cards)""")
+        if self.col.db.scalar("""
+select count() from cards where nid not in (select id from notes)"""):
+            return "missing notes"
+        if self.col.db.scalar("""
+select count() from notes where id not in (select distinct nid from cards)"""):
+            return "missing cards"
         for t in "cards", "notes", "revlog", "graves":
-            assert not self.col.db.scalar(
-                "select count() from %s where usn = -1" % t)
+            if self.col.db.scalar(
+                "select count() from %s where usn = -1" % t):
+                return "%t had usn = -1" % t
         for g in self.col.decks.all():
-            assert g['usn'] != -1
+            if g['usn'] == -1:
+                return "deck had usn = -1"
         for t, usn in self.col.tags.allItems():
-            assert usn != -1
+            if usn == -1:
+                return "tag had usn = -1"
         found = False
         for m in self.col.models.all():
             if self.col.server:
@@ -200,7 +206,8 @@ select count() from notes where id not in (select distinct nid from cards)""")
                     m['usn'] = 0
                     found = True
             else:
-                assert m['usn'] != -1
+                if m['usn'] == -1:
+                    return "model had usn = -1"
         if found:
             self.col.models.save()
         self.col.sched.reset()
@@ -217,6 +224,12 @@ select count() from notes where id not in (select distinct nid from cards)""")
             len(self.col.decks.all()),
             len(self.col.decks.allConf()),
         ]
+
+    def sanityCheck2(self, client):
+        server = self.sanityCheck()
+        if client != server:
+            return dict(status="bad", c=client, s=server)
+        return dict(status="ok")
 
     def usnLim(self):
         if self.col.server:
@@ -580,8 +593,8 @@ class RemoteServer(HttpSyncer):
     def applyChunk(self, **kw):
         return self._run("applyChunk", kw)
 
-    def sanityCheck(self, **kw):
-        return self._run("sanityCheck", kw)
+    def sanityCheck2(self, **kw):
+        return self._run("sanityCheck2", kw)
 
     def finish(self, **kw):
         return self._run("finish", kw)
