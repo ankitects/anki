@@ -8,7 +8,7 @@ import anki.lang
 from anki.consts import HELP_SITE
 from anki.lang import langDir
 
-appVersion="2.0.5"
+appVersion="2.0.6"
 appWebsite="http://ankisrs.net/"
 appChanges="http://ankisrs.net/docs/changes.html"
 appDonate="http://ankisrs.net/support/"
