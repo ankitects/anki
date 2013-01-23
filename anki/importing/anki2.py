@@ -256,7 +256,7 @@ class Anki2Importer(Importer):
             card[4] = intTime()
             card[5] = usn
             # review cards have a due date relative to collection
-            if card[7] in (2, 3):
+            if card[7] in (2, 3) or card[6] == 2:
                 card[8] -= aheadBy
             # if odid true, convert card from filtered to normal
             if card[15]:

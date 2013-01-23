@@ -163,6 +163,16 @@ def test_anki1_diffmodels():
     assert after == before + 1
     assert beforeModels == len(dst.models.all())
 
+
+def test_suspended():
+    # create a new empty deck
+    dst = getEmptyDeck()
+    # import the 1 card version of the model
+    tmp = getUpgradeDeckPath("suspended12.anki")
+    imp = Anki1Importer(dst, tmp)
+    imp.run()
+    assert dst.db.scalar("select due from cards") < 0
+
 def test_anki2_diffmodels():
     # create a new empty deck
     dst = getEmptyDeck()
