@@ -155,7 +155,7 @@ If the same name exists, compare checksums."""
         # generate card q/a and look through all references
         normrefs = {}
         def norm(s):
-            if isinstance(s, unicode):
+            if isinstance(s, unicode) and isMac:
                 return unicodedata.normalize('NFD', s)
             return s
         for f in self.allMedia():
