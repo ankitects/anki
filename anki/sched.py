@@ -532,7 +532,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 resched = self._resched(card)
                 if 'mult' in conf and resched:
                     # review that's lapsed
-                    card.ivl = max(1, card.ivl*conf['mult'])
+                    card.ivl = max(1, conf['minInt'], card.ivl*conf['mult'])
                 else:
                     # new card; no ivl adjustment
                     pass
