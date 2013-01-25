@@ -10,8 +10,32 @@ from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
 
-class DeckBrowser(object):
 
+DECK_SHORTCUTS = "1234567890"
+
+
+class DeckSequenceSelector(object):
+    def __init__(self, keys=DECK_SHORTCUTS):
+        self.current_id = 0
+        self.keys = keys
+        self.nodes = {}
+
+    def __contains__(self, shortcut):
+        return shortcut in self.nodes
+
+    def __getitem__(self, key):
+        return self.nodes[key]
+
+    def __call__(self, node):
+        if self.current_id >= len(self.keys):
+            return None
+        key = self.keys[self.current_id]
+        self.current_id += 1
+        self.nodes[key] = node
+        return shortcut
+
+
+class DeckBrowser(object):
     def __init__(self, mw):
         self.mw = mw
         self.web = mw.web
@@ -54,9 +78,18 @@ class DeckBrowser(object):
         elif cmd == "collapse":
             self._collapse(arg)
 
+    def _openDeck(self, node):
+        name, did, due, lrn, new, children = node
+        self._selDeck(did)
+
     def _keyHandler(self, evt):
-        # currently does nothing
         key = unicode(evt.text())
+        if not key:
+            return
+        key = key.lower()
+        if key in self._shortcutSequence:
+            node = self._shortcutSequence[key]
+            self._openDeck(node)
 
     def _selDeck(self, did):
         self.mw.col.decks.select(did)
@@ -131,7 +164,9 @@ body { margin: 1em; -webkit-user-select: none; }
         css = self.mw.sharedCSS + self._css
         if not reuse:
             self._dueTree = self.mw.col.sched.deckDueTree()
-        tree = self._renderDeckTree(self._dueTree)
+        shortcutSequence = DeckSequenceSelector()
+        self._shortcutSequence = shortcutSequence
+        tree = self._renderDeckTree(self._dueTree, shortcutSequence)
         stats = self._renderStats()
         op = self._oldPos()
         self.web.stdHtml(self._body%dict(tree=tree, stats=stats), css=css,
@@ -157,7 +192,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
                                                         b=fmtTimeSpan(thetime, unit=1))
         return buf
 
-    def _renderDeckTree(self, nodes, depth=0):
+    def _renderDeckTree(self, nodes, shortcutSequence, depth=0):
         if not nodes:
             return ""
         if depth == 0:
@@ -168,13 +203,13 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             buf += self._topLevelDragRow()
         else:
             buf = ""
-        for node in nodes:
-            buf += self._deckRow(node, depth, len(nodes))
+        for sequence_id, node in enumerate(nodes):
+            buf += self._deckRow(shortcutSequence, node, depth, len(nodes))
         if depth == 0:
             buf += self._topLevelDragRow()
         return buf
 
-    def _deckRow(self, node, depth, cnt):
+    def _deckRow(self, shortcutSequence, node, depth, cnt):
         name, did, due, lrn, new, children = node
         deck = self.mw.col.decks.get(did)
         if did == 1 and cnt > 1 and not children:
@@ -206,10 +241,13 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             extraclass = "filtered"
         else:
             extraclass = ""
+        shortcut = shortcutSequence(node)
+        shortcutText = ""
+        if shortcut is not None:
+            shortcutText = _("Shortcut: %s") % shortcut
         buf += """
-
-        <td class=decktd colspan=5>%s%s<a class="deck %s" href='open:%d'>%s</a></td>"""% (
-            indent(), collapse, extraclass, did, name)
+        <td class=decktd colspan=5>%s%s<a class="deck %s" href='open:%d' title='%s'>%s</a></td>"""% (
+            indent(), collapse, extraclass, did, shortcutText, name)
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
@@ -224,7 +262,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
             link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>&#9662;")
         # children
-        buf += self._renderDeckTree(children, depth+1)
+        buf += self._renderDeckTree(children, shortcutSequence, depth+1)
         return buf
 
     def _topLevelDragRow(self):
