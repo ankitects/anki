@@ -37,7 +37,7 @@ def httpCon():
                 os.path.dirname(os.path.abspath(sys.argv[0])),
                 "../Resources/ankiweb.certs")
         else:
-            assert 0
+            assert 0, "Your distro has not packaged Anki correctly."
     return httplib2.Http(
         timeout=HTTP_TIMEOUT, ca_certs=certs,
         proxy_info=HTTP_PROXY,
