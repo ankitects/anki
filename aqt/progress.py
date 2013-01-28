@@ -18,6 +18,7 @@ class ProgressManager(object):
         self.mw = mw
         self.app = QApplication.instance()
         self.inDB = False
+        self.blockUpdates = False
         self._win = None
         self._levels = 0
 
@@ -49,8 +50,9 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations."""
         # ensure timers don't fire
         self.inDB = True
         # handle GUI events
-        self._maybeShow()
-        self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+        if not self.blockUpdates:
+          self._maybeShow()
+          self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
         self.inDB = False
 
     # DB-safe timers
