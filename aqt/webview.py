@@ -65,7 +65,7 @@ class AnkiWebView(QWebView):
             self.triggerPageAction(QWebPage.Copy)
             evt.accept()
         # work around a bug with windows qt where shift triggers buttons
-        if isWin and evt.modifiers() == Qt.ShiftModifier and not evt.text():
+        if isWin and evt.modifiers() & Qt.ShiftModifier and not evt.text():
             evt.accept()
             return
         QWebView.keyPressEvent(self, evt)
