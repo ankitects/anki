@@ -34,3 +34,7 @@ qtconf = pyqtconfig.Configuration()
 qtmajor = (qtconf.qt_version & 0xff0000) >> 16
 qtminor = (qtconf.qt_version & 0x00ff00) >> 8
 
+# qt4.6 doesn't support ruby tags
+if qtmajor <= 4 and qtminor <= 6:
+  import anki.template.furigana
+  anki.template.furigana.ruby = r'<span style="display: inline-block; text-align: center; line-height: 1; white-space: nowrap; vertical-align: baseline; margin: 0; padding: 0"><span style="display: block; text-decoration: none; line-height: 1.2; font-weight: normal; font-size: 0.64em">\2</span>\1</span>'
