@@ -1297,6 +1297,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def onNote(self):
         self.editor.focus()
+        self.editor.web.setFocus()
+        self.editor.web.eval("focusField(0);")
 
     def onTags(self):
         self.form.tree.setFocus()
