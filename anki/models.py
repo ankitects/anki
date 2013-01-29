@@ -62,8 +62,9 @@ defaultTemplate = {
     'did': None,
     'bqfmt': "",
     'bafmt': "",
-    'bfont': "Arial",
-    'bsize': 12,
+    # we don't define these so that we pick up system font size until set
+    #'bfont': "Arial",
+    #'bsize': 12,
 }
 
 class ModelManager(object):
