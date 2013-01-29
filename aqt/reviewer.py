@@ -280,6 +280,8 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
             self.onBuryNote()
         elif key == "!":
             self.onSuspend()
+        elif key == "@":
+            self.onSuspendCard()
         elif key == "V":
             self.onRecordVoice()
         elif key == "o":
@@ -655,6 +657,7 @@ function showAnswer(txt) {
         opts = [
             [_("Mark Note"), "*", self.onMark],
             [_("Bury Note"), "-", self.onBuryNote],
+            [_("Suspend Card"), "@", self.onSuspendCard],
             [_("Suspend Note"), "!", self.onSuspend],
             [_("Delete Note"), "Delete", self.onDelete],
             [_("Options"), "O", self.onOptions],
@@ -692,6 +695,12 @@ function showAnswer(txt) {
         self.mw.col.sched.suspendCards(
             [c.id for c in self.card.note().cards()])
         tooltip(_("Note suspended."))
+        self.mw.reset()
+
+    def onSuspendCard(self):
+        self.mw.checkpoint(_("Suspend"))
+        self.mw.col.sched.suspendCards([self.card.id])
+        tooltip(_("Card suspended."))
         self.mw.reset()
 
     def onDelete(self):
