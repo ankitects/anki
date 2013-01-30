@@ -722,8 +722,8 @@ and check the statistics for a home deck instead."""))
     def onCram(self, search=""):
         import aqt.dyndeckconf
         n = 1
+        deck = self.col.decks.current()
         if not search:
-            deck = self.col.decks.current()
             if not deck['dyn']:
                 search = 'deck:"%s" ' % deck['name']
         decks = self.col.decks.allNames()
@@ -735,6 +735,7 @@ and check the statistics for a home deck instead."""))
         if not diag.ok:
             # user cancelled first config
             self.col.decks.rem(did)
+            self.col.decks.select(deck['id'])
         else:
             self.moveToState("overview")
 
