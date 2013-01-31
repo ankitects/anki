@@ -481,7 +481,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         model = self.models.get(data[2])
         for (name, (idx, conf)) in self.models.fieldMap(model).items():
             fields[name] = flist[idx]
-        fields['Tags'] = data[5]
+        fields['Tags'] = data[5].strip()
         fields['Type'] = model['name']
         fields['Deck'] = self.decks.name(data[3])
         if model['type'] == MODEL_STD:
