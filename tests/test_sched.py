@@ -682,7 +682,7 @@ def test_cram_resched():
     assert ni(c, 1) == 60
     assert ni(c, 2) == 600
     assert ni(c, 3) == 0
-    assert d.sched.nextIvlStr(c, 3) == ""
+    assert d.sched.nextIvlStr(c, 3) == "(end)"
     d.sched.answerCard(c, 3)
     assert c.queue == c.type == 0
     # undue reviews should also be unaffected
