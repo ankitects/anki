@@ -1926,6 +1926,8 @@ and c.id in %s""" % ids2str(ids))
 
     def updateCardQACache(self, ids, dirty=True):
         "Given a list of (cardId, cardModelId, factId, modId), update q/a cache."
+        # we don't need the q/a cache for upgrading
+        return
         if dirty:
             mod = ", modified = %f" % time.time()
         else:
