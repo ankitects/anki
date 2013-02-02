@@ -53,7 +53,7 @@ class Upgrader(object):
         # ensure we have indices for checks below
         db.executescript("""
 create index if not exists ix_cards_factId on cards (factId);
-create index if not exists ix_fields_factId on fieldModels (factId);
+create index if not exists ix_fields_factId on fields (factId);
 analyze;""")
         # fields missing a field model?
         if db.list("""
