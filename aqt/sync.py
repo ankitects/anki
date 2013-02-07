@@ -129,7 +129,7 @@ Please upgrade to the latest version of Anki.""")
 AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "409" in err:
             return _("A previous sync failed; please try again in a few minutes.")
-        elif "10061" in err:
+        elif "10061" in err or "10013" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
         elif "407" in err:
