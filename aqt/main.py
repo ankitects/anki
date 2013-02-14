@@ -604,12 +604,12 @@ upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
     def closeEvent(self, event):
         "User hit the X button, etc."
         event.accept()
-        self.onClose()
+        self.onClose(force=True)
 
-    def onClose(self):
+    def onClose(self, force=False):
         "Called from a shortcut key. Close current active window."
         aw = self.app.activeWindow()
-        if not aw or aw == self:
+        if not aw or aw == self or force:
             self.unloadProfile(browser=False)
             self.app.closeAllWindows()
         else:
