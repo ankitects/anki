@@ -193,18 +193,23 @@ documentation for information on using a flash drive.""")
         self.db.execute("""
 create table if not exists profiles
 (name text primary key, data text not null);""")
-        if new:
-            # create a default global profile
-            self.meta = metaConf.copy()
-            self.db.execute("insert into profiles values ('_global', ?)",
-                            cPickle.dumps(metaConf))
-            self._setDefaultLang()
-            return True
-        else:
+        if not new:
             # load previously created
-            self.meta = cPickle.loads(
-                self.db.scalar(
-                    "select data from profiles where name = '_global'"))
+            try:
+                self.meta = cPickle.loads(
+                    self.db.scalar(
+                        "select data from profiles where name = '_global'"))
+                return
+            except:
+                # if we can't load profile, start with a new one
+                os.rename(path, path+".broken")
+                return self._loadMeta()
+        # create a default global profile
+        self.meta = metaConf.copy()
+        self.db.execute("insert or replace into profiles values ('_global', ?)",
+                        cPickle.dumps(metaConf))
+        self._setDefaultLang()
+        return True
 
     def ensureProfile(self):
         "Create a new profile if none exists."
