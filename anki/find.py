@@ -5,6 +5,7 @@
 import re
 from anki.utils import ids2str, splitFields, joinFields, intTime
 from anki.consts import *
+from anki.hooks import *
 import sre_constants
 
 # Find
@@ -26,6 +27,10 @@ class Finder(object):
         self.search['prop'] = self._findProp
         self.search['rated'] = self._findRated
         self.search['tag'] = self._findTag
+
+
+    def _loadSearchHookPlugins(self):
+        runHook("search", self.search)
 
     def findCards(self, query, order=False):
         "Return a list of card ids for QUERY."
@@ -120,6 +125,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     ######################################################################
 
     def _where(self, tokens):
+        self._loadSearchHookPlugins()
         # state and query
         s = dict(isnot=False, isor=False, join=False, q="", bad=False)
         args = []
