@@ -27,6 +27,7 @@ class Finder(object):
         self.search['prop'] = self._findProp
         self.search['rated'] = self._findRated
         self.search['tag'] = self._findTag
+        self._loadSearchHookPlugins()
 
 
     def _loadSearchHookPlugins(self):
@@ -125,7 +126,6 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     ######################################################################
 
     def _where(self, tokens):
-        self._loadSearchHookPlugins()
         # state and query
         s = dict(isnot=False, isor=False, join=False, q="", bad=False)
         args = []
