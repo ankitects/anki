@@ -69,7 +69,7 @@ if isWin:
     os.environ['PATH'] += ";" + dir + "\\..\\win\\top" # for testing
 else:
     mplayerCmd = ["mplayer"]
-mplayerCmd += ["-really-quiet", "-noautosub"]
+mplayerCmd += ["-really-quiet", "-noautosub", "-ac", "mp3"]
 
 # Mplayer in slave mode
 ##########################################################################
