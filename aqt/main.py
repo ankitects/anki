@@ -778,7 +778,7 @@ and check the statistics for a home deck instead."""))
         self.autoUpdate.start()
 
     def newVerAvail(self, ver):
-        if self.pm.meta['suppressUpdate'] != ver:
+        if self.pm.meta.get('suppressUpdate', None) != ver:
             aqt.update.askAndUpdate(self, ver)
 
     def newMsg(self, data):
