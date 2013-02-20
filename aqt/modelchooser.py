@@ -31,6 +31,7 @@ class ModelChooser(QHBoxLayout):
         self.models.setToolTip(shortcut(_("Change Note Type (Ctrl+N)")))
         s = QShortcut(QKeySequence(_("Ctrl+N")), self.widget)
         s.connect(s, SIGNAL("activated()"), self.onModelChange)
+        self.models.setAutoDefault(False)
         self.addWidget(self.models)
         self.connect(self.models, SIGNAL("clicked()"), self.onModelChange)
         # layout
