@@ -723,7 +723,7 @@ by clicking on one on the left."""))
                 else:
                     txt += a
                     if " " in txt or "(" in txt or ")" in txt:
-                        txt = "'%s'" % txt
+                        txt = '"%s"' % txt
                     items.append(txt)
                     txt = ""
             txt = " ".join(items)
