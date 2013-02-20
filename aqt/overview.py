@@ -182,7 +182,7 @@ text-align: center;
 
     def _renderBottom(self):
         links = [
-            ["o", "opts", _("Options")],
+            ["O", "opts", _("Options")],
         ]
         if self.mw.col.decks.current()['dyn']:
             links.append(["R", "refresh", _("Rebuild")])
