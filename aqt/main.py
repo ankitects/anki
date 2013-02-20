@@ -14,7 +14,8 @@ from anki.hooks import runHook, addHook
 
 import aqt, aqt.progress, aqt.webview, aqt.toolbar, aqt.stats
 from aqt.utils import  restoreGeom, showInfo, showWarning,\
-    restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, openHelp, openLink
+    restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
+    openHelp, openLink, checkInvalidFilename
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -151,12 +152,7 @@ class AnkiQt(QMainWindow):
 
     def profileNameOk(self, str):
         from anki.utils import invalidFilename, invalidFilenameChars
-        if invalidFilename(str):
-            showWarning(
-                _("A profile name cannot contain these characters: %s") %
-                " ".join(invalidFilenameChars))
-            return
-        return True
+        return not checkInvalidFilename(str)
 
     def onAddProfile(self):
         name = getOnlyText(_("Name:"))

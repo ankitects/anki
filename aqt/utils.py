@@ -4,8 +4,8 @@
 from aqt.qt import *
 import re, os, sys, urllib, subprocess
 import aqt
-from anki.sound import  stripSounds
-from anki.utils import  isWin, isMac
+from anki.sound import stripSounds
+from anki.utils import isWin, isMac, invalidFilename
 
 def openHelp(section):
     link = aqt.appHelpSite
@@ -411,3 +411,12 @@ def closeTooltip():
     if _tooltipTimer:
         _tooltipTimer.stop()
         _tooltipTimer = None
+
+# true if invalid; print warning
+def checkInvalidFilename(str, dirsep=True):
+    bad = invalidFilename(str, dirsep)
+    if bad:
+        showWarning(_("The following character can not be used: %s") %
+                    bad)
+        return True
+    return False

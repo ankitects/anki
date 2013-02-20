@@ -320,9 +320,13 @@ def call(argv, wait=True, **kwargs):
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
 
-invalidFilenameChars = "\\/:*?\"<>|"
+invalidFilenameChars = ":*?\"<>|"
 
-def invalidFilename(str):
+def invalidFilename(str, dirsep=True):
     for c in invalidFilenameChars:
         if c in str:
-            return True
+            return c
+    if (dirsep or isWin) and "/" in str:
+        return "/"
+    elif (dirsep or not isWin) and "\\" in str:
+        return "\\"

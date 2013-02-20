@@ -4,7 +4,8 @@
 import os
 from aqt.qt import *
 import  aqt
-from aqt.utils import getSaveFile, tooltip, showWarning, askUser
+from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
+    checkInvalidFilename
 from anki.exporting import exporters
 
 class ExportDialog(QDialog):
@@ -65,11 +66,15 @@ class ExportDialog(QDialog):
                     return
         else:
             verbatim = False
-            file = getSaveFile(
-                self, _("Export"), "export",
-                self.exporter.key, self.exporter.ext)
-            if not file:
-                return
+            while 1:
+                file = getSaveFile(
+                    self, _("Export"), "export",
+                    self.exporter.key, self.exporter.ext)
+                if not file:
+                    return
+                if checkInvalidFilename(file, dirsep=False):
+                    continue
+                break
         self.hide()
         if file:
             self.mw.progress.start(immediate=True)
