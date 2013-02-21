@@ -163,7 +163,7 @@ class AnkiApp(QApplication):
 
 def parseArgs(argv):
     "Returns (opts, args)."
-    parser = optparse.OptionParser()
+    parser = optparse.OptionParser(version="%prog " + appVersion)
     parser.usage = "%prog [OPTIONS] [file to import]"
     parser.add_option("-b", "--base", help="path to base folder")
     parser.add_option("-p", "--profile", help="profile name to load")
