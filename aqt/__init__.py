@@ -174,6 +174,11 @@ def run():
     global mw
     from anki.utils import  isMac
 
+    # parse args
+    opts, args = parseArgs(sys.argv)
+    opts.base = unicode(opts.base or "", sys.getfilesystemencoding())
+    opts.profile = unicode(opts.profile or "", sys.getfilesystemencoding())
+
     # on osx we'll need to add the qt plugins to the search path
     if isMac and getattr(sys, 'frozen', None):
         rd = os.path.abspath(moduleDir + "/../../..")
@@ -202,11 +207,6 @@ environment points to a valid, writable folder.""")
             None, "Error", "Your Qt version is known to be buggy. Until you "
           "upgrade to a newer Qt, you may experience issues such as images "
           "failing to show up during review.")
-
-    # parse args
-    opts, args = parseArgs(sys.argv)
-    opts.base = unicode(opts.base or "", sys.getfilesystemencoding())
-    opts.profile = unicode(opts.profile or "", sys.getfilesystemencoding())
 
     # profile manager
     from aqt.profiles import ProfileManager
