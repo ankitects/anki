@@ -4034,10 +4034,6 @@ order by priority desc, due desc""")
             deck.version = 7
         # <version 7->8 upgrade code removed as obsolete>
         if deck.version < 9:
-            # back up the media dir again, just in case
-            shutil.copytree(deck.mediaDir(create=True),
-                            deck.mediaDir() + "-old-%s" %
-                            hash(time.time()))
             # backup media
             media = deck.s.all("""
 select filename, size, created, originalPath, description from media""")
