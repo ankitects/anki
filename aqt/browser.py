@@ -452,8 +452,8 @@ class Browser(QMainWindow):
 
     def setupColumns(self):
         self.columns = [
-            ('question', _("Front")),
-            ('answer', _("Back")),
+            ('question', _("Question")),
+            ('answer', _("Answer")),
             ('template', _("Card")),
             ('deck', _("Deck")),
             ('noteFld', _("Sort Field")),
