@@ -2,22 +2,33 @@
 # Copyright: Andreas Klauer <Andreas.Klauer@metamorpher.de>
 # License: BSD-3
 
-import gzip, math, random
+import gzip, math, random, time
 import xml.etree.ElementTree as ET
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
-from anki.stdmodels import addBasicModel
+from anki.stdmodels import addForwardReverse
+
+ONE_DAY = 60*60*24
 
 class PaukerImporter(NoteImporter):
     '''Import Pauker 1.8 Lesson (*.pau.gz)'''
 
+    needMapper = False
+
+    def run(self):
+        model = addForwardReverse(self.col)
+        model['name'] = "Pauker"
+        self.col.models.save(model)
+        self.col.models.setCurrent(model)
+        self.model = model
+        self.initMapping()
+        NoteImporter.run(self)
+
     def fields(self):
         '''Pauker is Front/Back'''
-        print "pauker", "fields", self
         return 2
 
     def foreignNotes(self):
         '''Build and return a list of notes.'''
-        print "pauker", "foreignNotes", self
         notes = []
 
         try:
@@ -29,41 +40,36 @@ class PaukerImporter(NoteImporter):
             f.close()
 
         index = -4
-        ivlmax = -1
 
         for batch in lesson.findall('./Batch'):
             index += 1
 
-            if index >= 0:
-                ivlmin = ivlmax+1
-                ivlmax = int(math.exp(index))
-
             for card in batch.findall('./Card'):
+                # Create a note for this card.
                 front = card.findtext('./FrontSide/Text')
                 back = card.findtext('./ReverseSide/Text')
                 note = ForeignNote()
                 note.fields = [x.strip().replace('\n','<br>') for x in [front, back]]
-                note.tags.append("Pauker%+d" % (index,))
                 notes.append(note)
 
-                if index == -3:
-                    # new cards
-                    continue
+                # Determine due date for cards.
+                frontdue = card.find('./FrontSide[@LearnedTimestamp]')
+                backdue = card.find('./ReverseSide[@Batch][@LearnedTimestamp]')
 
-                for tmpl in self.model['tmpls']:
-                    fc = ForeignCard()
-                    if index >= 0:
-                        # due cards
-                        fc.ivl = random.randint(ivlmin,ivlmax)
-                        fc.due = self.col.sched.today+random.randint(ivlmin,ivlmax)
-                        fc.factor = 2500 * fc.ivl / ivlmax
-                        fc.reps = index * fc.ivl / ivlmax
-                    else:
-                        # shortterm cards
-                        fc.ivl = 0
-                        fc.due = self.col.sched.today
-                        fc.factor = random.randint(2000, 2500)
-                        fc.reps = random.randint(0,3)
-                    note.cards[tmpl['ord']] = fc
+                if frontdue is not None:
+                    note.cards[0] = self._learnedCard(index, int(frontdue.attrib['LearnedTimestamp']))
+
+                if backdue is not None:
+                    note.cards[1] = self._learnedCard(int(backdue.attrib['Batch']), int(backdue.attrib['LearnedTimestamp']))
 
         return notes
+
+    def _learnedCard(self, batch, timestamp):
+        ivl = math.exp(batch)
+        now = time.time()
+        due = ivl - (now - timestamp/1000.0)/ONE_DAY
+        fc = ForeignCard()
+        fc.due = self.col.sched.today + int(due+0.5)
+        fc.ivl = random.randint(int(ivl*0.90), int(ivl+0.5))
+        fc.factor = random.randint(1500,2500)
+        return fc
