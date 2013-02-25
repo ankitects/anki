@@ -2,7 +2,7 @@
 # Copyright: Andreas Klauer <Andreas.Klauer@metamorpher.de>
 # License: BSD-3
 
-import gzip, math, random, time
+import gzip, math, random, time, cgi
 import xml.etree.ElementTree as ET
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.stdmodels import addForwardReverse
@@ -13,6 +13,7 @@ class PaukerImporter(NoteImporter):
     '''Import Pauker 1.8 Lesson (*.pau.gz)'''
 
     needMapper = False
+    allowHTML = True
 
     def run(self):
         model = addForwardReverse(self.col)
@@ -49,7 +50,7 @@ class PaukerImporter(NoteImporter):
                 front = card.findtext('./FrontSide/Text')
                 back = card.findtext('./ReverseSide/Text')
                 note = ForeignNote()
-                note.fields = [x.strip().replace('\n','<br>') for x in [front, back]]
+                note.fields = [cgi.escape(x.strip()).replace('\n','<br>').replace('  ',' &nbsp;') for x in [front,back]]
                 notes.append(note)
 
                 # Determine due date for cards.
