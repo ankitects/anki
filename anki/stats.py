@@ -313,7 +313,7 @@ group by day order by day""" % (self._limit(), lim),
                 period = 1
             else:
                 period = max(
-                    1, (self.col.sched.dayCutoff - (t/1000)) / 86400)
+                    1, 1+((self.col.sched.dayCutoff - (t/1000)) / 86400))
         i = []
         self._line(i, _("Days studied"),
                    _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
