@@ -191,7 +191,7 @@ select count() from notes where id not in (select distinct nid from cards)"""):
         for t in "cards", "notes", "revlog", "graves":
             if self.col.db.scalar(
                 "select count() from %s where usn = -1" % t):
-                return "%t had usn = -1" % t
+                return "%s had usn = -1" % t
         for g in self.col.decks.all():
             if g['usn'] == -1:
                 return "deck had usn = -1"
