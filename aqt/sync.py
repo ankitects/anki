@@ -208,7 +208,7 @@ If you choose upload, Anki will upload your collection to AnkiWeb, and \
 any changes you have made on AnkiWeb or your other devices since the \
 last sync to this device will be lost.
 
-After all devices are in sync, future reviews and added cards can be merged
+After all devices are in sync, future reviews and added cards can be merged \
 automatically."""),
                 [_("Upload to AnkiWeb"),
                  _("Download from AnkiWeb"),
