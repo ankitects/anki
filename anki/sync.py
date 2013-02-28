@@ -636,7 +636,8 @@ class FullSyncer(HttpSyncer):
         assert self.col.db.scalar("pragma integrity_check") == "ok"
         # apply some adjustments, then upload
         self.col.beforeUpload()
-        assert self.req("upload", open(self.col.path, "rb")) == "OK"
+        if self.req("upload", open(self.col.path, "rb")) != "OK":
+            raise Exception("server refused upload")
 
 # Media syncing
 ##########################################################################

@@ -8,7 +8,7 @@ from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, remHook
-from aqt.utils import tooltip, askUserDialog, showWarning, showText
+from aqt.utils import tooltip, askUserDialog, showWarning, showText, showInfo
 
 # Sync manager
 ######################################################################
@@ -33,6 +33,7 @@ class SyncManager(QObject):
         # to avoid gui widgets being garbage collected in the worker thread,
         # run gc in advance
         self._didFullUp = False
+        self._didError = False
         gc.collect()
         # create the thread, setup signals and start running
         t = self.thread = SyncThread(
@@ -48,14 +49,16 @@ class SyncManager(QObject):
             self.mw.app.processEvents()
             self.thread.wait(100)
         self.mw.progress.finish()
-        if self._didFullUp:
-            showWarning(_("""\
+        def delayedInfo():
+            if self._didFullUp and not self._didError:
+                showInfo(_("""\
 Your collection was successfully uploaded to AnkiWeb.
 
 If you use any other devices, please sync them now, and choose \
 to download the collection you have just uploaded from this computer. \
 After doing so, future reviews and added cards will be merged \
 automatically."""))
+        self.mw.progress.timer(1000, delayedInfo, False)
 
     def _updateLabel(self):
         self.mw.progress.update(label="%s\n%s" % (
@@ -100,6 +103,7 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
                 self.label = m
                 self._updateLabel()
         elif evt == "error":
+            self._didError = True
             showText(_("Syncing failed:\n%s")%
                      self._rewriteError(args[0]))
         elif evt == "clockOff":
@@ -142,7 +146,7 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "10061" in err or "10013" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
-        elif "Unable to find the server":
+        elif "Unable to find the server" in err:
             return _(
                 "Server not found. Either your connection is down, or antivirus/firewall "
                 "software is blocking Anki from connecting to the internet.")
@@ -152,6 +156,8 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
             return _("After syncing, the collection was in an inconsistent \
 state. To fix this problem, Anki will force a full sync. Please sync again, and \
 choose which side you would like to keep.")
+        elif "server refused upload" in err:
+            return _("The server said our uploaded file was corrupt. Please try again.")
         return err
 
     def _getUserPass(self):
