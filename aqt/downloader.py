@@ -20,7 +20,14 @@ def download(mw, code):
     # create downloading thread
     thread = Downloader(code)
     def onRecv():
-        mw.progress.update(label="%dKB downloaded" % (thread.recvTotal/1024))
+        try:
+            mw.progress.update(label="%dKB downloaded" % (thread.recvTotal/1024))
+        except NameError:
+            # some users report the following error on long downloads
+            # NameError: free variable 'mw' referenced before assignment in enclosing scope
+            # unsure why this is happening, but guard against throwing the
+            # error
+            pass
     mw.connect(thread, SIGNAL("recv"), onRecv)
     thread.start()
     mw.progress.start(immediate=True)
