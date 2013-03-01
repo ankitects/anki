@@ -63,7 +63,9 @@ or your deck may have a problem.
 <p>If that doesn't fix the problem, please copy the following<br>
 into a bug report:""")
         pluginText = _("""\
-An error occurred in an add-on. Please contact the add-on author.<br>""")
+An error occurred in an add-on.<br>
+Please post on the add-on forum:<br>%s<br>""")
+        pluginText %= "https://groups.google.com/forum/#!forum/anki-addons"
         if "addon" in error:
             txt = pluginText
         else:
