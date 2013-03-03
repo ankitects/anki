@@ -31,7 +31,7 @@ _html = """
 }
 /* prevent floated images from being displayed outside field */
 .field:after {
-    content: ".";
+    content: "";
     display: block;
     height: 0;
     clear: both;
