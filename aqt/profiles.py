@@ -57,7 +57,10 @@ class ProfileManager(object):
     def __init__(self, base=None, profile=None):
         self.name = None
         # instantiate base folder
-        self.base = base or self._defaultBase()
+        if base:
+            self.base = os.path.abspath(base)
+        else:
+            self.base = self._defaultBase()
         self.ensureLocalFS()
         self.ensureBaseExists()
         # load metadata
