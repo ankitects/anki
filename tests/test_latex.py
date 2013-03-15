@@ -20,10 +20,11 @@ def test_latex():
     assert "executing latex" in msg
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
-    if (not os.path.exists("/usr/bin/latex") and
-        not os.path.exists("/usr/texbin/latex")):
-        print "aborting test; latex is not installed"
-        return
+    for cmd in ("latex", "dvipng"):
+        if (not os.path.exists("/usr/bin/"+cmd) and
+            not os.path.exists("/usr/texbin/"+cmd)):
+            print "aborting test; %s is not installed" % cmd
+            return
     # fix path
     anki.latex.latexCmd[0] = "latex"
     # check media db should cause latex to be generated
