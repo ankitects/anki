@@ -7,7 +7,7 @@ import unicodedata as ucd
 import HTMLParser
 from aqt.qt import *
 from anki.utils import  stripHTML, isMac, json
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, getBase, openLink, tooltip
 from aqt.sound import getAudio
@@ -188,7 +188,7 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
         if self._autoplay(c):
             playFromText(q)
         # render & update bottom
-        q = self._mungeQA(q)
+        q = runFilter("filterQuestionText", self._mungeQA(q), c)
         klass = "card card%d" % (c.ord+1)
         self.web.eval("_updateQA(%s, false, '%s');" % (json.dumps(q), klass))
         self._toggleStar()
@@ -226,7 +226,7 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
         if self._autoplay(c):
             playFromText(a)
         # render and update bottom
-        a = self._mungeQA(a)
+        a = runFilter("filterAnswerText", self._mungeQA(a), c)
         self.web.eval("_updateQA(%s, true);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
