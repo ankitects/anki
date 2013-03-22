@@ -7,7 +7,7 @@ import unicodedata as ucd
 import HTMLParser
 from aqt.qt import *
 from anki.utils import  stripHTML, isMac, json
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, getBase, openLink, tooltip
 from aqt.sound import getAudio
@@ -184,7 +184,7 @@ function _typeAnsPress() {
             q = _("""\
 The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
         else:
-            q = c.q()
+            q = runFilter("filterQuestionText", c.q(), c)
         if self._autoplay(c):
             playFromText(q)
         # render & update bottom
@@ -221,7 +221,7 @@ The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
             return
         self.state = "answer"
         c = self.card
-        a = c.a()
+        a = runFilter("filterAnswerText", c.a(), c)
         # play audio?
         if self._autoplay(c):
             playFromText(a)
