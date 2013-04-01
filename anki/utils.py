@@ -57,7 +57,7 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
     (type, point) = optimalPeriod(time, point, unit)
     time = convertSecondsTo(time, type)
     if not point:
-        time = math.floor(time)
+        time = round(time)
     if short:
         fmt = shortTimeFmt(type)
     else:
