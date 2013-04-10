@@ -78,6 +78,7 @@ function sendState() {
         'bold': document.queryCommandState("bold"),
         'italic': document.queryCommandState("italic"),
         'under': document.queryCommandState("underline"),
+        'strike': document.queryCommandState("strike"),
         'super': document.queryCommandState("superscript"),
         'sub': document.queryCommandState("subscript"),
         'col': document.queryCommandValue("forecolor")
@@ -409,6 +410,8 @@ class Editor(object):
           check=True)
         b("text_under", self.toggleUnderline, _("Ctrl+U"),
           _("Underline text (Ctrl+U)"), check=True)
+        b("text_strike", self.toggleStrike, _("Ctrl+S"),
+          _("Strikethrough text (Ctrl+S)"), check=True)
         b("text_super", self.toggleSuper, _("Ctrl+="),
           _("Superscript (Ctrl+=)"), check=True)
         b("text_sub", self.toggleSub, _("Ctrl+Shift+="),
@@ -702,6 +705,9 @@ class Editor(object):
 
     def toggleUnderline(self, bool):
         self.web.eval("setFormat('underline');")
+
+    def toggleStrike(self, bool):
+        self.web.eval("setFormat('strikethrough');")
 
     def toggleSuper(self, bool):
         self.web.eval("setFormat('superscript');")
