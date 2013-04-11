@@ -250,17 +250,23 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
 
     def remField(self, m, field):
         self.col.modSchema()
+        # save old sort field
+        sortFldName = m['flds'][m['sortf']]['name']
         idx = m['flds'].index(field)
         m['flds'].remove(field)
-        if m['sortf'] >= len(m['flds']):
-            m['sortf'] -= 1
+        # restore old sort field if possible, or revert to first field
+        m['sortf'] = 0
+        for c, f in enumerate(m['flds']):
+            if f['name'] == sortFldName:
+                m['sortf'] = c
+                break
         self._updateFieldOrds(m)
         def delete(fields):
             del fields[idx]
             return fields
         self._transformFields(m, delete)
-        if idx == self.sortIdx(m):
-            # need to rebuild
+        if m['flds'][m['sortf']]['name'] != sortFldName:
+            # need to rebuild sort field
             self.col.updateFieldCache(self.nids(m))
         # saves
         self.renameField(m, field, None)
