@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.utils import  openLink, shortcut
+from aqt.utils import  openLink, shortcut, tooltip
 from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue
@@ -35,6 +35,8 @@ class Overview(object):
         if url == "study":
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
+            if self.mw.state == "overview":
+                tooltip(_("No cards are due yet."))
         elif url == "anki":
             print "anki menu"
         elif url == "opts":
