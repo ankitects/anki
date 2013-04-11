@@ -226,9 +226,10 @@ To import into a password protected profile, please open the profile before atte
         if not self.pm.profile:
             # already unloaded
             return
-        self.state = "profileManager"
         runHook("unloadProfile")
-        self.unloadCollection()
+        if not self.unloadCollection():
+            return
+        self.state = "profileManager"
         self.onSync(auto=True, reload=False)
         self.pm.profile['mainWindowGeom'] = self.saveGeometry()
         self.pm.profile['mainWindowState'] = self.saveState()
@@ -257,14 +258,17 @@ how to restore from a backup.""")
         self.moveToState("deckBrowser")
 
     def unloadCollection(self):
+        "True if unload successful."
         if self.col:
-            self.closeAllCollectionWindows()
+            if not self.closeAllCollectionWindows():
+                return
             self.maybeOptimize()
             self.col.close()
             self.col = None
             self.progress.start(immediate=True)
             self.backup()
             self.progress.finish()
+            return True
 
     # Backup and auto-optimize
     ##########################################################################
@@ -469,7 +473,7 @@ title="%s">%s</button>''' % (
         self.form.centralwidget.setLayout(self.mainLayout)
 
     def closeAllCollectionWindows(self):
-        aqt.dialogs.closeAll()
+        return aqt.dialogs.closeAll()
 
     # Components
     ##########################################################################
@@ -521,7 +525,8 @@ title="%s">%s</button>''' % (
         if not auto or (self.pm.profile['syncKey'] and
                         self.pm.profile['autoSync']):
             from aqt.sync import SyncManager
-            self.unloadCollection()
+            if not self.unloadCollection():
+                return
             # set a sync state so the refresh timer doesn't fire while deck
             # unloaded
             self.state = "sync"

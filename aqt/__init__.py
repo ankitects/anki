@@ -55,11 +55,15 @@ class DialogManager(object):
         self._dialogs[name] = [self._dialogs[name][0], None]
 
     def closeAll(self):
+        "True if all closed successfully."
         for (n, (creator, instance)) in self._dialogs.items():
             if instance:
+                if not instance.canClose():
+                    return False
                 instance.forceClose = True
                 instance.close()
                 self.close(n)
+        return True
 
 dialogs = DialogManager()
 

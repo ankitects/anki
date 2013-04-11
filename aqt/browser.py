@@ -441,6 +441,9 @@ class Browser(QMainWindow):
         self.mw.maybeReset()
         evt.accept()
 
+    def canClose(self):
+        return True
+
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
         if evt.key() == Qt.Key_Escape:
