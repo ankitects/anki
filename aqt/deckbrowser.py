@@ -44,7 +44,7 @@ class DeckBrowser(object):
         elif cmd == "import":
             self.mw.onImport()
         elif cmd == "create":
-            deck = getOnlyText(_("New deck name:"))
+            deck = getOnlyText(_("Name for deck:"))
             if deck:
                 self.mw.col.decks.id(deck)
                 self.refresh()
