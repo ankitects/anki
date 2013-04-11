@@ -4,6 +4,7 @@
 
 from aqt.qt import *
 import sys
+import cgi
 from aqt.utils import showText, showWarning
 
 class ErrorHandler(QObject):
@@ -43,7 +44,7 @@ class ErrorHandler(QObject):
         self.timer.start()
 
     def onTimeout(self):
-        error = self.pool
+        error = cgi.escape(self.pool)
         self.pool = ""
         self.mw.progress.clear()
         if "abortSchemaMod" in error:
