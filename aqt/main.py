@@ -981,7 +981,10 @@ will be lost. Continue?"""))
                 buf += ">>> %s\n" % line
             else:
                 buf += "... %s\n" % line
-        frm.log.appendPlainText(buf + (self._output or "<no output>"))
+        try:
+            frm.log.appendPlainText(buf + (self._output or "<no output>"))
+        except UnicodeDecodeError:
+            frm.log.appendPlainText(_("<non-unicode text>"))
         frm.log.ensureCursorVisible()
 
     # System specific code
