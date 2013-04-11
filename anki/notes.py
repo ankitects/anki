@@ -43,18 +43,24 @@ from notes where id = ?""", self.id)
         self.scm = self.col.scm
 
     def flush(self, mod=None):
+        "If fields or tags have changed, write changes to disk."
         assert self.scm == self.col.scm
         self._preFlush()
-        self.mod = mod if mod else intTime()
-        self.usn = self.col.usn()
         sfld = stripHTMLMedia(self.fields[self.col.models.sortIdx(self._model)])
         tags = self.stringTags()
+        fields = self.joinedFields()
+        if not mod and self.col.db.scalar(
+            "select 1 from notes where id = ? and tags = ? and flds = ?",
+            self.id, tags, fields):
+            return
         csum = fieldChecksum(self.fields[0])
+        self.mod = mod if mod else intTime()
+        self.usn = self.col.usn()
         res = self.col.db.execute("""
 insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
                             self.id, self.guid, self.mid,
                             self.mod, self.usn, tags,
-                            self.joinedFields(), sfld, csum, self.flags,
+                            fields, sfld, csum, self.flags,
                             self.data)
         self.col.tags.register(self.tags)
         self._postFlush()
