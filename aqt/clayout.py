@@ -52,6 +52,10 @@ class CardLayout(QDialog):
         self.redrawing = True
         self.updateTabs()
         self.redrawing = False
+        idx = self.ord
+        if idx >= len(self.cards):
+            idx = len(self.cards) - 1
+        self.selectCard(idx)
 
     def setupTabs(self):
         c = self.connect
@@ -175,14 +179,15 @@ Please create a new card type first."""))
     ##########################################################################
 
     def selectCard(self, idx):
-        self.tabs.setCurrentIndex(idx)
+        if self.tabs.currentIndex() == idx:
+            # trigger a re-read
+            self.onCardSelected(idx)
+        else:
+            self.tabs.setCurrentIndex(idx)
 
     def onCardSelected(self, idx):
         if self.redrawing:
             return
-        self.ord = idx
-        if idx >= len(self.cards):
-            idx = len(self.cards) - 1
         self.card = self.cards[idx]
         self.tab = self.forms[idx]
         self.tabs.setCurrentIndex(idx)
@@ -289,8 +294,8 @@ Please create a new card type first."""))
         t['qfmt'] = "%s<br>\n%s" % (_("Edit to customize"), old['qfmt'])
         t['afmt'] = old['afmt']
         self.mm.addTemplate(self.model, t)
+        self.ord = len(self.cards)
         self.redraw()
-        self.selectCard(t['ord'])
 
     def onFlip(self):
         old = self.card.template()
