@@ -409,10 +409,10 @@ class Editor(object):
           check=True)
         b("text_under", self.toggleUnderline, _("Ctrl+U"),
           _("Underline text (Ctrl+U)"), check=True)
-        b("text_super", self.toggleSuper, _("Ctrl+="),
-          _("Superscript (Ctrl+=)"), check=True)
-        b("text_sub", self.toggleSub, _("Ctrl+Shift+="),
-          _("Subscript (Ctrl+Shift+=)"), check=True)
+        b("text_super", self.toggleSuper, _("Ctrl+Shift+="),
+          _("Superscript (Ctrl+Shift+=)"), check=True)
+        b("text_sub", self.toggleSub, _("Ctrl+="),
+          _("Subscript (Ctrl+=)"), check=True)
         b("text_clear", self.removeFormat, _("Ctrl+R"),
           _("Remove formatting (Ctrl+R)"))
         but = b("foreground", self.onForeground, _("F7"), text=" ")
