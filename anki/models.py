@@ -196,6 +196,11 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         return self.col.db.scalar(
             "select count() from notes where mid = ?", m['id'])
 
+    def tmplUseCount(self, m, ord):
+        return self.col.db.scalar("""
+select count() from cards, notes where cards.nid = notes.id
+and notes.mid = ? and cards.ord = ?""", m['id'], ord)
+
     # Copying
     ##################################################
 

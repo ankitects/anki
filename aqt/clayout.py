@@ -58,6 +58,7 @@ class CardLayout(QDialog):
         c = self.connect
         cloze = self.model['type'] == MODEL_CLOZE
         self.tabs = QTabWidget()
+        self.tabs.setTabsClosable(not cloze)
         self.tabs.setUsesScrollButtons(True)
         if not cloze:
             add = QPushButton("+")
@@ -66,6 +67,7 @@ class CardLayout(QDialog):
             c(add, SIGNAL("clicked()"), self.onAddCard)
             self.tabs.setCornerWidget(add)
         c(self.tabs, SIGNAL("currentChanged(int)"), self.selectCard)
+        c(self.tabs, SIGNAL("tabCloseRequested(int)"), self.onRemoveTab)
 
     def updateTabs(self):
         self.forms = []
@@ -127,8 +129,12 @@ class CardLayout(QDialog):
 
     def onRemoveTab(self, idx):
         if len(self.model['tmpls']) < 2:
-            return showInfo(_("At least one card is required."))
-        if not askUser(_("Remove all cards of this type?")):
+            return showInfo(_("At least one card type is required."))
+        cards = self.mm.tmplUseCount(self.model, idx)
+        cards = ngettext("%d card", "%d cards", cards) % cards
+        msg = _("Delete the '%s' card type, and its %s?" %
+            (self.model['tmpls'][idx]['name'], cards))
+        if not askUser(msg):
             return
         if not self.mm.remTemplate(self.model, self.cards[idx].template()):
             return showWarning(_("""\
@@ -320,10 +326,6 @@ adjust the template manually to switch the question and answer."""))
         a = m.addAction(_("Browser Appearance"))
         a.connect(a, SIGNAL("triggered()"),
                   self.onBrowserDisplay)
-        if self.model['type'] != MODEL_CLOZE:
-            a = m.addAction(_("Delete"))
-            a.connect(a, SIGNAL("triggered()"),
-                      lambda: self.onRemoveTab(self.tabs.currentIndex()))
         m.exec_(button.mapToGlobal(QPoint(0,0)))
 
     def onBrowserDisplay(self):
