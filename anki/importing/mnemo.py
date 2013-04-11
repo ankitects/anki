@@ -12,6 +12,7 @@ class MnemosyneImporter(NoteImporter):
 
     needMapper = False
     update = False
+    allowHTML = True
 
     def run(self):
         db = DB(self.file)
