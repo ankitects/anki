@@ -131,7 +131,7 @@ def stripHTML(s):
 
 def stripHTMLMedia(s):
     "Strip HTML but keep media filenames"
-    s = re.sub("<img src=[\"']?([^\"'>]+)[\"']? ?/?>", " \\1 ", s)
+    s = re.sub("<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>", " \\1 ", s)
     return stripHTML(s)
 
 def minimizeHTML(s):
