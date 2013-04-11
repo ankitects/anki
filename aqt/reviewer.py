@@ -377,7 +377,7 @@ Please run Tools>Maintenance>Empty Cards""")
 """ % (self.typeFont, self.typeSize), buf)
 
     def typeAnsAnswerFilter(self, buf):
-        if not self.typeCorrect:
+        if not self.typeCorrect or not self.typedAnswer:
             return re.sub(self.typeAnsPat, "", buf)
         # tell webview to call us back with the input content
         self.web.eval("_getTypedText();")
