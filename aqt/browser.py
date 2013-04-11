@@ -733,6 +733,10 @@ by clicking on one on the left."""))
             cur = unicode(self.form.searchEdit.lineEdit().text())
             if cur:
                 txt = cur + " " + txt
+        elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
+            cur = unicode(self.form.searchEdit.lineEdit().text())
+            if cur:
+                txt = cur + " or " + txt
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearch()
 
