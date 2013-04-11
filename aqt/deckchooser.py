@@ -70,6 +70,9 @@ class DeckChooser(QHBoxLayout):
             title=_("Choose Deck"), help="addingnotes",
             cancel=False, parent=self.widget)
         self.deck.setText(ret.name)
+        deck = self.mw.col.decks.byName(ret.name)
+        self.mw.col.decks.select(deck['id'])
+        self.mw.requireReset()
 
     def selectedId(self):
         # save deck name
