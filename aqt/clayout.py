@@ -52,7 +52,6 @@ class CardLayout(QDialog):
         self.redrawing = True
         self.updateTabs()
         self.redrawing = False
-        self.selectCard(self.ord)
 
     def setupTabs(self):
         c = self.connect
@@ -66,7 +65,7 @@ class CardLayout(QDialog):
             add.setToolTip(_("Add new card"))
             c(add, SIGNAL("clicked()"), self.onAddCard)
             self.tabs.setCornerWidget(add)
-        c(self.tabs, SIGNAL("currentChanged(int)"), self.selectCard)
+        c(self.tabs, SIGNAL("currentChanged(int)"), self.onCardSelected)
         c(self.tabs, SIGNAL("tabCloseRequested(int)"), self.onRemoveTab)
 
     def updateTabs(self):
@@ -176,6 +175,9 @@ Please create a new card type first."""))
     ##########################################################################
 
     def selectCard(self, idx):
+        self.tabs.setCurrentIndex(idx)
+
+    def onCardSelected(self, idx):
         if self.redrawing:
             return
         self.ord = idx
