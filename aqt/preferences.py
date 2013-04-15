@@ -87,7 +87,7 @@ class Preferences(QDialog):
                          self.onSyncDeauth)
 
     def _hideAuth(self):
-        self.form.syncDeauth.setShown(False)
+        self.form.syncDeauth.setVisible(False)
         self.form.syncLabel.setText(_("""\
 <b>Synchronization</b><br>
 Not currently enabled; click the sync button in the main window to enable."""))

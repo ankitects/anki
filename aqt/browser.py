@@ -562,7 +562,7 @@ class Browser(QMainWindow):
         "Update current note and hide/show editor."
         update = self.updateTitle()
         show = self.model.cards and update == 1
-        self.form.splitter.widget(1).setShown(not not show)
+        self.form.splitter.widget(1).setVisible(not not show)
         if not show:
             self.editor.setNote(None)
         else:

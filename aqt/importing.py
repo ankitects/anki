@@ -64,7 +64,7 @@ class ImportDialog(QDialog):
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()
-        self.frm.autoDetect.setShown(self.importer.needDelimiter)
+        self.frm.autoDetect.setVisible(self.importer.needDelimiter)
         addHook("currentModelChanged", self.modelChanged)
         self.connect(self.frm.autoDetect, SIGNAL("clicked()"),
                      self.onDelimiter)

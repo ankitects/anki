@@ -79,9 +79,9 @@ class CustomStudy(QDialog):
             sval = 100
             spShow = False
             pre = post = ""
-        sp.setShown(spShow)
+        sp.setVisible(spShow)
         f.title.setText(tit)
-        f.title.setShown(not not tit)
+        f.title.setVisible(not not tit)
         f.spin.setMinimum(smin)
         f.spin.setMaximum(smax)
         f.spin.setValue(sval)

@@ -195,6 +195,10 @@ def run():
         # we've signaled the primary instance, so we should close
         return
 
+    # disable icons on mac; this must be done before window created
+    if isMac:
+        app.setAttribute(Qt.AA_DontShowIconsInMenus)
+
     # we must have a usable temp dir
     try:
         tempfile.gettempdir()
