@@ -384,6 +384,9 @@ class Editor(object):
         self._buttons = {}
         # button styles for mac
         self.plastiqueStyle = QStyleFactory.create("plastique")
+        if not self.plastiqueStyle:
+            # plastique was removed in qt5
+            self.plastiqueStyle = QStyleFactory.create("fusion")
         self.widget.setStyle(self.plastiqueStyle)
         # icons
         self.iconsBox = QHBoxLayout()

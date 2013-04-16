@@ -7,6 +7,7 @@ import locale, gettext
 import anki.lang
 from anki.consts import HELP_SITE
 from anki.lang import langDir
+from anki.utils import isMac
 
 appVersion="2.0.8"
 appWebsite="http://ankisrs.net/"
@@ -167,6 +168,10 @@ class AnkiApp(QApplication):
 
 def parseArgs(argv):
     "Returns (opts, args)."
+    # py2app fails to strip this in some instances, then anki dies
+    # as there's no such profile
+    if isMac and len(argv) > 1 and argv[1].startswith("-psn"):
+        argv = [argv[0]]
     parser = optparse.OptionParser(version="%prog " + appVersion)
     parser.usage = "%prog [OPTIONS] [file to import]"
     parser.add_option("-b", "--base", help="path to base folder")
@@ -176,7 +181,6 @@ def parseArgs(argv):
 
 def run():
     global mw
-    from anki.utils import  isMac
 
     # parse args
     opts, args = parseArgs(sys.argv)
