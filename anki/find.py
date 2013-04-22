@@ -429,7 +429,7 @@ where mid in %s and flds like ? escape '\\'""" % (
             except sre_constants.error:
                 return
         if not nids:
-            return
+            return "0"
         return "n.id in %s" % ids2str(nids)
 
 # Find and replace
