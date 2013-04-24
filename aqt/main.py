@@ -261,7 +261,7 @@ how to restore from a backup.""")
         """
         Unload the collection.
 
-        This unloads a collection if ther is one and returns True if
+        This unloads a collection if there is one and returns True if
         there is no collection after the call. (Because the unload
         worked or because there was no collection to start with.)
         """
