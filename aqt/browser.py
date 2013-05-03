@@ -2,19 +2,24 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import sre_constants, cgi
-from aqt.qt import *
-import time, re
+import sre_constants
+import cgi
+import time
+import re
 from operator import  itemgetter
-import anki, aqt.forms
+
+from aqt.qt import *
+import anki
+import aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime, isMac
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip, openHelp, showWarning, shortcut
+    showInfo, askUser, tooltip, openHelp, showWarning, shortcut, getBase, mungeQA
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
 from anki.consts import *
+from anki.sound import playFromText, clearAudioQueue
 
 COLOUR_SUSPENDED = "#FFFFB2"
 COLOUR_MARKED = "#D9B2E9"
@@ -334,6 +339,7 @@ class Browser(QMainWindow):
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""
+        self._previewWindow = None
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
         restoreGeom(self, "editor", 0)
@@ -376,6 +382,7 @@ class Browser(QMainWindow):
         c(f.actionChangeModel, s, self.onChangeModel)
         # edit
         c(f.actionUndo, s, self.mw.onUndo)
+        c(f.previewButton, SIGNAL("clicked()"), self.onTogglePreview)
         c(f.actionInvertSelection, s, self.invertSelection)
         c(f.actionSelectNotes, s, self.selectNotes)
         c(f.actionFindReplace, s, self.onFindReplace)
@@ -565,19 +572,26 @@ class Browser(QMainWindow):
         self.form.splitter.widget(1).setVisible(not not show)
         if not show:
             self.editor.setNote(None)
+            self.card = None
         else:
             self.card = self.model.getCard(
                 self.form.tableView.selectionModel().currentIndex())
             self.editor.setNote(self.card.note(reload=True))
             self.editor.card = self.card
+        self._renderPreview(True)
         self.toolbar.draw()
 
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
+        self._renderPreview(False)
 
     def refreshCurrentCardFilter(self, flag, note, fidx):
         self.refreshCurrentCard(note)
         return flag
+
+    def currentRow(self):
+        idx = self.form.tableView.selectionModel().currentIndex()
+        return idx.row()
 
     # Headers & sorting
     ######################################################################
@@ -941,6 +955,105 @@ where id in %s""" % ids2str(sf))
         return showInfo("not yet implemented")
         self.close()
         self.mw.onCram(self.selectedCards())
+
+    # Preview
+    ######################################################################
+
+    def onTogglePreview(self):
+        if self._previewWindow:
+            self._closePreview()
+        else:
+            self._openPreview()
+
+    def _openPreview(self):
+        c = self.connect
+        self._previewWindow = QDialog()
+        self._previewWindow.setWindowTitle(_("Preview"))
+        c(self._previewWindow, SIGNAL("finished(int)"), self._onPreviewFinished)
+        vbox = QVBoxLayout()
+        vbox.setMargin(0)
+        self._previewWeb = AnkiWebView()
+        vbox.addWidget(self._previewWeb)
+        bbox = QDialogButtonBox()
+        self._previewPrev = bbox.addButton("<", QDialogButtonBox.ActionRole)
+        self._previewPrev.setAutoDefault(False)
+        self._previewPrev.setShortcut(QKeySequence("Left"))
+        self._previewNext = bbox.addButton(">", QDialogButtonBox.ActionRole)
+        self._previewNext.setAutoDefault(False)
+        self._previewNext.setShortcut(QKeySequence("Right"))
+        c(self._previewPrev, SIGNAL("clicked()"), self._onPreviewPrev)
+        c(self._previewNext, SIGNAL("clicked()"), self._onPreviewNext)
+        vbox.addWidget(bbox)
+        self._previewWindow.setLayout(vbox)
+        restoreGeom(self._previewWindow, "preview")
+        self._previewWindow.show()
+        self._previewState = "question"
+        self._renderPreview(True)
+
+    def _onPreviewFinished(self, ok):
+        saveGeom(self._previewWindow, "preview")
+        self.mw.progress.timer(100, self._onClosePreview, False)
+        self.form.previewButton.setChecked(False)
+
+    def _onPreviewPrev(self):
+        if self._previewState == "question":
+            self._previewState = "answer"
+            self._renderPreview()
+        else:
+            self.onPreviousCard()
+        self._updatePreviewButtons()
+
+    def _onPreviewNext(self):
+        if self._previewState == "question":
+            self._previewState = "answer"
+            self._renderPreview()
+        else:
+            self.onNextCard()
+        self._updatePreviewButtons()
+
+    def _updatePreviewButtons(self):
+        if not self._previewWindow:
+            return
+        canBack = self.currentRow() >  0 or self._previewState == "question"
+        self._previewPrev.setEnabled(not not (self.card and canBack))
+        canForward = self.currentRow() < self.model.rowCount(None) - 1 or \
+                     self._previewState == "question"
+        self._previewNext.setEnabled(not not (self.card and canForward))
+
+    def _closePreview(self):
+        if self._previewWindow:
+            self._previewWindow.close()
+            self._onClosePreview()
+
+    def _onClosePreview(self):
+        self._previewWindow = self._previewPrev = self._previewNext = None
+
+    def _renderPreview(self, cardChanged=False):
+        if not self._previewWindow:
+            return
+        c = self.card
+        if not c:
+            txt = _("(please select 1 card)")
+            self._previewWeb.stdHtml(txt)
+            self._updatePreviewButtons()
+            return
+        self._updatePreviewButtons()
+        if cardChanged:
+            self._previewState = "question"
+        # need to force reload even if answer
+        txt = c.q(reload=True)
+        if self._previewState == "answer":
+            txt = c.a()
+        txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
+        ti = lambda x: x
+        base = getBase(self.mw.col)
+        self._previewWeb.stdHtml(
+            ti(mungeQA(txt)), self.mw.reviewer._styles(),
+            bodyClass="card card%d" % (c.ord+1), head=base,
+            js=anki.js.browserSel)
+        clearAudioQueue()
+        if self.mw.reviewer.autoplay(c):
+            playFromText(txt)
 
     # Card deletion
     ######################################################################

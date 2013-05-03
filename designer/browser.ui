@@ -96,13 +96,6 @@
            <property name="rightMargin">
             <number>0</number>
            </property>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="searchButton">
-             <property name="text">
-              <string>Search</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="0">
             <widget class="QComboBox" name="searchEdit">
              <property name="sizePolicy">
@@ -116,6 +109,26 @@
              </property>
              <property name="insertPolicy">
               <enum>QComboBox::NoInsert</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="searchButton">
+             <property name="text">
+              <string>Search</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="previewButton">
+             <property name="text">
+              <string>&amp;Preview</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+Shift+P</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
