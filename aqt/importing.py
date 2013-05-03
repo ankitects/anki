@@ -73,11 +73,6 @@ class ImportDialog(QDialog):
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 0))
         self.exec_()
 
-    def _unicodeWarning(self):
-        showWarning(_(
-            "Selected file was not in UTF-8 format. Please see the "
-            " importing section of the manual."))
-
     def setupOptions(self):
         self.model = self.mw.col.models.current()
         self.modelChooser = aqt.modelchooser.ModelChooser(
@@ -155,7 +150,7 @@ you can enter it here. Use \\t to represent tab."""),
         try:
             self.importer.run()
         except UnicodeDecodeError:
-            self._unicodeWarning()
+            showUnicodeWarning()
             return
         except Exception, e:
             msg = _("Import failed.\n")
@@ -245,6 +240,14 @@ you can enter it here. Use \\t to represent tab."""),
     def helpRequested(self):
         openHelp("FileImport")
 
+
+def showUnicodeWarning():
+    """Shorthand to show a standard warning."""
+    showWarning(_(
+        "Selected file was not in UTF-8 format. Please see the "
+        "importing section of the manual."))
+
+
 def onImport(mw):
     filt = ";;".join([x[0] for x in importing.Importers])
     file = getFile(mw, _("Import"), None, key="import",
@@ -276,7 +279,7 @@ def importFile(mw, file):
         try:
             importer.open()
         except UnicodeDecodeError:
-            self._unicodeWarning()
+            showUnicodeWarning()
             return
         except Exception, e:
             msg = unicode(e)
