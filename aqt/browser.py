@@ -843,24 +843,6 @@ by clicking on one on the left."""))
 border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
         return rep, cs
 
-    def onRevlog(self):
-        data = self._revlogData()
-        d = QDialog(self)
-        l = QVBoxLayout()
-        l.setMargin(0)
-        w = AnkiWebView()
-        l.addWidget(w)
-        w.stdHtml(data)
-        bb = QDialogButtonBox(QDialogButtonBox.Close)
-        l.addWidget(bb)
-        bb.connect(bb, SIGNAL("rejected()"), d, SLOT("reject()"))
-        d.setLayout(l)
-        d.setWindowModality(Qt.WindowModal)
-        d.resize(500, 400)
-        restoreGeom(d, "revlog")
-        d.exec_()
-        saveGeom(d, "revlog")
-
     def _revlogData(self, cs):
         entries = self.mw.col.db.all(
             "select id/1000.0, ease, ivl, factor, time/1000.0, type "
