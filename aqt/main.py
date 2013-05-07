@@ -269,10 +269,17 @@ how to restore from a backup.""")
             if not self.closeAllCollectionWindows():
                 return
             self.maybeOptimize()
+            self.progress.start(immediate=True)
+            corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+            if corrupt:
+                showWarning(_("Your collection file appears to be corrupt. \
+This can happen when the file is copied or moved while Anki is open, or \
+when the collection is stored on a network or cloud drive. Please see \
+the manual for information on how to restore from an automatic backup."))
             self.col.close()
             self.col = None
-            self.progress.start(immediate=True)
-            self.backup()
+            if not corrupt:
+                self.backup()
             self.progress.finish()
         return True
 
@@ -314,7 +321,7 @@ how to restore from a backup.""")
                 os.unlink(os.path.join(dir, file[1]))
 
     def maybeOptimize(self):
-        # has two weeks passed?
+        # have two weeks passed?
         if (intTime() - self.pm.profile['lastOptimize']) < 86400*14:
             return
         self.progress.start(label=_("Optimizing..."), immediate=True)
