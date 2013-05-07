@@ -557,7 +557,7 @@ function showAnswer(txt) {
 </script>
 """ % dict(rem=self._remaining(), edit=_("Edit"),
            editkey=_("Shortcut key: %s") % "E",
-           more=_("More"), time=self.card.timeTaken()/1000)
+           more=_("More"), time=self.card.timeTaken() // 1000)
 
     def _showAnswerButton(self):
         self._bottomReady = True
