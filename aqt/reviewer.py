@@ -12,6 +12,7 @@ from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, getBase, openLink, tooltip
 from aqt.sound import getAudio
 import aqt
+from __future__ import division
 
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."
