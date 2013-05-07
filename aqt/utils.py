@@ -256,7 +256,7 @@ def getSaveFile(parent, title, dir, key, ext):
     "Ask the user for a file to save. Use DIR as config variable."
     dirkey = dir+"Directory"
     file = unicode(QFileDialog.getSaveFileName(
-        parent, title, aqt.mw.pm.base, key,
+        parent, title, aqt.mw.pm.base, "{0} (*{1})".format(key, ext),
         options=QFileDialog.DontConfirmOverwrite))
     if file:
         # add extension
