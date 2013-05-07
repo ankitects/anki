@@ -2,6 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import division
 import    difflib, re, cgi
 import unicodedata as ucd
 import HTMLParser
@@ -12,7 +13,6 @@ from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, getBase, openLink, tooltip
 from aqt.sound import getAudio
 import aqt
-from __future__ import division
 
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."

@@ -1,6 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import division
 from aqt.qt import *
 import   socket, time, traceback, gc
 import aqt
@@ -9,7 +10,6 @@ from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, remHook
 from aqt.utils import tooltip, askUserDialog, showWarning, showText, showInfo
-from __future__ import division
 
 # Sync manager
 ######################################################################
