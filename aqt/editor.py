@@ -1022,6 +1022,8 @@ class EditorWebView(AnkiWebView):
 
     def _processUrls(self, mime):
         url = mime.urls()[0].toString()
+        # chrome likes to give us the URL twice with a \n
+        url = url.splitlines()[0]
         link = self._localizedMediaLink(url)
         mime = QMimeData()
         mime.setHtml(link)
@@ -1093,11 +1095,12 @@ class EditorWebView(AnkiWebView):
         except urllib2.URLError, e:
             showWarning(self.errtxt % e)
             return
+        finally:
+            self.editor.mw.progress.finish()
         path = namedtmp(os.path.basename(urllib2.unquote(url)))
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
-        self.editor.mw.progress.finish()
         return self.editor._addMedia(path)
 
     def _flagAnkiText(self):
