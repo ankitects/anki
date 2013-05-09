@@ -949,12 +949,14 @@ where id in %s""" % ids2str(sf))
 
     def _openPreview(self):
         c = self.connect
+        self._previewState = "question"
         self._previewWindow = QDialog()
         self._previewWindow.setWindowTitle(_("Preview"))
         c(self._previewWindow, SIGNAL("finished(int)"), self._onPreviewFinished)
         vbox = QVBoxLayout()
         vbox.setMargin(0)
         self._previewWeb = AnkiWebView()
+        self._previewWeb.setFocusPolicy(Qt.NoFocus)
         vbox.addWidget(self._previewWeb)
         bbox = QDialogButtonBox()
         self._previewPrev = bbox.addButton("<", QDialogButtonBox.ActionRole)
@@ -969,7 +971,6 @@ where id in %s""" % ids2str(sf))
         self._previewWindow.setLayout(vbox)
         restoreGeom(self._previewWindow, "preview")
         self._previewWindow.show()
-        self._previewState = "question"
         self._renderPreview(True)
 
     def _onPreviewFinished(self, ok):
