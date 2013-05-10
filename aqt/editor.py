@@ -1116,9 +1116,9 @@ class EditorWebView(AnkiWebView):
     def contextMenuEvent(self, evt):
         m = QMenu(self)
         a = m.addAction(_("Cut"))
-        a.connect(a, SIGNAL("activated()"), self.onCut)
+        a.connect(a, SIGNAL("triggered()"), self.onCut)
         a = m.addAction(_("Copy"))
-        a.connect(a, SIGNAL("activated()"), self.onCopy)
+        a.connect(a, SIGNAL("triggered()"), self.onCopy)
         a = m.addAction(_("Paste"))
-        a.connect(a, SIGNAL("activated()"), self.onPaste)
+        a.connect(a, SIGNAL("triggered()"), self.onPaste)
         m.popup(QCursor.pos())

@@ -84,7 +84,7 @@ class AnkiWebView(QWebView):
             return
         m = QMenu(self)
         a = m.addAction(_("Copy"))
-        a.connect(a, SIGNAL("activated()"),
+        a.connect(a, SIGNAL("triggered()"),
                   lambda: self.triggerPageAction(QWebPage.Copy))
         m.popup(QCursor.pos())
 
