@@ -572,12 +572,13 @@ class Browser(QMainWindow):
         self.form.splitter.widget(1).setVisible(not not show)
         if not show:
             self.editor.setNote(None)
-            self.card = None
+            self.singleCard = False
         else:
             self.card = self.model.getCard(
                 self.form.tableView.selectionModel().currentIndex())
             self.editor.setNote(self.card.note(reload=True))
             self.editor.card = self.card
+            self.singleCard = True
         self._renderPreview(True)
         self.toolbar.draw()
 
@@ -998,10 +999,10 @@ where id in %s""" % ids2str(sf))
         if not self._previewWindow:
             return
         canBack = self.currentRow() >  0 or self._previewState == "question"
-        self._previewPrev.setEnabled(not not (self.card and canBack))
+        self._previewPrev.setEnabled(not not (self.singleCard and canBack))
         canForward = self.currentRow() < self.model.rowCount(None) - 1 or \
                      self._previewState == "question"
-        self._previewNext.setEnabled(not not (self.card and canForward))
+        self._previewNext.setEnabled(not not (self.singleCard and canForward))
 
     def _closePreview(self):
         if self._previewWindow:
