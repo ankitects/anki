@@ -180,10 +180,11 @@ documentation for information on using a flash drive.""")
 
     def _defaultBase(self):
         if isWin:
-            s = QSettings(QSettings.UserScope, "Microsoft", "Windows")
-            s.beginGroup("CurrentVersion/Explorer/Shell Folders")
-            d = s.value("Personal")
-            return os.path.join(d, "Anki")
+            if qtmajor >= 5:
+                loc = QStandardPaths.writeableLocation(QStandardPaths.DocumentsLocation)
+            else:
+                loc = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
+            return os.path.join(loc, "Anki")
         elif isMac:
             return os.path.expanduser("~/Documents/Anki")
         else:
