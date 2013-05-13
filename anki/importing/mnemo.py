@@ -43,12 +43,13 @@ select _fact_id, fact_view_id, tags, next_rep, last_rep, easiness,
 acq_reps+ret_reps, lapses from cards"""):
             # categorize note
             note = notes[row[0]]
-            if row[1] == "1.1":
-                front.append(note)
-            elif row[1] == "2.1":
-                frontback.append(note)
-            elif row[1] == "3.1":
-                vocabulary.append(note)
+            if row[1].endswith(".1"):
+                if row[1].startswith("1.") or row[1].startswith("1::"):
+                    front.append(note)
+                elif row[1].startswith("2.") or row[1].startswith("2::"):
+                    frontback.append(note)
+                elif row[1].startswith("3.") or row[1].startswith("3::"):
+                    vocabulary.append(note)
             # merge tags into note
             tags = row[2].replace(", ", "\x1f").replace(" ", "_")
             tags = tags.replace("\x1f", " ")
@@ -71,7 +72,7 @@ acq_reps+ret_reps, lapses from cards"""):
             rem = int((next - time.time())/86400)
             c.due = self.col.sched.today+rem
             # get ord
-            m = re.match("\d+\.(\d+)", row[1])
+            m = re.search(".(\d+)$", row[1])
             ord = int(m.group(1))-1
             if 'cards' not in note:
                 note['cards'] = {}
