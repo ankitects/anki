@@ -84,6 +84,11 @@ automatically."""))
             self.pm.save()
         elif evt == "offline":
             tooltip(_("Syncing failed; internet offline."))
+        elif evt == "upbad":
+            self._didFullUp = False
+            showWarning(_("""\
+The upload was aborted because errors were found in your collection. \
+Please check your collection with Tools>Maintenance>Check Database."""))
         elif evt == "sync":
             m = None; t = args[0]
             if t == "login":
@@ -157,8 +162,6 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
             return _("After syncing, the collection was in an inconsistent \
 state. To fix this problem, Anki will force a full sync. Please sync again, and \
 choose which side you would like to keep.")
-        elif "server refused upload" in err:
-            return _("The server said our uploaded file was corrupt. Please try again.")
         return err
 
     def _getUserPass(self):
@@ -356,7 +359,8 @@ class SyncThread(QThread):
             return
         self.client = FullSyncer(self.col, self.hkey, self.server.con)
         if f == "upload":
-            self.client.upload()
+            if not self.client.upload():
+                self.fireEvent("upbad")
         else:
             self.client.download()
         # reopen db and move on to media sync

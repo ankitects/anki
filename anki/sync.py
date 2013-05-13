@@ -631,13 +631,18 @@ class FullSyncer(HttpSyncer):
         self.col = None
 
     def upload(self):
+        "True if upload successful."
         runHook("sync", "upload")
         # make sure it's ok before we try to upload
-        assert self.col.db.scalar("pragma integrity_check") == "ok"
+        if self.col.db.scalar("pragma integrity_check") != "ok":
+            return False
+        if not self.col.basicCheck():
+            return False
         # apply some adjustments, then upload
         self.col.beforeUpload()
         if self.req("upload", open(self.col.path, "rb")) != "OK":
-            raise Exception("server refused upload")
+            return False
+        return True
 
 # Media syncing
 ##########################################################################

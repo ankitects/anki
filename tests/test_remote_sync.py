@@ -19,10 +19,10 @@ server2=None
 import tests.test_sync as ts
 from tests.test_sync import setup_basic
 import anki.sync
-anki.sync.SYNC_URL = "http://localhost:6543/sync/"
+anki.sync.SYNC_URL = "http://localhost:5000/sync/"
 TEST_USER = "synctest@ichi2.net"
-TEST_PASS = "synctest"
-TEST_HKEY = "tG5CD9eZbWOru3Yw"
+TEST_PASS = "abc123"
+TEST_HKEY = "WqYF0m7fOHCNPI4a"
 TEST_REMOTE = True
 
 def setup_remote():
@@ -77,7 +77,7 @@ def test_remoteSync():
     assert ts.client.sync() == "fullSync"
     # upload
     f = FullSyncer(ts.client.col, TEST_HKEY, ts.server.con)
-    f.upload()
+    assert f.upload()
     ts.client.col.reopen()
     # should report no changes
     assert ts.client.sync() == "noChanges"
@@ -104,6 +104,8 @@ def setup_remoteMedia():
 def test_media():
     if not TEST_REMOTE:
         return
+    print "media test disabled"
+    return
     ts.server.mediatest("reset")
     assert len(os.listdir(ts.deck1.media.dir())) == 0
     assert ts.server.mediatest("count") == 0
