@@ -164,7 +164,7 @@ class NoteImporter(Importer):
         # generate cards
         if self.col.genCards(self._ids):
             self.log.insert(0, _(
-                "Empty cards found. Please run Tools>Maintenance>Empty Cards."))
+                "Empty cards found. Please run Tools>Empty Cards."))
         # apply scheduling updates
         self.updateCards()
         # make sure to update sflds, etc

@@ -550,17 +550,6 @@ title="%s">%s</button>''' % (
             if not self.col:
                 self.loadCollection()
 
-    def onFullSync(self):
-        if not askUser(_("""\
-If you proceed, you will need to choose between a full download or full \
-upload, overwriting any changes either here or on AnkiWeb. Proceed?""")):
-            return
-        self.hideSchemaMsg = True
-        self.col.modSchema()
-        self.col.setMod()
-        self.hideSchemaMsg = False
-        self.onSync()
-
     # Tools
     ##########################################################################
 
@@ -772,7 +761,6 @@ and check the statistics for a home deck instead."""))
         self.connect(m.actionCheckMediaDatabase, s, self.onCheckMediaDB)
         self.connect(m.actionDocumentation, s, self.onDocumentation)
         self.connect(m.actionDonate, s, self.onDonate)
-        self.connect(m.actionFullSync, s, self.onFullSync)
         self.connect(m.actionStudyDeck, s, self.onStudyDeck)
         self.connect(m.actionCreateFiltered, s, self.onCram)
         self.connect(m.actionEmptyCards, s, self.onEmptyCards)

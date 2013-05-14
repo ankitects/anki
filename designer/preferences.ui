@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>441</width>
-    <height>445</height>
+    <width>405</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -221,6 +221,13 @@
             <widget class="QCheckBox" name="syncOnProgramOpen">
              <property name="text">
               <string>Automatically sync on profile open/close</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="fullSync">
+             <property name="text">
+              <string>On next sync, force changes in one direction</string>
              </property>
             </widget>
            </item>

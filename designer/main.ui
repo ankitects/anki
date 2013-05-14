@@ -91,22 +91,12 @@
      <addaction name="actionOpenPluginFolder"/>
      <addaction name="separator"/>
     </widget>
-    <widget class="QMenu" name="menuMaintenance">
-     <property name="title">
-      <string>Maintenance</string>
-     </property>
-     <addaction name="actionFullDatabaseCheck"/>
-     <addaction name="separator"/>
-     <addaction name="actionCheckMediaDatabase"/>
-     <addaction name="separator"/>
-     <addaction name="actionEmptyCards"/>
-     <addaction name="separator"/>
-     <addaction name="actionFullSync"/>
-    </widget>
     <addaction name="actionStudyDeck"/>
     <addaction name="actionCreateFiltered"/>
     <addaction name="separator"/>
-    <addaction name="menuMaintenance"/>
+    <addaction name="actionFullDatabaseCheck"/>
+    <addaction name="actionCheckMediaDatabase"/>
+    <addaction name="actionEmptyCards"/>
     <addaction name="separator"/>
     <addaction name="menuPlugins"/>
     <addaction name="separator"/>
@@ -172,16 +162,6 @@
     <string>&amp;Open Add-ons Folder...</string>
    </property>
   </action>
-  <action name="actionEnableAllPlugins">
-   <property name="text">
-    <string>&amp;Enable All</string>
-   </property>
-  </action>
-  <action name="actionDisableAllPlugins">
-   <property name="text">
-    <string>&amp;Disable All</string>
-   </property>
-  </action>
   <action name="actionDonate">
    <property name="text">
     <string>&amp;Support Anki...</string>
@@ -230,11 +210,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
-   </property>
-  </action>
-  <action name="actionFullSync">
-   <property name="text">
-    <string>Full Sync...</string>
    </property>
   </action>
   <action name="actionStudyDeck">

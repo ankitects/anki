@@ -60,7 +60,7 @@ class ErrorHandler(QObject):
 An error occurred. It may have been caused by a harmless bug, <br>
 or your deck may have a problem.
 <p>To confirm it's not a problem with your deck, please run
-<b>Tools > Maintenance > Check Database</b>.
+<b>Tools &gt; Check Database</b>.
 <p>If that doesn't fix the problem, please copy the following<br>
 into a bug report:""")
         pluginText = _("""\

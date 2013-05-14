@@ -363,7 +363,7 @@ img { max-width: 95%; max-height: 95%; }
             if self.typeCorrect is None:
                 if clozeIdx:
                     warn = _("""\
-Please run Tools>Maintenance>Empty Cards""")
+Please run Tools>Empty Cards""")
                 else:
                     warn = _("Type answer: unknown field %s") % fld
                 return re.sub(self.typeAnsPat, warn, buf)

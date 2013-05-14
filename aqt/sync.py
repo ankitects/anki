@@ -88,7 +88,7 @@ automatically."""))
             self._didFullUp = False
             showWarning(_("""\
 The upload was aborted because errors were found in your collection. \
-Please check your collection with Tools>Maintenance>Check Database."""))
+Please check your collection with Tools>Check Database."""))
         elif evt == "sync":
             m = None; t = args[0]
             if t == "login":
