@@ -114,6 +114,8 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
                      self._rewriteError(args[0]))
         elif evt == "clockOff":
             self._clockOff()
+        elif evt == "basicCheckFailed":
+            self._basicCheckFailed()
         elif evt == "noChanges":
             pass
         elif evt == "fullSync":
@@ -237,6 +239,11 @@ automatically."""),
 Syncing requires the clock on your computer to be set correctly. Please \
 fix the clock and try again."""))
 
+    def _basicCheckFailed(self):
+        showWarning(_("""\
+Your collection is in an inconsistent state. Please run Tools>\
+Maintenance>Check Database."""))
+
     def badUserPass(self):
         aqt.preferences.Preferences(self, self.pm.profile).dialog.tabWidget.\
                                          setCurrentIndex(1)
@@ -330,6 +337,8 @@ class SyncThread(QThread):
             return self.fireEvent("badAuth")
         elif ret == "clockOff":
             return self.fireEvent("clockOff")
+        elif ret == "basicCheckFailed":
+            return self.fireEvent("basicCheckFailed")
         # note mediaUSN for later
         self.mediaUsn = self.client.mediaUsn
         # full sync?

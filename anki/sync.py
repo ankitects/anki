@@ -107,6 +107,9 @@ class Syncer(object):
         elif lscm != rscm:
             return "fullSync"
         self.lnewer = self.lmod > self.rmod
+        # step 1.5: check collection is valid
+        if not self.col.basicCheck():
+            return "basicCheckFailed"
         # step 2: deletions
         runHook("sync", "meta")
         lrem = self.removed()
@@ -182,12 +185,8 @@ class Syncer(object):
         self.prepareToChunk()
 
     def sanityCheck(self):
-        if self.col.db.scalar("""
-select count() from cards where nid not in (select id from notes)"""):
-            return "missing notes"
-        if self.col.db.scalar("""
-select count() from notes where id not in (select distinct nid from cards)"""):
-            return "missing cards"
+        if not self.col.basicCheck():
+            return "failed basic check"
         for t in "cards", "notes", "revlog", "graves":
             if self.col.db.scalar(
                 "select count() from %s where usn = -1" % t):
