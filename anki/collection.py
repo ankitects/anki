@@ -671,22 +671,33 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
                          "Deleted %d notes with missing note type.", len(ids))
                          % len(ids))
             self.remNotes(ids)
-        # cards with invalid ordinal
+        # for each model
         for m in self.models.all():
-            # ignore clozes
-            if m['type'] != MODEL_STD:
-                continue
-            ids = self.db.list("""
+            # cards with invalid ordinal
+            if m['type'] == MODEL_STD:
+                ids = self.db.list("""
 select id from cards where ord not in %s and nid in (
 select id from notes where mid = ?)""" %
-                               ids2str([t['ord'] for t in m['tmpls']]),
-                               m['id'])
+                                   ids2str([t['ord'] for t in m['tmpls']]),
+                                   m['id'])
+                if ids:
+                    problems.append(
+                        ngettext("Deleted %d card with missing template.",
+                                 "Deleted %d cards with missing template.",
+                                 len(ids)) % len(ids))
+                    self.remCards(ids)
+            # notes with invalid field count
+            ids = []
+            for id, flds in self.db.execute(
+                    "select id, flds from notes where mid = ?", m['id']):
+                if (flds.count("\x1f") + 1) != len(m['flds']):
+                    ids.append(id)
             if ids:
                 problems.append(
-                    ngettext("Deleted %d card with missing template.",
-                             "Deleted %d cards with missing template.",
+                    ngettext("Deleted %d note with wrong field count.",
+                             "Deleted %d notes with wrong field count.",
                              len(ids)) % len(ids))
-                self.remCards(ids)
+                self.remNotes(ids)
         # delete any notes with missing cards
         ids = self.db.list("""
 select id from notes where id not in (select distinct nid from cards)""")
