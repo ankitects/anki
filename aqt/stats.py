@@ -53,6 +53,8 @@ class DeckStats(QDialog):
         path = os.path.join(
             QDesktopServices.storageLocation(QDesktopServices.DesktopLocation),
             name)
+        if not os.path.exists(path):
+            os.mkdir(path)
         p = self.form.web.page()
         oldsize = p.viewportSize()
         p.setViewportSize(p.mainFrame().contentsSize())
