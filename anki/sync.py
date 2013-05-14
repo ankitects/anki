@@ -145,7 +145,7 @@ class Syncer(object):
             self.col.rollback()
             self.col.modSchema()
             self.col.save()
-            raise Exception("collection sanity check failed")
+            return "sanityCheckFailed"
         # finalize
         runHook("sync", "finalize")
         mod = self.server.finish()

@@ -86,9 +86,7 @@ automatically."""))
             tooltip(_("Syncing failed; internet offline."))
         elif evt == "upbad":
             self._didFullUp = False
-            showWarning(_("""\
-The upload was aborted because errors were found in your collection. \
-Please check your collection with Tools>Check Database."""))
+            self._checkFailed()
         elif evt == "sync":
             m = None; t = args[0]
             if t == "login":
@@ -114,8 +112,8 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
                      self._rewriteError(args[0]))
         elif evt == "clockOff":
             self._clockOff()
-        elif evt == "basicCheckFailed":
-            self._basicCheckFailed()
+        elif evt == "checkFailed":
+            self._checkFailed()
         elif evt == "noChanges":
             pass
         elif evt == "fullSync":
@@ -160,10 +158,6 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
                 "software is blocking Anki from connecting to the internet.")
         elif "407" in err:
             return _("Proxy authentication required.")
-        elif "collection sanity check failed" in err:
-            return _("After syncing, the collection was in an inconsistent \
-state. To fix this problem, Anki will force a full sync. Please sync again, and \
-choose which side you would like to keep.")
         return err
 
     def _getUserPass(self):
@@ -239,10 +233,10 @@ automatically."""),
 Syncing requires the clock on your computer to be set correctly. Please \
 fix the clock and try again."""))
 
-    def _basicCheckFailed(self):
+    def _checkFailed(self):
         showWarning(_("""\
 Your collection is in an inconsistent state. Please run Tools>\
-Maintenance>Check Database."""))
+Check Database, then sync again."""))
 
     def badUserPass(self):
         aqt.preferences.Preferences(self, self.pm.profile).dialog.tabWidget.\
@@ -337,8 +331,8 @@ class SyncThread(QThread):
             return self.fireEvent("badAuth")
         elif ret == "clockOff":
             return self.fireEvent("clockOff")
-        elif ret == "basicCheckFailed":
-            return self.fireEvent("basicCheckFailed")
+        elif ret == "basicCheckFailed" or ret == "sanityCheckFailed":
+            return self.fireEvent("checkFailed")
         # note mediaUSN for later
         self.mediaUsn = self.client.mediaUsn
         # full sync?
