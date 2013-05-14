@@ -72,7 +72,7 @@ class ExportDialog(QDialog):
                     self.exporter.key, self.exporter.ext)
                 if not file:
                     return
-                if checkInvalidFilename(file, dirsep=False):
+                if checkInvalidFilename(os.path.basename(file), dirsep=False):
                     continue
                 break
         self.hide()
