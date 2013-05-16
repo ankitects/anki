@@ -14,6 +14,7 @@ from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
 import aqt
 import anki.js
 from BeautifulSoup import BeautifulSoup
+import urllib
 
 # fixme: when tab order returns to the webview, the previously focused field
 # is focused, which is not good when the user is tabbing through the dialog
@@ -807,7 +808,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         # return a local html link
         ext = name.split(".")[-1].lower()
         if ext in pics:
-            return '<img src="%s">' % name
+            return '<img src="%s">' % urllib.quote(name)
         else:
             anki.sound.play(name)
             return '[sound:%s]' % name
@@ -1087,6 +1088,8 @@ class EditorWebView(AnkiWebView):
         ext = url.split(".")[-1].lower()
         if ext not in pics and ext not in audio:
             return
+        if url.lower().startswith("file:/"):
+            url = urllib.quote(url, safe="/:")
         # fetch it into a temporary folder
         self.editor.mw.progress.start(immediate=True)
         try:
