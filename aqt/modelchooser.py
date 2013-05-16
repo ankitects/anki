@@ -69,7 +69,7 @@ class ModelChooser(QHBoxLayout):
             self.mw, names=nameFunc,
             accept=_("Choose"), title=_("Choose Note Type"),
             help="_notes", current=current, parent=self.widget,
-            buttons=[edit], cancel=False)
+            buttons=[edit], cancel=True)
         if not ret.name:
             return
         m = self.deck.models.byName(ret.name)
