@@ -1102,7 +1102,8 @@ class EditorWebView(AnkiWebView):
             return
         finally:
             self.editor.mw.progress.finish()
-        path = namedtmp(os.path.basename(urllib2.unquote(url)))
+        path = unicode(urllib2.unquote(url.encode("utf8")), "utf8")
+        path = namedtmp(os.path.basename(path))
         file = open(path, "wb")
         file.write(filecontents)
         file.close()
