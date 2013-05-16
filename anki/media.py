@@ -72,31 +72,26 @@ If the same name exists, compare checksums."""
         mdir = self.dir()
         # remove any dangerous characters
         base = re.sub(r"[][<>:/\\&?\"\|]", "", os.path.basename(opath))
-        dst = os.path.join(mdir, base)
-        # if it doesn't exist, copy it directly
-        if not os.path.exists(dst):
-            shutil.copyfile(opath, dst)
-            return base
-        # if it's identical, reuse
-        if self.filesIdentical(opath, dst):
-            return base
-        # otherwise, find a unique name
         (root, ext) = os.path.splitext(base)
         def repl(match):
             n = int(match.group(1))
             return " (%d)" % (n+1)
+        # find the first available name
         while True:
             path = os.path.join(mdir, root + ext)
+            # if it doesn't exist, copy it directly
             if not os.path.exists(path):
-                break
+                shutil.copyfile(opath, path)
+                return os.path.basename(os.path.basename(path))
+            # if it's identical, reuse
+            if self.filesIdentical(opath, path):
+                return os.path.basename(path)
+            # otherwise, increment the index in the filename
             reg = " \((\d+)\)$"
             if not re.search(reg, root):
                 root = root + " (1)"
             else:
                 root = re.sub(reg, repl, root)
-        # copy and return
-        shutil.copyfile(opath, path)
-        return os.path.basename(os.path.basename(path))
 
     def filesIdentical(self, path1, path2):
         "True if files are the same."
