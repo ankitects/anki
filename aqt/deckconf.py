@@ -91,8 +91,12 @@ class DeckConf(QDialog):
                 continue
             if d['conf'] == conf['id']:
                 cnt += 1
-        self.form.count.setText(ngettext("%d deck uses this options group", \
-                "%d decks use this options group", cnt) % cnt)
+        if cnt > 1:
+            txt = _("Your changes will affect multiple decks. If you wish to "
+            "change only the current deck, please add a new options group first.")
+        else:
+            txt = ""
+        self.form.count.setText(txt)
 
     def addGroup(self):
         name = getOnlyText(_("New options group name:"))
