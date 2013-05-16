@@ -613,10 +613,8 @@ class Editor(object):
         contents = stripHTMLMedia(self.note.fields[0])
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
-            "'note:%s' '%s:%s'" % (
-                self.note.model()['name'],
-                self.note.model()['flds'][0]['name'],
-                contents))
+            '"dupe:%s,%s"' % (self.note.model()['id'],
+                              contents))
         browser.onSearch()
 
     def fieldsAreBlank(self):

@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
-from anki.utils import ids2str, splitFields, joinFields, intTime
+from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
 import sre_constants
 
@@ -174,6 +174,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                     add(self._findRated(val))
                 elif cmd == "added":
                     add(self._findAdded(val))
+                elif cmd == "dupe":
+                    add(self._findDupes(val))
                 else:
                     add(self._findField(cmd, val))
             # normal text search
@@ -430,6 +432,21 @@ where mid in %s and flds like ? escape '\\'""" % (
                 return
         if not nids:
             return "0"
+        return "n.id in %s" % ids2str(nids)
+
+    def _findDupes(self, val):
+        # caller must call stripHTMLMedia on passed val
+        try:
+            mid, val = val.split(",", 1)
+        except OSError:
+            return
+        csum = fieldChecksum(val)
+        nids = []
+        for nid, flds in self.col.db.execute(
+                "select id, flds from notes where mid=? and csum=?",
+                mid, csum):
+            if stripHTMLMedia(splitFields(flds)[0]) == val:
+                nids.append(nid)
         return "n.id in %s" % ids2str(nids)
 
 # Find and replace
