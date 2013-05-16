@@ -63,6 +63,14 @@ class MediaManager(object):
     def dir(self):
         return self._dir
 
+    def _isFAT32(self):
+        if not isWin:
+            return
+        import win32api, win32file
+        name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
+        if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
+            return True
+
     # Adding media
     ##########################################################################
 
@@ -370,7 +378,7 @@ create table log (fname text primary key, type int);
         # doesn't track edits, but user can add or remove a file to update
         mod = self.db.scalar("select dirMod from meta")
         mtime = self._mtime(self.dir())
-        if mod and mod == mtime:
+        if not self._isFAT32() and mod and mod == mtime:
             return False
         return mtime
 
