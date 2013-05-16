@@ -122,8 +122,8 @@ order by due""" % self._deckLimit(),
             # normal review in dyn deck?
             if card.odid and card.queue == 2:
                 return 4
-            conf = self._lapseConf(card)
-            if card.type == 0 or len(conf['delays']) > 1:
+            conf = self._lrnConf(card)
+            if len(conf['delays']) > 1:
                 return 3
             return 2
         elif card.queue == 2:
