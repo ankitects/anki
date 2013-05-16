@@ -307,6 +307,15 @@ def _filterHTML(html):
     for elem in "html", "head", "body", "meta":
         for tag in doc(elem):
             tag.replaceWithChildren()
+    # remove outer styling if implicit
+    if doc.span:
+        hadExtraAttr = False
+        for attr in doc.span['style'].split(";"):
+            attr = attr.strip()
+            if attr and attr not in ("font-style: normal", "font-weight: normal"):
+                hadExtraAttr = True
+        if hadExtraAttr:
+            doc.span.replaceWithChildren()
     html = unicode(doc)
     return html
 
