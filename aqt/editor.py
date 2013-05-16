@@ -23,7 +23,7 @@ import urllib
 # fixme: commit from tag area causes error
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg")
-audio =  ("wav", "mp3", "ogg", "flac")
+audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv")
 
 _html = """
 <html><head>%s<style>
