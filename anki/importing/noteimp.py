@@ -165,6 +165,7 @@ class NoteImporter(Importer):
                     firsts[fld0] = True
         self.addNew(new)
         self.addUpdates(updates)
+        # make sure to update sflds, etc
         self.col.updateFieldCache(self._ids)
         # generate cards
         if self.col.genCards(self._ids):
@@ -172,7 +173,7 @@ class NoteImporter(Importer):
                 "Empty cards found. Please run Tools>Empty Cards."))
         # apply scheduling updates
         self.updateCards()
-        # make sure to update sflds, etc
+        self.col.sched.maybeRandomizeDeck()
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated", self.updateCount) % self.updateCount
         self.log.append("%s, %s." % (part1, part2))

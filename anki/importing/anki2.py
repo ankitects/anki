@@ -358,9 +358,10 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
 
     # Post-import cleanup
     ######################################################################
-    # fixme: we could be handling new card order more elegantly on import
 
     def _postImport(self):
+        for did in self._decks.values():
+            self.col.sched.maybeRandomizeDeck(did)
         # make sure new position is correct
         self.dst.conf['nextPos'] = self.dst.db.scalar(
             "select max(due)+1 from cards where type = 0") or 0
