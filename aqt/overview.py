@@ -110,15 +110,8 @@ to their original deck.""")
             dyn = "dyn"
         else:
             dyn = ""
-        if len(desc) < 160 or dyn:
-            return '<div class="descfont descmid description %s">%s</div>' % (
+        return '<div class="descfont descmid description %s">%s</div>' % (
                 dyn, desc)
-        else:
-            return '''
-<div class="descfont description descmid" id=shortdesc>%s\
- <a class=smallLink href=# onclick="$('#shortdesc').hide();$('#fulldesc').show();">...More</a></div>
-<div class="descfont description descmid" id=fulldesc>%s</div>''' % (
-                 desc[:160], desc)
 
     def _table(self):
         counts = list(self.mw.col.sched.counts())
