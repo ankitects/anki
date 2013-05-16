@@ -213,7 +213,7 @@ def test_csv():
     assert i.total == 5
     # if we run the import again, it should update instead
     i.run()
-    assert len(i.log) == 5
+    assert len(i.log) == 10
     assert i.total == 5
     # but importing should not clobber tags if they're unmapped
     n = deck.getNote(deck.db.scalar("select id from notes"))

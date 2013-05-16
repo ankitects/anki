@@ -109,6 +109,9 @@ class NoteImporter(Importer):
         self._nextID = timestampID(self.col.db, "notes")
         # loop through the notes
         updates = []
+        updateLog = []
+        updateLogTxt = _("Update as first field matched: %s")
+        dupeLogTxt = _("Added duplicate with first field: %s")
         new = []
         self._ids = []
         self._cards = []
@@ -146,10 +149,12 @@ class NoteImporter(Importer):
                             data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
+                                updateLog.append(updateLogTxt % fld0)
                                 found = True
                             break
                         elif self.importMode == 2:
                             # allow duplicates in this case
+                            updateLog.append(dupeLogTxt % fld0)
                             found = False
             # newly add
             if not found:
@@ -171,6 +176,7 @@ class NoteImporter(Importer):
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated", self.updateCount) % self.updateCount
         self.log.append("%s, %s." % (part1, part2))
+        self.log.extend(updateLog)
         if self._emptyNotes:
             self.log.append(_("""\
 One or more notes were not imported, because they didn't generate any cards. \
