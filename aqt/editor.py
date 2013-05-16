@@ -1024,7 +1024,8 @@ class EditorWebView(AnkiWebView):
         url = url.splitlines()[0]
         link = self._localizedMediaLink(url)
         mime = QMimeData()
-        mime.setHtml(link)
+        if link:
+            mime.setHtml(link)
         return mime
 
     def _localizedMediaLink(self, url):
@@ -1043,6 +1044,8 @@ class EditorWebView(AnkiWebView):
         if l.startswith("http://") or l.startswith("https://") or l.startswith("file://"):
             txt = txt.split("\r\n")[0]
             html = self._localizedMediaLink(txt)
+            if not html:
+                return QMimeData()
             if html == txt:
                 # wasn't of a supported media type; don't change
                 html = None
