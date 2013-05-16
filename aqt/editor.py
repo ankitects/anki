@@ -1091,7 +1091,8 @@ class EditorWebView(AnkiWebView):
         if url.lower().startswith("file:/"):
             url = urllib.quote(url, safe="/:")
         # fetch it into a temporary folder
-        self.editor.mw.progress.start(immediate=True)
+        self.editor.mw.progress.start(
+            immediate=True, parent=self.editor.parentWindow)
         try:
             req = urllib2.Request(url, None, {
                 'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
