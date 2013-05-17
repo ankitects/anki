@@ -130,6 +130,7 @@ class AnkiApp(QApplication):
             self.connect(self._srv, SIGNAL("newConnection()"), self.onRecv)
             self._srv.listen(self.KEY)
         else:
+            print "Raising existing window."
             # we accept only one command line argument. if it's missing, send
             # a blank screen to just raise the existing window
             opts, args = parseArgs(self._argv)
