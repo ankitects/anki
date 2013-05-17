@@ -15,7 +15,7 @@ class MediaManager(object):
     # other code depends on this order, so don't reorder
     regexps = ("(?i)(\[sound:(?P<fname>[^]]+)\])",
                "(?i)(<img[^>]+src=(?P<str>[\"']?)"+
-                "(?P<fname>[^>]+?)(?P=str)[^>]*>)")
+                "(?P<fname>[^>]+)(?P=str)[^>]*>)")
 
     def __init__(self, col, server):
         self.col = col
