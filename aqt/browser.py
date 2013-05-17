@@ -1197,8 +1197,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         if frm.asNew.isChecked():
             self.col.sched.forgetCards(self.selectedCards())
         else:
+            fmin = frm.min.value()
+            fmax = frm.max.value()
+            fmax = max(fmin, fmax)
             self.col.sched.reschedCards(
-                self.selectedCards(), frm.min.value(), frm.max.value())
+                self.selectedCards(), fmin, fmax)
         self.onSearch(reset=False)
         self.mw.requireReset()
         self.model.endReset()
