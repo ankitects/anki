@@ -130,6 +130,8 @@ function _updateQA (q, answerMode, klass) {
     if (klass) {
         document.body.className = klass;
     }
+    // don't allow drags of images, which cause them to be deleted
+    $("img").attr("draggable", false);
 };
 
 function _toggleStar (show) {
