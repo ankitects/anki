@@ -817,7 +817,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         # return a local html link
         ext = name.split(".")[-1].lower()
         if ext in pics:
-            return '<img src="%s">' % urllib.quote(name)
+            return '<img src="%s">' % urllib.quote(name.encode("utf8"))
         else:
             anki.sound.play(name)
             return '[sound:%s]' % name
@@ -1097,8 +1097,8 @@ class EditorWebView(AnkiWebView):
         ext = url.split(".")[-1].lower()
         if ext not in pics and ext not in audio:
             return
-        if url.lower().startswith("file:/"):
-            url = urllib.quote(url, safe="/:")
+        if url.lower().startswith("file://"):
+            url = url.replace("#", "%23")
         # fetch it into a temporary folder
         self.editor.mw.progress.start(
             immediate=True, parent=self.editor.parentWindow)
@@ -1112,6 +1112,7 @@ class EditorWebView(AnkiWebView):
         finally:
             self.editor.mw.progress.finish()
         path = unicode(urllib2.unquote(url.encode("utf8")), "utf8")
+        path = path.replace("#", "")
         path = namedtmp(os.path.basename(path))
         file = open(path, "wb")
         file.write(filecontents)
