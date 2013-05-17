@@ -10,7 +10,7 @@ from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
-    openHelp
+    openHelp, tooltip
 import aqt
 import anki.js
 from BeautifulSoup import BeautifulSoup
@@ -754,14 +754,13 @@ class Editor(object):
         # check that the model is set up for cloze deletion
         if '{{cloze:' not in self.note.model()['tmpls'][0]['qfmt']:
             if self.addMode:
-                showInfo(_("""\
-To use this button, please select the Cloze note type. To learn more, \
-please click the help button."""), help="cloze")
+                tooltip(_("Warning, cloze deletions will not work until "
+                "you switch the type at the top to Cloze."))
             else:
                 showInfo(_("""\
 To make a cloze deletion on an existing note, you need to change it \
 to a cloze type first, via Edit>Change Note Type."""))
-            return
+                return
         # find the highest existing cloze
         highest = 0
         for name, val in self.note.items():
