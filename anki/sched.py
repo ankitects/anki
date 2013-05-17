@@ -1288,9 +1288,12 @@ usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0""",
 
     def resetCards(self, ids):
         "Completely reset cards for export."
+        nonNew = self.col.db.list(
+            "select id from cards where id in %s and (queue != 0 or type != 0)"
+            % ids2str(ids))
         self.col.db.execute(
-            "update cards set reps=0, lapses=0 where id in " + ids2str(ids))
-        self.forgetCards(ids)
+            "update cards set reps=0, lapses=0 where id in " + ids2str(nonNew))
+        self.forgetCards(nonNew)
 
     # Repositioning new cards
     ##########################################################################
