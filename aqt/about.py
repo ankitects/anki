@@ -5,15 +5,23 @@
 from aqt.qt import *
 import aqt.forms
 from aqt import appVersion
+from aqt.utils import openLink
 
 def show(parent):
     dialog = QDialog(parent)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
-    abouttext = "<center><img src=':/icons/anki-logo-thin.png'></center>"
+    abt.label.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+    def onLink(url):
+        openLink(url.toString())
+    parent.connect(abt.label,
+                    SIGNAL("linkClicked(QUrl)"),
+                    onLink)
+    abouttext = "<center><img src='qrc:/icons/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")
     abouttext += '<p>' + _("Version %s") % appVersion + '<br>'
+    abouttext += ("Qt %s PyQt %s<br>") % (QT_VERSION_STR, PYQT_VERSION_STR)
     abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + \
 "</span>"
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
@@ -38,7 +46,7 @@ for credits.""")
 please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \
 suggestions, bug reports and donations.")
-    abt.label.setText(abouttext)
+    abt.label.setHtml(abouttext)
     dialog.adjustSize()
     dialog.show()
     dialog.exec_()
