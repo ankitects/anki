@@ -708,7 +708,9 @@ class Editor(object):
     def saveTags(self):
         if not self.note:
             return
-        self.note.tags = self.mw.col.tags.split(self.tags.text())
+        self.note.tags = self.mw.col.tags.canonify(
+            self.mw.col.tags.split(self.tags.text()))
+        self.tags.setText(self.mw.col.tags.join(self.note.tags).strip())
         if not self.addMode:
             self.note.flush()
         runHook("tagsUpdated", self.note)

@@ -4,6 +4,7 @@
 
 from anki.utils import intTime, ids2str, json
 from anki.hooks import runHook
+import re
 
 """
 Anki maintains a cache of used tags so it can quickly present a list of tags
@@ -145,7 +146,8 @@ class TagManager(object):
 
     def canonify(self, tagList):
         "Strip duplicates and sort."
-        return sorted(set(tagList))
+        strippedTags = [re.sub("[\"']", "", x) for x in tagList]
+        return sorted(set(strippedTags))
 
     def inList(self, tag, tags):
         "True if TAG is in TAGS. Ignore case."
