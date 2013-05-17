@@ -1099,6 +1099,7 @@ class EditorWebView(AnkiWebView):
             return
         if url.lower().startswith("file://"):
             url = url.replace("#", "%23")
+            url = url.replace("%", "%25")
         # fetch it into a temporary folder
         self.editor.mw.progress.start(
             immediate=True, parent=self.editor.parentWindow)
@@ -1113,6 +1114,7 @@ class EditorWebView(AnkiWebView):
             self.editor.mw.progress.finish()
         path = unicode(urllib2.unquote(url.encode("utf8")), "utf8")
         path = path.replace("#", "")
+        path = path.replace("%", "")
         path = namedtmp(os.path.basename(path))
         file = open(path, "wb")
         file.write(filecontents)
