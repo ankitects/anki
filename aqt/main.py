@@ -37,12 +37,17 @@ class AnkiQt(QMainWindow):
             self.pm.meta['firstRun'] = False
             self.pm.save()
         # init rest of app
+        self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
         try:
             self.setupUI()
             self.setupAddons()
         except:
             showInfo(_("Error during startup:\n%s") % traceback.format_exc())
             sys.exit(1)
+        # must call this after ui set up
+        if self.safeMode:
+            tooltip(_("Shift key was held down. Skipping automatic "
+                    "syncing and add-on loading."))
         # were we given a file to import?
         if args and args[0]:
             self.onAppMsg(unicode(args[0], "utf8", "ignore"))
@@ -536,7 +541,8 @@ title="%s">%s</button>''' % (
 
     def onSync(self, auto=False, reload=True):
         if not auto or (self.pm.profile['syncKey'] and
-                        self.pm.profile['autoSync']):
+                        self.pm.profile['autoSync'] and
+                        not self.safeMode):
             from aqt.sync import SyncManager
             if not self.unloadCollection():
                 return

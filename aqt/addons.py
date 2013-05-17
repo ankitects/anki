@@ -26,7 +26,8 @@ class AddonManager(object):
         if isWin:
             self.clearAddonCache()
         sys.path.insert(0, self.addonsFolder())
-        self.loadAddons()
+        if not self.mw.safeMode:
+            self.loadAddons()
 
     def files(self):
         return [f for f in os.listdir(self.addonsFolder())
