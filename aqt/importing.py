@@ -306,6 +306,13 @@ backup, please see the 'Backups' section of the user manual."""))
         mw.progress.start(immediate=True)
         try:
             importer.run()
+        except zipfile.BadZipfile:
+            msg = _("""\
+This file does not appear to be a valid .apkg file. If you're getting this \
+error from a file downloaded from AnkiWeb, chances are that your download \
+failed. Please try again, and if the problem persists, please try again \
+with a different browser.""")
+            showWarning(msg)
         except Exception, e:
             if "invalidFile" in unicode(e):
                 msg = _("""\
