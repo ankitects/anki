@@ -1098,8 +1098,8 @@ class EditorWebView(AnkiWebView):
         if ext not in pics and ext not in audio:
             return
         if url.lower().startswith("file://"):
-            url = url.replace("#", "%23")
             url = url.replace("%", "%25")
+            url = url.replace("#", "%23")
         # fetch it into a temporary folder
         self.editor.mw.progress.start(
             immediate=True, parent=self.editor.parentWindow)
