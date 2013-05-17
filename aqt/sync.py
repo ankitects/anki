@@ -144,9 +144,13 @@ the problem persists, please file a bug report.""")
 Please upgrade to the latest version of Anki.""")
         # 502 is technically due to the server restarting, but we reuse the
         # error message
-        elif "502" in err or "503" in err or "504" in err:
+        elif "502" in err:
+            return _("AnkiWeb is under maintenance. Please try again in a few minutes.")
+        elif "503" in err:
             return _("""\
 AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
+        elif "504" in err:
+            return _("504 gateway timeout error received. Please try temporarily disabling your antivirus.")
         elif "409" in err:
             return _("A previous sync failed; please try again in a few minutes.")
         elif "10061" in err or "10013" in err:
