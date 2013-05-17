@@ -535,7 +535,8 @@ order by ordinal""", mid)):
     def _rewriteMediaRefs(self):
         col = self.col
         def rewriteRef(key):
-            all, fname = match
+            all = match.group(0)
+            fname = match.group("fname")
             if all in state['mflds']:
                 # we've converted this field before
                 new = state['mflds'][all]
@@ -590,9 +591,9 @@ order by ordinal""", mid)):
             state = dict(mflds={}, fields=0)
             for t in m['tmpls']:
                 for r in regexps:
-                    for match in re.findall(r, t['qfmt']):
+                    for match in re.finditer(r, t['qfmt']):
                         rewriteRef('qfmt')
-                    for match in re.findall(r, t['afmt']):
+                    for match in re.finditer(r, t['afmt']):
                         rewriteRef('afmt')
             if state['fields']:
                 col.models.save(m)

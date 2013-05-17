@@ -13,8 +13,9 @@ from anki.latex import mungeQA
 class MediaManager(object):
 
     # other code depends on this order, so don't reorder
-    regexps = ("(?i)(\[sound:([^]]+)\])",
-               "(?i)(<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>)")
+    regexps = ("(?i)(\[sound:(?P<fname>[^]]+)\])",
+               "(?i)(<img[^>]+src=(?P<str>[\"']?)"+
+                "(?P<fname>[^>]+?)(?P=str)[^>]*>)")
 
     def __init__(self, col, server):
         self.col = col
@@ -124,7 +125,8 @@ If the same name exists, compare checksums."""
             string = mungeQA(string, None, None, model, None, self.col)
             # extract filenames
             for reg in self.regexps:
-                for (full, fname) in re.findall(reg, string):
+                for match in re.finditer(reg, string):
+                    fname = match.group("fname")
                     isLocal = not re.match("(https?|ftp)://", fname.lower())
                     if isLocal or includeRemote:
                         l.append(fname)
@@ -167,8 +169,8 @@ If the same name exists, compare checksums."""
         if isWin:
             return string
         def repl(match):
-            tag = match.group(1)
-            fname = match.group(2)
+            tag = match.group(0)
+            fname = match.group("fname")
             if re.match("(https?|ftp)://", fname):
                 return tag
             return tag.replace(
