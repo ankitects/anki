@@ -11,7 +11,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from PyQt4.QtNetwork import QLocalServer, QLocalSocket
-from PyQt4 import pyqtconfig
 
 def debug():
   from PyQt4.QtCore import pyqtRemoveInputHook
@@ -30,9 +29,8 @@ if os.environ.get("DEBUG"):
         pm()
     sys.excepthook = info
 
-qtconf = pyqtconfig.Configuration()
-qtmajor = (qtconf.qt_version & 0xff0000) >> 16
-qtminor = (qtconf.qt_version & 0x00ff00) >> 8
+qtmajor = (QT_VERSION & 0xff0000) >> 16
+qtminor = (QT_VERSION & 0x00ff00) >> 8
 
 # qt4.6 doesn't support ruby tags
 if qtmajor <= 4 and qtminor <= 6:

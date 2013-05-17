@@ -282,9 +282,7 @@ def restoreGeom(widget, key, offset=None):
     if aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(aqt.mw.pm.profile[key])
         if isMac and offset:
-            from aqt.main import QtConfig as q
-            minor = (q.qt_version & 0x00ff00) >> 8
-            if minor > 6:
+            if qtminor > 6:
                 # bug in osx toolkit
                 s = widget.size()
                 widget.resize(s.width(), s.height()+offset*2)

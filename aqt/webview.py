@@ -7,7 +7,6 @@ from aqt.qt import *
 from aqt.utils import openLink
 from anki.utils import isMac, isWin
 import anki.js
-QtConfig = pyqtconfig.Configuration()
 
 # Bridge for Qt<->JS
 ##########################################################################

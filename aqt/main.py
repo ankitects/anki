@@ -6,7 +6,6 @@ import os, sys, re, traceback, signal
 import  zipfile
 
 from aqt.qt import *
-QtConfig = pyqtconfig.Configuration()
 
 from anki import Collection
 from anki.utils import  isWin, isMac, intTime
