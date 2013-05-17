@@ -330,10 +330,11 @@ def applyStyles(widget):
 def getBase(col):
     base = None
     mdir = col.media.dir()
-    if isWin:
+    if isWin and not mdir.startswith("\\\\"):
         prefix = u"file:///"
     else:
         prefix = u"file://"
+    mdir = mdir.replace("\\", "/")
     base = prefix + unicode(
         urllib.quote(mdir.encode("utf-8")),
         "utf-8") + "/"
