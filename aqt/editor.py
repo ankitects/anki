@@ -474,6 +474,9 @@ class Editor(object):
         s.connect(s, SIGNAL("activated()"), self.insertLatexMathEnv)
         s = QShortcut(QKeySequence("Ctrl+Shift+X"), self.widget)
         s.connect(s, SIGNAL("activated()"), self.onHtmlEdit)
+        # tags
+        s = QShortcut(QKeySequence("Ctrl+Shift+T"), self.widget)
+        s.connect(s, SIGNAL("activated()"), lambda: self.tags.setFocus())
         runHook("setupEditorButtons", self)
 
     def enableButtons(self, val=True):
@@ -695,6 +698,7 @@ class Editor(object):
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.connect(self.tags, SIGNAL("lostFocus"),
                           self.saveTags)
+        self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
