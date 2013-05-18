@@ -37,7 +37,11 @@ class AnkiQt(QMainWindow):
             self.pm.meta['firstRun'] = False
             self.pm.save()
         # init rest of app
-        self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        if qtmajor == 4 and qtminor < 8:
+            # can't get modifiers immediately on qt4.7, so no safe mode there
+            self.safeMode = False
+        else:
+            self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
         try:
             self.setupUI()
             self.setupAddons()
