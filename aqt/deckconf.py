@@ -1,6 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from anki.consts import NEW_CARDS_RANDOM
 
 from aqt.qt import *
 import aqt
@@ -15,6 +16,7 @@ class DeckConf(QDialog):
         self.deck = deck
         self.childDids = [
             d[1] for d in self.mw.col.decks.children(self.deck['id'])]
+        self._origNewOrder = None
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         self.mw.checkpoint(_("Options"))
@@ -61,6 +63,8 @@ class DeckConf(QDialog):
                 startOn = idx
         self.ignoreConfChange = False
         self.form.dconf.setCurrentIndex(startOn)
+        if self._origNewOrder is None:
+            self._origNewOrder =  self.confList[startOn]['new']['order']
         self.onConfChange(startOn)
 
     def confOpts(self):
@@ -253,6 +257,12 @@ class DeckConf(QDialog):
         c['order'] = f.newOrder.currentIndex()
         c['perDay'] = f.newPerDay.value()
         c['separate'] = f.separate.isChecked()
+        if self._origNewOrder != c['order']:
+            # order of current deck has changed, so have to resort
+            if c['order'] == NEW_CARDS_RANDOM:
+                self.mw.col.sched.randomizeCards(self.deck['id'])
+            else:
+                self.mw.col.sched.orderCards(self.deck['id'])
         # rev
         c = self.conf['rev']
         c['perDay'] = f.revPerDay.value()
