@@ -165,6 +165,16 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         b += "<br>"
         b += (_("Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s")
               % dict(a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)))
+        # mature today
+        mcnt, msum = self.col.db.first("""
+select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
+where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
+        b += "<br>"
+        if mcnt:
+            b += _("Correct answers on mature cards: %d/%d (%.1f%%)") % (
+                msum, mcnt, msum / float(mcnt) * 100)
+        else:
+            b += _("No mature cards were studied today.")
         return b
 
     # Due and cumulative due
