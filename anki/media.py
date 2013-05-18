@@ -211,7 +211,7 @@ If the same name exists, compare checksums."""
                 unused.append(file)
             else:
                 del normrefs[nfile]
-        nohave = normrefs.keys()
+        nohave = [x for x in normrefs.keys() if not x.startswith("_")]
         return (nohave, unused)
 
     def allMedia(self):
