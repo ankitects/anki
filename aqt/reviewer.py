@@ -385,6 +385,9 @@ Please run Tools>Empty Cards""")
         self.web.eval("_getTypedText();")
         if not self.typeCorrect or not self.typedAnswer:
             return re.sub(self.typeAnsPat, "", buf)
+        origSize = len(buf)
+        buf = buf.replace("<hr id=answer>", "")
+        hadHR = len(buf) != origSize
         # munge correct value
         parser = HTMLParser.HTMLParser()
         cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
@@ -396,9 +399,14 @@ Please run Tools>Empty Cards""")
         def repl(match):
             # can't pass a string in directly, and can't use re.escape as it
             # escapes too much
-            return """
+            s = """
 <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
                 self.typeFont, self.typeSize, res)
+            if hadHR:
+                # a hack to ensure the q/a separator falls before the answer
+                # comparison when user is using {{FrontSide}}
+                s = "<hr id=answer>" + s
+            return s
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
