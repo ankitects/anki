@@ -320,6 +320,9 @@ body { margin:1.5em; }
 img { max-width: 95%; max-height: 95%; }
 .marked { position:absolute; right: 7px; top: 7px; display: none; }
 #typeans { width: 100%; }
+.typeGood { background: #0f0; }
+.typeBad { background: #f00; }
+.typeMissed { background: #ccc; }
 """
 
     def _styles(self):
@@ -328,8 +331,6 @@ img { max-width: 95%; max-height: 95%; }
     # Type in the answer
     ##########################################################################
 
-    failedCharColour = "#FF0000"
-    passedCharColour = "#00FF00"
     typeAnsPat = "\[\[type:(.+?)\]\]"
 
     def typeAnsFilter(self, buf):
@@ -390,11 +391,7 @@ Please run Tools>Empty Cards""")
         cor = parser.unescape(cor)
         given = self.typedAnswer
         # compare with typed answer
-        res = self.correct(cor, given)
-        if cor != given:
-            # Wrap the extra text in an id-ed span.
-            res += u"<span id=rightanswer><br> {0} <br> {1} </span>".format(
-                _(u"Correct answer was:"), cor)
+        res = self.correct(given, cor, showBad=False)
         # and update the type answer area
         def repl(match):
             # can't pass a string in directly, and can't use re.escape as it
@@ -419,62 +416,60 @@ Please run Tools>Empty Cards""")
             txt = matches[0]
         return txt
 
-    # following type answer functions thanks to Bernhard
-    def calculateOkBadStyle(self):
-        "Precalculates styles for correct and incorrect part of answer"
-        st = "background: %s; color: #000;"
-        self.styleOk  = st % self.passedCharColour
-        self.styleBad = st % self.failedCharColour
+    def tokenizeComparison(self, given, correct):
+        s = difflib.SequenceMatcher(None, given, correct)
+        givenElems = []
+        correctElems = []
+        givenPoint = 0
+        correctPoint = 0
+        offby = 0
+        def logBad(old, new, str, array):
+            if old != new:
+                array.append((False, str[old:new]))
+        def logGood(start, cnt, str, array):
+            if cnt:
+                array.append((True, str[start:start+cnt]))
+        for x, y, cnt in s.get_matching_blocks():
+            # if anything was missed in correct, pad given
+            if cnt and y-offby > x:
+                givenElems.append((False, "-"*(y-x-offby)))
+                offby = y-x
+            # log any proceeding bad elems
+            logBad(givenPoint, x, given, givenElems)
+            logBad(correctPoint, y, correct, correctElems)
+            givenPoint = x+cnt
+            correctPoint = y+cnt
+            # log the match
+            logGood(x, cnt, given, givenElems)
+            logGood(y, cnt, correct, correctElems)
+        return givenElems, correctElems
 
-    def ok(self, a):
-        "returns given sring in style correct (green)"
-        if len(a) == 0:
-            return ""
-        return "<span style='%s'>%s</span>" % (self.styleOk, cgi.escape(a))
-
-    def bad(self, a):
-        "returns given sring in style incorrect (red)"
-        if len(a) == 0:
-            return ""
-        return "<span style='%s'>%s</span>" % (self.styleBad, cgi.escape(a))
-
-    def applyStyle(self, testChar, correct, wrong):
-        "Calculates answer fragment depending on testChar's unicode category"
-        ZERO_SIZE = 'Mn'
-        def head(a):
-            return a[:len(a) - 1]
-        def tail(a):
-            return a[len(a) - 1:]
-        if ucd.category(testChar) == ZERO_SIZE:
-            return self.ok(head(correct)) + self.bad(tail(correct) + wrong)
-        return self.ok(correct) + self.bad(wrong)
-
-    def correct(self, a, b):
+    def correct(self, given, correct, showBad=True):
         "Diff-corrects the typed-in answer."
-        if b == "":
-            return "";
-        self.calculateOkBadStyle()
-        ret = ""
-        lastEqual = ""
-        s = difflib.SequenceMatcher(None, b, a)
-        for tag, i1, i2, j1, j2 in s.get_opcodes():
-            if tag == "equal":
-                lastEqual = b[i1:i2]
-            elif tag == "replace":
-                ret += self.applyStyle(b[i1], lastEqual,
-                                 b[i1:i2] + ("-" * ((j2 - j1) - (i2 - i1))))
-                lastEqual = ""
-            elif tag == "delete":
-                ret += self.applyStyle(b[i1], lastEqual, b[i1:i2])
-                lastEqual = ""
-            elif tag == "insert":
-                if ucd.category(a[j1]) != 'Mn':
-                    dashNum = (j2 - j1)
+        givenElems, correctElems = self.tokenizeComparison(given, correct)
+        def good(s):
+            return "<span class=typeGood>"+s+"</span>"
+        def bad(s):
+            return "<span class=typeBad>"+s+"</span>"
+        def missed(s):
+            return "<span class=typeMissed>"+s+"</span>"
+        if given == correct:
+            res = good(given)
+        else:
+            res = ""
+            for ok, txt in givenElems:
+                if ok:
+                    res += good(txt)
                 else:
-                    dashNum = ((j2 - j1) - 1)
-                ret += self.applyStyle(a[j1], lastEqual, "-" * dashNum)
-                lastEqual = ""
-        return ret + self.ok(lastEqual)
+                    res += bad(txt)
+            res += "<br>&darr;<br>"
+            for ok, txt in correctElems:
+                if ok:
+                    res += good(txt)
+                else:
+                    res += missed(txt)
+        res = "<div><code id=typeans>" + res + "</code></div>"
+        return res
 
     # Bottom bar
     ##########################################################################
