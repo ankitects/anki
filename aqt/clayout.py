@@ -236,11 +236,19 @@ Please create a new card type first."""))
             self.playedAudio[c.id] = True
 
     def maybeTextInput(self, txt, type='q'):
+        origLen = len(txt)
+        txt = txt.replace("<hr id=answer>", "")
+        hadHR = origLen != len(txt)
+        def answerRepl(match):
+            res = self.mw.reviewer.correct("exomple", "an example")
+            if hadHR:
+                res = "<hr id=answer>" + res
+            return res
         if type == 'q':
-            repl = "<input id='typeans' type=text value=''>"
+            repl = "<input id='typeans' type=text value='exomple'>"
+            repl = "<center>%s</center>" % repl
         else:
-            repl = _("(typing comparison appears here)")
-        repl = "<center>%s</center>" % repl
+            repl = answerRepl
         return re.sub("\[\[type:.+?\]\]", repl, txt)
 
     # Card operations
