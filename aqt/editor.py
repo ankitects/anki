@@ -518,6 +518,8 @@ class Editor(object):
             # reverse the url quoting we added to get images to display
             txt = unicode(urllib2.unquote(
                 txt.encode("utf8")), "utf8", "replace")
+            # make sure a trailing <br /> is removed
+            txt = re.sub("(<br />)*$", "", txt)
             self.note.fields[self.currentField] = txt
             if not self.addMode:
                 self.note.flush()
