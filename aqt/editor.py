@@ -546,6 +546,7 @@ class Editor(object):
             (type, num) = str.split(":", 1)
             self.enableButtons()
             self.currentField = int(num)
+            runHook("editFocusGained", self.note, self.currentField)
         # state buttons changed?
         elif str.startswith("state"):
             (cmd, txt) = str.split(":", 1)
