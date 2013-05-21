@@ -2,6 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
+import re
+
 from aqt.qt import *
 import  aqt
 from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
@@ -66,10 +68,19 @@ class ExportDialog(QDialog):
                     return
         else:
             verbatim = False
+
+            # Get deck name and remove invalid filename characters
+            deck_name = self.decks[self.frm.deck.currentIndex()]
+            deck_name = re.sub('[/?<>\:*|"^]', '_', deck_name)
+
+            filename = os.path.join(aqt.mw.pm.base,
+                                    '{}.apkg'.format(deck_name))
+
             while 1:
                 file = getSaveFile(
                     self, _("Export"), "export",
-                    self.exporter.key, self.exporter.ext)
+                    self.exporter.key, self.exporter.ext,
+                    initial_path=filename)
                 if not file:
                     return
                 if checkInvalidFilename(os.path.basename(file), dirsep=False):
