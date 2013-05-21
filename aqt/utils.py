@@ -252,28 +252,22 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     d.exec_()
     return ret and ret[0]
 
-def getSaveFile(parent, title, dir_description, key, ext,
-                initial_path=None):
+def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     """Ask the user for a file to save. Use DIR_DESCRIPTION as config
-    variable. The file dialog will open with an initial path of
-    INITIAL_PATH (this may be the path of a file or directory)."""
-
-    if initial_path is None:
-        initial_path = aqt.mw.pm.base
-
+    variable. The file dialog will default to open with FNAME."""
+    config_key = dir_description + 'Directory'
+    base = aqt.mw.pm.profile.get(config_key, aqt.mw.pm.base)
+    path = os.path.join(base, fname)
     file = unicode(QFileDialog.getSaveFileName(
-        parent, title, initial_path, "{0} (*{1})".format(key, ext),
+        parent, title, path, "{0} (*{1})".format(key, ext),
         options=QFileDialog.DontConfirmOverwrite))
     if file:
         # add extension
         if not file.lower().endswith(ext):
             file += ext
-
         # save new default
-        config_key = dir_description + 'Directory'
         dir = os.path.dirname(file)
         aqt.mw.pm.profile[config_key] = dir
-
         # check if it exists
         if os.path.exists(file):
             if not askUser(
