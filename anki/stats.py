@@ -2,6 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import division
 import time, datetime, json
 import anki.js
 from anki.utils import fmtTimeSpan, ids2str
@@ -323,7 +324,7 @@ group by day order by day""" % (self._limit(), lim),
                 period = 1
             else:
                 period = max(
-                    1, 1+((self.col.sched.dayCutoff - (t/1000)) / 86400))
+                    1, int(1+((self.col.sched.dayCutoff - (t/1000)) / 86400)))
         i = []
         self._line(i, _("Days studied"),
                    _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
