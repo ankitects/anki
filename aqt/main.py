@@ -213,6 +213,8 @@ Are you sure?""")):
             self.resize(500, 400)
         # toolbar needs to be retranslated
         self.toolbar.draw()
+        # titlebar
+        self.setWindowTitle("Anki - " + self.pm.name)
         # show and raise window for osx
         self.show()
         self.activateWindow()
