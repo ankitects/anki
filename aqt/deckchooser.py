@@ -36,7 +36,15 @@ class DeckChooser(QHBoxLayout):
             col = self.mw.col
             did = col.conf['curDeck']
             if col.decks.isDyn(did):
-                did = 1
+                # if they're reviewing, try default to current card
+                c = self.mw.reviewer.card
+                if self.mw.state == "review" and c:
+                    if not c.odid:
+                        did = c.did
+                    else:
+                        did = c.odid
+                else:
+                    did = 1
             self.deck.setText(self.mw.col.decks.nameOrNone(
                 did) or _("Default"))
         else:
