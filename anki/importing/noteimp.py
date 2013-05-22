@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import  cgi
+from anki.consts import NEW_CARDS_RANDOM
 from anki.lang import _
 from anki.utils import fieldChecksum, guid64, timestampID, \
     joinFields, intTime, splitFields
@@ -173,7 +174,15 @@ class NoteImporter(Importer):
                 "Empty cards found. Please run Tools>Empty Cards."))
         # apply scheduling updates
         self.updateCards()
-        self.col.sched.maybeRandomizeDeck()
+        # we randomize or order here, to ensure that siblings
+        # have the same due#
+        did = self.col.decks.selected()
+        conf = self.col.decks.confForDid(did)
+        # in order due?
+        if conf['new']['order'] == NEW_CARDS_RANDOM:
+            self.col.sched.randomizeCards(did)
+        else:
+            self.col.sched.orderCards(did)
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated", self.updateCount) % self.updateCount
         self.log.append("%s, %s." % (part1, part2))

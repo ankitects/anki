@@ -1359,4 +1359,4 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
         conf = self.col.decks.confForDid(did)
         # in order due?
         if conf['new']['order'] == NEW_CARDS_RANDOM:
-            self.col.sched.randomizeCards(did)
+            self.randomizeCards(did)
