@@ -3,7 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut
+from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
+    openHelp
 from anki.utils import isMac, ids2str, fmtTimeSpan
 import anki.js
 from anki.errors import DeckRenameError
@@ -43,6 +44,11 @@ class DeckBrowser(object):
             self._onShared()
         elif cmd == "import":
             self.mw.onImport()
+        elif cmd == "lots":
+            openHelp("using-decks-appropriately")
+        elif cmd == "hidelots":
+            self.mw.pm.profile['hideDeckLotsMsg'] = True
+            self.refresh()
         elif cmd == "create":
             deck = getOnlyText(_("Name for deck:"))
             if deck:
@@ -92,6 +98,7 @@ body { margin: 1em; -webkit-user-select: none; }
 
 <br>
 %(stats)s
+%(countwarn)s
 </center>
 <script>
     $( init );
@@ -134,7 +141,8 @@ body { margin: 1em; -webkit-user-select: none; }
         tree = self._renderDeckTree(self._dueTree)
         stats = self._renderStats()
         op = self._oldPos()
-        self.web.stdHtml(self._body%dict(tree=tree, stats=stats), css=css,
+        self.web.stdHtml(self._body%dict(
+            tree=tree, stats=stats, countwarn=self._countWarn()), css=css,
                          js=anki.js.jquery+anki.js.ui, loadCB=lambda ok:\
                          self.web.page().mainFrame().setScrollPosition(op))
         self.web.key = "deckBrowser"
@@ -156,6 +164,16 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf = _("Studied %(a)s in %(b)s today.") % dict(a=msgp1,
                                                         b=fmtTimeSpan(thetime, unit=1))
         return buf
+
+    def _countWarn(self):
+        if (self.mw.col.decks.count() < 25 or
+                self.mw.pm.profile.get("hideDeckLotsMsg")):
+            return ""
+        return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
+            _("You have a lot of decks. Please see %s. %s") % (
+                "<a href=lots>%s</a>" % _("this page"),
+            "<br><small><a href=hidelots>(%s)</a></small>" % (_("hide")))+
+            "</div")
 
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:
