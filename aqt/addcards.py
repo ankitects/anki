@@ -76,7 +76,7 @@ class AddCards(QDialog):
     def setupNewNote(self, set=True):
         f = self.mw.col.newNote()
         if set:
-            self.editor.setNote(f)
+            self.editor.setNote(f, focus=True)
         return f
 
     def onReset(self, model=None, keep=False):
@@ -96,7 +96,7 @@ class AddCards(QDialog):
                 except IndexError:
                     break
         self.editor.currentField = 0
-        self.editor.setNote(note)
+        self.editor.setNote(note, focus=True)
 
     def removeTempNote(self, note):
         if not note or not note.id:

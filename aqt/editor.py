@@ -538,7 +538,6 @@ class Editor(object):
                     def onUpdate():
                         self.stealFocus = True
                         self.loadNote()
-                        self.stealFocus = False
                         self.checkValid()
                     self.mw.progress.timer(100, onUpdate, False)
                 else:
@@ -584,6 +583,8 @@ class Editor(object):
         self.note = note
         self.currentField = 0
         self.disableButtons()
+        if focus:
+            self.stealFocus = True
         # change timer
         if self.note:
             self.web.setHtml(_html % (
@@ -617,6 +618,7 @@ class Editor(object):
         self.widget.show()
         if self.stealFocus:
             self.web.setFocus()
+            self.stealFocus = False
 
     def focus(self):
         self.web.setFocus()
