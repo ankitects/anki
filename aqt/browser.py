@@ -953,7 +953,7 @@ where id in %s""" % ids2str(sf))
     def _openPreview(self):
         c = self.connect
         self._previewState = "question"
-        self._previewWindow = QDialog()
+        self._previewWindow = QDialog(None, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
         c(self._previewWindow, SIGNAL("finished(int)"), self._onPreviewFinished)
         vbox = QVBoxLayout()
