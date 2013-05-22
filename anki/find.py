@@ -5,6 +5,7 @@
 import re
 from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
+from anki.hooks import *
 import sre_constants
 
 # Find
@@ -14,6 +15,20 @@ class Finder(object):
 
     def __init__(self, col):
         self.col = col
+        self.search = dict(
+            added=self._findAdded,
+            card=self._findTemplate,
+            deck=self._findDeck,
+            mid=self._findMid,
+            nid=self._findNids,
+            note=self._findModel,
+            prop=self._findProp,
+            rated=self._findRated,
+            tag=self._findTag,
+            dupes=self._findDupes,
+        )
+        self.search['is'] = self._findCardState
+        runHook("search", self.search)
 
     def findCards(self, query, order=False):
         "Return a list of card ids for QUERY."
@@ -154,28 +169,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             elif ":" in token:
                 cmd, val = token.split(":", 1)
                 cmd = cmd.lower()
-                if cmd == "tag":
-                    add(self._findTag(val, args))
-                elif cmd == "is":
-                    add(self._findCardState(val))
-                elif cmd == "nid":
-                    add(self._findNids(val))
-                elif cmd == "card":
-                    add(self._findTemplate(val))
-                elif cmd == "note":
-                    add(self._findModel(val))
-                elif cmd == "mid":
-                    add(self._findMid(val))
-                elif cmd == "deck":
-                    add(self._findDeck(val))
-                elif cmd == "prop":
-                    add(self._findProp(val))
-                elif cmd == "rated":
-                    add(self._findRated(val))
-                elif cmd == "added":
-                    add(self._findAdded(val))
-                elif cmd == "dupe":
-                    add(self._findDupes(val))
+                if cmd in self.search:
+                    add(self.search[cmd]((val, args)))
                 else:
                     add(self._findField(cmd, val))
             # normal text search
@@ -241,7 +236,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     # Commands
     ######################################################################
 
-    def _findTag(self, val, args):
+    def _findTag(self, (val, args)):
         if val == "none":
             return 'n.tags = ""'
         val = val.replace("*", "%")
@@ -252,7 +247,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         args.append(val)
         return "n.tags like ?"
 
-    def _findCardState(self, val):
+    def _findCardState(self, (val, args)):
         if val in ("review", "new", "learn"):
             if val == "review":
                 n = 2
@@ -269,7 +264,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 (c.queue = 1 and c.due <= %d)""" % (
     self.col.sched.today, self.col.sched.dayCutoff)
 
-    def _findRated(self, val):
+    def _findRated(self, (val, args)):
         # days(:optional_ease)
         r = val.split(":")
         try:
@@ -287,7 +282,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         return ("c.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
 
-    def _findAdded(self, val):
+    def _findAdded(self, (val, args)):
         try:
             days = int(val)
         except ValueError:
@@ -295,7 +290,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return "c.id > %d" % cutoff
 
-    def _findProp(self, val):
+    def _findProp(self, (val, args)):
         # extract
         m = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
         if not m:
@@ -331,17 +326,17 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         args.append("%"+val+"%")
         return "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
 
-    def _findNids(self, val):
+    def _findNids(self, (val, args)):
         if re.search("[^0-9,]", val):
             return
         return "n.id in (%s)" % val
 
-    def _findMid(self, val):
+    def _findMid(self, (val, args)):
         if re.search("[^0-9]", val):
             return
         return "n.mid = %s" % val
 
-    def _findModel(self, val):
+    def _findModel(self, (val, args)):
         ids = []
         val = val.lower()
         for m in self.col.models.all():
@@ -349,7 +344,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 ids.append(m['id'])
         return "n.mid in %s" % ids2str(ids)
 
-    def _findDeck(self, val):
+    def _findDeck(self, (val, args)):
         # if searching for all decks, skip
         if val == "*":
             return "skip"
@@ -379,7 +374,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         sids = ids2str(ids)
         return "c.did in %s or c.odid in %s" % (sids, sids)
 
-    def _findTemplate(self, val):
+    def _findTemplate(self, (val, args)):
         # were we given an ordinal number?
         try:
             num = int(val) - 1
@@ -434,7 +429,7 @@ where mid in %s and flds like ? escape '\\'""" % (
             return "0"
         return "n.id in %s" % ids2str(nids)
 
-    def _findDupes(self, val):
+    def _findDupes(self, (val, args)):
         # caller must call stripHTMLMedia on passed val
         try:
             mid, val = val.split(",", 1)
