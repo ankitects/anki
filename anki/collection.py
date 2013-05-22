@@ -6,7 +6,7 @@ import time, os, random, stat, datetime, copy
 from anki.lang import _, ngettext
 from anki.utils import ids2str, fieldChecksum, stripHTML, \
     intTime, splitFields, joinFields, maxID, json
-from anki.hooks import  runFilter
+from anki.hooks import  runFilter, runHook
 from anki.sched import Scheduler
 from anki.models import ModelManager
 from anki.media import MediaManager
@@ -258,6 +258,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
+        runHook("remNotes", ids)
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
 

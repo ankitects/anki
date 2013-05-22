@@ -8,7 +8,7 @@ import  zipfile
 from aqt.qt import *
 
 from anki import Collection
-from anki.utils import  isWin, isMac, intTime
+from anki.utils import  isWin, isMac, intTime, splitFields, ids2str
 from anki.hooks import runHook, addHook
 
 import aqt, aqt.progress, aqt.webview, aqt.toolbar, aqt.stats
@@ -74,7 +74,7 @@ class AnkiQt(QMainWindow):
         self.setupErrorHandler()
         self.setupSignals()
         self.setupAutoUpdate()
-        self.setupSchema()
+        self.setupHooks()
         self.setupRefreshTimer()
         self.updateTitleBar()
         # screens
@@ -821,11 +821,31 @@ the problem and restart Anki.""")
         elif self.state == "overview":
             self.overview.refresh()
 
-    # Schema modifications
+    # Permanent libanki hooks
     ##########################################################################
 
-    def setupSchema(self):
+    def setupHooks(self):
         addHook("modSchema", self.onSchemaMod)
+        addHook("remNotes", self.onRemNotes)
+
+    # Log note deletion
+    ##########################################################################
+
+    def onRemNotes(self, nids):
+        path = os.path.join(self.pm.profileFolder(), "deleted.txt")
+        existed = os.path.exists(path)
+        with open(path, "a") as f:
+            if not existed:
+                f.write("nid\tmid\tfields\n")
+            for id, mid, flds in self.col.db.execute(
+                    "select id, mid, flds from notes where id in %s" %
+                ids2str(nids)):
+                fields = splitFields(flds)
+                f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
+                f.write("\n")
+
+    # Schema modifications
+    ##########################################################################
 
     def onSchemaMod(self, arg):
         # if triggered in sync, make sure we don't use the gui
