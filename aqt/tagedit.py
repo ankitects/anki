@@ -34,6 +34,9 @@ class TagEdit(QLineEdit):
         self.showCompleter()
 
     def keyPressEvent(self, evt):
+        if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+            self.hideCompleter()
+            return
         QLineEdit.keyPressEvent(self, evt)
         if not evt.text():
             # if it's a modifier, don't show
