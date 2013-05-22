@@ -23,7 +23,11 @@ def test_strings():
     mid = d.models.models.keys()[0]
     assert mf(mid, "aoeu") == []
     assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
-    assert mf(mid, "aoeu<img src=foo bar.jpg>ao") == ["foo bar.jpg"]
+    assert mf(mid, "aoeu<img src='foo.jpg' style='test'>ao") == ["foo.jpg"]
+    assert mf(mid, "aoeu<img src='foo.jpg'><img src=\"bar.jpg\">ao") == [
+            "foo.jpg", "bar.jpg"]
+    assert mf(mid, "aoeu<img src=foo.jpg style=bar>ao") == ["foo.jpg"]
+    assert mf(mid, "<img src=one><img src=two>") == ["one", "two"]
     assert mf(mid, "aoeu<img src=\"foo.jpg\">ao") == ["foo.jpg"]
     assert mf(mid, "aoeu<img src=\"foo.jpg\"><img class=yo src=fo>ao") == [
             "foo.jpg", "fo"]

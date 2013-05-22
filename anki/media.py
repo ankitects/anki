@@ -12,10 +12,14 @@ from anki.latex import mungeQA
 
 class MediaManager(object):
 
-    # other code depends on this order, so don't reorder
-    regexps = ("(?i)(\[sound:(?P<fname>[^]]+)\])",
-               "(?i)(<img[^>]+src=(?P<str>[\"']?)"+
-                "(?P<fname>[^>]+)(?P=str)[^>]*>)")
+    soundRegexps = ["(?i)(\[sound:(?P<fname>[^]]+)\])"]
+    imgRegexps = [
+        # src element quoted case
+        "(?i)(<img[^>]+src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        # unquoted case
+        "(?i)(<img[^>]+src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+    ]
+    regexps = soundRegexps + imgRegexps
 
     def __init__(self, col, server):
         self.col = col
@@ -175,7 +179,9 @@ If the same name exists, compare checksums."""
                 return tag
             return tag.replace(
                 fname, urllib.quote(fname.encode("utf-8")))
-        return re.sub(self.regexps[1], repl, string)
+        for reg in self.imgRegexps:
+            string = re.sub(reg, repl, string)
+        return string
 
     # Rebuilding DB
     ##########################################################################
