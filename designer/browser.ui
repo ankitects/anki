@@ -122,7 +122,7 @@
            <item row="0" column="2">
             <widget class="QPushButton" name="previewButton">
              <property name="text">
-              <string>&amp;Preview</string>
+              <string>Preview</string>
              </property>
              <property name="shortcut">
               <string>Ctrl+Shift+P</string>

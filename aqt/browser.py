@@ -383,6 +383,8 @@ class Browser(QMainWindow):
         # edit
         c(f.actionUndo, s, self.mw.onUndo)
         c(f.previewButton, SIGNAL("clicked()"), self.onTogglePreview)
+        f.previewButton.setToolTip(_("Preview Selected Card (%s)") %
+            shortcut(_("Ctrl+Shift+P")))
         c(f.actionInvertSelection, s, self.invertSelection)
         c(f.actionSelectNotes, s, self.selectNotes)
         c(f.actionFindReplace, s, self.onFindReplace)
