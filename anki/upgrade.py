@@ -582,10 +582,10 @@ order by ordinal""", mid)):
                 new = fld
             # rewrite reference in template
             t[key] = t[key].replace(all, "{{{%s}}}" % new)
-        regexps = col.media.regexps + (
-            r"(\[latex\](.+?)\[/latex\])",
-            r"(\[\$\](.+?)\[/\$\])",
-            r"(\[\$\$\](.+?)\[/\$\$\])")
+        regexps = col.media.regexps + [
+            r"(\[latex\](?P<fname>.+?)\[/latex\])",
+            r"(\[\$\](?P<fname>.+?)\[/\$\])",
+            r"(\[\$\$\](?P<fname>.+?)\[/\$\$\])"]
         # process each model
         for m in col.models.all():
             state = dict(mflds={}, fields=0)
