@@ -315,8 +315,9 @@ def _filterHTML(html):
         else:
             # remove completely
             tag.replaceWithChildren()
-    # turn file:/// links into relative ones
+    # now images
     for tag in doc("img"):
+        # turn file:/// links into relative ones
         try:
             if tag['src'].lower().startswith("file://"):
                 tag['src'] = os.path.basename(tag['src'])
@@ -324,6 +325,10 @@ def _filterHTML(html):
             # for some bizarre reason, mnemosyne removes src elements
             # from missing media
             pass
+        # strip all other attributes, including implicit max-width
+        for attr, val in tag.attrs:
+            if attr != "src":
+                del tag[attr]
     # strip superfluous elements
     for elem in "html", "head", "body", "meta":
         for tag in doc(elem):
