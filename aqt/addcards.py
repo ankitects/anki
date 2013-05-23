@@ -1,6 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from anki.lang import _
 
 from aqt.qt import *
 import aqt.forms
@@ -8,7 +9,7 @@ from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip, openHelp, addCloseShortcut
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook
-from anki.utils import stripHTMLMedia
+from anki.utils import stripHTMLMedia, isMac
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
 class AddCards(QDialog):
@@ -69,6 +70,12 @@ class AddCards(QDialog):
         # history
         b = bb.addButton(
             _("History")+ u" ▾", ar)
+        if isMac:
+            sc = "Ctrl+Shift+H"
+        else:
+            sc = "Ctrl+H"
+        b.setShortcut(QKeySequence(sc))
+        b.setToolTip(_("Shortcut: %s") % shortcut(sc))
         self.connect(b, SIGNAL("clicked()"), self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
