@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, sys, re, traceback, signal
+import os, sys, re, traceback, signal, send2trash
 import  zipfile
 
 from aqt.qt import *
@@ -923,7 +923,7 @@ will be lost. Continue?"""))
         mdir = self.col.media.dir()
         for f in unused:
             path = os.path.join(mdir, f)
-            os.unlink(path)
+            send2trash.send2trash(path)
         tooltip(_("Deleted."))
         diag.close()
 
