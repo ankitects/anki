@@ -4,6 +4,7 @@
 
 import os, shutil, re, urllib, unicodedata, \
     sys, zipfile
+import send2trash
 from cStringIO import StringIO
 from anki.utils import checksum, isWin, isMac, json
 from anki.db import DB
@@ -247,7 +248,7 @@ If the same name exists, compare checksums."""
         # remove provided deletions
         for f in fnames:
             if os.path.exists(f):
-                os.unlink(f)
+                send2trash.send2trash(f)
             self.db.execute("delete from log where fname = ?", f)
             self.db.execute("delete from media where fname = ?", f)
         # and all locally-logged deletions, as server has acked them
