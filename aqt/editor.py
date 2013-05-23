@@ -301,7 +301,7 @@ def _filterHTML(html):
                 preserve += item + ";"
         if preserve:
             # preserve colour attribute, delete implicit class
-            tag.attrs = ((u"style", preserve),)
+            tag['style'] = preserve
             del tag['class']
         else:
             # strip completely
@@ -309,7 +309,9 @@ def _filterHTML(html):
     for tag in doc("font", "Apple-style-span"):
         # strip all but colour attr from implicit font tags
         if 'color' in dict(tag.attrs):
-            tag.attrs = ((u"color", tag['color']),)
+            for attr in tag.attrs:
+                if attr != "color":
+                    del tag[attr]
             # and apple class
             del tag['class']
         else:
