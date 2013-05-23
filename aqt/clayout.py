@@ -236,6 +236,8 @@ Please create a new card type first."""))
             self.playedAudio[c.id] = True
 
     def maybeTextInput(self, txt, type='q'):
+        if "[[type:" not in txt:
+            return txt
         origLen = len(txt)
         txt = txt.replace("<hr id=answer>", "")
         hadHR = origLen != len(txt)
