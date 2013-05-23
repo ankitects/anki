@@ -58,9 +58,6 @@
        <property name="minimum">
         <number>6</number>
        </property>
-       <property name="maximum">
-        <number>18</number>
-       </property>
       </widget>
      </item>
     </layout>

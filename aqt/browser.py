@@ -431,8 +431,16 @@ class Browser(QMainWindow):
         self.mw.maybeHideAccelerators(self)
 
     def updateFont(self):
+        # we can't choose different line heights efficiently, so we need
+        # to pick a line height big enough for any card template
+        curmax = 16
+        for m in self.col.models.all():
+            for t in m['tmpls']:
+                bsize = t.get("bsize", 0)
+                if bsize > curmax:
+                    curmax = bsize
         self.form.tableView.verticalHeader().setDefaultSectionSize(
-            max(16, self.mw.fontHeight * 1.4))
+            curmax + 6)
 
     def closeEvent(self, evt):
         saveSplitter(self.form.splitter_2, "editor2")
