@@ -95,6 +95,13 @@ function onKeyUp(elem) {
     if (!elem.lastChild || elem.lastChild.nodeName.toLowerCase() != "br") {
         elem.appendChild(document.createElement("br"));
     }
+    var old = elem.innerHTML;
+    var new_ = old.replace(/<([biu])><br><\\/\\1>/g, "");
+    if (old != new_) {
+        elem.innerHTML = new_;
+        // this may have caused the cursor to disappear
+        caretToEnd();
+    }
 }
 
 function sendState() {
