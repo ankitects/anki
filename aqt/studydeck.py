@@ -94,10 +94,9 @@ class StudyDeck(QDialog):
         filt = filt.lower()
         if not filt:
             return True
-        for c in filt:
-            if c not in name:
+        for word in filt.split(" "):
+            if word not in name:
                 return False
-            name = name[name.index(c)+1:]
         return True
 
     def onReset(self):
