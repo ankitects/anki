@@ -51,6 +51,8 @@ def info_for(src, topdir):
         src = op.relpath(src, topdir)
 
     info  = u"[Trash Info]\n"
+    if isinstance(src, unicode):
+        src = src.encode("utf8")
     info += u"Path=" + quote(src) + u"\n"
     info += u"DeletionDate=" + format_date(datetime.now()) + u"\n"
     return info
