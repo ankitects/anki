@@ -918,7 +918,7 @@ will be lost. Continue?"""))
 
     def deleteUnused(self, unused, diag):
         if not askUser(
-            _("Delete unused media? This operation can not be undone.")):
+            _("Delete unused media?")):
             return
         mdir = self.col.media.dir()
         for f in unused:
