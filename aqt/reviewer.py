@@ -6,11 +6,12 @@ from __future__ import division
 import    difflib, re, cgi
 import unicodedata as ucd
 import HTMLParser
+from anki.lang import _, ngettext
 from aqt.qt import *
 from anki.utils import  stripHTML, isMac, json
 from anki.hooks import addHook, runHook
 from anki.sound import playFromText, clearAudioQueue, play
-from aqt.utils import mungeQA, getBase, openLink, tooltip
+from aqt.utils import mungeQA, getBase, openLink, tooltip, askUserDialog
 from aqt.sound import getAudio
 import aqt
 
@@ -66,8 +67,14 @@ class Reviewer(object):
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
             part1 = ngettext("%d card studied in", "%d cards studied in", elapsed[1]) % elapsed[1]
-            part2 = ngettext("%s minute.", "%s minutes.", elapsed[0]/60) % (elapsed[0]/60)
-            tooltip("%s %s" % (part1, part2), period=5000)
+            mins = int(round(elapsed[0]/60))
+            part2 = ngettext("%s minute.", "%s minutes.", mins) % mins
+            fin = _("Finish")
+            diag = askUserDialog("%s %s" % (part1, part2),
+                             [_("Continue"), fin])
+            diag.setIcon(QMessageBox.Information)
+            if diag.run() == fin:
+                return self.mw.moveToState("deckBrowser")
             self.mw.col.startTimebox()
         if self.cardQueue:
             # undone/edited cards to show
