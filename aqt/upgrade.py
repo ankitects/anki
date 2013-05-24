@@ -18,7 +18,7 @@ class Upgrader(object):
     def maybeUpgrade(self):
         p = self._oldConfigPath()
         # does an old config file exist?
-        if not os.path.exists(p):
+        if not p or not os.path.exists(p):
             return
         # load old settings and copy over
         try:
@@ -38,7 +38,11 @@ to import your decks from previous Anki versions."""))
 
     def _oldConfigPath(self):
         if isWin:
-            os.environ['HOME'] = os.environ['APPDATA']
+            try:
+                os.environ['HOME'] = os.environ['APPDATA']
+            except:
+                # system with %APPDATA% not defined
+                return None
             p = "~/.anki/config.db"
         elif isMac:
             p = "~/Library/Application Support/Anki/config.db"
