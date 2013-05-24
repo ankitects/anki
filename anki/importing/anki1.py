@@ -9,6 +9,8 @@ from anki.importing.anki2 import Anki2Importer
 
 class Anki1Importer(Anki2Importer):
 
+    dupeOnSchemaChange = True
+
     def run(self):
         u = Upgrader()
         # check
