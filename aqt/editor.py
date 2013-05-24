@@ -677,8 +677,9 @@ class Editor(object):
     def fieldsAreBlank(self):
         if not self.note:
             return True
-        for f in self.note.fields:
-            if f:
+        m = self.note.model()
+        for c, f in enumerate(self.note.fields):
+            if f and not m['flds'][c]['sticky']:
                 return False
         return True
 
