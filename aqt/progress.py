@@ -64,7 +64,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations."""
         def handler():
             if self.inDB:
                 # retry in 100ms
-                self.timer(100, func, repeat)
+                self.timer(100, func, False)
             else:
                 func()
         t = QTimer(self.mw)
