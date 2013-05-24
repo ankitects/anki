@@ -20,6 +20,8 @@ def show(parent):
     abouttext = "<center><img src='qrc:/icons/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")
+    abouttext += "<p>"+_("Anki is licensed under the AGPL3 license. Please see "
+    "the license file in the source distribution for more information.")
     abouttext += '<p>' + _("Version %s") % appVersion + '<br>'
     abouttext += ("Qt %s PyQt %s<br>") % (QT_VERSION_STR, PYQT_VERSION_STR)
     abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + \
