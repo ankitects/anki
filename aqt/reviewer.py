@@ -391,7 +391,10 @@ Please run Tools>Empty Cards""")
         # munge correct value
         parser = HTMLParser.HTMLParser()
         cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
+        # ensure we don't chomp multiple whitespace
+        cor = cor.replace(" ", "&nbsp;")
         cor = parser.unescape(cor)
+        cor = cor.replace(u"\xa0", " ")
         given = self.typedAnswer
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
