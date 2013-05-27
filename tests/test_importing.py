@@ -179,15 +179,18 @@ def test_anki2_diffmodels():
     # import the 1 card version of the model
     tmp = getUpgradeDeckPath("diffmodels2-1.apkg")
     imp = AnkiPackageImporter(dst, tmp)
+    imp.dupeOnSchemaChange = True
     imp.run()
     before = dst.noteCount()
     # repeating the process should do nothing
     imp = AnkiPackageImporter(dst, tmp)
+    imp.dupeOnSchemaChange = True
     imp.run()
     assert before == dst.noteCount()
     # then the 2 card version
     tmp = getUpgradeDeckPath("diffmodels2-2.apkg")
     imp = AnkiPackageImporter(dst, tmp)
+    imp.dupeOnSchemaChange = True
     imp.run()
     after = dst.noteCount()
     # as the model schemas differ, should have been imported as new model
@@ -196,6 +199,7 @@ def test_anki2_diffmodels():
     assert dst.cardCount() == 3
     # repeating the process should do nothing
     imp = AnkiPackageImporter(dst, tmp)
+    imp.dupeOnSchemaChange = True
     imp.run()
     after = dst.noteCount()
     assert after == before + 1
