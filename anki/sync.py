@@ -665,8 +665,11 @@ class MediaSyncer(object):
             return "noChanges"
         # step 1.5: if resyncing, we need to get the list of files the server
         # has and remove them from our local list of files to sync
-        files = self.server.mediaList()
-        self.col.media.removeExisting(files)
+        if not lusn:
+            files = self.server.mediaList()
+            need = self.col.media.removeExisting(files)
+        else:
+            need = None
         # step 2: send/recv deletions
         runHook("sync", "removeMedia")
         lrem = self.removed()
@@ -677,7 +680,7 @@ class MediaSyncer(object):
         while 1:
             runHook("sync", "streamMedia")
             usn = self.col.media.usn()
-            zip = self.server.files(minUsn=usn)
+            zip = self.server.files(minUsn=usn, need=need)
             if self.addFiles(zip=zip):
                 break
         # step 4: stream files to the server

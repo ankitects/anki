@@ -474,9 +474,18 @@ create table log (fname text primary key, type int);
         self.db.commit()
 
     def removeExisting(self, files):
-        "Remove files from list of files to sync."
-        # add temporary index
-        self.db.execute("create index if not exists ix_fname_tmp on log(fname)")
-        self.db.executemany("delete from log where fname=?", ((f,) for f in files))
-        self.db.execute("drop index ix_fname_tmp")
+        "Remove files from list of files to sync, and return missing files."
+        need = []
+        remove = []
+        for f in files:
+            if self.db.execute("select 1 from log where fname=?", f):
+                remove.append((f,))
+            else:
+                need.append(f)
+        self.db.executemany("delete from log where fname=?", remove)
         self.db.commit()
+        # if we need all the server files, it's faster to pass None than
+        # the full list
+        if need and len(files) == len(need):
+            return None
+        return need
