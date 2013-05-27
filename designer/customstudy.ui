@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>290</width>
-    <height>338</height>
+    <width>332</width>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,31 +16,10 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="5" column="0">
-      <widget class="QRadioButton" name="radio6">
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="radio4">
        <property name="text">
-        <string>Preview new cards</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QRadioButton" name="radio5">
-       <property name="text">
-        <string>Study a random selection of cards</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QRadioButton" name="radio2">
-       <property name="text">
-        <string>Increase today's review card limit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QRadioButton" name="radio1">
-       <property name="text">
-        <string>Increase today's new card limit</string>
+        <string>Review ahead</string>
        </property>
       </widget>
      </item>
@@ -51,17 +30,31 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QRadioButton" name="radio4">
+     <item row="0" column="0">
+      <widget class="QRadioButton" name="radio1">
        <property name="text">
-        <string>Review ahead</string>
+        <string>Increase today's new card limit</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QRadioButton" name="radio7">
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="radio2">
        <property name="text">
-        <string>Limit to particular tags</string>
+        <string>Increase today's review card limit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QRadioButton" name="radio6">
+       <property name="text">
+        <string>Study by card state or tag</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QRadioButton" name="radio5">
+       <property name="text">
+        <string>Preview new cards</string>
        </property>
       </widget>
      </item>
@@ -114,6 +107,28 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="QListWidget" name="cardType">
+        <property name="currentRow">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>New cards only</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Due cards only</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>All cards in random order (cram mode)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -147,9 +162,7 @@
   <tabstop>radio2</tabstop>
   <tabstop>radio3</tabstop>
   <tabstop>radio4</tabstop>
-  <tabstop>radio5</tabstop>
   <tabstop>radio6</tabstop>
-  <tabstop>radio7</tabstop>
   <tabstop>spin</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

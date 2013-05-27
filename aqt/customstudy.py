@@ -11,9 +11,12 @@ RADIO_NEW = 1
 RADIO_REV = 2
 RADIO_FORGOT = 3
 RADIO_AHEAD = 4
-RADIO_RANDOM = 5
-RADIO_PREVIEW = 6
-RADIO_TAGS = 7
+RADIO_PREVIEW = 5
+RADIO_CRAM = 6
+
+TYPE_NEW = 0
+TYPE_DUE = 1
+TYPE_ALL = 2
 
 class CustomStudy(QDialog):
     def __init__(self, mw):
@@ -35,7 +38,6 @@ class CustomStudy(QDialog):
         c(f.radio4, s, lambda: self.onRadioChange(4))
         c(f.radio5, s, lambda: self.onRadioChange(5))
         c(f.radio6, s, lambda: self.onRadioChange(6))
-        c(f.radio7, s, lambda: self.onRadioChange(7))
 
     def onRadioChange(self, idx):
         f = self.form; sp = f.spin
@@ -43,6 +45,8 @@ class CustomStudy(QDialog):
         post = _("cards")
         tit = ""
         spShow = True
+        typeShow = False
+        ok = _("OK")
         def plus(num):
             if num == 1000:
                 num = "1000+"
@@ -66,20 +70,19 @@ class CustomStudy(QDialog):
         elif idx == RADIO_AHEAD:
             pre = _("Review ahead by")
             post = _("days")
-        elif idx == RADIO_RANDOM:
-            pre = _("Select")
-            post = _("cards randomly from the deck")
-            sval = 100
         elif idx == RADIO_PREVIEW:
             pre = _("Preview new cards added in the last")
             post = _("days")
             sval = 1
-        elif idx == RADIO_TAGS:
-            tit = _("Press OK to choose tags.")
+        elif idx == RADIO_CRAM:
+            pre = _("Select")
+            post = _("cards from the deck")
+            #tit = _("After pressing OK, you can choose which tags to include.")
+            ok = _("Choose Tags")
             sval = 100
-            spShow = False
-            pre = post = ""
+            typeShow = True
         sp.setVisible(spShow)
+        f.cardType.setVisible(typeShow)
         f.title.setText(tit)
         f.title.setVisible(not not tit)
         f.spin.setMinimum(smin)
@@ -87,6 +90,7 @@ class CustomStudy(QDialog):
         f.spin.setValue(sval)
         f.preSpin.setText(pre)
         f.postSpin.setText(post)
+        f.buttonBox.button(QDialogButtonBox.Ok).setText(ok)
         self.radioIdx = idx
 
     def accept(self):
@@ -103,10 +107,8 @@ class CustomStudy(QDialog):
             self.mw.col.sched.extendLimits(0, spin)
             self.mw.reset()
             return QDialog.accept(self)
-        elif i == RADIO_TAGS:
+        elif i == RADIO_CRAM:
             tags = self._getTags()
-            if not tags:
-                return
         # the rest create a filtered deck
         cur = self.mw.col.decks.byName(_("Custom Study Session"))
         if cur:
@@ -131,18 +133,26 @@ class CustomStudy(QDialog):
             dyn['delays'] = None
             dyn['terms'][0] = ['prop:due<=%d' % spin, 9999, DYN_DUE]
             dyn['resched'] = True
-        elif i == RADIO_RANDOM:
-            dyn['delays'] = None
-            dyn['terms'][0] = ['', spin, DYN_RANDOM]
-            dyn['resched'] = True
         elif i == RADIO_PREVIEW:
             dyn['delays'] = None
             dyn['terms'][0] = ['is:new added:%s'%spin, 9999, DYN_OLDEST]
             dyn['resched'] = False
-        elif i == RADIO_TAGS:
+        elif i == RADIO_CRAM:
             dyn['delays'] = None
-            dyn['terms'][0] = ["(is:new or is:due) "+tags, 9999, DYN_RANDOM]
-            dyn['resched'] = True
+            type = f.cardType.currentRow()
+            if type == TYPE_NEW:
+                terms = "is:new "
+                ord = DYN_ADDED
+                dyn['resched'] = True
+            elif type == TYPE_DUE:
+                terms = "is:due "
+                ord = DYN_DUE
+                dyn['resched'] = True
+            else:
+                terms = ""
+                ord = DYN_RANDOM
+                dyn['resched'] = False
+            dyn['terms'][0] = [(terms+tags).strip(), spin, ord]
         # add deck limit
         dyn['terms'][0][0] = "deck:\"%s\" %s " % (self.deck['name'], dyn['terms'][0][0])
         # generate cards
