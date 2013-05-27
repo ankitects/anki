@@ -36,6 +36,7 @@ class TagEdit(QLineEdit):
     def keyPressEvent(self, evt):
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
             self.hideCompleter()
+            QWidget.keyPressEvent(self, evt)
             return
         QLineEdit.keyPressEvent(self, evt)
         if not evt.text():
