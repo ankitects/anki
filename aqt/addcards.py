@@ -82,6 +82,7 @@ class AddCards(QDialog):
 
     def setupNewNote(self, set=True):
         f = self.mw.col.newNote()
+        f.tags = f.model()['tags']
         if set:
             self.editor.setNote(f, focus=True)
         return f
