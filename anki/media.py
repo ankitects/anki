@@ -466,3 +466,17 @@ create table log (fname text primary key, type int);
         assert not self.db.scalar("select count() from log")
         cnt = self.db.scalar("select count() from media")
         return cnt
+
+    def forceResync(self):
+        self.db.execute("delete from media")
+        self.db.execute("delete from log")
+        self.db.execute("update meta set usn = 0, dirMod = 0")
+        self.db.commit()
+
+    def removeExisting(self, files):
+        "Remove files from list of files to sync."
+        # add temporary index
+        self.db.execute("create index if not exists ix_fname_tmp on log(fname)")
+        self.db.executemany("delete from log where fname=?", ((f,) for f in files))
+        self.db.execute("drop index ix_fname_tmp")
+        self.db.commit()
