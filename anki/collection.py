@@ -160,6 +160,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             if check and not runFilter("modSchema", True):
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
+        self.setMod()
 
     def schemaChanged(self):
         "True if schema changed since last sync."
