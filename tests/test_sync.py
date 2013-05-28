@@ -2,7 +2,7 @@
 
 import nose, os, shutil, time
 
-from anki import Collection as aopen
+from anki import Collection as aopen, Collection
 from anki.utils import intTime
 from anki.sync import Syncer, LocalServer
 from tests.shared import getEmptyDeck
@@ -238,6 +238,81 @@ def test_threeway():
     # syncing client2 should pick it up
     assert client2.sync() == "success"
     assert deck1.noteCount() == deck2.noteCount() == deck3.noteCount()
+
+def test_threeway2():
+    # for this test we want ms precision of notes so we don't have to
+    # sleep a lot
+    import anki.notes
+    intTime = anki.notes.intTime
+    anki.notes.intTime = lambda x=1: intTime(1000)
+    def setup():
+        # create collection 1 with a single note
+        c1 = getEmptyDeck()
+        f = c1.newNote()
+        f['Front'] = u"startingpoint"
+        nid = f.id
+        c1.addNote(f)
+        cid = f.cards()[0].id
+        c1.beforeUpload()
+        # start both clients and server off in this state
+        s1path = c1.path.replace(".anki2", "-s1.anki2")
+        c2path = c1.path.replace(".anki2", "-c2.anki2")
+        shutil.copy2(c1.path, s1path)
+        shutil.copy2(c1.path, c2path)
+        # open them
+        c1 = Collection(c1.path)
+        c2 = Collection(c2path)
+        s1 = Collection(s1path, server=True)
+        return c1, c2, s1, nid, cid
+    c1, c2, s1, nid, cid = setup()
+    # modify c1 then sync c1->s1
+    n = c1.getNote(nid)
+    t = "firstmod"
+    n['Front'] = t
+    n.flush()
+    c1.db.execute("update cards set mod=1, usn=-1")
+    srv = LocalServer(s1)
+    clnt1 = Syncer(c1, srv)
+    clnt1.sync()
+    n.load()
+    assert n['Front'] == t
+    assert s1.getNote(nid)['Front'] == t
+    assert s1.db.scalar("select mod from cards") == 1
+    # sync s1->c2
+    clnt2 = Syncer(c2, srv)
+    clnt2.sync()
+    assert c2.getNote(nid)['Front'] == t
+    assert c2.db.scalar("select mod from cards") == 1
+    # modify c1 and sync
+    time.sleep(0.001)
+    t = "secondmod"
+    n = c1.getNote(nid)
+    n['Front'] = t
+    n.flush()
+    c1.db.execute("update cards set mod=2, usn=-1")
+    clnt1.sync()
+    # modify c2 and sync - both c2 and server should be the same
+    time.sleep(0.001)
+    t2 = "thirdmod"
+    n = c2.getNote(nid)
+    n['Front'] = t2
+    n.flush()
+    c2.db.execute("update cards set mod=3, usn=-1")
+    clnt2.sync()
+    n.load()
+    assert n['Front'] == t2
+    assert c2.db.scalar("select mod from cards") == 3
+    n = s1.getNote(nid)
+    assert n['Front'] == t2
+    assert s1.db.scalar("select mod from cards") == 3
+    # and syncing c1 again should yield the updated note as well
+    clnt1.sync()
+    n = s1.getNote(nid)
+    assert n['Front'] == t2
+    assert s1.db.scalar("select mod from cards") == 3
+    n = c1.getNote(nid)
+    assert n['Front'] == t2
+    assert c1.db.scalar("select mod from cards") == 3
 
 def _test_speed():
     t = time.time()

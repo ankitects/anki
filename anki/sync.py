@@ -450,7 +450,7 @@ from notes where %s""" % d)
             self.newerRows(cards, "cards", 4))
 
     def mergeNotes(self, notes):
-        rows = self.newerRows(notes, "notes", 4)
+        rows = self.newerRows(notes, "notes", 3)
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
