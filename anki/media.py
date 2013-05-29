@@ -166,13 +166,6 @@ If the same name exists, compare checksums."""
         return txt
 
     def escapeImages(self, string):
-        # Feeding webkit unicode can result in it not finding images, so on
-        # linux/osx we percent escape the image paths as utf8. On Windows the
-        # problem is more complicated - if we percent-escape as utf8 it fixes
-        # some images but breaks others. When filenames are normalized by
-        # dropbox they become unreadable if we escape them.
-        if isWin:
-            return string
         def repl(match):
             tag = match.group(0)
             fname = match.group("fname")
