@@ -703,10 +703,7 @@ class MediaSyncer(object):
         if c != s:
             # if the sanity check failed, force a resync
             self.col.media.forceResync()
-            raise Exception("""\
-Media sanity check failed. Please copy and paste the text below:\n%s\n%s""" %
-                            (c, s))
-        return "success"
+            return "sanityCheckFailed"
 
     def removed(self):
         return self.col.media.removed()
