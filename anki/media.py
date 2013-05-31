@@ -471,7 +471,7 @@ create table log (fname text primary key, type int);
         need = []
         remove = []
         for f in files:
-            if self.db.execute("select 1 from log where fname=?", f):
+            if self.db.scalar("select 1 from log where fname=?", f):
                 remove.append((f,))
             else:
                 need.append(f)
