@@ -833,13 +833,13 @@ the problem and restart Anki.""")
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, nids):
+    def onRemNotes(self, col, nids):
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "a") as f:
             if not existed:
                 f.write("nid\tmid\tfields\n")
-            for id, mid, flds in self.col.db.execute(
+            for id, mid, flds in col.db.execute(
                     "select id, mid, flds from notes where id in %s" %
                 ids2str(nids)):
                 fields = splitFields(flds)

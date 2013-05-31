@@ -259,7 +259,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
-        runHook("remNotes", ids)
+        runHook("remNotes", self, ids)
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
 
