@@ -523,13 +523,19 @@ def findDupes(col, fieldName, search=""):
     def ordForMid(mid):
         if mid not in fields:
             model = col.models.get(mid)
-            fields[mid] = col.models.fieldMap(model)[fieldName][0]
+            for c, f in enumerate(model['flds']):
+                if f['name'].lower() == fieldName.lower():
+                    fields[mid] = c
+                    break
         return fields[mid]
     for nid, mid, flds in col.db.all(
         "select id, mid, flds from notes where id in "+ids2str(
             col.findNotes(search))):
         flds = splitFields(flds)
-        val = flds[ordForMid(mid)]
+        ord = ordForMid(mid)
+        if ord is None:
+            continue
+        val = flds[ord]
         # empty does not count as duplicate
         if not val:
             continue
