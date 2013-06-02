@@ -50,11 +50,10 @@ class DeckStats(QDialog):
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.png",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
-        path = os.path.join(
-            QDesktopServices.storageLocation(QDesktopServices.DesktopLocation),
-            name)
-        if not os.path.exists(path):
-            os.mkdir(path)
+        desktopPath = QDesktopServices.storageLocation(QDesktopServices.DesktopLocation)
+        if not os.path.exists(desktopPath):
+            os.mkdir(desktopPath)
+        path = os.path.join(desktopPath, name)
         p = self.form.web.page()
         oldsize = p.viewportSize()
         p.setViewportSize(p.mainFrame().contentsSize())
