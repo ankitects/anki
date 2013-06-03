@@ -5,7 +5,7 @@
 import time, re
 from anki.db import DB
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
-from anki.stdmodels import addBasicModel
+from anki.stdmodels import addBasicModel, addClozeModel
 from anki.lang import ngettext
 
 class MnemosyneImporter(NoteImporter):
@@ -38,9 +38,10 @@ f._id=d._fact_id"""):
         front = []
         frontback = []
         vocabulary = []
+        cloze = {}
         for row in db.execute("""
 select _fact_id, fact_view_id, tags, next_rep, last_rep, easiness,
-acq_reps+ret_reps, lapses from cards"""):
+acq_reps+ret_reps, lapses, card_type_id from cards"""):
             # categorize note
             note = notes[row[0]]
             if row[1].endswith(".1"):
@@ -50,6 +51,8 @@ acq_reps+ret_reps, lapses from cards"""):
                     frontback.append(note)
                 elif row[1].startswith("3.") or row[1].startswith("3::"):
                     vocabulary.append(note)
+                elif row[1].startswith("5.1"):
+                    cloze[row[0]] = note
             # merge tags into note
             tags = row[2].replace(", ", "\x1f").replace(" ", "_")
             tags = tags.replace("\x1f", " ")
@@ -83,10 +86,19 @@ acq_reps+ret_reps, lapses from cards"""):
         total += self.total
         self._addVocabulary(vocabulary)
         self.total += total
+        self._addCloze(cloze)
+        self.total += total
         self.log.append(ngettext("%d note imported.", "%d notes imported.", self.total) % self.total)
 
     def fields(self):
         return self._fields
+
+    def _mungeField(self, fld):
+        # latex differences
+        fld = re.sub("(?i)<(/?(\$|\$\$|latex))>", "[\\1]", fld)
+        # audio differences
+        fld = re.sub("<audio src=\"(.+?)\">(</audio>)?", "[sound:\\1]", fld)
+        return fld
 
     def _addFronts(self, notes, model=None, fields=("f", "b")):
         data = []
@@ -95,14 +107,15 @@ acq_reps+ret_reps, lapses from cards"""):
             n = ForeignNote()
             n.fields = []
             for f in fields:
-                n.fields.append(orig.get(f, ''))
+                fld = self._mungeField(orig.get(f, ''))
+                n.fields.append(fld)
             n.tags = orig['tags']
             n.cards = orig.get('cards', {})
             data.append(n)
         # add a basic model
         if not model:
             model = addBasicModel(self.col)
-        model['name'] = "Mnemosyne-FrontOnly"
+            model['name'] = "Mnemosyne-FrontOnly"
         mm = self.col.models
         mm.save(model)
         mm.setCurrent(model)
@@ -140,3 +153,35 @@ acq_reps+ret_reps, lapses from cards"""):
         mm.addTemplate(m, t)
         mm.add(m)
         self._addFronts(notes, m, fields=("f", "p_1", "m_1", "n"))
+
+    def _addCloze(self, notes):
+        data = []
+        notes = notes.values()
+        for orig in notes:
+            # create a foreign note object
+            n = ForeignNote()
+            n.fields = []
+            fld = orig.get("text", "")
+            state = dict(n=1)
+            def repl(match):
+                # replace [...] with cloze refs
+                res = ("{{c%d::%s}}" % (state['n'], match.group(1)))
+                state['n'] += 1
+                return res
+            fld = re.sub("\[(.+)\]", repl, fld)
+            fld = self._mungeField(fld)
+            n.fields.append(fld)
+            n.fields.append("") # extra
+            n.tags = orig['tags']
+            n.cards = orig.get('cards', {})
+            data.append(n)
+        # add cloze model
+        model = addClozeModel(self.col)
+        model['name'] = "Mnemosyne-Cloze"
+        mm = self.col.models
+        mm.save(model)
+        mm.setCurrent(model)
+        self.model = model
+        self._fields = len(model['flds'])
+        self.initMapping()
+        self.importNotes(data)
