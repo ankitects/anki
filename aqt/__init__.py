@@ -9,7 +9,7 @@ from anki.consts import HELP_SITE
 from anki.lang import langDir
 from anki.utils import isMac
 
-appVersion="2.0.8"
+appVersion="2.0.9"
 appWebsite="http://ankisrs.net/"
 appChanges="http://ankisrs.net/docs/changes.html"
 appDonate="http://ankisrs.net/support/"
