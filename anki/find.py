@@ -25,7 +25,7 @@ class Finder(object):
             prop=self._findProp,
             rated=self._findRated,
             tag=self._findTag,
-            dupes=self._findDupes,
+            dupe=self._findDupes,
         )
         self.search['is'] = self._findCardState
         runHook("search", self.search)
