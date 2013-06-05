@@ -435,6 +435,9 @@ Please run Tools>Empty Cards""")
         return txt
 
     def tokenizeComparison(self, given, correct):
+        # compare in NFC form so accents appear correct
+        given = ucd.normalize("NFC", given)
+        correct = ucd.normalize("NFC", correct)
         s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
         givenElems = []
         correctElems = []
