@@ -220,6 +220,29 @@ If the same name exists, compare checksums."""
         for mid, flds in self.col.db.execute("select mid, flds from notes"):
             for f in self.filesInStr(mid, flds):
                 files.add(f)
+
+        def get_img_src(html):
+            """ Extract the src attribute from an <img> tag, which may use
+            single or double quotes. Return None if no <img> tag is found"""
+
+            regexp = "<\s*img\s+(.*?)" \
+                     "src\s*=\s*(?P<quote>['\"])(?P<path>.*)(?P=quote)" \
+                     ".*?\s*>"
+            match = re.search(regexp, html)
+            if match:
+                return match.group('path')
+            else:
+                return None
+
+        # Also find images referenced from templates
+        template_fields = ['qfmt', 'afmt', 'bqfmt', 'bafmt']
+        for model in self.col.models.all():
+            for template in model['tmpls']:
+                for field in template_fields:
+                    path = get_img_src(template[field])
+                    if path:
+                        files.add(path)
+
         return files
 
     # Copying on import
