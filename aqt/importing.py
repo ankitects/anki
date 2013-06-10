@@ -69,7 +69,7 @@ class ImportDialog(QDialog):
         self.connect(self.frm.autoDetect, SIGNAL("clicked()"),
                      self.onDelimiter)
         self.updateDelimiterButtonText()
-        self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', False))
+        self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', True))
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 0))
         self.exec_()
 
