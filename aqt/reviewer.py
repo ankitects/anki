@@ -181,8 +181,7 @@ function _typeAnsPress() {
     ##########################################################################
 
     def _mungeQA(self, buf):
-        return self.mw.col.media.escapeImages(
-            self.typeAnsFilter(mungeQA(buf)))
+        return self.typeAnsFilter(mungeQA(self.mw.col, buf))
 
     def _showQuestion(self):
         self._reps += 1

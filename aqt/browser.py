@@ -1044,7 +1044,7 @@ where id in %s""" % ids2str(sf))
         ti = lambda x: x
         base = getBase(self.mw.col)
         self._previewWeb.stdHtml(
-            ti(mungeQA(txt)), self.mw.reviewer._styles(),
+            ti(mungeQA(self.col, txt)), self.mw.reviewer._styles(),
             bodyClass="card card%d" % (c.ord+1), head=base,
             js=anki.js.browserSel)
         clearAudioQueue()

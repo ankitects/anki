@@ -317,7 +317,8 @@ def restoreHeader(widget, key):
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
 
-def mungeQA(txt):
+def mungeQA(col, txt):
+    txt = col.media.escapeImages(txt)
     txt = stripSounds(txt)
     # osx webkit doesn't understand font weight 600
     txt = re.sub("font-weight: *600", "font-weight:bold", txt)
