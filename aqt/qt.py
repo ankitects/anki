@@ -4,6 +4,7 @@
 # imports are all in this file to make moving to pyside easier in the future
 
 import sip, os
+from anki.utils import isWin, isMac
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 sip.setapi('QUrl', 2)
@@ -36,3 +37,9 @@ qtminor = (QT_VERSION & 0x00ff00) >> 8
 if qtmajor <= 4 and qtminor <= 6:
   import anki.template.furigana
   anki.template.furigana.ruby = r'<span style="display: inline-block; text-align: center; line-height: 1; white-space: nowrap; vertical-align: baseline; margin: 0; padding: 0"><span style="display: block; text-decoration: none; line-height: 1.2; font-weight: normal; font-size: 0.64em">\2</span>\1</span>'
+
+if isWin or isMac:
+    # we no longer use this, but want it included in the mac+win builds
+    # so we don't break add-ons that use it. any new add-ons should use
+    # the above variables instead
+    from PyQt4 import pyqtconfig
