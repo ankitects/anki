@@ -1071,10 +1071,13 @@ class EditorWebView(AnkiWebView):
             return self._processUrls(mime)
         elif mime.hasText() and (self.strip or not mime.hasHtml()):
             return self._processText(mime)
-        elif mime.hasHtml():
-            return self._processHtml(mime)
+        # we currently aren't able to extract images from html, so we prioritize
+        # images over html in cases where we have both. this is a hack until
+        # issue 92 is implemented
         elif mime.hasImage():
             return self._processImage(mime)
+        elif mime.hasHtml():
+            return self._processHtml(mime)
         else:
             # nothing
             return QMimeData()
