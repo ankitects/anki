@@ -259,7 +259,7 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     base = aqt.mw.pm.profile.get(config_key, aqt.mw.pm.base)
     path = os.path.join(base, fname)
     file = unicode(QFileDialog.getSaveFileName(
-        parent, title, path, "{0} (*{1})".format(key, ext),
+        parent, title, path, u"{0} (*{1})".format(key, ext),
         options=QFileDialog.DontConfirmOverwrite))
     if file:
         # add extension
