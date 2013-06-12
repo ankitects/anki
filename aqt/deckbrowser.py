@@ -275,7 +275,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         deck = self.mw.col.decks.get(did)
         oldName = deck['name']
         newName = getOnlyText(_("New deck name:"), default=oldName)
-        newName = newName.replace("'", "").replace('"', "")
+        newName = newName.replace('"', "")
         if not newName or newName == oldName:
             return
         try:
