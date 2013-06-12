@@ -389,7 +389,7 @@ Please run Tools>Empty Cards""")
     def typeAnsAnswerFilter(self, buf):
         # tell webview to call us back with the input content
         self.web.eval("_getTypedText();")
-        if not self.typeCorrect or not self.typedAnswer:
+        if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
         origSize = len(buf)
         buf = buf.replace("<hr id=answer>", "")
