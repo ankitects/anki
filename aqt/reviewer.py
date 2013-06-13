@@ -9,7 +9,7 @@ import HTMLParser
 from anki.lang import _, ngettext
 from aqt.qt import *
 from anki.utils import  stripHTML, isMac, json
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook, runFilter, runHook
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, getBase, openLink, tooltip, askUserDialog
 from aqt.sound import getAudio
@@ -34,6 +34,10 @@ class Reviewer(object):
         self.delShortcut.setAutoRepeat(False)
         self.mw.connect(self.delShortcut, SIGNAL("activated()"), self.onDelete)
         addHook("leech", self.onLeech)
+        addHook(
+            "filterTypedAnswer",
+            lambda r, g, co, ca: self.correct(
+                res=r, given=g, correct=co, card=ca, showBad=False))
 
     def show(self):
         self.mw.col.reset()
@@ -403,7 +407,7 @@ Please run Tools>Empty Cards""")
         cor = cor.replace(u"\xa0", " ")
         given = self.typedAnswer
         # compare with typed answer
-        res = self.correct(given, cor, showBad=False)
+        res = runFilter("filterTypedAnswer", u'', given, cor, self.card)
         # and update the type answer area
         def repl(match):
             # can't pass a string in directly, and can't use re.escape as it
@@ -464,8 +468,11 @@ Please run Tools>Empty Cards""")
             logGood(y, cnt, correct, correctElems)
         return givenElems, correctElems
 
-    def correct(self, given, correct, showBad=True):
+    def correct(self, res, given, correct, card=None, showBad=True):
         "Diff-corrects the typed-in answer."
+        if res:
+            # Someone else has already done some correcting.
+            return res
         givenElems, correctElems = self.tokenizeComparison(given, correct)
         def good(s):
             return "<span class=typeGood>"+s+"</span>"

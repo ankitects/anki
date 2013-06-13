@@ -242,7 +242,7 @@ Please create a new card type first."""))
         txt = txt.replace("<hr id=answer>", "")
         hadHR = origLen != len(txt)
         def answerRepl(match):
-            res = self.mw.reviewer.correct(u"exomple", u"an example")
+            res = self.mw.reviewer.correct(u"", u"exomple", u"an example")
             if hadHR:
                 res = "<hr id=answer>" + res
             return res
