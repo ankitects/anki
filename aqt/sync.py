@@ -333,7 +333,7 @@ class SyncThread(QThread):
                     err = log
                 if not isinstance(err, unicode):
                     err = unicode(err, "utf8", "replace")
-                self.fireEvent("error", traceback.format_exc())
+                self.fireEvent("error", err)
             return
         if ret == "badAuth":
             return self.fireEvent("badAuth")
