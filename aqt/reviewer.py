@@ -191,7 +191,7 @@ function _typeAnsPress() {
         # grab the question and play audio
         if c.isEmpty():
             q = _("""\
-The front of this card is empty. Please run Tools>Maintenance>Empty Cards.""")
+The front of this card is empty. Please run Tools>Empty Cards.""")
         else:
             q = c.q()
         if self.autoplay(c):
