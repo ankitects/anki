@@ -328,7 +328,7 @@ the manual for information on how to restore from an automatic backup."))
             delete = len(backups) + 1 - nbacks
             delete = backups[:delete]
             for file in delete:
-                send2trash(os.path.join(dir, file[1]))
+                os.unlink(os.path.join(dir, file[1]))
 
     def maybeOptimize(self):
         # have two weeks passed?
