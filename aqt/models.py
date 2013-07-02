@@ -126,8 +126,12 @@ class Models(QDialog):
         n = self.col.newNote(forDeck=False)
         for name in n.keys():
             n[name] = "("+name+")"
-        if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
-            n['Text'] = _("This is a {{c1::sample}} cloze deletion.")
+        try:
+            if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
+                n['Text'] = _("This is a {{c1::sample}} cloze deletion.")
+        except:
+            # invalid cloze
+            pass
         return n
 
     def onFields(self):
