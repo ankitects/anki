@@ -1125,7 +1125,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
 
     def _updateCutoff(self):
         # days since col created
-        self.today = (time.time() - self.col.crt) // 86400
+        self.today = int((time.time() - self.col.crt) // 86400)
         # end of day cutoff
         self.dayCutoff = self.col.crt + (self.today+1)*86400
         # update all daily counts, but don't save decks to prevent needless
