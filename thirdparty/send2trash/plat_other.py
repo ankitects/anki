@@ -129,6 +129,13 @@ def get_dev(path):
     return os.lstat(path).st_dev
 
 def send2trash(path):
+    try:
+        _send2trash(path)
+    except OSError:
+        # user's system is broken; just delete
+        os.unlink(path)
+
+def _send2trash(path):
     if not isinstance(path, unicode):
         path = unicode(path, sys.getfilesystemencoding())
     if not op.exists(path):
@@ -155,3 +162,4 @@ def send2trash(path):
             raise OSError(u"Couldn't find mount point for %s" % path)
         dest_trash = find_ext_volume_trash(topdir)
     trash_move(path, dest_trash, topdir)
+
