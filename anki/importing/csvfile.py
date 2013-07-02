@@ -116,7 +116,11 @@ class TextImporter(NoteImporter):
                     self.delimiter = " "
             reader = csv.reader(self.data, delimiter=self.delimiter, doublequote=True)
         try:
-            self.numFields = len(reader.next())
+            while True:
+                row = reader.next()
+                if row:
+                    self.numFields = len(row)
+                    break
         except:
             err()
         self.initMapping()
