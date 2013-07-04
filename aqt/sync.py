@@ -413,6 +413,8 @@ def _incrementalSend(self, data):
             raise httplib.NotConnected()
     # if it's not a file object, make it one
     if not hasattr(data, 'read'):
+        if isinstance(data, unicode):
+            data = data.encode("utf8")
         data = StringIO(data)
     while 1:
         block = data.read(CHUNK_SIZE)

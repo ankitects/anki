@@ -6,6 +6,7 @@
 
 from ctypes import cdll, byref, Structure, c_char, c_char_p
 from ctypes.util import find_library
+import os
 
 Foundation = cdll.LoadLibrary(find_library(u'Foundation'))
 CoreServices = cdll.LoadLibrary(find_library(u'CoreServices'))
@@ -33,6 +34,13 @@ def check_op_result(op_result):
         raise OSError(msg)
 
 def send2trash(path):
+    try:
+        _send2trash(path)
+    except OSError:
+        # user's system is broken; just delete
+        os.unlink(path)
+
+def _send2trash(path):
     if not isinstance(path, str):
         path = path.encode(u'utf-8')
     fp = FSRef()
