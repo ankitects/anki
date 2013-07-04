@@ -779,7 +779,7 @@ font-weight: bold;
 
 <td>
 <center><div id=%(id)sLegend></div></center>
-<div id="%(id)s" style="width:%(w)s; height:%(h)s;"></div>
+<div id="%(id)s" style="width:%(w)spx; height:%(h)spx;"></div>
 </td>
 
 <td><div style="width: 150px; text-align: center; position:absolute;
