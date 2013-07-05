@@ -89,7 +89,7 @@ class MediaManager(object):
 If the same name exists, compare checksums."""
         mdir = self.dir()
         # remove any dangerous characters
-        base = re.sub(r"[][<>:/\\&?\"\|]", "", os.path.basename(opath))
+        base = re.sub(r"[][<>:/\\&?\"\|*]", "", os.path.basename(opath))
         (root, ext) = os.path.splitext(base)
         def repl(match):
             n = int(match.group(1))
