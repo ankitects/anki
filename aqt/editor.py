@@ -1123,6 +1123,8 @@ class EditorWebView(AnkiWebView):
                 for url in self.editor.mw.col.media.filesInStr(
                     mid, html, includeRemote=True):
                     newHtml += self.editor.urlToLink(url)
+                if not newHtml and mime.hasImage():
+                    return self._processImage(mime)
                 newMime.setHtml(newHtml)
             else:
                 # use .text() if available so newlines are preserved; otherwise strip
