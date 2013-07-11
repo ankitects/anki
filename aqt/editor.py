@@ -1133,7 +1133,9 @@ class EditorWebView(AnkiWebView):
                 else:
                     newMime.setText(stripHTML(mime.text()))
         else:
-            # no stripping
+            if html.startswith("<!--anki-->"):
+                html = html[11:]
+            # no html stripping
             html = self.editor._filterHTML(html, localize=True)
             newMime.setHtml(html)
         return newMime
