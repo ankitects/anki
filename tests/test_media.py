@@ -97,3 +97,15 @@ def test_changes():
     d.media.findChanges()
     assert len(list(added())) == 1
     assert len(list(d.media.removed())) == 1
+
+def test_illegal():
+    d = getEmptyDeck()
+    aString = "a:b|cd\\e/f\0g*h"
+    good = "abcdefgh"
+    assert d.media.stripIllegal(aString) == good
+    for c in aString:
+        bad = d.media.hasIllegal("somestring"+c+"morestring")
+        if bad:
+            assert(c not in good)
+        else:
+            assert(c in good)
