@@ -111,14 +111,16 @@ class Anki2Importer(Importer):
         srcMid = note[MID]
         dstMid = self._mid(srcMid)
         # duplicate schemas?
-        if srcMid == dstMid or not self.dupeOnSchemaChange:
+        if srcMid == dstMid:
             return origGuid not in self._notes
-        # differing schemas
+        # differing schemas and note doesn't exist?
         note[MID] = dstMid
         if origGuid not in self._notes:
             return True
         # as the schemas differ and we already have a note with a different
         # note type, this note needs a new guid
+        if not self.dupeOnSchemaChange:
+            return False
         while True:
             note[GUID] = incGuid(note[GUID])
             self._changedGuids[origGuid] = note[GUID]
