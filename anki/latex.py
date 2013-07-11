@@ -60,9 +60,6 @@ def _imgLink(col, latex, model):
 
 def _latexFromHtml(col, latex):
     "Convert entities and fix newlines."
-    # entitydefs defines nbsp as \xa0 instead of a standard space, so we
-    # replace it first
-    latex = latex.replace("&nbsp;", " ")
     latex = re.sub("<br( /)?>|<div>", "\n", latex)
     latex = re.sub("<.+?>", "", latex)
     latex = stripHTML(latex)
