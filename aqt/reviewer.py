@@ -693,6 +693,7 @@ function showAnswer(txt) {
             a = m.addAction(label)
             a.setShortcut(QKeySequence(scut))
             a.connect(a, SIGNAL("triggered()"), func)
+        runHook("Reviewer.contextMenuEvent",self,m)
         m.exec_(QCursor.pos())
 
     def onOptions(self):
