@@ -1108,7 +1108,7 @@ class EditorWebView(AnkiWebView):
         if html:
             new.setHtml(html)
         else:
-            new.setText(mime.text())
+            new.setText(txt)
         return new
 
     def _processHtml(self, mime):
