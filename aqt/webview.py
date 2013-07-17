@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
+from anki.hooks import runHook
 from aqt.qt import *
 from aqt.utils import openLink
 from anki.utils import isMac, isWin
@@ -85,6 +86,7 @@ class AnkiWebView(QWebView):
         a = m.addAction(_("Copy"))
         a.connect(a, SIGNAL("triggered()"),
                   lambda: self.triggerPageAction(QWebPage.Copy))
+        runHook("AnkiWebView.contextMenuEvent", self, m)
         m.popup(QCursor.pos())
 
     def dropEvent(self, evt):

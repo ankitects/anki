@@ -8,7 +8,7 @@ import aqt.forms
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip, openHelp, addCloseShortcut
 from anki.sound import clearAudioQueue
-from anki.hooks import addHook, remHook
+from anki.hooks import addHook, remHook, runHook
 from anki.utils import stripHTMLMedia, isMac
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
@@ -123,6 +123,7 @@ class AddCards(QDialog):
             a = m.addAction(_("Edit %s") % txt)
             a.connect(a, SIGNAL("triggered()"),
                       lambda nid=nid: self.editHistory(nid))
+        runHook("AddCards.onHistory", self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 
     def editHistory(self, nid):
