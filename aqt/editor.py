@@ -1174,4 +1174,5 @@ class EditorWebView(AnkiWebView):
         a.connect(a, SIGNAL("triggered()"), self.onCopy)
         a = m.addAction(_("Paste"))
         a.connect(a, SIGNAL("triggered()"), self.onPaste)
+        runHook("EditorWebView.contextMenuEvent", self, m)
         m.popup(QCursor.pos())
