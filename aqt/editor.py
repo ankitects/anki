@@ -802,6 +802,12 @@ to a cloze type first, via Edit>Change Note Type."""))
             # not a supported type; return link verbatim
         return
 
+    def isURL(self, s):
+        s = s.lower()
+        return (s.startswith("http://")
+            or s.startswith("https://")
+            or s.startswith("ftp://"))
+
     def _retrieveURL(self, url):
         "Download file into media folder and return local filename or None."
         # urllib is picky with local file links
@@ -877,7 +883,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             try:
                 if tag['src'].lower().startswith("file://"):
                     tag['src'] = os.path.basename(tag['src'])
-                if localize:
+                if localize and self.isURL(tag['src']):
                     # convert remote image links to local ones
                     fname = self.urlToFile(tag['src'])
                     if fname:
@@ -1097,10 +1103,9 @@ class EditorWebView(AnkiWebView):
 
     def _processText(self, mime):
         txt = unicode(mime.text())
-        l = txt.lower()
         html = None
         # if the user is pasting an image or sound link, convert it to local
-        if l.startswith("http://") or l.startswith("https://") or l.startswith("file://"):
+        if self.editor.isURL(txt):
             txt = txt.split("\r\n")[0]
             html = self.editor.urlToLink(txt)
         new = QMimeData()
