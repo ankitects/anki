@@ -989,17 +989,17 @@ class EditorWebView(AnkiWebView):
         self._flagAnkiText()
 
     def onPaste(self):
-        mime = self.prepareClip()
+        mime = self.mungeClip()
         self.triggerPageAction(QWebPage.Paste)
-        self.restoreClip(mime)
+        self.restoreClip()
 
     def mouseReleaseEvent(self, evt):
         if not isMac and not isWin and evt.button() == Qt.MidButton:
             # middle click on x11; munge the clipboard before standard
             # handling
-            mime = self.prepareClip(mode=QClipboard.Selection)
+            mime = self.mungeClip(mode=QClipboard.Selection)
             AnkiWebView.mouseReleaseEvent(self, evt)
-            self.restoreClip(mime, mode=QClipboard.Selection)
+            self.restoreClip(mode=QClipboard.Selection)
         else:
             AnkiWebView.mouseReleaseEvent(self, evt)
 
@@ -1041,21 +1041,20 @@ class EditorWebView(AnkiWebView):
         self.eval("dropTarget.focus();")
         self.setFocus()
 
-    def prepareClip(self, mode=QClipboard.Clipboard):
+    def mungeClip(self, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
         mime = clip.mimeData(mode=mode)
         self.saveClip(mode=mode)
         mime = self._processMime(mime)
         clip.setMimeData(mime, mode=mode)
+        return mime
 
-    def restoreClip(self, mime, mode=QClipboard.Clipboard):
-        if not mime:
-            return
+    def restoreClip(self, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
-        clip.setMimeData(mime, mode=mode)
+        clip.setMimeData(self.savedClip, mode=mode)
 
     def saveClip(self, mode):
-        # we don't own the clipboard object, so we need to copy it
+        # we don't own the clipboard object, so we need to copy it or we'll crash
         mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
         n = QMimeData()
         if mime.hasText():
@@ -1066,7 +1065,7 @@ class EditorWebView(AnkiWebView):
             n.setUrls(mime.urls())
         if mime.hasImage():
             n.setImageData(mime.imageData())
-        return n
+        self.savedClip = n
 
     def _processMime(self, mime):
         # print "html=%s image=%s urls=%s txt=%s" % (
