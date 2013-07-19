@@ -61,7 +61,6 @@ def _imgLink(col, latex, model):
 def _latexFromHtml(col, latex):
     "Convert entities and fix newlines."
     latex = re.sub("<br( /)?>|<div>", "\n", latex)
-    latex = re.sub("<.+?>", "", latex)
     latex = stripHTML(latex)
     return latex
 
