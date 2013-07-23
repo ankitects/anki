@@ -417,9 +417,16 @@ class Editor(object):
             ord = self.card.ord
         else:
             ord = 0
-        CardLayout(self.mw, self.note, ord=ord, parent=self.parentWindow,
+        # passing parentWindow leads to crash on windows at the moment
+        if isWin:
+            parent=None
+        else:
+            parent=self.parentWindow
+        CardLayout(self.mw, self.note, ord=ord, parent=parent,
                addMode=self.addMode)
         self.loadNote()
+        if isWin:
+            self.parentWindow.activateWindow()
 
     # JS->Python bridge
     ######################################################################
