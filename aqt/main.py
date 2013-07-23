@@ -894,7 +894,8 @@ will be lost. Continue?"""))
                 "Used on cards but missing from media folder:")
             report += "\n" + "\n".join(nohave)
         if not report:
-            report = _("No unused or missing files found.")
+            tooltip(_("No unused or missing files found."))
+            return
         # show report and offer to delete
         diag = QDialog(self)
         diag.setWindowTitle("Anki")
