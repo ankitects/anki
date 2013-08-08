@@ -197,7 +197,6 @@ order by due""" % self._deckLimit(),
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
         self.col.decks.recoverOrphans()
-        self.unburyCards()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
         lims = {}

@@ -137,6 +137,7 @@ body { margin: 1em; -webkit-user-select: none; }
     def _renderPage(self, reuse=False):
         css = self.mw.sharedCSS + self._css
         if not reuse:
+            self.mw.col.sched.unburyCards()
             self._dueTree = self.mw.col.sched.deckDueTree()
         tree = self._renderDeckTree(self._dueTree)
         stats = self._renderStats()
