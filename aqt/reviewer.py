@@ -437,7 +437,11 @@ Please run Tools>Empty Cards""")
         # compare in NFC form so accents appear correct
         given = ucd.normalize("NFC", given)
         correct = ucd.normalize("NFC", correct)
-        s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
+        try:
+            s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
+        except:
+            # autojunk was added in python 2.7.1
+            s = difflib.SequenceMatcher(None, given, correct)
         givenElems = []
         correctElems = []
         givenPoint = 0
