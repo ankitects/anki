@@ -163,7 +163,6 @@ def test_anki1_diffmodels():
     assert after == before + 1
     assert beforeModels == len(dst.models.all())
 
-
 def test_suspended():
     # create a new empty deck
     dst = getEmptyDeck()
@@ -204,6 +203,33 @@ def test_anki2_diffmodels():
     after = dst.noteCount()
     assert after == before + 1
     assert dst.cardCount() == 3
+
+def test_anki2_updates():
+    # create a new empty deck
+    dst = getEmptyDeck()
+    tmp = getUpgradeDeckPath("update1.apkg")
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.run()
+    assert imp.dupes == 0
+    assert imp.added == 1
+    assert imp.updated == 0
+    # importing again should be idempotent
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.run()
+    assert imp.dupes == 1
+    assert imp.added == 0
+    assert imp.updated == 0
+    # importing a newer note should update
+    assert dst.noteCount() == 1
+    assert dst.db.scalar("select flds from notes").startswith("hello")
+    tmp = getUpgradeDeckPath("update2.apkg")
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.run()
+    assert imp.dupes == 1
+    assert imp.added == 0
+    assert imp.updated == 1
+    assert dst.noteCount() == 1
+    assert dst.db.scalar("select flds from notes").startswith("goodbye")
 
 def test_csv():
     deck = getEmptyDeck()
