@@ -61,6 +61,7 @@ def test_review():
     assert c.left != 1001
     assert not d.undoName()
     # we should be able to undo multiple answers too
+    f = d.newNote()
     f['Front'] = u"two"
     d.addNote(f)
     d.reset()

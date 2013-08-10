@@ -257,7 +257,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 return "queue in (1, 3)"
             return "type = %d" % n
         elif val == "suspended":
-            return "c.queue = -1"
+            return "c.queue in (-1, -2)"
         elif val == "due":
             return """
 (c.queue in (2,3) and c.due <= %d) or

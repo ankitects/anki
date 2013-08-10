@@ -51,6 +51,7 @@ class Scheduler(object):
     def answerCard(self, card, ease):
         assert ease >= 1 and ease <= 4
         self.col.markReview(card)
+        self._burySiblings(card)
         card.reps += 1
         # former is for logging new cards, latter also covers filt. decks
         card.wasNew = card.type == 0
@@ -132,11 +133,11 @@ order by due""" % self._deckLimit(),
             return 3
 
     def unburyCards(self):
-        "Unbury cards when closing."
-        mod = self.col.db.mod
+        "Unbury cards."
+        self.col.conf['lastUnburied'] = self.today
+        self.col.setMod()
         self.col.db.execute(
             "update cards set queue = type where queue = -2")
-        self.col.db.mod = mod
 
     # Rev/lrn/time daily stats
     ##########################################################################
@@ -298,7 +299,9 @@ order by due""" % self._deckLimit(),
             return c
         # new first, or time for one?
         if self._timeForNewCard():
-            return self._getNewCard()
+            c = self._getNewCard()
+            if c:
+                return c
         # card due for review?
         c = self._getRevCard()
         if c:
@@ -339,30 +342,20 @@ did = ? and queue = 0 limit ?)""", did, lim)
             lim = min(self.queueLimit, self._deckNewLimit(did))
             if lim:
                 # fill the queue with the current did
-                self._newQueue = self.col.db.all("""
-select id, due from cards where did = ? and queue = 0 limit ?""", did, lim)
+                self._newQueue = self.col.db.list("""
+select id from cards where did = ? and queue = 0 limit ?""", did, lim)
                 if self._newQueue:
                     self._newQueue.reverse()
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
+        # if count>0 but queue empty, the other cards were buried
+        self.newCount = 0
 
     def _getNewCard(self):
-        if not self._fillNew():
-            return
-        (id, due) = self._newQueue.pop()
-        # move any siblings to the end?
-        conf = self.col.decks.confForDid(self._newDids[0])
-        if conf['dyn'] or conf['new']['separate']:
-            n = len(self._newQueue)
-            while self._newQueue and self._newQueue[-1][1] == due:
-                self._newQueue.insert(0, self._newQueue.pop())
-                n -= 1
-                if not n:
-                    # we only have one note in the queue; stop rotating
-                    break
-        self.newCount -= 1
-        return self.col.getCard(id)
+        if self._fillNew():
+            self.newCount -= 1
+            return self.col.getCard(self._newQueue.pop())
 
     def _updateNewCardRatio(self):
         if self.col.conf['newSpread'] == NEW_CARDS_DISTRIBUTE:
@@ -761,6 +754,8 @@ did = ? and queue = 2 and due <= ? limit ?""",
                     return True
             # nothing left in the deck; move to next
             self._revDids.pop(0)
+        # if count>0 but queue empty, the other cards were buried
+        self.revCount = 0
 
     def _getRevCard(self):
         if self._fillRev():
@@ -904,37 +899,13 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         return max(0, self.today - due)
 
     def _updateRevIvl(self, card, ease):
-        "Update CARD's interval, trying to avoid siblings."
         idealIvl = self._nextRevIvl(card, ease)
         card.ivl = self._adjRevIvl(card, idealIvl)
 
     def _adjRevIvl(self, card, idealIvl):
-        "Given IDEALIVL, return an IVL away from siblings."
         if self._spreadRev:
             idealIvl = self._fuzzedIvl(idealIvl)
-        idealDue = self.today + idealIvl
-        conf = self._revConf(card)
-        # find sibling positions
-        dues = self.col.db.list(
-            "select due from cards where nid = ? and type = 2"
-            " and id != ?", card.nid, card.id)
-        if not dues or idealDue not in dues:
-            return idealIvl
-        else:
-            leeway = max(conf['minSpace'], int(idealIvl * conf['fuzz']))
-            fudge = 0
-            # do we have any room to adjust the interval?
-            if leeway:
-                # loop through possible due dates for an empty one
-                for diff in range(1, leeway+1):
-                    # ensure we're due at least tomorrow
-                    if idealIvl - diff >= 1 and (idealDue - diff) not in dues:
-                        fudge = -diff
-                        break
-                    elif (idealDue + diff) not in dues:
-                        fudge = diff
-                        break
-            return idealIvl + fudge
+        return idealIvl
 
     # Dynamic deck handling
     ##########################################################################
@@ -1136,6 +1107,10 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
                     g[key] = [self.today, 0]
         for deck in self.col.decks.all():
             update(deck)
+        # unbury if the day has rolled over
+        unburied = self.col.conf.get("lastUnburied", 0)
+        if unburied < self.today:
+            self.unburyCards()
 
     def _checkDay(self):
         # check if the day has rolled over
@@ -1152,17 +1127,22 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
 
     def _nextDueMsg(self):
         line = []
+        # the new line replacements are so we don't break translations
+        # in a point release
         if self.revDue():
             line.append(_("""\
 Today's review limit has been reached, but there are still cards
 waiting to be reviewed. For optimum memory, consider increasing
-the daily limit in the options."""))
+the daily limit in the options.""").replace("\n", " "))
         if self.newDue():
             line.append(_("""\
 There are more new cards available, but the daily limit has been
 reached. You can increase the limit in the options, but please
 bear in mind that the more new cards you introduce, the higher
-your short-term review workload will become."""))
+your short-term review workload will become.""").replace("\n", " "))
+        if self.haveBuried():
+            line.append(_("""\
+Some related or buried cards were delayed until tomorrow.""").replace("\n", " "))
         if self.haveCustomStudy and not self.col.decks.current()['dyn']:
             line.append(_("""\
 To study outside of the normal schedule, click the Custom Study button below."""))
@@ -1180,6 +1160,12 @@ To study outside of the normal schedule, click the Custom Study button below."""
         return self.col.db.scalar(
             ("select 1 from cards where did in %s and queue = 0 "
              "limit 1") % self._deckLimit())
+
+    def haveBuried(self):
+        sdids = ids2str(self.col.decks.active())
+        cnt = self.col.db.scalar(
+            "select 1 from cards where queue = -2 and did in %s limit 1" % sdids)
+        return not not cnt
 
     # Next time reports
     ##########################################################################
@@ -1251,11 +1237,44 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def buryNote(self, nid):
         "Bury all cards for note until next session."
-        self.col.setDirty()
         cids = self.col.db.list(
             "select id from cards where nid = ? and queue >= 0", nid)
         self.removeLrn(cids)
-        self.col.db.execute("update cards set queue = -2 where id in "+ids2str(cids))
+        self.col.db.execute("""
+update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
+                            intTime(), self.col.usn())
+
+    # Sibling spacing
+    ##########################################################################
+
+    def _burySiblings(self, card):
+        toBury = []
+        conf = self._newConf(card)
+        buryNew = conf.get("bury", True)
+        # loop through and remove from queues
+        for cid,queue in self.col.db.execute("""
+select id, queue from cards where nid=? and id!=?
+and (queue=0 or (queue=2 and due<=?))""",
+                card.nid, card.id, self.today):
+            if queue == 2:
+                toBury.append(cid)
+                try:
+                    self._revQueue.remove(cid)
+                except ValueError:
+                    pass
+            else:
+                # if bury disabled, we still discard to give same-day spacing
+                if buryNew:
+                    toBury.append(cid)
+                try:
+                    self._newQueue.remove(cid)
+                except ValueError:
+                    pass
+            queue = "(queue = 0 or %s)" % queue
+        # then bury
+        self.col.db.execute(
+            "update cards set queue=-2,mod=?,usn=? where id in "+ids2str(toBury),
+            intTime(), self.col.usn())
 
     # Resetting
     ##########################################################################

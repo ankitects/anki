@@ -56,6 +56,9 @@ class Overview(object):
             openLink(aqt.appShared+"info/%s?v=%s"%(self.sid, self.sidVer))
         elif url == "studymore":
             self.onStudyMore()
+        elif url == "unbury":
+            self.mw.col.sched.unburyCards()
+            self.mw.reset()
         elif url.lower().startswith("http"):
             openLink(url)
 
@@ -72,6 +75,9 @@ class Overview(object):
             self.mw.reset()
         if key == "c" and not cram:
             self.onStudyMore()
+        if key == "u":
+            self.mw.col.sched.unburyCards()
+            self.mw.reset()
 
     # HTML
     ############################################################
@@ -185,6 +191,8 @@ text-align: center;
         else:
             links.append(["C", "studymore", _("Custom Study")])
             #links.append(["F", "cram", _("Filter/Cram")])
+        if self.mw.col.sched.haveBuried():
+            links.append(["U", "unbury", _("Unbury")])
         buf = ""
         for b in links:
             if b[0]:

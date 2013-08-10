@@ -57,8 +57,6 @@ class _Collection(object):
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
         self.sched = Scheduler(self)
-        # check for improper shutdown
-        self.cleanup()
 
     def name(self):
         n = os.path.splitext(os.path.basename(self.path))[0]
@@ -71,7 +69,7 @@ class _Collection(object):
         (self.crt,
          self.mod,
          self.scm,
-         self.dty,
+         self.dty, # no longer used
          self._usn,
          self.ls,
          self.conf,
@@ -131,7 +129,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def close(self, save=True):
         "Disconnect from DB."
         if self.db:
-            self.cleanup()
             if save:
                 self.save()
             else:
@@ -165,16 +162,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def schemaChanged(self):
         "True if schema changed since last sync."
         return self.scm > self.ls
-
-    def setDirty(self):
-        "Signal there are temp. suspended cards that need cleaning up on close."
-        self.dty = True
-
-    def cleanup(self):
-        "Unsuspend any temporarily suspended cards."
-        if self.dty:
-            self.sched.unburyCards()
-            self.dty = False
 
     def usn(self):
         return self._usn if self.server else -1
@@ -610,6 +597,10 @@ where c.nid == f.id
             "select id from revlog where cid = ? "
             "order by id desc limit 1", c.id)
         self.db.execute("delete from revlog where id = ?", last)
+        # restore any siblings
+        self.db.execute(
+            "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
+            intTime(), self.usn(), c.nid)
         # and finally, update daily counts
         n = 1 if c.queue == 3 else c.queue
         type = ("new", "lrn", "rev")[n]

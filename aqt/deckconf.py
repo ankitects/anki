@@ -180,13 +180,11 @@ class DeckConf(QDialog):
         f.lrnFactor.setValue(c['initialFactor']/10.0)
         f.newOrder.setCurrentIndex(c['order'])
         f.newPerDay.setValue(c['perDay'])
-        f.separate.setChecked(c['separate'])
+        f.bury.setChecked(c.get("bury", True))
         f.newplim.setText(self.parentLimText('new'))
         # rev
         c = self.conf['rev']
         f.revPerDay.setValue(c['perDay'])
-        f.revSpace.setValue(c['fuzz']*100)
-        f.revMinSpace.setValue(c['minSpace'])
         f.easyBonus.setValue(c['ease4']*100)
         f.fi1.setValue(c['ivlFct']*100)
         f.maxIvl.setValue(c['maxIvl'])
@@ -259,7 +257,7 @@ class DeckConf(QDialog):
         c['initialFactor'] = f.lrnFactor.value()*10
         c['order'] = f.newOrder.currentIndex()
         c['perDay'] = f.newPerDay.value()
-        c['separate'] = f.separate.isChecked()
+        c['bury'] = f.bury.isChecked()
         if self._origNewOrder != c['order']:
             # order of current deck has changed, so have to resort
             if c['order'] == NEW_CARDS_RANDOM:
@@ -269,8 +267,6 @@ class DeckConf(QDialog):
         # rev
         c = self.conf['rev']
         c['perDay'] = f.revPerDay.value()
-        c['fuzz'] = f.revSpace.value()/100.0
-        c['minSpace'] = f.revMinSpace.value()
         c['ease4'] = f.easyBonus.value()/100.0
         c['ivlFct'] = f.fi1.value()/100.0
         c['maxIvl'] = f.maxIvl.value()
