@@ -135,9 +135,9 @@ order by due""" % self._deckLimit(),
     def unburyCards(self):
         "Unbury cards."
         self.col.conf['lastUnburied'] = self.today
-        self.col.setMod()
         self.col.db.execute(
-            "update cards set queue = type where queue = -2")
+            "update cards set mod=?,usn=?,queue=type where queue = -2",
+            intTime(), self.col.usn())
 
     # Rev/lrn/time daily stats
     ##########################################################################
