@@ -68,6 +68,7 @@ class Anki2Importer(Importer):
         dirty = []
         usn = self.dst.usn()
         dupes = 0
+        dupesIgnored = []
         for note in self.src.db.execute(
             "select * from notes"):
             # turn the db result into a mutable list
@@ -89,22 +90,30 @@ class Anki2Importer(Importer):
             else:
                 # a duplicate or changed schema - safe to update?
                 dupes += 1
-                if self.allowUpdate and note[GUID] in self._notes:
+                if self.allowUpdate:
                     oldNid, oldMod, oldMid = self._notes[note[GUID]]
-                    # safe if note types identical
-                    if oldMid == note[MID]:
-                        # will update if incoming note more recent
-                        if oldMod < note[MOD]:
+                    # will update if incoming note more recent
+                    if oldMod < note[MOD]:
+                        # safe if note types identical
+                        if oldMid == note[MID]:
                             # incoming note should use existing id
                             note[0] = oldNid
                             note[4] = usn
                             note[6] = self._mungeMedia(note[MID], note[6])
                             update.append(note)
                             dirty.append(note[0])
+                        else:
+                            dupesIgnored.append("%s: %s" % (
+                                self.col.models.get(oldMid)['name'],
+                                note[6].replace("\x1f", ",")
+                            ))
         if dupes:
             up = len(update)
             self.log.append(_("Updated %(a)d of %(b)d existing notes.") % dict(
                 a=len(update), b=dupes))
+            if dupesIgnored:
+                self.log.append(_("Some updates were ignored because note type has changed:"))
+                self.log.extend(dupesIgnored)
         # export info for calling code
         self.dupes = dupes
         self.added = len(add)
