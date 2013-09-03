@@ -234,6 +234,8 @@ class DataModel(QAbstractTableModel):
             return str(c.reps)
         elif type == "cardLapses":
             return str(c.lapses)
+        elif type == "noteTags":
+            return str(" ".join(c.note().tags))
         elif type == "note":
             return c.model()['name']
         elif type == "cardIvl":
@@ -487,6 +489,7 @@ class Browser(QMainWindow):
             ('cardEase', _("Ease")),
             ('cardReps', _("Reviews")),
             ('cardLapses', _("Lapses")),
+            ('noteTags', _("Tags")),
             ('note', _("Note")),
         ]
         self.columns.sort(key=itemgetter(1))
@@ -631,7 +634,7 @@ class Browser(QMainWindow):
 
     def onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "deck", "note")
+        noSort = ("question", "answer", "template", "deck", "note", "noteTags")
         if type in noSort:
             if type == "template":
                 showInfo(_("""\
