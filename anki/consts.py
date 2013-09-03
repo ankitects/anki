@@ -36,6 +36,7 @@ DYN_LAPSES = 4
 DYN_ADDED = 5
 DYN_DUE = 6
 DYN_REVADDED = 7
+DYN_DUEPRIORITY = 8
 
 # model types
 MODEL_STD = 0
@@ -83,4 +84,5 @@ def dynOrderLabels():
         5: _("Order added"),
         6: _("Order due"),
         7: _("Latest added first"),
+        8: _("Relative overdueness"),
         }
