@@ -122,9 +122,9 @@ class Card(object):
                 else:
                     files[f] = 1
         # update media counts if we're attached to deck
-        if media:
-            for (f, cnt) in files.items():
-                updateMediaCount(deck, f, cnt)
+        # if media:
+        #     for (f, cnt) in files.items():
+        #         updateMediaCount(deck, f, cnt)
         self.setModified()
 
     def setModified(self):
