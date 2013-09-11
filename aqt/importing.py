@@ -300,8 +300,15 @@ backup, please see the 'Backups' section of the user manual."""))
             mw.progress.finish()
         diag = ImportDialog(mw, importer)
     else:
-        # if it's an apkg, we need to ask whether to import/replace
+        # if it's an apkg/zip, first test it's a valid file
         if importer.__class__.__name__ == "AnkiPackageImporter":
+            z = zipfile.ZipFile(importer.file)
+            try:
+                z.getinfo("collection.anki2")
+            except:
+                showWarning(_("The provided file is not a valid .apkg file."))
+                return
+            # we need to ask whether to import/replace
             if not setupApkgImport(mw, importer):
                 return
         mw.progress.start(immediate=True)
