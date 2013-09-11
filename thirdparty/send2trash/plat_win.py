@@ -35,6 +35,7 @@ FOF_ALLOWUNDO = 64
 FOF_NOERRORUI = 1024
 
 def send2trash(path):
+    opath = path
     if not isinstance(path, unicode):
         path = unicode(path, u'mbcs')
     if not op.isabs(path):
@@ -50,6 +51,7 @@ def send2trash(path):
     fileop.lpszProgressTitle = None
     result = SHFileOperationW(byref(fileop))
     if result:
-        msg = u"Couldn't perform operation. Error code: %d" % result
-        raise OSError(msg)
-
+        # user's system is broken, just delete
+        os.unlink(opath)
+        #msg = u"Couldn't perform operation. Error code: %d" % result
+        #raise OSError(msg)
