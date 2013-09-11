@@ -1055,6 +1055,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
             # original deck
             ints=oconf['new']['ints'],
             initialFactor=oconf['new']['initialFactor'],
+            bury=oconf['new'].get("bury", True),
             # overrides
             delays=delays,
             separate=conf['separate'],
