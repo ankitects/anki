@@ -111,7 +111,7 @@ class NoteImporter(Importer):
         # loop through the notes
         updates = []
         updateLog = []
-        updateLogTxt = _("Update as first field matched: %s")
+        updateLogTxt = _("First field matched: %s")
         dupeLogTxt = _("Added duplicate with first field: %s")
         new = []
         self._ids = []
