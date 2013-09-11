@@ -57,7 +57,7 @@ class Overview(object):
         elif url == "studymore":
             self.onStudyMore()
         elif url == "unbury":
-            self.mw.col.sched.unburyCards()
+            self.mw.col.sched.unburyCardsForDeck()
             self.mw.reset()
         elif url.lower().startswith("http"):
             openLink(url)
@@ -76,7 +76,7 @@ class Overview(object):
         if key == "c" and not cram:
             self.onStudyMore()
         if key == "u":
-            self.mw.col.sched.unburyCards()
+            self.mw.col.sched.unburyCardsForDeck()
             self.mw.reset()
 
     # HTML

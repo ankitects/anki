@@ -139,6 +139,11 @@ order by due""" % self._deckLimit(),
             "update cards set mod=?,usn=?,queue=type where queue = -2",
             intTime(), self.col.usn())
 
+    def unburyCardsForDeck(self):
+        self.col.db.execute(
+            "update cards set mod=?,usn=?,queue=type where queue = -2 and did in %s"
+            % ids2str(self.col.decks.active()), intTime(), self.col.usn())
+
     # Rev/lrn/time daily stats
     ##########################################################################
 
