@@ -208,7 +208,7 @@ class Template(object):
                 return "<span class=cloze>%s</span>" % m.group(1)
         txt = re.sub(reg%ord, repl, txt)
         # and display other clozes normally
-        return re.sub(reg%".*?", "\\1", txt)
+        return re.sub(reg%"\d+", "\\1", txt)
 
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None):
