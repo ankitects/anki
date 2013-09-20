@@ -20,6 +20,7 @@ class Scheduler(object):
     name = "std"
     haveCustomStudy = True
     _spreadRev = True
+    _burySiblingsOnAnswer = True
 
     def __init__(self, col):
         self.col = col
@@ -36,6 +37,8 @@ class Scheduler(object):
             self.reset()
         card = self._getCard()
         if card:
+            if not self._burySiblingsOnAnswer:
+                self._burySiblings(card)
             self.reps += 1
             card.startTimer()
             return card
@@ -51,7 +54,8 @@ class Scheduler(object):
     def answerCard(self, card, ease):
         assert ease >= 1 and ease <= 4
         self.col.markReview(card)
-        self._burySiblings(card)
+        if self._burySiblingsOnAnswer:
+            self._burySiblings(card)
         card.reps += 1
         # former is for logging new cards, latter also covers filt. decks
         card.wasNew = card.type == 0
