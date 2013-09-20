@@ -70,7 +70,7 @@ class Downloader(QThread):
             try:
                 self.error = unicode(e[0], "utf8", "ignore")
             except:
-                self.error = exc
+                self.error = unicode(exc, "utf8", "ignore")
             return
         finally:
             remHook("httpRecv", recvEvent)
