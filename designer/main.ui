@@ -151,7 +151,7 @@
   </action>
   <action name="actionCheckMediaDatabase">
    <property name="text">
-    <string>&amp;Unused Media...</string>
+    <string>Check &amp;Media...</string>
    </property>
    <property name="statusTip">
     <string>Check the files in the media directory</string>

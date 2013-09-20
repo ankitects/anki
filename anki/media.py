@@ -83,6 +83,7 @@ class MediaManager(object):
 
     # Adding media
     ##########################################################################
+    # opath must be in unicode
 
     def addFile(self, opath):
         return self.writeData(opath, open(opath, "rb").read())
@@ -90,6 +91,9 @@ class MediaManager(object):
     def writeData(self, opath, data):
         # if fname is a full path, use only the basename
         fname = os.path.basename(opath)
+        # make sure we write it in NFC form (on mac will autoconvert to NFD),
+        # and return an NFC-encoded reference
+        fname = unicodedata.normalize("NFC", fname)
         # remove any dangerous characters
         base = self.stripIllegal(fname)
         (root, ext) = os.path.splitext(base)
@@ -186,15 +190,19 @@ class MediaManager(object):
     def check(self, local=None):
         "Return (missingFiles, unusedFiles)."
         mdir = self.dir()
-        # generate card q/a and look through all references
-        normrefs = {}
-        def norm(s):
-            if isinstance(s, unicode) and isMac:
-                return unicodedata.normalize('NFD', s)
-            return s
-        for f in self.allMedia():
-            normrefs[norm(f)] = True
-        # loop through directory and find unused & missing media
+        # gather all media references in NFC form
+        allRefs = set()
+        for nid, mid, flds in self.col.db.execute("select id, mid, flds from notes"):
+            noteRefs = self.filesInStr(mid, flds)
+            # check the refs are in NFC
+            for f in noteRefs:
+                # if they're not, we'll need to fix them first
+                if f != unicodedata.normalize("NFC", f):
+                    self._normalizeNoteRefs(nid)
+                    noteRefs = self.filesInStr(mid, flds)
+                    break
+            allRefs.update(noteRefs)
+        # loop through media folder
         unused = []
         if local is None:
             files = os.listdir(mdir)
@@ -202,28 +210,38 @@ class MediaManager(object):
             files = local
         for file in files:
             if not local:
-                path = os.path.join(mdir, file)
-                if not os.path.isfile(path):
+                if not os.path.isfile(file):
                     # ignore directories
                     continue
-                if file.startswith("_"):
-                    # leading _ says to ignore file
-                    continue
-            nfile = norm(file)
-            if nfile not in normrefs:
+            if file.startswith("_"):
+                # leading _ says to ignore file
+                continue
+            nfcFile = unicodedata.normalize("NFC", file)
+            # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
+            # NFD so we use the above variable for comparing references
+            if not isMac:
+                if file != nfcFile:
+                    # delete if we already have the NFC form, otherwise rename
+                    if os.path.exists(nfcFile):
+                        os.unlink(file)
+                    else:
+                        os.rename(file, nfcFile)
+                    file = nfcFile
+            # compare
+            if nfcFile not in allRefs:
                 unused.append(file)
             else:
-                del normrefs[nfile]
-        nohave = [x for x in normrefs.keys() if not x.startswith("_")]
+                allRefs.discard(nfcFile)
+        nohave = [x for x in allRefs if not x.startswith("_")]
         return (nohave, unused)
 
-    def allMedia(self):
-        "Return a set of all referenced filenames."
-        files = set()
-        for mid, flds in self.col.db.execute("select mid, flds from notes"):
-            for f in self.filesInStr(mid, flds):
-                files.add(f)
-        return files
+    def _normalizeNoteRefs(self, nid):
+        note = self.col.getNote(nid)
+        for c, fld in enumerate(note.fields):
+            nfc = unicodedata.normalize("NFC", fld)
+            if nfc != fld:
+                note.fields[c] = nfc
+        note.flush()
 
     # Copying on import
     ##########################################################################
@@ -276,6 +294,11 @@ class MediaManager(object):
                 data = z.read(i)
                 csum = checksum(data)
                 name = meta[i.filename]
+                # normalize name for platform
+                if isMac:
+                    name = unicodedata.normalize("NFD", name)
+                else:
+                    name = unicodedata.normalize("NFC", name)
                 # save file
                 open(name, "wb").write(data)
                 # update db
@@ -327,6 +350,8 @@ class MediaManager(object):
                 z.writestr("_finished", "")
                 break
             fname = fname[0]
+            # we add it as a one-element array simply to make
+            # the later forgetAdded() call easier
             fnames.append([fname])
             z.write(fname, str(cnt))
             files[str(cnt)] = fname

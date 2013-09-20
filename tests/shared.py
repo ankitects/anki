@@ -18,6 +18,6 @@ def getUpgradeDeckPath(name="anki12.anki"):
     src = os.path.join(testDir, "support", name)
     (fd, dst) = tempfile.mkstemp(suffix=".anki2")
     shutil.copy(src, dst)
-    return dst
+    return unicode(dst, "utf8")
 
 testDir = os.path.dirname(__file__)

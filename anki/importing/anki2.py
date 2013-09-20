@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
+import unicodedata
 from anki import Collection
 from anki.utils import intTime, splitFields, joinFields, incGuid
 from anki.importing.base import Importer
@@ -349,7 +350,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
         return self._mediaData(fname, self.dst.media.dir())
 
     def _writeDstMedia(self, fname, data):
-        path = os.path.join(self.dst.media.dir(), fname)
+        path = os.path.join(self.dst.media.dir(),
+                            unicodedata.normalize("NFC", fname))
         try:
             open(path, "wb").write(data)
         except (OSError, IOError):

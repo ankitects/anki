@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import zipfile, os
+import unicodedata
 from anki.utils import tmpfile, json
 from anki.importing.anki2 import Anki2Importer
 
@@ -26,7 +27,8 @@ class AnkiPackageImporter(Anki2Importer):
         for file, c in self.nameToNum.items():
             if not file.startswith("_") and not file.startswith("latex-"):
                 continue
-            path = os.path.join(self.col.media.dir(), file)
+            path = os.path.join(self.col.media.dir(),
+                                unicodedata.normalize("NFC", file))
             if not os.path.exists(path):
                 open(path, "wb").write(z.read(c))
 

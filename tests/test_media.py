@@ -7,7 +7,7 @@ from shared import getEmptyDeck, testDir
 def test_add():
     d = getEmptyDeck()
     dir = tempfile.mkdtemp(prefix="anki")
-    path = os.path.join(dir, "foo.jpg")
+    path = os.path.join(dir, u"foo.jpg")
     open(path, "w").write("hello")
     # new file, should preserve name
     assert d.media.addFile(path) == "foo.jpg"
@@ -72,7 +72,7 @@ def test_changes():
     assert not list(d.media.removed())
     # add a file
     dir = tempfile.mkdtemp(prefix="anki")
-    path = os.path.join(dir, "foo.jpg")
+    path = os.path.join(dir, u"foo.jpg")
     open(path, "w").write("hello")
     time.sleep(1)
     path = d.media.addFile(path)
