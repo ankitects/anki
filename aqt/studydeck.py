@@ -4,13 +4,13 @@
 
 from aqt.qt import *
 import aqt
-from aqt.utils import showInfo, openHelp, getOnlyText, shortcut
+from aqt.utils import showInfo, openHelp, getOnlyText, shortcut, restoreGeom, saveGeom
 from anki.hooks import addHook, remHook
 
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,
                  help="studydeck", current=None, cancel=True,
-                 parent=None, dyn=False, buttons=[]):
+                 parent=None, dyn=False, buttons=[], geomKey="default"):
         QDialog.__init__(self, parent or mw)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
@@ -18,6 +18,8 @@ class StudyDeck(QDialog):
         self.form.filter.installEventFilter(self)
         self.cancel = cancel
         addHook('reset', self.onReset)
+        self.geomKey = "studyDeck-"+geomKey
+        restoreGeom(self, self.geomKey)
         if not cancel:
             self.form.buttonBox.removeButton(
                 self.form.buttonBox.button(QDialogButtonBox.Cancel))
@@ -106,6 +108,7 @@ class StudyDeck(QDialog):
         self.redraw(self.filt, self.focus)
 
     def accept(self):
+        saveGeom(self, self.geomKey)
         remHook('reset', self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
