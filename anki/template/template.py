@@ -198,14 +198,182 @@ class Template(object):
         if not re.search(reg%ord, txt):
             return ""
         def repl(m):
+            # This all is to determine in a card that have more then one 
+            # latex tag if the cloze is inside one that is not the last
+            # latex tags, like in [$] {{c1::Cloze}} [/$] etc.. [$] etc.. [/$] 
+            # since re.search return just the last match and not all then.
+            # In the first looping it found the last ocurrence
+            # so in the second looping it search until the last occurrence
+            # so in the third looping it search until the last, last occurrence
+            # ... until don't find any occurrence
+            # so the while condition is while( matchObject != None )
+            
+            match1 = re.search('\[latex\]', txt) 
+            match11 = re.search('\[$\]', txt) 
+            match111 = re.search('\[$$\]', txt) 
+            match2 = re.search('\[\/latex\]', txt) 
+            match22 = re.search('\[\/$\]', txt) 
+            match222 = re.search('\[\/$$\]', txt) 
+            matchh = None
+            
+            # something that I don't know why but ( match1 and 
+            # match2 and m .... ) don't evaluate True neither None but to ""
+            if ( match1 ):
+                match1New = True
+                match1LastPos = match1.start()
+            else:
+                match1New = None
+                match1LastPos = 0
+            
+            if ( match11 ):
+                match11New = True
+                match11LastPos = match11.start()
+            else:
+                match11New = None 
+                match11LastPos = 0
+            
+            if ( match111 ):
+                match111New = True
+                match111LastPos = match111.start()
+            else:
+                match111New = None
+                match111LastPos = 0
+            
+            if ( match2 ):
+                match2New = True
+                match2LastPos = match2.start()
+            else:
+                match2New = None
+                match2LastPos = 0
+            
+            if ( match22 ):
+                match22New = True
+                match22LastPos = match22.start()
+            else:
+                match22New = None
+                match22LastPos = 0
+            
+            if ( match222 ):
+                match222New= True
+                match222LastPos = match222.start()
+            else:
+                match222New = None
+                match222LastPos = 0
+            
+            if ( m ):
+                mNew = True
+            else:
+                mNew = None
+            
+            while( match1New != None or match11New != None or 
+            match111New != None or match2New != None or 
+            match22New != None or match222New != None ):
+            
+                # Ensures that none object have a None value to don't crash 
+                # on the next step
+                
+                if ( match1New and match2New and mNew ):
+                    # Verifies if the cloze is inside the latex code
+                    if ( match1.start() < m.start() and match2.start() > m.start() ):
+                        matchh = True
+                        # that is, the cloze is found the work is done
+                        break
+                    else:
+                        matchh = None
+                else:
+                    matchh = None
+                    
+                if ( match11New and match22New and mNewNew ):
+                    # Verifies if the cloze is inside the latex code
+                    if ( match11.start() < m.start() and match22.start() > m.start() ):
+                        matchh = True
+                        # that is, the cloze is found the work is done
+                        break
+                    else:
+                        matchh = None
+                else:
+                    matchh = None
+                    
+                if ( match111New and match222New and mNew ):
+                    # Verifies if the cloze is inside the latex code
+                    if ( match111.start() < m.start() and match222.start() > m.start() ):
+                        matchh = True
+                        # that is, the cloze is found the work is done
+                        break
+                    else:
+                        matchh = None
+                else:
+                    matchh = None
+                
+                txtNew = re.compile( '\[latex\]' )
+                match1 = txtNew.search( txt, 0, match1LastPos )
+                if( match1 ):
+                    match1LastPos = match1.start()
+                else:
+                    match1New = None
+                    match1LastPos = 0
+                
+                txtNew = re.compile( '\[$\]' )
+                match11 = txtNew.search( txt, 0, match11LastPos )
+                if( match11 ):
+                    match11LastPos = match11.start()
+                else:
+                    match11New = None
+                    match11LastPos = 0
+                
+                txtNew = re.compile( '\[$$\]' )
+                match111 = txtNew.search( txt, 0, match111LastPos )
+                if( match111 ):
+                    match111LastPos = match111.start()
+                else:
+                    match111New = None
+                    match111LastPos = 0
+                
+                txtNew = re.compile( '\[\/latex\]' )
+                match2 = txtNew.search( txt, 0, match2LastPos )
+                if( match2 ):
+                    match2LastPos = match2.start()
+                else:
+                    match2New = None
+                    match2LastPos = 0
+                
+                txtNew = re.compile( '\[\/$\]' )
+                match22 = txtNew.search( txt, 0, match22LastPos )
+                if( match22 ):
+                    match22LastPos = match22.start()
+                else:
+                    match22New = None
+                    match22LastPos = 0
+                
+                txtNew = re.compile( '\[\/$$\]' )
+                match222 = txtNew.search( txt, 0, match222LastPos )
+                if( match222 ):
+                    match222LastPos = match222.start()
+                else:
+                    match222New = None
+                    match222LastPos = 0
+                
+            else:
+                matchh = None
+            
             # replace chosen cloze with type
             if type == "q":
                 if m.group(3):
-                    return "<span class=cloze>[%s]</span>" % m.group(3)
+                    if ( matchh ):
+                        return "<span class=cloze>\\textcolor{blue}{%s}</span>" % ( m.group(3) )
+                    else:
+                        return "<span class=cloze>%s</span>" % ( m.group(3) )
                 else:
-                    return "<span class=cloze>[...]</span>"
+                    if ( matchh ):
+                        return "<span class=cloze>\\textcolor{blue}{[...]}</span>"
+                    else:
+                        return "<span class=cloze>[...]</span>"
             else:
-                return "<span class=cloze>%s</span>" % m.group(1)
+                if ( matchh ):
+                    return "<span class=cloze>\\textcolor{blue}{%s}</span>" % ( m.group(1) )
+                else:
+                    return "<span class=cloze>%s</span>" % ( m.group(1) )
+                    
         txt = re.sub(reg%ord, repl, txt)
         # and display other clozes normally
         return re.sub(reg%"\d+", "\\1", txt)
