@@ -1283,7 +1283,6 @@ and (queue=0 or (queue=2 and due<=?))""",
                     self._newQueue.remove(cid)
                 except ValueError:
                     pass
-            queue = "(queue = 0 or %s)" % queue
         # then bury
         self.col.db.execute(
             "update cards set queue=-2,mod=?,usn=? where id in "+ids2str(toBury),
