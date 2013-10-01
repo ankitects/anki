@@ -574,7 +574,7 @@ class RemoteServer(HttpSyncer):
 
     def meta(self):
         ret = self.req(
-            "meta", StringIO(json.dumps(dict(v=SYNC_VER, cv=anki.version))),
+            "meta", StringIO(json.dumps(dict(v=SYNC_VER, cv="ankidesktop,"+anki.version))),
             badAuthRaises=False)
         if not ret:
             # invalid auth
