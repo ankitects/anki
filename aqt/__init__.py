@@ -8,8 +8,9 @@ import anki.lang
 from anki.consts import HELP_SITE
 from anki.lang import langDir
 from anki.utils import isMac
+from anki import version as _version
 
-appVersion="2.0.12"
+appVersion=_version
 appWebsite="http://ankisrs.net/"
 appChanges="http://ankisrs.net/docs/changes.html"
 appDonate="http://ankisrs.net/support/"
