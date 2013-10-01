@@ -1154,8 +1154,12 @@ reached. You can increase the limit in the options, but please
 bear in mind that the more new cards you introduce, the higher
 your short-term review workload will become.""").replace("\n", " "))
         if self.haveBuried():
+            if self.haveCustomStudy:
+                now = " " +  _("To see them now, click the Unbury button below.")
+            else:
+                now = ""
             line.append(_("""\
-Some related or buried cards were delayed until tomorrow.""").replace("\n", " "))
+Some related or buried cards were delayed until a later session.""")+now)
         if self.haveCustomStudy and not self.col.decks.current()['dyn']:
             line.append(_("""\
 To study outside of the normal schedule, click the Custom Study button below."""))
