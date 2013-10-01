@@ -1,9 +1,14 @@
 # coding: utf-8
 
-import time, copy
+import time, copy, sys
 from tests.shared import  getEmptyDeck
 from anki.utils import  intTime
 from anki.hooks import addHook
+
+def test_clock():
+    d = getEmptyDeck()
+    if (d.sched.dayCutoff - intTime()) < 10*60:
+        raise Exception("Unit tests will fail around the day rollover.")
 
 def checkRevIvl(d, c, targetIvl):
     min, max = d.sched._fuzzIvlRange(targetIvl)
