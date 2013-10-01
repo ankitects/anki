@@ -8,6 +8,7 @@ from anki.db import DB
 from anki.utils import ids2str, intTime, json, isWin, isMac
 from anki.consts import *
 from hooks import runHook
+import anki
 
 # syncing vars
 HTTP_TIMEOUT = 30
@@ -573,7 +574,7 @@ class RemoteServer(HttpSyncer):
 
     def meta(self):
         ret = self.req(
-            "meta", StringIO(json.dumps(dict(v=SYNC_VER))),
+            "meta", StringIO(json.dumps(dict(v=SYNC_VER, cv=anki.version))),
             badAuthRaises=False)
         if not ret:
             # invalid auth
