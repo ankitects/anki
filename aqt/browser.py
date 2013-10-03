@@ -7,6 +7,7 @@ import cgi
 import time
 import re
 from operator import  itemgetter
+from anki.lang import ngettext
 
 from aqt.qt import *
 import anki
@@ -1324,6 +1325,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         restoreGeom(d, "findDupes")
         fields = sorted(anki.find.fieldNames(self.col, downcase=False))
         frm.fields.addItems(fields)
+        self._dupesButton = None
         # links
         frm.webView.page().setLinkDelegationPolicy(
             QWebPage.DelegateAllLinks)
@@ -1335,15 +1337,19 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.connect(d, SIGNAL("finished(int)"), onFin)
         def onClick():
             field = fields[frm.fields.currentIndex()]
-            self.duplicatesReport(frm.webView, field, frm.search.text())
+            self.duplicatesReport(frm.webView, field, frm.search.text(), frm)
         search = frm.buttonBox.addButton(
             _("Search"), QDialogButtonBox.ActionRole)
         self.connect(search, SIGNAL("clicked()"), onClick)
         d.show()
 
-    def duplicatesReport(self, web, fname, search):
+    def duplicatesReport(self, web, fname, search, frm):
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
+        if not self._dupesButton:
+            self._dupesButton = b = frm.buttonBox.addButton(
+                _("Tag Duplicates"), QDialogButtonBox.ActionRole)
+            self.connect(b, SIGNAL("clicked()"), lambda: self._onTagDupes(res))
         t = "<html><body>"
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
@@ -1360,6 +1366,20 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         t += "</body></html>"
         web.setHtml(t)
         self.mw.progress.finish()
+
+    def _onTagDupes(self, res):
+        if not res:
+            return
+        self.model.beginReset()
+        self.mw.checkpoint(_("Tag Duplicates"))
+        nids = set()
+        for s, nidlist in res:
+            nids.update(nidlist)
+        self.col.tags.bulkAdd(nids, _("duplicate"))
+        self.mw.progress.finish()
+        self.model.endReset()
+        self.mw.requireReset()
+        tooltip(_("Notes tagged."))
 
     def dupeLinkClicked(self, link):
         self.form.searchEdit.lineEdit().setText(link.toString())
