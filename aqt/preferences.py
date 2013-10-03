@@ -83,11 +83,13 @@ class Preferences(QDialog):
         if not self.prof['syncKey']:
             self._hideAuth()
         else:
+            self.form.syncUser.setText(self.prof.get('syncUser', ""))
             self.connect(self.form.syncDeauth, SIGNAL("clicked()"),
                          self.onSyncDeauth)
 
     def _hideAuth(self):
         self.form.syncDeauth.setVisible(False)
+        self.form.syncUser.setText("")
         self.form.syncLabel.setText(_("""\
 <b>Synchronization</b><br>
 Not currently enabled; click the sync button in the main window to enable."""))

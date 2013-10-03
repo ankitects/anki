@@ -244,6 +244,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QLabel" name="syncUser">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
