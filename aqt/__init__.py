@@ -1,5 +1,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import getpass
 
 import os, sys, optparse, atexit, tempfile, __builtin__
 from aqt.qt import *
@@ -28,6 +29,8 @@ except ImportError, e:
         print "If you're running from git, did you run build_ui.sh?"
         print
     raise
+
+from anki.utils import checksum
 
 # Dialog manager - manages modeless windows
 ##########################################################################
@@ -110,46 +113,43 @@ class AnkiApp(QApplication):
     # Single instance support on Win32/Linux
     ##################################################
 
-    KEY = "anki"
+    KEY = "anki"+checksum(getpass.getuser())
     TMOUT = 5000
 
     def __init__(self, argv):
         QApplication.__init__(self, argv)
         self._argv = argv
-        self._shmem = QSharedMemory(self.KEY)
-        self.alreadyRunning = self._shmem.attach()
 
     def secondInstance(self):
-        if not self.alreadyRunning:
-            # use a 1 byte shared memory instance to signal we exist
-            if not self._shmem.create(1):
-                raise Exception("shared memory not supported")
-            atexit.register(self._shmem.detach)
-            # and a named pipe/unix domain socket for ipc
+        # we accept only one command line argument. if it's missing, send
+        # a blank screen to just raise the existing window
+        opts, args = parseArgs(self._argv)
+        buf = "raise"
+        if args and args[0]:
+            buf = os.path.abspath(args[0])
+        if self.sendMsg(buf):
+            print "Already running; reusing existing instance."
+            return True
+        else:
+            # send failed, so we're the first instance or the
+            # previous instance died
             QLocalServer.removeServer(self.KEY)
             self._srv = QLocalServer(self)
             self.connect(self._srv, SIGNAL("newConnection()"), self.onRecv)
             self._srv.listen(self.KEY)
-        else:
-            print "Raising existing window."
-            # we accept only one command line argument. if it's missing, send
-            # a blank screen to just raise the existing window
-            opts, args = parseArgs(self._argv)
-            buf = "raise"
-            if args and args[0]:
-                buf = os.path.abspath(args[0])
-            self.sendMsg(buf)
-            return True
+            return False
 
     def sendMsg(self, txt):
         sock = QLocalSocket(self)
         sock.connectToServer(self.KEY, QIODevice.WriteOnly)
         if not sock.waitForConnected(self.TMOUT):
-            raise Exception("existing instance not responding")
+            # first instance or previous instance dead
+            return False
         sock.write(txt)
         if not sock.waitForBytesWritten(self.TMOUT):
             raise Exception("existing instance not emptying")
         sock.disconnectFromServer()
+        return True
 
     def onRecv(self):
         sock = self._srv.nextPendingConnection()
