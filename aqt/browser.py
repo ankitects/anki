@@ -695,12 +695,19 @@ by clicking on one on the left."""))
             if len(self.model.activeCols) < 2:
                 return showInfo(_("You must have at least one column."))
             self.model.activeCols.remove(type)
+            adding=False
         else:
             self.model.activeCols.append(type)
+            adding=True
         # sorted field may have been hidden
         self.setSortIndicator()
         self.setColumnSizes()
         self.model.endReset()
+        # if we added a column, scroll to it
+        if adding:
+            row = self.currentRow()
+            idx = self.model.index(row, len(self.model.activeCols) - 1)
+            self.form.tableView.scrollTo(idx)
 
     def setColumnSizes(self):
         hh = self.form.tableView.horizontalHeader()
