@@ -26,6 +26,7 @@ class SyncManager(QObject):
             auth = self._getUserPass()
             if not auth:
                 return
+            self.pm.profile['syncUser'] = auth[0]
             self._sync(auth)
         else:
             self._sync()
@@ -50,6 +51,10 @@ class SyncManager(QObject):
             self.mw.app.processEvents()
             self.thread.wait(100)
         self.mw.progress.finish()
+        if self.thread.syncMsg:
+            showText(self.thread.syncMsg)
+        if self.thread.uname:
+            self.pm.profile['syncUser'] = self.thread.uname
         def delayedInfo():
             if self._didFullUp and not self._didError:
                 showInfo(_("""\
@@ -270,6 +275,8 @@ class SyncThread(QThread):
             return
         self.server = RemoteServer(self.hkey)
         self.client = Syncer(self.col, self.server)
+        self.syncMsg = ""
+        self.uname = ""
         self.sentTotal = 0
         self.recvTotal = 0
         # throttle updates; qt doesn't handle lots of posted events well
@@ -349,8 +356,14 @@ class SyncThread(QThread):
         # save and note success state
         if ret == "noChanges":
             self.fireEvent("noChanges")
-        else:
+        elif ret == "success":
             self.fireEvent("success")
+        elif ret == "serverAbort":
+            self.fireEvent("error", self.client.syncMsg)
+        else:
+            self.fireEvent("error", "Unknown sync return code.")
+        self.syncMsg = self.client.syncMsg
+        self.uname = self.client.uname
         # then move on to media sync
         self._syncMedia()
 

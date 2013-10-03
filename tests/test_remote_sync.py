@@ -45,11 +45,11 @@ def test_meta():
             print "aborting; server offline"
             return
     ts.server.hkey = TEST_HKEY
-    (mod, scm, usn, tstamp, mediaUSN) = ts.server.meta()
-    assert mod
-    assert scm
-    assert mod != ts.client.col.mod
-    assert abs(tstamp - time.time()) < 3
+    meta = ts.server.meta()
+    assert meta['mod']
+    assert meta['scm']
+    assert meta['mod'] != ts.client.col.mod
+    assert abs(meta['ts'] - time.time()) < 3
 
 @nose.with_setup(setup_remote)
 def test_hkey():

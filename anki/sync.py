@@ -90,17 +90,39 @@ class Syncer(object):
         self.server = server
 
     def sync(self):
-        "Returns 'noChanges', 'fullSync', or 'success'."
+        "Returns 'noChanges', 'fullSync', 'success', etc"
+        self.syncMsg = ""
+        self.uname = ""
         # if the deck has any pending changes, flush them first and bump mod
         # time
         self.col.save()
         # step 1: login & metadata
         runHook("sync", "login")
-        ret = self.server.meta()
-        if not ret:
+        meta = self.server.meta()
+        if not meta:
             return "badAuth"
-        self.rmod, rscm, self.maxUsn, rts, self.mediaUsn = ret
-        self.lmod, lscm, self.minUsn, lts, dummy = self.meta()
+        rscm = meta['scm']
+        rts = meta['ts']
+        self.rmod = meta['mod']
+        self.maxUsn = meta['usn']
+        self.mediaUsn = meta['musn']
+        self.syncMsg = meta['msg']
+        # this is a temporary measure to address the problem of users
+        # forgetting which email address they've used - it will be removed
+        # when enough time has passed
+        self.uname = meta.get("uname", "")
+        # server requested abort?
+        if not meta['cont']:
+            return "serverAbort"
+        else:
+            # don't abort, but ui should show message after sync finishes
+            # and require confirmation if it's non-empty
+            pass
+        meta = self.meta()
+        self.lmod = meta['mod']
+        self.minUsn = meta['usn']
+        lscm = meta['scm']
+        lts = meta['ts']
         if abs(rts - lts) > 300:
             return "clockOff"
         if self.lmod == self.rmod:
@@ -154,7 +176,15 @@ class Syncer(object):
         return "success"
 
     def meta(self):
-        return (self.col.mod, self.col.scm, self.col._usn, intTime(), None)
+        return dict(
+            mod=self.col.mod,
+            scm=self.col.scm,
+            usn=self.col._usn,
+            ts=intTime(),
+            musn=0,
+            msg="",
+            cont=True
+        )
 
     def changes(self):
         "Bundle up small objects."
