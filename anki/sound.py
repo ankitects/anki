@@ -13,11 +13,15 @@ from anki.utils import  tmpdir, isWin, isMac
 _soundReg = "\[sound:(.*?)\]"
 
 def playFromText(text):
-    for match in re.findall(_soundReg, text):
-        play(match)
+    if text.find("[randomiseSounds]") >= 0:
+        if hasSound(text):
+            play(random.choice(re.findall(_soundReg, text)))
+    else:
+        for match in re.findall(_soundReg, text):
+            play(match)
 
 def stripSounds(text):
-    return re.sub(_soundReg, "", text)
+    return re.sub(_soundReg, "", text).replace("[randomiseSounds]", "")
 
 def hasSound(text):
     return re.search(_soundReg, text) is not None
