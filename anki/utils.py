@@ -122,17 +122,22 @@ def fmtFloat(float_value, point=1):
 
 # HTML
 ##############################################################################
+reStyle = re.compile("(?s)<style.*?>.*?</style>")
+reScript = re.compile("(?s)<script.*?>.*?</script>")
+reTag = re.compile("<.*?>")
+reEnts = re.compile("&#?\w+;")
+reMedia = re.compile("<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 def stripHTML(s):
-    s = re.sub("(?s)<style.*?>.*?</style>", "", s)
-    s = re.sub("(?s)<script.*?>.*?</script>", "", s)
-    s = re.sub("<.*?>", "", s)
+    s = reStyle.sub("", s)
+    s = reScript.sub("", s)
+    s = reTag.sub("", s)
     s = entsToTxt(s)
     return s
 
 def stripHTMLMedia(s):
     "Strip HTML but keep media filenames"
-    s = re.sub("<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>", " \\1 ", s)
+    s = reMedia.sub(" \\1 ", s)
     return stripHTML(s)
 
 def minimizeHTML(s):
@@ -167,7 +172,7 @@ def entsToTxt(html):
             except KeyError:
                 pass
         return text # leave as is
-    return re.sub("&#?\w+;", fixup, html)
+    return reEnts.sub(fixup, html)
 
 # IDs
 ##############################################################################
