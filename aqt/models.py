@@ -86,6 +86,7 @@ class Models(QDialog):
             txt = getText(_("Name:"), default=m['name'])[0]
             if txt:
                 m['name'] = txt
+            self.mm.ensureNameUnique(m)
             self.mm.save(m)
             self.updateModelsList()
 

@@ -8,6 +8,7 @@ from anki.utils import intTime, joinFields, splitFields, ids2str,\
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
+import time
 
 # Models
 ##########################################################################
@@ -123,8 +124,8 @@ class ModelManager(object):
         "Get all models."
         return self.models.values()
 
-    def allNames(self):
-        return [m['name'] for m in self.all()]
+    def allNames(self, curm=None):
+        return [m['name'] for m in self.all() if m!=curm]
 
     def byName(self, name):
         "Get model with NAME."
@@ -165,8 +166,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.setCurrent(m)
         self.save(m)
 
+    def ensureNameUnique(self, m):
+        if m['name'] in self.allNames(m):
+            m['name'] += "-" + checksum(str(time.time()))[:5]
+
     def update(self, m):
         "Add or update an existing model. Used for syncing and merging."
+        self.ensureNameUnique(m)
         self.models[str(m['id'])] = m
         # mark registry changed, but don't bump mod time
         self.save()
