@@ -5,7 +5,7 @@
 import urllib, os, sys, httplib2, gzip
 from cStringIO import StringIO
 from anki.db import DB
-from anki.utils import ids2str, intTime, json, isWin, isMac
+from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc
 from anki.consts import *
 from hooks import runHook
 import anki
@@ -604,7 +604,8 @@ class RemoteServer(HttpSyncer):
 
     def meta(self):
         ret = self.req(
-            "meta", StringIO(json.dumps(dict(v=SYNC_VER, cv="ankidesktop,"+anki.version))),
+            "meta", StringIO(json.dumps(dict(
+                v=SYNC_VER, cv="ankidesktop,%s,%s"%(anki.version, platDesc())))),
             badAuthRaises=False)
         if not ret:
             # invalid auth

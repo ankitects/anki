@@ -7,6 +7,7 @@ import re, os, random, time, math, htmlentitydefs, subprocess, \
     tempfile, shutil, string, httplib2, sys, locale
 from hashlib import sha1
 from anki.lang import _, ngettext
+import platform
 
 if sys.version_info[1] < 5:
     def format_string(a, b):
@@ -339,3 +340,25 @@ def invalidFilename(str, dirsep=True):
         return "/"
     elif (dirsep or not isWin) and "\\" in str:
         return "\\"
+
+def platDesc():
+    # we may get an interrupted system call, so try this in a loop
+    n = 0
+    theos = "unknown"
+    while n < 100:
+        n += 1
+        try:
+            system = platform.system()
+            if isMac:
+                theos = "mac:%s" % (platform.mac_ver()[0])
+            elif isWin:
+                theos = "win:%s" % (platform.win32_ver()[0])
+            elif system == "Linux":
+                dist = platform.dist()
+                theos = "lin:%s:%s" % (dist[0], dist[1])
+            else:
+                theos = system
+            break
+        except:
+            continue
+    return theos
