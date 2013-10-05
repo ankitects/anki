@@ -294,6 +294,8 @@ class MediaManager(object):
                 data = z.read(i)
                 csum = checksum(data)
                 name = meta[i.filename]
+                if not isinstance(name, unicode):
+                    name = unicode(name, "utf8")
                 # normalize name for platform
                 if isMac:
                     name = unicodedata.normalize("NFD", name)
