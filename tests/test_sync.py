@@ -100,7 +100,7 @@ def test_models():
     time.sleep(1)
     deck1.models.save(cm)
     deck1.save()
-    assert deck2.models.get(cm['id'])['name'] == "Basic"
+    assert deck2.models.get(cm['id'])['name'].startswith("Basic")
     assert client.sync() == "success"
     assert deck2.models.get(cm['id'])['name'] == "new"
     # deleting triggers a full sync
