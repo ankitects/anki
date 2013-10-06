@@ -152,7 +152,8 @@ class AnkiExporter(Exporter):
         else:
             # need to reset card state
             self.dst.sched.resetCards(cids)
-        # models
+        # models - start with zero
+        self.dst.models.models = {}
         for m in self.src.models.all():
             if int(m['id']) in mids:
                 self.dst.models.update(m)
