@@ -236,7 +236,7 @@ class DataModel(QAbstractTableModel):
         elif type == "cardLapses":
             return str(c.lapses)
         elif type == "noteTags":
-            return str(" ".join(c.note().tags))
+            return " ".join(c.note().tags)
         elif type == "note":
             return c.model()['name']
         elif type == "cardIvl":
