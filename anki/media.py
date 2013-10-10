@@ -89,10 +89,6 @@ class MediaManager(object):
         return self.writeData(opath, open(opath, "rb").read())
 
     def writeData(self, opath, data):
-        if not isinstance(opath, unicode):
-            # old code/addons were passing as str
-            print "writeData() should be called with unicode"
-            opath = unicode(opath, "utf8", "ignore")
         # if fname is a full path, use only the basename
         fname = os.path.basename(opath)
         # make sure we write it in NFC form (on mac will autoconvert to NFD),
