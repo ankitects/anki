@@ -2,10 +2,16 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib, os, sys, httplib2, gzip
+import urllib
+import os
+import sys
+import gzip
+import random
 from cStringIO import StringIO
+
+import httplib2
 from anki.db import DB
-from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc
+from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc, checksum
 from anki.consts import *
 from hooks import runHook
 import anki
@@ -519,6 +525,7 @@ class HttpSyncer(object):
 
     def __init__(self, hkey=None, con=None):
         self.hkey = hkey
+        self.skey = checksum(str(random.random()))[:8]
         self.con = con or httpCon()
 
     def assertOk(self, resp):
@@ -541,6 +548,7 @@ class HttpSyncer(object):
         vars['c'] = 1 if comp else 0
         if hkey:
             vars['k'] = self.hkey
+            vars['s'] = self.skey
         for (key, value) in vars.items():
             buf.write(bdry + "\r\n")
             buf.write(

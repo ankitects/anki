@@ -2,14 +2,19 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import division
+import socket
+import time
+import traceback
+import gc
+
 from aqt.qt import *
-import   socket, time, traceback, gc
 import aqt
 from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, remHook
 from aqt.utils import tooltip, askUserDialog, showWarning, showText, showInfo
+
 
 # Sync manager
 ######################################################################
@@ -161,7 +166,7 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "504" in err:
             return _("504 gateway timeout error received. Please try temporarily disabling your antivirus.")
         elif "409" in err:
-            return _("A previous sync failed; please try again in a few minutes.")
+            return _("Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes.")
         elif "10061" in err or "10013" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")

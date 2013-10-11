@@ -2,7 +2,13 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, os, random, stat, datetime, copy
+import time
+import os
+import random
+import stat
+import datetime
+import copy
+
 from anki.lang import _, ngettext
 from anki.utils import ids2str, fieldChecksum, stripHTML, \
     intTime, splitFields, joinFields, maxID, json
@@ -15,9 +21,12 @@ from anki.tags import TagManager
 from anki.consts import *
 from anki.errors import AnkiError
 from anki.sound import stripSounds
-
 import anki.latex # sets up hook
-import anki.cards, anki.notes, anki.template, anki.find
+import anki.cards
+import anki.notes
+import anki.template
+import anki.find
+
 
 defaultConf = {
     # review options
@@ -176,15 +185,20 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def beforeUpload(self):
         "Called before a full upload."
-        tbls = "notes", "cards", "revlog", "graves"
+        tbls = "notes", "cards", "revlog"
         for t in tbls:
             self.db.execute("update %s set usn=0 where usn=-1" % t)
+        # we can save space by removing the log of deletions
+        self.db.execute("delete from graves")
         self._usn += 1
         self.models.beforeUpload()
         self.tags.beforeUpload()
         self.decks.beforeUpload()
         self.modSchema()
         self.ls = self.scm
+        # ensure db is compacted before upload
+        self.db.execute("vacuum")
+        self.db.execute("analyze")
         self.close()
 
     # Object creation helpers

@@ -124,8 +124,8 @@ class ModelManager(object):
         "Get all models."
         return self.models.values()
 
-    def allNames(self, curm=None):
-        return [m['name'] for m in self.all() if m!=curm]
+    def allNames(self):
+        return [m['name'] for m in self.all()]
 
     def byName(self, name):
         "Get model with NAME."
@@ -171,6 +171,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
             if (mcur['name'] == m['name'] and
                 mcur['id'] != m['id']):
                     m['name'] += "-" + checksum(str(time.time()))[:5]
+                    break
 
     def update(self, m):
         "Add or update an existing model. Used for syncing and merging."
