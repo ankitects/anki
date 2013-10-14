@@ -149,23 +149,23 @@ and try again.""")
             return _("""\
 The connection to AnkiWeb timed out. Please check your network \
 connection and try again.""")
-        elif "500" in err:
+        elif "code: 500" in err:
             return _("""\
 AnkiWeb encountered an error. Please try again in a few minutes, and if \
 the problem persists, please file a bug report.""")
-        elif "501" in err:
+        elif "code: 501" in err:
             return _("""\
 Please upgrade to the latest version of Anki.""")
         # 502 is technically due to the server restarting, but we reuse the
         # error message
-        elif "502" in err:
+        elif "code: 502" in err:
             return _("AnkiWeb is under maintenance. Please try again in a few minutes.")
-        elif "503" in err:
+        elif "code: 503" in err:
             return _("""\
 AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
-        elif "504" in err:
+        elif "code: 504" in err:
             return _("504 gateway timeout error received. Please try temporarily disabling your antivirus.")
-        elif "409" in err:
+        elif "code: 409" in err:
             return _("Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes.")
         elif "10061" in err or "10013" in err:
             return _(
@@ -174,8 +174,10 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
             return _(
                 "Server not found. Either your connection is down, or antivirus/firewall "
                 "software is blocking Anki from connecting to the internet.")
-        elif "407" in err:
+        elif "code: 407" in err:
             return _("Proxy authentication required.")
+        elif "code: 413" in err:
+            return _("Your collection or a media file is too large to sync.")
         return err
 
     def _getUserPass(self):
