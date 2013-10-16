@@ -2,14 +2,20 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, shutil, re, urllib, unicodedata, \
-    sys, zipfile
-import send2trash
+import os
+import re
+import urllib
+import unicodedata
+import sys
+import zipfile
 from cStringIO import StringIO
+
+import send2trash
 from anki.utils import checksum, isWin, isMac, json
 from anki.db import DB
 from anki.consts import *
 from anki.latex import mungeQA
+
 
 class MediaManager(object):
 
@@ -356,7 +362,7 @@ class MediaManager(object):
             # the later forgetAdded() call easier
             fnames.append([fname])
             z.write(fname, str(cnt))
-            files[str(cnt)] = fname
+            files[str(cnt)] = unicodedata.normalize("NFC", fname)
             sz += os.path.getsize(fname)
             if sz > SYNC_ZIP_SIZE or cnt > SYNC_ZIP_COUNT:
                 break
