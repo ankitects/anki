@@ -860,12 +860,13 @@ the problem and restart Anki.""")
     # Debug logging
     ##########################################################################
 
-    def onLog(self, args):
+    def onLog(self, args, kwargs):
         def customRepr(x):
             if isinstance(x, basestring):
                 return x
             return pprint.pformat(x)
-        path, num, fn, y = traceback.extract_stack(limit=4)[0]
+        path, num, fn, y = traceback.extract_stack(
+            limit=4+kwargs.get("stack", 0))[0]
         buf = "[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
             ", ".join([customRepr(x) for x in args]))
         lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())

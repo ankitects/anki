@@ -1123,6 +1123,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         self.today = int((time.time() - self.col.crt) // 86400)
         # end of day cutoff
         self.dayCutoff = self.col.crt + (self.today+1)*86400
+        self.col.log(self.today, self.dayCutoff)
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
         def update(g):

@@ -205,9 +205,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Object creation helpers
     ##########################################################################
 
-    def getCard(self, id):
+    def getCard(self, id, log=True):
         c = anki.cards.Card(self, id)
-        self.log(c)
+        if log:
+            self.log(c, stack=1)
         return c
 
     def getNote(self, id):
@@ -774,5 +775,5 @@ and queue = 0""", intTime(), self.usn())
     # Logging
     ##########################################################################
 
-    def log(self, *args):
-        runHook("log", args)
+    def log(self, *args, **kwargs):
+        runHook("log", args, kwargs)

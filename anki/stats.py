@@ -3,10 +3,14 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import division
-import time, datetime, json
+import time
+import datetime
+import json
+
 import anki.js
 from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
+
 
 # Card stats
 ##########################################################################
@@ -56,6 +60,8 @@ class CardStats(object):
         self.addLine(_("Card Type"), c.template()['name'])
         self.addLine(_("Note Type"), c.model()['name'])
         self.addLine(_("Deck"), self.col.decks.name(c.did))
+        self.addLine(_("Note ID"), c.nid)
+        self.addLine(_("Card ID"), c.id)
         self.txt += "</table>"
         return self.txt
 
