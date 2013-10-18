@@ -867,10 +867,10 @@ the problem and restart Anki.""")
             return pprint.pformat(x)
         path, num, fn, y = traceback.extract_stack(
             limit=4+kwargs.get("stack", 0))[0]
-        buf = "[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
+        buf = u"[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
             ", ".join([customRepr(x) for x in args]))
         lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
-        open(lpath, "ab").write(buf + "\n")
+        open(lpath, "ab").write(buf.encode("utf8") + "\n")
         if os.environ.get("LOG"):
             print buf
 
