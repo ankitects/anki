@@ -3,9 +3,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import division
-import time, random, itertools
+import time
+import random
+import itertools
 from operator import itemgetter
 from heapq import *
+
 #from anki.cards import Card
 from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _
@@ -1266,15 +1269,19 @@ update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
 
     def _burySiblings(self, card):
         toBury = []
-        conf = self._newConf(card)
-        buryNew = conf.get("bury", True)
+        nconf = self._newConf(card)
+        buryNew = nconf.get("bury", True)
+        rconf = self._revConf(card)
+        buryRev = rconf.get("bury", True)
         # loop through and remove from queues
         for cid,queue in self.col.db.execute("""
 select id, queue from cards where nid=? and id!=?
 and (queue=0 or (queue=2 and due<=?))""",
                 card.nid, card.id, self.today):
             if queue == 2:
-                toBury.append(cid)
+                if buryRev:
+                    toBury.append(cid)
+                # if bury disabled, we still discard to give same-day spacing
                 try:
                     self._revQueue.remove(cid)
                 except ValueError:

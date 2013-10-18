@@ -71,6 +71,8 @@ defaultConf = {
         'minSpace': 1, # not currently used
         'ivlFct': 1,
         'maxIvl': 36500,
+        # may not be set on old decks
+        'bury': True,
     },
     'maxTaken': 60,
     'timer': 0,
