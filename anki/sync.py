@@ -17,6 +17,7 @@ from hooks import runHook
 import anki
 
 # syncing vars
+httplib2.RETRIES = 0
 HTTP_TIMEOUT = 30
 HTTP_PROXY = None
 
