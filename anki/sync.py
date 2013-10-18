@@ -18,7 +18,7 @@ import anki
 
 # syncing vars
 httplib2.RETRIES = 0
-HTTP_TIMEOUT = 30
+HTTP_TIMEOUT = 90
 HTTP_PROXY = None
 
 try:
