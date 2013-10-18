@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
+import pprint
 import sys
 import re
 import traceback
@@ -269,7 +270,8 @@ To import into a password protected profile, please open the profile before atte
             showWarning("""\
 Your collection is corrupt. Please see the manual for \
 how to restore from a backup.""")
-            return self.unloadProfile()
+            self.unloadProfile()
+            raise
         self.hideSchemaMsg = False
         self.progress.setupDB(self.col.db)
         self.maybeEnableUndo()
@@ -837,6 +839,7 @@ the problem and restart Anki.""")
     def setupHooks(self):
         addHook("modSchema", self.onSchemaMod)
         addHook("remNotes", self.onRemNotes)
+        addHook("log", self.onLog)
 
     # Log note deletion
     ##########################################################################
@@ -853,6 +856,22 @@ the problem and restart Anki.""")
                 fields = splitFields(flds)
                 f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
                 f.write("\n")
+
+    # Debug logging
+    ##########################################################################
+
+    def onLog(self, args):
+        def customRepr(x):
+            if isinstance(x, basestring):
+                return x
+            return pprint.pformat(x)
+        path, num, fn, y = traceback.extract_stack(limit=4)[0]
+        buf = "[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
+            ", ".join([customRepr(x) for x in args]))
+        lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
+        open(lpath, "ab").write(buf + "\n")
+        if os.environ.get("LOG"):
+            print buf
 
     # Schema modifications
     ##########################################################################

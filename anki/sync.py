@@ -105,6 +105,7 @@ class Syncer(object):
         # step 1: login & metadata
         runHook("sync", "login")
         meta = self.server.meta()
+        self.col.log("rmeta", meta)
         if not meta:
             return "badAuth"
         rscm = meta['scm']
@@ -125,19 +126,24 @@ class Syncer(object):
             # and require confirmation if it's non-empty
             pass
         meta = self.meta()
+        self.col.log("lmeta", meta)
         self.lmod = meta['mod']
         self.minUsn = meta['usn']
         lscm = meta['scm']
         lts = meta['ts']
         if abs(rts - lts) > 300:
+            self.col.log("clock off")
             return "clockOff"
         if self.lmod == self.rmod:
+            self.col.log("no changes")
             return "noChanges"
         elif lscm != rscm:
+            self.col.log("schema diff")
             return "fullSync"
         self.lnewer = self.lmod > self.rmod
         # step 1.5: check collection is valid
         if not self.col.basicCheck():
+            self.col.log("basic check")
             return "basicCheckFailed"
         # step 2: deletions
         runHook("sync", "meta")
@@ -154,6 +160,7 @@ class Syncer(object):
         while 1:
             runHook("sync", "stream")
             chunk = self.server.chunk()
+            self.col.log("server chunk", chunk)
             self.applyChunk(chunk=chunk)
             if chunk['done']:
                 break
@@ -162,6 +169,7 @@ class Syncer(object):
         while 1:
             runHook("sync", "stream")
             chunk = self.chunk()
+            self.col.log("client chunk", chunk)
             self.server.applyChunk(chunk=chunk)
             if chunk['done']:
                 break
@@ -478,6 +486,7 @@ from notes where %s""" % d)
         for r in data:
             if r[0] not in lmods or lmods[r[0]] < r[modIdx]:
                 update.append(r)
+        self.col.log(table, data)
         return update
 
     def mergeCards(self, cards):
