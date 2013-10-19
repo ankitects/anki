@@ -17,9 +17,11 @@ from hooks import runHook
 import anki
 
 # syncing vars
-httplib2.RETRIES = 0
 HTTP_TIMEOUT = 90
 HTTP_PROXY = None
+
+# badly named; means no retries, and doesn't affect ssl connections
+httplib2.RETRIES = 1
 
 try:
     # httplib2 >=0.7.7
