@@ -3,9 +3,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import division
-import time, random, itertools
+import time
+import random
+import itertools
 from operator import itemgetter
 from heapq import *
+
 #from anki.cards import Card
 from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _
@@ -52,6 +55,7 @@ class Scheduler(object):
         self._haveQueues = True
 
     def answerCard(self, card, ease):
+        self.col.log()
         assert ease >= 1 and ease <= 4
         self.col.markReview(card)
         if self._burySiblingsOnAnswer:
@@ -139,14 +143,19 @@ order by due""" % self._deckLimit(),
     def unburyCards(self):
         "Unbury cards."
         self.col.conf['lastUnburied'] = self.today
+        self.col.log(
+            self.col.db.list("select id from cards where queue = -2"))
         self.col.db.execute(
-            "update cards set mod=?,usn=?,queue=type where queue = -2",
-            intTime(), self.col.usn())
+            "update cards set queue=type where queue = -2")
 
     def unburyCardsForDeck(self):
+        sids = ids2str(self.col.decks.active())
+        self.col.log(
+            self.col.db.list("select id from cards where queue = -2 and did in %s"
+                             % sids))
         self.col.db.execute(
             "update cards set mod=?,usn=?,queue=type where queue = -2 and did in %s"
-            % ids2str(self.col.decks.active()), intTime(), self.col.usn())
+            % sids, intTime(), self.col.usn())
 
     # Rev/lrn/time daily stats
     ##########################################################################
@@ -943,12 +952,14 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             ids = []
             return ids
         # move the cards over
+        self.col.log(deck['id'], ids)
         self._moveToDyn(deck['id'], ids)
         return ids
 
     def emptyDyn(self, did, lim=None):
         if not lim:
             lim = "did = %s" % did
+        self.col.log(self.col.db.list("select id from cards where %s" % lim))
         # move out of cram queue
         self.col.db.execute("""
 update cards set did = odid, queue = (case when type = 1 then 0
@@ -1111,6 +1122,7 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
         self.today = int((time.time() - self.col.crt) // 86400)
         # end of day cutoff
         self.dayCutoff = self.col.crt + (self.today+1)*86400
+        self.col.log(self.today, self.dayCutoff)
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
         def update(g):
@@ -1239,6 +1251,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def suspendCards(self, ids):
         "Suspend cards."
+        self.col.log(ids)
         self.remFromDyn(ids)
         self.removeLrn(ids)
         self.col.db.execute(
@@ -1247,6 +1260,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def unsuspendCards(self, ids):
         "Unsuspend cards."
+        self.col.log(ids)
         self.col.db.execute(
             "update cards set queue=type,mod=?,usn=? "
             "where queue = -1 and id in "+ ids2str(ids),
@@ -1256,6 +1270,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         "Bury all cards for note until next session."
         cids = self.col.db.list(
             "select id from cards where nid = ? and queue >= 0", nid)
+        self.col.log(cids)
         self.removeLrn(cids)
         self.col.db.execute("""
 update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
@@ -1266,15 +1281,19 @@ update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
 
     def _burySiblings(self, card):
         toBury = []
-        conf = self._newConf(card)
-        buryNew = conf.get("bury", True)
+        nconf = self._newConf(card)
+        buryNew = nconf.get("bury", True)
+        rconf = self._revConf(card)
+        buryRev = rconf.get("bury", True)
         # loop through and remove from queues
         for cid,queue in self.col.db.execute("""
 select id, queue from cards where nid=? and id!=?
 and (queue=0 or (queue=2 and due<=?))""",
                 card.nid, card.id, self.today):
             if queue == 2:
-                toBury.append(cid)
+                if buryRev:
+                    toBury.append(cid)
+                # if bury disabled, we still discard to give same-day spacing
                 try:
                     self._revQueue.remove(cid)
                 except ValueError:
@@ -1288,9 +1307,11 @@ and (queue=0 or (queue=2 and due<=?))""",
                 except ValueError:
                     pass
         # then bury
-        self.col.db.execute(
-            "update cards set queue=-2,mod=?,usn=? where id in "+ids2str(toBury),
-            intTime(), self.col.usn())
+        if toBury:
+            self.col.db.execute(
+                "update cards set queue=-2,mod=?,usn=? where id in "+ids2str(toBury),
+                intTime(), self.col.usn())
+            self.col.log(toBury)
 
     # Resetting
     ##########################################################################
@@ -1304,6 +1325,7 @@ and (queue=0 or (queue=2 and due<=?))""",
             "select max(due) from cards where type=0") or 0
         # takes care of mod + usn
         self.sortCards(ids, start=pmax+1)
+        self.col.log(ids)
 
     def reschedCards(self, ids, imin, imax):
         "Put cards in review queue with a new interval in days (min, max)."
@@ -1319,6 +1341,7 @@ and (queue=0 or (queue=2 and due<=?))""",
 update cards set type=2,queue=2,ivl=:ivl,due=:due,
 usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0 and queue >=0""",
                                 d)
+        self.col.log(ids)
 
     def resetCards(self, ids):
         "Completely reset cards for export."
@@ -1328,6 +1351,7 @@ usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0 and queue >=0""",
         self.col.db.execute(
             "update cards set reps=0, lapses=0 where id in " + ids2str(nonNew))
         self.forgetCards(nonNew)
+        self.col.log(ids)
 
     # Repositioning new cards
     ##########################################################################
@@ -1370,6 +1394,7 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
             d.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
         self.col.db.executemany(
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d)
+        self.col.log(cids)
 
     def randomizeCards(self, did):
         cids = self.col.db.list("select id from cards where did = ?", did)

@@ -51,6 +51,7 @@ class _Collection(object):
     def __init__(self, db, server=False):
         self.db = db
         self.path = db._path
+        self.log(self.path, anki.version)
         self.server = server
         self._lastSave = time.time()
         self.clearUndo()
@@ -204,8 +205,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Object creation helpers
     ##########################################################################
 
-    def getCard(self, id):
-        return anki.cards.Card(self, id)
+    def getCard(self, id, log=True):
+        c = anki.cards.Card(self, id)
+        if log:
+            self.log(c, stack=1)
+        return c
 
     def getNote(self, id):
         return anki.notes.Note(self, id=id)
@@ -767,3 +771,9 @@ and queue = 0""", intTime(), self.usn())
         self.db.execute("vacuum")
         self.db.execute("analyze")
         self.lock()
+
+    # Logging
+    ##########################################################################
+
+    def log(self, *args, **kwargs):
+        runHook("log", args, kwargs)

@@ -271,13 +271,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="revplim">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_33">
            <property name="text">
@@ -289,25 +282,6 @@
           <widget class="QLabel" name="label_37">
            <property name="text">
             <string>Maximum reviews/day</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="fi1">
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>0.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>100.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -332,6 +306,39 @@
           <widget class="QLabel" name="label_23">
            <property name="text">
             <string>days</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="revplim">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="fi1">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>100.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="3">
+          <widget class="QCheckBox" name="buryRev">
+           <property name="text">
+            <string>Bury related reviews until the next day</string>
            </property>
           </widget>
          </item>
@@ -616,6 +623,7 @@
   <tabstop>easyBonus</tabstop>
   <tabstop>fi1</tabstop>
   <tabstop>maxIvl</tabstop>
+  <tabstop>buryRev</tabstop>
   <tabstop>lapSteps</tabstop>
   <tabstop>lapMult</tabstop>
   <tabstop>lapMinInt</tabstop>

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import pprint
 
 import time
 from anki.utils import intTime, timestampID, joinFields
@@ -106,6 +107,7 @@ insert or replace into cards values
             self.odid,
             self.flags,
             self.data)
+        self.col.log(self)
 
     def flushSched(self):
         self.mod = intTime()
@@ -121,6 +123,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self.mod, self.usn, self.type, self.queue, self.due, self.ivl,
             self.factor, self.reps, self.lapses,
             self.left, self.odue, self.odid, self.did, self.id)
+        self.col.log(self)
 
     def q(self, reload=False, browser=False):
         return self.css() + self._getQA(reload, browser)['q']
@@ -180,3 +183,12 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self.model(), joinFields(self.note().fields))
         if self.ord not in ords:
             return True
+
+    def __repr__(self):
+        d = dict(self.__dict__)
+        # remove non-useful elements
+        del d['_note']
+        del d['_qa']
+        del d['col']
+        del d['timerStarted']
+        return pprint.pformat(d, width=300)

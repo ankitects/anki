@@ -1,13 +1,13 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from anki.consts import NEW_CARDS_RANDOM
+from operator import itemgetter
 
+from anki.consts import NEW_CARDS_RANDOM
 from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
     tooltip
-from operator import itemgetter
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):
@@ -189,6 +189,7 @@ class DeckConf(QDialog):
         f.fi1.setValue(c['ivlFct']*100)
         f.maxIvl.setValue(c['maxIvl'])
         f.revplim.setText(self.parentLimText('rev'))
+        f.buryRev.setChecked(c.get("bury", True))
         # lapse
         c = self.conf['lapse']
         f.lapSteps.setText(self.listToUser(c['delays']))
@@ -270,6 +271,7 @@ class DeckConf(QDialog):
         c['ease4'] = f.easyBonus.value()/100.0
         c['ivlFct'] = f.fi1.value()/100.0
         c['maxIvl'] = f.maxIvl.value()
+        c['bury'] = f.buryRev.isChecked()
         # lapse
         c = self.conf['lapse']
         self.updateList(c, 'delays', f.lapSteps, minSize=0)

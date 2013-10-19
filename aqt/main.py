@@ -2,19 +2,29 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, sys, re, traceback, signal
+import os
+import pprint
+import sys
+import re
+import traceback
+import signal
 import  zipfile
+
 from send2trash import send2trash
 from aqt.qt import *
-
 from anki import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str
-from anki.hooks import runHook, addHook
 
-import aqt, aqt.progress, aqt.webview, aqt.toolbar, aqt.stats
+from anki.hooks import runHook, addHook
+import aqt
+import aqt.progress
+import aqt.webview
+import aqt.toolbar
+import aqt.stats
 from aqt.utils import  restoreGeom, showInfo, showWarning,\
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
+
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -159,7 +169,6 @@ class AnkiQt(QMainWindow):
         return True
 
     def profileNameOk(self, str):
-        from anki.utils import invalidFilename, invalidFilenameChars
         return not checkInvalidFilename(str)
 
     def onAddProfile(self):
@@ -261,7 +270,8 @@ To import into a password protected profile, please open the profile before atte
             showWarning("""\
 Your collection is corrupt. Please see the manual for \
 how to restore from a backup.""")
-            return self.unloadProfile()
+            self.unloadProfile()
+            raise
         self.hideSchemaMsg = False
         self.progress.setupDB(self.col.db)
         self.maybeEnableUndo()
@@ -829,6 +839,7 @@ the problem and restart Anki.""")
     def setupHooks(self):
         addHook("modSchema", self.onSchemaMod)
         addHook("remNotes", self.onRemNotes)
+        addHook("log", self.onLog)
 
     # Log note deletion
     ##########################################################################
@@ -845,6 +856,23 @@ the problem and restart Anki.""")
                 fields = splitFields(flds)
                 f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
                 f.write("\n")
+
+    # Debug logging
+    ##########################################################################
+
+    def onLog(self, args, kwargs):
+        def customRepr(x):
+            if isinstance(x, basestring):
+                return x
+            return pprint.pformat(x)
+        path, num, fn, y = traceback.extract_stack(
+            limit=4+kwargs.get("stack", 0))[0]
+        buf = u"[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
+            ", ".join([customRepr(x) for x in args]))
+        lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
+        open(lpath, "ab").write(buf.encode("utf8") + "\n")
+        if os.environ.get("LOG"):
+            print buf
 
     # Schema modifications
     ##########################################################################
@@ -1051,6 +1079,8 @@ will be lost. Continue?"""))
         elif isWin:
             # make sure ctypes is bundled
             from ctypes import windll, wintypes
+            _dummy = windll
+            _dummy = wintypes
 
     def maybeHideAccelerators(self, tgt=None):
         if not self.hideMenuAccels:
@@ -1076,6 +1106,10 @@ will be lost. Continue?"""))
         self.connect(self.app, SIGNAL("appMsg"), self.onAppMsg)
 
     def onAppMsg(self, buf):
+        if not isinstance(buf, unicode):
+            # even though we're sending this as unicode up above,
+            # a bug report still came in that we were receiving a qbytearray
+            buf = unicode(buf, "utf8", "ignore")
         if self.state == "startup":
             # try again in a second
             return self.progress.timer(1000, lambda: self.onAppMsg(buf), False)
