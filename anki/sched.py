@@ -146,8 +146,7 @@ order by due""" % self._deckLimit(),
         self.col.log(
             self.col.db.list("select id from cards where queue = -2"))
         self.col.db.execute(
-            "update cards set mod=?,usn=?,queue=type where queue = -2",
-            intTime(), self.col.usn())
+            "update cards set queue=type where queue = -2")
 
     def unburyCardsForDeck(self):
         sids = ids2str(self.col.decks.active())
