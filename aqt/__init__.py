@@ -156,7 +156,10 @@ class AnkiApp(QApplication):
         if not sock.waitForReadyRead(self.TMOUT):
             sys.stderr.write(sock.errorString())
             return
-        buf = sock.readAll()
+        # buf = sock.readAll()
+        #This change should enable import .apkg through double-click 
+        # on a Anki Package with non-ASCII characters in its path.
+        buf = unicode(sock.readAll(),sys.getfilesystemencoding())
         self.emit(SIGNAL("appMsg"), buf)
         sock.disconnectFromServer()
 
