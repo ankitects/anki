@@ -6,6 +6,7 @@
 
 from ctypes import windll, Structure, byref, c_uint
 from ctypes.wintypes import HWND, UINT, LPCWSTR, BOOL
+import os
 import os.path as op
 
 shell32 = windll.shell32
