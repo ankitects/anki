@@ -808,16 +808,23 @@ title="%s">%s</button>''' % (
     def newMsg(self, data):
         aqt.update.showMessages(self, data)
 
-    def clockIsOff(self):
-        showWarning("""\
+    def clockIsOff(self, diff):
+        warn = _("""\
 In order to ensure your collection works correctly when moved between \
-devices, Anki requires the system clock to be set correctly. Your system \
-clock appears to be wrong by more than 5 minutes.
+devices, Anki requires your computer's internal clock to be set correctly. \
+The internal clock can be wrong even if your system is showing the correct \
+local time.
 
-This can be because the \
-clock is slow or fast, because the date is set incorrectly, or because \
-the timezone or daylight savings information is incorrect. Please correct \
-the problem and restart Anki.""")
+Please go to the time settings on your computer and check the following:
+
+- AM/PM
+- Clock drift
+- Day, month and year
+- Timezone
+- Daylight savings
+
+Difference to correct time: %d seconds.""") % diff
+        showWarning(warn)
         self.app.closeAllWindows()
 
     # Count refreshing

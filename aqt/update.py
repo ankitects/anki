@@ -1,13 +1,16 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import urllib
+import urllib2
+import time
+
 from aqt.qt import *
-import urllib, urllib2, time
 import aqt
-import platform
 from aqt.utils import openLink
-from anki.utils import json, isWin, isMac, platDesc
+from anki.utils import json, platDesc
 from aqt.utils import showText
+
 
 class LatestVersionFinder(QThread):
 
@@ -45,7 +48,7 @@ class LatestVersionFinder(QThread):
             self.emit(SIGNAL("newVerAvail"), resp['ver'])
         diff = resp['time'] - time.time()
         if abs(diff) > 300:
-            self.emit(SIGNAL("clockIsOff"))
+            self.emit(SIGNAL("clockIsOff"), diff)
 
 def askAndUpdate(mw, ver):
     baseStr = (
