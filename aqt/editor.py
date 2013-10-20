@@ -779,7 +779,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         except Exception, e:
             showWarning(_(
                 "Couldn't record audio. Have you installed lame and sox?") +
-                        "\n\n" + unicode(e))
+                        "\n\n" + repr(str(e)))
             return
         self.addMedia(file)
 

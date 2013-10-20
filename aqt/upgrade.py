@@ -259,16 +259,16 @@ class UpgradeThread(QThread):
         try:
             self.maybeCopyFromCustomFolder(path)
         except Exception, e:
-            imp.log.append(unicode(e))
+            imp.log.append(repr(str(e)))
         # then run the import
         try:
             imp.run()
         except Exception, e:
-            if unicode(e) == "invalidFile":
+            if repr(str(e)) == "invalidFile":
                 # already logged
                 pass
             else:
-                imp.log.append(unicode(e))
+                imp.log.append(repr(str(e)))
         self.col.save()
         return imp.log
 
