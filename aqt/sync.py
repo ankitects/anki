@@ -447,7 +447,7 @@ httplib.HTTPConnection.send = _incrementalSend
 
 # receiving in httplib2
 def _conn_request(self, conn, request_uri, method, body, headers):
-    for i in range(2):
+    for i in range(httplib2.RETRIES):
         try:
             if conn.sock is None:
               conn.connect()
