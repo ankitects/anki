@@ -1,10 +1,15 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import getpass
+import os
+import sys
+import optparse
+import tempfile
+import __builtin__
+import locale
+import gettext
 
-import os, sys, optparse, atexit, tempfile, __builtin__
 from aqt.qt import *
-import locale, gettext
 import anki.lang
 from anki.consts import HELP_SITE
 from anki.lang import langDir
@@ -157,6 +162,7 @@ class AnkiApp(QApplication):
             sys.stderr.write(sock.errorString())
             return
         buf = sock.readAll()
+        buf = unicode(buf, sys.getfilesystemencoding(), "ignore")
         self.emit(SIGNAL("appMsg"), buf)
         sock.disconnectFromServer()
 

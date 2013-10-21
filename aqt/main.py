@@ -64,7 +64,7 @@ class AnkiQt(QMainWindow):
                     "syncing and add-on loading."))
         # were we given a file to import?
         if args and args[0]:
-            self.onAppMsg(unicode(args[0], "utf8", "ignore"))
+            self.onAppMsg(unicode(args[0], sys.getfilesystemencoding(), "ignore"))
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
         self.progress.timer(10, self.setupProfile, False)
@@ -1113,10 +1113,6 @@ will be lost. Continue?"""))
         self.connect(self.app, SIGNAL("appMsg"), self.onAppMsg)
 
     def onAppMsg(self, buf):
-        if not isinstance(buf, unicode):
-            # even though we're sending this as unicode up above,
-            # a bug report still came in that we were receiving a qbytearray
-            buf = unicode(buf, "utf8", "ignore")
         if self.state == "startup":
             # try again in a second
             return self.progress.timer(1000, lambda: self.onAppMsg(buf), False)
