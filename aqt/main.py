@@ -809,6 +809,7 @@ title="%s">%s</button>''' % (
         aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff):
+        diffText = ngettext("%s second", "%s seconds", diff)
         warn = _("""\
 In order to ensure your collection works correctly when moved between \
 devices, Anki requires your computer's internal clock to be set correctly. \
@@ -823,7 +824,7 @@ Please go to the time settings on your computer and check the following:
 - Timezone
 - Daylight savings
 
-Difference to correct time: %d seconds.""") % diff
+Difference to correct time: %s.""") % diffText
         showWarning(warn)
         self.app.closeAllWindows()
 
