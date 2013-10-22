@@ -945,7 +945,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     def _fillDyn(self, deck):
         search, limit, order = deck['terms'][0]
         orderlimit = self._dynOrder(order, limit)
-        search += " -is:suspended -deck:filtered"
+        search += " -is:suspended -is:buried -deck:filtered"
         try:
             ids = self.col.findCards(search, order=orderlimit)
         except:
