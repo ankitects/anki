@@ -229,7 +229,12 @@ Are you sure?""")):
         self.activateWindow()
         self.raise_()
         # maybe sync (will load DB)
-        self.onSync(auto=True)
+        if self.pendingImport and os.path.basename(
+                self.pendingImport).startswith("backup-"):
+            # skip sync when importing a backup
+            self.loadCollection()
+        else:
+            self.onSync(auto=True)
         # import pending?
         if self.pendingImport:
             if self.pm.profile['key']:
