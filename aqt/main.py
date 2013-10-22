@@ -290,7 +290,10 @@ how to restore from a backup.""")
                 return
             self.maybeOptimize()
             self.progress.start(immediate=True)
-            corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+            if os.getenv("ANKIDEV", 0):
+                corrupt = False
+            else:
+                corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
             if corrupt:
                 showWarning(_("Your collection file appears to be corrupt. \
 This can happen when the file is copied or moved while Anki is open, or \
@@ -309,7 +312,7 @@ the manual for information on how to restore from an automatic backup."))
 
     def backup(self):
         nbacks = self.pm.profile['numBackups']
-        if not nbacks:
+        if not nbacks or os.getenv("ANKIDEV", 0):
             return
         dir = self.pm.backupFolder()
         path = self.pm.collectionPath()
