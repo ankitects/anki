@@ -45,7 +45,10 @@ class MediaManager(object):
         except OSError:
             # cwd doesn't exist
             self._oldcwd = None
-        os.chdir(self._dir)
+        try:
+            os.chdir(self._dir)
+        except OSError:
+            raise Exception("invalidTempFolder")
         # change database
         self.connect()
 

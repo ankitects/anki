@@ -24,7 +24,7 @@ import aqt.stats
 from aqt.utils import  restoreGeom, showInfo, showWarning,\
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
-
+import anki.db
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -270,11 +270,20 @@ To import into a password protected profile, please open the profile before atte
         self.hideSchemaMsg = True
         try:
             self.col = Collection(self.pm.collectionPath())
-        except:
+        except anki.db.Error:
             # move back to profile manager
             showWarning("""\
 Your collection is corrupt. Please see the manual for \
 how to restore from a backup.""")
+            self.unloadProfile()
+            raise
+        except Exception, e:
+            # the custom exception handler won't catch this if we immediately
+            # unload, so we have to manually handle it
+            if "invalidTempFolder" in repr(str(e)):
+                showWarning(self.errorHandler.tempFolderMsg())
+                self.unloadProfile()
+                return
             self.unloadProfile()
             raise
         self.hideSchemaMsg = False
