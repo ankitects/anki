@@ -24,7 +24,7 @@ import aqt.stats
 from aqt.utils import  restoreGeom, showInfo, showWarning,\
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
-
+import anki.db
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -64,7 +64,7 @@ class AnkiQt(QMainWindow):
                     "syncing and add-on loading."))
         # were we given a file to import?
         if args and args[0]:
-            self.onAppMsg(unicode(args[0], "utf8", "ignore"))
+            self.onAppMsg(unicode(args[0], sys.getfilesystemencoding(), "ignore"))
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
         self.progress.timer(10, self.setupProfile, False)
@@ -229,7 +229,12 @@ Are you sure?""")):
         self.activateWindow()
         self.raise_()
         # maybe sync (will load DB)
-        self.onSync(auto=True)
+        if self.pendingImport and os.path.basename(
+                self.pendingImport).startswith("backup-"):
+            # skip sync when importing a backup
+            self.loadCollection()
+        else:
+            self.onSync(auto=True)
         # import pending?
         if self.pendingImport:
             if self.pm.profile['key']:
@@ -265,11 +270,20 @@ To import into a password protected profile, please open the profile before atte
         self.hideSchemaMsg = True
         try:
             self.col = Collection(self.pm.collectionPath())
-        except:
+        except anki.db.Error:
             # move back to profile manager
             showWarning("""\
 Your collection is corrupt. Please see the manual for \
 how to restore from a backup.""")
+            self.unloadProfile()
+            raise
+        except Exception, e:
+            # the custom exception handler won't catch this if we immediately
+            # unload, so we have to manually handle it
+            if "invalidTempFolder" in repr(str(e)):
+                showWarning(self.errorHandler.tempFolderMsg())
+                self.unloadProfile()
+                return
             self.unloadProfile()
             raise
         self.hideSchemaMsg = False
@@ -290,7 +304,10 @@ how to restore from a backup.""")
                 return
             self.maybeOptimize()
             self.progress.start(immediate=True)
-            corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+            if os.getenv("ANKIDEV", 0):
+                corrupt = False
+            else:
+                corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
             if corrupt:
                 showWarning(_("Your collection file appears to be corrupt. \
 This can happen when the file is copied or moved while Anki is open, or \
@@ -309,7 +326,7 @@ the manual for information on how to restore from an automatic backup."))
 
     def backup(self):
         nbacks = self.pm.profile['numBackups']
-        if not nbacks:
+        if not nbacks or os.getenv("ANKIDEV", 0):
             return
         dir = self.pm.backupFolder()
         path = self.pm.collectionPath()
@@ -808,16 +825,24 @@ title="%s">%s</button>''' % (
     def newMsg(self, data):
         aqt.update.showMessages(self, data)
 
-    def clockIsOff(self):
-        showWarning("""\
+    def clockIsOff(self, diff):
+        diffText = ngettext("%s second", "%s seconds", diff)
+        warn = _("""\
 In order to ensure your collection works correctly when moved between \
-devices, Anki requires the system clock to be set correctly. Your system \
-clock appears to be wrong by more than 5 minutes.
+devices, Anki requires your computer's internal clock to be set correctly. \
+The internal clock can be wrong even if your system is showing the correct \
+local time.
 
-This can be because the \
-clock is slow or fast, because the date is set incorrectly, or because \
-the timezone or daylight savings information is incorrect. Please correct \
-the problem and restart Anki.""")
+Please go to the time settings on your computer and check the following:
+
+- AM/PM
+- Clock drift
+- Day, month and year
+- Timezone
+- Daylight savings
+
+Difference to correct time: %s.""") % diffText
+        showWarning(warn)
         self.app.closeAllWindows()
 
     # Count refreshing
@@ -1106,10 +1131,6 @@ will be lost. Continue?"""))
         self.connect(self.app, SIGNAL("appMsg"), self.onAppMsg)
 
     def onAppMsg(self, buf):
-        if not isinstance(buf, unicode):
-            # even though we're sending this as unicode up above,
-            # a bug report still came in that we were receiving a qbytearray
-            buf = unicode(buf, "utf8", "ignore")
         if self.state == "startup":
             # try again in a second
             return self.progress.timer(1000, lambda: self.onAppMsg(buf), False)

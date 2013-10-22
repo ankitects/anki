@@ -945,7 +945,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     def _fillDyn(self, deck):
         search, limit, order = deck['terms'][0]
         orderlimit = self._dynOrder(order, limit)
-        search += " -is:suspended -deck:filtered"
+        search += " -is:suspended -is:buried -deck:filtered"
         try:
             ids = self.col.findCards(search, order=orderlimit)
         except:
@@ -1266,15 +1266,18 @@ To study outside of the normal schedule, click the Custom Study button below."""
             "where queue = -1 and id in "+ ids2str(ids),
             intTime(), self.col.usn())
 
-    def buryNote(self, nid):
-        "Bury all cards for note until next session."
-        cids = self.col.db.list(
-            "select id from cards where nid = ? and queue >= 0", nid)
+    def buryCards(self, cids):
         self.col.log(cids)
         self.removeLrn(cids)
         self.col.db.execute("""
 update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
                             intTime(), self.col.usn())
+
+    def buryNote(self, nid):
+        "Bury all cards for note until next session."
+        cids = self.col.db.list(
+            "select id from cards where nid = ? and queue >= 0", nid)
+        self.buryCards(cids)
 
     # Sibling spacing
     ##########################################################################

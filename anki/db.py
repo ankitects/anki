@@ -2,11 +2,15 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, time
+import os
+import time
+
 try:
     from pysqlite2 import dbapi2 as sqlite
 except ImportError:
     from sqlite3 import dbapi2 as sqlite
+
+Error = sqlite.Error
 
 class DB(object):
     def __init__(self, path, text=None, timeout=0):

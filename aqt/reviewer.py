@@ -3,9 +3,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import division
-import    difflib, re, cgi
+import difflib
+import re
+import cgi
 import unicodedata as ucd
 import HTMLParser
+
 from anki.lang import _, ngettext
 from aqt.qt import *
 from anki.utils import  stripHTML, isMac, json
@@ -14,6 +17,7 @@ from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, getBase, openLink, tooltip, askUserDialog
 from aqt.sound import getAudio
 import aqt
+
 
 class Reviewer(object):
     "Manage reviews.  Maintains a separate state."
@@ -285,8 +289,10 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             self.replayAudio()
         elif key == "*":
             self.onMark()
-        elif key == "-":
+        elif key == "=":
             self.onBuryNote()
+        elif key == "-":
+            self.onBuryCard()
         elif key == "!":
             self.onSuspend()
         elif key == "@":
@@ -678,7 +684,8 @@ function showAnswer(txt) {
     def showContextMenu(self):
         opts = [
             [_("Mark Note"), "*", self.onMark],
-            [_("Bury Note"), "-", self.onBuryNote],
+            [_("Bury Card"), "-", self.onBuryCard],
+            [_("Bury Note"), "=", self.onBuryNote],
             [_("Suspend Card"), "@", self.onSuspendCard],
             [_("Suspend Note"), "!", self.onSuspend],
             [_("Delete Note"), "Delete", self.onDelete],
@@ -739,6 +746,12 @@ function showAnswer(txt) {
             "Note and its %d card deleted.",
             "Note and its %d cards deleted.",
             cnt) % cnt)
+
+    def onBuryCard(self):
+        self.mw.checkpoint(_("Bury"))
+        self.mw.col.sched.buryCards([self.card.id])
+        self.mw.reset()
+        tooltip(_("Card buried."))
 
     def onBuryNote(self):
         self.mw.checkpoint(_("Bury"))

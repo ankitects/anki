@@ -275,6 +275,10 @@ class SyncThread(QThread):
         self.media = media
 
     def run(self):
+        # init this first so an early crash doesn't cause an error
+        # in the main thread
+        self.syncMsg = ""
+        self.uname = ""
         try:
             self.col = Collection(self.path)
         except:
@@ -282,8 +286,6 @@ class SyncThread(QThread):
             return
         self.server = RemoteServer(self.hkey)
         self.client = Syncer(self.col, self.server)
-        self.syncMsg = ""
-        self.uname = ""
         self.sentTotal = 0
         self.recvTotal = 0
         # throttle updates; qt doesn't handle lots of posted events well
@@ -447,7 +449,7 @@ httplib.HTTPConnection.send = _incrementalSend
 
 # receiving in httplib2
 def _conn_request(self, conn, request_uri, method, body, headers):
-    for i in range(2):
+    for i in range(httplib2.RETRIES):
         try:
             if conn.sock is None:
               conn.connect()

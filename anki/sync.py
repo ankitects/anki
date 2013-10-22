@@ -20,7 +20,7 @@ import anki
 HTTP_TIMEOUT = 90
 HTTP_PROXY = None
 
-# badly named; means no retries, and doesn't affect ssl connections
+# badly named; means no retries
 httplib2.RETRIES = 1
 
 try:

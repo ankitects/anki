@@ -2,17 +2,19 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
 import re
+
+from aqt.qt import *
 from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA,\
     showInfo, askUser, getOnlyText, \
-     showWarning, openHelp, openLink
+     showWarning, openHelp
 from anki.utils import isMac, isWin, joinFields
 from aqt.webview import AnkiWebView
 import anki.js
+
 
 class CardLayout(QDialog):
 
@@ -135,7 +137,7 @@ class CardLayout(QDialog):
             return showInfo(_("At least one card type is required."))
         cards = self.mm.tmplUseCount(self.model, idx)
         cards = ngettext("%d card", "%d cards", cards) % cards
-        msg = _("Delete the '%(a)s' card type, and its %(b)s?" %
+        msg = (_("Delete the '%(a)s' card type, and its %(b)s?") %
             dict(a=self.model['tmpls'][idx]['name'], b=cards))
         if not askUser(msg):
             return
