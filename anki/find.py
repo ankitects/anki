@@ -23,6 +23,7 @@ class Finder(object):
             deck=self._findDeck,
             mid=self._findMid,
             nid=self._findNids,
+            cid=self._findCids,
             note=self._findModel,
             prop=self._findProp,
             rated=self._findRated,
@@ -334,6 +335,11 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         if re.search("[^0-9,]", val):
             return
         return "n.id in (%s)" % val
+
+    def _findCids(self, (val, args)):
+        if re.search("[^0-9,]", val):
+            return
+        return "c.id in (%s)" % val
 
     def _findMid(self, (val, args)):
         if re.search("[^0-9]", val):
