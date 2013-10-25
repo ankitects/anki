@@ -896,7 +896,7 @@ Difference to correct time: %s.""") % diffText
             ", ".join([customRepr(x) for x in args]))
         lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
         open(lpath, "ab").write(buf.encode("utf8") + "\n")
-        if os.environ.get("LOG"):
+        if os.environ.get("ANKIDEV"):
             print buf
 
     # Schema modifications
