@@ -205,11 +205,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Object creation helpers
     ##########################################################################
 
-    def getCard(self, id, log=True):
-        c = anki.cards.Card(self, id)
-        if log:
-            self.log(c, stack=1)
-        return c
+    def getCard(self, id):
+        return anki.cards.Card(self, id)
 
     def getNote(self, id):
         return anki.notes.Note(self, id=id)

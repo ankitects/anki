@@ -30,6 +30,7 @@ class Scheduler(object):
         self.queueLimit = 50
         self.reportLimit = 1000
         self.reps = 0
+        self.today = None
         self._haveQueues = False
         self._updateCutoff()
 
@@ -40,6 +41,7 @@ class Scheduler(object):
             self.reset()
         card = self._getCard()
         if card:
+            self.col.log(card)
             if not self._burySiblingsOnAnswer:
                 self._burySiblings(card)
             self.reps += 1
@@ -1118,11 +1120,13 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
     ##########################################################################
 
     def _updateCutoff(self):
+        oldToday = self.today
         # days since col created
         self.today = int((time.time() - self.col.crt) // 86400)
         # end of day cutoff
         self.dayCutoff = self.col.crt + (self.today+1)*86400
-        self.col.log(self.today, self.dayCutoff)
+        if oldToday != self.today:
+            self.col.log(self.today, self.dayCutoff)
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
         def update(g):

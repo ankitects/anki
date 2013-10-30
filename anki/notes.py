@@ -69,7 +69,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         return joinFields(self.fields)
 
     def cards(self):
-        return [self.col.getCard(id, log=False) for id in self.col.db.list(
+        return [self.col.getCard(id) for id in self.col.db.list(
             "select id from cards where nid = ? order by ord", self.id)]
 
     def model(self):
