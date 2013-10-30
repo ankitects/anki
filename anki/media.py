@@ -228,7 +228,7 @@ class MediaManager(object):
             nfcFile = unicodedata.normalize("NFC", file)
             # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
             # NFD so we use the above variable for comparing references
-            if not isMac and local:
+            if not isMac and not local:
                 if file != nfcFile:
                     # delete if we already have the NFC form, otherwise rename
                     if os.path.exists(nfcFile):
