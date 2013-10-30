@@ -49,7 +49,6 @@ class Scheduler(object):
             return card
 
     def reset(self):
-        deck = self.col.decks.current()
         self._updateCutoff()
         self._resetLrn()
         self._resetRev()
@@ -369,8 +368,12 @@ select id from cards where did = ? and queue = 0 limit ?""", did, lim)
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
-        # if count>0 but queue empty, the other cards were buried
-        self.newCount = 0
+        if self.newCount:
+            # if we didn't get a card but the count is non-zero,
+            # we need to check again for any cards that were
+            # removed from the queue but not buried
+            self._resetNew()
+            return self._fillNew()
 
     def _getNewCard(self):
         if self._fillNew():
@@ -774,8 +777,12 @@ did = ? and queue = 2 and due <= ? limit ?""",
                     return True
             # nothing left in the deck; move to next
             self._revDids.pop(0)
-        # if count>0 but queue empty, the other cards were buried
-        self.revCount = 0
+        if self.revCount:
+            # if we didn't get a card but the count is non-zero,
+            # we need to check again for any cards that were
+            # removed from the queue but not buried
+            self._resetRev()
+            return self._fillRev()
 
     def _getRevCard(self):
         if self._fillRev():
