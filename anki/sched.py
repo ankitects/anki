@@ -1359,11 +1359,17 @@ usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0 and queue >=0""",
 
     def resetCards(self, ids):
         "Completely reset cards for export."
+        sids = ids2str(ids)
+        # we want to avoid resetting due number of existing new cards on export
         nonNew = self.col.db.list(
             "select id from cards where id in %s and (queue != 0 or type != 0)"
-            % ids2str(ids))
+            % sids)
+        # reset all cards
         self.col.db.execute(
-            "update cards set reps=0, lapses=0 where id in " + ids2str(nonNew))
+            "update cards set reps=0,lapses=0,odid=0,odue=0"
+            " where id in %s" % sids
+        )
+        # and forget any non-new cards, changing their due numbers
         self.forgetCards(nonNew)
         self.col.log(ids)
 
