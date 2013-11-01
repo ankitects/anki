@@ -30,6 +30,7 @@ class Scheduler(object):
         self.queueLimit = 50
         self.reportLimit = 1000
         self.reps = 0
+        self.today = None
         self._haveQueues = False
         self._updateCutoff()
 
@@ -40,6 +41,7 @@ class Scheduler(object):
             self.reset()
         card = self._getCard()
         if card:
+            self.col.log(card)
             if not self._burySiblingsOnAnswer:
                 self._burySiblings(card)
             self.reps += 1
@@ -47,7 +49,6 @@ class Scheduler(object):
             return card
 
     def reset(self):
-        deck = self.col.decks.current()
         self._updateCutoff()
         self._resetLrn()
         self._resetRev()
@@ -361,14 +362,18 @@ did = ? and queue = 0 limit ?)""", did, lim)
             if lim:
                 # fill the queue with the current did
                 self._newQueue = self.col.db.list("""
-select id from cards where did = ? and queue = 0 limit ?""", did, lim)
+select id from cards where did = ? and queue = 0 order by due limit ?""", did, lim)
                 if self._newQueue:
                     self._newQueue.reverse()
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
-        # if count>0 but queue empty, the other cards were buried
-        self.newCount = 0
+        if self.newCount:
+            # if we didn't get a card but the count is non-zero,
+            # we need to check again for any cards that were
+            # removed from the queue but not buried
+            self._resetNew()
+            return self._fillNew()
 
     def _getNewCard(self):
         if self._fillNew():
@@ -772,8 +777,12 @@ did = ? and queue = 2 and due <= ? limit ?""",
                     return True
             # nothing left in the deck; move to next
             self._revDids.pop(0)
-        # if count>0 but queue empty, the other cards were buried
-        self.revCount = 0
+        if self.revCount:
+            # if we didn't get a card but the count is non-zero,
+            # we need to check again for any cards that were
+            # removed from the queue but not buried
+            self._resetRev()
+            return self._fillRev()
 
     def _getRevCard(self):
         if self._fillRev():
@@ -1118,11 +1127,13 @@ did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
     ##########################################################################
 
     def _updateCutoff(self):
+        oldToday = self.today
         # days since col created
         self.today = int((time.time() - self.col.crt) // 86400)
         # end of day cutoff
         self.dayCutoff = self.col.crt + (self.today+1)*86400
-        self.col.log(self.today, self.dayCutoff)
+        if oldToday != self.today:
+            self.col.log(self.today, self.dayCutoff)
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
         def update(g):
@@ -1348,11 +1359,17 @@ usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0 and queue >=0""",
 
     def resetCards(self, ids):
         "Completely reset cards for export."
+        sids = ids2str(ids)
+        # we want to avoid resetting due number of existing new cards on export
         nonNew = self.col.db.list(
             "select id from cards where id in %s and (queue != 0 or type != 0)"
-            % ids2str(ids))
+            % sids)
+        # reset all cards
         self.col.db.execute(
-            "update cards set reps=0, lapses=0 where id in " + ids2str(nonNew))
+            "update cards set reps=0,lapses=0,odid=0,odue=0"
+            " where id in %s" % sids
+        )
+        # and forget any non-new cards, changing their due numbers
         self.forgetCards(nonNew)
         self.col.log(ids)
 

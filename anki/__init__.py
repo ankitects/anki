@@ -2,7 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import sys, os, platform
+import sys
+import os
+import platform
 
 if sys.version_info[0] > 2:
     raise Exception("Anki should be run with Python 2")
@@ -28,6 +30,6 @@ if arch[1] == "ELF":
     sys.path.insert(0, os.path.join(ext, "py2.%d-%s" % (
         sys.version_info[1], arch[0][0:2])))
 
-version="2.0.15" # build scripts grep this line, so preserve formatting
+version="2.0.16" # build scripts grep this line, so preserve formatting
 from anki.storage import Collection
 __all__ = ["Collection"]

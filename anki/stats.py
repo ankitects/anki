@@ -356,7 +356,7 @@ group by day order by day""" % (self._limit(), lim),
             perMin = ngettext("%d card/minute", "%d cards/minute", perMin) % perMin
             self._line(
                 i, _("Average answer time"),
-                "%0.1fs (%s)" % ((tot*60)/total, perMin))
+                _("%(a)0.1fs (%(b)s)") % dict(a=(tot*60)/total, b=perMin))
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(self, data, spec):
