@@ -268,6 +268,7 @@ To import into a password protected profile, please open the profile before atte
 
     def loadCollection(self):
         self.hideSchemaMsg = True
+        self._openLog()
         try:
             self.col = Collection(self.pm.collectionPath())
         except anki.db.Error:
@@ -315,6 +316,7 @@ when the collection is stored on a network or cloud drive. Please see \
 the manual for information on how to restore from an automatic backup."))
             self.col.close()
             self.col = None
+            self._closeLog()
             if not corrupt:
                 self.backup()
             self.progress.finish()
@@ -894,10 +896,17 @@ Difference to correct time: %s.""") % diffText
             limit=4+kwargs.get("stack", 0))[0]
         buf = u"[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
             ", ".join([customRepr(x) for x in args]))
-        lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
-        open(lpath, "ab").write(buf.encode("utf8") + "\n")
+        self._logHnd.write(buf.encode("utf8") + "\n")
+        self._logHnd.flush()
         if os.environ.get("ANKIDEV"):
             print buf
+
+    def _openLog(self):
+        lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
+        self._logHnd = open(lpath, "ab")
+
+    def _closeLog(self):
+        self._logHnd = None
 
     # Schema modifications
     ##########################################################################
