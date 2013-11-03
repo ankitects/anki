@@ -316,7 +316,6 @@ when the collection is stored on a network or cloud drive. Please see \
 the manual for information on how to restore from an automatic backup."))
             self.col.close()
             self.col = None
-            self._closeLog()
             if not corrupt:
                 self.backup()
             self.progress.finish()
@@ -888,6 +887,8 @@ Difference to correct time: %s.""") % diffText
     ##########################################################################
 
     def onLog(self, args, kwargs):
+        if not self._logHnd:
+            return
         def customRepr(x):
             if isinstance(x, basestring):
                 return x
@@ -904,9 +905,6 @@ Difference to correct time: %s.""") % diffText
     def _openLog(self):
         lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
         self._logHnd = open(lpath, "ab")
-
-    def _closeLog(self):
-        self._logHnd = None
 
     # Schema modifications
     ##########################################################################
