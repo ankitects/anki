@@ -1366,7 +1366,7 @@ usn=:usn, mod=:mod, factor=:fact where id=:id and odid=0 and queue >=0""",
             % sids)
         # reset all cards
         self.col.db.execute(
-            "update cards set reps=0,lapses=0,odid=0,odue=0"
+            "update cards set reps=0,lapses=0,odid=0,odue=0,queue=0"
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
