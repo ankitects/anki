@@ -3,7 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
-import pprint
 import sys
 import re
 import traceback
@@ -32,6 +31,8 @@ class AnkiQt(QMainWindow):
         self.state = "startup"
         aqt.mw = self
         self.app = app
+        from anki.collection import _Collection
+        _Collection.debugLog = True
         if isWin:
             self._xpstyle = QStyleFactory.create("WindowsXP")
             self.app.setStyle(self._xpstyle)
@@ -864,7 +865,6 @@ Difference to correct time: %s.""") % diffText
     def setupHooks(self):
         addHook("modSchema", self.onSchemaMod)
         addHook("remNotes", self.onRemNotes)
-        addHook("log", self.onLog)
 
     # Log note deletion
     ##########################################################################
@@ -881,23 +881,6 @@ Difference to correct time: %s.""") % diffText
                 fields = splitFields(flds)
                 f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
                 f.write("\n")
-
-    # Debug logging
-    ##########################################################################
-
-    def onLog(self, args, kwargs):
-        def customRepr(x):
-            if isinstance(x, basestring):
-                return x
-            return pprint.pformat(x)
-        path, num, fn, y = traceback.extract_stack(
-            limit=4+kwargs.get("stack", 0))[0]
-        buf = u"[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
-            ", ".join([customRepr(x) for x in args]))
-        lpath = re.sub("\.anki2$", ".log", self.pm.collectionPath())
-        open(lpath, "ab").write(buf.encode("utf8") + "\n")
-        if os.environ.get("ANKIDEV"):
-            print buf
 
     # Schema modifications
     ##########################################################################
