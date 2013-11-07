@@ -449,70 +449,53 @@ httplib.HTTPConnection.send = _incrementalSend
 
 # receiving in httplib2
 def _conn_request(self, conn, request_uri, method, body, headers):
-    for i in range(httplib2.RETRIES):
-        try:
-            if conn.sock is None:
-              conn.connect()
-            conn.request(method, request_uri, body, headers)
-        except socket.timeout:
-            raise
-        except socket.gaierror:
-            conn.close()
-            raise httplib2.ServerNotFoundError(
-                "Unable to find the server at %s" % conn.host)
-        except httplib2.ssl_SSLError:
-            conn.close()
-            raise
-        except socket.error, e:
-            err = 0
-            if hasattr(e, 'args'):
-                err = getattr(e, 'args')[0]
-            else:
-                err = e.errno
-            if err == errno.ECONNREFUSED: # Connection refused
-                raise
-        except httplib.HTTPException:
-            # Just because the server closed the connection doesn't apparently mean
-            # that the server didn't send a response.
-            if conn.sock is None:
-                if i == 0:
-                    conn.close()
-                    conn.connect()
-                    continue
-                else:
-                    conn.close()
-                    raise
-            if i == 0:
-                conn.close()
-                conn.connect()
-                continue
-            pass
-        try:
-            response = conn.getresponse()
-        except (socket.error, httplib.HTTPException):
-            if i == 0:
-                conn.close()
-                conn.connect()
-                continue
-            else:
-                raise
+    try:
+        if conn.sock is None:
+          conn.connect()
+        conn.request(method, request_uri, body, headers)
+    except socket.timeout:
+        raise
+    except socket.gaierror:
+        conn.close()
+        raise httplib2.ServerNotFoundError(
+            "Unable to find the server at %s" % conn.host)
+    except httplib2.ssl_SSLError:
+        conn.close()
+        raise
+    except socket.error, e:
+        err = 0
+        if hasattr(e, 'args'):
+            err = getattr(e, 'args')[0]
         else:
-            content = ""
-            if method == "HEAD":
-                response.close()
-            else:
-                buf = StringIO()
-                while 1:
-                    data = response.read(CHUNK_SIZE)
-                    if not data:
-                        break
-                    buf.write(data)
-                    runHook("httpRecv", len(data))
-                content = buf.getvalue()
-            response = httplib2.Response(response)
-            if method != "HEAD":
-                content = httplib2._decompressContent(response, content)
-        break
+            err = e.errno
+        if err == errno.ECONNREFUSED: # Connection refused
+            raise
+    except httplib.HTTPException:
+        # Just because the server closed the connection doesn't apparently mean
+        # that the server didn't send a response.
+        if conn.sock is None:
+            conn.close()
+            raise
+    try:
+        response = conn.getresponse()
+    except (socket.error, httplib.HTTPException):
+        raise
+    else:
+        content = ""
+        if method == "HEAD":
+            response.close()
+        else:
+            buf = StringIO()
+            while 1:
+                data = response.read(CHUNK_SIZE)
+                if not data:
+                    break
+                buf.write(data)
+                runHook("httpRecv", len(data))
+            content = buf.getvalue()
+        response = httplib2.Response(response)
+        if method != "HEAD":
+            content = httplib2._decompressContent(response, content)
     return (response, content)
 
 httplib2.Http._conn_request = _conn_request
