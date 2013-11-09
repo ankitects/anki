@@ -167,6 +167,8 @@ you can enter it here. Use \\t to represent tab."""),
             err = repr(str(e))
             if "1-character string" in err:
                 msg += err
+            elif "invalidTempFolder" in err:
+                msg += self.mw.errorHandler.tempFolderMsg()
             else:
                 msg += unicode(traceback.format_exc(), "ascii", "replace")
             showText(msg)
