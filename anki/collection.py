@@ -695,6 +695,10 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
             self.remNotes(ids)
         # for each model
         for m in self.models.all():
+            # model with missing req specification
+            if 'req' not in m:
+                self.models._updateRequired(m)
+                problems.append(_("Fixed note type: %s") % m['name'])
             # cards with invalid ordinal
             if m['type'] == MODEL_STD:
                 ids = self.db.list("""
