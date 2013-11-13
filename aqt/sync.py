@@ -421,7 +421,7 @@ class SyncThread(QThread):
 ######################################################################
 
 CHUNK_SIZE = 65536
-import httplib, httplib2, errno
+import httplib, httplib2
 from cStringIO import StringIO
 from anki.hooks import runHook
 
@@ -448,6 +448,9 @@ def _incrementalSend(self, data):
 httplib.HTTPConnection.send = _incrementalSend
 
 # receiving in httplib2
+# this is an augmented version of httplib's request routine that:
+# - doesn't assume requests will be tried more than once
+# - calls a hook for each chunk of data so we can update the gui
 def _conn_request(self, conn, request_uri, method, body, headers):
     try:
         if conn.sock is None:
@@ -463,19 +466,11 @@ def _conn_request(self, conn, request_uri, method, body, headers):
         conn.close()
         raise
     except socket.error, e:
-        err = 0
-        if hasattr(e, 'args'):
-            err = getattr(e, 'args')[0]
-        else:
-            err = e.errno
-        if err == errno.ECONNREFUSED: # Connection refused
-            raise
+        conn.close()
+        raise
     except httplib.HTTPException:
-        # Just because the server closed the connection doesn't apparently mean
-        # that the server didn't send a response.
-        if conn.sock is None:
-            conn.close()
-            raise
+        conn.close()
+        raise
     try:
         response = conn.getresponse()
     except (socket.error, httplib.HTTPException):
