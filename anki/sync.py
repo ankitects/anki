@@ -752,6 +752,7 @@ class MediaSyncer(object):
         # back from sanity check to addFiles
         s = self.server.mediaSanity()
         c = self.mediaSanity()
+        self.col.log("mediaSanity", c, s)
         if c != s:
             # if the sanity check failed, force a resync
             self.col.media.forceResync()
