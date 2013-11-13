@@ -913,11 +913,16 @@ will be lost. Continue?"""))
 
     def onCheckMediaDB(self):
         self.progress.start(immediate=True)
-        (nohave, unused) = self.col.media.check()
+        (nohave, unused, invalid) = self.col.media.check()
         self.progress.finish()
         # generate report
         report = ""
+        if invalid:
+            report += _("Invalid encoding; please rename:")
+            report += "\n" + "\n".join(invalid)
         if unused:
+            if report:
+                report += "\n\n\n"
             report += _(
                 "In media folder but not used by any cards:")
             report += "\n" + "\n".join(unused)
