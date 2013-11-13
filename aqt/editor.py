@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from anki.lang import _
+import re
+import os
+import urllib2
+import ctypes
+import urllib
 
+from anki.lang import _
 from aqt.qt import *
-import re, os, urllib2, ctypes
 from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia
 import anki.sound
 from anki.hooks import runHook, runFilter
@@ -15,7 +19,6 @@ from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
 import aqt
 import anki.js
 from BeautifulSoup import BeautifulSoup
-import urllib
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg")
 audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv")
@@ -313,7 +316,8 @@ class Editor(object):
             b.setFixedHeight(20)
             b.setFixedWidth(20)
         if not native:
-            b.setStyle(self.plastiqueStyle)
+            if self.plastiqueStyle:
+               b.setStyle(self.plastiqueStyle)
             b.setFocusPolicy(Qt.NoFocus)
         else:
             b.setAutoDefault(False)
@@ -333,18 +337,22 @@ class Editor(object):
     def setupButtons(self):
         self._buttons = {}
         # button styles for mac
-        self.plastiqueStyle = QStyleFactory.create("plastique")
-        if not self.plastiqueStyle:
-            # plastique was removed in qt5
-            self.plastiqueStyle = QStyleFactory.create("fusion")
-        self.widget.setStyle(self.plastiqueStyle)
+        if not isMac:
+            self.plastiqueStyle = QStyleFactory.create("plastique")
+            if not self.plastiqueStyle:
+                # plastique was removed in qt5
+                self.plastiqueStyle = QStyleFactory.create("fusion")
+            self.widget.setStyle(self.plastiqueStyle)
+        else:
+            self.plastiqueStyle = None
         # icons
         self.iconsBox = QHBoxLayout()
         if not isMac:
             self.iconsBox.setMargin(6)
+            self.iconsBox.setSpacing(0)
         else:
             self.iconsBox.setMargin(0)
-        self.iconsBox.setSpacing(0)
+            self.iconsBox.setSpacing(14)
         self.outerLayout.addLayout(self.iconsBox)
         b = self._addButton
         b("fields", self.onFields, "",
