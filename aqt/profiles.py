@@ -6,8 +6,13 @@
 # - Saves in pickles rather than json to easily store Qt window state.
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
+import os
+import random
+import cPickle
+import locale
+import re
+
 from aqt.qt import *
-import os, random, cPickle, shutil, locale, re
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
 from anki.lang import langs
@@ -15,6 +20,7 @@ from aqt.utils import showWarning
 from aqt import appHelpSite
 import aqt.forms
 from send2trash import send2trash
+
 
 metaConf = dict(
     ver=0,
@@ -186,7 +192,6 @@ documentation for information on using a flash drive.""")
     def _loadMeta(self):
         path = os.path.join(self.base, "prefs.db")
         new = not os.path.exists(path)
-        self.db = DB(path, text=str)
         def recover():
             # if we can't load profile, start with a new one
             os.rename(path, path+".broken")
@@ -195,6 +200,7 @@ documentation for information on using a flash drive.""")
 Anki's prefs.db file was corrupt and has been recreated. If you were using multiple \
 profiles, please add them back using the same names to recover your cards.""")
         try:
+            self.db = DB(path, text=str)
             self.db.execute("""
 create table if not exists profiles
 (name text primary key, data text not null);""")
