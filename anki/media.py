@@ -213,6 +213,7 @@ class MediaManager(object):
             allRefs.update(noteRefs)
         # loop through media folder
         unused = []
+        invalid = []
         if local is None:
             files = os.listdir(mdir)
         else:
@@ -224,6 +225,9 @@ class MediaManager(object):
                     continue
             if file.startswith("_"):
                 # leading _ says to ignore file
+                continue
+            if not isinstance(file, unicode):
+                invalid.append(unicode(file, sys.getfilesystemencoding(), "replace"))
                 continue
             nfcFile = unicodedata.normalize("NFC", file)
             # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
@@ -242,7 +246,7 @@ class MediaManager(object):
             else:
                 allRefs.discard(nfcFile)
         nohave = [x for x in allRefs if not x.startswith("_")]
-        return (nohave, unused)
+        return (nohave, unused, invalid)
 
     def _normalizeNoteRefs(self, nid):
         note = self.col.getNote(nid)
@@ -336,6 +340,9 @@ class MediaManager(object):
         return re.sub(self._illegalCharReg, "", str)
 
     def hasIllegal(self, str):
+        # a file that couldn't be decoded to unicode is considered invalid
+        if not isinstance(str, unicode):
+            return False
         return not not re.search(self._illegalCharReg, str)
 
     # Media syncing - bundling zip files to send to server

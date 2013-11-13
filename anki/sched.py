@@ -1279,6 +1279,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def buryCards(self, cids):
         self.col.log(cids)
+        self.remFromDyn(cids)
         self.removeLrn(cids)
         self.col.db.execute("""
 update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
@@ -1414,7 +1415,6 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
             d.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
         self.col.db.executemany(
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d)
-        self.col.log(cids)
 
     def randomizeCards(self, did):
         cids = self.col.db.list("select id from cards where did = ?", did)

@@ -51,9 +51,8 @@ defaultConf = {
 # this is initialized by storage.Collection
 class _Collection(object):
 
-    debugLog = False
-
-    def __init__(self, db, server=False):
+    def __init__(self, db, server=False, log=False):
+        self._debugLog = log
         self.db = db
         self.path = db._path
         self._openLog()
@@ -695,8 +694,12 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
             self.remNotes(ids)
         # for each model
         for m in self.models.all():
-            # cards with invalid ordinal
             if m['type'] == MODEL_STD:
+                # model with missing req specification
+                if 'req' not in m:
+                    self.models._updateRequired(m)
+                    problems.append(_("Fixed note type: %s") % m['name'])
+                # cards with invalid ordinal
                 ids = self.db.list("""
 select id from cards where ord not in %s and nid in (
 select id from notes where mid = ?)""" %
@@ -779,7 +782,7 @@ and queue = 0""", intTime(), self.usn())
     ##########################################################################
 
     def log(self, *args, **kwargs):
-        if not self.debugLog:
+        if not self._debugLog:
             return
         def customRepr(x):
             if isinstance(x, basestring):
@@ -794,9 +797,14 @@ and queue = 0""", intTime(), self.usn())
             print buf
 
     def _openLog(self):
-        if not self.debugLog:
+        if not self._debugLog:
             return
         lpath = re.sub("\.anki2$", ".log", self.path)
+        if os.path.exists(lpath) and os.path.getsize(lpath) > 10*1024*1024:
+            lpath2 = lpath + ".old"
+            if os.path.exists(lpath2):
+                os.unlink(lpath2)
+            os.rename(lpath, lpath2)
         self._logHnd = open(lpath, "ab")
 
     def _closeLog(self):
