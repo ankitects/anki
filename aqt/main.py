@@ -31,8 +31,6 @@ class AnkiQt(QMainWindow):
         self.state = "startup"
         aqt.mw = self
         self.app = app
-        from anki.collection import _Collection
-        _Collection.debugLog = True
         if isWin:
             self._xpstyle = QStyleFactory.create("WindowsXP")
             self.app.setStyle(self._xpstyle)
@@ -270,7 +268,7 @@ To import into a password protected profile, please open the profile before atte
     def loadCollection(self):
         self.hideSchemaMsg = True
         try:
-            self.col = Collection(self.pm.collectionPath())
+            self.col = Collection(self.pm.collectionPath(), log=True)
         except anki.db.Error:
             # move back to profile manager
             showWarning("""\

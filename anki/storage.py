@@ -2,7 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os, copy, re
+import os
+import copy
+import re
+
 from anki.lang import _
 from anki.utils import intTime, json
 from anki.db import DB
@@ -11,7 +14,8 @@ from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
     addForwardOptionalReverse
 
-def Collection(path, lock=True, server=False, sync=True):
+
+def Collection(path, lock=True, server=False, sync=True, log=False):
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
@@ -33,7 +37,7 @@ def Collection(path, lock=True, server=False, sync=True):
     else:
         db.execute("pragma synchronous = off")
     # add db to col and do any remaining upgrades
-    col = _Collection(db, server)
+    col = _Collection(db, server, log)
     if ver < SCHEMA_VERSION:
         _upgrade(col, ver)
     elif create:

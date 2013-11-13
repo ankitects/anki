@@ -51,9 +51,8 @@ defaultConf = {
 # this is initialized by storage.Collection
 class _Collection(object):
 
-    debugLog = False
-
-    def __init__(self, db, server=False):
+    def __init__(self, db, server=False, log=False):
+        self._debugLog = log
         self.db = db
         self.path = db._path
         self._openLog()
@@ -783,7 +782,7 @@ and queue = 0""", intTime(), self.usn())
     ##########################################################################
 
     def log(self, *args, **kwargs):
-        if not self.debugLog:
+        if not self._debugLog:
             return
         def customRepr(x):
             if isinstance(x, basestring):
@@ -798,7 +797,7 @@ and queue = 0""", intTime(), self.usn())
             print buf
 
     def _openLog(self):
-        if not self.debugLog:
+        if not self._debugLog:
             return
         lpath = re.sub("\.anki2$", ".log", self.path)
         self._logHnd = open(lpath, "ab")
