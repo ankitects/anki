@@ -1279,6 +1279,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def buryCards(self, cids):
         self.col.log(cids)
+        self.remFromDyn(cids)
         self.removeLrn(cids)
         self.col.db.execute("""
 update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
