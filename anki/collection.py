@@ -800,6 +800,11 @@ and queue = 0""", intTime(), self.usn())
         if not self._debugLog:
             return
         lpath = re.sub("\.anki2$", ".log", self.path)
+        if os.path.exists(lpath) and os.path.getsize(lpath) > 10*1024*1024:
+            lpath2 = lpath + ".old"
+            if os.path.exists(lpath2):
+                os.unlink(lpath2)
+            os.rename(lpath, lpath2)
         self._logHnd = open(lpath, "ab")
 
     def _closeLog(self):
