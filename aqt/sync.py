@@ -337,12 +337,9 @@ class SyncThread(QThread):
             ret = self.client.sync()
         except Exception, e:
             log = traceback.format_exc()
-            try:
-                err = unicode(e[0], "utf8", "ignore")
-            except:
-                # number, exception with no args, etc
-                err = ""
-            if "Unable to find the server" in err:
+            err = repr(str(e))
+            if ("Unable to find the server" in err or
+                "Errno 2" in err):
                 self.fireEvent("offline")
             else:
                 if not err:
