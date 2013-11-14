@@ -126,8 +126,8 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
             self._checkFailed()
         elif evt == "mediaSanity":
             showWarning(_("""\
-A problem occurred while syncing media. Please sync again and Anki will \
-correct the issue."""))
+A problem occurred while syncing media. Please use Tools>Check Media, then \
+sync again to correct the issue."""))
         elif evt == "noChanges":
             pass
         elif evt == "fullSync":
