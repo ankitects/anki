@@ -863,6 +863,12 @@ Difference to correct time: %s.""") % diffText
     def setupHooks(self):
         addHook("modSchema", self.onSchemaMod)
         addHook("remNotes", self.onRemNotes)
+        addHook("odueInvalid", self.onOdueInvalid)
+
+    def onOdueInvalid(self):
+        showWarning(_("""\
+Invalid property found on card. Please use Tools>Check Database, \
+and if the problem comes up again, please ask on the support site."""))
 
     # Log note deletion
     ##########################################################################

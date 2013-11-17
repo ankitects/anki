@@ -4,18 +4,9 @@
 import pprint
 
 import time
+from anki.hooks import runHook
 from anki.utils import intTime, timestampID, joinFields
 from anki.consts import *
-
-# temporary
-_warned = False
-def warn():
-    global _warned
-    if _warned:
-        return
-    import sys
-    sys.stderr.write("Ignore the above, please download the fix assertion addon.")
-    _warned = True
 
 # Cards
 ##########################################################################
@@ -83,7 +74,7 @@ class Card(object):
         self.usn = self.col.usn()
         # bug check
         if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
-            warn()
+            runHook("odueInvalid")
         assert self.due < 4294967296
         self.col.db.execute(
             """
@@ -114,7 +105,7 @@ insert or replace into cards values
         self.usn = self.col.usn()
         # bug checks
         if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
-            warn()
+            runHook("odueInvalid")
         assert self.due < 4294967296
         self.col.db.execute(
             """update cards set
