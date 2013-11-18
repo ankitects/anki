@@ -191,6 +191,7 @@ Please create a new card type first."""))
         if self.redrawing:
             return
         self.card = self.cards[idx]
+        self.ord = idx
         self.tab = self.forms[idx]
         self.tabs.setCurrentIndex(idx)
         self.playedAudio = {}
