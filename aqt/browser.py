@@ -716,6 +716,8 @@ by clicking on one on the left."""))
                 hh.setResizeMode(i, QHeaderView.Stretch)
             else:
                 hh.setResizeMode(i, QHeaderView.Interactive)
+        # this must be set post-resize or it doesn't work
+        hh.setCascadingSectionResizes(False)
 
     def onColumnMoved(self, a, b, c):
         self.setColumnSizes()
