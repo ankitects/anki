@@ -342,7 +342,7 @@ class MediaManager(object):
     def hasIllegal(self, str):
         # a file that couldn't be decoded to unicode is considered invalid
         if not isinstance(str, unicode):
-            return False
+            return True
         return not not re.search(self._illegalCharReg, str)
 
     # Media syncing - bundling zip files to send to server
