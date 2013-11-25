@@ -448,46 +448,53 @@ httplib.HTTPConnection.send = _incrementalSend
 # this is an augmented version of httplib's request routine that:
 # - doesn't assume requests will be tried more than once
 # - calls a hook for each chunk of data so we can update the gui
+# - retries only when keep-alive connection is closed
 def _conn_request(self, conn, request_uri, method, body, headers):
-    try:
-        if conn.sock is None:
-          conn.connect()
-        conn.request(method, request_uri, body, headers)
-    except socket.timeout:
-        raise
-    except socket.gaierror:
-        conn.close()
-        raise httplib2.ServerNotFoundError(
-            "Unable to find the server at %s" % conn.host)
-    except httplib2.ssl_SSLError:
-        conn.close()
-        raise
-    except socket.error, e:
-        conn.close()
-        raise
-    except httplib.HTTPException:
-        conn.close()
-        raise
-    try:
-        response = conn.getresponse()
-    except (socket.error, httplib.HTTPException):
-        raise
-    else:
-        content = ""
-        if method == "HEAD":
-            response.close()
+    for i in range(2):
+        try:
+            if conn.sock is None:
+              conn.connect()
+            conn.request(method, request_uri, body, headers)
+        except socket.timeout:
+            raise
+        except socket.gaierror:
+            conn.close()
+            raise httplib2.ServerNotFoundError(
+                "Unable to find the server at %s" % conn.host)
+        except httplib2.ssl_SSLError:
+            conn.close()
+            raise
+        except socket.error, e:
+            conn.close()
+            raise
+        except httplib.HTTPException:
+            conn.close()
+            raise
+        try:
+            response = conn.getresponse()
+        except httplib.BadStatusLine:
+            print "retry bad line"
+            conn.close()
+            conn.connect()
+            continue
+        except (socket.error, httplib.HTTPException):
+            raise
         else:
-            buf = StringIO()
-            while 1:
-                data = response.read(CHUNK_SIZE)
-                if not data:
-                    break
-                buf.write(data)
-                runHook("httpRecv", len(data))
-            content = buf.getvalue()
-        response = httplib2.Response(response)
-        if method != "HEAD":
-            content = httplib2._decompressContent(response, content)
-    return (response, content)
+            content = ""
+            if method == "HEAD":
+                response.close()
+            else:
+                buf = StringIO()
+                while 1:
+                    data = response.read(CHUNK_SIZE)
+                    if not data:
+                        break
+                    buf.write(data)
+                    runHook("httpRecv", len(data))
+                content = buf.getvalue()
+            response = httplib2.Response(response)
+            if method != "HEAD":
+                content = httplib2._decompressContent(response, content)
+        return (response, content)
 
 httplib2.Http._conn_request = _conn_request
