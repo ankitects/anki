@@ -56,7 +56,7 @@ profileConf = dict(
     autoSync=True,
     # importing
     allowHTML=False,
-    importMode=0,
+    importMode=1,
 )
 
 class ProfileManager(object):
