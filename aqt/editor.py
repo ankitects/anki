@@ -814,7 +814,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         for suffix in pics+audio:
             if l.endswith(suffix):
                 return self._retrieveURL(url)
-            # not a supported type; return link verbatim
+        # not a supported type
         return
 
     def isURL(self, s):
@@ -1092,11 +1092,11 @@ class EditorWebView(AnkiWebView):
         self.savedClip = n
 
     def _processMime(self, mime):
-        # print "html=%s image=%s urls=%s txt=%s" % (
-        #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
-        # print "html", mime.html()
-        # print "urls", mime.urls()
-        # print "text", mime.text()
+        print "html=%s image=%s urls=%s txt=%s" % (
+            mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
+        print "html", mime.html()
+        print "urls", mime.urls()
+        print "text", mime.text()
         if mime.hasHtml():
             return self._processHtml(mime)
         elif mime.hasUrls():
@@ -1121,6 +1121,8 @@ class EditorWebView(AnkiWebView):
         link = self.editor.urlToLink(url)
         if link:
             mime.setHtml(link)
+        else:
+            mime.setText(url)
         return mime
 
     # if the user has used 'copy link location' in the browser, the clipboard
