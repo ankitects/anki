@@ -167,7 +167,7 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
             return _("504 gateway timeout error received. Please try temporarily disabling your antivirus.")
         elif "code: 409" in err:
             return _("Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes.")
-        elif "10061" in err or "10013" in err:
+        elif "10061" in err or "10013" in err or "10053" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
         elif "Unable to find the server" in err:
