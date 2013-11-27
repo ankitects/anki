@@ -1092,11 +1092,11 @@ class EditorWebView(AnkiWebView):
         self.savedClip = n
 
     def _processMime(self, mime):
-        print "html=%s image=%s urls=%s txt=%s" % (
-            mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
-        print "html", mime.html()
-        print "urls", mime.urls()
-        print "text", mime.text()
+        # print "html=%s image=%s urls=%s txt=%s" % (
+        #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
+        # print "html", mime.html()
+        # print "urls", mime.urls()
+        # print "text", mime.text()
         if mime.hasHtml():
             return self._processHtml(mime)
         elif mime.hasUrls():
