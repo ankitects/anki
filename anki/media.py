@@ -22,9 +22,9 @@ class MediaManager(object):
     soundRegexps = ["(?i)(\[sound:(?P<fname>[^]]+)\])"]
     imgRegexps = [
         # src element quoted case
-        "(?i)(<img[^>]+ src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        "(?i)(<img[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        "(?i)(<img[^>]+ src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        "(?i)(<img[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
     ]
     regexps = soundRegexps + imgRegexps
 
