@@ -1,9 +1,12 @@
 # coding: utf-8
 
-import time, copy, sys
+import time
+import copy
+
 from tests.shared import  getEmptyDeck
 from anki.utils import  intTime
 from anki.hooks import addHook
+
 
 def test_clock():
     d = getEmptyDeck()
@@ -173,8 +176,10 @@ def test_learn():
     c.queue = 1
     c.odue = 321
     c.flush()
+    print "----begin"
     d.sched.removeLrn()
     c.load()
+    print c.__dict__
     assert c.queue == 2
     assert c.due == 321
 

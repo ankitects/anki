@@ -1,7 +1,11 @@
 # coding: utf-8
 
-import tempfile, os, time
+import tempfile
+import os
+import time
+
 from shared import getEmptyDeck, testDir
+
 
 # copying files to media folder
 def test_add():
@@ -100,8 +104,8 @@ def test_changes():
 
 def test_illegal():
     d = getEmptyDeck()
-    aString = "a:b|cd\\e/f\0g*h"
-    good = "abcdefgh"
+    aString = u"a:b|cd\\e/f\0g*h"
+    good = u"abcdefgh"
     assert d.media.stripIllegal(aString) == good
     for c in aString:
         bad = d.media.hasIllegal("somestring"+c+"morestring")
