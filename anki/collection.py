@@ -169,6 +169,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         if not self.db:
             self.db = anki.db.DB(self.path)
             self.media.connect()
+            self._openLog()
 
     def rollback(self):
         self.db.rollback()
