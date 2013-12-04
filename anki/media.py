@@ -2,7 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
 import re
 import urllib
 import unicodedata
@@ -505,8 +504,12 @@ create table log (fname text primary key, type int);
         need = []
         remove = []
         for f in files:
-            if self.db.scalar("select 1 from log where fname=?", f):
-                remove.append((f,))
+            if isMac:
+                name = unicodedata.normalize("NFD", f)
+            else:
+                name = f
+            if self.db.scalar("select 1 from log where fname=?", name):
+                remove.append((name,))
             else:
                 need.append(f)
         self.db.executemany("delete from log where fname=?", remove)
