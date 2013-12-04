@@ -638,6 +638,7 @@ class Browser(QMainWindow):
         noSort = ("question", "answer", "template", "deck", "note", "noteTags")
         if type in noSort:
             if type == "template":
+                # fixme: change to 'card:1' to be clearer in future dev round
                 showInfo(_("""\
 This column can't be sorted on, but you can search for individual card types, \
 such as 'card:Card 1'."""))
