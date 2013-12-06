@@ -350,6 +350,13 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="compressBackups">
+         <property name="text">
+          <string>Compress backups (slower)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="openBackupFolder">
          <property name="text">
           <string>&lt;a href=&quot;backups&quot;&gt;Open backup folder&lt;/a&gt;</string>
