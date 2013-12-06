@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
-import sys
 import re
-import traceback
 import signal
 import  zipfile
 
@@ -13,7 +10,6 @@ from send2trash import send2trash
 from aqt.qt import *
 from anki import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str
-
 from anki.hooks import runHook, addHook
 import aqt
 import aqt.progress
@@ -24,6 +20,7 @@ from aqt.utils import  restoreGeom, showInfo, showWarning,\
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
 import anki.db
+
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -825,9 +822,9 @@ title="%s">%s</button>''' % (
         aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff):
-        diffText = ngettext("%s second", "%s seconds", diff)
+        diffText = ngettext("%s second", "%s seconds", diff) % diff
         warn = _("""\
-In order to ensure your collection works correctly when moved between \
+iIn order to ensure your collection works correctly when moved between \
 devices, Anki requires your computer's internal clock to be set correctly. \
 The internal clock can be wrong even if your system is showing the correct \
 local time.
