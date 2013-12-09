@@ -828,7 +828,7 @@ title="%s">%s</button>''' % (
     def clockIsOff(self, diff):
         diffText = ngettext("%s second", "%s seconds", diff) % diff
         warn = _("""\
-iIn order to ensure your collection works correctly when moved between \
+In order to ensure your collection works correctly when moved between \
 devices, Anki requires your computer's internal clock to be set correctly. \
 The internal clock can be wrong even if your system is showing the correct \
 local time.
