@@ -11,7 +11,8 @@ install:
 	cp -av * ${DESTDIR}${PREFIX}/share/anki/
 	cd ${DESTDIR}${PREFIX}/share/anki && (\
 	mv runanki ${DESTDIR}${PREFIX}/local/bin/anki;\
-	mv anki.xpm anki.png ${DESTDIR}${PREFIX}/share/pixmaps/;\
+	test -d ${DESTDIR}${PREFIX}/share/pixmaps &&\
+	  mv anki.xpm anki.png ${DESTDIR}${PREFIX}/share/pixmaps/;\
 	mv anki.desktop ${DESTDIR}${PREFIX}/share/applications;\
 	mv anki.1 ${DESTDIR}${PREFIX}/share/man/man1/)
 	xdg-mime install anki.xml --novendor
@@ -23,7 +24,8 @@ install:
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
 	rm -rf ${DESTDIR}${PREFIX}/local/bin/anki
-	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.{xpm,png}
+	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.xpm
+	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.png
 	rm -rf ${DESTDIR}${PREFIX}/share/applications/anki.desktop
 	rm -rf ${DESTDIR}${PREFIX}/share/man/man1/anki.1
 	-xdg-mime uninstall ${DESTDIR}${PREFIX}/share/mime/packages/anki.xml
