@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
-import sys
 import re
-import traceback
 import signal
 import  zipfile
 
@@ -13,7 +10,6 @@ from send2trash import send2trash
 from aqt.qt import *
 from anki import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str
-
 from anki.hooks import runHook, addHook
 import aqt
 import aqt.progress
@@ -24,6 +20,7 @@ from aqt.utils import  restoreGeom, showInfo, showWarning,\
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
 import anki.db
+
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -325,6 +322,10 @@ the manual for information on how to restore from an automatic backup."))
 
     def backup(self):
         nbacks = self.pm.profile['numBackups']
+        if self.pm.profile.get('compressBackups', True):
+            zipStorage = zipfile.ZIP_DEFLATED
+        else:
+            zipStorage = zipfile.ZIP_STORED
         if not nbacks or os.getenv("ANKIDEV", 0):
             return
         dir = self.pm.backupFolder()
@@ -345,7 +346,7 @@ the manual for information on how to restore from an automatic backup."))
             n = backups[-1][0] + 1
         # do backup
         newpath = os.path.join(dir, "backup-%d.apkg" % n)
-        z = zipfile.ZipFile(newpath, "w", zipfile.ZIP_DEFLATED)
+        z = zipfile.ZipFile(newpath, "w", zipStorage)
         z.write(path, "collection.anki2")
         z.writestr("media", "{}")
         z.close()
@@ -825,7 +826,7 @@ title="%s">%s</button>''' % (
         aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff):
-        diffText = ngettext("%s second", "%s seconds", diff)
+        diffText = ngettext("%s second", "%s seconds", diff) % diff
         warn = _("""\
 In order to ensure your collection works correctly when moved between \
 devices, Anki requires your computer's internal clock to be set correctly. \

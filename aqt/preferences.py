@@ -112,6 +112,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupBackup(self):
         self.form.numBackups.setValue(self.prof['numBackups'])
+        self.form.compressBackups.setChecked(self.prof.get("compressBackups", True))
         self.connect(self.form.openBackupFolder,
                      SIGNAL("linkActivated(QString)"),
                      self.onOpenBackup)
@@ -121,6 +122,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def updateBackup(self):
         self.prof['numBackups'] = self.form.numBackups.value()
+        self.prof['compressBackups'] = self.form.compressBackups.isChecked()
 
     # Basic & Advanced Options
     ######################################################################
