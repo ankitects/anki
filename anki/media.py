@@ -217,6 +217,7 @@ class MediaManager(object):
             files = os.listdir(mdir)
         else:
             files = local
+        renamedFiles = False
         for file in files:
             if not local:
                 if not os.path.isfile(file):
@@ -236,14 +237,20 @@ class MediaManager(object):
                     # delete if we already have the NFC form, otherwise rename
                     if os.path.exists(nfcFile):
                         os.unlink(file)
+                        renamedFiles = True
                     else:
                         os.rename(file, nfcFile)
+                        renamedFiles = True
                     file = nfcFile
             # compare
             if nfcFile not in allRefs:
                 unused.append(file)
             else:
                 allRefs.discard(nfcFile)
+        # if we renamed any files to nfc format, we must rerun the check
+        # to make sure the renamed files are not marked as unused
+        if renamedFiles:
+            return self.check(local=local)
         nohave = [x for x in allRefs if not x.startswith("_")]
         return (nohave, unused, invalid)
 
