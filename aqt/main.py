@@ -4,7 +4,8 @@
 
 import re
 import signal
-import  zipfile
+import sys
+import zipfile
 
 from send2trash import send2trash
 from aqt.qt import *
