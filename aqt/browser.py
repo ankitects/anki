@@ -96,10 +96,14 @@ class DataModel(QAbstractTableModel):
             return
         elif role == Qt.DisplayRole and section < len(self.activeCols):
             type = self.columnType(section)
+            txt = None
             for stype, name in self.browser.columns:
                 if type == stype:
                     txt = name
                     break
+            # handle case where extension has set an invalid column type
+            if not txt:
+                txt = self.browser.columns[0][1]
             return txt
         else:
             return
