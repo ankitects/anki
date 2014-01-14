@@ -73,9 +73,8 @@ class _Collection(object):
             self.crt = int(time.mktime(d.timetuple()))
         self.sched = Scheduler(self)
         if not self.conf.get("newBury", False):
-            mod = self.db.mod
-            self.sched.unburyCards()
-            self.db.mod = mod
+            self.conf['newBury'] = True
+            self.setMod()
 
     def name(self):
         n = os.path.splitext(os.path.basename(self.path))[0]
@@ -148,10 +147,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def close(self, save=True):
         "Disconnect from DB."
         if self.db:
-            if not self.conf.get("newBury", False):
-                mod = self.db.mod
-                self.sched.unburyCards()
-                self.db.mod = mod
             if save:
                 self.save()
             else:
