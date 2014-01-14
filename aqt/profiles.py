@@ -284,7 +284,15 @@ please see:
 
     def _onLangSelected(self):
         f = self.langForm
-        code = langs[f.lang.currentRow()][1]
+        obj = langs[f.lang.currentRow()]
+        code = obj[1]
+        name = obj[0]
+        en = "Are you sure you wish to display Anki's interface in %s?"
+        r = QMessageBox.question(
+            None, "Anki", en%name, QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No)
+        if r != QMessageBox.Yes:
+            return self._setDefaultLang()
         self.meta['defaultLang'] = code
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, cPickle.dumps(self.meta), "_global")
