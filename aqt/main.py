@@ -24,6 +24,7 @@ import anki.db
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
+        import traceback
         QMainWindow.__init__(self)
         self.state = "startup"
         aqt.mw = self
