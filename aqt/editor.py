@@ -1117,13 +1117,18 @@ class EditorWebView(AnkiWebView):
         url = mime.urls()[0].toString()
         # chrome likes to give us the URL twice with a \n
         url = url.splitlines()[0]
-        mime = QMimeData()
+        newmime = QMimeData()
         link = self.editor.urlToLink(url)
         if link:
-            mime.setHtml(link)
+            newmime.setHtml(link)
+        elif mime.hasImage():
+            # if we couldn't convert the url to a link and there's an
+            # image on the clipboard (such as copy&paste from
+            # google images in safari), use that instead
+            return self._processImage(mime)
         else:
-            mime.setText(url)
-        return mime
+            newmime.setText(url)
+        return newmime
 
     # if the user has used 'copy link location' in the browser, the clipboard
     # will contain the URL as text, and no URLs or HTML. the URL will already
