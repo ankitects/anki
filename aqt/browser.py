@@ -1197,7 +1197,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm = aqt.forms.reposition.Ui_Dialog()
         frm.setupUi(d)
         (pmin, pmax) = self.col.db.first(
-            "select min(due), max(due) from cards where type=0")
+            "select min(due), max(due) from cards where type=0 and odid=0")
+        pmin = pmin or 0
+        pmax = pmax or 0
         txt = _("Queue top: %d") % pmin
         txt += "\n" + _("Queue bottom: %d") % pmax
         frm.label.setText(txt)
