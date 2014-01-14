@@ -170,6 +170,8 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "10061" in err or "10013" in err or "10053" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
+        elif "10054" in err:
+            return _("Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder.")
         elif "Unable to find the server" in err:
             return _(
                 "Server not found. Either your connection is down, or antivirus/firewall "
