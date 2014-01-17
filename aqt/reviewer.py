@@ -434,7 +434,7 @@ Please run Tools>Empty Cards""")
             return txt
         matches = [noHint(txt) for txt in matches]
         if len(matches) > 1:
-            txt = ", ".join(matches)
+            txt = ", ".join(list(set(matches)))
         else:
             txt = matches[0]
         return txt
