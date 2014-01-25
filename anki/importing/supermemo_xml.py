@@ -140,7 +140,7 @@ class SupermemoXmlImporter(NoteImporter):
         #s = re.sub(u'>',u'&gt;',s)
         #s = re.sub(u'<',u'&lt;',s)
 
-        return unicode(btflsoup(s,convertEntities=btflsoup.HTML_ENTITIES ))
+        return unicode(btflsoup(s, selfClosingTags=['br','hr','img','wbr'], convertEntities=btflsoup.HTML_ENTITIES))
 
 ## DEFAULT IMPORTER METHODS
 
