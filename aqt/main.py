@@ -4,6 +4,7 @@
 
 import re
 import signal
+import sys
 import zipfile
 
 from send2trash import send2trash
