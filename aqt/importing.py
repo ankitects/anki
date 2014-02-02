@@ -17,7 +17,6 @@ import aqt.forms
 import aqt.modelchooser
 import aqt.deckchooser
 
-
 class ChangeMap(QDialog):
     def __init__(self, mw, model, current):
         QDialog.__init__(self, mw, Qt.Window)
@@ -338,6 +337,8 @@ with a different browser.""")
                 msg = _("""\
 Invalid file. Please restore from backup.""")
                 showWarning(msg)
+            elif "invalidTempFolder" in err:
+                showWarning(mw.errorHandler.tempFolderMsg())
             elif "readonly" in err:
                 showWarning(_("""\
 Unable to import from a read-only file."""))
