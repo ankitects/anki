@@ -11,6 +11,7 @@ import random
 import cPickle
 import locale
 import re
+import getpass
 
 from aqt.qt import *
 from anki.db import DB
@@ -227,7 +228,7 @@ create table if not exists profiles
     def ensureProfile(self):
         "Create a new profile if none exists."
         if self.firstRun:
-            self.create(_("User 1"))
+            self.create(getpass.getuser())
             p = os.path.join(self.base, "README.txt")
             open(p, "w").write((_("""\
 This folder stores all of your Anki data in a single location,
