@@ -181,6 +181,9 @@ documentation for information on using a flash drive.""")
         elif isMac:
             return os.path.expanduser("~/Documents/Anki")
         else:
+            dotted = os.path.expanduser("~/.anki")
+            if os.path.exists(dotted):
+                return dotted
             return os.path.expanduser("~/Anki")
 
     def _loadMeta(self):
