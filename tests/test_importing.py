@@ -297,7 +297,7 @@ def test_supermemo_xml_01_unicode():
     assert i.total == 1
     cid = deck.db.scalar("select id from cards")
     c = deck.getCard(cid)
-    assert c.factor == 5701
+    assert c.factor == int(i._afactor2efactor(float(5.701))*1000)
     assert c.reps == 7
     deck.close()
 
