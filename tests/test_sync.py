@@ -5,7 +5,7 @@ import nose, os, shutil, time
 from anki import Collection as aopen, Collection
 from anki.utils import intTime
 from anki.sync import Syncer, LocalServer
-from tests.shared import getEmptyDeck
+from tests.shared import getEmptyDeck, getEmptyDeckWith
 
 # Local tests
 ##########################################################################
@@ -26,7 +26,7 @@ def setup_basic():
     # answer it
     deck1.reset(); deck1.sched.answerCard(deck1.sched.getCard(), 4)
     # repeat for deck2
-    deck2 = getEmptyDeck(server=True)
+    deck2 = getEmptyDeckWith(server=True)
     f = deck2.newNote()
     f['Front'] = u"bar"; f['Back'] = u"bar"; f.tags = [u"bar"]
     deck2.addNote(f)
@@ -325,7 +325,7 @@ def _test_speed():
         deck1.tags.tags[tx] = -1
     deck1._usn = -1
     deck1.save()
-    deck2 = getEmptyDeck(server=True)
+    deck2 = getEmptyDeckWith(server=True)
     deck1.scm = deck2.scm = 0
     server = LocalServer(deck2)
     client = Syncer(deck1, server)
