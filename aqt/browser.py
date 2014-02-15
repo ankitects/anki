@@ -731,9 +731,10 @@ by clicking on one on the left."""))
     ######################################################################
 
     class CallbackItem(QTreeWidgetItem):
-        def __init__(self, root, name, onclick):
+        def __init__(self, root, name, onclick, oncollapse=None):
             QTreeWidgetItem.__init__(self, root, [name])
             self.onclick = onclick
+            self.oncollapse = oncollapse
 
     def setupTree(self):
         self.connect(
@@ -743,6 +744,12 @@ by clicking on one on the left."""))
         p.setColor(QPalette.Base, QColor("#d6dde0"))
         self.form.tree.setPalette(p)
         self.buildTree()
+        self.connect(
+            self.form.tree, SIGNAL("itemExpanded(QTreeWidgetItem*)"),
+            lambda item: self.onTreeCollapse(item))
+        self.connect(
+            self.form.tree, SIGNAL("itemCollapsed(QTreeWidgetItem*)"),
+            lambda item: self.onTreeCollapse(item))
 
     def buildTree(self):
         self.form.tree.clear()
@@ -751,14 +758,16 @@ by clicking on one on the left."""))
         self._decksTree(root)
         self._modelTree(root)
         self._userTagTree(root)
-        self.form.tree.expandAll()
-        self.form.tree.setItemsExpandable(False)
         self.form.tree.setIndentation(15)
 
     def onTreeClick(self, item, col):
         if getattr(item, 'onclick', None):
             item.onclick()
 
+    def onTreeCollapse(self, item):
+        if getattr(item, 'oncollapse', None):
+            item.oncollapse()
+            
     def setFilter(self, *args):
         if len(args) == 1:
             txt = args[0]
@@ -821,10 +830,13 @@ by clicking on one on the left."""))
         def fillGroups(root, grps, head=""):
             for g in grps:
                 item = self.CallbackItem(
-                    root, g[0], lambda g=g: self.setFilter(
-                        "deck", head+g[0]))
+                    root, g[0],
+                    lambda g=g: self.setFilter("deck", head+g[0]),
+                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]))
                 item.setIcon(0, QIcon(":/icons/deck16.png"))
                 newhead = head + g[0]+"::"
+                collapsed = self.mw.col.decks.get(g[1]).get('browserCollapsed', False)
+                item.setExpanded(not collapsed)
                 fillGroups(item, g[5], newhead)
         fillGroups(root, grps)
 
