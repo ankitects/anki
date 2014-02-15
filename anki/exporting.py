@@ -134,8 +134,14 @@ class AnkiExporter(Exporter):
             data)
         # notes
         strnids = ids2str(nids.keys())
-        notedata = self.src.db.all("select * from notes where id in "+
-                               strnids)
+        notedata = []
+        for row in self.src.db.all(
+            "select * from notes where id in "+strnids):
+            # remove system tags if not exporting scheduling info
+            if not self.includeSched:
+                row = list(row)
+                row[5] = self.removeSystemTags(row[5])
+            notedata.append(row)
         self.dst.db.executemany(
             "insert into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             notedata)
@@ -206,6 +212,11 @@ class AnkiExporter(Exporter):
         # overwrite to apply customizations to the deck before it's closed,
         # such as update the deck description
         pass
+    
+    def removeSystemTags(self, tags):
+        tags = ' '.join(tag for tag in tags.split()
+                        if (tag.lower() != "marked" and tag.lower() != "leech"))
+        return tags
 
 # Packaged Anki decks
 ######################################################################
