@@ -297,7 +297,8 @@ def test_supermemo_xml_01_unicode():
     assert i.total == 1
     cid = deck.db.scalar("select id from cards")
     c = deck.getCard(cid)
-    assert c.factor == 5701
+    # Applies A Factor-to-E Factor conversion
+    assert c.factor == 2879
     assert c.reps == 7
     deck.close()
 
