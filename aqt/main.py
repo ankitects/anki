@@ -409,10 +409,12 @@ the manual for information on how to restore from an automatic backup."))
 
     def _reviewState(self, oldState):
         self.reviewer.show()
+        self.web.setCardViewer(True)
 
     def _reviewCleanup(self, newState):
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
+            self.web.setCardViewer(False)
 
     def noteChanged(self, nid):
         "Called when a card or note is edited (but not deleted)."
