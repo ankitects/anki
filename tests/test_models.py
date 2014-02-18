@@ -107,6 +107,29 @@ def test_templates():
     mm.addTemplate(m, t)
     assert not d.models.remTemplate(m, m['tmpls'][0])
 
+def test_cloze_ordinals():
+    d = getEmptyDeck()
+    d.models.setCurrent(d.models.byName("Cloze"))
+    m = d.models.current(); mm = d.models
+    
+    #We replace the default Cloze template
+    t = mm.newTemplate("ChainedCloze")
+    t['qfmt'] = "{{cloze:text:Text}}"
+    t['afmt'] = "{{text:cloze:Text}}" #independent of the order of mods
+    mm.addTemplate(m, t)
+    mm.save(m)
+    d.models.remTemplate(m, m['tmpls'][0])
+    
+    f = d.newNote()
+    f['Text'] = u'{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
+    d.addNote(f)
+    assert d.cardCount() == 2
+    (c, c2) = f.cards()
+    # first card should have first ord
+    assert c.ord == 0
+    assert c2.ord == 1
+    
+
 def test_text():
     d = getEmptyDeck()
     m = d.models.current()
@@ -162,6 +185,29 @@ def test_cloze():
     f['Text'] += "{{c0::zero}} {{c-1:foo}}"
     f.flush()
     assert len(f.cards()) == 2
+
+def test_chained_mods():
+    d = getEmptyDeck()
+    d.models.setCurrent(d.models.byName("Cloze"))
+    m = d.models.current(); mm = d.models
+    
+    #We replace the default Cloze template
+    t = mm.newTemplate("ChainedCloze")
+    t['qfmt'] = "{{cloze:text:Text}}"
+    t['afmt'] = "{{text:cloze:Text}}" #independent of the order of mods
+    mm.addTemplate(m, t)
+    mm.save(m)
+    d.models.remTemplate(m, m['tmpls'][0])
+    
+    f = d.newNote()
+    q1 = '<span style=\"color:red\">phrase</span>'
+    a1 = '<b>sentence</b>'
+    q2 = '<span style=\"color:red\">en chaine</span>'
+    a2 = '<i>chained</i>'
+    f['Text'] = "This {{c1::%s::%s}} demonstrates {{c1::%s::%s}} clozes." % (q1,a1,q2,a2)
+    assert d.addNote(f) == 1
+    assert "This <span class=cloze>[sentence]</span> demonstrates <span class=cloze>[chained]</span> clozes." in f.cards()[0].q()
+    assert "This <span class=cloze>phrase</span> demonstrates <span class=cloze>en chaine</span> clozes." in f.cards()[0].a()
 
 def test_modelChange():
     deck = getEmptyDeck()
