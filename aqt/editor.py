@@ -988,7 +988,7 @@ to a cloze type first, via Edit>Change Note Type."""))
 class EditorWebView(AnkiWebView):
 
     def __init__(self, parent, editor):
-        AnkiWebView.__init__(self)
+        AnkiWebView.__init__(self, canFocus=True)
         self.editor = editor
         self.strip = self.editor.mw.pm.profile['stripHTML']
 
