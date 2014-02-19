@@ -167,10 +167,11 @@ class Template(object):
 
         txt = get_or_attr(context, tag)
         
-        #Since 'text:' and oths mods can affect html on which Anki relies to
+        #Since 'text:' and other mods can affect html on which Anki relies to
         #process Clozes and Types, we need to make sure cloze/type are always
         #treated after all the other mods, regardless of how they're specified
         #in the template, so that {{cloze:text: == {{text:cloze:
+        mods.reverse()
         mods.sort(key=lambda s: s.startswith("cq-") or s.startswith("ca-") or s=="type")
         
         for mod in mods:
