@@ -176,10 +176,8 @@ def test_learn():
     c.queue = 1
     c.odue = 321
     c.flush()
-    print "----begin"
     d.sched.removeLrn()
     c.load()
-    print c.__dict__
     assert c.queue == 2
     assert c.due == 321
 
