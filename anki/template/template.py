@@ -168,11 +168,14 @@ class Template(object):
         txt = get_or_attr(context, tag)
         
         #Since 'text:' and other mods can affect html on which Anki relies to
-        #process Clozes and Types, we need to make sure cloze/type are always
+        #process clozes, we need to make sure clozes are always
         #treated after all the other mods, regardless of how they're specified
         #in the template, so that {{cloze:text: == {{text:cloze:
+        #For type:, we return directly since no other mod than cloze (or other
+        #pre-defined mods) can be present and those are treated separately
         mods.reverse()
-        mods.sort(key=lambda s: s.startswith("cq-") or s.startswith("ca-") or s=="type")
+        mods.sort(key=lambda s: not s=="type")
+        mods.sort(key=lambda s: s.startswith("cq-") or s.startswith("ca-"))
         
         for mod in mods:
             # built-in modifiers
@@ -182,7 +185,7 @@ class Template(object):
             elif mod == 'type':
                 # type answer field; convert it to [[type:...]] for the gui code
                 # to process
-                txt = "[[%s]]" % tag_name
+                return "[[%s]]" % tag_name
             elif mod.startswith('cq-') or mod.startswith('ca-'):
                 # cloze deletion
                 mod, extra = mod.split("-")
