@@ -175,8 +175,7 @@ class Template(object):
         #pre-defined mods) can be present and those are treated separately
         mods.reverse()
         mods.sort(key=lambda s: not s=="type")
-        mods.sort(key=lambda s: s.startswith("cq-") or s.startswith("ca-"))
-        
+
         for mod in mods:
             # built-in modifiers
             if mod == 'text':
