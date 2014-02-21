@@ -606,13 +606,19 @@ where c.nid == f.id
             if self._undo[0] == 1:
                 old = self._undo[2]
             self.clearUndo()
-        self._undo = [1, _("Review"), old + [copy.copy(card)]]
+        wasLeech = card.note().hasTag("leech") or False
+        self._undo = [1, _("Review"), old + [copy.copy(card)], wasLeech]
 
     def _undoReview(self):
         data = self._undo[2]
+        wasLeech = self._undo[3]
         c = data.pop()
         if not data:
             self.clearUndo()
+        # remove leech tag if it didn't have it before
+        if not wasLeech and c.note().hasTag("leech"):
+            c.note().delTag("leech")
+            c.note().flush()
         # write old data
         c.flush()
         # and delete revlog entry
