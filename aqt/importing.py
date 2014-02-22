@@ -79,6 +79,9 @@ class ImportDialog(QDialog):
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', True))
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 1))
+        # import button
+        b = QPushButton(_("Import"))
+        self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
         self.exec_()
 
     def setupOptions(self):
@@ -87,8 +90,6 @@ class ImportDialog(QDialog):
             self.mw, self.frm.modelArea, label=False)
         self.deck = aqt.deckchooser.DeckChooser(
             self.mw, self.frm.deckArea, label=False)
-        self.connect(self.frm.importButton, SIGNAL("clicked()"),
-                     self.doImport)
 
     def modelChanged(self):
         self.importer.model = self.mw.col.models.current()
@@ -138,8 +139,8 @@ you can enter it here. Use \\t to represent tab."""),
             d = `d`
         txt = _("Fields separated by: %s") % d
         self.frm.autoDetect.setText(txt)
-
-    def doImport(self, update=False):
+        
+    def accept(self):
         self.importer.mapping = self.mapping
         if not self.importer.mappingOk():
             showWarning(
@@ -249,7 +250,7 @@ you can enter it here. Use \\t to represent tab."""),
         QDialog.reject(self)
 
     def helpRequested(self):
-        openHelp("FileImport")
+        openHelp("importing")
 
 
 def showUnicodeWarning():
