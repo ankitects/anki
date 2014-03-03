@@ -5,6 +5,8 @@ You also need to have the python-pyqt development packages installed
 
 To use the development version:
 
+On Ubuntu, make sure you have pyqt4-dev-tools installed.
+
 $ git clone https://github.com/dae/anki.git
 $ cd anki
 $ ./tools/build_ui.sh
