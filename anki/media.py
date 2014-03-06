@@ -340,7 +340,7 @@ class MediaManager(object):
     # Illegal characters
     ##########################################################################
 
-    _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0]')
+    _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0\r\n]')
 
     def stripIllegal(self, str):
         return re.sub(self._illegalCharReg, "", str)
