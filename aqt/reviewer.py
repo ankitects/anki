@@ -47,7 +47,7 @@ class Reviewer(object):
         if isMac:
             self.bottom.web.setFixedHeight(46)
         else:
-            self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
+            self.bottom.web.setFixedHeight(54+self.mw.fontHeightDelta*4)
         self.bottom.web.setLinkHandler(self._linkHandler)
         self._reps = None
         self.nextCard()

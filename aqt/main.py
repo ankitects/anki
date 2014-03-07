@@ -1084,7 +1084,7 @@ will be lost. Continue?"""))
     def setupFonts(self):
         f = QFontInfo(self.font())
         ws = QWebSettings.globalSettings()
-        self.fontHeight = f.pixelSize()
+        self.fontHeight = max(14, f.pixelSize())
         self.fontFamily = f.family()
         self.fontHeightDelta = max(0, self.fontHeight - 13)
         ws.setFontFamily(QWebSettings.StandardFont, self.fontFamily)
