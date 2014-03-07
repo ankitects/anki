@@ -134,7 +134,8 @@ function _updateQA (q, answerMode, klass) {
         typeans.focus();
     }
     if (answerMode) {
-        window.location = "#answer";
+        var e = $("#answer");
+        if (e[0]) { e[0].scrollIntoView(); }
     } else {
         window.scrollTo(0, 0);
     }
