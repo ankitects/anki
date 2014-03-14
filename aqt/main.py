@@ -63,6 +63,8 @@ class AnkiQt(QMainWindow):
             self.onAppMsg(unicode(args[0], sys.getfilesystemencoding(), "ignore"))
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
+        if isMac and qtmajor >= 5:
+            self.show()
         self.progress.timer(10, self.setupProfile, False)
 
     def setupUI(self):
