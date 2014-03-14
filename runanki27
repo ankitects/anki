@@ -1,0 +1,19 @@
+#!/usr/bin/env python2.7
+
+import sys
+import os
+
+# Path to the anki installation. If you run from the source dir,
+# uncomment this:
+# here = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# Otherwise, set an explicit path (sample) and eg. copy this script to
+# your ~/bin:
+# here = os.path.abspath(os.path.join(os.path.environ['HOME'], 'anki-2.0'))
+
+libdir = os.path.join(here)
+libdir2 = os.path.join(here, 'libanki')
+sys.path.insert(0, '/usr/lib/python2.7/dist-packages')
+sys.path.insert(0, libdir2)
+sys.path.insert(0, libdir)
+import aqt
+aqt.run()

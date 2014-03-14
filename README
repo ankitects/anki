@@ -18,6 +18,9 @@ need to be 4.7 or later.
 Installation & Running
 ------------------------
 
+For runanki users:
+..................
+
 Anki does not need installing, and can be run from the directory it is
 extracted to. If you extracted it to ~/anki-2.0 for example, you can run Anki
 by simply typing ~/anki-2.0/runanki in a terminal.
@@ -25,6 +28,29 @@ by simply typing ~/anki-2.0/runanki in a terminal.
 If you'd like to install it system wide, change to the folder you extracted it
 to, and run 'sudo make install'. If you need to uninstall Anki in the future,
 you can do so by typing 'sudo make uninstall'.
+
+
+This recipe did not work for me on Debien Wheezy, since I have anki1 installed,
+which led to tons of conflicts with that path setup. If yo have Python 2.7 and
+also want to use the Chinese Support module (ID 3448800906), then proceed as
+follows:
+
+ 1. Use the runanki27 script. It has a different path setup. I copied it to my 
+ 2. In the directory where you extracted anki, create a subdirectory. I named it
+    'libanki'.
+ 3. Enter this directory:
+    $ cd /path/to/libanki
+ 4. Link the system packages to here (directly linking to the directory does
+    not work, either, as anki duplicates some system libraries):
+    $ ln -s /usr/lib/python2.7/dist-packages/* .
+ 5. Remove the colliding links. For me, the stuff causing trouble was related
+    to SQLAlchemy:
+    $ ls |grep -i sqlalchemy
+    Take note of the names, then
+    $ rm -f the offending names
+
+After that, anki should start nicely with the Chinese Support plugin.
+
 
 More information
 -----------------
