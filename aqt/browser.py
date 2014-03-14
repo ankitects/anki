@@ -717,11 +717,9 @@ by clicking on one on the left."""))
 
     def setColumnSizes(self):
         hh = self.form.tableView.horizontalHeader()
-        for i in range(len(self.model.activeCols)):
-            if hh.visualIndex(i) == len(self.model.activeCols) - 1:
-                hh.setResizeMode(i, QHeaderView.Stretch)
-            else:
-                hh.setResizeMode(i, QHeaderView.Interactive)
+        hh.setResizeMode(QHeaderView.Interactive)
+        hh.setResizeMode(hh.logicalIndex(len(self.model.activeCols)-1),
+                         QHeaderView.Stretch)
         # this must be set post-resize or it doesn't work
         hh.setCascadingSectionResizes(False)
 
