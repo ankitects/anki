@@ -75,7 +75,7 @@ into a bug report:""")
         pluginText = _("""\
 An error occurred in an add-on.<br>
 Please post on the add-on forum:<br>%s<br>""")
-        pluginText %= "https://groups.google.com/forum/#!forum/anki-addons"
+        pluginText %= "https://anki.tenderapp.com/discussions/add-ons"
         if "addon" in error:
             txt = pluginText
         else:
