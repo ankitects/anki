@@ -690,7 +690,7 @@ class Editor(object):
 
     def onCloze(self):
         # check that the model is set up for cloze deletion
-        if '{{cloze:' not in self.note.model()['tmpls'][0]['qfmt']:
+        if not re.search('{{(.*:)*cloze:',self.note.model()['tmpls'][0]['qfmt']):
             if self.addMode:
                 tooltip(_("Warning, cloze deletions will not work until "
                 "you switch the type at the top to Cloze."))
