@@ -191,6 +191,7 @@ class Template(object):
                 txt = self.clozeText(txt, extra, mod[1]) if txt and extra else ""
             else:
                 # hook-based field modifier
+                mod, extra = re.search("^(.*?)(?:\((.*)\))?$", mod).groups()
                 txt = runFilter('fmod_' + mod, txt or '', extra, context,
                                 tag, tag_name);
                 if txt is None:

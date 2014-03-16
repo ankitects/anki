@@ -47,7 +47,7 @@ class Reviewer(object):
         if isMac:
             self.bottom.web.setFixedHeight(46)
         else:
-            self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
+            self.bottom.web.setFixedHeight(54+self.mw.fontHeightDelta*4)
         self.bottom.web.setLinkHandler(self._linkHandler)
         self._reps = None
         self.nextCard()
@@ -134,7 +134,8 @@ function _updateQA (q, answerMode, klass) {
         typeans.focus();
     }
     if (answerMode) {
-        window.location = "#answer";
+        var e = $("#answer");
+        if (e[0]) { e[0].scrollIntoView(); }
     } else {
         window.scrollTo(0, 0);
     }

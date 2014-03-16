@@ -214,9 +214,7 @@ class AnkiExporter(Exporter):
         pass
     
     def removeSystemTags(self, tags):
-        tags = ' '.join(tag for tag in tags.split()
-                        if (tag.lower() != "marked" and tag.lower() != "leech"))
-        return tags
+        return self.src.tags.remFromStr("marked leech", tags)
 
 # Packaged Anki decks
 ######################################################################
