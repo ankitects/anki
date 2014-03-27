@@ -466,7 +466,6 @@ class Browser(QMainWindow):
         self.teardownHooks()
         self.mw.maybeReset()
         evt.accept()
-        self.deleteLater()
 
     def canClose(self):
         return True

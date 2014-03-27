@@ -190,7 +190,6 @@ question on all cards."""), help="AddItems")
         saveGeom(self, "add")
         aqt.dialogs.close("AddCards")
         QDialog.reject(self)
-        self.deleteLater()
 
     def canClose(self):
         if (self.forceClose or self.editor.fieldsAreBlank() or
