@@ -434,17 +434,11 @@ Please run Tools>Empty Cards""")
                 return txt.split("::")[0]
             return txt
         matches = [noHint(txt) for txt in matches]
-        if len(matches) > 1:
-            arr = []
-            seen = {}
-            for m in matches:
-                if m in seen:
-                    continue
-                seen[m] = 1
-                arr.append(m)
-            txt = ", ".join(arr)
-        else:
+        uniqMatches = set(matches)
+        if len(uniqMatches) == 1:
             txt = matches[0]
+        else:
+            txt = ", ".join(matches)
         return txt
 
     def tokenizeComparison(self, given, correct):
