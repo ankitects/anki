@@ -1,7 +1,7 @@
 Please see the README file for basic requirements.
 
 You also need to have the python-pyqt development packages installed
-(specifically, you need the binary pyuic4).
+(specifically, you need the binary pyuic4). 
 
 To use the development version:
 
@@ -31,3 +31,39 @@ Before contributing code, please read the LICENSE file.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
+
+
+
+Problems?
+
+1. I'm getting an errors running ./tools/build_ui.sh?
+
+Have you installed the pyuic4 binary? This would involve searching your distributions repo's or something like brew if you are on a Mac. On debian this would be something like
+
+$ apt-cache search pyuic4
+
+which (currently) tells you that you need to install pyqt4-dev-tools
+
+$ sudo apt-get install pyqt4-dev-tools
+
+The other thing to note is that you need to rebuild the ui when you update the sources, so that would be
+
+$ rm aqt/forms/* && ./tools/build_ui.sh
+
+You can test if this is successful if you can import aqt from a python interpreter.
+
+2. I'm getting errors about not being able to find pyrcc4, what do I do?
+
+See the answer to 1.
+
+3. There seem to be no files in aqt/forms/ where it expects to find them.
+
+See the answer to 1.
+
+4. I'm getting an import error, "no module named sip"
+
+This may be because you already have a system anki installed. To run the dev version from sources, uninstall it. On Debian/Ubuntu this is
+
+$ sudo apt-get remove anki
+
+This will not remove your data in ~/.anki 
