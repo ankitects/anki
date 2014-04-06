@@ -1,7 +1,9 @@
 Please see the README file for basic requirements.
 
 You also need to have the python-pyqt development packages installed
-(specifically, you need the binary pyuic4).
+(specifically, you need the binary pyuic4). On Debian/Ubuntu this is
+
+$ sudo apt-get install pyqt4-dev-tools
 
 To use the development version:
 
