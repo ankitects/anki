@@ -63,6 +63,8 @@ class AnkiQt(QMainWindow):
             self.onAppMsg(unicode(args[0], sys.getfilesystemencoding(), "ignore"))
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
+        if isMac and qtmajor >= 5:
+            self.show()
         self.progress.timer(10, self.setupProfile, False)
 
     def setupUI(self):
@@ -1084,7 +1086,7 @@ will be lost. Continue?"""))
     def setupFonts(self):
         f = QFontInfo(self.font())
         ws = QWebSettings.globalSettings()
-        self.fontHeight = max(14, f.pixelSize())
+        self.fontHeight = f.pixelSize()
         self.fontFamily = f.family()
         self.fontHeightDelta = max(0, self.fontHeight - 13)
         ws.setFontFamily(QWebSettings.StandardFont, self.fontFamily)
