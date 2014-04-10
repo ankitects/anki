@@ -240,7 +240,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     ret = []
     def accept():
         # work around an osx crash
-        aqt.mw.app.processEvents()
+        #aqt.mw.app.processEvents()
         file = unicode(list(d.selectedFiles())[0])
         if dirkey:
             dir = os.path.dirname(file)
