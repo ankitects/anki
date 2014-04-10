@@ -49,7 +49,7 @@ def httpCon():
         else:
             assert 0, "Your distro has not packaged Anki correctly."
     return httplib2.Http(
-        timeout=HTTP_TIMEOUT, #ca_certs=certs,
+        timeout=HTTP_TIMEOUT, ca_certs=certs,
         proxy_info=HTTP_PROXY,
         disable_ssl_certificate_validation=not not HTTP_PROXY)
 
