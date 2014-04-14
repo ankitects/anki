@@ -512,7 +512,7 @@ title="%s">%s</button>''' % (
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
-        self.web = aqt.webview.AnkiWebView()
+        self.web = aqt.webview.AnkiWebView(canCopy=True)
         self.web.setObjectName("mainText")
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)
