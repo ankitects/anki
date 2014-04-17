@@ -194,7 +194,7 @@ def test_chained_mods():
     #We replace the default Cloze template
     t = mm.newTemplate("ChainedCloze")
     t['qfmt'] = "{{cloze:text:Text}}"
-    t['afmt'] = "{{text:cloze:Text}}" #independent of the order of mods
+    t['afmt'] = "{{cloze:text:Text}}"
     mm.addTemplate(m, t)
     mm.save(m)
     d.models.remTemplate(m, m['tmpls'][0])
