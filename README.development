@@ -1,7 +1,14 @@
 Please see the README file for basic requirements.
 
-You also need to have the python-pyqt development packages installed
-(specifically, you need the binary pyuic4).
+In addition to the basic requirements, you also need the PyQt development
+tools (specifically pyrcc4 and pyuic4). These are often contained in a
+separate package on Linux, such as 'pyqt4-dev-tools' on Debian/Ubuntu. On a Mac
+they are part of the PyQt source install.
+
+WINDOWS USERS: I have not tested the UI build script on Windows, so you'll need
+to fix any problems you encounter on your own. If you can't figure it out, you
+can still use the source packages of Anki, which contain pre-built copies
+of the UI.
 
 To use the development version:
 
@@ -9,7 +16,11 @@ $ git clone https://github.com/dae/anki.git
 $ cd anki
 $ ./tools/build_ui.sh
 
-Make sure you rebuild the UI every time you update the sources.
+If you get any errors, you will not be able to proceed, so please return to
+the top and check the requirements again.
+
+ALL USERS: Make sure you rebuild the UI every time you git pull, otherwise you
+will get errors down the road.
 
 The translations are stored in a bazaar repo for integration with Launchpad's
 translation services. If you want to use a language other than English:
