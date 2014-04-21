@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import os
+import os, tempfile
 from tests.shared import assertException, getEmptyDeck
 from anki.stdmodels import addBasicModel
 
@@ -11,8 +11,9 @@ newMod = None
 
 def test_create():
     global newPath, newMod
-    path = "/tmp/test_attachNew.anki2"
+    (fd, path) = tempfile.mkstemp(suffix=".anki2", prefix="test_attachNew")
     try:
+        os.close(fd)
         os.unlink(path)
     except OSError:
         pass

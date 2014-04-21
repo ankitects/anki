@@ -15,6 +15,7 @@ def assertException(exception, func):
 def getEmptyDeck():
     if len(getEmptyDeck.master) == 0:
         (fd, nam) = tempfile.mkstemp(suffix=".anki2")
+        os.close(fd)
         os.unlink(nam)
         col = aopen(nam)
         col.db.close()
@@ -28,6 +29,7 @@ getEmptyDeck.master = ""
 # Fallback for when the DB needs options passed in.
 def getEmptyDeckWith(**kwargs):
     (fd, nam) = tempfile.mkstemp(suffix=".anki2")
+    os.close(fd)
     os.unlink(nam)
     return aopen(nam, **kwargs)
 
