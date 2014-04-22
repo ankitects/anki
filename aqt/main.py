@@ -383,7 +383,9 @@ the manual for information on how to restore from an automatic backup."))
         if cleanup:
             cleanup(state)
         self.state = state
+        runHook('beforeStateChange', state, oldState, *args)
         getattr(self, "_"+state+"State")(oldState, *args)
+        runHook('afterStateChange', state, oldState, *args)
 
     def _deckBrowserState(self, oldState):
         self.deckBrowser.show()
