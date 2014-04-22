@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import datetime, shutil
+import datetime, shutil, tempfile
 from anki import Collection
 from anki.consts import *
 from shared import getUpgradeDeckPath, testDir
@@ -63,8 +63,9 @@ def test_invalid_ords():
     assert deck.db.scalar("select count() from cards where ord = 1") == 1
 
 def test_upgrade2():
-    p = "/tmp/alpha-upgrade.anki2"
+    fd, p = tempfile.mkstemp(suffix=".anki2", prefix="alpha-upgrade")
     if os.path.exists(p):
+        os.close(fd)
         os.unlink(p)
     shutil.copy2(os.path.join(testDir, "support/anki2-alpha.anki2"), p)
     col = Collection(p)
