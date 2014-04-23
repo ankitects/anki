@@ -96,8 +96,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations."""
         self._win.setCancelButton(None)
         self._win.setAutoClose(False)
         self._win.setAutoReset(False)
-        if not isMac:
-            self._win.setWindowModality(Qt.ApplicationModal)
+        self._win.setWindowModality(Qt.ApplicationModal)
         # we need to manually manage minimum time to show, as qt gets confused
         # by the db handler
         self._win.setMinimumDuration(100000)

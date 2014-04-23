@@ -36,7 +36,9 @@ def test_export_anki():
     deck.decks.setConf(dobj, confId)
     # export
     e = AnkiExporter(deck)
-    newname = unicode(tempfile.mkstemp(prefix="ankitest", suffix=".anki2")[1])
+    fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
+    newname = unicode(newname)
+    os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
     # exporting should not have changed conf for original deck
@@ -54,7 +56,9 @@ def test_export_anki():
     # conf should be 1
     assert dobj['conf'] == 1
     # try again, limited to a deck
-    newname = unicode(tempfile.mkstemp(prefix="ankitest", suffix=".anki2")[1])
+    fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
+    newname = unicode(newname)
+    os.close(fd)
     os.unlink(newname)
     e.did = 1
     e.exportInto(newname)
@@ -69,7 +73,9 @@ def test_export_ankipkg():
     n['Front'] = u'[sound:今日.mp3]'
     deck.addNote(n)
     e = AnkiPackageExporter(deck)
-    newname = unicode(tempfile.mkstemp(prefix="ankitest", suffix=".apkg")[1])
+    fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".apkg")
+    newname = unicode(newname)
+    os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
 
@@ -92,7 +98,9 @@ def test_export_anki_due():
     # export
     e = AnkiExporter(deck)
     e.includeSched = True
-    newname = unicode(tempfile.mkstemp(prefix="ankitest", suffix=".anki2")[1])
+    fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
+    newname = unicode(newname)
+    os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
     # importing into a new deck, the due date should be equivalent
@@ -115,7 +123,9 @@ def test_export_anki_due():
 @nose.with_setup(setup1)
 def test_export_textnote():
     e = TextNoteExporter(deck)
-    f = unicode(tempfile.mkstemp(prefix="ankitest")[1])
+    fd, f = tempfile.mkstemp(prefix="ankitest")
+    f = unicode(f)
+    os.close(fd)
     os.unlink(f)
     e.exportInto(f)
     e.includeTags = True
