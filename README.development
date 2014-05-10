@@ -5,10 +5,7 @@ tools (specifically pyrcc4 and pyuic4). These are often contained in a
 separate package on Linux, such as 'pyqt4-dev-tools' on Debian/Ubuntu. On a Mac
 they are part of the PyQt source install.
 
-WINDOWS USERS: I have not tested the UI build script on Windows, so you'll need
-to fix any problems you encounter on your own. If you can't figure it out, you
-can still use the source packages of Anki, which contain pre-built copies
-of the UI.
+Windows users, please see the note at the bottom of this file before proceeding.
 
 To use the development version:
 
@@ -42,3 +39,20 @@ Before contributing code, please read the LICENSE file.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
+
+WINDOWS USERS:
+
+I have not tested the build scripts on Windows, so you'll need to solve any
+problems you encounter on your own. The easiest way is to use a source
+tarball instead of git, as that way you don't need to build the UI yourself.
+If you do want to use git, a user contributed the following, which should get
+you most of the way there:
+
+    1) Install "git bash".
+    2) In the tools directory, modify build_ui.sh. Locate the line that reads
+    "pyuic4 $i -o $py" and alter it to be of the following form:
+    "<python-path-string>" "<pyuic-path-string>" $i -o $py
+    These two paths must point to your python executable, and to pyuic.py, on your
+    system. Typical paths would be:
+    <python-path> = C:\\Python27\\python.exe
+    <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py
