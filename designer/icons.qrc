@@ -35,6 +35,8 @@
     <file>icons/editclear.png</file>
     <file>icons/view-statistics.png</file>
     <file>icons/emblem-favorite.png</file>
+    <file>icons/emblem-favorite-dark.png</file>
+    <file>icons/emblem-favorite-off.png</file>
     <file>icons/view-pim-calendar.png</file>
     <file>icons/anki-tag.png</file>
     <file>icons/edit-redo.png</file>
