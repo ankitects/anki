@@ -433,10 +433,8 @@ select count() from
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
     def totalNewForCurrentDeck(self):
-        return self.col.db.scalar(
-            """
-select count() from cards where id in (
-select id from cards where did in %s and queue = 0 limit ?)"""
+        return self.col.db.scalar("""
+select count() from cards where did in %s and queue = 0 limit ?)"""
             % ids2str(self.col.decks.active()), self.reportLimit)
 
     # Learning queues
