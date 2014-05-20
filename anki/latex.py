@@ -7,8 +7,11 @@ from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
 
-latexCmd = ["latex", "-interaction=nonstopmode"]
-latexDviPngCmd = ["dvipng", "-D", "200", "-T", "tight"]
+latexCmds = [
+    ["latex", "-interaction=nonstopmode", "tmp.tex"],
+    ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"]
+]
+
 build = True # if off, use existing media but don't create new
 regexps = {
     "standard": re.compile(r"\[latex\](.+?)\[/latex\]", re.DOTALL | re.IGNORECASE),
@@ -89,14 +92,10 @@ package in the LaTeX header instead.""") % bad
     oldcwd = os.getcwd()
     png = namedtmp("tmp.png")
     try:
-        # generate dvi
-        os.chdir(tmpdir())
-        if call(latexCmd + ["tmp.tex"], stdout=log, stderr=log):
-            return _errMsg("latex", texpath)
-        # and png
-        if call(latexDviPngCmd + ["tmp.dvi", "-o", "tmp.png"],
-                stdout=log, stderr=log):
-            return _errMsg("dvipng", texpath)
+        # generate png
+        for latexCmd in latexCmds:
+            if call(latexCmd, stdout=log, stderr=log):
+                return _errMsg(latexCmd[0], texpath)
         # add to media
         shutil.copyfile(png, os.path.join(mdir, fname))
         return
