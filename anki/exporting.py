@@ -20,10 +20,12 @@ class Exporter(object):
         file.close()
 
     def escapeText(self, text):
-        "Escape newlines, tabs and CSS."
+        "Escape newlines, tabs, CSS and quotechar."
         text = text.replace("\n", "<br>")
         text = text.replace("\t", " " * 8)
         text = re.sub("(?i)<style>.*?</style>", "", text)
+        if "\"" in text:
+        	text = "\"" + text.replace("\"", "\"\"") + "\""
         return text
 
     def cardIds(self):
