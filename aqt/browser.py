@@ -367,7 +367,6 @@ class Browser(QMainWindow):
         self.setupEditor()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
-        self.form.searchEdit.setLineEdit(FavouritesLineEdit(self.mw, self))
         self.form.searchEdit.setFocus()
         self.form.searchEdit.lineEdit().setText("is:current")
         self.form.searchEdit.lineEdit().selectAll()
@@ -505,6 +504,7 @@ class Browser(QMainWindow):
 
     def setupSearch(self):
         self.filterTimer = None
+        self.form.searchEdit.setLineEdit(FavouritesLineEdit(self.mw, self))
         self.connect(self.form.searchButton,
                      SIGNAL("clicked()"),
                      self.onSearch)
