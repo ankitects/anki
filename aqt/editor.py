@@ -21,7 +21,7 @@ import anki.js
 from BeautifulSoup import BeautifulSoup
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg")
-audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv")
+audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a")
 
 _html = """
 <html><head>%s<style>
