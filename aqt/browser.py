@@ -511,7 +511,6 @@ class Browser(QMainWindow):
         self.connect(self.form.searchEdit.lineEdit(),
                      SIGNAL("returnPressed()"),
                      self.onSearch)
-        self.setTabOrder(self.form.searchEdit, self.form.tableView)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.addItems(self.mw.pm.profile['searchHistory'])
         self.connect(self.form.searchEdit.lineEdit(),
