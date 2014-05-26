@@ -756,6 +756,17 @@ select id from cards where odue > 0 and (type=1 or queue=2) and not odid""")
                          "Fixed %d cards with invalid properties.", cnt) % cnt)
             self.db.execute("update cards set odue=0 where id in "+
                 ids2str(ids))
+        # cards with odid set when not in a dyn deck
+        dids = [id for id in self.decks.allIds() if not self.decks.isDyn(id)]
+        ids = self.db.list("""
+select id from cards where odid > 0 and did in %s""" % ids2str(dids))
+        if ids:
+            cnt = len(ids)
+            problems.append(
+                ngettext("Fixed %d card with invalid properties.",
+                         "Fixed %d cards with invalid properties.", cnt) % cnt)
+            self.db.execute("update cards set odid=0, odue=0 where id in "+
+                ids2str(ids))
         # tags
         self.tags.registerNotes()
         # field cache
