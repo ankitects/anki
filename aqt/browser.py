@@ -1763,7 +1763,7 @@ class FavouritesLineEdit(QLineEdit):
         # name of current saved filter (if query matches)
         self.name = None
         self.buttonClicked.connect(self.onClicked)
-        self.connect(self, SIGNAL("textEdited(QString)"), self.updateButton)
+        self.connect(self, SIGNAL("textChanged(QString)"), self.updateButton)
     
     def resizeEvent(self, event):
         buttonSize = self.button.sizeHint()
