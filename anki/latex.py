@@ -7,6 +7,8 @@ from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
 
+# if you modify these in an add-on, you must make sure to take tmp.tex as the
+# input, and output tmp.png as the output file
 latexCmds = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
     ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"]
