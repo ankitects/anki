@@ -1,11 +1,11 @@
 # coding: utf-8
 
 import time
-from tests.shared import  getEmptyDeck
+from tests.shared import  getEmptyCol
 from anki.consts import *
 
 def test_op():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # should have no undo by default
     assert not d.undoName()
     # let's adjust a study option
@@ -36,7 +36,7 @@ def test_op():
     assert d.undoName() == "Review"
 
 def test_review():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.conf['counts'] = COUNT_REMAINING
     f = d.newNote()
     f['Front'] = u"one"

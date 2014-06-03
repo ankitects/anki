@@ -1,10 +1,10 @@
 # coding: utf-8
 
 import  os
-from tests.shared import  getEmptyDeck
+from tests.shared import  getEmptyCol
 
 def test_stats():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = "foo"
     d.addNote(f)
@@ -18,7 +18,7 @@ def test_stats():
     assert d.cardStats(c)
 
 def test_graphs_empty():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     assert d.stats().report()
 
 def test_graphs():

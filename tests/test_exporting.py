@@ -4,7 +4,7 @@ import nose, os, tempfile
 from anki import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
-from shared import getEmptyDeck
+from shared import getEmptyCol
 
 deck = None
 ds = None
@@ -12,7 +12,7 @@ testDir = os.path.dirname(__file__)
 
 def setup1():
     global deck
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = ["tag", "tag2"]
     deck.addNote(f)
@@ -81,7 +81,7 @@ def test_export_ankipkg():
 
 @nose.with_setup(setup1)
 def test_export_anki_due():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u"foo"
     deck.addNote(f)
@@ -104,7 +104,7 @@ def test_export_anki_due():
     os.unlink(newname)
     e.exportInto(newname)
     # importing into a new deck, the due date should be equivalent
-    deck2 = getEmptyDeck()
+    deck2 = getEmptyCol()
     imp = Anki2Importer(deck2, newname)
     imp.run()
     c = deck2.getCard(c.id)

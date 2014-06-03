@@ -3,13 +3,13 @@
 import time
 import copy
 
-from tests.shared import  getEmptyDeck
+from tests.shared import  getEmptyCol
 from anki.utils import  intTime
 from anki.hooks import addHook
 
 
 def test_clock():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     if (d.sched.dayCutoff - intTime()) < 10*60:
         raise Exception("Unit tests will fail around the day rollover.")
 
@@ -18,12 +18,12 @@ def checkRevIvl(d, c, targetIvl):
     return min <= c.ivl <= max
 
 def test_basics():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.reset()
     assert not d.sched.getCard()
 
 def test_new():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.reset()
     assert d.sched.newCount == 0
     # add a note
@@ -65,7 +65,7 @@ def test_new():
         d.sched.answerCard(c, 2)
 
 def test_newLimits():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add some notes
     g2 = d.decks.id("Default::foo")
     for i in range(30):
@@ -95,7 +95,7 @@ def test_newLimits():
     assert d.sched.newCount == 9
 
 def test_newBoxes():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -108,7 +108,7 @@ def test_newBoxes():
     d.sched.answerCard(c, 2)
 
 def test_learn():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note
     f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
@@ -182,7 +182,7 @@ def test_learn():
     assert c.due == 321
 
 def test_learn_collapsed():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add 2 notes
     f = d.newNote()
     f['Front'] = u"1"
@@ -208,7 +208,7 @@ def test_learn_collapsed():
     assert not c.q().endswith("2")
 
 def test_learn_day():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note
     f = d.newNote()
     f['Front'] = u"one"
@@ -266,7 +266,7 @@ def test_learn_day():
     assert d.sched.counts() == (0, 0, 0)
 
 def test_reviews():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note
     f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
@@ -358,7 +358,7 @@ def test_reviews():
     assert c.queue == -1
 
 def test_button_spacing():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -380,7 +380,7 @@ def test_button_spacing():
 def test_overdue_lapse():
     # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
     return
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note
     f = d.newNote()
     f['Front'] = u"one"
@@ -413,7 +413,7 @@ def test_overdue_lapse():
     assert d.sched.counts() == (0, 0, 1)
 
 def test_finished():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # nothing due
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
@@ -432,7 +432,7 @@ def test_finished():
     assert "limit" not in d.sched.finishedMsg()
 
 def test_nextIvl():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addNote(f)
@@ -488,7 +488,7 @@ def test_nextIvl():
     assert d.sched.nextIvlStr(c, 4) == "10.8 months"
 
 def test_misc():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -502,7 +502,7 @@ def test_misc():
     assert d.sched.getCard()
 
 def test_suspend():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -545,7 +545,7 @@ def test_suspend():
     assert c.did == 1
 
 def test_cram():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -653,7 +653,7 @@ def test_cram():
     assert c.did == 1
 
 def test_cram_rem():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -674,7 +674,7 @@ def test_cram_rem():
 
 def test_cram_resched():
     # add card
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -778,7 +778,7 @@ def test_cram_resched():
     # print c.__dict__
 
 def test_ordcycle():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add two more templates and set second active
     m = d.models.current(); mm = d.models
     t = mm.newTemplate("Reverse")
@@ -802,7 +802,7 @@ def test_ordcycle():
     assert d.sched.getCard().ord == 2
 
 def test_counts_idx():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addNote(f)
@@ -824,7 +824,7 @@ def test_counts_idx():
     assert d.sched.counts() == (0, 2, 0)
 
 def test_repCounts():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -876,7 +876,7 @@ def test_repCounts():
     assert d.sched.counts() == (0, 1, 0)
 
 def test_timing():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a few review cards, due today
     for i in range(5):
         f = d.newNote()
@@ -902,7 +902,7 @@ def test_timing():
     assert c.queue == 1
 
 def test_collapse():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note
     f = d.newNote()
     f['Front'] = u"one"
@@ -916,7 +916,7 @@ def test_collapse():
     assert not d.sched.getCard()
 
 def test_deckDue():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note with default deck
     f = d.newNote()
     f['Front'] = u"one"
@@ -966,7 +966,7 @@ def test_deckDue():
     d.sched.deckDueTree()
 
 def test_deckTree():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.decks.id("new::b::c")
     d.decks.id("new2")
     # new should not appear twice in tree
@@ -975,7 +975,7 @@ def test_deckTree():
     assert "new" not in names
 
 def test_deckFlow():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note with default deck
     f = d.newNote()
     f['Front'] = u"one"
@@ -999,7 +999,7 @@ def test_deckFlow():
         d.sched.answerCard(c, 2)
 
 def test_reorder():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note with default deck
     f = d.newNote()
     f['Front'] = u"one"
@@ -1037,7 +1037,7 @@ def test_reorder():
     assert f4.cards()[0].due == 2
 
 def test_forget():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -1051,7 +1051,7 @@ def test_forget():
     assert d.sched.counts() == (1, 0, 0)
 
 def test_resched():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"
     d.addNote(f)
@@ -1067,7 +1067,7 @@ def test_resched():
     assert c.ivl == +1
 
 def test_norelearn():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # add a note
     f = d.newNote()
     f['Front'] = u"one"
@@ -1088,7 +1088,7 @@ def test_norelearn():
     d.sched.answerCard(c, 1)
 
 def test_failmult():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
     d.addNote(f)

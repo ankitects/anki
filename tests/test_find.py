@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from anki.find import Finder
-from tests.shared import getEmptyDeck
+from tests.shared import getEmptyCol
 
 def test_parse():
     f = Finder(None)
@@ -20,7 +20,7 @@ def test_parse():
     assert f._tokenize("deck:'two words'") == ["deck:two words"]
 
 def test_findCards():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u'dog'
     f['Back'] = u'cat'
@@ -216,7 +216,7 @@ def test_findCards():
     assert len(deck.findCards("added:2")) == deck.cardCount()
 
 def test_findReplace():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u'foo'
     f['Back'] = u'bar'
@@ -243,7 +243,7 @@ def test_findReplace():
     f.load(); assert f['Back'] == "reg"
 
 def test_findDupes():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u'foo'
     f['Back'] = u'bar'

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import  os
-from tests.shared import  getUpgradeDeckPath, getEmptyDeck
+from tests.shared import  getUpgradeDeckPath, getEmptyCol
 from anki.upgrade import Upgrader
 from anki.utils import ids2str
 from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
@@ -27,7 +27,7 @@ def test_anki2():
     open(os.path.join(src.media.dir(), "_foo.jpg"), "w").write("foo")
     src.close()
     # create a new empty deck
-    dst = getEmptyDeck()
+    dst = getEmptyCol()
     # import src into dst
     imp = Anki2Importer(dst, srcpath)
     imp.run()
@@ -50,7 +50,7 @@ def test_anki2():
     assert len(os.listdir(dst.media.dir())) == 1
 
 def test_anki2_mediadupes():
-    tmp = getEmptyDeck()
+    tmp = getEmptyCol()
     # add a note that references a sound
     n = tmp.newNote()
     n['Front'] = "[sound:foo.mp3]"
@@ -60,7 +60,7 @@ def test_anki2_mediadupes():
     open(os.path.join(tmp.media.dir(), "foo.mp3"), "w").write("foo")
     tmp.close()
     # it should be imported correctly into an empty deck
-    empty = getEmptyDeck()
+    empty = getEmptyCol()
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
     assert os.listdir(empty.media.dir()) == ["foo.mp3"]
@@ -95,7 +95,7 @@ def test_anki2_mediadupes():
     assert "_" in n.fields[0]
 
 def test_apkg():
-    tmp = getEmptyDeck()
+    tmp = getEmptyCol()
     apkg = unicode(os.path.join(testDir, "support/media.apkg"))
     imp = AnkiPackageImporter(tmp, apkg)
     assert os.listdir(tmp.media.dir()) == []
@@ -122,7 +122,7 @@ def test_anki1():
         os.mkdir(mdir)
     open(os.path.join(mdir, "_foo.jpg"), "w").write("foo")
     # create a new empty deck
-    dst = getEmptyDeck()
+    dst = getEmptyCol()
     # import src into dst
     imp = Anki1Importer(dst, tmp)
     imp.run()
@@ -138,7 +138,7 @@ def test_anki1():
 
 def test_anki1_diffmodels():
     # create a new empty deck
-    dst = getEmptyDeck()
+    dst = getEmptyCol()
     # import the 1 card version of the model
     tmp = getUpgradeDeckPath("diffmodels1.anki")
     imp = Anki1Importer(dst, tmp)
@@ -165,7 +165,7 @@ def test_anki1_diffmodels():
 
 def test_suspended():
     # create a new empty deck
-    dst = getEmptyDeck()
+    dst = getEmptyCol()
     # import the 1 card version of the model
     tmp = getUpgradeDeckPath("suspended12.anki")
     imp = Anki1Importer(dst, tmp)
@@ -174,7 +174,7 @@ def test_suspended():
 
 def test_anki2_diffmodels():
     # create a new empty deck
-    dst = getEmptyDeck()
+    dst = getEmptyCol()
     # import the 1 card version of the model
     tmp = getUpgradeDeckPath("diffmodels2-1.apkg")
     imp = AnkiPackageImporter(dst, tmp)
@@ -206,7 +206,7 @@ def test_anki2_diffmodels():
 
 def test_anki2_updates():
     # create a new empty deck
-    dst = getEmptyDeck()
+    dst = getEmptyCol()
     tmp = getUpgradeDeckPath("update1.apkg")
     imp = AnkiPackageImporter(dst, tmp)
     imp.run()
@@ -232,7 +232,7 @@ def test_anki2_updates():
     assert dst.db.scalar("select flds from notes").startswith("goodbye")
 
 def test_csv():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     file = unicode(os.path.join(testDir, "support/text-2fields.txt"))
     i = TextImporter(deck, file)
     i.initMapping()
@@ -266,7 +266,7 @@ def test_csv():
     deck.close()
 
 def test_csv2():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     mm = deck.models
     m = mm.current()
     f = mm.newField("Three")
@@ -289,7 +289,7 @@ def test_csv2():
     deck.close()
 
 def test_supermemo_xml_01_unicode():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     file = unicode(os.path.join(testDir, "support/supermemo1.xml"))
     i = SupermemoXmlImporter(deck, file)
     #i.META.logToStdOutput = True
@@ -303,7 +303,7 @@ def test_supermemo_xml_01_unicode():
     deck.close()
 
 def test_mnemo():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     file = unicode(os.path.join(testDir, "support/mnemo.db"))
     i = MnemosyneImporter(deck, file)
     i.run()

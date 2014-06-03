@@ -1,11 +1,11 @@
 # coding: utf-8
 
 import os
-from tests.shared import  getEmptyDeck
+from tests.shared import  getEmptyCol
 from anki.utils import stripHTML
 
 def test_latex():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # change latex cmd to simulate broken build
     import anki.latex
     anki.latex.latexCmds[0][0] = "nolatex"

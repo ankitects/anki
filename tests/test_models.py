@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from tests.shared import getEmptyDeck
+from tests.shared import getEmptyCol
 from anki.utils import stripHTML, joinFields
 
 def test_modelDelete():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -14,7 +14,7 @@ def test_modelDelete():
     assert deck.cardCount() == 0
 
 def test_modelCopy():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     m = deck.models.current()
     m2 = deck.models.copy(m)
     assert m2['name'] == "Basic copy"
@@ -27,7 +27,7 @@ def test_modelCopy():
     assert deck.models.scmhash(m) == deck.models.scmhash(m2)
 
 def test_fields():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -74,7 +74,7 @@ def test_fields():
     assert d.getNote(d.models.nids(m)[0]).fields == ["", "2", "1"]
 
 def test_templates():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     m = d.models.current(); mm = d.models
     t = mm.newTemplate("Reverse")
     t['qfmt'] = "{{Back}}"
@@ -108,7 +108,7 @@ def test_templates():
     assert not d.models.remTemplate(m, m['tmpls'][0])
 
 def test_cloze_ordinals():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
     m = d.models.current(); mm = d.models
     
@@ -131,7 +131,7 @@ def test_cloze_ordinals():
     
 
 def test_text():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     m = d.models.current()
     m['tmpls'][0]['qfmt'] = "{{text:Front}}"
     d.models.save(m)
@@ -141,7 +141,7 @@ def test_text():
     assert "helloworld" in f.cards()[0].q()
 
 def test_cloze():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
     f = d.newNote()
     assert f.model()['name'] == "Cloze"
@@ -187,7 +187,7 @@ def test_cloze():
     assert len(f.cards()) == 2
 
 def test_chained_mods():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
     m = d.models.current(); mm = d.models
     
@@ -210,7 +210,7 @@ def test_chained_mods():
     assert "This <span class=cloze>phrase</span> demonstrates <span class=cloze>en chaine</span> clozes." in f.cards()[0].a()
 
 def test_modelChange():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     basic = deck.models.byName("Basic")
     cloze = deck.models.byName("Cloze")
     # enable second template and add a note
@@ -284,7 +284,7 @@ def test_modelChange():
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
 
 def test_availOrds():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     m = d.models.current(); mm = d.models
     t = m['tmpls'][0]
     f = d.newNote()

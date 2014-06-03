@@ -5,7 +5,7 @@ import nose, os, shutil, time
 from anki import Collection as aopen, Collection
 from anki.utils import intTime
 from anki.sync import Syncer, LocalServer
-from tests.shared import getEmptyDeck, getEmptyDeckWith
+from tests.shared import getEmptyCol, getEmptyDeckWith
 
 # Local tests
 ##########################################################################
@@ -18,7 +18,7 @@ server2=None
 
 def setup_basic():
     global deck1, deck2, client, server
-    deck1 = getEmptyDeck()
+    deck1 = getEmptyCol()
     # add a note to deck 1
     f = deck1.newNote()
     f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = [u"foo"]
@@ -247,7 +247,7 @@ def test_threeway2():
     anki.notes.intTime = lambda x=1: intTime(1000)
     def setup():
         # create collection 1 with a single note
-        c1 = getEmptyDeck()
+        c1 = getEmptyCol()
         f = c1.newNote()
         f['Front'] = u"startingpoint"
         nid = f.id
