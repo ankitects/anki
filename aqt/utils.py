@@ -394,6 +394,7 @@ def tooltip(msg, period=3000, parent=None):
     lab.setWindowFlags(Qt.ToolTip)
     p = QPalette()
     p.setColor(QPalette.Window, QColor("#feffc4"))
+    p.setColor(QPalette.WindowText, QColor("#000000"))
     lab.setPalette(p)
     lab.move(
         aw.mapToGlobal(QPoint(0, -100 + aw.height())))
