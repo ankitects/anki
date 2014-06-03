@@ -95,6 +95,7 @@ package in the LaTeX header instead.""") % bad
     png = namedtmp("tmp.png")
     try:
         # generate png
+        os.chdir(tmpdir())
         for latexCmd in latexCmds:
             if call(latexCmd, stdout=log, stderr=log):
                 return _errMsg(latexCmd[0], texpath)
