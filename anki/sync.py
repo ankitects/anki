@@ -757,6 +757,7 @@ class MediaSyncer(object):
             # if the sanity check failed, force a resync
             self.col.media.forceResync()
             return "sanityCheckFailed"
+        return "success"
 
     def removed(self):
         return self.col.media.removed()
