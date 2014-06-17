@@ -295,7 +295,7 @@ def importFile(mw, file):
             return
         except Exception, e:
             msg = repr(str(e))
-            if msg == "unknownFormat":
+            if msg == "'unknownFormat'":
                 if file.endswith(".anki2"):
                     showWarning(_("""\
 .anki2 files are not designed for importing. If you're trying to restore from a \
