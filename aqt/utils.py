@@ -240,7 +240,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     ret = []
     def accept():
         # work around an osx crash
-        aqt.mw.app.processEvents()
+        #aqt.mw.app.processEvents()
         file = unicode(list(d.selectedFiles())[0])
         if dirkey:
             dir = os.path.dirname(file)
@@ -394,6 +394,7 @@ def tooltip(msg, period=3000, parent=None):
     lab.setWindowFlags(Qt.ToolTip)
     p = QPalette()
     p.setColor(QPalette.Window, QColor("#feffc4"))
+    p.setColor(QPalette.WindowText, QColor("#000000"))
     lab.setPalette(p)
     lab.move(
         aw.mapToGlobal(QPoint(0, -100 + aw.height())))

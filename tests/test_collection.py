@@ -1,7 +1,7 @@
 # coding: utf-8
 
-import os
-from tests.shared import assertException, getEmptyDeck
+import os, tempfile
+from tests.shared import assertException, getEmptyCol
 from anki.stdmodels import addBasicModel
 
 from anki import Collection as aopen
@@ -11,8 +11,9 @@ newMod = None
 
 def test_create():
     global newPath, newMod
-    path = "/tmp/test_attachNew.anki2"
+    (fd, path) = tempfile.mkstemp(suffix=".anki2", prefix="test_attachNew")
     try:
+        os.close(fd)
         os.unlink(path)
     except OSError:
         pass
@@ -40,7 +41,7 @@ def test_openReadOnly():
     os.unlink(newPath)
 
 def test_noteAddDelete():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     # add a note
     f = deck.newNote()
     f['Front'] = u"one"; f['Back'] = u"two"
@@ -79,7 +80,7 @@ def test_noteAddDelete():
     assert f2.dupeOrEmpty()
 
 def test_fieldChecksum():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u"new"; f['Back'] = u"new2"
     deck.addNote(f)
@@ -92,7 +93,7 @@ def test_fieldChecksum():
         "select csum from notes") == int("302811ae", 16)
 
 def test_addDelTags():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u"1"
     deck.addNote(f)
@@ -111,14 +112,14 @@ def test_addDelTags():
     assert len(f.tags) == 2
 
 def test_timestamps():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     assert len(deck.models.models) == 4
     for i in range(100):
         addBasicModel(deck)
     assert len(deck.models.models) == 104
 
 def test_furigana():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     mm = deck.models
     m = mm.current()
     # filter should work

@@ -31,8 +31,8 @@ system. It's free and open source.")
 Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, Charlene Barina,
 Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen,
 Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail,
-Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
-Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Kieran Clancy, LaC, Laurent Steffan,
+Houssam Salem, Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
+Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Julien Baley, Kieran Clancy, LaC, Laurent Steffan,
 Luca Ban, Luciano Esposito, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
 Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
 Montague, Michael Penkov, Michal Čadil, Morteza Salehi, Nathanael Law, Nick Cook, Niklas

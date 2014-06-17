@@ -18,7 +18,7 @@ class MnemosyneImporter(NoteImporter):
         db = DB(self.file)
         ver = db.scalar(
             "select value from global_variables where key='version'")
-        assert ver.startswith('Mnemosyne SQL 1')
+        assert ver.startswith('Mnemosyne SQL 1') or ver == "2"
         # gather facts into temp objects
         curid = None
         notes = {}

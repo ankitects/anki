@@ -134,7 +134,8 @@ function _updateQA (q, answerMode, klass) {
         typeans.focus();
     }
     if (answerMode) {
-        window.location = "#answer";
+        var e = $("#answer");
+        if (e[0]) { e[0].scrollIntoView(); }
     } else {
         window.scrollTo(0, 0);
     }
@@ -433,10 +434,11 @@ Please run Tools>Empty Cards""")
                 return txt.split("::")[0]
             return txt
         matches = [noHint(txt) for txt in matches]
-        if len(matches) > 1:
-            txt = ", ".join(matches)
-        else:
+        uniqMatches = set(matches)
+        if len(uniqMatches) == 1:
             txt = matches[0]
+        else:
+            txt = ", ".join(matches)
         return txt
 
     def tokenizeComparison(self, given, correct):

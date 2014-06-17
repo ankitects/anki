@@ -170,6 +170,8 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "10061" in err or "10013" in err or "10053" in err:
             return _(
                 "Antivirus or firewall software is preventing Anki from connecting to the internet.")
+        elif "10054" in err or "Broken pipe" in err:
+            return _("Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder.")
         elif "Unable to find the server" in err:
             return _(
                 "Server not found. Either your connection is down, or antivirus/firewall "
@@ -178,6 +180,8 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
             return _("Proxy authentication required.")
         elif "code: 413" in err:
             return _("Your collection or a media file is too large to sync.")
+        elif "EOF occurred in violation of protocol" in err:
+            return _("Error establishing a secure connection. This is usually caused by filtering software, or problems with your ISP.")
         return err
 
     def _getUserPass(self):

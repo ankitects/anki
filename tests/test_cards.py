@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from tests.shared import getEmptyDeck
+from tests.shared import getEmptyCol
 
 def test_previewCards():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -23,7 +23,7 @@ def test_previewCards():
     assert deck.cardCount() == 1
 
 def test_delete():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -39,7 +39,7 @@ def test_delete():
     assert deck.db.scalar("select count() from graves") == 2
 
 def test_misc():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -49,7 +49,7 @@ def test_misc():
     assert c.template()['ord'] == 0
 
 def test_genrem():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u'1'
     f['Back'] = u''
@@ -76,7 +76,7 @@ def test_genrem():
     assert len(f.cards()) == 2
 
 def test_gendeck():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     cloze = d.models.byName("Cloze")
     d.models.setCurrent(cloze)
     f = d.newNote()

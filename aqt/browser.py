@@ -96,10 +96,14 @@ class DataModel(QAbstractTableModel):
             return
         elif role == Qt.DisplayRole and section < len(self.activeCols):
             type = self.columnType(section)
+            txt = None
             for stype, name in self.browser.columns:
                 if type == stype:
                     txt = name
                     break
+            # handle case where extension has set an invalid column type
+            if not txt:
+                txt = self.browser.columns[0][1]
             return txt
         else:
             return
@@ -500,15 +504,18 @@ class Browser(QMainWindow):
 
     def setupSearch(self):
         self.filterTimer = None
+        self.form.searchEdit.setLineEdit(FavouritesLineEdit(self.mw, self))
         self.connect(self.form.searchButton,
                      SIGNAL("clicked()"),
                      self.onSearch)
         self.connect(self.form.searchEdit.lineEdit(),
                      SIGNAL("returnPressed()"),
                      self.onSearch)
-        self.setTabOrder(self.form.searchEdit, self.form.tableView)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.addItems(self.mw.pm.profile['searchHistory'])
+        self.connect(self.form.searchEdit.lineEdit(),
+                     SIGNAL("returnPressed()"),
+                     self.onSearch)
 
     def onSearch(self, reset=True):
         "Careful: if reset is true, the current note is saved."
@@ -712,11 +719,9 @@ by clicking on one on the left."""))
 
     def setColumnSizes(self):
         hh = self.form.tableView.horizontalHeader()
-        for i in range(len(self.model.activeCols)):
-            if hh.visualIndex(i) == len(self.model.activeCols) - 1:
-                hh.setResizeMode(i, QHeaderView.Stretch)
-            else:
-                hh.setResizeMode(i, QHeaderView.Interactive)
+        hh.setResizeMode(QHeaderView.Interactive)
+        hh.setResizeMode(hh.logicalIndex(len(self.model.activeCols)-1),
+                         QHeaderView.Stretch)
         # this must be set post-resize or it doesn't work
         hh.setCascadingSectionResizes(False)
 
@@ -727,9 +732,10 @@ by clicking on one on the left."""))
     ######################################################################
 
     class CallbackItem(QTreeWidgetItem):
-        def __init__(self, root, name, onclick):
+        def __init__(self, root, name, onclick, oncollapse=None):
             QTreeWidgetItem.__init__(self, root, [name])
             self.onclick = onclick
+            self.oncollapse = oncollapse
 
     def setupTree(self):
         self.connect(
@@ -739,22 +745,31 @@ by clicking on one on the left."""))
         p.setColor(QPalette.Base, QColor("#d6dde0"))
         self.form.tree.setPalette(p)
         self.buildTree()
+        self.connect(
+            self.form.tree, SIGNAL("itemExpanded(QTreeWidgetItem*)"),
+            lambda item: self.onTreeCollapse(item))
+        self.connect(
+            self.form.tree, SIGNAL("itemCollapsed(QTreeWidgetItem*)"),
+            lambda item: self.onTreeCollapse(item))
 
     def buildTree(self):
         self.form.tree.clear()
         root = self.form.tree
         self._systemTagTree(root)
+        self._favTree(root)
         self._decksTree(root)
         self._modelTree(root)
         self._userTagTree(root)
-        self.form.tree.expandAll()
-        self.form.tree.setItemsExpandable(False)
         self.form.tree.setIndentation(15)
 
     def onTreeClick(self, item, col):
         if getattr(item, 'onclick', None):
             item.onclick()
 
+    def onTreeCollapse(self, item):
+        if getattr(item, 'oncollapse', None):
+            item.oncollapse()
+            
     def setFilter(self, *args):
         if len(args) == 1:
             txt = args[0]
@@ -804,6 +819,18 @@ by clicking on one on the left."""))
             item.setIcon(0, QIcon(":/icons/" + icon))
         return root
 
+    def _favTree(self, root):
+        saved = self.col.conf.get('savedFilters', [])
+        if not saved:
+            # Don't add favourites to tree if none saved
+            return
+        root = self.CallbackItem(root, _("My Searches"), None)
+        root.setExpanded(True)
+        root.setIcon(0, QIcon(":/icons/emblem-favorite-dark.png"))
+        for name, filt in saved.items():
+            item = self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
+            item.setIcon(0, QIcon(":/icons/emblem-favorite-dark.png"))
+    
     def _userTagTree(self, root):
         for t in sorted(self.col.tags.all()):
             if t.lower() == "marked" or t.lower() == "leech":
@@ -817,10 +844,13 @@ by clicking on one on the left."""))
         def fillGroups(root, grps, head=""):
             for g in grps:
                 item = self.CallbackItem(
-                    root, g[0], lambda g=g: self.setFilter(
-                        "deck", head+g[0]))
+                    root, g[0],
+                    lambda g=g: self.setFilter("deck", head+g[0]),
+                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]))
                 item.setIcon(0, QIcon(":/icons/deck16.png"))
                 newhead = head + g[0]+"::"
+                collapsed = self.mw.col.decks.get(g[1]).get('browserCollapsed', False)
+                item.setExpanded(not collapsed)
                 fillGroups(item, g[5], newhead)
         fillGroups(root, grps)
 
@@ -847,7 +877,7 @@ by clicking on one on the left."""))
         d = QDialog(self)
         l = QVBoxLayout()
         l.setMargin(0)
-        w = AnkiWebView()
+        w = AnkiWebView(canCopy=True)
         l.addWidget(w)
         w.stdHtml(info + "<p>" + reps)
         bb = QDialogButtonBox(QDialogButtonBox.Close)
@@ -982,8 +1012,7 @@ where id in %s""" % ids2str(sf))
         c(self._previewWindow, SIGNAL("finished(int)"), self._onPreviewFinished)
         vbox = QVBoxLayout()
         vbox.setMargin(0)
-        self._previewWeb = AnkiWebView()
-        self._previewWeb.setFocusPolicy(Qt.NoFocus)
+        self._previewWeb = AnkiWebView(True)
         vbox.addWidget(self._previewWeb)
         bbox = QDialogButtonBox()
         self._previewPrev = bbox.addButton("<", QDialogButtonBox.ActionRole)
@@ -1193,7 +1222,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm = aqt.forms.reposition.Ui_Dialog()
         frm.setupUi(d)
         (pmin, pmax) = self.col.db.first(
-            "select min(due), max(due) from cards where type=0")
+            "select min(due), max(due) from cards where type=0 and odid=0")
+        pmin = pmin or 0
+        pmax = pmax or 0
         txt = _("Queue top: %d") % pmin
         txt += "\n" + _("Queue bottom: %d") % pmax
         frm.label.setText(txt)
@@ -1708,3 +1739,87 @@ a { margin-right: 1em; }
             self.browser.addTags()
         elif l == "deletetag":
             self.browser.deleteTags()
+
+
+# Favourites button
+######################################################################
+class FavouritesLineEdit(QLineEdit):
+    buttonClicked = pyqtSignal(bool)
+
+    def __init__(self, mw, browser, parent=None):
+        super(FavouritesLineEdit, self).__init__(parent)
+        self.mw = mw
+        self.browser = browser
+        # add conf if missing
+        if not self.mw.col.conf.has_key('savedFilters'):
+            self.mw.col.conf['savedFilters'] = {}
+        self.button = QToolButton(self)
+        self.button.setStyleSheet('border: 0px;')
+        self.button.setCursor(Qt.ArrowCursor)
+        self.button.clicked.connect(self.buttonClicked.emit)
+        self.setIcon(':/icons/emblem-favorite-off.png')
+        # flag to raise save or delete dialog on button click
+        self.doSave = True
+        # name of current saved filter (if query matches)
+        self.name = None
+        self.buttonClicked.connect(self.onClicked)
+        self.connect(self, SIGNAL("textChanged(QString)"), self.updateButton)
+    
+    def resizeEvent(self, event):
+        buttonSize = self.button.sizeHint()
+        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.button.move(self.rect().right() - frameWidth - buttonSize.width(),
+                         (self.rect().bottom() - buttonSize.height() + 1) / 2)
+        super(FavouritesLineEdit, self).resizeEvent(event)
+
+    def setIcon(self, path):
+        self.button.setIcon(QIcon(path))
+
+    def setText(self, txt):
+        super(FavouritesLineEdit, self).setText(txt)
+        self.updateButton()
+        
+    def updateButton(self, reset=True):
+        # If search text is a saved query, switch to the delete button.
+        # Otherwise show save button.
+        txt = unicode(self.text()).strip()
+        for key, value in self.mw.col.conf['savedFilters'].items():
+            if txt == value:
+                self.doSave = False
+                self.name = key
+                self.setIcon(QIcon(":/icons/emblem-favorite.png"))
+                return
+        self.doSave = True
+        self.setIcon(QIcon(":/icons/emblem-favorite-off.png"))
+    
+    def onClicked(self):
+        if self.doSave:
+            self.saveClicked()
+        else:
+            self.deleteClicked()
+    
+    def saveClicked(self):
+        txt = unicode(self.text()).strip()
+        dlg = QInputDialog(self)
+        dlg.setInputMode(QInputDialog.TextInput)
+        dlg.setLabelText(_("The current search terms will be added as a new "
+                           "item in the sidebar.\n"
+                           "Search name:"))
+        dlg.setWindowTitle(_("Save search"))
+        ok = dlg.exec_()
+        name = dlg.textValue()
+        if ok:
+            self.mw.col.conf['savedFilters'][name] = txt
+            
+        self.updateButton()
+        self.browser.setupTree()
+    
+    def deleteClicked(self):
+        msg = _('Remove "%s" from your saved searches?') % self.name
+        ok = QMessageBox.question(self, _('Remove search'),
+                         msg, QMessageBox.Yes, QMessageBox.No)
+    
+        if ok == QMessageBox.Yes:
+            self.mw.col.conf['savedFilters'].pop(self.name, None)
+            self.updateButton()
+            self.browser.setupTree()

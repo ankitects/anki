@@ -569,7 +569,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         sflds = splitFields(flds)
         map = self.fieldMap(m)
         ords = set()
-        matches = re.findall("{{cloze:(.+?)}}", m['tmpls'][0]['qfmt'])
+        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", m['tmpls'][0]['qfmt'])
         matches += re.findall("<%cloze:(.+?)%>", m['tmpls'][0]['qfmt'])
         for fname in matches:
             if fname not in map:

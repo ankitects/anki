@@ -197,6 +197,12 @@ class DeckManager(object):
         deck['collapsed'] = not deck['collapsed']
         self.save(deck)
 
+    def collapseBrowser(self, did):
+        deck = self.get(did)
+        collapsed = deck.get('browserCollapsed', False)
+        deck['browserCollapsed'] = not collapsed
+        self.save(deck)
+
     def count(self):
         return len(self.decks)
 

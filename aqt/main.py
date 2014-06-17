@@ -4,7 +4,7 @@
 
 import re
 import signal
-import  zipfile
+import zipfile
 
 from send2trash import send2trash
 from aqt.qt import *
@@ -63,6 +63,8 @@ class AnkiQt(QMainWindow):
             self.onAppMsg(unicode(args[0], sys.getfilesystemencoding(), "ignore"))
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
+        if isMac and qtmajor >= 5:
+            self.show()
         self.progress.timer(10, self.setupProfile, False)
 
     def setupUI(self):
@@ -264,15 +266,19 @@ To import into a password protected profile, please open the profile before atte
 
     def loadCollection(self):
         self.hideSchemaMsg = True
+        cpath = self.pm.collectionPath()
         try:
-            self.col = Collection(self.pm.collectionPath(), log=True)
+            self.col = Collection(cpath, log=True)
         except anki.db.Error:
-            # move back to profile manager
+            # warn user
             showWarning("""\
 Your collection is corrupt. Please see the manual for \
 how to restore from a backup.""")
-            self.unloadProfile()
-            raise
+            # move it out of the way so the profile can be used again
+            newpath = cpath+str(intTime())
+            os.rename(cpath, newpath)
+            # then close
+            sys.exit(1)
         except Exception, e:
             # the custom exception handler won't catch this if we immediately
             # unload, so we have to manually handle it
@@ -377,7 +383,9 @@ the manual for information on how to restore from an automatic backup."))
         if cleanup:
             cleanup(state)
         self.state = state
+        runHook('beforeStateChange', state, oldState, *args)
         getattr(self, "_"+state+"State")(oldState, *args)
+        runHook('afterStateChange', state, oldState, *args)
 
     def _deckBrowserState(self, oldState):
         self.deckBrowser.show()
@@ -405,10 +413,12 @@ the manual for information on how to restore from an automatic backup."))
 
     def _reviewState(self, oldState):
         self.reviewer.show()
+        self.web.setCanFocus(True)
 
     def _reviewCleanup(self, newState):
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
+            self.web.setCanFocus(False)
 
     def noteChanged(self, nid):
         "Called when a card or note is edited (but not deleted)."
@@ -504,7 +514,7 @@ title="%s">%s</button>''' % (
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
-        self.web = aqt.webview.AnkiWebView()
+        self.web = aqt.webview.AnkiWebView(canFocus=True)
         self.web.setObjectName("mainText")
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)

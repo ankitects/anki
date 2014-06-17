@@ -4,7 +4,7 @@ from anki.hooks import runFilter
 from anki.template import furigana; furigana.install()
 from anki.template import hint; hint.install()
 
-clozeReg = r"\{\{c%s::(.*?)(::(.*?))?\}\}"
+clozeReg = r"(?s)\{\{c%s::(.*?)(::(.*?))?\}\}"
 
 modifiers = {}
 def modifier(symbol):
@@ -158,40 +158,45 @@ class Template(object):
             return txt
 
         # field modifiers
-        parts = tag_name.split(':',2)
+        parts = tag_name.split(':')
         extra = None
         if len(parts) == 1 or parts[0] == '':
             return '{unknown field %s}' % tag_name
-        elif len(parts) == 2:
-            (mod, tag) = parts
-        elif len(parts) == 3:
-            (mod, extra, tag) = parts
+        else:
+            mods, tag = parts[:-1], parts[-1] #py3k has *mods, tag = parts
 
         txt = get_or_attr(context, tag)
+        
+        #Since 'text:' and other mods can affect html on which Anki relies to
+        #process clozes, we need to make sure clozes are always
+        #treated after all the other mods, regardless of how they're specified
+        #in the template, so that {{cloze:text: == {{text:cloze:
+        #For type:, we return directly since no other mod than cloze (or other
+        #pre-defined mods) can be present and those are treated separately
+        mods.reverse()
+        mods.sort(key=lambda s: not s=="type")
 
-        # built-in modifiers
-        if mod == 'text':
-            # strip html
-            if txt:
-                return stripHTML(txt)
-            return ""
-        elif mod == 'type':
-            # type answer field; convert it to [[type:...]] for the gui code
-            # to process
-            return "[[%s]]" % tag_name
-        elif mod == 'cq' or mod == 'ca':
-            # cloze deletion
-            if txt and extra:
-                return self.clozeText(txt, extra, mod[1])
+        for mod in mods:
+            # built-in modifiers
+            if mod == 'text':
+                # strip html
+                txt = stripHTML(txt) if txt else ""
+            elif mod == 'type':
+                # type answer field; convert it to [[type:...]] for the gui code
+                # to process
+                return "[[%s]]" % tag_name
+            elif mod.startswith('cq-') or mod.startswith('ca-'):
+                # cloze deletion
+                mod, extra = mod.split("-")
+                txt = self.clozeText(txt, extra, mod[1]) if txt and extra else ""
             else:
-                return ""
-        else:
-            # hook-based field modifier
-            txt = runFilter('fmod_' + mod, txt or '', extra, context,
-                            tag, tag_name);
-            if txt is None:
-                return '{unknown field %s}' % tag_name
-            return txt
+                # hook-based field modifier
+                mod, extra = re.search("^(.*?)(?:\((.*)\))?$", mod).groups()
+                txt = runFilter('fmod_' + mod, txt or '', extra or '', context,
+                                tag, tag_name);
+                if txt is None:
+                    return '{unknown field %s}' % tag_name
+        return txt
 
     def clozeText(self, txt, ord, type):
         reg = clozeReg

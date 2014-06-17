@@ -29,7 +29,7 @@ do
         echo " * "$py
         pyuic4 $i -o $py
         # munge the output to use gettext
-        perl -pi.bak -e 's/QtGui.QApplication.translate\(".*?", /_(/; s/, None, QtGui.*/))/' $py
+        perl -pi.bak -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' $py
         rm $py.bak
     fi
 done

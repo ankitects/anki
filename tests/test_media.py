@@ -4,12 +4,12 @@ import tempfile
 import os
 import time
 
-from shared import getEmptyDeck, testDir
+from shared import getEmptyCol, testDir
 
 
 # copying files to media folder
 def test_add():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, u"foo.jpg")
     open(path, "w").write("hello")
@@ -22,7 +22,7 @@ def test_add():
     assert d.media.addFile(path) == "foo (1).jpg"
 
 def test_strings():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     mf = d.media.filesInStr
     mid = d.models.models.keys()[0]
     assert mf(mid, "aoeu") == []
@@ -46,7 +46,7 @@ def test_strings():
     assert es('<img src="foo bar.jpg">') == '<img src="foo%20bar.jpg">'
 
 def test_deckIntegration():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # create a media dir
     d.media.dir()
     # put a file into it
@@ -68,7 +68,7 @@ def test_deckIntegration():
     assert ret[1] == ["foo.jpg"]
 
 def test_changes():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     assert d.media._changed()
     def added():
         return d.media.db.execute("select fname from log where type = 0")
@@ -103,7 +103,7 @@ def test_changes():
     assert len(list(d.media.removed())) == 1
 
 def test_illegal():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     aString = u"a:b|cd\\e/f\0g*h"
     good = u"abcdefgh"
     assert d.media.stripIllegal(aString) == good

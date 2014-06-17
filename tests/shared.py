@@ -9,8 +9,27 @@ def assertException(exception, func):
         found = True
     assert found
 
-def getEmptyDeck(**kwargs):
+
+# Creating new decks is expensive. Just do it once, and then spin off
+# copies from the master.
+def getEmptyCol():
+    if len(getEmptyCol.master) == 0:
+        (fd, nam) = tempfile.mkstemp(suffix=".anki2")
+        os.close(fd)
+        os.unlink(nam)
+        col = aopen(nam)
+        col.db.close()
+        getEmptyCol.master = nam
     (fd, nam) = tempfile.mkstemp(suffix=".anki2")
+    shutil.copy(getEmptyCol.master, nam)
+    return aopen(nam)
+
+getEmptyCol.master = ""
+
+# Fallback for when the DB needs options passed in.
+def getEmptyDeckWith(**kwargs):
+    (fd, nam) = tempfile.mkstemp(suffix=".anki2")
+    os.close(fd)
     os.unlink(nam)
     return aopen(nam, **kwargs)
 

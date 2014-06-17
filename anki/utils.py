@@ -17,6 +17,7 @@ import sys
 import locale
 from hashlib import sha1
 import platform
+import traceback
 
 from anki.lang import _, ngettext
 
@@ -360,6 +361,8 @@ def invalidFilename(str, dirsep=True):
         return "/"
     elif (dirsep or not isWin) and "\\" in str:
         return "\\"
+    elif str.strip().startswith("."):
+        return "."
 
 def platDesc():
     # we may get an interrupted system call, so try this in a loop
@@ -382,3 +385,15 @@ def platDesc():
         except:
             continue
     return theos
+
+# Debugging
+##############################################################################
+
+class TimedLog(object):
+    def __init__(self):
+        self._last = time.time()
+    def log(self, s):
+        path, num, fn, y = traceback.extract_stack(limit=2)[0]
+        sys.stderr.write("%5dms: %s(): %s\n" % ((time.time() - self._last)*1000, fn, s))
+        self._last = time.time()
+

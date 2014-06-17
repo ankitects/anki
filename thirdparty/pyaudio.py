@@ -92,16 +92,7 @@ __author__ = "Hubert Pham"
 __version__ = "0.2.4"
 __docformat__ = "restructuredtext en"
 
-import sys
-
-# attempt to import PortAudio
-try:
-    import _portaudio as pa
-except ImportError:
-    print "Please build and install the PortAudio Python " +\
-          "bindings first."
-    sys.exit(-1)
-
+import _portaudio as pa
 
 # Try to use Python 2.4's built in `set'
 try:

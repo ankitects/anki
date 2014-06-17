@@ -123,7 +123,7 @@ to their original deck.""")
         counts = list(self.mw.col.sched.counts())
         finished = not sum(counts)
         for n in range(len(counts)):
-            if counts[n] == 1000:
+            if counts[n] >= 1000:
                 counts[n] = "1000+"
         but = self.mw.button
         if finished:

@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from tests.shared import getEmptyDeck
+from tests.shared import getEmptyCol
 from anki.utils import stripHTML, joinFields
 
 def test_modelDelete():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -14,7 +14,7 @@ def test_modelDelete():
     assert deck.cardCount() == 0
 
 def test_modelCopy():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     m = deck.models.current()
     m2 = deck.models.copy(m)
     assert m2['name'] == "Basic copy"
@@ -27,7 +27,7 @@ def test_modelCopy():
     assert deck.models.scmhash(m) == deck.models.scmhash(m2)
 
 def test_fields():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     f = d.newNote()
     f['Front'] = u'1'
     f['Back'] = u'2'
@@ -74,7 +74,7 @@ def test_fields():
     assert d.getNote(d.models.nids(m)[0]).fields == ["", "2", "1"]
 
 def test_templates():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     m = d.models.current(); mm = d.models
     t = mm.newTemplate("Reverse")
     t['qfmt'] = "{{Back}}"
@@ -107,8 +107,31 @@ def test_templates():
     mm.addTemplate(m, t)
     assert not d.models.remTemplate(m, m['tmpls'][0])
 
+def test_cloze_ordinals():
+    d = getEmptyCol()
+    d.models.setCurrent(d.models.byName("Cloze"))
+    m = d.models.current(); mm = d.models
+    
+    #We replace the default Cloze template
+    t = mm.newTemplate("ChainedCloze")
+    t['qfmt'] = "{{text:cloze:Text}}"
+    t['afmt'] = "{{text:cloze:Text}}"
+    mm.addTemplate(m, t)
+    mm.save(m)
+    d.models.remTemplate(m, m['tmpls'][0])
+    
+    f = d.newNote()
+    f['Text'] = u'{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
+    d.addNote(f)
+    assert d.cardCount() == 2
+    (c, c2) = f.cards()
+    # first card should have first ord
+    assert c.ord == 0
+    assert c2.ord == 1
+    
+
 def test_text():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     m = d.models.current()
     m['tmpls'][0]['qfmt'] = "{{text:Front}}"
     d.models.save(m)
@@ -118,7 +141,7 @@ def test_text():
     assert "helloworld" in f.cards()[0].q()
 
 def test_cloze():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
     f = d.newNote()
     assert f.model()['name'] == "Cloze"
@@ -163,8 +186,31 @@ def test_cloze():
     f.flush()
     assert len(f.cards()) == 2
 
+def test_chained_mods():
+    d = getEmptyCol()
+    d.models.setCurrent(d.models.byName("Cloze"))
+    m = d.models.current(); mm = d.models
+    
+    #We replace the default Cloze template
+    t = mm.newTemplate("ChainedCloze")
+    t['qfmt'] = "{{cloze:text:Text}}"
+    t['afmt'] = "{{cloze:text:Text}}"
+    mm.addTemplate(m, t)
+    mm.save(m)
+    d.models.remTemplate(m, m['tmpls'][0])
+    
+    f = d.newNote()
+    q1 = '<span style=\"color:red\">phrase</span>'
+    a1 = '<b>sentence</b>'
+    q2 = '<span style=\"color:red\">en chaine</span>'
+    a2 = '<i>chained</i>'
+    f['Text'] = "This {{c1::%s::%s}} demonstrates {{c1::%s::%s}} clozes." % (q1,a1,q2,a2)
+    assert d.addNote(f) == 1
+    assert "This <span class=cloze>[sentence]</span> demonstrates <span class=cloze>[chained]</span> clozes." in f.cards()[0].q()
+    assert "This <span class=cloze>phrase</span> demonstrates <span class=cloze>en chaine</span> clozes." in f.cards()[0].a()
+
 def test_modelChange():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     basic = deck.models.byName("Basic")
     cloze = deck.models.byName("Cloze")
     # enable second template and add a note
@@ -238,7 +284,7 @@ def test_modelChange():
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
 
 def test_availOrds():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     m = d.models.current(); mm = d.models
     t = m['tmpls'][0]
     f = d.newNote()

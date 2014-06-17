@@ -1,14 +1,14 @@
 # coding: utf-8
 
 import os
-from tests.shared import  getEmptyDeck
+from tests.shared import  getEmptyCol
 from anki.utils import stripHTML
 
 def test_latex():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     # change latex cmd to simulate broken build
     import anki.latex
-    anki.latex.latexCmd[0] = "nolatex"
+    anki.latex.latexCmds[0][0] = "nolatex"
     # add a note with latex
     f = d.newNote()
     f['Front'] = u"[latex]hello[/latex]"
@@ -17,7 +17,7 @@ def test_latex():
     assert len(os.listdir(d.media.dir())) == 0
     # check the error message
     msg = f.cards()[0].q()
-    assert "executing latex" in msg
+    assert "executing nolatex" in msg
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
     for cmd in ("latex", "dvipng"):
@@ -26,7 +26,7 @@ def test_latex():
             print "aborting test; %s is not installed" % cmd
             return
     # fix path
-    anki.latex.latexCmd[0] = "latex"
+    anki.latex.latexCmds[0][0] = "latex"
     # check media db should cause latex to be generated
     d.media.check()
     assert len(os.listdir(d.media.dir())) == 1

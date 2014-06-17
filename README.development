@@ -1,7 +1,11 @@
 Please see the README file for basic requirements.
 
-You also need to have the python-pyqt development packages installed
-(specifically, you need the binary pyuic4).
+In addition to the basic requirements, you also need the PyQt development
+tools (specifically pyrcc4 and pyuic4). These are often contained in a
+separate package on Linux, such as 'pyqt4-dev-tools' on Debian/Ubuntu. On a Mac
+they are part of the PyQt source install.
+
+Windows users, please see the note at the bottom of this file before proceeding.
 
 To use the development version:
 
@@ -9,7 +13,11 @@ $ git clone https://github.com/dae/anki.git
 $ cd anki
 $ ./tools/build_ui.sh
 
-Make sure you rebuild the UI every time you update the sources.
+If you get any errors, you will not be able to proceed, so please return to
+the top and check the requirements again.
+
+ALL USERS: Make sure you rebuild the UI every time you git pull, otherwise you
+will get errors down the road.
 
 The translations are stored in a bazaar repo for integration with Launchpad's
 translation services. If you want to use a language other than English:
@@ -31,3 +39,20 @@ Before contributing code, please read the LICENSE file.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
+
+WINDOWS USERS:
+
+I have not tested the build scripts on Windows, so you'll need to solve any
+problems you encounter on your own. The easiest way is to use a source
+tarball instead of git, as that way you don't need to build the UI yourself.
+If you do want to use git, a user contributed the following, which should get
+you most of the way there:
+
+    1) Install "git bash".
+    2) In the tools directory, modify build_ui.sh. Locate the line that reads
+    "pyuic4 $i -o $py" and alter it to be of the following form:
+    "<python-path-string>" "<pyuic-path-string>" $i -o $py
+    These two paths must point to your python executable, and to pyuic.py, on your
+    system. Typical paths would be:
+    <python-path> = C:\\Python27\\python.exe
+    <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py

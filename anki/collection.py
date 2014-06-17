@@ -73,9 +73,8 @@ class _Collection(object):
             self.crt = int(time.mktime(d.timetuple()))
         self.sched = Scheduler(self)
         if not self.conf.get("newBury", False):
-            mod = self.db.mod
-            self.sched.unburyCards()
-            self.db.mod = mod
+            self.conf['newBury'] = True
+            self.setMod()
 
     def name(self):
         n = os.path.splitext(os.path.basename(self.path))[0]
@@ -148,10 +147,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def close(self, save=True):
         "Disconnect from DB."
         if self.db:
-            if not self.conf.get("newBury", False):
-                mod = self.db.mod
-                self.sched.unburyCards()
-                self.db.mod = mod
             if save:
                 self.save()
             else:
@@ -515,13 +510,11 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         afmt = afmt or template['afmt']
         for (type, format) in (("q", qfmt), ("a", afmt)):
             if type == "q":
-                format = format.replace("{{cloze:", "{{cq:%d:" % (
-                    data[4]+1))
+                format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (data[4]+1), format)
                 format = format.replace("<%cloze:", "<%%cq:%d:" % (
                     data[4]+1))
             else:
-                format = format.replace("{{cloze:", "{{ca:%d:" % (
-                    data[4]+1))
+                format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (data[4]+1), format)
                 format = format.replace("<%cloze:", "<%%ca:%d:" % (
                     data[4]+1))
                 fields['FrontSide'] = stripSounds(d['q'])
@@ -613,13 +606,19 @@ where c.nid == f.id
             if self._undo[0] == 1:
                 old = self._undo[2]
             self.clearUndo()
-        self._undo = [1, _("Review"), old + [copy.copy(card)]]
+        wasLeech = card.note().hasTag("leech") or False
+        self._undo = [1, _("Review"), old + [copy.copy(card)], wasLeech]
 
     def _undoReview(self):
         data = self._undo[2]
+        wasLeech = self._undo[3]
         c = data.pop()
         if not data:
             self.clearUndo()
+        # remove leech tag if it didn't have it before
+        if not wasLeech and c.note().hasTag("leech"):
+            c.note().delTag("leech")
+            c.note().flush()
         # write old data
         c.flush()
         # and delete revlog entry
@@ -696,6 +695,10 @@ select id from notes where mid not in """ + ids2str(self.models.ids()))
             self.remNotes(ids)
         # for each model
         for m in self.models.all():
+            for t in m['tmpls']:
+                if t['did'] == "None":
+                    t['did'] = None
+                    problems.append(_("Fixed AnkiDroid deck override bug."))
             if m['type'] == MODEL_STD:
                 # model with missing req specification
                 if 'req' not in m:
@@ -752,6 +755,17 @@ select id from cards where odue > 0 and (type=1 or queue=2) and not odid""")
                 ngettext("Fixed %d card with invalid properties.",
                          "Fixed %d cards with invalid properties.", cnt) % cnt)
             self.db.execute("update cards set odue=0 where id in "+
+                ids2str(ids))
+        # cards with odid set when not in a dyn deck
+        dids = [id for id in self.decks.allIds() if not self.decks.isDyn(id)]
+        ids = self.db.list("""
+select id from cards where odid > 0 and did in %s""" % ids2str(dids))
+        if ids:
+            cnt = len(ids)
+            problems.append(
+                ngettext("Fixed %d card with invalid properties.",
+                         "Fixed %d cards with invalid properties.", cnt) % cnt)
+            self.db.execute("update cards set odid=0, odue=0 where id in "+
                 ids2str(ids))
         # tags
         self.tags.registerNotes()

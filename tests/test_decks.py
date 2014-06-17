@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from tests.shared import assertException, getEmptyDeck
+from tests.shared import assertException, getEmptyCol
 
 def test_basic():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     # we start with a standard deck
     assert len(deck.decks.decks) == 1
     # it should have an id of 1
@@ -42,7 +42,7 @@ def test_basic():
     deck.sched.deckDueList()
 
 def test_remove():
-    deck = getEmptyDeck()
+    deck = getEmptyCol()
     # create a new deck, and add a note/card to it
     g1 = deck.decks.id("g1")
     f = deck.newNote()
@@ -68,7 +68,7 @@ def test_remove():
     assert deck.noteCount() == 0
 
 def test_rename():
-    d = getEmptyDeck()
+    d = getEmptyCol()
     id = d.decks.id("hello::world")
     # should be able to rename into a completely different branch, creating
     # parents as necessary
@@ -89,7 +89,7 @@ def test_rename():
         assert n in d.decks.allNames()
 
 def test_renameForDragAndDrop():
-    d = getEmptyDeck()
+    d = getEmptyCol()
 
     def deckNames():
         return [ name for name in sorted(d.decks.allNames()) if name <> u'Default' ]

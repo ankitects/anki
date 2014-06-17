@@ -41,7 +41,7 @@ class CustomStudy(QDialog):
 
     def onRadioChange(self, idx):
         f = self.form; sp = f.spin
-        smin = 1; smax = 9999; sval = 1
+        smin = 1; smax = DYN_MAX_SIZE; sval = 1
         post = _("cards")
         tit = ""
         spShow = True
@@ -127,15 +127,15 @@ class CustomStudy(QDialog):
         # and then set various options
         if i == RADIO_FORGOT:
             dyn['delays'] = [1]
-            dyn['terms'][0] = ['rated:%d:1' % spin, 9999, DYN_RANDOM]
+            dyn['terms'][0] = ['rated:%d:1' % spin, DYN_MAX_SIZE, DYN_RANDOM]
             dyn['resched'] = False
         elif i == RADIO_AHEAD:
             dyn['delays'] = None
-            dyn['terms'][0] = ['prop:due<=%d' % spin, 9999, DYN_DUE]
+            dyn['terms'][0] = ['prop:due<=%d' % spin, DYN_MAX_SIZE, DYN_DUE]
             dyn['resched'] = True
         elif i == RADIO_PREVIEW:
             dyn['delays'] = None
-            dyn['terms'][0] = ['is:new added:%s'%spin, 9999, DYN_OLDEST]
+            dyn['terms'][0] = ['is:new added:%s'%spin, DYN_MAX_SIZE, DYN_OLDEST]
             dyn['resched'] = False
         elif i == RADIO_CRAM:
             dyn['delays'] = None

@@ -954,7 +954,9 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     def _fillDyn(self, deck):
         search, limit, order = deck['terms'][0]
         orderlimit = self._dynOrder(order, limit)
-        search += " -is:suspended -is:buried -deck:filtered"
+        if search.strip():
+            search = "(%s)" % search
+        search = "%s -is:suspended -is:buried -deck:filtered" % search
         try:
             ids = self.col.findCards(search, order=orderlimit)
         except:
@@ -997,7 +999,7 @@ due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
         elif o == DYN_DUE:
             t = "c.due"
         elif o == DYN_DUEPRIORITY:
-            t = "(case when queue=2 and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 10000+due end)" % (
+            t = "(case when queue=2 and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)" % (
                     self.today, self.today)
         else:
             # if we don't understand the term, default to due order

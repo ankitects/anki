@@ -21,7 +21,7 @@ import anki.js
 from BeautifulSoup import BeautifulSoup
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg")
-audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv")
+audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a")
 
 _html = """
 <html><head>%s<style>
@@ -690,7 +690,7 @@ class Editor(object):
 
     def onCloze(self):
         # check that the model is set up for cloze deletion
-        if '{{cloze:' not in self.note.model()['tmpls'][0]['qfmt']:
+        if not re.search('{{(.*:)*cloze:',self.note.model()['tmpls'][0]['qfmt']):
             if self.addMode:
                 tooltip(_("Warning, cloze deletions will not work until "
                 "you switch the type at the top to Cloze."))
@@ -988,7 +988,7 @@ to a cloze type first, via Edit>Change Note Type."""))
 class EditorWebView(AnkiWebView):
 
     def __init__(self, parent, editor):
-        AnkiWebView.__init__(self)
+        AnkiWebView.__init__(self, canFocus=True)
         self.editor = editor
         self.strip = self.editor.mw.pm.profile['stripHTML']
 
@@ -1117,13 +1117,18 @@ class EditorWebView(AnkiWebView):
         url = mime.urls()[0].toString()
         # chrome likes to give us the URL twice with a \n
         url = url.splitlines()[0]
-        mime = QMimeData()
+        newmime = QMimeData()
         link = self.editor.urlToLink(url)
         if link:
-            mime.setHtml(link)
+            newmime.setHtml(link)
+        elif mime.hasImage():
+            # if we couldn't convert the url to a link and there's an
+            # image on the clipboard (such as copy&paste from
+            # google images in safari), use that instead
+            return self._processImage(mime)
         else:
-            mime.setText(url)
-        return mime
+            newmime.setText(url)
+        return newmime
 
     # if the user has used 'copy link location' in the browser, the clipboard
     # will contain the URL as text, and no URLs or HTML. the URL will already
