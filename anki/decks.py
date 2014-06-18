@@ -262,9 +262,14 @@ class DeckManager(object):
             self.rename(draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName))
 
     def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
-        return draggedDeckName <> ontoDeckName \
-                and not self._isParent(ontoDeckName, draggedDeckName) \
-                and not self._isAncestor(draggedDeckName, ontoDeckName)
+        if draggedDeckName == ontoDeckName \
+                or self._isParent(ontoDeckName, draggedDeckName) \
+                or self._isAncestor(draggedDeckName, ontoDeckName):
+                    return False
+        elif self.byName(ontoDeckName)['dyn']:
+            raise DeckRenameError(_("A filtered deck cannot have subdecks."))
+        else:
+            return True
 
     def _isParent(self, parentDeckName, childDeckName):
         return self._path(childDeckName) == self._path(parentDeckName) + [ self._basename(childDeckName) ]
