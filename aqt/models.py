@@ -115,7 +115,9 @@ class Models(QDialog):
         self.connect(
             frm.buttonBox, SIGNAL("helpRequested()"),
             lambda: openHelp("latex"))
+        restoreGeom(d, "modelopts")
         d.exec_()
+        saveGeom(d, "modelopts")
         self.model['latexPre'] = unicode(frm.latexHeader.toPlainText())
         self.model['latexPost'] = unicode(frm.latexFooter.toPlainText())
 

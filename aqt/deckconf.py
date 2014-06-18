@@ -7,7 +7,7 @@ from anki.consts import NEW_CARDS_RANDOM
 from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
-    tooltip
+    tooltip, saveGeom, restoreGeom
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):
@@ -33,9 +33,10 @@ class DeckConf(QDialog):
                      self.onRestore)
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         # qt doesn't size properly with altered fonts otherwise
+        restoreGeom(self, "deckconf", adjustSize=True)
         self.show()
-        self.adjustSize()
         self.exec_()
+        saveGeom(self, "deckconf")
 
     def setupCombos(self):
         import anki.consts as cs
