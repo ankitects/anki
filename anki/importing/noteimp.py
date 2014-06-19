@@ -118,6 +118,7 @@ class NoteImporter(Importer):
         self._cards = []
         self._emptyNotes = False
         dupeCount = 0
+        dupes = []
         for n in notes:
             if not self.allowHTML:
                 for c in range(len(n.fields)):
@@ -159,7 +160,11 @@ class NoteImporter(Importer):
                             dupeCount += 1
                         elif self.importMode == 2:
                             # allow duplicates in this case
-                            updateLog.append(dupeLogTxt % fld0)
+                            if fld0 not in dupes:
+                                # only show message once, no matter how many
+                                # duplicates are in the collection already
+                                updateLog.append(dupeLogTxt % fld0)
+                                dupes.append(fld0)
                             found = False
             # newly add
             if not found:
