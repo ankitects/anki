@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import aqt
-from aqt.utils import  showWarning, openHelp, askUser
+from aqt.utils import  showWarning, openHelp, askUser, saveGeom, restoreGeom
 
 class DeckConf(QDialog):
     def __init__(self, mw, first=False, search="", deck=None):
@@ -26,6 +26,7 @@ class DeckConf(QDialog):
                      SIGNAL("helpRequested()"),
                      lambda: openHelp("filtered"))
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
+        restoreGeom(self, "dyndeckconf")
         self.setupOrder()
         self.loadConf()
         if search:
@@ -33,6 +34,7 @@ class DeckConf(QDialog):
         self.form.search.selectAll()
         self.show()
         self.exec_()
+        saveGeom(self, "dyndeckconf")
 
     def setupOrder(self):
         import anki.consts as cs

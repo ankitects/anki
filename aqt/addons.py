@@ -6,7 +6,7 @@ import sys, os, traceback
 from cStringIO import StringIO
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser
+    askUser, restoreGeom, saveGeom
 from zipfile import ZipFile
 import aqt.forms
 import aqt
@@ -141,7 +141,9 @@ class GetAddons(QDialog):
         b = self.form.buttonBox.addButton(
             _("Browse"), QDialogButtonBox.ActionRole)
         self.connect(b, SIGNAL("clicked()"), self.onBrowse)
+        restoreGeom(self, "getaddons", adjustSize=True)
         self.exec_()
+        saveGeom(self, "getaddons")
 
     def onBrowse(self):
         openLink(aqt.appShared + "addons/")

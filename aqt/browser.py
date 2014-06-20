@@ -1321,7 +1321,10 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm.field.addItems([_("All Fields")] + fields)
         self.connect(frm.buttonBox, SIGNAL("helpRequested()"),
                      self.onFindReplaceHelp)
-        if not d.exec_():
+        restoreGeom(d, "findreplace")
+        r = d.exec_()
+        saveGeom(d, "findreplace")
+        if not r:
             return
         if frm.field.currentIndex() == 0:
             field = None
