@@ -88,8 +88,10 @@ class ProfileManager(object):
             # can't translate, as lang not initialized
             QMessageBox.critical(
                 None, "Error", """\
-Anki can't write to the harddisk. Please see the \
-documentation for information on using a flash drive.""")
+Anki could not create the folder %s. Please ensure that location is not \
+read-only and you have permission to write to it. If you cannot fix this \
+issue, please see the documentation for information on running Anki from \
+a flash drive.""" % self.base)
             raise
 
     # Profile load/save
