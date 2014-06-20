@@ -764,9 +764,9 @@ title="%s">%s</button>''' % (
         import aqt.importing
         aqt.importing.onImport(self)
 
-    def onExport(self):
+    def onExport(self, did=None):
         import aqt.exporting
-        aqt.exporting.ExportDialog(self)
+        aqt.exporting.ExportDialog(self, did=did)
 
     # Cramming
     ##########################################################################

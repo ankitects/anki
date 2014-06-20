@@ -268,9 +268,14 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._rename(did))
         a = m.addAction(_("Options"))
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._options(did))
+        a = m.addAction(_("Export"))
+        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._export(did))
         a = m.addAction(_("Delete"))
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._delete(did))
         m.exec_(QCursor.pos())
+
+    def _export(self, did):
+        self.mw.onExport(did=did)
 
     def _rename(self, did):
         self.mw.checkpoint(_("Rename Deck"))
