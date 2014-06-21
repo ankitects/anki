@@ -120,9 +120,10 @@ class NoteImporter(Importer):
         dupeCount = 0
         dupes = []
         for n in notes:
-            if not self.allowHTML:
-                for c in range(len(n.fields)):
+            for c in range(len(n.fields)):
+                if not self.allowHTML:
                     n.fields[c] = cgi.escape(n.fields[c])
+                n.fields[c] = n.fields[c].strip().replace("\n", "<br>")
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
             # first field must exist
