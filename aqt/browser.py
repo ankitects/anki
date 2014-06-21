@@ -1015,6 +1015,10 @@ where id in %s""" % ids2str(sf))
         self._previewWeb = AnkiWebView(True)
         vbox.addWidget(self._previewWeb)
         bbox = QDialogButtonBox()
+        self._previewReplay = bbox.addButton(_("Replay Audio"), QDialogButtonBox.ActionRole)
+        self._previewReplay.setAutoDefault(False)
+        self._previewReplay.setShortcut(QKeySequence("R"))
+        self._previewReplay.setToolTip(_("Shortcut key: %s" % "R"))
         self._previewPrev = bbox.addButton("<", QDialogButtonBox.ActionRole)
         self._previewPrev.setAutoDefault(False)
         self._previewPrev.setShortcut(QKeySequence("Left"))
@@ -1023,6 +1027,7 @@ where id in %s""" % ids2str(sf))
         self._previewNext.setShortcut(QKeySequence("Right"))
         c(self._previewPrev, SIGNAL("clicked()"), self._onPreviewPrev)
         c(self._previewNext, SIGNAL("clicked()"), self._onPreviewNext)
+        c(self._previewReplay, SIGNAL("clicked()"), self._onReplayAudio)
         vbox.addWidget(bbox)
         self._previewWindow.setLayout(vbox)
         restoreGeom(self._previewWindow, "preview")
@@ -1049,6 +1054,9 @@ where id in %s""" % ids2str(sf))
         else:
             self.onNextCard()
         self._updatePreviewButtons()
+
+    def _onReplayAudio(self):
+        self.mw.reviewer.replayAudio(self)
 
     def _updatePreviewButtons(self):
         if not self._previewWindow:
