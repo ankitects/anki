@@ -982,7 +982,8 @@ will be lost. Continue?"""))
         mdir = self.col.media.dir()
         for f in unused:
             path = os.path.join(mdir, f)
-            send2trash(path)
+            if os.path.exists(path):
+                send2trash(path)
         tooltip(_("Deleted."))
         diag.close()
 
