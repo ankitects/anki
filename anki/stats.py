@@ -655,7 +655,7 @@ group by hour having count() > 30 order by hour""" % lim,
             (_("Mature"), colMature),
             (_("Young+Learn"), colYoung),
             (_("Unseen"), colUnseen),
-            (_("Suspended"), colSusp))):
+            (_("Suspended+Buried"), colSusp))):
             d.append(dict(data=div[c], label="%s: %s" % (t, div[c]), color=col))
         # text data
         i = []
