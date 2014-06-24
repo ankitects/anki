@@ -217,10 +217,10 @@ enter your details below.""") %
         vbox.addWidget(bb)
         d.setLayout(vbox)
         d.show()
-        d.exec_()
+        accepted = d.exec_()
         u = user.text()
         p = passwd.text()
-        if not u or not p:
+        if not accepted or not u or not p:
             return
         return (u, p)
 
