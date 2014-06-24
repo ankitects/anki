@@ -142,9 +142,24 @@ a flash drive.""" % self.base)
         self.name = name
         newFolder = self.profileFolder(create=False)
         if os.path.exists(newFolder):
-            showWarning(_("Folder already exists."))
-            self.name = oldName
-            return
+            if (oldFolder != newFolder) and (
+                    oldFolder.lower() == newFolder.lower()):
+                # OS is telling us the folder exists because it does not take
+                # case into account; use a temporary folder location
+                midFolder = ''.join([oldFolder, '-temp'])
+                if not os.path.exists(midFolder):
+                    os.rename(oldFolder, midFolder)
+                    oldFolder = midFolder
+                else:
+                    showWarning(_("Please remove the folder %s and try again.")
+                            % midFolder)
+                    self.name = oldName
+                    return
+            else:
+                showWarning(_("Folder already exists."))
+                self.name = oldName
+                return
+
         # update name
         self.db.execute("update profiles set name = ? where name = ?",
                         name.encode("utf8"), oldName.encode("utf-8"))
