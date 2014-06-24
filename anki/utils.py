@@ -292,9 +292,10 @@ def tmpdir():
             shutil.rmtree(_tmpdir)
         import atexit
         atexit.register(cleanup)
-        _tmpdir = unicode(os.path.join(tempfile.gettempdir(), "anki_temp"), sys.getfilesystemencoding())
-        if not os.path.exists(_tmpdir):
-            os.mkdir(_tmpdir)
+        _tmpdir = unicode(os.path.join(tempfile.gettempdir(), "anki_temp"), \
+                sys.getfilesystemencoding())
+    if not os.path.exists(_tmpdir):
+        os.mkdir(_tmpdir)
     return _tmpdir
 
 def tmpfile(prefix="", suffix=""):
