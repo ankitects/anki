@@ -790,8 +790,9 @@ by clicking on one on the left."""))
             txt = "-"+txt
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
             cur = unicode(self.form.searchEdit.lineEdit().text())
-            if cur:
-                txt = cur + " " + txt
+            if cur and cur != \
+                    _("<type here to search; hit enter to show current deck>"):
+                        txt = cur + " " + txt
         elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
             cur = unicode(self.form.searchEdit.lineEdit().text())
             if cur:
