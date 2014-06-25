@@ -295,7 +295,7 @@ def importFile(mw, file):
             return
         except Exception, e:
             msg = repr(str(e))
-            if msg == "unknownFormat":
+            if msg == "'unknownFormat'":
                 if file.endswith(".anki2"):
                     showWarning(_("""\
 .anki2 files are not designed for importing. If you're trying to restore from a \
@@ -379,7 +379,11 @@ def replaceWithApkg(mw, file, backup):
     mw.unloadCollection()
     # overwrite collection
     z = zipfile.ZipFile(file)
-    z.extract("collection.anki2", mw.pm.profileFolder())
+    try:
+        z.extract("collection.anki2", mw.pm.profileFolder())
+    except:
+        showWarning(_("The provided file is not a valid .apkg file."))
+        return
     # because users don't have a backup of media, it's safer to import new
     # data and rely on them running a media db check to get rid of any
     # unwanted media. in the future we might also want to deduplicate this

@@ -61,9 +61,14 @@ class DeckStats(QDialog):
         painter = QPainter(image)
         p.mainFrame().render(painter)
         painter.end()
-        image.save(path, "png")
+        isOK = image.save(path, "png")
+        if isOK:
+            showInfo(_("An image was saved to your desktop."))
+        else:
+            showInfo(_("""\
+Anki could not save the image. Please check that you have permission to write \
+to your desktop."""))
         p.setViewportSize(oldsize)
-        showInfo(_("An image was saved to your desktop."))
 
     def changePeriod(self, n):
         self.period = n

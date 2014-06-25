@@ -12,17 +12,17 @@ from anki.exporting import exporters
 
 class ExportDialog(QDialog):
 
-    def __init__(self, mw):
+    def __init__(self, mw, did=None):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
-        self.setup()
+        self.setup(did)
         self.exec_()
 
-    def setup(self):
+    def setup(self, did):
         self.frm.format.insertItems(0, list(zip(*exporters())[0]))
         self.connect(self.frm.format, SIGNAL("activated(int)"),
                      self.exporterChanged)
@@ -32,6 +32,11 @@ class ExportDialog(QDialog):
         # save button
         b = QPushButton(_("Export..."))
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
+        # set default option if accessed through deck button
+        if did:
+            name = self.mw.col.decks.get(did)['name']
+            index = self.frm.deck.findText(name)
+            self.frm.deck.setCurrentIndex(index)
 
     def exporterChanged(self, idx):
         self.exporter = exporters()[idx][1](self.col)
