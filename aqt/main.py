@@ -273,7 +273,7 @@ To import into a password protected profile, please open the profile before atte
             # warn user
             showWarning("""\
 Your collection is corrupt. Please see the manual for \
-how to restore from a backup.""")
+how to restore from a backup."""+"\n\n"+_("Debug info:")+"\n"+traceback.format_exc())
             # move it out of the way so the profile can be used again
             newpath = cpath+str(intTime())
             os.rename(cpath, newpath)
