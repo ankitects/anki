@@ -16,7 +16,7 @@ import aqt.progress
 import aqt.webview
 import aqt.toolbar
 import aqt.stats
-from aqt.utils import  restoreGeom, showInfo, showWarning,\
+from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
 import anki.db
@@ -764,9 +764,9 @@ title="%s">%s</button>''' % (
         import aqt.importing
         aqt.importing.onImport(self)
 
-    def onExport(self):
+    def onExport(self, did=None):
         import aqt.exporting
-        aqt.exporting.ExportDialog(self)
+        aqt.exporting.ExportDialog(self, did=did)
 
     # Cramming
     ##########################################################################
@@ -971,7 +971,9 @@ will be lost. Continue?"""))
         diag.connect(box, SIGNAL("rejected()"), diag, SLOT("reject()"))
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
+        restoreGeom(diag, "checkmediadb")
         diag.exec_()
+        saveGeom(diag, "checkmediadb")
 
     def deleteUnused(self, unused, diag):
         if not askUser(
@@ -980,7 +982,8 @@ will be lost. Continue?"""))
         mdir = self.col.media.dir()
         for f in unused:
             path = os.path.join(mdir, f)
-            send2trash(path)
+            if os.path.exists(path):
+                send2trash(path)
         tooltip(_("Deleted."))
         diag.close()
 
@@ -1003,10 +1006,12 @@ will be lost. Continue?"""))
         self.progress.finish()
         part1 = ngettext("%d card", "%d cards", len(cids)) % len(cids)
         part1 = _("%s to delete:") % part1
-        diag, box = showText(part1 + "\n\n" + report, run=False)
+        diag, box = showText(part1 + "\n\n" + report, run=False,
+                geomKey="emptyCards")
         box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
         box.button(QDialogButtonBox.Close).setDefault(True)
         def onDelete():
+            saveGeom(diag, "emptyCards")
             QDialog.accept(diag)
             self.checkpoint(_("Delete Empty"))
             self.col.remCards(cids)

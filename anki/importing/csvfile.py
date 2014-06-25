@@ -132,6 +132,6 @@ class TextImporter(NoteImporter):
 
     def noteFromFields(self, fields):
         note = ForeignNote()
-        note.fields.extend([x.strip().replace("\n", "<br>") for x in fields])
+        note.fields.extend([x for x in fields])
         note.tags.extend(self.tagsToAdd)
         return note
