@@ -404,9 +404,9 @@ class SyncThread(QThread):
     def _syncMedia(self):
         if not self.media:
             return
-        self.server = RemoteMediaServer(self.hkey, self.server.con)
+        self.server = RemoteMediaServer(self.col, self.hkey, self.server.con)
         self.client = MediaSyncer(self.col, self.server)
-        ret = self.client.sync(self.mediaUsn)
+        ret = self.client.sync()
         if ret == "noChanges":
             self.fireEvent("noMediaChanges")
         elif ret == "sanityCheckFailed":

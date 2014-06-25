@@ -15,7 +15,6 @@ from anki.consts import *
 from hooks import runHook
 import anki
 
-
 # syncing vars
 HTTP_TIMEOUT = 90
 HTTP_PROXY = None
@@ -539,6 +538,7 @@ class HttpSyncer(object):
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
         self.con = con or httpCon()
+        self.postVars = {}
 
     def assertOk(self, resp):
         if resp['status'] != '200':
@@ -550,18 +550,13 @@ class HttpSyncer(object):
     # costly. We could send it as a raw post, but more HTTP clients seem to
     # support file uploading, so this is the more compatible choice.
 
-    def req(self, method, fobj=None, comp=6,
-                 badAuthRaises=True, hkey=True):
+    def req(self, method, fobj=None, comp=6, badAuthRaises=False):
         BOUNDARY="Anki-sync-boundary"
         bdry = "--"+BOUNDARY
         buf = StringIO()
-        # compression flag and session key as post vars
-        vars = {}
-        vars['c'] = 1 if comp else 0
-        if hkey:
-            vars['k'] = self.hkey
-            vars['s'] = self.skey
-        for (key, value) in vars.items():
+        # post vars
+        self.postVars['c'] = 1 if comp else 0
+        for (key, value) in self.postVars.items():
             buf.write(bdry + "\r\n")
             buf.write(
                 'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
@@ -595,7 +590,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
         body = buf.getvalue()
         buf.close()
         resp, cont = self.con.request(
-            SYNC_URL+method, "POST", headers=headers, body=body)
+            self.syncURL()+method, "POST", headers=headers, body=body)
         if not badAuthRaises:
             # return false if bad auth instead of raising
             if resp['status'] == '403':
@@ -611,11 +606,15 @@ class RemoteServer(HttpSyncer):
     def __init__(self, hkey):
         HttpSyncer.__init__(self, hkey)
 
+    def syncURL(self):
+        return SYNC_BASE + "sync/"
+
     def hostKey(self, user, pw):
         "Returns hkey or none if user/pw incorrect."
+        self.postVars = dict()
         ret = self.req(
             "hostKey", StringIO(json.dumps(dict(u=user, p=pw))),
-            badAuthRaises=False, hkey=False)
+            badAuthRaises=False)
         if not ret:
             # invalid auth
             return
@@ -623,6 +622,10 @@ class RemoteServer(HttpSyncer):
         return self.hkey
 
     def meta(self):
+        self.postVars = dict(
+            k=self.hkey,
+            s=self.skey,
+        )
         ret = self.req(
             "meta", StringIO(json.dumps(dict(
                 v=SYNC_VER, cv="ankidesktop,%s,%s"%(anki.version, platDesc())))),
@@ -661,7 +664,14 @@ class FullSyncer(HttpSyncer):
 
     def __init__(self, col, hkey, con):
         HttpSyncer.__init__(self, hkey, con)
+        self.postVars = dict(
+            k=self.hkey,
+            v="ankidesktop,%s,%s"%(anki.version, platDesc()),
+        )
         self.col = col
+
+    def syncURL(self):
+        return SYNC_BASE + "sync/"
 
     def download(self):
         runHook("sync", "download")
@@ -697,117 +707,188 @@ class FullSyncer(HttpSyncer):
 
 # Media syncing
 ##########################################################################
+#
+# About conflicts:
+# - to minimize data loss, if both sides are marked for sending and one
+#   side has been deleted, favour the add
+# - if added/changed on both sides, favour the server version on the
+#   assumption other syncers are in sync with the server
+#
 
 class MediaSyncer(object):
 
     def __init__(self, col, server=None):
         self.col = col
         self.server = server
-        self.added = None
 
-    def sync(self, mediaUsn):
-        # step 1: check if there have been any changes
+    def sync(self):
+        # check if there have been any changes
         runHook("sync", "findMedia")
-        lusn = self.col.media.usn()
-        # if first sync or resync, clear list of files we think we've sent
-        if not lusn:
-            self.col.media.forceResync()
+        self.col.log("findChanges")
         self.col.media.findChanges()
-        if lusn == mediaUsn and not self.col.media.hasChanged():
+
+        # begin session and check if in sync
+        lastUsn = self.col.media.lastUsn()
+        ret = self.server.begin()
+        srvUsn = ret['usn']
+        if lastUsn == srvUsn and not self.col.media.haveDirty():
             return "noChanges"
-        # step 1.5: if resyncing, we need to get the list of files the server
-        # has and remove them from our local list of files to sync
-        if not lusn:
-            files = self.server.mediaList()
-            need = self.col.media.removeExisting(files)
-        else:
-            need = None
-        # step 2: send/recv deletions
-        runHook("sync", "removeMedia")
-        lrem = self.removed()
-        rrem = self.server.remove(fnames=lrem, minUsn=lusn)
-        self.remove(rrem)
-        # step 3: stream files from server
-        runHook("sync", "server")
-        while 1:
-            runHook("sync", "streamMedia")
-            usn = self.col.media.usn()
-            zip = self.server.files(minUsn=usn, need=need)
-            if self.addFiles(zip=zip):
+
+        # loop through and process changes from server
+        self.col.log("last local usn is %s"%lastUsn)
+        while True:
+            data = self.server.mediaChanges(lastUsn=lastUsn)
+
+            self.col.log("mediaChanges resp count %d"%len(data))
+            if not data:
                 break
-        # step 4: stream files to the server
-        runHook("sync", "client")
-        while 1:
-            runHook("sync", "streamMedia")
-            zip, fnames = self.files()
+
+            need = []
+            lastUsn = data[-1][1]
+            for fname, rusn, rsum in data:
+                lsum, ldirty = self.col.media.syncInfo(fname)
+                self.col.log(
+                    "check: lsum=%s rsum=%s ldirty=%d rusn=%d fname=%s"%(
+                        (lsum and lsum[0:4]),
+                        (rsum and rsum[0:4]),
+                        ldirty,
+                        rusn,
+                        fname))
+
+                if rsum:
+                    # added/changed remotely
+                    if not lsum or lsum != rsum:
+                        self.col.log("will fetch")
+                        need.append(fname)
+                    else:
+                        self.col.log("have same already")
+                    ldirty and self.col.media.markClean([fname])
+                elif lsum:
+                    # deleted remotely
+                    if not ldirty:
+                        self.col.log("delete local")
+                        self.col.media.syncDelete(fname)
+                    else:
+                        # conflict; local add overrides remote delete
+                        self.col.log("conflict; will send")
+                else:
+                    # deleted both sides
+                    self.col.log("both sides deleted")
+                    ldirty and self.col.media.markClean([fname])
+
+            self._downloadFiles(need)
+
+            self.col.log("update last usn to %d"%lastUsn)
+            self.col.media.setLastUsn(lastUsn) # commits
+
+        # at this point we're all up to date with the server's changes,
+        # and we need to send our own
+
+        updateConflict = False
+        while True:
+            zip, fnames = self.col.media.mediaChangesZip()
             if not fnames:
-                # finished
                 break
-            usn = self.server.addFiles(zip=zip)
-            # after server has replied, safe to remove from log
-            self.col.media.forgetAdded(fnames)
-            self.col.media.setUsn(usn)
-        # step 5: sanity check during beta testing
-        # NOTE: when removing this, need to move server tidyup
-        # back from sanity check to addFiles
-        c = self.mediaSanity()
-        s = self.server.mediaSanity(client=c)
-        self.col.log("mediaSanity", c, s)
-        if c != s:
-            # if the sanity check failed, force a resync
+
+            processedCnt, serverLastUsn = self.server.uploadChanges(zip)
+            self.col.media.markClean(fnames[0:processedCnt])
+
+            self.col.log("processed %d, serverUsn %d, clientUsn %d" % (
+                processedCnt, serverLastUsn, lastUsn
+            ))
+
+            if serverLastUsn - processedCnt == lastUsn:
+                self.col.log("lastUsn in sync, updating local")
+                self.col.media.setLastUsn(serverLastUsn)
+            else:
+                self.col.log("concurrent update, skipping usn update")
+                updateConflict = True
+
+        if updateConflict:
+            self.col.log("restart sync due to concurrent update")
+            return self.sync()
+
+        lcnt = self.col.media.mediaCount()
+        ret = self.server.mediaSanity(local=lcnt)
+        if ret == "OK":
+            return "OK"
+        else:
             self.col.media.forceResync()
-            return "sanityCheckFailed"
-        return "success"
+            return ret
 
-    def removed(self):
-        return self.col.media.removed()
-
-    def remove(self, fnames, minUsn=None):
-        self.col.media.syncRemove(fnames)
-        if minUsn is not None:
-            # we're the server
-            return self.col.media.removed()
+    def _downloadFiles(self, fnames):
+        self.col.log("%d files to fetch"%len(fnames))
+        while fnames:
+            top = fnames[0:SYNC_ZIP_COUNT]
+            self.col.log("fetch %s"%top)
+            zipData = self.server.downloadFiles(files=top)
+            cnt = self.col.media.addFilesFromZip(zipData)
+            self.col.log("received %d files"%cnt)
+            fnames = fnames[cnt:]
 
     def files(self):
-        return self.col.media.zipAdded()
+        return self.col.media.addFilesToZip()
 
     def addFiles(self, zip):
         "True if zip is the last in set. Server returns new usn instead."
-        return self.col.media.syncAdd(zip)
-
-    def mediaSanity(self):
-        return self.col.media.sanityCheck()
+        return self.col.media.addFilesFromZip(zip)
 
 # Remote media syncing
 ##########################################################################
 
 class RemoteMediaServer(HttpSyncer):
 
-    def __init__(self, hkey, con):
+    def __init__(self, col, hkey, con):
+        self.col = col
         HttpSyncer.__init__(self, hkey, con)
 
-    def remove(self, **kw):
-        return json.loads(
-            self.req("remove", StringIO(json.dumps(kw))))
+    def syncURL(self):
+        return SYNC_BASE + "msync/"
 
-    def files(self, **kw):
-        return self.req("files", StringIO(json.dumps(kw)))
+    def begin(self):
+        self.postVars = dict(
+            k=self.hkey,
+            v="ankidesktop,%s,%s"%(anki.version, platDesc())
+        )
+        ret = self._dataOnly(json.loads(self.req(
+            "begin", StringIO(json.dumps(dict())))))
+        self.skey = ret['sk']
+        return ret
 
-    def addFiles(self, zip):
+    # args: lastUsn
+    def mediaChanges(self, **kw):
+        self.postVars = dict(
+            sk=self.skey,
+        )
+        resp = json.loads(
+            self.req("mediaChanges", StringIO(json.dumps(kw))))
+        return self._dataOnly(resp)
+
+    # args: files
+    def downloadFiles(self, **kw):
+        return self.req("downloadFiles", StringIO(json.dumps(kw)))
+
+    def uploadChanges(self, zip):
         # no compression, as we compress the zip file instead
-        return json.loads(
-            self.req("addFiles", StringIO(zip), comp=0))
+        return self._dataOnly(json.loads(
+            self.req("uploadChanges", StringIO(zip), comp=0)))
 
+    # args: local
     def mediaSanity(self, **kw):
-        return json.loads(
-            self.req("mediaSanity", StringIO(json.dumps(kw))))
+        return self._dataOnly(json.loads(
+            self.req("mediaSanity", StringIO(json.dumps(kw)))))
 
-    def mediaList(self):
-        return json.loads(
-            self.req("mediaList"))
+    def _dataOnly(self, resp):
+        if resp['err']:
+            self.col.log("error returned:%s"%resp['err'])
+            raise Exception("SyncError:%s"%resp['err'])
+        return resp['data']
 
     # only for unit tests
-    def mediatest(self, n):
-        return json.loads(
-            self.req("mediatest", StringIO(
-                json.dumps(dict(n=n)))))
+    def mediatest(self, cmd):
+        self.postVars = dict(
+            k=self.hkey,
+        )
+        return self._dataOnly(json.loads(
+            self.req("newMediaTest", StringIO(
+                json.dumps(dict(cmd=cmd))))))
