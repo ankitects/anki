@@ -353,7 +353,11 @@ group by day order by day""" % (self._limit(), lim),
                 tot, period, unit))
         if total and tot:
             perMin = total / float(tot)
-            perMin = ngettext("%d card/minute", "%d cards/minute", perMin) % round(perMin)
+            perMin = round(perMin, 1)
+            perMin = ngettext("%d card/minute", "%.01f cards/minute", perMin) % perMin
+            # don't round down to zero
+            if float(perMin.split(' ')[0]) < 0.1:
+                perMin = ''.join(["<", _("%.01f cards/minute")]) % 0.1
             self._line(
                 i, _("Average answer time"),
                 _("%(a)0.1fs (%(b)s)") % dict(a=(tot*60)/total, b=perMin))
