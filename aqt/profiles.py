@@ -204,7 +204,12 @@ a flash drive.""" % self.base)
         elif isMac:
             return os.path.expanduser("~/Documents/Anki")
         else:
-            return os.path.expanduser("~/Anki")
+            # use Documents/Anki on new installs, ~/Anki on existing ones
+            p = os.path.expanduser("~/Anki")
+            if os.path.exists(p):
+                return p
+            else:
+                return os.path.expanduser("~/Documents/Anki")
 
     def _loadMeta(self):
         path = os.path.join(self.base, "prefs.db")
