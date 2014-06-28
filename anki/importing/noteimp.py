@@ -156,7 +156,6 @@ class NoteImporter(Importer):
                                 updateLog.append(updateLogTxt % fld0)
                                 dupeCount += 1
                                 found = True
-                            break
                         elif self.importMode == 1:
                             dupeCount += 1
                         elif self.importMode == 2:

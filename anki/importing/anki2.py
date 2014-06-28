@@ -190,6 +190,11 @@ class Anki2Importer(Importer):
             dstScm = self.dst.models.scmhash(dstModel)
             if srcScm == dstScm:
                 # they do; we can reuse this mid
+                model = srcModel.copy()
+                model['id'] = mid
+                model['mod'] = intTime()
+                model['usn'] = self.col.usn()
+                self.dst.models.update(model)
                 break
             # as they don't match, try next id
             mid += 1
