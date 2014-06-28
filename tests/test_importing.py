@@ -204,6 +204,27 @@ def test_anki2_diffmodels():
     assert after == before + 1
     assert dst.cardCount() == 3
 
+def test_anki2_diffmodel_templates():
+    # different from the above as this one tests only the template text being
+    # changed, not the number of cards/fields
+    dst = getEmptyCol()
+    # import the first version of the model
+    tmp = getUpgradeDeckPath("diffmodeltemplates-1.apkg")
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.dupeOnSchemaChange = True
+    imp.run()
+    # then the version with updated template
+    tmp = getUpgradeDeckPath("diffmodeltemplates-2.apkg")
+    imp = AnkiPackageImporter(dst, tmp)
+    imp.dupeOnSchemaChange = True
+    imp.run()
+    # collection should contain the note we imported
+    assert(dst.noteCount() == 1)
+    # the front template should contain the text added in the 2nd package
+    tcid = dst.findCards("")[0] # only 1 note in collection
+    tnote = dst.getCard(tcid).note()
+    assert("Changed Front Template" in dst.findTemplates(tnote)[0]['qfmt'])
+
 def test_anki2_updates():
     # create a new empty deck
     dst = getEmptyCol()
