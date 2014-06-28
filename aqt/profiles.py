@@ -164,8 +164,22 @@ a flash drive.""" % self.base)
         self.db.execute("update profiles set name = ? where name = ?",
                         name.encode("utf8"), oldName.encode("utf-8"))
         # rename folder
-        os.rename(oldFolder, newFolder)
-        self.db.commit()
+        try:
+            os.rename(oldFolder, newFolder)
+        except WindowsError as e:
+            self.db.rollback()
+            if "Access is denied" in e:
+                showWarning(_("""\
+Anki could not rename your profile because it could not rename the profile \
+folder on disk. Please ensure you have permission to write to Documents/Anki \
+and no other programs are accessing your profile folders, then try again."""))
+            else:
+                raise
+        except:
+            self.db.rollback()
+            raise
+        else:
+            self.db.commit()
 
     # Folder handling
     ######################################################################
