@@ -142,15 +142,44 @@ a flash drive.""" % self.base)
         self.name = name
         newFolder = self.profileFolder(create=False)
         if os.path.exists(newFolder):
-            showWarning(_("Folder already exists."))
-            self.name = oldName
-            return
+            if (oldFolder != newFolder) and (
+                    oldFolder.lower() == newFolder.lower()):
+                # OS is telling us the folder exists because it does not take
+                # case into account; use a temporary folder location
+                midFolder = ''.join([oldFolder, '-temp'])
+                if not os.path.exists(midFolder):
+                    os.rename(oldFolder, midFolder)
+                    oldFolder = midFolder
+                else:
+                    showWarning(_("Please remove the folder %s and try again.")
+                            % midFolder)
+                    self.name = oldName
+                    return
+            else:
+                showWarning(_("Folder already exists."))
+                self.name = oldName
+                return
+
         # update name
         self.db.execute("update profiles set name = ? where name = ?",
                         name.encode("utf8"), oldName.encode("utf-8"))
         # rename folder
-        os.rename(oldFolder, newFolder)
-        self.db.commit()
+        try:
+            os.rename(oldFolder, newFolder)
+        except WindowsError as e:
+            self.db.rollback()
+            if "Access is denied" in e:
+                showWarning(_("""\
+Anki could not rename your profile because it could not rename the profile \
+folder on disk. Please ensure you have permission to write to Documents/Anki \
+and no other programs are accessing your profile folders, then try again."""))
+            else:
+                raise
+        except:
+            self.db.rollback()
+            raise
+        else:
+            self.db.commit()
 
     # Folder handling
     ######################################################################
@@ -189,7 +218,12 @@ a flash drive.""" % self.base)
         elif isMac:
             return os.path.expanduser("~/Documents/Anki")
         else:
-            return os.path.expanduser("~/Anki")
+            # use Documents/Anki on new installs, ~/Anki on existing ones
+            p = os.path.expanduser("~/Anki")
+            if os.path.exists(p):
+                return p
+            else:
+                return os.path.expanduser("~/Documents/Anki")
 
     def _loadMeta(self):
         path = os.path.join(self.base, "prefs.db")
