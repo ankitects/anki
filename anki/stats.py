@@ -354,7 +354,7 @@ group by day order by day""" % (self._limit(), lim),
         if total and tot:
             perMin = total / float(tot)
             perMin = round(perMin, 1)
-            perMin = ngettext("%d card/minute", "%.01f cards/minute", perMin) % perMin
+            perMin = _("%.01f cards/minute") % perMin
             # don't round down to zero
             if float(perMin.split(' ')[0]) < 0.1:
                 perMin = ''.join(["<", _("%.01f cards/minute")]) % 0.1
