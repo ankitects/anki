@@ -357,7 +357,7 @@ group by day order by day""" % (self._limit(), lim),
             perMin = _("%.01f cards/minute") % perMin
             # don't round down to zero
             if float(perMin.split(' ')[0]) < 0.1:
-                perMin = ''.join(["<", _("%.01f cards/minute")]) % 0.1
+                perMin = _("less than 0.1 cards/minute")
             self._line(
                 i, _("Average answer time"),
                 _("%(a)0.1fs (%(b)s)") % dict(a=(tot*60)/total, b=perMin))
