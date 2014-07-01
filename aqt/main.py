@@ -303,12 +303,17 @@ Debug info:
         if self.col:
             if not self.closeAllCollectionWindows():
                 return
-            self.maybeOptimize()
             self.progress.start(immediate=True)
-            if os.getenv("ANKIDEV", 0):
-                corrupt = False
-            else:
-                corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+            corrupt = False
+            try:
+                self.maybeOptimize()
+            except:
+                corrupt = True
+            if not corrupt:
+                if os.getenv("ANKIDEV", 0):
+                    corrupt = False
+                else:
+                    corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
             if corrupt:
                 showWarning(_("Your collection file appears to be corrupt. \
 This can happen when the file is copied or moved while Anki is open, or \
