@@ -513,9 +513,6 @@ class Browser(QMainWindow):
                      self.onSearch)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.addItems(self.mw.pm.profile['searchHistory'])
-        self.connect(self.form.searchEdit.lineEdit(),
-                     SIGNAL("returnPressed()"),
-                     self.onSearch)
 
     def onSearch(self, reset=True):
         "Careful: if reset is true, the current note is saved."
