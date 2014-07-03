@@ -223,7 +223,8 @@ and no other programs are accessing your profile folders, then try again."""))
             if os.path.exists(p):
                 return p
             else:
-                return os.path.expanduser("~/Documents/Anki")
+                loc = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
+                return os.path.join(loc, "Anki")
 
     def _loadMeta(self):
         path = os.path.join(self.base, "prefs.db")
