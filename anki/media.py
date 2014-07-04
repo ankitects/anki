@@ -78,8 +78,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def maybeUpgrade(self):
         oldpath = self.dir()+".db"
         if os.path.exists(oldpath):
+            self.db.execute('attach "../collection.media.db" as old')
             try:
-                self.db.execute('attach "../collection.media.db" as old')
                 self.db.execute("""
     insert into media
      select m.fname, csum, mod, ifnull((select 1 from log l2 where l2.fname=m.fname), 0) as dirty
@@ -91,13 +91,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 self.db.execute("""
     insert into meta select dirMod, usn from old.meta
     """)
-                self.db.execute("detach old")
                 self.db.commit()
-                self.db.execute("vacuum analyze")
             except Exception, e:
                 # if we couldn't import the old db for some reason, just start
                 # anew
                 self.col.log("failed to import old media db:"+traceback.format_exc())
+            self.db.execute("detach old")
             os.rename("../collection.media.db", "../collection.media.db.old")
 
     def close(self):
