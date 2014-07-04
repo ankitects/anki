@@ -454,10 +454,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             normname = unicodedata.normalize("NFC", fname)
 
             if csum:
+                self.col.log("+media zip", fname)
                 z.write(fname, str(c))
                 meta.append((normname, str(c)))
                 sz += os.path.getsize(fname)
             else:
+                self.col.log("-media zip", fname)
                 meta.append((normname, ""))
 
             if sz >= SYNC_ZIP_SIZE:
