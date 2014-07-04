@@ -799,9 +799,11 @@ class MediaSyncer(object):
 
             if serverLastUsn - processedCnt == lastUsn:
                 self.col.log("lastUsn in sync, updating local")
-                self.col.media.setLastUsn(serverLastUsn)
+                self.col.media.setLastUsn(serverLastUsn) # commits
             else:
                 self.col.log("concurrent update, skipping usn update")
+                # commit for markClean
+                self.col.media.db.commit()
                 updateConflict = True
 
         if updateConflict:
