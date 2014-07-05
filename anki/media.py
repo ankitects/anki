@@ -97,7 +97,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 # anew
                 self.col.log("failed to import old media db:"+traceback.format_exc())
             self.db.execute("detach old")
-            os.rename("../collection.media.db", "../collection.media.db.old")
+            npath = "../collection.media.db.old"
+            if os.path.exists(npath):
+                os.unlink(npath)
+            os.rename("../collection.media.db", npath)
 
     def close(self):
         if self.col.server:
