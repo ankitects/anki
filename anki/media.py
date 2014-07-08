@@ -366,7 +366,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _changes(self):
         self.cache = {}
         for (name, csum, mod) in self.db.execute(
-            "select fname, csum, mtime from media"):
+            "select fname, csum, mtime from media where csum is not null"):
             self.cache[name] = [csum, mod, False]
         added = []
         removed = []
