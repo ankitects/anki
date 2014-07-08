@@ -607,6 +607,8 @@ class RemoteServer(HttpSyncer):
         HttpSyncer.__init__(self, hkey)
 
     def syncURL(self):
+        if os.getenv("DEV"):
+            return "http://localhost:5000/sync/"
         return SYNC_BASE + "sync/"
 
     def hostKey(self, user, pw):
@@ -845,6 +847,8 @@ class RemoteMediaServer(HttpSyncer):
         HttpSyncer.__init__(self, hkey, con)
 
     def syncURL(self):
+        if os.getenv("DEV"):
+            return "http://localhost:5001/"
         return SYNC_BASE + "msync/"
 
     def begin(self):
