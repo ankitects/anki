@@ -271,14 +271,13 @@ To import into a password protected profile, please open the profile before atte
             self.col = Collection(cpath, log=True)
         except anki.db.Error:
             # warn user
-            showWarning("""\
-Your collection is corrupt. Please see the manual for \
-how to restore from a backup.""")
-            # move it out of the way so the profile can be used again
-            newpath = cpath+str(intTime())
-            os.rename(cpath, newpath)
-            # then close
-            sys.exit(1)
+            showWarning(_("""\
+Your collection is corrupt. Please create a new profile, then \
+see the manual for how to restore from an automatic backup.
+
+Debug info:
+""")+traceback.format_exc())
+            self.unloadProfile()
         except Exception, e:
             # the custom exception handler won't catch this if we immediately
             # unload, so we have to manually handle it
@@ -304,12 +303,17 @@ how to restore from a backup.""")
         if self.col:
             if not self.closeAllCollectionWindows():
                 return
-            self.maybeOptimize()
             self.progress.start(immediate=True)
-            if os.getenv("ANKIDEV", 0):
-                corrupt = False
-            else:
-                corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+            corrupt = False
+            try:
+                self.maybeOptimize()
+            except:
+                corrupt = True
+            if not corrupt:
+                if os.getenv("ANKIDEV", 0):
+                    corrupt = False
+                else:
+                    corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
             if corrupt:
                 showWarning(_("Your collection file appears to be corrupt. \
 This can happen when the file is copied or moved while Anki is open, or \

@@ -258,7 +258,9 @@ class AnkiPackageExporter(AnkiExporter):
                 media[c] = file
         # tidy up intermediate files
         os.unlink(colfile)
-        os.unlink(path.replace(".apkg", ".media.db"))
+        p = path.replace(".apkg", ".media.db2")
+        if os.path.exists(p):
+            os.unlink(p)
         os.chdir(self.mediaDir)
         shutil.rmtree(path.replace(".apkg", ".media"))
         return media

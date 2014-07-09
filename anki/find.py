@@ -91,8 +91,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                         token += c
                 else:
                     inQuote = c
-            # separator
-            elif c == " ":
+            # separator (space and ideographic space)
+            elif c in (" ", u'\u3000'):
                 if inQuote:
                     token += c
                 elif token:

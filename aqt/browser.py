@@ -1779,6 +1779,7 @@ class FavouritesLineEdit(QLineEdit):
         frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.button.move(self.rect().right() - frameWidth - buttonSize.width(),
                          (self.rect().bottom() - buttonSize.height() + 1) / 2)
+        self.setTextMargins(0, 0, buttonSize.width() * 1.5, 0)
         super(FavouritesLineEdit, self).resizeEvent(event)
 
     def setIcon(self, path):

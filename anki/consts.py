@@ -47,8 +47,8 @@ MODEL_CLOZE = 1
 # deck schema & syncing vars
 SCHEMA_VERSION = 11
 SYNC_ZIP_SIZE = int(2.5*1024*1024)
-SYNC_ZIP_COUNT = 100
-SYNC_URL = os.environ.get("SYNC_URL") or "https://ankiweb.net/sync/"
+SYNC_ZIP_COUNT = 25
+SYNC_BASE = "https://ankiweb.net/"
 SYNC_VER = 8
 
 HELP_SITE="http://ankisrs.net/docs/manual.html"

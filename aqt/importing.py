@@ -317,7 +317,7 @@ backup, please see the 'Backups' section of the user manual."""))
             try:
                 z.getinfo("collection.anki2")
             except:
-                showWarning(_("The provided file is not a valid .apkg file."))
+                showWarning(invalidZipMsg())
                 return
             # we need to ask whether to import/replace
             if not setupApkgImport(mw, importer):
@@ -326,12 +326,7 @@ backup, please see the 'Backups' section of the user manual."""))
         try:
             importer.run()
         except zipfile.BadZipfile:
-            msg = _("""\
-This file does not appear to be a valid .apkg file. If you're getting this \
-error from a file downloaded from AnkiWeb, chances are that your download \
-failed. Please try again, and if the problem persists, please try again \
-with a different browser.""")
-            showWarning(msg)
+            showWarning(invalidZipMsg())
         except Exception, e:
             err = repr(str(e))
             if "invalidFile" in err:
@@ -356,6 +351,13 @@ Unable to import from a read-only file."""))
         finally:
             mw.progress.finish()
         mw.reset()
+
+def invalidZipMsg():
+    return _("""\
+This file does not appear to be a valid .apkg file. If you're getting this \
+error from a file downloaded from AnkiWeb, chances are that your download \
+failed. Please try again, and if the problem persists, please try again \
+with a different browser.""")
 
 def setupApkgImport(mw, importer):
     base = os.path.basename(importer.file).lower()

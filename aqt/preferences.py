@@ -98,6 +98,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def onSyncDeauth(self):
         self.prof['syncKey'] = None
+        self.mw.col.media.forceResync()
         self._hideAuth()
 
     def updateNetwork(self):
