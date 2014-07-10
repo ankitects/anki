@@ -354,13 +354,14 @@ group by day order by day""" % (self._limit(), lim),
         if total and tot:
             perMin = total / float(tot)
             perMin = round(perMin, 1)
-            perMin = _("%.01f cards/minute") % perMin
             # don't round down to zero
-            if float(perMin.split(' ')[0]) < 0.1:
-                perMin = _("less than 0.1 cards/minute")
+            if perMin < 0.1:
+                text = _("less than 0.1 cards/minute")
+            else:
+                text = _("%.01f cards/minute") % perMin
             self._line(
                 i, _("Average answer time"),
-                _("%(a)0.1fs (%(b)s)") % dict(a=(tot*60)/total, b=perMin))
+                _("%(a)0.1fs (%(b)s)") % dict(a=(tot*60)/total, b=text))
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(self, data, spec):
