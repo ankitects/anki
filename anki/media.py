@@ -384,6 +384,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if not os.path.getsize(f):
                 os.unlink(f)
                 continue
+            # check encoding
+            if not isMac:
+                normf = unicodedata.normalize("NFC", f)
+                if f != normf:
+                    # wrong filename encoding which will cause sync errors
+                    if os.path.exists(normf):
+                        os.unlink(f)
+                    else:
+                        os.rename(f, normf)
             # newly added?
             if f not in self.cache:
                 added.append(f)
