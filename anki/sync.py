@@ -803,6 +803,7 @@ class MediaSyncer(object):
 
             if serverLastUsn - processedCnt == lastUsn:
                 self.col.log("lastUsn in sync, updating local")
+                lastUsn = serverLastUsn
                 self.col.media.setLastUsn(serverLastUsn) # commits
             else:
                 self.col.log("concurrent update, skipping usn update")
