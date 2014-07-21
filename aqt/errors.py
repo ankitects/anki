@@ -65,6 +65,23 @@ Anki manual for more information.""")
                                  "other programs are not using the audio device."))
         if "invalidTempFolder" in error:
             return showWarning(self.tempFolderMsg())
+        if "disk I/O error" in error:
+            return showWarning(_("""\
+An error occurred while accessing the database.
+
+Possible causes:
+
+- Antivirus, firewall, backup, or synchronization software may be \
+  interfering with Anki. Try disabling such software and see if the \
+  problem goes away.
+- Your disk may be full.
+- The Documents/Anki folder may be on a network drive.
+- Files in the Documents/Anki folder may not be writeable.
+- Your hard disk may have errors.
+
+It's a good idea to run Tools>Check Database to ensure your collection \
+is not corrupt.
+"""))
         stdText = _("""\
 An error occurred. It may have been caused by a harmless bug, <br>
 or your deck may have a problem.
