@@ -62,8 +62,9 @@ class DeckBrowser(object):
             self._collapse(arg)
 
     def _keyHandler(self, evt):
-        # currently does nothing
         key = unicode(evt.text())
+        if (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)):
+            self._selDeck(self.mw.col.conf['curDeck'])
 
     def _selDeck(self, did):
         self.scrollPos =  self.web.page().mainFrame().scrollPosition()
