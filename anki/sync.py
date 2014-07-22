@@ -608,7 +608,7 @@ class RemoteServer(HttpSyncer):
 
     def syncURL(self):
         if os.getenv("DEV"):
-            return "http://localhost:5000/sync/"
+            return "https://l1.ankiweb.net/sync/"
         return SYNC_BASE + "sync/"
 
     def hostKey(self, user, pw):
@@ -673,6 +673,8 @@ class FullSyncer(HttpSyncer):
         self.col = col
 
     def syncURL(self):
+        if os.getenv("DEV"):
+            return "https://l1.ankiweb.net/sync/"
         return SYNC_BASE + "sync/"
 
     def download(self):
@@ -801,6 +803,7 @@ class MediaSyncer(object):
 
             if serverLastUsn - processedCnt == lastUsn:
                 self.col.log("lastUsn in sync, updating local")
+                lastUsn = serverLastUsn
                 self.col.media.setLastUsn(serverLastUsn) # commits
             else:
                 self.col.log("concurrent update, skipping usn update")
@@ -848,7 +851,7 @@ class RemoteMediaServer(HttpSyncer):
 
     def syncURL(self):
         if os.getenv("DEV"):
-            return "http://localhost:5001/"
+            return "https://l1.ankiweb.net/msync/"
         return SYNC_BASE + "msync/"
 
     def begin(self):
