@@ -37,9 +37,9 @@ Luca Ban, Luciano Esposito, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael 
 Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
 Montague, Michael Penkov, Michal Čadil, Morteza Salehi, Nathanael Law, Nick Cook, Niklas
 Laxström, Nguyễn Hào Khôi, Norbert Nagold, Ole Guldberg,
-Pcsl88, Petr Michalec, Piotr Kubowicz, Richard Colley, Roland Sieker,
-Samson Melamed, Stefaan De Pooter, Silja Ijas, Snezana Lukic, Susanna Björverud, Sylvain Durand,
-Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, Volodymyr Goncharenko, Xtru %s 黃文龍
+Pcsl88, Petr Michalec, Piotr Kubowicz, Richard Colley, Roland Sieker, Samson Melamed,
+Stefaan De Pooter, Silja Ijas, Snezana Lukic, Soren Bjornstad, Susanna Björverud, Sylvain Durand,
+Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, Volker Jansen, Volodymyr Goncharenko, Xtru %s 黃文龍
 """% _("<!--about diag--> and")}
     abouttext += '<p>' + _("""\
 The icons were obtained from various sources; please see the Anki source
