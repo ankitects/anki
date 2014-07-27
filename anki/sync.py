@@ -834,7 +834,7 @@ class MediaSyncer(object):
             fnames = fnames[cnt:]
 
     def files(self):
-        return self.col.media.addFilesToZip()
+        return self.col.media.mediaChangesZip()
 
     def addFiles(self, zip):
         "True if zip is the last in set. Server returns new usn instead."
