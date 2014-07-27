@@ -37,8 +37,6 @@ class TagManager(object):
 
     def register(self, tags, usn=None):
         "Given a list of tags, add any missing ones to tag registry."
-        # case is stored as received, so user can create different case
-        # versions of the same tag if they ignore the qt autocomplete.
         found = False
         for t in tags:
             if t not in self.tags:
@@ -145,8 +143,14 @@ class TagManager(object):
     ##########################################################################
 
     def canonify(self, tagList):
-        "Strip duplicates and sort."
-        strippedTags = [re.sub("[\"']", "", x) for x in tagList]
+        "Strip duplicates, adjust case to match existing tags, and sort."
+        strippedTags = []
+        for t in tagList:
+            s = re.sub("[\"']", "", t)
+            for existingTag in self.tags:
+                if s.lower() == existingTag.lower():
+                    s = existingTag
+            strippedTags.append(s)
         return sorted(set(strippedTags))
 
     def inList(self, tag, tags):
