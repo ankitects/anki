@@ -14,6 +14,7 @@ from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc, checksum
 from anki.consts import *
 from hooks import runHook
 import anki
+from lang import ngettext
 
 # syncing vars
 HTTP_TIMEOUT = 90
@@ -789,10 +790,15 @@ class MediaSyncer(object):
         # and we need to send our own
 
         updateConflict = False
+        toSend = self.col.media.dirtyCount()
         while True:
             zip, fnames = self.col.media.mediaChangesZip()
             if not fnames:
                 break
+
+            runHook("syncMsg", ngettext(
+                "%d media change to upload", "%d media changes to upload", toSend)
+                    % toSend)
 
             processedCnt, serverLastUsn = self.server.uploadChanges(zip)
             self.col.media.markClean(fnames[0:processedCnt])
@@ -811,6 +817,8 @@ class MediaSyncer(object):
                 self.col.media.db.commit()
                 updateConflict = True
 
+            toSend -= processedCnt
+
         if updateConflict:
             self.col.log("restart sync due to concurrent update")
             return self.sync()
@@ -826,6 +834,11 @@ class MediaSyncer(object):
     def _downloadFiles(self, fnames):
         self.col.log("%d files to fetch"%len(fnames))
         while fnames:
+            n = len(fnames)
+            runHook("syncMsg", ngettext(
+                "%d media file to download", "%d media files to download", n)
+                    % n)
+
             top = fnames[0:SYNC_ZIP_COUNT]
             self.col.log("fetch %s"%top)
             zipData = self.server.downloadFiles(files=top)

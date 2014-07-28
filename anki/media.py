@@ -439,6 +439,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return self.db.scalar(
             "select count() from media where csum is not null")
 
+    def dirtyCount(self):
+        return self.db.scalar(
+            "select count() from media where dirty=1")
+
     def forceResync(self):
         self.db.execute("delete from media")
         self.db.execute("update meta set lastUsn=0,dirMod=0")

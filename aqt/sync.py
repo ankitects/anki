@@ -116,6 +116,9 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
             if m:
                 self.label = m
                 self._updateLabel()
+        elif evt == "syncMsg":
+            self.label = args[0]
+            self._updateLabel()
         elif evt == "error":
             self._didError = True
             showText(_("Syncing failed:\n%s")%
@@ -296,6 +299,8 @@ class SyncThread(QThread):
         self.byteUpdate = time.time()
         def syncEvent(type):
             self.fireEvent("sync", type)
+        def syncMsg(msg):
+            self.fireEvent("syncMsg", msg)
         def canPost():
             if (time.time() - self.byteUpdate) > 0.1:
                 self.byteUpdate = time.time()
@@ -309,6 +314,7 @@ class SyncThread(QThread):
             if canPost():
                 self.fireEvent("recv", self.recvTotal)
         addHook("sync", syncEvent)
+        addHook("syncMsg", syncMsg)
         addHook("httpSend", sendEvent)
         addHook("httpRecv", recvEvent)
         # run sync and catch any errors
@@ -323,6 +329,7 @@ class SyncThread(QThread):
             # don't bump mod time unless we explicitly save
             self.col.close(save=False)
             remHook("sync", syncEvent)
+            remHook("syncMsg", syncMsg)
             remHook("httpSend", sendEvent)
             remHook("httpRecv", recvEvent)
 
