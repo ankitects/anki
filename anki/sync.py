@@ -741,6 +741,7 @@ class MediaSyncer(object):
 
         # loop through and process changes from server
         self.col.log("last local usn is %s"%lastUsn)
+        self.downloadCount = 0
         while True:
             data = self.server.mediaChanges(lastUsn=lastUsn)
 
@@ -834,17 +835,18 @@ class MediaSyncer(object):
     def _downloadFiles(self, fnames):
         self.col.log("%d files to fetch"%len(fnames))
         while fnames:
-            n = len(fnames)
-            runHook("syncMsg", ngettext(
-                "%d media file to download", "%d media files to download", n)
-                    % n)
-
             top = fnames[0:SYNC_ZIP_COUNT]
             self.col.log("fetch %s"%top)
             zipData = self.server.downloadFiles(files=top)
             cnt = self.col.media.addFilesFromZip(zipData)
+            self.downloadCount += cnt
             self.col.log("received %d files"%cnt)
             fnames = fnames[cnt:]
+
+            n = self.downloadCount
+            runHook("syncMsg", ngettext(
+                "%d media file downloaded", "%d media files downloaded", n)
+                    % n)
 
 # Remote media syncing
 ##########################################################################
