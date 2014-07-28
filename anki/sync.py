@@ -833,13 +833,6 @@ class MediaSyncer(object):
             self.col.log("received %d files"%cnt)
             fnames = fnames[cnt:]
 
-    def files(self):
-        return self.col.media.addFilesToZip()
-
-    def addFiles(self, zip):
-        "True if zip is the last in set. Server returns new usn instead."
-        return self.col.media.addFilesFromZip(zip)
-
 # Remote media syncing
 ##########################################################################
 
