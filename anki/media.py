@@ -381,8 +381,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if self.hasIllegal(f):
                 continue
             # empty files are invalid; clean them up and continue
-            if not os.path.getsize(f):
+            sz = os.path.getsize(f)
+            if not sz:
                 os.unlink(f)
+                continue
+            if sz > 100*1024*1024:
+                self.col.log("ignoring file over 100MB", f)
                 continue
             # check encoding
             if not isMac:
