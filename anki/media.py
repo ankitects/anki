@@ -221,14 +221,18 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             txt = re.sub(reg, "", txt)
         return txt
 
-    def escapeImages(self, string):
+    def escapeImages(self, string, unescape=False):
+        if unescape:
+            fn = urllib.unquote
+        else:
+            fn = urllib.quote
         def repl(match):
             tag = match.group(0)
             fname = match.group("fname")
             if re.match("(https?|ftp)://", fname):
                 return tag
             return tag.replace(
-                fname, urllib.quote(fname.encode("utf-8")))
+                fname, fn(fname.encode("utf-8")))
         for reg in self.imgRegexps:
             string = re.sub(reg, repl, string)
         return string
