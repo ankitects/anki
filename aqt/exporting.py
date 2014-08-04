@@ -41,6 +41,7 @@ class ExportDialog(QDialog):
     def exporterChanged(self, idx):
         self.exporter = exporters()[idx][1](self.col)
         self.isApkg = hasattr(self.exporter, "includeSched")
+        self.isTextNote = hasattr(self.exporter, "includeTags")
         self.hideTags = hasattr(self.exporter, "hideTags")
         self.frm.includeSched.setVisible(self.isApkg)
         self.frm.includeMedia.setVisible(self.isApkg)
@@ -103,8 +104,12 @@ class ExportDialog(QDialog):
                     period = 5000
                 else:
                     period = 3000
-                    msg = ngettext("%d card exported.", "%d cards exported.", \
-                                self.exporter.count) % self.exporter.count
+                    if self.isTextNote:
+                        msg = ngettext("%d note exported.", "%d notes exported.",
+                                    self.exporter.count) % self.exporter.count
+                    else:
+                        msg = ngettext("%d card exported.", "%d cards exported.",
+                                    self.exporter.count) % self.exporter.count
                 tooltip(msg, period=period)
             finally:
                 self.mw.progress.finish()
