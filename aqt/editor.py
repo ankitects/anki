@@ -449,6 +449,8 @@ class Editor(object):
             txt = self.mungeHTML(txt)
             # misbehaving apps may include a null byte in the text
             txt = txt.replace("\x00", "")
+            # reverse the url quoting we added to get images to display
+            txt = self.mw.col.media.escapeImages(txt, unescape=True)
             self.note.fields[self.currentField] = txt
             if not self.addMode:
                 self.note.flush()

@@ -14,6 +14,7 @@ from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc, checksum
 from anki.consts import *
 from hooks import runHook
 import anki
+from lang import ngettext
 
 # syncing vars
 HTTP_TIMEOUT = 90
@@ -740,6 +741,7 @@ class MediaSyncer(object):
 
         # loop through and process changes from server
         self.col.log("last local usn is %s"%lastUsn)
+        self.downloadCount = 0
         while True:
             data = self.server.mediaChanges(lastUsn=lastUsn)
 
@@ -789,10 +791,15 @@ class MediaSyncer(object):
         # and we need to send our own
 
         updateConflict = False
+        toSend = self.col.media.dirtyCount()
         while True:
             zip, fnames = self.col.media.mediaChangesZip()
             if not fnames:
                 break
+
+            runHook("syncMsg", ngettext(
+                "%d media change to upload", "%d media changes to upload", toSend)
+                    % toSend)
 
             processedCnt, serverLastUsn = self.server.uploadChanges(zip)
             self.col.media.markClean(fnames[0:processedCnt])
@@ -810,6 +817,8 @@ class MediaSyncer(object):
                 # commit for markClean
                 self.col.media.db.commit()
                 updateConflict = True
+
+            toSend -= processedCnt
 
         if updateConflict:
             self.col.log("restart sync due to concurrent update")
@@ -830,15 +839,14 @@ class MediaSyncer(object):
             self.col.log("fetch %s"%top)
             zipData = self.server.downloadFiles(files=top)
             cnt = self.col.media.addFilesFromZip(zipData)
+            self.downloadCount += cnt
             self.col.log("received %d files"%cnt)
             fnames = fnames[cnt:]
 
-    def files(self):
-        return self.col.media.addFilesToZip()
-
-    def addFiles(self, zip):
-        "True if zip is the last in set. Server returns new usn instead."
-        return self.col.media.addFilesFromZip(zip)
+            n = self.downloadCount
+            runHook("syncMsg", ngettext(
+                "%d media file downloaded", "%d media files downloaded", n)
+                    % n)
 
 # Remote media syncing
 ##########################################################################

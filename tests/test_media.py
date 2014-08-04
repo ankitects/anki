@@ -71,9 +71,11 @@ def test_changes():
     d = getEmptyCol()
     assert d.media._changed()
     def added():
-        return d.media.db.execute("select fname from log where type = 0")
+        return d.media.db.execute("select fname from media where csum is not null")
+    def removed():
+        return d.media.db.execute("select fname from media where csum is null")
     assert not list(added())
-    assert not list(d.media.removed())
+    assert not list(removed())
     # add a file
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, u"foo.jpg")
@@ -83,24 +85,24 @@ def test_changes():
     # should have been logged
     d.media.findChanges()
     assert list(added())
-    assert not list(d.media.removed())
+    assert not list(removed())
     # if we modify it, the cache won't notice
     time.sleep(1)
     open(path, "w").write("world")
     assert len(list(added())) == 1
-    assert not list(d.media.removed())
+    assert not list(removed())
     # but if we add another file, it will
     time.sleep(1)
     open(path+"2", "w").write("yo")
     d.media.findChanges()
     assert len(list(added())) == 2
-    assert not list(d.media.removed())
+    assert not list(removed())
     # deletions should get noticed too
     time.sleep(1)
     os.unlink(path+"2")
     d.media.findChanges()
     assert len(list(added())) == 1
-    assert len(list(d.media.removed())) == 1
+    assert len(list(removed())) == 1
 
 def test_illegal():
     d = getEmptyCol()

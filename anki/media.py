@@ -221,14 +221,17 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             txt = re.sub(reg, "", txt)
         return txt
 
-    def escapeImages(self, string):
+    def escapeImages(self, string, unescape=False):
         def repl(match):
             tag = match.group(0)
             fname = match.group("fname")
             if re.match("(https?|ftp)://", fname):
                 return tag
-            return tag.replace(
-                fname, urllib.quote(fname.encode("utf-8")))
+            if unescape:
+                txt = urllib.unquote(fname)
+            else:
+                txt = urllib.quote(fname.encode("utf-8"))
+            return tag.replace(fname, txt)
         for reg in self.imgRegexps:
             string = re.sub(reg, repl, string)
         return string
@@ -381,8 +384,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if self.hasIllegal(f):
                 continue
             # empty files are invalid; clean them up and continue
-            if not os.path.getsize(f):
+            sz = os.path.getsize(f)
+            if not sz:
                 os.unlink(f)
+                continue
+            if sz > 100*1024*1024:
+                self.col.log("ignoring file over 100MB", f)
                 continue
             # check encoding
             if not isMac:
@@ -438,6 +445,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def mediaCount(self):
         return self.db.scalar(
             "select count() from media where csum is not null")
+
+    def dirtyCount(self):
+        return self.db.scalar(
+            "select count() from media where dirty=1")
 
     def forceResync(self):
         self.db.execute("delete from media")
