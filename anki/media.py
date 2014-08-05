@@ -232,7 +232,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if re.match("(https?|ftp)://", fname):
                 return tag
             return tag.replace(
-                fname, fn(fname.encode("utf-8")))
+                fname, unicode(fn(fname.encode("utf-8")), "utf8"))
         for reg in self.imgRegexps:
             string = re.sub(reg, repl, string)
         return string
