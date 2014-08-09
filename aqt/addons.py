@@ -119,7 +119,7 @@ class AddonManager(object):
         if fname.endswith(".py"):
             # .py files go directly into the addon folder
             path = os.path.join(self.addonsFolder(), fname)
-            open(path, "w").write(data)
+            open(path, "wb").write(data)
             return
         # .zip file
         z = ZipFile(StringIO(data))
