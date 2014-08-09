@@ -63,6 +63,7 @@ class ProfileManager(object):
 
     def __init__(self, base=None, profile=None):
         self.name = None
+        self.db = None
         # instantiate base folder
         if base:
             self.base = os.path.abspath(base)
