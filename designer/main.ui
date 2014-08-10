@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>412</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -236,6 +236,9 @@
   <action name="actionNoteTypes">
    <property name="text">
     <string>Manage Note Types...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
    </property>
   </action>
  </widget>
