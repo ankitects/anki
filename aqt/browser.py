@@ -1109,12 +1109,26 @@ where id in %s""" % ids2str(sf))
             return
         self.mw.checkpoint(_("Delete Notes"))
         self.model.beginReset()
-        oldRow = self.form.tableView.selectionModel().currentIndex().row()
+        # figure out where to place the cursor after the deletion
+        curRow = self.form.tableView.selectionModel().currentIndex().row()
+        selectedRows = [i.row() for i in
+                self.form.tableView.selectionModel().selectedRows()]
+        if min(selectedRows) < curRow < max(selectedRows):
+            # last selection in middle; place one below last selected item
+            move = sum(1 for i in selectedRows if i > curRow)
+            newRow = curRow - move
+        elif max(selectedRows) <= curRow:
+            # last selection at bottom; place one below bottommost selection
+            newRow = max(selectedRows) - len(nids) + 1
+        else:
+            # last selection at top; place one above topmost selection
+            newRow = min(selectedRows) - 1
         self.col.remNotes(nids)
         self.onSearch(reset=False)
         if len(self.model.cards):
-            new = min(oldRow, len(self.model.cards) - 1)
-            self.model.focusedCard = self.model.cards[new]
+            newRow = min(newRow, len(self.model.cards) - 1)
+            newRow = max(newRow, 0)
+            self.model.focusedCard = self.model.cards[newRow]
         self.model.endReset()
         self.mw.requireReset()
         tooltip(_("%s deleted.") % (ngettext("%d note", "%d notes", len(nids)) % len(nids)))
