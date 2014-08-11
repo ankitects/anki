@@ -34,7 +34,7 @@ class ChangeMap(QDialog):
                 self.frm.fields.setCurrentRow(n)
             n += 1
         self.frm.fields.addItem(QListWidgetItem(_("Map to Tags")))
-        self.frm.fields.addItem(QListWidgetItem(_("Discard field")))
+        self.frm.fields.addItem(QListWidgetItem(_("Ignore field")))
         if not setCurrent:
             if current == "_tags":
                 self.frm.fields.setCurrentRow(n)
