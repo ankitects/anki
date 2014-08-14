@@ -109,7 +109,7 @@ class TagManager(object):
 
     def split(self, tags):
         "Parse a string and return a list of tags."
-        return [t for t in tags.split(" ") if t]
+        return [t for t in tags.replace(u'\u3000', ' ').split(" ") if t]
 
     def join(self, tags):
         "Join tags into a single string, with leading and trailing spaces."
