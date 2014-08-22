@@ -233,6 +233,11 @@ class DeckManager(object):
             raise DeckRenameError(_("That deck already exists."))
         # ensure we have parents
         newName = self._ensureParents(newName)
+        # make sure we're not nesting under a filtered deck
+        if '::' in newName:
+            newParent = '::'.join(newName.split('::')[:-1])
+            if self.byName(newParent)['dyn']:
+                raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # rename children
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
@@ -266,8 +271,6 @@ class DeckManager(object):
                 or self._isParent(ontoDeckName, draggedDeckName) \
                 or self._isAncestor(draggedDeckName, ontoDeckName):
                     return False
-        elif self.byName(ontoDeckName)['dyn']:
-            raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         else:
             return True
 
