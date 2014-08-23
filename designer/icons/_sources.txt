@@ -7,3 +7,65 @@
 
 Note that some of the icons have been modified to fit in with Anki better
 (grayscaled, cropped, etc).
+
+
+Oxygen Icon Theme
+=================
+
+The following icons are from the Oxygen Icon Theme:
+
+- application-exit.png
+- arrow-down.png
+- arrow-down-double.png
+- arrow-up.png
+- arrow-up-double.png
+- document-export.png
+- document-import.png
+- document-new.png
+- edit-find 2.png (from edit-find)
+- edit-find-replace.png
+- edit-redo.png
+- edit-rename.png
+- edit-undo.png
+- emblem-favorite.png
+- games-solve.png
+- go-first.png
+- go-jump-today.png
+- go-last.png
+- go-next.png
+- go-previous.png
+- help-contents.png
+- help-hint.png
+- kblogger.png
+- kbugbuster.png
+- media-playback-pause.png
+- media-playback-start2.png (from media-playback-start)
+- media-playback-stop.png
+- media-record.png
+- player-time.png
+- preferences-plugin.png
+- speaker.png
+- system-shutdown.png
+- system-software-update.png
+- text_remove.png (from draw-eraser)
+- text-speak.png
+- user-identity.png
+- view-calendar-tasks.png
+- view-pim-news.png
+- view-sort-ascending.png
+- view-sort-descending.png
+
+License
+-------
+
+GNU Lesser General Public License
+
+Authors
+-------
+
+- Nuno Pinheiro
+- David Vignoni
+- David Miller
+- Johann Ollivier Lapeyre
+- Kenneth Wimer
+- Riccardo Iaconelli
