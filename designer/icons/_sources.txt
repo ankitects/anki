@@ -28,6 +28,9 @@ The following icons are from the Oxygen Icon Theme:
 - edit-rename.png
 - edit-undo.png
 - emblem-favorite.png
+- emblem-favorite-dark.png (from emblem-favorite, grayscaled, brightened +85)
+- emblem-favorite-off.png (from emblem-favorite, grayscaled, brightened +250)
+- emblem-important.png (grayscaled, brightened +25)
 - games-solve.png
 - go-first.png
 - go-jump-today.png
@@ -39,9 +42,12 @@ The following icons are from the Oxygen Icon Theme:
 - kblogger.png
 - kbugbuster.png
 - media-playback-pause.png
+- media-playback-start.png (from media-playback-start, with added gaps)
 - media-playback-start2.png (from media-playback-start)
 - media-playback-stop.png
 - media-record.png
+- pause16.png (from media-playback-pause, brightened +50)
+- pause_off16.png (from media-playback-pause, brightened +200)
 - player-time.png
 - preferences-plugin.png
 - speaker.png
@@ -51,6 +57,7 @@ The following icons are from the Oxygen Icon Theme:
 - text-speak.png
 - user-identity.png
 - view-calendar-tasks.png
+- view-pim-calendar.png (grayscaled)
 - view-pim-news.png
 - view-sort-ascending.png
 - view-sort-descending.png
