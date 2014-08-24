@@ -389,19 +389,22 @@ _tooltipLabel = None
 
 def tooltip(msg, period=3000, parent=None):
     global _tooltipTimer, _tooltipLabel
-    class CustomLabel(QLabel):
+    class CustomLabel(QFrame):
+        def __init__(self, icon, label, parent):
+            super(CustomLabel, self).__init__(parent)
+            icon = QPushButton(QIcon(icon), "", self)
+            icon.setIconSize(QSize(32, 32))
+            icon.setFlat(True)
+            icon.pressed.connect(self.hide)
+            layout = QHBoxLayout(self)
+            layout.addWidget(icon)
+            layout.addWidget(QLabel(label, self))
         def mousePressEvent(self, evt):
             evt.accept()
             self.hide()
     closeTooltip()
     aw = parent or aqt.mw.app.activeWindow() or aqt.mw
-    lab = CustomLabel("""\
-<table cellpadding=10>
-<tr>
-<td><img src=":/icons/help-hint.png"></td>
-<td>%s</td>
-</tr>
-</table>""" % msg, aw)
+    lab = CustomLabel(":/icons/help-hint.png", msg, aw)
     lab.setFrameStyle(QFrame.Panel)
     lab.setLineWidth(2)
     lab.setWindowFlags(Qt.ToolTip)
