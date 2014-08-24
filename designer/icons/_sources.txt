@@ -84,3 +84,29 @@ Authors
 - Johann Ollivier Lapeyre
 - Kenneth Wimer
 - Riccardo Iaconelli
+
+
+Crystal Clear Theme
+===================
+
+The following icons are from the Crystal Clear Theme:
+
+- colors.png (from app_kcoloredit)
+- preferences-desktop-font.png (from app_fonts)
+- tex.png (from mimetype_tex)
+
+License
+-------
+
+GNU Lesser General Public License
+
+Authors
+-------
+
+- Everaldo Coelho
+- Ingolfur Haraldsson
+- Luiz Claudio dos Santos
+- Edson Farias
+- Paulo André
+- Rhandros Dembiki
+- André Souza
