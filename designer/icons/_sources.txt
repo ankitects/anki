@@ -103,7 +103,20 @@ Crystal Clear Theme
 
 The following icons are from the Crystal Clear Theme:
 
+- add16.png (from action_edit_add, grayscaled)
+- clock-icon.png (from app_clock, colorized)
+- clock16.png (from app_clock, grayscaled)
 - colors.png (from app_kcoloredit)
+- delete16.png (from action_button_cancel, grayscaled)
+- edit-find.png (from action_find)
+- edit.png (from action_edit)
+- editdelete.png (from action_button_cancel)
+- find.png (from app_xmag)
+- folder_image.png (from filesystem_folder_images)
+- folder_sound.png (from filesystem_folder_sound)
+- kexi.png (from app_database)
+- list-add.png (from action_edit_add)
+- package_games_card.png (from app_Cardgame)
 - preferences-desktop-font.png (from app_fonts)
 - tex.png (from mimetype_tex)
 
