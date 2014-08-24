@@ -22,14 +22,17 @@ Oxygen Icon Theme
 
 The following icons are from the Oxygen Icon Theme:
 
+- anki-tag.png (from mail-tagged, grayscaled)
 - application-exit.png
 - arrow-down.png
 - arrow-down-double.png
 - arrow-up.png
 - arrow-up-double.png
+- configure.png
 - document-export.png
 - document-import.png
 - document-new.png
+- editclear.png (from edit-find, edited)
 - edit-find 2.png (from edit-find)
 - edit-find-replace.png
 - edit-redo.png
@@ -39,6 +42,8 @@ The following icons are from the Oxygen Icon Theme:
 - emblem-favorite-dark.png (from emblem-favorite, grayscaled, brightened +85)
 - emblem-favorite-off.png (from emblem-favorite, grayscaled, brightened +250)
 - emblem-important.png (grayscaled, brightened +25)
+- file-close.png (from dialog-close, grayscaled, recolorized, brightened +30)
+- format-stroke-color.png
 - games-solve.png
 - go-first.png
 - go-jump-today.png
@@ -47,8 +52,10 @@ The following icons are from the Oxygen Icon Theme:
 - go-previous.png
 - help-contents.png
 - help-hint.png
+- info.png (from documentinfo, grayscaled, brightened +75)
 - kblogger.png
 - kbugbuster.png
+- mail-attachment.png (inverted)
 - media-playback-pause.png
 - media-playback-start.png (from media-playback-start, with added gaps)
 - media-playback-start2.png (from media-playback-start)
@@ -58,11 +65,16 @@ The following icons are from the Oxygen Icon Theme:
 - pause_off16.png (from media-playback-pause, brightened +200)
 - player-time.png
 - preferences-plugin.png
+- rating.png (from favorites)
 - speaker.png
+- spreadsheet.png (from x-office-spreadsheet)
+- star16.png (from favorites, grayscaled, darkened +75)
+- star_off16.png (from favorites, grayscaled)
 - system-shutdown.png
 - system-software-update.png
 - text_remove.png (from draw-eraser)
 - text-speak.png
+- text-xml.png (from application-xhtml+xml)
 - user-identity.png
 - view-calendar-tasks.png
 - view-pim-calendar.png (grayscaled)
