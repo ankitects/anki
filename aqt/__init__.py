@@ -152,7 +152,8 @@ class AnkiApp(QApplication):
             return False
         sock.write(txt)
         if not sock.waitForBytesWritten(self.TMOUT):
-            raise Exception("existing instance not emptying")
+            # existing instance running but hung
+            return False
         sock.disconnectFromServer()
         return True
 
