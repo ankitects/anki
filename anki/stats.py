@@ -292,8 +292,8 @@ group by day order by day""" % (self._limit(), lim),
             # base off date of earliest added card
             period = self._deckAge('add')
         i = []
-        self._line(i, _("Total"), _("%i cards") % tot)
-        self._line(i, _("Average"), _("%.01f cards/day") % (float(tot) / period))
+        self._line(i, _("Total"), ngettext("%d card", "%d cards", tot) % tot)
+        self._line(i, _("Average"), self._avgDay(tot, period, _("cards")))
         txt += self._lineTbl(i)
 
         return txt
