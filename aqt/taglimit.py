@@ -30,7 +30,7 @@ class TagLimit(QDialog):
             noHash[n] = True
         groupedTags = []
         usertags.sort()
-        icon = QIcon(":/icons/Anki_Fact.png")
+        icon = QIcon(":/icons/Anki_Fact.png")  # nonexistent... anki-tag.png?
         groupedTags.append([icon, usertags])
         self.tags = []
         for (icon, tags) in groupedTags:
