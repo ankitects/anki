@@ -184,7 +184,9 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         elif "code: 413" in err:
             return _("Your collection or a media file is too large to sync.")
         elif "EOF occurred in violation of protocol" in err:
-            return _("Error establishing a secure connection. This is usually caused by filtering software, or problems with your ISP.")
+            return _("Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP.")
+        elif "certificate verify failed" in err:
+            return _("Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP.")
         return err
 
     def _getUserPass(self):
