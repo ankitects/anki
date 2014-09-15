@@ -120,9 +120,9 @@ class CardLayout(QDialog):
                 self.model, joinFields(self.note.fields)))
             for g in pform.groupBox, pform.groupBox_2:
                 g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
-        pform.frontWeb = AnkiWebView(True)
+        pform.frontWeb = AnkiWebView()
         pform.frontPrevBox.addWidget(pform.frontWeb)
-        pform.backWeb = AnkiWebView(True)
+        pform.backWeb = AnkiWebView()
         pform.backPrevBox.addWidget(pform.backWeb)
         for wig in pform.frontWeb, pform.backWeb:
             wig.page().setLinkDelegationPolicy(

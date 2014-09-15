@@ -40,8 +40,7 @@ class AnkiWebPage(QWebPage):
 
 class AnkiWebView(QWebView):
 
-    # canFocus implies canCopy
-    def __init__(self, canFocus=False, canCopy=False):
+    def __init__(self, canFocus=True):
         QWebView.__init__(self)
         self.setRenderHints(
             QPainter.TextAntialiasing |
@@ -61,7 +60,6 @@ class AnkiWebView(QWebView):
         # reset each time new html is set; used to detect if still in same state
         self.key = None
         self.setCanFocus(canFocus)
-        self._canCopy = canCopy or canFocus
 
     def keyPressEvent(self, evt):
         if evt.matches(QKeySequence.Copy):
@@ -81,7 +79,7 @@ class AnkiWebView(QWebView):
         QWebView.keyReleaseEvent(self, evt)
 
     def contextMenuEvent(self, evt):
-        if not self._canCopy:
+        if not self._canFocus:
             return
         m = QMenu(self)
         a = m.addAction(_("Copy"))
