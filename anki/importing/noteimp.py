@@ -123,7 +123,9 @@ class NoteImporter(Importer):
             for c in range(len(n.fields)):
                 if not self.allowHTML:
                     n.fields[c] = cgi.escape(n.fields[c])
-                n.fields[c] = n.fields[c].strip().replace("\n", "<br>")
+                n.fields[c] = n.fields[c].strip()
+                if not self.allowHTML:
+                    n.fields[c] = n.fields[c].replace("\n", "<br>")
             fld0 = n.fields[fld0idx]
             csum = fieldChecksum(fld0)
             # first field must exist
