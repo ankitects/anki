@@ -135,3 +135,18 @@ Authors
 - Paulo André
 - Rhandros Dembiki
 - André Souza
+
+
+Composites
+==========
+
+The following icons combine multiple sources:
+
+- addtag.png (action_edit_add from Crystal Clear and mail-tagged from Oxygen,
+  scaled and colorized)
+- addtag16.png (action_edit_add from Crystal Clear and mail-tagged from
+  Oxygen, scaled and grayscaled)
+- deletetag.png (action_button_cancel from Crystal Clear and mail-tagged from
+  Oxygen, scaled and colorized)
+- deletetag16.png (action_button_cancel from Crystal Clear and mail-tagged
+  from Oxygen, scaled and grayscaled)
