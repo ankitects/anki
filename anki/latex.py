@@ -51,7 +51,7 @@ def _imgLink(col, latex, model):
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
     fname = "latex-%s.png" % checksum(txt.encode("utf8"))
-    link = '<img src="%s">' % fname
+    link = '<img class=latex src="%s">' % fname
     if os.path.exists(fname):
         return link
     elif not build:
