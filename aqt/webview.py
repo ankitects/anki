@@ -102,12 +102,15 @@ class AnkiWebView(QWebView):
         # handler should return true if event should be swallowed
         self._keyHandler = handler
 
-    def setHtml(self, html, loadCB=None):
+    def setHtml(self, html, loadCB=None, baseUrl=None):
         self.key = None
         self._loadFinishedCB = loadCB
-        QWebView.setHtml(self, html)
+        if baseUrl is None:
+            QWebView.setHtml(self, html)
+        else:
+            QWebView.setHtml(self, html, QUrl(baseUrl))
 
-    def stdHtml(self, body, css="", bodyClass="", loadCB=None, js=None, head=""):
+    def stdHtml(self, body, css="", bodyClass="", loadCB=None, js=None, head="", baseUrl=None):
         if isMac:
             button = "font-weight: bold; height: 24px;"
         else:
@@ -125,7 +128,7 @@ button {
 </head>
 <body class="%s">%s</body></html>""" % (
     button, css, js or anki.js.jquery+anki.js.browserSel,
-    head, bodyClass, body), loadCB)
+    head, bodyClass, body), loadCB, baseUrl)
 
     def setBridge(self, bridge):
         self._bridge.setBridge(bridge)

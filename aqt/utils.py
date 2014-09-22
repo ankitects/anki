@@ -339,6 +339,10 @@ def applyStyles(widget):
         widget.setStyleSheet(open(p).read())
 
 def getBase(col):
+    base = getBaseUrl(col)
+    return '<base href="%s">' % base
+
+def getBaseUrl(col):
     base = None
     mdir = col.media.dir()
     if isWin and not mdir.startswith("\\\\"):
@@ -349,7 +353,7 @@ def getBase(col):
     base = prefix + unicode(
         urllib.quote(mdir.encode("utf-8")),
         "utf-8") + "/"
-    return '<base href="%s">' % base
+    return base
 
 def openFolder(path):
     if isWin:
