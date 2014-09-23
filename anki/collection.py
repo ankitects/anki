@@ -498,6 +498,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         fields['Tags'] = data[5].strip()
         fields['Type'] = model['name']
         fields['Deck'] = self.decks.name(data[3])
+        fields['Subdeck'] = fields['Deck'].split('::')[-1]
         if model['type'] == MODEL_STD:
             template = model['tmpls'][data[4]]
         else:
