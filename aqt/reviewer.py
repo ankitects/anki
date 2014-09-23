@@ -14,7 +14,7 @@ from aqt.qt import *
 from anki.utils import  stripHTML, isMac, json
 from anki.hooks import addHook, runHook
 from anki.sound import playFromText, clearAudioQueue, play
-from aqt.utils import mungeQA, getBase, getBaseUrl, openLink, tooltip, askUserDialog
+from aqt.utils import mungeQA, getBaseUrl, openLink, tooltip, askUserDialog
 from aqt.sound import getAudio
 import anki.js
 import aqt
@@ -174,12 +174,11 @@ function _typeAnsPress() {
     def _initWeb(self):
         self._reps = 0
         self._bottomReady = False
-        base = getBase(self.mw.col)
         baseUrl = getBaseUrl(self.mw.col) + '__reviewer__.html'
         # main window
         self.web.stdHtml(self._revHtml % '', self._styles(),
             loadCB=lambda x: self._showQuestion(),
-            head=base, baseUrl=baseUrl)
+            baseUrl=baseUrl)
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
@@ -197,7 +196,6 @@ function _typeAnsPress() {
         self._reps += 1
         self.state = "question"
         self.typedAnswer = None
-        base = getBase(self.mw.col)
         baseUrl = getBaseUrl(self.mw.col) + '__reviewer__.html'
         c = self.card
         # grab the question and play audio
@@ -211,7 +209,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         # render & update bottom
         q = self._mungeQA(q)
         klass = "card card%d" % (c.ord+1)
-        self.web.stdHtml(self._revHtml % q,self._styles(),klass,head=base, baseUrl=baseUrl, js=anki.js.jquery+anki.js.browserSel+self._revScript)
+        self.web.stdHtml(self._revHtml % q,self._styles(),klass, baseUrl=baseUrl, js=anki.js.jquery+anki.js.browserSel+self._revScript)
         self.web.eval("_updateQA(false, '%s');" % klass)
         self._toggleStar()
         if self._bottomReady:
@@ -243,8 +241,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             # showing resetRequired screen; ignore space
             return
         self.state = "answer"
-        base = getBase(self.mw.col)
-        baseUrl = getBaseUrl(self.mw.col) + "reviewer.html"
+        baseUrl = getBaseUrl(self.mw.col) + '__reviewer__.html'
         c = self.card
         a = c.a()
         # play audio?
@@ -253,7 +250,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         # render and update bottom
         a = self._mungeQA(a)
         klass = "card card%d" % (c.ord+1)
-        self.web.stdHtml(self._revHtml % a,self._styles(),klass,head=base, baseUrl=baseUrl, js=anki.js.jquery+anki.js.browserSel+self._revScript)
+        self.web.stdHtml(self._revHtml % a,self._styles(),klass, baseUrl=baseUrl, js=anki.js.jquery+anki.js.browserSel+self._revScript)
         self.web.eval("_updateQA(true);")
         self._toggleStar()
         self._showEaseButtons()
