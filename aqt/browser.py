@@ -15,7 +15,7 @@ import aqt.forms
 from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, isWin, intTime, isMac
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip, openHelp, showWarning, shortcut, getBase, mungeQA
+    showInfo, askUser, tooltip, openHelp, showWarning, shortcut, getBaseUrl, mungeQA
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
@@ -1091,11 +1091,11 @@ where id in %s""" % ids2str(sf))
             txt = c.a()
         txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
         ti = lambda x: x
-        base = getBase(self.mw.col)
+        baseUrl = getBaseUrl(self.mw.col)+'__browser__.html'
         self._previewWeb.stdHtml(
             ti(mungeQA(self.col, txt)), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
+            bodyClass="card card%d" % (c.ord+1),
+            js=anki.js.browserSel, baseUrl=baseUrl)
         clearAudioQueue()
         if self.mw.reviewer.autoplay(c):
             playFromText(txt)

@@ -14,7 +14,7 @@ import anki.sound
 from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
-from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
+from aqt.utils import shortcut, showInfo, showWarning, getBaseUrl, getFile, \
     openHelp, tooltip
 import aqt
 import anki.js
@@ -24,7 +24,7 @@ pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg")
 audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a")
 
 _html = """
-<html><head>%s<style>
+<html><head><style>
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
@@ -514,8 +514,8 @@ class Editor(object):
         # change timer
         if self.note:
             self.web.setHtml(_html % (
-                getBase(self.mw.col), anki.js.jquery,
-                _("Show Duplicates")), loadCB=self._loadFinished)
+                anki.js.jquery,
+                _("Show Duplicates")), loadCB=self._loadFinished, baseUrl=getBaseUrl(self.mw.col)+'__editor__.html')
             self.updateTags()
             self.updateKeyboard()
         else:
