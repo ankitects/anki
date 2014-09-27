@@ -1,4 +1,3 @@
--Anki icon by Alex Fraser (CC GNU GPL)
 -Deck icon: Be Box Icons (non-commercial use)
 -Deck due/new icons from:
  http://led24.de/iconset
@@ -7,3 +6,147 @@
 
 Note that some of the icons have been modified to fit in with Anki better
 (grayscaled, cropped, etc).
+
+
+Logo
+====
+
+Anki's logo is copyright Alex Fraser, and is licensed under the GNU Affero
+General Public License, version 3, but with extra provisions to allow more
+liberal use of the logo under limited conditions. See ../../LICENSE.logo for
+more information.
+
+
+Oxygen Icon Theme
+=================
+
+The following icons are from the Oxygen Icon Theme:
+
+- anki-tag.png (from mail-tagged, grayscaled)
+- application-exit.png
+- arrow-down.png
+- arrow-down-double.png
+- arrow-up.png
+- arrow-up-double.png
+- configure.png
+- document-export.png
+- document-import.png
+- document-new.png
+- editclear.png (from edit-find, edited)
+- edit-find 2.png (from edit-find)
+- edit-find-replace.png
+- edit-redo.png
+- edit-rename.png
+- edit-undo.png
+- emblem-favorite.png
+- emblem-favorite-dark.png (from emblem-favorite, grayscaled, brightened +85)
+- emblem-favorite-off.png (from emblem-favorite, grayscaled, brightened +250)
+- emblem-important.png (grayscaled, brightened +25)
+- file-close.png (from dialog-close, grayscaled, recolorized, brightened +30)
+- format-stroke-color.png
+- games-solve.png
+- go-first.png
+- go-jump-today.png
+- go-last.png
+- go-next.png
+- go-previous.png
+- help-contents.png
+- help-hint.png
+- info.png (from documentinfo, grayscaled, brightened +75)
+- kblogger.png
+- kbugbuster.png
+- mail-attachment.png (inverted)
+- media-playback-pause.png
+- media-playback-start.png (from media-playback-start, with added gaps)
+- media-playback-start2.png (from media-playback-start)
+- media-playback-stop.png
+- media-record.png
+- pause16.png (from media-playback-pause, brightened +50)
+- pause_off16.png (from media-playback-pause, brightened +200)
+- player-time.png
+- preferences-plugin.png
+- rating.png (from favorites)
+- speaker.png
+- spreadsheet.png (from x-office-spreadsheet)
+- star16.png (from favorites, grayscaled, darkened +75)
+- star_off16.png (from favorites, grayscaled)
+- system-shutdown.png
+- system-software-update.png
+- text_remove.png (from draw-eraser)
+- text-speak.png
+- text-xml.png (from application-xhtml+xml)
+- user-identity.png
+- view-calendar-tasks.png
+- view-pim-calendar.png (grayscaled)
+- view-pim-news.png
+- view-sort-ascending.png
+- view-sort-descending.png
+
+License
+-------
+
+GNU Lesser General Public License
+
+Authors
+-------
+
+- Nuno Pinheiro
+- David Vignoni
+- David Miller
+- Johann Ollivier Lapeyre
+- Kenneth Wimer
+- Riccardo Iaconelli
+
+
+Crystal Clear Theme
+===================
+
+The following icons are from the Crystal Clear Theme:
+
+- add16.png (from action_edit_add, grayscaled)
+- clock-icon.png (from app_clock, colorized)
+- clock16.png (from app_clock, grayscaled)
+- colors.png (from app_kcoloredit)
+- delete16.png (from action_button_cancel, grayscaled)
+- edit-find.png (from action_find)
+- edit.png (from action_edit)
+- editdelete.png (from action_button_cancel)
+- find.png (from app_xmag)
+- folder_image.png (from filesystem_folder_images)
+- folder_sound.png (from filesystem_folder_sound)
+- kexi.png (from app_database)
+- list-add.png (from action_edit_add)
+- package_games_card.png (from app_Cardgame)
+- preferences-desktop-font.png (from app_fonts)
+- tex.png (from mimetype_tex)
+
+License
+-------
+
+GNU Lesser General Public License
+
+Authors
+-------
+
+- Everaldo Coelho
+- Ingolfur Haraldsson
+- Luiz Claudio dos Santos
+- Edson Farias
+- Paulo André
+- Rhandros Dembiki
+- André Souza
+
+
+Composites
+==========
+
+The following icons combine multiple sources:
+
+- addtag.png (action_edit_add from Crystal Clear and mail-tagged from Oxygen,
+  scaled and colorized)
+- addtag16.png (action_edit_add from Crystal Clear and mail-tagged from
+  Oxygen, scaled and grayscaled)
+- deletetag.png (action_button_cancel from Crystal Clear and mail-tagged from
+  Oxygen, scaled and colorized)
+- deletetag16.png (action_button_cancel from Crystal Clear and mail-tagged
+  from Oxygen, scaled and grayscaled)

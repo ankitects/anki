@@ -127,7 +127,7 @@ class Reviewer(object):
     ##########################################################################
 
     _revHtml = """
-<img src="qrc:/icons/rating.png" id=star class=marked>
+<img src="qrc:/icons/rating.png" id=star width=18 height=18 class=marked>
 <div id=qa></div>
 <script>
 var ankiPlatform = "desktop";

@@ -242,7 +242,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             nonzeroColour(new, "#000099"))
         # options
         buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
-            link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>&#9662;")
+            link="opts:%d"%did, name="<img valign=bottom width=16 height=16 src='qrc:/icons/gears.png'>&#9662;")
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
@@ -250,14 +250,14 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _topLevelDragRow(self):
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
-    def _dueImg(self, due, new):
+    def _dueImg(self, due, new):  # never-called method?
         if due:
             i = "clock-icon"
         elif new:
             i = "plus-circle"
         else:
             i = "none"
-        return '<img valign=bottom src="qrc:/icons/%s.png">' % i
+        return '<img valign=bottom width=16 height=16 src="qrc:/icons/%s.png">' % i
 
     # Options
     ##########################################################################

@@ -1707,10 +1707,10 @@ class BrowserToolbar(Toolbar):
             if on:
                 fmt = '''\
 <a class=hitem title="%s" href="%s">\
-<img valign=bottom style='border: 1px solid #aaa;' src="qrc:/icons/%s.png"> %s</a>'''
+<img valign=bottom style='border: 1px solid #aaa;' width=16 height=16 src="qrc:/icons/%s.png"> %s</a>'''
             else:
                 fmt = '''\
-<a class=hitem title="%s" href="%s"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
+<a class=hitem title="%s" href="%s"><img style="padding: 1px;" width=16 height=16 valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
             return fmt % (tooltip or title, link, icon, title)
         right = "<div>"
         right += borderImg("add", "add16", False, _("Add"))
