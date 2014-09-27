@@ -313,8 +313,8 @@ backup, please see the 'Backups' section of the user manual."""))
     else:
         # if it's an apkg/zip, first test it's a valid file
         if importer.__class__.__name__ == "AnkiPackageImporter":
-            z = zipfile.ZipFile(importer.file)
             try:
+                z = zipfile.ZipFile(importer.file)
                 z.getinfo("collection.anki2")
             except:
                 showWarning(invalidZipMsg())
