@@ -331,6 +331,10 @@ def mungeQA(col, txt):
     txt = stripSounds(txt)
     # osx webkit doesn't understand font weight 600
     txt = re.sub("font-weight: *600", "font-weight:bold", txt)
+    if isMac:
+        # custom fonts cause crashes on osx at the moment
+        txt = txt.replace("font-face", "invalid")
+
     return txt
 
 def applyStyles(widget):
