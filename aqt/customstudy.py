@@ -53,7 +53,6 @@ class CustomStudy(QDialog):
             return "<b>"+str(num)+"</b>"
         if idx == RADIO_NEW:
             new = self.mw.col.sched.totalNewForCurrentDeck()
-            self.deck['newToday']
             tit = _("New cards in deck: %s") % plus(new)
             pre = _("Increase today's new card limit by")
             sval = min(new, self.deck.get('extendNew', 10))
