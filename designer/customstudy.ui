@@ -16,24 +16,24 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="3" column="0">
-      <widget class="QRadioButton" name="radio4">
-       <property name="text">
-        <string>Review ahead</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QRadioButton" name="radio3">
-       <property name="text">
-        <string>Review forgotten cards</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="QRadioButton" name="radio1">
        <property name="text">
         <string>Increase today's new card limit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="tbResetExtendNew">
+       <property name="toolTip">
+        <string>Reset new card limit to default</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
        </property>
       </widget>
      </item>
@@ -44,10 +44,31 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QRadioButton" name="radio6">
+     <item row="1" column="1">
+      <widget class="QToolButton" name="tbResetExtendRev">
+       <property name="toolTip">
+        <string>Reset review limit to default</string>
+       </property>
        <property name="text">
-        <string>Study by card state or tag</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QRadioButton" name="radio3">
+       <property name="text">
+        <string>Review forgotten cards</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="radio4">
+       <property name="text">
+        <string>Review ahead</string>
        </property>
       </widget>
      </item>
@@ -55,6 +76,13 @@
       <widget class="QRadioButton" name="radio5">
        <property name="text">
         <string>Preview new cards</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QRadioButton" name="radio6">
+       <property name="text">
+        <string>Study by card state or tag</string>
        </property>
       </widget>
      </item>
@@ -166,7 +194,9 @@
   <tabstop>spin</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

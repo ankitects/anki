@@ -29,6 +29,9 @@ class CustomStudy(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
         f.radio1.click()
+        # enable the new/review limit revert button only if the limit has been extended today
+        f.tbResetExtendNew.setEnabled(self.deck['todayExtendNew'][1] > 0)
+        f.tbResetExtendRev.setEnabled(self.deck['todayExtendRev'][1] > 0)
         self.exec_()
 
     def setupSignals(self):
@@ -39,6 +42,8 @@ class CustomStudy(QDialog):
         c(f.radio4, s, lambda: self.onRadioChange(4))
         c(f.radio5, s, lambda: self.onRadioChange(5))
         c(f.radio6, s, lambda: self.onRadioChange(6))
+        c(f.tbResetExtendNew, s, lambda: self.resetExtendNew())
+        c(f.tbResetExtendRev, s, lambda: self.resetExtendRev())
 
     def onRadioChange(self, idx):
         f = self.form; sp = f.spin
@@ -100,16 +105,32 @@ class CustomStudy(QDialog):
         f.buttonBox.button(QDialogButtonBox.Ok).setText(ok)
         self.radioIdx = idx
 
+    def resetExtendNew(self):
+        self.mw.col.sched.extendLimits(-self.deck['todayExtendNew'][1], 0)
+        self.deck['todayExtendNew'][1] = 0
+        self.mw.col.decks.save(self.deck)
+        self.mw.reset()
+        return QDialog.accept(self)
+
+    def resetExtendRev(self):
+        self.mw.col.sched.extendLimits(0, -self.deck['todayExtendRev'][1])
+        self.deck['todayExtendRev'][1] = 0
+        self.mw.col.decks.save(self.deck)
+        self.mw.reset()
+        return QDialog.accept(self)
+
     def accept(self):
         f = self.form; i = self.radioIdx; spin = f.spin.value()
         if i == RADIO_NEW:
             self.deck['extendNew'] = spin
+            self.deck['todayExtendNew'][1] += spin
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(spin, 0)
             self.mw.reset()
             return QDialog.accept(self)
         elif i == RADIO_REV:
             self.deck['extendRev'] = spin
+            self.deck['todayExtendRev'][1] += spin
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(0, spin)
             self.mw.reset()

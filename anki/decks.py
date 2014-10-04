@@ -25,6 +25,8 @@ defaultDeck = {
     # added in beta11
     'extendNew': 10,
     'extendRev': 50,
+    'todayExtendNew' : [0, 0],
+    'todayExtendRev' : [0, 0]
 }
 
 defaultDynamicDeck = {
