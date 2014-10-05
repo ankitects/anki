@@ -1834,6 +1834,7 @@ class FavouritesLineEdit(QLineEdit):
         name = dlg.textValue()
         if ok:
             self.mw.col.conf['savedFilters'][name] = txt
+            self.mw.col.setMod()
             
         self.updateButton()
         self.browser.setupTree()
@@ -1845,5 +1846,6 @@ class FavouritesLineEdit(QLineEdit):
     
         if ok == QMessageBox.Yes:
             self.mw.col.conf['savedFilters'].pop(self.name, None)
+            self.mw.col.setMod()
             self.updateButton()
             self.browser.setupTree()
