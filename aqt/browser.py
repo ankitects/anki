@@ -431,10 +431,6 @@ class Browser(QMainWindow):
         self.delCut1 = QShortcut(QKeySequence("Delete"), self)
         self.delCut1.setAutoRepeat(False)
         c(self.delCut1, SIGNAL("activated()"), self.deleteNotes)
-        if isMac:
-            self.delCut2 = QShortcut(QKeySequence("Backspace"), self)
-            self.delCut2.setAutoRepeat(False)
-            c(self.delCut2, SIGNAL("activated()"), self.deleteNotes)
         # add-on hook
         runHook('browser.setupMenus', self)
         self.mw.maybeHideAccelerators(self)
