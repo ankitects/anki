@@ -321,7 +321,7 @@ from notes where %s""" % d)
 
     def chunk(self):
         buf = dict(done=False)
-        lim = 2500
+        lim = 250
         while self.tablesLeft and lim:
             curTable = self.tablesLeft[0]
             if not self.cursor:
