@@ -39,7 +39,7 @@ def addForwardReverse(col):
     mm.addTemplate(m, t)
     return m
 
-models.append((lambda: _("Forward & Reverse"), addForwardReverse))
+models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
 
 # Forward & Optional Reverse
 ##########################################################################
@@ -57,7 +57,8 @@ def addForwardOptionalReverse(col):
     mm.addTemplate(m, t)
     return m
 
-models.append((lambda: _("Forward & Optional Reverse"), addForwardOptionalReverse))
+models.append((lambda: _("Basic (optional reversed card)"),
+        addForwardOptionalReverse))
 
 # Cloze
 ##########################################################################
