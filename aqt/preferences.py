@@ -105,10 +105,8 @@ Not currently enabled; click the sync button in the main window to enable."""))
         self.prof['autoSync'] = self.form.syncOnProgramOpen.isChecked()
         self.prof['syncMedia'] = self.form.syncMedia.isChecked()
         if self.form.fullSync.isChecked():
-            self.mw.hideSchemaMsg = True
-            self.mw.col.modSchema()
+            self.mw.col.modSchema(check=False)
             self.mw.col.setMod()
-            self.mw.hideSchemaMsg = False
 
     # Backup
     ######################################################################

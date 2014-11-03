@@ -344,7 +344,7 @@ class DeckManager(object):
     def remConf(self, id):
         "Remove a configuration and update all decks using it."
         assert int(id) != 1
-        self.col.modSchema()
+        self.col.modSchema(check=True)
         del self.dconf[str(id)]
         for g in self.all():
             # ignore cram decks

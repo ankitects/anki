@@ -69,7 +69,6 @@ class AnkiQt(QMainWindow):
 
     def setupUI(self):
         self.col = None
-        self.hideSchemaMsg = False
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -265,7 +264,6 @@ To import into a password protected profile, please open the profile before atte
     ##########################################################################
 
     def loadCollection(self):
-        self.hideSchemaMsg = True
         cpath = self.pm.collectionPath()
         try:
             self.col = Collection(cpath, log=True)
@@ -287,7 +285,6 @@ Debug info:
                 return
             self.unloadProfile()
             raise
-        self.hideSchemaMsg = False
         self.progress.setupDB(self.col.db)
         self.maybeEnableUndo()
         self.moveToState("deckBrowser")
@@ -903,12 +900,6 @@ and if the problem comes up again, please ask on the support site."""))
     ##########################################################################
 
     def onSchemaMod(self, arg):
-        # if triggered in sync, make sure we don't use the gui
-        if not self.inMainThread():
-            return True
-        # if from the full sync menu, ignore
-        if self.hideSchemaMsg:
-            return True
         return askUser(_("""\
 The requested change will require a full upload of the database when \
 you next synchronize your collection. If you have reviews or other changes \

@@ -183,7 +183,7 @@ class Syncer(object):
         if ret['status'] != "ok":
             # roll back and force full sync
             self.col.rollback()
-            self.col.modSchema()
+            self.col.modSchema(False)
             self.col.save()
             return "sanityCheckFailed"
         # finalize
