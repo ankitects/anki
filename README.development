@@ -45,8 +45,16 @@ WINDOWS USERS:
 I have not tested the build scripts on Windows, so you'll need to solve any
 problems you encounter on your own. The easiest way is to use a source
 tarball instead of git, as that way you don't need to build the UI yourself.
-If you do want to use git, a user contributed the following, which should get
-you most of the way there:
+
+If you do want to use git, two alternatives have been contributed by users. As
+these are not official solutions, I'm afraid we can not provide you with any
+support for these.
+
+A powershell script:
+
+https://gist.github.com/vermiceli/108fec65759d19645ee3
+
+Or a way with git bash and perl:
 
     1) Install "git bash".
     2) In the tools directory, modify build_ui.sh. Locate the line that reads
