@@ -149,6 +149,50 @@ class Syncer(object):
             self.col.log("basic check")
             return "basicCheckFailed"
         # step 2: deletions
+        self._handledeletions()
+        # step 3: stream large tables from server
+        self._streamfromserver()
+        # step 4: stream to server
+        self._streamtoserver()
+        # step 5: sanity check
+        if not self._sanitycheck():
+            self._rollback()
+            return "sanityCheckFailed"
+        # finalize
+        runHook("sync", "finalize")
+        mod = self.server.finish()
+        self.finish(mod)
+        return "success"
+
+
+    def _streamfromserver(self):
+        runHook("sync", "server")
+        while 1:
+            runHook("sync", "stream")
+            chunk = self.server.chunk()
+            self.col.log("server chunk", chunk)
+            self.applyChunk(chunk=chunk)
+            if chunk['done']:
+                break
+        
+    def _streamtoserver(self):
+        runHook("sync", "client")
+        while 1:
+            runHook("sync", "stream")
+            chunk = self.chunk()
+            self.col.log("client chunk", chunk)
+            self.server.applyChunk(chunk=chunk)
+            if chunk['done']:
+                break
+
+    # Used if sanitycheck fails.
+    def _rollback(self):
+        # roll back and force full sync
+        self.col.rollback()
+        self.col.modSchema(False)
+        self.col.save()
+
+    def _handledeletions(self):
         runHook("sync", "meta")
         lrem = self.removed()
         rrem = self.server.start(
@@ -158,39 +202,12 @@ class Syncer(object):
         lchg = self.changes()
         rchg = self.server.applyChanges(changes=lchg)
         self.mergeChanges(lchg, rchg)
-        # step 3: stream large tables from server
-        runHook("sync", "server")
-        while 1:
-            runHook("sync", "stream")
-            chunk = self.server.chunk()
-            self.col.log("server chunk", chunk)
-            self.applyChunk(chunk=chunk)
-            if chunk['done']:
-                break
-        # step 4: stream to server
-        runHook("sync", "client")
-        while 1:
-            runHook("sync", "stream")
-            chunk = self.chunk()
-            self.col.log("client chunk", chunk)
-            self.server.applyChunk(chunk=chunk)
-            if chunk['done']:
-                break
-        # step 5: sanity check
+
+    def _sanitycheck(self):
         runHook("sync", "sanity")
         c = self.sanityCheck()
         ret = self.server.sanityCheck2(client=c)
-        if ret['status'] != "ok":
-            # roll back and force full sync
-            self.col.rollback()
-            self.col.modSchema(False)
-            self.col.save()
-            return "sanityCheckFailed"
-        # finalize
-        runHook("sync", "finalize")
-        mod = self.server.finish()
-        self.finish(mod)
-        return "success"
+        return ret['status'] == "ok"
 
     def meta(self):
         return dict(
