@@ -462,6 +462,8 @@ class Editor(object):
                     "editFocusLost", False, self.note, self.currentField):
                     # something updated the note; schedule reload
                     def onUpdate():
+                        if not self.note:
+                            return
                         self.stealFocus = True
                         self.loadNote()
                         self.checkValid()
