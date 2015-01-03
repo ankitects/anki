@@ -33,7 +33,7 @@ class CardStats(object):
         if first:
             self.addLine(_("First Review"), self.date(first/1000))
             self.addLine(_("Latest Review"), self.date(last/1000))
-        if c.type in (1,2):
+        if c.type in (CARD_LEARNING,CARD_DUE):
             if c.odid or c.queue < 0:
                 next = None
             else:

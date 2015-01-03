@@ -63,18 +63,18 @@ class Scheduler(object):
             self._burySiblings(card)
         card.reps += 1
         # former is for logging new cards, latter also covers filt. decks
-        card.wasNew = card.type == 0
+        card.wasNew = card.type == CARD_NEW
         wasNewQ = card.queue == 0
         if wasNewQ:
             # came from the new queue, move to learning
             card.queue = 1
             # if it was a new card, it's now a learning card
-            if card.type == 0:
-                card.type = 1
+            if card.type == CARD_NEW:
+                card.type = CARD_LEARNING
             # init reps to graduation
             card.left = self._startingLeft(card)
             # dynamic?
-            if card.odid and card.type == 2:
+            if card.odid and card.type == CARD_DUE:
                 if self._resched(card):
                     # reviews get their ivl boosted on first sight
                     card.ivl = self._dynIvlBoost(card)
@@ -521,7 +521,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         conf = self._lrnConf(card)
         if card.odid and not card.wasNew:
             type = 3
-        elif card.type == 2:
+        elif card.type == CARD_DUE:
             type = 2
         else:
             type = 0
@@ -591,13 +591,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return delay*60
 
     def _lrnConf(self, card):
-        if card.type == 2:
+        if card.type == CARD_DUE:
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
     def _rescheduleAsRev(self, card, conf, early):
-        lapse = card.type == 2
+        lapse = card.type == CARD_DUE
         if lapse:
             if self._resched(card):
                 card.due = max(self.today+1, card.odue)
@@ -607,7 +607,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         else:
             self._rescheduleNew(card, conf, early)
         card.queue = 2
-        card.type = 2
+        card.type = CARD_DUE
         # if we were dynamic, graduating means moving back to the old deck
         resched = self._resched(card)
         if card.odid:
@@ -616,11 +616,11 @@ did = ? and queue = 3 and due <= ? limit ?""",
             card.odid = 0
             # if rescheduling is off, it needs to be set back to a new card
             if not resched and not lapse:
-                card.queue = card.type = 0
+                card.queue = card.type = CARD_NEW
                 card.due = self.col.nextID("pos")
 
     def _startingLeft(self, card):
-        if card.type == 2:
+        if card.type == CARD_DUE:
             conf = self._lapseConf(card)
         else:
             conf = self._lrnConf(card)
@@ -642,7 +642,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return ok+1
 
     def _graduatingIvl(self, card, conf, early, adj=True):
-        if card.type == 2:
+        if card.type == CARD_DUE:
             # lapsed card being relearnt
             if card.odid:
                 if conf['resched']:
@@ -1026,7 +1026,7 @@ odue = (case when odue then odue else due end),
 did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
 
     def _dynIvlBoost(self, card):
-        assert card.odid and card.type == 2
+        assert card.odid and card.type == CARD_DUE
         assert card.factor
         elapsed = card.ivl - (card.odue - self.today)
         factor = ((card.factor/1000)+1.2)/2

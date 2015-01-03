@@ -5,6 +5,11 @@
 import os
 from anki.lang import _
 
+# card types as used in cards.py, sched.py, etc.
+CARD_NEW = 0
+CARD_LEARNING = 1
+CARD_DUE = 2
+
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
 NEW_CARDS_LAST = 1
