@@ -122,7 +122,6 @@ class Syncer(object):
         rts = meta['ts']
         self.rmod = meta['mod']
         self.maxUsn = meta['usn']
-        self.mediaUsn = meta['musn']
         self.syncMsg = meta['msg']
         # this is a temporary measure to address the problem of users
         # forgetting which email address they've used - it will be removed
