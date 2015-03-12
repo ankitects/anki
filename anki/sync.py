@@ -112,6 +112,7 @@ class Syncer(object):
         if not meta:
             return "badAuth"
         # server requested abort?
+        self.syncMsg = meta['msg']
         if not meta['cont']:
             return "serverAbort"
         else:
@@ -122,7 +123,6 @@ class Syncer(object):
         rts = meta['ts']
         self.rmod = meta['mod']
         self.maxUsn = meta['usn']
-        self.syncMsg = meta['msg']
         # this is a temporary measure to address the problem of users
         # forgetting which email address they've used - it will be removed
         # when enough time has passed
