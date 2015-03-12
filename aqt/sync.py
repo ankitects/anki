@@ -376,7 +376,7 @@ class SyncThread(QThread):
         elif ret == "success":
             self.fireEvent("success")
         elif ret == "serverAbort":
-            self.fireEvent("error", self.client.syncMsg)
+            pass
         else:
             self.fireEvent("error", "Unknown sync return code.")
         self.syncMsg = self.client.syncMsg
