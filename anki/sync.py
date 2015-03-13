@@ -859,7 +859,7 @@ class RemoteMediaServer(HttpSyncer):
     def syncURL(self):
         if os.getenv("DEV"):
             return "https://l1.ankiweb.net/msync/"
-        return SYNC_BASE + "msync/"
+        return SYNC_MEDIA_BASE
 
     def begin(self):
         self.postVars = dict(
