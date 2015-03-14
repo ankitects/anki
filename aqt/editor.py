@@ -20,8 +20,8 @@ import aqt
 import anki.js
 from BeautifulSoup import BeautifulSoup
 
-pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg")
-audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a")
+pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
+audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga")
 
 _html = """
 <html><head>%s<style>
