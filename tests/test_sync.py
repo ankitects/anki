@@ -332,3 +332,33 @@ def _test_speed():
     print "load %d" % ((time.time() - t)*1000); t = time.time()
     assert client.sync() == "success"
     print "sync %d" % ((time.time() - t)*1000); t = time.time()
+
+@nose.with_setup(setup_modified)
+def test_filtered_delete():
+    test_sync()
+    nid = deck1.db.scalar("select id from notes")
+    note = deck1.getNote(nid)
+    card = note.cards()[0]
+    card.type = 2
+    card.ivl = 10
+    card.factor = 2500
+    card.due = deck1.sched.today
+    card.flush()
+    # put cards into a filtered deck
+    did = deck1.decks.newDyn("dyn")
+    deck1.sched.rebuildDyn(did)
+    # sync the filtered deck
+    assert client.sync() == "success"
+    # answer the card locally
+    time.sleep(1)
+    card.load()
+    card.startTimer()
+    deck1.sched.answerCard(card, 4)
+    assert card.ivl > 10
+    # delete the filtered deck
+    deck1.decks.rem(did)
+    # sync again
+    assert client.sync() == "success"
+    card.load()
+    assert card.ivl > 10
+    return

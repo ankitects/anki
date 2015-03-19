@@ -975,8 +975,8 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         self.col.db.execute("""
 update cards set did = odid, queue = (case when type = 1 then 0
 else type end), type = (case when type = 1 then 0 else type end),
-due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
-                            self.col.usn(), intTime())
+due = odue, odue = 0, odid = 0, usn = ? where %s""" % lim,
+                            self.col.usn())
 
     def remFromDyn(self, cids):
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
@@ -1012,7 +1012,7 @@ due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
         t = intTime(); u = self.col.usn()
         for c, id in enumerate(ids):
             # start at -100000 so that reviews are all due
-            data.append((did, -100000+c, t, u, id))
+            data.append((did, -100000+c, u, id))
         # due reviews stay in the review queue. careful: can't use
         # "odid or did", as sqlite converts to boolean
         queue = """
@@ -1023,7 +1023,7 @@ due = odue, odue = 0, odid = 0, usn = ?, mod = ? where %s""" % lim,
 update cards set
 odid = (case when odid then odid else did end),
 odue = (case when odue then odue else due end),
-did = ?, queue = %s, due = ?, mod = ?, usn = ? where id = ?""" % queue, data)
+did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
 
     def _dynIvlBoost(self, card):
         assert card.odid and card.type == 2
