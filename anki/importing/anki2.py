@@ -9,6 +9,7 @@ from anki.utils import intTime, splitFields, joinFields, incGuid
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.lang import ngettext
+from oldanki.utils import addTags
 
 GUID = 1
 MID = 2
@@ -56,9 +57,9 @@ class Anki2Importer(Importer):
         # build guid -> (id,mod,mid) hash & map of existing note ids
         self._notes = {}
         existing = {}
-        for id, guid, mod, mid in self.dst.db.execute(
-            "select id, guid, mod, mid from notes"):
-            self._notes[guid] = (id, mod, mid)
+        for id, guid, mod, mid, tags in self.dst.db.execute(
+            "select id, guid, mod, mid, tags from notes"):
+            self._notes[guid] = (id, mod, mid, tags)
             existing[id] = True
         # we may need to rewrite the guid if the model schemas don't match,
         # so we need to keep track of the changes for the card import stage
@@ -87,12 +88,12 @@ class Anki2Importer(Importer):
                 add.append(note)
                 dirty.append(note[0])
                 # note we have the added the guid
-                self._notes[note[GUID]] = (note[0], note[3], note[MID])
+                self._notes[note[GUID]] = (note[0], note[3], note[MID], note[5])
             else:
                 # a duplicate or changed schema - safe to update?
                 dupes += 1
                 if self.allowUpdate:
-                    oldNid, oldMod, oldMid = self._notes[note[GUID]]
+                    oldNid, oldMod, oldMid, oldTags = self._notes[note[GUID]]
                     # will update if incoming note more recent
                     if oldMod < note[MOD]:
                         # safe if note types identical
@@ -100,6 +101,7 @@ class Anki2Importer(Importer):
                             # incoming note should use existing id
                             note[0] = oldNid
                             note[4] = usn
+                            note[5] = addTags(note[5], oldTags)
                             note[6] = self._mungeMedia(note[MID], note[6])
                             update.append(note)
                             dirty.append(note[0])
