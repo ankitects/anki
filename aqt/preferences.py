@@ -29,6 +29,9 @@ class Preferences(QDialog):
         self.show()
 
     def accept(self):
+        # avoid exception if main window is already closed
+        if not self.mw.col:
+            return
         self.updateCollection()
         self.updateNetwork()
         self.updateBackup()
