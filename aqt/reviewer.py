@@ -12,7 +12,7 @@ import HTMLParser
 from anki.lang import _, ngettext
 from aqt.qt import *
 from anki.utils import  stripHTML, isMac, json
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, getBase, openLink, tooltip, askUserDialog
 from aqt.sound import getAudio
@@ -358,18 +358,36 @@ img { max-width: 95%; max-height: 95%; }
         else:
             return self.typeAnsAnswerFilter(buf)
 
+    @staticmethod
+    def extract_mods(buf):
+        m = re.search(Reviewer.typeAnsPat, buf)
+        fld = m.group(1)
+        parts = fld.split(':')
+        parts, fld = parts[:-1], parts[-1]
+        mods = list()
+        for part in parts:
+            mod, extra = re.search("^(.*?)(?:\((.*)\))?$", part).groups()
+            mods.append((mod, extra))
+        return mods, fld
+
+    @staticmethod
+    def apply_mods(text, mods):
+        for mod, extra in mods:
+            text = runFilter('fmod_' + mod, text or '', extra or '')
+        return text
+
     def typeAnsQuestionFilter(self, buf):
         self.typeCorrect = None
         clozeIdx = None
-        m = re.search(self.typeAnsPat, buf)
-        if not m:
+        
+        try:
+            mods, fld = self.extract_mods(buf)
+        except AttributeError:
             return buf
-        fld = m.group(1)
-        # if it's a cloze, extract data
-        if fld.startswith("cloze:"):
-            # get field and cloze position
+        
+        if any(mod=="cloze" for mod, extra in mods):
             clozeIdx = self.card.ord + 1
-            fld = fld.split(":")[1]
+        
         # loop through fields for a match
         for f in self.card.model()['flds']:
             if f['name'] == fld:
@@ -378,6 +396,7 @@ img { max-width: 95%; max-height: 95%; }
                     # narrow to cloze
                     self.typeCorrect = self._contentForCloze(
                         self.typeCorrect, clozeIdx)
+                self.typeCorrect = self.apply_mods(self.typeCorrect, mods)
                 self.typeFont = f['font']
                 self.typeSize = f['size']
                 break
@@ -415,6 +434,9 @@ Please run Tools>Empty Cards""")
         cor = parser.unescape(cor)
         cor = cor.replace(u"\xa0", " ")
         given = self.typedAnswer
+        mods, fld = self.extract_mods(buf)
+        given = self.apply_mods(given, mods)
+        
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
         # and update the type answer area
