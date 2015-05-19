@@ -607,7 +607,7 @@ class RemoteServer(HttpSyncer):
         HttpSyncer.__init__(self, hkey)
 
     def syncURL(self):
-        if os.getenv("DEV"):
+        if os.getenv("ANKIDEV"):
             return "https://l1.ankiweb.net/sync/"
         return SYNC_BASE + "sync/"
 
@@ -673,7 +673,7 @@ class FullSyncer(HttpSyncer):
         self.col = col
 
     def syncURL(self):
-        if os.getenv("DEV"):
+        if os.getenv("ANKIDEV"):
             return "https://l1.ankiweb.net/sync/"
         return SYNC_BASE + "sync/"
 
@@ -857,7 +857,7 @@ class RemoteMediaServer(HttpSyncer):
         HttpSyncer.__init__(self, hkey, con)
 
     def syncURL(self):
-        if os.getenv("DEV"):
+        if os.getenv("ANKIDEV"):
             return "https://l1.ankiweb.net/msync/"
         return SYNC_MEDIA_BASE
 
