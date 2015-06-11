@@ -11,4 +11,4 @@ install:
 script: nosetests ./tests --with-coverage --cover-package=./anki
 
 after_success:
-  coveralls
+  - coveralls
