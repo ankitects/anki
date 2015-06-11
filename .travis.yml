@@ -6,5 +6,9 @@ install:
   - sudo apt-get install python-qt4 mplayer lame libportaudio2
   - pip install SQLAlchemy
   - pip install nose
+  - pip install coveralls
 
-script: nosetests ./tests
+script: nosetests ./tests --with-coverage --cover-package=./anki
+
+after_success:
+  coveralls
