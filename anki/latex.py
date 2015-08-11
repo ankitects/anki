@@ -78,9 +78,12 @@ def _buildImg(col, latex, fname, model):
     latex = latex.encode("utf8")
     # it's only really secure if run in a jail, but these are the most common
     tmplatex = latex.replace("\\includegraphics", "")
-    for bad in ("write18", "\\readline", "\\input", "\\include", "\\catcode",
-                "\\openout", "\\write", "\\loop", "\\def", "\\shipout"):
-        if bad in tmplatex:
+    for bad in ("\\write18", "\\readline", "\\input", "\\include",
+                "\\catcode", "\\openout", "\\write", "\\loop",
+                "\\def", "\\shipout"):
+        # don't mind if the sequence is only part of a command
+        bad_re = "\\" + bad + "[^a-zA-Z]"
+        if re.search(bad_re, tmplatex):
             return _("""\
 For security reasons, '%s' is not allowed on cards. You can still use \
 it by placing the command in a different package, and importing that \
