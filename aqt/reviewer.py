@@ -337,7 +337,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
 img { max-width: 95%; max-height: 95%; }
-.marked { position:absolute; right: 7px; top: 7px; display: none; }
+.marked { position:fixed; right: 7px; top: 7px; display: none; }
 #typeans { width: 100%; }
 .typeGood { background: #0f0; }
 .typeBad { background: #f00; }
