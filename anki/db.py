@@ -7,6 +7,10 @@ import time
 
 try:
     from pysqlite2 import dbapi2 as sqlite
+    vi = sqlite.version_info
+    if vi[0] > 2 or vi[1] > 6:
+        # latest pysqlite breaks anki
+        raise ImportError()
 except ImportError:
     from sqlite3 import dbapi2 as sqlite
 
