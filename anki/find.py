@@ -433,7 +433,7 @@ where mid in %s and flds like ? escape '\\'""" % (
             ord = mods[str(mid)][1]
             strg = flds[ord]
             try:
-                if re.search("(?i)^"+regex+"$", strg):
+                if re.search("(?si)^"+regex+"$", strg):
                     nids.append(id)
             except sre_constants.error:
                 return
