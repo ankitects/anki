@@ -15,7 +15,7 @@ from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
-    openHelp, tooltip
+    openHelp, tooltip, downArrow
 import aqt
 import anki.js
 from BeautifulSoup import BeautifulSoup
@@ -380,7 +380,7 @@ class Editor(object):
         but.setToolTip(_("Set foreground colour (F7)"))
         self.setupForegroundButton(but)
         but = b("change_colour", self.onChangeCol, _("F8"),
-          _("Change colour (F8)"), text=u"▾")
+          _("Change colour (F8)"), text=downArrow())
         but.setFixedWidth(12)
         but = b("cloze", self.onCloze, _("Ctrl+Shift+C"),
                 _("Cloze deletion (Ctrl+Shift+C)"), text="[...]")
@@ -392,7 +392,7 @@ class Editor(object):
         b("mail-attachment", self.onAddMedia, _("F3"),
           _("Attach pictures/audio/video (F3)"))
         b("media-record", self.onRecSound, _("F5"), _("Record audio (F5)"))
-        b("adv", self.onAdvanced, text=u"▾")
+        b("adv", self.onAdvanced, text=downArrow())
         s = QShortcut(QKeySequence("Ctrl+T, T"), self.widget)
         s.connect(s, SIGNAL("activated()"), self.insertLatex)
         s = QShortcut(QKeySequence("Ctrl+T, E"), self.widget)

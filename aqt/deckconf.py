@@ -7,7 +7,8 @@ from anki.consts import NEW_CARDS_RANDOM
 from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
-    tooltip, saveGeom, restoreGeom
+    tooltip, saveGeom, restoreGeom, downArrow
+
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):
@@ -27,7 +28,7 @@ class DeckConf(QDialog):
                      SIGNAL("helpRequested()"),
                      lambda: openHelp("deckoptions"))
         self.connect(self.form.confOpts, SIGNAL("clicked()"), self.confOpts)
-        self.form.confOpts.setText(u"▾")
+        self.form.confOpts.setText(downArrow())
         self.connect(self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults),
                      SIGNAL("clicked()"),
                      self.onRestore)
