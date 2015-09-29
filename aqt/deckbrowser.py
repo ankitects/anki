@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
-    openHelp
+    openHelp, downArrow
 from anki.utils import isMac, ids2str, fmtTimeSpan
 import anki.js
 from anki.errors import DeckRenameError
@@ -242,7 +242,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             nonzeroColour(new, "#000099"))
         # options
         buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
-            link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>&#9660;")
+            link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>"+downArrow())
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
