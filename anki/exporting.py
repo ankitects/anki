@@ -21,11 +21,13 @@ class Exporter(object):
 
     def escapeText(self, text):
         "Escape newlines, tabs, CSS and quotechar."
-        text = text.replace("\n", "<br>")
+        # fixme: we should probably quote fields with newlines
+        # instead of converting them to spaces
+        text = text.replace("\n", " ")
         text = text.replace("\t", " " * 8)
         text = re.sub("(?i)<style>.*?</style>", "", text)
         if "\"" in text:
-        	text = "\"" + text.replace("\"", "\"\"") + "\""
+            text = "\"" + text.replace("\"", "\"\"") + "\""
         return text
 
     def cardIds(self):
