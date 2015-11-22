@@ -7,11 +7,14 @@ from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
 
+# change this if latexCmds outputs alternate filetype
+outputFileExt = "svg"
+
 # if you modify these in an add-on, you must make sure to take tmp.tex as the
-# input, and output tmp.png as the output file
+# input, and change outputFileExt to the output file extension
 latexCmds = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
-    ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"]
+    ["dvisvgm", "--no-fonts", "tmp.dvi", "-o", "tmp.%s" % outputFileExt]
 #    ["dvipng", "-D", "600", "-T", "tight", "-bg", "Transparent", "tmp.dvi", "-o", "tmp.png"]
 ]
 
@@ -51,7 +54,7 @@ def mungeQA(html, type, fields, model, data, col):
 def _imgLink(col, latex, model):
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
-    fname = "latex-%s.png" % checksum(txt.encode("utf8"))
+    fname = "latex-%s.%s" % (checksum(txt.encode("utf8")), outputFileExt)
     link = '<img class=latex src="%s">' % fname
     if os.path.exists(fname):
         return link
@@ -96,7 +99,7 @@ package in the LaTeX header instead.""") % bad
     texfile.close()
     mdir = col.media.dir()
     oldcwd = os.getcwd()
-    png = namedtmp("tmp.png")
+    png = namedtmp("tmp.%s", outputFileExt)
     try:
         # generate png
         os.chdir(tmpdir())
