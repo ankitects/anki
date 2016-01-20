@@ -31,7 +31,7 @@ class Reviewer(object):
         self.hadCardQueue = False
         self._answeredIds = []
         self._recordedAudio = None
-        self.typeCorrect = None # web init happens before this is set
+        self.typeCorrect = [] # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         # qshortcut so we don't autorepeat
@@ -132,12 +132,12 @@ class Reviewer(object):
 <div id=qa></div>
 <script>
 var ankiPlatform = "desktop";
-var typeans;
+var typetxts;
 function _updateQA (q, answerMode, klass) {
     $("#qa").html(q);
-    typeans = document.getElementById("typeans");
-    if (typeans) {
-        typeans.focus();
+    typetxts = document.getElementsByName("typetxt");
+    if (typetxts.length > 0 && typetxts[0]) {
+        typetxts[0].focus();
     }
     if (answerMode) {
         var e = $("#answer");
@@ -160,9 +160,9 @@ function _toggleStar (show) {
     }
 }
 
-function _getTypedText () {
-    if (typeans) {
-        py.link("typeans:"+typeans.value);
+function _getTypedText (num) {
+    if (typetxts.length > num && typetxts[num]) {
+        py.link("typeans:"+typetxts[num].value);
     }
 };
 function _typeAnsPress() {
@@ -355,12 +355,12 @@ img { max-width: 95%; max-height: 95%; }
 
     def typeAnsFilter(self, buf):
         if self.state == "question":
+            self.typeCorrect = []
             return self.typeAnsQuestionFilter(buf)
         else:
-            return self.typeAnsAnswerFilter(buf)
+            return self.typeAnsAnswerFilter(buf, 0)
 
     def typeAnsQuestionFilter(self, buf):
-        self.typeCorrect = None
         clozeIdx = None
         m = re.search(self.typeAnsPat, buf)
         if not m:
@@ -374,16 +374,18 @@ img { max-width: 95%; max-height: 95%; }
         # loop through fields for a match
         for f in self.card.model()['flds']:
             if f['name'] == fld:
-                self.typeCorrect = self.card.note()[f['name']]
+                typeCorrect = self.card.note()[f['name']]
                 if clozeIdx:
                     # narrow to cloze
-                    self.typeCorrect = self._contentForCloze(
-                        self.typeCorrect, clozeIdx)
+                    typeCorrect = self._contentForCloze(
+                        typeCorrect, clozeIdx)
                 self.typeFont = f['font']
                 self.typeSize = f['size']
                 break
-        if not self.typeCorrect:
-            if self.typeCorrect is None:
+        if not typeCorrect:
+            #append none, so AnsAnswer indices don't missmatch
+            self.typeCorrect.append(None)
+            if typeCorrect is None:
                 if clozeIdx:
                     warn = _("""\
 Please run Tools>Empty Cards""")
@@ -393,24 +395,26 @@ Please run Tools>Empty Cards""")
             else:
                 # empty field, remove type answer pattern
                 return re.sub(self.typeAnsPat, "", buf)
-        return re.sub(self.typeAnsPat, """
+        buf = re.sub(self.typeAnsPat, """
 <center>
-<input type=text id=typeans onkeypress="_typeAnsPress();"
+<input type=text id=typeans name=typetxt onkeypress="_typeAnsPress();"
    style="font-family: '%s'; font-size: %spx;">
 </center>
-""" % (self.typeFont, self.typeSize), buf)
+""" % (self.typeFont, self.typeSize), buf, 1)
+        self.typeCorrect.append(typeCorrect)
+        return self.typeAnsQuestionFilter(buf)
 
-    def typeAnsAnswerFilter(self, buf):
-        # tell webview to call us back with the input content
-        self.web.eval("_getTypedText();")
-        if not self.typeCorrect:
+    def typeAnsAnswerFilter(self, buf, i):
+        if i >= len(self.typeCorrect):
             return re.sub(self.typeAnsPat, "", buf)
+        # tell webview to call us back with the input content
+        self.web.eval("_getTypedText(%d);" % i)
         origSize = len(buf)
         buf = buf.replace("<hr id=answer>", "")
         hadHR = len(buf) != origSize
         # munge correct value
         parser = HTMLParser.HTMLParser()
-        cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
+        cor = stripHTML(self.mw.col.media.strip(self.typeCorrect[i]))
         # ensure we don't chomp multiple whitespace
         cor = cor.replace(" ", "&nbsp;")
         cor = parser.unescape(cor)
@@ -430,7 +434,8 @@ Please run Tools>Empty Cards""")
                 # comparison when user is using {{FrontSide}}
                 s = "<hr id=answer>" + s
             return s
-        return re.sub(self.typeAnsPat, repl, buf)
+        buf = re.sub(self.typeAnsPat, repl, buf, 1)
+        return self.typeAnsAnswerFilter(buf, i + 1)
 
     def _contentForCloze(self, txt, idx):
         matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
