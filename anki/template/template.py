@@ -5,6 +5,7 @@ from anki.template import furigana; furigana.install()
 from anki.template import hint; hint.install()
 
 clozeReg = r"(?s)\{\{c%s::(.*?)(::(.*?))?\}\}"
+clozeSoundReg = r"(.*?)(\[sound:.*\])(.*?)"
 
 modifiers = {}
 def modifier(symbol):
@@ -32,6 +33,10 @@ def get_or_attr(obj, name, default=None):
             return getattr(obj, name)
         except AttributeError:
             return default
+
+
+def removeClozeSound(txt):
+    return re.sub(clozeSoundReg, "\\1\\3", txt)
 
 
 class Template(object):
@@ -166,7 +171,7 @@ class Template(object):
             mods, tag = parts[:-1], parts[-1] #py3k has *mods, tag = parts
 
         txt = get_or_attr(context, tag)
-        
+
         #Since 'text:' and other mods can affect html on which Anki relies to
         #process clozes, we need to make sure clozes are always
         #treated after all the other mods, regardless of how they're specified
@@ -200,20 +205,27 @@ class Template(object):
 
     def clozeText(self, txt, ord, type):
         reg = clozeReg
-        if not re.search(reg%ord, txt):
+        if not re.search(reg % ord, txt):
             return ""
+
         def repl(m):
             # replace chosen cloze with type
+            noSound = removeClozeSound(m.group(3))
             if type == "q":
-                if m.group(3):
+                if noSound:
                     return "<span class=cloze>[%s]</span>" % m.group(3)
+                elif m.group(3):
+                    return "<span class=cloze>[...]%s</span>" % m.group(3)
                 else:
                     return "<span class=cloze>[...]</span>"
             else:
                 return "<span class=cloze>%s</span>" % m.group(1)
-        txt = re.sub(reg%ord, repl, txt)
+        txt = re.sub(reg % ord, repl, txt)
+
         # and display other clozes normally
-        return re.sub(reg%"\d+", "\\1", txt)
+        def repl2(m):
+            return removeClozeSound(m.group(1))
+        return re.sub(reg % "\d+", repl2, txt)
 
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None):
