@@ -5,7 +5,7 @@ from anki.template import furigana; furigana.install()
 from anki.template import hint; hint.install()
 
 clozeReg = r"(?s)\{\{c%s::(.*?)(::(.*?))?\}\}"
-clozeSoundReg = r"(.*?)(\[sound:.*\])(.*?)"
+soundReg = r"\[sound:.*\]"
 
 modifiers = {}
 def modifier(symbol):
@@ -35,8 +35,9 @@ def get_or_attr(obj, name, default=None):
             return default
 
 
-def removeClozeSound(txt):
-    return re.sub(clozeSoundReg, "\\1\\3", txt)
+def removeSound(txt):
+    """remove sound tags from a string of text"""
+    return re.sub(soundReg, "", txt)
 
 
 class Template(object):
@@ -204,27 +205,41 @@ class Template(object):
         return txt
 
     def clozeText(self, txt, ord, type):
+        """Render clozes for the current card,
+        remove sound from other clozes so they will not play."""
         reg = clozeReg
         if not re.search(reg % ord, txt):
             return ""
 
         def repl(m):
-            # replace chosen cloze with type
-            noSound = removeClozeSound(m.group(3))
+            """replace chosen cloze with appropriate text"""
+            hint = (m.group(3) if m.group(3) else "")
+            answer = m.group(1)
+            hintWithOutSound = removeSound(hint)
+
+            # it's a question.
             if type == "q":
-                if noSound:
-                    return "<span class=cloze>[%s]</span>" % m.group(3)
-                elif m.group(3):
-                    return "<span class=cloze>[...]%s</span>" % m.group(3)
+
+                # the hint has text and sound.
+                if hintWithOutSound:
+                    return "<span class=cloze>[%s]</span>" % hint
+
+                # the hint only has sound or is completely empty.
                 else:
-                    return "<span class=cloze>[...]</span>"
+                    return "<span class=cloze>[...]%s</span>" % hint
+
+            # it's an answer.
             else:
-                return "<span class=cloze>%s</span>" % m.group(1)
+                return "<span class=cloze>%s</span>" % answer
+
+        # replace all of this card's clozes with the hint or the answer.
         txt = re.sub(reg % ord, repl, txt)
 
-        # and display other clozes normally
         def repl2(m):
-            return removeClozeSound(m.group(1))
+            """remove the sound from a cloze answer"""
+            return removeSound(m.group(1))
+
+        # replace the rest of the clozes with their answers minus sound.
         return re.sub(reg % "\d+", repl2, txt)
 
     @modifier('=')
