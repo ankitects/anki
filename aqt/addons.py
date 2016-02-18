@@ -126,7 +126,7 @@ class AddonManager(object):
         # .zip file
         try:
             z = ZipFile(StringIO(data))
-        except zipfile.BadZipFile:
+        except zipfile.BadZipfile:
             showWarning(_("The download was corrupt. Please try again."))
             return
         base = self.addonsFolder()
