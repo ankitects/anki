@@ -427,6 +427,9 @@ class Browser(QMainWindow):
         c(self.tagCut2, SIGNAL("activated()"), self.deleteTags)
         self.tagCut3 = QShortcut(QKeySequence("Ctrl+K"), self)
         c(self.tagCut3, SIGNAL("activated()"), self.onMark)
+        # suspending
+        self.susCut1 = QShortcut(QKeySequence("Ctrl+J"), self)
+        c(self.susCut1, SIGNAL("activated()"), self.onSuspend)
         # deletion
         self.delCut1 = QShortcut(QKeySequence("Delete"), self)
         self.delCut1.setAutoRepeat(False)
@@ -1714,7 +1717,8 @@ class BrowserToolbar(Toolbar):
                        shortcut(_("Card Info (Ctrl+Shift+I)")))
         right += borderImg("mark", "star16", mark, _("Mark"),
                        shortcut(_("Mark Note (Ctrl+K)")))
-        right += borderImg("pause", "pause16", pause, _("Suspend"))
+        right += borderImg("pause", "pause16", pause, _("Suspend")
+                       shortcut(_("Suspend Note (Ctrl+J)")))
         right += borderImg("setDeck", "deck16", False, _("Change Deck"),
                            shortcut(_("Move To Deck (Ctrl+D)")))
         right += borderImg("addtag", "addtag16", False, _("Add Tags"),
