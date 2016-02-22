@@ -1717,7 +1717,7 @@ class BrowserToolbar(Toolbar):
                        shortcut(_("Card Info (Ctrl+Shift+I)")))
         right += borderImg("mark", "star16", mark, _("Mark"),
                        shortcut(_("Mark Note (Ctrl+K)")))
-        right += borderImg("pause", "pause16", pause, _("Suspend")
+        right += borderImg("pause", "pause16", pause, _("Suspend"),
                        shortcut(_("Suspend Card (Ctrl+J)")))
         right += borderImg("setDeck", "deck16", False, _("Change Deck"),
                            shortcut(_("Move To Deck (Ctrl+D)")))
