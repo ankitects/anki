@@ -248,7 +248,7 @@ class AnkiPackageExporter(AnkiExporter):
 
     def exportInto(self, path):
         # open a zip file
-        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED)
+        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, allowZip64=True)
         # if all decks and scheduling included, full export
         if self.includeSched and not self.did:
             media = self.exportVerbatim(z)
@@ -268,11 +268,12 @@ class AnkiPackageExporter(AnkiExporter):
         self.prepareMedia()
         media = {}
         for c, file in enumerate(self.mediaFiles):
-            c = str(c)
+            cStr = str(c)
             mpath = os.path.join(self.mediaDir, file)
             if os.path.exists(mpath):
-                z.write(mpath, c)
-                media[c] = file
+                z.write(mpath, cStr, zipfile.ZIP_STORED)
+                media[cStr] = file
+                runHook("exportedMediaFiles", c)
         # tidy up intermediate files
         os.unlink(colfile)
         p = path.replace(".apkg", ".media.db2")
@@ -294,11 +295,13 @@ class AnkiPackageExporter(AnkiExporter):
         media = {}
         mdir = self.col.media.dir()
         for c, file in enumerate(os.listdir(mdir)):
-            c = str(c)
+            cStr = str(c)
             mpath = os.path.join(mdir, file)
             if os.path.exists(mpath):
-                z.write(mpath, c)
-                media[c] = file
+                z.write(mpath, cStr, zipfile.ZIP_STORED)
+                media[cStr] = file
+                runHook("exportedMediaFiles", c)
+
         return media
 
     def prepareMedia(self):

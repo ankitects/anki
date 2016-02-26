@@ -16,6 +16,8 @@ from anki.hooks import addHook, remHook
 import aqt.forms
 import aqt.modelchooser
 import aqt.deckchooser
+from anki.lang import ngettext
+
 
 class ChangeMap(QDialog):
     def __init__(self, mw, model, current):
@@ -391,8 +393,16 @@ def replaceWithApkg(mw, file, backup):
     # unwanted media. in the future we might also want to deduplicate this
     # step
     d = os.path.join(mw.pm.profileFolder(), "collection.media")
-    for c, file in json.loads(z.read("media")).items():
-        open(os.path.join(d, file), "wb").write(z.read(str(c)))
+    for n, (cStr, file) in enumerate(json.loads(z.read("media")).items()):
+        mw.progress.update(ngettext("Processed %d media file",
+                                    "Processed %d media files", n) % n)
+        size = z.getinfo(cStr).file_size
+        dest = os.path.join(d, file)
+        # if we have a matching file size
+        if os.path.exists(dest) and size == os.stat(dest).st_size:
+            continue
+        data = z.read(cStr)
+        open(dest, "wb").write(data)
     z.close()
     # reload
     mw.loadCollection()
