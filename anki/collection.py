@@ -380,7 +380,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card.nid = note.id
         card.ord = template['ord']
         # Use template did (deck override) if valid, otherwise model did
-        if template['did'] and template['did'] in self.decks.decks:
+        if template['did'] and unicode(template['did']) in self.decks.decks:
             card.did = template['did']
         else:
             card.did = note.model()['did']
