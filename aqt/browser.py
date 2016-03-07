@@ -414,6 +414,9 @@ class Browser(QMainWindow):
         c(self.pgUpCut, SIGNAL("activated()"), self.onFirstCard)
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         c(self.pgDownCut, SIGNAL("activated()"), self.onLastCard)
+        # add note
+        self.addCut = QShortcut(QKeySequence("Ctrl+E"), self)
+        c(self.addCut, SIGNAL("activated()"), self.mw.onAddCard)
         # card info
         self.infoCut = QShortcut(QKeySequence("Ctrl+Shift+I"), self)
         c(self.infoCut, SIGNAL("activated()"), self.showCardInfo)
@@ -1712,7 +1715,8 @@ class BrowserToolbar(Toolbar):
 <a class=hitem title="%s" href="%s"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
             return fmt % (tooltip or title, link, icon, title)
         right = "<div>"
-        right += borderImg("add", "add16", False, _("Add"))
+        right += borderImg("add", "add16", False, _("Add"),
+                       shortcut(_("Add Note (Ctrl+E)")))
         right += borderImg("info", "info", False, _("Info"),
                        shortcut(_("Card Info (Ctrl+Shift+I)")))
         right += borderImg("mark", "star16", mark, _("Mark"),
