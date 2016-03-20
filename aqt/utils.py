@@ -241,7 +241,8 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     if isMac:
         d.setOptions(QFileDialog.DontUseNativeDialog)
     d.setFileMode(QFileDialog.ExistingFile)
-    d.setDirectory(dir)
+    if os.path.exists(dir):
+        d.setDirectory(dir)
     d.setWindowTitle(title)
     d.setNameFilter(filter)
     ret = []
