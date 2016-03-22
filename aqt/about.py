@@ -39,8 +39,8 @@ Montague, Michael Penkov, Michal Čadil, Morteza Salehi, Nathanael Law, Nick Coo
 Laxström, Nguyễn Hào Khôi, Norbert Nagold, Ole Guldberg,
 Pcsl88, Petr Michalec, Piotr Kubowicz, Richard Colley, Roland Sieker, Samson Melamed,
 Stefaan De Pooter, Silja Ijas, Snezana Lukic, Soren Bjornstad, Susanna Björverud, Sylvain Durand,
-Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, Volker Jansen, Volodymyr Goncharenko, Xtru %s 黃文龍
-"""% _("<!--about diag--> and")}
+Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, Volker Jansen,
+    Volodymyr Goncharenko, Xtru,  赵金鹏 and 黃文龍."""}
     abouttext += '<p>' + _("""\
 The icons were obtained from various sources; please see the Anki source
 for credits.""")
