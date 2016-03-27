@@ -465,7 +465,7 @@
     <string>Reposition...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+P</string>
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionFirstCard">
