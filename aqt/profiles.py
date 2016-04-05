@@ -15,7 +15,7 @@ import re
 from aqt.qt import *
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime, checksum
-from anki.lang import langs
+import anki.lang
 from aqt.utils import showWarning
 from aqt import appHelpSite
 import aqt.forms
@@ -322,7 +322,7 @@ please see:
         # find index
         idx = None
         en = None
-        for c, (name, code) in enumerate(langs):
+        for c, (name, code) in enumerate(anki.lang.langs):
             if code == "en":
                 en = c
             if code == lang:
@@ -331,13 +331,13 @@ please see:
         if idx is None:
             idx = en
         # update list
-        f.lang.addItems([x[0] for x in langs])
+        f.lang.addItems([x[0] for x in anki.lang.langs])
         f.lang.setCurrentRow(idx)
         d.exec_()
 
     def _onLangSelected(self):
         f = self.langForm
-        obj = langs[f.lang.currentRow()]
+        obj = anki.lang.langs[f.lang.currentRow()]
         code = obj[1]
         name = obj[0]
         en = "Are you sure you wish to display Anki's interface in %s?"
@@ -346,7 +346,11 @@ please see:
             QMessageBox.No)
         if r != QMessageBox.Yes:
             return self._setDefaultLang()
+        self.setLang(code)
+
+    def setLang(self, code):
         self.meta['defaultLang'] = code
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, cPickle.dumps(self.meta), "_global")
         self.db.commit()
+        anki.lang.setLang(code, local=False)

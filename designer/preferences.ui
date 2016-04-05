@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>405</width>
-    <height>450</height>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,6 +30,27 @@
        <property name="spacing">
         <number>12</number>
        </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Interface language:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="lang">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item>
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
@@ -413,6 +434,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lang</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>stripHTML</tabstop>
@@ -429,6 +451,8 @@
   <tabstop>numBackups</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>fullSync</tabstop>
+  <tabstop>compressBackups</tabstop>
  </tabstops>
  <resources/>
  <connections>
