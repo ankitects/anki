@@ -304,12 +304,15 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         snids = ids2str(nids)
         have = {}
         dids = {}
-        for id, nid, ord, did in self.db.execute(
-            "select id, nid, ord, did from cards where nid in "+snids):
+        for id, nid, ord, did, odid in self.db.execute(
+            "select id, nid, ord, did, odid from cards where nid in "+snids):
             # existing cards
             if nid not in have:
                 have[nid] = {}
             have[nid][ord] = id
+            # if in a filtered deck, add new cards to original deck
+            if odid != 0:
+                did = odid
             # and their dids
             if nid in dids:
                 if dids[nid] and dids[nid] != did:
