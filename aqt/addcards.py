@@ -30,7 +30,7 @@ class AddCards(QDialog):
         self.forceClose = False
         restoreGeom(self, "add")
         addHook('reset', self.onReset)
-        addHook('currentModelChanged', self.onReset)
+        addHook('currentModelChanged', self.onModelChange)
         addCloseShortcut(self)
         self.show()
         self.setupNewNote()
@@ -85,6 +85,30 @@ class AddCards(QDialog):
         if set:
             self.editor.setNote(f, focus=True)
         return f
+
+    def onModelChange(self):
+        oldNote = self.editor.note
+        note = self.setupNewNote(set=False)
+        if oldNote:
+            oldFields = oldNote.keys()
+            newFields = note.keys()
+            for n, f in enumerate(note.model()['flds']):
+                fieldName = f['name']
+                try:
+                    oldFieldName = oldNote.model()['flds'][n]['name']
+                except IndexError:
+                    oldFieldName = None
+                # copy identical fields
+                if fieldName in oldFields:
+                    note[fieldName] = oldNote[fieldName]
+                # set non-identical fields by field index
+                elif oldFieldName and oldFieldName not in newFields:
+                    try:
+                        note.fields[n] = oldNote.fields[n]
+                    except IndexError:
+                        pass
+        self.editor.currentField = 0
+        self.editor.setNote(note, focus=True)
 
     def onReset(self, model=None, keep=False):
         oldNote = self.editor.note
@@ -180,7 +204,7 @@ question on all cards."""), help="AddItems")
         if not self.canClose():
             return
         remHook('reset', self.onReset)
-        remHook('currentModelChanged', self.onReset)
+        remHook('currentModelChanged', self.onModelChange)
         clearAudioQueue()
         self.removeTempNote(self.editor.note)
         self.editor.setNote(None)
