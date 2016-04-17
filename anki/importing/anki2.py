@@ -150,6 +150,7 @@ class Anki2Importer(Importer):
         # as the schemas differ and we already have a note with a different
         # note type, this note needs a new guid
         if not self.dupeOnSchemaChange:
+            self._ignoredGuids[origGuid] = True
             return False
         while True:
             note[GUID] = incGuid(note[GUID])
