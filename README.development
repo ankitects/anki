@@ -64,3 +64,16 @@ Or a way with git bash and perl:
     system. Typical paths would be:
     <python-path> = C:\\Python27\\python.exe
     <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py
+
+MAC OSX USERS:
+
+These instructions may be incomplete as prerequisites may have already been
+installed. Most likely you will need to have installed xcode
+(https://developer.apple.com/xcode/)
+
+Install homebrew (http://brew.sh/) and then install Anki prerequisites:
+
+$ brew install python PyQt mplayer lame portaudio
+$ pip install sqlalchemy
+
+Now you can follow the development commands at the start of this document.
