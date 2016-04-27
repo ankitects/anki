@@ -7,8 +7,6 @@ import urllib2
 import ctypes
 import urllib
 
-from urlparse import urlparse, urlunparse
-
 from anki.lang import _
 from aqt.qt import *
 from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia
@@ -839,12 +837,6 @@ to a cloze type first, via Edit>Change Note Type."""))
         self.mw.progress.start(
             immediate=True, parent=self.parentWindow)
         try:
-            # urllib2 doesn't work properly with IRI
-            # The following code translates IRI to standard URI
-            scheme, netloc, path, params, query, fragment = urlparse(url)
-            idna_netloc = urllib2.unquote(netloc.encode("ascii")).decode("utf-8").encode("idna")
-            url = urlunparse([scheme, idna_netloc, path, params, query, fragment])
-
             req = urllib2.Request(url, None, {
                 'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
             filecontents = urllib2.urlopen(req).read()
