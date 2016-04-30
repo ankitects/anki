@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>412</width>
-    <height>352</height>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,6 +62,20 @@
         <widget class="QPushButton" name="fieldPosition">
          <property name="text">
           <string>Reposition</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fieldPositionUp">
+         <property name="text">
+          <string>MoveUp</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fieldPositionDown">
+         <property name="text">
+          <string>MoveDown</string>
          </property>
         </widget>
        </item>
