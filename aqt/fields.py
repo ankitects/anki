@@ -46,6 +46,8 @@ class FieldDialog(QDialog):
         c(f.fieldDelete, s("clicked()"), self.onDelete)
         c(f.fieldRename, s("clicked()"), self.onRename)
         c(f.fieldPosition, s("clicked()"), self.onPosition)
+        c(f.fieldPositionUp, s("clicked()"), lambda: self.onPositionMove(direction=-1))
+        c(f.fieldPositionDown, s("clicked()"), lambda: self.onPositionMove(direction=1))
         c(f.sortField, s("clicked()"), self.onSortField)
         c(f.buttonBox, s("helpRequested()"), self.onHelp)
 
@@ -104,6 +106,18 @@ class FieldDialog(QDialog):
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
 
+    def moveField(self, pos):
+        l = len(self.model['flds'])
+        if not 0 <= pos < l:
+            return
+        self.saveField()
+        f = self.model['flds'][self.currentIdx]
+        self.mw.progress.start()
+        self.mm.moveField(self.model, f, pos)
+        self.mw.progress.finish()
+        self.fillFields()
+        self.form.fieldList.setCurrentRow(pos)
+
     def onPosition(self, delta=-1):
         idx = self.currentIdx
         l = len(self.model['flds'])
@@ -114,15 +128,14 @@ class FieldDialog(QDialog):
             pos = int(txt)
         except ValueError:
             return
-        if not 0 < pos <= l:
-            return
-        self.saveField()
-        f = self.model['flds'][self.currentIdx]
-        self.mw.progress.start()
-        self.mm.moveField(self.model, f, pos-1)
-        self.mw.progress.finish()
-        self.fillFields()
-        self.form.fieldList.setCurrentRow(pos-1)
+        self.moveField(pos-1)
+    
+    def onPositionMove(self, direction=0):
+        """direction: 1 move field down, -1 move field up"""
+        idx = self.currentIdx
+        if idx is not None:
+            pos_new = idx + direction
+            self.moveField(pos_new)
 
     def onSortField(self):
         # don't allow user to disable; it makes no sense
