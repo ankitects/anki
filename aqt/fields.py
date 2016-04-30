@@ -108,7 +108,7 @@ class FieldDialog(QDialog):
 
     def moveField(self, pos):
         l = len(self.model['flds'])
-        if not 0 <= pos <= l:
+        if not 0 <= pos < l:
             return
         self.saveField()
         f = self.model['flds'][self.currentIdx]
@@ -132,9 +132,9 @@ class FieldDialog(QDialog):
     
     def onPositionMove(self, direction=0):
         """direction: 1 move field down, -1 move field up"""
-        Idx = self.currentIdx
-        if Idx is not None:
-            pos_new = Idx + direction
+        idx = self.currentIdx
+        if idx is not None:
+            pos_new = idx + direction
             self.moveField(pos_new)
 
     def onSortField(self):
