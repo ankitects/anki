@@ -18,15 +18,15 @@ def openLink(link):
     tooltip(_("Loading..."), period=1000)
     QDesktopServices.openUrl(QUrl(link))
 
-def showWarning(text, parent=None, help=""):
+def showWarning(text, parent=None, help="", title="Anki"):
     "Show a small warning with an OK button."
-    return showInfo(text, parent, help, "warning")
+    return showInfo(text, parent, help, "warning", title=title)
 
-def showCritical(text, parent=None, help=""):
+def showCritical(text, parent=None, help="", title="Anki"):
     "Show a small critical error with an OK button."
-    return showInfo(text, parent, help, "critical")
+    return showInfo(text, parent, help, "critical", title=title)
 
-def showInfo(text, parent=False, help="", type="info"):
+def showInfo(text, parent=False, help="", type="info", title="Anki"):
     "Show a small info window with an OK button."
     if parent is False:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -40,6 +40,7 @@ def showInfo(text, parent=False, help="", type="info"):
     mb.setText(text)
     mb.setIcon(icon)
     mb.setWindowModality(Qt.WindowModal)
+    mb.setWindowTitle(title)
     b = mb.addButton(QMessageBox.Ok)
     b.setDefault(True)
     if help:
@@ -48,11 +49,12 @@ def showInfo(text, parent=False, help="", type="info"):
         b.setAutoDefault(False)
     return mb.exec_()
 
-def showText(txt, parent=None, type="text", run=True, geomKey=None):
+def showText(txt, parent=None, type="text", run=True, geomKey=None, \
+        minWidth=500, minHeight=400, title="Anki"):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
-    diag.setWindowTitle("Anki")
+    diag.setWindowTitle(title)
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
     text = QTextEdit()
@@ -69,8 +71,8 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None):
             saveGeom(diag, geomKey)
         QDialog.reject(diag)
     diag.connect(box, SIGNAL("rejected()"), onReject)
-    diag.setMinimumHeight(400)
-    diag.setMinimumWidth(500)
+    diag.setMinimumHeight(minHeight)
+    diag.setMinimumWidth(minWidth)
     if geomKey:
         restoreGeom(diag, geomKey)
     if run:
@@ -78,7 +80,8 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None):
     else:
         return diag, box
 
-def askUser(text, parent=None, help="", defaultno=False, msgfunc=None):
+def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, \
+        title="Anki"):
     "Show a yes/no question. Return true if yes."
     if not parent:
         parent = aqt.mw.app.activeWindow()
@@ -92,8 +95,7 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None):
             default = QMessageBox.No
         else:
             default = QMessageBox.Yes
-        r = msgfunc(parent, "Anki", text, sb,
-                                 default)
+        r = msgfunc(parent, title, text, sb, default)
         if r == QMessageBox.Help:
 
             openHelp(help)
@@ -101,12 +103,12 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None):
             break
     return r == QMessageBox.Yes
 
-class ButtonedDialog(QMessageBox):
+class ButtonedDialog(QMessageBox, title="Anki"):
 
     def __init__(self, text, buttons, parent=None, help=""):
         QDialog.__init__(self, parent)
         self.buttons = []
-        self.setWindowTitle("Anki")
+        self.setWindowTitle(title)
         self.help = help
         self.setIcon(QMessageBox.Warning)
         self.setText(text)
@@ -133,22 +135,22 @@ class ButtonedDialog(QMessageBox):
     def setDefault(self, idx):
         self.setDefaultButton(self.buttons[idx])
 
-def askUserDialog(text, buttons, parent=None, help=""):
+def askUserDialog(text, buttons, parent=None, help="", title="Anki"):
     if not parent:
         parent = aqt.mw
-    diag = ButtonedDialog(text, buttons, parent, help)
+    diag = ButtonedDialog(text, buttons, parent, help, title=title)
     return diag
 
 class GetTextDialog(QDialog):
 
-    def __init__(self, parent, question, help=None, edit=None, default=u"",
-                 title="Anki"):
+    def __init__(self, parent, question, help=None, edit=None, default=u"", \
+                 title="Anki", minWidth=400):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
         self.question = question
         self.help = help
         self.qlabel = QLabel(question)
-        self.setMinimumWidth(400)
+        self.setMinimumWidth(minWidth)
         v = QVBoxLayout()
         v.addWidget(self.qlabel)
         if not edit:
