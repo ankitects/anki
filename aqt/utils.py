@@ -103,9 +103,9 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, \
             break
     return r == QMessageBox.Yes
 
-class ButtonedDialog(QMessageBox, title="Anki"):
+class ButtonedDialog(QMessageBox):
 
-    def __init__(self, text, buttons, parent=None, help=""):
+    def __init__(self, text, buttons, parent=None, help="", title="Anki"):
         QDialog.__init__(self, parent)
         self.buttons = []
         self.setWindowTitle(title)
