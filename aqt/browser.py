@@ -1030,7 +1030,7 @@ where id in %s""" % ids2str(sf))
         self._previewNext = bbox.addButton(">", QDialogButtonBox.ActionRole)
         self._previewNext.setAutoDefault(True)
         self._previewNext.setShortcut(QKeySequence("Right"))
-        self._previewPrev.setToolTip(_("Shortcut key: Right arrow or Enter"))
+        self._previewNext.setToolTip(_("Shortcut key: Right arrow or Enter"))
 
         c(self._previewPrev, SIGNAL("clicked()"), self._onPreviewPrev)
         c(self._previewNext, SIGNAL("clicked()"), self._onPreviewNext)
