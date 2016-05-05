@@ -5,7 +5,10 @@ You are free to make changes to Anki and distribute those changes under the
 terms of the AGPL listed below. If you would like to contribute changes back
 to the official distribution, I ask that you license your code under the BSD
 three-clause (no advertising) license, as portions of this code are also used
-in the closed-source AnkiWeb.
+in the closed-source AnkiWeb. Before sending a patch or pull request for the
+first time, please post a private ticket on our support site that states you
+are happy to license all contributions you submit to the Anki project under
+the three-clause BSD license.
 
  * Please see LICENSE.logo for the copyright and license of Anki's logo.
  * The translations are under BSD copyright, as mandated by Launchpad.
