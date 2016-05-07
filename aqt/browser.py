@@ -1009,25 +1009,33 @@ where id in %s""" % ids2str(sf))
         self._previewState = "question"
         self._previewWindow = QDialog(None, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
+
         c(self._previewWindow, SIGNAL("finished(int)"), self._onPreviewFinished)
         vbox = QVBoxLayout()
         vbox.setMargin(0)
         self._previewWeb = AnkiWebView()
         vbox.addWidget(self._previewWeb)
         bbox = QDialogButtonBox()
+
         self._previewReplay = bbox.addButton(_("Replay Audio"), QDialogButtonBox.ActionRole)
         self._previewReplay.setAutoDefault(False)
         self._previewReplay.setShortcut(QKeySequence("R"))
         self._previewReplay.setToolTip(_("Shortcut key: %s" % "R"))
+
         self._previewPrev = bbox.addButton("<", QDialogButtonBox.ActionRole)
         self._previewPrev.setAutoDefault(False)
         self._previewPrev.setShortcut(QKeySequence("Left"))
+        self._previewPrev.setToolTip(_("Shortcut key: Left arrow"))
+
         self._previewNext = bbox.addButton(">", QDialogButtonBox.ActionRole)
-        self._previewNext.setAutoDefault(False)
+        self._previewNext.setAutoDefault(True)
         self._previewNext.setShortcut(QKeySequence("Right"))
+        self._previewNext.setToolTip(_("Shortcut key: Right arrow or Enter"))
+
         c(self._previewPrev, SIGNAL("clicked()"), self._onPreviewPrev)
         c(self._previewNext, SIGNAL("clicked()"), self._onPreviewNext)
         c(self._previewReplay, SIGNAL("clicked()"), self._onReplayAudio)
+
         vbox.addWidget(bbox)
         self._previewWindow.setLayout(vbox)
         restoreGeom(self._previewWindow, "preview")
