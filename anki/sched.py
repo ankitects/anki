@@ -1139,6 +1139,16 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
         def update(g):
+            ## should be placed in storage.py
+            if 'todayExtendNew' not in g:
+                g['todayExtendNew'] = [0, 0]
+                g['todayExtendRev'] = [0, 0]
+            ##
+            # reset the new/review limit extension
+            if g['todayExtendNew'][0] != self.today:
+                g['todayExtendNew'] = [self.today, 0]
+            if g['todayExtendRev'][0] != self.today:
+                g['todayExtendRev'] = [self.today, 0]
             for t in "new", "rev", "lrn", "time":
                 key = t+"Today"
                 if g[key][0] != self.today:

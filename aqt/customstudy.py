@@ -23,11 +23,15 @@ class CustomStudy(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
+        self.conf = self.mw.col.decks.getConf(self.deck['conf'])
         self.form = f = aqt.forms.customstudy.Ui_Dialog()
         f.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
         f.radio1.click()
+        # enable the new/review limit revert button only if the limit has been extended today
+        f.tbResetExtendNew.setEnabled(self.deck['todayExtendNew'][1] > 0)
+        f.tbResetExtendRev.setEnabled(self.deck['todayExtendRev'][1] > 0)
         self.exec_()
 
     def setupSignals(self):
@@ -38,6 +42,8 @@ class CustomStudy(QDialog):
         c(f.radio4, s, lambda: self.onRadioChange(4))
         c(f.radio5, s, lambda: self.onRadioChange(5))
         c(f.radio6, s, lambda: self.onRadioChange(6))
+        c(f.tbResetExtendNew, s, lambda: self.resetExtendNew())
+        c(f.tbResetExtendRev, s, lambda: self.resetExtendRev())
 
     def onRadioChange(self, idx):
         f = self.form; sp = f.spin
@@ -53,16 +59,22 @@ class CustomStudy(QDialog):
             return "<b>"+str(num)+"</b>"
         if idx == RADIO_NEW:
             new = self.mw.col.sched.totalNewForCurrentDeck()
-            self.deck['newToday']
-            tit = _("New cards in deck: %s") % plus(new)
+            # get the number of new cards in deck that exceed the new cards limit
+            newUnderLearning = min(new, self.conf['new']['perDay'] - self.deck['newToday'][1])
+            newExceeding = min(new, new - newUnderLearning)
+            tit = _("New cards in deck over today limit: %s") % plus(newExceeding)
             pre = _("Increase today's new card limit by")
             sval = min(new, self.deck.get('extendNew', 10))
-            smax = new
+            smax = newExceeding
         elif idx == RADIO_REV:
             rev = self.mw.col.sched.totalRevForCurrentDeck()
-            tit = _("Reviews due in deck: %s") % plus(rev)
+            # get the number of review due in deck that exceed the review due limit
+            revUnderLearning = min(rev, self.conf['rev']['perDay'] - self.deck['revToday'][1])
+            revExceeding = min(rev, rev - revUnderLearning)
+            tit = _("Reviews due in deck over today limit: %s") % plus(revExceeding)
             pre = _("Increase today's review limit by")
             sval = min(rev, self.deck.get('extendRev', 10))
+            smax = revExceeding
         elif idx == RADIO_FORGOT:
             pre = _("Review cards forgotten in last")
             post = _("days")
@@ -93,16 +105,32 @@ class CustomStudy(QDialog):
         f.buttonBox.button(QDialogButtonBox.Ok).setText(ok)
         self.radioIdx = idx
 
+    def resetExtendNew(self):
+        self.mw.col.sched.extendLimits(-self.deck['todayExtendNew'][1], 0)
+        self.deck['todayExtendNew'][1] = 0
+        self.mw.col.decks.save(self.deck)
+        self.mw.reset()
+        return QDialog.accept(self)
+
+    def resetExtendRev(self):
+        self.mw.col.sched.extendLimits(0, -self.deck['todayExtendRev'][1])
+        self.deck['todayExtendRev'][1] = 0
+        self.mw.col.decks.save(self.deck)
+        self.mw.reset()
+        return QDialog.accept(self)
+
     def accept(self):
         f = self.form; i = self.radioIdx; spin = f.spin.value()
         if i == RADIO_NEW:
             self.deck['extendNew'] = spin
+            self.deck['todayExtendNew'][1] += spin
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(spin, 0)
             self.mw.reset()
             return QDialog.accept(self)
         elif i == RADIO_REV:
             self.deck['extendRev'] = spin
+            self.deck['todayExtendRev'][1] += spin
             self.mw.col.decks.save(self.deck)
             self.mw.col.sched.extendLimits(0, spin)
             self.mw.reset()
