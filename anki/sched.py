@@ -1333,19 +1333,19 @@ and (queue=0 or (queue=2 and due<=?))""",
     # Resetting
     ##########################################################################
 
-    def forgetCards(self, ids):
+    def forgetCards(self, ids, indi=2500):
         "Put cards at the end of the new queue."
         self.remFromDyn(ids)
         self.col.db.execute(
             "update cards set type=0,queue=0,ivl=0,due=0,odue=0,factor=?"
-            " where id in "+ids2str(ids), 2500)
+            " where id in "+ids2str(ids), indi)
         pmax = self.col.db.scalar(
             "select max(due) from cards where type=0") or 0
         # takes care of mod + usn
         self.sortCards(ids, start=pmax+1)
         self.col.log(ids)
 
-    def reschedCards(self, ids, imin, imax):
+    def reschedCards(self, ids, imin, imax, indi=2500):
         "Put cards in review queue with a new interval in days (min, max)."
         d = []
         t = self.today
@@ -1353,7 +1353,7 @@ and (queue=0 or (queue=2 and due<=?))""",
         for id in ids:
             r = random.randint(imin, imax)
             d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod,
-                          usn=self.col.usn(), fact=2500))
+                          usn=self.col.usn(), fact=indi))
         self.remFromDyn(ids)
         self.col.db.executemany("""
 update cards set type=2,queue=2,ivl=:ivl,due=:due,odue=0,
