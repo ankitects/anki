@@ -36,10 +36,6 @@ class AnkiQt(QMainWindow):
         if self.pm.meta['firstRun']:
             # load the new deck user profile
             self.pm.load(self.pm.profiles()[0])
-            # upgrade if necessary
-            from aqt.upgrade import Upgrader
-            u = Upgrader(self)
-            u.maybeUpgrade()
             self.pm.meta['firstRun'] = False
             self.pm.save()
         # init rest of app
