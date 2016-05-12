@@ -17,13 +17,11 @@ except ImportError:
 Error = sqlite.Error
 
 class DB(object):
-    def __init__(self, path, text=None, timeout=0):
+    def __init__(self, path, timeout=0):
         encpath = path
         if isinstance(encpath, unicode):
             encpath = path.encode("utf-8")
         self._db = sqlite.connect(encpath, timeout=timeout)
-        if text:
-            self._db.text_factory = text
         self._path = path
         self.echo = os.environ.get("DBECHO")
         self.mod = False

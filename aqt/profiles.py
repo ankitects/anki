@@ -74,6 +74,9 @@ class ProfileManager(object):
         self.firstRun = self._loadMeta()
         # did the user request a profile to start up with?
         if profile:
+            if profile not in self.profiles():
+                QMessageBox.critical(None, "Error", "Requested profile does not exist.")
+                sys.exit(1)
             try:
                 self.load(profile)
             except TypeError:
@@ -99,15 +102,13 @@ a flash drive.""" % self.base)
     ######################################################################
 
     def profiles(self):
-        return sorted(
-            unicode(x, "utf8") for x in
-            self.db.list("select name from profiles")
-            if x != "_global")
+        return sorted(x for x in
+                      self.db.list("select name from profiles")
+                      if x != "_global")
 
     def load(self, name, passwd=None):
-        prof = cPickle.loads(
-            self.db.scalar("select data from profiles where name = ?",
-                           name.encode("utf8")))
+        data = self.db.scalar("select cast(data as blob) from profiles where name = ?", name)
+        prof = cPickle.loads(str(data))
         if prof['key'] and prof['key'] != self._pwhash(passwd):
             self.name = None
             return False
@@ -118,23 +119,21 @@ a flash drive.""" % self.base)
 
     def save(self):
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, cPickle.dumps(self.profile),
-                        self.name.encode("utf8"))
-        self.db.execute(sql, cPickle.dumps(self.meta), "_global")
+        self.db.execute(sql, buffer(cPickle.dumps(self.profile)), self.name)
+        self.db.execute(sql, buffer(cPickle.dumps(self.meta)), "_global")
         self.db.commit()
 
     def create(self, name):
         prof = profileConf.copy()
         self.db.execute("insert into profiles values (?, ?)",
-                        name.encode("utf8"), cPickle.dumps(prof))
+                        name, buffer(cPickle.dumps(prof)))
         self.db.commit()
 
     def remove(self, name):
         p = self.profileFolder()
         if os.path.exists(p):
             send2trash(p)
-        self.db.execute("delete from profiles where name = ?",
-                        name.encode("utf8"))
+        self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
     def rename(self, name):
@@ -163,7 +162,7 @@ a flash drive.""" % self.base)
 
         # update name
         self.db.execute("update profiles set name = ? where name = ?",
-                        name.encode("utf8"), oldName.encode("utf-8"))
+                        name, oldName)
         # rename folder
         try:
             os.rename(oldFolder, newFolder)
@@ -253,7 +252,7 @@ and no other programs are accessing your profile folders, then try again."""))
 Anki's prefs.db file was corrupt and has been recreated. If you were using multiple \
 profiles, please add them back using the same names to recover your cards.""")
         try:
-            self.db = DB(path, text=str)
+            self.db = DB(path)
             self.db.execute("""
 create table if not exists profiles
 (name text primary key, data text not null);""")
@@ -263,9 +262,9 @@ create table if not exists profiles
         if not new:
             # load previously created
             try:
-                self.meta = cPickle.loads(
-                    self.db.scalar(
-                        "select data from profiles where name = '_global'"))
+                data = self.db.scalar(
+                        "select cast(data as blob) from profiles where name = '_global'")
+                self.meta = cPickle.loads(str(data))
                 return
             except:
                 recover()
@@ -273,7 +272,7 @@ create table if not exists profiles
         # create a default global profile
         self.meta = metaConf.copy()
         self.db.execute("insert or replace into profiles values ('_global', ?)",
-                        cPickle.dumps(metaConf))
+                        buffer(cPickle.dumps(metaConf)))
         self._setDefaultLang()
         return True
 
@@ -351,6 +350,6 @@ please see:
     def setLang(self, code):
         self.meta['defaultLang'] = code
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, cPickle.dumps(self.meta), "_global")
+        self.db.execute(sql, buffer(cPickle.dumps(self.meta)), "_global")
         self.db.commit()
         anki.lang.setLang(code, local=False)
