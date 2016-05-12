@@ -21,14 +21,14 @@ def setup_basic():
     deck1 = getEmptyCol()
     # add a note to deck 1
     f = deck1.newNote()
-    f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = [u"foo"]
+    f['Front'] = "foo"; f['Back'] = "bar"; f.tags = ["foo"]
     deck1.addNote(f)
     # answer it
     deck1.reset(); deck1.sched.answerCard(deck1.sched.getCard(), 4)
     # repeat for deck2
     deck2 = getEmptyDeckWith(server=True)
     f = deck2.newNote()
-    f['Front'] = u"bar"; f['Back'] = u"bar"; f.tags = [u"bar"]
+    f['Front'] = "bar"; f['Back'] = "bar"; f.tags = ["bar"]
     deck2.addNote(f)
     deck2.reset(); deck2.sched.answerCard(deck2.sched.getCard(), 4)
     # start with same schema and sync time
@@ -223,7 +223,7 @@ def test_threeway():
     # client 1 adds a card at time 1
     time.sleep(1)
     f = deck1.newNote()
-    f['Front'] = u"1";
+    f['Front'] = "1";
     deck1.addNote(f)
     deck1.save()
     # at time 2, client 2 syncs to server
@@ -249,7 +249,7 @@ def test_threeway2():
         # create collection 1 with a single note
         c1 = getEmptyCol()
         f = c1.newNote()
-        f['Front'] = u"startingpoint"
+        f['Front'] = "startingpoint"
         nid = f.id
         c1.addNote(f)
         cid = f.cards()[0].id
@@ -329,9 +329,9 @@ def _test_speed():
     deck1.scm = deck2.scm = 0
     server = LocalServer(deck2)
     client = Syncer(deck1, server)
-    print "load %d" % ((time.time() - t)*1000); t = time.time()
+    print("load %d" % ((time.time() - t)*1000)); t = time.time()
     assert client.sync() == "success"
-    print "sync %d" % ((time.time() - t)*1000); t = time.time()
+    print("sync %d" % ((time.time() - t)*1000)); t = time.time()
 
 @nose.with_setup(setup_modified)
 def test_filtered_delete():

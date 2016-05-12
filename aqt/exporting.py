@@ -88,7 +88,7 @@ class ExportDialog(QDialog):
             deck_name = self.decks[self.frm.deck.currentIndex()]
             deck_name = re.sub('[\\\\/?<>:*|"^]', '_', deck_name)
             filename = os.path.join(aqt.mw.pm.base,
-                                    u'{0}{1}'.format(deck_name, self.exporter.ext))
+                                    '{0}{1}'.format(deck_name, self.exporter.ext))
             while 1:
                 file = getSaveFile(self, _("Export"), "export",
                                    self.exporter.key, self.exporter.ext,
@@ -104,8 +104,8 @@ class ExportDialog(QDialog):
             try:
                 f = open(file, "wb")
                 f.close()
-            except (OSError, IOError), e:
-                showWarning(_("Couldn't save file: %s") % unicode(e))
+            except (OSError, IOError) as e:
+                showWarning(_("Couldn't save file: %s") % str(e))
             else:
                 os.unlink(file)
                 exportedMedia = lambda cnt: self.mw.progress.update(

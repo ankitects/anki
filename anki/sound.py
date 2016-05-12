@@ -24,8 +24,8 @@ def hasSound(text):
 
 ##########################################################################
 
-processingSrc = u"rec.wav"
-processingDst = u"rec.mp3"
+processingSrc = "rec.wav"
+processingDst = "rec.mp3"
 processingChain = []
 recFiles = []
 
@@ -229,7 +229,7 @@ class _Recorder(object):
             if ret:
                 raise Exception(_(
                     "Error running %s") %
-                                u" ".join(c))
+                                " ".join(c))
 
 class PyAudioThreadedRecorder(threading.Thread):
 
@@ -258,7 +258,7 @@ class PyAudioThreadedRecorder(threading.Thread):
         while not self.finish:
             try:
                 data = stream.read(chunk)
-            except IOError, e:
+            except IOError as e:
                 if e[1] == pyaudio.paInputOverflowed:
                     data = None
                 else:
@@ -295,7 +295,7 @@ class PyAudioRecorder(_Recorder):
 
     def file(self):
         if self.encode:
-            tgt = u"rec%d.mp3" % time.time()
+            tgt = "rec%d.mp3" % time.time()
             os.rename(processingDst, tgt)
             return tgt
         else:

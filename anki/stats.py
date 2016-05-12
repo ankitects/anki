@@ -2,7 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from __future__ import division
 import time
 import datetime
 import json
@@ -112,7 +111,7 @@ class CollectionStats(object):
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         self.type = type
-        from statsbg import bg
+        from .statsbg import bg
         txt = self.css % bg
         txt += self.todayStats()
         txt += self.dueGraph()
@@ -160,7 +159,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         filt = filt or 0
         # studied
         def bold(s):
-            return "<b>"+unicode(s)+"</b>"
+            return "<b>"+str(s)+"</b>"
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
         b += _("Studied %(a)s in %(b)s today.") % dict(
             a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1)))

@@ -65,12 +65,12 @@ class Downloader(QThread):
         try:
             resp, cont = con.request(
                 aqt.appShared + "download/%d" % self.code)
-        except Exception, e:
+        except Exception as e:
             exc = traceback.format_exc()
             try:
-                self.error = unicode(e[0], "utf8", "ignore")
+                self.error = str(e[0])
             except:
-                self.error = unicode(exc, "utf8", "ignore")
+                self.error = str(exc)
             return
         finally:
             remHook("httpRecv", recvEvent)

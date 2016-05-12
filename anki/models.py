@@ -108,7 +108,7 @@ class ModelManager(object):
         m = self.get(self.col.decks.current().get('mid'))
         if not forDeck or not m:
             m = self.get(self.col.conf['curModel'])
-        return m or self.models.values()[0]
+        return m or list(self.models.values())[0]
 
     def setCurrent(self, m):
         self.col.conf['curModel'] = m['id']
@@ -122,14 +122,14 @@ class ModelManager(object):
 
     def all(self):
         "Get all models."
-        return self.models.values()
+        return list(self.models.values())
 
     def allNames(self):
         return [m['name'] for m in self.all()]
 
     def byName(self, name):
         "Get model with NAME."
-        for m in self.models.values():
+        for m in list(self.models.values()):
             if m['name'] == name:
                 return m
 
@@ -158,7 +158,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.save()
         # GUI should ensure last model is not deleted
         if current:
-            self.setCurrent(self.models.values()[0])
+            self.setCurrent(list(self.models.values())[0])
 
     def add(self, m):
         self._setID(m)
@@ -191,7 +191,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         return str(id) in self.models
 
     def ids(self):
-        return self.models.keys()
+        return list(self.models.keys())
 
     # Tools
     ##################################################
@@ -429,7 +429,7 @@ select id from notes where mid = ?)""" % " ".join(map),
             "select id, flds from notes where id in "+ids2str(nids)):
             newflds = {}
             flds = splitFields(flds)
-            for old, new in map.items():
+            for old, new in list(map.items()):
                 newflds[new] = flds[old]
             flds = []
             for c in range(nfields):

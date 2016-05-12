@@ -95,7 +95,7 @@ class DeckManager(object):
         self.dconf = json.loads(dconf)
         # set limits to within bounds
         found = False
-        for c in self.dconf.values():
+        for c in list(self.dconf.values()):
             for t in ('rev', 'new'):
                 pd = 'perDay'
                 if c[t][pd] > 999999:
@@ -125,7 +125,7 @@ class DeckManager(object):
     def id(self, name, create=True, type=defaultDeck):
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         name = name.replace('"', '')
-        for id, g in self.decks.items():
+        for id, g in list(self.decks.items()):
             if g['name'].lower() == name.lower():
                 return int(id)
         if not create:
@@ -185,22 +185,22 @@ class DeckManager(object):
         del self.decks[str(did)]
         # ensure we have an active deck
         if did in self.active():
-            self.select(int(self.decks.keys()[0]))
+            self.select(int(list(self.decks.keys())[0]))
         self.save()
 
     def allNames(self, dyn=True):
         "An unsorted list of all deck names."
         if dyn:
-            return [x['name'] for x in self.decks.values()]
+            return [x['name'] for x in list(self.decks.values())]
         else:
-            return [x['name'] for x in self.decks.values() if not x['dyn']]
+            return [x['name'] for x in list(self.decks.values()) if not x['dyn']]
 
     def all(self):
         "A list of all decks."
-        return self.decks.values()
+        return list(self.decks.values())
 
     def allIds(self):
-        return self.decks.keys()
+        return list(self.decks.keys())
 
     def collapse(self, did):
         deck = self.get(did)
@@ -225,7 +225,7 @@ class DeckManager(object):
 
     def byName(self, name):
         "Get deck with NAME."
-        for m in self.decks.values():
+        for m in list(self.decks.values()):
             if m['name'] == name:
                 return m
 
@@ -319,7 +319,7 @@ class DeckManager(object):
 
     def allConf(self):
         "A list of all deck config."
-        return self.dconf.values()
+        return list(self.dconf.values())
 
     def confForDid(self, did):
         deck = self.get(did, default=False)
@@ -370,7 +370,7 @@ class DeckManager(object):
 
     def didsForConf(self, conf):
         dids = []
-        for deck in self.decks.values():
+        for deck in list(self.decks.values()):
             if 'conf' in deck and deck['conf'] == conf['id']:
                 dids.append(deck['id'])
         return dids
@@ -421,7 +421,7 @@ class DeckManager(object):
                                 ids2str(dids))
 
     def recoverOrphans(self):
-        dids = self.decks.keys()
+        dids = list(self.decks.keys())
         mod = self.col.db.mod
         self.col.db.execute("update cards set did = 1 where did not in "+
                             ids2str(dids))

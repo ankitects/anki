@@ -68,10 +68,10 @@ class TagCompleter(QCompleter):
         self.cursor = None
 
     def splitPath(self, str):
-        str = unicode(str).strip()
+        str = str(str).strip()
         str = re.sub("  +", " ", str)
         self.tags = self.edit.col.tags.split(str)
-        self.tags.append(u"")
+        self.tags.append("")
         p = self.edit.cursorPosition()
         self.cursor = str.count(" ", 0, p)
         return [self.tags[self.cursor]]
@@ -80,9 +80,9 @@ class TagCompleter(QCompleter):
         if self.cursor is None:
             return self.edit.text()
         ret = QCompleter.pathFromIndex(self, idx)
-        self.tags[self.cursor] = unicode(ret)
+        self.tags[self.cursor] = str(ret)
         try:
-            self.tags.remove(u"")
+            self.tags.remove("")
         except ValueError:
             pass
         return " ".join(self.tags)

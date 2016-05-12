@@ -15,10 +15,10 @@ import anki.js
 class Bridge(QObject):
     @pyqtSlot(str, result=str)
     def run(self, str):
-        return unicode(self._bridge(unicode(str)))
+        return self._bridge(str)
     @pyqtSlot(str)
     def link(self, str):
-        self._linkHandler(unicode(str))
+        self._linkHandler(str)
     def setBridge(self, func):
         self._bridge = func
     def setLinkHandler(self, func):
@@ -146,7 +146,7 @@ button {
     def _jsErr(self, msg, line, srcID):
         sys.stdout.write(
             (_("JS error on line %(a)d: %(b)s") %
-              dict(a=line, b=msg+"\n")).encode("utf8"))
+              dict(a=line, b=msg+"\n")))
 
     def _linkHandler(self, url):
         self.linkHandler(url.toString())

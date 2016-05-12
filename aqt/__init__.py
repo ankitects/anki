@@ -5,7 +5,7 @@ import os
 import sys
 import optparse
 import tempfile
-import __builtin__
+import builtins
 import locale
 import gettext
 
@@ -29,16 +29,16 @@ moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
 try:
     import aqt.forms
-except ImportError, e:
+except ImportError as e:
     if "forms" in str(e):
-        print "If you're running from git, did you run build_ui.sh?"
-        print
+        print("If you're running from git, did you run build_ui.sh?")
+        print()
     raise
 
 from anki.utils import checksum
 
 # Dialog manager - manages modeless windows
-##########################################################################
+##########################################################################emacs
 
 class DialogManager(object):
 
@@ -67,7 +67,7 @@ class DialogManager(object):
 
     def closeAll(self):
         "True if all closed successfully."
-        for (n, (creator, instance)) in self._dialogs.items():
+        for (n, (creator, instance)) in list(self._dialogs.items()):
             if instance:
                 if not instance.canClose():
                     return False
@@ -98,8 +98,8 @@ def setupLang(pm, app, force=None):
     # gettext
     _gtrans = gettext.translation(
         'anki', dir, languages=[lang], fallback=True)
-    __builtin__.__dict__['_'] = _gtrans.ugettext
-    __builtin__.__dict__['ngettext'] = _gtrans.ungettext
+    builtins.__dict__['_'] = _gtrans.gettext
+    builtins.__dict__['ngettext'] = _gtrans.ngettext
     anki.lang.setLang(lang, local=False)
     if lang in ("he","ar","fa"):
         app.setLayoutDirection(Qt.RightToLeft)
@@ -133,7 +133,7 @@ class AnkiApp(QApplication):
         if args and args[0]:
             buf = os.path.abspath(args[0])
         if self.sendMsg(buf):
-            print "Already running; reusing existing instance."
+            print("Already running; reusing existing instance.")
             return True
         else:
             # send failed, so we're the first instance or the
@@ -163,7 +163,7 @@ class AnkiApp(QApplication):
             sys.stderr.write(sock.errorString())
             return
         buf = sock.readAll()
-        buf = unicode(buf, sys.getfilesystemencoding(), "ignore")
+        buf = str(buf, sys.getfilesystemencoding(), "ignore")
         self.emit(SIGNAL("appMsg"), buf)
         sock.disconnectFromServer()
 
@@ -192,7 +192,7 @@ def parseArgs(argv):
 def run():
     try:
         _run()
-    except Exception, e:
+    except Exception as e:
         QMessageBox.critical(None, "Startup Error",
                              "Please notify support of this error:\n\n"+
                              traceback.format_exc())
@@ -202,8 +202,8 @@ def _run():
 
     # parse args
     opts, args = parseArgs(sys.argv)
-    opts.base = unicode(opts.base or "", sys.getfilesystemencoding())
-    opts.profile = unicode(opts.profile or "", sys.getfilesystemencoding())
+    opts.base = opts.base or ""
+    opts.profile = opts.profile or ""
 
     # on osx we'll need to add the qt plugins to the search path
     if isMac and getattr(sys, 'frozen', None):

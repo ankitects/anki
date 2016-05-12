@@ -69,7 +69,7 @@ class AddCards(QDialog):
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
         # history
         b = bb.addButton(
-            _("History")+ u" "+downArrow(), ar)
+            _("History")+ " "+downArrow(), ar)
         if isMac:
             sc = "Ctrl+Shift+H"
         else:
@@ -90,8 +90,8 @@ class AddCards(QDialog):
         oldNote = self.editor.note
         note = self.setupNewNote(set=False)
         if oldNote:
-            oldFields = oldNote.keys()
-            newFields = note.keys()
+            oldFields = list(oldNote.keys())
+            newFields = list(note.keys())
             for n, f in enumerate(note.model()['flds']):
                 fieldName = f['name']
                 try:

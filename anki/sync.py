@@ -2,19 +2,19 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import sys
 import gzip
 import random
-from cStringIO import StringIO
+from io import StringIO
 
 import httplib2
 from anki.db import DB
 from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc, checksum
 from anki.consts import *
-from hooks import runHook
+from .hooks import runHook
 import anki
-from lang import ngettext
+from .lang import ngettext
 
 # syncing vars
 HTTP_TIMEOUT = 90
@@ -64,17 +64,19 @@ def _setupProxy():
         # platform-specific fetch
         url = None
         if isWin:
-            r = urllib.getproxies_registry()
-            if 'https' in r:
-                url = r['https']
-            elif 'http' in r:
-                url = r['http']
+            print("fixme: win proxy support")
+            # r = urllib.getproxies_registry()
+            # if 'https' in r:
+            #     url = r['https']
+            # elif 'http' in r:
+            #     url = r['http']
         elif isMac:
-            r = urllib.getproxies_macosx_sysconf()
-            if 'https' in r:
-                url = r['https']
-            elif 'http' in r:
-                url = r['http']
+            print("fixme: mac proxy support")
+            # r = urllib.getproxies_macosx_sysconf()
+            # if 'https' in r:
+            #     url = r['https']
+            # elif 'http' in r:
+            #     url = r['http']
         if url:
             p = _proxy_info_from_url(url, _proxyMethod(url))
     if p:
@@ -556,7 +558,7 @@ class HttpSyncer(object):
         buf = StringIO()
         # post vars
         self.postVars['c'] = 1 if comp else 0
-        for (key, value) in self.postVars.items():
+        for (key, value) in list(self.postVars.items()):
             buf.write(bdry + "\r\n")
             buf.write(
                 'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %

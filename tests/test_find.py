@@ -22,21 +22,21 @@ def test_parse():
 def test_findCards():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u'dog'
-    f['Back'] = u'cat'
-    f.tags.append(u"monkey")
+    f['Front'] = 'dog'
+    f['Back'] = 'cat'
+    f.tags.append("monkey")
     f1id = f.id
     deck.addNote(f)
     firstCardId = f.cards()[0].id
     f = deck.newNote()
-    f['Front'] = u'goats are fun'
-    f['Back'] = u'sheep'
-    f.tags.append(u"sheep goat horse")
+    f['Front'] = 'goats are fun'
+    f['Back'] = 'sheep'
+    f.tags.append("sheep goat horse")
     deck.addNote(f)
     f2id = f.id
     f = deck.newNote()
-    f['Front'] = u'cat'
-    f['Back'] = u'sheep'
+    f['Front'] = 'cat'
+    f['Back'] = 'sheep'
     deck.addNote(f)
     catCard = f.cards()[0]
     m = deck.models.current(); mm = deck.models
@@ -46,8 +46,8 @@ def test_findCards():
     mm.addTemplate(m, t)
     mm.save(m)
     f = deck.newNote()
-    f['Front'] = u'test'
-    f['Back'] = u'foo bar'
+    f['Front'] = 'test'
+    f['Back'] = 'foo bar'
     deck.addNote(f)
     latestCardIds = [c.id for c in f.cards()]
     # tag searches
@@ -131,8 +131,8 @@ def test_findCards():
     assert len(deck.findCards("deck:*cefault")) == 0
     # full search
     f = deck.newNote()
-    f['Front'] = u'hello<b>world</b>'
-    f['Back'] = u'abc'
+    f['Front'] = 'hello<b>world</b>'
+    f['Back'] = 'abc'
     deck.addNote(f)
     # as it's the sort field, it matches
     assert len(deck.findCards("helloworld")) == 2
@@ -195,8 +195,8 @@ def test_findCards():
     # empty field
     assert len(deck.findCards("front:")) == 0
     f = deck.newNote()
-    f['Front'] = u''
-    f['Back'] = u'abc2'
+    f['Front'] = ''
+    f['Back'] = 'abc2'
     assert deck.addNote(f) == 1
     assert len(deck.findCards("front:")) == 1
     # OR searches and nesting
@@ -218,12 +218,12 @@ def test_findCards():
 def test_findReplace():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u'foo'
-    f['Back'] = u'bar'
+    f['Front'] = 'foo'
+    f['Back'] = 'bar'
     deck.addNote(f)
     f2 = deck.newNote()
-    f2['Front'] = u'baz'
-    f2['Back'] = u'foo'
+    f2['Front'] = 'baz'
+    f2['Back'] = 'foo'
     deck.addNote(f2)
     nids = [f.id, f2.id]
     # should do nothing
@@ -245,20 +245,20 @@ def test_findReplace():
 def test_findDupes():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u'foo'
-    f['Back'] = u'bar'
+    f['Front'] = 'foo'
+    f['Back'] = 'bar'
     deck.addNote(f)
     f2 = deck.newNote()
-    f2['Front'] = u'baz'
-    f2['Back'] = u'bar'
+    f2['Front'] = 'baz'
+    f2['Back'] = 'bar'
     deck.addNote(f2)
     f3 = deck.newNote()
-    f3['Front'] = u'quux'
-    f3['Back'] = u'bar'
+    f3['Front'] = 'quux'
+    f3['Back'] = 'bar'
     deck.addNote(f3)
     f4 = deck.newNote()
-    f4['Front'] = u'quuux'
-    f4['Back'] = u'nope'
+    f4['Front'] = 'quuux'
+    f4['Back'] = 'nope'
     deck.addNote(f4)
     r = deck.findDupes("Back")
     assert r[0][0] == "bar"

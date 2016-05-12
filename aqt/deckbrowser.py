@@ -63,7 +63,7 @@ class DeckBrowser(object):
 
     def _keyHandler(self, evt):
         # currently does nothing
-        key = unicode(evt.text())
+        key = str(evt.text())
 
     def _selDeck(self, did):
         self.scrollPos =  self.web.page().mainFrame().scrollPosition()
@@ -287,7 +287,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return
         try:
             self.mw.col.decks.rename(deck, newName)
-        except DeckRenameError, e:
+        except DeckRenameError as e:
             return showWarning(e.description)
         self.show()
 
@@ -304,7 +304,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
             self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
-        except DeckRenameError, e:
+        except DeckRenameError as e:
             return showWarning(e.description)
 
         self.show()

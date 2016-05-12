@@ -6,8 +6,8 @@ from anki.utils import stripHTML, joinFields
 def test_modelDelete():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
+    f['Front'] = '1'
+    f['Back'] = '2'
     deck.addNote(f)
     assert deck.cardCount() == 1
     deck.models.rem(deck.models.current())
@@ -29,8 +29,8 @@ def test_modelCopy():
 def test_fields():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
+    f['Front'] = '1'
+    f['Back'] = '2'
     d.addNote(f)
     m = d.models.current()
     # make sure renaming a field updates the templates
@@ -82,8 +82,8 @@ def test_templates():
     mm.addTemplate(m, t)
     mm.save(m)
     f = d.newNote()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
+    f['Front'] = '1'
+    f['Back'] = '2'
     d.addNote(f)
     assert d.cardCount() == 2
     (c, c2) = f.cards()
@@ -121,7 +121,7 @@ def test_cloze_ordinals():
     d.models.remTemplate(m, m['tmpls'][0])
     
     f = d.newNote()
-    f['Text'] = u'{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
+    f['Text'] = '{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
     d.addNote(f)
     assert d.cardCount() == 2
     (c, c2) = f.cards()
@@ -136,7 +136,7 @@ def test_text():
     m['tmpls'][0]['qfmt'] = "{{text:Front}}"
     d.models.save(m)
     f = d.newNote()
-    f['Front'] = u'hello<b>world'
+    f['Front'] = 'hello<b>world'
     d.addNote(f)
     assert "helloworld" in f.cards()[0].q()
 
@@ -146,7 +146,7 @@ def test_cloze():
     f = d.newNote()
     assert f.model()['name'] == "Cloze"
     # a cloze model with no clozes is not empty
-    f['Text'] = u'nothing'
+    f['Text'] = 'nothing'
     assert d.addNote(f)
     # try with one cloze
     f = d.newNote()
@@ -221,8 +221,8 @@ def test_modelChange():
     mm.addTemplate(m, t)
     mm.save(m)
     f = deck.newNote()
-    f['Front'] = u'f'
-    f['Back'] = u'b123'
+    f['Front'] = 'f'
+    f['Back'] = 'b123'
     deck.addNote(f)
     # switch fields
     map = {0: 1, 1: 0}
@@ -267,8 +267,8 @@ def test_modelChange():
     assert f['Back'] == 'f'
     # another note to try model conversion
     f = deck.newNote()
-    f['Front'] = u'f2'
-    f['Back'] = u'b2'
+    f['Front'] = 'f2'
+    f['Back'] = 'b2'
     deck.addNote(f)
     assert deck.models.useCount(basic) == 2
     assert deck.models.useCount(cloze) == 0

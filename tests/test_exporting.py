@@ -4,7 +4,7 @@ import nose, os, tempfile
 from anki import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
-from shared import getEmptyCol
+from .shared import getEmptyCol
 
 deck = None
 ds = None
@@ -14,11 +14,11 @@ def setup1():
     global deck
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u"foo"; f['Back'] = u"bar"; f.tags = ["tag", "tag2"]
+    f['Front'] = "foo"; f['Back'] = "bar"; f.tags = ["tag", "tag2"]
     deck.addNote(f)
     # with a different deck
     f = deck.newNote()
-    f['Front'] = u"baz"; f['Back'] = u"qux"
+    f['Front'] = "baz"; f['Back'] = "qux"
     f.model()['did'] = deck.decks.id("new deck")
     deck.addNote(f)
 
@@ -37,7 +37,7 @@ def test_export_anki():
     # export
     e = AnkiExporter(deck)
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
-    newname = unicode(newname)
+    newname = str(newname)
     os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
@@ -57,7 +57,7 @@ def test_export_anki():
     assert dobj['conf'] == 1
     # try again, limited to a deck
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
-    newname = unicode(newname)
+    newname = str(newname)
     os.close(fd)
     os.unlink(newname)
     e.did = 1
@@ -68,13 +68,13 @@ def test_export_anki():
 @nose.with_setup(setup1)
 def test_export_ankipkg():
     # add a test file to the media folder
-    open(os.path.join(deck.media.dir(), u"今日.mp3"), "w").write("test")
+    open(os.path.join(deck.media.dir(), "今日.mp3"), "w").write("test")
     n = deck.newNote()
-    n['Front'] = u'[sound:今日.mp3]'
+    n['Front'] = '[sound:今日.mp3]'
     deck.addNote(n)
     e = AnkiPackageExporter(deck)
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".apkg")
-    newname = unicode(newname)
+    newname = str(newname)
     os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
@@ -83,7 +83,7 @@ def test_export_ankipkg():
 def test_export_anki_due():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u"foo"
+    f['Front'] = "foo"
     deck.addNote(f)
     deck.crt -= 86400*10
     deck.sched.reset()
@@ -99,7 +99,7 @@ def test_export_anki_due():
     e = AnkiExporter(deck)
     e.includeSched = True
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
-    newname = unicode(newname)
+    newname = str(newname)
     os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
@@ -124,7 +124,7 @@ def test_export_anki_due():
 def test_export_textnote():
     e = TextNoteExporter(deck)
     fd, f = tempfile.mkstemp(prefix="ankitest")
-    f = unicode(f)
+    f = str(f)
     os.close(fd)
     os.unlink(f)
     e.exportInto(f)

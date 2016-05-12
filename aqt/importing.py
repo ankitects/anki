@@ -138,7 +138,7 @@ you can enter it here. Use \\t to represent tab."""),
         elif d == ":":
             d = _("Colon")
         else:
-            d = `d`
+            d = repr(d)
         txt = _("Fields separated by: %s") % d
         self.frm.autoDetect.setText(txt)
         
@@ -164,7 +164,7 @@ you can enter it here. Use \\t to represent tab."""),
         except UnicodeDecodeError:
             showUnicodeWarning()
             return
-        except Exception, e:
+        except Exception as e:
             msg = _("Import failed.\n")
             err = repr(str(e))
             if "1-character string" in err:
@@ -172,7 +172,7 @@ you can enter it here. Use \\t to represent tab."""),
             elif "invalidTempFolder" in err:
                 msg += self.mw.errorHandler.tempFolderMsg()
             else:
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc(), "ascii", "replace")
             showText(msg)
             return
         finally:
@@ -268,7 +268,7 @@ def onImport(mw):
                    filter=filt)
     if not file:
         return
-    file = unicode(file)
+    file = str(file)
     importFile(mw, file)
 
 def importFile(mw, file):
@@ -295,7 +295,7 @@ def importFile(mw, file):
         except UnicodeDecodeError:
             showUnicodeWarning()
             return
-        except Exception, e:
+        except Exception as e:
             msg = repr(str(e))
             if msg == "'unknownFormat'":
                 if file.endswith(".anki2"):
@@ -306,7 +306,7 @@ backup, please see the 'Backups' section of the user manual."""))
                     showWarning(_("Unknown file format."))
             else:
                 msg = _("Import failed. Debugging info:\n")
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc())
                 showText(msg)
             return
         finally:
@@ -329,7 +329,7 @@ backup, please see the 'Backups' section of the user manual."""))
             importer.run()
         except zipfile.BadZipfile:
             showWarning(invalidZipMsg())
-        except Exception, e:
+        except Exception as e:
             err = repr(str(e))
             if "invalidFile" in err:
                 msg = _("""\
@@ -342,7 +342,7 @@ Invalid file. Please restore from backup.""")
 Unable to import from a read-only file."""))
             else:
                 msg = _("Import failed.\n")
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc())
                 showText(msg)
         else:
             log = "\n".join(importer.log)

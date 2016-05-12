@@ -222,7 +222,7 @@ content in the text file to the correct fields."""))
         if not self.processFields(n):
             return
         # note id for card updates later
-        for ord, c in n.cards.items():
+        for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
         self.col.tags.register(n.tags)
         return [id, guid64(), self.model['id'],

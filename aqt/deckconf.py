@@ -42,7 +42,7 @@ class DeckConf(QDialog):
     def setupCombos(self):
         import anki.consts as cs
         f = self.form
-        f.newOrder.addItems(cs.newCardOrderLabels().values())
+        f.newOrder.addItems(list(cs.newCardOrderLabels().values()))
         self.connect(f.newOrder, SIGNAL("currentIndexChanged(int)"),
                      self.onNewOrderChanged)
 
@@ -230,7 +230,7 @@ class DeckConf(QDialog):
     ##################################################
 
     def updateList(self, conf, key, w, minSize=1):
-        items = unicode(w.text()).split(" ")
+        items = str(w.text()).split(" ")
         ret = []
         for i in items:
             if not i:

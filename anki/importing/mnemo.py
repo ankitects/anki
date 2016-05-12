@@ -158,7 +158,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
 
     def _addCloze(self, notes):
         data = []
-        notes = notes.values()
+        notes = list(notes.values())
         for orig in notes:
             # create a foreign note object
             n = ForeignNote()

@@ -1,8 +1,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import time
 
 from aqt.qt import *
@@ -32,9 +32,9 @@ class LatestVersionFinder(QThread):
             return
         d = self._data()
         d['proto'] = 1
-        d = urllib.urlencode(d)
+        d = urllib.parse.urlencode(d)
         try:
-            f = urllib2.urlopen(aqt.appUpdate, d)
+            f = urllib.request.urlopen(aqt.appUpdate, d)
             resp = f.read()
             if not resp:
                 return

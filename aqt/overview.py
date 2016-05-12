@@ -38,7 +38,7 @@ class Overview(object):
             if self.mw.state == "overview":
                 tooltip(_("No cards are due yet."))
         elif url == "anki":
-            print "anki menu"
+            print("anki menu")
         elif url == "opts":
             self.mw.onDeckConf()
         elif url == "cram":
@@ -64,7 +64,7 @@ class Overview(object):
 
     def _keyHandler(self, evt):
         cram = self.mw.col.decks.current()['dyn']
-        key = unicode(evt.text())
+        key = str(evt.text())
         if key == "o":
             self.mw.onDeckConf()
         if key == "r" and cram:

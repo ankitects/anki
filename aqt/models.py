@@ -7,6 +7,7 @@ from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
 import aqt.modelchooser, aqt.clayout
 from anki import stdmodels
 from aqt.utils import saveGeom, restoreGeom
+import collections
 
 class Models(QDialog):
     def __init__(self, mw, parent=None, fromMain=False):
@@ -118,8 +119,8 @@ class Models(QDialog):
         restoreGeom(d, "modelopts")
         d.exec_()
         saveGeom(d, "modelopts")
-        self.model['latexPre'] = unicode(frm.latexHeader.toPlainText())
-        self.model['latexPost'] = unicode(frm.latexFooter.toPlainText())
+        self.model['latexPre'] = str(frm.latexHeader.toPlainText())
+        self.model['latexPost'] = str(frm.latexFooter.toPlainText())
 
     def saveModel(self):
         self.mm.save(self.model)
@@ -127,7 +128,7 @@ class Models(QDialog):
     def _tmpNote(self):
         self.mm.setCurrent(self.model)
         n = self.col.newNote(forDeck=False)
-        for name in n.keys():
+        for name in list(n.keys()):
             n[name] = "("+name+")"
         try:
             if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
@@ -171,7 +172,7 @@ class AddModel(QDialog):
         # standard models
         self.models = []
         for (name, func) in stdmodels.models:
-            if callable(name):
+            if isinstance(name, collections.Callable):
                 name = name()
             item = QListWidgetItem(_("Add: %s") % name)
             self.dialog.models.addItem(item)

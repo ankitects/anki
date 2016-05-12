@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys, os, traceback
-from cStringIO import StringIO
+from io import StringIO
 import zipfile
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
@@ -73,7 +73,7 @@ class AddonManager(object):
         frm = aqt.forms.editaddon.Ui_Dialog()
         frm.setupUi(d)
         d.setWindowTitle(os.path.basename(path))
-        frm.text.setPlainText(unicode(open(path).read(), "utf8"))
+        frm.text.setPlainText(open(path).read())
         d.connect(frm.buttonBox, SIGNAL("accepted()"),
                   lambda: self.onAcceptEdit(path, frm))
         d.exec_()

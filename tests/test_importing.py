@@ -2,52 +2,14 @@
 
 import  os
 from tests.shared import  getUpgradeDeckPath, getEmptyCol
-from anki.upgrade import Upgrader
 from anki.utils import ids2str
-from anki.importing import Anki1Importer, Anki2Importer, TextImporter, \
+from anki.importing import Anki2Importer, TextImporter, \
     SupermemoXmlImporter, MnemosyneImporter, AnkiPackageImporter
 
 testDir = os.path.dirname(__file__)
 
 srcNotes=None
 srcCards=None
-
-def test_anki2():
-    global srcNotes, srcCards
-    # get the deck to import
-    tmp = getUpgradeDeckPath()
-    u = Upgrader()
-    u.check(tmp)
-    src = u.upgrade()
-    srcpath = src.path
-    srcNotes = src.noteCount()
-    srcCards = src.cardCount()
-    srcRev = src.db.scalar("select count() from revlog")
-    # add a media file for testing
-    open(os.path.join(src.media.dir(), "_foo.jpg"), "w").write("foo")
-    src.close()
-    # create a new empty deck
-    dst = getEmptyCol()
-    # import src into dst
-    imp = Anki2Importer(dst, srcpath)
-    imp.run()
-    def check():
-        assert dst.noteCount() == srcNotes
-        assert dst.cardCount() == srcCards
-        assert srcRev == dst.db.scalar("select count() from revlog")
-        mids = [int(x) for x in dst.models.models.keys()]
-        assert not dst.db.scalar(
-            "select count() from notes where mid not in "+ids2str(mids))
-        assert not dst.db.scalar(
-            "select count() from cards where nid not in (select id from notes)")
-        assert not dst.db.scalar(
-            "select count() from revlog where cid not in (select id from cards)")
-        assert dst.fixIntegrity()[0].startswith("Database rebuilt")
-    check()
-    # importing should be idempotent
-    imp.run()
-    check()
-    assert len(os.listdir(dst.media.dir())) == 1
 
 def test_anki2_mediadupes():
     tmp = getEmptyCol()
@@ -96,7 +58,7 @@ def test_anki2_mediadupes():
 
 def test_apkg():
     tmp = getEmptyCol()
-    apkg = unicode(os.path.join(testDir, "support/media.apkg"))
+    apkg = str(os.path.join(testDir, "support/media.apkg"))
     imp = AnkiPackageImporter(tmp, apkg)
     assert os.listdir(tmp.media.dir()) == []
     imp.run()
@@ -112,65 +74,6 @@ def test_apkg():
     imp = AnkiPackageImporter(tmp, apkg)
     imp.run()
     assert len(os.listdir(tmp.media.dir())) == 2
-
-def test_anki1():
-    # get the deck path to import
-    tmp = getUpgradeDeckPath()
-    # make sure media is imported properly through the upgrade
-    mdir = tmp.replace(".anki2", ".media")
-    if not os.path.exists(mdir):
-        os.mkdir(mdir)
-    open(os.path.join(mdir, "_foo.jpg"), "w").write("foo")
-    # create a new empty deck
-    dst = getEmptyCol()
-    # import src into dst
-    imp = Anki1Importer(dst, tmp)
-    imp.run()
-    def check():
-        assert dst.noteCount() == srcNotes
-        assert dst.cardCount() == srcCards
-        assert len(os.listdir(dst.media.dir())) == 1
-    check()
-    # importing should be idempotent
-    imp = Anki1Importer(dst, tmp)
-    imp.run()
-    check()
-
-def test_anki1_diffmodels():
-    # create a new empty deck
-    dst = getEmptyCol()
-    # import the 1 card version of the model
-    tmp = getUpgradeDeckPath("diffmodels1.anki")
-    imp = Anki1Importer(dst, tmp)
-    imp.run()
-    before = dst.noteCount()
-    # repeating the process should do nothing
-    imp = Anki1Importer(dst, tmp)
-    imp.run()
-    assert before == dst.noteCount()
-    # then the 2 card version
-    tmp = getUpgradeDeckPath("diffmodels2.anki")
-    imp = Anki1Importer(dst, tmp)
-    imp.run()
-    after = dst.noteCount()
-    # as the model schemas differ, should have been imported as new model
-    assert after == before + 1
-    # repeating the process should do nothing
-    beforeModels = len(dst.models.all())
-    imp = Anki1Importer(dst, tmp)
-    imp.run()
-    after = dst.noteCount()
-    assert after == before + 1
-    assert beforeModels == len(dst.models.all())
-
-def test_suspended():
-    # create a new empty deck
-    dst = getEmptyCol()
-    # import the 1 card version of the model
-    tmp = getUpgradeDeckPath("suspended12.anki")
-    imp = Anki1Importer(dst, tmp)
-    imp.run()
-    assert dst.db.scalar("select due from cards") < 0
 
 def test_anki2_diffmodels():
     # create a new empty deck
@@ -254,7 +157,7 @@ def test_anki2_updates():
 
 def test_csv():
     deck = getEmptyCol()
-    file = unicode(os.path.join(testDir, "support/text-2fields.txt"))
+    file = str(os.path.join(testDir, "support/text-2fields.txt"))
     i = TextImporter(deck, file)
     i.initMapping()
     i.run()
@@ -299,7 +202,7 @@ def test_csv2():
     n['Three'] = "3"
     deck.addNote(n)
     # an update with unmapped fields should not clobber those fields
-    file = unicode(os.path.join(testDir, "support/text-update.txt"))
+    file = str(os.path.join(testDir, "support/text-update.txt"))
     i = TextImporter(deck, file)
     i.initMapping()
     i.run()
@@ -311,7 +214,7 @@ def test_csv2():
 
 def test_supermemo_xml_01_unicode():
     deck = getEmptyCol()
-    file = unicode(os.path.join(testDir, "support/supermemo1.xml"))
+    file = str(os.path.join(testDir, "support/supermemo1.xml"))
     i = SupermemoXmlImporter(deck, file)
     #i.META.logToStdOutput = True
     i.run()
@@ -325,7 +228,7 @@ def test_supermemo_xml_01_unicode():
 
 def test_mnemo():
     deck = getEmptyCol()
-    file = unicode(os.path.join(testDir, "support/mnemo.db"))
+    file = str(os.path.join(testDir, "support/mnemo.db"))
     i = MnemosyneImporter(deck, file)
     i.run()
     assert deck.cardCount() == 7

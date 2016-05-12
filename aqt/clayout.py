@@ -32,7 +32,7 @@ class CardLayout(QDialog):
         if addMode:
             # save it to DB temporarily
             self.emptyFields = []
-            for name, val in note.items():
+            for name, val in list(note.items()):
                 if val.strip():
                     continue
                 self.emptyFields.append(name)
@@ -90,10 +90,10 @@ class CardLayout(QDialog):
         # template area
         tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        tform.label1.setText(u" →")
-        tform.label2.setText(u" →")
-        tform.labelc1.setText(u" ↗")
-        tform.labelc2.setText(u" ↘")
+        tform.label1.setText(" →")
+        tform.label2.setText(" →")
+        tform.labelc1.setText(" ↗")
+        tform.labelc2.setText(" ↘")
         if self.style().objectName() == "gtk+":
             # gtk+ requires margins in inner layout
             tform.tlayout1.setContentsMargins(0, 11, 0, 0)
@@ -167,7 +167,7 @@ Please create a new card type first."""))
             flip.setAutoDefault(False)
             l.addWidget(flip)
             c(flip, SIGNAL("clicked()"), self.onFlip)
-        more = QPushButton(_("More") + u" "+downArrow())
+        more = QPushButton(_("More") + " "+downArrow())
         more.setAutoDefault(False)
         l.addWidget(more)
         c(more, SIGNAL("clicked()"), lambda: self.onMore(more))
@@ -251,7 +251,7 @@ Please create a new card type first."""))
         txt = txt.replace("<hr id=answer>", "")
         hadHR = origLen != len(txt)
         def answerRepl(match):
-            res = self.mw.reviewer.correct(u"exomple", u"an example")
+            res = self.mw.reviewer.correct("exomple", "an example")
             if hadHR:
                 res = "<hr id=answer>" + res
             return res

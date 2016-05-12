@@ -278,10 +278,10 @@ class DataModel(QAbstractTableModel):
         return a
 
     def formatQA(self, txt):
-        s = txt.replace("<br>", u" ")
-        s = s.replace("<br />", u" ")
-        s = s.replace("<div>", u" ")
-        s = s.replace("\n", u" ")
+        s = txt.replace("<br>", " ")
+        s = s.replace("<br />", " ")
+        s = s.replace("<div>", " ")
+        s = s.replace("\n", " ")
         s = re.sub("\[sound:[^]]+\]", "", s)
         s = re.sub("\[\[type:[^]]+\]\]", "", s)
         s = stripHTMLMedia(s)
@@ -518,7 +518,7 @@ class Browser(QMainWindow):
 
     def onSearch(self, reset=True):
         "Careful: if reset is true, the current note is saved."
-        txt = unicode(self.form.searchEdit.lineEdit().text()).strip()
+        txt = str(self.form.searchEdit.lineEdit().text()).strip()
         prompt = _("<type here to search; hit enter to show current deck>")
         sh = self.mw.pm.profile['searchHistory']
         # update search history
@@ -788,12 +788,12 @@ by clicking on one on the left."""))
         if self.mw.app.keyboardModifiers() & Qt.AltModifier:
             txt = "-"+txt
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
-            cur = unicode(self.form.searchEdit.lineEdit().text())
+            cur = str(self.form.searchEdit.lineEdit().text())
             if cur and cur != \
                     _("<type here to search; hit enter to show current deck>"):
                         txt = cur + " " + txt
         elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-            cur = unicode(self.form.searchEdit.lineEdit().text())
+            cur = str(self.form.searchEdit.lineEdit().text())
             if cur:
                 txt = cur + " or " + txt
         self.form.searchEdit.lineEdit().setText(txt)
@@ -1365,8 +1365,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.model.beginReset()
         try:
             changed = self.col.findReplace(sf,
-                                            unicode(frm.find.text()),
-                                            unicode(frm.replace.text()),
+                                            str(frm.find.text()),
+                                            str(frm.replace.text()),
                                             frm.re.isChecked(),
                                             field,
                                             frm.ignoreCase.isChecked())
@@ -1679,7 +1679,7 @@ class ChangeModel(QDialog):
         # check maps
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
-        if any(True for c in cmap.values() if c is None):
+        if any(True for c in list(cmap.values()) if c is None):
             if not askUser(_("""\
 Any cards mapped to nothing will be deleted. \
 If a note has no remaining cards, it will be lost. \
@@ -1786,7 +1786,7 @@ class FavouritesLineEdit(QLineEdit):
         self.mw = mw
         self.browser = browser
         # add conf if missing
-        if not self.mw.col.conf.has_key('savedFilters'):
+        if 'savedFilters' not in self.mw.col.conf:
             self.mw.col.conf['savedFilters'] = {}
         self.button = QToolButton(self)
         self.button.setStyleSheet('border: 0px;')
@@ -1818,8 +1818,8 @@ class FavouritesLineEdit(QLineEdit):
     def updateButton(self, reset=True):
         # If search text is a saved query, switch to the delete button.
         # Otherwise show save button.
-        txt = unicode(self.text()).strip()
-        for key, value in self.mw.col.conf['savedFilters'].items():
+        txt = str(self.text()).strip()
+        for key, value in list(self.mw.col.conf['savedFilters'].items()):
             if txt == value:
                 self.doSave = False
                 self.name = key
@@ -1835,7 +1835,7 @@ class FavouritesLineEdit(QLineEdit):
             self.deleteClicked()
     
     def saveClicked(self):
-        txt = unicode(self.text()).strip()
+        txt = str(self.text()).strip()
         dlg = QInputDialog(self)
         dlg.setInputMode(QInputDialog.TextInput)
         dlg.setLabelText(_("The current search terms will be added as a new "

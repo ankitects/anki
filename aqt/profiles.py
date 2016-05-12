@@ -8,7 +8,7 @@
 
 import os
 import random
-import cPickle
+import pickle
 import locale
 import re
 
@@ -20,7 +20,6 @@ from aqt.utils import showWarning
 from aqt import appHelpSite
 import aqt.forms
 from send2trash import send2trash
-
 
 metaConf = dict(
     ver=0,
@@ -103,12 +102,13 @@ a flash drive.""" % self.base)
 
     def profiles(self):
         return sorted(x for x in
-                      self.db.list("select name from profiles")
-                      if x != "_global")
+            self.db.list("select name from profiles")
+            if x != "_global")
 
     def load(self, name, passwd=None):
         data = self.db.scalar("select cast(data as blob) from profiles where name = ?", name)
-        prof = cPickle.loads(str(data))
+        # some profiles created in python2 may not decode properly
+        prof = pickle.loads(data, errors="ignore")
         if prof['key'] and prof['key'] != self._pwhash(passwd):
             self.name = None
             return False
@@ -119,14 +119,14 @@ a flash drive.""" % self.base)
 
     def save(self):
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, buffer(cPickle.dumps(self.profile)), self.name)
-        self.db.execute(sql, buffer(cPickle.dumps(self.meta)), "_global")
+        self.db.execute(sql, pickle.dumps(self.profile), self.name)
+        self.db.execute(sql, pickle.dumps(self.meta), "_global")
         self.db.commit()
 
     def create(self, name):
         prof = profileConf.copy()
         self.db.execute("insert into profiles values (?, ?)",
-                        name, buffer(cPickle.dumps(prof)))
+                        name, pickle.dumps(prof))
         self.db.commit()
 
     def remove(self, name):
@@ -262,9 +262,9 @@ create table if not exists profiles
         if not new:
             # load previously created
             try:
-                data = self.db.scalar(
-                        "select cast(data as blob) from profiles where name = '_global'")
-                self.meta = cPickle.loads(str(data))
+                self.meta = pickle.loads(
+                    self.db.scalar(
+                        "select cast(data as blob) from profiles where name = '_global'"))
                 return
             except:
                 recover()
@@ -272,7 +272,7 @@ create table if not exists profiles
         # create a default global profile
         self.meta = metaConf.copy()
         self.db.execute("insert or replace into profiles values ('_global', ?)",
-                        buffer(cPickle.dumps(metaConf)))
+                        pickle.dumps(metaConf))
         self._setDefaultLang()
         return True
 
@@ -281,16 +281,16 @@ create table if not exists profiles
         if self.firstRun:
             self.create(_("User 1"))
             p = os.path.join(self.base, "README.txt")
-            open(p, "w").write((_("""\
+            open(p, "w").write(_("""\
 This folder stores all of your Anki data in a single location,
 to make backups easy. To tell Anki to use a different location,
 please see:
 
 %s
-""") % (appHelpSite +  "#startupopts")).encode("utf8"))
+""") % (appHelpSite +  "#startupopts"))
 
     def _pwhash(self, passwd):
-        return checksum(unicode(self.meta['id'])+unicode(passwd))
+        return checksum(str(self.meta['id'])+str(passwd))
 
     # Default language
     ######################################################################
@@ -299,8 +299,8 @@ please see:
     def _setDefaultLang(self):
         # the dialog expects _ to be defined, but we're running before
         # setupLang() has been called. so we create a dummy op for now
-        import __builtin__
-        __builtin__.__dict__['_'] = lambda x: x
+        import builtins
+        builtins.__dict__['_'] = lambda x: x
         # create dialog
         class NoCloseDiag(QDialog):
             def reject(self):
@@ -350,6 +350,6 @@ please see:
     def setLang(self, code):
         self.meta['defaultLang'] = code
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, buffer(cPickle.dumps(self.meta)), "_global")
+        self.db.execute(sql, pickle.dumps(self.meta), "_global")
         self.db.commit()
         anki.lang.setLang(code, local=False)

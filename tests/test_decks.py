@@ -46,7 +46,7 @@ def test_remove():
     # create a new deck, and add a note/card to it
     g1 = deck.decks.id("g1")
     f = deck.newNote()
-    f['Front'] = u"1"
+    f['Front'] = "1"
     f.model()['did'] = g1
     deck.addNote(f)
     c = f.cards()[0]
@@ -92,7 +92,7 @@ def test_renameForDragAndDrop():
     d = getEmptyCol()
 
     def deckNames():
-        return [ name for name in sorted(d.decks.allNames()) if name <> u'Default' ]
+        return [ name for name in sorted(d.decks.allNames()) if name != 'Default' ]
 
     languages_did = d.decks.id('Languages')
     chinese_did = d.decks.id('Chinese')

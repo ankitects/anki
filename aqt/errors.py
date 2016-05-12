@@ -21,11 +21,8 @@ class ErrorHandler(QObject):
         sys.stderr = self
 
     def write(self, data):
-        # make sure we have unicode
-        if not isinstance(data, unicode):
-            data = unicode(data, "utf8", "replace")
         # dump to stdout
-        sys.stdout.write(data.encode("utf-8"))
+        sys.stdout.write(data)
         # save in buffer
         self.pool += data
         # and update timer

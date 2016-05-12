@@ -351,7 +351,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     ts += 1
             # note any cards that need removing
             if nid in have:
-                for ord, id in have[nid].items():
+                for ord, id in list(have[nid].items()):
                     if ord not in avail:
                         rem.append(id)
         # bulk update
@@ -383,7 +383,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card.nid = note.id
         card.ord = template['ord']
         # Use template did (deck override) if valid, otherwise model did
-        if template['did'] and unicode(template['did']) in self.decks.decks:
+        if template['did'] and str(template['did']) in self.decks.decks:
             card.did = template['did']
         else:
             card.did = note.model()['did']
@@ -500,7 +500,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         flist = splitFields(data[6])
         fields = {}
         model = self.models.get(data[2])
-        for (name, (idx, conf)) in self.models.fieldMap(model).items():
+        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
             fields[name] = flist[idx]
         fields['Tags'] = data[5].strip()
         fields['Type'] = model['name']
@@ -820,16 +820,16 @@ and queue = 0""", intTime(), self.usn())
         if not self._debugLog:
             return
         def customRepr(x):
-            if isinstance(x, basestring):
+            if isinstance(x, str):
                 return x
             return pprint.pformat(x)
         path, num, fn, y = traceback.extract_stack(
             limit=2+kwargs.get("stack", 0))[0]
-        buf = u"[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
+        buf = "[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
                                      ", ".join([customRepr(x) for x in args]))
-        self._logHnd.write(buf.encode("utf8") + "\n")
+        self._logHnd.write(buf + "\n")
         if os.environ.get("ANKIDEV"):
-            print buf
+            print(buf)
 
     def _openLog(self):
         if not self._debugLog:
@@ -840,7 +840,7 @@ and queue = 0""", intTime(), self.usn())
             if os.path.exists(lpath2):
                 os.unlink(lpath2)
             os.rename(lpath, lpath2)
-        self._logHnd = open(lpath, "ab")
+        self._logHnd = open(lpath, "a")
 
     def _closeLog(self):
         self._logHnd = None

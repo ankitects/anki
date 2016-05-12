@@ -92,7 +92,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 else:
                     inQuote = c
             # separator (space and ideographic space)
-            elif c in (" ", u'\u3000'):
+            elif c in (" ", '\u3000'):
                 if inQuote:
                     token += c
                 elif token:
@@ -239,7 +239,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     # Commands
     ######################################################################
 
-    def _findTag(self, (val, args)):
+    def _findTag(self, args):
+        (val, args) = args
         if val == "none":
             return 'n.tags = ""'
         val = val.replace("*", "%")
@@ -250,7 +251,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         args.append(val)
         return "n.tags like ?"
 
-    def _findCardState(self, (val, args)):
+    def _findCardState(self, args):
+        (val, args) = args
         if val in ("review", "new", "learn"):
             if val == "review":
                 n = 2
@@ -269,8 +271,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 (c.queue = 1 and c.due <= %d)""" % (
     self.col.sched.today, self.col.sched.dayCutoff)
 
-    def _findRated(self, (val, args)):
+    def _findRated(self, args):
         # days(:optional_ease)
+        (val, args) = args
         r = val.split(":")
         try:
             days = int(r[0])
@@ -287,7 +290,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         return ("c.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
 
-    def _findAdded(self, (val, args)):
+    def _findAdded(self, args):
+        (val, args) = args
         try:
             days = int(val)
         except ValueError:
@@ -295,8 +299,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return "c.id > %d" % cutoff
 
-    def _findProp(self, (val, args)):
+    def _findProp(self, args):
         # extract
+        (val, args) = args
         m = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
         if not m:
             return
@@ -331,22 +336,26 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         args.append("%"+val+"%")
         return "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
 
-    def _findNids(self, (val, args)):
+    def _findNids(self, args):
+        (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "n.id in (%s)" % val
 
-    def _findCids(self, (val, args)):
+    def _findCids(self, args):
+        (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "c.id in (%s)" % val
 
-    def _findMid(self, (val, args)):
+    def _findMid(self, args):
+        (val, args) = args
         if re.search("[^0-9]", val):
             return
         return "n.mid = %s" % val
 
-    def _findModel(self, (val, args)):
+    def _findModel(self, args):
+        (val, args) = args
         ids = []
         val = val.lower()
         for m in self.col.models.all():
@@ -354,8 +363,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 ids.append(m['id'])
         return "n.mid in %s" % ids2str(ids)
 
-    def _findDeck(self, (val, args)):
+    def _findDeck(self, args):
         # if searching for all decks, skip
+        (val, args) = args
         if val == "*":
             return "skip"
         # deck types
@@ -386,8 +396,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         sids = ids2str(ids)
         return "c.did in %s or c.odid in %s" % (sids, sids)
 
-    def _findTemplate(self, (val, args)):
+    def _findTemplate(self, args):
         # were we given an ordinal number?
+        (val, args) = args
         try:
             num = int(val) - 1
         except:
@@ -427,7 +438,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         for (id,mid,flds) in self.col.db.execute("""
 select id, mid, flds from notes
 where mid in %s and flds like ? escape '\\'""" % (
-                         ids2str(mods.keys())),
+                         ids2str(list(mods.keys()))),
                          "%"+val+"%"):
             flds = splitFields(flds)
             ord = mods[str(mid)][1]
@@ -441,8 +452,9 @@ where mid in %s and flds like ? escape '\\'""" % (
             return "0"
         return "n.id in %s" % ids2str(nids)
 
-    def _findDupes(self, (val, args)):
+    def _findDupes(self, args):
         # caller must call stripHTMLMedia on passed val
+        (val, args) = args
         try:
             mid, val = val.split(",", 1)
         except OSError:
