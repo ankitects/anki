@@ -97,13 +97,8 @@ class Template(object):
                 it = get_or_attr(context, section_name, None)
 
             replacer = ''
-            # if it and isinstance(it, collections.Callable):
-            #     replacer = it(inner)
             if isinstance(it, str):
                 it = stripHTMLMedia(it).strip()
-            if it and not hasattr(it, '__iter__'):
-                if section[2] != '^':
-                    replacer = inner
             elif it and hasattr(it, 'keys') and hasattr(it, '__getitem__'):
                 if section[2] != '^':
                     replacer = self.render(inner, it)
