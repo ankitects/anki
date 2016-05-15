@@ -7,7 +7,7 @@ import os
 import random
 import time
 import math
-import html.entities
+from html.entities import name2codepoint
 import subprocess
 import tempfile
 import shutil
@@ -171,7 +171,7 @@ def entsToTxt(html):
         else:
             # named entity
             try:
-                text = chr(html.entities.name2codepoint[text[1:-1]])
+                text = chr(name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         return text # leave as is
