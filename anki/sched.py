@@ -894,7 +894,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         elif ease == 4:
             interval = ivl4
         # interval capped?
-        return min(max(interval, card.ivl+1), conf['maxIvl'])
+        return min(interval, conf['maxIvl'])
 
     def _fuzzedIvl(self, ivl):
         min, max = self._fuzzIvlRange(ivl)
@@ -927,7 +927,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _updateRevIvl(self, card, ease):
         idealIvl = self._nextRevIvl(card, ease)
-        card.ivl = self._adjRevIvl(card, idealIvl)
+        card.ivl = min(max(self._adjRevIvl(card, idealIvl), card.ivl+1), self._revConf(card)['maxIvl'])
 
     def _adjRevIvl(self, card, idealIvl):
         if self._spreadRev:
