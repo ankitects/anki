@@ -272,6 +272,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._export(did))
         a = m.addAction(_("Delete"))
         a.connect(a, SIGNAL("triggered()"), lambda did=did: self._delete(did))
+        runHook("deckHooker", self, did, m)
         m.exec_(QCursor.pos())
 
     def _export(self, did):
