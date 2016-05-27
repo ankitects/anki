@@ -927,7 +927,8 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _updateRevIvl(self, card, ease):
         idealIvl = self._nextRevIvl(card, ease)
-        card.ivl = min(max(self._adjRevIvl(card, idealIvl), card.ivl+1), self._revConf(card)['maxIvl'])
+        card.ivl = min(max(self._adjRevIvl(card, idealIvl), card.ivl+1),
+                       self._revConf(card)['maxIvl'])
 
     def _adjRevIvl(self, card, idealIvl):
         if self._spreadRev:
