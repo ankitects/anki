@@ -6,6 +6,8 @@ import re
 
 class TagEdit(QLineEdit):
 
+    lostFocus = pyqtSignal()
+
     # 0 = tags, 1 = decks
     def __init__(self, parent, type=0):
         QLineEdit.__init__(self, parent)
@@ -53,7 +55,7 @@ class TagEdit(QLineEdit):
 
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
-        self.emit(SIGNAL("lostFocus"))
+        self.lostFocus.emit()
         self.completer.popup().hide()
 
     def hideCompleter(self):
@@ -67,20 +69,20 @@ class TagCompleter(QCompleter):
         self.edit = edit
         self.cursor = None
 
-    def splitPath(self, str):
-        str = str(str).strip()
-        str = re.sub("  +", " ", str)
-        self.tags = self.edit.col.tags.split(str)
+    def splitPath(self, tags):
+        tags = tags.strip()
+        tags = re.sub("  +", " ", tags)
+        self.tags = self.edit.col.tags.split(tags)
         self.tags.append("")
         p = self.edit.cursorPosition()
-        self.cursor = str.count(" ", 0, p)
+        self.cursor = tags.count(" ", 0, p)
         return [self.tags[self.cursor]]
 
     def pathFromIndex(self, idx):
         if self.cursor is None:
             return self.edit.text()
         ret = QCompleter.pathFromIndex(self, idx)
-        self.tags[self.cursor] = str(ret)
+        self.tags[self.cursor] = ret
         try:
             self.tags.remove("")
         except ValueError:

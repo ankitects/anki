@@ -11,12 +11,6 @@ def show(parent):
     dialog = QDialog(parent)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
-    abt.label.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-    def onLink(url):
-        openLink(url.toString())
-    parent.connect(abt.label,
-                    SIGNAL("linkClicked(QUrl)"),
-                    onLink)
     abouttext = "<center><img src='qrc:/icons/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")

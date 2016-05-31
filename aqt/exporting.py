@@ -26,9 +26,8 @@ class ExportDialog(QDialog):
         self.exec_()
 
     def setup(self, did):
-        self.frm.format.insertItems(0, list(zip(*exporters())[0]))
-        self.connect(self.frm.format, SIGNAL("activated(int)"),
-                     self.exporterChanged)
+        self.frm.format.insertItems(0, list(zip(*exporters()))[0])
+        self.frm.format.activated.connect(self.exporterChanged)
         self.exporterChanged(0)
         self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
         self.frm.deck.addItems(self.decks)

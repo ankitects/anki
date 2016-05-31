@@ -26,21 +26,19 @@ class DeckStats(QDialog):
         restoreGeom(self, self.name)
         b = f.buttonBox.addButton(_("Save Image"),
                                           QDialogButtonBox.ActionRole)
-        b.connect(b, SIGNAL("clicked()"), self.browser)
+        b.clicked.connect(self.browser)
         b.setAutoDefault(False)
-        c = self.connect
-        s = SIGNAL("clicked()")
-        c(f.groups, s, lambda: self.changeScope("deck"))
+        f.groups.clicked.connect(lambda: self.changeScope("deck"))
         f.groups.setShortcut("g")
-        c(f.all, s, lambda: self.changeScope("collection"))
-        c(f.month, s, lambda: self.changePeriod(0))
-        c(f.year, s, lambda: self.changePeriod(1))
-        c(f.life, s, lambda: self.changePeriod(2))
-        c(f.web, SIGNAL("loadFinished(bool)"), self.loadFin)
+        f.all.clicked.connect(lambda: self.changeScope("collection"))
+        f.month.clicked.connect(lambda: self.changePeriod(0))
+        f.year.clicked.connect(lambda: self.changePeriod(1))
+        f.life.clicked.connect(lambda: self.changePeriod(2))
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
         self.refresh()
-        self.exec_()
+        self.show()
+        print("fixme: save image support in deck stats")
 
     def reject(self):
         saveGeom(self, self.name)
@@ -78,14 +76,10 @@ to your desktop."""))
         self.wholeCollection = type == "collection"
         self.refresh()
 
-    def loadFin(self, b):
-        self.form.web.page().mainFrame().setScrollPosition(self.oldPos)
-
     def refresh(self):
         self.mw.progress.start(immediate=True)
-        self.oldPos = self.form.web.page().mainFrame().scrollPosition()
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.setHtml(self.report)
+        self.form.web.stdHtml("<html><body>"+self.report+"</body></html>")
         self.mw.progress.finish()

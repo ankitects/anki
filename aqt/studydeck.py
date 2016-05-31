@@ -31,7 +31,7 @@ class StudyDeck(QDialog):
             b.setShortcut(QKeySequence("Ctrl+N"))
             b.setToolTip(shortcut(_("Add New Deck (Ctrl+N)")))
             self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
-            b.connect(b, SIGNAL("clicked()"), self.onAddDeck)
+            b.clicked.connect(self.onAddDeck)
         if title:
             self.setWindowTitle(title)
         if not names:
@@ -45,15 +45,9 @@ class StudyDeck(QDialog):
         self.ok = self.form.buttonBox.addButton(
             accept or _("Study"), QDialogButtonBox.AcceptRole)
         self.setWindowModality(Qt.WindowModal)
-        self.connect(self.form.buttonBox,
-                     SIGNAL("helpRequested()"),
-                     lambda: openHelp(help))
-        self.connect(self.form.filter,
-                     SIGNAL("textEdited(QString)"),
-                     self.redraw)
-        self.connect(self.form.list,
-                     SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
-                     self.accept)
+        self.form.buttonBox.helpRequested.connect(lambda: openHelp(help))
+        self.form.filter.textEdited.connect(self.redraw)
+        self.form.list.itemDoubleClicked.connect(self.accept)
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)

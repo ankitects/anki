@@ -70,7 +70,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
         t = QTimer(self.mw)
         if not repeat:
             t.setSingleShot(True)
-        t.connect(t, SIGNAL("timeout()"), handler)
+        t.timeout.connect(handler)
         t.start(ms)
         return t
 

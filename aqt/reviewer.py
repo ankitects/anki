@@ -36,19 +36,21 @@ class Reviewer(object):
         # qshortcut so we don't autorepeat
         self.delShortcut = QShortcut(QKeySequence("Delete"), self.mw)
         self.delShortcut.setAutoRepeat(False)
-        self.mw.connect(self.delShortcut, SIGNAL("activated()"), self.onDelete)
+        self.delShortcut.activated.connect(self.onDelete)
         addHook("leech", self.onLeech)
 
     def show(self):
         self.mw.col.reset()
+        self.web.resetHandlers()
         self.mw.keyHandler = self._keyHandler
-        self.web.setLinkHandler(self._linkHandler)
+        self.web.onAnkiLink = self._linkHandler
         self.web.setKeyHandler(self._catchEsc)
         if isMac:
             self.bottom.web.setFixedHeight(46)
         else:
             self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
-        self.bottom.web.setLinkHandler(self._linkHandler)
+        self.bottom.web.resetHandlers()
+        self.bottom.web.onAnkiLink = self._linkHandler
         self._reps = None
         self.nextCard()
 
@@ -161,12 +163,12 @@ function _toggleStar (show) {
 
 function _getTypedText () {
     if (typeans) {
-        py.link("typeans:"+typeans.value);
+        openAnkiLink("typeans:"+typeans.value);
     }
 };
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
-        py.link("ansHack");
+        openAnkiLink("ans");
     }
 }
 </script>
@@ -177,15 +179,14 @@ function _typeAnsPress() {
         self._bottomReady = False
         base = getBase(self.mw.col)
         # main window
-        self.web.stdHtml(self._revHtml, self._styles(),
-            loadCB=lambda x: self._showQuestion(),
-            head=base)
+        self.web.onLoadFinished = self._showQuestion
+        self.web.stdHtml(self._revHtml, self._styles(), head=base)
         # show answer / ease buttons
         self.bottom.web.show()
+        self.bottom.web.onLoadFinished = self._showAnswerButton
         self.bottom.web.stdHtml(
             self._bottomHTML(),
-            self.bottom._css + self._bottomCSS,
-        loadCB=lambda x: self._showAnswerButton())
+            self.bottom._css + self._bottomCSS)
 
     # Showing the question
     ##########################################################################
@@ -277,19 +278,13 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             self.web.eval("$('#typeans').blur();")
             return True
 
-    def _showAnswerHack(self):
-        # on <qt4.8, calling _showAnswer() directly fails to show images on
-        # the answer side. But if we trigger it via the bottom web's python
-        # link, it inexplicably works.
-        self.bottom.web.eval("py.link('ans');")
-
     def _keyHandler(self, evt):
         key = str(evt.text())
         if key == "e":
             self.mw.onEditCurrent()
         elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)):
             if self.state == "question":
-                self._showAnswerHack()
+                self._showAnswer()
             elif self.state == "answer":
                 self._answerCard(self._defaultEase())
         elif key == "r" or evt.key() == Qt.Key_F5:
@@ -316,8 +311,6 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
     def _linkHandler(self, url):
         if url == "ans":
             self._showAnswer()
-        elif url == "ansHack":
-            self.mw.progress.timer(100, self._showAnswerHack, False)
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
         elif url == "edit":
@@ -540,12 +533,12 @@ min-width: 60px; white-space: nowrap;
 <tr>
 <td align=left width=50 valign=top class=stat>
 <br>
-<button title="%(editkey)s" onclick="py.link('edit');">%(edit)s</button></td>
+<button title="%(editkey)s" onclick="openAnkiLink('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
 <td width=50 align=right valign=top class=stat><span id=time class=stattxt>
 </span><br>
-<button onclick="py.link('more');">%(more)s %(downArrow)s</button>
+<button onclick="openAnkiLink('more');">%(more)s %(downArrow)s</button>
 </td>
 </tr>
 </table>
@@ -603,7 +596,7 @@ function showAnswer(txt) {
             self.bottom.web.setFocus()
         middle = '''
 <span class=stattxt>%s</span><br>
-<button title="%s" id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % (
+<button title="%s" id=ansbut onclick='openAnkiLink("ans");'>%s</button>''' % (
         self._remaining(), _("Shortcut key: %s") % _("Space"), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
@@ -661,7 +654,7 @@ function showAnswer(txt) {
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s title="%s" onclick='py.link("ease%d");'>\
+<td align=center>%s<button %s title="%s" onclick='openAnkiLink("ease%d");'>\
 %s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
@@ -713,7 +706,7 @@ function showAnswer(txt) {
             label, scut, func = row
             a = m.addAction(label)
             a.setShortcut(QKeySequence(scut))
-            a.connect(a, SIGNAL("triggered()"), func)
+            a.triggered.connect(func)
         runHook("Reviewer.contextMenuEvent",self,m)
         m.exec_(QCursor.pos())
 

@@ -69,15 +69,14 @@ class ImportDialog(QDialog):
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
-        self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
-                     SIGNAL("clicked()"), self.helpRequested)
+        self.frm.buttonBox.button(QDialogButtonBox.Help).clicked.connect(
+            self.helpRequested)
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()
         self.frm.autoDetect.setVisible(self.importer.needDelimiter)
         addHook("currentModelChanged", self.modelChanged)
-        self.connect(self.frm.autoDetect, SIGNAL("clicked()"),
-                     self.onDelimiter)
+        self.frm.autoDetect.clicked.connect(self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', True))
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 1))
@@ -211,7 +210,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.mapbox.addWidget(self.mapwidget)
         self.grid = QGridLayout(self.mapwidget)
         self.mapwidget.setLayout(self.grid)
-        self.grid.setMargin(3)
+        self.grid.setContentsMargins(3,3,3,3)
         self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
@@ -226,8 +225,7 @@ you can enter it here. Use \\t to represent tab."""),
             self.grid.addWidget(QLabel(text), num, 1)
             button = QPushButton(_("Change"))
             self.grid.addWidget(button, num, 2)
-            self.connect(button, SIGNAL("clicked()"),
-                         lambda s=self,n=num: s.changeMappingNum(n))
+            button.clicked.connect(lambda s=self,n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n):
         f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()

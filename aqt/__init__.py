@@ -1,7 +1,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import getpass
-import os
 import sys
 import optparse
 import tempfile
@@ -118,6 +117,8 @@ class AnkiApp(QApplication):
     # Single instance support on Win32/Linux
     ##################################################
 
+    appMsg = pyqtSignal(str)
+
     KEY = "anki"+checksum(getpass.getuser())
     TMOUT = 5000
 
@@ -140,7 +141,7 @@ class AnkiApp(QApplication):
             # previous instance died
             QLocalServer.removeServer(self.KEY)
             self._srv = QLocalServer(self)
-            self.connect(self._srv, SIGNAL("newConnection()"), self.onRecv)
+            self._srv.newConnection.connect(self.onRecv)
             self._srv.listen(self.KEY)
             return False
 
@@ -150,7 +151,7 @@ class AnkiApp(QApplication):
         if not sock.waitForConnected(self.TMOUT):
             # first instance or previous instance dead
             return False
-        sock.write(txt)
+        sock.write(txt.encode("utf8"))
         if not sock.waitForBytesWritten(self.TMOUT):
             # existing instance running but hung
             return False
@@ -162,9 +163,8 @@ class AnkiApp(QApplication):
         if not sock.waitForReadyRead(self.TMOUT):
             sys.stderr.write(sock.errorString())
             return
-        buf = sock.readAll()
-        buf = str(buf, sys.getfilesystemencoding(), "ignore")
-        self.emit(SIGNAL("appMsg"), buf)
+        path = bytes(sock.readAll()).decode("utf8")
+        self.appMsg.emit(path)
         sock.disconnectFromServer()
 
     # OS X file/url handler
@@ -172,7 +172,7 @@ class AnkiApp(QApplication):
 
     def event(self, evt):
         if evt.type() == QEvent.FileOpen:
-            self.emit(SIGNAL("appMsg"), evt.file() or "raise")
+            self.appMsg.emit(evt.file() or "raise")
             return True
         return QApplication.event(self, evt)
 
@@ -207,11 +207,8 @@ def _run():
 
     # on osx we'll need to add the qt plugins to the search path
     if isMac and getattr(sys, 'frozen', None):
-        rd = os.path.abspath(moduleDir + "/../../..")
+        rd = os.path.abspath(moduleDir + "/../../../plugins")
         QCoreApplication.setLibraryPaths([rd])
-
-    if isMac:
-        QFont.insertSubstitution(".Lucida Grande UI", "Lucida Grande")
 
     # create the app
     app = AnkiApp(sys.argv)
@@ -233,13 +230,6 @@ def _run():
 No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""")
         return
-
-    # qt version must be up to date
-    if qtmajor <= 4 and qtminor <= 6:
-        QMessageBox.warning(
-            None, "Error", "Your Qt version is known to be buggy. Until you "
-          "upgrade to a newer Qt, you may experience issues such as images "
-          "failing to show up during review.")
 
     # profile manager
     from aqt.profiles import ProfileManager

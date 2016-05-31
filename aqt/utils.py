@@ -45,7 +45,7 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     b.setDefault(True)
     if help:
         b = mb.addButton(QMessageBox.Help)
-        b.connect(b, SIGNAL("clicked()"), lambda: openHelp(help))
+        b.clicked.connect(lambda: openHelp(help))
         b.setAutoDefault(False)
     return mb.exec_()
 
@@ -70,7 +70,7 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
         if geomKey:
             saveGeom(diag, geomKey)
         QDialog.reject(diag)
-    diag.connect(box, SIGNAL("rejected()"), onReject)
+    box.rejected.connect(onReject)
     diag.setMinimumHeight(minHeight)
     diag.setMinimumWidth(minWidth)
     if geomKey:
@@ -166,13 +166,10 @@ class GetTextDialog(QDialog):
         b = QDialogButtonBox(buts)
         v.addWidget(b)
         self.setLayout(v)
-        self.connect(b.button(QDialogButtonBox.Ok),
-                     SIGNAL("clicked()"), self.accept)
-        self.connect(b.button(QDialogButtonBox.Cancel),
-                     SIGNAL("clicked()"), self.reject)
+        b.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
+        b.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
         if help:
-            self.connect(b.button(QDialogButtonBox.Help),
-                         SIGNAL("clicked()"), self.helpRequested)
+            b.button(QDialogButtonBox.Help).clicked.connect(self.helpRequested)
 
     def accept(self):
         return QDialog.accept(self)
@@ -214,7 +211,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     c.setCurrentRow(startrow)
     l.addWidget(c)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
-    bb.connect(bb, SIGNAL("accepted()"), d, SLOT("accept()"))
+    bb.accepted.connect(d.accept)
     l.addWidget(bb)
     d.exec_()
     return c.currentRow()
@@ -239,9 +236,6 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     else:
         dirkey = None
     d = QFileDialog(parent)
-    # fix #233 crash
-    if isMac:
-        d.setOptions(QFileDialog.DontUseNativeDialog)
     d.setFileMode(QFileDialog.ExistingFile)
     if os.path.exists(dir):
         d.setDirectory(dir)
@@ -249,8 +243,6 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     d.setNameFilter(filter)
     ret = []
     def accept():
-        # work around an osx crash
-        #aqt.mw.app.processEvents()
         file = str(list(d.selectedFiles())[0])
         if dirkey:
             dir = os.path.dirname(file)
@@ -258,7 +250,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
         if cb:
             cb(file)
         ret.append(file)
-    d.connect(d, SIGNAL("accepted()"), accept)
+    d.accepted.connect(accept)
     d.exec_()
     return ret and ret[0]
 
@@ -268,9 +260,9 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     config_key = dir_description + 'Directory'
     base = aqt.mw.pm.profile.get(config_key, aqt.mw.pm.base)
     path = os.path.join(base, fname)
-    file = str(QFileDialog.getSaveFileName(
+    file = QFileDialog.getSaveFileName(
         parent, title, path, "{0} (*{1})".format(key, ext),
-        options=QFileDialog.DontConfirmOverwrite))
+        options=QFileDialog.DontConfirmOverwrite)[0]
     if file:
         # add extension
         if not file.lower().endswith(ext):
@@ -359,8 +351,6 @@ def getBase(col):
 
 def openFolder(path):
     if isWin:
-        if isinstance(path, str):
-            path = path.encode(sys.getfilesystemencoding())
         subprocess.Popen(["explorer", path])
     else:
         QDesktopServices.openUrl(QUrl("file://" + path))
@@ -380,8 +370,7 @@ def addCloseShortcut(widg):
     if not isMac:
         return
     widg._closeShortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
-    widg.connect(widg._closeShortcut, SIGNAL("activated()"),
-                 widg, SLOT("reject()"))
+    widg._closeShortcut.activated.connect(widg.reject)
 
 def downArrow():
     if isWin:

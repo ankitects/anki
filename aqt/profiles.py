@@ -191,7 +191,7 @@ and no other programs are accessing your profile folders, then try again."""))
         return path
 
     def addonFolder(self):
-        return self._ensureExists(os.path.join(self.base, "addons"))
+        return self._ensureExists(os.path.join(self.base, "addons21"))
 
     def backupFolder(self):
         return self._ensureExists(
@@ -210,10 +210,7 @@ and no other programs are accessing your profile folders, then try again."""))
 
     def _defaultBase(self):
         if isWin:
-            if False: #qtmajor >= 5:
-                loc = QStandardPaths.writeableLocation(QStandardPaths.DocumentsLocation)
-            else:
-                loc = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
+            loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
             return os.path.join(loc, "Anki")
         elif isMac:
             return os.path.expanduser("~/Documents/Anki")
@@ -223,9 +220,9 @@ and no other programs are accessing your profile folders, then try again."""))
             if os.path.exists(p):
                 return p
             else:
-                loc = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
-                if loc[:-1] == QDesktopServices.storageLocation(
-                        QDesktopServices.HomeLocation):
+                loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+                if loc[:-1] == QStandardPaths.writableLocation(
+                        QStandardPaths.HomeLocation):
                     # occasionally "documentsLocation" will return the home
                     # folder because the Documents folder isn't configured
                     # properly; fall back to an English path
@@ -234,7 +231,7 @@ and no other programs are accessing your profile folders, then try again."""))
                     return os.path.join(loc, "Anki")
 
     def _loadMeta(self):
-        path = os.path.join(self.base, "prefs.db")
+        path = os.path.join(self.base, "prefs21.db")
         new = not os.path.exists(path)
         def recover():
             # if we can't load profile, start with a new one
@@ -249,7 +246,7 @@ and no other programs are accessing your profile folders, then try again."""))
             os.rename(path, broken)
             QMessageBox.warning(
                 None, "Preferences Corrupt", """\
-Anki's prefs.db file was corrupt and has been recreated. If you were using multiple \
+Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
 profiles, please add them back using the same names to recover your cards.""")
         try:
             self.db = DB(path)
@@ -308,8 +305,8 @@ please see:
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
         f.setupUi(d)
-        d.connect(d, SIGNAL("accepted()"), self._onLangSelected)
-        d.connect(d, SIGNAL("rejected()"), lambda: True)
+        d.accepted.connect(self._onLangSelected)
+        d.rejected.connect(lambda: True)
         # default to the system language
         try:
             (lang, enc) = locale.getdefaultlocale()

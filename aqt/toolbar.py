@@ -9,9 +9,8 @@ class Toolbar(object):
     def __init__(self, mw, web):
         self.mw = mw
         self.web = web
-        self.web.page().mainFrame().setScrollBarPolicy(
-            Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        self.web.setLinkHandler(self._linkHandler)
+        self.web.resetHandlers()
+        self.web.onAnkiLink = self._linkHandler
         self.link_handlers = {
             "decks": self._deckLinkHandler,
             "study": self._studyLinkHandler,
@@ -51,7 +50,8 @@ class Toolbar(object):
     def _linkHTML(self, links):
         buf = ""
         for ln, name, title in links:
-            buf += '<a class=hitem title="%s" href="%s">%s</a>' % (
+            buf += '''
+            <a class=hitem title="%s" href=# onclick="openAnkiLink('%s')">%s</a>''' % (
                 title, ln, name)
             buf += "&nbsp;"*3
         return buf
@@ -59,7 +59,8 @@ class Toolbar(object):
     def _rightIcons(self):
         buf = ""
         for ln, icon, title in self._rightIconsList():
-            buf += '<a class=hitem title="%s" href="%s"><img width="16px" height="16px" src="%s"></a>' % (
+            buf += '''
+            <a class=hitem title="%s" href=# onclick='openAnkiLink("%s")'><img width="16px" height="16px" src="%s"></a>''' % (
                 title, ln, icon)
         return buf
 
@@ -67,11 +68,9 @@ class Toolbar(object):
     ######################################################################
 
     def _linkHandler(self, link):
-        # first set focus back to main window, or we're left with an ugly
-        # focus ring around the clicked item
-        self.mw.web.setFocus()
         if link in self.link_handlers:
-          self.link_handlers[link]()
+            self.link_handlers[link]()
+        return False
 
     def _deckLinkHandler(self):
         self.mw.moveToState("deckBrowser")
