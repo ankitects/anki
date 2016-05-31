@@ -147,10 +147,10 @@ class MplayerMonitor(threading.Thread):
     def startProcess(self):
         try:
             cmd = mplayerCmd + ["-slave", "-idle"]
-            devnull = file(os.devnull, "w")
             self.mplayer = subprocess.Popen(
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
-                stdout=devnull, stderr=devnull)
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                universal_newlines=True, bufsize=1)
         except OSError:
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
@@ -169,9 +169,6 @@ def queueMplayer(path):
         f.close()
         # it wants unix paths, too!
         path = name.replace("\\", "/")
-        path = path.encode(sys.getfilesystemencoding())
-    else:
-        path = path.encode("utf-8")
     mplayerQueue.append(path)
     mplayerEvt.set()
 
@@ -254,20 +251,17 @@ class PyAudioThreadedRecorder(threading.Thread):
                         input_device_index=PYAU_INPUT_INDEX,
                         frames_per_buffer=chunk)
 
-        all = []
+        data = b""
         while not self.finish:
             try:
-                data = stream.read(chunk)
+                data += stream.read(chunk)
             except IOError as e:
                 if e[1] == pyaudio.paInputOverflowed:
-                    data = None
+                    pass
                 else:
                     raise
-            if data:
-                all.append(data)
         stream.close()
         p.terminate()
-        data = ''.join(all)
         wf = wave.open(processingSrc, 'wb')
         wf.setnchannels(PYAU_CHANNELS)
         wf.setsampwidth(p.get_sample_size(PYAU_FORMAT))
