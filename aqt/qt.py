@@ -11,12 +11,7 @@ os.environ["LIBOVERLAY_SCROLLBAR"] = "0"
 
 from anki.utils import isWin, isMac
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtWebEngineWidgets import *
-
-from PyQt5.QtNetwork import QLocalServer, QLocalSocket
+from PyQt5.Qt import *
 
 def debug():
   from PyQt5.QtCore import pyqtRemoveInputHook

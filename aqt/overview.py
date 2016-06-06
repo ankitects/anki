@@ -18,7 +18,7 @@ class Overview(object):
     def show(self):
         clearAudioQueue()
         self.web.resetHandlers()
-        self.web.onAnkiLink = self._linkHandler
+        self.web.onBridgeCmd = self._linkHandler
         self.mw.keyHandler = self._keyHandler
         self.refresh()
 
@@ -199,14 +199,14 @@ text-align: center;
             if b[0]:
                 b[0] = _("Shortcut key: %s") % shortcut(b[0])
             buf += """
-<button title="%s" onclick='openAnkiLink("%s")'>%s</button>""" % tuple(b)
+<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
         if isMac:
             size = 28
         else:
             size = 36 + self.mw.fontHeightDelta*3
         self.bottom.web.setFixedHeight(size)
-        self.bottom.web.onAnkiLink = self._linkHandler
+        self.bottom.web.onBridgeCmd = self._linkHandler
 
     # Studying more
     ######################################################################

@@ -22,7 +22,7 @@ class DeckBrowser(object):
     def show(self):
         clearAudioQueue()
         self.web.resetHandlers()
-        self.web.onAnkiLink = self._linkHandler
+        self.web.onBridgeCmd = self._linkHandler
         self.mw.keyHandler = self._keyHandler
         self._renderPage()
 
@@ -132,7 +132,7 @@ body { margin: 1em; -webkit-user-select: none; }
         var draggedDeckId = ui.draggable.attr('id');
         var ontoDeckId = $(this).attr('id');
 
-        openAnkiLink("drag:" + draggedDeckId + "," + ontoDeckId);
+        pycmd("drag:" + draggedDeckId + "," + ontoDeckId);
     }
 </script>
 """
@@ -172,9 +172,9 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return ""
         return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
             _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
-                a=("<a href=# onclick='openAnkiLink('lots')>%s</a>" % _(
+                a=("<a href=# onclick='pycmd('lots')>%s</a>" % _(
                     "this page")),
-                b=("<br><small><a href=# onclick='openAnkiLink(\"hidelots\")'>("
+                b=("<br><small><a href=# onclick='pycmd(\"hidelots\")'>("
                    "%s)</a></small>" % (_("hide"))+
                     "</div")))
 
@@ -220,7 +220,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf = "<tr class='%s' id='%d'>" % (klass, did)
         # deck link
         if children:
-            collapse = "<a class=collapse href=# onclick='openAnkiLink(\"collapse:%d\")'>%s</a>" % (did, prefix)
+            collapse = "<a class=collapse href=# onclick='pycmd(\"collapse:%d\")'>%s</a>" % (did, prefix)
         else:
             collapse = "<span class=collapse></span>"
         if deck['dyn']:
@@ -230,7 +230,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf += """
 
         <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="openAnkiLink('open:%d')">%s</a></td>"""% (
+        href=# onclick="pycmd('open:%d')">%s</a></td>"""% (
             indent(), collapse, extraclass, did, name)
         # due counts
         def nonzeroColour(cnt, colour):
@@ -243,7 +243,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             nonzeroColour(due, "#007700"),
             nonzeroColour(new, "#000099"))
         # options
-        buf += ("<td align=center class=opts><a onclick='openAnkiLink(\"opts:%d\");'>"
+        buf += ("<td align=center class=opts><a onclick='pycmd(\"opts:%d\");'>"
         "<img valign=right src='qrc:/icons/gears.png'></a></td></tr>" % did)
         # children
         buf += self._renderDeckTree(children, depth+1)
@@ -347,7 +347,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             if b[0]:
                 b[0] = _("Shortcut key: %s") % shortcut(b[0])
             buf += """
-<button title='%s' onclick='openAnkiLink(\"%s\");'>%s</button>""" % tuple(b)
+<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
         if isMac:
             size = 28
@@ -355,7 +355,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             size = 36 + self.mw.fontHeightDelta*3
         self.bottom.web.setFixedHeight(size)
         self.bottom.web.resetHandlers()
-        self.bottom.web.onAnkiLink = self._linkHandler
+        self.bottom.web.onBridgeCmd = self._linkHandler
 
     def _onShared(self):
         openLink(aqt.appShared+"decks/")

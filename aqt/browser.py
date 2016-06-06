@@ -1383,7 +1383,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
-        frm.webView.onAnkiLink = self.dupeLinkClicked
+        frm.webView.onBridgeCmd = self.dupeLinkClicked
         def onFin(code):
             saveGeom(d, "findDupes")
         d.finished.connect(onFin)
@@ -1410,7 +1410,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         t += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
         t += "<p><ol>"
         for val, nids in res:
-            t += '''<li><a href=# onclick="openAnkiLink('%s')">%s</a>: %s</a>''' % (
+            t += '''<li><a href=# onclick="pycmd('%s')">%s</a>: %s</a>''' % (
                 "nid:" + ",".join(str(id) for id in nids),
                 ngettext("%d note", "%d notes", len(nids)) % len(nids),
                 cgi.escape(val))
@@ -1693,11 +1693,11 @@ class BrowserToolbar(Toolbar):
         def borderImg(link, icon, on, title, tooltip=None):
             if on:
                 fmt = '''\
-<a class=hitem title="%s" href=# onclick="openAnkiLink('%s')">\
+<a class=hitem title="%s" href=# onclick="pycmd('%s')">\
 <img valign=bottom style='border: 1px solid #aaa;' src="qrc:/icons/%s.png"> %s</a>'''
             else:
                 fmt = '''\
-<a class=hitem title="%s" href=# onclick="openAnkiLink('%s')"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
+<a class=hitem title="%s" href=# onclick="pycmd('%s')"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
             return fmt % (tooltip or title, link, icon, title)
         right = "<div>"
         right += borderImg("add", "add16", False, _("Add"),

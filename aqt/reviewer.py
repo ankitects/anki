@@ -43,14 +43,14 @@ class Reviewer(object):
         self.mw.col.reset()
         self.web.resetHandlers()
         self.mw.keyHandler = self._keyHandler
-        self.web.onAnkiLink = self._linkHandler
+        self.web.onBridgeCmd = self._linkHandler
         self.web.setKeyHandler(self._catchEsc)
         if isMac:
             self.bottom.web.setFixedHeight(46)
         else:
             self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
         self.bottom.web.resetHandlers()
-        self.bottom.web.onAnkiLink = self._linkHandler
+        self.bottom.web.onBridgeCmd = self._linkHandler
         self._reps = None
         self.nextCard()
 
@@ -163,12 +163,12 @@ function _toggleStar (show) {
 
 function _getTypedText () {
     if (typeans) {
-        openAnkiLink("typeans:"+typeans.value);
+        pycmd("typeans:"+typeans.value);
     }
 };
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
-        openAnkiLink("ans");
+        pycmd("ans");
     }
 }
 </script>
@@ -533,12 +533,12 @@ min-width: 60px; white-space: nowrap;
 <tr>
 <td align=left width=50 valign=top class=stat>
 <br>
-<button title="%(editkey)s" onclick="openAnkiLink('edit');">%(edit)s</button></td>
+<button title="%(editkey)s" onclick="pycmd('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
 <td width=50 align=right valign=top class=stat><span id=time class=stattxt>
 </span><br>
-<button onclick="openAnkiLink('more');">%(more)s %(downArrow)s</button>
+<button onclick="pycmd('more');">%(more)s %(downArrow)s</button>
 </td>
 </tr>
 </table>
@@ -596,7 +596,7 @@ function showAnswer(txt) {
             self.bottom.web.setFocus()
         middle = '''
 <span class=stattxt>%s</span><br>
-<button title="%s" id=ansbut onclick='openAnkiLink("ans");'>%s</button>''' % (
+<button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>''' % (
         self._remaining(), _("Shortcut key: %s") % _("Space"), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
@@ -654,7 +654,7 @@ function showAnswer(txt) {
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s title="%s" onclick='openAnkiLink("ease%d");'>\
+<td align=center>%s<button %s title="%s" onclick='pycmd("ease%d");'>\
 %s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():

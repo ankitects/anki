@@ -456,7 +456,7 @@ the manual for information on how to restore from an automatic backup."))
             # we don't have to change the webview, as we have a covering window
             return
         self.web.resetHandlers()
-        self.web.onAnkiLink = lambda url: self.delayedMaybeReset()
+        self.web.onBridgeCmd = lambda url: self.delayedMaybeReset()
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml("""
@@ -487,7 +487,7 @@ h1 { margin-bottom: 0.2em; }
         else:
             key = ""
         return '''
-<button id="%s" class="%s" onclick="openAnkiLink('%s');return false;"
+<button id="%s" class="%s" onclick="pycmd('%s');return false;"
 title="%s" %s>%s</button>''' % (
             id, class_, link, key, extra, name)
 

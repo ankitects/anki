@@ -14,16 +14,53 @@ import anki.js
 
 class AnkiWebPage(QWebEnginePage):
 
-    def __init__(self, jsErr, acceptNavReq):
+    def __init__(self, onBridgeCmd):
         QWebEnginePage.__init__(self)
-        self._jsErr = jsErr
-        self._acceptNavReq = acceptNavReq
+        self._onBridgeCmd = onBridgeCmd
+        self._setupBridge()
+
+    def _setupBridge(self):
+        class Bridge(QObject):
+            @pyqtSlot(str)
+            def cmd(self, str):
+                self.onCmd(str)
+
+        self._bridge = Bridge()
+        self._bridge.onCmd = self._onCmd
+
+        self._channel = QWebChannel(self)
+        self._channel.registerObject("py", self._bridge)
+        self.setWebChannel(self._channel)
+
+        js = QFile(':/qtwebchannel/qwebchannel.js')
+        assert js.open(QIODevice.ReadOnly)
+        js = bytes(js.readAll()).decode('utf-8')
+
+        script = QWebEngineScript()
+        script.setSourceCode(js + '''
+            var pycmd;
+            new QWebChannel(qt.webChannelTransport, function(channel) {
+                pycmd = channel.objects.py.cmd;
+                pycmd("domDone");
+            });
+        ''')
+        script.setWorldId(QWebEngineScript.MainWorld)
+        script.setInjectionPoint(QWebEngineScript.DocumentReady)
+        script.setRunsOnSubFrames(False)
+        self.profile().scripts().insert(script)
 
     def javaScriptConsoleMessage(self, lvl, msg, line, srcID):
-        self._jsErr(lvl, msg, line, srcID)
+        sys.stdout.write(
+            (_("JS error on line %(a)d: %(b)s") %
+             dict(a=line, b=msg+"\n")))
 
     def acceptNavigationRequest(self, url, navType, isMainFrame):
-        return self._acceptNavReq(url, navType, isMainFrame)
+        # load all other links in browser
+        openLink(url)
+        return False
+
+    def _onCmd(self, str):
+        self._onBridgeCmd(str)
 
 # Main web view
 ##########################################################################
@@ -33,7 +70,8 @@ class AnkiWebView(QWebEngineView):
     def __init__(self, canFocus=True):
         QWebEngineView.__init__(self)
         self.setObjectName("mainText")
-        self._page = AnkiWebPage(self._jsErr, self._acceptNavReq)
+        self._page = AnkiWebPage(self._onBridgeCmd)
+
         self._loadFinishedCB = None
         self.setPage(self._page)
         self.resetHandlers()
@@ -104,14 +142,6 @@ button {
 %s</style>
 <script>
 %s
-
-openAnkiLink = function(txt) {
-    window.location = "http://anki/"+txt;
-}
-
-document.addEventListener("DOMContentLoaded", function(event) {
-    openAnkiLink("domDone");
-  });
 </script>
 %s
 
@@ -133,34 +163,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
     def _openLinksExternally(self, url):
         openLink(url)
 
-    def _jsErr(self, lvl, msg, line, srcID):
-        sys.stdout.write(
-            (_("JS error on line %(a)d: %(b)s") %
-              dict(a=line, b=msg+"\n")))
+    def _onBridgeCmd(self, cmd):
+        if cmd == "domDone":
+            self.onLoadFinished()
+        else:
+            self.onBridgeCmd(cmd)
 
-    def _acceptNavReq(self, url, navType, isMainFrame):
-        # is it an anki link?
-        urlstr = url.toString()
-        #print("got url",urlstr)
-        prefix = "http://anki/"
-        if urlstr.startswith(prefix):
-            urlstr = urlstr[len(prefix):]
-            if urlstr == "domDone":
-                self.onLoadFinished()
-            else:
-                self.onAnkiLink(urlstr)
-            return False
-        # load all other links in browser
-        openLink(url)
-        return False
-
-    def defaultOnAnkiLink(self, link):
-        print("unhandled anki link:", link)
+    def defaultOnBridgeCmd(self, cmd):
+        print("unhandled bridge cmd:", cmd)
 
     def defaultOnLoadFinished(self):
         pass
 
     def resetHandlers(self):
         self.setKeyHandler(None)
-        self.onAnkiLink = self.defaultOnAnkiLink
+        self.onBridgeCmd = self.defaultOnBridgeCmd
         self.onLoadFinished = self.defaultOnLoadFinished

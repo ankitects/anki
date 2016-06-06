@@ -10,7 +10,7 @@ class Toolbar(object):
         self.mw = mw
         self.web = web
         self.web.resetHandlers()
-        self.web.onAnkiLink = self._linkHandler
+        self.web.onBridgeCmd = self._linkHandler
         self.link_handlers = {
             "decks": self._deckLinkHandler,
             "study": self._studyLinkHandler,
@@ -51,7 +51,7 @@ class Toolbar(object):
         buf = ""
         for ln, name, title in links:
             buf += '''
-            <a class=hitem title="%s" href=# onclick="openAnkiLink('%s')">%s</a>''' % (
+            <a class=hitem title="%s" href=# onclick="pycmd('%s')">%s</a>''' % (
                 title, ln, name)
             buf += "&nbsp;"*3
         return buf
@@ -60,7 +60,7 @@ class Toolbar(object):
         buf = ""
         for ln, icon, title in self._rightIconsList():
             buf += '''
-            <a class=hitem title="%s" href=# onclick='openAnkiLink("%s")'><img width="16px" height="16px" src="%s"></a>''' % (
+            <a class=hitem title="%s" href=# onclick='pycmd("%s")'><img width="16px" height="16px" src="%s"></a>''' % (
                 title, ln, icon)
         return buf
 
