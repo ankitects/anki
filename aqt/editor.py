@@ -81,7 +81,7 @@ function sendState() {
         'sub': document.queryCommandState("subscript"),
         'col': document.queryCommandValue("forecolor")
     };
-    py.run("state:" + JSON.stringify(r));
+    pycmd("state:" + JSON.stringify(r));
 };
 
 function setFormat(cmd, arg, nosave) {
@@ -100,7 +100,7 @@ function clearChangeTimer() {
 
 function onFocus(elem) {
     currentField = elem;
-    py.run("focus:" + currentField.id.substring(1));
+    pycmd("focus:" + currentField.id.substring(1));
     // don't adjust cursor on mouse clicks
     if (mouseDown) { return; }
     // do this twice so that there's no flicker on newer versions
@@ -156,7 +156,7 @@ function saveField(type) {
         return;
     }
     // type is either 'blur' or 'key'
-    py.run(type + ":" + currentField.innerHTML);
+    pycmd(type + ":" + currentField.innerHTML);
     clearChangeTimer();
 };
 
@@ -258,7 +258,7 @@ document.onclick = function (evt) {
 
 </script></head><body>
 <div id="fields"></div>
-<div id="dupes"><a href="#" onclick="py.run('dupes');return false;">%s</a></div>
+<div id="dupes" style="display:none;"><a href="#" onclick="pycmd('dupes');return false;">%s</a></div>
 </body></html>
 """
 
@@ -279,14 +279,13 @@ class Editor(object):
         self.setupButtons()
         self.setupWeb()
         self.setupTags()
-        self.setupKeyboard()
 
     # Initial setup
     ############################################################
 
     def setupOuter(self):
         l = QVBoxLayout()
-        l.setMargin(0)
+        l.setContentsMargins(0,0,0,0)
         l.setSpacing(0)
         self.widget.setLayout(l)
         self.outerLayout = l
@@ -294,13 +293,15 @@ class Editor(object):
     def setupWeb(self):
         self.web = EditorWebView(self.widget, self)
         self.web.allowDrops = True
-        self.web.setBridge(self.bridge)
+        self.web.onBridgeCmd = self.onBridgeCmd
         self.outerLayout.addWidget(self.web, 1)
-        # pick up the window colour
-        p = self.web.palette()
-        p.setBrush(QPalette.Base, Qt.transparent)
-        self.web.page().setPalette(p)
-        self.web.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        # pick up the window colour - missing on qt5.5
+        if hasattr(self.web.page(), "setBackgroundColor"):
+            self.web.page().setBackgroundColor(Qt.transparent)
+        self.web.onLoadFinished = self._loadFinished
+        self.web.stdHtml(_html % (
+            getBase(self.mw.col), anki.js.jquery,
+            _("Show Duplicates")))
 
     # Top buttons
     ######################################################################
@@ -309,9 +310,9 @@ class Editor(object):
                    check=False, native=False, canDisable=True):
         b = QPushButton(text)
         if check:
-            b.connect(b, SIGNAL("clicked(bool)"), func)
+            b.clicked["bool"].connect(func)
         else:
-            b.connect(b, SIGNAL("clicked()"), func)
+            b.clicked.connect(func)
         if size:
             b.setFixedHeight(20)
             b.setFixedWidth(20)
@@ -348,10 +349,10 @@ class Editor(object):
         # icons
         self.iconsBox = QHBoxLayout()
         if not isMac:
-            self.iconsBox.setMargin(6)
+            self.iconsBox.setContentsMargins(6,6,6,6)
             self.iconsBox.setSpacing(0)
         else:
-            self.iconsBox.setMargin(0)
+            self.iconsBox.setContentsMargins(0,0,0,0)
             self.iconsBox.setSpacing(14)
         self.outerLayout.addLayout(self.iconsBox)
         b = self._addButton
@@ -386,24 +387,19 @@ class Editor(object):
                 _("Cloze deletion (Ctrl+Shift+C)"), text="[...]")
         but.setFixedWidth(24)
         s = self.clozeShortcut2 = QShortcut(
-            QKeySequence(_("Ctrl+Alt+Shift+C")), self.parentWindow)
-        s.connect(s, SIGNAL("activated()"), self.onCloze)
+            QKeySequence(_("Ctrl+Alt+Shift+C")), self.parentWindow,
+            activated=self.onCloze)
         # fixme: better image names
         b("mail-attachment", self.onAddMedia, _("F3"),
           _("Attach pictures/audio/video (F3)"))
         b("media-record", self.onRecSound, _("F5"), _("Record audio (F5)"))
         b("adv", self.onAdvanced, text=downArrow())
-        s = QShortcut(QKeySequence("Ctrl+T, T"), self.widget)
-        s.connect(s, SIGNAL("activated()"), self.insertLatex)
-        s = QShortcut(QKeySequence("Ctrl+T, E"), self.widget)
-        s.connect(s, SIGNAL("activated()"), self.insertLatexEqn)
-        s = QShortcut(QKeySequence("Ctrl+T, M"), self.widget)
-        s.connect(s, SIGNAL("activated()"), self.insertLatexMathEnv)
-        s = QShortcut(QKeySequence("Ctrl+Shift+X"), self.widget)
-        s.connect(s, SIGNAL("activated()"), self.onHtmlEdit)
+        s = QShortcut(QKeySequence("Ctrl+T, T"), self.widget, activated=self.insertLatex)
+        s = QShortcut(QKeySequence("Ctrl+T, E"), self.widget, activated=self.insertLatexEqn)
+        s = QShortcut(QKeySequence("Ctrl+T, M"), self.widget, activated=self.insertLatexMathEnv)
+        s = QShortcut(QKeySequence("Ctrl+Shift+X"), self.widget, activated=self.onHtmlEdit)
         # tags
-        s = QShortcut(QKeySequence("Ctrl+Shift+T"), self.widget)
-        s.connect(s, SIGNAL("activated()"), lambda: self.tags.setFocus())
+        s = QShortcut(QKeySequence("Ctrl+Shift+T"), self.widget, activated=lambda: self.tags.setFocus())
         runHook("setupEditorButtons", self)
 
     def enableButtons(self, val=True):
@@ -432,20 +428,20 @@ class Editor(object):
             parent=self.parentWindow
         CardLayout(self.mw, self.note, ord=ord, parent=parent,
                addMode=self.addMode)
-        self.loadNote()
         if isWin:
             self.parentWindow.activateWindow()
 
     # JS->Python bridge
     ######################################################################
 
-    def bridge(self, str):
+    def onBridgeCmd(self, cmd):
         if not self.note or not runHook:
             # shutdown
             return
         # focus lost or key/button pressed?
-        if str.startswith("blur") or str.startswith("key"):
-            (type, txt) = str.split(":", 1)
+        if cmd.startswith("blur") or cmd.startswith("key"):
+            (type, txt) = cmd.split(":", 1)
+            txt = urllib.parse.unquote(txt)
             txt = self.mungeHTML(txt)
             # misbehaving apps may include a null byte in the text
             txt = txt.replace("\x00", "")
@@ -474,24 +470,24 @@ class Editor(object):
                 runHook("editTimer", self.note)
                 self.checkValid()
         # focused into field?
-        elif str.startswith("focus"):
-            (type, num) = str.split(":", 1)
+        elif cmd.startswith("focus"):
+            (type, num) = cmd.split(":", 1)
             self.enableButtons()
             self.currentField = int(num)
             runHook("editFocusGained", self.note, self.currentField)
         # state buttons changed?
-        elif str.startswith("state"):
-            (cmd, txt) = str.split(":", 1)
+        elif cmd.startswith("state"):
+            (cmd, txt) = cmd.split(":", 1)
             r = json.loads(txt)
             self._buttons['text_bold'].setChecked(r['bold'])
             self._buttons['text_italic'].setChecked(r['italic'])
             self._buttons['text_under'].setChecked(r['under'])
             self._buttons['text_super'].setChecked(r['super'])
             self._buttons['text_sub'].setChecked(r['sub'])
-        elif str.startswith("dupes"):
+        elif cmd.startswith("dupes"):
             self.showDupes()
         else:
-            print(str)
+            print(cmd)
 
     def mungeHTML(self, txt):
         if txt == "<br>":
@@ -501,7 +497,7 @@ class Editor(object):
     # Setting/unsetting the current note
     ######################################################################
 
-    def _loadFinished(self, w):
+    def _loadFinished(self):
         self._loaded = True
         if self.note:
             self.loadNote()
@@ -513,13 +509,8 @@ class Editor(object):
         self.disableButtons()
         if focus:
             self.stealFocus = True
-        # change timer
         if self.note:
-            self.web.setHtml(_html % (
-                getBase(self.mw.col), anki.js.jquery,
-                _("Show Duplicates")), loadCB=self._loadFinished)
-            self.updateTags()
-            self.updateKeyboard()
+            self.loadNote()
         else:
             self.hideCompleters()
             if hide:
@@ -543,10 +534,12 @@ class Editor(object):
         self.web.eval("setFonts(%s);" % (
             json.dumps(self.fonts())))
         self.checkValid()
+        self.updateTags()
         self.widget.show()
         if self.stealFocus:
             self.web.setFocus()
             self.stealFocus = False
+
 
     def focus(self):
         self.web.setFocus()
@@ -560,9 +553,6 @@ class Editor(object):
         if not self.note:
             return
         self.saveTags()
-        if self.mw.app.focusWidget() != self.web:
-            # if no fields are focused, there's nothing to save
-            return
         # move focus out of fields and save tags
         self.parentWindow.setFocus()
         # and process events so any focus-lost hooks fire
@@ -606,8 +596,7 @@ class Editor(object):
         d = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
-        d.connect(form.buttonBox, SIGNAL("helpRequested()"),
-                 lambda: openHelp("editor"))
+        form.buttonBox.helpRequested.connect(lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[self.currentField])
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
@@ -630,13 +619,12 @@ class Editor(object):
         g.setFlat(True)
         tb = QGridLayout()
         tb.setSpacing(12)
-        tb.setMargin(6)
+        tb.setContentsMargins(6,6,6,6)
         # tags
         l = QLabel(_("Tags"))
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
-        self.tags.connect(self.tags, SIGNAL("lostFocus"),
-                          self.saveTags)
+        self.tags.lostFocus.connect(self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
@@ -724,7 +712,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         self.onColourChanged()
         hbox = QHBoxLayout()
         hbox.addWidget(self.foregroundFrame)
-        hbox.setMargin(5)
+        hbox.setContentsMargins(5,5,5,5)
         but.setLayout(hbox)
 
     # use last colour
@@ -912,7 +900,7 @@ to a cloze type first, via Edit>Change Note Type."""))
                 # from missing media
                 pass
                 # strip all other attributes, including implicit max-width
-            for attr, val in tag.attrs:
+            for attr, val in tag.attrs.items():
                 if attr != "src":
                     del tag[attr]
             # strip superfluous elements
@@ -928,17 +916,13 @@ to a cloze type first, via Edit>Change Note Type."""))
     def onAdvanced(self):
         m = QMenu(self.mw)
         a = m.addAction(_("LaTeX"))
-        a.setShortcut(QKeySequence("Ctrl+T, T"))
-        a.connect(a, SIGNAL("triggered()"), self.insertLatex)
+        a.triggered.connect(self.insertLatex)
         a = m.addAction(_("LaTeX equation"))
-        a.setShortcut(QKeySequence("Ctrl+T, E"))
-        a.connect(a, SIGNAL("triggered()"), self.insertLatexEqn)
+        a.triggered.connect(self.insertLatexEqn)
         a = m.addAction(_("LaTeX math env."))
-        a.setShortcut(QKeySequence("Ctrl+T, M"))
-        a.connect(a, SIGNAL("triggered()"), self.insertLatexMathEnv)
+        a.triggered.connect(self.insertLatexMathEnv)
         a = m.addAction(_("Edit HTML"))
-        a.setShortcut(QKeySequence("Ctrl+Shift+X"))
-        a.connect(a, SIGNAL("triggered()"), self.onHtmlEdit)
+        a.triggered.connect(self.onHtmlEdit)
         m.exec_(QCursor.pos())
 
     # LaTeX
@@ -953,38 +937,11 @@ to a cloze type first, via Edit>Change Note Type."""))
     def insertLatexMathEnv(self):
         self.web.eval("wrap('[$$]', '[/$$]');")
 
-    # Keyboard layout
-    ######################################################################
-
-    def setupKeyboard(self):
-        if isWin and self.mw.pm.profile['preserveKeyboard']:
-            a = ctypes.windll.user32.ActivateKeyboardLayout
-            a.restype = ctypes.c_void_p
-            a.argtypes = [ctypes.c_void_p, ctypes.c_uint]
-            g = ctypes.windll.user32.GetKeyboardLayout
-            g.restype = ctypes.c_void_p
-            g.argtypes = [ctypes.c_uint]
-        else:
-            a = g = None
-        self.activateKeyboard = a
-        self.getKeyboard = g
-
-    def updateKeyboard(self):
-        self.keyboardLayouts = {}
-
-    def saveKeyboard(self):
-        if not self.getKeyboard:
-            return
-        self.keyboardLayouts[self.currentField] = self.getKeyboard(0)
-
-    def restoreKeyboard(self):
-        if not self.getKeyboard:
-            return
-        if self.currentField in self.keyboardLayouts:
-            self.activateKeyboard(self.keyboardLayouts[self.currentField], 0)
-
 # Pasting, drag & drop, and keyboard layouts
 ######################################################################
+
+# fixme: drag & drop
+# fixme: middle click to paste
 
 class EditorWebView(AnkiWebView):
 
@@ -992,79 +949,53 @@ class EditorWebView(AnkiWebView):
         AnkiWebView.__init__(self)
         self.editor = editor
         self.strip = self.editor.mw.pm.profile['stripHTML']
-
-    def keyPressEvent(self, evt):
-        if evt.matches(QKeySequence.Paste):
-            self.onPaste()
-            return evt.accept()
-        elif evt.matches(QKeySequence.Copy):
-            self.onCopy()
-            return evt.accept()
-        elif evt.matches(QKeySequence.Cut):
-            self.onCut()
-            return evt.accept()
-        QWebView.keyPressEvent(self, evt)
+        self.setAcceptDrops(True)
 
     def onCut(self):
-        self.triggerPageAction(QWebPage.Cut)
+        self.triggerPageAction(QWebEnginePage.Cut)
         self._flagAnkiText()
 
     def onCopy(self):
-        self.triggerPageAction(QWebPage.Copy)
+        self.triggerPageAction(QWebEnginePage.Copy)
         self._flagAnkiText()
 
     def onPaste(self):
         mime = self.mungeClip()
-        self.triggerPageAction(QWebPage.Paste)
+        self.triggerPageAction(QWebEnginePage.Paste)
         self.restoreClip()
 
-    def mouseReleaseEvent(self, evt):
-        if not isMac and not isWin and evt.button() == Qt.MidButton:
-            # middle click on x11; munge the clipboard before standard
-            # handling
-            mime = self.mungeClip(mode=QClipboard.Selection)
-            AnkiWebView.mouseReleaseEvent(self, evt)
-            self.restoreClip(mode=QClipboard.Selection)
-        else:
-            AnkiWebView.mouseReleaseEvent(self, evt)
-
-    def focusInEvent(self, evt):
-        window = False
-        if evt.reason() in (Qt.ActiveWindowFocusReason, Qt.PopupFocusReason):
-            # editor area got focus again; need to tell js not to adjust cursor
-            self.eval("mouseDown++;")
-            window = True
-        AnkiWebView.focusInEvent(self, evt)
-        if evt.reason() == Qt.TabFocusReason:
-            self.eval("focusField(0);")
-        elif evt.reason() == Qt.BacktabFocusReason:
-            n = len(self.editor.note.fields) - 1
-            self.eval("focusField(%d);" % n)
-        elif window:
-            self.eval("mouseDown--;")
-
-    def dropEvent(self, evt):
-        oldmime = evt.mimeData()
-        # coming from this program?
-        if evt.source():
-            if oldmime.hasHtml():
-                mime = QMimeData()
-                mime.setHtml(self.editor._filterHTML(oldmime.html()))
-            else:
-                # old qt on linux won't give us html when dragging an image;
-                # in that case just do the default action (which is to ignore
-                # the drag)
-                return AnkiWebView.dropEvent(self, evt)
-        else:
-            mime = self._processMime(oldmime)
-        # create a new event with the new mime data and run it
-        new = QDropEvent(evt.pos(), evt.possibleActions(), mime,
-                         evt.mouseButtons(), evt.keyboardModifiers())
-        evt.accept()
-        QWebView.dropEvent(self, new)
-        # tell the drop target to take focus so the drop contents are saved
-        self.eval("dropTarget.focus();")
-        self.setFocus()
+    # def mouseReleaseEvent(self, evt):
+    #     if not isMac and not isWin and evt.button() == Qt.MidButton:
+    #         # middle click on x11; munge the clipboard before standard
+    #         # handling
+    #         mime = self.mungeClip(mode=QClipboard.Selection)
+    #         AnkiWebView.mouseReleaseEvent(self, evt)
+    #         self.restoreClip(mode=QClipboard.Selection)
+    #     else:
+    #         AnkiWebView.mouseReleaseEvent(self, evt)
+    #
+    # def dropEvent(self, evt):
+    #     oldmime = evt.mimeData()
+    #     # coming from this program?
+    #     if evt.source():
+    #         if oldmime.hasHtml():
+    #             mime = QMimeData()
+    #             mime.setHtml(self.editor._filterHTML(oldmime.html()))
+    #         else:
+    #             # old qt on linux won't give us html when dragging an image;
+    #             # in that case just do the default action (which is to ignore
+    #             # the drag)
+    #             return AnkiWebView.dropEvent(self, evt)
+    #     else:
+    #         mime = self._processMime(oldmime)
+    #     # create a new event with the new mime data and run it
+    #     new = QDropEvent(evt.pos(), evt.possibleActions(), mime,
+    #                      evt.mouseButtons(), evt.keyboardModifiers())
+    #     evt.accept()
+    #     AnkiWebView.dropEvent(self, new)
+    #     # tell the drop target to take focus so the drop contents are saved
+    #     self.eval("dropTarget.focus();")
+    #     self.setFocus()
 
     def mungeClip(self, mode=QClipboard.Clipboard):
         clip = self.editor.mw.app.clipboard()
@@ -1207,10 +1138,10 @@ class EditorWebView(AnkiWebView):
     def contextMenuEvent(self, evt):
         m = QMenu(self)
         a = m.addAction(_("Cut"))
-        a.connect(a, SIGNAL("triggered()"), self.onCut)
+        a.triggered.connect(self.onCut)
         a = m.addAction(_("Copy"))
-        a.connect(a, SIGNAL("triggered()"), self.onCopy)
+        a.triggered.connect(self.onCopy)
         a = m.addAction(_("Paste"))
-        a.connect(a, SIGNAL("triggered()"), self.onPaste)
+        a.triggered.connect(self.onPaste)
         runHook("EditorWebView.contextMenuEvent", self, m)
         m.popup(QCursor.pos())

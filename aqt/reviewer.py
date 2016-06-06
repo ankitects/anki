@@ -44,7 +44,6 @@ class Reviewer(object):
         self.web.resetHandlers()
         self.mw.keyHandler = self._keyHandler
         self.web.onBridgeCmd = self._linkHandler
-        self.web.setKeyHandler(self._catchEsc)
         if isMac:
             self.bottom.web.setFixedHeight(46)
         else:
@@ -272,11 +271,6 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
     # Handlers
     ############################################################
-
-    def _catchEsc(self, evt):
-        if evt.key() == Qt.Key_Escape:
-            self.web.eval("$('#typeans').blur();")
-            return True
 
     def _keyHandler(self, evt):
         key = str(evt.text())

@@ -76,26 +76,43 @@ class AnkiWebView(QWebEngineView):
         self.setPage(self._page)
         self.resetHandlers()
         self.allowDrops = False
-        # reset each time new html is set; used to detect if still in same state
-        self.key = None
         self.setCanFocus(canFocus)
+        self.installEventFilter(self)
 
-    def keyPressEvent(self, evt):
+    def eventFilter(self, obj, evt):
+        if not isinstance(evt, QKeyEvent) or obj != self:
+            return False
         if evt.matches(QKeySequence.Copy):
-            self.triggerPageAction(QWebEnginePage.Copy)
-            evt.accept()
-        # work around a bug with windows qt where shift triggers buttons
-        if isWin and evt.modifiers() & Qt.ShiftModifier and not evt.text():
-            evt.accept()
-            return
-        QWebEngineView.keyPressEvent(self, evt)
+            self.onCopy()
+            return True
+        if evt.matches(QKeySequence.Cut):
+            self.onCut()
+            return True
+        if evt.matches(QKeySequence.Paste):
+            self.onPaste()
+            return True
+        if evt.matches(QKeySequence.Cancel):
+            # cheap hack to work around webengine swallowing escape key that
+            # usually closes dialogs
+            w = self.parent()
+            while w:
+                if isinstance(w, QDialog) or isinstance(w, QMainWindow):
+                    from aqt import mw
+                    if w != mw:
+                        w.close()
+                    break
+                w = w.parent()
+            return True
+        return False
 
-    def keyReleaseEvent(self, evt):
-        if self._keyHandler:
-            if self._keyHandler(evt):
-                evt.accept()
-                return
-        QWebEngineView.keyReleaseEvent(self, evt)
+    def onCopy(self):
+        self.triggerPageAction(QWebEnginePage.Copy)
+
+    def onCut(self):
+        self.triggerPageAction(QWebEnginePage.Cut)
+
+    def onPaste(self):
+        self.triggerPageAction(QWebEnginePage.Paste)
 
     def contextMenuEvent(self, evt):
         if not self._canFocus:
@@ -109,12 +126,7 @@ class AnkiWebView(QWebEngineView):
     def dropEvent(self, evt):
         pass
 
-    def setKeyHandler(self, handler=None):
-        # handler should return true if event should be swallowed
-        self._keyHandler = handler
-
     def setHtml(self, html):
-        self.key = None
         app = QApplication.instance()
         oldFocus = app.focusWidget()
         self._page.setHtml(html)
@@ -176,6 +188,5 @@ button {
         pass
 
     def resetHandlers(self):
-        self.setKeyHandler(None)
         self.onBridgeCmd = self.defaultOnBridgeCmd
         self.onLoadFinished = self.defaultOnLoadFinished
