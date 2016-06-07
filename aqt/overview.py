@@ -201,11 +201,6 @@ text-align: center;
             buf += """
 <button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
-        if isMac:
-            size = 28
-        else:
-            size = 36 + self.mw.fontHeightDelta*3
-        self.bottom.web.setFixedHeight(size)
         self.bottom.web.onBridgeCmd = self._linkHandler
 
     # Studying more

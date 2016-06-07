@@ -375,7 +375,6 @@ class Browser(QMainWindow):
 
     def setupToolbar(self):
         self.toolbarWeb = AnkiWebView()
-        self.toolbarWeb.setFixedHeight(32 + self.mw.fontHeightDelta)
         self.toolbar = BrowserToolbar(self.mw, self.toolbarWeb, self)
         self.form.verticalLayout_3.insertWidget(0, self.toolbarWeb)
         self.toolbar.draw()
@@ -1717,12 +1716,10 @@ class BrowserToolbar(Toolbar):
                                "Bulk Remove Tags (Ctrl+Alt+T)")))
         right += borderImg("delete", "delete16", False, _("Delete"))
         right += "</div>"
-        # fixme
-        #self.web.page().currentFrame().setScrollBarPolicy(
-        #    Qt.Horizontal, Qt.ScrollBarAlwaysOff)
+        self.web.onBridgeCmd = self._linkHandler
+        self.web.onLoadFinished = self.onLoaded
         self.web.stdHtml(self._body % (
-            "", #<span style='display:inline-block; width: 100px;'></span>",
-            #self._centerLinks(),
+            "",
             right, ""), self._css + """
 #header { font-weight: normal; }
 a { margin-right: 1em; }

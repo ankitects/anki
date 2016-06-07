@@ -44,11 +44,6 @@ class Reviewer(object):
         self.web.resetHandlers()
         self.mw.keyHandler = self._keyHandler
         self.web.onBridgeCmd = self._linkHandler
-        if isMac:
-            self.bottom.web.setFixedHeight(46)
-        else:
-            self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
-        self.bottom.web.resetHandlers()
         self.bottom.web.onBridgeCmd = self._linkHandler
         self._reps = None
         self.nextCard()
@@ -182,7 +177,7 @@ function _typeAnsPress() {
         self.web.stdHtml(self._revHtml, self._styles(), head=base)
         # show answer / ease buttons
         self.bottom.web.show()
-        self.bottom.web.onLoadFinished = self._showAnswerButton
+        self.bottom.web.onLoadFinished = self._onBottomLoadFinished
         self.bottom.web.stdHtml(
             self._bottomHTML(),
             self.bottom._css + self._bottomCSS)
@@ -501,13 +496,7 @@ Please run Tools>Empty Cards""")
 
     _bottomCSS = """
 body {
-background: -webkit-gradient(linear, left top, left bottom,
-from(#fff), to(#ddd));
-border-bottom: 0;
-border-top: 1px solid #aaa;
-margin: 0;
-padding: 0px;
-padding-left: 5px; padding-right: 5px;
+margin: 0; padding: 0;
 }
 button {
 min-width: 60px; white-space: nowrap;
@@ -519,11 +508,21 @@ min-width: 60px; white-space: nowrap;
 .nobold { font-weight: normal; display: inline-block; padding-top: 4px; }
 .spacer { height: 18px; }
 .spacer2 { height: 16px; }
+#outer {
+  border-top: 1px solid #aaa;
+  background: -webkit-gradient(linear, left top, left bottom,
+from(#fff), to(#ddd));
+}
+#innertable {
+padding: 3px;
+}
+
 """
 
     def _bottomHTML(self):
         return """
-<table width=100%% cellspacing=0 cellpadding=0>
+<center id=outer>
+<table id=innertable width=100%% cellspacing=0 cellpadding=0>
 <tr>
 <td align=left width=50 valign=top class=stat>
 <br>
@@ -536,6 +535,7 @@ min-width: 60px; white-space: nowrap;
 </td>
 </tr>
 </table>
+</center>
 <script>
 var time = %(time)d;
 var maxTime = 0;
@@ -584,6 +584,9 @@ function showAnswer(txt) {
            downArrow=downArrow(),
            time=self.card.timeTaken() // 1000)
 
+    def _onBottomLoadFinished(self):
+        self._showAnswerButton()
+
     def _showAnswerButton(self):
         self._bottomReady = True
         if not self.typeCorrect:
@@ -600,6 +603,7 @@ function showAnswer(txt) {
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (
             json.dumps(middle), maxTime))
+        self.bottom.onLoaded()
 
     def _showEaseButtons(self):
         self.bottom.web.setFocus()

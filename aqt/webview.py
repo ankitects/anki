@@ -134,15 +134,16 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
+    def zoomFactor(self):
+        screen = QApplication.desktop().screen()
+        dpi = screen.logicalDpiX()
+        return max(1, dpi / 96.0)
+
     def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
         if isMac:
             button = "font-weight: bold; height: 24px;"
         else:
             button = "font-weight: normal;"
-
-        screen = QApplication.desktop().screen()
-        dpi = screen.logicalDpiX()
-        zoomFactor = max(1, dpi / 96.0)
 
         self.setHtml("""
 <!doctype html>
@@ -159,7 +160,7 @@ button {
 
 </head>
 <body class="%s">%s</body></html>""" % (
-    zoomFactor, button, css, js or anki.js.jquery+anki.js.browserSel,
+    self.zoomFactor(), button, css, js or anki.js.jquery+anki.js.browserSel,
     head, bodyClass, body))
 
     def setCanFocus(self, canFocus=False):
@@ -171,6 +172,9 @@ button {
 
     def eval(self, js):
         self.page().runJavaScript(js)
+
+    def evalWithCallback(self, js, cb):
+        self.page().runJavaScript(js, cb)
 
     def _openLinksExternally(self, url):
         openLink(url)

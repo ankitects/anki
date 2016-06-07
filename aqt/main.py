@@ -502,7 +502,6 @@ title="%s" %s>%s</button>''' % (
         tweb = aqt.webview.AnkiWebView()
         tweb.setObjectName("toolbarWeb")
         tweb.setFocusPolicy(Qt.WheelFocus)
-        tweb.setFixedHeight(32+self.fontHeightDelta)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
@@ -512,8 +511,6 @@ title="%s" %s>%s</button>''' % (
         self.web.setMinimumWidth(400)
         # bottom area
         sweb = self.bottomWeb = aqt.webview.AnkiWebView()
-        #sweb.hide()
-        sweb.setFixedHeight(100)
         sweb.setObjectName("bottomWeb")
         sweb.setFocusPolicy(Qt.WheelFocus)
         # add in a layout
