@@ -1,5 +1,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from anki import version as _version
+
 import getpass
 import sys
 import optparse
@@ -13,7 +16,6 @@ import anki.lang
 from anki.consts import HELP_SITE
 from anki.lang import langDir
 from anki.utils import isMac
-from anki import version as _version
 
 appVersion=_version
 appWebsite="http://ankisrs.net/"
