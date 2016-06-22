@@ -39,6 +39,24 @@ _html = """
 .fname { vertical-align: middle; padding: 0; }
 img { max-width: 90%%; }
 body { margin: 5px; }
+#topbuts { position: fixed; height: 20px; top: 0; padding: 2px; left:0;right:0}
+.topbut { width: 16px; height: 16px; }
+.rainbow {
+background-image: -webkit-gradient(linear,  left top,  left bottom,
+		color-stop(0.00, #f77),
+		color-stop(50%%, #7f7),
+		color-stop(100%%, #77f));
+}
+.linkb { -webkit-appearance: none; border: 0; padding: 0px; background: transparent; }
+.linkb:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.highlighted {
+    border-bottom: 3px solid #000;
+}
+
+#fields { margin-top: 35px; }
+
+
 </style><script>
 %s
 
@@ -52,6 +70,15 @@ String.prototype.format = function() {
             return args[m.match(/\d+/)]; });
 };
 
+function setBG(col) {
+    document.body.style.backgroundColor = col;
+    $("#topbuts")[0].style.backgroundColor = col;
+};
+
+function setFGButton(col) {
+    $("#forecolor")[0].style.backgroundColor = col;
+};
+
 function onKey() {
     // esc clears focus, allowing dialog to close
     if (window.event.which == 27) {
@@ -63,31 +90,35 @@ function onKey() {
         // fix empty div bug. slight flicker, but must be done in a timer
         changeTimer = setTimeout(function () {
             currentField.innerHTML = "<br>";
-            sendState();
+            updateButtonState();
             saveField("key"); }, 1);
     } else {
         changeTimer = setTimeout(function () {
-            sendState();
+            updateButtonState();
             saveField("key"); }, 600);
     }
 };
 
-function sendState() {
-    var r = {
-        'bold': document.queryCommandState("bold"),
-        'italic': document.queryCommandState("italic"),
-        'under': document.queryCommandState("underline"),
-        'super': document.queryCommandState("superscript"),
-        'sub': document.queryCommandState("subscript"),
-        'col': document.queryCommandValue("forecolor")
-    };
-    pycmd("state:" + JSON.stringify(r));
+function updateButtonState() {
+    var buts = ["bold", "italic", "underline", "superscript", "subscript"];
+    for (var i=0; i<buts.length; i++) {
+        var name = buts[i];
+        if (document.queryCommandState(name)) {
+            $("#"+name).addClass("highlighted");
+        } else {
+            $("#"+name).removeClass("highlighted");
+        }
+    }
+
+    // fixme: forecolor
+//    'col': document.queryCommandValue("forecolor")
 };
 
 function setFormat(cmd, arg, nosave) {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField('key');
+        updateButtonState();
     }
 };
 
@@ -101,6 +132,7 @@ function clearChangeTimer() {
 function onFocus(elem) {
     currentField = elem;
     pycmd("focus:" + currentField.id.substring(1));
+    enableButtons();
     // don't adjust cursor on mouse clicks
     if (mouseDown) { return; }
     // do this twice so that there's no flicker on newer versions
@@ -146,8 +178,7 @@ function onBlur() {
         saveField("blur");
     }
     clearChangeTimer();
-    // if we lose focus, assume the last field is still targeted
-    //currentField = null;
+    disableButtons();
 };
 
 function saveField(type) {
@@ -163,6 +194,23 @@ function saveField(type) {
 function wrappedExceptForWhitespace(text, front, back) {
     var match = text.match(/^(\s*)([^]*?)(\s*)$/);
     return match[1] + front + match[2] + back + match[3];
+};
+
+function disableButtons() {
+  $("button.linkb").prop("disabled", true);
+};
+
+function enableButtons() {
+  $("button.linkb").prop("disabled", false);
+};
+
+// disable the buttons if a field is not currently focused
+function maybeDisableButtons() {
+    if (!document.activeElement || document.activeElement.className != "field") {
+        disableButtons();
+    } else {
+        enableButtons();
+    }
 };
 
 function wrap(front, back) {
@@ -205,6 +253,7 @@ function setFields(fields, focusTo) {
     if (focusTo >= 0) {
         $("#f"+focusTo).focus();
     }
+    maybeDisableButtons();
 };
 
 function setBackgrounds(cols) {
@@ -232,31 +281,34 @@ function hideDupes() {
 var mouseDown = 0;
 
 $(function () {
-document.body.onmousedown = function () {
-    mouseDown++;
-}
+    document.body.onmousedown = function () {
+        mouseDown++;
+    }
 
-document.body.onmouseup = function () {
-    mouseDown--;
-}
+    document.body.onmouseup = function () {
+        mouseDown--;
+    }
 
-document.onclick = function (evt) {
-    var src = window.event.srcElement;
-    if (src.tagName == "IMG") {
-        // image clicked; find contenteditable parent
-        var p = src;
-        while (p = p.parentNode) {
-            if (p.className == "field") {
-                $("#"+p.id).focus();
-                break;
+    document.onclick = function (evt) {
+        var src = window.event.srcElement;
+        if (src.tagName == "IMG") {
+            // image clicked; find contenteditable parent
+            var p = src;
+            while (p = p.parentNode) {
+                if (p.className == "field") {
+                    $("#"+p.id).focus();
+                    break;
+                }
             }
         }
     }
-}
 
+    // prevent editor buttons from taking focus
+    $("button.linkb").on("mousedown", function(e) { e.preventDefault(); });
 });
 
 </script></head><body>
+<div id="topbuts">%s</div>
 <div id="fields"></div>
 <div id="dupes" style="display:none;"><a href="#" onclick="pycmd('dupes');return false;">%s</a></div>
 </body></html>
@@ -276,7 +328,7 @@ class Editor(object):
         # current card, for card layout
         self.card = None
         self.setupOuter()
-        self.setupButtons()
+        self.setupShortcuts()
         self.setupWeb()
         self.setupTags()
 
@@ -295,12 +347,31 @@ class Editor(object):
         self.web.allowDrops = True
         self.web.onBridgeCmd = self.onBridgeCmd
         self.outerLayout.addWidget(self.web, 1)
-        # pick up the window colour - missing on qt5.5
-        if hasattr(self.web.page(), "setBackgroundColor"):
-            self.web.page().setBackgroundColor(Qt.transparent)
         self.web.onLoadFinished = self._loadFinished
+
+        topbuts = """
+<div style="float:left;">
+<button onclick="pycmd('fields')">%(flds)s...</button>
+<button onclick="pycmd('cards')">%(cards)s...</button>
+</div>
+<div style="float:right;">
+<button tabindex=-1 class=linkb type="button" id=bold onclick="pycmd('bold');return false;"><img class=topbut src="qrc:/icons/text_bold.png"></button>
+<button tabindex=-1 class=linkb type="button" id=italic  onclick="pycmd('italic');return false;"><img class=topbut src="qrc:/icons/text_italic.png"></button>
+<button tabindex=-1 class=linkb type="button" id=underline  onclick="pycmd('underline');return false;"><img class=topbut src="qrc:/icons/text_under.png"></button>
+<button tabindex=-1 class=linkb type="button" id=superscript  onclick="pycmd('super');return false;"><img class=topbut src="qrc:/icons/text_super.png"></button>
+<button tabindex=-1 class=linkb type="button" id=subscript  onclick="pycmd('sub');return false;"><img class=topbut src="qrc:/icons/text_sub.png"></button>
+<button tabindex=-1 class=linkb type="button" onclick="pycmd('clear');return false;"><img class=topbut src="qrc:/icons/text_clear.png"></button>
+<button tabindex=-1 class=linkb type="button" onclick="pycmd('colour');return false;"><div id=forecolor style="display:inline-block; background: #000;border-radius: 5px;" class=topbut></div></button>
+<button tabindex=-1 class=linkb type="button" onclick="pycmd('changeCol');return false;"><div style="display:inline-block; border-radius: 5px;" class="topbut rainbow"></div></button>
+<button tabindex=-1 class=linkb type="button" onclick="pycmd('cloze');return false;"><img class=topbut src="qrc:/icons/text_cloze.png"></button>
+<button tabindex=-1 class=linkb type="button" onclick="pycmd('attach');return false;"><img class=topbut src="qrc:/icons/paperclip.png"></button>
+<button tabindex=-1 class=linkb type="button" onclick="pycmd('record');return false;"><img class=topbut src="qrc:/icons/media-record.png"></button>
+<button tabindex=-1 class=linkb type="button" onclick="pycmd('more');return false;"><img class=topbut src="qrc:/icons/more.png"></button>
+</div>
+        """ % dict(flds=_("Fields"), cards=_("Cards"))
         self.web.stdHtml(_html % (
             getBase(self.mw.col), anki.js.jquery,
+            topbuts,
             _("Show Duplicates")))
 
     # Top buttons
@@ -335,79 +406,45 @@ class Editor(object):
             self._buttons[name] = b
         return b
 
-    def setupButtons(self):
-        self._buttons = {}
-        # button styles for mac
-        if not isMac:
-            self.plastiqueStyle = QStyleFactory.create("plastique")
-            if not self.plastiqueStyle:
-                # plastique was removed in qt5
-                self.plastiqueStyle = QStyleFactory.create("fusion")
-            self.widget.setStyle(self.plastiqueStyle)
-        else:
-            self.plastiqueStyle = None
-        # icons
-        self.iconsBox = QHBoxLayout()
-        if not isMac:
-            self.iconsBox.setContentsMargins(6,6,6,6)
-            self.iconsBox.setSpacing(0)
-        else:
-            self.iconsBox.setContentsMargins(0,0,0,0)
-            self.iconsBox.setSpacing(14)
-        self.outerLayout.addLayout(self.iconsBox)
-        b = self._addButton
-        b("fields", self.onFields, "",
-          shortcut(_("Customize Fields")), size=False, text=_("Fields..."),
-          native=True, canDisable=False)
-        self.iconsBox.addItem(QSpacerItem(6,1, QSizePolicy.Fixed))
-        b("layout", self.onCardLayout, _("Ctrl+L"),
-          shortcut(_("Customize Cards (Ctrl+L)")),
-          size=False, text=_("Cards..."), native=True, canDisable=False)
-        # align to right
-        self.iconsBox.addItem(QSpacerItem(20,1, QSizePolicy.Expanding))
-        b("text_bold", self.toggleBold, _("Ctrl+B"), _("Bold text (Ctrl+B)"),
-          check=True)
-        b("text_italic", self.toggleItalic, _("Ctrl+I"), _("Italic text (Ctrl+I)"),
-          check=True)
-        b("text_under", self.toggleUnderline, _("Ctrl+U"),
-          _("Underline text (Ctrl+U)"), check=True)
-        b("text_super", self.toggleSuper, _("Ctrl+Shift+="),
-          _("Superscript (Ctrl+Shift+=)"), check=True)
-        b("text_sub", self.toggleSub, _("Ctrl+="),
-          _("Subscript (Ctrl+=)"), check=True)
-        b("text_clear", self.removeFormat, _("Ctrl+R"),
-          _("Remove formatting (Ctrl+R)"))
-        but = b("foreground", self.onForeground, _("F7"), text=" ")
-        but.setToolTip(_("Set foreground colour (F7)"))
-        self.setupForegroundButton(but)
-        but = b("change_colour", self.onChangeCol, _("F8"),
-          _("Change colour (F8)"), text=downArrow())
-        but.setFixedWidth(12)
-        but = b("cloze", self.onCloze, _("Ctrl+Shift+C"),
-                _("Cloze deletion (Ctrl+Shift+C)"), text="[...]")
-        but.setFixedWidth(24)
-        s = self.clozeShortcut2 = QShortcut(
-            QKeySequence(_("Ctrl+Alt+Shift+C")), self.parentWindow,
-            activated=self.onCloze)
-        # fixme: better image names
-        b("mail-attachment", self.onAddMedia, _("F3"),
-          _("Attach pictures/audio/video (F3)"))
-        b("media-record", self.onRecSound, _("F5"), _("Record audio (F5)"))
-        b("adv", self.onAdvanced, text=downArrow())
-        s = QShortcut(QKeySequence("Ctrl+T, T"), self.widget, activated=self.insertLatex)
-        s = QShortcut(QKeySequence("Ctrl+T, E"), self.widget, activated=self.insertLatexEqn)
-        s = QShortcut(QKeySequence("Ctrl+T, M"), self.widget, activated=self.insertLatexMathEnv)
-        s = QShortcut(QKeySequence("Ctrl+Shift+X"), self.widget, activated=self.onHtmlEdit)
-        # tags
-        s = QShortcut(QKeySequence("Ctrl+Shift+T"), self.widget, activated=lambda: self.tags.setFocus())
-        runHook("setupEditorButtons", self)
+    def setupShortcuts(self):
+        cuts = [
+            ("Ctrl+L", self.onCardLayout),
+            ("Ctrl+B", self.toggleBold),
+            ("Ctrl+I", self.toggleItalic),
+            ("Ctrl+U", self.toggleUnderline),
+            ("Ctrl+Shift+=", self.toggleSuper),
+            ("Ctrl+=", self.toggleSub),
+            ("Ctrl+R", self.removeFormat),
+            ("F7", self.onForeground),
+            ("F8", self.onChangeCol),
+            ("Ctrl+Shift+C", self.onCloze),
+            ("Ctrl+Shift+Alt+C", self.onCloze),
+            ("F3", self.onAddMedia),
+            ("F5", self.onRecSound),
+            ("Ctrl+T, T", self.insertLatex),
+            ("Ctrl+T, E", self.insertLatexEqn),
+            ("Ctrl+T, M", self.insertLatexMathEnv),
+            ("Ctrl+Shift+X", self.onHtmlEdit),
+            ("Ctrl+Shift+T", lambda: self.tags.setFocus),
+        ]
+        runFilter("setupEditorShortcuts", cuts)
+        for keys, fn in cuts:
+            QShortcut(QKeySequence(keys), self.widget, activated=fn)
 
-    def enableButtons(self, val=True):
-        for b in list(self._buttons.values()):
-            b.setEnabled(val)
-
-    def disableButtons(self):
-        self.enableButtons(False)
+    # fixme: need to add back hover labels for toolbuttons
+    # def setupButtons(self):
+    #     _("Customize Cards (Ctrl+L)")
+    #     _("Bold text (Ctrl+B)"),
+    #     _("Italic text (Ctrl+I)"),
+    #     _("Underline text (Ctrl+U)")
+    #     _("Superscript (Ctrl+Shift+=)")
+    #     _("Subscript (Ctrl+=)")
+    #     _("Remove formatting (Ctrl+R)")
+    #     _("Set foreground colour (F7)")
+    #     _("Change colour (F8)")
+    #     _("Cloze deletion (Ctrl+Shift+C)")
+    #     _("Attach pictures/audio/video (F3)")
+    #     _("Record audio (F5)")
 
     def onFields(self):
         from aqt.fields import FieldDialog
@@ -452,7 +489,6 @@ class Editor(object):
                 self.note.flush()
                 self.mw.requireReset()
             if type == "blur":
-                self.disableButtons()
                 # run any filters
                 if runFilter(
                     "editFocusLost", False, self.note, self.currentField):
@@ -472,22 +508,12 @@ class Editor(object):
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
-            self.enableButtons()
             self.currentField = int(num)
             runHook("editFocusGained", self.note, self.currentField)
-        # state buttons changed?
-        elif cmd.startswith("state"):
-            (cmd, txt) = cmd.split(":", 1)
-            r = json.loads(txt)
-            self._buttons['text_bold'].setChecked(r['bold'])
-            self._buttons['text_italic'].setChecked(r['italic'])
-            self._buttons['text_under'].setChecked(r['under'])
-            self._buttons['text_super'].setChecked(r['super'])
-            self._buttons['text_sub'].setChecked(r['sub'])
-        elif cmd.startswith("dupes"):
-            self.showDupes()
+        elif cmd in self._links:
+            self._links[cmd](self)
         else:
-            print(cmd)
+            print("uncaught cmd", cmd)
 
     def mungeHTML(self, txt):
         if txt == "<br>":
@@ -499,6 +525,13 @@ class Editor(object):
 
     def _loadFinished(self):
         self._loaded = True
+
+        # match the background colour
+        bgcol = self.mw.app.palette().window().color().name()
+        self.web.eval("setBG('%s')" % bgcol)
+        # setup colour button
+        self.setupForegroundButton()
+
         if self.note:
             self.loadNote()
 
@@ -506,7 +539,6 @@ class Editor(object):
         "Make NOTE the current note."
         self.note = note
         self.currentField = 0
-        self.disableButtons()
         if focus:
             self.stealFocus = True
         if self.note:
@@ -659,19 +691,19 @@ class Editor(object):
     # Format buttons
     ######################################################################
 
-    def toggleBold(self, bool):
+    def toggleBold(self):
         self.web.eval("setFormat('bold');")
 
-    def toggleItalic(self, bool):
+    def toggleItalic(self):
         self.web.eval("setFormat('italic');")
 
-    def toggleUnderline(self, bool):
+    def toggleUnderline(self):
         self.web.eval("setFormat('underline');")
 
-    def toggleSuper(self, bool):
+    def toggleSuper(self):
         self.web.eval("setFormat('superscript');")
 
-    def toggleSub(self, bool):
+    def toggleSub(self):
         self.web.eval("setFormat('subscript');")
 
     def removeFormat(self):
@@ -704,16 +736,9 @@ to a cloze type first, via Edit>Change Note Type."""))
     # Foreground colour
     ######################################################################
 
-    def setupForegroundButton(self, but):
-        self.foregroundFrame = QFrame()
-        self.foregroundFrame.setAutoFillBackground(True)
-        self.foregroundFrame.setFocusPolicy(Qt.NoFocus)
+    def setupForegroundButton(self):
         self.fcolour = self.mw.pm.profile.get("lastColour", "#00f")
         self.onColourChanged()
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.foregroundFrame)
-        hbox.setContentsMargins(5,5,5,5)
-        but.setLayout(hbox)
 
     # use last colour
     def onForeground(self):
@@ -730,7 +755,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             self._wrapWithColour(self.fcolour)
 
     def _updateForegroundButton(self):
-        self.foregroundFrame.setPalette(QPalette(QColor(self.fcolour)))
+        self.web.eval("setFGButton('%s')" % self.fcolour)
 
     def onColourChanged(self):
         self._updateForegroundButton()
@@ -936,6 +961,27 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     def insertLatexMathEnv(self):
         self.web.eval("wrap('[$$]', '[/$$]');")
+
+    # Links from HTML
+    ######################################################################
+
+    _links = dict(
+        fields=onFields,
+        cards=onCardLayout,
+        bold=toggleBold,
+        italic=toggleItalic,
+        underline=toggleUnderline,
+        super=toggleSuper,
+        sub=toggleSub,
+        clear=removeFormat,
+        colour=onForeground,
+        changeCol=onChangeCol,
+        cloze=onCloze,
+        attach=onAddMedia,
+        record=onRecSound,
+        more=onAdvanced,
+        dupes=showDupes,
+    )
 
 # Pasting, drag & drop, and keyboard layouts
 ######################################################################

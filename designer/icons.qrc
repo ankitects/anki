@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="/">
+    <file>icons/paperclip.png</file>
+    <file>icons/more.png</file>
+    <file>icons/text_cloze.png</file>
     <file>icons/arrow-up.png</file>
     <file>icons/arrow-down.png</file>
     <file>icons/gears.png</file>
