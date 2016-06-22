@@ -141,7 +141,7 @@ class AnkiWebView(QWebEngineView):
 
     def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
         if isMac:
-            button = "font-weight: bold; height: 24px;"
+            button = "zoom: 120%;"
         else:
             button = "font-weight: normal;"
 
