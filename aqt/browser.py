@@ -77,8 +77,8 @@ class DataModel(QAbstractTableModel):
             row = index.row()
             c = self.getCard(index)
             t = c.template()
-            f.setFamily(t.get("bfont", self.browser.mw.fontFamily))
-            f.setPixelSize(t.get("bsize", self.browser.mw.fontHeight))
+            f.setFamily(t.get("bfont", "arial"))
+            f.setPixelSize(t.get("bsize", 12))
             return f
         elif role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter

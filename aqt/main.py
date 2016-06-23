@@ -66,7 +66,6 @@ class AnkiQt(QMainWindow):
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
-        self.setupFonts()
         self.setupMainWindow()
         self.setupSystemSpecific()
         self.setupStyle()
@@ -575,6 +574,9 @@ title="%s" %s>%s</button>''' % (
         if not auto or (self.pm.profile['syncKey'] and
                         self.pm.profile['autoSync'] and
                         not self.safeMode):
+            tooltip("Syncing not yet implemented")
+            return
+
             from aqt.sync import SyncManager
             if not self.unloadCollection():
                 return
@@ -1067,21 +1069,6 @@ will be lost. Continue?"""))
 
     # System specific code
     ##########################################################################
-
-    def setupFonts(self):
-        print("fixme: setupFonts()")
-        self.fontHeight = 12
-        self.fontFamily = "arial"
-        self.fontHeightDelta = 0
-
-        return
-        f = QFontInfo(self.font())
-        ws = QWebSettings.globalSettings()
-        self.fontHeight = f.pixelSize()
-        self.fontFamily = f.family()
-        self.fontHeightDelta = max(0, self.fontHeight - 13)
-        ws.setFontFamily(QWebSettings.StandardFont, self.fontFamily)
-        ws.setFontSize(QWebSettings.DefaultFontSize, self.fontHeight)
 
     def setupSystemSpecific(self):
         self.hideMenuAccels = False
