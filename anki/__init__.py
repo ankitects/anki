@@ -3,9 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
-import os
-import platform
-import json
 
 if sys.version_info[0] < 3:
     raise Exception("Anki should be run with Python 3")
