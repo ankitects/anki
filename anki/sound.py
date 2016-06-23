@@ -200,16 +200,12 @@ addHook("unloadProfile", stopMplayer)
 # PyAudio recording
 ##########################################################################
 
-try:
+import pyaudio
+import wave
 
-    import pyaudio
-    import wave
-
-    PYAU_FORMAT = pyaudio.paInt16
-    PYAU_CHANNELS = 1
-    PYAU_INPUT_INDEX = None
-except:
-    pass
+PYAU_FORMAT = pyaudio.paInt16
+PYAU_CHANNELS = 1
+PYAU_INPUT_INDEX = None
 
 class _Recorder(object):
 
@@ -236,11 +232,7 @@ class PyAudioThreadedRecorder(threading.Thread):
 
     def run(self):
         chunk = 1024
-        try:
-            p = pyaudio.PyAudio()
-        except NameError:
-            raise Exception(
-                "Pyaudio not installed (recording not supported on OSX10.3)")
+        p = pyaudio.PyAudio()
 
         rate = int(p.get_default_input_device_info()['defaultSampleRate'])
 
