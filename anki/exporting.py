@@ -192,24 +192,17 @@ class AnkiExporter(Exporter):
             if dc['id'] in dconfs:
                 self.dst.decks.updateConf(dc)
         # find used media
-        media = {}
+        media = set()
         self.mediaDir = self.src.media.dir()
         if self.includeMedia:
             for row in notedata:
                 flds = row[6]
                 mid = row[2]
                 for file in self.src.media.filesInStr(mid, flds):
-                    media[file] = True
+                    media.add(file)
             if self.mediaDir:
-                for fname in os.listdir(self.mediaDir):
-                    if fname.startswith("_"):
-                        # Scan all models in mids for reference to fname
-                        for m in self.src.models.all():
-                            if int(m['id']) in mids:
-                                if self._modelHasMedia(m, fname):
-                                    media[fname] = True
-                                    break
-        self.mediaFiles = media.keys()
+                media |= self.get_files_for_models(mids, self.mediaDir)
+        self.mediaFiles = list(media)
         self.dst.crt = self.src.crt
         # todo: tags?
         self.count = self.dst.cardCount()
@@ -217,11 +210,22 @@ class AnkiExporter(Exporter):
         self.postExport()
         self.dst.close()
 
+    def get_files_for_models(self, model_ids, media_dir):
+        result = set()
+        for file_name in os.listdir(media_dir):
+            if file_name.startswith("_"):
+                # Scan all models in model_ids for reference to file_name
+                for model in self.src.models.all():
+                    if int(model['id']) in model_ids:
+                        if self._modelHasMedia(model, file_name):
+                            result.add(file_name)
+                            break
+
     def postExport(self):
         # overwrite to apply customizations to the deck before it's closed,
         # such as update the deck description
         pass
-    
+
     def removeSystemTags(self, tags):
         return self.src.tags.remFromStr("marked leech", tags)
 
