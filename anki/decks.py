@@ -411,14 +411,13 @@ class DeckManager(object):
         c = self.current()
         self.select(c['id'])
 
-    def cids(self, did, children=False):
-        if not children:
-            return self.col.db.list("select id from cards where did=?", did)
-        dids = [did]
-        for name, id in self.children(did):
-            dids.append(id)
-        return self.col.db.list("select id from cards where did in "+
-                                ids2str(dids))
+    def cids(self, did, children=False, include_from_cram=False):
+        deck_ids = [did] + [deck_id for _, deck_id in self.children(did)] if children else []
+
+        request = "select id from cards where did in {}" + "or odid in {}" if include_from_cram else ""
+        parameters = (ids2str(deck_ids),) + (ids2str(deck_ids),) if include_from_cram else tuple()
+
+        return self.col.db.list(request.format(*parameters))
 
     def recoverOrphans(self):
         dids = self.decks.keys()
