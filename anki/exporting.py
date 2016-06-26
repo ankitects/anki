@@ -2,11 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import   re, os, zipfile, shutil
+import re, os, zipfile, shutil
 from anki.lang import _
-from anki.utils import  ids2str, splitFields, json
+from anki.utils import ids2str, splitFields, json
 from anki.hooks import runHook
 from anki import Collection
+
 
 class Exporter(object):
     def __init__(self, col, did=None):
@@ -113,6 +114,8 @@ class AnkiExporter(Exporter):
         self.includeSched = False
         self.includeMedia = True
 
+        self.src = self.col
+
     def exportInto(self, path):
         # create a new collection at the target
         try:
@@ -120,7 +123,7 @@ class AnkiExporter(Exporter):
         except (IOError, OSError):
             pass
         self.dst = Collection(path)
-        self.src = self.col
+
         # find cards
         if not self.did:
             cids = self.src.db.list("select id from cards")
@@ -220,6 +223,7 @@ class AnkiExporter(Exporter):
                         if self._modelHasMedia(model, file_name):
                             result.add(file_name)
                             break
+        return result
 
     def postExport(self):
         # overwrite to apply customizations to the deck before it's closed,
