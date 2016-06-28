@@ -49,7 +49,7 @@ if isMac:
     os.environ['PATH'] += ":" + "/usr/local/bin"
     dir = os.path.dirname(os.path.abspath(__file__))
     dir = os.path.abspath(dir + "/../../../..")
-    os.environ['PATH'] += ":" + dir + "/audio"
+    os.environ['PATH'] += ":" + dir + "/Resources/audio"
 
 def retryWait(proc):
     # osx throws interrupted system call errors frequently
