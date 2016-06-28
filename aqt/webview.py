@@ -91,7 +91,7 @@ class AnkiWebView(QWebEngineView):
         if evt.matches(QKeySequence.Paste):
             self.onPaste()
             return True
-        if evt.matches(QKeySequence.Cancel):
+        if evt.key() == Qt.Key_Escape:
             # cheap hack to work around webengine swallowing escape key that
             # usually closes dialogs
             w = self.parent()
