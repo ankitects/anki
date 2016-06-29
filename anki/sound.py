@@ -62,13 +62,14 @@ def retryWait(proc):
 # Mplayer settings
 ##########################################################################
 
+exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
 if isWin:
+    os.environ['PATH'] += ";" + exeDir
     mplayerCmd = ["mplayer.exe", "-ao", "win32"]
-    dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    os.environ['PATH'] += ";" + dir
-    os.environ['PATH'] += ";" + dir + "\\..\\win\\top" # for testing
 else:
+    os.environ['PATH'] += ":" + exeDir
     mplayerCmd = ["mplayer"]
+
 mplayerCmd += ["-really-quiet", "-noautosub"]
 
 # Mplayer in slave mode
@@ -147,10 +148,13 @@ class MplayerMonitor(threading.Thread):
     def startProcess(self):
         try:
             cmd = mplayerCmd + ["-slave", "-idle"]
+            env = os.environ.copy()
+            if not isWin and not isMac:
+                env["LD_LIBRARY_PATH"]=exeDir
             self.mplayer = subprocess.Popen(
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                universal_newlines=True, bufsize=1)
+                universal_newlines=True, bufsize=1, env=env)
         except OSError:
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
