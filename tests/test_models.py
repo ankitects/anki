@@ -2,6 +2,7 @@
 
 from tests.shared import getEmptyCol
 from anki.utils import stripHTML, joinFields
+import anki.template
 
 def test_modelDelete():
     deck = getEmptyCol()
@@ -282,6 +283,14 @@ def test_modelChange():
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 2
     deck.models.change(cloze, [f.id], basic, map, map)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
+
+def test_templates():
+    d = dict(Foo="x", Bar="y")
+    assert anki.template.render("{{Foo}}", d) == "x"
+    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
+    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
+    assert anki.template.render("{{#Bar}}{{#Foo}}{{Foo}}{{/Foo}}{{/Bar}}", d) == "x"
+    assert anki.template.render("{{#Baz}}{{#Foo}}{{Foo}}{{/Foo}}{{/Baz}}", d) == ""
 
 def test_availOrds():
     d = getEmptyCol()
