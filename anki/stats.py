@@ -863,8 +863,12 @@ $(function () {
         }
     }
     conf.yaxis.minTickSize = 1;
+    // prevent ticks from having decimals (use whole numbers instead)
+    conf.yaxis.tickDecimals = 0;
     conf.yaxis.tickFormatter = function (val, axis) {
-            return val.toFixed(0);
+            // Just in case we get ticks with decimals, render to one decimal position.  If it's
+            // a whole number then render without any decimal (i.e. without the trailing .0).
+            return val === Math.round(val) ? val.toFixed(0) : val.toFixed(1);
     }
     if (conf.series.pie) {
         conf.series.pie.label.formatter = function(label, series){
