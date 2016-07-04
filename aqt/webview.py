@@ -140,18 +140,10 @@ class AnkiWebView(QWebEngineView):
         return max(1, dpi / 96.0)
 
     def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
-        if isMac:
-            button = "zoom: 120%;"
-        else:
-            button = "font-weight: normal;"
-
         self.setHtml("""
 <!doctype html>
 <html><head><style>
 body { zoom: %f; }
-button {
-%s
-}
 %s</style>
 <script>
 %s
@@ -160,7 +152,7 @@ button {
 
 </head>
 <body class="%s">%s</body></html>""" % (
-    self.zoomFactor(), button, css, js or anki.js.jquery+anki.js.browserSel,
+    self.zoomFactor(), css, js or anki.js.jquery+anki.js.browserSel,
     head, bodyClass, body))
 
     def setCanFocus(self, canFocus=False):
