@@ -35,10 +35,19 @@ class AddonManager(object):
         return [f for f in os.listdir(self.addonsFolder())
                 if f.endswith(".py")]
 
+    def directories(self):
+        return [d for d in os.listdir(self.addonsFolder())
+                if not d.startswith('.') and os.path.isdir(os.path.join(self.addonsFolder(), d))]
+
     def loadAddons(self):
         for file in self.files():
             try:
                 __import__(file.replace(".py", ""))
+            except:
+                traceback.print_exc()
+        for directory in self.directories():
+            try:
+                __import__(directory)
             except:
                 traceback.print_exc()
         self.rebuildAddonsMenu()
