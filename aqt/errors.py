@@ -70,6 +70,8 @@ Anki manual for more information.""")
                                  "other programs are not using the audio device."))
         if "invalidTempFolder" in error:
             return showWarning(self.tempFolderMsg())
+        if "Beautiful Soup is not an HTTP client" in error:
+            return
         if "disk I/O error" in error:
             return showWarning(_("""\
 An error occurred while accessing the database.
