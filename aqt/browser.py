@@ -466,6 +466,7 @@ class Browser(QMainWindow):
         aqt.dialogs.close("Browser")
         self.teardownHooks()
         self.mw.maybeReset()
+        self.mw.gcWindow(self)
         evt.accept()
 
     def canClose(self):
@@ -1375,6 +1376,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def onFindDupes(self):
         d = QDialog(self)
+        self.mw.setupDialogGC(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")

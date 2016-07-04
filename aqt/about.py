@@ -7,8 +7,9 @@ import aqt.forms
 from aqt import appVersion
 from aqt.utils import openLink
 
-def show(parent):
-    dialog = QDialog(parent)
+def show(mw):
+    dialog = QDialog(mw)
+    mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
     abouttext = "<center><img src='qrc:/icons/anki-logo-thin.png'></center>"

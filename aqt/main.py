@@ -5,6 +5,8 @@
 import re
 import signal
 import zipfile
+import gc
+import time
 
 from send2trash import send2trash
 from aqt.qt import *
@@ -1139,3 +1141,22 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
             return
         # import
         self.handleImport(buf)
+
+    # GC
+    ##########################################################################
+    # run the garbage collector after object is deleted so we don't leave
+    # expensive web engine processes lying around
+
+    def setupDialogGC(self, obj):
+        obj.finished.connect(lambda o=obj: self.gcWindow(obj))
+
+    def gcWindow(self, obj):
+        obj.deleteLater()
+        t = QTimer(self)
+        t.timeout.connect(self._onCollect)
+        t.setSingleShot(True)
+        # will run next time queue is idle
+        t.start(0)
+
+    def _onCollect(self):
+        gc.collect()

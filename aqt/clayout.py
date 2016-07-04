@@ -20,6 +20,7 @@ class CardLayout(QDialog):
 
     def __init__(self, mw, note, ord=0, parent=None, addMode=False):
         QDialog.__init__(self, parent or mw, Qt.Window)
+        mw.setupDialogGC(self)
         self.mw = aqt.mw
         self.parent = parent or mw
         self.note = note
