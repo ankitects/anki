@@ -24,7 +24,7 @@ def test_latex():
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
     if not shutil.which("latex") or not shutil.which("dvipng"):
-        print("aborting test; %s is not installed" % cmd)
+        print("aborting test; latex or dvipng is not installed")
         return
     # fix path
     anki.latex.latexCmds[0][0] = "latex"
