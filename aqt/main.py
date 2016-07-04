@@ -576,9 +576,6 @@ title="%s" %s>%s</button>''' % (
         if not auto or (self.pm.profile['syncKey'] and
                         self.pm.profile['autoSync'] and
                         not self.safeMode):
-            tooltip("Syncing not yet implemented")
-            return
-
             from aqt.sync import SyncManager
             if not self.unloadCollection():
                 return

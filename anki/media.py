@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
+import io
 import re
 import traceback
 import urllib.request, urllib.parse, urllib.error
@@ -451,7 +451,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     ##########################################################################
 
     def mediaChangesZip(self):
-        f = StringIO()
+        f = io.BytesIO()
         z = zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED)
 
         fnames = []
@@ -469,7 +469,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
             if csum:
                 self.col.log("+media zip", fname)
-                z.write(fname, str(c))
+                z.writestr(fname, str(c))
                 meta.append((normname, str(c)))
                 sz += os.path.getsize(fname)
             else:
@@ -485,11 +485,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def addFilesFromZip(self, zipData):
         "Extract zip data; true if finished."
-        f = StringIO(zipData)
+        f = io.BytesIO(zipData)
         z = zipfile.ZipFile(f, "r")
         media = []
         # get meta info first
-        meta = json.loads(z.read("_meta"))
+        meta = json.loads(z.read("_meta").decode("utf8"))
         # then loop through all files
         cnt = 0
         for i in z.infolist():

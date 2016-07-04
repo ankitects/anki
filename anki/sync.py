@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import urllib.request, urllib.parse, urllib.error
+import io
 import sys
 import gzip
 import random
@@ -553,21 +554,21 @@ class HttpSyncer(object):
     # support file uploading, so this is the more compatible choice.
 
     def req(self, method, fobj=None, comp=6, badAuthRaises=False):
-        BOUNDARY="Anki-sync-boundary"
-        bdry = "--"+BOUNDARY
-        buf = StringIO()
+        BOUNDARY=b"Anki-sync-boundary"
+        bdry = b"--"+BOUNDARY
+        buf = io.BytesIO()
         # post vars
         self.postVars['c'] = 1 if comp else 0
         for (key, value) in list(self.postVars.items()):
-            buf.write(bdry + "\r\n")
+            buf.write(bdry + b"\r\n")
             buf.write(
-                'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
-                (key, value))
+                ('Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
+                (key, value)).encode("utf8"))
         # payload as raw data or json
         if fobj:
             # header
-            buf.write(bdry + "\r\n")
-            buf.write("""\
+            buf.write(bdry + b"\r\n")
+            buf.write(b"""\
 Content-Disposition: form-data; name="data"; filename="data"\r\n\
 Content-Type: application/octet-stream\r\n\r\n""")
             # write file into buffer, optionally compressing
@@ -582,11 +583,11 @@ Content-Type: application/octet-stream\r\n\r\n""")
                         tgt.close()
                     break
                 tgt.write(data)
-            buf.write('\r\n' + bdry + '--\r\n')
+            buf.write(b'\r\n' + bdry + b'--\r\n')
         size = buf.tell()
         # connection headers
         headers = {
-            'Content-Type': 'multipart/form-data; boundary=%s' % BOUNDARY,
+            'Content-Type': 'multipart/form-data; boundary=%s' % BOUNDARY.decode("utf8"),
             'Content-Length': str(size),
         }
         body = buf.getvalue()
@@ -617,12 +618,12 @@ class RemoteServer(HttpSyncer):
         "Returns hkey or none if user/pw incorrect."
         self.postVars = dict()
         ret = self.req(
-            "hostKey", StringIO(json.dumps(dict(u=user, p=pw))),
+            "hostKey", io.BytesIO(json.dumps(dict(u=user, p=pw)).encode("utf8")),
             badAuthRaises=False)
         if not ret:
             # invalid auth
             return
-        self.hkey = json.loads(ret)['key']
+        self.hkey = json.loads(ret.decode("utf8"))['key']
         return self.hkey
 
     def meta(self):
@@ -631,13 +632,13 @@ class RemoteServer(HttpSyncer):
             s=self.skey,
         )
         ret = self.req(
-            "meta", StringIO(json.dumps(dict(
-                v=SYNC_VER, cv="ankidesktop,%s,%s"%(anki.version, platDesc())))),
+            "meta", io.BytesIO(json.dumps(dict(
+                v=SYNC_VER, cv="ankidesktop,%s,%s"%(anki.version, platDesc()))).encode("utf8")),
             badAuthRaises=False)
         if not ret:
             # invalid auth
             return
-        return json.loads(ret)
+        return json.loads(ret.decode("utf8"))
 
     def applyChanges(self, **kw):
         return self._run("applyChanges", kw)
@@ -659,7 +660,7 @@ class RemoteServer(HttpSyncer):
 
     def _run(self, cmd, data):
         return json.loads(
-            self.req(cmd, StringIO(json.dumps(data))))
+            self.req(cmd, io.BytesIO(json.dumps(data).encode("utf8"))).decode("utf8"))
 
 # Full syncing
 ##########################################################################
@@ -707,7 +708,7 @@ class FullSyncer(HttpSyncer):
             return False
         # apply some adjustments, then upload
         self.col.beforeUpload()
-        if self.req("upload", open(self.col.path, "rb")) != "OK":
+        if self.req("upload", open(self.col.path, "rb")) != b"OK":
             return False
         return True
 
@@ -868,8 +869,8 @@ class RemoteMediaServer(HttpSyncer):
             k=self.hkey,
             v="ankidesktop,%s,%s"%(anki.version, platDesc())
         )
-        ret = self._dataOnly(json.loads(self.req(
-            "begin", StringIO(json.dumps(dict())))))
+        ret = self._dataOnly(self.req(
+            "begin", io.BytesIO(json.dumps(dict()).encode("utf8"))))
         self.skey = ret['sk']
         return ret
 
@@ -878,25 +879,25 @@ class RemoteMediaServer(HttpSyncer):
         self.postVars = dict(
             sk=self.skey,
         )
-        resp = json.loads(
-            self.req("mediaChanges", StringIO(json.dumps(kw))))
-        return self._dataOnly(resp)
+        return self._dataOnly(
+            self.req("mediaChanges", io.BytesIO(json.dumps(kw).encode("utf8"))))
 
     # args: files
     def downloadFiles(self, **kw):
-        return self.req("downloadFiles", StringIO(json.dumps(kw)))
+        return self.req("downloadFiles", io.BytesIO(json.dumps(kw).encode("utf8")))
 
     def uploadChanges(self, zip):
         # no compression, as we compress the zip file instead
-        return self._dataOnly(json.loads(
-            self.req("uploadChanges", StringIO(zip), comp=0)))
+        return self._dataOnly(
+            self.req("uploadChanges", io.BytesIO(zip), comp=0))
 
     # args: local
     def mediaSanity(self, **kw):
-        return self._dataOnly(json.loads(
-            self.req("mediaSanity", StringIO(json.dumps(kw)))))
+        return self._dataOnly(
+            self.req("mediaSanity", io.BytesIO(json.dumps(kw).encode("utf8"))))
 
     def _dataOnly(self, resp):
+        resp = json.loads(resp.decode("utf8"))
         if resp['err']:
             self.col.log("error returned:%s"%resp['err'])
             raise Exception("SyncError:%s"%resp['err'])
@@ -907,6 +908,6 @@ class RemoteMediaServer(HttpSyncer):
         self.postVars = dict(
             k=self.hkey,
         )
-        return self._dataOnly(json.loads(
-            self.req("newMediaTest", StringIO(
-                json.dumps(dict(cmd=cmd))))))
+        return self._dataOnly(
+            self.req("newMediaTest", io.BytesIO(
+                json.dumps(dict(cmd=cmd)).encode("utf8"))))
