@@ -3,7 +3,7 @@ python:
   - "3.4"
 install: 
   - sudo apt-get update
-  - sudo apt-get install python-qt4 mplayer lame libportaudio2
+  - sudo apt-get install portaudio19-dev
   - pip install -r requirements.txt
   - pip install nose
   - pip install coveralls
