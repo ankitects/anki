@@ -1,10 +1,9 @@
 language: python
 python:
-  - "2.7"
+  - "3.4"
 install: 
   - sudo apt-get update
   - sudo apt-get install python-qt4 mplayer lame libportaudio2
-  - pip install SQLAlchemy
   - pip install nose
   - pip install coveralls
 
