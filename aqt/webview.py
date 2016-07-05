@@ -129,12 +129,6 @@ class AnkiWebView(QWebEngineView):
     def setHtml(self, html):
         app = QApplication.instance()
         oldFocus = app.focusWidget()
-
-        # hack around buggy qt 5.7.0
-        print("fixme: qt 5.7.0 webview hack")
-        self._page = AnkiWebPage(self._onBridgeCmd)
-        self.setPage(self._page)
-
         self._page.setHtml(html)
         # work around webengine stealing focus on setHtml()
         if oldFocus:
