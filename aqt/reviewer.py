@@ -273,7 +273,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             self.mw.onEditCurrent()
         elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)):
             if self.state == "question":
-                self._showAnswer()
+                self._getTypedAnswer()
             elif self.state == "answer":
                 self._answerCard(self._defaultEase())
         elif key == "r" or evt.key() == Qt.Key_F5:
@@ -299,16 +299,13 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
     def _linkHandler(self, url):
         if url == "ans":
-            self._showAnswer()
+            self._getTypedAnswer()
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
         elif url == "edit":
             self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
-        elif url.startswith("typeans:"):
-            (cmd, arg) = url.split(":", 1)
-            self.typedAnswer = arg
         else:
             openLink(url)
 
@@ -490,6 +487,13 @@ Please run Tools>Empty Cards""")
                     res += missed(txt)
         res = "<div><code id=typeans>" + res + "</code></div>"
         return res
+
+    def _getTypedAnswer(self):
+        self.web.evalWithCallback("typeans ? typeans.value : null", self._onTypedAnswer)
+
+    def _onTypedAnswer(self, val):
+        self.typedAnswer = val
+        self._showAnswer()
 
     # Bottom bar
     ##########################################################################
