@@ -1,11 +1,30 @@
-Please see the README file for basic requirements.
+Running from source
+--------------------
 
-In addition to the basic requirements, you also need the PyQt development
-tools (specifically pyrcc4 and pyuic4). These are often contained in a
-separate package on Linux, such as 'pyqt4-dev-tools' on Debian/Ubuntu. On a Mac
-they are part of the PyQt source install.
+For non-developers who want to try this development code, the easiest way is
+to use a binary package - please see:
 
-Windows users, please see the note at the bottom of this file before proceeding.
+https://anki.tenderapp.com/discussions/beta-testing
+
+You are welcome to run Anki from source instead, but it is expected that you
+can sort out all dependencies and issues by yourself - we are not able to
+provide support for problems you encounter when running from source.
+
+Anki requires:
+
+ - Python 3.4+
+ - Qt 5.4+
+ - PyQt5.6+
+ - mplayer
+ - lame
+
+It also requires a number of Python packages, which you can grab via pip:
+
+$ pip3 install -r requirements.txt
+
+You will also need PyQt development tools (specifically pyrcc5 and pyuic5).
+These are often contained in a separate package on Linux, such as
+'pyqt5-dev-tools' on Debian/Ubuntu.
 
 To use the development version:
 
@@ -40,7 +59,13 @@ Before contributing code, please read the LICENSE file.
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
 
-WINDOWS USERS:
+Windows & Mac users
+---------------------
+
+The following was contributed by users in the past and will need updating
+for the latest version. It is left here in case it is any help:
+
+Windows:
 
 I have not tested the build scripts on Windows, so you'll need to solve any
 problems you encounter on your own. The easiest way is to use a source
@@ -65,7 +90,7 @@ Or a way with git bash and perl:
     <python-path> = C:\\Python27\\python.exe
     <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py
 
-MAC OSX USERS:
+Mac:
 
 These instructions may be incomplete as prerequisites may have already been
 installed. Most likely you will need to have installed xcode
