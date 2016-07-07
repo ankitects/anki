@@ -155,11 +155,6 @@ function _toggleStar (show) {
     }
 }
 
-function _getTypedText () {
-    if (typeans) {
-        pycmd("typeans:"+typeans.value);
-    }
-};
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
         pycmd("ans");
@@ -307,7 +302,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         elif url == "more":
             self.showContextMenu()
         else:
-            openLink(url)
+            print("unrecognized anki link:", url)
 
     # CSS
     ##########################################################################
@@ -379,8 +374,6 @@ Please run Tools>Empty Cards""")
 """ % (self.typeFont, self.typeSize), buf)
 
     def typeAnsAnswerFilter(self, buf):
-        # tell webview to call us back with the input content
-        self.web.eval("_getTypedText();")
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
         origSize = len(buf)
