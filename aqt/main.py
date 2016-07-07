@@ -18,6 +18,7 @@ import aqt.progress
 import aqt.webview
 import aqt.toolbar
 import aqt.stats
+import aqt.mediasrv
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
@@ -79,6 +80,7 @@ class AnkiQt(QMainWindow):
         self.setupHooks()
         self.setupRefreshTimer()
         self.updateTitleBar()
+        self.setupMediaServer()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -1157,3 +1159,14 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     def _onCollect(self):
         gc.collect()
+
+    # Media server
+    ##########################################################################
+    # prevent malicious decks from accessing the local filesystem
+
+    def setupMediaServer(self):
+        self.mediaServer = aqt.mediasrv.MediaServer()
+        self.mediaServer.start()
+
+    def baseHTML(self):
+        return '<base href="http://localhost:%d/">' % self.mediaServer.port

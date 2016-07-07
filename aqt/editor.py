@@ -14,7 +14,7 @@ import anki.sound
 from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
-from aqt.utils import shortcut, showInfo, showWarning, getBase, getFile, \
+from aqt.utils import shortcut, showInfo, showWarning, getFile, \
     openHelp, tooltip, downArrow
 import aqt
 import anki.js
@@ -370,7 +370,7 @@ class Editor(object):
 </div>
         """ % dict(flds=_("Fields"), cards=_("Cards"))
         self.web.stdHtml(_html % (
-            getBase(self.mw.col), anki.js.jquery,
+            self.mw.baseHTML(), anki.js.jquery,
             topbuts,
             _("Show Duplicates")))
 

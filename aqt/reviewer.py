@@ -10,10 +10,10 @@ import html.parser
 
 from anki.lang import _, ngettext
 from aqt.qt import *
-from anki.utils import  stripHTML, isMac, json
+from anki.utils import stripHTML, json
 from anki.hooks import addHook, runHook
 from anki.sound import playFromText, clearAudioQueue, play
-from aqt.utils import mungeQA, getBase, openLink, tooltip, askUserDialog, \
+from aqt.utils import mungeQA, tooltip, askUserDialog, \
     downArrow
 from aqt.sound import getAudio
 import aqt
@@ -166,7 +166,7 @@ function _typeAnsPress() {
     def _initWeb(self):
         self._reps = 0
         self._bottomReady = False
-        base = getBase(self.mw.col)
+        base = self.mw.baseHTML()
         # main window
         self.web.onLoadFinished = self._showQuestion
         self.web.stdHtml(self._revHtml, self._styles(), head=base)

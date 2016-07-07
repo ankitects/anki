@@ -8,7 +8,7 @@ from aqt.qt import *
 from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
-from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA,\
+from aqt.utils import saveGeom, restoreGeom, mungeQA,\
     showInfo, askUser, getOnlyText, \
      showWarning, openHelp, downArrow
 from anki.utils import isMac, isWin, joinFields
@@ -225,7 +225,7 @@ Please create a new card type first."""))
     def renderPreview(self):
         c = self.card
         ti = self.maybeTextInput
-        base = getBase(self.mw.col)
+        base = self.mw.baseHTML()
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.q(reload=True))), self.mw.reviewer._styles(),
             bodyClass="card card%d" % (c.ord+1), head=base),

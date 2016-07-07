@@ -338,16 +338,10 @@ def applyStyles(widget):
     if os.path.exists(p):
         widget.setStyleSheet(open(p).read())
 
+# this will go away in the future - please use mw.baseHTML() instead
 def getBase(col):
-    base = None
-    mdir = col.media.dir()
-    if isWin and not mdir.startswith("\\\\"):
-        prefix = "file:///"
-    else:
-        prefix = "file://"
-    mdir = mdir.replace("\\", "/")
-    base = prefix + urllib.parse.quote(mdir) + "/"
-    return '<base href="%s">' % base
+    from aqt import mw
+    return mw.baseHTML()
 
 def openFolder(path):
     if isWin:
