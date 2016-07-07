@@ -458,12 +458,7 @@ class Editor(object):
             ord = self.card.ord
         else:
             ord = 0
-        # passing parentWindow leads to crash on windows at the moment
-        if isWin:
-            parent=None
-        else:
-            parent=self.parentWindow
-        CardLayout(self.mw, self.note, ord=ord, parent=parent,
+        CardLayout(self.mw, self.note, ord=ord, parent=self.parentWindow,
                addMode=self.addMode)
         if isWin:
             self.parentWindow.activateWindow()

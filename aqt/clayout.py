@@ -48,7 +48,8 @@ class CardLayout(QDialog):
         self.setLayout(v1)
         self.redraw()
         restoreGeom(self, "CardLayout")
-        self.exec_()
+        self.setWindowModality(Qt.ApplicationModal)
+        self.show()
 
     def redraw(self):
         self.cards = self.col.previewCards(self.note, 2)
@@ -227,12 +228,10 @@ Please create a new card type first."""))
         base = getBase(self.mw.col)
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.q(reload=True))), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
+            bodyClass="card card%d" % (c.ord+1), head=base),
         self.tab['pform'].backWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.a()), type='a'), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
+            bodyClass="card card%d" % (c.ord+1), head=base),
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
