@@ -69,7 +69,7 @@ class AnkiWebView(QWebEngineView):
 
     def __init__(self, canFocus=True):
         QWebEngineView.__init__(self)
-        self.setObjectName("mainText")
+        self.title = "default"
         self._page = AnkiWebPage(self._onBridgeCmd)
 
         self._loadFinishedCB = None
@@ -142,7 +142,7 @@ class AnkiWebView(QWebEngineView):
     def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
         self.setHtml("""
 <!doctype html>
-<html><head><style>
+<html><head><title>%s</title><style>
 body { zoom: %f; }
 %s</style>
 <script>
@@ -152,7 +152,8 @@ body { zoom: %f; }
 
 </head>
 <body class="%s">%s</body></html>""" % (
-    self.zoomFactor(), css, js or anki.js.jquery+anki.js.browserSel,
+            self.title,
+            self.zoomFactor(), css, js or anki.js.jquery+anki.js.browserSel,
     head, bodyClass, body))
 
     def setCanFocus(self, canFocus=False):

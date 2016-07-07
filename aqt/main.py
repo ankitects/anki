@@ -501,18 +501,18 @@ title="%s" %s>%s</button>''' % (
         self.form.setupUi(self)
         # toolbar
         tweb = aqt.webview.AnkiWebView()
-        tweb.setObjectName("toolbarWeb")
+        tweb.title = "top toolbar"
         tweb.setFocusPolicy(Qt.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
         self.web = aqt.webview.AnkiWebView()
-        self.web.setObjectName("mainText")
+        self.web.title = "main webview"
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)
         # bottom area
         sweb = self.bottomWeb = aqt.webview.AnkiWebView()
-        sweb.setObjectName("bottomWeb")
+        sweb.title = "bottom toolbar"
         sweb.setFocusPolicy(Qt.WheelFocus)
         # add in a layout
         self.mainLayout = QVBoxLayout()

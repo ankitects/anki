@@ -344,6 +344,7 @@ class Editor(object):
 
     def setupWeb(self):
         self.web = EditorWebView(self.widget, self)
+        self.web.title = "editor"
         self.web.allowDrops = True
         self.web.onBridgeCmd = self.onBridgeCmd
         self.outerLayout.addWidget(self.web, 1)
