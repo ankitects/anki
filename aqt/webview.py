@@ -82,13 +82,13 @@ class AnkiWebView(QWebEngineView):
     def eventFilter(self, obj, evt):
         if not isinstance(evt, QKeyEvent) or obj != self:
             return False
-        if evt.matches(QKeySequence.Copy):
+        if evt.matches(QKeySequence.Copy) and isMac:
             self.onCopy()
             return True
-        if evt.matches(QKeySequence.Cut):
+        if evt.matches(QKeySequence.Cut) and isMac:
             self.onCut()
             return True
-        if evt.matches(QKeySequence.Paste):
+        if evt.matches(QKeySequence.Paste) and isMac:
             self.onPaste()
             return True
         if evt.key() == Qt.Key_Escape:
