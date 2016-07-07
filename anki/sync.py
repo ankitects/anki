@@ -39,16 +39,15 @@ except AttributeError:
 def httpCon():
     certs = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
     if not os.path.exists(certs):
-        if isWin:
-            certs = os.path.join(
-                os.path.dirname(os.path.abspath(sys.argv[0])),
-                "ankiweb.certs")
-        elif isMac:
-            certs = os.path.join(
-                os.path.dirname(os.path.abspath(sys.argv[0])),
-                "../Resources/ankiweb.certs")
+        if not isMac:
+            certs = os.path.abspath(os.path.join(
+                os.path.dirname(certs), "..", "ankiweb.certs"))
         else:
-            assert 0, "Your distro has not packaged Anki correctly."
+            certs = os.path.abspath(os.path.join(
+                os.path.dirname(os.path.abspath(sys.argv[0])),
+                "../Resources/ankiweb.certs"))
+    if not os.path.exists(certs):
+            assert 0, "Unable to locate ankiweb.certs"
     return httplib2.Http(
         timeout=HTTP_TIMEOUT, ca_certs=certs,
         proxy_info=HTTP_PROXY,
