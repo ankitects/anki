@@ -86,16 +86,15 @@ function onKey() {
         return;
     }
     clearChangeTimer();
-    if (currentField.innerHTML == "<div><br></div>") {
-        // fix empty div bug. slight flicker, but must be done in a timer
-        changeTimer = setTimeout(function () {
-            currentField.innerHTML = "<br>";
+    changeTimer = setTimeout(function () {
             updateButtonState();
-            saveField("key"); }, 1);
-    } else {
-        changeTimer = setTimeout(function () {
-            updateButtonState();
-            saveField("key"); }, 600);
+            saveField("key");
+    }, 600);
+};
+
+function checkForEmptyField() {
+    if (currentField.innerHTML == "") {
+        currentField.innerHTML = "<br>";
     }
 };
 
@@ -240,7 +239,7 @@ function setFields(fields, focusTo) {
             f = "<br>";
         }
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%%>".format(n);
-        txt += "<div id=f{0} onkeydown='onKey();' onmouseup='onKey();'".format(i);
+        txt += "<div id=f{0} onkeydown='onKey();' oninput='checkForEmptyField()' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "ondragover='onDragOver(this);' ";
         txt += "contentEditable=true class=field>{0}</div>".format(f);
