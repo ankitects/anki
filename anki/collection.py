@@ -840,7 +840,7 @@ and queue = 0""", intTime(), self.usn())
             if os.path.exists(lpath2):
                 os.unlink(lpath2)
             os.rename(lpath, lpath2)
-        self._logHnd = open(lpath, "a")
+        self._logHnd = open(lpath, "a", encoding="utf8")
 
     def _closeLog(self):
         self._logHnd = None
