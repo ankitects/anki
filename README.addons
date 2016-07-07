@@ -45,7 +45,10 @@ Anki's webviews are now using WebEngine. Of note:
   modified to use this.
 - Javascript is evaluated asynchronously, so if you need the result of a JS
   expression you can use ankiwebview's evalWithCallback().
-
+- You can now debug the webviews using an external Chrome instance, by setting
+  the env var QTWEBENGINE_REMOTE_DEBUGGING to 8080 prior to starting Anki,
+  then surfing to localhost:8080 in Chrome. If you run into issues, try
+  connecting with Chrome 49.
 
 Sharing updated add-ons
 ------------------------
