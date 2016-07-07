@@ -379,6 +379,7 @@ class Browser(QMainWindow):
 
     def setupToolbar(self):
         self.toolbarWeb = AnkiWebView()
+        self.toolbarWeb.title = "browser toolbar"
         self.toolbar = BrowserToolbar(self.mw, self.toolbarWeb, self)
         self.form.verticalLayout_3.insertWidget(0, self.toolbarWeb)
         self.toolbar.draw()
@@ -600,7 +601,7 @@ class Browser(QMainWindow):
             self.editor.card = self.card
             self.singleCard = True
         self._renderPreview(True)
-        self.toolbar.draw()
+        self.toolbar.update()
 
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
@@ -1693,44 +1694,59 @@ class BrowserToolbar(Toolbar):
         Toolbar.__init__(self, mw, web)
 
     def draw(self):
-        mark = self.browser.isMarked()
-        pause = self.browser.isSuspended()
-        def borderImg(link, icon, on, title, tooltip=None):
-            if on:
-                fmt = '''\
-<a class=hitem title="%s" href=# onclick="pycmd('%s')">\
-<img valign=bottom style='border: 1px solid #aaa;' src="qrc:/icons/%s.png"> %s</a>'''
-            else:
-                fmt = '''\
-<a class=hitem title="%s" href=# onclick="pycmd('%s')"><img style="padding: 1px;" valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
-            return fmt % (tooltip or title, link, icon, title)
-        right = "<div>"
-        right += borderImg("add", "add16", False, _("Add"),
-                       shortcut(_("Add Note (Ctrl+E)")))
-        right += borderImg("info", "info", False, _("Info"),
-                       shortcut(_("Card Info (Ctrl+Shift+I)")))
-        right += borderImg("mark", "star16", mark, _("Mark"),
-                       shortcut(_("Mark Note (Ctrl+K)")))
-        right += borderImg("pause", "pause16", pause, _("Suspend"),
-                       shortcut(_("Suspend Card (Ctrl+J)")))
-        right += borderImg("setDeck", "deck16", False, _("Change Deck"),
-                           shortcut(_("Move To Deck (Ctrl+D)")))
-        right += borderImg("addtag", "addtag16", False, _("Add Tags"),
-                       shortcut(_("Bulk Add Tags (Ctrl+Shift+T)")))
-        right += borderImg("deletetag", "deletetag16", False,
-                           _("Remove Tags"), shortcut(_(
-                               "Bulk Remove Tags (Ctrl+Alt+T)")))
-        right += borderImg("delete", "delete16", False, _("Delete"))
-        right += "</div>"
+        self._loaded = False
         self.web.onBridgeCmd = self._linkHandler
         self.web.onLoadFinished = self.onLoaded
-        self.web.stdHtml(self._body % (
-            "",
-            right, ""), self._css + """
+        self.web.stdHtml(self.html(), self.css())
+
+    def onLoaded(self):
+        super().onLoaded()
+        self._loaded = True
+        self.update()
+
+    def update(self):
+        if not self._loaded:
+            return
+        for link, enabled in (
+            ("mark", self.browser.isMarked()),
+            ("pause", self.browser.isSuspended())):
+            if enabled:
+                self.web.eval("$('#%s').addClass('buttonOn')" % link)
+            else:
+                self.web.eval("$('#%s').removeClass('buttonOn')" % link)
+
+    def html(self):
+        def borderImg(link, icon, title, tooltip=None):
+            fmt = '''\
+<a class=hitem title="%s" href=# onclick="pycmd('%s')"><img id=%s valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
+            return fmt % (tooltip or title, link, link, icon, title)
+        right = "<div>"
+        right += borderImg("add", "add16", _("Add"),
+                       shortcut(_("Add Note (Ctrl+E)")))
+        right += borderImg("info", "info", _("Info"),
+                       shortcut(_("Card Info (Ctrl+Shift+I)")))
+        right += borderImg("mark", "star16", _("Mark"),
+                       shortcut(_("Mark Note (Ctrl+K)")))
+        right += borderImg("pause", "pause16", _("Suspend"),
+                       shortcut(_("Suspend Card (Ctrl+J)")))
+        right += borderImg("setDeck", "deck16", _("Change Deck"),
+                           shortcut(_("Move To Deck (Ctrl+D)")))
+        right += borderImg("addtag", "addtag16", _("Add Tags"),
+                       shortcut(_("Bulk Add Tags (Ctrl+Shift+T)")))
+        right += borderImg("deletetag", "deletetag16", _("Remove Tags"), shortcut(_(
+                               "Bulk Remove Tags (Ctrl+Alt+T)")))
+        right += borderImg("delete", "delete16", _("Delete"))
+        right += "</div>"
+        return self._body % ("", right, "")
+
+    def css(self):
+        return self._css + """
 #header { font-weight: normal; }
 a { margin-right: 1em; }
-.hitem { overflow: hidden; white-space: nowrap;}
-""")
+.hitem { overflow: hidden; white-space: nowrap; }
+.hitem img { padding: 1px; }
+.buttonOn { border: 1px solid #aaa; padding: 0px !important; }
+"""
 
     # Link handling
     ######################################################################
