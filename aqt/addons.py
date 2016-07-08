@@ -119,9 +119,11 @@ class AddonManager(object):
     ######################################################################
 
     def onGetAddons(self):
-        showInfo("Currently disabled, as add-ons built for 2.0.x will need updating")
-
-        # GetAddons(self.mw)
+        showInfo("""\
+Most add-ons built for Anki 2.0.x will not work on this version of Anki \
+until they are updated. To avoid errors during startup, please only \
+download add-ons that say they support Anki 2.1.x in the description.""")
+        GetAddons(self.mw)
 
     def install(self, data, fname):
         if fname.endswith(".py"):
