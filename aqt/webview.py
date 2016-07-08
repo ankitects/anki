@@ -140,10 +140,20 @@ class AnkiWebView(QWebEngineView):
         return max(1, dpi / 96.0)
 
     def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
+        if isWin:
+            fontspec = 'font-size:12px;font-family:"Segoe UI";font-weight: medium;'
+        elif isMac:
+            fontspec = ""
+        else:
+            family = self.font().family()
+            print("family", family)
+            fontspec = 'font-size:14px;font-family:%s;font-weight:medium;'%\
+                family
+
         self.setHtml("""
 <!doctype html>
 <html><head><title>%s</title><style>
-body { zoom: %f; }
+body { zoom: %f; %s }
 %s</style>
 <script>
 %s
@@ -153,7 +163,9 @@ body { zoom: %f; }
 </head>
 <body class="%s">%s</body></html>""" % (
             self.title,
-            self.zoomFactor(), css, js or anki.js.jquery+anki.js.browserSel,
+            self.zoomFactor(),
+            fontspec,
+            css, js or anki.js.jquery+anki.js.browserSel,
     head, bodyClass, body))
 
     def setCanFocus(self, canFocus=False):
