@@ -50,6 +50,13 @@ Anki's webviews are now using WebEngine. Of note:
   then surfing to localhost:8080 in Chrome. If you run into issues, try
   connecting with Chrome 49.
 
+Add-ons without a top level file
+---------------------------------
+
+Add-ons no longer require a top level file - if you just distribute a single
+folder, the folder's __init__.py file will form the entry point. This will not
+work in 2.0.x however.
+
 Sharing updated add-ons
 ------------------------
 
