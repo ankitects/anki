@@ -22,9 +22,7 @@ class DeckConf(QDialog):
             label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(_("Options"))
         self.setWindowModality(Qt.WindowModal)
-        self.connect(self.form.buttonBox,
-                     SIGNAL("helpRequested()"),
-                     lambda: openHelp("filtered"))
+        self.form.buttonBox.helpRequested.connect(lambda: openHelp("filtered"))
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         restoreGeom(self, "dyndeckconf")
         self.setupOrder()
@@ -38,7 +36,7 @@ class DeckConf(QDialog):
 
     def setupOrder(self):
         import anki.consts as cs
-        self.form.order.addItems(cs.dynOrderLabels().values())
+        self.form.order.addItems(list(cs.dynOrderLabels().values()))
 
     def loadConf(self):
         f = self.form
@@ -94,7 +92,7 @@ it?""")):
         return " ".join([str(x) for x in l])
 
     def userToList(self, w, minSize=1):
-        items = unicode(w.text()).split(" ")
+        items = str(w.text()).split(" ")
         ret = []
         for i in items:
             if not i:

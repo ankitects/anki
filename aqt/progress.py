@@ -32,8 +32,8 @@ class ProgressManager(object):
         try:
             db.set_progress_handler(self._dbProgress, 10000)
         except:
-            print """\
-Your pysqlite2 is too old. Anki will appear frozen during long operations."""
+            print("""\
+Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
 
     def _dbProgress(self):
         "Called from SQLite."
@@ -70,7 +70,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations."""
         t = QTimer(self.mw)
         if not repeat:
             t.setSingleShot(True)
-        t.connect(t, SIGNAL("timeout()"), handler)
+        t.timeout.connect(handler)
         t.start(ms)
         return t
 

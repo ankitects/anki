@@ -2,19 +2,18 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from __future__ import division
 import difflib
 import re
 import cgi
 import unicodedata as ucd
-import HTMLParser
+import html.parser
 
 from anki.lang import _, ngettext
 from aqt.qt import *
-from anki.utils import  stripHTML, isMac, json
+from anki.utils import stripHTML, json
 from anki.hooks import addHook, runHook
 from anki.sound import playFromText, clearAudioQueue, play
-from aqt.utils import mungeQA, getBase, openLink, tooltip, askUserDialog, \
+from aqt.utils import mungeQA, tooltip, askUserDialog, \
     downArrow
 from aqt.sound import getAudio
 import aqt
@@ -37,19 +36,15 @@ class Reviewer(object):
         # qshortcut so we don't autorepeat
         self.delShortcut = QShortcut(QKeySequence("Delete"), self.mw)
         self.delShortcut.setAutoRepeat(False)
-        self.mw.connect(self.delShortcut, SIGNAL("activated()"), self.onDelete)
+        self.delShortcut.activated.connect(self.onDelete)
         addHook("leech", self.onLeech)
 
     def show(self):
         self.mw.col.reset()
+        self.web.resetHandlers()
         self.mw.keyHandler = self._keyHandler
-        self.web.setLinkHandler(self._linkHandler)
-        self.web.setKeyHandler(self._catchEsc)
-        if isMac:
-            self.bottom.web.setFixedHeight(46)
-        else:
-            self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
-        self.bottom.web.setLinkHandler(self._linkHandler)
+        self.web.onBridgeCmd = self._linkHandler
+        self.bottom.web.onBridgeCmd = self._linkHandler
         self._reps = None
         self.nextCard()
 
@@ -160,14 +155,9 @@ function _toggleStar (show) {
     }
 }
 
-function _getTypedText () {
-    if (typeans) {
-        py.link("typeans:"+typeans.value);
-    }
-};
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
-        py.link("ansHack");
+        pycmd("ans");
     }
 }
 </script>
@@ -176,17 +166,16 @@ function _typeAnsPress() {
     def _initWeb(self):
         self._reps = 0
         self._bottomReady = False
-        base = getBase(self.mw.col)
+        base = self.mw.baseHTML()
         # main window
-        self.web.stdHtml(self._revHtml, self._styles(),
-            loadCB=lambda x: self._showQuestion(),
-            head=base)
+        self.web.onLoadFinished = self._showQuestion
+        self.web.stdHtml(self._revHtml, self._styles(), head=base)
         # show answer / ease buttons
         self.bottom.web.show()
+        self.bottom.web.onLoadFinished = self._onBottomLoadFinished
         self.bottom.web.stdHtml(
             self._bottomHTML(),
-            self.bottom._css + self._bottomCSS,
-        loadCB=lambda x: self._showAnswerButton())
+            self.bottom._css + self._bottomCSS)
 
     # Showing the question
     ##########################################################################
@@ -273,24 +262,13 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
     # Handlers
     ############################################################
 
-    def _catchEsc(self, evt):
-        if evt.key() == Qt.Key_Escape:
-            self.web.eval("$('#typeans').blur();")
-            return True
-
-    def _showAnswerHack(self):
-        # on <qt4.8, calling _showAnswer() directly fails to show images on
-        # the answer side. But if we trigger it via the bottom web's python
-        # link, it inexplicably works.
-        self.bottom.web.eval("py.link('ans');")
-
     def _keyHandler(self, evt):
-        key = unicode(evt.text())
+        key = str(evt.text())
         if key == "e":
             self.mw.onEditCurrent()
         elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)):
             if self.state == "question":
-                self._showAnswerHack()
+                self._getTypedAnswer()
             elif self.state == "answer":
                 self._answerCard(self._defaultEase())
         elif key == "r" or evt.key() == Qt.Key_F5:
@@ -316,20 +294,15 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
     def _linkHandler(self, url):
         if url == "ans":
-            self._showAnswer()
-        elif url == "ansHack":
-            self.mw.progress.timer(100, self._showAnswerHack, False)
+            self._getTypedAnswer()
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
         elif url == "edit":
             self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
-        elif url.startswith("typeans:"):
-            (cmd, arg) = url.split(":", 1)
-            self.typedAnswer = arg
         else:
-            openLink(url)
+            print("unrecognized anki link:", url)
 
     # CSS
     ##########################################################################
@@ -401,20 +374,18 @@ Please run Tools>Empty Cards""")
 """ % (self.typeFont, self.typeSize), buf)
 
     def typeAnsAnswerFilter(self, buf):
-        # tell webview to call us back with the input content
-        self.web.eval("_getTypedText();")
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
         origSize = len(buf)
         buf = buf.replace("<hr id=answer>", "")
         hadHR = len(buf) != origSize
         # munge correct value
-        parser = HTMLParser.HTMLParser()
+        parser = html.parser.HTMLParser()
         cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
         # ensure we don't chomp multiple whitespace
         cor = cor.replace(" ", "&nbsp;")
         cor = parser.unescape(cor)
-        cor = cor.replace(u"\xa0", " ")
+        cor = cor.replace("\xa0", " ")
         given = self.typedAnswer
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
@@ -510,18 +481,19 @@ Please run Tools>Empty Cards""")
         res = "<div><code id=typeans>" + res + "</code></div>"
         return res
 
+    def _getTypedAnswer(self):
+        self.web.evalWithCallback("typeans ? typeans.value : null", self._onTypedAnswer)
+
+    def _onTypedAnswer(self, val):
+        self.typedAnswer = val
+        self._showAnswer()
+
     # Bottom bar
     ##########################################################################
 
     _bottomCSS = """
 body {
-background: -webkit-gradient(linear, left top, left bottom,
-from(#fff), to(#ddd));
-border-bottom: 0;
-border-top: 1px solid #aaa;
-margin: 0;
-padding: 0px;
-padding-left: 5px; padding-right: 5px;
+margin: 0; padding: 0;
 }
 button {
 min-width: 60px; white-space: nowrap;
@@ -533,23 +505,34 @@ min-width: 60px; white-space: nowrap;
 .nobold { font-weight: normal; display: inline-block; padding-top: 4px; }
 .spacer { height: 18px; }
 .spacer2 { height: 16px; }
+#outer {
+  border-top: 1px solid #aaa;
+  background: -webkit-gradient(linear, left top, left bottom,
+from(#fff), to(#ddd));
+}
+#innertable {
+padding: 3px;
+}
+
 """
 
     def _bottomHTML(self):
         return """
-<table width=100%% cellspacing=0 cellpadding=0>
+<center id=outer>
+<table id=innertable width=100%% cellspacing=0 cellpadding=0>
 <tr>
 <td align=left width=50 valign=top class=stat>
 <br>
-<button title="%(editkey)s" onclick="py.link('edit');">%(edit)s</button></td>
+<button title="%(editkey)s" onclick="pycmd('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
 <td width=50 align=right valign=top class=stat><span id=time class=stattxt>
 </span><br>
-<button onclick="py.link('more');">%(more)s %(downArrow)s</button>
+<button onclick="pycmd('more');">%(more)s %(downArrow)s</button>
 </td>
 </tr>
 </table>
+</center>
 <script>
 var time = %(time)d;
 var maxTime = 0;
@@ -598,13 +581,16 @@ function showAnswer(txt) {
            downArrow=downArrow(),
            time=self.card.timeTaken() // 1000)
 
+    def _onBottomLoadFinished(self):
+        self._showAnswerButton()
+
     def _showAnswerButton(self):
         self._bottomReady = True
         if not self.typeCorrect:
             self.bottom.web.setFocus()
         middle = '''
 <span class=stattxt>%s</span><br>
-<button title="%s" id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % (
+<button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>''' % (
         self._remaining(), _("Shortcut key: %s") % _("Space"), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
@@ -614,6 +600,7 @@ function showAnswer(txt) {
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (
             json.dumps(middle), maxTime))
+        self.bottom.onLoaded()
 
     def _showEaseButtons(self):
         self.bottom.web.setFocus()
@@ -662,7 +649,7 @@ function showAnswer(txt) {
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s title="%s" onclick='py.link("ease%d");'>\
+<td align=center>%s<button %s title="%s" onclick='pycmd("ease%d");'>\
 %s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
@@ -714,7 +701,7 @@ function showAnswer(txt) {
             label, scut, func = row
             a = m.addAction(label)
             a.setShortcut(QKeySequence(scut))
-            a.connect(a, SIGNAL("triggered()"), func)
+            a.triggered.connect(func)
         runHook("Reviewer.contextMenuEvent",self,m)
         m.exec_(QCursor.pos())
 

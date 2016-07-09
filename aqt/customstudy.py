@@ -31,13 +31,13 @@ class CustomStudy(QDialog):
         self.exec_()
 
     def setupSignals(self):
-        f = self.form; c = self.connect; s = SIGNAL("clicked()")
-        c(f.radio1, s, lambda: self.onRadioChange(1))
-        c(f.radio2, s, lambda: self.onRadioChange(2))
-        c(f.radio3, s, lambda: self.onRadioChange(3))
-        c(f.radio4, s, lambda: self.onRadioChange(4))
-        c(f.radio5, s, lambda: self.onRadioChange(5))
-        c(f.radio6, s, lambda: self.onRadioChange(6))
+        f = self.form
+        f.radio1.clicked.connect(lambda: self.onRadioChange(1))
+        f.radio2.clicked.connect(lambda: self.onRadioChange(2))
+        f.radio3.clicked.connect(lambda: self.onRadioChange(3))
+        f.radio4.clicked.connect(lambda: self.onRadioChange(4))
+        f.radio5.clicked.connect(lambda: self.onRadioChange(5))
+        f.radio6.clicked.connect(lambda: self.onRadioChange(6))
 
     def onRadioChange(self, idx):
         f = self.form; sp = f.spin

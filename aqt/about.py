@@ -7,16 +7,11 @@ import aqt.forms
 from aqt import appVersion
 from aqt.utils import openLink
 
-def show(parent):
-    dialog = QDialog(parent)
+def show(mw):
+    dialog = QDialog(mw)
+    mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
-    abt.label.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-    def onLink(url):
-        openLink(url.toString())
-    parent.connect(abt.label,
-                    SIGNAL("linkClicked(QUrl)"),
-                    onLink)
     abouttext = "<center><img src='qrc:/icons/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")
@@ -27,7 +22,7 @@ system. It's free and open source.")
     abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + \
 "</span>"
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
- testing and design from:<p>%(cont)s") % {'cont': u"""Aaron Harsh, Ádám Szegi,
+ testing and design from:<p>%(cont)s") % {'cont': """Aaron Harsh, Ádám Szegi,
 Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, C. van Rooyen, Charlene Barina,
 Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen,
 Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail,

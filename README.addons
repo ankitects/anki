@@ -1,0 +1,64 @@
+Porting add-ons to Anki 2.1
+---------------------------
+
+2.1 is still in alpha and prone to change, so you may wish to wait until it
+hits beta before starting to update add-ons. But if you'd like to dive in
+straight away, here are some tips on porting.
+
+Python 3
+---------
+
+Anki 2.1 requires Python 3.4 or later. After installing Python 3 on your
+machine, you can use the 2to3 tool to automatically convert your existing
+scripts to Python 3 code on a folder by folder basis, like:
+
+2to3-3.5 --output-dir=aqt3 -W -n aqt
+mv aqt aqt-old
+mv aqt3 aqt
+
+Most simple code can be converted automatically, but there may be parts of the
+code that you need to manually modify.
+
+Add-ons that don't deal with file access and bytestrings may well work on both
+Python 2 and 3 without any special work required.
+
+Qt5 / PyQt5
+------------
+
+The syntax for connecting signals and slots has changed in PyQt5. Recent PyQt4
+versions support the new syntax as well, so after updating your add-ons you
+may find they still work in Anki 2.0.x as well.
+
+More info is available at
+http://pyqt.sourceforge.net/Docs/PyQt4/new_style_signals_slots.html
+
+Changes in Anki
+----------------
+
+Qt 5 has deprecated WebKit in favour of the Chromium-based WebEngine, so
+Anki's webviews are now using WebEngine. Of note:
+
+- WebEngine uses a different method of communicating back to Python.
+  AnkiWebView() is a wrapper for webviews which provides a pycmd(str) function in
+  Javascript which will call the ankiwebview's onBridgeCmd(str) method. Various
+  parts of Anki's UI like reviewer.py and deckbrowser.py have had to be
+  modified to use this.
+- Javascript is evaluated asynchronously, so if you need the result of a JS
+  expression you can use ankiwebview's evalWithCallback().
+- You can now debug the webviews using an external Chrome instance, by setting
+  the env var QTWEBENGINE_REMOTE_DEBUGGING to 8080 prior to starting Anki,
+  then surfing to localhost:8080 in Chrome. If you run into issues, try
+  connecting with Chrome 49.
+
+Sharing updated add-ons
+------------------------
+
+If you've succeeded in making an add-on that supports both 2.0.x and 2.1.x at
+the same time, please feel free to upload it to the shared add-ons area. If
+you've decided to make a separate 2.1.x version, it's probably best to just
+post a link to it in your current add-on description or upload it separately.
+When we get closer to a release I'll look into adding separate uploads for the
+two versions.
+
+
+

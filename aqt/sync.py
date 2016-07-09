@@ -1,7 +1,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from __future__ import division
 import socket
 import time
 import traceback
@@ -46,7 +45,7 @@ class SyncManager(QObject):
         t = self.thread = SyncThread(
             self.pm.collectionPath(), self.pm.profile['syncKey'],
             auth=auth, media=self.pm.profile['syncMedia'])
-        self.connect(t, SIGNAL("event"), self.onEvent)
+        t.event.connect(self.onEvent)
         self.label = _("Connecting...")
         self.mw.progress.start(immediate=True, label=self.label)
         self.sentBytes = self.recvBytes = 0
@@ -137,10 +136,10 @@ sync again to correct the issue."""))
             self._confirmFullSync()
         elif evt == "send":
             # posted events not guaranteed to arrive in order
-            self.sentBytes = max(self.sentBytes, args[0])
+            self.sentBytes = max(self.sentBytes, int(args[0]))
             self._updateLabel()
         elif evt == "recv":
-            self.recvBytes = max(self.recvBytes, args[0])
+            self.recvBytes = max(self.recvBytes, int(args[0]))
             self._updateLabel()
 
     def _rewriteError(self, err):
@@ -217,8 +216,8 @@ enter your details below.""") %
         vbox.addLayout(g)
         bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.button(QDialogButtonBox.Ok).setAutoDefault(True)
-        self.connect(bb, SIGNAL("accepted()"), d.accept)
-        self.connect(bb, SIGNAL("rejected()"), d.reject)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
         vbox.addWidget(bb)
         d.setLayout(vbox)
         d.show()
@@ -276,6 +275,8 @@ Check Database, then sync again."""))
 
 class SyncThread(QThread):
 
+    event = pyqtSignal(str, str)
+
     def __init__(self, path, hkey, auth=None, media=True):
         QThread.__init__(self)
         self.path = path
@@ -310,11 +311,11 @@ class SyncThread(QThread):
         def sendEvent(bytes):
             self.sentTotal += bytes
             if canPost():
-                self.fireEvent("send", self.sentTotal)
+                self.fireEvent("send", str(self.sentTotal))
         def recvEvent(bytes):
             self.recvTotal += bytes
             if canPost():
-                self.fireEvent("recv", self.recvTotal)
+                self.fireEvent("recv", str(self.recvTotal))
         addHook("sync", syncEvent)
         addHook("syncMsg", syncMsg)
         addHook("httpSend", sendEvent)
@@ -324,8 +325,6 @@ class SyncThread(QThread):
             self._sync()
         except:
             err = traceback.format_exc()
-            if not isinstance(err, unicode):
-                err = unicode(err, "utf8", "replace")
             self.fireEvent("error", err)
         finally:
             # don't bump mod time unless we explicitly save
@@ -348,7 +347,7 @@ class SyncThread(QThread):
         # run sync and check state
         try:
             ret = self.client.sync()
-        except Exception, e:
+        except Exception as e:
             log = traceback.format_exc()
             err = repr(str(e))
             if ("Unable to find the server" in err or
@@ -357,8 +356,6 @@ class SyncThread(QThread):
             else:
                 if not err:
                     err = log
-                if not isinstance(err, unicode):
-                    err = unicode(err, "utf8", "replace")
                 self.fireEvent("error", err)
             return
         if ret == "badAuth":
@@ -421,17 +418,19 @@ class SyncThread(QThread):
         else:
             self.fireEvent("mediaSuccess")
 
-    def fireEvent(self, *args):
-        self.emit(SIGNAL("event"), *args)
+    def fireEvent(self, cmd, arg=""):
+        self.event.emit(cmd, arg)
 
 
 # Monkey-patch httplib & httplib2 so we can get progress info
 ######################################################################
 
 CHUNK_SIZE = 65536
-import httplib, httplib2
-from cStringIO import StringIO
+import http.client, httplib2
+from io import StringIO
 from anki.hooks import runHook
+
+print("fixme: _conn_request and _incrementalSend need updating for python3")
 
 # sending in httplib
 def _incrementalSend(self, data):
@@ -440,11 +439,9 @@ def _incrementalSend(self, data):
         if self.auto_open:
             self.connect()
         else:
-            raise httplib.NotConnected()
+            raise http.client.NotConnected()
     # if it's not a file object, make it one
     if not hasattr(data, 'read'):
-        if isinstance(data, unicode):
-            data = data.encode("utf8")
         data = StringIO(data)
     while 1:
         block = data.read(CHUNK_SIZE)
@@ -453,7 +450,7 @@ def _incrementalSend(self, data):
         self.sock.sendall(block)
         runHook("httpSend", len(block))
 
-httplib.HTTPConnection.send = _incrementalSend
+#http.client.HTTPConnection.send = _incrementalSend
 
 # receiving in httplib2
 # this is an augmented version of httplib's request routine that:
@@ -475,20 +472,20 @@ def _conn_request(self, conn, request_uri, method, body, headers):
         except httplib2.ssl_SSLError:
             conn.close()
             raise
-        except socket.error, e:
+        except socket.error as e:
             conn.close()
             raise
-        except httplib.HTTPException:
+        except http.client.HTTPException:
             conn.close()
             raise
         try:
             response = conn.getresponse()
-        except httplib.BadStatusLine:
-            print "retry bad line"
+        except http.client.BadStatusLine:
+            print("retry bad line")
             conn.close()
             conn.connect()
             continue
-        except (socket.error, httplib.HTTPException):
+        except (socket.error, http.client.HTTPException):
             raise
         else:
             content = ""
@@ -508,4 +505,4 @@ def _conn_request(self, conn, request_uri, method, body, headers):
                 content = httplib2._decompressContent(response, content)
         return (response, content)
 
-httplib2.Http._conn_request = _conn_request
+#httplib2.Http._conn_request = _conn_request

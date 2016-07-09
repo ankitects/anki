@@ -19,12 +19,12 @@ class AnkiPackageImporter(Anki2Importer):
         # we need the media dict in advance, and we'll need a map of fname ->
         # number to use during the import
         self.nameToNum = {}
-        for k, v in json.loads(z.read("media")).items():
+        for k, v in list(json.loads(z.read("media").decode("utf8")).items()):
             self.nameToNum[v] = k
         # run anki2 importer
         Anki2Importer.run(self)
         # import static media
-        for file, c in self.nameToNum.items():
+        for file, c in list(self.nameToNum.items()):
             if not file.startswith("_") and not file.startswith("latex-"):
                 continue
             path = os.path.join(self.col.media.dir(),

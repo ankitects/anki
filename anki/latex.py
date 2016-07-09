@@ -56,7 +56,7 @@ def _imgLink(col, latex, model):
     if os.path.exists(fname):
         return link
     elif not build:
-        return u"[latex]%s[/latex]" % latex
+        return "[latex]%s[/latex]" % latex
     else:
         err = _buildImg(col, txt, fname, model)
         if err:
@@ -71,11 +71,10 @@ def _latexFromHtml(col, latex):
     return latex
 
 def _buildImg(col, latex, fname, model):
-    # add header/footer & convert to utf8
+    # add header/footer
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
              model["latexPost"])
-    latex = latex.encode("utf8")
     # it's only really secure if run in a jail, but these are the most common
     tmplatex = latex.replace("\\includegraphics", "")
     for bad in ("\\write18", "\\readline", "\\input", "\\include",
@@ -91,7 +90,7 @@ package in the LaTeX header instead.""") % bad
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
     texpath = namedtmp("tmp.tex")
-    texfile = file(texpath, "w")
+    texfile = open(texpath, "w")
     texfile.write(latex)
     texfile.close()
     mdir = col.media.dir()

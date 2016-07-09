@@ -140,7 +140,7 @@ class AnkiExporter(Exporter):
             "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             data)
         # notes
-        strnids = ids2str(nids.keys())
+        strnids = ids2str(list(nids.keys()))
         notedata = []
         for row in self.src.db.all(
             "select * from notes where id in "+strnids):

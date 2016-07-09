@@ -1,31 +1,36 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import sys
+import sys, traceback
 import cgi
 
 from anki.lang import _
 from aqt.qt import *
 from aqt.utils import showText, showWarning
 
+def excepthook(etype,val,tb):
+    sys.stderr.write("Caught exception:\n%s%s\n" % (
+        ''.join(traceback.format_tb(tb)),
+        '{0}: {1}'.format(etype, val)))
+sys.excepthook = excepthook
+
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
     ivl = 100
+
+    errorTimer = pyqtSignal()
 
     def __init__(self, mw):
         QObject.__init__(self, mw)
         self.mw = mw
         self.timer = None
-        self.connect(self, SIGNAL("errorTimer"), self._setTimer)
+        self.errorTimer.connect(self._setTimer)
         self.pool = ""
         sys.stderr = self
 
     def write(self, data):
-        # make sure we have unicode
-        if not isinstance(data, unicode):
-            data = unicode(data, "utf8", "replace")
         # dump to stdout
-        sys.stdout.write(data.encode("utf-8"))
+        sys.stdout.write(data)
         # save in buffer
         self.pool += data
         # and update timer
@@ -34,12 +39,12 @@ class ErrorHandler(QObject):
     def setTimer(self):
         # we can't create a timer from a different thread, so we post a
         # message to the object on the main thread
-        self.emit(SIGNAL("errorTimer"))
+        self.errorTimer.emit()
 
     def _setTimer(self):
         if not self.timer:
             self.timer = QTimer(self.mw)
-            self.mw.connect(self.timer, SIGNAL("timeout()"), self.onTimeout)
+            self.timer.timeout.connect(self.onTimeout)
         self.timer.setInterval(self.ivl)
         self.timer.setSingleShot(True)
         self.timer.start()
@@ -60,11 +65,13 @@ Anki manual for more information.""")
             return showWarning(_("Please install PyAudio"))
         if "install mplayer" in error:
             return showWarning(_("Please install mplayer"))
-        if "no default output" in error:
+        if "no default input" in error.lower():
             return showWarning(_("Please connect a microphone, and ensure "
                                  "other programs are not using the audio device."))
         if "invalidTempFolder" in error:
             return showWarning(self.tempFolderMsg())
+        if "Beautiful Soup is not an HTTP client" in error:
+            return
         if "disk I/O error" in error:
             return showWarning(_("""\
 An error occurred while accessing the database.

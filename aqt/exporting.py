@@ -26,9 +26,8 @@ class ExportDialog(QDialog):
         self.exec_()
 
     def setup(self, did):
-        self.frm.format.insertItems(0, list(zip(*exporters())[0]))
-        self.connect(self.frm.format, SIGNAL("activated(int)"),
-                     self.exporterChanged)
+        self.frm.format.insertItems(0, list(zip(*exporters()))[0])
+        self.frm.format.activated.connect(self.exporterChanged)
         self.exporterChanged(0)
         self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
         self.frm.deck.addItems(self.decks)
@@ -69,12 +68,12 @@ class ExportDialog(QDialog):
             # it's a verbatim apkg export, so place on desktop instead of
             # choosing file; use homedir if no desktop
             usingHomedir = False
-            file = os.path.join(QDesktopServices.storageLocation(
-                QDesktopServices.DesktopLocation), "collection.apkg")
+            file = os.path.join(QStandardPaths.writableLocation(
+                QStandardPaths.DesktopLocation), "collection.apkg")
             if not os.path.exists(os.path.dirname(file)):
                 usingHomedir = True
-                file = os.path.join(QDesktopServices.storageLocation(
-                    QDesktopServices.HomeLocation), "collection.apkg")
+                file = os.path.join(QStandardPaths.writableLocation(
+                    QStandardPaths.HomeLocation), "collection.apkg")
             if os.path.exists(file):
                 if usingHomedir:
                     question = _("%s already exists in your home directory. Overwrite it?")
@@ -88,7 +87,7 @@ class ExportDialog(QDialog):
             deck_name = self.decks[self.frm.deck.currentIndex()]
             deck_name = re.sub('[\\\\/?<>:*|"^]', '_', deck_name)
             filename = os.path.join(aqt.mw.pm.base,
-                                    u'{0}{1}'.format(deck_name, self.exporter.ext))
+                                    '{0}{1}'.format(deck_name, self.exporter.ext))
             while 1:
                 file = getSaveFile(self, _("Export"), "export",
                                    self.exporter.key, self.exporter.ext,
@@ -104,8 +103,8 @@ class ExportDialog(QDialog):
             try:
                 f = open(file, "wb")
                 f.close()
-            except (OSError, IOError), e:
-                showWarning(_("Couldn't save file: %s") % unicode(e))
+            except (OSError, IOError) as e:
+                showWarning(_("Couldn't save file: %s") % str(e))
             else:
                 os.unlink(file)
                 exportedMedia = lambda cnt: self.mw.progress.update(

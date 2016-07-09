@@ -8,7 +8,7 @@ from aqt.qt import *
 from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
-from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA,\
+from aqt.utils import saveGeom, restoreGeom, mungeQA,\
     showInfo, askUser, getOnlyText, \
      showWarning, openHelp, downArrow
 from anki.utils import isMac, isWin, joinFields
@@ -20,6 +20,7 @@ class CardLayout(QDialog):
 
     def __init__(self, mw, note, ord=0, parent=None, addMode=False):
         QDialog.__init__(self, parent or mw, Qt.Window)
+        mw.setupDialogGC(self)
         self.mw = aqt.mw
         self.parent = parent or mw
         self.note = note
@@ -32,7 +33,7 @@ class CardLayout(QDialog):
         if addMode:
             # save it to DB temporarily
             self.emptyFields = []
-            for name, val in note.items():
+            for name, val in list(note.items()):
                 if val.strip():
                     continue
                 self.emptyFields.append(name)
@@ -47,7 +48,8 @@ class CardLayout(QDialog):
         self.setLayout(v1)
         self.redraw()
         restoreGeom(self, "CardLayout")
-        self.exec_()
+        self.setWindowModality(Qt.ApplicationModal)
+        self.show()
 
     def redraw(self):
         self.cards = self.col.previewCards(self.note, 2)
@@ -60,7 +62,6 @@ class CardLayout(QDialog):
         self.selectCard(idx)
 
     def setupTabs(self):
-        c = self.connect
         cloze = self.model['type'] == MODEL_CLOZE
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(not cloze)
@@ -69,10 +70,10 @@ class CardLayout(QDialog):
             add = QPushButton("+")
             add.setFixedWidth(30)
             add.setToolTip(_("Add new card"))
-            c(add, SIGNAL("clicked()"), self.onAddCard)
+            add.clicked.connect(self.onAddCard)
             self.tabs.setCornerWidget(add)
-        c(self.tabs, SIGNAL("currentChanged(int)"), self.onCardSelected)
-        c(self.tabs, SIGNAL("tabCloseRequested(int)"), self.onRemoveTab)
+        self.tabs.currentChanged.connect(self.onCardSelected)
+        self.tabs.tabCloseRequested.connect(self.onRemoveTab)
 
     def updateTabs(self):
         self.forms = []
@@ -81,19 +82,18 @@ class CardLayout(QDialog):
             self.addTab(t)
 
     def addTab(self, t):
-        c = self.connect
         w = QWidget()
         l = QHBoxLayout()
-        l.setMargin(0)
+        l.setContentsMargins(0,0,0,0)
         l.setSpacing(3)
         left = QWidget()
         # template area
         tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        tform.label1.setText(u" →")
-        tform.label2.setText(u" →")
-        tform.labelc1.setText(u" ↗")
-        tform.labelc2.setText(u" ↘")
+        tform.label1.setText(" →")
+        tform.label2.setText(" →")
+        tform.labelc1.setText(" ↗")
+        tform.labelc2.setText(" ↘")
         if self.style().objectName() == "gtk+":
             # gtk+ requires margins in inner layout
             tform.tlayout1.setContentsMargins(0, 11, 0, 0)
@@ -102,9 +102,9 @@ class CardLayout(QDialog):
         if len(self.cards) > 1:
             tform.groupBox_3.setTitle(_(
                 "Styling (shared between cards)"))
-        c(tform.front, SIGNAL("textChanged()"), self.saveCard)
-        c(tform.css, SIGNAL("textChanged()"), self.saveCard)
-        c(tform.back, SIGNAL("textChanged()"), self.saveCard)
+        tform.front.textChanged.connect(self.saveCard)
+        tform.css.textChanged.connect(self.saveCard)
+        tform.back.textChanged.connect(self.saveCard)
         l.addWidget(left, 5)
         # preview area
         right = QWidget()
@@ -124,9 +124,6 @@ class CardLayout(QDialog):
         pform.frontPrevBox.addWidget(pform.frontWeb)
         pform.backWeb = AnkiWebView()
         pform.backPrevBox.addWidget(pform.backWeb)
-        for wig in pform.frontWeb, pform.backWeb:
-            wig.page().setLinkDelegationPolicy(
-                QWebPage.DelegateExternalLinks)
         l.addWidget(right, 5)
         w.setLayout(l)
         self.forms.append({'tform': tform, 'pform': pform})
@@ -151,31 +148,30 @@ Please create a new card type first."""))
     ##########################################################################
 
     def setupButtons(self):
-        c = self.connect
         l = self.buttons = QHBoxLayout()
         help = QPushButton(_("Help"))
         help.setAutoDefault(False)
         l.addWidget(help)
-        c(help, SIGNAL("clicked()"), self.onHelp)
+        help.clicked.connect(self.onHelp)
         l.addStretch()
         addField = QPushButton(_("Add Field"))
         addField.setAutoDefault(False)
         l.addWidget(addField)
-        c(addField, SIGNAL("clicked()"), self.onAddField)
+        addField.clicked.connect(self.onAddField)
         if self.model['type'] != MODEL_CLOZE:
             flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
             l.addWidget(flip)
-            c(flip, SIGNAL("clicked()"), self.onFlip)
-        more = QPushButton(_("More") + u" "+downArrow())
+            flip.clicked.connect(self.onFlip)
+        more = QPushButton(_("More") + " "+downArrow())
         more.setAutoDefault(False)
         l.addWidget(more)
-        c(more, SIGNAL("clicked()"), lambda: self.onMore(more))
+        more.clicked.connect(lambda: self.onMore(more))
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
         l.addWidget(close)
-        c(close, SIGNAL("clicked()"), self.accept)
+        close.clicked.connect(self.accept)
 
     # Cards
     ##########################################################################
@@ -229,15 +225,13 @@ Please create a new card type first."""))
     def renderPreview(self):
         c = self.card
         ti = self.maybeTextInput
-        base = getBase(self.mw.col)
+        base = self.mw.baseHTML()
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.q(reload=True))), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
+            bodyClass="card card%d" % (c.ord+1), head=base),
         self.tab['pform'].backWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.a()), type='a'), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
+            bodyClass="card card%d" % (c.ord+1), head=base),
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
@@ -251,7 +245,7 @@ Please create a new card type first."""))
         txt = txt.replace("<hr id=answer>", "")
         hadHR = origLen != len(txt)
         def answerRepl(match):
-            res = self.mw.reviewer.correct(u"exomple", u"an example")
+            res = self.mw.reviewer.correct("exomple", "an example")
             if hadHR:
                 res = "<hr id=answer>" + res
             return res
@@ -335,23 +329,19 @@ adjust the template manually to switch the question and answer."""))
     def onMore(self, button):
         m = QMenu(self)
         a = m.addAction(_("Rename"))
-        a.connect(a, SIGNAL("triggered()"),
-                  self.onRename)
+        a.triggered.connect(self.onRename)
         if self.model['type'] != MODEL_CLOZE:
             a = m.addAction(_("Reposition"))
-            a.connect(a, SIGNAL("triggered()"),
-                      self.onReorder)
+            a.triggered.connect(self.onReorder)
             t = self.card.template()
             if t['did']:
                 s = _(" (on)")
             else:
                 s = _(" (off)")
             a = m.addAction(_("Deck Override") + s)
-            a.connect(a, SIGNAL("triggered()"),
-                      self.onTargetDeck)
+            a.triggered.connect(self.onTargetDeck)
         a = m.addAction(_("Browser Appearance"))
-        a.connect(a, SIGNAL("triggered()"),
-                  self.onBrowserDisplay)
+        a.triggered.connect(self.onBrowserDisplay)
         m.exec_(button.mapToGlobal(QPoint(0,0)))
 
     def onBrowserDisplay(self):
@@ -363,8 +353,7 @@ adjust the template manually to switch the question and answer."""))
         f.afmt.setText(t.get('bafmt', ""))
         f.font.setCurrentFont(QFont(t.get('bfont', "Arial")))
         f.fontSize.setValue(t.get('bsize', 12))
-        d.connect(f.buttonBox, SIGNAL("accepted()"),
-                  lambda: self.onBrowserDisplayOk(f))
+        f.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(f))
         d.exec_()
 
     def onBrowserDisplayOk(self, f):
@@ -393,7 +382,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
             te.setText(self.col.decks.get(t['did'])['name'])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
-        self.connect(bb, SIGNAL("rejected()"), d, SLOT("close()"))
+        bb.rejected.connect(d.close)
         l.addWidget(bb)
         d.setLayout(l)
         d.exec_()

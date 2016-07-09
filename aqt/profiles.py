@@ -8,7 +8,7 @@
 
 import os
 import random
-import cPickle
+import pickle
 import locale
 import re
 
@@ -20,7 +20,6 @@ from aqt.utils import showWarning
 from aqt import appHelpSite
 import aqt.forms
 from send2trash import send2trash
-
 
 metaConf = dict(
     ver=0,
@@ -74,6 +73,9 @@ class ProfileManager(object):
         self.firstRun = self._loadMeta()
         # did the user request a profile to start up with?
         if profile:
+            if profile not in self.profiles():
+                QMessageBox.critical(None, "Error", "Requested profile does not exist.")
+                sys.exit(1)
             try:
                 self.load(profile)
             except TypeError:
@@ -99,15 +101,14 @@ a flash drive.""" % self.base)
     ######################################################################
 
     def profiles(self):
-        return sorted(
-            unicode(x, "utf8") for x in
+        return sorted(x for x in
             self.db.list("select name from profiles")
             if x != "_global")
 
     def load(self, name, passwd=None):
-        prof = cPickle.loads(
-            self.db.scalar("select data from profiles where name = ?",
-                           name.encode("utf8")))
+        data = self.db.scalar("select cast(data as blob) from profiles where name = ?", name)
+        # some profiles created in python2 may not decode properly
+        prof = pickle.loads(data, errors="ignore")
         if prof['key'] and prof['key'] != self._pwhash(passwd):
             self.name = None
             return False
@@ -118,23 +119,21 @@ a flash drive.""" % self.base)
 
     def save(self):
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, cPickle.dumps(self.profile),
-                        self.name.encode("utf8"))
-        self.db.execute(sql, cPickle.dumps(self.meta), "_global")
+        self.db.execute(sql, pickle.dumps(self.profile), self.name)
+        self.db.execute(sql, pickle.dumps(self.meta), "_global")
         self.db.commit()
 
     def create(self, name):
         prof = profileConf.copy()
         self.db.execute("insert into profiles values (?, ?)",
-                        name.encode("utf8"), cPickle.dumps(prof))
+                        name, pickle.dumps(prof))
         self.db.commit()
 
     def remove(self, name):
         p = self.profileFolder()
         if os.path.exists(p):
             send2trash(p)
-        self.db.execute("delete from profiles where name = ?",
-                        name.encode("utf8"))
+        self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
     def rename(self, name):
@@ -163,7 +162,7 @@ a flash drive.""" % self.base)
 
         # update name
         self.db.execute("update profiles set name = ? where name = ?",
-                        name.encode("utf8"), oldName.encode("utf-8"))
+                        name, oldName)
         # rename folder
         try:
             os.rename(oldFolder, newFolder)
@@ -192,7 +191,7 @@ and no other programs are accessing your profile folders, then try again."""))
         return path
 
     def addonFolder(self):
-        return self._ensureExists(os.path.join(self.base, "addons"))
+        return self._ensureExists(os.path.join(self.base, "addons21"))
 
     def backupFolder(self):
         return self._ensureExists(
@@ -211,10 +210,7 @@ and no other programs are accessing your profile folders, then try again."""))
 
     def _defaultBase(self):
         if isWin:
-            if False: #qtmajor >= 5:
-                loc = QStandardPaths.writeableLocation(QStandardPaths.DocumentsLocation)
-            else:
-                loc = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
+            loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
             return os.path.join(loc, "Anki")
         elif isMac:
             return os.path.expanduser("~/Documents/Anki")
@@ -224,9 +220,9 @@ and no other programs are accessing your profile folders, then try again."""))
             if os.path.exists(p):
                 return p
             else:
-                loc = QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation)
-                if loc[:-1] == QDesktopServices.storageLocation(
-                        QDesktopServices.HomeLocation):
+                loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+                if loc[:-1] == QStandardPaths.writableLocation(
+                        QStandardPaths.HomeLocation):
                     # occasionally "documentsLocation" will return the home
                     # folder because the Documents folder isn't configured
                     # properly; fall back to an English path
@@ -235,7 +231,7 @@ and no other programs are accessing your profile folders, then try again."""))
                     return os.path.join(loc, "Anki")
 
     def _loadMeta(self):
-        path = os.path.join(self.base, "prefs.db")
+        path = os.path.join(self.base, "prefs21.db")
         new = not os.path.exists(path)
         def recover():
             # if we can't load profile, start with a new one
@@ -250,10 +246,10 @@ and no other programs are accessing your profile folders, then try again."""))
             os.rename(path, broken)
             QMessageBox.warning(
                 None, "Preferences Corrupt", """\
-Anki's prefs.db file was corrupt and has been recreated. If you were using multiple \
+Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
 profiles, please add them back using the same names to recover your cards.""")
         try:
-            self.db = DB(path, text=str)
+            self.db = DB(path)
             self.db.execute("""
 create table if not exists profiles
 (name text primary key, data text not null);""")
@@ -263,9 +259,9 @@ create table if not exists profiles
         if not new:
             # load previously created
             try:
-                self.meta = cPickle.loads(
+                self.meta = pickle.loads(
                     self.db.scalar(
-                        "select data from profiles where name = '_global'"))
+                        "select cast(data as blob) from profiles where name = '_global'"))
                 return
             except:
                 recover()
@@ -273,7 +269,7 @@ create table if not exists profiles
         # create a default global profile
         self.meta = metaConf.copy()
         self.db.execute("insert or replace into profiles values ('_global', ?)",
-                        cPickle.dumps(metaConf))
+                        pickle.dumps(metaConf))
         self._setDefaultLang()
         return True
 
@@ -282,16 +278,16 @@ create table if not exists profiles
         if self.firstRun:
             self.create(_("User 1"))
             p = os.path.join(self.base, "README.txt")
-            open(p, "w").write((_("""\
+            open(p, "w").write(_("""\
 This folder stores all of your Anki data in a single location,
 to make backups easy. To tell Anki to use a different location,
 please see:
 
 %s
-""") % (appHelpSite +  "#startupopts")).encode("utf8"))
+""") % (appHelpSite +  "#startupopts"))
 
     def _pwhash(self, passwd):
-        return checksum(unicode(self.meta['id'])+unicode(passwd))
+        return checksum(str(self.meta['id'])+str(passwd))
 
     # Default language
     ######################################################################
@@ -300,8 +296,8 @@ please see:
     def _setDefaultLang(self):
         # the dialog expects _ to be defined, but we're running before
         # setupLang() has been called. so we create a dummy op for now
-        import __builtin__
-        __builtin__.__dict__['_'] = lambda x: x
+        import builtins
+        builtins.__dict__['_'] = lambda x: x
         # create dialog
         class NoCloseDiag(QDialog):
             def reject(self):
@@ -309,8 +305,8 @@ please see:
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
         f.setupUi(d)
-        d.connect(d, SIGNAL("accepted()"), self._onLangSelected)
-        d.connect(d, SIGNAL("rejected()"), lambda: True)
+        d.accepted.connect(self._onLangSelected)
+        d.rejected.connect(lambda: True)
         # default to the system language
         try:
             (lang, enc) = locale.getdefaultlocale()
@@ -351,6 +347,6 @@ please see:
     def setLang(self, code):
         self.meta['defaultLang'] = code
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, cPickle.dumps(self.meta), "_global")
+        self.db.execute(sql, pickle.dumps(self.meta), "_global")
         self.db.commit()
         anki.lang.setLang(code, local=False)

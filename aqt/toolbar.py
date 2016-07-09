@@ -9,9 +9,6 @@ class Toolbar(object):
     def __init__(self, mw, web):
         self.mw = mw
         self.web = web
-        self.web.page().mainFrame().setScrollBarPolicy(
-            Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        self.web.setLinkHandler(self._linkHandler)
         self.link_handlers = {
             "decks": self._deckLinkHandler,
             "study": self._studyLinkHandler,
@@ -21,7 +18,16 @@ class Toolbar(object):
             "sync": self._syncLinkHandler,
         }
 
+    def onLoaded(self):
+        self.web.evalWithCallback("$(document.body).height()", self.onHeight)
+
+    def onHeight(self, qvar):
+        height = int(qvar*self.web.zoomFactor())
+        self.web.setFixedHeight(height)
+
     def draw(self):
+        self.web.onBridgeCmd = self._linkHandler
+        self.web.onLoadFinished = self.onLoaded
         self.web.stdHtml(self._body % (
             # may want a context menu here in the future
             '&nbsp;'*20,
@@ -51,7 +57,8 @@ class Toolbar(object):
     def _linkHTML(self, links):
         buf = ""
         for ln, name, title in links:
-            buf += '<a class=hitem title="%s" href="%s">%s</a>' % (
+            buf += '''
+            <a class=hitem title="%s" href=# onclick="pycmd('%s')">%s</a>''' % (
                 title, ln, name)
             buf += "&nbsp;"*3
         return buf
@@ -59,7 +66,8 @@ class Toolbar(object):
     def _rightIcons(self):
         buf = ""
         for ln, icon, title in self._rightIconsList():
-            buf += '<a class=hitem title="%s" href="%s"><img width="16px" height="16px" src="%s"></a>' % (
+            buf += '''
+            <a class=hitem title="%s" href=# onclick='pycmd("%s")'><img width="16px" height="16px" src="%s"></a>''' % (
                 title, ln, icon)
         return buf
 
@@ -67,11 +75,9 @@ class Toolbar(object):
     ######################################################################
 
     def _linkHandler(self, link):
-        # first set focus back to main window, or we're left with an ugly
-        # focus ring around the clicked item
-        self.mw.web.setFocus()
         if link in self.link_handlers:
-          self.link_handlers[link]()
+            self.link_handlers[link]()
+        return False
 
     def _deckLinkHandler(self):
         self.mw.moveToState("deckBrowser")
@@ -100,34 +106,29 @@ class Toolbar(object):
     ######################################################################
 
     _body = """
+<center id=outer>
 <table id=header width=100%%>
 <tr>
 <td width=16%% align=left>%s</td>
 <td align=center>%s</td>
-<td width=15%% align=right>%s</td>
+<td width=15%% valign=middle align=right>%s</td>
 </tr></table>
+</center>
 """
 
     _css = """
 #header {
-margin:0;
-margin-top: 4px;
+padding:3px;
 font-weight: bold;
-}
-
-html {
-height: 100%;
+border-bottom: 1px solid #aaa;
 background: -webkit-gradient(linear, left top, left bottom,
   from(#ddd), to(#fff));
-margin:0; padding:0;
 }
 
 body {
 margin:0; padding:0;
-position:absolute;
-top:0;left:0;right:0;bottom:0;
 -webkit-user-select: none;
-border-bottom: 1px solid #aaa;
+overflow: hidden;
 }
 
 * { -webkit-user-drag: none; }
@@ -140,6 +141,7 @@ color: #000;
 .hitem:hover {
 text-decoration: underline;
 }
+
 """
 
 class BottomBar(Toolbar):
@@ -156,12 +158,13 @@ margin-top: 0;
 """
 
     _centerBody = """
-<center><table width=100%% height=100%% id=header><tr><td align=center>
+<center id=outer><table width=100%% id=header><tr><td align=center>
 %s</td></tr></table></center>
 """
 
     def draw(self, buf):
-        self.web.show()
+        self.web.onBridgeCmd = self._linkHandler
+        self.web.onLoadFinished = self.onLoaded
         self.web.stdHtml(
             self._centerBody % buf,
             self._css)

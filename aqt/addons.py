@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys, os, traceback
-from cStringIO import StringIO
+from io import StringIO
 import zipfile
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
@@ -21,9 +21,9 @@ class AddonManager(object):
 
     def __init__(self, mw):
         self.mw = mw
-        f = self.mw.form; s = SIGNAL("triggered()")
-        self.mw.connect(f.actionOpenPluginFolder, s, self.onOpenAddonFolder)
-        self.mw.connect(f.actionDownloadSharedPlugin, s, self.onGetAddons)
+        f = self.mw.form
+        f.actionOpenPluginFolder.triggered.connect(self.onOpenAddonFolder)
+        f.actionDownloadSharedPlugin.triggered.connect(self.onGetAddons)
         self._menus = []
         if isWin:
             self.clearAddonCache()
@@ -35,10 +35,19 @@ class AddonManager(object):
         return [f for f in os.listdir(self.addonsFolder())
                 if f.endswith(".py")]
 
+    def directories(self):
+        return [d for d in os.listdir(self.addonsFolder())
+                if not d.startswith('.') and os.path.isdir(os.path.join(self.addonsFolder(), d))]
+
     def loadAddons(self):
         for file in self.files():
             try:
                 __import__(file.replace(".py", ""))
+            except:
+                traceback.print_exc()
+        for directory in self.directories():
+            try:
+                __import__(directory)
             except:
                 traceback.print_exc()
         self.rebuildAddonsMenu()
@@ -46,7 +55,7 @@ class AddonManager(object):
     # Menus
     ######################################################################
 
-    def onOpenAddonFolder(self, path=None):
+    def onOpenAddonFolder(self, checked, path=None):
         if path is None:
             path = self.addonsFolder()
         openFolder(path)
@@ -58,14 +67,11 @@ class AddonManager(object):
             m = self.mw.form.menuPlugins.addMenu(
                 os.path.splitext(file)[0])
             self._menus.append(m)
-            a = QAction(_("Edit..."), self.mw)
+            a = QAction(_("Edit..."), self.mw, triggered=self.onEdit)
             p = os.path.join(self.addonsFolder(), file)
-            self.mw.connect(a, SIGNAL("triggered()"),
-                            lambda p=p: self.onEdit(p))
+
             m.addAction(a)
-            a = QAction(_("Delete..."), self.mw)
-            self.mw.connect(a, SIGNAL("triggered()"),
-                            lambda p=p: self.onRem(p))
+            a = QAction(_("Delete..."), self.mw, triggered=self.onRem)
             m.addAction(a)
 
     def onEdit(self, path):
@@ -73,9 +79,8 @@ class AddonManager(object):
         frm = aqt.forms.editaddon.Ui_Dialog()
         frm.setupUi(d)
         d.setWindowTitle(os.path.basename(path))
-        frm.text.setPlainText(unicode(open(path).read(), "utf8"))
-        d.connect(frm.buttonBox, SIGNAL("accepted()"),
-                  lambda: self.onAcceptEdit(path, frm))
+        frm.text.setPlainText(open(path).read())
+        frm.buttonBox.accepted.connect(lambda: self.onAcceptEdit(path, frm))
         d.exec_()
 
     def onAcceptEdit(self, path, frm):
@@ -94,8 +99,6 @@ class AddonManager(object):
 
     def addonsFolder(self):
         dir = self.mw.pm.addonFolder()
-        if isWin:
-            dir = dir.encode(sys.getfilesystemencoding())
         return dir
 
     def clearAddonCache(self):
@@ -115,7 +118,9 @@ class AddonManager(object):
     ######################################################################
 
     def onGetAddons(self):
-        GetAddons(self.mw)
+        showInfo("Currently disabled, as add-ons built for 2.0.x will need updating")
+
+        # GetAddons(self.mw)
 
     def install(self, data, fname):
         if fname.endswith(".py"):
@@ -146,7 +151,7 @@ class GetAddons(QDialog):
         self.form.setupUi(self)
         b = self.form.buttonBox.addButton(
             _("Browse"), QDialogButtonBox.ActionRole)
-        self.connect(b, SIGNAL("clicked()"), self.onBrowse)
+        b.clicked.connect(self.onBrowse)
         restoreGeom(self, "getaddons", adjustSize=True)
         self.exec_()
         saveGeom(self, "getaddons")

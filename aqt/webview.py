@@ -9,126 +9,152 @@ from aqt.utils import openLink
 from anki.utils import isMac, isWin
 import anki.js
 
-# Bridge for Qt<->JS
-##########################################################################
-
-class Bridge(QObject):
-    @pyqtSlot(str, result=str)
-    def run(self, str):
-        return unicode(self._bridge(unicode(str)))
-    @pyqtSlot(str)
-    def link(self, str):
-        self._linkHandler(unicode(str))
-    def setBridge(self, func):
-        self._bridge = func
-    def setLinkHandler(self, func):
-        self._linkHandler = func
-
 # Page for debug messages
 ##########################################################################
 
-class AnkiWebPage(QWebPage):
+class AnkiWebPage(QWebEnginePage):
 
-    def __init__(self, jsErr):
-        QWebPage.__init__(self)
-        self._jsErr = jsErr
-    def javaScriptConsoleMessage(self, msg, line, srcID):
-        self._jsErr(msg, line, srcID)
+    def __init__(self, onBridgeCmd):
+        QWebEnginePage.__init__(self)
+        self._onBridgeCmd = onBridgeCmd
+        self._setupBridge()
+
+    def _setupBridge(self):
+        class Bridge(QObject):
+            @pyqtSlot(str)
+            def cmd(self, str):
+                self.onCmd(str)
+
+        self._bridge = Bridge()
+        self._bridge.onCmd = self._onCmd
+
+        self._channel = QWebChannel(self)
+        self._channel.registerObject("py", self._bridge)
+        self.setWebChannel(self._channel)
+
+        js = QFile(':/qtwebchannel/qwebchannel.js')
+        assert js.open(QIODevice.ReadOnly)
+        js = bytes(js.readAll()).decode('utf-8')
+
+        script = QWebEngineScript()
+        script.setSourceCode(js + '''
+            var pycmd;
+            new QWebChannel(qt.webChannelTransport, function(channel) {
+                pycmd = channel.objects.py.cmd;
+                pycmd("domDone");
+            });
+        ''')
+        script.setWorldId(QWebEngineScript.MainWorld)
+        script.setInjectionPoint(QWebEngineScript.DocumentReady)
+        script.setRunsOnSubFrames(False)
+        self.profile().scripts().insert(script)
+
+    def javaScriptConsoleMessage(self, lvl, msg, line, srcID):
+        sys.stdout.write(
+            (_("JS error on line %(a)d: %(b)s") %
+             dict(a=line, b=msg+"\n")))
+
+    def acceptNavigationRequest(self, url, navType, isMainFrame):
+        # load all other links in browser
+        openLink(url)
+        return False
+
+    def _onCmd(self, str):
+        self._onBridgeCmd(str)
 
 # Main web view
 ##########################################################################
 
-class AnkiWebView(QWebView):
+class AnkiWebView(QWebEngineView):
 
     def __init__(self, canFocus=True):
-        QWebView.__init__(self)
-        self.setRenderHints(
-            QPainter.TextAntialiasing |
-            QPainter.SmoothPixmapTransform |
-            QPainter.HighQualityAntialiasing)
-        self.setObjectName("mainText")
-        self._bridge = Bridge()
-        self._page = AnkiWebPage(self._jsErr)
+        QWebEngineView.__init__(self)
+        self.title = "default"
+        self._page = AnkiWebPage(self._onBridgeCmd)
+
         self._loadFinishedCB = None
         self.setPage(self._page)
-        self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        self.setLinkHandler()
-        self.setKeyHandler()
-        self.connect(self, SIGNAL("linkClicked(QUrl)"), self._linkHandler)
-        self.connect(self, SIGNAL("loadFinished(bool)"), self._loadFinished)
+        self.resetHandlers()
         self.allowDrops = False
-        # reset each time new html is set; used to detect if still in same state
-        self.key = None
         self.setCanFocus(canFocus)
+        self.installEventFilter(self)
 
-    def keyPressEvent(self, evt):
-        if evt.matches(QKeySequence.Copy):
-            self.triggerPageAction(QWebPage.Copy)
-            evt.accept()
-        # work around a bug with windows qt where shift triggers buttons
-        if isWin and evt.modifiers() & Qt.ShiftModifier and not evt.text():
-            evt.accept()
-            return
-        QWebView.keyPressEvent(self, evt)
+    def eventFilter(self, obj, evt):
+        if not isinstance(evt, QKeyEvent) or obj != self:
+            return False
+        if evt.matches(QKeySequence.Copy) and isMac:
+            self.onCopy()
+            return True
+        if evt.matches(QKeySequence.Cut) and isMac:
+            self.onCut()
+            return True
+        if evt.matches(QKeySequence.Paste) and isMac:
+            self.onPaste()
+            return True
+        if evt.key() == Qt.Key_Escape:
+            # cheap hack to work around webengine swallowing escape key that
+            # usually closes dialogs
+            w = self.parent()
+            while w:
+                if isinstance(w, QDialog) or isinstance(w, QMainWindow):
+                    from aqt import mw
+                    if w != mw:
+                        w.close()
+                    break
+                w = w.parent()
+            return True
+        return False
 
-    def keyReleaseEvent(self, evt):
-        if self._keyHandler:
-            if self._keyHandler(evt):
-                evt.accept()
-                return
-        QWebView.keyReleaseEvent(self, evt)
+    def onCopy(self):
+        self.triggerPageAction(QWebEnginePage.Copy)
+
+    def onCut(self):
+        self.triggerPageAction(QWebEnginePage.Cut)
+
+    def onPaste(self):
+        self.triggerPageAction(QWebEnginePage.Paste)
 
     def contextMenuEvent(self, evt):
         if not self._canFocus:
             return
         m = QMenu(self)
         a = m.addAction(_("Copy"))
-        a.connect(a, SIGNAL("triggered()"),
-                  lambda: self.triggerPageAction(QWebPage.Copy))
+        a.triggered.connect(lambda: self.triggerPageAction(QWebEnginePage.Copy))
         runHook("AnkiWebView.contextMenuEvent", self, m)
         m.popup(QCursor.pos())
 
     def dropEvent(self, evt):
         pass
 
-    def setLinkHandler(self, handler=None):
-        if handler:
-            self.linkHandler = handler
-        else:
-            self.linkHandler = self._openLinksExternally
-        self._bridge.setLinkHandler(self.linkHandler)
+    def setHtml(self, html):
+        app = QApplication.instance()
+        oldFocus = app.focusWidget()
+        self._page.setHtml(html)
+        # work around webengine stealing focus on setHtml()
+        if oldFocus:
+            oldFocus.setFocus()
 
-    def setKeyHandler(self, handler=None):
-        # handler should return true if event should be swallowed
-        self._keyHandler = handler
+    def zoomFactor(self):
+        screen = QApplication.desktop().screen()
+        dpi = screen.logicalDpiX()
+        return max(1, dpi / 96.0)
 
-    def setHtml(self, html, loadCB=None):
-        self.key = None
-        self._loadFinishedCB = loadCB
-        QWebView.setHtml(self, html)
-
-    def stdHtml(self, body, css="", bodyClass="", loadCB=None, js=None, head=""):
-        if isMac:
-            button = "font-weight: bold; height: 24px;"
-        else:
-            button = "font-weight: normal;"
+    def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
         self.setHtml("""
 <!doctype html>
-<html><head><style>
-button {
-%s
-}
+<html><head><title>%s</title><style>
+body { zoom: %f; }
 %s</style>
-<script>%s</script>
+<script>
+%s
+</script>
 %s
 
 </head>
 <body class="%s">%s</body></html>""" % (
-    button, css, js or anki.js.jquery+anki.js.browserSel,
-    head, bodyClass, body), loadCB)
-
-    def setBridge(self, bridge):
-        self._bridge.setBridge(bridge)
+            self.title,
+            self.zoomFactor(), css, js or anki.js.jquery+anki.js.browserSel,
+    head, bodyClass, body))
 
     def setCanFocus(self, canFocus=False):
         self._canFocus = canFocus
@@ -138,21 +164,26 @@ button {
             self.setFocusPolicy(Qt.NoFocus)
 
     def eval(self, js):
-        self.page().mainFrame().evaluateJavaScript(js)
+        self.page().runJavaScript(js)
+
+    def evalWithCallback(self, js, cb):
+        self.page().runJavaScript(js, cb)
 
     def _openLinksExternally(self, url):
         openLink(url)
 
-    def _jsErr(self, msg, line, srcID):
-        sys.stdout.write(
-            (_("JS error on line %(a)d: %(b)s") %
-              dict(a=line, b=msg+"\n")).encode("utf8"))
+    def _onBridgeCmd(self, cmd):
+        if cmd == "domDone":
+            self.onLoadFinished()
+        else:
+            self.onBridgeCmd(cmd)
 
-    def _linkHandler(self, url):
-        self.linkHandler(url.toString())
+    def defaultOnBridgeCmd(self, cmd):
+        print("unhandled bridge cmd:", cmd)
 
-    def _loadFinished(self):
-        self.page().mainFrame().addToJavaScriptWindowObject("py", self._bridge)
-        if self._loadFinishedCB:
-            self._loadFinishedCB(self)
-            self._loadFinishedCB = None
+    def defaultOnLoadFinished(self):
+        pass
+
+    def resetHandlers(self):
+        self.onBridgeCmd = self.defaultOnBridgeCmd
+        self.onLoadFinished = self.defaultOnLoadFinished

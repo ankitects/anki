@@ -1,6 +1,9 @@
 # coding: utf-8
 
 import os
+
+import shutil
+
 from tests.shared import  getEmptyCol
 from anki.utils import stripHTML
 
@@ -11,7 +14,7 @@ def test_latex():
     anki.latex.latexCmds[0][0] = "nolatex"
     # add a note with latex
     f = d.newNote()
-    f['Front'] = u"[latex]hello[/latex]"
+    f['Front'] = "[latex]hello[/latex]"
     d.addNote(f)
     # but since latex couldn't run, there's nothing there
     assert len(os.listdir(d.media.dir())) == 0
@@ -20,11 +23,9 @@ def test_latex():
     assert "executing nolatex" in msg
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
-    for cmd in ("latex", "dvipng"):
-        if (not os.path.exists("/usr/bin/"+cmd) and
-            not os.path.exists("/usr/texbin/"+cmd)):
-            print "aborting test; %s is not installed" % cmd
-            return
+    if not shutil.which("latex") or not shutil.which("dvipng"):
+        print("aborting test; latex or dvipng is not installed")
+        return
     # fix path
     anki.latex.latexCmds[0][0] = "latex"
     # check media db should cause latex to be generated
@@ -33,13 +34,13 @@ def test_latex():
     assert ".png" in f.cards()[0].q()
     # adding new notes should cause generation on question display
     f = d.newNote()
-    f['Front'] = u"[latex]world[/latex]"
+    f['Front'] = "[latex]world[/latex]"
     d.addNote(f)
     f.cards()[0].q()
     assert len(os.listdir(d.media.dir())) == 2
     # another note with the same media should reuse
     f = d.newNote()
-    f['Front'] = u" [latex]world[/latex]"
+    f['Front'] = " [latex]world[/latex]"
     d.addNote(f)
     assert len(os.listdir(d.media.dir())) == 2
     oldcard = f.cards()[0]
@@ -48,7 +49,7 @@ def test_latex():
     # missing media will show the latex
     anki.latex.build = False
     f = d.newNote()
-    f['Front'] = u"[latex]foo[/latex]"
+    f['Front'] = "[latex]foo[/latex]"
     d.addNote(f)
     assert len(os.listdir(d.media.dir())) == 2
     assert stripHTML(f.cards()[0].q()) == "[latex]foo[/latex]"
@@ -107,7 +108,7 @@ def test_good_latex_command_works():
 def _test_includes_bad_command(bad):
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = u'[latex]%s[/latex]' % bad;
+    f['Front'] = '[latex]%s[/latex]' % bad;
     d.addNote(f)
     q = f.cards()[0].q()
     return ("'%s' is not allowed on cards" % bad in q, "Card content: %s" % q)

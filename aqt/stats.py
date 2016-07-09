@@ -14,6 +14,7 @@ class DeckStats(QDialog):
 
     def __init__(self, mw):
         QDialog.__init__(self, mw, Qt.Window)
+        mw.setupDialogGC(self)
         self.mw = mw
         self.name = "deckStats"
         self.period = 0
@@ -26,21 +27,19 @@ class DeckStats(QDialog):
         restoreGeom(self, self.name)
         b = f.buttonBox.addButton(_("Save Image"),
                                           QDialogButtonBox.ActionRole)
-        b.connect(b, SIGNAL("clicked()"), self.browser)
+        b.clicked.connect(self.browser)
         b.setAutoDefault(False)
-        c = self.connect
-        s = SIGNAL("clicked()")
-        c(f.groups, s, lambda: self.changeScope("deck"))
+        f.groups.clicked.connect(lambda: self.changeScope("deck"))
         f.groups.setShortcut("g")
-        c(f.all, s, lambda: self.changeScope("collection"))
-        c(f.month, s, lambda: self.changePeriod(0))
-        c(f.year, s, lambda: self.changePeriod(1))
-        c(f.life, s, lambda: self.changePeriod(2))
-        c(f.web, SIGNAL("loadFinished(bool)"), self.loadFin)
+        f.all.clicked.connect(lambda: self.changeScope("collection"))
+        f.month.clicked.connect(lambda: self.changePeriod(0))
+        f.year.clicked.connect(lambda: self.changePeriod(1))
+        f.life.clicked.connect(lambda: self.changePeriod(2))
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
         self.refresh()
-        self.exec_()
+        self.show()
+        print("fixme: save image support in deck stats")
 
     def reject(self):
         saveGeom(self, self.name)
@@ -50,7 +49,8 @@ class DeckStats(QDialog):
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.png",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
-        desktopPath = QDesktopServices.storageLocation(QDesktopServices.DesktopLocation)
+        desktopPath = QStandardPaths.writableLocation(
+            QStandardPaths.DesktopLocation)
         if not os.path.exists(desktopPath):
             os.mkdir(desktopPath)
         path = os.path.join(desktopPath, name)
@@ -78,14 +78,10 @@ to your desktop."""))
         self.wholeCollection = type == "collection"
         self.refresh()
 
-    def loadFin(self, b):
-        self.form.web.page().mainFrame().setScrollPosition(self.oldPos)
-
     def refresh(self):
         self.mw.progress.start(immediate=True)
-        self.oldPos = self.form.web.page().mainFrame().scrollPosition()
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.setHtml(self.report)
+        self.form.web.stdHtml("<html><body>"+self.report+"</body></html>")
         self.mw.progress.finish()

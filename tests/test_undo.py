@@ -27,7 +27,7 @@ def test_op():
     # and a review will, too
     d.save("add")
     f = d.newNote()
-    f['Front'] = u"one"
+    f['Front'] = "one"
     d.addNote(f)
     d.reset()
     assert d.undoName() == "add"
@@ -39,7 +39,7 @@ def test_review():
     d = getEmptyCol()
     d.conf['counts'] = COUNT_REMAINING
     f = d.newNote()
-    f['Front'] = u"one"
+    f['Front'] = "one"
     d.addNote(f)
     d.reset()
     assert not d.undoName()
@@ -62,7 +62,7 @@ def test_review():
     assert not d.undoName()
     # we should be able to undo multiple answers too
     f = d.newNote()
-    f['Front'] = u"two"
+    f['Front'] = "two"
     d.addNote(f)
     d.reset()
     assert d.sched.counts() == (2, 0, 0)

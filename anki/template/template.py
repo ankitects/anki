@@ -84,35 +84,20 @@ class Template(object):
             section_name = section_name.strip()
 
             # check for cloze
+            val = None
             m = re.match("c[qa]:(\d+):(.+)", section_name)
             if m:
                 # get full field text
                 txt = get_or_attr(context, m.group(2), None)
                 m = re.search(clozeReg%m.group(1), txt)
                 if m:
-                    it = m.group(1)
-                else:
-                    it = None
+                    val = m.group(1)
             else:
-                it = get_or_attr(context, section_name, None)
+                val = get_or_attr(context, section_name, None)
 
             replacer = ''
-            # if it and isinstance(it, collections.Callable):
-            #     replacer = it(inner)
-            if isinstance(it, basestring):
-                it = stripHTMLMedia(it).strip()
-            if it and not hasattr(it, '__iter__'):
-                if section[2] != '^':
-                    replacer = inner
-            elif it and hasattr(it, 'keys') and hasattr(it, '__getitem__'):
-                if section[2] != '^':
-                    replacer = self.render(inner, it)
-            elif it:
-                insides = []
-                for item in it:
-                    insides.append(self.render(inner, item))
-                replacer = ''.join(insides)
-            elif not it and section[2] == '^':
+            inverted = section[2] == "^"
+            if (val and not inverted) or (not val and inverted):
                 replacer = inner
 
             template = template.replace(section, replacer)
@@ -133,7 +118,7 @@ class Template(object):
                 replacement = func(self, tag_name, context)
                 template = template.replace(tag, replacement)
             except (SyntaxError, KeyError):
-                return u"{{invalid template}}"
+                return "{{invalid template}}"
 
         return template
 

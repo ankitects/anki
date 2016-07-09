@@ -4,14 +4,14 @@ import tempfile
 import os
 import time
 
-from shared import getEmptyCol, testDir
+from .shared import getEmptyCol, testDir
 
 
 # copying files to media folder
 def test_add():
     d = getEmptyCol()
     dir = tempfile.mkdtemp(prefix="anki")
-    path = os.path.join(dir, u"foo.jpg")
+    path = os.path.join(dir, "foo.jpg")
     open(path, "w").write("hello")
     # new file, should preserve name
     assert d.media.addFile(path) == "foo.jpg"
@@ -24,7 +24,7 @@ def test_add():
 def test_strings():
     d = getEmptyCol()
     mf = d.media.filesInStr
-    mid = d.models.models.keys()[0]
+    mid = list(d.models.models.keys())[0]
     assert mf(mid, "aoeu") == []
     assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
     assert mf(mid, "aoeu<img src='foo.jpg' style='test'>ao") == ["foo.jpg"]
@@ -50,18 +50,18 @@ def test_deckIntegration():
     # create a media dir
     d.media.dir()
     # put a file into it
-    file = unicode(os.path.join(testDir, "support/fake.png"))
+    file = str(os.path.join(testDir, "support/fake.png"))
     d.media.addFile(file)
     # add a note which references it
     f = d.newNote()
-    f['Front'] = u"one"; f['Back'] = u"<img src='fake.png'>"
+    f['Front'] = "one"; f['Back'] = "<img src='fake.png'>"
     d.addNote(f)
     # and one which references a non-existent file
     f = d.newNote()
-    f['Front'] = u"one"; f['Back'] = u"<img src='fake2.png'>"
+    f['Front'] = "one"; f['Back'] = "<img src='fake2.png'>"
     d.addNote(f)
     # and add another file which isn't used
-    open(os.path.join(d.media.dir(), "foo.jpg"), "wb").write("test")
+    open(os.path.join(d.media.dir(), "foo.jpg"), "w").write("test")
     # check media
     ret = d.media.check()
     assert ret[0] == ["fake2.png"]
@@ -78,7 +78,7 @@ def test_changes():
     assert not list(removed())
     # add a file
     dir = tempfile.mkdtemp(prefix="anki")
-    path = os.path.join(dir, u"foo.jpg")
+    path = os.path.join(dir, "foo.jpg")
     open(path, "w").write("hello")
     time.sleep(1)
     path = d.media.addFile(path)
@@ -106,8 +106,8 @@ def test_changes():
 
 def test_illegal():
     d = getEmptyCol()
-    aString = u"a:b|cd\\e/f\0g*h"
-    good = u"abcdefgh"
+    aString = "a:b|cd\\e/f\0g*h"
+    good = "abcdefgh"
     assert d.media.stripIllegal(aString) == good
     for c in aString:
         bad = d.media.hasIllegal("somestring"+c+"morestring")

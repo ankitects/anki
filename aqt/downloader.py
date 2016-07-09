@@ -28,7 +28,7 @@ def download(mw, code):
             # unsure why this is happening, but guard against throwing the
             # error
             pass
-    mw.connect(thread, SIGNAL("recv"), onRecv)
+    thread.recv.connect(onRecv)
     thread.start()
     mw.progress.start(immediate=True)
     while not thread.isFinished():
@@ -42,6 +42,8 @@ def download(mw, code):
         showWarning(_("Download failed: %s") % thread.error)
 
 class Downloader(QThread):
+
+    recv = pyqtSignal()
 
     def __init__(self, code):
         QThread.__init__(self)
@@ -59,18 +61,18 @@ class Downloader(QThread):
         def recvEvent(bytes):
             self.recvTotal += bytes
             if canPost():
-                self.emit(SIGNAL("recv"))
+                self.recv.emit()
         addHook("httpRecv", recvEvent)
         con =  httpCon()
         try:
             resp, cont = con.request(
                 aqt.appShared + "download/%d" % self.code)
-        except Exception, e:
+        except Exception as e:
             exc = traceback.format_exc()
             try:
-                self.error = unicode(e[0], "utf8", "ignore")
+                self.error = str(e[0])
             except:
-                self.error = unicode(exc, "utf8", "ignore")
+                self.error = str(exc)
             return
         finally:
             remHook("httpRecv", recvEvent)

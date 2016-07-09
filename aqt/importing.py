@@ -69,15 +69,14 @@ class ImportDialog(QDialog):
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
-        self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
-                     SIGNAL("clicked()"), self.helpRequested)
+        self.frm.buttonBox.button(QDialogButtonBox.Help).clicked.connect(
+            self.helpRequested)
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()
         self.frm.autoDetect.setVisible(self.importer.needDelimiter)
         addHook("currentModelChanged", self.modelChanged)
-        self.connect(self.frm.autoDetect, SIGNAL("clicked()"),
-                     self.onDelimiter)
+        self.frm.autoDetect.clicked.connect(self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', True))
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 1))
@@ -138,7 +137,7 @@ you can enter it here. Use \\t to represent tab."""),
         elif d == ":":
             d = _("Colon")
         else:
-            d = `d`
+            d = repr(d)
         txt = _("Fields separated by: %s") % d
         self.frm.autoDetect.setText(txt)
         
@@ -164,7 +163,7 @@ you can enter it here. Use \\t to represent tab."""),
         except UnicodeDecodeError:
             showUnicodeWarning()
             return
-        except Exception, e:
+        except Exception as e:
             msg = _("Import failed.\n")
             err = repr(str(e))
             if "1-character string" in err:
@@ -172,7 +171,7 @@ you can enter it here. Use \\t to represent tab."""),
             elif "invalidTempFolder" in err:
                 msg += self.mw.errorHandler.tempFolderMsg()
             else:
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc(), "ascii", "replace")
             showText(msg)
             return
         finally:
@@ -211,7 +210,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.mapbox.addWidget(self.mapwidget)
         self.grid = QGridLayout(self.mapwidget)
         self.mapwidget.setLayout(self.grid)
-        self.grid.setMargin(3)
+        self.grid.setContentsMargins(3,3,3,3)
         self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
@@ -226,8 +225,7 @@ you can enter it here. Use \\t to represent tab."""),
             self.grid.addWidget(QLabel(text), num, 1)
             button = QPushButton(_("Change"))
             self.grid.addWidget(button, num, 2)
-            self.connect(button, SIGNAL("clicked()"),
-                         lambda s=self,n=num: s.changeMappingNum(n))
+            button.clicked.connect(lambda s=self,n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n):
         f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
@@ -268,7 +266,7 @@ def onImport(mw):
                    filter=filt)
     if not file:
         return
-    file = unicode(file)
+    file = str(file)
     importFile(mw, file)
 
 def importFile(mw, file):
@@ -295,7 +293,7 @@ def importFile(mw, file):
         except UnicodeDecodeError:
             showUnicodeWarning()
             return
-        except Exception, e:
+        except Exception as e:
             msg = repr(str(e))
             if msg == "'unknownFormat'":
                 if file.endswith(".anki2"):
@@ -306,7 +304,7 @@ backup, please see the 'Backups' section of the user manual."""))
                     showWarning(_("Unknown file format."))
             else:
                 msg = _("Import failed. Debugging info:\n")
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc())
                 showText(msg)
             return
         finally:
@@ -329,7 +327,7 @@ backup, please see the 'Backups' section of the user manual."""))
             importer.run()
         except zipfile.BadZipfile:
             showWarning(invalidZipMsg())
-        except Exception, e:
+        except Exception as e:
             err = repr(str(e))
             if "invalidFile" in err:
                 msg = _("""\
@@ -342,7 +340,7 @@ Invalid file. Please restore from backup.""")
 Unable to import from a read-only file."""))
             else:
                 msg = _("Import failed.\n")
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc())
                 showText(msg)
         else:
             log = "\n".join(importer.log)

@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib, subprocess
+import re, os, sys, urllib.request, urllib.parse, urllib.error, subprocess
 import aqt
 from anki.sound import stripSounds
 from anki.utils import isWin, isMac, invalidFilename
@@ -45,7 +45,7 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     b.setDefault(True)
     if help:
         b = mb.addButton(QMessageBox.Help)
-        b.connect(b, SIGNAL("clicked()"), lambda: openHelp(help))
+        b.clicked.connect(lambda: openHelp(help))
         b.setAutoDefault(False)
     return mb.exec_()
 
@@ -70,7 +70,7 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
         if geomKey:
             saveGeom(diag, geomKey)
         QDialog.reject(diag)
-    diag.connect(box, SIGNAL("rejected()"), onReject)
+    box.rejected.connect(onReject)
     diag.setMinimumHeight(minHeight)
     diag.setMinimumWidth(minWidth)
     if geomKey:
@@ -143,7 +143,7 @@ def askUserDialog(text, buttons, parent=None, help="", title="Anki"):
 
 class GetTextDialog(QDialog):
 
-    def __init__(self, parent, question, help=None, edit=None, default=u"", \
+    def __init__(self, parent, question, help=None, edit=None, default="", \
                  title="Anki", minWidth=400):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
@@ -166,13 +166,10 @@ class GetTextDialog(QDialog):
         b = QDialogButtonBox(buts)
         v.addWidget(b)
         self.setLayout(v)
-        self.connect(b.button(QDialogButtonBox.Ok),
-                     SIGNAL("clicked()"), self.accept)
-        self.connect(b.button(QDialogButtonBox.Cancel),
-                     SIGNAL("clicked()"), self.reject)
+        b.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
+        b.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
         if help:
-            self.connect(b.button(QDialogButtonBox.Help),
-                         SIGNAL("clicked()"), self.helpRequested)
+            b.button(QDialogButtonBox.Help).clicked.connect(self.helpRequested)
 
     def accept(self):
         return QDialog.accept(self)
@@ -183,21 +180,21 @@ class GetTextDialog(QDialog):
     def helpRequested(self):
         openHelp(self.help)
 
-def getText(prompt, parent=None, help=None, edit=None, default=u"", title="Anki"):
+def getText(prompt, parent=None, help=None, edit=None, default="", title="Anki"):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     d = GetTextDialog(parent, prompt, help=help, edit=edit,
                       default=default, title=title)
     d.setWindowModality(Qt.WindowModal)
     ret = d.exec_()
-    return (unicode(d.l.text()), ret)
+    return (str(d.l.text()), ret)
 
 def getOnlyText(*args, **kwargs):
     (s, r) = getText(*args, **kwargs)
     if r:
         return s
     else:
-        return u""
+        return ""
 
 # fixme: these utilities could be combined into a single base class
 def chooseList(prompt, choices, startrow=0, parent=None):
@@ -214,7 +211,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     c.setCurrentRow(startrow)
     l.addWidget(c)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
-    bb.connect(bb, SIGNAL("accepted()"), d, SLOT("accept()"))
+    bb.accepted.connect(d.accept)
     l.addWidget(bb)
     d.exec_()
     return c.currentRow()
@@ -239,9 +236,6 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     else:
         dirkey = None
     d = QFileDialog(parent)
-    # fix #233 crash
-    if isMac:
-        d.setOptions(QFileDialog.DontUseNativeDialog)
     d.setFileMode(QFileDialog.ExistingFile)
     if os.path.exists(dir):
         d.setDirectory(dir)
@@ -249,16 +243,14 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     d.setNameFilter(filter)
     ret = []
     def accept():
-        # work around an osx crash
-        #aqt.mw.app.processEvents()
-        file = unicode(list(d.selectedFiles())[0])
+        file = str(list(d.selectedFiles())[0])
         if dirkey:
             dir = os.path.dirname(file)
             aqt.mw.pm.profile[dirkey] = dir
         if cb:
             cb(file)
         ret.append(file)
-    d.connect(d, SIGNAL("accepted()"), accept)
+    d.accepted.connect(accept)
     d.exec_()
     return ret and ret[0]
 
@@ -268,9 +260,9 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     config_key = dir_description + 'Directory'
     base = aqt.mw.pm.profile.get(config_key, aqt.mw.pm.base)
     path = os.path.join(base, fname)
-    file = unicode(QFileDialog.getSaveFileName(
-        parent, title, path, u"{0} (*{1})".format(key, ext),
-        options=QFileDialog.DontConfirmOverwrite))
+    file = QFileDialog.getSaveFileName(
+        parent, title, path, "{0} (*{1})".format(key, ext),
+        options=QFileDialog.DontConfirmOverwrite)[0]
     if file:
         # add extension
         if not file.lower().endswith(ext):
@@ -346,23 +338,13 @@ def applyStyles(widget):
     if os.path.exists(p):
         widget.setStyleSheet(open(p).read())
 
+# this will go away in the future - please use mw.baseHTML() instead
 def getBase(col):
-    base = None
-    mdir = col.media.dir()
-    if isWin and not mdir.startswith("\\\\"):
-        prefix = u"file:///"
-    else:
-        prefix = u"file://"
-    mdir = mdir.replace("\\", "/")
-    base = prefix + unicode(
-        urllib.quote(mdir.encode("utf-8")),
-        "utf-8") + "/"
-    return '<base href="%s">' % base
+    from aqt import mw
+    return mw.baseHTML()
 
 def openFolder(path):
     if isWin:
-        if isinstance(path, unicode):
-            path = path.encode(sys.getfilesystemencoding())
         subprocess.Popen(["explorer", path])
     else:
         QDesktopServices.openUrl(QUrl("file://" + path))
@@ -382,14 +364,13 @@ def addCloseShortcut(widg):
     if not isMac:
         return
     widg._closeShortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
-    widg.connect(widg._closeShortcut, SIGNAL("activated()"),
-                 widg, SLOT("reject()"))
+    widg._closeShortcut.activated.connect(widg.reject)
 
 def downArrow():
     if isWin:
-        return u"▼"
+        return "▼"
     # windows 10 is lacking the smaller arrow on English installs
-    return u"▾"
+    return "▾"
 
 # Tooltips
 ######################################################################

@@ -24,8 +24,8 @@ def hasSound(text):
 
 ##########################################################################
 
-processingSrc = u"rec.wav"
-processingDst = u"rec.mp3"
+processingSrc = "rec.wav"
+processingDst = "rec.mp3"
 processingChain = []
 recFiles = []
 
@@ -49,7 +49,7 @@ if isMac:
     os.environ['PATH'] += ":" + "/usr/local/bin"
     dir = os.path.dirname(os.path.abspath(__file__))
     dir = os.path.abspath(dir + "/../../../..")
-    os.environ['PATH'] += ":" + dir + "/audio"
+    os.environ['PATH'] += ":" + dir + "/Resources/audio"
 
 def retryWait(proc):
     # osx throws interrupted system call errors frequently
@@ -62,13 +62,14 @@ def retryWait(proc):
 # Mplayer settings
 ##########################################################################
 
+exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
 if isWin:
+    os.environ['PATH'] += ";" + exeDir
     mplayerCmd = ["mplayer.exe", "-ao", "win32"]
-    dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    os.environ['PATH'] += ";" + dir
-    os.environ['PATH'] += ";" + dir + "\\..\\win\\top" # for testing
 else:
+    os.environ['PATH'] += ":" + exeDir
     mplayerCmd = ["mplayer"]
+
 mplayerCmd += ["-really-quiet", "-noautosub"]
 
 # Mplayer in slave mode
@@ -147,10 +148,13 @@ class MplayerMonitor(threading.Thread):
     def startProcess(self):
         try:
             cmd = mplayerCmd + ["-slave", "-idle"]
-            devnull = file(os.devnull, "w")
+            env = os.environ.copy()
+            if not isWin and not isMac:
+                env["LD_LIBRARY_PATH"]=exeDir
             self.mplayer = subprocess.Popen(
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
-                stdout=devnull, stderr=devnull)
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                universal_newlines=True, bufsize=1, env=env)
         except OSError:
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
@@ -169,9 +173,6 @@ def queueMplayer(path):
         f.close()
         # it wants unix paths, too!
         path = name.replace("\\", "/")
-        path = path.encode(sys.getfilesystemencoding())
-    else:
-        path = path.encode("utf-8")
     mplayerQueue.append(path)
     mplayerEvt.set()
 
@@ -203,16 +204,12 @@ addHook("unloadProfile", stopMplayer)
 # PyAudio recording
 ##########################################################################
 
-try:
+import pyaudio
+import wave
 
-    import pyaudio
-    import wave
-
-    PYAU_FORMAT = pyaudio.paInt16
-    PYAU_CHANNELS = 1
-    PYAU_INPUT_INDEX = None
-except:
-    pass
+PYAU_FORMAT = pyaudio.paInt16
+PYAU_CHANNELS = 1
+PYAU_INPUT_INDEX = None
 
 class _Recorder(object):
 
@@ -229,7 +226,7 @@ class _Recorder(object):
             if ret:
                 raise Exception(_(
                     "Error running %s") %
-                                u" ".join(c))
+                                " ".join(c))
 
 class PyAudioThreadedRecorder(threading.Thread):
 
@@ -239,11 +236,7 @@ class PyAudioThreadedRecorder(threading.Thread):
 
     def run(self):
         chunk = 1024
-        try:
-            p = pyaudio.PyAudio()
-        except NameError:
-            raise Exception(
-                "Pyaudio not installed (recording not supported on OSX10.3)")
+        p = pyaudio.PyAudio()
 
         rate = int(p.get_default_input_device_info()['defaultSampleRate'])
 
@@ -254,20 +247,17 @@ class PyAudioThreadedRecorder(threading.Thread):
                         input_device_index=PYAU_INPUT_INDEX,
                         frames_per_buffer=chunk)
 
-        all = []
+        data = b""
         while not self.finish:
             try:
-                data = stream.read(chunk)
-            except IOError, e:
+                data += stream.read(chunk)
+            except IOError as e:
                 if e[1] == pyaudio.paInputOverflowed:
-                    data = None
+                    pass
                 else:
                     raise
-            if data:
-                all.append(data)
         stream.close()
         p.terminate()
-        data = ''.join(all)
         wf = wave.open(processingSrc, 'wb')
         wf.setnchannels(PYAU_CHANNELS)
         wf.setsampwidth(p.get_sample_size(PYAU_FORMAT))
@@ -295,7 +285,7 @@ class PyAudioRecorder(_Recorder):
 
     def file(self):
         if self.encode:
-            tgt = u"rec%d.mp3" % time.time()
+            tgt = "rec%d.mp3" % time.time()
             os.rename(processingDst, tgt)
             return tgt
         else:

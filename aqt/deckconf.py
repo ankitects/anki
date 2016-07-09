@@ -24,14 +24,10 @@ class DeckConf(QDialog):
         self.setupCombos()
         self.setupConfs()
         self.setWindowModality(Qt.WindowModal)
-        self.connect(self.form.buttonBox,
-                     SIGNAL("helpRequested()"),
-                     lambda: openHelp("deckoptions"))
-        self.connect(self.form.confOpts, SIGNAL("clicked()"), self.confOpts)
+        self.form.buttonBox.helpRequested.connect(lambda: openHelp("deckoptions"))
+        self.form.confOpts.clicked.connect(self.confOpts)
         self.form.confOpts.setText(downArrow())
-        self.connect(self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults),
-                     SIGNAL("clicked()"),
-                     self.onRestore)
+        self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self.onRestore)
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
@@ -42,16 +38,14 @@ class DeckConf(QDialog):
     def setupCombos(self):
         import anki.consts as cs
         f = self.form
-        f.newOrder.addItems(cs.newCardOrderLabels().values())
-        self.connect(f.newOrder, SIGNAL("currentIndexChanged(int)"),
-                     self.onNewOrderChanged)
+        f.newOrder.addItems(list(cs.newCardOrderLabels().values()))
+        f.newOrder.currentIndexChanged.connect(self.onNewOrderChanged)
 
     # Conf list
     ######################################################################
 
     def setupConfs(self):
-        self.connect(self.form.dconf, SIGNAL("currentIndexChanged(int)"),
-                     self.onConfChange)
+        self.form.dconf.currentIndexChanged.connect(self.onConfChange)
         self.conf = None
         self.loadConfs()
 
@@ -75,13 +69,13 @@ class DeckConf(QDialog):
     def confOpts(self):
         m = QMenu(self.mw)
         a = m.addAction(_("Add"))
-        a.connect(a, SIGNAL("triggered()"), self.addGroup)
+        a.triggered.connect(self.addGroup)
         a = m.addAction(_("Delete"))
-        a.connect(a, SIGNAL("triggered()"), self.remGroup)
+        a.triggered.connect(self.remGroup)
         a = m.addAction(_("Rename"))
-        a.connect(a, SIGNAL("triggered()"), self.renameGroup)
+        a.triggered.connect(self.renameGroup)
         a = m.addAction(_("Set for all subdecks"))
-        a.connect(a, SIGNAL("triggered()"), self.setChildren)
+        a.triggered.connect(self.setChildren)
         if not self.childDids:
             a.setEnabled(False)
         m.exec_(QCursor.pos())
@@ -230,7 +224,7 @@ class DeckConf(QDialog):
     ##################################################
 
     def updateList(self, conf, key, w, minSize=1):
-        items = unicode(w.text()).split(" ")
+        items = str(w.text()).split(" ")
         ret = []
         for i in items:
             if not i:
