@@ -978,7 +978,7 @@ where id in %s""" % ids2str(sf))
     def onChangeModel(self):
         nids = self.oneModelNotes()
         if nids:
-            ChangeModelDialog(self, nids)
+            ChangeModelDialog(self.mw.col, nids, self)
 
     def cram(self):
         return showInfo("not yet implemented")
@@ -1311,6 +1311,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         for t in "newTag", "newModel", "newDeck":
             addHook(t, self.buildTree)
 
+        addHook("change_note_type_start", self.on_start_change_note_type)
+        addHook("change_note_type_end", self.on_end_change_note_type)
+
     def teardownHooks(self):
         remHook("reset", self.onReset)
         remHook("editTimer", self.refreshCurrentCard)
@@ -1318,6 +1321,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         remHook("undoState", self.onUndoState)
         for t in "newTag", "newModel", "newDeck":
             remHook(t, self.buildTree)
+
+        remHook("change_note_type_start", self.on_start_change_note_type)
+        remHook("change_note_type_end", self.on_end_change_note_type)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
@@ -1514,6 +1520,22 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         except:
             return
         self.form.tableView.selectRow(row)
+
+
+
+    # Note update:
+    ######################################################################
+    def on_start_change_note_type(self):
+        self.mw.checkpoint(_("Change Note Type"))
+        self.mw.progress.start()
+        self.model.beginReset()
+
+    def on_end_change_note_type(self):
+        self.onSearch(reset=False)
+        self.model.endReset()
+        self.mw.progress.finish()
+        self.mw.reset()
+
 
 # Toolbar
 ######################################################################
