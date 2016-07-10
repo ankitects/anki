@@ -57,66 +57,66 @@ class ChangeModelDialog(QDialog):
 
     def model_changed(self, model):
         self.targetModel = model
-        self.rebuildTemplateMap()
-        self.rebuildFieldMap()
+        self.rebuild_template_map()
+        self.rebuild_field_map()
 
-    def rebuildTemplateMap(self, key=None, attr=None):
+    def rebuild_template_map(self, key=None, attr=None):
         if not key:
             key = "t"
             attr = "tmpls"
-        model_map = getattr(self, key + "widg")
-        lay = getattr(self, key + "layout")
+        map_widget = getattr(self, key + "widg")
+        layout = getattr(self, key + "layout")
         src = self.old_model[attr]
         dst = self.targetModel[attr]
-        if model_map:
-            lay.removeWidget(model_map)
-            model_map.deleteLater()
+        if map_widget:
+            layout.removeWidget(map_widget)
+            map_widget.deleteLater()
             setattr(self, key + "MapWidget", None)
-        model_map = QWidget()
-        l = QGridLayout()
+        map_widget = QWidget()
+        map_widget_layout = QGridLayout()
         combos = []
-        targets = [x['name'] for x in dst] + [_("Nothing")]
+        targets = [entity['name'] for entity in dst] + [_("Nothing")]
         indices = {}
-        for i, x in enumerate(src):
-            l.addWidget(QLabel(_("Change %s to:") % x['name']), i, 0)
-            cb = QComboBox()
-            cb.addItems(targets)
+        for i, entity in enumerate(src):
+            map_widget_layout.addWidget(QLabel(_("Change %s to:") % entity['name']), i, 0)
+            combo_box = QComboBox()
+            combo_box.addItems(targets)
             idx = min(i, len(targets) - 1)
-            cb.setCurrentIndex(idx)
-            indices[cb] = idx
-            cb.currentIndexChanged.connect(
-                lambda entry_id: self.onComboChanged(entry_id, cb, key))
-            combos.append(cb)
-            l.addWidget(cb, i, 1)
-        model_map.setLayout(l)
-        lay.addWidget(model_map)
-        setattr(self, key + "widg", model_map)
-        setattr(self, key + "layout", lay)
+            combo_box.setCurrentIndex(idx)
+            indices[combo_box] = idx
+            combo_box.currentIndexChanged.connect(
+                lambda entry_id: self.on_combo_changed(entry_id, combo_box, key))
+            combos.append(combo_box)
+            map_widget_layout.addWidget(combo_box, i, 1)
+        map_widget.setLayout(map_widget_layout)
+        layout.addWidget(map_widget)
+        setattr(self, key + "widg", map_widget)
+        setattr(self, key + "layout", layout)
         setattr(self, key + "combos", combos)
         setattr(self, key + "indices", indices)
 
-    def rebuildFieldMap(self):
-        return self.rebuildTemplateMap(key="f", attr="flds")
+    def rebuild_field_map(self):
+        return self.rebuild_template_map(key="f", attr="flds")
 
-    def onComboChanged(self, i, cb, key):
+    def on_combo_changed(self, combo_box_index, combo_box, key):
         indices = getattr(self, key + "indices")
         if self.pauseUpdate:
-            indices[cb] = i
+            indices[combo_box] = combo_box_index
             return
         combos = getattr(self, key + "combos")
-        if i == cb.count() - 1:
+        if combo_box_index == combo_box.count() - 1:
             # set to 'nothing'
             return
         # find another combo with same index
         for c in combos:
-            if c == cb:
+            if c == combo_box:
                 continue
-            if c.currentIndex() == i:
+            if c.currentIndex() == combo_box_index:
                 self.pauseUpdate = True
-                c.setCurrentIndex(indices[cb])
+                c.setCurrentIndex(indices[combo_box])
                 self.pauseUpdate = False
                 break
-        indices[cb] = i
+        indices[combo_box] = combo_box_index
 
     def get_template_map(self, old=None, combos=None, new=None):
         if not old:
