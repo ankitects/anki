@@ -79,6 +79,12 @@ function setFGButton(col) {
     $("#forecolor")[0].style.backgroundColor = col;
 };
 
+function saveNow() {
+    if (currentField) {
+        currentField.blur();
+    }
+};
+
 function onKey() {
     // esc clears focus, allowing dialog to close
     if (window.event.which == 27) {
@@ -581,9 +587,14 @@ class Editor(object):
             return
         self.saveTags()
         # move focus out of fields and save tags
-        self.parentWindow.setFocus()
-        # and process events so any focus-lost hooks fire
-        self.mw.app.processEvents()
+        self._saveNowWaiting = True
+        self.web.evalWithCallback("saveNow()", self._saveNowDone)
+        while self._saveNowWaiting:
+            # and process events so any focus-lost hooks fire
+            self.mw.app.processEvents()
+
+    def _saveNowDone(self, res):
+        self._saveNowWaiting = False
 
     def checkValid(self):
         cols = []
