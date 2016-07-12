@@ -94,6 +94,7 @@ class MplayerMonitor(threading.Thread):
             if mplayerClear and self.mplayer:
                 try:
                     self.mplayer.stdin.write("stop\n")
+                    self.mplayer.stdin.flush()
                 except:
                     # mplayer quit by user (likely video)
                     self.deadPlayers.append(self.mplayer)
@@ -111,18 +112,20 @@ class MplayerMonitor(threading.Thread):
                     continue
                 if mplayerClear:
                     mplayerClear = False
-                    extra = ""
+                    extra = b""
                 else:
-                    extra = " 1"
-                cmd = 'loadfile "%s"%s\n' % (item, extra)
+                    extra = b" 1"
+                cmd = b'loadfile "%s"%s\n' % (item.encode("utf8"), extra)
                 try:
                     self.mplayer.stdin.write(cmd)
+                    self.mplayer.stdin.flush()
                 except:
                     # mplayer has quit and needs restarting
                     self.deadPlayers.append(self.mplayer)
                     self.mplayer = None
                     self.startProcess()
                     self.mplayer.stdin.write(cmd)
+                    self.mplayer.stdin.flush()
                 # if we feed mplayer too fast it loses files
                 time.sleep(1)
             # wait() on finished processes. we don't want to block on the
@@ -140,6 +143,7 @@ class MplayerMonitor(threading.Thread):
             return
         try:
             self.mplayer.stdin.write("quit\n")
+            self.mplayer.stdin.flush()
             self.deadPlayers.append(self.mplayer)
         except:
             pass
@@ -154,7 +158,7 @@ class MplayerMonitor(threading.Thread):
             self.mplayer = subprocess.Popen(
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                universal_newlines=True, bufsize=1, env=env)
+                env=env)
         except OSError:
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
