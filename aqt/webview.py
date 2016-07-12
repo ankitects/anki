@@ -146,7 +146,6 @@ class AnkiWebView(QWebEngineView):
             fontspec = ""
         else:
             family = self.font().family()
-            print("family", family)
             fontspec = 'font-size:14px;font-family:%s;font-weight:medium;'%\
                 family
 
