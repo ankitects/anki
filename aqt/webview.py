@@ -140,8 +140,8 @@ class AnkiWebView(QWebEngineView):
         return max(1, dpi / 96.0)
 
     def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
-        buttonspec = ""
         if isWin:
+            buttonspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
             fontspec = 'font-size:12px;font-family:"Segoe UI";'
         elif isMac:
             family=".AppleSystemUIFont"
@@ -151,6 +151,7 @@ class AnkiWebView(QWebEngineView):
 button { font-size: 14px; -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px;}"""
         else:
+            buttonspec = ""
             family = self.font().family()
             fontspec = 'font-size:14px;font-family:%s;'%\
                 family
