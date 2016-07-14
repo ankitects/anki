@@ -91,6 +91,9 @@ class AnkiWebView(QWebEngineView):
         if evt.matches(QKeySequence.Paste) and isMac:
             self.onPaste()
             return True
+        if evt.matches(QKeySequence.SelectAll):
+            self.triggerPageAction(QWebEnginePage.SelectAll)
+            return False
         if evt.key() == Qt.Key_Escape:
             # cheap hack to work around webengine swallowing escape key that
             # usually closes dialogs
