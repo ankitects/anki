@@ -1728,7 +1728,8 @@ Are you sure you want to continue?""")):
         QDialog.accept(self)
         self.browser.mw.checkpoint(_("Change Note Type"))
         b = self.browser
-        b.mw.progress.start(immediate=True)
+        b.mw.col.modSchema(check=True)
+        b.mw.progress.start()
         b.model.beginReset()
         mm = b.mw.col.models
         mm.change(self.oldModel, self.nids, self.targetModel, fmap, cmap)
