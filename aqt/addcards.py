@@ -151,7 +151,7 @@ class AddCards(QDialog):
     def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText("nid:%d" % nid)
-        browser.onSearch()
+        browser.onSearchActivated()
 
     def addNote(self, note):
         note.model()['did'] = self.deckChooser.selectedId()
@@ -178,7 +178,9 @@ question on all cards."""), help="AddItems")
         return note
 
     def addCards(self):
-        self.editor.saveNow()
+        self.editor.saveNow(self._addCards)
+
+    def _addCards(self):
         self.editor.saveAddModeVars()
         note = self.editor.note
         note = self.addNote(note)
