@@ -978,7 +978,7 @@ where id in %s""" % ids2str(sf))
     def onChangeModel(self):
         nids = self.oneModelNotes()
         if nids:
-            ChangeModelDialog(self.mw.col, nids, self)
+            ChangeModelDialog(self.mw.col, nids, parent=self)
 
     def cram(self):
         return showInfo("not yet implemented")

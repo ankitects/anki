@@ -11,21 +11,27 @@ class ChangeModelDialog(QDialog):
     Dialog that allows user to create field and template maps from one note model to another
     """
 
-    def __init__(self, collection, note_id_list, parent=None):
+    def __init__(self, collection, note_id_list, old_model=None, parent=None):
         QDialog.__init__(self, parent)
         self.collection = collection
         self.note_id_list = note_id_list
-        first_note = Note(collection, id=note_id_list[0])
-        self.old_model = first_note.model()
+        self.old_model = old_model
+        if self.old_model is None:
+            first_note = Note(collection, id=note_id_list[0])
+            self.old_model = first_note.model()
 
         self.form = aqt.forms.changemodel.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         self.setup()
 
+        self.pauseUpdate = False
+        self.model_changed(self.collection.models.current())
+
         aqt.utils.restoreGeom(self, "changeModel")
         anki.hooks.addHook("reset", self.on_reset)
         anki.hooks.addHook("currentModelChanged", self.on_reset)
+
         self.exec_()
 
     def setup(self):
@@ -49,8 +55,6 @@ class ChangeModelDialog(QDialog):
             aqt.mw, self.form.modelChooserWidget, label=False)
         self.modelChooser.models.setFocus()
         self.form.buttonBox.helpRequested.connect(self.on_help)
-        self.model_changed(self.collection.models.current())
-        self.pauseUpdate = False
 
     def on_reset(self):
         self.model_changed(self.collection.models.current())
