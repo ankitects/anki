@@ -32,8 +32,6 @@ class ChangeModelDialog(QDialog):
         anki.hooks.addHook("reset", self.on_reset)
         anki.hooks.addHook("currentModelChanged", self.on_reset)
 
-        self.exec_()
-
     def setup(self):
         # maps
         self.flayout = QHBoxLayout()
@@ -165,11 +163,11 @@ class ChangeModelDialog(QDialog):
                     "Are you sure you want to continue?")):
                 return
 
-        QDialog.accept(self)
-
         self.collection.models.change(self.old_model, self.note_id_list, self.targetModel, field_map, templates_map)
 
         self.cleanup()
+
+        QDialog.accept(self)
 
     @staticmethod
     def on_help():
