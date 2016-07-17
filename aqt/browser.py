@@ -8,9 +8,6 @@ import time
 import re
 from operator import  itemgetter
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QWidget, QGridLayout, QLabel, QComboBox
-
 import anki.hooks
 import aqt
 import aqt.modelchooser
@@ -1541,6 +1538,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.mw.progress.finish()
         self.mw.reset()
 
+
+# Change model dialog
+######################################################################
 
 class ChangeModel(QDialog):
     """
