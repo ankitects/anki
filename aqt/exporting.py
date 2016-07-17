@@ -46,7 +46,7 @@ class ExportDialog(QDialog):
         self.isTextNote = hasattr(self.exporter, "includeTags")
         self.hideTags = hasattr(self.exporter, "hideTags")
         self.frm.includeSched.setVisible(self.isApkg)
-        self.frm.includeMedia.setVisible(self.isApkg)
+        self.frm.includeMedia.setVisible(hasattr(self.exporter, "includeMedia"))
         self.frm.includeTags.setVisible(
             not self.isApkg and not self.hideTags)
 
