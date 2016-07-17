@@ -7,7 +7,15 @@ import cgi
 import time
 import re
 from operator import  itemgetter
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QHBoxLayout, QWidget, QGridLayout, QLabel, QComboBox
+
+import anki.hooks
+import aqt
+import aqt.modelchooser
 from anki.lang import ngettext
+from anki.notes import Note
 
 from aqt.qt import *
 import anki
@@ -21,7 +29,6 @@ from aqt.webview import AnkiWebView
 from aqt.toolbar import Toolbar
 from anki.consts import *
 from anki.sound import playFromText, clearAudioQueue
-from aqt.dialog.change_model import ChangeModelDialog
 
 COLOUR_SUSPENDED = "#FFFFB2"
 COLOUR_MARKED = "#D9B2E9"
@@ -978,7 +985,7 @@ where id in %s""" % ids2str(sf))
     def onChangeModel(self):
         nids = self.oneModelNotes()
         if nids:
-            ChangeModelDialog(self.mw.col, nids, parent=self).exec_()
+            ChangeModel(self.mw.col, nids, parent=self).exec_()
 
     def cram(self):
         return showInfo("not yet implemented")
@@ -1521,8 +1528,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             return
         self.form.tableView.selectRow(row)
 
-
-
     # Note update:
     ######################################################################
     def on_start_change_note_type(self):
@@ -1535,6 +1540,174 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.model.endReset()
         self.mw.progress.finish()
         self.mw.reset()
+
+
+class ChangeModel(QDialog):
+    """
+    Dialog that allows user to create field and template maps from one note model to another
+    """
+
+    def __init__(self, collection, note_id_list, old_model=None, parent=None):
+        QDialog.__init__(self, parent)
+        self.collection = collection
+        self.nids = note_id_list
+        self.oldModel = old_model
+        if self.oldModel is None:
+            first_note = Note(collection, id=note_id_list[0])
+            self.oldModel = first_note.model()
+
+        self.form = aqt.forms.changemodel.Ui_Dialog()
+        self.form.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
+        self.setup()
+
+        self.pauseUpdate = False
+        self.modelChanged(self.collection.models.current())
+
+        aqt.utils.restoreGeom(self, "changeModel")
+        anki.hooks.addHook("reset", self.onReset)
+        anki.hooks.addHook("currentModelChanged", self.onReset)
+
+    def setup(self):
+        # maps
+        self.flayout = QHBoxLayout()
+        self.flayout.setContentsMargins(0, 0, 0, 0)
+        self.fwidg = None
+        self.form.fieldMap.setLayout(self.flayout)
+        self.tlayout = QHBoxLayout()
+        self.tlayout.setContentsMargins(0, 0, 0, 0)
+        self.twidg = None
+        self.form.templateMap.setLayout(self.tlayout)
+        if self.style().objectName() == "gtk+":
+            # gtk+ requires margins in inner layout
+            self.form.verticalLayout_2.setContentsMargins(0, 11, 0, 0)
+            self.form.verticalLayout_3.setContentsMargins(0, 11, 0, 0)
+        # model chooser
+        import aqt.modelchooser
+        self.form.oldModelLabel.setText(self.oldModel['name'])
+        self.modelChooser = aqt.modelchooser.ModelChooser(
+            aqt.mw, self.form.modelChooserWidget, label=False)
+        self.modelChooser.models.setFocus()
+        self.form.buttonBox.helpRequested.connect(self.onHelp)
+
+    def onReset(self):
+        self.modelChanged(self.collection.models.current())
+
+    def modelChanged(self, model):
+        self.targetModel = model
+        self.rebuildTemplateMap()
+        self.rebuildFieldMap()
+
+    def rebuildTemplateMap(self, key=None, attr=None):
+        if not key:
+            key = "t"
+            attr = "tmpls"
+        map_widget = getattr(self, key + "widg")
+        layout = getattr(self, key + "layout")
+        src = self.oldModel[attr]
+        dst = self.targetModel[attr]
+        if map_widget:
+            layout.removeWidget(map_widget)
+            map_widget.deleteLater()
+            setattr(self, key + "MapWidget", None)
+        map_widget = QWidget()
+        map_widget_layout = QGridLayout()
+        combos = []
+        targets = [entity['name'] for entity in dst] + [_("Nothing")]
+        indices = {}
+        for i, entity in enumerate(src):
+            map_widget_layout.addWidget(QLabel(_("Change %s to:") % entity['name']), i, 0)
+            combo_box = QComboBox()
+            combo_box.addItems(targets)
+            idx = min(i, len(targets) - 1)
+            combo_box.setCurrentIndex(idx)
+            indices[combo_box] = idx
+            combo_box.currentIndexChanged.connect(
+                lambda entry_id: self.onComboChanged(entry_id, combo_box, key))
+            combos.append(combo_box)
+            map_widget_layout.addWidget(combo_box, i, 1)
+        map_widget.setLayout(map_widget_layout)
+        layout.addWidget(map_widget)
+        setattr(self, key + "widg", map_widget)
+        setattr(self, key + "layout", layout)
+        setattr(self, key + "combos", combos)
+        setattr(self, key + "indices", indices)
+
+    def rebuildFieldMap(self):
+        return self.rebuildTemplateMap(key="f", attr="flds")
+
+    def onComboChanged(self, combo_box_index, combo_box, key):
+        indices = getattr(self, key + "indices")
+        if self.pauseUpdate:
+            indices[combo_box] = combo_box_index
+            return
+        combos = getattr(self, key + "combos")
+        if combo_box_index == combo_box.count() - 1:
+            # set to 'nothing'
+            return
+        # find another combo with same index
+        for c in combos:
+            if c == combo_box:
+                continue
+            if c.currentIndex() == combo_box_index:
+                self.pauseUpdate = True
+                c.setCurrentIndex(indices[combo_box])
+                self.pauseUpdate = False
+                break
+        indices[combo_box] = combo_box_index
+
+    def getTemplateMap(self, old=None, combos=None, new=None):
+        if not old:
+            old = self.oldModel['tmpls']
+            combos = self.tcombos
+            new = self.targetModel['tmpls']
+        model_map = {}
+        for i, f in enumerate(old):
+            idx = combos[i].currentIndex()
+            if idx == len(new):
+                # ignore
+                model_map[f['ord']] = None
+            else:
+                f2 = new[idx]
+                model_map[f['ord']] = f2['ord']
+        return model_map
+
+    def getFieldMap(self):
+        return self.getTemplateMap(
+            old=self.oldModel['flds'],
+            combos=self.fcombos,
+            new=self.targetModel['flds'])
+
+    def cleanup(self):
+        anki.hooks.remHook("reset", self.onReset)
+        anki.hooks.remHook("currentModelChanged", self.onReset)
+        self.modelChooser.cleanup()
+        aqt.utils.saveGeom(self, "changeModel")
+
+    def reject(self):
+        self.cleanup()
+        return QDialog.reject(self)
+
+    def accept(self):
+        # check maps
+        field_map = self.getFieldMap()
+        templates_map = self.getTemplateMap()
+        if any(True for template in list(templates_map.values()) if template is None):
+            if not aqt.utils.askUser(_(
+                    "Any cards mapped to nothing will be deleted. "
+                    "If a note has no remaining cards, it will be lost. "
+                    "Are you sure you want to continue?")):
+                return
+
+        self.collection.models.change(self.oldModel, self.nids, self.targetModel, field_map, templates_map)
+
+        self.cleanup()
+
+        QDialog.accept(self)
+
+    @staticmethod
+    def onHelp():
+        aqt.utils.openHelp("browsermisc")
 
 
 # Toolbar
