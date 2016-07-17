@@ -320,13 +320,16 @@ class AnkiPackageExporter(AnkiExporter):
 # Export modules
 ##########################################################################
 
+
+def get_exporter_id(obj):
+    return ("%s (*%s)" % (obj.key, obj.ext), obj)
+
+
 def exporters():
-    def id(obj):
-        return ("%s (*%s)" % (obj.key, obj.ext), obj)
     exps = [
-        id(AnkiPackageExporter),
-        id(TextNoteExporter),
-        id(TextCardExporter),
+        get_exporter_id(AnkiPackageExporter),
+        get_exporter_id(TextNoteExporter),
+        get_exporter_id(TextCardExporter),
     ]
     runHook("exportersList", exps)
     return exps
