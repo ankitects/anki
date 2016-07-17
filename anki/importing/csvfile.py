@@ -13,7 +13,7 @@ from anki.lang import _
 class TextImporter(NoteImporter):
 
     needDelimiter = True
-    patterns = ("\t", ";")
+    patterns = ("\t", "|", ",", ";", ":")
 
     def __init__(self, *args):
         NoteImporter.__init__(self, *args)
@@ -86,14 +86,13 @@ class TextImporter(NoteImporter):
             raise Exception("unknownFormat")
         self.dialect = None
         sniffer = csv.Sniffer()
-        delims = [',', '\t', ';', ':']
         if not self.delimiter:
             try:
                 self.dialect = sniffer.sniff("\n".join(self.data[:10]),
-                                             delims)
+                                             self.patterns)
             except:
                 try:
-                    self.dialect = sniffer.sniff(self.data[0], delims)
+                    self.dialect = sniffer.sniff(self.data[0], self.patterns)
                 except:
                     pass
         if self.dialect:

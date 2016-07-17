@@ -120,9 +120,8 @@ class DataModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
-    def search(self, txt, reset=True):
-        if reset:
-            self.beginReset()
+    def search(self, txt):
+        self.beginReset()
         t = time.time()
         # the db progress handler may cause a refresh, so we need to zero out
         # old data first
@@ -130,15 +129,14 @@ class DataModel(QAbstractTableModel):
         self.cards = self.col.findCards(txt, order=True)
         #self.browser.mw.pm.profile['fullSearch'])
         #print "fetch cards in %dms" % ((time.time() - t)*1000)
-        if reset:
-            self.endReset()
+        self.endReset()
 
     def reset(self):
         self.beginReset()
         self.endReset()
 
+    # caller must have called editor.saveNow() before calling this or .reset()
     def beginReset(self):
-        self.browser.editor.saveNow()
         self.browser.editor.setNote(None, hide=False)
         self.browser.mw.progress.start()
         self.saveSelection()
@@ -152,6 +150,9 @@ class DataModel(QAbstractTableModel):
         self.browser.mw.progress.finish()
 
     def reverse(self):
+        self.browser.editor.saveNow(self._reverse)
+
+    def _reverse(self):
         self.beginReset()
         self.cards.reverse()
         self.endReset()
@@ -356,6 +357,7 @@ class Browser(QMainWindow):
         self.col = self.mw.col
         self.lastFilter = ""
         self._previewWindow = None
+        self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
         restoreGeom(self, "editor", 0)
@@ -369,17 +371,13 @@ class Browser(QMainWindow):
         self.setupColumns()
         self.setupTable()
         self.setupMenus()
-        self.setupSearch()
         self.setupTree()
         self.setupHeaders()
         self.setupHooks()
         self.setupEditor()
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
-        self.form.searchEdit.setFocus()
-        self.form.searchEdit.lineEdit().setText("is:current")
-        self.form.searchEdit.lineEdit().selectAll()
-        self.onSearch()
+        self.setupSearch()
         self.show()
 
     def setupToolbar(self):
@@ -396,7 +394,6 @@ class Browser(QMainWindow):
             f.actionClose.setVisible(False)
         f.actionReposition.triggered.connect(self.reposition)
         f.actionReschedule.triggered.connect(self.reschedule)
-        f.actionCram.triggered.connect(self.cram)
         f.actionChangeModel.triggered.connect(self.onChangeModel)
         # edit
         f.actionUndo.triggered.connect(self.mw.onUndo)
@@ -463,21 +460,36 @@ class Browser(QMainWindow):
             curmax + 6)
 
     def closeEvent(self, evt):
+        if not self._closeEventHasCleanedUp:
+            if self.editor.note:
+                # ignore event for now to allow us to save
+                self.editor.saveNow(self._closeEventAfterSave)
+                evt.ignore()
+            else:
+                self._closeEventCleanup()
+                evt.accept()
+                self.mw.gcWindow(self)
+        else:
+            evt.accept()
+            self.mw.gcWindow(self)
+
+    def _closeEventAfterSave(self):
+        self._closeEventCleanup()
+        self.close()
+
+    def _closeEventCleanup(self):
+        self.editor.setNote(None)
         saveSplitter(self.form.splitter_2, "editor2")
         saveSplitter(self.form.splitter, "editor3")
-        self.editor.saveNow()
-        self.editor.setNote(None)
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
         self.col.conf['activeCols'] = self.model.activeCols
         self.col.setMod()
-        self.hide()
-        aqt.dialogs.close("Browser")
         self.teardownHooks()
         self.mw.maybeReset()
-        self.mw.gcWindow(self)
-        evt.accept()
+        aqt.dialogs.close("Browser")
+        self._closeEventHasCleanedUp = True
 
     def canClose(self):
         return True
@@ -515,19 +527,31 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSearch(self):
-        self.filterTimer = None
         self.form.searchEdit.setLineEdit(FavouritesLineEdit(self.mw, self))
-        self.form.searchButton.clicked.connect(self.onSearch)
-        self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearch)
+        self.form.searchButton.clicked.connect(self.onSearchActivated)
+        self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self.form.searchEdit.addItems(self.mw.pm.profile['searchHistory'])
+        self._searchPrompt = _("<type here to search; hit enter to show current deck>")
+        self._lastSearchTxt = "is:current"
+        self.search()
+        # then replace text for easily showing the deck
+        self.form.searchEdit.lineEdit().setText(self._searchPrompt)
+        self.form.searchEdit.lineEdit().selectAll()
+        self.form.searchEdit.setFocus()
 
-    def onSearch(self, reset=True):
-        "Careful: if reset is true, the current note is saved."
+    # search triggered by user
+    def onSearchActivated(self):
+        self.editor.saveNow(self._onSearchActivated)
+
+    def _onSearchActivated(self):
+        # convert guide text before we save history
+        if self.form.searchEdit.lineEdit().text() == self._searchPrompt:
+            self.form.searchEdit.lineEdit().setText("deck:current ")
+
+        # update history
         txt = str(self.form.searchEdit.lineEdit().text()).strip()
-        prompt = _("<type here to search; hit enter to show current deck>")
         sh = self.mw.pm.profile['searchHistory']
-        # update search history
         if txt in sh:
             sh.remove(txt)
         sh.insert(0, txt)
@@ -535,30 +559,25 @@ class Browser(QMainWindow):
         self.form.searchEdit.clear()
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile['searchHistory'] = sh
-        if self.mw.state == "review" and "is:current" in txt:
-            # search for current card, but set search to easily display whole
-            # deck
-            if reset:
-                self.model.beginReset()
-                self.model.focusedCard = self.mw.reviewer.card.id
-            self.model.search("nid:%d"%self.mw.reviewer.card.nid, False)
-            if reset:
-                self.model.endReset()
-            self.form.searchEdit.lineEdit().setText(prompt)
-            self.form.searchEdit.lineEdit().selectAll()
-            return
-        elif "is:current" in txt:
-            self.form.searchEdit.lineEdit().setText(prompt)
-            self.form.searchEdit.lineEdit().selectAll()
-        elif txt == prompt:
-            self.form.searchEdit.lineEdit().setText("deck:current ")
-            txt = "deck:current "
-        self.model.search(txt, reset)
+
+        # keep track of search string so that we reuse identical search when
+        # refreshing, rather than whatever is currently in the search field
+        self._lastSearchTxt = txt
+        self.search()
+
+    # search triggered programmatically. caller must have saved note first.
+    def search(self):
+        if "is:current" in self._lastSearchTxt:
+            # show current card if there is one
+            c = self.mw.reviewer.card
+            nid = c and c.nid or 0
+            self.model.search("nid:%d"%nid)
+        else:
+            self.model.search(self._lastSearchTxt)
+
         if not self.model.cards:
             # no row change will fire
-            self.onRowChanged(None, None)
-        elif self.mw.state == "review":
-            self.focusCid(self.mw.reviewer.card.id)
+            self._onRowChanged(None, None)
 
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
@@ -573,7 +592,7 @@ class Browser(QMainWindow):
 
     def onReset(self):
         self.editor.setNote(None)
-        self.onSearch()
+        self.search()
 
     # Table view & editor
     ######################################################################
@@ -593,6 +612,9 @@ class Browser(QMainWindow):
 
     def onRowChanged(self, current, previous):
         "Update current note and hide/show editor."
+        self.editor.saveNow(lambda: self._onRowChanged(current, previous))
+
+    def _onRowChanged(self, current, previous):
         update = self.updateTitle()
         show = self.model.cards and update == 1
         self.form.splitter.widget(1).setVisible(not not show)
@@ -641,14 +663,16 @@ class Browser(QMainWindow):
         hh.sectionMoved.connect(self.onColumnMoved)
 
     def onSortChanged(self, idx, ord):
+        self.editor.saveNow(lambda: self._onSortChanged(idx, ord))
+
+    def _onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
         noSort = ("question", "answer", "template", "deck", "note", "noteTags")
         if type in noSort:
             if type == "template":
-                # fixme: change to 'card:1' to be clearer in future dev round
                 showInfo(_("""\
 This column can't be sorted on, but you can search for individual card types, \
-such as 'card:Card 1'."""))
+such as 'card:1'."""))
             elif type == "deck":
                 showInfo(_("""\
 This column can't be sorted on, but you can search for specific decks \
@@ -663,7 +687,7 @@ by clicking on one on the left."""))
             if type == "noteFld":
                 ord = not ord
             self.col.conf['sortBackwards'] = ord
-            self.onSearch()
+            self.search()
         else:
             if self.col.conf['sortBackwards'] != ord:
                 self.col.conf['sortBackwards'] = ord
@@ -697,6 +721,9 @@ by clicking on one on the left."""))
         m.exec_(gpos)
 
     def toggleField(self, type):
+        self.editor.saveNow(lambda: self._toggleField(type))
+
+    def _toggleField(self, type):
         self.model.beginReset()
         if type in self.model.activeCols:
             if len(self.model.activeCols) < 2:
@@ -783,15 +810,14 @@ by clicking on one on the left."""))
             txt = "-"+txt
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
-            if cur and cur != \
-                    _("<type here to search; hit enter to show current deck>"):
+            if cur and cur != self._searchPrompt:
                         txt = cur + " " + txt
         elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur:
                 txt = cur + " or " + txt
         self.form.searchEdit.lineEdit().setText(txt)
-        self.onSearch()
+        self.onSearchActivated()
 
     def _systemTagTree(self, root):
         tags = (
@@ -980,14 +1006,12 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def onChangeModel(self):
+        self.editor.saveNow(self._onChangeModel)
+
+    def _onChangeModel(self):
         nids = self.oneModelNotes()
         if nids:
             ChangeModel(self.mw.col, nids, parent=self).exec_()
-
-    def cram(self):
-        return showInfo("not yet implemented")
-        self.close()
-        self.mw.onCram(self.selectedCards())
 
     # Preview
     ######################################################################
@@ -1107,6 +1131,9 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def deleteNotes(self):
+        self.editor.saveNow(self._deleteNotes)
+
+    def _deleteNotes(self):
         nids = self.selectedNotes()
         if not nids:
             return
@@ -1127,7 +1154,7 @@ where id in %s""" % ids2str(sf))
             # last selection at top; place one above topmost selection
             newRow = min(selectedRows) - 1
         self.col.remNotes(nids)
-        self.onSearch(reset=False)
+        self.search()
         if len(self.model.cards):
             newRow = min(newRow, len(self.model.cards) - 1)
             newRow = max(newRow, 0)
@@ -1140,6 +1167,9 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def setDeck(self):
+        self.editor.saveNow(self._setDeck)
+
+    def _setDeck(self):
         from aqt.studydeck import StudyDeck
         cids = self.selectedCards()
         if not cids:
@@ -1176,6 +1206,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def addTags(self, tags=None, label=None, prompt=None, func=None):
+        self.editor.saveNow(lambda: self._addTags(tags, label, prompt, func))
+
+    def _addTags(self, tags, label, prompt, func):
         if prompt is None:
             prompt = _("Enter tags to add:")
         if tags is None:
@@ -1207,11 +1240,11 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def isSuspended(self):
         return not not (self.card and self.card.queue == -1)
 
-    def onSuspend(self, sus=None):
-        if sus is None:
-            sus = not self.isSuspended()
-        # focus lost hook may not have chance to fire
-        self.editor.saveNow()
+    def onSuspend(self):
+        self.editor.saveNow(self._onSuspend)
+
+    def _onSuspend(self):
+        sus = not self.isSuspended()
         c = self.selectedCards()
         if sus:
             self.col.sched.suspendCards(c)
@@ -1235,6 +1268,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def reposition(self):
+        self.editor.saveNow(self._reposition)
+
+    def _reposition(self):
         cids = self.selectedCards()
         cids2 = self.col.db.list(
             "select id from cards where type = 0 and id in " + ids2str(cids))
@@ -1258,7 +1294,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.col.sched.sortCards(
             cids, start=frm.start.value(), step=frm.step.value(),
             shuffle=frm.randomize.isChecked(), shift=frm.shift.isChecked())
-        self.onSearch(reset=False)
+        self.search()
         self.mw.requireReset()
         self.model.endReset()
 
@@ -1266,6 +1302,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def reschedule(self):
+        self.editor.saveNow(self._reschedule)
+
+    def _reschedule(self):
         d = QDialog(self)
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reschedule.Ui_Dialog()
@@ -1282,7 +1321,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             fmax = max(fmin, fmax)
             self.col.sched.reschedCards(
                 self.selectedCards(), fmin, fmax)
-        self.onSearch(reset=False)
+        self.search()
         self.mw.requireReset()
         self.model.endReset()
 
@@ -1290,12 +1329,17 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def selectNotes(self):
+        self.editor.saveNow(self._selectNotes)
+
+    def _selectNotes(self):
         nids = self.selectedNotes()
-        self.form.searchEdit.lineEdit().setText("nid:"+",".join([str(x) for x in nids]))
+        # bypass search history
+        self._lastSearchTxt = "nid:"+",".join([str(x) for x in nids])
+        self.form.searchEdit.lineEdit().setText(self._lastSearchTxt)
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
         tv.selectionModel().clear()
-        self.onSearch()
+        self.search()
         tv.selectAll()
 
     def invertSelection(self):
@@ -1338,6 +1382,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def onFindReplace(self):
+        self.editor.saveNow(self._onFindReplace)
+
+    def _onFindReplace(self):
         sf = self.selectedNotes()
         if not sf:
             return
@@ -1372,7 +1419,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             showInfo(_("Invalid regular expression."), parent=self)
             return
         else:
-            self.onSearch()
+            self.search()
             self.mw.requireReset()
         finally:
             self.model.endReset()
@@ -1391,6 +1438,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def onFindDupes(self):
+        self.editor.saveNow(self._onFindDupes)
+
+    def _onFindDupes(self):
         d = QDialog(self)
         self.mw.setupDialogGC(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
@@ -1452,7 +1502,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def dupeLinkClicked(self, link):
         self.form.searchEdit.lineEdit().setText(link)
-        self.onSearch()
+        # manually, because we've already saved
+        self._lastSearchTxt = link
+        self.search()
         self.onNote()
 
     # Jumping
@@ -1461,7 +1513,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def _moveCur(self, dir=None, idx=None):
         if not self.model.cards:
             return
-        self.editor.saveNow()
         tv = self.form.tableView
         if idx is None:
             idx = tv.moveCursor(dir, self.mw.app.keyboardModifiers())
@@ -1469,12 +1520,18 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         tv.setCurrentIndex(idx)
 
     def onPreviousCard(self):
+        self.editor.saveNow(self._onPreviousCard)
+
+    def _onPreviousCard(self):
         f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveUp)
         self.editor.web.setFocus()
         self.editor.web.eval("focusField(%d)" % f)
 
     def onNextCard(self):
+        self.editor.saveNow(self._onNextCard)
+
+    def _onNextCard(self):
         f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveDown)
         self.editor.web.setFocus()
@@ -1529,11 +1586,12 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
     def on_start_change_note_type(self):
         self.mw.checkpoint(_("Change Note Type"))
+        self.mw.col.modSchema(check=True)
         self.mw.progress.start()
         self.model.beginReset()
 
     def on_end_change_note_type(self):
-        self.onSearch(reset=False)
+        self.search()
         self.model.endReset()
         self.mw.progress.finish()
         self.mw.reset()
@@ -1702,7 +1760,6 @@ class ChangeModel(QDialog):
         self.collection.models.change(self.oldModel, self.nids, self.targetModel, field_map, templates_map)
 
         self.cleanup()
-
         QDialog.accept(self)
 
     @staticmethod

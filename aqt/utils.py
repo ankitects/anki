@@ -347,7 +347,11 @@ def openFolder(path):
     if isWin:
         subprocess.Popen(["explorer", path])
     else:
+        oldlpath = os.environ.get("LD_LIBRARY_PATH")
+        del os.environ["LD_LIBRARY_PATH"]
         QDesktopServices.openUrl(QUrl("file://" + path))
+        if oldlpath:
+            os.environ["LD_LIBRARY_PATH"] = oldlpath
 
 def shortcut(key):
     if isMac:

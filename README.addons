@@ -45,10 +45,22 @@ Anki's webviews are now using WebEngine. Of note:
   modified to use this.
 - Javascript is evaluated asynchronously, so if you need the result of a JS
   expression you can use ankiwebview's evalWithCallback().
+- As a result of this asynchronous behaviour, editor.saveNow() now requires a
+  callback. If your add-on performs actions in the browser, you likely need to
+  call editor.saveNow() first and then run the rest of your code in the callback.
+  Calls to .onSearch() will need to be changed to .search()/.onSearchActivated()
+  as well. See the browser's .deleteNotes() for an example.
 - You can now debug the webviews using an external Chrome instance, by setting
   the env var QTWEBENGINE_REMOTE_DEBUGGING to 8080 prior to starting Anki,
   then surfing to localhost:8080 in Chrome. If you run into issues, try
   connecting with Chrome 49.
+
+Add-ons without a top level file
+---------------------------------
+
+Add-ons no longer require a top level file - if you just distribute a single
+folder, the folder's __init__.py file will form the entry point. This will not
+work in 2.0.x however.
 
 Sharing updated add-ons
 ------------------------

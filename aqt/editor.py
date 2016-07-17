@@ -79,6 +79,13 @@ function setFGButton(col) {
     $("#forecolor")[0].style.backgroundColor = col;
 };
 
+function saveNow() {
+    clearChangeTimer();
+    if (currentField) {
+        currentField.blur();
+    }
+};
+
 function onKey() {
     // esc clears focus, allowing dialog to close
     if (window.event.which == 27) {
@@ -447,13 +454,17 @@ class Editor(object):
     #     _("Record audio (F5)")
 
     def onFields(self):
+        self.saveNow(self._onFields)
+
+    def _onFields(self):
         from aqt.fields import FieldDialog
-        self.saveNow()
         FieldDialog(self.mw, self.note, parent=self.parentWindow)
 
     def onCardLayout(self):
+        self.saveNow(self._onCardLayout)
+
+    def _onCardLayout(self):
         from aqt.clayout import CardLayout
-        self.saveNow()
         if self.card:
             ord = self.card.ord
         else:
@@ -575,15 +586,13 @@ class Editor(object):
         return [(f['font'], f['size'], f['rtl'])
                 for f in self.note.model()['flds']]
 
-    def saveNow(self):
-        "Must call this before adding cards, closing dialog, etc."
+    def saveNow(self, callback):
+        "Save unsaved edits then call callback()."
         if not self.note:
+            callback()
             return
         self.saveTags()
-        # move focus out of fields and save tags
-        self.parentWindow.setFocus()
-        # and process events so any focus-lost hooks fire
-        self.mw.app.processEvents()
+        self.web.evalWithCallback("saveNow()", lambda res: callback())
 
     def checkValid(self):
         cols = []
@@ -604,7 +613,7 @@ class Editor(object):
         browser.form.searchEdit.lineEdit().setText(
             '"dupe:%s,%s"' % (self.note.model()['id'],
                               contents))
-        browser.onSearch()
+        browser.onSearchActivated()
 
     def fieldsAreBlank(self):
         if not self.note:
@@ -619,7 +628,9 @@ class Editor(object):
     ######################################################################
 
     def onHtmlEdit(self):
-        self.saveNow()
+        self.saveNow(self._onHtmlEdit)
+
+    def _onHtmlEdit(self):
         d = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)

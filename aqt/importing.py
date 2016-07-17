@@ -391,7 +391,8 @@ def replaceWithApkg(mw, file, backup):
     # unwanted media. in the future we might also want to deduplicate this
     # step
     d = os.path.join(mw.pm.profileFolder(), "collection.media")
-    for n, (cStr, file) in enumerate(json.loads(z.read("media")).items()):
+    for n, (cStr, file) in enumerate(
+            json.loads(z.read("media").decode("utf8")).items()):
         mw.progress.update(ngettext("Processed %d media file",
                                     "Processed %d media files", n) % n)
         size = z.getinfo(cStr).file_size

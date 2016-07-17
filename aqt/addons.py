@@ -38,7 +38,9 @@ class AddonManager(object):
 
     def directories(self):
         return [d for d in os.listdir(self.addonsFolder())
-                if not d.startswith('.') and os.path.isdir(os.path.join(self.addonsFolder(), d))]
+                if not d.startswith('.') and
+                not d == "__pycache__" and
+                os.path.isdir(os.path.join(self.addonsFolder(), d))]
 
     @staticmethod
     def _logging_import(name, *args, **kwargs):
@@ -73,11 +75,10 @@ class AddonManager(object):
             m = self.mw.form.menuPlugins.addMenu(
                 os.path.splitext(file)[0])
             self._menus.append(m)
-            a = QAction(_("Edit..."), self.mw, triggered=self.onEdit)
             p = os.path.join(self.addonsFolder(), file)
-
+            a = QAction(_("Edit..."), self.mw, triggered=lambda x, y=p: self.onEdit(y))
             m.addAction(a)
-            a = QAction(_("Delete..."), self.mw, triggered=self.onRem)
+            a = QAction(_("Delete..."), self.mw, triggered=lambda x, y=p: self.onRem(y))
             m.addAction(a)
 
     def onEdit(self, path):
@@ -90,7 +91,7 @@ class AddonManager(object):
         d.exec_()
 
     def onAcceptEdit(self, path, frm):
-        open(path, "w").write(frm.text.toPlainText().encode("utf8"))
+        open(path, "wb").write(frm.text.toPlainText().encode("utf8"))
         showInfo(_("Edits saved. Please restart Anki."))
 
     def onRem(self, path):
@@ -124,9 +125,11 @@ class AddonManager(object):
     ######################################################################
 
     def onGetAddons(self):
-        showInfo("Currently disabled, as add-ons built for 2.0.x will need updating")
-
-        # GetAddons(self.mw)
+        showInfo("""\
+Most add-ons built for Anki 2.0.x will not work on this version of Anki \
+until they are updated. To avoid errors during startup, please only \
+download add-ons that say they support Anki 2.1.x in the description.""")
+        GetAddons(self.mw)
 
     def install(self, data, fname):
         if fname.endswith(".py"):

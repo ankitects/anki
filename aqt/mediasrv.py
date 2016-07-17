@@ -10,7 +10,7 @@ import errno
 class MediaServer(QThread):
 
     def run(self):
-        self.port = 8080
+        self.port = 10000
         self.server = None
         while not self.server:
             try:
@@ -25,6 +25,22 @@ class MediaServer(QThread):
         self.server.serve_forever()
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
+
+    def do_GET(self):
+        f = self.send_head()
+        if f:
+            try:
+                self.copyfile(f, self.wfile)
+            except Exception as e:
+                if os.getenv("ANKIDEV"):
+                    print("http server caught exception:", e)
+                else:
+                    # swallow it - user likely surfed away from
+                    # review screen before an image had finished
+                    # downloading
+                    pass
+            finally:
+                f.close()
 
     def send_head(self):
         path = self.translate_path(self.path)

@@ -51,8 +51,10 @@ class EditCurrent(QDialog):
         self.editor.setNote(n)
 
     def onSave(self):
+        self.editor.saveNow(self._onSave)
+
+    def _onSave(self):
         remHook("reset", self.onReset)
-        self.editor.saveNow()
         r = self.mw.reviewer
         try:
             r.card.load()
