@@ -54,7 +54,7 @@ class DialogManager(object):
     def open(self, name, *args):
         (creator, instance) = self._dialogs[name]
         if instance:
-            instance.setWindowState(instance.windowState() | Qt.WindowActive)
+            instance.setWindowState(Qt.WindowNoState)
             instance.activateWindow()
             instance.raise_()
             return instance
