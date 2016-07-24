@@ -175,6 +175,25 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         if self.ord not in ords:
             return True
 
+    def move_to_deck(self, deck_id, move_from_dynamic_deck=False):
+        """
+        Moves self to the deck with specified deck_id
+        :parameter deck_id Destination deck id.
+        :parameter move_from_dynamic_deck Specifies if we should perform move if card is in dynamic deck
+         or should we just change it's "odid" old/original deck id.
+         The function is not doing flush, so you need to call flush yourself in order to persist changes into DB
+        """
+        if move_from_dynamic_deck:
+            self.col.sched.remFromDyn([self.id])
+
+        if self.odid:
+            self.odid = deck_id
+        else:
+            self.did = deck_id
+
+        self.mod = intTime()
+
+
     def __repr__(self):
         d = dict(self.__dict__)
         # remove non-useful elements
