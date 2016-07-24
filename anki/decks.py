@@ -177,7 +177,7 @@ class DeckManager(object):
                     self.rem(id, cardsToo)
             # delete cards too?
             if cardsToo:
-                cids = self.cids(did, include_from_cram=True)
+                cids = self.cids(did, include_from_dynamic=True)
                 self.col.remCards(cids)
         # delete the deck and add a grave
         del self.decks[str(did)]
@@ -409,13 +409,18 @@ class DeckManager(object):
         c = self.current()
         self.select(c['id'])
 
-    def cids(self, did, children=False, include_from_cram=False):
-        deck_ids = [did] + [deck_id for _, deck_id in self.children(did)] if children else []
+    def cids(self, did, children=False, include_from_dynamic=False):
+        deck_ids = [did] + ([deck_id for _, deck_id in self.children(did)] if children else [])
 
-        request = "select id from cards where did in {}" + "or odid in {}" if include_from_cram else ""
-        parameters = (ids2str(deck_ids),) + (ids2str(deck_ids),) if include_from_cram else tuple()
+        request = "select id from cards where did in {}" + ("or odid in {}" if include_from_dynamic else "")
+        parameters = (ids2str(deck_ids),) + ((ids2str(deck_ids),) if include_from_dynamic else tuple())
 
         return self.col.db.list(request.format(*parameters))
+
+    def get_note_ids(self, deck_id, children=False, include_from_dynamic=False):
+        card_ids_str = ids2str(self.cids(deck_id, children, include_from_dynamic))
+        request = "SELECT DISTINCT nid FROM cards WHERE id IN " + card_ids_str
+        return self.col.db.list(request)
 
     def recoverOrphans(self):
         dids = list(self.decks.keys())
