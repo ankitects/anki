@@ -185,14 +185,12 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         """
         if move_from_dynamic_deck:
             self.col.sched.remFromDyn([self.id])
+            self.load()
 
         if self.odid:
             self.odid = deck_id
         else:
             self.did = deck_id
-
-        self.mod = intTime()
-
 
     def __repr__(self):
         d = dict(self.__dict__)
