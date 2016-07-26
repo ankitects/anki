@@ -147,12 +147,12 @@ class AnkiWebView(QWebEngineView):
             buttonspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
             fontspec = 'font-size:12px;font-family:"Segoe UI";'
         elif isMac:
-            family=".AppleSystemUIFont"
-            fontspec = 'font-size:16px;font-family:"%s";'% \
+            family="Helvetica"
+            fontspec = 'font-size:15px;font-family:"%s";'% \
                        family
             buttonspec = """
-button { font-size: 14px; -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
-border-radius:5px;}"""
+button { font-size: 13px; -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
+border-radius:5px; font-family: Helvetica }"""
         else:
             buttonspec = ""
             family = self.font().family()
