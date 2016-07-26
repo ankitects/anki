@@ -5,7 +5,7 @@
 import re, sys, threading, time, subprocess, os, atexit
 import  random
 from anki.hooks import addHook
-from anki.utils import  tmpdir, isWin, isMac
+from anki.utils import  tmpdir, isWin, isMac, isLin
 
 # Shared utils
 ##########################################################################
@@ -21,6 +21,30 @@ def stripSounds(text):
 
 def hasSound(text):
     return re.search(_soundReg, text) is not None
+
+# Packaged commands
+##########################################################################
+
+# return modified command array that points to bundled command, and return
+# required environment
+def _packagedCmd(cmd):
+    cmd = cmd[:]
+    env = os.environ.copy()
+    if isMac:
+        dir = os.path.dirname(os.path.abspath(__file__))
+        exeDir = os.path.abspath(dir + "/../../../../Resources/audio")
+    else:
+        exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
+        if isWin and not cmd[0].endswith(".exe"):
+            cmd[0] += ".exe"
+    path = os.path.join(exeDir, cmd[0])
+    if not os.path.exists(path):
+        return cmd, env
+    cmd[0] = path
+    # need to set lib path for linux
+    if isLin:
+        env["LD_LIBRARY_PATH"] = exeDir
+    return cmd, env
 
 ##########################################################################
 
@@ -44,13 +68,6 @@ if isWin:
 else:
     si = None
 
-if isMac:
-    # make sure lame, which is installed in /usr/local/bin, is in the path
-    os.environ['PATH'] += ":" + "/usr/local/bin"
-    dir = os.path.dirname(os.path.abspath(__file__))
-    dir = os.path.abspath(dir + "/../../../..")
-    os.environ['PATH'] += ":" + dir + "/Resources/audio"
-
 def retryWait(proc):
     # osx throws interrupted system call errors frequently
     while 1:
@@ -62,15 +79,9 @@ def retryWait(proc):
 # Mplayer settings
 ##########################################################################
 
-exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
+mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
 if isWin:
-    os.environ['PATH'] += ";" + exeDir
-    mplayerCmd = ["mplayer.exe", "-ao", "win32"]
-else:
-    os.environ['PATH'] += ":" + exeDir
-    mplayerCmd = ["mplayer"]
-
-mplayerCmd += ["-really-quiet", "-noautosub"]
+    mplayerCmd += ["-ao", "win32"]
 
 # Mplayer in slave mode
 ##########################################################################
@@ -152,9 +163,7 @@ class MplayerMonitor(threading.Thread):
     def startProcess(self):
         try:
             cmd = mplayerCmd + ["-slave", "-idle"]
-            env = os.environ.copy()
-            if not isWin and not isMac:
-                env["LD_LIBRARY_PATH"]=exeDir
+            cmd, env = _packagedCmd(cmd)
             self.mplayer = subprocess.Popen(
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
@@ -224,13 +233,14 @@ class _Recorder(object):
             if not self.encode and c[0] == 'lame':
                 continue
             try:
-                ret = retryWait(subprocess.Popen(c, startupinfo=si))
+                cmd, env = _packagedCmd(c)
+                ret = retryWait(subprocess.Popen(cmd, startupinfo=si, env=env))
             except:
                 ret = True
             if ret:
                 raise Exception(_(
                     "Error running %s") %
-                                " ".join(c))
+                                " ".join(cmd))
 
 class PyAudioThreadedRecorder(threading.Thread):
 
