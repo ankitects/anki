@@ -15,7 +15,7 @@ from aqt.qt import *
 import anki.lang
 from anki.consts import HELP_SITE
 from anki.lang import langDir
-from anki.utils import isMac
+from anki.utils import isMac, isLin
 
 appVersion=_version
 appWebsite="http://ankisrs.net/"
@@ -211,6 +211,11 @@ def _run():
     if isMac and getattr(sys, 'frozen', None):
         rd = os.path.abspath(moduleDir + "/../../../plugins")
         QCoreApplication.setLibraryPaths([rd])
+
+    # work around pyqt loading wrong GL library
+    if isLin:
+        import ctypes
+        ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
 
     # create the app
     app = AnkiApp(sys.argv)
