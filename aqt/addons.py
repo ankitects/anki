@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
+import io
 import sys, os, traceback
 from io import StringIO
 import zipfile
@@ -133,7 +133,7 @@ download add-ons that say they support Anki 2.1.x in the description.""")
             return
         # .zip file
         try:
-            z = ZipFile(StringIO(data))
+            z = ZipFile(io.BytesIO(data))
         except zipfile.BadZipfile:
             showWarning(_("The download was corrupt. Please try again."))
             return
