@@ -204,7 +204,7 @@ class AnkiExporter(Exporter):
                 for file in self.src.media.filesInStr(mid, flds):
                     media.add(file)
             if self.mediaDir:
-                media |= self.get_files_for_models(mids, self.mediaDir)
+                media |= self.getFilesForModels(mids, self.mediaDir)
         self.mediaFiles = list(media)
         self.dst.crt = self.src.crt
         # todo: tags?
@@ -213,7 +213,7 @@ class AnkiExporter(Exporter):
         self.postExport()
         self.dst.close()
 
-    def get_files_for_models(self, model_ids, media_dir):
+    def getFilesForModels(self, model_ids, media_dir):
         result = set()
         for file_name in os.listdir(media_dir):
             if file_name.startswith("_"):
@@ -321,15 +321,15 @@ class AnkiPackageExporter(AnkiExporter):
 ##########################################################################
 
 
-def get_exporter_id(obj):
+def getExporterId(obj):
     return ("%s (*%s)" % (obj.key, obj.ext), obj)
 
 
 def exporters():
     exps = [
-        get_exporter_id(AnkiPackageExporter),
-        get_exporter_id(TextNoteExporter),
-        get_exporter_id(TextCardExporter),
+        getExporterId(AnkiPackageExporter),
+        getExporterId(TextNoteExporter),
+        getExporterId(TextCardExporter),
     ]
     runHook("exportersList", exps)
     return exps
