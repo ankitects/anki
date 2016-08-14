@@ -175,7 +175,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         if self.ord not in ords:
             return True
 
-    def move_to_deck(self, deck_id, move_from_dynamic_deck=False):
+    def moveToDeck(self, deck_id, move_from_dynamic_deck=False):
         """
         Moves self to the deck with specified deck_id
         :parameter deck_id Destination deck id.

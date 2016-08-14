@@ -43,7 +43,7 @@ from notes where id = ?""", self.id)
         self.scm = self.col.scm
 
     @classmethod
-    def get_by_uuid(cls, collection, uuid):
+    def getByUUID(cls, collection, uuid):
         query = "select id from notes where guid=?"
         note_id = collection.db.scalar(query, uuid)
         if not note_id:

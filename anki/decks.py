@@ -417,7 +417,7 @@ class DeckManager(object):
 
         return self.col.db.list(request.format(*parameters))
 
-    def get_note_ids(self, deck_id, children=False, include_from_dynamic=False):
+    def getNoteIds(self, deck_id, children=False, include_from_dynamic=False):
         card_ids_str = ids2str(self.cids(deck_id, children, include_from_dynamic))
         request = "SELECT DISTINCT nid FROM cards WHERE id IN " + card_ids_str
         return self.col.db.list(request)
