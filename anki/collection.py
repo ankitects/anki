@@ -790,7 +790,7 @@ and queue = 0""", intTime(), self.usn())
             "select max(due)+1 from cards where type = 0") or 0
         # reviews should have a reasonable due #
         ids = self.db.list(
-            "select id from cards where queue = 2 and due > 10000")
+            "select id from cards where queue = 2 and due > 100000")
         if ids:
             problems.append("Reviews had incorrect due date.")
             self.db.execute(
