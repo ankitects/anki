@@ -266,14 +266,7 @@ class AnkiPackageExporter(AnkiExporter):
         z.write(colfile, "collection.anki2")
         # and media
         self.prepareMedia()
-        media = {}
-        for c, file in enumerate(self.mediaFiles):
-            cStr = str(c)
-            mpath = os.path.join(self.mediaDir, file)
-            if os.path.exists(mpath):
-                z.write(mpath, cStr, zipfile.ZIP_STORED)
-                media[cStr] = file
-                runHook("exportedMediaFiles", c)
+        media = self._exportMedia(z, self.mediaFiles, self.mediaDir)
         # tidy up intermediate files
         os.unlink(colfile)
         p = path.replace(".apkg", ".media.db2")
@@ -292,13 +285,19 @@ class AnkiPackageExporter(AnkiExporter):
         # copy all media
         if not self.includeMedia:
             return {}
-        media = {}
         mdir = self.col.media.dir()
-        for c, file in enumerate(os.listdir(mdir)):
+        return self._exportMedia(z, os.listdir(mdir), mdir)
+
+    def _exportMedia(self, z, files, fdir):
+        media = {}
+        for c, file in enumerate(files):
             cStr = str(c)
-            mpath = os.path.join(mdir, file)
+            mpath = os.path.join(fdir, file)
             if os.path.exists(mpath):
-                z.write(mpath, cStr, zipfile.ZIP_STORED)
+                if re.search('\.svg$', file, re.IGNORECASE):
+                    z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
+                else:
+                    z.write(mpath, cStr, zipfile.ZIP_STORED)
                 media[cStr] = file
                 runHook("exportedMediaFiles", c)
 
