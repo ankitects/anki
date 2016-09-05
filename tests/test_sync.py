@@ -166,15 +166,17 @@ def test_cards():
 @nose.with_setup(setup_modified)
 def test_tags():
     test_sync()
-    assert deck1.tags.all() == deck2.tags.all()
+    def sortedTags(deck):
+        return sorted(deck.tags.all())
+    assert sortedTags(deck1) == sortedTags(deck2)
     deck1.tags.register(["abc"])
     deck2.tags.register(["xyz"])
-    assert deck1.tags.all() != deck2.tags.all()
+    assert sortedTags(deck1) != sortedTags(deck2)
     deck1.save()
     time.sleep(0.1)
     deck2.save()
     assert client.sync() == "success"
-    assert deck1.tags.all() == deck2.tags.all()
+    assert sortedTags(deck1) == sortedTags(deck2)
 
 @nose.with_setup(setup_modified)
 def test_decks():
