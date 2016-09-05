@@ -9,6 +9,3 @@ install:
   - pip install coveralls
 
 script: nosetests ./tests --with-coverage --cover-package=./anki
-
-after_success:
-  - coveralls
