@@ -582,7 +582,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
                         tgt.close()
                     break
                 tgt.write(data)
-            buf.write(b'\r\n' + bdry + b'--\r\n')
+        buf.write(b'\r\n' + bdry + b'--\r\n')
         size = buf.tell()
         # connection headers
         headers = {
