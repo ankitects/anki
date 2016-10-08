@@ -511,6 +511,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         else:
             template = model['tmpls'][0]
         fields['Card'] = template['name']
+        fields['CardId'] = data[0]
         fields['c%d' % (data[4]+1)] = "1"
         # render q & a
         d = dict(id=data[0])
