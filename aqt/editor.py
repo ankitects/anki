@@ -6,6 +6,7 @@ import os
 import urllib.request, urllib.error, urllib.parse
 import ctypes
 import urllib.request, urllib.parse, urllib.error
+import warnings
 
 from anki.lang import _
 from aqt.qt import *
@@ -641,7 +642,9 @@ class Editor(object):
         html = form.textEdit.toPlainText()
         # filter html through beautifulsoup so we can strip out things like a
         # leading </div>
-        html = str(BeautifulSoup(html, "html.parser"))
+        with warnings.catch_warnings() as w:
+            warnings.simplefilter('ignore', UserWarning)
+            html = str(BeautifulSoup(html, "html.parser"))
         self.note.fields[self.currentField] = html
         self.loadNote()
         # focus field so it's saved
@@ -871,7 +874,9 @@ to a cloze type first, via Edit>Change Note Type."""))
     ######################################################################
 
     def _filterHTML(self, html, localize=False):
-        doc = BeautifulSoup(html, "html.parser")
+        with warnings.catch_warnings() as w:
+            warnings.simplefilter('ignore', UserWarning)
+            doc = BeautifulSoup(html, "html.parser")
         # remove implicit regular font style from outermost element
         if doc.span:
             try:
