@@ -125,11 +125,11 @@ def fmtFloat(float_value, point=1):
 
 # HTML
 ##############################################################################
-reStyle = re.compile("(?s)<style.*?>.*?</style>")
-reScript = re.compile("(?s)<script.*?>.*?</script>")
+reStyle = re.compile("(?si)<style.*?>.*?</style>")
+reScript = re.compile("(?si)<script.*?>.*?</script>")
 reTag = re.compile("<.*?>")
 reEnts = re.compile("&#?\w+;")
-reMedia = re.compile("<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
+reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 def stripHTML(s):
     s = reStyle.sub("", s)
