@@ -347,8 +347,7 @@ def openFolder(path):
     if isWin:
         subprocess.Popen(["explorer", path])
     else:
-        oldlpath = os.environ.get("LD_LIBRARY_PATH")
-        del os.environ["LD_LIBRARY_PATH"]
+        oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
         QDesktopServices.openUrl(QUrl("file://" + path))
         if oldlpath:
             os.environ["LD_LIBRARY_PATH"] = oldlpath
