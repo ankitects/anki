@@ -7,10 +7,12 @@ import urllib.request, urllib.error, urllib.parse
 import ctypes
 import urllib.request, urllib.parse, urllib.error
 import warnings
+import html
 
 from anki.lang import _
 from aqt.qt import *
-from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia
+from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia, \
+    checksum
 import anki.sound
 from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
@@ -171,6 +173,11 @@ function onDragOver(elem) {
     dropTarget = elem;
 }
 
+function onPaste(elem) {
+    pycmd("paste");
+    window.event.preventDefault();
+}
+
 function caretToEnd() {
     var r = document.createRange()
     r.selectNodeContents(currentField);
@@ -249,7 +256,7 @@ function setFields(fields, focusTo) {
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%%>".format(n);
         txt += "<div id=f{0} onkeydown='onKey();' oninput='checkForEmptyField()' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
-        txt += "ondragover='onDragOver(this);' ";
+        txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
         txt += "contentEditable=true class=field>{0}</div>".format(f);
         txt += "</td></tr>";
     }
@@ -284,6 +291,80 @@ function showDupes() {
 function hideDupes() {
     $("#dupes").hide();
 }
+
+var pasteHTML = function(html, internal) {
+    if (!internal) {
+        html = filterHTML(html);
+    }
+    setFormat("inserthtml", html);
+};
+
+var filterHTML = function(html) {
+    // wrap it in <top> as we aren't allowed to change top level elements
+    var top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0];
+    filterNode(top);
+    var outHtml = top.innerHTML;
+    // get rid of nbsp
+    outHtml = outHtml.replace(/&nbsp;/ig, " ");
+    //console.log(`input html: ${html}`);
+    //console.log(`outpt html: ${outHtml}`);
+    return outHtml;
+};
+
+var allowedTags = {};
+
+for (let tag of [
+    "H1", "H2", "H3", "P", "DIV", "BR", "LI", "UL", "OL",
+    "B", "I", "U", "BLOCKQUOTE", "CODE", "EM", "STRONG",
+    "PRE", "SUB", "SUP", "TABLE"]) {
+    allowedTags[tag] = {"attrs": []};
+}
+
+allowedTags["A"] = {"attrs": ["HREF"]};
+allowedTags["TR"] = {"attrs": ["ROWSPAN"]};
+allowedTags["TD"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
+allowedTags["TH"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
+allowedTags["IMG"] = {"attrs": ["SRC"]};
+
+var filterNode = function(node) {
+    // if it's a text node, nothing to do
+    if (node.nodeType == 3) {
+        return;
+    }
+
+    // descend first, and take a copy of the child nodes as the loop will skip
+    // elements due to node modifications otherwise
+
+    var nodes = [];
+    for (let i=0; i<node.childNodes.length; i++) {
+        nodes.push(node.childNodes[i]);
+    }
+    for (let i=0; i<nodes.length; i++) {
+        filterNode(nodes[i]);
+    }
+
+    if (node.tagName == "ANKITOP") {
+        return;
+    }
+
+    const tag = allowedTags[node.tagName];
+    if (!tag) {
+        node.outerHTML = node.innerHTML;
+    } else {
+        // allowed, filter out attributes
+        var toRemove = [];
+        for (let i = 0; i < node.attributes.length; i++) {
+            let attr = node.attributes[i];
+            let attrName = attr.name.toUpperCase();
+            if (tag.attrs.indexOf(attrName) == -1) {
+                toRemove.push(attr)
+            }
+        }
+        for (let i = 0; i < toRemove.length; i++) {
+            node.removeAttributeNode(toRemove[i]);
+        }
+    }
+};
 
 var mouseDown = 0;
 
@@ -525,7 +606,7 @@ class Editor(object):
     def mungeHTML(self, txt):
         if txt == "<br>":
             txt = ""
-        return self._filterHTML(txt, localize=False)
+        return txt
 
     # Setting/unsetting the current note
     ######################################################################
@@ -870,63 +951,27 @@ to a cloze type first, via Edit>Change Note Type."""))
         path = urllib.parse.unquote(url)
         return self.mw.col.media.writeData(path, filecontents)
 
-    # HTML filtering
+    # Paste/drag&drop
     ######################################################################
 
-    def _filterHTML(self, html, localize=False):
+    removeTags = ["script", "iframe", "object", "style"]
+
+    def _pastePreFilter(self, html):
         with warnings.catch_warnings() as w:
             warnings.simplefilter('ignore', UserWarning)
             doc = BeautifulSoup(html, "html.parser")
-        # remove implicit regular font style from outermost element
-        if doc.span:
-            try:
-                attrs = doc.span['style'].split(";")
-            except (KeyError, TypeError):
-                attrs = []
-            if attrs:
-                new = []
-                for attr in attrs:
-                    sattr = attr.strip()
-                    if sattr and sattr not in ("font-style: normal", "font-weight: normal"):
-                        new.append(sattr)
-                doc.span['style'] = ";".join(new)
-            # filter out implicit formatting from webkit
-        for tag in doc("span", "Apple-style-span"):
-            preserve = ""
-            for item in tag['style'].split(";"):
-                try:
-                    k, v = item.split(":")
-                except ValueError:
-                    continue
-                if k.strip() == "color" and not v.strip() == "rgb(0, 0, 0)":
-                    preserve += "color:%s;" % v
-                if k.strip() in ("font-weight", "font-style"):
-                    preserve += item + ";"
-            if preserve:
-                # preserve colour attribute, delete implicit class
-                tag['style'] = preserve
-                del tag['class']
-            else:
-                # strip completely
-                tag.replaceWithChildren()
-        for tag in doc("font", "Apple-style-span"):
-            # strip all but colour attr from implicit font tags
-            if 'color' in dict(tag.attrs):
-                for attr in tag.attrs:
-                    if attr != "color":
-                        del tag[attr]
-                    # and apple class
-                del tag['class']
-            else:
-                # remove completely
-                tag.replaceWithChildren()
-            # now images
+
+        for tag in self.removeTags:
+            for node in doc(tag):
+                node.decompose()
+
+        # convert p tags to divs
+        for node in doc("p"):
+            node.name = "div"
+
         for tag in doc("img"):
-            # turn file:/// links into relative ones
             try:
-                if tag['src'].lower().startswith("file://"):
-                    tag['src'] = os.path.basename(tag['src'])
-                if localize and self.isURL(tag['src']):
+                if self.isURL(tag['src']):
                     # convert remote image links to local ones
                     fname = self.urlToFile(tag['src'])
                     if fname:
@@ -935,16 +980,22 @@ to a cloze type first, via Edit>Change Note Type."""))
                 # for some bizarre reason, mnemosyne removes src elements
                 # from missing media
                 pass
-                # strip all other attributes, including implicit max-width
-            for attr, val in tag.attrs.items():
-                if attr != "src":
-                    del tag[attr]
-            # strip superfluous elements
-        for elem in "html", "head", "body", "meta":
-            for tag in doc(elem):
-                tag.replaceWithChildren()
+
         html = str(doc)
         return html
+
+    def doPaste(self, html, internal):
+        if not internal:
+            html = self._pastePreFilter(html)
+        self.web.eval("pasteHTML(%s);" % json.dumps(html))
+
+    def doDrop(self, html, internal):
+        self.web.evalWithCallback("dropTarget.focus();",
+                                  lambda _: self.doPaste(html, internal))
+        self.web.setFocus()
+
+    def onPaste(self):
+        self.web.onPaste()
 
     # Advanced menu
     ######################################################################
@@ -992,13 +1043,11 @@ to a cloze type first, via Edit>Change Note Type."""))
         record=onRecSound,
         more=onAdvanced,
         dupes=showDupes,
+        paste=onPaste,
     )
 
 # Pasting, drag & drop, and keyboard layouts
 ######################################################################
-
-# fixme: drag & drop
-# fixme: middle click to paste
 
 class EditorWebView(AnkiWebView):
 
@@ -1017,170 +1066,100 @@ class EditorWebView(AnkiWebView):
         self._flagAnkiText()
 
     def onPaste(self):
-        mime = self.mungeClip()
-        self.triggerPageAction(QWebEnginePage.Paste)
-        self.restoreClip()
+        mime = self.editor.mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
+        html, internal = self._processMime(mime)
+        if not html:
+            return
+        self.editor.doPaste(html, internal)
 
-    # def mouseReleaseEvent(self, evt):
-    #     if not isMac and not isWin and evt.button() == Qt.MidButton:
-    #         # middle click on x11; munge the clipboard before standard
-    #         # handling
-    #         mime = self.mungeClip(mode=QClipboard.Selection)
-    #         AnkiWebView.mouseReleaseEvent(self, evt)
-    #         self.restoreClip(mode=QClipboard.Selection)
-    #     else:
-    #         AnkiWebView.mouseReleaseEvent(self, evt)
-    #
-    # def dropEvent(self, evt):
-    #     oldmime = evt.mimeData()
-    #     # coming from this program?
-    #     if evt.source():
-    #         if oldmime.hasHtml():
-    #             mime = QMimeData()
-    #             mime.setHtml(self.editor._filterHTML(oldmime.html()))
-    #         else:
-    #             # old qt on linux won't give us html when dragging an image;
-    #             # in that case just do the default action (which is to ignore
-    #             # the drag)
-    #             return AnkiWebView.dropEvent(self, evt)
-    #     else:
-    #         mime = self._processMime(oldmime)
-    #     # create a new event with the new mime data and run it
-    #     new = QDropEvent(evt.pos(), evt.possibleActions(), mime,
-    #                      evt.mouseButtons(), evt.keyboardModifiers())
-    #     evt.accept()
-    #     AnkiWebView.dropEvent(self, new)
-    #     # tell the drop target to take focus so the drop contents are saved
-    #     self.eval("dropTarget.focus();")
-    #     self.setFocus()
+    def dropEvent(self, evt):
+        mime = evt.mimeData()
 
-    def mungeClip(self, mode=QClipboard.Clipboard):
-        clip = self.editor.mw.app.clipboard()
-        mime = clip.mimeData(mode=mode)
-        self.saveClip(mode=mode)
-        mime = self._processMime(mime)
-        clip.setMimeData(mime, mode=mode)
-        return mime
-
-    def restoreClip(self, mode=QClipboard.Clipboard):
-        clip = self.editor.mw.app.clipboard()
-        clip.setMimeData(self.savedClip, mode=mode)
-
-    def saveClip(self, mode):
-        # we don't own the clipboard object, so we need to copy it or we'll crash
-        mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
-        n = QMimeData()
-        if mime.hasText():
-            n.setText(mime.text())
-        if mime.hasHtml():
-            n.setHtml(mime.html())
-        if mime.hasUrls():
-            n.setUrls(mime.urls())
-        if mime.hasImage():
-            n.setImageData(mime.imageData())
-        self.savedClip = n
-
-    def _processMime(self, mime):
-        # print "html=%s image=%s urls=%s txt=%s" % (
-        #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText())
-        # print "html", mime.html()
-        # print "urls", mime.urls()
-        # print "text", mime.text()
-        if mime.hasHtml():
-            return self._processHtml(mime)
-        elif mime.hasUrls():
-            return self._processUrls(mime)
-        elif mime.hasText():
-            return self._processText(mime)
-        elif mime.hasImage():
-            return self._processImage(mime)
+        if evt.source() and mime.hasHtml():
+            # don't filter html from other fields
+            html, internal = mime.html(), True
         else:
-            # nothing
-            return QMimeData()
+            html, internal = self._processMime(mime)
 
-    # when user is dragging a file from a file manager on any platform, the
-    # url type should be set, and it is not URL-encoded. on a mac no text type
-    # is returned, and on windows the text type is not returned in cases like
-    # "foo's bar.jpg"
+        if not html:
+            return
+
+        self.editor.doDrop(html, internal)
+
+    # returns (html, isInternal)
+    def _processMime(self, mime):
+        print("html=%s image=%s urls=%s txt=%s" % (
+            mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
+        print("html", mime.html())
+        print("urls", mime.urls())
+        print("text", mime.text())
+
+        # try various content types in turn
+        html, internal = self._processHtml(mime)
+        if html:
+            return html, internal
+        for fn in (self._processUrls, self._processImage, self._processText):
+            html = fn(mime)
+            if html:
+                return html, False
+        return "", False
+
     def _processUrls(self, mime):
+        if not mime.hasUrls():
+            return
+
         url = mime.urls()[0].toString()
         # chrome likes to give us the URL twice with a \n
         url = url.splitlines()[0]
-        newmime = QMimeData()
-        link = self.editor.urlToLink(url)
-        if link:
-            newmime.setHtml(link)
-        elif mime.hasImage():
-            # if we couldn't convert the url to a link and there's an
-            # image on the clipboard (such as copy&paste from
-            # google images in safari), use that instead
-            return self._processImage(mime)
-        else:
-            newmime.setText(url)
-        return newmime
+        return self.editor.urlToLink(url)
 
-    # if the user has used 'copy link location' in the browser, the clipboard
-    # will contain the URL as text, and no URLs or HTML. the URL will already
-    # be URL-encoded, and shouldn't be a file:// url unless they're browsing
-    # locally, which we don't support
     def _processText(self, mime):
-        txt = str(mime.text())
-        html = None
+        if not mime.hasText():
+            return
+
+        txt = mime.text()
+
         # if the user is pasting an image or sound link, convert it to local
         if self.editor.isURL(txt):
             txt = txt.split("\r\n")[0]
-            html = self.editor.urlToLink(txt)
-        new = QMimeData()
-        if html:
-            new.setHtml(html)
-        else:
-            new.setText(txt)
-        return new
+            return self.editor.urlToLink(txt)
+
+        # normal text; convert it to HTML
+        return html.escape(txt)
 
     def _processHtml(self, mime):
+        if not mime.hasHtml():
+            return None, False
         html = mime.html()
-        newMime = QMimeData()
-        if self.strip and not html.startswith("<!--anki-->"):
-            # special case for google images: if after stripping there's no text
-            # and there are image links, we'll paste those as html instead
-            if not stripHTML(html).strip():
-                newHtml = ""
-                mid = self.editor.note.mid
-                for url in self.editor.mw.col.media.filesInStr(
-                    mid, html, includeRemote=True):
-                    newHtml += self.editor.urlToLink(url)
-                if not newHtml and mime.hasImage():
-                    return self._processImage(mime)
-                newMime.setHtml(newHtml)
-            else:
-                # use .text() if available so newlines are preserved; otherwise strip
-                if mime.hasText():
-                    return self._processText(mime)
-                else:
-                    newMime.setText(stripHTML(mime.text()))
-        else:
-            if html.startswith("<!--anki-->"):
-                html = html[11:]
-            # no html stripping
-            html = self.editor._filterHTML(html, localize=True)
-            newMime.setHtml(html)
-        return newMime
+
+        # no filtering required for internal pastes
+        if html.startswith("<!--anki-->"):
+            return html[11:], True
+
+        return html, False
 
     def _processImage(self, mime):
         im = QImage(mime.imageData())
-        uname = namedtmp("paste-%d" % im.cacheKey())
+        uname = namedtmp("paste")
         if self.editor.mw.pm.profile.get("pastePNG", False):
             ext = ".png"
             im.save(uname+ext, None, 50)
         else:
             ext = ".jpg"
             im.save(uname+ext, None, 80)
+
         # invalid image?
-        if not os.path.exists(uname+ext):
-            return QMimeData()
-        mime = QMimeData()
-        mime.setHtml(self.editor._addMedia(uname+ext))
-        return mime
+        path = uname+ext
+        if not os.path.exists(path):
+            return
+
+        # hash and rename
+        csum = checksum(open(path, "rb").read())
+        newpath = "{}-{}{}".format(uname, csum, ext)
+        os.rename(path, newpath)
+
+        # add to media and return resulting html link
+        return self.editor._addMedia(newpath)
 
     def _flagAnkiText(self):
         # add a comment in the clipboard html so we can tell text is copied
