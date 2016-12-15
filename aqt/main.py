@@ -611,7 +611,7 @@ title="%s" %s>%s</button>''' % (
     def setupKeys(self):
         self.keyHandler = None
         # debug shortcut
-        self.debugShortcut = QShortcut(QKeySequence("Ctrl+:"), self)
+        self.debugShortcut = QShortcut(QKeySequence("Ctrl+Shift+;"), self)
         self.debugShortcut.activated.connect(self.onDebug)
 
     def keyPressEvent(self, evt):
