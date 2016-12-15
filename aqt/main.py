@@ -640,6 +640,13 @@ title="%s" %s>%s</button>''' % (
             self.onStats()
         elif key == "y":
             self.onSync()
+        # temp accelerators to work around bug
+        elif key == "/":
+            self.onStudyDeck()
+        elif key == "f":
+            self.onCram()
+        elif evt.matches(QKeySequence.Undo):
+            self.onUndo()
 
     # App exit
     ##########################################################################
