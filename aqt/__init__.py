@@ -208,9 +208,6 @@ def _run():
     opts.profile = opts.profile or ""
 
     # on osx we'll need to add the qt plugins to the search path
-    if isMac and getattr(sys, 'frozen', None):
-        rd = os.path.abspath(moduleDir + "/../../../plugins")
-        QCoreApplication.setLibraryPaths([rd])
 
     # work around pyqt loading wrong GL library
     if isLin:
