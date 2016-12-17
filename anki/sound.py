@@ -104,7 +104,7 @@ class MplayerMonitor(threading.Thread):
             # clearing queue?
             if mplayerClear and self.mplayer:
                 try:
-                    self.mplayer.stdin.write("stop\n")
+                    self.mplayer.stdin.write(b"stop\n")
                     self.mplayer.stdin.flush()
                 except:
                     # mplayer quit by user (likely video)
@@ -153,7 +153,7 @@ class MplayerMonitor(threading.Thread):
         if not self.mplayer:
             return
         try:
-            self.mplayer.stdin.write("quit\n")
+            self.mplayer.stdin.write(b"quit\n")
             self.mplayer.stdin.flush()
             self.deadPlayers.append(self.mplayer)
         except:
