@@ -210,8 +210,6 @@ Are you sure?""")):
         if self.pm.profile['mainWindowState']:
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
-        else:
-            self.resize(500, 400)
         # toolbar needs to be retranslated
         self.toolbar.draw()
         # titlebar
