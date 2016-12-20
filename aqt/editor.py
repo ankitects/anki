@@ -313,11 +313,11 @@ var filterHTML = function(html) {
 
 var allowedTags = {};
 
-for (let tag of [
-    "H1", "H2", "H3", "P", "DIV", "BR", "LI", "UL", "OL",
-    "B", "I", "U", "BLOCKQUOTE", "CODE", "EM", "STRONG",
-    "PRE", "SUB", "SUP", "TABLE"]) {
-    allowedTags[tag] = {"attrs": []};
+var TAGS_WITHOUT_ATTRS = ["H1", "H2", "H3", "P", "DIV", "BR", "LI", "UL",
+                          "OL", "B", "I", "U", "BLOCKQUOTE", "CODE", "EM",
+                          "STRONG", "PRE", "SUB", "SUP", "TABLE"];
+for (var i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
+    allowedTags[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
 }
 
 allowedTags["A"] = {"attrs": ["HREF"]};
@@ -336,10 +336,10 @@ var filterNode = function(node) {
     // elements due to node modifications otherwise
 
     var nodes = [];
-    for (let i=0; i<node.childNodes.length; i++) {
+    for (var i = 0; i < node.childNodes.length; i++) {
         nodes.push(node.childNodes[i]);
     }
-    for (let i=0; i<nodes.length; i++) {
+    for (var i = 0; i < nodes.length; i++) {
         filterNode(nodes[i]);
     }
 
@@ -347,20 +347,20 @@ var filterNode = function(node) {
         return;
     }
 
-    const tag = allowedTags[node.tagName];
+    var tag = allowedTags[node.tagName];
     if (!tag) {
         node.outerHTML = node.innerHTML;
     } else {
         // allowed, filter out attributes
         var toRemove = [];
-        for (let i = 0; i < node.attributes.length; i++) {
-            let attr = node.attributes[i];
-            let attrName = attr.name.toUpperCase();
+        for (var i = 0; i < node.attributes.length; i++) {
+            var attr = node.attributes[i];
+            var attrName = attr.name.toUpperCase();
             if (tag.attrs.indexOf(attrName) == -1) {
-                toRemove.push(attr)
+                toRemove.push(attr);
             }
         }
-        for (let i = 0; i < toRemove.length; i++) {
+        for (var i = 0; i < toRemove.length; i++) {
             node.removeAttributeNode(toRemove[i]);
         }
     }
