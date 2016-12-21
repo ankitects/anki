@@ -552,7 +552,7 @@ class HttpSyncer(object):
     # costly. We could send it as a raw post, but more HTTP clients seem to
     # support file uploading, so this is the more compatible choice.
 
-    def req(self, method, fobj=None, comp=6, badAuthRaises=False):
+    def req(self, method, fobj=None, comp=6, badAuthRaises=True):
         BOUNDARY=b"Anki-sync-boundary"
         bdry = b"--"+BOUNDARY
         buf = io.BytesIO()
@@ -582,7 +582,8 @@ Content-Type: application/octet-stream\r\n\r\n""")
                         tgt.close()
                     break
                 tgt.write(data)
-        buf.write(b'\r\n' + bdry + b'--\r\n')
+            buf.write(b"\r\n")
+        buf.write(bdry + b'--\r\n')
         size = buf.tell()
         # connection headers
         headers = {
