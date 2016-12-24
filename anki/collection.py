@@ -150,7 +150,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             if save:
                 self.save()
             else:
-                self.rollback()
+                self.db.rollback()
             if not self.server:
                 self.db.execute("pragma journal_mode = delete")
             self.db.close()
