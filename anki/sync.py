@@ -658,6 +658,9 @@ class RemoteServer(HttpSyncer):
     def finish(self, **kw):
         return self._run("finish", kw)
 
+    def abort(self, **kw):
+        return self._run("abort", kw)
+
     def _run(self, cmd, data):
         return json.loads(
             self.req(cmd, io.BytesIO(json.dumps(data).encode("utf8"))).decode("utf8"))
