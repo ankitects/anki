@@ -1089,8 +1089,10 @@ class EditorWebView(AnkiWebView):
             html, internal = self._processMime(mime)
 
         if not html:
+            evt.ignore()
             return
 
+        evt.accept()
         self.editor.doDrop(html, internal)
 
     # returns (html, isInternal)
