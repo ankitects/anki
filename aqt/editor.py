@@ -1074,7 +1074,9 @@ class EditorWebView(AnkiWebView):
 
     def dragEnterEvent(self, evt):
         mime = evt.mimeData()
-        if mime.hasHtml() or mime.hasImage() or mime.hasUrls() or mime.hasText():
+        accept = mime.hasHtml() or mime.hasImage() or mime.hasUrls() \
+                or mime.hasText()
+        if accept:
             evt.accept()
         else:
             evt.ignore()
