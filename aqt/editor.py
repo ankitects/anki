@@ -1072,6 +1072,13 @@ class EditorWebView(AnkiWebView):
             return
         self.editor.doPaste(html, internal)
 
+    def dragEnterEvent(self, evt):
+        mime = evt.mimeData()
+        if mime.hasHtml() or mime.hasImage() or mime.hasUrls() or mime.hasText():
+            evt.accept()
+        else:
+            evt.ignore()
+
     def dropEvent(self, evt):
         mime = evt.mimeData()
 
