@@ -469,7 +469,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
             if csum:
                 self.col.log("+media zip", fname)
-                z.writestr(fname, str(c))
+                z.write(fname, str(c))
                 meta.append((normname, str(c)))
                 sz += os.path.getsize(fname)
             else:
