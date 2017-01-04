@@ -458,6 +458,7 @@ class Editor(object):
 <button tabindex=-1 class=linkb type="button" onclick="pycmd('more');return false;"><img class=topbut src="qrc:/icons/more.png"></button>
 </div>
         """ % dict(flds=_("Fields"), cards=_("Cards"))
+        topbuts = runFilter("setupEditorButtons", topbuts)
         self.web.stdHtml(_html % (
             self.mw.baseHTML(), anki.js.jquery,
             topbuts,
