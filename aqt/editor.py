@@ -439,11 +439,11 @@ class Editor(object):
         self.web.onLoadFinished = self._loadFinished
 
         righttopbtns = list()
-        righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)"))
-        righttopbtns.append(self._addButton('text_italic', 'italic', "Italic text (Ctrl+I)"))
-        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)"))
-        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)"))
-        righttopbtns.append(self._addButton('text_sub', 'sub', "Subscript (Ctrl+=)"))
+        righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)", id='bold'))
+        righttopbtns.append(self._addButton('text_italic', 'italic', "Italic text (Ctrl+I)", id='italic'))
+        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)", 'underline'))
+        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)", 'superscipt'))
+        righttopbtns.append(self._addButton('text_sub', 'sub', "Subscript (Ctrl+=)", id='subscript'))
         righttopbtns.append(self._addButton('text_clear', 'clear', "Remove formatting (Ctrl+R)"))
         # The color selection buttons do not use an icon so the HTML must be specified manually
         righttopbtns.append('''<button tabindex=-1 class=linkb title="Set foreground colour (F7)"
@@ -476,13 +476,17 @@ class Editor(object):
     # Top buttons
     ######################################################################
 
-    def _addButton(self, icon, cmd, tip=""):
+    def _addButton(self, icon, cmd, tip="", id=None):
         if os.path.isabs(icon):
             iconstr = icon
         else:
             iconstr = "qrc:/icons/{}.png".format(icon)
-        return '''<button tabindex=-1 class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');return false;">
-            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip))
+        if id:
+            idstr = 'id={}'.format(id)
+        else:
+            idstr = ""
+        return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');return false;">
+            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip), id=idstr)
 
     def setupShortcuts(self):
         cuts = [
