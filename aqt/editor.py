@@ -50,7 +50,7 @@ background-image: -webkit-gradient(linear,  left top,  left bottom,
 		color-stop(50%%, #7f7),
 		color-stop(100%%, #77f));
 }
-.linkb { -webkit-appearance: none; border: 0; padding: 0px; background: transparent; }
+.linkb { -webkit-appearance: none; border: 0; padding: 0px 2px; background: transparent; }
 .linkb:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .highlighted {
