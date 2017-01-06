@@ -458,6 +458,7 @@ class Editor(object):
         righttopbtns.append(self._addButton('paperclip', 'attach', "Attach pictures/audio/video (F3)"))
         righttopbtns.append(self._addButton('media-record', 'record', "Record audio (F5)"))
         righttopbtns.append(self._addButton('more', 'more'))
+        righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
             <div id="topbutsleft" style="float:left;">
                 <button onclick="pycmd('fields')">%(flds)s...</button>
@@ -467,7 +468,6 @@ class Editor(object):
                 %(rightbts)s
             </div>
         """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns))
-        topbuts = runFilter("setupEditorButtons", topbuts)
         self.web.stdHtml(_html % (
             self.mw.baseHTML(), anki.js.jquery,
             topbuts,
