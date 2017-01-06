@@ -439,11 +439,11 @@ class Editor(object):
         self.web.onLoadFinished = self._loadFinished
 
         topbuts = """
-<div style="float:left;">
+<div id="topbutsleft" style="float:left;">
 <button onclick="pycmd('fields')">%(flds)s...</button>
 <button onclick="pycmd('cards')">%(cards)s...</button>
 </div>
-<div style="float:right;">
+<div id="topbutsright" style="float:right;">
 <button tabindex=-1 class=linkb type="button" id=bold onclick="pycmd('bold');return false;"><img class=topbut src="qrc:/icons/text_bold.png"></button>
 <button tabindex=-1 class=linkb type="button" id=italic  onclick="pycmd('italic');return false;"><img class=topbut src="qrc:/icons/text_italic.png"></button>
 <button tabindex=-1 class=linkb type="button" id=underline  onclick="pycmd('underline');return false;"><img class=topbut src="qrc:/icons/text_under.png"></button>
@@ -458,6 +458,7 @@ class Editor(object):
 <button tabindex=-1 class=linkb type="button" onclick="pycmd('more');return false;"><img class=topbut src="qrc:/icons/more.png"></button>
 </div>
         """ % dict(flds=_("Fields"), cards=_("Cards"))
+        topbuts = runFilter("setupEditorButtons", topbuts)
         self.web.stdHtml(_html % (
             self.mw.baseHTML(), anki.js.jquery,
             topbuts,
