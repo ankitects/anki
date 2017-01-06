@@ -467,34 +467,13 @@ class Editor(object):
     # Top buttons
     ######################################################################
 
-    def _addButton(self, name, func, key=None, tip=None, size=True, text="",
-                   check=False, native=False, canDisable=True):
-        b = QPushButton(text)
-        if check:
-            b.clicked["bool"].connect(func)
+    def _addButton(self, icon, cmd, tip=""):
+        if os.path.isabs(icon):
+            iconstr = icon
         else:
-            b.clicked.connect(func)
-        if size:
-            b.setFixedHeight(20)
-            b.setFixedWidth(20)
-        if not native:
-            if self.plastiqueStyle:
-               b.setStyle(self.plastiqueStyle)
-            b.setFocusPolicy(Qt.NoFocus)
-        else:
-            b.setAutoDefault(False)
-        if not text:
-            b.setIcon(QIcon(":/icons/%s.png" % name))
-        if key:
-            b.setShortcut(QKeySequence(key))
-        if tip:
-            b.setToolTip(shortcut(tip))
-        if check:
-            b.setCheckable(True)
-        self.iconsBox.addWidget(b)
-        if canDisable:
-            self._buttons[name] = b
-        return b
+            iconstr = "qrc:/icons/{}.png".format(icon)
+        return '''<button tabindex=-1 class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');return false;">
+            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip))
 
     def setupShortcuts(self):
         cuts = [
