@@ -509,21 +509,6 @@ class Editor(object):
         for keys, fn in cuts:
             QShortcut(QKeySequence(keys), self.widget, activated=fn)
 
-    # fixme: need to add back hover labels for toolbuttons
-    # def setupButtons(self):
-    #     _("Customize Cards (Ctrl+L)")
-    #     _("Bold text (Ctrl+B)"),
-    #     _("Italic text (Ctrl+I)"),
-    #     _("Underline text (Ctrl+U)")
-    #     _("Superscript (Ctrl+Shift+=)")
-    #     _("Subscript (Ctrl+=)")
-    #     _("Remove formatting (Ctrl+R)")
-    #     _("Set foreground colour (F7)")
-    #     _("Change colour (F8)")
-    #     _("Cloze deletion (Ctrl+Shift+C)")
-    #     _("Attach pictures/audio/video (F3)")
-    #     _("Record audio (F5)")
-
     def onFields(self):
         self.saveNow(self._onFields)
 
