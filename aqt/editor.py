@@ -438,26 +438,35 @@ class Editor(object):
         self.outerLayout.addWidget(self.web, 1)
         self.web.onLoadFinished = self._loadFinished
 
+        righttopbtns = list()
+        righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)"))
+        righttopbtns.append(self._addButton('text_italic', 'italic', "Italic text (Ctrl+I)"))
+        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)"))
+        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)"))
+        righttopbtns.append(self._addButton('text_sub', 'sub', "Subscript (Ctrl+=)"))
+        righttopbtns.append(self._addButton('text_clear', 'clear', "Remove formatting (Ctrl+R)"))
+        # The color selection buttons do not use an icon so the HTML must be specified manually
+        righttopbtns.append('''<button tabindex=-1 class=linkb title="Set foreground colour (F7)"
+            type="button" onclick="pycmd('colour');return false;">
+            <div id=forecolor style="display:inline-block; background: #000;border-radius: 5px;"
+            class=topbut></div></button>''')
+        righttopbtns.append('''<button tabindex=-1 class=linkb title="Change colour (F8)"
+            type="button" onclick="pycmd('changeCol');return false;">
+            <div style="display:inline-block; border-radius: 5px;"
+            class="topbut rainbow"></div></button>''')
+        righttopbtns.append(self._addButton('text_cloze', 'cloze', "Cloze deletion (Ctrl+Shift+C)"))
+        righttopbtns.append(self._addButton('paperclip', 'attach', "Attach pictures/audio/video (F3)"))
+        righttopbtns.append(self._addButton('media-record', 'record', "Record audio (F5)"))
+        righttopbtns.append(self._addButton('more', 'more'))
         topbuts = """
-<div id="topbutsleft" style="float:left;">
-<button onclick="pycmd('fields')">%(flds)s...</button>
-<button onclick="pycmd('cards')">%(cards)s...</button>
-</div>
-<div id="topbutsright" style="float:right;">
-<button tabindex=-1 class=linkb type="button" id=bold onclick="pycmd('bold');return false;"><img class=topbut src="qrc:/icons/text_bold.png"></button>
-<button tabindex=-1 class=linkb type="button" id=italic  onclick="pycmd('italic');return false;"><img class=topbut src="qrc:/icons/text_italic.png"></button>
-<button tabindex=-1 class=linkb type="button" id=underline  onclick="pycmd('underline');return false;"><img class=topbut src="qrc:/icons/text_under.png"></button>
-<button tabindex=-1 class=linkb type="button" id=superscript  onclick="pycmd('super');return false;"><img class=topbut src="qrc:/icons/text_super.png"></button>
-<button tabindex=-1 class=linkb type="button" id=subscript  onclick="pycmd('sub');return false;"><img class=topbut src="qrc:/icons/text_sub.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('clear');return false;"><img class=topbut src="qrc:/icons/text_clear.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('colour');return false;"><div id=forecolor style="display:inline-block; background: #000;border-radius: 5px;" class=topbut></div></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('changeCol');return false;"><div style="display:inline-block; border-radius: 5px;" class="topbut rainbow"></div></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('cloze');return false;"><img class=topbut src="qrc:/icons/text_cloze.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('attach');return false;"><img class=topbut src="qrc:/icons/paperclip.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('record');return false;"><img class=topbut src="qrc:/icons/media-record.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('more');return false;"><img class=topbut src="qrc:/icons/more.png"></button>
-</div>
-        """ % dict(flds=_("Fields"), cards=_("Cards"))
+            <div id="topbutsleft" style="float:left;">
+                <button onclick="pycmd('fields')">%(flds)s...</button>
+                <button onclick="pycmd('cards')">%(cards)s...</button>
+            </div>
+            <div id="topbutsright" style="float:right;">
+                %(rightbts)s
+            </div>
+        """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns))
         topbuts = runFilter("setupEditorButtons", topbuts)
         self.web.stdHtml(_html % (
             self.mw.baseHTML(), anki.js.jquery,
