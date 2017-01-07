@@ -441,8 +441,8 @@ class Editor(object):
         righttopbtns = list()
         righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)", id='bold'))
         righttopbtns.append(self._addButton('text_italic', 'italic', "Italic text (Ctrl+I)", id='italic'))
-        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)", 'underline'))
-        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)", 'superscipt'))
+        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)", id='underline'))
+        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)", id='superscript'))
         righttopbtns.append(self._addButton('text_sub', 'sub', "Subscript (Ctrl+=)", id='subscript'))
         righttopbtns.append(self._addButton('text_clear', 'clear', "Remove formatting (Ctrl+R)"))
         # The color selection buttons do not use an icon so the HTML must be specified manually
