@@ -50,7 +50,7 @@ background-image: -webkit-gradient(linear,  left top,  left bottom,
 		color-stop(50%%, #7f7),
 		color-stop(100%%, #77f));
 }
-.linkb { -webkit-appearance: none; border: 0; padding: 0px; background: transparent; }
+.linkb { -webkit-appearance: none; border: 0; padding: 0px 2px; background: transparent; }
 .linkb:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .highlighted {
@@ -438,27 +438,36 @@ class Editor(object):
         self.outerLayout.addWidget(self.web, 1)
         self.web.onLoadFinished = self._loadFinished
 
+        righttopbtns = list()
+        righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)", id='bold'))
+        righttopbtns.append(self._addButton('text_italic', 'italic', "Italic text (Ctrl+I)", id='italic'))
+        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)", 'underline'))
+        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)", 'superscipt'))
+        righttopbtns.append(self._addButton('text_sub', 'sub', "Subscript (Ctrl+=)", id='subscript'))
+        righttopbtns.append(self._addButton('text_clear', 'clear', "Remove formatting (Ctrl+R)"))
+        # The color selection buttons do not use an icon so the HTML must be specified manually
+        righttopbtns.append('''<button tabindex=-1 class=linkb title="Set foreground colour (F7)"
+            type="button" onclick="pycmd('colour');return false;">
+            <div id=forecolor style="display:inline-block; background: #000;border-radius: 5px;"
+            class=topbut></div></button>''')
+        righttopbtns.append('''<button tabindex=-1 class=linkb title="Change colour (F8)"
+            type="button" onclick="pycmd('changeCol');return false;">
+            <div style="display:inline-block; border-radius: 5px;"
+            class="topbut rainbow"></div></button>''')
+        righttopbtns.append(self._addButton('text_cloze', 'cloze', "Cloze deletion (Ctrl+Shift+C)"))
+        righttopbtns.append(self._addButton('paperclip', 'attach', "Attach pictures/audio/video (F3)"))
+        righttopbtns.append(self._addButton('media-record', 'record', "Record audio (F5)"))
+        righttopbtns.append(self._addButton('more', 'more'))
+        righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
-<div id="topbutsleft" style="float:left;">
-<button onclick="pycmd('fields')">%(flds)s...</button>
-<button onclick="pycmd('cards')">%(cards)s...</button>
-</div>
-<div id="topbutsright" style="float:right;">
-<button tabindex=-1 class=linkb type="button" id=bold onclick="pycmd('bold');return false;"><img class=topbut src="qrc:/icons/text_bold.png"></button>
-<button tabindex=-1 class=linkb type="button" id=italic  onclick="pycmd('italic');return false;"><img class=topbut src="qrc:/icons/text_italic.png"></button>
-<button tabindex=-1 class=linkb type="button" id=underline  onclick="pycmd('underline');return false;"><img class=topbut src="qrc:/icons/text_under.png"></button>
-<button tabindex=-1 class=linkb type="button" id=superscript  onclick="pycmd('super');return false;"><img class=topbut src="qrc:/icons/text_super.png"></button>
-<button tabindex=-1 class=linkb type="button" id=subscript  onclick="pycmd('sub');return false;"><img class=topbut src="qrc:/icons/text_sub.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('clear');return false;"><img class=topbut src="qrc:/icons/text_clear.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('colour');return false;"><div id=forecolor style="display:inline-block; background: #000;border-radius: 5px;" class=topbut></div></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('changeCol');return false;"><div style="display:inline-block; border-radius: 5px;" class="topbut rainbow"></div></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('cloze');return false;"><img class=topbut src="qrc:/icons/text_cloze.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('attach');return false;"><img class=topbut src="qrc:/icons/paperclip.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('record');return false;"><img class=topbut src="qrc:/icons/media-record.png"></button>
-<button tabindex=-1 class=linkb type="button" onclick="pycmd('more');return false;"><img class=topbut src="qrc:/icons/more.png"></button>
-</div>
-        """ % dict(flds=_("Fields"), cards=_("Cards"))
-        topbuts = runFilter("setupEditorButtons", topbuts)
+            <div id="topbutsleft" style="float:left;">
+                <button onclick="pycmd('fields')">%(flds)s...</button>
+                <button onclick="pycmd('cards')">%(cards)s...</button>
+            </div>
+            <div id="topbutsright" style="float:right;">
+                %(rightbts)s
+            </div>
+        """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns))
         self.web.stdHtml(_html % (
             self.mw.baseHTML(), anki.js.jquery,
             topbuts,
@@ -467,34 +476,17 @@ class Editor(object):
     # Top buttons
     ######################################################################
 
-    def _addButton(self, name, func, key=None, tip=None, size=True, text="",
-                   check=False, native=False, canDisable=True):
-        b = QPushButton(text)
-        if check:
-            b.clicked["bool"].connect(func)
+    def _addButton(self, icon, cmd, tip="", id=None):
+        if os.path.isabs(icon):
+            iconstr = icon
         else:
-            b.clicked.connect(func)
-        if size:
-            b.setFixedHeight(20)
-            b.setFixedWidth(20)
-        if not native:
-            if self.plastiqueStyle:
-               b.setStyle(self.plastiqueStyle)
-            b.setFocusPolicy(Qt.NoFocus)
+            iconstr = "qrc:/icons/{}.png".format(icon)
+        if id:
+            idstr = 'id={}'.format(id)
         else:
-            b.setAutoDefault(False)
-        if not text:
-            b.setIcon(QIcon(":/icons/%s.png" % name))
-        if key:
-            b.setShortcut(QKeySequence(key))
-        if tip:
-            b.setToolTip(shortcut(tip))
-        if check:
-            b.setCheckable(True)
-        self.iconsBox.addWidget(b)
-        if canDisable:
-            self._buttons[name] = b
-        return b
+            idstr = ""
+        return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');return false;">
+            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip), id=idstr)
 
     def setupShortcuts(self):
         cuts = [
@@ -520,21 +512,6 @@ class Editor(object):
         runFilter("setupEditorShortcuts", cuts)
         for keys, fn in cuts:
             QShortcut(QKeySequence(keys), self.widget, activated=fn)
-
-    # fixme: need to add back hover labels for toolbuttons
-    # def setupButtons(self):
-    #     _("Customize Cards (Ctrl+L)")
-    #     _("Bold text (Ctrl+B)"),
-    #     _("Italic text (Ctrl+I)"),
-    #     _("Underline text (Ctrl+U)")
-    #     _("Superscript (Ctrl+Shift+=)")
-    #     _("Subscript (Ctrl+=)")
-    #     _("Remove formatting (Ctrl+R)")
-    #     _("Set foreground colour (F7)")
-    #     _("Change colour (F8)")
-    #     _("Cloze deletion (Ctrl+Shift+C)")
-    #     _("Attach pictures/audio/video (F3)")
-    #     _("Record audio (F5)")
 
     def onFields(self):
         self.saveNow(self._onFields)
