@@ -682,6 +682,8 @@ title="%s" %s>%s</button>''' % (
 
     def onUndo(self):
         n = self.col.undoName()
+        if not n:
+            return
         cid = self.col.undo()
         if cid and self.state == "review":
             card = self.col.getCard(cid)
