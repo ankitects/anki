@@ -198,6 +198,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
+        q += self._hiddenUpcomingImages()
         klass = "card card%d" % (c.ord+1)
         self.web.eval("_updateQA(%s, false, '%s');" % (json.dumps(q), klass))
         self._toggleStar()
@@ -258,6 +259,37 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
         self.nextCard()
+
+    # Image preloading
+    ##########################################################################
+
+    def _hiddenUpcomingImages(self):
+        return "<div style='display:none;'>"+self._upcomingImages()+"</div>"
+
+    def _upcomingImages(self):
+        # grab the top cards in each queue
+        s = self.mw.col.sched
+        cids = []
+        cids.append(s._lrnQueue and s._lrnQueue[0][1])
+        cids.append(s._revQueue and s._revQueue[0])
+        cids.append(s._newQueue and s._newQueue[0])
+
+        # gather their content
+        qa = []
+        for cid in cids:
+            if not cid:
+                continue
+            c = self.mw.col.getCard(cid)
+            qa.append(c.q())
+            qa.append(c.a())
+
+        # pluck image links out
+        qa = "".join(qa)
+        links = []
+        for regex in self.mw.col.media.imgRegexps:
+            links.extend(re.findall(regex, qa))
+
+        return "".join([x[0] for x in links])
 
     # Handlers
     ############################################################
