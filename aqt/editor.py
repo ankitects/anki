@@ -125,6 +125,14 @@ function updateButtonState() {
 //    'col': document.queryCommandValue("forecolor")
 };
 
+function toggleEditorButton(buttonid) {
+    if ($(buttonid).hasClass("highlighted")) {
+        $(buttonid).removeClass("highlighted");
+    } else {
+        $(buttonid).addClass("highlighted");
+    }
+};
+
 function setFormat(cmd, arg, nosave) {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
@@ -486,7 +494,7 @@ class Editor(object):
             data64 = b''.join(base64.encodestring(data).splitlines())
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
-    def _addButton(self, icon, cmd, tip="", id=None):
+    def _addButton(self, icon, cmd, tip="", id=None, toggleable=False):
         if os.path.isabs(icon):
             iconstr = self.resourceToData(icon)
         else:
@@ -495,8 +503,12 @@ class Editor(object):
             idstr = 'id={}'.format(id)
         else:
             idstr = ""
-        return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');return false;">
-            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip), id=idstr)
+        if toggleable:
+            toggleScript = 'toggleEditorButton(this);'
+        else:
+            toggleScript = ''
+        return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');{togglesc}return false;">
+            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip), id=idstr, togglesc=toggleScript)
 
     def setupShortcuts(self):
         cuts = [
