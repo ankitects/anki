@@ -74,6 +74,8 @@ class AnkiWebView(QWebEngineView):
 
         self._loadFinishedCB = None
         self.setPage(self._page)
+
+        self._page.profile().setHttpCacheType(QWebEngineProfile.MemoryHttpCache)
         self.resetHandlers()
         self.allowDrops = False
         self.setCanFocus(canFocus)
