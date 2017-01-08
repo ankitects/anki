@@ -8,6 +8,8 @@ import ctypes
 import urllib.request, urllib.parse, urllib.error
 import warnings
 import html
+import mimetypes
+import base64
 
 from anki.lang import _
 from aqt.qt import *
@@ -476,9 +478,17 @@ class Editor(object):
     # Top buttons
     ######################################################################
 
+    def resourceToData(self, path):
+        """Convert a file (specified by a path) into a data URI."""
+        mime, _ = mimetypes.guess_type(path)
+        with open(path, 'rb') as fp:
+            data = fp.read()
+            data64 = b''.join(base64.encodestring(data).splitlines())
+            return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
+
     def _addButton(self, icon, cmd, tip="", id=None):
         if os.path.isabs(icon):
-            iconstr = icon
+            iconstr = self.resourceToData(icon)
         else:
             iconstr = "qrc:/icons/{}.png".format(icon)
         if id:
