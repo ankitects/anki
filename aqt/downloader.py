@@ -4,10 +4,10 @@
 
 import time, re, traceback
 from aqt.qt import *
-from anki.sync import httpCon
+from anki.sync import AnkiRequestsClient
 from aqt.utils import showWarning
 from anki.hooks import addHook, remHook
-import aqt.sync # monkey-patches httplib2
+import aqt
 
 def download(mw, code):
     "Download addon/deck from AnkiWeb. On success caller must stop progress diag."
@@ -54,19 +54,22 @@ class Downloader(QThread):
         # setup progress handler
         self.byteUpdate = time.time()
         self.recvTotal = 0
-        def canPost():
-            if (time.time() - self.byteUpdate) > 0.1:
-                self.byteUpdate = time.time()
-                return True
         def recvEvent(bytes):
             self.recvTotal += bytes
-            if canPost():
-                self.recv.emit()
+            self.recv.emit()
         addHook("httpRecv", recvEvent)
-        con =  httpCon()
+        client = AnkiRequestsClient()
         try:
-            resp, cont = con.request(
+            resp = client.get(
                 aqt.appShared + "download/%d" % self.code)
+            if resp.status_code == 200:
+                data = client.streamContent(resp)
+            elif resp.status_code in (403,404):
+                self.error = _("Invalid code")
+                return
+            else:
+                self.error = _("Error downloading: %s" % resp.status_code)
+                return
         except Exception as e:
             exc = traceback.format_exc()
             try:
@@ -76,12 +79,7 @@ class Downloader(QThread):
             return
         finally:
             remHook("httpRecv", recvEvent)
-        if resp['status'] == '200':
-            self.error = None
-            self.fname = re.match("attachment; filename=(.+)",
-                                  resp['content-disposition']).group(1)
-            self.data = cont
-        elif resp['status'] == '403':
-            self.error = _("Invalid code.")
-        else:
-            self.error = _("Error downloading: %s") % resp['status']
+
+        self.fname = re.match("attachment; filename=(.+)",
+                              resp.headers['content-disposition']).group(1)
+        self.data = data

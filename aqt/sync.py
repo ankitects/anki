@@ -73,9 +73,9 @@ automatically."""))
     def _updateLabel(self):
         self.mw.progress.update(label="%s\n%s" % (
             self.label,
-            _("%(a)dkB up, %(b)dkB down") % dict(
-                a=self.sentBytes // 1024,
-                b=self.recvBytes // 1024)))
+            _("%(a)0.1fkB up, %(b)0.1fkB down") % dict(
+                a=self.sentBytes / 1024,
+                b=self.recvBytes / 1024)))
 
     def onEvent(self, evt, *args):
         pu = self.mw.progress.update
@@ -298,24 +298,16 @@ class SyncThread(QThread):
         self.client = Syncer(self.col, self.server)
         self.sentTotal = 0
         self.recvTotal = 0
-        # throttle updates; qt doesn't handle lots of posted events well
-        self.byteUpdate = time.time()
         def syncEvent(type):
             self.fireEvent("sync", type)
         def syncMsg(msg):
             self.fireEvent("syncMsg", msg)
-        def canPost():
-            if (time.time() - self.byteUpdate) > 0.1:
-                self.byteUpdate = time.time()
-                return True
         def sendEvent(bytes):
             self.sentTotal += bytes
-            if canPost():
-                self.fireEvent("send", str(self.sentTotal))
+            self.fireEvent("send", str(self.sentTotal))
         def recvEvent(bytes):
             self.recvTotal += bytes
-            if canPost():
-                self.fireEvent("recv", str(self.recvTotal))
+            self.fireEvent("recv", str(self.recvTotal))
         addHook("sync", syncEvent)
         addHook("syncMsg", syncMsg)
         addHook("httpSend", sendEvent)
@@ -395,7 +387,7 @@ class SyncThread(QThread):
             f = self.fullSyncChoice
         if f == "cancel":
             return
-        self.client = FullSyncer(self.col, self.hkey, self.server.con)
+        self.client = FullSyncer(self.col, self.hkey, self.server.client)
         if f == "upload":
             if not self.client.upload():
                 self.fireEvent("upbad")
@@ -408,7 +400,7 @@ class SyncThread(QThread):
     def _syncMedia(self):
         if not self.media:
             return
-        self.server = RemoteMediaServer(self.col, self.hkey, self.server.con)
+        self.server = RemoteMediaServer(self.col, self.hkey, self.server.client)
         self.client = MediaSyncer(self.col, self.server)
         ret = self.client.sync()
         if ret == "noChanges":
@@ -422,87 +414,3 @@ class SyncThread(QThread):
         self.event.emit(cmd, arg)
 
 
-# Monkey-patch httplib & httplib2 so we can get progress info
-######################################################################
-
-CHUNK_SIZE = 65536
-import http.client, httplib2
-from io import StringIO
-from anki.hooks import runHook
-
-print("fixme: _conn_request and _incrementalSend need updating for python3")
-
-# sending in httplib
-def _incrementalSend(self, data):
-    """Send `data' to the server."""
-    if self.sock is None:
-        if self.auto_open:
-            self.connect()
-        else:
-            raise http.client.NotConnected()
-    # if it's not a file object, make it one
-    if not hasattr(data, 'read'):
-        data = StringIO(data)
-    while 1:
-        block = data.read(CHUNK_SIZE)
-        if not block:
-            break
-        self.sock.sendall(block)
-        runHook("httpSend", len(block))
-
-#http.client.HTTPConnection.send = _incrementalSend
-
-# receiving in httplib2
-# this is an augmented version of httplib's request routine that:
-# - doesn't assume requests will be tried more than once
-# - calls a hook for each chunk of data so we can update the gui
-# - retries only when keep-alive connection is closed
-def _conn_request(self, conn, request_uri, method, body, headers):
-    for i in range(2):
-        try:
-            if conn.sock is None:
-              conn.connect()
-            conn.request(method, request_uri, body, headers)
-        except socket.timeout:
-            raise
-        except socket.gaierror:
-            conn.close()
-            raise httplib2.ServerNotFoundError(
-                "Unable to find the server at %s" % conn.host)
-        except httplib2.ssl_SSLError:
-            conn.close()
-            raise
-        except socket.error as e:
-            conn.close()
-            raise
-        except http.client.HTTPException:
-            conn.close()
-            raise
-        try:
-            response = conn.getresponse()
-        except http.client.BadStatusLine:
-            print("retry bad line")
-            conn.close()
-            conn.connect()
-            continue
-        except (socket.error, http.client.HTTPException):
-            raise
-        else:
-            content = ""
-            if method == "HEAD":
-                response.close()
-            else:
-                buf = StringIO()
-                while 1:
-                    data = response.read(CHUNK_SIZE)
-                    if not data:
-                        break
-                    buf.write(data)
-                    runHook("httpRecv", len(data))
-                content = buf.getvalue()
-            response = httplib2.Response(response)
-            if method != "HEAD":
-                content = httplib2._decompressContent(response, content)
-        return (response, content)
-
-#httplib2.Http._conn_request = _conn_request

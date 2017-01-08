@@ -2,14 +2,11 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib.request, urllib.parse, urllib.error
 import io
-import sys
 import gzip
 import random
-from io import StringIO
+import requests
 
-import httplib2
 from anki.db import DB
 from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc, checksum
 from anki.consts import *
@@ -20,76 +17,7 @@ from .lang import ngettext
 # syncing vars
 HTTP_TIMEOUT = 90
 HTTP_PROXY = None
-
-# badly named; means no retries
-httplib2.RETRIES = 1
-
-try:
-    # httplib2 >=0.7.7
-    _proxy_info_from_environment = httplib2.proxy_info_from_environment
-    _proxy_info_from_url = httplib2.proxy_info_from_url
-except AttributeError:
-    # httplib2 <0.7.7
-    _proxy_info_from_environment = httplib2.ProxyInfo.from_environment
-    _proxy_info_from_url = httplib2.ProxyInfo.from_url
-
-# Httplib2 connection object
-######################################################################
-
-def httpCon():
-    certs = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
-    if not os.path.exists(certs):
-        if not isMac:
-            certs = os.path.abspath(os.path.join(
-                os.path.dirname(certs), "..", "ankiweb.certs"))
-        else:
-            certs = os.path.abspath(os.path.join(
-                os.path.dirname(os.path.abspath(sys.argv[0])),
-                "../Resources/ankiweb.certs"))
-    if not os.path.exists(certs):
-            assert 0, "Unable to locate ankiweb.certs"
-    return httplib2.Http(
-        timeout=HTTP_TIMEOUT, ca_certs=certs,
-        proxy_info=HTTP_PROXY,
-        disable_ssl_certificate_validation=not not HTTP_PROXY)
-
-# Proxy handling
-######################################################################
-
-def _setupProxy():
-    global HTTP_PROXY
-    # set in env?
-    p = _proxy_info_from_environment()
-    if not p:
-        # platform-specific fetch
-        url = None
-        if isWin:
-            print("fixme: win proxy support")
-            # r = urllib.getproxies_registry()
-            # if 'https' in r:
-            #     url = r['https']
-            # elif 'http' in r:
-            #     url = r['http']
-        elif isMac:
-            print("fixme: mac proxy support")
-            # r = urllib.getproxies_macosx_sysconf()
-            # if 'https' in r:
-            #     url = r['https']
-            # elif 'http' in r:
-            #     url = r['http']
-        if url:
-            p = _proxy_info_from_url(url, _proxyMethod(url))
-    if p:
-        p.proxy_rdns = True
-    HTTP_PROXY = p
-
-def _proxyMethod(url):
-    if url.lower().startswith("https"):
-        return "https"
-    else:
-        return "http"
-
-_setupProxy()
+HTTP_BUF_SIZE = 64*1024
 
 # Incremental syncing
 ##########################################################################
@@ -526,25 +454,51 @@ class LocalServer(Syncer):
         l = json.loads; d = json.dumps
         return l(d(Syncer.applyChanges(self, l(d(changes)))))
 
+# Wrapper for requests that tracks upload/download progress
+##########################################################################
+
+class AnkiRequestsClient(object):
+
+    def __init__(self):
+        self.session = requests.Session()
+
+    def post(self, url, data, headers):
+        data = _MonitoringFile(data)
+        return self.session.post(url, data=data, headers=headers, stream=True)
+
+    def get(self, url):
+        return self.session.get(url, stream=True)
+
+    def streamContent(self, resp):
+        resp.raise_for_status()
+
+        buf = io.BytesIO()
+        for chunk in resp.iter_content(chunk_size=HTTP_BUF_SIZE):
+            runHook("httpRecv", len(chunk))
+            buf.write(chunk)
+        return buf.getvalue()
+
+class _MonitoringFile(io.BufferedReader):
+    def read(self, size=-1):
+        data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
+        runHook("httpSend", len(data))
+        return data
+
 # HTTP syncing tools
 ##########################################################################
 
-# Calling code should catch the following codes:
-# - 501: client needs upgrade
-# - 502: ankiweb down
-# - 503/504: server too busy
-
 class HttpSyncer(object):
 
-    def __init__(self, hkey=None, con=None):
+    def __init__(self, hkey=None, client=None):
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
-        self.con = con or httpCon()
+        self.client = client or AnkiRequestsClient()
         self.postVars = {}
 
     def assertOk(self, resp):
-        if resp['status'] != '200':
-            raise Exception("Unknown response code: %s" % resp['status'])
+        # not using raise_for_status() as aqt expects this error msg
+        if resp.status_code != 200:
+            raise Exception("Unknown response code: %s" % resp.status_code)
 
     # Posting data as a file
     ######################################################################
@@ -552,7 +506,7 @@ class HttpSyncer(object):
     # costly. We could send it as a raw post, but more HTTP clients seem to
     # support file uploading, so this is the more compatible choice.
 
-    def req(self, method, fobj=None, comp=6, badAuthRaises=True):
+    def _buildPostData(self, fobj, comp):
         BOUNDARY=b"Anki-sync-boundary"
         bdry = b"--"+BOUNDARY
         buf = io.BytesIO()
@@ -590,16 +544,19 @@ Content-Type: application/octet-stream\r\n\r\n""")
             'Content-Type': 'multipart/form-data; boundary=%s' % BOUNDARY.decode("utf8"),
             'Content-Length': str(size),
         }
-        body = buf.getvalue()
-        buf.close()
-        resp, cont = self.con.request(
-            self.syncURL()+method, "POST", headers=headers, body=body)
-        if not badAuthRaises:
-            # return false if bad auth instead of raising
-            if resp['status'] == '403':
-                return False
-        self.assertOk(resp)
-        return cont
+        buf.seek(0)
+        return headers, buf
+
+    def req(self, method, fobj=None, comp=6, badAuthRaises=True):
+        headers, body = self._buildPostData(fobj, comp)
+
+        r = self.client.post(self.syncURL()+method, data=body, headers=headers)
+        if not badAuthRaises and r.status_code == 403:
+            return False
+        self.assertOk(r)
+
+        buf = self.client.streamContent(r)
+        return buf
 
 # Incremental sync over HTTP
 ######################################################################
@@ -670,8 +627,8 @@ class RemoteServer(HttpSyncer):
 
 class FullSyncer(HttpSyncer):
 
-    def __init__(self, col, hkey, con):
-        HttpSyncer.__init__(self, hkey, con)
+    def __init__(self, col, hkey, client):
+        HttpSyncer.__init__(self, hkey, client)
         self.postVars = dict(
             k=self.hkey,
             v="ankidesktop,%s,%s"%(anki.version, platDesc()),
@@ -858,9 +815,9 @@ class MediaSyncer(object):
 
 class RemoteMediaServer(HttpSyncer):
 
-    def __init__(self, col, hkey, con):
+    def __init__(self, col, hkey, client):
         self.col = col
-        HttpSyncer.__init__(self, hkey, con)
+        HttpSyncer.__init__(self, hkey, client)
 
     def syncURL(self):
         if os.getenv("ANKIDEV"):

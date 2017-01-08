@@ -1,16 +1,15 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import time
+
+import requests
 
 from aqt.qt import *
 import aqt
 from aqt.utils import openLink
 from anki.utils import json, platDesc
 from aqt.utils import showText
-
 
 class LatestVersionFinder(QThread):
 
@@ -36,14 +35,11 @@ class LatestVersionFinder(QThread):
             return
         d = self._data()
         d['proto'] = 1
-        d = urllib.parse.urlencode(d).encode("utf8")
+
         try:
-            f = urllib.request.urlopen(aqt.appUpdate, d)
-            resp = f.read()
-            if not resp:
-                print("update check load failed")
-                return
-            resp = json.loads(resp.decode("utf8"))
+            r = requests.post(aqt.appUpdate, data=d)
+            r.raise_for_status()
+            resp = r.json()
         except:
             # behind proxy, corrupt message, etc
             print("update check failed")
