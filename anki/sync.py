@@ -464,9 +464,13 @@ class AnkiRequestsClient(object):
 
     def post(self, url, data, headers):
         data = _MonitoringFile(data)
+        headers['User-Agent'] = self._agentName()
         return self.session.post(url, data=data, headers=headers, stream=True)
 
-    def get(self, url):
+    def get(self, url, headers=None):
+        if headers is None:
+            headers = {}
+        headers['User-Agent'] = self._agentName()
         return self.session.get(url, stream=True)
 
     def streamContent(self, resp):
@@ -477,6 +481,10 @@ class AnkiRequestsClient(object):
             runHook("httpRecv", len(chunk))
             buf.write(chunk)
         return buf.getvalue()
+
+    def _agentName(self):
+        from anki import version
+        return "Anki {}".format(version)
 
 class _MonitoringFile(io.BufferedReader):
     def read(self, size=-1):
