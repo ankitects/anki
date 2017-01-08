@@ -8,6 +8,7 @@ import zipfile
 import gc
 import time
 import faulthandler
+from threading import Thread
 
 from send2trash import send2trash
 from aqt.qt import *
@@ -323,12 +324,23 @@ the manual for information on how to restore from an automatic backup."))
     # Backup and auto-optimize
     ##########################################################################
 
+    class BackupThread(Thread):
+        def __init__(self, path, data):
+            Thread.__init__(self)
+            self.path = path
+            self.data = data
+            # create the file in calling thread to ensure the same
+            # file is not created twice
+            open(self.path, "wb").close()
+
+        def run(self):
+            z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_DEFLATED)
+            z.writestr("collection.anki2", self.data)
+            z.writestr("media", "{}")
+            z.close()
+
     def backup(self):
         nbacks = self.pm.profile['numBackups']
-        if self.pm.profile.get('compressBackups', True):
-            zipStorage = zipfile.ZIP_DEFLATED
-        else:
-            zipStorage = zipfile.ZIP_STORED
         if not nbacks or os.getenv("ANKIDEV", 0):
             return
         dir = self.pm.backupFolder()
@@ -349,10 +361,9 @@ the manual for information on how to restore from an automatic backup."))
             n = backups[-1][0] + 1
         # do backup
         newpath = os.path.join(dir, "backup-%d.apkg" % n)
-        z = zipfile.ZipFile(newpath, "w", zipStorage)
-        z.write(path, "collection.anki2")
-        z.writestr("media", "{}")
-        z.close()
+        data = open(path, "rb").read()
+        b = self.BackupThread(newpath, data)
+        b.start()
         # remove if over
         if len(backups) + 1 > nbacks:
             delete = len(backups) + 1 - nbacks

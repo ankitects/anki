@@ -137,7 +137,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupBackup(self):
         self.form.numBackups.setValue(self.prof['numBackups'])
-        self.form.compressBackups.setChecked(self.prof.get("compressBackups", True))
         self.form.openBackupFolder.linkActivated.connect(self.onOpenBackup)
 
     def onOpenBackup(self):
@@ -145,18 +144,15 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def updateBackup(self):
         self.prof['numBackups'] = self.form.numBackups.value()
-        self.prof['compressBackups'] = self.form.compressBackups.isChecked()
 
     # Basic & Advanced Options
     ######################################################################
 
     def setupOptions(self):
-        self.form.stripHTML.setChecked(self.prof['stripHTML'])
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
         self.form.profilePass.clicked.connect(self.onProfilePass)
 
     def updateOptions(self):
-        self.prof['stripHTML'] = self.form.stripHTML.isChecked()
         self.prof['pastePNG'] = self.form.pastePNG.isChecked()
 
     def onProfilePass(self):

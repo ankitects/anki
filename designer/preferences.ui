@@ -66,13 +66,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="stripHTML">
-         <property name="text">
-          <string>Strip HTML when pasting text</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="pastePNG">
          <property name="text">
           <string>Paste clipboard images as PNG</string>
@@ -371,13 +364,6 @@
         </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="compressBackups">
-         <property name="text">
-          <string>Compress backups (slower)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="openBackupFolder">
          <property name="text">
           <string>&lt;a href=&quot;backups&quot;&gt;Open backup folder&lt;/a&gt;</string>
@@ -437,7 +423,6 @@
   <tabstop>lang</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
-  <tabstop>stripHTML</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
@@ -452,7 +437,6 @@
   <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>fullSync</tabstop>
-  <tabstop>compressBackups</tabstop>
  </tabstops>
  <resources/>
  <connections>
