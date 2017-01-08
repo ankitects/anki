@@ -895,15 +895,15 @@ and if the problem comes up again, please ask on the support site."""))
     def onRemNotes(self, col, nids):
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
-        with open(path, "a") as f:
+        with open(path, "ab") as f:
             if not existed:
-                f.write("nid\tmid\tfields\n")
+                f.write(b"nid\tmid\tfields\n")
             for id, mid, flds in col.db.execute(
                     "select id, mid, flds from notes where id in %s" %
                 ids2str(nids)):
                 fields = splitFields(flds)
-                f.write(("\t".join([str(id), str(mid)] + fields)))
-                f.write("\n")
+                f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
+                f.write(b"\n")
 
     # Schema modifications
     ##########################################################################
