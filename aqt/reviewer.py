@@ -33,10 +33,6 @@ class Reviewer(object):
         self.typeCorrect = None # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
-        # qshortcut so we don't autorepeat
-        self.delShortcut = QShortcut(QKeySequence("Delete"), self.mw)
-        self.delShortcut.setAutoRepeat(False)
-        self.delShortcut.activated.connect(self.onDelete)
         addHook("leech", self.onLeech)
 
     def show(self):
