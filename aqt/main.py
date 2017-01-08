@@ -7,6 +7,7 @@ import signal
 import zipfile
 import gc
 import time
+import faulthandler
 
 from send2trash import send2trash
 from aqt.qt import *
@@ -66,6 +67,7 @@ class AnkiQt(QMainWindow):
 
     def setupUI(self):
         self.col = None
+        self.setupCrashLog()
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -1164,6 +1166,14 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     def _onCollect(self):
         gc.collect()
+
+    # Crash log
+    ##########################################################################
+
+    def setupCrashLog(self):
+        p = os.path.join(self.pm.base, "crash.log")
+        self._crashLog = open(p, "a")
+        faulthandler.enable(self._crashLog)
 
     # Media server
     ##########################################################################
