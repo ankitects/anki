@@ -229,7 +229,13 @@ enter your details below.""") %
         return (u, p)
 
     def _confirmFullSync(self):
-        diag = askUserDialog(_("""\
+        if self.thread.localIsEmpty:
+            diag = askUserDialog(
+                _("Local collection has no cards. Download from AnkiWeb?"),
+                [_("Download from AnkiWeb"), _("Cancel")])
+            diag.setDefault(1)
+        else:
+            diag = askUserDialog(_("""\
 Your decks here and on AnkiWeb differ in such a way that they can't \
 be merged together, so it's necessary to overwrite the decks on one \
 side with the decks from the other.
@@ -247,7 +253,7 @@ automatically."""),
                 [_("Upload to AnkiWeb"),
                  _("Download from AnkiWeb"),
                  _("Cancel")])
-        diag.setDefault(2)
+            diag.setDefault(2)
         ret = diag.run()
         if ret == _("Upload to AnkiWeb"):
             self.thread.fullSyncChoice = "upload"
@@ -374,17 +380,14 @@ class SyncThread(QThread):
         self._syncMedia()
 
     def _fullSync(self):
-        # if the local deck is empty, assume user is trying to download
-        if self.col.isEmpty():
-            f = "download"
-        else:
-            # tell the calling thread we need a decision on sync direction, and
-            # wait for a reply
-            self.fullSyncChoice = False
-            self.fireEvent("fullSync")
-            while not self.fullSyncChoice:
-                time.sleep(0.1)
-            f = self.fullSyncChoice
+        # tell the calling thread we need a decision on sync direction, and
+        # wait for a reply
+        self.fullSyncChoice = False
+        self.localIsEmpty = self.col.isEmpty()
+        self.fireEvent("fullSync")
+        while not self.fullSyncChoice:
+            time.sleep(0.1)
+        f = self.fullSyncChoice
         if f == "cancel":
             return
         self.client = FullSyncer(self.col, self.hkey, self.server.client)
