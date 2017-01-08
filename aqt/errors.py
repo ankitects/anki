@@ -8,11 +8,12 @@ from anki.lang import _
 from aqt.qt import *
 from aqt.utils import showText, showWarning
 
-def excepthook(etype,val,tb):
-    sys.stderr.write("Caught exception:\n%s%s\n" % (
-        ''.join(traceback.format_tb(tb)),
-        '{0}: {1}'.format(etype, val)))
-sys.excepthook = excepthook
+if not os.environ.get("DEBUG"):
+    def excepthook(etype,val,tb):
+        sys.stderr.write("Caught exception:\n%s%s\n" % (
+            ''.join(traceback.format_tb(tb)),
+            '{0}: {1}'.format(etype, val)))
+    sys.excepthook = excepthook
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
