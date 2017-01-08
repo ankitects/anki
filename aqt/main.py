@@ -68,6 +68,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self):
         self.col = None
         self.setupCrashLog()
+        self.setupGC()
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -1150,21 +1151,23 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     # GC
     ##########################################################################
-    # run the garbage collector after object is deleted so we don't leave
-    # expensive web engine processes lying around
+    # ensure gc runs in main thread
 
     def setupDialogGC(self, obj):
         obj.finished.connect(lambda o=obj: self.gcWindow(obj))
 
     def gcWindow(self, obj):
         obj.deleteLater()
-        t = QTimer(self)
-        t.timeout.connect(self._onCollect)
-        t.setSingleShot(True)
-        # will run next time queue is idle
-        t.start(0)
 
-    def _onCollect(self):
+    def setupGC(self):
+        gc.collect()
+        gc.disable()
+        #gc.set_debug(gc.DEBUG_SAVEALL)
+        self.gcTimer = QTimer(self)
+        self.gcTimer.timeout.connect(self.runGC)
+        self.gcTimer.start(60*1000)
+
+    def runGC(self):
         gc.collect()
 
     # Crash log
