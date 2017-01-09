@@ -135,14 +135,15 @@ class AddCards(QDialog):
         self.mw.col._remNotes([note.id])
 
     def addHistory(self, note):
-        txt = stripHTMLMedia(",".join(note.fields))[:30]
-        self.history.insert(0, (note.id, txt))
+        self.history.insert(0, note.id)
         self.history = self.history[:15]
         self.historyButton.setEnabled(True)
 
     def onHistory(self):
         m = QMenu(self)
-        for nid, txt in self.history:
+        for nid in self.history:
+            fields = self.mw.col.getNote(nid).fields
+            txt = stripHTMLMedia(",".join(fields))[:30]
             a = m.addAction(_("Edit %s") % txt)
             a.triggered.connect(lambda b, nid=nid: self.editHistory(nid))
         runHook("AddCards.onHistory", self, m)
