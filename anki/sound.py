@@ -32,7 +32,7 @@ def _packagedCmd(cmd):
     env = os.environ.copy()
     if isMac:
         dir = os.path.dirname(os.path.abspath(__file__))
-        exeDir = os.path.abspath(dir + "/../../../../Resources/audio")
+        exeDir = os.path.abspath(dir + "/../../Resources/audio")
     else:
         exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
         if isWin and not cmd[0].endswith(".exe"):
