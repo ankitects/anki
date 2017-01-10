@@ -714,7 +714,7 @@ function showAnswer(txt) {
             [_("Bury Note"), "=", self.onBuryNote],
             [_("Suspend Card"), "@", self.onSuspendCard],
             [_("Suspend Note"), "!", self.onSuspend],
-            [_("Delete Note"), "Delete", self.onDelete],
+            [_("Delete Note"), None, self.onDelete],
             [_("Options"), "O", self.onOptions],
             None,
             [_("Replay Audio"), "R", self.replayAudio],
@@ -728,7 +728,8 @@ function showAnswer(txt) {
                 continue
             label, scut, func = row
             a = m.addAction(label)
-            a.setShortcut(QKeySequence(scut))
+            if scut:
+                a.setShortcut(QKeySequence(scut))
             a.triggered.connect(func)
         runHook("Reviewer.contextMenuEvent",self,m)
         m.exec_(QCursor.pos())
