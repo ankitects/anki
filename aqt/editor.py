@@ -42,7 +42,7 @@ _html = """
 .fname { vertical-align: middle; padding: 0; }
 img { max-width: 90%%; }
 body { margin: 5px; }
-#topbuts { position: fixed; height: 20px; top: 0; padding: 2px; left:0;right:0}
+#topbuts { position: fixed; height: 24px; top: 0; padding: 2px; left:0;right:0}
 .topbut { width: 16px; height: 16px; }
 .rainbow {
 background-image: -webkit-gradient(linear,  left top,  left bottom,
