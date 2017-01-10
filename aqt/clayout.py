@@ -226,12 +226,16 @@ Please create a new card type first."""))
         c = self.card
         ti = self.maybeTextInput
         base = self.mw.baseHTML()
+        self.tab['pform'].frontWeb.setEnabled(False)
+        self.tab['pform'].backWeb.setEnabled(False)
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.q(reload=True))), self.mw.reviewer._styles(),
             bodyClass="card card%d" % (c.ord+1), head=base),
         self.tab['pform'].backWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.a()), type='a'), self.mw.reviewer._styles(),
             bodyClass="card card%d" % (c.ord+1), head=base),
+        self.tab['pform'].frontWeb.setEnabled(True)
+        self.tab['pform'].backWeb.setEnabled(True)
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
