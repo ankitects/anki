@@ -142,10 +142,14 @@ class AddCards(QDialog):
     def onHistory(self):
         m = QMenu(self)
         for nid in self.history:
-            fields = self.mw.col.getNote(nid).fields
-            txt = stripHTMLMedia(",".join(fields))[:30]
-            a = m.addAction(_("Edit %s") % txt)
-            a.triggered.connect(lambda b, nid=nid: self.editHistory(nid))
+            if self.mw.col.findNotes("nid:%s" % nid):
+                fields = self.mw.col.getNote(nid).fields
+                txt = stripHTMLMedia(",".join(fields))[:30]
+                a = m.addAction(_("Edit %s") % txt)
+                a.triggered.connect(lambda b, nid=nid: self.editHistory(nid))
+            else:
+                a = m.addAction(_("(Note deleted)"))
+                a.setEnabled(False)
         runHook("AddCards.onHistory", self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
 
