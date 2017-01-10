@@ -12,9 +12,9 @@ provide support for problems you encounter when running from source.
 
 Anki requires:
 
- - Python 3.4+
+ - Python 3.5+
  - Qt 5.5+
- - PyQt5.6+
+ - PyQt5.7.1+
  - mplayer
  - lame
 
