@@ -8,7 +8,7 @@ straight away, here are some tips on porting.
 Python 3
 ---------
 
-Anki 2.1 requires Python 3.4 or later. After installing Python 3 on your
+Anki 2.1 requires Python 3.5 or later. After installing Python 3 on your
 machine, you can use the 2to3 tool to automatically convert your existing
 scripts to Python 3 code on a folder by folder basis, like:
 
@@ -31,6 +31,10 @@ may find they still work in Anki 2.0.x as well.
 
 More info is available at
 http://pyqt.sourceforge.net/Docs/PyQt4/new_style_signals_slots.html
+
+One add-on author reported that the following tool was useful to automatically
+convert the code:
+https://github.com/rferrazz/pyqt4topyqt5
 
 Changes in Anki
 ----------------
