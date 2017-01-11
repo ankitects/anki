@@ -13,8 +13,8 @@ provide support for problems you encounter when running from source.
 Anki requires:
 
  - Python 3.5+
- - Qt 5.5+
- - PyQt5.7.1+
+ - Qt 5.7.1+
+ - PyQt 5.7+
  - mplayer
  - lame
 
