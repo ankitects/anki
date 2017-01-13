@@ -11,6 +11,7 @@ import random
 import cPickle
 import locale
 import re
+import shutil
 
 from aqt.qt import *
 from anki.db import DB
@@ -104,8 +105,11 @@ a flash drive.""" % self.base)
             return
         oldBase = os.path.expanduser("~/Documents/Anki")
         if not os.path.exists(self.base) and os.path.exists(oldBase):
-            os.rename(oldBase, self.base)
-            os.symlink(self.base, oldBase)
+            shutil.move(oldBase, self.base)
+
+        # remove the old symlink if it exists
+        if os.path.exists(oldBase) and os.path.islink(oldBase):
+            os.remove(oldBase)
 
     # Profile load/save
     ######################################################################
