@@ -134,9 +134,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self._lastSave = time.time()
 
     def autosave(self):
-        "Save if 5 minutes has passed since last save."
+        "Save if 5 minutes has passed since last save. True if saved."
         if time.time() - self._lastSave > 300:
             self.save()
+            return True
 
     def lock(self):
         # make sure we don't accidentally bump mod time

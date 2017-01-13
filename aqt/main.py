@@ -69,7 +69,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self):
         self.col = None
         self.setupCrashLog()
-        self.setupGC()
+        self.disableGC()
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -709,8 +709,10 @@ title="%s" %s>%s</button>''' % (
         self.maybeEnableUndo()
 
     def autosave(self):
-        self.col.autosave()
+        saved = self.col.autosave()
         self.maybeEnableUndo()
+        if saved:
+            self.doGC()
 
     # Other menu operations
     ##########################################################################
@@ -1172,15 +1174,12 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
     def gcWindow(self, obj):
         obj.deleteLater()
 
-    def setupGC(self):
+    def disableGC(self):
         gc.collect()
         gc.disable()
-        #gc.set_debug(gc.DEBUG_SAVEALL)
-        self.gcTimer = QTimer(self)
-        self.gcTimer.timeout.connect(self.runGC)
-        self.gcTimer.start(60*1000)
 
-    def runGC(self):
+    def doGC(self):
+        assert not self.progress.inDB
         gc.collect()
 
     # Crash log
