@@ -1180,14 +1180,16 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     def doGC(self):
         assert not self.progress.inDB
+        self._crashLog.write(b"gc started at %d\n" % time.time())
         gc.collect()
+        self._crashLog.write(b"gc finished\n")
 
     # Crash log
     ##########################################################################
 
     def setupCrashLog(self):
         p = os.path.join(self.pm.base, "crash.log")
-        self._crashLog = open(p, "a")
+        self._crashLog = open(p, "ab", 0)
         faulthandler.enable(self._crashLog)
 
     # Media server
