@@ -201,6 +201,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.modSchema(check=False)
         self.ls = self.scm
         # ensure db is compacted before upload
+        self.db.setAutocommit(True)
         self.db.execute("vacuum")
         self.db.execute("analyze")
         self.close()
@@ -810,8 +811,10 @@ and queue = 0""", intTime(), self.usn())
         return ("\n".join(problems), ok)
 
     def optimize(self):
+        self.db.setAutocommit(True)
         self.db.execute("vacuum")
         self.db.execute("analyze")
+        self.db.setAutocommit(False)
         self.lock()
 
     # Logging

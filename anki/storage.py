@@ -2,7 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
 import copy
 import re
 
@@ -13,7 +12,6 @@ from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
     addForwardOptionalReverse
-
 
 def Collection(path, lock=True, server=False, sync=True, log=False):
     "Open a new or existing collection. Path must be unicode."
@@ -26,6 +24,7 @@ def Collection(path, lock=True, server=False, sync=True, log=False):
             assert c not in base
     # connect
     db = DB(path)
+    db.setAutocommit(True)
     if create:
         ver = _createDB(db)
     else:
@@ -36,6 +35,7 @@ def Collection(path, lock=True, server=False, sync=True, log=False):
         db.execute("pragma journal_mode = wal")
     else:
         db.execute("pragma synchronous = off")
+    db.setAutocommit(False)
     # add db to col and do any remaining upgrades
     col = _Collection(db, server, log)
     if ver < SCHEMA_VERSION:

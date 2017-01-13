@@ -444,8 +444,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def forceResync(self):
         self.db.execute("delete from media")
         self.db.execute("update meta set lastUsn=0,dirMod=0")
-        self.db.execute("vacuum analyze")
         self.db.commit()
+        self.db.setAutocommit(True)
+        self.db.execute("vacuum analyze")
+        self.db.setAutocommit(False)
 
     # Media syncing: zips
     ##########################################################################

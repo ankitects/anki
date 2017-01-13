@@ -46,8 +46,10 @@ class Anki2Importer(Importer):
         self._importCards()
         self._importStaticMedia()
         self._postImport()
+        self.dst.db.setAutocommit(True)
         self.dst.db.execute("vacuum")
         self.dst.db.execute("analyze")
+        self.dst.db.setAutocommit(False)
 
     # Notes
     ######################################################################
