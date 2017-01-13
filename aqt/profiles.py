@@ -9,6 +9,8 @@
 import os
 import random
 import pickle
+import shutil
+
 import locale
 import re
 
@@ -68,6 +70,7 @@ class ProfileManager(object):
             self.base = os.path.abspath(base)
         else:
             self.base = self._defaultBase()
+            self.maybeMigrateFolder()
         self.ensureBaseExists()
         # load metadata
         self.firstRun = self._loadMeta()
@@ -96,6 +99,21 @@ read-only and you have permission to write to it. If you cannot fix this \
 issue, please see the documentation for information on running Anki from \
 a flash drive.""" % self.base)
             raise
+
+    # Folder migration
+    ######################################################################
+
+    def maybeMigrateFolder(self):
+        if not isMac:
+            return
+        oldBase = os.path.expanduser("~/Documents/Anki")
+
+        if not os.path.exists(self.base) and os.path.exists(oldBase):
+            shutil.move(oldBase, self.base)
+
+        # remove the old symlink if it exists
+        if os.path.exists(oldBase) and os.path.islink(oldBase):
+            os.remove(oldBase)
 
     # Profile load/save
     ######################################################################
@@ -213,7 +231,7 @@ and no other programs are accessing your profile folders, then try again."""))
             loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
             return os.path.join(loc, "Anki")
         elif isMac:
-            return os.path.expanduser("~/Documents/Anki")
+            return os.path.expanduser("~/Library/Application Support/Anki2")
         else:
             # use Documents/Anki on new installs, ~/Anki on existing ones
             p = os.path.expanduser("~/Anki")
