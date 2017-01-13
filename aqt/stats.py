@@ -4,7 +4,8 @@
 
 from aqt.qt import *
 import os, time
-from aqt.utils import saveGeom, restoreGeom, maybeHideClose, showInfo, addCloseShortcut
+from aqt.utils import saveGeom, restoreGeom, maybeHideClose, addCloseShortcut, \
+    tooltip
 import aqt
 
 # Deck Stats
@@ -25,9 +26,9 @@ class DeckStats(QDialog):
         f = self.form
         f.setupUi(self)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(_("Save Image"),
+        b = f.buttonBox.addButton(_("Save PDF"),
                                           QDialogButtonBox.ActionRole)
-        b.clicked.connect(self.browser)
+        b.clicked.connect(self.saveImage)
         b.setAutoDefault(False)
         f.groups.clicked.connect(lambda: self.changeScope("deck"))
         f.groups.setShortcut("g")
@@ -39,14 +40,13 @@ class DeckStats(QDialog):
         addCloseShortcut(self)
         self.refresh()
         self.show()
-        print("fixme: save image support in deck stats")
 
     def reject(self):
         saveGeom(self, self.name)
         QDialog.reject(self)
 
-    def browser(self):
-        name = time.strftime("-%Y-%m-%d@%H-%M-%S.png",
+    def _imagePath(self):
+        name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
         desktopPath = QStandardPaths.writableLocation(
@@ -54,21 +54,12 @@ class DeckStats(QDialog):
         if not os.path.exists(desktopPath):
             os.mkdir(desktopPath)
         path = os.path.join(desktopPath, name)
-        p = self.form.web.page()
-        oldsize = p.viewportSize()
-        p.setViewportSize(p.mainFrame().contentsSize())
-        image = QImage(p.viewportSize(), QImage.Format_ARGB32)
-        painter = QPainter(image)
-        p.mainFrame().render(painter)
-        painter.end()
-        isOK = image.save(path, "png")
-        if isOK:
-            showInfo(_("An image was saved to your desktop."))
-        else:
-            showInfo(_("""\
-Anki could not save the image. Please check that you have permission to write \
-to your desktop."""))
-        p.setViewportSize(oldsize)
+        return path
+
+    def saveImage(self):
+        path = self._imagePath()
+        self.form.web.page().printToPdf(path)
+        tooltip(_("A PDF file was saved to your desktop."))
 
     def changePeriod(self, n):
         self.period = n
