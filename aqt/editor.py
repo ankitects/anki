@@ -488,6 +488,8 @@ class Editor(object):
 
     def resourceToData(self, path):
         """Convert a file (specified by a path) into a data URI."""
+        if not os.path.exists(path):
+            raise FileNotFoundError
         mime, _ = mimetypes.guess_type(path)
         with open(path, 'rb') as fp:
             data = fp.read()
