@@ -8,6 +8,8 @@ import ctypes
 import urllib.request, urllib.parse, urllib.error
 import warnings
 import html
+import mimetypes
+import base64
 
 from anki.lang import _
 from aqt.qt import *
@@ -121,6 +123,14 @@ function updateButtonState() {
 
     // fixme: forecolor
 //    'col': document.queryCommandValue("forecolor")
+};
+
+function toggleEditorButton(buttonid) {
+    if ($(buttonid).hasClass("highlighted")) {
+        $(buttonid).removeClass("highlighted");
+    } else {
+        $(buttonid).addClass("highlighted");
+    }
 };
 
 function setFormat(cmd, arg, nosave) {
@@ -441,8 +451,8 @@ class Editor(object):
         righttopbtns = list()
         righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)", id='bold'))
         righttopbtns.append(self._addButton('text_italic', 'italic', "Italic text (Ctrl+I)", id='italic'))
-        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)", 'underline'))
-        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)", 'superscipt'))
+        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)", id='underline'))
+        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl+Shift+=)", id='superscript'))
         righttopbtns.append(self._addButton('text_sub', 'sub', "Subscript (Ctrl+=)", id='subscript'))
         righttopbtns.append(self._addButton('text_clear', 'clear', "Remove formatting (Ctrl+R)"))
         # The color selection buttons do not use an icon so the HTML must be specified manually
@@ -476,17 +486,31 @@ class Editor(object):
     # Top buttons
     ######################################################################
 
-    def _addButton(self, icon, cmd, tip="", id=None):
+    def resourceToData(self, path):
+        """Convert a file (specified by a path) into a data URI."""
+        if not os.path.exists(path):
+            raise FileNotFoundError
+        mime, _ = mimetypes.guess_type(path)
+        with open(path, 'rb') as fp:
+            data = fp.read()
+            data64 = b''.join(base64.encodestring(data).splitlines())
+            return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
+
+    def _addButton(self, icon, cmd, tip="", id=None, toggleable=False):
         if os.path.isabs(icon):
-            iconstr = icon
+            iconstr = self.resourceToData(icon)
         else:
             iconstr = "qrc:/icons/{}.png".format(icon)
         if id:
             idstr = 'id={}'.format(id)
         else:
             idstr = ""
-        return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');return false;">
-            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip), id=idstr)
+        if toggleable:
+            toggleScript = 'toggleEditorButton(this);'
+        else:
+            toggleScript = ''
+        return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');{togglesc}return false;">
+            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip), id=idstr, togglesc=toggleScript)
 
     def setupShortcuts(self):
         cuts = [
