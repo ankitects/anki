@@ -446,7 +446,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.db.execute("update meta set lastUsn=0,dirMod=0")
         self.db.commit()
         self.db.setAutocommit(True)
-        self.db.execute("vacuum analyze")
+        self.db.execute("vacuum")
+        self.db.execute("analyze")
         self.db.setAutocommit(False)
 
     # Media syncing: zips
