@@ -465,13 +465,14 @@ class AnkiRequestsClient(object):
     def post(self, url, data, headers):
         data = _MonitoringFile(data)
         headers['User-Agent'] = self._agentName()
-        return self.session.post(url, data=data, headers=headers, stream=True)
+        return self.session.post(
+            url, data=data, headers=headers, stream=True, timeout=60)
 
     def get(self, url, headers=None):
         if headers is None:
             headers = {}
         headers['User-Agent'] = self._agentName()
-        return self.session.get(url, stream=True)
+        return self.session.get(url, stream=True, timeout=60)
 
     def streamContent(self, resp):
         resp.raise_for_status()
