@@ -10,7 +10,7 @@ install:
 	mkdir -p ${DESTDIR}${PREFIX}/share/anki
 	cp -av * ${DESTDIR}${PREFIX}/share/anki/
 	cd ${DESTDIR}${PREFIX}/share/anki && (\
-	mv runanki ${DESTDIR}${PREFIX}/local/bin/anki;\
+	mv tools/runanki.system ${DESTDIR}${PREFIX}/local/bin/anki;\
 	test -d ${DESTDIR}${PREFIX}/share/pixmaps &&\
 	  mv anki.xpm anki.png ${DESTDIR}${PREFIX}/share/pixmaps/;\
 	mv anki.desktop ${DESTDIR}${PREFIX}/share/applications;\
