@@ -84,14 +84,31 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
             if evt.key() == Qt.Key_Escape:
                 evt.ignore()
 
-    def start(self, max=0, min=0, label=None, parent=None, immediate=False):
+    class ProgressCancellable(QProgressDialog):
+        def __init__(self, *args, **kwargs):
+            QProgressDialog.__init__(self, *args, **kwargs)
+            self.ankiCancel = False
+        def closeEvent(self, evt):
+            # avoid standard Qt flag as we don't want to close until we're ready
+            self.ankiCancel = True
+            evt.ignore()
+        def keyPressEvent(self, evt):
+            if evt.key() == Qt.Key_Escape:
+                evt.ignore()
+                self.ankiCancel = True
+
+    def start(self, max=0, min=0, label=None, parent=None, immediate=False, cancellable=False):
         self._levels += 1
         if self._levels > 1:
             return
         # setup window
         parent = parent or self.app.activeWindow() or self.mw
         label = label or _("Processing...")
-        self._win = self.ProgressNoCancel(label, "", min, max, parent)
+        if cancellable:
+            klass = self.ProgressCancellable
+        else:
+            klass = self.ProgressNoCancel
+        self._win = klass(label, "", min, max, parent)
         self._win.setWindowTitle("Anki")
         self._win.setCancelButton(None)
         self._win.setAutoClose(False)
@@ -112,6 +129,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
         self._firstTime = time.time()
         self._lastUpdate = time.time()
         self._disabled = False
+        return self._win
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
         #print self._min, self._counter, self._max, label, time.time() - self._lastTime

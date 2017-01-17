@@ -1,7 +1,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import socket
 import time
 import traceback
 import gc
@@ -47,11 +46,17 @@ class SyncManager(QObject):
             auth=auth, media=self.pm.profile['syncMedia'])
         t.event.connect(self.onEvent)
         self.label = _("Connecting...")
-        self.mw.progress.start(immediate=True, label=self.label)
+        prog = self.mw.progress.start(immediate=True, label=self.label, cancellable=True)
         self.sentBytes = self.recvBytes = 0
         self._updateLabel()
         self.thread.start()
         while not self.thread.isFinished():
+            if prog.ankiCancel:
+                self.thread.flagAbort()
+                # make sure we don't display 'upload success' msg
+                self._didFullUp = False
+                # abort may take a while
+                self.mw.progress.update(_("Stopping..."))
             self.mw.app.processEvents()
             self.thread.wait(100)
         self.mw.progress.finish()
@@ -289,6 +294,10 @@ class SyncThread(QThread):
         self.hkey = hkey
         self.auth = auth
         self.media = media
+        self._abort = 0 # 1=flagged, 2=aborting
+
+    def flagAbort(self):
+        self._abort = 1
 
     def run(self):
         # init this first so an early crash doesn't cause an error
@@ -309,11 +318,19 @@ class SyncThread(QThread):
         def syncMsg(msg):
             self.fireEvent("syncMsg", msg)
         def sendEvent(bytes):
-            self.sentTotal += bytes
-            self.fireEvent("send", str(self.sentTotal))
+            if not self._abort:
+                self.sentTotal += bytes
+                self.fireEvent("send", str(self.sentTotal))
+            elif self._abort == 1:
+                self._abort = 2
+                raise Exception("sync cancelled")
         def recvEvent(bytes):
-            self.recvTotal += bytes
-            self.fireEvent("recv", str(self.recvTotal))
+            if not self._abort:
+                self.recvTotal += bytes
+                self.fireEvent("recv", str(self.recvTotal))
+            elif self._abort == 1:
+                self._abort = 2
+                raise Exception("sync cancelled")
         addHook("sync", syncEvent)
         addHook("syncMsg", syncMsg)
         addHook("httpSend", sendEvent)
@@ -332,6 +349,16 @@ class SyncThread(QThread):
             remHook("httpSend", sendEvent)
             remHook("httpRecv", recvEvent)
 
+    def _abortingSync(self):
+        try:
+            return self.client.sync()
+        except Exception as e:
+            if "sync cancelled" in str(e):
+                self.server.abort()
+                raise
+            else:
+                raise
+
     def _sync(self):
         if self.auth:
             # need to authenticate and obtain host key
@@ -344,13 +371,15 @@ class SyncThread(QThread):
                 self.fireEvent("newKey", self.hkey)
         # run sync and check state
         try:
-            ret = self.client.sync()
+            ret = self._abortingSync()
         except Exception as e:
             log = traceback.format_exc()
             err = repr(str(e))
             if ("Unable to find the server" in err or
                 "Errno 2" in err):
                 self.fireEvent("offline")
+            elif "sync cancelled" in err:
+                pass
             else:
                 if not err:
                     err = log
@@ -391,11 +420,16 @@ class SyncThread(QThread):
         if f == "cancel":
             return
         self.client = FullSyncer(self.col, self.hkey, self.server.client)
-        if f == "upload":
-            if not self.client.upload():
-                self.fireEvent("upbad")
-        else:
-            self.client.download()
+        try:
+            if f == "upload":
+                if not self.client.upload():
+                    self.fireEvent("upbad")
+            else:
+                self.client.download()
+        except Exception as e:
+            if "sync cancelled" in str(e):
+                return
+            raise
         # reopen db and move on to media sync
         self.col.reopen()
         self._syncMedia()
@@ -405,7 +439,12 @@ class SyncThread(QThread):
             return
         self.server = RemoteMediaServer(self.col, self.hkey, self.server.client)
         self.client = MediaSyncer(self.col, self.server)
-        ret = self.client.sync()
+        try:
+            ret = self.client.sync()
+        except Exception as e:
+            if "sync cancelled" in str(e):
+                return
+            raise
         if ret == "noChanges":
             self.fireEvent("noMediaChanges")
         elif ret == "sanityCheckFailed":
