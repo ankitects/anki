@@ -33,9 +33,6 @@ class AnkiQt(QMainWindow):
         self.state = "startup"
         aqt.mw = self
         self.app = app
-        if isWin:
-            self._xpstyle = QStyleFactory.create("WindowsXP")
-            self.app.setStyle(self._xpstyle)
         self.pm = profileManager
         # running 2.0 for the first time?
         if self.pm.meta['firstRun']:
@@ -44,11 +41,7 @@ class AnkiQt(QMainWindow):
             self.pm.meta['firstRun'] = False
             self.pm.save()
         # init rest of app
-        if qtmajor == 4 and qtminor < 8:
-            # can't get modifiers immediately on qt4.7, so no safe mode there
-            self.safeMode = False
-        else:
-            self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
         try:
             self.setupUI()
             self.setupAddons()
