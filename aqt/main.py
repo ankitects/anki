@@ -378,7 +378,7 @@ the manual for information on how to restore from an automatic backup."))
     ##########################################################################
 
     def moveToState(self, state, *args):
-        #print "-> move from", self.state, "to", state
+        #print("-> move from", self.state, "to", state)
         oldState = self.state or "dummy"
         cleanup = getattr(self, "_"+oldState+"Cleanup", None)
         if cleanup:
@@ -386,6 +386,8 @@ the manual for information on how to restore from an automatic backup."))
         self.state = state
         runHook('beforeStateChange', state, oldState, *args)
         getattr(self, "_"+state+"State")(oldState, *args)
+        if state != "resetRequired":
+            self.bottomWeb.show()
         runHook('afterStateChange', state, oldState, *args)
 
     def _deckBrowserState(self, oldState):
