@@ -7,3 +7,6 @@
 aqt/forms
 locale
 .idea
+build/**
+anki.egg-info/**
+dist/**
