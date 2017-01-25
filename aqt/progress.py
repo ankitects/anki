@@ -118,9 +118,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
         # by the db handler
         self._win.setMinimumDuration(100000)
         if immediate:
-            self._shown = True
-            self._win.show()
-            self.app.processEvents()
+            self._showWin()
         else:
             self._shown = False
         self._counter = min
@@ -128,7 +126,6 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
         self._max = max
         self._firstTime = time.time()
         self._lastUpdate = time.time()
-        self._disabled = False
         return self._win
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
@@ -149,8 +146,7 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
         self._levels -= 1
         self._levels = max(0, self._levels)
         if self._levels == 0 and self._win:
-            self._win.cancel()
-            self._unsetBusy()
+            self._closeWin()
 
     def clear(self):
         "Restore the interface after an error."
@@ -166,16 +162,31 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
             return
         delta = time.time() - self._firstTime
         if delta > 0.5:
-            self._shown = True
-            self._win.show()
-            self._setBusy()
+            self._showWin()
+
+    def _showWin(self):
+        self._shown = time.time()
+        self._win.show()
+        self._setBusy()
+
+    def _closeWin(self):
+        if self._shown:
+            while True:
+                # give the window system a second to present
+                # window before we close it again - fixes
+                # progress window getting stuck, especially
+                # on ubuntu 16.10+
+                elap = time.time() - self._shown
+                if elap >= 0.5:
+                    break
+                self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+        self._win.cancel()
+        self._unsetBusy()
 
     def _setBusy(self):
-        self._disabled = True
         self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
 
     def _unsetBusy(self):
-        self._disabled = False
         self.app.restoreOverrideCursor()
 
     def busy(self):
