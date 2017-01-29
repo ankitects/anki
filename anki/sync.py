@@ -611,7 +611,7 @@ class RemoteServer(HttpSyncer):
 
     def syncURL(self):
         if os.getenv("ANKIDEV"):
-            return "https://l1.ankiweb.net/sync/"
+            return "https://l1sync.ankiweb.net/sync/"
         return SYNC_BASE + "sync/"
 
     def hostKey(self, user, pw):
