@@ -2,11 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import   re, os, zipfile, shutil
+import re, os, zipfile, shutil
 from anki.lang import _
-from anki.utils import  ids2str, splitFields, json
+from anki.utils import ids2str, splitFields, json
 from anki.hooks import runHook
 from anki import Collection
+
 
 class Exporter(object):
     def __init__(self, col, did=None):
@@ -113,6 +114,8 @@ class AnkiExporter(Exporter):
         self.includeSched = False
         self.includeMedia = True
 
+        self.src = self.col
+
     def exportInto(self, path):
         # create a new collection at the target
         try:
@@ -120,7 +123,7 @@ class AnkiExporter(Exporter):
         except (IOError, OSError):
             pass
         self.dst = Collection(path)
-        self.src = self.col
+
         # find cards
         if not self.did:
             cids = self.src.db.list("select id from cards")
@@ -192,24 +195,17 @@ class AnkiExporter(Exporter):
             if dc['id'] in dconfs:
                 self.dst.decks.updateConf(dc)
         # find used media
-        media = {}
+        media = set()
         self.mediaDir = self.src.media.dir()
         if self.includeMedia:
             for row in notedata:
                 flds = row[6]
                 mid = row[2]
                 for file in self.src.media.filesInStr(mid, flds):
-                    media[file] = True
+                    media.add(file)
             if self.mediaDir:
-                for fname in os.listdir(self.mediaDir):
-                    if fname.startswith("_"):
-                        # Scan all models in mids for reference to fname
-                        for m in self.src.models.all():
-                            if int(m['id']) in mids:
-                                if self._modelHasMedia(m, fname):
-                                    media[fname] = True
-                                    break
-        self.mediaFiles = list(media.keys())
+                media |= self.getFilesForModels(mids, self.mediaDir)
+        self.mediaFiles = list(media)
         self.dst.crt = self.src.crt
         # todo: tags?
         self.count = self.dst.cardCount()
@@ -217,11 +213,23 @@ class AnkiExporter(Exporter):
         self.postExport()
         self.dst.close()
 
+    def getFilesForModels(self, model_ids, media_dir):
+        result = set()
+        for file_name in os.listdir(media_dir):
+            if file_name.startswith("_"):
+                # Scan all models in model_ids for reference to file_name
+                for model in self.src.models.all():
+                    if int(model['id']) in model_ids:
+                        if self._modelHasMedia(model, file_name):
+                            result.add(file_name)
+                            break
+        return result
+
     def postExport(self):
         # overwrite to apply customizations to the deck before it's closed,
         # such as update the deck description
         pass
-    
+
     def removeSystemTags(self, tags):
         return self.src.tags.remFromStr("marked leech", tags)
 
@@ -311,13 +319,16 @@ class AnkiPackageExporter(AnkiExporter):
 # Export modules
 ##########################################################################
 
+
+def getExporterId(obj):
+    return ("%s (*%s)" % (obj.key, obj.ext), obj)
+
+
 def exporters():
-    def id(obj):
-        return ("%s (*%s)" % (obj.key, obj.ext), obj)
     exps = [
-        id(AnkiPackageExporter),
-        id(TextNoteExporter),
-        id(TextCardExporter),
+        getExporterId(AnkiPackageExporter),
+        getExporterId(TextNoteExporter),
+        getExporterId(TextCardExporter),
     ]
     runHook("exportersList", exps)
     return exps
