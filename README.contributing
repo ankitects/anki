@@ -30,7 +30,7 @@ Examples of changes that are unlikely to be accepted:
 
 - Altering existing code unnecessarily. Your code may be more elegant than
   what already exists, but it takes time for us to review the changes, may
-  habour unnoticed bugs, and makes maintaining the mobile clients more
+  harbour unnoticed bugs, and makes maintaining the mobile clients more
   difficult.
 - Adding code that is not used within Anki but it only for the benefit of
   add-ons - such code is difficult to test and maintain.
