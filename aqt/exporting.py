@@ -4,6 +4,7 @@
 import os
 import re
 
+from anki.utils import intTime
 from aqt.qt import *
 import  aqt
 from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
@@ -46,7 +47,7 @@ class ExportDialog(QDialog):
         self.isTextNote = hasattr(self.exporter, "includeTags")
         self.hideTags = hasattr(self.exporter, "hideTags")
         self.frm.includeSched.setVisible(self.isApkg)
-        self.frm.includeMedia.setVisible(self.isApkg)
+        self.frm.includeMedia.setVisible(hasattr(self.exporter, "includeMedia"))
         self.frm.includeTags.setVisible(
             not self.isApkg and not self.hideTags)
 
@@ -62,19 +63,24 @@ class ExportDialog(QDialog):
         else:
             name = self.decks[self.frm.deck.currentIndex()]
             self.exporter.did = self.col.decks.id(name)
+
+        directory_export = hasattr(self.exporter, "directory_export")
+        directory = None
+        export_file = None
+
         if (self.isApkg and self.exporter.includeSched and not
             self.exporter.did):
             verbatim = True
             # it's a verbatim apkg export, so place on desktop instead of
             # choosing file; use homedir if no desktop
             usingHomedir = False
-            file = os.path.join(QStandardPaths.writableLocation(
+            export_file = os.path.join(QStandardPaths.writableLocation(
                 QStandardPaths.DesktopLocation), "collection.apkg")
-            if not os.path.exists(os.path.dirname(file)):
+            if not os.path.exists(os.path.dirname(export_file)):
                 usingHomedir = True
-                file = os.path.join(QStandardPaths.writableLocation(
+                export_file = os.path.join(QStandardPaths.writableLocation(
                     QStandardPaths.HomeLocation), "collection.apkg")
-            if os.path.exists(file):
+            if os.path.exists(export_file):
                 if usingHomedir:
                     question = _("%s already exists in your home directory. Overwrite it?")
                 else:
@@ -89,30 +95,36 @@ class ExportDialog(QDialog):
             filename = os.path.join(aqt.mw.pm.base,
                                     '{0}{1}'.format(deck_name, self.exporter.ext))
             while 1:
-                file = getSaveFile(self, _("Export"), "export",
-                                   self.exporter.key, self.exporter.ext,
-                                   fname=filename)
-                if not file:
+                if directory_export:
+                    directory = str(QFileDialog.getExistingDirectory(caption="Select Export Directory",
+                                                                     directory=filename))
+                    if directory:
+                        export_file = os.path.join(directory, str(intTime()))
+                else:
+                    export_file = getSaveFile(self, _("Export"), "export",
+                                       self.exporter.key, self.exporter.ext,
+                                       fname=filename)
+                if not export_file:
                     return
-                if checkInvalidFilename(os.path.basename(file), dirsep=False):
+                if checkInvalidFilename(os.path.basename(export_file), dirsep=False):
                     continue
                 break
         self.hide()
-        if file:
+        if export_file:
             self.mw.progress.start(immediate=True)
             try:
-                f = open(file, "wb")
+                f = open(export_file, "wb")
                 f.close()
             except (OSError, IOError) as e:
                 showWarning(_("Couldn't save file: %s") % str(e))
             else:
-                os.unlink(file)
+                os.unlink(export_file)
                 exportedMedia = lambda cnt: self.mw.progress.update(
                         label=ngettext("Exported %d media file",
                                        "Exported %d media files", cnt) % cnt
                         )
                 addHook("exportedMediaFiles", exportedMedia)
-                self.exporter.exportInto(file)
+                self.exporter.exportInto(directory if directory_export else export_file)
                 remHook("exportedMediaFiles", exportedMedia)
                 if verbatim:
                     if usingHomedir:

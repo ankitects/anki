@@ -883,6 +883,8 @@ Difference to correct time: %s.""") % diffText
         addHook("remNotes", self.onRemNotes)
         addHook("odueInvalid", self.onOdueInvalid)
 
+        addHook("request_backup", self.backup)
+
     def onOdueInvalid(self):
         showWarning(_("""\
 Invalid property found on card. Please use Tools>Check Database, \

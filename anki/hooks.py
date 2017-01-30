@@ -18,38 +18,45 @@ automatically but can be called with _old().
 
 _hooks = {}
 
+
 def runHook(hook, *args):
-    "Run all functions on hook."
-    hook = _hooks.get(hook, None)
+    """Run all functions on hook."""
+    hook = _hooks.get(hook)
     if hook:
         for func in hook:
             func(*args)
 
+
 def runFilter(hook, arg, *args):
-    hook = _hooks.get(hook, None)
+    hook = _hooks.get(hook)
     if hook:
         for func in hook:
             arg = func(arg, *args)
     return arg
 
+
 def addHook(hook, func):
-    "Add a function to hook. Ignore if already on hook."
-    if not _hooks.get(hook, None):
+    """Add a function to hook. Ignore if already on hook."""
+    if not _hooks.get(hook):
         _hooks[hook] = []
     if func not in _hooks[hook]:
         _hooks[hook].append(func)
 
+
 def remHook(hook, func):
-    "Remove a function if is on hook."
+    """Remove a function if is on hook."""
     hook = _hooks.get(hook, [])
     if func in hook:
         hook.remove(func)
 
+
 # Instrumenting
 ##############################################################################
 
+
 def wrap(old, new, pos="after"):
-    "Override an existing function."
+    """Override an existing function."""
+
     def repl(*args, **kwargs):
         if pos == "after":
             old(*args, **kwargs)
@@ -59,4 +66,5 @@ def wrap(old, new, pos="after"):
             return old(*args, **kwargs)
         else:
             return new(_old=old, *args, **kwargs)
+
     return repl

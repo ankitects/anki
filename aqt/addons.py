@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import io
 import sys, os, traceback
+import logging
 from io import StringIO
 import zipfile
 from aqt.qt import *
@@ -41,15 +42,20 @@ class AddonManager(object):
                 not d == "__pycache__" and
                 os.path.isdir(os.path.join(self.addonsFolder(), d))]
 
+    @staticmethod
+    def _logging_import(name, *args, **kwargs):
+        logging.info("Loading plugin {}".format(name))
+        __import__(name)
+
     def loadAddons(self):
         for file in self.files():
             try:
-                __import__(file.replace(".py", ""))
+                self._logging_import(file.replace(".py", ""))
             except:
                 traceback.print_exc()
         for directory in self.directories():
             try:
-                __import__(directory)
+                self._logging_import(directory)
             except:
                 traceback.print_exc()
         self.rebuildAddonsMenu()
