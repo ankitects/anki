@@ -38,7 +38,7 @@ class Finder(object):
         tokens = self._tokenize(query)
         preds, args = self._where(tokens)
         if preds is None:
-            return []
+            raise Exception("invalidSearch")
         order, rev = self._order(order)
         sql = self._query(preds, order)
         try:

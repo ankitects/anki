@@ -121,10 +121,21 @@ class DataModel(QAbstractTableModel):
         # the db progress handler may cause a refresh, so we need to zero out
         # old data first
         self.cards = []
-        self.cards = self.col.findCards(txt, order=True)
-        #self.browser.mw.pm.profile['fullSearch'])
+        invalid = False
+        try:
+            self.cards = self.col.findCards(txt, order=True)
+        except Exception as e:
+            if str(e) == "invalidSearch":
+                self.cards = []
+                invalid = True
+            else:
+                raise
         #print "fetch cards in %dms" % ((time.time() - t)*1000)
         self.endReset()
+
+        if invalid:
+            showWarning(_("Invalid search - please check for typing mistakes."))
+
 
     def reset(self):
         self.beginReset()
