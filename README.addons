@@ -19,9 +19,6 @@ mv aqt3 aqt
 Most simple code can be converted automatically, but there may be parts of the
 code that you need to manually modify.
 
-Add-ons that don't deal with file access and bytestrings may well work on both
-Python 2 and 3 without any special work required.
-
 Qt5 / PyQt5
 ------------
 
@@ -36,10 +33,27 @@ One add-on author reported that the following tool was useful to automatically
 convert the code:
 https://github.com/rferrazz/pyqt4topyqt5
 
-Changes in Anki
+Compatibility with Anki 2.0
+----------------------------
+
+It should be possible for many add-ons to support both Anki 2.0 and 2.1 at the
+same time.
+
+Most Python 3 code will run on Python 2 as well, though extra work may be
+required when dealing with file access and byte strings.
+
+The Qt modules are in 'PyQt5' instead of 'PyQt4'. You can do a conditional
+import, but an easier way is to import from aqt.qt - eg "from aqt.qt import *"
+
+The most difficult part is the change from the unsupported QtWebKit to
+QtWebEngine. If you do any non-trivial work with webviews, some work will be
+required to port your code to Anki 2.1, and you may find it not worth the effort
+of maintaining compatibility with 2.0.
+
+Webview changes
 ----------------
 
-Qt 5 has deprecated WebKit in favour of the Chromium-based WebEngine, so
+Qt 5 has dropped WebKit in favour of the Chromium-based WebEngine, so
 Anki's webviews are now using WebEngine. Of note:
 
 - WebEngine uses a different method of communicating back to Python.
@@ -56,8 +70,11 @@ Anki's webviews are now using WebEngine. Of note:
   as well. See the browser's .deleteNotes() for an example.
 - You can now debug the webviews using an external Chrome instance, by setting
   the env var QTWEBENGINE_REMOTE_DEBUGGING to 8080 prior to starting Anki,
-  then surfing to localhost:8080 in Chrome. If you run into issues, try
-  connecting with Chrome 49.
+  then surfing to localhost:8080 in Chrome.
+- Various operations that were supported by WebKit like setScrollPosition() now
+need to be implemented in javascript.
+- Page actions like mw.web.triggerPageAction(QWebEnginePage.Copy) are also
+asynchronous, and need to be rewritten to use javascript or a delay.
 
 Add-ons without a top level file
 ---------------------------------
@@ -75,6 +92,3 @@ you've decided to make a separate 2.1.x version, it's probably best to just
 post a link to it in your current add-on description or upload it separately.
 When we get closer to a release I'll look into adding separate uploads for the
 two versions.
-
-
-
