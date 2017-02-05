@@ -35,15 +35,6 @@ class MediaManager:
         self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
-        try:
-            self._oldcwd = os.getcwd()
-        except OSError:
-            # cwd doesn't exist
-            self._oldcwd = None
-        try:
-            os.chdir(self._dir)
-        except OSError:
-            raise Exception("invalidTempFolder")
         # change database
         self.connect()
 
@@ -52,7 +43,6 @@ class MediaManager:
             return
         path = self.dir()+".db2"
         create = not os.path.exists(path)
-        os.chdir(self._dir)
         self.db = DB(path)
         if create:
             self._initDB()
@@ -94,23 +84,16 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 # anew
                 self.col.log("failed to import old media db:"+traceback.format_exc())
             self.db.execute("detach old")
-            npath = "../collection.media.db.old"
+            npath = os.path.join(self.dir(), "collection.media.db.old")
             if os.path.exists(npath):
                 os.unlink(npath)
-            os.rename("../collection.media.db", npath)
+            os.rename(os.path.join(self.dir(), "collection.media.db"), npath)
 
     def close(self):
         if self.col.server:
             return
         self.db.close()
         self.db = None
-        # change cwd back to old location
-        if self._oldcwd:
-            try:
-                os.chdir(self._oldcwd)
-            except:
-                # may have been deleted
-                pass
 
     def dir(self):
         return self._dir
@@ -260,24 +243,26 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             files = local
         renamedFiles = False
         for file in files:
+            path = os.path.join(self.dir(), file)
             if not local:
-                if not os.path.isfile(file):
+                if not os.path.isfile(path):
                     # ignore directories
                     continue
             if file.startswith("_"):
                 # leading _ says to ignore file
                 continue
             nfcFile = unicodedata.normalize("NFC", file)
+            nfcPath = os.path.join(self.dir(), nfcFile)
             # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
             # NFD so we use the above variable for comparing references
             if not isMac and not local:
                 if file != nfcFile:
                     # delete if we already have the NFC form, otherwise rename
-                    if os.path.exists(nfcFile):
-                        os.unlink(file)
+                    if os.path.exists(nfcPath):
+                        os.unlink(path)
                         renamedFiles = True
                     else:
-                        os.rename(file, nfcFile)
+                        os.rename(path, nfcPath)
                         renamedFiles = True
                     file = nfcFile
             # compare
@@ -347,8 +332,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         (added, removed) = self._changes()
         media = []
         for f in added:
-            mt = self._mtime(f)
-            media.append((f, self._checksum(f), mt, 1))
+            path = os.path.join(self.dir(), f)
+            mt = self._mtime(path)
+            media.append((f, self._checksum(path), mt, 1))
         for f in removed:
             media.append((f, None, 0, 1))
         # update media db
@@ -366,8 +352,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         removed = []
         # loop through on-disk files
         for f in os.listdir(self.dir()):
+            path = os.path.join(self.dir(), f)
             # ignore folders and thumbs.db
-            if os.path.isdir(f):
+            if os.path.isdir(path):
                 continue
             if f.lower() == "thumbs.db":
                 continue
@@ -375,9 +362,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if self.hasIllegal(f):
                 continue
             # empty files are invalid; clean them up and continue
-            sz = os.path.getsize(f)
+            sz = os.path.getsize(path)
             if not sz:
-                os.unlink(f)
+                os.unlink(path)
                 continue
             if sz > 100*1024*1024:
                 self.col.log("ignoring file over 100MB", f)
@@ -385,20 +372,21 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             # check encoding
             if not isMac:
                 normf = unicodedata.normalize("NFC", f)
+                normpath = os.path.join(self.dir(), normf)
                 if f != normf:
                     # wrong filename encoding which will cause sync errors
-                    if os.path.exists(normf):
-                        os.unlink(f)
+                    if os.path.exists(normpath):
+                        os.unlink(path)
                     else:
-                        os.rename(f, normf)
+                        os.rename(path, normpath)
             # newly added?
             if f not in self.cache:
                 added.append(f)
             else:
                 # modified since last time?
-                if self._mtime(f) != self.cache[f][1]:
+                if self._mtime(path) != self.cache[f][1]:
                     # and has different checksum?
-                    if self._checksum(f) != self.cache[f][0]:
+                    if self._checksum(path) != self.cache[f][0]:
                         added.append(f)
                 # mark as used
                 self.cache[f][2] = True
@@ -429,8 +417,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 "update media set dirty=0 where fname=?", fname)
 
     def syncDelete(self, fname):
-        if os.path.exists(fname):
-            os.unlink(fname)
+        path = os.path.join(self.dir(), fname)
+        if os.path.exists(path):
+            os.unlink(path)
         self.db.execute("delete from media where fname=?", fname)
 
     def mediaCount(self):
@@ -467,14 +456,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                         "select fname, csum from media where dirty=1"
                         " limit %d"%SYNC_ZIP_COUNT)):
 
+            path = os.path.join(self.dir(), fname)
             fnames.append(fname)
             normname = unicodedata.normalize("NFC", fname)
 
             if csum:
                 self.col.log("+media zip", fname)
-                z.write(fname, str(c))
+                z.write(path, str(c))
                 meta.append((normname, str(c)))
-                sz += os.path.getsize(fname)
+                sz += os.path.getsize(path)
             else:
                 self.col.log("-media zip", fname)
                 meta.append((normname, ""))
@@ -509,9 +499,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 else:
                     name = unicodedata.normalize("NFC", name)
                 # save file
-                open(name, "wb").write(data)
+                path = os.path.join(self.dir(), name)
+                open(path, "wb").write(data)
                 # update db
-                media.append((name, csum, self._mtime(name), 0))
+                media.append((name, csum, self._mtime(path), 0))
                 cnt += 1
         if media:
             self.db.executemany(
