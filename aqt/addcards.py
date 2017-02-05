@@ -144,10 +144,10 @@ class AddCards(QDialog):
         for nid in self.history:
             if self.mw.col.findNotes("nid:%s" % nid):
                 fields = self.mw.col.getNote(nid).fields
-                txt = stripHTMLMedia(",".join(fields))
+                txt = stripHTMLMedia(", ".join(fields))
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
-                a = m.addAction(_("Edit %s") % txt)
+                a = m.addAction(_("Edit \"%s\"") % txt)
                 a.triggered.connect(lambda b, nid=nid: self.editHistory(nid))
             else:
                 a = m.addAction(_("(Note deleted)"))
