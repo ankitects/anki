@@ -7,7 +7,7 @@ from anki.utils import  maxID
 # Base importer
 ##########################################################################
 
-class Importer(object):
+class Importer:
 
     needMapper = False
     needDelimiter = False

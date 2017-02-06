@@ -60,7 +60,7 @@ profileConf = dict(
     importMode=1,
 )
 
-class ProfileManager(object):
+class ProfileManager:
 
     def __init__(self, base=None, profile=None):
         self.name = None

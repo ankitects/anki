@@ -9,7 +9,7 @@ from sqlite3 import dbapi2 as sqlite
 
 Error = sqlite.Error
 
-class DB(object):
+class DB:
     def __init__(self, path, timeout=0):
         self._db = sqlite.connect(path, timeout=timeout)
         self._path = path

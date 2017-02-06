@@ -1037,7 +1037,7 @@ will be lost. Continue?"""))
 
     def _captureOutput(self, on):
         mw = self
-        class Stream(object):
+        class Stream:
             def write(self, data):
                 mw._output += data
         if on:

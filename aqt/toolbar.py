@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 
-class Toolbar(object):
+class Toolbar:
 
     def __init__(self, mw, web):
         self.mw = mw

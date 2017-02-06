@@ -22,7 +22,7 @@ HTTP_BUF_SIZE = 64*1024
 # Incremental syncing
 ##########################################################################
 
-class Syncer(object):
+class Syncer:
 
     def __init__(self, col, server=None):
         self.col = col
@@ -457,7 +457,7 @@ class LocalServer(Syncer):
 # Wrapper for requests that tracks upload/download progress
 ##########################################################################
 
-class AnkiRequestsClient(object):
+class AnkiRequestsClient:
 
     def __init__(self):
         self.session = requests.Session()
@@ -496,7 +496,7 @@ class _MonitoringFile(io.BufferedReader):
 # HTTP syncing tools
 ##########################################################################
 
-class HttpSyncer(object):
+class HttpSyncer:
 
     def __init__(self, hkey=None, client=None):
         self.hkey = hkey
@@ -691,7 +691,7 @@ class FullSyncer(HttpSyncer):
 #   assumption other syncers are in sync with the server
 #
 
-class MediaSyncer(object):
+class MediaSyncer:
 
     def __init__(self, col, server=None):
         self.col = col

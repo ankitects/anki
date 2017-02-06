@@ -224,7 +224,7 @@ PYAU_FORMAT = pyaudio.paInt16
 PYAU_CHANNELS = 1
 PYAU_INPUT_INDEX = None
 
-class _Recorder(object):
+class _Recorder:
 
     def postprocess(self, encode=True):
         self.encode = encode

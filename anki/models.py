@@ -69,7 +69,7 @@ defaultTemplate = {
     #'bsize': 12,
 }
 
-class ModelManager(object):
+class ModelManager:
 
     # Saving/loading registry
     #############################################################

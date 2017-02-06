@@ -413,7 +413,7 @@ $(function () {
 """
 
 # caller is responsible for resetting note on reset
-class Editor(object):
+class Editor:
     def __init__(self, mw, widget, parentWindow, addMode=False):
         self.mw = mw
         self.widget = widget

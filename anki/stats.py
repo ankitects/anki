@@ -14,7 +14,7 @@ from anki.lang import _, ngettext
 # Card stats
 ##########################################################################
 
-class CardStats(object):
+class CardStats:
 
     def __init__(self, col, card):
         self.col = col
@@ -98,7 +98,7 @@ colTime = "#770"
 colUnseen = "#000"
 colSusp = "#ff0"
 
-class CollectionStats(object):
+class CollectionStats:
 
     def __init__(self, col):
         self.col = col

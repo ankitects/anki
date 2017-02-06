@@ -49,7 +49,7 @@ defaultConf = {
 }
 
 # this is initialized by storage.Collection
-class _Collection(object):
+class _Collection:
 
     def __init__(self, db, server=False, log=False):
         self._debugLog = log

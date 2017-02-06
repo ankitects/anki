@@ -12,7 +12,7 @@ import aqt
 from anki.sound import clearAudioQueue
 from anki.hooks import runHook
 
-class DeckBrowser(object):
+class DeckBrowser:
 
     def __init__(self, mw):
         self.mw = mw

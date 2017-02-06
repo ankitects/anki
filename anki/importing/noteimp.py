@@ -13,7 +13,7 @@ from anki.lang import ngettext
 # Stores a list of fields, tags and deck
 ######################################################################
 
-class ForeignNote(object):
+class ForeignNote:
     "An temporary object storing fields and attributes."
     def __init__(self):
         self.fields = []
@@ -21,7 +21,7 @@ class ForeignNote(object):
         self.deck = None
         self.cards = {} # map of ord -> card
 
-class ForeignCard(object):
+class ForeignCard:
     def __init__(self):
         self.due = 0
         self.ivl = 1
