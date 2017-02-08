@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import  cgi
-from anki.consts import NEW_CARDS_RANDOM
+from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.lang import _
 from anki.utils import fieldChecksum, guid64, timestampID, \
     joinFields, intTime, splitFields
@@ -25,7 +25,7 @@ class ForeignCard(object):
     def __init__(self):
         self.due = 0
         self.ivl = 1
-        self.factor = 2500
+        self.factor = STARTING_FACTOR
         self.reps = 0
         self.lapses = 0
 

@@ -49,7 +49,7 @@ defaultConf = {
     'new': {
         'delays': [1, 10],
         'ints': [1, 4, 7], # 7 is not currently used
-        'initialFactor': 2500,
+        'initialFactor': STARTING_FACTOR,
         'separate': True,
         'order': NEW_CARDS_DUE,
         'perDay': 20,

@@ -5,6 +5,7 @@ import nose, os, shutil, time
 from anki import Collection as aopen, Collection
 from anki.utils import intTime
 from anki.sync import Syncer, LocalServer
+from anki.consts import STARTING_FACTOR
 from tests.shared import getEmptyCol, getEmptyDeckWith
 
 # Local tests
@@ -343,7 +344,7 @@ def test_filtered_delete():
     card = note.cards()[0]
     card.type = 2
     card.ivl = 10
-    card.factor = 2500
+    card.factor = STARTING_FACTOR
     card.due = deck1.sched.today
     card.flush()
     # put cards into a filtered deck
