@@ -7,7 +7,7 @@ from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue
 
-class Overview(object):
+class Overview:
     "Deck overview."
 
     def __init__(self, mw):

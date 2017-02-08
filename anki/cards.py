@@ -19,7 +19,7 @@ from anki.consts import *
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
-class Card(object):
+class Card:
 
     def __init__(self, col, id=None):
         self.col = col

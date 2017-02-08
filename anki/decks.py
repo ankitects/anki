@@ -82,7 +82,7 @@ defaultConf = {
     'usn': 0,
 }
 
-class DeckManager(object):
+class DeckManager:
 
     # Registry save/load
     #############################################################

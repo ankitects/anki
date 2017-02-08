@@ -15,7 +15,7 @@ from anki.db import DB
 from anki.consts import *
 from anki.latex import mungeQA
 
-class MediaManager(object):
+class MediaManager:
 
     soundRegexps = ["(?i)(\[sound:(?P<fname>[^]]+)\])"]
     imgRegexps = [

@@ -19,7 +19,7 @@ from aqt.sound import getAudio
 import aqt
 
 
-class Reviewer(object):
+class Reviewer:
     "Manage reviews.  Maintains a separate state."
 
     def __init__(self, mw):

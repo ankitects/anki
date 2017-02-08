@@ -14,7 +14,7 @@ tracked, so unused tags can only be removed from the list with a DB check.
 This module manages the tag cache and tags for notes.
 """
 
-class TagManager(object):
+class TagManager:
 
     # Registry save/load
     #############################################################

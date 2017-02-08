@@ -18,7 +18,7 @@ from anki.hooks import runHook
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 
-class Scheduler(object):
+class Scheduler:
     name = "std"
     haveCustomStudy = True
     _spreadRev = True
