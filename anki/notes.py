@@ -5,7 +5,7 @@
 from anki.utils import fieldChecksum, intTime, \
     joinFields, splitFields, stripHTMLMedia, timestampID, guid64
 
-class Note(object):
+class Note:
 
     def __init__(self, col, model=None, id=None):
         assert not (model and id)

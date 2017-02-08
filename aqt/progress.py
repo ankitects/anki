@@ -12,7 +12,7 @@ from aqt.qt import *
 # Progress info
 ##########################################################################
 
-class ProgressManager(object):
+class ProgressManager:
 
     def __init__(self, mw):
         self.mw = mw

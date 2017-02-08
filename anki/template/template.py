@@ -34,7 +34,7 @@ def get_or_attr(obj, name, default=None):
             return default
 
 
-class Template(object):
+class Template:
     # The regular expression used to find a #section
     section_re = None
 

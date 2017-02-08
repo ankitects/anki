@@ -17,7 +17,7 @@ from anki.lang import _
 # in the future, it would be nice to save the addon id and unzippped file list
 # to the config so that we can clear up all files and check for updates
 
-class AddonManager(object):
+class AddonManager:
 
     def __init__(self, mw):
         self.mw = mw

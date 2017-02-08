@@ -41,7 +41,7 @@ from anki.utils import checksum
 # Dialog manager - manages modeless windows
 ##########################################################################emacs
 
-class DialogManager(object):
+class DialogManager:
 
     def __init__(self):
         from aqt import addcards, browser, editcurrent

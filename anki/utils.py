@@ -370,7 +370,7 @@ def platDesc():
 # Debugging
 ##############################################################################
 
-class TimedLog(object):
+class TimedLog:
     def __init__(self):
         self._last = time.time()
     def log(self, s):

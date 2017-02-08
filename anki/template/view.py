@@ -2,7 +2,7 @@ from anki.template import Template
 import os.path
 import re
 
-class View(object):
+class View:
     # Path where this view's template(s) live
     template_path = '.'
 

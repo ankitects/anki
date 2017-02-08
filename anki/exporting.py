@@ -8,7 +8,7 @@ from anki.utils import  ids2str, splitFields, json
 from anki.hooks import runHook
 from anki import Collection
 
-class Exporter(object):
+class Exporter:
     def __init__(self, col, did=None):
         self.col = col
         self.did = did

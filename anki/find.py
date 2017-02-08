@@ -13,7 +13,7 @@ from anki.hooks import *
 # Find
 ##########################################################################
 
-class Finder(object):
+class Finder:
 
     def __init__(self, col):
         self.col = col
