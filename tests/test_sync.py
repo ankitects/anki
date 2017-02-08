@@ -191,7 +191,7 @@ def test_decks():
     time.sleep(0.1)
     deck2.save()
     assert client.sync() == "success"
-    assert deck1.tags.all() == deck2.tags.all()
+    assert sorted(deck1.tags.all()) == sorted(deck2.tags.all())
     assert len(deck1.decks.all()) == len(deck2.decks.all())
     assert len(deck1.decks.all()) == 3
     assert deck1.decks.confForDid(1)['maxTaken'] == 60
