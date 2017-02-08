@@ -153,7 +153,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             else:
                 self.db.rollback()
             if not self.server:
+                self.db.setAutocommit(True)
                 self.db.execute("pragma journal_mode = delete")
+                self.db.setAutocommit(False)
             self.db.close()
             self.db = None
             self.media.close()
