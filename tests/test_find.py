@@ -1,4 +1,5 @@
 # coding: utf-8
+from nose.tools import assert_raises
 
 from anki.find import Finder
 from tests.shared import getEmptyCol
@@ -93,7 +94,8 @@ def test_findCards():
     assert len(deck.findCards("nid:%d"%f.id)) == 2
     assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
-    assert len(deck.findCards("card:foo")) == 0
+    with assert_raises(Exception):
+        deck.findCards("card:foo")
     assert len(deck.findCards("'card:card 1'")) == 4
     assert len(deck.findCards("card:reverse")) == 1
     assert len(deck.findCards("card:1")) == 4
@@ -128,7 +130,8 @@ def test_findCards():
     assert len(deck.findCards("-deck:foo")) == 5
     assert len(deck.findCards("deck:def*")) == 5
     assert len(deck.findCards("deck:*EFAULT")) == 5
-    assert len(deck.findCards("deck:*cefault")) == 0
+    with assert_raises(Exception):
+        deck.findCards("deck:*cefault")
     # full search
     f = deck.newNote()
     f['Front'] = 'hello<b>world</b>'
@@ -144,7 +147,8 @@ def test_findCards():
     #assert len(deck.findCards("helloworld", full=True)) == 2
     #assert len(deck.findCards("back:helloworld", full=True)) == 2
     # searching for an invalid special tag should not error
-    assert len(deck.findCards("is:invalid")) == 0
+    with assert_raises(Exception):
+        len(deck.findCards("is:invalid"))
     # should be able to limit to parent deck, no children
     id = deck.db.scalar("select id from cards limit 1")
     deck.db.execute("update cards set did = ? where id = ?",
