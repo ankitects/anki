@@ -77,6 +77,8 @@ def langDir():
         dir = os.path.join(os.path.dirname(sys.argv[0]), "locale")
     if not os.path.isdir(dir):
         dir = "/usr/share/anki/locale"
+    if not os.path.isdir(dir):
+        dir = "/usr/local/share/anki/bin/locale"
     return dir
 
 def setLang(lang, local=True):
