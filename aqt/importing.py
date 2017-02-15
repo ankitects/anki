@@ -111,7 +111,6 @@ a tab, comma, and so on. If Anki is detecting the character incorrectly,
 you can enter it here. Use \\t to represent tab."""),
                 self, help="importing") or "\t"
         str = str.replace("\\t", "\t")
-        str = str.encode("ascii")
         if len(str) > 1:
             showWarning(_(
                 "Multi-character separators are not supported. "
