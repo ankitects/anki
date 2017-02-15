@@ -66,12 +66,7 @@ class ProfileManager:
         self.name = None
         self.db = None
         # instantiate base folder
-        if base:
-            self.base = os.path.abspath(base)
-        else:
-            self.base = self._defaultBase()
-            self.maybeMigrateFolder()
-        self.ensureBaseExists()
+        self._setBaseFolder(base)
         # load metadata
         self.firstRun = self._loadMeta()
         # did the user request a profile to start up with?
@@ -225,6 +220,16 @@ and no other programs are accessing your profile folders, then try again."""))
         if not os.path.exists(path):
             os.makedirs(path)
         return path
+
+    def _setBaseFolder(self, cmdlineBase):
+        if cmdlineBase:
+            self.base = os.path.abspath(cmdlineBase)
+        elif os.environ.get("ANKI_BASE"):
+            self.base = os.path.abspath(os.environ["ANKI_BASE"])
+        else:
+            self.base = self._defaultBase()
+            self.maybeMigrateFolder()
+        self.ensureBaseExists()
 
     def _defaultBase(self):
         if isWin:
