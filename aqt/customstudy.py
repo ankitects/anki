@@ -23,6 +23,7 @@ class CustomStudy(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
+        self.conf = self.mw.col.decks.getConf(self.deck['conf'])
         self.form = f = aqt.forms.customstudy.Ui_Dialog()
         f.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
@@ -53,16 +54,22 @@ class CustomStudy(QDialog):
             return "<b>"+str(num)+"</b>"
         if idx == RADIO_NEW:
             new = self.mw.col.sched.totalNewForCurrentDeck()
-            self.deck['newToday']
-            tit = _("New cards in deck: %s") % plus(new)
+            # get the number of new cards in deck that exceed the new cards limit
+            newUnderLearning = min(new, self.conf['new']['perDay'] - self.deck['newToday'][1])
+            newExceeding = min(new, new - newUnderLearning)
+            tit = _("New cards in deck over today limit: %s") % plus(newExceeding)
             pre = _("Increase today's new card limit by")
             sval = min(new, self.deck.get('extendNew', 10))
-            smax = new
+            smax = newExceeding
         elif idx == RADIO_REV:
             rev = self.mw.col.sched.totalRevForCurrentDeck()
-            tit = _("Reviews due in deck: %s") % plus(rev)
+            # get the number of review due in deck that exceed the review due limit
+            revUnderLearning = min(rev, self.conf['rev']['perDay'] - self.deck['revToday'][1])
+            revExceeding = min(rev, rev - revUnderLearning)
+            tit = _("Reviews due in deck over today limit: %s") % plus(revExceeding)
             pre = _("Increase today's review limit by")
             sval = min(rev, self.deck.get('extendRev', 10))
+            smax = revExceeding
         elif idx == RADIO_FORGOT:
             pre = _("Review cards forgotten in last")
             post = _("days")
