@@ -7,7 +7,7 @@ from io import StringIO
 import zipfile
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser, restoreGeom, saveGeom, showWarning
+    askUser, restoreGeom, saveGeom, showWarning, tooltip
 from zipfile import ZipFile
 import aqt.forms
 import aqt
