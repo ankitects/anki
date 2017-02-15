@@ -10,13 +10,7 @@ from anki.hooks import addHook, remHook
 import aqt
 
 def download(mw, code):
-    "Download addon/deck from AnkiWeb. On success caller must stop progress diag."
-    # check code is valid
-    try:
-        code = int(code)
-    except ValueError:
-        showWarning(_("Invalid code."))
-        return
+    "Download addon/deck from AnkiWeb. Caller must start & stop progress diag."
     # create downloading thread
     thread = Downloader(code)
     def onRecv():
@@ -30,7 +24,6 @@ def download(mw, code):
             pass
     thread.recv.connect(onRecv)
     thread.start()
-    mw.progress.start(immediate=True)
     while not thread.isFinished():
         mw.app.processEvents()
         thread.wait(100)
@@ -38,8 +31,7 @@ def download(mw, code):
         # success
         return thread.data, thread.fname
     else:
-        mw.progress.finish()
-        showWarning(_("Download failed: %s") % thread.error)
+        return "error", thread.error
 
 class Downloader(QThread):
 

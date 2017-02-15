@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>To browse add-ons, please click the browse button below.&lt;br&gt;&lt;br&gt;When you've found an add-on you like, please paste its code below.</string>
+      <string>To browse add-ons, please click the browse button below.&lt;br&gt;&lt;br&gt;When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

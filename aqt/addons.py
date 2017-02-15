@@ -164,13 +164,26 @@ class GetAddons(QDialog):
 
     def accept(self):
         QDialog.accept(self)
-        # create downloader thread
-        txt = self.form.code.text().split()
-        for x in txt:
-            ret = download(self.mw, x)
-            if not ret:
-                return
+
+        # get codes
+        try:
+            ids = [int(n) for n in self.form.code.text().split()]
+        except ValueError:
+            showWarning(_("Invalid code."))
+            return
+
+        errors = []
+
+        self.mw.progress.start(immediate=True)
+        for n in ids:
+            ret = download(self.mw, n)
+            if ret[0] == "error":
+                errors.append(_("Error downloading %(id)s: %(error)s") % dict(id=n, error=ret[1]))
+                continue
             data, fname = ret
             self.mw.addonManager.install(data, fname)
-            self.mw.progress.finish()
-        tooltip(_("Download successful. Please restart Anki."), period=3000)
+        self.mw.progress.finish()
+        if not errors:
+            tooltip(_("Download successful. Please restart Anki."), period=3000)
+        else:
+            showWarning("\n".join(errors))
