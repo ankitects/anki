@@ -106,6 +106,7 @@ class AddCards(QDialog):
                         note.fields[n] = oldNote.fields[n]
                     except IndexError:
                         pass
+            self.removeTempNote(oldNote)
         self.editor.currentField = 0
         self.editor.setNote(note, focus=True)
 
