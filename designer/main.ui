@@ -166,7 +166,7 @@
   </action>
   <action name="actionDownloadSharedPlugin">
    <property name="text">
-    <string>Browse &amp;&amp; Install...</string>
+    <string>&amp;Browse and Install...</string>
    </property>
    <property name="statusTip">
     <string/>
