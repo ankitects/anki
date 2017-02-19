@@ -60,10 +60,14 @@ class DataModel(QAbstractTableModel):
     # Model interface
     ######################################################################
 
-    def rowCount(self, index):
+    def rowCount(self, parent):
+        if parent.isValid():
+            return 0
         return len(self.cards)
 
-    def columnCount(self, index):
+    def columnCount(self, parent):
+        if parent.isValid():
+            return 0
         return len(self.activeCols)
 
     def data(self, index, role):
@@ -325,7 +329,9 @@ class StatusDelegate(QItemDelegate):
     def __init__(self, browser, model):
         QItemDelegate.__init__(self, browser)
         self.browser = browser
+        from aqt.modeltest import ModelTest
         self.model = model
+        self.modeltest = ModelTest(self.model, self)
 
     def paint(self, painter, option, index):
         self.browser.mw.progress.blockUpdates = True
