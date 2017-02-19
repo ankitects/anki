@@ -10,6 +10,7 @@ import warnings
 import html
 import mimetypes
 import base64
+import unicodedata
 
 from anki.lang import _
 from aqt.qt import *
@@ -569,6 +570,7 @@ class Editor:
         if cmd.startswith("blur") or cmd.startswith("key"):
             (type, txt) = cmd.split(":", 1)
             txt = urllib.parse.unquote(txt)
+            txt = unicodedata.normalize("NFC", txt)
             txt = self.mungeHTML(txt)
             # misbehaving apps may include a null byte in the text
             txt = txt.replace("\x00", "")
@@ -763,8 +765,9 @@ class Editor:
     def saveTags(self):
         if not self.note:
             return
+        tagsTxt = unicodedata.normalize("NFC", self.tags.text())
         self.note.tags = self.mw.col.tags.canonify(
-            self.mw.col.tags.split(self.tags.text()))
+            self.mw.col.tags.split(tagsTxt))
         self.tags.setText(self.mw.col.tags.join(self.note.tags).strip())
         if not self.addMode:
             self.note.flush()
