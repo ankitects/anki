@@ -89,7 +89,8 @@ class TagManager:
         if not newTags:
             return
         # cache tag names
-        self.register(newTags)
+        if add:
+            self.register(newTags)
         # find notes missing the tags
         if add:
             l = "tags not "
