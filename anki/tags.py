@@ -142,7 +142,7 @@ class TagManager:
         "Delete tags if they exist."
         def wildcard(pat, str):
             pat = re.escape(pat).replace('\\*', '.*')
-            return '*' in pat and re.search(pat, str, re.IGNORECASE)
+            return re.search(pat, str, re.IGNORECASE)
         currentTags = self.split(tags)
         for tag in self.split(deltags):
             # find tags, ignoring case
