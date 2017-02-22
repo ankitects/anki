@@ -98,17 +98,32 @@ a flash drive.""" % self.base)
     # Folder migration
     ######################################################################
 
+    def _oldFolderLocation(self):
+        if isMac:
+            return os.path.expanduser("~/Documents/Anki")
+        elif isWin:
+            loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+            return os.path.join(loc, "Anki")
+        else:
+            p = os.path.expanduser("~/Anki")
+            if os.path.exists(p):
+                return p
+            else:
+                loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+                if loc[:-1] == QStandardPaths.writableLocation(
+                        QStandardPaths.HomeLocation):
+                    # occasionally "documentsLocation" will return the home
+                    # folder because the Documents folder isn't configured
+                    # properly; fall back to an English path
+                    return os.path.expanduser("~/Documents/Anki")
+                else:
+                    return os.path.join(loc, "Anki")
+
     def maybeMigrateFolder(self):
-        if not isMac:
-            return
-        oldBase = os.path.expanduser("~/Documents/Anki")
+        oldBase = self._oldFolderLocation()
 
         if not os.path.exists(self.base) and os.path.exists(oldBase):
             shutil.move(oldBase, self.base)
-
-        # remove the old symlink if it exists
-        if os.path.exists(oldBase) and os.path.islink(oldBase):
-            os.remove(oldBase)
 
     # Profile load/save
     ######################################################################
@@ -233,25 +248,15 @@ and no other programs are accessing your profile folders, then try again."""))
 
     def _defaultBase(self):
         if isWin:
-            loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
-            return os.path.join(loc, "Anki")
+            return os.path.join(os.environ["APPDATA"], "Anki2")
         elif isMac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
         else:
-            # use Documents/Anki on new installs, ~/Anki on existing ones
-            p = os.path.expanduser("~/Anki")
-            if os.path.exists(p):
-                return p
-            else:
-                loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
-                if loc[:-1] == QStandardPaths.writableLocation(
-                        QStandardPaths.HomeLocation):
-                    # occasionally "documentsLocation" will return the home
-                    # folder because the Documents folder isn't configured
-                    # properly; fall back to an English path
-                    return os.path.expanduser("~/Documents/Anki")
-                else:
-                    return os.path.join(loc, "Anki")
+            dataDir = os.environ.get(
+                "XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+            if not os.path.exists(dataDir):
+                os.makedirs(dataDir)
+            return os.path.join(dataDir, "Anki2")
 
     def _loadMeta(self):
         path = os.path.join(self.base, "prefs21.db")
