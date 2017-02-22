@@ -1854,7 +1854,7 @@ class FavouritesLineEdit(QLineEdit):
     buttonClicked = pyqtSignal(bool)
 
     def __init__(self, mw, browser, parent=None):
-        super(FavouritesLineEdit, self).__init__(parent)
+        super().__init__(parent)
         self.mw = mw
         self.browser = browser
         # add conf if missing
@@ -1878,13 +1878,13 @@ class FavouritesLineEdit(QLineEdit):
         self.button.move(self.rect().right() - frameWidth - buttonSize.width(),
                          (self.rect().bottom() - buttonSize.height() + 1) / 2)
         self.setTextMargins(0, 0, buttonSize.width() * 1.5, 0)
-        super(FavouritesLineEdit, self).resizeEvent(event)
+        super().resizeEvent(event)
 
     def setIcon(self, path):
         self.button.setIcon(QIcon(path))
 
     def setText(self, txt):
-        super(FavouritesLineEdit, self).setText(txt)
+        super().setText(txt)
         self.updateButton()
         
     def updateButton(self, reset=True):
