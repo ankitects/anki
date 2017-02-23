@@ -61,12 +61,12 @@ class DataModel(QAbstractTableModel):
     ######################################################################
 
     def rowCount(self, parent):
-        if parent.isValid():
+        if parent and parent.isValid():
             return 0
         return len(self.cards)
 
     def columnCount(self, parent):
-        if parent.isValid():
+        if parent and parent.isValid():
             return 0
         return len(self.activeCols)
 
