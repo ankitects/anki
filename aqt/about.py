@@ -24,7 +24,7 @@ system. It's free and open source.")
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
  testing and design from:<p>%(cont)s") % {'cont': """Aaron Harsh, Ádám Szegi,
 Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, C. van Rooyen, Charlene Barina,
-Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dotan Cohen,
+Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dmitry Mikheev, Dotan Cohen,
 Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail,
 Houssam Salem, Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
 Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Julien Baley, Jussi Määttä, Kieran Clancy, LaC, Laurent Steffan,
