@@ -27,7 +27,7 @@ Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, C. van Rooyen
 Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dmitry Mikheev, Dotan Cohen,
 Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail,
 Houssam Salem, Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
-Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Julien Baley, Jussi Määttä, Kieran Clancy, LaC, Laurent Steffan,
+Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Joseph Lorimer, Julien Baley, Jussi Määttä, Kieran Clancy, LaC, Laurent Steffan,
 Luca Ban, Luciano Esposito, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
 Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
 Montague, Michael Penkov, Michal Čadil, Morteza Salehi, Nathanael Law, Nick Cook, Niklas
