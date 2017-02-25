@@ -248,7 +248,8 @@ and no other programs are accessing your profile folders, then try again."""))
 
     def _defaultBase(self):
         if isWin:
-            return os.path.join(os.environ["APPDATA"], "Anki2")
+            loc = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
+            return os.path.join(loc, "Anki2")
         elif isMac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
         else:
