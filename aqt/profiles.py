@@ -243,7 +243,10 @@ and no other programs are accessing your profile folders, then try again."""))
 
     def _defaultBase(self):
         if isWin:
-            return os.path.join(os.environ["APPDATA"], "Anki2")
+            from win32com.shell import shell, shellcon
+            loc = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, None, 0)
+            dir = os.path.join(loc, "Anki2")
+            return dir
         elif isMac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
         else:
