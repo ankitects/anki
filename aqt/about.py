@@ -22,8 +22,8 @@ system. It's free and open source.")
     abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + \
 "</span>"
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
- testing and design from:<p>%(cont)s") % {'cont': """Aaron Harsh, Ádám Szegi,
-Alex Fraser, Andreas Klauer, Andrew Wright, Bernhard Ibertsberger, C. van Rooyen, Charlene Barina,
+ testing and design from:<p>%(cont)s") % {'cont': """Aaron Harsh, Ádám Szegi, Alex Fraser,
+Andreas Klauer, Andrew Wright, Aristotelis P., Bernhard Ibertsberger, C. van Rooyen, Charlene Barina,
 Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dmitry Mikheev, Dotan Cohen,
 Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail,
 Houssam Salem, Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
