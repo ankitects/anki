@@ -1,6 +1,7 @@
 language: python
 python:
-  - "3.4"
+  - "3.5"
+  - "3.6"
 install: 
   - sudo apt-get update
   - sudo apt-get install portaudio19-dev
