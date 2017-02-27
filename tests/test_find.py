@@ -25,14 +25,14 @@ def test_findCards():
     f = deck.newNote()
     f['Front'] = 'dog'
     f['Back'] = 'cat'
-    f.tags.append("monkey")
+    f.tags.append("monkey animal_1 * %")
     f1id = f.id
     deck.addNote(f)
     firstCardId = f.cards()[0].id
     f = deck.newNote()
     f['Front'] = 'goats are fun'
     f['Back'] = 'sheep'
-    f.tags.append("sheep goat horse")
+    f.tags.append("sheep goat horse animal11")
     deck.addNote(f)
     f2id = f.id
     f = deck.newNote()
@@ -52,6 +52,12 @@ def test_findCards():
     deck.addNote(f)
     latestCardIds = [c.id for c in f.cards()]
     # tag searches
+    assert len(deck.findCards("tag:*")) == 5
+    assert len(deck.findCards("tag:\\*")) == 1
+    assert len(deck.findCards("tag:%")) == 5
+    assert len(deck.findCards("tag:\\%")) == 1
+    assert len(deck.findCards("tag:animal_1")) == 2
+    assert len(deck.findCards("tag:animal\\_1")) == 1
     assert not deck.findCards("tag:donkey")
     assert len(deck.findCards("tag:sheep")) == 1
     assert len(deck.findCards("tag:sheep tag:goat")) == 1
