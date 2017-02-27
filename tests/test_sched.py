@@ -643,7 +643,9 @@ def test_cram():
     c.load()
     assert d.sched.answerButtons(c) == 4
     # add a sibling so we can test minSpace, etc
+    c.col = None
     c2 = copy.deepcopy(c)
+    c2.col = c.col = d
     c2.id = 123
     c2.ord = 1
     c2.due = 325
