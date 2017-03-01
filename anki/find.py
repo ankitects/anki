@@ -246,10 +246,10 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         val = val.replace("*", "%")
         if not val.startswith("%"):
             val = "% " + val
-        if not val.endswith("%"):
+        if not val.endswith("%") or val.endswith('\\%'):
             val += " %"
         args.append(val)
-        return "n.tags like ?"
+        return "n.tags like ? escape '\\'"
 
     def _findCardState(self, args):
         (val, args) = args
