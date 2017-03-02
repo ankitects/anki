@@ -866,7 +866,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         key = (_("Media") +
                " (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg "+
                "*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
-               "*.mkv *.ogx *.ogv *.oga *.flv *.swf *.flac)")
+               "*.mkv *.ogx *.ogv *.oga *.flv *.swf *.flac *.webp *.m4a)")
         def accept(file):
             self.addMedia(file, canDelete=True)
         file = getFile(self.widget, _("Add Media"), accept, key, key="media")
