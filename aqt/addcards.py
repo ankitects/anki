@@ -9,7 +9,7 @@ from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip, openHelp, addCloseShortcut, downArrow
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook, runHook
-from anki.utils import stripHTMLMedia, isMac
+from anki.utils import stripHTMLMedia, fmtQA, isMac
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
 class AddCards(QDialog):
@@ -145,7 +145,7 @@ class AddCards(QDialog):
         for nid in self.history:
             if self.mw.col.findNotes("nid:%s" % nid):
                 fields = self.mw.col.getNote(nid).fields
-                txt = stripHTMLMedia(", ".join(fields))
+                txt = fmtQA(", ".join(fields))
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
                 a = m.addAction(_("Edit \"%s\"") % txt)
