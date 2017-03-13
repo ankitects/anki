@@ -153,6 +153,17 @@ def minimizeHTML(s):
                '<u>\\1</u>', s)
     return s
 
+def fmtQA(s):
+    s = s.replace("<br>", " ")
+    s = s.replace("<br />", " ")
+    s = s.replace("<div>", " ")
+    s = s.replace("\n", " ")
+    s = re.sub("\[sound:[^]]+\]", "", s)
+    s = re.sub("\[\[type:[^]]+\]\]", "", s)
+    s = stripHTMLMedia(s)
+    s = s.strip()
+    return s
+
 def entsToTxt(html):
     # entitydefs defines nbsp as \xa0 instead of a standard space, so we
     # replace it first
