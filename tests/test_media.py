@@ -77,29 +77,30 @@ def test_changes():
     assert not list(added())
     assert not list(removed())
     # add a file
-    dir = tempfile.mkdtemp(prefix="anki")
-    path = os.path.join(dir, "foo.jpg")
-    open(path, "w").write("hello")
+    tmp_dir = tempfile.mkdtemp(prefix="anki")
+    tmp_path = os.path.join(tmp_dir, "foo.jpg")
+    open(tmp_path, "w").write("hello")
     time.sleep(1)
-    path = d.media.addFile(path)
+    fname = d.media.addFile(tmp_path)
+    internal_path = os.path.join(d.media.dir(), fname)
     # should have been logged
     d.media.findChanges()
     assert list(added())
     assert not list(removed())
     # if we modify it, the cache won't notice
     time.sleep(1)
-    open(path, "w").write("world")
+    open(internal_path, "w").write("world")
     assert len(list(added())) == 1
     assert not list(removed())
     # but if we add another file, it will
     time.sleep(1)
-    open(path+"2", "w").write("yo")
+    open(internal_path+"2", "w").write("yo")
     d.media.findChanges()
     assert len(list(added())) == 2
     assert not list(removed())
     # deletions should get noticed too
     time.sleep(1)
-    os.unlink(path+"2")
+    os.unlink(internal_path+"2")
     d.media.findChanges()
     assert len(list(added())) == 1
     assert len(list(removed())) == 1
