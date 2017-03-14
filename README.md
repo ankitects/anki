@@ -3,7 +3,7 @@ Anki
 
 This is the development branch of Anki.
 
-For stable builds, please see http://ankisrs.net.
+For stable builds, please see https://apps.ankiweb.net.
 
 For non-developers who want to try this development code,
 the easiest way is to use a binary package - please see
