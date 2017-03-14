@@ -153,7 +153,7 @@ def minimizeHTML(s):
                '<u>\\1</u>', s)
     return s
 
-def fmtQA(s):
+def htmlToTextLine(s):
     s = s.replace("<br>", " ")
     s = s.replace("<br />", " ")
     s = s.replace("<div>", " ")

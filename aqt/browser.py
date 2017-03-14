@@ -12,7 +12,7 @@ from anki.lang import ngettext
 from aqt.qt import *
 import anki
 import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, fmtQA, isWin, intTime, isMac
+from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, isWin, intTime, isMac
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA
@@ -234,7 +234,7 @@ class DataModel(QAbstractTableModel):
             return self.answer(c)
         elif type == "noteFld":
             f = c.note()
-            return fmtQA(f.fields[self.col.models.sortIdx(f.model())])
+            return htmlToTextLine(f.fields[self.col.models.sortIdx(f.model())])
         elif type == "template":
             t = c.template()['name']
             if c.model()['type'] == MODEL_CLOZE:
@@ -283,16 +283,16 @@ class DataModel(QAbstractTableModel):
             return self.browser.mw.col.decks.name(c.did)
 
     def question(self, c):
-        return fmtQA(c.q(browser=True))
+        return htmlToTextLine(c.q(browser=True))
 
     def answer(self, c):
         if c.template().get('bafmt'):
             # they have provided a template, use it verbatim
             c.q(browser=True)
-            return fmtQA(c.a())
+            return htmlToTextLine(c.a())
         # need to strip question from answer
         q = self.question(c)
-        a = fmtQA(c.a())
+        a = htmlToTextLine(c.a())
         if a.startswith(q):
             return a[len(q):].strip()
         return a
