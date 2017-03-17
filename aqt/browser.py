@@ -318,9 +318,7 @@ class StatusDelegate(QItemDelegate):
     def __init__(self, browser, model):
         QItemDelegate.__init__(self, browser)
         self.browser = browser
-        from aqt.modeltest import ModelTest
         self.model = model
-        self.modeltest = ModelTest(self.model, self)
 
     def paint(self, painter, option, index):
         self.browser.mw.progress.blockUpdates = True
