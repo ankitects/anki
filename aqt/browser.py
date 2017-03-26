@@ -1064,8 +1064,8 @@ where id in %s""" % ids2str(sf))
         self.form.previewButton.setChecked(False)
 
     def _onPreviewPrev(self):
-        if self._previewState == "question":
-            self._previewState = "answer"
+        if self._previewState == "answer":
+            self._previewState = "question"
             self._renderPreview()
         else:
             self.onPreviousCard()
@@ -1085,7 +1085,8 @@ where id in %s""" % ids2str(sf))
     def _updatePreviewButtons(self):
         if not self._previewWindow:
             return
-        canBack = self.currentRow() >  0 or self._previewState == "question"
+        current = self.currentRow()
+        canBack = (current > 0 or (current == 0 and self._previewState == "answer" ))
         self._previewPrev.setEnabled(not not (self.singleCard and canBack))
         canForward = self.currentRow() < self.model.rowCount(None) - 1 or \
                      self._previewState == "question"
