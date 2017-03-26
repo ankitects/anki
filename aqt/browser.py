@@ -1516,8 +1516,12 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.editor.saveNow(self._onPreviousCard)
 
     def _onPreviousCard(self):
+        tagfocus = self.editor.tags.hasFocus()
         f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveUp)
+        if tagfocus:
+            self.editor.tags.setFocus()
+            return
         self.editor.web.setFocus()
         self.editor.web.eval("focusField(%d)" % f)
 
@@ -1525,8 +1529,12 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.editor.saveNow(self._onNextCard)
 
     def _onNextCard(self):
+        tagfocus = self.editor.tags.hasFocus()
         f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveDown)
+        if tagfocus:
+            self.editor.tags.setFocus()
+            return
         self.editor.web.setFocus()
         self.editor.web.eval("focusField(%d)" % f)
 
