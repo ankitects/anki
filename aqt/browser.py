@@ -587,6 +587,7 @@ class Browser(QMainWindow):
             "cur": cur,
             "sel": ngettext("%d selected", "%d selected", selected) % selected
             })
+        self.form.resultLabel.setText(ngettext("%d result", "%d results", cur) % cur)
         return selected
 
     def onReset(self):
