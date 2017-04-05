@@ -4,6 +4,7 @@
 
 import re
 import signal
+import sys
 import zipfile
 import gc
 import time
