@@ -99,7 +99,7 @@ or your deck may have a problem.
 into a bug report:""")
         pluginText = _("""\
 An error occurred in an add-on.<br>
-Please post on the add-on forum:<br>%s<br>""")
+Please post on the add-on forum:<br>```<br>%s<br>```<br>""")
         pluginText %= "https://anki.tenderapp.com/discussions/add-ons"
         if "addon" in error:
             txt = pluginText
