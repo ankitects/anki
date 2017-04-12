@@ -354,6 +354,7 @@ class Browser(QMainWindow):
         applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
+        self.forceClose = False
         self.lastFilter = ""
         self._previewWindow = None
         self._closeEventHasCleanedUp = False
@@ -460,7 +461,7 @@ class Browser(QMainWindow):
 
     def closeEvent(self, evt):
         if not self._closeEventHasCleanedUp:
-            if self.editor.note:
+            if self.editor.note and not self.forceClose:
                 # ignore event for now to allow us to save
                 self.editor.saveNow(self._closeEventAfterSave)
                 evt.ignore()
