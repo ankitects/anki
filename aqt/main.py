@@ -509,7 +509,7 @@ title="%s" %s>%s</button>''' % (
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = aqt.webview.AnkiWebView()
+        tweb = self.toolbarWeb = aqt.webview.AnkiWebView()
         tweb.title = "top toolbar"
         tweb.setFocusPolicy(Qt.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
