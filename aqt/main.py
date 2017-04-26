@@ -667,7 +667,6 @@ title="%s" %s>%s</button>''' % (
         "Called from a shortcut key. Close current active window."
         aw = self.app.activeWindow()
         if not aw or aw == self or force:
-            self.app.closeAllWindows()
             self.unloadProfile(browser=False)
         else:
             aw.close()
