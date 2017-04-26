@@ -71,6 +71,10 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
             saveGeom(diag, geomKey)
         QDialog.reject(diag)
     box.rejected.connect(onReject)
+    def onFinish():
+        if geomKey:
+            saveGeom(diag, geomKey)
+    box.finished.connect(onFinish)
     diag.setMinimumHeight(minHeight)
     diag.setMinimumWidth(minWidth)
     if geomKey:
