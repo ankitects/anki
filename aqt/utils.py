@@ -185,16 +185,17 @@ class GetTextDialog(QDialog):
         openHelp(self.help)
 
 def getText(prompt, parent=None, help=None, edit=None, default="",
-            title="Anki", minWidth=567):
+            title="Anki", minWidth=567, geomKey=None):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     d = GetTextDialog(parent, prompt, help=help, edit=edit,
                       default=default, title=title, minWidth=minWidth)
     d.setWindowModality(Qt.WindowModal)
-    restoreGeom(d, "getText")
+    if geomKey:
+        restoreGeom(d, geomKey)
     ret = d.exec_()
-    if ret:
-        saveGeom(d, "getText")
+    if geomKey and ret:
+        saveGeom(d, geomKey)
     return (str(d.l.text()), ret)
 
 def getOnlyText(*args, **kwargs):
@@ -228,7 +229,8 @@ def getTag(parent, deck, question, tags="user", **kwargs):
     from aqt.tagedit import TagEdit
     te = TagEdit(parent)
     te.setCol(deck)
-    ret = getText(question, parent, edit=te, **kwargs)
+    ret = getText(question, parent, edit=te, geomKey="getTag",
+                  **kwargs)
     te.hideCompleter()
     return ret
 
