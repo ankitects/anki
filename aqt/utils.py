@@ -184,13 +184,17 @@ class GetTextDialog(QDialog):
     def helpRequested(self):
         openHelp(self.help)
 
-def getText(prompt, parent=None, help=None, edit=None, default="", title="Anki"):
+def getText(prompt, parent=None, help=None, edit=None, default="",
+            title="Anki", minWidth=567):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     d = GetTextDialog(parent, prompt, help=help, edit=edit,
-                      default=default, title=title)
+                      default=default, title=title, minWidth=minWidth)
     d.setWindowModality(Qt.WindowModal)
+    restoreGeom(d, "getText")
     ret = d.exec_()
+    if ret:
+        saveGeom(d, "getText")
     return (str(d.l.text()), ret)
 
 def getOnlyText(*args, **kwargs):
