@@ -74,7 +74,7 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
     def onFinish():
         if geomKey:
             saveGeom(diag, geomKey)
-    box.finished.connect(onFinish)
+    box.accepted.connect(onFinish)
     diag.setMinimumHeight(minHeight)
     diag.setMinimumWidth(minWidth)
     if geomKey:
