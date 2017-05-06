@@ -42,6 +42,15 @@ from notes where id = ?""", self.id)
         self._fmap = self.col.models.fieldMap(self._model)
         self.scm = self.col.scm
 
+    @classmethod
+    def getByUUID(cls, collection, uuid):
+        query = "select id from notes where guid=?"
+        note_id = collection.db.scalar(query, uuid)
+        if not note_id:
+            return None
+
+        return cls(collection, id=note_id)
+
     def flush(self, mod=None):
         "If fields or tags have changed, write changes to disk."
         assert self.scm == self.col.scm
