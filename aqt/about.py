@@ -25,7 +25,7 @@ system. It's free and open source.")
  testing and design from:<p>%(cont)s") % {'cont': """Aaron Harsh, Ádám Szegi, Alex Fraser,
 Andreas Klauer, Andrew Wright, Aristotelis P., Bernhard Ibertsberger, C. van Rooyen, Charlene Barina,
 Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dmitry Mikheev, Dotan Cohen,
-Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail, Henrik Enggaard Hansen,
+Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail, Guillem Palau Salvà, Henrik Enggaard Hansen,
 Houssam Salem, Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
 Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Joseph Lorimer, Julien Baley, Jussi Määttä, Kieran Clancy, LaC, Laurent Steffan,
 Luca Ban, Luciano Esposito, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
