@@ -798,8 +798,8 @@ and queue = 0""", intTime(), self.usn())
         if ids:
             problems.append("Reviews had incorrect due date.")
             self.db.execute(
-                "update cards set due = 0, mod = ?, usn = ? where id in %s"
-                % ids2str(ids), intTime(), self.usn())
+                "update cards set due = ?, ivl = 1, mod = ?, usn = ? where id in %s"
+                % ids2str(ids), self.sched.today, intTime(), self.usn())
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
