@@ -26,9 +26,11 @@ class DB:
         if ka:
             # execute("...where id = :id", id=5)
             res = self._db.execute(sql, ka)
+            self.commit()
         else:
             # execute("...where id = ?", 5)
             res = self._db.execute(sql, a)
+            self.commit()
         if self.echo:
             #print a, ka
             print(sql, "%0.3fms" % ((time.time() - t)*1000))
@@ -40,6 +42,7 @@ class DB:
         self.mod = True
         t = time.time()
         self._db.executemany(sql, l)
+        self.commit()
         if self.echo:
             print(sql, "%0.3fms" % ((time.time() - t)*1000))
             if self.echo == "2":
@@ -56,6 +59,7 @@ class DB:
         if self.echo:
             print(sql)
         self._db.executescript(sql)
+        self.commit()
 
     def rollback(self):
         self._db.rollback()
