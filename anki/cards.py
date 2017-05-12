@@ -34,7 +34,7 @@ class Card:
             self.id = timestampID(col.db, "cards")
             self.did = 1
             self.crt = intTime()
-            self.type = 0
+            self.type = CARD_NEW 
             self.queue = 0
             self.ivl = 0
             self.factor = 0
