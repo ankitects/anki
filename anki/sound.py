@@ -148,9 +148,12 @@ class MplayerMonitor(threading.Thread):
         try:
             cmd = mplayerCmd + ["-slave", "-idle"]
             devnull = file(os.devnull, "w")
+            env = os.environ.copy()
+            if "LD_LIBRARY_PATH" in env:
+                del env['LD_LIBRARY_PATH']
             self.mplayer = subprocess.Popen(
                 cmd, startupinfo=si, stdin=subprocess.PIPE,
-                stdout=devnull, stderr=devnull)
+                stdout=devnull, stderr=devnull, env=env)
         except OSError:
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
