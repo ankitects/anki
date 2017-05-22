@@ -30,6 +30,8 @@ def hasSound(text):
 def _packagedCmd(cmd):
     cmd = cmd[:]
     env = os.environ.copy()
+    if "LD_LIBRARY_PATH" in env:
+        del env['LD_LIBRARY_PATH']
     if isMac:
         dir = os.path.dirname(os.path.abspath(__file__))
         exeDir = os.path.abspath(dir + "/../../Resources/audio")
@@ -41,9 +43,6 @@ def _packagedCmd(cmd):
     if not os.path.exists(path):
         return cmd, env
     cmd[0] = path
-    # need to set lib path for linux
-    if isLin:
-        env["LD_LIBRARY_PATH"] = exeDir
     return cmd, env
 
 ##########################################################################
