@@ -28,6 +28,8 @@ These are often contained in a separate package on Linux, such as
 
 To use the development version:
 
+On Ubuntu, make sure you have pyqt4-dev-tools installed.
+
 $ git clone https://github.com/dae/anki.git
 $ cd anki
 $ ./tools/build_ui.sh
