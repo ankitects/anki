@@ -243,7 +243,17 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         (val, args) = args
         if val == "none":
             return 'n.tags = ""'
-        val = val.replace("*", "%")
+        
+        val = val.replace("%", "\%")
+
+        tmp = val.split('\\\\')
+        for (i, item) in enumerate(tmp):
+            temp = item.split('\*')
+            for (j, jtem) in enumerate(temp):
+                temp[j] = jtem.replace('*', '%')
+            tmp[i] = '*'.join(temp)   
+        val = '\\\\'.join(tmp)   
+        
         if not val.startswith("%"):
             val = "% " + val
         if not val.endswith("%") or val.endswith('\\%'):
@@ -331,7 +341,16 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         return " and ".join(q)
 
     def _findText(self, val, args):
-        val = val.replace("*", "%")
+        val = val.replace("%", "\%")
+
+        tmp = val.split('\\\\')
+        for (i, item) in enumerate(tmp):
+            temp = item.split('\*')
+            for (j, jtem) in enumerate(temp):
+                temp[j] = jtem.replace('*', '%')
+            tmp[i] = '*'.join(temp)   
+        val = '\\\\'.join(tmp)   
+
         args.append("%"+val+"%")
         args.append("%"+val+"%")
         return "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
@@ -422,7 +441,16 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 
     def _findField(self, field, val):
         field = field.lower()
-        val = val.replace("*", "%")
+        val = val.replace("%", "\%")
+
+        tmp = val.split('\\\\')
+        for (i, item) in enumerate(tmp):
+            temp = item.split('\*')
+            for (j, jtem) in enumerate(temp):
+                temp[j] = jtem.replace('*', '%')
+            tmp[i] = '*'.join(temp)   
+        val = '\\\\'.join(tmp)   
+
         # find models that have that field
         mods = {}
         for m in self.col.models.all():
