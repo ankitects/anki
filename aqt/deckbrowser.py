@@ -173,11 +173,11 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return ""
         return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
             _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
-                a=("<a href=# onclick='pycmd('lots')>%s</a>" % _(
+                a=("<a href=# onclick=\"pycmd('lots')\">%s</a>" % _(
                     "this page")),
                 b=("<br><small><a href=# onclick='pycmd(\"hidelots\")'>("
                    "%s)</a></small>" % (_("hide"))+
-                    "</div")))
+                    "</div>")))
 
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:
