@@ -53,8 +53,12 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
                     vocabulary.append(note)
                 elif row[1].startswith("5.1"):
                     cloze[row[0]] = note
+            # check for None to fix issue where import can error out
+            rawTags = row[2];
+            if rawTags is None:
+                rawTags = ""
             # merge tags into note
-            tags = row[2].replace(", ", "\x1f").replace(" ", "_")
+            tags = rawTags.replace(", ", "\x1f").replace(" ", "_")
             tags = tags.replace("\x1f", " ")
             if "tags" not in note:
                 note['tags'] = []
