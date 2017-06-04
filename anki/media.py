@@ -241,6 +241,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         mdir = self.dir()
         # gather all media references in NFC form
         allRefs = set()
+        # force re-rendering of QA. In order to detect LaTeX tags also from the templates
+        self.col.renderQA(None, "all")
         for nid, mid, flds in self.col.db.execute("select id, mid, flds from notes"):
             noteRefs = self.filesInStr(mid, flds)
             # check the refs are in NFC
