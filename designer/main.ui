@@ -145,6 +145,9 @@
    <property name="text">
     <string>&amp;Undo</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
   </action>
   <action name="actionCheckMediaDatabase">
    <property name="text">
@@ -213,6 +216,9 @@
    <property name="text">
     <string>Study Deck...</string>
    </property>
+   <property name="shortcut">
+    <string>/</string>
+   </property>
   </action>
   <action name="actionEmptyCards">
    <property name="text">
@@ -222,6 +228,9 @@
   <action name="actionCreateFiltered">
    <property name="text">
     <string>Create Filtered Deck...</string>
+   </property>
+   <property name="shortcut">
+    <string>F</string>
    </property>
   </action>
   <action name="actionNoteTypes">
