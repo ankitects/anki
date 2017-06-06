@@ -153,8 +153,8 @@ class AnkiQt(QMainWindow):
         if not self.openProfile():
             showWarning(_("Invalid password."))
             return
-        self.profileDiag.close()
         self.loadProfile()
+        self.profileDiag.close()
         return True
 
     def profileNameOk(self, str):
