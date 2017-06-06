@@ -40,6 +40,7 @@ class DeckStats(QDialog):
         addCloseShortcut(self)
         self.refresh()
         self.show()
+        self.activateWindow()
 
     def reject(self):
         saveGeom(self, self.name)
