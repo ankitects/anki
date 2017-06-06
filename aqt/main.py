@@ -512,6 +512,7 @@ title="%s" %s>%s</button>''' % (
         tweb = self.toolbarWeb = aqt.webview.AnkiWebView()
         tweb.title = "top toolbar"
         tweb.setFocusPolicy(Qt.WheelFocus)
+        tweb.keyEventDelegate = self.globalKeyHandler
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
@@ -519,10 +520,12 @@ title="%s" %s>%s</button>''' % (
         self.web.title = "main webview"
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)
+        self.web.keyEventDelegate = self.globalKeyHandler
         # bottom area
         sweb = self.bottomWeb = aqt.webview.AnkiWebView()
         sweb.title = "bottom toolbar"
         sweb.setFocusPolicy(Qt.WheelFocus)
+        sweb.keyEventDelegate = self.globalKeyHandler
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0,0,0,0)
@@ -622,13 +625,17 @@ title="%s" %s>%s</button>''' % (
         self.debugShortcut.activated.connect(self.onDebug)
 
     def keyPressEvent(self, evt):
+        if not self.globalKeyHandler(evt):
+            QMainWindow.keyPressEvent(self, evt)
+
+    # true if we handled key
+    # called via mw's keyPressEvent() or a webview's event filter
+    def globalKeyHandler(self, evt):
         # do we have a delegate?
         if self.keyHandler:
             # did it eat the key?
             if self.keyHandler(evt):
-                return
-        # run standard handler
-        QMainWindow.keyPressEvent(self, evt)
+                return True
         # check global keys
         key = str(evt.text())
         if key == "d":
@@ -647,6 +654,9 @@ title="%s" %s>%s</button>''' % (
             self.onStats()
         elif key == "y":
             self.onSync()
+        else:
+            return False
+        return True
 
     # App exit
     ##########################################################################

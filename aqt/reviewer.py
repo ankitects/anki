@@ -319,6 +319,9 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             self._answerCard(int(key))
         elif key == "v":
             self.onReplayRecorded()
+        else:
+            return False
+        return True
 
     def _linkHandler(self, url):
         if url == "ans":

@@ -68,17 +68,20 @@ class Overview:
         key = str(evt.text())
         if key == "o":
             self.mw.onDeckConf()
-        if key == "r" and cram:
+        elif key == "r" and cram:
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
-        if key == "e" and cram:
+        elif key == "e" and cram:
             self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
             self.mw.reset()
-        if key == "c" and not cram:
+        elif key == "c" and not cram:
             self.onStudyMore()
-        if key == "u":
+        elif key == "u":
             self.mw.col.sched.unburyCardsForDeck()
             self.mw.reset()
+        else:
+            return False
+        return True
 
     # HTML
     ############################################################

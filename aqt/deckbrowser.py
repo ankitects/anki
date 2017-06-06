@@ -64,8 +64,7 @@ class DeckBrowser:
         return False
 
     def _keyHandler(self, evt):
-        # currently does nothing
-        key = str(evt.text())
+        return False
 
     def _selDeck(self, did):
         self.mw.col.decks.select(did)

@@ -75,6 +75,8 @@ class AnkiWebView(QWebEngineView):
         self._loadFinishedCB = None
         self.setPage(self._page)
 
+        self.keyEventDelegate = None
+
         self._page.profile().setHttpCacheType(QWebEngineProfile.MemoryHttpCache)
         self.resetHandlers()
         self.allowDrops = False
@@ -105,9 +107,18 @@ class AnkiWebView(QWebEngineView):
                     from aqt import mw
                     if w != mw:
                         w.close()
+                    else:
+                        self.clearFocus()
                     break
                 w = w.parent()
             return True
+
+        if self.keyEventDelegate:
+            ret = self.keyEventDelegate(evt)
+            if ret is None:
+                raise Exception("add-ons that modify key handlers should make sure true/false is returned")
+            return ret
+
         return False
 
     def onCopy(self):
