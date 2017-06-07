@@ -9,6 +9,6 @@ if sys.version_info[0] < 3:
 elif sys.version_info[1] < 4:
     raise Exception("Anki requires Python 3.4+")
 
-version="2.1.0a13" # build scripts grep this line, so preserve formatting
+version="2.1.0a14" # build scripts grep this line, so preserve formatting
 from anki.storage import Collection
 __all__ = ["Collection"]
