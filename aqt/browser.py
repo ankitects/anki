@@ -758,8 +758,9 @@ by clicking on one on the left."""))
     ######################################################################
 
     class CallbackItem(QTreeWidgetItem):
-        def __init__(self, root, name, onclick, oncollapse=None):
+        def __init__(self, root, name, onclick, oncollapse=None, expanded=False):
             QTreeWidgetItem.__init__(self, root, [name])
+            self.setExpanded(expanded)
             self.onclick = onclick
             self.oncollapse = oncollapse
 
@@ -866,11 +867,10 @@ by clicking on one on the left."""))
                 item = self.CallbackItem(
                     root, g[0],
                     lambda g=g: self.setFilter("deck", head+g[0]),
-                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]))
+                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]),
+                    not self.mw.col.decks.get(g[1]).get('browserCollapsed', False))
                 item.setIcon(0, QIcon(":/icons/deck16.png"))
                 newhead = head + g[0]+"::"
-                collapsed = self.mw.col.decks.get(g[1]).get('browserCollapsed', False)
-                item.setExpanded(not collapsed)
                 fillGroups(item, g[5], newhead)
         fillGroups(root, grps)
 
