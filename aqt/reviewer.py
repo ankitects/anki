@@ -38,7 +38,7 @@ class Reviewer:
     def show(self):
         self.mw.col.reset()
         self.web.resetHandlers()
-        self.mw.keyHandler = self._keyHandler
+        self.mw.setStateShortcuts(self._shortcutKeys())
         self.web.onBridgeCmd = self._linkHandler
         self.bottom.web.onBridgeCmd = self._linkHandler
         self._reps = None
@@ -290,38 +290,33 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
     # Handlers
     ############################################################
 
-    def _keyHandler(self, evt):
-        key = str(evt.text())
-        if key == "e":
-            self.mw.onEditCurrent()
-        elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)):
-            if self.state == "question":
-                self._getTypedAnswer()
-            elif self.state == "answer":
-                self._answerCard(self._defaultEase())
-        elif key == "r" or evt.key() == Qt.Key_F5:
-            self.replayAudio()
-        elif key == "*":
-            self.onMark()
-        elif key == "=":
-            self.onBuryNote()
-        elif key == "-":
-            self.onBuryCard()
-        elif key == "!":
-            self.onSuspend()
-        elif key == "@":
-            self.onSuspendCard()
-        elif key == "V":
-            self.onRecordVoice()
-        elif key == "o":
-            self.onOptions()
-        elif key in ("1", "2", "3", "4"):
-            self._answerCard(int(key))
-        elif key == "v":
-            self.onReplayRecorded()
-        else:
-            return False
-        return True
+    def _shortcutKeys(self):
+        return [
+            ("e", self.mw.onEditCurrent),
+            (" ", self.onEnterKey),
+            (Qt.Key_Return, self.onEnterKey),
+            (Qt.Key_Enter, self.onEnterKey),
+            ("r", self.replayAudio),
+            (Qt.Key_F5, self.replayAudio),
+            ("*", self.onMark),
+            ("=", self.onBuryNote),
+            ("-", self.onBuryCard),
+            ("!", self.onSuspend),
+            ("@", self.onSuspendCard),
+            ("v", self.onReplayRecorded),
+            ("Shift+v", self.onRecordVoice),
+            ("o", self.onOptions),
+            ("1", lambda: self._answerCard(1)),
+            ("2", lambda: self._answerCard(2)),
+            ("3", lambda: self._answerCard(3)),
+            ("4", lambda: self._answerCard(4)),
+        ]
+
+    def onEnterKey(self):
+        if self.state == "question":
+            self._getTypedAnswer()
+        elif self.state == "answer":
+            self._answerCard(self._defaultEase())
 
     def _linkHandler(self, url):
         if url == "ans":

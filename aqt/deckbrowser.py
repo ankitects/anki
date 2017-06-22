@@ -24,7 +24,6 @@ class DeckBrowser:
         clearAudioQueue()
         self.web.resetHandlers()
         self.web.onBridgeCmd = self._linkHandler
-        self.mw.keyHandler = self._keyHandler
         self._renderPage()
 
     def refresh(self):
@@ -61,9 +60,6 @@ class DeckBrowser:
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
         elif cmd == "collapse":
             self._collapse(arg)
-        return False
-
-    def _keyHandler(self, evt):
         return False
 
     def _selDeck(self, did):

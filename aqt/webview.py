@@ -67,8 +67,8 @@ class AnkiWebPage(QWebEnginePage):
 
 class AnkiWebView(QWebEngineView):
 
-    def __init__(self, canFocus=True):
-        QWebEngineView.__init__(self)
+    def __init__(self, parent=None):
+        QWebEngineView.__init__(self, parent=parent)
         self.title = "default"
         self._page = AnkiWebPage(self._onBridgeCmd)
 
@@ -80,46 +80,32 @@ class AnkiWebView(QWebEngineView):
         self._page.profile().setHttpCacheType(QWebEngineProfile.MemoryHttpCache)
         self.resetHandlers()
         self.allowDrops = False
-        self.setCanFocus(canFocus)
-        self.installEventFilter(self)
+        QShortcut(QKeySequence("Esc"), self,
+                  context=Qt.WidgetWithChildrenShortcut, activated=self.onEsc)
+        if isMac:
+            for key, fn in [
+                (QKeySequence.Copy, self.onCopy),
+                (QKeySequence.Paste, self.onPaste),
+                (QKeySequence.Cut, self.onCut),
+                (QKeySequence.SelectAll, self.onSelectAll),
+            ]:
+                QShortcut(key, self,
+                          context=Qt.WidgetWithChildrenShortcut,
+                          activated=fn)
 
-    def eventFilter(self, obj, evt):
-        if not isinstance(evt, QKeyEvent) or obj != self:
-            return False
-        if evt.matches(QKeySequence.Copy) and isMac:
-            self.onCopy()
-            return True
-        if evt.matches(QKeySequence.Cut) and isMac:
-            self.onCut()
-            return True
-        if evt.matches(QKeySequence.Paste) and isMac:
-            self.onPaste()
-            return True
-        if evt.matches(QKeySequence.SelectAll):
-            self.triggerPageAction(QWebEnginePage.SelectAll)
-            return False
-        if evt.key() == Qt.Key_Escape:
-            # cheap hack to work around webengine swallowing escape key that
-            # usually closes dialogs
-            w = self.parent()
-            while w:
-                if isinstance(w, QDialog) or isinstance(w, QMainWindow):
-                    from aqt import mw
-                    if w != mw:
-                        w.close()
-                    else:
-                        self.parent().setFocus()
-                    break
-                w = w.parent()
-            return True
-
-        if self.keyEventDelegate:
-            ret = self.keyEventDelegate(evt)
-            if ret is None:
-                raise Exception("add-ons that modify key handlers should make sure true/false is returned")
-            return ret
-
-        return False
+    def onEsc(self):
+        w = self.parent()
+        while w:
+            if isinstance(w, QDialog) or isinstance(w, QMainWindow):
+                from aqt import mw
+                # esc in a child window closes the window
+                if w != mw:
+                    w.close()
+                else:
+                    # in the main window, removes focus from type in area
+                    self.parent().setFocus()
+                break
+            w = w.parent()
 
     def onCopy(self):
         self.triggerPageAction(QWebEnginePage.Copy)
@@ -130,12 +116,13 @@ class AnkiWebView(QWebEngineView):
     def onPaste(self):
         self.triggerPageAction(QWebEnginePage.Paste)
 
+    def onSelectAll(self):
+        self.triggerPageAction(QWebEnginePage.SelectAll)
+
     def contextMenuEvent(self, evt):
-        if not self._canFocus:
-            return
         m = QMenu(self)
         a = m.addAction(_("Copy"))
-        a.triggered.connect(lambda: self.triggerPageAction(QWebEnginePage.Copy))
+        a.triggered.connect(self.onCopy)
         runHook("AnkiWebView.contextMenuEvent", self, m)
         m.popup(QCursor.pos())
 
@@ -208,13 +195,6 @@ document.addEventListener("keydown", function(evt) {
             buttonspec,
             css, js or anki.js.jquery+anki.js.browserSel,
     head, bodyClass, body))
-
-    def setCanFocus(self, canFocus=False):
-        self._canFocus = canFocus
-        if self._canFocus:
-            self.setFocusPolicy(Qt.WheelFocus)
-        else:
-            self.setFocusPolicy(Qt.NoFocus)
 
     def eval(self, js):
         self.page().runJavaScript(js)

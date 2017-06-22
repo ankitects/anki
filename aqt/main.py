@@ -25,7 +25,7 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename
 import anki.db
-
+import sip
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, args):
@@ -383,6 +383,7 @@ the manual for information on how to restore from an automatic backup."))
         cleanup = getattr(self, "_"+oldState+"Cleanup", None)
         if cleanup:
             cleanup(state)
+        self.clearStateShortcuts()
         self.state = state
         runHook('beforeStateChange', state, oldState, *args)
         getattr(self, "_"+state+"State")(oldState, *args)
@@ -512,7 +513,6 @@ title="%s" %s>%s</button>''' % (
         tweb = self.toolbarWeb = aqt.webview.AnkiWebView()
         tweb.title = "top toolbar"
         tweb.setFocusPolicy(Qt.WheelFocus)
-        tweb.keyEventDelegate = self.globalKeyHandler
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
@@ -520,12 +520,10 @@ title="%s" %s>%s</button>''' % (
         self.web.title = "main webview"
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)
-        self.web.keyEventDelegate = self.globalKeyHandler
         # bottom area
         sweb = self.bottomWeb = aqt.webview.AnkiWebView()
         sweb.title = "bottom toolbar"
         sweb.setFocusPolicy(Qt.WheelFocus)
-        sweb.keyEventDelegate = self.globalKeyHandler
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0,0,0,0)
@@ -619,44 +617,39 @@ title="%s" %s>%s</button>''' % (
     ##########################################################################
 
     def setupKeys(self):
-        self.keyHandler = None
-        # debug shortcut
-        self.debugShortcut = QShortcut(QKeySequence("Ctrl+Shift+;"), self)
-        self.debugShortcut.activated.connect(self.onDebug)
+        globalShortcuts = [
+            ("Ctrl+Shift+;", self.onDebug),
+            ("d", lambda: self.moveToState("deckBrowser")),
+            ("s", self.onStudyKey),
+            ("a", self.onAddCard),
+            ("b", self.onBrowse),
+            ("Shift+s", self.onStats),
+            ("y", self.onSync)
+        ]
+        self.applyShortcuts(globalShortcuts)
 
-    def keyPressEvent(self, evt):
-        if not self.globalKeyHandler(evt):
-            QMainWindow.keyPressEvent(self, evt)
+        self.stateShortcuts = []
 
-    # true if we handled key
-    # called via mw's keyPressEvent() or a webview's event filter
-    def globalKeyHandler(self, evt):
-        # do we have a delegate?
-        if self.keyHandler:
-            # did it eat the key?
-            if self.keyHandler(evt):
-                return True
-        # check global keys
-        key = str(evt.text())
-        if key == "d":
-            self.moveToState("deckBrowser")
-        elif key == "s":
-            if self.state == "overview":
-                self.col.startTimebox()
-                self.moveToState("review")
-            else:
-                self.moveToState("overview")
-        elif key == "a":
-            self.onAddCard()
-        elif key == "b":
-            self.onBrowse()
-        elif key == "S":
-            self.onStats()
-        elif key == "y":
-            self.onSync()
+    def applyShortcuts(self, shortcuts):
+        qshortcuts = []
+        for key, fn in shortcuts:
+            qshortcuts.append(QShortcut(QKeySequence(key), self, activated=fn))
+        return qshortcuts
+
+    def setStateShortcuts(self, shortcuts):
+        self.stateShortcuts = self.applyShortcuts(shortcuts)
+
+    def clearStateShortcuts(self):
+        for qs in self.stateShortcuts:
+            sip.delete(qs)
+        self.stateShortcuts = []
+
+    def onStudyKey(self):
+        if self.state == "overview":
+            self.col.startTimebox()
+            self.moveToState("review")
         else:
-            return False
-        return True
+            self.moveToState("overview")
 
     # App exit
     ##########################################################################
