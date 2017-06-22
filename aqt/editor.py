@@ -30,7 +30,7 @@ pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
 audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga")
 
 _html = """
-<html><head>%s<style>
+<style>
 .field {
   border: 1px solid #aaa; background:#fff; color:#000; padding: 5px;
 }
@@ -44,7 +44,8 @@ _html = """
 }
 .fname { vertical-align: middle; padding: 0; }
 img { max-width: 90%%; }
-body { margin: 5px; }
+html { background: %s; }
+body { margin: 5px;  }
 #topbuts { position: fixed; height: 24px; top: 0; padding: 2px; left:0;right:0}
 .topbut { width: 16px; height: 16px; }
 .rainbow {
@@ -64,7 +65,6 @@ background-image: -webkit-gradient(linear,  left top,  left bottom,
 
 
 </style><script>
-%s
 
 var currentField = null;
 var changeTimer = null;
@@ -74,11 +74,6 @@ String.prototype.format = function() {
     var args = arguments;
     return this.replace(/\{\d+\}/g, function(m){
             return args[m.match(/\d+/)]; });
-};
-
-function setBG(col) {
-    document.body.style.backgroundColor = col;
-    $("#topbuts")[0].style.backgroundColor = col;
 };
 
 function setFGButton(col) {
@@ -406,11 +401,10 @@ $(function () {
     $("button.linkb").on("mousedown", function(e) { e.preventDefault(); });
 });
 
-</script></head><body>
+</script>
 <div id="topbuts">%s</div>
 <div id="fields"></div>
 <div id="dupes" style="display:none;"><a href="#" onclick="pycmd('dupes');return false;">%s</a></div>
-</body></html>
 """
 
 # caller is responsible for resetting note on reset
@@ -479,10 +473,12 @@ class Editor:
                 %(rightbts)s
             </div>
         """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns))
+        bgcol = self.mw.app.palette().window().color().name()
+        # then load page
         self.web.stdHtml(_html % (
-            self.mw.baseHTML(), anki.js.jquery,
+            bgcol,
             topbuts,
-            _("Show Duplicates")))
+            _("Show Duplicates")), js=anki.js.jquery, head=self.mw.baseHTML())
 
     # Top buttons
     ######################################################################
@@ -618,9 +614,6 @@ class Editor:
     def _loadFinished(self):
         self._loaded = True
 
-        # match the background colour
-        bgcol = self.mw.app.palette().window().color().name()
-        self.web.eval("setBG('%s')" % bgcol)
         # setup colour button
         self.setupForegroundButton()
 
