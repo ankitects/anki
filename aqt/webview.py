@@ -108,7 +108,7 @@ class AnkiWebView(QWebEngineView):
                     if w != mw:
                         w.close()
                     else:
-                        self.clearFocus()
+                        self.parent().setFocus()
                     break
                 w = w.parent()
             return True
