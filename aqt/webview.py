@@ -18,6 +18,7 @@ class AnkiWebPage(QWebEnginePage):
         QWebEnginePage.__init__(self)
         self._onBridgeCmd = onBridgeCmd
         self._setupBridge()
+        self.setBackgroundColor(Qt.transparent)
 
     def _setupBridge(self):
         class Bridge(QObject):
@@ -74,8 +75,6 @@ class AnkiWebView(QWebEngineView):
 
         self._loadFinishedCB = None
         self.setPage(self._page)
-
-        self.keyEventDelegate = None
 
         self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
         self.resetHandlers()
@@ -159,7 +158,7 @@ border-radius:5px; font-family: Helvetica }"""
             fontspec = 'font-size:14px;font-family:%s;'%\
                 family
 
-        self.setHtml("""
+        html="""
 <!doctype html>
 <html><head><title>%s</title><style>
 body { zoom: %f; %s }
@@ -194,7 +193,9 @@ document.addEventListener("keydown", function(evt) {
             fontspec,
             buttonspec,
             css, js or anki.js.jquery+anki.js.browserSel,
-    head, bodyClass, body))
+    head, bodyClass, body)
+        #print(html)
+        self.setHtml(html)
 
     def eval(self, js):
         self.page().runJavaScript(js)
