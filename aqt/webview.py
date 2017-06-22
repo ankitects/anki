@@ -77,7 +77,7 @@ class AnkiWebView(QWebEngineView):
 
         self.keyEventDelegate = None
 
-        self._page.profile().setHttpCacheType(QWebEngineProfile.MemoryHttpCache)
+        self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
         self.resetHandlers()
         self.allowDrops = False
         QShortcut(QKeySequence("Esc"), self,
