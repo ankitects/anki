@@ -734,7 +734,7 @@ title="%s" %s>%s</button>''' % (
         deck = self._selectedDeck()
         if not deck:
             return
-        aqt.stats.DeckStats(self)
+        aqt.dialogs.open("DeckStats", self)
 
     def onPrefs(self):
         import aqt.preferences

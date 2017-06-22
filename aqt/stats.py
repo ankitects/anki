@@ -42,8 +42,12 @@ class DeckStats(QDialog):
         self.show()
         self.activateWindow()
 
+    def canClose(self):
+        return True
+
     def reject(self):
         saveGeom(self, self.name)
+        aqt.dialogs.close("DeckStats")
         QDialog.reject(self)
 
     def _imagePath(self):
