@@ -17,6 +17,7 @@ class Toolbar:
             "stats": self._statsLinkHandler,
             "sync": self._syncLinkHandler,
         }
+        self.web.setFixedHeight(30)
 
     def onLoaded(self):
         self.web.evalWithCallback("$(document.body).height()", self.onHeight)
