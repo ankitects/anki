@@ -92,6 +92,14 @@ class AnkiWebView(QWebEngineView):
                           context=Qt.WidgetWithChildrenShortcut,
                           activated=fn)
 
+        self.focusProxy().installEventFilter(self)
+
+    def eventFilter(self, obj, evt):
+        # disable pinch to zoom gesture
+        if isinstance(evt, QNativeGestureEvent):
+            return True
+        return False
+
     def onEsc(self):
         w = self.parent()
         while w:
