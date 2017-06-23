@@ -485,7 +485,6 @@ the manual for information on how to restore from an automatic backup."))
 
     sharedCSS = """
 body {
-background: #f3f3f3;
 margin: 2em;
 }
 h1 { margin-bottom: 0.2em; }

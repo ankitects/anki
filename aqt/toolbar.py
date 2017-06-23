@@ -29,13 +29,12 @@ class Toolbar:
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
         self.web.onLoadFinished = self.onLoaded
-        bgcol = QApplication.instance().palette().window().color().name()
         self.web.stdHtml(self._body % (
             # may want a context menu here in the future
             '&nbsp;'*20,
             self._centerLinks(),
             self._rightIcons()),
-                         self._css % bgcol)
+                         self._css)
 
     # Available links
     ######################################################################
@@ -164,7 +163,6 @@ margin-top: 0;
     def draw(self, buf):
         self.web.onBridgeCmd = self._linkHandler
         self.web.onLoadFinished = self.onLoaded
-        bgcol = QApplication.instance().palette().window().color().name()
         self.web.stdHtml(
             self._centerBody % buf,
-            self._css % bgcol)
+            self._css)

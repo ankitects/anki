@@ -533,8 +533,6 @@ min-width: 60px; white-space: nowrap;
 .spacer2 { height: 16px; }
 #outer {
   border-top: 1px solid #aaa;
-  background: -webkit-gradient(linear, left top, left bottom,
-from(#fff), to(#ddd));
 }
 #innertable {
 padding: 3px;
