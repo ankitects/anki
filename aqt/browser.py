@@ -1809,7 +1809,7 @@ class BrowserToolbar(Toolbar):
                                "Bulk Remove Tags (Ctrl+Alt+T)")))
         right += borderImg("delete", "delete16", _("Delete"))
         right += "</div>"
-        return self._body % ("", right, "")
+        return self._body % right
 
     def css(self):
         return self._css + """
