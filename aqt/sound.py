@@ -15,10 +15,11 @@ def getAudio(parent, encode=True):
     restoreGeom(mb, "audioRecorder")
     mb.setWindowTitle("Anki")
     mb.setIconPixmap(QPixmap(":/icons/media-record.png"))
-    but = QPushButton(_("  Stop"))
-    but.setIcon(QIcon(":/icons/media-playback-stop.png"))
-    #but.setIconSize(QSize(32, 32))
+    but = QPushButton(_("Save"))
+    mb.addButton(but, QMessageBox.AcceptRole)
+    but = QPushButton(_("Cancel"))
     mb.addButton(but, QMessageBox.RejectRole)
+    mb.setEscapeButton(but)
     t = time.time()
     r.start()
     QApplication.instance().processEvents()
@@ -27,6 +28,9 @@ def getAudio(parent, encode=True):
         mb.setText(txt % (time.time() - t))
         mb.show()
         QApplication.instance().processEvents()
+    if mb.clickedButton() == mb.escapeButton():
+        r.stop()
+        return
     saveGeom(mb, "audioRecorder")
     # ensure at least a second captured
     while time.time() - t < 1:
