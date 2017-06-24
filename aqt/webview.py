@@ -149,7 +149,7 @@ class AnkiWebView(QWebEngineView):
         dpi = screen.logicalDpiX()
         return max(1, dpi / 96.0)
 
-    def stdHtml(self, body, css="", bodyClass="", js=None, head="", bgcol=None):
+    def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
         if isWin:
             buttonspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
             fontspec = 'font-size:12px;font-family:"Segoe UI";'
@@ -169,7 +169,7 @@ border-radius:5px; font-family: Helvetica }"""
         html="""
 <!doctype html>
 <html><head><title>%s</title><style>
-body { zoom: %f; background: %s; %s }
+body { zoom: %f; %s }
 %s
 %s</style>
 <script>
@@ -198,7 +198,6 @@ document.addEventListener("keydown", function(evt) {
 <body class="%s">%s</body></html>""" % (
             self.title,
             self.zoomFactor(),
-            bgcol or QApplication.instance().palette().window().color().name(),
             fontspec,
             buttonspec,
             css, js or anki.js.jquery+anki.js.browserSel,
