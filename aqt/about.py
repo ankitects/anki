@@ -5,10 +5,21 @@
 from aqt.qt import *
 import aqt.forms
 from aqt import appVersion
-from aqt.utils import openLink
+
+class ClosableQDialog(QDialog):
+    def canClose(self):
+        return True
+
+    def reject(self):
+        aqt.dialogs.close("About")
+        QDialog.reject(self)
+
+    def accept(self):
+        aqt.dialogs.close("About")
+        QDialog.accept(self)
 
 def show(mw):
-    dialog = QDialog(mw)
+    dialog = ClosableQDialog(mw)
     mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
@@ -21,21 +32,92 @@ system. It's free and open source.")
     abouttext += ("Qt %s PyQt %s<br>") % (QT_VERSION_STR, PYQT_VERSION_STR)
     abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + \
 "</span>"
+
+    # automatically sorted; add new lines at the end
+    allusers = sorted((
+        "Aaron Harsh",
+        "Alex Fraser",
+        "Andreas Klauer",
+        "Andrew Wright",
+        "Aristotelis P.",
+        "Bernhard Ibertsberger",
+        "C. van Rooyen",
+        "Charlene Barina",
+        "Christian Krause",
+        "Christian Rusche",
+        "Dave Druelinger",
+        "David Smith",
+        "Dmitry Mikheev",
+        "Dotan Cohen",
+        "Emilio Wuerges",
+        "Emmanuel Jarri",
+        "Frank Harper",
+        "Gregor Skumavc",
+        "Guillem Palau Salvà",
+        "H. Mijail",
+        "Henrik Enggaard Hansen",
+        "Houssam Salem",
+        "Ian Lewis",
+        "Immanuel Asmus",
+        "Iroiro",
+        "Jarvik7",
+        "Jin Eun-Deok",
+        "Jo Nakashima",
+        "Johanna Lindh",
+        "Joseph Lorimer",
+        "Julien Baley",
+        "Jussi Määttä",
+        "Kieran Clancy",
+        "LaC",
+        "Laurent Steffan",
+        "Luca Ban",
+        "Luciano Esposito",
+        "Marco Giancotti",
+        "Marcus Rubeus",
+        "Mari Egami",
+        "Mark Wilbur",
+        "Matthew Duggan",
+        "Matthew Holtz",
+        "Meelis Vasser",
+        "Michael Jürges",
+        "Michael Keppler",
+        "Michael Montague",
+        "Michael Penkov",
+        "Michal Čadil",
+        "Morteza Salehi",
+        "Nathanael Law",
+        "Nguyễn Hào Khôi",
+        "Nick Cook",
+        "Niklas Laxström",
+        "Norbert Nagold",
+        "Ole Guldberg",
+        "Pcsl88",
+        "Petr Michalec",
+        "Piotr Kubowicz",
+        "Richard Colley",
+        "Roland Sieker",
+        "Samson Melamed",
+        "Silja Ijas",
+        "Snezana Lukic",
+        "Soren Bjornstad",
+        "Stefaan De Pooter",
+        "Susanna Björverud",
+        "Sylvain Durand",
+        "Tacutu",
+        "Timm Preetz",
+        "Timo Paulssen",
+        "Ursus",
+        "Victor Suba",
+        "Volker Jansen",
+        "Volodymyr Goncharenko",
+        "Xtru",
+        "Ádám Szegi",
+        "赵金鹏",
+        "黃文龍",
+))
+
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
- testing and design from:<p>%(cont)s") % {'cont': """Aaron Harsh, Ádám Szegi, Alex Fraser,
-Andreas Klauer, Andrew Wright, Aristotelis P., Bernhard Ibertsberger, C. van Rooyen, Charlene Barina,
-Christian Krause, Christian Rusche, David Smith, Dave Druelinger, Dmitry Mikheev, Dotan Cohen,
-Emilio Wuerges, Emmanuel Jarri, Frank Harper, Gregor Skumavc, H. Mijail, Guillem Palau Salvà, Henrik Enggaard Hansen,
-Houssam Salem, Ian Lewis, Immanuel Asmus, Iroiro, Jarvik7,
-Jin Eun-Deok, Jo Nakashima, Johanna Lindh, Joseph Lorimer, Julien Baley, Jussi Määttä, Kieran Clancy, LaC, Laurent Steffan,
-Luca Ban, Luciano Esposito, Marco Giancotti, Marcus Rubeus, Mari Egami, Michael Jürges, Mark Wilbur,
-Matthew Duggan, Matthew Holtz, Meelis Vasser, Michael Keppler, Michael
-Montague, Michael Penkov, Michal Čadil, Morteza Salehi, Nathanael Law, Nick Cook, Niklas
-Laxström, Nguyễn Hào Khôi, Norbert Nagold, Ole Guldberg,
-Pcsl88, Petr Michalec, Piotr Kubowicz, Richard Colley, Roland Sieker, Samson Melamed,
-Stefaan De Pooter, Silja Ijas, Snezana Lukic, Soren Bjornstad, Susanna Björverud, Sylvain Durand,
-Tacutu, Timm Preetz, Timo Paulssen, Ursus, Victor Suba, Volker Jansen,
-    Volodymyr Goncharenko, Xtru,  赵金鹏 and 黃文龍."""}
+    testing and design from:<p>%(cont)s") % {'cont': ", ".join(allusers)}
     abouttext += '<p>' + _("""\
 The icons were obtained from various sources; please see the Anki source
 for credits.""")
@@ -43,7 +125,7 @@ for credits.""")
 please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \
 suggestions, bug reports and donations.")
-    abt.label.setHtml(abouttext)
+    abt.label.stdHtml(abouttext, js=" ")
     dialog.adjustSize()
     dialog.show()
-    dialog.exec_()
+    return dialog

@@ -746,8 +746,7 @@ title="%s" %s>%s</button>''' % (
         aqt.models.Models(self, self, fromMain=True)
 
     def onAbout(self):
-        import aqt.about
-        aqt.about.show(self)
+        aqt.dialogs.open("About", self)
 
     def onDonate(self):
         openLink(aqt.appDonate)
