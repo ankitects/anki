@@ -27,7 +27,12 @@ class ErrorHandler(QObject):
         self.timer = None
         self.errorTimer.connect(self._setTimer)
         self.pool = ""
+        self._oldstderr = sys.stderr
         sys.stderr = self
+
+    def unload(self):
+        sys.stderr = self._oldstderr
+        sys.excepthook = None
 
     def write(self, data):
         # dump to stdout

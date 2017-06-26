@@ -249,6 +249,8 @@ To import into a password protected profile, please open the profile before atte
         self.hide()
         if browser:
             self.showProfileManager()
+        else:
+            self.errorHandler.unload()
 
     # Collection load/unload
     ##########################################################################
