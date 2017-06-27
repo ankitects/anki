@@ -7,6 +7,14 @@ import re, os, sys, urllib.request, urllib.parse, urllib.error, subprocess
 import aqt
 from anki.sound import stripSounds
 from anki.utils import isWin, isMac, invalidFilename
+from contextlib import contextmanager
+
+@contextmanager
+def noBundledLibs():
+    oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
+    yield
+    if oldlpath is not None:
+        os.environ["LD_LIBRARY_PATH"] = oldlpath
 
 def openHelp(section):
     link = aqt.appHelpSite
@@ -16,7 +24,8 @@ def openHelp(section):
 
 def openLink(link):
     tooltip(_("Loading..."), period=1000)
-    QDesktopServices.openUrl(QUrl(link))
+    with noBundledLibs():
+        QDesktopServices.openUrl(QUrl(link))
 
 def showWarning(text, parent=None, help="", title="Anki"):
     "Show a small warning with an OK button."
@@ -351,10 +360,8 @@ def openFolder(path):
     if isWin:
         subprocess.Popen(["explorer", "file://"+path])
     else:
-        oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
-        QDesktopServices.openUrl(QUrl("file://" + path))
-        if oldlpath:
-            os.environ["LD_LIBRARY_PATH"] = oldlpath
+        with noBundledLibs():
+            QDesktopServices.openUrl(QUrl("file://" + path))
 
 def shortcut(key):
     if isMac:
