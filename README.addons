@@ -1,10 +1,6 @@
 Porting add-ons to Anki 2.1
 ---------------------------
 
-2.1 is still in alpha and prone to change, so you may wish to wait until it
-hits beta before starting to update add-ons. But if you'd like to dive in
-straight away, here are some tips on porting.
-
 Python 3
 ---------
 
@@ -47,8 +43,11 @@ import, but an easier way is to import from aqt.qt - eg "from aqt.qt import *"
 
 The most difficult part is the change from the unsupported QtWebKit to
 QtWebEngine. If you do any non-trivial work with webviews, some work will be
-required to port your code to Anki 2.1, and you may find it not worth the effort
-of maintaining compatibility with 2.0.
+required to port your code to Anki 2.1, as described in the next section.
+
+If you find that non-trivial changes are required to get your add-on working
+with Anki 2.1, the easiest option is to drop support for older Anki versions.
+Please see the 'sharing updated add-ons' section below for more information.
 
 Webview changes
 ----------------
@@ -56,6 +55,9 @@ Webview changes
 Qt 5 has dropped WebKit in favour of the Chromium-based WebEngine, so
 Anki's webviews are now using WebEngine. Of note:
 
+- You can now debug the webviews using an external Chrome instance, by setting
+  the env var QTWEBENGINE_REMOTE_DEBUGGING to 8080 prior to starting Anki,
+  then surfing to localhost:8080 in Chrome.
 - WebEngine uses a different method of communicating back to Python.
   AnkiWebView() is a wrapper for webviews which provides a pycmd(str) function in
   Javascript which will call the ankiwebview's onBridgeCmd(str) method. Various
@@ -68,13 +70,13 @@ Anki's webviews are now using WebEngine. Of note:
   call editor.saveNow() first and then run the rest of your code in the callback.
   Calls to .onSearch() will need to be changed to .search()/.onSearchActivated()
   as well. See the browser's .deleteNotes() for an example.
-- You can now debug the webviews using an external Chrome instance, by setting
-  the env var QTWEBENGINE_REMOTE_DEBUGGING to 8080 prior to starting Anki,
-  then surfing to localhost:8080 in Chrome.
 - Various operations that were supported by WebKit like setScrollPosition() now
 need to be implemented in javascript.
 - Page actions like mw.web.triggerPageAction(QWebEnginePage.Copy) are also
 asynchronous, and need to be rewritten to use javascript or a delay.
+- WebEngine doesn't provide a keyPressEvent() like WebKit did, so the code
+that catches shortcuts not attached to a menu or button has had to be changed.
+See the way reviewer.py calls setStateShortcuts() for an example.
 
 Add-ons without a top level file
 ---------------------------------
@@ -87,8 +89,10 @@ Sharing updated add-ons
 ------------------------
 
 If you've succeeded in making an add-on that supports both 2.0.x and 2.1.x at
-the same time, please feel free to upload it to the shared add-ons area. If
-you've decided to make a separate 2.1.x version, it's probably best to just
+the same time, please feel free to upload it to the shared add-ons area, and
+mention in the description that it works with both versions.
+
+If you've decided to make a separate 2.1.x version, it's probably best to just
 post a link to it in your current add-on description or upload it separately.
 When we get closer to a release I'll look into adding separate uploads for the
 two versions.
