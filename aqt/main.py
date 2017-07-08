@@ -1163,6 +1163,7 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     def gcWindow(self, obj):
         obj.deleteLater()
+        self.progress.timer(1000, self.doGC, False)
 
     def disableGC(self):
         gc.collect()
