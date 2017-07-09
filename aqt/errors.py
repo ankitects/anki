@@ -67,6 +67,8 @@ Anki manual for more information.""")
         self.mw.progress.clear()
         if "abortSchemaMod" in error:
             return
+        if "10013" in error:
+            return showWarning(_("Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."))
         if "Pyaudio not" in error:
             return showWarning(_("Please install PyAudio"))
         if "install mplayer" in error:
