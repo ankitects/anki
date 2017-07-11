@@ -900,7 +900,7 @@ to a cloze type first, via Edit>Change Note Type."""))
     def urlToLink(self, url):
         fname = self.urlToFile(url)
         if not fname:
-            return ""
+            return url
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname):
