@@ -310,8 +310,6 @@ var filterHTML = function(html) {
     var top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0];
     filterNode(top);
     var outHtml = top.innerHTML;
-    // get rid of nbsp
-    outHtml = outHtml.replace(/&nbsp;/ig, " ");
     //console.log(`input html: ${html}`);
     //console.log(`outpt html: ${outHtml}`);
     return outHtml;
@@ -1124,7 +1122,10 @@ class EditorWebView(AnkiWebView):
             return self.editor.urlToLink(txt)
 
         # normal text; convert it to HTML
-        return html.escape(txt)
+        txt = html.escape(txt)
+        txt = txt.replace("\n", "<br>")
+        txt = txt.replace(" ", "&nbsp;")
+        return txt
 
     def _processHtml(self, mime):
         if not mime.hasHtml():
