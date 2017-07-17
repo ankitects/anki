@@ -13,6 +13,14 @@ If you call wrap() with pos='around', the original function will not be called
 automatically but can be called with _old().
 """
 
+import functools
+
+try:
+    # optional: like functools.wraps, but signature-preserving
+    import decorator
+except ImportError:
+    decorator = None
+
 # Hooks
 ##############################################################################
 
@@ -59,4 +67,11 @@ def wrap(old, new, pos="after"):
             return old(*args, **kwargs)
         else:
             return new(_old=old, *args, **kwargs)
-    return repl
+
+    if decorator is None:
+        return functools.wraps(repl)
+
+    def decorator_wrapper(f, *args, **kwargs):
+        return repl(*args, **kwargs)
+
+    return decorator.decorator(decorator_wrapper)(old)
