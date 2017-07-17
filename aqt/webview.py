@@ -56,6 +56,8 @@ class AnkiWebPage(QWebEnginePage):
              dict(a=line, b=msg+"\n")))
 
     def acceptNavigationRequest(self, url, navType, isMainFrame):
+        if not isMainFrame:
+            return True
         # load all other links in browser
         openLink(url)
         return False
