@@ -333,14 +333,15 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     # Top buttons
     ######################################################################
 
-    def _drawButtons(self):
-        links = [
+    drawLinks = [
             ["", "shared", _("Get Shared")],
             ["", "create", _("Create Deck")],
-            ["Ctrl+I", "import", _("Import File")],
-        ]
+            ["Ctrl+I", "import", _("Import File")],  # Ctrl+I works from menu
+    ]
+
+    def _drawButtons(self):
         buf = ""
-        for b in links:
+        for b in drawLinks:
             if b[0]:
                 b[0] = _("Shortcut key: %s") % shortcut(b[0])
             buf += """
