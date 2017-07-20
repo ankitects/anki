@@ -135,6 +135,10 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             else:
                 args = tuple()
             self._qa = self.col._renderQA(data, *args)
+            if m.get("prewrap", False):
+                wsdiv = "<div style='white-space:pre-wrap;'>{}</div>"
+                self._qa['q'] = wsdiv.format(self._qa['q'])
+                self._qa['a'] = wsdiv.format(self._qa['a'])
         return self._qa
 
     def note(self, reload=False):

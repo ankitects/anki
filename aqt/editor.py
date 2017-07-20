@@ -61,6 +61,8 @@ background-image: -webkit-gradient(linear,  left top,  left bottom,
     border-bottom: 3px solid #000;
 }
 
+.prewrap { white-space: pre-wrap; }
+
 #fields { margin-top: 35px; }
 
 
@@ -69,6 +71,7 @@ background-image: -webkit-gradient(linear,  left top,  left bottom,
 var currentField = null;
 var changeTimer = null;
 var dropTarget = null;
+var prewrapMode = false;
 
 String.prototype.format = function() {
     var args = arguments;
@@ -93,12 +96,52 @@ function onKey() {
         currentField.blur();
         return;
     }
+    // catch enter key in prewrap mode
+    if (window.event.which == 13 && prewrapMode) {
+        window.event.preventDefault();
+        insertNewline();
+        return;
+    }
     clearChangeTimer();
     changeTimer = setTimeout(function () {
             updateButtonState();
             saveField("key");
     }, 600);
 };
+
+function insertNewline() {
+    if (!inPreEnvironment()) {
+        setFormat("insertText", "\\n");
+        return;        
+    }
+    
+    // in some cases inserting a newline will not show any changes,
+    // as a trailing newline at the end of a block does not render
+    // differently. so in such cases we note the height has not
+    // changed and insert an extra newline.
+
+    var r = window.getSelection().getRangeAt(0);
+    if (!r.collapsed) {
+        // delete any currently selected text first, making
+        // sure the delete is undoable
+        setFormat("delete");
+    }
+
+    var oldHeight = currentField.clientHeight;
+    setFormat("inserthtml", "\\n");
+    if (currentField.clientHeight == oldHeight) {
+        setFormat("inserthtml", "\\n");
+    }
+}
+
+// is the cursor in an environment that respects whitespace?
+function inPreEnvironment() {
+    var n = window.getSelection().anchorNode;
+    if (n.nodeType == 3) {
+        n = n.parentNode;
+    }
+    return window.getComputedStyle(n).whiteSpace.startsWith("pre");
+}
 
 function checkForEmptyField() {
     if (currentField.innerHTML == "") {
@@ -152,8 +195,6 @@ function onFocus(elem) {
     if (mouseDown) { return; }
     // do this twice so that there's no flicker on newer versions
     caretToEnd();
-    // need to do this in a timeout for older qt versions
-    setTimeout(function () { caretToEnd() }, 1);
     // scroll if bottom of element off the screen
     function pos(obj) {
     	var cur = 0;
@@ -251,7 +292,7 @@ function wrap(front, back) {
     }
 };
 
-function setFields(fields, focusTo) {
+function setFields(fields, focusTo, prewrap) {
     var txt = "";
     for (var i=0; i<fields.length; i++) {
         var n = fields[i][0];
@@ -274,6 +315,10 @@ function setFields(fields, focusTo) {
         $("#f"+focusTo).focus();
     }
     maybeDisableButtons();
+    prewrapMode = prewrap;
+    if (prewrap) {
+      $(".field").addClass("prewrap");
+    }
 };
 
 function setBackgrounds(cols) {
@@ -319,7 +364,7 @@ var allowedTags = {};
 
 var TAGS_WITHOUT_ATTRS = ["H1", "H2", "H3", "P", "DIV", "BR", "LI", "UL",
                           "OL", "B", "I", "U", "BLOCKQUOTE", "CODE", "EM",
-                          "STRONG", "PRE", "SUB", "SUP", "TABLE"];
+                          "STRONG", "PRE", "SUB", "SUP", "TABLE", "DD", "DT", "DL"];
 for (var i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
     allowedTags[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
 }
@@ -330,9 +375,41 @@ allowedTags["TD"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
 allowedTags["TH"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
 allowedTags["IMG"] = {"attrs": ["SRC"]};
 
+var blockRegex = /^(address|blockquote|br|center|div|dl|h[1-6]|hr|ol|p|pre|table|ul|dd|dt|li|tbody|td|tfoot|th|thead|tr)$/i;
+function isBlockLevel(n) {
+    return blockRegex.test(n.nodeName);
+};
+
+function isInlineElement(n) {
+    return n && !isBlockLevel(n);
+}
+
+function convertDivToNewline(node, isParagraph) {
+    var html = node.innerHTML;
+    if (isInlineElement(node.previousSibling) && html) {
+        html = "\\n" + html;
+    }
+    if (isInlineElement(node.nextSibling)) {
+        html += "\\n";
+    }
+    if (isParagraph) {
+        html += "\\n";
+    }
+    node.outerHTML = html;
+};
+
 var filterNode = function(node) {
-    // if it's a text node, nothing to do
+    // text node?
     if (node.nodeType == 3) {
+        if (prewrapMode) {
+            // collapse standard whitespace
+            var val = node.nodeValue.replace(/^[ \\r\\n\\t]+$/g, " ");
+
+            // non-breaking spaces can be represented as normal spaces
+            val = val.replace(/&nbsp;|\u00a0/g, " "); 
+
+            node.nodeValue = val; 
+        }
         return;
     }
 
@@ -353,8 +430,18 @@ var filterNode = function(node) {
 
     var tag = allowedTags[node.tagName];
     if (!tag) {
-        node.outerHTML = node.innerHTML;
-    } else {
+        if (!node.innerHTML) {
+            node.parentNode.removeChild(node);
+        } else {
+            node.outerHTML = node.innerHTML;
+        }
+    } else if (prewrapMode && node.tagName == "BR") {
+        node.outerHTML = "\\n";
+    } else if (prewrapMode && node.tagName == "DIV") {
+        convertBlockToNewline(node, false);
+    } else if (prewrapMode && node.tagName == "P") {
+        convertBlockToNewline(node, true);
+     } else {
         // allowed, filter out attributes
         var toRemove = [];
         for (var i = 0; i < node.attributes.length; i++) {
@@ -644,8 +731,8 @@ class Editor:
         data = []
         for fld, val in list(self.note.items()):
             data.append((fld, self.mw.col.media.escapeImages(val)))
-        self.web.eval("setFields(%s, %d);" % (
-            json.dumps(data), field))
+        self.web.eval("setFields(%s, %d, %s);" % (
+            json.dumps(data), field, json.dumps(self.prewrapMode())))
         self.web.eval("setFonts(%s);" % (
             json.dumps(self.fonts())))
         self.checkValid()
@@ -655,6 +742,8 @@ class Editor:
             self.web.setFocus()
             self.stealFocus = False
 
+    def prewrapMode(self):
+        return self.note.model().get('prewrap', False)
 
     def focus(self):
         self.web.setFocus()
@@ -962,9 +1051,10 @@ to a cloze type first, via Edit>Change Note Type."""))
             for node in doc(tag):
                 node.decompose()
 
-        # convert p tags to divs
-        for node in doc("p"):
-            node.name = "div"
+        if not self.prewrapMode():
+          # convert p tags to divs
+          for node in doc("p"):
+              node.name = "div"
 
         for tag in doc("img"):
             try:
@@ -1123,8 +1213,6 @@ class EditorWebView(AnkiWebView):
 
         # normal text; convert it to HTML
         txt = html.escape(txt)
-        txt = txt.replace("\n", "<br>")
-        txt = txt.replace(" ", "&nbsp;")
         return txt
 
     def _processHtml(self, mime):
