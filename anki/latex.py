@@ -7,15 +7,16 @@ from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
 
-# change this if latexCmds outputs alternate filetype
+# extension we output
 outputFileExt = "svg"
+# extensions of existing images we look for
+supportedExts = ["svg", "png"]
 
 # if you modify these in an add-on, you must make sure to take tmp.tex as the
 # input, and change outputFileExt to the output file extension
 latexCmds = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
-    ["dvisvgm", "--no-fonts", "tmp.dvi", "-o", "tmp.%s" % outputFileExt]
-#    ["dvipng", "-D", "600", "-T", "tight", "-bg", "Transparent", "tmp.dvi", "-o", "tmp.png"]
+    ["dvisvgm", "--no-fonts", "-Z", "2", "tmp.dvi", "-o", "tmp.%s" % outputFileExt]
 ]
 
 build = True # if off, use existing media but don't create new
@@ -54,18 +55,30 @@ def mungeQA(html, type, fields, model, data, col):
 def _imgLink(col, latex, model):
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
-    fname = "latex-%s.%s" % (checksum(txt.encode("utf8")), outputFileExt)
+
+    # is there an existing file?
+    fnamePrefix = "latex-%s." % checksum(txt.encode("utf8"))
+    found = False
+    for ext in supportedExts:
+        fname = fnamePrefix + ext
+        if os.path.exists(fname):
+            found = True
+            break
+    if not found:
+        fname = fnamePrefix + outputFileExt
     link = '<img class=latex src="%s">' % fname
-    if os.path.exists(fname):
+    if found:
         return link
-    elif not build:
+
+    # building disabled?
+    if not build:
         return "[latex]%s[/latex]" % latex
+
+    err = _buildImg(col, txt, fname, model)
+    if err:
+        return err
     else:
-        err = _buildImg(col, txt, fname, model)
-        if err:
-            return err
-        else:
-            return link
+        return link
 
 def _latexFromHtml(col, latex):
     "Convert entities and fix newlines."
@@ -98,7 +111,7 @@ package in the LaTeX header instead.""") % bad
     texfile.close()
     mdir = col.media.dir()
     oldcwd = os.getcwd()
-    png = namedtmp("tmp.%s", outputFileExt)
+    png = namedtmp("tmp.%s" % outputFileExt)
     try:
         # generate png
         os.chdir(tmpdir())
