@@ -440,7 +440,7 @@ class Browser(QMainWindow):
         self.susCut1 = QShortcut(QKeySequence("Ctrl+J"), self)
         self.susCut1.activated.connect(self.onSuspend)
         # deletion
-        self.delCut1 = QShortcut(QKeySequence("Delete"), self)
+        self.delCut1 = QShortcut(QKeySequence("Ctrl+Delete"), self)
         self.delCut1.setAutoRepeat(False)
         self.delCut1.activated.connect(self.deleteNotes)
         # add-on hook
@@ -1807,7 +1807,7 @@ class BrowserToolbar(Toolbar):
                        shortcut(_("Bulk Add Tags (Ctrl+Shift+T)")))
         right += borderImg("deletetag", "deletetag16", _("Remove Tags"), shortcut(_(
                                "Bulk Remove Tags (Ctrl+Alt+T)")))
-        right += borderImg("delete", "delete16", _("Delete"))
+        right += borderImg("delete", "delete16", _("Delete"), shortcut(_("Ctrl+Delete")))
         right += "</div>"
         return self._body % right
 
