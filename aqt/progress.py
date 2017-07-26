@@ -126,10 +126,13 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
         self._max = max
         self._firstTime = time.time()
         self._lastUpdate = time.time()
+        self._updating = False
         return self._win
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
         #print self._min, self._counter, self._max, label, time.time() - self._lastTime
+        if self._updating:
+            return
         if maybeShow:
             self._maybeShow()
         elapsed = time.time() - self._lastUpdate
@@ -139,7 +142,9 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations.""")
             self._counter = value or (self._counter+1)
             self._win.setValue(self._counter)
         if process and elapsed >= 0.2:
+            self._updating = True
             self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+            self._updating = False
             self._lastUpdate = time.time()
 
     def finish(self):
