@@ -7,6 +7,21 @@ from http import HTTPStatus
 import http.server
 import errno
 
+# locate web folder in source/binary distribution
+def _getExportFolder():
+    # running from source?
+    srcFolder = os.path.join(os.path.dirname(__file__), "..")
+    webInSrcFolder = os.path.abspath(os.path.join(srcFolder, "web"))
+    if os.path.exists(webInSrcFolder):
+        return webInSrcFolder
+    elif isMac:
+        dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.abspath(dir + "/../../Resources/web")
+    else:
+      raise Exception("couldn't find web folder")
+
+_exportFolder = _getExportFolder()
+
 class MediaServer(QThread):
 
     def run(self):
@@ -44,6 +59,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def send_head(self):
         path = self.translate_path(self.path)
+        path = self._redirectWebExports(path)
         if os.path.isdir(path):
             self.send_error(HTTPStatus.NOT_FOUND, "File not found")
             return None
@@ -73,3 +89,11 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                          (self.address_string(),
                           self.log_date_time_string(),
                           format%args))
+
+    # catch /_anki references and rewrite them to web export folder
+    def _redirectWebExports(self, path):
+        targetPath = os.path.join(os.getcwd(), "_anki")
+        if path.startswith(targetPath):
+            newPath = os.path.join(_exportFolder, path[len(targetPath)+1:])
+            return newPath
+        return path
