@@ -12,11 +12,10 @@ class EditCurrent(QDialog):
 
     def __init__(self, mw):
         if isMac:
-            # use a separate window on os x so we can a clean menu
+            # use a separate window on os x so we can have a clean menu
             QDialog.__init__(self, None, Qt.Window)
         else:
             QDialog.__init__(self, mw)
-        QDialog.__init__(self, None, Qt.Window)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
