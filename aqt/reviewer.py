@@ -121,6 +121,19 @@ class Reviewer:
     _revHtml = """
 <img src="qrc:/icons/rating.png" id=star class=marked>
 <div id=qa></div>
+﻿<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX","output/CommonHTML"],
+  extensions: ["tex2jax.js"],
+  TeX: {
+    extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+  },
+  messageStyle: "none",
+  skipStartupTypeset: true,
+  showMathMenu: false
+});
+</script>
+<script type="text/javascript" src="_anki/mathjax/MathJax.js"></script>
 <script>
 var ankiPlatform = "desktop";
 var typeans;
@@ -141,6 +154,7 @@ function _updateQA (q, answerMode, klass) {
     }
     // don't allow drags of images, which cause them to be deleted
     $("img").attr("draggable", false);
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 };
 
 function _toggleStar (show) {
