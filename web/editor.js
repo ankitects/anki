@@ -12,23 +12,23 @@ String.prototype.format = function () {
 
 function setFGButton(col) {
     $("#forecolor")[0].style.backgroundColor = col;
-};
+}
 
 function saveNow() {
     clearChangeTimer();
     if (currentField) {
         currentField.blur();
     }
-};
+}
 
 function onKey() {
     // esc clears focus, allowing dialog to close
-    if (window.event.which == 27) {
+    if (window.event.which === 27) {
         currentField.blur();
         return;
     }
     // catch enter key in prewrap mode
-    if (window.event.which == 13 && prewrapMode) {
+    if (window.event.which === 13 && prewrapMode) {
         window.event.preventDefault();
         insertNewline();
         return;
@@ -38,7 +38,7 @@ function onKey() {
         updateButtonState();
         saveField("key");
     }, 600);
-};
+}
 
 function insertNewline() {
     if (!inPreEnvironment()) {
@@ -60,7 +60,7 @@ function insertNewline() {
 
     var oldHeight = currentField.clientHeight;
     setFormat("inserthtml", "\\n");
-    if (currentField.clientHeight == oldHeight) {
+    if (currentField.clientHeight === oldHeight) {
         setFormat("inserthtml", "\\n");
     }
 }
@@ -68,17 +68,17 @@ function insertNewline() {
 // is the cursor in an environment that respects whitespace?
 function inPreEnvironment() {
     var n = window.getSelection().anchorNode;
-    if (n.nodeType == 3) {
+    if (n.nodeType === 3) {
         n = n.parentNode;
     }
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
 }
 
 function checkForEmptyField() {
-    if (currentField.innerHTML == "") {
+    if (currentField.innerHTML === "") {
         currentField.innerHTML = "<br>";
     }
-};
+}
 
 function updateButtonState() {
     var buts = ["bold", "italic", "underline", "superscript", "subscript"];
@@ -93,7 +93,7 @@ function updateButtonState() {
 
     // fixme: forecolor
 //    'col': document.queryCommandValue("forecolor")
-};
+}
 
 function toggleEditorButton(buttonid) {
     if ($(buttonid).hasClass("highlighted")) {
@@ -101,7 +101,7 @@ function toggleEditorButton(buttonid) {
     } else {
         $(buttonid).addClass("highlighted");
     }
-};
+}
 
 function setFormat(cmd, arg, nosave) {
     document.execCommand(cmd, false, arg);
@@ -109,14 +109,14 @@ function setFormat(cmd, arg, nosave) {
         saveField('key');
         updateButtonState();
     }
-};
+}
 
 function clearChangeTimer() {
     if (changeTimer) {
         clearTimeout(changeTimer);
         changeTimer = null;
     }
-};
+}
 
 function onFocus(elem) {
     currentField = elem;
@@ -160,13 +160,13 @@ function onPaste(elem) {
 }
 
 function caretToEnd() {
-    var r = document.createRange()
+    var r = document.createRange();
     r.selectNodeContents(currentField);
     r.collapse(false);
     var s = document.getSelection();
     s.removeAllRanges();
     s.addRange(r);
-};
+}
 
 function onBlur() {
     if (currentField) {
@@ -174,7 +174,7 @@ function onBlur() {
     }
     clearChangeTimer();
     disableButtons();
-};
+}
 
 function saveField(type) {
     if (!currentField) {
@@ -184,39 +184,39 @@ function saveField(type) {
     // type is either 'blur' or 'key'
     pycmd(type + ":" + currentField.innerHTML);
     clearChangeTimer();
-};
+}
 
 function wrappedExceptForWhitespace(text, front, back) {
     var match = text.match(/^(\s*)([^]*?)(\s*)$/);
     return match[1] + front + match[2] + back + match[3];
-};
+}
 
 function disableButtons() {
     $("button.linkb").prop("disabled", true);
-};
+}
 
 function enableButtons() {
     $("button.linkb").prop("disabled", false);
-};
+}
 
 // disable the buttons if a field is not currently focused
 function maybeDisableButtons() {
-    if (!document.activeElement || document.activeElement.className != "field") {
+    if (!document.activeElement || document.activeElement.className !== "field") {
         disableButtons();
     } else {
         enableButtons();
     }
-};
+}
 
 function wrap(front, back) {
-    if (currentField.dir == "rtl") {
+    if (currentField.dir === "rtl") {
         front = "&#8235;" + front + "&#8236;";
         back = "&#8235;" + back + "&#8236;";
     }
     var s = window.getSelection();
     var r = s.getRangeAt(0);
     var content = r.cloneContents();
-    var span = document.createElement("span")
+    var span = document.createElement("span");
     span.appendChild(content);
     var new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
     setFormat("inserthtml", new_);
@@ -228,7 +228,7 @@ function wrap(front, back) {
         s.removeAllRanges();
         s.addRange(r);
     }
-};
+}
 
 function setFields(fields, focusTo, prewrap) {
     var txt = "";
@@ -257,7 +257,7 @@ function setFields(fields, focusTo, prewrap) {
     if (prewrap) {
         $(".field").addClass("prewrap");
     }
-};
+}
 
 function setBackgrounds(cols) {
     for (var i = 0; i < cols.length; i++) {
@@ -267,9 +267,10 @@ function setBackgrounds(cols) {
 
 function setFonts(fonts) {
     for (var i = 0; i < fonts.length; i++) {
-        $("#f" + i).css("font-family", fonts[i][0]);
-        $("#f" + i).css("font-size", fonts[i][1]);
-        $("#f" + i)[0].dir = fonts[i][2] ? "rtl" : "ltr";
+        var n = $("#f" + i);
+        n.css("font-family", fonts[i][0])
+         .css("font-size", fonts[i][1]);
+        n[0].dir = fonts[i][2] ? "rtl" : "ltr";
     }
 }
 
@@ -316,7 +317,7 @@ allowedTags["IMG"] = {"attrs": ["SRC"]};
 var blockRegex = /^(address|blockquote|br|center|div|dl|h[1-6]|hr|ol|p|pre|table|ul|dd|dt|li|tbody|td|tfoot|th|thead|tr)$/i;
 function isBlockLevel(n) {
     return blockRegex.test(n.nodeName);
-};
+}
 
 function isInlineElement(n) {
     return n && !isBlockLevel(n);
@@ -334,11 +335,11 @@ function convertDivToNewline(node, isParagraph) {
         html += "\\n";
     }
     node.outerHTML = html;
-};
+}
 
 var filterNode = function (node) {
     // text node?
-    if (node.nodeType == 3) {
+    if (node.nodeType === 3) {
         if (prewrapMode) {
             // collapse standard whitespace
             var val = node.nodeValue.replace(/^[ \\r\\n\\t]+$/g, " ");
@@ -355,14 +356,15 @@ var filterNode = function (node) {
     // elements due to node modifications otherwise
 
     var nodes = [];
-    for (var i = 0; i < node.childNodes.length; i++) {
+    var i;
+    for (i = 0; i < node.childNodes.length; i++) {
         nodes.push(node.childNodes[i]);
     }
-    for (var i = 0; i < nodes.length; i++) {
+    for (i = 0; i < nodes.length; i++) {
         filterNode(nodes[i]);
     }
 
-    if (node.tagName == "ANKITOP") {
+    if (node.tagName === "ANKITOP") {
         return;
     }
 
@@ -373,23 +375,23 @@ var filterNode = function (node) {
         } else {
             node.outerHTML = node.innerHTML;
         }
-    } else if (prewrapMode && node.tagName == "BR") {
+    } else if (prewrapMode && node.tagName === "BR") {
         node.outerHTML = "\\n";
-    } else if (prewrapMode && node.tagName == "DIV") {
+    } else if (prewrapMode && node.tagName === "DIV") {
         convertBlockToNewline(node, false);
-    } else if (prewrapMode && node.tagName == "P") {
+    } else if (prewrapMode && node.tagName === "P") {
         convertBlockToNewline(node, true);
     } else {
         // allowed, filter out attributes
         var toRemove = [];
-        for (var i = 0; i < node.attributes.length; i++) {
+        for (i = 0; i < node.attributes.length; i++) {
             var attr = node.attributes[i];
             var attrName = attr.name.toUpperCase();
-            if (tag.attrs.indexOf(attrName) == -1) {
+            if (tag.attrs.indexOf(attrName) === -1) {
                 toRemove.push(attr);
             }
         }
-        for (var i = 0; i < toRemove.length; i++) {
+        for (i = 0; i < toRemove.length; i++) {
             node.removeAttributeNode(toRemove[i]);
         }
     }
@@ -400,25 +402,25 @@ var mouseDown = 0;
 $(function () {
     document.body.onmousedown = function () {
         mouseDown++;
-    }
+    };
 
     document.body.onmouseup = function () {
         mouseDown--;
-    }
+    };
 
     document.onclick = function (evt) {
         var src = window.event.srcElement;
-        if (src.tagName == "IMG") {
+        if (src.tagName === "IMG") {
             // image clicked; find contenteditable parent
             var p = src;
             while (p = p.parentNode) {
-                if (p.className == "field") {
+                if (p.className === "field") {
                     $("#" + p.id).focus();
                     break;
                 }
             }
         }
-    }
+    };
 
     // prevent editor buttons from taking focus
     $("button.linkb").on("mousedown", function (e) {

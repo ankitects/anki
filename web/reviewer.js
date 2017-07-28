@@ -20,7 +20,7 @@ function _updateQA(q, answerMode, klass) {
     // don't allow drags of images, which cause them to be deleted
     $("img").attr("draggable", false);
     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-};
+}
 
 function _toggleStar(show) {
     if (show) {

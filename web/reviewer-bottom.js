@@ -11,8 +11,9 @@ $(function () {
 });
 
 var updateTime = function () {
+    var timeNode = $("#time");
     if (!maxTime) {
-        $("#time").text("");
+        timeNode.text("");
         return;
     }
     time = Math.min(maxTime, time);
@@ -21,13 +22,12 @@ var updateTime = function () {
     if (s < 10) {
         s = "0" + s;
     }
-    var e = $("#time");
-    if (maxTime == time) {
-        e.html("<font color=red>" + m + ":" + s + "</font>");
+    if (maxTime === time) {
+        timeNode.html("<font color=red>" + m + ":" + s + "</font>");
     } else {
-        e.text(m + ":" + s);
+        timeNode.text(m + ":" + s);
     }
-}
+};
 
 function showQuestion(txt, maxTime_) {
     // much faster than jquery's .html()
