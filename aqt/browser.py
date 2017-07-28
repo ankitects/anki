@@ -1120,10 +1120,13 @@ where id in %s""" % ids2str(sf))
         txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
         ti = lambda x: x
         base = self.mw.baseHTML()
+        jsinc = ["jquery.js","browsersel.js",
+                 "mathjax/conf.js", "mathjax/MathJax.js",
+                 "mathjax/queue-typeset.js"]
         self._previewWeb.stdHtml(
             ti(mungeQA(self.col, txt)), self.mw.reviewer._styles(),
             bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
+            js=jsinc)
         clearAudioQueue()
         if self.mw.reviewer.autoplay(c):
             playFromText(txt)

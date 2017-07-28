@@ -79,5 +79,6 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.stdHtml("<html><body>"+self.report+"</body></html>")
+        self.form.web.stdHtml("<html><body>"+self.report+"</body></html>",
+                              js=["jquery.js", "plot.js"])
         self.mw.progress.finish()

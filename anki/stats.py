@@ -6,7 +6,6 @@ import time
 import datetime
 import json
 
-import anki.js
 from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
 
@@ -108,6 +107,7 @@ class CollectionStats:
         self.height = 200
         self.wholeCollection = False
 
+    # assumes jquery & plot are available in document
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         self.type = type
@@ -122,8 +122,7 @@ class CollectionStats:
         txt += self._section(self.easeGraph())
         txt += self._section(self.cardGraph())
         txt += self._section(self.footer())
-        return "<script>%s\n</script><center>%s</center>" % (
-            anki.js.jquery+anki.js.plot, txt)
+        return "<center>%s</center>" % txt
 
     def _section(self, txt):
         return "<div class=section>%s</div>" % txt

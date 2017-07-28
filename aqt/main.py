@@ -66,6 +66,7 @@ class AnkiQt(QMainWindow):
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
+        self.setupMediaServer()
         self.setupMainWindow()
         self.setupSystemSpecific()
         self.setupStyle()
@@ -77,7 +78,6 @@ class AnkiQt(QMainWindow):
         self.setupHooks()
         self.setupRefreshTimer()
         self.updateTitleBar()
-        self.setupMediaServer()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()

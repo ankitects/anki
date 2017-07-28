@@ -121,56 +121,6 @@ class Reviewer:
     _revHtml = """
 <img src="qrc:/icons/rating.png" id=star class=marked>
 <div id=qa></div>
-﻿<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  jax: ["input/TeX","output/CommonHTML"],
-  extensions: ["tex2jax.js"],
-  TeX: {
-    extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
-  },
-  messageStyle: "none",
-  skipStartupTypeset: true,
-  showMathMenu: false
-});
-</script>
-<script type="text/javascript" src="_anki/mathjax/MathJax.js"></script>
-<script>
-var ankiPlatform = "desktop";
-var typeans;
-function _updateQA (q, answerMode, klass) {
-    $("#qa").html(q);
-    typeans = document.getElementById("typeans");
-    if (typeans) {
-        typeans.focus();
-    }
-    if (answerMode) {
-        var e = $("#answer");
-        if (e[0]) { e[0].scrollIntoView(); }
-    } else {
-        window.scrollTo(0, 0);
-    }
-    if (klass) {
-        document.body.className = klass;
-    }
-    // don't allow drags of images, which cause them to be deleted
-    $("img").attr("draggable", false);
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-};
-
-function _toggleStar (show) {
-    if (show) {
-        $(".marked").show();
-    } else {
-        $(".marked").hide();
-    }
-}
-
-function _typeAnsPress() {
-    if (window.event.keyCode === 13) {
-        pycmd("ans");
-    }
-}
-</script>
 """
 
     def _initWeb(self):
@@ -179,13 +129,20 @@ function _typeAnsPress() {
         base = self.mw.baseHTML()
         # main window
         self.web.onLoadFinished = self._showQuestion
-        self.web.stdHtml(self._revHtml, self._styles(), head=base)
+        self.web.stdHtml(self._revHtml, self._styles(), head=base,
+                         js=["jquery.js",
+                             "browsersel.js",
+                             "mathjax/conf.js",
+                             "mathjax/MathJax.js",
+                             "reviewer.js"])
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.onLoadFinished = self._onBottomLoadFinished
         self.bottom.web.stdHtml(
             self._bottomHTML(),
-            self.bottom._css + self._bottomCSS)
+            self.bottom._css + self._bottomCSS,
+            js=["jquery.js", "reviewer-bottom.js"]
+        )
 
     # Showing the question
     ##########################################################################
@@ -573,46 +530,7 @@ padding: 3px;
 </table>
 </center>
 <script>
-var time = %(time)d;
-var maxTime = 0;
-$(function () {
-$("#ansbut").focus();
-updateTime();
-setInterval(function () { time += 1; updateTime() }, 1000);
-});
-
-var updateTime = function () {
-    if (!maxTime) {
-        $("#time").text("");
-        return;
-    }
-    time = Math.min(maxTime, time);
-    var m = Math.floor(time / 60);
-    var s = time %% 60;
-    if (s < 10) {
-        s = "0" + s;
-    }
-    var e = $("#time");
-    if (maxTime == time) {
-        e.html("<font color=red>" + m + ":" + s + "</font>");
-    } else {
-        e.text(m + ":" + s);
-    }
-}
-
-function showQuestion(txt, maxTime_) {
-  // much faster than jquery's .html()
-  $("#middle")[0].innerHTML = txt;
-  $("#ansbut").focus();
-  time = 0;
-  maxTime = maxTime_;
-}
-
-function showAnswer(txt) {
-  $("#middle")[0].innerHTML = txt;
-  $("#defease").focus();
-}
-
+time = %(time)d;
 </script>
 """ % dict(rem=self._remaining(), edit=_("Edit"),
            editkey=_("Shortcut key: %s") % "E",

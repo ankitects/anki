@@ -5,6 +5,7 @@
 from aqt.qt import *
 from http import HTTPStatus
 import http.server
+import socketserver
 import errno
 
 # locate web folder in source/binary distribution
@@ -22,6 +23,11 @@ def _getExportFolder():
 
 _exportFolder = _getExportFolder()
 
+# webengine on windows sometimes opens a connection and fails to send a request,
+# which will hang the server if unthreaded
+class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    pass
+
 class MediaServer(QThread):
 
     def run(self):
@@ -29,7 +35,7 @@ class MediaServer(QThread):
         self.server = None
         while not self.server:
             try:
-                self.server = http.server.HTTPServer(
+                self.server = ThreadedHTTPServer(
                         ("localhost", self.port), RequestHandler)
             except OSError as e:
                 if e.errno == errno.EADDRINUSE:

@@ -13,8 +13,6 @@ from aqt.utils import saveGeom, restoreGeom, mungeQA,\
      showWarning, openHelp, downArrow
 from anki.utils import isMac, isWin, joinFields
 from aqt.webview import AnkiWebView
-import anki.js
-
 
 class CardLayout(QDialog):
 
@@ -226,14 +224,17 @@ Please create a new card type first."""))
         c = self.card
         ti = self.maybeTextInput
         base = self.mw.baseHTML()
+        jsinc = ["jquery.js","browsersel.js",
+                 "mathjax/conf.js", "mathjax/MathJax.js",
+                 "mathjax/queue-typeset.js"]
         self.tab['pform'].frontWeb.setEnabled(False)
         self.tab['pform'].backWeb.setEnabled(False)
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.q(reload=True))), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base),
+            bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
         self.tab['pform'].backWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.a()), type='a'), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base),
+            bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
         self.tab['pform'].frontWeb.setEnabled(True)
         self.tab['pform'].backWeb.setEnabled(True)
         clearAudioQueue()

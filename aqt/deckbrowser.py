@@ -6,7 +6,6 @@ from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
     openHelp, downArrow
 from anki.utils import isMac, ids2str, fmtTimeSpan
-import anki.js
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
@@ -141,7 +140,7 @@ body { margin: 1em; -webkit-user-select: none; }
         stats = self._renderStats()
         self.web.stdHtml(self._body%dict(
             tree=tree, stats=stats, countwarn=self._countWarn()), css=css,
-                         js=anki.js.jquery+anki.js.ui)
+                         js=["jquery.js", "jquery-ui.js"])
         self.web.key = "deckBrowser"
         self._drawButtons()
 

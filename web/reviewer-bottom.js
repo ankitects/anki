@@ -1,0 +1,43 @@
+var time; // set in python code
+
+var maxTime = 0;
+$(function () {
+    $("#ansbut").focus();
+    updateTime();
+    setInterval(function () {
+        time += 1;
+        updateTime()
+    }, 1000);
+});
+
+var updateTime = function () {
+    if (!maxTime) {
+        $("#time").text("");
+        return;
+    }
+    time = Math.min(maxTime, time);
+    var m = Math.floor(time / 60);
+    var s = time % 60;
+    if (s < 10) {
+        s = "0" + s;
+    }
+    var e = $("#time");
+    if (maxTime == time) {
+        e.html("<font color=red>" + m + ":" + s + "</font>");
+    } else {
+        e.text(m + ":" + s);
+    }
+}
+
+function showQuestion(txt, maxTime_) {
+    // much faster than jquery's .html()
+    $("#middle")[0].innerHTML = txt;
+    $("#ansbut").focus();
+    time = 0;
+    maxTime = maxTime_;
+}
+
+function showAnswer(txt) {
+    $("#middle")[0].innerHTML = txt;
+    $("#defease").focus();
+}

@@ -7,7 +7,6 @@ from anki.hooks import runHook
 from aqt.qt import *
 from aqt.utils import openLink
 from anki.utils import isMac, isWin
-import anki.js
 
 # Page for debug messages
 ##########################################################################
@@ -151,7 +150,7 @@ class AnkiWebView(QWebEngineView):
         dpi = screen.logicalDpiX()
         return max(1, dpi / 96.0)
 
-    def stdHtml(self, body, css="", bodyClass="", js=None, head=""):
+    def stdHtml(self, body, css="", bodyClass="", js=["jquery.js"], head=""):
         if isWin:
             buttonspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
             fontspec = 'font-size:12px;font-family:"Segoe UI";'
@@ -167,6 +166,7 @@ border-radius:5px; font-family: Helvetica }"""
             family = self.font().family()
             fontspec = 'font-size:14px;font-family:%s;'%\
                 family
+        jstxt = "\n".join(self.bundledScript(fname) for fname in js)
 
         html="""
 <!doctype html>
@@ -174,9 +174,8 @@ border-radius:5px; font-family: Helvetica }"""
 body { zoom: %f; %s }
 %s
 %s</style>
-<script>
 %s
-
+<script>
 // prevent backspace key from going back a page
 document.addEventListener("keydown", function(evt) {
     if (evt.keyCode != 8) {
@@ -202,10 +201,20 @@ document.addEventListener("keydown", function(evt) {
             self.zoomFactor(),
             fontspec,
             buttonspec,
-            css, js or anki.js.jquery+anki.js.browserSel,
+            css, jstxt,
     head, bodyClass, body)
         #print(html)
         self.setHtml(html)
+
+    def webBundlePath(self, path):
+        from aqt import mw
+        return "http://localhost:%d/_anki/%s" % (mw.mediaServer.port, path)
+
+    def bundledScript(self, fname):
+        return '<script src="%s"></script>' % self.webBundlePath(fname)
+
+    def bundledCSS(self, fname):
+        return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(fname)
 
     def eval(self, js):
         self.page().runJavaScript(js)
