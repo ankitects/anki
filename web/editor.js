@@ -209,6 +209,10 @@ function maybeDisableButtons() {
 };
 
 function wrap(front, back) {
+    if (currentField.dir == "rtl") {
+        front = "&#8235;" + front + "&#8236;";
+        back = "&#8235;" + back + "&#8236;";
+    }
     var s = window.getSelection();
     var r = s.getRangeAt(0);
     var content = r.cloneContents();
