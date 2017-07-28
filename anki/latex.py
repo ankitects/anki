@@ -7,16 +7,14 @@ from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
 
-# extension we output
-outputFileExt = "svg"
-# extensions of existing images we look for
-supportedExts = ["svg", "png"]
-
-# if you modify these in an add-on, you must make sure to take tmp.tex as the
-# input, and change outputFileExt to the output file extension
-latexCmds = [
+pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
-    ["dvisvgm", "--no-fonts", "-Z", "2", "tmp.dvi", "-o", "tmp.%s" % outputFileExt]
+    ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"]
+]
+
+svgCommands = [
+    ["latex", "-interaction=nonstopmode", "tmp.tex"],
+    ["dvisvgm", "--no-fonts", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"]
 ]
 
 build = True # if off, use existing media but don't create new
@@ -56,18 +54,15 @@ def _imgLink(col, latex, model):
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
 
+    if model.get("latexsvg", False):
+        ext = "svg"
+    else:
+        ext = "png"
+
     # is there an existing file?
-    fnamePrefix = "latex-%s." % checksum(txt.encode("utf8"))
-    found = False
-    for ext in supportedExts:
-        fname = fnamePrefix + ext
-        if os.path.exists(fname):
-            found = True
-            break
-    if not found:
-        fname = fnamePrefix + outputFileExt
+    fname = "latex-%s.%s" % (checksum(txt.encode("utf8")), ext)
     link = '<img class=latex src="%s">' % fname
-    if found:
+    if os.path.exists(fname):
         return link
 
     # building disabled?
@@ -103,6 +98,15 @@ def _buildImg(col, latex, fname, model):
 For security reasons, '%s' is not allowed on cards. You can still use \
 it by placing the command in a different package, and importing that \
 package in the LaTeX header instead.""") % bad
+
+    # commands to use?
+    if model.get("latexsvg", False):
+        latexCmds = svgCommands
+        ext = "svg"
+    else:
+        latexCmds = pngCommands
+        ext = "png"
+
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
     texpath = namedtmp("tmp.tex")
@@ -111,7 +115,7 @@ package in the LaTeX header instead.""") % bad
     texfile.close()
     mdir = col.media.dir()
     oldcwd = os.getcwd()
-    png = namedtmp("tmp.%s" % outputFileExt)
+    png = namedtmp("tmp.%s" % ext)
     try:
         # generate png
         os.chdir(tmpdir())
@@ -133,7 +137,7 @@ def _errMsg(type, texpath):
             raise Exception()
         msg += "<small><pre>" + cgi.escape(log) + "</pre></small>"
     except:
-        msg += _("Have you installed latex and dvipng?")
+        msg += _("Have you installed latex and dvipng/dvisvgm?")
         pass
     return msg
 
