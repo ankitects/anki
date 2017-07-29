@@ -230,10 +230,12 @@ Please create a new card type first."""))
         self.tab['pform'].frontWeb.setEnabled(False)
         self.tab['pform'].backWeb.setEnabled(False)
         self.tab['pform'].frontWeb.stdHtml(
-            ti(mungeQA(self.mw.col, c.q(reload=True))), self.mw.reviewer._styles(),
+            ti(mungeQA(self.mw.col, c.q(reload=True)))+
+            self.tab['pform'].frontWeb.bundledCSS("reviewer.css"),
             bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
         self.tab['pform'].backWeb.stdHtml(
-            ti(mungeQA(self.mw.col, c.a()), type='a'), self.mw.reviewer._styles(),
+            ti(mungeQA(self.mw.col, c.a()), type='a')+
+            self.tab['pform'].backWeb.bundledCSS("reviewer.css"),
             bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
         self.tab['pform'].frontWeb.setEnabled(True)
         self.tab['pform'].backWeb.setEnabled(True)

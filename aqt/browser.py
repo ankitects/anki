@@ -1124,7 +1124,7 @@ where id in %s""" % ids2str(sf))
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "mathjax/queue-typeset.js"]
         self._previewWeb.stdHtml(
-            ti(mungeQA(self.col, txt)), self.mw.reviewer._styles(),
+            ti(mungeQA(self.col, txt))+self._previewWeb.bundledCSS("reviewer.css"),
             bodyClass="card card%d" % (c.ord+1), head=base,
             js=jsinc)
         clearAudioQueue()

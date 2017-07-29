@@ -120,7 +120,8 @@ class Reviewer:
 
     _revHtml = """
 <img src="qrc:/icons/rating.png" id=star class=marked>
-<div id=qa></div>
+<div id=qa><div class=qaelem id=_question></div><div class=qaelem id=_answer1>\
+</div><div class=qaelem id=_answer2></div></div>
 """
 
     def _initWeb(self):
@@ -129,7 +130,8 @@ class Reviewer:
         base = self.mw.baseHTML()
         # main window
         self.web.onLoadFinished = self._showQuestion
-        self.web.stdHtml(self._revHtml, self._styles(), head=base,
+        self.web.stdHtml(self._revHtml +
+                         self.web.bundledCSS("reviewer.css"), head=base,
                          js=["jquery.js",
                              "browsersel.js",
                              "mathjax/conf.js",
@@ -159,15 +161,19 @@ class Reviewer:
         if c.isEmpty():
             q = _("""\
 The front of this card is empty. Please run Tools>Empty Cards.""")
+            a = ""
         else:
             q = c.q()
+            a = c.a()
         if self.autoplay(c):
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        q += self._hiddenUpcomingImages()
-        klass = "card card%d" % (c.ord+1)
-        self.web.eval("_updateQA(%s, false, '%s');" % (json.dumps(q), klass))
+        a = self._mungeQA(a)
+
+        bodyclass = "card card%d" % (c.ord+1)
+
+        self.web.eval("_showQuestion(%s, %s, '%s');" % (json.dumps(q), json.dumps(a), bodyclass))
         self._toggleStar()
         if self._bottomReady:
             self._showAnswerButton()
@@ -204,8 +210,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.autoplay(c):
             playFromText(a)
         # render and update bottom
-        a = self._mungeQA(a)
-        self.web.eval("_updateQA(%s, true);" % json.dumps(a))
+        self.web.eval("_showAnswer(%s);" % json.dumps(''))
         self._showEaseButtons()
         # user hook
         runHook('showAnswer')
@@ -226,37 +231,6 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
         self.nextCard()
-
-    # Image preloading
-    ##########################################################################
-
-    def _hiddenUpcomingImages(self):
-        return "<div style='display:none;'>"+self._upcomingImages()+"</div>"
-
-    def _upcomingImages(self):
-        # grab the top cards in each queue
-        s = self.mw.col.sched
-        cids = []
-        cids.append(s._lrnQueue and s._lrnQueue[0][1])
-        cids.append(s._revQueue and s._revQueue[0])
-        cids.append(s._newQueue and s._newQueue[0])
-
-        # gather their content
-        qa = []
-        for cid in cids:
-            if not cid:
-                continue
-            c = self.mw.col.getCard(cid)
-            qa.append(c.q())
-            qa.append(c.a())
-
-        # pluck image links out
-        qa = "".join(qa)
-        links = []
-        for regex in self.mw.col.media.imgRegexps:
-            links.extend(re.findall(regex, qa))
-
-        return "".join([x[0] for x in links])
 
     # Handlers
     ############################################################
@@ -301,23 +275,6 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             self.showContextMenu()
         else:
             print("unrecognized anki link:", url)
-
-    # CSS
-    ##########################################################################
-
-    _css = """
-hr { background-color:#ccc; margin: 1em; }
-body { margin:1.5em; }
-img { max-width: 95%; max-height: 95%; }
-.marked { position:fixed; right: 7px; top: 7px; display: none; }
-#typeans { width: 100%; }
-.typeGood { background: #0f0; }
-.typeBad { background: #f00; }
-.typeMissed { background: #ccc; }
-"""
-
-    def _styles(self):
-        return self._css
 
     # Type in the answer
     ##########################################################################
