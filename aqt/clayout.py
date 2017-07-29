@@ -358,6 +358,8 @@ adjust the template manually to switch the question and answer."""))
         t = self.card.template()
         f.qfmt.setText(t.get('bqfmt', ""))
         f.afmt.setText(t.get('bafmt', ""))
+        if t.get("bfont"):
+            f.overrideFont.setChecked(True)
         f.font.setCurrentFont(QFont(t.get('bfont', "Arial")))
         f.fontSize.setValue(t.get('bsize', 12))
         f.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(f))
@@ -367,8 +369,12 @@ adjust the template manually to switch the question and answer."""))
         t = self.card.template()
         t['bqfmt'] = f.qfmt.text().strip()
         t['bafmt'] = f.afmt.text().strip()
-        t['bfont'] = f.font.currentFont().family()
-        t['bsize'] = f.fontSize.value()
+        if f.overrideFont.isChecked():
+            t['bfont'] = f.font.currentFont().family()
+            t['bsize'] = f.fontSize.value()
+        else:
+            del t['bfont']
+            del t['bsize']
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
