@@ -77,13 +77,16 @@ class DataModel(QAbstractTableModel):
             if self.activeCols[index.column()] not in (
                 "question", "answer", "noteFld"):
                 return
-            f = QFont()
             row = index.row()
             c = self.getCard(index)
             t = c.template()
+            if not t.get("bfont"):
+                return
+            f = QFont()
             f.setFamily(t.get("bfont", "arial"))
             f.setPixelSize(t.get("bsize", 12))
             return f
+
         elif role == Qt.TextAlignmentRole:
             align = Qt.AlignVCenter
             if self.activeCols[index.column()] not in ("question", "answer",
