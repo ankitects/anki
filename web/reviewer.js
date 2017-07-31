@@ -38,15 +38,16 @@ function _showQuestion(q, a, bodyclass) {
         _makeHidden($("#"+currentAns));
         // and reveal question when processing is done
         MathJax.Hub.Queue(function () {
-            $("#_question").css("visibility", "visible").fadeTo(fadeTime, 1);
+            $("#_question").css("visibility", "visible").fadeTo(
+                fadeTime, 1, function () {
+                    // focus typing area if visible
+                    typeans = document.getElementById("typeans");
+                    if (typeans) {
+                        typeans.focus();
+                    }
+                });
         });
     });
-
-    // focus typing area if visible
-    typeans = document.getElementById("typeans");
-    if (typeans) {
-        typeans.focus();
-    }
 
     // return to top of window
     window.scrollTo(0, 0);
