@@ -143,7 +143,9 @@ class ButtonedDialog(QMessageBox):
         if but == "Help":
             # FIXME stop dialog closing?
             openHelp(self.help)
-        return self.clickedButton().text()
+        txt = self.clickedButton().text()
+        # work around KDE 'helpfully' adding accelerators to button text of Qt apps
+        return txt.replace("&", "")
 
     def setDefault(self, idx):
         self.setDefaultButton(self.buttons[idx])
