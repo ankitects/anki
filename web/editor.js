@@ -42,7 +42,7 @@ function onKey() {
 
 function insertNewline() {
     if (!inPreEnvironment()) {
-        setFormat("insertText", "\\n");
+        setFormat("insertText", "\n");
         return;
     }
 
@@ -59,9 +59,9 @@ function insertNewline() {
     }
 
     var oldHeight = currentField.clientHeight;
-    setFormat("inserthtml", "\\n");
+    setFormat("inserthtml", "\n");
     if (currentField.clientHeight === oldHeight) {
-        setFormat("inserthtml", "\\n");
+        setFormat("inserthtml", "\n");
     }
 }
 
@@ -326,13 +326,13 @@ function isInlineElement(n) {
 function convertDivToNewline(node, isParagraph) {
     var html = node.innerHTML;
     if (isInlineElement(node.previousSibling) && html) {
-        html = "\\n" + html;
+        html = "\n" + html;
     }
     if (isInlineElement(node.nextSibling)) {
-        html += "\\n";
+        html += "\n";
     }
     if (isParagraph) {
-        html += "\\n";
+        html += "\n";
     }
     node.outerHTML = html;
 }
@@ -342,7 +342,7 @@ var filterNode = function (node) {
     if (node.nodeType === 3) {
         if (prewrapMode) {
             // collapse standard whitespace
-            var val = node.nodeValue.replace(/^[ \\r\\n\\t]+$/g, " ");
+            var val = node.nodeValue.replace(/^[ \r\n\t]+$/g, " ");
 
             // non-breaking spaces can be represented as normal spaces
             val = val.replace(/&nbsp;|\u00a0/g, " ");
@@ -376,7 +376,7 @@ var filterNode = function (node) {
             node.outerHTML = node.innerHTML;
         }
     } else if (prewrapMode && node.tagName === "BR") {
-        node.outerHTML = "\\n";
+        node.outerHTML = "\n";
     } else if (prewrapMode && node.tagName === "DIV") {
         convertBlockToNewline(node, false);
     } else if (prewrapMode && node.tagName === "P") {
