@@ -173,7 +173,8 @@ border-radius:5px; font-family: Helvetica }"""
             family = self.font().family()
             fontspec = 'font-size:14px;font-family:%s;'%\
                 family
-        jstxt = "\n".join(self.bundledScript(fname) for fname in js)
+        jstxt = "\n".join([self.bundledScript("webview.js")]+
+                          [self.bundledScript(fname) for fname in js])
 
         html="""
 <!doctype html>
@@ -182,24 +183,6 @@ body { zoom: %f; %s }
 %s
 %s</style>
 %s
-<script>
-// prevent backspace key from going back a page
-document.addEventListener("keydown", function(evt) {
-    if (evt.keyCode != 8) {
-        return;
-    }
-    var isText = 0;
-    var nn = evt.target.nodeName;
-    if (nn == "INPUT" || nn == "TEXTAREA") {
-        isText = 1;
-    } else if (nn == "DIV" && evt.target.contentEditable) {
-        isText = 1;
-    }
-    if (!isText) {
-        evt.preventDefault();
-    }
-});
-</script>
 %s
 
 </head>
