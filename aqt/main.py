@@ -477,10 +477,10 @@ the manual for information on how to restore from an automatic backup."))
 <div style="position:relative; vertical-align: middle;">
 %s<br>
 %s</div></div></center>
+<script>$('#resume').focus()</script>
 """ % (i, b), css=self.sharedCSS)
         self.bottomWeb.hide()
         self.web.setFocus()
-        self.web.eval("$('#resume').focus()")
 
     # HTML helpers
     ##########################################################################
