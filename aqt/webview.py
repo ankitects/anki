@@ -6,7 +6,7 @@ import sys
 from anki.hooks import runHook
 from aqt.qt import *
 from aqt.utils import openLink
-from anki.utils import isMac, isWin
+from anki.utils import isMac, isWin, devMode
 
 # Page for debug messages
 ##########################################################################
@@ -74,7 +74,7 @@ class AnkiWebView(QWebEngineView):
         self.title = "default"
         self._page = AnkiWebPage(self._onBridgeCmd)
 
-        self._loadFinishedCB = None
+        self._domDone = True
         self.setPage(self._page)
 
         self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
@@ -138,8 +138,15 @@ class AnkiWebView(QWebEngineView):
         pass
 
     def setHtml(self, html):
+        if not self._domDone:
+            if devMode:
+                import traceback
+                print("ignoring setHtml() called before DOM ready")
+                print("caller was", traceback.format_stack()[-3])
+            return
         app = QApplication.instance()
         oldFocus = app.focusWidget()
+        self._domDone = False
         self._page.setHtml(html)
         # work around webengine stealing focus on setHtml()
         if oldFocus:
@@ -227,6 +234,7 @@ document.addEventListener("keydown", function(evt) {
 
     def _onBridgeCmd(self, cmd):
         if cmd == "domDone":
+            self._domDone = True
             self.onLoadFinished()
         else:
             self.onBridgeCmd(cmd)
