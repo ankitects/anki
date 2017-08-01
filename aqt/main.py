@@ -13,7 +13,8 @@ from threading import Thread
 from send2trash import send2trash
 from aqt.qt import *
 from anki import Collection
-from anki.utils import  isWin, isMac, intTime, splitFields, ids2str
+from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
+        devMode
 from anki.hooks import runHook, addHook
 import aqt
 import aqt.progress
@@ -207,8 +208,6 @@ Are you sure?""")):
         if self.pm.profile['mainWindowState']:
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
-        # toolbar needs to be retranslated
-        self.toolbar.draw()
         # titlebar
         self.setWindowTitle("Anki - " + self.pm.name)
         # show and raise window for osx
@@ -299,7 +298,7 @@ Debug info:
             except:
                 corrupt = True
             if not corrupt:
-                if os.getenv("ANKIDEV", 0):
+                if devMode:
                     corrupt = False
                 else:
                     corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
@@ -336,7 +335,7 @@ the manual for information on how to restore from an automatic backup."))
 
     def backup(self):
         nbacks = self.pm.profile['numBackups']
-        if not nbacks or os.getenv("ANKIDEV", 0):
+        if not nbacks or devMode:
             return
         dir = self.pm.backupFolder()
         path = self.pm.collectionPath()

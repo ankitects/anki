@@ -14,7 +14,7 @@ import traceback
 
 from anki.lang import _, ngettext
 from anki.utils import ids2str, fieldChecksum, stripHTML, \
-    intTime, splitFields, joinFields, maxID, json
+    intTime, splitFields, joinFields, maxID, json, devMode
 from anki.hooks import  runFilter, runHook
 from anki.sched import Scheduler
 from anki.models import ModelManager
@@ -834,7 +834,7 @@ and queue = 0""", intTime(), self.usn())
         buf = "[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
                                      ", ".join([customRepr(x) for x in args]))
         self._logHnd.write(buf + "\n")
-        if os.environ.get("ANKIDEV"):
+        if devMode:
             print(buf)
 
     def _openLog(self):

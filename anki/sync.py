@@ -8,7 +8,7 @@ import random
 import requests
 
 from anki.db import DB
-from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc, checksum
+from anki.utils import ids2str, intTime, json, platDesc, checksum, devMode
 from anki.consts import *
 from .hooks import runHook
 import anki
@@ -576,7 +576,7 @@ class RemoteServer(HttpSyncer):
         HttpSyncer.__init__(self, hkey)
 
     def syncURL(self):
-        if os.getenv("ANKIDEV"):
+        if devMode:
             return "https://l1sync.ankiweb.net/sync/"
         return SYNC_BASE + "sync/"
 
@@ -645,7 +645,7 @@ class FullSyncer(HttpSyncer):
         self.col = col
 
     def syncURL(self):
-        if os.getenv("ANKIDEV"):
+        if devMode:
             return "https://l1.ankiweb.net/sync/"
         return SYNC_BASE + "sync/"
 
@@ -829,7 +829,7 @@ class RemoteMediaServer(HttpSyncer):
         HttpSyncer.__init__(self, hkey, client)
 
     def syncURL(self):
-        if os.getenv("ANKIDEV"):
+        if devMode:
             return "https://l1.ankiweb.net/msync/"
         return SYNC_MEDIA_BASE
 

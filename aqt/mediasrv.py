@@ -7,6 +7,7 @@ from http import HTTPStatus
 import http.server
 import socketserver
 import errno
+from anki.utils import devMode
 
 # locate web folder in source/binary distribution
 def _getExportFolder():
@@ -53,7 +54,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 self.copyfile(f, self.wfile)
             except Exception as e:
-                if os.getenv("ANKIDEV"):
+                if devMode:
                     print("http server caught exception:", e)
                 else:
                     # swallow it - user likely surfed away from
@@ -89,7 +90,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             raise
 
     def log_message(self, format, *args):
-        if not os.getenv("ANKIDEV"):
+        if not devMode:
             return
         print("%s - - [%s] %s" %
                          (self.address_string(),
