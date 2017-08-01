@@ -622,9 +622,8 @@ to a cloze type first, via Edit>Change Note Type."""))
         self.web.eval("pasteHTML(%s);" % json.dumps(html))
 
     def doDrop(self, html, internal):
-        self.web.evalWithCallback("dropTarget.focus();",
+        self.web.evalWithCallback("makeDropTargetCurrent();",
                                   lambda _: self.doPaste(html, internal))
-        self.web.setFocus()
 
     def onPaste(self):
         self.web.onPaste()

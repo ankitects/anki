@@ -154,6 +154,10 @@ function onDragOver(elem) {
     dropTarget = elem;
 }
 
+function makeDropTargetCurrent() {
+    dropTarget.focus();
+}
+
 function onPaste(elem) {
     pycmd("paste");
     window.event.preventDefault();
