@@ -11,7 +11,7 @@ def test_latex():
     d = getEmptyCol()
     # change latex cmd to simulate broken build
     import anki.latex
-    anki.latex.latexCmds[0][0] = "nolatex"
+    anki.latex.pngCommands[0][0] = "nolatex"
     # add a note with latex
     f = d.newNote()
     f['Front'] = "[latex]hello[/latex]"
@@ -27,7 +27,7 @@ def test_latex():
         print("aborting test; latex or dvipng is not installed")
         return
     # fix path
-    anki.latex.latexCmds[0][0] = "latex"
+    anki.latex.pngCommands[0][0] = "latex"
     # check media db should cause latex to be generated
     d.media.check()
     assert len(os.listdir(d.media.dir())) == 1
