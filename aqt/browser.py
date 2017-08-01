@@ -1072,7 +1072,7 @@ where id in %s""" % ids2str(sf))
             self._previewState = "question"
             self._renderPreview()
         else:
-            self.onPreviousCard()
+            self.editor.saveNow(lambda: self._moveCur(QAbstractItemView.MoveUp))
         self._updatePreviewButtons()
 
     def _onPreviewNext(self):
@@ -1080,7 +1080,7 @@ where id in %s""" % ids2str(sf))
             self._previewState = "answer"
             self._renderPreview()
         else:
-            self.onNextCard()
+            self.editor.saveNow(lambda: self._moveCur(QAbstractItemView.MoveDown))
         self._updatePreviewButtons()
 
     def _onReplayAudio(self):
