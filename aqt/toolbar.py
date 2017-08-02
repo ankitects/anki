@@ -19,17 +19,10 @@ class Toolbar:
         }
         self.web.setFixedHeight(30)
 
-    def onLoaded(self):
-        self.web.evalWithCallback("$(document.body).height()", self.onHeight)
-
-    def onHeight(self, qvar):
-        height = int(qvar*self.web.zoomFactor())
-        self.web.setFixedHeight(height)
-
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
-        self.web.onLoadFinished = self.onLoaded
         self.web.stdHtml(self._body % self._centerLinks(), self._css)
+        self.web.adjustHeightToFit()
 
     # Available links
     ######################################################################
@@ -125,6 +118,9 @@ text-decoration: underline;
 
 """
 
+# Bottom bar
+######################################################################
+
 class BottomBar(Toolbar):
 
     _css = Toolbar._css + """
@@ -143,7 +139,7 @@ margin-top: 0;
 
     def draw(self, buf):
         self.web.onBridgeCmd = self._linkHandler
-        self.web.onLoadFinished = self.onLoaded
         self.web.stdHtml(
             self._centerBody % buf,
             self._css)
+        self.web.adjustHeightToFit()

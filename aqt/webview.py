@@ -242,3 +242,10 @@ body { zoom: %f; %s }
     def resetHandlers(self):
         self.onBridgeCmd = self.defaultOnBridgeCmd
         self.onLoadFinished = self.defaultOnLoadFinished
+
+    def adjustHeightToFit(self):
+        self.evalWithCallback("$(document.body).height()", self._onHeight)
+
+    def _onHeight(self, qvar):
+        height = int(qvar*self.zoomFactor())
+        self.setFixedHeight(height)

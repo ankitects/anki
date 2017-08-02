@@ -92,8 +92,7 @@ class Reviewer:
         if self._reps is None or self._reps % 100 == 0:
             # we recycle the webview periodically so webkit can free memory
             self._initWeb()
-        else:
-            self._showQuestion()
+        self._showQuestion()
 
     # Audio
     ##########################################################################
@@ -126,10 +125,8 @@ class Reviewer:
 
     def _initWeb(self):
         self._reps = 0
-        self._bottomReady = False
         base = self.mw.baseHTML()
         # main window
-        self.web.onLoadFinished = self._showQuestion
         self.web.stdHtml(self._revHtml +
                          self.web.bundledCSS("reviewer.css"), head=base,
                          js=["jquery.js",
@@ -139,7 +136,6 @@ class Reviewer:
                              "reviewer.js"])
         # show answer / ease buttons
         self.bottom.web.show()
-        self.bottom.web.onLoadFinished = self._onBottomLoadFinished
         self.bottom.web.stdHtml(
             self._bottomHTML(),
             self.bottom._css + self._bottomCSS,
@@ -175,8 +171,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
         self.web.eval("_showQuestion(%s, %s, '%s');" % (json.dumps(q), json.dumps(a), bodyclass))
         self._toggleStar()
-        if self._bottomReady:
-            self._showAnswerButton()
+        self._showAnswerButton()
         # if we have a type answer field, focus main web
         if self.typeCorrect:
             self.mw.web.setFocus()
@@ -495,11 +490,7 @@ time = %(time)d;
            downArrow=downArrow(),
            time=self.card.timeTaken() // 1000)
 
-    def _onBottomLoadFinished(self):
-        self._showAnswerButton()
-
     def _showAnswerButton(self):
-        self._bottomReady = True
         if not self.typeCorrect:
             self.bottom.web.setFocus()
         middle = '''
@@ -514,7 +505,7 @@ time = %(time)d;
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (
             json.dumps(middle), maxTime))
-        self.bottom.onLoaded()
+        self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self):
         self.bottom.web.setFocus()
