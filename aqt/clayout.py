@@ -227,8 +227,6 @@ Please create a new card type first."""))
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "mathjax/queue-typeset.js"]
-        self.tab['pform'].frontWeb.setEnabled(False)
-        self.tab['pform'].backWeb.setEnabled(False)
         self.tab['pform'].frontWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.q(reload=True)))+
             self.tab['pform'].frontWeb.bundledCSS("reviewer.css"),
@@ -237,8 +235,6 @@ Please create a new card type first."""))
             ti(mungeQA(self.mw.col, c.a()), type='a')+
             self.tab['pform'].backWeb.bundledCSS("reviewer.css"),
             bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
-        self.tab['pform'].frontWeb.setEnabled(True)
-        self.tab['pform'].backWeb.setEnabled(True)
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
