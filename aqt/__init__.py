@@ -209,8 +209,6 @@ def _run():
     opts.base = opts.base or ""
     opts.profile = opts.profile or ""
 
-    # on osx we'll need to add the qt plugins to the search path
-
     # work around pyqt loading wrong GL library
     if isLin:
         import ctypes
