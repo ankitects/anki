@@ -16,7 +16,6 @@ class EditCurrent(QDialog):
             QDialog.__init__(self, None, Qt.Window)
         else:
             QDialog.__init__(self, mw)
-        QDialog.__init__(self, None, Qt.Window)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
