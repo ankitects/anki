@@ -147,6 +147,7 @@ class AnkiWebView(QWebEngineView):
         app = QApplication.instance()
         oldFocus = app.focusWidget()
         self._domDone = False
+        self._pendingJS = []
         self._page.setHtml(html)
         # work around webengine stealing focus on setHtml()
         if oldFocus:
@@ -207,10 +208,16 @@ body { zoom: %f; %s }
         return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(fname)
 
     def eval(self, js):
-        self.page().runJavaScript(js)
+        self.evalWithCallback(js, None)
 
     def evalWithCallback(self, js, cb):
-        self.page().runJavaScript(js, cb)
+        if self._domDone:
+            if cb:
+                self.page().runJavaScript(js, cb)
+            else:
+                self.page().runJavaScript(js)
+        else:
+            self._pendingJS.append([js, cb])
 
     def _openLinksExternally(self, url):
         openLink(url)
@@ -218,6 +225,10 @@ body { zoom: %f; %s }
     def _onBridgeCmd(self, cmd):
         if cmd == "domDone":
             self._domDone = True
+            # run through any pending js calls
+            for js, cb in self._pendingJS:
+                self.evalWithCallback(js, cb)
+            self._pendingJS = []
             self.onLoadFinished()
         else:
             self.onBridgeCmd(cmd)
