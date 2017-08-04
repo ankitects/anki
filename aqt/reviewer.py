@@ -119,8 +119,11 @@ class Reviewer:
 
     _revHtml = """
 <img src="qrc:/icons/rating.png" id=star class=marked>
-<div id=qa><div class=qaelem id=_question></div><div class=qaelem id=_answer1>\
-</div><div class=qaelem id=_answer2></div></div>
+<div id=qa>\
+<div class=qaelem><div id=_question></div></div>\
+<div class=qaelem><div id=_answer1></div></div>\
+<div class=qaelem><div id=_answer2></div></div>\
+</div>
 """
 
     def _initWeb(self):
