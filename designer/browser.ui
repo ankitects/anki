@@ -417,7 +417,7 @@
     <string>Select &amp;Notes</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+A</string>
+    <string>Ctrl+Shift+N</string>
    </property>
   </action>
   <action name="actionFindReplace">

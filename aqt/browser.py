@@ -433,9 +433,9 @@ class Browser(QMainWindow):
         self.changeDeckCut = QShortcut(QKeySequence("Ctrl+D"), self)
         self.changeDeckCut.activated.connect(self.setDeck)
         # add/remove tags
-        self.tagCut1 = QShortcut(QKeySequence("Ctrl+Shift+T"), self)
+        self.tagCut1 = QShortcut(QKeySequence("Ctrl+Shift+A"), self)
         self.tagCut1.activated.connect(self.addTags)
-        self.tagCut2 = QShortcut(QKeySequence("Ctrl+Alt+T"), self)
+        self.tagCut2 = QShortcut(QKeySequence("Ctrl+Shift+D"), self)
         self.tagCut2.activated.connect(self.deleteTags)
         self.tagCut3 = QShortcut(QKeySequence("Ctrl+K"), self)
         self.tagCut3.activated.connect(self.onMark)
@@ -1810,9 +1810,9 @@ class BrowserToolbar(Toolbar):
         right += borderImg("setDeck", "deck16", _("Change Deck"),
                            shortcut(_("Move To Deck (Ctrl+D)")))
         right += borderImg("addtag", "addtag16", _("Add Tags"),
-                       shortcut(_("Bulk Add Tags (Ctrl+Shift+T)")))
+                       shortcut(_("Bulk Add Tags (Ctrl+Shift+A)")))
         right += borderImg("deletetag", "deletetag16", _("Remove Tags"), shortcut(_(
-                               "Bulk Remove Tags (Ctrl+Alt+T)")))
+                               "Bulk Remove Tags (Ctrl+Shift+D)")))
         right += borderImg("delete", "delete16", _("Delete"), shortcut(_("Ctrl+Delete")))
         right += "</div>"
         return self._body % right
