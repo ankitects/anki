@@ -114,6 +114,7 @@ system. It's free and open source.")
         "Ádám Szegi",
         "赵金鹏",
         "黃文龍",
+        "David Bailey",
 ))
 
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
