@@ -1772,19 +1772,12 @@ class BrowserToolbar(Toolbar):
         Toolbar.__init__(self, mw, web)
 
     def draw(self):
-        self._loaded = False
         self.web.onBridgeCmd = self._linkHandler
-        self.web.onLoadFinished = self.onLoaded
         self.web.stdHtml(self.html(), self.css())
-
-    def onLoaded(self):
-        super().onLoaded()
-        self._loaded = True
         self.update()
 
+
     def update(self):
-        if not self._loaded:
-            return
         for link, enabled in (
             ("mark", self.browser.isMarked()),
             ("pause", self.browser.isSuspended())):
