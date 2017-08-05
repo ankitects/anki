@@ -34,7 +34,8 @@ class AddCards(QDialog):
         addHook('currentModelChanged', self.onModelChange)
         addCloseShortcut(self)
         self.show()
-        self.setupNewNote()
+        n = self.mw.col.newNote()
+        self.setAndFocusNote(n)
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(
@@ -79,15 +80,12 @@ class AddCards(QDialog):
         b.setEnabled(False)
         self.historyButton = b
 
-    def setupNewNote(self, set=True):
-        f = self.mw.col.newNote()
-        if set:
-            self.editor.setNote(f, focus=True)
-        return f
+    def setAndFocusNote(self, note):
+        self.editor.setNote(note, focusTo=0)
 
     def onModelChange(self):
         oldNote = self.editor.note
-        note = self.setupNewNote(set=False)
+        note = self.mw.col.newNote()
         if oldNote:
             oldFields = list(oldNote.keys())
             newFields = list(note.keys())
@@ -107,12 +105,11 @@ class AddCards(QDialog):
                     except IndexError:
                         pass
             self.removeTempNote(oldNote)
-        self.editor.currentField = 0
-        self.editor.setNote(note, focus=True)
+        self.editor.setNote(note)
 
     def onReset(self, model=None, keep=False):
         oldNote = self.editor.note
-        note = self.setupNewNote(set=False)
+        note = self.mw.col.newNote()
         flds = note.model()['flds']
         # copy fields from old note
         if oldNote:
@@ -126,8 +123,7 @@ class AddCards(QDialog):
                         note.fields[n] = ""
                 except IndexError:
                     break
-        self.editor.currentField = 0
-        self.editor.setNote(note, focus=True)
+        self.setAndFocusNote(note)
 
     def removeTempNote(self, note):
         if not note or not note.id:

@@ -359,6 +359,7 @@ class Browser(QMainWindow):
         self.col = self.mw.col
         self.forceClose = False
         self.lastFilter = ""
+        self.focusTo = None
         self._previewWindow = None
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
@@ -611,7 +612,6 @@ class Browser(QMainWindow):
     def setupEditor(self):
         self.editor = aqt.editor.Editor(
             self.mw, self.form.fieldsArea, self)
-        self.editor.stealFocus = False
 
     def onRowChanged(self, current, previous):
         "Update current note and hide/show editor."
@@ -627,7 +627,8 @@ class Browser(QMainWindow):
         else:
             self.card = self.model.getCard(
                 self.form.tableView.selectionModel().currentIndex())
-            self.editor.setNote(self.card.note(reload=True))
+            self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
+            self.focusTo = None
             self.editor.card = self.card
             self.singleCard = True
         self._renderPreview(True)
@@ -1517,34 +1518,25 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         tv = self.form.tableView
         if idx is None:
             idx = tv.moveCursor(dir, self.mw.app.keyboardModifiers())
-        tv.selectionModel().clear()
-        tv.setCurrentIndex(idx)
+        tv.selectionModel().setCurrentIndex(
+            idx,
+            QItemSelectionModel.Clear|
+            QItemSelectionModel.Select|
+            QItemSelectionModel.Rows)
 
     def onPreviousCard(self):
+        self.focusTo = self.editor.currentField
         self.editor.saveNow(self._onPreviousCard)
 
     def _onPreviousCard(self):
-        tagfocus = self.editor.tags.hasFocus()
-        f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveUp)
-        if tagfocus:
-            self.editor.tags.setFocus()
-            return
-        self.editor.web.setFocus()
-        self.editor.web.eval("focusField(%d)" % f)
 
     def onNextCard(self):
+        self.focusTo = self.editor.currentField
         self.editor.saveNow(self._onNextCard)
 
     def _onNextCard(self):
-        tagfocus = self.editor.tags.hasFocus()
-        f = self.editor.currentField
         self._moveCur(QAbstractItemView.MoveDown)
-        if tagfocus:
-            self.editor.tags.setFocus()
-            return
-        self.editor.web.setFocus()
-        self.editor.web.eval("focusField(%d)" % f)
 
     def onFirstCard(self):
         sm = self.form.tableView.selectionModel()
@@ -1574,7 +1566,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.form.searchEdit.lineEdit().selectAll()
 
     def onNote(self):
-        self.editor.focus()
         self.editor.web.setFocus()
         self.editor.web.eval("focusField(0);")
 

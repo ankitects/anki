@@ -33,6 +33,11 @@ function onKey() {
         insertNewline();
         return;
     }
+    // shift+tab goes to previous field
+    if (window.event.which === 9 && window.event.shiftKey) {
+        focusPrevious();
+        return;
+    }
     clearChangeTimer();
     changeTimer = setTimeout(function () {
         updateButtonState();
@@ -120,7 +125,7 @@ function clearChangeTimer() {
 
 function onFocus(elem) {
     currentField = elem;
-    pycmd("focus:" + currentField.id.substring(1));
+    pycmd("focus:" + currentFieldOrdinal());
     enableButtons();
     // don't adjust cursor on mouse clicks
     if (mouseDown) {
@@ -145,7 +150,20 @@ function onFocus(elem) {
 }
 
 function focusField(n) {
+    if (n === null) {
+        return;
+    }
     $("#f" + n).focus();
+}
+
+function focusPrevious() {
+    if (!currentField) {
+        return;
+    }
+    var previous = currentFieldOrdinal() - 1;
+    if (previous >= 0) {
+        focusField(previous);
+    }
 }
 
 function onDragOver(elem) {
@@ -175,6 +193,7 @@ function caretToEnd() {
 function onBlur() {
     if (currentField) {
         saveField("blur");
+        currentField = null;
     }
     clearChangeTimer();
     disableButtons();
@@ -186,8 +205,12 @@ function saveField(type) {
         return;
     }
     // type is either 'blur' or 'key'
-    pycmd(type + ":" + currentField.innerHTML);
+    pycmd(type + ":" + currentFieldOrdinal() + ":" + currentField.innerHTML);
     clearChangeTimer();
+}
+
+function currentFieldOrdinal() {
+    return currentField.id.substring(1);
 }
 
 function wrappedExceptForWhitespace(text, front, back) {
@@ -234,7 +257,7 @@ function wrap(front, back) {
     }
 }
 
-function setFields(fields, focusTo, prewrap) {
+function setFields(fields, prewrap) {
     var txt = "";
     for (var i = 0; i < fields.length; i++) {
         var n = fields[i][0];
@@ -250,12 +273,6 @@ function setFields(fields, focusTo, prewrap) {
         txt += "</td></tr>";
     }
     $("#fields").html("<table cellpadding=0 width=100%>" + txt + "</table>");
-    if (!focusTo) {
-        focusTo = 0;
-    }
-    if (focusTo >= 0) {
-        $("#f" + focusTo).focus();
-    }
     maybeDisableButtons();
     prewrapMode = prewrap;
     if (prewrap) {

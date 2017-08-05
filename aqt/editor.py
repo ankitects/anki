@@ -42,10 +42,8 @@ class Editor:
         self.widget = widget
         self.parentWindow = parentWindow
         self.note = None
-        self.stealFocus = True
         self.addMode = addMode
-        self._loaded = False
-        self.currentField = 0
+        self.currentField = None
         # current card, for card layout
         self.card = None
         self.setupOuter()
@@ -69,7 +67,6 @@ class Editor:
         self.web.allowDrops = True
         self.web.onBridgeCmd = self.onBridgeCmd
         self.outerLayout.addWidget(self.web, 1)
-        self.web.onLoadFinished = self._loadFinished
 
         righttopbtns = list()
         righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)", id='bold'))
@@ -158,7 +155,7 @@ class Editor:
             ("Ctrl+T, E", self.insertLatexEqn),
             ("Ctrl+T, M", self.insertLatexMathEnv),
             ("Ctrl+Shift+X", self.onHtmlEdit),
-            ("Ctrl+Shift+T", lambda: self.tags.setFocus),
+            ("Ctrl+Shift+T", self.onFocusTags)
         ]
         runFilter("setupEditorShortcuts", cuts)
         for keys, fn in cuts:
@@ -194,7 +191,8 @@ class Editor:
             return
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
-            (type, txt) = cmd.split(":", 1)
+            (type, ord, txt) = cmd.split(":", 2)
+            ord = int(ord)
             txt = urllib.parse.unquote(txt)
             txt = unicodedata.normalize("NFC", txt)
             txt = self.mungeHTML(txt)
@@ -202,22 +200,18 @@ class Editor:
             txt = txt.replace("\x00", "")
             # reverse the url quoting we added to get images to display
             txt = self.mw.col.media.escapeImages(txt, unescape=True)
-            self.note.fields[self.currentField] = txt
+            self.note.fields[ord] = txt
             if not self.addMode:
                 self.note.flush()
                 self.mw.requireReset()
             if type == "blur":
+                self.currentField = None
                 # run any filters
                 if runFilter(
-                    "editFocusLost", False, self.note, self.currentField):
-                    # something updated the note; schedule reload
-                    def onUpdate():
-                        if not self.note:
-                            return
-                        self.stealFocus = True
-                        self.loadNote()
-                        self.checkValid()
-                    self.mw.progress.timer(100, onUpdate, False)
+                    "editFocusLost", False, self.note, ord):
+                    # something updated the note; update it after a subsequent focus
+                    # event has had time to fire
+                    self.mw.progress.timer(100, self.loadNote, False)
                 else:
                     self.checkValid()
             else:
@@ -241,57 +235,41 @@ class Editor:
     # Setting/unsetting the current note
     ######################################################################
 
-    def _loadFinished(self):
-        self._loaded = True
-
-        # setup colour button
-        self.setupForegroundButton()
-
-        if self.note:
-            self.loadNote()
-
-    def setNote(self, note, hide=True, focus=False):
+    def setNote(self, note, hide=True, focusTo=None):
         "Make NOTE the current note."
         self.note = note
-        self.currentField = 0
-        if focus:
-            self.stealFocus = True
+        self.currentField = None
         if self.note:
-            self.loadNote()
+            self.loadNote(focusTo=focusTo)
         else:
             self.hideCompleters()
             if hide:
                 self.widget.hide()
 
-    def loadNote(self):
+    def loadNote(self, focusTo=None):
         if not self.note:
             return
-        if self.stealFocus:
-            field = self.currentField
-        else:
-            field = -1
-        if not self._loaded:
-            # will be loaded when page is ready
-            return
+
         data = []
         for fld, val in list(self.note.items()):
             data.append((fld, self.mw.col.media.escapeImages(val)))
-        self.web.eval("setFields(%s, %d, %s);" % (
-            json.dumps(data), field, json.dumps(self.prewrapMode())))
-        self.web.eval("setFonts(%s);" % (
-            json.dumps(self.fonts())))
-        self.checkValid()
-        self.updateTags()
         self.widget.show()
-        if self.stealFocus:
-            self.web.setFocus()
-            self.stealFocus = False
+        self.updateTags()
+
+        def oncallback(arg):
+            if not self.note:
+                return
+            self.setupForegroundButton()
+            self.checkValid()
+            runHook("loadNote", self)
+
+        self.web.evalWithCallback("setFields(%s, %s); setFonts(%s); focusField(%s)" % (
+            json.dumps(data), json.dumps(self.prewrapMode()),
+            json.dumps(self.fonts()), json.dumps(focusTo)),
+                                  oncallback)
 
     def prewrapMode(self):
         return self.note.model().get('prewrap', False)
-
-    def focus(self):
-        self.web.setFocus()
 
     def fonts(self):
         return [(f['font'], f['size'], f['rtl'])
@@ -339,14 +317,15 @@ class Editor:
     ######################################################################
 
     def onHtmlEdit(self):
-        self.saveNow(self._onHtmlEdit)
+        field = self.currentField
+        self.saveNow(lambda: self._onHtmlEdit(field))
 
-    def _onHtmlEdit(self):
+    def _onHtmlEdit(self, field):
         d = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         form.buttonBox.helpRequested.connect(lambda: openHelp("editor"))
-        form.textEdit.setPlainText(self.note.fields[self.currentField])
+        form.textEdit.setPlainText(self.note.fields[field])
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
         html = form.textEdit.toPlainText()
@@ -355,11 +334,8 @@ class Editor:
         with warnings.catch_warnings() as w:
             warnings.simplefilter('ignore', UserWarning)
             html = str(BeautifulSoup(html, "html.parser"))
-        self.note.fields[self.currentField] = html
-        self.loadNote()
-        # focus field so it's saved
-        self.web.setFocus()
-        self.web.eval("focusField(%d);" % self.currentField)
+        self.note.fields[field] = html
+        self.loadNote(focusTo=field)
 
     # Tag handling
     ######################################################################
@@ -407,6 +383,9 @@ class Editor:
 
     def hideCompleters(self):
         self.tags.hideCompleter()
+
+    def onFocusTags(self):
+        self.tags.setFocus()
 
     # Format buttons
     ######################################################################
