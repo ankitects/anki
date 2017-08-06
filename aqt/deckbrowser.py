@@ -10,6 +10,7 @@ from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
 from anki.hooks import runHook
+from copy import deepcopy
 
 class DeckBrowser:
 
@@ -340,7 +341,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
 
     def _drawButtons(self):
         buf = ""
-        for b in self.drawLinks:
+        drawLinks = deepcopy(self.drawLinks)
+        for b in drawLinks:
             if b[0]:
                 b[0] = _("Shortcut key: %s") % shortcut(b[0])
             buf += """
