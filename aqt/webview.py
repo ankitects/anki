@@ -7,6 +7,7 @@ from anki.hooks import runHook
 from aqt.qt import *
 from aqt.utils import openLink
 from anki.utils import isMac, isWin, devMode
+import aqt.progress
 
 # Page for debug messages
 ##########################################################################
@@ -144,6 +145,8 @@ class AnkiWebView(QWebEngineView):
                 import traceback
                 print("ignoring setHtml() called before DOM ready")
                 print("caller was", traceback.format_stack()[-3])
+            self.progress = aqt.progress.ProgressManager(self)
+            self.progress.timer(100, lambda: self.setHtml(html), False)
             return
         app = QApplication.instance()
         oldFocus = app.focusWidget()
