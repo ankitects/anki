@@ -50,9 +50,10 @@ class AnkiWebPage(QWebEnginePage):
         self.profile().scripts().insert(script)
 
     def javaScriptConsoleMessage(self, lvl, msg, line, srcID):
-        sys.stdout.write(
-            (_("JS error on line %(a)d: %(b)s") %
-             dict(a=line, b=msg+"\n")))
+        # not translated because console usually not visible,
+        # and may only accept ascii text
+        sys.stdout.write("JS error on line %(a)d: %(b)s" %
+             dict(a=line, b=msg+"\n"))
 
     def acceptNavigationRequest(self, url, navType, isMainFrame):
         if not isMainFrame:
