@@ -250,6 +250,7 @@ To import into a password protected profile, please open the profile before atte
             self.showProfileManager()
         else:
             self.errorHandler.unload()
+            sys.exit(0)
 
     # Collection load/unload
     ##########################################################################
