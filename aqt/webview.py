@@ -63,7 +63,8 @@ class AnkiWebPage(QWebEnginePage):
         return False
 
     def _onCmd(self, str):
-        self._onBridgeCmd(str)
+        from aqt import mw
+        mw.progress.timer(1, lambda: self._onBridgeCmd(str), False)
 
 # Main web view
 ##########################################################################
