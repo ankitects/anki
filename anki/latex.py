@@ -110,7 +110,7 @@ package in the LaTeX header instead.""") % bad
     # write into a temp file
     log = open(namedtmp("latex_log.txt"), "w")
     texpath = namedtmp("tmp.tex")
-    texfile = open(texpath, "w")
+    texfile = open(texpath, "w", encoding="utf8")
     texfile.write(latex)
     texfile.close()
     mdir = col.media.dir()
