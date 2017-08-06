@@ -29,7 +29,10 @@ pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
 audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga")
 
 _html = """
-<style>html { background: %s; }</style>
+<style>
+html { background: %s; }
+#topbuts { background: %s; }
+</style>
 <div id="topbuts">%s</div>
 <div id="fields"></div>
 <div id="dupes" style="display:none;"><a href="#" onclick="pycmd('dupes');return false;">%s</a></div>
@@ -102,7 +105,7 @@ class Editor:
         # then load page
         html = self.web.bundledCSS("editor.css") + _html
         self.web.stdHtml(html % (
-            bgcol,
+            bgcol, bgcol,
             topbuts,
             _("Show Duplicates")), head=self.mw.baseHTML(),
                          js=["jquery.js", "editor.js"])
