@@ -6,5 +6,3 @@ img { max-width: 95%; max-height: 95%; }
 .typeGood { background: #0f0; }
 .typeBad { background: #f00; }
 .typeMissed { background: #ccc; }
-#qa { position: relative; }
-.qaelem { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }

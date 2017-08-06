@@ -119,11 +119,7 @@ class Reviewer:
 
     _revHtml = """
 <img src="qrc:/icons/rating.png" id=star class=marked>
-<div id=qa>\
-<div class=qaelem><div id=_question></div></div>\
-<div class=qaelem><div id=_answer1></div></div>\
-<div class=qaelem><div id=_answer2></div></div>\
-</div>
+<div id=qa></div>
 """
 
     def _initWeb(self):
@@ -168,11 +164,10 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        a = self._mungeQA(a)
 
         bodyclass = "card card%d" % (c.ord+1)
 
-        self.web.eval("_showQuestion(%s, %s, '%s');" % (json.dumps(q), json.dumps(a), bodyclass))
+        self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
         self._toggleStar()
         self._showAnswerButton()
         # if we have a type answer field, focus main web
@@ -204,11 +199,12 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         self.state = "answer"
         c = self.card
         a = c.a()
+        a = self._mungeQA(a)
         # play audio?
         if self.autoplay(c):
             playFromText(a)
         # render and update bottom
-        self.web.eval("_showAnswer(%s);" % json.dumps(''))
+        self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
         runHook('showAnswer')
