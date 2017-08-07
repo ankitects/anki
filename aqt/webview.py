@@ -215,10 +215,16 @@ body { zoom: %f; %s }
 
     def evalWithCallback(self, js, cb):
         if self._domDone:
-            if cb:
-                self.page().runJavaScript(js, cb)
-            else:
-                self.page().runJavaScript(js)
+            # If the AnkiWebView object was deleted (i.e. the window was
+            # closed before the DOM was ready) a RuntimeError is raised -
+            # hide this from the user as it doesn't cause any problems
+            try:
+                if cb:
+                    self.page().runJavaScript(js, cb)
+                else:
+                    self.page().runJavaScript(js)
+            except RuntimeError:
+                pass
         else:
             self._pendingJS.append([js, cb])
 
