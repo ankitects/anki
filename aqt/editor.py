@@ -544,8 +544,8 @@ to a cloze type first, via Edit>Change Note Type."""))
     def _retrieveURL(self, url):
         "Download file into media folder and return local filename or None."
         # urllib doesn't understand percent-escaped utf8, but requires things like
-        # '#' to be escaped. we don't try to unquote the incoming URL, because
-        # we should only be receiving file:// urls from url mime, which is unquoted
+        # '#' to be escaped.
+        url = urllib.parse.unquote(url)
         if url.lower().startswith("file://"):
             url = url.replace("%", "%25")
             url = url.replace("#", "%23")
