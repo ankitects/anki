@@ -224,6 +224,11 @@ body { zoom: %f; %s }
         openLink(url)
 
     def _onBridgeCmd(self, cmd):
+        # ignore webchannel messages that arrive after underlying webview
+        # deleted
+        if sip.isdeleted(self):
+            return
+
         if cmd == "domDone":
             self._domDone = True
             # run through any pending js calls
