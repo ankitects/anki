@@ -76,6 +76,7 @@ class AnkiWebView(QWebEngineView):
         self._page = AnkiWebPage(self._onBridgeCmd)
 
         self._domDone = True
+        self._pendingJS = []
         self.setPage(self._page)
 
         self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
@@ -139,11 +140,12 @@ class AnkiWebView(QWebEngineView):
         pass
 
     def setHtml(self, html):
-        if not self._domDone:
+        if not self._domDone or self._pendingJS:
+            # defer update until previous page has initialized
             if devMode:
-                import traceback
-                print("ignoring setHtml() called before DOM ready")
-                print("caller was", traceback.format_stack()[-3])
+                print("deferring setHtml() until page is ready")
+            from aqt import mw
+            mw.progress.timer(25, lambda: self.setHtml(html), False)
             return
         app = QApplication.instance()
         oldFocus = app.focusWidget()
