@@ -199,10 +199,10 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         self.state = "answer"
         c = self.card
         a = c.a()
-        a = self._mungeQA(a)
         # play audio?
         if self.autoplay(c):
             playFromText(a)
+        a = self._mungeQA(a)
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
