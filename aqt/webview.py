@@ -76,7 +76,7 @@ class AnkiWebView(QWebEngineView):
         self._page = AnkiWebPage(self._onBridgeCmd)
 
         self._domDone = True
-        self._pendingJS = []
+        self._pendingActions = []
         self.setPage(self._page)
 
         self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
@@ -140,17 +140,12 @@ class AnkiWebView(QWebEngineView):
         pass
 
     def setHtml(self, html):
-        if not self._domDone or self._pendingJS:
-            # defer update until previous page has initialized
-            if devMode:
-                print("deferring setHtml() until page is ready")
-            from aqt import mw
-            mw.progress.timer(25, lambda: self.setHtml(html), False)
-            return
+        self._queueAction("setHtml", html)
+
+    def _setHtml(self, html):
         app = QApplication.instance()
         oldFocus = app.focusWidget()
         self._domDone = False
-        self._pendingJS = []
         self._page.setHtml(html)
         # work around webengine stealing focus on setHtml()
         if oldFocus:
@@ -214,13 +209,28 @@ body { zoom: %f; %s }
         self.evalWithCallback(js, None)
 
     def evalWithCallback(self, js, cb):
-        if self._domDone:
-            if cb:
-                self.page().runJavaScript(js, cb)
-            else:
-                self.page().runJavaScript(js)
+        self._queueAction("eval", js, cb)
+
+    def _evalWithCallback(self, js, cb):
+        if cb:
+            self.page().runJavaScript(js, cb)
         else:
-            self._pendingJS.append([js, cb])
+            self.page().runJavaScript(js)
+
+    def _queueAction(self, name, *args):
+        self._pendingActions.append((name, args))
+        self._maybeRunActions()
+
+    def _maybeRunActions(self):
+        while self._pendingActions and self._domDone:
+            name, args = self._pendingActions.pop(0)
+
+            if name == "eval":
+                self._evalWithCallback(*args)
+            elif name == "setHtml":
+                self._setHtml(*args)
+            else:
+                raise Exception("unknown action: {}".format(name))
 
     def _openLinksExternally(self, url):
         openLink(url)
@@ -233,23 +243,15 @@ body { zoom: %f; %s }
 
         if cmd == "domDone":
             self._domDone = True
-            # run through any pending js calls
-            for js, cb in self._pendingJS:
-                self.evalWithCallback(js, cb)
-            self._pendingJS = []
-            self.onLoadFinished()
+            self._maybeRunActions()
         else:
             self.onBridgeCmd(cmd)
 
     def defaultOnBridgeCmd(self, cmd):
         print("unhandled bridge cmd:", cmd)
 
-    def defaultOnLoadFinished(self):
-        pass
-
     def resetHandlers(self):
         self.onBridgeCmd = self.defaultOnBridgeCmd
-        self.onLoadFinished = self.defaultOnLoadFinished
 
     def adjustHeightToFit(self):
         self.evalWithCallback("$(document.body).height()", self._onHeight)
