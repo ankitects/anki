@@ -1139,7 +1139,9 @@ where id in %s""" % ids2str(sf))
             self._previewTimer = None
 
     def _renderScheduledPreview(self, cardChanged=False):
+        self._cancelPreviewTimer()
         self._lastPreviewRender = time.time()
+
         if not self._previewWindow:
             return
         c = self.card
