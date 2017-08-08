@@ -8,6 +8,7 @@ import http.server
 import socketserver
 import errno
 from anki.utils import devMode
+import threading
 
 # locate web folder in source/binary distribution
 def _getExportFolder():
@@ -29,7 +30,7 @@ _exportFolder = _getExportFolder()
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     pass
 
-class MediaServer(QThread):
+class MediaServer(threading.Thread):
 
     def run(self):
         self.port = 10000
@@ -46,7 +47,12 @@ class MediaServer(QThread):
             break
         self.server.serve_forever()
 
+    def shutdown(self):
+        self.server.shutdown()
+
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
+
+    timeout = 1
 
     def do_GET(self):
         f = self.send_head()

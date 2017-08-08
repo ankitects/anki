@@ -111,7 +111,7 @@ class AnkiQt(QMainWindow):
         f.setupUi(d)
         f.login.clicked.connect(self.onOpenProfile)
         f.profiles.itemDoubleClicked.connect(self.onOpenProfile)
-        f.quit.clicked.connect(lambda: sys.exit(0))
+        f.quit.clicked.connect(self.cleanupAndExit)
         f.add.clicked.connect(self.onAddProfile)
         f.rename.clicked.connect(self.onRenameProfile)
         f.delete_2.clicked.connect(self.onRemProfile)
@@ -249,8 +249,12 @@ To import into a password protected profile, please open the profile before atte
         if browser:
             self.showProfileManager()
         else:
-            self.errorHandler.unload()
-            sys.exit(0)
+            self.cleanupAndExit()
+
+    def cleanupAndExit(self):
+        self.errorHandler.unload()
+        self.mediaServer.shutdown()
+        self.app.exit(0)
 
     # Collection load/unload
     ##########################################################################
