@@ -38,43 +38,65 @@ class CardLayout(QDialog):
                 self.emptyFields.append(name)
                 note[name] = "(%s)" % name
             note.flush()
-        self.setupTabs()
+        self.setupTopArea()
         self.setupMainArea()
         self.setupButtons()
         self.setWindowTitle(_("Card Types for %s") % self.model['name'])
         v1 = QVBoxLayout()
-        v1.addWidget(self.tabs)
+        v1.addWidget(self.topArea)
         v1.addWidget(self.mainArea)
         v1.addLayout(self.buttons)
+        v1.setContentsMargins(12,12,12,12)
         self.setLayout(v1)
         self.redraw()
         restoreGeom(self, "CardLayout")
         self.setWindowModality(Qt.ApplicationModal)
         self.show()
+        # take the focus away from the first input area when starting up,
+        # as users tend to accidentally type into the template
+        self.setFocus()
 
     def redraw(self):
         self.cards = self.col.previewCards(self.note, 2)
-        self.redrawing = True
-        self.updateMainArea()
-        self.redrawing = False
         idx = self.ord
         if idx >= len(self.cards):
-            idx = len(self.cards) - 1
-        self.selectCard(idx)
+            self.ord = len(self.cards) - 1
 
-    def setupTabs(self):
-        cloze = self.model['type'] == MODEL_CLOZE
-        self.tabs = QTabWidget()
-        self.tabs.setTabsClosable(not cloze)
-        self.tabs.setUsesScrollButtons(True)
-        if not cloze:
-            add = QPushButton("+")
-            add.setFixedWidth(30)
-            add.setToolTip(_("Add new card"))
-            add.clicked.connect(self.onAddCard)
-            self.tabs.setCornerWidget(add)
-        self.tabs.currentChanged.connect(self.onCardSelected)
-        self.tabs.tabCloseRequested.connect(self.onRemoveTab)
+        self.redrawing = True
+        self.updateTopArea()
+        self.updateMainArea()
+        self.redrawing = False
+        self.onCardSelected(self.ord)
+
+    def setupTopArea(self):
+        self.topArea = QWidget()
+        self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
+        self.topAreaForm.setupUi(self.topArea)
+        self.topAreaForm.templateOptions.setText(_("Options") + " "+downArrow())
+        self.topAreaForm.templateOptions.clicked.connect(self.onMore)
+        self.topAreaForm.templatesBox.currentIndexChanged.connect(self.onCardSelected)
+
+    def updateTopArea(self):
+        cnt = self.mw.col.models.useCount(self.model)
+        self.topAreaForm.changesLabel.setText(ngettext(
+            "Changes below will affect the %(cnt)d note that uses this card type.",
+            "Changes below will affect the %(cnt)d notes that use this card type.",
+            cnt) % dict(cnt=cnt))
+        combo = self.topAreaForm.templatesBox
+        combo.clear()
+        combo.addItems(self._templateNameIncludingOrdinal(t) for t in self.model['tmpls'])
+        combo.setCurrentIndex(self.ord)
+        combo.setVisible(not self._isCloze())
+
+    def _templateNameIncludingOrdinal(self, tmpl):
+        return _("Card Type %(n)d of %(total)d: %(name)s") % dict(
+            n=tmpl['ord']+1,
+            total=len(self.model['tmpls']),
+            name=tmpl['name'],
+        )
+
+    def _isCloze(self):
+        return self.model['type'] == MODEL_CLOZE
 
     def setupMainArea(self):
         w = self.mainArea = QWidget()
@@ -132,20 +154,16 @@ class CardLayout(QDialog):
                                     head=base, js=jsinc)
 
     def updateMainArea(self):
-        self.tabs.clear()
-        for t in self.model['tmpls']:
-            # dummy widget for now
-            self.tabs.addTab(QWidget(), t['name'])
-
-        if self.model['type'] == MODEL_CLOZE:
+        if self._isCloze():
             cnt = len(self.mm.availOrds(
                 self.model, joinFields(self.note.fields)))
             for g in self.pform.groupBox, self.pform.groupBox_2:
                 g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
 
-    def onRemoveTab(self, idx):
+    def onRemove(self):
         if len(self.model['tmpls']) < 2:
             return showInfo(_("At least one card type is required."))
+        idx = self.ord
         cards = self.mm.tmplUseCount(self.model, idx)
         cards = ngettext("%d card", "%d cards", cards) % cards
         msg = (_("Delete the '%(a)s' card type, and its %(b)s?") %
@@ -172,15 +190,11 @@ Please create a new card type first."""))
         addField.setAutoDefault(False)
         l.addWidget(addField)
         addField.clicked.connect(self.onAddField)
-        if self.model['type'] != MODEL_CLOZE:
+        if not self._isCloze():
             flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
             l.addWidget(flip)
             flip.clicked.connect(self.onFlip)
-        more = QPushButton(_("More") + " "+downArrow())
-        more.setAutoDefault(False)
-        l.addWidget(more)
-        more.clicked.connect(lambda: self.onMore(more))
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
@@ -190,19 +204,11 @@ Please create a new card type first."""))
     # Cards
     ##########################################################################
 
-    def selectCard(self, idx):
-        if self.tabs.currentIndex() == idx:
-            # trigger a re-read
-            self.onCardSelected(idx)
-        else:
-            self.tabs.setCurrentIndex(idx)
-
     def onCardSelected(self, idx):
         if self.redrawing:
             return
         self.card = self.cards[idx]
         self.ord = idx
-        self.tabs.setCurrentIndex(idx)
         self.playedAudio = {}
         self.readCard()
         self.renderPreview()
@@ -295,7 +301,7 @@ Please create a new card type first."""))
                     if c.template()['ord'] != self.ord]:
             return showWarning(_("That name is already used."))
         self.card.template()['name'] = name
-        self.tabs.setTabText(self.tabs.currentIndex(), name)
+        self.redraw()
 
     def onReorder(self):
         n = len(self.cards)
@@ -328,10 +334,15 @@ Please create a new card type first."""))
         return name
 
     def onAddCard(self):
+        cnt = self.mw.col.models.useCount(self.model)
+        txt = ngettext("This will create %d card. Proceed?",
+                       "This will create %d cards. Proceed?", cnt) % cnt
+        if not askUser(txt):
+            return
         name = self._newCardName()
         t = self.mm.newTemplate(name)
         old = self.card.template()
-        t['qfmt'] = "%s<br>\n%s" % (_("Edit to customize"), old['qfmt'])
+        t['qfmt'] = old['qfmt']
         t['afmt'] = old['afmt']
         self.mm.addTemplate(self.model, t)
         self.ord = len(self.cards)
@@ -353,23 +364,36 @@ adjust the template manually to switch the question and answer."""))
         dst['qfmt'] = m.group(2).strip()
         return True
 
-    def onMore(self, button):
+    def onMore(self):
         m = QMenu(self)
-        a = m.addAction(_("Rename"))
-        a.triggered.connect(self.onRename)
-        if self.model['type'] != MODEL_CLOZE:
-            a = m.addAction(_("Reposition"))
+
+        if not self._isCloze():
+            a = m.addAction(_("Add Card Type..."))
+            a.triggered.connect(self.onAddCard)
+
+            a = m.addAction(_("Remove Card Type..."))
+            a.triggered.connect(self.onRemove)
+
+            a = m.addAction(_("Rename Card Type..."))
+            a.triggered.connect(self.onRename)
+
+            a = m.addAction(_("Reposition Card Type..."))
             a.triggered.connect(self.onReorder)
+
+            m.addSeparator()
+
             t = self.card.template()
             if t['did']:
                 s = _(" (on)")
             else:
                 s = _(" (off)")
-            a = m.addAction(_("Deck Override") + s)
+            a = m.addAction(_("Deck Override...") + s)
             a.triggered.connect(self.onTargetDeck)
-        a = m.addAction(_("Browser Appearance"))
+
+        a = m.addAction(_("Browser Appearance..."))
         a.triggered.connect(self.onBrowserDisplay)
-        m.exec_(button.mapToGlobal(QPoint(0,0)))
+
+        m.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0,0)))
 
     def onBrowserDisplay(self):
         d = QDialog()
