@@ -638,6 +638,7 @@ title="%s" %s>%s</button>''' % (
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts):
+        runHook(self.state+"StateShortcuts", shortcuts)
         self.stateShortcuts = self.applyShortcuts(shortcuts)
 
     def clearStateShortcuts(self):
