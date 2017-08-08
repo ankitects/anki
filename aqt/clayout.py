@@ -38,10 +38,12 @@ class CardLayout(QDialog):
                 note[name] = "(%s)" % name
             note.flush()
         self.setupTabs()
+        self.setupMainArea()
         self.setupButtons()
         self.setWindowTitle(_("Card Types for %s") % self.model['name'])
         v1 = QVBoxLayout()
         v1.addWidget(self.tabs)
+        v1.addWidget(self.mainArea)
         v1.addLayout(self.buttons)
         self.setLayout(v1)
         self.redraw()
@@ -52,7 +54,7 @@ class CardLayout(QDialog):
     def redraw(self):
         self.cards = self.col.previewCards(self.note, 2)
         self.redrawing = True
-        self.updateTabs()
+        self.updateMainArea()
         self.redrawing = False
         idx = self.ord
         if idx >= len(self.cards):
@@ -73,20 +75,14 @@ class CardLayout(QDialog):
         self.tabs.currentChanged.connect(self.onCardSelected)
         self.tabs.tabCloseRequested.connect(self.onRemoveTab)
 
-    def updateTabs(self):
-        self.forms = []
-        self.tabs.clear()
-        for t in self.model['tmpls']:
-            self.addTab(t)
-
-    def addTab(self, t):
-        w = QWidget()
+    def setupMainArea(self):
+        w = self.mainArea = QWidget()
         l = QHBoxLayout()
         l.setContentsMargins(0,0,0,0)
         l.setSpacing(3)
         left = QWidget()
         # template area
-        tform = aqt.forms.template.Ui_Form()
+        tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
         tform.label1.setText(" →")
         tform.label2.setText(" →")
@@ -97,35 +93,39 @@ class CardLayout(QDialog):
             tform.tlayout1.setContentsMargins(0, 11, 0, 0)
             tform.tlayout2.setContentsMargins(0, 11, 0, 0)
             tform.tlayout3.setContentsMargins(0, 11, 0, 0)
-        if len(self.cards) > 1:
-            tform.groupBox_3.setTitle(_(
-                "Styling (shared between cards)"))
+        tform.groupBox_3.setTitle(_(
+            "Styling (shared between cards)"))
         tform.front.textChanged.connect(self.saveCard)
         tform.css.textChanged.connect(self.saveCard)
         tform.back.textChanged.connect(self.saveCard)
         l.addWidget(left, 5)
         # preview area
         right = QWidget()
-        pform = aqt.forms.preview.Ui_Form()
+        pform = self.pform = aqt.forms.preview.Ui_Form()
         pform.setupUi(right)
         if self.style().objectName() == "gtk+":
             # gtk+ requires margins in inner layout
             pform.frontPrevBox.setContentsMargins(0, 11, 0, 0)
             pform.backPrevBox.setContentsMargins(0, 11, 0, 0)
         # for cloze notes, show that it's one of n cards
-        if self.model['type'] == MODEL_CLOZE:
-            cnt = len(self.mm.availOrds(
-                self.model, joinFields(self.note.fields)))
-            for g in pform.groupBox, pform.groupBox_2:
-                g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
         pform.frontWeb = AnkiWebView()
         pform.frontPrevBox.addWidget(pform.frontWeb)
         pform.backWeb = AnkiWebView()
         pform.backPrevBox.addWidget(pform.backWeb)
         l.addWidget(right, 5)
         w.setLayout(l)
-        self.forms.append({'tform': tform, 'pform': pform})
-        self.tabs.addTab(w, t['name'])
+
+    def updateMainArea(self):
+        self.tabs.clear()
+        for t in self.model['tmpls']:
+            # dummy widget for now
+            self.tabs.addTab(QWidget(), t['name'])
+
+        if self.model['type'] == MODEL_CLOZE:
+            cnt = len(self.mm.availOrds(
+                self.model, joinFields(self.note.fields)))
+            for g in self.pform.groupBox, self.pform.groupBox_2:
+                g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
 
     def onRemoveTab(self, idx):
         if len(self.model['tmpls']) < 2:
@@ -186,7 +186,6 @@ Please create a new card type first."""))
             return
         self.card = self.cards[idx]
         self.ord = idx
-        self.tab = self.forms[idx]
         self.tabs.setCurrentIndex(idx)
         self.playedAudio = {}
         self.readCard()
@@ -195,25 +194,25 @@ Please create a new card type first."""))
     def readCard(self):
         t = self.card.template()
         self.redrawing = True
-        self.tab['tform'].front.setPlainText(t['qfmt'])
-        self.tab['tform'].css.setPlainText(self.model['css'])
-        self.tab['tform'].back.setPlainText(t['afmt'])
-        self.tab['tform'].front.setAcceptRichText(False)
-        self.tab['tform'].css.setAcceptRichText(False)
-        self.tab['tform'].back.setAcceptRichText(False)
-        self.tab['tform'].front.setTabStopWidth(30)
-        self.tab['tform'].css.setTabStopWidth(30)
-        self.tab['tform'].back.setTabStopWidth(30)
+        self.tform.front.setPlainText(t['qfmt'])
+        self.tform.css.setPlainText(self.model['css'])
+        self.tform.back.setPlainText(t['afmt'])
+        self.tform.front.setAcceptRichText(False)
+        self.tform.css.setAcceptRichText(False)
+        self.tform.back.setAcceptRichText(False)
+        self.tform.front.setTabStopWidth(30)
+        self.tform.css.setTabStopWidth(30)
+        self.tform.back.setTabStopWidth(30)
         self.redrawing = False
 
     def saveCard(self):
         if self.redrawing:
             return
-        text = self.tab['tform'].front.toPlainText()
+        text = self.tform.front.toPlainText()
         self.card.template()['qfmt'] = text
-        text = self.tab['tform'].css.toPlainText()
+        text = self.tform.css.toPlainText()
         self.card.model()['css'] = text
-        text = self.tab['tform'].back.toPlainText()
+        text = self.tform.back.toPlainText()
         self.card.template()['afmt'] = text
         self.renderPreview()
 
@@ -227,13 +226,13 @@ Please create a new card type first."""))
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "mathjax/queue-typeset.js"]
-        self.tab['pform'].frontWeb.stdHtml(
+        self.pform.frontWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.q(reload=True)))+
-            self.tab['pform'].frontWeb.bundledCSS("reviewer.css"),
+            self.pform.frontWeb.bundledCSS("reviewer.css"),
             bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
-        self.tab['pform'].backWeb.stdHtml(
+        self.pform.backWeb.stdHtml(
             ti(mungeQA(self.mw.col, c.a()), type='a')+
-            self.tab['pform'].backWeb.bundledCSS("reviewer.css"),
+            self.pform.backWeb.bundledCSS("reviewer.css"),
             bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
         clearAudioQueue()
         if c.id not in self.playedAudio:
@@ -420,9 +419,9 @@ Enter deck to place new %s cards in, or leave blank:""") %
         if not diag.exec_():
             return
         if form.radioQ.isChecked():
-            obj = self.tab['tform'].front
+            obj = self.tform.front
         else:
-            obj = self.tab['tform'].back
+            obj = self.tform.back
         self._addField(obj,
                        fields[form.fields.currentIndex()],
                        form.font.currentFont().family(),
