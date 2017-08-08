@@ -32,20 +32,17 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 class MediaServer(threading.Thread):
 
+    _port = None
+    _ready = threading.Event()
+
     def run(self):
-        self.port = 10000
-        self.server = None
-        while not self.server:
-            try:
-                self.server = ThreadedHTTPServer(
-                        ("localhost", self.port), RequestHandler)
-            except OSError as e:
-                if e.errno == errno.EADDRINUSE:
-                    self.port += 1
-                    continue
-                raise
-            break
+        self.server = ThreadedHTTPServer(("localhost", 0), RequestHandler)
+        self._ready.set()
         self.server.serve_forever()
+
+    def getPort(self):
+        self._ready.wait()
+        return self.server.server_port
 
     def shutdown(self):
         self.server.shutdown()

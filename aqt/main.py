@@ -1195,4 +1195,4 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
         self.mediaServer.start()
 
     def baseHTML(self):
-        return '<base href="http://localhost:%d/">' % self.mediaServer.port
+        return '<base href="http://localhost:%d/">' % self.mediaServer.getPort()

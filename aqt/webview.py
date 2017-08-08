@@ -197,7 +197,7 @@ body { zoom: %f; %s }
 
     def webBundlePath(self, path):
         from aqt import mw
-        return "http://localhost:%d/_anki/%s" % (mw.mediaServer.port, path)
+        return "http://localhost:%d/_anki/%s" % (mw.mediaServer.getPort(), path)
 
     def bundledScript(self, fname):
         return '<script src="%s"></script>' % self.webBundlePath(fname)
