@@ -8,6 +8,7 @@ import time
 import re
 from operator import  itemgetter
 from anki.lang import ngettext
+import json
 
 from aqt.qt import *
 import anki
@@ -482,6 +483,7 @@ class Browser(QMainWindow):
         self.close()
 
     def _closeEventCleanup(self):
+        self._cancelPreviewTimer()
         self.editor.setNote(None)
         saveSplitter(self.form.splitter_2, "editor2")
         saveSplitter(self.form.splitter, "editor3")
@@ -624,6 +626,7 @@ class Browser(QMainWindow):
         if not show:
             self.editor.setNote(None)
             self.singleCard = False
+            self.card = None
         else:
             self.card = self.model.getCard(
                 self.form.tableView.selectionModel().currentIndex())
@@ -1020,6 +1023,9 @@ where id in %s""" % ids2str(sf))
     # Preview
     ######################################################################
 
+    _previewTimer = None
+    _lastPreviewRender = 0
+
     def onTogglePreview(self):
         if self._previewWindow:
             self._closePreview()
@@ -1056,6 +1062,8 @@ where id in %s""" % ids2str(sf))
         self._previewPrev.clicked.connect(self._onPreviewPrev)
         self._previewNext.clicked.connect(self._onPreviewNext)
         self._previewReplay.clicked.connect(self._onReplayAudio)
+
+        self._setupPreviewWebview()
 
         vbox.addWidget(bbox)
         self._previewWindow.setLayout(vbox)
@@ -1105,35 +1113,57 @@ where id in %s""" % ids2str(sf))
     def _onClosePreview(self):
         self._previewWindow = self._previewPrev = self._previewNext = None
 
-    def _renderPreview(self, cardChanged=False):
-        if not self._previewWindow:
-            return
-        c = self.card
-        if not c:
-            txt = _("(please select 1 card)")
-            self._previewWeb.stdHtml(txt)
-            self._updatePreviewButtons()
-            return
-        self._updatePreviewButtons()
-        if cardChanged:
-            self._previewState = "question"
-        # need to force reload even if answer
-        txt = c.q(reload=True)
-        if self._previewState == "answer":
-            txt = c.a()
-        txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
-        ti = lambda x: x
+    def _setupPreviewWebview(self):
         base = self.mw.baseHTML()
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
-                 "mathjax/queue-typeset.js"]
-        self._previewWeb.stdHtml(
-            ti(mungeQA(self.col, txt))+self._previewWeb.bundledCSS("reviewer.css"),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=jsinc)
-        clearAudioQueue()
-        if self.mw.reviewer.autoplay(c):
-            playFromText(txt)
+                 "reviewer.js"]
+        self._previewWeb.stdHtml(self.mw.reviewer._revHtml+
+                               self._previewWeb.bundledCSS("reviewer.css"),
+                               head=base, js=jsinc)
+
+
+    def _renderPreview(self, cardChanged=False):
+        self._cancelPreviewTimer()
+        # avoid rendering in quick succession
+        elapMS = int((time.time() - self._lastPreviewRender)*1000)
+        if elapMS < 500:
+            self._previewTimer = self.mw.progress.timer(
+                500-elapMS, lambda: self._renderScheduledPreview(cardChanged), False)
+        else:
+            self._renderScheduledPreview(cardChanged)
+
+    def _cancelPreviewTimer(self):
+        if self._previewTimer:
+            self._previewTimer.stop()
+            self._previewTimer = None
+
+    def _renderScheduledPreview(self, cardChanged=False):
+        self._lastPreviewRender = time.time()
+        if not self._previewWindow:
+            return
+        c = self.card
+        self._updatePreviewButtons()
+        if not c:
+            txt = _("(please select 1 card)")
+            bodyclass = ""
+        else:
+            if cardChanged:
+                self._previewState = "question"
+            # need to force reload even if answer
+            txt = c.q(reload=True)
+            if self._previewState == "answer":
+                txt = c.a()
+            txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
+
+            bodyclass="card card%d" % (c.ord+1)
+
+            clearAudioQueue()
+            if self.mw.reviewer.autoplay(c):
+                playFromText(txt)
+
+        self._previewWeb.eval(
+            "_showQuestion(%s,'%s');" % (json.dumps(txt), bodyclass))
 
     # Card deletion
     ######################################################################
