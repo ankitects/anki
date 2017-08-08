@@ -41,8 +41,13 @@ function _showQuestion(q, bodyclass) {
     });
 }
 
-function _showAnswer(a) {
+function _showAnswer(a, bodyclass) {
     _updateQA(a, function(obj) {
+        if (bodyclass) {
+            //  when previewing
+            document.body.className = bodyclass;
+        }
+
         // scroll to answer?
         var e = $("#answer");
         if (e[0]) {

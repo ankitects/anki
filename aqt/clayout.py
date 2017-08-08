@@ -13,6 +13,7 @@ from aqt.utils import saveGeom, restoreGeom, mungeQA,\
      showWarning, openHelp, downArrow
 from anki.utils import isMac, isWin, joinFields
 from aqt.webview import AnkiWebView
+import json
 
 class CardLayout(QDialog):
 
@@ -107,13 +108,28 @@ class CardLayout(QDialog):
             # gtk+ requires margins in inner layout
             pform.frontPrevBox.setContentsMargins(0, 11, 0, 0)
             pform.backPrevBox.setContentsMargins(0, 11, 0, 0)
-        # for cloze notes, show that it's one of n cards
+
+        self.setupWebviews()
+
+        l.addWidget(right, 5)
+        w.setLayout(l)
+
+    def setupWebviews(self):
+        pform = self.pform
         pform.frontWeb = AnkiWebView()
         pform.frontPrevBox.addWidget(pform.frontWeb)
         pform.backWeb = AnkiWebView()
         pform.backPrevBox.addWidget(pform.backWeb)
-        l.addWidget(right, 5)
-        w.setLayout(l)
+        base = self.mw.baseHTML()
+        jsinc = ["jquery.js","browsersel.js",
+                 "mathjax/conf.js", "mathjax/MathJax.js",
+                 "reviewer.js"]
+        pform.frontWeb.stdHtml(self.mw.reviewer._revHtml+
+                         pform.frontWeb.bundledCSS("reviewer.css"),
+                         head=base, js=jsinc)
+        pform.backWeb.stdHtml(self.mw.reviewer._revHtml+
+                                    pform.backWeb.bundledCSS("reviewer.css"),
+                                    head=base, js=jsinc)
 
     def updateMainArea(self):
         self.tabs.clear()
@@ -219,21 +235,30 @@ Please create a new card type first."""))
     # Preview
     ##########################################################################
 
+    _previewTimer = None
+
     def renderPreview(self):
+        # schedule a preview when timing stops
+        self.cancelPreviewTimer()
+        self._previewTimer = self.mw.progress.timer(500, self._renderPreview, False)
+
+    def cancelPreviewTimer(self):
+        if self._previewTimer:
+            self._previewTimer.stop()
+            self._previewTimer = None
+
+    def _renderPreview(self):
+        self.cancelPreviewTimer()
+
         c = self.card
         ti = self.maybeTextInput
-        base = self.mw.baseHTML()
-        jsinc = ["jquery.js","browsersel.js",
-                 "mathjax/conf.js", "mathjax/MathJax.js",
-                 "mathjax/queue-typeset.js"]
-        self.pform.frontWeb.stdHtml(
-            ti(mungeQA(self.mw.col, c.q(reload=True)))+
-            self.pform.frontWeb.bundledCSS("reviewer.css"),
-            bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
-        self.pform.backWeb.stdHtml(
-            ti(mungeQA(self.mw.col, c.a()), type='a')+
-            self.pform.backWeb.bundledCSS("reviewer.css"),
-            bodyClass="card card%d" % (c.ord+1), head=base, js=jsinc),
+        bodyclass="card card%d" % (c.ord+1)
+        q = ti(mungeQA(self.mw.col, c.q(reload=True)))
+        a = ti(mungeQA(self.mw.col, c.a()), type='a')
+
+        self.pform.frontWeb.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
+        self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
+
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
@@ -441,6 +466,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
         self.reject()
 
     def reject(self):
+        self.cancelPreviewTimer()
         clearAudioQueue()
         if self.addMode:
             # remove the filler fields we added
