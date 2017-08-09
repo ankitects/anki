@@ -2,6 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import collections
 import re
 
 from aqt.qt import *
@@ -82,18 +83,45 @@ class CardLayout(QDialog):
             "Changes below will affect the %(cnt)d note that uses this card type.",
             "Changes below will affect the %(cnt)d notes that use this card type.",
             cnt) % dict(cnt=cnt))
+        self.updateCardNames()
+
+    def updateCardNames(self):
+        self.redrawing = True
         combo = self.topAreaForm.templatesBox
         combo.clear()
         combo.addItems(self._templateNameIncludingOrdinal(t) for t in self.model['tmpls'])
         combo.setCurrentIndex(self.ord)
         combo.setVisible(not self._isCloze())
+        self.redrawing = False
 
     def _templateNameIncludingOrdinal(self, tmpl):
         return _("Card Type %(n)d of %(total)d: %(name)s") % dict(
             n=tmpl['ord']+1,
             total=len(self.model['tmpls']),
-            name=tmpl['name'],
+            name=self._summarizedName(tmpl),
         )
+
+    def _summarizedName(self, tmpl):
+        return "{}: {} -> {}".format(
+            tmpl['name'],
+            self._fieldsOnTemplate(tmpl['qfmt']),
+            self._fieldsOnTemplate(tmpl['afmt']))
+
+    def _fieldsOnTemplate(self, fmt):
+        matches = re.findall("{{[^#/}]+?}}", fmt)
+        result = collections.OrderedDict()
+        for m in matches:
+            # strip off mustache
+            m = re.sub(r"[{}]", "", m)
+            # strip off modifiers
+            m = m.split(":")[-1]
+            # don't show 'FrontSide'
+            if m == "FrontSide":
+                continue
+
+            result[m] = True
+
+        return "+".join(result.keys())
 
     def _isCloze(self):
         return self.model['type'] == MODEL_CLOZE
@@ -270,6 +298,8 @@ Please create a new card type first."""))
             playFromText(c.q())
             playFromText(c.a())
             self.playedAudio[c.id] = True
+
+        self.updateCardNames()
 
     def maybeTextInput(self, txt, type='q'):
         if "[[type:" not in txt:
