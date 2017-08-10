@@ -20,7 +20,8 @@ body {
 }
 
 .hitem {
-    padding-right: 6px;
+    padding-right: 12px;
+    padding-left: 12px;
     text-decoration: none;
     color: #000;
 }

@@ -44,7 +44,6 @@ class Toolbar:
             buf += '''
             <a class=hitem title="%s" href=# onclick="pycmd('%s')">%s</a>''' % (
                 title, ln, name)
-            buf += "&nbsp;"*3
         return buf
 
     # Link handling
