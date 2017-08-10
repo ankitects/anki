@@ -1118,7 +1118,7 @@ where id in %s""" % ids2str(sf))
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "reviewer.js"]
-        self._previewWeb.stdHtml(self.mw.reviewer._revHtml,
+        self._previewWeb.stdHtml(self.mw.reviewer.revHtml(),
                                  css=["reviewer.css"],
                                  head=base, js=jsinc)
 
@@ -1146,6 +1146,7 @@ where id in %s""" % ids2str(sf))
             return
         c = self.card
         self._updatePreviewButtons()
+        func = "_showQuestion"
         if not c or not self.singleCard:
             txt = _("(please select 1 card)")
             bodyclass = ""
@@ -1155,6 +1156,7 @@ where id in %s""" % ids2str(sf))
             # need to force reload even if answer
             txt = c.q(reload=True)
             if self._previewState == "answer":
+                func = "_showAnswer"
                 txt = c.a()
             txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
 
@@ -1167,7 +1169,7 @@ where id in %s""" % ids2str(sf))
             txt = mungeQA(self.col, txt)
 
         self._previewWeb.eval(
-            "_showQuestion(%s,'%s');" % (json.dumps(txt), bodyclass))
+            f"{func}({json.dumps(txt)},'{bodyclass}');")
 
     # Card deletion
     ######################################################################

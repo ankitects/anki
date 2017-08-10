@@ -117,16 +117,19 @@ class Reviewer:
     # Initializing the webview
     ##########################################################################
 
-    _revHtml = """
+    def revHtml(self):
+        extra = self.mw.col.conf.get("reviewExtra", "")
+        return f"""
 <img src="qrc:/icons/rating.png" id=star class=marked>
 <div id=qa></div>
+{extra}
 """
 
     def _initWeb(self):
         self._reps = 0
         base = self.mw.baseHTML()
         # main window
-        self.web.stdHtml(self._revHtml,
+        self.web.stdHtml(self.revHtml(),
                          head=base,
                          css=["reviewer.css"],
                          js=["jquery.js",

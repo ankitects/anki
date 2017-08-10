@@ -174,10 +174,10 @@ class CardLayout(QDialog):
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "reviewer.js"]
-        pform.frontWeb.stdHtml(self.mw.reviewer._revHtml,
+        pform.frontWeb.stdHtml(self.mw.reviewer.revHtml(),
                                css=["reviewer.css"],
                                head=base, js=jsinc)
-        pform.backWeb.stdHtml(self.mw.reviewer._revHtml,
+        pform.backWeb.stdHtml(self.mw.reviewer.revHtml(),
                               css=["reviewer.css"],
                               head=base, js=jsinc)
 
@@ -290,7 +290,8 @@ Please create a new card type first."""))
         q = ti(mungeQA(self.mw.col, c.q(reload=True)))
         a = ti(mungeQA(self.mw.col, c.a()), type='a')
 
-        self.pform.frontWeb.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
+        # use _showAnswer to avoid the longer delay
+        self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
         self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
 
         clearAudioQueue()
