@@ -6,5 +6,10 @@ window.MathJax = {
   },
   messageStyle: "none",
   skipStartupTypeset: true,
-  showMathMenu: false
+  showMathMenu: false,
+  AuthorInit: function () {
+      MathJax.Hub.processSectionDelay = 0;
+      MathJax.Hub.processUpdateTime = 0;
+      MathJax.Hub.processUpdateDelay = 0;
+  }
 };

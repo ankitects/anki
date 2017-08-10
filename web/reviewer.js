@@ -1,8 +1,10 @@
 var ankiPlatform = "desktop";
 var typeans;
-var fadeTime = 100;
 
-function _updateQA(html, onupdate, onshown) {
+var qFade = 100;
+var aFade = 0;
+
+function _updateQA(html, fadeTime, onupdate, onshown) {
     // fade out current text
     var qa = $("#qa");
     qa.fadeTo(fadeTime, 0, function() {
@@ -27,7 +29,7 @@ function _updateQA(html, onupdate, onshown) {
 }
 
 function _showQuestion(q, bodyclass) {
-    _updateQA(q, function(obj) {
+    _updateQA(q, qFade, function(obj) {
         // return to top of window
         window.scrollTo(0, 0);
 
@@ -42,7 +44,7 @@ function _showQuestion(q, bodyclass) {
 }
 
 function _showAnswer(a, bodyclass) {
-    _updateQA(a, function(obj) {
+    _updateQA(a, aFade, function(obj) {
         if (bodyclass) {
             //  when previewing
             document.body.className = bodyclass;
