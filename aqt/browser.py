@@ -1164,6 +1164,8 @@ where id in %s""" % ids2str(sf))
             if self.mw.reviewer.autoplay(c):
                 playFromText(txt)
 
+            txt = mungeQA(self.col, txt)
+
         self._previewWeb.eval(
             "_showQuestion(%s,'%s');" % (json.dumps(txt), bodyclass))
 
