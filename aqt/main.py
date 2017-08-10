@@ -482,19 +482,12 @@ the manual for information on how to restore from an automatic backup."))
 %s<br>
 %s</div></div></center>
 <script>$('#resume').focus()</script>
-""" % (i, b), css=self.sharedCSS)
+""" % (i, b))
         self.bottomWeb.hide()
         self.web.setFocus()
 
     # HTML helpers
     ##########################################################################
-
-    sharedCSS = """
-body {
-margin: 2em;
-}
-h1 { margin-bottom: 0.2em; }
-"""
 
     def button(self, link, name, key=None, class_="", id="", extra=""):
         class_ = "but "+ class_

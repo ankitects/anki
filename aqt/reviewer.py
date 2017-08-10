@@ -126,8 +126,9 @@ class Reviewer:
         self._reps = 0
         base = self.mw.baseHTML()
         # main window
-        self.web.stdHtml(self._revHtml +
-                         self.web.bundledCSS("reviewer.css"), head=base,
+        self.web.stdHtml(self._revHtml,
+                         head=base,
+                         css=["reviewer.css"],
                          js=["jquery.js",
                              "browsersel.js",
                              "mathjax/conf.js",
@@ -137,7 +138,7 @@ class Reviewer:
         self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
-            self.bottom._css + self._bottomCSS,
+            css=["toolbar-bottom.css", "reviewer-bottom.css"],
             js=["jquery.js", "reviewer-bottom.js"]
         )
 
@@ -439,29 +440,6 @@ Please run Tools>Empty Cards""")
 
     # Bottom bar
     ##########################################################################
-
-    _bottomCSS = """
-body {
-margin: 0; padding: 0;
-}
-button {
-min-width: 60px; white-space: nowrap;
-}
-.hitem { margin-top: 2px; }
-.stat { padding-top: 5px; }
-.stat2 { padding-top: 3px; font-weight: normal; }
-.stattxt { padding-left: 5px; padding-right: 5px; white-space: nowrap; }
-.nobold { font-weight: normal; display: inline-block; padding-top: 4px; }
-.spacer { height: 18px; }
-.spacer2 { height: 16px; }
-#outer {
-  border-top: 1px solid #aaa;
-}
-#innertable {
-padding: 3px;
-}
-
-"""
 
     def _bottomHTML(self):
         return """

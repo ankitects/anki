@@ -69,26 +69,6 @@ class DeckBrowser:
     # HTML generation
     ##########################################################################
 
-    _dragIndicatorBorderWidth = "1px"
-
-    _css = """
-a.deck { color: #000; text-decoration: none; min-width: 5em;
-         display:inline-block; }
-a.deck:hover { text-decoration: underline; }
-tr.deck td { border-bottom: %(width)s solid #e7e7e7; }
-tr.top-level-drag-row td { border-bottom: %(width)s solid transparent; }
-td { white-space: nowrap; }
-tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
-body { margin: 1em; -webkit-user-select: none; }
-.current { background-color: #e7e7e7; }
-.decktd { min-width: 15em; }
-.count { min-width: 4em; text-align: right; }
-.optscol { width: 2em; }
-.collapse { color: #000; text-decoration:none; display:inline-block;
-    width: 1em; }
-.filtered { color: #00a !important; }
-""" % dict(width=_dragIndicatorBorderWidth)
-
     _body = """
 <center>
 <table cellspacing=0 cellpading=3>
@@ -99,49 +79,17 @@ body { margin: 1em; -webkit-user-select: none; }
 %(stats)s
 %(countwarn)s
 </center>
-<script>
-    $( init );
-
-    function init() {
-
-        $("tr.deck").draggable({
-            scroll: false,
-
-            // can't use "helper: 'clone'" because of a bug in jQuery 1.5
-            helper: function (event) {
-                return $(this).clone(false);
-            },
-            delay: 200,
-            opacity: 0.7
-        });
-        $("tr.deck").droppable({
-            drop: handleDropEvent,
-            hoverClass: 'drag-hover',
-        });
-        $("tr.top-level-drag-row").droppable({
-            drop: handleDropEvent,
-            hoverClass: 'drag-hover',
-        });
-    }
-
-    function handleDropEvent(event, ui) {
-        var draggedDeckId = ui.draggable.attr('id');
-        var ontoDeckId = $(this).attr('id');
-
-        pycmd("drag:" + draggedDeckId + "," + ontoDeckId);
-    }
-</script>
 """
 
     def _renderPage(self, reuse=False):
-        css = self.mw.sharedCSS + self._css
         if not reuse:
             self._dueTree = self.mw.col.sched.deckDueTree()
         tree = self._renderDeckTree(self._dueTree)
         stats = self._renderStats()
         self.web.stdHtml(self._body%dict(
-            tree=tree, stats=stats, countwarn=self._countWarn()), css=css,
-                         js=["jquery.js", "jquery-ui.js"])
+            tree=tree, stats=stats, countwarn=self._countWarn()),
+                         css=["deckbrowser.css"],
+                         js=["jquery.js", "jquery-ui.js", "deckbrowser.js"])
         self.web.key = "deckBrowser"
         self._drawButtons()
 

@@ -106,11 +106,13 @@ class Overview:
         else:
             shareLink = ""
         self.web.stdHtml(self._body % dict(
-            deck=deck['name'],
-            shareLink=shareLink,
-            desc=self._desc(deck),
-            table=self._table()
-            ), self.mw.sharedCSS + self._css)
+                deck=deck['name'],
+                shareLink=shareLink,
+                desc=self._desc(deck),
+                table=self._table()
+            ),
+                         css=["overview.css"],
+                         js=["jquery.js", "overview.js"])
 
     def _desc(self, deck):
         if deck['dyn']:
@@ -167,29 +169,6 @@ to their original deck.""")
 %(desc)s
 %(table)s
 </center>
-<script>$(function () { $("#study").focus(); });</script>
-"""
-
-    _css = """
-.smallLink { font-size: 10px; }
-h3 { margin-bottom: 0; }
-.descfont {
-padding: 1em; color: #333;
-}
-.description {
-white-space: pre-wrap;
-}
-#fulldesc {
-display:none;
-}
-.descmid {
-width: 70%;
-margin: 0 auto 0;
-text-align: left;
-}
-.dyn {
-text-align: center;
-}
 """
 
     # Bottom area

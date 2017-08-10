@@ -21,7 +21,8 @@ class Toolbar:
 
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
-        self.web.stdHtml(self._body % self._centerLinks(), self._css)
+        self.web.stdHtml(self._body % self._centerLinks(),
+                         css=["toolbar.css"])
         self.web.adjustHeightToFit()
 
     # Available links
@@ -89,48 +90,10 @@ class Toolbar:
 </center>
 """
 
-    _css = """
-#header {
-padding:3px;
-font-weight: bold;
-border-bottom: 1px solid #aaa;
-background: %s;
-}
-
-.tdcenter { white-space: nowrap; }
-
-body {
-margin:0; padding:0;
--webkit-user-select: none;
-overflow: hidden;
-}
-
-* { -webkit-user-drag: none; }
-
-.hitem {
-padding-right: 6px;
-text-decoration: none;
-color: #000;
-}
-.hitem:hover {
-text-decoration: underline;
-}
-
-"""
-
 # Bottom bar
 ######################################################################
 
 class BottomBar(Toolbar):
-
-    _css = Toolbar._css + """
-#header {
-border-bottom: 0;
-border-top: 1px solid #aaa;
-margin-bottom: 6px;
-margin-top: 0;
-}
-"""
 
     _centerBody = """
 <center id=outer><table width=100%% id=header><tr><td align=center>
@@ -141,5 +104,5 @@ margin-top: 0;
         self.web.onBridgeCmd = self._linkHandler
         self.web.stdHtml(
             self._centerBody % buf,
-            self._css)
+            css=["toolbar.css", "toolbar-bottom.css"])
         self.web.adjustHeightToFit()

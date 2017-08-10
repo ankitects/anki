@@ -174,12 +174,12 @@ class CardLayout(QDialog):
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "reviewer.js"]
-        pform.frontWeb.stdHtml(self.mw.reviewer._revHtml+
-                         pform.frontWeb.bundledCSS("reviewer.css"),
-                         head=base, js=jsinc)
-        pform.backWeb.stdHtml(self.mw.reviewer._revHtml+
-                                    pform.backWeb.bundledCSS("reviewer.css"),
-                                    head=base, js=jsinc)
+        pform.frontWeb.stdHtml(self.mw.reviewer._revHtml,
+                               css=["reviewer.css"],
+                               head=base, js=jsinc)
+        pform.backWeb.stdHtml(self.mw.reviewer._revHtml,
+                              css=["reviewer.css"],
+                              head=base, js=jsinc)
 
     def updateMainArea(self):
         if self._isCloze():

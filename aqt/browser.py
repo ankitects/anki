@@ -1119,9 +1119,9 @@ where id in %s""" % ids2str(sf))
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "reviewer.js"]
-        self._previewWeb.stdHtml(self.mw.reviewer._revHtml+
-                               self._previewWeb.bundledCSS("reviewer.css"),
-                               head=base, js=jsinc)
+        self._previewWeb.stdHtml(self.mw.reviewer._revHtml,
+                                 css=["reviewer.css"],
+                                 head=base, js=jsinc)
 
 
     def _renderPreview(self, cardChanged=False):
@@ -1797,7 +1797,8 @@ class BrowserToolbar(Toolbar):
 
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
-        self.web.stdHtml(self.html(), self.css())
+        self.web.stdHtml(self.html(),
+                         css=["toolbar.css", "browser-toolbar.css"])
         self.update()
         if isLin:
             # adjust height on a delay to work around a qt crash when
@@ -1838,15 +1839,6 @@ class BrowserToolbar(Toolbar):
         right += borderImg("delete", "delete16", _("Delete"), shortcut(_("Ctrl+Delete")))
         right += "</div>"
         return self._body % right
-
-    def css(self):
-        return self._css + """
-#header { font-weight: normal; }
-a { margin-right: 1em; }
-.hitem { overflow: hidden; white-space: nowrap; }
-.hitem img { padding: 1px; }
-.buttonOn { border: 1px solid #aaa; padding: 0px !important; }
-"""
 
     # Link handling
     ######################################################################

@@ -103,11 +103,11 @@ class Editor:
         """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns))
         bgcol = self.mw.app.palette().window().color().name()
         # then load page
-        html = self.web.bundledCSS("editor.css") + _html
-        self.web.stdHtml(html % (
+        self.web.stdHtml(_html % (
             bgcol, bgcol,
             topbuts,
             _("Show Duplicates")), head=self.mw.baseHTML(),
+                         css=["editor.css"],
                          js=["jquery.js", "editor.js"])
 
     # Top buttons
