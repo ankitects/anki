@@ -199,9 +199,15 @@ class AnkiExporter(Exporter):
                 flds = row[6]
                 mid = row[2]
                 for file in self.src.media.filesInStr(mid, flds):
+                    # skip files in subdirs
+                    if file != os.path.basename(file):
+                        continue
                     media[file] = True
             if self.mediaDir:
                 for fname in os.listdir(self.mediaDir):
+                    path = os.path.join(self.mediaDir, fname)
+                    if os.path.isdir(path):
+                        continue
                     if fname.startswith("_"):
                         # Scan all models in mids for reference to fname
                         for m in self.src.models.all():
@@ -293,6 +299,8 @@ class AnkiPackageExporter(AnkiExporter):
         for c, file in enumerate(files):
             cStr = str(c)
             mpath = os.path.join(fdir, file)
+            if os.path.isdir(mpath):
+                continue
             if os.path.exists(mpath):
                 if re.search('\.svg$', file, re.IGNORECASE):
                     z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
