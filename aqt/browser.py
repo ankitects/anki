@@ -1798,7 +1798,7 @@ class BrowserToolbar(Toolbar):
         self.web.onBridgeCmd = self._linkHandler
         self.web.stdHtml(self.html(), self.css())
         self.update()
-
+        self.web.adjustHeightToFit()
 
     def update(self):
         for link, enabled in (
