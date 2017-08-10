@@ -627,7 +627,6 @@ class Browser(QMainWindow):
         if not show:
             self.editor.setNote(None)
             self.singleCard = False
-            self.card = None
         else:
             self.card = self.model.getCard(
                 self.form.tableView.selectionModel().currentIndex())
@@ -1147,7 +1146,7 @@ where id in %s""" % ids2str(sf))
             return
         c = self.card
         self._updatePreviewButtons()
-        if not c:
+        if not c or not self.singleCard:
             txt = _("(please select 1 card)")
             bodyclass = ""
         else:
