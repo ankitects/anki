@@ -159,7 +159,7 @@ class AnkiWebView(QWebEngineView):
         dpi = screen.logicalDpiX()
         return max(1, dpi / 96.0)
 
-    def stdHtml(self, body, css="", bodyClass="", js=["jquery.js"], head=""):
+    def stdHtml(self, body, css="", js=["jquery.js"], head=""):
         if isWin:
             buttonspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
             fontspec = 'font-size:12px;font-family:"Segoe UI";'
@@ -188,13 +188,13 @@ body { zoom: %f; %s }
 %s
 
 </head>
-<body class="%s">%s</body></html>""" % (
+<body>%s</body></html>""" % (
             self.title,
             self.zoomFactor(),
             fontspec,
             buttonspec,
             css, jstxt,
-    head, bodyClass, body)
+    head, body)
         #print(html)
         self.setHtml(html)
 
