@@ -6,7 +6,7 @@ import sys
 from anki.hooks import runHook
 from aqt.qt import *
 from aqt.utils import openLink
-from anki.utils import isMac, isWin, devMode
+from anki.utils import isMac, isWin, isLin, devMode
 
 # Page for debug messages
 ##########################################################################
@@ -151,7 +151,10 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
+    # need to do this manually for Linux as Qt doesn't automatically scale webview
     def zoomFactor(self):
+        if not isLin:
+            return 1
         screen = QApplication.desktop().screen()
         dpi = screen.logicalDpiX()
         return max(1, dpi / 96.0)
