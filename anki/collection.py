@@ -529,9 +529,6 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
                 format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (data[4]+1), format)
                 format = format.replace("<%cloze:", "<%%ca:%d:" % (
                     data[4]+1))
-                format = re.sub(r"^{{FrontSide}}\s*?<hr id=answer>(.*)$",
-                                "\\1<hr>{{FrontSide}}",
-                                format, flags=re.DOTALL)
                 fields['FrontSide'] = stripSounds(d['q'])
             fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
