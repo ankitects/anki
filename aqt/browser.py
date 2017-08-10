@@ -13,7 +13,8 @@ import json
 from aqt.qt import *
 import anki
 import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, isWin, intTime, isMac
+from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, isWin, intTime,\
+    isMac, isLin
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA
@@ -1798,7 +1799,12 @@ class BrowserToolbar(Toolbar):
         self.web.onBridgeCmd = self._linkHandler
         self.web.stdHtml(self.html(), self.css())
         self.update()
-        self.web.adjustHeightToFit()
+        if isLin:
+            # adjust height on a delay to work around a qt crash when
+            # opening the browser
+            self.browser.mw.progress.timer(10, self.web.adjustHeightToFit, False)
+        else:
+            self.web.adjustHeightToFit()
 
     def update(self):
         for link, enabled in (
