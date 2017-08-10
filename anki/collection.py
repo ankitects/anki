@@ -627,6 +627,14 @@ where c.nid == f.id
         c = data.pop()
         if not data:
             self.clearUndo()
+
+        # get latest revlog entry got card
+        last = self.db.scalar(
+            "select id from revlog where cid = ? "
+            "order by id desc limit 1", c.id)
+
+        runHook("preUndo", c, last)
+
         # remove leech tag if it didn't have it before
         if not wasLeech and c.note().hasTag("leech"):
             c.note().delTag("leech")
@@ -634,9 +642,7 @@ where c.nid == f.id
         # write old data
         c.flush()
         # and delete revlog entry
-        last = self.db.scalar(
-            "select id from revlog where cid = ? "
-            "order by id desc limit 1", c.id)
+        
         self.db.execute("delete from revlog where id = ?", last)
         # restore any siblings
         self.db.execute(
