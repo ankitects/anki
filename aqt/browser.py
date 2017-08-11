@@ -20,7 +20,6 @@ from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
-from aqt.toolbar import Toolbar
 from anki.consts import *
 from anki.sound import playFromText, clearAudioQueue
 
@@ -373,7 +372,6 @@ class Browser(QMainWindow):
         self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter.setChildrenCollapsible(False)
         self.card = None
-        self.setupToolbar()
         self.setupColumns()
         self.setupTable()
         self.setupMenus()
@@ -386,30 +384,34 @@ class Browser(QMainWindow):
         self.setupSearch()
         self.show()
 
-    def setupToolbar(self):
-        self.toolbarWeb = AnkiWebView()
-        self.toolbarWeb.title = "browser toolbar"
-        self.toolbar = BrowserToolbar(self.mw, self.toolbarWeb, self)
-        self.form.verticalLayout_3.insertWidget(0, self.toolbarWeb)
-        self.toolbar.draw()
-
     def setupMenus(self):
         # actions
         f = self.form
-        if not isMac:
-            f.actionClose.setVisible(False)
-        f.actionReposition.triggered.connect(self.reposition)
-        f.actionReschedule.triggered.connect(self.reschedule)
-        f.actionChangeModel.triggered.connect(self.onChangeModel)
-        # edit
-        f.actionUndo.triggered.connect(self.mw.onUndo)
         f.previewButton.clicked.connect(self.onTogglePreview)
         f.previewButton.setToolTip(_("Preview Selected Card (%s)") %
-            shortcut(_("Ctrl+Shift+P")))
+                                   shortcut(_("Ctrl+Shift+P")))
+        # edit
+        f.actionUndo.triggered.connect(self.mw.onUndo)
         f.actionInvertSelection.triggered.connect(self.invertSelection)
         f.actionSelectNotes.triggered.connect(self.selectNotes)
-        f.actionFindReplace.triggered.connect(self.onFindReplace)
+        if not isMac:
+            f.actionClose.setVisible(False)
+        # notes
+        f.actionAdd.triggered.connect(self.mw.onAddCard)
+        f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
+        f.actionRemove_Tags.triggered.connect(lambda: self.deleteTags())
+        f.actionClear_Unused_Tags.triggered.connect(self.clearUnusedTags)
+        f.actionChangeModel.triggered.connect(self.onChangeModel)
         f.actionFindDuplicates.triggered.connect(self.onFindDupes)
+        f.actionFindReplace.triggered.connect(self.onFindReplace)
+        f.actionToggle_Mark.triggered.connect(lambda: self.onMark())
+        f.actionDelete.triggered.connect(self.deleteNotes)
+        # cards
+        f.actionChange_Deck.triggered.connect(self.setDeck)
+        f.action_Info.triggered.connect(self.showCardInfo)
+        f.actionReposition.triggered.connect(self.reposition)
+        f.actionReschedule.triggered.connect(self.reschedule)
+        f.actionToggle_Suspend.triggered.connect(self.onSuspend)
         # jumps
         f.actionPreviousCard.triggered.connect(self.onPreviousCard)
         f.actionNextCard.triggered.connect(self.onNextCard)
@@ -426,29 +428,6 @@ class Browser(QMainWindow):
         self.pgUpCut.activated.connect(self.onFirstCard)
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         self.pgDownCut.activated.connect(self.onLastCard)
-        # add note
-        self.addCut = QShortcut(QKeySequence("Ctrl+E"), self)
-        self.addCut.activated.connect(self.mw.onAddCard)
-        # card info
-        self.infoCut = QShortcut(QKeySequence("Ctrl+Shift+I"), self)
-        self.infoCut.activated.connect(self.showCardInfo)
-        # set deck
-        self.changeDeckCut = QShortcut(QKeySequence("Ctrl+D"), self)
-        self.changeDeckCut.activated.connect(self.setDeck)
-        # add/remove tags
-        self.tagCut1 = QShortcut(QKeySequence("Ctrl+Shift+A"), self)
-        self.tagCut1.activated.connect(self.addTags)
-        self.tagCut2 = QShortcut(QKeySequence("Ctrl+Shift+D"), self)
-        self.tagCut2.activated.connect(self.deleteTags)
-        self.tagCut3 = QShortcut(QKeySequence("Ctrl+K"), self)
-        self.tagCut3.activated.connect(self.onMark)
-        # suspending
-        self.susCut1 = QShortcut(QKeySequence("Ctrl+J"), self)
-        self.susCut1.activated.connect(self.onSuspend)
-        # deletion
-        self.delCut1 = QShortcut(QKeySequence("Ctrl+Delete"), self)
-        self.delCut1.setAutoRepeat(False)
-        self.delCut1.activated.connect(self.deleteNotes)
         # add-on hook
         runHook('browser.setupMenus', self)
         self.mw.maybeHideAccelerators(self)
@@ -635,7 +614,6 @@ class Browser(QMainWindow):
             self.editor.card = self.card
             self.singleCard = True
         self._renderPreview(True)
-        self.toolbar.update()
 
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
@@ -1278,6 +1256,13 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.addTags(tags, label, _("Enter tags to delete:"),
                      func=self.col.tags.bulkRem)
 
+    def clearUnusedTags(self):
+        self.editor.saveNow(self._clearUnusedTags)
+
+    def _clearUnusedTags(self):
+        self.col.tags.registerNotes()
+        self.buildTree()
+
     # Suspending and marking
     ######################################################################
 
@@ -1788,85 +1773,6 @@ Are you sure you want to continue?""")):
 
     def onHelp(self):
         openHelp("browsermisc")
-
-# Toolbar
-######################################################################
-
-class BrowserToolbar(Toolbar):
-
-    def __init__(self, mw, web, browser):
-        self.browser = browser
-        Toolbar.__init__(self, mw, web)
-
-    def draw(self):
-        self.web.onBridgeCmd = self._linkHandler
-        self.web.stdHtml(self.html(),
-                         css=["toolbar.css", "browser-toolbar.css"])
-        self.update()
-        if isLin:
-            # adjust height on a delay to work around a qt crash when
-            # opening the browser
-            self.browser.mw.progress.timer(10, self.web.adjustHeightToFit, False)
-        else:
-            self.web.adjustHeightToFit()
-
-    def update(self):
-        for link, enabled in (
-            ("mark", self.browser.isMarked()),
-            ("pause", self.browser.isSuspended())):
-            if enabled:
-                self.web.eval("$('#%s').addClass('buttonOn')" % link)
-            else:
-                self.web.eval("$('#%s').removeClass('buttonOn')" % link)
-
-    def html(self):
-        def borderImg(link, icon, title, tooltip=None):
-            fmt = '''\
-<a class=hitem title="%s" href=# onclick="pycmd('%s')"><img id=%s valign=bottom src="qrc:/icons/%s.png"> %s</a>'''
-            return fmt % (tooltip or title, link, link, icon, title)
-        right = "<div>"
-        right += borderImg("add", "add16", _("Add"),
-                       shortcut(_("Add Note (Ctrl+E)")))
-        right += borderImg("info", "info", _("Info"),
-                       shortcut(_("Card Info (Ctrl+Shift+I)")))
-        right += borderImg("mark", "star16", _("Mark"),
-                       shortcut(_("Mark Note (Ctrl+K)")))
-        right += borderImg("pause", "pause16", _("Suspend"),
-                       shortcut(_("Suspend Card (Ctrl+J)")))
-        right += borderImg("setDeck", "deck16", _("Change Deck"),
-                           shortcut(_("Move To Deck (Ctrl+D)")))
-        right += borderImg("addtag", "addtag16", _("Add Tags"),
-                       shortcut(_("Bulk Add Tags (Ctrl+Shift+A)")))
-        right += borderImg("deletetag", "deletetag16", _("Remove Tags"), shortcut(_(
-                               "Bulk Remove Tags (Ctrl+Shift+D)")))
-        right += borderImg("delete", "delete16", _("Delete"), shortcut(_("Ctrl+Delete")))
-        right += "</div>"
-        return self._body % right
-
-    # Link handling
-    ######################################################################
-
-    def _linkHandler(self, l):
-        if l == "anki":
-            self.showMenu()
-        elif l  == "add":
-            self.browser.mw.onAddCard()
-        elif l  == "delete":
-            self.browser.deleteNotes()
-        elif l  == "setDeck":
-            self.browser.setDeck()
-        # icons
-        elif l  == "info":
-            self.browser.showCardInfo()
-        elif l == "mark":
-            self.browser.onMark()
-        elif l == "pause":
-            self.browser.onSuspend()
-        elif l == "addtag":
-            self.browser.addTags()
-        elif l == "deletetag":
-            self.browser.deleteTags()
-
 
 # Favourites button
 ######################################################################

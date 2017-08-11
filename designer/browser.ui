@@ -28,16 +28,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -85,20 +76,17 @@
          <property name="spacing">
           <number>0</number>
          </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
           <layout class="QGridLayout" name="gridLayout">
+           <property name="horizontalSpacing">
+            <number>6</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -106,12 +94,6 @@
             <number>0</number>
            </property>
            <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="horizontalSpacing">
-            <number>6</number>
-           </property>
-           <property name="verticalSpacing">
             <number>0</number>
            </property>
            <item row="0" column="0">
@@ -268,17 +250,9 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
-    <addaction name="actionReschedule"/>
-    <addaction name="actionReposition"/>
-    <addaction name="separator"/>
-    <addaction name="actionChangeModel"/>
-    <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
-    <addaction name="separator"/>
-    <addaction name="actionFindDuplicates"/>
-    <addaction name="actionFindReplace"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
@@ -302,15 +276,45 @@
     </property>
     <addaction name="actionGuide"/>
    </widget>
+   <widget class="QMenu" name="menu_Cards">
+    <property name="title">
+     <string>&amp;Cards</string>
+    </property>
+    <addaction name="actionChange_Deck"/>
+    <addaction name="separator"/>
+    <addaction name="actionReschedule"/>
+    <addaction name="actionReposition"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggle_Suspend"/>
+    <addaction name="separator"/>
+    <addaction name="action_Info"/>
+   </widget>
+   <widget class="QMenu" name="menu_Notes">
+    <property name="title">
+     <string>&amp;Notes</string>
+    </property>
+    <addaction name="actionAdd"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdd_Tags"/>
+    <addaction name="actionRemove_Tags"/>
+    <addaction name="actionClear_Unused_Tags"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeModel"/>
+    <addaction name="separator"/>
+    <addaction name="actionFindDuplicates"/>
+    <addaction name="actionFindReplace"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggle_Mark"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete"/>
+   </widget>
    <addaction name="menuEdit"/>
+   <addaction name="menu_Notes"/>
+   <addaction name="menu_Cards"/>
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
   </widget>
   <action name="actionReschedule">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/view-pim-calendar.png</normaloff>:/icons/view-pim-calendar.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Reschedule...</string>
    </property>
@@ -324,10 +328,6 @@
    </property>
   </action>
   <action name="actionUndo">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-undo.png</normaloff>:/icons/edit-undo.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Undo</string>
    </property>
@@ -341,10 +341,6 @@
    </property>
   </action>
   <action name="actionFind">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/icons/document-preview.png</normaloff>:/icons/document-preview.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Find</string>
    </property>
@@ -353,10 +349,6 @@
    </property>
   </action>
   <action name="actionNote">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/icons/Anki_Fact.png</normaloff>:/icons/Anki_Fact.png</iconset>
-   </property>
    <property name="text">
     <string>N&amp;ote</string>
    </property>
@@ -365,10 +357,6 @@
    </property>
   </action>
   <action name="actionNextCard">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/go-next.png</normaloff>:/icons/go-next.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Next Card</string>
    </property>
@@ -377,10 +365,6 @@
    </property>
   </action>
   <action name="actionPreviousCard">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/go-previous.png</normaloff>:/icons/go-previous.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Previous Card</string>
    </property>
@@ -389,10 +373,6 @@
    </property>
   </action>
   <action name="actionGuide">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/help.png</normaloff>:/icons/help.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Guide</string>
    </property>
@@ -401,10 +381,6 @@
    </property>
   </action>
   <action name="actionChangeModel">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/system-software-update.png</normaloff>:/icons/system-software-update.png</iconset>
-   </property>
    <property name="text">
     <string>Change Note Type...</string>
    </property>
@@ -421,10 +397,6 @@
    </property>
   </action>
   <action name="actionFindReplace">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-find-replace.png</normaloff>:/icons/edit-find-replace.png</iconset>
-   </property>
    <property name="text">
     <string>Find and Re&amp;place...</string>
    </property>
@@ -433,19 +405,11 @@
    </property>
   </action>
   <action name="actionCram">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/view-pim-calendar.png</normaloff>:/icons/view-pim-calendar.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Cram...</string>
    </property>
   </action>
   <action name="actionTags">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/anki-tag.png</normaloff>:/icons/anki-tag.png</iconset>
-   </property>
    <property name="text">
     <string>Fil&amp;ters</string>
    </property>
@@ -454,10 +418,6 @@
    </property>
   </action>
   <action name="actionCardList">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/icons/generate_07.png</normaloff>:/icons/generate_07.png</iconset>
-   </property>
    <property name="text">
     <string>Card List</string>
    </property>
@@ -466,19 +426,11 @@
    </property>
   </action>
   <action name="actionFindDuplicates">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/edit-find 2.png</normaloff>:/icons/edit-find 2.png</iconset>
-   </property>
    <property name="text">
     <string>Find &amp;Duplicates...</string>
    </property>
   </action>
   <action name="actionReposition">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/view-sort-ascending.png</normaloff>:/icons/view-sort-ascending.png</iconset>
-   </property>
    <property name="text">
     <string>Reposition...</string>
    </property>
@@ -487,10 +439,6 @@
    </property>
   </action>
   <action name="actionFirstCard">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/arrow-up.png</normaloff>:/icons/arrow-up.png</iconset>
-   </property>
    <property name="text">
     <string>First Card</string>
    </property>
@@ -499,10 +447,6 @@
    </property>
   </action>
   <action name="actionLastCard">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/arrow-down.png</normaloff>:/icons/arrow-down.png</iconset>
-   </property>
    <property name="text">
     <string>Last Card</string>
    </property>
@@ -516,6 +460,75 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="action_Info">
+   <property name="text">
+    <string>&amp;Info...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+I</string>
+   </property>
+  </action>
+  <action name="actionAdd_Tags">
+   <property name="text">
+    <string>Add Tags...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionRemove_Tags">
+   <property name="text">
+    <string>Remove Tags...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionClear_Unused_Tags">
+   <property name="text">
+    <string>Clear Unused Tags</string>
+   </property>
+  </action>
+  <action name="actionToggle_Suspend">
+   <property name="text">
+    <string>Toggle Suspend</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Del</string>
+   </property>
+  </action>
+  <action name="actionAdd">
+   <property name="text">
+    <string>Add...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionChange_Deck">
+   <property name="text">
+    <string>Change Deck...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionToggle_Mark">
+   <property name="text">
+    <string>Toggle Mark</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
    </property>
   </action>
  </widget>
