@@ -561,8 +561,8 @@ class Browser(QMainWindow):
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
-        self.setWindowTitle(ngettext("Browser (%(cur)d card shown; %(sel)s)",
-                                     "Browser (%(cur)d cards shown; %(sel)s)",
+        self.setWindowTitle(ngettext("Browse (%(cur)d card shown; %(sel)s)",
+                                     "Browse (%(cur)d cards shown; %(sel)s)",
                                  cur) % {
             "cur": cur,
             "sel": ngettext("%d selected", "%d selected", selected) % selected

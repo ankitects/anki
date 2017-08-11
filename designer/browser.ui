@@ -16,9 +16,6 @@
     <height>400</height>
    </size>
   </property>
-  <property name="windowTitle">
-   <string>Browse</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <property name="spacing">
