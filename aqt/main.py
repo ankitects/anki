@@ -1181,11 +1181,13 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     # Media server
     ##########################################################################
-    # prevent malicious decks from accessing the local filesystem
 
     def setupMediaServer(self):
         self.mediaServer = aqt.mediasrv.MediaServer()
         self.mediaServer.start()
 
     def baseHTML(self):
-        return '<base href="http://localhost:%d/">' % self.mediaServer.getPort()
+        return '<base href="%s">' % self.serverURL()
+
+    def serverURL(self):
+        return "http://127.0.0.1:%d/" % self.mediaServer.getPort()
