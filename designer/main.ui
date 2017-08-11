@@ -83,10 +83,6 @@
      <property name="title">
       <string>&amp;Add-ons</string>
      </property>
-     <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/icons/preferences-plugin.png</normaloff>:/icons/preferences-plugin.png</iconset>
-     </property>
      <addaction name="actionDownloadSharedPlugin"/>
      <addaction name="actionOpenPluginFolder"/>
      <addaction name="separator"/>
