@@ -91,7 +91,7 @@ class CardLayout(QDialog):
         combo.clear()
         combo.addItems(self._templateNameIncludingOrdinal(t) for t in self.model['tmpls'])
         combo.setCurrentIndex(self.ord)
-        combo.setVisible(not self._isCloze())
+        combo.setEnabled(not self._isCloze())
         self.redrawing = False
 
     def _templateNameIncludingOrdinal(self, tmpl):
