@@ -89,17 +89,10 @@ class CardLayout(QDialog):
         self.redrawing = True
         combo = self.topAreaForm.templatesBox
         combo.clear()
-        combo.addItems(self._templateNameIncludingOrdinal(t) for t in self.model['tmpls'])
+        combo.addItems(self._summarizedName(t) for t in self.model['tmpls'])
         combo.setCurrentIndex(self.ord)
         combo.setEnabled(not self._isCloze())
         self.redrawing = False
-
-    def _templateNameIncludingOrdinal(self, tmpl):
-        return _("Card Type %(n)d of %(total)d: %(name)s") % dict(
-            n=tmpl['ord']+1,
-            total=len(self.model['tmpls']),
-            name=self._summarizedName(tmpl),
-        )
 
     def _summarizedName(self, tmpl):
         return "{}: {} -> {}".format(
