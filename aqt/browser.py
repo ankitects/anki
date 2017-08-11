@@ -17,7 +17,8 @@ from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, isW
     isMac, isLin
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
-    showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA
+    showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
+    getOnlyText
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from anki.consts import *
@@ -367,15 +368,12 @@ class Browser(QMainWindow):
         self.form.setupUi(self)
         restoreGeom(self, "editor", 0)
         restoreState(self, "editor")
-        restoreSplitter(self.form.splitter_2, "editor2")
         restoreSplitter(self.form.splitter, "editor3")
-        self.form.splitter_2.setChildrenCollapsible(False)
         self.form.splitter.setChildrenCollapsible(False)
         self.card = None
         self.setupColumns()
         self.setupTable()
         self.setupMenus()
-        self.setupTree()
         self.setupHeaders()
         self.setupHooks()
         self.setupEditor()
@@ -390,6 +388,8 @@ class Browser(QMainWindow):
         f.previewButton.clicked.connect(self.onTogglePreview)
         f.previewButton.setToolTip(_("Preview Selected Card (%s)") %
                                    shortcut(_("Ctrl+Shift+P")))
+
+        f.filter.clicked.connect(self.onFilterButton)
         # edit
         f.actionUndo.triggered.connect(self.mw.onUndo)
         f.actionInvertSelection.triggered.connect(self.invertSelection)
@@ -400,7 +400,6 @@ class Browser(QMainWindow):
         f.actionAdd.triggered.connect(self.mw.onAddCard)
         f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
         f.actionRemove_Tags.triggered.connect(lambda: self.deleteTags())
-        f.actionClear_Unused_Tags.triggered.connect(self.clearUnusedTags)
         f.actionChangeModel.triggered.connect(self.onChangeModel)
         f.actionFindDuplicates.triggered.connect(self.onFindDupes)
         f.actionFindReplace.triggered.connect(self.onFindReplace)
@@ -419,7 +418,7 @@ class Browser(QMainWindow):
         f.actionLastCard.triggered.connect(self.onLastCard)
         f.actionFind.triggered.connect(self.onFind)
         f.actionNote.triggered.connect(self.onNote)
-        f.actionTags.triggered.connect(self.onTags)
+        f.actionTags.triggered.connect(self.onFilterButton)
         f.actionCardList.triggered.connect(self.onCardList)
         # help
         f.actionGuide.triggered.connect(self.onHelp)
@@ -465,7 +464,6 @@ class Browser(QMainWindow):
     def _closeEventCleanup(self):
         self._cancelPreviewTimer()
         self.editor.setNote(None)
-        saveSplitter(self.form.splitter_2, "editor2")
         saveSplitter(self.form.splitter, "editor3")
         saveGeom(self, "editor")
         saveState(self, "editor")
@@ -484,10 +482,6 @@ class Browser(QMainWindow):
         "Show answer on RET or register answer."
         if evt.key() == Qt.Key_Escape:
             self.close()
-        elif self.mw.app.focusWidget() == self.form.tree:
-            if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
-                item = self.form.tree.currentItem()
-                self.onTreeClick(item, 0)
 
     def setupColumns(self):
         self.columns = [
@@ -513,7 +507,6 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSearch(self):
-        self.form.searchEdit.setLineEdit(FavouritesLineEdit(self.mw, self))
         self.form.searchButton.clicked.connect(self.onSearchActivated)
         self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
@@ -742,40 +735,23 @@ by clicking on one on the left."""))
     # Filter tree
     ######################################################################
 
-    class CallbackItem(QTreeWidgetItem):
-        def __init__(self, root, name, onclick, oncollapse=None, expanded=False):
-            QTreeWidgetItem.__init__(self, root, [name])
-            self.setExpanded(expanded)
-            self.onclick = onclick
-            self.oncollapse = oncollapse
+    def onFilterButton(self):
+        m = QMenu()
 
-    def setupTree(self):
-        self.form.tree.itemClicked.connect(self.onTreeClick)
-        p = QPalette()
-        p.setColor(QPalette.Base, QColor("#d6dde0"))
-        self.form.tree.setPalette(p)
-        self.buildTree()
-        self.form.tree.itemExpanded.connect(lambda item: self.onTreeCollapse(item))
-        self.form.tree.itemCollapsed.connect(lambda item: self.onTreeCollapse(item))
+        self._addCommonFilters(m)
+        m.addSeparator()
 
-    def buildTree(self):
-        self.form.tree.clear()
-        root = self.form.tree
-        self._systemTagTree(root)
-        self._favTree(root)
-        self._decksTree(root)
-        self._modelTree(root)
-        self._userTagTree(root)
-        self.form.tree.setIndentation(15)
+        self._addTodayFilters(m)
+        self._addCardStateFilters(m)
+        m.addSeparator()
 
-    def onTreeClick(self, item, col):
-        if getattr(item, 'onclick', None):
-            item.onclick()
+        self._addDeckFilters(m)
+        self._addNoteTypeFilters(m)
+        self._addTagFilters(m)
+        self._addSavedSearches(m)
 
-    def onTreeCollapse(self, item):
-        if getattr(item, 'oncollapse', None):
-            item.oncollapse()
-            
+        m.exec_(self.form.filter.mapToGlobal(QPoint(0,0)))
+
     def setFilter(self, *args):
         if len(args) == 1:
             txt = args[0]
@@ -805,71 +781,172 @@ by clicking on one on the left."""))
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearchActivated()
 
-    def _systemTagTree(self, root):
-        tags = (
-            (_("Whole Collection"), "ankibw", ""),
-            (_("Current Deck"), "deck16", "deck:current"),
-            (_("Added Today"), "view-pim-calendar.png", "added:1"),
-            (_("Studied Today"), "view-pim-calendar.png", "rated:1"),
-            (_("Again Today"), "view-pim-calendar.png", "rated:1:1"),
-            (_("New"), "plus16.png", "is:new"),
-            (_("Learning"), "stock_new_template_red.png", "is:learn"),
-            (_("Review"), "clock16.png", "is:review"),
-            (_("Due"), "clock16.png", "is:due"),
-            (_("Marked"), "star16.png", "tag:marked"),
-            (_("Suspended"), "media-playback-pause.png", "is:suspended"),
-            (_("Leech"), "emblem-important.png", "tag:leech"))
-        for name, icon, cmd in tags:
-            item = self.CallbackItem(
-                root, name, lambda c=cmd: self.setFilter(c))
-            item.setIcon(0, QIcon(":/icons/" + icon))
-        return root
+    def _addSimpleFilters(self, m, items):
+        for row in items:
+            if row is None:
+                m.addSeparator()
+            else:
+                label, search = row
+                a = m.addAction(label)
+                a.triggered.connect(lambda *, f=search: self.setFilter(f))
 
-    def _favTree(self, root):
-        saved = self.col.conf.get('savedFilters', [])
-        if not saved:
-            # Don't add favourites to tree if none saved
-            return
-        root = self.CallbackItem(root, _("My Searches"), None)
-        root.setExpanded(True)
-        root.setIcon(0, QIcon(":/icons/emblem-favorite-dark.png"))
-        for name, filt in sorted(saved.items()):
-            item = self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
-            item.setIcon(0, QIcon(":/icons/emblem-favorite-dark.png"))
-    
-    def _userTagTree(self, root):
-        for t in sorted(self.col.tags.all()):
+    def _addCommonFilters(self, m):
+        items = (
+            (_("Whole Collection"), ""),
+            (_("Current Deck"), "deck:current"),
+            None,
+            (_("Marked"), "tag:marked"),
+            (_("Leech"), "tag:leech"))
+        self._addSimpleFilters(m, items)
+
+    def _addTodayFilters(self, m):
+        m = m.addMenu(_("Today"))
+        items = (
+            (_("Added Today"), "added:1"),
+            (_("Studied Today"), "rated:1"),
+            (_("Again Today"), "rated:1:1"))
+        self._addSimpleFilters(m, items)
+
+    def _addCardStateFilters(self, m):
+        m = m.addMenu(_("Card State"))
+        items = (
+            (_("New"), "is:new"),
+            (_("Learning"), "is:learn"),
+            (_("Review"), "is:review"),
+            (_("Due"), "is:due"),
+            None,
+            (_("Suspended"), "is:suspended"),
+            (_("Buried"), "is:buried"))
+        self._addSimpleFilters(m, items)
+
+    _tagsMenuSize = 30
+
+    def _addTagFilters(self, m):
+        m = m.addMenu(_("Tags"))
+
+        a = m.addAction(_("Clear Unused"))
+        a.triggered.connect(self.clearUnusedTags)
+        m.addSeparator()
+
+        tags = sorted(self.col.tags.all(), key=lambda s: s.lower())
+
+        if len(tags) < self._tagsMenuSize:
+            self._addTagFilterBlock(m, tags)
+        else:
+            # split the list into a more manageable size
+            chunks = []
+            while tags:
+                chunk = tags[:self._tagsMenuSize]
+                chunks.append(chunk)
+                del tags[:self._tagsMenuSize]
+            # use separate menu for each chunk
+            for chunk in chunks:
+                name = chunk[0]+"..."
+                child = m.addMenu(name)
+                self._addTagFilterBlock(child, chunk)
+
+    def _addTagFilterBlock(self, m, tags):
+        for t in tags:
             if t.lower() == "marked" or t.lower() == "leech":
                 continue
-            item = self.CallbackItem(
-                root, t, lambda t=t: self.setFilter("tag", t))
-            item.setIcon(0, QIcon(":/icons/anki-tag.png"))
+            a = m.addAction(t)
+            a.triggered.connect(lambda *, tag=t: self.setFilter("tag", tag))
 
-    def _decksTree(self, root):
-        grps = self.col.sched.deckDueTree()
-        def fillGroups(root, grps, head=""):
-            for g in grps:
-                item = self.CallbackItem(
-                    root, g[0],
-                    lambda g=g: self.setFilter("deck", head+g[0]),
-                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]),
-                    not self.mw.col.decks.get(g[1]).get('browserCollapsed', False))
-                item.setIcon(0, QIcon(":/icons/deck16.png"))
-                newhead = head + g[0]+"::"
-                fillGroups(item, g[5], newhead)
-        fillGroups(root, grps)
+    def _addDeckFilters(self, m):
+        def addDecks(parent, decks):
+            for head, did, rev, lrn, new, children in decks:
+                name = self.mw.col.decks.get(did)['name']
+                shortname = name.split("::")[-1]
+                if children:
+                    newparent = parent.addMenu(shortname)
+                    a = newparent.addAction(_("Filter"))
+                    a.triggered.connect(
+                        lambda *, name=name: self.setFilter("deck", name))
+                    newparent.addSeparator()
+                    addDecks(newparent, children)
+                else:
+                    a = parent.addAction(shortname)
+                    a.triggered.connect(
+                        lambda *, name=name: self.setFilter("deck", name))
 
-    def _modelTree(self, root):
-        for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            mitem = self.CallbackItem(
-                root, m['name'], lambda m=m: self.setFilter("mid", str(m['id'])))
-            mitem.setIcon(0, QIcon(":/icons/product_design.png"))
-            # for t in m['tmpls']:
-            #     titem = self.CallbackItem(
-            #     t['name'], lambda m=m, t=t: self.setFilter(
-            #         "model", m['name'], "card", t['name']))
-            #     titem.setIcon(0, QIcon(":/icons/stock_new_template.png"))
-            #     mitem.addChild(titem)
+        # fixme: could rewrite to avoid calculating due # in the future
+        alldecks = self.col.sched.deckDueTree()
+        root = m.addMenu(_("Decks"))
+
+        addDecks(root, alldecks)
+
+    def _addNoteTypeFilters(self, m):
+        m = m.addMenu(_("Note Types"))
+        a = m.addAction(_("Manage..."))
+        a.triggered.connect(self.mw.onNoteTypes)
+        m.addSeparator()
+        for nt in sorted(self.col.models.all(), key=itemgetter("name")):
+            # no sub menu if it's a single template
+            if len(nt['tmpls']) == 1:
+                a = m.addAction(nt['name'])
+                a.triggered.connect(lambda *, nt=nt: self.setFilter("mid", str(nt['id'])))
+            else:
+                subm = m.addMenu(nt['name'])
+                a = subm.addAction(_("All Card Types"))
+                a.triggered.connect(lambda *, nt=nt: self.setFilter("mid", str(nt['id'])))
+
+                # add templates
+                subm.addSeparator()
+                for c, tmpl in enumerate(nt['tmpls']):
+                    a = subm.addAction(_("%(n)d: %(name)s") % dict(
+                            n=c+1, name=tmpl['name']))
+                    a.triggered.connect(lambda *, nt=nt, c=c: self.setFilter(
+                        "mid", str(nt['id']), "card", str(c+1)
+                    ))
+
+    # Favourites
+    ######################################################################
+
+    def _addSavedSearches(self, m):
+        # make sure exists
+        if "savedFilters" not in self.col.conf:
+            self.col.conf['savedFilters'] = {}
+
+        m.addSeparator()
+
+        if self._currentFilterIsSaved():
+            a = m.addAction(_("Remove Current Filter..."))
+            a.triggered.connect(self._onRemoveFilter)
+        else:
+            a = m.addAction(_("Save Current Filter..."))
+            a.triggered.connect(self._onSaveFilter)
+
+        saved = self.col.conf['savedFilters']
+        if not saved:
+            return
+
+        m.addSeparator()
+        for name, filt in sorted(saved.items()):
+            a = m.addAction(name)
+            a.triggered.connect(lambda *, f=filt: self.setFilter(f))
+
+    def _onSaveFilter(self):
+        name = getOnlyText(_("Please give your filter a name:"))
+        if not name:
+            return
+        filt = self.form.searchEdit.lineEdit().text()
+        self.col.conf['savedFilters'][name] = filt
+        self.col.setMod()
+
+    def _onRemoveFilter(self):
+        name = self._currentFilterIsSaved()
+        if not askUser(_("Remove %s from your saved searches?") % name):
+            return
+        del self.col.conf['savedFilters'][name]
+        self.col.setMod()
+
+    # returns name if found
+    def _currentFilterIsSaved(self):
+        filt = self.form.searchEdit.lineEdit().text()
+        for k,v in self.col.conf['savedFilters'].items():
+            if filt == v:
+                return k
+        return None
 
     # Info
     ######################################################################
@@ -1261,7 +1338,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def _clearUnusedTags(self):
         self.col.tags.registerNotes()
-        self.buildTree()
 
     # Suspending and marking
     ######################################################################
@@ -1385,16 +1461,12 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
         addHook("editFocusLost", self.refreshCurrentCardFilter)
-        for t in "newTag", "newModel", "newDeck":
-            addHook(t, self.buildTree)
 
     def teardownHooks(self):
         remHook("reset", self.onReset)
         remHook("editTimer", self.refreshCurrentCard)
         remHook("editFocusLost", self.refreshCurrentCardFilter)
         remHook("undoState", self.onUndoState)
-        for t in "newTag", "newModel", "newDeck":
-            remHook(t, self.buildTree)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
@@ -1590,9 +1662,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.editor.web.setFocus()
         self.editor.web.eval("focusField(0);")
 
-    def onTags(self):
-        self.form.tree.setFocus()
-
     def onCardList(self):
         self.form.tableView.setFocus()
 
@@ -1774,88 +1843,3 @@ Are you sure you want to continue?""")):
     def onHelp(self):
         openHelp("browsermisc")
 
-# Favourites button
-######################################################################
-class FavouritesLineEdit(QLineEdit):
-    buttonClicked = pyqtSignal(bool)
-
-    def __init__(self, mw, browser, parent=None):
-        super().__init__(parent)
-        self.mw = mw
-        self.browser = browser
-        # add conf if missing
-        if 'savedFilters' not in self.mw.col.conf:
-            self.mw.col.conf['savedFilters'] = {}
-        self.button = QToolButton(self)
-        self.button.setStyleSheet('border: 0px;')
-        self.button.setCursor(Qt.ArrowCursor)
-        self.button.clicked.connect(self.buttonClicked.emit)
-        self.setIcon(':/icons/emblem-favorite-off.png')
-        # flag to raise save or delete dialog on button click
-        self.doSave = True
-        # name of current saved filter (if query matches)
-        self.name = None
-        self.buttonClicked.connect(self.onClicked)
-        self.textChanged.connect(self.updateButton)
-
-    def resizeEvent(self, event):
-        buttonSize = self.button.sizeHint()
-        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
-        self.button.move(self.rect().right() - frameWidth - buttonSize.width(),
-                         (self.rect().bottom() - buttonSize.height() + 1) / 2)
-        self.setTextMargins(0, 0, buttonSize.width() * 1.5, 0)
-        super().resizeEvent(event)
-
-    def setIcon(self, path):
-        self.button.setIcon(QIcon(path))
-
-    def setText(self, txt):
-        super().setText(txt)
-        self.updateButton()
-        
-    def updateButton(self, reset=True):
-        # If search text is a saved query, switch to the delete button.
-        # Otherwise show save button.
-        txt = str(self.text()).strip()
-        for key, value in list(self.mw.col.conf['savedFilters'].items()):
-            if txt == value:
-                self.doSave = False
-                self.name = key
-                self.setIcon(QIcon(":/icons/emblem-favorite.png"))
-                return
-        self.doSave = True
-        self.setIcon(QIcon(":/icons/emblem-favorite-off.png"))
-    
-    def onClicked(self):
-        if self.doSave:
-            self.saveClicked()
-        else:
-            self.deleteClicked()
-    
-    def saveClicked(self):
-        txt = str(self.text()).strip()
-        dlg = QInputDialog(self)
-        dlg.setInputMode(QInputDialog.TextInput)
-        dlg.setLabelText(_("The current search terms will be added as a new "
-                           "item in the sidebar.\n"
-                           "Search name:"))
-        dlg.setWindowTitle(_("Save search"))
-        ok = dlg.exec_()
-        name = dlg.textValue()
-        if ok:
-            self.mw.col.conf['savedFilters'][name] = txt
-            self.mw.col.setMod()
-            
-        self.updateButton()
-        self.browser.buildTree()
-    
-    def deleteClicked(self):
-        msg = _('Remove "%s" from your saved searches?') % self.name
-        ok = QMessageBox.question(self, _('Remove search'),
-                         msg, QMessageBox.Yes, QMessageBox.No)
-    
-        if ok == QMessageBox.Yes:
-            self.mw.col.conf['savedFilters'].pop(self.name, None)
-            self.mw.col.setMod()
-            self.updateButton()
-            self.browser.buildTree()
