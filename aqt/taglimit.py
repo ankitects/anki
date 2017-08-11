@@ -30,13 +30,12 @@ class TagLimit(QDialog):
             noHash[n] = True
         groupedTags = []
         usertags.sort()
-        icon = QIcon(":/icons/Anki_Fact.png")
-        groupedTags.append([icon, usertags])
+        groupedTags.append(usertags)
         self.tags = []
-        for (icon, tags) in groupedTags:
+        for tags in groupedTags:
             for t in tags:
                 self.tags.append(t)
-                item = QListWidgetItem(icon, t.replace("_", " "))
+                item = QListWidgetItem(t.replace("_", " "))
                 self.dialog.activeList.addItem(item)
                 if t in yesHash:
                     mode = QItemSelectionModel.Select
@@ -46,7 +45,7 @@ class TagLimit(QDialog):
                 idx = self.dialog.activeList.indexFromItem(item)
                 self.dialog.activeList.selectionModel().select(idx, mode)
                 # inactive
-                item = QListWidgetItem(icon, t.replace("_", " "))
+                item = QListWidgetItem(t.replace("_", " "))
                 self.dialog.inactiveList.addItem(item)
                 if t in noHash:
                     mode = QItemSelectionModel.Select

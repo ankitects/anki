@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Add</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icons/list-add.png</normaloff>:/icons/list-add.png</iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>3</number>

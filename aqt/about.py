@@ -23,7 +23,7 @@ def show(mw):
     mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
-    abouttext = "<center><img src='qrc:/icons/anki-logo-thin.png'></center>"
+    abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")
     abouttext += "<p>"+_("Anki is licensed under the AGPL3 license. Please see "
@@ -119,9 +119,6 @@ system. It's free and open source.")
 
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
     testing and design from:<p>%(cont)s") % {'cont': ", ".join(allusers)}
-    abouttext += '<p>' + _("""\
-The icons were obtained from various sources; please see the Anki source
-for credits.""")
     abouttext += '<p>' + _("If you have contributed and are not on this list, \
 please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \

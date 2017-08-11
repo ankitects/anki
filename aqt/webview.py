@@ -58,6 +58,10 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(self, url, navType, isMainFrame):
         if not isMainFrame:
             return True
+        from aqt import mw
+        # ignore href=#
+        if url.toString().startswith(mw.serverURL()):
+            return False
         # load all other links in browser
         openLink(url)
         return False
@@ -179,8 +183,8 @@ border-radius:5px; font-family: Helvetica }"""
                            [self.bundledCSS(fname) for fname in css])
         jstxt = "\n".join([self.bundledScript("webview.js")]+
                           [self.bundledScript(fname) for fname in js])
-        head += csstxt + jstxt
-
+        from aqt import mw
+        head =  mw.baseHTML() + head + csstxt + jstxt
 
         html=f"""
 <!doctype html>

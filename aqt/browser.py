@@ -1169,13 +1169,12 @@ where id in %s""" % ids2str(sf))
         self._previewWindow = self._previewPrev = self._previewNext = None
 
     def _setupPreviewWebview(self):
-        base = self.mw.baseHTML()
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "reviewer.js"]
         self._previewWeb.stdHtml(self.mw.reviewer.revHtml(),
                                  css=["reviewer.css"],
-                                 head=base, js=jsinc)
+                                 js=jsinc)
 
 
     def _renderPreview(self, cardChanged=False):

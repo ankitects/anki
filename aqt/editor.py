@@ -106,7 +106,7 @@ class Editor:
         self.web.stdHtml(_html % (
             bgcol, bgcol,
             topbuts,
-            _("Show Duplicates")), head=self.mw.baseHTML(),
+            _("Show Duplicates")),
                          css=["editor.css"],
                          js=["jquery.js", "editor.js"])
 
@@ -127,7 +127,7 @@ class Editor:
         if os.path.isabs(icon):
             iconstr = self.resourceToData(icon)
         else:
-            iconstr = "qrc:/icons/{}.png".format(icon)
+            iconstr = "/_anki/imgs/{}.png".format(icon)
         if id:
             idstr = 'id={}'.format(id)
         else:

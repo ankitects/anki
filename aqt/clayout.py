@@ -170,16 +170,15 @@ class CardLayout(QDialog):
         pform.frontPrevBox.addWidget(pform.frontWeb)
         pform.backWeb = AnkiWebView()
         pform.backPrevBox.addWidget(pform.backWeb)
-        base = self.mw.baseHTML()
         jsinc = ["jquery.js","browsersel.js",
                  "mathjax/conf.js", "mathjax/MathJax.js",
                  "reviewer.js"]
         pform.frontWeb.stdHtml(self.mw.reviewer.revHtml(),
                                css=["reviewer.css"],
-                               head=base, js=jsinc)
+                               js=jsinc)
         pform.backWeb.stdHtml(self.mw.reviewer.revHtml(),
                               css=["reviewer.css"],
-                              head=base, js=jsinc)
+                               js=jsinc)
 
     def updateMainArea(self):
         if self._isCloze():

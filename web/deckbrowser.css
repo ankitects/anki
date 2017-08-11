@@ -57,3 +57,10 @@ body {
 .filtered {
     color: #00a !important;
 }
+
+.gears {
+    width: 1em;
+    height: 1em;
+    opacity: .5;
+    padding-top: 0.2em;
+}

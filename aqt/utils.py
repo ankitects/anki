@@ -353,11 +353,6 @@ def applyStyles(widget):
     if os.path.exists(p):
         widget.setStyleSheet(open(p).read())
 
-# this will go away in the future - please use mw.baseHTML() instead
-def getBase(col):
-    from aqt import mw
-    return mw.baseHTML()
-
 def openFolder(path):
     if isWin:
         subprocess.Popen(["explorer", "file://"+path])
@@ -405,7 +400,6 @@ def tooltip(msg, period=3000, parent=None):
     lab = CustomLabel("""\
 <table cellpadding=10>
 <tr>
-<td><img src=":/icons/help-hint.png"></td>
 <td>%s</td>
 </tr>
 </table>""" % msg, aw)

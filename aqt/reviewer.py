@@ -120,17 +120,15 @@ class Reviewer:
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
         return f"""
-<img src="qrc:/icons/rating.png" id=star class=marked>
+<img src="/_anki/imgs/rating.png" id=star class=marked>
 <div id=qa></div>
 {extra}
 """
 
     def _initWeb(self):
         self._reps = 0
-        base = self.mw.baseHTML()
         # main window
         self.web.stdHtml(self.revHtml(),
-                         head=base,
                          css=["reviewer.css"],
                          js=["jquery.js",
                              "browsersel.js",

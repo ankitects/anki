@@ -26,7 +26,6 @@ class DeckConf(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.form.buttonBox.helpRequested.connect(lambda: openHelp("deckoptions"))
         self.form.confOpts.clicked.connect(self.confOpts)
-        self.form.confOpts.setText(downArrow())
         self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self.onRestore)
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         # qt doesn't size properly with altered fonts otherwise

@@ -188,22 +188,13 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             nonzeroColour(new, "#000099"))
         # options
         buf += ("<td align=center class=opts><a onclick='pycmd(\"opts:%d\");'>"
-        "<img valign=right src='qrc:/icons/gears.png'></a></td></tr>" % did)
+        "<img src='/_anki/imgs/gears.png' class=gears></a></td></tr>" % did)
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
 
     def _topLevelDragRow(self):
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
-
-    def _dueImg(self, due, new):
-        if due:
-            i = "clock-icon"
-        elif new:
-            i = "plus-circle"
-        else:
-            i = "none"
-        return '<img valign=bottom src="qrc:/icons/%s.png">' % i
 
     # Options
     ##########################################################################
