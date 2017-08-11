@@ -86,5 +86,5 @@ function _clozeIsInsideMathjax(node) {
         return;
     }
     // look for mathjax opening in previous text
-    return /\(|\$\$/.test(node.previousSibling.textContent);
+    return /\\\(|\$\$/.test(node.previousSibling.textContent);
 }
