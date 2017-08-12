@@ -42,6 +42,7 @@ class CardLayout(QDialog):
         self.setupTopArea()
         self.setupMainArea()
         self.setupButtons()
+        self.setupShortcuts()
         self.setWindowTitle(_("Card Types for %s") % self.model['name'])
         v1 = QVBoxLayout()
         v1.addWidget(self.topArea)
@@ -68,6 +69,14 @@ class CardLayout(QDialog):
         self.updateMainArea()
         self.redrawing = False
         self.onCardSelected(self.ord)
+
+    def setupShortcuts(self):
+        for i in range(1,9):
+            QShortcut(QKeySequence("Ctrl+%d" % i), self, activated=lambda i=i: self.selectCard(i))
+
+    def selectCard(self, n):
+        self.ord = n-1
+        self.redraw()
 
     def setupTopArea(self):
         self.topArea = QWidget()
