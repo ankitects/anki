@@ -133,6 +133,9 @@ class AnkiExporter(Exporter):
             "select * from cards where id in "+ids2str(cids)):
             nids[row[1]] = True
             data.append(row)
+            # clear flags
+            row = list(row)
+            row[-2] = 0
         self.dst.db.executemany(
             "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             data)
