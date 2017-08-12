@@ -1,5 +1,5 @@
 body {
-    margin: 0;
+    margin: 0px;
     padding: 0;
 }
 
@@ -43,6 +43,8 @@ button {
 
 #outer {
     border-top: 1px solid #aaa;
+    padding: 9px;
+    padding-top: 3px;
 }
 
 #innertable {
