@@ -1,7 +1,9 @@
 hr { background-color:#ccc; margin: 1em; }
 body { margin:1.5em; }
 img { max-width: 95%; max-height: 95%; }
-.marked { position:fixed; right: 7px; top: 7px; width: 24px; height: 24px; display: none; }
+#_flag {
+    position:fixed; right: 7px; top: 0px; font-size: 30px; display: none;
+}
 #typeans { width: 100%; }
 .typeGood { background: #0f0; }
 .typeBad { background: #f00; }

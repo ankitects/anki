@@ -268,12 +268,25 @@
     <property name="title">
      <string>&amp;Cards</string>
     </property>
+    <widget class="QMenu" name="menuFlag">
+     <property name="title">
+      <string>Flag</string>
+     </property>
+     <addaction name="actionRed_Flag"/>
+     <addaction name="actionPurple_Flag"/>
+     <addaction name="actionGreen_Flag"/>
+     <addaction name="actionBlue_Flag"/>
+     <addaction name="separator"/>
+     <addaction name="actionClear_Flag"/>
+    </widget>
     <addaction name="actionChange_Deck"/>
     <addaction name="separator"/>
     <addaction name="actionReschedule"/>
     <addaction name="actionReposition"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Suspend"/>
+    <addaction name="separator"/>
+    <addaction name="menuFlag"/>
     <addaction name="separator"/>
     <addaction name="action_Info"/>
    </widget>
@@ -290,8 +303,6 @@
     <addaction name="separator"/>
     <addaction name="actionFindDuplicates"/>
     <addaction name="actionFindReplace"/>
-    <addaction name="separator"/>
-    <addaction name="actionToggle_Mark"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
    </widget>
@@ -502,12 +513,44 @@
     <string>Ctrl+D</string>
    </property>
   </action>
-  <action name="actionToggle_Mark">
+  <action name="actionClear_Flag">
    <property name="text">
-    <string>Toggle Mark</string>
+    <string>Clear Flag</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+K</string>
+    <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionRed_Flag">
+   <property name="text">
+    <string>Red Flag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actionPurple_Flag">
+   <property name="text">
+    <string>Purple Flag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionGreen_Flag">
+   <property name="text">
+    <string>Green Flag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actionBlue_Flag">
+   <property name="text">
+    <string>Blue Flag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
    </property>
   </action>
  </widget>

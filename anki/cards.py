@@ -187,3 +187,10 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         del d['col']
         del d['timerStarted']
         return pprint.pformat(d, width=300)
+
+    def userFlag(self):
+        return self.flags & 0b111
+
+    def setUserFlag(self, flag):
+        assert 0 <= flag <= 7
+        self.flags = (self.flags & ~0b111) | flag

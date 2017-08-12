@@ -24,11 +24,6 @@ from aqt.webview import AnkiWebView
 from anki.consts import *
 from anki.sound import playFromText, clearAudioQueue
 
-COLOUR_SUSPENDED = "#FFFFB2"
-COLOUR_MARKED = "#D9B2E9"
-
-# fixme: need to refresh after undo
-
 # Data model
 ##########################################################################
 
@@ -318,6 +313,15 @@ class DataModel(QAbstractTableModel):
 # Line painter
 ######################################################################
 
+COLOUR_SUSPENDED = "#FFFFB2"
+
+flagColours = {
+    1: "#F5B7B1",
+    2: "#BB8FCE",
+    3: "#82E0AA",
+    4: "#85C1E9",
+}
+
 class StatusDelegate(QItemDelegate):
 
     def __init__(self, browser, model):
@@ -335,16 +339,19 @@ class StatusDelegate(QItemDelegate):
             return
         finally:
             self.browser.mw.progress.blockUpdates = True
+
         col = None
-        if c.note().hasTag("Marked"):
-            col = COLOUR_MARKED
-        elif c.queue == -1:
+        if c.queue == -1:
             col = COLOUR_SUSPENDED
+        elif c.userFlag() > 0:
+            col = flagColours[c.userFlag()]
+
         if col:
             brush = QBrush(QColor(col))
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
+
         return QItemDelegate.paint(self, painter, option, index)
 
 # Browser window
@@ -403,7 +410,6 @@ class Browser(QMainWindow):
         f.actionChangeModel.triggered.connect(self.onChangeModel)
         f.actionFindDuplicates.triggered.connect(self.onFindDupes)
         f.actionFindReplace.triggered.connect(self.onFindReplace)
-        f.actionToggle_Mark.triggered.connect(lambda: self.onMark())
         f.actionDelete.triggered.connect(self.deleteNotes)
         # cards
         f.actionChange_Deck.triggered.connect(self.setDeck)
@@ -411,6 +417,11 @@ class Browser(QMainWindow):
         f.actionReposition.triggered.connect(self.reposition)
         f.actionReschedule.triggered.connect(self.reschedule)
         f.actionToggle_Suspend.triggered.connect(self.onSuspend)
+        f.actionRed_Flag.triggered.connect(lambda: self.onSetFlag(1))
+        f.actionPurple_Flag.triggered.connect(lambda: self.onSetFlag(2))
+        f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
+        f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
+        f.actionClear_Flag.triggered.connect(lambda: self.onSetFlag(0))
         # jumps
         f.actionPreviousCard.triggered.connect(self.onPreviousCard)
         f.actionNextCard.triggered.connect(self.onNextCard)
@@ -743,11 +754,10 @@ by clicking on one on the left."""))
 
         self._addTodayFilters(m)
         self._addCardStateFilters(m)
-        m.addSeparator()
-
         self._addDeckFilters(m)
         self._addNoteTypeFilters(m)
         self._addTagFilters(m)
+
         self._addSavedSearches(m)
 
         m.exec_(self.form.filter.mapToGlobal(QPoint(0,0)))
@@ -793,10 +803,7 @@ by clicking on one on the left."""))
     def _addCommonFilters(self, m):
         items = (
             (_("Whole Collection"), ""),
-            (_("Current Deck"), "deck:current"),
-            None,
-            (_("Marked"), "tag:marked"),
-            (_("Leech"), "tag:leech"))
+            (_("Current Deck"), "deck:current"))
         self._addSimpleFilters(m, items)
 
     def _addTodayFilters(self, m):
@@ -816,7 +823,15 @@ by clicking on one on the left."""))
             (_("Due"), "is:due"),
             None,
             (_("Suspended"), "is:suspended"),
-            (_("Buried"), "is:buried"))
+            (_("Buried"), "is:buried"),
+            None,
+            (_("Red Flag"), "flag:1"),
+            (_("Purple Flag"), "flag:2"),
+            (_("Green Flag"), "flag:3"),
+            (_("Blue Flag"), "flag:4"),
+            (_("No Flag"), "flag:0"),
+            (_("Any Flag"), "-flag:0"),
+        )
         self._addSimpleFilters(m, items)
 
     _tagsMenuSize = 30
@@ -847,8 +862,6 @@ by clicking on one on the left."""))
 
     def _addTagFilterBlock(self, m, tags):
         for t in tags:
-            if t.lower() == "marked" or t.lower() == "leech":
-                continue
             a = m.addAction(t)
             a.triggered.connect(lambda *, tag=t: self.setFilter("tag", tag))
 
@@ -1338,7 +1351,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def _clearUnusedTags(self):
         self.col.tags.registerNotes()
 
-    # Suspending and marking
+    # Suspending
     ######################################################################
 
     def isSuspended(self):
@@ -1357,16 +1370,12 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.model.reset()
         self.mw.requireReset()
 
-    def isMarked(self):
-        return not not (self.card and self.card.note().hasTag("Marked"))
+    # Flags
+    ######################################################################
 
-    def onMark(self, mark=None):
-        if mark is None:
-            mark = not self.isMarked()
-        if mark:
-            self.addTags(tags="marked", label=False)
-        else:
-            self.deleteTags(tags="marked", label=False)
+    def onSetFlag(self, n):
+        self.col.setUserFlag(n, self.selectedCards())
+        self.model.reset()
 
     # Repositioning
     ######################################################################

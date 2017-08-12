@@ -850,3 +850,11 @@ and queue = 0""", intTime(), self.usn())
 
     def _closeLog(self):
         self._logHnd = None
+
+    # Card Flags
+    ##########################################################################
+
+    def setUserFlag(self, flag, cids):
+        assert 0 <= flag <= 7
+        self.db.execute("update cards set flags = (flags & ~?) | ? where id in %s" %
+                        ids2str(cids), 0b111, flag)

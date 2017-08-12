@@ -59,12 +59,21 @@ function _showAnswer(a, bodyclass) {
     });
 }
 
-function _toggleStar(show) {
-    if (show) {
-        $(".marked").show();
-    } else {
-        $(".marked").hide();
+_flagColours = {
+    1: "red",
+    2: "purple",
+    3: "green",
+    4: "blue"
+};
+
+function _drawFlag(flag) {
+    var elem = $("#_flag");
+    if (flag === 0) {
+        elem.hide();
+        return;
     }
+    elem.show();
+    elem.css("color", _flagColours[flag]);
 }
 
 function _typeAnsPress() {

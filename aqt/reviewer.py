@@ -120,7 +120,7 @@ class Reviewer:
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
         return f"""
-<img src="/_anki/imgs/rating.png" id=star class=marked>
+<div id=_flag>&#x2691;</div>
 <div id=qa></div>
 {extra}
 """
@@ -170,7 +170,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         bodyclass = "card card%d" % (c.ord+1)
 
         self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
-        self._toggleStar()
+        self._drawFlag()
         self._showAnswerButton()
         # if we have a type answer field, focus main web
         if self.typeCorrect:
@@ -187,9 +187,8 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         return s.mw.col.decks.confForDid(
             s.card.odid or s.card.did).get('replayq', True)
 
-    def _toggleStar(self):
-        self.web.eval("_toggleStar(%s);" % json.dumps(
-            self.card.note().hasTag("marked")))
+    def _drawFlag(self):
+        self.web.eval("_drawFlag(%s);" % self.card.userFlag())
 
     # Showing the answer
     ##########################################################################
@@ -239,7 +238,11 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             (Qt.Key_Enter, self.onEnterKey),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
-            ("*", self.onMark),
+            ("Ctrl+1", lambda: self.setFlag(1)),
+            ("Ctrl+2", lambda: self.setFlag(2)),
+            ("Ctrl+3", lambda: self.setFlag(3)),
+            ("Ctrl+4", lambda: self.setFlag(4)),
+            ("Ctrl+0", lambda: self.setFlag(0)),
             ("=", self.onBuryNote),
             ("-", self.onBuryCard),
             ("!", self.onSuspend),
@@ -564,7 +567,13 @@ time = %(time)d;
     # note the shortcuts listed here also need to be defined above
     def showContextMenu(self):
         opts = [
-            [_("Mark Note"), "*", self.onMark],
+            [_("Flag Card"), [
+                [_("Red Flag"), "Ctrl+1", lambda: self.setFlag(1)],
+                [_("Purple Flag"), "Ctrl+2", lambda: self.setFlag(2)],
+                [_("Green Flag"), "Ctrl+3", lambda: self.setFlag(3)],
+                [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4)],
+                [_("No Flag"), "Ctrl+5", lambda: self.setFlag(0)],
+            ]],
             [_("Bury Card"), "-", self.onBuryCard],
             [_("Bury Note"), "=", self.onBuryNote],
             [_("Suspend Card"), "@", self.onSuspendCard],
@@ -577,30 +586,35 @@ time = %(time)d;
             [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
         m = QMenu(self.mw)
-        for row in opts:
+        self._addMenuItems(m, opts)
+
+        runHook("Reviewer.contextMenuEvent",self,m)
+        m.exec_(QCursor.pos())
+
+    def _addMenuItems(self, m, rows):
+        for row in rows:
             if not row:
                 m.addSeparator()
+                continue
+            if len(row) == 2:
+                subm = m.addMenu(row[0])
+                self._addMenuItems(subm, row[1])
                 continue
             label, scut, func = row
             a = m.addAction(label)
             if scut:
                 a.setShortcut(QKeySequence(scut))
             a.triggered.connect(func)
-        runHook("Reviewer.contextMenuEvent",self,m)
-        m.exec_(QCursor.pos())
+
 
     def onOptions(self):
         self.mw.onDeckConf(self.mw.col.decks.get(
             self.card.odid or self.card.did))
 
-    def onMark(self):
-        f = self.card.note()
-        if f.hasTag("marked"):
-            f.delTag("marked")
-        else:
-            f.addTag("marked")
-        f.flush()
-        self._toggleStar()
+    def setFlag(self, flag):
+        self.card.setUserFlag(flag)
+        self.card.flush()
+        self._drawFlag()
 
     def onSuspend(self):
         self.mw.checkpoint(_("Suspend"))
