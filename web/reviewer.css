@@ -1,10 +1,37 @@
-hr { background-color:#ccc; margin: 1em; }
-body { margin:1.5em; }
-img { max-width: 95%; max-height: 95%; }
-#_flag {
-    position:fixed; right: 7px; top: 0px; font-size: 30px; display: none;
+hr {
+    background-color: #ccc;
+    margin: 1em;
 }
-#typeans { width: 100%; }
-.typeGood { background: #0f0; }
-.typeBad { background: #f00; }
-.typeMissed { background: #ccc; }
+
+body {
+    margin: 1.5em;
+}
+
+img {
+    max-width: 95%;
+    max-height: 95%;
+}
+
+#_flag {
+    position: fixed;
+    right: 7px;
+    top: 0;
+    font-size: 30px;
+    display: none;
+}
+
+#typeans {
+    width: 100%;
+}
+
+.typeGood {
+    background: #0f0;
+}
+
+.typeBad {
+    background: #f00;
+}
+
+.typeMissed {
+    background: #ccc;
+}
