@@ -102,6 +102,7 @@ class CardLayout(QDialog):
 
     def _fieldsOnTemplate(self, fmt):
         matches = re.findall("{{[^#/}]+?}}", fmt)
+        charsAllowed = 30
         result = collections.OrderedDict()
         for m in matches:
             # strip off mustache
@@ -112,9 +113,16 @@ class CardLayout(QDialog):
             if m == "FrontSide":
                 continue
 
-            result[m] = True
+            if m not in result:
+                result[m] = True
+                charsAllowed -= len(m)
+                if charsAllowed <= 0:
+                    break
 
-        return "+".join(result.keys())
+        str = "+".join(result.keys())
+        if charsAllowed <= 0:
+            str += "+..."
+        return str
 
     def _isCloze(self):
         return self.model['type'] == MODEL_CLOZE
