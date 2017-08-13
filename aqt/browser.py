@@ -373,6 +373,7 @@ class Browser(QMainWindow):
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
+        self.setupSidebar()
         restoreGeom(self, "editor", 0)
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter, "editor3")
@@ -430,6 +431,7 @@ class Browser(QMainWindow):
         f.actionFind.triggered.connect(self.onFind)
         f.actionNote.triggered.connect(self.onNote)
         f.actionTags.triggered.connect(self.onFilterButton)
+        f.actionSidebar.triggered.connect(self.focusSidebar)
         f.actionCardList.triggered.connect(self.onCardList)
         # help
         f.actionGuide.triggered.connect(self.onHelp)
@@ -493,6 +495,8 @@ class Browser(QMainWindow):
         "Show answer on RET or register answer."
         if evt.key() == Qt.Key_Escape:
             self.close()
+        else:
+            super().keyPressEvent(evt)
 
     def setupColumns(self):
         self.columns = [
@@ -743,6 +747,109 @@ by clicking on one on the left."""))
     def onColumnMoved(self, a, b, c):
         self.setColumnSizes()
 
+    # Sidebar
+    ######################################################################
+
+    class CallbackItem(QTreeWidgetItem):
+        def __init__(self, root, name, onclick, oncollapse=None, expanded=False):
+            QTreeWidgetItem.__init__(self, root, [name])
+            self.setExpanded(expanded)
+            self.onclick = onclick
+            self.oncollapse = oncollapse
+
+    class SidebarTreeWidget(QTreeWidget):
+        def __init__(self):
+            QTreeWidget.__init__(self)
+            self.itemClicked.connect(self.onTreeClick)
+            self.itemExpanded.connect(lambda item: self.onTreeCollapse(item))
+            self.itemCollapsed.connect(lambda item: self.onTreeCollapse(item))
+
+        def keyPressEvent(self, evt):
+            if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
+                item = self.currentItem()
+                self.onTreeClick(item, 0)
+            else:
+                super().keyPressEvent(evt)
+
+        def onTreeClick(self, item, col):
+            if getattr(item, 'onclick', None):
+                item.onclick()
+
+        def onTreeCollapse(self, item):
+            if getattr(item, 'oncollapse', None):
+                item.oncollapse()
+
+    def setupSidebar(self):
+        dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
+        dw.setFeatures(QDockWidget.DockWidgetClosable)
+        dw.setObjectName("Sidebar")
+        dw.setAllowedAreas(Qt.LeftDockWidgetArea)
+        self.sidebarTree = self.SidebarTreeWidget()
+        self.sidebarTree.mw = self.mw
+        self.sidebarTree.setFrameShape(QFrame.NoFrame)
+        self.sidebarTree.header().setVisible(False)
+        dw.setWidget(self.sidebarTree)
+        p = QPalette()
+        p.setColor(QPalette.Base, p.window().color())
+        self.sidebarTree.setPalette(p)
+        self.sidebarTree.setVisible(True)
+        self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged)
+
+    def onSidebarVisChanged(self, visible):
+        if visible:
+            self.buildTree()
+        else:
+            pass
+
+    def focusSidebar(self):
+        self.sidebarDockWidget.setVisible(True)
+        self.sidebarTree.setFocus()
+
+    def maybeRefreshSidebar(self):
+        if self.sidebarDockWidget.isVisible():
+            self.buildTree()
+
+    def buildTree(self):
+        self.sidebarTree.clear()
+        root = self.sidebarTree
+        self._favTree(root)
+        self._decksTree(root)
+        self._modelTree(root)
+        self._userTagTree(root)
+        self.sidebarTree.setIndentation(15)
+
+    def _favTree(self, root):
+        saved = self.col.conf.get('savedFilters', {})
+        for name, filt in sorted(saved.items()):
+            item = self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
+            item.setIcon(0, QIcon(":/icons/heart.png"))
+
+    def _userTagTree(self, root):
+        for t in sorted(self.col.tags.all(), key=lambda t: t.lower()):
+            item = self.CallbackItem(
+                root, t, lambda t=t: self.setFilter("tag", t))
+            item.setIcon(0, QIcon(":/icons/tag.png"))
+
+    def _decksTree(self, root):
+        grps = self.col.sched.deckDueTree()
+        def fillGroups(root, grps, head=""):
+            for g in grps:
+                item = self.CallbackItem(
+                    root, g[0],
+                    lambda g=g: self.setFilter("deck", head+g[0]),
+                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]),
+                    not self.mw.col.decks.get(g[1]).get('browserCollapsed', False))
+                item.setIcon(0, QIcon(":/icons/deck.png"))
+                newhead = head + g[0]+"::"
+                fillGroups(item, g[5], newhead)
+        fillGroups(root, grps)
+
+    def _modelTree(self, root):
+        for m in sorted(self.col.models.all(), key=itemgetter("name")):
+            mitem = self.CallbackItem(
+                root, m['name'], lambda m=m: self.setFilter("mid", str(m['id'])))
+            mitem.setIcon(0, QIcon(":/icons/notetype.png"))
+
     # Filter tree
     ######################################################################
 
@@ -757,6 +864,10 @@ by clicking on one on the left."""))
         self._addDeckFilters(m)
         self._addNoteTypeFilters(m)
         self._addTagFilters(m)
+
+        m.addSeparator()
+        m.addAction(self.sidebarDockWidget.toggleViewAction())
+        m.addSeparator()
 
         self._addSavedSearches(m)
 
@@ -1469,12 +1580,16 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
         addHook("editFocusLost", self.refreshCurrentCardFilter)
+        for t in "newTag", "newModel", "newDeck":
+            addHook(t, self.maybeRefreshSidebar)
 
     def teardownHooks(self):
         remHook("reset", self.onReset)
         remHook("editTimer", self.refreshCurrentCard)
         remHook("editFocusLost", self.refreshCurrentCardFilter)
         remHook("undoState", self.onUndoState)
+        for t in "newTag", "newModel", "newDeck":
+            remHook(t, self.maybeRefreshSidebar)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)

@@ -250,6 +250,7 @@
     </property>
     <addaction name="actionFind"/>
     <addaction name="actionTags"/>
+    <addaction name="actionSidebar"/>
     <addaction name="actionNote"/>
     <addaction name="actionCardList"/>
     <addaction name="separator"/>
@@ -551,6 +552,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="actionSidebar">
+   <property name="text">
+    <string>Sidebar</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+R</string>
    </property>
   </action>
  </widget>

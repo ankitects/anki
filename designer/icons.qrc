@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/">
     <file>icons/anki.png</file>
+    <file>icons/tag.png</file>
+    <file>icons/deck.png</file>
+    <file>icons/notetype.png</file>
+    <file>icons/heart.png</file>
   </qresource>
 </RCC>
