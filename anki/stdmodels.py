@@ -26,6 +26,25 @@ def addBasicModel(col):
 
 models.append((lambda: _("Basic"), addBasicModel))
 
+# Basic w/ typing
+##########################################################################
+
+def addBasicTypingModel(col):
+    mm = col.models
+    m = mm.new(_("Basic (type in the answer)"))
+    fm = mm.newField(_("Front"))
+    mm.addField(m, fm)
+    fm = mm.newField(_("Back"))
+    mm.addField(m, fm)
+    t = mm.newTemplate(_("Card 1"))
+    t['qfmt'] = "{{"+_("Front")+"}}\n{{type:"+_("Back")+"}}"
+    t['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Back")+"}}"
+    mm.addTemplate(m, t)
+    mm.add(m)
+    return m
+
+models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
+
 # Forward & Reverse
 ##########################################################################
 

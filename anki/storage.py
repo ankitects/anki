@@ -11,7 +11,7 @@ from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
-    addForwardOptionalReverse
+    addForwardOptionalReverse, addBasicTypingModel
 
 def Collection(path, lock=True, server=False, sync=True, log=False):
     "Open a new or existing collection. Path must be unicode."
@@ -43,6 +43,7 @@ def Collection(path, lock=True, server=False, sync=True, log=False):
     elif create:
         # add in reverse order so basic is default
         addClozeModel(col)
+        addBasicTypingModel(col)
         addForwardOptionalReverse(col)
         addForwardReverse(col)
         addBasicModel(col)
