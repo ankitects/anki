@@ -344,31 +344,29 @@ the manual for information on how to restore from an automatic backup."))
             return
         dir = self.pm.backupFolder()
         path = self.pm.collectionPath()
-        # find existing backups
-        backups = []
-        for file in os.listdir(dir):
-            m = re.search("backup-(\d+).apkg", file)
-            if not m:
-                # unknown file
-                continue
-            backups.append((int(m.group(1)), file))
-        backups.sort()
-        # get next num
-        if not backups:
-            n = 1
-        else:
-            n = backups[-1][0] + 1
+
         # do backup
-        newpath = os.path.join(dir, "backup-%d.apkg" % n)
+        fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.apkg", time.localtime(time.time()))
+        newpath = os.path.join(dir, fname)
         data = open(path, "rb").read()
         b = self.BackupThread(newpath, data)
         b.start()
-        # remove if over
-        if len(backups) + 1 > nbacks:
-            delete = len(backups) + 1 - nbacks
-            delete = backups[:delete]
-            for file in delete:
-                os.unlink(os.path.join(dir, file[1]))
+
+        # find existing backups
+        backups = []
+        for file in os.listdir(dir):
+            # only look for new-style format
+            m = re.match("backup-\{4}-.+.apkg", file)
+            if not m:
+                continue
+            backups.append(file)
+        backups.sort()
+
+        # remove old ones
+        while len(backups) > nbacks:
+            fname = backups.pop(0)
+            path = os.path.join(dir, fname)
+            send2trash(path)
 
     def maybeOptimize(self):
         # have two weeks passed?
