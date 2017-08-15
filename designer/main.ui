@@ -142,7 +142,7 @@
     <string>&amp;Undo</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+Z</string>
+    <string>Ctrl+Shift+Z</string>
    </property>
   </action>
   <action name="actionCheckMediaDatabase">
