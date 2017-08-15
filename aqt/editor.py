@@ -264,10 +264,9 @@ class Editor:
                 return
             self.setupForegroundButton()
             self.checkValid()
+            if focusTo is not None:
+                self.web.setFocus()
             runHook("loadNote", self)
-
-        if focusTo is not None:
-            self.web.setFocus()
 
         self.web.evalWithCallback("setFields(%s, %s); setFonts(%s); focusField(%s)" % (
             json.dumps(data), json.dumps(self.prewrapMode()),
