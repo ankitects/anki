@@ -438,3 +438,85 @@ def checkInvalidFilename(str, dirsep=True):
                     bad)
         return True
     return False
+
+# Menus
+######################################################################
+
+class MenuList:
+    def __init__(self):
+        self.children = []
+
+    def addItem(self, title, func):
+        item = MenuItem(title, func)
+        self.children.append(item)
+        return item
+
+    def addSeparator(self):
+        self.children.append(None)
+
+    def addMenu(self, title):
+        submenu = SubMenu(title)
+        self.children.append(submenu)
+        return submenu
+
+    def addChild(self, child):
+        self.children.append(child)
+
+    def renderTo(self, qmenu):
+        for child in self.children:
+            if child is None:
+                qmenu.addSeparator()
+            elif isinstance(child, QAction):
+                qmenu.addAction(child)
+            else:
+                child.renderTo(qmenu)
+
+    def popupOver(self, widget):
+        qmenu = QMenu()
+        self.renderTo(qmenu)
+        qmenu.exec_(widget.mapToGlobal(QPoint(0,0)))
+
+    # Chunking
+    ######################################################################
+
+    chunkSize = 30
+
+    def chunked(self):
+        if len(self.children) <= self.chunkSize:
+            return self
+
+        newList = MenuList()
+        oldItems = self.children[:]
+        while oldItems:
+            chunk = oldItems[:self.chunkSize]
+            del oldItems[:self.chunkSize]
+            label = self._chunkLabel(chunk)
+            menu = newList.addMenu(label)
+            menu.children = chunk
+        return newList
+
+    def _chunkLabel(self, items):
+        start = items[0].title
+        end = items[-1].title
+        prefix = os.path.commonprefix([start.upper(), end.upper()])
+        n = len(prefix)+1
+        return f"{start[:n].upper()}-{end[:n].upper()}"
+
+class SubMenu(MenuList):
+    def __init__(self, title):
+        super().__init__()
+        self.title = title
+
+    def renderTo(self, menu):
+        submenu = menu.addMenu(self.title)
+        super().renderTo(submenu)
+
+class MenuItem:
+    def __init__(self, title, func):
+        self.title = title
+        self.func = func
+
+    def renderTo(self, qmenu):
+        a = qmenu.addAction(self.title)
+        a.triggered.connect(self.func)
+

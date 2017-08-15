@@ -18,7 +18,7 @@ from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, isW
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
-    getOnlyText
+    getOnlyText, MenuList, SubMenu
 from anki.hooks import runHook, addHook, remHook
 from aqt.webview import AnkiWebView
 from anki.consts import *
@@ -856,24 +856,24 @@ by clicking on one on the left."""))
     ######################################################################
 
     def onFilterButton(self):
-        m = QMenu()
+        ml = MenuList()
 
-        self._addCommonFilters(m)
-        m.addSeparator()
+        ml.addChild(self._commonFilters())
+        ml.addSeparator()
 
-        self._addTodayFilters(m)
-        self._addCardStateFilters(m)
-        self._addDeckFilters(m)
-        self._addNoteTypeFilters(m)
-        self._addTagFilters(m)
+        ml.addChild(self._todayFilters())
+        ml.addChild(self._cardStateFilters())
+        ml.addChild(self._deckFilters())
+        ml.addChild(self._noteTypeFilters())
+        ml.addChild(self._tagFilters())
+        ml.addSeparator()
 
-        m.addSeparator()
-        m.addAction(self.sidebarDockWidget.toggleViewAction())
-        m.addSeparator()
+        ml.addChild(self.sidebarDockWidget.toggleViewAction())
+        ml.addSeparator()
 
-        self._addSavedSearches(m)
+        ml.addChild(self._savedSearches())
 
-        m.exec_(self.form.filter.mapToGlobal(QPoint(0,0)))
+        ml.popupOver(self.form.filter)
 
     def setFilter(self, *args):
         if len(args) == 1:
@@ -904,32 +904,35 @@ by clicking on one on the left."""))
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearchActivated()
 
-    def _addSimpleFilters(self, m, items):
+    def _simpleFilters(self, items):
+        ml = MenuList()
         for row in items:
             if row is None:
-                m.addSeparator()
+                ml.addSeparator()
             else:
-                label, search = row
-                a = m.addAction(label)
-                a.triggered.connect(lambda *, f=search: self.setFilter(f))
+                label, filter = row
+                ml.addItem(label, self._filterFunc(filter))
+        return ml
 
-    def _addCommonFilters(self, m):
-        items = (
+    def _filterFunc(self, *args):
+        return lambda *, f=args: self.setFilter(*f)
+
+    def _commonFilters(self):
+        return self._simpleFilters((
             (_("Whole Collection"), ""),
-            (_("Current Deck"), "deck:current"))
-        self._addSimpleFilters(m, items)
+            (_("Current Deck"), "deck:current")))
 
-    def _addTodayFilters(self, m):
-        m = m.addMenu(_("Today"))
-        items = (
+    def _todayFilters(self):
+        subm = SubMenu(_("Today"))
+        subm.addChild(self._simpleFilters((
             (_("Added Today"), "added:1"),
             (_("Studied Today"), "rated:1"),
-            (_("Again Today"), "rated:1:1"))
-        self._addSimpleFilters(m, items)
+            (_("Again Today"), "rated:1:1"))))
+        return subm
 
-    def _addCardStateFilters(self, m):
-        m = m.addMenu(_("Card State"))
-        items = (
+    def _cardStateFilters(self):
+        subm = SubMenu(_("Card State"))
+        subm.addChild(self._simpleFilters((
             (_("New"), "is:new"),
             (_("Learning"), "is:learn"),
             (_("Review"), "is:review"),
@@ -944,112 +947,96 @@ by clicking on one on the left."""))
             (_("Blue Flag"), "flag:4"),
             (_("No Flag"), "flag:0"),
             (_("Any Flag"), "-flag:0"),
-        )
-        self._addSimpleFilters(m, items)
+        )))
+        return subm
 
-    _tagsMenuSize = 30
+    def _tagFilters(self):
+        m = SubMenu(_("Tags"))
 
-    def _addTagFilters(self, m):
-        m = m.addMenu(_("Tags"))
-
-        a = m.addAction(_("Clear Unused"))
-        a.triggered.connect(self.clearUnusedTags)
+        m.addItem(_("Clear Unused"), self.clearUnusedTags)
         m.addSeparator()
 
-        tags = sorted(self.col.tags.all(), key=lambda s: s.lower())
+        tagList = MenuList()
+        for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
+            tagList.addItem(t, self._filterFunc("tag", t))
 
-        if len(tags) < self._tagsMenuSize:
-            self._addTagFilterBlock(m, tags)
-        else:
-            # split the list into a more manageable size
-            chunks = []
-            while tags:
-                chunk = tags[:self._tagsMenuSize]
-                chunks.append(chunk)
-                del tags[:self._tagsMenuSize]
-            # use separate menu for each chunk
-            for chunk in chunks:
-                name = chunk[0]+"..."
-                child = m.addMenu(name)
-                self._addTagFilterBlock(child, chunk)
+        m.addChild(tagList.chunked())
+        return m
 
-    def _addTagFilterBlock(self, m, tags):
-        for t in tags:
-            a = m.addAction(t)
-            a.triggered.connect(lambda *, tag=t: self.setFilter("tag", tag))
-
-    def _addDeckFilters(self, m):
+    def _deckFilters(self):
         def addDecks(parent, decks):
             for head, did, rev, lrn, new, children in decks:
                 name = self.mw.col.decks.get(did)['name']
                 shortname = name.split("::")[-1]
                 if children:
-                    newparent = parent.addMenu(shortname)
-                    a = newparent.addAction(_("Filter"))
-                    a.triggered.connect(
-                        lambda *, name=name: self.setFilter("deck", name))
-                    newparent.addSeparator()
-                    addDecks(newparent, children)
+                    subm = parent.addMenu(shortname)
+                    subm.addItem(_("Filter"), self._filterFunc("deck", name))
+                    subm.addSeparator()
+                    addDecks(subm, children)
                 else:
-                    a = parent.addAction(shortname)
-                    a.triggered.connect(
-                        lambda *, name=name: self.setFilter("deck", name))
+                    parent.addItem(shortname, self._filterFunc("deck", name))
 
         # fixme: could rewrite to avoid calculating due # in the future
         alldecks = self.col.sched.deckDueTree()
-        root = m.addMenu(_("Decks"))
+        ml = MenuList()
+        addDecks(ml, alldecks)
 
-        addDecks(root, alldecks)
+        root = SubMenu(_("Decks"))
+        root.addChild(ml.chunked())
 
-    def _addNoteTypeFilters(self, m):
-        m = m.addMenu(_("Note Types"))
-        a = m.addAction(_("Manage..."))
-        a.triggered.connect(self.mw.onNoteTypes)
+        return root
+
+    def _noteTypeFilters(self):
+        m = SubMenu(_("Note Types"))
+
+        m.addItem(_("Manage..."), self.mw.onNoteTypes)
         m.addSeparator()
-        for nt in sorted(self.col.models.all(), key=itemgetter("name")):
+
+        noteTypes = MenuList()
+        for nt in sorted(self.col.models.all(), key=lambda nt: nt['name'].lower()):
             # no sub menu if it's a single template
             if len(nt['tmpls']) == 1:
-                a = m.addAction(nt['name'])
-                a.triggered.connect(lambda *, nt=nt: self.setFilter("mid", str(nt['id'])))
+                noteTypes.addItem(nt['name'], self._filterFunc("mid", str(nt['id'])))
             else:
-                subm = m.addMenu(nt['name'])
-                a = subm.addAction(_("All Card Types"))
-                a.triggered.connect(lambda *, nt=nt: self.setFilter("mid", str(nt['id'])))
+                subm = noteTypes.addMenu(nt['name'])
+
+                subm.addItem(_("All Card Types"), self._filterFunc("mid", str(nt['id'])))
+                subm.addSeparator()
 
                 # add templates
-                subm.addSeparator()
                 for c, tmpl in enumerate(nt['tmpls']):
-                    a = subm.addAction(_("%(n)d: %(name)s") % dict(
-                            n=c+1, name=tmpl['name']))
-                    a.triggered.connect(lambda *, nt=nt, c=c: self.setFilter(
-                        "mid", str(nt['id']), "card", str(c+1)
-                    ))
+                    name = _("%(n)d: %(name)s") % dict(n=c+1, name=tmpl['name'])
+                    subm.addItem(name, self._filterFunc(
+                        "mid", str(nt['id']), "card", str(c+1)))
+
+        m.addChild(noteTypes.chunked())
+        return m
 
     # Favourites
     ######################################################################
 
-    def _addSavedSearches(self, m):
+    def _savedSearches(self):
+        ml = MenuList()
         # make sure exists
         if "savedFilters" not in self.col.conf:
             self.col.conf['savedFilters'] = {}
 
-        m.addSeparator()
+        ml.addSeparator()
 
         if self._currentFilterIsSaved():
-            a = m.addAction(_("Remove Current Filter..."))
-            a.triggered.connect(self._onRemoveFilter)
+            ml.addItem(_("Remove Current Filter..."), self._onRemoveFilter)
         else:
-            a = m.addAction(_("Save Current Filter..."))
-            a.triggered.connect(self._onSaveFilter)
+            ml.addItem(_("Save Current Filter..."), self._onSaveFilter)
 
         saved = self.col.conf['savedFilters']
         if not saved:
-            return
+            return ml
 
-        m.addSeparator()
+        ml.addSeparator()
         for name, filt in sorted(saved.items()):
-            a = m.addAction(name)
-            a.triggered.connect(lambda *, f=filt: self.setFilter(f))
+            ml.addItem(name, self._filterFunc(filt))
+
+        return ml
 
     def _onSaveFilter(self):
         name = getOnlyText(_("Please give your filter a name:"))
