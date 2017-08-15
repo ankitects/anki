@@ -786,7 +786,6 @@ by clicking on one on the left."""))
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
         self.sidebarTree = self.SidebarTreeWidget()
         self.sidebarTree.mw = self.mw
-        self.sidebarTree.setFrameShape(QFrame.NoFrame)
         self.sidebarTree.header().setVisible(False)
         dw.setWidget(self.sidebarTree)
         p = QPalette()
@@ -795,6 +794,7 @@ by clicking on one on the left."""))
         self.sidebarDockWidget.setVisible(False)
         self.sidebarDockWidget.setFloating(False)
         self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged)
+        self.sidebarDockWidget.setTitleBarWidget(QWidget())
         self.addDockWidget(Qt.LeftDockWidgetArea, dw)
 
     def onSidebarVisChanged(self, visible):
