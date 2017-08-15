@@ -793,6 +793,7 @@ by clicking on one on the left."""))
         p.setColor(QPalette.Base, p.window().color())
         self.sidebarTree.setPalette(p)
         self.sidebarDockWidget.setVisible(False)
+        self.sidebarDockWidget.setFloating(False)
         self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged)
         self.addDockWidget(Qt.LeftDockWidgetArea, dw)
 
