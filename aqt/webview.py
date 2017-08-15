@@ -155,13 +155,21 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
-    # need to do this manually for Linux as Qt doesn't automatically scale webview
     def zoomFactor(self):
-        if not isLin:
+        if isMac:
             return 1
         screen = QApplication.desktop().screen()
         dpi = screen.logicalDpiX()
-        return max(1, dpi / 96.0)
+        factor = dpi / 96.0
+        if isLin:
+            factor = max(1, factor)
+            return factor
+        # compensate for qt's integer scaling
+        # on windows
+        qtIntScale = 72/screen.physicalDpiX()
+        desiredScale = factor * qtIntScale
+        newFactor = desiredScale / qtIntScale
+        return newFactor
 
     def stdHtml(self, body, css=[], js=["jquery.js"], head=""):
         if isWin:
