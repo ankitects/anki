@@ -2,7 +2,7 @@
 
 import os, tempfile
 from tests.shared import assertException, getEmptyCol
-from anki.stdmodels import addBasicModel
+from anki.stdmodels import addBasicModel, models
 
 from anki import Collection as aopen
 
@@ -113,10 +113,10 @@ def test_addDelTags():
 
 def test_timestamps():
     deck = getEmptyCol()
-    assert len(deck.models.models) == 4
+    assert len(deck.models.models) == len(models)
     for i in range(100):
         addBasicModel(deck)
-    assert len(deck.models.models) == 104
+    assert len(deck.models.models) == 100 + len(models)
 
 def test_furigana():
     deck = getEmptyCol()

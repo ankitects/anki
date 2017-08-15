@@ -7,6 +7,7 @@ from anki.utils import intTime
 from anki.sync import Syncer, LocalServer
 from anki.consts import STARTING_FACTOR
 from tests.shared import getEmptyCol, getEmptyDeckWith
+import anki.stdmodels
 
 # Local tests
 ##########################################################################
@@ -63,7 +64,7 @@ def test_sync():
         for d in deck1, deck2:
             for t in ("revlog", "notes", "cards"):
                 assert d.db.scalar("select count() from %s" % t) == num
-            assert len(d.models.all()) == num*4
+            assert len(d.models.all()) == num*len(anki.stdmodels.models)
             # the default deck and config have an id of 1, so always 1
             assert len(d.decks.all()) == 1
             assert len(d.decks.dconf) == 1
