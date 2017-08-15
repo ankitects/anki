@@ -376,7 +376,7 @@ class SyncThread(QThread):
             log = traceback.format_exc()
             err = repr(str(e))
             if ("Unable to find the server" in err or
-                "Errno 2" in err):
+                "Errno 2" in err or "getaddrinfo" in err):
                 self.fireEvent("offline")
             elif "sync cancelled" in err:
                 pass
