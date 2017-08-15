@@ -300,6 +300,8 @@
     <addaction name="actionFindDuplicates"/>
     <addaction name="actionFindReplace"/>
     <addaction name="separator"/>
+    <addaction name="actionManage_Note_Types"/>
+    <addaction name="separator"/>
     <addaction name="actionDelete"/>
    </widget>
    <addaction name="menuEdit"/>
@@ -560,6 +562,11 @@
   <action name="actionClear_Unused_Tags">
    <property name="text">
     <string>Clear Unused Tags</string>
+   </property>
+  </action>
+  <action name="actionManage_Note_Types">
+   <property name="text">
+    <string>Manage Note Types...</string>
    </property>
   </action>
  </widget>

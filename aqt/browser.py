@@ -412,6 +412,7 @@ class Browser(QMainWindow):
         f.actionChangeModel.triggered.connect(self.onChangeModel)
         f.actionFindDuplicates.triggered.connect(self.onFindDupes)
         f.actionFindReplace.triggered.connect(self.onFindReplace)
+        f.actionManage_Note_Types.triggered.connect(self.mw.onNoteTypes)
         f.actionDelete.triggered.connect(self.deleteNotes)
         # cards
         f.actionChange_Deck.triggered.connect(self.setDeck)
