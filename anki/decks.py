@@ -274,6 +274,7 @@ class DeckManager:
             draggedDeck = self.get(draggedDeckDid)
             draggedDeckName = draggedDeck['name']
             ontoDeckName = self.get(ontoDeckDid)['name']
+            assert ontoDeckName.strip()
             self.rename(draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName))
 
     def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
