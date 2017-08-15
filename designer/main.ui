@@ -205,7 +205,7 @@
     <string>&amp;Import...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+I</string>
+    <string>Ctrl+Shift+I</string>
    </property>
   </action>
   <action name="actionStudyDeck">
