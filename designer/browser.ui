@@ -293,6 +293,7 @@
     <addaction name="separator"/>
     <addaction name="actionAdd_Tags"/>
     <addaction name="actionRemove_Tags"/>
+    <addaction name="actionClear_Unused_Tags"/>
     <addaction name="separator"/>
     <addaction name="actionChangeModel"/>
     <addaction name="separator"/>
@@ -554,6 +555,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+R</string>
+   </property>
+  </action>
+  <action name="actionClear_Unused_Tags">
+   <property name="text">
+    <string>Clear Unused Tags</string>
    </property>
   </action>
  </widget>

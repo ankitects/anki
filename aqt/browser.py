@@ -408,6 +408,7 @@ class Browser(QMainWindow):
         f.actionAdd.triggered.connect(self.mw.onAddCard)
         f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
         f.actionRemove_Tags.triggered.connect(lambda: self.deleteTags())
+        f.actionClear_Unused_Tags.triggered.connect(self.clearUnusedTags)
         f.actionChangeModel.triggered.connect(self.onChangeModel)
         f.actionFindDuplicates.triggered.connect(self.onFindDupes)
         f.actionFindReplace.triggered.connect(self.onFindReplace)
