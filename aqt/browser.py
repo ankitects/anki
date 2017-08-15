@@ -823,13 +823,13 @@ by clicking on one on the left."""))
         saved = self.col.conf.get('savedFilters', {})
         for name, filt in sorted(saved.items()):
             item = self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
-            item.setIcon(0, QIcon(":/icons/heart.png"))
+            item.setIcon(0, QIcon(":/icons/heart.svg"))
 
     def _userTagTree(self, root):
         for t in sorted(self.col.tags.all(), key=lambda t: t.lower()):
             item = self.CallbackItem(
                 root, t, lambda t=t: self.setFilter("tag", t))
-            item.setIcon(0, QIcon(":/icons/tag.png"))
+            item.setIcon(0, QIcon(":/icons/tag.svg"))
 
     def _decksTree(self, root):
         grps = self.col.sched.deckDueTree()
@@ -840,7 +840,7 @@ by clicking on one on the left."""))
                     lambda g=g: self.setFilter("deck", head+g[0]),
                     lambda g=g: self.mw.col.decks.collapseBrowser(g[1]),
                     not self.mw.col.decks.get(g[1]).get('browserCollapsed', False))
-                item.setIcon(0, QIcon(":/icons/deck.png"))
+                item.setIcon(0, QIcon(":/icons/deck.svg"))
                 newhead = head + g[0]+"::"
                 fillGroups(item, g[5], newhead)
         fillGroups(root, grps)
@@ -849,7 +849,7 @@ by clicking on one on the left."""))
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
             mitem = self.CallbackItem(
                 root, m['name'], lambda m=m: self.setFilter("mid", str(m['id'])))
-            mitem.setIcon(0, QIcon(":/icons/notetype.png"))
+            mitem.setIcon(0, QIcon(":/icons/notetype.svg"))
 
     # Filter tree
     ######################################################################
