@@ -105,13 +105,17 @@ class AnkiQt(QMainWindow):
             self.loadProfile()
 
     def showProfileManager(self):
+        self.pm.profile = None
         self.state = "profileManager"
         d = self.profileDiag = QDialog()
         f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
         f.setupUi(d)
         f.login.clicked.connect(self.onOpenProfile)
         f.profiles.itemDoubleClicked.connect(self.onOpenProfile)
-        f.quit.clicked.connect(self.cleanupAndExit)
+        def onQuit():
+            d.close()
+            self.cleanupAndExit()
+        f.quit.clicked.connect(onQuit)
         f.add.clicked.connect(self.onAddProfile)
         f.rename.clicked.connect(self.onRenameProfile)
         f.delete_2.clicked.connect(self.onRemProfile)
@@ -120,9 +124,6 @@ class AnkiQt(QMainWindow):
         self.refreshProfilesList()
         # raise first, for osx testing
         d.show()
-        d.activateWindow()
-        d.raise_()
-        d.exec_()
 
     def refreshProfilesList(self):
         f = self.profileForm
@@ -154,8 +155,8 @@ class AnkiQt(QMainWindow):
         if not self.openProfile():
             showWarning(_("Invalid password."))
             return
-        self.loadProfile()
         self.profileDiag.close()
+        self.loadProfile()
         return True
 
     def profileNameOk(self, str):
@@ -204,6 +205,11 @@ Are you sure?""")):
         self.refreshProfilesList()
 
     def loadProfile(self):
+        self.maybeAutoSync()
+
+        if not self.loadCollection():
+            return
+
         # show main window
         if self.pm.profile['mainWindowState']:
             restoreGeom(self, "mainWindow")
@@ -214,13 +220,7 @@ Are you sure?""")):
         self.show()
         self.activateWindow()
         self.raise_()
-        # maybe sync (will load DB)
-        if self.pendingImport and os.path.basename(
-                self.pendingImport).startswith("backup-"):
-            # skip sync when importing a backup
-            self.loadCollection()
-        else:
-            self.onSync(auto=True)
+
         # import pending?
         if self.pendingImport:
             if self.pm.profile['key']:
@@ -232,24 +232,37 @@ To import into a password protected profile, please open the profile before atte
             self.pendingImport = None
         runHook("profileLoaded")
 
-    def unloadProfile(self, browser=True):
-        if not self.pm.profile:
-            # already unloaded
-            return
+    def unloadProfile(self, onsuccess):
+        def callback():
+            self._unloadProfile()
+            onsuccess()
+
         runHook("unloadProfile")
-        if not self.unloadCollection():
-            return
-        self.state = "profileManager"
-        self.onSync(auto=True, reload=False)
+        self.unloadCollection(callback)
+
+    def _unloadProfile(self):
         self.pm.profile['mainWindowGeom'] = self.saveGeometry()
         self.pm.profile['mainWindowState'] = self.saveState()
         self.pm.save()
-        self.pm.profile = None
         self.hide()
-        if browser:
-            self.showProfileManager()
-        else:
-            self.cleanupAndExit()
+
+        # at this point there should be no windows left
+        self._checkForUnclosedWidgets()
+
+        self.maybeAutoSync()
+
+        self.pm.profile = None
+
+    def _checkForUnclosedWidgets(self):
+        for w in self.app.topLevelWidgets():
+            if w.isVisible():
+                showWarning(f"Window should have been closed: {w}")
+
+    def unloadProfileAndExit(self):
+        self.unloadProfile(self.cleanupAndExit)
+
+    def unloadProfileAndShowProfileManager(self):
+        self.unloadProfile(self.showProfileManager)
 
     def cleanupAndExit(self):
         self.errorHandler.unload()
@@ -263,62 +276,51 @@ To import into a password protected profile, please open the profile before atte
         cpath = self.pm.collectionPath()
         try:
             self.col = Collection(cpath, log=True)
-        except anki.db.Error:
-            # warn user
+        except Exception as e:
             showWarning(_("""\
-Your collection is corrupt. Please create a new profile, then \
-see the manual for how to restore from an automatic backup.
+Anki was unable to open your collection file. If problems persist after \
+restarting your computer, please see the manual for how to restore from \
+an automatic backup.
 
 Debug info:
 """)+traceback.format_exc())
-            self.unloadProfile()
-        except Exception as e:
-            # the custom exception handler won't catch this if we immediately
-            # unload, so we have to manually handle it
-            if "invalidTempFolder" in repr(str(e)):
-                showWarning(self.errorHandler.tempFolderMsg())
-                self.unloadProfile()
-                return
-            self.unloadProfile()
-            raise
+            self.showProfileManager()
+            return False
+
         self.progress.setupDB(self.col.db)
         self.maybeEnableUndo()
         self.moveToState("deckBrowser")
+        return True
 
-    def unloadCollection(self):
-        """
-        Unload the collection.
+    def unloadCollection(self, onsuccess):
+        def callback():
+            self._unloadCollection()
+            onsuccess()
 
-        This unloads a collection if there is one and returns True if
-        there is no collection after the call. (Because the unload
-        worked or because there was no collection to start with.)
-        """
-        if self.col:
-            if not self.closeAllCollectionWindows():
-                return
-            self.progress.start(immediate=True)
-            corrupt = False
-            try:
-                self.maybeOptimize()
-            except:
-                corrupt = True
-            if not corrupt:
-                if devMode:
-                    corrupt = False
-                else:
-                    corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
-            if corrupt:
-                showWarning(_("Your collection file appears to be corrupt. \
+        self.closeAllWindows(callback)
+
+    def _unloadCollection(self):
+        self.progress.start(label=_("Backing Up..."), immediate=True)
+        corrupt = False
+        try:
+            self.maybeOptimize()
+            if not devMode:
+                corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+        except:
+            corrupt = True
+        if corrupt:
+            showWarning(_("Your collection file appears to be corrupt. \
 This can happen when the file is copied or moved while Anki is open, or \
 when the collection is stored on a network or cloud drive. Please see \
 the manual for information on how to restore from an automatic backup."))
+        try:
             self.col.close()
-            self.col = None
-            if not corrupt:
-                self.backup()
-            self.progress.finish()
-        return True
-
+        except:
+            pass
+        self.col = None
+        if not corrupt:
+            self.backup()
+        self.progress.finish()
 
     # Backup and auto-optimize
     ##########################################################################
@@ -328,6 +330,8 @@ the manual for information on how to restore from an automatic backup."))
             Thread.__init__(self)
             self.path = path
             self.data = data
+            # make sure we complete before exiting the program
+            self.setDaemon(True)
             # create the file in calling thread to ensure the same
             # file is not created twice
             open(self.path, "wb").close()
@@ -529,9 +533,8 @@ title="%s" %s>%s</button>''' % (
         self.mainLayout.addWidget(sweb)
         self.form.centralwidget.setLayout(self.mainLayout)
 
-    def closeAllCollectionWindows(self):
-        aqt.dialogs.closeAll(lambda: 1)
-        return True
+    def closeAllWindows(self, onsuccess):
+        return aqt.dialogs.closeAll(onsuccess)
 
     # Components
     ##########################################################################
@@ -579,21 +582,34 @@ title="%s" %s>%s</button>''' % (
     # Syncing
     ##########################################################################
 
-    def onSync(self, auto=False, reload=True):
-        if not auto or (self.pm.profile['syncKey'] and
-                        self.pm.profile['autoSync'] and
-                        not self.safeMode):
-            from aqt.sync import SyncManager
-            if not self.unloadCollection():
-                return
-            # set a sync state so the refresh timer doesn't fire while deck
-            # unloaded
-            self.state = "sync"
-            self.syncer = SyncManager(self, self.pm)
-            self.syncer.sync()
-        if reload:
-            if not self.col:
-                self.loadCollection()
+    # expects a current profile and a loaded collection; reloads
+    # collection after sync completes
+    def onSync(self):
+        self.unloadCollection(self._onSync)
+
+    def _onSync(self):
+        self._sync()
+        if not self.loadCollection():
+            return
+
+    # expects a current profile, but no collection loaded
+    def maybeAutoSync(self):
+        if (not self.pm.profile['syncKey']
+            or not self.pm.profile['autoSync']
+            or self.safeMode):
+            return
+        if self.pendingImport and os.path.basename(
+                self.pendingImport).startswith("backup-"):
+            return
+
+        # ok to sync
+        self._sync()
+
+    def _sync(self):
+        from aqt.sync import SyncManager
+        self.state = "sync"
+        self.syncer = SyncManager(self, self.pm)
+        self.syncer.sync()
 
     # Tools
     ##########################################################################
@@ -654,16 +670,9 @@ title="%s" %s>%s</button>''' % (
 
     def closeEvent(self, event):
         "User hit the X button, etc."
-        event.accept()
-        self.onClose(force=True)
-
-    def onClose(self, force=False):
-        "Called from a shortcut key. Close current active window."
-        aw = self.app.activeWindow()
-        if not aw or aw == self or force:
-            self.unloadProfile(browser=False)
-        else:
-            aw.close()
+        # ignore the event for now, as we need time to clean up
+        event.ignore()
+        self.unloadProfileAndExit()
 
     # Undo & autosave
     ##########################################################################
@@ -797,7 +806,8 @@ title="%s" %s>%s</button>''' % (
 
     def setupMenus(self):
         m = self.form
-        m.actionSwitchProfile.triggered.connect(lambda b: self.unloadProfile())
+        m.actionSwitchProfile.triggered.connect(
+            self.unloadProfileAndShowProfileManager)
         m.actionImport.triggered.connect(self.onImport)
         m.actionExport.triggered.connect(self.onExport)
         m.actionExit.triggered.connect(self.close)
