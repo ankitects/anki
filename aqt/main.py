@@ -24,8 +24,7 @@ import aqt.stats
 import aqt.mediasrv
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
-    openHelp, openLink, checkInvalidFilename
-import anki.db
+    openHelp, openLink, checkInvalidFilename, getFile
 import sip
 
 class AnkiQt(QMainWindow):
@@ -87,18 +86,29 @@ class AnkiQt(QMainWindow):
     # Profiles
     ##########################################################################
 
+    class ProfileManager(QMainWindow):
+        onClose = pyqtSignal()
+        closeFires = True
+
+        def closeEvent(self, evt):
+            if self.closeFires:
+                self.onClose.emit()
+            evt.accept()
+
+        def closeWithoutQuitting(self):
+            self.closeFires = False
+            self.close()
+            self.closeFires = True
+
     def setupProfile(self):
         self.pendingImport = None
+        self.restoringBackup = False
         # profile not provided on command line?
         if not self.pm.name:
             # if there's a single profile, load it automatically
             profs = self.pm.profiles()
             if len(profs) == 1:
-                try:
-                    self.pm.load(profs[0])
-                except:
-                    # password protected
-                    pass
+                self.pm.load(profs[0])
         if not self.pm.name:
             self.showProfileManager()
         else:
@@ -107,20 +117,21 @@ class AnkiQt(QMainWindow):
     def showProfileManager(self):
         self.pm.profile = None
         self.state = "profileManager"
-        d = self.profileDiag = QDialog()
-        f = self.profileForm = aqt.forms.profiles.Ui_Dialog()
+        d = self.profileDiag = self.ProfileManager()
+        f = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
         f.setupUi(d)
         f.login.clicked.connect(self.onOpenProfile)
         f.profiles.itemDoubleClicked.connect(self.onOpenProfile)
-        def onQuit():
-            d.close()
-            self.cleanupAndExit()
-        f.quit.clicked.connect(onQuit)
+        f.openBackup.clicked.connect(self.onOpenBackup)
+        f.quit.clicked.connect(d.close)
+        d.onClose.connect(self.cleanupAndExit)
         f.add.clicked.connect(self.onAddProfile)
         f.rename.clicked.connect(self.onRenameProfile)
         f.delete_2.clicked.connect(self.onRemProfile)
-        d.rejected.connect(d.close)
         f.profiles.currentRowChanged.connect(self.onProfileRowChange)
+        f.statusbar.setVisible(False)
+        # enter key opens profile
+        QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)
         self.refreshProfilesList()
         # raise first, for osx testing
         d.show()
@@ -142,22 +153,14 @@ class AnkiQt(QMainWindow):
             return
         name = self.pm.profiles()[n]
         f = self.profileForm
-        passwd = not self.pm.load(name)
-        f.passEdit.setVisible(passwd)
-        f.passLabel.setVisible(passwd)
+        self.pm.load(name)
 
     def openProfile(self):
         name = self.pm.profiles()[self.profileForm.profiles.currentRow()]
-        passwd = self.profileForm.passEdit.text()
-        return self.pm.load(name, passwd)
+        return self.pm.load(name)
 
     def onOpenProfile(self):
-        if not self.openProfile():
-            showWarning(_("Invalid password."))
-            return
-        self.profileDiag.close()
-        self.loadProfile()
-        return True
+        self.loadProfile(self.profileDiag.closeWithoutQuitting)
 
     def profileNameOk(self, str):
         return not checkInvalidFilename(str)
@@ -176,8 +179,6 @@ class AnkiQt(QMainWindow):
 
     def onRenameProfile(self):
         name = getOnlyText(_("New name:"), default=self.pm.name)
-        if not self.openProfile():
-            return showWarning(_("Invalid password."))
         if not name:
             return
         if name == self.pm.name:
@@ -193,18 +194,43 @@ class AnkiQt(QMainWindow):
         profs = self.pm.profiles()
         if len(profs) < 2:
             return showWarning(_("There must be at least one profile."))
-        # password correct?
-        if not self.openProfile():
-            return
         # sure?
         if not askUser(_("""\
 All cards, notes, and media for this profile will be deleted. \
-Are you sure?""")):
+Are you sure?"""), msgfunc=QMessageBox.warning, defaultno=True):
             return
         self.pm.remove(self.pm.name)
         self.refreshProfilesList()
 
-    def loadProfile(self):
+    def onOpenBackup(self):
+        if not askUser(_("""\
+Replace your collection with an earlier backup?"""),
+                       msgfunc=QMessageBox.warning,
+                       defaultno=True):
+            return
+        def doOpen(path):
+            self._openBackup(path)
+        getFile(self.profileDiag, _("Revert to backup"),
+                cb=doOpen, filter="*.apkg", dir=self.pm.backupFolder())
+
+    def _openBackup(self, path):
+        try:
+            # move the existing collection to the trash, as it may not open
+            self.pm.trashCollection()
+        except:
+            showWarning(_("Unable to move existing file to trash - please try restarting your computer."))
+            return
+
+        self.pendingImport = path
+        self.restoringBackup = True
+
+        showInfo(_("""\
+Automatic syncing and backups have been disabled while restoring. To enable them again, \
+close the profile or restart Anki."""))
+
+        self.onOpenProfile()
+
+    def loadProfile(self, onsuccess=None):
         self.maybeAutoSync()
 
         if not self.loadCollection():
@@ -223,14 +249,11 @@ Are you sure?""")):
 
         # import pending?
         if self.pendingImport:
-            if self.pm.profile['key']:
-                showInfo(_("""\
-To import into a password protected profile, please open the profile before attempting to import."""))
-            else:
-                self.handleImport(self.pendingImport)
-
+            self.handleImport(self.pendingImport)
             self.pendingImport = None
         runHook("profileLoaded")
+        if onsuccess:
+            onsuccess()
 
     def unloadProfile(self, onsuccess):
         def callback():
@@ -246,12 +269,13 @@ To import into a password protected profile, please open the profile before atte
         self.pm.save()
         self.hide()
 
+        self.restoringBackup = False
+
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
 
         self.maybeAutoSync()
 
-        self.pm.profile = None
 
     def _checkForUnclosedWidgets(self):
         for w in self.app.topLevelWidgets():
@@ -279,8 +303,8 @@ To import into a password protected profile, please open the profile before atte
         except Exception as e:
             showWarning(_("""\
 Anki was unable to open your collection file. If problems persist after \
-restarting your computer, please see the manual for how to restore from \
-an automatic backup.
+restarting your computer, please use the Open Backup button in the profile \
+manager.
 
 Debug info:
 """)+traceback.format_exc())
@@ -300,7 +324,13 @@ Debug info:
         self.closeAllWindows(callback)
 
     def _unloadCollection(self):
-        self.progress.start(label=_("Backing Up..."), immediate=True)
+        if not self.col:
+            return
+        if self.restoringBackup:
+            label = _("Closing...")
+        else:
+            label = _("Backing Up...")
+        self.progress.start(label=label, immediate=True)
         corrupt = False
         try:
             self.maybeOptimize()
@@ -315,11 +345,11 @@ when the collection is stored on a network or cloud drive. Please see \
 the manual for information on how to restore from an automatic backup."))
         try:
             self.col.close()
-        except:
-            pass
-        self.col = None
-        if not corrupt:
+        finally:
+            self.col = None
+        if not corrupt and not self.restoringBackup:
             self.backup()
+
         self.progress.finish()
 
     # Backup and auto-optimize
@@ -534,7 +564,7 @@ title="%s" %s>%s</button>''' % (
         self.form.centralwidget.setLayout(self.mainLayout)
 
     def closeAllWindows(self, onsuccess):
-        return aqt.dialogs.closeAll(onsuccess)
+        aqt.dialogs.closeAll(onsuccess)
 
     # Components
     ##########################################################################
@@ -544,7 +574,8 @@ title="%s" %s>%s</button>''' % (
 
     def onSigInt(self, signum, frame):
         # interrupt any current transaction and schedule a rollback & quit
-        self.col.db.interrupt()
+        if self.col:
+            self.col.db.interrupt()
         def quit():
             self.col.db.rollback()
             self.close()
@@ -596,10 +627,8 @@ title="%s" %s>%s</button>''' % (
     def maybeAutoSync(self):
         if (not self.pm.profile['syncKey']
             or not self.pm.profile['autoSync']
-            or self.safeMode):
-            return
-        if self.pendingImport and os.path.basename(
-                self.pendingImport).startswith("backup-"):
+            or self.safeMode
+            or self.restoringBackup):
             return
 
         # ok to sync
@@ -669,10 +698,15 @@ title="%s" %s>%s</button>''' % (
     ##########################################################################
 
     def closeEvent(self, event):
-        "User hit the X button, etc."
-        # ignore the event for now, as we need time to clean up
-        event.ignore()
-        self.unloadProfileAndExit()
+        if self.state == "profileManager":
+            # if profile manager active, this event may fire via OS X menu bar's
+            # quit option
+            self.profileDiag.close()
+            event.accept()
+        else:
+            # ignore the event for now, as we need time to clean up
+            event.ignore()
+            self.unloadProfileAndExit()
 
     # Undo & autosave
     ##########################################################################

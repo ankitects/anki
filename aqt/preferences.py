@@ -150,22 +150,7 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupOptions(self):
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
-        self.form.profilePass.clicked.connect(self.onProfilePass)
 
     def updateOptions(self):
         self.prof['pastePNG'] = self.form.pastePNG.isChecked()
 
-    def onProfilePass(self):
-        pw, ret = getText(_("""\
-Lock account with password, or leave blank:"""))
-        if not ret:
-            return
-        if not pw:
-            self.prof['key'] = None
-            return
-        pw2, ret = getText(_("Confirm password:"))
-        if not ret:
-            return
-        if pw != pw2:
-            showWarning(_("Passwords didn't match"))
-        self.prof['key'] = self.mw.pm._pwhash(pw)

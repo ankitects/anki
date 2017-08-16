@@ -184,16 +184,6 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="profilePass">
-         <property name="text">
-          <string>Profile Password...</string>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
@@ -429,7 +419,6 @@
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
-  <tabstop>profilePass</tabstop>
   <tabstop>syncMedia</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>syncDeauth</tabstop>

@@ -37,7 +37,6 @@ metaConf = dict(
 
 profileConf = dict(
     # profile
-    key=None,
     mainWindowGeom=None,
     mainWindowState=None,
     numBackups=30,
@@ -133,13 +132,10 @@ a flash drive.""" % self.base)
             self.db.list("select name from profiles")
             if x != "_global")
 
-    def load(self, name, passwd=None):
+    def load(self, name):
         data = self.db.scalar("select cast(data as blob) from profiles where name = ?", name)
         # some profiles created in python2 may not decode properly
         prof = pickle.loads(data, errors="ignore")
-        if prof['key'] and prof['key'] != self._pwhash(passwd):
-            self.name = None
-            return False
         if name != "_global":
             self.name = name
             self.profile = prof
@@ -163,6 +159,11 @@ a flash drive.""" % self.base)
             send2trash(p)
         self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
+
+    def trashCollection(self):
+        p = self.collectionPath()
+        if os.path.exists(p):
+            send2trash(p)
 
     def rename(self, name):
         oldName = self.name
@@ -318,9 +319,6 @@ please see:
 
 %s
 """) % (appHelpSite +  "#startupopts"))
-
-    def _pwhash(self, passwd):
-        return checksum(str(self.meta['id'])+str(passwd))
 
     # Default language
     ######################################################################
