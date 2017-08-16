@@ -34,7 +34,8 @@ function onKey() {
         return;
     }
     // shift+tab goes to previous field
-    if (window.event.which === 9 && window.event.shiftKey) {
+    if (navigator.platform === "MacIntel" &&
+        window.event.which === 9 && window.event.shiftKey) {
         focusPrevious();
         return;
     }
