@@ -98,7 +98,10 @@ class ProgressManager:
         if self._levels > 1:
             return
         # setup window
-        parent = parent or self.app.activeWindow() or self.mw
+        parent = parent or self.app.activeWindow()
+        if not parent and self.mw.isVisible():
+            parent = self.mw
+
         label = label or _("Processing...")
         if cancellable:
             klass = self.ProgressCancellable
@@ -110,6 +113,7 @@ class ProgressManager:
         self._win.setAutoClose(False)
         self._win.setAutoReset(False)
         self._win.setWindowModality(Qt.ApplicationModal)
+        self._win.setMinimumWidth(300)
         # we need to manually manage minimum time to show, as qt gets confused
         # by the db handler
         self._win.setMinimumDuration(100000)
