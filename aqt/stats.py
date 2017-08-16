@@ -42,13 +42,14 @@ class DeckStats(QDialog):
         self.show()
         self.activateWindow()
 
-    def canClose(self):
-        return True
-
     def reject(self):
         saveGeom(self, self.name)
-        aqt.dialogs.close("DeckStats")
+        aqt.dialogs.markClosed("DeckStats")
         QDialog.reject(self)
+
+    def closeWithCallback(self, callback):
+        self.reject()
+        callback()
 
     def _imagePath(self):
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf",

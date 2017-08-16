@@ -28,7 +28,6 @@ class AddCards(QDialog):
         self.setupButtons()
         self.onReset()
         self.history = []
-        self.forceClose = False
         restoreGeom(self, "add")
         addHook('reset', self.onReset)
         addHook('currentModelChanged', self.onModelChange)
@@ -205,22 +204,32 @@ question on all cards."""), help="AddItems")
         return QDialog.keyPressEvent(self, evt)
 
     def reject(self):
-        if not self.canClose():
-            return
+        self.ifCanClose(self._reject)
+
+    def _reject(self):
         remHook('reset', self.onReset)
         remHook('currentModelChanged', self.onModelChange)
         clearAudioQueue()
         self.removeTempNote(self.editor.note)
-        self.editor.setNote(None)
+        self.editor.cleanup()
         self.modelChooser.cleanup()
         self.deckChooser.cleanup()
         self.mw.maybeReset()
         saveGeom(self, "add")
-        aqt.dialogs.close("AddCards")
+        aqt.dialogs.markClosed("AddCards")
         QDialog.reject(self)
 
-    def canClose(self):
-        if (self.forceClose or self.editor.fieldsAreBlank() or
-            askUser(_("Close and lose current input?"))):
-            return True
-        return False
+    def ifCanClose(self, onOk):
+        def afterSave():
+            ok = (self.editor.fieldsAreBlank() or
+                    askUser(_("Close and lose current input?")))
+            if ok:
+                onOk()
+
+        self.editor.saveNow(afterSave)
+
+    def closeWithCallback(self, cb):
+        def doClose():
+            self._reject()
+            cb()
+        self.ifCanClose(doClose)

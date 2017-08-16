@@ -7,16 +7,17 @@ import aqt.forms
 from aqt import appVersion
 
 class ClosableQDialog(QDialog):
-    def canClose(self):
-        return True
-
     def reject(self):
-        aqt.dialogs.close("About")
+        aqt.dialogs.markClosed("About")
         QDialog.reject(self)
 
     def accept(self):
-        aqt.dialogs.close("About")
+        aqt.dialogs.markClosed("About")
         QDialog.accept(self)
+
+    def closeWithCallback(self, callback):
+        self.reject()
+        callback()
 
 def show(mw):
     dialog = ClosableQDialog(mw)
@@ -124,6 +125,8 @@ please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \
 suggestions, bug reports and donations.")
     abt.label.stdHtml(abouttext, js=" ")
-    dialog.adjustSize()
-    dialog.show()
+    def resizeAndShow(arg):
+        dialog.adjustSize()
+        dialog.show()
+    abt.label.evalWithCallback("1", resizeAndShow)
     return dialog

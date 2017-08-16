@@ -12,13 +12,13 @@ class EditCurrent(QDialog):
 
     def __init__(self, mw):
         QDialog.__init__(self, None, Qt.Window)
+        mw.setupDialogGC(self)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(_("Edit Current"))
         self.setMinimumHeight(400)
         self.setMinimumWidth(500)
-        self.rejected.connect(self.onSave)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
                 QKeySequence("Ctrl+Return"))
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
@@ -40,15 +40,18 @@ class EditCurrent(QDialog):
             remHook("reset", self.onReset)
             self.editor.setNote(None)
             self.mw.reset()
-            aqt.dialogs.close("EditCurrent")
+            aqt.dialogs.markClosed("EditCurrent")
             self.close()
             return
         self.editor.setNote(n)
 
-    def onSave(self):
-        self.editor.saveNow(self._onSave)
+    def reject(self):
+        self.saveAndClose()
 
-    def _onSave(self):
+    def saveAndClose(self):
+        self.editor.saveNow(self._saveAndClose)
+
+    def _saveAndClose(self):
         remHook("reset", self.onReset)
         r = self.mw.reviewer
         try:
@@ -58,9 +61,14 @@ class EditCurrent(QDialog):
             pass
         else:
             self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
+        self.editor.cleanup()
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
-        aqt.dialogs.close("EditCurrent")
+        aqt.dialogs.markClosed("EditCurrent")
+        QDialog.reject(self)
 
-    def canClose(self):
-        return True
+    def closeWithCallback(self, onsuccess):
+        def callback():
+            self._saveAndClose()
+            onsuccess()
+        self.editor.saveNow(callback)

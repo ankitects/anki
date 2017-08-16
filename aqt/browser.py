@@ -366,7 +366,6 @@ class Browser(QMainWindow):
         applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
-        self.forceClose = False
         self.lastFilter = ""
         self.focusTo = None
         self._previewWindow = None
@@ -459,26 +458,15 @@ class Browser(QMainWindow):
             curmax + 6)
 
     def closeEvent(self, evt):
-        if not self._closeEventHasCleanedUp:
-            if self.editor.note and not self.forceClose:
-                # ignore event for now to allow us to save
-                self.editor.saveNow(self._closeEventAfterSave)
-                evt.ignore()
-            else:
-                self._closeEventCleanup()
-                evt.accept()
-                self.mw.gcWindow(self)
-        else:
+        if self._closeEventHasCleanedUp:
             evt.accept()
-            self.mw.gcWindow(self)
+            return
+        self.editor.saveNow(self._closeWindow)
+        evt.ignore()
 
-    def _closeEventAfterSave(self):
-        self._closeEventCleanup()
-        self.close()
-
-    def _closeEventCleanup(self):
+    def _closeWindow(self):
         self._cancelPreviewTimer()
-        self.editor.setNote(None)
+        self.editor.cleanup()
         saveSplitter(self.form.splitter, "editor3")
         saveGeom(self, "editor")
         saveState(self, "editor")
@@ -487,14 +475,18 @@ class Browser(QMainWindow):
         self.col.setMod()
         self.teardownHooks()
         self.mw.maybeReset()
-        aqt.dialogs.close("Browser")
+        aqt.dialogs.markClosed("Browser")
         self._closeEventHasCleanedUp = True
+        self.mw.gcWindow(self)
+        self.close()
 
-    def canClose(self):
-        return True
+    def closeWithCallback(self, onsuccess):
+        def callback():
+            self._closeWindow()
+            onsuccess()
+        self.editor.saveNow(callback)
 
     def keyPressEvent(self, evt):
-        "Show answer on RET or register answer."
         if evt.key() == Qt.Key_Escape:
             self.close()
         else:

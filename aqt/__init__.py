@@ -38,8 +38,8 @@ except ImportError as e:
 
 from anki.utils import checksum
 
-# Dialog manager - manages modeless windows
-##########################################################################emacs
+# Dialog manager - manages non-modal windows
+##########################################################################
 
 class DialogManager:
 
@@ -65,18 +65,32 @@ class DialogManager:
             self._dialogs[name][1] = instance
             return instance
 
-    def close(self, name):
+    def markClosed(self, name):
         self._dialogs[name] = [self._dialogs[name][0], None]
 
-    def closeAll(self):
-        "True if all closed successfully."
-        for (n, (creator, instance)) in list(self._dialogs.items()):
-            if instance:
-                if not instance.canClose():
-                    return False
-                instance.forceClose = True
-                instance.close()
-                self.close(n)
+    def allClosed(self):
+        return not any(x[1] for x in self._dialogs.values())
+
+    def closeAll(self, onsuccess):
+        # can we close immediately?
+        if self.allClosed():
+            onsuccess()
+            return
+
+        # ask all windows to close and await a reply
+        for (name, (creator, instance)) in self._dialogs.items():
+            if not instance:
+                continue
+
+            def callback():
+                if self.allClosed():
+                    onsuccess()
+                else:
+                    # still waiting for others to close
+                    pass
+
+            instance.closeWithCallback(callback)
+
         return True
 
 dialogs = DialogManager()

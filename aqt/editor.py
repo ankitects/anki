@@ -319,6 +319,11 @@ class Editor:
                 return False
         return True
 
+    def cleanup(self):
+        self.setNote(None)
+        # prevent any remaining evalWithCallback() events from firing after C++ object deleted
+        self.web = None
+
     # HTML editing
     ######################################################################
 

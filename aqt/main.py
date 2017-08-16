@@ -530,7 +530,8 @@ title="%s" %s>%s</button>''' % (
         self.form.centralwidget.setLayout(self.mainLayout)
 
     def closeAllCollectionWindows(self):
-        return aqt.dialogs.closeAll()
+        aqt.dialogs.closeAll(lambda: 1)
+        return True
 
     # Components
     ##########################################################################
