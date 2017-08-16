@@ -338,15 +338,18 @@ Debug info:
                 corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
         except:
             corrupt = True
+        try:
+            self.col.close()
+        except:
+            corrupt = True
+        finally:
+            self.col = None
         if corrupt:
             showWarning(_("Your collection file appears to be corrupt. \
 This can happen when the file is copied or moved while Anki is open, or \
-when the collection is stored on a network or cloud drive. Please see \
-the manual for information on how to restore from an automatic backup."))
-        try:
-            self.col.close()
-        finally:
-            self.col = None
+when the collection is stored on a network or cloud drive. If problems \
+persist after restarting your computer, please open an automatic backup \
+from the profile screen."))
         if not corrupt and not self.restoringBackup:
             self.backup()
 
