@@ -14,10 +14,23 @@ img {
 
 #_flag {
     position: fixed;
-    right: 7px;
+    right: 10px;
     top: 0;
     font-size: 30px;
     display: none;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+}
+
+#_mark {
+    position: fixed;
+    left: 10px;
+    top: 0;
+    font-size: 30px;
+    color: yellow;
+    display: none;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
 }
 
 #typeans {

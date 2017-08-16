@@ -76,6 +76,15 @@ function _drawFlag(flag) {
     elem.css("color", _flagColours[flag]);
 }
 
+function _drawMark(mark) {
+    var elem = $("#_mark");
+    if (!mark) {
+        elem.hide();
+    } else {
+        elem.show();
+    }
+}
+
 function _typeAnsPress() {
     if (window.event.keyCode === 13) {
         pycmd("ans");

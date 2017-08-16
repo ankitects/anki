@@ -120,6 +120,7 @@ class Reviewer:
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
         return f"""
+<div id=_mark>&#x2605;</div>
 <div id=_flag>&#x2691;</div>
 <div id=qa></div>
 {extra}
@@ -171,6 +172,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
         self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
         self._drawFlag()
+        self._drawMark()
         self._showAnswerButton()
         # if we have a type answer field, focus main web
         if self.typeCorrect:
@@ -189,6 +191,10 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
     def _drawFlag(self):
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())
+
+    def _drawMark(self):
+        self.web.eval("_drawMark(%s);" % json.dumps(
+                        self.card.note().hasTag("marked")))
 
     # Showing the answer
     ##########################################################################
@@ -243,6 +249,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             ("Ctrl+3", lambda: self.setFlag(3)),
             ("Ctrl+4", lambda: self.setFlag(4)),
             ("Ctrl+0", lambda: self.setFlag(0)),
+            ("*", self.onMark),
             ("=", self.onBuryNote),
             ("-", self.onBuryCard),
             ("!", self.onSuspend),
@@ -574,6 +581,7 @@ time = %(time)d;
                 [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4)],
                 [_("No Flag"), "Ctrl+5", lambda: self.setFlag(0)],
             ]],
+            [_("Mark Note"), "*", self.onMark],
             [_("Bury Card"), "-", self.onBuryCard],
             [_("Bury Note"), "=", self.onBuryNote],
             [_("Suspend Card"), "@", self.onSuspendCard],
@@ -615,6 +623,15 @@ time = %(time)d;
         self.card.setUserFlag(flag)
         self.card.flush()
         self._drawFlag()
+
+    def onMark(self):
+        f = self.card.note()
+        if f.hasTag("marked"):
+            f.delTag("marked")
+        else:
+            f.addTag("marked")
+        f.flush()
+        self._drawMark()
 
     def onSuspend(self):
         self.mw.checkpoint(_("Suspend"))

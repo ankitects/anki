@@ -314,6 +314,7 @@ class DataModel(QAbstractTableModel):
 ######################################################################
 
 COLOUR_SUSPENDED = "#FFFFB2"
+COLOUR_MARKED = "#ccc"
 
 flagColours = {
     1: "#F5B7B1",
@@ -345,7 +346,8 @@ class StatusDelegate(QItemDelegate):
             col = COLOUR_SUSPENDED
         elif c.userFlag() > 0:
             col = flagColours[c.userFlag()]
-
+        elif c.note().hasTag("Marked"):
+            col = COLOUR_MARKED
         if col:
             brush = QBrush(QColor(col))
             painter.save()
@@ -408,6 +410,7 @@ class Browser(QMainWindow):
         f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
         f.actionRemove_Tags.triggered.connect(lambda: self.deleteTags())
         f.actionClear_Unused_Tags.triggered.connect(self.clearUnusedTags)
+        f.actionToggle_Mark.triggered.connect(lambda: self.onMark())
         f.actionChangeModel.triggered.connect(self.onChangeModel)
         f.actionFindDuplicates.triggered.connect(self.onFindDupes)
         f.actionFindReplace.triggered.connect(self.onFindReplace)
@@ -1464,12 +1467,23 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         self.model.reset()
         self.mw.requireReset()
 
-    # Flags
+    # Flags & Marking
     ######################################################################
 
     def onSetFlag(self, n):
         self.col.setUserFlag(n, self.selectedCards())
         self.model.reset()
+
+    def onMark(self, mark=None):
+        if mark is None:
+            mark = not self.isMarked()
+        if mark:
+            self.addTags(tags="marked", label=False)
+        else:
+            self.deleteTags(tags="marked", label=False)
+
+    def isMarked(self):
+        return not not (self.card and self.card.note().hasTag("Marked"))
 
     # Repositioning
     ######################################################################

@@ -294,6 +294,7 @@
     <addaction name="actionAdd_Tags"/>
     <addaction name="actionRemove_Tags"/>
     <addaction name="actionClear_Unused_Tags"/>
+    <addaction name="actionToggle_Mark"/>
     <addaction name="separator"/>
     <addaction name="actionChangeModel"/>
     <addaction name="separator"/>
@@ -567,6 +568,14 @@
   <action name="actionManage_Note_Types">
    <property name="text">
     <string>Manage Note Types...</string>
+   </property>
+  </action>
+  <action name="actionToggle_Mark">
+   <property name="text">
+    <string>Toggle Mark</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
    </property>
   </action>
  </widget>
