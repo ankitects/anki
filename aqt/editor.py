@@ -283,7 +283,8 @@ class Editor:
     def saveNow(self, callback):
         "Save unsaved edits then call callback()."
         if not self.note:
-            callback()
+             # calling code may not expect the callback to fire immediately
+            self.mw.progress.timer(10, callback, False)
             return
         self.saveTags()
         self.web.evalWithCallback("saveNow()", lambda res: callback())
