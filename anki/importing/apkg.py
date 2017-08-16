@@ -19,16 +19,20 @@ class AnkiPackageImporter(Anki2Importer):
         # we need the media dict in advance, and we'll need a map of fname ->
         # number to use during the import
         self.nameToNum = {}
+        dir = self.col.media.dir()
         for k, v in json.loads(z.read("media")).items():
-            self.nameToNum[v] = k
+            path = os.path.abspath(os.path.join(dir, v))
+            if os.path.commonprefix([path, dir]) != dir:
+                raise Exception("Invalid file")
+
+            self.nameToNum[v] = unicodedata.normalize("NFC", k)
         # run anki2 importer
         Anki2Importer.run(self)
         # import static media
         for file, c in self.nameToNum.items():
             if not file.startswith("_") and not file.startswith("latex-"):
                 continue
-            path = os.path.join(self.col.media.dir(),
-                                unicodedata.normalize("NFC", file))
+            path = os.path.join(self.col.media.dir(), file)
             if not os.path.exists(path):
                 open(path, "wb").write(z.read(c))
 
