@@ -9,7 +9,11 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
     var qa = $("#qa");
     qa.fadeTo(fadeTime, 0, function() {
         // update text
-        qa.html(html);
+        try {
+            qa.html(html);
+        } catch(err) {
+            qa.text("Invalid HTML on card: "+err);
+        }
         _removeStylingFromMathjaxCloze();
         onupdate(qa);
 
