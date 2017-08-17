@@ -447,7 +447,7 @@ class SyncThread(QThread):
             raise
         if ret == "noChanges":
             self.fireEvent("noMediaChanges")
-        elif ret == "sanityCheckFailed":
+        elif ret == "sanityCheckFailed" or ret == "corruptMediaDB":
             self.fireEvent("mediaSanity")
         else:
             self.fireEvent("mediaSuccess")

@@ -7,7 +7,7 @@ import gzip
 import random
 import requests
 
-from anki.db import DB
+from anki.db import DB, DBError
 from anki.utils import ids2str, intTime, json, platDesc, checksum, devMode
 from anki.consts import *
 from .hooks import runHook
@@ -701,7 +701,10 @@ class MediaSyncer:
         # check if there have been any changes
         runHook("sync", "findMedia")
         self.col.log("findChanges")
-        self.col.media.findChanges()
+        try:
+            self.col.media.findChanges()
+        except DBError:
+            return "corruptMediaDB"
 
         # begin session and check if in sync
         lastUsn = self.col.media.lastUsn()

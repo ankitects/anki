@@ -11,7 +11,7 @@ import zipfile
 from io import StringIO
 
 from anki.utils import checksum, isWin, isMac, json
-from anki.db import DB
+from anki.db import DB, DBError
 from anki.consts import *
 from anki.latex import mungeQA
 
@@ -111,6 +111,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             except:
                 # may have been deleted
                 pass
+
+    def _deleteDB(self):
+        path = self.db._path
+        self.close()
+        os.unlink(path)
+        self.connect()
 
     def dir(self):
         return self._dir
@@ -290,6 +296,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if renamedFiles:
             return self.check(local=local)
         nohave = [x for x in allRefs if not x.startswith("_")]
+        # make sure the media DB is valid
+        try:
+            self.findChanges()
+        except DBError:
+            self._deleteDB()
         return (nohave, unused, invalid)
 
     def _normalizeNoteRefs(self, nid):

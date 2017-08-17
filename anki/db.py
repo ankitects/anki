@@ -7,7 +7,7 @@ import time
 
 from sqlite3 import dbapi2 as sqlite
 
-Error = sqlite.Error
+DBError = sqlite.Error
 
 class DB:
     def __init__(self, path, timeout=0):
