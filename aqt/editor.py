@@ -72,24 +72,26 @@ class Editor:
         self.outerLayout.addWidget(self.web, 1)
 
         righttopbtns = list()
-        righttopbtns.append(self._addButton('text_bold', 'bold', "Bold text (Ctrl+B)", id='bold'))
-        righttopbtns.append(self._addButton('text_italic', 'italic', "Italic text (Ctrl+I)", id='italic'))
-        righttopbtns.append(self._addButton('text_under', 'underline', "Underline text (Ctrl+U)", id='underline'))
-        righttopbtns.append(self._addButton('text_super', 'super', "Superscript (Ctrl++)", id='superscript'))
-        righttopbtns.append(self._addButton('text_sub', 'sub', "Subscript (Ctrl+=)", id='subscript'))
-        righttopbtns.append(self._addButton('text_clear', 'clear', "Remove formatting (Ctrl+R)"))
+        righttopbtns.append(self._addButton('text_bold', 'bold', _("Bold text (Ctrl+B)"), id='bold'))
+        righttopbtns.append(self._addButton('text_italic', 'italic', _("Italic text (Ctrl+I)"), id='italic'))
+        righttopbtns.append(self._addButton('text_under', 'underline', _("Underline text (Ctrl+U)"), id='underline'))
+        righttopbtns.append(self._addButton('text_super', 'super', _("Superscript (Ctrl++)"), id='superscript'))
+        righttopbtns.append(self._addButton('text_sub', 'sub', _("Subscript (Ctrl+=)"), id='subscript'))
+        righttopbtns.append(self._addButton('text_clear', 'clear', _("Remove formatting (Ctrl+R)")))
         # The color selection buttons do not use an icon so the HTML must be specified manually
-        righttopbtns.append('''<button tabindex=-1 class=linkb title="Set foreground colour (F7)"
+        tip = _("Set foreground colour (F7)")
+        righttopbtns.append(f'''<button tabindex=-1 class=linkb title="{tip}"
             type="button" onclick="pycmd('colour');return false;">
             <div id=forecolor style="display:inline-block; background: #000;border-radius: 5px;"
             class=topbut></div></button>''')
-        righttopbtns.append('''<button tabindex=-1 class=linkb title="Change colour (F8)"
+        tip = _("Change colour (F8)")
+        righttopbtns.append(f'''<button tabindex=-1 class=linkb title="{tip}"
             type="button" onclick="pycmd('changeCol');return false;">
             <div style="display:inline-block; border-radius: 5px;"
             class="topbut rainbow"></div></button>''')
-        righttopbtns.append(self._addButton('text_cloze', 'cloze', "Cloze deletion (Ctrl+Shift+C)"))
-        righttopbtns.append(self._addButton('paperclip', 'attach', "Attach pictures/audio/video (F3)"))
-        righttopbtns.append(self._addButton('media-record', 'record', "Record audio (F5)"))
+        righttopbtns.append(self._addButton('text_cloze', 'cloze', _("Cloze deletion (Ctrl+Shift+C)")))
+        righttopbtns.append(self._addButton('paperclip', 'attach', _("Attach pictures/audio/video (F3)")))
+        righttopbtns.append(self._addButton('media-record', 'record', _("Record audio (F5)")))
         righttopbtns.append(self._addButton('more', 'more'))
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
@@ -136,8 +138,9 @@ class Editor:
             toggleScript = 'toggleEditorButton(this);'
         else:
             toggleScript = ''
+        tip = shortcut(tip)
         return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');{togglesc}return false;">
-            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=_(tip), id=idstr, togglesc=toggleScript)
+            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=tip, id=idstr, togglesc=toggleScript)
 
     def setupShortcuts(self):
         cuts = [
