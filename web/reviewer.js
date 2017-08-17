@@ -9,7 +9,12 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
     var qa = $("#qa");
     qa.fadeTo(fadeTime, 0, function() {
         // update text
-        qa.html(html);
+        try {
+            qa.html(html);
+        } catch (err) {
+            // SyntaxError inside the HTML code
+            console.error(err);
+        }
         _removeStylingFromMathjaxCloze();
         onupdate(qa);
 
