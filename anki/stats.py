@@ -736,7 +736,7 @@ where did in %s """ % self._limit())
         info += _('''\
 A card's <i>ease</i> is the size of the next interval \
 when you answer "good" on a review.''')
-        txt = self._title(_("Cards Types"),
+        txt = self._title(_("Card Types"),
                           _("The division of cards in your deck(s)."))
         txt += "<table width=%d><tr><td>%s</td><td>%s</td></table>" % (
             self.width,
