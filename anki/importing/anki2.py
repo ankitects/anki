@@ -19,7 +19,6 @@ class Anki2Importer(Importer):
     needMapper = False
     deckPrefix = None
     allowUpdate = True
-    dupeOnSchemaChange = False
 
     def run(self, media=None):
         self._prepareFiles()
@@ -65,9 +64,8 @@ class Anki2Importer(Importer):
         # we may need to rewrite the guid if the model schemas don't match,
         # so we need to keep track of the changes for the card import stage
         self._changedGuids = {}
-        # apart from upgrading from anki1 decks, we ignore updates to changed
-        # schemas. we need to note the ignored guids, so we avoid importing
-        # invalid cards
+        # we ignore updates to changed schemas. we need to note the ignored
+        # guids, so we avoid importing invalid cards
         self._ignoredGuids = {}
         # iterate over source collection
         add = []
@@ -149,20 +147,9 @@ class Anki2Importer(Importer):
         note[MID] = dstMid
         if origGuid not in self._notes:
             return True
-        # as the schemas differ and we already have a note with a different
-        # note type, this note needs a new guid
-        if not self.dupeOnSchemaChange:
-            self._ignoredGuids[origGuid] = True
-            return False
-        while True:
-            note[GUID] = incGuid(note[GUID])
-            self._changedGuids[origGuid] = note[GUID]
-            # if we don't have an existing guid, we can add
-            if note[GUID] not in self._notes:
-                return True
-            # if the existing guid shares the same mid, we can reuse
-            if dstMid == self._notes[note[GUID]][MID]:
-                return False
+        # schema changed; don't import
+        self._ignoredGuids[origGuid] = True
+        return False
 
     # Models
     ######################################################################
