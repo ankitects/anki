@@ -125,6 +125,18 @@ class Editor:
             data64 = b''.join(base64.encodestring(data).splitlines())
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
+    def addButton(self, icon, cmd, func, tip="", label="", 
+                  id=None, toggleable=False, keys=None):
+        """Assign func to bridge cmd, register shortcut, return button"""
+        if cmd not in self._links:
+            self._links[cmd] = func
+        if keys:
+            s = QShortcut(QKeySequence(keys), self.widget,
+                activated = lambda s=self: func(s))
+        btn = self._addButton(icon, cmd, tip=tip, label=label,
+                              id=id, toggleable=toggleable)
+        return btn
+
     def _addButton(self, icon, cmd, tip="", id=None, toggleable=False):
         if os.path.isabs(icon):
             iconstr = self.resourceToData(icon)
