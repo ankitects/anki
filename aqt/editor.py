@@ -125,11 +125,19 @@ class Editor:
             data64 = b''.join(base64.encodestring(data).splitlines())
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
-    def _addButton(self, icon, cmd, tip="", id=None, toggleable=False):
-        if os.path.isabs(icon):
-            iconstr = self.resourceToData(icon)
+    def _addButton(self, icon, cmd, tip="", label="", id=None, toggleable=False):
+        if icon:
+            if os.path.isabs(icon):
+                iconstr = self.resourceToData(icon)
+            else:
+                iconstr = "/_anki/imgs/{}.png".format(icon)
+            imgelm = '''<img class=topbut src="{}">'''.format(iconstr)
         else:
-            iconstr = "/_anki/imgs/{}.png".format(icon)
+            imgelm = ""
+        if label or not imgelm:
+            labelelm = '''<span class=blabel>{}</span>'''.format(label or cmd)
+        else:
+            labelelm = ""
         if id:
             idstr = 'id={}'.format(id)
         else:
@@ -139,8 +147,12 @@ class Editor:
         else:
             toggleScript = ''
         tip = shortcut(tip)
-        return '''<button tabindex=-1 {id} class=linkb type="button" title="{tip}" onclick="pycmd('{cmd}');{togglesc}return false;">
-            <img class=topbut src="{icon}"></button>'''.format(icon=iconstr, cmd=cmd, tip=tip, id=idstr, togglesc=toggleScript)
+        return ('''<button tabindex=-1 {id} class=linkb type="button" title="{tip}"'''
+                ''' onclick="pycmd('{cmd}');{togglesc}return false;">'''
+                '''{imgelm}{labelelm}</button>'''.format(
+                        imgelm=imgelm, cmd=cmd, tip=tip, labelelm=labelelm, id=idstr,
+                        togglesc=toggleScript)
+                )
 
     def setupShortcuts(self):
         cuts = [
