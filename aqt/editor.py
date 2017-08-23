@@ -131,8 +131,8 @@ class Editor:
         if cmd not in self._links:
             self._links[cmd] = func
         if keys:
-            s = QShortcut(QKeySequence(keys), self.widget,
-                activated = lambda s=self: func(s))
+            QShortcut(QKeySequence(keys), self.widget,
+                      activated = lambda s=self: func(s))
         btn = self._addButton(icon, cmd, tip=tip, label=label,
                               id=id, toggleable=toggleable)
         return btn
