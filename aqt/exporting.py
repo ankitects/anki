@@ -86,8 +86,7 @@ class ExportDialog(QDialog):
             # Get deck name and remove invalid filename characters
             deck_name = self.decks[self.frm.deck.currentIndex()]
             deck_name = re.sub('[\\\\/?<>:*|"^]', '_', deck_name)
-            filename = os.path.join(aqt.mw.pm.base,
-                                    '{0}{1}'.format(deck_name, self.exporter.ext))
+            filename = '{0}{1}'.format(deck_name, self.exporter.ext)
             while 1:
                 file = getSaveFile(self, _("Export"), "export",
                                    self.exporter.key, self.exporter.ext,

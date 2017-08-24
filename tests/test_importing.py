@@ -75,38 +75,6 @@ def test_apkg():
     imp.run()
     assert len(os.listdir(tmp.media.dir())) == 2
 
-def test_anki2_diffmodels():
-    # create a new empty deck
-    dst = getEmptyCol()
-    # import the 1 card version of the model
-    tmp = getUpgradeDeckPath("diffmodels2-1.apkg")
-    imp = AnkiPackageImporter(dst, tmp)
-    imp.dupeOnSchemaChange = True
-    imp.run()
-    before = dst.noteCount()
-    # repeating the process should do nothing
-    imp = AnkiPackageImporter(dst, tmp)
-    imp.dupeOnSchemaChange = True
-    imp.run()
-    assert before == dst.noteCount()
-    # then the 2 card version
-    tmp = getUpgradeDeckPath("diffmodels2-2.apkg")
-    imp = AnkiPackageImporter(dst, tmp)
-    imp.dupeOnSchemaChange = True
-    imp.run()
-    after = dst.noteCount()
-    # as the model schemas differ, should have been imported as new model
-    assert after == before + 1
-    # and the new model should have both cards
-    assert dst.cardCount() == 3
-    # repeating the process should do nothing
-    imp = AnkiPackageImporter(dst, tmp)
-    imp.dupeOnSchemaChange = True
-    imp.run()
-    after = dst.noteCount()
-    assert after == before + 1
-    assert dst.cardCount() == 3
-
 def test_anki2_diffmodel_templates():
     # different from the above as this one tests only the template text being
     # changed, not the number of cards/fields
