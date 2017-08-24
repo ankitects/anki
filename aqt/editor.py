@@ -163,7 +163,7 @@ class Editor:
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags)
         ]
-        runFilter("setupEditorShortcuts", cuts)
+        runFilter("setupEditorShortcuts", cuts, self)
         for keys, fn in cuts:
             QShortcut(QKeySequence(keys), self.widget, activated=fn)
 
