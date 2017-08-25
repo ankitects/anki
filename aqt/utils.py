@@ -392,6 +392,7 @@ _tooltipLabel = None
 def tooltip(msg, period=3000, parent=None):
     global _tooltipTimer, _tooltipLabel
     class CustomLabel(QLabel):
+        silentlyClose = True
         def mousePressEvent(self, evt):
             evt.accept()
             self.hide()

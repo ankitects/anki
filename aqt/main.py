@@ -276,11 +276,14 @@ close the profile or restart Anki."""))
 
         self.maybeAutoSync()
 
-
     def _checkForUnclosedWidgets(self):
         for w in self.app.topLevelWidgets():
             if w.isVisible():
-                showWarning(f"Window should have been closed: {w}")
+                # windows with this property are safe to close immediately
+                if getattr(w, "silentlyClose"):
+                    w.close()
+                else:
+                    showWarning(f"Window should have been closed: {w}")
 
     def unloadProfileAndExit(self):
         self.unloadProfile(self.cleanupAndExit)
@@ -1065,6 +1068,7 @@ will be lost. Continue?"""))
 
     def onDebug(self):
         d = self.debugDiag = QDialog()
+        d.silentlyClose = True
         frm = aqt.forms.debug.Ui_Dialog()
         frm.setupUi(d)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
