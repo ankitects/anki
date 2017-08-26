@@ -313,7 +313,7 @@ class GetAddons(QDialog):
         saveGeom(self, "getaddons")
 
     def onBrowse(self):
-        openLink(aqt.appShared + "addons/?v=2.1")
+        openLink(aqt.appShared + "addons/2.1")
 
     def accept(self):
         # get codes
