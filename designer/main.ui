@@ -79,14 +79,6 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <widget class="QMenu" name="menuPlugins">
-     <property name="title">
-      <string>&amp;Add-ons</string>
-     </property>
-     <addaction name="actionDownloadSharedPlugin"/>
-     <addaction name="actionOpenPluginFolder"/>
-     <addaction name="separator"/>
-    </widget>
     <addaction name="actionStudyDeck"/>
     <addaction name="actionCreateFiltered"/>
     <addaction name="separator"/>
@@ -94,7 +86,7 @@
     <addaction name="actionCheckMediaDatabase"/>
     <addaction name="actionEmptyCards"/>
     <addaction name="separator"/>
-    <addaction name="menuPlugins"/>
+    <addaction name="actionAdd_ons"/>
     <addaction name="separator"/>
     <addaction name="actionNoteTypes"/>
     <addaction name="actionPreferences"/>
@@ -235,6 +227,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionAdd_ons">
+   <property name="text">
+    <string>Add-ons...</string>
    </property>
   </action>
  </widget>

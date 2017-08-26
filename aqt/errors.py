@@ -105,16 +105,17 @@ or your deck may have a problem.
 <p>If that doesn't fix the problem, please copy the following<br>
 into a bug report:""")
         pluginText = _("""\
-An error occurred in an add-on.<br><br>
-Please start Anki while holding down the shift key, and see if<br>
-the error goes away.<br><br>
-If the error goes away, please report the issue on the add-on<br>
-forum: %s
-<br><br>If the error occurs even with add-ons disabled, please<br>
-report the issue on our support site.
+<p>An error occurred. Please start Anki while holding down the shift \
+key, which will temporarily disable the add-ons you have installed.</p>
+
+<p>If the problem occurs even with add-ons disabled, please report the \
+issue on our support site.</p>
+
+<p>If the issue only occurs when add-ons are enabled, plesae use the \
+Tools&gt;Add-ons menu item to disable one add-on and restart Anki, \
+repeating until you discover the add-on that is causing the problem.</p>
 """)
-        pluginText %= "https://anki.tenderapp.com/discussions/add-ons"
-        if "addon" in error:
+        if self.mw.addonManager.dirty:
             txt = pluginText
         else:
             txt = stdText

@@ -5,9 +5,9 @@ For info on contributing things other than code, such as translations, decks
 and add-ons, please see http://ankisrs.net/docs/manual.html#contributing
 
 The goal of Anki 2.1.x is to bring Anki up to date with Python 3 and Qt 5,
-while changing as little else as possible. Modern Linux distros have started
-dropping support for Qt 4, so we need to keep changes to a minimum in order to
-get an update out faster.
+while maintaining compatibility with Anki 2.0.x. Some users will be stuck on
+Anki 2.0 for a while due to unported add-ons or old hardware, so it's
+important that 2.1 doesn't make breaking changes to the file format.
 
 Also of consideration is that the Anki code is indirectly used by the mobile
 clients, which try their best to keep as close to the Anki code as possible so

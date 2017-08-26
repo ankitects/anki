@@ -10,7 +10,7 @@ from anki.hooks import addHook, remHook
 import aqt
 
 def download(mw, code):
-    "Download addon/deck from AnkiWeb. Caller must start & stop progress diag."
+    "Download addon from AnkiWeb. Caller must start & stop progress diag."
     # create downloading thread
     thread = Downloader(code)
     def onRecv():
@@ -53,11 +53,11 @@ class Downloader(QThread):
         client = AnkiRequestsClient()
         try:
             resp = client.get(
-                aqt.appShared + "download/%d" % self.code)
+                aqt.appShared + "download/%s?v=2.1" % self.code)
             if resp.status_code == 200:
                 data = client.streamContent(resp)
             elif resp.status_code in (403,404):
-                self.error = _("Invalid code")
+                self.error = _("Invalid code, or add-on not available for your version of Anki.")
                 return
             else:
                 self.error = _("Error downloading: %s" % resp.status_code)
