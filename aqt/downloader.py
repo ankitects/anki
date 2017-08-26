@@ -13,20 +13,20 @@ def download(mw, code):
     "Download addon from AnkiWeb. Caller must start & stop progress diag."
     # create downloading thread
     thread = Downloader(code)
+    done = False
     def onRecv():
-        try:
-            mw.progress.update(label="%dKB downloaded" % (thread.recvTotal/1024))
-        except NameError:
-            # some users report the following error on long downloads
-            # NameError: free variable 'mw' referenced before assignment in enclosing scope
-            # unsure why this is happening, but guard against throwing the
-            # error
-            pass
+        if done:
+            return
+        mw.progress.update(label="%dKB downloaded" % (thread.recvTotal/1024))
     thread.recv.connect(onRecv)
     thread.start()
     while not thread.isFinished():
         mw.app.processEvents()
         thread.wait(100)
+
+    # make sure any posted events don't fire after we return
+    done = True
+
     if not thread.error:
         # success
         return thread.data, thread.fname
