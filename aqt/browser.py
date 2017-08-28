@@ -1238,6 +1238,12 @@ where id in %s""" % ids2str(sf))
         self._previewNext.clicked.connect(self._onPreviewNext)
         self._previewReplay.clicked.connect(self._onReplayAudio)
 
+        self.previewShowBothSides = QCheckBox(_("Show Both Sides"))
+        bbox.addButton(self.previewShowBothSides, QDialogButtonBox.ActionRole)
+        self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
+        self._previewBothSides = self.col.conf.get("previewBothSides", False)
+        self.previewShowBothSides.setChecked(self._previewBothSides)
+
         self._setupPreviewWebview()
 
         vbox.addWidget(bbox)
@@ -1252,7 +1258,7 @@ where id in %s""" % ids2str(sf))
         self.form.previewButton.setChecked(False)
 
     def _onPreviewPrev(self):
-        if self._previewState == "answer":
+        if self._previewState == "answer" and not self._previewBothSides:
             self._previewState = "question"
             self._renderPreview()
         else:
@@ -1274,7 +1280,8 @@ where id in %s""" % ids2str(sf))
         if not self._previewWindow:
             return
         current = self.currentRow()
-        canBack = (current > 0 or (current == 0 and self._previewState == "answer" ))
+        canBack = (current > 0 or (current == 0 and self._previewState == "answer"
+                                   and not self._previewBothSides))
         self._previewPrev.setEnabled(not not (self.singleCard and canBack))
         canForward = self.currentRow() < self.model.rowCount(None) - 1 or \
                      self._previewState == "question"
@@ -1325,7 +1332,9 @@ where id in %s""" % ids2str(sf))
             txt = _("(please select 1 card)")
             bodyclass = ""
         else:
-            if cardChanged:
+            if self._previewBothSides:
+                self._previewState = "answer"
+            elif cardChanged:
                 self._previewState = "question"
             # need to force reload even if answer
             txt = c.q(reload=True)
@@ -1344,6 +1353,11 @@ where id in %s""" % ids2str(sf))
 
         self._previewWeb.eval(
             f"{func}({json.dumps(txt)},'{bodyclass}');")
+
+    def _onPreviewShowBothSides(self, toggle):
+        self._previewBothSides = toggle
+        self.col.conf["previewBothSides"] = toggle
+        self.col.setMod()
 
     # Card deletion
     ######################################################################
