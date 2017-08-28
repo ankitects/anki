@@ -5,6 +5,7 @@ import io
 import json
 import re
 import zipfile
+import markdown
 from send2trash import send2trash
 
 from aqt.qt import *
@@ -26,8 +27,6 @@ class AddonManager:
         f = self.mw.form
         f.actionAdd_ons.triggered.connect(self.onAddonsDialog)
         sys.path.insert(0, self.addonsFolder())
-        if not self.mw.safeMode:
-            self.loadAddons()
 
     def allAddons(self):
         l = []
@@ -105,7 +104,8 @@ When loading '%(name)s':
 
         name = os.path.splitext(fname)[0]
 
-        # remove old version first
+        # previously installed?
+        meta = self.addonMeta(sid)
         base = self.addonsFolder(sid)
         if os.path.exists(base):
             self.deleteAddon(sid)
@@ -119,9 +119,9 @@ When loading '%(name)s':
             # write
             z.extract(n, base)
 
-        # write metadata
-        meta = dict(name=name,
-                    mod=intTime())
+        # update metadata
+        meta['name'] = name
+        meta['mod'] = intTime()
         self.writeAddonMeta(sid, meta)
 
     def deleteAddon(self, dir):
@@ -187,6 +187,43 @@ When loading '%(name)s':
                 updated.append(sid)
         return updated
 
+    # Add-on Config
+    ######################################################################
+
+    _configButtonActions = {}
+
+    def addonConfigDefaults(self, dir):
+        path = os.path.join(self.addonsFolder(dir), "config.json")
+        try:
+            return json.load(open(path, encoding="utf8"))
+        except:
+            return None
+
+    def addonConfigHelp(self, dir):
+        path = os.path.join(self.addonsFolder(dir), "config.md")
+        if os.path.exists(path):
+            return markdown.markdown(open(path).read())
+        else:
+            return ""
+
+    def getConfig(self, module):
+        addon = module.split(".")[0]
+        meta = self.addonMeta(addon)
+        if meta.get("config"):
+            return meta["config"]
+        return self.addonConfigDefaults(addon)
+
+    def configAction(self, addon):
+        return self._configButtonActions.get(addon)
+
+    def setConfigAction(self, addon, fn):
+        self._configButtonActions[addon] = fn
+
+    def writeConfig(self, addon, conf):
+        meta = self.addonMeta(addon)
+        meta['config'] = conf
+        self.writeAddonMeta(addon, meta)
+
 # Add-ons Dialog
 ######################################################################
 
@@ -206,6 +243,7 @@ class AddonsDialog(QDialog):
         f.viewPage.clicked.connect(self.onViewPage)
         f.viewFiles.clicked.connect(self.onViewFiles)
         f.delete_2.clicked.connect(self.onDelete)
+        f.config.clicked.connect(self.onConfig)
         self.redrawAddons()
         self.show()
 
@@ -293,6 +331,25 @@ class AddonsDialog(QDialog):
 
                 self.redrawAddons()
 
+    def onConfig(self):
+        addon = self.onlyOneSelected()
+        if not addon:
+            return
+
+        # does add-on manage its own config?
+        act = self.mgr.configAction(addon)
+        if act:
+            act()
+            return
+
+        conf = self.mgr.getConfig(addon)
+        if conf is None:
+            showInfo(_("Add-on has no configuration."))
+            return
+
+        ConfigEditor(self, addon, conf)
+
+
 # Fetching Add-ons
 ######################################################################
 
@@ -332,3 +389,47 @@ class GetAddons(QDialog):
 
         self.addonsDlg.redrawAddons()
         QDialog.accept(self)
+
+# Editing config
+######################################################################
+
+class ConfigEditor(QDialog):
+
+    def __init__(self, dlg, addon, conf):
+        super().__init__(dlg)
+        self.addon = addon
+        self.conf = conf
+        self.mgr = dlg.mgr
+        self.form = aqt.forms.addonconf.Ui_Dialog()
+        self.form.setupUi(self)
+        restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
+        restore.clicked.connect(self.onRestoreDefaults)
+        self.updateHelp()
+        self.updateText()
+        self.show()
+
+    def onRestoreDefaults(self):
+        self.conf = self.mgr.addonConfigDefaults(self.addon)
+        self.updateText()
+
+    def updateHelp(self):
+        txt = self.mgr.addonConfigHelp(self.addon)
+        if txt:
+            self.form.label.setText(txt)
+        else:
+            self.form.scrollArea.setVisible(False)
+
+    def updateText(self):
+        self.form.editor.setPlainText(
+            json.dumps(self.conf,sort_keys=True,indent=4, separators=(',', ': ')))
+
+    def accept(self):
+        txt = self.form.editor.toPlainText()
+        try:
+            self.conf = json.loads(txt)
+        except Exception as e:
+            showInfo(_("Invalid configuration: ") + repr(e))
+            return
+
+        self.mgr.writeConfig(self.addon, self.conf)
+        super().accept()

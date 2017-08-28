@@ -597,6 +597,8 @@ title="%s" %s>%s</button>''' % (
     def setupAddons(self):
         import aqt.addons
         self.addonManager = aqt.addons.AddonManager(self)
+        if not self.safeMode:
+            self.addonManager.loadAddons()
 
     def setupThreads(self):
         self._mainThread = QThread.currentThread()

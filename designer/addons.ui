@@ -75,6 +75,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="config">
+       <property name="text">
+        <string>Config</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="viewFiles">
        <property name="text">
         <string>View Files</string>
