@@ -10,7 +10,7 @@ import os
 import random
 import pickle
 import shutil
-
+import io
 import locale
 import re
 
@@ -132,25 +132,47 @@ a flash drive.""" % self.base)
             self.db.list("select name from profiles")
             if x != "_global")
 
+    def _unpickle(self, data):
+        class Unpickler(pickle.Unpickler):
+            def find_class(self, module, name):
+                fn = super().find_class(module, name)
+                if module == "sip" and name == "_unpickle_type":
+                    def wrapper(mod, obj, args):
+                        if mod.startswith("PyQt4") and obj == "QByteArray":
+                            # can't trust str objects from python 2
+                            return QByteArray()
+                        return fn(mod, obj, args)
+                    return wrapper
+                else:
+                    return fn
+        up = Unpickler(io.BytesIO(data), errors="ignore")
+        return up.load()
+
+    def _pickle(self, obj):
+        return pickle.dumps(obj, protocol=0)
+
     def load(self, name):
+        assert name != "_global"
         data = self.db.scalar("select cast(data as blob) from profiles where name = ?", name)
-        # some profiles created in python2 may not decode properly
-        prof = pickle.loads(data, errors="ignore")
-        if name != "_global":
-            self.name = name
-            self.profile = prof
+        self.name = name
+        try:
+            self.profile = self._unpickle(data)
+        except:
+            print("resetting corrupt profile")
+            self.profile = profileConf.copy()
+            self.save()
         return True
 
     def save(self):
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, pickle.dumps(self.profile), self.name)
-        self.db.execute(sql, pickle.dumps(self.meta), "_global")
+        self.db.execute(sql, self._pickle(self.profile), self.name)
+        self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
 
     def create(self, name):
         prof = profileConf.copy()
-        self.db.execute("insert into profiles values (?, ?)",
-                        name, pickle.dumps(prof))
+        self.db.execute("insert or ignore into profiles values (?, ?)",
+                        name, self._pickle(prof))
         self.db.commit()
 
     def remove(self, name):
@@ -265,7 +287,11 @@ and no other programs are accessing your profile folders, then try again."""))
             return os.path.join(dataDir, "Anki2")
 
     def _loadMeta(self):
+        opath = os.path.join(self.base, "prefs.db")
         path = os.path.join(self.base, "prefs21.db")
+        if os.path.exists(opath) and not os.path.exists(path):
+            shutil.copy(opath, path)
+
         new = not os.path.exists(path)
         def recover():
             # if we can't load profile, start with a new one
@@ -274,10 +300,7 @@ and no other programs are accessing your profile folders, then try again."""))
                     self.db.close()
                 except:
                     pass
-            broken = path+".broken"
-            if os.path.exists(broken):
-                os.unlink(broken)
-            os.rename(path, broken)
+            os.unlink(path)
             QMessageBox.warning(
                 None, "Preferences Corrupt", """\
 Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
@@ -287,23 +310,22 @@ profiles, please add them back using the same names to recover your cards.""")
             self.db.execute("""
 create table if not exists profiles
 (name text primary key, data text not null);""")
+            data = self.db.scalar(
+                "select cast(data as blob) from profiles where name = '_global'")
         except:
             recover()
             return self._loadMeta()
         if not new:
-            # load previously created
+            # load previously created data
             try:
-                self.meta = pickle.loads(
-                    self.db.scalar(
-                        "select cast(data as blob) from profiles where name = '_global'"))
+                self.meta = self._unpickle(data)
                 return
             except:
-                recover()
-                return self._loadMeta()
+                print("resetting corrupt _global")
         # create a default global profile
         self.meta = metaConf.copy()
         self.db.execute("insert or replace into profiles values ('_global', ?)",
-                        pickle.dumps(metaConf))
+                        self._pickle(metaConf))
         self._setDefaultLang()
         return True
 
@@ -378,6 +400,6 @@ please see:
     def setLang(self, code):
         self.meta['defaultLang'] = code
         sql = "update profiles set data = ? where name = ?"
-        self.db.execute(sql, pickle.dumps(self.meta), "_global")
+        self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
         anki.lang.setLang(code, local=False)
