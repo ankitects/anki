@@ -6,5 +6,6 @@
     <file>icons/notetype.svg</file>
     <file>icons/heart.svg</file>
     <file>icons/collection.svg</file>
+    <file>icons/media-record.png</file>
   </qresource>
 </RCC>

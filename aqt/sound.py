@@ -14,6 +14,7 @@ def getAudio(parent, encode=True):
     mb = QMessageBox(parent)
     restoreGeom(mb, "audioRecorder")
     mb.setWindowTitle("Anki")
+    mb.setIconPixmap(QPixmap(":/icons/media-record.png"))
     but = QPushButton(_("Save"))
     mb.addButton(but, QMessageBox.AcceptRole)
     but = QPushButton(_("Cancel"))
