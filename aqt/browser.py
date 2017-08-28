@@ -811,11 +811,19 @@ by clicking on one on the left."""))
     def buildTree(self):
         self.sidebarTree.clear()
         root = self.sidebarTree
+        self._stdTree(root)
         self._favTree(root)
         self._decksTree(root)
         self._modelTree(root)
         self._userTagTree(root)
         self.sidebarTree.setIndentation(15)
+
+    def _stdTree(self, root):
+        for name, filt, icon in [[_("Whole Collection"), "", "collection"],
+                           [_("Current Deck"), "deck:current", "deck"]]:
+            item = self.CallbackItem(
+                root, name, self._filterFunc(filt))
+            item.setIcon(0, QIcon(":/icons/{}.svg".format(icon)))
 
     def _favTree(self, root):
         saved = self.col.conf.get('savedFilters', {})
@@ -1042,6 +1050,7 @@ by clicking on one on the left."""))
         filt = self.form.searchEdit.lineEdit().text()
         self.col.conf['savedFilters'][name] = filt
         self.col.setMod()
+        self.maybeRefreshSidebar()
 
     def _onRemoveFilter(self):
         name = self._currentFilterIsSaved()
@@ -1049,6 +1058,7 @@ by clicking on one on the left."""))
             return
         del self.col.conf['savedFilters'][name]
         self.col.setMod()
+        self.maybeRefreshSidebar()
 
     # returns name if found
     def _currentFilterIsSaved(self):
