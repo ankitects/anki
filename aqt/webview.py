@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
+import math
 from anki.hooks import runHook
 from aqt.qt import *
 from aqt.utils import openLink
@@ -274,5 +275,5 @@ body {{ zoom: {self.zoomFactor()}; {fontspec} }}
         self.evalWithCallback("$(document.body).height()", self._onHeight)
 
     def _onHeight(self, qvar):
-        height = int(qvar*self.zoomFactor())
+        height = math.ceil(qvar*self.zoomFactor())
         self.setFixedHeight(height)
