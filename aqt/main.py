@@ -975,13 +975,12 @@ will be lost. Continue?"""))
 
     def onCheckMediaDB(self):
         self.progress.start(immediate=True)
-        (nohave, unused, invalid) = self.col.media.check()
+        (nohave, unused, warnings) = self.col.media.check()
         self.progress.finish()
         # generate report
         report = ""
-        if invalid:
-            report += _("Invalid encoding; please rename:")
-            report += "\n" + "\n".join(invalid)
+        if warnings:
+            report += "\n".join(warnings) + "\n"
         if unused:
             if report:
                 report += "\n\n\n"

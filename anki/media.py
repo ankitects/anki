@@ -259,16 +259,18 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             allRefs.update(noteRefs)
         # loop through media folder
         unused = []
-        invalid = []
         if local is None:
             files = os.listdir(mdir)
         else:
             files = local
         renamedFiles = False
+        dirFound = False
+        warnings = []
         for file in files:
             if not local:
                 if not os.path.isfile(file):
                     # ignore directories
+                    dirFound = True
                     continue
             if file.startswith("_"):
                 # leading _ says to ignore file
@@ -301,7 +303,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             self.findChanges()
         except DBError:
             self._deleteDB()
-        return (nohave, unused, invalid)
+
+        if dirFound:
+            warnings.append(
+                _("Anki does not support files in subfolders of the collection.media folder."))
+        return (nohave, unused, warnings)
 
     def _normalizeNoteRefs(self, nid):
         note = self.col.getNote(nid)
