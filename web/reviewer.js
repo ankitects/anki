@@ -4,7 +4,19 @@ var typeans;
 var qFade = 100;
 var aFade = 0;
 
+var onUpdateHook;
+var onShownHook;
+
+function _runHook(arr) {
+    for (var i=0; i<arr.length; i++) {
+        arr[i]();
+    }
+}
+
 function _updateQA(html, fadeTime, onupdate, onshown) {
+    onUpdateHook = [onupdate];
+    onShownHook = [onshown];
+
     // fade out current text
     var qa = $("#qa");
     qa.fadeTo(fadeTime, 0, function() {
@@ -15,7 +27,7 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
             qa.text("Invalid HTML on card: "+err);
         }
         _removeStylingFromMathjaxCloze();
-        onupdate(qa);
+        _runHook(onUpdateHook);
 
         // don't allow drags of images, which cause them to be deleted
         $("img").attr("draggable", false);
@@ -26,19 +38,19 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         // and reveal when processing is done
         MathJax.Hub.Queue(function () {
             qa.fadeTo(fadeTime, 1, function () {
-                onshown(qa);
+                _runHook(onShownHook);
             });
         });
     });
 }
 
 function _showQuestion(q, bodyclass) {
-    _updateQA(q, qFade, function(obj) {
+    _updateQA(q, qFade, function() {
         // return to top of window
         window.scrollTo(0, 0);
 
         document.body.className = bodyclass;
-    }, function(obj) {
+    }, function() {
         // focus typing area if visible
         typeans = document.getElementById("typeans");
         if (typeans) {
@@ -48,7 +60,7 @@ function _showQuestion(q, bodyclass) {
 }
 
 function _showAnswer(a, bodyclass) {
-    _updateQA(a, aFade, function(obj) {
+    _updateQA(a, aFade, function() {
         if (bodyclass) {
             //  when previewing
             document.body.className = bodyclass;
@@ -59,7 +71,7 @@ function _showAnswer(a, bodyclass) {
         if (e[0]) {
             e[0].scrollIntoView();
         }
-    }, function(obj) {
+    }, function() {
     });
 }
 

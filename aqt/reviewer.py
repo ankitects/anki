@@ -11,7 +11,7 @@ import html.parser
 from anki.lang import _, ngettext
 from aqt.qt import *
 from anki.utils import stripHTML, json
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, tooltip, askUserDialog, \
     downArrow
@@ -167,6 +167,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
+        q = runFilter("prepareQuestion", q)
 
         bodyclass = "card card%d" % (c.ord+1)
 
@@ -210,6 +211,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.autoplay(c):
             playFromText(a)
         a = self._mungeQA(a)
+        a = runFilter("prepareAnswer", a)
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
