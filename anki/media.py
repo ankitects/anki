@@ -121,18 +121,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def dir(self):
         return self._dir
 
-    def _isFAT32(self):
-        if not isWin:
-            return
-        import win32api, win32file
-        try:
-            name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
-        except:
-            # mapped & unmapped network drive; pray that it's not vfat
-            return
-        if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
-            return True
-
     # Adding media
     ##########################################################################
     # opath must be in unicode
@@ -339,8 +327,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def findChanges(self):
         "Scan the media folder if it's changed, and note any changes."
-        if self._changed():
-            self._logChanges()
+        self._logChanges()
 
     def haveDirty(self):
         return self.db.scalar("select 1 from media where dirty=1 limit 1")
@@ -351,27 +338,16 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _checksum(self, path):
         return checksum(open(path, "rb").read())
 
-    def _changed(self):
-        "Return dir mtime if it has changed since the last findChanges()"
-        # doesn't track edits, but user can add or remove a file to update
-        mod = self.db.scalar("select dirMod from meta")
-        mtime = self._mtime(self.dir())
-        if not self._isFAT32() and mod and mod == mtime:
-            return False
-        return mtime
-
     def _logChanges(self):
         (added, removed) = self._changes()
         media = []
-        for f in added:
-            mt = self._mtime(f)
-            media.append((f, self._checksum(f), mt, 1))
+        for f, mtime in added:
+            media.append((f, self._checksum(f), mtime, 1))
         for f in removed:
             media.append((f, None, 0, 1))
         # update media db
         self.db.executemany("insert or replace into media values (?,?,?,?)",
                             media)
-        self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
         self.db.commit()
 
     def _changes(self):
@@ -382,43 +358,45 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         added = []
         removed = []
         # loop through on-disk files
-        for f in os.listdir(self.dir()):
-            # ignore folders and thumbs.db
-            if os.path.isdir(f):
-                continue
-            if f.lower() == "thumbs.db":
-                continue
-            # and files with invalid chars
-            if self.hasIllegal(f):
-                continue
-            # empty files are invalid; clean them up and continue
-            sz = os.path.getsize(f)
-            if not sz:
-                os.unlink(f)
-                continue
-            if sz > 100*1024*1024:
-                self.col.log("ignoring file over 100MB", f)
-                continue
-            # check encoding
-            if not isMac:
-                normf = unicodedata.normalize("NFC", f)
-                if f != normf:
-                    # wrong filename encoding which will cause sync errors
-                    if os.path.exists(normf):
-                        os.unlink(f)
-                    else:
-                        os.rename(f, normf)
-            # newly added?
-            if f not in self.cache:
-                added.append(f)
-            else:
-                # modified since last time?
-                if self._mtime(f) != self.cache[f][1]:
-                    # and has different checksum?
-                    if self._checksum(f) != self.cache[f][0]:
-                        added.append(f)
-                # mark as used
-                self.cache[f][2] = True
+        with os.scandir(self.dir()) as it:
+            for f in it:
+                # ignore folders and thumbs.db
+                if f.is_dir():
+                    continue
+                if f.name.lower() == "thumbs.db":
+                    continue
+                # and files with invalid chars
+                if self.hasIllegal(f.name):
+                    continue
+                # empty files are invalid; clean them up and continue
+                sz = f.stat().st_size
+                if not sz:
+                    os.unlink(f.name)
+                    continue
+                if sz > 100*1024*1024:
+                    self.col.log("ignoring file over 100MB", f.name)
+                    continue
+                # check encoding
+                if not isMac:
+                    normf = unicodedata.normalize("NFC", f.name)
+                    if f.name != normf:
+                        # wrong filename encoding which will cause sync errors
+                        if os.path.exists(normf):
+                            os.unlink(f.name)
+                        else:
+                            os.rename(f.name, normf)
+                # newly added?
+                mtime = int(f.stat().st_mtime)
+                if f.name not in self.cache:
+                    added.append((f.name, mtime))
+                else:
+                    # modified since last time?
+                    if mtime != self.cache[f.name][1]:
+                        # and has different checksum?
+                        if self._checksum(f.name) != self.cache[f.name][0]:
+                            added.append((f.name, mtime))
+                    # mark as used
+                    self.cache[f.name][2] = True
         # look for any entries in the cache that no longer exist on disk
         for (k, v) in list(self.cache.items()):
             if not v[2]:

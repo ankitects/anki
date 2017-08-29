@@ -69,7 +69,6 @@ def test_deckIntegration():
 
 def test_changes():
     d = getEmptyCol()
-    assert d.media._changed()
     def added():
         return d.media.db.execute("select fname from media where csum is not null")
     def removed():
