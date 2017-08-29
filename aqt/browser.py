@@ -1239,6 +1239,8 @@ where id in %s""" % ids2str(sf))
         self._previewReplay.clicked.connect(self._onReplayAudio)
 
         self.previewShowBothSides = QCheckBox(_("Show Both Sides"))
+        self.previewShowBothSides.setShortcut(QKeySequence("B"))
+        self.previewShowBothSides.setToolTip(_("Shortcut key: %s" % "B"))
         bbox.addButton(self.previewShowBothSides, QDialogButtonBox.ActionRole)
         self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
         self._previewBothSides = self.col.conf.get("previewBothSides", False)
@@ -1358,6 +1360,9 @@ where id in %s""" % ids2str(sf))
         self._previewBothSides = toggle
         self.col.conf["previewBothSides"] = toggle
         self.col.setMod()
+        if self._previewState == "answer" and not toggle:
+            self._previewState = "question"
+        self._renderPreview()
 
     # Card deletion
     ######################################################################
