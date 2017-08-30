@@ -208,10 +208,15 @@ When loading '%(name)s':
 
     def getConfig(self, module):
         addon = module.split(".")[0]
+        # get default config
+        config = self.addonConfigDefaults(addon)
+        if config is None:
+            return None
+        # merge in user's keys
         meta = self.addonMeta(addon)
-        if meta.get("config"):
-            return meta["config"]
-        return self.addonConfigDefaults(addon)
+        userConf = meta.get("config", {})
+        config.update(userConf)
+        return config
 
     def configAction(self, addon):
         return self._configButtonActions.get(addon)
