@@ -96,9 +96,10 @@ class TagCompleter(QCompleter):
         self.tags = self.edit.col.tags.split(stripped_tags)
         self.tags.append("")
         p = self.edit.cursorPosition()
-        self.cursor = stripped_tags.count(" ", 0, p)
-        if tags.endswith(" "):
-            self.cursor += 1
+        if tags.endswith("  "):
+            self.cursor = len(self.tags) - 1
+        else:
+            self.cursor = stripped_tags.count(" ", 0, p)
         return [self.tags[self.cursor]]
 
     def pathFromIndex(self, idx):
@@ -110,4 +111,4 @@ class TagCompleter(QCompleter):
             self.tags.remove("")
         except ValueError:
             pass
-        return " ".join(self.tags)
+        return " ".join(self.tags) + " "
