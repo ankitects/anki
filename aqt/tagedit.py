@@ -36,6 +36,16 @@ class TagEdit(QLineEdit):
         self.showCompleter()
 
     def keyPressEvent(self, evt):
+        if (evt.key() == Qt.Key_Tab and evt.modifiers() & Qt.ControlModifier):
+            if not self.completer.popup().isVisible():
+                self.showCompleter()
+            # select next completion
+            index = self.completer.currentIndex()
+            self.completer.popup().setCurrentIndex(index)
+            cur_row = index.row()
+            if not self.completer.setCurrentRow(cur_row + 1):
+                self.completer.setCurrentRow(0)
+            return
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
             self.hideCompleter()
             QWidget.keyPressEvent(self, evt)
