@@ -37,9 +37,9 @@ class TagEdit(QLineEdit):
 
     def keyPressEvent(self, evt):
         if (evt.key() == Qt.Key_Tab and evt.modifiers() & Qt.ControlModifier):
+            # select next completion
             if not self.completer.popup().isVisible():
                 self.showCompleter()
-            # select next completion
             index = self.completer.currentIndex()
             self.completer.popup().setCurrentIndex(index)
             cur_row = index.row()
@@ -47,6 +47,12 @@ class TagEdit(QLineEdit):
                 self.completer.setCurrentRow(0)
             return
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+            # apply first completion if no suggestion selected
+            selected_row = self.completer.popup().currentIndex().row()
+            if selected_row == -1:
+                self.completer.setCurrentRow(0)
+                index = self.completer.currentIndex()
+                self.completer.popup().setCurrentIndex(index)
             self.hideCompleter()
             QWidget.keyPressEvent(self, evt)
             return
