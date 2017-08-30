@@ -233,6 +233,9 @@
    <property name="text">
     <string>Add-ons...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
+   </property>
   </action>
  </widget>
  <resources>
