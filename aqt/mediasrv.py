@@ -28,7 +28,7 @@ _exportFolder = _getExportFolder()
 # webengine on windows sometimes opens a connection and fails to send a request,
 # which will hang the server if unthreaded
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
-    pass
+    request_queue_size = 100
 
 class MediaServer(threading.Thread):
 
