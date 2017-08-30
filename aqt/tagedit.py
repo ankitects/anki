@@ -91,12 +91,14 @@ class TagCompleter(QCompleter):
         self.cursor = None
 
     def splitPath(self, tags):
-        tags = tags.strip()
-        tags = re.sub("  +", " ", tags)
-        self.tags = self.edit.col.tags.split(tags)
+        stripped_tags = tags.strip()
+        stripped_tags = re.sub("  +", " ", stripped_tags)
+        self.tags = self.edit.col.tags.split(stripped_tags)
         self.tags.append("")
         p = self.edit.cursorPosition()
-        self.cursor = tags.count(" ", 0, p)
+        self.cursor = stripped_tags.count(" ", 0, p)
+        if tags.endswith(" "):
+            self.cursor += 1
         return [self.tags[self.cursor]]
 
     def pathFromIndex(self, idx):
