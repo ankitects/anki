@@ -637,7 +637,8 @@ to a cloze type first, via Edit>Change Note Type."""))
     def doPaste(self, html, internal):
         if not internal:
             html = self._pastePreFilter(html)
-        self.web.eval("pasteHTML(%s);" % json.dumps(html))
+        self.web.eval("pasteHTML(%s, %s);" % (
+            json.dumps(html), json.dumps(internal)))
 
     def doDrop(self, html, internal):
         self.web.evalWithCallback("makeDropTargetCurrent();",
@@ -705,14 +706,22 @@ class EditorWebView(AnkiWebView):
         self.editor = editor
         self.strip = self.editor.mw.pm.profile['stripHTML']
         self.setAcceptDrops(True)
+        self._markInternal = False
+        clip = self.editor.mw.app.clipboard()
+        clip.dataChanged.connect(self._onClipboardChange)
+
+    def _onClipboardChange(self):
+        if self._markInternal:
+            self._markInternal = False
+            self._flagAnkiText()
 
     def onCut(self):
+        self._markInternal = True
         self.triggerPageAction(QWebEnginePage.Cut)
-        self._flagAnkiText()
 
     def onCopy(self):
+        self._markInternal = True
         self.triggerPageAction(QWebEnginePage.Copy)
-        self._flagAnkiText()
 
     def onPaste(self):
         mime = self.editor.mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
@@ -819,7 +828,8 @@ class EditorWebView(AnkiWebView):
         if not mime.hasHtml():
             return
         html = mime.html()
-        mime.setHtml("<!--anki-->" + mime.html())
+        mime.setHtml("<!--anki-->" + html)
+        clip.setMimeData(mime)
 
     def contextMenuEvent(self, evt):
         m = QMenu(self)
