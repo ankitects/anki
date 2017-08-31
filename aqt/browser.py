@@ -608,12 +608,14 @@ class Browser(QMainWindow):
         update = self.updateTitle()
         show = self.model.cards and update == 1
         self.form.splitter.widget(1).setVisible(not not show)
+        idx = self.form.tableView.selectionModel().currentIndex()
+        if idx.isValid():
+            self.card = self.model.getCard(idx)
+
         if not show:
             self.editor.setNote(None)
             self.singleCard = False
         else:
-            self.card = self.model.getCard(
-                self.form.tableView.selectionModel().currentIndex())
             self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
             self.editor.card = self.card
