@@ -206,8 +206,17 @@ When loading '%(name)s':
         else:
             return ""
 
+    def addonFromModule(self, module):
+        return module.split(".")[0]
+
+    def configAction(self, addon):
+        return self._configButtonActions.get(addon)
+
+    # Add-on Config API
+    ######################################################################
+
     def getConfig(self, module):
-        addon = module.split(".")[0]
+        addon = self.addonFromModule(module)
         # get default config
         config = self.addonConfigDefaults(addon)
         if config is None:
@@ -218,13 +227,12 @@ When loading '%(name)s':
         config.update(userConf)
         return config
 
-    def configAction(self, addon):
-        return self._configButtonActions.get(addon)
-
-    def setConfigAction(self, addon, fn):
+    def setConfigAction(self, module, fn):
+        addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
 
-    def writeConfig(self, addon, conf):
+    def writeConfig(self, module, conf):
+        addon = self.addonFromModule(module)
         meta = self.addonMeta(addon)
         meta['config'] = conf
         self.writeAddonMeta(addon, meta)
