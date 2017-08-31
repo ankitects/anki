@@ -263,6 +263,14 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if file.startswith("_"):
                 # leading _ says to ignore file
                 continue
+
+            if self.hasIllegal(file):
+                name = file.encode(sys.getfilesystemencoding(), errors="replace")
+                name = str(name, sys.getfilesystemencoding())
+                warnings.append(
+                    _("Invalid file name, please rename: %s") % name)
+                continue
+
             nfcFile = unicodedata.normalize("NFC", file)
             # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
             # NFD so we use the above variable for comparing references
@@ -320,7 +328,13 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return re.sub(self._illegalCharReg, "", str)
 
     def hasIllegal(self, str):
-        return not not re.search(self._illegalCharReg, str)
+        if re.search(self._illegalCharReg, str):
+            return True
+        try:
+            str.encode(sys.getfilesystemencoding())
+        except UnicodeEncodeError:
+            return True
+        return False
 
     # Tracking changes
     ##########################################################################
