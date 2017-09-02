@@ -856,7 +856,7 @@ by clicking on one on the left."""))
     def _modelTree(self, root):
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
             mitem = self.CallbackItem(
-                root, m['name'], lambda m=m: self.setFilter("mid", str(m['id'])))
+                root, m['name'], lambda m=m: self.setFilter("note", m['name']))
             mitem.setIcon(0, QIcon(":/icons/notetype.svg"))
 
     # Filter tree
@@ -1005,18 +1005,18 @@ by clicking on one on the left."""))
         for nt in sorted(self.col.models.all(), key=lambda nt: nt['name'].lower()):
             # no sub menu if it's a single template
             if len(nt['tmpls']) == 1:
-                noteTypes.addItem(nt['name'], self._filterFunc("mid", str(nt['id'])))
+                noteTypes.addItem(nt['name'], self._filterFunc("note", nt['name']))
             else:
                 subm = noteTypes.addMenu(nt['name'])
 
-                subm.addItem(_("All Card Types"), self._filterFunc("mid", str(nt['id'])))
+                subm.addItem(_("All Card Types"), self._filterFunc("note", nt['name']))
                 subm.addSeparator()
 
                 # add templates
                 for c, tmpl in enumerate(nt['tmpls']):
                     name = _("%(n)d: %(name)s") % dict(n=c+1, name=tmpl['name'])
                     subm.addItem(name, self._filterFunc(
-                        "mid", str(nt['id']), "card", str(c+1)))
+                        "note", nt['name'], "card", str(c+1)))
 
         m.addChild(noteTypes.chunked())
         return m
