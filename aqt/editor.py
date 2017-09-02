@@ -646,6 +646,9 @@ to a cloze type first, via Edit>Change Note Type."""))
     def onPaste(self):
         self.web.onPaste()
 
+    def onCutOrCopy(self):
+        self.web.flagAnkiText()
+
     # Advanced menu
     ######################################################################
 
@@ -693,6 +696,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         more=onAdvanced,
         dupes=showDupes,
         paste=onPaste,
+        cutOrCopy=onCutOrCopy,
     )
 
 # Pasting, drag & drop, and keyboard layouts
@@ -715,11 +719,9 @@ class EditorWebView(AnkiWebView):
             self._flagAnkiText()
 
     def onCut(self):
-        self._markInternal = True
         self.triggerPageAction(QWebEnginePage.Cut)
 
     def onCopy(self):
-        self._markInternal = True
         self.triggerPageAction(QWebEnginePage.Copy)
 
     def onPaste(self):
@@ -818,6 +820,10 @@ class EditorWebView(AnkiWebView):
 
         # add to media and return resulting html link
         return self.editor._addMedia(newpath)
+
+    def flagAnkiText(self):
+        # be ready to adjust when clipboard event fires
+        self._markInternal = True
 
     def _flagAnkiText(self):
         # add a comment in the clipboard html so we can tell text is copied

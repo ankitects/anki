@@ -258,6 +258,11 @@ function wrap(front, back) {
     }
 }
 
+function onCutOrCopy() {
+    pycmd("cutOrCopy");
+    return true;
+}
+
 function setFields(fields, prewrap) {
     var txt = "";
     for (var i = 0; i < fields.length; i++) {
@@ -270,6 +275,7 @@ function setFields(fields, prewrap) {
         txt += "<div id=f{0} onkeydown='onKey();' oninput='checkForEmptyField()' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
+        txt += "oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' ";
         txt += "contentEditable=true class=field>{0}</div>".format(f);
         txt += "</td></tr>";
     }
