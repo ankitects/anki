@@ -165,7 +165,7 @@
   </action>
   <action name="actionFullDatabaseCheck">
    <property name="text">
-    <string>&amp;Check Database...</string>
+    <string>&amp;Check Database</string>
    </property>
   </action>
   <action name="actionDocumentation">
@@ -178,7 +178,7 @@
   </action>
   <action name="actionSwitchProfile">
    <property name="text">
-    <string>&amp;Switch Profile...</string>
+    <string>&amp;Switch Profile</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+P</string>
@@ -223,7 +223,7 @@
   </action>
   <action name="actionNoteTypes">
    <property name="text">
-    <string>Manage Note Types...</string>
+    <string>Manage Note Types</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+N</string>
@@ -231,7 +231,7 @@
   </action>
   <action name="actionAdd_ons">
    <property name="text">
-    <string>Add-ons...</string>
+    <string>Add-ons</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
