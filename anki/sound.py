@@ -79,8 +79,6 @@ def retryWait(proc):
 ##########################################################################
 
 mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
-if isWin:
-    mplayerCmd += ["-ao", "win32"]
 
 # Mplayer in slave mode
 ##########################################################################
