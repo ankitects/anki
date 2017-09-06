@@ -111,7 +111,7 @@ key, which will temporarily disable the add-ons you have installed.</p>
 <p>If the problem occurs even with add-ons disabled, please report the \
 issue on our support site.</p>
 
-<p>If the issue only occurs when add-ons are enabled, plesae use the \
+<p>If the issue only occurs when add-ons are enabled, please use the \
 Tools&gt;Add-ons menu item to disable one add-on and restart Anki, \
 repeating until you discover the add-on that is causing the problem.</p>
 """)
