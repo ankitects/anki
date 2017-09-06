@@ -167,7 +167,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        q = runFilter("prepareQuestion", q)
+        q = runFilter("prepareQA", q, c, "reviewQuestion")
 
         bodyclass = "card card%d" % (c.ord+1)
 
@@ -211,7 +211,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.autoplay(c):
             playFromText(a)
         a = self._mungeQA(a)
-        a = runFilter("prepareAnswer", a)
+        a = runFilter("prepareQA", a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()

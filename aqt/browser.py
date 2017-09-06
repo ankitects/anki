@@ -19,7 +19,7 @@ from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
     getOnlyText, MenuList, SubMenu
-from anki.hooks import runHook, addHook, remHook
+from anki.hooks import runHook, addHook, remHook, runFilter
 from aqt.webview import AnkiWebView
 from anki.consts import *
 from anki.sound import playFromText, clearAudioQueue
@@ -1356,6 +1356,8 @@ where id in %s""" % ids2str(sf))
                 playFromText(txt)
 
             txt = mungeQA(self.col, txt)
+            txt = runFilter("prepareQA", txt, c,
+                            "preview"+self._previewState.capitalize())
 
         self._previewWeb.eval(
             f"{func}({json.dumps(txt)},'{bodyclass}');")

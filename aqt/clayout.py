@@ -15,6 +15,8 @@ from aqt.utils import saveGeom, restoreGeom, mungeQA,\
 from anki.utils import isMac, isWin, joinFields
 from aqt.webview import AnkiWebView
 import json
+from anki.hooks import runFilter
+
 
 class CardLayout(QDialog):
 
@@ -296,8 +298,12 @@ Please create a new card type first."""))
         c = self.card
         ti = self.maybeTextInput
         bodyclass="card card%d" % (c.ord+1)
+
         q = ti(mungeQA(self.mw.col, c.q(reload=True)))
+        q = runFilter("prepareQA", q, c, "clayoutQuestion")
+
         a = ti(mungeQA(self.mw.col, c.a()), type='a')
+        a = runFilter("prepareQA", a, c, "clayoutAnswer")
 
         # use _showAnswer to avoid the longer delay
         self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
