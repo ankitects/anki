@@ -66,8 +66,8 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
     diag.setWindowTitle(title)
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
-    text = QTextEdit()
-    text.setReadOnly(True)
+    text = QTextBrowser()
+    text.setOpenExternalLinks(True)
     if type == "text":
         text.setPlainText(txt)
     else:

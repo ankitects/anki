@@ -97,28 +97,56 @@ Possible causes:
 It's a good idea to run Tools>Check Database to ensure your collection \
 is not corrupt.
 """))
+
         stdText = _("""\
-An error occurred. It may have been caused by a harmless bug, <br>
-or your deck may have a problem.
-<p>To confirm it's not a problem with your deck, please run
-<b>Tools &gt; Check Database</b>.
-<p>If that doesn't fix the problem, please copy the following<br>
-into a bug report:""")
+<h1>Error</h1>
+
+<p>An error occurred. Please use <b>Tools &gt; Check Database</b> to see if \
+that fixes the problem.</p>
+
+<p>If problems persist, please report the problem on our \
+<a href="https://help.ankiweb.net">support site</a>. Please copy and paste \
+ the information below into your report.</p>""")
+
         pluginText = _("""\
+<h1>Error</h1>
+
 <p>An error occurred. Please start Anki while holding down the shift \
 key, which will temporarily disable the add-ons you have installed.</p>
 
-<p>If the problem occurs even with add-ons disabled, please report the \
-issue on our support site.</p>
-
 <p>If the issue only occurs when add-ons are enabled, please use the \
-Tools&gt;Add-ons menu item to disable one add-on and restart Anki, \
+Tools&gt;Add-ons menu item to disable some add-ons and restart Anki, \
 repeating until you discover the add-on that is causing the problem.</p>
+
+<p>When you've discovered the add-on that is causing the problem, please \
+report the issue on the <a href="https://help.ankiweb.net/discussions/add-ons/">\
+add-ons section</a> of our support site.
+
+<p>Debug info:</p>
 """)
         if self.mw.addonManager.dirty:
             txt = pluginText
         else:
             txt = stdText
         # show dialog
+        error = self._supportText() + "\n" + error
+
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
         showText(txt, type="html")
+
+    def _supportText(self):
+        import platform
+        from aqt import appVersion
+
+        if isWin:
+            platname = "Windows " + platform.win32_ver()[0]
+        elif isMac:
+            platname = "Mac " + platform.mac_ver()[0]
+        else:
+            platname = "Linux"
+
+        return f"""\
+Anki {appVersion} Python {platform.python_version()} Qt {QT_VERSION_STR} PyQt {PYQT_VERSION_STR}
+Platform: {platname}
+Flags: frz={getattr(sys, "frozen", False)} ao={self.mw.addonManager.dirty}
+"""
