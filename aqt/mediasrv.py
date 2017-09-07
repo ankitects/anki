@@ -107,3 +107,6 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             newPath = os.path.join(_exportFolder, path[len(targetPath)+1:])
             return newPath
         return path
+
+# work around Windows machines with incorrect mime type
+RequestHandler.extensions_map['.css'] = "text/css"
