@@ -185,6 +185,8 @@ class Editor:
             ("Ctrl+T, T", self.insertLatex),
             ("Ctrl+T, E", self.insertLatexEqn),
             ("Ctrl+T, M", self.insertLatexMathEnv),
+            ("Ctrl+M, M", self.insertMathjaxInline),
+            ("Ctrl+M, E", self.insertMathjaxBlock),
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags)
         ]
@@ -654,6 +656,10 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     def onAdvanced(self):
         m = QMenu(self.mw)
+        a = m.addAction(_("MathJax inline"))
+        a.triggered.connect(self.insertMathjaxInline)
+        a = m.addAction(_("MathJax block"))
+        a.triggered.connect(self.insertMathjaxBlock)
         a = m.addAction(_("LaTeX"))
         a.triggered.connect(self.insertLatex)
         a = m.addAction(_("LaTeX equation"))
@@ -675,6 +681,12 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     def insertLatexMathEnv(self):
         self.web.eval("wrap('[$$]', '[/$$]');")
+
+    def insertMathjaxInline(self):
+        self.web.eval("wrap('\\\\(', '\\\\)');")
+
+    def insertMathjaxBlock(self):
+        self.web.eval("wrap('\\\\[', '\\\\]');")
 
     # Links from HTML
     ######################################################################

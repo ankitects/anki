@@ -26,7 +26,6 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         } catch(err) {
             qa.text("Invalid HTML on card: "+err);
         }
-        _removeStylingFromMathjaxCloze();
         _runHook(onUpdateHook);
 
         // don't allow drags of images, which cause them to be deleted
@@ -105,20 +104,4 @@ function _typeAnsPress() {
     if (window.event.keyCode === 13) {
         pycmd("ans");
     }
-}
-
-function _removeStylingFromMathjaxCloze() {
-    $(".cloze").each(function (i) {
-        if (_clozeIsInsideMathjax(this)) {
-            this.outerHTML = this.innerHTML;
-        }
-    });
-}
-
-function _clozeIsInsideMathjax(node) {
-    if (!node.previousSibling || node.previousSibling.nodeType !== 3) {
-        return;
-    }
-    // look for mathjax opening in previous text
-    return /\\\(|\$\$/.test(node.previousSibling.textContent);
 }

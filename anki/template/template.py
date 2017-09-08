@@ -187,15 +187,21 @@ class Template:
         reg = clozeReg
         if not re.search(reg%ord, txt):
             return ""
+        mathjax = False
+        if '\[' in txt or '\(' in txt:
+            mathjax = True
         def repl(m):
             # replace chosen cloze with type
             if type == "q":
                 if m.group(3):
-                    return "<span class=cloze>[%s]</span>" % m.group(3)
+                    buf = "[%s]" % m.group(3)
                 else:
-                    return "<span class=cloze>[...]</span>"
+                    buf = "[...]"
             else:
-                return "<span class=cloze>%s</span>" % m.group(1)
+                buf = m.group(1)
+            if not mathjax:
+                buf = "<span class=cloze>[%s]</span>" % buf
+            return buf
         txt = re.sub(reg%ord, repl, txt)
         # and display other clozes normally
         return re.sub(reg%"\d+", "\\1", txt)
