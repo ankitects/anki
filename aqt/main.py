@@ -280,7 +280,7 @@ close the profile or restart Anki."""))
         for w in self.app.topLevelWidgets():
             if w.isVisible():
                 # windows with this property are safe to close immediately
-                if getattr(w, "silentlyClose"):
+                if getattr(w, "silentlyClose", None):
                     w.close()
                 else:
                     showWarning(f"Window should have been closed: {w}")
