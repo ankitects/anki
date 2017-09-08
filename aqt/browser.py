@@ -1217,6 +1217,7 @@ where id in %s""" % ids2str(sf))
         self._previewWindow.setWindowTitle(_("Preview"))
 
         self._previewWindow.finished.connect(self._onPreviewFinished)
+        self._previewWindow.silentlyClose = True
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0,0,0,0)
         self._previewWeb = AnkiWebView()
