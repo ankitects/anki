@@ -394,9 +394,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         else:
             # wildcard
             ids = set()
-            # should use re.escape in the future
-            val = val.replace("*", ".*")
-            val = val.replace("+", "\\+")
+            val = re.escape(val).replace(r"\*", ".*")
             for d in self.col.decks.all():
                 if re.match("(?i)"+val, d['name']):
                     ids.update(dids(d['id']))
