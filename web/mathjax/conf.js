@@ -4,6 +4,9 @@ window.MathJax = {
   TeX: {
     extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js", "mhchem.js"]
   },
+  tex2jax: {
+      displayMath: [ ["\\[","\\]"] ],
+  },
   messageStyle: "none",
   skipStartupTypeset: true,
   showMathMenu: false,
