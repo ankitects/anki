@@ -1269,7 +1269,6 @@ where id in %s""" % ids2str(sf))
             self._renderPreview()
         else:
             self.editor.saveNow(lambda: self._moveCur(QAbstractItemView.MoveUp))
-        self._updatePreviewButtons()
 
     def _onPreviewNext(self):
         if self._previewState == "question":
@@ -1277,7 +1276,6 @@ where id in %s""" % ids2str(sf))
             self._renderPreview()
         else:
             self.editor.saveNow(lambda: self._moveCur(QAbstractItemView.MoveDown))
-        self._updatePreviewButtons()
 
     def _onReplayAudio(self):
         self.mw.reviewer.replayAudio(self)
@@ -1332,7 +1330,6 @@ where id in %s""" % ids2str(sf))
         if not self._previewWindow:
             return
         c = self.card
-        self._updatePreviewButtons()
         func = "_showQuestion"
         if not c or not self.singleCard:
             txt = _("(please select 1 card)")
@@ -1359,6 +1356,7 @@ where id in %s""" % ids2str(sf))
             txt = runFilter("prepareQA", txt, c,
                             "preview"+self._previewState.capitalize())
 
+        self._updatePreviewButtons()
         self._previewWeb.eval(
             f"{func}({json.dumps(txt)},'{bodyclass}');")
 
