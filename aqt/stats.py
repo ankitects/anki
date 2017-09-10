@@ -52,17 +52,14 @@ class DeckStats(QDialog):
         callback()
 
     def _imagePath(self):
-        desktopPath = QStandardPaths.writableLocation(
-            QStandardPaths.DesktopLocation)
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
-        file = os.path.join(desktopPath, name)
         file = getSaveFile(self, title=_("Save PDF"),
                            dir_description="stats",
                            key="stats",
                            ext=".pdf",
-                           fname=file)
+                           fname=name)
         return file
 
     def saveImage(self):
