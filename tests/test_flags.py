@@ -17,7 +17,6 @@ def test_flags():
     # set flag 2
     col.setUserFlag(2, [c.id])
     c.load()
-    print("db is", col.db.all("select id, flags from cards"))
     assert c.userFlag() == 2
     assert c.flags & origBits == origBits
     assert len(col.findCards("flag:0")) == 0
