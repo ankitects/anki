@@ -5,7 +5,7 @@
 from aqt.qt import *
 import os, time
 from aqt.utils import saveGeom, restoreGeom, maybeHideClose, addCloseShortcut, \
-    tooltip
+    tooltip, getSaveFile
 import aqt
 
 # Deck Stats
@@ -52,20 +52,25 @@ class DeckStats(QDialog):
         callback()
 
     def _imagePath(self):
+        desktopPath = QStandardPaths.writableLocation(
+            QStandardPaths.DesktopLocation)
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
-        desktopPath = QStandardPaths.writableLocation(
-            QStandardPaths.DesktopLocation)
-        if not os.path.exists(desktopPath):
-            os.mkdir(desktopPath)
-        path = os.path.join(desktopPath, name)
-        return path
+        file = os.path.join(desktopPath, name)
+        file = getSaveFile(self, title=_("Save PDF"),
+                           dir_description="stats",
+                           key="stats",
+                           ext=".pdf",
+                           fname=file)
+        return file
 
     def saveImage(self):
         path = self._imagePath()
+        if not path:
+            return
         self.form.web.page().printToPdf(path)
-        tooltip(_("A PDF file was saved to your desktop."))
+        tooltip(_("Saved."))
 
     def changePeriod(self, n):
         self.period = n
