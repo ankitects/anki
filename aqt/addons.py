@@ -140,6 +140,7 @@ When loading '%(name)s':
                 errs.append(_("Error downloading %(id)s: %(error)s") % dict(id=n, error=ret[1]))
                 continue
             data, fname = ret
+            fname = fname.replace("_", " ")
             self.install(str(n), data, fname)
             name = os.path.splitext(fname)[0]
             log.append(_("Downloaded %(fname)s" % dict(fname=name)))
