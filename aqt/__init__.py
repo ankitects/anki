@@ -38,20 +38,34 @@ except ImportError as e:
 
 from anki.utils import checksum
 
-# Dialog manager - manages non-modal windows
+# Dialog manager
 ##########################################################################
+# ensures only one copy of the window is open at once, and provides
+# a way for dialogs to clean up asynchronously when collection closes
+
+# to integrate a new window:
+# - add it to _dialogs
+# - define close behaviour, by either:
+# -- setting silentlyClose=True to have it close immediately
+# -- define a closeWithCallback() method
+# - have the window opened via aqt.dialogs.open(<name>, self)
+
+#- make preferences modal? cmd+q does wrong thing
+
+
+from aqt import addcards, browser, editcurrent, stats, about, \
+    preferences
 
 class DialogManager:
 
-    def __init__(self):
-        from aqt import addcards, browser, editcurrent, stats, about
-        self._dialogs = {
-            "AddCards": [addcards.AddCards, None],
-            "Browser": [browser.Browser, None],
-            "EditCurrent": [editcurrent.EditCurrent, None],
-            "DeckStats": [stats.DeckStats, None],
-            "About": [about.show, None],
-        }
+    _dialogs = {
+        "AddCards": [addcards.AddCards, None],
+        "Browser": [browser.Browser, None],
+        "EditCurrent": [editcurrent.EditCurrent, None],
+        "DeckStats": [stats.DeckStats, None],
+        "About": [about.show, None],
+        "Preferences": [preferences.Preferences, None],
+    }
 
     def open(self, name, *args):
         (creator, instance) = self._dialogs[name]
@@ -89,7 +103,11 @@ class DialogManager:
                     # still waiting for others to close
                     pass
 
-            instance.closeWithCallback(callback)
+            if getattr(instance, "silentlyClose", False):
+                instance.close()
+                callback()
+            else:
+                instance.closeWithCallback(callback)
 
         return True
 
