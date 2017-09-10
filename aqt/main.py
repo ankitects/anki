@@ -366,8 +366,6 @@ from the profile screen."))
             Thread.__init__(self)
             self.path = path
             self.data = data
-            # make sure we complete before exiting the program
-            self.setDaemon(True)
             # create the file in calling thread to ensure the same
             # file is not created twice
             open(self.path, "wb").close()
