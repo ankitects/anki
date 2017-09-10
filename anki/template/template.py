@@ -203,7 +203,7 @@ class Template:
             return buf
         txt = re.sub(reg%ord, repl, txt)
         # and display other clozes normally
-        return re.sub(reg%"\d+", "\\1", txt)
+        return re.sub(reg%"\d+", "\\2", txt)
 
     # look for clozes wrapped in mathjax, and change {{cx to {{Cx
     def _removeFormattingFromMathjax(self, txt, ord):
