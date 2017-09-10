@@ -56,7 +56,7 @@ class Scheduler:
 
     def answerCard(self, card, ease):
         self.col.log()
-        assert ease >= 1 and ease <= 4
+        assert 1 <= ease <= 4
         self.col.markReview(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
