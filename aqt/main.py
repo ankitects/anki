@@ -396,7 +396,7 @@ from the profile screen."))
         backups = []
         for file in os.listdir(dir):
             # only look for new-style format
-            m = re.match("backup-\{4}-.+.apkg", file)
+            m = re.match("backup-\d{4}-\d{2}-.+.apkg", file)
             if not m:
                 continue
             backups.append(file)
