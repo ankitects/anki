@@ -211,7 +211,7 @@ Replace your collection with an earlier backup?"""),
         def doOpen(path):
             self._openBackup(path)
         getFile(self.profileDiag, _("Revert to backup"),
-                cb=doOpen, filter="*.apkg", dir=self.pm.backupFolder())
+                cb=doOpen, filter="*.colpkg", dir=self.pm.backupFolder())
 
     def _openBackup(self, path):
         try:
@@ -384,7 +384,7 @@ from the profile screen."))
         path = self.pm.collectionPath()
 
         # do backup
-        fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.apkg", time.localtime(time.time()))
+        fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
         newpath = os.path.join(dir, fname)
         data = open(path, "rb").read()
         b = self.BackupThread(newpath, data)
@@ -394,7 +394,7 @@ from the profile screen."))
         backups = []
         for file in os.listdir(dir):
             # only look for new-style format
-            m = re.match("backup-\d{4}-\d{2}-.+.apkg", file)
+            m = re.match("backup-\d{4}-\d{2}-.+.colpkg", file)
             if not m:
                 continue
             backups.append(file)
