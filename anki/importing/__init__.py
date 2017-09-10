@@ -12,7 +12,7 @@ from anki.lang import _
 
 Importers = (
     (_("Text separated by tabs or semicolons (*)"), TextImporter),
-    (_("Packaged Anki Deck (*.apkg *.zip)"), AnkiPackageImporter),
+    (_("Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)"), AnkiPackageImporter),
     (_("Mnemosyne 2.0 Deck (*.db)"), MnemosyneImporter),
     (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
     (_("Pauker 1.8 Lesson (*.pau.gz)"), PaukerImporter),

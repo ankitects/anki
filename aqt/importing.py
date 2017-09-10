@@ -365,14 +365,17 @@ with a different browser.""")
 
 def setupApkgImport(mw, importer):
     base = os.path.basename(importer.file).lower()
-    full = (base == "collection.apkg") or re.match("backup-.*\\.apkg", base)
+    full = ((base == "collection.apkg") or
+            re.match("backup-.*\\.apkg", base) or
+            base.endswith(".colpkg"))
     if not full:
         # adding
         return True
     backup = re.match("backup-.*\\.apkg", base)
     if not mw.restoringBackup and not askUser(_("""\
 This will delete your existing collection and replace it with the data in \
-the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning):
+the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning,
+                                              defaultno=True):
         return False
     # schedule replacement; don't do it immediately as we may have been
     # called as part of the startup routine
