@@ -108,15 +108,22 @@ When loading '%(name)s':
         meta = self.addonMeta(sid)
         base = self.addonsFolder(sid)
         if os.path.exists(base):
+            self.backupUserFiles(sid)
             self.deleteAddon(sid)
 
-        # extract
         os.mkdir(base)
+        self.restoreUserFiles(sid)
+
+        # extract
         for n in z.namelist():
             if n.endswith("/"):
                 # folder; ignore
                 continue
-            # write
+
+            path = os.path.join(base, n)
+            # skip existing user files
+            if os.path.exists(path) and n.startswith("user_files/"):
+                continue
             z.extract(n, base)
 
         # update metadata
@@ -237,6 +244,28 @@ When loading '%(name)s':
         meta = self.addonMeta(addon)
         meta['config'] = conf
         self.writeAddonMeta(addon, meta)
+
+    # user_files
+    ######################################################################
+
+    def _userFilesPath(self, sid):
+        return os.path.join(self.addonsFolder(sid), "user_files")
+
+    def _userFilesBackupPath(self):
+        return os.path.join(self.addonsFolder(), "files_backup")
+
+    def backupUserFiles(self, sid):
+        p = self._userFilesPath(sid)
+        if os.path.exists(p):
+            os.rename(p, self._userFilesBackupPath())
+
+    def restoreUserFiles(self, sid):
+        p = self._userFilesPath(sid)
+        bp = self._userFilesBackupPath()
+        # did we back up userFiles?
+        if not os.path.exists(bp):
+            return
+        os.rename(bp, p)
 
 # Add-ons Dialog
 ######################################################################
