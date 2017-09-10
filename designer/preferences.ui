@@ -50,6 +50,9 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
           </widget>
          </item>
         </layout>
