@@ -784,8 +784,7 @@ title="%s" %s>%s</button>''' % (
         aqt.dialogs.open("DeckStats", self)
 
     def onPrefs(self):
-        import aqt.preferences
-        aqt.preferences.Preferences(self)
+        aqt.dialogs.open("Preferences", self)
 
     def onNoteTypes(self):
         import aqt.models

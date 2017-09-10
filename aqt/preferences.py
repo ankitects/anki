@@ -22,6 +22,7 @@ class Preferences(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         self.form.buttonBox.helpRequested.connect(lambda: openHelp("profileprefs"))
+        self.silentlyClose = True
         self.setupLang()
         self.setupCollection()
         self.setupNetwork()
@@ -40,6 +41,7 @@ class Preferences(QDialog):
         self.mw.pm.save()
         self.mw.reset()
         self.done(0)
+        aqt.dialogs.markClosed("Preferences")
 
     def reject(self):
         self.accept()
