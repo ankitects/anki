@@ -279,7 +279,9 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     """Ask the user for a file to save. Use DIR_DESCRIPTION as config
     variable. The file dialog will default to open with FNAME."""
     config_key = dir_description + 'Directory'
-    base = aqt.mw.pm.profile.get(config_key, aqt.mw.pm.base)
+
+    desktopPath = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
+    base = aqt.mw.pm.profile.get(config_key, desktopPath)
     path = os.path.join(base, fname)
     file = QFileDialog.getSaveFileName(
         parent, title, path, "{0} (*{1})".format(key, ext),
