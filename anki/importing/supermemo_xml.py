@@ -220,7 +220,7 @@ class SupermemoXmlImporter(NoteImporter):
         # you can deceide if you are going to tag all toppics or just that containing some pattern
         tTaggTitle = False
         for pattern in self.META.pathsToBeTagged:
-            if item.lTitle != None and pattern.lower() in " ".join(item.lTitle).lower():
+            if item.lTitle is not None and pattern.lower() in " ".join(item.lTitle).lower():
               tTaggTitle = True
               break
         if tTaggTitle or self.META.tagAllTopics:
@@ -295,7 +295,7 @@ class SupermemoXmlImporter(NoteImporter):
     def parse(self, node=None):
         "Parse method - parses document elements"
 
-        if node==None and self.xmldoc!=None:
+        if node is None and self.xmldoc is not None:
           node = self.xmldoc
 
         _method = "parse_%s" % node.__class__.__name__
@@ -361,7 +361,7 @@ class SupermemoXmlImporter(NoteImporter):
 
         # Process cntElm if is valid Item (and not an Topic etc..)
         # if smel.Lapses != None and smel.Interval != None and smel.Question != None and smel.Answer != None:
-        if smel.Title == None and smel.Question != None and smel.Answer != None:
+        if smel.Title is None and smel.Question is not None and smel.Answer is not None:
           if smel.Answer.strip() !='' and smel.Question.strip() !='':
 
             # migrate only memorized otherway skip/continue
@@ -385,7 +385,7 @@ class SupermemoXmlImporter(NoteImporter):
           # parseing of whole node is now finished
 
           # test if it's really topic
-          if smel.Title != None:
+          if smel.Title is not None:
             # remove topic from title list
             t = self.cntMeta['title'].pop()
             self.logger('End of topic \t- %s' % (t), level=2)
@@ -394,14 +394,14 @@ class SupermemoXmlImporter(NoteImporter):
         "Process SM element Content"
 
         for child in node.childNodes:
-          if hasattr(child,'tagName') and child.firstChild != None:
+          if hasattr(child,'tagName') and child.firstChild is not None:
             self.cntElm[-1][child.tagName]=child.firstChild.data
 
     def do_LearningData(self, node):
         "Process SM element LearningData"
 
         for child in node.childNodes:
-          if hasattr(child,'tagName') and child.firstChild != None:
+          if hasattr(child,'tagName') and child.firstChild is not None:
             self.cntElm[-1][child.tagName]=child.firstChild.data
 
     # It's being processed in do_Content now
