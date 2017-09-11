@@ -23,41 +23,36 @@ from aqt import appHelpSite
 import aqt.forms
 from send2trash import send2trash
 
-metaConf = dict(
-    ver=0,
-    updates=True,
-    created=intTime(),
-    id=random.randrange(0, 2**63),
-    lastMsg=-1,
-    suppressUpdate=False,
-    firstRun=True,
-    defaultLang=None,
-    disabledAddons=[],
-)
+metaConf = {
+    'ver': 0,
+    'updates': True,
+    'created': intTime(),
+    'id': random.randrange(0, 2 ** 63),
+    'lastMsg': -1,
+    'suppressUpdate': False,
+    'firstRun': True,
+    'defaultLang': None,
+    'disabledAddons': []
+}
 
-profileConf = dict(
-    # profile
-    mainWindowGeom=None,
-    mainWindowState=None,
-    numBackups=30,
-    lastOptimize=intTime(),
-    # editing
-    fullSearch=False,
-    searchHistory=[],
-    lastColour="#00f",
-    stripHTML=True,
-    pastePNG=False,
-    # not exposed in gui
-    deleteMedia=False,
-    preserveKeyboard=True,
-    # syncing
-    syncKey=None,
-    syncMedia=True,
-    autoSync=True,
-    # importing
-    allowHTML=False,
-    importMode=1,
-)
+profileConf = {
+    'mainWindowGeom': None,
+    'mainWindowState': None,
+    'numBackups': 30,
+    'lastOptimize': intTime(),
+    'fullSearch': False,
+    'searchHistory': [],
+    'lastColour': "#00f",
+    'stripHTML': True,
+    'pastePNG': False,
+    'deleteMedia': False,
+    'preserveKeyboard': True,
+    'syncKey': None,
+    'syncMedia': True,
+    'autoSync': True,
+    'allowHTML': False,
+    'importMode': 1
+}
 
 class ProfileManager:
 

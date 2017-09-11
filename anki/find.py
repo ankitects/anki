@@ -14,24 +14,24 @@ from anki.hooks import *
 ##########################################################################
 
 class Finder:
-
     def __init__(self, col):
         self.col = col
-        self.search = dict(
-            added=self._findAdded,
-            card=self._findTemplate,
-            deck=self._findDeck,
-            mid=self._findMid,
-            nid=self._findNids,
-            cid=self._findCids,
-            note=self._findModel,
-            prop=self._findProp,
-            rated=self._findRated,
-            tag=self._findTag,
-            dupe=self._findDupes,
-            flag=self._findFlag,
-        )
-        self.search['is'] = self._findCardState
+        self.search = {
+            'added': self._findAdded,
+            'card': self._findTemplate,
+            'deck': self._findDeck,
+            'mid': self._findMid,
+            'nid': self._findNids,
+            'cid': self._findCids,
+            'note': self._findModel,
+            'prop': self._findProp,
+            'rated': self._findRated,
+            'tag': self._findTag,
+            'dupe': self._findDupes,
+            'flag': self._findFlag,
+            'is': self._findCardState
+        }
+
         runHook("search", self.search)
 
     def findCards(self, query, order=False):
@@ -61,7 +61,7 @@ class Finder:
         else:
             preds = "1"
         sql = """
-select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
+SELECT DISTINCT(n.id) FROM cards c, notes n WHERE c.nid=n.id AND """ + preds
         try:
             res = self.col.db.list(sql, *args)
         except:
@@ -128,8 +128,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 
     def _where(self, tokens):
         # state and query
-        s = dict(isnot=False, isor=False, join=False, q="", bad=False)
+        s = {'isnot': False, 'isor': False, 'join': False, 'q': "", 'bad': False}
         args = []
+
         def add(txt, wrap=True):
             # failed command?
             if not txt:
@@ -156,6 +157,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 txt = "(" + txt + ")"
             s['q'] += txt
             s['join'] = True
+
         for token in tokens:
             if s['bad']:
                 return None, None
@@ -187,9 +189,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     def _query(self, preds, order):
         # can we skip the note table?
         if "n." not in preds and "n." not in order:
-            sql = "select c.id from cards c where "
+            sql = "SELECT c.id FROM cards c WHERE "
         else:
-            sql = "select c.id from cards c, notes n where c.nid=n.id and "
+            sql = "SELECT c.id FROM cards c, notes n WHERE c.nid=n.id AND "
         # combine with preds
         if preds:
             sql += "(" + preds + ")"
@@ -270,14 +272,14 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             return """
 (c.queue in (2,3) and c.due <= %d) or
 (c.queue = 1 and c.due <= %d)""" % (
-    self.col.sched.today, self.col.sched.dayCutoff)
+                self.col.sched.today, self.col.sched.dayCutoff)
 
     def _findFlag(self, args):
         (val, args) = args
         if not val or val not in "01234":
             return
         val = int(val)
-        mask = 2**3 - 1
+        mask = 2 ** 3 - 1
         return "(c.flags & %d) == %d" % (mask, val)
 
     def _findRated(self, args):
@@ -295,7 +297,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             if r[1] not in ("1", "2", "3", "4"):
                 return
             ease = "and ease=%s" % r[1]
-        cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
+        cutoff = (self.col.sched.dayCutoff - 86400 * days) * 1000
         return ("c.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
 
@@ -305,7 +307,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             days = int(val)
         except ValueError:
             return
-        cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
+        cutoff = (self.col.sched.dayCutoff - 86400 * days) * 1000
         return "c.id > %d" % cutoff
 
     def _findProp(self, args):
@@ -335,14 +337,14 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             q.append("(c.queue in (2,3))")
         elif prop == "ease":
             prop = "factor"
-            val = int(val*1000)
+            val = int(val * 1000)
         q.append("(%s %s %s)" % (prop, cmp, val))
         return " and ".join(q)
 
     def _findText(self, val, args):
         val = val.replace("*", "%")
-        args.append("%"+val+"%")
-        args.append("%"+val+"%")
+        args.append("%" + val + "%")
+        args.append("%" + val + "%")
         return "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
 
     def _findNids(self, args):
@@ -380,10 +382,12 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         # deck types
         elif val == "filtered":
             return "c.odid"
+
         def dids(did):
             if not did:
                 return None
             return [did] + [a[1] for a in self.col.decks.children(did)]
+
         # current deck?
         ids = None
         if val.lower() == "current":
@@ -396,7 +400,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             ids = set()
             val = re.escape(val).replace(r"\*", ".*")
             for d in self.col.decks.all():
-                if re.match("(?i)"+val, d['name']):
+                if re.match("(?i)" + val, d['name']):
                     ids.update(dids(d['id']))
         if not ids:
             return
@@ -442,16 +446,16 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         # gather nids
         regex = re.escape(val).replace("\\_", ".").replace("\\%", ".*")
         nids = []
-        for (id,mid,flds) in self.col.db.execute("""
+        for (id, mid, flds) in self.col.db.execute("""
 select id, mid, flds from notes
 where mid in %s and flds like ? escape '\\'""" % (
-                         ids2str(list(mods.keys()))),
-                         "%"+val+"%"):
+                ids2str(list(mods.keys()))),
+                                                   "%" + val + "%"):
             flds = splitFields(flds)
             ord = mods[str(mid)][1]
             strg = flds[ord]
             try:
-                if re.search("(?si)^"+regex+"$", strg):
+                if re.search("(?si)^" + regex + "$", strg):
                     nids.append(id)
             except sre_constants.error:
                 return
@@ -469,11 +473,12 @@ where mid in %s and flds like ? escape '\\'""" % (
         csum = fieldChecksum(val)
         nids = []
         for nid, flds in self.col.db.execute(
-                "select id, flds from notes where mid=? and csum=?",
+                "SELECT id, flds FROM notes WHERE mid=? AND csum=?",
                 mid, csum):
             if stripHTMLMedia(splitFields(flds)[0]) == val:
                 nids.append(nid)
         return "n.id in %s" % ids2str(nids)
+
 
 # Find and replace
 ##########################################################################
@@ -492,15 +497,17 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     if not regex:
         src = re.escape(src)
     if fold:
-        src = "(?i)"+src
+        src = "(?i)" + src
     regex = re.compile(src)
+
     def repl(str):
         return re.sub(regex, dst, str)
+
     d = []
     snids = ids2str(nids)
     nids = []
     for nid, mid, flds in col.db.execute(
-        "select id, mid, flds from notes where id in "+snids):
+                    "SELECT id, mid, flds FROM notes WHERE id IN " + snids):
         origFlds = flds
         # does it match?
         sflds = splitFields(flds)
@@ -517,15 +524,16 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
         flds = joinFields(sflds)
         if flds != origFlds:
             nids.append(nid)
-            d.append(dict(nid=nid,flds=flds,u=col.usn(),m=intTime()))
+            d.append({'nid': nid, 'flds': flds, 'u': col.usn(), 'm': intTime()})
     if not d:
         return 0
     # replace
     col.db.executemany(
-        "update notes set flds=:flds,mod=:m,usn=:u where id=:nid", d)
+        "UPDATE notes SET flds=:flds,mod=:m,usn=:u WHERE id=:nid", d)
     col.updateFieldCache(nids)
     col.genCards(nids)
     return len(d)
+
 
 def fieldNames(col, downcase=True):
     fields = set()
@@ -539,18 +547,20 @@ def fieldNames(col, downcase=True):
         return list(fields)
     return names
 
+
 # Find duplicates
 ##########################################################################
 # returns array of ("dupestr", [nids])
 def findDupes(col, fieldName, search=""):
     # limit search to notes with applicable field name
     if search:
-        search = "("+search+") "
+        search = "(" + search + ") "
     search += "'%s:*'" % fieldName
     # go through notes
     vals = {}
     dupes = []
     fields = {}
+
     def ordForMid(mid):
         if mid not in fields:
             model = col.models.get(mid)
@@ -559,9 +569,10 @@ def findDupes(col, fieldName, search=""):
                     fields[mid] = c
                     break
         return fields[mid]
+
     for nid, mid, flds in col.db.all(
-        "select id, mid, flds from notes where id in "+ids2str(
-            col.findNotes(search))):
+                    "SELECT id, mid, flds FROM notes WHERE id IN " + ids2str(
+                col.findNotes(search))):
         flds = splitFields(flds)
         ord = ordForMid(mid)
         if ord is None:

@@ -78,9 +78,7 @@ automatically."""))
     def _updateLabel(self):
         self.mw.progress.update(label="%s\n%s" % (
             self.label,
-            _("%(a)0.1fkB up, %(b)0.1fkB down") % dict(
-                a=self.sentBytes / 1024,
-                b=self.recvBytes / 1024)))
+            _("%(a)0.1fkB up, %(b)0.1fkB down") % {'a': self.sentBytes / 1024, 'b': self.recvBytes / 1024}))
 
     def onEvent(self, evt, *args):
         pu = self.mw.progress.update

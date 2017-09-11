@@ -14,8 +14,8 @@ tracked, so unused tags can only be removed from the list with a DB check.
 This module manages the tag cache and tags for notes.
 """
 
-class TagManager:
 
+class TagManager:
     # Registry save/load
     #############################################################
 
@@ -28,8 +28,8 @@ class TagManager:
 
     def flush(self):
         if self.changed:
-            self.col.db.execute("update col set tags=?",
-                                 json.dumps(self.tags))
+            self.col.db.execute("UPDATE col SET tags=?",
+                                json.dumps(self.tags))
             self.changed = False
 
     # Registering and fetching tags
@@ -59,7 +59,7 @@ class TagManager:
             self.tags = {}
             self.changed = True
         self.register(set(self.split(
-            " ".join(self.col.db.list("select distinct tags from notes"+lim)))))
+            " ".join(self.col.db.list("SELECT DISTINCT tags FROM notes" + lim)))))
 
     def allItems(self):
         return list(self.tags.items())
@@ -68,7 +68,7 @@ class TagManager:
         self.changed = True
 
     def byDeck(self, did, children=False):
-        basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
+        basequery = "SELECT n.tags FROM cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = basequery + " AND c.did=?"
             res = self.col.db.list(query, did)
@@ -99,7 +99,7 @@ class TagManager:
             l = "tags "
             fn = self.remFromStr
         lim = " or ".join(
-            [l+"like :_%d" % c for c, t in enumerate(newTags)])
+            [l + "like :_%d" % c for c, t in enumerate(newTags)])
         res = self.col.db.all(
             "select id, tags from notes where id in %s and (%s)" % (
                 ids2str(ids), lim),
@@ -107,12 +107,14 @@ class TagManager:
                     for x, y in enumerate(newTags)]))
         # update tags
         nids = []
+
         def fix(row):
             nids.append(row[0])
-            return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime(),
-                'u':self.col.usn()}
+            return {'id': row[0], 't': fn(tags, row[1]), 'n': intTime(),
+                    'u': self.col.usn()}
+
         self.col.db.executemany(
-            "update notes set tags=:t,mod=:n,usn=:u where id = :id",
+            "UPDATE notes SET tags=:t,mod=:n,usn=:u WHERE id = :id",
             [fix(row) for row in res])
 
     def bulkRem(self, ids, tags):
@@ -141,9 +143,11 @@ class TagManager:
 
     def remFromStr(self, deltags, tags):
         "Delete tags if they exist."
+
         def wildcard(pat, str):
             pat = re.escape(pat).replace('\\*', '.*')
             return re.search(pat, str, re.IGNORECASE)
+
         currentTags = self.split(tags)
         for tag in self.split(deltags):
             # find tags, ignoring case

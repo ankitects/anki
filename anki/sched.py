@@ -1077,17 +1077,9 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
         delays = conf['delays'] or oconf['new']['delays']
-        return dict(
-            # original deck
-            ints=oconf['new']['ints'],
-            initialFactor=oconf['new']['initialFactor'],
-            bury=oconf['new'].get("bury", True),
-            # overrides
-            delays=delays,
-            separate=conf['separate'],
-            order=NEW_CARDS_DUE,
-            perDay=self.reportLimit
-        )
+        return {'ints': oconf['new']['ints'], 'initialFactor': oconf['new']['initialFactor'],
+                'bury': oconf['new'].get("bury", True), 'delays': delays, 'separate': conf['separate'],
+                'order': NEW_CARDS_DUE, 'perDay': self.reportLimit}
 
     def _lapseConf(self, card):
         conf = self._cardConf(card)
@@ -1097,16 +1089,9 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?""" % queue, data)
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
         delays = conf['delays'] or oconf['lapse']['delays']
-        return dict(
-            # original deck
-            minInt=oconf['lapse']['minInt'],
-            leechFails=oconf['lapse']['leechFails'],
-            leechAction=oconf['lapse']['leechAction'],
-            mult=oconf['lapse']['mult'],
-            # overrides
-            delays=delays,
-            resched=conf['resched'],
-        )
+        return {'minInt': oconf['lapse']['minInt'], 'leechFails': oconf['lapse']['leechFails'],
+                'leechAction': oconf['lapse']['leechAction'], 'mult': oconf['lapse']['mult'], 'delays': delays,
+                'resched': conf['resched']}
 
     def _revConf(self, card):
         conf = self._cardConf(card)
@@ -1352,8 +1337,8 @@ and (queue=0 or (queue=2 and due<=?))""",
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod,
-                          usn=self.col.usn(), fact=STARTING_FACTOR))
+            d.append(
+                {'id': id, 'due': r + t, 'ivl': max(1, r), 'mod': mod, 'usn': self.col.usn(), 'fact': STARTING_FACTOR})
         self.remFromDyn(ids)
         self.col.db.executemany("""
 update cards set type=2,queue=2,ivl=:ivl,due=:due,odue=0,
@@ -1415,7 +1400,7 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
         d = []
         for id, nid in self.col.db.execute(
             "select id, nid from cards where type = 0 and id in "+scids):
-            d.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
+            d.append({'now': now, 'due': due[nid], 'usn': self.col.usn(), 'cid': id})
         self.col.db.executemany(
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d)
 

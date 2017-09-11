@@ -421,7 +421,7 @@ Please run Tools>Empty Cards""")
         "Diff-corrects the typed-in answer."
         givenElems, correctElems = self.tokenizeComparison(given, correct)
         def good(s):
-            return "<span class=typeGood>"+cgi.escape(s)+"</span>"
+            return "<span class=typeGood>"+html.escape(s)+"</span>"
         def bad(s):
             return "<span class=typeBad>"+cgi.escape(s)+"</span>"
         def missed(s):
@@ -474,11 +474,12 @@ Please run Tools>Empty Cards""")
 <script>
 time = %(time)d;
 </script>
-""" % dict(rem=self._remaining(), edit=_("Edit"),
-           editkey=_("Shortcut key: %s") % "E",
-           more=_("More"),
-           downArrow=downArrow(),
-           time=self.card.timeTaken() // 1000)
+""" % {'rem': self._remaining(),
+       'edit': _("Edit"),
+       'editkey': _("Shortcut key: %s") % "E",
+       'more': _("More"),
+       'downArrow': downArrow(),
+       'time': self.card.timeTaken() // 1000}
 
     def _showAnswerButton(self):
         if not self.typeCorrect:
