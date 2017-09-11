@@ -194,11 +194,11 @@ where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
 
     def dueGraph(self):
         if self.type == 0:
-            start = 0; end = 31; chunk = 1;
+            start, end, chunk = 0, 31, 1
         elif self.type == 1:
-            start = 0; end = 52; chunk = 7
+            start, end, chunk = 0, 52, 7
         elif self.type == 2:
-            start = 0; end = None; chunk = 30
+            start, end, chunk = 0, None, 30
         d = self._due(start, end, chunk)
         yng = []
         mtr = []
