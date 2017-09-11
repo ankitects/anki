@@ -169,7 +169,7 @@ class DataModel(QAbstractTableModel):
 
     def saveSelection(self):
         cards = self.browser.selectedCards()
-        self.selectedCards = dict([(id, True) for id in cards])
+        self.selectedCards = {card: True for card in cards}
         if getattr(self.browser, 'card', None):
             self.focusedCard = self.browser.card.id
         else:
@@ -1014,7 +1014,7 @@ by clicking on one on the left."""))
 
                 # add templates
                 for c, tmpl in enumerate(nt['tmpls']):
-                    name = _("%(n)d: %(name)s") % dict(n=c+1, name=tmpl['name'])
+                    name = _("%(n)d: %(name)s") % {'n': c + 1, 'name': tmpl['name']}
                     subm.addItem(name, self._filterFunc(
                         "note", nt['name'], "card", str(c+1)))
 
@@ -1723,7 +1723,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
         part2 = ngettext("%d note", "%d notes", notes) % notes
-        t += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
+        t += _("Found %(a)s across %(b)s.") % {'a': part1, 'b': part2}
         t += "<p><ol>"
         for val, nids in res:
             t += '''<li><a href=# onclick="pycmd('%s')">%s</a>: %s</a>''' % (

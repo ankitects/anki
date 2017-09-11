@@ -54,7 +54,7 @@ class AnkiWebPage(QWebEnginePage):
         # not translated because console usually not visible,
         # and may only accept ascii text
         sys.stdout.write("JS error on line %(a)d: %(b)s" %
-             dict(a=line, b=msg+"\n"))
+                         {'a': line, 'b': msg + "\n"})
 
     def acceptNavigationRequest(self, url, navType, isMainFrame):
         if not isMainFrame:

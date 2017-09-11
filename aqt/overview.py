@@ -105,12 +105,8 @@ class Overview:
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
-        self.web.stdHtml(self._body % dict(
-                deck=deck['name'],
-                shareLink=shareLink,
-                desc=self._desc(deck),
-                table=self._table()
-            ),
+        self.web.stdHtml(self._body % {'deck': deck['name'], 'shareLink': shareLink, 'desc': self._desc(deck),
+                                       'table': self._table()},
                          css=["overview.css"],
                          js=["jquery.js", "overview.js"])
 

@@ -62,7 +62,7 @@ go to the Tools>Add-ons menu, and disable or delete the add-on.
 
 When loading '%(name)s':
 %(traceback)s
-""") % dict(name=meta.get("name", dir), traceback=traceback.format_exc()))
+""") % {'name': meta.get("name", dir), 'traceback': traceback.format_exc()})
 
     def onAddonsDialog(self):
         AddonsDialog(self)
@@ -78,7 +78,7 @@ When loading '%(name)s':
         try:
             return json.load(open(path, encoding="utf8"))
         except:
-            return dict()
+            return {}
 
     def writeAddonMeta(self, dir, meta):
         path = self._addonMetaPath(dir)
@@ -144,13 +144,13 @@ When loading '%(name)s':
         for n in ids:
             ret = download(self.mw, n)
             if ret[0] == "error":
-                errs.append(_("Error downloading %(id)s: %(error)s") % dict(id=n, error=ret[1]))
+                errs.append(_("Error downloading %(id)s: %(error)s") % {'id': n, 'error': ret[1]})
                 continue
             data, fname = ret
             fname = fname.replace("_", " ")
             self.install(str(n), data, fname)
             name = os.path.splitext(fname)[0]
-            log.append(_("Downloaded %(fname)s" % dict(fname=name)))
+            log.append(_("Downloaded %(fname)s" % {'fname': name}))
         self.mw.progress.finish()
         return log, errs
 
@@ -349,7 +349,7 @@ class AddonsDialog(QDialog):
         if not selected:
             return
         if not askUser(_("Delete the %(num)d selected add-ons?") %
-                               dict(num=len(selected))):
+                               {'num': len(selected)}):
             return
         for dir in selected:
             self.mgr.deleteAddon(dir)

@@ -12,8 +12,8 @@ from anki.sound import clearAudioQueue
 from anki.hooks import runHook
 from copy import deepcopy
 
-class DeckBrowser:
 
+class DeckBrowser:
     def __init__(self, mw):
         self.mw = mw
         self.web = mw.web
@@ -86,8 +86,7 @@ class DeckBrowser:
             self._dueTree = self.mw.col.sched.deckDueTree()
         tree = self._renderDeckTree(self._dueTree)
         stats = self._renderStats()
-        self.web.stdHtml(self._body%dict(
-            tree=tree, stats=stats, countwarn=self._countWarn()),
+        self.web.stdHtml(self._body % {'tree': tree, 'stats': stats, 'countwarn': self._countWarn()},
                          css=["deckbrowser.css"],
                          js=["jquery.js", "jquery-ui.js", "deckbrowser.js"])
         self.web.key = "deckBrowser"
@@ -101,26 +100,24 @@ class DeckBrowser:
 
     def _renderStats(self):
         cards, thetime = self.mw.col.db.first("""
-select count(), sum(time)/1000 from revlog
-where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
+SELECT count(), sum(time)/1000 FROM revlog
+WHERE id > ?""", (self.mw.col.sched.dayCutoff - 86400) * 1000)
         cards = cards or 0
         thetime = thetime or 0
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        buf = _("Studied %(a)s in %(b)s today.") % dict(a=msgp1,
-                                                        b=fmtTimeSpan(thetime, unit=1))
+        buf = _("Studied %(a)s in %(b)s today.") % {'a': msgp1, 'b': fmtTimeSpan(thetime, unit=1)}
         return buf
 
     def _countWarn(self):
         if (self.mw.col.decks.count() < 25 or
                 self.mw.pm.profile.get("hideDeckLotsMsg")):
             return ""
-        return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
-            _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
-                a=("<a href=# onclick=\"pycmd('lots')\">%s</a>" % _(
-                    "this page")),
-                b=("<br><small><a href=# onclick='pycmd(\"hidelots\")'>("
-                   "%s)</a></small>" % (_("hide"))+
-                    "</div>")))
+        return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>" + (
+            _("You have a lot of decks. Please see %(a)s. %(b)s") % {
+                'a': ("<a href=# onclick=\"pycmd('lots')\">%s</a>" % _("this page")),
+                'b': ("<br><small><a href=# onclick='pycmd(\"hidelots\")'>("
+                      "%s)</a></small>" % (_("hide")) +
+                      "</div>")})
 
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:
@@ -129,7 +126,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             buf = """
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
-            _("Deck"), _("Due"), _("New"))
+                _("Deck"), _("Due"), _("New"))
             buf += self._topLevelDragRow()
         else:
             buf = ""
@@ -144,7 +141,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         deck = self.mw.col.decks.get(did)
         if did == 1 and cnt > 1 and not children:
             # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
+            if not self.mw.col.db.scalar("SELECT 1 FROM cards WHERE did = 1"):
                 return ""
         # parent toggled for collapsing
         for parent in self.mw.col.decks.parents(did):
@@ -155,8 +152,10 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         if self.mw.col.decks.get(did)['collapsed']:
             prefix = "+"
         due += lrn
+
         def indent():
-            return "&nbsp;"*6*depth
+            return "&nbsp;" * 6 * depth
+
         if did == self.mw.col.conf['curDeck']:
             klass = 'deck current'
         else:
@@ -174,8 +173,9 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf += """
 
         <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="pycmd('open:%d')">%s</a></td>"""% (
+        href=# onclick="pycmd('open:%d')">%s</a></td>""" % (
             indent(), collapse, extraclass, did, name)
+
         # due counts
         def nonzeroColour(cnt, colour):
             if not cnt:
@@ -183,14 +183,15 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             if cnt >= 1000:
                 cnt = "1000+"
             return "<font color='%s'>%s</font>" % (colour, cnt)
+
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
             nonzeroColour(due, "#007700"),
             nonzeroColour(new, "#000099"))
         # options
         buf += ("<td align=center class=opts><a onclick='pycmd(\"opts:%d\");'>"
-        "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
+                "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
         # children
-        buf += self._renderDeckTree(children, depth+1)
+        buf += self._renderDeckTree(children, depth + 1)
         return buf
 
     def _topLevelDragRow(self):
@@ -262,8 +263,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             else:
                 extra = None
         if deck['dyn'] or not extra or askUser(
-            (_("Are you sure you wish to delete %s?") % deck['name']) +
-            extra):
+                        (_("Are you sure you wish to delete %s?") % deck['name']) +
+                        extra):
             self.mw.progress.start(immediate=True)
             self.mw.col.decks.rem(did, True)
             self.mw.progress.finish()
@@ -273,9 +274,9 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     ######################################################################
 
     drawLinks = [
-            ["", "shared", _("Get Shared")],
-            ["", "create", _("Create Deck")],
-            ["Ctrl+I", "import", _("Import File")],  # Ctrl+I works from menu
+        ["", "shared", _("Get Shared")],
+        ["", "create", _("Create Deck")],
+        ["Ctrl+I", "import", _("Import File")],  # Ctrl+I works from menu
     ]
 
     def _drawButtons(self):
@@ -290,4 +291,4 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.bottom.web.onBridgeCmd = self._linkHandler
 
     def _onShared(self):
-        openLink(aqt.appShared+"decks/")
+        openLink(aqt.appShared + "decks/")

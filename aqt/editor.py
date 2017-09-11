@@ -102,7 +102,7 @@ class Editor:
             <div id="topbutsright" style="float:right;">
                 %(rightbts)s
             </div>
-        """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns))
+        """ % {'flds': _("Fields"), 'cards': _("Cards"), 'rightbts': "".join(righttopbtns)}
         bgcol = self.mw.app.palette().window().color().name()
         # then load page
         self.web.stdHtml(_html % (
@@ -126,7 +126,7 @@ class Editor:
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
 
-    def addButton(self, icon, cmd, func, tip="", label="", 
+    def addButton(self, icon, cmd, func, tip="", label="",
                   id=None, toggleable=False, keys=None):
         """Assign func to bridge cmd, register shortcut, return button"""
         if cmd not in self._links:
@@ -691,25 +691,25 @@ to a cloze type first, via Edit>Change Note Type."""))
     # Links from HTML
     ######################################################################
 
-    _links = dict(
-        fields=onFields,
-        cards=onCardLayout,
-        bold=toggleBold,
-        italic=toggleItalic,
-        underline=toggleUnderline,
-        super=toggleSuper,
-        sub=toggleSub,
-        clear=removeFormat,
-        colour=onForeground,
-        changeCol=onChangeCol,
-        cloze=onCloze,
-        attach=onAddMedia,
-        record=onRecSound,
-        more=onAdvanced,
-        dupes=showDupes,
-        paste=onPaste,
-        cutOrCopy=onCutOrCopy,
-    )
+    _links = {
+        'fields': onFields,
+        'cards': onCardLayout,
+        'bold': toggleBold,
+        'italic': toggleItalic,
+        'underline': toggleUnderline,
+        'super': toggleSuper,
+        'sub': toggleSub,
+        'clear': removeFormat,
+        'colour': onForeground,
+        'changeCol': onChangeCol,
+        'cloze': onCloze,
+        'attach': onAddMedia,
+        'record': onRecSound,
+        'more': onAdvanced,
+        'dupes': showDupes,
+        'paste': onPaste,
+        'cutOrCopy': onCutOrCopy
+    }
 
 # Pasting, drag & drop, and keyboard layouts
 ######################################################################

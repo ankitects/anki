@@ -169,7 +169,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             n.fields = []
             fld = orig.get("text", "")
             fld = re.sub("\r?\n", "<br>", fld)
-            state = dict(n=1)
+            state = {'n': 1}
             def repl(match):
                 # replace [...] with cloze refs
                 res = ("{{c%d::%s}}" % (state['n'], match.group(1)))

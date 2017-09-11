@@ -115,8 +115,7 @@ class Anki2Importer(Importer):
                             self._ignoredGuids[note[GUID]] = True
         if dupes:
             up = len(update)
-            self.log.append(_("Updated %(a)d of %(b)d existing notes.") % dict(
-                a=len(update), b=dupes))
+            self.log.append(_("Updated %(a)d of %(b)d existing notes.") % {'a': len(update), 'b': dupes})
             if dupesIgnored:
                 self.log.append(_("Some updates were ignored because note type has changed:"))
                 self.log.extend(dupesIgnored)
