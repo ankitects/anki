@@ -240,7 +240,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         return m['sortf']
 
     def setSortIdx(self, m, idx):
-        assert idx >= 0 and idx < len(m['flds'])
+        assert 0 <= idx < len(m['flds'])
         self.col.modSchema(check=True)
         m['sortf'] = idx
         self.col.updateFieldCache(self.nids(m))
