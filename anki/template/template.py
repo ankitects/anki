@@ -207,8 +207,20 @@ class Template:
 
     # look for clozes wrapped in mathjax, and change {{cx to {{Cx
     def _removeFormattingFromMathjax(self, txt, ord):
-        regex = r"(\\[([]).*?"+(clozeReg%ord)+r".*?(\\[\])])"
+        opening = ["\\(", "\\["]
+        closing = ["\\)", "\\]"]
+        regex = r"(\\[([])(.*?)"+(clozeReg%ord)+r"(.*?)(\\[\])])"
         def repl(m):
+            enclosed = True
+            for s in closing:
+                if s in m.group(1):
+                    enclosed = False
+            for s in opening:
+                if s in m.group(7):
+                    enclosed = False
+            if not enclosed:
+                return m.group(0)
+            # remove formatting
             return m.group(0).replace("{{c", "{{C")
         txt = re.sub(regex, repl, txt)
         return txt

@@ -187,6 +187,19 @@ def test_cloze():
     f.flush()
     assert len(f.cards()) == 2
 
+def test_cloze_mathjax():
+    d = getEmptyCol()
+    d.models.setCurrent(d.models.byName("Cloze"))
+    f = d.newNote()
+    f['Text'] = r'{{c1::ok}} \(2^2\) {{c2::not ok}} \(2^{{c3::2}}\) \(x^3\) {{c4::blah}} {{c5::text with \(x^2\) jax}}'
+    assert d.addNote(f)
+    assert len(f.cards()) == 5
+    assert "class=cloze" in f.cards()[0].q()
+    assert "class=cloze" in f.cards()[1].q()
+    assert "class=cloze" not in f.cards()[2].q()
+    assert "class=cloze" in f.cards()[3].q()
+    assert "class=cloze" in f.cards()[4].q()
+
 def test_chained_mods():
     d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
