@@ -575,7 +575,7 @@
        <item>
         <widget class="QCheckBox" name="replayQuestion">
          <property name="text">
-          <string>When answer shown, replay both question and answer audio</string>
+          <string>Always include question side when replaying audio</string>
          </property>
          <property name="checked">
           <bool>false</bool>
