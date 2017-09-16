@@ -6,7 +6,7 @@ from aqt.qt import *
 from http import HTTPStatus
 import http.server
 import socketserver
-import errno
+import socket
 from anki.utils import devMode
 import threading
 
@@ -28,7 +28,19 @@ _exportFolder = _getExportFolder()
 # webengine on windows sometimes opens a connection and fails to send a request,
 # which will hang the server if unthreaded
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    # allow for a flood of requests before we've started up properly
     request_queue_size = 100
+
+    # work around python not being able to handle non-latin hostnames
+    def server_bind(self):
+        """Override server_bind to store the server name."""
+        socketserver.TCPServer.server_bind(self)
+        host, port = self.server_address[:2]
+        try:
+            self.server_name = socket.getfqdn(host)
+        except:
+            self.server_name = "server"
+        self.server_port = port
 
 class MediaServer(threading.Thread):
 
