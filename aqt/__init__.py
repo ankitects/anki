@@ -233,11 +233,14 @@ def run():
                              "Please notify support of this error:\n\n"+
                              traceback.format_exc())
 
-def _run():
+def _run(argv=None, exec=True):
     global mw
 
+    if argv is None:
+        argv = sys.argv
+
     # parse args
-    opts, args = parseArgs(sys.argv)
+    opts, args = parseArgs(argv)
     opts.base = opts.base or ""
     opts.profile = opts.profile or ""
 
@@ -250,7 +253,7 @@ def _run():
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     # create the app
-    app = AnkiApp(sys.argv)
+    app = AnkiApp(argv)
     QCoreApplication.setApplicationName("Anki")
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
@@ -285,4 +288,7 @@ environment points to a valid, writable folder.""")
     # load the main window
     import aqt.main
     mw = aqt.main.AnkiQt(app, pm, args)
-    app.exec_()
+    if exec:
+        app.exec()
+    else:
+        return app
