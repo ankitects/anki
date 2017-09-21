@@ -4,6 +4,7 @@ python:
 install: 
   - sudo apt-get update
   - sudo apt-get install portaudio19-dev
+  - pip install PyQt5 sip
   - pip install -r requirements.txt
   - pip install nose
   - pip install coveralls
