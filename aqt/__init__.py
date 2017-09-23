@@ -234,6 +234,15 @@ def run():
                              traceback.format_exc())
 
 def _run(argv=None, exec=True):
+    """Start AnkiQt application or reuse an existing instance if one exists.
+
+    If the function is invoked with exec=False, the AnkiQt will not enter
+    the main event loop - instead the application object will be returned.
+
+    The 'exec' and 'argv' arguments will be useful for testing purposes.
+
+    If no 'argv' is supplied then 'sys.argv' will be used.
+    """
     global mw
 
     if argv is None:
