@@ -7,6 +7,7 @@ import re
 import traceback
 import zipfile
 import json
+import unicodedata
 
 from aqt.qt import *
 import anki.importing as importing
@@ -405,7 +406,7 @@ def _replaceWithApkg(mw, file, backup):
         mw.progress.update(ngettext("Processed %d media file",
                                     "Processed %d media files", n) % n)
         size = z.getinfo(cStr).file_size
-        dest = os.path.join(d, file)
+        dest = os.path.join(d, unicodedata.normalize("NFC", file))
         # if we have a matching file size
         if os.path.exists(dest) and size == os.stat(dest).st_size:
             continue
