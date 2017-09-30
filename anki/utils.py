@@ -127,7 +127,7 @@ def fmtFloat(float_value, point=1):
 ##############################################################################
 reStyle = re.compile("(?si)<style.*?>.*?</style>")
 reScript = re.compile("(?si)<script.*?>.*?</script>")
-reTag = re.compile("<.*?>")
+reTag = re.compile("(?s)<.*?>")
 reEnts = re.compile("&#?\w+;")
 reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
