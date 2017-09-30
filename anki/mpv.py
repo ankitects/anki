@@ -54,6 +54,9 @@ class MPVCommandError(MPVError):
 class MPVTimeoutError(MPVError):
     pass
 
+from anki.utils import isWin
+if isWin:
+    import win32file, win32pipe, pywintypes, winerror
 
 class MPVBase:
     """Base class for communication with the mpv media player via unix socket
@@ -64,7 +67,9 @@ class MPVBase:
 
     default_argv = [
         "--idle",
-        "--no-terminal"
+        "--no-terminal",
+        "--force-window=no",
+        "--ontop",
     ]
 
     def __init__(self, window_id=None, debug=False):
@@ -119,6 +124,9 @@ class MPVBase:
         """Create a random socket filename which we pass to mpv with the
            --input-unix-socket option.
         """
+        if isWin:
+            self._sock_filename = "ankimpv"
+            return
         fd, self._sock_filename = tempfile.mkstemp(prefix="mpv.")
         os.close(fd)
         os.remove(self._sock_filename)
@@ -132,8 +140,16 @@ class MPVBase:
             time.sleep(0.1)
 
             try:
-                self._sock = socket.socket(socket.AF_UNIX)
-                self._sock.connect(self._sock_filename)
+                if isWin:
+                    self._sock = win32file.CreateFile(r'\\.\pipe\ankimpv',
+                                                       win32file.GENERIC_READ | win32file.GENERIC_WRITE,
+                                                       0, None, win32file.OPEN_EXISTING, 0, None)
+                    win32pipe.SetNamedPipeHandleState(self._sock,
+                                                      1, # PIPE_NOWAIT
+                                                      None, None)
+                else:
+                    self._sock = socket.socket(socket.AF_UNIX)
+                    self._sock.connect(self._sock_filename)
             except (FileNotFoundError, ConnectionRefusedError):
                 continue
             else:
@@ -179,12 +195,25 @@ class MPVBase:
         """
         buf = b""
         while not self._stop_event.is_set():
-            r, w, e = select.select([self._sock], [], [], 1)
-            if r:
-                b = self._sock.recv(1024)
-                if not b:
-                    break
-                buf += b
+            if isWin:
+                try:
+                    (n, b) = win32file.ReadFile(self._sock, 4096)
+                    buf += b
+                except pywintypes.error as err:
+                    if err.args[0] == winerror.ERROR_NO_DATA:
+                        time.sleep(0.1)
+                        continue
+                    elif err.args[0] == winerror.ERROR_BROKEN_PIPE:
+                        return
+                    else:
+                        raise
+            else:
+                r, w, e = select.select([self._sock], [], [], 1)
+                if r:
+                    b = self._sock.recv(1024)
+                    if not b:
+                        break
+                    buf += b
 
             newline = buf.find(b"\n")
             while newline >= 0:
@@ -264,11 +293,14 @@ class MPVBase:
             raise MPVTimeoutError("unable to put request")
 
         # Write the message data to the socket.
-        while data:
-            size = self._sock.send(data)
-            if size == 0:
-                raise MPVCommunicationError("broken sender socket")
-            data = data[size:]
+        if isWin:
+            win32file.WriteFile(self._sock, data)
+        else:
+            while data:
+                size = self._sock.send(data)
+                if size == 0:
+                    raise MPVCommunicationError("broken sender socket")
+                data = data[size:]
 
     def _get_response(self, timeout=None):
         """Collect the response message to a previous request. If there was an
