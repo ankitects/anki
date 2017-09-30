@@ -75,13 +75,50 @@ def retryWait(proc):
         except OSError:
             continue
 
-# Mplayer settings
+# MPV
 ##########################################################################
 
-mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
+from anki.mpv import MPV
+
+class MpvManager(MPV):
+    def __init__(self):
+        super().__init__(window_id=None, debug=True)
+
+    def queueFile(self, file):
+        path = os.path.join(os.getcwd(), file)
+        self.command("loadfile", path, "append")
+        self.set_property("playlist-pos", 0)
+        self.set_property("pause", False)
+
+    def clearQueue(self):
+        self.command("stop")
+
+    def togglePause(self):
+        self.set_property("pause", not self.get_property("pause"))
+
+    def seekRelative(self, secs):
+        self.command("seek", secs, "relative")
+
+mpvManager = None
+
+def setupMPV():
+    global mpvManager, _player, _queueEraser
+    mpvManager = MpvManager()
+    _player = mpvManager.queueFile
+    _queueEraser = mpvManager.clearQueue
+
+def cleanupMPV():
+    global mpvManager, _player, _queueEraser
+    if mpvManager:
+        mpvManager.close()
+        mpvManager = None
+        _player = None
+        _queueEraser = None
 
 # Mplayer in slave mode
 ##########################################################################
+
+mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
 
 mplayerQueue = []
 mplayerManager = None
