@@ -25,7 +25,7 @@ class AnkiPackageImporter(Anki2Importer):
             if os.path.commonprefix([path, dir]) != dir:
                 raise Exception("Invalid file")
 
-            self.nameToNum[v] = unicodedata.normalize("NFC", k)
+            self.nameToNum[unicodedata.normalize("NFC",v)] = k
         # run anki2 importer
         Anki2Importer.run(self)
         # import static media
