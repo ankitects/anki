@@ -22,6 +22,10 @@ import aqt.webview
 import aqt.toolbar
 import aqt.stats
 import aqt.mediasrv
+
+from anki.sound import setupMPV, cleanupMPV
+setupMPV()
+
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename, getFile
@@ -294,6 +298,7 @@ close the profile or restart Anki."""))
     def cleanupAndExit(self):
         self.errorHandler.unload()
         self.mediaServer.shutdown()
+        cleanupMPV()
         self.app.exit(0)
 
     # Collection load/unload
