@@ -64,7 +64,6 @@ class MPVBase:
 
     default_argv = [
         "--idle",
-        "--no-input-default-bindings",
         "--no-terminal"
     ]
 
@@ -193,7 +192,7 @@ class MPVBase:
                 buf = buf[newline + 1:]
 
                 if self.debug:
-                    sys.stderr.write("<<< " + data.decode("utf8", "replace"))
+                    sys.stdout.write("<<< " + data.decode("utf8", "replace"))
 
                 message = self._parse_message(data)
                 self._handle_message(message)
@@ -245,7 +244,7 @@ class MPVBase:
         data = self._compose_message(message)
 
         if self.debug:
-            sys.stderr.write(">>> " + data.decode("utf8", "replace"))
+            sys.stdout.write(">>> " + data.decode("utf8", "replace"))
 
         # Request/response cycles are coordinated across different threads, so
         # that they don't get mixed up. This makes it possible to use commands
@@ -299,6 +298,7 @@ class MPVBase:
     def _send_request(self, message, timeout=None):
         """Send a command to the mpv process and collect the result.
         """
+        self.ensure_running()
         self._send_message(message, timeout)
         try:
             return self._get_response(timeout)
@@ -312,6 +312,18 @@ class MPVBase:
         """Return True if the mpv process is still active.
         """
         return self._proc.poll() is None
+
+    def ensure_running(self):
+        if not self.is_running():
+            self._stop_thread()
+            self._stop_process()
+            self._stop_socket()
+            self._prepare_socket()
+            self._prepare_process()
+            self._start_process()
+            self._start_socket()
+            self._prepare_thread()
+            self._start_thread()
 
     def close(self):
         """Shutdown the mpv process and our communication setup.
