@@ -82,7 +82,7 @@ from anki.mpv import MPV
 
 class MpvManager(MPV):
     def __init__(self):
-        super().__init__(window_id=None, debug=True)
+        super().__init__(window_id=None, debug=False)
 
     def queueFile(self, file):
         path = os.path.join(os.getcwd(), file)
