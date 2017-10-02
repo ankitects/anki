@@ -14,7 +14,7 @@ Anki requires:
 
  - Python 3.6+
  - Qt 5.9+ and a PyQT that supports it
- - mplayer
+ - mpv
  - lame
 
 It also requires a number of Python packages, which you can grab via pip:
