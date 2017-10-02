@@ -64,6 +64,7 @@ class MPVBase:
     """
 
     executable = find_executable("mpv")
+    popenEnv = None
 
     default_argv = [
         "--idle",
@@ -106,7 +107,7 @@ class MPVBase:
     def _start_process(self):
         """Start the mpv process.
         """
-        self._proc = subprocess.Popen(self.argv)
+        self._proc = subprocess.Popen(self.argv, env=self.popenEnv)
 
     def _stop_process(self):
         """Stop the mpv process.
