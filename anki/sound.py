@@ -80,7 +80,13 @@ def retryWait(proc):
 
 from anki.mpv import MPV
 
+mpvPath, mpvEnv = _packagedCmd(["mpv"])
+
 class MpvManager(MPV):
+
+    executable = mpvPath[0]
+    popenEnv = mpvEnv
+
     def __init__(self):
         super().__init__(window_id=None, debug=False)
 
