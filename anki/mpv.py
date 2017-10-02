@@ -1,3 +1,4 @@
+# coding: utf-8
 # ------------------------------------------------------------------------------
 #
 # mpv.py - Control mpv from Python using JSON IPC
