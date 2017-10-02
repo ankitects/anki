@@ -560,6 +560,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             name = urllib.parse.quote(fname.encode("utf8"))
             return '<img src="%s">' % name
         else:
+            anki.sound.clearAudioQueue()
             anki.sound.play(fname)
             return '[sound:%s]' % fname
 
