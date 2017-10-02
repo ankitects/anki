@@ -6,7 +6,7 @@ import sys
 import math
 from anki.hooks import runHook
 from aqt.qt import *
-from aqt.utils import openLink
+from aqt.utils import openLink, showWarning
 from anki.utils import isMac, isWin, isLin, devMode
 
 # Page for debug messages
@@ -72,6 +72,8 @@ class AnkiWebPage(QWebEnginePage):
 
 # Main web view
 ##########################################################################
+
+dpiWarned = False
 
 class AnkiWebView(QWebEngineView):
 
@@ -157,6 +159,7 @@ class AnkiWebView(QWebEngineView):
             oldFocus.setFocus()
 
     def zoomFactor(self):
+        global dpiWarned
         if isMac:
             return 1
         screen = QApplication.desktop().screen()
@@ -167,6 +170,9 @@ class AnkiWebView(QWebEngineView):
             return factor
         # compensate for qt's integer scaling
         # on windows
+        if isWin and screen.physicalDpiX() % 72 != 0 and not dpiWarned:
+            showWarning("Unexpected physical DPI - try starting Anki with --lodpi")
+            dpiWarned = True
         qtIntScale = 72/screen.physicalDpiX()
         desiredScale = factor * qtIntScale
         newFactor = desiredScale / qtIntScale
