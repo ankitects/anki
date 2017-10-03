@@ -299,7 +299,7 @@ environment points to a valid, writable folder.""")
 
     # load the main window
     import aqt.main
-    mw = aqt.main.AnkiQt(app, pm, args)
+    mw = aqt.main.AnkiQt(app, pm, opts, args)
     if exec:
         app.exec()
     else:
