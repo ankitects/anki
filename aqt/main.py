@@ -32,9 +32,10 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
 import sip
 
 class AnkiQt(QMainWindow):
-    def __init__(self, app, profileManager, args):
+    def __init__(self, app, profileManager, opts, args):
         QMainWindow.__init__(self)
         self.state = "startup"
+        self.opts = opts
         aqt.mw = self
         self.app = app
         self.pm = profileManager

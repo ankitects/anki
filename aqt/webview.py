@@ -73,8 +73,6 @@ class AnkiWebPage(QWebEnginePage):
 # Main web view
 ##########################################################################
 
-dpiWarned = False
-
 class AnkiWebView(QWebEngineView):
 
     def __init__(self, parent=None):
@@ -159,8 +157,10 @@ class AnkiWebView(QWebEngineView):
             oldFocus.setFocus()
 
     def zoomFactor(self):
-        global dpiWarned
+        from aqt import mw
         if isMac:
+            return 1
+        if isWin and mw.opts.lodpi:
             return 1
         screen = QApplication.desktop().screen()
         dpi = screen.logicalDpiX()
@@ -170,9 +170,6 @@ class AnkiWebView(QWebEngineView):
             return factor
         # compensate for qt's integer scaling
         # on windows
-        if isWin and screen.physicalDpiX() % 72 != 0 and not dpiWarned:
-            showWarning("Unexpected physical DPI - try starting Anki with --lodpi")
-            dpiWarned = True
         qtIntScale = 72/screen.physicalDpiX()
         desiredScale = factor * qtIntScale
         newFactor = desiredScale / qtIntScale
