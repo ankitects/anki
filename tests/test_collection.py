@@ -9,7 +9,7 @@ from anki import Collection as aopen
 newPath = None
 newMod = None
 
-def test_create():
+def test_create_open():
     global newPath, newMod
     (fd, path) = tempfile.mkstemp(suffix=".anki2", prefix="test_attachNew")
     try:
@@ -24,12 +24,11 @@ def test_create():
     newMod = deck.mod
     del deck
 
-def test_open():
+    # reopen
     deck = aopen(newPath)
     assert deck.mod == newMod
     deck.close()
 
-def test_openReadOnly():
     # non-writeable dir
     assertException(Exception,
                     lambda: aopen("/attachroot.anki2"))
