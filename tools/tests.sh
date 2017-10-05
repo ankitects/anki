@@ -22,5 +22,4 @@ else
     args=""
     echo "Call with coverage=1 to run coverage tests"
 fi
-(cd $dir && nosetests3 -vs $lim $args --cover-package=anki)
-
+(cd $dir && nosetests -vs --processes=16 $lim $args --cover-package=anki)
