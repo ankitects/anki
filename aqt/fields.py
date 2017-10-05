@@ -34,8 +34,8 @@ class FieldDialog(QDialog):
     def fillFields(self):
         self.currentIdx = None
         self.form.fieldList.clear()
-        for f in self.model['flds']:
-            self.form.fieldList.addItem(f['name'])
+        for c, f in enumerate(self.model['flds']):
+            self.form.fieldList.addItem("{}: {}".format(c+1, f['name']))
 
     def setupSignals(self):
         f = self.form
