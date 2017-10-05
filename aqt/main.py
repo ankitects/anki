@@ -24,6 +24,7 @@ import aqt.stats
 import aqt.mediasrv
 from aqt.utils import showWarning
 import anki.sound
+import anki.mpv
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename, getFile
@@ -309,8 +310,14 @@ close the profile or restart Anki."""))
             anki.sound.setupMPV()
         except FileNotFoundError:
             showWarning(_("mpv is not installed - audio and video on cards will not work."))
-            anki.sound._player = lambda file: 1
-            anki.sound._queueEraser = lambda: 1
+            self.disableSound()
+        except anki.mpv.MPVProcessError:
+            showWarning(_("mpv failed to start - please ensure it is version 0.17 or later."))
+            self.disableSound()
+
+    def disableSound(self):
+        anki.sound._player = lambda file: 1
+        anki.sound._queueEraser = lambda: 1
 
     # Collection load/unload
     ##########################################################################
