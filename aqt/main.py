@@ -420,7 +420,7 @@ from the profile screen."))
         while len(backups) > nbacks:
             fname = backups.pop(0)
             path = os.path.join(dir, fname)
-            send2trash(path)
+            os.unlink(path)
 
     def maybeOptimize(self):
         # have two weeks passed?

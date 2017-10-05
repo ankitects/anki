@@ -39,7 +39,7 @@ profileConf = dict(
     # profile
     mainWindowGeom=None,
     mainWindowState=None,
-    numBackups=30,
+    numBackups=50,
     lastOptimize=intTime(),
     # editing
     fullSearch=False,
