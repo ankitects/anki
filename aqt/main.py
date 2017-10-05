@@ -22,10 +22,8 @@ import aqt.webview
 import aqt.toolbar
 import aqt.stats
 import aqt.mediasrv
-
-from anki.sound import setupMPV, cleanupMPV
-setupMPV()
-
+from aqt.utils import showWarning
+import anki.sound
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename, getFile
@@ -72,6 +70,7 @@ class AnkiQt(QMainWindow):
         self.setupKeys()
         self.setupThreads()
         self.setupMediaServer()
+        self.setupSound()
         self.setupMainWindow()
         self.setupSystemSpecific()
         self.setupStyle()
@@ -299,8 +298,19 @@ close the profile or restart Anki."""))
     def cleanupAndExit(self):
         self.errorHandler.unload()
         self.mediaServer.shutdown()
-        cleanupMPV()
+        anki.sound.cleanupMPV()
         self.app.exit(0)
+
+    # Sound/video
+    ##########################################################################
+
+    def setupSound(self):
+        try:
+            anki.sound.setupMPV()
+        except FileNotFoundError:
+            showWarning(_("mpv is not installed - audio and video on cards will not work."))
+            anki.sound._player = lambda file: 1
+            anki.sound._queueEraser = lambda: 1
 
     # Collection load/unload
     ##########################################################################
