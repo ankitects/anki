@@ -309,15 +309,9 @@ close the profile or restart Anki."""))
         try:
             anki.sound.setupMPV()
         except FileNotFoundError:
-            showWarning(_("mpv is not installed - audio and video on cards will not work."))
-            self.disableSound()
+            print("mpv not found, reverting to mplayer")
         except anki.mpv.MPVProcessError:
-            showWarning(_("mpv failed to start - please ensure it is version 0.17 or later."))
-            self.disableSound()
-
-    def disableSound(self):
-        anki.sound._player = lambda file: 1
-        anki.sound._queueEraser = lambda: 1
+            print("mpv too old, reverting to mplayer")
 
     # Collection load/unload
     ##########################################################################

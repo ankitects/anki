@@ -72,7 +72,7 @@ Anki manual for more information.""")
         if "Pyaudio not" in error:
             return showWarning(_("Please install PyAudio"))
         if "install mplayer" in error:
-            return showWarning(_("Please install mplayer"))
+            return showWarning(_("Sound and video on cards will not function until mpv or mplayer is installed."))
         if "no default input" in error.lower():
             return showWarning(_("Please connect a microphone, and ensure "
                                  "other programs are not using the audio device."))
