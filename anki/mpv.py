@@ -72,6 +72,7 @@ class MPVBase:
         "--no-terminal",
         "--force-window=no",
         "--ontop",
+        "--audio-display=no",
     ]
 
     def __init__(self, window_id=None, debug=False):
