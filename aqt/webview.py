@@ -160,20 +160,33 @@ class AnkiWebView(QWebEngineView):
         from aqt import mw
         if isMac:
             return 1
-        if isWin and mw.opts.lodpi:
-            return 1
         screen = QApplication.desktop().screen()
         dpi = screen.logicalDpiX()
         factor = dpi / 96.0
         if isLin:
             factor = max(1, factor)
             return factor
-        # compensate for qt's integer scaling
-        # on windows
-        qtIntScale = 72/screen.physicalDpiX()
+        # compensate for qt's integer scaling on windows
+        qtIntScale = self._getQtIntScale(screen)
         desiredScale = factor * qtIntScale
         newFactor = desiredScale / qtIntScale
-        return newFactor
+        return max(1, newFactor)
+
+    def _getQtIntScale(self, screen):
+        # try to detect if Qt has scaled the screen
+        # - qt will round the scale factor to a whole number, so a dpi of 125% = 1x,
+        #   and a dpi of 150% = 2x
+        # - a screen with a normal physical dpi of 72 will have a dpi of 32
+        #   if the scale factor has been rounded to 2x
+        # - different screens have different physical DPIs (eg 72, 93, 102)
+        # - until a better solution presents itself, assume a physical DPI at
+        #   or above 70 is unscaled
+        if screen.physicalDpiX() > 70:
+            return 1
+        elif screen.physicalDpiX() > 35:
+            return 2
+        else:
+            return 3
 
     def stdHtml(self, body, css=[], js=["jquery.js"], head=""):
         if isWin:
