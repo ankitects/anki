@@ -223,8 +223,6 @@ def parseArgs(argv):
     parser.add_option("-b", "--base", help="path to base folder")
     parser.add_option("-p", "--profile", help="profile name to load")
     parser.add_option("-l", "--lang", help="interface language (en, de, etc)")
-    parser.add_option("--lodpi", action="store_true", dest="lodpi",
-                      help="disable Qt's high DPI support")
     return parser.parse_args(argv[1:])
 
 def run():
@@ -261,8 +259,7 @@ def _run(argv=None, exec=True):
         ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
 
     # opt in to full hidpi support
-    if not opts.lodpi:
-        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     # create the app
     app = AnkiApp(argv)
