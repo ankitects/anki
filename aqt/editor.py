@@ -50,8 +50,8 @@ class Editor:
         # current card, for card layout
         self.card = None
         self.setupOuter()
-        self.setupShortcuts()
         self.setupWeb()
+        self.setupShortcuts()
         self.setupTags()
 
     # Initial setup
