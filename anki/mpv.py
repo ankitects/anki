@@ -138,26 +138,35 @@ class MPVBase:
         """Wait for the mpv process to create the unix socket and finish
            startup.
         """
-        # FIXME timeout to give up
-        while self.is_running():
+        start = time.time()
+        while self.is_running() and time.time() < start+10:
             time.sleep(0.1)
 
-            try:
-                if isWin:
+            if isWin:
+                # named pipe
+                try:
                     self._sock = win32file.CreateFile(r'\\.\pipe\ankimpv',
-                                                       win32file.GENERIC_READ | win32file.GENERIC_WRITE,
-                                                       0, None, win32file.OPEN_EXISTING, 0, None)
+                                                      win32file.GENERIC_READ | win32file.GENERIC_WRITE,
+                                                      0, None, win32file.OPEN_EXISTING, 0, None)
                     win32pipe.SetNamedPipeHandleState(self._sock,
                                                       1, # PIPE_NOWAIT
                                                       None, None)
+                except pywintypes.error as err:
+                    if err.args[0] == winerror.ERROR_FILE_NOT_FOUND:
+                        pass
+                    else:
+                        break
                 else:
+                    break
+            else:
+                # unix socket
+                try:
                     self._sock = socket.socket(socket.AF_UNIX)
                     self._sock.connect(self._sock_filename)
-            except (FileNotFoundError, ConnectionRefusedError):
-                continue
-            else:
-                break
-
+                except (FileNotFoundError, ConnectionRefusedError):
+                    continue
+                else:
+                    break
         else:
             raise MPVProcessError("unable to start process")
 
