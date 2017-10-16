@@ -114,9 +114,9 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     # catch /_anki references and rewrite them to web export folder
     def _redirectWebExports(self, path):
-        targetPath = os.path.join(os.getcwd(), "_anki")
+        targetPath = os.path.join(os.getcwd(), "_anki", "")
         if path.startswith(targetPath):
-            newPath = os.path.join(_exportFolder, path[len(targetPath)+1:])
+            newPath = os.path.join(_exportFolder, path[len(targetPath):])
             return newPath
         return path
 
