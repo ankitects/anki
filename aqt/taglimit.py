@@ -14,6 +14,10 @@ class TagLimit(QDialog):
         self.deck = self.parent.deck
         self.dialog = aqt.forms.taglimit.Ui_Dialog()
         self.dialog.setupUi(self)
+        s = QShortcut(QKeySequence("ctrl+d"), self.dialog.activeList, context=Qt.WidgetShortcut)
+        s.activated.connect(self.dialog.activeList.clearSelection)
+        s = QShortcut(QKeySequence("ctrl+d"), self.dialog.inactiveList, context=Qt.WidgetShortcut)
+        s.activated.connect(self.dialog.inactiveList.clearSelection)
         self.rebuildTagList()
         restoreGeom(self, "tagLimit")
         self.exec_()
