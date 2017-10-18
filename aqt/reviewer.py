@@ -159,10 +159,8 @@ class Reviewer:
         if c.isEmpty():
             q = _("""\
 The front of this card is empty. Please run Tools>Empty Cards.""")
-            a = ""
         else:
             q = c.q()
-            a = c.a()
         if self.autoplay(c):
             playFromText(q)
         # render & update bottom
@@ -386,11 +384,7 @@ Please run Tools>Empty Cards""")
         # compare in NFC form so accents appear correct
         given = ucd.normalize("NFC", given)
         correct = ucd.normalize("NFC", correct)
-        try:
-            s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
-        except:
-            # autojunk was added in python 2.7.1
-            s = difflib.SequenceMatcher(None, given, correct)
+        s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
         givenElems = []
         correctElems = []
         givenPoint = 0
@@ -535,7 +529,6 @@ time = %(time)d;
             return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
 
     def _answerButtons(self):
-        times = []
         default = self._defaultEase()
         def but(i, label):
             if i == default:
@@ -599,7 +592,7 @@ time = %(time)d;
         m = QMenu(self.mw)
         self._addMenuItems(m, opts)
 
-        runHook("Reviewer.contextMenuEvent",self,m)
+        runHook("Reviewer.contextMenuEvent", self, m)
         m.exec_(QCursor.pos())
 
     def _addMenuItems(self, m, rows):
