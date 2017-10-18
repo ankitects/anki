@@ -567,7 +567,7 @@ to a cloze type first, via Edit>Change Note Type."""))
     def urlToFile(self, url):
         l = url.lower()
         for suffix in pics+audio:
-            if l.endswith(suffix):
+            if l.endswith("." + suffix):
                 return self._retrieveURL(url)
         # not a supported type
         return
