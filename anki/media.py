@@ -189,15 +189,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         strings = []
         from anki.template.template import clozeReg
         def qrepl(m):
-            if m.group(3):
-                return "[%s]" % m.group(3)
+            if m.group(4):
+                return "[%s]" % m.group(4)
             else:
                 return "[...]"
         def arepl(m):
-            return m.group(1)
+            return m.group(2)
         for ord in ords:
             s = re.sub(clozeReg%ord, qrepl, string)
-            s = re.sub(clozeReg%".+?", "\\2", s)
+            s = re.sub(clozeReg%".+?", "\\4", s)
             strings.append(s)
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
