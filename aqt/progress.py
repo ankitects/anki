@@ -112,6 +112,7 @@ class ProgressManager:
         self._win.setCancelButton(None)
         self._win.setAutoClose(False)
         self._win.setAutoReset(False)
+        self._win.setWindowModality(Qt.ApplicationModal)
         self._win.setMinimumWidth(300)
         # we need to manually manage minimum time to show, as qt gets confused
         # by the db handler
