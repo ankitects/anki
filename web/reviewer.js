@@ -1,5 +1,6 @@
 var ankiPlatform = "desktop";
 var typeans;
+var _updatingQA = false;
 
 var qFade = 100;
 var aFade = 0;
@@ -14,6 +15,15 @@ function _runHook(arr) {
 }
 
 function _updateQA(html, fadeTime, onupdate, onshown) {
+    // if a request to update q/a comes in before the previous content
+    // has been loaded, wait a while and try again
+    if (_updatingQA) {
+        setTimeout(function () { _updateQA(html, fadeTime, onupdate, onshown) }, 50);
+        return;
+    }
+
+    _updatingQA = true;
+
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
 
@@ -38,6 +48,7 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         MathJax.Hub.Queue(function () {
             qa.fadeTo(fadeTime, 1, function () {
                 _runHook(onShownHook);
+                _updatingQA = false;
             });
         });
     });
