@@ -442,7 +442,7 @@ Please run Tools>Empty Cards""")
         self.web.evalWithCallback("typeans ? typeans.value : null", self._onTypedAnswer)
 
     def _onTypedAnswer(self, val):
-        self.typedAnswer = val
+        self.typedAnswer = val or ""
         self._showAnswer()
 
     # Bottom bar
