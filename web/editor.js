@@ -406,9 +406,9 @@ var filterNode = function (node) {
     } else if (prewrapMode && node.tagName === "BR") {
         node.outerHTML = "\n";
     } else if (prewrapMode && node.tagName === "DIV") {
-        convertBlockToNewline(node, false);
+        convertDivToNewline(node, false);
     } else if (prewrapMode && node.tagName === "P") {
-        convertBlockToNewline(node, true);
+        convertDivToNewline(node, true);
     } else {
         // allowed, filter out attributes
         var toRemove = [];
