@@ -24,6 +24,7 @@ from aqt.utils import shortcut, showInfo, showWarning, getFile, \
     openHelp, tooltip, downArrow
 import aqt
 from bs4 import BeautifulSoup
+import requests
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
 audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga")
@@ -584,13 +585,23 @@ to a cloze type first, via Edit>Change Note Type."""))
         if url.lower().startswith("file://"):
             url = url.replace("%", "%25")
             url = url.replace("#", "%23")
+            local = True
+        else:
+            local = False
         # fetch it into a temporary folder
         self.mw.progress.start(
             immediate=True, parent=self.parentWindow)
         try:
-            req = urllib.request.Request(url, None, {
-                'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
-            filecontents = urllib.request.urlopen(req).read()
+            if local:
+                req = urllib.request.Request(url, None, {
+                    'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
+                filecontents = urllib.request.urlopen(req).read()
+            else:
+                r = requests.get(url)
+                if r.status_code != 200:
+                    showWarning(_("Unexpected response code: %s") % r.status_code)
+                    return
+                filecontents = r.content
         except urllib.error.URLError as e:
             showWarning(_("An error occurred while opening %s") % e)
             return
