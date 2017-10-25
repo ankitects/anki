@@ -99,6 +99,8 @@ class AnkiWebView(QWebEngineView):
                 QShortcut(key, self,
                           context=Qt.WidgetWithChildrenShortcut,
                           activated=fn)
+            QShortcut(QKeySequence("ctrl+shift+v"), self,
+                      context=Qt.WidgetWithChildrenShortcut, activated=self.onPaste)
 
         self.focusProxy().installEventFilter(self)
 

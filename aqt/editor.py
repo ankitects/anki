@@ -646,8 +646,13 @@ to a cloze type first, via Edit>Change Note Type."""))
     def doPaste(self, html, internal):
         if not internal:
             html = self._pastePreFilter(html)
-        self.web.eval("pasteHTML(%s, %s);" % (
-            json.dumps(html), json.dumps(internal)))
+        extended = self.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        if extended:
+            extended = "true"
+        else:
+            extended = "false"
+        self.web.eval("pasteHTML(%s, %s, %s);" % (
+            json.dumps(html), json.dumps(internal), extended))
 
     def doDrop(self, html, internal):
         self.web.evalWithCallback("makeDropTargetCurrent();",
