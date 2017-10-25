@@ -297,13 +297,10 @@ class Editor:
                 self.web.setFocus()
             runHook("loadNote", self)
 
-        self.web.evalWithCallback("setFields(%s, %s); setFonts(%s); focusField(%s)" % (
-            json.dumps(data), json.dumps(self.prewrapMode()),
+        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s)" % (
+            json.dumps(data),
             json.dumps(self.fonts()), json.dumps(focusTo)),
                                   oncallback)
-
-    def prewrapMode(self):
-        return self.note.model().get('prewrap', False)
 
     def fonts(self):
         return [(f['font'], f['size'], f['rtl'])
@@ -616,10 +613,9 @@ to a cloze type first, via Edit>Change Note Type."""))
             for node in doc(tag):
                 node.decompose()
 
-        if not self.prewrapMode():
-          # convert p tags to divs
-          for node in doc("p"):
-              node.name = "div"
+        # convert p tags to divs
+        for node in doc("p"):
+            node.name = "div"
 
         for tag in doc("img"):
             try:

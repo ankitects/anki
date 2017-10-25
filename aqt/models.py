@@ -110,7 +110,6 @@ class Models(QDialog):
         frm.latexsvg.setChecked(self.model.get("latexsvg", False))
         frm.latexHeader.setText(self.model['latexPre'])
         frm.latexFooter.setText(self.model['latexPost'])
-        frm.newStyleWhitespace.setChecked(self.model.get("prewrap", False))
         d.setWindowTitle(_("Options for %s") % self.model['name'])
         frm.buttonBox.helpRequested.connect(lambda: openHelp("latex"))
         restoreGeom(d, "modelopts")
@@ -119,7 +118,6 @@ class Models(QDialog):
         self.model['latexsvg'] = frm.latexsvg.isChecked()
         self.model['latexPre'] = str(frm.latexHeader.toPlainText())
         self.model['latexPost'] = str(frm.latexFooter.toPlainText())
-        self.model['prewrap'] = frm.newStyleWhitespace.isChecked()
 
     def saveModel(self):
         self.mm.save(self.model)
