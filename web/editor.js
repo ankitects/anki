@@ -300,18 +300,18 @@ function hideDupes() {
     $("#dupes").hide();
 }
 
-var pasteHTML = function (html, internal) {
-    html = filterHTML(html, internal);
+var pasteHTML = function (html, internal, allowedTags) {
+    html = filterHTML(html, internal, allowedTags);
     setFormat("inserthtml", html);
 };
 
-var filterHTML = function (html, internal) {
+var filterHTML = function (html, internal, extendedMode) {
     // wrap it in <top> as we aren't allowed to change top level elements
     var top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0];
     if (internal) {
         filterInternalNode(top);
     }  else {
-        filterNode(top);
+        filterNode(top, extendedMode);
     }
     var outHtml = top.innerHTML;
     //console.log(`input html: ${html}`);
@@ -319,20 +319,31 @@ var filterHTML = function (html, internal) {
     return outHtml;
 };
 
-var allowedTags = {};
+var allowedTagsBasic = {};
+var allowedTagsExtended = {};
 
-var TAGS_WITHOUT_ATTRS = ["H1", "H2", "H3", "P", "DIV", "BR", "LI", "UL",
-    "OL", "B", "I", "U", "BLOCKQUOTE", "CODE", "EM",
-    "STRONG", "PRE", "SUB", "SUP", "TABLE", "DD", "DT", "DL"];
-for (var i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
-    allowedTags[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
+var TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR",
+    "B", "I", "U", "EM", "STRONG", "SUB", "SUP"];
+var i;
+for (i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
+    allowedTagsBasic[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
 }
 
-allowedTags["A"] = {"attrs": ["HREF"]};
-allowedTags["TR"] = {"attrs": ["ROWSPAN"]};
-allowedTags["TD"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
-allowedTags["TH"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
-allowedTags["IMG"] = {"attrs": ["SRC"]};
+TAGS_WITHOUT_ATTRS = ["H1", "H2", "H3", "LI", "UL", "BLOCKQUOTE", "CODE",
+    "PRE", "TABLE", "DD", "DT", "DL"];
+for (i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
+    allowedTagsExtended[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
+}
+
+allowedTagsBasic["IMG"] = {"attrs": ["SRC"]};
+
+allowedTagsExtended["A"] = {"attrs": ["HREF"]};
+allowedTagsExtended["TR"] = {"attrs": ["ROWSPAN"]};
+allowedTagsExtended["TD"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
+allowedTagsExtended["TH"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
+
+// add basic tags to extended
+Object.assign(allowedTagsExtended, allowedTagsBasic);
 
 // filtering from another field
 var filterInternalNode = function (node) {
@@ -348,7 +359,7 @@ var filterInternalNode = function (node) {
 };
 
 // filtering from external sources
-var filterNode = function (node) {
+var filterNode = function (node, extendedMode) {
     // text node?
     if (node.nodeType === 3) {
         return;
@@ -363,14 +374,19 @@ var filterNode = function (node) {
         nodes.push(node.childNodes[i]);
     }
     for (i = 0; i < nodes.length; i++) {
-        filterNode(nodes[i]);
+        filterNode(nodes[i], extendedMode);
     }
 
     if (node.tagName === "ANKITOP") {
         return;
     }
 
-    var tag = allowedTags[node.tagName];
+    var tag;
+    if (extendedMode) {
+        tag = allowedTagsExtended[node.tagName];
+    } else {
+        tag = allowedTagsBasic[node.tagName];
+    }
     if (!tag) {
         if (!node.innerHTML) {
             node.parentNode.removeChild(node);
