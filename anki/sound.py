@@ -53,7 +53,7 @@ processingChain = []
 recFiles = []
 
 processingChain = [
-    ["lame", "rec.wav", processingDst, "--noreplaygain", "--quiet"],
+    ["lame", processingSrc, processingDst, "--noreplaygain", "--quiet"],
     ]
 
 # don't show box on windows
@@ -277,6 +277,9 @@ class _Recorder:
                 ret = retryWait(subprocess.Popen(cmd, startupinfo=si, env=env))
             except:
                 ret = True
+            finally:
+                if os.path.exists(processingSrc):
+                    os.unlink(processingSrc)
             if ret:
                 raise Exception(_(
                     "Error running %s") %
