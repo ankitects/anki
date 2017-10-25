@@ -64,10 +64,6 @@ body {
     border-bottom: 3px solid #000;
 }
 
-.prewrap {
-    white-space: pre-wrap;
-}
-
 #fields {
     margin-top: 35px;
 }

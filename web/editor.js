@@ -1,7 +1,6 @@
 var currentField = null;
 var changeTimer = null;
 var dropTarget = null;
-var prewrapMode = false;
 
 String.prototype.format = function () {
     var args = arguments;
@@ -25,12 +24,6 @@ function onKey() {
     // esc clears focus, allowing dialog to close
     if (window.event.which === 27) {
         currentField.blur();
-        return;
-    }
-    // catch enter key in prewrap mode
-    if (window.event.which === 13 && prewrapMode) {
-        window.event.preventDefault();
-        insertNewline();
         return;
     }
     // shift+tab goes to previous field
@@ -264,7 +257,7 @@ function onCutOrCopy() {
     return true;
 }
 
-function setFields(fields, prewrap) {
+function setFields(fields) {
     var txt = "";
     for (var i = 0; i < fields.length; i++) {
         var n = fields[i][0];
@@ -282,10 +275,6 @@ function setFields(fields, prewrap) {
     }
     $("#fields").html("<table cellpadding=0 width=100%>" + txt + "</table>");
     maybeDisableButtons();
-    prewrapMode = prewrap;
-    if (prewrap) {
-        $(".field").addClass("prewrap");
-    }
 }
 
 function setBackgrounds(cols) {
@@ -345,29 +334,6 @@ allowedTags["TD"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
 allowedTags["TH"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
 allowedTags["IMG"] = {"attrs": ["SRC"]};
 
-var blockRegex = /^(address|blockquote|br|center|div|dl|h[1-6]|hr|ol|p|pre|table|ul|dd|dt|li|tbody|td|tfoot|th|thead|tr)$/i;
-function isBlockLevel(n) {
-    return blockRegex.test(n.nodeName);
-}
-
-function isInlineElement(n) {
-    return n && !isBlockLevel(n);
-}
-
-function convertDivToNewline(node, isParagraph) {
-    var html = node.innerHTML;
-    if (isInlineElement(node.previousSibling) && html) {
-        html = "\n" + html;
-    }
-    if (isInlineElement(node.nextSibling)) {
-        html += "\n";
-    }
-    if (isParagraph) {
-        html += "\n";
-    }
-    node.outerHTML = html;
-}
-
 // filtering from another field
 var filterInternalNode = function (node) {
     if (node.tagName === "SPAN") {
@@ -385,15 +351,6 @@ var filterInternalNode = function (node) {
 var filterNode = function (node) {
     // text node?
     if (node.nodeType === 3) {
-        if (prewrapMode) {
-            // collapse standard whitespace
-            var val = node.nodeValue.replace(/^[ \r\n\t]+$/g, " ");
-
-            // non-breaking spaces can be represented as normal spaces
-            val = val.replace(/&nbsp;|\u00a0/g, " ");
-
-            node.nodeValue = val;
-        }
         return;
     }
 
@@ -420,12 +377,6 @@ var filterNode = function (node) {
         } else {
             node.outerHTML = node.innerHTML;
         }
-    } else if (prewrapMode && node.tagName === "BR") {
-        node.outerHTML = "\n";
-    } else if (prewrapMode && node.tagName === "DIV") {
-        convertBlockToNewline(node, false);
-    } else if (prewrapMode && node.tagName === "P") {
-        convertBlockToNewline(node, true);
     } else {
         // allowed, filter out attributes
         var toRemove = [];
