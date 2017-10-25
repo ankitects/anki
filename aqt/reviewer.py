@@ -206,6 +206,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         c = self.card
         a = c.a()
         # play audio?
+        clearAudioQueue()
         if self.autoplay(c):
             playFromText(a)
         a = self._mungeQA(a)
