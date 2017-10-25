@@ -312,16 +312,18 @@ function hideDupes() {
 }
 
 var pasteHTML = function (html, internal) {
-    if (!internal) {
-        html = filterHTML(html);
-    }
+    html = filterHTML(html, internal);
     setFormat("inserthtml", html);
 };
 
-var filterHTML = function (html) {
+var filterHTML = function (html, internal) {
     // wrap it in <top> as we aren't allowed to change top level elements
     var top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0];
-    filterNode(top);
+    if (internal) {
+        filterInternalNode(top);
+    }  else {
+        filterNode(top);
+    }
     var outHtml = top.innerHTML;
     //console.log(`input html: ${html}`);
     //console.log(`outpt html: ${outHtml}`);
@@ -366,6 +368,20 @@ function convertDivToNewline(node, isParagraph) {
     node.outerHTML = html;
 }
 
+// filtering from another field
+var filterInternalNode = function (node) {
+    if (node.tagName === "SPAN") {
+        node.style.removeProperty("background-color");
+        node.style.removeProperty("font-size");
+        node.style.removeProperty("font-family");
+    }
+    // recurse
+    for (i = 0; i < node.childNodes.length; i++) {
+        filterInternalNode(node.childNodes[i]);
+    }
+};
+
+// filtering from external sources
 var filterNode = function (node) {
     // text node?
     if (node.nodeType === 3) {
