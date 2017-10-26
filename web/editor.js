@@ -353,7 +353,7 @@ var filterInternalNode = function (node) {
         node.style.removeProperty("font-family");
     }
     // recurse
-    for (i = 0; i < node.childNodes.length; i++) {
+    for (var i = 0; i < node.childNodes.length; i++) {
         filterInternalNode(node.childNodes[i]);
     }
 };
