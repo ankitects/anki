@@ -314,6 +314,8 @@ var filterHTML = function (html, internal, extendedMode) {
         filterNode(top, extendedMode);
     }
     var outHtml = top.innerHTML;
+    // remove newlines in HTML, as they break cloze deletions, and collapse whitespace
+    outHtml = outHtml.replace(/[\n\t ]+/g, " ").trim();
     //console.log(`input html: ${html}`);
     //console.log(`outpt html: ${outHtml}`);
     return outHtml;
