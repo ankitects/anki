@@ -300,8 +300,8 @@ function hideDupes() {
     $("#dupes").hide();
 }
 
-var pasteHTML = function (html, internal, allowedTags) {
-    html = filterHTML(html, internal, allowedTags);
+var pasteHTML = function (html, internal, extendedMode) {
+    html = filterHTML(html, internal, extendedMode);
     setFormat("inserthtml", html);
 };
 
