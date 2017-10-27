@@ -169,6 +169,9 @@ function onDragOver(elem) {
 
 function makeDropTargetCurrent() {
     dropTarget.focus();
+    // the focus event may not fire if the window is not active, so make sure
+    // the current field is set
+    currentField = dropTarget;
 }
 
 function onPaste(elem) {
