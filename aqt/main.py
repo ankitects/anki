@@ -331,6 +331,7 @@ Debug info:
             self.showProfileManager()
             return False
 
+        self.setEnabled(True)
         self.progress.setupDB(self.col.db)
         self.maybeEnableUndo()
         self.moveToState("deckBrowser")
@@ -338,6 +339,7 @@ Debug info:
 
     def unloadCollection(self, onsuccess):
         def callback():
+            self.setEnabled(False)
             self._unloadCollection()
             onsuccess()
 
