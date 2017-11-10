@@ -92,9 +92,7 @@ class MpvManager(MPV):
 
     def queueFile(self, file):
         path = os.path.join(os.getcwd(), file)
-        self.command("loadfile", path, "append")
-        self.set_property("playlist-pos", 0)
-        self.set_property("pause", False)
+        self.command("loadfile", path, "append-play")
 
     def clearQueue(self):
         self.command("stop")
