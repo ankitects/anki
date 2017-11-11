@@ -615,37 +615,45 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     removeTags = ["script", "iframe", "object", "style"]
 
-    def _pastePreFilter(self, html):
+    def _pastePreFilter(self, html, internal):
         with warnings.catch_warnings() as w:
             warnings.simplefilter('ignore', UserWarning)
             doc = BeautifulSoup(html, "html.parser")
 
-        for tag in self.removeTags:
-            for node in doc(tag):
-                node.decompose()
+        if not internal:
+            for tag in self.removeTags:
+                for node in doc(tag):
+                    node.decompose()
 
-        # convert p tags to divs
-        for node in doc("p"):
-            node.name = "div"
+            # convert p tags to divs
+            for node in doc("p"):
+                node.name = "div"
 
         for tag in doc("img"):
             try:
-                if self.isURL(tag['src']):
-                    # convert remote image links to local ones
-                    fname = self.urlToFile(tag['src'])
-                    if fname:
-                        tag['src'] = fname
+                src = tag['src']
             except KeyError:
                 # for some bizarre reason, mnemosyne removes src elements
                 # from missing media
-                pass
+                continue
+
+            # in internal pastes, rewrite mediasrv references to relative
+            if internal:
+                m = re.match("http://127.0.0.1:\d+/(.*)$", src)
+                if m:
+                    tag['src'] = m.group(1)
+            else:
+                # in external pastes, download remote media
+                if self.isURL(src):
+                    fname = self.urlToFile(src)
+                    if fname:
+                        tag['src'] = fname
 
         html = str(doc)
         return html
 
     def doPaste(self, html, internal):
-        if not internal:
-            html = self._pastePreFilter(html)
+        html = self._pastePreFilter(html, internal)
         extended = self.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
         if extended:
             extended = "true"
