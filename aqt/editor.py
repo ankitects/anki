@@ -855,6 +855,8 @@ class EditorWebView(AnkiWebView):
         # hash and rename
         csum = checksum(open(path, "rb").read())
         newpath = "{}-{}{}".format(uname, csum, ext)
+        if os.path.exists(newpath):
+            os.unlink(newpath)
         os.rename(path, newpath)
 
         # add to media and return resulting html link
