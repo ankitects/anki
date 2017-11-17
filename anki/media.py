@@ -128,9 +128,21 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def addFile(self, opath):
         return self.writeData(opath, open(opath, "rb").read())
 
-    def writeData(self, opath, data):
+    def writeData(self, opath, data, typeHint=None):
         # if fname is a full path, use only the basename
         fname = os.path.basename(opath)
+
+        # if it's missing an extension and a type hint was provided, use that
+        if not os.path.splitext(fname)[1] and typeHint:
+            # mimetypes is returning '.jpe' even after calling .init(), so we'll do
+            # it manually instead
+            typeMap = {
+                "image/jpeg": ".jpg",
+                "image/png": ".png",
+            }
+            if typeHint in typeMap:
+                fname += typeMap[typeHint]
+
         # make sure we write it in NFC form (on mac will autoconvert to NFD),
         # and return an NFC-encoded reference
         fname = unicodedata.normalize("NFC", fname)
