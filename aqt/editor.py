@@ -607,6 +607,8 @@ to a cloze type first, via Edit>Change Note Type."""))
             return
         finally:
             self.mw.progress.finish()
+        # strip off any query string
+        url = re.sub("\?.*?$", "", url)
         path = urllib.parse.unquote(url)
         return self.mw.col.media.writeData(path, filecontents)
 
@@ -645,7 +647,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             else:
                 # in external pastes, download remote media
                 if self.isURL(src):
-                    fname = self.urlToFile(src)
+                    fname = self._retrieveURL(src)
                     if fname:
                         tag['src'] = fname
 
