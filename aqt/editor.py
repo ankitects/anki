@@ -591,18 +591,23 @@ to a cloze type first, via Edit>Change Note Type."""))
         # fetch it into a temporary folder
         self.mw.progress.start(
             immediate=True, parent=self.parentWindow)
+        ct = None
         try:
             if local:
                 req = urllib.request.Request(url, None, {
                     'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
                 filecontents = urllib.request.urlopen(req).read()
             else:
-                r = requests.get(url)
+                r = requests.get(url, timeout=30)
                 if r.status_code != 200:
                     showWarning(_("Unexpected response code: %s") % r.status_code)
                     return
                 filecontents = r.content
+                ct = r.headers.get("content-type")
         except urllib.error.URLError as e:
+            showWarning(_("An error occurred while opening %s") % e)
+            return
+        except requests.exceptions.RequestException as e:
             showWarning(_("An error occurred while opening %s") % e)
             return
         finally:
@@ -610,7 +615,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         # strip off any query string
         url = re.sub("\?.*?$", "", url)
         path = urllib.parse.unquote(url)
-        return self.mw.col.media.writeData(path, filecontents)
+        return self.mw.col.media.writeData(path, filecontents, typeHint=ct)
 
     # Paste/drag&drop
     ######################################################################
