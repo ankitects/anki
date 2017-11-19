@@ -348,7 +348,9 @@ class AddonsDialog(QDialog):
         selected = self.selectedAddons()
         if not selected:
             return
-        if not askUser(_("Delete the %(num)d selected add-ons?") %
+        if not askUser(ngettext("Delete the %(num)d selected add-on?",
+                                "Delete the %(num)d selected add-ons?",
+                                len(selected)) %
                                dict(num=len(selected))):
             return
         for dir in selected:
