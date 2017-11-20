@@ -121,6 +121,18 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def dir(self):
         return self._dir
 
+    def _isFAT32(self):
+        if not isWin:
+            return
+        import win32api, win32file
+        try:
+                name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
+        except:
+            # mapped & unmapped network drive; pray that it's not vfat
+            return
+        if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
+                return True
+
     # Adding media
     ##########################################################################
     # opath must be in unicode
@@ -353,7 +365,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def findChanges(self):
         "Scan the media folder if it's changed, and note any changes."
-        self._logChanges()
+        if self._changed():
+            self._logChanges()
 
     def haveDirty(self):
         return self.db.scalar("select 1 from media where dirty=1 limit 1")
@@ -363,6 +376,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def _checksum(self, path):
         return checksum(open(path, "rb").read())
+
+    def _changed(self):
+        "Return dir mtime if it has changed since the last findChanges()"
+        # doesn't track edits, but user can add or remove a file to update
+        mod = self.db.scalar("select dirMod from meta")
+        mtime = self._mtime(self.dir())
+        if not self._isFAT32() and mod and mod == mtime:
+            return False
+        return mtime
 
     def _logChanges(self):
         (added, removed) = self._changes()
@@ -374,6 +396,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         # update media db
         self.db.executemany("insert or replace into media values (?,?,?,?)",
                             media)
+        self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
         self.db.commit()
 
     def _changes(self):
