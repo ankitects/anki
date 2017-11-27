@@ -113,7 +113,7 @@ automatically."""))
             elif t == "sanity":
                 m = _("Checking...")
             elif t == "findMedia":
-                m = _("Syncing...")
+                m = _("Checking media...")
             elif t == "upgradeRequired":
                 showText(_("""\
 Please visit AnkiWeb, upgrade your deck, then try again."""))
