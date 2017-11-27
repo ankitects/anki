@@ -1,3 +1,5 @@
+div { overflow-wrap: break-word; }
+
 hr {
     background-color: #ccc;
     margin: 1em;
