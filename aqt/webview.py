@@ -159,7 +159,11 @@ class AnkiWebView(QWebEngineView):
             oldFocus.setFocus()
 
     def zoomFactor(self):
-        from aqt import mw
+        # overridden scale factor?
+        webscale = os.environ.get("ANKI_WEBSCALE")
+        if webscale:
+            return float(webscale)
+
         if isMac:
             return 1
         screen = QApplication.desktop().screen()

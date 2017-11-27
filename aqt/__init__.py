@@ -258,8 +258,9 @@ def _run(argv=None, exec=True):
         import ctypes
         ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
 
-    # opt in to full hidpi support
-    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    # opt in to full hidpi support?
+    if not os.environ.get("ANKI_NOHIGHDPI"):
+        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     # create the app
     app = AnkiApp(argv)
