@@ -276,7 +276,7 @@ function setFields(fields) {
         txt += "contentEditable=true class=field>{0}</div>".format(f);
         txt += "</td></tr>";
     }
-    $("#fields").html("<table cellpadding=0 width=100%>" + txt + "</table>");
+    $("#fields").html("<table cellpadding=0 width=100% style='table-layout: fixed;'>" + txt + "</table>");
     maybeDisableButtons();
 }
 

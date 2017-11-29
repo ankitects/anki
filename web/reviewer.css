@@ -1,5 +1,3 @@
-div { overflow-wrap: break-word; }
-
 hr {
     background-color: #ccc;
     margin: 1em;
@@ -7,6 +5,7 @@ hr {
 
 body {
     margin: 1.5em;
+    overflow-wrap: break-word;
 }
 
 img {
