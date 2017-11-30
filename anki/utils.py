@@ -37,13 +37,13 @@ timeTable = {
     "seconds": lambda n: ngettext("%s second", "%s seconds", n),
     }
 
-afterTimeTable = {
-    "years": lambda n: ngettext("%s year<!--after-->", "%s years<!--after-->", n),
-    "months": lambda n: ngettext("%s month<!--after-->", "%s months<!--after-->", n),
-    "days": lambda n: ngettext("%s day<!--after-->", "%s days<!--after-->", n),
-    "hours": lambda n: ngettext("%s hour<!--after-->", "%s hours<!--after-->", n),
-    "minutes": lambda n: ngettext("%s minute<!--after-->", "%s minutes<!--after-->", n),
-    "seconds": lambda n: ngettext("%s second<!--after-->", "%s seconds<!--after-->", n),
+inTimeTable = {
+    "years": lambda n: ngettext("in %s year", "in %s years", n),
+    "months": lambda n: ngettext("in %s month", "in %s months", n),
+    "days": lambda n: ngettext("in %s day", "in %s days", n),
+    "hours": lambda n: ngettext("in %s hour", "in %s hours", n),
+    "minutes": lambda n: ngettext("in %s minute", "in %s minutes", n),
+    "seconds": lambda n: ngettext("in %s second", "in %s seconds", n),
     }
 
 def shortTimeFmt(type):
@@ -56,7 +56,7 @@ def shortTimeFmt(type):
     "seconds": _("%ss"),
     }[type]
 
-def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
+def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
     "Return a string representing a time span (eg '2 days')."
     (type, point) = optimalPeriod(time, point, unit)
     time = convertSecondsTo(time, type)
@@ -65,8 +65,8 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
     if short:
         fmt = shortTimeFmt(type)
     else:
-        if after:
-            fmt = afterTimeTable[type](_pluralCount(time, point))
+        if inTime:
+            fmt = inTimeTable[type](_pluralCount(time, point))
         else:
             fmt = timeTable[type](_pluralCount(time, point))
     timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
