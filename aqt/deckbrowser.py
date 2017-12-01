@@ -106,8 +106,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         cards = cards or 0
         thetime = thetime or 0
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        buf = _("Studied %(a)s in %(b)s today.") % dict(a=msgp1,
-                                                        b=fmtTimeSpan(thetime, unit=1))
+        buf = _("Studied %(a)s %(b)s today.") % dict(a=msgp1,
+                                                     b=fmtTimeSpan(thetime, unit=1, inTime=True))
         return buf
 
     def _countWarn(self):
