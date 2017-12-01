@@ -166,8 +166,8 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         def bold(s):
             return "<b>"+str(s)+"</b>"
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        b += _("Studied %(a)s in %(b)s today.") % dict(
-            a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1)))
+        b += _("Studied %(a)s %(b)s today.") % dict(
+            a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1, inTime=True)))
         # again/pass count
         b += "<br>" + _("Again count: %s") % bold(failed)
         if cards:
