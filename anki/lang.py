@@ -9,6 +9,7 @@ import threading
 langs = [
     ("Afrikaans", "af"),
     ("Bahasa Melayu", "ms"),
+    ("Català", "ca"),
     ("Dansk", "da"),
     ("Deutsch", "de"),
     ("Eesti", "et"),
