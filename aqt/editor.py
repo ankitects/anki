@@ -245,7 +245,7 @@ class Editor:
                     "editFocusLost", False, self.note, ord):
                     # something updated the note; update it after a subsequent focus
                     # event has had time to fire
-                    self.mw.progress.timer(100, self.loadNote, False)
+                    self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
                 else:
                     self.checkValid()
             else:
@@ -278,6 +278,9 @@ class Editor:
             self.hideCompleters()
             if hide:
                 self.widget.hide()
+
+    def loadNoteKeepingFocus(self):
+        self.loadNote(self.currentField)
 
     def loadNote(self, focusTo=None):
         if not self.note:
