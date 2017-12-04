@@ -8,6 +8,11 @@ body {
     overflow-wrap: break-word;
 }
 
+body.nightMode {
+    background-color: black;
+    color: white;
+}
+
 img {
     max-width: 95%;
     max-height: 95%;
