@@ -80,6 +80,7 @@ class Preferences(QDialog):
         f.timeLimit.setValue(qc['timeLim']/60.0)
         f.showEstimates.setChecked(qc['estTimes'])
         f.showProgress.setChecked(qc['dueCounts'])
+        f.nightMode.setChecked(qc.get("nightMode", False))
         f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
@@ -91,6 +92,7 @@ class Preferences(QDialog):
         qc['dueCounts'] = f.showProgress.isChecked()
         qc['estTimes'] = f.showEstimates.isChecked()
         qc['newSpread'] = f.newSpread.currentIndex()
+        qc['nightMode'] = f.nightMode.isChecked()
         qc['timeLim'] = f.timeLimit.value()*60
         qc['collapseTime'] = f.lrnCutoff.value()*60
         qc['addToCur'] = not f.useCurrent.currentIndex()

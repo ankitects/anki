@@ -79,6 +79,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="nightMode">
+         <property name="text">
+          <string>Show cards as white on black (night mode)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
@@ -429,6 +436,7 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>pastePNG</tabstop>
+  <tabstop>nightMode</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>

@@ -13,8 +13,9 @@ import json
 from aqt.qt import *
 import anki
 import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, isWin, intTime,\
-    isMac, isLin
+from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, \
+    isWin, intTime, \
+    isMac, isLin, bodyClass
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
@@ -1347,7 +1348,7 @@ where id in %s""" % ids2str(sf))
                 txt = c.a()
             txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
 
-            bodyclass="card card%d" % (c.ord+1)
+            bodyclass = bodyClass(self.mw.col, c)
 
             clearAudioQueue()
             if self.mw.reviewer.autoplay(c):

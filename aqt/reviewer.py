@@ -10,7 +10,7 @@ import html.parser
 
 from anki.lang import _, ngettext
 from aqt.qt import *
-from anki.utils import stripHTML, json
+from anki.utils import stripHTML, json, bodyClass
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, tooltip, askUserDialog, \
@@ -167,7 +167,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         q = self._mungeQA(q)
         q = runFilter("prepareQA", q, c, "reviewQuestion")
 
-        bodyclass = "card card%d" % (c.ord+1)
+        bodyclass = bodyClass(self.mw.col, c)
 
         self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
         self._drawFlag()

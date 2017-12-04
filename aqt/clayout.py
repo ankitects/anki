@@ -12,7 +12,7 @@ from anki.sound import playFromText, clearAudioQueue
 from aqt.utils import saveGeom, restoreGeom, mungeQA,\
     showInfo, askUser, getOnlyText, \
      showWarning, openHelp, downArrow
-from anki.utils import isMac, isWin, joinFields
+from anki.utils import isMac, isWin, joinFields, bodyClass
 from aqt.webview import AnkiWebView
 import json
 from anki.hooks import runFilter
@@ -297,7 +297,8 @@ Please create a new card type first."""))
 
         c = self.card
         ti = self.maybeTextInput
-        bodyclass="card card%d" % (c.ord+1)
+
+        bodyclass = bodyClass(self.mw.col, c)
 
         q = ti(mungeQA(self.mw.col, c.q(reload=True)))
         q = runFilter("prepareQA", q, c, "clayoutQuestion")

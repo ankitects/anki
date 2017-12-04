@@ -188,6 +188,12 @@ def entsToTxt(html):
         return text # leave as is
     return reEnts.sub(fixup, html)
 
+def bodyClass(col, card):
+    bodyclass = "card card%d" % (card.ord+1)
+    if col.conf.get("nightMode"):
+        bodyclass += " nightMode"
+    return bodyclass
+
 # IDs
 ##############################################################################
 
