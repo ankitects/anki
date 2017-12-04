@@ -69,8 +69,8 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
             fmt = inTimeTable[type](_pluralCount(time, point))
         else:
             fmt = timeTable[type](_pluralCount(time, point))
-    timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
-    return locale.format_string("%" + (fmt % timestr), time)
+    timestr = "%%%(a)d.%(b)df" % {'a': pad, 'b': point}
+    return locale.format_string(fmt % timestr, time)
 
 def optimalPeriod(time, point, unit):
     if abs(time) < 60 or unit < 1:
