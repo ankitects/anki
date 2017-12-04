@@ -169,8 +169,9 @@ class Editor:
                 )
 
     def setupShortcuts(self):
+        # if a third element is provided, enable shortcut even when no field selected
         cuts = [
-            ("Ctrl+L", self.onCardLayout),
+            ("Ctrl+L", self.onCardLayout, True),
             ("Ctrl+B", self.toggleBold),
             ("Ctrl+I", self.toggleItalic),
             ("Ctrl+U", self.toggleUnderline),
@@ -189,11 +190,23 @@ class Editor:
             ("Ctrl+M, M", self.insertMathjaxInline),
             ("Ctrl+M, E", self.insertMathjaxBlock),
             ("Ctrl+Shift+X", self.onHtmlEdit),
-            ("Ctrl+Shift+T", self.onFocusTags)
+            ("Ctrl+Shift+T", self.onFocusTags, True)
         ]
         runHook("setupEditorShortcuts", cuts, self)
-        for keys, fn in cuts:
+        for row in cuts:
+            if len(row) == 2:
+                keys, fn = row
+                fn = self._addFocusCheck(fn)
+            else:
+                keys, fn, _ = row
             QShortcut(QKeySequence(keys), self.widget, activated=fn)
+
+    def _addFocusCheck(self, fn):
+        def checkFocus():
+            if self.currentField is None:
+                return
+            fn()
+        return checkFocus
 
     def onFields(self):
         self.saveNow(self._onFields)
