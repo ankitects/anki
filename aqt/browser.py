@@ -23,7 +23,8 @@ from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
 from anki.hooks import runHook, addHook, remHook, runFilter
 from aqt.webview import AnkiWebView
 from anki.consts import *
-from anki.sound import playFromText, clearAudioQueue
+from anki.sound import playFromText, clearAudioQueue, allSounds, play
+
 
 # Data model
 ##########################################################################
@@ -1337,12 +1338,15 @@ where id in %s""" % ids2str(sf))
             txt = _("(please select 1 card)")
             bodyclass = ""
         else:
-            if self._previewBothSides:
-                self._previewState = "answer"
-            elif cardChanged:
-                self._previewState = "question"
             # need to force reload even if answer
             txt = c.q(reload=True)
+
+            questionAudio = []
+            if self._previewBothSides:
+                self._previewState = "answer"
+                questionAudio = allSounds(txt)
+            elif cardChanged:
+                self._previewState = "question"
             if self._previewState == "answer":
                 func = "_showAnswer"
                 txt = c.a()
@@ -1352,7 +1356,13 @@ where id in %s""" % ids2str(sf))
 
             clearAudioQueue()
             if self.mw.reviewer.autoplay(c):
-                playFromText(txt)
+                # if we're showing both sides at once, play question audio first
+                for audio in questionAudio:
+                    play(audio)
+                # then play any audio that hasn't already been played
+                for audio in allSounds(txt):
+                    if audio not in questionAudio:
+                        play(audio)
 
             txt = mungeQA(self.col, txt)
             txt = runFilter("prepareQA", txt, c,

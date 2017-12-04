@@ -13,8 +13,11 @@ from anki.utils import  tmpdir, isWin, isMac, isLin
 _soundReg = "\[sound:(.*?)\]"
 
 def playFromText(text):
-    for match in re.findall(_soundReg, text):
+    for match in allSounds(text):
         play(match)
+
+def allSounds(text):
+    return re.findall(_soundReg, text)
 
 def stripSounds(text):
     return re.sub(_soundReg, "", text)
