@@ -288,8 +288,9 @@ class _Recorder:
 
 class PyAudioThreadedRecorder(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, startupDelay):
         threading.Thread.__init__(self)
+        self.startupDelay = startupDelay
         self.finish = False
 
     def run(self):
@@ -297,6 +298,7 @@ class PyAudioThreadedRecorder(threading.Thread):
         p = pyaudio.PyAudio()
 
         rate = int(p.get_default_input_device_info()['defaultSampleRate'])
+        wait = int(rate * self.startupDelay)
 
         stream = p.open(format=PYAU_FORMAT,
                         channels=PYAU_CHANNELS,
@@ -304,6 +306,8 @@ class PyAudioThreadedRecorder(threading.Thread):
                         input=True,
                         input_device_index=PYAU_INPUT_INDEX,
                         frames_per_buffer=chunk)
+
+        stream.read(wait)
 
         data = b""
         while not self.finish:
@@ -325,6 +329,9 @@ class PyAudioThreadedRecorder(threading.Thread):
 
 class PyAudioRecorder(_Recorder):
 
+    # discard first 250ms which may have pops/cracks
+    startupDelay = 0.25
+
     def __init__(self):
         for t in recFiles + [processingSrc, processingDst]:
             try:
@@ -334,7 +341,7 @@ class PyAudioRecorder(_Recorder):
         self.encode = False
 
     def start(self):
-        self.thread = PyAudioThreadedRecorder()
+        self.thread = PyAudioThreadedRecorder(startupDelay=self.startupDelay)
         self.thread.start()
 
     def stop(self):
