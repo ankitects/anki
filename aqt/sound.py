@@ -22,6 +22,7 @@ def getAudio(parent, encode=True):
     mb.setEscapeButton(but)
     t = time.time()
     r.start()
+    time.sleep(r.startupDelay)
     QApplication.instance().processEvents()
     while not mb.clickedButton():
         txt =_("Recording...<br>Time: %0.1f")
