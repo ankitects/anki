@@ -217,7 +217,7 @@ function wrappedExceptForWhitespace(text, front, back) {
 }
 
 function disableButtons() {
-    $("button.linkb").prop("disabled", true);
+    $("button.linkb:not(.perm)").prop("disabled", true);
 }
 
 function enableButtons() {
