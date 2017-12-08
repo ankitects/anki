@@ -128,7 +128,7 @@ class Editor:
 
 
     def addButton(self, icon, cmd, func, tip="", label="", 
-                  id=None, toggleable=False, keys=None):
+                  id=None, toggleable=False, keys=None, disables=True):
         """Assign func to bridge cmd, register shortcut, return button"""
         if cmd not in self._links:
             self._links[cmd] = func
@@ -136,10 +136,11 @@ class Editor:
             QShortcut(QKeySequence(keys), self.widget,
                       activated = lambda s=self: func(s))
         btn = self._addButton(icon, cmd, tip=tip, label=label,
-                              id=id, toggleable=toggleable)
+                              id=id, toggleable=toggleable, disables=disables)
         return btn
 
-    def _addButton(self, icon, cmd, tip="", label="", id=None, toggleable=False):
+    def _addButton(self, icon, cmd, tip="", label="", id=None, toggleable=False,
+                   disables=True):
         if icon:
             if os.path.isabs(icon):
                 iconstr = self.resourceToData(icon)
@@ -161,11 +162,14 @@ class Editor:
         else:
             toggleScript = ''
         tip = shortcut(tip)
-        return ('''<button tabindex=-1 {id} class=linkb type="button" title="{tip}"'''
+        theclass = "linkb"
+        if not disables:
+            theclass += " perm"
+        return ('''<button tabindex=-1 {id} class="{theclass}" type="button" title="{tip}"'''
                 ''' onclick="pycmd('{cmd}');{togglesc}return false;">'''
                 '''{imgelm}{labelelm}</button>'''.format(
                         imgelm=imgelm, cmd=cmd, tip=tip, labelelm=labelelm, id=idstr,
-                        togglesc=toggleScript)
+                        togglesc=toggleScript, theclass=theclass)
                 )
 
     def setupShortcuts(self):
