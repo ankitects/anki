@@ -405,7 +405,8 @@ from the profile screen."))
         # do backup
         fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
         newpath = os.path.join(dir, fname)
-        data = open(path, "rb").read()
+        with open(path, "rb") as f:
+            data = f.read()
         b = self.BackupThread(newpath, data)
         b.start()
 
@@ -413,7 +414,7 @@ from the profile screen."))
         backups = []
         for file in os.listdir(dir):
             # only look for new-style format
-            m = re.match("backup-\d{4}-\d{2}-.+.colpkg", file)
+            m = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
             if not m:
                 continue
             backups.append(file)
@@ -1170,7 +1171,7 @@ will be lost. Continue?"""))
         tgt = tgt or self
         for action in tgt.findChildren(QAction):
             txt = str(action.text())
-            m = re.match("^(.+)\(&.+\)(.+)?", txt)
+            m = re.match(r"^(.+)\(&.+\)(.+)?", txt)
             if m:
                 action.setText(m.group(1) + (m.group(2) or ""))
 
