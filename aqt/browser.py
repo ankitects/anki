@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sre_constants
-import cgi
+import html
 import time
 import re
 from operator import  itemgetter
@@ -1740,7 +1740,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             t += '''<li><a href=# onclick="pycmd('%s')">%s</a>: %s</a>''' % (
                 "nid:" + ",".join(str(id) for id in nids),
                 ngettext("%d note", "%d notes", len(nids)) % len(nids),
-                cgi.escape(val))
+                html.escape(val))
         t += "</ol>"
         t += "</body></html>"
         web.setHtml(t)

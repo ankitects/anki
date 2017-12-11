@@ -4,7 +4,7 @@
 
 import difflib
 import re
-import cgi
+import html
 import unicodedata as ucd
 import html.parser
 
@@ -416,11 +416,11 @@ Please run Tools>Empty Cards""")
         "Diff-corrects the typed-in answer."
         givenElems, correctElems = self.tokenizeComparison(given, correct)
         def good(s):
-            return "<span class=typeGood>"+cgi.escape(s)+"</span>"
+            return "<span class=typeGood>"+html.escape(s)+"</span>"
         def bad(s):
-            return "<span class=typeBad>"+cgi.escape(s)+"</span>"
+            return "<span class=typeBad>"+html.escape(s)+"</span>"
         def missed(s):
-            return "<span class=typeMissed>"+cgi.escape(s)+"</span>"
+            return "<span class=typeMissed>"+html.escape(s)+"</span>"
         if given == correct:
             res = good(given)
         else:
