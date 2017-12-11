@@ -127,12 +127,14 @@ package in the LaTeX header instead.""") % bad
         return
     finally:
         os.chdir(oldcwd)
+        log.close()
 
 def _errMsg(type, texpath):
     msg = (_("Error executing %s.") % type) + "<br>"
     msg += (_("Generated file: %s") % texpath) + "<br>"
     try:
-        log = open(namedtmp("latex_log.txt", rm=False)).read()
+        with open(namedtmp("latex_log.txt", rm=False)) as f:
+            log = f.read()
         if not log:
             raise Exception()
         msg += "<small><pre>" + html.escape(log) + "</pre></small>"

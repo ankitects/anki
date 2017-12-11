@@ -138,7 +138,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # opath must be in unicode
 
     def addFile(self, opath):
-        return self.writeData(opath, open(opath, "rb").read())
+        with open(opath, "rb") as f:
+            return self.writeData(opath, f.read())
 
     def writeData(self, opath, data, typeHint=None):
         # if fname is a full path, use only the basename
@@ -171,11 +172,13 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             path = os.path.join(self.dir(), fname)
             # if it doesn't exist, copy it directly
             if not os.path.exists(path):
-                open(path, "wb").write(data)
+                with open(path, "wb") as f:
+                    f.write(data)
                 return fname
             # if it's identical, reuse
-            if checksum(open(path, "rb").read()) == csum:
-                return fname
+            with open(path, "rb") as f:
+                if checksum(f.read()) == csum:
+                    return fname
             # otherwise, increment the index in the filename
             reg = " \((\d+)\)$"
             if not re.search(reg, root):
@@ -375,7 +378,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return int(os.stat(path).st_mtime)
 
     def _checksum(self, path):
-        return checksum(open(path, "rb").read())
+        with open(path, "rb") as f:
+            return checksum(f.read())
 
     def _changed(self):
         "Return dir mtime if it has changed since the last findChanges()"
@@ -553,7 +557,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 else:
                     name = unicodedata.normalize("NFC", name)
                 # save file
-                open(name, "wb").write(data)
+                with open(name, "wb") as f:
+                    f.write(data)
                 # update db
                 media.append((name, csum, self._mtime(name), 0))
                 cnt += 1
