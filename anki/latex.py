@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re, os, shutil, cgi
+import re, os, shutil, html
 from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
@@ -135,7 +135,7 @@ def _errMsg(type, texpath):
         log = open(namedtmp("latex_log.txt", rm=False)).read()
         if not log:
             raise Exception()
-        msg += "<small><pre>" + cgi.escape(log) + "</pre></small>"
+        msg += "<small><pre>" + html.escape(log) + "</pre></small>"
     except:
         msg += _("Have you installed latex and dvipng/dvisvgm?")
         pass

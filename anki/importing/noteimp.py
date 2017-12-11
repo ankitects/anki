@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import  cgi
+import  html
 
 import unicodedata
 
@@ -125,7 +125,7 @@ class NoteImporter(Importer):
         for n in notes:
             for c in range(len(n.fields)):
                 if not self.allowHTML:
-                    n.fields[c] = cgi.escape(n.fields[c])
+                    n.fields[c] = html.escape(n.fields[c])
                 n.fields[c] = n.fields[c].strip()
                 if not self.allowHTML:
                     n.fields[c] = n.fields[c].replace("\n", "<br>")
