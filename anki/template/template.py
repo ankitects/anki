@@ -209,7 +209,9 @@ class Template:
     def _removeFormattingFromMathjax(self, txt, ord):
         opening = ["\\(", "\\["]
         closing = ["\\)", "\\]"]
-        regex = r"(\\[([])(.*?)"+(clozeReg%ord)+r"(.*?)(\\[\])])"
+        # flags in middle of expression deprecated
+        creg = clozeReg.replace("(?si)", "")
+        regex = r"(?si)(\\[([])(.*?)"+(creg%ord)+r"(.*?)(\\[\])])"
         def repl(m):
             enclosed = True
             for s in closing:
