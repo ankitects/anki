@@ -340,7 +340,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             dir = self.src.media.dir()
         path = os.path.join(dir, fname)
         try:
-            return open(path, "rb").read()
+            with open(path, "rb") as f:
+                return f.read()
         except (IOError, OSError):
             return
 
@@ -356,7 +357,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
         path = os.path.join(self.dst.media.dir(),
                             unicodedata.normalize("NFC", fname))
         try:
-            open(path, "wb").write(data)
+            with open(path, "wb") as f:
+                f.write(data)
         except (OSError, IOError):
             # the user likely used subdirectories
             pass

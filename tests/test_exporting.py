@@ -68,7 +68,8 @@ def test_export_anki():
 @nose.with_setup(setup1)
 def test_export_ankipkg():
     # add a test file to the media folder
-    open(os.path.join(deck.media.dir(), "今日.mp3"), "w").write("test")
+    with open(os.path.join(deck.media.dir(), "今日.mp3"), "w") as f:
+        f.write("test")
     n = deck.newNote()
     n['Front'] = '[sound:今日.mp3]'
     deck.addNote(n)

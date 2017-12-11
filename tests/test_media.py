@@ -12,13 +12,15 @@ def test_add():
     d = getEmptyCol()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
-    open(path, "w").write("hello")
+    with open(path, "w") as f:
+        f.write("hello")
     # new file, should preserve name
     assert d.media.addFile(path) == "foo.jpg"
     # adding the same file again should not create a duplicate
     assert d.media.addFile(path) == "foo.jpg"
     # but if it has a different md5, it should
-    open(path, "w").write("world")
+    with open(path, "w") as f:
+        f.write("world")
     assert d.media.addFile(path) == "foo (1).jpg"
 
 def test_strings():
@@ -61,7 +63,8 @@ def test_deckIntegration():
     f['Front'] = "one"; f['Back'] = "<img src='fake2.png'>"
     d.addNote(f)
     # and add another file which isn't used
-    open(os.path.join(d.media.dir(), "foo.jpg"), "w").write("test")
+    with open(os.path.join(d.media.dir(), "foo.jpg"), "w") as f:
+        f.write("test")
     # check media
     ret = d.media.check()
     assert ret[0] == ["fake2.png"]
@@ -78,7 +81,8 @@ def test_changes():
     # add a file
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
-    open(path, "w").write("hello")
+    with open(path, "w") as f:
+        f.write("hello")
     time.sleep(1)
     path = d.media.addFile(path)
     # should have been logged
@@ -87,12 +91,14 @@ def test_changes():
     assert not list(removed())
     # if we modify it, the cache won't notice
     time.sleep(1)
-    open(path, "w").write("world")
+    with open(path, "w") as f:
+        f.write("world")
     assert len(list(added())) == 1
     assert not list(removed())
     # but if we add another file, it will
     time.sleep(1)
-    open(path+"2", "w").write("yo")
+    with open(path+"2", "w") as f:
+        f.write("yo")
     d.media.findChanges()
     assert len(list(added())) == 2
     assert not list(removed())
