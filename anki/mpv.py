@@ -118,6 +118,7 @@ class MPVBase:
         if hasattr(self, "_proc"):
             try:
                 self._proc.terminate()
+                self._proc.wait()
             except ProcessLookupError:
                 pass
 
@@ -165,6 +166,7 @@ class MPVBase:
                     self._sock = socket.socket(socket.AF_UNIX)
                     self._sock.connect(self._sock_filename)
                 except (FileNotFoundError, ConnectionRefusedError):
+                    self._sock.close()
                     continue
                 else:
                     break
@@ -174,6 +176,8 @@ class MPVBase:
     def _stop_socket(self):
         """Clean up the socket.
         """
+        if hasattr(self, "_sock"):
+            self._sock.close()
         if hasattr(self, "_sock_filename"):
             try:
                 os.remove(self._sock_filename)
@@ -378,6 +382,7 @@ class MPVBase:
             self._stop_process()
         self._stop_thread()
         self._stop_socket()
+        self._stop_process()
 
 
 class MPV(MPVBase):
