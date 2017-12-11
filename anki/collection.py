@@ -840,7 +840,7 @@ and queue = 0""", intTime(), self.usn())
     def _openLog(self):
         if not self._debugLog:
             return
-        lpath = re.sub("\.anki2$", ".log", self.path)
+        lpath = re.sub(r"\.anki2$", ".log", self.path)
         if os.path.exists(lpath) and os.path.getsize(lpath) > 10*1024*1024:
             lpath2 = lpath + ".old"
             if os.path.exists(lpath2):
@@ -849,6 +849,7 @@ and queue = 0""", intTime(), self.usn())
         self._logHnd = open(lpath, "a", encoding="utf8")
 
     def _closeLog(self):
+        self._logHnd.close()
         self._logHnd = None
 
     # Card Flags
