@@ -849,6 +849,8 @@ and queue = 0""", intTime(), self.usn())
         self._logHnd = open(lpath, "a", encoding="utf8")
 
     def _closeLog(self):
+        if not self._debugLog:
+            return
         self._logHnd.close()
         self._logHnd = None
 
