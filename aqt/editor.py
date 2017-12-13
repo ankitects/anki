@@ -480,7 +480,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         # find the highest existing cloze
         highest = 0
         for name, val in list(self.note.items()):
-            m = re.findall("\{\{c(\d+)::", val)
+            m = re.findall(r"\{\{c(\d+)::", val)
             if m:
                 highest = max(highest, sorted([int(x) for x in m])[-1])
         # reuse last?
@@ -633,7 +633,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         finally:
             self.mw.progress.finish()
         # strip off any query string
-        url = re.sub("\?.*?$", "", url)
+        url = re.sub(r"\?.*?$", "", url)
         path = urllib.parse.unquote(url)
         return self.mw.col.media.writeData(path, filecontents, typeHint=ct)
 
@@ -666,7 +666,7 @@ to a cloze type first, via Edit>Change Note Type."""))
 
             # in internal pastes, rewrite mediasrv references to relative
             if internal:
-                m = re.match("http://127.0.0.1:\d+/(.*)$", src)
+                m = re.match(r"http://127.0.0.1:\d+/(.*)$", src)
                 if m:
                     tag['src'] = m.group(1)
             else:
