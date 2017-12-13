@@ -1350,7 +1350,7 @@ where id in %s""" % ids2str(sf))
             if self._previewState == "answer":
                 func = "_showAnswer"
                 txt = c.a()
-            txt = re.sub("\[\[type:[^]]+\]\]", "", txt)
+            txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
             bodyclass = bodyClass(self.mw.col, c)
 
