@@ -450,6 +450,19 @@ class Browser(QMainWindow):
         runHook('browser.setupMenus', self)
         self.mw.maybeHideAccelerators(self)
 
+        # context menu
+        self.form.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.form.tableView.customContextMenuRequested.connect(self.onContextMenu)
+
+    def onContextMenu(self, _point):
+        m = QMenu()
+        for act in self.form.menu_Cards.actions():
+            m.addAction(act)
+        m.addSeparator()
+        for act in self.form.menu_Notes.actions():
+            m.addAction(act)
+        m.exec_(QCursor.pos())
+
     def updateFont(self):
         # we can't choose different line heights efficiently, so we need
         # to pick a line height big enough for any card template
