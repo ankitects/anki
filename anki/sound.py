@@ -2,6 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import html
 import re, sys, threading, time, subprocess, os, atexit
 import  random
 from anki.hooks import addHook
@@ -14,6 +15,8 @@ _soundReg = "\[sound:(.*?)\]"
 
 def playFromText(text):
     for match in allSounds(text):
+        # filename is html encoded
+        match = html.unescape(match)
         play(match)
 
 def allSounds(text):
