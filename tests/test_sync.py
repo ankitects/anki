@@ -343,6 +343,7 @@ def test_filtered_delete():
     nid = deck1.db.scalar("select id from notes")
     note = deck1.getNote(nid)
     card = note.cards()[0]
+    card.queue = 2
     card.type = 2
     card.ivl = 10
     card.factor = STARTING_FACTOR

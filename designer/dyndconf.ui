@@ -82,23 +82,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="stepsOn">
-        <property name="text">
-         <string>Custom steps (in minutes)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="steps">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>1 10</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -132,8 +115,6 @@
   <tabstop>limit</tabstop>
   <tabstop>order</tabstop>
   <tabstop>resched</tabstop>
-  <tabstop>stepsOn</tabstop>
-  <tabstop>steps</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -167,22 +148,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>stepsOn</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>steps</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>126</x>
-     <y>207</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>272</x>
-     <y>205</y>
     </hint>
    </hints>
   </connection>

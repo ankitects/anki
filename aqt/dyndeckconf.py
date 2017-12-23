@@ -43,12 +43,6 @@ class DeckConf(QDialog):
         d = self.deck
         search, limit, order = d['terms'][0]
         f.search.setText(search)
-        if d['delays']:
-            f.steps.setText(self.listToUser(d['delays']))
-            f.stepsOn.setChecked(True)
-        else:
-            f.steps.setText("1 10")
-            f.stepsOn.setChecked(False)
         f.resched.setChecked(d['resched'])
         f.order.setCurrentIndex(order)
         f.limit.setValue(limit)
@@ -57,12 +51,6 @@ class DeckConf(QDialog):
         f = self.form
         d = self.deck
         d['delays'] = None
-        if f.stepsOn.isChecked():
-            steps = self.userToList(f.steps)
-            if steps:
-                d['delays'] = steps
-        else:
-            d['delays'] = None
         d['terms'][0] = [f.search.text(),
                          f.limit.value(),
                          f.order.currentIndex()]
