@@ -47,7 +47,7 @@ def test_review():
     assert d.sched.counts() == (1, 0, 0)
     c = d.sched.getCard()
     assert c.queue == 0
-    d.sched.answerCard(c, 2)
+    d.sched.answerCard(c, 3)
     assert c.left == 1001
     assert d.sched.counts() == (0, 1, 0)
     assert c.queue == 1
@@ -67,9 +67,9 @@ def test_review():
     d.reset()
     assert d.sched.counts() == (2, 0, 0)
     c = d.sched.getCard()
-    d.sched.answerCard(c, 2)
+    d.sched.answerCard(c, 3)
     c = d.sched.getCard()
-    d.sched.answerCard(c, 2)
+    d.sched.answerCard(c, 3)
     assert d.sched.counts() == (0, 2, 0)
     d.undo()
     d.reset()
@@ -79,7 +79,7 @@ def test_review():
     assert d.sched.counts() == (2, 0, 0)
     # performing a normal op will clear the review queue
     c = d.sched.getCard()
-    d.sched.answerCard(c, 2)
+    d.sched.answerCard(c, 3)
     assert d.undoName() == "Review"
     d.save("foo")
     assert d.undoName() == "foo"
