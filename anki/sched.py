@@ -63,18 +63,14 @@ class Scheduler:
             self._burySiblings(card)
         card.reps += 1
 
-        # filtered cards handled differently
-        if card.odid:
-            self._answerFilteredCard(card, ease)
-        else:
-            self._answerNormalCard(card, ease)
+        self._answerCard(card, ease)
 
         self._updateStats(card, 'time', card.timeTaken())
         card.mod = intTime()
         card.usn = self.col.usn()
         card.flushSched()
 
-    def _answerNormalCard(self, card, ease):
+    def _answerCard(self, card, ease):
         card.wasNew = card.type == 0
 
         if card.queue == 0:
@@ -85,23 +81,12 @@ class Scheduler:
             card.left = self._startingLeft(card)
             # update daily limit
             self._updateStats(card, 'new')
-
         if card.queue in (1, 3):
             self._answerLrnCard(card, ease)
-            #if not wasNewQ:
-            #    self._updateStats(card, 'lrn')
         elif card.queue == 2:
             self._answerRevCard(card, ease)
             # update daily limit
             self._updateStats(card, 'rev')
-
-    def _answerFilteredCard(self, card, ease):
-        # a review card that wasn't due?
-        if card.queue == 0 and card.type == 2:
-            self._answerEarlyRevCard(card, ease)
-            return
-
-        return self._answerNormalCard(card, ease)
 
     def counts(self, card=None):
         counts = [self.newCount, self.lrnCount, self.revCount]
@@ -844,20 +829,15 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _answerRevCard(self, card, ease):
         delay = 0
+        early = card.odid and (card.odue > self.today)
+        type = early and 3 or 2
         if ease == 1:
             delay = self._rescheduleLapse(card)
+        elif early:
+            self._rescheduleEarlyRev(card, ease)
         else:
             self._rescheduleRev(card, ease)
-        self._logRev(card, ease, delay)
-
-    def _answerEarlyRevCard(self, card, ease):
-        delay = 0
-        if ease == 1:
-            delay = self._rescheduleLapse(card)
-        else:
-            self._rescheduleEarlyRev(card, ease)
-
-        self._logRev(card, ease, delay, type=3)
+        self._logRev(card, ease, delay, type)
 
     def _rescheduleLapse(self, card):
         conf = self._lapseConf(card)
@@ -915,7 +895,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             card.odid = 0
             card.odue = 0
 
-    def _logRev(self, card, ease, delay, type=1):
+    def _logRev(self, card, ease, delay, type):
         def log():
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
@@ -1064,7 +1044,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
 
         self.col.db.execute("""
-update cards set did = odid, queue = (case when queue = 0 then type else queue end),
+update cards set did = odid,
 due = odue, odue = 0, odid = 0, usn = ? where %s""" % lim,
                             self.col.usn())
 
@@ -1127,20 +1107,11 @@ group by did
             # start at -100000 so that reviews are all due
             data.append((did, -100000+c, u, id))
 
-        # fixme: put due reviews in new queue in the future
-        queue = """
-(case
-when queue=2 and due<=%d then queue
-when queue in (1,3) then queue
-else 0 end)"""
-        queue %= self.today
-
         query = """
 update cards set
 odid = did, odue = due,
-did = ?, queue = %s, due = ?, usn = ? where id = ?
-""" % queue
-
+did = ?, due = ?, usn = ? where id = ?
+"""
         self.col.db.executemany(query, data)
 
     # Leeches
@@ -1331,22 +1302,25 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
-        if card.queue == 0 and card.type == 2 and ease > 1:
-            if self._resched(card):
-                return self._earlyReviewIvl(card, ease)*86400
-            else:
-                return 0
-        elif card.queue in (0,1,3):
+        # (re)learning?
+        if card.queue in (0,1,3):
             return self._nextLrnIvl(card, ease)
         elif ease == 1:
-            # lapsed
+            # lapse
             conf = self._lapseConf(card)
             if conf['delays']:
                 return conf['delays'][0]*60
             return self._lapseIvl(card, conf)*86400
         else:
             # review
-            return self._nextRevIvl(card, ease)*86400
+            early = card.odid and (card.odue > self.today)
+            if early:
+                if self._resched(card):
+                    return self._earlyReviewIvl(card, ease)*86400
+                else:
+                    return 0
+            else:
+                return self._nextRevIvl(card, ease)*86400
 
     # this isn't easily extracted from the learn code
     def _nextLrnIvl(self, card, ease):

@@ -566,10 +566,10 @@ def test_filt_reviewing_early_normal():
     did = d.decks.newDyn("Cram")
     d.sched.rebuildDyn(did)
     d.reset()
-    # should appear as new in the deck list
-    assert sorted(d.sched.deckDueList())[0][4] == 1
+    # should appear as normal in the deck list
+    assert sorted(d.sched.deckDueList())[0][2] == 1
     # and should appear in the counts
-    assert d.sched.counts() == (1,0,0)
+    assert d.sched.counts() == (0,0,1)
     # grab it and check estimates
     c = d.sched.getCard()
     assert d.sched.answerButtons(c) == 4
@@ -652,7 +652,7 @@ def test_filt_reschedoff():
     # undue reviews should also be unaffected
     c.ivl = 100
     c.type = 2
-    c.queue = 0
+    c.queue = 2
     c.due = d.sched.today + 25
     c.factor = STARTING_FACTOR
     c.flush()
@@ -847,14 +847,14 @@ def test_timing():
     # fail the first one
     d.reset()
     c = d.sched.getCard()
-    # set a a fail delay of 1 second so we don't have to wait
-    d.sched._cardConf(c)['lapse']['delays'][0] = 1/60.0
     d.sched.answerCard(c, 1)
     # the next card should be another review
-    c = d.sched.getCard()
-    assert c.queue == 2
-    # but if we wait for a second, the failed card should come back
-    time.sleep(1)
+    c2 = d.sched.getCard()
+    assert c2.queue == 2
+    # if the failed card becomes due, it should show first
+    c.due = time.time() - 1
+    c.flush()
+    d.reset()
     c = d.sched.getCard()
     assert c.queue == 1
 
