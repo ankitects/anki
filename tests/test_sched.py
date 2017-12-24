@@ -1067,3 +1067,30 @@ def test_failmult():
     # so the card is reset to new
     d.sched.answerCard(c, 1)
     assert c.ivl == 1
+
+# answering a new card with scheduling off should not change
+# the original position
+def test_preview_order():
+    d = getEmptyCol()
+    f = d.newNote()
+    f['Front'] = "oneone"
+    d.addNote(f)
+    f = d.newNote()
+    f['Front'] = "twotwo"
+    d.addNote(f)
+    assert d.getCard(d.findCards("oneone")[0]).due == 1
+    assert d.getCard(d.findCards("twotwo")[0]).due == 2
+
+    did = d.decks.newDyn("Cram")
+    cram = d.decks.get(did)
+    cram['resched'] = False
+    d.sched.rebuildDyn(did)
+    d.reset()
+
+    c = d.sched.getCard()
+    assert "oneone" in c.q()
+    d.sched.answerCard(c, 3)
+    d.sched.answerCard(c, 3)
+
+    assert c.due == 1
+
