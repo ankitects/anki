@@ -1,10 +1,9 @@
 hr {
     background-color: #ccc;
-    margin: 1em;
 }
 
 body {
-    margin: 1.5em;
+    margin: 10px;
     overflow-wrap: break-word;
 }
 
