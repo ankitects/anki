@@ -912,23 +912,22 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     # Interval management
     ##########################################################################
 
-    def _nextRevIvl(self, card, ease):
-        "Ideal next interval for CARD, given EASE."
+    def _nextRevIvl(self, card, ease, fuzz):
+        "Next review interval for CARD, given EASE."
         delay = self._daysLate(card)
         conf = self._revConf(card)
         fct = card.factor / 1000
-        ivl2 = self._constrainedIvl((card.ivl + delay // 4) * 1.2, conf, card.ivl)
-        ivl3 = self._constrainedIvl((card.ivl + delay // 2) * fct, conf, ivl2)
-        ivl4 = self._constrainedIvl(
-            (card.ivl + delay) * fct * conf['ease4'], conf, ivl3)
+        ivl2 = self._constrainedIvl((card.ivl + delay // 4) * 1.2, conf, card.ivl, fuzz)
         if ease == 2:
-            interval = ivl2
-        elif ease == 3:
-            interval = ivl3
-        elif ease == 4:
-            interval = ivl4
-        # interval capped?
-        return min(interval, conf['maxIvl'])
+            return ivl2
+
+        ivl3 = self._constrainedIvl((card.ivl + delay // 2) * fct, conf, ivl2, fuzz)
+        if ease == 3:
+            return ivl3
+
+        ivl4 = self._constrainedIvl(
+            (card.ivl + delay) * fct * conf['ease4'], conf, ivl3, fuzz)
+        return ivl4
 
     def _fuzzedIvl(self, ivl):
         min, max = self._fuzzIvlRange(ivl)
@@ -949,10 +948,13 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         fuzz = max(fuzz, 1)
         return [ivl-fuzz, ivl+fuzz]
 
-    def _constrainedIvl(self, ivl, conf, prev):
-        "Integer interval after interval factor and prev+1 constraints applied."
-        new = ivl * conf.get('ivlFct', 1)
-        return int(max(new, prev+1))
+    def _constrainedIvl(self, ivl, conf, prev, fuzz):
+        ivl = int(ivl * conf.get('ivlFct', 1))
+        if fuzz:
+            ivl = self._fuzzedIvl(ivl)
+        ivl = min(ivl, conf['maxIvl'])
+        ivl = max(ivl, prev+1, 1)
+        return int(ivl)
 
     def _daysLate(self, card):
         "Number of days later than scheduled."
@@ -960,14 +962,10 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         return max(0, self.today - due)
 
     def _updateRevIvl(self, card, ease):
-        idealIvl = self._nextRevIvl(card, ease)
-        card.ivl = min(max(self._fuzzedIvl(idealIvl), card.ivl+1),
-                       self._revConf(card)['maxIvl'])
+        card.ivl = self._nextRevIvl(card, ease, fuzz=True)
 
     def _updateEarlyRevIvl(self, card, ease):
-        idealIvl = self._earlyReviewIvl(card, ease)
-        card.ivl = min(max(self._fuzzedIvl(idealIvl), card.ivl+1),
-                       self._revConf(card)['maxIvl'])
+        card.ivl = self._earlyReviewIvl(card, ease)
 
     # next interval for card when answered early+correctly
     def _earlyReviewIvl(self, card, ease):
@@ -1000,10 +998,9 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         # cap interval decreases
         ivl = max(card.ivl*minNewIvl+easyBonus, ivl)
 
-        # don't require prev+1 for early
-        ivl = self._constrainedIvl(ivl, conf, 0)
+        ivl = self._constrainedIvl(ivl, conf, prev=0, fuzz=False)
 
-        return min(conf['maxIvl'], ivl)
+        return ivl
 
     # Dynamic deck handling
     ##########################################################################
@@ -1320,7 +1317,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
                 else:
                     return 0
             else:
-                return self._nextRevIvl(card, ease)*86400
+                return self._nextRevIvl(card, ease, fuzz=False)*86400
 
     # this isn't easily extracted from the learn code
     def _nextLrnIvl(self, card, ease):
