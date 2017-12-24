@@ -1094,3 +1094,29 @@ def test_preview_order():
 
     assert c.due == 1
 
+# answering a due review with scheduling off should not change scheduling
+def test_reviews_reschedoff():
+    d = getEmptyCol()
+    f = d.newNote()
+    f['Front'] = "one"
+    d.addNote(f)
+
+    c = f.cards()[0]
+    c.ivl = 100
+    c.queue = c.type = 2
+    c.due = d.sched.today
+    c.factor = 2500
+    c.flush()
+
+    did = d.decks.newDyn("Cram")
+    cram = d.decks.get(did)
+    cram['resched'] = False
+    d.sched.rebuildDyn(did)
+    d.reset()
+
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 4)
+
+    assert c.ivl == 100
+    assert c.due == d.sched.today
+    assert c.factor == 2500
