@@ -48,7 +48,7 @@ class MediaServer(threading.Thread):
     _ready = threading.Event()
 
     def run(self):
-        self.server = ThreadedHTTPServer(("localhost", 0), RequestHandler)
+        self.server = ThreadedHTTPServer(("127.0.0.1", 0), RequestHandler)
         self._ready.set()
         self.server.serve_forever()
 
