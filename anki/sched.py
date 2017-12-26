@@ -57,11 +57,10 @@ class Scheduler:
     def answerCard(self, card, ease):
         self.col.log()
         assert 1 <= ease <= 4
-        assert 0 <= card.queue <= 3
+        assert 0 <= card.queue <= 4
         self.col.markReview(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
-        card.reps += 1
 
         self._answerCard(card, ease)
 
@@ -71,6 +70,11 @@ class Scheduler:
         card.flushSched()
 
     def _answerCard(self, card, ease):
+        if self._previewingCard(card):
+            self._answerCardPreview(card, ease)
+            return
+
+        card.reps += 1
         card.wasNew = card.type == 0
 
         if card.queue == 0:
@@ -87,6 +91,22 @@ class Scheduler:
             self._answerRevCard(card, ease)
             # update daily limit
             self._updateStats(card, 'rev')
+
+    # hard-coded for now
+    _previewDelay = 600
+
+    def _answerCardPreview(self, card, ease):
+        assert 1 <= ease <= 2
+
+        if ease == 1:
+            # repeat after delay
+            card.queue = 4
+            card.due = intTime() + self._previewDelay
+            self.lrnCount += 1
+        else:
+            # restore original card state and remove from filtered deck
+            self._restoreFromFiltered(card)
+            self._removeFromFiltered(card)
 
     def counts(self, card=None):
         counts = [self.newCount, self.lrnCount, self.revCount]
@@ -117,23 +137,14 @@ order by due""" % self._deckLimit(),
         return ret
 
     def countIdx(self, card):
-        if card.queue == 3:
+        if card.queue in (3,4):
             return 1
         return card.queue
 
     def answerButtons(self, card):
         conf = self._cardConf(card)
-
-        # fixme: resched=off case
-        # if card.odid:
-        #     if not conf['resched']:
-        #         if card.queue == 2:
-        #             return 4
-        #         conf = self._lrnConf(card)
-        #         if card.type in (0,1) or len(conf['delays']) > 1:
-        #             return 3
-        #         return 2
-
+        if card.odid and not conf['resched']:
+            return 2
         return 4
 
     def unburyCards(self):
@@ -449,6 +460,10 @@ did in %s and queue = 1 and due < ? limit %d)""" % (
 select count() from cards where did in %s and queue = 3
 and due <= ? limit %d""" % (self._deckLimit(), self.reportLimit),
                                             self.today)
+        # previews
+        self.lrnCount += self.col.db.scalar("""
+select count() from cards where did in %s and queue = 4
+limit %d""" % (self._deckLimit(), self.reportLimit))
 
     def _resetLrn(self):
         self._resetLrnCount()
@@ -464,7 +479,7 @@ and due <= ? limit %d""" % (self._deckLimit(), self.reportLimit),
             return True
         self._lrnQueue = self.col.db.all("""
 select due, id from cards where
-did in %s and queue = 1 and due < :lim
+did in %s and queue in (1,4) and due < :lim
 limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()
@@ -478,7 +493,10 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 card = self.col.getCard(id)
-                self.lrnCount -= card.left // 1000
+                if self._previewingCard(card):
+                    self.lrnCount -= 1
+                else:
+                    self.lrnCount -= card.left // 1000
                 return card
 
     # daily learning
@@ -542,10 +560,9 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
     def _moveToFirstStep(self, card, conf):
         card.left = self._startingLeft(card)
-        resched = self._resched(card)
 
         card.lastIvl = card.ivl
-        if card.type == 2 and resched:
+        if card.type == 2:
             # review card that will move to relearning
             card.ivl = self._lapseIvl(card, self._lrnConf(card))
 
@@ -624,27 +641,15 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
     def _rescheduleAsRev(self, card, conf, early):
         lapse = card.type == 2
-        resched = self._resched(card)
 
-        if resched:
-            if lapse:
-                self._rescheduleGraduatingLapse(card)
-            else:
-                self._rescheduleNew(card, conf, early)
+        if lapse:
+            self._rescheduleGraduatingLapse(card)
+        else:
+            self._rescheduleNew(card, conf, early)
 
         # if we were dynamic, graduating means moving back to the old deck
         if card.odid:
-            # and leaving learning if scheduling off
-            if not resched:
-                card.due = card.odue
-                if card.type == 2:
-                    card.queue = 2
-                else:
-                    card.queue = card.type = 0
-
-            card.did = card.odid
-            card.odue = 0
-            card.odid = 0
+            self._removeFromFiltered(card)
 
     def _rescheduleGraduatingLapse(self, card):
         card.due = self.today+card.ivl
@@ -860,40 +865,28 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         # update interval
         card.lastIvl = card.ivl
 
-        if self._resched(card):
-            self._updateRevIvl(card, ease)
-            # then the rest
-            card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
-            card.due = self.today + card.ivl
-        else:
-            card.due = card.odue
+        self._updateRevIvl(card, ease)
+        # then the rest
+        card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
+        card.due = self.today + card.ivl
 
         # card leaves filtered deck
-        if card.odid:
-            card.did = card.odid
-            card.odid = 0
-            card.odue = 0
+        self._removeFromFiltered(card)
 
     def _rescheduleEarlyRev(self, card, ease):
         # update interval
         card.lastIvl = card.ivl
 
-        if self._resched(card):
-            self._updateEarlyRevIvl(card, ease)
-            # then the rest
-            card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
-            card.due = self.today + card.ivl
-        else:
-            card.due = card.odue
+        self._updateEarlyRevIvl(card, ease)
+        # then the rest
+        card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
+        card.due = self.today + card.ivl
 
         # move from 0->2
         card.queue = 2
 
         # card leaves filtered deck
-        if card.odid:
-            card.did = card.odid
-            card.odid = 0
-            card.odue = 0
+        self._removeFromFiltered(card)
 
     def _logRev(self, card, ease, delay, type):
         def log():
@@ -1111,6 +1104,25 @@ did = ?, due = ?, usn = ? where id = ?
 """
         self.col.db.executemany(query, data)
 
+    def _removeFromFiltered(self, card):
+        if card.odid:
+            card.did = card.odid
+            card.odue = 0
+            card.odid = 0
+
+    def _restoreFromFiltered(self, card):
+        assert card.odid
+
+        card.due = card.odue
+
+        if card.type in (0, 2):
+            card.queue = card.type
+        else:
+            if card.odue > 1000000000:
+                card.queue = 1
+            else:
+                card.queue = 3
+
     # Leeches
     ##########################################################################
 
@@ -1129,12 +1141,6 @@ did = ?, due = ?, usn = ? where id = ?
             # handle
             a = conf['leechAction']
             if a == 0:
-                # if it has an old due, remove it from cram/relearning
-                if card.odue:
-                    card.due = card.odue
-                if card.odid:
-                    card.did = card.odid
-                card.odue = card.odid = 0
                 card.queue = -1
             # notify UI
             runHook("leech", card)
@@ -1194,11 +1200,9 @@ did = ?, due = ?, usn = ? where id = ?
     def _deckLimit(self):
         return ids2str(self.col.decks.active())
 
-    def _resched(self, card):
+    def _previewingCard(self, card):
         conf = self._cardConf(card)
-        if not conf['dyn']:
-            return True
-        return conf['resched']
+        return conf['dyn'] and not conf['resched']
 
     # Daily cutoff
     ##########################################################################
@@ -1299,6 +1303,12 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
+        # preview mode?
+        if self._previewingCard(card):
+            if ease == 1:
+                return self._previewDelay
+            return 0
+
         # (re)learning?
         if card.queue in (0,1,3):
             return self._nextLrnIvl(card, ease)
@@ -1312,10 +1322,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             # review
             early = card.odid and (card.odue > self.today)
             if early:
-                if self._resched(card):
-                    return self._earlyReviewIvl(card, ease)*86400
-                else:
-                    return 0
+                return self._earlyReviewIvl(card, ease)*86400
             else:
                 return self._nextRevIvl(card, ease, fuzz=False)*86400
 
@@ -1330,16 +1337,11 @@ To study outside of the normal schedule, click the Custom Study button below."""
         elif ease == 2:
             return self._delayForRepeatingGrade(conf, card.left)
         elif ease == 4:
-            # early removal
-            if not self._resched(card):
-                return 0
             return self._graduatingIvl(card, conf, True, fuzz=False) * 86400
         else: # ease == 3
             left = card.left%1000 - 1
             if left <= 0:
                 # graduate
-                if not self._resched(card):
-                    return 0
                 return self._graduatingIvl(card, conf, False, fuzz=False) * 86400
             else:
                 return self._delayForGrade(conf, left)
