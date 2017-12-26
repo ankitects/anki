@@ -627,112 +627,51 @@ def test_filt_keep_lrn_state():
     c.load()
     assert c.type == c.queue == 1
 
-def test_filt_reschedoff():
-    # add card
+def test_preview():
+    # add cards
     d = getEmptyCol()
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
+    c = f.cards()[0]
+    orig = copy.copy(c)
+    f2 = d.newNote()
+    f2['Front'] = "two"
+    d.addNote(f2)
     # cram deck
     did = d.decks.newDyn("Cram")
     cram = d.decks.get(did)
     cram['resched'] = False
     d.sched.rebuildDyn(did)
     d.reset()
-    # graduate should return it to new
+    # grab the first card
     c = d.sched.getCard()
-    ni = d.sched.nextIvl
-    assert ni(c, 1) == 60
-    assert ni(c, 2) == (60+600)//2
-    assert ni(c, 3) == 600
-    assert ni(c, 4) == 0
-    assert d.sched.nextIvlStr(c, 4) == "(end)"
-    d.sched.answerCard(c, 4)
-    assert c.queue == c.type == 0
-    # undue reviews should also be unaffected
-    c.ivl = 100
-    c.type = 2
-    c.queue = 2
-    c.due = d.sched.today + 25
-    c.factor = STARTING_FACTOR
-    c.flush()
-    cardcopy = copy.copy(c)
-    d.sched.rebuildDyn(did)
-    d.reset()
+    assert d.sched.answerButtons(c) == 2
+    assert d.sched.nextIvl(c, 1) == d.sched._previewDelay
+    assert d.sched.nextIvl(c, 2) == 0
+    # failing it will push its due time back
+    due = c.due
+    d.sched.answerCard(c, 1)
+    assert c.due != due
+
+    # the other card should come next
+    c2 = d.sched.getCard()
+    assert c2.id != c.id
+
+    # passing it will remove it
+    d.sched.answerCard(c2, 2)
+
+    # the other card should appear again
     c = d.sched.getCard()
-    assert ni(c, 1) == 600
-    assert ni(c, 2) == 0
-    assert ni(c, 3) == 0
+    assert c.id == orig.id
+
+    # remove it
     d.sched.answerCard(c, 2)
-    assert c.ivl == 100
-    assert c.due == d.sched.today + 25
-    # check failure too
-    c = cardcopy
-    c.flush()
-    d.sched.rebuildDyn(did)
-    d.reset()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 1)
-    d.sched.emptyDyn(did)
-    c.load()
-    assert c.ivl == 100
-    assert c.due == d.sched.today + 25
-    # fail+grad early
-    c = cardcopy
-    c.flush()
-    d.sched.rebuildDyn(did)
-    d.reset()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 1)
-    d.sched.answerCard(c, 4)
-    d.sched.emptyDyn(did)
-    c.load()
-    assert c.ivl == 100
-    assert c.due == d.sched.today + 25
-    # due cards - pass
-    c = cardcopy
-    c.due = -25
-    c.flush()
-    d.sched.rebuildDyn(did)
-    d.reset()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 3)
-    d.sched.emptyDyn(did)
-    c.load()
-    assert c.ivl == 100
-    assert c.due == -25
-    # fail
-    c = cardcopy
-    c.due = -25
-    c.flush()
-    d.sched.rebuildDyn(did)
-    d.reset()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 1)
-    d.sched.emptyDyn(did)
-    c.load()
-    assert c.ivl == 100
-    assert c.due == -25
-    # fail with normal grad
-    c = cardcopy
-    c.due = -25
-    c.flush()
-    d.sched.rebuildDyn(did)
-    d.reset()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 1)
-    d.sched.answerCard(c, 4)
-    c.load()
-    assert c.ivl == 100
-    assert c.due == -25
-    # lapsed card pulled into cram
-    # d.sched._cardConf(c)['lapse']['mult']=0.5
-    # d.sched.answerCard(c, 1)
-    # d.sched.rebuildDyn(did)
-    # d.reset()
-    # c = d.sched.getCard()
-    # d.sched.answerCard(c, 2)
-    # print c.__dict__
+
+    # ensure it's in the same state as it started
+    assert c.queue == 0
+    assert c.reps == 0
+    assert c.type == 0
 
 def test_ordcycle():
     d = getEmptyCol()
@@ -1067,56 +1006,3 @@ def test_failmult():
     # so the card is reset to new
     d.sched.answerCard(c, 1)
     assert c.ivl == 1
-
-# answering a new card with scheduling off should not change
-# the original position
-def test_preview_order():
-    d = getEmptyCol()
-    f = d.newNote()
-    f['Front'] = "oneone"
-    d.addNote(f)
-    f = d.newNote()
-    f['Front'] = "twotwo"
-    d.addNote(f)
-    assert d.getCard(d.findCards("oneone")[0]).due == 1
-    assert d.getCard(d.findCards("twotwo")[0]).due == 2
-
-    did = d.decks.newDyn("Cram")
-    cram = d.decks.get(did)
-    cram['resched'] = False
-    d.sched.rebuildDyn(did)
-    d.reset()
-
-    c = d.sched.getCard()
-    assert "oneone" in c.q()
-    d.sched.answerCard(c, 3)
-    d.sched.answerCard(c, 3)
-
-    assert c.due == 1
-
-# answering a due review with scheduling off should not change scheduling
-def test_reviews_reschedoff():
-    d = getEmptyCol()
-    f = d.newNote()
-    f['Front'] = "one"
-    d.addNote(f)
-
-    c = f.cards()[0]
-    c.ivl = 100
-    c.queue = c.type = 2
-    c.due = d.sched.today
-    c.factor = 2500
-    c.flush()
-
-    did = d.decks.newDyn("Cram")
-    cram = d.decks.get(did)
-    cram['resched'] = False
-    d.sched.rebuildDyn(did)
-    d.reset()
-
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 4)
-
-    assert c.ivl == 100
-    assert c.due == d.sched.today
-    assert c.factor == 2500
