@@ -182,24 +182,13 @@ def test_relearn():
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.queue == 1
-    assert c.type == 2
+    assert c.type == 3
     assert c.ivl == 1
 
     # immediately graduate it
     d.sched.answerCard(c, 4)
     assert c.queue == c.type == 2
     assert c.ivl == 1
-    assert c.due == d.sched.today + c.ivl
-
-    # if forced out of learning, it should have the correct due date
-    c.ivl = 100
-    c.due = d.sched.today
-    c.flush()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 1)
-    assert c.due > intTime()
-    d.sched.removeLrn([c.id])
-    c.load()
     assert c.due == d.sched.today + c.ivl
 
 def test_learn_collapsed():
@@ -525,14 +514,15 @@ def test_suspend():
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.due >= time.time()
+    due = c.due
     assert c.queue == 1
-    assert c.type == 2
+    assert c.type == 3
     d.sched.suspendCards([c.id])
     d.sched.unsuspendCards([c.id])
     c.load()
-    assert c.queue == 2
-    assert c.type == 2
-    assert c.due == 1
+    assert c.queue == 1
+    assert c.type == 3
+    assert c.due == due
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
@@ -543,8 +533,9 @@ def test_suspend():
     assert c.did != 1
     d.sched.suspendCards([c.id])
     c.load()
-    assert c.due == 1
-    assert c.did == 1
+    assert c.due != 1
+    assert c.did != 1
+    assert c.odue == 1
 
 def test_filt_reviewing_early_normal():
     d = getEmptyCol()
@@ -660,15 +651,17 @@ def test_preview():
 
     # passing it will remove it
     d.sched.answerCard(c2, 2)
+    assert c2.queue == 0
+    assert c2.reps == 0
+    assert c2.type == 0
 
     # the other card should appear again
     c = d.sched.getCard()
     assert c.id == orig.id
 
-    # remove it
-    d.sched.answerCard(c, 2)
-
-    # ensure it's in the same state as it started
+    # emptying the filtered deck should restore card
+    d.sched.emptyDyn(did)
+    c.load()
     assert c.queue == 0
     assert c.reps == 0
     assert c.type == 0

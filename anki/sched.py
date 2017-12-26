@@ -14,7 +14,9 @@ from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
 
-# queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
+# card types: 0=new, 1=lrn, 2=rev, 3=relrn
+# queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
+#   4=preview, -1=suspended, -2=buried
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 # odue/odid store original due/did when cards moved to filtered deck
@@ -146,23 +148,6 @@ order by due""" % self._deckLimit(),
         if card.odid and not conf['resched']:
             return 2
         return 4
-
-    def unburyCards(self):
-        "Unbury cards."
-        self.col.conf['lastUnburied'] = self.today
-        self.col.log(
-            self.col.db.list("select id from cards where queue = -2"))
-        self.col.db.execute(
-            "update cards set queue=type where queue = -2")
-
-    def unburyCardsForDeck(self):
-        sids = ids2str(self.col.decks.active())
-        self.col.log(
-            self.col.db.list("select id from cards where queue = -2 and did in %s"
-                             % sids))
-        self.col.db.execute(
-            "update cards set mod=?,usn=?,queue=type where queue = -2 and did in %s"
-            % sids, intTime(), self.col.usn())
 
     # Rev/lrn/time daily stats
     ##########################################################################
@@ -562,18 +547,16 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.left = self._startingLeft(card)
 
         card.lastIvl = card.ivl
-        if card.type == 2:
-            # review card that will move to relearning
+
+        # relearning card?
+        if card.type in (2,3):
             card.ivl = self._lapseIvl(card, self._lrnConf(card))
 
-            if card.queue not in (1,3):
+            # moving from review queue?
+            if card.type == 2:
+                card.type = 3
                 card.lapses += 1
                 card.factor = max(1300, card.factor-200)
-
-            # if no relearning steps, reschedule as review immediately
-            if not conf['delays']:
-                self._rescheduleAsRev(card, conf, False)
-                return
 
         return self._rescheduleLrnCard(card, conf)
 
@@ -634,13 +617,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return avg
 
     def _lrnConf(self, card):
-        if card.type == 2:
+        if card.type in (2, 3):
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
     def _rescheduleAsRev(self, card, conf, early):
-        lapse = card.type == 2
+        lapse = card.type in (2,3)
 
         if lapse:
             self._rescheduleGraduatingLapse(card)
@@ -654,6 +637,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
     def _rescheduleGraduatingLapse(self, card):
         card.due = self.today+card.ivl
         card.queue = 2
+        card.type = 2
 
     def _startingLeft(self, card):
         if card.type == 2:
@@ -711,26 +695,6 @@ did = ? and queue = 3 and due <= ? limit ?""",
             # duplicate pk; retry in 10ms
             time.sleep(0.01)
             log()
-
-    def removeLrn(self, ids=None):
-        "Remove cards from the learning queues."
-        if ids:
-            extra = " and id in "+ids2str(ids)
-        else:
-            # benchmarks indicate it's about 10x faster to search all decks
-            # with the index than scan the table
-            extra = " and did in "+ids2str(self.col.decks.allIds())
-        # review cards in relearning
-        self.col.db.execute("""
-update cards set
-due = ivl+?, queue = 2, mod = %d, usn = %d,
-odue = 0 -- older anki versions set odue when cards in relearning
-where queue in (1,3) and type = 2
-%s
-""" % (intTime(), self.col.usn(), extra), self.today)
-        # new cards in learning
-        self.forgetCards(self.col.db.list(
-            "select id from cards where queue in (1,3) %s" % extra))
 
     def _lrnForDeck(self, did):
         cnt = self.col.db.scalar(
@@ -846,7 +810,11 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _rescheduleLapse(self, card):
         conf = self._lapseConf(card)
-        delay = self._moveToFirstStep(card, conf)
+        if conf['delays']:
+            delay = self._moveToFirstStep(card, conf)
+        else:
+            # no relearning steps
+            self._rescheduleAsRev(card, conf, early=False)
 
         # if suspended as a leech, nothing to do
         if self._checkLeech(card, conf) and card.queue == -1:
@@ -1033,9 +1001,11 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
 
+        # update queue in preview case
         self.col.db.execute("""
-update cards set did = odid,
-due = odue, odue = 0, odid = 0, usn = ? where %s""" % lim,
+update cards set did = odid, %s,
+due = odue, odue = 0, odid = 0, usn = ? where %s""" % (
+            self._restoreQueueSnippet, lim),
                             self.col.usn())
 
     def remFromDyn(self, cids):
@@ -1346,14 +1316,22 @@ To study outside of the normal schedule, click the Custom Study button below."""
             else:
                 return self._delayForGrade(conf, left)
 
-    # Suspending
+    # Suspending & burying
     ##########################################################################
+
+    # learning and relearning cards may be seconds-based or day-based;
+    # other types map directly to queues
+    _restoreQueueSnippet = """
+queue = (case when type in (1,3) then
+  (case when (case when odue then odue else due end) > 1000000000 then 1 else 3 end)
+else
+  type
+end)    
+"""
 
     def suspendCards(self, ids):
         "Suspend cards."
         self.col.log(ids)
-        self.remFromDyn(ids)
-        self.removeLrn(ids)
         self.col.db.execute(
             "update cards set queue=-1,mod=?,usn=? where id in "+
             ids2str(ids), intTime(), self.col.usn())
@@ -1362,14 +1340,12 @@ To study outside of the normal schedule, click the Custom Study button below."""
         "Unsuspend cards."
         self.col.log(ids)
         self.col.db.execute(
-            "update cards set queue=type,mod=?,usn=? "
-            "where queue = -1 and id in "+ ids2str(ids),
+            ("update cards set %s,mod=?,usn=? "
+            "where queue = -1 and id in %s") % (self._restoreQueueSnippet, ids2str(ids)),
             intTime(), self.col.usn())
 
     def buryCards(self, cids):
         self.col.log(cids)
-        self.remFromDyn(cids)
-        self.removeLrn(cids)
         self.col.db.execute("""
 update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
                             intTime(), self.col.usn())
@@ -1379,6 +1355,23 @@ update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
         cids = self.col.db.list(
             "select id from cards where nid = ? and queue >= 0", nid)
         self.buryCards(cids)
+
+    def unburyCards(self):
+        "Unbury cards."
+        self.col.conf['lastUnburied'] = self.today
+        self.col.log(
+            self.col.db.list("select id from cards where queue = -2"))
+        self.col.db.execute(
+            "update cards set %s where queue = -2" % self._restoreQueueSnippet)
+
+    def unburyCardsForDeck(self):
+        sids = ids2str(self.col.decks.active())
+        self.col.log(
+            self.col.db.list("select id from cards where queue = -2 and did in %s"
+                             % sids))
+        self.col.db.execute(
+            "update cards set mod=?,usn=?,%s where queue = -2 and did in %s"
+            % (self._restoreQueueSnippet, sids), intTime(), self.col.usn())
 
     # Sibling spacing
     ##########################################################################
