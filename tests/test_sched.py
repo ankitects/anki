@@ -478,19 +478,40 @@ def test_nextIvl():
     assert ni(c, 4) == 28080000
     assert d.sched.nextIvlStr(c, 4) == "10.8 months"
 
-def test_misc():
+def test_bury():
     d = getEmptyCol()
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
     c = f.cards()[0]
+    f = d.newNote()
+    f['Front'] = "two"
+    d.addNote(f)
+    c2 = f.cards()[0]
     # burying
-    d.sched.buryNote(c.nid)
+    d.sched.buryCards([c.id], manual=True)
+    c.load()
+    assert c.queue == -3
+    d.sched.buryCards([c2.id], manual=False)
+    c2.load()
+    assert c2.queue == -2
+
     d.reset()
     assert not d.sched.getCard()
-    d.sched.unburyCards()
+
+    d.sched.unburyCardsForDeck(type="manual")
+    c.load(); assert c.queue == 0
+    c2.load(); assert c2.queue == -2
+
+    d.sched.unburyCardsForDeck(type="siblings")
+    c2.load(); assert c2.queue == 0
+
+    d.sched.buryCards([c.id, c2.id])
+    d.sched.unburyCardsForDeck(type="all")
+
     d.reset()
-    assert d.sched.getCard()
+
+    assert d.sched.counts() == (2, 0, 0)
 
 def test_suspend():
     d = getEmptyCol()
