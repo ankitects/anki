@@ -16,7 +16,7 @@ from anki.hooks import runHook
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
-#   4=preview, -1=suspended, -2=buried
+#   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 # odue/odid store original due/did when cards moved to filtered deck
@@ -1198,6 +1198,7 @@ did = ?, due = ?, usn = ? where id = ?
         unburied = self.col.conf.get("lastUnburied", 0)
         if unburied < self.today:
             self.unburyCards()
+            self.col.conf['lastUnburied'] = self.today
 
     def _checkDay(self):
         # check if the day has rolled over
@@ -1252,11 +1253,20 @@ To study outside of the normal schedule, click the Custom Study button below."""
             ("select 1 from cards where did in %s and queue = 0 "
              "limit 1") % self._deckLimit())
 
-    def haveBuried(self):
+    def haveBuriedSiblings(self):
         sdids = ids2str(self.col.decks.active())
         cnt = self.col.db.scalar(
             "select 1 from cards where queue = -2 and did in %s limit 1" % sdids)
         return not not cnt
+
+    def haveManuallyBuried(self):
+        sdids = ids2str(self.col.decks.active())
+        cnt = self.col.db.scalar(
+            "select 1 from cards where queue = -3 and did in %s limit 1" % sdids)
+        return not not cnt
+
+    def haveBuried(self):
+        return self.haveManuallyBuried() or self.haveBuriedSiblings()
 
     # Next time reports
     ##########################################################################
@@ -1344,11 +1354,12 @@ end)
             "where queue = -1 and id in %s") % (self._restoreQueueSnippet, ids2str(ids)),
             intTime(), self.col.usn())
 
-    def buryCards(self, cids):
+    def buryCards(self, cids, manual=True):
+        queue = manual and -3 or -2
         self.col.log(cids)
         self.col.db.execute("""
-update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
-                            intTime(), self.col.usn())
+update cards set queue=?,mod=?,usn=? where id in """+ids2str(cids),
+                            queue, intTime(), self.col.usn())
 
     def buryNote(self, nid):
         "Bury all cards for note until next session."
@@ -1357,21 +1368,29 @@ update cards set queue=-2,mod=?,usn=? where id in """+ids2str(cids),
         self.buryCards(cids)
 
     def unburyCards(self):
-        "Unbury cards."
-        self.col.conf['lastUnburied'] = self.today
+        "Unbury all buried cards in all decks."
         self.col.log(
-            self.col.db.list("select id from cards where queue = -2"))
+            self.col.db.list("select id from cards where queue in (-2, -3)"))
         self.col.db.execute(
-            "update cards set %s where queue = -2" % self._restoreQueueSnippet)
+            "update cards set %s where queue in (-2, -3)" % self._restoreQueueSnippet)
 
-    def unburyCardsForDeck(self):
+    def unburyCardsForDeck(self, type="all"):
+        if type == "all":
+            queue = "queue in (-2, -3)"
+        elif type == "manual":
+            queue = "queue = -3"
+        elif type == "siblings":
+            queue = "queue = -2"
+        else:
+            raise Exception("unknown type")
+
         sids = ids2str(self.col.decks.active())
         self.col.log(
-            self.col.db.list("select id from cards where queue = -2 and did in %s"
-                             % sids))
+            self.col.db.list("select id from cards where %s and did in %s"
+                             % (queue, sids)))
         self.col.db.execute(
-            "update cards set mod=?,usn=?,%s where queue = -2 and did in %s"
-            % (self._restoreQueueSnippet, sids), intTime(), self.col.usn())
+            "update cards set mod=?,usn=?,%s where %s and did in %s"
+            % (self._restoreQueueSnippet, queue, sids), intTime(), self.col.usn())
 
     # Sibling spacing
     ##########################################################################
@@ -1405,10 +1424,7 @@ and (queue=0 or (queue=2 and due<=?))""",
                     pass
         # then bury
         if toBury:
-            self.col.db.execute(
-                "update cards set queue=-2,mod=?,usn=? where id in "+ids2str(toBury),
-                intTime(), self.col.usn())
-            self.col.log(toBury)
+            self.buryCards(toBury, manual=False)
 
     # Resetting
     ##########################################################################
