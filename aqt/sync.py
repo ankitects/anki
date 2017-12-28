@@ -46,12 +46,12 @@ class SyncManager(QObject):
             auth=auth, media=self.pm.profile['syncMedia'])
         t.event.connect(self.onEvent)
         self.label = _("Connecting...")
-        prog = self.mw.progress.start(immediate=True, label=self.label, cancellable=True)
+        prog = self.mw.progress.start(immediate=True, label=self.label)
         self.sentBytes = self.recvBytes = 0
         self._updateLabel()
         self.thread.start()
         while not self.thread.isFinished():
-            if prog.ankiCancel:
+            if prog.wantCancel:
                 self.thread.flagAbort()
                 # make sure we don't display 'upload success' msg
                 self._didFullUp = False
