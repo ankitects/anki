@@ -17,7 +17,7 @@ from anki.hooks import runHook
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
-# revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
+# revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 # odue/odid store original due/did when cards moved to filtered deck
 
@@ -516,7 +516,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
     def _answerLrnCard(self, card, ease):
         conf = self._lrnConf(card)
-        if card.type == 2:
+        if card.type in (2,3):
             type = 2
         else:
             type = 0
