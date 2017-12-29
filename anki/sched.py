@@ -238,9 +238,11 @@ order by due""" % self._deckLimit(),
             # learning
             lrn = self._lrnForDeck(deck['id'])
             # reviews
-            rlim = self._deckRevLimitSingle(deck)
             if p:
-                rlim = min(rlim, lims[p][1])
+                plim = lims[p][1]
+            else:
+                plim = None
+            rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
             rev = self._revForDeck(deck['id'], rlim)
             # save to list
             data.append([deck['name'], deck['id'], rev, lrn, new])
@@ -286,14 +288,12 @@ order by due""" % self._deckLimit(),
             children = self._groupChildrenMain(children)
             # tally up children counts
             for ch in children:
-                rev += ch[2]
                 lrn += ch[3]
                 new += ch[4]
             # limit the counts to the deck's limits
             conf = self.col.decks.confForDid(did)
             deck = self.col.decks.get(did)
             if not conf['dyn']:
-                rev = max(0, min(rev, conf['rev']['perDay']-deck['revToday'][1]))
                 new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))
             tree.append((head, did, rev, lrn, new, children))
         return tuple(tree)
@@ -712,68 +712,78 @@ and due <= ? limit ?)""",
     # Reviews
     ##########################################################################
 
-    def _deckRevLimit(self, did):
-        return self._deckNewLimit(did, self._deckRevLimitSingle)
+    def _currentRevLimit(self):
+        d = self.col.decks.get(self.col.decks.selected(), default=False)
+        return self._deckRevLimitSingle(d)
 
-    def _deckRevLimitSingle(self, d):
+    def _deckRevLimitSingle(self, d, parentLimit=None):
+        # invalid deck selected?
+        if not d:
+            return 0
+
         if d['dyn']:
             return self.reportLimit
+
         c = self.col.decks.confForDid(d['id'])
-        return max(0, c['rev']['perDay'] - d['revToday'][1])
+        lim = max(0, c['rev']['perDay'] - d['revToday'][1])
+
+        if parentLimit is not None:
+            return min(parentLimit, lim)
+        elif '::' not in d['name']:
+            return lim
+        else:
+            for parent in self.col.decks.parents(d['id']):
+                # pass in dummy parentLimit so we don't do parent lookup again
+                lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
+            return lim
 
     def _revForDeck(self, did, lim):
+        dids = [did] + [x[1] for x in self.col.decks.children(did)]
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             """
 select count() from
-(select 1 from cards where did = ? and queue = 2
-and due <= ? limit ?)""",
-            did, self.today, lim)
+(select 1 from cards where did in %s and queue = 2
+and due <= ? limit ?)""" % ids2str(dids),
+            self.today, lim)
 
     def _resetRevCount(self):
-        def cntFn(did, lim):
-            return self.col.db.scalar("""
+        lim = self._currentRevLimit()
+        self.revCount = self.col.db.scalar("""
 select count() from (select id from cards where
-did = ? and queue = 2 and due <= ? limit %d)""" % lim,
-                                      did, self.today)
-        self.revCount = self._walkingCount(
-            self._deckRevLimitSingle, cntFn)
+did in %s and queue = 2 and due <= ? limit %d)""" % (
+            ids2str(self.col.decks.active()), lim), self.today)
 
     def _resetRev(self):
         self._resetRevCount()
         self._revQueue = []
-        self._revDids = self.col.decks.active()[:]
 
     def _fillRev(self):
         if self._revQueue:
             return True
         if not self.revCount:
             return False
-        while self._revDids:
-            did = self._revDids[0]
-            lim = min(self.queueLimit, self._deckRevLimit(did))
-            if lim:
-                # fill the queue with the current did
-                self._revQueue = self.col.db.list("""
+
+        lim = min(self.queueLimit, self._currentRevLimit())
+        if lim:
+            self._revQueue = self.col.db.list("""
 select id from cards where
-did = ? and queue = 2 and due <= ? limit ?""",
-                                                  did, self.today, lim)
-                if self._revQueue:
-                    # ordering
-                    if self.col.decks.get(did)['dyn']:
-                        # dynamic decks need due order preserved
-                        self._revQueue.reverse()
-                    else:
-                        # random order for regular reviews
-                        r = random.Random()
-                        r.seed(self.today)
-                        r.shuffle(self._revQueue)
-                    # is the current did empty?
-                    if len(self._revQueue) < lim:
-                        self._revDids.pop(0)
-                    return True
-            # nothing left in the deck; move to next
-            self._revDids.pop(0)
+did in %s and queue = 2 and due <= ?
+order by due
+limit ?""" % (ids2str(self.col.decks.active())),
+                    self.today, lim)
+
+            if self._revQueue:
+                if self.col.decks.get(self.col.decks.selected(), default=False)['dyn']:
+                    # dynamic decks need due order preserved
+                    self._revQueue.reverse()
+                else:
+                    # fixme: as soon as a card is answered, this is no longer consistent
+                    r = random.Random()
+                    r.seed(self.today)
+                    r.shuffle(self._revQueue)
+                return True
+
         if self.revCount:
             # if we didn't get a card but the count is non-zero,
             # we need to check again for any cards that were

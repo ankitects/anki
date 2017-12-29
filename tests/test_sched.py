@@ -345,6 +345,68 @@ def test_reviews():
     c.load()
     assert c.queue == -1
 
+def test_review_limits():
+    d = getEmptyCol()
+
+    parent = d.decks.get(d.decks.id("parent"))
+    child = d.decks.get(d.decks.id("parent::child"))
+
+    pconf = d.decks.getConf(d.decks.confId("parentConf"))
+    cconf = d.decks.getConf(d.decks.confId("childConf"))
+
+    pconf['rev']['perDay'] = 5
+    d.decks.updateConf(pconf)
+    d.decks.setConf(parent, pconf['id'])
+    cconf['rev']['perDay'] = 10
+    d.decks.updateConf(cconf)
+    d.decks.setConf(child, cconf['id'])
+
+    m = d.models.current()
+    m['did'] = child['id']
+    d.models.save(m)
+
+    # add some cards
+    for i in range(20):
+        f = d.newNote()
+        f['Front'] = "one"; f['Back'] = "two"
+        d.addNote(f)
+
+        # make them reviews
+        c = f.cards()[0]
+        c.queue = c.type = 2
+        c.due = 0
+        c.flush()
+
+    tree = d.sched.deckDueTree()
+    # (('Default', 1, 0, 0, 0, ()), ('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
+    assert tree[1][2] == 5 # parent
+    assert tree[1][5][0][2] == 5 # child
+
+    # .counts() should match
+    d.decks.select(child['id'])
+    d.sched.reset()
+    assert d.sched.counts() == (0, 0, 5)
+
+    # answering a card in the child should decrement parent count
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 3)
+    assert d.sched.counts() == (0, 0, 4)
+
+    tree = d.sched.deckDueTree()
+    assert tree[1][2] == 4 # parent
+    assert tree[1][5][0][2] == 4 # child
+
+    # switch limits
+    d.decks.setConf(parent, cconf['id'])
+    d.decks.setConf(child, pconf['id'])
+    d.decks.select(parent['id'])
+    d.sched.reset()
+
+    # child limits do not affect the parent
+    tree = d.sched.deckDueTree()
+    assert tree[1][2] == 9 # parent
+    assert tree[1][5][0][2] == 4 # child
+
 def test_button_spacing():
     d = getEmptyCol()
     f = d.newNote()
@@ -854,7 +916,7 @@ def test_deckDue():
     d.reset()
     assert len(d.decks.decks) == 5
     cnts = d.sched.deckDueList()
-    assert cnts[0] == ["Default", 1, 0, 0, 1]
+    assert cnts[0] == ["Default", 1, 1, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0, 0]
     assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0, 0]
     assert cnts[3] == ["foo::bar", foobar, 0, 0, 1]
