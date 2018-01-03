@@ -7,8 +7,8 @@ import random
 import itertools
 from operator import itemgetter
 from heapq import *
+import datetime
 
-#from anki.cards import Card
 from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _
 from anki.consts import *
@@ -1192,7 +1192,7 @@ did = ?, due = ?, usn = ? where id = ?
         # days since col created
         self.today = int((time.time() - self.col.crt) // 86400)
         # end of day cutoff
-        self.dayCutoff = self.col.crt + (self.today+1)*86400
+        self.dayCutoff = self._dayCutoff()
         if oldToday != self.today:
             self.col.log(self.today, self.dayCutoff)
         # update all daily counts, but don't save decks to prevent needless
@@ -1214,6 +1214,18 @@ did = ?, due = ?, usn = ? where id = ?
         # check if the day has rolled over
         if time.time() > self.dayCutoff:
             self.reset()
+
+    def _dayCutoff(self):
+        rolloverTime = self.col.conf.get("rollover", 4)
+        if rolloverTime < 0:
+            rolloverTime = 24+rolloverTime
+        date = datetime.datetime.today()
+        date = date.replace(hour=rolloverTime, minute=0, second=0, microsecond=0)
+        if date < datetime.datetime.today():
+            date = date + datetime.timedelta(days=1)
+
+        stamp = time.mktime(date.timetuple())
+        return stamp
 
     # Deck finished state
     ##########################################################################
