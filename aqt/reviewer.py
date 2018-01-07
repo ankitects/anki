@@ -568,7 +568,7 @@ time = %(time)d;
     ##########################################################################
 
     # note the shortcuts listed here also need to be defined above
-    def showContextMenu(self):
+    def _contextMenu(self):
         opts = [
             [_("Flag Card"), [
                 [_("Red Flag"), "Ctrl+1", lambda: self.setFlag(1)],
@@ -590,6 +590,10 @@ time = %(time)d;
             [_("Record Own Voice"), "Shift+V", self.onRecordVoice],
             [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
+        return opts
+    
+    def showContextMenu(self):
+        opts = self._contextMenu()
         m = QMenu(self.mw)
         self._addMenuItems(m, opts)
 
