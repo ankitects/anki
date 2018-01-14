@@ -85,7 +85,7 @@ class ProgressManager:
 
         def cancel(self):
             self._closingDown = True
-            self.close()
+            self.hide()
 
         def closeEvent(self, evt):
             if self._closingDown:
