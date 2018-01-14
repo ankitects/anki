@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>445</width>
-    <height>301</height>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -67,6 +67,58 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="filter2group">
+     <property name="title">
+      <string>Filter 2</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Limit to</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" colspan="2">
+       <widget class="QComboBox" name="order_2"/>
+      </item>
+      <item row="0" column="1" colspan="4">
+       <widget class="QLineEdit" name="search_2"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Search</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="limit_2">
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>99999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>cards selected by</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Options</string>
@@ -79,6 +131,13 @@
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="secondFilter">
+        <property name="text">
+         <string>Enable second filter</string>
         </property>
        </widget>
       </item>
@@ -114,7 +173,11 @@
   <tabstop>search</tabstop>
   <tabstop>limit</tabstop>
   <tabstop>order</tabstop>
+  <tabstop>search_2</tabstop>
+  <tabstop>limit_2</tabstop>
+  <tabstop>order_2</tabstop>
   <tabstop>resched</tabstop>
+  <tabstop>secondFilter</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
@@ -148,6 +211,22 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>secondFilter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>filter2group</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>222</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>

@@ -983,28 +983,30 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         assert deck['dyn']
         # move any existing cards back first, then fill
         self.emptyDyn(did)
-        ids = self._fillDyn(deck)
-        if not ids:
+        cnt = self._fillDyn(deck)
+        if not cnt:
             return
         # and change to our new deck
         self.col.decks.select(did)
-        return ids
+        return cnt
 
     def _fillDyn(self, deck):
-        search, limit, order = deck['terms'][0]
-        orderlimit = self._dynOrder(order, limit)
-        if search.strip():
-            search = "(%s)" % search
-        search = "%s -is:suspended -is:buried -deck:filtered" % search
-        try:
-            ids = self.col.findCards(search, order=orderlimit)
-        except:
-            ids = []
-            return ids
-        # move the cards over
-        self.col.log(deck['id'], ids)
-        self._moveToDyn(deck['id'], ids)
-        return ids
+        start = -100000
+        total = 0
+        for search, limit, order in deck['terms']:
+            orderlimit = self._dynOrder(order, limit)
+            if search.strip():
+                search = "(%s)" % search
+            search = "%s -is:suspended -is:buried -deck:filtered" % search
+            try:
+                ids = self.col.findCards(search, order=orderlimit)
+            except:
+                return total
+            # move the cards over
+            self.col.log(deck['id'], ids)
+            self._moveToDyn(deck['id'], ids, start=start+total)
+            total += len(ids)
+        return total
 
     def emptyDyn(self, did, lim=None):
         if not lim:
@@ -1069,13 +1071,14 @@ group by did
             t = "c.due"
         return t + " limit %d" % l
 
-    def _moveToDyn(self, did, ids):
+    def _moveToDyn(self, did, ids, start=-100000):
         deck = self.col.decks.get(did)
         data = []
         t = intTime(); u = self.col.usn()
-        for c, id in enumerate(ids):
-            # start at -100000 so that reviews are all due
-            data.append((did, -100000+c, u, id))
+        due = start
+        for id in ids:
+            data.append((did, due, u, id))
+            due += 1
 
         query = """
 update cards set
