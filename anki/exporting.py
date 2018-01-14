@@ -263,6 +263,9 @@ class AnkiPackageExporter(AnkiExporter):
         z.close()
 
     def doExport(self, z, path):
+        if self.col.schedVer() != 1:
+            raise Exception("Experimental scheduler currently doesn't support deck exports.")
+
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)

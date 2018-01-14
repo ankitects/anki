@@ -35,6 +35,11 @@ class Syncer:
         # if the deck has any pending changes, flush them first and bump mod
         # time
         self.col.save()
+
+        if self.col.schedVer() != 1:
+            self.syncMsg = "Experimental scheduler currently doesn't support syncing."
+            return "serverAbort"
+
         # step 1: login & metadata
         runHook("sync", "login")
         meta = self.server.meta()
