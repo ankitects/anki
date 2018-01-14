@@ -112,6 +112,7 @@ class ProgressManager:
         self._win = self.ProgressDialog(parent)
         self._win.form.progressBar.setMinimum(min)
         self._win.form.progressBar.setMaximum(max)
+        self._win.form.progressBar.setTextVisible(False)
         self._win.form.label.setText(label)
         self._win.setWindowTitle("Anki")
         self._win.setWindowModality(Qt.ApplicationModal)
@@ -173,7 +174,6 @@ class ProgressManager:
     def _showWin(self):
         self._shown = time.time()
         self._win.show()
-        self._win.adjustSize()
         self._setBusy()
 
     def _closeWin(self):
