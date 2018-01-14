@@ -134,10 +134,12 @@ class ProgressManager:
             return
         if maybeShow:
             self._maybeShow()
+        if not self._shown:
+            return
         elapsed = time.time() - self._lastUpdate
         if label:
             self._win.form.label.setText(label)
-        if self._max and self._shown:
+        if self._max:
             self._counter = value or (self._counter+1)
             self._win.form.progressBar.setValue(self._counter)
         if process and elapsed >= 0.2:
@@ -187,6 +189,7 @@ class ProgressManager:
                 self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
         self._win.cancel()
         self._win = None
+        self._shown = False
         self._unsetBusy()
 
     def _setBusy(self):
