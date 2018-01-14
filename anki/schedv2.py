@@ -22,7 +22,7 @@ from anki.hooks import runHook
 # odue/odid store original due/did when cards moved to filtered deck
 
 class Scheduler:
-    name = "std"
+    name = "std2"
     haveCustomStudy = True
     _burySiblingsOnAnswer = True
 
@@ -1563,3 +1563,57 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
         # in order due?
         if conf['new']['order'] == NEW_CARDS_RANDOM:
             self.randomizeCards(did)
+
+    # Changing scheduler versions
+    ##########################################################################
+
+    def _emptyAllFiltered(self):
+        self.col.db.execute("""
+update cards set did = odid, queue = (case
+when type = 1 then 0
+when type = 3 then 2
+else type end), type = (case
+when type = 1 then 0
+when type = 3 then 2
+else type end),
+due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
+                            self.col.usn())
+
+    def _removeAllFromLearning(self):
+        # remove review cards from relearning
+        self.col.db.execute("""
+update cards set
+due = odue, queue = 2, mod = %d, usn = %d, odue = 0
+where queue in (1,3) and type in (2, 3)
+""" % (intTime(), self.col.usn()))
+        # remove new cards from learning
+        self.forgetCards(self.col.db.list(
+            "select id from cards where queue in (1,3)"))
+
+    # v1 doesn't support buried/suspended (re)learning cards
+    def _resetSuspendedLearning(self):
+        self.col.db.execute("""
+update cards set type = (case
+when type = 1 then 0
+when type in (2, 3) then 2
+else type end),
+due = (case when odue then odue else due end),
+odue = 0,
+mod = %d, usn = %d
+where queue < 0""" % (intTime(), self.col.usn()))
+
+    # no 'manually buried' queue in v1
+    def _moveManuallyBuried(self):
+        self.col.db.execute("update cards set queue=-2,mod=%d where queue=-3" % intTime())
+
+    def moveToV1(self):
+        self._emptyAllFiltered()
+        self._removeAllFromLearning()
+
+        self._moveManuallyBuried()
+        self._resetSuspendedLearning()
+
+
+    def moveToV2(self):
+        self._emptyAllFiltered()
+        self._removeAllFromLearning()
