@@ -28,7 +28,8 @@ class DeckConf(QDialog):
         self.setupOrder()
         self.loadConf()
         if search:
-            self.form.search.setText(search)
+            self.form.search.setText(search + " is:due")
+            self.form.search_2.setText(search + " is:new")
         self.form.search.selectAll()
         self.show()
         self.exec_()
@@ -37,24 +38,51 @@ class DeckConf(QDialog):
     def setupOrder(self):
         import anki.consts as cs
         self.form.order.addItems(list(cs.dynOrderLabels().values()))
+        self.form.order_2.addItems(list(cs.dynOrderLabels().values()))
 
     def loadConf(self):
         f = self.form
         d = self.deck
+
+        f.resched.setChecked(d['resched'])
+
         search, limit, order = d['terms'][0]
         f.search.setText(search)
-        f.resched.setChecked(d['resched'])
         f.order.setCurrentIndex(order)
         f.limit.setValue(limit)
+
+        if len(d['terms']) > 1:
+            search, limit, order = d['terms'][1]
+            f.search_2.setText(search)
+            f.order_2.setCurrentIndex(order)
+            f.limit_2.setValue(limit)
+            f.secondFilter.setChecked(True)
+            f.filter2group.setVisible(True)
+        else:
+            f.order_2.setCurrentIndex(5)
+            f.limit_2.setValue(20)
+            f.secondFilter.setChecked(False)
+            f.filter2group.setVisible(False)
 
     def saveConf(self):
         f = self.form
         d = self.deck
-        d['delays'] = None
-        d['terms'][0] = [f.search.text(),
-                         f.limit.value(),
-                         f.order.currentIndex()]
         d['resched'] = f.resched.isChecked()
+        d['delays'] = None
+
+        terms = [[
+            f.search.text(),
+            f.limit.value(),
+            f.order.currentIndex()]]
+
+        if f.secondFilter.isChecked():
+            terms.append([
+                f.search_2.text(),
+                f.limit_2.value(),
+                f.order_2.currentIndex()])
+
+        d['terms'] = terms
+
         self.mw.col.decks.save(d)
         return True
 
