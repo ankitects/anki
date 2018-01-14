@@ -307,6 +307,7 @@ Anki's prefs21.db file was corrupt and has been recreated. If you were using mul
 profiles, please add them back using the same names to recover your cards.""")
         try:
             self.db = DB(path)
+            assert self.db.scalar("pragma integrity_check") == "ok"
             self.db.execute("""
 create table if not exists profiles
 (name text primary key, data text not null);""")
