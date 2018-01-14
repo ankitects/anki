@@ -1613,7 +1613,6 @@ where queue < 0""" % (intTime(), self.col.usn()))
         self._moveManuallyBuried()
         self._resetSuspendedLearning()
 
-
     def moveToV2(self):
         self._emptyAllFiltered()
         self._removeAllFromLearning()
