@@ -31,6 +31,10 @@ class DeckConf(QDialog):
             self.form.search.setText(search + " is:due")
             self.form.search_2.setText(search + " is:new")
         self.form.search.selectAll()
+
+        if self.mw.col.schedVer() == 1:
+            self.form.secondFilter.setVisible(False)
+
         self.show()
         self.exec_()
         saveGeom(self, "dyndeckconf")
