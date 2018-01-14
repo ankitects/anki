@@ -16,7 +16,6 @@ from anki.lang import _, ngettext
 from anki.utils import ids2str, fieldChecksum, stripHTML, \
     intTime, splitFields, joinFields, maxID, json, devMode
 from anki.hooks import  runFilter, runHook
-from anki.sched import Scheduler
 from anki.models import ModelManager
 from anki.media import MediaManager
 from anki.decks import DeckManager
@@ -71,7 +70,7 @@ class _Collection:
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
-        self.sched = Scheduler(self)
+        self._loadScheduler()
         if not self.conf.get("newBury", False):
             self.conf['newBury'] = True
             self.setMod()
@@ -79,6 +78,49 @@ class _Collection:
     def name(self):
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
+
+    # Scheduler
+    ##########################################################################
+
+    defaultSchedulerVersion = 1
+    supportedSchedulerVersions = (1, 2)
+
+    def schedVer(self):
+        ver = self.conf.get("schedVer", self.defaultSchedulerVersion)
+        if ver in self.supportedSchedulerVersions:
+            return ver
+        else:
+            raise Exception("Unsupported scheduler version")
+
+    def _loadScheduler(self):
+        ver = self.schedVer()
+        if ver == 1:
+            from anki.sched import Scheduler
+        elif ver == 2:
+            from anki.schedv2 import Scheduler
+
+        self.sched = Scheduler(self)
+
+    def changeSchedulerVer(self, ver):
+        if ver == self.schedVer():
+            return
+        if ver not in self.supportedSchedulerVersions:
+            raise Exception("Unsupported scheduler version")
+
+        self.modSchema(check=True)
+
+        from anki.schedv2 import Scheduler
+        v2Sched = Scheduler(self)
+
+        if ver == 1:
+            v2Sched.moveToV1()
+        else:
+            v2Sched.moveToV2()
+
+        self.conf['schedVer'] = ver
+        self.setMod()
+
+        self._loadScheduler()
 
     # DB-related
     ##########################################################################
