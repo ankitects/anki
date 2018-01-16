@@ -119,12 +119,12 @@ class Reviewer:
 
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
-        return f"""
+        return """
 <div id=_mark>&#x2605;</div>
 <div id=_flag>&#x2691;</div>
 <div id=qa></div>
-{extra}
-"""
+{}
+""".format(extra)
 
     def _initWeb(self):
         self._reps = 0

@@ -503,7 +503,7 @@ class MenuList:
         end = items[-1].title
         prefix = os.path.commonprefix([start.upper(), end.upper()])
         n = len(prefix)+1
-        return f"{start[:n].upper()}-{end[:n].upper()}"
+        return "{}-{}".format(start[:n].upper(), end[:n].upper())
 
 class SubMenu(MenuList):
     def __init__(self, title):

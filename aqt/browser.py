@@ -1383,7 +1383,7 @@ where id in %s""" % ids2str(sf))
 
         self._updatePreviewButtons()
         self._previewWeb.eval(
-            f"{func}({json.dumps(txt)},'{bodyclass}');")
+            "{}({},'{}');".format(func, json.dumps(txt), bodyclass))
 
     def _onPreviewShowBothSides(self, toggle):
         self._previewBothSides = toggle

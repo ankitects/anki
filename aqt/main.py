@@ -288,7 +288,7 @@ close the profile or restart Anki."""))
                 if getattr(w, "silentlyClose", None):
                     w.close()
                 else:
-                    showWarning(f"Window should have been closed: {w}")
+                    showWarning("Window should have been closed: {}".format(w))
 
     def unloadProfileAndExit(self):
         self.unloadProfile(self.cleanupAndExit)

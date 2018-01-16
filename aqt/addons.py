@@ -330,7 +330,7 @@ class AddonsDialog(QDialog):
         if not addon:
             return
         if re.match(r"^\d+$", addon):
-            openLink(aqt.appShared + f"info/{addon}")
+            openLink(aqt.appShared + "info/{}".format(addon))
         else:
             showWarning(_("Add-on was not downloaded from AnkiWeb."))
 
