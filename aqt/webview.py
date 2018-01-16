@@ -217,21 +217,21 @@ border-radius:5px; font-family: Helvetica }"""
         from aqt import mw
         head =  mw.baseHTML() + head + csstxt + jstxt
 
-        html=f"""
+        html = """
 <!doctype html>
 <html><head>
-<title>{self.title}</title>
+<title>{}</title>
 
 <style>
-body {{ zoom: {self.zoomFactor()}; {fontspec} }}
-{buttonspec}
+body {{ zoom: {}; {} }}
+{}
 </style>
   
-{head}
+{}
 </head>
 
-<body>{body}</body>
-</html>"""
+<body>{}</body>
+</html>""".format(self.title, self.zoomFactor(), fontspec, buttonspec, head, body)
         #print(html)
         self.setHtml(html)
 

@@ -145,8 +145,9 @@ add-ons section</a> of our support site.
         else:
             platname = "Linux"
 
-        return f"""\
-Anki {appVersion} Python {platform.python_version()} Qt {QT_VERSION_STR} PyQt {PYQT_VERSION_STR}
-Platform: {platname}
-Flags: frz={getattr(sys, "frozen", False)} ao={self.mw.addonManager.dirty}
-"""
+        return """\
+Anki {} Python {} Qt {} PyQt {}
+Platform: {}
+Flags: frz={} ao={}        
+""".format(appVersion, platform.python_version(), QT_VERSION_STR, PYQT_VERSION_STR, platname,
+           getattr(sys, "frozen", False), self.mw.addonManager.dirty)
