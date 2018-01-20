@@ -304,23 +304,34 @@ order by due""" % self._deckLimit(),
         c = self._getLrnCard()
         if c:
             return c
+
         # new first, or time for one?
         if self._timeForNewCard():
             c = self._getNewCard()
             if c:
                 return c
+
+        # day learning first and card due?
+        dayLearnFirst = self.col.conf.get("dayLearnFirst", False)
+        c = dayLearnFirst and self._getLrnDayCard()
+        if c:
+            return c
+
         # card due for review?
         c = self._getRevCard()
         if c:
             return c
+
         # day learning card due?
-        c = self._getLrnDayCard()
+        c = not dayLearnFirst and self._getLrnDayCard()
         if c:
             return c
+
         # new cards left?
         c = self._getNewCard()
         if c:
             return c
+
         # collapse or finish
         return self._getLrnCard(collapse=True)
 
