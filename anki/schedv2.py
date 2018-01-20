@@ -94,16 +94,13 @@ class Scheduler:
             # update daily limit
             self._updateStats(card, 'rev')
 
-    # hard-coded for now
-    _previewDelay = 600
-
     def _answerCardPreview(self, card, ease):
         assert 1 <= ease <= 2
 
         if ease == 1:
             # repeat after delay
             card.queue = 4
-            card.due = intTime() + self._previewDelay
+            card.due = intTime() + self._previewDelay(card)
             self.lrnCount += 1
         else:
             # restore original card state and remove from filtered deck
@@ -1193,6 +1190,9 @@ where id = ?
         conf = self._cardConf(card)
         return conf['dyn'] and not conf['resched']
 
+    def _previewDelay(self, card):
+        return self._cardConf(card).get("previewDelay", 10)*60
+
     # Daily cutoff
     ##########################################################################
 
@@ -1317,7 +1317,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         # preview mode?
         if self._previewingCard(card):
             if ease == 1:
-                return self._previewDelay
+                return self._previewDelay(card)
             return 0
 
         # (re)learning?
