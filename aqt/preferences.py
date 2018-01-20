@@ -74,8 +74,7 @@ class Preferences(QDialog):
         import anki.consts as c
         f = self.form
         qc = self.mw.col.conf
-        self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
-        f.dayOffset.setValue(self.startDate.hour)
+        self._setupDayCutoff()
         f.lrnCutoff.setValue(qc['collapseTime']/60.0)
         f.timeLimit.setValue(qc['timeLim']/60.0)
         f.showEstimates.setChecked(qc['estTimes'])
@@ -84,6 +83,8 @@ class Preferences(QDialog):
         f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
+
+
 
     def updateCollection(self):
         f = self.form
@@ -96,12 +97,41 @@ class Preferences(QDialog):
         qc['timeLim'] = f.timeLimit.value()*60
         qc['collapseTime'] = f.lrnCutoff.value()*60
         qc['addToCur'] = not f.useCurrent.currentIndex()
-        hrs = f.dayOffset.value()
+        self._updateDayCutoff()
+        d.setMod()
+
+    # Day cutoff
+    ######################################################################
+
+    def _setupDayCutoff(self):
+        if self.mw.col.schedVer() == 2:
+            self._setupDayCutoffV2()
+        else:
+            self._setupDayCutoffV1()
+
+
+    def _setupDayCutoffV1(self):
+        self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
+        self.form.dayOffset.setValue(self.startDate.hour)
+
+    def _setupDayCutoffV2(self):
+        self.form.dayOffset.setValue(self.mw.col.conf.get("rollover", 4))
+
+    def _updateDayCutoff(self):
+        if self.mw.col.schedVer() == 2:
+            self._updateDayCutoffV2()
+        else:
+            self._updateDayCutoffV1()
+
+    def _updateDayCutoffV1(self):
+        hrs = self.form.dayOffset.value()
         old = self.startDate
         date = datetime.datetime(
             old.year, old.month, old.day, hrs)
-        d.crt = int(time.mktime(date.timetuple()))
-        d.setMod()
+        self.mw.col.crt = int(time.mktime(date.timetuple()))
+
+    def _updateDayCutoffV2(self):
+        self.mw.col.conf['rollover'] = self.form.dayOffset.value()
 
     # Network
     ######################################################################
