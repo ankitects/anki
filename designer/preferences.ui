@@ -86,6 +86,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="dayLearnFirst">
+         <property name="text">
+          <string>Show learning cards with larger steps before reviews</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
@@ -437,18 +444,19 @@
   <tabstop>showProgress</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>nightMode</tabstop>
+  <tabstop>dayLearnFirst</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
-  <tabstop>syncMedia</tabstop>
-  <tabstop>syncOnProgramOpen</tabstop>
-  <tabstop>syncDeauth</tabstop>
-  <tabstop>numBackups</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>numBackups</tabstop>
+  <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>fullSync</tabstop>
+  <tabstop>syncMedia</tabstop>
+  <tabstop>syncDeauth</tabstop>
  </tabstops>
  <resources/>
  <connections>

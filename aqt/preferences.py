@@ -83,8 +83,9 @@ class Preferences(QDialog):
         f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
-
-
+        f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
+        if self.mw.col.schedVer() != 2:
+            self.dayLearnFirst.setVisible(False)
 
     def updateCollection(self):
         f = self.form
@@ -97,6 +98,7 @@ class Preferences(QDialog):
         qc['timeLim'] = f.timeLimit.value()*60
         qc['collapseTime'] = f.lrnCutoff.value()*60
         qc['addToCur'] = not f.useCurrent.currentIndex()
+        qc['dayLearnFirst'] = f.dayLearnFirst.isChecked()
         self._updateDayCutoff()
         d.setMod()
 
@@ -108,7 +110,6 @@ class Preferences(QDialog):
             self._setupDayCutoffV2()
         else:
             self._setupDayCutoffV1()
-
 
     def _setupDayCutoffV1(self):
         self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
