@@ -12,6 +12,7 @@ DBError = sqlite.Error
 class DB:
     def __init__(self, path, timeout=0):
         self._db = sqlite.connect(path, timeout=timeout)
+        self._db.text_factory = self._textFactory
         self._path = path
         self.echo = os.environ.get("DBECHO")
         self.mod = False
@@ -102,3 +103,7 @@ class DB:
             self._db.isolation_level = None
         else:
             self._db.isolation_level = ''
+
+    # strip out invalid utf-8 when reading from db
+    def _textFactory(self, data):
+        return str(data, errors="ignore")
