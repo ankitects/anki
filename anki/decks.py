@@ -42,6 +42,9 @@ defaultDynamicDeck = {
     'terms': [["", 100, 0]],
     'resched': True,
     'return': True, # currently unused
+
+    # v2 scheduler
+    "previewDelay": 10,
 }
 
 defaultConf = {

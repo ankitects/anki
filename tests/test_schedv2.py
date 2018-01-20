@@ -724,7 +724,7 @@ def test_preview():
     # grab the first card
     c = d.sched.getCard()
     assert d.sched.answerButtons(c) == 2
-    assert d.sched.nextIvl(c, 1) == d.sched._previewDelay
+    assert d.sched.nextIvl(c, 1) == 600
     assert d.sched.nextIvl(c, 2) == 0
     # failing it will push its due time back
     due = c.due

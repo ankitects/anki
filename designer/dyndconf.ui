@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>445</width>
-    <height>354</height>
+    <width>382</width>
+    <height>413</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -134,11 +134,34 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QCheckBox" name="secondFilter">
         <property name="text">
          <string>Enable second filter</string>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QWidget" name="previewDelayWidget" native="true">
+        <layout class="QHBoxLayout" name="previewDelayBox">
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Repeat failed cards after</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="previewDelay"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>minutes</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -177,6 +200,7 @@
   <tabstop>limit_2</tabstop>
   <tabstop>order_2</tabstop>
   <tabstop>resched</tabstop>
+  <tabstop>previewDelay</tabstop>
   <tabstop>secondFilter</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

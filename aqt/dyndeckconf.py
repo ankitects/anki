@@ -25,7 +25,7 @@ class DeckConf(QDialog):
         self.form.buttonBox.helpRequested.connect(lambda: openHelp("filtered"))
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         restoreGeom(self, "dyndeckconf")
-        self.setupOrder()
+        self.initialSetup()
         self.loadConf()
         if search:
             self.form.search.setText(search + " is:due")
@@ -39,21 +39,29 @@ class DeckConf(QDialog):
         self.exec_()
         saveGeom(self, "dyndeckconf")
 
-    def setupOrder(self):
+    def initialSetup(self):
         import anki.consts as cs
         self.form.order.addItems(list(cs.dynOrderLabels().values()))
         self.form.order_2.addItems(list(cs.dynOrderLabels().values()))
+
+        self.form.resched.stateChanged.connect(self._onReschedToggled)
+
+    def _onReschedToggled(self, _state):
+        self.form.previewDelayWidget.setVisible(not self.form.resched.isChecked()
+                                                and self.mw.col.schedVer() > 1)
 
     def loadConf(self):
         f = self.form
         d = self.deck
 
         f.resched.setChecked(d['resched'])
+        self._onReschedToggled(0)
 
         search, limit, order = d['terms'][0]
         f.search.setText(search)
         f.order.setCurrentIndex(order)
         f.limit.setValue(limit)
+        f.previewDelay.setValue(d.get("previewDelay", 10))
 
         if len(d['terms']) > 1:
             search, limit, order = d['terms'][1]
@@ -86,6 +94,7 @@ class DeckConf(QDialog):
                 f.order_2.currentIndex()])
 
         d['terms'] = terms
+        d['previewDelay'] = f.previewDelay.value()
 
         self.mw.col.decks.save(d)
         return True
