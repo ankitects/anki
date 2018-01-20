@@ -114,7 +114,7 @@ class Scheduler:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
-            if idx == 1:
+            if idx == 1 and not self._previewingCard(card):
                 counts[1] += card.left // 1000
             else:
                 counts[idx] += 1
@@ -1074,17 +1074,23 @@ group by did
     def _moveToDyn(self, did, ids, start=-100000):
         deck = self.col.decks.get(did)
         data = []
-        t = intTime(); u = self.col.usn()
+        u = self.col.usn()
         due = start
         for id in ids:
             data.append((did, due, u, id))
             due += 1
 
+        queue = ""
+        if not deck['resched']:
+            queue = ",queue=2"
+
         query = """
 update cards set
 odid = did, odue = due,
-did = ?, due = ?, usn = ? where id = ?
-"""
+did = ?, due = ?, usn = ?
+%s
+where id = ?
+""" % queue
         self.col.db.executemany(query, data)
 
     def _removeFromFiltered(self, card):
