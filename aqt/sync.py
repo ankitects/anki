@@ -381,9 +381,7 @@ class SyncThread(QThread):
             elif "sync cancelled" in err:
                 pass
             else:
-                if not err:
-                    err = log
-                self.fireEvent("error", err)
+                self.fireEvent("error", log)
             return
         if ret == "badAuth":
             return self.fireEvent("badAuth")
