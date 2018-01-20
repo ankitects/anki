@@ -129,6 +129,8 @@ def cleanupMPV():
 ##########################################################################
 
 mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
+if isWin:
+    mplayerCmd += ["-ao", "win32"]
 
 mplayerQueue = []
 mplayerManager = None
