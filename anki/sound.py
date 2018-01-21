@@ -84,7 +84,7 @@ def retryWait(proc):
 # MPV
 ##########################################################################
 
-from anki.mpv import MPV
+from anki.mpv import MPV, MPVBase
 
 mpvPath, mpvEnv = _packagedCmd(["mpv"])
 
@@ -92,6 +92,11 @@ class MpvManager(MPV):
 
     executable = mpvPath[0]
     popenEnv = mpvEnv
+
+    if not isLin:
+        default_argv = MPVBase.default_argv + [
+            "--input-media-keys=no",
+        ]
 
     def __init__(self):
         super().__init__(window_id=None, debug=False)
