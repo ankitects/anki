@@ -85,7 +85,7 @@ class Preferences(QDialog):
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
         if self.mw.col.schedVer() != 2:
-            self.dayLearnFirst.setVisible(False)
+            f.dayLearnFirst.setVisible(False)
 
     def updateCollection(self):
         f = self.form
