@@ -670,7 +670,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return ok+1
 
     def _graduatingIvl(self, card, conf, early, fuzz=True):
-        if card.type == 2:
+        if card.type in (2,3):
             return card.ivl
         if not early:
             # graduate
