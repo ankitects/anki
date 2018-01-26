@@ -851,6 +851,7 @@ class EditorWebView(AnkiWebView):
 
         # normal text; convert it to HTML
         txt = html.escape(txt)
+        txt = txt.replace("\n", "<br>")
         return txt
 
     def _processHtml(self, mime):
