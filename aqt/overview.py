@@ -89,6 +89,11 @@ class Overview:
             self.onStudyMore()
 
     def onUnbury(self):
+        if self.mw.col.schedVer() == 1:
+            self.mw.col.sched.unburyCardsForDeck()
+            self.mw.reset()
+            return
+
         sibs = self.mw.col.sched.haveBuriedSiblings()
         man = self.mw.col.sched.haveManuallyBuried()
 
