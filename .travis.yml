@@ -7,4 +7,4 @@ install:
   - pip install -r requirements.txt
   - pip install nose
 
-script: nosetests ./tests --processes=16
+script: nosetests ./tests
