@@ -4,7 +4,7 @@
 
 import   re, os, zipfile, shutil
 from anki.lang import _
-from anki.utils import  ids2str, splitFields, json
+from anki.utils import ids2str, splitFields, json, namedtmp
 from anki.hooks import runHook
 from anki import Collection
 
@@ -113,6 +113,9 @@ class AnkiExporter(Exporter):
         Exporter.__init__(self, col)
 
     def exportInto(self, path):
+        # sched info+v2 scheduler not compatible w/ older clients
+        self._v2sched = self.col.schedVer() != 1 and self.includeSched
+
         # create a new collection at the target
         try:
             os.unlink(path)
@@ -263,13 +266,19 @@ class AnkiPackageExporter(AnkiExporter):
         z.close()
 
     def doExport(self, z, path):
-        if self.col.schedVer() != 1:
-            raise Exception("Experimental scheduler currently doesn't support deck exports.")
-
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
-        z.write(colfile, "collection.anki2")
+        if not self._v2sched:
+            z.write(colfile, "collection.anki2")
+        else:
+            # fixme: remove in the future
+            raise Exception("Please switch to the normal scheduler before exporting a single deck with scheduling information.")
+
+            # prevent older clients from accessing
+            self._addDummyCollection(z)
+            z.write(colfile, "collection.anki21")
+
         # and media
         self.prepareMedia()
         media = self._exportMedia(z, self.mediaFiles, self.mediaDir)
@@ -304,6 +313,20 @@ class AnkiPackageExporter(AnkiExporter):
         # is zipped up
         pass
 
+    # create a dummy collection to ensure older clients don't try to read
+    # data they don't understand
+    def _addDummyCollection(self, zip):
+        path = namedtmp("dummy.anki2")
+        c = Collection(path)
+        n = c.newNote()
+        n['Front'] = "This file requires a newer version of Anki."
+        c.addNote(n)
+        c.save()
+        c.close()
+
+        zip.write(path, "collection.anki2")
+        os.unlink(path)
+
 # Collection package
 ######################################################################
 
@@ -320,8 +343,13 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
     def doExport(self, z, path):
         # close our deck & write it into the zip file, and reopen
         self.count = self.col.cardCount()
+        v2 = self.col.schedVer() != 1
         self.col.close()
-        z.write(self.col.path, "collection.anki2")
+        if not v2:
+            z.write(self.col.path, "collection.anki2")
+        else:
+            self._addDummyCollection(z)
+            z.write(self.col.path, "collection.anki21")
         self.col.reopen()
         # copy all media
         if not self.includeMedia:

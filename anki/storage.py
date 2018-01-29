@@ -40,6 +40,8 @@ def Collection(path, lock=True, server=False, sync=True, log=False):
     col = _Collection(db, server, log)
     if ver < SCHEMA_VERSION:
         _upgrade(col, ver)
+    elif ver > SCHEMA_VERSION:
+        raise Exception("This file requires a newer version of Anki.")
     elif create:
         # add in reverse order so basic is default
         addClozeModel(col)
