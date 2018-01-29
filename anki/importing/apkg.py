@@ -12,8 +12,15 @@ class AnkiPackageImporter(Anki2Importer):
     def run(self):
         # extract the deck from the zip file
         self.zip = z = zipfile.ZipFile(self.file)
-        col = z.read("collection.anki2")
-        colpath = tmpfile(suffix=".anki2")
+        # v2 scheduler?
+        try:
+            z.getinfo("collection.anki21")
+            suffix = ".anki21"
+        except KeyError:
+            suffix = ".anki2"
+
+        col = z.read("collection"+suffix)
+        colpath = tmpfile(suffix=suffix)
         with open(colpath, "wb") as f:
             f.write(col)
         self.file = colpath

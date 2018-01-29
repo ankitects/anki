@@ -31,6 +31,9 @@ class Anki2Importer(Importer):
             self.src.close(save=False)
 
     def _prepareFiles(self):
+        if self.file.endswith(".anki21") and self.col.schedVer() == 1:
+            raise Exception("V2 scheduler must be enabled to import this file.")
+
         self.dst = self.col
         self.src = Collection(self.file)
 
