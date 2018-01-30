@@ -52,7 +52,7 @@ SYNC_ZIP_SIZE = int(2.5*1024*1024)
 SYNC_ZIP_COUNT = 25
 SYNC_BASE = "https://sync.ankiweb.net/"
 SYNC_MEDIA_BASE = "https://sync.ankiweb.net/msync/"
-SYNC_VER = 8
+SYNC_VER = 9
 
 HELP_SITE="http://ankisrs.net/docs/manual.html"
 
