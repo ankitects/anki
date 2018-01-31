@@ -31,11 +31,18 @@ class Anki2Importer(Importer):
             self.src.close(save=False)
 
     def _prepareFiles(self):
-        if self.file.endswith(".anki21") and self.col.schedVer() == 1:
+        importingV2 = self.file.endswith(".anki21")
+        if importingV2 and self.col.schedVer() == 1:
             raise Exception("V2 scheduler must be enabled to import this file.")
 
         self.dst = self.col
         self.src = Collection(self.file)
+
+        if not importingV2 and self.col.schedVer() != 1:
+            # if v2 scheduler enabled, can't import v1 decks that include scheduling
+            if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
+                self.src.close(save=False)
+                raise Exception("V2 scheduler can not import V1 decks with scheduling included.")
 
     def _import(self):
         self._decks = {}
