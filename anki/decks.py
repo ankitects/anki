@@ -252,13 +252,12 @@ class DeckManager:
         # make sure target node doesn't already exist
         if newName in self.allNames():
             raise DeckRenameError(_("That deck already exists."))
+        # make sure we're not nesting under a filtered deck
+        for p in self.parentsByName(newName):
+            if p['dyn']:
+                raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # ensure we have parents
         newName = self._ensureParents(newName)
-        # make sure we're not nesting under a filtered deck
-        if '::' in newName:
-            newParent = '::'.join(newName.split('::')[:-1])
-            if self.byName(newParent)['dyn']:
-                raise DeckRenameError(_("A filtered deck cannot have subdecks."))
         # rename children
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
@@ -486,6 +485,22 @@ class DeckManager:
         # convert to objects
         for c, p in enumerate(parents):
             parents[c] = self.get(self.id(p))
+        return parents
+
+    def parentsByName(self, name):
+        "All existing parents of name"
+        if "::" not in name:
+            return []
+        names = name.split("::")[:-1]
+        head = []
+        parents = []
+
+        while names:
+            head.append(names.pop(0))
+            deck = self.byName("::".join(head))
+            if deck:
+                parents.append(deck)
+
         return parents
 
     # Sync handling
