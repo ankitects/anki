@@ -789,14 +789,14 @@ def test_counts_idx():
     assert d.sched.countIdx(c) == 0
     # answer to move to learn queue
     d.sched.answerCard(c, 1)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 1, 0)
     # fetching again will decrement the count
     c = d.sched.getCard()
     assert d.sched.counts() == (0, 0, 0)
     assert d.sched.countIdx(c) == 1
     # answering should add it back again
     d.sched.answerCard(c, 1)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 1, 0)
 
 def test_repCounts():
     d = getEmptyCol()
@@ -807,13 +807,13 @@ def test_repCounts():
     # lrnReps should be accurate on pass/fail
     assert d.sched.counts() == (1, 0, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 3)
@@ -826,7 +826,7 @@ def test_repCounts():
     d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 1)
-    assert d.sched.counts() == (0, 2, 0)
+    assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 4)
     assert d.sched.counts() == (0, 0, 0)
     # immediate graduate should work
