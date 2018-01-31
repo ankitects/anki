@@ -111,10 +111,7 @@ class Scheduler:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
-            if idx == 1 and not self._previewingCard(card):
-                counts[1] += card.left // 1000
-            else:
-                counts[idx] += 1
+            counts[idx] += 1
         return tuple(counts)
 
     def dueForecast(self, days=7):
@@ -442,21 +439,23 @@ select id from cards where did in %s and queue = 0 limit ?)"""
     ##########################################################################
 
     def _resetLrnCount(self):
+        cutoff = intTime() + self.col.conf['collapseTime']
+
         # sub-day
         self.lrnCount = self.col.db.scalar("""
-select sum(left/1000) from (select left from cards where
-did in %s and queue = 1 and due < ? limit %d)""" % (
+select count() from (select null from cards where did in %s and queue = 1
+and due < ? limit %d)""" % (
             self._deckLimit(), self.reportLimit),
-            self.dayCutoff) or 0
+            cutoff) or 0
         # day
         self.lrnCount += self.col.db.scalar("""
-select count() from cards where did in %s and queue = 3
-and due <= ? limit %d""" % (self._deckLimit(), self.reportLimit),
+select count() from (select null from cards where did in %s and queue = 3
+and due <= ? limit %d)""" % (self._deckLimit(), self.reportLimit),
                                             self.today)
         # previews
         self.lrnCount += self.col.db.scalar("""
-select count() from cards where did in %s and queue = 4
-limit %d""" % (self._deckLimit(), self.reportLimit))
+select count() from (select null from cards where did in %s and queue = 4
+limit %d)""" % (self._deckLimit(), self.reportLimit))
 
     def _resetLrn(self):
         self._resetLrnCount()
@@ -470,10 +469,11 @@ limit %d""" % (self._deckLimit(), self.reportLimit))
             return False
         if self._lrnQueue:
             return True
+        cutoff = intTime() + self.col.conf['collapseTime']
         self._lrnQueue = self.col.db.all("""
 select due, id from cards where
 did in %s and queue in (1,4) and due < :lim
-limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
+limit %d""" % (self._deckLimit(), self.reportLimit), lim=cutoff)
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()
         return self._lrnQueue
@@ -486,10 +486,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=self.dayCutoff)
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 card = self.col.getCard(id)
-                if self._previewingCard(card):
-                    self.lrnCount -= 1
-                else:
-                    self.lrnCount -= card.left // 1000
+                self.lrnCount -= 1
                 return card
 
     # daily learning
@@ -588,15 +585,16 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.due = int(time.time() + delay)
         # due today?
         if card.due < self.dayCutoff:
-            self.lrnCount += card.left // 1000
-            # if the queue is not empty and there's nothing else to do, make
-            # sure we don't put it at the head of the queue and end up showing
-            # it twice in a row
             card.queue = 1
-            if self._lrnQueue and not self.revCount and not self.newCount:
-                smallestDue = self._lrnQueue[0][0]
-                card.due = max(card.due, smallestDue+1)
-            heappush(self._lrnQueue, (card.due, card.id))
+            if card.due < (intTime() + self.col.conf['collapseTime']):
+                self.lrnCount += 1
+                # if the queue is not empty and there's nothing else to do, make
+                # sure we don't put it at the head of the queue and end up showing
+                # it twice in a row
+                if self._lrnQueue and not self.revCount and not self.newCount:
+                    smallestDue = self._lrnQueue[0][0]
+                    card.due = max(card.due, smallestDue+1)
+                heappush(self._lrnQueue, (card.due, card.id))
         else:
             # the card is due in one or more days, so we need to use the
             # day learn queue
@@ -707,13 +705,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
     def _lrnForDeck(self, did):
         cnt = self.col.db.scalar(
             """
-select sum(left/1000) from
-(select left from cards where did = ? and queue = 1 and due < ? limit ?)""",
+select count() from
+(select null from cards where did = ? and queue = 1 and due < ? limit ?)""",
             did, intTime() + self.col.conf['collapseTime'], self.reportLimit) or 0
         return cnt + self.col.db.scalar(
             """
 select count() from
-(select 1 from cards where did = ? and queue = 3
+(select null from cards where did = ? and queue = 3
 and due <= ? limit ?)""",
             did, self.today, self.reportLimit)
 
