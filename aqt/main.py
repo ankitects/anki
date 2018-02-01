@@ -140,6 +140,8 @@ class AnkiQt(QMainWindow):
         self.refreshProfilesList()
         # raise first, for osx testing
         d.show()
+        d.activateWindow()
+        d.raise_()
 
     def refreshProfilesList(self):
         f = self.profileForm
