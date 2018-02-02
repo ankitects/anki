@@ -77,7 +77,6 @@ class Scheduler:
             return
 
         card.reps += 1
-        card.wasNew = card.type == 0
 
         if card.queue == 0:
             # came from the new queue, move to learning
@@ -93,6 +92,8 @@ class Scheduler:
             self._answerRevCard(card, ease)
             # update daily limit
             self._updateStats(card, 'rev')
+        else:
+            assert 0
 
     def _answerCardPreview(self, card, ease):
         assert 1 <= ease <= 2
@@ -527,26 +528,28 @@ did = ? and queue = 3 and due <= ? limit ?""",
             type = 0
         # lrnCount was decremented once when card was fetched
         lastLeft = card.left
+
+        leaving = False
+
         # immediate graduate?
         if ease == 4:
             self._rescheduleAsRev(card, conf, True)
-            self._logLrn(card, ease, conf, True, type, lastLeft)
+            leaving = True
         # next step?
         elif ease == 3:
             # graduation time?
             if (card.left%1000)-1 <= 0:
                 self._rescheduleAsRev(card, conf, False)
-                self._logLrn(card, ease, conf, True, type, lastLeft)
+                leaving = True
             else:
                 self._moveToNextStep(card, conf)
-                self._logLrn(card, ease, conf, False, type, lastLeft)
         elif ease == 2:
             self._repeatStep(card, conf)
-            self._logLrn(card, ease, conf, False, type, lastLeft)
         else:
             # back to first step
             self._moveToFirstStep(card, conf)
-            self._logLrn(card, ease, conf, False, type, lastLeft)
+
+        self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _moveToFirstStep(self, card, conf):
         card.left = self._startingLeft(card)
@@ -577,8 +580,10 @@ did = ? and queue = 3 and due <= ? limit ?""",
         self._rescheduleLrnCard(card, conf, delay=delay)
 
     def _rescheduleLrnCard(self, card, conf, delay=None):
+        # normal delay for the current step?
         if delay is None:
             delay = self._delayForGrade(conf, card.left)
+
         if card.due < time.time():
             # not collapsed; add some randomness
             delay *= random.uniform(1, 1.25)
