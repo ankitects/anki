@@ -551,20 +551,16 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
+    def _updateRevIvlOnFail(self, card, conf):
+        card.lastIvl = card.ivl
+        card.ivl = self._lapseIvl(card, conf)
+
     def _moveToFirstStep(self, card, conf):
         card.left = self._startingLeft(card)
 
-        card.lastIvl = card.ivl
-
         # relearning card?
-        if card.type in (2,3):
-            card.ivl = self._lapseIvl(card, self._lrnConf(card))
-
-            # moving from review queue?
-            if card.type == 2:
-                card.type = 3
-                card.lapses += 1
-                card.factor = max(1300, card.factor-200)
+        if card.type == 3:
+            self._updateRevIvlOnFail(card, conf)
 
         return self._rescheduleLrnCard(card, conf)
 
@@ -831,11 +827,18 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _rescheduleLapse(self, card):
         conf = self._lapseConf(card)
+
+        card.lapses += 1
+        card.factor = max(1300, card.factor-200)
+
         if conf['delays']:
+            card.type = 3
             delay = self._moveToFirstStep(card, conf)
         else:
             # no relearning steps
+            self._updateRevIvlOnFail(card, conf)
             self._rescheduleAsRev(card, conf, early=False)
+            delay = 0
 
         # if suspended as a leech, nothing to do
         if self._checkLeech(card, conf) and card.queue == -1:
