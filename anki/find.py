@@ -265,7 +265,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         elif val == "suspended":
             return "c.queue = -1"
         elif val == "buried":
-            return "c.queue = -2"
+            return "c.queue in (-2, -3)"
         elif val == "due":
             return """
 (c.queue in (2,3) and c.due <= %d) or
