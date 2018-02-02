@@ -194,6 +194,27 @@ def test_relearn():
     assert c.ivl == 1
     assert c.due == d.sched.today + c.ivl
 
+def test_relearn_no_steps():
+    d = getEmptyCol()
+    f = d.newNote()
+    f['Front'] = "one"
+    d.addNote(f)
+    c = f.cards()[0]
+    c.ivl = 100
+    c.due = d.sched.today
+    c.type = c.queue = 2
+    c.flush()
+
+    conf = d.decks.confForDid(1)
+    conf['lapse']['delays'] = []
+    d.decks.save(conf)
+
+    # fail the card
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 1)
+    assert c.type == c.queue == 2
+
 def test_learn_collapsed():
     d = getEmptyCol()
     # add 2 notes
