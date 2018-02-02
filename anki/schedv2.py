@@ -105,7 +105,7 @@ class Scheduler:
             self.lrnCount += 1
         else:
             # restore original card state and remove from filtered deck
-            self._restoreFromFiltered(card)
+            self._restorePreviewCard(card)
             self._removeFromFiltered(card)
 
     def counts(self, card=None):
@@ -1078,18 +1078,20 @@ where id = ?
             card.odue = 0
             card.odid = 0
 
-    def _restoreFromFiltered(self, card):
+    def _restorePreviewCard(self, card):
         assert card.odid
 
         card.due = card.odue
 
-        if card.type in (0, 2):
-            card.queue = card.type
-        else:
+        # learning and relearning cards may be seconds-based or day-based;
+        # other types map directly to queues
+        if card.type in (1, 3):
             if card.odue > 1000000000:
                 card.queue = 1
             else:
                 card.queue = 3
+        else:
+            card.queue = card.type
 
     # Leeches
     ##########################################################################
