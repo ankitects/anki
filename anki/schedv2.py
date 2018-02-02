@@ -1023,30 +1023,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s""" % (
                             self.col.usn())
 
     def remFromDyn(self, cids):
-        for did, grpcids in self._cidsByDid(cids):
-            self.emptyDyn(did, "id in %s" % ids2str(grpcids))
-
-    def _cidsByDid(self, cids):
-        groups = []
-        currentCids = []
-        currentDid = None
-        for id, did in self.col.db.execute("""
-select id, did from cards where id in %s and odid
-group by did
-""" % ids2str(cids)):
-            # next group?
-            if did != currentDid:
-                if currentCids:
-                    groups.append((currentDid, currentCids))
-                    currentCids = []
-                currentDid = did
-
-            currentCids.append(id)
-
-        if currentCids:
-            groups.append((currentDid, currentCids))
-
-        return groups
+        self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
     def _dynOrder(self, o, l):
         if o == DYN_OLDEST:
