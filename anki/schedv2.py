@@ -817,12 +817,12 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         delay = 0
         early = card.odid and (card.odue > self.today)
         type = early and 3 or 2
+
         if ease == 1:
             delay = self._rescheduleLapse(card)
-        elif early:
-            self._rescheduleEarlyRev(card, ease)
         else:
-            self._rescheduleRev(card, ease)
+            self._rescheduleRev(card, ease, early)
+
         self._logRev(card, ease, delay, type)
 
     def _rescheduleLapse(self, card):
@@ -853,29 +853,17 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         ivl = max(1, conf['minInt'], ivl*conf['mult'])
         return ivl
 
-    def _rescheduleRev(self, card, ease):
+    def _rescheduleRev(self, card, ease, early):
         # update interval
         card.lastIvl = card.ivl
+        if early:
+            self._updateEarlyRevIvl(card, ease)
+        else:
+            self._updateRevIvl(card, ease)
 
-        self._updateRevIvl(card, ease)
         # then the rest
         card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
         card.due = self.today + card.ivl
-
-        # card leaves filtered deck
-        self._removeFromFiltered(card)
-
-    def _rescheduleEarlyRev(self, card, ease):
-        # update interval
-        card.lastIvl = card.ivl
-
-        self._updateEarlyRevIvl(card, ease)
-        # then the rest
-        card.factor = max(1300, card.factor+[-150, 0, 150][ease-2])
-        card.due = self.today + card.ivl
-
-        # move from 0->2
-        card.queue = 2
 
         # card leaves filtered deck
         self._removeFromFiltered(card)
