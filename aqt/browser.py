@@ -1750,7 +1750,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         t += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
         t += "<p><ol>"
         for val, nids in res:
-            t += '''<li><a href=# onclick="pycmd('%s')">%s</a>: %s</a>''' % (
+            t += '''<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>''' % (
                 "nid:" + ",".join(str(id) for id in nids),
                 ngettext("%d note", "%d notes", len(nids)) % len(nids),
                 html.escape(val))
