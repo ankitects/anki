@@ -319,9 +319,8 @@ close the profile or restart Anki."""))
     ##########################################################################
 
     def loadCollection(self):
-        cpath = self.pm.collectionPath()
         try:
-            self.col = Collection(cpath, log=True)
+            return self._loadCollection()
         except Exception as e:
             showWarning(_("""\
 Anki was unable to open your collection file. If problems persist after \
@@ -330,8 +329,22 @@ manager.
 
 Debug info:
 """)+traceback.format_exc())
+            # clean up open collection if possible
+            if self.col:
+                try:
+                    self.col.close(save=False)
+                except:
+                    pass
+                self.col = None
+
+            # return to profile manager
             self.showProfileManager()
             return False
+
+    def _loadCollection(self):
+        cpath = self.pm.collectionPath()
+
+        self.col = Collection(cpath, log=True)
 
         self.setEnabled(True)
         self.progress.setupDB(self.col.db)
