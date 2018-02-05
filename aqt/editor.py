@@ -610,7 +610,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             local = False
         # fetch it into a temporary folder
         self.mw.progress.start(
-            immediate=True, parent=self.parentWindow)
+            immediate=not local, parent=self.parentWindow)
         ct = None
         try:
             if local:
@@ -679,9 +679,8 @@ to a cloze type first, via Edit>Change Note Type."""))
         html = str(doc)
         return html
 
-    def doPaste(self, html, internal):
+    def doPaste(self, html, internal, extended=False):
         html = self._pastePreFilter(html, internal)
-        extended = self.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
         if extended:
             extended = "true"
         else:
@@ -791,11 +790,12 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.Copy)
 
     def onPaste(self):
+        extended = self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
         mime = self.editor.mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
         html, internal = self._processMime(mime)
         if not html:
             return
-        self.editor.doPaste(html, internal)
+        self.editor.doPaste(html, internal, extended)
 
     def dropEvent(self, evt):
         mime = evt.mimeData()
