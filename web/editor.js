@@ -162,9 +162,6 @@ function focusPrevious() {
 }
 
 function onDragOver(elem) {
-    var e = window.event;
-    e.dataTransfer.dropEffect = "copy";
-    e.preventDefault();
     // if we focus the target element immediately, the drag&drop turns into a
     // copy, so note it down for later instead
     dropTarget = elem;
