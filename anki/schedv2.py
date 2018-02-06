@@ -620,7 +620,10 @@ did = ? and queue = 3 and due <= ? limit ?""",
     def _delayForRepeatingGrade(self, conf, left):
         # halfway between last and next
         delay1 = self._delayForGrade(conf, left)
-        delay2 = self._delayForGrade(conf, left-1)
+        if len(conf['delays']) > 1:
+            delay2 = self._delayForGrade(conf, left-1)
+        else:
+            delay2 = delay1 * 2
         avg = (delay1+max(delay1, delay2))//2
         return avg
 
