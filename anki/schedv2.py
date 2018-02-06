@@ -86,6 +86,7 @@ class Scheduler:
             card.left = self._startingLeft(card)
             # update daily limit
             self._updateStats(card, 'new')
+
         if card.queue in (1, 3):
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
