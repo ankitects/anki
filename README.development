@@ -42,7 +42,7 @@ translation services. If you want to use a language other than English:
 
 $ cd ..
 $ mv anki dtop # i18n code expects anki folder to be called dtop
-$ bzr clone lp:anki i18n
+$ bzr branch lp:anki i18n
 $ cd i18n
 $ ./update-mos.sh
 $ cd ../dtop
