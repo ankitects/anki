@@ -693,7 +693,10 @@ to a cloze type first, via Edit>Change Note Type."""))
                                   lambda _: self.doPaste(html, internal))
 
     def onPaste(self):
-        self.web.onPaste()
+        self.web.onPaste(QClipboard.Clipboard)
+
+    def onPasteFromSelection(self):
+        self.web.onPaste(QClipboard.Selection)
 
     def onCutOrCopy(self):
         self.web.flagAnkiText()
@@ -761,6 +764,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         more=onAdvanced,
         dupes=showDupes,
         paste=onPaste,
+        pasteFromSelection=onPasteFromSelection,
         cutOrCopy=onCutOrCopy,
     )
 
@@ -789,9 +793,15 @@ class EditorWebView(AnkiWebView):
     def onCopy(self):
         self.triggerPageAction(QWebEnginePage.Copy)
 
-    def onPaste(self):
+    def onPaste(self, mode):
+        # A better way is to ask user whether mode should be set to
+        # QClipboard.Clipboard, so that windows user can
+        # use middle mouse button to paste as well.
+        clipboard = self.editor.mw.app.clipboard()
+        if (mode == QClipboard.Selection and not clipboard.supportsSelection()):
+            return
         extended = self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
-        mime = self.editor.mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
+        mime = clipboard.mimeData(mode=mode)
         html, internal = self._processMime(mime)
         if not html:
             return

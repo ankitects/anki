@@ -179,6 +179,19 @@ function onPaste(elem) {
     window.event.preventDefault();
 }
 
+function onMouseUp(elem) {
+    // The X11 Window System has the concept of a separate selection and clipboard.
+    // When text is selected, it is immediately available as the global mouse selection.
+    // The global mouse selection may later be copied to the clipboard.
+    // By convention, the middle mouse button is used to paste the global mouse selection.
+    if (event.which == 2) // middle mouse button up; should paste from X11 primary selection.
+    {
+	window.focus();
+	pycmd("pasteFromSelection");
+	window.event.preventDefault();
+    }
+}
+
 function caretToEnd() {
     var r = document.createRange();
     r.selectNodeContents(currentField);
@@ -269,7 +282,7 @@ function setFields(fields) {
             f = "<br>";
         }
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%>".format(n);
-        txt += "<div id=f{0} onkeydown='onKey();' oninput='checkForEmptyField()' onmouseup='onKey();'".format(i);
+        txt += "<div id=f{0} onkeydown='onKey();' oninput='checkForEmptyField()' onmouseup='onMouseUp();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
         txt += "oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' ";
