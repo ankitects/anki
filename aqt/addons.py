@@ -35,7 +35,21 @@ class AddonManager:
             if not os.path.exists(os.path.join(path, "__init__.py")):
                 continue
             l.append(d)
-        return l
+
+        # os.listdir returns directories in arbitrary order
+        # in case a certain load order need to be enforced,
+        # the numeric "loadorder" property can be added to the
+        # meta json file of an add on.
+
+        loadorder = [
+            self.addonMeta(dir).get("loadorder") 
+            if "loadorder" in self.addonMeta(dir) else 9999
+            for dir in l
+                ]
+
+        sortedAddons = [dir for _,dir in sorted(zip(loadorder,l))]
+
+        return sortedAddons
 
     def managedAddons(self):
         return [d for d in self.allAddons()
