@@ -57,7 +57,7 @@ defaultConf = {
         'order': NEW_CARDS_DUE,
         'perDay': 20,
         # may not be set on old decks
-        'bury': True,
+        'bury': False,
     },
     'lapse': {
         'delays': [10],
@@ -75,7 +75,7 @@ defaultConf = {
         'ivlFct': 1,
         'maxIvl': 36500,
         # may not be set on old decks
-        'bury': True,
+        'bury': False,
     },
     'maxTaken': 60,
     'timer': 0,
