@@ -9,6 +9,8 @@ install:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
 	mkdir -p ${DESTDIR}${PREFIX}/share/anki
 	cp -av * ${DESTDIR}${PREFIX}/share/anki/
+	sed -e 's:@PREFIX@:${PREFIX}:' tools/runanki.system.in > tools/runanki.system
+	chmod 755 tools/runanki.system
 	cd ${DESTDIR}${PREFIX}/share/anki && (\
 	mv tools/runanki.system ${DESTDIR}${PREFIX}/local/bin/anki;\
 	test -d ${DESTDIR}${PREFIX}/share/pixmaps &&\
