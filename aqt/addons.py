@@ -35,6 +35,9 @@ class AddonManager:
             if not os.path.exists(os.path.join(path, "__init__.py")):
                 continue
             l.append(d)
+        l.sort()
+        if os.getenv("ANKIREVADDONS", ""):
+            l = reversed(l)
         return l
 
     def managedAddons(self):
