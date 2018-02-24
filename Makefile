@@ -12,7 +12,7 @@ install:
 	sed -e 's:@PREFIX@:${PREFIX}:' tools/runanki.system.in > tools/runanki.system
 	chmod 755 tools/runanki.system
 	cd ${DESTDIR}${PREFIX}/share/anki && (\
-	mv tools/runanki.system ${DESTDIR}${PREFIX}/local/bin/anki;\
+	mv tools/runanki.system ${DESTDIR}${PREFIX}/bin/anki;\
 	test -d ${DESTDIR}${PREFIX}/share/pixmaps &&\
 	  mv anki.xpm anki.png ${DESTDIR}${PREFIX}/share/pixmaps/;\
 	mv anki.desktop ${DESTDIR}${PREFIX}/share/applications;\
@@ -25,7 +25,7 @@ install:
 
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
-	rm -rf ${DESTDIR}${PREFIX}/local/bin/anki
+	rm -rf ${DESTDIR}${PREFIX}/bin/anki
 	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.xpm
 	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.png
 	rm -rf ${DESTDIR}${PREFIX}/share/applications/anki.desktop
