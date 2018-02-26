@@ -464,8 +464,9 @@ adjust the template manually to switch the question and answer."""))
             t['bfont'] = f.font.currentFont().family()
             t['bsize'] = f.fontSize.value()
         else:
-            del t['bfont']
-            del t['bsize']
+            for key in ("bfont", "bsize"):
+                if key in t:
+                    del t[key]
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
