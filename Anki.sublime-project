@@ -1,0 +1,15 @@
+{
+	"folders":
+	[
+        {
+            "path": ".",
+        },
+		{
+			"path": "D:\\User\\Documents\\Anki\\addons",
+            "file_exclude_patterns":
+            [
+                "*.rar",
+            ],
+		}
+	]
+}

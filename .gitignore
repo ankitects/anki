@@ -6,4 +6,5 @@
 .coverage
 aqt/forms
 locale
+*.sublime-workspace
 .idea
