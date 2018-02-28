@@ -67,6 +67,19 @@ class TagManager(object):
     def save(self):
         self.changed = True
 
+    def byDeck(self, did, children=False):
+        basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
+        if not children:
+            query = basequery + " AND c.did=?"
+            res = self.col.db.list(query, did)
+            return list(set(self.split(" ".join(res))))
+        dids = [did]
+        for name, id in self.col.decks.children(did):
+            dids.append(id)
+        query = basequery + " AND c.did IN " + ids2str(dids)
+        res = self.col.db.list(query)
+        return list(set(self.split(" ".join(res))))
+
     # Bulk addition/removal from notes
     #############################################################
 

@@ -30,6 +30,6 @@ if arch[1] == "ELF":
     sys.path.insert(0, os.path.join(ext, "py2.%d-%s" % (
         sys.version_info[1], arch[0][0:2])))
 
-version="2.0.33" # build scripts grep this line, so preserve formatting
+version="2.0.36" # build scripts grep this line, so preserve formatting
 from anki.storage import Collection
 __all__ = ["Collection"]

@@ -93,7 +93,17 @@ class DeckManager(object):
     def load(self, decks, dconf):
         self.decks = json.loads(decks)
         self.dconf = json.loads(dconf)
-        self.changed = False
+        # set limits to within bounds
+        found = False
+        for c in self.dconf.values():
+            for t in ('rev', 'new'):
+                pd = 'perDay'
+                if c[t][pd] > 999999:
+                    c[t][pd] = 999999
+                    self.save(c)
+                    found = True
+        if not found:
+            self.changed = False
 
     def save(self, g=None):
         "Can be called with either a deck or a deck configuration."

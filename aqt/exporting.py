@@ -9,6 +9,9 @@ import  aqt
 from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
     checkInvalidFilename
 from anki.exporting import exporters
+from anki.hooks import addHook, remHook
+from anki.lang import ngettext
+
 
 class ExportDialog(QDialog):
 
@@ -105,7 +108,13 @@ class ExportDialog(QDialog):
                 showWarning(_("Couldn't save file: %s") % unicode(e))
             else:
                 os.unlink(file)
+                exportedMedia = lambda cnt: self.mw.progress.update(
+                        label=ngettext("Exported %d media file",
+                                       "Exported %d media files", cnt) % cnt
+                        )
+                addHook("exportedMediaFiles", exportedMedia)
                 self.exporter.exportInto(file)
+                remHook("exportedMediaFiles", exportedMedia)
                 if verbatim:
                     if usingHomedir:
                         msg = _("A file called %s was saved in your home directory.")

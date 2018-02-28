@@ -6,7 +6,7 @@ from anki.lang import _
 from aqt.qt import *
 import aqt.forms
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
-    tooltip, openHelp, addCloseShortcut
+    tooltip, openHelp, addCloseShortcut, downArrow
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook, runHook
 from anki.utils import stripHTMLMedia, isMac
@@ -69,7 +69,7 @@ class AddCards(QDialog):
         self.connect(self.helpButton, SIGNAL("clicked()"), self.helpRequested)
         # history
         b = bb.addButton(
-            _("History")+ u" ▾", ar)
+            _("History")+ u" "+downArrow(), ar)
         if isMac:
             sc = "Ctrl+Shift+H"
         else:

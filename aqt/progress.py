@@ -110,21 +110,22 @@ Your pysqlite2 is too old. Anki will appear frozen during long operations."""
         self._min = min
         self._max = max
         self._firstTime = time.time()
-        self._lastTime = time.time()
+        self._lastUpdate = time.time()
         self._disabled = False
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
         #print self._min, self._counter, self._max, label, time.time() - self._lastTime
         if maybeShow:
             self._maybeShow()
-        self._lastTime = time.time()
+        elapsed = time.time() - self._lastUpdate
         if label:
             self._win.setLabelText(label)
         if self._max and self._shown:
             self._counter = value or (self._counter+1)
             self._win.setValue(self._counter)
-        if process:
+        if process and elapsed >= 0.2:
             self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+            self._lastUpdate = time.time()
 
     def finish(self):
         self._levels -= 1

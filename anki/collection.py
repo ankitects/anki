@@ -379,7 +379,11 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card = anki.cards.Card(self)
         card.nid = note.id
         card.ord = template['ord']
-        card.did = template['did'] or note.model()['did']
+        # Use template did (deck override) if valid, otherwise model did
+        if template['did'] and unicode(template['did']) in self.decks.decks:
+            card.did = template['did']
+        else:
+            card.did = note.model()['did']
         # if invalid did, use default instead
         deck = self.decks.get(card.did)
         if deck['dyn']:
