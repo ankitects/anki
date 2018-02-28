@@ -2,7 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import   re, os, zipfile, shutil
+import re, os, zipfile, shutil, unicodedata
+
 from anki.lang import _
 from anki.utils import ids2str, splitFields, json, namedtmp
 from anki.hooks import runHook
@@ -303,7 +304,7 @@ class AnkiPackageExporter(AnkiExporter):
                     z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
-                media[cStr] = file
+                media[cStr] = unicodedata.normalize("NFC", file)
                 runHook("exportedMediaFiles", c)
 
         return media

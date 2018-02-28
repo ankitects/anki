@@ -156,7 +156,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if typeHint in typeMap:
                 fname += typeMap[typeHint]
 
-        # make sure we write it in NFC form (on mac will autoconvert to NFD),
+        # make sure we write it in NFC form (pre-APFS Macs will autoconvert to NFD),
         # and return an NFC-encoded reference
         fname = unicodedata.normalize("NFC", fname)
         # remove any dangerous characters
@@ -299,8 +299,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 continue
 
             nfcFile = unicodedata.normalize("NFC", file)
-            # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
-            # NFD so we use the above variable for comparing references
+            # we enforce NFC fs encoding on non-macs
             if not isMac and not local:
                 if file != nfcFile:
                     # delete if we already have the NFC form, otherwise rename
@@ -407,7 +406,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.cache = {}
         for (name, csum, mod) in self.db.execute(
             "select fname, csum, mtime from media where csum is not null"):
-            self.cache[name] = [csum, mod, False]
+            # previous entries may not have been in NFC form
+            normname = unicodedata.normalize("NFC", name)
+            self.cache[normname] = [csum, mod, False]
         added = []
         removed = []
         # loop through on-disk files
@@ -430,26 +431,30 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                     self.col.log("ignoring file over 100MB", f.name)
                     continue
                 # check encoding
+                normname = unicodedata.normalize("NFC", f.name)
                 if not isMac:
-                    normf = unicodedata.normalize("NFC", f.name)
-                    if f.name != normf:
+                    if f.name != normname:
                         # wrong filename encoding which will cause sync errors
-                        if os.path.exists(normf):
+                        if os.path.exists(normname):
                             os.unlink(f.name)
                         else:
-                            os.rename(f.name, normf)
+                            os.rename(f.name, normname)
+                else:
+                    # on Macs we can access the file using any normalization
+                    pass
+
                 # newly added?
                 mtime = int(f.stat().st_mtime)
-                if f.name not in self.cache:
-                    added.append((f.name, mtime))
+                if normname not in self.cache:
+                    added.append((normname, mtime))
                 else:
                     # modified since last time?
-                    if mtime != self.cache[f.name][1]:
+                    if mtime != self.cache[normname][1]:
                         # and has different checksum?
-                        if self._checksum(f.name) != self.cache[f.name][0]:
-                            added.append((f.name, mtime))
+                        if self._checksum(normname) != self.cache[normname][0]:
+                            added.append((normname, mtime))
                     # mark as used
-                    self.cache[f.name][2] = True
+                    self.cache[normname][2] = True
         # look for any entries in the cache that no longer exist on disk
         for (k, v) in list(self.cache.items()):
             if not v[2]:
@@ -551,11 +556,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 data = z.read(i)
                 csum = checksum(data)
                 name = meta[i.filename]
-                # normalize name for platform
-                if isMac:
-                    name = unicodedata.normalize("NFD", name)
-                else:
-                    name = unicodedata.normalize("NFC", name)
+                # normalize name
+                name = unicodedata.normalize("NFC", name)
                 # save file
                 with open(name, "wb") as f:
                     f.write(data)
