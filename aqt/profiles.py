@@ -101,8 +101,10 @@ a flash drive.""" % self.base)
         if isMac:
             return os.path.expanduser("~/Documents/Anki")
         elif isWin:
-            loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
-            return os.path.join(loc, "Anki")
+            loc = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
+            if not loc.endswith("Anki2"):
+                loc = os.path.join(loc, "Anki2")
+            return loc
         else:
             p = os.path.expanduser("~/Anki")
             if os.path.exists(p):
@@ -271,11 +273,11 @@ and no other programs are accessing your profile folders, then try again."""))
 
     def _defaultBase(self):
         if isWin:
-            loc = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
+            loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
             # the returned value seem to automatically include the app name, but we use Anki2 rather
             # than Anki
-            assert loc.endswith("/Anki")
-            loc += "2"
+            if not loc.endswith("/.anki"):
+                loc = os.path.join(loc, ".anki")
             return loc
         elif isMac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
