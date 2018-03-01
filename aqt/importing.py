@@ -252,6 +252,7 @@ you can enter it here. Use \\t to represent tab."""),
 
     def reject(self):
         self.modelChooser.cleanup()
+        self.deck.cleanup()
         remHook("currentModelChanged", self.modelChanged)
         QDialog.reject(self)
 
