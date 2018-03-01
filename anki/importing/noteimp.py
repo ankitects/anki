@@ -125,7 +125,7 @@ class NoteImporter(Importer):
         for n in notes:
             for c in range(len(n.fields)):
                 if not self.allowHTML:
-                    n.fields[c] = html.escape(n.fields[c])
+                    n.fields[c] = html.escape(n.fields[c], quote=False)
                 n.fields[c] = n.fields[c].strip()
                 if not self.allowHTML:
                     n.fields[c] = n.fields[c].replace("\n", "<br>")
