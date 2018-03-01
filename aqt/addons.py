@@ -216,7 +216,7 @@ When loading '%(name)s':
     def addonConfigHelp(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.md")
         if os.path.exists(path):
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 return markdown.markdown(f.read())
         else:
             return ""
