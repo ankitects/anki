@@ -1397,7 +1397,10 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def deleteNotes(self):
-        self.editor.saveNow(self._deleteNotes)
+        focus = self.focusWidget()
+        if focus != self.form.tableView:
+            return
+        self._deleteNotes()
 
     def _deleteNotes(self):
         nids = self.selectedNotes()
