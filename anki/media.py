@@ -140,7 +140,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def writeData(self, opath, data):
         # if fname is a full path, use only the basename
         fname = os.path.basename(opath)
-        # make sure we write it in NFC form (on mac will autoconvert to NFD),
+        # make sure we write it in NFC form (pre-APFS Macs will autoconvert to NFD)
         # and return an NFC-encoded reference
         fname = unicodedata.normalize("NFC", fname)
         # remove any dangerous characters
@@ -275,8 +275,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 invalid.append(unicode(file, sys.getfilesystemencoding(), "replace"))
                 continue
             nfcFile = unicodedata.normalize("NFC", file)
-            # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
-            # NFD so we use the above variable for comparing references
+            # we enforce NFC fs encoding on non-macs
             if not isMac and not local:
                 if file != nfcFile:
                     # delete if we already have the NFC form, otherwise rename
@@ -371,7 +370,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.cache = {}
         for (name, csum, mod) in self.db.execute(
             "select fname, csum, mtime from media where csum is not null"):
-            self.cache[name] = [csum, mod, False]
+            # previous entries may not have been in NFC form
+            normname = unicodedata.normalize("NFC", name)
+            self.cache[normname] = [csum, mod, False]
         added = []
         removed = []
         # loop through on-disk files
@@ -393,25 +394,28 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 self.col.log("ignoring file over 100MB", f)
                 continue
             # check encoding
+            normname = unicodedata.normalize("NFC", f)
             if not isMac:
-                normf = unicodedata.normalize("NFC", f)
-                if f != normf:
+                if f != normname:
                     # wrong filename encoding which will cause sync errors
-                    if os.path.exists(normf):
+                    if os.path.exists(normname):
                         os.unlink(f)
                     else:
-                        os.rename(f, normf)
+                        os.rename(f, normname)
+            else:
+                # on Macs we can access the file using any normalization
+                pass
             # newly added?
-            if f not in self.cache:
-                added.append(f)
+            if normname not in self.cache:
+                added.append(normname)
             else:
                 # modified since last time?
-                if self._mtime(f) != self.cache[f][1]:
+                if self._mtime(normname) != self.cache[normname][1]:
                     # and has different checksum?
-                    if self._checksum(f) != self.cache[f][0]:
-                        added.append(f)
+                    if self._checksum(normname) != self.cache[normname][0]:
+                        added.append(normname)
                 # mark as used
-                self.cache[f][2] = True
+                self.cache[normname][2] = True
         # look for any entries in the cache that no longer exist on disk
         for (k, v) in self.cache.items():
             if not v[2]:
@@ -513,11 +517,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 name = meta[i.filename]
                 if not isinstance(name, unicode):
                     name = unicode(name, "utf8")
-                # normalize name for platform
-                if isMac:
-                    name = unicodedata.normalize("NFD", name)
-                else:
-                    name = unicodedata.normalize("NFC", name)
+                # normalize name
+                name = unicodedata.normalize("NFC", name)
                 # save file
                 open(name, "wb").write(data)
                 # update db
