@@ -1039,11 +1039,13 @@ will be lost. Continue?"""))
         layout.addWidget(text)
         box = QDialogButtonBox(QDialogButtonBox.Close)
         layout.addWidget(box)
-        b = QPushButton(_("Delete Unused"))
-        b.setAutoDefault(False)
-        box.addButton(b, QDialogButtonBox.ActionRole)
-        b.clicked.connect(
-            lambda c, u=unused, d=diag: self.deleteUnused(u, d))
+        if unused:
+            b = QPushButton(_("Delete Unused Files"))
+            b.setAutoDefault(False)
+            box.addButton(b, QDialogButtonBox.ActionRole)
+            b.clicked.connect(
+                lambda c, u=unused, d=diag: self.deleteUnused(u, d))
+
         box.rejected.connect(diag.reject)
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
