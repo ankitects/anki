@@ -789,13 +789,19 @@ class EditorWebView(AnkiWebView):
     def onCopy(self):
         self.triggerPageAction(QWebEnginePage.Copy)
 
-    def onPaste(self):
+    def _onPaste(self, mode):
         extended = self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
-        mime = self.editor.mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
+        mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
         html, internal = self._processMime(mime)
         if not html:
             return
         self.editor.doPaste(html, internal, extended)
+
+    def onPaste(self):
+        self._onPaste(QClipboard.Clipboard)
+
+    def onMiddleClickPaste(self):
+        self._onPaste(QClipboard.Selection)
 
     def dropEvent(self, evt):
         mime = evt.mimeData()
