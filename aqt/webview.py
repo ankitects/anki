@@ -108,6 +108,11 @@ class AnkiWebView(QWebEngineView):
         # disable pinch to zoom gesture
         if isinstance(evt, QNativeGestureEvent):
             return True
+        elif evt.type() == QEvent.MouseButtonRelease:
+            if evt.button() == Qt.MidButton and isLin:
+                self.onMiddleClickPaste()
+                return True
+            return False
         return False
 
     def onEsc(self):
@@ -131,6 +136,9 @@ class AnkiWebView(QWebEngineView):
         self.triggerPageAction(QWebEnginePage.Cut)
 
     def onPaste(self):
+        self.triggerPageAction(QWebEnginePage.Paste)
+
+    def onMiddleClickPaste(self):
         self.triggerPageAction(QWebEnginePage.Paste)
 
     def onSelectAll(self):
