@@ -80,6 +80,7 @@ class DB:
         return [x[0] for x in self.execute(*a, **kw)]
 
     def close(self):
+        self._db.text_factory = None
         self._db.close()
 
     def set_progress_handler(self, *args):
