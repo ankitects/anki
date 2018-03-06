@@ -25,6 +25,9 @@ class AnkiWebPage(QWebEnginePage):
             @pyqtSlot(str)
             def cmd(self, str):
                 self.onCmd(str)
+            @pyqtSlot(str, result=str)
+            def run(self, str):
+                return self.onCmd(str)
 
         self._bridge = Bridge()
         self._bridge.onCmd = self._onCmd
@@ -40,8 +43,10 @@ class AnkiWebPage(QWebEnginePage):
         script = QWebEngineScript()
         script.setSourceCode(js + '''
             var pycmd;
+            var pyrun;
             new QWebChannel(qt.webChannelTransport, function(channel) {
                 pycmd = channel.objects.py.cmd;
+                pyrun = channel.objects.py.run;
                 pycmd("domDone");
             });
         ''')
@@ -68,7 +73,7 @@ class AnkiWebPage(QWebEnginePage):
         return False
 
     def _onCmd(self, str):
-        self._onBridgeCmd(str)
+        return self._onBridgeCmd(str)
 
 # Main web view
 ##########################################################################
@@ -293,7 +298,7 @@ body {{ zoom: {}; {} }}
             self._domDone = True
             self._maybeRunActions()
         else:
-            self.onBridgeCmd(cmd)
+            return self.onBridgeCmd(cmd)
 
     def defaultOnBridgeCmd(self, cmd):
         print("unhandled bridge cmd:", cmd)
