@@ -1,7 +1,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
+import json
 import sys
 import math
 from anki.hooks import runHook
@@ -22,9 +22,9 @@ class AnkiWebPage(QWebEnginePage):
 
     def _setupBridge(self):
         class Bridge(QObject):
-            @pyqtSlot(str)
+            @pyqtSlot(str, result=str)
             def cmd(self, str):
-                self.onCmd(str)
+                return json.dumps(self.onCmd(str))
 
         self._bridge = Bridge()
         self._bridge.onCmd = self._onCmd
@@ -41,7 +41,16 @@ class AnkiWebPage(QWebEnginePage):
         script.setSourceCode(js + '''
             var pycmd;
             new QWebChannel(qt.webChannelTransport, function(channel) {
-                pycmd = channel.objects.py.cmd;
+                pycmd = function (arg, cb) {
+                    var resultCB = function (res) {
+                        // pass result back to user-provided callback
+                        if (cb) {
+                            cb(JSON.parse(res));
+                        }
+                    }
+                
+                    channel.objects.py.cmd(arg, resultCB);                   
+                }
                 pycmd("domDone");
             });
         ''')
@@ -68,7 +77,7 @@ class AnkiWebPage(QWebEnginePage):
         return False
 
     def _onCmd(self, str):
-        self._onBridgeCmd(str)
+        return self._onBridgeCmd(str)
 
 # Main web view
 ##########################################################################
@@ -293,7 +302,7 @@ body {{ zoom: {}; {} }}
             self._domDone = True
             self._maybeRunActions()
         else:
-            self.onBridgeCmd(cmd)
+            return self.onBridgeCmd(cmd)
 
     def defaultOnBridgeCmd(self, cmd):
         print("unhandled bridge cmd:", cmd)
