@@ -15,7 +15,7 @@ install:
 	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/pixmaps anki.xpm anki.png
 	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/applications anki.desktop
 	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/man/man1 anki.1
-	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/doc/anki README.contributing README.development README.md LICENSE
+	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/doc/anki README.contributing README.development README.md LICENSE LICENSE.logo
 	-xdg-mime install anki.xml --novendor
 	-xdg-mime default anki.desktop application/x-anki
 	-xdg-mime default anki.desktop application/x-apkg
