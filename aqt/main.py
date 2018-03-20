@@ -701,7 +701,7 @@ title="%s" %s>%s</button>''' % (
 
     def setupKeys(self):
         globalShortcuts = [
-            ("Ctrl+Shift+;", self.onDebug),
+            ("Ctrl+:", self.onDebug),
             ("d", lambda: self.moveToState("deckBrowser")),
             ("s", self.onStudyKey),
             ("a", self.onAddCard),
