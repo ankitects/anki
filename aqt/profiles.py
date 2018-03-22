@@ -300,7 +300,10 @@ and no other programs are accessing your profile folders, then try again."""))
                     self.db.close()
                 except:
                     pass
-            os.unlink(path)
+            for suffix in ("", "-journal"):
+                fpath = path + suffix
+                if os.path.exists(fpath):
+                    os.unlink(fpath)
             QMessageBox.warning(
                 None, "Preferences Corrupt", """\
 Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
