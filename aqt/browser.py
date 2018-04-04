@@ -429,6 +429,7 @@ class Browser(QMainWindow):
         f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
         f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
         f.actionClear_Flag.triggered.connect(lambda: self.onSetFlag(0))
+        f.actionDelete_Cards.triggered.connect(self.deleteCards)
         # jumps
         f.actionPreviousCard.triggered.connect(self.onPreviousCard)
         f.actionNextCard.triggered.connect(self.onNextCard)
@@ -1406,7 +1407,24 @@ where id in %s""" % ids2str(sf))
         nids = self.selectedNotes()
         if not nids:
             return
-        self.mw.checkpoint(_("Delete Notes"))
+        self._deleteSelected("Delete Notes", nids, self.col.remNotes)
+        tooltip(ngettext("%d note deleted.", "%d notes deleted.", len(nids)) % len(nids))
+
+    def deleteCards(self):
+        focus = self.focusWidget()
+        if focus != self.form.tableView:
+            return
+        self._deleteCards()
+
+    def _deleteCards(self):
+        cids = self.selectedCards()
+        if not cids:
+            return
+        self._deleteSelected("Delete Cards", cids, self.col.remCards)
+        tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
+
+    def _deleteSelected(self, action, ids, deleteMethod):
+        self.mw.checkpoint(_(action))
         self.model.beginReset()
         # figure out where to place the cursor after the deletion
         curRow = self.form.tableView.selectionModel().currentIndex().row()
@@ -1418,11 +1436,11 @@ where id in %s""" % ids2str(sf))
             newRow = curRow - move
         elif max(selectedRows) <= curRow:
             # last selection at bottom; place one below bottommost selection
-            newRow = max(selectedRows) - len(nids) + 1
+            newRow = max(selectedRows) - len(ids) + 1
         else:
             # last selection at top; place one above topmost selection
             newRow = min(selectedRows) - 1
-        self.col.remNotes(nids)
+        deleteMethod(ids)
         self.search()
         if len(self.model.cards):
             newRow = min(newRow, len(self.model.cards) - 1)
@@ -1430,7 +1448,6 @@ where id in %s""" % ids2str(sf))
             self.model.focusedCard = self.model.cards[newRow]
         self.model.endReset()
         self.mw.requireReset()
-        tooltip(ngettext("%d note deleted.", "%d notes deleted.", len(nids)) % len(nids))
 
     # Deck change
     ######################################################################

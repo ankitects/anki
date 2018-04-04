@@ -232,7 +232,7 @@
      <x>0</x>
      <y>0</y>
      <width>750</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -293,6 +293,8 @@
     <addaction name="menuFlag"/>
     <addaction name="separator"/>
     <addaction name="action_Info"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete_Cards"/>
    </widget>
    <widget class="QMenu" name="menu_Notes">
     <property name="title">
@@ -585,6 +587,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionDelete_Cards">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Del</string>
    </property>
   </action>
  </widget>
