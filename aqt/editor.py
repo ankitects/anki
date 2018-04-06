@@ -21,7 +21,7 @@ from anki.hooks import runHook, runFilter
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getFile, \
-    openHelp, tooltip, downArrow, showCritical
+    openHelp, tooltip, downArrow
 import aqt
 from bs4 import BeautifulSoup
 import requests
@@ -909,36 +909,6 @@ class EditorWebView(AnkiWebView):
             return
         html = mime.html()
         mime.setHtml("<!--anki-->" + html)
-        if isWin:
-            self._windowsSetMimeData(clip, mime)
-        else:
-            clip.setMimeData(mime)
-
-    def _windowsSetMimeData(self, clip, mime):
-        import win32clipboard, time
-        from ctypes import windll
-
-        grabbed = False
-        for i in range(10):
-            try:
-                win32clipboard.OpenClipboard(self.editor.parentWindow.winId())
-                grabbed = True
-                break
-            except:
-                time.sleep(0.01)
-                continue
-
-        if not grabbed:
-            hwnd = win32clipboard.GetOpenClipboardWindow()
-
-            longpid = ctypes.c_ulong()
-            result = windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(longpid))
-            pid = longpid.value
-
-            showCritical(_("Unable to access clipboard - locked by process %d" % pid))
-            return
-
-        win32clipboard.CloseClipboard()
         clip.setMimeData(mime)
 
     def contextMenuEvent(self, evt):
