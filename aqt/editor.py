@@ -557,7 +557,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             file = getAudio(self.widget)
         except Exception as e:
             showWarning(_(
-                "Couldn't record audio. Have you installed lame and sox?") +
+                "Couldn't record audio. Have you installed 'lame'?") +
                         "\n\n" + repr(str(e)))
             return
         if file:
