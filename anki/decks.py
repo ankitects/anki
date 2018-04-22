@@ -2,7 +2,7 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import copy
+import copy,uuid
 from anki.utils import intTime, ids2str, json
 from anki.hooks import runHook
 from anki.consts import *
@@ -25,6 +25,8 @@ defaultDeck = {
     # added in beta11
     'extendNew': 10,
     'extendRev': 50,
+    'root_uuid': str(uuid.uuid4()), #When a deck is first created, it should have a unique identifier for revision control
+    'parent_uuid': ''
 }
 
 defaultDynamicDeck = {
@@ -244,6 +246,9 @@ class DeckManager:
         "Add or update an existing deck. Used for syncing and merging."
         self.decks[str(g['id'])] = g
         self.maybeAddToActive()
+        #Generate a random unique identifier for this version
+        #TODO allows syncing to deduplicate shared decks
+        g['uuid'] = str(uuid.uuid4()) 
         # mark registry changed, but don't bump mod time
         self.save()
 
