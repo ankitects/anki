@@ -65,25 +65,26 @@ class Scheduler:
         card.wasNew = card.type == 0
         wasNewQ = card.queue == 0
         if wasNewQ:
+            #TODO why is there an if statement here, this is indempotent
             # came from the new queue, move to learning
-            card.queue = 1
+            card.queue = CARD_TYPE_LEARNING
             # if it was a new card, it's now a learning card
-            if card.type == 0:
-                card.type = 1
+            if card.type == CARD_TYPE_NEW:
+                card.type = CARD_TYPE_LEARNING
             # init reps to graduation
             card.left = self._startingLeft(card)
             # dynamic?
-            if card.odid and card.type == 2:
+            if card.odid and card.type == CARD_TYPE_DUE:
                 if self._resched(card):
                     # reviews get their ivl boosted on first sight
                     card.ivl = self._dynIvlBoost(card)
                     card.odue = self.today + card.ivl
             self._updateStats(card, 'new')
-        if card.queue in (1, 3):
+        if card.queue in (QUEUE_TYPE_LEARNING, QUEUE_TYPE_DAY_LEARN):
             self._answerLrnCard(card, ease)
             if not wasNewQ:
                 self._updateStats(card, 'lrn')
-        elif card.queue == 2:
+        elif card.queue == QUEUE_TYPE_DUE:
             self._answerRevCard(card, ease)
             self._updateStats(card, 'rev')
         else:
@@ -129,13 +130,13 @@ order by due""" % self._deckLimit(),
     def answerButtons(self, card):
         if card.odue:
             # normal review in dyn deck?
-            if card.odid and card.queue == 2:
+            if card.odid and card.queue == QUEUE_TYPE_DUE:
                 return 4
             conf = self._lrnConf(card)
-            if card.type in (0,1) or len(conf['delays']) > 1:
+            if card.type in (CARD_TYPE_NEW,CARD_TYPE_LEARNING) or len(conf['delays']) > 1:
                 return 3
             return 2
-        elif card.queue == 2:
+        elif card.queue == CARD_TYPE_DUE:
             return 4
         else:
             return 3
@@ -520,7 +521,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         conf = self._lrnConf(card)
         if card.odid and not card.wasNew:
             type = 3
-        elif card.type == 2:
+        elif card.type == CARD_TYPE_DUE:
             type = 2
         else:
             type = 0
@@ -564,7 +565,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 # if the queue is not empty and there's nothing else to do, make
                 # sure we don't put it at the head of the queue and end up showing
                 # it twice in a row
-                card.queue = 1
+                card.queue = QUEUE_TYPE_LEARNING
                 if self._lrnQueue and not self.revCount and not self.newCount:
                     smallestDue = self._lrnQueue[0][0]
                     card.due = max(card.due, smallestDue+1)
@@ -574,7 +575,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 # day learn queue
                 ahead = ((card.due - self.dayCutoff) // 86400) + 1
                 card.due = self.today + ahead
-                card.queue = 3
+                card.queue = QUEUE_TYPE_DAY_LEARN
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _delayForGrade(self, conf, left):
@@ -590,13 +591,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return delay*60
 
     def _lrnConf(self, card):
-        if card.type == 2:
+        if card.type == CARD_TYPE_DUE:
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
     def _rescheduleAsRev(self, card, conf, early):
-        lapse = card.type == 2
+        lapse = card.type == CARD_TYPE_DUE
         if lapse:
             if self._resched(card):
                 card.due = max(self.today+1, card.odue)
@@ -605,8 +606,8 @@ did = ? and queue = 3 and due <= ? limit ?""",
             card.odue = 0
         else:
             self._rescheduleNew(card, conf, early)
-        card.queue = 2
-        card.type = 2
+        card.queue = QUEUE_TYPE_DUE
+        card.type = CARD_TYPE_DUE
         # if we were dynamic, graduating means moving back to the old deck
         resched = self._resched(card)
         if card.odid:
@@ -615,11 +616,11 @@ did = ? and queue = 3 and due <= ? limit ?""",
             card.odid = 0
             # if rescheduling is off, it needs to be set back to a new card
             if not resched and not lapse:
-                card.queue = card.type = 0
+                card.queue = card.type = CARD_TYPE_NEW
                 card.due = self.col.nextID("pos")
 
     def _startingLeft(self, card):
-        if card.type == 2:
+        if card.type == CARD_TYPE_DUE:
             conf = self._lapseConf(card)
         else:
             conf = self._lrnConf(card)
@@ -641,7 +642,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return ok+1
 
     def _graduatingIvl(self, card, conf, early, adj=True):
-        if card.type == 2:
+        if card.type == CARD_TYPE_DUE:
             # lapsed card being relearnt
             if card.odid:
                 if conf['resched']:
@@ -1224,7 +1225,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
-        if card.queue in (0,1,3):
+        if card.queue in (QUEUE_TYPE_NEW,QUEUE_TYPE_LEARNING,3):
             return self._nextLrnIvl(card, ease)
         elif ease == 1:
             # lapsed

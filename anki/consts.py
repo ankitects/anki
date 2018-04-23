@@ -56,6 +56,35 @@ SYNC_VER = 9
 
 HELP_SITE="http://ankisrs.net/docs/manual.html"
 
+# from card.py
+# Card and Queue types
+# Card Types
+# Type: 0=new, 1=learning, 2=due
+# Queue: same as above, and:
+#        -1=suspended, -2=user buried, -3=sched buried
+# Due is used differently for different queues.
+# - new queue: note id or random int
+# - rev queue: integer day
+# - lrn queue: integer timestamp
+
+# from sched.py
+# queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
+# revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
+
+CARD_TYPE_NEW=0
+CARD_TYPE_LEARNING=1
+CARD_TYPE_DUE=2
+
+QUEUE_TYPE_SUSPENDED=-1
+QUEUE_TYPE_USER_BURIED=-2
+QUEUE_TYPE_SCHED_BURIED=-3
+QUEUE_TYPE_NEW=CARD_TYPE_NEW
+QUEUE_TYPE_LEARNING=CARD_TYPE_LEARNING
+QUEUE_TYPE_DUE=CARD_TYPE_DUE
+QUEUE_TYPE_DAY_LEARN=3
+QUEUE_TYPE_PREVIEW=4
+
+
 # Labels
 ##########################################################################
 
