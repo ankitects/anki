@@ -59,7 +59,7 @@ class Scheduler:
     def answerCard(self, card, ease):
         self.col.log()
         assert 1 <= ease <= 4
-        assert 0 <= card.queue <= 4
+        assert QUEUE_TYPE_NEW <= card.queue <= QUEUE_TYPE_PREVIEW
         self.col.markReview(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
@@ -78,18 +78,18 @@ class Scheduler:
 
         card.reps += 1
 
-        if card.queue == 0:
+        if card.queue == QUEUE_TYPE_NEW:
             # came from the new queue, move to learning
-            card.queue = 1
-            card.type = 1
+            card.queue = QUEUE_TYPE_LEARNING
+            card.type = CARD_TYPE_LEARNING
             # init reps to graduation
             card.left = self._startingLeft(card)
             # update daily limit
             self._updateStats(card, 'new')
 
-        if card.queue in (1, 3):
+        if card.queue in (QUEUE_TYPE_LEARNING, QUEUE_TYPE_DAY_LEARN):
             self._answerLrnCard(card, ease)
-        elif card.queue == 2:
+        elif card.queue == QUEUE_TYPE_DUE:
             self._answerRevCard(card, ease)
             # update daily limit
             self._updateStats(card, 'rev')
@@ -101,7 +101,7 @@ class Scheduler:
 
         if ease == 1:
             # repeat after delay
-            card.queue = 4
+            card.queue = QUEUE_TYPE_PREVIEW
             card.due = intTime() + self._previewDelay(card)
             self.lrnCount += 1
         else:
@@ -135,7 +135,7 @@ order by due""" % self._deckLimit(),
         return ret
 
     def countIdx(self, card):
-        if card.queue in (3,4):
+        if card.queue in (QUEUE_TYPE_DAY_LEARN,QUEUE_TYPE_PREVIEW):
             return 1
         return card.queue
 
@@ -523,7 +523,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
     def _answerLrnCard(self, card, ease):
         conf = self._lrnConf(card)
-        if card.type in (2,3):
+        if card.type in (CARD_TYPE_DUE,QUEUE_TYPE_DAY_LEARN): #NOTE: 3 is a queue type, so part of this shouldn't happen unless a new card type is introduced
             type = 2
         else:
             type = 0
@@ -587,7 +587,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.due = int(time.time() + delay)
         # due today?
         if card.due < self.dayCutoff:
-            card.queue = 1
+            card.queue = QUEUE_TYPE_LEARNING
             if card.due < (intTime() + self.col.conf['collapseTime']):
                 self.lrnCount += 1
                 # if the queue is not empty and there's nothing else to do, make
@@ -602,7 +602,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
             # day learn queue
             ahead = ((card.due - self.dayCutoff) // 86400) + 1
             card.due = self.today + ahead
-            card.queue = 3
+            card.queue = QUEUE_TYPE_DAY_LEARN
         return delay
 
     def _delayForGrade(self, conf, left):
@@ -628,13 +628,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return avg
 
     def _lrnConf(self, card):
-        if card.type in (2, 3):
+        if card.type in (CARD_TYPE_DUE, 3): #NOTE: 3 is not a documented card type
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
     def _rescheduleAsRev(self, card, conf, early):
-        lapse = card.type in (2,3)
+        lapse = card.type in (CARD_TYPE_DUE,3) #NOTE: 3 is not a documented card type
 
         if lapse:
             self._rescheduleGraduatingLapse(card)
@@ -647,8 +647,8 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
     def _rescheduleGraduatingLapse(self, card):
         card.due = self.today+card.ivl
-        card.queue = 2
-        card.type = 2
+        card.queue = QUEUE_TYPE_DUE
+        card.type = CARD_TYPE_DUE
 
     def _startingLeft(self, card):
         if card.type == 2:
@@ -673,7 +673,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return ok+1
 
     def _graduatingIvl(self, card, conf, early, fuzz=True):
-        if card.type in (2,3):
+        if card.type in (CARD_TYPE_DUE,3): #NOTE: 3 is not a documented card type
             return card.ivl
         if not early:
             # graduate
@@ -690,7 +690,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today+card.ivl
         card.factor = conf['initialFactor']
-        card.type = card.queue = 2
+        card.type = card.queue = QUEUE_TYPE_DUE
 
     def _logLrn(self, card, ease, conf, leaving, type, lastLeft):
         lastIvl = -(self._delayForGrade(conf, lastLeft))
@@ -836,7 +836,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         card.factor = max(1300, card.factor-200)
 
         if conf['delays']:
-            card.type = 3
+            card.type = 3 #NOTE: 3 is not a documented card type
             delay = self._moveToFirstStep(card, conf)
         else:
             # no relearning steps
@@ -1327,7 +1327,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     # this isn't easily extracted from the learn code
     def _nextLrnIvl(self, card, ease):
-        if card.queue == 0:
+        if card.queue == QUEUE_TYPE_NEW:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
         if ease == 1:
