@@ -1,6 +1,7 @@
 var currentField = null;
 var changeTimer = null;
 var dropTarget = null;
+var currentNoteId = null;
 
 String.prototype.format = function () {
     var args = arguments;
@@ -203,7 +204,7 @@ function saveField(type) {
         return;
     }
     // type is either 'blur' or 'key'
-    pycmd(type + ":" + currentFieldOrdinal() + ":" + currentField.innerHTML);
+    pycmd(type + ":" + currentFieldOrdinal() + ":" + currentNoteId + ":" + currentField.innerHTML);
     clearChangeTimer();
 }
 
@@ -293,6 +294,10 @@ function setFonts(fonts) {
          .css("font-size", fonts[i][1]);
         n[0].dir = fonts[i][2] ? "rtl" : "ltr";
     }
+}
+
+function setNoteId(id) {
+    currentNoteId = id;
 }
 
 function showDupes() {
