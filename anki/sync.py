@@ -494,6 +494,13 @@ class AnkiRequestsClient:
         from anki import version
         return "Anki {}".format(version)
 
+# allow user to accept invalid certs in work/school settings
+if os.environ.get("ANKI_NOVERIFYSSL"):
+    AnkiRequestsClient.verify = False
+
+    import warnings
+    warnings.filterwarnings("ignore")
+
 class _MonitoringFile(io.BufferedReader):
     def read(self, size=-1):
         data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
