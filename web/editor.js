@@ -120,6 +120,10 @@ function clearChangeTimer() {
 }
 
 function onFocus(elem) {
+    if (currentField === elem) {
+        // anki window refocused; current element unchanged
+        return;
+    }
     currentField = elem;
     pycmd("focus:" + currentFieldOrdinal());
     enableButtons();
@@ -190,6 +194,10 @@ function caretToEnd() {
 }
 
 function onBlur() {
+    if (document.activeElement === currentField) {
+        // anki window defocused; current field unchanged
+        return;
+    }
     if (currentField) {
         saveField("blur");
         currentField = null;
