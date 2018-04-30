@@ -958,11 +958,17 @@ Difference to correct time: %s.""") % diffText
         addHook("modSchema", self.onSchemaMod)
         addHook("remNotes", self.onRemNotes)
         addHook("odueInvalid", self.onOdueInvalid)
+        addHook("mpvIdleHook", self.onMpvIdle)
 
     def onOdueInvalid(self):
         showWarning(_("""\
 Invalid property found on card. Please use Tools>Check Database, \
 and if the problem comes up again, please ask on the support site."""))
+
+    def onMpvIdle(self):
+        # when audio player finishes playing, restore focus to anki window
+        self.activateWindow()
+        self.raise_()
 
     # Log note deletion
     ##########################################################################

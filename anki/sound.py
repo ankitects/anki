@@ -5,7 +5,7 @@
 import html
 import re, sys, threading, time, subprocess, os, atexit
 import  random
-from anki.hooks import addHook
+from anki.hooks import addHook, runHook
 from anki.utils import  tmpdir, isWin, isMac, isLin
 
 # Shared utils
@@ -113,6 +113,9 @@ class MpvManager(MPV):
 
     def seekRelative(self, secs):
         self.command("seek", secs, "relative")
+
+    def on_idle(self):
+        runHook("mpvIdleHook")
 
 mpvManager = None
 
