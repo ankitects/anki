@@ -541,6 +541,7 @@ class HttpSyncer:
                 ('Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
                 (key, value)).encode("utf8"))
         # payload as raw data or json
+        rawSize = 0
         if fobj:
             # header
             buf.write(bdry + b"\r\n")
@@ -558,6 +559,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
                     if comp:
                         tgt.close()
                     break
+                rawSize += len(data)
                 tgt.write(data)
             buf.write(b"\r\n")
         buf.write(bdry + b'--\r\n')
@@ -568,6 +570,10 @@ Content-Type: application/octet-stream\r\n\r\n""")
             'Content-Length': str(size),
         }
         buf.seek(0)
+
+        if size >= 100*1024*1024 or rawSize >= 250*1024*1024:
+            raise Exception("Collection too large to upload to AnkiWeb.")
+
         return headers, buf
 
     def req(self, method, fobj=None, comp=6, badAuthRaises=True):
