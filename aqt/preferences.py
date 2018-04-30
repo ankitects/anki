@@ -5,7 +5,8 @@
 import datetime, time
 from aqt.qt import *
 import anki.lang
-from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo
+from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo, \
+    askUser
 import aqt
 
 class Preferences(QDialog):
@@ -86,6 +87,8 @@ class Preferences(QDialog):
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
         if self.mw.col.schedVer() != 2:
             f.dayLearnFirst.setVisible(False)
+        else:
+            f.newSched.setChecked(True)
 
     def updateCollection(self):
         f = self.form
@@ -100,7 +103,29 @@ class Preferences(QDialog):
         qc['addToCur'] = not f.useCurrent.currentIndex()
         qc['dayLearnFirst'] = f.dayLearnFirst.isChecked()
         self._updateDayCutoff()
+        self._updateSchedVer(f.newSched.isChecked())
         d.setMod()
+
+    # Scheduler version
+    ######################################################################
+
+    def _updateSchedVer(self, wantNew):
+        haveNew = self.mw.col.schedVer() == 2
+
+        # nothing to do?
+        if haveNew == wantNew:
+            return
+
+        if haveNew and not wantNew:
+            if not askUser(_("This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?")):
+                return
+            self.mw.col.changeSchedulerVer(1)
+            return
+
+        if not askUser(_("The experimental scheduler could cause incorrect scheduling. Please ensure you have read the documentation first. Proceed?")):
+            return
+
+        self.mw.col.changeSchedulerVer(2)
 
     # Day cutoff
     ######################################################################

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>405</width>
-    <height>455</height>
+    <height>469</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,16 @@
        <property name="spacing">
         <number>12</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -89,6 +98,13 @@
         <widget class="QCheckBox" name="dayLearnFirst">
          <property name="text">
           <string>Show learning cards with larger steps before reviews</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="newSched">
+         <property name="text">
+          <string>Experimental V2 scheduler</string>
          </property>
         </widget>
        </item>
@@ -217,7 +233,16 @@
        <property name="spacing">
         <number>12</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -322,7 +347,16 @@
        <property name="spacing">
         <number>12</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -445,12 +479,12 @@
   <tabstop>pastePNG</tabstop>
   <tabstop>nightMode</tabstop>
   <tabstop>dayLearnFirst</tabstop>
+  <tabstop>newSched</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>numBackups</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>tabWidget</tabstop>
