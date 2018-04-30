@@ -242,8 +242,12 @@ class Editor:
             return
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
-            (type, ord, txt) = cmd.split(":", 2)
+            (type, ord, nid, txt) = cmd.split(":", 3)
             ord = int(ord)
+            nid = int(nid)
+            if nid != self.note.id:
+                print("ignored late blur")
+                return
             txt = urllib.parse.unquote(txt)
             txt = unicodedata.normalize("NFC", txt)
             txt = self.mungeHTML(txt)
@@ -318,9 +322,10 @@ class Editor:
                 self.web.setFocus()
             runHook("loadNote", self)
 
-        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s)" % (
+        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
-            json.dumps(self.fonts()), json.dumps(focusTo)),
+            json.dumps(self.fonts()), json.dumps(focusTo),
+                                  json.dumps(self.note.id)),
                                   oncallback)
 
     def fonts(self):
