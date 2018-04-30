@@ -33,8 +33,6 @@ class AddCards(QDialog):
         addHook('currentModelChanged', self.onModelChange)
         addCloseShortcut(self)
         self.show()
-        n = self.mw.col.newNote()
-        self.setAndFocusNote(n)
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(
