@@ -557,6 +557,10 @@ to a cloze type first, via Edit>Change Note Type."""))
         # return a local html link
         return self.fnameToLink(fname)
 
+    def _addMediaFromData(self, fname, data):
+        fname = self.mw.col.media.writeData(fname, data)
+        return self.fnameToLink(fname)
+
     def onRecSound(self):
         try:
             file = getAudio(self.widget)
@@ -601,6 +605,27 @@ to a cloze type first, via Edit>Change Note Type."""))
             or s.startswith("https://")
             or s.startswith("ftp://")
             or s.startswith("file://"))
+
+    def inlinedImageToLink(self, txt):
+        prefix = "data:image/"
+        suffix = ";base64,"
+        for ext in ("jpeg", "png", "gif"):
+            fullPrefix = prefix + ext + suffix
+            if txt.startswith(fullPrefix):
+                b64data = txt[len(fullPrefix):]
+                data = base64.b64decode(b64data, validate=True)
+                if ext == "jpeg":
+                    ext = "jpg"
+                return self._addPastedImage(data, "."+ext)
+
+        return ""
+
+    # ext should include dot
+    def _addPastedImage(self, data, ext):
+        # hash and write
+        csum = checksum(data)
+        fname = "{}-{}{}".format("paste", csum, ext)
+        return self._addMediaFromData(fname, data)
 
     def _retrieveURL(self, url):
         "Download file into media folder and return local filename or None."
@@ -855,6 +880,10 @@ class EditorWebView(AnkiWebView):
 
         txt = mime.text()
 
+        # inlined data in base64?
+        if txt.startswith("data:image/"):
+            return self.editor.inlinedImageToLink(txt)
+
         # if the user is pasting an image or sound link, convert it to local
         if self.editor.isURL(txt):
             txt = txt.split("\r\n")[0]
@@ -891,15 +920,8 @@ class EditorWebView(AnkiWebView):
         if not os.path.exists(path):
             return
 
-        # hash and rename
-        csum = checksum(open(path, "rb").read())
-        newpath = "{}-{}{}".format(uname, csum, ext)
-        if os.path.exists(newpath):
-            os.unlink(newpath)
-        os.rename(path, newpath)
-
-        # add to media and return resulting html link
-        return self.editor._addMedia(newpath)
+        data = open(path, "rb").read()
+        return self.editor._addPastedImage(data, ext)
 
     def flagAnkiText(self):
         # be ready to adjust when clipboard event fires
