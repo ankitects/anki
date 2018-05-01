@@ -834,7 +834,7 @@ class EditorWebView(AnkiWebView):
         html, internal = self._processHtml(mime)
         if html:
             return html, internal
-        for fn in (self._processUrls, self._processImage, self._processText):
+        for fn in (self._processImage, self._processUrls, self._processText):
             html = fn(mime)
             if html:
                 return html, False
