@@ -234,6 +234,7 @@ enter your details below.""") %
         return (u, p)
 
     def _confirmFullSync(self):
+        self.mw.progress.finish()
         if self.thread.localIsEmpty:
             diag = askUserDialog(
                 _("Local collection has no cards. Download from AnkiWeb?"),
@@ -266,6 +267,7 @@ automatically."""),
             self.thread.fullSyncChoice = "download"
         else:
             self.thread.fullSyncChoice = "cancel"
+        self.mw.progress.start(immediate=True)
 
     def _clockOff(self):
         showWarning(_("""\
