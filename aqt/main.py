@@ -550,7 +550,7 @@ from the profile screen."))
         self.web.stdHtml("""
 <center><div style="height: 100%%">
 <div style="position:relative; vertical-align: middle;">
-%s<br>
+%s<br><br>
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """ % (i, b))
