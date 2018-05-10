@@ -308,6 +308,8 @@ close the profile or restart Anki."""))
     ##########################################################################
 
     def setupSound(self):
+        if isWin:
+            return
         try:
             anki.sound.setupMPV()
         except FileNotFoundError:
