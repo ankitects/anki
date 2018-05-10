@@ -906,6 +906,8 @@ class EditorWebView(AnkiWebView):
         return html, False
 
     def _processImage(self, mime):
+        if not mime.hasImage():
+            return
         im = QImage(mime.imageData())
         uname = namedtmp("paste")
         if self.editor.mw.pm.profile.get("pastePNG", False):
