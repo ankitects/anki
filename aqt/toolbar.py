@@ -42,8 +42,8 @@ class Toolbar:
         buf = ""
         for ln, name, title in links:
             buf += '''
-            <a class=hitem title="%s" href=# onclick="pycmd('%s')">%s</a>''' % (
-                title, ln, name)
+            <a class=hitem aria-label="%s" title="%s" href=# onclick="pycmd('%s')">%s</a>''' % (
+                name, title, ln, name)
         return buf
 
     # Link handling
