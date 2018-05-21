@@ -54,7 +54,6 @@ class Editor:
         self.setupWeb()
         self.setupShortcuts()
         self.setupTags()
-        self._performCloze = False
 
     # Initial setup
     ############################################################
@@ -271,9 +270,6 @@ class Editor:
                 else:
                     self.checkValid()
             else:
-                if self._performCloze:
-                    self._onCloze()
-                    self._performCloze = False
                 runHook("editTimer", self.note)
                 self.checkValid()
         # focused into field?
@@ -476,6 +472,10 @@ class Editor:
         self.web.eval("setFormat('removeFormat');")
 
     def onCloze(self):
+        field = self.currentField
+        self.saveNow(lambda: self._onCloze(field))
+
+    def _onCloze(self, field):
         # check that the model is set up for cloze deletion
         if not re.search('{{(.*:)*cloze:',self.note.model()['tmpls'][0]['qfmt']):
             if self.addMode:
@@ -486,12 +486,6 @@ class Editor:
 To make a cloze deletion on an existing note, you need to change it \
 to a cloze type first, via Edit>Change Note Type."""))
                 return
-        self._performCloze = True
-        self.web.eval('saveField("key")')
-
-    def _onCloze(self):
-        if not self._performCloze:
-            return
         # find the highest existing cloze
         highest = 0
         for name, val in list(self.note.items()):
@@ -503,8 +497,8 @@ to a cloze type first, via Edit>Change Note Type."""))
             highest += 1
         # must start at 1
         highest = max(1, highest)
-        self.web.eval("wrap('{{c%d::', '}}');" % highest)
-        self._performCloze = False
+        self.web.eval("focusField(%d, true); wrap('{{c%d::', '}}');" % (
+            field, highest))
 
     # Foreground colour
     ######################################################################
