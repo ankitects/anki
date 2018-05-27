@@ -225,7 +225,7 @@ border-radius:5px; font-family: Helvetica }"""
         else:
             buttonspec = ""
             family = self.font().family()
-            fontspec = 'font-size:14px;font-family:%s;'%\
+            fontspec = 'font-size:14px;font-family:"%s";'%\
                 family
         csstxt = "\n".join([self.bundledCSS("webview.css")]+
                            [self.bundledCSS(fname) for fname in css])
