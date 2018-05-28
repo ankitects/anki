@@ -2,6 +2,7 @@ var currentField = null;
 var changeTimer = null;
 var dropTarget = null;
 var currentNoteId = null;
+var keepSelectionOnce = false;
 
 String.prototype.format = function () {
     var args = arguments;
@@ -128,7 +129,8 @@ function onFocus(elem) {
     pycmd("focus:" + currentFieldOrdinal());
     enableButtons();
     // don't adjust cursor on mouse clicks
-    if (mouseDown) {
+    if (mouseDown || keepSelectionOnce) {
+        keepSelectionOnce = false;
         return;
     }
     // do this twice so that there's no flicker on newer versions
@@ -149,10 +151,11 @@ function onFocus(elem) {
     }
 }
 
-function focusField(n) {
+function focusField(n, keepSelection) {
     if (n === null) {
         return;
     }
+    keepSelectionOnce = keepSelection;
     $("#f" + n).focus();
 }
 

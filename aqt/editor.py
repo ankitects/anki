@@ -472,6 +472,10 @@ class Editor:
         self.web.eval("setFormat('removeFormat');")
 
     def onCloze(self):
+        field = self.currentField
+        self.saveNow(lambda: self._onCloze(field))
+
+    def _onCloze(self, field):
         # check that the model is set up for cloze deletion
         if not re.search('{{(.*:)*cloze:',self.note.model()['tmpls'][0]['qfmt']):
             if self.addMode:
@@ -493,7 +497,8 @@ to a cloze type first, via Edit>Change Note Type."""))
             highest += 1
         # must start at 1
         highest = max(1, highest)
-        self.web.eval("wrap('{{c%d::', '}}');" % highest)
+        self.web.eval("focusField(%d, true); wrap('{{c%d::', '}}');" % (
+            field, highest))
 
     # Foreground colour
     ######################################################################
