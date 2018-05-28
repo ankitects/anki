@@ -14,9 +14,16 @@ function setFGButton(col) {
     $("#forecolor")[0].style.backgroundColor = col;
 }
 
-function saveNow() {
+function saveNow(keepFocus) {
+    if (!currentField) {
+        return;
+    }
+
     clearChangeTimer();
-    if (currentField) {
+
+    if (keepFocus) {
+        saveField("key");
+    } else {
         currentField.blur();
     }
 }
