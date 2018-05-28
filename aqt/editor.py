@@ -332,14 +332,14 @@ class Editor:
         return [(f['font'], f['size'], f['rtl'])
                 for f in self.note.model()['flds']]
 
-    def saveNow(self, callback):
+    def saveNow(self, callback, keepFocus=False):
         "Save unsaved edits then call callback()."
         if not self.note:
              # calling code may not expect the callback to fire immediately
             self.mw.progress.timer(10, callback, False)
             return
         self.saveTags()
-        self.web.evalWithCallback("saveNow()", lambda res: callback())
+        self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     def checkValid(self):
         cols = []
@@ -472,6 +472,9 @@ class Editor:
         self.web.eval("setFormat('removeFormat');")
 
     def onCloze(self):
+        self.saveNow(self._onCloze, keepFocus=True)
+
+    def _onCloze(self):
         # check that the model is set up for cloze deletion
         if not re.search('{{(.*:)*cloze:',self.note.model()['tmpls'][0]['qfmt']):
             if self.addMode:
