@@ -473,7 +473,7 @@ class DeckManager:
                 actv.append((g['name'], g['id']))
         return actv
 
-    def parents(self, did):
+    def parents(self, did, nameMap=None):
         "All parents of did."
         # get parent and grandparent names
         parents = []
@@ -484,7 +484,11 @@ class DeckManager:
                 parents.append(parents[-1] + "::" + part)
         # convert to objects
         for c, p in enumerate(parents):
-            parents[c] = self.get(self.id(p))
+            if nameMap:
+                deck = nameMap[p]
+            else:
+                deck = self.get(self.id(p))
+            parents[c] = deck
         return parents
 
     def parentsByName(self, name):
@@ -502,6 +506,9 @@ class DeckManager:
                 parents.append(deck)
 
         return parents
+
+    def nameMap(self):
+        return dict((d['name'], d) for d in self.decks.values())
 
     # Sync handling
     ##########################################################################
