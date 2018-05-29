@@ -183,6 +183,7 @@ order by due""" % self._deckLimit(),
         tot = 0
         pcounts = {}
         # for each of the active decks
+        nameMap = self.col.decks.nameMap()
         for did in self.col.decks.active():
             # early alphas were setting the active ids as a str
             did = int(did)
@@ -191,7 +192,7 @@ order by due""" % self._deckLimit(),
             if not lim:
                 continue
             # check the parents
-            parents = self.col.decks.parents(did)
+            parents = self.col.decks.parents(did, nameMap)
             for p in parents:
                 # add if missing
                 if p['id'] not in pcounts:
