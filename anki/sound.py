@@ -102,6 +102,8 @@ class MpvManager(MPV):
         super().__init__(window_id=None, debug=False)
 
     def queueFile(self, file):
+        runHook("mpvWillPlay")
+
         path = os.path.join(os.getcwd(), file)
         self.command("loadfile", path, "append-play")
 
