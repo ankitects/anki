@@ -215,6 +215,7 @@ order by due""" % self._deckLimit(),
                 return None
             parts = parts[:-1]
             return "::".join(parts)
+        childMap = self.col.decks.childMap()
         for deck in decks:
             # if we've already seen the exact same deck name, remove the
             # invalid duplicate and reload
@@ -240,7 +241,7 @@ order by due""" % self._deckLimit(),
             else:
                 plim = None
             rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
-            rev = self._revForDeck(deck['id'], rlim)
+            rev = self._revForDeck(deck['id'], rlim, childMap)
             # save to list
             data.append([deck['name'], deck['id'], rev, lrn, new])
             # add deck as a parent
@@ -749,8 +750,8 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
             return lim
 
-    def _revForDeck(self, did, lim):
-        dids = [did] + [x[1] for x in self.col.decks.children(did)]
+    def _revForDeck(self, did, lim, childMap):
+        dids = [did] + self.col.decks.childDids(did, childMap)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             """
