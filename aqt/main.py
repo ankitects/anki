@@ -708,7 +708,7 @@ title="%s" %s>%s</button>''' % (
             ("s", self.onStudyKey),
             ("a", self.onAddCard),
             ("b", self.onBrowse),
-            ("Shift+s", self.onStats),
+            ("t", self.onStats),
             ("y", self.onSync)
         ]
         self.applyShortcuts(globalShortcuts)
