@@ -325,8 +325,8 @@ def test_reviews():
     d.reset()
     d.sched.answerCard(c, 2)
     assert c.queue == 2
-    # the new interval should be (100 + 8/4) * 1.2 = 122
-    assert checkRevIvl(d, c, 122)
+    # the new interval should be (100) * 1.2 = 120
+    assert checkRevIvl(d, c, 120)
     assert c.due == d.sched.today + c.ivl
     # factor should have been decremented
     assert c.factor == 2350

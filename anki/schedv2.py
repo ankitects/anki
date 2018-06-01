@@ -896,7 +896,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         delay = self._daysLate(card)
         conf = self._revConf(card)
         fct = card.factor / 1000
-        ivl2 = self._constrainedIvl((card.ivl + delay // 4) * 1.2, conf, card.ivl, fuzz)
+        ivl2 = self._constrainedIvl(card.ivl * 1.2, conf, card.ivl, fuzz)
         if ease == 2:
             return ivl2
 
