@@ -12,7 +12,7 @@ provide support for problems you encounter when running from source.
 
 Anki requires:
 
- - Python 3.5+
+ - Python 3.6+
  - Qt 5.9.x and a PyQT that supports it
  - mpv
  - lame
