@@ -146,6 +146,6 @@ add-ons section</a> of our support site.
         return """\
 Anki {} Python {} Qt {} PyQt {}
 Platform: {}
-Flags: frz={} ao={}        
+Flags: frz={} ao={} sv={}
 """.format(appVersion, platform.python_version(), QT_VERSION_STR, PYQT_VERSION_STR, platname,
-           getattr(sys, "frozen", False), self.mw.addonManager.dirty)
+           getattr(sys, "frozen", False), self.mw.addonManager.dirty, self.mw.col.schedVer())
