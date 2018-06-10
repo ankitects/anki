@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"bs4" = "*"
+requests = "*"
+decorator = "*"
+"Send2Trash" = "*"
+PyAudio = "*"
+Markdown = "*"
+sip = "*"
+"pyqt5" = "==5.9"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
