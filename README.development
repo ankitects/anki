@@ -1,3 +1,17 @@
+## Pipenv Setup
+$pipenv$ can be used to automate much of the dependency handling in a clean
+manner as shown
+
+```bash
+$ pip install pipenv
+$ git clone https://github.com/dae/anki.git
+$ cd anki
+$ pipenv install
+$ pipenv shell
+$ ./tools/build_ui.sh
+$ ./runanki
+```
+
 Running from source
 --------------------
 
