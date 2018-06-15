@@ -340,8 +340,11 @@ var filterHTML = function (html, internal, extendedMode) {
         filterNode(top, extendedMode);
     }
     var outHtml = top.innerHTML;
-    // remove newlines in HTML, as they break cloze deletions, and collapse whitespace
-    outHtml = outHtml.replace(/[\n\t ]+/g, " ").trim();
+    if (!extendedMode) {
+        // collapse whitespace
+        outHtml = outHtml.replace(/[\n\t ]+/g, " ");
+    }
+    outHtml = outHtml.trim();
     //console.log(`input html: ${html}`);
     //console.log(`outpt html: ${outHtml}`);
     return outHtml;
