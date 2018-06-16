@@ -31,7 +31,7 @@ langs = [
     ("Polski", "pl"),
     ("Português Brasileiro", "pt_BR"),
     ("Português", "pt"),
-    ("Româneşte", "ro"),
+    ("Română", "ro"),
     ("Slovenčina", "sk"),
     ("Slovenščina", "sl"),
     ("Suomi", "fi"),
