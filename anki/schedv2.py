@@ -837,18 +837,19 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         card.lapses += 1
         card.factor = max(1300, card.factor-200)
 
-        if conf['delays']:
+        suspended = self._checkLeech(card, conf) and card.queue == -1
+
+        if conf['delays'] and not suspended:
             card.type = 3
             delay = self._moveToFirstStep(card, conf)
         else:
             # no relearning steps
             self._updateRevIvlOnFail(card, conf)
             self._rescheduleAsRev(card, conf, early=False)
+            # need to reset the queue after rescheduling
+            if suspended:
+                card.queue = -1
             delay = 0
-
-        # if suspended as a leech, nothing to do
-        if self._checkLeech(card, conf) and card.queue == -1:
-            return 0
 
         return delay
 
