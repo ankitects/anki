@@ -84,13 +84,14 @@ def test_sync():
     assert client.sync() == "noChanges"
     # if we bump mod time, the decks will sync but should remain the same.
     deck1.setMod()
-    deck1.save()
+    deck1.save(mod=deck1.mod+1)
     assert client.sync() == "success"
     check(2)
     # crt should be synced
     deck1.crt = 123
     deck1.setMod()
-    assert client.sync() == "success"
+    deck1.save(mod=deck1.mod+1)
+    ret = client.sync(); assert ret == "success"
     assert deck1.crt == deck2.crt
 
 @nose.with_setup(setup_modified)
