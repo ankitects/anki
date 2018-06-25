@@ -1095,7 +1095,11 @@ by clicking on one on the left."""))
             return
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
-        d = QDialog(self)
+        class CardInfoDialog(QDialog):
+            def reject(self):
+                saveGeom(self, "revlog")
+                return QDialog.reject(self)
+        d = CardInfoDialog(self)
         l = QVBoxLayout()
         l.setContentsMargins(0,0,0,0)
         w = AnkiWebView()
@@ -1109,7 +1113,6 @@ by clicking on one on the left."""))
         d.resize(500, 400)
         restoreGeom(d, "revlog")
         d.show()
-        saveGeom(d, "revlog")
 
     def _cardInfoData(self):
         from anki.stats import CardStats
