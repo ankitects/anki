@@ -224,7 +224,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             return m.group(2)
         for ord in ords:
             s = re.sub(clozeReg%ord, qrepl, string)
-            s = re.sub(clozeReg%".+?", "\\4", s)
+            s = re.sub(clozeReg%".+?", "\\2", s)
             strings.append(s)
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
