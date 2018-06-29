@@ -314,5 +314,11 @@ body {{ zoom: {}; {} }}
         self.evalWithCallback("$(document.body).height()", self._onHeight)
 
     def _onHeight(self, qvar):
+        if qvar is None:
+            from aqt import mw
+            openLink("https://anki.tenderapp.com/kb/problems/anki-must-be-able-to-connect-to-a-local-port")
+            mw.app.closeAllWindows()
+            return
+
         height = math.ceil(qvar*self.zoomFactor())
         self.setFixedHeight(height)
