@@ -351,8 +351,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         snids = ids2str(nids)
         have = {}
         dids = {}
-        for id, nid, ord, did, odid in self.db.execute(
-            "select id, nid, ord, did, odid from cards where nid in "+snids):
+        dues = {}
+        for id, nid, ord, did, due, odue, odid in self.db.execute(
+            "select id, nid, ord, did, due, odue, odid from cards where nid in "+snids):
             # existing cards
             if nid not in have:
                 have[nid] = {}
@@ -369,6 +370,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             else:
                 # first card or multiple cards in same deck
                 dids[nid] = did
+            # save due
+            if odid != 0:
+                due = odue
+            if nid not in dues:
+                dues[nid] = due
         # build cards for each note
         data = []
         ts = maxID(self.db)
@@ -380,6 +386,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
             did = dids.get(nid) or model['did']
+            due = dues.get(nid)
             # add any missing cards
             for t in self._tmplsFromOrds(model, avail):
                 doHave = nid in have and t['ord'] in have[nid]
@@ -390,11 +397,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                         did = 1
                     # if the deck doesn't exist, use default instead
                     did = self.decks.get(did)['id']
-                    # we'd like to use the same due# as sibling cards, but we
-                    # can't retrieve that quickly, so we give it a new id
-                    # instead
+                    # use sibling due# if there is one, else use a new id
+                    if due is None:
+                        due = self.nextID("pos")
                     data.append((ts, nid, did, t['ord'],
-                                 now, usn, self.nextID("pos")))
+                                 now, usn, due))
                     ts += 1
             # note any cards that need removing
             if nid in have:
