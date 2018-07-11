@@ -957,7 +957,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         orderlimit = self._dynOrder(order, limit)
         if search.strip():
             search = "(%s)" % search
-        search = "%s -is:suspended -is:buried -deck:filtered" % search
+        search = "%s -is:suspended -is:buried -deck:filtered -is:learn" % search
         try:
             ids = self.col.findCards(search, order=orderlimit)
         except:
