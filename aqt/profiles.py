@@ -105,7 +105,7 @@ a flash drive.""" % self.base)
             return os.path.join(loc, "Anki")
         else:
             p = os.path.expanduser("~/Anki")
-            if os.path.exists(p):
+            if os.path.isdir(p):
                 return p
             else:
                 loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
@@ -121,7 +121,7 @@ a flash drive.""" % self.base)
     def maybeMigrateFolder(self):
         oldBase = self._oldFolderLocation()
 
-        if not os.path.exists(self.base) and os.path.exists(oldBase):
+        if not os.path.exists(self.base) and os.path.isdir(oldBase):
             shutil.move(oldBase, self.base)
 
     # Profile load/save
