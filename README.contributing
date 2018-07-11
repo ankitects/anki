@@ -16,7 +16,7 @@ harder for the mobile clients to track changes, so refactoring should be
 limited to times when it is necessary to address an important issue.
 
 Before sending a pull request or a patch, please check the following to
-increase your changes of the changes being accepted.
+increase your chances of the changes being accepted.
 
 Primarily Bugfixes
 -------------------
@@ -32,7 +32,7 @@ Examples of changes that are unlikely to be accepted:
   what already exists, but it takes time for us to review the changes, may
   harbour unnoticed bugs, and makes maintaining the mobile clients more
   difficult.
-- Adding code that is not used within Anki but it only for the benefit of
+- Adding code that is not used within Anki but is only for the benefit of
   add-ons - such code is difficult to test and maintain.
 - Adding code that addresses niche issues - they are better handled in an
   add-on.
