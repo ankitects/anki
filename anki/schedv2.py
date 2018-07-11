@@ -30,6 +30,7 @@ class Scheduler:
         self.col = col
         self.queueLimit = 50
         self.reportLimit = 1000
+        self.dynReportLimit = 99999
         self.reps = 0
         self.today = None
         self._haveQueues = False
@@ -428,7 +429,7 @@ select count() from
     def _deckNewLimitSingle(self, g):
         "Limit for deck without parent limits."
         if g['dyn']:
-            return self.reportLimit
+            return self.dynReportLimit
         c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
@@ -447,19 +448,19 @@ select id from cards where did in %s and queue = 0 limit ?)"""
 
         # sub-day
         self.lrnCount = self.col.db.scalar("""
-select count() from (select null from cards where did in %s and queue = 1
-and due < ? limit %d)""" % (
-            self._deckLimit(), self.reportLimit),
+select count() from cards where did in %s and queue = 1
+and due < ?""" % (
+            self._deckLimit()),
             cutoff) or 0
         # day
         self.lrnCount += self.col.db.scalar("""
-select count() from (select null from cards where did in %s and queue = 3
-and due <= ? limit %d)""" % (self._deckLimit(), self.reportLimit),
+select count() from cards where did in %s and queue = 3
+and due <= ?""" % (self._deckLimit()),
                                             self.today)
         # previews
         self.lrnCount += self.col.db.scalar("""
-select count() from (select null from cards where did in %s and queue = 4
-limit %d)""" % (self._deckLimit(), self.reportLimit))
+select count() from cards where did in %s and queue = 4
+""" % (self._deckLimit()))
 
     def _resetLrn(self):
         self._resetLrnCount()
@@ -735,7 +736,7 @@ and due <= ? limit ?)""",
             return 0
 
         if d['dyn']:
-            return self.reportLimit
+            return self.dynReportLimit
 
         c = self.col.decks.confForDid(d['id'])
         lim = max(0, c['rev']['perDay'] - d['revToday'][1])
