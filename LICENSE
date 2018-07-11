@@ -12,8 +12,6 @@ the three-clause BSD license.
 
  * Please see LICENSE.logo for the copyright and license of Anki's logo.
  * The translations are under BSD copyright, as mandated by Launchpad.
- * The icons are under a mix of GPL and more liberal licenses; most were taken
-   from standard icons installed on a Linux system.
  * The anki/template/ folder is based off pystache, and a separate license is
    included within.
  * The Javascript files in js.py are subject to their respective licenses.
