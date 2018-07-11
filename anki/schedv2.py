@@ -898,7 +898,12 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         delay = self._daysLate(card)
         conf = self._revConf(card)
         fct = card.factor / 1000
-        ivl2 = self._constrainedIvl(card.ivl * 1.2, conf, card.ivl, fuzz)
+        hardFactor = conf.get("hardFactor", 1.2)
+        if hardFactor > 1:
+            hardMin = card.ivl
+        else:
+            hardMin = 0
+        ivl2 = self._constrainedIvl(card.ivl * hardFactor, conf, hardMin, fuzz)
         if ease == 2:
             return ivl2
 
@@ -963,9 +968,10 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         minNewIvl = 1
 
         if ease == 2:
-            factor = 1.2
+            factor = conf.get("hardFactor", 1.2)
             # hard cards shouldn't have their interval decreased by more than 50%
-            minNewIvl = 0.5
+            # of the normal factor
+            minNewIvl = factor / 2
         elif ease == 3:
             factor = card.factor / 1000
         else: # ease == 4:

@@ -451,6 +451,11 @@ def test_button_spacing():
     assert ni(c, 3) == "3 days"
     assert ni(c, 4) == "4 days"
 
+    # if hard factor is <= 1, then hard may not increase
+    conf = d.decks.confForDid(1)
+    conf['rev']['hardFactor'] = 1
+    assert ni(c, 2) == "1 day"
+
 def test_overdue_lapse():
     # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
     return
@@ -695,7 +700,7 @@ def test_filt_reviewing_early_normal():
     d.reset()
     c = d.sched.getCard()
 
-    assert d.sched.nextIvl(c, 2) == 50*86400
+    assert d.sched.nextIvl(c, 2) == 60*86400
     assert d.sched.nextIvl(c, 3) == 100*86400
     assert d.sched.nextIvl(c, 4) == 101*86400
 

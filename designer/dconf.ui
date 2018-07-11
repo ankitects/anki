@@ -77,7 +77,16 @@
        <string>New Cards</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -227,7 +236,16 @@
        <string>Reviews</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -343,10 +361,27 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="3">
+         <item row="5" column="0" colspan="3">
           <widget class="QCheckBox" name="buryRev">
            <property name="text">
             <string>Bury related reviews until the next day</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="hardFactorLabel">
+           <property name="text">
+            <string>Hard interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="hardFactor">
+           <property name="minimum">
+            <number>5</number>
+           </property>
+           <property name="maximum">
+            <number>120</number>
            </property>
           </widget>
          </item>
@@ -372,7 +407,16 @@
        <string>Lapses</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -521,7 +565,16 @@
        <string>General</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -605,7 +658,16 @@
        <property name="spacing">
         <number>12</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
         <number>12</number>
        </property>
        <item>
@@ -649,6 +711,7 @@
   <tabstop>easyBonus</tabstop>
   <tabstop>fi1</tabstop>
   <tabstop>maxIvl</tabstop>
+  <tabstop>hardFactor</tabstop>
   <tabstop>buryRev</tabstop>
   <tabstop>lapSteps</tabstop>
   <tabstop>lapMult</tabstop>
@@ -659,7 +722,6 @@
   <tabstop>showTimer</tabstop>
   <tabstop>autoplaySounds</tabstop>
   <tabstop>replayQuestion</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>desc</tabstop>
  </tabstops>
  <resources>

@@ -76,6 +76,7 @@ defaultConf = {
         'maxIvl': 36500,
         # may not be set on old decks
         'bury': False,
+        'hardFactor': 1.2,
     },
     'maxTaken': 60,
     'timer': 0,
