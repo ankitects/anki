@@ -679,7 +679,7 @@ def test_filt_reviewing_early_normal():
     assert d.sched.nextIvl(c, 1) == 600
     assert d.sched.nextIvl(c, 2) == int(75*1.2)*86400
     assert d.sched.nextIvl(c, 3) == int(75*2.5)*86400
-    assert d.sched.nextIvl(c, 4) == int(75*2.5*1.3)*86400
+    assert d.sched.nextIvl(c, 4) == int(75*2.5*1.15)*86400
 
     # answer 'good'
     d.sched.answerCard(c, 3)
@@ -702,7 +702,7 @@ def test_filt_reviewing_early_normal():
 
     assert d.sched.nextIvl(c, 2) == 60*86400
     assert d.sched.nextIvl(c, 3) == 100*86400
-    assert d.sched.nextIvl(c, 4) == 101*86400
+    assert d.sched.nextIvl(c, 4) == 114*86400
 
 def test_filt_keep_lrn_state():
     d = getEmptyCol()

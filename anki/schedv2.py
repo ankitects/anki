@@ -963,7 +963,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
         conf = self._revConf(card)
 
-        easyBonus = 0
+        easyBonus = 1
         # early 3/4 reviews shouldn't decrease previous interval
         minNewIvl = 1
 
@@ -975,15 +975,15 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         elif ease == 3:
             factor = card.factor / 1000
         else: # ease == 4:
-            factor = card.factor / 1000 * conf['ease4']
-            # add an extra day, so early reviews have an easy interval nominally
-            # different from the good answer
-            easyBonus = 1
+            factor = card.factor / 1000
+            ease4 = conf['ease4']
+            # 1.3 -> 1.15
+            easyBonus = ease4 - (ease4-1)/2
 
         ivl = max(elapsed * factor, 1)
 
         # cap interval decreases
-        ivl = max(card.ivl*minNewIvl+easyBonus, ivl)
+        ivl = max(card.ivl*minNewIvl, ivl) * easyBonus
 
         ivl = self._constrainedIvl(ivl, conf, prev=0, fuzz=False)
 
