@@ -16,7 +16,8 @@ RADIO_CRAM = 6
 
 TYPE_NEW = 0
 TYPE_DUE = 1
-TYPE_ALL = 2
+TYPE_REVIEW = 2
+TYPE_ALL = 3
 
 class CustomStudy(QDialog):
     def __init__(self, mw):
@@ -150,6 +151,10 @@ class CustomStudy(QDialog):
             elif type == TYPE_DUE:
                 terms = "is:due "
                 ord = DYN_DUE
+                dyn['resched'] = True
+            elif type == TYPE_REVIEW:
+                terms = "-is:new "
+                ord = DYN_RANDOM
                 dyn['resched'] = True
             else:
                 terms = ""
