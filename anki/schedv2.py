@@ -1587,7 +1587,7 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
         # remove review cards from relearning
         self.col.db.execute("""
 update cards set
-due = odue, queue = 2, mod = %d, usn = %d, odue = 0
+due = odue, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
 where queue in (1,3) and type in (2, 3)
 """ % (intTime(), self.col.usn()))
         # remove new cards from learning
