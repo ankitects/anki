@@ -576,6 +576,7 @@ class Browser(QMainWindow):
         if "is:current" in self._lastSearchTxt:
             # show current card if there is one
             c = self.mw.reviewer.card
+            self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
             self.model.search("nid:%d"%nid)
         else:
