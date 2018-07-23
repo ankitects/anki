@@ -272,7 +272,11 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
             cb(file)
         ret.append(file)
     d.accepted.connect(accept)
+    if key:
+        restoreState(d, key)
     d.exec_()
+    if key:
+        saveState(d, key)
     return ret and ret[0]
 
 def getSaveFile(parent, title, dir_description, key, ext, fname=None):
