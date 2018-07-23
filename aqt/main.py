@@ -970,13 +970,19 @@ Difference to correct time: %s.""") % diffText
 Invalid property found on card. Please use Tools>Check Database, \
 and if the problem comes up again, please ask on the support site."""))
 
-    def onMpvWillPlay(self):
-        if not self._activeWindowOnPlay:
-            self._activeWindowOnPlay = self.app.activeWindow()
+    def _isVideo(self, file):
+        head, ext = os.path.splitext(file.lower())
+        return ext in (".mp4", ".mov", ".mpg", ".mpeg", ".mkv", ".avi")
+
+    def onMpvWillPlay(self, file):
+        if not self._isVideo(file):
+            return
+
+        self._activeWindowOnPlay = self.app.activeWindow() or self._activeWindowOnPlay
 
     def onMpvIdle(self):
         w = self._activeWindowOnPlay
-        if w and not sip.isdeleted(w) and w.isVisible():
+        if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
             w.activateWindow()
             w.raise_()
         self._activeWindowOnPlay = None
