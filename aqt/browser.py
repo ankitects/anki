@@ -556,7 +556,7 @@ class Browser(QMainWindow):
             self.form.searchEdit.lineEdit().setText("deck:current ")
 
         # update history
-        txt = str(self.form.searchEdit.lineEdit().text()).strip()
+        txt = str(self.form.searchEdit.lineEdit().text())
         sh = self.mw.pm.profile['searchHistory']
         if txt in sh:
             sh.remove(txt)
