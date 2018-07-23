@@ -28,6 +28,14 @@ function saveNow(keepFocus) {
     }
 }
 
+function triggerKeyTimer() {
+    clearChangeTimer();
+    changeTimer = setTimeout(function () {
+        updateButtonState();
+        saveField("key");
+    }, 600);
+}
+
 function onKey() {
     // esc clears focus, allowing dialog to close
     if (window.event.which === 27) {
@@ -41,11 +49,7 @@ function onKey() {
         focusPrevious();
         return;
     }
-    clearChangeTimer();
-    changeTimer = setTimeout(function () {
-        updateButtonState();
-        saveField("key");
-    }, 600);
+    triggerKeyTimer();
 }
 
 function insertNewline() {
@@ -82,10 +86,14 @@ function inPreEnvironment() {
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
 }
 
-function checkForEmptyField() {
+function onInput() {
+    // empty field?
     if (currentField.innerHTML === "") {
         currentField.innerHTML = "<br>";
     }
+
+    // make sure IME changes get saved
+    triggerKeyTimer();
 }
 
 function updateButtonState() {
@@ -288,7 +296,7 @@ function setFields(fields) {
             f = "<br>";
         }
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%>".format(n);
-        txt += "<div id=f{0} onkeydown='onKey();' oninput='checkForEmptyField()' onmouseup='onKey();'".format(i);
+        txt += "<div id=f{0} onkeydown='onKey();' oninput='onInput()' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
         txt += "oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' ";
