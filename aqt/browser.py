@@ -461,6 +461,7 @@ class Browser(QMainWindow):
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
+        runHook("browser.onContextMenu", self, m)
         m.exec_(QCursor.pos())
 
     def updateFont(self):
