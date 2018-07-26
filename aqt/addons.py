@@ -204,6 +204,7 @@ When loading '%(name)s':
     ######################################################################
 
     _configButtonActions = {}
+    _configCache = {}
 
     def addonConfigDefaults(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.json")
@@ -227,11 +228,7 @@ When loading '%(name)s':
     def configAction(self, addon):
         return self._configButtonActions.get(addon)
 
-    # Add-on Config API
-    ######################################################################
-
-    def getConfig(self, module):
-        addon = self.addonFromModule(module)
+    def _getConfig(self, addon):
         # get default config
         config = self.addonConfigDefaults(addon)
         if config is None:
@@ -242,12 +239,27 @@ When loading '%(name)s':
         config.update(userConf)
         return config
 
+    # Add-on Config API
+    ######################################################################
+
+    def getConfig(self, module, refresh=False):
+        addon = self.addonFromModule(module)
+        if not refresh:
+            try:
+                return self._configCache[addon]
+            except KeyError:
+                pass
+        config = self._getConfig(addon)
+        self._configCache[addon] = config
+        return config
+
     def setConfigAction(self, module, fn):
         addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
 
     def writeConfig(self, module, conf):
         addon = self.addonFromModule(module)
+        self._configCache[addon] = conf
         meta = self.addonMeta(addon)
         meta['config'] = conf
         self.writeAddonMeta(addon, meta)
@@ -394,7 +406,7 @@ class AddonsDialog(QDialog):
             act()
             return
 
-        conf = self.mgr.getConfig(addon)
+        conf = self.mgr.getConfig(addon, refresh=True)
         if conf is None:
             showInfo(_("Add-on has no configuration."))
             return
