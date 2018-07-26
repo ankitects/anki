@@ -54,9 +54,6 @@ class Syncer:
         rts = meta['ts']
         self.rmod = meta['mod']
         self.maxUsn = meta['usn']
-        # this is a temporary measure to address the problem of users
-        # forgetting which email address they've used - it will be removed
-        # when enough time has passed
         self.uname = meta.get("uname", "")
         meta = self.meta()
         self.col.log("lmeta", meta)
@@ -143,13 +140,6 @@ class Syncer:
             d['crt'] = self.col.crt
         return d
 
-    def applyChanges(self, changes):
-        self.rchg = changes
-        lchg = self.changes()
-        # merge our side before returning
-        self.mergeChanges(lchg, self.rchg)
-        return lchg
-
     def mergeChanges(self, lchg, rchg):
         # then the other objects
         self.mergeModels(rchg['models'])
@@ -177,14 +167,8 @@ class Syncer:
                 return "tag had usn = -1"
         found = False
         for m in self.col.models.all():
-            if self.col.server:
-                # the web upgrade was mistakenly setting usn
-                if m['usn'] < 0:
-                    m['usn'] = 0
-                    found = True
-            else:
-                if m['usn'] == -1:
-                    return "model had usn = -1"
+            if m['usn'] == -1:
+                return "model had usn = -1"
         if found:
             self.col.models.save()
         self.col.sched.reset()
@@ -202,22 +186,10 @@ class Syncer:
             len(self.col.decks.allConf()),
         ]
 
-    def sanityCheck2(self, client):
-        server = self.sanityCheck()
-        if client != server:
-            return dict(status="bad", c=client, s=server)
-        return dict(status="ok")
-
     def usnLim(self):
-        if self.col.server:
-            return "usn >= %d" % self.minUsn
-        else:
-            return "usn = -1"
+        return "usn = -1"
 
     def finish(self, mod=None):
-        if not mod:
-            # server side; we decide new mod time
-            mod = intTime(1000)
         self.col.ls = mod
         self.col._usn = self.maxUsn + 1
         # ensure we save the mod time even if no changes made
@@ -262,11 +234,10 @@ from notes where %s""" % d)
                 # table is empty
                 self.tablesLeft.pop(0)
                 self.cursor = None
-                # if we're the client, mark the objects as having been sent
-                if not self.col.server:
-                    self.col.db.execute(
-                        "update %s set usn=? where usn=-1"%curTable,
-                        self.maxUsn)
+                # mark the objects as having been sent
+                self.col.db.execute(
+                    "update %s set usn=? where usn=-1"%curTable,
+                    self.maxUsn)
             buf[curTable] = rows
             lim -= fetched
         if not self.tablesLeft:
@@ -288,12 +259,10 @@ from notes where %s""" % d)
         cards = []
         notes = []
         decks = []
-        if self.col.server:
-            curs = self.col.db.execute(
-                "select oid, type from graves where usn >= ?", self.minUsn)
-        else:
-            curs = self.col.db.execute(
-                "select oid, type from graves where usn = -1")
+
+        curs = self.col.db.execute(
+            "select oid, type from graves where usn = -1")
+
         for oid, type in curs:
             if type == REM_CARD:
                 cards.append(oid)
@@ -301,23 +270,16 @@ from notes where %s""" % d)
                 notes.append(oid)
             else:
                 decks.append(oid)
-        if not self.col.server:
-            self.col.db.execute("update graves set usn=? where usn=-1",
-                                 self.maxUsn)
-        return dict(cards=cards, notes=notes, decks=decks)
 
-    def start(self, minUsn, lnewer, graves):
-        self.maxUsn = self.col._usn
-        self.minUsn = minUsn
-        self.lnewer = not lnewer
-        lgraves = self.removed()
-        self.remove(graves)
-        return lgraves
+        self.col.db.execute("update graves set usn=? where usn=-1",
+                             self.maxUsn)
+
+        return dict(cards=cards, notes=notes, decks=decks)
 
     def remove(self, graves):
         # pretend to be the server so we don't set usn = -1
-        wasServer = self.col.server
         self.col.server = True
+
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves['notes'])
         # then cards
@@ -325,20 +287,18 @@ from notes where %s""" % d)
         # and decks
         for oid in graves['decks']:
             self.col.decks.rem(oid, childrenToo=False)
-        self.col.server = wasServer
+
+        self.col.server = False
 
     # Models
     ##########################################################################
 
     def getModels(self):
-        if self.col.server:
-            return [m for m in self.col.models.all() if m['usn'] >= self.minUsn]
-        else:
-            mods = [m for m in self.col.models.all() if m['usn'] == -1]
-            for m in mods:
-                m['usn'] = self.maxUsn
-            self.col.models.save()
-            return mods
+        mods = [m for m in self.col.models.all() if m['usn'] == -1]
+        for m in mods:
+            m['usn'] = self.maxUsn
+        self.col.models.save()
+        return mods
 
     def mergeModels(self, rchg):
         for r in rchg:
@@ -351,20 +311,14 @@ from notes where %s""" % d)
     ##########################################################################
 
     def getDecks(self):
-        if self.col.server:
-            return [
-                [g for g in self.col.decks.all() if g['usn'] >= self.minUsn],
-                [g for g in self.col.decks.allConf() if g['usn'] >= self.minUsn]
-            ]
-        else:
-            decks = [g for g in self.col.decks.all() if g['usn'] == -1]
-            for g in decks:
-                g['usn'] = self.maxUsn
-            dconf = [g for g in self.col.decks.allConf() if g['usn'] == -1]
-            for g in dconf:
-                g['usn'] = self.maxUsn
-            self.col.decks.save()
-            return [decks, dconf]
+        decks = [g for g in self.col.decks.all() if g['usn'] == -1]
+        for g in decks:
+            g['usn'] = self.maxUsn
+        dconf = [g for g in self.col.decks.allConf() if g['usn'] == -1]
+        for g in dconf:
+            g['usn'] = self.maxUsn
+        self.col.decks.save()
+        return [decks, dconf]
 
     def mergeDecks(self, rchg):
         for r in rchg[0]:
@@ -389,17 +343,13 @@ from notes where %s""" % d)
     ##########################################################################
 
     def getTags(self):
-        if self.col.server:
-            return [t for t, usn in self.col.tags.allItems()
-                    if usn >= self.minUsn]
-        else:
-            tags = []
-            for t, usn in self.col.tags.allItems():
-                if usn == -1:
-                    self.col.tags.tags[t] = self.maxUsn
-                    tags.append(t)
-            self.col.tags.save()
-            return tags
+        tags = []
+        for t, usn in self.col.tags.allItems():
+            if usn == -1:
+                self.col.tags.tags[t] = self.maxUsn
+                tags.append(t)
+        self.col.tags.save()
+        return tags
 
     def mergeTags(self, tags):
         self.col.tags.register(tags, usn=self.maxUsn)
@@ -447,17 +397,6 @@ from notes where %s""" % d)
 
     def mergeConf(self, conf):
         self.col.conf = conf
-
-# Local syncing for unit tests
-##########################################################################
-
-class LocalServer(Syncer):
-
-    # serialize/deserialize payload, so we don't end up sharing objects
-    # between cols
-    def applyChanges(self, changes):
-        l = json.loads; d = json.dumps
-        return l(d(Syncer.applyChanges(self, l(d(changes)))))
 
 # Wrapper for requests that tracks upload/download progress
 ##########################################################################
