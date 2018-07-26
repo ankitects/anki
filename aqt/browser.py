@@ -736,6 +736,7 @@ by clicking on one on the left."""))
         self.model.beginReset()
         if type in self.model.activeCols:
             if len(self.model.activeCols) < 2:
+                self.model.endReset()
                 return showInfo(_("You must have at least one column."))
             self.model.activeCols.remove(type)
             adding=False
