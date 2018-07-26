@@ -1711,7 +1711,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             "%(a)d of %(b)d notes updated", len(sf)) % {
                 'a': changed,
                 'b': len(sf),
-            })
+            }, parent=self)
 
     def onFindReplaceHelp(self):
         openHelp("findreplace")
