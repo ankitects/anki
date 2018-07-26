@@ -75,12 +75,19 @@ class Syncer:
         if not self.col.basicCheck():
             self.col.log("basic check")
             return "basicCheckFailed"
-        # step 2: deletions
+        # step 2: startup and deletions
         runHook("sync", "meta")
-        lrem = self.removed()
-        rrem = self.server.start(
-            minUsn=self.minUsn, lnewer=self.lnewer, graves=lrem)
+        rrem = self.server.start(minUsn=self.minUsn, lnewer=self.lnewer)
+
+        # apply deletions to server
+        lgraves = self.removed()
+        while lgraves:
+            gchunk, lgraves = self._gravesChunk(lgraves)
+            self.server.applyGraves(chunk=gchunk)
+
+        # then apply server deletions here
         self.remove(rrem)
+
         # ...and small objects
         lchg = self.changes()
         rchg = self.server.applyChanges(changes=lchg)
@@ -118,6 +125,20 @@ class Syncer:
         mod = self.server.finish()
         self.finish(mod)
         return "success"
+
+    def _gravesChunk(self, graves):
+        lim = 250
+        chunk = dict(notes=[], cards=[], decks=[])
+        for cat in "notes", "cards", "decks":
+            if lim and graves[cat]:
+                chunk[cat] = graves[cat][:lim]
+                graves[cat] = graves[cat][lim:]
+                lim -= len(chunk[cat])
+
+        # anything remaining?
+        if graves['notes'] or graves['cards'] or graves['decks']:
+            return chunk, graves
+        return chunk, None
 
     def meta(self):
         return dict(
@@ -564,6 +585,9 @@ class RemoteServer(HttpSyncer):
             # invalid auth
             return
         return json.loads(ret.decode("utf8"))
+
+    def applyGraves(self, **kw):
+        return self._run("applyGraves", kw)
 
     def applyChanges(self, **kw):
         return self._run("applyChanges", kw)
