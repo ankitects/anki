@@ -1107,10 +1107,8 @@ def test_failmult():
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.ivl == 50
-    # failing again, the actual elapsed interval is 0,
-    # so the card is reset to new
     d.sched.answerCard(c, 1)
-    assert c.ivl == 1
+    assert c.ivl == 25
 
 def test_moveVersions():
     col = _getEmptyCol(schedVer=1)
