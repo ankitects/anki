@@ -856,10 +856,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         return delay
 
     def _lapseIvl(self, card, conf):
-        due = card.odue or card.due
-        elapsed = card.ivl - (due - self.today)
-        ivl = min(elapsed, card.ivl)
-        ivl = max(1, conf['minInt'], ivl*conf['mult'])
+        ivl = max(1, conf['minInt'], card.ivl*conf['mult'])
         return ivl
 
     def _rescheduleRev(self, card, ease, early):
