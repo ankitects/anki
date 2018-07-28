@@ -223,6 +223,8 @@ def parseArgs(argv):
     parser.add_option("-b", "--base", help="path to base folder")
     parser.add_option("-p", "--profile", help="profile name to load")
     parser.add_option("-l", "--lang", help="interface language (en, de, etc)")
+    if not isMac:
+        parser.add_option("--hwaccel", action="store_true", help="enable hardware acceleration")
     return parser.parse_args(argv[1:])
 
 def run():
@@ -252,6 +254,13 @@ def _run(argv=None, exec=True):
     opts, args = parseArgs(argv)
     opts.base = opts.base or ""
     opts.profile = opts.profile or ""
+
+    if not isMac and not opts.hwaccel:
+        print("Hardware acceleration disabled.")
+        if isWin:
+            os.environ["QT_OPENGL"] = "software"
+        else:
+            os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
 
     # work around pyqt loading wrong GL library
     if isLin:
