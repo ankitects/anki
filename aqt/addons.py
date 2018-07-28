@@ -204,6 +204,7 @@ When loading '%(name)s':
     ######################################################################
 
     _configButtonActions = {}
+    _configUpdatedActions = {}
 
     def addonConfigDefaults(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.json")
@@ -227,6 +228,9 @@ When loading '%(name)s':
     def configAction(self, addon):
         return self._configButtonActions.get(addon)
 
+    def configUpdatedAction(self, addon):
+        return self._configUpdatedActions.get(addon)
+
     # Add-on Config API
     ######################################################################
 
@@ -245,6 +249,10 @@ When loading '%(name)s':
     def setConfigAction(self, module, fn):
         addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
+
+    def setConfigUpdatedAction(self, module, fn):
+        addon = self.addonFromModule(module)
+        self._configUpdatedActions[addon] = fn
 
     def writeConfig(self, module, conf):
         addon = self.addonFromModule(module)
@@ -484,4 +492,9 @@ class ConfigEditor(QDialog):
             return
 
         self.mgr.writeConfig(self.addon, self.conf)
+
+        act = self.mgr.configUpdatedAction(self.addon)
+        if act:
+            act()
+            
         super().accept()
