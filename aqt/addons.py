@@ -465,12 +465,12 @@ class ConfigEditor(QDialog):
         restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
         restore.clicked.connect(self.onRestoreDefaults)
         self.updateHelp()
-        self.updateText()
+        self.updateText(self.conf)
         self.show()
 
     def onRestoreDefaults(self):
-        self.conf = self.mgr.addonConfigDefaults(self.addon)
-        self.updateText()
+        default_conf = self.mgr.addonConfigDefaults(self.addon)
+        self.updateText(default_conf)
 
     def updateHelp(self):
         txt = self.mgr.addonConfigHelp(self.addon)
@@ -479,22 +479,22 @@ class ConfigEditor(QDialog):
         else:
             self.form.scrollArea.setVisible(False)
 
-    def updateText(self):
+    def updateText(self, conf):
         self.form.editor.setPlainText(
-            json.dumps(self.conf,sort_keys=True,indent=4, separators=(',', ': ')))
+            json.dumps(conf,sort_keys=True,indent=4, separators=(',', ': ')))
 
     def accept(self):
         txt = self.form.editor.toPlainText()
         try:
-            self.conf = json.loads(txt)
+            new_conf = json.loads(txt)
         except Exception as e:
             showInfo(_("Invalid configuration: ") + repr(e))
             return
 
-        self.mgr.writeConfig(self.addon, self.conf)
+        if new_conf != self.conf:
+            self.mgr.writeConfig(self.addon, new_conf)
+            act = self.mgr.configUpdatedAction(self.addon)
+            if act:
+                act()
 
-        act = self.mgr.configUpdatedAction(self.addon)
-        if act:
-            act()
-            
         super().accept()
