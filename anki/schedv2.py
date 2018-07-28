@@ -585,12 +585,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         if delay is None:
             delay = self._delayForGrade(conf, card.left)
 
-        if card.due < time.time():
-            # not collapsed; add some randomness
-            delay *= random.uniform(1, 1.25)
         card.due = int(time.time() + delay)
         # due today?
         if card.due < self.dayCutoff:
+            # add some randomness, up to 5 minutes or 25%
+            maxExtra = min(300, int(delay*0.25))
+            fuzz = random.randrange(0, maxExtra)
+            card.due = min(self.dayCutoff-1, card.due + fuzz)
             card.queue = 1
             if card.due < (intTime() + self.col.conf['collapseTime']):
                 self.lrnCount += 1
