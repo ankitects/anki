@@ -43,7 +43,9 @@ class SyncManager(QObject):
         # create the thread, setup signals and start running
         t = self.thread = SyncThread(
             self.pm.collectionPath(), self.pm.profile['syncKey'],
-            auth=auth, media=self.pm.profile['syncMedia'])
+            auth=auth, media=self.pm.profile['syncMedia'],
+            hostNum=self.pm.profile.get("hostNum"),
+        )
         t.event.connect(self.onEvent)
         self.label = _("Connecting...")
         prog = self.mw.progress.start(immediate=True, label=self.label)
@@ -64,6 +66,7 @@ class SyncManager(QObject):
             showText(self.thread.syncMsg)
         if self.thread.uname:
             self.pm.profile['syncUser'] = self.thread.uname
+        self.pm.profile['hostNum'] = self.thread.hostNum
         def delayedInfo():
             if self._didFullUp and not self._didError:
                 showInfo(_("""\
@@ -290,12 +293,13 @@ class SyncThread(QThread):
 
     event = pyqtSignal(str, str)
 
-    def __init__(self, path, hkey, auth=None, media=True):
+    def __init__(self, path, hkey, auth=None, media=True, hostNum=None):
         QThread.__init__(self)
         self.path = path
         self.hkey = hkey
         self.auth = auth
         self.media = media
+        self.hostNum = hostNum
         self._abort = 0 # 1=flagged, 2=aborting
 
     def flagAbort(self):
@@ -311,7 +315,7 @@ class SyncThread(QThread):
         except:
             self.fireEvent("corrupt")
             return
-        self.server = RemoteServer(self.hkey)
+        self.server = RemoteServer(self.hkey, hostNum=self.hostNum)
         self.client = Syncer(self.col, self.server)
         self.sentTotal = 0
         self.recvTotal = 0
@@ -405,6 +409,7 @@ class SyncThread(QThread):
             self.fireEvent("error", "Unknown sync return code.")
         self.syncMsg = self.client.syncMsg
         self.uname = self.client.uname
+        self.hostNum = self.client.hostNum
         # then move on to media sync
         self._syncMedia()
 
@@ -419,7 +424,8 @@ class SyncThread(QThread):
         f = self.fullSyncChoice
         if f == "cancel":
             return
-        self.client = FullSyncer(self.col, self.hkey, self.server.client)
+        self.client = FullSyncer(self.col, self.hkey, self.server.client,
+                                 hostNum=self.hostNum)
         try:
             if f == "upload":
                 if not self.client.upload():
@@ -437,7 +443,8 @@ class SyncThread(QThread):
     def _syncMedia(self):
         if not self.media:
             return
-        self.server = RemoteMediaServer(self.col, self.hkey, self.server.client)
+        self.server = RemoteMediaServer(self.col, self.hkey, self.server.client,
+                                        hostNum=self.hostNum)
         self.client = MediaSyncer(self.col, self.server)
         try:
             ret = self.client.sync()
