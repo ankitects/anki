@@ -50,8 +50,7 @@ STARTING_FACTOR = 2500
 SCHEMA_VERSION = 11
 SYNC_ZIP_SIZE = int(2.5*1024*1024)
 SYNC_ZIP_COUNT = 25
-SYNC_BASE = "https://sync.ankiweb.net/"
-SYNC_MEDIA_BASE = "https://sync.ankiweb.net/msync/"
+SYNC_BASE = "https://sync%s.ankiweb.net/"
 SYNC_VER = 9
 
 HELP_SITE="http://ankisrs.net/docs/manual.html"

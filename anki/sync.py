@@ -55,6 +55,7 @@ class Syncer:
         self.rmod = meta['mod']
         self.maxUsn = meta['usn']
         self.uname = meta.get("uname", "")
+        self.hostNum = meta.get("hostNum")
         meta = self.meta()
         self.col.log("lmeta", meta)
         self.lmod = meta['mod']
@@ -472,11 +473,20 @@ class _MonitoringFile(io.BufferedReader):
 
 class HttpSyncer:
 
-    def __init__(self, hkey=None, client=None):
+    def __init__(self, hkey=None, client=None, hostNum=None):
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
         self.client = client or AnkiRequestsClient()
         self.postVars = {}
+        self.hostNum = hostNum
+        self.prefix = "sync/"
+
+    def syncURL(self):
+        if devMode:
+            url = "https://l1sync.ankiweb.net/"
+        else:
+            url = SYNC_BASE % (self.hostNum or "")
+        return url + self.prefix
 
     def assertOk(self, resp):
         # not using raise_for_status() as aqt expects this error msg
@@ -552,13 +562,8 @@ Content-Type: application/octet-stream\r\n\r\n""")
 
 class RemoteServer(HttpSyncer):
 
-    def __init__(self, hkey):
-        HttpSyncer.__init__(self, hkey)
-
-    def syncURL(self):
-        if devMode:
-            return "https://l1sync.ankiweb.net/sync/"
-        return SYNC_BASE + "sync/"
+    def __init__(self, hkey, hostNum):
+        HttpSyncer.__init__(self, hkey, hostNum=hostNum)
 
     def hostKey(self, user, pw):
         "Returns hkey or none if user/pw incorrect."
@@ -619,18 +624,13 @@ class RemoteServer(HttpSyncer):
 
 class FullSyncer(HttpSyncer):
 
-    def __init__(self, col, hkey, client):
-        HttpSyncer.__init__(self, hkey, client)
+    def __init__(self, col, hkey, client, hostNum):
+        HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
         self.postVars = dict(
             k=self.hkey,
             v="ankidesktop,%s,%s"%(anki.version, platDesc()),
         )
         self.col = col
-
-    def syncURL(self):
-        if devMode:
-            return "https://l1.ankiweb.net/sync/"
-        return SYNC_BASE + "sync/"
 
     def download(self):
         runHook("sync", "download")
@@ -810,14 +810,10 @@ class MediaSyncer:
 
 class RemoteMediaServer(HttpSyncer):
 
-    def __init__(self, col, hkey, client):
+    def __init__(self, col, hkey, client, hostNum):
         self.col = col
-        HttpSyncer.__init__(self, hkey, client)
-
-    def syncURL(self):
-        if devMode:
-            return "https://l1.ankiweb.net/msync/"
-        return SYNC_MEDIA_BASE
+        HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
+        self.prefix = "msync/"
 
     def begin(self):
         self.postVars = dict(
