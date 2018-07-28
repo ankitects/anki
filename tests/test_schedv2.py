@@ -136,7 +136,8 @@ def test_learn():
     # pass it once
     d.sched.answerCard(c, 3)
     # it should by due in 3 minutes
-    assert round(c.due - time.time()) in (179, 180)
+    dueIn = c.due - time.time()
+    assert 179 <= dueIn <= 180*1.25
     assert c.left%1000 == 2
     assert c.left//1000 == 2
     # check log is accurate
@@ -147,7 +148,8 @@ def test_learn():
     # pass again
     d.sched.answerCard(c, 3)
     # it should by due in 10 minutes
-    assert round(c.due - time.time()) in (599, 600)
+    dueIn = c.due - time.time()
+    assert 599 <= dueIn <= 600*1.25
     assert c.left%1000 == 1
     assert c.left//1000 == 1
     # the next pass should graduate the card
