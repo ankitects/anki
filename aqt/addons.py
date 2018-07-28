@@ -204,6 +204,7 @@ When loading '%(name)s':
     ######################################################################
 
     _configButtonActions = {}
+    _configUpdatedActions = {}
 
     def addonConfigDefaults(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.json")
@@ -227,6 +228,9 @@ When loading '%(name)s':
     def configAction(self, addon):
         return self._configButtonActions.get(addon)
 
+    def configUpdatedAction(self, addon):
+        return self._configUpdatedActions.get(addon)
+
     # Add-on Config API
     ######################################################################
 
@@ -245,6 +249,10 @@ When loading '%(name)s':
     def setConfigAction(self, module, fn):
         addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
+
+    def setConfigUpdatedAction(self, module, fn):
+        addon = self.addonFromModule(module)
+        self._configUpdatedActions[addon] = fn
 
     def writeConfig(self, module, conf):
         addon = self.addonFromModule(module)
@@ -457,12 +465,12 @@ class ConfigEditor(QDialog):
         restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
         restore.clicked.connect(self.onRestoreDefaults)
         self.updateHelp()
-        self.updateText()
+        self.updateText(self.conf)
         self.show()
 
     def onRestoreDefaults(self):
-        self.conf = self.mgr.addonConfigDefaults(self.addon)
-        self.updateText()
+        default_conf = self.mgr.addonConfigDefaults(self.addon)
+        self.updateText(default_conf)
 
     def updateHelp(self):
         txt = self.mgr.addonConfigHelp(self.addon)
@@ -471,17 +479,23 @@ class ConfigEditor(QDialog):
         else:
             self.form.scrollArea.setVisible(False)
 
-    def updateText(self):
+    def updateText(self, conf):
         self.form.editor.setPlainText(
-            json.dumps(self.conf,sort_keys=True,indent=4, separators=(',', ': ')))
+            json.dumps(conf,sort_keys=True,indent=4, separators=(',', ': ')))
 
     def accept(self):
         txt = self.form.editor.toPlainText()
         try:
-            self.conf = json.loads(txt)
+            new_conf = json.loads(txt)
         except Exception as e:
             showInfo(_("Invalid configuration: ") + repr(e))
             return
 
-        self.mgr.writeConfig(self.addon, self.conf)
+        if new_conf != self.conf:
+            self.mgr.writeConfig(self.addon, new_conf)
+            # does the add-on define an action to be fired?
+            act = self.mgr.configUpdatedAction(self.addon)
+            if act:
+                act(new_conf)
+
         super().accept()
