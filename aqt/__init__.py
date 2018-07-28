@@ -302,8 +302,6 @@ environment points to a valid, writable folder.""")
     # remaining pm init
     pm.ensureProfile()
 
-    print("This is an BETA build - please do not package it up for Linux distributions")
-
     # load the main window
     import aqt.main
     mw = aqt.main.AnkiQt(app, pm, opts, args)
