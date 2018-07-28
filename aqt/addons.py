@@ -493,8 +493,9 @@ class ConfigEditor(QDialog):
 
         if new_conf != self.conf:
             self.mgr.writeConfig(self.addon, new_conf)
+            # does the add-on define an action to be fired?
             act = self.mgr.configUpdatedAction(self.addon)
             if act:
-                act()
+                act(new_conf)
 
         super().accept()
