@@ -27,7 +27,7 @@ from bs4 import BeautifulSoup
 import requests
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
-audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga")
+audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga", "webm")
 
 _html = """
 <style>
