@@ -70,7 +70,8 @@ class DialogManager:
     def open(self, name, *args):
         (creator, instance) = self._dialogs[name]
         if instance:
-            instance.setWindowState(Qt.WindowNoState)
+            if instance.windowState() & Qt.WindowMinimized:
+                instance.setWindowState(instance.windowState() & ~Qt.WindowMinimized)
             instance.activateWindow()
             instance.raise_()
             return instance
