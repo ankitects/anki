@@ -193,6 +193,7 @@ class Editor:
             ("Ctrl+T, M", self.insertLatexMathEnv),
             ("Ctrl+M, M", self.insertMathjaxInline),
             ("Ctrl+M, E", self.insertMathjaxBlock),
+            ("Ctrl+M, C", self.insertMathjaxChemistry),
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags, True)
         ]
@@ -742,6 +743,9 @@ to a cloze type first, via Edit>Change Note Type."""))
         a = m.addAction(_("MathJax block"))
         a.triggered.connect(self.insertMathjaxBlock)
         a.setShortcut(QKeySequence("Ctrl+M, E"))
+        a = m.addAction(_("MathJax chemistry"))
+        a.triggered.connect(self.insertMathjaxChemistry)
+        a.setShortcut(QKeySequence("Ctrl+M, C"))
         a = m.addAction(_("LaTeX"))
         a.triggered.connect(self.insertLatex)
         a.setShortcut(QKeySequence("Ctrl+T, T"))
@@ -773,6 +777,9 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     def insertMathjaxBlock(self):
         self.web.eval("wrap('\\\\[', '\\\\]');")
+
+    def insertMathjaxChemistry(self):
+        self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
     # Links from HTML
     ######################################################################
