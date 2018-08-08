@@ -224,9 +224,37 @@ def parseArgs(argv):
     parser.add_option("-b", "--base", help="path to base folder")
     parser.add_option("-p", "--profile", help="profile name to load")
     parser.add_option("-l", "--lang", help="interface language (en, de, etc)")
-    if not isMac:
-        parser.add_option("--hwaccel", action="store_true", help="enable hardware acceleration")
     return parser.parse_args(argv[1:])
+
+def setupGL(pm):
+    if isMac:
+        return
+
+    mode = pm.glMode()
+
+    # work around pyqt loading wrong GL library
+    if isLin:
+        import ctypes
+        ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
+
+    # catch opengl errors
+    def msgHandler(type, ctx, msg):
+        if "Failed to create OpenGL context" in msg:
+            QMessageBox.critical(None, "Error", "Error loading '%s' graphics driver. Please start Anki again to try next driver." % mode)
+            pm.nextGlMode()
+            return
+        else:
+            print("qt:", msg)
+    qInstallMessageHandler(msgHandler)
+
+    print("Hardware acceleration set to", mode)
+
+    if mode == "auto":
+        return
+    elif isLin:
+        os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+    else:
+        os.environ["QT_OPENGL"] = mode
 
 def run():
     try:
@@ -256,17 +284,12 @@ def _run(argv=None, exec=True):
     opts.base = opts.base or ""
     opts.profile = opts.profile or ""
 
-    if not isMac and not opts.hwaccel:
-        print("Hardware acceleration disabled.")
-        if isWin:
-            os.environ["QT_OPENGL"] = "software"
-        else:
-            os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+    # profile manager
+    from aqt.profiles import ProfileManager
+    pm = ProfileManager(opts.base)
 
-    # work around pyqt loading wrong GL library
-    if isLin:
-        import ctypes
-        ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
+    # gl workarounds
+    setupGL(pm)
 
     # opt in to full hidpi support?
     if not os.environ.get("ANKI_NOHIGHDPI"):
@@ -293,9 +316,10 @@ No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""")
         return
 
-    # profile manager
-    from aqt.profiles import ProfileManager
-    pm = ProfileManager(opts.base, opts.profile)
+    pm.setupMeta()
+
+    if opts.profile:
+        pm.openProfile(opts.profile)
 
     # i18n
     setupLang(pm, app, opts.lang)
