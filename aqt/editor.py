@@ -562,8 +562,7 @@ to a cloze type first, via Edit>Change Note Type."""))
         return self.fnameToLink(fname)
 
     def _addMediaFromData(self, fname, data):
-        fname = self.mw.col.media.writeData(fname, data)
-        return self.fnameToLink(fname)
+        return self.mw.col.media.writeData(fname, data)
 
     def onRecSound(self):
         try:
@@ -610,7 +609,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             or s.startswith("ftp://")
             or s.startswith("file://"))
 
-    def inlinedImageToLink(self, txt):
+    def inlinedImageToFilename(self, txt):
         prefix = "data:image/"
         suffix = ";base64,"
         for ext in ("jpeg", "png", "gif"):
@@ -621,6 +620,13 @@ to a cloze type first, via Edit>Change Note Type."""))
                 if ext == "jpeg":
                     ext = "jpg"
                 return self._addPastedImage(data, "."+ext)
+
+        return ""
+
+    def inlinedImageToLink(self, src):
+        fname = self.inlinedImageToFilename(src)
+        if fname:
+            return self.fnameToLink(fname)
 
         return ""
 
@@ -709,6 +715,9 @@ to a cloze type first, via Edit>Change Note Type."""))
                     fname = self._retrieveURL(src)
                     if fname:
                         tag['src'] = fname
+                elif src.startswith("data:image/"):
+                    # and convert inlined data
+                    tag['src'] = self.inlinedImageToFilename(src)
 
         html = str(doc)
         return html
