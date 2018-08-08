@@ -942,7 +942,9 @@ class EditorWebView(AnkiWebView):
             return
 
         data = open(path, "rb").read()
-        return self.editor._addPastedImage(data, ext)
+        fname = self.editor._addPastedImage(data, ext)
+        if fname:
+            return self.editor.fnameToLink(fname)
 
     def flagAnkiText(self):
         # be ready to adjust when clipboard event fires
