@@ -92,7 +92,7 @@ _SHGetFolderPath.argtypes = [wintypes.HWND,
 _SHGetFolderPath.restype = _err_unless_zero
 
 def _get_path_buf(csidl):
-    path_buf = wintypes.create_unicode_buffer(wintypes.MAX_PATH)
+    path_buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
     result = _SHGetFolderPath(0, csidl, 0, 0, path_buf)
     return path_buf.value
 
