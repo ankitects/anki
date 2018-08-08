@@ -312,6 +312,17 @@ class DataModel(QAbstractTableModel):
             return ""
         return time.strftime("%Y-%m-%d", time.localtime(date))
 
+    def isRTL(self, index):
+        col = index.column()
+        type = self.columnType(col)
+        if type != "noteFld":
+            return False
+
+        row = index.row()
+        c = self.getCard(index)
+        nt = c.note().model()
+        return nt['flds'][self.col.models.sortIdx(nt)]['rtl']
+
 # Line painter
 ######################################################################
 
@@ -342,6 +353,9 @@ class StatusDelegate(QItemDelegate):
             return
         finally:
             self.browser.mw.progress.blockUpdates = True
+
+        if self.model.isRTL(index):
+            option.direction = Qt.RightToLeft
 
         col = None
         if c.queue == -1:
