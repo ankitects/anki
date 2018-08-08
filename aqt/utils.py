@@ -307,7 +307,11 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
 
 def saveGeom(widget, key):
     key += "Geom"
-    aqt.mw.pm.profile[key] = widget.saveGeometry()
+    if isMac and widget.windowState() & Qt.WindowFullScreen:
+        geom = None
+    else:
+        geom = widget.saveGeometry()
+    aqt.mw.pm.profile[key] = geom
 
 def restoreGeom(widget, key, offset=None, adjustSize=False):
     key += "Geom"
