@@ -612,10 +612,10 @@ to a cloze type first, via Edit>Change Note Type."""))
     def inlinedImageToFilename(self, txt):
         prefix = "data:image/"
         suffix = ";base64,"
-        for ext in ("jpeg", "png", "gif"):
+        for ext in ("jpg", "jpeg", "png", "gif"):
             fullPrefix = prefix + ext + suffix
             if txt.startswith(fullPrefix):
-                b64data = txt[len(fullPrefix):]
+                b64data = txt[len(fullPrefix):].strip()
                 data = base64.b64decode(b64data, validate=True)
                 if ext == "jpeg":
                     ext = "jpg"
