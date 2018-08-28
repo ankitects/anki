@@ -330,7 +330,7 @@ Please create a new card type first."""))
                 res = "<hr id=answer>" + res
             return res
         if type == 'q':
-            repl = "<input id='typeans' type=text value='exomple'>"
+            repl = "<input id='typeans' type=text value='exomple' readonly='readonly'>"
             repl = "<center>%s</center>" % repl
         else:
             repl = answerRepl
