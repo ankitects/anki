@@ -427,7 +427,7 @@ var filterNode = function (node, extendedMode) {
         tag = allowedTagsBasic[node.tagName];
     }
     if (!tag) {
-        if (!node.innerHTML) {
+        if (!node.innerHTML || node.tagName === 'TITLE') {
             node.parentNode.removeChild(node);
         } else {
             node.outerHTML = node.innerHTML;
