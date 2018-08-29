@@ -718,7 +718,9 @@ title="%s" %s>%s</button>''' % (
     def applyShortcuts(self, shortcuts):
         qshortcuts = []
         for key, fn in shortcuts:
-            qshortcuts.append(QShortcut(QKeySequence(key), self, activated=fn))
+            scut = QShortcut(QKeySequence(key), self, activated=fn)
+            scut.setAutoRepeat(False)
+            qshortcuts.append(scut)
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts):
