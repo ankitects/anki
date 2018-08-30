@@ -406,7 +406,8 @@ please see:
         return os.path.join(self.base, "gldriver")
 
     def glMode(self):
-        assert not isMac
+        if isMac:
+            return "auto"
 
         path = self._glPath()
         if not os.path.exists(path):
