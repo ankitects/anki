@@ -247,8 +247,6 @@ def setupGL(pm):
             print("qt:", msg)
     qInstallMessageHandler(msgHandler)
 
-    print("Hardware acceleration set to", mode)
-
     if mode == "auto":
         return
     elif isLin:
