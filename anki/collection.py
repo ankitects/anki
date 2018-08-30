@@ -838,7 +838,7 @@ select id from cards where odid > 0 and did in %s""" % ids2str(dids))
         # new cards can't have a due position > 32 bits
         self.db.execute("""
 update cards set due = 1000000, mod = ?, usn = ? where due > 1000000
-and queue = 0""", intTime(), self.usn())
+and type = 0""", intTime(), self.usn())
         # new card position
         self.conf['nextPos'] = self.db.scalar(
             "select max(due)+1 from cards where type = 0") or 0
