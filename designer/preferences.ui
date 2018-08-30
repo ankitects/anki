@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>469</height>
+    <width>423</width>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,6 +65,13 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="hwAccel">
+         <property name="text">
+          <string>Hardware acceleration (faster, may cause display issues)</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="showEstimates">
@@ -474,6 +481,7 @@
  </widget>
  <tabstops>
   <tabstop>lang</tabstop>
+  <tabstop>hwAccel</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>pastePNG</tabstop>

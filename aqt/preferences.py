@@ -76,6 +76,10 @@ class Preferences(QDialog):
         f = self.form
         qc = self.mw.col.conf
         self._setupDayCutoff()
+        if isMac:
+            f.hwAccel.setVisible(False)
+        else:
+            f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
         f.lrnCutoff.setValue(qc['collapseTime']/60.0)
         f.timeLimit.setValue(qc['timeLim']/60.0)
         f.showEstimates.setChecked(qc['estTimes'])
@@ -93,6 +97,17 @@ class Preferences(QDialog):
     def updateCollection(self):
         f = self.form
         d = self.mw.col
+
+        if not isMac:
+            wasAccel = self.mw.pm.glMode() != "software"
+            wantAccel = f.hwAccel.isChecked()
+            if wasAccel != wantAccel:
+                if wantAccel:
+                    self.mw.pm.setGlMode("auto")
+                else:
+                    self.mw.pm.setGlMode("software")
+                showInfo(_("Changes will take effect when you restart Anki."))
+
         qc = d.conf
         qc['dueCounts'] = f.showProgress.isChecked()
         qc['estTimes'] = f.showEstimates.isChecked()
