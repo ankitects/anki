@@ -306,9 +306,9 @@ class AddonsDialog(QDialog):
     def _onAddonItemSelected(self, row_int):
         try:
             addon = self.addons[row_int][1]
-        except:
+        except IndexError:
             addon = ''
-        self.form.viewPage.setEnabled(True if re.match(r"^\d+$", addon) else False)
+        self.form.viewPage.setEnabled(bool (re.match(r"^\d+$", addon)))
 
     def annotatedName(self, dir):
         meta = self.mgr.addonMeta(dir)
