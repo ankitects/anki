@@ -302,6 +302,7 @@ class AddonsDialog(QDialog):
         f.viewFiles.clicked.connect(self.onViewFiles)
         f.delete_2.clicked.connect(self.onDelete)
         f.config.clicked.connect(self.onConfig)
+        self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
         self.redrawAddons()
         self.show()
 
@@ -312,6 +313,13 @@ class AddonsDialog(QDialog):
         self.form.addonList.addItems([r[0] for r in self.addons])
         if self.addons:
             self.form.addonList.setCurrentRow(0)
+
+    def _onAddonItemSelected(self, row_int):
+        try:
+            addon = self.addons[row_int][1]
+        except IndexError:
+            addon = ''
+        self.form.viewPage.setEnabled(bool (re.match(r"^\d+$", addon)))
 
     def annotatedName(self, dir):
         meta = self.mgr.addonMeta(dir)
