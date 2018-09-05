@@ -1196,7 +1196,7 @@ where id = ?
     def _updateCutoff(self):
         oldToday = self.today
         # days since col created
-        self.today = int((time.time() - self.col.crt) // 86400)
+        self.today = self._daysSinceCreation()
         # end of day cutoff
         self.dayCutoff = self._dayCutoff()
         if oldToday != self.today:
@@ -1232,6 +1232,12 @@ where id = ?
 
         stamp = time.mktime(date.timetuple())
         return stamp
+
+    def _daysSinceCreation(self):
+        startDate = datetime.datetime.fromtimestamp(self.col.crt)
+        startDate = startDate.replace(hour=self.col.conf.get("rollover", 4),
+                                      minute=0, second=0, microsecond=0)
+        return (time.time() - time.mktime(startDate.timetuple())) // 86400
 
     # Deck finished state
     ##########################################################################
