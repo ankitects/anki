@@ -142,6 +142,8 @@ sync again to correct the issue."""))
             pass
         elif evt == "fullSync":
             self._confirmFullSync()
+        elif evt == "downloadClobber":
+            showInfo(_("Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."))
         elif evt == "send":
             # posted events not guaranteed to arrive in order
             self.sentBytes = max(self.sentBytes, int(args[0]))
@@ -431,7 +433,10 @@ class SyncThread(QThread):
                 if not self.client.upload():
                     self.fireEvent("upbad")
             else:
-                self.client.download()
+                ret = self.client.download()
+                if ret == "downloadClobber":
+                    self.fireEvent(ret)
+                    return
         except Exception as e:
             if "sync cancelled" in str(e):
                 return
