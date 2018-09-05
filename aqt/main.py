@@ -876,8 +876,6 @@ title="%s" %s>%s</button>''' % (
             # user cancelled first config
             self.col.decks.rem(did)
             self.col.decks.select(deck['id'])
-        else:
-            self.moveToState("overview")
 
     # Menu, title bar & status
     ##########################################################################
