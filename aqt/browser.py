@@ -358,12 +358,12 @@ class StatusDelegate(QItemDelegate):
             option.direction = Qt.RightToLeft
 
         col = None
-        if c.queue == -1:
-            col = COLOUR_SUSPENDED
-        elif c.userFlag() > 0:
+        if c.userFlag() > 0:
             col = flagColours[c.userFlag()]
         elif c.note().hasTag("Marked"):
             col = COLOUR_MARKED
+        elif c.queue == -1:
+            col = COLOUR_SUSPENDED
         if col:
             brush = QBrush(QColor(col))
             painter.save()
