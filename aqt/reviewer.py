@@ -119,16 +119,16 @@ class Reviewer:
 
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
-        qFade = 100
+        fade=""
         if self.mw.pm.glMode() == "software":
-            qFade = 0
+            fade="<script>qFade=0;</script>"
         return """
 <div id=_mark>&#x2605;</div>
 <div id=_flag>&#x2691;</div>
-<div id=qa></div>
-<script>qFade={};</script>
 {}
-""".format(qFade, extra)
+<div id=qa></div>
+{}
+""".format(fade, extra)
 
     def _initWeb(self):
         self._reps = 0
