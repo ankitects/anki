@@ -97,6 +97,8 @@ class Template:
 
             replacer = ''
             inverted = section[2] == "^"
+            if val:
+                val = stripHTMLMedia(val).strip()
             if (val and not inverted) or (not val and inverted):
                 replacer = inner
 
