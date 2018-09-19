@@ -249,6 +249,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             fname = match.group("fname")
             if re.match("(https?|ftp)://", fname):
                 return tag
+            if re.match("data:image", fname):
+                return tag
             return tag.replace(fname, fn(fname))
         for reg in self.imgRegexps:
             string = re.sub(reg, repl, string)

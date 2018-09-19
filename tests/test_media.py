@@ -120,3 +120,11 @@ def test_illegal():
             assert(c not in good)
         else:
             assert(c in good)
+
+def test_base64_img():
+    d = getEmptyCol()
+    base64_str = """
+    <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2w" />
+    """
+    escaped_str = d.media.escapeImages(base64_str)
+    assert escaped_str == base64_str
