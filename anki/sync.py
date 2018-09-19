@@ -426,6 +426,7 @@ from notes where %s""" % d)
 class AnkiRequestsClient:
 
     verify = True
+    timeout = 60
 
     def __init__(self):
         self.session = requests.Session()
@@ -434,13 +435,13 @@ class AnkiRequestsClient:
         data = _MonitoringFile(data)
         headers['User-Agent'] = self._agentName()
         return self.session.post(
-            url, data=data, headers=headers, stream=True, timeout=60, verify=self.verify)
+            url, data=data, headers=headers, stream=True, timeout=self.timeout, verify=self.verify)
 
     def get(self, url, headers=None):
         if headers is None:
             headers = {}
         headers['User-Agent'] = self._agentName()
-        return self.session.get(url, stream=True, headers=headers, timeout=60, verify=self.verify)
+        return self.session.get(url, stream=True, headers=headers, timeout=self.timeout, verify=self.verify)
 
     def streamContent(self, resp):
         resp.raise_for_status()
