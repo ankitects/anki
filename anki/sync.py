@@ -440,7 +440,7 @@ class AnkiRequestsClient:
         if headers is None:
             headers = {}
         headers['User-Agent'] = self._agentName()
-        return self.session.get(url, stream=True, timeout=60, verify=self.verify)
+        return self.session.get(url, stream=True, headers=headers, timeout=60, verify=self.verify)
 
     def streamContent(self, resp):
         resp.raise_for_status()
