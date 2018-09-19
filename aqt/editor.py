@@ -25,6 +25,7 @@ from aqt.utils import shortcut, showInfo, showWarning, getFile, \
 import aqt
 from bs4 import BeautifulSoup
 import requests
+from anki.sync import AnkiRequestsClient
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
 audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga", "webm")
@@ -658,7 +659,9 @@ to a cloze type first, via Edit>Change Note Type."""))
                     'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
                 filecontents = urllib.request.urlopen(req).read()
             else:
-                r = requests.get(url, timeout=30)
+                reqs = AnkiRequestsClient()
+                reqs.timeout = 30
+                r = reqs.get(url)
                 if r.status_code != 200:
                     showWarning(_("Unexpected response code: %s") % r.status_code)
                     return
