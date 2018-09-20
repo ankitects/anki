@@ -14,7 +14,7 @@ import traceback
 
 from anki.lang import _, ngettext
 from anki.utils import ids2str, fieldChecksum, stripHTML, \
-    intTime, splitFields, joinFields, maxID, json, devMode
+    intTime, splitFields, joinFields, maxID, json, devMode, stripHTMLMedia
 from anki.hooks import  runFilter, runHook
 from anki.models import ModelManager
 from anki.media import MediaManager
@@ -523,7 +523,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
             if not model:
                 # note points to invalid model
                 continue
-            r.append((stripHTML(fields[self.models.sortIdx(model)]),
+            r.append((stripHTMLMedia(fields[self.models.sortIdx(model)]),
                       fieldChecksum(fields[0]),
                       nid))
         # apply, relying on calling code to bump usn+mod
