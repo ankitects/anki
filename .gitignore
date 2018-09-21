@@ -6,5 +6,8 @@
 .coverage
 aqt/forms
 locale
-.idea
 tools/runanki.system
+
+# Ignore intellij files
+.idea
+*.iml
