@@ -7,3 +7,7 @@
 aqt/forms
 locale
 tools/runanki.system
+
+# Ignore intellij files
+.idea
+*.iml
