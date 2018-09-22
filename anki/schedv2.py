@@ -224,6 +224,12 @@ order by due""" % self._deckLimit(),
                 deck['name'] += "1"
                 self.col.decks.save(deck)
                 return self.deckDueList()
+            # ensure no sections are blank
+            if not all(deck['name'].split("::")):
+                deck['name'] = "recovered"
+                self.col.decks.save(deck)
+                return self.deckDueList()
+
             p = parent(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
