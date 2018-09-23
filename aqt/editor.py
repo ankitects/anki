@@ -582,7 +582,7 @@ to a cloze type first, via Edit>Change Note Type."""))
     def urlToLink(self, url):
         fname = self.urlToFile(url)
         if not fname:
-            return url
+            return None
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname):
@@ -915,8 +915,10 @@ class EditorWebView(AnkiWebView):
 
         # if the user is pasting an image or sound link, convert it to local
         if self.editor.isURL(txt):
-            txt = txt.split("\r\n")[0]
-            return self.editor.urlToLink(txt)
+            url = txt.split("\r\n")[0]
+            link = self.editor.urlToLink(url)
+            if link:
+                return link
 
         # normal text; convert it to HTML
         txt = html.escape(txt)
