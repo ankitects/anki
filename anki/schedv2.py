@@ -943,8 +943,8 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         ivl = int(ivl * conf.get('ivlFct', 1))
         if fuzz:
             ivl = self._fuzzedIvl(ivl)
-        ivl = min(ivl, conf['maxIvl'])
         ivl = max(ivl, prev+1, 1)
+        ivl = min(ivl, conf['maxIvl'])
         return int(ivl)
 
     def _daysLate(self, card):
