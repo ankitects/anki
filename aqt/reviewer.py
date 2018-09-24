@@ -273,6 +273,13 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.state == "question":
             self._getTypedAnswer()
         elif self.state == "answer":
+            self.bottom.web.evalWithCallback("selectedAnswerButton()", self._onAnswerButton)
+
+    def _onAnswerButton(self, val):
+        # button selected?
+        if val in "1234":
+            self._answerCard(int(val))
+        else:
             self._answerCard(self._defaultEase())
 
     def _linkHandler(self, url):
@@ -542,8 +549,8 @@ time = %(time)d;
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s title="%s" onclick='pycmd("ease%d");'>\
-%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
+<td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
