@@ -41,3 +41,11 @@ function showAnswer(txt) {
     $("#middle")[0].innerHTML = txt;
     $("#defease").focus();
 }
+
+function selectedAnswerButton() {
+    var node = document.activeElement;
+    if (!node) {
+        return;
+    }
+    return node.dataset.ease;
+}
