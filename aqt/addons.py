@@ -335,7 +335,7 @@ class AddonsDialog(QDialog):
     def onlyOneSelected(self):
         dirs = self.selectedAddons()
         if len(dirs) != 1:
-            showInfo("Please select a single add-on first.")
+            showInfo(_("Please select a single add-on first."))
             return
         return dirs[0]
 
