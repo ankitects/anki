@@ -22,6 +22,7 @@ from aqt.utils import showWarning
 from aqt import appHelpSite
 import aqt.forms
 from send2trash import send2trash
+import anki.sound
 
 metaConf = dict(
     ver=0,
@@ -66,6 +67,8 @@ class ProfileManager:
         self.db = None
         # instantiate base folder
         self._setBaseFolder(base)
+
+        anki.sound.setMpvConfigBase(self.base)
 
     def setupMeta(self):
         # load metadata
