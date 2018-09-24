@@ -88,6 +88,10 @@ from anki.mpv import MPV, MPVBase
 
 mpvPath, mpvEnv = _packagedCmd(["mpv"])
 
+def setMpvConfigBase(base):
+    global mpvEnv
+    mpvEnv['XDG_CONFIG_HOME'] = base
+
 class MpvManager(MPV):
 
     executable = mpvPath[0]
