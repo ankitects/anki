@@ -354,11 +354,14 @@ Please run Tools>Empty Cards""")
         hadHR = len(buf) != origSize
         # munge correct value
         parser = html.parser.HTMLParser()
-        cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
+        cor = self.mw.col.media.strip(self.typeCorrect)
+        cor = re.sub("(\n|<br ?/?>|</?div>)+", " ", cor)
+        cor = stripHTML(cor)
         # ensure we don't chomp multiple whitespace
         cor = cor.replace(" ", "&nbsp;")
         cor = parser.unescape(cor)
         cor = cor.replace("\xa0", " ")
+        cor = cor.strip()
         given = self.typedAnswer
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
@@ -377,7 +380,7 @@ Please run Tools>Empty Cards""")
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
-        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
+        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
         if not matches:
             return None
         def noHint(txt):
