@@ -258,6 +258,7 @@ def run():
     try:
         _run()
     except Exception as e:
+        traceback.print_exc()
         QMessageBox.critical(None, "Startup Error",
                              "Please notify support of this error:\n\n"+
                              traceback.format_exc())
