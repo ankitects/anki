@@ -626,6 +626,7 @@ class Browser(QMainWindow):
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.form.tableView.selectionModel().selectionChanged.connect(self.onRowChanged)
+        self.singleCard = False
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(
@@ -651,6 +652,7 @@ class Browser(QMainWindow):
             self.focusTo = None
             self.editor.card = self.card
             self.singleCard = True
+        runHook("browser.rowChanged", self)
         self._renderPreview(True)
 
     def refreshCurrentCard(self, note):
