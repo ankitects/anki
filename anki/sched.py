@@ -5,18 +5,35 @@
 import time
 import random
 import itertools
-from operator import itemgetter
-from heapq import *
 
-#from anki.cards import Card
-from anki.utils import ids2str, intTime, fmtTimeSpan
-from anki.lang import _
-from anki.consts import *
-from anki.hooks import runHook
+from operator import itemgetter
+from heapq import heappush, heappop
+
+from .consts import (
+    DYN_ADDED,
+    DYN_BIGINT,
+    DYN_DUE,
+    DYN_DUEPRIORITY,
+    DYN_LAPSES,
+    DYN_OLDEST,
+    DYN_RANDOM,
+    DYN_REVADDED,
+    DYN_SMALLINT,
+    NEW_CARDS_DISTRIBUTE,
+    NEW_CARDS_DUE,
+    NEW_CARDS_FIRST,
+    NEW_CARDS_LAST,
+    NEW_CARDS_RANDOM,
+    STARTING_FACTOR,
+)
+from .hooks import runHook
+from .lang import _
+from .utils import ids2str, intTime, fmtTimeSpan
 
 # queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
+
 
 class Scheduler:
     name = "std"

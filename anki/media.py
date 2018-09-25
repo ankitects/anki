@@ -1,22 +1,34 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import io
-import re
-import traceback
-import urllib.request, urllib.parse, urllib.error
-import unicodedata
-import sys
-import zipfile
-import pathlib
 import json
 import os
+import pathlib
+import re
+import sys
+import traceback
+import unicodedata
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
 
-from anki.utils import checksum, isWin, isMac
-from anki.db import DB, DBError
-from anki.consts import *
-from anki.latex import mungeQA
-from anki.lang import _
+from .consts import (
+    MODEL_CLOZE,
+    SYNC_ZIP_COUNT,
+    SYNC_ZIP_SIZE,
+)
+from .db import DB, DBError
+from .lang import _
+from .latex import mungeQA
+from .template.template import clozeReg
+from .utils import checksum, isWin, isMac
+
+if isWin:
+    import win32api  # pylint: disable=import-error
+    import win32file  # pylint: disable=import-error
 
 class MediaManager:
 
@@ -127,8 +139,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _isFAT32(self):
         if not isWin:
             return
-        # pylint: disable=import-error
-        import win32api, win32file
         try:
             name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
         except:
@@ -218,7 +228,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _expandClozes(self, string):
         ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         strings = []
-        from anki.template.template import clozeReg
         def qrepl(m):
             if m.group(4):
                 return "[%s]" % m.group(4)

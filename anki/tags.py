@@ -11,9 +11,10 @@ This module manages the tag cache and tags for notes.
 """
 
 import json
-from anki.utils import intTime, ids2str
-from anki.hooks import runHook
 import re
+
+from .hooks import runHook
+from .utils import intTime, ids2str
 
 class TagManager:
 

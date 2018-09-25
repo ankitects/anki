@@ -2,11 +2,19 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-import aqt
-from aqt.utils import showInfo, showWarning
-from anki.consts import *
+from anki.consts import (
+    DYN_ADDED,
+    DYN_DUE,
+    DYN_MAX_SIZE,
+    DYN_OLDEST,
+    DYN_RANDOM,
+)
 from anki.lang import _
+
+import aqt.forms
+
+from aqt.qt import QDialog, QDialogButtonBox, Qt
+from aqt.utils import showInfo, showWarning
 
 RADIO_NEW = 1
 RADIO_REV = 2
@@ -19,6 +27,7 @@ TYPE_NEW = 0
 TYPE_DUE = 1
 TYPE_REVIEW = 2
 TYPE_ALL = 3
+
 
 class CustomStudy(QDialog):
     def __init__(self, mw):

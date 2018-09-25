@@ -6,16 +6,22 @@ import re
 import sre_constants
 import unicodedata
 
-from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
-from anki.consts import *
-from anki.hooks import *
-
+from anki.consts import MODEL_CLOZE
+from anki.hooks import runHook
+from anki.utils import (
+    fieldChecksum,
+    ids2str,
+    intTime,
+    joinFields,
+    splitFields,
+    stripHTMLMedia,
+)
 
 # Find
 ##########################################################################
 
-class Finder:
 
+class Finder:
     def __init__(self, col):
         self.col = col
         self.search = dict(

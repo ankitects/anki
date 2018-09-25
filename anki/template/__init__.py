@@ -1,5 +1,5 @@
-from anki.template.template import Template
-from anki.template.view import View
+from .template import Template
+
 
 def render(template, context=None, **kwargs):
     context = context and context.copy() or {}

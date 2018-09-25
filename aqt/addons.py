@@ -3,23 +3,46 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import io
 import json
+import markdown
 import re
 import zipfile
-from collections import defaultdict
-import markdown
-from send2trash import send2trash
+import os
+import traceback
+import sys
 
-from aqt.qt import *
-from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser, restoreGeom, saveGeom, restoreSplitter, saveSplitter, \
-    showWarning, tooltip, getFile
+from collections import defaultdict
+from send2trash import send2trash
 from zipfile import ZipFile
-import aqt.forms
-import aqt
-from aqt.downloader import download
-from anki.lang import _, ngettext
-from anki.utils import intTime
+
+from anki.lang import _,  ngettext
 from anki.sync import AnkiRequestsClient
+from anki.utils import intTime
+
+import aqt.forms
+
+from aqt import appShared
+from aqt.qt import (
+    QDialog,
+    QDialogButtonBox,
+    QFontDatabase,
+    QListWidgetItem,
+    Qt,
+)
+from aqt.utils import (
+    askUser,
+    getFile,
+    openFolder,
+    openLink,
+    restoreGeom,
+    restoreSplitter,
+    saveGeom,
+    saveSplitter,
+    showInfo,
+    showWarning,
+    tooltip,
+)
+from aqt.downloader import download
+
 
 class AddonManager:
 
@@ -155,7 +178,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
         for package in found:
             self.toggleEnabled(package, enable=False)
-        
+
         return found
 
     # Installing and deleting add-ons
@@ -185,7 +208,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
             return False, "zip"
-        
+
         with zfile:
             file_manifest = self._readManifestFile(zfile)
             if manifest:
@@ -199,7 +222,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
                                                        conflicts)
             meta = self.addonMeta(package)
             self._install(package, zfile)
-        
+
         schema = self._manifest_schema
         manifest_meta = {k: v for k, v in manifest.items()
                          if k in schema and schema[k]["meta"]}
@@ -235,7 +258,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
     # Processing local add-on files
     ######################################################################
-    
+
     def processPackages(self, paths):
         log = []
         errs = []
@@ -323,7 +346,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
     def _getModTimes(self, client, chunk):
         resp = client.get(
-            aqt.appShared + "updates/" + ",".join(chunk))
+            appShared + "updates/" + ",".join(chunk))
         if resp.status_code == 200:
             return resp.json()
         else:
@@ -418,7 +441,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         if not os.path.exists(bp):
             return
         os.rename(bp, p)
-    
+
     # Web Exports
     ######################################################################
 
@@ -427,7 +450,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     def setWebExports(self, module, pattern):
         addon = self.addonFromModule(module)
         self._webExports[addon] = pattern
-    
+
     def getWebExports(self, addon):
         return self._webExports.get(addon)
 
@@ -484,7 +507,7 @@ class AddonsDialog(QDialog):
     def redrawAddons(self):
         addonList = self.form.addonList
         mgr = self.mgr
-        
+
         self.addons = [(mgr.annotatedName(d), d) for d in mgr.allAddons()]
         self.addons.sort()
 
@@ -529,7 +552,7 @@ class AddonsDialog(QDialog):
         if not addon:
             return
         if re.match(r"^\d+$", addon):
-            openLink(aqt.appShared + "info/{}".format(addon))
+            openLink(appShared + "info/{}".format(addon))
         else:
             showWarning(_("Add-on was not downloaded from AnkiWeb."))
 
@@ -571,7 +594,7 @@ class AddonsDialog(QDialog):
                             key="addons", multi=True)
             if not paths:
                 return False
-        
+
         log, errs = self.mgr.processPackages(paths)
 
         if log:
@@ -651,7 +674,7 @@ class GetAddons(QDialog):
         saveGeom(self, "getaddons")
 
     def onBrowse(self):
-        openLink(aqt.appShared + "addons/2.1")
+        openLink(appShared + "addons/2.1")
 
     def accept(self):
         # get codes
@@ -744,6 +767,6 @@ class ConfigEditor(QDialog):
             act = self.mgr.configUpdatedAction(self.addon)
             if act:
                 act(new_conf)
-        
+
         self.onClose()
         super().accept()

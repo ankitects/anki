@@ -7,16 +7,16 @@
 # pylint: disable=import-error,unused-import
 
 # required by requests library
-import queue
+import queue  # noqa
 
 from anki.utils import isWin
 
+# included implicitly in the past, and relied upon by some add-ons
+import cgi  # noqa
+import uuid  # noqa
+
 # external module access in Windows
 if isWin:
-    import pythoncom
-    import win32com
-    import pywintypes
-
-# included implicitly in the past, and relied upon by some add-ons
-import cgi
-import uuid
+    import pythoncom  # noqa
+    import win32com  # noqa
+    import pywintypes  # noqa

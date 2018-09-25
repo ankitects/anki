@@ -1,14 +1,35 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-from operator import itemgetter
-from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
-import aqt.clayout
-from anki import stdmodels
-from aqt.utils import saveGeom, restoreGeom
 import collections
+
+from operator import itemgetter
+
+from anki import stdmodels
 from anki.lang import _, ngettext
+
+import aqt.modelchooser
+import aqt.clayout
+
+from aqt.qt import (
+    QDialog,
+    QDialogButtonBox,
+    QKeySequence,
+    QListWidgetItem,
+    QShortcut,
+    Qt,
+)
+
+from aqt.utils import (
+    askUser,
+    getText,
+    maybeHideClose,
+    openHelp,
+    restoreGeom,
+    saveGeom,
+    showInfo,
+)
+
 
 class Models(QDialog):
     def __init__(self, mw, parent=None, fromMain=False):

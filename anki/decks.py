@@ -2,15 +2,21 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import copy, operator
-import unicodedata
+import copy
 import json
+import operator
+import unicodedata
 
-from anki.utils import intTime, ids2str
-from anki.hooks import runHook
-from anki.consts import *
-from anki.lang import _
+# from anki.consts import *
+from anki.consts import (
+    NEW_CARDS_DUE,
+    REM_DECK,
+    STARTING_FACTOR,
+)
 from anki.errors import DeckRenameError
+from anki.hooks import runHook
+from anki.lang import _
+from anki.utils import intTime, ids2str
 
 # fixmes:
 # - make sure users can't set grad interval < 1

@@ -1,14 +1,32 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from operator import itemgetter
 
 from anki.consts import NEW_CARDS_RANDOM
-from aqt.qt import *
-import aqt
-from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
-    tooltip, saveGeom, restoreGeom
 from anki.lang import _, ngettext
+
+import aqt.forms
+
+from aqt.qt import (
+    QCursor,
+    QDialog,
+    QDialogButtonBox,
+    QMenu,
+    Qt,
+)
+from aqt.utils import (
+    showInfo,
+    showWarning,
+    openHelp,
+    getOnlyText,
+    askUser,
+    tooltip,
+    saveGeom,
+    restoreGeom,
+)
+
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):

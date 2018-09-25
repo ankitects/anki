@@ -2,8 +2,17 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
 import aqt
-from aqt.qt import *
+
+from aqt.qt import (
+    QDialog,
+    QItemSelectionModel,
+    QKeySequence,
+    QListWidgetItem,
+    QShortcut,
+    Qt,
+)
 from aqt.utils import saveGeom, restoreGeom
+
 
 class TagLimit(QDialog):
 

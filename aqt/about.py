@@ -2,11 +2,21 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-import aqt.forms
-from anki.utils import versionWithBuild
-from aqt.utils import supportText, tooltip
 from anki.lang import _
+from anki.utils import versionWithBuild
+
+import aqt.forms
+
+from aqt.qt import (
+    PYQT_VERSION_STR,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QPushButton,
+    QT_VERSION_STR,
+)
+from aqt.utils import supportText, tooltip
+
 
 class ClosableQDialog(QDialog):
     def reject(self):

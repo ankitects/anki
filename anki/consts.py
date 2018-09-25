@@ -2,7 +2,10 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.lang import _
+from .lang import _
+
+SECONDS_IN_HOUR = 60 * 60
+SECONDS_IN_DAY = 24 * 60 * 60
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0

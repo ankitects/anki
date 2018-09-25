@@ -1,15 +1,17 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-
 import time
-from anki.sound import Recorder
-from aqt.utils import saveGeom, restoreGeom, showWarning
+
 from anki.lang import _
+from anki.sound import Recorder
+
+from aqt.qt import QPushButton, QMessageBox, QApplication, QPixmap
+from aqt.utils import saveGeom, restoreGeom, showWarning
 
 if not Recorder:
     print("pyaudio not installed")
+
 
 def getAudio(parent, encode=True):
     "Record and return filename"

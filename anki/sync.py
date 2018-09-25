@@ -2,20 +2,34 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import io
 import gzip
-import random
-import requests
+import io
 import json
 import os
+import random
+import requests
+import warnings
 
-from anki.db import DB, DBError
-from anki.utils import ids2str, intTime, platDesc, checksum, devMode
-from anki.consts import *
-from anki.utils import versionWithBuild
+from anki import version as anki_version
+
+from .consts import (
+    REM_CARD,
+    REM_NOTE,
+    SYNC_BASE,
+    SYNC_VER,
+    SYNC_ZIP_COUNT,
+)
+from .db import DB, DBError
 from .hooks import runHook
-import anki
 from .lang import ngettext
+from .utils import (
+    checksum,
+    devMode,
+    ids2str,
+    intTime,
+    platDesc,
+    versionWithBuild,
+)
 
 # syncing vars
 HTTP_TIMEOUT = 90
@@ -456,14 +470,12 @@ class AnkiRequestsClient:
         return buf.getvalue()
 
     def _agentName(self):
-        from anki import version
-        return "Anki {}".format(version)
+        return "Anki {}".format(anki_version)
 
 # allow user to accept invalid certs in work/school settings
 if os.environ.get("ANKI_NOVERIFYSSL"):
     AnkiRequestsClient.verify = False
 
-    import warnings
     warnings.filterwarnings("ignore")
 
 class _MonitoringFile(io.BufferedReader):
@@ -632,7 +644,7 @@ class FullSyncer(HttpSyncer):
         HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
         self.postVars = dict(
             k=self.hkey,
-            v="ankidesktop,%s,%s"%(anki.version, platDesc()),
+            v="ankidesktop,%s,%s"%(anki_version, platDesc()),
         )
         self.col = col
 
@@ -830,7 +842,7 @@ class RemoteMediaServer(HttpSyncer):
     def begin(self):
         self.postVars = dict(
             k=self.hkey,
-            v="ankidesktop,%s,%s"%(anki.version, platDesc())
+            v="ankidesktop,%s,%s"%(anki_version, platDesc())
         )
         ret = self._dataOnly(self.req(
             "begin", io.BytesIO(json.dumps(dict()).encode("utf8"))))

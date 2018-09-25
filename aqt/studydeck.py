@@ -2,11 +2,22 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-import aqt
-from aqt.utils import showInfo, openHelp, getOnlyText, shortcut, restoreGeom, saveGeom
-from anki.hooks import addHook, remHook
 from anki.lang import _
+from anki.hooks import addHook, remHook
+
+import aqt
+
+from aqt.qt import (
+    QAbstractItemView,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QKeySequence,
+    QPushButton,
+    Qt,
+)
+from aqt.utils import showInfo, openHelp, getOnlyText, shortcut, restoreGeom, saveGeom
+
 
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,

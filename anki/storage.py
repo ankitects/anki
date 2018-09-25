@@ -3,17 +3,27 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import copy
-import re
 import json
 import os
+import re
 
-from anki.lang import _
-from anki.utils import intTime, isWin
-from anki.db import DB
-from anki.collection import _Collection
-from anki.consts import *
-from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
-    addForwardOptionalReverse, addBasicTypingModel
+from .collection import _Collection
+from .consts import (
+    MODEL_CLOZE,
+    MODEL_STD,
+    SCHEMA_VERSION,
+)
+from .db import DB
+from .lang import _
+from .stdmodels import (
+    addBasicModel,
+    addBasicTypingModel,
+    addClozeModel,
+    addForwardOptionalReverse,
+    addForwardReverse,
+)
+from .utils import intTime, isWin
+
 
 def Collection(path, lock=True, server=False, log=False):
     "Open a new or existing collection. Path must be unicode."

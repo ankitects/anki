@@ -2,16 +2,18 @@
 # Copyright: petr.michalec@gmail.com
 # License: GNU GPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import re
 import sys
+import time
+import unicodedata
 
-from anki.stdmodels import addBasicModel
-from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
-from anki.lang import _
-from anki.lang import ngettext
-
-from xml.dom import minidom
 from string import capwords
-import re, unicodedata, time
+from xml.dom import minidom
+
+from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
+from anki.lang import _, ngettext
+from anki.stdmodels import addBasicModel
+
 
 class SmartDict(dict):
     """

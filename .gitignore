@@ -8,3 +8,4 @@ aqt/forms
 locale
 tools/runanki.system
 anki/buildhash.py
+*_cache*

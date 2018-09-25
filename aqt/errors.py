@@ -1,14 +1,22 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import sys, traceback
 import html
+import os
 import re
+import sys
+import traceback
 
 from anki.lang import _
-from aqt.qt import *
+
+from aqt import mw as aqt_mw
+from aqt.qt import (
+    QObject,
+    QTimer,
+    pyqtSignal,
+)
 from aqt.utils import showText, showWarning, supportText
-from aqt import mw
+
 
 if not os.environ.get("DEBUG"):
     def excepthook(etype,val,tb):
@@ -16,6 +24,7 @@ if not os.environ.get("DEBUG"):
             ''.join(traceback.format_tb(tb)),
             '{0}: {1}'.format(etype, val)))
     sys.excepthook = excepthook
+
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
@@ -125,14 +134,14 @@ report the issue on the <a href="https://help.ankiweb.net/discussions/add-ons/">
 add-ons section</a> of our support site.
 
 <p>Debug info:</p>
-""")        
+""")
         if self.mw.addonManager.dirty:
             txt = pluginText
             error = supportText() + self._addonText(error) + "\n" + error
         else:
             txt = stdText
             error = supportText() + "\n" + error
-        
+
         # show dialog
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
         showText(txt, type="html", copyBtn=True)
@@ -142,7 +151,7 @@ add-ons section</a> of our support site.
         if not matches:
             return ""
         # reverse to list most likely suspect first, dict to deduplicate:
-        addons = [mw.addonManager.addonName(i) for i in
+        addons = [aqt_mw.addonManager.addonName(i) for i in
                   dict.fromkeys(reversed(matches))]
         txt = _("""Add-ons possibly involved: {}\n""")
         # highlight importance of first add-on:

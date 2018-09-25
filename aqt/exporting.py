@@ -3,15 +3,23 @@
 
 import os
 import re
+import time
 
-from aqt.qt import *
-import  aqt
-from aqt.utils import getSaveFile, tooltip, showWarning, \
-    checkInvalidFilename, showInfo
 from anki.exporting import exporters
 from anki.hooks import addHook, remHook
 from anki.lang import ngettext, _
-import time
+
+import aqt.forms
+
+from aqt.qt import QDialog, QPushButton, QDialogButtonBox, Qt
+from aqt.utils import (
+    getSaveFile,
+    tooltip,
+    showWarning,
+    checkInvalidFilename,
+    showInfo
+)
+
 
 class ExportDialog(QDialog):
 

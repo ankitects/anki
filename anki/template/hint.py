@@ -2,8 +2,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.hooks import addHook
-from anki.lang import _
+from ..hooks import addHook
+from ..lang import _
+
 
 def hint(txt, extra, context, tag, fullname):
     if not txt.strip():

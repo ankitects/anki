@@ -1,17 +1,46 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import json
-import sys
 import math
+import os
+import sys
+
 from anki.hooks import runHook
-from aqt.qt import *
-from aqt.utils import openLink, tooltip
-from anki.utils import isMac, isWin, isLin
 from anki.lang import _
+from anki.utils import isMac, isWin, isLin
+
+from aqt.qt import (
+    QApplication,
+    QColor,
+    QCursor,
+    QDialog,
+    QEvent,
+    QFile,
+    QIODevice,
+    QKeySequence,
+    QMainWindow,
+    QMenu,
+    QNativeGestureEvent,
+    QObject,
+    QPalette,
+    QShortcut,
+    QUrl,
+    QWebChannel,
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineScript,
+    QWebEngineView,
+    Qt,
+    pyqtSlot,
+    sip,
+)
+from aqt.utils import openLink, tooltip
 
 # Page for debug messages
 ##########################################################################
+
 
 class AnkiWebPage(QWebEnginePage):
 

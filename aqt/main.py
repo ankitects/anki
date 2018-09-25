@@ -2,22 +2,21 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import faulthandler
+import gc
+import os
+import platform
+import pprint
 import re
 import signal
-import zipfile
-import gc
+import sys
 import time
-import faulthandler
-import platform
-from threading import Thread
+import traceback
+import zipfile
 
 from send2trash import send2trash
-from aqt.qt import *
-from anki import Collection
-from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
-        devMode
-from anki.hooks import runHook, addHook, runFilter
-import aqt
+from threading import Thread
+
 import aqt.progress
 import aqt.webview
 import aqt.toolbar
@@ -25,11 +24,54 @@ import aqt.stats
 import aqt.mediasrv
 import anki.sound
 import anki.mpv
-from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
-    restoreState, getOnlyText, askUser, showText, tooltip, \
-    openHelp, openLink, checkInvalidFilename, getFile
-from aqt.qt import sip
+
+from anki import Collection
+from anki.hooks import runHook, addHook, runFilter
 from anki.lang import _, ngettext
+from anki.utils import (
+    isWin,
+    isMac,
+    intTime,
+    splitFields,
+    ids2str,
+    devMode,
+)
+
+from aqt.qt import (
+    QAction,
+    QDialog,
+    QDialogButtonBox,
+    QFontDatabase,
+    QKeySequence,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QShortcut,
+    QTextCursor,
+    QTextEdit,
+    QThread,
+    QVBoxLayout,
+    Qt,
+    pyqtSignal,
+    qtminor,
+    sip,
+)
+from aqt.utils import (
+    askUser,
+    checkInvalidFilename,
+    getFile,
+    getOnlyText,
+    openHelp,
+    openLink,
+    restoreGeom,
+    restoreState,
+    saveGeom,
+    showInfo,
+    showText,
+    showWarning,
+    tooltip,
+)
+
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, opts, args):
@@ -1247,7 +1289,6 @@ will be lost. Continue?"""))
         self.onDebugRet(frm)
 
     def onDebugRet(self, frm):
-        import pprint, traceback
         text = frm.text.toPlainText()
         card = self._debugCard
         bcard = self._debugBrowserCard

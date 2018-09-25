@@ -6,23 +6,32 @@
 # - Saves in pickles rather than json to easily store Qt window state.
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
-import random
-import pickle
-import shutil
 import io
 import locale
+import os
+import pickle
+import random
 import re
+import shutil
+import sys
 
-from aqt.qt import *
-from anki.db import DB
-from anki.utils import isMac, isWin, intTime
-import anki.lang
-from aqt.utils import showWarning
-from aqt import appHelpSite
-import aqt.forms
 from send2trash import send2trash
+
 import anki.sound
-from anki.lang import _
+
+from anki.db import DB
+from anki.lang import _, langs, setLang
+from anki.utils import isMac, isWin, intTime
+
+import aqt.forms
+
+from aqt import appHelpSite
+from aqt.qt import (
+    QByteArray,
+    QDialog,
+    QMessageBox,
+)
+from aqt.utils import showWarning
 
 metaConf = dict(
     ver=0,
@@ -59,6 +68,7 @@ profileConf = dict(
     allowHTML=False,
     importMode=1,
 )
+
 
 class ProfileManager:
 
@@ -141,7 +151,7 @@ a flash drive.""" % self.base)
             def find_class(self, module, name):
                 if module == "PyQt5.sip":
                     try:
-                        import PyQt5.sip # pylint: disable=unused-import
+                        import PyQt5.sip # noqa pylint: disable=unused-import,import-error,no-name-in-module
                     except:
                         # use old sip location
                         module = "sip"
@@ -381,7 +391,7 @@ please see:
         # find index
         idx = None
         en = None
-        for c, (name, code) in enumerate(anki.lang.langs):
+        for c, (name, code) in enumerate(langs):
             if code == "en":
                 en = c
             if code == lang:
@@ -390,13 +400,13 @@ please see:
         if idx is None:
             idx = en
         # update list
-        f.lang.addItems([x[0] for x in anki.lang.langs])
+        f.lang.addItems([x[0] for x in langs])
         f.lang.setCurrentRow(idx)
         d.exec_()
 
     def _onLangSelected(self):
         f = self.langForm
-        obj = anki.lang.langs[f.lang.currentRow()]
+        obj = langs[f.lang.currentRow()]
         code = obj[1]
         name = obj[0]
         en = "Are you sure you wish to display Anki's interface in %s?"
@@ -412,7 +422,7 @@ please see:
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
-        anki.lang.setLang(code, local=False)
+        setLang(code, local=False)
 
     # OpenGL
     ######################################################################

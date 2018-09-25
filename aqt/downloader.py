@@ -2,12 +2,16 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, re
-from aqt.qt import *
-from anki.sync import AnkiRequestsClient
+import time
+import re
+
 from anki.hooks import addHook, remHook
-import aqt
 from anki.lang import _
+from anki.sync import AnkiRequestsClient
+
+from aqt import appShared
+from aqt.qt import QThread, pyqtSignal
+
 
 def download(mw, code):
     "Download addon from AnkiWeb. Caller must start & stop progress diag."
@@ -53,7 +57,7 @@ class Downloader(QThread):
         client = AnkiRequestsClient()
         try:
             resp = client.get(
-                aqt.appShared + "download/%s?v=2.1" % self.code)
+                appShared + "download/%s?v=2.1" % self.code)
             if resp.status_code == 200:
                 data = client.streamContent(resp)
             elif resp.status_code in (403,404):

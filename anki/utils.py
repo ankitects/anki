@@ -2,26 +2,33 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re
-import os
-import random
-import time
+# some add-ons expect json to be in the utils module
+import atexit
+import json # noqa pylint: disable=unused-import
+import locale
 import math
-from html.entities import name2codepoint
-import subprocess
-import tempfile
+import os
+import platform
+import random
+import re
 import shutil
 import string
+import subprocess
 import sys
-import locale
-from hashlib import sha1
-import platform
+import tempfile
+import time
 import traceback
-from contextlib import contextmanager
-from anki.lang import _, ngettext
 
-# some add-ons expect json to be in the utils module
-import json # pylint: disable=unused-import
+from contextlib import contextmanager
+from hashlib import sha1
+from html.entities import name2codepoint
+
+from . import version as anki_version
+from .lang import _, ngettext
+
+if platform.system() == 'Linux':
+    import distro  # pylint: disable=import-error
+
 
 # Time handling
 ##############################################################################
@@ -291,7 +298,6 @@ def tmpdir():
     if not _tmpdir:
         def cleanup():
             shutil.rmtree(_tmpdir)
-        import atexit
         atexit.register(cleanup)
         _tmpdir = os.path.join(tempfile.gettempdir(), "anki_temp")
     if not os.path.exists(_tmpdir):
@@ -389,7 +395,6 @@ def platDesc():
             elif isWin:
                 theos = "win:%s" % (platform.win32_ver()[0])
             elif system == "Linux":
-                import distro
                 r = distro.linux_distribution(full_distribution_name=False)
                 theos = "lin:%s:%s" % (r[0], r[1])
             else:
@@ -414,9 +419,8 @@ class TimedLog:
 ##############################################################################
 
 def versionWithBuild():
-    from anki import version
     try:
-        from anki.buildhash import build
+        from anki.buildhash import build  # pylint: disable=import-error,no-name-in-module
     except:
         build = "dev"
-    return "%s (%s)" % (version, build)
+    return "%s (%s)" % (anki_version, build)

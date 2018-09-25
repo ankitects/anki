@@ -2,14 +2,17 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-from http import HTTPStatus
 import http.server
-import socketserver
+import os
 import socket
-from anki.utils import devMode
+import socketserver
 import threading
 import re
+
+from http import HTTPStatus
+
+from anki.utils import devMode, isMac
+
 
 # locate web folder in source/binary distribution
 def _getExportFolder():

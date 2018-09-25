@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-from aqt.utils import tooltip
-import aqt.editor
-from aqt.utils import saveGeom, restoreGeom
 from anki.hooks import addHook, remHook
-from anki.utils import isMac
 from anki.lang import _
+
+import aqt.forms
+
+from aqt.editor import Editor
+from aqt.qt import QDialog, QDialogButtonBox, QKeySequence, Qt
+from aqt.utils import saveGeom, restoreGeom, tooltip
 
 class EditCurrent(QDialog):
 
@@ -23,7 +24,7 @@ class EditCurrent(QDialog):
         self.setMinimumWidth(500)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
                 QKeySequence("Ctrl+Return"))
-        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
+        self.editor = Editor(self.mw, self.form.fieldsArea, self)
         self.editor.card = self.mw.reviewer.card
         self.editor.setNote(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
@@ -52,7 +53,7 @@ class EditCurrent(QDialog):
     def reopen(self,mw):
         tooltip("Please finish editing the existing card first.")
         self.onReset()
-        
+
     def reject(self):
         self.saveAndClose()
 

@@ -2,7 +2,12 @@
 # Copyright: Andreas Klauer <Andreas.Klauer@metamorpher.de>
 # License: BSD-3
 
-import gzip, math, random, time, html
+import gzip
+import math
+import random
+import time
+import html
+
 import xml.etree.ElementTree as ET
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.stdmodels import addForwardReverse

@@ -10,15 +10,38 @@ import json
 import unicodedata
 import shutil
 
-from aqt.qt import *
 import anki.importing as importing
-from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp, \
-    askUser, tooltip, showInfo
 from anki.hooks import addHook, remHook
+from anki.lang import ngettext, _
+
 import aqt.forms
 import aqt.modelchooser
 import aqt.deckchooser
-from anki.lang import ngettext, _
+
+from aqt.qt import (
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QGridLayout,
+    QLabel,
+    QListWidgetItem,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+    Qt,
+)
+from aqt.utils import (
+    askUser,
+    getFile,
+    getOnlyText,
+    openHelp,
+    showInfo,
+    showText,
+    showWarning,
+    tooltip,
+)
+
 
 class ChangeMap(QDialog):
     def __init__(self, mw, model, current):

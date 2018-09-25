@@ -5,36 +5,128 @@
 # pylint: disable=unused-import
 
 import os
+import sys
+
+from pdb import set_trace, pm
+from traceback import format_exception
+
+# Import these for use in other modules
+# Separate GUI Object from other objects
+from PyQt5.Qt import (  # noqa
+    PYQT_VERSION_STR,
+    QT_VERSION,
+    QT_VERSION_STR,
+    qInstallMessageHandler,
+)
+from PyQt5.Qt import (  # noqa pylint: disable=no-name-in-module
+    QAbstractItemView,
+    QAbstractTableModel,
+    QAction,
+    QApplication,
+    QBrush,
+    QByteArray,
+    QCheckBox,
+    QClipboard,
+    QColor,
+    QColorDialog,
+    QComboBox,
+    QCompleter,
+    QCoreApplication,
+    QCursor,
+    QDesktopServices,
+    QDialog,
+    QDialogButtonBox,
+    QDockWidget,
+    QEvent,
+    QEventLoop,
+    QFile,
+    QFileDialog,
+    QFont,
+    QFontDatabase,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QIODevice,
+    QIcon,
+    QImage,
+    QItemDelegate,
+    QItemSelection,
+    QItemSelectionModel,
+    QKeySequence,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QLocalServer,
+    QLocalSocket,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QNativeGestureEvent,
+    QNetworkProxy,
+    QObject,
+    QOffscreenSurface,
+    QOpenGLContext,
+    QOpenGLVersionProfile,
+    QPalette,
+    QPixmap,
+    QPoint,
+    QPushButton,
+    QShortcut,
+    QSizePolicy,
+    QStandardPaths,
+    QStringListModel,
+    QTextBrowser,
+    QTextCursor,
+    QTextEdit,
+    QThread,
+    QTimer,
+    QTranslator,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QUrl,
+    QVBoxLayout,
+    QWebChannel,
+    QWidget,
+    QSize,
+    Qt,
+)
+from PyQt5.QtCore import (  # noqa pylint: disable=no-name-in-module
+    pyqtRemoveInputHook,
+    pyqtSignal,
+    pyqtSlot,
+)
+
+try:
+    from PyQt5 import sip  # noqa pylint: disable=no-name-in-module
+except ImportError:
+    import sip  # noqa pylint: disable=no-name-in-module
+
+# trigger explicit message in case of missing libraries
+# instead of silently failing to import
+from PyQt5.QtWebEngineWidgets import (  # noqa pylint: disable=no-name-in-module
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineScript,
+    QWebEngineView,
+)
 
 # fix buggy ubuntu12.04 display of language selector
 os.environ["LIBOVERLAY_SCROLLBAR"] = "0"
 
-from anki.utils import isWin, isMac
-
-from PyQt5.Qt import *
-# trigger explicit message in case of missing libraries
-# instead of silently failing to import
-from PyQt5.QtWebEngineWidgets import *
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
-
-from PyQt5.QtCore import pyqtRemoveInputHook # pylint: disable=no-name-in-module
 
 def debug():
-    from pdb import set_trace
     pyqtRemoveInputHook()
     set_trace()
 
-import sys, traceback
 
 if os.environ.get("DEBUG"):
     def info(type, value, tb):
-        for line in traceback.format_exception(type, value, tb):
+        for line in format_exception(type, value, tb):
             sys.stdout.write(line)
         pyqtRemoveInputHook()
-        from pdb import pm
         pm()
     sys.excepthook = info
 

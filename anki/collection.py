@@ -2,33 +2,52 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import pprint
-import re
-import time
-import os
-import random
-import stat
-import datetime
 import copy
-import traceback
+import datetime
 import json
+import os
+import pprint
+import random
+import re
+import stat
+import time
+import traceback
 
-from anki.lang import _, ngettext
-from anki.utils import ids2str, fieldChecksum, \
-    intTime, splitFields, joinFields, maxID, devMode, stripHTMLMedia
-from anki.hooks import  runFilter, runHook
-from anki.models import ModelManager
-from anki.media import MediaManager
-from anki.decks import DeckManager
-from anki.tags import TagManager
-from anki.consts import *
-from anki.errors import AnkiError
-from anki.sound import stripSounds
-import anki.latex # sets up hook
-import anki.cards
-import anki.notes
-import anki.template
 import anki.find
+
+from . import version as anki_version
+from .consts import (
+    HELP_SITE,
+    MODEL_CLOZE,
+    MODEL_STD,
+    NEW_CARDS_DISTRIBUTE,
+    NEW_CARDS_DUE,
+    REM_CARD,
+    REM_NOTE,
+)
+from .cards import Card
+from .db import DB
+from .decks import DeckManager
+from .errors import AnkiError
+from .hooks import runFilter, runHook
+from .lang import _, ngettext
+from .media import MediaManager
+from .models import ModelManager
+from .notes import Note
+from .sound import stripSounds
+from .stats import CollectionStats, CardStats
+from .tags import TagManager
+from .template import render as template_render
+from .utils import (
+    devMode,
+    fieldChecksum,
+    ids2str,
+    intTime,
+    joinFields,
+    maxID,
+    splitFields,
+    stripHTMLMedia,
+)
 
 
 defaultConf = {
@@ -57,7 +76,7 @@ class _Collection:
         self.db = db
         self.path = db._path
         self._openLog()
-        self.log(self.path, anki.version)
+        self.log(self.path, anki_version)
         self.server = server
         self._lastSave = time.time()
         self.clearUndo()
@@ -207,9 +226,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def reopen(self):
         "Reconnect to DB (after changing threads, etc)."
-        import anki.db
         if not self.db:
-            self.db = anki.db.DB(self.path)
+            self.db = DB(self.path)
             self.media.connect()
             self._openLog()
 
@@ -256,10 +274,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     ##########################################################################
 
     def getCard(self, id):
-        return anki.cards.Card(self, id)
+        return Card(self, id)
 
     def getNote(self, id):
-        return anki.notes.Note(self, id=id)
+        return Note(self, id=id)
 
     # Utils
     ##########################################################################
@@ -290,7 +308,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def newNote(self, forDeck=True):
         "Return a new note with the current model."
-        return anki.notes.Note(self, self.models.current(forDeck))
+        return Note(self, self.models.current(forDeck))
 
     def addNote(self, note):
         "Add a note to the collection. Return number of new cards."
@@ -434,7 +452,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
 
     def _newCard(self, note, template, due, flush=True, did=None):
         "Create a new card."
-        card = anki.cards.Card(self)
+        card = Card(self)
         card.nid = note.id
         card.ord = template['ord']
         card.did = self.db.scalar("select did from cards where nid = ? and ord = ?", card.nid, card.ord)
@@ -587,7 +605,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
                     data[4]+1))
                 fields['FrontSide'] = stripSounds(d['q'])
             fields = runFilter("mungeFields", fields, model, data, self)
-            html = anki.template.render(format, fields)
+            html = template_render(format, fields)
             d[type] = runFilter(
                 "mungeQA", html, type, fields, model, data, self)
             # empty cloze?
@@ -631,11 +649,9 @@ where c.nid == f.id
     ##########################################################################
 
     def cardStats(self, card):
-        from anki.stats import CardStats
         return CardStats(self, card).report()
 
     def stats(self):
-        from anki.stats import CollectionStats
         return CollectionStats(self)
 
     # Timeboxing

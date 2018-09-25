@@ -2,13 +2,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time
 import datetime
 import json
+import time
 
-from anki.utils import fmtTimeSpan, ids2str
-from anki.lang import _, ngettext
-
+from .lang import _, ngettext
+from .statsbg import bg as stats_bg
+from .utils import fmtTimeSpan, ids2str
 
 # Card stats
 ##########################################################################
@@ -112,8 +112,7 @@ class CollectionStats:
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         self.type = type
-        from .statsbg import bg
-        txt = self.css % bg
+        txt = self.css % stats_bg
         txt += self._section(self.todayStats())
         txt += self._section(self.dueGraph())
         txt += self.repsGraphs()

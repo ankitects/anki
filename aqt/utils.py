@@ -2,13 +2,65 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-import re, os, sys, subprocess
-import aqt
-from anki.sound import stripSounds
-from anki.utils import isWin, isMac, invalidFilename, noBundledLibs, \
-    versionWithBuild
+import os
+import re
+import subprocess
+import sys
+
+from contextlib import contextmanager
+
 from anki.lang import _
+from anki.sound import stripSounds
+from anki.utils import (
+    invalidFilename,
+    isMac,
+    isWin,
+    versionWithBuild,
+)
+
+import aqt.forms
+
+from aqt.qt import (
+    PYQT_VERSION_STR,
+    QAction,
+    QApplication,
+    QColor,
+    QDesktopServices,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QFrame,
+    QKeySequence,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMenu,
+    QMessageBox,
+    QOffscreenSurface,
+    QOpenGLContext,
+    QOpenGLVersionProfile,
+    QPalette,
+    QPoint,
+    QPushButton,
+    QShortcut,
+    QSize,
+    QStandardPaths,
+    QT_VERSION_STR,
+    QTextBrowser,
+    QUrl,
+    QVBoxLayout,
+    Qt,
+    qtminor,
+)
+
+
+@contextmanager
+def noBundledLibs():
+    oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
+    yield
+    if oldlpath is not None:
+        os.environ["LD_LIBRARY_PATH"] = oldlpath
+
 
 def openHelp(section):
     link = aqt.appHelpSite

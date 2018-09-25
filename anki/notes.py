@@ -2,11 +2,18 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.utils import fieldChecksum, intTime, \
-    joinFields, splitFields, stripHTMLMedia, timestampID, guid64
+from .utils import (
+    fieldChecksum,
+    guid64,
+    intTime,
+    joinFields,
+    splitFields,
+    stripHTMLMedia,
+    timestampID,
+)
+
 
 class Note:
-
     def __init__(self, col, model=None, id=None):
         assert not (model and id)
         self.col = col

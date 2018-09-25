@@ -1,23 +1,48 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki import version as _version
 
-import getpass
-import sys
 import argparse
-import tempfile
 import builtins
-import locale
+import getpass
 import gettext
+import locale
+import os
+import sys
+import tempfile
+import traceback
 
-from aqt.qt import *
-import anki.lang
+from anki import version as _version
 from anki.consts import HELP_SITE
-from anki.lang import langDir
-from anki.utils import isMac, isLin
+from anki.lang import langDir, setLang
+from anki.utils import isMac, isLin, checksum
+
+try:
+    # Ensure that the aqt.forms has been built, otherwise fail early
+    import aqt.forms  # noqa pylint: disable=no-name-in-module
+except ImportError as e:
+    if "forms" in str(e):
+        print("If you're running from git, did you run build_ui.sh?")
+        print()
+    raise
+
+from aqt.qt import (
+    QApplication,
+    QCoreApplication,
+    QEvent,
+    QIODevice,
+    QLocalServer,
+    QLocalSocket,
+    QMessageBox,
+    QNetworkProxy,
+    QTranslator,
+    Qt,
+    pyqtSignal,
+    qInstallMessageHandler,
+)
 
 appVersion=_version
+
 appWebsite="http://ankisrs.net/"
 appChanges="http://ankisrs.net/docs/changes.html"
 appDonate="http://ankisrs.net/support/"
@@ -28,15 +53,15 @@ mw = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
-try:
-    import aqt.forms
-except ImportError as e:
-    if "forms" in str(e):
-        print("If you're running from git, did you run build_ui.sh?")
-        print()
-    raise
-
-from anki.utils import checksum
+# Import all of the main modules to be available
+from aqt import (  # noqa
+    about,
+    addcards,
+    browser,
+    editcurrent,
+    preferences,
+    stats,
+)
 
 # Dialog manager
 ##########################################################################
@@ -53,9 +78,6 @@ from anki.utils import checksum
 
 #- make preferences modal? cmd+q does wrong thing
 
-
-from aqt import addcards, browser, editcurrent, stats, about, \
-    preferences
 
 class DialogManager:
 
@@ -127,16 +149,6 @@ _gtrans = None
 _qtrans = None
 
 def setupLang(pm, app, force=None):
-    global _gtrans, _qtrans
-    try:
-        locale.setlocale(locale.LC_ALL, '')
-    except:
-        pass
-    lang = force or pm.meta["defaultLang"]
-    dir = langDir()
-    # gettext
-    _gtrans = gettext.translation(
-        'anki', dir, languages=[lang], fallback=True)
     def fn__(arg):
         print("accessing _ without importing from anki.lang will break in the future")
         print("".join(traceback.format_stack()[-2]))
@@ -148,9 +160,19 @@ def setupLang(pm, app, force=None):
         from anki.lang import ngettext
         return ngettext(a, b, c)
 
+    global _gtrans, _qtrans
+    try:
+        locale.setlocale(locale.LC_ALL, '')
+    except:
+        pass
+    lang = force or pm.meta["defaultLang"]
+    dir = langDir()
+    # gettext
+    _gtrans = gettext.translation(
+        'anki', dir, languages=[lang], fallback=True)
     builtins.__dict__['_'] = fn__
     builtins.__dict__['ngettext'] = fn_ngettext
-    anki.lang.setLang(lang, local=False)
+    setLang(lang, local=False)
     if lang in ("he","ar","fa"):
         app.setLayoutDirection(Qt.RightToLeft)
     else:

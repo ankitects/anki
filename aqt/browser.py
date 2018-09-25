@@ -2,30 +2,94 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import sre_constants
 import html
-import time
-import re
-import unicodedata
-from operator import  itemgetter
-from anki.lang import ngettext
 import json
+import re
+import sre_constants
+import time
+import unicodedata
 
-from aqt.qt import *
-import anki
-import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, htmlToTextLine, \
-    isWin, intTime, \
-    isMac, bodyClass
-from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
-    saveHeader, restoreHeader, saveState, restoreState, getTag, \
-    showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
-    getOnlyText, MenuList, SubMenu, qtMenuShortcutWorkaround
-from anki.lang import _
+from operator import itemgetter
+
+import anki.find
+
+from anki.consts import MODEL_CLOZE
 from anki.hooks import runHook, addHook, remHook, runFilter
-from aqt.webview import AnkiWebView
-from anki.consts import *
+from anki.lang import ngettext, _
 from anki.sound import clearAudioQueue, allSounds, play
+from anki.stats import (
+    CardStats,
+    colCram,
+    colLearn,
+    colMature,
+    colRelearn,
+)
+from anki.utils import (
+    bodyClass,
+    fmtTimeSpan,
+    htmlToTextLine,
+    ids2str,
+    intTime,
+    isMac,
+    isWin,
+)
+
+import aqt.forms
+
+from aqt.qt import (
+    QAbstractItemView,
+    QAbstractTableModel,
+    QBrush,
+    QCheckBox,
+    QColor,
+    QComboBox,
+    QCursor,
+    QDialog,
+    QDialogButtonBox,
+    QDockWidget,
+    QFont,
+    QGridLayout,
+    QHBoxLayout,
+    QHeaderView,
+    QIcon,
+    QItemDelegate,
+    QItemSelection,
+    QItemSelectionModel,
+    QKeySequence,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QPalette,
+    QShortcut,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    Qt,
+)
+from aqt.utils import (
+    MenuList,
+    SubMenu,
+    askUser,
+    getOnlyText,
+    getTag,
+    mungeQA,
+    openHelp,
+    restoreGeom,
+    restoreHeader,
+    restoreSplitter,
+    restoreState,
+    saveGeom,
+    saveHeader,
+    saveSplitter,
+    saveState,
+    qtMenuShortcutWorkaround,
+    shortcut,
+    showInfo,
+    showWarning,
+    tooltip,
+)
+from aqt.webview import AnkiWebView
 
 
 # Data model
@@ -1148,7 +1212,6 @@ by clicking on one on the left."""))
         d.show()
 
     def _cardInfoData(self):
-        from anki.stats import CardStats
         cs = CardStats(self.col, self.card)
         rep = cs.report()
         m = self.card.model()
@@ -1173,20 +1236,19 @@ border: 1px solid #000; padding: 3px; '>%s</div>""" % rep
                                                    time.localtime(date))
             tstr = [_("Learn"), _("Review"), _("Relearn"), _("Filtered"),
                     _("Resched")][type]
-            import anki.stats as st
             fmt = "<span style='color:%s'>%s</span>"
             if type == 0:
-                tstr = fmt % (st.colLearn, tstr)
+                tstr = fmt % (colLearn, tstr)
             elif type == 1:
-                tstr = fmt % (st.colMature, tstr)
+                tstr = fmt % (colMature, tstr)
             elif type == 2:
-                tstr = fmt % (st.colRelearn, tstr)
+                tstr = fmt % (colRelearn, tstr)
             elif type == 3:
-                tstr = fmt % (st.colCram, tstr)
+                tstr = fmt % (colCram, tstr)
             else:
                 tstr = fmt % ("#000", tstr)
             if ease == 1:
-                ease = fmt % (st.colRelearn, ease)
+                ease = fmt % (colRelearn, ease)
             if ivl == 0:
                 ivl = _("0d")
             elif ivl > 0:
@@ -1736,7 +1798,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         sf = self.selectedNotes()
         if not sf:
             return
-        import anki.find
         fields = anki.find.fieldNamesForNotes(self.mw.col, sf)
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
@@ -2095,4 +2156,3 @@ Are you sure you want to continue?""")):
 
     def onHelp(self):
         openHelp("browsermisc")
-

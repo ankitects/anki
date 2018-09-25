@@ -3,9 +3,19 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-from aqt.qt import *
-import aqt.forms
+
 from anki.lang import _
+
+import aqt.forms
+
+from aqt.qt import (
+    QApplication,
+    QCursor,
+    QDialog,
+    QEventLoop,
+    QTimer,
+    Qt,
+)
 
 # fixme: if mw->subwindow opens a progress dialog with mw as the parent, mw
 # gets raised on finish on compiz. perhaps we should be using the progress
@@ -13,6 +23,7 @@ from anki.lang import _
 
 # Progress info
 ##########################################################################
+
 
 class ProgressManager:
 

@@ -2,23 +2,34 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
-    openHelp
-from anki.utils import ids2str, fmtTimeSpan
-from anki.errors import DeckRenameError
-import aqt
-from anki.sound import clearAudioQueue
-from anki.hooks import runHook
 from copy import deepcopy
+
+from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
+from anki.hooks import runHook
+from anki.sound import clearAudioQueue
+from anki.utils import ids2str, fmtTimeSpan
+
+from aqt import appShared
+from aqt.toolbar import BottomBar
+
+from aqt.qt import QPoint, QMenu, QCursor
+from aqt.utils import (
+    askUser,
+    getOnlyText,
+    openHelp,
+    openLink,
+    shortcut,
+    showWarning,
+)
+
 
 class DeckBrowser:
 
     def __init__(self, mw):
         self.mw = mw
         self.web = mw.web
-        self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
+        self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
 
     def show(self):
@@ -293,4 +304,4 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         self.bottom.web.onBridgeCmd = self._linkHandler
 
     def _onShared(self):
-        openLink(aqt.appShared+"decks/")
+        openLink(appShared+"decks/")

@@ -2,12 +2,26 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import datetime, time
-from aqt.qt import *
-import anki.lang
-from aqt.utils import openFolder, openHelp, showInfo, askUser
-import aqt
-from anki.lang import _
+import datetime
+import time
+
+from anki.lang import _, langs, getLang
+from anki.utils import isMac
+
+import aqt.forms
+
+from aqt.qt import (
+    QDialog,
+    QDialogButtonBox,
+    Qt,
+)
+from aqt.utils import (
+    askUser,
+    openFolder,
+    openHelp,
+    showInfo,
+)
+
 
 class Preferences(QDialog):
 
@@ -52,19 +66,19 @@ class Preferences(QDialog):
 
     def setupLang(self):
         f = self.form
-        f.lang.addItems([x[0] for x in anki.lang.langs])
+        f.lang.addItems([x[0] for x in langs])
         f.lang.setCurrentIndex(self.langIdx())
         f.lang.currentIndexChanged.connect(self.onLangIdxChanged)
 
     def langIdx(self):
-        codes = [x[1] for x in anki.lang.langs]
+        codes = [x[1] for x in langs]
         try:
-            return codes.index(anki.lang.getLang())
-        except:
+            return codes.index(getLang())
+        except Exception:
             return codes.index("en")
 
     def onLangIdxChanged(self, idx):
-        code = anki.lang.langs[idx][1]
+        code = langs[idx][1]
         self.mw.pm.setLang(code)
         showInfo(_("Please restart Anki to complete language change."), parent=self)
 
@@ -228,4 +242,3 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def updateOptions(self):
         self.prof['pastePNG'] = self.form.pastePNG.isChecked()
-

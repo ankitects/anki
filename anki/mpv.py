@@ -25,19 +25,27 @@
 #
 # ------------------------------------------------------------------------------
 
-import sys
-import os
-import time
+import inspect
 import json
-import socket
+import os
 import select
+import socket
+import subprocess
+import sys
 import tempfile
 import threading
-import subprocess
-import inspect
+import time
 
 from distutils.spawn import find_executable # pylint: disable=import-error,no-name-in-module
 from queue import Queue, Empty, Full
+
+from .utils import isWin
+
+if isWin:
+    import win32file  # pylint: disable=import-error
+    import win32pipe  # pylint: disable=import-error
+    import pywintypes  # pylint: disable=import-error
+    import winerror  # pylint: disable=import-error
 
 
 class MPVError(Exception):
@@ -55,10 +63,6 @@ class MPVCommandError(MPVError):
 class MPVTimeoutError(MPVError):
     pass
 
-from anki.utils import isWin
-if isWin:
-    # pylint: disable=import-error
-    import win32file, win32pipe, pywintypes, winerror
 
 class MPVBase:
     """Base class for communication with the mpv media player via unix socket
