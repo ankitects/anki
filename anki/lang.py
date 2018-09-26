@@ -22,6 +22,7 @@ langs = [
     ("Hrvatski", "hr"),
     ("Interlingua", "ia"),
     ("Italiano", "it"),
+    ("lo jbobau", "jbo"),
     ("Lenga d'òc", "oc"),
     ("Magyar", "hu"),
     ("Nederlands","nl"),
