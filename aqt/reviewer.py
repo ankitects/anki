@@ -277,7 +277,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
 
     def _onAnswerButton(self, val):
         # button selected?
-        if val in "1234":
+        if val and val in "1234":
             self._answerCard(int(val))
         else:
             self._answerCard(self._defaultEase())
