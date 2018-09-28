@@ -28,6 +28,8 @@ button {
     white-space: nowrap;
 }
 
+#ansbut { margin-bottom: 1em; }
+
 .nobold {
     font-weight: normal;
     display: inline-block;
