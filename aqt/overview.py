@@ -172,7 +172,7 @@ to their original deck.""")
                 self.mw.col.sched.finishedMsg())
         else:
             return '''
-<table width=300 cellpadding=5>
+<table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
 <tr><td>%s:</td><td><b><font color=#00a>%s</font></b></td></tr>
