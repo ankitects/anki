@@ -288,7 +288,12 @@ body {{ zoom: {}; {} }}
 
     def _evalWithCallback(self, js, cb):
         if cb:
-            self.page().runJavaScript(js, cb)
+            def handler(val):
+                if self._shouldIgnoreWebEvent():
+                    print("ignored late js callback", cb)
+                    return
+                cb(val)
+            self.page().runJavaScript(js, handler)
         else:
             self.page().runJavaScript(js)
 
@@ -310,10 +315,15 @@ body {{ zoom: {}; {} }}
     def _openLinksExternally(self, url):
         openLink(url)
 
+    def _shouldIgnoreWebEvent(self):
+        # async web events may be received after the profile has been closed
+        # or the underlying webview has been deleted
+        from aqt import mw
+        return not mw.col or sip.isdeleted(self)
+
     def _onBridgeCmd(self, cmd):
-        # ignore webchannel messages that arrive after underlying webview
-        # deleted
-        if sip.isdeleted(self):
+        if self._shouldIgnoreWebEvent():
+            print("ignored late bridge cmd", cmd)
             return
 
         if cmd == "domDone":
