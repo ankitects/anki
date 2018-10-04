@@ -8,6 +8,12 @@
 BIN="$(cd "`dirname "$0"`"; pwd)"
 export PYTHONPATH=${BIN}/..:${PYTHONPATH}
 
+# favour nosetests3 if available
+nose=nosetests
+if which nosetests3 >/dev/null 2>&1; then
+    nose=nosetests3
+fi
+
 dir=.
 
 if [ x$1 = x ]; then
@@ -22,4 +28,4 @@ else
     args=""
     echo "Call with coverage=1 to run coverage tests"
 fi
-(cd $dir && nosetests -vs --processes=16 --process-timeout=300 $lim $args --cover-package=anki)
+(cd $dir && $nose -vs --processes=16 --process-timeout=300 $lim $args --cover-package=anki)
