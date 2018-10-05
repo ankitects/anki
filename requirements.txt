@@ -1,4 +1,4 @@
-bs4
+beautifulsoup4
 send2trash
 pyaudio
 requests
