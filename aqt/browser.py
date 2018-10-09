@@ -1343,7 +1343,11 @@ where id in %s""" % ids2str(sf))
                  "reviewer.js"]
         self._previewWeb.stdHtml(self.mw.reviewer.revHtml(),
                                  css=["reviewer.css"],
-                                 js=jsinc)
+                                 js=jsinc,
+                                 head=runFilter("previewWebHead", "", self),
+                                 prefix=runFilter("previewWebPrefix", "", self),
+                                 suffix=runFilter("previewWebSuffix", "", self)
+                                 )
 
 
     def _renderPreview(self, cardChanged=False):

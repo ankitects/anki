@@ -112,7 +112,10 @@ class Editor:
             topbuts,
             _("Show Duplicates")),
                          css=["editor.css"],
-                         js=["jquery.js", "editor.js"])
+                         js=["jquery.js", "editor.js"],
+                         head=runFilter("editorWebHead", "", self),
+                         prefix=runFilter("editorWebPrefix", "", self),
+                         suffix=runFilter("editorWebSuffix", "", self))
 
     # Top buttons
     ######################################################################

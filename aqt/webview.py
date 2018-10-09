@@ -211,7 +211,8 @@ class AnkiWebView(QWebEngineView):
         else:
             return 3
 
-    def stdHtml(self, body, css=[], js=["jquery.js"], head=""):
+    def stdHtml(self, body, css=[], js=["jquery.js"], head="",
+                prefix="", suffix=""):
         if isWin:
             widgetspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
             fontspec = 'font-size:12px;font-family:"Segoe UI";'
@@ -265,8 +266,9 @@ body {{ zoom: {}; {} }}
 {}
 </head>
 
-<body>{}</body>
-</html>""".format(self.title, self.zoomFactor(), fontspec, widgetspec, head, body)
+<body>{}{}{}</body>
+</html>""".format(self.title, self.zoomFactor(), fontspec, widgetspec, head,
+                  prefix, body, suffix)
         #print(html)
         self.setHtml(html)
 

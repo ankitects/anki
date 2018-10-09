@@ -7,6 +7,7 @@ import os, time
 from aqt.utils import saveGeom, restoreGeom, maybeHideClose, addCloseShortcut, \
     tooltip, getSaveFile
 import aqt
+from anki.hooks import runFilter
 
 # Deck Stats
 ######################################################################
@@ -83,5 +84,8 @@ class DeckStats(QDialog):
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
         self.form.web.stdHtml("<html><body>"+self.report+"</body></html>",
-                              js=["jquery.js", "plot.js"])
+                              js=["jquery.js", "plot.js"],
+                              head=runFilter("statsWebHead", "", self),
+                              prefix=runFilter("statsWebPrefix", "", self),
+                              suffix=runFilter("statsWebSuffix", "", self))
         self.mw.progress.finish()

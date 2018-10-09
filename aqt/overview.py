@@ -6,6 +6,7 @@ from aqt.utils import openLink, shortcut, tooltip, askUserDialog
 from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue
+from anki.hooks import runFilter
 
 class Overview:
     "Deck overview."
@@ -133,10 +134,15 @@ class Overview:
                 deck=deck['name'],
                 shareLink=shareLink,
                 desc=self._desc(deck),
-                table=self._table()
+                table=self._table(),
+                stats=runFilter("overviewWebStats", "", self)
             ),
                          css=["overview.css"],
-                         js=["jquery.js", "overview.js"])
+                         js=["jquery.js", "overview.js"],
+                         head=runFilter("overviewWebHead", "", self),
+                         prefix=runFilter("overviewWebPrefix", "", self),
+                         suffix=runFilter("overviewWebSuffix", "", self)
+        )
 
     def _desc(self, deck):
         if deck['dyn']:
@@ -193,6 +199,7 @@ to their original deck.""")
 %(shareLink)s
 %(desc)s
 %(table)s
+%(stats)s
 </center>
 """
 

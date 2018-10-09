@@ -187,10 +187,16 @@ class CardLayout(QDialog):
                  "reviewer.js"]
         pform.frontWeb.stdHtml(self.mw.reviewer.revHtml(),
                                css=["reviewer.css"],
-                               js=jsinc)
+                               js=jsinc,
+                               head=runFilter("cardlayoutWebHead", "", self),
+                               prefix=runFilter("cardlayoutWebPrefix", "", self),
+                               suffix=runFilter("cardlayoutWebSuffix", "", self))
         pform.backWeb.stdHtml(self.mw.reviewer.revHtml(),
                               css=["reviewer.css"],
-                               js=jsinc)
+                              js=jsinc,
+                              head=runFilter("cardlayoutWebHead", "", self),
+                              prefix=runFilter("cardlayoutWebPrefix", "", self),
+                              suffix=runFilter("cardlayoutWebSuffix", "", self))
 
     def updateMainArea(self):
         if self._isCloze():

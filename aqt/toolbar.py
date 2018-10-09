@@ -4,6 +4,8 @@
 
 from aqt.qt import *
 
+from anki.hooks import runFilter
+
 class Toolbar:
 
     def __init__(self, mw, web):
@@ -22,7 +24,10 @@ class Toolbar:
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
         self.web.stdHtml(self._body % self._centerLinks(),
-                         css=["toolbar.css"])
+                         css=["toolbar.css"],
+                         head=runFilter("toolbarWebHead", "", self),
+                         prefix=runFilter("toolbarWebPrefix", "", self),
+                         suffix=runFilter("toolbarWebSuffix", "", self))
         self.web.adjustHeightToFit()
 
     # Available links
@@ -103,5 +108,8 @@ class BottomBar(Toolbar):
         self.web.onBridgeCmd = self._linkHandler
         self.web.stdHtml(
             self._centerBody % buf,
-            css=["toolbar.css", "toolbar-bottom.css"])
+            css=["toolbar.css", "toolbar-bottom.css"],
+            head=runFilter("bottombarWebHead", "", self),
+            prefix=runFilter("bottombarWebPrefix", "", self),
+            suffix=runFilter("bottombarWebSuffix", "", self))
         self.web.adjustHeightToFit()

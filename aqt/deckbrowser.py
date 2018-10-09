@@ -9,7 +9,7 @@ from anki.utils import isMac, ids2str, fmtTimeSpan
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
-from anki.hooks import runHook
+from anki.hooks import runHook, runFilter
 from copy import deepcopy
 
 class DeckBrowser:
@@ -88,11 +88,14 @@ class DeckBrowser:
 
     def __renderPage(self, offset):
         tree = self._renderDeckTree(self._dueTree)
-        stats = self._renderStats()
-        self.web.stdHtml(self._body%dict(
+        stats = runFilter("deckBrowserWebStats", self._renderStats(), self)
+        self.web.stdHtml(self._body % dict(
             tree=tree, stats=stats, countwarn=self._countWarn()),
                          css=["deckbrowser.css"],
-                         js=["jquery.js", "jquery-ui.js", "deckbrowser.js"])
+                         js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
+                         head=runFilter("deckbrowserWebHead", "", self),
+                         prefix=runFilter("deckbrowserWebPrefix", "", self),
+                         suffix=runFilter("deckbrowserWebSuffix", "", self))
         self.web.key = "deckBrowser"
         self._drawButtons()
         self._scrollToOffset(offset)

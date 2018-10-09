@@ -139,13 +139,20 @@ class Reviewer:
                              "browsersel.js",
                              "mathjax/conf.js",
                              "mathjax/MathJax.js",
-                             "reviewer.js"])
+                             "reviewer.js"],
+                         head=runFilter("reviewerWebHead", "", self),
+                         prefix=runFilter("reviewerWebPrefix", "", self),
+                         suffix=runFilter("reviewerWebSuffix", "", self)
+                         )
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
             css=["toolbar-bottom.css", "reviewer-bottom.css"],
-            js=["jquery.js", "reviewer-bottom.js"]
+            js=["jquery.js", "reviewer-bottom.js"],
+            head=runFilter("reviewerBottomWebHead", "", self),
+            prefix=runFilter("reviewerBottomWebPrefix", "", self),
+            suffix=runFilter("reviewerBottomWebSuffix", "", self)
         )
 
     # Showing the question
