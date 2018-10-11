@@ -305,6 +305,17 @@ def _run(argv=None, exec=True):
     if isMac:
         app.setAttribute(Qt.AA_DontShowIconsInMenus)
 
+    # proxy configured?
+    from urllib.request import proxy_bypass, getproxies
+    if 'http' in getproxies():
+        # if it's not set up to bypass localhost, we'll
+        # need to disable proxies in the webviews
+        if not proxy_bypass("127.0.0.1"):
+            print("webview proxy use disabled")
+            proxy = QNetworkProxy()
+            proxy.setType(QNetworkProxy.NoProxy)
+            QNetworkProxy.setApplicationProxy(proxy)
+
     # we must have a usable temp dir
     try:
         tempfile.gettempdir()
