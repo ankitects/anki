@@ -91,6 +91,7 @@ class AnkiWebView(QWebEngineView):
 
         self._domDone = True
         self._pendingActions = []
+        self.requiresCol = True
         self.setPage(self._page)
 
         self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
@@ -319,7 +320,11 @@ body {{ zoom: {}; {} }}
         # async web events may be received after the profile has been closed
         # or the underlying webview has been deleted
         from aqt import mw
-        return not mw.col or sip.isdeleted(self)
+        if sip.isdeleted(self):
+            return True
+        if not mw.col and self.requiresCol:
+            return True
+        return False
 
     def _onBridgeCmd(self, cmd):
         if self._shouldIgnoreWebEvent():

@@ -18,6 +18,7 @@ class Toolbar:
             "sync": self._syncLinkHandler,
         }
         self.web.setFixedHeight(30)
+        self.web.requiresCol = False
 
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
