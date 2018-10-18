@@ -30,6 +30,7 @@ class Scheduler:
         self.col = col
         self.queueLimit = 50
         self.reportLimit = 1000
+        self.dynReportLimit = 99999
         self.reps = 0
         self.today = None
         self._haveQueues = False
@@ -171,6 +172,7 @@ order by due""" % self._deckLimit(),
         tot = 0
         pcounts = {}
         # for each of the active decks
+        nameMap = self.col.decks.nameMap()
         for did in self.col.decks.active():
             # early alphas were setting the active ids as a str
             did = int(did)
@@ -179,7 +181,7 @@ order by due""" % self._deckLimit(),
             if not lim:
                 continue
             # check the parents
-            parents = self.col.decks.parents(did)
+            parents = self.col.decks.parents(did, nameMap)
             for p in parents:
                 # add if missing
                 if p['id'] not in pcounts:
@@ -214,20 +216,28 @@ order by due""" % self._deckLimit(),
                 return None
             parts = parts[:-1]
             return "::".join(parts)
+        childMap = self.col.decks.childMap()
         for deck in decks:
-            # if we've already seen the exact same deck name, remove the
+            # if we've already seen the exact same deck name, rename the
             # invalid duplicate and reload
             if deck['name'] in lims:
-                self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
+                deck['name'] += "1"
+                self.col.decks.save(deck)
                 return self.deckDueList()
+            # ensure no sections are blank
+            if not all(deck['name'].split("::")):
+                deck['name'] = "recovered"
+                self.col.decks.save(deck)
+                return self.deckDueList()
+
             p = parent(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
                 if p not in lims:
-                    # if parent was missing, this deck is invalid, and we
-                    # need to reload the deck list
-                    self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
+                    # if parent was missing, this deck is invalid
+                    deck['name'] = "recovered"
+                    self.col.decks.save(deck)
                     return self.deckDueList()
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
@@ -239,7 +249,7 @@ order by due""" % self._deckLimit(),
             else:
                 plim = None
             rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
-            rev = self._revForDeck(deck['id'], rlim)
+            rev = self._revForDeck(deck['id'], rlim, childMap)
             # save to list
             data.append([deck['name'], deck['id'], rev, lrn, new])
             # add deck as a parent
@@ -426,7 +436,7 @@ select count() from
     def _deckNewLimitSingle(self, g):
         "Limit for deck without parent limits."
         if g['dyn']:
-            return self.reportLimit
+            return self.dynReportLimit
         c = self.col.decks.confForDid(g['id'])
         return max(0, c['new']['perDay'] - g['newToday'][1])
 
@@ -445,19 +455,19 @@ select id from cards where did in %s and queue = 0 limit ?)"""
 
         # sub-day
         self.lrnCount = self.col.db.scalar("""
-select count() from (select null from cards where did in %s and queue = 1
-and due < ? limit %d)""" % (
-            self._deckLimit(), self.reportLimit),
+select count() from cards where did in %s and queue = 1
+and due < ?""" % (
+            self._deckLimit()),
             cutoff) or 0
         # day
         self.lrnCount += self.col.db.scalar("""
-select count() from (select null from cards where did in %s and queue = 3
-and due <= ? limit %d)""" % (self._deckLimit(), self.reportLimit),
+select count() from cards where did in %s and queue = 3
+and due <= ?""" % (self._deckLimit()),
                                             self.today)
         # previews
         self.lrnCount += self.col.db.scalar("""
-select count() from (select null from cards where did in %s and queue = 4
-limit %d)""" % (self._deckLimit(), self.reportLimit))
+select count() from cards where did in %s and queue = 4
+""" % (self._deckLimit()))
 
     def _resetLrn(self):
         self._resetLrnCount()
@@ -581,12 +591,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         if delay is None:
             delay = self._delayForGrade(conf, card.left)
 
-        if card.due < time.time():
-            # not collapsed; add some randomness
-            delay *= random.uniform(1, 1.25)
         card.due = int(time.time() + delay)
         # due today?
         if card.due < self.dayCutoff:
+            # add some randomness, up to 5 minutes or 25%
+            maxExtra = min(300, int(delay*0.25))
+            fuzz = random.randrange(0, maxExtra)
+            card.due = min(self.dayCutoff-1, card.due + fuzz)
             card.queue = 1
             if card.due < (intTime() + self.col.conf['collapseTime']):
                 self.lrnCount += 1
@@ -733,7 +744,7 @@ and due <= ? limit ?)""",
             return 0
 
         if d['dyn']:
-            return self.reportLimit
+            return self.dynReportLimit
 
         c = self.col.decks.confForDid(d['id'])
         lim = max(0, c['rev']['perDay'] - d['revToday'][1])
@@ -748,8 +759,8 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
             return lim
 
-    def _revForDeck(self, did, lim):
-        dids = [did] + [x[1] for x in self.col.decks.children(did)]
+    def _revForDeck(self, did, lim, childMap):
+        dids = [did] + self.col.decks.childDids(did, childMap)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             """
@@ -820,7 +831,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     def _answerRevCard(self, card, ease):
         delay = 0
         early = card.odid and (card.odue > self.today)
-        type = early and 3 or 2
+        type = early and 3 or 1
 
         if ease == 1:
             delay = self._rescheduleLapse(card)
@@ -835,26 +846,24 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         card.lapses += 1
         card.factor = max(1300, card.factor-200)
 
-        if conf['delays']:
+        suspended = self._checkLeech(card, conf) and card.queue == -1
+
+        if conf['delays'] and not suspended:
             card.type = 3
             delay = self._moveToFirstStep(card, conf)
         else:
             # no relearning steps
             self._updateRevIvlOnFail(card, conf)
             self._rescheduleAsRev(card, conf, early=False)
+            # need to reset the queue after rescheduling
+            if suspended:
+                card.queue = -1
             delay = 0
-
-        # if suspended as a leech, nothing to do
-        if self._checkLeech(card, conf) and card.queue == -1:
-            return 0
 
         return delay
 
     def _lapseIvl(self, card, conf):
-        due = card.odue or card.due
-        elapsed = card.ivl - (due - self.today)
-        ivl = min(elapsed, card.ivl)
-        ivl = max(1, conf['minInt'], ivl*conf['mult'])
+        ivl = max(1, conf['minInt'], card.ivl*conf['mult'])
         return ivl
 
     def _rescheduleRev(self, card, ease, early):
@@ -894,7 +903,12 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         delay = self._daysLate(card)
         conf = self._revConf(card)
         fct = card.factor / 1000
-        ivl2 = self._constrainedIvl((card.ivl + delay // 4) * 1.2, conf, card.ivl, fuzz)
+        hardFactor = conf.get("hardFactor", 1.2)
+        if hardFactor > 1:
+            hardMin = card.ivl
+        else:
+            hardMin = 0
+        ivl2 = self._constrainedIvl(card.ivl * hardFactor, conf, hardMin, fuzz)
         if ease == 2:
             return ivl2
 
@@ -929,8 +943,8 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         ivl = int(ivl * conf.get('ivlFct', 1))
         if fuzz:
             ivl = self._fuzzedIvl(ivl)
-        ivl = min(ivl, conf['maxIvl'])
         ivl = max(ivl, prev+1, 1)
+        ivl = min(ivl, conf['maxIvl'])
         return int(ivl)
 
     def _daysLate(self, card):
@@ -954,26 +968,27 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
         conf = self._revConf(card)
 
-        easyBonus = 0
+        easyBonus = 1
         # early 3/4 reviews shouldn't decrease previous interval
         minNewIvl = 1
 
         if ease == 2:
-            factor = 1.2
+            factor = conf.get("hardFactor", 1.2)
             # hard cards shouldn't have their interval decreased by more than 50%
-            minNewIvl = 0.5
+            # of the normal factor
+            minNewIvl = factor / 2
         elif ease == 3:
             factor = card.factor / 1000
         else: # ease == 4:
-            factor = card.factor / 1000 * conf['ease4']
-            # add an extra day, so early reviews have an easy interval nominally
-            # different from the good answer
-            easyBonus = 1
+            factor = card.factor / 1000
+            ease4 = conf['ease4']
+            # 1.3 -> 1.15
+            easyBonus = ease4 - (ease4-1)/2
 
         ivl = max(elapsed * factor, 1)
 
         # cap interval decreases
-        ivl = max(card.ivl*minNewIvl+easyBonus, ivl)
+        ivl = max(card.ivl*minNewIvl, ivl) * easyBonus
 
         ivl = self._constrainedIvl(ivl, conf, prev=0, fuzz=False)
 
@@ -1187,7 +1202,7 @@ where id = ?
     def _updateCutoff(self):
         oldToday = self.today
         # days since col created
-        self.today = int((time.time() - self.col.crt) // 86400)
+        self.today = self._daysSinceCreation()
         # end of day cutoff
         self.dayCutoff = self._dayCutoff()
         if oldToday != self.today:
@@ -1223,6 +1238,12 @@ where id = ?
 
         stamp = time.mktime(date.timetuple())
         return stamp
+
+    def _daysSinceCreation(self):
+        startDate = datetime.datetime.fromtimestamp(self.col.crt)
+        startDate = startDate.replace(hour=self.col.conf.get("rollover", 4),
+                                      minute=0, second=0, microsecond=0)
+        return (time.time() - time.mktime(startDate.timetuple())) // 86400
 
     # Deck finished state
     ##########################################################################
@@ -1577,7 +1598,7 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
         # remove review cards from relearning
         self.col.db.execute("""
 update cards set
-due = odue, queue = 2, mod = %d, usn = %d, odue = 0
+due = odue, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
 where queue in (1,3) and type in (2, 3)
 """ % (intTime(), self.col.usn()))
         # remove new cards from learning

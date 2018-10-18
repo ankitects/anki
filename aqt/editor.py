@@ -25,9 +25,10 @@ from aqt.utils import shortcut, showInfo, showWarning, getFile, \
 import aqt
 from bs4 import BeautifulSoup
 import requests
+from anki.sync import AnkiRequestsClient
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
-audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga")
+audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga", "webm")
 
 _html = """
 <style>
@@ -193,6 +194,7 @@ class Editor:
             ("Ctrl+T, M", self.insertLatexMathEnv),
             ("Ctrl+M, M", self.insertMathjaxInline),
             ("Ctrl+M, E", self.insertMathjaxBlock),
+            ("Ctrl+M, C", self.insertMathjaxChemistry),
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags, True)
         ]
@@ -242,8 +244,12 @@ class Editor:
             return
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
-            (type, ord, txt) = cmd.split(":", 2)
+            (type, ord, nid, txt) = cmd.split(":", 3)
             ord = int(ord)
+            nid = int(nid)
+            if nid != self.note.id:
+                print("ignored late blur")
+                return
             txt = urllib.parse.unquote(txt)
             txt = unicodedata.normalize("NFC", txt)
             txt = self.mungeHTML(txt)
@@ -318,23 +324,24 @@ class Editor:
                 self.web.setFocus()
             runHook("loadNote", self)
 
-        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s)" % (
+        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
-            json.dumps(self.fonts()), json.dumps(focusTo)),
+            json.dumps(self.fonts()), json.dumps(focusTo),
+                                  json.dumps(self.note.id)),
                                   oncallback)
 
     def fonts(self):
         return [(f['font'], f['size'], f['rtl'])
                 for f in self.note.model()['flds']]
 
-    def saveNow(self, callback):
+    def saveNow(self, callback, keepFocus=False):
         "Save unsaved edits then call callback()."
         if not self.note:
              # calling code may not expect the callback to fire immediately
             self.mw.progress.timer(10, callback, False)
             return
         self.saveTags()
-        self.web.evalWithCallback("saveNow()", lambda res: callback())
+        self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     def checkValid(self):
         cols = []
@@ -467,6 +474,9 @@ class Editor:
         self.web.eval("setFormat('removeFormat');")
 
     def onCloze(self):
+        self.saveNow(self._onCloze, keepFocus=True)
+
+    def _onCloze(self):
         # check that the model is set up for cloze deletion
         if not re.search('{{(.*:)*cloze:',self.note.model()['tmpls'][0]['qfmt']):
             if self.addMode:
@@ -552,12 +562,15 @@ to a cloze type first, via Edit>Change Note Type."""))
         # return a local html link
         return self.fnameToLink(fname)
 
+    def _addMediaFromData(self, fname, data):
+        return self.mw.col.media.writeData(fname, data)
+
     def onRecSound(self):
         try:
             file = getAudio(self.widget)
         except Exception as e:
             showWarning(_(
-                "Couldn't record audio. Have you installed lame and sox?") +
+                "Couldn't record audio. Have you installed 'lame'?") +
                         "\n\n" + repr(str(e)))
             return
         if file:
@@ -569,7 +582,7 @@ to a cloze type first, via Edit>Change Note Type."""))
     def urlToLink(self, url):
         fname = self.urlToFile(url)
         if not fname:
-            return url
+            return None
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname):
@@ -597,6 +610,34 @@ to a cloze type first, via Edit>Change Note Type."""))
             or s.startswith("ftp://")
             or s.startswith("file://"))
 
+    def inlinedImageToFilename(self, txt):
+        prefix = "data:image/"
+        suffix = ";base64,"
+        for ext in ("jpg", "jpeg", "png", "gif"):
+            fullPrefix = prefix + ext + suffix
+            if txt.startswith(fullPrefix):
+                b64data = txt[len(fullPrefix):].strip()
+                data = base64.b64decode(b64data, validate=True)
+                if ext == "jpeg":
+                    ext = "jpg"
+                return self._addPastedImage(data, "."+ext)
+
+        return ""
+
+    def inlinedImageToLink(self, src):
+        fname = self.inlinedImageToFilename(src)
+        if fname:
+            return self.fnameToLink(fname)
+
+        return ""
+
+    # ext should include dot
+    def _addPastedImage(self, data, ext):
+        # hash and write
+        csum = checksum(data)
+        fname = "{}-{}{}".format("paste", csum, ext)
+        return self._addMediaFromData(fname, data)
+
     def _retrieveURL(self, url):
         "Download file into media folder and return local filename or None."
         # urllib doesn't understand percent-escaped utf8, but requires things like
@@ -618,7 +659,9 @@ to a cloze type first, via Edit>Change Note Type."""))
                     'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
                 filecontents = urllib.request.urlopen(req).read()
             else:
-                r = requests.get(url, timeout=30)
+                reqs = AnkiRequestsClient()
+                reqs.timeout = 30
+                r = reqs.get(url)
                 if r.status_code != 200:
                     showWarning(_("Unexpected response code: %s") % r.status_code)
                     return
@@ -675,6 +718,9 @@ to a cloze type first, via Edit>Change Note Type."""))
                     fname = self._retrieveURL(src)
                     if fname:
                         tag['src'] = fname
+                elif src.startswith("data:image/"):
+                    # and convert inlined data
+                    tag['src'] = self.inlinedImageToFilename(src)
 
         html = str(doc)
         return html
@@ -709,6 +755,9 @@ to a cloze type first, via Edit>Change Note Type."""))
         a = m.addAction(_("MathJax block"))
         a.triggered.connect(self.insertMathjaxBlock)
         a.setShortcut(QKeySequence("Ctrl+M, E"))
+        a = m.addAction(_("MathJax chemistry"))
+        a.triggered.connect(self.insertMathjaxChemistry)
+        a.setShortcut(QKeySequence("Ctrl+M, C"))
         a = m.addAction(_("LaTeX"))
         a.triggered.connect(self.insertLatex)
         a.setShortcut(QKeySequence("Ctrl+T, T"))
@@ -740,6 +789,9 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     def insertMathjaxBlock(self):
         self.web.eval("wrap('\\\\[', '\\\\]');")
+
+    def insertMathjaxChemistry(self):
+        self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
     # Links from HTML
     ######################################################################
@@ -829,7 +881,14 @@ class EditorWebView(AnkiWebView):
         html, internal = self._processHtml(mime)
         if html:
             return html, internal
-        for fn in (self._processUrls, self._processImage, self._processText):
+
+        # favour url if it's a local link
+        if mime.hasUrls() and mime.urls()[0].toString().startswith("file://"):
+            types = (self._processUrls, self._processImage, self._processText)
+        else:
+            types = (self._processImage, self._processUrls, self._processText)
+
+        for fn in types:
             html = fn(mime)
             if html:
                 return html, False
@@ -850,10 +909,16 @@ class EditorWebView(AnkiWebView):
 
         txt = mime.text()
 
+        # inlined data in base64?
+        if txt.startswith("data:image/"):
+            return self.editor.inlinedImageToLink(txt)
+
         # if the user is pasting an image or sound link, convert it to local
         if self.editor.isURL(txt):
-            txt = txt.split("\r\n")[0]
-            return self.editor.urlToLink(txt)
+            url = txt.split("\r\n")[0]
+            link = self.editor.urlToLink(url)
+            if link:
+                return link
 
         # normal text; convert it to HTML
         txt = html.escape(txt)
@@ -872,6 +937,8 @@ class EditorWebView(AnkiWebView):
         return html, False
 
     def _processImage(self, mime):
+        if not mime.hasImage():
+            return
         im = QImage(mime.imageData())
         uname = namedtmp("paste")
         if self.editor.mw.pm.profile.get("pastePNG", False):
@@ -886,15 +953,10 @@ class EditorWebView(AnkiWebView):
         if not os.path.exists(path):
             return
 
-        # hash and rename
-        csum = checksum(open(path, "rb").read())
-        newpath = "{}-{}{}".format(uname, csum, ext)
-        if os.path.exists(newpath):
-            os.unlink(newpath)
-        os.rename(path, newpath)
-
-        # add to media and return resulting html link
-        return self.editor._addMedia(newpath)
+        data = open(path, "rb").read()
+        fname = self.editor._addPastedImage(data, ext)
+        if fname:
+            return self.editor.fnameToLink(fname)
 
     def flagAnkiText(self):
         # be ready to adjust when clipboard event fires

@@ -231,6 +231,10 @@ class Anki2Importer(Importer):
             head += parent
             idInSrc = self.src.decks.id(head)
             self._did(idInSrc)
+        # if target is a filtered deck, we'll need a new deck name
+        deck = self.dst.decks.byName(name)
+        if deck and deck['dyn']:
+            name = "%s %d" % (name, intTime())
         # create in local
         newid = self.dst.decks.id(name)
         # pull conf over
@@ -299,6 +303,9 @@ class Anki2Importer(Importer):
             # review cards have a due date relative to collection
             if card[7] in (2, 3) or card[6] == 2:
                 card[8] -= aheadBy
+            # odue needs updating too
+            if card[14]:
+                card[14] -= aheadBy
             # if odid true, convert card from filtered to normal
             if card[15]:
                 # odid

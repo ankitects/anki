@@ -124,7 +124,12 @@
         </item>
         <item>
          <property name="text">
-          <string>All cards in random order (cram mode)</string>
+          <string>All review cards in random order</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>All cards in random order (don't reschedule)</string>
          </property>
         </item>
        </widget>

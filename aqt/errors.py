@@ -143,9 +143,15 @@ add-ons section</a> of our support site.
         else:
             platname = "Linux"
 
+        def schedVer():
+            try:
+                return self.mw.col.schedVer()
+            except:
+                return "?"
+
         return """\
 Anki {} Python {} Qt {} PyQt {}
 Platform: {}
-Flags: frz={} ao={}        
+Flags: frz={} ao={} sv={}
 """.format(appVersion, platform.python_version(), QT_VERSION_STR, PYQT_VERSION_STR, platname,
-           getattr(sys, "frozen", False), self.mw.addonManager.dirty)
+           getattr(sys, "frozen", False), self.mw.addonManager.dirty, schedVer())

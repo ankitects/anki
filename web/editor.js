@@ -1,6 +1,7 @@
 var currentField = null;
 var changeTimer = null;
 var dropTarget = null;
+var currentNoteId = null;
 
 String.prototype.format = function () {
     var args = arguments;
@@ -13,11 +14,26 @@ function setFGButton(col) {
     $("#forecolor")[0].style.backgroundColor = col;
 }
 
-function saveNow() {
+function saveNow(keepFocus) {
+    if (!currentField) {
+        return;
+    }
+
     clearChangeTimer();
-    if (currentField) {
+
+    if (keepFocus) {
+        saveField("key");
+    } else {
         currentField.blur();
     }
+}
+
+function triggerKeyTimer() {
+    clearChangeTimer();
+    changeTimer = setTimeout(function () {
+        updateButtonState();
+        saveField("key");
+    }, 600);
 }
 
 function onKey() {
@@ -33,11 +49,7 @@ function onKey() {
         focusPrevious();
         return;
     }
-    clearChangeTimer();
-    changeTimer = setTimeout(function () {
-        updateButtonState();
-        saveField("key");
-    }, 600);
+    triggerKeyTimer();
 }
 
 function insertNewline() {
@@ -74,10 +86,14 @@ function inPreEnvironment() {
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
 }
 
-function checkForEmptyField() {
+function onInput() {
+    // empty field?
     if (currentField.innerHTML === "") {
         currentField.innerHTML = "<br>";
     }
+
+    // make sure IME changes get saved
+    triggerKeyTimer();
 }
 
 function updateButtonState() {
@@ -119,6 +135,10 @@ function clearChangeTimer() {
 }
 
 function onFocus(elem) {
+    if (currentField === elem) {
+        // anki window refocused; current element unchanged
+        return;
+    }
     currentField = elem;
     pycmd("focus:" + currentFieldOrdinal());
     enableButtons();
@@ -162,6 +182,9 @@ function focusPrevious() {
 }
 
 function onDragOver(elem) {
+    var e = window.event;
+    e.dataTransfer.dropEffect = "copy";
+    e.preventDefault();
     // if we focus the target element immediately, the drag&drop turns into a
     // copy, so note it down for later instead
     dropTarget = elem;
@@ -189,6 +212,10 @@ function caretToEnd() {
 }
 
 function onBlur() {
+    if (document.activeElement === currentField) {
+        // anki window defocused; current field unchanged
+        return;
+    }
     if (currentField) {
         saveField("blur");
         currentField = null;
@@ -203,7 +230,7 @@ function saveField(type) {
         return;
     }
     // type is either 'blur' or 'key'
-    pycmd(type + ":" + currentFieldOrdinal() + ":" + currentField.innerHTML);
+    pycmd(type + ":" + currentFieldOrdinal() + ":" + currentNoteId + ":" + currentField.innerHTML);
     clearChangeTimer();
 }
 
@@ -269,7 +296,7 @@ function setFields(fields) {
             f = "<br>";
         }
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%>".format(n);
-        txt += "<div id=f{0} onkeydown='onKey();' oninput='checkForEmptyField()' onmouseup='onKey();'".format(i);
+        txt += "<div id=f{0} onkeydown='onKey();' oninput='onInput()' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
         txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
         txt += "oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' ";
@@ -295,6 +322,10 @@ function setFonts(fonts) {
     }
 }
 
+function setNoteId(id) {
+    currentNoteId = id;
+}
+
 function showDupes() {
     $("#dupes").show();
 }
@@ -317,8 +348,11 @@ var filterHTML = function (html, internal, extendedMode) {
         filterNode(top, extendedMode);
     }
     var outHtml = top.innerHTML;
-    // remove newlines in HTML, as they break cloze deletions, and collapse whitespace
-    outHtml = outHtml.replace(/[\n\t ]+/g, " ").trim();
+    if (!extendedMode) {
+        // collapse whitespace
+        outHtml = outHtml.replace(/[\n\t ]+/g, " ");
+    }
+    outHtml = outHtml.trim();
     //console.log(`input html: ${html}`);
     //console.log(`outpt html: ${outHtml}`);
     return outHtml;
@@ -393,7 +427,7 @@ var filterNode = function (node, extendedMode) {
         tag = allowedTagsBasic[node.tagName];
     }
     if (!tag) {
-        if (!node.innerHTML) {
+        if (!node.innerHTML || node.tagName === 'TITLE') {
             node.parentNode.removeChild(node);
         } else {
             node.outerHTML = node.innerHTML;

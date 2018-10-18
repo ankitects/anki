@@ -324,6 +324,9 @@
    <property name="text">
     <string>&amp;Reschedule...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+R</string>
+   </property>
   </action>
   <action name="actionSelectAll">
    <property name="text">
@@ -338,12 +341,15 @@
     <string>&amp;Undo</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Z</string>
+    <string>Ctrl+Alt+Z</string>
    </property>
   </action>
   <action name="actionInvertSelection">
    <property name="text">
     <string>&amp;Invert Selection</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+S</string>
    </property>
   </action>
   <action name="actionFind">

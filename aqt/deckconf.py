@@ -114,7 +114,7 @@ class DeckConf(QDialog):
         self.loadConfs()
 
     def remGroup(self):
-        if self.conf['id'] == 1:
+        if int(self.conf['id']) == 1:
             showInfo(_("The default configuration can't be removed."), self)
         else:
             self.mw.col.decks.remConf(self.conf['id'])
@@ -185,6 +185,10 @@ class DeckConf(QDialog):
         f.maxIvl.setValue(c['maxIvl'])
         f.revplim.setText(self.parentLimText('rev'))
         f.buryRev.setChecked(c.get("bury", True))
+        f.hardFactor.setValue(int(c.get("hardFactor", 1.2)*100))
+        if self.mw.col.schedVer() == 1:
+            f.hardFactor.setVisible(False)
+            f.hardFactorLabel.setVisible(False)
         # lapse
         c = self.conf['lapse']
         f.lapSteps.setText(self.listToUser(c['delays']))
@@ -267,6 +271,7 @@ class DeckConf(QDialog):
         c['ivlFct'] = f.fi1.value()/100.0
         c['maxIvl'] = f.maxIvl.value()
         c['bury'] = f.buryRev.isChecked()
+        c['hardFactor'] = f.hardFactor.value()/100.0
         # lapse
         c = self.conf['lapse']
         self.updateList(c, 'delays', f.lapSteps, minSize=0)

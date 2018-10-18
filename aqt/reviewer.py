@@ -119,12 +119,16 @@ class Reviewer:
 
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
+        fade=""
+        if self.mw.pm.glMode() == "software":
+            fade="<script>qFade=0;</script>"
         return """
 <div id=_mark>&#x2605;</div>
 <div id=_flag>&#x2691;</div>
+{}
 <div id=qa></div>
 {}
-""".format(extra)
+""".format(fade, extra)
 
     def _initWeb(self):
         self._reps = 0
@@ -269,6 +273,13 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.state == "question":
             self._getTypedAnswer()
         elif self.state == "answer":
+            self.bottom.web.evalWithCallback("selectedAnswerButton()", self._onAnswerButton)
+
+    def _onAnswerButton(self, val):
+        # button selected?
+        if val and val in "1234":
+            self._answerCard(int(val))
+        else:
             self._answerCard(self._defaultEase())
 
     def _linkHandler(self, url):
@@ -343,11 +354,14 @@ Please run Tools>Empty Cards""")
         hadHR = len(buf) != origSize
         # munge correct value
         parser = html.parser.HTMLParser()
-        cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
+        cor = self.mw.col.media.strip(self.typeCorrect)
+        cor = re.sub("(\n|<br ?/?>|</?div>)+", " ", cor)
+        cor = stripHTML(cor)
         # ensure we don't chomp multiple whitespace
         cor = cor.replace(" ", "&nbsp;")
         cor = parser.unescape(cor)
         cor = cor.replace("\xa0", " ")
+        cor = cor.strip()
         given = self.typedAnswer
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
@@ -366,7 +380,7 @@ Please run Tools>Empty Cards""")
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
-        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
+        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
         if not matches:
             return None
         def noHint(txt):
@@ -538,8 +552,8 @@ time = %(time)d;
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s title="%s" onclick='pycmd("ease%d");'>\
-%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
+<td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)

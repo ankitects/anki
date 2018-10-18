@@ -18,6 +18,7 @@ class Toolbar:
             "sync": self._syncLinkHandler,
         }
         self.web.setFixedHeight(30)
+        self.web.requiresCol = False
 
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
@@ -33,7 +34,7 @@ class Toolbar:
             ["decks", _("Decks"), _("Shortcut key: %s") % "D"],
             ["add", _("Add"), _("Shortcut key: %s") % "A"],
             ["browse", _("Browse"), _("Shortcut key: %s") % "B"],
-            ["stats", _("Stats"), _("Shortcut key: %s") % "Shift+S"],
+            ["stats", _("Stats"), _("Shortcut key: %s") % "T"],
             ["sync", _("Sync"), _("Shortcut key: %s") % "Y"],
         ]
         return self._linkHTML(links)
@@ -42,8 +43,8 @@ class Toolbar:
         buf = ""
         for ln, name, title in links:
             buf += '''
-            <a class=hitem title="%s" href=# onclick="pycmd('%s')">%s</a>''' % (
-                title, ln, name)
+            <a class=hitem aria-label="%s" title="%s" href=# onclick="pycmd('%s')">%s</a>''' % (
+                name, title, ln, name)
         return buf
 
     # Link handling

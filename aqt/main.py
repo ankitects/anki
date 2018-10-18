@@ -308,6 +308,8 @@ close the profile or restart Anki."""))
     ##########################################################################
 
     def setupSound(self):
+        if isWin:
+            return
         try:
             anki.sound.setupMPV()
         except FileNotFoundError:
@@ -550,7 +552,7 @@ from the profile screen."))
         self.web.stdHtml("""
 <center><div style="height: 100%%">
 <div style="position:relative; vertical-align: middle;">
-%s<br>
+%s<br><br>
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """ % (i, b))
@@ -706,7 +708,7 @@ title="%s" %s>%s</button>''' % (
             ("s", self.onStudyKey),
             ("a", self.onAddCard),
             ("b", self.onBrowse),
-            ("Shift+s", self.onStats),
+            ("t", self.onStats),
             ("y", self.onSync)
         ]
         self.applyShortcuts(globalShortcuts)
@@ -716,7 +718,9 @@ title="%s" %s>%s</button>''' % (
     def applyShortcuts(self, shortcuts):
         qshortcuts = []
         for key, fn in shortcuts:
-            qshortcuts.append(QShortcut(QKeySequence(key), self, activated=fn))
+            scut = QShortcut(QKeySequence(key), self, activated=fn)
+            scut.setAutoRepeat(False)
+            qshortcuts.append(scut)
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts):
@@ -872,8 +876,6 @@ title="%s" %s>%s</button>''' % (
             # user cancelled first config
             self.col.decks.rem(did)
             self.col.decks.select(deck['id'])
-        else:
-            self.moveToState("overview")
 
     # Menu, title bar & status
     ##########################################################################
@@ -959,10 +961,31 @@ Difference to correct time: %s.""") % diffText
         addHook("remNotes", self.onRemNotes)
         addHook("odueInvalid", self.onOdueInvalid)
 
+        addHook("mpvWillPlay", self.onMpvWillPlay)
+        addHook("mpvIdleHook", self.onMpvIdle)
+        self._activeWindowOnPlay = None
+
     def onOdueInvalid(self):
         showWarning(_("""\
 Invalid property found on card. Please use Tools>Check Database, \
 and if the problem comes up again, please ask on the support site."""))
+
+    def _isVideo(self, file):
+        head, ext = os.path.splitext(file.lower())
+        return ext in (".mp4", ".mov", ".mpg", ".mpeg", ".mkv", ".avi")
+
+    def onMpvWillPlay(self, file):
+        if not self._isVideo(file):
+            return
+
+        self._activeWindowOnPlay = self.app.activeWindow() or self._activeWindowOnPlay
+
+    def onMpvIdle(self):
+        w = self._activeWindowOnPlay
+        if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
+            w.activateWindow()
+            w.raise_()
+        self._activeWindowOnPlay = None
 
     # Log note deletion
     ##########################################################################

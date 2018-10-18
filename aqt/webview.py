@@ -91,6 +91,7 @@ class AnkiWebView(QWebEngineView):
 
         self._domDone = True
         self._pendingActions = []
+        self.requiresCol = True
         self.setPage(self._page)
 
         self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
@@ -213,20 +214,38 @@ class AnkiWebView(QWebEngineView):
 
     def stdHtml(self, body, css=[], js=["jquery.js"], head=""):
         if isWin:
-            buttonspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
+            widgetspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
             fontspec = 'font-size:12px;font-family:"Segoe UI";'
         elif isMac:
             family="Helvetica"
             fontspec = 'font-size:15px;font-family:"%s";'% \
                        family
-            buttonspec = """
+            widgetspec = """
 button { font-size: 13px; -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px; font-family: Helvetica }"""
         else:
-            buttonspec = ""
+            palette = self.style().standardPalette()
             family = self.font().family()
-            fontspec = 'font-size:14px;font-family:%s;'%\
-                family
+            color_hl = palette.color(QPalette.Highlight).name()
+            color_hl_txt = palette.color(QPalette.HighlightedText).name()
+            color_btn = palette.color(QPalette.Button).name()
+            fontspec = 'font-size:14px;font-family:"%s";'% family
+            widgetspec = """
+/* Buttons */
+button{ font-size:14px; -webkit-appearance:none; outline:0;
+        background-color: %(color_btn)s; border:1px solid rgba(0,0,0,.2);
+        border-radius:2px; height:24px; font-family:"%(family)s"; }
+button:focus{ border-color: %(color_hl)s }
+button:hover{ background-color:#fff }
+button:active, button:active:hover { background-color: %(color_hl)s; color: %(color_hl_txt)s;}
+/* Input field focus outline */
+textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
+div[contenteditable="true"]:focus {   
+    outline: 0 none;
+    border-color: %(color_hl)s;
+}""" % {"family": family, "color_btn": color_btn,
+        "color_hl": color_hl, "color_hl_txt": color_hl_txt}
+        
         csstxt = "\n".join([self.bundledCSS("webview.css")]+
                            [self.bundledCSS(fname) for fname in css])
         jstxt = "\n".join([self.bundledScript("webview.js")]+
@@ -248,13 +267,13 @@ body {{ zoom: {}; {} }}
 </head>
 
 <body>{}</body>
-</html>""".format(self.title, self.zoomFactor(), fontspec, buttonspec, head, body)
+</html>""".format(self.title, self.zoomFactor(), fontspec, widgetspec, head, body)
         #print(html)
         self.setHtml(html)
 
     def webBundlePath(self, path):
         from aqt import mw
-        return "http://localhost:%d/_anki/%s" % (mw.mediaServer.getPort(), path)
+        return "http://127.0.0.1:%d/_anki/%s" % (mw.mediaServer.getPort(), path)
 
     def bundledScript(self, fname):
         return '<script src="%s"></script>' % self.webBundlePath(fname)
@@ -270,7 +289,12 @@ body {{ zoom: {}; {} }}
 
     def _evalWithCallback(self, js, cb):
         if cb:
-            self.page().runJavaScript(js, cb)
+            def handler(val):
+                if self._shouldIgnoreWebEvent():
+                    print("ignored late js callback", cb)
+                    return
+                cb(val)
+            self.page().runJavaScript(js, handler)
         else:
             self.page().runJavaScript(js)
 
@@ -292,10 +316,19 @@ body {{ zoom: {}; {} }}
     def _openLinksExternally(self, url):
         openLink(url)
 
-    def _onBridgeCmd(self, cmd):
-        # ignore webchannel messages that arrive after underlying webview
-        # deleted
+    def _shouldIgnoreWebEvent(self):
+        # async web events may be received after the profile has been closed
+        # or the underlying webview has been deleted
+        from aqt import mw
         if sip.isdeleted(self):
+            return True
+        if not mw.col and self.requiresCol:
+            return True
+        return False
+
+    def _onBridgeCmd(self, cmd):
+        if self._shouldIgnoreWebEvent():
+            print("ignored late bridge cmd", cmd)
             return
 
         if cmd == "domDone":
@@ -314,5 +347,11 @@ body {{ zoom: {}; {} }}
         self.evalWithCallback("$(document.body).height()", self._onHeight)
 
     def _onHeight(self, qvar):
+        if qvar is None:
+            from aqt import mw
+            openLink("https://anki.tenderapp.com/kb/problems/anki-must-be-able-to-connect-to-a-local-port")
+            mw.app.closeAllWindows()
+            return
+
         height = math.ceil(qvar*self.zoomFactor())
         self.setFixedHeight(height)

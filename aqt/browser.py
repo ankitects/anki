@@ -312,6 +312,17 @@ class DataModel(QAbstractTableModel):
             return ""
         return time.strftime("%Y-%m-%d", time.localtime(date))
 
+    def isRTL(self, index):
+        col = index.column()
+        type = self.columnType(col)
+        if type != "noteFld":
+            return False
+
+        row = index.row()
+        c = self.getCard(index)
+        nt = c.note().model()
+        return nt['flds'][self.col.models.sortIdx(nt)]['rtl']
+
 # Line painter
 ######################################################################
 
@@ -343,13 +354,16 @@ class StatusDelegate(QItemDelegate):
         finally:
             self.browser.mw.progress.blockUpdates = True
 
+        if self.model.isRTL(index):
+            option.direction = Qt.RightToLeft
+
         col = None
-        if c.queue == -1:
-            col = COLOUR_SUSPENDED
-        elif c.userFlag() > 0:
+        if c.userFlag() > 0:
             col = flagColours[c.userFlag()]
         elif c.note().hasTag("Marked"):
             col = COLOUR_MARKED
+        elif c.queue == -1:
+            col = COLOUR_SUSPENDED
         if col:
             brush = QBrush(QColor(col))
             painter.save()
@@ -461,6 +475,7 @@ class Browser(QMainWindow):
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
+        runHook("browser.onContextMenu", self, m)
         m.exec_(QCursor.pos())
 
     def updateFont(self):
@@ -556,7 +571,7 @@ class Browser(QMainWindow):
             self.form.searchEdit.lineEdit().setText("deck:current ")
 
         # update history
-        txt = str(self.form.searchEdit.lineEdit().text()).strip()
+        txt = str(self.form.searchEdit.lineEdit().text())
         sh = self.mw.pm.profile['searchHistory']
         if txt in sh:
             sh.remove(txt)
@@ -576,6 +591,7 @@ class Browser(QMainWindow):
         if "is:current" in self._lastSearchTxt:
             # show current card if there is one
             c = self.mw.reviewer.card
+            self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
             self.model.search("nid:%d"%nid)
         else:
@@ -610,6 +626,7 @@ class Browser(QMainWindow):
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.form.tableView.selectionModel().selectionChanged.connect(self.onRowChanged)
+        self.singleCard = False
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(
@@ -635,6 +652,7 @@ class Browser(QMainWindow):
             self.focusTo = None
             self.editor.card = self.card
             self.singleCard = True
+        runHook("browser.rowChanged", self)
         self._renderPreview(True)
 
     def refreshCurrentCard(self, note):
@@ -734,6 +752,7 @@ by clicking on one on the left."""))
         self.model.beginReset()
         if type in self.model.activeCols:
             if len(self.model.activeCols) < 2:
+                self.model.endReset()
                 return showInfo(_("You must have at least one column."))
             self.model.activeCols.remove(type)
             adding=False
@@ -1095,7 +1114,11 @@ by clicking on one on the left."""))
             return
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
-        d = QDialog(self)
+        class CardInfoDialog(QDialog):
+            def reject(self):
+                saveGeom(self, "revlog")
+                return QDialog.reject(self)
+        d = CardInfoDialog(self)
         l = QVBoxLayout()
         l.setContentsMargins(0,0,0,0)
         w = AnkiWebView()
@@ -1109,7 +1132,6 @@ by clicking on one on the left."""))
         d.resize(500, 400)
         restoreGeom(d, "revlog")
         d.show()
-        saveGeom(d, "revlog")
 
     def _cardInfoData(self):
         from anki.stats import CardStats
@@ -1705,7 +1727,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             "%(a)d of %(b)d notes updated", len(sf)) % {
                 'a': changed,
                 'b': len(sf),
-            })
+            }, parent=self)
 
     def onFindReplaceHelp(self):
         openHelp("findreplace")
@@ -1841,7 +1863,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def onNote(self):
         self.editor.web.setFocus()
-        self.editor.web.eval("focusField(0);")
 
     def onCardList(self):
         self.form.tableView.setFocus()

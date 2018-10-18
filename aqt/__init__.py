@@ -70,7 +70,8 @@ class DialogManager:
     def open(self, name, *args):
         (creator, instance) = self._dialogs[name]
         if instance:
-            instance.setWindowState(Qt.WindowNoState)
+            if instance.windowState() & Qt.WindowMinimized:
+                instance.setWindowState(instance.windowState() & ~Qt.WindowMinimized)
             instance.activateWindow()
             instance.raise_()
             return instance
@@ -225,10 +226,39 @@ def parseArgs(argv):
     parser.add_option("-l", "--lang", help="interface language (en, de, etc)")
     return parser.parse_args(argv[1:])
 
+def setupGL(pm):
+    if isMac:
+        return
+
+    mode = pm.glMode()
+
+    # work around pyqt loading wrong GL library
+    if isLin:
+        import ctypes
+        ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
+
+    # catch opengl errors
+    def msgHandler(type, ctx, msg):
+        if "Failed to create OpenGL context" in msg:
+            QMessageBox.critical(None, "Error", "Error loading '%s' graphics driver. Please start Anki again to try next driver." % mode)
+            pm.nextGlMode()
+            return
+        else:
+            print("qt:", msg)
+    qInstallMessageHandler(msgHandler)
+
+    if mode == "auto":
+        return
+    elif isLin:
+        os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+    else:
+        os.environ["QT_OPENGL"] = mode
+
 def run():
     try:
         _run()
     except Exception as e:
+        traceback.print_exc()
         QMessageBox.critical(None, "Startup Error",
                              "Please notify support of this error:\n\n"+
                              traceback.format_exc())
@@ -253,10 +283,12 @@ def _run(argv=None, exec=True):
     opts.base = opts.base or ""
     opts.profile = opts.profile or ""
 
-    # work around pyqt loading wrong GL library
-    if isLin:
-        import ctypes
-        ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
+    # profile manager
+    from aqt.profiles import ProfileManager
+    pm = ProfileManager(opts.base)
+
+    # gl workarounds
+    setupGL(pm)
 
     # opt in to full hidpi support?
     if not os.environ.get("ANKI_NOHIGHDPI"):
@@ -273,6 +305,17 @@ def _run(argv=None, exec=True):
     if isMac:
         app.setAttribute(Qt.AA_DontShowIconsInMenus)
 
+    # proxy configured?
+    from urllib.request import proxy_bypass, getproxies
+    if 'http' in getproxies():
+        # if it's not set up to bypass localhost, we'll
+        # need to disable proxies in the webviews
+        if not proxy_bypass("127.0.0.1"):
+            print("webview proxy use disabled")
+            proxy = QNetworkProxy()
+            proxy.setType(QNetworkProxy.NoProxy)
+            QNetworkProxy.setApplicationProxy(proxy)
+
     # we must have a usable temp dir
     try:
         tempfile.gettempdir()
@@ -283,17 +326,16 @@ No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""")
         return
 
-    # profile manager
-    from aqt.profiles import ProfileManager
-    pm = ProfileManager(opts.base, opts.profile)
+    pm.setupMeta()
+
+    if opts.profile:
+        pm.openProfile(opts.profile)
 
     # i18n
     setupLang(pm, app, opts.lang)
 
     # remaining pm init
     pm.ensureProfile()
-
-    print("This is an BETA build - please do not package it up for Linux distributions")
 
     # load the main window
     import aqt.main
