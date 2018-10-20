@@ -108,7 +108,13 @@ class Template:
 
     def render_tags(self, template, context):
         """Renders all the tags in a template for a context."""
+        repCount = 0
         while 1:
+            if repCount > 100:
+                print("too many replacements")
+                break
+            repCount += 1
+
             match = self.tag_re.search(template)
             if match is None:
                 break
