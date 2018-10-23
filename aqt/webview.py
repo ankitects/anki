@@ -97,6 +97,7 @@ class AnkiWebView(QWebEngineView):
         self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
         self.resetHandlers()
         self.allowDrops = False
+        self._filterSet = False
         QShortcut(QKeySequence("Esc"), self,
                   context=Qt.WidgetWithChildrenShortcut, activated=self.onEsc)
         if isMac:
@@ -111,8 +112,6 @@ class AnkiWebView(QWebEngineView):
                           activated=fn)
             QShortcut(QKeySequence("ctrl+shift+v"), self,
                       context=Qt.WidgetWithChildrenShortcut, activated=self.onPaste)
-
-        self.focusProxy().installEventFilter(self)
 
     def eventFilter(self, obj, evt):
         # disable pinch to zoom gesture
@@ -327,6 +326,10 @@ body {{ zoom: {}; {} }}
         return False
 
     def _onBridgeCmd(self, cmd):
+        if not self._filterSet:
+            self.focusProxy().installEventFilter(self)
+            self._filterSet = True
+
         if self._shouldIgnoreWebEvent():
             print("ignored late bridge cmd", cmd)
             return
