@@ -38,8 +38,8 @@ class DeckStats(QDialog):
         f.life.clicked.connect(lambda: self.changePeriod(2))
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
-        self.refresh()
         self.show()
+        self.refresh()
         self.activateWindow()
 
     def reject(self):
@@ -78,7 +78,7 @@ class DeckStats(QDialog):
         self.refresh()
 
     def refresh(self):
-        self.mw.progress.start(immediate=True)
+        self.mw.progress.start(immediate=True, parent=self)
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
