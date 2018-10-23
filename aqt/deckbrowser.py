@@ -117,9 +117,9 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return ""
         return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
             _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
-                a=("<a href=# onclick=\"pycmd('lots')\">%s</a>" % _(
+                a=("<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _(
                     "this page")),
-                b=("<br><small><a href=# onclick='pycmd(\"hidelots\")'>("
+                b=("<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
                    "%s)</a></small>" % (_("hide"))+
                     "</div>")))
 
@@ -166,7 +166,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf = "<tr class='%s' id='%d'>" % (klass, did)
         # deck link
         if children:
-            collapse = "<a class=collapse href=# onclick='pycmd(\"collapse:%d\")'>%s</a>" % (did, prefix)
+            collapse = "<a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>" % (did, prefix)
         else:
             collapse = "<span class=collapse></span>"
         if deck['dyn']:
@@ -189,7 +189,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             nonzeroColour(due, "#007700"),
             nonzeroColour(new, "#000099"))
         # options
-        buf += ("<td align=center class=opts><a onclick='pycmd(\"opts:%d\");'>"
+        buf += ("<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
         "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
         # children
         buf += self._renderDeckTree(children, depth+1)
