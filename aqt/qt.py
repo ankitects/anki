@@ -3,7 +3,6 @@
 
 # fixme: make sure not to optimize imports on this file
 
-import sip
 import os
 
 # fix buggy ubuntu12.04 display of language selector
@@ -15,6 +14,10 @@ from PyQt5.Qt import *
 # trigger explicit message in case of missing libraries
 # instead of silently failing to import
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 def debug():
   from PyQt5.QtCore import pyqtRemoveInputHook
