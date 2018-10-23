@@ -176,7 +176,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf += """
 
         <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="pycmd('open:%d')">%s</a></td>"""% (
+        href=# onclick="return pycmd('open:%d')">%s</a></td>"""% (
             indent(), collapse, extraclass, did, name)
         # due counts
         def nonzeroColour(cnt, colour):
