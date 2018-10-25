@@ -24,7 +24,9 @@ def show(mw):
     mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
-    abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
+    abouttext = "<style>body { margin: 0 }\n.outer { padding: 2em; }</style>"
+    abouttext += "<div class=outer>"
+    abouttext += "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")
     abouttext += "<p>"+_("Anki is licensed under the AGPL3 license. Please see "
@@ -125,9 +127,14 @@ system. It's free and open source.")
 please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \
 suggestions, bug reports and donations.")
-    abt.label.stdHtml(abouttext, js=" ")
-    def resizeAndShow(arg):
-        dialog.adjustSize()
-        dialog.show()
-    abt.label.evalWithCallback("1", resizeAndShow)
+    abouttext += "</div>"
+    dialog.show()
+    dialog.setMinimumWidth(800)
+    abt.label.stdHtml(abouttext)
+    if qtminor >= 11:
+        abt.label.adjustHeightToFit()
+        # after the height is adjusted, adjust the dialog size
+        abt.label.evalWithCallback("1", lambda _: dialog.adjustSize())
+    else:
+        dialog.setMinimumHeight(600)
     return dialog
