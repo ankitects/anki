@@ -125,9 +125,8 @@ system. It's free and open source.")
 please get in touch.")
     abouttext += '<p>' + _("A big thanks to all the people who have provided \
 suggestions, bug reports and donations.")
+    abt.label.setMinimumWidth(800)
+    abt.label.setMinimumHeight(600)
+    dialog.show()
     abt.label.stdHtml(abouttext, js=" ")
-    def resizeAndShow(arg):
-        dialog.adjustSize()
-        dialog.show()
-    abt.label.evalWithCallback("1", resizeAndShow)
     return dialog
