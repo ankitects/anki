@@ -41,8 +41,8 @@ qtmajor = (QT_VERSION & 0xff0000) >> 16
 qtminor = (QT_VERSION & 0x00ff00) >> 8
 qtpoint = QT_VERSION & 0xff
 
-if qtmajor != 5 or qtminor not in (9, 11):
-   raise Exception("Anki only supports Qt 5.9.x and 5.11.x at this time.")
+if qtmajor != 5 or qtminor < 9 or qtminor == 10:
+   raise Exception("Anki does not support your Qt version.")
 
 # GUI code assumes python 3.6+
 if sys.version_info[0] < 3 or sys.version_info[1] < 6:
