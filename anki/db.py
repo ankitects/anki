@@ -10,7 +10,7 @@ from sqlite3 import dbapi2 as sqlite
 DBError = sqlite.Error
 
 class DB:
-    def __init__(self, path, timeout=5):
+    def __init__(self, path, timeout=0):
         self._db = sqlite.connect(path, timeout=timeout)
         self._db.text_factory = self._textFactory
         self._path = path
