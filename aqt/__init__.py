@@ -157,7 +157,7 @@ class AnkiApp(QApplication):
     appMsg = pyqtSignal(str)
 
     KEY = "anki"+checksum(getpass.getuser())
-    TMOUT = 5000
+    TMOUT = 30000
 
     def __init__(self, argv):
         QApplication.__init__(self, argv)
@@ -191,7 +191,10 @@ class AnkiApp(QApplication):
         sock.write(txt.encode("utf8"))
         if not sock.waitForBytesWritten(self.TMOUT):
             # existing instance running but hung
-            return False
+            QMessageBox.warning(None, "Anki Already Running",
+                                 "If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.")
+
+            sys.exit(1)
         sock.disconnectFromServer()
         return True
 
