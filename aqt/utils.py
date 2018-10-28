@@ -6,15 +6,7 @@ from aqt.qt import *
 import re, os, sys, urllib.request, urllib.parse, urllib.error, subprocess
 import aqt
 from anki.sound import stripSounds
-from anki.utils import isWin, isMac, invalidFilename
-from contextlib import contextmanager
-
-@contextmanager
-def noBundledLibs():
-    oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
-    yield
-    if oldlpath is not None:
-        os.environ["LD_LIBRARY_PATH"] = oldlpath
+from anki.utils import isWin, isMac, invalidFilename, noBundledLibs
 
 def openHelp(section):
     link = aqt.appHelpSite
