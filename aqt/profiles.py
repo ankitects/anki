@@ -162,6 +162,11 @@ a flash drive.""" % self.base)
         try:
             self.profile = self._unpickle(data)
         except:
+            QMessageBox.warning(
+                None, _("Profile Corrupt"), _("""\
+Anki could not read your profile data. Window sizes and your sync login \
+details have been forgotten."""))
+
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
