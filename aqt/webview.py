@@ -352,11 +352,7 @@ body {{ zoom: {}; {} }}
         self.onBridgeCmd = self.defaultOnBridgeCmd
 
     def adjustHeightToFit(self):
-        from aqt import mw
-        # fixes bottom toolbar intermittently breaking on startup
-        def delayedResize(qvar):
-            mw.progress.timer(10, lambda: self._onHeight(qvar), False)
-        self.evalWithCallback("$(document.body).height()", delayedResize)
+        self.evalWithCallback("$(document.body).height()", self._onHeight)
 
     def _onHeight(self, qvar):
         if qvar is None:
