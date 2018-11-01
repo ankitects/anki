@@ -330,8 +330,8 @@ COLOUR_SUSPENDED = "#FFFFB2"
 COLOUR_MARKED = "#ccc"
 
 flagColours = {
-    1: "#F5B7B1",
-    2: "#BB8FCE",
+    1: "#ffaaaa",
+    2: "#ffb347",
     3: "#82E0AA",
     4: "#85C1E9",
 }
@@ -441,7 +441,7 @@ class Browser(QMainWindow):
         f.actionReschedule.triggered.connect(self.reschedule)
         f.actionToggle_Suspend.triggered.connect(self.onSuspend)
         f.actionRed_Flag.triggered.connect(lambda: self.onSetFlag(1))
-        f.actionPurple_Flag.triggered.connect(lambda: self.onSetFlag(2))
+        f.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
         f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
         f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
         f.actionClear_Flag.triggered.connect(lambda: self.onSetFlag(0))
@@ -986,7 +986,7 @@ by clicking on one on the left."""))
             (_("Buried"), "is:buried"),
             None,
             (_("Red Flag"), "flag:1"),
-            (_("Purple Flag"), "flag:2"),
+            (_("Orange Flag"), "flag:2"),
             (_("Green Flag"), "flag:3"),
             (_("Blue Flag"), "flag:4"),
             (_("No Flag"), "flag:0"),

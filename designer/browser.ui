@@ -277,7 +277,7 @@
       <string>Flag</string>
      </property>
      <addaction name="actionRed_Flag"/>
-     <addaction name="actionPurple_Flag"/>
+     <addaction name="actionOrange_Flag"/>
      <addaction name="actionGreen_Flag"/>
      <addaction name="actionBlue_Flag"/>
      <addaction name="separator"/>
@@ -543,9 +543,9 @@
     <string>Ctrl+1</string>
    </property>
   </action>
-  <action name="actionPurple_Flag">
+  <action name="actionOrange_Flag">
    <property name="text">
-    <string>Purple Flag</string>
+    <string>Orange Flag</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+2</string>

@@ -586,7 +586,7 @@ time = %(time)d;
         opts = [
             [_("Flag Card"), [
                 [_("Red Flag"), "Ctrl+1", lambda: self.setFlag(1)],
-                [_("Purple Flag"), "Ctrl+2", lambda: self.setFlag(2)],
+                [_("Orange Flag"), "Ctrl+2", lambda: self.setFlag(2)],
                 [_("Green Flag"), "Ctrl+3", lambda: self.setFlag(3)],
                 [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4)],
                 None,
