@@ -86,10 +86,10 @@ function _showAnswer(a, bodyclass) {
 }
 
 _flagColours = {
-    1: "red",
-    2: "purple",
-    3: "green",
-    4: "blue"
+    1: "#ff6666",
+    2: "#ff9900",
+    3: "#77ff77",
+    4: "#77aaff"
 };
 
 function _drawFlag(flag) {
