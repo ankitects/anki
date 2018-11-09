@@ -432,12 +432,44 @@ class DeckManager:
         return self.col.db.list("select id from cards where did in "+
                                 ids2str(dids))
 
-    def recoverOrphans(self):
+    def _recoverOrphans(self):
         dids = list(self.decks.keys())
         mod = self.col.db.mod
         self.col.db.execute("update cards set did = 1 where did not in "+
                             ids2str(dids))
         self.col.db.mod = mod
+
+    def _checkDeckTree(self):
+        decks = self.col.decks.all()
+        decks.sort(key=operator.itemgetter('name'))
+        names = set()
+
+        for deck in decks:
+            # two decks with the same name?
+            if deck['name'] in names:
+                print("fix duplicate deck name", deck['name'])
+                deck['name'] += "%d" % intTime(1000)
+                self.save(deck)
+
+            # ensure no sections are blank
+            if not all(deck['name'].split("::")):
+                print("fix deck with missing sections", deck['name'])
+                deck['name'] = "recovered%d" % intTime(1000)
+                self.save(deck)
+
+            # immediate parent must exist
+            if "::" in deck['name']:
+                immediateParent = "::".join(deck['name'].split("::")[:-1])
+                if immediateParent not in names:
+                    print("fix deck with missing parent", deck['name'])
+                    self._ensureParents(deck['name'])
+                    names.add(immediateParent)
+
+            names.add(deck['name'])
+
+    def checkIntegrity(self):
+        self._recoverOrphans()
+        self._checkDeckTree()
 
     # Deck selection
     #############################################################
