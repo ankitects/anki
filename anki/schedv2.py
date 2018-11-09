@@ -205,7 +205,7 @@ order by due""" % self._deckLimit(),
     def deckDueList(self):
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
-        self.col.decks.recoverOrphans()
+        self.col.decks.checkIntegrity()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
         lims = {}
@@ -218,27 +218,10 @@ order by due""" % self._deckLimit(),
             return "::".join(parts)
         childMap = self.col.decks.childMap()
         for deck in decks:
-            # if we've already seen the exact same deck name, rename the
-            # invalid duplicate and reload
-            if deck['name'] in lims:
-                deck['name'] += "1"
-                self.col.decks.save(deck)
-                return self.deckDueList()
-            # ensure no sections are blank
-            if not all(deck['name'].split("::")):
-                deck['name'] = "recovered"
-                self.col.decks.save(deck)
-                return self.deckDueList()
-
             p = parent(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
-                if p not in lims:
-                    # if parent was missing, this deck is invalid
-                    deck['name'] = "recovered"
-                    self.col.decks.save(deck)
-                    return self.deckDueList()
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
             # learning
