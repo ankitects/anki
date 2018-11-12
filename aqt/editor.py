@@ -921,6 +921,12 @@ class EditorWebView(AnkiWebView):
             if link:
                 return link
 
+            # not media; add it as a normal link if pasting with shift
+            link = '<a href="{}">{}</a>'.format(
+                url, html.escape(txt)
+            )
+            return link
+
         # normal text; convert it to HTML
         txt = html.escape(txt)
         txt = txt.replace("\n", "<br>")
