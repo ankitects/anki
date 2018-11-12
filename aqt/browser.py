@@ -473,9 +473,13 @@ class Browser(QMainWindow):
         m = QMenu()
         for act in self.form.menu_Cards.actions():
             m.addAction(act)
+            if qtminor >= 10:
+                act.setShortcutVisibleInContextMenu(True)
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
+            if qtminor >= 10:
+                act.setShortcutVisibleInContextMenu(True)
         runHook("browser.onContextMenu", self, m)
         m.exec_(QCursor.pos())
 
@@ -1574,6 +1578,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
         for c, act in enumerate(flagActions):
             act.setChecked(flag == c+1)
+            if qtminor >= 10:
+                act.setShortcutVisibleInContextMenu(True)
 
     def onMark(self, mark=None):
         if mark is None:
