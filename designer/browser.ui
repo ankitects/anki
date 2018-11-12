@@ -526,6 +526,9 @@
    </property>
   </action>
   <action name="actionRed_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Red Flag</string>
    </property>
@@ -534,6 +537,9 @@
    </property>
   </action>
   <action name="actionOrange_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Orange Flag</string>
    </property>
@@ -542,6 +548,9 @@
    </property>
   </action>
   <action name="actionGreen_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Green Flag</string>
    </property>
@@ -550,6 +559,9 @@
    </property>
   </action>
   <action name="actionBlue_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Blue Flag</string>
    </property>

@@ -654,6 +654,7 @@ class Browser(QMainWindow):
             self.focusTo = None
             self.editor.card = self.card
             self.singleCard = True
+        self._updateFlagsMenu()
         runHook("browser.rowChanged", self)
         self._renderPreview(True)
 
@@ -1560,6 +1561,19 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             n = 0
         self.col.setUserFlag(n, self.selectedCards())
         self.model.reset()
+
+    def _updateFlagsMenu(self):
+        flag = self.card and self.card.userFlag()
+        flag = flag or 0
+
+        f = self.form
+        flagActions = [f.actionRed_Flag,
+                       f.actionOrange_Flag,
+                       f.actionGreen_Flag,
+                       f.actionBlue_Flag]
+
+        for c, act in enumerate(flagActions):
+            act.setChecked(flag == c+1)
 
     def onMark(self, mark=None):
         if mark is None:
