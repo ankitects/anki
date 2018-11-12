@@ -280,8 +280,6 @@
      <addaction name="actionOrange_Flag"/>
      <addaction name="actionGreen_Flag"/>
      <addaction name="actionBlue_Flag"/>
-     <addaction name="separator"/>
-     <addaction name="actionClear_Flag"/>
     </widget>
     <addaction name="actionChange_Deck"/>
     <addaction name="separator"/>
@@ -525,14 +523,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
-   </property>
-  </action>
-  <action name="actionClear_Flag">
-   <property name="text">
-    <string>Clear Flag</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+0</string>
    </property>
   </action>
   <action name="actionRed_Flag">
