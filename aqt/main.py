@@ -248,7 +248,7 @@ close the profile or restart Anki."""))
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle("Anki - " + self.pm.name)
+        self.setWindowTitle(self.pm.name + " - Anki")
         # show and raise window for osx
         self.show()
         self.activateWindow()
