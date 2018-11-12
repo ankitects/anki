@@ -253,7 +253,6 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             ("Ctrl+2", lambda: self.setFlag(2)),
             ("Ctrl+3", lambda: self.setFlag(3)),
             ("Ctrl+4", lambda: self.setFlag(4)),
-            ("Ctrl+0", lambda: self.setFlag(0)),
             ("*", self.onMark),
             ("=", self.onBuryNote),
             ("-", self.onBuryCard),
@@ -589,8 +588,6 @@ time = %(time)d;
                 [_("Orange Flag"), "Ctrl+2", lambda: self.setFlag(2)],
                 [_("Green Flag"), "Ctrl+3", lambda: self.setFlag(3)],
                 [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4)],
-                None,
-                [_("Clear Flag"), "Ctrl+0", lambda: self.setFlag(0)],
             ]],
             [_("Mark Note"), "*", self.onMark],
             [_("Bury Card"), "-", self.onBuryCard],
@@ -635,6 +632,9 @@ time = %(time)d;
             self.card.odid or self.card.did))
 
     def setFlag(self, flag):
+        # need to toggle off?
+        if self.card.userFlag() == flag:
+            flag = 0
         self.card.setUserFlag(flag)
         self.card.flush()
         self._drawFlag()
