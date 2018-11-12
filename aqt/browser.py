@@ -444,7 +444,6 @@ class Browser(QMainWindow):
         f.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
         f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
         f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
-        f.actionClear_Flag.triggered.connect(lambda: self.onSetFlag(0))
         # jumps
         f.actionPreviousCard.triggered.connect(self.onPreviousCard)
         f.actionNextCard.triggered.connect(self.onNextCard)
@@ -1556,6 +1555,9 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def onSetFlag(self, n):
+        # flag needs toggling off?
+        if n == self.card.userFlag():
+            n = 0
         self.col.setUserFlag(n, self.selectedCards())
         self.model.reset()
 
