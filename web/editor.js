@@ -386,7 +386,7 @@ Object.assign(allowedTagsExtended, allowedTagsBasic);
 
 // filtering from another field
 var filterInternalNode = function (node) {
-    if (node.tagName === "SPAN") {
+    if (node.style) {
         node.style.removeProperty("background-color");
         node.style.removeProperty("font-size");
         node.style.removeProperty("font-family");
