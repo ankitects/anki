@@ -17,7 +17,7 @@ from aqt.qt import *
 from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia, \
     checksum
 import anki.sound
-from anki.hooks import runHook, runFilter
+from anki.hooks import runHook, runFilter, addHook
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getFile, \
@@ -331,7 +331,8 @@ class Editor:
                                   oncallback)
 
     def fonts(self):
-        return [(f['font'], f['size'], f['rtl'])
+        return [(runFilter("mungeEditingFontName", f['font']),
+                 f['size'], f['rtl'])
                 for f in self.note.model()['flds']]
 
     def saveNow(self, callback, keepFocus=False):
@@ -983,3 +984,10 @@ class EditorWebView(AnkiWebView):
         a.triggered.connect(self.onPaste)
         runHook("EditorWebView.contextMenuEvent", self, m)
         m.popup(QCursor.pos())
+
+# QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro"
+# - there may be other cases like a trailing 'Bold' that need fixing, but will
+# wait for further reports first.
+def fontMungeHack(font):
+    return re.sub(" L$", "", font)
+addHook("mungeEditingFontName", fontMungeHack)
