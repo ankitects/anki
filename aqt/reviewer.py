@@ -631,6 +631,8 @@ time = %(time)d;
                 label, scut, func = row
                 opts = {}
             a = m.addAction(label)
+            if qtminor >= 10:
+                a.setShortcutVisibleInContextMenu(True)
             if scut:
                 a.setShortcut(QKeySequence(scut))
             if opts.get("checked"):
