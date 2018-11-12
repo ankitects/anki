@@ -6,6 +6,7 @@ import sre_constants
 import html
 import time
 import re
+import unicodedata
 from operator import  itemgetter
 from anki.lang import ngettext
 import json
@@ -577,8 +578,11 @@ class Browser(QMainWindow):
         if self.form.searchEdit.lineEdit().text() == self._searchPrompt:
             self.form.searchEdit.lineEdit().setText("deck:current ")
 
+        # grab search text and normalize
+        txt = self.form.searchEdit.lineEdit().text()
+        txt = unicodedata.normalize("NFC", txt)
+
         # update history
-        txt = str(self.form.searchEdit.lineEdit().text())
         sh = self.mw.pm.profile['searchHistory']
         if txt in sh:
             sh.remove(txt)
