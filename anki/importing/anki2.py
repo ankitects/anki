@@ -63,6 +63,12 @@ class Anki2Importer(Importer):
     # Notes
     ######################################################################
 
+    def _logNoteRow(self, action, noteRow):
+        self.log.append("[%s] %s" % (
+            action,
+            noteRow[6].replace("\x1f", ", ")
+        ))
+
     def _importNotes(self):
         # build guid -> (id,mod,mid) hash & map of existing note ids
         self._notes = {}
@@ -82,10 +88,12 @@ class Anki2Importer(Importer):
         update = []
         dirty = []
         usn = self.dst.usn()
-        dupes = 0
+        dupesIdentical = []
         dupesIgnored = []
+        total = 0
         for note in self.src.db.execute(
             "select * from notes"):
+            total += 1
             # turn the db result into a mutable list
             note = list(note)
             shouldAdd = self._uniquifyNote(note)
@@ -104,7 +112,6 @@ class Anki2Importer(Importer):
                 self._notes[note[GUID]] = (note[0], note[3], note[MID])
             else:
                 # a duplicate or changed schema - safe to update?
-                dupes += 1
                 if self.allowUpdate:
                     oldNid, oldMod, oldMid = self._notes[note[GUID]]
                     # will update if incoming note more recent
@@ -118,20 +125,47 @@ class Anki2Importer(Importer):
                             update.append(note)
                             dirty.append(note[0])
                         else:
-                            dupesIgnored.append("%s: %s" % (
-                                self.col.models.get(oldMid)['name'],
-                                note[6].replace("\x1f", ",")
-                            ))
+                            dupesIgnored.append(note)
                             self._ignoredGuids[note[GUID]] = True
-        if dupes:
-            up = len(update)
-            self.log.append(_("Updated %(a)d of %(b)d existing notes.") % dict(
-                a=len(update), b=dupes))
-            if dupesIgnored:
-                self.log.append(_("Some updates were ignored because note type has changed:"))
-                self.log.extend(dupesIgnored)
+                    else:
+                        dupesIdentical.append(note)
+
+        self.log.append(_("Notes found in file: %d") % total)
+
+        if dupesIgnored:
+            self.log.append(
+                _("Notes that could not be imported as note type has changed: %d") %
+                len(dupesIgnored))
+        if update:
+            self.log.append(
+                _("Notes updated, as file had newer version: %d") %
+                len(update))
+        if add:
+            self.log.append(
+                _("Notes added from file: %d") %
+                len(add))
+        if dupesIdentical:
+            self.log.append(
+                _("Notes skipped, as they're already in your collection: %d") %
+                len(dupesIdentical))
+
+        self.log.append("")
+
+        if dupesIgnored:
+            for row in dupesIgnored:
+                self._logNoteRow(_("Skipped"), row)
+        if update:
+            for row in update:
+                self._logNoteRow(_("Updated"), row)
+        if add:
+            for row in add:
+                self._logNoteRow(_("Added"), row)
+        if dupesIdentical:
+            for row in dupesIdentical:
+                self._logNoteRow(_("Identical"), row)
+
         # export info for calling code
-        self.dupes = dupes
+        self.dupes = len(dupesIdentical)
         self.added = len(add)
         self.updated = len(update)
         # add to col
@@ -335,7 +369,6 @@ class Anki2Importer(Importer):
 insert or ignore into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", cards)
         self.dst.db.executemany("""
 insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
-        self.log.append(ngettext("%d card imported.", "%d cards imported.", cnt) % cnt)
 
     # Media
     ######################################################################
