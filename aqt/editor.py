@@ -991,9 +991,9 @@ class EditorWebView(AnkiWebView):
         runHook("EditorWebView.contextMenuEvent", self, m)
         m.popup(QCursor.pos())
 
-# QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro"
+# QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
 # - there may be other cases like a trailing 'Bold' that need fixing, but will
 # wait for further reports first.
 def fontMungeHack(font):
-    return re.sub(" L$", "", font)
+    return re.sub(" L$", " Light", font)
 addHook("mungeEditingFontName", fontMungeHack)
