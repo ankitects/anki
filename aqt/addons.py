@@ -495,6 +495,9 @@ class ConfigEditor(QDialog):
         txt = self.form.editor.toPlainText()
         try:
             new_conf = json.loads(txt)
+            if not isinstance(new_conf, dict):
+                showInfo(_("Invalid configuration: Configurations should be dictionnaries."))
+                return
         except Exception as e:
             showInfo(_("Invalid configuration: ") + repr(e))
             return
