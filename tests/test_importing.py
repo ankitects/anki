@@ -121,7 +121,7 @@ def test_anki2_updates():
     tmp = getUpgradeDeckPath("update2.apkg")
     imp = AnkiPackageImporter(dst, tmp)
     imp.run()
-    assert imp.dupes == 1
+    assert imp.dupes == 0
     assert imp.added == 0
     assert imp.updated == 1
     assert dst.noteCount() == 1
