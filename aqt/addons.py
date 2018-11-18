@@ -499,6 +499,10 @@ class ConfigEditor(QDialog):
             showInfo(_("Invalid configuration: ") + repr(e))
             return
 
+        if not isinstance(new_conf, dict):
+            showInfo(_("Invalid configuration: top level object must be a map"))
+            return
+
         if new_conf != self.conf:
             self.mgr.writeConfig(self.addon, new_conf)
             # does the add-on define an action to be fired?
