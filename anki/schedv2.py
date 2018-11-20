@@ -353,7 +353,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
             if lim:
                 # fill the queue with the current did
                 self._newQueue = self.col.db.list("""
-select id from cards where did = ? and queue = 0 order by due limit ?""", did, lim)
+                select id from cards where did = ? and queue = 0 order by due,ord limit ?""", did, lim)
                 if self._newQueue:
                     self._newQueue.reverse()
                     return True
