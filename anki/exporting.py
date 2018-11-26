@@ -125,10 +125,7 @@ class AnkiExporter(Exporter):
         self.dst = Collection(path)
         self.src = self.col
         # find cards
-        if not self.did:
-            cids = self.src.db.list("select id from cards")
-        else:
-            cids = self.src.decks.cids(self.did, children=True)
+        cids = self.cardIds()
         # copy cards, noting used nids
         nids = {}
         data = []
