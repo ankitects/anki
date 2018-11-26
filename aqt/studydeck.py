@@ -114,8 +114,6 @@ class StudyDeck(QDialog):
     def reject(self):
         saveGeom(self, self.geomKey)
         remHook('reset', self.onReset)
-        if not self.cancel:
-            return self.accept()
         QDialog.reject(self)
 
     def onAddDeck(self):
