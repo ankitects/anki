@@ -484,7 +484,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     if field:
         for m in col.models.all():
             for f in m['flds']:
-                if f['name'] == field:
+                if f['name'].lower() == field.lower():
                     mmap[str(m['id'])] = f['ord']
         if not mmap:
             return 0
