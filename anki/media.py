@@ -8,6 +8,7 @@ import urllib.request, urllib.parse, urllib.error
 import unicodedata
 import sys
 import zipfile
+import pathlib
 from io import StringIO
 
 from anki.utils import checksum, isWin, isMac, json
@@ -159,8 +160,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         # make sure we write it in NFC form (pre-APFS Macs will autoconvert to NFD),
         # and return an NFC-encoded reference
         fname = unicodedata.normalize("NFC", fname)
-        # remove any dangerous characters
-        base = self.stripIllegal(fname)
+        # ensure it's a valid filename
+        base = self.cleanFilename(fname)
         (root, ext) = os.path.splitext(base)
         def repl(match):
             n = int(match.group(1))
@@ -345,7 +346,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def have(self, fname):
         return os.path.exists(os.path.join(self.dir(), fname))
 
-    # Illegal characters
+    # Illegal characters and paths
     ##########################################################################
 
     _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0\r\n]')
@@ -361,6 +362,53 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         except UnicodeEncodeError:
             return True
         return False
+
+    def cleanFilename(self, fname):
+        fname = self.stripIllegal(fname)
+        fname = self._cleanWin32Filename(fname)
+        fname = self._cleanLongFilename(fname)
+        if not fname:
+            fname = "renamed"
+
+        return fname
+
+    def _cleanWin32Filename(self, fname):
+        if not isWin:
+            return fname
+
+        # deal with things like con/prn/etc
+        p = pathlib.WindowsPath(fname)
+        if p.is_reserved():
+            fname = "renamed" + fname
+            assert not pathlib.WindowsPath(fname).is_reserved()
+
+        return fname
+
+    def _cleanLongFilename(self, fname):
+        # a fairly safe limit that should work on typical windows
+        # paths and on eCryptfs partitions, even with a duplicate
+        # suffix appended
+        namemax = 136
+
+        if isWin:
+            pathmax = 240
+        else:
+            pathmax = 1024
+
+        # cap namemax based on absolute path
+        dirlen = len(os.path.dirname(os.path.abspath(fname)))
+        remaining = pathmax - dirlen
+        namemax = min(remaining, namemax)
+        assert namemax > 0
+
+        if len(fname) > namemax:
+            head, ext = os.path.splitext(fname)
+            headmax = namemax - len(ext)
+            head = head[0:headmax]
+            fname = head + ext
+            assert(len(fname) <= namemax)
+
+        return fname
 
     # Tracking changes
     ##########################################################################
