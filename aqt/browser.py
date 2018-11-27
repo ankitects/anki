@@ -672,6 +672,9 @@ class Browser(QMainWindow):
         self.model.refreshNote(note)
         self._renderPreview(False)
 
+    def onLoadNote(self, editor):
+        self.refreshCurrentCard(editor.note)
+
     def refreshCurrentCardFilter(self, flag, note, fidx):
         self.refreshCurrentCard(note)
         return flag
@@ -1689,6 +1692,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         addHook("undoState", self.onUndoState)
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
+        addHook("loadNote", self.onLoadNote)
         addHook("editFocusLost", self.refreshCurrentCardFilter)
         for t in "newTag", "newModel", "newDeck":
             addHook(t, self.maybeRefreshSidebar)
@@ -1696,6 +1700,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def teardownHooks(self):
         remHook("reset", self.onReset)
         remHook("editTimer", self.refreshCurrentCard)
+        remHook("loadNote", self.onLoadNote)
         remHook("editFocusLost", self.refreshCurrentCardFilter)
         remHook("undoState", self.onUndoState)
         for t in "newTag", "newModel", "newDeck":

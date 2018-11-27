@@ -401,6 +401,7 @@ class Editor:
             warnings.simplefilter('ignore', UserWarning)
             html = str(BeautifulSoup(html, "html.parser"))
         self.note.fields[field] = html
+        self.note.flush()
         self.loadNote(focusTo=field)
 
     # Tag handling
