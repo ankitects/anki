@@ -34,6 +34,7 @@ class Scheduler:
         self.reps = 0
         self.today = None
         self._haveQueues = False
+        self._lrnCutoff = 0
         self._updateCutoff()
 
     def getCard(self):
@@ -433,15 +434,25 @@ select id from cards where did in %s and queue = 0 limit ?)"""
     # Learning queues
     ##########################################################################
 
-    def _resetLrnCount(self):
-        cutoff = intTime() + self.col.conf['collapseTime']
+    # scan for any newly due learning cards every 5 minutes
+    def _updateLrnCutoff(self, force):
+        nextCutoff = intTime() + self.col.conf['collapseTime']
+        if nextCutoff - self._lrnCutoff > 300 or force:
+            self._lrnCutoff = nextCutoff
+            return True
+        return False
 
+    def _maybeResetLrn(self, force):
+        if self._updateLrnCutoff(force):
+            self._resetLrn()
+
+    def _resetLrnCount(self):
         # sub-day
         self.lrnCount = self.col.db.scalar("""
 select count() from cards where did in %s and queue = 1
 and due < ?""" % (
             self._deckLimit()),
-            cutoff) or 0
+            self._lrnCutoff) or 0
         # day
         self.lrnCount += self.col.db.scalar("""
 select count() from cards where did in %s and queue = 3
@@ -453,6 +464,7 @@ select count() from cards where did in %s and queue = 4
 """ % (self._deckLimit()))
 
     def _resetLrn(self):
+        self._updateLrnCutoff(force=True)
         self._resetLrnCount()
         self._lrnQueue = []
         self._lrnDayQueue = []
@@ -474,6 +486,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=cutoff)
         return self._lrnQueue
 
     def _getLrnCard(self, collapse=False):
+        self._maybeResetLrn(force=collapse and self.lrnCount == 0)
         if self._fillLrn():
             cutoff = time.time()
             if collapse:
