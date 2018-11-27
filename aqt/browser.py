@@ -1717,7 +1717,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         if not sf:
             return
         import anki.find
-        fields = sorted(anki.find.fieldNames(self.col, downcase=False))
+        fields = anki.find.fieldNamesForNotes(self.mw.col, sf)
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
