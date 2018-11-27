@@ -1774,7 +1774,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
-        fields = sorted(anki.find.fieldNames(self.col, downcase=False))
+        fields = sorted(anki.find.fieldNames(self.col, downcase=False),
+                        key=lambda x: x.lower())
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
