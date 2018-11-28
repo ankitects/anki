@@ -49,6 +49,7 @@ from anki.utils import checksum
 # -- setting silentlyClose=True to have it close immediately
 # -- define a closeWithCallback() method
 # - have the window opened via aqt.dialogs.open(<name>, self)
+# - have a method reopen(*args), called if the user ask to open the window a second time. Arguments passed are the same than for original opening.
 
 #- make preferences modal? cmd+q does wrong thing
 
@@ -74,6 +75,8 @@ class DialogManager:
                 instance.setWindowState(instance.windowState() & ~Qt.WindowMinimized)
             instance.activateWindow()
             instance.raise_()
+            if hasattr(instance,"reopen"):
+                instance.reopen(*args)
             return instance
         else:
             instance = creator(*args)
