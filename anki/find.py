@@ -440,7 +440,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             # nothing has that field
             return
         # gather nids
-        regex = re.escape(val).replace("_", ".").replace(re.escape('%'), ".*")
+        regex = re.escape(val).replace("_", ".").replace(re.escape("%"), ".*")
         nids = []
         for (id,mid,flds) in self.col.db.execute("""
 select id, mid, flds from notes
