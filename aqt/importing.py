@@ -336,7 +336,10 @@ def importFile(mw, file):
                 return
         mw.progress.start(immediate=True)
         try:
-            importer.run()
+            try:
+                importer.run()
+            finally:
+                mw.progress.finish()
         except zipfile.BadZipfile:
             showWarning(invalidZipMsg())
         except Exception as e:
@@ -360,8 +363,6 @@ Unable to import from a read-only file."""))
                 tooltip(log)
             else:
                 showText(log)
-        finally:
-            mw.progress.finish()
         mw.reset()
 
 def invalidZipMsg():
