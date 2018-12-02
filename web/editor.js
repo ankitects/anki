@@ -297,7 +297,7 @@ function setFields(fields) {
         }
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%>".format(n);
         txt += "<div id=f{0} onkeydown='onKey();' oninput='onInput()' onmouseup='onKey();'".format(i);
-        txt += " onfocus='onFocus(this);' onblur='onBlur();' class=field ";
+        txt += " onfocus='onFocus(this);' onblur='onBlur();' class='field clearfix' ";
         txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
         txt += "oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' ";
         txt += "contentEditable=true class=field>{0}</div>".format(f);
@@ -448,6 +448,12 @@ var filterNode = function (node, extendedMode) {
     }
 };
 
+var adjustFieldsTopMargin = function() {
+    var topHeight = $("#topbuts").height();
+    var margin = topHeight + 8;
+    document.getElementById("fields").style.marginTop = margin + "px";
+};
+
 var mouseDown = 0;
 
 $(function () {
@@ -477,4 +483,10 @@ $(function () {
     $("button.linkb").on("mousedown", function (e) {
         e.preventDefault();
     });
+
+    window.onresize = function() {
+        adjustFieldsTopMargin();
+    };
+
+    adjustFieldsTopMargin();
 });
