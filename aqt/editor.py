@@ -35,7 +35,7 @@ _html = """
 html { background: %s; }
 #topbuts { background: %s; }
 </style>
-<div id="topbuts">%s</div>
+<div id="topbutsOuter"><div id="topbuts" class="clearfix">%s</div></div>
 <div id="fields"></div>
 <div id="dupes" style="display:none;"><a href="#" onclick="pycmd('dupes');return false;">%s</a></div>
 """
