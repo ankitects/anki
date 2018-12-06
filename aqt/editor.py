@@ -98,13 +98,15 @@ class Editor:
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
             <div id="topbutsleft" style="float:left;">
-                <button onclick="pycmd('fields')">%(flds)s...</button>
-                <button onclick="pycmd('cards')">%(cards)s...</button>
+                <button title='%(fldsTitle)s' onclick="pycmd('fields')">%(flds)s...</button>
+                <button title='%(cardsTitle)s' onclick="pycmd('cards')">%(cards)s...</button>
             </div>
             <div id="topbutsright" style="float:right;">
                 %(rightbts)s
             </div>
-        """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns))
+        """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns),
+                   fldsTitle=_("Customize Fields"),
+                   cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")))
         bgcol = self.mw.app.palette().window().color().name()
         # then load page
         self.web.stdHtml(_html % (
