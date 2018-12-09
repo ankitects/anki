@@ -6,14 +6,14 @@ import copy
 import re
 
 from anki.lang import _
-from anki.utils import intTime, json
+from anki.utils import intTime, json, isWin
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
     addForwardOptionalReverse, addBasicTypingModel
 
-def Collection(path, lock=True, server=False, sync=True, log=False):
+def Collection(path, lock=True, server=False, log=False):
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
@@ -30,11 +30,9 @@ def Collection(path, lock=True, server=False, sync=True, log=False):
     else:
         ver = _upgradeSchema(db)
     db.execute("pragma temp_store = memory")
-    if sync:
-        db.execute("pragma cache_size = 10000")
+    db.execute("pragma cache_size = 10000")
+    if not isWin:
         db.execute("pragma journal_mode = wal")
-    else:
-        db.execute("pragma synchronous = off")
     db.setAutocommit(False)
     # add db to col and do any remaining upgrades
     col = _Collection(db, server, log)
