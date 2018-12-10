@@ -434,10 +434,10 @@ select id from cards where did in %s and queue = 0 limit ?)"""
     # Learning queues
     ##########################################################################
 
-    # scan for any newly due learning cards every 5 minutes
+    # scan for any newly due learning cards every minute
     def _updateLrnCutoff(self, force):
         nextCutoff = intTime() + self.col.conf['collapseTime']
-        if nextCutoff - self._lrnCutoff > 300 or force:
+        if nextCutoff - self._lrnCutoff > 60 or force:
             self._lrnCutoff = nextCutoff
             return True
         return False
