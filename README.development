@@ -13,7 +13,7 @@ provide support for problems you encounter when running from source.
 Anki requires:
 
  - Python 3.6+
- - Qt 5.9.x and a PyQT that supports it
+ - Qt 5.9.x/5.11.x/5.12.x and a PyQT that supports it
  - mpv
  - lame
 
@@ -21,14 +21,14 @@ It also requires a number of Python packages, which you can grab via pip:
 
 $ pip3 install -r requirements.txt
 
-If you're on a Linux distribution that packages PyQt 5.9 then you can use the
-distro's packages. Make sure you install the development tools (eg
+If you're on a Linux distribution that packages a compatible Qt then you can
+use the distro's packages. Make sure you install the development tools (eg
 pyqt5-dev-tools) as well.
 
 If you're on another platform or your distro has the wrong Qt version, you
 can install PyQt with pip:
 
-$ pip3 install sip pyqt5==5.9
+$ pip3 install sip pyqt5
 
 To use the development version:
 
