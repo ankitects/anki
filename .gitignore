@@ -7,3 +7,4 @@
 aqt/forms
 locale
 tools/runanki.system
+aqt/buildhash.py

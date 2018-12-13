@@ -523,3 +523,12 @@ class MenuItem:
         a = qmenu.addAction(self.title)
         a.triggered.connect(self.func)
 
+######################################################################
+
+def versionWithBuild():
+    from aqt import appVersion
+    try:
+        from aqt.buildhash import build
+    except:
+        build = "dev"
+    return "%s (%s)" % (appVersion, build)
