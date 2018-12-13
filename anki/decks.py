@@ -3,6 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import copy, operator
+import unicodedata
+
 from anki.utils import intTime, ids2str, json
 from anki.hooks import runHook
 from anki.consts import *
@@ -130,7 +132,7 @@ class DeckManager:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         name = name.replace('"', '')
         for id, g in list(self.decks.items()):
-            if g['name'].lower() == name.lower():
+            if unicodedata.normalize("NFC", g['name'].lower()) == name.lower():
                 return int(id)
         if not create:
             return None

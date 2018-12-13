@@ -4,6 +4,7 @@
 
 import re
 import sre_constants
+import unicodedata
 
 from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
@@ -368,7 +369,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         ids = []
         val = val.lower()
         for m in self.col.models.all():
-            if m['name'].lower() == val:
+            if unicodedata.normalize("NFC", m['name'].lower()) == val:
                 ids.append(m['id'])
         return "n.mid in %s" % ids2str(ids)
 
@@ -396,7 +397,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             ids = set()
             val = re.escape(val).replace(r"\*", ".*")
             for d in self.col.decks.all():
-                if re.match("(?i)"+val, d['name']):
+                if re.match("(?i)"+val, unicodedata.normalize("NFC", d['name'])):
                     ids.update(dids(d['id']))
         if not ids:
             return
@@ -416,7 +417,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         lims = []
         for m in self.col.models.all():
             for t in m['tmpls']:
-                if t['name'].lower() == val.lower():
+                if unicodedata.normalize("NFC", t['name'].lower()) == val.lower():
                     if m['type'] == MODEL_CLOZE:
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
@@ -434,7 +435,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         mods = {}
         for m in self.col.models.all():
             for f in m['flds']:
-                if f['name'].lower() == field:
+                if unicodedata.normalize("NFC", f['name'].lower()) == field:
                     mods[str(m['id'])] = (m, f['ord'])
         if not mods:
             # nothing has that field
