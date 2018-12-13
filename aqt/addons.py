@@ -87,7 +87,7 @@ When loading '%(name)s':
     def writeAddonMeta(self, dir, meta):
         path = self._addonMetaPath(dir)
         with open(path, "w", encoding="utf8") as f:
-            json.dump(meta, f)
+            json.dump(meta, f, ensure_ascii=False)
 
     def toggleEnabled(self, dir):
         meta = self.addonMeta(dir)
