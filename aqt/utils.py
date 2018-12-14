@@ -350,11 +350,6 @@ def mungeQA(col, txt):
     txt = stripSounds(txt)
     return txt
 
-def applyStyles(widget):
-    p = os.path.join(aqt.mw.pm.base, "style.css")
-    if os.path.exists(p):
-        widget.setStyleSheet(open(p).read())
-
 def openFolder(path):
     if isWin:
         subprocess.Popen(["explorer", "file://"+path])

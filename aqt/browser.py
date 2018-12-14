@@ -18,7 +18,7 @@ from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, \
     isWin, intTime, \
     isMac, isLin, bodyClass
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
-    saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
+    saveHeader, restoreHeader, saveState, restoreState, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
     getOnlyText, MenuList, SubMenu
 from anki.hooks import runHook, addHook, remHook, runFilter
@@ -384,7 +384,6 @@ class Browser(QMainWindow):
 
     def __init__(self, mw):
         QMainWindow.__init__(self, None, Qt.Window)
-        applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""

@@ -8,6 +8,7 @@ import zipfile
 import gc
 import time
 import faulthandler
+import platform
 from threading import Thread
 
 from send2trash import send2trash
@@ -15,7 +16,7 @@ from aqt.qt import *
 from anki import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
         devMode
-from anki.hooks import runHook, addHook
+from anki.hooks import runHook, addHook, runFilter
 import aqt
 import aqt.progress
 import aqt.webview
@@ -26,7 +27,7 @@ from aqt.utils import showWarning
 import anki.sound
 import anki.mpv
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
-    restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
+    restoreState, getOnlyText, askUser, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename, getFile
 import sip
 
@@ -696,7 +697,33 @@ title="%s" %s>%s</button>''' % (
         self.form.statusbar.showMessage(text, timeout)
 
     def setupStyle(self):
-        applyStyles(self)
+        buf = ""
+
+        if isWin and platform.release() == '10':
+            # add missing bottom border to menubar
+            buf += """
+QMenuBar {
+  border-bottom: 1px solid #aaa;
+  background: white;
+}        
+"""
+            # qt bug? setting the above changes the browser sidebar
+            # to white as well, so set it back
+            buf += """
+QTreeWidget {
+  background: #eee;
+}            
+            """
+
+        # allow addons to modify the styling
+        buf = runFilter("setupStyle", buf)
+
+        # allow users to extend styling
+        p = os.path.join(aqt.mw.pm.base, "style.css")
+        if os.path.exists(p):
+            buf += open(p).read()
+
+        self.app.setStyleSheet(buf)
 
     # Key handling
     ##########################################################################
