@@ -87,7 +87,7 @@ When loading '%(name)s':
     def writeAddonMeta(self, dir, meta):
         path = self._addonMetaPath(dir)
         with open(path, "w", encoding="utf8") as f:
-            json.dump(meta, f, ensure_ascii=False)
+            json.dump(meta, f)
 
     def toggleEnabled(self, dir):
         meta = self.addonMeta(dir)
@@ -489,7 +489,8 @@ class ConfigEditor(QDialog):
 
     def updateText(self, conf):
         self.form.editor.setPlainText(
-            json.dumps(conf,sort_keys=True,indent=4, separators=(',', ': ')))
+            json.dumps(conf, ensure_ascii=False, sort_keys=True,
+                       indent=4, separators=(',', ': ')))
 
     def accept(self):
         txt = self.form.editor.toPlainText()
