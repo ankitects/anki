@@ -1054,7 +1054,17 @@ will be lost. Continue?"""))
             showText(ret)
         else:
             tooltip(ret)
-        self.reset()
+
+        # if an error has directed the user to check the database,
+        # silently clean up any broken reset hooks which distract from
+        # the underlying issue
+        while True:
+            try:
+                self.reset()
+                break
+            except Exception as e:
+                print("swallowed exception in reset hook:", e)
+                continue
         return ret
 
     def onCheckMediaDB(self):
