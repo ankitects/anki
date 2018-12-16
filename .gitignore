@@ -6,4 +6,7 @@
 .coverage
 aqt/forms
 locale
+*.sublime-workspace
 .idea
+tools/runanki.system
+aqt/buildhash.py

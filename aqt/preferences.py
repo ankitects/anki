@@ -5,7 +5,8 @@
 import datetime, time
 from aqt.qt import *
 import anki.lang
-from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo
+from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo, \
+    askUser
 import aqt
 
 class Preferences(QDialog):
@@ -75,6 +76,10 @@ class Preferences(QDialog):
         f = self.form
         qc = self.mw.col.conf
         self._setupDayCutoff()
+        if isMac:
+            f.hwAccel.setVisible(False)
+        else:
+            f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
         f.lrnCutoff.setValue(qc['collapseTime']/60.0)
         f.timeLimit.setValue(qc['timeLim']/60.0)
         f.showEstimates.setChecked(qc['estTimes'])
@@ -86,10 +91,23 @@ class Preferences(QDialog):
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
         if self.mw.col.schedVer() != 2:
             f.dayLearnFirst.setVisible(False)
+        else:
+            f.newSched.setChecked(True)
 
     def updateCollection(self):
         f = self.form
         d = self.mw.col
+
+        if not isMac:
+            wasAccel = self.mw.pm.glMode() != "software"
+            wantAccel = f.hwAccel.isChecked()
+            if wasAccel != wantAccel:
+                if wantAccel:
+                    self.mw.pm.setGlMode("auto")
+                else:
+                    self.mw.pm.setGlMode("software")
+                showInfo(_("Changes will take effect when you restart Anki."))
+
         qc = d.conf
         qc['dueCounts'] = f.showProgress.isChecked()
         qc['estTimes'] = f.showEstimates.isChecked()
@@ -100,7 +118,29 @@ class Preferences(QDialog):
         qc['addToCur'] = not f.useCurrent.currentIndex()
         qc['dayLearnFirst'] = f.dayLearnFirst.isChecked()
         self._updateDayCutoff()
+        self._updateSchedVer(f.newSched.isChecked())
         d.setMod()
+
+    # Scheduler version
+    ######################################################################
+
+    def _updateSchedVer(self, wantNew):
+        haveNew = self.mw.col.schedVer() == 2
+
+        # nothing to do?
+        if haveNew == wantNew:
+            return
+
+        if haveNew and not wantNew:
+            if not askUser(_("This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?")):
+                return
+            self.mw.col.changeSchedulerVer(1)
+            return
+
+        if not askUser(_("The experimental scheduler could cause incorrect scheduling. Please ensure you have read the documentation first. Proceed?")):
+            return
+
+        self.mw.col.changeSchedulerVer(2)
 
     # Day cutoff
     ######################################################################

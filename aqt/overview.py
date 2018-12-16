@@ -162,16 +162,17 @@ to their original deck.""")
     def _table(self):
         counts = list(self.mw.col.sched.counts())
         finished = not sum(counts)
-        for n in range(len(counts)):
-            if counts[n] >= 1000:
-                counts[n] = "1000+"
+        if self.mw.col.schedVer() == 1:
+            for n in range(len(counts)):
+                if counts[n] >= 1000:
+                    counts[n] = "1000+"
         but = self.mw.button
         if finished:
             return '<div style="white-space: pre-wrap;">%s</div>' % (
                 self.mw.col.sched.finishedMsg())
         else:
             return '''
-<table width=300 cellpadding=5>
+<table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
 <tr><td>%s:</td><td><b><font color=#00a>%s</font></b></td></tr>

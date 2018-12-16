@@ -75,7 +75,8 @@ class DeckChooser(QHBoxLayout):
             self.mw, current=current, accept=_("Choose"),
             title=_("Choose Deck"), help="addingnotes",
             cancel=False, parent=self.widget, geomKey="selectDeck")
-        self.setDeckName(ret.name)
+        if ret.name:
+            self.setDeckName(ret.name)
 
     def setDeckName(self, name):
         self.deck.setText(name.replace("&", "&&"))

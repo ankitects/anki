@@ -12,8 +12,8 @@ import shutil
 
 from aqt.qt import *
 import anki.importing as importing
-from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp,\
-    askUser, tooltip
+from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp, \
+    askUser, tooltip, showInfo
 from anki.hooks import addHook, remHook
 import aqt.forms
 import aqt.modelchooser
@@ -252,6 +252,7 @@ you can enter it here. Use \\t to represent tab."""),
 
     def reject(self):
         self.modelChooser.cleanup()
+        self.deck.cleanup()
         remHook("currentModelChanged", self.modelChanged)
         QDialog.reject(self)
 
@@ -273,6 +274,16 @@ def onImport(mw):
     if not file:
         return
     file = str(file)
+
+    head, ext = os.path.splitext(file)
+    ext = ext.lower()
+    if ext == ".anki":
+        showInfo(_(".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."))
+        return
+    elif ext == ".anki2":
+        showInfo(_(".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."))
+        return
+
     importFile(mw, file)
 
 def importFile(mw, file):
@@ -302,12 +313,7 @@ def importFile(mw, file):
         except Exception as e:
             msg = repr(str(e))
             if msg == "'unknownFormat'":
-                if file.endswith(".anki2"):
-                    showWarning(_("""\
-.anki2 files are not designed for importing. If you're trying to restore from a \
-backup, please see the 'Backups' section of the user manual."""))
-                else:
-                    showWarning(_("Unknown file format."))
+                showWarning(_("Unknown file format."))
             else:
                 msg = _("Import failed. Debugging info:\n")
                 msg += str(traceback.format_exc())
@@ -330,7 +336,10 @@ backup, please see the 'Backups' section of the user manual."""))
                 return
         mw.progress.start(immediate=True)
         try:
-            importer.run()
+            try:
+                importer.run()
+            finally:
+                mw.progress.finish()
         except zipfile.BadZipfile:
             showWarning(invalidZipMsg())
         except Exception as e:
@@ -354,8 +363,6 @@ Unable to import from a read-only file."""))
                 tooltip(log)
             else:
                 showText(log)
-        finally:
-            mw.progress.finish()
         mw.reset()
 
 def invalidZipMsg():

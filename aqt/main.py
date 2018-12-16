@@ -8,6 +8,7 @@ import zipfile
 import gc
 import time
 import faulthandler
+import platform
 from threading import Thread
 
 from send2trash import send2trash
@@ -15,7 +16,7 @@ from aqt.qt import *
 from anki import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
         devMode
-from anki.hooks import runHook, addHook
+from anki.hooks import runHook, addHook, runFilter
 import aqt
 import aqt.progress
 import aqt.webview
@@ -26,7 +27,7 @@ from aqt.utils import showWarning
 import anki.sound
 import anki.mpv
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
-    restoreState, getOnlyText, askUser, applyStyles, showText, tooltip, \
+    restoreState, getOnlyText, askUser, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename, getFile
 import sip
 
@@ -248,7 +249,7 @@ close the profile or restart Anki."""))
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle("Anki - " + self.pm.name)
+        self.setWindowTitle(self.pm.name + " - Anki")
         # show and raise window for osx
         self.show()
         self.activateWindow()
@@ -308,6 +309,8 @@ close the profile or restart Anki."""))
     ##########################################################################
 
     def setupSound(self):
+        if isWin:
+            return
         try:
             anki.sound.setupMPV()
         except FileNotFoundError:
@@ -550,7 +553,7 @@ from the profile screen."))
         self.web.stdHtml("""
 <center><div style="height: 100%%">
 <div style="position:relative; vertical-align: middle;">
-%s<br>
+%s<br><br>
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """ % (i, b))
@@ -694,19 +697,45 @@ title="%s" %s>%s</button>''' % (
         self.form.statusbar.showMessage(text, timeout)
 
     def setupStyle(self):
-        applyStyles(self)
+        buf = ""
+
+        if isWin and platform.release() == '10':
+            # add missing bottom border to menubar
+            buf += """
+QMenuBar {
+  border-bottom: 1px solid #aaa;
+  background: white;
+}        
+"""
+            # qt bug? setting the above changes the browser sidebar
+            # to white as well, so set it back
+            buf += """
+QTreeWidget {
+  background: #eee;
+}            
+            """
+
+        # allow addons to modify the styling
+        buf = runFilter("setupStyle", buf)
+
+        # allow users to extend styling
+        p = os.path.join(aqt.mw.pm.base, "style.css")
+        if os.path.exists(p):
+            buf += open(p).read()
+
+        self.app.setStyleSheet(buf)
 
     # Key handling
     ##########################################################################
 
     def setupKeys(self):
         globalShortcuts = [
-            ("Ctrl+Shift+;", self.onDebug),
+            ("Ctrl+:", self.onDebug),
             ("d", lambda: self.moveToState("deckBrowser")),
             ("s", self.onStudyKey),
             ("a", self.onAddCard),
             ("b", self.onBrowse),
-            ("Shift+s", self.onStats),
+            ("t", self.onStats),
             ("y", self.onSync)
         ]
         self.applyShortcuts(globalShortcuts)
@@ -716,7 +745,9 @@ title="%s" %s>%s</button>''' % (
     def applyShortcuts(self, shortcuts):
         qshortcuts = []
         for key, fn in shortcuts:
-            qshortcuts.append(QShortcut(QKeySequence(key), self, activated=fn))
+            scut = QShortcut(QKeySequence(key), self, activated=fn)
+            scut.setAutoRepeat(False)
+            qshortcuts.append(scut)
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts):
@@ -872,8 +903,6 @@ title="%s" %s>%s</button>''' % (
             # user cancelled first config
             self.col.decks.rem(did)
             self.col.decks.select(deck['id'])
-        else:
-            self.moveToState("overview")
 
     # Menu, title bar & status
     ##########################################################################
@@ -888,6 +917,8 @@ title="%s" %s>%s</button>''' % (
         m.actionPreferences.triggered.connect(self.onPrefs)
         m.actionAbout.triggered.connect(self.onAbout)
         m.actionUndo.triggered.connect(self.onUndo)
+        if qtminor < 11:
+            m.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
         m.actionFullDatabaseCheck.triggered.connect(self.onCheckDB)
         m.actionCheckMediaDatabase.triggered.connect(self.onCheckMediaDB)
         m.actionDocumentation.triggered.connect(self.onDocumentation)
@@ -959,10 +990,31 @@ Difference to correct time: %s.""") % diffText
         addHook("remNotes", self.onRemNotes)
         addHook("odueInvalid", self.onOdueInvalid)
 
+        addHook("mpvWillPlay", self.onMpvWillPlay)
+        addHook("mpvIdleHook", self.onMpvIdle)
+        self._activeWindowOnPlay = None
+
     def onOdueInvalid(self):
         showWarning(_("""\
 Invalid property found on card. Please use Tools>Check Database, \
 and if the problem comes up again, please ask on the support site."""))
+
+    def _isVideo(self, file):
+        head, ext = os.path.splitext(file.lower())
+        return ext in (".mp4", ".mov", ".mpg", ".mpeg", ".mkv", ".avi")
+
+    def onMpvWillPlay(self, file):
+        if not self._isVideo(file):
+            return
+
+        self._activeWindowOnPlay = self.app.activeWindow() or self._activeWindowOnPlay
+
+    def onMpvIdle(self):
+        w = self._activeWindowOnPlay
+        if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
+            w.activateWindow()
+            w.raise_()
+        self._activeWindowOnPlay = None
 
     # Log note deletion
     ##########################################################################
@@ -1002,7 +1054,17 @@ will be lost. Continue?"""))
             showText(ret)
         else:
             tooltip(ret)
-        self.reset()
+
+        # if an error has directed the user to check the database,
+        # silently clean up any broken reset hooks which distract from
+        # the underlying issue
+        while True:
+            try:
+                self.reset()
+                break
+            except Exception as e:
+                print("swallowed exception in reset hook:", e)
+                continue
         return ret
 
     def onCheckMediaDB(self):
@@ -1039,11 +1101,13 @@ will be lost. Continue?"""))
         layout.addWidget(text)
         box = QDialogButtonBox(QDialogButtonBox.Close)
         layout.addWidget(box)
-        b = QPushButton(_("Delete Unused"))
-        b.setAutoDefault(False)
-        box.addButton(b, QDialogButtonBox.ActionRole)
-        b.clicked.connect(
-            lambda c, u=unused, d=diag: self.deleteUnused(u, d))
+        if unused:
+            b = QPushButton(_("Delete Unused Files"))
+            b.setAutoDefault(False)
+            box.addButton(b, QDialogButtonBox.ActionRole)
+            b.clicked.connect(
+                lambda c, u=unused, d=diag: self.deleteUnused(u, d))
+
         box.rejected.connect(diag.reject)
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)

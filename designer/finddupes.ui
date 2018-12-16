@@ -22,14 +22,14 @@
      <item row="2" column="1">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Optional limit:</string>
+        <string>Optional filter:</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Look in field:</string>
+        <string>Search in:</string>
        </property>
       </widget>
      </item>

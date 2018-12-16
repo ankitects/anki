@@ -3,10 +3,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
+from aqt.utils import tooltip
 import aqt.editor
 from aqt.utils import saveGeom, restoreGeom
 from anki.hooks import addHook, remHook
 from anki.utils import isMac
+
 
 class EditCurrent(QDialog):
 
@@ -22,6 +24,7 @@ class EditCurrent(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
                 QKeySequence("Ctrl+Return"))
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
+        self.editor.card = self.mw.reviewer.card
         self.editor.setNote(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
         addHook("reset", self.onReset)
@@ -33,8 +36,8 @@ class EditCurrent(QDialog):
     def onReset(self):
         # lazy approach for now: throw away edits
         try:
-            n = self.mw.reviewer.card.note()
-            n.load()
+            n = self.editor.note
+            n.load()#reload in case the model changed
         except:
             # card's been deleted
             remHook("reset", self.onReset)
@@ -45,6 +48,10 @@ class EditCurrent(QDialog):
             return
         self.editor.setNote(n)
 
+    def reopen(self,mw):
+        tooltip("Please finish editing the existing card first.")
+        self.onReset()
+        
     def reject(self):
         self.saveAndClose()
 

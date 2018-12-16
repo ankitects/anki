@@ -136,7 +136,8 @@ def test_learn():
     # pass it once
     d.sched.answerCard(c, 3)
     # it should by due in 3 minutes
-    assert round(c.due - time.time()) in (179, 180)
+    dueIn = c.due - time.time()
+    assert 179 <= dueIn <= 180*1.25
     assert c.left%1000 == 2
     assert c.left//1000 == 2
     # check log is accurate
@@ -147,7 +148,8 @@ def test_learn():
     # pass again
     d.sched.answerCard(c, 3)
     # it should by due in 10 minutes
-    assert round(c.due - time.time()) in (599, 600)
+    dueIn = c.due - time.time()
+    assert 599 <= dueIn <= 600*1.25
     assert c.left%1000 == 1
     assert c.left//1000 == 1
     # the next pass should graduate the card
@@ -325,8 +327,8 @@ def test_reviews():
     d.reset()
     d.sched.answerCard(c, 2)
     assert c.queue == 2
-    # the new interval should be (100 + 8/4) * 1.2 = 122
-    assert checkRevIvl(d, c, 122)
+    # the new interval should be (100) * 1.2 = 120
+    assert checkRevIvl(d, c, 120)
     assert c.due == d.sched.today + c.ivl
     # factor should have been decremented
     assert c.factor == 2350
@@ -450,6 +452,11 @@ def test_button_spacing():
     assert ni(c, 2) == "2 days"
     assert ni(c, 3) == "3 days"
     assert ni(c, 4) == "4 days"
+
+    # if hard factor is <= 1, then hard may not increase
+    conf = d.decks.confForDid(1)
+    conf['rev']['hardFactor'] = 1
+    assert ni(c, 2) == "1 day"
 
 def test_overdue_lapse():
     # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
@@ -674,7 +681,7 @@ def test_filt_reviewing_early_normal():
     assert d.sched.nextIvl(c, 1) == 600
     assert d.sched.nextIvl(c, 2) == int(75*1.2)*86400
     assert d.sched.nextIvl(c, 3) == int(75*2.5)*86400
-    assert d.sched.nextIvl(c, 4) == int(75*2.5*1.3)*86400
+    assert d.sched.nextIvl(c, 4) == int(75*2.5*1.15)*86400
 
     # answer 'good'
     d.sched.answerCard(c, 3)
@@ -695,9 +702,9 @@ def test_filt_reviewing_early_normal():
     d.reset()
     c = d.sched.getCard()
 
-    assert d.sched.nextIvl(c, 2) == 50*86400
+    assert d.sched.nextIvl(c, 2) == 60*86400
     assert d.sched.nextIvl(c, 3) == 100*86400
-    assert d.sched.nextIvl(c, 4) == 101*86400
+    assert d.sched.nextIvl(c, 4) == 114*86400
 
 def test_filt_keep_lrn_state():
     d = getEmptyCol()
@@ -1102,10 +1109,8 @@ def test_failmult():
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.ivl == 50
-    # failing again, the actual elapsed interval is 0,
-    # so the card is reset to new
     d.sched.answerCard(c, 1)
-    assert c.ivl == 1
+    assert c.ivl == 25
 
 def test_moveVersions():
     col = _getEmptyCol(schedVer=1)

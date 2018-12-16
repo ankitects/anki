@@ -6,6 +6,7 @@ body {
 button {
     min-width: 60px;
     white-space: nowrap;
+    margin: 0.5em;
 }
 
 .hitem {
@@ -27,6 +28,8 @@ button {
     white-space: nowrap;
 }
 
+#ansbut { margin-bottom: 1em; }
+
 .nobold {
     font-weight: normal;
     display: inline-block;
@@ -43,8 +46,6 @@ button {
 
 #outer {
     border-top: 1px solid #aaa;
-    padding: 9px;
-    padding-top: 3px;
 }
 
 #innertable {

@@ -22,6 +22,7 @@ from aqt.utils import showWarning
 from aqt import appHelpSite
 import aqt.forms
 from send2trash import send2trash
+import anki.sound
 
 metaConf = dict(
     ver=0,
@@ -61,14 +62,20 @@ profileConf = dict(
 
 class ProfileManager:
 
-    def __init__(self, base=None, profile=None):
+    def __init__(self, base=None):
         self.name = None
         self.db = None
         # instantiate base folder
         self._setBaseFolder(base)
+
+        anki.sound.setMpvConfigBase(self.base)
+
+    def setupMeta(self):
         # load metadata
         self.firstRun = self._loadMeta()
-        # did the user request a profile to start up with?
+
+    # profile load on startup
+    def openProfile(self, profile):
         if profile:
             if profile not in self.profiles():
                 QMessageBox.critical(None, "Error", "Requested profile does not exist.")
@@ -101,29 +108,18 @@ a flash drive.""" % self.base)
         if isMac:
             return os.path.expanduser("~/Documents/Anki")
         elif isWin:
-            loc = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
-            if not loc.endswith("Anki2"):
-                loc = os.path.join(loc, "Anki2")
-            return loc
+            from aqt.winpaths import get_personal
+            return os.path.join(get_personal(), "Anki")
         else:
             p = os.path.expanduser("~/Anki")
-            if os.path.exists(p):
+            if os.path.isdir(p):
                 return p
-            else:
-                loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
-                if loc[:-1] == QStandardPaths.writableLocation(
-                        QStandardPaths.HomeLocation):
-                    # occasionally "documentsLocation" will return the home
-                    # folder because the Documents folder isn't configured
-                    # properly; fall back to an English path
-                    return os.path.expanduser("~/Documents/Anki")
-                else:
-                    return os.path.join(loc, "Anki")
+            return os.path.expanduser("~/Documents/Anki")
 
     def maybeMigrateFolder(self):
         oldBase = self._oldFolderLocation()
 
-        if not os.path.exists(self.base) and os.path.exists(oldBase):
+        if oldBase and not os.path.exists(self.base) and os.path.isdir(oldBase):
             shutil.move(oldBase, self.base)
 
     # Profile load/save
@@ -137,6 +133,12 @@ a flash drive.""" % self.base)
     def _unpickle(self, data):
         class Unpickler(pickle.Unpickler):
             def find_class(self, module, name):
+                if module == "PyQt5.sip":
+                    try:
+                        import PyQt5.sip
+                    except:
+                        # use old sip location
+                        module = "sip"
                 fn = super().find_class(module, name)
                 if module == "sip" and name == "_unpickle_type":
                     def wrapper(mod, obj, args):
@@ -160,6 +162,11 @@ a flash drive.""" % self.base)
         try:
             self.profile = self._unpickle(data)
         except:
+            QMessageBox.warning(
+                None, _("Profile Corrupt"), _("""\
+Anki could not read your profile data. Window sizes and your sync login \
+details have been forgotten."""))
+
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
@@ -221,7 +228,7 @@ a flash drive.""" % self.base)
             os.rename(oldFolder, newFolder)
         except WindowsError as e:
             self.db.rollback()
-            if "Access is denied" in e:
+            if "Access is denied" in str(e):
                 showWarning(_("""\
 Anki could not rename your profile because it could not rename the profile \
 folder on disk. Please ensure you have permission to write to Documents/Anki \
@@ -273,12 +280,8 @@ and no other programs are accessing your profile folders, then try again."""))
 
     def _defaultBase(self):
         if isWin:
-            loc = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
-            # the returned value seem to automatically include the app name, but we use Anki2 rather
-            # than Anki
-            if not loc.endswith("/.anki"):
-                loc = os.path.join(loc, ".anki")
-            return loc
+            from aqt.winpaths import get_appdata
+            return os.path.join(get_appdata(), "Anki2")
         elif isMac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
         else:
@@ -302,7 +305,10 @@ and no other programs are accessing your profile folders, then try again."""))
                     self.db.close()
                 except:
                     pass
-            os.unlink(path)
+            for suffix in ("", "-journal"):
+                fpath = path + suffix
+                if os.path.exists(fpath):
+                    os.unlink(fpath)
             QMessageBox.warning(
                 None, "Preferences Corrupt", """\
 Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
@@ -337,7 +343,7 @@ create table if not exists profiles
         if self.firstRun:
             self.create(_("User 1"))
             p = os.path.join(self.base, "README.txt")
-            open(p, "w").write(_("""\
+            open(p, "w", encoding="utf8").write(_("""\
 This folder stores all of your Anki data in a single location,
 to make backups easy. To tell Anki to use a different location,
 please see:
@@ -406,3 +412,43 @@ please see:
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
         anki.lang.setLang(code, local=False)
+
+    # OpenGL
+    ######################################################################
+
+    def _glPath(self):
+        return os.path.join(self.base, "gldriver")
+
+    def glMode(self):
+        if isMac:
+            return "auto"
+
+        path = self._glPath()
+        if not os.path.exists(path):
+            if qtminor >= 12:
+                return "auto"
+            else:
+                return "software"
+
+        mode = open(path, "r").read().strip()
+
+        if mode == "angle" and isWin:
+            return mode
+        elif mode == "software":
+            return mode
+        return "auto"
+
+    def setGlMode(self, mode):
+        open(self._glPath(), "w").write(mode)
+
+    def nextGlMode(self):
+        mode = self.glMode()
+        if mode == "software":
+            self.setGlMode("auto")
+        elif mode == "auto":
+            if isWin:
+                self.setGlMode("angle")
+            else:
+                self.setGlMode("software")
+        elif mode == "angle":
+            self.setGlMode("software")

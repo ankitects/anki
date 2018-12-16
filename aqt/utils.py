@@ -6,15 +6,7 @@ from aqt.qt import *
 import re, os, sys, urllib.request, urllib.parse, urllib.error, subprocess
 import aqt
 from anki.sound import stripSounds
-from anki.utils import isWin, isMac, invalidFilename
-from contextlib import contextmanager
-
-@contextmanager
-def noBundledLibs():
-    oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
-    yield
-    if oldlpath is not None:
-        os.environ["LD_LIBRARY_PATH"] = oldlpath
+from anki.utils import isWin, isMac, invalidFilename, noBundledLibs
 
 def openHelp(section):
     link = aqt.appHelpSite
@@ -272,7 +264,11 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
             cb(file)
         ret.append(file)
     d.accepted.connect(accept)
+    if key:
+        restoreState(d, key)
     d.exec_()
+    if key:
+        saveState(d, key)
     return ret and ret[0]
 
 def getSaveFile(parent, title, dir_description, key, ext, fname=None):
@@ -303,7 +299,11 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
 
 def saveGeom(widget, key):
     key += "Geom"
-    aqt.mw.pm.profile[key] = widget.saveGeometry()
+    if isMac and widget.windowState() & Qt.WindowFullScreen:
+        geom = None
+    else:
+        geom = widget.saveGeometry()
+    aqt.mw.pm.profile[key] = geom
 
 def restoreGeom(widget, key, offset=None, adjustSize=False):
     key += "Geom"
@@ -349,11 +349,6 @@ def mungeQA(col, txt):
     txt = col.media.escapeImages(txt)
     txt = stripSounds(txt)
     return txt
-
-def applyStyles(widget):
-    p = os.path.join(aqt.mw.pm.base, "style.css")
-    if os.path.exists(p):
-        widget.setStyleSheet(open(p).read())
 
 def openFolder(path):
     if isWin:
@@ -523,3 +518,12 @@ class MenuItem:
         a = qmenu.addAction(self.title)
         a.triggered.connect(self.func)
 
+######################################################################
+
+def versionWithBuild():
+    from aqt import appVersion
+    try:
+        from aqt.buildhash import build
+    except:
+        build = "dev"
+    return "%s (%s)" % (appVersion, build)

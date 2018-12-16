@@ -2,7 +2,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import copy
+import copy, operator
+import unicodedata
+
 from anki.utils import intTime, ids2str, json
 from anki.hooks import runHook
 from anki.consts import *
@@ -76,6 +78,7 @@ defaultConf = {
         'maxIvl': 36500,
         # may not be set on old decks
         'bury': False,
+        'hardFactor': 1.2,
     },
     'maxTaken': 60,
     'timer': 0,
@@ -129,7 +132,7 @@ class DeckManager:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         name = name.replace('"', '')
         for id, g in list(self.decks.items()):
-            if g['name'].lower() == name.lower():
+            if unicodedata.normalize("NFC", g['name'].lower()) == name.lower():
                 return int(id)
         if not create:
             return None
@@ -431,12 +434,44 @@ class DeckManager:
         return self.col.db.list("select id from cards where did in "+
                                 ids2str(dids))
 
-    def recoverOrphans(self):
+    def _recoverOrphans(self):
         dids = list(self.decks.keys())
         mod = self.col.db.mod
         self.col.db.execute("update cards set did = 1 where did not in "+
                             ids2str(dids))
         self.col.db.mod = mod
+
+    def _checkDeckTree(self):
+        decks = self.col.decks.all()
+        decks.sort(key=operator.itemgetter('name'))
+        names = set()
+
+        for deck in decks:
+            # two decks with the same name?
+            if deck['name'] in names:
+                print("fix duplicate deck name", deck['name'])
+                deck['name'] += "%d" % intTime(1000)
+                self.save(deck)
+
+            # ensure no sections are blank
+            if not all(deck['name'].split("::")):
+                print("fix deck with missing sections", deck['name'])
+                deck['name'] = "recovered%d" % intTime(1000)
+                self.save(deck)
+
+            # immediate parent must exist
+            if "::" in deck['name']:
+                immediateParent = "::".join(deck['name'].split("::")[:-1])
+                if immediateParent not in names:
+                    print("fix deck with missing parent", deck['name'])
+                    self._ensureParents(deck['name'])
+                    names.add(immediateParent)
+
+            names.add(deck['name'])
+
+    def checkIntegrity(self):
+        self._recoverOrphans()
+        self._checkDeckTree()
 
     # Deck selection
     #############################################################
@@ -473,7 +508,35 @@ class DeckManager:
                 actv.append((g['name'], g['id']))
         return actv
 
-    def parents(self, did):
+    def childDids(self, did, childMap):
+        def gather(node, arr):
+            for did, child in node.items():
+                arr.append(did)
+                gather(child, arr)
+
+        arr = []
+        gather(childMap[did], arr)
+        return arr
+
+    def childMap(self):
+        nameMap = self.nameMap()
+        childMap = {}
+
+        # go through all decks, sorted by name
+        for deck in sorted(self.all(), key=operator.itemgetter("name")):
+            node = {}
+            childMap[deck['id']] = node
+
+            # add note to immediate parent
+            parts = deck['name'].split("::")
+            if len(parts) > 1:
+                immediateParent = "::".join(parts[:-1])
+                pid = nameMap[immediateParent]['id']
+                childMap[pid][deck['id']] = node
+
+        return childMap
+
+    def parents(self, did, nameMap=None):
         "All parents of did."
         # get parent and grandparent names
         parents = []
@@ -484,7 +547,11 @@ class DeckManager:
                 parents.append(parents[-1] + "::" + part)
         # convert to objects
         for c, p in enumerate(parents):
-            parents[c] = self.get(self.id(p))
+            if nameMap:
+                deck = nameMap[p]
+            else:
+                deck = self.get(self.id(p))
+            parents[c] = deck
         return parents
 
     def parentsByName(self, name):
@@ -502,6 +569,9 @@ class DeckManager:
                 parents.append(deck)
 
         return parents
+
+    def nameMap(self):
+        return dict((d['name'], d) for d in self.decks.values())
 
     # Sync handling
     ##########################################################################

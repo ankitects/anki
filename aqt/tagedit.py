@@ -33,7 +33,6 @@ class TagEdit(QLineEdit):
 
     def focusInEvent(self, evt):
         QLineEdit.focusInEvent(self, evt)
-        self.showCompleter()
 
     def keyPressEvent(self, evt):
         if evt.key() in (Qt.Key_Up, Qt.Key_Down):
@@ -80,6 +79,8 @@ class TagEdit(QLineEdit):
         self.completer.popup().hide()
 
     def hideCompleter(self):
+        if sip.isdeleted(self.completer):
+            return
         self.completer.popup().hide()
 
 class TagCompleter(QCompleter):

@@ -8,6 +8,7 @@ import urllib.request, urllib.parse, urllib.error
 import unicodedata
 import sys
 import zipfile
+import pathlib
 from io import StringIO
 
 from anki.utils import checksum, isWin, isMac, json
@@ -156,11 +157,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if typeHint in typeMap:
                 fname += typeMap[typeHint]
 
-        # make sure we write it in NFC form (on mac will autoconvert to NFD),
+        # make sure we write it in NFC form (pre-APFS Macs will autoconvert to NFD),
         # and return an NFC-encoded reference
         fname = unicodedata.normalize("NFC", fname)
-        # remove any dangerous characters
-        base = self.stripIllegal(fname)
+        # ensure it's a valid filename
+        base = self.cleanFilename(fname)
         (root, ext) = os.path.splitext(base)
         def repl(match):
             n = int(match.group(1))
@@ -224,7 +225,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             return m.group(2)
         for ord in ords:
             s = re.sub(clozeReg%ord, qrepl, string)
-            s = re.sub(clozeReg%".+?", "\\4", s)
+            s = re.sub(clozeReg%".+?", "\\2", s)
             strings.append(s)
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
@@ -299,8 +300,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 continue
 
             nfcFile = unicodedata.normalize("NFC", file)
-            # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
-            # NFD so we use the above variable for comparing references
+            # we enforce NFC fs encoding on non-macs
             if not isMac and not local:
                 if file != nfcFile:
                     # delete if we already have the NFC form, otherwise rename
@@ -346,7 +346,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def have(self, fname):
         return os.path.exists(os.path.join(self.dir(), fname))
 
-    # Illegal characters
+    # Illegal characters and paths
     ##########################################################################
 
     _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0\r\n]')
@@ -362,6 +362,53 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         except UnicodeEncodeError:
             return True
         return False
+
+    def cleanFilename(self, fname):
+        fname = self.stripIllegal(fname)
+        fname = self._cleanWin32Filename(fname)
+        fname = self._cleanLongFilename(fname)
+        if not fname:
+            fname = "renamed"
+
+        return fname
+
+    def _cleanWin32Filename(self, fname):
+        if not isWin:
+            return fname
+
+        # deal with things like con/prn/etc
+        p = pathlib.WindowsPath(fname)
+        if p.is_reserved():
+            fname = "renamed" + fname
+            assert not pathlib.WindowsPath(fname).is_reserved()
+
+        return fname
+
+    def _cleanLongFilename(self, fname):
+        # a fairly safe limit that should work on typical windows
+        # paths and on eCryptfs partitions, even with a duplicate
+        # suffix appended
+        namemax = 136
+
+        if isWin:
+            pathmax = 240
+        else:
+            pathmax = 1024
+
+        # cap namemax based on absolute path
+        dirlen = len(os.path.dirname(os.path.abspath(fname)))
+        remaining = pathmax - dirlen
+        namemax = min(remaining, namemax)
+        assert namemax > 0
+
+        if len(fname) > namemax:
+            head, ext = os.path.splitext(fname)
+            headmax = namemax - len(ext)
+            head = head[0:headmax]
+            fname = head + ext
+            assert(len(fname) <= namemax)
+
+        return fname
 
     # Tracking changes
     ##########################################################################
@@ -407,7 +454,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.cache = {}
         for (name, csum, mod) in self.db.execute(
             "select fname, csum, mtime from media where csum is not null"):
-            self.cache[name] = [csum, mod, False]
+            # previous entries may not have been in NFC form
+            normname = unicodedata.normalize("NFC", name)
+            self.cache[normname] = [csum, mod, False]
         added = []
         removed = []
         # loop through on-disk files
@@ -430,26 +479,30 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                     self.col.log("ignoring file over 100MB", f.name)
                     continue
                 # check encoding
+                normname = unicodedata.normalize("NFC", f.name)
                 if not isMac:
-                    normf = unicodedata.normalize("NFC", f.name)
-                    if f.name != normf:
+                    if f.name != normname:
                         # wrong filename encoding which will cause sync errors
-                        if os.path.exists(normf):
+                        if os.path.exists(normname):
                             os.unlink(f.name)
                         else:
-                            os.rename(f.name, normf)
+                            os.rename(f.name, normname)
+                else:
+                    # on Macs we can access the file using any normalization
+                    pass
+
                 # newly added?
                 mtime = int(f.stat().st_mtime)
-                if f.name not in self.cache:
-                    added.append((f.name, mtime))
+                if normname not in self.cache:
+                    added.append((normname, mtime))
                 else:
                     # modified since last time?
-                    if mtime != self.cache[f.name][1]:
+                    if mtime != self.cache[normname][1]:
                         # and has different checksum?
-                        if self._checksum(f.name) != self.cache[f.name][0]:
-                            added.append((f.name, mtime))
+                        if self._checksum(normname) != self.cache[normname][0]:
+                            added.append((normname, mtime))
                     # mark as used
-                    self.cache[f.name][2] = True
+                    self.cache[normname][2] = True
         # look for any entries in the cache that no longer exist on disk
         for (k, v) in list(self.cache.items()):
             if not v[2]:
@@ -551,11 +604,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 data = z.read(i)
                 csum = checksum(data)
                 name = meta[i.filename]
-                # normalize name for platform
-                if isMac:
-                    name = unicodedata.normalize("NFD", name)
-                else:
-                    name = unicodedata.normalize("NFC", name)
+                # normalize name
+                name = unicodedata.normalize("NFC", name)
                 # save file
                 with open(name, "wb") as f:
                     f.write(data)

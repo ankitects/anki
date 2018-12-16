@@ -277,11 +277,9 @@
       <string>Flag</string>
      </property>
      <addaction name="actionRed_Flag"/>
-     <addaction name="actionPurple_Flag"/>
+     <addaction name="actionOrange_Flag"/>
      <addaction name="actionGreen_Flag"/>
      <addaction name="actionBlue_Flag"/>
-     <addaction name="separator"/>
-     <addaction name="actionClear_Flag"/>
     </widget>
     <addaction name="actionChange_Deck"/>
     <addaction name="separator"/>
@@ -324,6 +322,9 @@
    <property name="text">
     <string>&amp;Reschedule...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+R</string>
+   </property>
   </action>
   <action name="actionSelectAll">
    <property name="text">
@@ -344,6 +345,9 @@
   <action name="actionInvertSelection">
    <property name="text">
     <string>&amp;Invert Selection</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+S</string>
    </property>
   </action>
   <action name="actionFind">
@@ -521,15 +525,10 @@
     <string>Ctrl+D</string>
    </property>
   </action>
-  <action name="actionClear_Flag">
-   <property name="text">
-    <string>Clear Flag</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+0</string>
-   </property>
-  </action>
   <action name="actionRed_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Red Flag</string>
    </property>
@@ -537,15 +536,21 @@
     <string>Ctrl+1</string>
    </property>
   </action>
-  <action name="actionPurple_Flag">
+  <action name="actionOrange_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Purple Flag</string>
+    <string>Orange Flag</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+2</string>
    </property>
   </action>
   <action name="actionGreen_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Green Flag</string>
    </property>
@@ -554,6 +559,9 @@
    </property>
   </action>
   <action name="actionBlue_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Blue Flag</string>
    </property>

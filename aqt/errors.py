@@ -134,7 +134,7 @@ add-ons section</a> of our support site.
 
     def _supportText(self):
         import platform
-        from aqt import appVersion
+        from aqt.utils import versionWithBuild
 
         if isWin:
             platname = "Windows " + platform.win32_ver()[0]
@@ -143,9 +143,15 @@ add-ons section</a> of our support site.
         else:
             platname = "Linux"
 
+        def schedVer():
+            try:
+                return self.mw.col.schedVer()
+            except:
+                return "?"
+
         return """\
 Anki {} Python {} Qt {} PyQt {}
 Platform: {}
-Flags: frz={} ao={}        
-""".format(appVersion, platform.python_version(), QT_VERSION_STR, PYQT_VERSION_STR, platname,
-           getattr(sys, "frozen", False), self.mw.addonManager.dirty)
+Flags: frz={} ao={} sv={}
+""".format(versionWithBuild(), platform.python_version(), QT_VERSION_STR, PYQT_VERSION_STR, platname,
+           getattr(sys, "frozen", False), self.mw.addonManager.dirty, schedVer())

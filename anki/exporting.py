@@ -2,7 +2,8 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import   re, os, zipfile, shutil
+import re, os, zipfile, shutil, unicodedata
+
 from anki.lang import _
 from anki.utils import ids2str, splitFields, json, namedtmp
 from anki.hooks import runHook
@@ -124,10 +125,7 @@ class AnkiExporter(Exporter):
         self.dst = Collection(path)
         self.src = self.col
         # find cards
-        if not self.did:
-            cids = self.src.db.list("select id from cards")
-        else:
-            cids = self.src.decks.cids(self.did, children=True)
+        cids = self.cardIds()
         # copy cards, noting used nids
         nids = {}
         data = []
@@ -303,7 +301,7 @@ class AnkiPackageExporter(AnkiExporter):
                     z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
-                media[cStr] = file
+                media[cStr] = unicodedata.normalize("NFC", file)
                 runHook("exportedMediaFiles", c)
 
         return media
@@ -319,7 +317,7 @@ class AnkiPackageExporter(AnkiExporter):
         path = namedtmp("dummy.anki2")
         c = Collection(path)
         n = c.newNote()
-        n['Front'] = "This file requires a newer version of Anki."
+        n[_('Front')] = "This file requires a newer version of Anki."
         c.addNote(n)
         c.save()
         c.close()

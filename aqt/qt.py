@@ -3,7 +3,6 @@
 
 # fixme: make sure not to optimize imports on this file
 
-import sip
 import os
 
 # fix buggy ubuntu12.04 display of language selector
@@ -15,6 +14,10 @@ from PyQt5.Qt import *
 # trigger explicit message in case of missing libraries
 # instead of silently failing to import
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 def debug():
   from PyQt5.QtCore import pyqtRemoveInputHook
@@ -38,7 +41,9 @@ qtmajor = (QT_VERSION & 0xff0000) >> 16
 qtminor = (QT_VERSION & 0x00ff00) >> 8
 qtpoint = QT_VERSION & 0xff
 
-if qtmajor < 5 or (qtmajor == 5 and qtminor < 9):
-    raise Exception("Anki requires Qt 5.9.0+")
-if qtmajor == 5 and qtminor == 10:
-    raise Exception("Qt 5.10 is known to be buggy.")
+if qtmajor != 5 or qtminor < 9 or qtminor == 10:
+   raise Exception("Anki does not support your Qt version.")
+
+# GUI code assumes python 3.6+
+if sys.version_info[0] < 3 or sys.version_info[1] < 6:
+    raise Exception("Anki requires Python 3.6+")

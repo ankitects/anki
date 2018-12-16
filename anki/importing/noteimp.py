@@ -125,7 +125,7 @@ class NoteImporter(Importer):
         for n in notes:
             for c in range(len(n.fields)):
                 if not self.allowHTML:
-                    n.fields[c] = html.escape(n.fields[c])
+                    n.fields[c] = html.escape(n.fields[c], quote=False)
                 n.fields[c] = n.fields[c].strip()
                 if not self.allowHTML:
                     n.fields[c] = n.fields[c].replace("\n", "<br>")
@@ -197,8 +197,6 @@ class NoteImporter(Importer):
         # in order due?
         if conf['new']['order'] == NEW_CARDS_RANDOM:
             self.col.sched.randomizeCards(did)
-        else:
-            self.col.sched.orderCards(did)
 
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
         part2 = ngettext("%d note updated", "%d notes updated",

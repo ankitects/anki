@@ -59,6 +59,15 @@ class DeckConf(QDialog):
 
         search, limit, order = d['terms'][0]
         f.search.setText(search)
+
+        if self.mw.col.schedVer() == 1:
+            if d['delays']:
+                f.steps.setText(self.listToUser(d['delays']))
+                f.stepsOn.setChecked(True)
+        else:
+            f.steps.setVisible(False)
+            f.stepsOn.setVisible(False)
+
         f.order.setCurrentIndex(order)
         f.limit.setValue(limit)
         f.previewDelay.setValue(d.get("previewDelay", 10))
@@ -81,6 +90,13 @@ class DeckConf(QDialog):
         d = self.deck
         d['resched'] = f.resched.isChecked()
         d['delays'] = None
+
+        if self.mw.col.schedVer() == 1 and f.stepsOn.isChecked():
+            steps = self.userToList(f.steps)
+            if steps:
+                d['delays'] = steps
+            else:
+                d['delays'] = None
 
         terms = [[
             f.search.text(),

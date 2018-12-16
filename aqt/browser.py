@@ -6,6 +6,7 @@ import sre_constants
 import html
 import time
 import re
+import unicodedata
 from operator import  itemgetter
 from anki.lang import ngettext
 import json
@@ -17,7 +18,7 @@ from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, \
     isWin, intTime, \
     isMac, isLin, bodyClass
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
-    saveHeader, restoreHeader, saveState, restoreState, applyStyles, getTag, \
+    saveHeader, restoreHeader, saveState, restoreState, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
     getOnlyText, MenuList, SubMenu
 from anki.hooks import runHook, addHook, remHook, runFilter
@@ -207,11 +208,13 @@ class DataModel(QAbstractTableModel):
         tv = self.browser.form.tableView
         if idx:
             tv.selectRow(idx.row())
-            # we save and then restore the horizontal scroll position because
-            # scrollTo() also scrolls horizontally which is confusing
-            h = tv.horizontalScrollBar().value()
-            tv.scrollTo(idx, tv.PositionAtCenter)
-            tv.horizontalScrollBar().setValue(h)
+            # scroll if the selection count has changed
+            if count != len(self.selectedCards):
+                # we save and then restore the horizontal scroll position because
+                # scrollTo() also scrolls horizontally which is confusing
+                h = tv.horizontalScrollBar().value()
+                tv.scrollTo(idx, tv.PositionAtCenter)
+                tv.horizontalScrollBar().setValue(h)
             if count < 500:
                 # discard large selections; they're too slow
                 sm.select(items, QItemSelectionModel.SelectCurrent |
@@ -312,6 +315,17 @@ class DataModel(QAbstractTableModel):
             return ""
         return time.strftime("%Y-%m-%d", time.localtime(date))
 
+    def isRTL(self, index):
+        col = index.column()
+        type = self.columnType(col)
+        if type != "noteFld":
+            return False
+
+        row = index.row()
+        c = self.getCard(index)
+        nt = c.note().model()
+        return nt['flds'][self.col.models.sortIdx(nt)]['rtl']
+
 # Line painter
 ######################################################################
 
@@ -319,8 +333,8 @@ COLOUR_SUSPENDED = "#FFFFB2"
 COLOUR_MARKED = "#ccc"
 
 flagColours = {
-    1: "#F5B7B1",
-    2: "#BB8FCE",
+    1: "#ffaaaa",
+    2: "#ffb347",
     3: "#82E0AA",
     4: "#85C1E9",
 }
@@ -343,13 +357,16 @@ class StatusDelegate(QItemDelegate):
         finally:
             self.browser.mw.progress.blockUpdates = True
 
+        if self.model.isRTL(index):
+            option.direction = Qt.RightToLeft
+
         col = None
-        if c.queue == -1:
-            col = COLOUR_SUSPENDED
-        elif c.userFlag() > 0:
+        if c.userFlag() > 0:
             col = flagColours[c.userFlag()]
         elif c.note().hasTag("Marked"):
             col = COLOUR_MARKED
+        elif c.queue == -1:
+            col = COLOUR_SUSPENDED
         if col:
             brush = QBrush(QColor(col))
             painter.save()
@@ -367,7 +384,6 @@ class Browser(QMainWindow):
 
     def __init__(self, mw):
         QMainWindow.__init__(self, None, Qt.Window)
-        applyStyles(self)
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""
@@ -403,6 +419,8 @@ class Browser(QMainWindow):
         f.filter.clicked.connect(self.onFilterButton)
         # edit
         f.actionUndo.triggered.connect(self.mw.onUndo)
+        if qtminor < 11:
+            f.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
         f.actionInvertSelection.triggered.connect(self.invertSelection)
         f.actionSelectNotes.triggered.connect(self.selectNotes)
         if not isMac:
@@ -425,10 +443,9 @@ class Browser(QMainWindow):
         f.actionReschedule.triggered.connect(self.reschedule)
         f.actionToggle_Suspend.triggered.connect(self.onSuspend)
         f.actionRed_Flag.triggered.connect(lambda: self.onSetFlag(1))
-        f.actionPurple_Flag.triggered.connect(lambda: self.onSetFlag(2))
+        f.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
         f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
         f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
-        f.actionClear_Flag.triggered.connect(lambda: self.onSetFlag(0))
         # jumps
         f.actionPreviousCard.triggered.connect(self.onPreviousCard)
         f.actionNextCard.triggered.connect(self.onNextCard)
@@ -458,9 +475,14 @@ class Browser(QMainWindow):
         m = QMenu()
         for act in self.form.menu_Cards.actions():
             m.addAction(act)
+            if qtminor >= 10:
+                act.setShortcutVisibleInContextMenu(True)
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
+            if qtminor >= 10:
+                act.setShortcutVisibleInContextMenu(True)
+        runHook("browser.onContextMenu", self, m)
         m.exec_(QCursor.pos())
 
     def updateFont(self):
@@ -555,8 +577,11 @@ class Browser(QMainWindow):
         if self.form.searchEdit.lineEdit().text() == self._searchPrompt:
             self.form.searchEdit.lineEdit().setText("deck:current ")
 
+        # grab search text and normalize
+        txt = self.form.searchEdit.lineEdit().text()
+        txt = unicodedata.normalize("NFC", txt)
+
         # update history
-        txt = str(self.form.searchEdit.lineEdit().text()).strip()
         sh = self.mw.pm.profile['searchHistory']
         if txt in sh:
             sh.remove(txt)
@@ -576,6 +601,7 @@ class Browser(QMainWindow):
         if "is:current" in self._lastSearchTxt:
             # show current card if there is one
             c = self.mw.reviewer.card
+            self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
             self.model.search("nid:%d"%nid)
         else:
@@ -610,6 +636,8 @@ class Browser(QMainWindow):
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.form.tableView.selectionModel().selectionChanged.connect(self.onRowChanged)
+        self.form.tableView.setStyleSheet("QTableView{ selection-background-color: rgba(127, 127, 127, 50);  }")
+        self.singleCard = False
 
     def setupEditor(self):
         self.editor = aqt.editor.Editor(
@@ -635,11 +663,16 @@ class Browser(QMainWindow):
             self.focusTo = None
             self.editor.card = self.card
             self.singleCard = True
+        self._updateFlagsMenu()
+        runHook("browser.rowChanged", self)
         self._renderPreview(True)
 
     def refreshCurrentCard(self, note):
         self.model.refreshNote(note)
         self._renderPreview(False)
+
+    def onLoadNote(self, editor):
+        self.refreshCurrentCard(editor.note)
 
     def refreshCurrentCardFilter(self, flag, note, fidx):
         self.refreshCurrentCard(note)
@@ -734,6 +767,7 @@ by clicking on one on the left."""))
         self.model.beginReset()
         if type in self.model.activeCols:
             if len(self.model.activeCols) < 2:
+                self.model.endReset()
                 return showInfo(_("You must have at least one column."))
             self.model.activeCols.remove(type)
             adding=False
@@ -805,7 +839,6 @@ by clicking on one on the left."""))
         p = QPalette()
         p.setColor(QPalette.Base, p.window().color())
         self.sidebarTree.setPalette(p)
-        self.sidebarDockWidget.setVisible(False)
         self.sidebarDockWidget.setFloating(False)
         self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged)
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
@@ -966,7 +999,7 @@ by clicking on one on the left."""))
             (_("Buried"), "is:buried"),
             None,
             (_("Red Flag"), "flag:1"),
-            (_("Purple Flag"), "flag:2"),
+            (_("Orange Flag"), "flag:2"),
             (_("Green Flag"), "flag:3"),
             (_("Blue Flag"), "flag:4"),
             (_("No Flag"), "flag:0"),
@@ -1095,7 +1128,11 @@ by clicking on one on the left."""))
             return
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
-        d = QDialog(self)
+        class CardInfoDialog(QDialog):
+            def reject(self):
+                saveGeom(self, "revlog")
+                return QDialog.reject(self)
+        d = CardInfoDialog(self)
         l = QVBoxLayout()
         l.setContentsMargins(0,0,0,0)
         w = AnkiWebView()
@@ -1109,7 +1146,6 @@ by clicking on one on the left."""))
         d.resize(500, 400)
         restoreGeom(d, "revlog")
         d.show()
-        saveGeom(d, "revlog")
 
     def _cardInfoData(self):
         from anki.stats import CardStats
@@ -1397,7 +1433,10 @@ where id in %s""" % ids2str(sf))
     ######################################################################
 
     def deleteNotes(self):
-        self.editor.saveNow(self._deleteNotes)
+        focus = self.focusWidget()
+        if focus != self.form.tableView:
+            return
+        self._deleteNotes()
 
     def _deleteNotes(self):
         nids = self.selectedNotes()
@@ -1529,8 +1568,26 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def onSetFlag(self, n):
+        # flag needs toggling off?
+        if n == self.card.userFlag():
+            n = 0
         self.col.setUserFlag(n, self.selectedCards())
         self.model.reset()
+
+    def _updateFlagsMenu(self):
+        flag = self.card and self.card.userFlag()
+        flag = flag or 0
+
+        f = self.form
+        flagActions = [f.actionRed_Flag,
+                       f.actionOrange_Flag,
+                       f.actionGreen_Flag,
+                       f.actionBlue_Flag]
+
+        for c, act in enumerate(flagActions):
+            act.setChecked(flag == c+1)
+            if qtminor >= 10:
+                act.setShortcutVisibleInContextMenu(True)
 
     def onMark(self, mark=None):
         if mark is None:
@@ -1634,6 +1691,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         addHook("undoState", self.onUndoState)
         addHook("reset", self.onReset)
         addHook("editTimer", self.refreshCurrentCard)
+        addHook("loadNote", self.onLoadNote)
         addHook("editFocusLost", self.refreshCurrentCardFilter)
         for t in "newTag", "newModel", "newDeck":
             addHook(t, self.maybeRefreshSidebar)
@@ -1641,6 +1699,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     def teardownHooks(self):
         remHook("reset", self.onReset)
         remHook("editTimer", self.refreshCurrentCard)
+        remHook("loadNote", self.onLoadNote)
         remHook("editFocusLost", self.refreshCurrentCardFilter)
         remHook("undoState", self.onUndoState)
         for t in "newTag", "newModel", "newDeck":
@@ -1662,7 +1721,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         if not sf:
             return
         import anki.find
-        fields = sorted(anki.find.fieldNames(self.col, downcase=False))
+        fields = anki.find.fieldNamesForNotes(self.mw.col, sf)
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
@@ -1702,7 +1761,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
             "%(a)d of %(b)d notes updated", len(sf)) % {
                 'a': changed,
                 'b': len(sf),
-            })
+            }, parent=self)
 
     def onFindReplaceHelp(self):
         openHelp("findreplace")
@@ -1719,7 +1778,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
-        fields = sorted(anki.find.fieldNames(self.col, downcase=False))
+        fields = sorted(anki.find.fieldNames(self.col, downcase=False),
+                        key=lambda x: x.lower())
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
@@ -1838,7 +1898,6 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def onNote(self):
         self.editor.web.setFocus()
-        self.editor.web.eval("focusField(0);")
 
     def onCardList(self):
         self.form.tableView.setFocus()
@@ -2004,7 +2063,6 @@ Any cards mapped to nothing will be deleted. \
 If a note has no remaining cards, it will be lost. \
 Are you sure you want to continue?""")):
                 return
-        QDialog.accept(self)
         self.browser.mw.checkpoint(_("Change Note Type"))
         b = self.browser
         b.mw.col.modSchema(check=True)
@@ -2017,6 +2075,7 @@ Are you sure you want to continue?""")):
         b.mw.progress.finish()
         b.mw.reset()
         self.cleanup()
+        QDialog.accept(self)
 
     def onHelp(self):
         openHelp("browsermisc")

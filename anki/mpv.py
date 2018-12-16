@@ -73,6 +73,7 @@ class MPVBase:
         "--force-window=no",
         "--ontop",
         "--audio-display=no",
+        "--keep-open=no",
     ]
 
     def __init__(self, window_id=None, debug=False):
@@ -343,7 +344,7 @@ class MPVBase:
         except Empty:
             return None
 
-    def _send_request(self, message, timeout=None):
+    def _send_request(self, message, timeout=None, _retry=1):
         """Send a command to the mpv process and collect the result.
         """
         self.ensure_running()
@@ -352,6 +353,13 @@ class MPVBase:
             return self._get_response(timeout)
         except MPVCommandError as e:
             raise MPVCommandError("%r: %s" % (message["command"], e))
+        except MPVTimeoutError as e:
+            if _retry:
+                print("mpv timed out, restarting")
+                self._stop_process()
+                return self._send_request(message, timeout, _retry-1)
+            else:
+                raise
 
     #
     # Public API

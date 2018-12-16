@@ -8,22 +8,23 @@ all:
 install:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
 	mkdir -p ${DESTDIR}${PREFIX}/share/anki
-	cp -av * ${DESTDIR}${PREFIX}/share/anki/
-	cd ${DESTDIR}${PREFIX}/share/anki && (\
-	mv tools/runanki.system ${DESTDIR}${PREFIX}/local/bin/anki;\
-	test -d ${DESTDIR}${PREFIX}/share/pixmaps &&\
-	  mv anki.xpm anki.png ${DESTDIR}${PREFIX}/share/pixmaps/;\
-	mv anki.desktop ${DESTDIR}${PREFIX}/share/applications;\
-	mv anki.1 ${DESTDIR}${PREFIX}/share/man/man1/)
-	xdg-mime install anki.xml --novendor
-	xdg-mime default anki.desktop application/x-anki
-	xdg-mime default anki.desktop application/x-apkg
+	cp -av anki aqt web ${DESTDIR}${PREFIX}/share/anki/
+	-cp -av locale ${DESTDIR}${PREFIX}/share/anki/
+	sed -e 's:@PREFIX@:${PREFIX}:' tools/runanki.system.in > tools/runanki.system
+	install -m 0755 -D tools/runanki.system ${DESTDIR}${PREFIX}/bin/anki
+	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/pixmaps anki.xpm anki.png
+	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/applications anki.desktop
+	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/man/man1 anki.1
+	install -m 0644 -D -t ${DESTDIR}${PREFIX}/share/doc/anki README.contributing README.development README.md LICENSE LICENSE.logo
+	-xdg-mime install anki.xml --novendor
+	-xdg-mime default anki.desktop application/x-anki
+	-xdg-mime default anki.desktop application/x-apkg
 	@echo
 	@echo "Install complete."
 
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
-	rm -rf ${DESTDIR}${PREFIX}/local/bin/anki
+	rm -rf ${DESTDIR}${PREFIX}/bin/anki
 	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.xpm
 	rm -rf ${DESTDIR}${PREFIX}/share/pixmaps/anki.png
 	rm -rf ${DESTDIR}${PREFIX}/share/applications/anki.desktop

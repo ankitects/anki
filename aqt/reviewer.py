@@ -119,12 +119,16 @@ class Reviewer:
 
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
+        fade=""
+        if self.mw.pm.glMode() == "software":
+            fade="<script>qFade=0;</script>"
         return """
 <div id=_mark>&#x2605;</div>
 <div id=_flag>&#x2691;</div>
+{}
 <div id=qa></div>
 {}
-""".format(extra)
+""".format(fade, extra)
 
     def _initWeb(self):
         self._reps = 0
@@ -249,7 +253,6 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             ("Ctrl+2", lambda: self.setFlag(2)),
             ("Ctrl+3", lambda: self.setFlag(3)),
             ("Ctrl+4", lambda: self.setFlag(4)),
-            ("Ctrl+0", lambda: self.setFlag(0)),
             ("*", self.onMark),
             ("=", self.onBuryNote),
             ("-", self.onBuryCard),
@@ -269,6 +272,13 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.state == "question":
             self._getTypedAnswer()
         elif self.state == "answer":
+            self.bottom.web.evalWithCallback("selectedAnswerButton()", self._onAnswerButton)
+
+    def _onAnswerButton(self, val):
+        # button selected?
+        if val and val in "1234":
+            self._answerCard(int(val))
+        else:
             self._answerCard(self._defaultEase())
 
     def _linkHandler(self, url):
@@ -343,11 +353,14 @@ Please run Tools>Empty Cards""")
         hadHR = len(buf) != origSize
         # munge correct value
         parser = html.parser.HTMLParser()
-        cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
+        cor = self.mw.col.media.strip(self.typeCorrect)
+        cor = re.sub("(\n|<br ?/?>|</?div>)+", " ", cor)
+        cor = stripHTML(cor)
         # ensure we don't chomp multiple whitespace
         cor = cor.replace(" ", "&nbsp;")
         cor = parser.unescape(cor)
         cor = cor.replace("\xa0", " ")
+        cor = cor.strip()
         given = self.typedAnswer
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
@@ -366,7 +379,7 @@ Please run Tools>Empty Cards""")
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
-        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
+        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
         if not matches:
             return None
         def noHint(txt):
@@ -538,8 +551,8 @@ time = %(time)d;
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s title="%s" onclick='pycmd("ease%d");'>\
-%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
+<td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
@@ -569,14 +582,17 @@ time = %(time)d;
 
     # note the shortcuts listed here also need to be defined above
     def _contextMenu(self):
+        currentFlag = self.card and self.card.userFlag()
         opts = [
             [_("Flag Card"), [
-                [_("Red Flag"), "Ctrl+1", lambda: self.setFlag(1)],
-                [_("Purple Flag"), "Ctrl+2", lambda: self.setFlag(2)],
-                [_("Green Flag"), "Ctrl+3", lambda: self.setFlag(3)],
-                [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4)],
-                None,
-                [_("Clear Flag"), "Ctrl+0", lambda: self.setFlag(0)],
+                [_("Red Flag"), "Ctrl+1", lambda: self.setFlag(1),
+                 dict(checked=currentFlag == 1)],
+                [_("Orange Flag"), "Ctrl+2", lambda: self.setFlag(2),
+                 dict(checked=currentFlag == 2)],
+                [_("Green Flag"), "Ctrl+3", lambda: self.setFlag(3),
+                 dict(checked=currentFlag == 3)],
+                [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4),
+                 dict(checked=currentFlag == 4)],
             ]],
             [_("Mark Note"), "*", self.onMark],
             [_("Bury Card"), "-", self.onBuryCard],
@@ -609,18 +625,29 @@ time = %(time)d;
                 subm = m.addMenu(row[0])
                 self._addMenuItems(subm, row[1])
                 continue
-            label, scut, func = row
+            if len(row) == 4:
+                label, scut, func, opts = row
+            else:
+                label, scut, func = row
+                opts = {}
             a = m.addAction(label)
+            if qtminor >= 10:
+                a.setShortcutVisibleInContextMenu(True)
             if scut:
                 a.setShortcut(QKeySequence(scut))
+            if opts.get("checked"):
+                a.setCheckable(True)
+                a.setChecked(True)
             a.triggered.connect(func)
-
 
     def onOptions(self):
         self.mw.onDeckConf(self.mw.col.decks.get(
             self.card.odid or self.card.did))
 
     def setFlag(self, flag):
+        # need to toggle off?
+        if self.card.userFlag() == flag:
+            flag = 0
         self.card.setUserFlag(flag)
         self.card.flush()
         self._drawFlag()

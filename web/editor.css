@@ -6,13 +6,10 @@
     overflow-wrap: break-word;
 }
 
-/* prevent floated images from being displayed outside field */
-.field:after {
+.clearfix:after {
     content: "";
-    display: block;
-    height: 0;
+    display: table;
     clear: both;
-    visibility: hidden;
 }
 
 .fname {
@@ -28,7 +25,7 @@ body {
     margin: 5px;
 }
 
-#topbuts {
+#topbutsOuter {
     position: fixed;
     height: 24px;
     top: 0;
@@ -40,6 +37,7 @@ body {
 .topbut {
     width: 16px;
     height: 16px;
+    margin-top: 4px;
 }
 
 .rainbow {

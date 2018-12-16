@@ -22,6 +22,7 @@ langs = [
     ("Hrvatski", "hr"),
     ("Interlingua", "ia"),
     ("Italiano", "it"),
+    ("lo jbobau", "jbo"),
     ("Lenga d'òc", "oc"),
     ("Magyar", "hu"),
     ("Nederlands","nl"),
@@ -31,13 +32,17 @@ langs = [
     ("Polski", "pl"),
     ("Português Brasileiro", "pt_BR"),
     ("Português", "pt"),
-    ("Româneşte", "ro"),
+    ("Română", "ro"),
     ("Slovenčina", "sk"),
     ("Slovenščina", "sl"),
     ("Suomi", "fi"),
     ("Svenska", "sv"),
     ("Tiếng Việt", "vi"),
     ("Türkçe", "tr"),
+    ("简体中文", "zh_CN"),
+    ("日本語", "ja"),
+    ("繁體中文", "zh_TW"),
+    ("한국어", "ko"),
     ("Čeština", "cs"),
     ("Ελληνικά", "el"),
     ("Ελληνικά", "el"),
@@ -47,14 +52,11 @@ langs = [
     ("русский язык", "ru"),
     ("Српски", "sr"),
     ("українська мова", "uk"),
+    ("Հայերեն", "hy"),
     ("עִבְרִית", "he"),
     ("العربية", "ar"),
     ("فارسی", "fa"),
     ("ภาษาไทย", "th"),
-    ("日本語", "ja"),
-    ("简体中文", "zh_CN"),
-    ("繁體中文", "zh_TW"),
-    ("한국어", "ko"),
 ]
 
 threadLocal = threading.local()
@@ -86,7 +88,7 @@ def langDir():
     if not os.path.isdir(dir):
         dir = os.path.join(os.path.dirname(sys.argv[0]), "locale")
     if not os.path.isdir(dir):
-        dir = "/usr/share/anki/locale"
+        dir = os.path.abspath(os.path.join(filedir, "..", "locale"))
     return dir
 
 def setLang(lang, local=True):

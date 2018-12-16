@@ -82,9 +82,17 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
     def send_head(self):
         path = self.translate_path(self.path)
         path = self._redirectWebExports(path)
-        if os.path.isdir(path):
+        try:
+            isdir = os.path.isdir(path)
+        except ValueError:
+            # path too long exception on Windows
             self.send_error(HTTPStatus.NOT_FOUND, "File not found")
             return None
+
+        if isdir:
+            self.send_error(HTTPStatus.NOT_FOUND, "File not found")
+            return None
+
         ctype = self.guess_type(path)
         try:
             f = open(path, 'rb')

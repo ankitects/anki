@@ -4,7 +4,7 @@
 from aqt.qt import *
 from operator import itemgetter
 from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
-import aqt.modelchooser, aqt.clayout
+import aqt.clayout
 from anki import stdmodels
 from aqt.utils import saveGeom, restoreGeom
 import collections
