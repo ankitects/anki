@@ -1,9 +1,9 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib
-import urllib2
 import time
+
+import requests
 
 from aqt.qt import *
 import aqt
@@ -11,8 +11,11 @@ from aqt.utils import openLink
 from anki.utils import json, platDesc
 from aqt.utils import showText
 
-
 class LatestVersionFinder(QThread):
+
+    newVerAvail = pyqtSignal(str)
+    newMsg = pyqtSignal(dict)
+    clockIsOff = pyqtSignal(float)
 
     def __init__(self, main):
         QThread.__init__(self)
@@ -32,23 +35,22 @@ class LatestVersionFinder(QThread):
             return
         d = self._data()
         d['proto'] = 1
-        d = urllib.urlencode(d)
+
         try:
-            f = urllib2.urlopen(aqt.appUpdate, d)
-            resp = f.read()
-            if not resp:
-                return
-            resp = json.loads(resp)
+            r = requests.post(aqt.appUpdate, data=d)
+            r.raise_for_status()
+            resp = r.json()
         except:
             # behind proxy, corrupt message, etc
+            print("update check failed")
             return
         if resp['msg']:
-            self.emit(SIGNAL("newMsg"), resp)
+            self.newMsg.emit(resp)
         if resp['ver']:
-            self.emit(SIGNAL("newVerAvail"), resp['ver'])
+            self.newVerAvail.emit(resp['ver'])
         diff = resp['time'] - time.time()
         if abs(diff) > 300:
-            self.emit(SIGNAL("clockIsOff"), diff)
+            self.clockIsOff.emit(diff)
 
 def askAndUpdate(mw, ver):
     baseStr = (

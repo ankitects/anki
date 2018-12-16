@@ -34,20 +34,18 @@ class FieldDialog(QDialog):
     def fillFields(self):
         self.currentIdx = None
         self.form.fieldList.clear()
-        for f in self.model['flds']:
-            self.form.fieldList.addItem(f['name'])
+        for c, f in enumerate(self.model['flds']):
+            self.form.fieldList.addItem("{}: {}".format(c+1, f['name']))
 
     def setupSignals(self):
-        c = self.connect
-        s = SIGNAL
         f = self.form
-        c(f.fieldList, s("currentRowChanged(int)"), self.onRowChange)
-        c(f.fieldAdd, s("clicked()"), self.onAdd)
-        c(f.fieldDelete, s("clicked()"), self.onDelete)
-        c(f.fieldRename, s("clicked()"), self.onRename)
-        c(f.fieldPosition, s("clicked()"), self.onPosition)
-        c(f.sortField, s("clicked()"), self.onSortField)
-        c(f.buttonBox, s("helpRequested()"), self.onHelp)
+        f.fieldList.currentRowChanged.connect(self.onRowChange)
+        f.fieldAdd.clicked.connect(self.onAdd)
+        f.fieldDelete.clicked.connect(self.onDelete)
+        f.fieldRename.clicked.connect(self.onRename)
+        f.fieldPosition.clicked.connect(self.onPosition)
+        f.sortField.clicked.connect(self.onSortField)
+        f.buttonBox.helpRequested.connect(self.onHelp)
 
     def onRowChange(self, idx):
         if idx == -1:

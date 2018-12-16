@@ -2,7 +2,6 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from __future__ import division
 import time
 import random
 import itertools
@@ -19,7 +18,7 @@ from anki.hooks import runHook
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 
-class Scheduler(object):
+class Scheduler:
     name = "std"
     haveCustomStudy = True
     _spreadRev = True
@@ -57,7 +56,7 @@ class Scheduler(object):
 
     def answerCard(self, card, ease):
         self.col.log()
-        assert ease >= 1 and ease <= 4
+        assert 1 <= ease <= 4
         self.col.markReview(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
@@ -184,6 +183,7 @@ order by due""" % self._deckLimit(),
         tot = 0
         pcounts = {}
         # for each of the active decks
+        nameMap = self.col.decks.nameMap()
         for did in self.col.decks.active():
             # early alphas were setting the active ids as a str
             did = int(did)
@@ -192,7 +192,7 @@ order by due""" % self._deckLimit(),
             if not lim:
                 continue
             # check the parents
-            parents = self.col.decks.parents(did)
+            parents = self.col.decks.parents(did, nameMap)
             for p in parents:
                 # add if missing
                 if p['id'] not in pcounts:
@@ -216,7 +216,7 @@ order by due""" % self._deckLimit(),
     def deckDueList(self):
         "Returns [deckname, did, rev, lrn, new]"
         self._checkDay()
-        self.col.decks.recoverOrphans()
+        self.col.decks.checkIntegrity()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
         lims = {}
@@ -228,20 +228,10 @@ order by due""" % self._deckLimit(),
             parts = parts[:-1]
             return "::".join(parts)
         for deck in decks:
-            # if we've already seen the exact same deck name, remove the
-            # invalid duplicate and reload
-            if deck['name'] in lims:
-                self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
-                return self.deckDueList()
             p = parent(deck['name'])
             # new
             nlim = self._deckNewLimitSingle(deck)
             if p:
-                if p not in lims:
-                    # if parent was missing, this deck is invalid, and we
-                    # need to reload the deck list
-                    self.col.decks.rem(deck['id'], cardsToo=False, childrenToo=True)
-                    return self.deckDueList()
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck['id'], nlim)
             # learning
@@ -362,7 +352,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
             if lim:
                 # fill the queue with the current did
                 self._newQueue = self.col.db.list("""
-select id from cards where did = ? and queue = 0 order by due limit ?""", did, lim)
+                select id from cards where did = ? and queue = 0 order by due,ord limit ?""", did, lim)
                 if self._newQueue:
                     self._newQueue.reverse()
                     return True
@@ -927,7 +917,8 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _updateRevIvl(self, card, ease):
         idealIvl = self._nextRevIvl(card, ease)
-        card.ivl = self._adjRevIvl(card, idealIvl)
+        card.ivl = min(max(self._adjRevIvl(card, idealIvl), card.ivl+1),
+                       self._revConf(card)['maxIvl'])
 
     def _adjRevIvl(self, card, idealIvl):
         if self._spreadRev:
@@ -956,7 +947,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         orderlimit = self._dynOrder(order, limit)
         if search.strip():
             search = "(%s)" % search
-        search = "%s -is:suspended -is:buried -deck:filtered" % search
+        search = "%s -is:suspended -is:buried -deck:filtered -is:learn" % search
         try:
             ids = self.col.findCards(search, order=orderlimit)
         except:
@@ -983,7 +974,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s""" % lim,
 
     def _dynOrder(self, o, l):
         if o == DYN_OLDEST:
-            t = "c.mod"
+            t = "(select max(id) from revlog where cid=c.id)"
         elif o == DYN_RANDOM:
             t = "random()"
         elif o == DYN_SMALLINT:
@@ -1338,7 +1329,7 @@ and (queue=0 or (queue=2 and due<=?))""",
         self.remFromDyn(ids)
         self.col.db.execute(
             "update cards set type=0,queue=0,ivl=0,due=0,odue=0,factor=?"
-            " where id in "+ids2str(ids), 2500)
+            " where id in "+ids2str(ids), STARTING_FACTOR)
         pmax = self.col.db.scalar(
             "select max(due) from cards where type=0") or 0
         # takes care of mod + usn
@@ -1353,7 +1344,7 @@ and (queue=0 or (queue=2 and due<=?))""",
         for id in ids:
             r = random.randint(imin, imax)
             d.append(dict(id=id, due=r+t, ivl=max(1, r), mod=mod,
-                          usn=self.col.usn(), fact=2500))
+                          usn=self.col.usn(), fact=STARTING_FACTOR))
         self.remFromDyn(ids)
         self.col.db.executemany("""
 update cards set type=2,queue=2,ivl=:ivl,due=:due,odue=0,

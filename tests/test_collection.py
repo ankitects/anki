@@ -2,14 +2,14 @@
 
 import os, tempfile
 from tests.shared import assertException, getEmptyCol
-from anki.stdmodels import addBasicModel
+from anki.stdmodels import addBasicModel, models
 
 from anki import Collection as aopen
 
 newPath = None
 newMod = None
 
-def test_create():
+def test_create_open():
     global newPath, newMod
     (fd, path) = tempfile.mkstemp(suffix=".anki2", prefix="test_attachNew")
     try:
@@ -24,12 +24,11 @@ def test_create():
     newMod = deck.mod
     del deck
 
-def test_open():
+    # reopen
     deck = aopen(newPath)
     assert deck.mod == newMod
     deck.close()
 
-def test_openReadOnly():
     # non-writeable dir
     assertException(Exception,
                     lambda: aopen("/attachroot.anki2"))
@@ -37,14 +36,14 @@ def test_openReadOnly():
     os.chmod(newPath, 0)
     assertException(Exception,
                     lambda: aopen(newPath))
-    os.chmod(newPath, 0666)
+    os.chmod(newPath, 0o666)
     os.unlink(newPath)
 
 def test_noteAddDelete():
     deck = getEmptyCol()
     # add a note
     f = deck.newNote()
-    f['Front'] = u"one"; f['Back'] = u"two"
+    f['Front'] = "one"; f['Back'] = "two"
     n = deck.addNote(f)
     assert n == 1
     # test multiple cards - add another template
@@ -62,7 +61,7 @@ def test_noteAddDelete():
     assert deck.cardCount() == 2
     # creating new notes should use both cards
     f = deck.newNote()
-    f['Front'] = u"three"; f['Back'] = u"four"
+    f['Front'] = "three"; f['Back'] = "four"
     n = deck.addNote(f)
     assert n == 2
     assert deck.cardCount() == 4
@@ -73,7 +72,7 @@ def test_noteAddDelete():
     assert not f.dupeOrEmpty()
     # now let's make a duplicate
     f2 = deck.newNote()
-    f2['Front'] = u"one"; f2['Back'] = u""
+    f2['Front'] = "one"; f2['Back'] = ""
     assert f2.dupeOrEmpty()
     # empty first field should not be permitted either
     f2['Front'] = " "
@@ -82,12 +81,12 @@ def test_noteAddDelete():
 def test_fieldChecksum():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u"new"; f['Back'] = u"new2"
+    f['Front'] = "new"; f['Back'] = "new2"
     deck.addNote(f)
     assert deck.db.scalar(
         "select csum from notes") == int("c2a6b03f", 16)
     # changing the val should change the checksum
-    f['Front'] = u"newx"
+    f['Front'] = "newx"
     f.flush()
     assert deck.db.scalar(
         "select csum from notes") == int("302811ae", 16)
@@ -95,10 +94,10 @@ def test_fieldChecksum():
 def test_addDelTags():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u"1"
+    f['Front'] = "1"
     deck.addNote(f)
     f2 = deck.newNote()
-    f2['Front'] = u"2"
+    f2['Front'] = "2"
     deck.addNote(f2)
     # adding for a given id
     deck.tags.bulkAdd([f.id], "foo")
@@ -113,10 +112,10 @@ def test_addDelTags():
 
 def test_timestamps():
     deck = getEmptyCol()
-    assert len(deck.models.models) == 4
+    assert len(deck.models.models) == len(models)
     for i in range(100):
         addBasicModel(deck)
-    assert len(deck.models.models) == 104
+    assert len(deck.models.models) == 100 + len(models)
 
 def test_furigana():
     deck = getEmptyCol()

@@ -6,6 +6,8 @@ import re
 
 class TagEdit(QLineEdit):
 
+    lostFocus = pyqtSignal()
+
     # 0 = tags, 1 = decks
     def __init__(self, parent, type=0):
         QLineEdit.__init__(self, parent)
@@ -31,10 +33,30 @@ class TagEdit(QLineEdit):
 
     def focusInEvent(self, evt):
         QLineEdit.focusInEvent(self, evt)
-        self.showCompleter()
 
     def keyPressEvent(self, evt):
+        if evt.key() in (Qt.Key_Up, Qt.Key_Down):
+            # show completer on arrow key up/down
+            if not self.completer.popup().isVisible():
+                self.showCompleter()
+            return
+        if (evt.key() == Qt.Key_Tab and evt.modifiers() & Qt.ControlModifier):
+            # select next completion
+            if not self.completer.popup().isVisible():
+                self.showCompleter()
+            index = self.completer.currentIndex()
+            self.completer.popup().setCurrentIndex(index)
+            cur_row = index.row()
+            if not self.completer.setCurrentRow(cur_row + 1):
+                self.completer.setCurrentRow(0)
+            return
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+            # apply first completion if no suggestion selected
+            selected_row = self.completer.popup().currentIndex().row()
+            if selected_row == -1:
+                self.completer.setCurrentRow(0)
+                index = self.completer.currentIndex()
+                self.completer.popup().setCurrentIndex(index)
             self.hideCompleter()
             QWidget.keyPressEvent(self, evt)
             return
@@ -53,10 +75,12 @@ class TagEdit(QLineEdit):
 
     def focusOutEvent(self, evt):
         QLineEdit.focusOutEvent(self, evt)
-        self.emit(SIGNAL("lostFocus"))
+        self.lostFocus.emit()
         self.completer.popup().hide()
 
     def hideCompleter(self):
+        if sip.isdeleted(self.completer):
+            return
         self.completer.popup().hide()
 
 class TagCompleter(QCompleter):
@@ -67,22 +91,25 @@ class TagCompleter(QCompleter):
         self.edit = edit
         self.cursor = None
 
-    def splitPath(self, str):
-        str = unicode(str).strip()
-        str = re.sub("  +", " ", str)
-        self.tags = self.edit.col.tags.split(str)
-        self.tags.append(u"")
+    def splitPath(self, tags):
+        stripped_tags = tags.strip()
+        stripped_tags = re.sub("  +", " ", stripped_tags)
+        self.tags = self.edit.col.tags.split(stripped_tags)
+        self.tags.append("")
         p = self.edit.cursorPosition()
-        self.cursor = str.count(" ", 0, p)
+        if tags.endswith("  "):
+            self.cursor = len(self.tags) - 1
+        else:
+            self.cursor = stripped_tags.count(" ", 0, p)
         return [self.tags[self.cursor]]
 
     def pathFromIndex(self, idx):
         if self.cursor is None:
             return self.edit.text()
         ret = QCompleter.pathFromIndex(self, idx)
-        self.tags[self.cursor] = unicode(ret)
+        self.tags[self.cursor] = ret
         try:
-            self.tags.remove(u"")
+            self.tags.remove("")
         except ValueError:
             pass
-        return " ".join(self.tags)
+        return " ".join(self.tags) + " "

@@ -7,11 +7,13 @@ import re
 import traceback
 import zipfile
 import json
+import unicodedata
+import shutil
 
 from aqt.qt import *
 import anki.importing as importing
-from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp,\
-    askUser, tooltip
+from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp, \
+    askUser, tooltip, showInfo
 from anki.hooks import addHook, remHook
 import aqt.forms
 import aqt.modelchooser
@@ -69,15 +71,14 @@ class ImportDialog(QDialog):
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
-        self.connect(self.frm.buttonBox.button(QDialogButtonBox.Help),
-                     SIGNAL("clicked()"), self.helpRequested)
+        self.frm.buttonBox.button(QDialogButtonBox.Help).clicked.connect(
+            self.helpRequested)
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()
         self.frm.autoDetect.setVisible(self.importer.needDelimiter)
         addHook("currentModelChanged", self.modelChanged)
-        self.connect(self.frm.autoDetect, SIGNAL("clicked()"),
-                     self.onDelimiter)
+        self.frm.autoDetect.clicked.connect(self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', True))
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 1))
@@ -112,7 +113,11 @@ a tab, comma, and so on. If Anki is detecting the character incorrectly,
 you can enter it here. Use \\t to represent tab."""),
                 self, help="importing") or "\t"
         str = str.replace("\\t", "\t")
-        str = str.encode("ascii")
+        if len(str) > 1:
+            showWarning(_(
+                "Multi-character separators are not supported. "
+                "Please enter one character only."))
+            return
         self.hideMapping()
         def updateDelim():
             self.importer.delimiter = str
@@ -138,10 +143,10 @@ you can enter it here. Use \\t to represent tab."""),
         elif d == ":":
             d = _("Colon")
         else:
-            d = `d`
+            d = repr(d)
         txt = _("Fields separated by: %s") % d
         self.frm.autoDetect.setText(txt)
-        
+
     def accept(self):
         self.importer.mapping = self.mapping
         if not self.importer.mappingOk():
@@ -164,7 +169,7 @@ you can enter it here. Use \\t to represent tab."""),
         except UnicodeDecodeError:
             showUnicodeWarning()
             return
-        except Exception, e:
+        except Exception as e:
             msg = _("Import failed.\n")
             err = repr(str(e))
             if "1-character string" in err:
@@ -172,7 +177,7 @@ you can enter it here. Use \\t to represent tab."""),
             elif "invalidTempFolder" in err:
                 msg += self.mw.errorHandler.tempFolderMsg()
             else:
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc(), "ascii", "replace")
             showText(msg)
             return
         finally:
@@ -211,7 +216,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.mapbox.addWidget(self.mapwidget)
         self.grid = QGridLayout(self.mapwidget)
         self.mapwidget.setLayout(self.grid)
-        self.grid.setMargin(3)
+        self.grid.setContentsMargins(3,3,3,3)
         self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
@@ -226,8 +231,7 @@ you can enter it here. Use \\t to represent tab."""),
             self.grid.addWidget(QLabel(text), num, 1)
             button = QPushButton(_("Change"))
             self.grid.addWidget(button, num, 2)
-            self.connect(button, SIGNAL("clicked()"),
-                         lambda s=self,n=num: s.changeMappingNum(n))
+            button.clicked.connect(lambda _, s=self,n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n):
         f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
@@ -248,6 +252,7 @@ you can enter it here. Use \\t to represent tab."""),
 
     def reject(self):
         self.modelChooser.cleanup()
+        self.deck.cleanup()
         remHook("currentModelChanged", self.modelChanged)
         QDialog.reject(self)
 
@@ -268,7 +273,17 @@ def onImport(mw):
                    filter=filt)
     if not file:
         return
-    file = unicode(file)
+    file = str(file)
+
+    head, ext = os.path.splitext(file)
+    ext = ext.lower()
+    if ext == ".anki":
+        showInfo(_(".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."))
+        return
+    elif ext == ".anki2":
+        showInfo(_(".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."))
+        return
+
     importFile(mw, file)
 
 def importFile(mw, file):
@@ -295,18 +310,13 @@ def importFile(mw, file):
         except UnicodeDecodeError:
             showUnicodeWarning()
             return
-        except Exception, e:
+        except Exception as e:
             msg = repr(str(e))
             if msg == "'unknownFormat'":
-                if file.endswith(".anki2"):
-                    showWarning(_("""\
-.anki2 files are not designed for importing. If you're trying to restore from a \
-backup, please see the 'Backups' section of the user manual."""))
-                else:
-                    showWarning(_("Unknown file format."))
+                showWarning(_("Unknown file format."))
             else:
                 msg = _("Import failed. Debugging info:\n")
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc())
                 showText(msg)
             return
         finally:
@@ -326,10 +336,13 @@ backup, please see the 'Backups' section of the user manual."""))
                 return
         mw.progress.start(immediate=True)
         try:
-            importer.run()
+            try:
+                importer.run()
+            finally:
+                mw.progress.finish()
         except zipfile.BadZipfile:
             showWarning(invalidZipMsg())
-        except Exception, e:
+        except Exception as e:
             err = repr(str(e))
             if "invalidFile" in err:
                 msg = _("""\
@@ -342,7 +355,7 @@ Invalid file. Please restore from backup.""")
 Unable to import from a read-only file."""))
             else:
                 msg = _("Import failed.\n")
-                msg += unicode(traceback.format_exc(), "ascii", "replace")
+                msg += str(traceback.format_exc())
                 showText(msg)
         else:
             log = "\n".join(importer.log)
@@ -350,8 +363,6 @@ Unable to import from a read-only file."""))
                 tooltip(log)
             else:
                 showText(log)
-        finally:
-            mw.progress.finish()
         mw.reset()
 
 def invalidZipMsg():
@@ -363,29 +374,44 @@ with a different browser.""")
 
 def setupApkgImport(mw, importer):
     base = os.path.basename(importer.file).lower()
-    full = (base == "collection.apkg") or re.match("backup-.*\\.apkg", base)
+    full = ((base == "collection.apkg") or
+            re.match("backup-.*\\.apkg", base) or
+            base.endswith(".colpkg"))
     if not full:
         # adding
         return True
     backup = re.match("backup-.*\\.apkg", base)
-    if not askUser(_("""\
+    if not mw.restoringBackup and not askUser(_("""\
 This will delete your existing collection and replace it with the data in \
-the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning):
+the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning,
+                                              defaultno=True):
         return False
     # schedule replacement; don't do it immediately as we may have been
     # called as part of the startup routine
-    mw.progress.start(immediate=True)
     mw.progress.timer(
         100, lambda mw=mw, f=importer.file: replaceWithApkg(mw, f, backup), False)
 
 def replaceWithApkg(mw, file, backup):
-    # unload collection, which will also trigger a backup
-    mw.unloadCollection()
-    # overwrite collection
+    mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
+
+def _replaceWithApkg(mw, file, backup):
+    mw.progress.start(immediate=True)
+
     z = zipfile.ZipFile(file)
+
+    # v2 scheduler?
+    colname = "collection.anki21"
     try:
-        z.extract("collection.anki2", mw.pm.profileFolder())
+        z.getinfo(colname)
+    except KeyError:
+        colname = "collection.anki2"
+
+    try:
+        with z.open(colname) as source, \
+                open(mw.pm.collectionPath(), "wb") as target:
+            shutil.copyfileobj(source, target)
     except:
+        mw.progress.finish()
         showWarning(_("The provided file is not a valid .apkg file."))
         return
     # because users don't have a backup of media, it's safer to import new
@@ -393,11 +419,12 @@ def replaceWithApkg(mw, file, backup):
     # unwanted media. in the future we might also want to deduplicate this
     # step
     d = os.path.join(mw.pm.profileFolder(), "collection.media")
-    for n, (cStr, file) in enumerate(json.loads(z.read("media")).items()):
+    for n, (cStr, file) in enumerate(
+            json.loads(z.read("media").decode("utf8")).items()):
         mw.progress.update(ngettext("Processed %d media file",
                                     "Processed %d media files", n) % n)
         size = z.getinfo(cStr).file_size
-        dest = os.path.join(d, file)
+        dest = os.path.join(d, unicodedata.normalize("NFC", file))
         # if we have a matching file size
         if os.path.exists(dest) and size == os.stat(dest).st_size:
             continue
@@ -405,7 +432,9 @@ def replaceWithApkg(mw, file, backup):
         open(dest, "wb").write(data)
     z.close()
     # reload
-    mw.loadCollection()
+    if not mw.loadCollection():
+        mw.progress.finish()
+        return
     if backup:
         mw.col.modSchema(check=False)
     mw.progress.finish()

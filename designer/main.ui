@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>412</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -79,18 +79,6 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <widget class="QMenu" name="menuPlugins">
-     <property name="title">
-      <string>&amp;Add-ons</string>
-     </property>
-     <property name="icon">
-      <iconset resource="icons.qrc">
-       <normaloff>:/icons/preferences-plugin.png</normaloff>:/icons/preferences-plugin.png</iconset>
-     </property>
-     <addaction name="actionDownloadSharedPlugin"/>
-     <addaction name="actionOpenPluginFolder"/>
-     <addaction name="separator"/>
-    </widget>
     <addaction name="actionStudyDeck"/>
     <addaction name="actionCreateFiltered"/>
     <addaction name="separator"/>
@@ -98,7 +86,7 @@
     <addaction name="actionCheckMediaDatabase"/>
     <addaction name="actionEmptyCards"/>
     <addaction name="separator"/>
-    <addaction name="menuPlugins"/>
+    <addaction name="actionAdd_ons"/>
     <addaction name="separator"/>
     <addaction name="actionNoteTypes"/>
     <addaction name="actionPreferences"/>
@@ -169,7 +157,7 @@
   </action>
   <action name="actionDownloadSharedPlugin">
    <property name="text">
-    <string>Browse &amp;&amp; Install...</string>
+    <string>&amp;Browse and Install...</string>
    </property>
    <property name="statusTip">
     <string/>
@@ -177,7 +165,7 @@
   </action>
   <action name="actionFullDatabaseCheck">
    <property name="text">
-    <string>&amp;Check Database...</string>
+    <string>&amp;Check Database</string>
    </property>
   </action>
   <action name="actionDocumentation">
@@ -190,7 +178,7 @@
   </action>
   <action name="actionSwitchProfile">
    <property name="text">
-    <string>&amp;Switch Profile...</string>
+    <string>&amp;Switch Profile</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+P</string>
@@ -209,7 +197,7 @@
     <string>&amp;Import...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+I</string>
+    <string>Ctrl+Shift+I</string>
    </property>
   </action>
   <action name="actionStudyDeck">
@@ -235,10 +223,18 @@
   </action>
   <action name="actionNoteTypes">
    <property name="text">
-    <string>Manage Note Types...</string>
+    <string>Manage Note Types</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionAdd_ons">
+   <property name="text">
+    <string>Add-ons</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
    </property>
   </action>
  </widget>

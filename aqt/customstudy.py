@@ -16,13 +16,15 @@ RADIO_CRAM = 6
 
 TYPE_NEW = 0
 TYPE_DUE = 1
-TYPE_ALL = 2
+TYPE_REVIEW = 2
+TYPE_ALL = 3
 
 class CustomStudy(QDialog):
     def __init__(self, mw):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
+        self.conf = self.mw.col.decks.getConf(self.deck['conf'])
         self.form = f = aqt.forms.customstudy.Ui_Dialog()
         f.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
@@ -31,13 +33,13 @@ class CustomStudy(QDialog):
         self.exec_()
 
     def setupSignals(self):
-        f = self.form; c = self.connect; s = SIGNAL("clicked()")
-        c(f.radio1, s, lambda: self.onRadioChange(1))
-        c(f.radio2, s, lambda: self.onRadioChange(2))
-        c(f.radio3, s, lambda: self.onRadioChange(3))
-        c(f.radio4, s, lambda: self.onRadioChange(4))
-        c(f.radio5, s, lambda: self.onRadioChange(5))
-        c(f.radio6, s, lambda: self.onRadioChange(6))
+        f = self.form
+        f.radio1.clicked.connect(lambda: self.onRadioChange(1))
+        f.radio2.clicked.connect(lambda: self.onRadioChange(2))
+        f.radio3.clicked.connect(lambda: self.onRadioChange(3))
+        f.radio4.clicked.connect(lambda: self.onRadioChange(4))
+        f.radio5.clicked.connect(lambda: self.onRadioChange(5))
+        f.radio6.clicked.connect(lambda: self.onRadioChange(6))
 
     def onRadioChange(self, idx):
         f = self.form; sp = f.spin
@@ -53,16 +55,22 @@ class CustomStudy(QDialog):
             return "<b>"+str(num)+"</b>"
         if idx == RADIO_NEW:
             new = self.mw.col.sched.totalNewForCurrentDeck()
-            self.deck['newToday']
-            tit = _("New cards in deck: %s") % plus(new)
+            # get the number of new cards in deck that exceed the new cards limit
+            newUnderLearning = min(new, self.conf['new']['perDay'] - self.deck['newToday'][1])
+            newExceeding = min(new, new - newUnderLearning)
+            tit = _("New cards in deck over today limit: %s") % plus(newExceeding)
             pre = _("Increase today's new card limit by")
             sval = min(new, self.deck.get('extendNew', 10))
-            smax = new
+            smax = newExceeding
         elif idx == RADIO_REV:
             rev = self.mw.col.sched.totalRevForCurrentDeck()
-            tit = _("Reviews due in deck: %s") % plus(rev)
+            # get the number of review due in deck that exceed the review due limit
+            revUnderLearning = min(rev, self.conf['rev']['perDay'] - self.deck['revToday'][1])
+            revExceeding = min(rev, rev - revUnderLearning)
+            tit = _("Reviews due in deck over today limit: %s") % plus(revExceeding)
             pre = _("Increase today's review limit by")
             sval = min(rev, self.deck.get('extendRev', 10))
+            smax = revExceeding
         elif idx == RADIO_FORGOT:
             pre = _("Review cards forgotten in last")
             post = _("days")
@@ -126,19 +134,15 @@ class CustomStudy(QDialog):
             dyn = self.mw.col.decks.get(did)
         # and then set various options
         if i == RADIO_FORGOT:
-            dyn['delays'] = [1]
             dyn['terms'][0] = ['rated:%d:1' % spin, DYN_MAX_SIZE, DYN_RANDOM]
             dyn['resched'] = False
         elif i == RADIO_AHEAD:
-            dyn['delays'] = None
             dyn['terms'][0] = ['prop:due<=%d' % spin, DYN_MAX_SIZE, DYN_DUE]
             dyn['resched'] = True
         elif i == RADIO_PREVIEW:
-            dyn['delays'] = None
             dyn['terms'][0] = ['is:new added:%s'%spin, DYN_MAX_SIZE, DYN_OLDEST]
             dyn['resched'] = False
         elif i == RADIO_CRAM:
-            dyn['delays'] = None
             type = f.cardType.currentRow()
             if type == TYPE_NEW:
                 terms = "is:new "
@@ -147,6 +151,10 @@ class CustomStudy(QDialog):
             elif type == TYPE_DUE:
                 terms = "is:due "
                 ord = DYN_DUE
+                dyn['resched'] = True
+            elif type == TYPE_REVIEW:
+                terms = "-is:new "
+                ord = DYN_RANDOM
                 dyn['resched'] = True
             else:
                 terms = ""

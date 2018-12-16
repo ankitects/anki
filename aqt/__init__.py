@@ -1,11 +1,13 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from anki import version as _version
+
 import getpass
-import os
 import sys
 import optparse
 import tempfile
-import __builtin__
+import builtins
 import locale
 import gettext
 
@@ -13,8 +15,7 @@ from aqt.qt import *
 import anki.lang
 from anki.consts import HELP_SITE
 from anki.lang import langDir
-from anki.utils import isMac
-from anki import version as _version
+from anki.utils import isMac, isLin
 
 appVersion=_version
 appWebsite="http://ankisrs.net/"
@@ -29,51 +30,89 @@ moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
 try:
     import aqt.forms
-except ImportError, e:
+except ImportError as e:
     if "forms" in str(e):
-        print "If you're running from git, did you run build_ui.sh?"
-        print
+        print("If you're running from git, did you run build_ui.sh?")
+        print()
     raise
 
 from anki.utils import checksum
 
-# Dialog manager - manages modeless windows
+# Dialog manager
 ##########################################################################
+# ensures only one copy of the window is open at once, and provides
+# a way for dialogs to clean up asynchronously when collection closes
 
-class DialogManager(object):
+# to integrate a new window:
+# - add it to _dialogs
+# - define close behaviour, by either:
+# -- setting silentlyClose=True to have it close immediately
+# -- define a closeWithCallback() method
+# - have the window opened via aqt.dialogs.open(<name>, self)
+# - have a method reopen(*args), called if the user ask to open the window a second time. Arguments passed are the same than for original opening.
 
-    def __init__(self):
-        from aqt import addcards, browser, editcurrent
-        self._dialogs = {
-            "AddCards": [addcards.AddCards, None],
-            "Browser": [browser.Browser, None],
-            "EditCurrent": [editcurrent.EditCurrent, None],
-        }
+#- make preferences modal? cmd+q does wrong thing
+
+
+from aqt import addcards, browser, editcurrent, stats, about, \
+    preferences
+
+class DialogManager:
+
+    _dialogs = {
+        "AddCards": [addcards.AddCards, None],
+        "Browser": [browser.Browser, None],
+        "EditCurrent": [editcurrent.EditCurrent, None],
+        "DeckStats": [stats.DeckStats, None],
+        "About": [about.show, None],
+        "Preferences": [preferences.Preferences, None],
+    }
 
     def open(self, name, *args):
         (creator, instance) = self._dialogs[name]
         if instance:
-            instance.setWindowState(instance.windowState() | Qt.WindowActive)
+            if instance.windowState() & Qt.WindowMinimized:
+                instance.setWindowState(instance.windowState() & ~Qt.WindowMinimized)
             instance.activateWindow()
             instance.raise_()
+            if hasattr(instance,"reopen"):
+                instance.reopen(*args)
             return instance
         else:
             instance = creator(*args)
             self._dialogs[name][1] = instance
             return instance
 
-    def close(self, name):
+    def markClosed(self, name):
         self._dialogs[name] = [self._dialogs[name][0], None]
 
-    def closeAll(self):
-        "True if all closed successfully."
-        for (n, (creator, instance)) in self._dialogs.items():
-            if instance:
-                if not instance.canClose():
-                    return False
-                instance.forceClose = True
+    def allClosed(self):
+        return not any(x[1] for x in self._dialogs.values())
+
+    def closeAll(self, onsuccess):
+        # can we close immediately?
+        if self.allClosed():
+            onsuccess()
+            return
+
+        # ask all windows to close and await a reply
+        for (name, (creator, instance)) in self._dialogs.items():
+            if not instance:
+                continue
+
+            def callback():
+                if self.allClosed():
+                    onsuccess()
+                else:
+                    # still waiting for others to close
+                    pass
+
+            if getattr(instance, "silentlyClose", False):
                 instance.close()
-                self.close(n)
+                callback()
+            else:
+                instance.closeWithCallback(callback)
+
         return True
 
 dialogs = DialogManager()
@@ -98,8 +137,8 @@ def setupLang(pm, app, force=None):
     # gettext
     _gtrans = gettext.translation(
         'anki', dir, languages=[lang], fallback=True)
-    __builtin__.__dict__['_'] = _gtrans.ugettext
-    __builtin__.__dict__['ngettext'] = _gtrans.ungettext
+    builtins.__dict__['_'] = _gtrans.gettext
+    builtins.__dict__['ngettext'] = _gtrans.ngettext
     anki.lang.setLang(lang, local=False)
     if lang in ("he","ar","fa"):
         app.setLayoutDirection(Qt.RightToLeft)
@@ -118,8 +157,10 @@ class AnkiApp(QApplication):
     # Single instance support on Win32/Linux
     ##################################################
 
+    appMsg = pyqtSignal(str)
+
     KEY = "anki"+checksum(getpass.getuser())
-    TMOUT = 5000
+    TMOUT = 30000
 
     def __init__(self, argv):
         QApplication.__init__(self, argv)
@@ -133,14 +174,14 @@ class AnkiApp(QApplication):
         if args and args[0]:
             buf = os.path.abspath(args[0])
         if self.sendMsg(buf):
-            print "Already running; reusing existing instance."
+            print("Already running; reusing existing instance.")
             return True
         else:
             # send failed, so we're the first instance or the
             # previous instance died
             QLocalServer.removeServer(self.KEY)
             self._srv = QLocalServer(self)
-            self.connect(self._srv, SIGNAL("newConnection()"), self.onRecv)
+            self._srv.newConnection.connect(self.onRecv)
             self._srv.listen(self.KEY)
             return False
 
@@ -150,10 +191,13 @@ class AnkiApp(QApplication):
         if not sock.waitForConnected(self.TMOUT):
             # first instance or previous instance dead
             return False
-        sock.write(txt)
+        sock.write(txt.encode("utf8"))
         if not sock.waitForBytesWritten(self.TMOUT):
             # existing instance running but hung
-            return False
+            QMessageBox.warning(None, "Anki Already Running",
+                                 "If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.")
+
+            sys.exit(1)
         sock.disconnectFromServer()
         return True
 
@@ -162,9 +206,8 @@ class AnkiApp(QApplication):
         if not sock.waitForReadyRead(self.TMOUT):
             sys.stderr.write(sock.errorString())
             return
-        buf = sock.readAll()
-        buf = unicode(buf, sys.getfilesystemencoding(), "ignore")
-        self.emit(SIGNAL("appMsg"), buf)
+        path = bytes(sock.readAll()).decode("utf8")
+        self.appMsg.emit(path)
         sock.disconnectFromServer()
 
     # OS X file/url handler
@@ -172,7 +215,7 @@ class AnkiApp(QApplication):
 
     def event(self, evt):
         if evt.type() == QEvent.FileOpen:
-            self.emit(SIGNAL("appMsg"), evt.file() or "raise")
+            self.appMsg.emit(evt.file() or "raise")
             return True
         return QApplication.event(self, evt)
 
@@ -189,32 +232,76 @@ def parseArgs(argv):
     parser.add_option("-l", "--lang", help="interface language (en, de, etc)")
     return parser.parse_args(argv[1:])
 
+def setupGL(pm):
+    if isMac:
+        return
+
+    mode = pm.glMode()
+
+    # work around pyqt loading wrong GL library
+    if isLin:
+        import ctypes
+        ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
+
+    # catch opengl errors
+    def msgHandler(type, ctx, msg):
+        if "Failed to create OpenGL context" in msg:
+            QMessageBox.critical(None, "Error", "Error loading '%s' graphics driver. Please start Anki again to try next driver." % mode)
+            pm.nextGlMode()
+            return
+        else:
+            print("qt:", msg)
+    qInstallMessageHandler(msgHandler)
+
+    if mode == "auto":
+        return
+    elif isLin:
+        os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+    else:
+        os.environ["QT_OPENGL"] = mode
+
 def run():
     try:
         _run()
-    except Exception, e:
+    except Exception as e:
+        traceback.print_exc()
         QMessageBox.critical(None, "Startup Error",
                              "Please notify support of this error:\n\n"+
                              traceback.format_exc())
 
-def _run():
+def _run(argv=None, exec=True):
+    """Start AnkiQt application or reuse an existing instance if one exists.
+
+    If the function is invoked with exec=False, the AnkiQt will not enter
+    the main event loop - instead the application object will be returned.
+
+    The 'exec' and 'argv' arguments will be useful for testing purposes.
+
+    If no 'argv' is supplied then 'sys.argv' will be used.
+    """
     global mw
 
+    if argv is None:
+        argv = sys.argv
+
     # parse args
-    opts, args = parseArgs(sys.argv)
-    opts.base = unicode(opts.base or "", sys.getfilesystemencoding())
-    opts.profile = unicode(opts.profile or "", sys.getfilesystemencoding())
+    opts, args = parseArgs(argv)
+    opts.base = opts.base or ""
+    opts.profile = opts.profile or ""
 
-    # on osx we'll need to add the qt plugins to the search path
-    if isMac and getattr(sys, 'frozen', None):
-        rd = os.path.abspath(moduleDir + "/../../..")
-        QCoreApplication.setLibraryPaths([rd])
+    # profile manager
+    from aqt.profiles import ProfileManager
+    pm = ProfileManager(opts.base)
 
-    if isMac:
-        QFont.insertSubstitution(".Lucida Grande UI", "Lucida Grande")
+    # gl workarounds
+    setupGL(pm)
+
+    # opt in to full hidpi support?
+    if not os.environ.get("ANKI_NOHIGHDPI"):
+        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     # create the app
-    app = AnkiApp(sys.argv)
+    app = AnkiApp(argv)
     QCoreApplication.setApplicationName("Anki")
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
@@ -223,6 +310,17 @@ def _run():
     # disable icons on mac; this must be done before window created
     if isMac:
         app.setAttribute(Qt.AA_DontShowIconsInMenus)
+
+    # proxy configured?
+    from urllib.request import proxy_bypass, getproxies
+    if 'http' in getproxies():
+        # if it's not set up to bypass localhost, we'll
+        # need to disable proxies in the webviews
+        if not proxy_bypass("127.0.0.1"):
+            print("webview proxy use disabled")
+            proxy = QNetworkProxy()
+            proxy.setType(QNetworkProxy.NoProxy)
+            QNetworkProxy.setApplicationProxy(proxy)
 
     # we must have a usable temp dir
     try:
@@ -234,16 +332,10 @@ No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""")
         return
 
-    # qt version must be up to date
-    if qtmajor <= 4 and qtminor <= 6:
-        QMessageBox.warning(
-            None, "Error", "Your Qt version is known to be buggy. Until you "
-          "upgrade to a newer Qt, you may experience issues such as images "
-          "failing to show up during review.")
+    pm.setupMeta()
 
-    # profile manager
-    from aqt.profiles import ProfileManager
-    pm = ProfileManager(opts.base, opts.profile)
+    if opts.profile:
+        pm.openProfile(opts.profile)
 
     # i18n
     setupLang(pm, app, opts.lang)
@@ -253,5 +345,8 @@ environment points to a valid, writable folder.""")
 
     # load the main window
     import aqt.main
-    mw = aqt.main.AnkiQt(app, pm, args)
-    app.exec_()
+    mw = aqt.main.AnkiQt(app, pm, opts, args)
+    if exec:
+        app.exec()
+    else:
+        return app

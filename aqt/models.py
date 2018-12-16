@@ -4,9 +4,10 @@
 from aqt.qt import *
 from operator import itemgetter
 from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
-import aqt.modelchooser, aqt.clayout
+import aqt.clayout
 from anki import stdmodels
 from aqt.utils import saveGeom, restoreGeom
+import collections
 
 class Models(QDialog):
     def __init__(self, mw, parent=None, fromMain=False):
@@ -19,8 +20,7 @@ class Models(QDialog):
         self.mw.checkpoint(_("Note Types"))
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
-        self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     lambda: openHelp("notetypes"))
+        self.form.buttonBox.helpRequested.connect(lambda: openHelp("notetypes"))
         self.setupModels()
         restoreGeom(self, "models")
         self.exec_()
@@ -30,25 +30,23 @@ class Models(QDialog):
 
     def setupModels(self):
         self.model = None
-        c = self.connect; f = self.form; box = f.buttonBox
-        s = SIGNAL("clicked()")
+        f = self.form; box = f.buttonBox
         t = QDialogButtonBox.ActionRole
         b = box.addButton(_("Add"), t)
-        c(b, s, self.onAdd)
+        b.clicked.connect(self.onAdd)
         b = box.addButton(_("Rename"), t)
-        c(b, s, self.onRename)
+        b.clicked.connect(self.onRename)
         b = box.addButton(_("Delete"), t)
-        c(b, s, self.onDelete)
+        b.clicked.connect(self.onDelete)
         if self.fromMain:
             b = box.addButton(_("Fields..."), t)
-            c(b, s, self.onFields)
+            b.clicked.connect(self.onFields)
             b = box.addButton(_("Cards..."), t)
-            c(b, s, self.onCards)
+            b.clicked.connect(self.onCards)
         b = box.addButton(_("Options..."), t)
-        c(b, s, self.onAdvanced)
-        c(f.modelsList, SIGNAL("currentRowChanged(int)"), self.modelChanged)
-        c(f.modelsList, SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
-          self.onRename)
+        b.clicked.connect(self.onAdvanced)
+        f.modelsList.currentRowChanged.connect(self.modelChanged)
+        f.modelsList.itemDoubleClicked.connect(self.onRename)
         self.updateModelsList()
         f.modelsList.setCurrentRow(0)
         maybeHideClose(box)
@@ -109,17 +107,17 @@ class Models(QDialog):
         d = QDialog(self)
         frm = aqt.forms.modelopts.Ui_Dialog()
         frm.setupUi(d)
+        frm.latexsvg.setChecked(self.model.get("latexsvg", False))
         frm.latexHeader.setText(self.model['latexPre'])
         frm.latexFooter.setText(self.model['latexPost'])
         d.setWindowTitle(_("Options for %s") % self.model['name'])
-        self.connect(
-            frm.buttonBox, SIGNAL("helpRequested()"),
-            lambda: openHelp("latex"))
+        frm.buttonBox.helpRequested.connect(lambda: openHelp("latex"))
         restoreGeom(d, "modelopts")
         d.exec_()
         saveGeom(d, "modelopts")
-        self.model['latexPre'] = unicode(frm.latexHeader.toPlainText())
-        self.model['latexPost'] = unicode(frm.latexFooter.toPlainText())
+        self.model['latexsvg'] = frm.latexsvg.isChecked()
+        self.model['latexPre'] = str(frm.latexHeader.toPlainText())
+        self.model['latexPost'] = str(frm.latexFooter.toPlainText())
 
     def saveModel(self):
         self.mm.save(self.model)
@@ -127,7 +125,7 @@ class Models(QDialog):
     def _tmpNote(self):
         self.mm.setCurrent(self.model)
         n = self.col.newNote(forDeck=False)
-        for name in n.keys():
+        for name in list(n.keys()):
             n[name] = "("+name+")"
         try:
             if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
@@ -171,7 +169,7 @@ class AddModel(QDialog):
         # standard models
         self.models = []
         for (name, func) in stdmodels.models:
-            if callable(name):
+            if isinstance(name, collections.Callable):
                 name = name()
             item = QListWidgetItem(_("Add: %s") % name)
             self.dialog.models.addItem(item)
@@ -184,9 +182,9 @@ class AddModel(QDialog):
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
-        self.connect(s, SIGNAL("activated()"), self.accept)
+        s.activated.connect(self.accept)
         # help
-        self.connect(self.dialog.buttonBox, SIGNAL("helpRequested()"), self.onHelp)
+        self.dialog.buttonBox.helpRequested.connect(self.onHelp)
 
     def get(self):
         self.exec_()

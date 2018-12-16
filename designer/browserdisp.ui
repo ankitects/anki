@@ -35,7 +35,7 @@
     <widget class="QLineEdit" name="afmt"/>
    </item>
    <item>
-    <widget class="QLabel" name="label_3">
+    <widget class="QCheckBox" name="overrideFont">
      <property name="text">
       <string>Override font:</string>
      </property>

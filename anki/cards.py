@@ -19,7 +19,7 @@ from anki.consts import *
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
-class Card(object):
+class Card:
 
     def __init__(self, col, id=None):
         self.col = col
@@ -183,3 +183,10 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         del d['col']
         del d['timerStarted']
         return pprint.pformat(d, width=300)
+
+    def userFlag(self):
+        return self.flags & 0b111
+
+    def setUserFlag(self, flag):
+        assert 0 <= flag <= 7
+        self.flags = (self.flags & ~0b111) | flag

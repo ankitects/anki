@@ -14,9 +14,8 @@ import traceback
 
 from anki.lang import _, ngettext
 from anki.utils import ids2str, fieldChecksum, stripHTML, \
-    intTime, splitFields, joinFields, maxID, json
+    intTime, splitFields, joinFields, maxID, json, devMode, stripHTMLMedia
 from anki.hooks import  runFilter, runHook
-from anki.sched import Scheduler
 from anki.models import ModelManager
 from anki.media import MediaManager
 from anki.decks import DeckManager
@@ -46,10 +45,11 @@ defaultConf = {
     'sortType': "noteFld",
     'sortBackwards': False,
     'addToCur': True, # add new to currently selected deck?
+    'dayLearnFirst': False,
 }
 
 # this is initialized by storage.Collection
-class _Collection(object):
+class _Collection:
 
     def __init__(self, db, server=False, log=False):
         self._debugLog = log
@@ -71,7 +71,7 @@ class _Collection(object):
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
-        self.sched = Scheduler(self)
+        self._loadScheduler()
         if not self.conf.get("newBury", False):
             self.conf['newBury'] = True
             self.setMod()
@@ -79,6 +79,49 @@ class _Collection(object):
     def name(self):
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
+
+    # Scheduler
+    ##########################################################################
+
+    defaultSchedulerVersion = 1
+    supportedSchedulerVersions = (1, 2)
+
+    def schedVer(self):
+        ver = self.conf.get("schedVer", self.defaultSchedulerVersion)
+        if ver in self.supportedSchedulerVersions:
+            return ver
+        else:
+            raise Exception("Unsupported scheduler version")
+
+    def _loadScheduler(self):
+        ver = self.schedVer()
+        if ver == 1:
+            from anki.sched import Scheduler
+        elif ver == 2:
+            from anki.schedv2 import Scheduler
+
+        self.sched = Scheduler(self)
+
+    def changeSchedulerVer(self, ver):
+        if ver == self.schedVer():
+            return
+        if ver not in self.supportedSchedulerVersions:
+            raise Exception("Unsupported scheduler version")
+
+        self.modSchema(check=True)
+
+        from anki.schedv2 import Scheduler
+        v2Sched = Scheduler(self)
+
+        if ver == 1:
+            v2Sched.moveToV1()
+        else:
+            v2Sched.moveToV2()
+
+        self.conf['schedVer'] = ver
+        self.setMod()
+
+        self._loadScheduler()
 
     # DB-related
     ##########################################################################
@@ -134,9 +177,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self._lastSave = time.time()
 
     def autosave(self):
-        "Save if 5 minutes has passed since last save."
+        "Save if 5 minutes has passed since last save. True if saved."
         if time.time() - self._lastSave > 300:
             self.save()
+            return True
 
     def lock(self):
         # make sure we don't accidentally bump mod time
@@ -150,9 +194,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             if save:
                 self.save()
             else:
-                self.rollback()
+                self.db.rollback()
             if not self.server:
+                self.db.setAutocommit(True)
                 self.db.execute("pragma journal_mode = delete")
+                self.db.setAutocommit(False)
             self.db.close()
             self.db = None
             self.media.close()
@@ -200,6 +246,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.modSchema(check=False)
         self.ls = self.scm
         # ensure db is compacted before upload
+        self.db.setAutocommit(True)
         self.db.execute("vacuum")
         self.db.execute("analyze")
         self.close()
@@ -304,12 +351,16 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         snids = ids2str(nids)
         have = {}
         dids = {}
-        for id, nid, ord, did in self.db.execute(
-            "select id, nid, ord, did from cards where nid in "+snids):
+        dues = {}
+        for id, nid, ord, did, due, odue, odid in self.db.execute(
+            "select id, nid, ord, did, due, odue, odid from cards where nid in "+snids):
             # existing cards
             if nid not in have:
                 have[nid] = {}
             have[nid][ord] = id
+            # if in a filtered deck, add new cards to original deck
+            if odid != 0:
+                did = odid
             # and their dids
             if nid in dids:
                 if dids[nid] and dids[nid] != did:
@@ -319,6 +370,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             else:
                 # first card or multiple cards in same deck
                 dids[nid] = did
+            # save due
+            if odid != 0:
+                due = odue
+            if nid not in dues:
+                dues[nid] = due
         # build cards for each note
         data = []
         ts = maxID(self.db)
@@ -330,6 +386,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             model = self.models.get(mid)
             avail = self.models.availOrds(model, flds)
             did = dids.get(nid) or model['did']
+            due = dues.get(nid)
             # add any missing cards
             for t in self._tmplsFromOrds(model, avail):
                 doHave = nid in have and t['ord'] in have[nid]
@@ -340,15 +397,15 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                         did = 1
                     # if the deck doesn't exist, use default instead
                     did = self.decks.get(did)['id']
-                    # we'd like to use the same due# as sibling cards, but we
-                    # can't retrieve that quickly, so we give it a new id
-                    # instead
+                    # use sibling due# if there is one, else use a new id
+                    if due is None:
+                        due = self.nextID("pos")
                     data.append((ts, nid, did, t['ord'],
-                                 now, usn, self.nextID("pos")))
+                                 now, usn, due))
                     ts += 1
             # note any cards that need removing
             if nid in have:
-                for ord, id in have[nid].items():
+                for ord, id in list(have[nid].items()):
                     if ord not in avail:
                         rem.append(id)
         # bulk update
@@ -380,7 +437,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card.nid = note.id
         card.ord = template['ord']
         # Use template did (deck override) if valid, otherwise model did
-        if template['did'] and unicode(template['did']) in self.decks.decks:
+        if template['did'] and str(template['did']) in self.decks.decks:
             card.did = template['did']
         else:
             card.did = note.model()['did']
@@ -466,7 +523,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
             if not model:
                 # note points to invalid model
                 continue
-            r.append((stripHTML(fields[self.models.sortIdx(model)]),
+            r.append((stripHTMLMedia(fields[self.models.sortIdx(model)]),
                       fieldChecksum(fields[0]),
                       nid))
         # apply, relying on calling code to bump usn+mod
@@ -497,7 +554,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         flist = splitFields(data[6])
         fields = {}
         model = self.models.get(data[2])
-        for (name, (idx, conf)) in self.models.fieldMap(model).items():
+        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
             fields[name] = flist[idx]
         fields['Tags'] = data[5].strip()
         fields['Type'] = model['name']
@@ -781,18 +838,18 @@ select id from cards where odid > 0 and did in %s""" % ids2str(dids))
         # new cards can't have a due position > 32 bits
         self.db.execute("""
 update cards set due = 1000000, mod = ?, usn = ? where due > 1000000
-and queue = 0""", intTime(), self.usn())
+and type = 0""", intTime(), self.usn())
         # new card position
         self.conf['nextPos'] = self.db.scalar(
             "select max(due)+1 from cards where type = 0") or 0
         # reviews should have a reasonable due #
         ids = self.db.list(
-            "select id from cards where queue = 2 and due > 10000")
+            "select id from cards where queue = 2 and due > 100000")
         if ids:
             problems.append("Reviews had incorrect due date.")
             self.db.execute(
-                "update cards set due = 0, mod = ?, usn = ? where id in %s"
-                % ids2str(ids), intTime(), self.usn())
+                "update cards set due = ?, ivl = 1, mod = ?, usn = ? where id in %s"
+                % ids2str(ids), self.sched.today, intTime(), self.usn())
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
@@ -806,8 +863,10 @@ and queue = 0""", intTime(), self.usn())
         return ("\n".join(problems), ok)
 
     def optimize(self):
+        self.db.setAutocommit(True)
         self.db.execute("vacuum")
         self.db.execute("analyze")
+        self.db.setAutocommit(False)
         self.lock()
 
     # Logging
@@ -817,27 +876,38 @@ and queue = 0""", intTime(), self.usn())
         if not self._debugLog:
             return
         def customRepr(x):
-            if isinstance(x, basestring):
+            if isinstance(x, str):
                 return x
             return pprint.pformat(x)
         path, num, fn, y = traceback.extract_stack(
             limit=2+kwargs.get("stack", 0))[0]
-        buf = u"[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
+        buf = "[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
                                      ", ".join([customRepr(x) for x in args]))
-        self._logHnd.write(buf.encode("utf8") + "\n")
-        if os.environ.get("ANKIDEV"):
-            print buf
+        self._logHnd.write(buf + "\n")
+        if devMode:
+            print(buf)
 
     def _openLog(self):
         if not self._debugLog:
             return
-        lpath = re.sub("\.anki2$", ".log", self.path)
+        lpath = re.sub(r"\.anki2$", ".log", self.path)
         if os.path.exists(lpath) and os.path.getsize(lpath) > 10*1024*1024:
             lpath2 = lpath + ".old"
             if os.path.exists(lpath2):
                 os.unlink(lpath2)
             os.rename(lpath, lpath2)
-        self._logHnd = open(lpath, "ab")
+        self._logHnd = open(lpath, "a", encoding="utf8")
 
     def _closeLog(self):
+        if not self._debugLog:
+            return
+        self._logHnd.close()
         self._logHnd = None
+
+    # Card Flags
+    ##########################################################################
+
+    def setUserFlag(self, flag, cids):
+        assert 0 <= flag <= 7
+        self.db.execute("update cards set flags = (flags & ~?) | ? where id in %s" %
+                        ids2str(cids), 0b111, flag)

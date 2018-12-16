@@ -5,25 +5,14 @@
 import os
 import time
 
-try:
-    from pysqlite2 import dbapi2 as sqlite
-    vi = sqlite.version_info
-    if vi[0] > 2 or vi[1] > 6:
-        # latest pysqlite breaks anki
-        raise ImportError()
-except ImportError:
-    from sqlite3 import dbapi2 as sqlite
+from sqlite3 import dbapi2 as sqlite
 
-Error = sqlite.Error
+DBError = sqlite.Error
 
-class DB(object):
-    def __init__(self, path, text=None, timeout=0):
-        encpath = path
-        if isinstance(encpath, unicode):
-            encpath = path.encode("utf-8")
-        self._db = sqlite.connect(encpath, timeout=timeout)
-        if text:
-            self._db.text_factory = text
+class DB:
+    def __init__(self, path, timeout=0):
+        self._db = sqlite.connect(path, timeout=timeout)
+        self._db.text_factory = self._textFactory
         self._path = path
         self.echo = os.environ.get("DBECHO")
         self.mod = False
@@ -43,9 +32,9 @@ class DB(object):
             res = self._db.execute(sql, a)
         if self.echo:
             #print a, ka
-            print sql, "%0.3fms" % ((time.time() - t)*1000)
+            print(sql, "%0.3fms" % ((time.time() - t)*1000))
             if self.echo == "2":
-                print a, ka
+                print(a, ka)
         return res
 
     def executemany(self, sql, l):
@@ -53,20 +42,20 @@ class DB(object):
         t = time.time()
         self._db.executemany(sql, l)
         if self.echo:
-            print sql, "%0.3fms" % ((time.time() - t)*1000)
+            print(sql, "%0.3fms" % ((time.time() - t)*1000))
             if self.echo == "2":
-                print l
+                print(l)
 
     def commit(self):
         t = time.time()
         self._db.commit()
         if self.echo:
-            print "commit %0.3fms" % ((time.time() - t)*1000)
+            print("commit %0.3fms" % ((time.time() - t)*1000))
 
     def executescript(self, sql):
         self.mod = True
         if self.echo:
-            print sql
+            print(sql)
         self._db.executescript(sql)
 
     def rollback(self):
@@ -91,6 +80,7 @@ class DB(object):
         return [x[0] for x in self.execute(*a, **kw)]
 
     def close(self):
+        self._db.text_factory = None
         self._db.close()
 
     def set_progress_handler(self, *args):
@@ -108,3 +98,13 @@ class DB(object):
 
     def interrupt(self):
         self._db.interrupt()
+
+    def setAutocommit(self, autocommit):
+        if autocommit:
+            self._db.isolation_level = None
+        else:
+            self._db.isolation_level = ''
+
+    # strip out invalid utf-8 when reading from db
+    def _textFactory(self, data):
+        return str(data, errors="ignore")

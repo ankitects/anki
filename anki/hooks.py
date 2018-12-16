@@ -13,6 +13,8 @@ If you call wrap() with pos='around', the original function will not be called
 automatically but can be called with _old().
 """
 
+import decorator
+
 # Hooks
 ##############################################################################
 
@@ -23,13 +25,21 @@ def runHook(hook, *args):
     hook = _hooks.get(hook, None)
     if hook:
         for func in hook:
-            func(*args)
+            try:
+                func(*args)
+            except:
+                hook.remove(func)
+                raise
 
 def runFilter(hook, arg, *args):
     hook = _hooks.get(hook, None)
     if hook:
         for func in hook:
-            arg = func(arg, *args)
+            try:
+                arg = func(arg, *args)
+            except:
+                hook.remove(func)
+                raise
     return arg
 
 def addHook(hook, func):
@@ -59,4 +69,8 @@ def wrap(old, new, pos="after"):
             return old(*args, **kwargs)
         else:
             return new(_old=old, *args, **kwargs)
-    return repl
+
+    def decorator_wrapper(f, *args, **kwargs):
+        return repl(*args, **kwargs)
+
+    return decorator.decorator(decorator_wrapper)(old)

@@ -2,97 +2,27 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import urllib
-import sys
+import io
 import gzip
 import random
-from cStringIO import StringIO
+import requests
 
-import httplib2
-from anki.db import DB
-from anki.utils import ids2str, intTime, json, isWin, isMac, platDesc, checksum
+from anki.db import DB, DBError
+from anki.utils import ids2str, intTime, json, platDesc, checksum, devMode
 from anki.consts import *
-from hooks import runHook
+from .hooks import runHook
 import anki
-from lang import ngettext
+from .lang import ngettext
 
 # syncing vars
 HTTP_TIMEOUT = 90
 HTTP_PROXY = None
-
-# badly named; means no retries
-httplib2.RETRIES = 1
-
-try:
-    # httplib2 >=0.7.7
-    _proxy_info_from_environment = httplib2.proxy_info_from_environment
-    _proxy_info_from_url = httplib2.proxy_info_from_url
-except AttributeError:
-    # httplib2 <0.7.7
-    _proxy_info_from_environment = httplib2.ProxyInfo.from_environment
-    _proxy_info_from_url = httplib2.ProxyInfo.from_url
-
-# Httplib2 connection object
-######################################################################
-
-def httpCon():
-    certs = os.path.join(os.path.dirname(__file__), "ankiweb.certs")
-    if not os.path.exists(certs):
-        if isWin:
-            certs = os.path.join(
-                os.path.dirname(os.path.abspath(sys.argv[0])),
-                "ankiweb.certs")
-        elif isMac:
-            certs = os.path.join(
-                os.path.dirname(os.path.abspath(sys.argv[0])),
-                "../Resources/ankiweb.certs")
-        else:
-            assert 0, "Your distro has not packaged Anki correctly."
-    return httplib2.Http(
-        timeout=HTTP_TIMEOUT, ca_certs=certs,
-        proxy_info=HTTP_PROXY,
-        disable_ssl_certificate_validation=not not HTTP_PROXY)
-
-# Proxy handling
-######################################################################
-
-def _setupProxy():
-    global HTTP_PROXY
-    # set in env?
-    p = _proxy_info_from_environment()
-    if not p:
-        # platform-specific fetch
-        url = None
-        if isWin:
-            r = urllib.getproxies_registry()
-            if 'https' in r:
-                url = r['https']
-            elif 'http' in r:
-                url = r['http']
-        elif isMac:
-            r = urllib.getproxies_macosx_sysconf()
-            if 'https' in r:
-                url = r['https']
-            elif 'http' in r:
-                url = r['http']
-        if url:
-            p = _proxy_info_from_url(url, _proxyMethod(url))
-    if p:
-        p.proxy_rdns = True
-    HTTP_PROXY = p
-
-def _proxyMethod(url):
-    if url.lower().startswith("https"):
-        return "https"
-    else:
-        return "http"
-
-_setupProxy()
+HTTP_BUF_SIZE = 64*1024
 
 # Incremental syncing
 ##########################################################################
 
-class Syncer(object):
+class Syncer:
 
     def __init__(self, col, server=None):
         self.col = col
@@ -105,6 +35,7 @@ class Syncer(object):
         # if the deck has any pending changes, flush them first and bump mod
         # time
         self.col.save()
+
         # step 1: login & metadata
         runHook("sync", "login")
         meta = self.server.meta()
@@ -123,10 +54,8 @@ class Syncer(object):
         rts = meta['ts']
         self.rmod = meta['mod']
         self.maxUsn = meta['usn']
-        # this is a temporary measure to address the problem of users
-        # forgetting which email address they've used - it will be removed
-        # when enough time has passed
         self.uname = meta.get("uname", "")
+        self.hostNum = meta.get("hostNum")
         meta = self.meta()
         self.col.log("lmeta", meta)
         self.lmod = meta['mod']
@@ -147,12 +76,19 @@ class Syncer(object):
         if not self.col.basicCheck():
             self.col.log("basic check")
             return "basicCheckFailed"
-        # step 2: deletions
+        # step 2: startup and deletions
         runHook("sync", "meta")
-        lrem = self.removed()
-        rrem = self.server.start(
-            minUsn=self.minUsn, lnewer=self.lnewer, graves=lrem)
+        rrem = self.server.start(minUsn=self.minUsn, lnewer=self.lnewer)
+
+        # apply deletions to server
+        lgraves = self.removed()
+        while lgraves:
+            gchunk, lgraves = self._gravesChunk(lgraves)
+            self.server.applyGraves(chunk=gchunk)
+
+        # then apply server deletions here
         self.remove(rrem)
+
         # ...and small objects
         lchg = self.changes()
         rchg = self.server.applyChanges(changes=lchg)
@@ -191,6 +127,20 @@ class Syncer(object):
         self.finish(mod)
         return "success"
 
+    def _gravesChunk(self, graves):
+        lim = 250
+        chunk = dict(notes=[], cards=[], decks=[])
+        for cat in "notes", "cards", "decks":
+            if lim and graves[cat]:
+                chunk[cat] = graves[cat][:lim]
+                graves[cat] = graves[cat][lim:]
+                lim -= len(chunk[cat])
+
+        # anything remaining?
+        if graves['notes'] or graves['cards'] or graves['decks']:
+            return chunk, graves
+        return chunk, None
+
     def meta(self):
         return dict(
             mod=self.col.mod,
@@ -211,13 +161,6 @@ class Syncer(object):
             d['conf'] = self.getConf()
             d['crt'] = self.col.crt
         return d
-
-    def applyChanges(self, changes):
-        self.rchg = changes
-        lchg = self.changes()
-        # merge our side before returning
-        self.mergeChanges(lchg, self.rchg)
-        return lchg
 
     def mergeChanges(self, lchg, rchg):
         # then the other objects
@@ -246,14 +189,8 @@ class Syncer(object):
                 return "tag had usn = -1"
         found = False
         for m in self.col.models.all():
-            if self.col.server:
-                # the web upgrade was mistakenly setting usn
-                if m['usn'] < 0:
-                    m['usn'] = 0
-                    found = True
-            else:
-                if m['usn'] == -1:
-                    return "model had usn = -1"
+            if m['usn'] == -1:
+                return "model had usn = -1"
         if found:
             self.col.models.save()
         self.col.sched.reset()
@@ -271,22 +208,10 @@ class Syncer(object):
             len(self.col.decks.allConf()),
         ]
 
-    def sanityCheck2(self, client):
-        server = self.sanityCheck()
-        if client != server:
-            return dict(status="bad", c=client, s=server)
-        return dict(status="ok")
-
     def usnLim(self):
-        if self.col.server:
-            return "usn >= %d" % self.minUsn
-        else:
-            return "usn = -1"
+        return "usn = -1"
 
     def finish(self, mod=None):
-        if not mod:
-            # server side; we decide new mod time
-            mod = intTime(1000)
         self.col.ls = mod
         self.col._usn = self.maxUsn + 1
         # ensure we save the mod time even if no changes made
@@ -331,11 +256,10 @@ from notes where %s""" % d)
                 # table is empty
                 self.tablesLeft.pop(0)
                 self.cursor = None
-                # if we're the client, mark the objects as having been sent
-                if not self.col.server:
-                    self.col.db.execute(
-                        "update %s set usn=? where usn=-1"%curTable,
-                        self.maxUsn)
+                # mark the objects as having been sent
+                self.col.db.execute(
+                    "update %s set usn=? where usn=-1"%curTable,
+                    self.maxUsn)
             buf[curTable] = rows
             lim -= fetched
         if not self.tablesLeft:
@@ -357,12 +281,10 @@ from notes where %s""" % d)
         cards = []
         notes = []
         decks = []
-        if self.col.server:
-            curs = self.col.db.execute(
-                "select oid, type from graves where usn >= ?", self.minUsn)
-        else:
-            curs = self.col.db.execute(
-                "select oid, type from graves where usn = -1")
+
+        curs = self.col.db.execute(
+            "select oid, type from graves where usn = -1")
+
         for oid, type in curs:
             if type == REM_CARD:
                 cards.append(oid)
@@ -370,23 +292,16 @@ from notes where %s""" % d)
                 notes.append(oid)
             else:
                 decks.append(oid)
-        if not self.col.server:
-            self.col.db.execute("update graves set usn=? where usn=-1",
-                                 self.maxUsn)
-        return dict(cards=cards, notes=notes, decks=decks)
 
-    def start(self, minUsn, lnewer, graves):
-        self.maxUsn = self.col._usn
-        self.minUsn = minUsn
-        self.lnewer = not lnewer
-        lgraves = self.removed()
-        self.remove(graves)
-        return lgraves
+        self.col.db.execute("update graves set usn=? where usn=-1",
+                             self.maxUsn)
+
+        return dict(cards=cards, notes=notes, decks=decks)
 
     def remove(self, graves):
         # pretend to be the server so we don't set usn = -1
-        wasServer = self.col.server
         self.col.server = True
+
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves['notes'])
         # then cards
@@ -394,20 +309,18 @@ from notes where %s""" % d)
         # and decks
         for oid in graves['decks']:
             self.col.decks.rem(oid, childrenToo=False)
-        self.col.server = wasServer
+
+        self.col.server = False
 
     # Models
     ##########################################################################
 
     def getModels(self):
-        if self.col.server:
-            return [m for m in self.col.models.all() if m['usn'] >= self.minUsn]
-        else:
-            mods = [m for m in self.col.models.all() if m['usn'] == -1]
-            for m in mods:
-                m['usn'] = self.maxUsn
-            self.col.models.save()
-            return mods
+        mods = [m for m in self.col.models.all() if m['usn'] == -1]
+        for m in mods:
+            m['usn'] = self.maxUsn
+        self.col.models.save()
+        return mods
 
     def mergeModels(self, rchg):
         for r in rchg:
@@ -420,24 +333,22 @@ from notes where %s""" % d)
     ##########################################################################
 
     def getDecks(self):
-        if self.col.server:
-            return [
-                [g for g in self.col.decks.all() if g['usn'] >= self.minUsn],
-                [g for g in self.col.decks.allConf() if g['usn'] >= self.minUsn]
-            ]
-        else:
-            decks = [g for g in self.col.decks.all() if g['usn'] == -1]
-            for g in decks:
-                g['usn'] = self.maxUsn
-            dconf = [g for g in self.col.decks.allConf() if g['usn'] == -1]
-            for g in dconf:
-                g['usn'] = self.maxUsn
-            self.col.decks.save()
-            return [decks, dconf]
+        decks = [g for g in self.col.decks.all() if g['usn'] == -1]
+        for g in decks:
+            g['usn'] = self.maxUsn
+        dconf = [g for g in self.col.decks.allConf() if g['usn'] == -1]
+        for g in dconf:
+            g['usn'] = self.maxUsn
+        self.col.decks.save()
+        return [decks, dconf]
 
     def mergeDecks(self, rchg):
         for r in rchg[0]:
             l = self.col.decks.get(r['id'], False)
+            # work around mod time being stored as string
+            if l and not isinstance(l['mod'], int):
+                l['mod'] = int(l['mod'])
+
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
                 self.col.decks.update(r)
@@ -454,17 +365,13 @@ from notes where %s""" % d)
     ##########################################################################
 
     def getTags(self):
-        if self.col.server:
-            return [t for t, usn in self.col.tags.allItems()
-                    if usn >= self.minUsn]
-        else:
-            tags = []
-            for t, usn in self.col.tags.allItems():
-                if usn == -1:
-                    self.col.tags.tags[t] = self.maxUsn
-                    tags.append(t)
-            self.col.tags.save()
-            return tags
+        tags = []
+        for t, usn in self.col.tags.allItems():
+            if usn == -1:
+                self.col.tags.tags[t] = self.maxUsn
+                tags.append(t)
+        self.col.tags.save()
+        return tags
 
     def mergeTags(self, tags):
         self.col.tags.register(tags, usn=self.maxUsn)
@@ -513,36 +420,79 @@ from notes where %s""" % d)
     def mergeConf(self, conf):
         self.col.conf = conf
 
-# Local syncing for unit tests
+# Wrapper for requests that tracks upload/download progress
 ##########################################################################
 
-class LocalServer(Syncer):
+class AnkiRequestsClient:
 
-    # serialize/deserialize payload, so we don't end up sharing objects
-    # between cols
-    def applyChanges(self, changes):
-        l = json.loads; d = json.dumps
-        return l(d(Syncer.applyChanges(self, l(d(changes)))))
+    verify = True
+    timeout = 60
+
+    def __init__(self):
+        self.session = requests.Session()
+
+    def post(self, url, data, headers):
+        data = _MonitoringFile(data)
+        headers['User-Agent'] = self._agentName()
+        return self.session.post(
+            url, data=data, headers=headers, stream=True, timeout=self.timeout, verify=self.verify)
+
+    def get(self, url, headers=None):
+        if headers is None:
+            headers = {}
+        headers['User-Agent'] = self._agentName()
+        return self.session.get(url, stream=True, headers=headers, timeout=self.timeout, verify=self.verify)
+
+    def streamContent(self, resp):
+        resp.raise_for_status()
+
+        buf = io.BytesIO()
+        for chunk in resp.iter_content(chunk_size=HTTP_BUF_SIZE):
+            runHook("httpRecv", len(chunk))
+            buf.write(chunk)
+        return buf.getvalue()
+
+    def _agentName(self):
+        from anki import version
+        return "Anki {}".format(version)
+
+# allow user to accept invalid certs in work/school settings
+if os.environ.get("ANKI_NOVERIFYSSL"):
+    AnkiRequestsClient.verify = False
+
+    import warnings
+    warnings.filterwarnings("ignore")
+
+class _MonitoringFile(io.BufferedReader):
+    def read(self, size=-1):
+        data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
+        runHook("httpSend", len(data))
+        return data
 
 # HTTP syncing tools
 ##########################################################################
 
-# Calling code should catch the following codes:
-# - 501: client needs upgrade
-# - 502: ankiweb down
-# - 503/504: server too busy
+class HttpSyncer:
 
-class HttpSyncer(object):
-
-    def __init__(self, hkey=None, con=None):
+    def __init__(self, hkey=None, client=None, hostNum=None):
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
-        self.con = con or httpCon()
+        self.client = client or AnkiRequestsClient()
         self.postVars = {}
+        self.hostNum = hostNum
+        self.prefix = "sync/"
+
+    def syncURL(self):
+        if devMode:
+            url = "https://l1sync.ankiweb.net/"
+        else:
+            url = SYNC_BASE % (self.hostNum or "")
+        return url + self.prefix
 
     def assertOk(self, resp):
-        if resp['status'] != '200':
-            raise Exception("Unknown response code: %s" % resp['status'])
+        # not using raise_for_status() as aqt expects this error msg
+        if resp.status_code != 200:
+            raise Exception("Unknown response code: %s" % resp.status_code)
 
     # Posting data as a file
     ######################################################################
@@ -550,22 +500,23 @@ class HttpSyncer(object):
     # costly. We could send it as a raw post, but more HTTP clients seem to
     # support file uploading, so this is the more compatible choice.
 
-    def req(self, method, fobj=None, comp=6, badAuthRaises=False):
-        BOUNDARY="Anki-sync-boundary"
-        bdry = "--"+BOUNDARY
-        buf = StringIO()
+    def _buildPostData(self, fobj, comp):
+        BOUNDARY=b"Anki-sync-boundary"
+        bdry = b"--"+BOUNDARY
+        buf = io.BytesIO()
         # post vars
         self.postVars['c'] = 1 if comp else 0
-        for (key, value) in self.postVars.items():
-            buf.write(bdry + "\r\n")
+        for (key, value) in list(self.postVars.items()):
+            buf.write(bdry + b"\r\n")
             buf.write(
-                'Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
-                (key, value))
+                ('Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' %
+                (key, value)).encode("utf8"))
         # payload as raw data or json
+        rawSize = 0
         if fobj:
             # header
-            buf.write(bdry + "\r\n")
-            buf.write("""\
+            buf.write(bdry + b"\r\n")
+            buf.write(b"""\
 Content-Disposition: form-data; name="data"; filename="data"\r\n\
 Content-Type: application/octet-stream\r\n\r\n""")
             # write file into buffer, optionally compressing
@@ -579,48 +530,52 @@ Content-Type: application/octet-stream\r\n\r\n""")
                     if comp:
                         tgt.close()
                     break
+                rawSize += len(data)
                 tgt.write(data)
-            buf.write('\r\n' + bdry + '--\r\n')
+            buf.write(b"\r\n")
+        buf.write(bdry + b'--\r\n')
         size = buf.tell()
         # connection headers
         headers = {
-            'Content-Type': 'multipart/form-data; boundary=%s' % BOUNDARY,
+            'Content-Type': 'multipart/form-data; boundary=%s' % BOUNDARY.decode("utf8"),
             'Content-Length': str(size),
         }
-        body = buf.getvalue()
-        buf.close()
-        resp, cont = self.con.request(
-            self.syncURL()+method, "POST", headers=headers, body=body)
-        if not badAuthRaises:
-            # return false if bad auth instead of raising
-            if resp['status'] == '403':
-                return False
-        self.assertOk(resp)
-        return cont
+        buf.seek(0)
+
+        if size >= 100*1024*1024 or rawSize >= 250*1024*1024:
+            raise Exception("Collection too large to upload to AnkiWeb.")
+
+        return headers, buf
+
+    def req(self, method, fobj=None, comp=6, badAuthRaises=True):
+        headers, body = self._buildPostData(fobj, comp)
+
+        r = self.client.post(self.syncURL()+method, data=body, headers=headers)
+        if not badAuthRaises and r.status_code == 403:
+            return False
+        self.assertOk(r)
+
+        buf = self.client.streamContent(r)
+        return buf
 
 # Incremental sync over HTTP
 ######################################################################
 
 class RemoteServer(HttpSyncer):
 
-    def __init__(self, hkey):
-        HttpSyncer.__init__(self, hkey)
-
-    def syncURL(self):
-        if os.getenv("ANKIDEV"):
-            return "https://l1.ankiweb.net/sync/"
-        return SYNC_BASE + "sync/"
+    def __init__(self, hkey, hostNum):
+        HttpSyncer.__init__(self, hkey, hostNum=hostNum)
 
     def hostKey(self, user, pw):
         "Returns hkey or none if user/pw incorrect."
         self.postVars = dict()
         ret = self.req(
-            "hostKey", StringIO(json.dumps(dict(u=user, p=pw))),
+            "hostKey", io.BytesIO(json.dumps(dict(u=user, p=pw)).encode("utf8")),
             badAuthRaises=False)
         if not ret:
             # invalid auth
             return
-        self.hkey = json.loads(ret)['key']
+        self.hkey = json.loads(ret.decode("utf8"))['key']
         return self.hkey
 
     def meta(self):
@@ -629,13 +584,16 @@ class RemoteServer(HttpSyncer):
             s=self.skey,
         )
         ret = self.req(
-            "meta", StringIO(json.dumps(dict(
-                v=SYNC_VER, cv="ankidesktop,%s,%s"%(anki.version, platDesc())))),
+            "meta", io.BytesIO(json.dumps(dict(
+                v=SYNC_VER, cv="ankidesktop,%s,%s"%(anki.version, platDesc()))).encode("utf8")),
             badAuthRaises=False)
         if not ret:
             # invalid auth
             return
-        return json.loads(ret)
+        return json.loads(ret.decode("utf8"))
+
+    def applyGraves(self, **kw):
+        return self._run("applyGraves", kw)
 
     def applyChanges(self, **kw):
         return self._run("applyChanges", kw)
@@ -655,30 +613,29 @@ class RemoteServer(HttpSyncer):
     def finish(self, **kw):
         return self._run("finish", kw)
 
+    def abort(self, **kw):
+        return self._run("abort", kw)
+
     def _run(self, cmd, data):
         return json.loads(
-            self.req(cmd, StringIO(json.dumps(data))))
+            self.req(cmd, io.BytesIO(json.dumps(data).encode("utf8"))).decode("utf8"))
 
 # Full syncing
 ##########################################################################
 
 class FullSyncer(HttpSyncer):
 
-    def __init__(self, col, hkey, con):
-        HttpSyncer.__init__(self, hkey, con)
+    def __init__(self, col, hkey, client, hostNum):
+        HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
         self.postVars = dict(
             k=self.hkey,
             v="ankidesktop,%s,%s"%(anki.version, platDesc()),
         )
         self.col = col
 
-    def syncURL(self):
-        if os.getenv("ANKIDEV"):
-            return "https://l1.ankiweb.net/sync/"
-        return SYNC_BASE + "sync/"
-
     def download(self):
         runHook("sync", "download")
+        localNotEmpty = self.col.db.scalar("select 1 from cards")
         self.col.close()
         cont = self.req("download")
         tpath = self.col.path + ".tmp"
@@ -689,7 +646,12 @@ class FullSyncer(HttpSyncer):
         # check the received file is ok
         d = DB(tpath)
         assert d.scalar("pragma integrity_check") == "ok"
+        remoteEmpty = not d.scalar("select 1 from cards")
         d.close()
+        # accidental clobber?
+        if localNotEmpty and remoteEmpty:
+            os.unlink(tpath)
+            return "downloadClobber"
         # overwrite existing collection
         os.unlink(self.col.path)
         os.rename(tpath, self.col.path)
@@ -705,7 +667,7 @@ class FullSyncer(HttpSyncer):
             return False
         # apply some adjustments, then upload
         self.col.beforeUpload()
-        if self.req("upload", open(self.col.path, "rb")) != "OK":
+        if self.req("upload", open(self.col.path, "rb")) != b"OK":
             return False
         return True
 
@@ -719,7 +681,7 @@ class FullSyncer(HttpSyncer):
 #   assumption other syncers are in sync with the server
 #
 
-class MediaSyncer(object):
+class MediaSyncer:
 
     def __init__(self, col, server=None):
         self.col = col
@@ -729,7 +691,10 @@ class MediaSyncer(object):
         # check if there have been any changes
         runHook("sync", "findMedia")
         self.col.log("findChanges")
-        self.col.media.findChanges()
+        try:
+            self.col.media.findChanges()
+        except DBError:
+            return "corruptMediaDB"
 
         # begin session and check if in sync
         lastUsn = self.col.media.lastUsn()
@@ -852,22 +817,18 @@ class MediaSyncer(object):
 
 class RemoteMediaServer(HttpSyncer):
 
-    def __init__(self, col, hkey, con):
+    def __init__(self, col, hkey, client, hostNum):
         self.col = col
-        HttpSyncer.__init__(self, hkey, con)
-
-    def syncURL(self):
-        if os.getenv("ANKIDEV"):
-            return "https://l1.ankiweb.net/msync/"
-        return SYNC_MEDIA_BASE
+        HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
+        self.prefix = "msync/"
 
     def begin(self):
         self.postVars = dict(
             k=self.hkey,
             v="ankidesktop,%s,%s"%(anki.version, platDesc())
         )
-        ret = self._dataOnly(json.loads(self.req(
-            "begin", StringIO(json.dumps(dict())))))
+        ret = self._dataOnly(self.req(
+            "begin", io.BytesIO(json.dumps(dict()).encode("utf8"))))
         self.skey = ret['sk']
         return ret
 
@@ -876,25 +837,25 @@ class RemoteMediaServer(HttpSyncer):
         self.postVars = dict(
             sk=self.skey,
         )
-        resp = json.loads(
-            self.req("mediaChanges", StringIO(json.dumps(kw))))
-        return self._dataOnly(resp)
+        return self._dataOnly(
+            self.req("mediaChanges", io.BytesIO(json.dumps(kw).encode("utf8"))))
 
     # args: files
     def downloadFiles(self, **kw):
-        return self.req("downloadFiles", StringIO(json.dumps(kw)))
+        return self.req("downloadFiles", io.BytesIO(json.dumps(kw).encode("utf8")))
 
     def uploadChanges(self, zip):
         # no compression, as we compress the zip file instead
-        return self._dataOnly(json.loads(
-            self.req("uploadChanges", StringIO(zip), comp=0)))
+        return self._dataOnly(
+            self.req("uploadChanges", io.BytesIO(zip), comp=0))
 
     # args: local
     def mediaSanity(self, **kw):
-        return self._dataOnly(json.loads(
-            self.req("mediaSanity", StringIO(json.dumps(kw)))))
+        return self._dataOnly(
+            self.req("mediaSanity", io.BytesIO(json.dumps(kw).encode("utf8"))))
 
     def _dataOnly(self, resp):
+        resp = json.loads(resp.decode("utf8"))
         if resp['err']:
             self.col.log("error returned:%s"%resp['err'])
             raise Exception("SyncError:%s"%resp['err'])
@@ -905,6 +866,6 @@ class RemoteMediaServer(HttpSyncer):
         self.postVars = dict(
             k=self.hkey,
         )
-        return self._dataOnly(json.loads(
-            self.req("newMediaTest", StringIO(
-                json.dumps(dict(cmd=cmd))))))
+        return self._dataOnly(
+            self.req("newMediaTest", io.BytesIO(
+                json.dumps(dict(cmd=cmd)).encode("utf8"))))

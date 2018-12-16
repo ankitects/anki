@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>455</height>
+    <width>423</width>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,6 +30,18 @@
        <property name="spacing">
         <number>12</number>
        </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
@@ -47,9 +59,19 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+           </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="hwAccel">
+         <property name="text">
+          <string>Hardware acceleration (faster, may cause display issues)</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="showEstimates">
@@ -66,16 +88,30 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="stripHTML">
+        <widget class="QCheckBox" name="pastePNG">
          <property name="text">
-          <string>Strip HTML when pasting text</string>
+          <string>Paste clipboard images as PNG</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="pastePNG">
+        <widget class="QCheckBox" name="nightMode">
          <property name="text">
-          <string>Paste clipboard images as PNG</string>
+          <string>Show cards as white on black (night mode)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="dayLearnFirst">
+         <property name="text">
+          <string>Show learning cards with larger steps before reviews</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="newSched">
+         <property name="text">
+          <string>Experimental V2 scheduler</string>
          </property>
         </widget>
        </item>
@@ -98,6 +134,9 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_4">
+         <property name="spacing">
+          <number>12</number>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
@@ -181,7 +220,7 @@
           <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
+          <enum>QSizePolicy::Expanding</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -191,16 +230,6 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="profilePass">
-         <property name="text">
-          <string>Profile Password...</string>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
@@ -209,7 +238,19 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="spacing">
-        <number>10</number>
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
        </property>
        <item>
         <layout class="QHBoxLayout">
@@ -311,7 +352,19 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="spacing">
-        <number>10</number>
+        <number>12</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
        </property>
        <item>
         <widget class="QLabel" name="label_9">
@@ -371,13 +424,6 @@
         </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="compressBackups">
-         <property name="text">
-          <string>Compress backups (slower)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="openBackupFolder">
          <property name="text">
           <string>&lt;a href=&quot;backups&quot;&gt;Open backup folder&lt;/a&gt;</string>
@@ -435,24 +481,24 @@
  </widget>
  <tabstops>
   <tabstop>lang</tabstop>
+  <tabstop>hwAccel</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
-  <tabstop>stripHTML</tabstop>
   <tabstop>pastePNG</tabstop>
+  <tabstop>nightMode</tabstop>
+  <tabstop>dayLearnFirst</tabstop>
+  <tabstop>newSched</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
-  <tabstop>profilePass</tabstop>
-  <tabstop>syncMedia</tabstop>
-  <tabstop>syncOnProgramOpen</tabstop>
-  <tabstop>syncDeauth</tabstop>
   <tabstop>numBackups</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>fullSync</tabstop>
-  <tabstop>compressBackups</tabstop>
+  <tabstop>syncMedia</tabstop>
+  <tabstop>syncDeauth</tabstop>
  </tabstops>
  <resources/>
  <connections>

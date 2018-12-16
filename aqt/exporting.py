@@ -7,11 +7,11 @@ import re
 from aqt.qt import *
 import  aqt
 from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
-    checkInvalidFilename
+    checkInvalidFilename, showInfo
 from anki.exporting import exporters
 from anki.hooks import addHook, remHook
 from anki.lang import ngettext
-
+import time
 
 class ExportDialog(QDialog):
 
@@ -26,10 +26,19 @@ class ExportDialog(QDialog):
         self.exec_()
 
     def setup(self, did):
-        self.frm.format.insertItems(0, list(zip(*exporters())[0]))
-        self.connect(self.frm.format, SIGNAL("activated(int)"),
-                     self.exporterChanged)
-        self.exporterChanged(0)
+        self.exporters = exporters()
+        # if a deck specified, start with .apkg type selected
+        idx = 0
+        if did:
+            for c, (k,e) in enumerate(self.exporters):
+                if e.ext == ".apkg":
+                    idx = c
+                    break
+        self.frm.format.insertItems(0, [e[0] for e in self.exporters])
+        self.frm.format.setCurrentIndex(idx)
+        self.frm.format.activated.connect(self.exporterChanged)
+        self.exporterChanged(idx)
+        # deck list
         self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
         self.frm.deck.addItems(self.decks)
         # save button
@@ -42,14 +51,18 @@ class ExportDialog(QDialog):
             self.frm.deck.setCurrentIndex(index)
 
     def exporterChanged(self, idx):
-        self.exporter = exporters()[idx][1](self.col)
-        self.isApkg = hasattr(self.exporter, "includeSched")
+        self.exporter = self.exporters[idx][1](self.col)
+        self.isApkg = self.exporter.ext == ".apkg"
+        self.isVerbatim = getattr(self.exporter, "verbatim", False)
         self.isTextNote = hasattr(self.exporter, "includeTags")
-        self.hideTags = hasattr(self.exporter, "hideTags")
-        self.frm.includeSched.setVisible(self.isApkg)
-        self.frm.includeMedia.setVisible(self.isApkg)
+        self.frm.includeSched.setVisible(
+            getattr(self.exporter, "includeSched", None) is not None)
+        self.frm.includeMedia.setVisible(
+            getattr(self.exporter, "includeMedia", None) is not None)
         self.frm.includeTags.setVisible(
-            not self.isApkg and not self.hideTags)
+            getattr(self.exporter, "includeTags", None) is not None)
+        # show deck list?
+        self.frm.deck.setVisible(not self.isVerbatim)
 
     def accept(self):
         self.exporter.includeSched = (
@@ -63,49 +76,37 @@ class ExportDialog(QDialog):
         else:
             name = self.decks[self.frm.deck.currentIndex()]
             self.exporter.did = self.col.decks.id(name)
-        if (self.isApkg and self.exporter.includeSched and not
-            self.exporter.did):
-            verbatim = True
-            # it's a verbatim apkg export, so place on desktop instead of
-            # choosing file; use homedir if no desktop
-            usingHomedir = False
-            file = os.path.join(QDesktopServices.storageLocation(
-                QDesktopServices.DesktopLocation), "collection.apkg")
-            if not os.path.exists(os.path.dirname(file)):
-                usingHomedir = True
-                file = os.path.join(QDesktopServices.storageLocation(
-                    QDesktopServices.HomeLocation), "collection.apkg")
-            if os.path.exists(file):
-                if usingHomedir:
-                    question = _("%s already exists in your home directory. Overwrite it?")
-                else:
-                    question = _("%s already exists on your desktop. Overwrite it?")
-                if not askUser(question % "collection.apkg"):
-                    return
+        if self.isVerbatim:
+            name = time.strftime("-%Y-%m-%d@%H-%M-%S",
+                                 time.localtime(time.time()))
+            deck_name = _("collection")+name
         else:
-            verbatim = False
             # Get deck name and remove invalid filename characters
             deck_name = self.decks[self.frm.deck.currentIndex()]
             deck_name = re.sub('[\\\\/?<>:*|"^]', '_', deck_name)
-            filename = os.path.join(aqt.mw.pm.base,
-                                    u'{0}{1}'.format(deck_name, self.exporter.ext))
-            while 1:
-                file = getSaveFile(self, _("Export"), "export",
-                                   self.exporter.key, self.exporter.ext,
-                                   fname=filename)
-                if not file:
-                    return
-                if checkInvalidFilename(os.path.basename(file), dirsep=False):
-                    continue
-                break
+
+        if not self.isVerbatim and self.isApkg and self.exporter.includeSched and self.col.schedVer() == 2:
+            showInfo("Please switch to the regular scheduler before exporting a single deck .apkg with scheduling.")
+            return
+
+        filename = '{0}{1}'.format(deck_name, self.exporter.ext)
+        while 1:
+            file = getSaveFile(self, _("Export"), "export",
+                               self.exporter.key, self.exporter.ext,
+                               fname=filename)
+            if not file:
+                return
+            if checkInvalidFilename(os.path.basename(file), dirsep=False):
+                continue
+            break
         self.hide()
         if file:
             self.mw.progress.start(immediate=True)
             try:
                 f = open(file, "wb")
                 f.close()
-            except (OSError, IOError), e:
-                showWarning(_("Couldn't save file: %s") % unicode(e))
+            except (OSError, IOError) as e:
+                showWarning(_("Couldn't save file: %s") % str(e))
             else:
                 os.unlink(file)
                 exportedMedia = lambda cnt: self.mw.progress.update(
@@ -115,15 +116,10 @@ class ExportDialog(QDialog):
                 addHook("exportedMediaFiles", exportedMedia)
                 self.exporter.exportInto(file)
                 remHook("exportedMediaFiles", exportedMedia)
-                if verbatim:
-                    if usingHomedir:
-                        msg = _("A file called %s was saved in your home directory.")
-                    else:
-                        msg = _("A file called %s was saved on your desktop.")
-                    msg = msg % "collection.apkg"
-                    period = 5000
+                period = 3000
+                if self.isVerbatim:
+                    msg = _("Collection exported.")
                 else:
-                    period = 3000
                     if self.isTextNote:
                         msg = ngettext("%d note exported.", "%d notes exported.",
                                     self.exporter.count) % self.exporter.count

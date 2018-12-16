@@ -14,7 +14,7 @@ tracked, so unused tags can only be removed from the list with a DB check.
 This module manages the tag cache and tags for notes.
 """
 
-class TagManager(object):
+class TagManager:
 
     # Registry save/load
     #############################################################
@@ -47,7 +47,7 @@ class TagManager(object):
             runHook("newTag")
 
     def all(self):
-        return self.tags.keys()
+        return list(self.tags.keys())
 
     def registerNotes(self, nids=None):
         "Add any missing tags from notes to the tags list."
@@ -62,7 +62,7 @@ class TagManager(object):
             " ".join(self.col.db.list("select distinct tags from notes"+lim)))))
 
     def allItems(self):
-        return self.tags.items()
+        return list(self.tags.items())
 
     def save(self):
         self.changed = True
@@ -89,7 +89,8 @@ class TagManager(object):
         if not newTags:
             return
         # cache tag names
-        self.register(newTags)
+        if add:
+            self.register(newTags)
         # find notes missing the tags
         if add:
             l = "tags not "
@@ -102,7 +103,7 @@ class TagManager(object):
         res = self.col.db.all(
             "select id, tags from notes where id in %s and (%s)" % (
                 ids2str(ids), lim),
-            **dict([("_%d" % x, '%% %s %%' % y)
+            **dict([("_%d" % x, '%% %s %%' % y.replace('*', '%'))
                     for x, y in enumerate(newTags)]))
         # update tags
         nids = []
@@ -122,13 +123,13 @@ class TagManager(object):
 
     def split(self, tags):
         "Parse a string and return a list of tags."
-        return [t for t in tags.replace(u'\u3000', ' ').split(" ") if t]
+        return [t for t in tags.replace('\u3000', ' ').split(" ") if t]
 
     def join(self, tags):
         "Join tags into a single string, with leading and trailing spaces."
         if not tags:
-            return u""
-        return u" %s " % u" ".join(tags)
+            return ""
+        return " %s " % " ".join(tags)
 
     def addToStr(self, addtags, tags):
         "Add tags if they don't exist, and canonify."
@@ -139,13 +140,16 @@ class TagManager(object):
         return self.join(self.canonify(currentTags))
 
     def remFromStr(self, deltags, tags):
-        "Delete tags if they don't exists."
+        "Delete tags if they exist."
+        def wildcard(pat, str):
+            pat = re.escape(pat).replace('\\*', '.*')
+            return re.match("^"+pat+"$", str, re.IGNORECASE)
         currentTags = self.split(tags)
         for tag in self.split(deltags):
             # find tags, ignoring case
             remove = []
             for tx in currentTags:
-                if tag.lower() == tx.lower():
+                if (tag.lower() == tx.lower()) or wildcard(tag, tx):
                     remove.append(tx)
             # remove them
             for r in remove:
@@ -174,6 +178,6 @@ class TagManager(object):
     ##########################################################################
 
     def beforeUpload(self):
-        for k in self.tags.keys():
+        for k in list(self.tags.keys()):
             self.tags[k] = 0
         self.save()

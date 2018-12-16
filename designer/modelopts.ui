@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>276</width>
-    <height>323</height>
+    <width>374</width>
+    <height>344</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,6 +27,13 @@
        <string>LaTeX</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QCheckBox" name="latexsvg">
+         <property name="text">
+          <string>Create scalable images with dvisvgm</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">

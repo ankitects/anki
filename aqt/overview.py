@@ -2,12 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.utils import  openLink, shortcut, tooltip
+from aqt.utils import openLink, shortcut, tooltip, askUserDialog
 from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue
 
-class Overview(object):
+class Overview:
     "Deck overview."
 
     def __init__(self, mw):
@@ -17,16 +17,16 @@ class Overview(object):
 
     def show(self):
         clearAudioQueue()
-        self.web.setLinkHandler(self._linkHandler)
-        self.web.setKeyHandler(None)
-        self.mw.keyHandler = self._keyHandler
-        self.mw.web.setFocus()
+        self.web.resetHandlers()
+        self.web.onBridgeCmd = self._linkHandler
+        self.mw.setStateShortcuts(self._shortcutKeys())
         self.refresh()
 
     def refresh(self):
         self.mw.col.reset()
         self._renderPage()
         self._renderBottom()
+        self.mw.web.setFocus()
 
     # Handlers
     ############################################################
@@ -38,7 +38,7 @@ class Overview(object):
             if self.mw.state == "overview":
                 tooltip(_("No cards are due yet."))
         elif url == "anki":
-            print "anki menu"
+            print("anki menu")
         elif url == "opts":
             self.mw.onDeckConf()
         elif url == "cram":
@@ -57,27 +57,65 @@ class Overview(object):
         elif url == "studymore":
             self.onStudyMore()
         elif url == "unbury":
-            self.mw.col.sched.unburyCardsForDeck()
-            self.mw.reset()
+            self.onUnbury()
         elif url.lower().startswith("http"):
             openLink(url)
+        return False
 
-    def _keyHandler(self, evt):
-        cram = self.mw.col.decks.current()['dyn']
-        key = unicode(evt.text())
-        if key == "o":
-            self.mw.onDeckConf()
-        if key == "r" and cram:
+    def _shortcutKeys(self):
+        return [
+            ("o", self.mw.onDeckConf),
+            ("r", self.onRebuildKey),
+            ("e", self.onEmptyKey),
+            ("c", self.onCustomStudyKey),
+            ("u", self.onUnbury)
+        ]
+
+    def _filteredDeck(self):
+        return self.mw.col.decks.current()['dyn']
+
+    def onRebuildKey(self):
+        if self._filteredDeck():
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
-        if key == "e" and cram:
+
+    def onEmptyKey(self):
+        if self._filteredDeck():
             self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
             self.mw.reset()
-        if key == "c" and not cram:
+
+    def onCustomStudyKey(self):
+        if not self._filteredDeck():
             self.onStudyMore()
-        if key == "u":
+
+    def onUnbury(self):
+        if self.mw.col.schedVer() == 1:
             self.mw.col.sched.unburyCardsForDeck()
             self.mw.reset()
+            return
+
+        sibs = self.mw.col.sched.haveBuriedSiblings()
+        man = self.mw.col.sched.haveManuallyBuried()
+
+        if sibs and man:
+            opts = [_("Manually Buried Cards"),
+                    _("Buried Siblings"),
+                    _("All Buried Cards"),
+                    _("Cancel")]
+
+            diag = askUserDialog(_("What would you like to unbury?"), opts)
+            diag.setDefault(0)
+            ret = diag.run()
+            if ret == opts[0]:
+                self.mw.col.sched.unburyCardsForDeck(type="manual")
+            elif ret == opts[1]:
+                self.mw.col.sched.unburyCardsForDeck(type="siblings")
+            elif ret == opts[2]:
+                self.mw.col.sched.unburyCardsForDeck(type="all")
+        else:
+            self.mw.col.sched.unburyCardsForDeck(type="all")
+
+        self.mw.reset()
 
     # HTML
     ############################################################
@@ -92,11 +130,13 @@ class Overview(object):
         else:
             shareLink = ""
         self.web.stdHtml(self._body % dict(
-            deck=deck['name'],
-            shareLink=shareLink,
-            desc=self._desc(deck),
-            table=self._table()
-            ), self.mw.sharedCSS + self._css)
+                deck=deck['name'],
+                shareLink=shareLink,
+                desc=self._desc(deck),
+                table=self._table()
+            ),
+                         css=["overview.css"],
+                         js=["jquery.js", "overview.js"])
 
     def _desc(self, deck):
         if deck['dyn']:
@@ -122,16 +162,17 @@ to their original deck.""")
     def _table(self):
         counts = list(self.mw.col.sched.counts())
         finished = not sum(counts)
-        for n in range(len(counts)):
-            if counts[n] >= 1000:
-                counts[n] = "1000+"
+        if self.mw.col.schedVer() == 1:
+            for n in range(len(counts)):
+                if counts[n] >= 1000:
+                    counts[n] = "1000+"
         but = self.mw.button
         if finished:
             return '<div style="white-space: pre-wrap;">%s</div>' % (
                 self.mw.col.sched.finishedMsg())
         else:
             return '''
-<table width=300 cellpadding=5>
+<table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
 <tr><td>%s:</td><td><b><font color=#00a>%s</font></b></td></tr>
@@ -143,7 +184,7 @@ to their original deck.""")
     _("New"), counts[0],
     _("Learning"), counts[1],
     _("To Review"), counts[2],
-    but("study", _("Study Now"), id="study"))
+    but("study", _("Study Now"), id="study",extra=" autofocus"))
 
 
     _body = """
@@ -153,29 +194,6 @@ to their original deck.""")
 %(desc)s
 %(table)s
 </center>
-<script>$(function () { $("#study").focus(); });</script>
-"""
-
-    _css = """
-.smallLink { font-size: 10px; }
-h3 { margin-bottom: 0; }
-.descfont {
-padding: 1em; color: #333;
-}
-.description {
-white-space: pre-wrap;
-}
-#fulldesc {
-display:none;
-}
-.descmid {
-width: 70%;
-margin: 0 auto 0;
-text-align: left;
-}
-.dyn {
-text-align: center;
-}
 """
 
     # Bottom area
@@ -198,14 +216,9 @@ text-align: center;
             if b[0]:
                 b[0] = _("Shortcut key: %s") % shortcut(b[0])
             buf += """
-<button title="%s" onclick='py.link(\"%s\");'>%s</button>""" % tuple(b)
+<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
-        if isMac:
-            size = 28
-        else:
-            size = 36 + self.mw.fontHeightDelta*3
-        self.bottom.web.setFixedHeight(size)
-        self.bottom.web.setLinkHandler(self._linkHandler)
+        self.bottom.web.onBridgeCmd = self._linkHandler
 
     # Studying more
     ######################################################################

@@ -1,0 +1,73 @@
+Contributing Code
+==================
+
+For info on contributing things other than code, such as translations, decks
+and add-ons, please see http://ankisrs.net/docs/manual.html#contributing
+
+The goal of Anki 2.1.x is to bring Anki up to date with Python 3 and Qt 5,
+while maintaining compatibility with Anki 2.0.x. Some users will be stuck on
+Anki 2.0 for a while due to unported add-ons or old hardware, so it's
+important that 2.1 doesn't make breaking changes to the file format.
+
+Also of consideration is that the Anki code is indirectly used by the mobile
+clients, which try their best to keep as close to the Anki code as possible so
+that future updates can be ported more easily. Refactoring code makes it
+harder for the mobile clients to track changes, so refactoring should be
+limited to times when it is necessary to address an important issue.
+
+Before sending a pull request or a patch, please check the following to
+increase your chances of the changes being accepted.
+
+Primarily Bugfixes
+-------------------
+
+Small patches that fix a specific problem and don't affect other functionality
+are likely to be merged if they meet the other requirements below. Larger
+changes are less likely to be accepted for 2.1.x - if in doubt, please ask
+before you begin work on them so your work does not go to waste.
+
+Examples of changes that are unlikely to be accepted:
+
+- Altering existing code unnecessarily. Your code may be more elegant than
+  what already exists, but it takes time for us to review the changes, may
+  harbour unnoticed bugs, and makes maintaining the mobile clients more
+  difficult.
+- Adding code that is not used within Anki but is only for the benefit of
+  add-ons - such code is difficult to test and maintain.
+- Adding code that addresses niche issues - they are better handled in an
+  add-on.
+
+Maintaining Style
+------------------
+
+For consistency, changes should maintain the existing code style - camelCaps,
+<80 column lines, succinct variable names and so on.
+
+Tests Must Pass
+----------------
+
+Please check that tools/tests.sh passes all tests prior to submitting a
+change. If your change is not covered by existing tests, ideally you'll add a
+new test.
+
+Do One Thing
+-------------
+
+A patch or pull request should be the minimum necessary to address one issue.
+Please don't make a pull request for a bunch of unrelated changes, as they are
+difficult to review and will be rejected - split them up into separate
+requests instead.
+
+License
+-------
+
+As mentioned in the LICENSE file, we are only able to accept non-trivial
+patches or pull requests from people who have sent us a private message
+indicating that they license their changes under the BSD license.
+
+Add-ons
+========
+
+If you'd like to make more extensive changes, please consider writing an
+add-on instead, as add-ons have none of these restrictions and can implement
+whatever functionality in whatever style you wish.

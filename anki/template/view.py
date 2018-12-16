@@ -2,7 +2,7 @@ from anki.template import Template
 import os.path
 import re
 
-class View(object):
+class View:
     # Path where this view's template(s) live
     template_path = '.'
 
@@ -53,7 +53,7 @@ class View(object):
 
         name = self.get_template_name() + '.' + self.template_extension
 
-        if isinstance(self.template_path, basestring):
+        if isinstance(self.template_path, str):
             self.template_file = os.path.join(self.template_path, name)
             return self._load_template()
 
@@ -70,7 +70,7 @@ class View(object):
         try:
             template = f.read()
             if self.template_encoding:
-                template = unicode(template, self.template_encoding)
+                template = str(template, self.template_encoding)
         finally:
             f.close()
         return template

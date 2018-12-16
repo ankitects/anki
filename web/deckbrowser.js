@@ -1,0 +1,30 @@
+$(init);
+
+function init() {
+
+    $("tr.deck").draggable({
+        scroll: false,
+
+        // can't use "helper: 'clone'" because of a bug in jQuery 1.5
+        helper: function (event) {
+            return $(this).clone(false);
+        },
+        delay: 200,
+        opacity: 0.7
+    });
+    $("tr.deck").droppable({
+        drop: handleDropEvent,
+        hoverClass: 'drag-hover'
+    });
+    $("tr.top-level-drag-row").droppable({
+        drop: handleDropEvent,
+        hoverClass: 'drag-hover'
+    });
+}
+
+function handleDropEvent(event, ui) {
+    var draggedDeckId = ui.draggable.attr('id');
+    var ontoDeckId = $(this).attr('id') || '';
+
+    pycmd("drag:" + draggedDeckId + "," + ontoDeckId);
+}

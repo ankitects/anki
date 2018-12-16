@@ -3,33 +3,29 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
+from aqt.utils import tooltip
 import aqt.editor
 from aqt.utils import saveGeom, restoreGeom
 from anki.hooks import addHook, remHook
 from anki.utils import isMac
 
+
 class EditCurrent(QDialog):
 
     def __init__(self, mw):
-        if isMac:
-            # use a separate window on os x so we can a clean menu
-            QDialog.__init__(self, None, Qt.Window)
-        else:
-            QDialog.__init__(self, mw)
         QDialog.__init__(self, None, Qt.Window)
+        mw.setupDialogGC(self)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(_("Edit Current"))
         self.setMinimumHeight(400)
         self.setMinimumWidth(500)
-        self.connect(self,
-                     SIGNAL("rejected()"),
-                     self.onSave)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
                 QKeySequence("Ctrl+Return"))
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
-        self.editor.setNote(self.mw.reviewer.card.note())
+        self.editor.card = self.mw.reviewer.card
+        self.editor.setNote(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
         addHook("reset", self.onReset)
         self.mw.requireReset()
@@ -40,21 +36,30 @@ class EditCurrent(QDialog):
     def onReset(self):
         # lazy approach for now: throw away edits
         try:
-            n = self.mw.reviewer.card.note()
-            n.load()
+            n = self.editor.note
+            n.load()#reload in case the model changed
         except:
             # card's been deleted
             remHook("reset", self.onReset)
             self.editor.setNote(None)
             self.mw.reset()
-            aqt.dialogs.close("EditCurrent")
+            aqt.dialogs.markClosed("EditCurrent")
             self.close()
             return
         self.editor.setNote(n)
 
-    def onSave(self):
+    def reopen(self,mw):
+        tooltip("Please finish editing the existing card first.")
+        self.onReset()
+        
+    def reject(self):
+        self.saveAndClose()
+
+    def saveAndClose(self):
+        self.editor.saveNow(self._saveAndClose)
+
+    def _saveAndClose(self):
         remHook("reset", self.onReset)
-        self.editor.saveNow()
         r = self.mw.reviewer
         try:
             r.card.load()
@@ -63,9 +68,14 @@ class EditCurrent(QDialog):
             pass
         else:
             self.mw.reviewer.cardQueue.append(self.mw.reviewer.card)
+        self.editor.cleanup()
         self.mw.moveToState("review")
         saveGeom(self, "editcurrent")
-        aqt.dialogs.close("EditCurrent")
+        aqt.dialogs.markClosed("EditCurrent")
+        QDialog.reject(self)
 
-    def canClose(self):
-        return True
+    def closeWithCallback(self, onsuccess):
+        def callback():
+            self._saveAndClose()
+            onsuccess()
+        self.editor.saveNow(callback)

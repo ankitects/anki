@@ -2,13 +2,12 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from __future__ import division
 import re
 import os
 import random
 import time
 import math
-import htmlentitydefs
+from html.entities import name2codepoint
 import subprocess
 import tempfile
 import shutil
@@ -18,27 +17,10 @@ import locale
 from hashlib import sha1
 import platform
 import traceback
+import json
+from contextlib import contextmanager
 
 from anki.lang import _, ngettext
-
-
-if sys.version_info[1] < 5:
-    def format_string(a, b):
-        return a % b
-    locale.format_string = format_string
-
-try:
-    import simplejson as json
-    # make sure simplejson's loads() always returns unicode
-    # we don't try to support .load()
-    origLoads = json.loads
-    def loads(s, *args, **kwargs):
-        if not isinstance(s, unicode):
-            s = unicode(s, "utf8")
-        return origLoads(s, *args, **kwargs)
-    json.loads = loads
-except ImportError:
-    import json
 
 # Time handling
 ##############################################################################
@@ -56,13 +38,13 @@ timeTable = {
     "seconds": lambda n: ngettext("%s second", "%s seconds", n),
     }
 
-afterTimeTable = {
-    "years": lambda n: ngettext("%s year<!--after-->", "%s years<!--after-->", n),
-    "months": lambda n: ngettext("%s month<!--after-->", "%s months<!--after-->", n),
-    "days": lambda n: ngettext("%s day<!--after-->", "%s days<!--after-->", n),
-    "hours": lambda n: ngettext("%s hour<!--after-->", "%s hours<!--after-->", n),
-    "minutes": lambda n: ngettext("%s minute<!--after-->", "%s minutes<!--after-->", n),
-    "seconds": lambda n: ngettext("%s second<!--after-->", "%s seconds<!--after-->", n),
+inTimeTable = {
+    "years": lambda n: ngettext("in %s year", "in %s years", n),
+    "months": lambda n: ngettext("in %s month", "in %s months", n),
+    "days": lambda n: ngettext("in %s day", "in %s days", n),
+    "hours": lambda n: ngettext("in %s hour", "in %s hours", n),
+    "minutes": lambda n: ngettext("in %s minute", "in %s minutes", n),
+    "seconds": lambda n: ngettext("in %s second", "in %s seconds", n),
     }
 
 def shortTimeFmt(type):
@@ -75,7 +57,7 @@ def shortTimeFmt(type):
     "seconds": _("%ss"),
     }[type]
 
-def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
+def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
     "Return a string representing a time span (eg '2 days')."
     (type, point) = optimalPeriod(time, point, unit)
     time = convertSecondsTo(time, type)
@@ -84,12 +66,12 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, after=False, unit=99):
     if short:
         fmt = shortTimeFmt(type)
     else:
-        if after:
-            fmt = afterTimeTable[type](_pluralCount(time, point))
+        if inTime:
+            fmt = inTimeTable[type](_pluralCount(time, point))
         else:
             fmt = timeTable[type](_pluralCount(time, point))
-    timestr = "%(a)d.%(b)df" % {'a': pad, 'b': point}
-    return locale.format_string("%" + (fmt % timestr), time)
+    timestr = "%%%(a)d.%(b)df" % {'a': pad, 'b': point}
+    return locale.format_string(fmt % timestr, time)
 
 def optimalPeriod(time, point, unit):
     if abs(time) < 60 or unit < 1:
@@ -144,13 +126,15 @@ def fmtFloat(float_value, point=1):
 
 # HTML
 ##############################################################################
-reStyle = re.compile("(?s)<style.*?>.*?</style>")
-reScript = re.compile("(?s)<script.*?>.*?</script>")
-reTag = re.compile("<.*?>")
+reComment = re.compile("(?s)<!--.*?-->")
+reStyle = re.compile("(?si)<style.*?>.*?</style>")
+reScript = re.compile("(?si)<script.*?>.*?</script>")
+reTag = re.compile("(?s)<.*?>")
 reEnts = re.compile("&#?\w+;")
-reMedia = re.compile("<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
+reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 def stripHTML(s):
+    s = reComment.sub("", s)
     s = reStyle.sub("", s)
     s = reScript.sub("", s)
     s = reTag.sub("", s)
@@ -172,6 +156,17 @@ def minimizeHTML(s):
                '<u>\\1</u>', s)
     return s
 
+def htmlToTextLine(s):
+    s = s.replace("<br>", " ")
+    s = s.replace("<br />", " ")
+    s = s.replace("<div>", " ")
+    s = s.replace("\n", " ")
+    s = re.sub("\[sound:[^]]+\]", "", s)
+    s = re.sub("\[\[type:[^]]+\]\]", "", s)
+    s = stripHTMLMedia(s)
+    s = s.strip()
+    return s
+
 def entsToTxt(html):
     # entitydefs defines nbsp as \xa0 instead of a standard space, so we
     # replace it first
@@ -182,19 +177,25 @@ def entsToTxt(html):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         return text # leave as is
     return reEnts.sub(fixup, html)
+
+def bodyClass(col, card):
+    bodyclass = "card card%d" % (card.ord+1)
+    if col.conf.get("nightMode"):
+        bodyclass += " nightMode"
+    return bodyclass
 
 # IDs
 ##############################################################################
@@ -222,8 +223,7 @@ def maxID(db):
     "Return the first safe ID to use."
     now = intTime(1000)
     for tbl in "cards", "notes":
-        now = max(now, db.scalar(
-                "select max(id) from %s" % tbl))
+        now = max(now, db.scalar("select max(id) from %s" % tbl) or 0)
     return now + 1
 
 # used in ankiweb
@@ -271,7 +271,7 @@ def splitFields(string):
 ##############################################################################
 
 def checksum(data):
-    if isinstance(data, unicode):
+    if isinstance(data, str):
         data = data.encode("utf-8")
     return sha1(data).hexdigest()
 
@@ -292,8 +292,7 @@ def tmpdir():
             shutil.rmtree(_tmpdir)
         import atexit
         atexit.register(cleanup)
-        _tmpdir = unicode(os.path.join(tempfile.gettempdir(), "anki_temp"), \
-                sys.getfilesystemencoding())
+        _tmpdir = os.path.join(tempfile.gettempdir(), "anki_temp")
     if not os.path.exists(_tmpdir):
         os.mkdir(_tmpdir)
     return _tmpdir
@@ -316,6 +315,13 @@ def namedtmp(name, rm=True):
 # Cmd invocation
 ##############################################################################
 
+@contextmanager
+def noBundledLibs():
+    oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
+    yield
+    if oldlpath is not None:
+        os.environ["LD_LIBRARY_PATH"] = oldlpath
+
 def call(argv, wait=True, **kwargs):
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
@@ -329,7 +335,8 @@ def call(argv, wait=True, **kwargs):
         si = None
     # run
     try:
-        o = subprocess.Popen(argv, startupinfo=si, **kwargs)
+        with noBundledLibs():
+            o = subprocess.Popen(argv, startupinfo=si, **kwargs)
     except OSError:
         # command not found
         return -1
@@ -351,6 +358,8 @@ def call(argv, wait=True, **kwargs):
 
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
+isLin = not isMac and not isWin
+devMode = os.getenv("ANKIDEV", 0)
 
 invalidFilenameChars = ":*?\"<>|"
 
@@ -390,7 +399,7 @@ def platDesc():
 # Debugging
 ##############################################################################
 
-class TimedLog(object):
+class TimedLog:
     def __init__(self):
         self._last = time.time()
     def log(self, s):

@@ -2,12 +2,13 @@
 
 from tests.shared import getEmptyCol
 from anki.utils import stripHTML, joinFields
+import anki.template
 
 def test_modelDelete():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
+    f['Front'] = '1'
+    f['Back'] = '2'
     deck.addNote(f)
     assert deck.cardCount() == 1
     deck.models.rem(deck.models.current())
@@ -29,8 +30,8 @@ def test_modelCopy():
 def test_fields():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
+    f['Front'] = '1'
+    f['Back'] = '2'
     d.addNote(f)
     m = d.models.current()
     # make sure renaming a field updates the templates
@@ -82,8 +83,8 @@ def test_templates():
     mm.addTemplate(m, t)
     mm.save(m)
     f = d.newNote()
-    f['Front'] = u'1'
-    f['Back'] = u'2'
+    f['Front'] = '1'
+    f['Back'] = '2'
     d.addNote(f)
     assert d.cardCount() == 2
     (c, c2) = f.cards()
@@ -121,7 +122,7 @@ def test_cloze_ordinals():
     d.models.remTemplate(m, m['tmpls'][0])
     
     f = d.newNote()
-    f['Text'] = u'{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
+    f['Text'] = '{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}'
     d.addNote(f)
     assert d.cardCount() == 2
     (c, c2) = f.cards()
@@ -136,7 +137,7 @@ def test_text():
     m['tmpls'][0]['qfmt'] = "{{text:Front}}"
     d.models.save(m)
     f = d.newNote()
-    f['Front'] = u'hello<b>world'
+    f['Front'] = 'hello<b>world'
     d.addNote(f)
     assert "helloworld" in f.cards()[0].q()
 
@@ -146,7 +147,7 @@ def test_cloze():
     f = d.newNote()
     assert f.model()['name'] == "Cloze"
     # a cloze model with no clozes is not empty
-    f['Text'] = u'nothing'
+    f['Text'] = 'nothing'
     assert d.addNote(f)
     # try with one cloze
     f = d.newNote()
@@ -186,6 +187,19 @@ def test_cloze():
     f.flush()
     assert len(f.cards()) == 2
 
+def test_cloze_mathjax():
+    d = getEmptyCol()
+    d.models.setCurrent(d.models.byName("Cloze"))
+    f = d.newNote()
+    f['Text'] = r'{{c1::ok}} \(2^2\) {{c2::not ok}} \(2^{{c3::2}}\) \(x^3\) {{c4::blah}} {{c5::text with \(x^2\) jax}}'
+    assert d.addNote(f)
+    assert len(f.cards()) == 5
+    assert "class=cloze" in f.cards()[0].q()
+    assert "class=cloze" in f.cards()[1].q()
+    assert "class=cloze" not in f.cards()[2].q()
+    assert "class=cloze" in f.cards()[3].q()
+    assert "class=cloze" in f.cards()[4].q()
+
 def test_chained_mods():
     d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
@@ -221,8 +235,8 @@ def test_modelChange():
     mm.addTemplate(m, t)
     mm.save(m)
     f = deck.newNote()
-    f['Front'] = u'f'
-    f['Back'] = u'b123'
+    f['Front'] = 'f'
+    f['Back'] = 'b123'
     deck.addNote(f)
     # switch fields
     map = {0: 1, 1: 0}
@@ -267,8 +281,8 @@ def test_modelChange():
     assert f['Back'] == 'f'
     # another note to try model conversion
     f = deck.newNote()
-    f['Front'] = u'f2'
-    f['Back'] = u'b2'
+    f['Front'] = 'f2'
+    f['Back'] = 'b2'
     deck.addNote(f)
     assert deck.models.useCount(basic) == 2
     assert deck.models.useCount(cloze) == 0
@@ -282,6 +296,14 @@ def test_modelChange():
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 2
     deck.models.change(cloze, [f.id], basic, map, map)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
+
+def test_templates():
+    d = dict(Foo="x", Bar="y")
+    assert anki.template.render("{{Foo}}", d) == "x"
+    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
+    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
+    assert anki.template.render("{{#Bar}}{{#Foo}}{{Foo}}{{/Foo}}{{/Bar}}", d) == "x"
+    assert anki.template.render("{{#Baz}}{{#Foo}}{{Foo}}{{/Foo}}{{/Baz}}", d) == ""
 
 def test_availOrds():
     d = getEmptyCol()

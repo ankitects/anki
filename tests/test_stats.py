@@ -26,5 +26,6 @@ def test_graphs():
     d = aopen(os.path.expanduser("~/test.anki2"))
     g = d.stats()
     rep = g.report()
-    open(os.path.expanduser("~/test.html"), "w").write(rep)
+    with open(os.path.expanduser("~/test.html"), "w") as f:
+        f.write(rep)
     return

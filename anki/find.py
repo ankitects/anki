@@ -4,6 +4,7 @@
 
 import re
 import sre_constants
+import unicodedata
 
 from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
@@ -13,7 +14,7 @@ from anki.hooks import *
 # Find
 ##########################################################################
 
-class Finder(object):
+class Finder:
 
     def __init__(self, col):
         self.col = col
@@ -29,6 +30,7 @@ class Finder(object):
             rated=self._findRated,
             tag=self._findTag,
             dupe=self._findDupes,
+            flag=self._findFlag,
         )
         self.search['is'] = self._findCardState
         runHook("search", self.search)
@@ -38,7 +40,7 @@ class Finder(object):
         tokens = self._tokenize(query)
         preds, args = self._where(tokens)
         if preds is None:
-            return []
+            raise Exception("invalidSearch")
         order, rev = self._order(order)
         sql = self._query(preds, order)
         try:
@@ -92,7 +94,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 else:
                     inQuote = c
             # separator (space and ideographic space)
-            elif c in (" ", u'\u3000'):
+            elif c in (" ", '\u3000'):
                 if inQuote:
                     token += c
                 elif token:
@@ -239,18 +241,20 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     # Commands
     ######################################################################
 
-    def _findTag(self, (val, args)):
+    def _findTag(self, args):
+        (val, args) = args
         if val == "none":
             return 'n.tags = ""'
         val = val.replace("*", "%")
         if not val.startswith("%"):
             val = "% " + val
-        if not val.endswith("%"):
+        if not val.endswith("%") or val.endswith('\\%'):
             val += " %"
         args.append(val)
-        return "n.tags like ?"
+        return "n.tags like ? escape '\\'"
 
-    def _findCardState(self, (val, args)):
+    def _findCardState(self, args):
+        (val, args) = args
         if val in ("review", "new", "learn"):
             if val == "review":
                 n = 2
@@ -262,15 +266,24 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         elif val == "suspended":
             return "c.queue = -1"
         elif val == "buried":
-            return "c.queue = -2"
+            return "c.queue in (-2, -3)"
         elif val == "due":
             return """
 (c.queue in (2,3) and c.due <= %d) or
 (c.queue = 1 and c.due <= %d)""" % (
     self.col.sched.today, self.col.sched.dayCutoff)
 
-    def _findRated(self, (val, args)):
+    def _findFlag(self, args):
+        (val, args) = args
+        if not val or val not in "01234":
+            return
+        val = int(val)
+        mask = 2**3 - 1
+        return "(c.flags & %d) == %d" % (mask, val)
+
+    def _findRated(self, args):
         # days(:optional_ease)
+        (val, args) = args
         r = val.split(":")
         try:
             days = int(r[0])
@@ -287,7 +300,8 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         return ("c.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
 
-    def _findAdded(self, (val, args)):
+    def _findAdded(self, args):
+        (val, args) = args
         try:
             days = int(val)
         except ValueError:
@@ -295,8 +309,9 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return "c.id > %d" % cutoff
 
-    def _findProp(self, (val, args)):
+    def _findProp(self, args):
         # extract
+        (val, args) = args
         m = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
         if not m:
             return
@@ -331,31 +346,36 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         args.append("%"+val+"%")
         return "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
 
-    def _findNids(self, (val, args)):
+    def _findNids(self, args):
+        (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "n.id in (%s)" % val
 
-    def _findCids(self, (val, args)):
+    def _findCids(self, args):
+        (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "c.id in (%s)" % val
 
-    def _findMid(self, (val, args)):
+    def _findMid(self, args):
+        (val, args) = args
         if re.search("[^0-9]", val):
             return
         return "n.mid = %s" % val
 
-    def _findModel(self, (val, args)):
+    def _findModel(self, args):
+        (val, args) = args
         ids = []
         val = val.lower()
         for m in self.col.models.all():
-            if m['name'].lower() == val:
+            if unicodedata.normalize("NFC", m['name'].lower()) == val:
                 ids.append(m['id'])
         return "n.mid in %s" % ids2str(ids)
 
-    def _findDeck(self, (val, args)):
+    def _findDeck(self, args):
         # if searching for all decks, skip
+        (val, args) = args
         if val == "*":
             return "skip"
         # deck types
@@ -375,19 +395,18 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         else:
             # wildcard
             ids = set()
-            # should use re.escape in the future
-            val = val.replace("*", ".*")
-            val = val.replace("+", "\\+")
+            val = re.escape(val).replace(r"\*", ".*")
             for d in self.col.decks.all():
-                if re.match("(?i)"+val, d['name']):
+                if re.match("(?i)"+val, unicodedata.normalize("NFC", d['name'])):
                     ids.update(dids(d['id']))
         if not ids:
             return
         sids = ids2str(ids)
         return "c.did in %s or c.odid in %s" % (sids, sids)
 
-    def _findTemplate(self, (val, args)):
+    def _findTemplate(self, args):
         # were we given an ordinal number?
+        (val, args) = args
         try:
             num = int(val) - 1
         except:
@@ -398,7 +417,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         lims = []
         for m in self.col.models.all():
             for t in m['tmpls']:
-                if t['name'].lower() == val.lower():
+                if unicodedata.normalize("NFC", t['name'].lower()) == val.lower():
                     if m['type'] == MODEL_CLOZE:
                         # if the user has asked for a cloze card, we want
                         # to give all ordinals, so we just limit to the
@@ -416,18 +435,18 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         mods = {}
         for m in self.col.models.all():
             for f in m['flds']:
-                if f['name'].lower() == field:
+                if unicodedata.normalize("NFC", f['name'].lower()) == field:
                     mods[str(m['id'])] = (m, f['ord'])
         if not mods:
             # nothing has that field
             return
         # gather nids
-        regex = re.escape(val).replace("\\_", ".").replace("\\%", ".*")
+        regex = re.escape(val).replace("_", ".").replace(re.escape("%"), ".*")
         nids = []
         for (id,mid,flds) in self.col.db.execute("""
 select id, mid, flds from notes
 where mid in %s and flds like ? escape '\\'""" % (
-                         ids2str(mods.keys())),
+                         ids2str(list(mods.keys()))),
                          "%"+val+"%"):
             flds = splitFields(flds)
             ord = mods[str(mid)][1]
@@ -441,8 +460,9 @@ where mid in %s and flds like ? escape '\\'""" % (
             return "0"
         return "n.id in %s" % ids2str(nids)
 
-    def _findDupes(self, (val, args)):
+    def _findDupes(self, args):
         # caller must call stripHTMLMedia on passed val
+        (val, args) = args
         try:
             mid, val = val.split(",", 1)
         except OSError:
@@ -465,7 +485,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     if field:
         for m in col.models.all():
             for f in m['flds']:
-                if f['name'] == field:
+                if f['name'].lower() == field.lower():
                     mmap[str(m['id'])] = f['ord']
         if not mmap:
             return 0
@@ -519,6 +539,19 @@ def fieldNames(col, downcase=True):
     if downcase:
         return list(fields)
     return names
+
+def fieldNamesForNotes(col, nids):
+    downcasedNames = set()
+    origNames = []
+    mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
+    for mid in mids:
+        model = col.models.get(mid)
+        for field in col.models.fieldNames(model):
+            if field.lower() not in downcasedNames:
+                downcasedNames.add(field.lower())
+                origNames.append(field)
+
+    return sorted(origNames, key=lambda x: x.lower())
 
 # Find duplicates
 ##########################################################################

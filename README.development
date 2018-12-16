@@ -1,11 +1,34 @@
-Please see the README file for basic requirements.
+Running from source
+--------------------
 
-In addition to the basic requirements, you also need the PyQt development
-tools (specifically pyrcc4 and pyuic4). These are often contained in a
-separate package on Linux, such as 'pyqt4-dev-tools' on Debian/Ubuntu. On a Mac
-they are part of the PyQt source install.
+For non-developers who want to try this development code, the easiest way is
+to use a binary package - please see:
 
-Windows users, please see the note at the bottom of this file before proceeding.
+https://anki.tenderapp.com/discussions/beta-testing
+
+You are welcome to run Anki from source instead, but it is expected that you
+can sort out all dependencies and issues by yourself - we are not able to
+provide support for problems you encounter when running from source.
+
+Anki requires:
+
+ - Python 3.6+
+ - Qt 5.9.x/5.11.x/5.12.x and a PyQT that supports it
+ - mpv
+ - lame
+
+It also requires a number of Python packages, which you can grab via pip:
+
+$ pip3 install -r requirements.txt
+
+If you're on a Linux distribution that packages a compatible Qt then you can
+use the distro's packages. Make sure you install the development tools (eg
+pyqt5-dev-tools) as well.
+
+If you're on another platform or your distro has the wrong Qt version, you
+can install PyQt with pip:
+
+$ pip3 install sip pyqt5
 
 To use the development version:
 
@@ -24,7 +47,7 @@ translation services. If you want to use a language other than English:
 
 $ cd ..
 $ mv anki dtop # i18n code expects anki folder to be called dtop
-$ bzr clone lp:anki i18n
+$ bzr branch lp:anki i18n
 $ cd i18n
 $ ./update-mos.sh
 $ cd ../dtop
@@ -35,12 +58,23 @@ $ ./runanki
 If you get any errors, please make sure you don't have an older version of
 Anki installed in a system location.
 
-Before contributing code, please read the LICENSE file.
+To run the unit tests, you will need to install nose from your distro, or
+with pip:
+
+$ pip3 install nose
+
+Before contributing code, please read README.contributing.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
 
-WINDOWS USERS:
+Windows & Mac users
+---------------------
+
+The following was contributed by users in the past and will need updating
+for the latest version. It is left here in case it is any help:
+
+Windows:
 
 I have not tested the build scripts on Windows, so you'll need to solve any
 problems you encounter on your own. The easiest way is to use a source
@@ -64,3 +98,18 @@ Or a way with git bash and perl:
     system. Typical paths would be:
     <python-path> = C:\\Python27\\python.exe
     <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py
+
+Mac:
+
+These instructions may be incomplete as prerequisites may have already been
+installed. Most likely you will need to have installed xcode
+(https://developer.apple.com/xcode/)
+
+Install homebrew (http://brew.sh/) and then install Anki prerequisites:
+
+$ brew install python mplayer lame portaudio
+$ pip install sqlalchemy pyqt5==5.9.2
+
+Make sure to specify pyqt5 version 5.9.2, as the latest version 5.10 is not currently supported.
+
+Now you can follow the development commands at the start of this document.

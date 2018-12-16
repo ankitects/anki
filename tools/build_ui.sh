@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# generate python files based on the designer ui files. pyuic4 and pyrcc4
+# generate python files based on the designer ui files. pyuic5 and pyrcc5
 # should be on the path.
 #
 
@@ -24,10 +24,10 @@ do
     base=$(basename $i .ui)
     py="aqt/forms/${base}.py"
     echo "	\"$base\"," >> $init
-    echo "import $base" >> $temp
+    echo "from . import $base" >> $temp
     if [ $i -nt $py ]; then
         echo " * "$py
-        pyuic4 $i -o $py
+        pyuic5 --from-imports $i -o $py
         # munge the output to use gettext
         perl -pi.bak -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' $py
         rm $py.bak
@@ -38,4 +38,4 @@ cat $temp >> $init
 rm $temp
 
 echo "Building resources.."
-pyrcc4 designer/icons.qrc -o aqt/forms/icons_rc.py
+pyrcc5 designer/icons.qrc -o aqt/forms/icons_rc.py

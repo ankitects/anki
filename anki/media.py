@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
+import io
 import re
 import traceback
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import unicodedata
 import sys
 import zipfile
-from cStringIO import StringIO
+import pathlib
+from io import StringIO
 
 from anki.utils import checksum, isWin, isMac, json
-from anki.db import DB
+from anki.db import DB, DBError
 from anki.consts import *
 from anki.latex import mungeQA
 
-class MediaManager(object):
+class MediaManager:
 
     soundRegexps = ["(?i)(\[sound:(?P<fname>[^]]+)\])"]
     imgRegexps = [
@@ -33,9 +34,6 @@ class MediaManager(object):
             return
         # media directory
         self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
-        # convert dir to unicode if it's not already
-        if isinstance(self._dir, str):
-            self._dir = unicode(self._dir, sys.getfilesystemencoding())
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         try:
@@ -92,7 +90,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     insert into meta select dirMod, usn from old.meta
     """)
                 self.db.commit()
-            except Exception, e:
+            except Exception as e:
                 # if we couldn't import the old db for some reason, just start
                 # anew
                 self.col.log("failed to import old media db:"+traceback.format_exc())
@@ -115,6 +113,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 # may have been deleted
                 pass
 
+    def _deleteDB(self):
+        path = self.db._path
+        self.close()
+        os.unlink(path)
+        self.connect()
+
     def dir(self):
         return self._dir
 
@@ -123,28 +127,41 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             return
         import win32api, win32file
         try:
-            name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
+                name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
         except:
             # mapped & unmapped network drive; pray that it's not vfat
             return
         if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
-            return True
+                return True
 
     # Adding media
     ##########################################################################
     # opath must be in unicode
 
     def addFile(self, opath):
-        return self.writeData(opath, open(opath, "rb").read())
+        with open(opath, "rb") as f:
+            return self.writeData(opath, f.read())
 
-    def writeData(self, opath, data):
+    def writeData(self, opath, data, typeHint=None):
         # if fname is a full path, use only the basename
         fname = os.path.basename(opath)
-        # make sure we write it in NFC form (on mac will autoconvert to NFD),
+
+        # if it's missing an extension and a type hint was provided, use that
+        if not os.path.splitext(fname)[1] and typeHint:
+            # mimetypes is returning '.jpe' even after calling .init(), so we'll do
+            # it manually instead
+            typeMap = {
+                "image/jpeg": ".jpg",
+                "image/png": ".png",
+            }
+            if typeHint in typeMap:
+                fname += typeMap[typeHint]
+
+        # make sure we write it in NFC form (pre-APFS Macs will autoconvert to NFD),
         # and return an NFC-encoded reference
         fname = unicodedata.normalize("NFC", fname)
-        # remove any dangerous characters
-        base = self.stripIllegal(fname)
+        # ensure it's a valid filename
+        base = self.cleanFilename(fname)
         (root, ext) = os.path.splitext(base)
         def repl(match):
             n = int(match.group(1))
@@ -156,11 +173,13 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             path = os.path.join(self.dir(), fname)
             # if it doesn't exist, copy it directly
             if not os.path.exists(path):
-                open(path, "wb").write(data)
+                with open(path, "wb") as f:
+                    f.write(data)
                 return fname
             # if it's identical, reuse
-            if checksum(open(path, "rb").read()) == csum:
-                return fname
+            with open(path, "rb") as f:
+                if checksum(f.read()) == csum:
+                    return fname
             # otherwise, increment the index in the filename
             reg = " \((\d+)\)$"
             if not re.search(reg, root):
@@ -198,15 +217,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         strings = []
         from anki.template.template import clozeReg
         def qrepl(m):
-            if m.group(3):
-                return "[%s]" % m.group(3)
+            if m.group(4):
+                return "[%s]" % m.group(4)
             else:
                 return "[...]"
         def arepl(m):
-            return m.group(1)
+            return m.group(2)
         for ord in ords:
             s = re.sub(clozeReg%ord, qrepl, string)
-            s = re.sub(clozeReg%".+?", "\\1", s)
+            s = re.sub(clozeReg%".+?", "\\2", s)
             strings.append(s)
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
@@ -223,16 +242,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def escapeImages(self, string, unescape=False):
         if unescape:
-            fn = urllib.unquote
+            fn = urllib.parse.unquote
         else:
-            fn = urllib.quote
+            fn = urllib.parse.quote
         def repl(match):
             tag = match.group(0)
             fname = match.group("fname")
             if re.match("(https?|ftp)://", fname):
                 return tag
-            return tag.replace(
-                fname, unicode(fn(fname.encode("utf-8")), "utf8"))
+            return tag.replace(fname, fn(fname))
         for reg in self.imgRegexps:
             string = re.sub(reg, repl, string)
         return string
@@ -257,26 +275,32 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             allRefs.update(noteRefs)
         # loop through media folder
         unused = []
-        invalid = []
         if local is None:
             files = os.listdir(mdir)
         else:
             files = local
         renamedFiles = False
+        dirFound = False
+        warnings = []
         for file in files:
             if not local:
                 if not os.path.isfile(file):
                     # ignore directories
+                    dirFound = True
                     continue
             if file.startswith("_"):
                 # leading _ says to ignore file
                 continue
-            if not isinstance(file, unicode):
-                invalid.append(unicode(file, sys.getfilesystemencoding(), "replace"))
+
+            if self.hasIllegal(file):
+                name = file.encode(sys.getfilesystemencoding(), errors="replace")
+                name = str(name, sys.getfilesystemencoding())
+                warnings.append(
+                    _("Invalid file name, please rename: %s") % name)
                 continue
+
             nfcFile = unicodedata.normalize("NFC", file)
-            # we enforce NFC fs encoding on non-macs; on macs we'll have gotten
-            # NFD so we use the above variable for comparing references
+            # we enforce NFC fs encoding on non-macs
             if not isMac and not local:
                 if file != nfcFile:
                     # delete if we already have the NFC form, otherwise rename
@@ -297,7 +321,16 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if renamedFiles:
             return self.check(local=local)
         nohave = [x for x in allRefs if not x.startswith("_")]
-        return (nohave, unused, invalid)
+        # make sure the media DB is valid
+        try:
+            self.findChanges()
+        except DBError:
+            self._deleteDB()
+
+        if dirFound:
+            warnings.append(
+                _("Anki does not support files in subfolders of the collection.media folder."))
+        return (nohave, unused, warnings)
 
     def _normalizeNoteRefs(self, nid):
         note = self.col.getNote(nid)
@@ -313,7 +346,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def have(self, fname):
         return os.path.exists(os.path.join(self.dir(), fname))
 
-    # Illegal characters
+    # Illegal characters and paths
     ##########################################################################
 
     _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0\r\n]')
@@ -322,10 +355,60 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return re.sub(self._illegalCharReg, "", str)
 
     def hasIllegal(self, str):
-        # a file that couldn't be decoded to unicode is considered invalid
-        if not isinstance(str, unicode):
+        if re.search(self._illegalCharReg, str):
             return True
-        return not not re.search(self._illegalCharReg, str)
+        try:
+            str.encode(sys.getfilesystemencoding())
+        except UnicodeEncodeError:
+            return True
+        return False
+
+    def cleanFilename(self, fname):
+        fname = self.stripIllegal(fname)
+        fname = self._cleanWin32Filename(fname)
+        fname = self._cleanLongFilename(fname)
+        if not fname:
+            fname = "renamed"
+
+        return fname
+
+    def _cleanWin32Filename(self, fname):
+        if not isWin:
+            return fname
+
+        # deal with things like con/prn/etc
+        p = pathlib.WindowsPath(fname)
+        if p.is_reserved():
+            fname = "renamed" + fname
+            assert not pathlib.WindowsPath(fname).is_reserved()
+
+        return fname
+
+    def _cleanLongFilename(self, fname):
+        # a fairly safe limit that should work on typical windows
+        # paths and on eCryptfs partitions, even with a duplicate
+        # suffix appended
+        namemax = 136
+
+        if isWin:
+            pathmax = 240
+        else:
+            pathmax = 1024
+
+        # cap namemax based on absolute path
+        dirlen = len(os.path.dirname(os.path.abspath(fname)))
+        remaining = pathmax - dirlen
+        namemax = min(remaining, namemax)
+        assert namemax > 0
+
+        if len(fname) > namemax:
+            head, ext = os.path.splitext(fname)
+            headmax = namemax - len(ext)
+            head = head[0:headmax]
+            fname = head + ext
+            assert(len(fname) <= namemax)
+
+        return fname
 
     # Tracking changes
     ##########################################################################
@@ -342,7 +425,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return int(os.stat(path).st_mtime)
 
     def _checksum(self, path):
-        return checksum(open(path, "rb").read())
+        with open(path, "rb") as f:
+            return checksum(f.read())
 
     def _changed(self):
         "Return dir mtime if it has changed since the last findChanges()"
@@ -356,9 +440,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _logChanges(self):
         (added, removed) = self._changes()
         media = []
-        for f in added:
-            mt = self._mtime(f)
-            media.append((f, self._checksum(f), mt, 1))
+        for f, mtime in added:
+            media.append((f, self._checksum(f), mtime, 1))
         for f in removed:
             media.append((f, None, 0, 1))
         # update media db
@@ -371,49 +454,57 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.cache = {}
         for (name, csum, mod) in self.db.execute(
             "select fname, csum, mtime from media where csum is not null"):
-            self.cache[name] = [csum, mod, False]
+            # previous entries may not have been in NFC form
+            normname = unicodedata.normalize("NFC", name)
+            self.cache[normname] = [csum, mod, False]
         added = []
         removed = []
         # loop through on-disk files
-        for f in os.listdir(self.dir()):
-            # ignore folders and thumbs.db
-            if os.path.isdir(f):
-                continue
-            if f.lower() == "thumbs.db":
-                continue
-            # and files with invalid chars
-            if self.hasIllegal(f):
-                continue
-            # empty files are invalid; clean them up and continue
-            sz = os.path.getsize(f)
-            if not sz:
-                os.unlink(f)
-                continue
-            if sz > 100*1024*1024:
-                self.col.log("ignoring file over 100MB", f)
-                continue
-            # check encoding
-            if not isMac:
-                normf = unicodedata.normalize("NFC", f)
-                if f != normf:
-                    # wrong filename encoding which will cause sync errors
-                    if os.path.exists(normf):
-                        os.unlink(f)
-                    else:
-                        os.rename(f, normf)
-            # newly added?
-            if f not in self.cache:
-                added.append(f)
-            else:
-                # modified since last time?
-                if self._mtime(f) != self.cache[f][1]:
-                    # and has different checksum?
-                    if self._checksum(f) != self.cache[f][0]:
-                        added.append(f)
-                # mark as used
-                self.cache[f][2] = True
+        with os.scandir(self.dir()) as it:
+            for f in it:
+                # ignore folders and thumbs.db
+                if f.is_dir():
+                    continue
+                if f.name.lower() == "thumbs.db":
+                    continue
+                # and files with invalid chars
+                if self.hasIllegal(f.name):
+                    continue
+                # empty files are invalid; clean them up and continue
+                sz = f.stat().st_size
+                if not sz:
+                    os.unlink(f.name)
+                    continue
+                if sz > 100*1024*1024:
+                    self.col.log("ignoring file over 100MB", f.name)
+                    continue
+                # check encoding
+                normname = unicodedata.normalize("NFC", f.name)
+                if not isMac:
+                    if f.name != normname:
+                        # wrong filename encoding which will cause sync errors
+                        if os.path.exists(normname):
+                            os.unlink(f.name)
+                        else:
+                            os.rename(f.name, normname)
+                else:
+                    # on Macs we can access the file using any normalization
+                    pass
+
+                # newly added?
+                mtime = int(f.stat().st_mtime)
+                if normname not in self.cache:
+                    added.append((normname, mtime))
+                else:
+                    # modified since last time?
+                    if mtime != self.cache[normname][1]:
+                        # and has different checksum?
+                        if self._checksum(normname) != self.cache[normname][0]:
+                            added.append((normname, mtime))
+                    # mark as used
+                    self.cache[normname][2] = True
         # look for any entries in the cache that no longer exist on disk
-        for (k, v) in self.cache.items():
+        for (k, v) in list(self.cache.items()):
             if not v[2]:
                 removed.append(k)
         return added, removed
@@ -454,14 +545,17 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def forceResync(self):
         self.db.execute("delete from media")
         self.db.execute("update meta set lastUsn=0,dirMod=0")
-        self.db.execute("vacuum analyze")
         self.db.commit()
+        self.db.setAutocommit(True)
+        self.db.execute("vacuum")
+        self.db.execute("analyze")
+        self.db.setAutocommit(False)
 
     # Media syncing: zips
     ##########################################################################
 
     def mediaChangesZip(self):
-        f = StringIO()
+        f = io.BytesIO()
         z = zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED)
 
         fnames = []
@@ -495,11 +589,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def addFilesFromZip(self, zipData):
         "Extract zip data; true if finished."
-        f = StringIO(zipData)
+        f = io.BytesIO(zipData)
         z = zipfile.ZipFile(f, "r")
         media = []
         # get meta info first
-        meta = json.loads(z.read("_meta"))
+        meta = json.loads(z.read("_meta").decode("utf8"))
         # then loop through all files
         cnt = 0
         for i in z.infolist():
@@ -510,15 +604,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 data = z.read(i)
                 csum = checksum(data)
                 name = meta[i.filename]
-                if not isinstance(name, unicode):
-                    name = unicode(name, "utf8")
-                # normalize name for platform
-                if isMac:
-                    name = unicodedata.normalize("NFD", name)
-                else:
-                    name = unicodedata.normalize("NFC", name)
+                # normalize name
+                name = unicodedata.normalize("NFC", name)
                 # save file
-                open(name, "wb").write(data)
+                with open(name, "wb") as f:
+                    f.write(data)
                 # update db
                 media.append((name, csum, self._mtime(name), 0))
                 cnt += 1

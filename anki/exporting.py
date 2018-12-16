@@ -2,13 +2,14 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import   re, os, zipfile, shutil
+import re, os, zipfile, shutil, unicodedata
+
 from anki.lang import _
-from anki.utils import  ids2str, splitFields, json
+from anki.utils import ids2str, splitFields, json, namedtmp
 from anki.hooks import runHook
 from anki import Collection
 
-class Exporter(object):
+class Exporter:
     def __init__(self, col, did=None):
         self.col = col
         self.did = did
@@ -45,7 +46,6 @@ class TextCardExporter(Exporter):
 
     key = _("Cards in Plain Text")
     ext = ".txt"
-    hideTags = True
 
     def __init__(self, col):
         Exporter.__init__(self, col)
@@ -71,11 +71,11 @@ class TextNoteExporter(Exporter):
 
     key = _("Notes in Plain Text")
     ext = ".txt"
+    includeTags = True
 
     def __init__(self, col):
         Exporter.__init__(self, col)
         self.includeID = False
-        self.includeTags = True
 
     def doExport(self, file):
         cardIds = self.cardIds()
@@ -107,13 +107,16 @@ class AnkiExporter(Exporter):
 
     key = _("Anki 2.0 Deck")
     ext = ".anki2"
+    includeSched = False
+    includeMedia = True
 
     def __init__(self, col):
         Exporter.__init__(self, col)
-        self.includeSched = False
-        self.includeMedia = True
 
     def exportInto(self, path):
+        # sched info+v2 scheduler not compatible w/ older clients
+        self._v2sched = self.col.schedVer() != 1 and self.includeSched
+
         # create a new collection at the target
         try:
             os.unlink(path)
@@ -122,10 +125,7 @@ class AnkiExporter(Exporter):
         self.dst = Collection(path)
         self.src = self.col
         # find cards
-        if not self.did:
-            cids = self.src.db.list("select id from cards")
-        else:
-            cids = self.src.decks.cids(self.did, children=True)
+        cids = self.cardIds()
         # copy cards, noting used nids
         nids = {}
         data = []
@@ -133,11 +133,14 @@ class AnkiExporter(Exporter):
             "select * from cards where id in "+ids2str(cids)):
             nids[row[1]] = True
             data.append(row)
+            # clear flags
+            row = list(row)
+            row[-2] = 0
         self.dst.db.executemany(
             "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             data)
         # notes
-        strnids = ids2str(nids.keys())
+        strnids = ids2str(list(nids.keys()))
         notedata = []
         for row in self.src.db.all(
             "select * from notes where id in "+strnids):
@@ -199,9 +202,15 @@ class AnkiExporter(Exporter):
                 flds = row[6]
                 mid = row[2]
                 for file in self.src.media.filesInStr(mid, flds):
+                    # skip files in subdirs
+                    if file != os.path.basename(file):
+                        continue
                     media[file] = True
             if self.mediaDir:
                 for fname in os.listdir(self.mediaDir):
+                    path = os.path.join(self.mediaDir, fname)
+                    if os.path.isdir(path):
+                        continue
                     if fname.startswith("_"):
                         # Scan all models in mids for reference to fname
                         for m in self.src.models.all():
@@ -209,7 +218,7 @@ class AnkiExporter(Exporter):
                                 if self._modelHasMedia(m, fname):
                                     media[fname] = True
                                     break
-        self.mediaFiles = media.keys()
+        self.mediaFiles = list(media.keys())
         self.dst.crt = self.src.crt
         # todo: tags?
         self.count = self.dst.cardCount()
@@ -249,31 +258,28 @@ class AnkiPackageExporter(AnkiExporter):
     def exportInto(self, path):
         # open a zip file
         z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, allowZip64=True)
-        # if all decks and scheduling included, full export
-        if self.includeSched and not self.did:
-            media = self.exportVerbatim(z)
-        else:
-            # otherwise, filter
-            media = self.exportFiltered(z, path)
+        media = self.doExport(z, path)
         # media map
         z.writestr("media", json.dumps(media))
         z.close()
 
-    def exportFiltered(self, z, path):
+    def doExport(self, z, path):
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
-        z.write(colfile, "collection.anki2")
+        if not self._v2sched:
+            z.write(colfile, "collection.anki2")
+        else:
+            # fixme: remove in the future
+            raise Exception("Please switch to the normal scheduler before exporting a single deck with scheduling information.")
+
+            # prevent older clients from accessing
+            self._addDummyCollection(z)
+            z.write(colfile, "collection.anki21")
+
         # and media
         self.prepareMedia()
-        media = {}
-        for c, file in enumerate(self.mediaFiles):
-            cStr = str(c)
-            mpath = os.path.join(self.mediaDir, file)
-            if os.path.exists(mpath):
-                z.write(mpath, cStr, zipfile.ZIP_STORED)
-                media[cStr] = file
-                runHook("exportedMediaFiles", c)
+        media = self._exportMedia(z, self.mediaFiles, self.mediaDir)
         # tidy up intermediate files
         os.unlink(colfile)
         p = path.replace(".apkg", ".media.db2")
@@ -283,23 +289,19 @@ class AnkiPackageExporter(AnkiExporter):
         shutil.rmtree(path.replace(".apkg", ".media"))
         return media
 
-    def exportVerbatim(self, z):
-        # close our deck & write it into the zip file, and reopen
-        self.count = self.col.cardCount()
-        self.col.close()
-        z.write(self.col.path, "collection.anki2")
-        self.col.reopen()
-        # copy all media
-        if not self.includeMedia:
-            return {}
+    def _exportMedia(self, z, files, fdir):
         media = {}
-        mdir = self.col.media.dir()
-        for c, file in enumerate(os.listdir(mdir)):
+        for c, file in enumerate(files):
             cStr = str(c)
-            mpath = os.path.join(mdir, file)
+            mpath = os.path.join(fdir, file)
+            if os.path.isdir(mpath):
+                continue
             if os.path.exists(mpath):
-                z.write(mpath, cStr, zipfile.ZIP_STORED)
-                media[cStr] = file
+                if re.search('\.svg$', file, re.IGNORECASE):
+                    z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
+                else:
+                    z.write(mpath, cStr, zipfile.ZIP_STORED)
+                media[cStr] = unicodedata.normalize("NFC", file)
                 runHook("exportedMediaFiles", c)
 
         return media
@@ -309,6 +311,50 @@ class AnkiPackageExporter(AnkiExporter):
         # is zipped up
         pass
 
+    # create a dummy collection to ensure older clients don't try to read
+    # data they don't understand
+    def _addDummyCollection(self, zip):
+        path = namedtmp("dummy.anki2")
+        c = Collection(path)
+        n = c.newNote()
+        n[_('Front')] = "This file requires a newer version of Anki."
+        c.addNote(n)
+        c.save()
+        c.close()
+
+        zip.write(path, "collection.anki2")
+        os.unlink(path)
+
+# Collection package
+######################################################################
+
+class AnkiCollectionPackageExporter(AnkiPackageExporter):
+
+    key = _("Anki Collection Package")
+    ext = ".colpkg"
+    verbatim = True
+    includeSched = None
+
+    def __init__(self, col):
+        AnkiPackageExporter.__init__(self, col)
+
+    def doExport(self, z, path):
+        # close our deck & write it into the zip file, and reopen
+        self.count = self.col.cardCount()
+        v2 = self.col.schedVer() != 1
+        self.col.close()
+        if not v2:
+            z.write(self.col.path, "collection.anki2")
+        else:
+            self._addDummyCollection(z)
+            z.write(self.col.path, "collection.anki21")
+        self.col.reopen()
+        # copy all media
+        if not self.includeMedia:
+            return {}
+        mdir = self.col.media.dir()
+        return self._exportMedia(z, os.listdir(mdir), mdir)
+
 # Export modules
 ##########################################################################
 
@@ -316,6 +362,7 @@ def exporters():
     def id(obj):
         return ("%s (*%s)" % (obj.key, obj.ext), obj)
     exps = [
+        id(AnkiCollectionPackageExporter),
         id(AnkiPackageExporter),
         id(TextNoteExporter),
         id(TextCardExporter),

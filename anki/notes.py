@@ -5,7 +5,7 @@
 from anki.utils import fieldChecksum, intTime, \
     joinFields, splitFields, stripHTMLMedia, timestampID, guid64
 
-class Note(object):
+class Note:
 
     def __init__(self, col, model=None, id=None):
         assert not (model and id)
@@ -79,7 +79,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     ##################################################
 
     def keys(self):
-        return self._fmap.keys()
+        return list(self._fmap.keys())
 
     def values(self):
         return self.fields
@@ -101,7 +101,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         self.fields[self._fieldOrd(key)] = value
 
     def __contains__(self, key):
-        return key in self._fmap.keys()
+        return key in list(self._fmap.keys())
 
     # Tags
     ##################################################

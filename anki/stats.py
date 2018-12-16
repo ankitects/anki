@@ -2,12 +2,10 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from __future__ import division
 import time
 import datetime
 import json
 
-import anki.js
 from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
 
@@ -15,7 +13,7 @@ from anki.lang import _, ngettext
 # Card stats
 ##########################################################################
 
-class CardStats(object):
+class CardStats:
 
     def __init__(self, col, card):
         self.col = col
@@ -99,7 +97,7 @@ colTime = "#770"
 colUnseen = "#000"
 colSusp = "#ff0"
 
-class CollectionStats(object):
+class CollectionStats:
 
     def __init__(self, col):
         self.col = col
@@ -109,28 +107,34 @@ class CollectionStats(object):
         self.height = 200
         self.wholeCollection = False
 
+    # assumes jquery & plot are available in document
     def report(self, type=0):
         # 0=days, 1=weeks, 2=months
         self.type = type
-        from statsbg import bg
+        from .statsbg import bg
         txt = self.css % bg
-        txt += self.todayStats()
-        txt += self.dueGraph()
-        txt += self.repsGraph()
-        txt += self.introductionGraph()
-        txt += self.ivlGraph()
-        txt += self.hourGraph()
-        txt += self.easeGraph()
-        txt += self.cardGraph()
-        txt += self.footer()
-        return "<script>%s\n</script><center>%s</center>" % (
-            anki.js.jquery+anki.js.plot, txt)
+        txt += self._section(self.todayStats())
+        txt += self._section(self.dueGraph())
+        txt += self.repsGraphs()
+        txt += self._section(self.introductionGraph())
+        txt += self._section(self.ivlGraph())
+        txt += self._section(self.hourGraph())
+        txt += self._section(self.easeGraph())
+        txt += self._section(self.cardGraph())
+        txt += self._section(self.footer())
+        return "<center>%s</center>" % txt
+
+    def _section(self, txt):
+        return "<div class=section>%s</div>" % txt
 
     css = """
 <style>
 h1 { margin-bottom: 0; margin-top: 1em; }
 .pielabel { text-align:center; padding:0px; color:white; }
 body {background-image: url(data:image/png;base64,%s); }
+@media print {
+    .section { page-break-inside: avoid; padding-top: 5mm; }
+}
 </style>
 """
 
@@ -160,29 +164,34 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         filt = filt or 0
         # studied
         def bold(s):
-            return "<b>"+unicode(s)+"</b>"
+            return "<b>"+str(s)+"</b>"
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        b += _("Studied %(a)s in %(b)s today.") % dict(
-            a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1)))
-        # again/pass count
-        b += "<br>" + _("Again count: %s") % bold(failed)
         if cards:
-            b += " " + _("(%s correct)") % bold(
-                "%0.1f%%" %((1-failed/float(cards))*100))
-        # type breakdown
-        b += "<br>"
-        b += (_("Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s")
-              % dict(a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)))
-        # mature today
-        mcnt, msum = self.col.db.first("""
-select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
-where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
-        b += "<br>"
-        if mcnt:
-            b += _("Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)") % dict(
-                a=msum, b=mcnt, c=(msum / float(mcnt) * 100))
+            b += _("Studied %(a)s %(b)s today (%(secs).1fs/card)") % dict(
+                a=bold(msgp1), b=bold(fmtTimeSpan(thetime, unit=1, inTime=True)),
+                secs=thetime/cards
+            )
+            # again/pass count
+            b += "<br>" + _("Again count: %s") % bold(failed)
+            if cards:
+                b += " " + _("(%s correct)") % bold(
+                    "%0.1f%%" %((1-failed/float(cards))*100))
+            # type breakdown
+            b += "<br>"
+            b += (_("Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s")
+                  % dict(a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)))
+            # mature today
+            mcnt, msum = self.col.db.first("""
+    select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
+    where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
+            b += "<br>"
+            if mcnt:
+                b += _("Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)") % dict(
+                    a=msum, b=mcnt, c=(msum / float(mcnt) * 100))
+            else:
+                b += _("No mature cards were studied today.")
         else:
-            b += _("No mature cards were studied today.")
+            b += _("No cards have been studied today.")
         return b
 
     # Due and cumulative due
@@ -190,11 +199,11 @@ where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
 
     def dueGraph(self):
         if self.type == 0:
-            start = 0; end = 31; chunk = 1;
+            start, end, chunk = 0, 31, 1
         elif self.type == 1:
-            start = 0; end = 52; chunk = 7
+            start, end, chunk = 0, 52, 7
         elif self.type == 2:
-            start = 0; end = None; chunk = 30
+            start, end, chunk = 0, None, 30
         d = self._due(start, end, chunk)
         yng = []
         mtr = []
@@ -298,19 +307,19 @@ group by day order by day""" % (self._limit(), lim),
 
         return txt
 
-    def repsGraph(self):
+    def repsGraphs(self):
         if self.type == 0:
             days = 30; chunk = 1
         elif self.type == 1:
             days = 52; chunk = 7
         else:
             days = None; chunk = 30
-        return self._repsGraph(self._done(days, chunk),
+        return self._repsGraphs(self._done(days, chunk),
                                days,
                                _("Review Count"),
                                _("Review Time"))
 
-    def _repsGraph(self, data, days, reptitle, timetitle):
+    def _repsGraphs(self, data, days, reptitle, timetitle):
         if not data:
             return ""
         d = data
@@ -329,13 +338,13 @@ group by day order by day""" % (self._limit(), lim),
             (4, colRelearn, _("Relearn")),
             (1, colLearn, _("Learn")),
             (5, colCram, _("Cram"))))
-        txt = self._title(
+        txt1 = self._title(
             reptitle, _("The number of questions you have answered."))
-        txt += plot("reps", repdata, ylabel=_("Answers"), ylabel2=_(
+        txt1 += plot("reps", repdata, ylabel=_("Answers"), ylabel2=_(
             "Cumulative Answers"))
         (daysStud, fstDay) = self._daysStudied()
         rep, tot = self._ansInfo(repsum, daysStud, fstDay, _("reviews"))
-        txt += rep
+        txt1 += rep
         # time
         (timdata, timsum) = self._splitRepData(d, (
             (8, colMature, _("Mature")),
@@ -349,12 +358,12 @@ group by day order by day""" % (self._limit(), lim),
         else:
             t = _("Hours")
             convHours = True
-        txt += self._title(timetitle, _("The time taken to answer the questions."))
-        txt += plot("time", timdata, ylabel=t, ylabel2=_("Cumulative %s") % t)
+        txt2 = self._title(timetitle, _("The time taken to answer the questions."))
+        txt2 += plot("time", timdata, ylabel=t, ylabel2=_("Cumulative %s") % t)
         rep, tot2 = self._ansInfo(
             timsum, daysStud, fstDay, _("minutes"), convHours, total=tot)
-        txt += rep
-        return txt
+        txt2 += rep
+        return self._section(txt1) + self._section(txt2)
 
     def _ansInfo(self, totd, studied, first, unit, convHours=False, total=None):
         if not totd:
@@ -732,7 +741,7 @@ where did in %s """ % self._limit())
         info += _('''\
 A card's <i>ease</i> is the size of the next interval \
 when you answer "good" on a review.''')
-        txt = self._title(_("Cards Types"),
+        txt = self._title(_("Card Types"),
                           _("The division of cards in your deck(s)."))
         txt += "<table width=%d><tr><td>%s</td><td>%s</td></table>" % (
             self.width,
@@ -864,8 +873,12 @@ $(function () {
         }
     }
     conf.yaxis.minTickSize = 1;
+    // prevent ticks from having decimals (use whole numbers instead)
+    conf.yaxis.tickDecimals = 0;
     conf.yaxis.tickFormatter = function (val, axis) {
-            return val.toFixed(0);
+            // Just in case we get ticks with decimals, render to one decimal position.  If it's
+            // a whole number then render without any decimal (i.e. without the trailing .0).
+            return val === Math.round(val) ? val.toFixed(0) : val.toFixed(1);
     }
     if (conf.series.pie) {
         conf.series.pie.label.formatter = function(label, series){

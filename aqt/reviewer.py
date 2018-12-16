@@ -2,25 +2,24 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from __future__ import division
 import difflib
 import re
-import cgi
+import html
 import unicodedata as ucd
-import HTMLParser
+import html.parser
 
 from anki.lang import _, ngettext
 from aqt.qt import *
-from anki.utils import  stripHTML, isMac, json
-from anki.hooks import addHook, runHook
+from anki.utils import stripHTML, json, bodyClass
+from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
-from aqt.utils import mungeQA, getBase, openLink, tooltip, askUserDialog, \
+from aqt.utils import mungeQA, tooltip, askUserDialog, \
     downArrow
 from aqt.sound import getAudio
 import aqt
 
 
-class Reviewer(object):
+class Reviewer:
     "Manage reviews.  Maintains a separate state."
 
     def __init__(self, mw):
@@ -34,22 +33,14 @@ class Reviewer(object):
         self.typeCorrect = None # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
-        # qshortcut so we don't autorepeat
-        self.delShortcut = QShortcut(QKeySequence("Delete"), self.mw)
-        self.delShortcut.setAutoRepeat(False)
-        self.mw.connect(self.delShortcut, SIGNAL("activated()"), self.onDelete)
         addHook("leech", self.onLeech)
 
     def show(self):
         self.mw.col.reset()
-        self.mw.keyHandler = self._keyHandler
-        self.web.setLinkHandler(self._linkHandler)
-        self.web.setKeyHandler(self._catchEsc)
-        if isMac:
-            self.bottom.web.setFixedHeight(46)
-        else:
-            self.bottom.web.setFixedHeight(52+self.mw.fontHeightDelta*4)
-        self.bottom.web.setLinkHandler(self._linkHandler)
+        self.web.resetHandlers()
+        self.mw.setStateShortcuts(self._shortcutKeys())
+        self.web.onBridgeCmd = self._linkHandler
+        self.bottom.web.onBridgeCmd = self._linkHandler
         self._reps = None
         self.nextCard()
 
@@ -101,8 +92,7 @@ class Reviewer(object):
         if self._reps is None or self._reps % 100 == 0:
             # we recycle the webview periodically so webkit can free memory
             self._initWeb()
-        else:
-            self._showQuestion()
+        self._showQuestion()
 
     # Audio
     ##########################################################################
@@ -127,66 +117,36 @@ class Reviewer(object):
     # Initializing the webview
     ##########################################################################
 
-    _revHtml = """
-<img src="qrc:/icons/rating.png" id=star class=marked>
+    def revHtml(self):
+        extra = self.mw.col.conf.get("reviewExtra", "")
+        fade=""
+        if self.mw.pm.glMode() == "software":
+            fade="<script>qFade=0;</script>"
+        return """
+<div id=_mark>&#x2605;</div>
+<div id=_flag>&#x2691;</div>
+{}
 <div id=qa></div>
-<script>
-var ankiPlatform = "desktop";
-var typeans;
-function _updateQA (q, answerMode, klass) {
-    $("#qa").html(q);
-    typeans = document.getElementById("typeans");
-    if (typeans) {
-        typeans.focus();
-    }
-    if (answerMode) {
-        var e = $("#answer");
-        if (e[0]) { e[0].scrollIntoView(); }
-    } else {
-        window.scrollTo(0, 0);
-    }
-    if (klass) {
-        document.body.className = klass;
-    }
-    // don't allow drags of images, which cause them to be deleted
-    $("img").attr("draggable", false);
-};
-
-function _toggleStar (show) {
-    if (show) {
-        $(".marked").show();
-    } else {
-        $(".marked").hide();
-    }
-}
-
-function _getTypedText () {
-    if (typeans) {
-        py.link("typeans:"+typeans.value);
-    }
-};
-function _typeAnsPress() {
-    if (window.event.keyCode === 13) {
-        py.link("ansHack");
-    }
-}
-</script>
-"""
+{}
+""".format(fade, extra)
 
     def _initWeb(self):
         self._reps = 0
-        self._bottomReady = False
-        base = getBase(self.mw.col)
         # main window
-        self.web.stdHtml(self._revHtml, self._styles(),
-            loadCB=lambda x: self._showQuestion(),
-            head=base)
+        self.web.stdHtml(self.revHtml(),
+                         css=["reviewer.css"],
+                         js=["jquery.js",
+                             "browsersel.js",
+                             "mathjax/conf.js",
+                             "mathjax/MathJax.js",
+                             "reviewer.js"])
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
-            self.bottom._css + self._bottomCSS,
-        loadCB=lambda x: self._showAnswerButton())
+            css=["toolbar-bottom.css", "reviewer-bottom.css"],
+            js=["jquery.js", "reviewer-bottom.js"]
+        )
 
     # Showing the question
     ##########################################################################
@@ -209,11 +169,14 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        klass = "card card%d" % (c.ord+1)
-        self.web.eval("_updateQA(%s, false, '%s');" % (json.dumps(q), klass))
-        self._toggleStar()
-        if self._bottomReady:
-            self._showAnswerButton()
+        q = runFilter("prepareQA", q, c, "reviewQuestion")
+
+        bodyclass = bodyClass(self.mw.col, c)
+
+        self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
+        self._drawFlag()
+        self._drawMark()
+        self._showAnswerButton()
         # if we have a type answer field, focus main web
         if self.typeCorrect:
             self.mw.web.setFocus()
@@ -229,9 +192,12 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         return s.mw.col.decks.confForDid(
             s.card.odid or s.card.did).get('replayq', True)
 
-    def _toggleStar(self):
-        self.web.eval("_toggleStar(%s);" % json.dumps(
-            self.card.note().hasTag("marked")))
+    def _drawFlag(self):
+        self.web.eval("_drawFlag(%s);" % self.card.userFlag())
+
+    def _drawMark(self):
+        self.web.eval("_drawMark(%s);" % json.dumps(
+                        self.card.note().hasTag("marked")))
 
     # Showing the answer
     ##########################################################################
@@ -244,11 +210,13 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         c = self.card
         a = c.a()
         # play audio?
+        clearAudioQueue()
         if self.autoplay(c):
             playFromText(a)
-        # render and update bottom
         a = self._mungeQA(a)
-        self.web.eval("_updateQA(%s, true);" % json.dumps(a))
+        a = runFilter("prepareQA", a, c, "reviewAnswer")
+        # render and update bottom
+        self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
         runHook('showAnswer')
@@ -273,80 +241,57 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
     # Handlers
     ############################################################
 
-    def _catchEsc(self, evt):
-        if evt.key() == Qt.Key_Escape:
-            self.web.eval("$('#typeans').blur();")
-            return True
+    def _shortcutKeys(self):
+        return [
+            ("e", self.mw.onEditCurrent),
+            (" ", self.onEnterKey),
+            (Qt.Key_Return, self.onEnterKey),
+            (Qt.Key_Enter, self.onEnterKey),
+            ("r", self.replayAudio),
+            (Qt.Key_F5, self.replayAudio),
+            ("Ctrl+1", lambda: self.setFlag(1)),
+            ("Ctrl+2", lambda: self.setFlag(2)),
+            ("Ctrl+3", lambda: self.setFlag(3)),
+            ("Ctrl+4", lambda: self.setFlag(4)),
+            ("*", self.onMark),
+            ("=", self.onBuryNote),
+            ("-", self.onBuryCard),
+            ("!", self.onSuspend),
+            ("@", self.onSuspendCard),
+            ("Ctrl+Delete", self.onDelete),
+            ("v", self.onReplayRecorded),
+            ("Shift+v", self.onRecordVoice),
+            ("o", self.onOptions),
+            ("1", lambda: self._answerCard(1)),
+            ("2", lambda: self._answerCard(2)),
+            ("3", lambda: self._answerCard(3)),
+            ("4", lambda: self._answerCard(4)),
+        ]
 
-    def _showAnswerHack(self):
-        # on <qt4.8, calling _showAnswer() directly fails to show images on
-        # the answer side. But if we trigger it via the bottom web's python
-        # link, it inexplicably works.
-        self.bottom.web.eval("py.link('ans');")
+    def onEnterKey(self):
+        if self.state == "question":
+            self._getTypedAnswer()
+        elif self.state == "answer":
+            self.bottom.web.evalWithCallback("selectedAnswerButton()", self._onAnswerButton)
 
-    def _keyHandler(self, evt):
-        key = unicode(evt.text())
-        if key == "e":
-            self.mw.onEditCurrent()
-        elif (key == " " or evt.key() in (Qt.Key_Return, Qt.Key_Enter)):
-            if self.state == "question":
-                self._showAnswerHack()
-            elif self.state == "answer":
-                self._answerCard(self._defaultEase())
-        elif key == "r" or evt.key() == Qt.Key_F5:
-            self.replayAudio()
-        elif key == "*":
-            self.onMark()
-        elif key == "=":
-            self.onBuryNote()
-        elif key == "-":
-            self.onBuryCard()
-        elif key == "!":
-            self.onSuspend()
-        elif key == "@":
-            self.onSuspendCard()
-        elif key == "V":
-            self.onRecordVoice()
-        elif key == "o":
-            self.onOptions()
-        elif key in ("1", "2", "3", "4"):
-            self._answerCard(int(key))
-        elif key == "v":
-            self.onReplayRecorded()
+    def _onAnswerButton(self, val):
+        # button selected?
+        if val and val in "1234":
+            self._answerCard(int(val))
+        else:
+            self._answerCard(self._defaultEase())
 
     def _linkHandler(self, url):
         if url == "ans":
-            self._showAnswer()
-        elif url == "ansHack":
-            self.mw.progress.timer(100, self._showAnswerHack, False)
+            self._getTypedAnswer()
         elif url.startswith("ease"):
             self._answerCard(int(url[4:]))
         elif url == "edit":
             self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
-        elif url.startswith("typeans:"):
-            (cmd, arg) = url.split(":", 1)
-            self.typedAnswer = arg
         else:
-            openLink(url)
-
-    # CSS
-    ##########################################################################
-
-    _css = """
-hr { background-color:#ccc; margin: 1em; }
-body { margin:1.5em; }
-img { max-width: 95%; max-height: 95%; }
-.marked { position:fixed; right: 7px; top: 7px; display: none; }
-#typeans { width: 100%; }
-.typeGood { background: #0f0; }
-.typeBad { background: #f00; }
-.typeMissed { background: #ccc; }
-"""
-
-    def _styles(self):
-        return self._css
+            print("unrecognized anki link:", url)
 
     # Type in the answer
     ##########################################################################
@@ -401,20 +346,21 @@ Please run Tools>Empty Cards""")
 """ % (self.typeFont, self.typeSize), buf)
 
     def typeAnsAnswerFilter(self, buf):
-        # tell webview to call us back with the input content
-        self.web.eval("_getTypedText();")
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
         origSize = len(buf)
         buf = buf.replace("<hr id=answer>", "")
         hadHR = len(buf) != origSize
         # munge correct value
-        parser = HTMLParser.HTMLParser()
-        cor = stripHTML(self.mw.col.media.strip(self.typeCorrect))
+        parser = html.parser.HTMLParser()
+        cor = self.mw.col.media.strip(self.typeCorrect)
+        cor = re.sub("(\n|<br ?/?>|</?div>)+", " ", cor)
+        cor = stripHTML(cor)
         # ensure we don't chomp multiple whitespace
         cor = cor.replace(" ", "&nbsp;")
         cor = parser.unescape(cor)
-        cor = cor.replace(u"\xa0", " ")
+        cor = cor.replace("\xa0", " ")
+        cor = cor.strip()
         given = self.typedAnswer
         # compare with typed answer
         res = self.correct(given, cor, showBad=False)
@@ -433,7 +379,7 @@ Please run Tools>Empty Cards""")
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
-        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt)
+        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
         if not matches:
             return None
         def noHint(txt):
@@ -452,11 +398,7 @@ Please run Tools>Empty Cards""")
         # compare in NFC form so accents appear correct
         given = ucd.normalize("NFC", given)
         correct = ucd.normalize("NFC", correct)
-        try:
-            s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
-        except:
-            # autojunk was added in python 2.7.1
-            s = difflib.SequenceMatcher(None, given, correct)
+        s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
         givenElems = []
         correctElems = []
         givenPoint = 0
@@ -487,11 +429,11 @@ Please run Tools>Empty Cards""")
         "Diff-corrects the typed-in answer."
         givenElems, correctElems = self.tokenizeComparison(given, correct)
         def good(s):
-            return "<span class=typeGood>"+cgi.escape(s)+"</span>"
+            return "<span class=typeGood>"+html.escape(s)+"</span>"
         def bad(s):
-            return "<span class=typeBad>"+cgi.escape(s)+"</span>"
+            return "<span class=typeBad>"+html.escape(s)+"</span>"
         def missed(s):
-            return "<span class=typeMissed>"+cgi.escape(s)+"</span>"
+            return "<span class=typeMissed>"+html.escape(s)+"</span>"
         if given == correct:
             res = good(given)
         else:
@@ -510,87 +452,35 @@ Please run Tools>Empty Cards""")
         res = "<div><code id=typeans>" + res + "</code></div>"
         return res
 
+    def _getTypedAnswer(self):
+        self.web.evalWithCallback("typeans ? typeans.value : null", self._onTypedAnswer)
+
+    def _onTypedAnswer(self, val):
+        self.typedAnswer = val or ""
+        self._showAnswer()
+
     # Bottom bar
     ##########################################################################
 
-    _bottomCSS = """
-body {
-background: -webkit-gradient(linear, left top, left bottom,
-from(#fff), to(#ddd));
-border-bottom: 0;
-border-top: 1px solid #aaa;
-margin: 0;
-padding: 0px;
-padding-left: 5px; padding-right: 5px;
-}
-button {
-min-width: 60px; white-space: nowrap;
-}
-.hitem { margin-top: 2px; }
-.stat { padding-top: 5px; }
-.stat2 { padding-top: 3px; font-weight: normal; }
-.stattxt { padding-left: 5px; padding-right: 5px; white-space: nowrap; }
-.nobold { font-weight: normal; display: inline-block; padding-top: 4px; }
-.spacer { height: 18px; }
-.spacer2 { height: 16px; }
-"""
-
     def _bottomHTML(self):
         return """
-<table width=100%% cellspacing=0 cellpadding=0>
+<center id=outer>
+<table id=innertable width=100%% cellspacing=0 cellpadding=0>
 <tr>
 <td align=left width=50 valign=top class=stat>
 <br>
-<button title="%(editkey)s" onclick="py.link('edit');">%(edit)s</button></td>
+<button title="%(editkey)s" onclick="pycmd('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
 <td width=50 align=right valign=top class=stat><span id=time class=stattxt>
 </span><br>
-<button onclick="py.link('more');">%(more)s %(downArrow)s</button>
+<button onclick="pycmd('more');">%(more)s %(downArrow)s</button>
 </td>
 </tr>
 </table>
+</center>
 <script>
-var time = %(time)d;
-var maxTime = 0;
-$(function () {
-$("#ansbut").focus();
-updateTime();
-setInterval(function () { time += 1; updateTime() }, 1000);
-});
-
-var updateTime = function () {
-    if (!maxTime) {
-        $("#time").text("");
-        return;
-    }
-    time = Math.min(maxTime, time);
-    var m = Math.floor(time / 60);
-    var s = time %% 60;
-    if (s < 10) {
-        s = "0" + s;
-    }
-    var e = $("#time");
-    if (maxTime == time) {
-        e.html("<font color=red>" + m + ":" + s + "</font>");
-    } else {
-        e.text(m + ":" + s);
-    }
-}
-
-function showQuestion(txt, maxTime_) {
-  // much faster than jquery's .html()
-  $("#middle")[0].innerHTML = txt;
-  $("#ansbut").focus();
-  time = 0;
-  maxTime = maxTime_;
-}
-
-function showAnswer(txt) {
-  $("#middle")[0].innerHTML = txt;
-  $("#defease").focus();
-}
-
+time = %(time)d;
 </script>
 """ % dict(rem=self._remaining(), edit=_("Edit"),
            editkey=_("Shortcut key: %s") % "E",
@@ -599,12 +489,11 @@ function showAnswer(txt) {
            time=self.card.timeTaken() // 1000)
 
     def _showAnswerButton(self):
-        self._bottomReady = True
         if not self.typeCorrect:
             self.bottom.web.setFocus()
         middle = '''
 <span class=stattxt>%s</span><br>
-<button title="%s" id=ansbut onclick='py.link(\"ans\");'>%s</button>''' % (
+<button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>''' % (
         self._remaining(), _("Shortcut key: %s") % _("Space"), _("Show Answer"))
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
@@ -614,6 +503,7 @@ function showAnswer(txt) {
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (
             json.dumps(middle), maxTime))
+        self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self):
         self.bottom.web.setFocus()
@@ -653,7 +543,6 @@ function showAnswer(txt) {
             return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
 
     def _answerButtons(self):
-        times = []
         default = self._defaultEase()
         def but(i, label):
             if i == default:
@@ -662,8 +551,8 @@ function showAnswer(txt) {
                 extra = ""
             due = self._buttonTime(i)
             return '''
-<td align=center>%s<button %s title="%s" onclick='py.link("ease%d");'>\
-%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, label)
+<td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, i, label)
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
@@ -692,35 +581,76 @@ function showAnswer(txt) {
     ##########################################################################
 
     # note the shortcuts listed here also need to be defined above
-    def showContextMenu(self):
+    def _contextMenu(self):
+        currentFlag = self.card and self.card.userFlag()
         opts = [
+            [_("Flag Card"), [
+                [_("Red Flag"), "Ctrl+1", lambda: self.setFlag(1),
+                 dict(checked=currentFlag == 1)],
+                [_("Orange Flag"), "Ctrl+2", lambda: self.setFlag(2),
+                 dict(checked=currentFlag == 2)],
+                [_("Green Flag"), "Ctrl+3", lambda: self.setFlag(3),
+                 dict(checked=currentFlag == 3)],
+                [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4),
+                 dict(checked=currentFlag == 4)],
+            ]],
             [_("Mark Note"), "*", self.onMark],
             [_("Bury Card"), "-", self.onBuryCard],
             [_("Bury Note"), "=", self.onBuryNote],
             [_("Suspend Card"), "@", self.onSuspendCard],
             [_("Suspend Note"), "!", self.onSuspend],
-            [_("Delete Note"), "Delete", self.onDelete],
+            [_("Delete Note"), "Ctrl+Delete", self.onDelete],
             [_("Options"), "O", self.onOptions],
             None,
             [_("Replay Audio"), "R", self.replayAudio],
             [_("Record Own Voice"), "Shift+V", self.onRecordVoice],
             [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
+        return opts
+    
+    def showContextMenu(self):
+        opts = self._contextMenu()
         m = QMenu(self.mw)
-        for row in opts:
+        self._addMenuItems(m, opts)
+
+        runHook("Reviewer.contextMenuEvent", self, m)
+        m.exec_(QCursor.pos())
+
+    def _addMenuItems(self, m, rows):
+        for row in rows:
             if not row:
                 m.addSeparator()
                 continue
-            label, scut, func = row
+            if len(row) == 2:
+                subm = m.addMenu(row[0])
+                self._addMenuItems(subm, row[1])
+                continue
+            if len(row) == 4:
+                label, scut, func, opts = row
+            else:
+                label, scut, func = row
+                opts = {}
             a = m.addAction(label)
-            a.setShortcut(QKeySequence(scut))
-            a.connect(a, SIGNAL("triggered()"), func)
-        runHook("Reviewer.contextMenuEvent",self,m)
-        m.exec_(QCursor.pos())
+            if qtminor >= 10:
+                a.setShortcutVisibleInContextMenu(True)
+            if scut:
+                a.setShortcut(QKeySequence(scut))
+            if opts.get("checked"):
+                a.setCheckable(True)
+                a.setChecked(True)
+            a.triggered.connect(func)
 
     def onOptions(self):
         self.mw.onDeckConf(self.mw.col.decks.get(
             self.card.odid or self.card.did))
+
+    def setFlag(self, flag):
+        # need to toggle off?
+        if self.card.userFlag() == flag:
+            flag = 0
+        self.card.setUserFlag(flag)
+        self.card.flush()
+        self._drawFlag()
 
     def onMark(self):
         f = self.card.note()
@@ -729,7 +659,7 @@ function showAnswer(txt) {
         else:
             f.addTag("marked")
         f.flush()
-        self._toggleStar()
+        self._drawMark()
 
     def onSuspend(self):
         self.mw.checkpoint(_("Suspend"))

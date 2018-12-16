@@ -22,53 +22,96 @@ class DeckConf(QDialog):
             label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(_("Options"))
         self.setWindowModality(Qt.WindowModal)
-        self.connect(self.form.buttonBox,
-                     SIGNAL("helpRequested()"),
-                     lambda: openHelp("filtered"))
+        self.form.buttonBox.helpRequested.connect(lambda: openHelp("filtered"))
         self.setWindowTitle(_("Options for %s") % self.deck['name'])
         restoreGeom(self, "dyndeckconf")
-        self.setupOrder()
+        self.initialSetup()
         self.loadConf()
         if search:
-            self.form.search.setText(search)
+            self.form.search.setText(search + " is:due")
+            self.form.search_2.setText(search + " is:new")
         self.form.search.selectAll()
+
+        if self.mw.col.schedVer() == 1:
+            self.form.secondFilter.setVisible(False)
+
         self.show()
         self.exec_()
         saveGeom(self, "dyndeckconf")
 
-    def setupOrder(self):
+    def initialSetup(self):
         import anki.consts as cs
-        self.form.order.addItems(cs.dynOrderLabels().values())
+        self.form.order.addItems(list(cs.dynOrderLabels().values()))
+        self.form.order_2.addItems(list(cs.dynOrderLabels().values()))
+
+        self.form.resched.stateChanged.connect(self._onReschedToggled)
+
+    def _onReschedToggled(self, _state):
+        self.form.previewDelayWidget.setVisible(not self.form.resched.isChecked()
+                                                and self.mw.col.schedVer() > 1)
 
     def loadConf(self):
         f = self.form
         d = self.deck
+
+        f.resched.setChecked(d['resched'])
+        self._onReschedToggled(0)
+
         search, limit, order = d['terms'][0]
         f.search.setText(search)
-        if d['delays']:
-            f.steps.setText(self.listToUser(d['delays']))
-            f.stepsOn.setChecked(True)
+
+        if self.mw.col.schedVer() == 1:
+            if d['delays']:
+                f.steps.setText(self.listToUser(d['delays']))
+                f.stepsOn.setChecked(True)
         else:
-            f.steps.setText("1 10")
-            f.stepsOn.setChecked(False)
-        f.resched.setChecked(d['resched'])
+            f.steps.setVisible(False)
+            f.stepsOn.setVisible(False)
+
         f.order.setCurrentIndex(order)
         f.limit.setValue(limit)
+        f.previewDelay.setValue(d.get("previewDelay", 10))
+
+        if len(d['terms']) > 1:
+            search, limit, order = d['terms'][1]
+            f.search_2.setText(search)
+            f.order_2.setCurrentIndex(order)
+            f.limit_2.setValue(limit)
+            f.secondFilter.setChecked(True)
+            f.filter2group.setVisible(True)
+        else:
+            f.order_2.setCurrentIndex(5)
+            f.limit_2.setValue(20)
+            f.secondFilter.setChecked(False)
+            f.filter2group.setVisible(False)
 
     def saveConf(self):
         f = self.form
         d = self.deck
+        d['resched'] = f.resched.isChecked()
         d['delays'] = None
-        if f.stepsOn.isChecked():
+
+        if self.mw.col.schedVer() == 1 and f.stepsOn.isChecked():
             steps = self.userToList(f.steps)
             if steps:
                 d['delays'] = steps
-        else:
-            d['delays'] = None
-        d['terms'][0] = [f.search.text(),
-                         f.limit.value(),
-                         f.order.currentIndex()]
-        d['resched'] = f.resched.isChecked()
+            else:
+                d['delays'] = None
+
+        terms = [[
+            f.search.text(),
+            f.limit.value(),
+            f.order.currentIndex()]]
+
+        if f.secondFilter.isChecked():
+            terms.append([
+                f.search_2.text(),
+                f.limit_2.value(),
+                f.order_2.currentIndex()])
+
+        d['terms'] = terms
+        d['previewDelay'] = f.previewDelay.value()
+
         self.mw.col.decks.save(d)
         return True
 
@@ -94,7 +137,7 @@ it?""")):
         return " ".join([str(x) for x in l])
 
     def userToList(self, w, minSize=1):
-        items = unicode(w.text()).split(" ")
+        items = str(w.text()).split(" ")
         ret = []
         for i in items:
             if not i:

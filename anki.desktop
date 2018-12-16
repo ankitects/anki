@@ -2,7 +2,7 @@
 Name=Anki
 Comment=An intelligent spaced-repetition memory training program
 GenericName=Flashcards
-Exec=anki
+Exec=anki %f
 TryExec=anki
 Icon=anki
 Categories=Education;Languages;KDE;Qt;

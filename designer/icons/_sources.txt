@@ -1,9 +1,0 @@
--Anki icon by Alex Fraser (CC GNU GPL)
--Deck icon: Be Box Icons (non-commercial use)
--Deck due/new icons from:
- http://led24.de/iconset
- http://p.yusukekamiyamane.com/
--Other icons obtained from KDE themes (GPL/LGPL)
-
-Note that some of the icons have been modified to fit in with Anki better
-(grayscaled, cropped, etc).

@@ -6,12 +6,13 @@ from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
     openHelp, downArrow
 from anki.utils import isMac, ids2str, fmtTimeSpan
-import anki.js
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
+from anki.hooks import runHook
+from copy import deepcopy
 
-class DeckBrowser(object):
+class DeckBrowser:
 
     def __init__(self, mw):
         self.mw = mw
@@ -21,9 +22,8 @@ class DeckBrowser(object):
 
     def show(self):
         clearAudioQueue()
-        self.web.setLinkHandler(self._linkHandler)
-        self.web.setKeyHandler(None)
-        self.mw.keyHandler = self._keyHandler
+        self.web.resetHandlers()
+        self.web.onBridgeCmd = self._linkHandler
         self._renderPage()
 
     def refresh(self):
@@ -60,37 +60,14 @@ class DeckBrowser(object):
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
         elif cmd == "collapse":
             self._collapse(arg)
-
-    def _keyHandler(self, evt):
-        # currently does nothing
-        key = unicode(evt.text())
+        return False
 
     def _selDeck(self, did):
-        self.scrollPos =  self.web.page().mainFrame().scrollPosition()
         self.mw.col.decks.select(did)
         self.mw.onOverview()
 
     # HTML generation
     ##########################################################################
-
-    _dragIndicatorBorderWidth = "1px"
-
-    _css = """
-a.deck { color: #000; text-decoration: none; min-width: 5em;
-         display:inline-block; }
-a.deck:hover { text-decoration: underline; }
-tr.deck td { border-bottom: %(width)s solid #e7e7e7; }
-tr.top-level-drag-row td { border-bottom: %(width)s solid transparent; }
-td { white-space: nowrap; }
-tr.drag-hover td { border-bottom: %(width)s solid #aaa; }
-body { margin: 1em; -webkit-user-select: none; }
-.current { background-color: #e7e7e7; }
-.decktd { min-width: 15em; }
-.count { width: 6em; text-align: right; }
-.collapse { color: #000; text-decoration:none; display:inline-block;
-    width: 1em; }
-.filtered { color: #00a !important; }
-""" % dict(width=_dragIndicatorBorderWidth)
 
     _body = """
 <center>
@@ -102,59 +79,26 @@ body { margin: 1em; -webkit-user-select: none; }
 %(stats)s
 %(countwarn)s
 </center>
-<script>
-    $( init );
-
-    function init() {
-
-        $("tr.deck").draggable({
-            scroll: false,
-
-            // can't use "helper: 'clone'" because of a bug in jQuery 1.5
-            helper: function (event) {
-                return $(this).clone(false);
-            },
-            delay: 200,
-            opacity: 0.7
-        });
-        $("tr.deck").droppable({
-            drop: handleDropEvent,
-            hoverClass: 'drag-hover',
-        });
-        $("tr.top-level-drag-row").droppable({
-            drop: handleDropEvent,
-            hoverClass: 'drag-hover',
-        });
-    }
-
-    function handleDropEvent(event, ui) {
-        var draggedDeckId = ui.draggable.attr('id');
-        var ontoDeckId = $(this).attr('id');
-
-        py.link("drag:" + draggedDeckId + "," + ontoDeckId);
-    }
-</script>
 """
 
     def _renderPage(self, reuse=False):
-        css = self.mw.sharedCSS + self._css
         if not reuse:
             self._dueTree = self.mw.col.sched.deckDueTree()
+        self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+
+    def __renderPage(self, offset):
         tree = self._renderDeckTree(self._dueTree)
         stats = self._renderStats()
-        op = self._oldPos()
         self.web.stdHtml(self._body%dict(
-            tree=tree, stats=stats, countwarn=self._countWarn()), css=css,
-                         js=anki.js.jquery+anki.js.ui, loadCB=lambda ok:\
-                         self.web.page().mainFrame().setScrollPosition(op))
+            tree=tree, stats=stats, countwarn=self._countWarn()),
+                         css=["deckbrowser.css"],
+                         js=["jquery.js", "jquery-ui.js", "deckbrowser.js"])
         self.web.key = "deckBrowser"
         self._drawButtons()
+        self._scrollToOffset(offset)
 
-    def _oldPos(self):
-        if self.web.key == "deckBrowser":
-            return self.web.page().mainFrame().scrollPosition()
-        else:
-            return self.scrollPos
+    def _scrollToOffset(self, offset):
+        self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
 
     def _renderStats(self):
         cards, thetime = self.mw.col.db.first("""
@@ -163,8 +107,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         cards = cards or 0
         thetime = thetime or 0
         msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        buf = _("Studied %(a)s in %(b)s today.") % dict(a=msgp1,
-                                                        b=fmtTimeSpan(thetime, unit=1))
+        buf = _("Studied %(a)s %(b)s today.") % dict(a=msgp1,
+                                                     b=fmtTimeSpan(thetime, unit=1, inTime=True))
         return buf
 
     def _countWarn(self):
@@ -173,9 +117,11 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return ""
         return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>"+(
             _("You have a lot of decks. Please see %(a)s. %(b)s") % dict(
-                a=("<a href=lots>%s</a>" % _("this page")),
-                b=("<br><small><a href=hidelots>(%s)</a></small>" % (_("hide"))+
-                    "</div")))
+                a=("<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _(
+                    "this page")),
+                b=("<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
+                   "%s)</a></small>" % (_("hide"))+
+                    "</div>")))
 
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:
@@ -183,18 +129,19 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         if depth == 0:
             buf = """
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
-<th class=count>%s</th><th class=count></th></tr>""" % (
+<th class=count>%s</th><th class=optscol></th></tr>""" % (
             _("Deck"), _("Due"), _("New"))
             buf += self._topLevelDragRow()
         else:
             buf = ""
+        nameMap = self.mw.col.decks.nameMap()
         for node in nodes:
-            buf += self._deckRow(node, depth, len(nodes))
+            buf += self._deckRow(node, depth, len(nodes), nameMap)
         if depth == 0:
             buf += self._topLevelDragRow()
         return buf
 
-    def _deckRow(self, node, depth, cnt):
+    def _deckRow(self, node, depth, cnt, nameMap):
         name, did, due, lrn, new, children = node
         deck = self.mw.col.decks.get(did)
         if did == 1 and cnt > 1 and not children:
@@ -202,7 +149,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
                 return ""
         # parent toggled for collapsing
-        for parent in self.mw.col.decks.parents(did):
+        for parent in self.mw.col.decks.parents(did, nameMap):
             if parent['collapsed']:
                 buff = ""
                 return buff
@@ -219,7 +166,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
         buf = "<tr class='%s' id='%d'>" % (klass, did)
         # deck link
         if children:
-            collapse = "<a class=collapse href='collapse:%d'>%s</a>" % (did, prefix)
+            collapse = "<a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>" % (did, prefix)
         else:
             collapse = "<span class=collapse></span>"
         if deck['dyn']:
@@ -228,7 +175,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             extraclass = ""
         buf += """
 
-        <td class=decktd colspan=5>%s%s<a class="deck %s" href='open:%d'>%s</a></td>"""% (
+        <td class=decktd colspan=5>%s%s<a class="deck %s"
+        href=# onclick="return pycmd('open:%d')">%s</a></td>"""% (
             indent(), collapse, extraclass, did, name)
         # due counts
         def nonzeroColour(cnt, colour):
@@ -241,8 +189,8 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             nonzeroColour(due, "#007700"),
             nonzeroColour(new, "#000099"))
         # options
-        buf += "<td align=right class=opts>%s</td></tr>" % self.mw.button(
-            link="opts:%d"%did, name="<img valign=bottom src='qrc:/icons/gears.png'>"+downArrow())
+        buf += ("<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
+        "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did)
         # children
         buf += self._renderDeckTree(children, depth+1)
         return buf
@@ -250,28 +198,20 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _topLevelDragRow(self):
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
-    def _dueImg(self, due, new):
-        if due:
-            i = "clock-icon"
-        elif new:
-            i = "plus-circle"
-        else:
-            i = "none"
-        return '<img valign=bottom src="qrc:/icons/%s.png">' % i
-
     # Options
     ##########################################################################
 
     def _showOptions(self, did):
         m = QMenu(self.mw)
         a = m.addAction(_("Rename"))
-        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._rename(did))
+        a.triggered.connect(lambda b, did=did: self._rename(did))
         a = m.addAction(_("Options"))
-        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._options(did))
+        a.triggered.connect(lambda b, did=did: self._options(did))
         a = m.addAction(_("Export"))
-        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._export(did))
+        a.triggered.connect(lambda b, did=did: self._export(did))
         a = m.addAction(_("Delete"))
-        a.connect(a, SIGNAL("triggered()"), lambda did=did: self._delete(did))
+        a.triggered.connect(lambda b, did=did: self._delete(did))
+        runHook("showDeckOptions", m, did)
         m.exec_(QCursor.pos())
 
     def _export(self, did):
@@ -287,7 +227,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
             return
         try:
             self.mw.col.decks.rename(deck, newName)
-        except DeckRenameError, e:
+        except DeckRenameError as e:
             return showWarning(e.description)
         self.show()
 
@@ -304,7 +244,7 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
             self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
-        except DeckRenameError, e:
+        except DeckRenameError as e:
             return showWarning(e.description)
 
         self.show()
@@ -334,25 +274,22 @@ where id > ?""", (self.mw.col.sched.dayCutoff-86400)*1000)
     # Top buttons
     ######################################################################
 
-    def _drawButtons(self):
-        links = [
+    drawLinks = [
             ["", "shared", _("Get Shared")],
             ["", "create", _("Create Deck")],
-            ["Ctrl+I", "import", _("Import File")],
-        ]
+            ["Ctrl+I", "import", _("Import File")],  # Ctrl+I works from menu
+    ]
+
+    def _drawButtons(self):
         buf = ""
-        for b in links:
+        drawLinks = deepcopy(self.drawLinks)
+        for b in drawLinks:
             if b[0]:
                 b[0] = _("Shortcut key: %s") % shortcut(b[0])
             buf += """
-<button title='%s' onclick='py.link(\"%s\");'>%s</button>""" % tuple(b)
+<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(b)
         self.bottom.draw(buf)
-        if isMac:
-            size = 28
-        else:
-            size = 36 + self.mw.fontHeightDelta*3
-        self.bottom.web.setFixedHeight(size)
-        self.bottom.web.setLinkHandler(self._linkHandler)
+        self.bottom.web.onBridgeCmd = self._linkHandler
 
     def _onShared(self):
         openLink(aqt.appShared+"decks/")

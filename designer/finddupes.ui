@@ -22,14 +22,14 @@
      <item row="2" column="1">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Optional limit:</string>
+        <string>Optional filter:</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Look in field:</string>
+        <string>Search in:</string>
        </property>
       </widget>
      </item>
@@ -47,12 +47,21 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item>
-       <widget class="QWebView" name="webView">
-        <property name="url">
+       <widget class="AnkiWebView" name="webView" native="true">
+        <property name="url" stdset="0">
          <url>
           <string>about:blank</string>
          </url>
@@ -76,9 +85,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>AnkiWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header location="global">aqt/webview</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

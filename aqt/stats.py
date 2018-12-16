@@ -4,7 +4,8 @@
 
 from aqt.qt import *
 import os, time
-from aqt.utils import saveGeom, restoreGeom, maybeHideClose, showInfo, addCloseShortcut
+from aqt.utils import saveGeom, restoreGeom, maybeHideClose, addCloseShortcut, \
+    tooltip, getSaveFile
 import aqt
 
 # Deck Stats
@@ -14,6 +15,7 @@ class DeckStats(QDialog):
 
     def __init__(self, mw):
         QDialog.__init__(self, mw, Qt.Window)
+        mw.setupDialogGC(self)
         self.mw = mw
         self.name = "deckStats"
         self.period = 0
@@ -24,51 +26,48 @@ class DeckStats(QDialog):
         f = self.form
         f.setupUi(self)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(_("Save Image"),
+        b = f.buttonBox.addButton(_("Save PDF"),
                                           QDialogButtonBox.ActionRole)
-        b.connect(b, SIGNAL("clicked()"), self.browser)
+        b.clicked.connect(self.saveImage)
         b.setAutoDefault(False)
-        c = self.connect
-        s = SIGNAL("clicked()")
-        c(f.groups, s, lambda: self.changeScope("deck"))
+        f.groups.clicked.connect(lambda: self.changeScope("deck"))
         f.groups.setShortcut("g")
-        c(f.all, s, lambda: self.changeScope("collection"))
-        c(f.month, s, lambda: self.changePeriod(0))
-        c(f.year, s, lambda: self.changePeriod(1))
-        c(f.life, s, lambda: self.changePeriod(2))
-        c(f.web, SIGNAL("loadFinished(bool)"), self.loadFin)
+        f.all.clicked.connect(lambda: self.changeScope("collection"))
+        f.month.clicked.connect(lambda: self.changePeriod(0))
+        f.year.clicked.connect(lambda: self.changePeriod(1))
+        f.life.clicked.connect(lambda: self.changePeriod(2))
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
+        self.show()
         self.refresh()
-        self.exec_()
+        self.activateWindow()
 
     def reject(self):
         saveGeom(self, self.name)
+        aqt.dialogs.markClosed("DeckStats")
         QDialog.reject(self)
 
-    def browser(self):
-        name = time.strftime("-%Y-%m-%d@%H-%M-%S.png",
+    def closeWithCallback(self, callback):
+        self.reject()
+        callback()
+
+    def _imagePath(self):
+        name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf",
                              time.localtime(time.time()))
         name = "anki-"+_("stats")+name
-        desktopPath = QDesktopServices.storageLocation(QDesktopServices.DesktopLocation)
-        if not os.path.exists(desktopPath):
-            os.mkdir(desktopPath)
-        path = os.path.join(desktopPath, name)
-        p = self.form.web.page()
-        oldsize = p.viewportSize()
-        p.setViewportSize(p.mainFrame().contentsSize())
-        image = QImage(p.viewportSize(), QImage.Format_ARGB32)
-        painter = QPainter(image)
-        p.mainFrame().render(painter)
-        painter.end()
-        isOK = image.save(path, "png")
-        if isOK:
-            showInfo(_("An image was saved to your desktop."))
-        else:
-            showInfo(_("""\
-Anki could not save the image. Please check that you have permission to write \
-to your desktop."""))
-        p.setViewportSize(oldsize)
+        file = getSaveFile(self, title=_("Save PDF"),
+                           dir_description="stats",
+                           key="stats",
+                           ext=".pdf",
+                           fname=name)
+        return file
+
+    def saveImage(self):
+        path = self._imagePath()
+        if not path:
+            return
+        self.form.web.page().printToPdf(path)
+        tooltip(_("Saved."))
 
     def changePeriod(self, n):
         self.period = n
@@ -78,14 +77,11 @@ to your desktop."""))
         self.wholeCollection = type == "collection"
         self.refresh()
 
-    def loadFin(self, b):
-        self.form.web.page().mainFrame().setScrollPosition(self.oldPos)
-
     def refresh(self):
-        self.mw.progress.start(immediate=True)
-        self.oldPos = self.form.web.page().mainFrame().scrollPosition()
+        self.mw.progress.start(immediate=True, parent=self)
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.setHtml(self.report)
+        self.form.web.stdHtml("<html><body>"+self.report+"</body></html>",
+                              js=["jquery.js", "plot.js"])
         self.mw.progress.finish()

@@ -14,7 +14,7 @@ class DeckChooser(QHBoxLayout):
         self.mw = mw
         self.deck = mw.col
         self.label = label
-        self.setMargin(0)
+        self.setContentsMargins(0,0,0,0)
         self.setSpacing(8)
         self.setupDecks()
         self.widget.setLayout(self)
@@ -25,12 +25,10 @@ class DeckChooser(QHBoxLayout):
             self.deckLabel = QLabel(_("Deck"))
             self.addWidget(self.deckLabel)
         # decks box
-        self.deck = QPushButton()
+        self.deck = QPushButton(clicked=self.onDeckChange)
         self.deck.setToolTip(shortcut(_("Target Deck (Ctrl+D)")))
-        s = QShortcut(QKeySequence(_("Ctrl+D")), self.widget)
-        s.connect(s, SIGNAL("activated()"), self.onDeckChange)
+        s = QShortcut(QKeySequence(_("Ctrl+D")), self.widget, activated=self.onDeckChange)
         self.addWidget(self.deck)
-        self.connect(self.deck, SIGNAL("clicked()"), self.onDeckChange)
         # starting label
         if self.mw.col.conf.get("addToCur", True):
             col = self.mw.col
@@ -45,10 +43,10 @@ class DeckChooser(QHBoxLayout):
                         did = c.odid
                 else:
                     did = 1
-            self.deck.setText(self.mw.col.decks.nameOrNone(
+            self.setDeckName(self.mw.col.decks.nameOrNone(
                 did) or _("Default"))
         else:
-            self.deck.setText(self.mw.col.decks.nameOrNone(
+            self.setDeckName(self.mw.col.decks.nameOrNone(
                 self.mw.col.models.current()['did']) or _("Default"))
         # layout
         sizePolicy = QSizePolicy(
@@ -67,21 +65,29 @@ class DeckChooser(QHBoxLayout):
 
     def onModelChange(self):
         if not self.mw.col.conf.get("addToCur", True):
-            self.deck.setText(self.mw.col.decks.nameOrNone(
+            self.setDeckName(self.mw.col.decks.nameOrNone(
                 self.mw.col.models.current()['did']) or _("Default"))
 
     def onDeckChange(self):
         from aqt.studydeck import StudyDeck
-        current = self.deck.text()
+        current = self.deckName()
         ret = StudyDeck(
             self.mw, current=current, accept=_("Choose"),
             title=_("Choose Deck"), help="addingnotes",
             cancel=False, parent=self.widget, geomKey="selectDeck")
-        self.deck.setText(ret.name)
+        if ret.name:
+            self.setDeckName(ret.name)
+
+    def setDeckName(self, name):
+        self.deck.setText(name.replace("&", "&&"))
+        self._deckName = name
+
+    def deckName(self):
+        return self._deckName
 
     def selectedId(self):
         # save deck name
-        name = self.deck.text()
+        name = self.deckName()
         if not name.strip():
             did = 1
         else:

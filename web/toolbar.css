@@ -1,0 +1,31 @@
+#header {
+    padding: 3px;
+    font-weight: bold;
+    border-bottom: 1px solid #aaa;
+}
+
+.tdcenter {
+    white-space: nowrap;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    -webkit-user-select: none;
+    overflow: hidden;
+}
+
+* {
+    -webkit-user-drag: none;
+}
+
+.hitem {
+    padding-right: 12px;
+    padding-left: 12px;
+    text-decoration: none;
+    color: #000;
+}
+
+.hitem:hover {
+    text-decoration: underline;
+}

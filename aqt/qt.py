@@ -1,30 +1,26 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# imports are all in this file to make moving to pyside easier in the future
 # fixme: make sure not to optimize imports on this file
 
-import sip
 import os
+
+# fix buggy ubuntu12.04 display of language selector
+os.environ["LIBOVERLAY_SCROLLBAR"] = "0"
 
 from anki.utils import isWin, isMac
 
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-sip.setapi('QUrl', 2)
+from PyQt5.Qt import *
+# trigger explicit message in case of missing libraries
+# instead of silently failing to import
+from PyQt5.QtWebEngineWidgets import QWebEnginePage
 try:
-    sip.setdestroyonexit(False)
-except:
-    # missing in older versions
-    pass
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
-from PyQt4.QtNetwork import QLocalServer, QLocalSocket
-
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 def debug():
-  from PyQt4.QtCore import pyqtRemoveInputHook
+  from PyQt5.QtCore import pyqtRemoveInputHook
   from pdb import set_trace
   pyqtRemoveInputHook()
   set_trace()
@@ -33,7 +29,7 @@ import sys, traceback
 
 if os.environ.get("DEBUG"):
     def info(type, value, tb):
-        from PyQt4.QtCore import pyqtRemoveInputHook
+        from PyQt5.QtCore import pyqtRemoveInputHook
         for line in traceback.format_exception(type, value, tb):
             sys.stdout.write(line)
         pyqtRemoveInputHook()
@@ -43,9 +39,11 @@ if os.environ.get("DEBUG"):
 
 qtmajor = (QT_VERSION & 0xff0000) >> 16
 qtminor = (QT_VERSION & 0x00ff00) >> 8
+qtpoint = QT_VERSION & 0xff
 
-# qt4.6 doesn't support ruby tags
-if qtmajor <= 4 and qtminor <= 6:
-  import anki.template.furigana
-  anki.template.furigana.ruby = r'<span style="display: inline-block; text-align: center; line-height: 1; white-space: nowrap; vertical-align: baseline; margin: 0; padding: 0"><span style="display: block; text-decoration: none; line-height: 1.2; font-weight: normal; font-size: 0.64em">\2</span>\1</span>'
+if qtmajor != 5 or qtminor < 9 or qtminor == 10:
+   raise Exception("Anki does not support your Qt version.")
 
+# GUI code assumes python 3.6+
+if sys.version_info[0] < 3 or sys.version_info[1] < 6:
+    raise Exception("Anki requires Python 3.6+")

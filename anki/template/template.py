@@ -4,7 +4,7 @@ from anki.hooks import runFilter
 from anki.template import furigana; furigana.install()
 from anki.template import hint; hint.install()
 
-clozeReg = r"(?s)\{\{c%s::(.*?)(::(.*?))?\}\}"
+clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
 
 modifiers = {}
 def modifier(symbol):
@@ -34,7 +34,7 @@ def get_or_attr(obj, name, default=None):
             return default
 
 
-class Template(object):
+class Template:
     # The regular expression used to find a #section
     section_re = None
 
@@ -84,35 +84,22 @@ class Template(object):
             section_name = section_name.strip()
 
             # check for cloze
+            val = None
             m = re.match("c[qa]:(\d+):(.+)", section_name)
             if m:
                 # get full field text
                 txt = get_or_attr(context, m.group(2), None)
                 m = re.search(clozeReg%m.group(1), txt)
                 if m:
-                    it = m.group(1)
-                else:
-                    it = None
+                    val = m.group(1)
             else:
-                it = get_or_attr(context, section_name, None)
+                val = get_or_attr(context, section_name, None)
 
             replacer = ''
-            # if it and isinstance(it, collections.Callable):
-            #     replacer = it(inner)
-            if isinstance(it, basestring):
-                it = stripHTMLMedia(it).strip()
-            if it and not hasattr(it, '__iter__'):
-                if section[2] != '^':
-                    replacer = inner
-            elif it and hasattr(it, 'keys') and hasattr(it, '__getitem__'):
-                if section[2] != '^':
-                    replacer = self.render(inner, it)
-            elif it:
-                insides = []
-                for item in it:
-                    insides.append(self.render(inner, item))
-                replacer = ''.join(insides)
-            elif not it and section[2] == '^':
+            inverted = section[2] == "^"
+            if val:
+                val = stripHTMLMedia(val).strip()
+            if (val and not inverted) or (not val and inverted):
                 replacer = inner
 
             template = template.replace(section, replacer)
@@ -121,7 +108,13 @@ class Template(object):
 
     def render_tags(self, template, context):
         """Renders all the tags in a template for a context."""
+        repCount = 0
         while 1:
+            if repCount > 100:
+                print("too many replacements")
+                break
+            repCount += 1
+
             match = self.tag_re.search(template)
             if match is None:
                 break
@@ -133,7 +126,7 @@ class Template(object):
                 replacement = func(self, tag_name, context)
                 template = template.replace(tag, replacement)
             except (SyntaxError, KeyError):
-                return u"{{invalid template}}"
+                return "{{invalid template}}"
 
         return template
 
@@ -193,7 +186,7 @@ class Template(object):
                 # hook-based field modifier
                 mod, extra = re.search("^(.*?)(?:\((.*)\))?$", mod).groups()
                 txt = runFilter('fmod_' + mod, txt or '', extra or '', context,
-                                tag, tag_name);
+                                tag, tag_name)
                 if txt is None:
                     return '{unknown field %s}' % tag_name
         return txt
@@ -202,18 +195,45 @@ class Template(object):
         reg = clozeReg
         if not re.search(reg%ord, txt):
             return ""
+        txt = self._removeFormattingFromMathjax(txt, ord)
         def repl(m):
             # replace chosen cloze with type
             if type == "q":
-                if m.group(3):
-                    return "<span class=cloze>[%s]</span>" % m.group(3)
+                if m.group(4):
+                    buf = "[%s]" % m.group(4)
                 else:
-                    return "<span class=cloze>[...]</span>"
+                    buf = "[...]"
             else:
-                return "<span class=cloze>%s</span>" % m.group(1)
+                buf = m.group(2)
+            # uppercase = no formatting
+            if m.group(1) == "c":
+                buf = "<span class=cloze>%s</span>" % buf
+            return buf
         txt = re.sub(reg%ord, repl, txt)
         # and display other clozes normally
-        return re.sub(reg%"\d+", "\\1", txt)
+        return re.sub(reg%"\d+", "\\2", txt)
+
+    # look for clozes wrapped in mathjax, and change {{cx to {{Cx
+    def _removeFormattingFromMathjax(self, txt, ord):
+        opening = ["\\(", "\\["]
+        closing = ["\\)", "\\]"]
+        # flags in middle of expression deprecated
+        creg = clozeReg.replace("(?si)", "")
+        regex = r"(?si)(\\[([])(.*?)"+(creg%ord)+r"(.*?)(\\[\])])"
+        def repl(m):
+            enclosed = True
+            for s in closing:
+                if s in m.group(1):
+                    enclosed = False
+            for s in opening:
+                if s in m.group(7):
+                    enclosed = False
+            if not enclosed:
+                return m.group(0)
+            # remove formatting
+            return m.group(0).replace("{{c", "{{C")
+        txt = re.sub(regex, repl, txt)
+        return txt
 
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None):

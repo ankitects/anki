@@ -2,24 +2,27 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import collections
 import re
 
 from aqt.qt import *
 from anki.consts import *
 import aqt
 from anki.sound import playFromText, clearAudioQueue
-from aqt.utils import saveGeom, restoreGeom, getBase, mungeQA,\
+from aqt.utils import saveGeom, restoreGeom, mungeQA,\
     showInfo, askUser, getOnlyText, \
      showWarning, openHelp, downArrow
-from anki.utils import isMac, isWin, joinFields
+from anki.utils import isMac, isWin, joinFields, bodyClass
 from aqt.webview import AnkiWebView
-import anki.js
+import json
+from anki.hooks import runFilter
 
 
 class CardLayout(QDialog):
 
     def __init__(self, mw, note, ord=0, parent=None, addMode=False):
         QDialog.__init__(self, parent or mw, Qt.Window)
+        mw.setupDialogGC(self)
         self.mw = aqt.mw
         self.parent = parent or mw
         self.note = note
@@ -32,109 +35,174 @@ class CardLayout(QDialog):
         if addMode:
             # save it to DB temporarily
             self.emptyFields = []
-            for name, val in note.items():
+            for name, val in list(note.items()):
                 if val.strip():
                     continue
                 self.emptyFields.append(name)
                 note[name] = "(%s)" % name
             note.flush()
-        self.setupTabs()
+        self.setupTopArea()
+        self.setupMainArea()
         self.setupButtons()
+        self.setupShortcuts()
         self.setWindowTitle(_("Card Types for %s") % self.model['name'])
         v1 = QVBoxLayout()
-        v1.addWidget(self.tabs)
+        v1.addWidget(self.topArea)
+        v1.addWidget(self.mainArea)
         v1.addLayout(self.buttons)
+        v1.setContentsMargins(12,12,12,12)
         self.setLayout(v1)
         self.redraw()
         restoreGeom(self, "CardLayout")
-        self.exec_()
+        self.setWindowModality(Qt.ApplicationModal)
+        self.show()
+        # take the focus away from the first input area when starting up,
+        # as users tend to accidentally type into the template
+        self.setFocus()
 
     def redraw(self):
         self.cards = self.col.previewCards(self.note, 2)
-        self.redrawing = True
-        self.updateTabs()
-        self.redrawing = False
         idx = self.ord
         if idx >= len(self.cards):
-            idx = len(self.cards) - 1
-        self.selectCard(idx)
+            self.ord = len(self.cards) - 1
 
-    def setupTabs(self):
-        c = self.connect
-        cloze = self.model['type'] == MODEL_CLOZE
-        self.tabs = QTabWidget()
-        self.tabs.setTabsClosable(not cloze)
-        self.tabs.setUsesScrollButtons(True)
-        if not cloze:
-            add = QPushButton("+")
-            add.setFixedWidth(30)
-            add.setToolTip(_("Add new card"))
-            c(add, SIGNAL("clicked()"), self.onAddCard)
-            self.tabs.setCornerWidget(add)
-        c(self.tabs, SIGNAL("currentChanged(int)"), self.onCardSelected)
-        c(self.tabs, SIGNAL("tabCloseRequested(int)"), self.onRemoveTab)
+        self.redrawing = True
+        self.updateTopArea()
+        self.updateMainArea()
+        self.redrawing = False
+        self.onCardSelected(self.ord)
 
-    def updateTabs(self):
-        self.forms = []
-        self.tabs.clear()
-        for t in self.model['tmpls']:
-            self.addTab(t)
+    def setupShortcuts(self):
+        for i in range(1,9):
+            QShortcut(QKeySequence("Ctrl+%d" % i), self, activated=lambda i=i: self.selectCard(i))
 
-    def addTab(self, t):
-        c = self.connect
-        w = QWidget()
+    def selectCard(self, n):
+        self.ord = n-1
+        self.redraw()
+
+    def setupTopArea(self):
+        self.topArea = QWidget()
+        self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
+        self.topAreaForm.setupUi(self.topArea)
+        self.topAreaForm.templateOptions.setText(_("Options") + " "+downArrow())
+        self.topAreaForm.templateOptions.clicked.connect(self.onMore)
+        self.topAreaForm.templatesBox.currentIndexChanged.connect(self.onCardSelected)
+
+    def updateTopArea(self):
+        cnt = self.mw.col.models.useCount(self.model)
+        self.topAreaForm.changesLabel.setText(ngettext(
+            "Changes below will affect the %(cnt)d note that uses this card type.",
+            "Changes below will affect the %(cnt)d notes that use this card type.",
+            cnt) % dict(cnt=cnt))
+        self.updateCardNames()
+
+    def updateCardNames(self):
+        self.redrawing = True
+        combo = self.topAreaForm.templatesBox
+        combo.clear()
+        combo.addItems(self._summarizedName(t) for t in self.model['tmpls'])
+        combo.setCurrentIndex(self.ord)
+        combo.setEnabled(not self._isCloze())
+        self.redrawing = False
+
+    def _summarizedName(self, tmpl):
+        return "{}: {} -> {}".format(
+            tmpl['name'],
+            self._fieldsOnTemplate(tmpl['qfmt']),
+            self._fieldsOnTemplate(tmpl['afmt']))
+
+    def _fieldsOnTemplate(self, fmt):
+        matches = re.findall("{{[^#/}]+?}}", fmt)
+        charsAllowed = 30
+        result = collections.OrderedDict()
+        for m in matches:
+            # strip off mustache
+            m = re.sub(r"[{}]", "", m)
+            # strip off modifiers
+            m = m.split(":")[-1]
+            # don't show 'FrontSide'
+            if m == "FrontSide":
+                continue
+
+            if m not in result:
+                result[m] = True
+                charsAllowed -= len(m)
+                if charsAllowed <= 0:
+                    break
+
+        str = "+".join(result.keys())
+        if charsAllowed <= 0:
+            str += "+..."
+        return str
+
+    def _isCloze(self):
+        return self.model['type'] == MODEL_CLOZE
+
+    def setupMainArea(self):
+        w = self.mainArea = QWidget()
         l = QHBoxLayout()
-        l.setMargin(0)
+        l.setContentsMargins(0,0,0,0)
         l.setSpacing(3)
         left = QWidget()
         # template area
-        tform = aqt.forms.template.Ui_Form()
+        tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        tform.label1.setText(u" →")
-        tform.label2.setText(u" →")
-        tform.labelc1.setText(u" ↗")
-        tform.labelc2.setText(u" ↘")
+        tform.label1.setText(" →")
+        tform.label2.setText(" →")
+        tform.labelc1.setText(" ↗")
+        tform.labelc2.setText(" ↘")
         if self.style().objectName() == "gtk+":
             # gtk+ requires margins in inner layout
             tform.tlayout1.setContentsMargins(0, 11, 0, 0)
             tform.tlayout2.setContentsMargins(0, 11, 0, 0)
             tform.tlayout3.setContentsMargins(0, 11, 0, 0)
-        if len(self.cards) > 1:
-            tform.groupBox_3.setTitle(_(
-                "Styling (shared between cards)"))
-        c(tform.front, SIGNAL("textChanged()"), self.saveCard)
-        c(tform.css, SIGNAL("textChanged()"), self.saveCard)
-        c(tform.back, SIGNAL("textChanged()"), self.saveCard)
+        tform.groupBox_3.setTitle(_(
+            "Styling (shared between cards)"))
+        tform.front.textChanged.connect(self.saveCard)
+        tform.css.textChanged.connect(self.saveCard)
+        tform.back.textChanged.connect(self.saveCard)
         l.addWidget(left, 5)
         # preview area
         right = QWidget()
-        pform = aqt.forms.preview.Ui_Form()
+        pform = self.pform = aqt.forms.preview.Ui_Form()
         pform.setupUi(right)
         if self.style().objectName() == "gtk+":
             # gtk+ requires margins in inner layout
             pform.frontPrevBox.setContentsMargins(0, 11, 0, 0)
             pform.backPrevBox.setContentsMargins(0, 11, 0, 0)
-        # for cloze notes, show that it's one of n cards
-        if self.model['type'] == MODEL_CLOZE:
-            cnt = len(self.mm.availOrds(
-                self.model, joinFields(self.note.fields)))
-            for g in pform.groupBox, pform.groupBox_2:
-                g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
+
+        self.setupWebviews()
+
+        l.addWidget(right, 5)
+        w.setLayout(l)
+
+    def setupWebviews(self):
+        pform = self.pform
         pform.frontWeb = AnkiWebView()
         pform.frontPrevBox.addWidget(pform.frontWeb)
         pform.backWeb = AnkiWebView()
         pform.backPrevBox.addWidget(pform.backWeb)
-        for wig in pform.frontWeb, pform.backWeb:
-            wig.page().setLinkDelegationPolicy(
-                QWebPage.DelegateExternalLinks)
-        l.addWidget(right, 5)
-        w.setLayout(l)
-        self.forms.append({'tform': tform, 'pform': pform})
-        self.tabs.addTab(w, t['name'])
+        jsinc = ["jquery.js","browsersel.js",
+                 "mathjax/conf.js", "mathjax/MathJax.js",
+                 "reviewer.js"]
+        pform.frontWeb.stdHtml(self.mw.reviewer.revHtml(),
+                               css=["reviewer.css"],
+                               js=jsinc)
+        pform.backWeb.stdHtml(self.mw.reviewer.revHtml(),
+                              css=["reviewer.css"],
+                               js=jsinc)
 
-    def onRemoveTab(self, idx):
+    def updateMainArea(self):
+        if self._isCloze():
+            cnt = len(self.mm.availOrds(
+                self.model, joinFields(self.note.fields)))
+            for g in self.pform.groupBox, self.pform.groupBox_2:
+                g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
+
+    def onRemove(self):
         if len(self.model['tmpls']) < 2:
             return showInfo(_("At least one card type is required."))
+        idx = self.ord
         cards = self.mm.tmplUseCount(self.model, idx)
         cards = ngettext("%d card", "%d cards", cards) % cards
         msg = (_("Delete the '%(a)s' card type, and its %(b)s?") %
@@ -151,49 +219,35 @@ Please create a new card type first."""))
     ##########################################################################
 
     def setupButtons(self):
-        c = self.connect
         l = self.buttons = QHBoxLayout()
         help = QPushButton(_("Help"))
         help.setAutoDefault(False)
         l.addWidget(help)
-        c(help, SIGNAL("clicked()"), self.onHelp)
+        help.clicked.connect(self.onHelp)
         l.addStretch()
         addField = QPushButton(_("Add Field"))
         addField.setAutoDefault(False)
         l.addWidget(addField)
-        c(addField, SIGNAL("clicked()"), self.onAddField)
-        if self.model['type'] != MODEL_CLOZE:
+        addField.clicked.connect(self.onAddField)
+        if not self._isCloze():
             flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
             l.addWidget(flip)
-            c(flip, SIGNAL("clicked()"), self.onFlip)
-        more = QPushButton(_("More") + u" "+downArrow())
-        more.setAutoDefault(False)
-        l.addWidget(more)
-        c(more, SIGNAL("clicked()"), lambda: self.onMore(more))
+            flip.clicked.connect(self.onFlip)
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
         l.addWidget(close)
-        c(close, SIGNAL("clicked()"), self.accept)
+        close.clicked.connect(self.accept)
 
     # Cards
     ##########################################################################
-
-    def selectCard(self, idx):
-        if self.tabs.currentIndex() == idx:
-            # trigger a re-read
-            self.onCardSelected(idx)
-        else:
-            self.tabs.setCurrentIndex(idx)
 
     def onCardSelected(self, idx):
         if self.redrawing:
             return
         self.card = self.cards[idx]
         self.ord = idx
-        self.tab = self.forms[idx]
-        self.tabs.setCurrentIndex(idx)
         self.playedAudio = {}
         self.readCard()
         self.renderPreview()
@@ -201,48 +255,68 @@ Please create a new card type first."""))
     def readCard(self):
         t = self.card.template()
         self.redrawing = True
-        self.tab['tform'].front.setPlainText(t['qfmt'])
-        self.tab['tform'].css.setPlainText(self.model['css'])
-        self.tab['tform'].back.setPlainText(t['afmt'])
-        self.tab['tform'].front.setAcceptRichText(False)
-        self.tab['tform'].css.setAcceptRichText(False)
-        self.tab['tform'].back.setAcceptRichText(False)
-        self.tab['tform'].front.setTabStopWidth(30)
-        self.tab['tform'].css.setTabStopWidth(30)
-        self.tab['tform'].back.setTabStopWidth(30)
+        self.tform.front.setPlainText(t['qfmt'])
+        self.tform.css.setPlainText(self.model['css'])
+        self.tform.back.setPlainText(t['afmt'])
+        self.tform.front.setAcceptRichText(False)
+        self.tform.css.setAcceptRichText(False)
+        self.tform.back.setAcceptRichText(False)
+        self.tform.front.setTabStopWidth(30)
+        self.tform.css.setTabStopWidth(30)
+        self.tform.back.setTabStopWidth(30)
         self.redrawing = False
 
     def saveCard(self):
         if self.redrawing:
             return
-        text = self.tab['tform'].front.toPlainText()
+        text = self.tform.front.toPlainText()
         self.card.template()['qfmt'] = text
-        text = self.tab['tform'].css.toPlainText()
+        text = self.tform.css.toPlainText()
         self.card.model()['css'] = text
-        text = self.tab['tform'].back.toPlainText()
+        text = self.tform.back.toPlainText()
         self.card.template()['afmt'] = text
         self.renderPreview()
 
     # Preview
     ##########################################################################
 
+    _previewTimer = None
+
     def renderPreview(self):
+        # schedule a preview when timing stops
+        self.cancelPreviewTimer()
+        self._previewTimer = self.mw.progress.timer(500, self._renderPreview, False)
+
+    def cancelPreviewTimer(self):
+        if self._previewTimer:
+            self._previewTimer.stop()
+            self._previewTimer = None
+
+    def _renderPreview(self):
+        self.cancelPreviewTimer()
+
         c = self.card
         ti = self.maybeTextInput
-        base = getBase(self.mw.col)
-        self.tab['pform'].frontWeb.stdHtml(
-            ti(mungeQA(self.mw.col, c.q(reload=True))), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
-        self.tab['pform'].backWeb.stdHtml(
-            ti(mungeQA(self.mw.col, c.a()), type='a'), self.mw.reviewer._styles(),
-            bodyClass="card card%d" % (c.ord+1), head=base,
-            js=anki.js.browserSel)
+
+        bodyclass = bodyClass(self.mw.col, c)
+
+        q = ti(mungeQA(self.mw.col, c.q(reload=True)))
+        q = runFilter("prepareQA", q, c, "clayoutQuestion")
+
+        a = ti(mungeQA(self.mw.col, c.a()), type='a')
+        a = runFilter("prepareQA", a, c, "clayoutAnswer")
+
+        # use _showAnswer to avoid the longer delay
+        self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
+        self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
+
         clearAudioQueue()
         if c.id not in self.playedAudio:
             playFromText(c.q())
             playFromText(c.a())
             self.playedAudio[c.id] = True
+
+        self.updateCardNames()
 
     def maybeTextInput(self, txt, type='q'):
         if "[[type:" not in txt:
@@ -251,12 +325,12 @@ Please create a new card type first."""))
         txt = txt.replace("<hr id=answer>", "")
         hadHR = origLen != len(txt)
         def answerRepl(match):
-            res = self.mw.reviewer.correct(u"exomple", u"an example")
+            res = self.mw.reviewer.correct("exomple", "an example")
             if hadHR:
                 res = "<hr id=answer>" + res
             return res
         if type == 'q':
-            repl = "<input id='typeans' type=text value='exomple'>"
+            repl = "<input id='typeans' type=text value='exomple' readonly='readonly'>"
             repl = "<center>%s</center>" % repl
         else:
             repl = answerRepl
@@ -274,7 +348,7 @@ Please create a new card type first."""))
                     if c.template()['ord'] != self.ord]:
             return showWarning(_("That name is already used."))
         self.card.template()['name'] = name
-        self.tabs.setTabText(self.tabs.currentIndex(), name)
+        self.redraw()
 
     def onReorder(self):
         n = len(self.cards)
@@ -307,10 +381,15 @@ Please create a new card type first."""))
         return name
 
     def onAddCard(self):
+        cnt = self.mw.col.models.useCount(self.model)
+        txt = ngettext("This will create %d card. Proceed?",
+                       "This will create %d cards. Proceed?", cnt) % cnt
+        if not askUser(txt):
+            return
         name = self._newCardName()
         t = self.mm.newTemplate(name)
         old = self.card.template()
-        t['qfmt'] = "%s<br>\n%s" % (_("Edit to customize"), old['qfmt'])
+        t['qfmt'] = old['qfmt']
         t['afmt'] = old['afmt']
         self.mm.addTemplate(self.model, t)
         self.ord = len(self.cards)
@@ -332,27 +411,36 @@ adjust the template manually to switch the question and answer."""))
         dst['qfmt'] = m.group(2).strip()
         return True
 
-    def onMore(self, button):
+    def onMore(self):
         m = QMenu(self)
-        a = m.addAction(_("Rename"))
-        a.connect(a, SIGNAL("triggered()"),
-                  self.onRename)
-        if self.model['type'] != MODEL_CLOZE:
-            a = m.addAction(_("Reposition"))
-            a.connect(a, SIGNAL("triggered()"),
-                      self.onReorder)
+
+        if not self._isCloze():
+            a = m.addAction(_("Add Card Type..."))
+            a.triggered.connect(self.onAddCard)
+
+            a = m.addAction(_("Remove Card Type..."))
+            a.triggered.connect(self.onRemove)
+
+            a = m.addAction(_("Rename Card Type..."))
+            a.triggered.connect(self.onRename)
+
+            a = m.addAction(_("Reposition Card Type..."))
+            a.triggered.connect(self.onReorder)
+
+            m.addSeparator()
+
             t = self.card.template()
             if t['did']:
                 s = _(" (on)")
             else:
                 s = _(" (off)")
-            a = m.addAction(_("Deck Override") + s)
-            a.connect(a, SIGNAL("triggered()"),
-                      self.onTargetDeck)
-        a = m.addAction(_("Browser Appearance"))
-        a.connect(a, SIGNAL("triggered()"),
-                  self.onBrowserDisplay)
-        m.exec_(button.mapToGlobal(QPoint(0,0)))
+            a = m.addAction(_("Deck Override...") + s)
+            a.triggered.connect(self.onTargetDeck)
+
+        a = m.addAction(_("Browser Appearance..."))
+        a.triggered.connect(self.onBrowserDisplay)
+
+        m.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0,0)))
 
     def onBrowserDisplay(self):
         d = QDialog()
@@ -361,18 +449,24 @@ adjust the template manually to switch the question and answer."""))
         t = self.card.template()
         f.qfmt.setText(t.get('bqfmt', ""))
         f.afmt.setText(t.get('bafmt', ""))
+        if t.get("bfont"):
+            f.overrideFont.setChecked(True)
         f.font.setCurrentFont(QFont(t.get('bfont', "Arial")))
         f.fontSize.setValue(t.get('bsize', 12))
-        d.connect(f.buttonBox, SIGNAL("accepted()"),
-                  lambda: self.onBrowserDisplayOk(f))
+        f.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(f))
         d.exec_()
 
     def onBrowserDisplayOk(self, f):
         t = self.card.template()
         t['bqfmt'] = f.qfmt.text().strip()
         t['bafmt'] = f.afmt.text().strip()
-        t['bfont'] = f.font.currentFont().family()
-        t['bsize'] = f.fontSize.value()
+        if f.overrideFont.isChecked():
+            t['bfont'] = f.font.currentFont().family()
+            t['bsize'] = f.fontSize.value()
+        else:
+            for key in ("bfont", "bsize"):
+                if key in t:
+                    del t[key]
 
     def onTargetDeck(self):
         from aqt.tagedit import TagEdit
@@ -393,7 +487,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
             te.setText(self.col.decks.get(t['did'])['name'])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
-        self.connect(bb, SIGNAL("rejected()"), d, SLOT("close()"))
+        bb.rejected.connect(d.close)
         l.addWidget(bb)
         d.setLayout(l)
         d.exec_()
@@ -422,9 +516,9 @@ Enter deck to place new %s cards in, or leave blank:""") %
         if not diag.exec_():
             return
         if form.radioQ.isChecked():
-            obj = self.tab['tform'].front
+            obj = self.tform.front
         else:
-            obj = self.tab['tform'].back
+            obj = self.tform.back
         self._addField(obj,
                        fields[form.fields.currentIndex()],
                        form.font.currentFont().family(),
@@ -444,6 +538,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
         self.reject()
 
     def reject(self):
+        self.cancelPreviewTimer()
         clearAudioQueue()
         if self.addMode:
             # remove the filler fields we added

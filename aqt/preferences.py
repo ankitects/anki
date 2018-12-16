@@ -5,7 +5,8 @@
 import datetime, time
 from aqt.qt import *
 import anki.lang
-from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo
+from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo, \
+    askUser
 import aqt
 
 class Preferences(QDialog):
@@ -21,8 +22,8 @@ class Preferences(QDialog):
         self.form.setupUi(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
-        self.connect(self.form.buttonBox, SIGNAL("helpRequested()"),
-                     lambda: openHelp("profileprefs"))
+        self.form.buttonBox.helpRequested.connect(lambda: openHelp("profileprefs"))
+        self.silentlyClose = True
         self.setupLang()
         self.setupCollection()
         self.setupNetwork()
@@ -41,6 +42,7 @@ class Preferences(QDialog):
         self.mw.pm.save()
         self.mw.reset()
         self.done(0)
+        aqt.dialogs.markClosed("Preferences")
 
     def reject(self):
         self.accept()
@@ -52,8 +54,7 @@ class Preferences(QDialog):
         f = self.form
         f.lang.addItems([x[0] for x in anki.lang.langs])
         f.lang.setCurrentIndex(self.langIdx())
-        self.connect(f.lang, SIGNAL("currentIndexChanged(int)"),
-                     self.onLangIdxChanged)
+        f.lang.currentIndexChanged.connect(self.onLangIdxChanged)
 
     def langIdx(self):
         codes = [x[1] for x in anki.lang.langs]
@@ -74,32 +75,104 @@ class Preferences(QDialog):
         import anki.consts as c
         f = self.form
         qc = self.mw.col.conf
-        self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
-        f.dayOffset.setValue(self.startDate.hour)
+        self._setupDayCutoff()
+        if isMac:
+            f.hwAccel.setVisible(False)
+        else:
+            f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
         f.lrnCutoff.setValue(qc['collapseTime']/60.0)
         f.timeLimit.setValue(qc['timeLim']/60.0)
         f.showEstimates.setChecked(qc['estTimes'])
         f.showProgress.setChecked(qc['dueCounts'])
-        f.newSpread.addItems(c.newCardSchedulingLabels().values())
+        f.nightMode.setChecked(qc.get("nightMode", False))
+        f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
+        f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
+        if self.mw.col.schedVer() != 2:
+            f.dayLearnFirst.setVisible(False)
+        else:
+            f.newSched.setChecked(True)
 
     def updateCollection(self):
         f = self.form
         d = self.mw.col
+
+        if not isMac:
+            wasAccel = self.mw.pm.glMode() != "software"
+            wantAccel = f.hwAccel.isChecked()
+            if wasAccel != wantAccel:
+                if wantAccel:
+                    self.mw.pm.setGlMode("auto")
+                else:
+                    self.mw.pm.setGlMode("software")
+                showInfo(_("Changes will take effect when you restart Anki."))
+
         qc = d.conf
         qc['dueCounts'] = f.showProgress.isChecked()
         qc['estTimes'] = f.showEstimates.isChecked()
         qc['newSpread'] = f.newSpread.currentIndex()
+        qc['nightMode'] = f.nightMode.isChecked()
         qc['timeLim'] = f.timeLimit.value()*60
         qc['collapseTime'] = f.lrnCutoff.value()*60
         qc['addToCur'] = not f.useCurrent.currentIndex()
-        hrs = f.dayOffset.value()
+        qc['dayLearnFirst'] = f.dayLearnFirst.isChecked()
+        self._updateDayCutoff()
+        self._updateSchedVer(f.newSched.isChecked())
+        d.setMod()
+
+    # Scheduler version
+    ######################################################################
+
+    def _updateSchedVer(self, wantNew):
+        haveNew = self.mw.col.schedVer() == 2
+
+        # nothing to do?
+        if haveNew == wantNew:
+            return
+
+        if haveNew and not wantNew:
+            if not askUser(_("This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?")):
+                return
+            self.mw.col.changeSchedulerVer(1)
+            return
+
+        if not askUser(_("The experimental scheduler could cause incorrect scheduling. Please ensure you have read the documentation first. Proceed?")):
+            return
+
+        self.mw.col.changeSchedulerVer(2)
+
+    # Day cutoff
+    ######################################################################
+
+    def _setupDayCutoff(self):
+        if self.mw.col.schedVer() == 2:
+            self._setupDayCutoffV2()
+        else:
+            self._setupDayCutoffV1()
+
+    def _setupDayCutoffV1(self):
+        self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
+        self.form.dayOffset.setValue(self.startDate.hour)
+
+    def _setupDayCutoffV2(self):
+        self.form.dayOffset.setValue(self.mw.col.conf.get("rollover", 4))
+
+    def _updateDayCutoff(self):
+        if self.mw.col.schedVer() == 2:
+            self._updateDayCutoffV2()
+        else:
+            self._updateDayCutoffV1()
+
+    def _updateDayCutoffV1(self):
+        hrs = self.form.dayOffset.value()
         old = self.startDate
         date = datetime.datetime(
             old.year, old.month, old.day, hrs)
-        d.crt = int(time.mktime(date.timetuple()))
-        d.setMod()
+        self.mw.col.crt = int(time.mktime(date.timetuple()))
+
+    def _updateDayCutoffV2(self):
+        self.mw.col.conf['rollover'] = self.form.dayOffset.value()
 
     # Network
     ######################################################################
@@ -113,8 +186,7 @@ class Preferences(QDialog):
             self._hideAuth()
         else:
             self.form.syncUser.setText(self.prof.get('syncUser', ""))
-            self.connect(self.form.syncDeauth, SIGNAL("clicked()"),
-                         self.onSyncDeauth)
+            self.form.syncDeauth.clicked.connect(self.onSyncDeauth)
 
     def _hideAuth(self):
         self.form.syncDeauth.setVisible(False)
@@ -140,43 +212,20 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupBackup(self):
         self.form.numBackups.setValue(self.prof['numBackups'])
-        self.form.compressBackups.setChecked(self.prof.get("compressBackups", True))
-        self.connect(self.form.openBackupFolder,
-                     SIGNAL("linkActivated(QString)"),
-                     self.onOpenBackup)
+        self.form.openBackupFolder.linkActivated.connect(self.onOpenBackup)
 
     def onOpenBackup(self):
         openFolder(self.mw.pm.backupFolder())
 
     def updateBackup(self):
         self.prof['numBackups'] = self.form.numBackups.value()
-        self.prof['compressBackups'] = self.form.compressBackups.isChecked()
 
     # Basic & Advanced Options
     ######################################################################
 
     def setupOptions(self):
-        self.form.stripHTML.setChecked(self.prof['stripHTML'])
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
-        self.connect(
-            self.form.profilePass, SIGNAL("clicked()"),
-            self.onProfilePass)
 
     def updateOptions(self):
-        self.prof['stripHTML'] = self.form.stripHTML.isChecked()
         self.prof['pastePNG'] = self.form.pastePNG.isChecked()
 
-    def onProfilePass(self):
-        pw, ret = getText(_("""\
-Lock account with password, or leave blank:"""))
-        if not ret:
-            return
-        if not pw:
-            self.prof['key'] = None
-            return
-        pw2, ret = getText(_("Confirm password:"))
-        if not ret:
-            return
-        if pw != pw2:
-            showWarning(_("Passwords didn't match"))
-        self.prof['key'] = self.mw.pm._pwhash(pw)

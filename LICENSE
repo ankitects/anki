@@ -1,16 +1,17 @@
-Anki is licensed under the GNU Affero General Public License 3. A full copy of
-the license is included below.
+Anki is licensed under the GNU Affero General Public License, version 3 or
+later. A full copy of the version 3 license is included below.
 
 You are free to make changes to Anki and distribute those changes under the
 terms of the AGPL listed below. If you would like to contribute changes back
 to the official distribution, I ask that you license your code under the BSD
 three-clause (no advertising) license, as portions of this code are also used
-in the closed-source AnkiWeb.
+in the closed-source AnkiWeb. Before sending a patch or pull request for the
+first time, please post a private ticket on our support site that states you
+are happy to license all contributions you submit to the Anki project under
+the three-clause BSD license.
 
  * Please see LICENSE.logo for the copyright and license of Anki's logo.
  * The translations are under BSD copyright, as mandated by Launchpad.
- * The icons are under a mix of GPL and more liberal licenses; most were taken
-   from standard icons installed on a Linux system.
  * The anki/template/ folder is based off pystache, and a separate license is
    included within.
  * The Javascript files in js.py are subject to their respective licenses.
