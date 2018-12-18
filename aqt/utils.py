@@ -527,3 +527,48 @@ def versionWithBuild():
     except:
         build = "dev"
     return "%s (%s)" % (appVersion, build)
+
+######################################################################
+
+# adapted from version detection in qutebrowser
+def opengl_vendor():
+    old_context = QOpenGLContext.currentContext()
+    old_surface = None if old_context is None else old_context.surface()
+
+    surface = QOffscreenSurface()
+    surface.create()
+
+    ctx = QOpenGLContext()
+    ok = ctx.create()
+    if not ok:
+        return None
+
+    ok = ctx.makeCurrent(surface)
+    if not ok:
+        return None
+
+    try:
+        if ctx.isOpenGLES():
+            # Can't use versionFunctions there
+            return None
+
+        vp = QOpenGLVersionProfile()
+        vp.setVersion(2, 0)
+
+        try:
+            vf = ctx.versionFunctions(vp)
+        except ImportError as e:
+            return None
+
+        if vf is None:
+            return None
+
+        return vf.glGetString(vf.GL_VENDOR)
+    finally:
+        ctx.doneCurrent()
+        if old_context and old_surface:
+            old_context.makeCurrent(old_surface)
+
+def gfxDriverIsBroken():
+    driver = opengl_vendor()
+    return driver == "nouveau"
