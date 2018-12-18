@@ -340,6 +340,13 @@ environment points to a valid, writable folder.""")
     # i18n
     setupLang(pm, app, opts.lang)
 
+    if isLin and pm.glMode() == "auto":
+        from aqt.utils import gfxDriverIsBroken
+        if gfxDriverIsBroken():
+            pm.nextGlMode()
+            QMessageBox.critical(None, "Error", "Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.")
+            sys.exit(1)
+
     # remaining pm init
     pm.ensureProfile()
 
