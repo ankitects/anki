@@ -330,13 +330,7 @@ class PyAudioThreadedRecorder(threading.Thread):
 
         data = b""
         while not self.finish:
-            try:
-                data += stream.read(chunk)
-            except IOError as e:
-                if e[1] == pyaudio.paInputOverflowed:
-                    pass
-                else:
-                    raise
+            data += stream.read(chunk, exception_on_overflow=False)
         stream.close()
         p.terminate()
         wf = wave.open(processingSrc, 'wb')
