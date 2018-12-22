@@ -33,7 +33,7 @@ audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a"
 _html = """
 <style>
 html { background: %s; }
-#topbuts { background: %s; }
+#topbutsOuter { background: %s; }
 </style>
 <div id="topbutsOuter"><div id="topbuts" class="clearfix">%s</div></div>
 <div id="fields"></div>
