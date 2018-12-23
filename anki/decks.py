@@ -449,13 +449,13 @@ class DeckManager:
         for deck in decks:
             # two decks with the same name?
             if deck['name'] in names:
-                print("fix duplicate deck name", deck['name'])
+                print("fix duplicate deck name", deck['name'].encode("utf8"))
                 deck['name'] += "%d" % intTime(1000)
                 self.save(deck)
 
             # ensure no sections are blank
             if not all(deck['name'].split("::")):
-                print("fix deck with missing sections", deck['name'])
+                print("fix deck with missing sections", deck['name'].encode("utf8"))
                 deck['name'] = "recovered%d" % intTime(1000)
                 self.save(deck)
 
@@ -463,7 +463,7 @@ class DeckManager:
             if "::" in deck['name']:
                 immediateParent = "::".join(deck['name'].split("::")[:-1])
                 if immediateParent not in names:
-                    print("fix deck with missing parent", deck['name'])
+                    print("fix deck with missing parent", deck['name'].encode("utf8"))
                     self._ensureParents(deck['name'])
                     names.add(immediateParent)
 
