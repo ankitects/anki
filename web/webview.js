@@ -3,14 +3,13 @@ document.addEventListener("keydown", function (evt) {
     if (evt.keyCode !== 8) {
         return;
     }
-    var isText = 0;
+
     var nn = evt.target.nodeName;
     if (nn === "INPUT" || nn === "TEXTAREA") {
-        isText = 1;
+        return;
     } else if (nn === "DIV" && evt.target.contentEditable) {
-        isText = 1;
+        return;
     }
-    if (!isText) {
-        evt.preventDefault();
-    }
+
+    evt.preventDefault();
 });
