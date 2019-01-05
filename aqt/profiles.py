@@ -425,10 +425,7 @@ please see:
 
         path = self._glPath()
         if not os.path.exists(path):
-            if qtminor >= 12:
-                return "auto"
-            else:
-                return "software"
+            return "software"
 
         mode = open(path, "r").read().strip()
 
