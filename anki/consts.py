@@ -55,6 +55,34 @@ SYNC_VER = 9
 
 HELP_SITE="http://ankisrs.net/docs/manual.html"
 
+# Queue types
+QUEUE_SCHED_BURIED = -3
+QUEUE_USER_BURIED = -2
+QUEUE_SUSPENDED = -1
+QUEUE_NEW_CRAM = 0
+QUEUE_LRN = 1
+QUEUE_REV = 2
+QUEUE_DAY_LRN = 3
+QUEUE_PREVIEW = 4
+
+# Revlog types
+REVLOG_LRN = 0
+REVLOG_REV = 1
+REVLOG_RELRN = 2
+REVLOG_CRAM = 3
+
+# Card types
+CARD_NEW = 0
+CARD_LRN = 1
+CARD_DUE = 2
+CARD_FILTERED = 3
+
+# Buttons
+BUTTON_ONE = 1
+BUTTON_TWO = 2
+BUTTON_THREE = 3
+BUTTON_FOUR = 4
+
 # Labels
 ##########################################################################
 

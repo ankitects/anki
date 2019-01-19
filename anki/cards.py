@@ -34,8 +34,8 @@ class Card:
             self.id = timestampID(col.db, "cards")
             self.did = 1
             self.crt = intTime()
-            self.type = 0
-            self.queue = 0
+            self.type = CARD_NEW
+            self.queue = QUEUE_NEW_CRAM
             self.ivl = 0
             self.factor = 0
             self.reps = 0
@@ -73,7 +73,7 @@ class Card:
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
-        if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
+        if self.queue == QUEUE_REV and self.odue and not self.col.decks.isDyn(self.did):
             runHook("odueInvalid")
         assert self.due < 4294967296
         self.col.db.execute(
@@ -104,7 +104,7 @@ insert or replace into cards values
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug checks
-        if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
+        if self.queue == QUEUE_REV and self.odue and not self.col.decks.isDyn(self.did):
             runHook("odueInvalid")
         assert self.due < 4294967296
         self.col.db.execute(
