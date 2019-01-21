@@ -254,7 +254,7 @@ and due = ?""" % self._limit(), self.col.sched.today+1)
         if end is not None:
             lim += " and day < %d" % end
         return self.col.db.all("""
-select (due-:today)/:chunk as day,
+select cast((round(due)-:today) AS int)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
@@ -554,7 +554,7 @@ group by day order by day)""" % lim,
         else:
             chunk = 30; lim = ""
         data = [self.col.db.all("""
-select ivl / :chunk as grp, count() from cards
+select cast(round(ivl) AS int) / :chunk as grp, count() from cards
 where did in %s and queue = 2 %s
 group by grp
 order by grp""" % (self._limit(), lim), chunk=chunk)]
