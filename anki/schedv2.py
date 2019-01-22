@@ -138,7 +138,7 @@ order by due""" % (self._deckLimit(), QUEUE_REV),
 
     def countIdx(self, card):
         if card.queue in (QUEUE_DAY_LRN,QUEUE_PREVIEW):
-            return 1
+            return QUEUE_LRN
         return card.queue
 
     def answerButtons(self, card):
@@ -1373,7 +1373,7 @@ queue = (case when type in (%d,%d) then
   (case when (case when odue then odue else due end) > 1000000000 then %d else %d end)
 else
   type
-end)    
+end)
 """%(CARD_LRN, CARD_FILTERED, QUEUE_LRN, QUEUE_DAY_LRN)
 
     def suspendCards(self, ids):
