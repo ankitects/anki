@@ -254,6 +254,7 @@ class Editor:
                 return
             txt = urllib.parse.unquote(txt)
             txt = unicodedata.normalize("NFC", txt)
+            txt = self.mungeHTML(txt)
             # misbehaving apps may include a null byte in the text
             txt = txt.replace("\x00", "")
             # reverse the url quoting we added to get images to display
@@ -284,6 +285,10 @@ class Editor:
             self._links[cmd](self)
         else:
             print("uncaught cmd", cmd)
+
+    def mungeHTML(self, txt):
+        txt = re.sub(r"<br>$", "", txt)
+        return txt
 
     # Setting/unsetting the current note
     ######################################################################
