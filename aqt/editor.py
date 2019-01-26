@@ -145,7 +145,9 @@ class Editor:
     def _addButton(self, icon, cmd, tip="", label="", id=None, toggleable=False,
                    disables=True):
         if icon:
-            if os.path.isabs(icon):
+            if icon.startswith("qrc:/"):
+                iconstr = icon
+            elif os.path.isabs(icon):
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = "/_anki/imgs/{}.png".format(icon)
