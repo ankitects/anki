@@ -207,15 +207,17 @@ function caretToEnd() {
 }
 
 function onBlur() {
-    if (document.activeElement === currentField) {
-        // anki window defocused; current field unchanged
-        return;
-    }
     if (currentField) {
         saveField("blur");
-        currentField = null;
+        clearChangeTimer();
     }
-    clearChangeTimer();
+
+    if (document.activeElement === currentField) {
+        // other widget or window focused; current field unchanged
+        return;
+    }
+
+    currentField = null;
     disableButtons();
 }
 
