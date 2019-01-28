@@ -791,8 +791,11 @@ QTreeWidget {
         if cid and self.state == "review":
             card = self.col.getCard(cid)
             self.reviewer.cardQueue.append(card)
-        else:
-            tooltip(_("Reverted to state prior to '%s'.") % n.lower())
+            self.reviewer.nextCard()
+            self.maybeEnableUndo()
+            return
+
+        tooltip(_("Reverted to state prior to '%s'.") % n.lower())
         self.reset()
         self.maybeEnableUndo()
 
