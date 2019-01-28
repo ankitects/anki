@@ -289,7 +289,8 @@ class Editor:
             print("uncaught cmd", cmd)
 
     def mungeHTML(self, txt):
-        txt = re.sub(r"<br>$", "", txt)
+        if txt in ('<br>', '<div><br></div>'):
+            return ''
         return txt
 
     # Setting/unsetting the current note
