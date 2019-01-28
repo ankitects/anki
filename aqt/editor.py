@@ -971,6 +971,8 @@ class EditorWebView(AnkiWebView):
         # add a comment in the clipboard html so we can tell text is copied
         # from us and doesn't need to be stripped
         clip = self.editor.mw.app.clipboard()
+        if not clip.ownsClipboard():
+            return
         mime = clip.mimeData()
         if not mime.hasHtml():
             return
