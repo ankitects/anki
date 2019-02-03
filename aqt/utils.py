@@ -40,7 +40,6 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     mb = QMessageBox(parent)
     mb.setText(text)
     mb.setIcon(icon)
-    mb.setWindowModality(Qt.WindowModal)
     mb.setWindowTitle(title)
     b = mb.addButton(QMessageBox.Ok)
     b.setDefault(True)
