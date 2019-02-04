@@ -1232,14 +1232,14 @@ where id = ?
         if date < datetime.datetime.today():
             date = date + datetime.timedelta(days=1)
 
-        stamp = time.mktime(date.timetuple())
+        stamp = int(time.mktime(date.timetuple()))
         return stamp
 
     def _daysSinceCreation(self):
         startDate = datetime.datetime.fromtimestamp(self.col.crt)
         startDate = startDate.replace(hour=self.col.conf.get("rollover", 4),
                                       minute=0, second=0, microsecond=0)
-        return (time.time() - time.mktime(startDate.timetuple())) // 86400
+        return int((time.time() - time.mktime(startDate.timetuple())) // 86400)
 
     # Deck finished state
     ##########################################################################
