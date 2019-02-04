@@ -855,6 +855,9 @@ and type = 0""", intTime(), self.usn())
         curs.execute("update cards set ivl=round(ivl) where ivl!=round(ivl)")
         if curs.rowcount:
             problems.append("Fixed %d cards with v2 scheduler decimal interval bug." % curs.rowcount)
+        curs.execute("update cards set due=round(due) where due!=round(due)")
+        if curs.rowcount:
+            problems.append("Fixed %d cards with v2 scheduler decimal due bug." % curs.rowcount)
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
