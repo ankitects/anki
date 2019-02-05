@@ -314,6 +314,8 @@ class AddonsDialog(QDialog):
         if self.addons:
             self.form.addonList.setCurrentRow(0)
 
+        self.form.addonList.repaint()
+
     def _onAddonItemSelected(self, row_int):
         try:
             addon = self.addons[row_int][1]
