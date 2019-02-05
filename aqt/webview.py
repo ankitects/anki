@@ -6,7 +6,7 @@ import sys
 import math
 from anki.hooks import runHook
 from aqt.qt import *
-from aqt.utils import openLink, showWarning
+from aqt.utils import openLink, showWarning, tooltip
 from anki.utils import isMac, isWin, isLin, devMode
 
 # Page for debug messages
@@ -356,9 +356,9 @@ body {{ zoom: {}; {} }}
 
     def _onHeight(self, qvar):
         if qvar is None:
+            tooltip(_("Error connecting to local port. Retrying..."))
             from aqt import mw
-            openLink("https://anki.tenderapp.com/kb/problems/anki-must-be-able-to-connect-to-a-local-port")
-            mw.app.closeAllWindows()
+            mw.progress.timer(2000, mw.reset, False)
             return
 
         height = math.ceil(qvar*self.zoomFactor())
