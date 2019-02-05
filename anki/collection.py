@@ -549,7 +549,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
 
     def _renderQA(self, data, qfmt=None, afmt=None):
         "Returns hash of id, question, answer."
-        # data is [cid, nid, mid, did, ord, tags, flds]
+        # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
         # unpack fields and create dict
         flist = splitFields(data[6])
         fields = {}
@@ -560,6 +560,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         fields['Type'] = model['name']
         fields['Deck'] = self.decks.name(data[3])
         fields['Subdeck'] = fields['Deck'].split('::')[-1]
+        fields['CardFlag'] = self._flagNameFromCardFlags(data[7])
         if model['type'] == MODEL_STD:
             template = model['tmpls'][data[4]]
         else:
@@ -593,12 +594,18 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         return d
 
     def _qaData(self, where=""):
-        "Return [cid, nid, mid, did, ord, tags, flds] db query"
+        "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
         return self.db.execute("""
-select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds
+select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds, c.flags
 from cards c, notes f
 where c.nid == f.id
 %s""" % where)
+
+    def _flagNameFromCardFlags(self, flags):
+        flag = flags & 0b111
+        if not flag:
+            return ""
+        return "flag%d" % flag
 
     # Finding cards
     ##########################################################################
