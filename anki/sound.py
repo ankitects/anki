@@ -142,9 +142,29 @@ def cleanupMPV():
 # Mplayer in slave mode
 ##########################################################################
 
+# if anki crashes, an old mplayer instance may be left lying around,
+# which prevents renaming or deleting the profile
+def cleanupOldMplayerProcesses():
+    import psutil
+
+    exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+    for proc in psutil.process_iter(attrs=['pid', 'name', 'exe']):
+        if not proc.info['exe'] or proc.info['name'] != 'mplayer.exe':
+            continue
+
+        # not anki's bundled mplayer
+        if os.path.dirname(proc.info['exe']) != exeDir:
+            continue
+
+        print("terminating old mplayer process...")
+        proc.kill()
+
 mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
 if isWin:
     mplayerCmd += ["-ao", "win32"]
+
+    cleanupOldMplayerProcesses()
 
 mplayerQueue = []
 mplayerManager = None
