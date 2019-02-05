@@ -517,6 +517,12 @@ class MenuItem:
         a = qmenu.addAction(self.title)
         a.triggered.connect(self.func)
 
+def qtMenuShortcutWorkaround(qmenu):
+    if qtminor < 10:
+        return
+    for act in qmenu.actions():
+        act.setShortcutVisibleInContextMenu(True)
+
 ######################################################################
 
 def versionWithBuild():
