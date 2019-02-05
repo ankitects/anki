@@ -1617,13 +1617,20 @@ where queue < 0""" % (intTime(), self.col.usn()))
     def _moveManuallyBuried(self):
         self.col.db.execute("update cards set queue=-2,mod=%d where queue=-3" % intTime())
 
+    # adding 'hard' in v2 scheduler means old ease entries need shifting
+    # up or down
+    def _remapLearningAnswers(self, sql):
+        self.col.db.execute("update revlog set %s" % sql)
+
     def moveToV1(self):
         self._emptyAllFiltered()
         self._removeAllFromLearning()
 
         self._moveManuallyBuried()
         self._resetSuspendedLearning()
+        self._remapLearningAnswers("ease=ease-1 where ease in (3,4)")
 
     def moveToV2(self):
         self._emptyAllFiltered()
         self._removeAllFromLearning()
+        self._remapLearningAnswers("ease=ease+1 where ease in (2,3)")
