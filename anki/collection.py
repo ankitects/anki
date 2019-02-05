@@ -852,12 +852,14 @@ and type = 0""", intTime(), self.usn())
                 % ids2str(ids), self.sched.today, intTime(), self.usn())
         # v2 sched had a bug that could create decimal intervals
         curs = self.db.cursor()
-        curs.execute("update cards set ivl=round(ivl) where ivl!=round(ivl)")
+
+        curs.execute("update cards set ivl=round(ivl),due=round(due) where ivl!=round(ivl) or due!=round(due)")
         if curs.rowcount:
-            problems.append("Fixed %d cards with v2 scheduler decimal interval bug." % curs.rowcount)
-        curs.execute("update cards set due=round(due) where due!=round(due)")
+            problems.append("Fixed %d cards with v2 scheduler bug." % curs.rowcount)
+
+        curs.execute("update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)")
         if curs.rowcount:
-            problems.append("Fixed %d cards with v2 scheduler decimal due bug." % curs.rowcount)
+            problems.append("Fixed %d review history entries with v2 scheduler bug." % curs.rowcount)
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
