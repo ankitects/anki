@@ -503,9 +503,9 @@ select id from notes where mid = ?)""" % " ".join(map),
         for f in flds:
             a.append("ankiflag")
             b.append("")
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a)]
+        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a), 0]
         full = self.col._renderQA(data)['q']
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b)]
+        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b), 0]
         empty = self.col._renderQA(data)['q']
         # if full and empty are the same, the template is invalid and there is
         # no way to satisfy it

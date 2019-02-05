@@ -129,7 +129,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         if not self._qa or reload:
             f = self.note(reload); m = self.model(); t = self.template()
             data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
-                    f.stringTags(), f.joinedFields()]
+                    f.stringTags(), f.joinedFields(), self.flags]
             if browser:
                 args = (t.get('bqfmt'), t.get('bafmt'))
             else:
