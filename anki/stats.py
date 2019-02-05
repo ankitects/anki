@@ -579,9 +579,11 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
                 ease += 10
             n = types[type]
             d[n].append((ease, cnt))
-        ticks = [[1,1],[2,2],[3,3],
+        ticks = [[1,1],[2,2],[3,3], # [4,4]
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
+        if self.col.schedVer() != 1:
+            ticks.insert(3, [4,4])
         txt = self._title(_("Answer Buttons"),
                           _("The number of times you have pressed each button."))
         txt += self._graph(id="ease", data=[
@@ -635,14 +637,18 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
+        if self.col.schedVer() == 1:
+            ease4repl = "3"
+        else:
+            ease4repl = "ease"
         return self.col.db.all("""
 select (case
 when type in (0,2) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in (0,2) and ease = 4 then 3 else ease end), count() from revlog %s
+(case when type in (0,2) and ease = 4 then %s else ease end), count() from revlog %s
 group by thetype, ease
-order by thetype, ease""" % lim)
+order by thetype, ease""" % (ease4repl, lim))
 
     # Hourly retention
     ######################################################################
