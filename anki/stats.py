@@ -590,7 +590,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
             dict(data=d['lrn'], color=colLearn, label=_("Learning")),
             dict(data=d['yng'], color=colYoung, label=_("Young")),
             dict(data=d['mtr'], color=colMature, label=_("Mature")),
-            ], type="barsLine", conf=dict(
+            ], type="bars", conf=dict(
                 xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
         txt += self._easeInfo(eases)
@@ -831,6 +831,7 @@ from cards where did in %s""" % self._limit())
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
         elif type == "barsLine":
+            print("deprecated - use 'bars' instead")
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=3)
         elif type == "fill":
