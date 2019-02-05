@@ -21,7 +21,7 @@ from anki.hooks import runHook, runFilter, addHook
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getFile, \
-    openHelp, tooltip, downArrow
+    openHelp, tooltip, downArrow, qtMenuShortcutWorkaround
 import aqt
 from bs4 import BeautifulSoup
 import requests
@@ -777,6 +777,9 @@ to a cloze type first, via Edit>Change Note Type."""))
         a = m.addAction(_("Edit HTML"))
         a.triggered.connect(self.onHtmlEdit)
         a.setShortcut(QKeySequence("Ctrl+Shift+X"))
+
+        qtMenuShortcutWorkaround(m)
+
         m.exec_(QCursor.pos())
 
     # LaTeX

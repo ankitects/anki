@@ -20,7 +20,7 @@ from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, \
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
-    getOnlyText, MenuList, SubMenu
+    getOnlyText, MenuList, SubMenu, qtMenuShortcutWorkaround
 from anki.hooks import runHook, addHook, remHook, runFilter
 from aqt.webview import AnkiWebView
 from anki.consts import *
@@ -475,14 +475,12 @@ class Browser(QMainWindow):
         m = QMenu()
         for act in self.form.menu_Cards.actions():
             m.addAction(act)
-            if qtminor >= 10:
-                act.setShortcutVisibleInContextMenu(True)
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-            if qtminor >= 10:
-                act.setShortcutVisibleInContextMenu(True)
         runHook("browser.onContextMenu", self, m)
+
+        qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
     def updateFont(self):
@@ -1586,8 +1584,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
         for c, act in enumerate(flagActions):
             act.setChecked(flag == c+1)
-            if qtminor >= 10:
-                act.setShortcutVisibleInContextMenu(True)
+
+        qtMenuShortcutWorkaround(self.form.menuFlag)
 
     def onMark(self, mark=None):
         if mark is None:
