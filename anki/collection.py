@@ -926,5 +926,5 @@ and type = 0""", intTime(), self.usn())
 
     def setUserFlag(self, flag, cids):
         assert 0 <= flag <= 7
-        self.db.execute("update cards set flags = (flags & ~?) | ? where id in %s" %
-                        ids2str(cids), 0b111, flag)
+        self.db.execute("update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s" %
+                        ids2str(cids), 0b111, flag, self._usn, intTime())
