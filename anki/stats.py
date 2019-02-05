@@ -698,7 +698,11 @@ order by thetype, ease""" % lim)
         lim = self._revlogLimit()
         if lim:
             lim = " and " + lim
-        sd = datetime.datetime.fromtimestamp(self.col.crt)
+        if self.col.schedVer() == 1:
+            sd = datetime.datetime.fromtimestamp(self.col.crt)
+            rolloverHour = sd.hour
+        else:
+            rolloverHour = self.col.conf["rollover"]
         pd = self._periodDays()
         if pd:
             lim += " and id > %d" % ((self.col.sched.dayCutoff-(86400*pd))*1000)
@@ -710,7 +714,7 @@ cast(count() as float) * 100,
 count()
 from revlog where type in (0,1,2) %s
 group by hour having count() > 30 order by hour""" % lim,
-                            cut=self.col.sched.dayCutoff-(sd.hour*3600))
+                            cut=self.col.sched.dayCutoff-(rolloverHour*3600))
 
     # Cards
     ######################################################################
