@@ -62,7 +62,7 @@ class AnkiQt(QMainWindow):
             self.onAppMsg(args[0])
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
-        self.progress.timer(10, self.setupProfile, False)
+        self.progress.timer(10, self.setupProfile, False, requiresCollection=False)
 
     def setupUI(self):
         self.col = None
@@ -1311,7 +1311,7 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     def gcWindow(self, obj):
         obj.deleteLater()
-        self.progress.timer(1000, self.doGC, False)
+        self.progress.timer(1000, self.doGC, False, requiresCollection=False)
 
     def disableGC(self):
         gc.collect()
