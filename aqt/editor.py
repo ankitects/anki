@@ -938,7 +938,10 @@ class EditorWebView(AnkiWebView):
 
         # normal text; convert it to HTML
         txt = html.escape(txt)
-        txt = txt.replace("\n", "<br>")
+        txt = txt.replace("\n", "<br>")\
+            .replace("\t", " "*4)\
+            .replace(" ", "&nbsp;")
+
         return txt
 
     def _processHtml(self, mime):
