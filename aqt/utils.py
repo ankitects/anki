@@ -411,7 +411,7 @@ def tooltip(msg, period=3000, parent=None):
         aw.mapToGlobal(QPoint(0, -100 + aw.height())))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
-        period, closeTooltip, False)
+        period, closeTooltip, False, requiresCollection=False)
     _tooltipLabel = lab
 
 def closeTooltip():
