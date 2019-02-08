@@ -708,7 +708,7 @@ order by thetype, ease""" % (ease4repl, lim))
             sd = datetime.datetime.fromtimestamp(self.col.crt)
             rolloverHour = sd.hour
         else:
-            rolloverHour = self.col.conf["rollover"]
+            rolloverHour = self.col.conf.get("rollover", 4)
         pd = self._periodDays()
         if pd:
             lim += " and id > %d" % ((self.col.sched.dayCutoff-(86400*pd))*1000)
