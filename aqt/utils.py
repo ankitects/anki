@@ -313,9 +313,26 @@ def restoreGeom(widget, key, offset=None, adjustSize=False):
                 # bug in osx toolkit
                 s = widget.size()
                 widget.resize(s.width(), s.height()+offset*2)
+        ensureWidgetInScreenBoundaries(widget)
     else:
         if adjustSize:
             widget.adjustSize()
+
+def ensureWidgetInScreenBoundaries(widget):
+    handle = widget.window().windowHandle()
+    if not handle:
+        # window has not yet been shown, retry later
+        aqt.mw.progress.timer(50, lambda: ensureWidgetInScreenBoundaries(widget), False)
+        return
+
+    # ensure qt has restored the window within the screen's bounds,
+    # and at least 50px from bottom right
+    geom = handle.screen().availableGeometry()
+    pos = widget.pos()
+    x = min(max(geom.x(), pos.x()), geom.width()+geom.x()-50)
+    y = min(max(geom.y(), pos.y()), geom.height()+geom.y()-50)
+    if pos.x() != x or pos.y() != y:
+        widget.move(x, y)
 
 def saveState(widget, key):
     key += "State"
