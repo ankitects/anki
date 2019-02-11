@@ -1620,7 +1620,7 @@ where queue < 0""" % (intTime(), self.col.usn()))
     # adding 'hard' in v2 scheduler means old ease entries need shifting
     # up or down
     def _remapLearningAnswers(self, sql):
-        self.col.db.execute("update revlog set %s" % sql)
+        self.col.db.execute("update revlog set %s and type in (0,2)" % sql)
 
     def moveToV1(self):
         self._emptyAllFiltered()
