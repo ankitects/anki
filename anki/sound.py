@@ -297,10 +297,15 @@ addHook("unloadProfile", stopMplayer)
 # PyAudio recording
 ##########################################################################
 
-import pyaudio
+# Allow use of codebase without portaudio library.
+try:
+    import pyaudio
+    PYAU_FORMAT = pyaudio.paInt16
+except ImportError:
+    pass
+
 import wave
 
-PYAU_FORMAT = pyaudio.paInt16
 PYAU_CHANNELS = 1
 PYAU_INPUT_INDEX = None
 
