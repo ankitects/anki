@@ -325,13 +325,22 @@ def ensureWidgetInScreenBoundaries(widget):
         aqt.mw.progress.timer(50, lambda: ensureWidgetInScreenBoundaries(widget), False)
         return
 
-    # ensure qt has restored the window within the screen's bounds,
-    # and at least 50px from bottom right
+    # ensure widget is smaller than screen bounds
     geom = handle.screen().availableGeometry()
-    pos = widget.pos()
-    x = min(max(geom.x(), pos.x()), geom.width()+geom.x()-50)
-    y = min(max(geom.y(), pos.y()), geom.height()+geom.y()-50)
-    if pos.x() != x or pos.y() != y:
+    wsize = widget.size()
+    cappedWidth = min(geom.width(), wsize.width())
+    cappedHeight = min(geom.height(), wsize.height())
+    if cappedWidth > wsize.width() or cappedHeight > wsize.height():
+        widget.resize(QSize(cappedWidth, cappedHeight))
+
+    # ensure widget is inside top left
+    wpos = widget.pos()
+    x = max(geom.x(), wpos.x())
+    y = max(geom.y(), wpos.y())
+    # and bottom right
+    x = min(x, geom.width()+geom.x()-cappedWidth)
+    y = min(y, geom.height()+geom.y()-cappedHeight)
+    if x != wpos.x() or y != wpos.y():
         widget.move(x, y)
 
 def saveState(widget, key):
