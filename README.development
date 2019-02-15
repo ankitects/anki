@@ -28,7 +28,7 @@ pyqt5-dev-tools) as well.
 If you're on another platform or your distro has the wrong Qt version, you
 can install PyQt with pip:
 
-$ pip3 install sip pyqt5
+$ pip3 install PyQt5 PyQtWebEngine
 
 To use the development version:
 
