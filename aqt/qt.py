@@ -13,7 +13,7 @@ from anki.utils import isWin, isMac
 from PyQt5.Qt import *
 # trigger explicit message in case of missing libraries
 # instead of silently failing to import
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
+from PyQt5.QtWebEngineWidgets import *
 try:
     from PyQt5 import sip
 except ImportError:
