@@ -474,6 +474,7 @@ class ConfigEditor(QDialog):
         self.form.setupUi(self)
         restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
         restore.clicked.connect(self.onRestoreDefaults)
+        self.setupFonts()
         self.updateHelp()
         self.updateText(self.conf)
         self.show()
@@ -481,6 +482,10 @@ class ConfigEditor(QDialog):
     def onRestoreDefaults(self):
         default_conf = self.mgr.addonConfigDefaults(self.addon)
         self.updateText(default_conf)
+
+    def setupFonts(self):
+        font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        self.form.editor.setFont(font_mono)
 
     def updateHelp(self):
         txt = self.mgr.addonConfigHelp(self.addon)
