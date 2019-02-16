@@ -130,7 +130,7 @@ add-ons section</a> of our support site.
         error = self._supportText() + "\n" + error
 
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
-        showText(txt, type="html")
+        showText(txt, type="html", copyBtn=True)
 
     def _supportText(self):
         import platform
