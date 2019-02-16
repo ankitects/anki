@@ -1171,6 +1171,10 @@ will be lost. Continue?"""))
         d.silentlyClose = True
         frm = aqt.forms.debug.Ui_Dialog()
         frm.setupUi(d)
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font.setPointSize(frm.text.font().pointSize() + 1)
+        frm.text.setFont(font)
+        frm.log.setFont(font)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
         s.activated.connect(lambda: self.onDebugRet(frm))
         s = self.debugDiagShort = QShortcut(
