@@ -437,10 +437,12 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card.nid = note.id
         card.ord = template['ord']
         # Use template did (deck override) if valid, otherwise model did
-        if template['did'] and str(template['did']) in self.decks.decks:
-            card.did = template['did']
-        else:
-            card.did = note.model()['did']
+        card.did = self.db.scalar("select did from cards where nid = ? and ord = ?", card.nid, card.ord)
+        if not card.did:
+            if template['did'] and str(template['did']) in self.decks.decks:
+                card.did = template['did']
+            else:
+                card.did = note.model()['did']
         # if invalid did, use default instead
         deck = self.decks.get(card.did)
         if deck['dyn']:
