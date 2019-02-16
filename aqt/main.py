@@ -1209,7 +1209,16 @@ will be lost. Continue?"""))
         return aqt.dialogs._dialogs['Browser'][1].card.__dict__
 
     def onDebugPrint(self, frm):
-        frm.text.setPlainText("pp(%s)" % frm.text.toPlainText())
+        cursor = frm.text.textCursor()
+        position = cursor.position()
+        cursor.select(QTextCursor.LineUnderCursor)
+        line = cursor.selectedText()
+        pfx, sfx = "pp(", ")"
+        if not line.startswith(pfx):
+            line = "{}{}{}".format(pfx, line, sfx)
+            cursor.insertText(line)
+            cursor.setPosition(position + len(pfx))
+            frm.text.setTextCursor(cursor)
         self.onDebugRet(frm)
 
     def onDebugRet(self, frm):
