@@ -1180,6 +1180,10 @@ will be lost. Continue?"""))
         s = self.debugDiagShort = QShortcut(
             QKeySequence("ctrl+shift+return"), d)
         s.activated.connect(lambda: self.onDebugPrint(frm))
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
+        s.activated.connect(frm.log.clear)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
+        s.activated.connect(frm.text.clear)
         d.show()
 
     def _captureOutput(self, on):
