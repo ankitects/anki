@@ -4,3 +4,4 @@ pyaudio
 requests
 decorator
 markdown
+psutil; sys_platform == "win32"
