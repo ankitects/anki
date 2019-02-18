@@ -41,11 +41,6 @@
        <verstretch>8</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <family>Courier</family>
-      </font>
-     </property>
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>
