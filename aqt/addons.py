@@ -10,7 +10,7 @@ from send2trash import send2trash
 
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser, restoreGeom, saveGeom, showWarning, tooltip
+    askUser, restoreGeom, saveGeom, showWarning, tooltip, getFile
 from zipfile import ZipFile
 import aqt.forms
 import aqt
@@ -100,27 +100,52 @@ When loading '%(name)s':
     # Installing and deleting add-ons
     ######################################################################
 
-    def install(self, sid, data, fname):
+    def installDownload(self, sid, data, name):
         try:
-            z = ZipFile(io.BytesIO(data))
+            zfile = ZipFile(io.BytesIO(data))
         except zipfile.BadZipfile:
             showWarning(_("The download was corrupt. Please try again."))
-            return
+            return False
+        
+        mod = intTime()
+        
+        self.install(sid, zfile, name, mod)
 
-        name = os.path.splitext(fname)[0]
+    def installLocal(self, path):
+        try:
+            zfile = ZipFile(path)
+        except zipfile.BadZipfile:
+            return False, _("Corrupt add-on archive.")
+        
+        try:
+            with zfile.open("manifest.json") as f:
+                info = json.loads(f.read())
+            package = info["package"]
+            name = info["name"]
+            mod = info.get("mod", None)
+            assert isinstance(package, str) and isinstance(name, str)
+            assert isinstance(mod, int) or mod is None
+        except (KeyError, json.decoder.JSONDecodeError, AssertionError):
+            # raised for missing manifest, invalid json, missing/invalid keys
+            return False, _("Invalid add-on manifest.")
+        
+        self.install(package, zfile, name, mod)
 
+        return name, None
+
+    def install(self, dir, zfile, name, mod):
         # previously installed?
-        meta = self.addonMeta(sid)
-        base = self.addonsFolder(sid)
+        meta = self.addonMeta(dir)
+        base = self.addonsFolder(dir)
         if os.path.exists(base):
-            self.backupUserFiles(sid)
-            self.deleteAddon(sid)
+            self.backupUserFiles(dir)
+            self.deleteAddon(dir)
 
         os.mkdir(base)
-        self.restoreUserFiles(sid)
+        self.restoreUserFiles(dir)
 
         # extract
-        for n in z.namelist():
+        for n in zfile.namelist():
             if n.endswith("/"):
                 # folder; ignore
                 continue
@@ -129,15 +154,34 @@ When loading '%(name)s':
             # skip existing user files
             if os.path.exists(path) and n.startswith("user_files/"):
                 continue
-            z.extract(n, base)
+            zfile.extract(n, base)
 
         # update metadata
         meta['name'] = name
-        meta['mod'] = intTime()
-        self.writeAddonMeta(sid, meta)
+        if mod is not None:  # allow packages to skip updating mod
+            meta['mod'] = mod
+        self.writeAddonMeta(dir, meta)
 
     def deleteAddon(self, dir):
         send2trash(self.addonsFolder(dir))
+
+    # Processing local add-on files
+    ######################################################################
+    
+    def processAPKX(self, paths):
+        log = []
+        errs = []
+        self.mw.progress.start(immediate=True)
+        for path in paths:
+            base = os.path.basename(path)
+            name, error = self.installLocal(path)
+            if error:
+                errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
+                              % dict(base=base, error=error)))
+            else:
+                log.append(_("Installed %(name)s" % dict(name=name)))
+        self.mw.progress.finish()
+        return log, errs
 
     # Downloading
     ######################################################################
@@ -153,8 +197,8 @@ When loading '%(name)s':
                 continue
             data, fname = ret
             fname = fname.replace("_", " ")
-            self.install(str(n), data, fname)
             name = os.path.splitext(fname)[0]
+            self.installDownload(str(n), data, name)
             log.append(_("Downloaded %(fname)s" % dict(fname=name)))
         self.mw.progress.finish()
         return log, errs
@@ -296,6 +340,7 @@ class AddonsDialog(QDialog):
         f = self.form = aqt.forms.addons.Ui_Dialog()
         f.setupUi(self)
         f.getAddons.clicked.connect(self.onGetAddons)
+        f.installFromFile.clicked.connect(self.onInstallFiles)
         f.checkForUpdates.clicked.connect(self.onCheckForUpdates)
         f.toggleEnabled.clicked.connect(self.onToggleEnabled)
         f.viewPage.clicked.connect(self.onViewPage)
@@ -384,6 +429,24 @@ class AddonsDialog(QDialog):
 
     def onGetAddons(self):
         GetAddons(self)
+
+    def onInstallFiles(self, paths=None):
+        if not paths:
+            key = (_("Packaged Anki Add-on") + " (*.apkx)")
+            paths = getFile(self, _("Install Add-on(s)"), None, key,
+                            key="addons", multi=True)
+            if not paths:
+                return False
+        
+        log, errs = self.mgr.processAPKX(paths)
+
+        if log:
+            tooltip("<br>".join(log), parent=self)
+        if errs:
+            msg = _("Please report this to the respective add-on author(s).")
+            showWarning("<br><br>".join(errs + [msg]), parent=self)
+
+        self.redrawAddons()
 
     def onCheckForUpdates(self):
         updated = self.mgr.checkForUpdates()
