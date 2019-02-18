@@ -142,7 +142,7 @@ add-ons section</a> of our support site.
         # reverse to list most likely suspect first, dict to deduplicate:
         addons = [mw.addonManager.addonName(i) for i in
                   dict.fromkeys(reversed(matches))]
-        txt = _("""Potentially affected add-ons: {}\n""")
+        txt = _("""Add-ons possibly involved: {}\n""")
         # highlight importance of first add-on:
         addons[0] = "<b>{}</b>".format(addons[0])
         return txt.format(", ".join(addons))
