@@ -30,8 +30,8 @@ class EditCurrent(QDialog):
         addHook("reset", self.onReset)
         self.mw.requireReset()
         self.show()
-        # reset focus after open
-        self.mw.progress.timer(100, self.editor.web.setFocus, False)
+        # reset focus after open, taking care not to retain webview
+        self.mw.progress.timer(100, lambda: self.editor.web.setFocus(), False)
 
     def onReset(self):
         # lazy approach for now: throw away edits
