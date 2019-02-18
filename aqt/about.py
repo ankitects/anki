@@ -117,6 +117,7 @@ system. It's free and open source.")
         "黃文龍",
         "David Bailey",
         "Arman High",
+        "Arthur Milchior",
 ))
 
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\
