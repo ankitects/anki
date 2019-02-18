@@ -417,7 +417,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     # type 0 - when previewing in add dialog, only non-empty
     # type 1 - when previewing edit, only existing
     # type 2 - when previewing in models dialog, all templates
-    def previewCards(self, note, type=0, did = None):
+    def previewCards(self, note, type=0, did=None):
         if type == 0:
             cms = self.findTemplates(note)
         elif type == 1:
@@ -428,10 +428,10 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             return []
         cards = []
         for template in cms:
-            cards.append(self._newCard(note, template, 1, flush=False, did = did))
+            cards.append(self._newCard(note, template, 1, flush=False, did=did))
         return cards
 
-    def _newCard(self, note, template, due, did = None, flush=True):
+    def _newCard(self, note, template, due, flush=True, did=None):
         "Create a new card."
         card = anki.cards.Card(self)
         card.nid = note.id

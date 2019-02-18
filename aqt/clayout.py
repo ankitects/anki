@@ -64,7 +64,7 @@ class CardLayout(QDialog):
         did = None
         if hasattr(self.parent,"deckChooser"):
                 did = self.parent.deckChooser.selectedId()
-        self.cards = self.col.previewCards(self.note, 2, did = did)
+        self.cards = self.col.previewCards(self.note, 2, did=did)
         idx = self.ord
         if idx >= len(self.cards):
             self.ord = len(self.cards) - 1
