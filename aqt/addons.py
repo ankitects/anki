@@ -476,9 +476,9 @@ class AddonsDialog(QDialog):
                                "\n" + "\n".join(names)):
                 log, errs = self.mgr.downloadIds(updated)
                 if log:
-                    tooltip("\n".join(log), parent=self)
+                    tooltip("<br>".join(log), parent=self)
                 if errs:
-                    showWarning("\n".join(errs), parent=self)
+                    showWarning("<br><br>".join(errs), parent=self)
 
                 self.redrawAddons()
 
@@ -534,9 +534,9 @@ class GetAddons(QDialog):
         log, errs = self.mgr.downloadIds(ids)
 
         if log:
-            tooltip("\n".join(log), parent=self.addonsDlg)
+            tooltip("<br>".join(log), parent=self.addonsDlg)
         if errs:
-            showWarning("\n".join(errs))
+            showWarning("<br><br>".join(errs))
 
         self.addonsDlg.redrawAddons()
         QDialog.accept(self)
