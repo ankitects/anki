@@ -348,8 +348,26 @@ class AddonsDialog(QDialog):
         f.delete_2.clicked.connect(self.onDelete)
         f.config.clicked.connect(self.onConfig)
         self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
+        self.setAcceptDrops(True)
         self.redrawAddons()
         self.show()
+
+    def dragEnterEvent(self, event):
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return None
+        urls = mime.urls()
+        if all(url.toLocalFile().endswith(".apkx") for url in urls):
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        mime = event.mimeData()
+        paths = []
+        for url in mime.urls():
+            path = url.toLocalFile()
+            if os.path.exists(path):
+                paths.append(path)
+        self.onInstallFiles(paths)
 
     def redrawAddons(self):
         self.addons = [(self.annotatedName(d), d) for d in self.mgr.allAddons()]
