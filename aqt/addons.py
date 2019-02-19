@@ -196,7 +196,7 @@ When loading '%(name)s':
         updated = []
         for dir, ts in mods:
             sid = str(dir)
-            if self.addonMeta(sid).get("mod") < ts:
+            if self.addonMeta(sid).get("mod",0) < ts:
                 updated.append(sid)
         return updated
 
