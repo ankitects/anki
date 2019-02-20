@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
@@ -380,7 +380,6 @@ def setupApkgImport(mw, importer):
     if not full:
         # adding
         return True
-    backup = re.match("backup-.*\\.apkg", base)
     if not mw.restoringBackup and not askUser(_("""\
 This will delete your existing collection and replace it with the data in \
 the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning,
@@ -389,7 +388,7 @@ the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning,
     # schedule replacement; don't do it immediately as we may have been
     # called as part of the startup routine
     mw.progress.timer(
-        100, lambda mw=mw, f=importer.file: replaceWithApkg(mw, f, backup), False)
+        100, lambda mw=mw, f=importer.file: replaceWithApkg(mw, f, mw.restoringBackup), False)
 
 def replaceWithApkg(mw, file, backup):
     mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))

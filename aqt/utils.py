@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -40,7 +40,6 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     mb = QMessageBox(parent)
     mb.setText(text)
     mb.setIcon(icon)
-    mb.setWindowModality(Qt.WindowModal)
     mb.setWindowTitle(title)
     b = mb.addButton(QMessageBox.Ok)
     b.setDefault(True)
@@ -51,7 +50,7 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     return mb.exec_()
 
 def showText(txt, parent=None, type="text", run=True, geomKey=None, \
-        minWidth=500, minHeight=400, title="Anki"):
+        minWidth=500, minHeight=400, title="Anki", copyBtn=False):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
@@ -67,6 +66,12 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
     layout.addWidget(text)
     box = QDialogButtonBox(QDialogButtonBox.Close)
     layout.addWidget(box)
+    if copyBtn:
+        def onCopy():
+            QApplication.clipboard().setText(text.toPlainText())
+        btn = QPushButton(_("Copy to Clipboard"))
+        btn.clicked.connect(onCopy)
+        box.addButton(btn, QDialogButtonBox.ActionRole)
     def onReject():
         if geomKey:
             saveGeom(diag, geomKey)
@@ -314,9 +319,35 @@ def restoreGeom(widget, key, offset=None, adjustSize=False):
                 # bug in osx toolkit
                 s = widget.size()
                 widget.resize(s.width(), s.height()+offset*2)
+        ensureWidgetInScreenBoundaries(widget)
     else:
         if adjustSize:
             widget.adjustSize()
+
+def ensureWidgetInScreenBoundaries(widget):
+    handle = widget.window().windowHandle()
+    if not handle:
+        # window has not yet been shown, retry later
+        aqt.mw.progress.timer(50, lambda: ensureWidgetInScreenBoundaries(widget), False)
+        return
+
+    # ensure widget is smaller than screen bounds
+    geom = handle.screen().availableGeometry()
+    wsize = widget.size()
+    cappedWidth = min(geom.width(), wsize.width())
+    cappedHeight = min(geom.height(), wsize.height())
+    if cappedWidth > wsize.width() or cappedHeight > wsize.height():
+        widget.resize(QSize(cappedWidth, cappedHeight))
+
+    # ensure widget is inside top left
+    wpos = widget.pos()
+    x = max(geom.x(), wpos.x())
+    y = max(geom.y(), wpos.y())
+    # and bottom right
+    x = min(x, geom.width()+geom.x()-cappedWidth)
+    y = min(y, geom.height()+geom.y()-cappedHeight)
+    if x != wpos.x() or y != wpos.y():
+        widget.move(x, y)
 
 def saveState(widget, key):
     key += "State"
@@ -412,7 +443,7 @@ def tooltip(msg, period=3000, parent=None):
         aw.mapToGlobal(QPoint(0, -100 + aw.height())))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
-        period, closeTooltip, False)
+        period, closeTooltip, False, requiresCollection=False)
     _tooltipLabel = lab
 
 def closeTooltip():
@@ -517,6 +548,12 @@ class MenuItem:
     def renderTo(self, qmenu):
         a = qmenu.addAction(self.title)
         a.triggered.connect(self.func)
+
+def qtMenuShortcutWorkaround(qmenu):
+    if qtminor < 10:
+        return
+    for act in qmenu.actions():
+        act.setShortcutVisibleInContextMenu(True)
 
 ######################################################################
 

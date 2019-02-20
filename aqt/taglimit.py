@@ -1,5 +1,5 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
 import aqt
 from aqt.qt import *

@@ -1,15 +1,22 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
 
 import time
 from anki.sound import Recorder
-from aqt.utils import saveGeom, restoreGeom
+from aqt.utils import saveGeom, restoreGeom, showWarning
+
+if not Recorder:
+    print("pyaudio not installed")
 
 def getAudio(parent, encode=True):
     "Record and return filename"
     # record first
+    if not Recorder:
+        showWarning("pyaudio not installed")
+        return
+
     r = Recorder()
     mb = QMessageBox(parent)
     restoreGeom(mb, "audioRecorder")

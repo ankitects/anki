@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import collections
@@ -61,7 +61,10 @@ class CardLayout(QDialog):
         self.setFocus()
 
     def redraw(self):
-        self.cards = self.col.previewCards(self.note, 2)
+        did = None
+        if hasattr(self.parent,"deckChooser"):
+                did = self.parent.deckChooser.selectedId()
+        self.cards = self.col.previewCards(self.note, 2, did=did)
         idx = self.ord
         if idx >= len(self.cards):
             self.ord = len(self.cards) - 1

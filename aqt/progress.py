@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -58,11 +58,15 @@ class ProgressManager:
     # automatically defers until the DB is not busy, and avoids running
     # while a progress window is visible.
 
-    def timer(self, ms, func, repeat):
+    def timer(self, ms, func, repeat, requiresCollection=True):
         def handler():
             if self.inDB or self._levels:
                 # retry in 100ms
-                self.timer(100, func, False)
+                self.timer(100, func, False, requiresCollection)
+            elif not self.mw.col and requiresCollection:
+                # ignore timer events that fire after collection has been
+                # unloaded
+                print("Ignored progress func as collection unloaded: %s" % repr(func))
             else:
                 func()
         t = QTimer(self.mw)

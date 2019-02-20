@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -117,6 +117,7 @@ system. It's free and open source.")
         "黃文龍",
         "David Bailey",
         "Arman High",
+        "Arthur Milchior",
 ))
 
     abouttext += '<p>' + _("Written by Damien Elmes, with patches, translation,\

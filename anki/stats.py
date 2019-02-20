@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
@@ -579,16 +579,18 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
                 ease += 10
             n = types[type]
             d[n].append((ease, cnt))
-        ticks = [[1,1],[2,2],[3,3],
+        ticks = [[1,1],[2,2],[3,3], # [4,4]
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
+        if self.col.schedVer() != 1:
+            ticks.insert(3, [4,4])
         txt = self._title(_("Answer Buttons"),
                           _("The number of times you have pressed each button."))
         txt += self._graph(id="ease", data=[
             dict(data=d['lrn'], color=colLearn, label=_("Learning")),
             dict(data=d['yng'], color=colYoung, label=_("Young")),
             dict(data=d['mtr'], color=colMature, label=_("Mature")),
-            ], type="barsLine", conf=dict(
+            ], type="bars", conf=dict(
                 xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
         txt += self._easeInfo(eases)
@@ -635,14 +637,18 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
+        if self.col.schedVer() == 1:
+            ease4repl = "3"
+        else:
+            ease4repl = "ease"
         return self.col.db.all("""
 select (case
 when type in (0,2) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in (0,2) and ease = 4 then 3 else ease end), count() from revlog %s
+(case when type in (0,2) and ease = 4 then %s else ease end), count() from revlog %s
 group by thetype, ease
-order by thetype, ease""" % lim)
+order by thetype, ease""" % (ease4repl, lim))
 
     # Hourly retention
     ######################################################################
@@ -698,7 +704,11 @@ order by thetype, ease""" % lim)
         lim = self._revlogLimit()
         if lim:
             lim = " and " + lim
-        sd = datetime.datetime.fromtimestamp(self.col.crt)
+        if self.col.schedVer() == 1:
+            sd = datetime.datetime.fromtimestamp(self.col.crt)
+            rolloverHour = sd.hour
+        else:
+            rolloverHour = self.col.conf.get("rollover", 4)
         pd = self._periodDays()
         if pd:
             lim += " and id > %d" % ((self.col.sched.dayCutoff-(86400*pd))*1000)
@@ -710,7 +720,7 @@ cast(count() as float) * 100,
 count()
 from revlog where type in (0,1,2) %s
 group by hour having count() > 30 order by hour""" % lim,
-                            cut=self.col.sched.dayCutoff-(sd.hour*3600))
+                            cut=self.col.sched.dayCutoff-(rolloverHour*3600))
 
     # Cards
     ######################################################################
@@ -821,6 +831,7 @@ from cards where did in %s""" % self._limit())
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
         elif type == "barsLine":
+            print("deprecated - use 'bars' instead")
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=3)
         elif type == "fill":

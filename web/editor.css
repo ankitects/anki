@@ -1,3 +1,6 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
 .field {
     border: 1px solid #aaa;
     background: #fff;
@@ -5,7 +8,9 @@
     padding: 5px;
     overflow-wrap: break-word;
 }
-
+.field:empty:before {
+    content: "\00a0"; /* nbsp */
+}
 .clearfix:after {
     content: "";
     display: table;

@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 # Profile handling
@@ -228,7 +228,7 @@ details have been forgotten."""))
             os.rename(oldFolder, newFolder)
         except WindowsError as e:
             self.db.rollback()
-            if "Access is denied" in str(e):
+            if "WinError 5" in str(e):
                 showWarning(_("""\
 Anki could not rename your profile because it could not rename the profile \
 folder on disk. Please ensure you have permission to write to Documents/Anki \
@@ -427,10 +427,7 @@ please see:
 
         path = self._glPath()
         if not os.path.exists(path):
-            if qtminor >= 12:
-                return "auto"
-            else:
-                return "software"
+            return "software"
 
         mode = open(path, "r").read().strip()
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import re
 import os
@@ -21,7 +21,7 @@ from anki.hooks import runHook, runFilter, addHook
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getFile, \
-    openHelp, tooltip, downArrow
+    openHelp, tooltip, downArrow, qtMenuShortcutWorkaround
 import aqt
 from bs4 import BeautifulSoup
 import requests
@@ -145,7 +145,9 @@ class Editor:
     def _addButton(self, icon, cmd, tip="", label="", id=None, toggleable=False,
                    disables=True):
         if icon:
-            if os.path.isabs(icon):
+            if icon.startswith("qrc:/"):
+                iconstr = icon
+            elif os.path.isabs(icon):
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = "/_anki/imgs/{}.png".format(icon)
@@ -287,7 +289,8 @@ class Editor:
             print("uncaught cmd", cmd)
 
     def mungeHTML(self, txt):
-        txt = re.sub(r"<br>$", "", txt)
+        if txt in ('<br>', '<div><br></div>'):
+            return ''
         return txt
 
     # Setting/unsetting the current note
@@ -774,6 +777,9 @@ to a cloze type first, via Edit>Change Note Type."""))
         a = m.addAction(_("Edit HTML"))
         a.triggered.connect(self.onHtmlEdit)
         a.setShortcut(QKeySequence("Ctrl+Shift+X"))
+
+        qtMenuShortcutWorkaround(m)
+
         m.exec_(QCursor.pos())
 
     # LaTeX
@@ -932,7 +938,10 @@ class EditorWebView(AnkiWebView):
 
         # normal text; convert it to HTML
         txt = html.escape(txt)
-        txt = txt.replace("\n", "<br>")
+        txt = txt.replace("\n", "<br>")\
+            .replace("\t", " "*4)\
+            .replace(" ", "&nbsp;")
+
         return txt
 
     def _processHtml(self, mime):
@@ -976,6 +985,8 @@ class EditorWebView(AnkiWebView):
         # add a comment in the clipboard html so we can tell text is copied
         # from us and doesn't need to be stripped
         clip = self.editor.mw.app.clipboard()
+        if not clip.ownsClipboard():
+            return
         mime = clip.mimeData()
         if not mime.hasHtml():
             return

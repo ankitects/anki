@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -62,7 +62,7 @@ class AnkiQt(QMainWindow):
             self.onAppMsg(args[0])
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
-        self.progress.timer(10, self.setupProfile, False)
+        self.progress.timer(10, self.setupProfile, False, requiresCollection=False)
 
     def setupUI(self):
         self.col = None
@@ -791,8 +791,11 @@ QTreeWidget {
         if cid and self.state == "review":
             card = self.col.getCard(cid)
             self.reviewer.cardQueue.append(card)
-        else:
-            tooltip(_("Reverted to state prior to '%s'.") % n.lower())
+            self.reviewer.nextCard()
+            self.maybeEnableUndo()
+            return
+
+        tooltip(_("Reverted to state prior to '%s'.") % n.lower())
         self.reset()
         self.maybeEnableUndo()
 
@@ -1168,11 +1171,19 @@ will be lost. Continue?"""))
         d.silentlyClose = True
         frm = aqt.forms.debug.Ui_Dialog()
         frm.setupUi(d)
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font.setPointSize(frm.text.font().pointSize() + 1)
+        frm.text.setFont(font)
+        frm.log.setFont(font)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
         s.activated.connect(lambda: self.onDebugRet(frm))
         s = self.debugDiagShort = QShortcut(
             QKeySequence("ctrl+shift+return"), d)
         s.activated.connect(lambda: self.onDebugPrint(frm))
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
+        s.activated.connect(frm.log.clear)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
+        s.activated.connect(frm.text.clear)
         d.show()
 
     def _captureOutput(self, on):
@@ -1198,7 +1209,16 @@ will be lost. Continue?"""))
         return aqt.dialogs._dialogs['Browser'][1].card.__dict__
 
     def onDebugPrint(self, frm):
-        frm.text.setPlainText("pp(%s)" % frm.text.toPlainText())
+        cursor = frm.text.textCursor()
+        position = cursor.position()
+        cursor.select(QTextCursor.LineUnderCursor)
+        line = cursor.selectedText()
+        pfx, sfx = "pp(", ")"
+        if not line.startswith(pfx):
+            line = "{}{}{}".format(pfx, line, sfx)
+            cursor.insertText(line)
+            cursor.setPosition(position + len(pfx))
+            frm.text.setTextCursor(cursor)
         self.onDebugRet(frm)
 
     def onDebugRet(self, frm):
@@ -1308,7 +1328,7 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
 
     def gcWindow(self, obj):
         obj.deleteLater()
-        self.progress.timer(1000, self.doGC, False)
+        self.progress.timer(1000, self.doGC, False, requiresCollection=False)
 
     def disableGC(self):
         gc.collect()

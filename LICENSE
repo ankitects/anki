@@ -10,14 +10,22 @@ first time, please post a private ticket on our support site that states you
 are happy to license all contributions you submit to the Anki project under
 the three-clause BSD license.
 
- * Please see LICENSE.logo for the copyright and license of Anki's logo.
- * The translations are under BSD copyright, as mandated by Launchpad.
- * The anki/template/ folder is based off pystache, and a separate license is
-   included within.
- * The Javascript files in js.py are subject to their respective licenses.
- * The SuperMemo importer was user-contributed and is GPL3 licensed.
- * Some third-party packages are distributed in the thirdparty/ folder. Please
-   see the README file in that folder for more information.
+Please see LICENSE.logo for the copyright and license of Anki's logo.
+
+The following included source code items use a license other than AGPL3:
+
+ * Anki's translations: BSD.
+ * Qt's bundled translations: LGPL3.
+ * The anki/template/ folder is based off pystache: MIT.
+ * The SuperMemo importer: GPL3.
+ * The Pauker importer: BSD-3.
+ * mpv.py: MIT.
+ * statsbg.py: CC BY-SA 3.0.
+ * winpaths.py: MIT.
+ * MathJax: Apache 2.
+ * jQuery and jQuery-UI: MIT.
+ * browsersel.js: CC BY 2.5.
+ * plot.js: MIT.
 
 The AGPL3 license follows.
 

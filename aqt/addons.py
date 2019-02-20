@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import io
@@ -196,7 +196,7 @@ When loading '%(name)s':
         updated = []
         for dir, ts in mods:
             sid = str(dir)
-            if self.addonMeta(sid).get("mod") < ts:
+            if self.addonMeta(sid).get("mod",0) < ts:
                 updated.append(sid)
         return updated
 
@@ -313,6 +313,8 @@ class AddonsDialog(QDialog):
         self.form.addonList.addItems([r[0] for r in self.addons])
         if self.addons:
             self.form.addonList.setCurrentRow(0)
+
+        self.form.addonList.repaint()
 
     def _onAddonItemSelected(self, row_int):
         try:
@@ -472,6 +474,7 @@ class ConfigEditor(QDialog):
         self.form.setupUi(self)
         restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
         restore.clicked.connect(self.onRestoreDefaults)
+        self.setupFonts()
         self.updateHelp()
         self.updateText(self.conf)
         self.show()
@@ -479,6 +482,10 @@ class ConfigEditor(QDialog):
     def onRestoreDefaults(self):
         default_conf = self.mgr.addonConfigDefaults(self.addon)
         self.updateText(default_conf)
+
+    def setupFonts(self):
+        font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        self.form.editor.setFont(font_mono)
 
     def updateHelp(self):
         txt = self.mgr.addonConfigHelp(self.addon)
