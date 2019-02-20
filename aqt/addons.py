@@ -304,7 +304,12 @@ class AddonsDialog(QDialog):
         f.config.clicked.connect(self.onConfig)
         self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
         self.redrawAddons()
+        restoreGeom(self, "addons")
         self.show()
+
+    def reject(self):
+        saveGeom(self, "addons")
+        return QDialog.reject(self)
 
     def redrawAddons(self):
         self.addons = [(self.annotatedName(d), d) for d in self.mgr.allAddons()]
