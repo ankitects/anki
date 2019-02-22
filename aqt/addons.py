@@ -22,6 +22,12 @@ from anki.sync import AnkiRequestsClient
 class AddonManager:
 
     ext = ".ankiaddon"
+    # todo?: use jsonschema package
+    _manifest_schema = {
+        "package": {"type": str, "req": True, "meta": False},
+        "name": {"type": str, "req": True, "meta": True},
+        "mod": {"type": int, "req": False, "meta": True}
+    }
 
     def __init__(self, mw):
         self.mw = mw
@@ -102,42 +108,49 @@ When loading '%(name)s':
     # Installing and deleting add-ons
     ######################################################################
 
-    def installDownload(self, sid, data, name):
-        try:
-            zfile = ZipFile(io.BytesIO(data))
-        except zipfile.BadZipfile:
-            showWarning(_("The download was corrupt. Please try again."))
-            return False
-        
-        mod = intTime()
-        
-        self.install(sid, zfile, name, mod)
-
-    def installLocal(self, path):
-        try:
-            zfile = ZipFile(path)
-        except zipfile.BadZipfile:
-            return False, _("Corrupt add-on archive.")
-        
+    def _readManifestFile(self, zfile):
         try:
             with zfile.open("manifest.json") as f:
-                info = json.loads(f.read())
-            package = info["package"]
-            name = info["name"]
-            mod = info.get("mod", None)
-            assert isinstance(package, str) and isinstance(name, str)
-            assert isinstance(mod, int) or mod is None
+                data = json.loads(f.read())
+            manifest = {}  # build new manifest from recognized keys
+            for key, attrs in self._manifest_schema.items():
+                if not attrs["req"] and key not in data:
+                    continue
+                val = data[key]
+                assert isinstance(val, attrs["type"])
+                manifest[key] = val
         except (KeyError, json.decoder.JSONDecodeError, AssertionError):
             # raised for missing manifest, invalid json, missing/invalid keys
-            return False, _("Invalid add-on manifest.")
+            return {}
+        return manifest
+
+    def install(self, file, manifest=None):
+        """Install add-on from path or file-like object. Metadata is read
+        from the manifest file by default, but this may me bypassed
+        by supplying a 'manifest' dictionary"""
+        try:
+            zfile = ZipFile(file)
+        except zipfile.BadZipfile:
+            return False, "zip"
         
-        self.install(package, zfile, name, mod)
+        with zfile:
+            manifest = manifest or self._readManifestFile(zfile)
+            if not manifest:
+                return False, "manifest"
+            package = manifest["package"]
+            meta = self.addonMeta(package)
+            self._install(package, zfile)
+        
+        schema = self._manifest_schema
+        manifest_meta = {k: v for k, v in manifest.items()
+                         if k in schema and schema[k]["meta"]}
+        meta.update(manifest_meta)
+        self.writeAddonMeta(package, meta)
 
-        return name, None
+        return True, meta["name"]
 
-    def install(self, dir, zfile, name, mod):
+    def _install(self, dir, zfile):
         # previously installed?
-        meta = self.addonMeta(dir)
         base = self.addonsFolder(dir)
         if os.path.exists(base):
             self.backupUserFiles(dir)
@@ -158,12 +171,6 @@ When loading '%(name)s':
                 continue
             zfile.extract(n, base)
 
-        # update metadata
-        meta['name'] = name
-        if mod is not None:  # allow packages to skip updating mod
-            meta['mod'] = mod
-        self.writeAddonMeta(dir, meta)
-
     def deleteAddon(self, dir):
         send2trash(self.addonsFolder(dir))
 
@@ -176,12 +183,16 @@ When loading '%(name)s':
         self.mw.progress.start(immediate=True)
         for path in paths:
             base = os.path.basename(path)
-            name, error = self.installLocal(path)
-            if error:
+            ret = self.install(path)
+            if ret[0] is False:
+                if ret[1] == "zip":
+                    msg = _("Corrupt add-on file.")
+                elif ret[1] == "manifest":
+                    msg = _("Invalid add-on manifest.")
                 errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
-                              % dict(base=base, error=error)))
+                              % dict(base=base, error=msg)))
             else:
-                log.append(_("Installed %(name)s" % dict(name=name)))
+                log.append(_("Installed %(name)s" % dict(name=ret[1])))
         self.mw.progress.finish()
         return log, errs
 
@@ -200,7 +211,14 @@ When loading '%(name)s':
             data, fname = ret
             fname = fname.replace("_", " ")
             name = os.path.splitext(fname)[0]
-            self.installDownload(str(n), data, name)
+            ret = self.install(io.BytesIO(data),
+                               manifest={"package": str(n), "name": name,
+                                         "mod": intTime()})
+            if ret[0] is False:
+                if ret[1] == "zip":
+                    showWarning(_("The download was corrupt. Please try again."))
+                elif ret[1] == "manifest":
+                    showWarning(_("Invalid add-on manifest."))
             log.append(_("Downloaded %(fname)s" % dict(fname=name)))
         self.mw.progress.finish()
         return log, errs
