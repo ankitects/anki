@@ -5,6 +5,7 @@ import io
 import json
 import re
 import zipfile
+from collections import defaultdict
 import markdown
 from send2trash import send2trash
 
@@ -26,7 +27,8 @@ class AddonManager:
     _manifest_schema = {
         "package": {"type": str, "req": True, "meta": False},
         "name": {"type": str, "req": True, "meta": True},
-        "mod": {"type": int, "req": False, "meta": True}
+        "mod": {"type": int, "req": False, "meta": True},
+        "conflicts": {"type": list, "req": False, "meta": True}
     }
 
     def __init__(self, mw):
@@ -97,13 +99,60 @@ When loading '%(name)s':
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
 
-    def toggleEnabled(self, dir):
+    def isEnabled(self, dir):
         meta = self.addonMeta(dir)
-        meta['disabled'] = not meta.get("disabled")
+        return not meta.get('disabled')
+
+    def toggleEnabled(self, dir, enable=None):
+        meta = self.addonMeta(dir)
+        enabled = enable if enable is not None else meta.get("disabled")
+        if enabled is True and not self._checkConflicts(dir):
+            return False
+        meta['disabled'] = not enabled
         self.writeAddonMeta(dir, meta)
 
     def addonName(self, dir):
         return self.addonMeta(dir).get("name", dir)
+
+    # Conflict resolution
+    ######################################################################
+
+    def addonConflicts(self, dir):
+        return self.addonMeta(dir).get("conflicts", [])
+
+    def allAddonConflicts(self):
+        all_conflicts = defaultdict(list)
+        for dir in self.allAddons():
+            if not self.isEnabled(dir):
+                continue
+            conflicts = self.addonConflicts(dir)
+            for other_dir in conflicts:
+                all_conflicts[other_dir].append(dir)
+        return all_conflicts
+
+    def _checkConflicts(self, dir, name=None, conflicts=None):
+        name = name or self.addonName(dir)
+        conflicts = conflicts or self.addonConflicts(dir)
+
+        installed = self.allAddons()
+        found = [d for d in conflicts if d in installed and self.isEnabled(d)]
+        found.extend(self.allAddonConflicts().get(dir, []))
+        if not found:
+            return True
+
+        addons = "\n".join(self.addonName(f) for f in found)
+        ret = askUser(_("""\
+The following add-on(s) are incompatible with %(name)s \
+and will have to be disabled to proceed:\n\n%(found)s\n\n\
+Are you sure you want to continue?"""
+                        % dict(name=name, found=addons)))
+        if not ret:
+            return False
+        
+        for package in found:
+            self.toggleEnabled(package, enable=False)
+        
+        return True
 
     # Installing and deleting add-ons
     ######################################################################
@@ -138,6 +187,9 @@ When loading '%(name)s':
             if not manifest:
                 return False, "manifest"
             package = manifest["package"]
+            conflicts = manifest.get("conflicts", [])
+            if not self._checkConflicts(package, manifest["name"], conflicts):
+                return False, "conflicts"
             meta = self.addonMeta(package)
             self._install(package, zfile)
         
@@ -185,7 +237,9 @@ When loading '%(name)s':
             base = os.path.basename(path)
             ret = self.install(path)
             if ret[0] is False:
-                if ret[1] == "zip":
+                if ret[1] == "conflicts":
+                    continue
+                elif ret[1] == "zip":
                     msg = _("Corrupt add-on file.")
                 elif ret[1] == "manifest":
                     msg = _("Invalid add-on manifest.")
@@ -215,6 +269,8 @@ When loading '%(name)s':
                                manifest={"package": str(n), "name": name,
                                          "mod": intTime()})
             if ret[0] is False:
+                if ret[1] == "conflicts":
+                    continue
                 if ret[1] == "zip":
                     showWarning(_("The download was corrupt. Please try again."))
                 elif ret[1] == "manifest":
