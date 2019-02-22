@@ -21,6 +21,8 @@ from anki.sync import AnkiRequestsClient
 
 class AddonManager:
 
+    ext = ".ankiaddon"
+
     def __init__(self, mw):
         self.mw = mw
         self.dirty = False
@@ -168,7 +170,7 @@ When loading '%(name)s':
     # Processing local add-on files
     ######################################################################
     
-    def processAPKX(self, paths):
+    def processPackages(self, paths):
         log = []
         errs = []
         self.mw.progress.start(immediate=True)
@@ -357,7 +359,8 @@ class AddonsDialog(QDialog):
         if not mime.hasUrls():
             return None
         urls = mime.urls()
-        if all(url.toLocalFile().endswith(".apkx") for url in urls):
+        ext = self.mgr.ext
+        if all(url.toLocalFile().endswith(ext) for url in urls):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
@@ -450,13 +453,13 @@ class AddonsDialog(QDialog):
 
     def onInstallFiles(self, paths=None):
         if not paths:
-            key = (_("Packaged Anki Add-on") + " (*.apkx)")
+            key = (_("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext))
             paths = getFile(self, _("Install Add-on(s)"), None, key,
                             key="addons", multi=True)
             if not paths:
                 return False
         
-        log, errs = self.mgr.processAPKX(paths)
+        log, errs = self.mgr.processPackages(paths)
 
         if log:
             tooltip("<br>".join(log), parent=self)
