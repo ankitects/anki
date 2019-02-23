@@ -453,14 +453,22 @@ class AddonsDialog(QDialog):
         return QDialog.reject(self)
 
     def redrawAddons(self):
-        self.addons = [(self.annotatedName(d), d) for d in self.mgr.allAddons()]
+        addonList = self.form.addonList
+        mgr = self.mgr
+        
+        self.addons = [(self.annotatedName(d), d) for d in mgr.allAddons()]
         self.addons.sort()
-        self.form.addonList.clear()
-        self.form.addonList.addItems([r[0] for r in self.addons])
-        if self.addons:
-            self.form.addonList.setCurrentRow(0)
+        
+        addonList.clear()
+        for name, dir in self.addons:
+            item = QListWidgetItem(name, addonList)
+            if not mgr.isEnabled(dir):
+                item.setForeground(Qt.gray)
 
-        self.form.addonList.repaint()
+        if self.addons:
+            addonList.setCurrentRow(0)
+
+        addonList.repaint()
 
     def _onAddonItemSelected(self, row_int):
         try:
@@ -470,9 +478,8 @@ class AddonsDialog(QDialog):
         self.form.viewPage.setEnabled(bool (re.match(r"^\d+$", addon)))
 
     def annotatedName(self, dir):
-        meta = self.mgr.addonMeta(dir)
         buf = self.mgr.addonName(dir)
-        if meta.get('disabled'):
+        if not self.mgr.isEnabled(dir):
             buf += _(" (disabled)")
         return buf
 
