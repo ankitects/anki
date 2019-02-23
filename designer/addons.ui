@@ -32,7 +32,7 @@
      <item>
       <widget class="QListWidget" name="addonList">
        <property name="selectionMode">
-        <enum>QAbstractItemView::ContiguousSelection</enum>
+        <enum>QAbstractItemView::ExtendedSelection</enum>
        </property>
       </widget>
      </item>
