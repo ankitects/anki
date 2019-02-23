@@ -11,7 +11,8 @@ from send2trash import send2trash
 
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser, restoreGeom, saveGeom, showWarning, tooltip, getFile
+    askUser, restoreGeom, saveGeom, restoreSplitter, saveSplitter, \
+    showWarning, tooltip, getFile
 from zipfile import ZipFile
 import aqt.forms
 import aqt
@@ -640,6 +641,8 @@ class ConfigEditor(QDialog):
         self.setupFonts()
         self.updateHelp()
         self.updateText(self.conf)
+        restoreGeom(self, "addonconf")
+        restoreSplitter(self.form.splitter, "addonconf")
         self.show()
 
     def onRestoreDefaults(self):
@@ -648,6 +651,7 @@ class ConfigEditor(QDialog):
 
     def setupFonts(self):
         font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font_mono.setPointSize(font_mono.pointSize() + 1)
         self.form.editor.setFont(font_mono)
 
     def updateHelp(self):
@@ -661,6 +665,14 @@ class ConfigEditor(QDialog):
         self.form.editor.setPlainText(
             json.dumps(conf, ensure_ascii=False, sort_keys=True,
                        indent=4, separators=(',', ': ')))
+
+    def onClose(self):
+        saveGeom(self, "addonconf")
+        saveSplitter(self.form.splitter, "addonconf")
+
+    def reject(self):
+        self.onClose()
+        super().reject()
 
     def accept(self):
         txt = self.form.editor.toPlainText()
@@ -680,5 +692,6 @@ class ConfigEditor(QDialog):
             act = self.mgr.configUpdatedAction(self.addon)
             if act:
                 act(new_conf)
-
+        
+        self.onClose()
         super().accept()
