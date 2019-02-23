@@ -648,6 +648,7 @@ class ConfigEditor(QDialog):
     def onRestoreDefaults(self):
         default_conf = self.mgr.addonConfigDefaults(self.addon)
         self.updateText(default_conf)
+        tooltip(_("Restored defaults"), parent=self)
 
     def setupFonts(self):
         font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
