@@ -316,7 +316,7 @@ Are you sure you want to continue?"""
         updated = []
         for dir, ts in mods:
             sid = str(dir)
-            if self.addonMeta(sid).get("mod") < ts:
+            if self.addonMeta(sid).get("mod",0) < ts:
                 updated.append(sid)
         return updated
 
@@ -426,6 +426,7 @@ class AddonsDialog(QDialog):
         self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
         self.setAcceptDrops(True)
         self.redrawAddons()
+        restoreGeom(self, "addons")
         self.show()
 
     def dragEnterEvent(self, event):
@@ -445,6 +446,10 @@ class AddonsDialog(QDialog):
             if os.path.exists(path):
                 paths.append(path)
         self.onInstallFiles(paths)
+
+    def reject(self):
+        saveGeom(self, "addons")
+        return QDialog.reject(self)
 
     def redrawAddons(self):
         self.addons = [(self.annotatedName(d), d) for d in self.mgr.allAddons()]

@@ -50,7 +50,7 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     return mb.exec_()
 
 def showText(txt, parent=None, type="text", run=True, geomKey=None, \
-        minWidth=500, minHeight=400, title="Anki"):
+        minWidth=500, minHeight=400, title="Anki", copyBtn=False):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
@@ -66,6 +66,12 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
     layout.addWidget(text)
     box = QDialogButtonBox(QDialogButtonBox.Close)
     layout.addWidget(box)
+    if copyBtn:
+        def onCopy():
+            QApplication.clipboard().setText(text.toPlainText())
+        btn = QPushButton(_("Copy to Clipboard"))
+        btn.clicked.connect(onCopy)
+        box.addButton(btn, QDialogButtonBox.ActionRole)
     def onReject():
         if geomKey:
             saveGeom(diag, geomKey)
