@@ -458,15 +458,15 @@ class AddonsDialog(QDialog):
         
         self.addons = [(self.annotatedName(d), d) for d in mgr.allAddons()]
         self.addons.sort()
-        
+
+        selected = set(self.selectedAddons())
         addonList.clear()
         for name, dir in self.addons:
             item = QListWidgetItem(name, addonList)
             if not mgr.isEnabled(dir):
                 item.setForeground(Qt.gray)
-
-        if self.addons:
-            addonList.setCurrentRow(0)
+            if dir in selected:
+                item.setSelected(True)
 
         addonList.repaint()
 
