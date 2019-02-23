@@ -1171,11 +1171,19 @@ will be lost. Continue?"""))
         d.silentlyClose = True
         frm = aqt.forms.debug.Ui_Dialog()
         frm.setupUi(d)
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font.setPointSize(frm.text.font().pointSize() + 1)
+        frm.text.setFont(font)
+        frm.log.setFont(font)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
         s.activated.connect(lambda: self.onDebugRet(frm))
         s = self.debugDiagShort = QShortcut(
             QKeySequence("ctrl+shift+return"), d)
         s.activated.connect(lambda: self.onDebugPrint(frm))
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
+        s.activated.connect(frm.log.clear)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
+        s.activated.connect(frm.text.clear)
         d.show()
 
     def _captureOutput(self, on):
@@ -1201,7 +1209,16 @@ will be lost. Continue?"""))
         return aqt.dialogs._dialogs['Browser'][1].card.__dict__
 
     def onDebugPrint(self, frm):
-        frm.text.setPlainText("pp(%s)" % frm.text.toPlainText())
+        cursor = frm.text.textCursor()
+        position = cursor.position()
+        cursor.select(QTextCursor.LineUnderCursor)
+        line = cursor.selectedText()
+        pfx, sfx = "pp(", ")"
+        if not line.startswith(pfx):
+            line = "{}{}{}".format(pfx, line, sfx)
+            cursor.insertText(line)
+            cursor.setPosition(position + len(pfx))
+            frm.text.setTextCursor(cursor)
         self.onDebugRet(frm)
 
     def onDebugRet(self, frm):
