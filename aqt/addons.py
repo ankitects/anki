@@ -533,6 +533,7 @@ class AddonsDialog(QDialog):
             return
         for dir in selected:
             self.mgr.deleteAddon(dir)
+        self.form.addonList.clearSelection()
         self.redrawAddons()
 
     def onGetAddons(self):
