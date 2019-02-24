@@ -567,6 +567,33 @@ def versionWithBuild():
         build = "dev"
     return "%s (%s)" % (appVersion, build)
 
+def supportText():
+    import platform
+    from aqt import mw
+    from aqt.utils import versionWithBuild
+
+    if isWin:
+        platname = "Windows " + platform.win32_ver()[0]
+    elif isMac:
+        platname = "Mac " + platform.mac_ver()[0]
+    else:
+        platname = "Linux"
+
+    def schedVer():
+        try:
+            return mw.col.schedVer()
+        except:
+            return "?"
+
+    return """\
+Anki {} Python {} Qt {} PyQt {}
+Platform: {}
+Flags: frz={} ao={} sv={}
+""".format(versionWithBuild(), platform.python_version(),
+           QT_VERSION_STR, PYQT_VERSION_STR, platname,
+           getattr(sys, "frozen", False),
+           mw.addonManager.dirty, schedVer())
+
 ######################################################################
 
 # adapted from version detection in qutebrowser
