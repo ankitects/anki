@@ -115,6 +115,12 @@ When loading '%(name)s':
     def addonName(self, dir):
         return self.addonMeta(dir).get("name", dir)
 
+    def annotatedName(self, dir):
+        buf = self.addonName(dir)
+        if not self.isEnabled(dir):
+            buf += _(" (disabled)")
+        return buf
+
     # Conflict resolution
     ######################################################################
 
@@ -456,7 +462,7 @@ class AddonsDialog(QDialog):
         addonList = self.form.addonList
         mgr = self.mgr
         
-        self.addons = [(self.annotatedName(d), d) for d in mgr.allAddons()]
+        self.addons = [(mgr.annotatedName(d), d) for d in mgr.allAddons()]
         self.addons.sort()
 
         selected = set(self.selectedAddons())
@@ -476,12 +482,6 @@ class AddonsDialog(QDialog):
         except IndexError:
             addon = ''
         self.form.viewPage.setEnabled(bool (re.match(r"^\d+$", addon)))
-
-    def annotatedName(self, dir):
-        buf = self.mgr.addonName(dir)
-        if not self.mgr.isEnabled(dir):
-            buf += _(" (disabled)")
-        return buf
 
     def selectedAddons(self):
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
