@@ -11,7 +11,8 @@ from send2trash import send2trash
 
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser, restoreGeom, saveGeom, showWarning, tooltip, getFile
+    askUser, restoreGeom, saveGeom, restoreSplitter, saveSplitter, \
+    showWarning, tooltip, getFile
 from zipfile import ZipFile
 import aqt.forms
 import aqt
@@ -452,14 +453,22 @@ class AddonsDialog(QDialog):
         return QDialog.reject(self)
 
     def redrawAddons(self):
-        self.addons = [(self.annotatedName(d), d) for d in self.mgr.allAddons()]
+        addonList = self.form.addonList
+        mgr = self.mgr
+        
+        self.addons = [(self.annotatedName(d), d) for d in mgr.allAddons()]
         self.addons.sort()
-        self.form.addonList.clear()
-        self.form.addonList.addItems([r[0] for r in self.addons])
-        if self.addons:
-            self.form.addonList.setCurrentRow(0)
 
-        self.form.addonList.repaint()
+        selected = set(self.selectedAddons())
+        addonList.clear()
+        for name, dir in self.addons:
+            item = QListWidgetItem(name, addonList)
+            if not mgr.isEnabled(dir):
+                item.setForeground(Qt.gray)
+            if dir in selected:
+                item.setSelected(True)
+
+        addonList.repaint()
 
     def _onAddonItemSelected(self, row_int):
         try:
@@ -469,9 +478,8 @@ class AddonsDialog(QDialog):
         self.form.viewPage.setEnabled(bool (re.match(r"^\d+$", addon)))
 
     def annotatedName(self, dir):
-        meta = self.mgr.addonMeta(dir)
         buf = self.mgr.addonName(dir)
-        if meta.get('disabled'):
+        if not self.mgr.isEnabled(dir):
             buf += _(" (disabled)")
         return buf
 
@@ -640,14 +648,18 @@ class ConfigEditor(QDialog):
         self.setupFonts()
         self.updateHelp()
         self.updateText(self.conf)
+        restoreGeom(self, "addonconf")
+        restoreSplitter(self.form.splitter, "addonconf")
         self.show()
 
     def onRestoreDefaults(self):
         default_conf = self.mgr.addonConfigDefaults(self.addon)
         self.updateText(default_conf)
+        tooltip(_("Restored defaults"), parent=self)
 
     def setupFonts(self):
         font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font_mono.setPointSize(font_mono.pointSize() + 1)
         self.form.editor.setFont(font_mono)
 
     def updateHelp(self):
@@ -661,6 +673,14 @@ class ConfigEditor(QDialog):
         self.form.editor.setPlainText(
             json.dumps(conf, ensure_ascii=False, sort_keys=True,
                        indent=4, separators=(',', ': ')))
+
+    def onClose(self):
+        saveGeom(self, "addonconf")
+        saveSplitter(self.form.splitter, "addonconf")
+
+    def reject(self):
+        self.onClose()
+        super().reject()
 
     def accept(self):
         txt = self.form.editor.toPlainText()
@@ -680,5 +700,6 @@ class ConfigEditor(QDialog):
             act = self.mgr.configUpdatedAction(self.addon)
             if act:
                 act(new_conf)
-
+        
+        self.onClose()
         super().accept()
