@@ -5,12 +5,13 @@ import io
 import json
 import re
 import zipfile
+from collections import defaultdict
 import markdown
 from send2trash import send2trash
 
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser, restoreGeom, saveGeom, showWarning, tooltip
+    askUser, restoreGeom, saveGeom, showWarning, tooltip, getFile
 from zipfile import ZipFile
 import aqt.forms
 import aqt
@@ -20,6 +21,15 @@ from anki.utils import intTime
 from anki.sync import AnkiRequestsClient
 
 class AddonManager:
+
+    ext = ".ankiaddon"
+    # todo?: use jsonschema package
+    _manifest_schema = {
+        "package": {"type": str, "req": True, "meta": False},
+        "name": {"type": str, "req": True, "meta": True},
+        "mod": {"type": int, "req": False, "meta": True},
+        "conflicts": {"type": list, "req": False, "meta": True}
+    }
 
     def __init__(self, mw):
         self.mw = mw
@@ -89,38 +99,120 @@ When loading '%(name)s':
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
 
-    def toggleEnabled(self, dir):
+    def isEnabled(self, dir):
         meta = self.addonMeta(dir)
-        meta['disabled'] = not meta.get("disabled")
+        return not meta.get('disabled')
+
+    def toggleEnabled(self, dir, enable=None):
+        meta = self.addonMeta(dir)
+        enabled = enable if enable is not None else meta.get("disabled")
+        if enabled is True and not self._checkConflicts(dir):
+            return False
+        meta['disabled'] = not enabled
         self.writeAddonMeta(dir, meta)
 
     def addonName(self, dir):
         return self.addonMeta(dir).get("name", dir)
 
+    # Conflict resolution
+    ######################################################################
+
+    def addonConflicts(self, dir):
+        return self.addonMeta(dir).get("conflicts", [])
+
+    def allAddonConflicts(self):
+        all_conflicts = defaultdict(list)
+        for dir in self.allAddons():
+            if not self.isEnabled(dir):
+                continue
+            conflicts = self.addonConflicts(dir)
+            for other_dir in conflicts:
+                all_conflicts[other_dir].append(dir)
+        return all_conflicts
+
+    def _checkConflicts(self, dir, name=None, conflicts=None):
+        name = name or self.addonName(dir)
+        conflicts = conflicts or self.addonConflicts(dir)
+
+        installed = self.allAddons()
+        found = [d for d in conflicts if d in installed and self.isEnabled(d)]
+        found.extend(self.allAddonConflicts().get(dir, []))
+        if not found:
+            return True
+
+        addons = "\n".join(self.addonName(f) for f in found)
+        ret = askUser(_("""\
+The following add-on(s) are incompatible with %(name)s \
+and will have to be disabled to proceed:\n\n%(found)s\n\n\
+Are you sure you want to continue?"""
+                        % dict(name=name, found=addons)))
+        if not ret:
+            return False
+        
+        for package in found:
+            self.toggleEnabled(package, enable=False)
+        
+        return True
+
     # Installing and deleting add-ons
     ######################################################################
 
-    def install(self, sid, data, fname):
+    def _readManifestFile(self, zfile):
         try:
-            z = ZipFile(io.BytesIO(data))
+            with zfile.open("manifest.json") as f:
+                data = json.loads(f.read())
+            manifest = {}  # build new manifest from recognized keys
+            for key, attrs in self._manifest_schema.items():
+                if not attrs["req"] and key not in data:
+                    continue
+                val = data[key]
+                assert isinstance(val, attrs["type"])
+                manifest[key] = val
+        except (KeyError, json.decoder.JSONDecodeError, AssertionError):
+            # raised for missing manifest, invalid json, missing/invalid keys
+            return {}
+        return manifest
+
+    def install(self, file, manifest=None):
+        """Install add-on from path or file-like object. Metadata is read
+        from the manifest file by default, but this may me bypassed
+        by supplying a 'manifest' dictionary"""
+        try:
+            zfile = ZipFile(file)
         except zipfile.BadZipfile:
-            showWarning(_("The download was corrupt. Please try again."))
-            return
+            return False, "zip"
+        
+        with zfile:
+            manifest = manifest or self._readManifestFile(zfile)
+            if not manifest:
+                return False, "manifest"
+            package = manifest["package"]
+            conflicts = manifest.get("conflicts", [])
+            if not self._checkConflicts(package, manifest["name"], conflicts):
+                return False, "conflicts"
+            meta = self.addonMeta(package)
+            self._install(package, zfile)
+        
+        schema = self._manifest_schema
+        manifest_meta = {k: v for k, v in manifest.items()
+                         if k in schema and schema[k]["meta"]}
+        meta.update(manifest_meta)
+        self.writeAddonMeta(package, meta)
 
-        name = os.path.splitext(fname)[0]
+        return True, meta["name"]
 
+    def _install(self, dir, zfile):
         # previously installed?
-        meta = self.addonMeta(sid)
-        base = self.addonsFolder(sid)
+        base = self.addonsFolder(dir)
         if os.path.exists(base):
-            self.backupUserFiles(sid)
-            self.deleteAddon(sid)
+            self.backupUserFiles(dir)
+            self.deleteAddon(dir)
 
         os.mkdir(base)
-        self.restoreUserFiles(sid)
+        self.restoreUserFiles(dir)
 
         # extract
-        for n in z.namelist():
+        for n in zfile.namelist():
             if n.endswith("/"):
                 # folder; ignore
                 continue
@@ -129,15 +221,34 @@ When loading '%(name)s':
             # skip existing user files
             if os.path.exists(path) and n.startswith("user_files/"):
                 continue
-            z.extract(n, base)
-
-        # update metadata
-        meta['name'] = name
-        meta['mod'] = intTime()
-        self.writeAddonMeta(sid, meta)
+            zfile.extract(n, base)
 
     def deleteAddon(self, dir):
         send2trash(self.addonsFolder(dir))
+
+    # Processing local add-on files
+    ######################################################################
+    
+    def processPackages(self, paths):
+        log = []
+        errs = []
+        self.mw.progress.start(immediate=True)
+        for path in paths:
+            base = os.path.basename(path)
+            ret = self.install(path)
+            if ret[0] is False:
+                if ret[1] == "conflicts":
+                    continue
+                elif ret[1] == "zip":
+                    msg = _("Corrupt add-on file.")
+                elif ret[1] == "manifest":
+                    msg = _("Invalid add-on manifest.")
+                errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
+                              % dict(base=base, error=msg)))
+            else:
+                log.append(_("Installed %(name)s" % dict(name=ret[1])))
+        self.mw.progress.finish()
+        return log, errs
 
     # Downloading
     ######################################################################
@@ -153,8 +264,17 @@ When loading '%(name)s':
                 continue
             data, fname = ret
             fname = fname.replace("_", " ")
-            self.install(str(n), data, fname)
             name = os.path.splitext(fname)[0]
+            ret = self.install(io.BytesIO(data),
+                               manifest={"package": str(n), "name": name,
+                                         "mod": intTime()})
+            if ret[0] is False:
+                if ret[1] == "conflicts":
+                    continue
+                if ret[1] == "zip":
+                    showWarning(_("The download was corrupt. Please try again."))
+                elif ret[1] == "manifest":
+                    showWarning(_("Invalid add-on manifest."))
             log.append(_("Downloaded %(fname)s" % dict(fname=name)))
         self.mw.progress.finish()
         return log, errs
@@ -296,6 +416,7 @@ class AddonsDialog(QDialog):
         f = self.form = aqt.forms.addons.Ui_Dialog()
         f.setupUi(self)
         f.getAddons.clicked.connect(self.onGetAddons)
+        f.installFromFile.clicked.connect(self.onInstallFiles)
         f.checkForUpdates.clicked.connect(self.onCheckForUpdates)
         f.toggleEnabled.clicked.connect(self.onToggleEnabled)
         f.viewPage.clicked.connect(self.onViewPage)
@@ -303,9 +424,28 @@ class AddonsDialog(QDialog):
         f.delete_2.clicked.connect(self.onDelete)
         f.config.clicked.connect(self.onConfig)
         self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
+        self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
         self.show()
+
+    def dragEnterEvent(self, event):
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return None
+        urls = mime.urls()
+        ext = self.mgr.ext
+        if all(url.toLocalFile().endswith(ext) for url in urls):
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        mime = event.mimeData()
+        paths = []
+        for url in mime.urls():
+            path = url.toLocalFile()
+            if os.path.exists(path):
+                paths.append(path)
+        self.onInstallFiles(paths)
 
     def reject(self):
         saveGeom(self, "addons")
@@ -390,6 +530,24 @@ class AddonsDialog(QDialog):
     def onGetAddons(self):
         GetAddons(self)
 
+    def onInstallFiles(self, paths=None):
+        if not paths:
+            key = (_("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext))
+            paths = getFile(self, _("Install Add-on(s)"), None, key,
+                            key="addons", multi=True)
+            if not paths:
+                return False
+        
+        log, errs = self.mgr.processPackages(paths)
+
+        if log:
+            tooltip("<br>".join(log), parent=self)
+        if errs:
+            msg = _("Please report this to the respective add-on author(s).")
+            showWarning("<br><br>".join(errs + [msg]), parent=self)
+
+        self.redrawAddons()
+
     def onCheckForUpdates(self):
         updated = self.mgr.checkForUpdates()
         if not updated:
@@ -400,9 +558,9 @@ class AddonsDialog(QDialog):
                                "\n" + "\n".join(names)):
                 log, errs = self.mgr.downloadIds(updated)
                 if log:
-                    tooltip("\n".join(log), parent=self)
+                    tooltip("<br>".join(log), parent=self)
                 if errs:
-                    showWarning("\n".join(errs), parent=self)
+                    showWarning("<br><br>".join(errs), parent=self)
 
                 self.redrawAddons()
 
@@ -458,9 +616,9 @@ class GetAddons(QDialog):
         log, errs = self.mgr.downloadIds(ids)
 
         if log:
-            tooltip("\n".join(log), parent=self.addonsDlg)
+            tooltip("<br>".join(log), parent=self.addonsDlg)
         if errs:
-            showWarning("\n".join(errs))
+            showWarning("<br><br>".join(errs))
 
         self.addonsDlg.redrawAddons()
         QDialog.accept(self)

@@ -245,7 +245,7 @@ def getTag(parent, deck, question, tags="user", **kwargs):
 # File handling
 ######################################################################
 
-def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
+def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
     "Ask the user for a file."
     assert not dir or not key
     if not dir:
@@ -254,20 +254,22 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     else:
         dirkey = None
     d = QFileDialog(parent)
-    d.setFileMode(QFileDialog.ExistingFile)
+    mode = QFileDialog.ExistingFiles if multi else QFileDialog.ExistingFile
+    d.setFileMode(mode)
     if os.path.exists(dir):
         d.setDirectory(dir)
     d.setWindowTitle(title)
     d.setNameFilter(filter)
     ret = []
     def accept():
-        file = str(list(d.selectedFiles())[0])
+        files = list(d.selectedFiles())
         if dirkey:
-            dir = os.path.dirname(file)
+            dir = os.path.dirname(files[0])
             aqt.mw.pm.profile[dirkey] = dir
+        result = files if multi else files[0]
         if cb:
-            cb(file)
-        ret.append(file)
+            cb(result)
+        ret.append(result)
     d.accepted.connect(accept)
     if key:
         restoreState(d, key)

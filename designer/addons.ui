@@ -48,6 +48,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="installFromFile">
+       <property name="text">
+        <string>Install from file...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="checkForUpdates">
        <property name="text">
         <string>Check for Updates</string>
