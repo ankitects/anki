@@ -19,15 +19,15 @@ def openLink(link):
     with noBundledLibs():
         QDesktopServices.openUrl(QUrl(link))
 
-def showWarning(text, parent=None, help="", title="Anki"):
+def showWarning(text, parent=None, help="", title="Anki", textFormat=None):
     "Show a small warning with an OK button."
-    return showInfo(text, parent, help, "warning", title=title)
+    return showInfo(text, parent, help, "warning", title=title, textFormat=textFormat)
 
-def showCritical(text, parent=None, help="", title="Anki"):
+def showCritical(text, parent=None, help="", title="Anki", textFormat=None):
     "Show a small critical error with an OK button."
-    return showInfo(text, parent, help, "critical", title=title)
+    return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
 
-def showInfo(text, parent=False, help="", type="info", title="Anki"):
+def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=None):
     "Show a small info window with an OK button."
     if parent is False:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -38,6 +38,12 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     else:
         icon = QMessageBox.Information
     mb = QMessageBox(parent)
+    if textFormat == "plain":
+        mb.setTextFormat(Qt.PlainText)
+    elif textFormat == "rich":
+        mb.setTextFormat(Qt.RichText)
+    else:
+        raise Exception("unexpected textFormat type")
     mb.setText(text)
     mb.setIcon(icon)
     mb.setWindowTitle(title)
