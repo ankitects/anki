@@ -4,7 +4,7 @@
 
 from aqt.qt import *
 import aqt.forms
-from aqt.utils import versionWithBuild
+from aqt.utils import versionWithBuild, supportText, tooltip
 
 class ClosableQDialog(QDialog):
     def reject(self):
@@ -24,6 +24,23 @@ def show(mw):
     mw.setupDialogGC(dialog)
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
+
+    # Copy debug info
+    ######################################################################
+    def onCopy():
+        addmgr = mw.addonManager
+        addons = "\n".join(addmgr.annotatedName(d) for d in addmgr.allAddons())
+        info = "\n".join((supportText(), "Add-ons:\n\n{}".format(addons)))
+        QApplication.clipboard().setText(info)
+        tooltip(_("Copied to clipboard"), parent=dialog)
+
+    btn = QPushButton(_("Copy Debug Info"))
+    btn.clicked.connect(onCopy)
+    abt.buttonBox.addButton(btn, QDialogButtonBox.ActionRole)
+    abt.buttonBox.button(QDialogButtonBox.Ok).setFocus()
+
+    # WebView contents
+    ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
     abouttext += '<p>' + _("Anki is a friendly, intelligent spaced learning \
 system. It's free and open source.")

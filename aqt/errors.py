@@ -7,7 +7,7 @@ import re
 
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import showText, showWarning
+from aqt.utils import showText, showWarning, supportText
 from aqt import mw
 
 if not os.environ.get("DEBUG"):
@@ -126,10 +126,10 @@ add-ons section</a> of our support site.
 """)        
         if self.mw.addonManager.dirty:
             txt = pluginText
-            error = self._supportText() + self._addonText(error) + "\n" + error
+            error = supportText() + self._addonText(error) + "\n" + error
         else:
             txt = stdText
-            error = self._supportText() + "\n" + error
+            error = supportText() + "\n" + error
         
         # show dialog
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
@@ -146,27 +146,3 @@ add-ons section</a> of our support site.
         # highlight importance of first add-on:
         addons[0] = "<b>{}</b>".format(addons[0])
         return txt.format(", ".join(addons))
-
-    def _supportText(self):
-        import platform
-        from aqt.utils import versionWithBuild
-
-        if isWin:
-            platname = "Windows " + platform.win32_ver()[0]
-        elif isMac:
-            platname = "Mac " + platform.mac_ver()[0]
-        else:
-            platname = "Linux"
-
-        def schedVer():
-            try:
-                return self.mw.col.schedVer()
-            except:
-                return "?"
-
-        return """\
-Anki {} Python {} Qt {} PyQt {}
-Platform: {}
-Flags: frz={} ao={} sv={}
-""".format(versionWithBuild(), platform.python_version(), QT_VERSION_STR, PYQT_VERSION_STR, platname,
-           getattr(sys, "frozen", False), self.mw.addonManager.dirty, schedVer())
