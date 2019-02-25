@@ -18,7 +18,6 @@ class AnkiWebPage(QWebEnginePage):
         QWebEnginePage.__init__(self)
         self._onBridgeCmd = onBridgeCmd
         self._setupBridge()
-        self.setBackgroundColor(Qt.transparent)
 
     def _setupBridge(self):
         class Bridge(QObject):
@@ -93,6 +92,7 @@ class AnkiWebView(QWebEngineView):
         QWebEngineView.__init__(self, parent=parent)
         self.title = "default"
         self._page = AnkiWebPage(self._onBridgeCmd)
+        self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
 
         self._domDone = True
         self._pendingActions = []
@@ -216,6 +216,12 @@ class AnkiWebView(QWebEngineView):
         else:
             return 3
 
+    def _getWindowColor(self):
+        if isMac:
+            # standard palette does not return correct window color on macOS
+            return QColor("#ececec")
+        return self.style().standardPalette().color(QPalette.Window)
+
     def stdHtml(self, body, css=[], js=["jquery.js"], head=""):
         if isWin:
             widgetspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
@@ -263,7 +269,7 @@ div[contenteditable="true"]:focus {
 <title>{}</title>
 
 <style>
-body {{ zoom: {}; {} }}
+body {{ zoom: {}; background: {}; {} }}
 {}
 </style>
   
@@ -271,7 +277,8 @@ body {{ zoom: {}; {} }}
 </head>
 
 <body>{}</body>
-</html>""".format(self.title, self.zoomFactor(), fontspec, widgetspec, head, body)
+</html>""".format(self.title, self.zoomFactor(), self._getWindowColor().name(),
+                  fontspec, widgetspec, head, body)
         #print(html)
         self.setHtml(html)
 
