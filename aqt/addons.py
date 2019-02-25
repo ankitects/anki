@@ -553,7 +553,7 @@ class AddonsDialog(QDialog):
             tooltip("<br>".join(log), parent=self)
         if errs:
             msg = _("Please report this to the respective add-on author(s).")
-            showWarning("<br><br>".join(errs + [msg]), parent=self)
+            showWarning("\n\n".join(errs + [msg]), parent=self, textFormat="plain")
 
         self.redrawAddons()
 
@@ -569,7 +569,7 @@ class AddonsDialog(QDialog):
                 if log:
                     tooltip("<br>".join(log), parent=self)
                 if errs:
-                    showWarning("<br><br>".join(errs), parent=self)
+                    showWarning("\n\n".join(errs), parent=self, textFormat="plain")
 
                 self.redrawAddons()
 
@@ -627,7 +627,7 @@ class GetAddons(QDialog):
         if log:
             tooltip("<br>".join(log), parent=self.addonsDlg)
         if errs:
-            showWarning("<br><br>".join(errs))
+            showWarning("\n\n".join(errs), textFormat="plain")
 
         self.addonsDlg.redrawAddons()
         QDialog.accept(self)
