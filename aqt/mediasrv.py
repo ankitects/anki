@@ -47,7 +47,12 @@ class MediaServer(threading.Thread):
     _port = None
     _ready = threading.Event()
 
+    def __init__(self, addonFolder=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._addonFolder = addonFolder
+
     def run(self):
+        RequestHandler = createRequestHandler(self._addonFolder)
         self.server = ThreadedHTTPServer(("127.0.0.1", 0), RequestHandler)
         self._ready.set()
         self.server.serve_forever()
@@ -59,9 +64,15 @@ class MediaServer(threading.Thread):
     def shutdown(self):
         self.server.shutdown()
 
+def createRequestHandler(addonFolder):
+    """RequestHandler factory"""
+    return type("RequestHandler", (RequestHandler, ),
+                {"_addonFolder": addonFolder})
+
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     timeout = 1
+    _addonFolder = None
 
     def do_GET(self):
         f = self.send_head()
@@ -121,10 +132,15 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                           format%args))
 
     # catch /_anki references and rewrite them to web export folder
+    # catch /_addons references and rewrite them to addons folder
     def _redirectWebExports(self, path):
         targetPath = os.path.join(os.getcwd(), "_anki", "")
         if path.startswith(targetPath):
             newPath = os.path.join(_exportFolder, path[len(targetPath):])
+            return newPath
+        targetPath = os.path.join(os.getcwd(), "_addons", "")
+        if self._addonFolder and path.startswith(targetPath):
+            newPath = os.path.join(self._addonFolder, path[len(targetPath):])
             return newPath
         return path
 

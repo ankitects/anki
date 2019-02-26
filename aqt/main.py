@@ -1350,7 +1350,8 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
     ##########################################################################
 
     def setupMediaServer(self):
-        self.mediaServer = aqt.mediasrv.MediaServer()
+        self.mediaServer = aqt.mediasrv.MediaServer(
+            addonFolder=self.pm.addonFolder())
         self.mediaServer.start()
 
     def baseHTML(self):
