@@ -1436,7 +1436,8 @@ where id in %s""" % ids2str(sf))
         self._renderPreview()
 
     def _previewStateAndMod(self):
-        return (self._previewState, self.card.note().mod)
+        n = self.card.note()
+        return (self._previewState, n.id, n.mod)
 
     # Card deletion
     ######################################################################
