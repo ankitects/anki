@@ -939,8 +939,13 @@ class EditorWebView(AnkiWebView):
         # normal text; convert it to HTML
         txt = html.escape(txt)
         txt = txt.replace("\n", "<br>")\
-            .replace("\t", " "*4)\
-            .replace(" ", "&nbsp;")
+            .replace("\t", " "*4)
+
+        # if there's more than one consecutive space,
+        # use non-breaking spaces for the second one on
+        def repl(match):
+            return " " + match.group(1).replace(" ", "&nbsp;")
+        txt = re.sub(" ( +)", repl, txt)
 
         return txt
 
