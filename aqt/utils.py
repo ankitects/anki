@@ -3,10 +3,11 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib.request, urllib.parse, urllib.error, subprocess
+import re, os, sys, subprocess
 import aqt
 from anki.sound import stripSounds
-from anki.utils import isWin, isMac, invalidFilename, noBundledLibs
+from anki.utils import isWin, isMac, invalidFilename, noBundledLibs, \
+    versionWithBuild
 
 def openHelp(section):
     link = aqt.appHelpSite
@@ -565,18 +566,9 @@ def qtMenuShortcutWorkaround(qmenu):
 
 ######################################################################
 
-def versionWithBuild():
-    from aqt import appVersion
-    try:
-        from aqt.buildhash import build
-    except:
-        build = "dev"
-    return "%s (%s)" % (appVersion, build)
-
 def supportText():
     import platform
     from aqt import mw
-    from aqt.utils import versionWithBuild
 
     if isWin:
         platname = "Windows " + platform.win32_ver()[0]

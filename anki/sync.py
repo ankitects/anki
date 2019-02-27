@@ -10,7 +10,7 @@ import requests
 from anki.db import DB, DBError
 from anki.utils import ids2str, intTime, json, platDesc, checksum, devMode
 from anki.consts import *
-from aqt.utils import versionWithBuild
+from anki.utils import versionWithBuild
 from .hooks import runHook
 import anki
 from .lang import ngettext

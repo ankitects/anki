@@ -407,3 +407,13 @@ class TimedLog:
         sys.stderr.write("%5dms: %s(): %s\n" % ((time.time() - self._last)*1000, fn, s))
         self._last = time.time()
 
+# Version
+##############################################################################
+
+def versionWithBuild():
+    from anki import version
+    try:
+        from anki.buildhash import build
+    except:
+        build = "dev"
+    return "%s (%s)" % (version, build)
