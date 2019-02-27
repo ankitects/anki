@@ -240,21 +240,23 @@ Are you sure you want to continue?"""
         log = []
         errs = []
         self.mw.progress.start(immediate=True)
-        for path in paths:
-            base = os.path.basename(path)
-            ret = self.install(path)
-            if ret[0] is False:
-                if ret[1] == "conflicts":
-                    continue
-                elif ret[1] == "zip":
-                    msg = _("Corrupt add-on file.")
-                elif ret[1] == "manifest":
-                    msg = _("Invalid add-on manifest.")
-                errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
-                              % dict(base=base, error=msg)))
-            else:
-                log.append(_("Installed %(name)s" % dict(name=ret[1])))
-        self.mw.progress.finish()
+        try:
+            for path in paths:
+                base = os.path.basename(path)
+                ret = self.install(path)
+                if ret[0] is False:
+                    if ret[1] == "conflicts":
+                        continue
+                    elif ret[1] == "zip":
+                        msg = _("Corrupt add-on file.")
+                    elif ret[1] == "manifest":
+                        msg = _("Invalid add-on manifest.")
+                    errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
+                                  % dict(base=base, error=msg)))
+                else:
+                    log.append(_("Installed %(name)s" % dict(name=ret[1])))
+        finally:
+            self.mw.progress.finish()
         return log, errs
 
     # Downloading
