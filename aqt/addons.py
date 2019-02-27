@@ -560,7 +560,13 @@ class AddonsDialog(QDialog):
         self.redrawAddons()
 
     def onCheckForUpdates(self):
-        updated = self.mgr.checkForUpdates()
+        try:
+            updated = self.mgr.checkForUpdates()
+        except Exception as e:
+            showWarning(_("Please check your internet connection.") + "\n\n" + str(e),
+                        textFormat="plain")
+            return
+
         if not updated:
             tooltip(_("No updates available."))
         else:
