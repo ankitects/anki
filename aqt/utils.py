@@ -42,7 +42,7 @@ def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=
         mb.setTextFormat(Qt.PlainText)
     elif textFormat == "rich":
         mb.setTextFormat(Qt.RichText)
-    else:
+    elif textFormat is not None:
         raise Exception("unexpected textFormat type")
     mb.setText(text)
     mb.setIcon(icon)
