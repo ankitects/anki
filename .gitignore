@@ -7,4 +7,4 @@
 aqt/forms
 locale
 tools/runanki.system
-aqt/buildhash.py
+anki/buildhash.py

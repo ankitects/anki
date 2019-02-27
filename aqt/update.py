@@ -7,10 +7,8 @@ import requests
 
 from aqt.qt import *
 import aqt
-from aqt.utils import openLink
-from anki.utils import json, platDesc
-from aqt.utils import showText
-from aqt.utils import versionWithBuild
+from aqt.utils import openLink, showText
+from anki.utils import platDesc, versionWithBuild
 
 class LatestVersionFinder(QThread):
 
