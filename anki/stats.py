@@ -198,13 +198,17 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
     # Due and cumulative due
     ######################################################################
 
-    def dueGraph(self):
+    def get_start_end_chunk(self):
         if self.type == 0:
             start, end, chunk = 0, 31, 1
         elif self.type == 1:
             start, end, chunk = 0, 52, 7
         elif self.type == 2:
             start, end, chunk = 0, None, 30
+        return start, end, chunk
+
+    def dueGraph(self):
+        start, end, chunk = self.get_start_end_chunk()
         d = self._due(start, end, chunk)
         yng = []
         mtr = []
@@ -269,12 +273,7 @@ group by day order by day""" % (self._limit(), lim),
     ######################################################################
 
     def introductionGraph(self):
-        if self.type == 0:
-            days = 30; chunk = 1
-        elif self.type == 1:
-            days = 52; chunk = 7
-        else:
-            days = None; chunk = 30
+        start, days, chunk = self.get_start_end_chunk()
         return self._introductionGraph(self._added(days, chunk),
                                days, _("Added"))
 
@@ -309,12 +308,7 @@ group by day order by day""" % (self._limit(), lim),
         return txt
 
     def repsGraphs(self):
-        if self.type == 0:
-            days = 30; chunk = 1
-        elif self.type == 1:
-            days = 52; chunk = 7
-        else:
-            days = None; chunk = 30
+        start, days, chunk = self.get_start_end_chunk()
         return self._repsGraphs(self._done(days, chunk),
                                days,
                                _("Review Count"),
@@ -548,12 +542,8 @@ group by day order by day)""" % lim,
         return txt + self._lineTbl(i)
 
     def _ivls(self):
-        if self.type == 0:
-            chunk = 1; lim = " and grp <= 30"
-        elif self.type == 1:
-            chunk = 7; lim = " and grp <= 52"
-        else:
-            chunk = 30; lim = ""
+        start, end, chunk = self.get_start_end_chunk()
+        lim = "and grp <= %d" % end if end else ""
         data = [self.col.db.all("""
 select ivl / :chunk as grp, count() from cards
 where did in %s and queue = 2 %s
@@ -625,12 +615,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
         lim = self._revlogLimit()
         if lim:
             lims.append(lim)
-        if self.type == 0:
-            days = 30
-        elif self.type == 1:
-            days = 365
-        else:
-            days = None
+        days = self._periodDays()
         if days is not None:
             lims.append("id > %d" % (
                 (self.col.sched.dayCutoff-(days*86400))*1000))
@@ -937,12 +922,10 @@ $(function () {
         return period
 
     def _periodDays(self):
-        if self.type == 0:
-            return 30
-        elif self.type == 1:
-            return 365
-        else:
+        start, end, chunk = self.get_start_end_chunk()
+        if end is None:
             return None
+        return end * chunk
 
     def _avgDay(self, tot, num, unit):
         vals = []
