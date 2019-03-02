@@ -9,6 +9,7 @@ import socketserver
 import socket
 from anki.utils import devMode
 import threading
+import re
 
 # locate web folder in source/binary distribution
 def _getExportFolder():
@@ -47,12 +48,12 @@ class MediaServer(threading.Thread):
     _port = None
     _ready = threading.Event()
 
-    def __init__(self, addonFolder=None, *args, **kwargs):
+    def __init__(self, mw, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._addonFolder = addonFolder
+        self.mw = mw
 
     def run(self):
-        RequestHandler = createRequestHandler(self._addonFolder)
+        RequestHandler.mw = self.mw
         self.server = ThreadedHTTPServer(("127.0.0.1", 0), RequestHandler)
         self._ready.set()
         self.server.serve_forever()
@@ -64,15 +65,10 @@ class MediaServer(threading.Thread):
     def shutdown(self):
         self.server.shutdown()
 
-def createRequestHandler(addonFolder):
-    """RequestHandler factory"""
-    return type("RequestHandler", (RequestHandler, ),
-                {"_addonFolder": addonFolder})
-
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     timeout = 1
-    _addonFolder = None
+    mw = None
 
     def do_GET(self):
         f = self.send_head()
@@ -131,17 +127,41 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                           self.log_date_time_string(),
                           format%args))
 
-    # catch /_anki references and rewrite them to web export folder
-    # catch /_addons references and rewrite them to addons folder
+
     def _redirectWebExports(self, path):
+        # catch /_anki references and rewrite them to web export folder
         targetPath = os.path.join(os.getcwd(), "_anki", "")
         if path.startswith(targetPath):
             newPath = os.path.join(_exportFolder, path[len(targetPath):])
             return newPath
+        
+        # catch /_addons references and rewrite them to addons folder
         targetPath = os.path.join(os.getcwd(), "_addons", "")
-        if self._addonFolder and path.startswith(targetPath):
-            newPath = os.path.join(self._addonFolder, path[len(targetPath):])
+        if path.startswith(targetPath):
+            try:
+                addMgr = self.mw.addonManager
+            except AttributeError:
+                return path
+            
+            addonPath = path[len(targetPath):]
+            
+            try:
+                addon, subPath = addonPath.split(os.path.sep, 1)
+            except ValueError:
+                return path
+            if not addon:
+                return path
+            
+            pattern = addMgr.getWebExports(addon)
+            if not pattern:
+                return path
+            
+            if not re.match("^{}$".format(pattern), subPath):
+                return path
+            
+            newPath = os.path.join(addMgr.addonsFolder(), addonPath)
             return newPath
+        
         return path
 
 # work around Windows machines with incorrect mime type
