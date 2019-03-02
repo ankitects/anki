@@ -198,13 +198,20 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
     # Due and cumulative due
     ######################################################################
 
-    def get_start_end_chunk(self):
+    def get_start_end_chunk(self, by='review'):
+        start = 0
         if self.type == 0:
-            start, end, chunk = 0, 31, 1
+            end, chunk = 31, 1
         elif self.type == 1:
-            start, end, chunk = 0, 52, 7
+            end, chunk = 52, 7
         elif self.type == 2:
-            start, end, chunk = 0, None, 30
+            end = None
+            if self._deckAge(by) < 365:
+                chunk = 1
+            elif self._deckAge(by) < 1000:
+                chunk = 7
+            else:
+                chunk = 31
         return start, end, chunk
 
     def dueGraph(self):
@@ -233,7 +240,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         xaxis = dict(tickDecimals=0, min=-0.5)
         if end is not None:
             xaxis['max'] = end-0.5
-        txt += self._graph(id="due", data=data,
+        txt += self._graph(id="due", data=data, xunit=chunk,
                            ylabel2=_("Cumulative Cards"), conf=dict(
                 xaxis=xaxis, yaxes=[dict(min=0), dict(
                     min=0, tickDecimals=0, position="right")]))
@@ -274,13 +281,9 @@ group by day order by day""" % (self._limit(), lim),
 
     def introductionGraph(self):
         start, days, chunk = self.get_start_end_chunk()
-        return self._introductionGraph(self._added(days, chunk),
-                               days, _("Added"))
-
-    def _introductionGraph(self, data, days, title):
+        data = self._added(days, chunk)
         if not data:
             return ""
-        d = data
         conf = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(min=0), dict(position="right",min=0)])
@@ -288,14 +291,14 @@ group by day order by day""" % (self._limit(), lim),
             conf['xaxis']['min'] = -days+0.5
         def plot(id, data, ylabel, ylabel2):
             return self._graph(
-                id, data=data, conf=conf, ylabel=ylabel, ylabel2=ylabel2)
+                id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2)
         # graph
-        (repdata, repsum) = self._splitRepData(d, ((1, colLearn, ""),))
+        (repdata, repsum) = self._splitRepData(data, ((1, colLearn, ""),))
         txt = self._title(
-            title, _("The number of new cards you have added."))
+            _("Added"), _("The number of new cards you have added."))
         txt += plot("intro", repdata, ylabel=_("Cards"), ylabel2=_("Cumulative Cards"))
         # total and per day average
-        tot = sum([i[1] for i in d])
+        tot = sum([i[1] for i in data])
         period = self._periodDays()
         if not period:
             # base off date of earliest added card
@@ -309,15 +312,9 @@ group by day order by day""" % (self._limit(), lim),
 
     def repsGraphs(self):
         start, days, chunk = self.get_start_end_chunk()
-        return self._repsGraphs(self._done(days, chunk),
-                               days,
-                               _("Review Count"),
-                               _("Review Time"))
-
-    def _repsGraphs(self, data, days, reptitle, timetitle):
+        data = self._done(days, chunk)
         if not data:
             return ""
-        d = data
         conf = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(min=0), dict(position="right",min=0)])
@@ -325,23 +322,23 @@ group by day order by day""" % (self._limit(), lim),
             conf['xaxis']['min'] = -days+0.5
         def plot(id, data, ylabel, ylabel2):
             return self._graph(
-                id, data=data, conf=conf, ylabel=ylabel, ylabel2=ylabel2)
+                id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2)
         # reps
-        (repdata, repsum) = self._splitRepData(d, (
+        (repdata, repsum) = self._splitRepData(data, (
             (3, colMature, _("Mature")),
             (2, colYoung, _("Young")),
             (4, colRelearn, _("Relearn")),
             (1, colLearn, _("Learn")),
             (5, colCram, _("Cram"))))
         txt1 = self._title(
-            reptitle, _("The number of questions you have answered."))
+            _("Review Count"), _("The number of questions you have answered."))
         txt1 += plot("reps", repdata, ylabel=_("Answers"), ylabel2=_(
             "Cumulative Answers"))
         (daysStud, fstDay) = self._daysStudied()
         rep, tot = self._ansInfo(repsum, daysStud, fstDay, _("reviews"))
         txt1 += rep
         # time
-        (timdata, timsum) = self._splitRepData(d, (
+        (timdata, timsum) = self._splitRepData(data, (
             (8, colMature, _("Mature")),
             (7, colYoung, _("Young")),
             (9, colRelearn, _("Relearn")),
@@ -353,7 +350,7 @@ group by day order by day""" % (self._limit(), lim),
         else:
             t = _("Hours")
             convHours = True
-        txt2 = self._title(timetitle, _("The time taken to answer the questions."))
+        txt2 = self._title(_("Review Time"), _("The time taken to answer the questions."))
         txt2 += plot("time", timdata, ylabel=t, ylabel2=_("Cumulative %s") % t)
         rep, tot2 = self._ansInfo(
             timsum, daysStud, fstDay, _("minutes"), convHours, total=tot)
@@ -513,7 +510,7 @@ group by day order by day)""" % lim,
     ######################################################################
 
     def ivlGraph(self):
-        (ivls, all, avg, max_) = self._ivls()
+        (ivls, all, avg, max_), chunk = self._ivls()
         tot = 0
         totd = []
         if not ivls or not all:
@@ -529,7 +526,7 @@ group by day order by day)""" % lim,
             ivlmax = max(5, ivls[-1][0])
         txt = self._title(_("Intervals"),
                           _("Delays until reviews are shown again."))
-        txt += self._graph(id="ivl", ylabel2=_("Percentage"), data=[
+        txt += self._graph(id="ivl", ylabel2=_("Percentage"), xunit=chunk, data=[
             dict(data=ivls, color=colIvl),
             dict(data=totd, color=colCum, yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
@@ -551,7 +548,7 @@ group by grp
 order by grp""" % (self._limit(), lim), chunk=chunk)]
         return data + list(self.col.db.first("""
 select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
-                                         self._limit()))
+                                         self._limit())), chunk
 
     # Eases
     ######################################################################
@@ -796,7 +793,7 @@ from cards where did in %s""" % self._limit())
     ######################################################################
 
     def _graph(self, id, data, conf=None,
-               type="bars", ylabel=_("Cards"), timeTicks=True, ylabel2=""):
+               type="bars", xunit=1, ylabel=_("Cards"), ylabel2=""):
         if conf is None:
             conf = {}
         # display settings
@@ -810,8 +807,7 @@ from cards where did in %s""" % self._limit())
         conf['yaxis']['labelWidth'] = 40
         if 'xaxis' not in conf:
             conf['xaxis'] = {}
-        if timeTicks:
-            conf['timeTicks'] = (_("d"), _("w"), _("mo"))[self.type]
+        conf['timeTicks'] = {1: _("d"), 7: _("w"), 31: _("mo")}[xunit]
         # types
         width = self.width
         height = self.height
