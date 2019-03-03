@@ -156,7 +156,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             if not pattern:
                 return path
             
-            if not re.match("^{}$".format(pattern), subPath):
+            if not re.fullmatch(pattern, subPath):
                 return path
             
             newPath = os.path.join(addMgr.addonsFolder(), addonPath)
