@@ -65,7 +65,7 @@ class Toolbar:
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
         else:
-          self.mw.onOverview()
+            self.mw.onOverview()
 
     def _addLinkHandler(self):
         self.mw.onAddCard()

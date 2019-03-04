@@ -295,9 +295,9 @@ class DeckManager:
 
     def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
         if draggedDeckName == ontoDeckName \
-                or self._isParent(ontoDeckName, draggedDeckName) \
-                or self._isAncestor(draggedDeckName, ontoDeckName):
-                    return False
+            or self._isParent(ontoDeckName, draggedDeckName) \
+            or self._isAncestor(draggedDeckName, ontoDeckName):
+            return False
         else:
             return True
 

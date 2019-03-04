@@ -953,7 +953,7 @@ by clicking on one on the left."""))
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur and cur != self._searchPrompt:
-                        txt = cur + " " + txt
+                txt = cur + " " + txt
         elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur:
