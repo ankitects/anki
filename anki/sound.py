@@ -298,6 +298,8 @@ def stopMplayer(*args):
     if not mplayerManager:
         return
     mplayerManager.kill()
+    if isWin:
+        cleanupOldMplayerProcesses()
 
 addHook("unloadProfile", stopMplayer)
 
