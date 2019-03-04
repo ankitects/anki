@@ -357,10 +357,6 @@ please see:
     # On first run, allow the user to choose the default language
 
     def _setDefaultLang(self):
-        # the dialog expects _ to be defined, but we're running before
-        # setupLang() has been called. so we create a dummy op for now
-        import builtins
-        builtins.__dict__['_'] = lambda x: x
         # create dialog
         class NoCloseDiag(QDialog):
             def reject(self):
