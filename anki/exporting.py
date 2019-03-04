@@ -31,6 +31,7 @@ class Exporter:
         text = text.replace("\n", " ")
         text = text.replace("\t", " " * 8)
         text = re.sub("(?i)<style>.*?</style>", "", text)
+        text = re.sub(r"\[\[type:[^]]+\]\]", "", text)
         if "\"" in text:
             text = "\"" + text.replace("\"", "\"\"") + "\""
         return text
