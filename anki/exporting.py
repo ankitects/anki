@@ -6,11 +6,13 @@ import re, os, zipfile, shutil, unicodedata
 import json
 
 from anki.lang import _
-from anki.utils import ids2str, splitFields, namedtmp
+from anki.utils import ids2str, splitFields, namedtmp, stripHTML
 from anki.hooks import runHook
 from anki import Collection
 
 class Exporter:
+    includeHTML = None
+
     def __init__(self, col, did=None):
         self.col = col
         self.did = did
@@ -24,6 +26,14 @@ class Exporter:
         self.doExport(file)
         file.close()
 
+    def processText(self, text):
+        if self.includeHTML is False:
+            text = self.stripHTML(text)
+
+        text = self.escapeText(text)
+
+        return text
+
     def escapeText(self, text):
         "Escape newlines, tabs, CSS and quotechar."
         # fixme: we should probably quote fields with newlines
@@ -35,6 +45,16 @@ class Exporter:
         if "\"" in text:
             text = "\"" + text.replace("\"", "\"\"") + "\""
         return text
+
+    def stripHTML(self, text):
+        # very basic conversion to text
+        s = text
+        s = re.sub(r"(?i)<(br ?/?|div|p)>", " ", s)
+        s = re.sub(r"\[sound:[^]]+\]", "", s)
+        s = stripHTML(s)
+        s = re.sub(r"[ \n\t]+", " ", s)
+        s = s.strip()
+        return s
 
     def cardIds(self):
         if not self.did:
@@ -51,6 +71,7 @@ class TextCardExporter(Exporter):
 
     key = _("Cards in Plain Text")
     ext = ".txt"
+    includeHTML = True
 
     def __init__(self, col):
         Exporter.__init__(self, col)
@@ -61,7 +82,7 @@ class TextCardExporter(Exporter):
         def esc(s):
             # strip off the repeated question in answer if exists
             s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
-            return self.escapeText(s)
+            return self.processText(s)
         out = ""
         for cid in ids:
             c = self.col.getCard(cid)
@@ -77,6 +98,7 @@ class TextNoteExporter(Exporter):
     key = _("Notes in Plain Text")
     ext = ".txt"
     includeTags = True
+    includeHTML = True
 
     def __init__(self, col):
         Exporter.__init__(self, col)
@@ -95,7 +117,7 @@ where cards.id in %s)""" % ids2str(cardIds)):
             if self.includeID:
                 row.append(str(id))
             # fields
-            row.extend([self.escapeText(f) for f in splitFields(flds)])
+            row.extend([self.processText(f) for f in splitFields(flds)])
             # tags
             if self.includeTags:
                 row.append(tags.strip())

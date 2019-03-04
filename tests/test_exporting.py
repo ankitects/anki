@@ -14,7 +14,7 @@ def setup1():
     global deck
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = "foo"; f['Back'] = "bar"; f.tags = ["tag", "tag2"]
+    f['Front'] = "foo"; f['Back'] = "bar<br>"; f.tags = ["tag", "tag2"]
     deck.addNote(f)
     # with a different deck
     f = deck.newNote()
@@ -129,8 +129,11 @@ def test_export_textnote():
     os.close(fd)
     os.unlink(f)
     e.exportInto(f)
-    e.includeTags = True
+    assert open(f).readline() == "foo\tbar<br>\ttag tag2\n"
+    e.includeTags = False
+    e.includeHTML = False
     e.exportInto(f)
+    assert open(f).readline() == "foo\tbar\n"
 
 def test_exporters():
     assert "*.apkg" in str(exporters())

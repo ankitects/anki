@@ -61,6 +61,12 @@ class ExportDialog(QDialog):
             getattr(self.exporter, "includeMedia", None) is not None)
         self.frm.includeTags.setVisible(
             getattr(self.exporter, "includeTags", None) is not None)
+        html = getattr(self.exporter, "includeHTML", None)
+        if html is not None:
+            self.frm.includeHTML.setVisible(True)
+            self.frm.includeHTML.setChecked(html)
+        else:
+            self.frm.includeHTML.setVisible(False)
         # show deck list?
         self.frm.deck.setVisible(not self.isVerbatim)
 
@@ -71,6 +77,8 @@ class ExportDialog(QDialog):
             self.frm.includeMedia.isChecked())
         self.exporter.includeTags = (
             self.frm.includeTags.isChecked())
+        self.exporter.includeHTML = (
+            self.frm.includeHTML.isChecked())
         if not self.frm.deck.currentIndex():
             self.exporter.did = None
         else:
