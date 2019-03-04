@@ -28,9 +28,11 @@ do
     if [ $i -nt $py ]; then
         echo " * "$py
         pyuic5 --from-imports $i -o $py.tmp
-        # munge the output to use gettext
-        cat $py.tmp | sed "/WARNING/ a\\
-from anki.lang import _" | perl -p -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' > $py
+        (cat <<EOF; tail -n +3 $py.tmp) |  perl -p -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' > $py
+# -*- coding: utf-8 -*-
+# pylint: disable=unsubscriptable-object
+from anki.lang import _
+EOF
         rm $py.tmp
     fi
 done
