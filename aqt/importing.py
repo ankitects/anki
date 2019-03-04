@@ -18,8 +18,7 @@ from anki.hooks import addHook, remHook
 import aqt.forms
 import aqt.modelchooser
 import aqt.deckchooser
-from anki.lang import ngettext
-
+from anki.lang import ngettext, _
 
 class ChangeMap(QDialog):
     def __init__(self, mw, model, current):

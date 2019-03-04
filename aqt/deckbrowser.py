@@ -11,6 +11,7 @@ import aqt
 from anki.sound import clearAudioQueue
 from anki.hooks import runHook
 from copy import deepcopy
+from anki.lang import _, ngettext
 
 class DeckBrowser:
 

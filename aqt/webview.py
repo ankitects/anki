@@ -8,6 +8,7 @@ from anki.hooks import runHook
 from aqt.qt import *
 from aqt.utils import openLink, showWarning, tooltip
 from anki.utils import isMac, isWin, isLin, devMode
+from anki.lang import _
 
 # Page for debug messages
 ##########################################################################

@@ -6,6 +6,7 @@ from aqt.qt import *
 import aqt.forms
 from anki.utils import versionWithBuild
 from aqt.utils import supportText, tooltip
+from anki.lang import _
 
 class ClosableQDialog(QDialog):
     def reject(self):

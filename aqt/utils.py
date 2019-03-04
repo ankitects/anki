@@ -8,6 +8,7 @@ import aqt
 from anki.sound import stripSounds
 from anki.utils import isWin, isMac, invalidFilename, noBundledLibs, \
     versionWithBuild
+from anki.lang import _
 
 def openHelp(section):
     link = aqt.appHelpSite

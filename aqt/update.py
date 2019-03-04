@@ -9,6 +9,7 @@ from aqt.qt import *
 import aqt
 from aqt.utils import openLink, showText
 from anki.utils import platDesc, versionWithBuild
+from anki.lang import _
 
 class LatestVersionFinder(QThread):
 

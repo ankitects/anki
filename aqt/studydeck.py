@@ -6,6 +6,7 @@ from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, openHelp, getOnlyText, shortcut, restoreGeom, saveGeom
 from anki.hooks import addHook, remHook
+from anki.lang import _
 
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,

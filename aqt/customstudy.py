@@ -6,6 +6,7 @@ from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, showWarning
 from anki.consts import *
+from anki.lang import _
 
 RADIO_NEW = 1
 RADIO_REV = 2
