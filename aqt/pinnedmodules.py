@@ -4,6 +4,8 @@
 # this file is imported as part of the bundling process to ensure certain
 # modules are included in the distribution
 
+# pylint: disable=import-error
+
 # required by requests library
 import queue
 

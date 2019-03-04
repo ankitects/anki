@@ -431,17 +431,17 @@ class SupermemoXmlImporter(NoteImporter):
           self.cntElm[-1][node.tagName]=self.cntBuf.pop()
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
 
   # for testing you can start it standalone
 
   #file = u'/home/epcim/hg2g/dev/python/sm2anki/ADVENG2EXP.xxe.esc.zaloha_FINAL.xml'
   #file = u'/home/epcim/hg2g/dev/python/anki/libanki/tests/importing/supermemo/original_ENGLISHFORBEGGINERS_noOEM.xml'
   #file = u'/home/epcim/hg2g/dev/python/anki/libanki/tests/importing/supermemo/original_ENGLISHFORBEGGINERS_oem_1250.xml'
-  file = str(sys.argv[1])
-  impo = SupermemoXmlImporter(Deck(),file)
-  impo.foreignCards()
+  #file = str(sys.argv[1])
+  #impo = SupermemoXmlImporter(Deck(),file)
+  #impo.foreignCards()
 
-  sys.exit(1)
+  #sys.exit(1)
 
 # vim: ts=4 sts=2 ft=python

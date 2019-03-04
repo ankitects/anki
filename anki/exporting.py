@@ -14,6 +14,9 @@ class Exporter:
         self.col = col
         self.did = did
 
+    def doExport(self, path):
+        raise Exception("not implemented")
+
     def exportInto(self, path):
         self._escapeCount = 0
         file = open(path, "wb")

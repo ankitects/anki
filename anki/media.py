@@ -15,6 +15,7 @@ from anki.utils import checksum, isWin, isMac, json
 from anki.db import DB, DBError
 from anki.consts import *
 from anki.latex import mungeQA
+from anki.lang import _
 
 class MediaManager:
 
@@ -125,6 +126,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _isFAT32(self):
         if not isWin:
             return
+        # pylint: disable=import-error
         import win32api, win32file
         try:
                 name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])

@@ -6,7 +6,7 @@ import time, re
 from anki.db import DB
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.stdmodels import addBasicModel, addClozeModel
-from anki.lang import ngettext
+from anki.lang import ngettext, _
 
 class MnemosyneImporter(NoteImporter):
 
@@ -29,6 +29,7 @@ select _id, id, key, value from facts f, data_for_fact d where
 f._id=d._fact_id"""):
             if id != curid:
                 if note:
+                    # pylint: disable=unsubscriptable-object
                     notes[note['_id']] = note
                 note = {'_id': _id}
                 curid = id
