@@ -29,7 +29,7 @@ import anki.mpv
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename, getFile
-import sip
+from aqt.qt import sip
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, opts, args):
@@ -462,6 +462,7 @@ from the profile screen."))
         oldState = self.state or "dummy"
         cleanup = getattr(self, "_"+oldState+"Cleanup", None)
         if cleanup:
+            # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state
@@ -692,9 +693,6 @@ title="%s" %s>%s</button>''' % (
             # make sure window is shown
             self.setWindowState(self.windowState() & ~Qt.WindowMinimized)
         return True
-
-    def setStatus(self, text, timeout=3000):
-        self.form.statusbar.showMessage(text, timeout)
 
     def setupStyle(self):
         buf = ""

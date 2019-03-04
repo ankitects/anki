@@ -19,8 +19,9 @@ try:
 except ImportError:
     import sip
 
+from PyQt5.QtCore import pyqtRemoveInputHook # pylint: disable=no-name-in-module
+
 def debug():
-  from PyQt5.QtCore import pyqtRemoveInputHook
   from pdb import set_trace
   pyqtRemoveInputHook()
   set_trace()
@@ -29,7 +30,6 @@ import sys, traceback
 
 if os.environ.get("DEBUG"):
     def info(type, value, tb):
-        from PyQt5.QtCore import pyqtRemoveInputHook
         for line in traceback.format_exception(type, value, tb):
             sys.stdout.write(line)
         pyqtRemoveInputHook()

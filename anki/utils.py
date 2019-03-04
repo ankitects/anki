@@ -330,6 +330,7 @@ def call(argv, wait=True, **kwargs):
         try:
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         except:
+            # pylint: disable=no-member
             si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
     else:
         si = None

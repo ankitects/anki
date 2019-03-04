@@ -36,7 +36,7 @@ import threading
 import subprocess
 import inspect
 
-from distutils.spawn import find_executable
+from distutils.spawn import find_executable # pylint: disable=import-error,no-name-in-module
 from queue import Queue, Empty, Full
 
 
@@ -57,6 +57,7 @@ class MPVTimeoutError(MPVError):
 
 from anki.utils import isWin
 if isWin:
+    # pylint: disable=import-error
     import win32file, win32pipe, pywintypes, winerror
 
 class MPVBase:
@@ -438,6 +439,7 @@ class MPV(MPVBase):
         # Simulate an init event when the process and all callbacks have been
         # completely set up.
         if hasattr(self, "on_init"):
+            # pylint: disable=no-member
             self.on_init()
 
     #

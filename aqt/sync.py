@@ -284,10 +284,6 @@ fix the clock and try again."""))
 Your collection is in an inconsistent state. Please run Tools>\
 Check Database, then sync again."""))
 
-    def badUserPass(self):
-        aqt.preferences.Preferences(self, self.pm.profile).dialog.tabWidget.\
-                                         setCurrentIndex(1)
-
 # Sync thread
 ######################################################################
 
