@@ -137,9 +137,10 @@ def setupLang(pm, app, force=None):
     # gettext
     _gtrans = gettext.translation(
         'anki', dir, languages=[lang], fallback=True)
-    def fn(*args):
+    def fn(arg, *args):
         print("accessing _ and ngettext without importing from anki.lang will break in the future")
         print("".join(traceback.format_stack()[-2]))
+        return arg
     builtins.__dict__['_'] = fn
     builtins.__dict__['ngettext'] = fn
     anki.lang.setLang(lang, local=False)
