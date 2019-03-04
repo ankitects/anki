@@ -168,10 +168,9 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def ensureNameUnique(self, m):
         for mcur in self.all():
-            if (mcur['name'] == m['name'] and
-                mcur['id'] != m['id']):
-                    m['name'] += "-" + checksum(str(time.time()))[:5]
-                    break
+            if (mcur['name'] == m['name'] and mcur['id'] != m['id']):
+                m['name'] += "-" + checksum(str(time.time()))[:5]
+                break
 
     def update(self, m):
         "Add or update an existing model. Used for syncing and merging."

@@ -129,12 +129,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         # pylint: disable=import-error
         import win32api, win32file
         try:
-                name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
+            name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
         except:
             # mapped & unmapped network drive; pray that it's not vfat
             return
         if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
-                return True
+            return True
 
     # Adding media
     ##########################################################################
