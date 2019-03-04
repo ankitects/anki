@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, re, traceback
+import time, re
 from aqt.qt import *
 from anki.sync import AnkiRequestsClient
-from aqt.utils import showWarning
 from anki.hooks import addHook, remHook
 import aqt
 from anki.lang import _

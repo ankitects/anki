@@ -4,7 +4,8 @@
 
 import zipfile, os
 import unicodedata
-from anki.utils import tmpfile, json
+import json
+from anki.utils import tmpfile
 from anki.importing.anki2 import Anki2Importer
 
 class AnkiPackageImporter(Anki2Importer):

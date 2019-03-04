@@ -4,8 +4,9 @@
 
 import copy, operator
 import unicodedata
+import json
 
-from anki.utils import intTime, ids2str, json
+from anki.utils import intTime, ids2str
 from anki.hooks import runHook
 from anki.consts import *
 from anki.lang import _

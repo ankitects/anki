@@ -5,7 +5,6 @@
 from aqt.qt import *
 from anki.hooks import addHook, remHook, runHook
 from aqt.utils import  shortcut
-import aqt
 from anki.lang import _
 
 class ModelChooser(QHBoxLayout):

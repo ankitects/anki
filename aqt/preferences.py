@@ -5,8 +5,7 @@
 import datetime, time
 from aqt.qt import *
 import anki.lang
-from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo, \
-    askUser
+from aqt.utils import openFolder, openHelp, showInfo, askUser
 import aqt
 from anki.lang import _
 

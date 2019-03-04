@@ -17,7 +17,6 @@ import locale
 from hashlib import sha1
 import platform
 import traceback
-import json
 from contextlib import contextmanager
 
 from anki.lang import _, ngettext

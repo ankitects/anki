@@ -10,7 +10,8 @@ tracked, so unused tags can only be removed from the list with a DB check.
 This module manages the tag cache and tags for notes.
 """
 
-from anki.utils import intTime, ids2str, json
+import json
+from anki.utils import intTime, ids2str
 from anki.hooks import runHook
 import re
 

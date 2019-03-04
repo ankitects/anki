@@ -14,9 +14,9 @@ import json
 from aqt.qt import *
 import anki
 import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, \
+from anki.utils import fmtTimeSpan, ids2str, htmlToTextLine, \
     isWin, intTime, \
-    isMac, isLin, bodyClass
+    isMac, bodyClass
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
@@ -25,7 +25,7 @@ from anki.lang import _
 from anki.hooks import runHook, addHook, remHook, runFilter
 from aqt.webview import AnkiWebView
 from anki.consts import *
-from anki.sound import playFromText, clearAudioQueue, allSounds, play
+from anki.sound import clearAudioQueue, allSounds, play
 
 
 # Data model

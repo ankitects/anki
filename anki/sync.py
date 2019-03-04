@@ -6,9 +6,11 @@ import io
 import gzip
 import random
 import requests
+import json
+import os
 
 from anki.db import DB, DBError
-from anki.utils import ids2str, intTime, json, platDesc, checksum, devMode
+from anki.utils import ids2str, intTime, platDesc, checksum, devMode
 from anki.consts import *
 from anki.utils import versionWithBuild
 from .hooks import runHook

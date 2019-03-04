@@ -9,7 +9,7 @@ from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip, openHelp, addCloseShortcut, downArrow
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook, runHook
-from anki.utils import stripHTMLMedia, htmlToTextLine, isMac
+from anki.utils import htmlToTextLine, isMac
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
 class AddCards(QDialog):

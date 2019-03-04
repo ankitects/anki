@@ -2,9 +2,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import copy, re
+import copy, re, json
 from anki.utils import intTime, joinFields, splitFields, ids2str,\
-    checksum, json
+    checksum
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook

@@ -6,7 +6,6 @@
 # - Saves in pickles rather than json to easily store Qt window state.
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
-import os
 import random
 import pickle
 import shutil
@@ -16,7 +15,7 @@ import re
 
 from aqt.qt import *
 from anki.db import DB
-from anki.utils import isMac, isWin, intTime, checksum
+from anki.utils import isMac, isWin, intTime
 import anki.lang
 from aqt.utils import showWarning
 from aqt import appHelpSite
@@ -136,7 +135,7 @@ a flash drive.""" % self.base)
             def find_class(self, module, name):
                 if module == "PyQt5.sip":
                     try:
-                        import PyQt5.sip
+                        import PyQt5.sip # pylint: disable=unused-import
                     except:
                         # use old sip location
                         module = "sip"

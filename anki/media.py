@@ -9,9 +9,10 @@ import unicodedata
 import sys
 import zipfile
 import pathlib
-from io import StringIO
+import json
+import os
 
-from anki.utils import checksum, isWin, isMac, json
+from anki.utils import checksum, isWin, isMac
 from anki.db import DB, DBError
 from anki.consts import *
 from anki.latex import mungeQA
