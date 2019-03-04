@@ -5,7 +5,7 @@ from anki import version as _version
 
 import getpass
 import sys
-import optparse
+import argparse
 import tempfile
 import builtins
 import locale
@@ -228,12 +228,12 @@ def parseArgs(argv):
     # as there's no such profile
     if isMac and len(argv) > 1 and argv[1].startswith("-psn"):
         argv = [argv[0]]
-    parser = optparse.OptionParser(version="%prog " + appVersion)
-    parser.usage = "%prog [OPTIONS] [file to import]"
-    parser.add_option("-b", "--base", help="path to base folder")
-    parser.add_option("-p", "--profile", help="profile name to load")
-    parser.add_option("-l", "--lang", help="interface language (en, de, etc)")
-    return parser.parse_args(argv[1:])
+    parser = argparse.ArgumentParser(description="Anki " + appVersion)
+    parser.usage = "%(prog)s [OPTIONS] [file to import]"
+    parser.add_argument("-b", "--base", help="path to base folder", default="")
+    parser.add_argument("-p", "--profile", help="profile name to load", default="")
+    parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
+    return parser.parse_known_args(argv[1:])
 
 def setupGL(pm):
     if isMac:
@@ -289,8 +289,6 @@ def _run(argv=None, exec=True):
 
     # parse args
     opts, args = parseArgs(argv)
-    opts.base = opts.base or ""
-    opts.profile = opts.profile or ""
 
     # profile manager
     from aqt.profiles import ProfileManager
