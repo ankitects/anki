@@ -388,8 +388,9 @@ def platDesc():
             elif isWin:
                 theos = "win:%s" % (platform.win32_ver()[0])
             elif system == "Linux":
-                dist = platform.dist()
-                theos = "lin:%s:%s" % (dist[0], dist[1])
+                import distro
+                r = distro.linux_distribution(full_distribution_name=False)
+                theos = "lin:%s:%s" % (r[0], r[1])
             else:
                 theos = system
             break
