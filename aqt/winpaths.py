@@ -1,4 +1,5 @@
-#coding: UTF8
+# -*- coding: utf-8 -*-
+
 """
 System File Locations
 Retrieves common system path names on Windows XP/Vista
