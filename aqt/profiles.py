@@ -227,7 +227,7 @@ details have been forgotten."""))
         # rename folder
         try:
             os.rename(oldFolder, newFolder)
-        except WindowsError as e:
+        except Exception as e:
             self.db.rollback()
             if "WinError 5" in str(e):
                 showWarning(_("""\
