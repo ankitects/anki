@@ -277,6 +277,7 @@ class AnkiPackageExporter(AnkiExporter):
             raise Exception("Please switch to the normal scheduler before exporting a single deck with scheduling information.")
 
             # prevent older clients from accessing
+            # pylint: disable=unreachable
             self._addDummyCollection(z)
             z.write(colfile, "collection.anki21")
 

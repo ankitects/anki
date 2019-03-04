@@ -411,6 +411,7 @@ class Browser(QMainWindow):
         self.show()
 
     def setupMenus(self):
+        # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
         f.previewButton.clicked.connect(self.onTogglePreview)
@@ -808,8 +809,8 @@ by clicking on one on the left."""))
         def __init__(self):
             QTreeWidget.__init__(self)
             self.itemClicked.connect(self.onTreeClick)
-            self.itemExpanded.connect(lambda item: self.onTreeCollapse(item))
-            self.itemCollapsed.connect(lambda item: self.onTreeCollapse(item))
+            self.itemExpanded.connect(self.onTreeCollapse)
+            self.itemCollapsed.connect(self.onTreeCollapse)
 
         def keyPressEvent(self, evt):
             if evt.key() in (Qt.Key_Return, Qt.Key_Enter):

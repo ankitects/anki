@@ -140,7 +140,6 @@ def _errMsg(type, texpath):
         msg += "<small><pre>" + html.escape(log) + "</pre></small>"
     except:
         msg += _("Have you installed latex and dvipng/dvisvgm?")
-        pass
     return msg
 
 # setup q/a filter

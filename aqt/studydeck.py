@@ -11,8 +11,10 @@ from anki.lang import _
 class StudyDeck(QDialog):
     def __init__(self, mw, names=None, accept=None, title=None,
                  help="studydeck", current=None, cancel=True,
-                 parent=None, dyn=False, buttons=[], geomKey="default"):
+                 parent=None, dyn=False, buttons=None, geomKey="default"):
         QDialog.__init__(self, parent or mw)
+        if buttons is None:
+            buttons = []
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)

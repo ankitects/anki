@@ -1531,6 +1531,7 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
             random.shuffle(nids)
         for c, nid in enumerate(nids):
             due[nid] = start+c*step
+        # pylint: disable=undefined-loop-variable
         high = start+c*step
         # shift?
         if shift:
