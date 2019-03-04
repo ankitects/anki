@@ -410,6 +410,19 @@ Are you sure you want to continue?"""
         if not os.path.exists(bp):
             return
         os.rename(bp, p)
+    
+    # Web Exports
+    ######################################################################
+
+    _webExports = {}
+
+    def setWebExports(self, module, pattern):
+        addon = self.addonFromModule(module)
+        self._webExports[addon] = pattern
+    
+    def getWebExports(self, addon):
+        return self._webExports.get(addon)
+
 
 # Add-ons Dialog
 ######################################################################
