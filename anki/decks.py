@@ -358,7 +358,7 @@ class DeckManager:
     def confId(self, name, cloneFrom=None):
         "Create a new configuration and return id."
         if cloneFrom is None:
-            type = defaultConf
+            cloneFrom = defaultConf
         c = copy.deepcopy(cloneFrom)
         while 1:
             id = intTime(1000)
