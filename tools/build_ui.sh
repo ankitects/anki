@@ -4,6 +4,8 @@
 # should be on the path.
 #
 
+set -e
+
 if [ ! -d "designer" ]
 then
     echo "Please run this from the project root"
