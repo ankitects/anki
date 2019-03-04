@@ -24,8 +24,5 @@ fi
 
 if [ x$coverage != x ]; then
     args="--with-coverage"
-else
-    args=""
-    echo "Call with coverage=1 to run coverage tests"
 fi
-(cd $dir && $nose -vs --processes=16 --process-timeout=300 $lim $args --cover-package=anki)
+(cd $dir && $nose -s --processes=16 --process-timeout=300 $lim $args --cover-package=anki)
