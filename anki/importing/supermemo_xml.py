@@ -231,8 +231,8 @@ class SupermemoXmlImporter(NoteImporter):
             #  clean things like [999] or [111-2222] from title path, example: xyz / [1000-1200] zyx / xyz
             #  clean whitespaces
             #  set Capital letters for first char of the word
-            tmp = list(set([ re.sub('(\[[0-9]+\])'   , ' ' , i ).replace('_',' ')  for i in item.lTitle ]))
-            tmp = list(set([ re.sub('(\W)',' ', i )  for i in tmp ]))
+            tmp = list(set([ re.sub(r'(\[[0-9]+\])'   , ' ' , i ).replace('_',' ')  for i in item.lTitle ]))
+            tmp = list(set([ re.sub(r'(\W)',' ', i )  for i in tmp ]))
             tmp = list(set([ re.sub( '^[0-9 ]+$','',i)  for i in tmp ]))
             tmp = list(set([ capwords(i).replace(' ','')  for i in tmp ]))
             tags = [ j[0].lower() + j[1:] for j in tmp if j.strip() != '']

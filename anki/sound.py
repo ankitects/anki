@@ -12,7 +12,7 @@ from anki.lang import _
 # Shared utils
 ##########################################################################
 
-_soundReg = "\[sound:(.*?)\]"
+_soundReg = r"\[sound:(.*?)\]"
 
 def playFromText(text):
     for match in allSounds(text):

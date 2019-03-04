@@ -19,12 +19,12 @@ from anki.lang import _
 
 class MediaManager:
 
-    soundRegexps = ["(?i)(\[sound:(?P<fname>[^]]+)\])"]
+    soundRegexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
     imgRegexps = [
         # src element quoted case
-        "(?i)(<img[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        r"(?i)(<img[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        "(?i)(<img[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        r"(?i)(<img[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
     ]
     regexps = soundRegexps + imgRegexps
 
@@ -34,7 +34,7 @@ class MediaManager:
             self._dir = None
             return
         # media directory
-        self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
+        self._dir = re.sub(r"(?i)\.(anki2)$", ".media", self.col.path)
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         try:
@@ -183,7 +183,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 if checksum(f.read()) == csum:
                     return fname
             # otherwise, increment the index in the filename
-            reg = " \((\d+)\)$"
+            reg = r" \((\d+)\)$"
             if not re.search(reg, root):
                 root = root + " (1)"
             else:
@@ -215,7 +215,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return l
 
     def _expandClozes(self, string):
-        ords = set(re.findall("{{c(\d+)::.+?}}", string))
+        ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         strings = []
         from anki.template.template import clozeReg
         def qrepl(m):

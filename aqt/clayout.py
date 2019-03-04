@@ -337,7 +337,7 @@ Please create a new card type first."""))
             repl = "<center>%s</center>" % repl
         else:
             repl = answerRepl
-        return re.sub("\[\[type:.+?\]\]", repl, txt)
+        return re.sub(r"\[\[type:.+?\]\]", repl, txt)
 
     # Card operations
     ######################################################################

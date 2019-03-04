@@ -81,7 +81,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             rem = int((next - time.time())/86400)
             c.due = self.col.sched.today+rem
             # get ord
-            m = re.search(".(\d+)$", row[1])
+            m = re.search(r".(\d+)$", row[1])
             ord = int(m.group(1))-1
             if 'cards' not in note:
                 note['cards'] = {}
@@ -103,7 +103,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         # \n -> br
         fld = re.sub("\r?\n", "<br>", fld)
         # latex differences
-        fld = re.sub("(?i)<(/?(\$|\$\$|latex))>", "[\\1]", fld)
+        fld = re.sub(r"(?i)<(/?(\$|\$\$|latex))>", "[\\1]", fld)
         # audio differences
         fld = re.sub("<audio src=\"(.+?)\">(</audio>)?", "[sound:\\1]", fld)
         return fld
@@ -178,7 +178,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
                 res = ("{{c%d::%s}}" % (state['n'], match.group(1)))
                 state['n'] += 1
                 return res
-            fld = re.sub("\[(.+?)\]", repl, fld)
+            fld = re.sub(r"\[(.+?)\]", repl, fld)
             fld = self._mungeField(fld)
             n.fields.append(fld)
             n.fields.append("") # extra
