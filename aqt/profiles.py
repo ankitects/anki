@@ -23,6 +23,7 @@ from aqt import appHelpSite
 import aqt.forms
 from send2trash import send2trash
 import anki.sound
+from anki.lang import _
 
 metaConf = dict(
     ver=0,

@@ -6,6 +6,7 @@ from aqt.utils import openLink, shortcut, tooltip, askUserDialog
 from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue
+from anki.lang import _
 
 class Overview:
     "Deck overview."

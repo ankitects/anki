@@ -16,7 +16,7 @@ from anki.utils import isMac, isWin, joinFields, bodyClass
 from aqt.webview import AnkiWebView
 import json
 from anki.hooks import runFilter
-
+from anki.lang import _, ngettext
 
 class CardLayout(QDialog):
 

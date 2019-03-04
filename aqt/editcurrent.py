@@ -8,7 +8,7 @@ import aqt.editor
 from aqt.utils import saveGeom, restoreGeom
 from anki.hooks import addHook, remHook
 from anki.utils import isMac
-
+from anki.lang import _
 
 class EditCurrent(QDialog):
 

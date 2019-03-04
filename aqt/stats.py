@@ -7,6 +7,7 @@ import os, time
 from aqt.utils import saveGeom, restoreGeom, maybeHideClose, addCloseShortcut, \
     tooltip, getSaveFile
 import aqt
+from anki.lang import _
 
 # Deck Stats
 ######################################################################

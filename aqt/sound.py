@@ -6,6 +6,7 @@ from aqt.qt import *
 import time
 from anki.sound import Recorder
 from aqt.utils import saveGeom, restoreGeom, showWarning
+from anki.lang import _
 
 if not Recorder:
     print("pyaudio not installed")

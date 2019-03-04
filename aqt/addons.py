@@ -17,7 +17,7 @@ from zipfile import ZipFile
 import aqt.forms
 import aqt
 from aqt.downloader import download
-from anki.lang import _
+from anki.lang import _, ngettext
 from anki.utils import intTime
 from anki.sync import AnkiRequestsClient
 

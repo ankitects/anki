@@ -8,7 +8,7 @@ from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
     tooltip, saveGeom, restoreGeom, downArrow
-
+from anki.lang import _, ngettext
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):

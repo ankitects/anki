@@ -8,6 +8,7 @@ from anki.sync import AnkiRequestsClient
 from aqt.utils import showWarning
 from anki.hooks import addHook, remHook
 import aqt
+from anki.lang import _
 
 def download(mw, code):
     "Download addon from AnkiWeb. Caller must start & stop progress diag."

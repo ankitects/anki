@@ -10,7 +10,7 @@ from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
     checkInvalidFilename, showInfo
 from anki.exporting import exporters
 from anki.hooks import addHook, remHook
-from anki.lang import ngettext
+from anki.lang import ngettext, _
 import time
 
 class ExportDialog(QDialog):

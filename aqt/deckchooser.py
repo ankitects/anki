@@ -5,6 +5,7 @@
 from aqt.qt import *
 from anki.hooks import addHook, remHook
 from aqt.utils import  shortcut
+from anki.lang import _
 
 class DeckChooser(QHBoxLayout):
 

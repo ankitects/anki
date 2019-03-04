@@ -30,6 +30,7 @@ from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
     restoreState, getOnlyText, askUser, showText, tooltip, \
     openHelp, openLink, checkInvalidFilename, getFile
 from aqt.qt import sip
+from anki.lang import _, ngettext
 
 class AnkiQt(QMainWindow):
     def __init__(self, app, profileManager, opts, args):
