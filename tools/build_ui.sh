@@ -27,10 +27,11 @@ do
     echo "from . import $base" >> $temp
     if [ $i -nt $py ]; then
         echo " * "$py
-        pyuic5 --from-imports $i -o $py
+        pyuic5 --from-imports $i -o $py.tmp
         # munge the output to use gettext
-        perl -pi.bak -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' $py
-        rm $py.bak
+        cat $py.tmp | sed "/WARNING/ a\\
+from anki.lang import _" | perl -p -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' > $py
+        rm $py.tmp
     fi
 done
 echo "]" >> $init
