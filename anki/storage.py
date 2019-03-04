@@ -4,9 +4,11 @@
 
 import copy
 import re
+import json
+import os
 
 from anki.lang import _
-from anki.utils import intTime, json, isWin
+from anki.utils import intTime, isWin
 from anki.db import DB
 from anki.collection import _Collection
 from anki.consts import *

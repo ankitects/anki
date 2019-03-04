@@ -6,7 +6,7 @@ import re
 
 from aqt.qt import *
 import  aqt
-from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
+from aqt.utils import getSaveFile, tooltip, showWarning, \
     checkInvalidFilename, showInfo
 from anki.exporting import exporters
 from anki.hooks import addHook, remHook

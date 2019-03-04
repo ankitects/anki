@@ -3,7 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.utils import openLink, shortcut, tooltip, askUserDialog
-from anki.utils import isMac
 import aqt
 from anki.sound import clearAudioQueue
 from anki.lang import _

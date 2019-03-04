@@ -2,25 +2,24 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import re
-import os
-import ctypes
 import urllib.request, urllib.parse, urllib.error
 import warnings
 import html
 import mimetypes
 import base64
 import unicodedata
+import json
 
 from anki.lang import _
 from aqt.qt import *
-from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia, \
+from anki.utils import isWin, namedtmp, stripHTMLMedia, \
     checksum
 import anki.sound
 from anki.hooks import runHook, runFilter, addHook
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getFile, \
-    openHelp, tooltip, downArrow, qtMenuShortcutWorkaround
+    openHelp, tooltip, qtMenuShortcutWorkaround
 import aqt
 from bs4 import BeautifulSoup
 import requests

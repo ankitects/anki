@@ -3,9 +3,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, os, zipfile, shutil, unicodedata
+import json
 
 from anki.lang import _
-from anki.utils import ids2str, splitFields, json, namedtmp
+from anki.utils import ids2str, splitFields, namedtmp
 from anki.hooks import runHook
 from anki import Collection
 

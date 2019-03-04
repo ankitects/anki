@@ -4,8 +4,8 @@
 
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
-    openHelp, downArrow
-from anki.utils import isMac, ids2str, fmtTimeSpan
+    openHelp
+from anki.utils import ids2str, fmtTimeSpan
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
