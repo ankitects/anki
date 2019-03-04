@@ -14,5 +14,5 @@ notifications:
   email:
     recipients:
       - travis-build@ankiweb.net
-    on_success: always
+    on_success: change
     on_failure: always
