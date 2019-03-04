@@ -733,7 +733,8 @@ class MediaSyncer:
                         need.append(fname)
                     else:
                         self.col.log("have same already")
-                    ldirty and self.col.media.markClean([fname])
+                    if ldirty:
+                        self.col.media.markClean([fname])
                 elif lsum:
                     # deleted remotely
                     if not ldirty:
@@ -745,7 +746,8 @@ class MediaSyncer:
                 else:
                     # deleted both sides
                     self.col.log("both sides deleted")
-                    ldirty and self.col.media.markClean([fname])
+                    if ldirty:
+                        self.col.media.markClean([fname])
 
             self._downloadFiles(need)
 

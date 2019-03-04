@@ -3,7 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import re
 import os
-import urllib.request, urllib.error, urllib.parse
 import ctypes
 import urllib.request, urllib.parse, urllib.error
 import warnings
@@ -126,7 +125,7 @@ class Editor:
         mime, _ = mimetypes.guess_type(path)
         with open(path, 'rb') as fp:
             data = fp.read()
-            data64 = b''.join(base64.encodestring(data).splitlines())
+            data64 = b''.join(base64.encodebytes(data).splitlines())
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
 

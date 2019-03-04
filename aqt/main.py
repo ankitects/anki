@@ -23,7 +23,6 @@ import aqt.webview
 import aqt.toolbar
 import aqt.stats
 import aqt.mediasrv
-from aqt.utils import showWarning
 import anki.sound
 import anki.mpv
 from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
@@ -1229,6 +1228,7 @@ will be lost. Continue?"""))
         pp = pprint.pprint
         self._captureOutput(True)
         try:
+            # pylint: disable=exec-used
             exec(text)
         except:
             self._output += traceback.format_exc()

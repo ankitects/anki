@@ -128,8 +128,10 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name, create=True, type=defaultDeck):
+    def id(self, name, create=True, type=None):
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
+        if type is None:
+            type = defaultDeck
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
         for id, g in list(self.decks.items()):
@@ -353,8 +355,10 @@ class DeckManager:
         self.dconf[str(g['id'])] = g
         self.save()
 
-    def confId(self, name, cloneFrom=defaultConf):
+    def confId(self, name, cloneFrom=None):
         "Create a new configuration and return id."
+        if cloneFrom is None:
+            type = defaultConf
         c = copy.deepcopy(cloneFrom)
         while 1:
             id = intTime(1000)

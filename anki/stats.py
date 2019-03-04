@@ -21,6 +21,7 @@ class CardStats:
 
     def report(self):
         c = self.card
+        # pylint: disable=unnecessary-lambda
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%>"
         self.addLine(_("Added"), self.date(c.id/1000))
@@ -809,8 +810,10 @@ from cards where did in %s""" % self._limit())
     # Tools
     ######################################################################
 
-    def _graph(self, id, data, conf={},
+    def _graph(self, id, data, conf=None,
                type="bars", ylabel=_("Cards"), timeTicks=True, ylabel2=""):
+        if conf is None:
+            conf = {}
         # display settings
         if type == "pie":
             conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':2}
