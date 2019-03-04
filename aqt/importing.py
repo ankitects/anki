@@ -291,7 +291,7 @@ def importFile(mw, file):
     for i in importing.Importers:
         if done:
             break
-        for mext in re.findall("[( ]?\*\.(.+?)[) ]", i[0]):
+        for mext in re.findall(r"[( ]?\*\.(.+?)[) ]", i[0]):
             if file.endswith("." + mext):
                 importerClass = i[1]
                 done = True

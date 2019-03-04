@@ -85,7 +85,7 @@ class Template:
 
             # check for cloze
             val = None
-            m = re.match("c[qa]:(\d+):(.+)", section_name)
+            m = re.match(r"c[qa]:(\d+):(.+)", section_name)
             if m:
                 # get full field text
                 txt = get_or_attr(context, m.group(2), None)
@@ -184,7 +184,7 @@ class Template:
                 txt = self.clozeText(txt, extra, mod[1]) if txt and extra else ""
             else:
                 # hook-based field modifier
-                mod, extra = re.search("^(.*?)(?:\((.*)\))?$", mod).groups()
+                mod, extra = re.search(r"^(.*?)(?:\((.*)\))?$", mod).groups()
                 txt = runFilter('fmod_' + mod, txt or '', extra or '', context,
                                 tag, tag_name)
                 if txt is None:
@@ -211,7 +211,7 @@ class Template:
             return buf
         txt = re.sub(reg%ord, repl, txt)
         # and display other clozes normally
-        return re.sub(reg%"\d+", "\\2", txt)
+        return re.sub(reg%r"\d+", "\\2", txt)
 
     # look for clozes wrapped in mathjax, and change {{cx to {{Cx
     def _removeFormattingFromMathjax(self, txt, ord):

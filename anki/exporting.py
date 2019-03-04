@@ -301,7 +301,7 @@ class AnkiPackageExporter(AnkiExporter):
             if os.path.isdir(mpath):
                 continue
             if os.path.exists(mpath):
-                if re.search('\.svg$', file, re.IGNORECASE):
+                if re.search(r'\.svg$', file, re.IGNORECASE):
                     z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
