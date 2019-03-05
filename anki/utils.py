@@ -18,8 +18,10 @@ from hashlib import sha1
 import platform
 import traceback
 from contextlib import contextmanager
-
 from anki.lang import _, ngettext
+
+# some add-ons expect json to be in the utils module
+import json # pylint: disable=unused-import
 
 # Time handling
 ##############################################################################
