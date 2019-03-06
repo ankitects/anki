@@ -1,0 +1,86 @@
+name: anki-woodrow
+base: core18
+version: '2.1.10+git'
+summary: Anki is a friendly, intelligent spaced learning system.
+description: |
+  Anki is a program which makes remembering things easy. Because it's a lot
+  more efficient than traditional study methods, you can either greatly
+  decrease your time spent studying, or greatly increase the amount you learn.
+
+grade: devel
+confinement: classic
+architectures:
+  - build-on: amd64
+    run-on: [amd64]
+
+apps:
+  anki:
+    command: bin/run.sh
+
+parts:
+  anki:
+    plugin: python
+    python-version: python3
+    source: .
+    build-packages:
+      - python3.6
+      - python3-dev
+      - libpython3-dev
+      - portaudio19-dev
+      - python-all-dev
+      - python3-all-dev
+      - python3-pip
+      - pyqt5-dev-tools
+      - mpv
+      - lame
+      - python3-pyqt5
+    override-build: |
+      snapcraftctl build
+
+      pip3 install --global-option=build_ext --global-option="-I/usr/include/python3.6m" -r requirements.txt
+      pip3 install sip pyqt5
+      ./tools/build_ui.sh
+      #mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
+      #mv runanki $SNAPCRAFT_PART_INSTALL/bin/
+    stage-packages:
+      - libxrandr2
+      - libgl1-mesa-glx
+      - libgl1-mesa-dri
+      - libegl1-mesa
+      - libva-drm2
+      - libpulse0
+      - libasound2
+      - libqt5gui5
+      - libxcomposite1
+      - libxcursor1
+      - libwayland-egl1-mesa
+      - libwayland-cursor0
+      - libthai0
+      - libportaudio2
+      - libpixman-1-0
+      - libpangoft2-1.0-0
+      - libpangocairo-1.0-0
+      - libpango-1.0-0
+      - liborc-0.4-0
+      - libjack-jackd2-0
+      - libjack0
+      - libgtk-3-0
+      - libgstreamer-plugins-base1.0-0
+      - libgstreamer1.0-0
+      - libgdk-pixbuf2.0-0
+      - libcairo2
+    override-prime: |
+      snapcraftctl prime
+
+      cp -r $SNAPCRAFT_PART_BUILD/aqt/forms lib/python3.6/site-packages/aqt/
+      cp anki.* lib/python3.6/site-packages/
+      cp -r designer lib/python3.6/site-packages/
+      cp -r web lib/python3.6/site-packages/
+      cat << EOF > bin/run.sh
+      #!/bin/sh
+      echo "Running Anki"
+      mkdir -p "\$XDG_RUNTIME_DIR/snap.\$SNAP_NAME"
+      exec  "\$SNAP/usr/bin/python3" "\$SNAP/bin/runanki"
+      EOF
+      chmod +x bin/run.sh
+
