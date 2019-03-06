@@ -349,9 +349,6 @@ environment points to a valid, writable folder.""")
             QMessageBox.critical(None, "Error", "Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.")
             sys.exit(1)
 
-    # remaining pm init
-    pm.ensureProfile()
-
     # load the main window
     import aqt.main
     mw = aqt.main.AnkiQt(app, pm, opts, args)

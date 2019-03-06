@@ -126,9 +126,15 @@ a flash drive.""" % self.base)
     ######################################################################
 
     def profiles(self):
-        return sorted(x for x in
-            self.db.list("select name from profiles")
-            if x != "_global")
+        def names():
+            return self.db.list("select name from profiles where name != '_global'")
+
+        n = names()
+        if not n:
+            self._ensureProfile()
+            n = names()
+
+        return n
 
     def _unpickle(self, data):
         class Unpickler(pickle.Unpickler):
@@ -338,12 +344,11 @@ create table if not exists profiles
         self._setDefaultLang()
         return True
 
-    def ensureProfile(self):
+    def _ensureProfile(self):
         "Create a new profile if none exists."
-        if self.firstRun:
-            self.create(_("User 1"))
-            p = os.path.join(self.base, "README.txt")
-            open(p, "w", encoding="utf8").write(_("""\
+        self.create(_("User 1"))
+        p = os.path.join(self.base, "README.txt")
+        open(p, "w", encoding="utf8").write(_("""\
 This folder stores all of your Anki data in a single location,
 to make backups easy. To tell Anki to use a different location,
 please see:
