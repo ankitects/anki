@@ -73,6 +73,7 @@ class AnkiQt(QMainWindow):
         self.setupThreads()
         self.setupMediaServer()
         self.setupSound()
+        self.setupSpellCheck()
         self.setupMainWindow()
         self.setupSystemSpecific()
         self.setupStyle()
@@ -636,6 +637,10 @@ title="%s" %s>%s</button>''' % (
         self.addonManager = aqt.addons.AddonManager(self)
         if not self.safeMode:
             self.addonManager.loadAddons()
+
+    def setupSpellCheck(self):
+        os.environ["QTWEBENGINE_DICTIONARIES_PATH"] = (
+            os.path.join(self.pm.base, "dictionaries"))
 
     def setupThreads(self):
         self._mainThread = QThread.currentThread()
