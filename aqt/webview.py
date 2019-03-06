@@ -229,8 +229,10 @@ class AnkiWebView(QWebEngineView):
         if js is None:
             js = ["jquery.js"]
         if isWin:
-            widgetspec = "button { font-size: 12px; font-family:'Segoe UI'; }"
-            fontspec = 'font-size:12px;font-family:"Segoe UI";'
+            #T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
+            family = _('"Segoe UI"')
+            widgetspec = "button { font-size: 12px; font-family:%s; }" % family
+            fontspec = 'font-size:12px;font-family:%s;' % family
         elif isMac:
             family="Helvetica"
             fontspec = 'font-size:15px;font-family:"%s";'% \
