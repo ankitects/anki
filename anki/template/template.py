@@ -73,7 +73,7 @@ class Template:
         tag = r"%(otag)s(#|=|&|!|>|\{)?(.+?)\1?%(ctag)s+"
         self.tag_re = re.compile(tag % tags)
 
-    def sub_section(self, match):
+    def sub_section(self, match, context):
         section, section_name, inner = match.group(0, 1, 2)
         section_name = section_name.strip()
 
@@ -103,7 +103,7 @@ class Template:
         """Expands sections."""
         n = 1
         while n:
-            template, n = self.section_re.subn(self.sub_section, template)
+            template, n = self.section_re.subn(lambda match:self.sub_section(match,context), template)
         return template
 
     def sub_tag(self, match, context):
