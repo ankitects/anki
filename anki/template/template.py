@@ -117,7 +117,7 @@ class Template:
     def render_tags(self, template, context):
         """Renders all the tags in a template for a context."""
         try:
-            return self.tag_re.sub((lambda match: self.sub_tag(match, context),template)
+            return self.tag_re.sub(lambda match: self.sub_tag(match, context),template)
         except (SyntaxError, KeyError):
             return "{{invalid template}}"
 
