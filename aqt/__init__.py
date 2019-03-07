@@ -137,12 +137,19 @@ def setupLang(pm, app, force=None):
     # gettext
     _gtrans = gettext.translation(
         'anki', dir, languages=[lang], fallback=True)
-    def fn(arg, *args):
-        print("accessing _ and ngettext without importing from anki.lang will break in the future")
+    def fn__(arg):
+        print("accessing _ without importing from anki.lang will break in the future")
         print("".join(traceback.format_stack()[-2]))
-        return arg
-    builtins.__dict__['_'] = fn
-    builtins.__dict__['ngettext'] = fn
+        from anki.lang import _
+        return _(arg)
+    def fn_ngettext(a, b, c):
+        print("accessing ngettext without importing from anki.lang will break in the future")
+        print("".join(traceback.format_stack()[-2]))
+        from anki.lang import ngettext
+        return ngettext(a, b, c)
+
+    builtins.__dict__['_'] = fn__
+    builtins.__dict__['ngettext'] = fn_ngettext
     anki.lang.setLang(lang, local=False)
     if lang in ("he","ar","fa"):
         app.setLayoutDirection(Qt.RightToLeft)
