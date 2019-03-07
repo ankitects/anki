@@ -80,7 +80,7 @@ class Template:
         # val will contain the content of the field considered
         # right now
         val = None
-        m = re.match("c[qa]:(\d+):(.+)", section_name)
+        m = re.match(r"c[qa]:(\d+):(.+)", section_name)
         if m:
             # get full field text
             txt = get_or_attr(context, m.group(2), None)
@@ -96,7 +96,7 @@ class Template:
         if val:
             val = stripHTMLMedia(val).strip()
         if (val and not inverted) or (not val and inverted):
-                replacer = inner
+            replacer = inner
         return replacer
 
     def render_sections(self, template, context):
