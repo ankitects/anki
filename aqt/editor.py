@@ -248,7 +248,10 @@ class Editor:
         if cmd.startswith("blur") or cmd.startswith("key"):
             (type, ord, nid, txt) = cmd.split(":", 3)
             ord = int(ord)
-            nid = int(nid)
+            try:
+                nid = int(nid)
+            except ValueError:
+                nid = 0
             if nid != self.note.id:
                 print("ignored late blur")
                 return
