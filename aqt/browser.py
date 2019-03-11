@@ -421,8 +421,6 @@ class Browser(QMainWindow):
         f.filter.clicked.connect(self.onFilterButton)
         # edit
         f.actionUndo.triggered.connect(self.mw.onUndo)
-        if qtminor < 11:
-            f.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
         f.actionInvertSelection.triggered.connect(self.invertSelection)
         f.actionSelectNotes.triggered.connect(self.selectNotes)
         if not isMac:
