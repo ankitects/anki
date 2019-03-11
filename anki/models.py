@@ -395,16 +395,18 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         self._updateTemplOrds(m)
         # generate change map
         map = []
+        oldidxChanged = []
         for t in m['tmpls']:
             oldidx = oldidxs[id(t)]
             newidx = t['ord']
             if oldidx != newidx:
                 map.append("when ord = %d then %d" % (oldidx, newidx))
+                oldidxChanged.append(oldidx)
         # apply
         self.save(m)
         self.col.db.execute("""
 update cards set ord = (case %s end),usn=?,mod=? where nid in (
-select id from notes where mid = ?)""" % " ".join(map),
+select id from notes where mid = ?) and ord in %s""" % (" ".join(map),ids2str(oldidxChanged)),
                              self.col.usn(), intTime(), m['id'])
 
     def _syncTemplates(self, m):
