@@ -396,10 +396,7 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         # generate change map
         map = []
         for t in m['tmpls']:
-            oldidx = oldidxs[id(t)]
-            newidx = t['ord']
-            if oldidx != newidx:
-                map.append("when ord = %d then %d" % (oldidx, newidx))
+            map.append("when ord = %d then %d" % (oldidxs[id(t)], t['ord']))
         # apply
         self.save(m)
         self.col.db.execute("""
