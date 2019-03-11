@@ -206,9 +206,9 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
             end, chunk = 52, 7
         elif self.type == 2:
             end = None
-            if self._deckAge(by) < 365:
+            if self._deckAge(by) <= 100:
                 chunk = 1
-            elif self._deckAge(by) < 1000:
+            elif self._deckAge(by) <= 700:
                 chunk = 7
             else:
                 chunk = 31
