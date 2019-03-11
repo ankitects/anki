@@ -240,10 +240,13 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         xaxis = dict(tickDecimals=0, min=-0.5)
         if end is not None:
             xaxis['max'] = end-0.5
-        txt += self._graph(id="due", data=data, xunit=chunk,
-                           ylabel2=_("Cumulative Cards"), conf=dict(
-                xaxis=xaxis, yaxes=[dict(min=0), dict(
-                    min=0, tickDecimals=0, position="right")]))
+        txt += self._graph(
+            id="due", data=data, xunit=chunk, ylabel2=_("Cumulative Cards"),
+            conf=dict(
+                xaxis=xaxis, yaxes=[
+                    dict(min=0), dict(min=0, tickDecimals=0, position="right")]
+            ),
+        )
         txt += self._dueInfo(tot, len(totd)*chunk)
         return txt
 
@@ -286,14 +289,14 @@ group by day order by day""" % (self._limit(), lim),
             return ""
         conf = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
-            yaxes=[dict(min=0), dict(position="right",min=0)])
+            yaxes=[dict(min=0), dict(position="right", min=0)])
         if days is not None:
             conf['xaxis']['min'] = -days+0.5
         def plot(id, data, ylabel, ylabel2):
             return self._graph(
                 id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2)
         # graph
-        (repdata, repsum) = self._splitRepData(data, ((1, colLearn, ""),))
+        repdata, repsum = self._splitRepData(data, ((1, colLearn, ""),))
         txt = self._title(
             _("Added"), _("The number of new cards you have added."))
         txt += plot("intro", repdata, ylabel=_("Cards"), ylabel2=_("Cumulative Cards"))
@@ -317,7 +320,7 @@ group by day order by day""" % (self._limit(), lim),
             return ""
         conf = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
-            yaxes=[dict(min=0), dict(position="right",min=0)])
+            yaxes=[dict(min=0), dict(position="right", min=0)])
         if days is not None:
             conf['xaxis']['min'] = -days+0.5
         def plot(id, data, ylabel, ylabel2):
@@ -407,7 +410,6 @@ group by day order by day""" % (self._limit(), lim),
         for (n, col, lab) in spec:
             totcnt[n] = 0
             totd[n] = []
-        sum = []
         for row in data:
             for (n, col, lab) in spec:
                 if n not in sep:
@@ -836,8 +838,6 @@ from cards where did in %s""" % self._limit())
                         opacity=0.5,
                         color="#000"
                     )))
-
-            #conf['legend'] = dict(show=False)
         return (
 """
 <table cellpadding=0 cellspacing=10>
