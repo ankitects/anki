@@ -339,7 +339,7 @@
     <string>&amp;Undo</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Z</string>
+    <string>Ctrl+Alt+Z</string>
    </property>
   </action>
   <action name="actionInvertSelection">
