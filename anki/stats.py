@@ -129,15 +129,15 @@ class CollectionStats:
         return "<div class=section>%s</div>" % txt
 
     css = """
-<style>
-h1 { margin-bottom: 0; margin-top: 1em; }
-.pielabel { text-align:center; padding:0px; color:white; }
-body {background-image: url(data:image/png;base64,%s); }
-@media print {
-    .section { page-break-inside: avoid; padding-top: 5mm; }
-}
-</style>
-"""
+        <style>
+        h1 { margin-bottom: 0; margin-top: 1em; }
+        .pielabel { text-align:center; padding:0px; color:white; }
+        body {background-image: url(data:image/png;base64,%s); }
+        @media print {
+            .section { page-break-inside: avoid; padding-top: 5mm; }
+        }
+        </style>
+        """
 
     # Today stats
     ######################################################################
@@ -149,13 +149,13 @@ body {background-image: url(data:image/png;base64,%s); }
         if lim:
             lim = " and " + lim
         cards, thetime, failed, lrn, rev, relrn, filt = self.col.db.first("""
-select count(), sum(time)/1000,
-sum(case when ease = 1 then 1 else 0 end), /* failed */
-sum(case when type = 0 then 1 else 0 end), /* learning */
-sum(case when type = 1 then 1 else 0 end), /* review */
-sum(case when type = 2 then 1 else 0 end), /* relearn */
-sum(case when type = 3 then 1 else 0 end) /* filter */
-from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
+            select count(), sum(time)/1000,
+            sum(case when ease = 1 then 1 else 0 end), /* failed */
+            sum(case when type = 0 then 1 else 0 end), /* learning */
+            sum(case when type = 1 then 1 else 0 end), /* review */
+            sum(case when type = 2 then 1 else 0 end), /* relearn */
+            sum(case when type = 3 then 1 else 0 end) /* filter */
+            from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         cards = cards or 0
         thetime = thetime or 0
         failed = failed or 0
@@ -183,8 +183,8 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
                   % dict(a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)))
             # mature today
             mcnt, msum = self.col.db.first("""
-    select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
-    where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
+                select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
+                where lastIvl >= 21 and id > ?"""+lim, (self.col.sched.dayCutoff-86400)*1000)
             b += "<br>"
             if mcnt:
                 b += _("Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)") % dict(
@@ -256,8 +256,8 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         self._line(i, _("Average"), self._avgDay(
             tot, num, _("reviews")))
         tomorrow = self.col.db.scalar("""
-select count() from cards where did in %s and queue in (2,3)
-and due = ?""" % self._limit(), self.col.sched.today+1)
+            select count() from cards where did in %s and queue in (2,3)
+            and due = ?""" % self._limit(), self.col.sched.today+1)
         tomorrow = ngettext("%d card", "%d cards", tomorrow) % tomorrow
         self._line(i, _("Due tomorrow"), tomorrow)
         return self._lineTbl(i)
@@ -269,15 +269,15 @@ and due = ?""" % self._limit(), self.col.sched.today+1)
         if end is not None:
             lim += " and day < %d" % end
         return self.col.db.all("""
-select (due-:today)/:chunk as day,
-sum(case when ivl < 21 then 1 else 0 end), -- yng
-sum(case when ivl >= 21 then 1 else 0 end) -- mtr
-from cards
-where did in %s and queue in (2,3)
-%s
-group by day order by day""" % (self._limit(), lim),
-                            today=self.col.sched.today,
-                            chunk=chunk)
+            select (due-:today)/:chunk as day,
+            sum(case when ivl < 21 then 1 else 0 end), -- yng
+            sum(case when ivl >= 21 then 1 else 0 end) -- mtr
+            from cards
+            where did in %s and queue in (2,3)
+            %s
+            group by day order by day""" % (self._limit(), lim),
+                                        today=self.col.sched.today,
+                                        chunk=chunk)
 
     # Added, reps and time spent
     ######################################################################
@@ -447,11 +447,11 @@ group by day order by day""" % (self._limit(), lim),
         else:
             tf = 3600.0 # hours
         return self.col.db.all("""
-select
-(cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
-count(id)
-from cards %s
-group by day order by day""" % lim, cut=self.col.sched.dayCutoff,tf=tf, chunk=chunk)
+            select
+            (cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
+            count(id)
+            from cards %s
+            group by day order by day""" % lim, cut=self.col.sched.dayCutoff,tf=tf, chunk=chunk)
 
     def _done(self, num=7, chunk=1):
         lims = []
@@ -470,24 +470,22 @@ group by day order by day""" % lim, cut=self.col.sched.dayCutoff,tf=tf, chunk=ch
         else:
             tf = 3600.0 # hours
         return self.col.db.all("""
-select
-(cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
-sum(case when type = 0 then 1 else 0 end), -- lrn count
-sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
-sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
-sum(case when type = 2 then 1 else 0 end), -- lapse count
-sum(case when type = 3 then 1 else 0 end), -- cram count
-sum(case when type = 0 then time/1000.0 else 0 end)/:tf, -- lrn time
--- yng + mtr time
-sum(case when type = 1 and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = 1 and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = 2 then time/1000.0 else 0 end)/:tf, -- lapse time
-sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
-from revlog %s
-group by day order by day""" % lim,
-                            cut=self.col.sched.dayCutoff,
-                            tf=tf,
-                            chunk=chunk)
+            select
+            (cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
+            sum(case when type = 0 then 1 else 0 end), -- lrn count
+            sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
+            sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
+            sum(case when type = 2 then 1 else 0 end), -- lapse count
+            sum(case when type = 3 then 1 else 0 end), -- cram count
+            sum(case when type = 0 then time/1000.0 else 0 end)/:tf, -- lrn time
+            -- yng + mtr time
+            sum(case when type = 1 and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
+            sum(case when type = 1 and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
+            sum(case when type = 2 then time/1000.0 else 0 end)/:tf, -- lapse time
+            sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
+            from revlog %s
+            group by day order by day""" % lim, cut=self.col.sched.dayCutoff,
+                                        tf=tf, chunk=chunk)
 
     def _daysStudied(self):
         lims = []
@@ -504,11 +502,10 @@ group by day order by day""" % lim,
         else:
             lim = ""
         return self.col.db.first("""
-select count(), abs(min(day)) from (select
-(cast((id/1000 - :cut) / 86400.0 as int)+1) as day
-from revlog %s
-group by day order by day)""" % lim,
-                                   cut=self.col.sched.dayCutoff)
+            select count(), abs(min(day)) from (select
+            (cast((id/1000 - :cut) / 86400.0 as int)+1) as day
+            from revlog %s
+            group by day order by day)""" % lim, cut=self.col.sched.dayCutoff)
 
     # Intervals
     ######################################################################
@@ -546,13 +543,13 @@ group by day order by day)""" % lim,
         start, end, chunk = self.get_start_end_chunk()
         lim = "and grp <= %d" % end if end else ""
         data = [self.col.db.all("""
-select ivl / :chunk as grp, count() from cards
-where did in %s and queue = 2 %s
-group by grp
-order by grp""" % (self._limit(), lim), chunk=chunk)]
+            select ivl / :chunk as grp, count() from cards
+            where did in %s and queue = 2 %s
+            group by grp
+            order by grp""" % (self._limit(), lim), chunk=chunk)]
         return data + list(self.col.db.first("""
-select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
-                                         self._limit())), chunk
+            select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
+                                                     self._limit())), chunk
 
     # Eases
     ######################################################################
@@ -607,9 +604,9 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
                 "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)") % dict(
                 pct=pct, good=good, tot=tot))
         return ("""
-<center><table width=%dpx><tr><td width=50></td><td align=center>""" % self.width +
-                "</td><td align=center>".join(i) +
-                "</td></tr></table></center>")
+            <center><table width=%dpx><tr><td width=50></td><td align=center>""" % self.width +
+                            "</td><td align=center>".join(i) +
+                            "</td></tr></table></center>")
 
     def _eases(self):
         lims = []
@@ -629,13 +626,13 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
         else:
             ease4repl = "ease"
         return self.col.db.all("""
-select (case
-when type in (0,2) then 0
-when lastIvl < 21 then 1
-else 2 end) as thetype,
-(case when type in (0,2) and ease = 4 then %s else ease end), count() from revlog %s
-group by thetype, ease
-order by thetype, ease""" % (ease4repl, lim))
+            select (case
+            when type in (0,2) then 0
+            when lastIvl < 21 then 1
+            else 2 end) as thetype,
+            (case when type in (0,2) and ease = 4 then %s else ease end), count() from revlog %s
+            group by thetype, ease
+            order by thetype, ease""" % (ease4repl, lim))
 
     # Hourly retention
     ######################################################################
@@ -700,14 +697,14 @@ order by thetype, ease""" % (ease4repl, lim))
         if pd:
             lim += " and id > %d" % ((self.col.sched.dayCutoff-(86400*pd))*1000)
         return self.col.db.all("""
-select
-23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
-sum(case when ease = 1 then 0 else 1 end) /
-cast(count() as float) * 100,
-count()
-from revlog where type in (0,1,2) %s
-group by hour having count() > 30 order by hour""" % lim,
-                            cut=self.col.sched.dayCutoff-(rolloverHour*3600))
+            select
+            23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
+            sum(case when ease = 1 then 0 else 1 end) /
+            cast(count() as float) * 100,
+            count()
+            from revlog where type in (0,1,2) %s
+            group by hour having count() > 30 order by hour""" % lim,
+                                        cut=self.col.sched.dayCutoff-(rolloverHour*3600))
 
     # Cards
     ######################################################################
@@ -725,8 +722,8 @@ group by hour having count() > 30 order by hour""" % lim,
         # text data
         i = []
         (c, f) = self.col.db.first("""
-select count(id), count(distinct nid) from cards
-where did in %s """ % self._limit())
+            select count(id), count(distinct nid) from cards
+            where did in %s """ % self._limit())
         self._line(i, _("Total cards"), c)
         self._line(i, _("Total notes"), f)
         (low, avg, high) = self._factors()
@@ -736,8 +733,8 @@ where did in %s """ % self._limit())
             self._line(i, _("Highest ease"), "%d%%" % high)
         info = "<table width=100%>" + "".join(i) + "</table><p>"
         info += _('''\
-A card's <i>ease</i> is the size of the next interval \
-when you answer "good" on a review.''')
+            A card's <i>ease</i> is the size of the next interval \
+            when you answer "good" on a review.''')
         txt = self._title(_("Card Types"),
                           _("The division of cards in your deck(s)."))
         txt += "<table width=%d><tr><td>%s</td><td>%s</td></table>" % (
@@ -758,20 +755,20 @@ when you answer "good" on a review.''')
 
     def _factors(self):
         return self.col.db.first("""
-select
-min(factor) / 10.0,
-avg(factor) / 10.0,
-max(factor) / 10.0
-from cards where did in %s and queue = 2""" % self._limit())
+            select
+            min(factor) / 10.0,
+            avg(factor) / 10.0,
+            max(factor) / 10.0
+            from cards where did in %s and queue = 2""" % self._limit())
 
     def _cards(self):
         return self.col.db.first("""
-select
-sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
-sum(case when queue=0 then 1 else 0 end), -- new
-sum(case when queue<0 then 1 else 0 end) -- susp
-from cards where did in %s""" % self._limit())
+            select
+            sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
+            sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+            sum(case when queue=0 then 1 else 0 end), -- new
+            sum(case when queue<0 then 1 else 0 end) -- susp
+            from cards where did in %s""" % self._limit())
 
     # Footer
     ######################################################################
@@ -841,53 +838,53 @@ from cards where did in %s""" % self._limit())
                         color="#000"
                     )))
         return (
-"""
-<table cellpadding=0 cellspacing=10>
-<tr>
+            """
+            <table cellpadding=0 cellspacing=10>
+            <tr>
 
-<td><div style="width: 150px; text-align: center; position:absolute;
- -webkit-transform: rotate(-90deg) translateY(-85px);
-font-weight: bold;
-">%(ylab)s</div></td>
+            <td><div style="width: 150px; text-align: center; position:absolute;
+             -webkit-transform: rotate(-90deg) translateY(-85px);
+            font-weight: bold;
+            ">%(ylab)s</div></td>
 
-<td>
-<center><div id=%(id)sLegend></div></center>
-<div id="%(id)s" style="width:%(w)spx; height:%(h)spx;"></div>
-</td>
+            <td>
+            <center><div id=%(id)sLegend></div></center>
+            <div id="%(id)s" style="width:%(w)spx; height:%(h)spx;"></div>
+            </td>
 
-<td><div style="width: 150px; text-align: center; position:absolute;
- -webkit-transform: rotate(90deg) translateY(65px);
-font-weight: bold;
-">%(ylab2)s</div></td>
+            <td><div style="width: 150px; text-align: center; position:absolute;
+             -webkit-transform: rotate(90deg) translateY(65px);
+            font-weight: bold;
+            ">%(ylab2)s</div></td>
 
-</tr></table>
-<script>
-$(function () {
-    var conf = %(conf)s;
-    if (conf.timeTicks) {
-        conf.xaxis.tickFormatter = function (val, axis) {
-            return val.toFixed(0)+conf.timeTicks;
-        }
-    }
-    conf.yaxis.minTickSize = 1;
-    // prevent ticks from having decimals (use whole numbers instead)
-    conf.yaxis.tickDecimals = 0;
-    conf.yaxis.tickFormatter = function (val, axis) {
-            // Just in case we get ticks with decimals, render to one decimal position.  If it's
-            // a whole number then render without any decimal (i.e. without the trailing .0).
-            return val === Math.round(val) ? val.toFixed(0) : val.toFixed(1);
-    }
-    if (conf.series.pie) {
-        conf.series.pie.label.formatter = function(label, series){
-            return '<div class=pielabel>'+Math.round(series.percent)+'%%</div>';
-        };
-    }
-    $.plot($("#%(id)s"), %(data)s, conf);
-});
-</script>""" % dict(
-    id=id, w=width, h=height,
-    ylab=ylabel, ylab2=ylabel2,
-    data=json.dumps(data), conf=json.dumps(conf)))
+            </tr></table>
+            <script>
+            $(function () {
+                var conf = %(conf)s;
+                if (conf.timeTicks) {
+                    conf.xaxis.tickFormatter = function (val, axis) {
+                        return val.toFixed(0)+conf.timeTicks;
+                    }
+                }
+                conf.yaxis.minTickSize = 1;
+                // prevent ticks from having decimals (use whole numbers instead)
+                conf.yaxis.tickDecimals = 0;
+                conf.yaxis.tickFormatter = function (val, axis) {
+                        // Just in case we get ticks with decimals, render to one decimal position.  If it's
+                        // a whole number then render without any decimal (i.e. without the trailing .0).
+                        return val === Math.round(val) ? val.toFixed(0) : val.toFixed(1);
+                }
+                if (conf.series.pie) {
+                    conf.series.pie.label.formatter = function(label, series){
+                        return '<div class=pielabel>'+Math.round(series.percent)+'%%</div>';
+                    };
+                }
+                $.plot($("#%(id)s"), %(data)s, conf);
+            });
+            </script>""" % dict(
+                id=id, w=width, h=height,
+                ylab=ylabel, ylab2=ylabel2,
+                data=json.dumps(data), conf=json.dumps(conf)))
 
     def _limit(self):
         if self.wholeCollection:
