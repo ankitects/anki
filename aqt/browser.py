@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sre_constants
@@ -14,17 +14,18 @@ import json
 from aqt.qt import *
 import anki
 import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, \
+from anki.utils import fmtTimeSpan, ids2str, htmlToTextLine, \
     isWin, intTime, \
-    isMac, isLin, bodyClass
+    isMac, bodyClass
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
-    getOnlyText, MenuList, SubMenu
+    getOnlyText, MenuList, SubMenu, qtMenuShortcutWorkaround
+from anki.lang import _
 from anki.hooks import runHook, addHook, remHook, runFilter
 from aqt.webview import AnkiWebView
 from anki.consts import *
-from anki.sound import playFromText, clearAudioQueue, allSounds, play
+from anki.sound import clearAudioQueue, allSounds, play
 
 
 # Data model
@@ -410,6 +411,7 @@ class Browser(QMainWindow):
         self.show()
 
     def setupMenus(self):
+        # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
         f.previewButton.clicked.connect(self.onTogglePreview)
@@ -419,8 +421,6 @@ class Browser(QMainWindow):
         f.filter.clicked.connect(self.onFilterButton)
         # edit
         f.actionUndo.triggered.connect(self.mw.onUndo)
-        if qtminor < 11:
-            f.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
         f.actionInvertSelection.triggered.connect(self.invertSelection)
         f.actionSelectNotes.triggered.connect(self.selectNotes)
         if not isMac:
@@ -475,14 +475,12 @@ class Browser(QMainWindow):
         m = QMenu()
         for act in self.form.menu_Cards.actions():
             m.addAction(act)
-            if qtminor >= 10:
-                act.setShortcutVisibleInContextMenu(True)
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-            if qtminor >= 10:
-                act.setShortcutVisibleInContextMenu(True)
         runHook("browser.onContextMenu", self, m)
+
+        qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
     def updateFont(self):
@@ -809,8 +807,8 @@ by clicking on one on the left."""))
         def __init__(self):
             QTreeWidget.__init__(self)
             self.itemClicked.connect(self.onTreeClick)
-            self.itemExpanded.connect(lambda item: self.onTreeCollapse(item))
-            self.itemCollapsed.connect(lambda item: self.onTreeCollapse(item))
+            self.itemExpanded.connect(self.onTreeCollapse)
+            self.itemCollapsed.connect(self.onTreeCollapse)
 
         def keyPressEvent(self, evt):
             if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
@@ -953,7 +951,7 @@ by clicking on one on the left."""))
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur and cur != self._searchPrompt:
-                        txt = cur + " " + txt
+                txt = cur + " " + txt
         elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur:
@@ -1255,6 +1253,7 @@ where id in %s""" % ids2str(sf))
 
     _previewTimer = None
     _lastPreviewRender = 0
+    _lastPreviewState = None
 
     def onTogglePreview(self):
         if self._previewWindow:
@@ -1387,15 +1386,22 @@ where id in %s""" % ids2str(sf))
             txt = _("(please select 1 card)")
             bodyclass = ""
         else:
+            if self._previewBothSides:
+                self._previewState = "answer"
+            elif cardChanged:
+                self._previewState = "question"
+
+            currentState = self._previewStateAndMod()
+            if currentState == self._lastPreviewState:
+                # nothing has changed, avoid refreshing
+                return
+
             # need to force reload even if answer
             txt = c.q(reload=True)
 
             questionAudio = []
             if self._previewBothSides:
-                self._previewState = "answer"
                 questionAudio = allSounds(txt)
-            elif cardChanged:
-                self._previewState = "question"
             if self._previewState == "answer":
                 func = "_showAnswer"
                 txt = c.a()
@@ -1416,7 +1422,7 @@ where id in %s""" % ids2str(sf))
             txt = mungeQA(self.col, txt)
             txt = runFilter("prepareQA", txt, c,
                             "preview"+self._previewState.capitalize())
-
+        self._lastPreviewState = self._previewStateAndMod()
         self._updatePreviewButtons()
         self._previewWeb.eval(
             "{}({},'{}');".format(func, json.dumps(txt), bodyclass))
@@ -1428,6 +1434,10 @@ where id in %s""" % ids2str(sf))
         if self._previewState == "answer" and not toggle:
             self._previewState = "question"
         self._renderPreview()
+
+    def _previewStateAndMod(self):
+        c = self.card
+        return (self._previewState, c.id, c.note().mod)
 
     # Card deletion
     ######################################################################
@@ -1586,8 +1596,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
         for c, act in enumerate(flagActions):
             act.setChecked(flag == c+1)
-            if qtminor >= 10:
-                act.setShortcutVisibleInContextMenu(True)
+
+        qtMenuShortcutWorkaround(self.form.menuFlag)
 
     def onMark(self, mark=None):
         if mark is None:

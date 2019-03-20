@@ -1,13 +1,13 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, re, traceback
+import time, re
 from aqt.qt import *
 from anki.sync import AnkiRequestsClient
-from aqt.utils import showWarning
 from anki.hooks import addHook, remHook
 import aqt
+from anki.lang import _
 
 def download(mw, code):
     "Download addon from AnkiWeb. Caller must start & stop progress diag."
@@ -60,14 +60,10 @@ class Downloader(QThread):
                 self.error = _("Invalid code, or add-on not available for your version of Anki.")
                 return
             else:
-                self.error = _("Error downloading: %s" % resp.status_code)
+                self.error = _("Unexpected response code: %s" % resp.status_code)
                 return
         except Exception as e:
-            exc = traceback.format_exc()
-            try:
-                self.error = str(e[0])
-            except:
-                self.error = str(exc)
+            self.error = _("Please check your internet connection.") + "\n\n" + str(e)
             return
         finally:
             remHook("httpRecv", recvEvent)

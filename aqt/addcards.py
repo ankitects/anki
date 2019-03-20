@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from anki.lang import _
@@ -9,7 +9,7 @@ from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
     tooltip, openHelp, addCloseShortcut, downArrow
 from anki.sound import clearAudioQueue
 from anki.hooks import addHook, remHook, runHook
-from anki.utils import stripHTMLMedia, htmlToTextLine, isMac
+from anki.utils import htmlToTextLine, isMac
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
 class AddCards(QDialog):

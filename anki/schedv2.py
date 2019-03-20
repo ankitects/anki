@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
@@ -860,7 +860,7 @@ select id from cards where did in %s and queue = %d and due <= ? limit ?)"""
         return delay
 
     def _lapseIvl(self, card, conf):
-        ivl = max(1, conf['minInt'], card.ivl*conf['mult'])
+        ivl = max(1, conf['minInt'], int(card.ivl*conf['mult']))
         return ivl
 
     def _rescheduleRev(self, card, ease, early):
@@ -1233,14 +1233,14 @@ where id = ?
         if date < datetime.datetime.today():
             date = date + datetime.timedelta(days=1)
 
-        stamp = time.mktime(date.timetuple())
+        stamp = int(time.mktime(date.timetuple()))
         return stamp
 
     def _daysSinceCreation(self):
         startDate = datetime.datetime.fromtimestamp(self.col.crt)
         startDate = startDate.replace(hour=self.col.conf.get("rollover", 4),
                                       minute=0, second=0, microsecond=0)
-        return (time.time() - time.mktime(startDate.timetuple())) // 86400
+        return int((time.time() - time.mktime(startDate.timetuple())) // 86400)
 
     # Deck finished state
     ##########################################################################
@@ -1532,6 +1532,7 @@ usn=:usn,mod=:mod,factor=:fact where id=:id"""%(CARD_DUE, QUEUE_REV),
             random.shuffle(nids)
         for c, nid in enumerate(nids):
             due[nid] = start+c*step
+        # pylint: disable=undefined-loop-variable
         high = start+c*step
         # shift?
         if shift:
@@ -1618,13 +1619,20 @@ where queue < 0""" % (CARD_LRN, CARD_NEW, CARD_DUE, CARD_FILTERED, CARD_DUE, int
     def _moveManuallyBuried(self):
         self.col.db.execute("update cards set queue=%d,mod=%d where queue=%d" % (QUEUE_USER_BURIED, intTime(), QUEUE_SCHED_BURIED))
 
+    # adding 'hard' in v2 scheduler means old ease entries need shifting
+    # up or down
+    def _remapLearningAnswers(self, sql):
+        self.col.db.execute("update revlog set %s and type in (0,2)" % sql)
+
     def moveToV1(self):
         self._emptyAllFiltered()
         self._removeAllFromLearning()
 
         self._moveManuallyBuried()
         self._resetSuspendedLearning()
+        self._remapLearningAnswers("ease=ease-1 where ease in (3,4)")
 
     def moveToV2(self):
         self._emptyAllFiltered()
         self._removeAllFromLearning()
+        self._remapLearningAnswers("ease=ease+1 where ease in (2,3)")

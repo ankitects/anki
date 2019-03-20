@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -9,6 +9,7 @@ import socketserver
 import socket
 from anki.utils import devMode
 import threading
+import re
 
 # locate web folder in source/binary distribution
 def _getExportFolder():
@@ -21,7 +22,7 @@ def _getExportFolder():
         dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.abspath(dir + "/../../Resources/web")
     else:
-      raise Exception("couldn't find web folder")
+        raise Exception("couldn't find web folder")
 
 _exportFolder = _getExportFolder()
 
@@ -47,7 +48,12 @@ class MediaServer(threading.Thread):
     _port = None
     _ready = threading.Event()
 
+    def __init__(self, mw, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mw = mw
+
     def run(self):
+        RequestHandler.mw = self.mw
         self.server = ThreadedHTTPServer(("127.0.0.1", 0), RequestHandler)
         self._ready.set()
         self.server.serve_forever()
@@ -62,6 +68,7 @@ class MediaServer(threading.Thread):
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     timeout = 1
+    mw = None
 
     def do_GET(self):
         f = self.send_head()
@@ -120,12 +127,41 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                           self.log_date_time_string(),
                           format%args))
 
-    # catch /_anki references and rewrite them to web export folder
+
     def _redirectWebExports(self, path):
+        # catch /_anki references and rewrite them to web export folder
         targetPath = os.path.join(os.getcwd(), "_anki", "")
         if path.startswith(targetPath):
             newPath = os.path.join(_exportFolder, path[len(targetPath):])
             return newPath
+        
+        # catch /_addons references and rewrite them to addons folder
+        targetPath = os.path.join(os.getcwd(), "_addons", "")
+        if path.startswith(targetPath):
+            try:
+                addMgr = self.mw.addonManager
+            except AttributeError:
+                return path
+            
+            addonPath = path[len(targetPath):]
+            
+            try:
+                addon, subPath = addonPath.split(os.path.sep, 1)
+            except ValueError:
+                return path
+            if not addon:
+                return path
+            
+            pattern = addMgr.getWebExports(addon)
+            if not pattern:
+                return path
+            
+            if not re.fullmatch(pattern, subPath):
+                return path
+            
+            newPath = os.path.join(addMgr.addonsFolder(), addonPath)
+            return newPath
+        
         return path
 
 # work around Windows machines with incorrect mime type

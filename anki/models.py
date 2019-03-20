@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import copy, re
+import copy, re, json
 from anki.utils import intTime, joinFields, splitFields, ids2str,\
-    checksum, json
+    checksum
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
@@ -168,10 +168,9 @@ select id from cards where nid in (select id from notes where mid = ?)""",
 
     def ensureNameUnique(self, m):
         for mcur in self.all():
-            if (mcur['name'] == m['name'] and
-                mcur['id'] != m['id']):
-                    m['name'] += "-" + checksum(str(time.time()))[:5]
-                    break
+            if (mcur['name'] == m['name'] and mcur['id'] != m['id']):
+                m['name'] += "-" + checksum(str(time.time()))[:5]
+                break
 
     def update(self, m):
         "Add or update an existing model. Used for syncing and merging."
@@ -500,9 +499,9 @@ select id from notes where mid = ?)""" % " ".join(map),
         for f in flds:
             a.append("ankiflag")
             b.append("")
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a)]
+        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a), 0]
         full = self.col._renderQA(data)['q']
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b)]
+        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b), 0]
         empty = self.col._renderQA(data)['q']
         # if full and empty are the same, the template is invalid and there is
         # no way to satisfy it
@@ -576,7 +575,7 @@ select id from notes where mid = ?)""" % " ".join(map),
                 continue
             ord = map[fname][0]
             ords.update([int(m)-1 for m in re.findall(
-                "(?s){{c(\d+)::.+?}}", sflds[ord])])
+                r"(?s){{c(\d+)::.+?}}", sflds[ord])])
         if -1 in ords:
             ords.remove(-1)
         if not ords and allowEmpty:

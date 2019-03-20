@@ -1,8 +1,9 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
+from anki.lang import _
 
 class Toolbar:
 
@@ -64,7 +65,7 @@ class Toolbar:
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
         else:
-          self.mw.onOverview()
+            self.mw.onOverview()
 
     def _addLinkHandler(self):
         self.mw.onAddCard()

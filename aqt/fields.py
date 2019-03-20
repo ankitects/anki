@@ -1,10 +1,11 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
 from anki.consts import *
 import aqt
 from aqt.utils import showWarning, openHelp, getOnlyText, askUser
+from anki.lang import _, ngettext
 
 class FieldDialog(QDialog):
 

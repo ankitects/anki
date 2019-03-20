@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.utils import  maxID
@@ -17,6 +17,7 @@ class Importer:
         self.log = []
         self.col = col
         self.total = 0
+        self.dst = None
 
     def run(self):
         pass

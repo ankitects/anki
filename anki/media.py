@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import io
 import re
@@ -9,21 +9,23 @@ import unicodedata
 import sys
 import zipfile
 import pathlib
-from io import StringIO
+import json
+import os
 
-from anki.utils import checksum, isWin, isMac, json
+from anki.utils import checksum, isWin, isMac
 from anki.db import DB, DBError
 from anki.consts import *
 from anki.latex import mungeQA
+from anki.lang import _
 
 class MediaManager:
 
-    soundRegexps = ["(?i)(\[sound:(?P<fname>[^]]+)\])"]
+    soundRegexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
     imgRegexps = [
         # src element quoted case
-        "(?i)(<img[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        r"(?i)(<img[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        "(?i)(<img[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        r"(?i)(<img[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
     ]
     regexps = soundRegexps + imgRegexps
 
@@ -33,7 +35,7 @@ class MediaManager:
             self._dir = None
             return
         # media directory
-        self._dir = re.sub("(?i)\.(anki2)$", ".media", self.col.path)
+        self._dir = re.sub(r"(?i)\.(anki2)$", ".media", self.col.path)
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         try:
@@ -125,14 +127,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def _isFAT32(self):
         if not isWin:
             return
+        # pylint: disable=import-error
         import win32api, win32file
         try:
-                name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
+            name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
         except:
             # mapped & unmapped network drive; pray that it's not vfat
             return
         if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
-                return True
+            return True
 
     # Adding media
     ##########################################################################
@@ -181,7 +184,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 if checksum(f.read()) == csum:
                     return fname
             # otherwise, increment the index in the filename
-            reg = " \((\d+)\)$"
+            reg = r" \((\d+)\)$"
             if not re.search(reg, root):
                 root = root + " (1)"
             else:
@@ -213,7 +216,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return l
 
     def _expandClozes(self, string):
-        ords = set(re.findall("{{c(\d+)::.+?}}", string))
+        ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         strings = []
         from anki.template.template import clozeReg
         def qrepl(m):

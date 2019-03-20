@@ -1,3 +1,4 @@
+dist: xenial
 language: python
 python:
   - "3.6"
@@ -5,6 +6,13 @@ install:
   - sudo apt-get update
   - sudo apt-get install portaudio19-dev
   - pip install -r requirements.txt
-  - pip install nose
+  - pip install nose pylint pyqt5 pyqtwebengine
 
-script: nosetests ./tests
+script: ./.travis.sh
+
+notifications:
+  email:
+    recipients:
+      - travis-build@ankiweb.net
+    on_success: change
+    on_failure: always

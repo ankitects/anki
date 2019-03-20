@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
 import unicodedata
 from anki import Collection
-from anki.utils import intTime, splitFields, joinFields, incGuid
+from anki.utils import intTime, splitFields, joinFields
 from anki.importing.base import Importer
 from anki.lang import _
-from anki.lang import ngettext
 
 GUID = 1
 MID = 2

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, os, shutil, html
@@ -140,7 +140,6 @@ def _errMsg(type, texpath):
         msg += "<small><pre>" + html.escape(log) + "</pre></small>"
     except:
         msg += _("Have you installed latex and dvipng/dvisvgm?")
-        pass
     return msg
 
 # setup q/a filter

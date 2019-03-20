@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
@@ -1391,6 +1391,7 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
             random.shuffle(nids)
         for c, nid in enumerate(nids):
             due[nid] = start+c*step
+        # pylint: disable=undefined-loop-variable
         high = start+c*step
         # shift?
         if shift:

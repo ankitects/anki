@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
@@ -7,9 +7,9 @@ import requests
 
 from aqt.qt import *
 import aqt
-from aqt.utils import openLink
-from anki.utils import json, platDesc
-from aqt.utils import showText
+from aqt.utils import openLink, showText
+from anki.utils import platDesc, versionWithBuild
+from anki.lang import _
 
 class LatestVersionFinder(QThread):
 
@@ -23,7 +23,7 @@ class LatestVersionFinder(QThread):
         self.config = main.pm.meta
 
     def _data(self):
-        d = {"ver": aqt.appVersion,
+        d = {"ver": versionWithBuild(),
              "os": platDesc(),
              "id": self.config['id'],
              "lm": self.config['lastMsg'],

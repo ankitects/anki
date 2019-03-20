@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>295</width>
-    <height>202</height>
+    <height>223</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,6 +73,13 @@
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="includeHTML">
+       <property name="text">
+        <string>Include HTML and media references</string>
        </property>
       </widget>
      </item>

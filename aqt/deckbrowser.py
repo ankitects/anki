@@ -1,16 +1,17 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
-    openHelp, downArrow
-from anki.utils import isMac, ids2str, fmtTimeSpan
+    openHelp
+from anki.utils import ids2str, fmtTimeSpan
 from anki.errors import DeckRenameError
 import aqt
 from anki.sound import clearAudioQueue
 from anki.hooks import runHook
 from copy import deepcopy
+from anki.lang import _, ngettext
 
 class DeckBrowser:
 

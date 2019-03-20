@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -7,6 +7,7 @@ import os, time
 from aqt.utils import saveGeom, restoreGeom, maybeHideClose, addCloseShortcut, \
     tooltip, getSaveFile
 import aqt
+from anki.lang import _
 
 # Deck Stats
 ######################################################################

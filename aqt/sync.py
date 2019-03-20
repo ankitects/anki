@@ -1,18 +1,16 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-import traceback
 import gc
 
 from aqt.qt import *
-import aqt
 from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, remHook
 from aqt.utils import tooltip, askUserDialog, showWarning, showText, showInfo
-
+from anki.lang import _
 
 # Sync manager
 ######################################################################
@@ -283,10 +281,6 @@ fix the clock and try again."""))
         showWarning(_("""\
 Your collection is in an inconsistent state. Please run Tools>\
 Check Database, then sync again."""))
-
-    def badUserPass(self):
-        aqt.preferences.Preferences(self, self.pm.profile).dialog.tabWidget.\
-                                         setCurrentIndex(1)
 
 # Sync thread
 ######################################################################

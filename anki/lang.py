@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os, sys, re
@@ -111,7 +111,7 @@ def getLang():
 
 def noHint(str):
     "Remove translation hint from end of string."
-    return re.sub("(^.*?)( ?\(.+?\))?$", "\\1", str)
+    return re.sub(r"(^.*?)( ?\(.+?\))?$", "\\1", str)
 
 if not currentTranslation:
     setLang("en_US", local=False)

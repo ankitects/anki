@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -6,6 +6,7 @@ from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, showWarning
 from anki.consts import *
+from anki.lang import _
 
 RADIO_NEW = 1
 RADIO_REV = 2
@@ -61,6 +62,7 @@ class CustomStudy(QDialog):
             tit = _("New cards in deck over today limit: %s") % plus(newExceeding)
             pre = _("Increase today's new card limit by")
             sval = min(new, self.deck.get('extendNew', 10))
+            smin = -DYN_MAX_SIZE
             smax = newExceeding
         elif idx == RADIO_REV:
             rev = self.mw.col.sched.totalRevForCurrentDeck()
@@ -70,6 +72,7 @@ class CustomStudy(QDialog):
             tit = _("Reviews due in deck over today limit: %s") % plus(revExceeding)
             pre = _("Increase today's review limit by")
             sval = min(rev, self.deck.get('extendRev', 10))
+            smin = -DYN_MAX_SIZE
             smax = revExceeding
         elif idx == RADIO_FORGOT:
             pre = _("Review cards forgotten in last")

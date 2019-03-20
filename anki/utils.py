@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
@@ -17,10 +17,11 @@ import locale
 from hashlib import sha1
 import platform
 import traceback
-import json
 from contextlib import contextmanager
-
 from anki.lang import _, ngettext
+
+# some add-ons expect json to be in the utils module
+import json # pylint: disable=unused-import
 
 # Time handling
 ##############################################################################
@@ -130,7 +131,7 @@ reComment = re.compile("(?s)<!--.*?-->")
 reStyle = re.compile("(?si)<style.*?>.*?</style>")
 reScript = re.compile("(?si)<script.*?>.*?</script>")
 reTag = re.compile("(?s)<.*?>")
-reEnts = re.compile("&#?\w+;")
+reEnts = re.compile(r"&#?\w+;")
 reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 def stripHTML(s):
@@ -161,8 +162,8 @@ def htmlToTextLine(s):
     s = s.replace("<br />", " ")
     s = s.replace("<div>", " ")
     s = s.replace("\n", " ")
-    s = re.sub("\[sound:[^]]+\]", "", s)
-    s = re.sub("\[\[type:[^]]+\]\]", "", s)
+    s = re.sub(r"\[sound:[^]]+\]", "", s)
+    s = re.sub(r"\[\[type:[^]]+\]\]", "", s)
     s = stripHTMLMedia(s)
     s = s.strip()
     return s
@@ -330,6 +331,7 @@ def call(argv, wait=True, **kwargs):
         try:
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         except:
+            # pylint: disable=no-member
             si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
     else:
         si = None
@@ -359,7 +361,7 @@ def call(argv, wait=True, **kwargs):
 isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
 isLin = not isMac and not isWin
-devMode = os.getenv("ANKIDEV", 0)
+devMode = os.getenv("ANKIDEV", "")
 
 invalidFilenameChars = ":*?\"<>|"
 
@@ -387,8 +389,9 @@ def platDesc():
             elif isWin:
                 theos = "win:%s" % (platform.win32_ver()[0])
             elif system == "Linux":
-                dist = platform.dist()
-                theos = "lin:%s:%s" % (dist[0], dist[1])
+                import distro
+                r = distro.linux_distribution(full_distribution_name=False)
+                theos = "lin:%s:%s" % (r[0], r[1])
             else:
                 theos = system
             break
@@ -407,3 +410,13 @@ class TimedLog:
         sys.stderr.write("%5dms: %s(): %s\n" % ((time.time() - self._last)*1000, fn, s))
         self._last = time.time()
 
+# Version
+##############################################################################
+
+def versionWithBuild():
+    from anki import version
+    try:
+        from anki.buildhash import build
+    except:
+        build = "dev"
+    return "%s (%s)" % (version, build)

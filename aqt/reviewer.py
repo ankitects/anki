@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import difflib
@@ -7,14 +7,15 @@ import re
 import html
 import unicodedata as ucd
 import html.parser
+import json
 
 from anki.lang import _, ngettext
 from aqt.qt import *
-from anki.utils import stripHTML, json, bodyClass
+from anki.utils import stripHTML, bodyClass
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, tooltip, askUserDialog, \
-    downArrow
+    downArrow, qtMenuShortcutWorkaround
 from aqt.sound import getAudio
 import aqt
 
@@ -296,7 +297,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
     # Type in the answer
     ##########################################################################
 
-    typeAnsPat = "\[\[type:(.+?)\]\]"
+    typeAnsPat = r"\[\[type:(.+?)\]\]"
 
     def typeAnsFilter(self, buf):
         if self.state == "question":
@@ -379,7 +380,7 @@ Please run Tools>Empty Cards""")
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
-        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
+        matches = re.findall(r"\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
         if not matches:
             return None
         def noHint(txt):
@@ -614,6 +615,7 @@ time = %(time)d;
         self._addMenuItems(m, opts)
 
         runHook("Reviewer.contextMenuEvent", self, m)
+        qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
     def _addMenuItems(self, m, rows):
@@ -624,6 +626,7 @@ time = %(time)d;
             if len(row) == 2:
                 subm = m.addMenu(row[0])
                 self._addMenuItems(subm, row[1])
+                qtMenuShortcutWorkaround(subm)
                 continue
             if len(row) == 4:
                 label, scut, func, opts = row
@@ -631,8 +634,6 @@ time = %(time)d;
                 label, scut, func = row
                 opts = {}
             a = m.addAction(label)
-            if qtminor >= 10:
-                a.setShortcutVisibleInContextMenu(True)
             if scut:
                 a.setShortcut(QKeySequence(scut))
             if opts.get("checked"):

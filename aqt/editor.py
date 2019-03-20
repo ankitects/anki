@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import re
-import os
-import urllib.request, urllib.error, urllib.parse
-import ctypes
 import urllib.request, urllib.parse, urllib.error
 import warnings
 import html
 import mimetypes
 import base64
 import unicodedata
+import json
 
 from anki.lang import _
 from aqt.qt import *
-from anki.utils import stripHTML, isWin, isMac, namedtmp, json, stripHTMLMedia, \
+from anki.utils import isWin, namedtmp, stripHTMLMedia, \
     checksum
 import anki.sound
 from anki.hooks import runHook, runFilter, addHook
 from aqt.sound import getAudio
 from aqt.webview import AnkiWebView
 from aqt.utils import shortcut, showInfo, showWarning, getFile, \
-    openHelp, tooltip, downArrow
+    openHelp, tooltip, qtMenuShortcutWorkaround
 import aqt
 from bs4 import BeautifulSoup
 import requests
@@ -126,7 +124,7 @@ class Editor:
         mime, _ = mimetypes.guess_type(path)
         with open(path, 'rb') as fp:
             data = fp.read()
-            data64 = b''.join(base64.encodestring(data).splitlines())
+            data64 = b''.join(base64.encodebytes(data).splitlines())
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
 
@@ -145,7 +143,9 @@ class Editor:
     def _addButton(self, icon, cmd, tip="", label="", id=None, toggleable=False,
                    disables=True):
         if icon:
-            if os.path.isabs(icon):
+            if icon.startswith("qrc:/"):
+                iconstr = icon
+            elif os.path.isabs(icon):
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = "/_anki/imgs/{}.png".format(icon)
@@ -248,7 +248,10 @@ class Editor:
         if cmd.startswith("blur") or cmd.startswith("key"):
             (type, ord, nid, txt) = cmd.split(":", 3)
             ord = int(ord)
-            nid = int(nid)
+            try:
+                nid = int(nid)
+            except ValueError:
+                nid = 0
             if nid != self.note.id:
                 print("ignored late blur")
                 return
@@ -287,7 +290,8 @@ class Editor:
             print("uncaught cmd", cmd)
 
     def mungeHTML(self, txt):
-        txt = re.sub(r"<br>$", "", txt)
+        if txt in ('<br>', '<div><br></div>'):
+            return ''
         return txt
 
     # Setting/unsetting the current note
@@ -774,6 +778,9 @@ to a cloze type first, via Edit>Change Note Type."""))
         a = m.addAction(_("Edit HTML"))
         a.triggered.connect(self.onHtmlEdit)
         a.setShortcut(QKeySequence("Ctrl+Shift+X"))
+
+        qtMenuShortcutWorkaround(m)
+
         m.exec_(QCursor.pos())
 
     # LaTeX
@@ -932,7 +939,15 @@ class EditorWebView(AnkiWebView):
 
         # normal text; convert it to HTML
         txt = html.escape(txt)
-        txt = txt.replace("\n", "<br>")
+        txt = txt.replace("\n", "<br>")\
+            .replace("\t", " "*4)
+
+        # if there's more than one consecutive space,
+        # use non-breaking spaces for the second one on
+        def repl(match):
+            return " " + match.group(1).replace(" ", "&nbsp;")
+        txt = re.sub(" ( +)", repl, txt)
+
         return txt
 
     def _processHtml(self, mime):
@@ -976,6 +991,8 @@ class EditorWebView(AnkiWebView):
         # add a comment in the clipboard html so we can tell text is copied
         # from us and doesn't need to be stripped
         clip = self.editor.mw.app.clipboard()
+        if not clip.ownsClipboard():
+            return
         mime = clip.mimeData()
         if not mime.hasHtml():
             return

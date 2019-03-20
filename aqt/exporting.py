@@ -1,4 +1,4 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
@@ -6,11 +6,11 @@ import re
 
 from aqt.qt import *
 import  aqt
-from aqt.utils import getSaveFile, tooltip, showWarning, askUser, \
+from aqt.utils import getSaveFile, tooltip, showWarning, \
     checkInvalidFilename, showInfo
 from anki.exporting import exporters
 from anki.hooks import addHook, remHook
-from anki.lang import ngettext
+from anki.lang import ngettext, _
 import time
 
 class ExportDialog(QDialog):
@@ -61,6 +61,12 @@ class ExportDialog(QDialog):
             getattr(self.exporter, "includeMedia", None) is not None)
         self.frm.includeTags.setVisible(
             getattr(self.exporter, "includeTags", None) is not None)
+        html = getattr(self.exporter, "includeHTML", None)
+        if html is not None:
+            self.frm.includeHTML.setVisible(True)
+            self.frm.includeHTML.setChecked(html)
+        else:
+            self.frm.includeHTML.setVisible(False)
         # show deck list?
         self.frm.deck.setVisible(not self.isVerbatim)
 
@@ -71,6 +77,8 @@ class ExportDialog(QDialog):
             self.frm.includeMedia.isChecked())
         self.exporter.includeTags = (
             self.frm.includeTags.isChecked())
+        self.exporter.includeHTML = (
+            self.frm.includeHTML.isChecked())
         if not self.frm.deck.currentIndex():
             self.exporter.did = None
         else:

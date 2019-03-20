@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import pprint
@@ -11,10 +11,11 @@ import stat
 import datetime
 import copy
 import traceback
+import json
 
 from anki.lang import _, ngettext
-from anki.utils import ids2str, fieldChecksum, stripHTML, \
-    intTime, splitFields, joinFields, maxID, json, devMode, stripHTMLMedia
+from anki.utils import ids2str, fieldChecksum, \
+    intTime, splitFields, joinFields, maxID, devMode, stripHTMLMedia
 from anki.hooks import  runFilter, runHook
 from anki.models import ModelManager
 from anki.media import MediaManager
@@ -417,7 +418,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     # type 0 - when previewing in add dialog, only non-empty
     # type 1 - when previewing edit, only existing
     # type 2 - when previewing in models dialog, all templates
-    def previewCards(self, note, type=0):
+    def previewCards(self, note, type=0, did=None):
         if type == 0:
             cms = self.findTemplates(note)
         elif type == 1:
@@ -428,19 +429,23 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             return []
         cards = []
         for template in cms:
-            cards.append(self._newCard(note, template, 1, flush=False))
+            cards.append(self._newCard(note, template, 1, flush=False, did=did))
         return cards
 
-    def _newCard(self, note, template, due, flush=True):
+    def _newCard(self, note, template, due, flush=True, did=None):
         "Create a new card."
         card = anki.cards.Card(self)
         card.nid = note.id
         card.ord = template['ord']
-        # Use template did (deck override) if valid, otherwise model did
-        if template['did'] and str(template['did']) in self.decks.decks:
-            card.did = template['did']
-        else:
-            card.did = note.model()['did']
+        card.did = self.db.scalar("select did from cards where nid = ? and ord = ?", card.nid, card.ord)
+        # Use template did (deck override) if valid, otherwise did in argument, otherwise model did
+        if not card.did:
+            if template['did'] and str(template['did']) in self.decks.decks:
+                card.did = template['did']
+            elif did:
+                card.did = did
+            else:
+                card.did = note.model()['did']
         # if invalid did, use default instead
         deck = self.decks.get(card.did)
         if deck['dyn']:
@@ -549,7 +554,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
 
     def _renderQA(self, data, qfmt=None, afmt=None):
         "Returns hash of id, question, answer."
-        # data is [cid, nid, mid, did, ord, tags, flds]
+        # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
         # unpack fields and create dict
         flist = splitFields(data[6])
         fields = {}
@@ -560,6 +565,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         fields['Type'] = model['name']
         fields['Deck'] = self.decks.name(data[3])
         fields['Subdeck'] = fields['Deck'].split('::')[-1]
+        fields['CardFlag'] = self._flagNameFromCardFlags(data[7])
         if model['type'] == MODEL_STD:
             template = model['tmpls'][data[4]]
         else:
@@ -593,12 +599,18 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         return d
 
     def _qaData(self, where=""):
-        "Return [cid, nid, mid, did, ord, tags, flds] db query"
+        "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
         return self.db.execute("""
-select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds
+select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds, c.flags
 from cards c, notes f
 where c.nid == f.id
 %s""" % where)
+
+    def _flagNameFromCardFlags(self, flags):
+        flag = flags & 0b111
+        if not flag:
+            return ""
+        return "flag%d" % flag
 
     # Finding cards
     ##########################################################################
@@ -850,6 +862,16 @@ and type = 0""", intTime(), self.usn())
             self.db.execute(
                 "update cards set due = ?, ivl = 1, mod = ?, usn = ? where id in %s"
                 % ids2str(ids), self.sched.today, intTime(), self.usn())
+        # v2 sched had a bug that could create decimal intervals
+        curs = self.db.cursor()
+
+        curs.execute("update cards set ivl=round(ivl),due=round(due) where ivl!=round(ivl) or due!=round(due)")
+        if curs.rowcount:
+            problems.append("Fixed %d cards with v2 scheduler bug." % curs.rowcount)
+
+        curs.execute("update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)")
+        if curs.rowcount:
+            problems.append("Fixed %d review history entries with v2 scheduler bug." % curs.rowcount)
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
@@ -909,5 +931,5 @@ and type = 0""", intTime(), self.usn())
 
     def setUserFlag(self, flag, cids):
         assert 0 <= flag <= 7
-        self.db.execute("update cards set flags = (flags & ~?) | ? where id in %s" %
-                        ids2str(cids), 0b111, flag)
+        self.db.execute("update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s" %
+                        ids2str(cids), 0b111, flag, self._usn, intTime())

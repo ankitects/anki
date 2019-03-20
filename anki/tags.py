@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
-from anki.utils import intTime, ids2str, json
-from anki.hooks import runHook
-import re
 
 """
 Anki maintains a cache of used tags so it can quickly present a list of tags
@@ -13,6 +9,11 @@ tracked, so unused tags can only be removed from the list with a DB check.
 
 This module manages the tag cache and tags for notes.
 """
+
+import json
+from anki.utils import intTime, ids2str
+from anki.hooks import runHook
+import re
 
 class TagManager:
 

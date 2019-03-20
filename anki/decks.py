@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import copy, operator
 import unicodedata
+import json
 
-from anki.utils import intTime, ids2str, json
+from anki.utils import intTime, ids2str
 from anki.hooks import runHook
 from anki.consts import *
 from anki.lang import _
@@ -128,8 +129,10 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name, create=True, type=defaultDeck):
+    def id(self, name, create=True, type=None):
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
+        if type is None:
+            type = defaultDeck
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
         for id, g in list(self.decks.items()):
@@ -293,9 +296,9 @@ class DeckManager:
 
     def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
         if draggedDeckName == ontoDeckName \
-                or self._isParent(ontoDeckName, draggedDeckName) \
-                or self._isAncestor(draggedDeckName, ontoDeckName):
-                    return False
+            or self._isParent(ontoDeckName, draggedDeckName) \
+            or self._isAncestor(draggedDeckName, ontoDeckName):
+            return False
         else:
             return True
 
@@ -353,8 +356,10 @@ class DeckManager:
         self.dconf[str(g['id'])] = g
         self.save()
 
-    def confId(self, name, cloneFrom=defaultConf):
+    def confId(self, name, cloneFrom=None):
         "Create a new configuration and return id."
+        if cloneFrom is None:
+            cloneFrom = defaultConf
         c = copy.deepcopy(cloneFrom)
         while 1:
             id = intTime(1000)

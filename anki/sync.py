@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import io
 import gzip
 import random
 import requests
+import json
+import os
 
 from anki.db import DB, DBError
-from anki.utils import ids2str, intTime, json, platDesc, checksum, devMode
+from anki.utils import ids2str, intTime, platDesc, checksum, devMode
 from anki.consts import *
+from anki.utils import versionWithBuild
 from .hooks import runHook
 import anki
 from .lang import ngettext
@@ -585,7 +588,7 @@ class RemoteServer(HttpSyncer):
         )
         ret = self.req(
             "meta", io.BytesIO(json.dumps(dict(
-                v=SYNC_VER, cv="ankidesktop,%s,%s"%(anki.version, platDesc()))).encode("utf8")),
+                v=SYNC_VER, cv="ankidesktop,%s,%s"%(versionWithBuild(), platDesc()))).encode("utf8")),
             badAuthRaises=False)
         if not ret:
             # invalid auth
@@ -732,7 +735,8 @@ class MediaSyncer:
                         need.append(fname)
                     else:
                         self.col.log("have same already")
-                    ldirty and self.col.media.markClean([fname])
+                    if ldirty:
+                        self.col.media.markClean([fname])
                 elif lsum:
                     # deleted remotely
                     if not ldirty:
@@ -744,7 +748,8 @@ class MediaSyncer:
                 else:
                     # deleted both sides
                     self.col.log("both sides deleted")
-                    ldirty and self.col.media.markClean([fname])
+                    if ldirty:
+                        self.col.media.markClean([fname])
 
             self._downloadFiles(need)
 

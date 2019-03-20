@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
 from anki.lang import _
 
 # whether new cards should be mixed with reviews, or shown first or last

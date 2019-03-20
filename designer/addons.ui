@@ -32,7 +32,7 @@
      <item>
       <widget class="QListWidget" name="addonList">
        <property name="selectionMode">
-        <enum>QAbstractItemView::ContiguousSelection</enum>
+        <enum>QAbstractItemView::ExtendedSelection</enum>
        </property>
       </widget>
      </item>
@@ -44,6 +44,13 @@
       <widget class="QPushButton" name="getAddons">
        <property name="text">
         <string>Get Add-ons...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="installFromFile">
+       <property name="text">
+        <string>Install from file...</string>
        </property>
       </widget>
      </item>

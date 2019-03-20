@@ -1,12 +1,14 @@
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib.request, urllib.parse, urllib.error, subprocess
+import re, os, sys, subprocess
 import aqt
 from anki.sound import stripSounds
-from anki.utils import isWin, isMac, invalidFilename, noBundledLibs
+from anki.utils import isWin, isMac, invalidFilename, noBundledLibs, \
+    versionWithBuild
+from anki.lang import _
 
 def openHelp(section):
     link = aqt.appHelpSite
@@ -19,15 +21,15 @@ def openLink(link):
     with noBundledLibs():
         QDesktopServices.openUrl(QUrl(link))
 
-def showWarning(text, parent=None, help="", title="Anki"):
+def showWarning(text, parent=None, help="", title="Anki", textFormat=None):
     "Show a small warning with an OK button."
-    return showInfo(text, parent, help, "warning", title=title)
+    return showInfo(text, parent, help, "warning", title=title, textFormat=textFormat)
 
-def showCritical(text, parent=None, help="", title="Anki"):
+def showCritical(text, parent=None, help="", title="Anki", textFormat=None):
     "Show a small critical error with an OK button."
-    return showInfo(text, parent, help, "critical", title=title)
+    return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
 
-def showInfo(text, parent=False, help="", type="info", title="Anki"):
+def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=None):
     "Show a small info window with an OK button."
     if parent is False:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -38,9 +40,14 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     else:
         icon = QMessageBox.Information
     mb = QMessageBox(parent)
+    if textFormat == "plain":
+        mb.setTextFormat(Qt.PlainText)
+    elif textFormat == "rich":
+        mb.setTextFormat(Qt.RichText)
+    elif textFormat is not None:
+        raise Exception("unexpected textFormat type")
     mb.setText(text)
     mb.setIcon(icon)
-    mb.setWindowModality(Qt.WindowModal)
     mb.setWindowTitle(title)
     b = mb.addButton(QMessageBox.Ok)
     b.setDefault(True)
@@ -51,7 +58,7 @@ def showInfo(text, parent=False, help="", type="info", title="Anki"):
     return mb.exec_()
 
 def showText(txt, parent=None, type="text", run=True, geomKey=None, \
-        minWidth=500, minHeight=400, title="Anki"):
+        minWidth=500, minHeight=400, title="Anki", copyBtn=False):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
@@ -67,6 +74,12 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
     layout.addWidget(text)
     box = QDialogButtonBox(QDialogButtonBox.Close)
     layout.addWidget(box)
+    if copyBtn:
+        def onCopy():
+            QApplication.clipboard().setText(text.toPlainText())
+        btn = QPushButton(_("Copy to Clipboard"))
+        btn.clicked.connect(onCopy)
+        box.addButton(btn, QDialogButtonBox.ActionRole)
     def onReject():
         if geomKey:
             saveGeom(diag, geomKey)
@@ -111,7 +124,7 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, \
 class ButtonedDialog(QMessageBox):
 
     def __init__(self, text, buttons, parent=None, help="", title="Anki"):
-        QDialog.__init__(self, parent)
+        QMessageBox.__init__(self, parent)
         self.buttons = []
         self.setWindowTitle(title)
         self.help = help
@@ -240,7 +253,7 @@ def getTag(parent, deck, question, tags="user", **kwargs):
 # File handling
 ######################################################################
 
-def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
+def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
     "Ask the user for a file."
     assert not dir or not key
     if not dir:
@@ -249,20 +262,22 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None):
     else:
         dirkey = None
     d = QFileDialog(parent)
-    d.setFileMode(QFileDialog.ExistingFile)
+    mode = QFileDialog.ExistingFiles if multi else QFileDialog.ExistingFile
+    d.setFileMode(mode)
     if os.path.exists(dir):
         d.setDirectory(dir)
     d.setWindowTitle(title)
     d.setNameFilter(filter)
     ret = []
     def accept():
-        file = str(list(d.selectedFiles())[0])
+        files = list(d.selectedFiles())
         if dirkey:
-            dir = os.path.dirname(file)
+            dir = os.path.dirname(files[0])
             aqt.mw.pm.profile[dirkey] = dir
+        result = files if multi else files[0]
         if cb:
-            cb(file)
-        ret.append(file)
+            cb(result)
+        ret.append(result)
     d.accepted.connect(accept)
     if key:
         restoreState(d, key)
@@ -314,9 +329,35 @@ def restoreGeom(widget, key, offset=None, adjustSize=False):
                 # bug in osx toolkit
                 s = widget.size()
                 widget.resize(s.width(), s.height()+offset*2)
+        ensureWidgetInScreenBoundaries(widget)
     else:
         if adjustSize:
             widget.adjustSize()
+
+def ensureWidgetInScreenBoundaries(widget):
+    handle = widget.window().windowHandle()
+    if not handle:
+        # window has not yet been shown, retry later
+        aqt.mw.progress.timer(50, lambda: ensureWidgetInScreenBoundaries(widget), False)
+        return
+
+    # ensure widget is smaller than screen bounds
+    geom = handle.screen().availableGeometry()
+    wsize = widget.size()
+    cappedWidth = min(geom.width(), wsize.width())
+    cappedHeight = min(geom.height(), wsize.height())
+    if cappedWidth > wsize.width() or cappedHeight > wsize.height():
+        widget.resize(QSize(cappedWidth, cappedHeight))
+
+    # ensure widget is inside top left
+    wpos = widget.pos()
+    x = max(geom.x(), wpos.x())
+    y = max(geom.y(), wpos.y())
+    # and bottom right
+    x = min(x, geom.width()+geom.x()-cappedWidth)
+    y = min(y, geom.height()+geom.y()-cappedHeight)
+    if x != wpos.x() or y != wpos.y():
+        widget.move(x, y)
 
 def saveState(widget, key):
     key += "State"
@@ -412,7 +453,7 @@ def tooltip(msg, period=3000, parent=None):
         aw.mapToGlobal(QPoint(0, -100 + aw.height())))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
-        period, closeTooltip, False)
+        period, closeTooltip, False, requiresCollection=False)
     _tooltipLabel = lab
 
 def closeTooltip():
@@ -518,15 +559,39 @@ class MenuItem:
         a = qmenu.addAction(self.title)
         a.triggered.connect(self.func)
 
+def qtMenuShortcutWorkaround(qmenu):
+    if qtminor < 10:
+        return
+    for act in qmenu.actions():
+        act.setShortcutVisibleInContextMenu(True)
+
 ######################################################################
 
-def versionWithBuild():
-    from aqt import appVersion
-    try:
-        from aqt.buildhash import build
-    except:
-        build = "dev"
-    return "%s (%s)" % (appVersion, build)
+def supportText():
+    import platform
+    from aqt import mw
+
+    if isWin:
+        platname = "Windows " + platform.win32_ver()[0]
+    elif isMac:
+        platname = "Mac " + platform.mac_ver()[0]
+    else:
+        platname = "Linux"
+
+    def schedVer():
+        try:
+            return mw.col.schedVer()
+        except:
+            return "?"
+
+    return """\
+Anki {} Python {} Qt {} PyQt {}
+Platform: {}
+Flags: frz={} ao={} sv={}
+""".format(versionWithBuild(), platform.python_version(),
+           QT_VERSION_STR, PYQT_VERSION_STR, platname,
+           getattr(sys, "frozen", False),
+           mw.addonManager.dirty, schedVer())
 
 ######################################################################
 

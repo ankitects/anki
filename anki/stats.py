@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
@@ -21,6 +21,7 @@ class CardStats:
 
     def report(self):
         c = self.card
+        # pylint: disable=unnecessary-lambda
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%>"
         self.addLine(_("Added"), self.date(c.id/1000))
@@ -197,13 +198,24 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
     # Due and cumulative due
     ######################################################################
 
-    def dueGraph(self):
+    def get_start_end_chunk(self, by='review'):
+        start = 0
         if self.type == 0:
-            start, end, chunk = 0, 31, 1
+            end, chunk = 31, 1
         elif self.type == 1:
-            start, end, chunk = 0, 52, 7
+            end, chunk = 52, 7
         elif self.type == 2:
-            start, end, chunk = 0, None, 30
+            end = None
+            if self._deckAge(by) <= 100:
+                chunk = 1
+            elif self._deckAge(by) <= 700:
+                chunk = 7
+            else:
+                chunk = 31
+        return start, end, chunk
+
+    def dueGraph(self):
+        start, end, chunk = self.get_start_end_chunk()
         d = self._due(start, end, chunk)
         yng = []
         mtr = []
@@ -228,10 +240,13 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         xaxis = dict(tickDecimals=0, min=-0.5)
         if end is not None:
             xaxis['max'] = end-0.5
-        txt += self._graph(id="due", data=data,
-                           ylabel2=_("Cumulative Cards"), conf=dict(
-                xaxis=xaxis, yaxes=[dict(min=0), dict(
-                    min=0, tickDecimals=0, position="right")]))
+        txt += self._graph(
+            id="due", data=data, xunit=chunk, ylabel2=_("Cumulative Cards"),
+            conf=dict(
+                xaxis=xaxis, yaxes=[
+                    dict(min=0), dict(min=0, tickDecimals=0, position="right")]
+            ),
+        )
         txt += self._dueInfo(tot, len(totd)*chunk)
         return txt
 
@@ -268,34 +283,26 @@ group by day order by day""" % (self._limit(), lim),
     ######################################################################
 
     def introductionGraph(self):
-        if self.type == 0:
-            days = 30; chunk = 1
-        elif self.type == 1:
-            days = 52; chunk = 7
-        else:
-            days = None; chunk = 30
-        return self._introductionGraph(self._added(days, chunk),
-                               days, _("Added"))
-
-    def _introductionGraph(self, data, days, title):
+        start, days, chunk = self.get_start_end_chunk()
+        data = self._added(days, chunk)
         if not data:
             return ""
-        d = data
         conf = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
-            yaxes=[dict(min=0), dict(position="right",min=0)])
+            yaxes=[dict(min=0), dict(position="right", min=0)])
         if days is not None:
+            # pylint: disable=invalid-unary-operand-type
             conf['xaxis']['min'] = -days+0.5
         def plot(id, data, ylabel, ylabel2):
             return self._graph(
-                id, data=data, conf=conf, ylabel=ylabel, ylabel2=ylabel2)
+                id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2)
         # graph
-        (repdata, repsum) = self._splitRepData(d, ((1, colLearn, ""),))
+        repdata, repsum = self._splitRepData(data, ((1, colLearn, ""),))
         txt = self._title(
-            title, _("The number of new cards you have added."))
+            _("Added"), _("The number of new cards you have added."))
         txt += plot("intro", repdata, ylabel=_("Cards"), ylabel2=_("Cumulative Cards"))
         # total and per day average
-        tot = sum([i[1] for i in d])
+        tot = sum([i[1] for i in data])
         period = self._periodDays()
         if not period:
             # base off date of earliest added card
@@ -308,45 +315,35 @@ group by day order by day""" % (self._limit(), lim),
         return txt
 
     def repsGraphs(self):
-        if self.type == 0:
-            days = 30; chunk = 1
-        elif self.type == 1:
-            days = 52; chunk = 7
-        else:
-            days = None; chunk = 30
-        return self._repsGraphs(self._done(days, chunk),
-                               days,
-                               _("Review Count"),
-                               _("Review Time"))
-
-    def _repsGraphs(self, data, days, reptitle, timetitle):
+        start, days, chunk = self.get_start_end_chunk()
+        data = self._done(days, chunk)
         if not data:
             return ""
-        d = data
         conf = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
-            yaxes=[dict(min=0), dict(position="right",min=0)])
+            yaxes=[dict(min=0), dict(position="right", min=0)])
         if days is not None:
+            # pylint: disable=invalid-unary-operand-type
             conf['xaxis']['min'] = -days+0.5
         def plot(id, data, ylabel, ylabel2):
             return self._graph(
-                id, data=data, conf=conf, ylabel=ylabel, ylabel2=ylabel2)
+                id, data=data, conf=conf, xunit=chunk, ylabel=ylabel, ylabel2=ylabel2)
         # reps
-        (repdata, repsum) = self._splitRepData(d, (
+        (repdata, repsum) = self._splitRepData(data, (
             (3, colMature, _("Mature")),
             (2, colYoung, _("Young")),
             (4, colRelearn, _("Relearn")),
             (1, colLearn, _("Learn")),
             (5, colCram, _("Cram"))))
         txt1 = self._title(
-            reptitle, _("The number of questions you have answered."))
+            _("Review Count"), _("The number of questions you have answered."))
         txt1 += plot("reps", repdata, ylabel=_("Answers"), ylabel2=_(
             "Cumulative Answers"))
         (daysStud, fstDay) = self._daysStudied()
         rep, tot = self._ansInfo(repsum, daysStud, fstDay, _("reviews"))
         txt1 += rep
         # time
-        (timdata, timsum) = self._splitRepData(d, (
+        (timdata, timsum) = self._splitRepData(data, (
             (8, colMature, _("Mature")),
             (7, colYoung, _("Young")),
             (9, colRelearn, _("Relearn")),
@@ -358,7 +355,7 @@ group by day order by day""" % (self._limit(), lim),
         else:
             t = _("Hours")
             convHours = True
-        txt2 = self._title(timetitle, _("The time taken to answer the questions."))
+        txt2 = self._title(_("Review Time"), _("The time taken to answer the questions."))
         txt2 += plot("time", timdata, ylabel=t, ylabel2=_("Cumulative %s") % t)
         rep, tot2 = self._ansInfo(
             timsum, daysStud, fstDay, _("minutes"), convHours, total=tot)
@@ -415,7 +412,6 @@ group by day order by day""" % (self._limit(), lim),
         for (n, col, lab) in spec:
             totcnt[n] = 0
             totd[n] = []
-        sum = []
         for row in data:
             for (n, col, lab) in spec:
                 if n not in sep:
@@ -518,7 +514,7 @@ group by day order by day)""" % lim,
     ######################################################################
 
     def ivlGraph(self):
-        (ivls, all, avg, max_) = self._ivls()
+        (ivls, all, avg, max_), chunk = self._ivls()
         tot = 0
         totd = []
         if not ivls or not all:
@@ -534,7 +530,7 @@ group by day order by day)""" % lim,
             ivlmax = max(5, ivls[-1][0])
         txt = self._title(_("Intervals"),
                           _("Delays until reviews are shown again."))
-        txt += self._graph(id="ivl", ylabel2=_("Percentage"), data=[
+        txt += self._graph(id="ivl", ylabel2=_("Percentage"), xunit=chunk, data=[
             dict(data=ivls, color=colIvl),
             dict(data=totd, color=colCum, yaxis=2,
              bars={'show': False}, lines=dict(show=True), stack=False)
@@ -547,12 +543,8 @@ group by day order by day)""" % lim,
         return txt + self._lineTbl(i)
 
     def _ivls(self):
-        if self.type == 0:
-            chunk = 1; lim = " and grp <= 30"
-        elif self.type == 1:
-            chunk = 7; lim = " and grp <= 52"
-        else:
-            chunk = 30; lim = ""
+        start, end, chunk = self.get_start_end_chunk()
+        lim = "and grp <= %d" % end if end else ""
         data = [self.col.db.all("""
 select ivl / :chunk as grp, count() from cards
 where did in %s and queue = 2 %s
@@ -560,7 +552,7 @@ group by grp
 order by grp""" % (self._limit(), lim), chunk=chunk)]
         return data + list(self.col.db.first("""
 select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
-                                         self._limit()))
+                                         self._limit())), chunk
 
     # Eases
     ######################################################################
@@ -579,16 +571,18 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
                 ease += 10
             n = types[type]
             d[n].append((ease, cnt))
-        ticks = [[1,1],[2,2],[3,3],
+        ticks = [[1,1],[2,2],[3,3], # [4,4]
                  [6,1],[7,2],[8,3],[9,4],
                  [11, 1],[12,2],[13,3],[14,4]]
+        if self.col.schedVer() != 1:
+            ticks.insert(3, [4,4])
         txt = self._title(_("Answer Buttons"),
                           _("The number of times you have pressed each button."))
         txt += self._graph(id="ease", data=[
             dict(data=d['lrn'], color=colLearn, label=_("Learning")),
             dict(data=d['yng'], color=colYoung, label=_("Young")),
             dict(data=d['mtr'], color=colMature, label=_("Mature")),
-            ], type="barsLine", conf=dict(
+            ], type="bars", conf=dict(
                 xaxis=dict(ticks=ticks, min=0, max=15)),
             ylabel=_("Answers"))
         txt += self._easeInfo(eases)
@@ -622,12 +616,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
         lim = self._revlogLimit()
         if lim:
             lims.append(lim)
-        if self.type == 0:
-            days = 30
-        elif self.type == 1:
-            days = 365
-        else:
-            days = None
+        days = self._periodDays()
         if days is not None:
             lims.append("id > %d" % (
                 (self.col.sched.dayCutoff-(days*86400))*1000))
@@ -635,14 +624,18 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
+        if self.col.schedVer() == 1:
+            ease4repl = "3"
+        else:
+            ease4repl = "ease"
         return self.col.db.all("""
 select (case
 when type in (0,2) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in (0,2) and ease = 4 then 3 else ease end), count() from revlog %s
+(case when type in (0,2) and ease = 4 then %s else ease end), count() from revlog %s
 group by thetype, ease
-order by thetype, ease""" % lim)
+order by thetype, ease""" % (ease4repl, lim))
 
     # Hourly retention
     ######################################################################
@@ -698,7 +691,11 @@ order by thetype, ease""" % lim)
         lim = self._revlogLimit()
         if lim:
             lim = " and " + lim
-        sd = datetime.datetime.fromtimestamp(self.col.crt)
+        if self.col.schedVer() == 1:
+            sd = datetime.datetime.fromtimestamp(self.col.crt)
+            rolloverHour = sd.hour
+        else:
+            rolloverHour = self.col.conf.get("rollover", 4)
         pd = self._periodDays()
         if pd:
             lim += " and id > %d" % ((self.col.sched.dayCutoff-(86400*pd))*1000)
@@ -710,7 +707,7 @@ cast(count() as float) * 100,
 count()
 from revlog where type in (0,1,2) %s
 group by hour having count() > 30 order by hour""" % lim,
-                            cut=self.col.sched.dayCutoff-(sd.hour*3600))
+                            cut=self.col.sched.dayCutoff-(rolloverHour*3600))
 
     # Cards
     ######################################################################
@@ -799,8 +796,10 @@ from cards where did in %s""" % self._limit())
     # Tools
     ######################################################################
 
-    def _graph(self, id, data, conf={},
-               type="bars", ylabel=_("Cards"), timeTicks=True, ylabel2=""):
+    def _graph(self, id, data, conf=None,
+               type="bars", xunit=1, ylabel=_("Cards"), ylabel2=""):
+        if conf is None:
+            conf = {}
         # display settings
         if type == "pie":
             conf['legend'] = {'container': "#%sLegend" % id, 'noColumns':2}
@@ -812,8 +811,7 @@ from cards where did in %s""" % self._limit())
         conf['yaxis']['labelWidth'] = 40
         if 'xaxis' not in conf:
             conf['xaxis'] = {}
-        if timeTicks:
-            conf['timeTicks'] = (_("d"), _("w"), _("mo"))[self.type]
+        conf['timeTicks'] = {1: _("d"), 7: _("w"), 31: _("mo")}[xunit]
         # types
         width = self.width
         height = self.height
@@ -821,6 +819,7 @@ from cards where did in %s""" % self._limit())
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
         elif type == "barsLine":
+            print("deprecated - use 'bars' instead")
             conf['series']['bars'] = dict(
                 show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=3)
         elif type == "fill":
@@ -841,8 +840,6 @@ from cards where did in %s""" % self._limit())
                         opacity=0.5,
                         color="#000"
                     )))
-
-            #conf['legend'] = dict(show=False)
         return (
 """
 <table cellpadding=0 cellspacing=10>
@@ -923,12 +920,10 @@ $(function () {
         return period
 
     def _periodDays(self):
-        if self.type == 0:
-            return 30
-        elif self.type == 1:
-            return 365
-        else:
+        start, end, chunk = self.get_start_end_chunk()
+        if end is None:
             return None
+        return end * chunk
 
     def _avgDay(self, tot, num, unit):
         vals = []

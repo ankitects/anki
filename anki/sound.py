@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import html
@@ -7,11 +7,12 @@ import re, sys, threading, time, subprocess, os, atexit
 import  random
 from anki.hooks import addHook, runHook
 from anki.utils import  tmpdir, isWin, isMac, isLin
+from anki.lang import _
 
 # Shared utils
 ##########################################################################
 
-_soundReg = "\[sound:(.*?)\]"
+_soundReg = r"\[sound:(.*?)\]"
 
 def playFromText(text):
     for match in allSounds(text):
@@ -68,6 +69,7 @@ if isWin:
     try:
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     except:
+        # pylint: disable=no-member
         # python2.7+
         si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 else:
@@ -142,9 +144,34 @@ def cleanupMPV():
 # Mplayer in slave mode
 ##########################################################################
 
+# if anki crashes, an old mplayer instance may be left lying around,
+# which prevents renaming or deleting the profile
+def cleanupOldMplayerProcesses():
+    # pylint: disable=import-error
+    import psutil
+
+    exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+    for proc in psutil.process_iter():
+        try:
+            info = proc.as_dict(attrs=['pid', 'name', 'exe'])
+            if not info['exe'] or info['name'] != 'mplayer.exe':
+                continue
+
+            # not anki's bundled mplayer
+            if os.path.dirname(info['exe']) != exeDir:
+                continue
+
+            print("terminating old mplayer process...")
+            proc.kill()
+        except SystemError:
+            pass
+
 mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
 if isWin:
     mplayerCmd += ["-ao", "win32"]
+
+    cleanupOldMplayerProcesses()
 
 mplayerQueue = []
 mplayerManager = None
@@ -271,18 +298,23 @@ def stopMplayer(*args):
     if not mplayerManager:
         return
     mplayerManager.kill()
+    if isWin:
+        cleanupOldMplayerProcesses()
 
 addHook("unloadProfile", stopMplayer)
 
 # PyAudio recording
 ##########################################################################
 
-import pyaudio
-import wave
+try:
+    import pyaudio
+    import wave
 
-PYAU_FORMAT = pyaudio.paInt16
-PYAU_CHANNELS = 1
-PYAU_INPUT_INDEX = None
+    PYAU_FORMAT = pyaudio.paInt16
+    PYAU_CHANNELS = 1
+    PYAU_INPUT_INDEX = None
+except:
+    pyaudio = None
 
 class _Recorder:
 
@@ -368,6 +400,9 @@ class PyAudioRecorder(_Recorder):
             return tgt
         else:
             return processingSrc
+
+if not pyaudio:
+    PyAudioRecorder = None
 
 # Audio interface
 ##########################################################################
