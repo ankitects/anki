@@ -120,12 +120,12 @@ class Scheduler:
 
     def dueForecast(self, days=7):
         "Return counts over next DAYS. Includes today."
-        daysd = dict(self.col.db.all("""
+        daysd = dict(self.col.db.all(f"""
 select due, count() from cards
-where did in %s and queue = %d
+where did in %s and queue = {QUEUE_REV}
 and due between ? and ?
 group by due
-order by due""" % (self._deckLimit(), QUEUE_REV),
+order by due""" % (self._deckLimit()),
                             self.today,
                             self.today+days-1))
         for d in range(days):
@@ -449,7 +449,7 @@ select id from cards where did in %s and queue = {QUEUE_NEW_CRAM} limit ?)"""
     def _resetLrnCount(self):
         # sub-day
         self.lrnCount = self.col.db.scalar("""
-select count() from cards where did in %s and queue = {QUEUE_NEW_CRAM}
+select count() from cards where did in %s and queue = {QUEUE_LRN}
 and due < ?""" %
             self._deckLimit(),
             self._lrnCutoff) or 0
@@ -1368,13 +1368,12 @@ To study outside of the normal schedule, click the Custom Study button below."""
     # learning and relearning cards may be seconds-based or day-based;
     # other types map directly to queues
     _restoreQueueSnippet = """
-queue = (case when type in (%d,%d) then
-  (case when (case when odue then odue else due end) > 1000000000 then %d else %d end)
+queue = (case when type in ({CARD_LRN},{CARD_FILTERED}) then
+  (case when (case when odue then odue else due end) > 1000000000 then {QUEUE_LRN} else {QUEUE_DAY_LRN} end)
 else
   type
 end)
-"""%(CARD_LRN, CARD_FILTERED, QUEUE_LRN, QUEUE_DAY_LRN)
-
+"""
     def suspendCards(self, ids):
         "Suspend cards."
         self.col.log(ids)
@@ -1387,7 +1386,7 @@ end)
         self.col.log(ids)
         self.col.db.execute(
             ("update cards set %s,mod=?,usn=? "
-            "where queue = %d and id in %s") % (self._restoreQueueSnippet, QUEUE_SUSPENDED, ids2str(ids)),
+            "where queue = {QUEUE_SUSPENDED} and id in %s") % (self._restoreQueueSnippet, ids2str(ids)),
             intTime(), self.col.usn())
 
     def buryCards(self, cids, manual=True):
@@ -1406,9 +1405,9 @@ update cards set queue=?,mod=?,usn=? where id in """+ids2str(cids),
     def unburyCards(self):
         "Unbury all buried cards in all decks."
         self.col.log(
-            self.col.db.list("select id from cards where queue in ({QUEUE_SCHED_BURIED}, {QUEUE_USER_BURIED})")
+            self.col.db.list("select id from cards where queue in ({QUEUE_USER_BURIED}, {QUEUE_SCHED_BURIED})")
         self.col.db.execute(
-            "update cards set %s where queue in ({QUEUE_SCHED_BURIED}, {QUEUE_USER_BURIED})" % self._restoreQueueSnippet)
+            "update cards set %s where queue in ({QUEUE_USER_BURIED}, {QUEUE_SCHED_BURIED})" % self._restoreQueueSnippet)
 
     def unburyCardsForDeck(self, type="all"):
         if type == "all":
@@ -1440,7 +1439,7 @@ update cards set queue=?,mod=?,usn=? where id in """+ids2str(cids),
         # loop through and remove from queues
         for cid,queue in self.col.db.execute("""
 select id, queue from cards where nid=? and id!=?
-and (queue=%d or (queue={QUEUE_NEW_CRAM} and due<={QUEUE_REV}))""",
+and (queue={QUEUE_NEW_CRAM} or (queue={QUEUE_REV} and due<=?))""",
                 card.nid, card.id, self.today):
             if queue == QUEUE_REV:
                 if buryRev:

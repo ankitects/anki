@@ -352,7 +352,7 @@ did = ? and queue = {QUEUE_NEW_CRAM} limit ?)""", did, lim)
             if lim:
                 # fill the queue with the current did
                 self._newQueue = self.col.db.list("""
-                select id from cards where did = ? and queue = {QUEUE_USER_BURIED} order by due,ord limit ?""" , did, lim)
+                select id from cards where did = ? and queue = {QUEUE_NEW_CRAM} order by due,ord limit ?""" , did, lim)
                 if self._newQueue:
                     self._newQueue.reverse()
                     return True
