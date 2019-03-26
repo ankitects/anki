@@ -552,6 +552,8 @@ Enter deck to place new %s cards in, or leave blank:""") %
         self.mm.save(self.model, templates=True)
         self.mw.reset()
         saveGeom(self, "CardLayout")
+        self.pform.frontWeb = None
+        self.pform.backWeb = None
         return QDialog.reject(self)
 
     def onHelp(self):
