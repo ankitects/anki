@@ -75,6 +75,7 @@ class MPVBase:
         "--ontop",
         "--audio-display=no",
         "--keep-open=no",
+        "--load-scripts=no",
     ]
 
     def __init__(self, window_id=None, debug=False):
