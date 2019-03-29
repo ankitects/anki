@@ -16,6 +16,9 @@ architectures:
 apps:
   anki:
     command: bin/run.sh
+    #plugs: [home, network, desktop, desktop-legacy, wayland]
+    environment:
+      LC_ALL: C.UTF-8
 
 parts:
   anki:
@@ -31,22 +34,17 @@ parts:
       - python3-all-dev
       - python3-pip
       - pyqt5-dev-tools
-      - mpv
-      - lame
-      - python3-pyqt5
+        #- execstack
     override-build: |
       snapcraftctl build
-
-      pip3 install --global-option=build_ext --global-option="-I/usr/include/python3.6m" -r requirements.txt
-      pip3 install sip pyqt5
       ./tools/build_ui.sh
-      #mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
-      #mv runanki $SNAPCRAFT_PART_INSTALL/bin/
+      #execstack --clear-execstack $SNAPCRAFT_PART_INSTALL/lib/python3.6/site-packages/PyQt5/Qt/lib/libQt5WebEngineCore.so.5
     stage-packages:
       - libxrandr2
       - libgl1-mesa-glx
       - libgl1-mesa-dri
       - libegl1-mesa
+      - libglu1-mesa
       - libva-drm2
       - libpulse0
       - libasound2
@@ -69,6 +67,15 @@ parts:
       - libgstreamer1.0-0
       - libgdk-pixbuf2.0-0
       - libcairo2
+      - libxtst6
+      - libslang2
+      - freeglut3
+      - libnspr4
+      - libnss3
+      - libpulse-mainloop-glib0
+      - libspeechd2
+      - mpv
+      - lame
     override-prime: |
       snapcraftctl prime
 

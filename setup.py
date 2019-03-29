@@ -4,12 +4,21 @@ import sys, os
 
 setup(
     name='anki-woodrow',
-    version='2.1.9+git',
+    version='2.1.10+git',
     description='Memory and Learning system',
     license='GPL v3',
     author='Ankitects Pty Ltd and contributors',
     packages=find_packages(),
-    install_requires=['future'],
+    install_requires=[
+        'future',
+        'beautifulsoup4',
+        'send2trash',
+        'requests',
+        'pyaudio',
+        'decorator',
+        'markdown',
+        'PyQt5',
+        'PyQtWebEngine'],
     entry_points={
         'console_scripts': ['runanki = aqt.__init__:run']
     },
