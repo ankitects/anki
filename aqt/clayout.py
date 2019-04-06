@@ -549,7 +549,7 @@ Enter deck to place new %s cards in, or leave blank:""") %
                 self.note[name] = ""
             self.mw.col.db.execute("delete from notes where id = ?",
                                    self.note.id)
-        self.mm.save(self.model, templates=True)
+        self.mm.save(self.model, templates=True, recomputeReq=False)
         self.mw.reset()
         saveGeom(self, "CardLayout")
         return QDialog.reject(self)

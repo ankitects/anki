@@ -156,7 +156,7 @@ class FieldDialog(QDialog):
             self.mw.progress.start()
             self.mw.col.updateFieldCache(self.mm.nids(self.model))
             self.mw.progress.finish()
-        self.mm.save(self.model)
+        self.mm.save(self.model, recomputeReq=True)
         self.mw.reset()
         QDialog.reject(self)
 

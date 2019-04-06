@@ -128,7 +128,7 @@ class Editor:
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
 
-    def addButton(self, icon, cmd, func, tip="", label="", 
+    def addButton(self, icon, cmd, func, tip="", label="",
                   id=None, toggleable=False, keys=None, disables=True):
         """Assign func to bridge cmd, register shortcut, return button"""
         if cmd not in self._links:
@@ -452,7 +452,7 @@ class Editor:
             # save tags to model
             m = self.note.model()
             m['tags'] = self.note.tags
-            self.mw.col.models.save(m)
+            self.mw.col.models.save(m, recomputeReq=False)
 
     def hideCompleters(self):
         self.tags.hideCompleter()

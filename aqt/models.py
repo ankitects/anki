@@ -56,7 +56,7 @@ class Models(QDialog):
         txt = getText(_("New name:"), default=self.model['name'])
         if txt[1] and txt[0]:
             self.model['name'] = txt[0]
-            self.mm.save(self.model)
+            self.mm.save(self.model, recomputeReq=False)
         self.updateModelsList()
 
     def updateModelsList(self):
@@ -75,7 +75,7 @@ class Models(QDialog):
 
     def modelChanged(self):
         if self.model:
-            self.saveModel()
+            self.saveModel(recomputeReq=False)
         idx = self.form.modelsList.currentRow()
         self.model = self.models[idx]
 
@@ -86,7 +86,7 @@ class Models(QDialog):
             if txt:
                 m['name'] = txt
             self.mm.ensureNameUnique(m)
-            self.mm.save(m)
+            self.mm.save(m, recomputeReq=True)
             self.updateModelsList()
 
     def onDelete(self):
@@ -120,8 +120,8 @@ class Models(QDialog):
         self.model['latexPre'] = str(frm.latexHeader.toPlainText())
         self.model['latexPost'] = str(frm.latexFooter.toPlainText())
 
-    def saveModel(self):
-        self.mm.save(self.model)
+    def saveModel(self, recomputeReq=True):
+        self.mm.save(self.model, recomputeReq=recomputeReq)
 
     def _tmpNote(self):
         self.mm.setCurrent(self.model)
@@ -152,7 +152,7 @@ class Models(QDialog):
     # need to flush model on change or reject
 
     def reject(self):
-        self.saveModel()
+        self.saveModel(recomputeReq=True)
         self.mw.reset()
         saveGeom(self, "models")
         QDialog.reject(self)

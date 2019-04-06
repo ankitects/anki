@@ -82,12 +82,13 @@ class ModelManager:
         self.changed = False
         self.models = json.loads(json_)
 
-    def save(self, m=None, templates=False):
+    def save(self, m=None, templates=False, recomputeReq=True):
         "Mark M modified if provided, and schedule registry flush."
         if m and m['id']:
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
-            self._updateRequired(m)
+            if recomputeReq:
+                self._updateRequired(m)
             if templates:
                 self._syncTemplates(m)
         self.changed = True
