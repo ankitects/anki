@@ -793,6 +793,7 @@ QTreeWidget {
         cid = self.col.undo()
         if cid and self.state == "review":
             card = self.col.getCard(cid)
+            self.col.sched.reset()
             self.reviewer.cardQueue.append(card)
             self.reviewer.nextCard()
             self.maybeEnableUndo()
