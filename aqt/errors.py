@@ -80,6 +80,8 @@ your system's temporary folder may be incorrect.""")
             return showWarning(self.tempFolderMsg())
         if "Beautiful Soup is not an HTTP client" in error:
             return
+        if "database or disk is full" in error:
+            return showWarning(_("Your computer's storage may be full. Please delete some unneeded files, then try again."))
         if "disk I/O error" in error:
             return showWarning(_("""\
 An error occurred while accessing the database.
