@@ -1263,6 +1263,7 @@ where id in %s""" % ids2str(sf))
 
     def _openPreview(self):
         self._previewState = "question"
+        self._lastPreviewState = None
         self._previewWindow = QDialog(None, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
 
