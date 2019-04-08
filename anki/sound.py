@@ -164,8 +164,8 @@ def cleanupOldMplayerProcesses():
 
             print("terminating old mplayer process...")
             proc.kill()
-        except SystemError:
-            pass
+        except:
+            print("error iterating mplayer processes")
 
 mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
 if isWin:
