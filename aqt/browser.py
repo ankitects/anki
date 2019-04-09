@@ -1127,6 +1127,8 @@ by clicking on one on the left."""))
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
         class CardInfoDialog(QDialog):
+            silentlyClose = True
+
             def reject(self):
                 saveGeom(self, "revlog")
                 return QDialog.reject(self)
