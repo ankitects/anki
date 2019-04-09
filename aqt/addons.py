@@ -325,7 +325,7 @@ Are you sure you want to continue?"""
         updated = []
         for dir, ts in mods:
             sid = str(dir)
-            if self.addonMeta(sid).get("mod",0) < ts:
+            if self.addonMeta(sid).get("mod", 0) < (ts or 0):
                 updated.append(sid)
         return updated
 
