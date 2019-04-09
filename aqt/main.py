@@ -39,12 +39,6 @@ class AnkiQt(QMainWindow):
         aqt.mw = self
         self.app = app
         self.pm = profileManager
-        # running 2.0 for the first time?
-        if self.pm.meta['firstRun']:
-            # load the new deck user profile
-            self.pm.load(self.pm.profiles()[0])
-            self.pm.meta['firstRun'] = False
-            self.pm.save()
         # init rest of app
         self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
         try:
@@ -108,6 +102,12 @@ class AnkiQt(QMainWindow):
             self.closeFires = True
 
     def setupProfile(self):
+        if self.pm.meta['firstRun']:
+            # load the new deck user profile
+            self.pm.load(self.pm.profiles()[0])
+            self.pm.meta['firstRun'] = False
+            self.pm.save()
+
         self.pendingImport = None
         self.restoringBackup = False
         # profile not provided on command line?
@@ -606,6 +606,11 @@ title="%s" %s>%s</button>''' % (
         self.mainLayout.addWidget(self.web)
         self.mainLayout.addWidget(sweb)
         self.form.centralwidget.setLayout(self.mainLayout)
+
+        # force webengine processes to load before cwd is changed
+        if isWin:
+            self.web._page.setHtml("")
+            self.bottomWeb._page.setHtml("")
 
     def closeAllWindows(self, onsuccess):
         aqt.dialogs.closeAll(onsuccess)
