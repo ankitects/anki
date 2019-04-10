@@ -84,7 +84,9 @@ class AnkiWebPage(QWebEnginePage):
     def _onCmd(self, str):
         return self._onBridgeCmd(str)
 
-def runJavaScriptSync(page, js, timeout=500):
+# this is a hack to work around a qt bug - do not use this function in add-ons
+# as it will likely go away in the future
+def _runJavaScriptSync(page, js, timeout=500):
     result = None
     eventLoop = QEventLoop()
     called = False
@@ -148,8 +150,11 @@ class AnkiWebView(QWebEngineView):
             # alt-gr bug workaround
             exceptChars = (str(num) for num in range(1, 10))
             if evt.text() not in exceptChars:
-                js = '["INPUT", "TEXTAREA"].indexOf(document.activeElement.tagName) !== -1'
-                if runJavaScriptSync(self.page(), js, timeout=100):
+                js = '''
+var e=document.activeElement;
+(e.tagName === "DIV" && e.contentEditable) ||
+["INPUT", "TEXTAREA"].indexOf(document.activeElement.tagName) !== -1'''
+                if _runJavaScriptSync(self.page(), js, timeout=100):
                     evt.accept()
                     return True
         return QWebEngineView.event(self, evt)
