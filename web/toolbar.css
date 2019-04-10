@@ -32,3 +32,5 @@ body {
 .hitem:hover {
     text-decoration: underline;
 }
+
+.hitem:focus { outline: 0; }
