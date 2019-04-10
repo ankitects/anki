@@ -75,7 +75,7 @@ class AnkiWebPage(QWebEnginePage):
         # catch buggy <a href='#' onclick='func()'> links
         from aqt import mw
         if url.matches(QUrl(mw.serverURL()), QUrl.RemoveFragment):
-            sys.stderr.write("onclick handler needs to return false\n")
+            print("onclick handler needs to return false")
             return False
         # load all other links in browser
         openLink(url)
