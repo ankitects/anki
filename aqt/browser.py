@@ -1388,6 +1388,7 @@ where id in %s""" % ids2str(sf))
         if not c or not self.singleCard:
             txt = _("(please select 1 card)")
             bodyclass = ""
+            self._lastPreviewState = None
         else:
             if self._previewBothSides:
                 self._previewState = "answer"
@@ -1425,7 +1426,7 @@ where id in %s""" % ids2str(sf))
             txt = mungeQA(self.col, txt)
             txt = runFilter("prepareQA", txt, c,
                             "preview"+self._previewState.capitalize())
-        self._lastPreviewState = self._previewStateAndMod()
+            self._lastPreviewState = self._previewStateAndMod()
         self._updatePreviewButtons()
         self._previewWeb.eval(
             "{}({},'{}');".format(func, json.dumps(txt), bodyclass))
