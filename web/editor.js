@@ -91,6 +91,11 @@ function inPreEnvironment() {
 }
 
 function onInput() {
+    // empty field?
+    if (currentField.innerHTML === "") {
+        currentField.innerHTML = "<br>";
+    }
+
     // make sure IME changes get saved
     triggerKeyTimer();
 }
@@ -293,6 +298,9 @@ function setFields(fields) {
     for (var i = 0; i < fields.length; i++) {
         var n = fields[i][0];
         var f = fields[i][1];
+        if (!f) {
+            f = "<br>";
+        }
         txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%>".format(n);
         txt += "<div id=f{0} onkeydown='onKey();' oninput='onInput()' onmouseup='onKey();'".format(i);
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class='field clearfix' ";
