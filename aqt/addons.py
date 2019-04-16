@@ -567,7 +567,11 @@ class AddonsDialog(QDialog):
         log, errs = self.mgr.processPackages(paths)
 
         if log:
-            tooltip("<br>".join(log), parent=self)
+            log_html = "<br>".join(log)
+            if len(log) == 1:
+                tooltip(log_html, parent=self)
+            else:
+                showInfo(log_html, parent=self, textFormat="rich")
         if errs:
             msg = _("Please report this to the respective add-on author(s).")
             showWarning("\n\n".join(errs + [msg]), parent=self, textFormat="plain")
@@ -590,7 +594,11 @@ class AddonsDialog(QDialog):
                                "\n" + "\n".join(names)):
                 log, errs = self.mgr.downloadIds(updated)
                 if log:
-                    tooltip("<br>".join(log), parent=self)
+                    log_html = "<br>".join(log)
+                    if len(log) == 1:
+                        tooltip(log_html, parent=self)
+                    else:
+                        showInfo(log_html, parent=self, textFormat="rich")
                 if errs:
                     showWarning("\n\n".join(errs), parent=self, textFormat="plain")
 
@@ -648,7 +656,11 @@ class GetAddons(QDialog):
         log, errs = self.mgr.downloadIds(ids)
 
         if log:
-            tooltip("<br>".join(log), parent=self.addonsDlg)
+            log_html = "<br>".join(log)
+            if len(log) == 1:
+                tooltip(log_html, parent=self)
+            else:
+                showInfo(log_html, parent=self, textFormat="rich")
         if errs:
             showWarning("\n\n".join(errs), textFormat="plain")
 
