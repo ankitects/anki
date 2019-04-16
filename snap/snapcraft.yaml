@@ -1,0 +1,123 @@
+name: anki-woodrow
+base: core18
+version: '2.1.10+master'
+version-script: |
+  echo $SNAPCRAFT_PROJECT_VERSION-commit.$(git rev-parse --short HEAD)
+summary: Anki is a friendly, intelligent spaced learning system.
+description: |
+  Anki is a program which makes remembering things easy. Because it's a lot
+  more efficient than traditional study methods, you can either greatly
+  decrease your time spent studying, or greatly increase the amount you learn.
+
+grade: devel
+confinement: devmode
+architectures:
+  - build-on: amd64
+    run-on: [amd64]
+
+apps:
+  anki:
+    adapter: full
+    command: bin/runanki
+    command-chain:
+      - bin/desktop-launch
+    plugs:
+      - desktop
+      - desktop-legacy
+      - unity7
+      - wayland
+      - x11
+      - opengl
+      - network
+      - home
+      - browser-support
+      - pulseaudio
+      - alsa
+    environment:
+      LC_ALL: C.UTF-8
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/x86_64-linux-gnu/samba/
+      QTWEBENGINEPROCESS_PATH: $SNAP/usr/lib/x86_64-linux-gnu/qt5/libexec/QtWebEngineProcess
+      ALSA_CONFIG_PATH: $SNAP/usr/share/alsa
+
+parts:
+  # Remote part for support of various desktop technologies
+  # Refer: https://github.com/ubuntu/snapcraft-desktop-helpers/blob/master/snapcraft.yaml
+  desktop-qt5:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-depth: 1
+    source-subdir: qt
+
+    plugin: make
+    make-parameters: ["FLAVOR=qt5"]
+    build-packages:
+    - build-essential
+    - qtbase5-dev
+    - dpkg-dev
+    stage-packages:
+    - libxkbcommon0
+    - ttf-ubuntu-font-family
+    - dmz-cursor-theme
+    - light-themes
+    - adwaita-icon-theme
+    - gnome-themes-standard
+    - shared-mime-info
+    - libqt5gui5
+    - libgdk-pixbuf2.0-0
+    - libqt5svg5 # for loading icon themes which are svg
+    - try: [appmenu-qt5] # not available on core18
+    - locales-all
+    - xdg-user-dirs
+    - fcitx-frontend-qt5
+
+  anki:
+    plugin: python
+    python-version: python3
+    #python-packages:
+    #  - PyQt5
+    source: .
+    after: [desktop-qt5]
+    build-attributes: [keep-execstack]
+    build-packages:
+      - python3
+      - python3-pyqt5
+      - pyqt5-dev-tools
+      - portaudio19-dev
+    override-build: |
+      snapcraftctl build
+      ./tools/build_ui.sh
+    stage-packages:
+      - python3
+      - python3-pyqt5
+      - python3-pyqt5.qtwebengine
+      - libportaudio2
+      - libgtk-3-0
+      - libglu1-mesa
+      - libxtst6
+      - libnss3
+      - libnspr4
+      - mpv
+      - lame
+      - locales
+      - libc-bin
+      - libxcomposite1
+      - libcairo-gobject2
+      - libepoxy0
+      - libatspi2.0-0
+      - libatk1.0-0
+      - libatk-bridge2.0-0
+      - libbluray2
+      - libslang2
+      - samba-libs
+    override-prime: |
+      snapcraftctl prime
+
+      cp -r $SNAPCRAFT_PART_BUILD/aqt/forms lib/python3.6/site-packages/aqt/
+      cp anki.* lib/python3.6/site-packages/
+      cp -r designer lib/python3.6/site-packages/
+      cp -r web lib/python3.6/site-packages/
+      # Workaround
+      cp -r usr/share/qt5/resources/* usr/bin
+      cp -r usr/share/qt5/resources/* usr/lib/x86_64-linux-gnu/qt5/libexec
+      cp -r usr/share/qt5/translations/qtwebengine_locales usr/bin
+      cp -r usr/share/qt5/translations/qtwebengine_locales usr/lib/x86_64-linux-gnu/qt5/libexec/qtwebengine_locales
+

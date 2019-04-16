@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+echo "Configure Anki"
+mkdir -p $SNAP_USER_DATA/.QtWebEngineProcess

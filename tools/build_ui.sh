@@ -43,4 +43,5 @@ cat $temp >> $init
 rm $temp
 
 echo "Building resources.."
-pyrcc5 designer/icons.qrc -o aqt/forms/icons_rc.py
+#pyrcc5 designer/icons.qrc -o aqt/forms/icons_rc.py
+/usr/bin/pyrcc5 designer/icons.qrc -o aqt/forms/icons_rc.py

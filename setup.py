@@ -4,7 +4,7 @@ import sys, os
 
 setup(
     name='anki-woodrow',
-    version='2.1.10+git',
+    version='2.1.10+master',
     description='Memory and Learning system',
     license='GPL v3',
     author='Ankitects Pty Ltd and contributors',
@@ -17,8 +17,7 @@ setup(
         'pyaudio',
         'decorator',
         'markdown',
-        'PyQt5',
-        'PyQtWebEngine'],
+        ],
     entry_points={
         'console_scripts': ['runanki = aqt.__init__:run']
     },
