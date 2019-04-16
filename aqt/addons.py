@@ -179,15 +179,18 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
     def install(self, file, manifest=None):
         """Install add-on from path or file-like object. Metadata is read
-        from the manifest file by default, but this may me bypassed
-        by supplying a 'manifest' dictionary"""
+        from the manifest file, with keys overriden by supplying a 'manifest'
+        dictionary"""
         try:
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
             return False, "zip"
         
         with zfile:
-            manifest = manifest or self._readManifestFile(zfile)
+            file_manifest = self._readManifestFile(zfile)
+            if manifest:
+                file_manifest.update(manifest)
+            manifest = file_manifest
             if not manifest:
                 return False, "manifest"
             package = manifest["package"]
