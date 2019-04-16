@@ -496,7 +496,9 @@ class AddonsDialog(QDialog):
             addon = self.addons[row_int][1]
         except IndexError:
             addon = ''
-        self.form.viewPage.setEnabled(bool (re.match(r"^\d+$", addon)))
+        self.form.viewPage.setEnabled(bool(re.match(r"^\d+$", addon)))
+        self.form.config.setEnabled(bool(self.mgr.getConfig(addon) or
+                                         self.mgr.configAction(addon)))
 
     def selectedAddons(self):
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
