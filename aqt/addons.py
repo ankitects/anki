@@ -574,7 +574,7 @@ class AddonsDialog(QDialog):
                 showInfo(log_html, parent=self, textFormat="rich")
         if errs:
             msg = _("Please report this to the respective add-on author(s).")
-            showWarning("\n\n".join(errs + [msg]), parent=self, textFormat="plain")
+            showWarning("<br><br>".join(errs + [msg]), parent=self, textFormat="rich")
 
         self.redrawAddons()
 
