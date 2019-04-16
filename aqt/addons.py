@@ -107,8 +107,15 @@ When loading '%(name)s':
     def toggleEnabled(self, dir, enable=None):
         meta = self.addonMeta(dir)
         enabled = enable if enable is not None else meta.get("disabled")
-        if enabled is True and not self._checkConflicts(dir):
-            return False
+        if enabled is True:
+            conflicting = self._disableConflicting(dir)
+            if conflicting:
+                addons = ", ".join(self.addonName(f) for f in conflicting)
+                showInfo(
+                    _("The following add-ons are incompatible with %(name)s \
+and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addons),
+                    textFormat="plain")
+
         meta['disabled'] = not enabled
         self.writeAddonMeta(dir, meta)
 
@@ -137,29 +144,19 @@ When loading '%(name)s':
                 all_conflicts[other_dir].append(dir)
         return all_conflicts
 
-    def _checkConflicts(self, dir, name=None, conflicts=None):
-        name = name or self.addonName(dir)
+    def _disableConflicting(self, dir, conflicts=None):
         conflicts = conflicts or self.addonConflicts(dir)
 
         installed = self.allAddons()
         found = [d for d in conflicts if d in installed and self.isEnabled(d)]
         found.extend(self.allAddonConflicts().get(dir, []))
         if not found:
-            return True
+            return []
 
-        addons = "\n".join(self.addonName(f) for f in found)
-        ret = askUser(_("""\
-The following add-on(s) are incompatible with %(name)s \
-and will have to be disabled to proceed:\n\n%(found)s\n\n\
-Are you sure you want to continue?"""
-                        % dict(name=name, found=addons)))
-        if not ret:
-            return False
-        
         for package in found:
             self.toggleEnabled(package, enable=False)
         
-        return True
+        return found
 
     # Installing and deleting add-ons
     ######################################################################
@@ -195,8 +192,8 @@ Are you sure you want to continue?"""
                 return False, "manifest"
             package = manifest["package"]
             conflicts = manifest.get("conflicts", [])
-            if not self._checkConflicts(package, manifest["name"], conflicts):
-                return False, "conflicts"
+            found_conflicts = self._disableConflicting(package,
+                                                       conflicts)
             meta = self.addonMeta(package)
             self._install(package, zfile)
         
@@ -206,7 +203,7 @@ Are you sure you want to continue?"""
         meta.update(manifest_meta)
         self.writeAddonMeta(package, meta)
 
-        return True, meta["name"]
+        return True, meta["name"], found_conflicts
 
     def _install(self, dir, zfile):
         # previously installed?
@@ -245,16 +242,18 @@ Are you sure you want to continue?"""
                 base = os.path.basename(path)
                 ret = self.install(path)
                 if ret[0] is False:
-                    if ret[1] == "conflicts":
-                        continue
-                    elif ret[1] == "zip":
+                    if ret[1] == "zip":
                         msg = _("Corrupt add-on file.")
                     elif ret[1] == "manifest":
                         msg = _("Invalid add-on manifest.")
+                    else:
+                        msg = "Unknown error: {}".format(ret[1])
                     errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
                                   % dict(base=base, error=msg)))
                 else:
                     log.append(_("Installed %(name)s" % dict(name=ret[1])))
+                    if ret[2]:
+                        log.append(_("The following conflicting add-ons were disabled:") + " " + " ".join(ret[2]))
         finally:
             self.mw.progress.finish()
         return log, errs
@@ -278,13 +277,19 @@ Are you sure you want to continue?"""
                                manifest={"package": str(n), "name": name,
                                          "mod": intTime()})
             if ret[0] is False:
-                if ret[1] == "conflicts":
-                    continue
                 if ret[1] == "zip":
-                    showWarning(_("The download was corrupt. Please try again."))
+                    msg = _("Corrupt add-on file.")
                 elif ret[1] == "manifest":
-                    showWarning(_("Invalid add-on manifest."))
-            log.append(_("Downloaded %(fname)s" % dict(fname=name)))
+                    msg = _("Invalid add-on manifest.")
+                else:
+                    msg = "Unknown error: {}".format(ret[1])
+                errs.append(_("Error downloading %(id)s: %(error)s") % dict(
+                    id=n, error=msg))
+            else:
+                log.append(_("Downloaded %(fname)s" % dict(fname=name)))
+                if ret[2]:
+                    log.append(_("The following conflicting add-ons were disabled:") + " " + " ".join(ret[2]))
+
         self.mw.progress.finish()
         return log, errs
 
