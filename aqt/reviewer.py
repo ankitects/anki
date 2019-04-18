@@ -250,6 +250,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             (Qt.Key_Enter, self.onEnterKey),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
+            ("Ctrl+0", lambda: self.setFlag(0)),
             ("Ctrl+1", lambda: self.setFlag(1)),
             ("Ctrl+2", lambda: self.setFlag(2)),
             ("Ctrl+3", lambda: self.setFlag(3)),
