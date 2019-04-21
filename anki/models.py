@@ -96,9 +96,16 @@ class ModelManager:
     def flush(self):
         "Flush the registry if any models were changed."
         if self.changed:
+            self.ensureNotEmpty()
             self.col.db.execute("update col set models = ?",
                                  json.dumps(self.models))
             self.changed = False
+
+    def ensureNotEmpty(self):
+        if not self.models:
+            from anki.stdmodels import addBasicModel
+            addBasicModel(self.col)
+            return True
 
     # Retrieving and creating models
     #############################################################
