@@ -349,8 +349,8 @@ class MPVBase:
         """Send a command to the mpv process and collect the result.
         """
         self.ensure_running()
-        self._send_message(message, timeout)
         try:
+            self._send_message(message, timeout)
             return self._get_response(timeout)
         except MPVCommandError as e:
             raise MPVCommandError("%r: %s" % (message["command"], e))
