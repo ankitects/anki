@@ -356,6 +356,7 @@ Debug info:
                 self.col = None
 
             # return to profile manager
+            self.hide()
             self.showProfileManager()
             return False
 
