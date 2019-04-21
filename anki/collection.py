@@ -872,6 +872,9 @@ and type = 0""", intTime(), self.usn())
         curs.execute("update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)")
         if curs.rowcount:
             problems.append("Fixed %d review history entries with v2 scheduler bug." % curs.rowcount)
+        # models
+        if self.models.ensureNotEmpty():
+            problems.append("Added missing note type.")
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
