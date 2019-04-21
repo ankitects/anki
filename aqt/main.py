@@ -1316,7 +1316,8 @@ will be lost. Continue?"""))
     def onAppMsg(self, buf):
         if self.state == "startup":
             # try again in a second
-            return self.progress.timer(1000, lambda: self.onAppMsg(buf), False)
+            return self.progress.timer(1000, lambda: self.onAppMsg(buf), False,
+                                       requiresCollection=False)
         elif self.state == "profileManager":
             # can't raise window while in profile manager
             if buf == "raise":
