@@ -10,10 +10,18 @@ description: |
   decrease your time spent studying, or greatly increase the amount you learn.
 
 grade: devel
-confinement: devmode
+confinement: strict
 architectures:
   - build-on: amd64
     run-on: [amd64]
+
+layout:
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
+  /etc/asound.conf:
+    bind-file: $SNAP/etc/alsa.conf
+  /usr/share/alsa/alsa.conf:
+    bind-file: $SNAP/usr/share/alsa/alsa.conf
 
 apps:
   anki:
@@ -21,23 +29,20 @@ apps:
     command: bin/runanki
     command-chain:
       - bin/desktop-launch
+    desktop: anki.desktop
     plugs:
       - desktop
       - desktop-legacy
-      - unity7
       - wayland
       - x11
-      - opengl
       - network
       - home
       - browser-support
       - pulseaudio
-      - alsa
     environment:
       LC_ALL: C.UTF-8
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/x86_64-linux-gnu/samba/
       QTWEBENGINEPROCESS_PATH: $SNAP/usr/lib/x86_64-linux-gnu/qt5/libexec/QtWebEngineProcess
-      ALSA_CONFIG_PATH: $SNAP/usr/share/alsa
 
 parts:
   # Remote part for support of various desktop technologies
@@ -69,14 +74,37 @@ parts:
     - xdg-user-dirs
     - fcitx-frontend-qt5
 
+  alsa:
+    plugin: nil
+    source: https://github.com/diddledan/snapcraft-alsa.git
+    override-pull: |
+      cat > alsa.conf <<EOF
+      pcm.!default {
+        type pulse
+        fallback "sysdefault"
+        hint {
+          show on
+          description "Default ALSA Output (currently PulseAudio Sound Server)"
+        }
+      }
+      ctl.!default {
+        type pulse
+        fallback "sysdefault"
+      }
+      EOF
+    override-build: |
+      install -m644 -D -t $SNAPCRAFT_PART_INSTALL/etc alsa.conf
+    build-packages:
+      - libasound2-dev
+    stage-packages:
+      - libasound2
+      - libasound2-plugins
+
   anki:
     plugin: python
     python-version: python3
-    #python-packages:
-    #  - PyQt5
     source: .
-    after: [desktop-qt5]
-    build-attributes: [keep-execstack]
+    after: [desktop-qt5, alsa]
     build-packages:
       - python3
       - python3-pyqt5
@@ -108,6 +136,7 @@ parts:
       - libbluray2
       - libslang2
       - samba-libs
+      - execstack
     override-prime: |
       snapcraftctl prime
 
@@ -120,4 +149,6 @@ parts:
       cp -r usr/share/qt5/resources/* usr/lib/x86_64-linux-gnu/qt5/libexec
       cp -r usr/share/qt5/translations/qtwebengine_locales usr/bin
       cp -r usr/share/qt5/translations/qtwebengine_locales usr/lib/x86_64-linux-gnu/qt5/libexec/qtwebengine_locales
+      execstack --clear-execstack usr/lib/x86_64-linux-gnu/libQt5WebEngineCore.so.5.9.5
+      sed -i -E 's|Icon=anki|Icon=anki.png|' anki.desktop
 
