@@ -189,9 +189,8 @@ class AnkiQt(QMainWindow):
         return not checkInvalidFilename(str)
 
     def onAddProfile(self):
-        name = getOnlyText(_("Name:"))
+        name = getOnlyText(_("Name:")).strip()
         if name:
-            name = name.strip()
             if name in self.pm.profiles():
                 return showWarning(_("Name exists."))
             if not self.profileNameOk(name):
@@ -201,7 +200,7 @@ class AnkiQt(QMainWindow):
             self.refreshProfilesList()
 
     def onRenameProfile(self):
-        name = getOnlyText(_("New name:"), default=self.pm.name)
+        name = getOnlyText(_("New name:"), default=self.pm.name).strip()
         if not name:
             return
         if name == self.pm.name:
