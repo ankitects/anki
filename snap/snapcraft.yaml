@@ -39,6 +39,8 @@ apps:
       - home
       - browser-support
       - pulseaudio
+      - opengl
+      - unity7
     environment:
       LC_ALL: C.UTF-8
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib/x86_64-linux-gnu/samba/
