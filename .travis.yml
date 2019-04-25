@@ -9,10 +9,3 @@ install:
   - pip install nose pylint pyqt5 pyqtwebengine
 
 script: ./.travis.sh
-
-notifications:
-  email:
-    recipients:
-      - travis-build@ankiweb.net
-    on_success: change
-    on_failure: always
