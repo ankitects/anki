@@ -85,6 +85,7 @@ class DeckBrowser:
     def _renderPage(self, reuse=False):
         if not reuse:
             self._dueTree = self.mw.col.sched.deckDueTree()
+            self.__renderPage(None)
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
     def __renderPage(self, offset):
@@ -96,7 +97,8 @@ class DeckBrowser:
                          js=["jquery.js", "jquery-ui.js", "deckbrowser.js"])
         self.web.key = "deckBrowser"
         self._drawButtons()
-        self._scrollToOffset(offset)
+        if offset is not None:
+            self._scrollToOffset(offset)
 
     def _scrollToOffset(self, offset):
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
