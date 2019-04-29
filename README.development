@@ -58,10 +58,10 @@ $ ./runanki
 If you get any errors, please make sure you don't have an older version of
 Anki installed in a system location.
 
-To run the unit tests, you will need to install nose from your distro, or
-with pip:
+To run the unit tests, you will need to install nose and mock from your
+distro, or with pip:
 
-$ pip3 install nose
+$ pip3 install nose mock
 
 Before contributing code, please read README.contributing.
 
