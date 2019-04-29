@@ -658,7 +658,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.type = 2
 
     def _startingLeft(self, card):
-        if card.type == 2:
+        if card.type == 3:
             conf = self._lapseConf(card)
         else:
             conf = self._lrnConf(card)
