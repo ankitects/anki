@@ -135,6 +135,7 @@ def setupMPV():
     mpvManager = MpvManager()
     _player = mpvManager.queueFile
     _queueEraser = mpvManager.clearQueue
+    atexit.register(cleanupMPV)
 
 def cleanupMPV():
     global mpvManager, _player, _queueEraser
