@@ -197,6 +197,7 @@ class MPVBase:
         """Start up the communication threads.
         """
         self._thread = threading.Thread(target=self._reader)
+        self._thread.daemon = True
         self._thread.start()
 
     def _stop_thread(self):
@@ -450,6 +451,7 @@ class MPV(MPVBase):
         """
         super()._start_thread()
         self._event_thread = threading.Thread(target=self._event_reader)
+        self._event_thread.daemon = True
         self._event_thread.start()
 
     def _stop_thread(self):

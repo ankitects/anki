@@ -47,6 +47,7 @@ class MediaServer(threading.Thread):
 
     _port = None
     _ready = threading.Event()
+    daemon = True
 
     def __init__(self, mw, *args, **kwargs):
         super().__init__(*args, **kwargs)
