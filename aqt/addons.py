@@ -219,7 +219,9 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         base = self.addonsFolder(dir)
         if os.path.exists(base):
             self.backupUserFiles(dir)
-            self.deleteAddon(dir)
+            if not self.deleteAddon(dir):
+                self.restoreUserFiles(dir)
+                return
 
         os.mkdir(base)
         self.restoreUserFiles(dir)
@@ -236,8 +238,15 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
                 continue
             zfile.extract(n, base)
 
+    # true on success
     def deleteAddon(self, dir):
-        send2trash(self.addonsFolder(dir))
+        try:
+            send2trash(self.addonsFolder(dir))
+            return True
+        except OSError as e:
+            showWarning(_("Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\nDebug info: %s") % e,
+                        textFormat="plain")
+            return False
 
     # Processing local add-on files
     ######################################################################
@@ -563,7 +572,8 @@ class AddonsDialog(QDialog):
                                dict(num=len(selected))):
             return
         for dir in selected:
-            self.mgr.deleteAddon(dir)
+            if not self.mgr.deleteAddon(dir):
+                break
         self.form.addonList.clearSelection()
         self.redrawAddons()
 
