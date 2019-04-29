@@ -170,6 +170,9 @@ class AnkiWebView(QWebEngineView):
         pass
 
     def setHtml(self, html):
+        # discard any previous pending actions
+        self._pendingActions = []
+        self._domDone = True
         self._queueAction("setHtml", html)
 
     def _setHtml(self, html):
