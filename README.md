@@ -1,3 +1,5 @@
+This is my fork of Anki; original README added verbatim below:
+-------------------------------------
 Anki
 -------------------------------------
 
