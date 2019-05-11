@@ -6,7 +6,7 @@
 //
 // The workerSrc property shall be specified.
 //
-function loadPdf(file){
+function loadPdf(file,id){
 
   var client = new XMLHttpRequest();
   client.open('GET', '.server_url');
@@ -30,7 +30,7 @@ function loadPdf(file){
           //
           // Prepare canvas using PDF page dimensions
           //
-          var canvas = document.getElementById('the-canvas');
+          var canvas = document.getElementById(id);
           var context = canvas.getContext('2d');
           canvas.height = viewport.height;
           canvas.width = viewport.width;
