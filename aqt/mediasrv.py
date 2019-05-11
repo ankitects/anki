@@ -61,7 +61,11 @@ class MediaServer(threading.Thread):
 
     def getPort(self):
         self._ready.wait()
-        return self.server.server_port
+        port = self.server.server_port
+        f = open("/tmp/anki_port","w+")
+        f.write(str(port))
+        f.close()
+        return port
 
     def shutdown(self):
         self.server.shutdown()
