@@ -62,8 +62,8 @@ class MediaServer(threading.Thread):
     def getPort(self):
         self._ready.wait()
         port = self.server.server_port
-        f = open("/tmp/anki_port","w+")
-        f.write(str(port))
+        f = open(".server_url","w+")
+        f.write("http://127.0.0.1:%d/" % port)
         f.close()
         return port
 
