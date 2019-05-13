@@ -468,6 +468,7 @@ class AddonsDialog(QDialog):
         f.viewFiles.clicked.connect(self.onViewFiles)
         f.delete_2.clicked.connect(self.onDelete)
         f.config.clicked.connect(self.onConfig)
+        self.form.addonList.itemDoubleClicked.connect(self.onConfig)
         self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
         self.setAcceptDrops(True)
         self.redrawAddons()
