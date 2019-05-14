@@ -73,15 +73,14 @@ class Editor:
 
         righttopbtns = list()
 
-        righttopbtns.append(self._addButton('unordered_list', 'createUl', _("Create unordered list (Ctrl+Shift+U)"), id='createUl'))
-        righttopbtns.append(self._addButton('ordered_list', 'createOl', _("Create ordered list (Ctrl+Shift+O)"), id='createOl'))
-
         righttopbtns.append(self._addButton('text_bold', 'bold', _("Bold text (Ctrl+B)"), id='bold'))
         righttopbtns.append(self._addButton('text_italic', 'italic', _("Italic text (Ctrl+I)"), id='italic'))
         righttopbtns.append(self._addButton('text_under', 'underline', _("Underline text (Ctrl+U)"), id='underline'))
         righttopbtns.append(self._addButton('text_super', 'super', _("Superscript (Ctrl++)"), id='superscript'))
         righttopbtns.append(self._addButton('text_sub', 'sub', _("Subscript (Ctrl+=)"), id='subscript'))
         righttopbtns.append(self._addButton('text_clear', 'clear', _("Remove formatting (Ctrl+R)")))
+        righttopbtns.append(self._addButton('unordered_list', 'createUl', _("Create unordered list (Ctrl+Shift+U)"), id='createUl'))
+        righttopbtns.append(self._addButton('ordered_list', 'createOl', _("Create ordered list (Ctrl+Shift+O)"), id='createOl'))
         # The color selection buttons do not use an icon so the HTML must be specified manually
         tip = _("Set foreground colour (F7)")
         righttopbtns.append('''<button tabindex=-1 class=linkb title="{}"
