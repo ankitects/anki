@@ -545,7 +545,8 @@ to a cloze type first, via Edit>Change Note Type."""))
     def _wrapWithColour(self, colour):
         self.web.eval("setFormat('forecolor', '%s')" % colour)
 
-    # Html Constructs
+    # List handling
+    ######################################################################
 
     def onCreateListUnordered(self):
         self.web.eval("setFormat('insertUnorderedList');")
