@@ -13,7 +13,7 @@ from anki.lang import _
 class EditCurrent(QDialog):
 
     def __init__(self, mw):
-        QDialog.__init__(self, None, Qt.Window)
+        QDialog.__init__(self, mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()

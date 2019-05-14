@@ -384,7 +384,7 @@ class StatusDelegate(QItemDelegate):
 class Browser(QMainWindow):
 
     def __init__(self, mw):
-        QMainWindow.__init__(self, None, Qt.Window)
+        QMainWindow.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""
@@ -1266,7 +1266,7 @@ where id in %s""" % ids2str(sf))
     def _openPreview(self):
         self._previewState = "question"
         self._lastPreviewState = None
-        self._previewWindow = QDialog(None, Qt.Window)
+        self._previewWindow = QDialog(self, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
 
         self._previewWindow.finished.connect(self._onPreviewFinished)
