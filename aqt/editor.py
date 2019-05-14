@@ -72,6 +72,10 @@ class Editor:
         self.outerLayout.addWidget(self.web, 1)
 
         righttopbtns = list()
+
+        righttopbtns.append(self._addButton('unordered_list', 'createUl', _("Create unordered list (Ctrl+Shift+U)"), id='createUl'))
+        righttopbtns.append(self._addButton('ordered_list', 'createOl', _("Create ordered list (Ctrl+Shift+O)"), id='createOl'))
+
         righttopbtns.append(self._addButton('text_bold', 'bold', _("Bold text (Ctrl+B)"), id='bold'))
         righttopbtns.append(self._addButton('text_italic', 'italic', _("Italic text (Ctrl+I)"), id='italic'))
         righttopbtns.append(self._addButton('text_under', 'underline', _("Underline text (Ctrl+U)"), id='underline'))
@@ -199,7 +203,10 @@ class Editor:
             ("Ctrl+M, C", self.insertMathjaxChemistry),
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags, True),
-            ("Ctrl+Shift+L", self.onListCreate)
+            ("Ctrl+Shift+U", self.onCreateListUnordered),
+            ("Ctrl+Shift+O", self.onCreateListOrdered),
+            ("Ctrl+Tab", self.onIndent),
+            ("Ctrl+Shift+Tab", self.onOutdent)
         ]
         runHook("setupEditorShortcuts", cuts, self)
         for row in cuts:
@@ -542,13 +549,17 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     # Html Constructs
 
-    def onListCreate(self):
+    def onCreateListUnordered(self):
+        self.web.eval("setFormat('insertUnorderedList');")
 
-        self.createList()
+    def onCreateListOrdered(self):
+        self.web.eval("setFormat('insertOrderedList');")
 
-    def createList(self):
-        html = "<ul><li>"
-        self.web.eval("setFormat('inserthtml', %s);" % json.dumps(html))
+    def onIndent(self):
+        self.web.eval("setFormat('indent');")
+
+    def onOutdent(self):
+        self.web.eval("setFormat('outdent');")
 
     # Audio/video/images
     ######################################################################
@@ -789,6 +800,12 @@ to a cloze type first, via Edit>Change Note Type."""))
         a = m.addAction(_("Edit HTML"))
         a.triggered.connect(self.onHtmlEdit)
         a.setShortcut(QKeySequence("Ctrl+Shift+X"))
+        a = m.addAction(_("Indent"))
+        a.triggered.connect(self.onIndent)
+        a.setShortcut(QKeySequence("Ctrl+Tab"))
+        a = m.addAction(_("Outdent"))
+        a.triggered.connect(self.onOutdent)
+        a.setShortcut(QKeySequence("Ctrl+Shift+Tab"))
 
         qtMenuShortcutWorkaround(m)
 
@@ -819,6 +836,8 @@ to a cloze type first, via Edit>Change Note Type."""))
     ######################################################################
 
     _links = dict(
+        createOl=onCreateListOrdered,
+        createUl=onCreateListUnordered,
         fields=onFields,
         cards=onCardLayout,
         bold=toggleBold,
