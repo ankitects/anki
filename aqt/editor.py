@@ -198,7 +198,8 @@ class Editor:
             ("Ctrl+M, E", self.insertMathjaxBlock),
             ("Ctrl+M, C", self.insertMathjaxChemistry),
             ("Ctrl+Shift+X", self.onHtmlEdit),
-            ("Ctrl+Shift+T", self.onFocusTags, True)
+            ("Ctrl+Shift+T", self.onFocusTags, True),
+            ("Ctrl+Shift+L", self.onListCreate)
         ]
         runHook("setupEditorShortcuts", cuts, self)
         for row in cuts:
@@ -538,6 +539,16 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     def _wrapWithColour(self, colour):
         self.web.eval("setFormat('forecolor', '%s')" % colour)
+
+    # Html Constructs
+
+    def onListCreate(self):
+
+        self.createList()
+
+    def createList(self):
+        html = "<ul><li>"
+        self.web.eval("setFormat('inserthtml', %s);" % json.dumps(html))
 
     # Audio/video/images
     ######################################################################
