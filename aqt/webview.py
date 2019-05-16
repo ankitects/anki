@@ -63,8 +63,10 @@ class AnkiWebPage(QWebEnginePage):
     def javaScriptConsoleMessage(self, lvl, msg, line, srcID):
         # not translated because console usually not visible,
         # and may only accept ascii text
-        sys.stdout.write("JS error on line %(a)d: %(b)s" %
-             dict(a=line, b=msg+"\n"))
+        buf = "JS error on line %(a)d: %(b)s" % dict(a=line, b=msg+"\n")
+        # ensure we don't try to write characters the terminal can't handle
+        buf = buf.encode(sys.stdout.encoding, "backslashreplace").decode(sys.stdout.encoding)
+        sys.stdout.write(buf)
 
     def acceptNavigationRequest(self, url, navType, isMainFrame):
         if not isMainFrame:
