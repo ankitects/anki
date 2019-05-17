@@ -342,7 +342,13 @@ function hideDupes() {
 
 var pasteHTML = function (html, internal, extendedMode) {
     html = filterHTML(html, internal, extendedMode);
-    setFormat("inserthtml", html);
+    if (html !== "") {
+        // remove trailing <br> in empty field
+        if (currentField && currentField.innerHTML === "<br>") {
+            currentField.innerHTML = "";
+        }
+        setFormat("inserthtml", html);
+    }
 };
 
 var filterHTML = function (html, internal, extendedMode) {
