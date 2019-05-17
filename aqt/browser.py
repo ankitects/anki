@@ -1300,9 +1300,9 @@ where id in %s""" % ids2str(sf))
         self.previewShowBothSides.setShortcut(QKeySequence("B"))
         self.previewShowBothSides.setToolTip(_("Shortcut key: %s" % "B"))
         bbox.addButton(self.previewShowBothSides, QDialogButtonBox.ActionRole)
-        self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
         self._previewBothSides = self.col.conf.get("previewBothSides", False)
         self.previewShowBothSides.setChecked(self._previewBothSides)
+        self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
 
         self._setupPreviewWebview()
 
