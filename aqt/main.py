@@ -817,11 +817,11 @@ QTreeWidget {
             self.col.sched.reset()
             self.reviewer.cardQueue.append(card)
             self.reviewer.nextCard()
-            self.maybeEnableUndo()
-            return
-
-        tooltip(_("Reverted to state prior to '%s'.") % n.lower())
-        self.reset()
+            runHook("revertedCard", cid)
+        else:
+            self.reset()
+            tooltip(_("Reverted to state prior to '%s'.") % n.lower())
+            runHook("revertedState", n)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self):
