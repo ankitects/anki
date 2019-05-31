@@ -98,6 +98,11 @@ class Scheduler:
         else:
             assert 0
 
+        # once a card has been answered once, the original due date
+        # no longer applies
+        if card.odue:
+            card.odue = 0
+
     def _answerCardPreview(self, card, ease):
         assert 1 <= ease <= 2
 
@@ -1030,10 +1035,9 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
 
-        # update queue in preview case
         self.col.db.execute("""
 update cards set did = odid, %s,
-due = odue, odue = 0, odid = 0, usn = ? where %s""" % (
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s""" % (
             self._restoreQueueSnippet, lim),
                             self.col.usn())
 
