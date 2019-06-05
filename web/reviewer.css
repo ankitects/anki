@@ -16,8 +16,8 @@ body.nightMode {
 }
 
 img {
-    max-width: 95%;
-    max-height: 95%;
+    max-width: 95vw;
+    max-height: 95vh;
 }
 
 #_flag {
