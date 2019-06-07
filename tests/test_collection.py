@@ -9,6 +9,51 @@ from anki import Collection as aopen
 newPath = None
 newMod = None
 
+
+class TestCollection:
+    def setup(self):
+        """Set up the System Under Test (SUT)."""
+        self.sut = getEmptyCol()
+
+    def teardown(self):
+        pass
+
+    def createSampleNote(self):
+        """Create a sample note to use in the tests."""
+        note = self.sut.newNote()
+        note['Front'] = '1'
+        note['Back'] = '2'
+        return note
+
+    def test_previewCards_WhenPreviewingInAddDialog(self):
+        note = self.createSampleNote()
+        preview_type = 0
+
+        cards = self.sut.previewCards(note, preview_type)
+
+        assert len(cards) == 1
+        assert cards[0].ord == 0
+
+    def test_previewCards_WhenPreviewingInEditDialog(self):
+        note = self.createSampleNote()
+        preview_type = 1
+
+        self.sut.addNote(note)
+        cards = self.sut.previewCards(note, preview_type)
+
+        assert len(cards) == 1
+        assert cards[0].ord == 0
+        assert self.sut.cardCount() == 1
+
+    def test_previewCards_WhenPreviewingInModelsDialog(self):
+        note = self.createSampleNote()
+        preview_type = 2
+
+        cards = self.sut.previewCards(note, preview_type)
+
+        assert len(cards) == 1
+
+
 def test_create_open():
     global newPath, newMod
     (fd, path) = tempfile.mkstemp(suffix=".anki2", prefix="test_attachNew")
