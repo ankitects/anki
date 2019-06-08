@@ -53,6 +53,23 @@ class TestCollection:
 
         assert len(cards) == 1
 
+    def test_remCards_ShouldDeleteCardAndNote(self):
+        note = self.createSampleNote()
+        self.sut.addNote(note)
+        next_card = self.sut.sched.getCard()
+        recall_score = 2
+        card_id = note.cards()[0].id
+
+        self.sut.reset()
+        self.sut.sched.answerCard(next_card, recall_score)
+        self.sut.remCards([card_id])
+
+        assert self.sut.cardCount() == 0
+        assert self.sut.noteCount() == 0
+        assert self.sut.db.scalar("select count() from notes") == 0
+        assert self.sut.db.scalar("select count() from cards") == 0
+        assert self.sut.db.scalar("select count() from graves") == 2
+
 
 def test_create_open():
     global newPath, newMod

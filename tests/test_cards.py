@@ -2,22 +2,6 @@
 
 from tests.shared import getEmptyCol
 
-def test_delete():
-    deck = getEmptyCol()
-    f = deck.newNote()
-    f['Front'] = '1'
-    f['Back'] = '2'
-    deck.addNote(f)
-    cid = f.cards()[0].id
-    deck.reset()
-    deck.sched.answerCard(deck.sched.getCard(), 2)
-    deck.remCards([cid])
-    assert deck.cardCount() == 0
-    assert deck.noteCount() == 0
-    assert deck.db.scalar("select count() from notes") == 0
-    assert deck.db.scalar("select count() from cards") == 0
-    assert deck.db.scalar("select count() from graves") == 2
-
 def test_misc():
     d = getEmptyCol()
     f = d.newNote()
