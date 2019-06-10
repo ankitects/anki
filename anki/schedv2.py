@@ -353,18 +353,22 @@ did = ? and queue = 0 limit ?)""", did, lim)
             return True
         if not self.newCount:
             return False
+        res = []
         while self._newDids:
             did = self._newDids[0]
             lim = min(self.queueLimit, self._deckNewLimit(did))
             if lim:
-                # fill the queue with the current did
-                self._newQueue = self.col.db.list("""
-                select id from cards where did = ? and queue = 0 order by due,ord limit ?""", did, lim)
-                if self._newQueue:
-                    self._newQueue.reverse()
-                    return True
-            # nothing left in the deck; move to next
+                # add new with the current did
+                res.extend(self.col.db.all("""
+                select id, due from cards where did = ? and queue = 0 order by ord limit ?""", did, lim))
+            # move to next
             self._newDids.pop(0)
+        lim = min(self.queueLimit, self._deckNewLimit(self.col.decks.selected()))
+        # order cards by due before filling up to lim cards
+        self._newQueue = [x[0] for x in sorted(res, key=itemgetter(1))[:lim]]
+        if self._newQueue:
+            self._newQueue.reverse()
+            return True
         if self.newCount:
             # if we didn't get a card but the count is non-zero,
             # we need to check again for any cards that were
