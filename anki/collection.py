@@ -47,6 +47,7 @@ defaultConf = {
     'sortBackwards': False,
     'addToCur': True, # add new to currently selected deck?
     'dayLearnFirst': False,
+    'fillNewByDue': False,
 }
 
 # this is initialized by storage.Collection

@@ -370,10 +370,40 @@ did = ? and queue = 0 limit ?)""", did, lim)
             # we need to check again for any cards that were
             # removed from the queue but not buried
             self._resetNew()
+        return self._fillNew()
+
+    def _fillNewByDue(self):
+        if self._newQueue:
+            return True
+        if not self.newCount:
+            return False
+        lim = min(self.queueLimit, self._deckNewLimit(self.col.decks.selected()))
+        if lim:
+            res = self.col.db.all("""
+select id, did from cards
+where did in %s and queue = 0
+order by due limit ?""" % ids2str(self._newDids), lim)
+        deckLimits = dict(zip(self._newDids, [self._deckNewLimit(did) for did in self._newDids]))
+        for id, did in res:
+            if deckLimits[did] > 0:
+                self._newQueue.append(id)
+                deckLimits[did] = deckLimits[did] - 1
+        if self._newQueue:
+            self._newQueue.reverse()
+            return True
+        if self.newCount:
+            # if we didn't get a card but the count is non-zero,
+            # we need to check again for any cards that were
+            # removed from the queue but not buried
+            self._resetNew()
             return self._fillNew()
 
     def _getNewCard(self):
-        if self._fillNew():
+        if self.col.conf.get("fillNewByDue", False):
+            fillNew = self._fillNewByDue
+        else:
+            fillNew = self._fillNew
+        if fillNew():
             self.newCount -= 1
             return self.col.getCard(self._newQueue.pop())
 

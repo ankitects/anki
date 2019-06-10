@@ -116,6 +116,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="fillNewByDue">
+         <property name="text">
+          <string>Show new cards from all children decks at once</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
@@ -488,6 +495,7 @@
   <tabstop>nightMode</tabstop>
   <tabstop>dayLearnFirst</tabstop>
   <tabstop>newSched</tabstop>
+  <tabstop>fillNewByDue</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
