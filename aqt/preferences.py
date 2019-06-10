@@ -86,8 +86,10 @@ class Preferences(QDialog):
         f.newSpread.setCurrentIndex(qc['newSpread'])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
+        f.fillNewByDue.setChecked(qc.get("fillNewByDue", False))
         if self.mw.col.schedVer() != 2:
             f.dayLearnFirst.setVisible(False)
+            f.fillNewByDue.setVisible(False)
         else:
             f.newSched.setChecked(True)
 
@@ -114,6 +116,7 @@ class Preferences(QDialog):
         qc['collapseTime'] = f.lrnCutoff.value()*60
         qc['addToCur'] = not f.useCurrent.currentIndex()
         qc['dayLearnFirst'] = f.dayLearnFirst.isChecked()
+        qc['fillNewByDue'] = f.fillNewByDue.isChecked()
         self._updateDayCutoff()
         self._updateSchedVer(f.newSched.isChecked())
         d.setMod()

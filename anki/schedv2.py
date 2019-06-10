@@ -372,8 +372,47 @@ did = ? and queue = 0 limit ?)""", did, lim)
             self._resetNew()
             return self._fillNew()
 
+    def _fillNewByDue(self):
+        if self._newQueue:
+            return True
+        if not self.newCount:
+            return False
+        deckNewLimits = {}
+        # only select did with non-zero limits
+        # to make sure if new count is non-zero
+        # then at least one card is returned
+        for did in self._newDids:
+            lim = self._deckNewLimit(did)
+            if lim > 0:
+                deckNewLimits[did] = lim
+        lim = min(self.queueLimit, self._deckNewLimit(self.col.decks.selected()))
+        if lim:
+            res = self.col.db.all("""
+select id, did from cards
+where did in %s and queue = 0
+order by due limit ?""" % ids2str(deckNewLimits.keys()), lim)
+        # fill the queue keeping track not to put
+        # more than the new limit for each deck
+        for id, did in res:
+            if deckNewLimits[did] > 0:
+                self._newQueue.append(id)
+                deckNewLimits[did] -= 1
+        if self._newQueue:
+            self._newQueue.reverse()
+            return True
+        if self.newCount:
+            # if we didn't get a card but the count is non-zero,
+            # we need to check again for any cards that were
+            # removed from the queue but not buried
+            self._resetNew()
+            return self._fillNewByDue()
+
     def _getNewCard(self):
-        if self._fillNew():
+        if self.col.conf.get("fillNewByDue", False):
+            fillNew = self._fillNewByDue
+        else:
+            fillNew = self._fillNew
+        if fillNew():
             self.newCount -= 1
             return self.col.getCard(self._newQueue.pop())
 
@@ -405,7 +444,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
         sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for g in [sel] + self.col.decks.parents(did):
+        for g in [sel] + self.col.decks.parentsByName(sel['name']):
             rem = fn(g)
             if lim == -1:
                 lim = rem
