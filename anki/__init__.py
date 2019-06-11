@@ -10,6 +10,6 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 5:
 if sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
     raise Exception("Anki requires a UTF-8 locale.")
 
-version="2.1.13" # build scripts grep this line, so preserve formatting
+version="2.1.14" # build scripts grep this line, so preserve formatting
 from anki.storage import Collection
 __all__ = ["Collection"]
