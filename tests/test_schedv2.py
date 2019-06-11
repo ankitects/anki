@@ -1009,10 +1009,14 @@ def test_deckFlow():
     f['Front'] = "three"
     default1 = f.model()['did'] = d.decks.id("Default::1")
     d.addNote(f)
-    # should get top level one first, then ::1, then ::2
+    # add another with default deck
+    f = d.newNote()
+    f['Front'] = "four"
+    d.addNote(f)
+    # should get in order added
     d.reset()
-    assert d.sched.counts() == (3,0,0)
-    for i in "one", "three", "two":
+    assert d.sched.counts() == (4,0,0)
+    for i in "one", "two", "three", "four":
         c = d.sched.getCard()
         assert c.note()['Front'] == i
         d.sched.answerCard(c, 3)
