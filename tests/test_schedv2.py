@@ -1165,3 +1165,17 @@ def test_moveVersions():
     col.sched.unburyCards()
     c.load()
     assert c.queue == c.type == 0
+
+    # make sure relearning cards transition correctly to v1
+    col.changeSchedulerVer(2)
+    # card with 100 day interval, answering again
+    col.sched.reschedCards([c.id], 100, 100)
+    c.load(); c.due = 0; c.flush()
+    col.sched._cardConf(c)['lapse']['mult'] = 0.5
+    col.sched.reset()
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 1)
+    # due should be correctly set when removed from learning early
+    col.changeSchedulerVer(1)
+    c.load()
+    assert c.due == 50
