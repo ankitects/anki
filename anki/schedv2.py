@@ -377,26 +377,40 @@ did = ? and queue = 0 limit ?)""", did, lim)
             return True
         if not self.newCount:
             return False
-        deckNewLimits = {}
-        # only select did with non-zero limits
-        # to make sure if new count is non-zero
-        # then at least one card is returned
+        lims = {}
+        rems = {}
+        # expects _newDids is sorted by name so parents are processed
+        # before children and lims[name] will exist
         for did in self._newDids:
-            lim = self._deckNewLimit(did)
+            deck = self.col.decks.get(did)
+            if deck['dyn']:
+                lims[deck['name']] = lim = self.dynReportLimit
+            else:
+                lims[deck['name']] = lim = max(0, self.col.decks.confForDid(deck['id'])['new']['perDay'] - deck['newToday'][1])
+            # adhere to parent limits
+            name = deck['name']
+            parent = deck['name'].rsplit("::", 1)[0]
+            while parent != name:
+                name = parent
+                lim = min(lims[name], lim)
+                parent = deck['name'].rsplit("::", 1)[0]
+            # only select did with non-zero limits
+            # to make sure if new count is non-zero
+            # then at least one card is returned
             if lim > 0:
-                deckNewLimits[did] = lim
-        lim = min(self.queueLimit, self._deckNewLimit(self.col.decks.selected()))
+                rems[did] = lim
+        lim = min(self.queueLimit, rems[self.col.decks.selected()])
         if lim:
             res = self.col.db.all("""
 select id, did from cards
 where did in %s and queue = 0
-order by due limit ?""" % ids2str(deckNewLimits.keys()), lim)
+order by due limit ?""" % ids2str(rems.keys()), lim)
         # fill the queue keeping track not to put
         # more than the new limit for each deck
         for id, did in res:
-            if deckNewLimits[did] > 0:
+            if rems[did] > 0:
                 self._newQueue.append(id)
-                deckNewLimits[did] -= 1
+                rems[did] -= 1
         if self._newQueue:
             self._newQueue.reverse()
             return True
