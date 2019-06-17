@@ -383,16 +383,20 @@ did = ? and queue = 0 limit ?)""", did, lim)
         # before children and lims[name] will exist
         for did in self._newDids:
             deck = self.col.decks.get(did)
-            if deck['dyn']:
-                lims[deck['name']] = lim = self.dynReportLimit
-            else:
-                lims[deck['name']] = lim = max(0, self.col.decks.confForDid(deck['id'])['new']['perDay'] - deck['newToday'][1])
-            # adhere to parent limits
             name = deck['name']
+            if deck['dyn']:
+                lims[name] = lim = self.dynReportLimit
+            else:
+                lims[name] = lim = max(0, self.col.decks.confForDid(deck['id'])['new']['perDay'] - deck['newToday'][1])
+            # adhere to parent limits
             parent = name.rsplit("::", 1)[0]
             while parent != name:
                 name = parent
-                lim = min(lims[name], lim)
+                if name in lims:
+                    lim = min(lims[name], lim)
+                else:
+                    # parent is not active
+                    break
                 parent = name.rsplit("::", 1)[0]
             # only select did with non-zero limits
             # to make sure if new count is non-zero
