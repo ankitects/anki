@@ -389,11 +389,11 @@ did = ? and queue = 0 limit ?)""", did, lim)
                 lims[deck['name']] = lim = max(0, self.col.decks.confForDid(deck['id'])['new']['perDay'] - deck['newToday'][1])
             # adhere to parent limits
             name = deck['name']
-            parent = deck['name'].rsplit("::", 1)[0]
+            parent = name.rsplit("::", 1)[0]
             while parent != name:
                 name = parent
                 lim = min(lims[name], lim)
-                parent = deck['name'].rsplit("::", 1)[0]
+                parent = name.rsplit("::", 1)[0]
             # only select did with non-zero limits
             # to make sure if new count is non-zero
             # then at least one card is returned
