@@ -1,6 +1,6 @@
 name: anki-woodrow
 base: core18
-version: '2.1.12+master'
+version: '2.1.13+master'
 version-script: |
   echo $SNAPCRAFT_PROJECT_VERSION-commit.$(git rev-parse --short HEAD)
 summary: Anki is a friendly, intelligent spaced learning system.
@@ -112,9 +112,18 @@ parts:
       - python3-pyqt5
       - pyqt5-dev-tools
       - portaudio19-dev
+      - bzr
+      - gettext
     override-build: |
       snapcraftctl build
       ./tools/build_ui.sh
+      cd ..
+      bzr branch lp:anki i18n
+      mv build dtop
+      cd i18n
+      ./update-mos.sh
+      cd ..
+      mv dtop build
     stage-packages:
       - python3
       - python3-pyqt5
@@ -143,6 +152,7 @@ parts:
       snapcraftctl prime
 
       cp -r $SNAPCRAFT_PART_BUILD/aqt/forms lib/python3.6/site-packages/aqt/
+      cp -r $SNAPCRAFT_PART_BUILD/locale lib/python3.6/site-packages/
       cp anki.* lib/python3.6/site-packages/
       cp -r designer lib/python3.6/site-packages/
       cp -r web lib/python3.6/site-packages/
