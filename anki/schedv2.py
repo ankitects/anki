@@ -98,6 +98,11 @@ class Scheduler:
         else:
             assert 0
 
+        # once a card has been answered once, the original due date
+        # no longer applies
+        if card.odue:
+            card.odue = 0
+
     def _answerCardPreview(self, card, ease):
         assert 1 <= ease <= 2
 
@@ -1030,10 +1035,9 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
 
-        # update queue in preview case
         self.col.db.execute("""
 update cards set did = odid, %s,
-due = odue, odue = 0, odid = 0, usn = ? where %s""" % (
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s""" % (
             self._restoreQueueSnippet, lim),
                             self.col.usn())
 
@@ -1591,13 +1595,20 @@ else type end),
 due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                             self.col.usn())
 
-    def _removeAllFromLearning(self):
+    def _removeAllFromLearning(self, schedVer=2):
         # remove review cards from relearning
-        self.col.db.execute("""
-update cards set
-due = odue, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
-where queue in (1,3) and type in (2, 3)
-""" % (intTime(), self.col.usn()))
+        if schedVer == 1:
+            self.col.db.execute("""
+    update cards set
+    due = odue, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
+    where queue in (1,3) and type in (2, 3)
+    """ % (intTime(), self.col.usn()))
+        else:
+            self.col.db.execute("""
+    update cards set
+    due = %d+ivl, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
+    where queue in (1,3) and type in (2, 3)
+    """ % (self.today, intTime(), self.col.usn()))
         # remove new cards from learning
         self.forgetCards(self.col.db.list(
             "select id from cards where queue in (1,3)"))
@@ -1633,5 +1644,5 @@ where queue < 0""" % (intTime(), self.col.usn()))
 
     def moveToV2(self):
         self._emptyAllFiltered()
-        self._removeAllFromLearning()
+        self._removeAllFromLearning(schedVer=1)
         self._remapLearningAnswers("ease=ease+1 where ease in (2,3)")

@@ -6,7 +6,7 @@ import sys
 import math
 from anki.hooks import runHook
 from aqt.qt import *
-from aqt.utils import openLink, tooltip
+from aqt.utils import openLink
 from anki.utils import isMac, isWin, isLin
 from anki.lang import _
 
@@ -378,9 +378,8 @@ body {{ zoom: {}; background: {}; {} }}
 
     def _onHeight(self, qvar):
         if qvar is None:
-            tooltip(_("Error connecting to local port. Retrying..."))
             from aqt import mw
-            mw.progress.timer(2000, mw.reset, False)
+            mw.progress.timer(1000, mw.reset, False)
             return
 
         height = math.ceil(qvar*self.zoomFactor())

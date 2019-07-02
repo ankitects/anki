@@ -708,14 +708,22 @@ def test_filt_reviewing_early_normal():
 
 def test_filt_keep_lrn_state():
     d = getEmptyCol()
+
     f = d.newNote()
     f['Front'] = "one"
     d.addNote(f)
 
     # fail the card outside filtered deck
     c = d.sched.getCard()
+    d.sched._cardConf(c)['new']['delays'] = [1, 10, 61]
+    d.decks.save()
+
     d.sched.answerCard(c, 1)
 
+    assert c.type == c.queue == 1
+    assert c.left == 3003
+
+    d.sched.answerCard(c, 3)
     assert c.type == c.queue == 1
 
     # create a dynamic deck and refresh it
@@ -726,11 +734,19 @@ def test_filt_keep_lrn_state():
     # card should still be in learning state
     c.load()
     assert c.type == c.queue == 1
+    assert c.left == 2002
+
+    # should be able to advance learning steps
+    d.sched.answerCard(c, 3)
+    # should be due at least an hour in the future
+    assert c.due - intTime() > 60*60
 
     # emptying the deck preserves learning state
     d.sched.emptyDyn(did)
     c.load()
     assert c.type == c.queue == 1
+    assert c.left == 1001
+    assert c.due - intTime() > 60*60
 
 def test_preview():
     # add cards
@@ -1149,3 +1165,17 @@ def test_moveVersions():
     col.sched.unburyCards()
     c.load()
     assert c.queue == c.type == 0
+
+    # make sure relearning cards transition correctly to v1
+    col.changeSchedulerVer(2)
+    # card with 100 day interval, answering again
+    col.sched.reschedCards([c.id], 100, 100)
+    c.load(); c.due = 0; c.flush()
+    col.sched._cardConf(c)['lapse']['mult'] = 0.5
+    col.sched.reset()
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 1)
+    # due should be correctly set when removed from learning early
+    col.changeSchedulerVer(1)
+    c.load()
+    assert c.due == 50

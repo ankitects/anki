@@ -86,6 +86,7 @@ class DeckBrowser:
         if not reuse:
             self._dueTree = self.mw.col.sched.deckDueTree()
             self.__renderPage(None)
+            return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
     def __renderPage(self, offset):
