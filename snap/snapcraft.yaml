@@ -1,6 +1,6 @@
 name: anki-woodrow
 base: core18
-version: '2.1.13+master'
+version: '2.1.14+master'
 version-script: |
   echo $SNAPCRAFT_PROJECT_VERSION-commit.$(git rev-parse --short HEAD)
 summary: Anki is a friendly, intelligent spaced learning system.
@@ -9,7 +9,7 @@ description: |
   more efficient than traditional study methods, you can either greatly
   decrease your time spent studying, or greatly increase the amount you learn.
 
-grade: devel
+grade: stable
 confinement: strict
 architectures:
   - build-on: amd64

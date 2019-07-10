@@ -4,7 +4,7 @@ import sys, os
 
 setup(
     name='anki-woodrow',
-    version='2.1.13+master',
+    version='2.1.14+master',
     description='Memory and Learning system',
     license='GPL v3',
     author='Ankitects Pty Ltd and contributors',
