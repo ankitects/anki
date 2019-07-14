@@ -40,6 +40,7 @@ def getAudio(parent, encode=True):
         QApplication.instance().processEvents()
     if mb.clickedButton() == mb.escapeButton():
         r.stop()
+        r.cleanup()
         return
     saveGeom(mb, "audioRecorder")
     # ensure at least a second captured
