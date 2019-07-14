@@ -334,12 +334,15 @@ class _Recorder:
             except:
                 ret = True
             finally:
-                if os.path.exists(processingSrc):
-                    os.unlink(processingSrc)
+                self.cleanup()
             if ret:
                 raise Exception(_(
                     "Error running %s") %
                                 " ".join(cmd))
+
+    def cleanup(self):
+        if os.path.exists(processingSrc):
+            os.unlink(processingSrc)
 
 class PyAudioThreadedRecorder(threading.Thread):
 
