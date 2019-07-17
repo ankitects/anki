@@ -108,8 +108,5 @@ installed. Most likely you will need to have installed xcode
 Install homebrew (http://brew.sh/) and then install Anki prerequisites:
 
 $ brew install python mplayer lame portaudio
-$ pip install sqlalchemy pyqt5==5.9.2
-
-Make sure to specify pyqt5 version 5.9.2, as the latest version 5.10 is not currently supported.
 
 Now you can follow the development commands at the start of this document.
