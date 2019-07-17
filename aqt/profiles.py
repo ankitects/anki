@@ -92,7 +92,8 @@ class ProfileManager:
         try:
             self._ensureExists(self.base)
         except:
-            # can't translate, as lang not initialized
+            # can't translate, as lang not initialized, and qt may not be
+            print("unable to create base folder")
             QMessageBox.critical(
                 None, "Error", """\
 Anki could not create the folder %s. Please ensure that location is not \
