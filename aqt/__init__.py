@@ -312,6 +312,7 @@ def _run(argv=None, exec=True):
     # create the app
     app = AnkiApp(argv)
     QCoreApplication.setApplicationName("Anki")
+    QGuiApplication.setDesktopFileName("anki.desktop")
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
         return
