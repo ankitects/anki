@@ -5,7 +5,7 @@
 import datetime, time
 from aqt.qt import *
 import anki.lang
-from aqt.utils import openFolder, openHelp, showInfo, askUser
+from aqt.utils import openHelp, showInfo, askUser
 import aqt
 from anki.lang import _
 
@@ -209,10 +209,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupBackup(self):
         self.form.numBackups.setValue(self.prof['numBackups'])
-        self.form.openBackupFolder.linkActivated.connect(self.onOpenBackup)
-
-    def onOpenBackup(self):
-        openFolder(self.mw.pm.backupFolder())
 
     def updateBackup(self):
         self.prof['numBackups'] = self.form.numBackups.value()
