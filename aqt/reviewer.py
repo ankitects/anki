@@ -534,14 +534,17 @@ time = %(time)d;
             return 2
 
     def _answerButtonList(self):
-        l = ((1, _("Again")),)
+        again = ((1, _("Again")),)
+        hard = ((2, _("Hard")),)
+        good = ((3, _("Good")),)
+        easy = ((4, _("Easy")),)
         cnt = self.mw.col.sched.answerButtons(self.card)
         if cnt == 2:
-            return l + ((2, _("Good")),)
+            return again + good
         elif cnt == 3:
-            return l + ((2, _("Good")), (3, _("Easy")))
+            return again + good + easy
         else:
-            return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
+            return again + hard + good + easy
 
     def _answerButtons(self):
         default = self._defaultEase()
