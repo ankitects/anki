@@ -92,7 +92,7 @@ Or a way with git bash and perl:
 
     1) Install "git bash".
     2) In the tools directory, modify build_ui.sh. Locate the line that reads
-    "pyuic4 $i -o $py" and alter it to be of the following form:
+    "pyuic5 --from-imports $i -o $py.tmp" and alter it to be of the following form:
     "<python-path-string>" "<pyuic-path-string>" $i -o $py
     These two paths must point to your python executable, and to pyuic.py, on your
     system. Typical paths would be:
