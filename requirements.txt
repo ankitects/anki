@@ -7,3 +7,4 @@ markdown
 psutil; sys_platform == "win32"
 test
 test
+test
