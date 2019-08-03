@@ -2,7 +2,6 @@ Anki
 -------------------------------------
 
 This is the development branch of Anki.
-Hello World!
 
 For stable builds, please see https://apps.ankiweb.net.
 
