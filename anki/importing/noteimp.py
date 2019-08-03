@@ -85,7 +85,7 @@ class NoteImporter(Importer):
 
     def foreignNotes(self):
         "Return a list of foreign notes for importing."
-        assert 0
+        return []
 
     def open(self):
         "Open file and ensure it's in the right format."

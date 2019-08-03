@@ -8,6 +8,8 @@ import zipfile
 from collections import defaultdict
 import markdown
 from send2trash import send2trash
+import jsonschema
+from jsonschema.exceptions import ValidationError
 
 from aqt.qt import *
 from aqt.utils import showInfo, openFolder, isWin, openLink, \
@@ -17,19 +19,26 @@ from zipfile import ZipFile
 import aqt.forms
 import aqt
 from aqt.downloader import download
-from anki.lang import _
+from anki.lang import _, ngettext
 from anki.utils import intTime
 from anki.sync import AnkiRequestsClient
 
 class AddonManager:
 
     ext = ".ankiaddon"
-    # todo?: use jsonschema package
     _manifest_schema = {
-        "package": {"type": str, "req": True, "meta": False},
-        "name": {"type": str, "req": True, "meta": True},
-        "mod": {"type": int, "req": False, "meta": True},
-        "conflicts": {"type": list, "req": False, "meta": True}
+        "type": "object",
+        "properties": {
+            "package": {"type": "string", "meta": False},
+            "name": {"type": "string", "meta": True},
+            "mod": {"type": "number", "meta": True},
+            "conflicts": {
+                "type": "array",
+                "items": {"type": "string"},
+                "meta": True
+            }
+        },
+        "required": ["package", "name"]
     }
 
     def __init__(self, mw):
@@ -107,8 +116,15 @@ When loading '%(name)s':
     def toggleEnabled(self, dir, enable=None):
         meta = self.addonMeta(dir)
         enabled = enable if enable is not None else meta.get("disabled")
-        if enabled is True and not self._checkConflicts(dir):
-            return False
+        if enabled is True:
+            conflicting = self._disableConflicting(dir)
+            if conflicting:
+                addons = ", ".join(self.addonName(f) for f in conflicting)
+                showInfo(
+                    _("The following add-ons are incompatible with %(name)s \
+and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addons),
+                    textFormat="plain")
+
         meta['disabled'] = not enabled
         self.writeAddonMeta(dir, meta)
 
@@ -137,83 +153,75 @@ When loading '%(name)s':
                 all_conflicts[other_dir].append(dir)
         return all_conflicts
 
-    def _checkConflicts(self, dir, name=None, conflicts=None):
-        name = name or self.addonName(dir)
+    def _disableConflicting(self, dir, conflicts=None):
         conflicts = conflicts or self.addonConflicts(dir)
 
         installed = self.allAddons()
         found = [d for d in conflicts if d in installed and self.isEnabled(d)]
         found.extend(self.allAddonConflicts().get(dir, []))
         if not found:
-            return True
+            return []
 
-        addons = "\n".join(self.addonName(f) for f in found)
-        ret = askUser(_("""\
-The following add-on(s) are incompatible with %(name)s \
-and will have to be disabled to proceed:\n\n%(found)s\n\n\
-Are you sure you want to continue?"""
-                        % dict(name=name, found=addons)))
-        if not ret:
-            return False
-        
         for package in found:
             self.toggleEnabled(package, enable=False)
         
-        return True
+        return found
 
     # Installing and deleting add-ons
     ######################################################################
 
-    def _readManifestFile(self, zfile):
+    def readManifestFile(self, zfile):
         try:
             with zfile.open("manifest.json") as f:
                 data = json.loads(f.read())
-            manifest = {}  # build new manifest from recognized keys
-            for key, attrs in self._manifest_schema.items():
-                if not attrs["req"] and key not in data:
-                    continue
-                val = data[key]
-                assert isinstance(val, attrs["type"])
-                manifest[key] = val
-        except (KeyError, json.decoder.JSONDecodeError, AssertionError):
+            jsonschema.validate(data, self._manifest_schema)
+            # build new manifest from recognized keys
+            schema = self._manifest_schema["properties"]
+            manifest = {key: data[key] for key in data.keys() & schema.keys()}
+        except (KeyError, json.decoder.JSONDecodeError, ValidationError):
             # raised for missing manifest, invalid json, missing/invalid keys
             return {}
         return manifest
 
     def install(self, file, manifest=None):
         """Install add-on from path or file-like object. Metadata is read
-        from the manifest file by default, but this may me bypassed
-        by supplying a 'manifest' dictionary"""
+        from the manifest file, with keys overriden by supplying a 'manifest'
+        dictionary"""
         try:
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
             return False, "zip"
         
         with zfile:
-            manifest = manifest or self._readManifestFile(zfile)
+            file_manifest = self.readManifestFile(zfile)
+            if manifest:
+                file_manifest.update(manifest)
+            manifest = file_manifest
             if not manifest:
                 return False, "manifest"
             package = manifest["package"]
             conflicts = manifest.get("conflicts", [])
-            if not self._checkConflicts(package, manifest["name"], conflicts):
-                return False, "conflicts"
+            found_conflicts = self._disableConflicting(package,
+                                                       conflicts)
             meta = self.addonMeta(package)
             self._install(package, zfile)
         
-        schema = self._manifest_schema
+        schema = self._manifest_schema["properties"]
         manifest_meta = {k: v for k, v in manifest.items()
                          if k in schema and schema[k]["meta"]}
         meta.update(manifest_meta)
         self.writeAddonMeta(package, meta)
 
-        return True, meta["name"]
+        return True, meta["name"], found_conflicts
 
     def _install(self, dir, zfile):
         # previously installed?
         base = self.addonsFolder(dir)
         if os.path.exists(base):
             self.backupUserFiles(dir)
-            self.deleteAddon(dir)
+            if not self.deleteAddon(dir):
+                self.restoreUserFiles(dir)
+                return
 
         os.mkdir(base)
         self.restoreUserFiles(dir)
@@ -230,8 +238,15 @@ Are you sure you want to continue?"""
                 continue
             zfile.extract(n, base)
 
+    # true on success
     def deleteAddon(self, dir):
-        send2trash(self.addonsFolder(dir))
+        try:
+            send2trash(self.addonsFolder(dir))
+            return True
+        except OSError as e:
+            showWarning(_("Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\nDebug info: %s") % e,
+                        textFormat="plain")
+            return False
 
     # Processing local add-on files
     ######################################################################
@@ -240,21 +255,25 @@ Are you sure you want to continue?"""
         log = []
         errs = []
         self.mw.progress.start(immediate=True)
-        for path in paths:
-            base = os.path.basename(path)
-            ret = self.install(path)
-            if ret[0] is False:
-                if ret[1] == "conflicts":
-                    continue
-                elif ret[1] == "zip":
-                    msg = _("Corrupt add-on file.")
-                elif ret[1] == "manifest":
-                    msg = _("Invalid add-on manifest.")
-                errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
-                              % dict(base=base, error=msg)))
-            else:
-                log.append(_("Installed %(name)s" % dict(name=ret[1])))
-        self.mw.progress.finish()
+        try:
+            for path in paths:
+                base = os.path.basename(path)
+                ret = self.install(path)
+                if ret[0] is False:
+                    if ret[1] == "zip":
+                        msg = _("Corrupt add-on file.")
+                    elif ret[1] == "manifest":
+                        msg = _("Invalid add-on manifest.")
+                    else:
+                        msg = "Unknown error: {}".format(ret[1])
+                    errs.append(_("Error installing <i>%(base)s</i>: %(error)s"
+                                  % dict(base=base, error=msg)))
+                else:
+                    log.append(_("Installed %(name)s" % dict(name=ret[1])))
+                    if ret[2]:
+                        log.append(_("The following conflicting add-ons were disabled:") + " " + " ".join(ret[2]))
+        finally:
+            self.mw.progress.finish()
         return log, errs
 
     # Downloading
@@ -276,13 +295,19 @@ Are you sure you want to continue?"""
                                manifest={"package": str(n), "name": name,
                                          "mod": intTime()})
             if ret[0] is False:
-                if ret[1] == "conflicts":
-                    continue
                 if ret[1] == "zip":
-                    showWarning(_("The download was corrupt. Please try again."))
+                    msg = _("Corrupt add-on file.")
                 elif ret[1] == "manifest":
-                    showWarning(_("Invalid add-on manifest."))
-            log.append(_("Downloaded %(fname)s" % dict(fname=name)))
+                    msg = _("Invalid add-on manifest.")
+                else:
+                    msg = "Unknown error: {}".format(ret[1])
+                errs.append(_("Error downloading %(id)s: %(error)s") % dict(
+                    id=n, error=msg))
+            else:
+                log.append(_("Downloaded %(fname)s" % dict(fname=name)))
+                if ret[2]:
+                    log.append(_("The following conflicting add-ons were disabled:") + " " + " ".join(ret[2]))
+
         self.mw.progress.finish()
         return log, errs
 
@@ -323,7 +348,7 @@ Are you sure you want to continue?"""
         updated = []
         for dir, ts in mods:
             sid = str(dir)
-            if self.addonMeta(sid).get("mod",0) < ts:
+            if self.addonMeta(sid).get("mod", 0) < (ts or 0):
                 updated.append(sid)
         return updated
 
@@ -408,6 +433,19 @@ Are you sure you want to continue?"""
         if not os.path.exists(bp):
             return
         os.rename(bp, p)
+    
+    # Web Exports
+    ######################################################################
+
+    _webExports = {}
+
+    def setWebExports(self, module, pattern):
+        addon = self.addonFromModule(module)
+        self._webExports[addon] = pattern
+    
+    def getWebExports(self, addon):
+        return self._webExports.get(addon)
+
 
 # Add-ons Dialog
 ######################################################################
@@ -430,6 +468,7 @@ class AddonsDialog(QDialog):
         f.viewFiles.clicked.connect(self.onViewFiles)
         f.delete_2.clicked.connect(self.onDelete)
         f.config.clicked.connect(self.onConfig)
+        self.form.addonList.itemDoubleClicked.connect(self.onConfig)
         self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
         self.setAcceptDrops(True)
         self.redrawAddons()
@@ -481,7 +520,9 @@ class AddonsDialog(QDialog):
             addon = self.addons[row_int][1]
         except IndexError:
             addon = ''
-        self.form.viewPage.setEnabled(bool (re.match(r"^\d+$", addon)))
+        self.form.viewPage.setEnabled(bool(re.match(r"^\d+$", addon)))
+        self.form.config.setEnabled(bool(self.mgr.getConfig(addon) or
+                                         self.mgr.configAction(addon)))
 
     def selectedAddons(self):
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
@@ -532,7 +573,8 @@ class AddonsDialog(QDialog):
                                dict(num=len(selected))):
             return
         for dir in selected:
-            self.mgr.deleteAddon(dir)
+            if not self.mgr.deleteAddon(dir):
+                break
         self.form.addonList.clearSelection()
         self.redrawAddons()
 
@@ -550,15 +592,25 @@ class AddonsDialog(QDialog):
         log, errs = self.mgr.processPackages(paths)
 
         if log:
-            tooltip("<br>".join(log), parent=self)
+            log_html = "<br>".join(log)
+            if len(log) == 1:
+                tooltip(log_html, parent=self)
+            else:
+                showInfo(log_html, parent=self, textFormat="rich")
         if errs:
             msg = _("Please report this to the respective add-on author(s).")
-            showWarning("\n\n".join(errs + [msg]), parent=self, textFormat="plain")
+            showWarning("<br><br>".join(errs + [msg]), parent=self, textFormat="rich")
 
         self.redrawAddons()
 
     def onCheckForUpdates(self):
-        updated = self.mgr.checkForUpdates()
+        try:
+            updated = self.mgr.checkForUpdates()
+        except Exception as e:
+            showWarning(_("Please check your internet connection.") + "\n\n" + str(e),
+                        textFormat="plain")
+            return
+
         if not updated:
             tooltip(_("No updates available."))
         else:
@@ -567,7 +619,11 @@ class AddonsDialog(QDialog):
                                "\n" + "\n".join(names)):
                 log, errs = self.mgr.downloadIds(updated)
                 if log:
-                    tooltip("<br>".join(log), parent=self)
+                    log_html = "<br>".join(log)
+                    if len(log) == 1:
+                        tooltip(log_html, parent=self)
+                    else:
+                        showInfo(log_html, parent=self, textFormat="rich")
                 if errs:
                     showWarning("\n\n".join(errs), parent=self, textFormat="plain")
 
@@ -625,7 +681,11 @@ class GetAddons(QDialog):
         log, errs = self.mgr.downloadIds(ids)
 
         if log:
-            tooltip("<br>".join(log), parent=self.addonsDlg)
+            log_html = "<br>".join(log)
+            if len(log) == 1:
+                tooltip(log_html, parent=self)
+            else:
+                showInfo(log_html, parent=self, textFormat="rich")
         if errs:
             showWarning("\n\n".join(errs), textFormat="plain")
 

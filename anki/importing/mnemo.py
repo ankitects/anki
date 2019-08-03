@@ -6,7 +6,7 @@ import time, re
 from anki.db import DB
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.stdmodels import addBasicModel, addClozeModel
-from anki.lang import ngettext
+from anki.lang import ngettext, _
 
 class MnemosyneImporter(NoteImporter):
 
@@ -29,6 +29,7 @@ select _id, id, key, value from facts f, data_for_fact d where
 f._id=d._fact_id"""):
             if id != curid:
                 if note:
+                    # pylint: disable=unsubscriptable-object
                     notes[note['_id']] = note
                 note = {'_id': _id}
                 curid = id
@@ -80,7 +81,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             rem = int((next - time.time())/86400)
             c.due = self.col.sched.today+rem
             # get ord
-            m = re.search(".(\d+)$", row[1])
+            m = re.search(r".(\d+)$", row[1])
             ord = int(m.group(1))-1
             if 'cards' not in note:
                 note['cards'] = {}
@@ -102,7 +103,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         # \n -> br
         fld = re.sub("\r?\n", "<br>", fld)
         # latex differences
-        fld = re.sub("(?i)<(/?(\$|\$\$|latex))>", "[\\1]", fld)
+        fld = re.sub(r"(?i)<(/?(\$|\$\$|latex))>", "[\\1]", fld)
         # audio differences
         fld = re.sub("<audio src=\"(.+?)\">(</audio>)?", "[sound:\\1]", fld)
         return fld
@@ -172,11 +173,12 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             fld = re.sub("\r?\n", "<br>", fld)
             state = dict(n=1)
             def repl(match):
+                # pylint: disable=cell-var-from-loop
                 # replace [...] with cloze refs
                 res = ("{{c%d::%s}}" % (state['n'], match.group(1)))
                 state['n'] += 1
                 return res
-            fld = re.sub("\[(.+?)\]", repl, fld)
+            fld = re.sub(r"\[(.+?)\]", repl, fld)
             fld = self._mungeField(fld)
             n.fields.append(fld)
             n.fields.append("") # extra

@@ -5,6 +5,7 @@
 from aqt.qt import *
 from anki.hooks import addHook, remHook
 from aqt.utils import  shortcut
+from anki.lang import _
 
 class DeckChooser(QHBoxLayout):
 
@@ -26,6 +27,7 @@ class DeckChooser(QHBoxLayout):
             self.addWidget(self.deckLabel)
         # decks box
         self.deck = QPushButton(clicked=self.onDeckChange)
+        self.deck.setAutoDefault(False)
         self.deck.setToolTip(shortcut(_("Target Deck (Ctrl+D)")))
         s = QShortcut(QKeySequence(_("Ctrl+D")), self.widget, activated=self.onDeckChange)
         self.addWidget(self.deck)

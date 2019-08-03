@@ -426,7 +426,7 @@
        <item>
         <widget class="QLabel" name="openBackupFolder">
          <property name="text">
-          <string>&lt;a href=&quot;backups&quot;&gt;Open backup folder&lt;/a&gt;</string>
+          <string>You can restore backups via File&gt;Switch Profile.</string>
          </property>
         </widget>
        </item>

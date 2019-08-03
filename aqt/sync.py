@@ -2,17 +2,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-import traceback
 import gc
 
 from aqt.qt import *
-import aqt
 from anki import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, remHook
 from aqt.utils import tooltip, askUserDialog, showWarning, showText, showInfo
-
+from anki.lang import _
 
 # Sync manager
 ######################################################################
@@ -76,7 +74,7 @@ If you use any other devices, please sync them now, and choose \
 to download the collection you have just uploaded from this computer. \
 After doing so, future reviews and added cards will be merged \
 automatically."""))
-        self.mw.progress.timer(1000, delayedInfo, False)
+        self.mw.progress.timer(1000, delayedInfo, False, requiresCollection=False)
 
     def _updateLabel(self):
         self.mw.progress.update(label="%s\n%s" % (
@@ -284,10 +282,6 @@ fix the clock and try again."""))
 Your collection is in an inconsistent state. Please run Tools>\
 Check Database, then sync again."""))
 
-    def badUserPass(self):
-        aqt.preferences.Preferences(self, self.pm.profile).dialog.tabWidget.\
-                                         setCurrentIndex(1)
-
 # Sync thread
 ######################################################################
 
@@ -406,7 +400,8 @@ class SyncThread(QThread):
         elif ret == "success":
             self.fireEvent("success")
         elif ret == "serverAbort":
-            pass
+            self.syncMsg = self.client.syncMsg
+            return
         else:
             self.fireEvent("error", "Unknown sync return code.")
         self.syncMsg = self.client.syncMsg

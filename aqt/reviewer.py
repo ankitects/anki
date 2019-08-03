@@ -7,10 +7,11 @@ import re
 import html
 import unicodedata as ucd
 import html.parser
+import json
 
 from anki.lang import _, ngettext
 from aqt.qt import *
-from anki.utils import stripHTML, json, bodyClass
+from anki.utils import stripHTML, bodyClass
 from anki.hooks import addHook, runHook, runFilter
 from anki.sound import playFromText, clearAudioQueue, play
 from aqt.utils import mungeQA, tooltip, askUserDialog, \
@@ -296,7 +297,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
     # Type in the answer
     ##########################################################################
 
-    typeAnsPat = "\[\[type:(.+?)\]\]"
+    typeAnsPat = r"\[\[type:(.+?)\]\]"
 
     def typeAnsFilter(self, buf):
         if self.state == "question":
@@ -379,7 +380,7 @@ Please run Tools>Empty Cards""")
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
-        matches = re.findall("\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
+        matches = re.findall(r"\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
         if not matches:
             return None
         def noHint(txt):

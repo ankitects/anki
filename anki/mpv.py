@@ -36,7 +36,7 @@ import threading
 import subprocess
 import inspect
 
-from distutils.spawn import find_executable
+from distutils.spawn import find_executable # pylint: disable=import-error,no-name-in-module
 from queue import Queue, Empty, Full
 
 
@@ -57,6 +57,7 @@ class MPVTimeoutError(MPVError):
 
 from anki.utils import isWin
 if isWin:
+    # pylint: disable=import-error
     import win32file, win32pipe, pywintypes, winerror
 
 class MPVBase:
@@ -196,6 +197,7 @@ class MPVBase:
         """Start up the communication threads.
         """
         self._thread = threading.Thread(target=self._reader)
+        self._thread.daemon = True
         self._thread.start()
 
     def _stop_thread(self):
@@ -348,8 +350,8 @@ class MPVBase:
         """Send a command to the mpv process and collect the result.
         """
         self.ensure_running()
-        self._send_message(message, timeout)
         try:
+            self._send_message(message, timeout)
             return self._get_response(timeout)
         except MPVCommandError as e:
             raise MPVCommandError("%r: %s" % (message["command"], e))
@@ -438,6 +440,7 @@ class MPV(MPVBase):
         # Simulate an init event when the process and all callbacks have been
         # completely set up.
         if hasattr(self, "on_init"):
+            # pylint: disable=no-member
             self.on_init()
 
     #
@@ -448,6 +451,7 @@ class MPV(MPVBase):
         """
         super()._start_thread()
         self._event_thread = threading.Thread(target=self._event_reader)
+        self._event_thread.daemon = True
         self._event_thread.start()
 
     def _stop_thread(self):

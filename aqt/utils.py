@@ -3,10 +3,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
-import re, os, sys, urllib.request, urllib.parse, urllib.error, subprocess
+import re, os, sys, subprocess
 import aqt
 from anki.sound import stripSounds
-from anki.utils import isWin, isMac, invalidFilename, noBundledLibs
+from anki.utils import isWin, isMac, invalidFilename, noBundledLibs, \
+    versionWithBuild
+from anki.lang import _
 
 def openHelp(section):
     link = aqt.appHelpSite
@@ -42,7 +44,7 @@ def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=
         mb.setTextFormat(Qt.PlainText)
     elif textFormat == "rich":
         mb.setTextFormat(Qt.RichText)
-    else:
+    elif textFormat is not None:
         raise Exception("unexpected textFormat type")
     mb.setText(text)
     mb.setIcon(icon)
@@ -122,7 +124,7 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, \
 class ButtonedDialog(QMessageBox):
 
     def __init__(self, text, buttons, parent=None, help="", title="Anki"):
-        QDialog.__init__(self, parent)
+        QMessageBox.__init__(self, parent)
         self.buttons = []
         self.setWindowTitle(title)
         self.help = help
@@ -565,18 +567,9 @@ def qtMenuShortcutWorkaround(qmenu):
 
 ######################################################################
 
-def versionWithBuild():
-    from aqt import appVersion
-    try:
-        from aqt.buildhash import build
-    except:
-        build = "dev"
-    return "%s (%s)" % (appVersion, build)
-
 def supportText():
     import platform
     from aqt import mw
-    from aqt.utils import versionWithBuild
 
     if isWin:
         platname = "Windows " + platform.win32_ver()[0]

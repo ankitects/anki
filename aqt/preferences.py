@@ -5,16 +5,13 @@
 import datetime, time
 from aqt.qt import *
 import anki.lang
-from aqt.utils import openFolder, showWarning, getText, openHelp, showInfo, \
-    askUser
+from aqt.utils import openHelp, showInfo, askUser
 import aqt
+from anki.lang import _
 
 class Preferences(QDialog):
 
     def __init__(self, mw):
-        if not mw.col:
-            showInfo(_("Please open a profile first."))
-            return
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.prof = self.mw.pm.profile
@@ -212,10 +209,6 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupBackup(self):
         self.form.numBackups.setValue(self.prof['numBackups'])
-        self.form.openBackupFolder.linkActivated.connect(self.onOpenBackup)
-
-    def onOpenBackup(self):
-        openFolder(self.mw.pm.backupFolder())
 
     def updateBackup(self):
         self.prof['numBackups'] = self.form.numBackups.value()

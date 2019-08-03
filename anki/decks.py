@@ -4,8 +4,9 @@
 
 import copy, operator
 import unicodedata
+import json
 
-from anki.utils import intTime, ids2str, json
+from anki.utils import intTime, ids2str
 from anki.hooks import runHook
 from anki.consts import *
 from anki.lang import _
@@ -128,8 +129,10 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name, create=True, type=defaultDeck):
+    def id(self, name, create=True, type=None):
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
+        if type is None:
+            type = defaultDeck
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
         for id, g in list(self.decks.items()):
@@ -293,9 +296,9 @@ class DeckManager:
 
     def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
         if draggedDeckName == ontoDeckName \
-                or self._isParent(ontoDeckName, draggedDeckName) \
-                or self._isAncestor(draggedDeckName, ontoDeckName):
-                    return False
+            or self._isParent(ontoDeckName, draggedDeckName) \
+            or self._isAncestor(draggedDeckName, ontoDeckName):
+            return False
         else:
             return True
 
@@ -353,8 +356,10 @@ class DeckManager:
         self.dconf[str(g['id'])] = g
         self.save()
 
-    def confId(self, name, cloneFrom=defaultConf):
+    def confId(self, name, cloneFrom=None):
         "Create a new configuration and return id."
+        if cloneFrom is None:
+            cloneFrom = defaultConf
         c = copy.deepcopy(cloneFrom)
         while 1:
             id = intTime(1000)
@@ -450,13 +455,13 @@ class DeckManager:
         for deck in decks:
             # two decks with the same name?
             if deck['name'] in names:
-                print("fix duplicate deck name", deck['name'].encode("utf8"))
+                self.col.log("fix duplicate deck name", deck['name'])
                 deck['name'] += "%d" % intTime(1000)
                 self.save(deck)
 
             # ensure no sections are blank
             if not all(deck['name'].split("::")):
-                print("fix deck with missing sections", deck['name'].encode("utf8"))
+                self.col.log("fix deck with missing sections", deck['name'])
                 deck['name'] = "recovered%d" % intTime(1000)
                 self.save(deck)
 
@@ -464,7 +469,7 @@ class DeckManager:
             if "::" in deck['name']:
                 immediateParent = "::".join(deck['name'].split("::")[:-1])
                 if immediateParent not in names:
-                    print("fix deck with missing parent", deck['name'].encode("utf8"))
+                    self.col.log("fix deck with missing parent", deck['name'])
                     self._ensureParents(deck['name'])
                     names.add(immediateParent)
 

@@ -7,8 +7,8 @@ from anki.consts import NEW_CARDS_RANDOM
 from aqt.qt import *
 import aqt
 from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
-    tooltip, saveGeom, restoreGeom, downArrow
-
+    tooltip, saveGeom, restoreGeom
+from anki.lang import _, ngettext
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):

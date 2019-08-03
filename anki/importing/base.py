@@ -17,6 +17,7 @@ class Importer:
         self.log = []
         self.col = col
         self.total = 0
+        self.dst = None
 
     def run(self):
         pass

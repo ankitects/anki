@@ -2,7 +2,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import codecs
 import csv
 import re
 
@@ -70,7 +69,7 @@ class TextImporter(NoteImporter):
         self.fileobj = open(self.file, "r", encoding='utf-8-sig')
         self.data = self.fileobj.read()
         def sub(s):
-            return re.sub("^\#.*$", "__comment", s)
+            return re.sub(r"^\#.*$", "__comment", s)
         self.data = [sub(x)+"\n" for x in self.data.split("\n") if sub(x) != "__comment"]
         if self.data:
             if self.data[0].startswith("tags:"):

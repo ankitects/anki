@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from aqt.qt import *
+from anki.lang import _
 
 class Toolbar:
 
@@ -43,7 +44,7 @@ class Toolbar:
         buf = ""
         for ln, name, title in links:
             buf += '''
-            <a class=hitem aria-label="%s" title="%s" href=# onclick="return pycmd('%s')">%s</a>''' % (
+            <a class=hitem tabindex="-1" aria-label="%s" title="%s" href=# onclick="return pycmd('%s')">%s</a>''' % (
                 name, title, ln, name)
         return buf
 
@@ -64,7 +65,7 @@ class Toolbar:
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
         else:
-          self.mw.onOverview()
+            self.mw.onOverview()
 
     def _addLinkHandler(self):
         self.mw.onAddCard()

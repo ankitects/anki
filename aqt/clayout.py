@@ -16,7 +16,7 @@ from anki.utils import isMac, isWin, joinFields, bodyClass
 from aqt.webview import AnkiWebView
 import json
 from anki.hooks import runFilter
-
+from anki.lang import _, ngettext
 
 class CardLayout(QDialog):
 
@@ -63,7 +63,7 @@ class CardLayout(QDialog):
     def redraw(self):
         did = None
         if hasattr(self.parent,"deckChooser"):
-                did = self.parent.deckChooser.selectedId()
+            did = self.parent.deckChooser.selectedId()
         self.cards = self.col.previewCards(self.note, 2, did=did)
         idx = self.ord
         if idx >= len(self.cards):
@@ -337,7 +337,7 @@ Please create a new card type first."""))
             repl = "<center>%s</center>" % repl
         else:
             repl = answerRepl
-        return re.sub("\[\[type:.+?\]\]", repl, txt)
+        return re.sub(r"\[\[type:.+?\]\]", repl, txt)
 
     # Card operations
     ######################################################################
@@ -552,6 +552,8 @@ Enter deck to place new %s cards in, or leave blank:""") %
         self.mm.save(self.model, templates=True)
         self.mw.reset()
         saveGeom(self, "CardLayout")
+        self.pform.frontWeb = None
+        self.pform.backWeb = None
         return QDialog.reject(self)
 
     def onHelp(self):

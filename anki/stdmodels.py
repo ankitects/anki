@@ -37,8 +37,8 @@ def addBasicTypingModel(col):
     fm = mm.newField(_("Back"))
     mm.addField(m, fm)
     t = mm.newTemplate(_("Card 1"))
-    t['qfmt'] = "{{"+_("Front")+"}}\n{{type:"+_("Back")+"}}"
-    t['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Back")+"}}"
+    t['qfmt'] = "{{"+_("Front")+"}}\n\n{{type:"+_("Back")+"}}"
+    t['afmt'] = "{{"+_("Front")+"}}\n\n<hr id=answer>\n\n{{type:"+_("Back")+"}}"
     mm.addTemplate(m, t)
     mm.add(m)
     return m

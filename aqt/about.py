@@ -4,7 +4,9 @@
 
 from aqt.qt import *
 import aqt.forms
-from aqt.utils import versionWithBuild, supportText, tooltip
+from anki.utils import versionWithBuild
+from aqt.utils import supportText, tooltip
+from anki.lang import _
 
 class ClosableQDialog(QDialog):
     def reject(self):

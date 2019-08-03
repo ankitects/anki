@@ -5,6 +5,7 @@
 import time
 from aqt.qt import *
 import aqt.forms
+from anki.lang import _
 
 # fixme: if mw->subwindow opens a progress dialog with mw as the parent, mw
 # gets raised on finish on compiz. perhaps we should be using the progress
@@ -48,8 +49,8 @@ class ProgressManager:
         self.inDB = True
         # handle GUI events
         if not self.blockUpdates:
-          self._maybeShow()
-          self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+            self._maybeShow()
+            self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
         self.inDB = False
 
     # Safer timers

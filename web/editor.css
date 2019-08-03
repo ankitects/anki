@@ -8,9 +8,7 @@
     padding: 5px;
     overflow-wrap: break-word;
 }
-.field:empty:before {
-    content: "\00a0"; /* nbsp */
-}
+
 .clearfix:after {
     content: "";
     display: table;
@@ -23,7 +21,7 @@
 }
 
 img {
-    max-width: 90%;
+    max-width: 90vw;
 }
 
 body {
@@ -32,7 +30,6 @@ body {
 
 #topbutsOuter {
     position: fixed;
-    height: 24px;
     top: 0;
     padding: 2px;
     left: 0;

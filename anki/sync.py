@@ -6,11 +6,13 @@ import io
 import gzip
 import random
 import requests
+import json
+import os
 
 from anki.db import DB, DBError
-from anki.utils import ids2str, intTime, json, platDesc, checksum, devMode
+from anki.utils import ids2str, intTime, platDesc, checksum, devMode
 from anki.consts import *
-from aqt.utils import versionWithBuild
+from anki.utils import versionWithBuild
 from .hooks import runHook
 import anki
 from .lang import ngettext
@@ -733,7 +735,8 @@ class MediaSyncer:
                         need.append(fname)
                     else:
                         self.col.log("have same already")
-                    ldirty and self.col.media.markClean([fname])
+                    if ldirty:
+                        self.col.media.markClean([fname])
                 elif lsum:
                     # deleted remotely
                     if not ldirty:
@@ -745,7 +748,8 @@ class MediaSyncer:
                 else:
                     # deleted both sides
                     self.col.log("both sides deleted")
-                    ldirty and self.col.media.markClean([fname])
+                    if ldirty:
+                        self.col.media.markClean([fname])
 
             self._downloadFiles(need)
 

@@ -5,6 +5,7 @@
 from aqt.qt import *
 import aqt
 from aqt.utils import  showWarning, openHelp, askUser, saveGeom, restoreGeom
+from anki.lang import _
 
 class DeckConf(QDialog):
     def __init__(self, mw, first=False, search="", deck=None):

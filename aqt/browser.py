@@ -14,17 +14,18 @@ import json
 from aqt.qt import *
 import anki
 import aqt.forms
-from anki.utils import fmtTimeSpan, ids2str, stripHTMLMedia, htmlToTextLine, \
+from anki.utils import fmtTimeSpan, ids2str, htmlToTextLine, \
     isWin, intTime, \
-    isMac, isLin, bodyClass
+    isMac, bodyClass
 from aqt.utils import saveGeom, restoreGeom, saveSplitter, restoreSplitter, \
     saveHeader, restoreHeader, saveState, restoreState, getTag, \
     showInfo, askUser, tooltip, openHelp, showWarning, shortcut, mungeQA, \
     getOnlyText, MenuList, SubMenu, qtMenuShortcutWorkaround
+from anki.lang import _
 from anki.hooks import runHook, addHook, remHook, runFilter
 from aqt.webview import AnkiWebView
 from anki.consts import *
-from anki.sound import playFromText, clearAudioQueue, allSounds, play
+from anki.sound import clearAudioQueue, allSounds, play
 
 
 # Data model
@@ -410,6 +411,7 @@ class Browser(QMainWindow):
         self.show()
 
     def setupMenus(self):
+        # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
         f.previewButton.clicked.connect(self.onTogglePreview)
@@ -419,8 +421,6 @@ class Browser(QMainWindow):
         f.filter.clicked.connect(self.onFilterButton)
         # edit
         f.actionUndo.triggered.connect(self.mw.onUndo)
-        if qtminor < 11:
-            f.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
         f.actionInvertSelection.triggered.connect(self.invertSelection)
         f.actionSelectNotes.triggered.connect(self.selectNotes)
         if not isMac:
@@ -807,8 +807,8 @@ by clicking on one on the left."""))
         def __init__(self):
             QTreeWidget.__init__(self)
             self.itemClicked.connect(self.onTreeClick)
-            self.itemExpanded.connect(lambda item: self.onTreeCollapse(item))
-            self.itemCollapsed.connect(lambda item: self.onTreeCollapse(item))
+            self.itemExpanded.connect(self.onTreeCollapse)
+            self.itemCollapsed.connect(self.onTreeCollapse)
 
         def keyPressEvent(self, evt):
             if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
@@ -951,7 +951,7 @@ by clicking on one on the left."""))
         if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur and cur != self._searchPrompt:
-                        txt = cur + " " + txt
+                txt = cur + " " + txt
         elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur:
@@ -1127,6 +1127,8 @@ by clicking on one on the left."""))
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
         class CardInfoDialog(QDialog):
+            silentlyClose = True
+
             def reject(self):
                 saveGeom(self, "revlog")
                 return QDialog.reject(self)
@@ -1263,6 +1265,7 @@ where id in %s""" % ids2str(sf))
 
     def _openPreview(self):
         self._previewState = "question"
+        self._lastPreviewState = None
         self._previewWindow = QDialog(None, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
 
@@ -1297,9 +1300,9 @@ where id in %s""" % ids2str(sf))
         self.previewShowBothSides.setShortcut(QKeySequence("B"))
         self.previewShowBothSides.setToolTip(_("Shortcut key: %s" % "B"))
         bbox.addButton(self.previewShowBothSides, QDialogButtonBox.ActionRole)
-        self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
         self._previewBothSides = self.col.conf.get("previewBothSides", False)
         self.previewShowBothSides.setChecked(self._previewBothSides)
+        self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
 
         self._setupPreviewWebview()
 
@@ -1385,6 +1388,7 @@ where id in %s""" % ids2str(sf))
         if not c or not self.singleCard:
             txt = _("(please select 1 card)")
             bodyclass = ""
+            self._lastPreviewState = None
         else:
             if self._previewBothSides:
                 self._previewState = "answer"
@@ -1422,7 +1426,7 @@ where id in %s""" % ids2str(sf))
             txt = mungeQA(self.col, txt)
             txt = runFilter("prepareQA", txt, c,
                             "preview"+self._previewState.capitalize())
-        self._lastPreviewState = self._previewStateAndMod()
+            self._lastPreviewState = self._previewStateAndMod()
         self._updatePreviewButtons()
         self._previewWeb.eval(
             "{}({},'{}');".format(func, json.dumps(txt), bodyclass))
@@ -1436,8 +1440,10 @@ where id in %s""" % ids2str(sf))
         self._renderPreview()
 
     def _previewStateAndMod(self):
-        n = self.card.note()
-        return (self._previewState, n.id, n.mod)
+        c = self.card
+        n = c.note()
+        n.load()
+        return (self._previewState, c.id, n.mod)
 
     # Card deletion
     ######################################################################
