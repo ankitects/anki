@@ -20,3 +20,8 @@ if isWin:
 # included implicitly in the past, and relied upon by some add-ons
 import cgi
 import uuid
+
+# useful for add-ons
+import logging
+import logging.handlers
+import logging.config
