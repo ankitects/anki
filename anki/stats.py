@@ -811,7 +811,10 @@ from cards where did in %s""" % self._limit())
         conf['yaxis']['labelWidth'] = 40
         if 'xaxis' not in conf:
             conf['xaxis'] = {}
-        conf['timeTicks'] = {1: _("d"), 7: _("w"), 31: _("mo")}[xunit]
+        if xunit is None:
+            conf['timeTicks'] = False
+        else:
+            conf['timeTicks'] = {1: _("d"), 7: _("w"), 31: _("mo")}[xunit]
         # types
         width = self.width
         height = self.height
