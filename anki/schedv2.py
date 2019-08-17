@@ -792,19 +792,13 @@ did in %s and queue = 2 and due <= ? limit %d)""" % (
             self._revQueue = self.col.db.list("""
 select id from cards where
 did in %s and queue = 2 and due <= ?
-order by due
+order by due, random()
 limit ?""" % (ids2str(self.col.decks.active())),
                     self.today, lim)
 
             if self._revQueue:
-                if self.col.decks.get(self.col.decks.selected(), default=False)['dyn']:
-                    # dynamic decks need due order preserved
-                    self._revQueue.reverse()
-                else:
-                    # fixme: as soon as a card is answered, this is no longer consistent
-                    r = random.Random()
-                    r.seed(self.today)
-                    r.shuffle(self._revQueue)
+                # preserve order
+                self._revQueue.reverse()
                 return True
 
         if self.revCount:
