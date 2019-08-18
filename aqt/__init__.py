@@ -309,6 +309,10 @@ def _run(argv=None, exec=True):
     if not os.environ.get("ANKI_NOHIGHDPI"):
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
+    # Opt into software rendering. Useful for buggy systems.
+    if os.environ.get("ANKI_SOFTWAREOPENGL"):
+        QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+
     # create the app
     QCoreApplication.setApplicationName("Anki")
     QGuiApplication.setDesktopFileName("anki.desktop")
