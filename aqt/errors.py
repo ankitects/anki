@@ -12,9 +12,8 @@ from aqt import mw
 
 if not os.environ.get("DEBUG"):
     def excepthook(etype,val,tb):
-        sys.stderr.write("Caught exception:\n%s%s\n" % (
-            ''.join(traceback.format_tb(tb)),
-            '{0}: {1}'.format(etype, val)))
+        sys.stderr.write("Caught exception:\n%s\n" % (
+            ''.join(traceback.format_exception(etype, val, tb))))
     sys.excepthook = excepthook
 
 class ErrorHandler(QObject):
