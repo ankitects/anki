@@ -545,7 +545,7 @@ def fieldNamesForNotes(col, nids):
         for name in col.models.fieldNames(model):
             if name not in fields: #slower w/o
                 fields.add(name)
-    return sorted(list(fields), key=lambda x: x.lower())
+    return sorted(fields, key=lambda x: x.lower())
 
 # Find duplicates
 ##########################################################################
