@@ -530,28 +530,22 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
 
 def fieldNames(col, downcase=True):
     fields = set()
-    names = []
     for m in col.models.all():
         for f in m['flds']:
-            if f['name'].lower() not in fields:
-                names.append(f['name'])
-                fields.add(f['name'].lower())
-    if downcase:
-        return list(fields)
-    return names
+            name=f['name'].lower() if downcase else f['name']
+            if name not in fields: #slower w/o
+                fields.add(name)
+    return list(fields)
 
 def fieldNamesForNotes(col, nids):
-    downcasedNames = set()
-    origNames = []
+    fields = set()
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:
         model = col.models.get(mid)
-        for field in col.models.fieldNames(model):
-            if field.lower() not in downcasedNames:
-                downcasedNames.add(field.lower())
-                origNames.append(field)
-
-    return sorted(origNames, key=lambda x: x.lower())
+        for name in col.models.fieldNames(model):
+            if name not in fields: #slower w/o
+                fields.add(name)
+    return sorted(fields, key=lambda x: x.lower())
 
 # Find duplicates
 ##########################################################################
