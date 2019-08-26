@@ -20,6 +20,7 @@ if isWin:
 # included implicitly in the past, and relied upon by some add-ons
 import cgi
 import uuid
+import decimal
 
 # useful for add-ons
 import logging
