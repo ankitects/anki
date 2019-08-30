@@ -76,7 +76,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             c.lapses = row[7]
             # ivl is inferred in mnemosyne
             next, prev = row[3:5]
-            c.ivl = max(1, (next - prev)/86400)
+            c.ivl = max(1, (next - prev)//86400)
             # work out how long we've got left
             rem = int((next - time.time())/86400)
             c.due = self.col.sched.today+rem
