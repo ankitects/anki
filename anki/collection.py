@@ -110,6 +110,7 @@ class _Collection:
             raise Exception("Unsupported scheduler version")
 
         self.modSchema(check=True)
+        self.clearUndo()
 
         from anki.schedv2 import Scheduler
         v2Sched = Scheduler(self)
