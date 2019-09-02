@@ -220,7 +220,7 @@ question on all cards."""), help="AddItems")
     def ifCanClose(self, onOk):
         def afterSave():
             ok = (self.editor.fieldsAreBlank() or
-                    askUser(_("Close and lose current input?")))
+                    askUser(_("Close and lose current input?"), defaultno=True))
             if ok:
                 onOk()
 
