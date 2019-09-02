@@ -909,10 +909,14 @@ class EditorWebView(AnkiWebView):
         if not mime.hasUrls():
             return
 
-        url = mime.urls()[0].toString()
-        # chrome likes to give us the URL twice with a \n
-        url = url.splitlines()[0]
-        return self.editor.urlToLink(url)
+        buf = ""
+        for url in mime.urls():
+            url = url.toString()
+            # chrome likes to give us the URL twice with a \n
+            url = url.splitlines()[0]
+            buf += self.editor.urlToLink(url) or ""
+
+        return buf
 
     def _processText(self, mime):
         if not mime.hasText():
