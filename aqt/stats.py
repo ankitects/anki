@@ -44,6 +44,7 @@ class DeckStats(QDialog):
         self.activateWindow()
 
     def reject(self):
+        self.form.web = None
         saveGeom(self, self.name)
         aqt.dialogs.markClosed("DeckStats")
         QDialog.reject(self)
