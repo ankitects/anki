@@ -193,6 +193,8 @@ class AnkiQt(QMainWindow):
         if name:
             if name in self.pm.profiles():
                 return showWarning(_("Name exists."))
+            if len(name) >= 255:
+                return showWarning(_("Name should be less than 256 characters!"))
             if not self.profileNameOk(name):
                 return
             self.pm.create(name)
