@@ -228,7 +228,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             elif type == "cardDue":
                 sort = "c.type, c.due"
             elif type == "cardEase":
-                sort = "c.factor"
+                sort = "c.type == 0, c.factor"
             elif type == "cardLapses":
                 sort = "c.lapses"
             elif type == "cardIvl":
