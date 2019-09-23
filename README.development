@@ -42,15 +42,8 @@ the top and check the requirements again.
 ALL USERS: Make sure you rebuild the UI every time you git pull, otherwise you
 will get errors down the road.
 
-The translations are stored in a bazaar repo for integration with Launchpad's
-translation services. If you want to use a language other than English:
-
-$ cd ..
-$ mv anki dtop # i18n code expects anki folder to be called dtop
-$ bzr branch lp:anki i18n
-$ cd i18n
-$ ./update-mos.sh
-$ cd ../dtop
+If you want to use a language other than English, copy the locale/ folder
+from a source tarball into the root of the repo.
 
 And now you're ready to run Anki:
 $ ./runanki
