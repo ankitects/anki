@@ -21,6 +21,7 @@ if isWin:
 import cgi
 import uuid
 import decimal
+import PyQt5.QtSvg
 
 # useful for add-ons
 import logging
