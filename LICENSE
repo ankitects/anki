@@ -14,7 +14,7 @@ Please see LICENSE.logo for the copyright and license of Anki's logo.
 
 The following included source code items use a license other than AGPL3:
 
- * Anki's translations: BSD.
+ * Anki's translations: A mix of BSD and public domain.
  * Qt's bundled translations: LGPL3.
  * The anki/template/ folder is based off pystache: MIT.
  * The SuperMemo importer: GPL3.
