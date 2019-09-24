@@ -492,6 +492,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     # find and gather replacements
     if not regex:
         src = re.escape(src)
+        dst = dst.replace("\\", "\\\\")
     if fold:
         src = "(?i)"+src
     regex = re.compile(src)
