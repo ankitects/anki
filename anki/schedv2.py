@@ -1079,7 +1079,9 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         query = """
 update cards set
 odid = did, odue = due,
-did = ?, due = ?, usn = ?
+did = ?,
+due = (case when due <= 0 then due else ? end),
+usn = ?
 %s
 where id = ?
 """ % queue

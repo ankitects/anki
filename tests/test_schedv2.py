@@ -1179,3 +1179,28 @@ def test_moveVersions():
     col.changeSchedulerVer(1)
     c.load()
     assert c.due == 50
+
+# cards with a due date earlier than the collection should retain
+# their due date when removed
+def test_negativeDueFilter():
+    d = getEmptyCol()
+
+    # card due prior to collection date
+    f = d.newNote()
+    f['Front'] = "one"; f['Back'] = "two"
+    d.addNote(f)
+    c = f.cards()[0]
+    c.due = -5
+    c.queue = 2
+    c.ivl = 5
+    c.flush()
+
+    # into and out of filtered deck
+    did = d.decks.newDyn("Cram")
+    d.sched.rebuildDyn(did)
+    d.sched.emptyDyn(did)
+    d.reset()
+
+    c.load()
+    assert c.due == -5
+
