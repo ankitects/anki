@@ -421,6 +421,7 @@ def play(path):
     _player(path)
 
 def clearAudioQueue():
-    _queueEraser()
+    if _queueEraser:
+        _queueEraser()
 
 Recorder = PyAudioRecorder
