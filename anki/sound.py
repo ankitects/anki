@@ -103,11 +103,14 @@ class MpvManager(MPV):
     def __init__(self):
         super().__init__(window_id=None, debug=False)
 
-    def queueFile(self, file):
+    def queueFile(self, file, speed=None):
         runHook("mpvWillPlay", file)
 
         path = os.path.join(os.getcwd(), file)
-        self.command("loadfile", path, "append-play")
+        if speed:
+            self.command("loadfile", path, "append-play", "speed=" + f"{speed:.2f}")
+        else:
+            self.command("loadfile", path, "append-play")
 
     def clearQueue(self):
         self.command("stop")
@@ -115,8 +118,14 @@ class MpvManager(MPV):
     def togglePause(self):
         self.set_property("pause", not self.get_property("pause"))
 
+    def set_speed(self, speed):
+        self.set_property("speed", speed)
+
     def seekRelative(self, secs):
         self.command("seek", secs, "relative")
+
+    def is_idle_active(self): # check if mpv is playing
+        return self.get_property("idle-active")
 
     def on_idle(self):
         runHook("mpvIdleHook")
@@ -263,7 +272,7 @@ class MplayerMonitor(threading.Thread):
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
 
-def queueMplayer(path):
+def queueMplayer(path, speed=None):
     ensureMplayerThreads()
     if isWin and os.path.exists(path):
         # mplayer on windows doesn't like the encoding, so we create a
@@ -417,8 +426,8 @@ if not pyaudio:
 _player = queueMplayer
 _queueEraser = clearMplayerQueue
 
-def play(path):
-    _player(path)
+def play(path, speed=None):
+    _player(path,speed)
 
 def clearAudioQueue():
     if _queueEraser:
