@@ -6,6 +6,9 @@
 import re
 from anki.hooks import addHook
 
+# Match kanji followed by hiragana in brackets first
+narrow = r'([\u4e00-\u9faf]*)\[(.*?)\]'
+# Run original wider matching regex second
 r = r' ?([^ >]+?)\[(.+?)\]'
 ruby = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
 
@@ -15,6 +18,7 @@ def noSound(repl):
             # return without modification
             return match.group(0)
         else:
+            # OK to use original match here as working on matching portion only
             return re.sub(r, repl, match.group(0))
     return func
 
@@ -22,13 +26,19 @@ def _munge(s):
     return s.replace("&nbsp;", " ")
 
 def kanji(txt, *args):
-    return re.sub(r, noSound(r'\1'), _munge(txt))
+    repl = noSound(r'\1')
+    first = re.sub(narrow, repl, _munge(txt))
+    return re.sub(r, repl, first)
 
 def kana(txt, *args):
-    return re.sub(r, noSound(r'\2'), _munge(txt))
+    repl = noSound(r'\2')
+    first = re.sub(narrow, repl, _munge(txt))
+    return re.sub(r, repl, first)
 
 def furigana(txt, *args):
-    return re.sub(r, noSound(ruby), _munge(txt))
+    repl = noSound(ruby)
+    first = re.sub(narrow, repl, _munge(txt))
+    return re.sub(r, repl, first)
 
 def install():
     addHook('fmod_kanji', kanji)
