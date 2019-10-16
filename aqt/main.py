@@ -266,6 +266,7 @@ close the profile or restart Anki."""))
         self.setWindowTitle(self.pm.name + " - Anki")
         # show and raise window for osx
         self.show()
+        self.setMinimumSize(480, 300)
         self.activateWindow()
         self.raise_()
 
