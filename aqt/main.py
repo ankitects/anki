@@ -1107,7 +1107,7 @@ will be lost. Continue?"""))
             if report:
                 report += "\n\n\n"
             report += _(
-                "In media folder but not used by any cards:")
+                str(len(unused)) + " files found in media folder not used by any cards:")
             report += "\n" + "\n".join(unused)
         if nohave:
             if report:
@@ -1159,11 +1159,11 @@ will be lost. Continue?"""))
                 now = time.time()
                 if now - lastProgress >= 0.3:
                     lastProgress = now
-                    label = _("Deleted %s files...") % (c+1)
+                    label = _("%d files remaining...") % (len(unused) - (c+1))
                     self.progress.update(label)
         finally:
             self.progress.finish()
-        tooltip(_("Deleted."))
+        tooltip(_("Deleted %d files.") % c)
         diag.close()
 
     def onStudyDeck(self):
