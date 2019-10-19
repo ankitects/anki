@@ -1104,14 +1104,12 @@ will be lost. Continue?"""))
         if warnings:
             report += "\n".join(warnings) + "\n"
         if unused:
-            numberOfUnusedFilesLabel = str(len(unused))
+            numberOfUnusedFilesLabel = len(unused)
             if report:
                 report += "\n\n\n"
-            report += numberOfUnusedFilesLabel + " "
-            report += ngettext(
-                "file found in media folder not used by any cards:",
-                "files found in media folder not used by any cards:",
-                int(numberOfUnusedFilesLabel))
+            report += ngettext("%d file found in media folder not used by any cards:",
+                "%d files found in media folder not used by any cards:",
+                numberOfUnusedFilesLabel) % numberOfUnusedFilesLabel
             report += "\n" + "\n".join(unused)
         if nohave:
             if report:
