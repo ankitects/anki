@@ -354,8 +354,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         have = {}
         dids = {}
         dues = {}
-        for id, nid, ord, did, due, odue, odid in self.db.execute(
-            "select id, nid, ord, did, due, odue, odid from cards where nid in "+snids):
+        for id, nid, ord, did, due, odue, odid, type in self.db.execute(
+            "select id, nid, ord, did, due, odue, odid, type from cards where nid in "+snids):
             # existing cards
             if nid not in have:
                 have[nid] = {}
@@ -375,7 +375,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             # save due
             if odid != 0:
                 due = odue
-            if nid not in dues:
+            if nid not in dues and type == 0:
+                # Add due to new card only if it's the due of a new sibling
                 dues[nid] = due
         # build cards for each note
         data = []
