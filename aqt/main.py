@@ -1104,10 +1104,12 @@ will be lost. Continue?"""))
         if warnings:
             report += "\n".join(warnings) + "\n"
         if unused:
+            numberOfUnusedFilesLabel = len(unused)
             if report:
                 report += "\n\n\n"
-            report += _(
-                "In media folder but not used by any cards:")
+            report += ngettext("%d file found in media folder not used by any cards:",
+                "%d files found in media folder not used by any cards:",
+                numberOfUnusedFilesLabel) % numberOfUnusedFilesLabel
             report += "\n" + "\n".join(unused)
         if nohave:
             if report:
@@ -1158,12 +1160,18 @@ will be lost. Continue?"""))
 
                 now = time.time()
                 if now - lastProgress >= 0.3:
+                    numberOfRemainingFilesToBeDeleted = len(unused) - c
                     lastProgress = now
-                    label = _("Deleted %s files...") % (c+1)
+                    label = ngettext("%d file remaining...",
+                    "%d files remaining...",
+                    numberOfRemainingFilesToBeDeleted) % numberOfRemainingFilesToBeDeleted
                     self.progress.update(label)
         finally:
             self.progress.finish()
-        tooltip(_("Deleted."))
+        numberOfFilesDeleted = c + 1
+        tooltip(ngettext("Deleted %d file.",
+        "Deleted %d files.",
+        numberOfFilesDeleted) % numberOfFilesDeleted)
         diag.close()
 
     def onStudyDeck(self):
