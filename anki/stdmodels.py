@@ -10,7 +10,7 @@ models = []
 # Basic
 ##########################################################################
 
-def newBasicModel(col):
+def _newBasicModel(col):
     mm = col.models
     m = mm.new(_("Basic"))
     fm = mm.newField(_("Front"))
@@ -24,7 +24,7 @@ def newBasicModel(col):
     return m
 
 def addBasicModel(col):
-    m = newBasicModel(col)
+    m = _newBasicModel(col)
     col.models.add(m)
     return m
 
@@ -54,7 +54,7 @@ models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
 
 def addForwardReverse(col):
     mm = col.models
-    m = newBasicModel(col)
+    m = _newBasicModel(col)
     m['name'] = _("Basic (and reversed card)")
     t = mm.newTemplate(_("Card 2"))
     t['qfmt'] = "{{"+_("Back")+"}}"
@@ -70,7 +70,7 @@ models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
 
 def addForwardOptionalReverse(col):
     mm = col.models
-    m = newBasicModel(col)
+    m = _newBasicModel(col)
     m['name'] = _("Basic (optional reversed card)")
     av = _("Add Reverse")
     fm = mm.newField(av)
