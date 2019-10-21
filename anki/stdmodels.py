@@ -10,9 +10,11 @@ models = []
 # Basic
 ##########################################################################
 
-def addBasicModel(col):
+def addBasicModel(col, name=None):
     mm = col.models
-    m = mm.new(_("Basic"))
+    if name is None:
+        name = _("Basic")
+    m = mm.new(name)
     fm = mm.newField(_("Front"))
     mm.addField(m, fm)
     fm = mm.newField(_("Back"))
@@ -29,9 +31,11 @@ models.append((lambda: _("Basic"), addBasicModel))
 # Basic w/ typing
 ##########################################################################
 
-def addBasicTypingModel(col):
+def addBasicTypingModel(col, name=None):
     mm = col.models
-    m = mm.new(_("Basic (type in the answer)"))
+    if name is None:
+        name = _("Basic (type in the answer)")
+    m = mm.new(name)
     fm = mm.newField(_("Front"))
     mm.addField(m, fm)
     fm = mm.newField(_("Back"))
@@ -48,9 +52,9 @@ models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
 # Forward & Reverse
 ##########################################################################
 
-def addForwardReverse(col):
+def addForwardReverse(col, name=None):
     mm = col.models
-    m = addBasicModel(col)
+    m = addBasicModel(col, name)
     m['name'] = _("Basic (and reversed card)")
     t = mm.newTemplate(_("Card 2"))
     t['qfmt'] = "{{"+_("Back")+"}}"
@@ -63,9 +67,9 @@ models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
 # Forward & Optional Reverse
 ##########################################################################
 
-def addForwardOptionalReverse(col):
+def addForwardOptionalReverse(col, name=None):
     mm = col.models
-    m = addBasicModel(col)
+    m = addBasicModel(col, name)
     m['name'] = _("Basic (optional reversed card)")
     av = _("Add Reverse")
     fm = mm.newField(av)
@@ -82,9 +86,11 @@ models.append((lambda: _("Basic (optional reversed card)"),
 # Cloze
 ##########################################################################
 
-def addClozeModel(col):
+def addClozeModel(col, name=None):
     mm = col.models
-    m = mm.new(_("Cloze"))
+    if name is None:
+        name = _("Cloze")
+    m = mm.new(name)
     m['type'] = MODEL_CLOZE
     txt = _("Text")
     fm = mm.newField(txt)

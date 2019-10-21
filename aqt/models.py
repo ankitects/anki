@@ -82,11 +82,6 @@ class Models(QDialog):
     def onAdd(self):
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(_("Name:"), default=m['name'])[0]
-            if txt:
-                m['name'] = txt
-            self.mm.ensureNameUnique(m)
-            self.mm.save(m)
             self.updateModelsList()
 
     def onDelete(self):
@@ -174,12 +169,13 @@ class AddModel(QDialog):
                 name = name()
             item = QListWidgetItem(_("Add: %s") % name)
             self.dialog.models.addItem(item)
-            self.models.append((True, func))
+            self.models.append((True, func, name))
         # add copies
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(_("Clone: %s") % m['name'])
+            name = m['name']
+            item = QListWidgetItem(_("Clone: %s") % name)
             self.dialog.models.addItem(item)
-            self.models.append((False, m))
+            self.models.append((False, m, "%s copy" % name))
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
@@ -195,13 +191,17 @@ class AddModel(QDialog):
         QDialog.reject(self)
 
     def accept(self):
-        (isStd, model) = self.models[self.dialog.models.currentRow()]
+        (isStd, model, name) = self.models[self.dialog.models.currentRow()]
+        name = self.col.models.ensureNotAModelName(name)
+        (name, valid) = getText(_("Name:"), default=name)
+        if not valid or not name:
+            return self.reject()
         if isStd:
             # create
-            self.model = model(self.col)
+            self.model = model(self.col, name)
         else:
             # add copy to deck
-            self.model = self.mw.col.models.copy(model)
+            self.model = self.mw.col.models.copy(model, name)
             self.mw.col.models.setCurrent(self.model)
         QDialog.accept(self)
 

@@ -174,10 +174,13 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.save(m)
 
     def ensureNameUnique(self, m):
+        m['name'] = self.ensureNotAModelName(m['name'], m['id'])
+
+    def ensureNotAModelName(self, name, mid=None):
         for mcur in self.all():
-            if (mcur['name'] == m['name'] and mcur['id'] != m['id']):
-                m['name'] += "-" + checksum(str(time.time()))[:5]
-                break
+            if (mcur['name'] == name and mcur['id'] != mid):
+                return name + "-" + checksum(str(time.time()))[:5]
+        return name
 
     def update(self, m):
         "Add or update an existing model. Used for syncing and merging."
@@ -220,10 +223,10 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
     # Copying
     ##################################################
 
-    def copy(self, m):
+    def copy(self, m, name=None):
         "Copy, save and return."
         m2 = copy.deepcopy(m)
-        m2['name'] = _("%s copy") % m2['name']
+        m2['name'] = name or (_("%s copy") % m2['name'])
         self.add(m2)
         return m2
 
