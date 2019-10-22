@@ -1168,6 +1168,8 @@ will be lost. Continue?"""))
                     self.progress.update(label)
         finally:
             self.progress.finish()
+        # caller must not pass in empty list
+        # pylint: disable=undefined-loop-variable
         numberOfFilesDeleted = c + 1
         tooltip(ngettext("Deleted %d file.",
         "Deleted %d files.",
