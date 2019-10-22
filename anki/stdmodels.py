@@ -10,9 +10,9 @@ models = []
 # Basic
 ##########################################################################
 
-def _newBasicModel(col):
+def _newBasicModel(col, name=None):
     mm = col.models
-    m = mm.new(_("Basic"))
+    m = mm.new(name or _("Basic"))
     fm = mm.newField(_("Front"))
     mm.addField(m, fm)
     fm = mm.newField(_("Back"))
@@ -35,15 +35,10 @@ models.append((lambda: _("Basic"), addBasicModel))
 
 def addBasicTypingModel(col):
     mm = col.models
-    m = mm.new(_("Basic (type in the answer)"))
-    fm = mm.newField(_("Front"))
-    mm.addField(m, fm)
-    fm = mm.newField(_("Back"))
-    mm.addField(m, fm)
-    t = mm.newTemplate(_("Card 1"))
+    m = _newBasicModel(col, _("Basic (type in the answer)"))
+    t = m['tmpls'][0]
     t['qfmt'] = "{{"+_("Front")+"}}\n\n{{type:"+_("Back")+"}}"
     t['afmt'] = "{{"+_("Front")+"}}\n\n<hr id=answer>\n\n{{type:"+_("Back")+"}}"
-    mm.addTemplate(m, t)
     mm.add(m)
     return m
 
@@ -52,15 +47,18 @@ models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
 # Forward & Reverse
 ##########################################################################
 
-def addForwardReverse(col):
+def _newForwardReverse(col, name=None):
     mm = col.models
-    m = _newBasicModel(col)
-    m['name'] = _("Basic (and reversed card)")
+    m = _newBasicModel(col, name or _("Basic (and reversed card)"))
     t = mm.newTemplate(_("Card 2"))
     t['qfmt'] = "{{"+_("Back")+"}}"
     t['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Front")+"}}"
     mm.addTemplate(m, t)
-    mm.add(m)
+    return m
+
+def addForwardReverse(col):
+    m = _newForwardReverse(col)
+    col.models.add(m)
     return m
 
 models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
@@ -70,15 +68,12 @@ models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
 
 def addForwardOptionalReverse(col):
     mm = col.models
-    m = _newBasicModel(col)
-    m['name'] = _("Basic (optional reversed card)")
+    m = _newForwardReverse(col, _("Basic (optional reversed card)"))
     av = _("Add Reverse")
     fm = mm.newField(av)
     mm.addField(m, fm)
-    t = mm.newTemplate(_("Card 2"))
-    t['qfmt'] = "{{#%s}}{{%s}}{{/%s}}" % (av, _("Back"), av)
-    t['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n"+"{{"+_("Front")+"}}"
-    mm.addTemplate(m, t)
+    t = m['tmpls'][1]
+    t['qfmt'] = "{{#%s}}%s{{/%s}}" % (av, t['qfmt'], av)
     mm.add(m)
     return m
 
