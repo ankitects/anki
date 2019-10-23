@@ -156,7 +156,7 @@ class ModelManager:
 
     def rem(self, m):
         "Delete model, and all its cards/notes."
-        self.col.modSchema(check=True)
+        _modSchemaIfRequired(m)
         current = self.current()['id'] == m['id']
         # delete notes/cards
         self.col.remCards(self.col.db.list("""
@@ -251,7 +251,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
 
     def setSortIdx(self, m, idx):
         assert 0 <= idx < len(m['flds'])
-        self.col.modSchema(check=True)
+        _modSchemaIfRequired(m)
         m['sortf'] = idx
         self.col.updateFieldCache(self.nids(m))
         self.save(m)
@@ -270,7 +270,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self._transformFields(m, add)
 
     def remField(self, m, field):
-        self.col.modSchema(check=True)
+        _modSchemaIfRequired(m)
         # save old sort field
         sortFldName = m['flds'][m['sortf']]['name']
         idx = m['flds'].index(field)
@@ -293,7 +293,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self.renameField(m, field, None)
 
     def moveField(self, m, field, idx):
-        self.col.modSchema(check=True)
+        _modSchemaIfRequired(m)
         oldidx = m['flds'].index(field)
         if oldidx == idx:
             return
@@ -314,7 +314,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self._transformFields(m, move)
 
     def renameField(self, m, field, newName):
-        self.col.modSchema(check=True)
+        _modSchemaIfRequired(m)
         pat = r'{{([^{}]*)([:#^/]|[^:#/^}][^:}]*?:|)%s}}'
         def wrap(txt):
             def repl(match):
@@ -382,7 +382,7 @@ having count() < 2
 limit 1""" % ids2str(cids)):
             return False
         # ok to proceed; remove cards
-        self.col.modSchema(check=True)
+        _modSchemaIfRequired(m)
         self.col.remCards(cids)
         # shift ordinals
         self.col.db.execute("""
@@ -426,7 +426,7 @@ select id from notes where mid = ?)""" % " ".join(map),
     # - newModel should be self if model is not changing
 
     def change(self, m, nids, newModel, fmap, cmap):
-        self.col.modSchema(check=True)
+        _modSchemaIfRequired(m)
         assert newModel['id'] == m['id'] or (fmap and cmap)
         if fmap:
             self._changeNotes(nids, newModel, fmap)
