@@ -150,6 +150,7 @@ class ModelManager:
         m['tmpls'] = []
         m['tags'] = []
         m['id'] = None
+        m['usn'] = self.col.usn()
         return m
 
     def rem(self, m):
@@ -225,6 +226,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         m2 = copy.deepcopy(m)
         m2['name'] = _("%s copy") % m2['name']
         self.add(m2)
+        m['usn'] = self.col.usn()
         return m2
 
     # Fields
@@ -253,9 +255,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self.save(m)
 
     def addField(self, m, field):
-        # only mod schema if model isn't new
-        if m['id']:
-            self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         m['flds'].append(field)
         self._updateFieldOrds(m)
         self.save(m)
@@ -352,8 +352,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
 
     def addTemplate(self, m, template):
         "Note: should col.genCards() afterwards."
-        if m['id']:
-            self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         m['tmpls'].append(template)
         self._updateTemplOrds(m)
         self.save(m)
@@ -473,6 +472,10 @@ select id from notes where mid = ?)""" % " ".join(map),
             "update cards set ord=:new,usn=:u,mod=:m where id=:cid",
             d)
         self.col.remCards(deleted)
+
+    def _modSchemaIfRequired(self, m):
+        if m['id'] and m["usn"] != -1:
+            self.col.modSchema(check=True)
 
     # Schema hash
     ##########################################################################
