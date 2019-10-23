@@ -150,11 +150,12 @@ class ModelManager:
         m['tmpls'] = []
         m['tags'] = []
         m['id'] = None
+        m['ls'] = self.col.ls
         return m
 
     def rem(self, m):
         "Delete model, and all its cards/notes."
-        self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         current = self.current()['id'] == m['id']
         # delete notes/cards
         self.col.remCards(self.col.db.list("""
@@ -225,6 +226,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         m2 = copy.deepcopy(m)
         m2['name'] = _("%s copy") % m2['name']
         self.add(m2)
+        m['ls'] = self.col.ls
         return m2
 
     # Fields
@@ -247,15 +249,13 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
 
     def setSortIdx(self, m, idx):
         assert 0 <= idx < len(m['flds'])
-        self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         m['sortf'] = idx
         self.col.updateFieldCache(self.nids(m))
         self.save(m)
 
     def addField(self, m, field):
-        # only mod schema if model isn't new
-        if m['id']:
-            self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         m['flds'].append(field)
         self._updateFieldOrds(m)
         self.save(m)
@@ -265,7 +265,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self._transformFields(m, add)
 
     def remField(self, m, field):
-        self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         # save old sort field
         sortFldName = m['flds'][m['sortf']]['name']
         idx = m['flds'].index(field)
@@ -288,7 +288,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self.renameField(m, field, None)
 
     def moveField(self, m, field, idx):
-        self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         oldidx = m['flds'].index(field)
         if oldidx == idx:
             return
@@ -309,7 +309,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self._transformFields(m, move)
 
     def renameField(self, m, field, newName):
-        self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         pat = r'{{([^{}]*)([:#^/]|[^:#/^}][^:}]*?:|)%s}}'
         def wrap(txt):
             def repl(match):
@@ -352,8 +352,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
 
     def addTemplate(self, m, template):
         "Note: should col.genCards() afterwards."
-        if m['id']:
-            self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         m['tmpls'].append(template)
         self._updateTemplOrds(m)
         self.save(m)
@@ -376,7 +375,7 @@ having count() < 2
 limit 1""" % ids2str(cids)):
             return False
         # ok to proceed; remove cards
-        self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         self.col.remCards(cids)
         # shift ordinals
         self.col.db.execute("""
@@ -420,7 +419,7 @@ select id from notes where mid = ?)""" % " ".join(map),
     # - newModel should be self if model is not changing
 
     def change(self, m, nids, newModel, fmap, cmap):
-        self.col.modSchema(check=True)
+        self._modSchemaIfRequired(m)
         assert newModel['id'] == m['id'] or (fmap and cmap)
         if fmap:
             self._changeNotes(nids, newModel, fmap)
@@ -473,6 +472,10 @@ select id from notes where mid = ?)""" % " ".join(map),
             "update cards set ord=:new,usn=:u,mod=:m where id=:cid",
             d)
         self.col.remCards(deleted)
+
+    def _modSchemaIfRequired(self, m):
+        if m['id'] and m.get("ls", 0) != self.col.ls:
+            self.col.modSchema(check=True)
 
     # Schema hash
     ##########################################################################
@@ -596,4 +599,6 @@ select id from notes where mid = ?)""" % " ".join(map),
     def beforeUpload(self):
         for m in self.all():
             m['usn'] = 0
+            if "ls" in m:
+                del m["ls"]
         self.save()
