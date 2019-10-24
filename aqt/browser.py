@@ -1060,6 +1060,8 @@ by clicking on one on the left."""))
 
                 # add templates
                 for c, tmpl in enumerate(nt['tmpls']):
+                    #T: name is a card type name. n it's order in the list of card type.
+                    #T: this is shown in browser's filter, when seeing the list of card type of a note type.
                     name = _("%(n)d: %(name)s") % dict(n=c+1, name=tmpl['name'])
                     subm.addItem(name, self._filterFunc(
                         "note", nt['name'], "card", str(c+1)))
