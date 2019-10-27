@@ -14,7 +14,7 @@ pngCommands = [
 
 svgCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
-    ["dvisvgm", "--no-fonts", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"]
+    ["dvisvgm", "--no-fonts", "--exact", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"]
 ]
 
 build = True # if off, use existing media but don't create new
