@@ -95,7 +95,7 @@ class Editor:
         righttopbtns.append(self._addButton('more', 'more'))
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
-            <div id="topbutsleft" style="float:left;">
+            <div id="topbutsleft" style="float:left;">%(customize)s
                 <button title='%(fldsTitle)s' onclick="pycmd('fields')">%(flds)s...</button>
                 <button title='%(cardsTitle)s' onclick="pycmd('cards')">%(cards)s...</button>
             </div>
@@ -104,6 +104,7 @@ class Editor:
             </div>
         """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns),
                    fldsTitle=_("Customize Fields"),
+                   customize=_("Customize"),
                    cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")))
         bgcol = self.mw.app.palette().window().color().name()
         # then load page
