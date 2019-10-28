@@ -701,6 +701,7 @@ class Browser(QMainWindow):
         hh.sectionMoved.connect(self.onColumnMoved)
 
     def onSortChanged(self, idx, ord):
+        ord = bool(ord)
         self.editor.saveNow(lambda: self._onSortChanged(idx, ord))
 
     def _onSortChanged(self, idx, ord):
