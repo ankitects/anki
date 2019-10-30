@@ -22,6 +22,9 @@ HTTP_TIMEOUT = 90
 HTTP_PROXY = None
 HTTP_BUF_SIZE = 64*1024
 
+class UnexpectedSchemaChange(Exception):
+    pass
+
 # Incremental syncing
 ##########################################################################
 
@@ -95,7 +98,11 @@ class Syncer:
         # ...and small objects
         lchg = self.changes()
         rchg = self.server.applyChanges(changes=lchg)
-        self.mergeChanges(lchg, rchg)
+        try:
+            self.mergeChanges(lchg, rchg)
+        except UnexpectedSchemaChange:
+            self.server.abort()
+            return self._forceFullSync()
         # step 3: stream large tables from server
         runHook("sync", "server")
         while 1:
@@ -119,16 +126,19 @@ class Syncer:
         c = self.sanityCheck()
         ret = self.server.sanityCheck2(client=c)
         if ret['status'] != "ok":
-            # roll back and force full sync
-            self.col.rollback()
-            self.col.modSchema(False)
-            self.col.save()
-            return "sanityCheckFailed"
+            return self._forceFullSync()
         # finalize
         runHook("sync", "finalize")
         mod = self.server.finish()
         self.finish(mod)
         return "success"
+
+    def _forceFullSync(self):
+        # roll back and force full sync
+        self.col.rollback()
+        self.col.modSchema(False)
+        self.col.save()
+        return "sanityCheckFailed"
 
     def _gravesChunk(self, graves):
         lim = 250
@@ -330,6 +340,14 @@ from notes where %s""" % d)
             l = self.col.models.get(r['id'])
             # if missing locally or server is newer, update
             if not l or r['mod'] > l['mod']:
+                # This is a hack to detect when the note type has been altered
+                # in an import without a full sync being forced. A future
+                # syncing algorithm should handle this in a better way.
+                if l:
+                    if len(l['flds']) != len(r['flds']):
+                        raise UnexpectedSchemaChange()
+                    if len(l['tmpls']) != len(r['tmpls']):
+                        raise UnexpectedSchemaChange()
                 self.col.models.update(r)
 
     # Decks
