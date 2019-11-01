@@ -239,7 +239,8 @@ def parseArgs(argv):
     parser = argparse.ArgumentParser(description="Anki " + appVersion)
     parser.usage = "%(prog)s [OPTIONS] [file to import]"
     parser.add_argument("-b", "--base", help="path to base folder", default="")
-    parser.add_argument("-p", "--profile", help="profile name to load", default="")
+    parser.add_option("-P", "--profile", help="profile name to load", default="")
+    parser.add_option("-p", "--platformtheme", help="non-standard design theme (can only work on KDE)")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
     return parser.parse_known_args(argv[1:])
 
