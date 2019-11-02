@@ -50,11 +50,17 @@ inTimeTable = {
 
 def shortTimeFmt(type):
     return {
+#T: year is an abbreviation for year. %s is a number of years
     "years": _("%sy"),
+#T: m is an abbreviation for month. %s is a number of months
     "months": _("%smo"),
+#T: d is an abbreviation for day. %s is a number of days
     "days": _("%sd"),
+#T: h is an abbreviation for hour. %s is a number of hours
     "hours": _("%sh"),
+#T: m is an abbreviation for minute. %s is a number of minutes
     "minutes": _("%sm"),
+#T: s is an abbreviation for second. %s is a number of seconds
     "seconds": _("%ss"),
     }[type]
 

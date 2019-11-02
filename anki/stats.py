@@ -379,6 +379,7 @@ group by day order by day""" % (self._limit(), lim),
             tunit = _("hours")
         else:
             tunit = unit
+        #T: unit: can be hours, minutes, reviews... tot: the number of unit.
         self._line(i, _("Total"), _("%(tot)s %(unit)s") % dict(
             unit=tunit, tot=int(tot)))
         if convHours:
@@ -747,6 +748,7 @@ when you answer "good" on a review.''')
         return txt
 
     def _line(self, i, a, b, bold=True):
+        #T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
         colon = _(":")
         if bold:
             i.append(("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>") % (a,colon,b))
@@ -814,7 +816,13 @@ from cards where did in %s""" % self._limit())
         if xunit is None:
             conf['timeTicks'] = False
         else:
-            conf['timeTicks'] = {1: _("d"), 7: _("w"), 31: _("mo")}[xunit]
+            #T: abbreviation of day
+            d = _("d")
+            #T: abbreviation of week
+            w = _("w")
+            #T: abbreviation of month
+            mo = _("mo")
+            conf['timeTicks'] = {1: d, 7: w, 31: mo}[xunit]
         # types
         width = self.width
         height = self.height

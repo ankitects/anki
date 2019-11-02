@@ -120,7 +120,7 @@
              <string>Preview</string>
             </property>
             <property name="shortcut">
-             <string>Ctrl+Shift+P</string>
+             <string notr="true">Ctrl+Shift+P</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
@@ -327,7 +327,7 @@
     <string>&amp;Reschedule...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+R</string>
+    <string notr="true">Ctrl+Alt+R</string>
    </property>
   </action>
   <action name="actionSelectAll">
@@ -335,7 +335,7 @@
     <string>Select &amp;All</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+A</string>
+    <string notr="true">Ctrl+Alt+A</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -343,7 +343,7 @@
     <string>&amp;Undo</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+Z</string>
+    <string notr="true">Ctrl+Alt+Z</string>
    </property>
   </action>
   <action name="actionInvertSelection">
@@ -351,7 +351,7 @@
     <string>&amp;Invert Selection</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+S</string>
+    <string notr="true">Ctrl+Alt+S</string>
    </property>
   </action>
   <action name="actionFind">
@@ -359,7 +359,7 @@
     <string>&amp;Find</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+F</string>
+    <string notr="true">Ctrl+F</string>
    </property>
   </action>
   <action name="actionNote">
@@ -367,7 +367,7 @@
     <string>N&amp;ote</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+N</string>
+    <string notr="true">Ctrl+Shift+N</string>
    </property>
   </action>
   <action name="actionNextCard">
@@ -375,7 +375,7 @@
     <string>&amp;Next Card</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string notr="true">Ctrl+N</string>
    </property>
   </action>
   <action name="actionPreviousCard">
@@ -383,7 +383,7 @@
     <string>&amp;Previous Card</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+P</string>
+    <string notr="true">Ctrl+P</string>
    </property>
   </action>
   <action name="actionGuide">
@@ -391,7 +391,7 @@
     <string>&amp;Guide</string>
    </property>
    <property name="shortcut">
-    <string>F1</string>
+    <string notr="true">F1</string>
    </property>
   </action>
   <action name="actionChangeModel">
@@ -399,7 +399,7 @@
     <string>Change Note Type...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+M</string>
+    <string notr="true">Ctrl+Shift+M</string>
    </property>
   </action>
   <action name="actionSelectNotes">
@@ -412,7 +412,7 @@
     <string>Find and Re&amp;place...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+F</string>
+    <string notr="true">Ctrl+Alt+F</string>
    </property>
   </action>
   <action name="actionCram">
@@ -425,7 +425,7 @@
     <string>Fil&amp;ter</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+F</string>
+    <string notr="true">Ctrl+Shift+F</string>
    </property>
   </action>
   <action name="actionCardList">
@@ -433,7 +433,7 @@
     <string>Card List</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+L</string>
+    <string notr="true">Ctrl+Shift+L</string>
    </property>
   </action>
   <action name="actionFindDuplicates">
@@ -446,7 +446,7 @@
     <string>Reposition...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
+    <string notr="true">Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionFirstCard">
@@ -470,7 +470,7 @@
     <string>Close</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string notr="true">Ctrl+W</string>
    </property>
   </action>
   <action name="action_Info">
@@ -478,7 +478,7 @@
     <string>&amp;Info...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+I</string>
+    <string notr="true">Ctrl+Shift+I</string>
    </property>
   </action>
   <action name="actionAdd_Tags">
@@ -486,7 +486,7 @@
     <string>Add Tags...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+A</string>
+    <string notr="true">Ctrl+Shift+A</string>
    </property>
   </action>
   <action name="actionRemove_Tags">
@@ -494,7 +494,7 @@
     <string>Remove Tags...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+D</string>
+    <string notr="true">Ctrl+Shift+D</string>
    </property>
   </action>
   <action name="actionToggle_Suspend">
@@ -502,7 +502,7 @@
     <string>Toggle Suspend</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+J</string>
+    <string notr="true">Ctrl+J</string>
    </property>
   </action>
   <action name="actionDelete">
@@ -510,7 +510,7 @@
     <string>Delete</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Del</string>
+    <string notr="true">Ctrl+Del</string>
    </property>
   </action>
   <action name="actionAdd">
@@ -518,7 +518,7 @@
     <string>Add Notes...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+E</string>
+    <string notr="true">Ctrl+E</string>
    </property>
   </action>
   <action name="actionChange_Deck">
@@ -526,7 +526,7 @@
     <string>Change Deck...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+D</string>
+    <string notr="true">Ctrl+D</string>
    </property>
   </action>
   <action name="actionRed_Flag">
@@ -537,7 +537,7 @@
     <string>Red Flag</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+1</string>
+    <string notr="true">Ctrl+1</string>
    </property>
   </action>
   <action name="actionOrange_Flag">
@@ -548,7 +548,7 @@
     <string>Orange Flag</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+2</string>
+    <string notr="true">Ctrl+2</string>
    </property>
   </action>
   <action name="actionGreen_Flag">
@@ -559,7 +559,7 @@
     <string>Green Flag</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+3</string>
+    <string notr="true">Ctrl+3</string>
    </property>
   </action>
   <action name="actionBlue_Flag">
@@ -570,7 +570,7 @@
     <string>Blue Flag</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+4</string>
+    <string notr="true">Ctrl+4</string>
    </property>
   </action>
   <action name="actionSidebar">
@@ -578,7 +578,7 @@
     <string>Sidebar</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+R</string>
+    <string notr="true">Ctrl+Shift+R</string>
    </property>
   </action>
   <action name="actionClear_Unused_Tags">
@@ -596,7 +596,7 @@
     <string>Toggle Mark</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+K</string>
+    <string notr="true">Ctrl+K</string>
    </property>
   </action>
  </widget>
