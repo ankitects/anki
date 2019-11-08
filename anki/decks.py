@@ -129,8 +129,10 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name, create=True, type=None):
-        "Add a deck with NAME. Reuse deck if already exists. Return id as int."
+    def id(self, name, create=True, type=None, parentCreated=False):
+        """Add a deck with NAME. Reuse deck if already exists (ignoring case
+        differences). Return id as int."""
+
         if type is None:
             type = defaultDeck
         name = name.replace('"', '')
@@ -141,7 +143,7 @@ class DeckManager:
         if not create:
             return None
         g = copy.deepcopy(type)
-        if "::" in name:
+        if "::" in name and not parentCreated:
             # not top level; ensure all parents exist
             name = self._ensureParents(name)
         g['name'] = name
@@ -256,6 +258,8 @@ class DeckManager:
 
     def rename(self, g, newName):
         "Rename deck prefix to NAME if not exists. Updates children."
+        # ensure we have parents
+        newName = self._ensureParents(newName, create=False)
         # make sure target node doesn't already exist
         if newName in self.allNames():
             raise DeckRenameError(_("That deck already exists."))
@@ -263,8 +267,6 @@ class DeckManager:
         for p in self.parentsByName(newName):
             if p['dyn']:
                 raise DeckRenameError(_("A filtered deck cannot have subdecks."))
-        # ensure we have parents
-        newName = self._ensureParents(newName)
         # rename children
         for grp in self.all():
             if grp['name'].startswith(g['name'] + "::"):
@@ -314,23 +316,23 @@ class DeckManager:
     def _basename(self, name):
         return self._path(name)[-1]
 
-    def _ensureParents(self, name):
+    def _ensureParents(self, name, create=True):
         "Ensure parents exist, and return name with case matching parents."
         s = ""
         path = self._path(name)
         if len(path) < 2:
             return name
-        for p in path[:-1]:
+        for p in path:
             if not s:
                 s += p
             else:
                 s += "::" + p
             # fetch or create
-            did = self.id(s)
-            # get original case
-            s = self.name(did)
-        name = s + "::" + path[-1]
-        return name
+            did = self.id(s, create=create, parentCreated=True)
+            if did is not None: #no creation, and does not already exists
+                # get original case
+                s = self.name(did)
+        return s
 
     # Deck configurations
     #############################################################
