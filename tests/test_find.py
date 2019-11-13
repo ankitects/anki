@@ -224,6 +224,11 @@ def test_findCards():
                     id)
     assert len(deck.findCards("added:1")) == deck.cardCount() - 1
     assert len(deck.findCards("added:2")) == deck.cardCount()
+    # flag
+    with assert_raises(Exception):
+        deck.findCards("flag:01")
+    with assert_raises(Exception):
+        deck.findCards("flag:12")
 
 def test_findReplace():
     deck = getEmptyCol()
