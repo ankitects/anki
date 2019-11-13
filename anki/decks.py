@@ -135,9 +135,9 @@ class DeckManager:
             type = defaultDeck
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
-        for id, g in list(self.decks.items()):
-            if unicodedata.normalize("NFC", g['name'].lower()) == name.lower():
-                return int(id)
+        deck = self.byName(name)
+        if deck:
+            return int(deck["id"])
         if not create:
             return None
         g = copy.deepcopy(type)
