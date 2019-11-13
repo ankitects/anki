@@ -135,9 +135,9 @@ class DeckManager:
             type = defaultDeck
         name = name.replace('"', '')
         name = unicodedata.normalize("NFC", name)
-        for id, g in list(self.decks.items()):
-            if unicodedata.normalize("NFC", g['name'].lower()) == name.lower():
-                return int(id)
+        deck = self.byName(name)
+        if deck:
+            return int(deck["id"])
         if not create:
             return None
         g = copy.deepcopy(type)
@@ -242,9 +242,9 @@ class DeckManager:
             return self.decks['1']
 
     def byName(self, name):
-        "Get deck with NAME."
+        """Get deck with NAME, ignoring cases."""
         for m in list(self.decks.values()):
-            if m['name'] == name:
+            if self.equalName(m['name'], name):
                 return m
 
     def update(self, g):
@@ -257,7 +257,7 @@ class DeckManager:
     def rename(self, g, newName):
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
-        if newName in self.allNames():
+        if self.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
         # make sure we're not nesting under a filtered deck
         for p in self.parentsByName(newName):
@@ -454,7 +454,7 @@ class DeckManager:
 
         for deck in decks:
             # two decks with the same name?
-            if deck['name'] in names:
+            if self.normalizeName(deck['name']) in names:
                 self.col.log("fix duplicate deck name", deck['name'])
                 deck['name'] += "%d" % intTime(1000)
                 self.save(deck)
@@ -468,12 +468,12 @@ class DeckManager:
             # immediate parent must exist
             if "::" in deck['name']:
                 immediateParent = "::".join(deck['name'].split("::")[:-1])
-                if immediateParent not in names:
+                if self.normalizeName(immediateParent) not in names:
                     self.col.log("fix deck with missing parent", deck['name'])
                     self._ensureParents(deck['name'])
-                    names.add(immediateParent)
+                    names.add(self.normalizeName(immediateParent))
 
-            names.add(deck['name'])
+            names.add(self.normalizeName(deck['name']))
 
     def checkIntegrity(self):
         self._recoverOrphans()
@@ -600,3 +600,11 @@ class DeckManager:
 
     def isDyn(self, did):
         return self.get(did)['dyn']
+
+    @staticmethod
+    def normalizeName(name):
+        return unicodedata.normalize("NFC", name.lower())
+
+    @staticmethod
+    def equalName(name1, name2):
+        return DeckManager.normalizeName(name1) == DeckManager.normalizeName(name2)
