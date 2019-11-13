@@ -275,7 +275,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 
     def _findFlag(self, args):
         (val, args) = args
-        if not val or val not in "01234":
+        if not val or len(val)!=1 or val not in "01234":
             return
         val = int(val)
         mask = 2**3 - 1
