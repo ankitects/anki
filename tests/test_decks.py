@@ -89,12 +89,18 @@ def test_rename():
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
     # over filtered
-    parentId = d.decks.newDyn("parent")
-    parent = d.decks.get(parentId)
+    filteredId = d.decks.newDyn("filtered")
+    filtered = d.decks.get(filteredId)
     childId = d.decks.id("child")
     child = d.decks.get(childId)
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "parent::child"))
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "filtered::child"))
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "FILTERED::child"))
+    # changing case
+    parentId = d.decks.id("PARENT")
+    d.decks.id("PARENT::CHILD")
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::CHILD"))
     assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::child"))
+
 
 
 def test_renameForDragAndDrop():
@@ -138,6 +144,16 @@ def test_renameForDragAndDrop():
     # Dragging a top level deck to the top level is a no-op
     d.decks.renameForDragAndDrop(chinese_did, None)
     assert deckNames() == [ 'Chinese', 'Chinese::HSK', 'Languages' ]
+
+    # can't drack a deck where sibling have same name
+    new_hsk_did = d.decks.id("HSK")
+    assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
+    d.decks.rem(new_hsk_did)
+
+    # can't drack a deck where sibling have same name different case
+    new_hsk_did = d.decks.id("hsk")
+    assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
+    d.decks.rem(new_hsk_did)
 
     # '' is a convenient alias for the top level DID
     d.decks.renameForDragAndDrop(hsk_did, '')
