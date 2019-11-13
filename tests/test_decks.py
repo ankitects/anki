@@ -158,3 +158,14 @@ def test_renameForDragAndDrop():
     # '' is a convenient alias for the top level DID
     d.decks.renameForDragAndDrop(hsk_did, '')
     assert deckNames() == [ 'Chinese', 'HSK', 'Languages' ]
+
+def test_check():
+    d = getEmptyCol()
+
+    foo_did = d.decks.id("foo")
+    FOO_did = d.decks.id("bar")
+    FOO = d.decks.byName("bar")
+    FOO["name"] = "FOO"
+    d.decks.save(FOO)
+    d.decks._checkDeckTree()
+    assert "foo" not in d.decks.allNames() or "FOO" not in d.decks.allNames()
