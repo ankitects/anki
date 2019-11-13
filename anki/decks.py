@@ -257,7 +257,7 @@ class DeckManager:
     def rename(self, g, newName):
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
-        if newName in self.allNames():
+        if self.byName(newName):
             raise DeckRenameError(_("That deck already exists."))
         # make sure we're not nesting under a filtered deck
         for p in self.parentsByName(newName):
