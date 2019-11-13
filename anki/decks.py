@@ -242,9 +242,9 @@ class DeckManager:
             return self.decks['1']
 
     def byName(self, name):
-        "Get deck with NAME."
+        """Get deck with NAME, ignoring cases."""
         for m in list(self.decks.values()):
-            if m['name'] == name:
+            if self.equalName(m['name'], name):
                 return m
 
     def update(self, g):
