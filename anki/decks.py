@@ -600,3 +600,11 @@ class DeckManager:
 
     def isDyn(self, did):
         return self.get(did)['dyn']
+
+    @staticmethod
+    def normalizeName(name):
+        return unicodedata.normalize("NFC", name.lower())
+
+    @staticmethod
+    def equalName(name1, name2):
+        return DeckManager.normalizeName(name1) == DeckManager.normalizeName(name2)
