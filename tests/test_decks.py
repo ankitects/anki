@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from anki.errors import DeckRenameError
 from tests.shared import assertException, getEmptyCol
 
 def test_basic():
@@ -87,6 +88,14 @@ def test_rename():
     d.decks.rename(d.decks.get(id), "yo")
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
+    # over filtered
+    parentId = d.decks.newDyn("parent")
+    parent = d.decks.get(parentId)
+    childId = d.decks.id("child")
+    child = d.decks.get(childId)
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "parent::child"))
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::child"))
+
 
 def test_renameForDragAndDrop():
     d = getEmptyCol()
