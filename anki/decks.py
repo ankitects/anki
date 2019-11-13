@@ -454,7 +454,7 @@ class DeckManager:
 
         for deck in decks:
             # two decks with the same name?
-            if deck['name'] in names:
+            if self.normalizeName(deck['name']) in names:
                 self.col.log("fix duplicate deck name", deck['name'])
                 deck['name'] += "%d" % intTime(1000)
                 self.save(deck)
@@ -468,12 +468,12 @@ class DeckManager:
             # immediate parent must exist
             if "::" in deck['name']:
                 immediateParent = "::".join(deck['name'].split("::")[:-1])
-                if immediateParent not in names:
+                if self.normalizeName(immediateParent) not in names:
                     self.col.log("fix deck with missing parent", deck['name'])
                     self._ensureParents(deck['name'])
-                    names.add(immediateParent)
+                    names.add(self.normalizeName(immediateParent))
 
-            names.add(deck['name'])
+            names.add(self.normalizeName(deck['name']))
 
     def checkIntegrity(self):
         self._recoverOrphans()
