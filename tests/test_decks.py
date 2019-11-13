@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from anki.errors import DeckRenameError
 from tests.shared import assertException, getEmptyCol
 
 def test_basic():
@@ -87,6 +88,20 @@ def test_rename():
     d.decks.rename(d.decks.get(id), "yo")
     for n in "yo", "yo::two", "yo::two::three":
         assert n in d.decks.allNames()
+    # over filtered
+    filteredId = d.decks.newDyn("filtered")
+    filtered = d.decks.get(filteredId)
+    childId = d.decks.id("child")
+    child = d.decks.get(childId)
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "filtered::child"))
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "FILTERED::child"))
+    # changing case
+    parentId = d.decks.id("PARENT")
+    d.decks.id("PARENT::CHILD")
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::CHILD"))
+    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::child"))
+
+
 
 def test_renameForDragAndDrop():
     d = getEmptyCol()
@@ -130,6 +145,27 @@ def test_renameForDragAndDrop():
     d.decks.renameForDragAndDrop(chinese_did, None)
     assert deckNames() == [ 'Chinese', 'Chinese::HSK', 'Languages' ]
 
+    # can't drack a deck where sibling have same name
+    new_hsk_did = d.decks.id("HSK")
+    assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
+    d.decks.rem(new_hsk_did)
+
+    # can't drack a deck where sibling have same name different case
+    new_hsk_did = d.decks.id("hsk")
+    assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
+    d.decks.rem(new_hsk_did)
+
     # '' is a convenient alias for the top level DID
     d.decks.renameForDragAndDrop(hsk_did, '')
     assert deckNames() == [ 'Chinese', 'HSK', 'Languages' ]
+
+def test_check():
+    d = getEmptyCol()
+
+    foo_did = d.decks.id("foo")
+    FOO_did = d.decks.id("bar")
+    FOO = d.decks.byName("bar")
+    FOO["name"] = "FOO"
+    d.decks.save(FOO)
+    d.decks._checkDeckTree()
+    assert "foo" not in d.decks.allNames() or "FOO" not in d.decks.allNames()
