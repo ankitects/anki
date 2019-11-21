@@ -186,9 +186,7 @@ question on all cards."""), help="AddItems")
 
     def _addCards(self):
         self.editor.saveAddModeVars()
-        note = self.editor.note
-        note = self.addNote(note)
-        if not note:
+        if not self.addNote(self.editor.note):
             return
         tooltip(_("Added"), period=500)
         # stop anything playing
@@ -222,7 +220,7 @@ question on all cards."""), help="AddItems")
 
     def ifCanClose(self, onOk):
         def afterSave():
-            ok = (self.editor.fieldsAreBlank() or
+            ok = (self.editor.fieldsAreBlank(self.previousNote) or
                     askUser(_("Close and lose current input?"), defaultno=True))
             if ok:
                 onOk()
