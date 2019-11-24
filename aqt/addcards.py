@@ -28,6 +28,7 @@ class AddCards(QDialog):
         self.setupButtons()
         self.onReset()
         self.history = []
+        self.previousNote = None
         restoreGeom(self, "add")
         addHook('reset', self.onReset)
         addHook('currentModelChanged', self.onModelChange)
@@ -83,6 +84,7 @@ class AddCards(QDialog):
     def onModelChange(self):
         oldNote = self.editor.note
         note = self.mw.col.newNote()
+        self.previousNote = None
         if oldNote:
             oldFields = list(oldNote.keys())
             newFields = list(note.keys())
@@ -176,6 +178,7 @@ question on all cards."""), help="AddItems")
             return
         self.addHistory(note)
         self.mw.requireReset()
+        self.previousNote = note
         return note
 
     def addCards(self):
@@ -183,9 +186,7 @@ question on all cards."""), help="AddItems")
 
     def _addCards(self):
         self.editor.saveAddModeVars()
-        note = self.editor.note
-        note = self.addNote(note)
-        if not note:
+        if not self.addNote(self.editor.note):
             return
         tooltip(_("Added"), period=500)
         # stop anything playing
@@ -219,7 +220,7 @@ question on all cards."""), help="AddItems")
 
     def ifCanClose(self, onOk):
         def afterSave():
-            ok = (self.editor.fieldsAreBlank() or
+            ok = (self.editor.fieldsAreBlank(self.previousNote) or
                     askUser(_("Close and lose current input?"), defaultno=True))
             if ok:
                 onOk()
