@@ -371,12 +371,15 @@ class Editor:
                               contents))
         browser.onSearchActivated()
 
-    def fieldsAreBlank(self):
+    def fieldsAreBlank(self, previousNote=None):
         if not self.note:
             return True
         m = self.note.model()
         for c, f in enumerate(self.note.fields):
-            if f and not m['flds'][c]['sticky']:
+            notChangedvalues = {"", "<br>"}
+            if previousNote and m['flds'][c]['sticky']:
+                notChangedvalues.add(previousNote.fields[c])
+            if f not in notChangedvalues:
                 return False
         return True
 
