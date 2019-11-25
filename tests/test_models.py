@@ -39,8 +39,7 @@ def test_fields():
     assert "{{NewFront}}" in m['tmpls'][0]['qfmt']
     h = d.models.scmhash(m)
     # add a field
-    f = d.models.newField(m)
-    f['name'] = "foo"
+    f = d.models.newField("foo")
     d.models.addField(m, f)
     assert d.getNote(d.models.nids(m)[0]).fields == ["1", "2", ""]
     assert d.models.scmhash(m) != h
@@ -57,8 +56,7 @@ def test_fields():
     d.models.moveField(m, m['flds'][1], 0)
     assert d.getNote(d.models.nids(m)[0]).fields == ["1", ""]
     # add another and put in middle
-    f = d.models.newField(m)
-    f['name'] = "baz"
+    f = d.models.newField("baz")
     d.models.addField(m, f)
     f = d.getNote(d.models.nids(m)[0])
     f['baz'] = "2"

@@ -231,6 +231,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
     ##################################################
 
     def newField(self, name):
+        assert(isinstance(name, str))
         f = defaultField.copy()
         f['name'] = name
         return f
