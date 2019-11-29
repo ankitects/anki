@@ -1259,6 +1259,7 @@ where id in %s""" % ids2str(sf))
     _previewTimer = None
     _lastPreviewRender = 0
     _lastPreviewState = None
+    _previewCardChanged = False
 
     def onTogglePreview(self):
         if self._previewWindow:
@@ -1367,20 +1368,23 @@ where id in %s""" % ids2str(sf))
 
     def _renderPreview(self, cardChanged=False):
         self._cancelPreviewTimer()
+        # Keep track of whether _renderPreview() has ever been called
+        # with cardChanged=True since the last successful render
+        self._previewCardChanged |= cardChanged
         # avoid rendering in quick succession
         elapMS = int((time.time() - self._lastPreviewRender)*1000)
         if elapMS < 500:
             self._previewTimer = self.mw.progress.timer(
-                500-elapMS, lambda: self._renderScheduledPreview(cardChanged), False)
+                500-elapMS, lambda: self._renderScheduledPreview(), False)
         else:
-            self._renderScheduledPreview(cardChanged)
+            self._renderScheduledPreview()
 
     def _cancelPreviewTimer(self):
         if self._previewTimer:
             self._previewTimer.stop()
             self._previewTimer = None
 
-    def _renderScheduledPreview(self, cardChanged=False):
+    def _renderScheduledPreview(self):
         self._cancelPreviewTimer()
         self._lastPreviewRender = time.time()
 
@@ -1395,7 +1399,7 @@ where id in %s""" % ids2str(sf))
         else:
             if self._previewBothSides:
                 self._previewState = "answer"
-            elif cardChanged:
+            elif self._previewCardChanged:
                 self._previewState = "question"
 
             currentState = self._previewStateAndMod()
@@ -1433,6 +1437,7 @@ where id in %s""" % ids2str(sf))
         self._updatePreviewButtons()
         self._previewWeb.eval(
             "{}({},'{}');".format(func, json.dumps(txt), bodyclass))
+        self._previewCardChanged = False
 
     def _onPreviewShowBothSides(self, toggle):
         self._previewBothSides = toggle
