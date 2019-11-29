@@ -1375,7 +1375,7 @@ where id in %s""" % ids2str(sf))
         elapMS = int((time.time() - self._lastPreviewRender)*1000)
         if elapMS < 500:
             self._previewTimer = self.mw.progress.timer(
-                500-elapMS, lambda: self._renderScheduledPreview(), False)
+                500-elapMS, self._renderScheduledPreview, False)
         else:
             self._renderScheduledPreview()
 
