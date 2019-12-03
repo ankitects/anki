@@ -238,6 +238,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
         self.nextCard()
+        runHook('cardAnswered')
 
     # Handlers
     ############################################################
@@ -608,7 +609,7 @@ time = %(time)d;
             [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
         return opts
-    
+
     def showContextMenu(self):
         opts = self._contextMenu()
         m = QMenu(self.mw)
