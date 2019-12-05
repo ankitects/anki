@@ -1373,9 +1373,10 @@ where id in %s""" % ids2str(sf))
         self._previewCardChanged |= cardChanged
         # avoid rendering in quick succession
         elapMS = int((time.time() - self._lastPreviewRender)*1000)
-        if elapMS < 500:
+        delay = 300
+        if elapMS < delay:
             self._previewTimer = self.mw.progress.timer(
-                500-elapMS, self._renderScheduledPreview, False)
+                delay-elapMS, self._renderScheduledPreview, False)
         else:
             self._renderScheduledPreview()
 
