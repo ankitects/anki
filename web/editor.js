@@ -391,6 +391,7 @@ allowedTagsExtended["A"] = {"attrs": ["HREF"]};
 allowedTagsExtended["TR"] = {"attrs": ["ROWSPAN"]};
 allowedTagsExtended["TD"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
 allowedTagsExtended["TH"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
+allowedTagsExtended["FONT"] = {"attrs": ["COLOR"]};
 
 const allowedStyling = {
     'color': true,
