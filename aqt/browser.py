@@ -1593,6 +1593,8 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
     ######################################################################
 
     def onSetFlag(self, n):
+        if not self.card:
+            return
         # flag needs toggling off?
         if n == self.card.userFlag():
             n = 0
