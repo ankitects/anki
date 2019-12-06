@@ -297,9 +297,6 @@ class AnkiPackageExporter(AnkiExporter):
         if not self._v2sched:
             z.write(colfile, "collection.anki2")
         else:
-            # fixme: remove in the future
-            raise Exception("Please switch to the normal scheduler before exporting a single deck with scheduling information.")
-
             # prevent older clients from accessing
             # pylint: disable=unreachable
             self._addDummyCollection(z)
