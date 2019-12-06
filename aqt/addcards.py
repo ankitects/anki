@@ -176,6 +176,7 @@ class AddCards(QDialog):
 The input you have provided would make an empty \
 question on all cards."""), help="AddItems")
             return
+        self.mw.col.clearUndo()
         self.addHistory(note)
         self.mw.requireReset()
         self.previousNote = note
