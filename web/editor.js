@@ -393,6 +393,40 @@ allowedTagsExtended["TR"] = {"attrs": ["ROWSPAN"]};
 allowedTagsExtended["TD"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
 allowedTagsExtended["TH"] = {"attrs": ["COLSPAN", "ROWSPAN"]};
 
+const allowedStyling = {
+    'color': true,
+    'background-color': true,
+};
+
+var filterExternalSpan = function(node) {
+    // filter out attributes
+    var toRemove = [];
+    for (i = 0; i < node.attributes.length; i++) {
+        var attr = node.attributes[i];
+        var attrName = attr.name.toUpperCase();
+        if (attrName !== 'STYLE') {
+            toRemove.push(attr);
+        }
+    }
+    for (i = 0; i < toRemove.length; i++) {
+        node.removeAttributeNode(toRemove[i]);
+    }
+    // filter styling
+    toRemove = [];
+    for (let i = 0; i < node.style.length; i++) {
+        const name = node.style[i];
+        if (!allowedStyling.hasOwnProperty(name)) {
+            toRemove.push(name);
+        }
+    }
+    for (let name of toRemove) {
+        node.style.removeProperty(name);
+    }
+
+};
+
+allowedTagsExtended["SPAN"] = filterExternalSpan;
+
 // add basic tags to extended
 Object.assign(allowedTagsExtended, allowedTagsBasic);
 
@@ -445,17 +479,22 @@ var filterNode = function (node, extendedMode) {
             node.outerHTML = node.innerHTML;
         }
     } else {
-        // allowed, filter out attributes
-        var toRemove = [];
-        for (i = 0; i < node.attributes.length; i++) {
-            var attr = node.attributes[i];
-            var attrName = attr.name.toUpperCase();
-            if (tag.attrs.indexOf(attrName) === -1) {
-                toRemove.push(attr);
+        if (typeof(tag) === 'function') {
+            // filtering function provided
+            tag(node);
+        } else {
+            // allowed, filter out attributes
+            var toRemove = [];
+            for (i = 0; i < node.attributes.length; i++) {
+                var attr = node.attributes[i];
+                var attrName = attr.name.toUpperCase();
+                if (tag.attrs.indexOf(attrName) === -1) {
+                    toRemove.push(attr);
+                }
             }
-        }
-        for (i = 0; i < toRemove.length; i++) {
-            node.removeAttributeNode(toRemove[i]);
+            for (i = 0; i < toRemove.length; i++) {
+                node.removeAttributeNode(toRemove[i]);
+            }
         }
     }
 };
