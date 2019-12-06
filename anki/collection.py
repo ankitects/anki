@@ -47,6 +47,7 @@ defaultConf = {
     'sortBackwards': False,
     'addToCur': True, # add new to currently selected deck?
     'dayLearnFirst': False,
+    'schedVer': 2,
 }
 
 # this is initialized by storage.Collection
@@ -84,11 +85,10 @@ class _Collection:
     # Scheduler
     ##########################################################################
 
-    defaultSchedulerVersion = 1
     supportedSchedulerVersions = (1, 2)
 
     def schedVer(self):
-        ver = self.conf.get("schedVer", self.defaultSchedulerVersion)
+        ver = self.conf.get("schedVer", 1)
         if ver in self.supportedSchedulerVersions:
             return ver
         else:

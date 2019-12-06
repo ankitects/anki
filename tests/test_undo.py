@@ -36,7 +36,7 @@ def test_op():
     assert d.undoName() == "Review"
 
 def test_review():
-    d = getEmptyCol(schedVer=2)
+    d = getEmptyCol()
     d.conf['counts'] = COUNT_REMAINING
     f = d.newNote()
     f['Front'] = "one"

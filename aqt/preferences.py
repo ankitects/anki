@@ -128,16 +128,14 @@ class Preferences(QDialog):
         if haveNew == wantNew:
             return
 
-        if haveNew and not wantNew:
-            if not askUser(_("This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?")):
-                return
+        if not askUser(_("This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?")):
+            return
+
+        if wantNew:
+            self.mw.col.changeSchedulerVer(2)
+        else:
             self.mw.col.changeSchedulerVer(1)
-            return
 
-        if not askUser(_("The experimental scheduler could cause incorrect scheduling. Please ensure you have read the documentation first. Proceed?")):
-            return
-
-        self.mw.col.changeSchedulerVer(2)
 
     # Day cutoff
     ######################################################################

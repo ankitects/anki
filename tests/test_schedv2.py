@@ -4,12 +4,9 @@ import time
 import copy
 
 from anki.consts import STARTING_FACTOR
-from tests.shared import getEmptyCol as _getEmptyCol
+from tests.shared import getEmptyCol
 from anki.utils import  intTime
 from anki.hooks import addHook
-
-def getEmptyCol():
-    return _getEmptyCol(schedVer=2)
 
 def test_clock():
     d = getEmptyCol()
@@ -1129,7 +1126,8 @@ def test_failmult():
     assert c.ivl == 25
 
 def test_moveVersions():
-    col = _getEmptyCol(schedVer=1)
+    col = getEmptyCol()
+    col.changeSchedulerVer(1)
 
     n = col.newNote()
     n['Front'] = "one"
