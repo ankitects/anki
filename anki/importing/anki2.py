@@ -31,17 +31,15 @@ class Anki2Importer(Importer):
 
     def _prepareFiles(self):
         importingV2 = self.file.endswith(".anki21")
-        if importingV2 and self.col.schedVer() == 1:
-            raise Exception("V2 scheduler must be enabled to import this file.")
+        self.mustResetLearning = False
 
         self.dst = self.col
         self.src = Collection(self.file)
 
         if not importingV2 and self.col.schedVer() != 1:
-            # if v2 scheduler enabled, can't import v1 decks that include scheduling
+            # any scheduling included?
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
-                self.src.close(save=False)
-                raise Exception("V2 scheduler can not import V1 decks with scheduling included.")
+                self.mustResetLearning = True
 
     def _import(self):
         self._decks = {}
@@ -290,6 +288,8 @@ class Anki2Importer(Importer):
     ######################################################################
 
     def _importCards(self):
+        if self.mustResetLearning:
+            self.src.changeSchedulerVer(2)
         # build map of (guid, ord) -> cid and used id cache
         self._cards = {}
         existing = {}
