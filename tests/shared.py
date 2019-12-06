@@ -12,7 +12,7 @@ def assertException(exception, func):
 
 # Creating new decks is expensive. Just do it once, and then spin off
 # copies from the master.
-def getEmptyCol(schedVer=1):
+def getEmptyCol():
     if len(getEmptyCol.master) == 0:
         (fd, nam) = tempfile.mkstemp(suffix=".anki2")
         os.close(fd)
@@ -22,10 +22,7 @@ def getEmptyCol(schedVer=1):
         getEmptyCol.master = nam
     (fd, nam) = tempfile.mkstemp(suffix=".anki2")
     shutil.copy(getEmptyCol.master, nam)
-    from anki.collection import _Collection
-    _Collection.defaultSchedulerVersion = schedVer
     col = aopen(nam)
-    _Collection.defaultSchedulerVersion = 1
     return col
 
 getEmptyCol.master = ""

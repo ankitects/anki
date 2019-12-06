@@ -82,7 +82,7 @@ def test_export_ankipkg():
 
 @nose.with_setup(setup1)
 def test_export_anki_due():
-    deck = getEmptyCol(schedVer=2)
+    deck = getEmptyCol()
     f = deck.newNote()
     f['Front'] = "foo"
     deck.addNote(f)

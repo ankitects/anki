@@ -4,10 +4,14 @@ import time
 import copy
 
 from anki.consts import STARTING_FACTOR
-from tests.shared import  getEmptyCol
+from tests.shared import getEmptyCol as getEmptyColOrig
 from anki.utils import  intTime
 from anki.hooks import addHook
 
+def getEmptyCol():
+    col = getEmptyColOrig()
+    col.changeSchedulerVer(1)
+    return col
 
 def test_clock():
     d = getEmptyCol()
