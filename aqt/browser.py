@@ -1923,6 +1923,7 @@ update cards set usn=?, mod=?, did=? where id in """ + scids,
 
     def onNote(self):
         self.editor.web.setFocus()
+        self.editor.loadNote(focusTo=0)
 
     def onCardList(self):
         self.form.tableView.setFocus()
