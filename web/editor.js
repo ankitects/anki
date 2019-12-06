@@ -396,6 +396,9 @@ allowedTagsExtended["FONT"] = {"attrs": ["COLOR"]};
 const allowedStyling = {
     'color': true,
     'background-color': true,
+    'font-weight': true,
+    'font-style': true,
+    'text-decoration-line': true,
 };
 
 var filterExternalSpan = function(node) {
@@ -416,6 +419,10 @@ var filterExternalSpan = function(node) {
     for (let i = 0; i < node.style.length; i++) {
         const name = node.style[i];
         if (!allowedStyling.hasOwnProperty(name)) {
+            toRemove.push(name);
+        }
+        if (name === 'background-color' && node.style[name] === "transparent") {
+            // google docs adds this unnecessarily
             toRemove.push(name);
         }
     }
