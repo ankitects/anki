@@ -111,7 +111,7 @@ class DataModel(QAbstractTableModel):
                     break
             # handle case where extension has set an invalid column type
             if not txt:
-                txt = self.browser.columns[0][1]
+                txt = _(type)
             return txt
         else:
             return
@@ -548,7 +548,14 @@ class Browser(QMainWindow):
             ('noteTags', _("Tags")),
             ('note', _("Note")),
         ]
-        self.columns.sort(key=itemgetter(1))
+        types = {type for type, name in self.columns}
+        for column in self.col.conf.get("activeCols", []):
+            if column not in types:
+                self.columns.append((column, _(column)))
+                types.add(column)
+        self.columns.sort(key=itemgetter(1)) # allow to sort by
+                                             # alphabetical order in
+                                             # the local language
 
     # Searching
     ######################################################################
@@ -769,6 +776,7 @@ by clicking on one on the left."""))
                 self.model.endReset()
                 return showInfo(_("You must have at least one column."))
             self.model.activeCols.remove(type)
+            self.setupColumns() #in case we removed a column which should disappear
             adding=False
         else:
             self.model.activeCols.append(type)
