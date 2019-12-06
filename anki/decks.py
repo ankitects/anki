@@ -206,16 +206,19 @@ class DeckManager:
             self.select(int(list(self.decks.keys())[0]))
         self.save()
 
-    def allNames(self, dyn=True):
+    def allNames(self, dyn=True, forceDefault=True):
         "An unsorted list of all deck names."
         if dyn:
-            return [x['name'] for x in list(self.decks.values())]
+            return [x['name'] for x in self.all(forceDefault=forceDefault)]
         else:
-            return [x['name'] for x in list(self.decks.values()) if not x['dyn']]
+            return [x['name'] for x in self.all(forceDefault=forceDefault) if not x['dyn']]
 
-    def all(self):
+    def all(self, forceDefault=True):
         "A list of all decks."
-        return list(self.decks.values())
+        decks = list(self.decks.values())
+        if not forceDefault and not self.col.db.scalar("select 1 from cards where did = 1 limit 1") and len(decks)>1:
+            decks = [deck for deck in decks if deck['id'] != 1]
+        return decks
 
     def allIds(self):
         return list(self.decks.keys())
