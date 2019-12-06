@@ -171,11 +171,11 @@
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>false</bool>
           </attribute>
-          <attribute name="horizontalHeaderHighlightSections">
-           <bool>false</bool>
-          </attribute>
           <attribute name="horizontalHeaderMinimumSectionSize">
            <number>20</number>
+          </attribute>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
            <bool>true</bool>
@@ -388,7 +388,7 @@
   </action>
   <action name="actionGuide">
    <property name="text">
-    <string>&amp;Guide</string>
+    <string>&amp;Guide...</string>
    </property>
    <property name="shortcut">
     <string notr="true">F1</string>
