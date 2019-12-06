@@ -856,7 +856,7 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.Copy)
 
     def _onPaste(self, mode):
-        extended = self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        extended = not (self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier)
         mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
         html, internal = self._processMime(mime)
         if not html:
