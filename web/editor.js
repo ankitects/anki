@@ -380,7 +380,7 @@ for (i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
 }
 
 TAGS_WITHOUT_ATTRS = ["H1", "H2", "H3", "LI", "UL", "OL", "BLOCKQUOTE", "CODE",
-    "PRE", "TABLE", "DD", "DT", "DL"];
+    "PRE", "TABLE", "DD", "DT", "DL", "B", "U", "I"];
 for (i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
     allowedTagsExtended[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
 }
