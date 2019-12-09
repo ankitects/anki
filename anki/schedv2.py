@@ -649,7 +649,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         lapse = card.type in (2,3)
 
         if lapse:
-            self._rescheduleGraduatingLapse(card)
+            self._rescheduleGraduatingLapse(card, early)
         else:
             self._rescheduleNew(card, conf, early)
 
@@ -657,7 +657,9 @@ did = ? and queue = 3 and due <= ? limit ?""",
         if card.odid:
             self._removeFromFiltered(card)
 
-    def _rescheduleGraduatingLapse(self, card):
+    def _rescheduleGraduatingLapse(self, card, early=False):
+        if early:
+            card.ivl += 1
         card.due = self.today+card.ivl
         card.queue = 2
         card.type = 2
@@ -686,7 +688,8 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
     def _graduatingIvl(self, card, conf, early, fuzz=True):
         if card.type in (2,3):
-            return card.ivl
+            bonus = early and 1 or 0
+            return card.ivl + bonus
         if not early:
             # graduate
             ideal =  conf['ints'][0]
