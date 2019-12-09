@@ -276,8 +276,8 @@ function wrap(front, back) {
     var content = r.cloneContents();
     var span = document.createElement("span");
     span.appendChild(content);
-    var new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
-    setFormat("inserthtml", new_);
+    var new_ = wrappedExceptForWhitespace(span.innerText, front, back);
+    setFormat("inserttext", new_);
     if (!span.innerHTML) {
         // run with an empty selection; move cursor back past postfix
         r = s.getRangeAt(0);
