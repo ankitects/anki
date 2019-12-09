@@ -190,7 +190,7 @@ def test_relearn():
     # immediately graduate it
     d.sched.answerCard(c, 4)
     assert c.queue == c.type == 2
-    assert c.ivl == 1
+    assert c.ivl == 2
     assert c.due == d.sched.today + c.ivl
 
 def test_relearn_no_steps():
@@ -549,7 +549,7 @@ def test_nextIvl():
     c.factor = STARTING_FACTOR
     assert ni(c, 1) == 60
     assert ni(c, 3) == 100*86400
-    assert ni(c, 4) == 100*86400
+    assert ni(c, 4) == 101*86400
     # review cards
     ##################################################
     c.queue = 2
