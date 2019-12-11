@@ -109,9 +109,9 @@ class DataModel(QAbstractTableModel):
                 if type == stype:
                     txt = name
                     break
-            # handle case where extension has set an invalid column type
+            # give the user a hint an invalid column was added by an add-on
             if not txt:
-                txt = self.browser.columns[0][1]
+                txt = _("Add-on")
             return txt
         else:
             return
