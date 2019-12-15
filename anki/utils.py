@@ -422,7 +422,7 @@ class TimedLog:
 def versionWithBuild():
     from anki import version
     try:
-        from anki.buildhash import build
+        from anki.buildhash import build # type: ignore
     except:
         build = "dev"
     return "%s (%s)" % (version, build)
