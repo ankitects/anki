@@ -13,7 +13,7 @@ from anki.lang import _
 # Page for debug messages
 ##########################################################################
 
-class AnkiWebPage(QWebEnginePage):
+class AnkiWebPage(QWebEnginePage): # type: ignore
 
     def __init__(self, onBridgeCmd):
         QWebEnginePage.__init__(self)
@@ -89,7 +89,7 @@ class AnkiWebPage(QWebEnginePage):
 # Main web view
 ##########################################################################
 
-class AnkiWebView(QWebEngineView):
+class AnkiWebView(QWebEngineView): # type: ignore
 
     def __init__(self, parent=None):
         QWebEngineView.__init__(self, parent=parent)

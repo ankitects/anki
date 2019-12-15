@@ -6,6 +6,8 @@ import json
 import re
 import zipfile
 from collections import defaultdict
+from typing import Callable, Dict, Any
+
 import markdown
 from send2trash import send2trash
 import jsonschema
@@ -355,8 +357,8 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     # Add-on Config
     ######################################################################
 
-    _configButtonActions = {}
-    _configUpdatedActions = {}
+    _configButtonActions: Dict[str, Callable[[], None]] = {}
+    _configUpdatedActions: Dict[str, Callable[[Any], None]] = {}
 
     def addonConfigDefaults(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.json")
@@ -437,7 +439,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     # Web Exports
     ######################################################################
 
-    _webExports = {}
+    _webExports: Dict[str, str] = {}
 
     def setWebExports(self, module, pattern):
         addon = self.addonFromModule(module)

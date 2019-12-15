@@ -44,7 +44,7 @@ class SyncManager(QObject):
             auth=auth, media=self.pm.profile['syncMedia'],
             hostNum=self.pm.profile.get("hostNum"),
         )
-        t.event.connect(self.onEvent)
+        t._event.connect(self.onEvent)
         self.label = _("Connecting...")
         prog = self.mw.progress.start(immediate=True, label=self.label)
         self.sentBytes = self.recvBytes = 0
@@ -287,7 +287,7 @@ Check Database, then sync again."""))
 
 class SyncThread(QThread):
 
-    event = pyqtSignal(str, str)
+    _event = pyqtSignal(str, str)
 
     def __init__(self, path, hkey, auth=None, media=True, hostNum=None):
         QThread.__init__(self)
@@ -460,6 +460,6 @@ class SyncThread(QThread):
             self.fireEvent("mediaSuccess")
 
     def fireEvent(self, cmd, arg=""):
-        self.event.emit(cmd, arg)
+        self._event.emit(cmd, arg)
 
 
