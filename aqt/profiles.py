@@ -12,6 +12,8 @@ import shutil
 import io
 import locale
 
+from typing import Dict, Any
+
 from aqt.qt import *
 from anki.db import DB
 from anki.utils import isMac, isWin, intTime
@@ -35,7 +37,7 @@ metaConf = dict(
     disabledAddons=[],
 )
 
-profileConf = dict(
+profileConf: Dict[str,Any] = dict(
     # profile
     mainWindowGeom=None,
     mainWindowState=None,

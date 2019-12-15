@@ -7,7 +7,7 @@ Depends only on ctypes, and retrieves path locations in Unicode
 """
 
 import ctypes
-from ctypes import windll, wintypes
+from ctypes import windll, wintypes # type: ignore
 
 __license__ = "MIT"
 __version__ = "0.2"
