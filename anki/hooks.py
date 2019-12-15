@@ -14,11 +14,12 @@ automatically but can be called with _old().
 """
 
 import decorator
+from typing import Dict, List, Callable, Any
 
 # Hooks
 ##############################################################################
 
-_hooks = {}
+_hooks: Dict[str, List[Callable[..., Any]]] = {}
 
 def runHook(hook, *args):
     "Run all functions on hook."

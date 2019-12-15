@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import copy, re, json
+from typing import Dict, Any
 from anki.utils import intTime, joinFields, splitFields, ids2str,\
     checksum
 from anki.lang import _
@@ -43,7 +44,7 @@ defaultModel = {
 """
 }
 
-defaultField = {
+defaultField: Dict[str, Any] = {
     'name': "",
     'ord': None,
     'sticky': False,
