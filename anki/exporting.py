@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re, os, zipfile, shutil, unicodedata
-import json
+import json, typing
 
 from anki.lang import _
 from anki.utils import ids2str, splitFields, namedtmp, stripHTML
@@ -11,7 +11,7 @@ from anki.hooks import runHook
 from anki import Collection
 
 class Exporter:
-    includeHTML = None
+    includeHTML: typing.Union[bool, None] = None
 
     def __init__(self, col, did=None):
         self.col = col
@@ -134,7 +134,7 @@ class AnkiExporter(Exporter):
 
     key = _("Anki 2.0 Deck")
     ext = ".anki2"
-    includeSched = False
+    includeSched: typing.Union[bool, None] = False
     includeMedia = True
 
     def __init__(self, col):

@@ -5,6 +5,7 @@
 import html
 import re, sys, threading, time, subprocess, os, atexit
 import  random
+from typing import List
 from anki.hooks import addHook, runHook
 from anki.utils import  tmpdir, isWin, isMac, isLin
 from anki.lang import _
@@ -56,15 +57,15 @@ def _packagedCmd(cmd):
 
 processingSrc = "rec.wav"
 processingDst = "rec.mp3"
-processingChain = []
-recFiles = []
+processingChain: List[List[str]] = []
+recFiles: List[str] = []
 
 processingChain = [
     ["lame", processingSrc, processingDst, "--noreplaygain", "--quiet"],
     ]
 
 # don't show box on windows
-if isWin:
+if sys.platform == "win32":
     si = subprocess.STARTUPINFO()
     try:
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -177,7 +178,7 @@ if isWin:
 
     cleanupOldMplayerProcesses()
 
-mplayerQueue = []
+mplayerQueue: List[str] = []
 mplayerManager = None
 mplayerReader = None
 mplayerEvt = threading.Event()
@@ -409,7 +410,7 @@ class PyAudioRecorder(_Recorder):
             return processingSrc
 
 if not pyaudio:
-    PyAudioRecorder = None
+    PyAudioRecorder = None # type: ignore
 
 # Audio interface
 ##########################################################################
