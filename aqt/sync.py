@@ -5,7 +5,7 @@ import time
 import gc
 
 from aqt.qt import *
-from anki import Collection
+from anki.storage import Collection
 from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
     RemoteMediaServer
 from anki.hooks import addHook, remHook
