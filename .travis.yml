@@ -1,12 +1,16 @@
 dist: xenial
 language: python
-python:
-  - "3.6"
-install: 
+os: linux
+install:
   - sudo apt-get update
   - sudo apt-get install portaudio19-dev
   - pip install -r requirements.txt
   - pip install -r requirements.dev
   - pip install pyqt5 pyqtwebengine
 
-script: ./.travis.sh
+jobs:
+  include:
+    - python: 3.6
+      script: ./.travis.py36.sh
+    - python: 3.7
+      script: ./.travis.py37.sh
