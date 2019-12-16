@@ -10,6 +10,7 @@ import json
 import unicodedata
 import shutil
 
+from aqt import AnkiQt
 from aqt.qt import *
 import anki.importing as importing
 from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp, \
@@ -21,7 +22,7 @@ import aqt.deckchooser
 from anki.lang import ngettext, _
 
 class ChangeMap(QDialog):
-    def __init__(self, mw, model, current):
+    def __init__(self, mw: AnkiQt, model, current):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.model = model
@@ -64,7 +65,7 @@ class ChangeMap(QDialog):
 
 class ImportDialog(QDialog):
 
-    def __init__(self, mw, importer):
+    def __init__(self, mw: AnkiQt, importer):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.importer = importer
@@ -159,7 +160,7 @@ you can enter it here. Use \\t to represent tab."""),
         did = self.deck.selectedId()
         if did != self.importer.model['did']:
             self.importer.model['did'] = did
-            self.mw.col.models.save(self.importer.model)
+            self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.col.decks.select(did)
         self.mw.progress.start(immediate=True)
         self.mw.checkpoint(_("Import"))

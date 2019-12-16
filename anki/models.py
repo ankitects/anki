@@ -85,12 +85,13 @@ class ModelManager:
         self.changed = False
         self.models = json.loads(json_)
 
-    def save(self, m=None, templates=False):
+    def save(self, m=None, templates=False, updateReqs=True):
         "Mark M modified if provided, and schedule registry flush."
         if m and m['id']:
             m['mod'] = intTime()
             m['usn'] = self.col.usn()
-            self._updateRequired(m)
+            if updateReqs:
+                self._updateRequired(m)
             if templates:
                 self._syncTemplates(m)
         self.changed = True
@@ -254,7 +255,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         self.col.modSchema(check=True)
         m['sortf'] = idx
         self.col.updateFieldCache(self.nids(m))
-        self.save(m)
+        self.save(m, updateReqs=False)
 
     def addField(self, m, field):
         # only mod schema if model isn't new
@@ -304,7 +305,7 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         # restore sort field
         m['sortf'] = m['flds'].index(sortf)
         self._updateFieldOrds(m)
-        self.save(m)
+        self.save(m, updateReqs=False)
         def move(fields, oldidx=oldidx):
             val = fields[oldidx]
             del fields[oldidx]
@@ -409,7 +410,7 @@ update cards set ord = ord - 1, usn = ?, mod = ?
         for t in m['tmpls']:
             map.append("when ord = %d then %d" % (oldidxs[id(t)], t['ord']))
         # apply
-        self.save(m)
+        self.save(m, updateReqs=False)
         self.col.db.execute("""
 update cards set ord = (case %s end),usn=?,mod=? where nid in (
 select id from notes where mid = ?)""" % " ".join(map),

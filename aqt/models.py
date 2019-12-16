@@ -1,6 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
+from aqt import AnkiQt
 from aqt.qt import *
 from operator import itemgetter
 from aqt.utils import showInfo, askUser, getText, maybeHideClose, openHelp
@@ -11,12 +11,13 @@ import collections
 from anki.lang import _, ngettext
 
 class Models(QDialog):
-    def __init__(self, mw, parent=None, fromMain=False):
+    def __init__(self, mw: AnkiQt, parent=None, fromMain=False):
         self.mw = mw
         self.parent = parent or mw
         self.fromMain = fromMain
         QDialog.__init__(self, self.parent, Qt.Window)
         self.col = mw.col
+        assert(self.col)
         self.mm = self.col.models
         self.mw.checkpoint(_("Note Types"))
         self.form = aqt.forms.models.Ui_Dialog()
@@ -56,7 +57,7 @@ class Models(QDialog):
         txt = getText(_("New name:"), default=self.model['name'])
         if txt[1] and txt[0]:
             self.model['name'] = txt[0]
-            self.mm.save(self.model)
+            self.mm.save(self.model, updateReqs=False)
         self.updateModelsList()
 
     def updateModelsList(self):
@@ -121,7 +122,7 @@ class Models(QDialog):
         self.model['latexPost'] = str(frm.latexFooter.toPlainText())
 
     def saveModel(self):
-        self.mm.save(self.model)
+        self.mm.save(self.model, updateReqs=False)
 
     def _tmpNote(self):
         self.mm.setCurrent(self.model)
