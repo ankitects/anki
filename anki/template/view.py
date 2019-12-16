@@ -69,7 +69,7 @@ class View:
         f = open(self.template_file, 'r')
         try:
             template = f.read()
-            if self.template_encoding:
+            if self.template_encoding and isinstance(template, bytes):
                 template = str(template, self.template_encoding)
         finally:
             f.close()
