@@ -1,4 +1,4 @@
-from anki.template import Template
+from .template import Template
 import os.path
 import re
 
