@@ -697,7 +697,7 @@ where c.nid == f.id
     def _undoReview(self):
         data = self._undo[2]
         wasLeech = self._undo[3]
-        c = data.pop()
+        c = data.pop() # pytype: disable=attribute-error
         if not data:
             self.clearUndo()
         # remove leech tag if it didn't have it before

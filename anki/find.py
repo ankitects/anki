@@ -316,7 +316,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         if not m:
             return
         prop, cmp, val = m.groups()
-        prop = prop.lower()
+        prop = prop.lower() # pytype: disable=attribute-error
         # is val valid?
         try:
             if prop == "ease":

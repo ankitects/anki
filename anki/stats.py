@@ -830,7 +830,7 @@ from cards where did in %s""" % self._limit())
         height = self.height
         if type == "bars":
             conf['series']['bars'] = dict(
-                show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0)
+                show=True, barWidth=0.8, align="center", fill=0.7, lineWidth=0) # pytype: disable=unsupported-operands
         elif type == "barsLine":
             print("deprecated - use 'bars' instead")
             conf['series']['bars'] = dict(
