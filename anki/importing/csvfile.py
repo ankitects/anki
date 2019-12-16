@@ -12,7 +12,7 @@ from anki.lang import _
 class TextImporter(NoteImporter):
 
     needDelimiter = True
-    patterns = ("\t", "|", ",", ";", ":")
+    patterns = "\t|,;:"
 
     def __init__(self, col, file):
         NoteImporter.__init__(self, col, file)
