@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: petr.michalec@gmail.com
 # License: GNU GPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+# pytype: disable=attribute-error
 
 import sys
 
