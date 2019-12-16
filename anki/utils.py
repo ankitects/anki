@@ -334,12 +334,12 @@ def call(argv, wait=True, **kwargs):
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
     if isWin:
-        si = subprocess.STARTUPINFO()
+        si = subprocess.STARTUPINFO() # pytype: disable=module-attr
         try:
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
         except:
             # pylint: disable=no-member
-            si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
+            si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
     else:
         si = None
     # run
@@ -396,7 +396,7 @@ def platDesc():
             elif isWin:
                 theos = "win:%s" % (platform.win32_ver()[0])
             elif system == "Linux":
-                import distro
+                import distro # pytype: disable=import-error
                 r = distro.linux_distribution(full_distribution_name=False)
                 theos = "lin:%s:%s" % (r[0], r[1])
             else:

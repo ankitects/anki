@@ -58,8 +58,7 @@ class MPVTimeoutError(MPVError):
 from anki.utils import isWin
 if isWin:
     # pylint: disable=import-error
-    import win32file, win32pipe, pywintypes, winerror
-
+    import win32file, win32pipe, pywintypes, winerror # pytype: disable=import-error
 class MPVBase:
     """Base class for communication with the mpv media player via unix socket
        based JSON IPC.
