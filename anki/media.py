@@ -357,11 +357,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def stripIllegal(self, str):
         return re.sub(self._illegalCharReg, "", str)
 
-    def hasIllegal(self, str):
-        if re.search(self._illegalCharReg, str):
+    def hasIllegal(self, s: str):
+        if re.search(self._illegalCharReg, s):
             return True
         try:
-            str.encode(sys.getfilesystemencoding())
+            s.encode(sys.getfilesystemencoding())
         except UnicodeEncodeError:
             return True
         return False
