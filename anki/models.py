@@ -502,7 +502,7 @@ select id from notes where mid = ?)""" % " ".join(map),
         flds = [f['name'] for f in m['flds']]
         for t in m['tmpls']:
             ret = self._reqForTemplate(m, flds, t)
-            req.append((t['ord'], ret[0], ret[1]))
+            req.append([t['ord'], ret[0], ret[1]])
         m['req'] = req
 
     def _reqForTemplate(self, m, flds, t):
