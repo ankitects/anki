@@ -440,18 +440,27 @@ Please run Tools>Empty Cards""")
         else:
             res = ""
             for ok, txt in givenElems:
+                txt = self._noLoneMarks(txt)
                 if ok:
                     res += good(txt)
                 else:
                     res += bad(txt)
             res += "<br>&darr;<br>"
             for ok, txt in correctElems:
+                txt = self._noLoneMarks(txt)
                 if ok:
                     res += good(txt)
                 else:
                     res += missed(txt)
         res = "<div><code id=typeans>" + res + "</code></div>"
         return res
+
+    def _noLoneMarks(self, s):
+        # ensure a combining character at the start does not join to
+        # previous text
+        if s and ucd.category(s[0]).startswith("M"):
+            return "\xa0" + s
+        return s
 
     def _getTypedAnswer(self):
         self.web.evalWithCallback("typeans ? typeans.value : null", self._onTypedAnswer)
