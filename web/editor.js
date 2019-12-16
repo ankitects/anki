@@ -373,7 +373,7 @@ var filterHTML = function (html, internal, extendedMode) {
 var allowedTagsBasic = {};
 var allowedTagsExtended = {};
 
-var TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR", "SUB", "SUP", "RUBY", "RT", "RP"];
+var TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR", "SUB", "SUP"];
 var i;
 for (i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
     allowedTagsBasic[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
