@@ -13,9 +13,9 @@ from anki.lang import _, ngettext
 class Models(QDialog):
     def __init__(self, mw: AnkiQt, parent=None, fromMain=False):
         self.mw = mw
-        self.parent = parent or mw
+        parent = parent or mw
         self.fromMain = fromMain
-        QDialog.__init__(self, self.parent, Qt.Window)
+        QDialog.__init__(self, parent, Qt.Window)
         self.col = mw.col
         assert(self.col)
         self.mm = self.col.models
