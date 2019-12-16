@@ -373,14 +373,14 @@ var filterHTML = function (html, internal, extendedMode) {
 var allowedTagsBasic = {};
 var allowedTagsExtended = {};
 
-var TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR", "SUB", "SUP"];
+var TAGS_WITHOUT_ATTRS = ["P", "DIV", "BR", "SUB", "SUP", "RUBY", "RT", "RP"];
 var i;
 for (i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
     allowedTagsBasic[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
 }
 
 TAGS_WITHOUT_ATTRS = ["H1", "H2", "H3", "LI", "UL", "OL", "BLOCKQUOTE", "CODE",
-    "PRE", "TABLE", "DD", "DT", "DL", "B", "U", "I"];
+    "PRE", "TABLE", "DD", "DT", "DL", "B", "U", "I", "RUBY", "RT", "RP"];
 for (i = 0; i < TAGS_WITHOUT_ATTRS.length; i++) {
     allowedTagsExtended[TAGS_WITHOUT_ATTRS[i]] = {"attrs": []};
 }
