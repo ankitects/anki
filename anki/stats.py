@@ -18,6 +18,7 @@ class CardStats:
     def __init__(self, col, card):
         self.col = col
         self.card = card
+        self.txt = ""
 
     def report(self):
         c = self.card

@@ -77,6 +77,8 @@ class ModelManager:
 
     def __init__(self, col):
         self.col = col
+        self.models = {}
+        self.changed = False
 
     def load(self, json_):
         "Load registry from JSON."

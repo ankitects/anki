@@ -22,6 +22,7 @@ class TagManager:
 
     def __init__(self, col):
         self.col = col
+        self.tags = {}
 
     def load(self, json_):
         self.tags = json.loads(json_)
