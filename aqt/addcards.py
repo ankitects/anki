@@ -1,8 +1,10 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from anki.lang import _
+from typing import List
 
+from anki.lang import _
+from aqt import AnkiQt
 from aqt.qt import *
 import aqt.forms
 from aqt.utils import saveGeom, restoreGeom, showWarning, askUser, shortcut, \
@@ -14,7 +16,7 @@ import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
 class AddCards(QDialog):
 
-    def __init__(self, mw):
+    def __init__(self, mw: AnkiQt):
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
@@ -27,7 +29,7 @@ class AddCards(QDialog):
         self.setupEditor()
         self.setupButtons()
         self.onReset()
-        self.history = []
+        self.history: List[int] = []
         self.previousNote = None
         restoreGeom(self, "add")
         addHook('reset', self.onReset)

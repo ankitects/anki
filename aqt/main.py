@@ -10,8 +10,9 @@ import time
 import faulthandler
 import platform
 from threading import Thread
-
+from typing import Optional
 from send2trash import send2trash
+from anki.collection import _Collection
 from aqt.qt import *
 from anki.storage import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
@@ -36,6 +37,7 @@ class AnkiQt(QMainWindow):
         QMainWindow.__init__(self)
         self.state = "startup"
         self.opts = opts
+        self.col: Optional[_Collection] = None
         aqt.mw = self
         self.app = app
         self.pm = profileManager

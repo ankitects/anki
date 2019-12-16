@@ -11,6 +11,7 @@ import unicodedata
 import json
 
 from anki.lang import _
+from aqt import AnkiQt
 from aqt.qt import *
 from anki.utils import isWin, namedtmp, stripHTMLMedia, \
     checksum
@@ -40,7 +41,7 @@ html { background: %s; }
 
 # caller is responsible for resetting note on reset
 class Editor:
-    def __init__(self, mw, widget, parentWindow, addMode=False):
+    def __init__(self, mw: AnkiQt, widget, parentWindow, addMode=False):
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
