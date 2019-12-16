@@ -128,7 +128,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if not isWin:
             return
         # pylint: disable=import-error
-        import win32api, win32file
+        import win32api, win32file # pytype: disable=import-error
         try:
             name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
         except:

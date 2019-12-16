@@ -66,13 +66,13 @@ processingChain = [
 
 # don't show box on windows
 if sys.platform == "win32":
-    si = subprocess.STARTUPINFO()
+    si = subprocess.STARTUPINFO() # pytype: disable=module-attr
     try:
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
     except:
         # pylint: disable=no-member
         # python2.7+
-        si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
+        si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
 else:
     si = None
 
@@ -153,7 +153,7 @@ def cleanupMPV():
 # which prevents renaming or deleting the profile
 def cleanupOldMplayerProcesses():
     # pylint: disable=import-error
-    import psutil
+    import psutil # pytype: disable=import-error
 
     exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
