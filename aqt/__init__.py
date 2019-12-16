@@ -10,7 +10,9 @@ import tempfile
 import builtins
 import locale
 import gettext
+from typing import Optional
 
+from aqt.main import AnkiQt
 from aqt.qt import *
 import anki.lang
 from anki.consts import HELP_SITE
@@ -24,7 +26,7 @@ appDonate="http://ankisrs.net/support/"
 appShared="https://ankiweb.net/shared/"
 appUpdate="https://ankiweb.net/update/desktop"
 appHelpSite=HELP_SITE
-mw = None # set on init
+mw: Optional[AnkiQt] = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 

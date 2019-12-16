@@ -9,7 +9,11 @@ import unicodedata as ucd
 import html.parser
 import json
 
+from typing import List
+
+from anki.cards import Card
 from anki.lang import _, ngettext
+from aqt import AnkiQt
 from aqt.qt import *
 from anki.utils import stripHTML, bodyClass
 from anki.hooks import addHook, runHook, runFilter
@@ -23,13 +27,13 @@ import aqt
 class Reviewer:
     "Manage reviews.  Maintains a separate state."
 
-    def __init__(self, mw):
+    def __init__(self, mw: AnkiQt):
         self.mw = mw
         self.web = mw.web
         self.card = None
-        self.cardQueue = []
+        self.cardQueue: List[Card] = []
         self.hadCardQueue = False
-        self._answeredIds = []
+        self._answeredIds: List[int] = []
         self._recordedAudio = None
         self.typeCorrect = None # web init happens before this is set
         self.state = None

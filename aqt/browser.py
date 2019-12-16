@@ -11,6 +11,7 @@ from operator import  itemgetter
 from anki.lang import ngettext
 import json
 
+from aqt import AnkiQt
 from aqt.qt import *
 import anki
 import aqt.forms
@@ -383,7 +384,7 @@ class StatusDelegate(QItemDelegate):
 
 class Browser(QMainWindow):
 
-    def __init__(self, mw):
+    def __init__(self, mw: AnkiQt):
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
