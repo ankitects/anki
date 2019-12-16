@@ -33,6 +33,7 @@ f._id=d._fact_id"""):
                     notes[note['_id']] = note
                 note = {'_id': _id}
                 curid = id
+            assert(note)
             note[k] = v
         if note:
             notes[note['_id']] = note
@@ -82,6 +83,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
             c.due = self.col.sched.today+rem
             # get ord
             m = re.search(r".(\d+)$", row[1])
+            assert(m)
             ord = int(m.group(1))-1
             if 'cards' not in note:
                 note['cards'] = {}

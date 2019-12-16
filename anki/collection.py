@@ -393,6 +393,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         for nid, mid, flds in self.db.execute(
             "select id, mid, flds from notes where id in "+snids):
             model = self.models.get(mid)
+            assert(model)
             avail = self.models.availOrds(model, flds)
             did = dids.get(nid) or model['did']
             due = dues.get(nid)
@@ -456,6 +457,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
                 card.did = note.model()['did']
         # if invalid did, use default instead
         deck = self.decks.get(card.did)
+        assert(deck)
         if deck['dyn']:
             # must not be a filtered deck
             card.did = 1
@@ -567,6 +569,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         flist = splitFields(data[6])
         fields = {}
         model = self.models.get(data[2])
+        assert(model)
         for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
             fields[name] = flist[idx]
         fields['Tags'] = data[5].strip()

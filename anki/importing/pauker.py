@@ -50,6 +50,7 @@ class PaukerImporter(NoteImporter):
                 front = card.findtext('./FrontSide/Text')
                 back = card.findtext('./ReverseSide/Text')
                 note = ForeignNote()
+                assert(front and back)
                 note.fields = [html.escape(x.strip()).replace('\n','<br>').replace('  ',' &nbsp;') for x in [front,back]]
                 notes.append(note)
 
