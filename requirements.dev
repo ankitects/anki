@@ -2,3 +2,4 @@ nose
 mypy==0.750
 pylint
 mock
+pytype
