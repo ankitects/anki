@@ -296,7 +296,8 @@ def tmpdir():
     global _tmpdir
     if not _tmpdir:
         def cleanup():
-            shutil.rmtree(_tmpdir)
+            if os.path.exists(_tmpdir):
+                shutil.rmtree(_tmpdir)
         import atexit
         atexit.register(cleanup)
         _tmpdir = os.path.join(tempfile.gettempdir(), "anki_temp")
