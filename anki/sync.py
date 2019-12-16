@@ -458,10 +458,10 @@ class AnkiRequestsClient:
         self.session = requests.Session()
 
     def post(self, url, data, headers):
-        data = _MonitoringFile(data)
+        data = _MonitoringFile(data) # pytype: disable=wrong-arg-types
         headers['User-Agent'] = self._agentName()
         return self.session.post(
-            url, data=data, headers=headers, stream=True, timeout=self.timeout, verify=self.verify)
+            url, data=data, headers=headers, stream=True, timeout=self.timeout, verify=self.verify) # pytype: disable=wrong-arg-types
 
     def get(self, url, headers=None):
         if headers is None:
