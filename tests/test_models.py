@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from tests.shared import getEmptyCol
+from anki.consts import MODEL_CLOZE
 from anki.utils import stripHTML, joinFields
 import anki.template
 
@@ -328,3 +329,28 @@ def test_availOrds():
     t['Front'] = ""
     t['Back'] = "1"
     assert mm.availOrds(m, joinFields(f.fields)) == [0]
+
+def test_req():
+    def reqSize(model):
+        if model['type'] == MODEL_CLOZE:
+            return
+        assert (len(model['tmpls']) == len(model['req']))
+
+    d = getEmptyCol()
+    mm = d.models
+    basic = mm.byName("Basic")
+    assert 'req' in basic
+    reqSize(basic)
+    assert basic['req'][0] == [0, 'all', [0]]
+    opt = mm.byName("Basic (optional reversed card)")
+    reqSize(opt)
+    assert opt['req'][0] == [0, 'all', [0]]
+    assert opt['req'][1] == [1, 'all', [1, 2]]
+    #testing any
+    opt['tmpls'][1]['qfmt'] = "{{Back}}{{Add Reverse}}"
+    mm.save(opt, templates=True)
+    assert opt['req'][1] == [1, 'any', [1, 2]]
+    #testing None
+    opt['tmpls'][1]['qfmt'] = "{{^Add Reverse}}{{Back}}{{/Add Reverse}}"
+    mm.save(opt, templates=True)
+    assert opt['req'][1] == [1, 'none', []]
