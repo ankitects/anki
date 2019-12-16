@@ -8,7 +8,7 @@ import json, typing
 from anki.lang import _
 from anki.utils import ids2str, splitFields, namedtmp, stripHTML
 from anki.hooks import runHook
-from anki import Collection
+from anki.storage import Collection
 
 class Exporter:
     includeHTML: typing.Union[bool, None] = None
