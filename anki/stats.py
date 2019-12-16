@@ -363,8 +363,7 @@ group by day order by day""" % (self._limit(), lim),
         return self._section(txt1) + self._section(txt2)
 
     def _ansInfo(self, totd, studied, first, unit, convHours=False, total=None):
-        if not totd:
-            return
+        assert(totd)
         tot = totd[-1][1]
         period = self._periodDays()
         if not period:
@@ -504,12 +503,14 @@ group by day order by day""" % lim,
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        return self.col.db.first("""
+        ret = self.col.db.first("""
 select count(), abs(min(day)) from (select
 (cast((id/1000 - :cut) / 86400.0 as int)+1) as day
 from revlog %s
 group by day order by day)""" % lim,
                                    cut=self.col.sched.dayCutoff)
+        assert(ret)
+        return ret
 
     # Intervals
     ######################################################################
