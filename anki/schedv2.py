@@ -311,9 +311,10 @@ order by due""" % self._deckLimit(),
 
         # day learning first and card due?
         dayLearnFirst = self.col.conf.get("dayLearnFirst", False)
-        c = dayLearnFirst and self._getLrnDayCard()
-        if c:
-            return c
+        if dayLearnFirst:
+            c = self._getLrnDayCard()
+            if c:
+                return c
 
         # card due for review?
         c = self._getRevCard()
@@ -321,9 +322,10 @@ order by due""" % self._deckLimit(),
             return c
 
         # day learning card due?
-        c = not dayLearnFirst and self._getLrnDayCard()
-        if c:
-            return c
+        if not dayLearnFirst:
+            c = self._getLrnDayCard()
+            if c:
+                return c
 
         # new cards left?
         c = self._getNewCard()
