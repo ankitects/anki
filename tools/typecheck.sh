@@ -2,4 +2,4 @@
 
 TOOLS="$(cd "`dirname "$0"`"; pwd)"
 mypy $TOOLS/../anki $TOOLS/../aqt
-pytype $TOOLS/../anki
+(cd $TOOLS/.. && pytype --config pytype.conf)
