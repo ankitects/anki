@@ -34,6 +34,11 @@ class Syncer:
         self.col = col
         self.server = server
 
+        # these are set later; provide dummy values for type checking
+        self.lnewer = False
+        self.maxUsn = 0
+        self.tablesLeft = []
+
     def sync(self):
         "Returns 'noChanges', 'fullSync', 'success', etc"
         self.syncMsg = ""
@@ -707,6 +712,7 @@ class MediaSyncer:
     def __init__(self, col, server=None):
         self.col = col
         self.server = server
+        self.downloadCount = 0
 
     def sync(self):
         # check if there have been any changes
@@ -726,7 +732,6 @@ class MediaSyncer:
 
         # loop through and process changes from server
         self.col.log("last local usn is %s"%lastUsn)
-        self.downloadCount = 0
         while True:
             data = self.server.mediaChanges(lastUsn=lastUsn)
 

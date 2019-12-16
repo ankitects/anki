@@ -19,6 +19,14 @@ class Anki2Importer(Importer):
     deckPrefix = None
     allowUpdate = True
 
+    def __init__(self, col, file):
+        super().__init__(col, file)
+
+        # set later, defined here for typechecking
+        self.src = None
+        self._decks = {}
+        self.mustResetLearning = False
+
     def run(self, media=None):
         self._prepareFiles()
         if media is not None:

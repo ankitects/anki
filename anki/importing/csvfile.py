@@ -14,12 +14,13 @@ class TextImporter(NoteImporter):
     needDelimiter = True
     patterns = ("\t", "|", ",", ";", ":")
 
-    def __init__(self, *args):
-        NoteImporter.__init__(self, *args)
+    def __init__(self, col, file):
+        NoteImporter.__init__(self, col, file)
         self.lines = None
         self.fileobj = None
         self.delimiter = None
         self.tagsToAdd = []
+        self.numFields = 0
 
     def foreignNotes(self):
         self.open()

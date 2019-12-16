@@ -10,6 +10,7 @@ class Note:
     def __init__(self, col, model=None, id=None):
         assert not (model and id)
         self.col = col
+        self.newlyAdded = False
         if id:
             self.id = id
             self.load()

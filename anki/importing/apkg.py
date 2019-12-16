@@ -10,6 +10,12 @@ from anki.importing.anki2 import Anki2Importer
 
 class AnkiPackageImporter(Anki2Importer):
 
+    def __init__(self, col, file):
+        super().__init__(col, file)
+        # set later; set here for typechecking
+        self.nameToNum = {}
+        self.zip = None
+
     def run(self):
         # extract the deck from the zip file
         self.zip = z = zipfile.ZipFile(self.file)

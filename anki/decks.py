@@ -96,6 +96,8 @@ class DeckManager:
 
     def __init__(self, col):
         self.col = col
+        self.decks = {}
+        self.dconf = {}
 
     def load(self, decks, dconf):
         self.decks = json.loads(decks)

@@ -58,6 +58,7 @@ class NoteImporter(Importer):
         self.model = col.models.current()
         self.mapping = None
         self._deckMap = {}
+        self._tagsMapped = False
 
     def run(self):
         "Import."
