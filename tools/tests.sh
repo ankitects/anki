@@ -5,6 +5,8 @@
 # tools/tests.sh decks # test only test_decks.py
 # coverage=1 tools/tests.sh # run with coverage test
 
+set -e
+
 BIN="$(cd "`dirname "$0"`"; pwd)"
 export PYTHONPATH=${BIN}/..:${PYTHONPATH}
 
