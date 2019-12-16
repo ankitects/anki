@@ -13,7 +13,7 @@ from threading import Thread
 
 from send2trash import send2trash
 from aqt.qt import *
-from anki import Collection
+from anki.storage import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
         devMode
 from anki.hooks import runHook, addHook, runFilter
