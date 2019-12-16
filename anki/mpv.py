@@ -253,7 +253,7 @@ class MPVBase:
         """Return a json representation from a message dictionary.
         """
         # XXX may be strict is too strict ;-)
-        data = json.dumps(message, separators=",:")
+        data = json.dumps(message)
         return data.encode("utf8", "strict") + b"\n"
 
     def _parse_message(self, data):
