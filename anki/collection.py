@@ -78,7 +78,8 @@ class _Collection:
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
-        self.conf['localOffset'] = timezoneOffset()
+        if not server:
+            self.conf['localOffset'] = timezoneOffset()
         self._loadScheduler()
         if not self.conf.get("newBury", False):
             self.conf['newBury'] = True
