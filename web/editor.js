@@ -266,7 +266,17 @@ function maybeDisableButtons() {
     }
 }
 
+/* old method, kept around for the benefit of add-ons that were using it */
 function wrap(front, back) {
+    wrapInternal(front, back, false);
+}
+
+/* new method */
+function wrap2(front, back) {
+    wrapInternal(front, back, true);
+}
+
+function wrapInternal(front, back, plainText) {
     if (currentField.dir === "rtl") {
         front = "&#8235;" + front + "&#8236;";
         back = "&#8235;" + back + "&#8236;";
@@ -276,8 +286,13 @@ function wrap(front, back) {
     var content = r.cloneContents();
     var span = document.createElement("span");
     span.appendChild(content);
-    var new_ = wrappedExceptForWhitespace(span.innerText, front, back);
-    setFormat("inserttext", new_);
+    if (plainText) {
+        var new_ = wrappedExceptForWhitespace(span.innerText, front, back);
+        setFormat("inserttext", new_);
+    } else {
+        var new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
+        setFormat("inserthtml", new_);
+    }
     if (!span.innerHTML) {
         // run with an empty selection; move cursor back past postfix
         r = s.getRangeAt(0);

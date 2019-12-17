@@ -510,7 +510,7 @@ to a cloze type first, via Edit>Change Note Type."""))
             highest += 1
         # must start at 1
         highest = max(1, highest)
-        self.web.eval("wrap('{{c%d::', '}}');" % highest)
+        self.web.eval("wrap2('{{c%d::', '}}');" % highest)
 
     # Foreground colour
     ######################################################################
@@ -791,22 +791,22 @@ to a cloze type first, via Edit>Change Note Type."""))
     ######################################################################
 
     def insertLatex(self):
-        self.web.eval("wrap('[latex]', '[/latex]');")
+        self.web.eval("wrap2('[latex]', '[/latex]');")
 
     def insertLatexEqn(self):
-        self.web.eval("wrap('[$]', '[/$]');")
+        self.web.eval("wrap2('[$]', '[/$]');")
 
     def insertLatexMathEnv(self):
-        self.web.eval("wrap('[$$]', '[/$$]');")
+        self.web.eval("wrap2('[$$]', '[/$$]');")
 
     def insertMathjaxInline(self):
-        self.web.eval("wrap('\\\\(', '\\\\)');")
+        self.web.eval("wrap2('\\\\(', '\\\\)');")
 
     def insertMathjaxBlock(self):
-        self.web.eval("wrap('\\\\[', '\\\\]');")
+        self.web.eval("wrap2('\\\\[', '\\\\]');")
 
     def insertMathjaxChemistry(self):
-        self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
+        self.web.eval("wrap2('\\\\(\\\\ce{', '}\\\\)');")
 
     # Links from HTML
     ######################################################################
