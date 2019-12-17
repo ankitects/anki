@@ -310,6 +310,9 @@ def _run(argv=None, exec=True):
     # opt in to full hidpi support?
     if not os.environ.get("ANKI_NOHIGHDPI"):
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+        os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
+
 
     # Opt into software rendering. Useful for buggy systems.
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
