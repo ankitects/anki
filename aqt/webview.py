@@ -200,7 +200,9 @@ class AnkiWebView(QWebEngineView): # type: ignore
         if isLin:
             factor = max(1, factor)
             return factor
-        # compensate for qt's integer scaling on windows
+        # compensate for qt's integer scaling on windows?
+        if qtminor >= 14:
+            return 1
         qtIntScale = self._getQtIntScale(screen)
         desiredScale = factor * qtIntScale
         newFactor = desiredScale / qtIntScale
