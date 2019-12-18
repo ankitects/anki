@@ -21,6 +21,9 @@ To start, make sure you have the following installed:
 
 If the distro you are using has PyQt5 installed, make sure you have the PyQt5
 WebEngine module and development tools (eg pyqt5-dev-tools) installed as well.
+Otherwise, run:
+
+$ pip install -r requirements.qt
 
 Then to run the development version:
 

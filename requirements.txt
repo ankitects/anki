@@ -8,5 +8,3 @@ jsonschema
 psutil; sys_platform == "win32"
 distro; sys_platform != "win32" and sys_platform != "darwin"
 typing
-pyqt5
-pyqtwebengine
