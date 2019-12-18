@@ -61,6 +61,10 @@ profileConf: Dict[str,Any] = dict(
     importMode=1,
 )
 
+class LoadMetaResult:
+    firstTime: bool
+    loadError: bool
+
 class ProfileManager:
 
     def __init__(self, base=None):
@@ -71,9 +75,11 @@ class ProfileManager:
 
         anki.sound.setMpvConfigBase(self.base)
 
-    def setupMeta(self):
+    def setupMeta(self) -> LoadMetaResult:
         # load metadata
-        self.firstRun = self._loadMeta()
+        res = self._loadMeta()
+        self.firstRun = res.firstTime
+        return res
 
     # profile load on startup
     def openProfile(self, profile):
@@ -299,13 +305,17 @@ and no other programs are accessing your profile folders, then try again."""))
                 os.makedirs(dataDir)
             return os.path.join(dataDir, "Anki2")
 
-    def _loadMeta(self):
+    def _loadMeta(self, retrying = False) -> LoadMetaResult:
+        result = LoadMetaResult()
+        result.firstTime = False
+        result.loadError = retrying
+
         opath = os.path.join(self.base, "prefs.db")
         path = os.path.join(self.base, "prefs21.db")
         if os.path.exists(opath) and not os.path.exists(path):
             shutil.copy(opath, path)
 
-        new = not os.path.exists(path)
+        result.firstTime = not os.path.exists(path)
         def recover():
             # if we can't load profile, start with a new one
             if self.db:
@@ -317,10 +327,8 @@ and no other programs are accessing your profile folders, then try again."""))
                 fpath = path + suffix
                 if os.path.exists(fpath):
                     os.unlink(fpath)
-            QMessageBox.warning(
-                None, "Preferences Corrupt", """\
-Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
-profiles, please add them back using the same names to recover your cards.""")
+
+        # open DB file and read data
         try:
             self.db = DB(path)
             assert self.db.scalar("pragma integrity_check") == "ok"
@@ -330,21 +338,28 @@ create table if not exists profiles
             data = self.db.scalar(
                 "select cast(data as blob) from profiles where name = '_global'")
         except:
+            if result.loadError:
+                # already failed, prevent infinite loop
+                raise
+            # delete files and try again
             recover()
-            return self._loadMeta()
-        if not new:
-            # load previously created data
+            return self._loadMeta(retrying=True)
+
+        # try to read data
+        if not result.firstTime:
             try:
                 self.meta = self._unpickle(data)
-                return
+                return result
             except:
                 print("resetting corrupt _global")
-        # create a default global profile
+                result.loadError = True
+
+        # if new or read failed, create a default global profile
         self.meta = metaConf.copy()
         self.db.execute("insert or replace into profiles values ('_global', ?)",
                         self._pickle(metaConf))
         self._setDefaultLang()
-        return True
+        return result
 
     def _ensureProfile(self):
         "Create a new profile if none exists."

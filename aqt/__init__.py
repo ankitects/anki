@@ -303,6 +303,7 @@ def _run(argv=None, exec=True):
     # profile manager
     from aqt.profiles import ProfileManager
     pm = ProfileManager(opts.base)
+    pmLoadResult = pm.setupMeta()
 
     # gl workarounds
     setupGL(pm)
@@ -355,7 +356,11 @@ No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""")
         return
 
-    pm.setupMeta()
+    if pmLoadResult.loadError:
+        QMessageBox.warning(
+            None, "Preferences Corrupt", """\
+    Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
+    profiles, please add them back using the same names to recover your cards.""")
 
     if opts.profile:
         pm.openProfile(opts.profile)
