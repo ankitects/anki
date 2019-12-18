@@ -42,7 +42,7 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         _runHook(onUpdateHook);
 
         // don't allow drags of images, which cause them to be deleted
-        $("img").attr("draggable", false);
+        $("img").attr("draggable", "false");
 
         // render mathjax
         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
@@ -88,7 +88,7 @@ function _showAnswer(a, bodyclass) {
     });
 }
 
-_flagColours = {
+const _flagColours = {
     1: "#ff6666",
     2: "#ff9900",
     3: "#77ff77",
@@ -115,7 +115,7 @@ function _drawMark(mark) {
 }
 
 function _typeAnsPress() {
-    if (window.event.keyCode === 13) {
+    if ((window.event as KeyboardEvent).keyCode === 13) {
         pycmd("ans");
     }
 }
