@@ -69,13 +69,13 @@ REQS := .build/pyrunreqs .build/pydevreqs .build/jsreqs
 # Building
 ######################
 
-BUILDDEPS := $(REQS) .build/ui .build/js
+BUILDDEPS := .build/ui .build/js
 
-.build/ui: $(shell find designer -name '*.ui')
+.build/ui: $(REQS) $(shell find designer -name '*.ui')
 	./tools/build_ui.sh
 	touch $@
 
-.build/js: $(TSDEPS)
+.build/js: $(REQS) $(TSDEPS)
 	(cd ts && npm run build)
 	touch $@
 
