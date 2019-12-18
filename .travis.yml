@@ -8,9 +8,9 @@ install:
 jobs:
   include:
     - python: 3.6
-      script: make -j 4 test lint pytype
+      script: make build && make -j 4 test lint pytype
     - python: 3.7
-      script: ./tools/typecheck-setup.sh && make -j 4 check
+      script: make build && ./tools/typecheck-setup.sh && make -j 4 check
 
 notifications:
   email:
