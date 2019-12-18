@@ -1,9 +1,9 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-var time; // set in python code
+var time: number; // set in python code
 
-var maxTime = 0;
+let maxTime = 0;
 $(function () {
     $("#ansbut").focus();
     updateTime();
@@ -13,22 +13,23 @@ $(function () {
     }, 1000);
 });
 
-var updateTime = function () {
-    var timeNode = $("#time");
+let updateTime = function () {
+    let timeNode = $("#time");
     if (!maxTime) {
         timeNode.text("");
         return;
     }
     time = Math.min(maxTime, time);
-    var m = Math.floor(time / 60);
-    var s = time % 60;
+    const m = Math.floor(time / 60);
+    const s = time % 60;
+    let sStr = s.toString();
     if (s < 10) {
-        s = "0" + s;
+        sStr = "0" + s;
     }
     if (maxTime === time) {
-        timeNode.html("<font color=red>" + m + ":" + s + "</font>");
+        timeNode.html("<font color=red>" + m + ":" + sStr + "</font>");
     } else {
-        timeNode.text(m + ":" + s);
+        timeNode.text(m + ":" + sStr);
     }
 };
 
@@ -46,7 +47,7 @@ function showAnswer(txt) {
 }
 
 function selectedAnswerButton() {
-    var node = document.activeElement;
+    let node = document.activeElement as HTMLElement;
     if (!node) {
         return;
     }
