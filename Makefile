@@ -93,4 +93,4 @@ JSDEPS := $(patsubst ts/%.ts, web/%.js, $(TSDEPS))
 js: $(JSDEPS)
 
 web/%.js: ts/%.ts
-	(cd ts && ./node_modules/.bin/tsc lib/global.d.ts $(notdir $<) --outFile ../web/$(notdir $@))
+	(cd ts && ./node_modules/.bin/tsc --lib es6,dom lib/global.d.ts $(notdir $<) --outFile ../web/$(notdir $@))

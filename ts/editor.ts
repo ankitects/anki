@@ -1,11 +1,18 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+import DragOverEvent = JQuery.DragOverEvent;
+
 var currentField = null;
 var changeTimer = null;
 var dropTarget = null;
 var currentNoteId = null;
 
+declare interface String {
+    format(...args) : string;
+}
+
+/* kept for compatibility with add-ons */
 String.prototype.format = function () {
     var args = arguments;
     return this.replace(/\{\d+\}/g, function (m) {
@@ -40,16 +47,16 @@ function triggerKeyTimer() {
     }, 600);
 }
 
-function onKey() {
+function onKey(evt: KeyboardEvent) {
     // esc clears focus, allowing dialog to close
-    if (window.event.which === 27) {
+    if (evt.which === 27) {
         currentField.blur();
         return;
     }
     // shift+tab goes to previous field
     if (navigator.platform === "MacIntel" &&
-        window.event.which === 9 && window.event.shiftKey) {
-        window.event.preventDefault();
+        evt.which === 9 && evt.shiftKey) {
+        evt.preventDefault();
         focusPrevious();
         return;
     }
@@ -83,9 +90,9 @@ function insertNewline() {
 
 // is the cursor in an environment that respects whitespace?
 function inPreEnvironment() {
-    var n = window.getSelection().anchorNode;
+    let n = window.getSelection().anchorNode as Element;
     if (n.nodeType === 3) {
-        n = n.parentNode;
+        n = n.parentNode as Element;
     }
     return window.getComputedStyle(n).whiteSpace.startsWith("pre");
 }
@@ -123,7 +130,7 @@ function toggleEditorButton(buttonid) {
     }
 }
 
-function setFormat(cmd, arg, nosave) {
+function setFormat(cmd: string, arg?: any, nosave: boolean = false) {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField('key');
@@ -186,8 +193,8 @@ function focusPrevious() {
 }
 
 function onDragOver(elem) {
-    var e = window.event;
-    e.dataTransfer.dropEffect = "copy";
+    var e = window.event as unknown as DragOverEvent;
+    //e.dataTransfer.dropEffect = "copy";
     e.preventDefault();
     // if we focus the target element immediately, the drag&drop turns into a
     // copy, so note it down for later instead
@@ -316,12 +323,12 @@ function setFields(fields) {
         if (!f) {
             f = "<br>";
         }
-        txt += "<tr><td class=fname>{0}</td></tr><tr><td width=100%>".format(n);
-        txt += "<div id=f{0} onkeydown='onKey();' oninput='onInput()' onmouseup='onKey();'".format(i);
+        txt += `<tr><td class=fname>${n}</td></tr><tr><td width=100%>`;
+        txt += `<div id=f${i} onkeydown='onKey(window.event);' oninput='onInput()' onmouseup='onKey();'`;
         txt += " onfocus='onFocus(this);' onblur='onBlur();' class='field clearfix' ";
         txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
         txt += "oncopy='onCutOrCopy(this);' oncut='onCutOrCopy(this);' ";
-        txt += "contentEditable=true class=field>{0}</div>".format(f);
+        txt += `contentEditable=true class=field>${f}</div>`;
         txt += "</td></tr>";
     }
     $("#fields").html("<table cellpadding=0 width=100% style='table-layout: fixed;'>" + txt + "</table>");
@@ -368,13 +375,13 @@ var pasteHTML = function (html, internal, extendedMode) {
 
 var filterHTML = function (html, internal, extendedMode) {
     // wrap it in <top> as we aren't allowed to change top level elements
-    var top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0];
+    const top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0] as Element;
     if (internal) {
         filterInternalNode(top);
     }  else {
         filterNode(top, extendedMode);
     }
-    var outHtml = top.innerHTML;
+    let outHtml = top.innerHTML;
     if (!extendedMode) {
         // collapse whitespace
         outHtml = outHtml.replace(/[\n\t ]+/g, " ");
@@ -538,12 +545,12 @@ $(function () {
         mouseDown--;
     };
 
-    document.onclick = function (evt) {
-        var src = window.event.srcElement;
+    document.onclick = function (evt: MouseEvent) {
+        let src = evt.target as Element;
         if (src.tagName === "IMG") {
             // image clicked; find contenteditable parent
             var p = src;
-            while (p = p.parentNode) {
+            while (p = p.parentNode as Element) {
                 if (p.className === "field") {
                     $("#" + p.id).focus();
                     break;
