@@ -10,14 +10,16 @@ You are welcome to run Anki from source instead, but it is expected that you
 can sort out all dependencies and issues by yourself - we are not able to
 provide support for problems you encounter when running from source.
 
-Anki requires:
+To start, make sure you have the following installed:
 
  - Python 3.6+
  - Qt 5.9.x or 5.11.x+, and a PyQT that supports it
+ - portaudio
  - mpv
  - lame
+ - npm
 
-It also requires a number of Python packages, which you can grab via pip:
+Now install the python dependencies:
 
 $ pip3 install -r requirements.txt
 $ pip3 install -r requirements.dev
@@ -31,76 +33,39 @@ can install PyQt with pip:
 
 $ pip3 install PyQt5 PyQtWebEngine
 
-To use the development version:
+And after that, install the js dependencies:
 
-$ git clone https://github.com/dae/anki.git
-$ cd anki
-$ ./tools/build_ui.sh
+$ (cd ts && npm i)
 
-If you get any errors, you will not be able to proceed, so please return to
-the top and check the requirements again.
+Then to run the development version:
 
-ALL USERS: Make sure you rebuild the UI every time you git pull, otherwise you
-will get errors down the road.
+$ make run
+
+If you get any errors please return to the top and check the requirements
+again, and make sure you don't have another version of Anki installed.
 
 If you want to use a language other than English, copy the locale/ folder
 from a source tarball into the root of the repo.
 
-And now you're ready to run Anki:
-$ ./runanki
+To run the unit tests and checks:
 
-If you get any errors, please make sure you don't have an older version of
-Anki installed in a system location.
-
-To run the unit tests, you will need to install nose and mock from your
-distro, or with pip:
-
-$ pip3 install nose mock
+$ make check
 
 Before contributing code, please read README.contributing.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
 
-Windows & Mac users
----------------------
+Mac users
+----------
 
-The following was contributed by users in the past and will need updating
-for the latest version. It is left here in case it is any help:
+You can use homebrew to install some dependencies:
 
-Windows:
+$ brew install python mpv lame portaudio
 
-I have not tested the build scripts on Windows, so you'll need to solve any
-problems you encounter on your own. The easiest way is to use a source
-tarball instead of git, as that way you don't need to build the UI yourself.
+Windows users
+--------------
 
-If you do want to use git, two alternatives have been contributed by users. As
-these are not official solutions, I'm afraid we can not provide you with any
-support for these.
-
-A powershell script:
-
-https://gist.github.com/vermiceli/108fec65759d19645ee3
-
-Or a way with git bash and perl:
-
-    1) Install "git bash".
-    2) In the tools directory, modify build_ui.sh. Locate the line that reads
-    "pyuic5 --from-imports $i -o $py.tmp" and alter it to be of the following form:
-    "<python-path-string>" "<pyuic-path-string>" $i -o $py
-    These two paths must point to your python executable, and to pyuic.py, on your
-    system. Typical paths would be:
-    <python-path> = C:\\Python27\\python.exe
-    <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py
-
-Mac:
-
-These instructions may be incomplete as prerequisites may have already been
-installed. Most likely you will need to have installed xcode
-(https://developer.apple.com/xcode/)
-
-Install homebrew (http://brew.sh/) and then install Anki prerequisites:
-
-$ brew install python mplayer lame portaudio
-
-Now you can follow the development commands at the start of this document.
+The build scripts have not been tested on Windows, and you'll find things
+easiest if you build Anki using WSL.
+https://docs.microsoft.com/en-us/windows/wsl/install-win10
