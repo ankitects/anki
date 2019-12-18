@@ -16,9 +16,12 @@ $(shell mkdir -p .build)
 .PHONY: all install uninstall
 
 all:
-	@echo "You can run Anki with ./runanki"
-	@echo "If you wish to install it system wide, type 'sudo make install'"
-	@echo "Uninstall with 'sudo make uninstall'"
+	@echo "You can run Anki from this folder with 'make run'."
+	@echo
+	@echo "After confirming it's working, to install Anki system-wide, use"
+	@echo "'make build && sudo make install'."
+	@echo
+	@echo "To undo a system install, use 'sudo make uninstall'."
 
 install:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
