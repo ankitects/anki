@@ -55,6 +55,7 @@ REQS := .build/pyrunreqs .build/pydevreqs .build/jsreqs
 
 .build/pyrunreqs: requirements.txt
 	pip install -r $<
+	./tools/typecheck-setup.sh
 	touch $@
 
 .build/pydevreqs: requirements.dev
