@@ -49,6 +49,7 @@ uninstall:
 
 clean:
 	rm -rf .build
+	rm -rf $(JSDEPS)
 
 build: .build/ui js
 
