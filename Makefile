@@ -1,4 +1,16 @@
-PREFIX=/usr
+PREFIX := /usr
+SHELL := bash
+.SHELLFLAGS := -eu -o pipefail -c
+.ONESHELL:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+RUNARGS :=
+.SUFFIXES:
+
+$(shell mkdir -p .build)
+
+.PHONY: all install uninstall
 
 all:
 	@echo "You can run Anki with ./runanki"
@@ -32,3 +44,43 @@ uninstall:
 	-xdg-mime uninstall ${DESTDIR}${PREFIX}/share/mime/packages/anki.xml
 	@echo
 	@echo "Uninstall complete."
+
+.PHONY: clean build run
+
+clean:
+	rm -rf .build
+
+build: .build/ui
+
+.build/ui: $(shell find designer -name '*.ui')
+	./tools/build_ui.sh
+	touch $@
+
+run: build
+	./runanki ${RUNARGS}
+
+CHECKDEPS := .build/ui $(shell find anki aqt -name '*.py')
+
+.PHONY: check mypy test lint pytype
+
+check: mypy test lint pytype
+mypy: .build/mypy
+test: .build/test
+lint: .build/lint
+pytype: .build/pytype
+
+.build/mypy: $(CHECKDEPS)
+	mypy anki aqt
+	touch $@
+
+.build/test: $(CHECKDEPS)
+	./tools/tests.sh
+	touch $@
+
+.build/lint: $(CHECKDEPS)
+	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5 anki aqt
+	touch $@
+
+.build/pytype: $(CHECKDEPS)
+	pytype --config pytype.conf
+	touch $@
