@@ -46,9 +46,13 @@ For consistency, changes should maintain the existing code style - camelCaps,
 Tests Must Pass
 ----------------
 
-Please check that tools/tests.sh passes all tests prior to submitting a
-change. If your change is not covered by existing tests, ideally you'll add a
-new test.
+Please make sure 'make check' completes successfully before submitting code.
+
+If your change is to anki/ and not covered by the existing unit tests, please
+consider adding a unit test at the same time.
+
+If 'make check' fails because the JS styling doesn't match, you can run
+'make pretty' to automatically adjust the styling.
 
 Do One Thing
 -------------
