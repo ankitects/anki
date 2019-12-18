@@ -12,6 +12,7 @@
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
     "@types/jquery": "^3.3.31",
+    "@types/jqueryui": "^1.12.9",
     "@types/mathjax": "0.0.36",
     "typescript": "^3.7.3"
   }
