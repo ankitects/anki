@@ -13,29 +13,19 @@ provide support for problems you encounter when running from source.
 To start, make sure you have the following installed:
 
  - Python 3.6+
- - Qt 5.9.x or 5.11.x+, and a PyQT that supports it
+ - Qt 5.9.x or 5.11.x+
  - portaudio
  - mpv
  - lame
  - npm
 
-Now install the python dependencies:
+If your distro provides PyQt5 and PyQt5-WebEngine packages, you can
+install them as well. If you go that path, make sure you install pyqt5-dev-tools
+as well.
 
-$ pip3 install -r requirements.txt
-$ pip3 install -r requirements.dev
-
-If you're on a Linux distribution that packages a compatible Qt then you can
-use the distro's packages. Make sure you install the development tools (eg
-pyqt5-dev-tools) as well.
-
-If you're on another platform or your distro has the wrong Qt version, you
-can install PyQt with pip:
+Otherwise, install them with pip:
 
 $ pip3 install PyQt5 PyQtWebEngine
-
-And after that, install the js dependencies:
-
-$ (cd ts && npm i)
 
 Then to run the development version:
 
