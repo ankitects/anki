@@ -60,7 +60,7 @@ build: .build/ui .build/js
 run: build
 	./runanki ${RUNARGS}
 
-CHECKDEPS := .build/ui $(shell find anki aqt -name '*.py')
+CHECKDEPS := build $(shell find anki aqt -name '*.py')
 
 .PHONY: check mypy test lint pytype
 
