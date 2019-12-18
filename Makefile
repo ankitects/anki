@@ -51,7 +51,7 @@ clean:
 	rm -rf .build
 	rm -rf $(JSDEPS)
 
-build: .build/ui js
+build: .build/ui .build/js
 
 .build/ui: $(shell find designer -name '*.ui')
 	./tools/build_ui.sh
@@ -86,12 +86,9 @@ pytype: .build/pytype
 	pytype --config pytype.conf
 	touch $@
 
-.PHONY: js
+TSDEPS := $(wildcard ts/src/*.ts)
+JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
-TSDEPS := $(wildcard ts/*.ts)
-JSDEPS := $(patsubst ts/%.ts, web/%.js, $(TSDEPS))
-
-js: $(JSDEPS)
-
-web/%.js: ts/%.ts
-	(cd ts && ./node_modules/.bin/tsc --lib es6,dom lib/global.d.ts $(notdir $<) --outFile ../web/$(notdir $@))
+.build/js: $(TSDEPS)
+	(cd ts && ./node_modules/.bin/tsc --build)
+	touch $@
