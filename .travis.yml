@@ -3,11 +3,10 @@ language: python
 os: linux
 install:
   - sudo apt-get update
-  - sudo apt-get install portaudio19-dev
+  - sudo apt-get install portaudio19-dev npm
   - pip install -r requirements.txt
   - pip install -r requirements.dev
   - pip install pyqt5 pyqtwebengine
-  - pip install npm
   - (cd ts && npm i)
 
 jobs:
