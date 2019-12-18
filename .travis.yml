@@ -8,6 +8,7 @@ install:
   - pip install -r requirements.dev
   - pip install pyqt5 pyqtwebengine
   - pip install npm
+  - (cd ts && npm i)
 
 jobs:
   include:
