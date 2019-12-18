@@ -10,6 +10,9 @@ RUNARGS :=
 
 $(shell mkdir -p .build)
 
+# Installing
+######################
+
 .PHONY: all install uninstall
 
 all:
@@ -45,56 +48,10 @@ uninstall:
 	@echo
 	@echo "Uninstall complete."
 
-.PHONY: clean build run
+# Prerequisites
+######################
 
-clean:
-	rm -rf .build
-	rm -rf $(JSDEPS)
-
-build: reqs .build/ui .build/js
-
-.build/ui: $(shell find designer -name '*.ui')
-	./tools/build_ui.sh
-	touch $@
-
-run: build
-	./runanki ${RUNARGS}
-
-CHECKDEPS := build $(shell find anki aqt -name '*.py')
-
-.PHONY: check mypy test lint pytype
-
-check: mypy test lint pytype
-mypy: .build/mypy
-test: .build/test
-lint: .build/lint
-pytype: .build/pytype
-
-.build/mypy: $(CHECKDEPS)
-	mypy anki aqt
-	touch $@
-
-.build/test: $(CHECKDEPS)
-	./tools/tests.sh
-	touch $@
-
-.build/lint: $(CHECKDEPS)
-	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5 anki aqt
-	touch $@
-
-.build/pytype: $(CHECKDEPS)
-	pytype --config pytype.conf
-	touch $@
-
-TSDEPS := $(wildcard ts/src/*.ts)
-JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
-
-.build/js: $(TSDEPS)
-	(cd ts && ./node_modules/.bin/tsc --build)
-	touch $@
-
-.PHONY: reqs
-reqs: .build/pyrunreqs .build/pydevreqs .build/jsreqs
+REQS := .build/pyrunreqs .build/pydevreqs .build/jsreqs
 
 .build/pyrunreqs: requirements.txt
 	pip install -r $<
@@ -107,3 +64,88 @@ reqs: .build/pyrunreqs .build/pydevreqs .build/jsreqs
 .build/jsreqs: ts/package.json
 	(cd ts && npm i)
 	touch $@
+
+# Building
+######################
+
+BUILDDEPS := $(REQS) .build/ui .build/js
+
+.build/ui: $(shell find designer -name '*.ui')
+	./tools/build_ui.sh
+	touch $@
+
+.build/js: $(TSDEPS)
+	(cd ts && npm run build)
+	touch $@
+
+.PHONY: build clean
+
+build: $(BUILDDEPS)
+
+.PHONY: clean
+clean:
+	rm -rf .build
+	rm -rf $(JSDEPS)
+
+# Running
+######################
+
+.PHONY: run
+run: build
+	./runanki ${RUNARGS}
+
+# Checking
+######################
+
+.PHONY: check
+check: mypy pytest pylint pytype checkpretty
+
+# Checking python
+######################
+
+PYCHECKDEPS := $(BUILDDEPS) $(shell find anki aqt -name '*.py')
+
+.build/mypy: $(PYCHECKDEPS)
+	mypy anki aqt
+	touch $@
+
+.build/pytest: $(PYCHECKDEPS)
+	./tools/tests.sh
+	touch $@
+
+.build/pylint: $(PYCHECKDEPS)
+	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5 anki aqt
+	touch $@
+
+.build/pytype: $(PYCHECKDEPS)
+	pytype --config pytype.conf
+	touch $@
+
+.PHONY: mypy pytest pylint pytype
+mypy: .build/mypy
+pytest: .build/pytest
+pylint: .build/pylint
+pytype: .build/pytype
+
+# Typescript source
+######################
+
+TSDEPS := $(wildcard ts/src/*.ts)
+JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
+
+# Checking typescript
+######################
+
+TSCHECKDEPS := $(BUILDDEPS) $(TSDEPS)
+
+.build/checkpretty: $(TSCHECKDEPS)
+	(cd ts && npm run check-pretty)
+	touch $@
+
+.build/pretty: $(TSCHECKDEPS)
+	(cd ts && npm run pretty)
+	touch $@
+
+.PHONY: pretty checkpretty
+pretty: .build/pretty
+checkpretty: .build/checkpretty
