@@ -10,3 +10,4 @@ tools/runanki.system
 anki/buildhash.py
 .mypy_cache
 .pytype
+.build
