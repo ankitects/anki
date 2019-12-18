@@ -51,7 +51,7 @@ clean:
 	rm -rf .build
 	rm -rf $(JSDEPS)
 
-build: .build/ui .build/js
+build: reqs .build/ui .build/js
 
 .build/ui: $(shell find designer -name '*.ui')
 	./tools/build_ui.sh
@@ -91,4 +91,19 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 .build/js: $(TSDEPS)
 	(cd ts && ./node_modules/.bin/tsc --build)
+	touch $@
+
+.PHONY: reqs
+reqs: .build/pyrunreqs .build/pydevreqs .build/jsreqs
+
+.build/pyrunreqs: requirements.txt
+	pip install -r $<
+	touch $@
+
+.build/pydevreqs: requirements.dev
+	pip install -r $<
+	touch $@
+
+.build/jsreqs: ts/package.json
+	(cd ts && npm i)
 	touch $@
