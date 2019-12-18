@@ -50,7 +50,7 @@ uninstall:
 clean:
 	rm -rf .build
 
-build: .build/ui
+build: .build/ui js
 
 .build/ui: $(shell find designer -name '*.ui')
 	./tools/build_ui.sh
@@ -84,3 +84,13 @@ pytype: .build/pytype
 .build/pytype: $(CHECKDEPS)
 	pytype --config pytype.conf
 	touch $@
+
+.PHONY: js
+
+TSDEPS := $(wildcard ts/*.ts)
+JSDEPS := $(patsubst ts/%.ts, web/%.js, $(TSDEPS))
+
+js: $(JSDEPS)
+
+web/%.js: ts/%.ts
+	(cd ts && ./node_modules/.bin/tsc $(notdir $<) --outFile ../web/$(notdir $@))
