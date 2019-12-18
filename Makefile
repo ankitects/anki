@@ -110,7 +110,7 @@ check: mypy pytest pylint pytype checkpretty
 # Checking python
 ######################
 
-PYCHECKDEPS := $(BUILDDEPS) $(shell find anki aqt -name '*.py')
+PYCHECKDEPS := $(BUILDDEPS) $(shell find anki aqt -name '*.py' | grep -v buildhash.py)
 
 .build/mypy: $(PYCHECKDEPS)
 	mypy anki aqt
