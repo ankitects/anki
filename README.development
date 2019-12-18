@@ -19,13 +19,8 @@ To start, make sure you have the following installed:
  - lame
  - npm
 
-If your distro provides PyQt5 and PyQt5-WebEngine packages, you can
-install them as well. If you go that path, make sure you install pyqt5-dev-tools
-as well.
-
-Otherwise, install them with pip:
-
-$ pip3 install PyQt5 PyQtWebEngine
+If the distro you are using has PyQt5 installed, make sure you have the PyQt5
+WebEngine module and development tools (eg pyqt5-dev-tools) installed as well.
 
 Then to run the development version:
 
