@@ -8,8 +8,6 @@
     ],
     "rootDir": "src",
     "outDir": "../web",
-    "incremental": true,
-    "tsBuildInfoFile": "./.buildinfo",
     "strict": true,
     /* Enable all strict type-checking options. */
     "noImplicitAny": false,

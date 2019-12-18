@@ -66,6 +66,12 @@ REQS := .build/pyrunreqs .build/pydevreqs .build/jsreqs
 	(cd ts && npm i)
 	touch $@
 
+# Typescript source
+######################
+
+TSDEPS := $(wildcard ts/src/*.ts)
+JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
+
 # Building
 ######################
 
@@ -127,12 +133,6 @@ mypy: .build/mypy
 pytest: .build/pytest
 pylint: .build/pylint
 pytype: .build/pytype
-
-# Typescript source
-######################
-
-TSDEPS := $(wildcard ts/src/*.ts)
-JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 # Checking typescript
 ######################
