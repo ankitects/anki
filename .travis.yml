@@ -11,6 +11,6 @@ install:
 jobs:
   include:
     - python: 3.6
-      script: ./.travis.py36.sh
+      script: make -j 4 test lint mypy
     - python: 3.7
-      script: ./.travis.py37.sh
+      script: ./tools/typecheck-setup.sh && make -j 4 check
