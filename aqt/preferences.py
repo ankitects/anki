@@ -3,6 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import datetime, time
+
+from aqt import AnkiQt
 from aqt.qt import *
 import anki.lang
 from aqt.utils import openHelp, showInfo, askUser
@@ -11,7 +13,7 @@ from anki.lang import _
 
 class Preferences(QDialog):
 
-    def __init__(self, mw):
+    def __init__(self, mw: AnkiQt):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.prof = self.mw.pm.profile
@@ -216,7 +218,11 @@ Not currently enabled; click the sync button in the main window to enable."""))
 
     def setupOptions(self):
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
+        self.form.uiScale.setValue(self.mw.pm.uiScale()*100)
 
     def updateOptions(self):
         self.prof['pastePNG'] = self.form.pastePNG.isChecked()
-
+        newScale = self.form.uiScale.value()/100
+        if newScale != self.mw.pm.uiScale():
+            self.mw.pm.setUiScale(newScale)
+            showInfo(_("Changes will take effect when you restart Anki."))
