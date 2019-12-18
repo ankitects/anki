@@ -137,34 +137,35 @@
          <property name="spacing">
           <number>12</number>
          </property>
-         <item row="0" column="0">
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="timeLimit">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_40">
+           <property name="text">
+            <string>hours past midnight</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_39">
+           <property name="text">
+            <string>mins</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
             <string>Next day starts at</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="dayOffset">
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="maximum">
-            <number>23</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_24">
-           <property name="text">
-            <string>Learn ahead limit</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QSpinBox" name="lrnCutoff">
            <property name="maximumSize">
             <size>
@@ -177,38 +178,60 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_29">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>mins</string>
+            <string>Learn ahead limit</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="dayOffset">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>23</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
           <widget class="QLabel" name="label_30">
            <property name="text">
             <string>Timebox time limit</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="timeLimit">
-           <property name="maximum">
-            <number>9999</number>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="2">
-          <widget class="QLabel" name="label_39">
+          <widget class="QLabel" name="label_29">
            <property name="text">
             <string>mins</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_40">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>hours past midnight</string>
+            <string>User interface size</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="uiScale">
+           <property name="suffix">
+            <string>%</string>
+           </property>
+           <property name="minimum">
+            <number>50</number>
+           </property>
+           <property name="maximum">
+            <number>200</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
            </property>
           </widget>
          </item>
@@ -490,6 +513,7 @@
   <tabstop>newSched</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>newSpread</tabstop>
+  <tabstop>uiScale</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>

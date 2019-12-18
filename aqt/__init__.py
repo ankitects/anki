@@ -12,7 +12,6 @@ import locale
 import gettext
 from typing import Optional
 
-from aqt.main import AnkiQt
 from aqt.qt import *
 import anki.lang
 from anki.consts import HELP_SITE
@@ -26,6 +25,9 @@ appDonate="http://ankisrs.net/support/"
 appShared="https://ankiweb.net/shared/"
 appUpdate="https://ankiweb.net/update/desktop"
 appHelpSite=HELP_SITE
+
+from aqt.main import AnkiQt
+
 mw: Optional[AnkiQt] = None # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -318,6 +320,9 @@ def _run(argv=None, exec=True):
     # Opt into software rendering. Useful for buggy systems.
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+
+    # apply user-provided scale factor
+    os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
 
     # create the app
     QCoreApplication.setApplicationName("Anki")

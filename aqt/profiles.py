@@ -465,3 +465,12 @@ please see:
                 self.setGlMode("software")
         elif mode == "angle":
             self.setGlMode("software")
+
+    # Scale
+    ######################################################################
+
+    def uiScale(self) -> float:
+        return self.meta.get("uiScale", 1.0)
+
+    def setUiScale(self, scale: float) -> None:
+        self.meta["uiScale"] = scale
