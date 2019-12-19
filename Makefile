@@ -80,7 +80,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 BUILDDEPS := .build/ui .build/js
 
-.build/ui: $(REQS) $(shell find designer -name '*.ui')
+.build/ui: $(REQS) $(shell find designer -type f)
 	./tools/build_ui.sh
 	touch $@
 
