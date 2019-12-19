@@ -8,6 +8,8 @@ import time
 import re
 import unicodedata
 from operator import  itemgetter
+from typing import Callable, List, Dict, Optional
+
 from anki.lang import ngettext
 import json
 
@@ -376,6 +378,106 @@ class StatusDelegate(QItemDelegate):
             painter.restore()
 
         return QItemDelegate.paint(self, painter, option, index)
+
+# Sidebar
+######################################################################
+
+class SidebarItem:
+    def __init__(self,
+                 name: str,
+                 icon: str,
+                 onclick: Callable[[], None] = None,
+                 oncollapse: Callable[[], None] = None,
+                 expanded: bool = False) -> None:
+        self.name = name
+        self.icon = icon
+        self.onclick = onclick
+        self.oncollapse = oncollapse
+        self.expanded = expanded
+        self.children: List["SidebarItem"] = []
+        self.parentItem: Optional[SidebarItem] = None
+
+    def addChild(self, cb: "SidebarItem") -> None:
+        self.children.append(cb)
+        cb.parentItem = self
+
+    def rowForChild(self, child: "SidebarItem") -> Optional[int]:
+        try:
+            return self.children.index(child)
+        except ValueError:
+            return None
+
+class SidebarModel(QAbstractItemModel):
+    def __init__(self, root: SidebarItem) -> None:
+        super().__init__()
+        self.root = root
+        self.iconCache: Dict[str, QIcon] = {}
+
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        if not parent.isValid():
+            return len(self.root.children)
+        else:
+            item: SidebarItem = parent.internalPointer()
+            return len(item.children)
+
+    def hasChildren(self, parent: QModelIndex = QModelIndex()) -> bool:
+        if not parent.isValid():
+            return True
+        item: SidebarItem = parent.internalPointer()
+        return len(item.children) > 0
+
+    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        return 1
+
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()) -> QModelIndex:
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
+
+        parentItem: SidebarItem
+        if not parent.isValid():
+            parentItem = self.root
+        else:
+            parentItem = parent.internalPointer()
+
+        item = parentItem.children[row]
+        return self.createIndex(row, column, item)
+
+    def parent(self, child: QModelIndex) -> QModelIndex: # type: ignore
+        if not child.isValid():
+            return QModelIndex()
+
+        childItem: SidebarItem = child.internalPointer()
+        parentItem = childItem.parentItem
+
+        if parentItem is None or parentItem == self.root:
+            return QModelIndex()
+
+        row = parentItem.rowForChild(childItem)
+        if row is None:
+            return QModelIndex()
+
+        return self.createIndex(row, 0, parentItem)
+
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> QVariant:
+        if not index.isValid():
+            return QVariant()
+
+        if role not in (Qt.DisplayRole, Qt.DecorationRole):
+            return QVariant()
+
+        item: SidebarItem = index.internalPointer()
+
+        if role == Qt.DisplayRole:
+            return QVariant(item.name)
+        else:
+            return QVariant(self.iconFromRef(item.icon))
+
+    def iconFromRef(self, iconRef: str) -> QIcon:
+        icon = self.iconCache.get(iconRef)
+        if icon is None:
+            icon = QIcon(iconRef)
+            self.iconCache[iconRef] = icon
+        return icon
 
 # Browser window
 ######################################################################
@@ -798,114 +900,112 @@ by clicking on one on the left."""))
     # Sidebar
     ######################################################################
 
-    class CallbackItem(QTreeWidgetItem):
-        def __init__(self, root, name, onclick, oncollapse=None, expanded=False):
-            QTreeWidgetItem.__init__(self, root, [name])
-            self.setExpanded(expanded)
-            self.onclick = onclick
-            self.oncollapse = oncollapse
+    class SidebarTreeView(QTreeView):
+        def onClickCurrent(self) -> None:
+            idx = self.currentIndex()
+            if idx.isValid():
+                item: SidebarItem = idx.internalPointer()
+                if item.onclick:
+                    item.onclick()
 
-    class SidebarTreeWidget(QTreeWidget):
-        def __init__(self):
-            QTreeWidget.__init__(self)
-            self.itemClicked.connect(self.onTreeClick)
-            self.itemExpanded.connect(self.onTreeCollapse)
-            self.itemCollapsed.connect(self.onTreeCollapse)
+        def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+            self.onClickCurrent()
 
-        def keyPressEvent(self, evt):
-            if evt.key() in (Qt.Key_Return, Qt.Key_Enter):
-                item = self.currentItem()
-                self.onTreeClick(item, 0)
+        def keyPressEvent(self, event: QKeyEvent) -> None:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                self.onClickCurrent()
             else:
-                super().keyPressEvent(evt)
+                super().keyPressEvent(event)
 
-        def onTreeClick(self, item, col):
-            if getattr(item, 'onclick', None):
-                item.onclick()
-
-        def onTreeCollapse(self, item):
-            if getattr(item, 'oncollapse', None):
-                item.oncollapse()
-
-    def setupSidebar(self):
+    def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
-        self.sidebarTree = self.SidebarTreeWidget()
+        self.sidebarTree = self.SidebarTreeView()
         self.sidebarTree.mw = self.mw
-        self.sidebarTree.header().setVisible(False)
+        self.sidebarTree.setUniformRowHeights(True)
+        self.sidebarTree.setHeaderHidden(True)
+        self.sidebarTree.setIndentation(15)
         dw.setWidget(self.sidebarTree)
         p = QPalette()
         p.setColor(QPalette.Base, p.window().color())
         self.sidebarTree.setPalette(p)
         self.sidebarDockWidget.setFloating(False)
-        self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged)
+        self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged) # type: ignore
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
         self.addDockWidget(Qt.LeftDockWidgetArea, dw)
 
-    def onSidebarVisChanged(self, visible):
-        if visible:
-            self.buildTree()
-        else:
-            pass
+    def onSidebarVisChanged(self, _visible: bool) -> None:
+        self.maybeRefreshSidebar()
 
-    def focusSidebar(self):
+    def focusSidebar(self) -> None:
         self.sidebarDockWidget.setVisible(True)
         self.sidebarTree.setFocus()
 
-    def maybeRefreshSidebar(self):
+    def maybeRefreshSidebar(self) -> None:
         if self.sidebarDockWidget.isVisible():
-            self.buildTree()
+            # add slight delay to allow browser window to appear first
+            def deferredDisplay():
+                root = self.buildTree()
+                model = SidebarModel(root)
+                self.sidebarTree.setModel(model)
+            self.mw.progress.timer(10, deferredDisplay, False)
 
-    def buildTree(self):
-        self.sidebarTree.clear()
-        root = self.sidebarTree
+    def buildTree(self) -> SidebarItem:
+        root = SidebarItem("", "")
         self._stdTree(root)
         self._favTree(root)
         self._decksTree(root)
         self._modelTree(root)
         self._userTagTree(root)
-        self.sidebarTree.setIndentation(15)
+        return root
 
-    def _stdTree(self, root):
+    def _stdTree(self, root) -> None:
         for name, filt, icon in [[_("Whole Collection"), "", "collection"],
                            [_("Current Deck"), "deck:current", "deck"]]:
-            item = self.CallbackItem(
-                root, name, self._filterFunc(filt))
-            item.setIcon(0, QIcon(":/icons/{}.svg".format(icon)))
+            item = SidebarItem(
+                name, ":/icons/{}.svg".format(icon), self._filterFunc(filt))
+            root.addChild(item)
 
-    def _favTree(self, root):
+    def _favTree(self, root) -> None:
+        assert self.col
         saved = self.col.conf.get('savedFilters', {})
         for name, filt in sorted(saved.items()):
-            item = self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
-            item.setIcon(0, QIcon(":/icons/heart.svg"))
+            item = SidebarItem(name, ":/icons/heart.svg",
+                                     lambda s=filt: self.setFilter(s) # type: ignore
+                               )
+            root.addChild(item)
 
-    def _userTagTree(self, root):
+    def _userTagTree(self, root) -> None:
+        assert self.col
         for t in sorted(self.col.tags.all(), key=lambda t: t.lower()):
-            item = self.CallbackItem(
-                root, t, lambda t=t: self.setFilter("tag", t))
-            item.setIcon(0, QIcon(":/icons/tag.svg"))
+            item = SidebarItem(
+                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)) # type: ignore
+            root.addChild(item)
 
-    def _decksTree(self, root):
+    def _decksTree(self, root) -> None:
+        assert self.col
         grps = self.col.sched.deckDueTree()
         def fillGroups(root, grps, head=""):
             for g in grps:
-                item = self.CallbackItem(
-                    root, g[0],
+                item = SidebarItem(
+                    g[0],
+                    ":/icons/deck.svg",
                     lambda g=g: self.setFilter("deck", head+g[0]),
                     lambda g=g: self.mw.col.decks.collapseBrowser(g[1]),
                     not self.mw.col.decks.get(g[1]).get('browserCollapsed', False))
-                item.setIcon(0, QIcon(":/icons/deck.svg"))
+                root.addChild(item)
                 newhead = head + g[0]+"::"
                 fillGroups(item, g[5], newhead)
         fillGroups(root, grps)
 
-    def _modelTree(self, root):
+    def _modelTree(self, root) -> None:
+        assert self.col
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            mitem = self.CallbackItem(
-                root, m['name'], lambda m=m: self.setFilter("note", m['name']))
-            mitem.setIcon(0, QIcon(":/icons/notetype.svg"))
+            item = SidebarItem(
+                m['name'], ":/icons/notetype.svg", lambda m=m: self.setFilter("note", m['name'])) # type: ignore
+            root.addChild(item)
 
     # Filter tree
     ######################################################################
