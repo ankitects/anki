@@ -22,8 +22,9 @@ from typing import Any, Optional
 
 class Card:
 
-    def __init__(self, col, id=None) -> None:
-        self.col = col
+    def __init__(self, col, id: Optional[int] = None) -> None:
+        from anki.collection import _Collection
+        self.col: _Collection = col
         self.timerStarted = None
         self._qa = None
         self._note = None
@@ -117,7 +118,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self.left, self.odue, self.odid, self.did, self.id)
         self.col.log(self)
 
-    def q(self, reload=False, browser=False) -> str:
+    def q(self, reload: bool = False, browser: bool = False) -> str:
         return self.css() + self._getQA(reload, browser)['q']
 
     def a(self) -> str:
@@ -126,7 +127,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def css(self) -> str:
         return "<style>%s</style>" % self.model()['css']
 
-    def _getQA(self, reload=False, browser=False) -> Any:
+    def _getQA(self, reload: bool = False, browser: bool = False) -> Any:
         if not self._qa or reload:
             f = self.note(reload); m = self.model(); t = self.template()
             data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
@@ -138,7 +139,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self._qa = self.col._renderQA(data, *args)
         return self._qa
 
-    def note(self, reload=False) -> Any:
+    def note(self, reload: bool = False) -> Any:
         if not self._note or reload:
             self._note = self.col.getNote(self.nid)
         return self._note
@@ -188,6 +189,6 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def userFlag(self) -> Any:
         return self.flags & 0b111
 
-    def setUserFlag(self, flag) -> None:
+    def setUserFlag(self, flag: int) -> None:
         assert 0 <= flag <= 7
         self.flags = (self.flags & ~0b111) | flag
