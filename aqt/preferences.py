@@ -216,11 +216,11 @@ Not currently enabled; click the sync button in the main window to enable."""))
     # Basic & Advanced Options
     ######################################################################
 
-    def setupOptions(self) -> None:
+    def setupOptions(self):
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
         self.form.uiScale.setValue(self.mw.pm.uiScale()*100)
 
-    def updateOptions(self) -> None:
+    def updateOptions(self):
         self.prof['pastePNG'] = self.form.pastePNG.isChecked()
         newScale = self.form.uiScale.value()/100
         if newScale != self.mw.pm.uiScale():

@@ -41,7 +41,7 @@ class AnkiQt(QMainWindow):
         self.col: Optional[_Collection] = None
         aqt.mw = self
         self.app = app
-        self.pm: ProfileManager = profileManager
+        self.pm = profileManager
         # init rest of app
         self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
         try:
