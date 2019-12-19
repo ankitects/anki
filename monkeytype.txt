@@ -1,0 +1,7 @@
+Gather data via unit tests:
+
+$ monkeytype run -m nose
+
+Then apply types to a file:
+
+$ monkeytype apply anki.sched
