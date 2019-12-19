@@ -386,13 +386,13 @@ class SidebarItem:
     def __init__(self,
                  name: str,
                  icon: str,
-                 onclick: Callable[[], None] = None,
-                 oncollapse: Callable[[], None] = None,
+                 onClick: Callable[[], None] = None,
+                 onExpanded: Callable[[bool], None] = None,
                  expanded: bool = False) -> None:
         self.name = name
         self.icon = icon
-        self.onclick = onclick
-        self.oncollapse = oncollapse
+        self.onClick = onClick
+        self.onExpanded = onExpanded
         self.expanded = expanded
         self.children: List["SidebarItem"] = []
         self.parentItem: Optional[SidebarItem] = None
@@ -927,12 +927,17 @@ by clicking on one on the left."""))
     ######################################################################
 
     class SidebarTreeView(QTreeView):
+        def __init__(self):
+            super().__init__()
+            self.expanded.connect(self.onExpansion)
+            self.collapsed.connect(self.onCollapse)
+
         def onClickCurrent(self) -> None:
             idx = self.currentIndex()
             if idx.isValid():
                 item: SidebarItem = idx.internalPointer()
-                if item.onclick:
-                    item.onclick()
+                if item.onClick:
+                    item.onClick()
 
         def mouseReleaseEvent(self, event: QMouseEvent) -> None:
             super().mouseReleaseEvent(event)
@@ -943,6 +948,19 @@ by clicking on one on the left."""))
                 self.onClickCurrent()
             else:
                 super().keyPressEvent(event)
+
+        def onExpansion(self, idx: QModelIndex) -> None:
+            self._onExpansionChange(idx, True)
+
+        def onCollapse(self, idx: QModelIndex) -> None:
+            self._onExpansionChange(idx, False)
+
+        def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
+            item: SidebarItem = idx.internalPointer()
+            if item.expanded != expanded:
+                item.expanded = expanded
+                if item.onExpanded:
+                    item.onExpanded(expanded)
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
@@ -1026,7 +1044,7 @@ by clicking on one on the left."""))
                     g[0],
                     ":/icons/deck.svg",
                     lambda g=g: self.setFilter("deck", head+g[0]),
-                    lambda g=g: self.mw.col.decks.collapseBrowser(g[1]),
+                    lambda expanded, g=g: self.mw.col.decks.collapseBrowser(g[1]),
                     not self.mw.col.decks.get(g[1]).get('browserCollapsed', False))
                 root.addChild(item)
                 newhead = head + g[0]+"::"
