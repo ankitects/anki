@@ -17,6 +17,9 @@ from anki.db import DB, DBError
 from anki.consts import *
 from anki.latex import mungeQA
 from anki.lang import _
+from typing import Any, List, Optional, Tuple, TypeVar, Union
+
+_T0 = TypeVar('_T0')
 
 class MediaManager:
 
@@ -29,7 +32,7 @@ class MediaManager:
     ]
     regexps = soundRegexps + imgRegexps
 
-    def __init__(self, col, server):
+    def __init__(self, col, server) -> None:
         self.col = col
         if server:
             self._dir = None
@@ -50,7 +53,7 @@ class MediaManager:
         # change database
         self.connect()
 
-    def connect(self):
+    def connect(self) -> None:
         if self.col.server:
             return
         path = self.dir()+".db2"
@@ -61,7 +64,7 @@ class MediaManager:
             self._initDB()
         self.maybeUpgrade()
 
-    def _initDB(self):
+    def _initDB(self) -> None:
         self.db.executescript("""
 create table media (
  fname text not null primary key,
@@ -75,7 +78,7 @@ create index idx_media_dirty on media (dirty);
 create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 """)
 
-    def maybeUpgrade(self):
+    def maybeUpgrade(self) -> None:
         oldpath = self.dir()+".db"
         if os.path.exists(oldpath):
             self.db.execute('attach "../collection.media.db" as old')
@@ -102,7 +105,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 os.unlink(npath)
             os.rename("../collection.media.db", npath)
 
-    def close(self):
+    def close(self) -> None:
         if self.col.server:
             return
         self.db.close()
@@ -115,16 +118,16 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 # may have been deleted
                 pass
 
-    def _deleteDB(self):
+    def _deleteDB(self) -> None:
         path = self.db._path
         self.close()
         os.unlink(path)
         self.connect()
 
-    def dir(self):
+    def dir(self) -> Any:
         return self._dir
 
-    def _isFAT32(self):
+    def _isFAT32(self) -> Optional[bool]:
         if not isWin:
             return
         # pylint: disable=import-error
@@ -141,11 +144,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     ##########################################################################
     # opath must be in unicode
 
-    def addFile(self, opath):
+    def addFile(self, opath) -> Any:
         with open(opath, "rb") as f:
             return self.writeData(opath, f.read())
 
-    def writeData(self, opath, data, typeHint=None):
+    def writeData(self, opath, data, typeHint=None) -> Any:
         # if fname is a full path, use only the basename
         fname = os.path.basename(opath)
 
@@ -193,7 +196,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # String manipulation
     ##########################################################################
 
-    def filesInStr(self, mid, string, includeRemote=False):
+    def filesInStr(self, mid, string, includeRemote=False) -> List[str]:
         l = []
         model = self.col.models.get(mid)
         strings = []
@@ -215,7 +218,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                         l.append(fname)
         return l
 
-    def _expandClozes(self, string):
+    def _expandClozes(self, string) -> List[str]:
         ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         strings = []
         from anki.template.template import clozeReg
@@ -233,17 +236,17 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
 
-    def transformNames(self, txt, func):
+    def transformNames(self, txt, func) -> Any:
         for reg in self.regexps:
             txt = re.sub(reg, func, txt)
         return txt
 
-    def strip(self, txt):
+    def strip(self, txt: _T0) -> Union[str, _T0]:
         for reg in self.regexps:
             txt = re.sub(reg, "", txt)
         return txt
 
-    def escapeImages(self, string, unescape=False):
+    def escapeImages(self, string: _T0, unescape=False) -> Union[str, _T0]:
         if unescape:
             fn = urllib.parse.unquote
         else:
@@ -261,7 +264,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Rebuilding DB
     ##########################################################################
 
-    def check(self, local=None):
+    def check(self, local=None) -> Any:
         "Return (missingFiles, unusedFiles)."
         mdir = self.dir()
         # gather all media references in NFC form
@@ -335,7 +338,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 _("Anki does not support files in subfolders of the collection.media folder."))
         return (nohave, unused, warnings)
 
-    def _normalizeNoteRefs(self, nid):
+    def _normalizeNoteRefs(self, nid) -> None:
         note = self.col.getNote(nid)
         for c, fld in enumerate(note.fields):
             nfc = unicodedata.normalize("NFC", fld)
@@ -346,7 +349,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Copying on import
     ##########################################################################
 
-    def have(self, fname):
+    def have(self, fname) -> bool:
         return os.path.exists(os.path.join(self.dir(), fname))
 
     # Illegal characters and paths
@@ -354,7 +357,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0\r\n]')
 
-    def stripIllegal(self, str):
+    def stripIllegal(self, str) -> str:
         return re.sub(self._illegalCharReg, "", str)
 
     def hasIllegal(self, s: str):
@@ -366,7 +369,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             return True
         return False
 
-    def cleanFilename(self, fname):
+    def cleanFilename(self, fname) -> str:
         fname = self.stripIllegal(fname)
         fname = self._cleanWin32Filename(fname)
         fname = self._cleanLongFilename(fname)
@@ -375,7 +378,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
         return fname
 
-    def _cleanWin32Filename(self, fname):
+    def _cleanWin32Filename(self, fname: _T0) -> Union[str, _T0]:
         if not isWin:
             return fname
 
@@ -387,7 +390,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
         return fname
 
-    def _cleanLongFilename(self, fname):
+    def _cleanLongFilename(self, fname) -> Any:
         # a fairly safe limit that should work on typical windows
         # paths and on eCryptfs partitions, even with a duplicate
         # suffix appended
@@ -416,22 +419,22 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Tracking changes
     ##########################################################################
 
-    def findChanges(self):
+    def findChanges(self) -> None:
         "Scan the media folder if it's changed, and note any changes."
         if self._changed():
             self._logChanges()
 
-    def haveDirty(self):
+    def haveDirty(self) -> Any:
         return self.db.scalar("select 1 from media where dirty=1 limit 1")
 
-    def _mtime(self, path):
+    def _mtime(self, path) -> int:
         return int(os.stat(path).st_mtime)
 
-    def _checksum(self, path):
+    def _checksum(self, path) -> str:
         with open(path, "rb") as f:
             return checksum(f.read())
 
-    def _changed(self):
+    def _changed(self) -> int:
         "Return dir mtime if it has changed since the last findChanges()"
         # doesn't track edits, but user can add or remove a file to update
         mod = self.db.scalar("select dirMod from meta")
@@ -440,7 +443,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             return False
         return mtime
 
-    def _logChanges(self):
+    def _logChanges(self) -> None:
         (added, removed) = self._changes()
         media = []
         for f, mtime in added:
@@ -453,7 +456,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
         self.db.commit()
 
-    def _changes(self):
+    def _changes(self) -> Tuple[List[Tuple[str, int]], List[str]]:
         self.cache = {}
         for (name, csum, mod) in self.db.execute(
             "select fname, csum, mtime from media where csum is not null"):
@@ -515,37 +518,37 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Syncing-related
     ##########################################################################
 
-    def lastUsn(self):
+    def lastUsn(self) -> Any:
         return self.db.scalar("select lastUsn from meta")
 
-    def setLastUsn(self, usn):
+    def setLastUsn(self, usn) -> None:
         self.db.execute("update meta set lastUsn = ?", usn)
         self.db.commit()
 
-    def syncInfo(self, fname):
+    def syncInfo(self, fname) -> Any:
         ret = self.db.first(
             "select csum, dirty from media where fname=?", fname)
         return ret or (None, 0)
 
-    def markClean(self, fnames):
+    def markClean(self, fnames) -> None:
         for fname in fnames:
             self.db.execute(
                 "update media set dirty=0 where fname=?", fname)
 
-    def syncDelete(self, fname):
+    def syncDelete(self, fname) -> None:
         if os.path.exists(fname):
             os.unlink(fname)
         self.db.execute("delete from media where fname=?", fname)
 
-    def mediaCount(self):
+    def mediaCount(self) -> Any:
         return self.db.scalar(
             "select count() from media where csum is not null")
 
-    def dirtyCount(self):
+    def dirtyCount(self) -> Any:
         return self.db.scalar(
             "select count() from media where dirty=1")
 
-    def forceResync(self):
+    def forceResync(self) -> None:
         self.db.execute("delete from media")
         self.db.execute("update meta set lastUsn=0,dirMod=0")
         self.db.commit()
@@ -557,7 +560,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Media syncing: zips
     ##########################################################################
 
-    def mediaChangesZip(self):
+    def mediaChangesZip(self) -> Tuple[bytes, list]:
         f = io.BytesIO()
         z = zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED)
 
@@ -590,7 +593,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         z.close()
         return f.getvalue(), fnames
 
-    def addFilesFromZip(self, zipData):
+    def addFilesFromZip(self, zipData) -> int:
         "Extract zip data; true if finished."
         f = io.BytesIO(zipData)
         z = zipfile.ZipFile(f, "r")

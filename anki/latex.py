@@ -6,6 +6,7 @@ import re, os, shutil, html
 from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
+from typing import Any
 
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
@@ -28,7 +29,7 @@ regexps = {
 if isMac:
     os.environ['PATH'] += ":/usr/texbin:/Library/TeX/texbin"
 
-def stripLatex(text):
+def stripLatex(text) -> Any:
     for match in regexps['standard'].finditer(text):
         text = text.replace(match.group(), "")
     for match in regexps['expression'].finditer(text):
@@ -37,7 +38,7 @@ def stripLatex(text):
         text = text.replace(match.group(), "")
     return text
 
-def mungeQA(html, type, fields, model, data, col):
+def mungeQA(html, type, fields, model, data, col) -> Any:
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
@@ -50,7 +51,7 @@ def mungeQA(html, type, fields, model, data, col):
             "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}", model))
     return html
 
-def _imgLink(col, latex, model):
+def _imgLink(col, latex, model) -> Any:
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
 
@@ -75,13 +76,13 @@ def _imgLink(col, latex, model):
     else:
         return link
 
-def _latexFromHtml(col, latex):
+def _latexFromHtml(col, latex) -> Any:
     "Convert entities and fix newlines."
     latex = re.sub("<br( /)?>|<div>", "\n", latex)
     latex = stripHTML(latex)
     return latex
 
-def _buildImg(col, latex, fname, model):
+def _buildImg(col, latex, fname, model) -> Any:
     # add header/footer
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
@@ -129,7 +130,7 @@ package in the LaTeX header instead.""") % bad
         os.chdir(oldcwd)
         log.close()
 
-def _errMsg(type, texpath):
+def _errMsg(type, texpath) -> Any:
     msg = (_("Error executing %s.") % type) + "<br>"
     msg += (_("Generated file: %s") % texpath) + "<br>"
     try:

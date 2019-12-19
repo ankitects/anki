@@ -1,11 +1,12 @@
 import re
 from anki.utils import stripHTML, stripHTMLMedia
 from anki.hooks import runFilter
+from typing import Any, Callable, NoReturn, Optional
 
 clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
 
 modifiers = {}
-def modifier(symbol):
+def modifier(symbol) -> Callable[[Any], Any]:
     """Decorator for associating a function with a Mustache tag modifier.
 
     @modifier('P')
@@ -20,7 +21,7 @@ def modifier(symbol):
     return set_modifier
 
 
-def get_or_attr(obj, name, default=None):
+def get_or_attr(obj, name, default=None) -> Any:
     try:
         return obj[name]
     except KeyError:
@@ -45,12 +46,12 @@ class Template:
     # Closing tag delimiter
     ctag = '}}'
 
-    def __init__(self, template, context=None):
+    def __init__(self, template, context=None) -> None:
         self.template = template
         self.context = context or {}
         self.compile_regexps()
 
-    def render(self, template=None, context=None, encoding=None):
+    def render(self, template=None, context=None, encoding=None) -> str:
         """Turns a Mustache template into something wonderful."""
         template = template or self.template
         context = context or self.context
@@ -61,7 +62,7 @@ class Template:
             result = result.encode(encoding)
         return result
 
-    def compile_regexps(self):
+    def compile_regexps(self) -> None:
         """Compiles our section and tag regular expressions."""
         tags = { 'otag': re.escape(self.otag), 'ctag': re.escape(self.ctag) }
 
@@ -71,7 +72,7 @@ class Template:
         tag = r"%(otag)s(#|=|&|!|>|\{)?(.+?)\1?%(ctag)s+"
         self.tag_re = re.compile(tag % tags)
 
-    def render_sections(self, template, context):
+    def render_sections(self, template, context) -> NoReturn:
         """Expands sections."""
         while 1:
             match = self.section_re.search(template)
@@ -104,7 +105,7 @@ class Template:
 
         return template
 
-    def render_tags(self, template, context):
+    def render_tags(self, template, context) -> str:
         """Renders all the tags in a template for a context."""
         repCount = 0
         while 1:
@@ -130,16 +131,16 @@ class Template:
 
     # {{{ functions just like {{ in anki
     @modifier('{')
-    def render_tag(self, tag_name, context):
+    def render_tag(self, tag_name, context) -> Any:
         return self.render_unescaped(tag_name, context)
 
     @modifier('!')
-    def render_comment(self, tag_name=None, context=None):
+    def render_comment(self, tag_name=None, context=None) -> str:
         """Rendering a comment always returns nothing."""
         return ''
 
     @modifier(None)
-    def render_unescaped(self, tag_name=None, context=None):
+    def render_unescaped(self, tag_name=None, context=None) -> Any:
         """Render a tag without escaping it."""
         txt = get_or_attr(context, tag_name)
         if txt is not None:
@@ -192,7 +193,7 @@ class Template:
                     return '{unknown field %s}' % tag_name
         return txt
 
-    def clozeText(self, txt, ord, type):
+    def clozeText(self, txt, ord, type) -> str:
         reg = clozeReg
         if not re.search(reg%ord, txt):
             return ""
@@ -215,7 +216,7 @@ class Template:
         return re.sub(reg%r"\d+", "\\2", txt)
 
     # look for clozes wrapped in mathjax, and change {{cx to {{Cx
-    def _removeFormattingFromMathjax(self, txt, ord):
+    def _removeFormattingFromMathjax(self, txt, ord) -> str:
         opening = ["\\(", "\\["]
         closing = ["\\)", "\\]"]
         # flags in middle of expression deprecated
@@ -237,7 +238,7 @@ class Template:
         return txt
 
     @modifier('=')
-    def render_delimiter(self, tag_name=None, context=None):
+    def render_delimiter(self, tag_name=None, context=None) -> Optional[str]:
         """Changes the Mustache delimiter."""
         try:
             self.otag, self.ctag = tag_name.split(' ')

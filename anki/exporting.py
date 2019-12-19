@@ -9,24 +9,25 @@ from anki.lang import _
 from anki.utils import ids2str, splitFields, namedtmp, stripHTML
 from anki.hooks import runHook
 from anki.storage import Collection
+from typing import Any, Dict, List, Tuple
 
 class Exporter:
     includeHTML: typing.Union[bool, None] = None
 
-    def __init__(self, col, did=None):
+    def __init__(self, col, did=None) -> None:
         self.col = col
         self.did = did
 
-    def doExport(self, path):
+    def doExport(self, path) -> None:
         raise Exception("not implemented")
 
-    def exportInto(self, path):
+    def exportInto(self, path) -> None:
         self._escapeCount = 0
         file = open(path, "wb")
         self.doExport(file)
         file.close()
 
-    def processText(self, text):
+    def processText(self, text) -> str:
         if self.includeHTML is False:
             text = self.stripHTML(text)
 
@@ -34,7 +35,7 @@ class Exporter:
 
         return text
 
-    def escapeText(self, text):
+    def escapeText(self, text) -> str:
         "Escape newlines, tabs, CSS and quotechar."
         # fixme: we should probably quote fields with newlines
         # instead of converting them to spaces
@@ -46,7 +47,7 @@ class Exporter:
             text = "\"" + text.replace("\"", "\"\"") + "\""
         return text
 
-    def stripHTML(self, text):
+    def stripHTML(self, text) -> str:
         # very basic conversion to text
         s = text
         s = re.sub(r"(?i)<(br ?/?|div|p)>", " ", s)
@@ -56,7 +57,7 @@ class Exporter:
         s = s.strip()
         return s
 
-    def cardIds(self):
+    def cardIds(self) -> Any:
         if not self.did:
             cids = self.col.db.list("select id from cards")
         else:
@@ -73,10 +74,10 @@ class TextCardExporter(Exporter):
     ext = ".txt"
     includeHTML = True
 
-    def __init__(self, col):
+    def __init__(self, col) -> None:
         Exporter.__init__(self, col)
 
-    def doExport(self, file):
+    def doExport(self, file) -> None:
         ids = sorted(self.cardIds())
         strids = ids2str(ids)
         def esc(s):
@@ -100,11 +101,11 @@ class TextNoteExporter(Exporter):
     includeTags = True
     includeHTML = True
 
-    def __init__(self, col):
+    def __init__(self, col) -> None:
         Exporter.__init__(self, col)
         self.includeID = False
 
-    def doExport(self, file):
+    def doExport(self, file) -> None:
         cardIds = self.cardIds()
         data = []
         for id, flds, tags in self.col.db.execute("""
@@ -137,10 +138,10 @@ class AnkiExporter(Exporter):
     includeSched: typing.Union[bool, None] = False
     includeMedia = True
 
-    def __init__(self, col):
+    def __init__(self, col) -> None:
         Exporter.__init__(self, col)
 
-    def exportInto(self, path):
+    def exportInto(self, path) -> None:
         # sched info+v2 scheduler not compatible w/ older clients
         self._v2sched = self.col.schedVer() != 1 and self.includeSched
 
@@ -253,15 +254,15 @@ class AnkiExporter(Exporter):
         self.postExport()
         self.dst.close()
 
-    def postExport(self):
+    def postExport(self) -> None:
         # overwrite to apply customizations to the deck before it's closed,
         # such as update the deck description
         pass
     
-    def removeSystemTags(self, tags):
+    def removeSystemTags(self, tags) -> Any:
         return self.src.tags.remFromStr("marked leech", tags)
 
-    def _modelHasMedia(self, model, fname):
+    def _modelHasMedia(self, model, fname) -> bool:
         # First check the styling
         if fname in model["css"]:
             return True
@@ -290,7 +291,7 @@ class AnkiPackageExporter(AnkiExporter):
         z.writestr("media", json.dumps(media))
         z.close()
 
-    def doExport(self, z, path):
+    def doExport(self, z, path) -> Dict[str, str]:
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
@@ -314,7 +315,7 @@ class AnkiPackageExporter(AnkiExporter):
         shutil.rmtree(path.replace(".apkg", ".media"))
         return media
 
-    def _exportMedia(self, z, files, fdir):
+    def _exportMedia(self, z, files, fdir) -> Dict[str, str]:
         media = {}
         for c, file in enumerate(files):
             cStr = str(c)
@@ -331,14 +332,14 @@ class AnkiPackageExporter(AnkiExporter):
 
         return media
 
-    def prepareMedia(self):
+    def prepareMedia(self) -> None:
         # chance to move each file in self.mediaFiles into place before media
         # is zipped up
         pass
 
     # create a dummy collection to ensure older clients don't try to read
     # data they don't understand
-    def _addDummyCollection(self, zip):
+    def _addDummyCollection(self, zip) -> None:
         path = namedtmp("dummy.anki2")
         c = Collection(path)
         n = c.newNote()
@@ -383,7 +384,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 # Export modules
 ##########################################################################
 
-def exporters():
+def exporters() -> List[Tuple[str, Any]]:
     def id(obj):
         return ("%s (*%s)" % (obj.key, obj.ext), obj)
     exps = [

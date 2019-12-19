@@ -7,6 +7,7 @@ import unicodedata
 import json
 from anki.utils import tmpfile
 from anki.importing.anki2 import Anki2Importer
+from typing import Any
 
 class AnkiPackageImporter(Anki2Importer):
 
@@ -16,7 +17,7 @@ class AnkiPackageImporter(Anki2Importer):
         self.nameToNum = {}
         self.zip = None
 
-    def run(self):
+    def run(self) -> None:
         # extract the deck from the zip file
         self.zip = z = zipfile.ZipFile(self.file)
         # v2 scheduler?
@@ -52,7 +53,7 @@ class AnkiPackageImporter(Anki2Importer):
                 with open(path, "wb") as f:
                     f.write(z.read(c))
 
-    def _srcMediaData(self, fname):
+    def _srcMediaData(self, fname) -> Any:
         if fname in self.nameToNum:
             return self.zip.read(self.nameToNum[fname])
         return None

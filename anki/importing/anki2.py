@@ -8,6 +8,7 @@ from anki.storage import Collection
 from anki.utils import intTime, splitFields, joinFields
 from anki.importing.base import Importer
 from anki.lang import _
+from typing import Any
 
 GUID = 1
 MID = 2
@@ -27,7 +28,7 @@ class Anki2Importer(Importer):
         self._decks = {}
         self.mustResetLearning = False
 
-    def run(self, media=None):
+    def run(self, media=None) -> None:
         self._prepareFiles()
         if media is not None:
             # Anki1 importer has provided us with a custom media folder
@@ -37,7 +38,7 @@ class Anki2Importer(Importer):
         finally:
             self.src.close(save=False)
 
-    def _prepareFiles(self):
+    def _prepareFiles(self) -> None:
         importingV2 = self.file.endswith(".anki21")
         self.mustResetLearning = False
 
@@ -49,7 +50,7 @@ class Anki2Importer(Importer):
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
                 self.mustResetLearning = True
 
-    def _import(self):
+    def _import(self) -> None:
         self._decks = {}
         if self.deckPrefix:
             id = self.dst.decks.id(self.deckPrefix)
@@ -68,13 +69,13 @@ class Anki2Importer(Importer):
     # Notes
     ######################################################################
 
-    def _logNoteRow(self, action, noteRow):
+    def _logNoteRow(self, action, noteRow) -> None:
         self.log.append("[%s] %s" % (
             action,
             noteRow[6].replace("\x1f", ", ")
         ))
 
-    def _importNotes(self):
+    def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
         self._notes = {}
         existing = {}
@@ -185,7 +186,7 @@ class Anki2Importer(Importer):
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added
-    def _uniquifyNote(self, note):
+    def _uniquifyNote(self, note) -> bool:
         origGuid = note[GUID]
         srcMid = note[MID]
         dstMid = self._mid(srcMid)
@@ -207,11 +208,11 @@ class Anki2Importer(Importer):
     # the schemas don't match, we increment the mid and try again, creating a
     # new model if necessary.
 
-    def _prepareModels(self):
+    def _prepareModels(self) -> None:
         "Prepare index of schema hashes."
         self._modelMap = {}
 
-    def _mid(self, srcMid):
+    def _mid(self, srcMid) -> Any:
         "Return local id for remote MID."
         # already processed this mid?
         if srcMid in self._modelMap:
@@ -248,7 +249,7 @@ class Anki2Importer(Importer):
     # Decks
     ######################################################################
 
-    def _did(self, did):
+    def _did(self, did) -> Any:
         "Given did in src col, return local id."
         # already converted?
         if did in self._decks:
@@ -295,7 +296,7 @@ class Anki2Importer(Importer):
     # Cards
     ######################################################################
 
-    def _importCards(self):
+    def _importCards(self) -> None:
         if self.mustResetLearning:
             self.src.changeSchedulerVer(2)
         # build map of (guid, ord) -> cid and used id cache
@@ -382,7 +383,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
 
     # note: this func only applies to imports of .anki2. for .apkg files, the
     # apkg importer does the copying
-    def _importStaticMedia(self):
+    def _importStaticMedia(self) -> None:
         # Import any '_foo' prefixed media files regardless of whether
         # they're used on notes or not
         dir = self.src.media.dir()
@@ -392,7 +393,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             if fname.startswith("_") and not self.dst.media.have(fname):
                 self._writeDstMedia(fname, self._srcMediaData(fname))
 
-    def _mediaData(self, fname, dir=None):
+    def _mediaData(self, fname, dir=None) -> bytes:
         if not dir:
             dir = self.src.media.dir()
         path = os.path.join(dir, fname)
@@ -402,15 +403,15 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
         except (IOError, OSError):
             return
 
-    def _srcMediaData(self, fname):
+    def _srcMediaData(self, fname) -> bytes:
         "Data for FNAME in src collection."
         return self._mediaData(fname, self.src.media.dir())
 
-    def _dstMediaData(self, fname):
+    def _dstMediaData(self, fname) -> bytes:
         "Data for FNAME in dst collection."
         return self._mediaData(fname, self.dst.media.dir())
 
-    def _writeDstMedia(self, fname, data):
+    def _writeDstMedia(self, fname, data) -> None:
         path = os.path.join(self.dst.media.dir(),
                             unicodedata.normalize("NFC", fname))
         try:
@@ -420,7 +421,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             # the user likely used subdirectories
             pass
 
-    def _mungeMedia(self, mid, fields):
+    def _mungeMedia(self, mid, fields) -> str:
         fields = splitFields(fields)
         def repl(match):
             fname = match.group("fname")
@@ -450,7 +451,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
     # Post-import cleanup
     ######################################################################
 
-    def _postImport(self):
+    def _postImport(self) -> None:
         for did in list(self._decks.values()):
             self.col.sched.maybeRandomizeDeck(did)
         # make sure new position is correct

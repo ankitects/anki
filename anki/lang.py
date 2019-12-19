@@ -5,6 +5,7 @@
 import os, sys, re
 import gettext
 import threading
+from typing import Any
 
 langs = sorted([
     ("Afrikaans", "af_ZA"),
@@ -108,20 +109,20 @@ threadLocal = threading.local()
 currentLang = None
 currentTranslation = None
 
-def localTranslation():
+def localTranslation() -> Any:
     "Return the translation local to this thread, or the default."
     if getattr(threadLocal, 'currentTranslation', None):
         return threadLocal.currentTranslation
     else:
         return currentTranslation
 
-def _(str):
+def _(str) -> Any:
     return localTranslation().gettext(str)
 
-def ngettext(single, plural, n):
+def ngettext(single, plural, n) -> Any:
     return localTranslation().ngettext(single, plural, n)
 
-def langDir():
+def langDir() -> str:
     from anki.utils import isMac
     filedir = os.path.dirname(os.path.abspath(__file__))
     if isMac:
@@ -134,7 +135,7 @@ def langDir():
         dir = os.path.abspath(os.path.join(filedir, "..", "locale"))
     return dir
 
-def setLang(lang, local=True):
+def setLang(lang, local=True) -> None:
     lang = mungeCode(lang)
     trans = gettext.translation(
         'anki', langDir(), languages=[lang], fallback=True)
@@ -146,18 +147,18 @@ def setLang(lang, local=True):
         currentLang = lang
         currentTranslation = trans
 
-def getLang():
+def getLang() -> Any:
     "Return the language local to this thread, or the default."
     if getattr(threadLocal, 'currentLang', None):
         return threadLocal.currentLang
     else:
         return currentLang
 
-def noHint(str):
+def noHint(str) -> str:
     "Remove translation hint from end of string."
     return re.sub(r"(^.*?)( ?\(.+?\))?$", "\\1", str)
 
-def mungeCode(code):
+def mungeCode(code) -> Any:
     code = code.replace("-", "_")
     if code in compatMap:
         code = compatMap[code]

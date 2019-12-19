@@ -5,7 +5,9 @@
 import html
 import re, sys, threading, time, subprocess, os, atexit
 import  random
-from typing import List
+from typing import List, Tuple, Dict, Any
+from typing import Callable, NoReturn, Optional
+
 from anki.hooks import addHook, runHook
 from anki.utils import  tmpdir, isWin, isMac, isLin
 from anki.lang import _
@@ -15,19 +17,19 @@ from anki.lang import _
 
 _soundReg = r"\[sound:(.*?)\]"
 
-def playFromText(text):
+def playFromText(text) -> None:
     for match in allSounds(text):
         # filename is html encoded
         match = html.unescape(match)
         play(match)
 
-def allSounds(text):
+def allSounds(text) -> List:
     return re.findall(_soundReg, text)
 
-def stripSounds(text):
+def stripSounds(text) -> str:
     return re.sub(_soundReg, "", text)
 
-def hasSound(text):
+def hasSound(text) -> bool:
     return re.search(_soundReg, text) is not None
 
 # Packaged commands
@@ -35,7 +37,7 @@ def hasSound(text):
 
 # return modified command array that points to bundled command, and return
 # required environment
-def _packagedCmd(cmd):
+def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
     cmd = cmd[:]
     env = os.environ.copy()
     if "LD_LIBRARY_PATH" in env:
@@ -76,7 +78,7 @@ if sys.platform == "win32":
 else:
     si = None
 
-def retryWait(proc):
+def retryWait(proc) -> Any:
     # osx throws interrupted system call errors frequently
     while 1:
         try:
@@ -88,6 +90,10 @@ def retryWait(proc):
 ##########################################################################
 
 from anki.mpv import MPV, MPVBase
+
+_player: Optional[Callable[[Any], Any]]
+_queueEraser: Optional[Callable[[], Any]]
+_soundReg: str
 
 mpvPath, mpvEnv = _packagedCmd(["mpv"])
 
@@ -101,28 +107,28 @@ class MpvManager(MPV):
             "--input-media-keys=no",
         ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(window_id=None, debug=False)
 
-    def queueFile(self, file):
+    def queueFile(self, file) -> None:
         runHook("mpvWillPlay", file)
 
         path = os.path.join(os.getcwd(), file)
         self.command("loadfile", path, "append-play")
 
-    def clearQueue(self):
+    def clearQueue(self) -> None:
         self.command("stop")
 
-    def togglePause(self):
+    def togglePause(self) -> None:
         self.set_property("pause", not self.get_property("pause"))
 
-    def seekRelative(self, secs):
+    def seekRelative(self, secs) -> None:
         self.command("seek", secs, "relative")
 
-    def on_idle(self):
+    def on_idle(self) -> None:
         runHook("mpvIdleHook")
 
-def setMpvConfigBase(base):
+def setMpvConfigBase(base) -> None:
     mpvConfPath = os.path.join(base, "mpv.conf")
     MpvManager.default_argv += [
         "--no-config",
@@ -131,14 +137,14 @@ def setMpvConfigBase(base):
 
 mpvManager = None
 
-def setupMPV():
+def setupMPV() -> None:
     global mpvManager, _player, _queueEraser
     mpvManager = MpvManager()
     _player = mpvManager.queueFile
     _queueEraser = mpvManager.clearQueue
     atexit.register(cleanupMPV)
 
-def cleanupMPV():
+def cleanupMPV() -> None:
     global mpvManager, _player, _queueEraser
     if mpvManager:
         mpvManager.close()
@@ -151,7 +157,7 @@ def cleanupMPV():
 
 # if anki crashes, an old mplayer instance may be left lying around,
 # which prevents renaming or deleting the profile
-def cleanupOldMplayerProcesses():
+def cleanupOldMplayerProcesses() -> None:
     # pylint: disable=import-error
     import psutil # pytype: disable=import-error
 
@@ -189,7 +195,7 @@ class MplayerMonitor(threading.Thread):
     mplayer = None
     deadPlayers: List[subprocess.Popen] = []
 
-    def run(self):
+    def run(self) -> NoReturn:
         global mplayerClear
         self.mplayer = None
         self.deadPlayers = []
@@ -244,7 +250,7 @@ class MplayerMonitor(threading.Thread):
                     return True
             self.deadPlayers = [pl for pl in self.deadPlayers if clean(pl)]
 
-    def kill(self):
+    def kill(self) -> None:
         if not self.mplayer:
             return
         try:
@@ -255,7 +261,7 @@ class MplayerMonitor(threading.Thread):
             pass
         self.mplayer = None
 
-    def startProcess(self):
+    def startProcess(self) -> subprocess.Popen:
         try:
             cmd = mplayerCmd + ["-slave", "-idle"]
             cmd, env = _packagedCmd(cmd)
@@ -267,7 +273,7 @@ class MplayerMonitor(threading.Thread):
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
 
-def queueMplayer(path):
+def queueMplayer(path) -> None:
     ensureMplayerThreads()
     if isWin and os.path.exists(path):
         # mplayer on windows doesn't like the encoding, so we create a
@@ -284,13 +290,13 @@ def queueMplayer(path):
     mplayerQueue.append(path)
     mplayerEvt.set()
 
-def clearMplayerQueue():
+def clearMplayerQueue() -> None:
     global mplayerClear, mplayerQueue
     mplayerQueue = []
     mplayerClear = True
     mplayerEvt.set()
 
-def ensureMplayerThreads():
+def ensureMplayerThreads() -> None:
     global mplayerManager
     if not mplayerManager:
         mplayerManager = MplayerMonitor()
@@ -302,7 +308,7 @@ def ensureMplayerThreads():
         # clean up mplayer on exit
         atexit.register(stopMplayer)
 
-def stopMplayer(*args):
+def stopMplayer(*args) -> None:
     if not mplayerManager:
         return
     mplayerManager.kill()
@@ -326,7 +332,7 @@ except:
 
 class _Recorder:
 
-    def postprocess(self, encode=True):
+    def postprocess(self, encode=True) -> None:
         self.encode = encode
         for c in processingChain:
             #print c
@@ -344,18 +350,18 @@ class _Recorder:
                     "Error running %s") %
                                 " ".join(cmd))
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         if os.path.exists(processingSrc):
             os.unlink(processingSrc)
 
 class PyAudioThreadedRecorder(threading.Thread):
 
-    def __init__(self, startupDelay):
+    def __init__(self, startupDelay) -> None:
         threading.Thread.__init__(self)
         self.startupDelay = startupDelay
         self.finish = False
 
-    def run(self):
+    def run(self) -> Any:
         chunk = 1024
         p = pyaudio.PyAudio()
 
@@ -421,10 +427,10 @@ if not pyaudio:
 _player = queueMplayer
 _queueEraser = clearMplayerQueue
 
-def play(path):
+def play(path) -> None:
     _player(path)
 
-def clearAudioQueue():
+def clearAudioQueue() -> None:
     _queueEraser()
 
 Recorder = PyAudioRecorder

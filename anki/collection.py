@@ -29,6 +29,7 @@ import anki.cards
 import anki.notes
 import anki.template
 import anki.find
+from typing import Any, List, Optional, Tuple, Union, Dict
 
 defaultConf = {
     # review options
@@ -49,7 +50,7 @@ defaultConf = {
     'schedVer': 2,
 }
 
-def timezoneOffset():
+def timezoneOffset() -> int:
     if time.localtime().tm_isdst:
         return time.altzone//60
     else:
@@ -58,7 +59,7 @@ def timezoneOffset():
 # this is initialized by storage.Collection
 class _Collection:
 
-    def __init__(self, db, server=False, log=False):
+    def __init__(self, db, server=False, log=False) -> None:
         self._debugLog = log
         self.db = db
         self.path = db._path
@@ -85,7 +86,7 @@ class _Collection:
             self.conf['newBury'] = True
             self.setMod()
 
-    def name(self):
+    def name(self) -> Any:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
 
@@ -94,14 +95,14 @@ class _Collection:
 
     supportedSchedulerVersions = (1, 2)
 
-    def schedVer(self):
+    def schedVer(self) -> Any:
         ver = self.conf.get("schedVer", 1)
         if ver in self.supportedSchedulerVersions:
             return ver
         else:
             raise Exception("Unsupported scheduler version")
 
-    def _loadScheduler(self):
+    def _loadScheduler(self) -> None:
         ver = self.schedVer()
         if ver == 1:
             from anki.sched import Scheduler
@@ -110,7 +111,7 @@ class _Collection:
 
         self.sched = Scheduler(self)
 
-    def changeSchedulerVer(self, ver):
+    def changeSchedulerVer(self, ver) -> None:
         if ver == self.schedVer():
             return
         if ver not in self.supportedSchedulerVersions:
@@ -135,7 +136,7 @@ class _Collection:
     # DB-related
     ##########################################################################
 
-    def load(self):
+    def load(self) -> None:
         (self.crt,
          self.mod,
          self.scm,
@@ -154,14 +155,14 @@ conf, models, decks, dconf, tags from col""")
         self.decks.load(decks, dconf)
         self.tags.load(tags)
 
-    def setMod(self):
+    def setMod(self) -> None:
         """Mark DB modified.
 
 DB operations and the deck/tag/model managers do this automatically, so this
 is only necessary if you modify properties of this object or the conf dict."""
         self.db.mod = True
 
-    def flush(self, mod=None):
+    def flush(self, mod=None) -> None:
         "Flush state to DB, updating mod time."
         self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
@@ -170,7 +171,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self._usn, self.ls, json.dumps(self.conf))
 
-    def save(self, name=None, mod=None):
+    def save(self, name=None, mod=None) -> None:
         "Flush, commit DB, and take out another write lock."
         # let the managers conditionally flush
         self.models.flush()
@@ -185,19 +186,19 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self._markOp(name)
         self._lastSave = time.time()
 
-    def autosave(self):
+    def autosave(self) -> Optional[bool]:
         "Save if 5 minutes has passed since last save. True if saved."
         if time.time() - self._lastSave > 300:
             self.save()
             return True
 
-    def lock(self):
+    def lock(self) -> None:
         # make sure we don't accidentally bump mod time
         mod = self.db.mod
         self.db.execute("update col set mod=mod")
         self.db.mod = mod
 
-    def close(self, save=True):
+    def close(self, save=True) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
@@ -213,7 +214,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.media.close()
             self._closeLog()
 
-    def reopen(self):
+    def reopen(self) -> None:
         "Reconnect to DB (after changing threads, etc)."
         import anki.db
         if not self.db:
@@ -221,12 +222,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.media.connect()
             self._openLog()
 
-    def rollback(self):
+    def rollback(self) -> None:
         self.db.rollback()
         self.load()
         self.lock()
 
-    def modSchema(self, check):
+    def modSchema(self, check) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
         if not self.schemaChanged():
             if check and not runFilter("modSchema", True):
@@ -234,14 +235,14 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.scm = intTime(1000)
         self.setMod()
 
-    def schemaChanged(self):
+    def schemaChanged(self) -> Any:
         "True if schema changed since last sync."
         return self.scm > self.ls
 
-    def usn(self):
+    def usn(self) -> Any:
         return self._usn if self.server else -1
 
-    def beforeUpload(self):
+    def beforeUpload(self) -> None:
         "Called before a full upload."
         tbls = "notes", "cards", "revlog"
         for t in tbls:
@@ -263,44 +264,44 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Object creation helpers
     ##########################################################################
 
-    def getCard(self, id):
+    def getCard(self, id) -> anki.cards.Card:
         return anki.cards.Card(self, id)
 
-    def getNote(self, id):
+    def getNote(self, id) -> anki.notes.Note:
         return anki.notes.Note(self, id=id)
 
     # Utils
     ##########################################################################
 
-    def nextID(self, type, inc=True):
+    def nextID(self, type, inc=True) -> Any:
         type = "next"+type.capitalize()
         id = self.conf.get(type, 1)
         if inc:
             self.conf[type] = id+1
         return id
 
-    def reset(self):
+    def reset(self) -> None:
         "Rebuild the queue and reload data after DB modified."
         self.sched.reset()
 
     # Deletion logging
     ##########################################################################
 
-    def _logRem(self, ids, type):
+    def _logRem(self, ids, type) -> None:
         self.db.executemany("insert into graves values (%d, ?, %d)" % (
             self.usn(), type), ([x] for x in ids))
 
     # Notes
     ##########################################################################
 
-    def noteCount(self):
+    def noteCount(self) -> Any:
         return self.db.scalar("select count() from notes")
 
-    def newNote(self, forDeck=True):
+    def newNote(self, forDeck=True) -> anki.notes.Note:
         "Return a new note with the current model."
         return anki.notes.Note(self, self.models.current(forDeck))
 
-    def addNote(self, note):
+    def addNote(self, note) -> int:
         "Add a note to the collection. Return number of new cards."
         # check we have card models available, then save
         cms = self.findTemplates(note)
@@ -316,11 +317,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             ncards += 1
         return ncards
 
-    def remNotes(self, ids):
+    def remNotes(self, ids) -> None:
         self.remCards(self.db.list("select id from cards where nid in "+
                                    ids2str(ids)))
 
-    def _remNotes(self, ids):
+    def _remNotes(self, ids) -> None:
         "Bulk delete notes by ID. Don't call this directly."
         if not ids:
             return
@@ -334,13 +335,13 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Card creation
     ##########################################################################
 
-    def findTemplates(self, note):
+    def findTemplates(self, note) -> List:
         "Return (active), non-empty templates."
         model = note.model()
         avail = self.models.availOrds(model, joinFields(note.fields))
         return self._tmplsFromOrds(model, avail)
 
-    def _tmplsFromOrds(self, model, avail):
+    def _tmplsFromOrds(self, model, avail) -> List:
         ok = []
         if model['type'] == MODEL_STD:
             for t in model['tmpls']:
@@ -354,7 +355,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 ok.append(t)
         return ok
 
-    def genCards(self, nids):
+    def genCards(self, nids) -> List:
         "Generate cards for non-empty templates, return ids to remove."
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
@@ -428,7 +429,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     # type 0 - when previewing in add dialog, only non-empty
     # type 1 - when previewing edit, only existing
     # type 2 - when previewing in models dialog, all templates
-    def previewCards(self, note, type=0, did=None):
+    def previewCards(self, note, type=0, did=None) -> List:
         if type == 0:
             cms = self.findTemplates(note)
         elif type == 1:
@@ -442,7 +443,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             cards.append(self._newCard(note, template, 1, flush=False, did=did))
         return cards
 
-    def _newCard(self, note, template, due, flush=True, did=None):
+    def _newCard(self, note, template, due, flush=True, did=None) -> anki.cards.Card:
         "Create a new card."
         card = anki.cards.Card(self)
         card.nid = note.id
@@ -469,7 +470,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             card.flush()
         return card
 
-    def _dueForDid(self, did, due):
+    def _dueForDid(self, did, due: int) -> int:
         conf = self.decks.confForDid(did)
         # in order due?
         if conf['new']['order'] == NEW_CARDS_DUE:
@@ -484,13 +485,13 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     # Cards
     ##########################################################################
 
-    def isEmpty(self):
+    def isEmpty(self) -> bool:
         return not self.db.scalar("select 1 from cards limit 1")
 
-    def cardCount(self):
+    def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remCards(self, ids, notes=True):
+    def remCards(self, ids, notes=True) -> None:
         "Bulk delete cards by ID."
         if not ids:
             return
@@ -507,13 +508,13 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
                      ids2str(nids))
         self._remNotes(nids)
 
-    def emptyCids(self):
+    def emptyCids(self) -> List:
         rem = []
         for m in self.models.all():
             rem += self.genCards(self.models.nids(m))
         return rem
 
-    def emptyCardReport(self, cids):
+    def emptyCardReport(self, cids) -> str:
         rep = ""
         for ords, cnt, flds in self.db.all("""
 select group_concat(ord+1), count(), flds from cards c, notes n
@@ -525,11 +526,11 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
     # Field checksums and sorting fields
     ##########################################################################
 
-    def _fieldData(self, snids):
+    def _fieldData(self, snids) -> Any:
         return self.db.execute(
             "select id, mid, flds from notes where id in "+snids)
 
-    def updateFieldCache(self, nids):
+    def updateFieldCache(self, nids) -> None:
         "Update field checksums and sort cache, after find&replace, etc."
         snids = ids2str(nids)
         r = []
@@ -548,7 +549,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
     # Q/A generation
     ##########################################################################
 
-    def renderQA(self, ids=None, type="card"):
+    def renderQA(self, ids=None, type="card") -> List:
         # gather metadata
         if type == "card":
             where = "and c.id in " + ids2str(ids)
@@ -563,7 +564,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         return [self._renderQA(row)
                 for row in self._qaData(where)]
 
-    def _renderQA(self, data, qfmt=None, afmt=None):
+    def _renderQA(self, data, qfmt=None, afmt=None) -> Dict:
         "Returns hash of id, question, answer."
         # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
         # unpack fields and create dict
@@ -610,7 +611,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
                 "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
         return d
 
-    def _qaData(self, where=""):
+    def _qaData(self, where="") -> Any:
         "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
         return self.db.execute("""
 select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds, c.flags
@@ -618,7 +619,7 @@ from cards c, notes f
 where c.nid == f.id
 %s""" % where)
 
-    def _flagNameFromCardFlags(self, flags):
+    def _flagNameFromCardFlags(self, flags) -> str:
         flag = flags & 0b111
         if not flag:
             return ""
@@ -627,37 +628,37 @@ where c.nid == f.id
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query, order=False):
+    def findCards(self, query, order=False) -> Any:
         return anki.find.Finder(self).findCards(query, order)
 
-    def findNotes(self, query):
+    def findNotes(self, query) -> Any:
         return anki.find.Finder(self).findNotes(query)
 
-    def findReplace(self, nids, src, dst, regex=None, field=None, fold=True):
+    def findReplace(self, nids, src, dst, regex=None, field=None, fold=True) -> int:
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
 
-    def findDupes(self, fieldName, search=""):
+    def findDupes(self, fieldName, search="") -> List[Tuple[Any, list]]:
         return anki.find.findDupes(self, fieldName, search)
 
     # Stats
     ##########################################################################
 
-    def cardStats(self, card):
+    def cardStats(self, card) -> str:
         from anki.stats import CardStats
         return CardStats(self, card).report()
 
-    def stats(self):
+    def stats(self) -> "anki.stats.CollectionStats":
         from anki.stats import CollectionStats
         return CollectionStats(self)
 
     # Timeboxing
     ##########################################################################
 
-    def startTimebox(self):
+    def startTimebox(self) -> None:
         self._startTime = time.time()
         self._startReps = self.sched.reps
 
-    def timeboxReached(self):
+    def timeboxReached(self) -> Optional[Union[bool, Tuple[Any, int]]]:
         "Return (elapsedTime, reps) if timebox reached, or False."
         if not self.conf['timeLim']:
             # timeboxing disabled
@@ -669,24 +670,24 @@ where c.nid == f.id
     # Undo
     ##########################################################################
 
-    def clearUndo(self):
+    def clearUndo(self) -> None:
         # [type, undoName, data]
         # type 1 = review; type 2 = checkpoint
         self._undo = None
 
-    def undoName(self):
+    def undoName(self) -> Any:
         "Undo menu item name, or None if undo unavailable."
         if not self._undo:
             return None
         return self._undo[1]
 
-    def undo(self):
+    def undo(self) -> Any:
         if self._undo[0] == 1:
             return self._undoReview()
         else:
             self._undoOp()
 
-    def markReview(self, card):
+    def markReview(self, card) -> None:
         old = []
         if self._undo:
             if self._undo[0] == 1:
@@ -695,7 +696,7 @@ where c.nid == f.id
         wasLeech = card.note().hasTag("leech") or False
         self._undo = [1, _("Review"), old + [copy.copy(card)], wasLeech]
 
-    def _undoReview(self):
+    def _undoReview(self) -> Any:
         data = self._undo[2]
         wasLeech = self._undo[3]
         c = data.pop() # pytype: disable=attribute-error
@@ -723,7 +724,7 @@ where c.nid == f.id
         self.sched.reps -= 1
         return c.id
 
-    def _markOp(self, name):
+    def _markOp(self, name) -> None:
         "Call via .save()"
         if name:
             self._undo = [2, name]
@@ -732,14 +733,14 @@ where c.nid == f.id
             if self._undo and self._undo[0] == 2:
                 self.clearUndo()
 
-    def _undoOp(self):
+    def _undoOp(self) -> None:
         self.rollback()
         self.clearUndo()
 
     # DB maintenance
     ##########################################################################
 
-    def basicCheck(self):
+    def basicCheck(self) -> Optional[bool]:
         "Basic integrity check for syncing. True if ok."
         # cards without notes
         if self.db.scalar("""
@@ -763,7 +764,7 @@ select id from notes where mid = ?) limit 1""" %
                 return
         return True
 
-    def fixIntegrity(self):
+    def fixIntegrity(self) -> Tuple[Any, bool]:
         "Fix possible problems and rebuild caches."
         problems = []
         curs = self.db.cursor()
@@ -901,7 +902,7 @@ and type=0""", [intTime(), self.usn()])
         self.save()
         return ("\n".join(problems), ok)
 
-    def optimize(self):
+    def optimize(self) -> None:
         self.db.setAutocommit(True)
         self.db.execute("vacuum")
         self.db.execute("analyze")
@@ -911,7 +912,7 @@ and type=0""", [intTime(), self.usn()])
     # Logging
     ##########################################################################
 
-    def log(self, *args, **kwargs):
+    def log(self, *args, **kwargs) -> None:
         if not self._debugLog:
             return
         def customRepr(x):
@@ -926,7 +927,7 @@ and type=0""", [intTime(), self.usn()])
         if devMode:
             print(buf)
 
-    def _openLog(self):
+    def _openLog(self) -> None:
         if not self._debugLog:
             return
         lpath = re.sub(r"\.anki2$", ".log", self.path)
@@ -937,7 +938,7 @@ and type=0""", [intTime(), self.usn()])
             os.rename(lpath, lpath2)
         self._logHnd = open(lpath, "a", encoding="utf8")
 
-    def _closeLog(self):
+    def _closeLog(self) -> None:
         if not self._debugLog:
             return
         self._logHnd.close()
@@ -946,7 +947,7 @@ and type=0""", [intTime(), self.usn()])
     # Card Flags
     ##########################################################################
 
-    def setUserFlag(self, flag, cids):
+    def setUserFlag(self, flag, cids) -> None:
         assert 0 <= flag <= 7
         self.db.execute("update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s" %
                         ids2str(cids), 0b111, flag, self.usn(), intTime())

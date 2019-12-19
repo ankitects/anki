@@ -12,20 +12,21 @@ from anki.utils import fieldChecksum, guid64, timestampID, \
     joinFields, intTime, splitFields
 from anki.importing.base import Importer
 from anki.lang import ngettext
+from typing import Any, List, Optional
 
 # Stores a list of fields, tags and deck
 ######################################################################
 
 class ForeignNote:
     "An temporary object storing fields and attributes."
-    def __init__(self):
+    def __init__(self) -> None:
         self.fields = []
         self.tags = []
         self.deck = None
         self.cards = {} # map of ord -> card
 
 class ForeignCard:
-    def __init__(self):
+    def __init__(self) -> None:
         self.due = 0
         self.ivl = 1
         self.factor = STARTING_FACTOR
@@ -66,11 +67,11 @@ class NoteImporter(Importer):
         c = self.foreignNotes()
         self.importNotes(c)
 
-    def fields(self):
+    def fields(self) -> int:
         "The number of fields."
         return 0
 
-    def initMapping(self):
+    def initMapping(self) -> None:
         flds = [f['name'] for f in self.model['flds']]
         # truncate to provided count
         flds = flds[0:self.fields()]
@@ -81,18 +82,18 @@ class NoteImporter(Importer):
         flds = flds + [None] * (self.fields() - len(flds))
         self.mapping = flds
 
-    def mappingOk(self):
+    def mappingOk(self) -> bool:
         return self.model['flds'][0]['name'] in self.mapping
 
-    def foreignNotes(self):
+    def foreignNotes(self) -> List:
         "Return a list of foreign notes for importing."
         return []
 
-    def open(self):
+    def open(self) -> None:
         "Open file and ensure it's in the right format."
         return
 
-    def importNotes(self, notes):
+    def importNotes(self, notes) -> None:
         "Convert each card into a note, apply attributes and add to col."
         assert self.mappingOk()
         # note whether tags are mapped
@@ -219,7 +220,7 @@ This can happen when you have empty fields or when you have not mapped the \
 content in the text file to the correct fields."""))
         self.total = len(self._ids)
 
-    def newData(self, n):
+    def newData(self, n) -> Optional[list]:
         id = self._nextID
         self._nextID += 1
         self._ids.append(id)
@@ -233,12 +234,12 @@ content in the text file to the correct fields."""))
                 intTime(), self.col.usn(), self.col.tags.join(n.tags),
                 n.fieldsStr, "", "", 0, ""]
 
-    def addNew(self, rows):
+    def addNew(self, rows) -> None:
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
 
-    def updateData(self, n, id, sflds):
+    def updateData(self, n, id, sflds) -> Optional[list]:
         self._ids.append(id)
         if not self.processFields(n, sflds):
             return
@@ -251,7 +252,7 @@ content in the text file to the correct fields."""))
             return [intTime(), self.col.usn(), n.fieldsStr,
                     id, n.fieldsStr]
 
-    def addUpdates(self, rows):
+    def addUpdates(self, rows) -> None:
         old = self.col.db.totalChanges()
         if self._tagsMapped:
             self.col.db.executemany("""
@@ -263,7 +264,7 @@ update notes set mod = ?, usn = ?, flds = ?
 where id = ? and flds != ?""", rows)
         self.updateCount = self.col.db.totalChanges() - old
 
-    def processFields(self, note, fields=None):
+    def processFields(self, note, fields=None) -> Any:
         if not fields:
             fields = [""]*len(self.model['flds'])
         for c, f in enumerate(self.mapping):
@@ -280,7 +281,7 @@ where id = ? and flds != ?""", rows)
             self._emptyNotes = True
         return ords
 
-    def updateCards(self):
+    def updateCards(self) -> None:
         data = []
         for nid, ord, c in self._cards:
             data.append((c.ivl, c.due, c.factor, c.reps, c.lapses, nid, ord))

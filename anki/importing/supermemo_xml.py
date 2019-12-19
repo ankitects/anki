@@ -13,6 +13,7 @@ from anki.lang import ngettext
 from xml.dom import minidom
 from string import capwords
 import re, unicodedata, time
+from typing import Any, List
 
 class SmartDict(dict):
     """
@@ -25,7 +26,7 @@ class SmartDict(dict):
     x.get('first_name').
     """
 
-    def __init__(self, *a, **kw):
+    def __init__(self, *a, **kw) -> None:
         if a:
             if isinstance(type(a[0]), dict):
                 kw.update(a[0])
@@ -119,17 +120,17 @@ class SupermemoXmlImporter(NoteImporter):
 
     ## TOOLS
 
-    def _fudgeText(self, text):
+    def _fudgeText(self, text) -> Any:
         "Replace sm syntax to Anki syntax"
         text = text.replace("\n\r", "<br>")
         text = text.replace("\n", "<br>")
         return text
 
-    def _unicode2ascii(self,str):
+    def _unicode2ascii(self,str) -> str:
         "Remove diacritic punctuation from strings (titles)"
         return "".join([ c for c in unicodedata.normalize('NFKD', str) if not unicodedata.combining(c)])
 
-    def _decode_htmlescapes(self,s):
+    def _decode_htmlescapes(self,s) -> str:
         """Unescape HTML code."""
         #In case of bad formated html you can import MinimalSoup etc.. see btflsoup source code
         from bs4 import BeautifulSoup as btflsoup
@@ -142,7 +143,7 @@ class SupermemoXmlImporter(NoteImporter):
 
         return str(btflsoup(s, "html.parser"))
 
-    def _afactor2efactor(self, af):
+    def _afactor2efactor(self, af) -> Any:
         # Adapted from <http://www.supermemo.com/beta/xml/xml-core.htm>
 
         # Ranges for A-factors and E-factors
@@ -166,7 +167,7 @@ class SupermemoXmlImporter(NoteImporter):
 
     ## DEFAULT IMPORTER METHODS
 
-    def foreignNotes(self):
+    def foreignNotes(self) -> List[ForeignNote]:
 
         # Load file and parse it by minidom
         self.loadSource(self.file)
@@ -187,7 +188,7 @@ class SupermemoXmlImporter(NoteImporter):
 
     ## PARSER METHODS
 
-    def addItemToCards(self,item):
+    def addItemToCards(self,item) -> None:
         "This method actually do conversion"
 
         # new anki card
@@ -247,7 +248,7 @@ class SupermemoXmlImporter(NoteImporter):
 
         self.notes.append(note)
 
-    def logger(self,text,level=1):
+    def logger(self,text,level=1) -> None:
         "Wrapper for Anki logger"
 
         dLevels={0:'',1:'Info',2:'Verbose',3:'Debug'}
@@ -259,7 +260,7 @@ class SupermemoXmlImporter(NoteImporter):
 
 
     # OPEN AND LOAD
-    def openAnything(self,source):
+    def openAnything(self,source) -> Any:
         "Open any source / actually only openig of files is used"
 
         if source == "-":
@@ -282,7 +283,7 @@ class SupermemoXmlImporter(NoteImporter):
         import io
         return io.StringIO(str(source))
 
-    def loadSource(self, source):
+    def loadSource(self, source) -> None:
         """Load source file and parse with xml.dom.minidom"""
         self.source = source
         self.logger('Load started...')
@@ -293,7 +294,7 @@ class SupermemoXmlImporter(NoteImporter):
 
 
     # PARSE
-    def parse(self, node=None):
+    def parse(self, node=None) -> None:
         "Parse method - parses document elements"
 
         if node is None and self.xmldoc is not None:
@@ -306,12 +307,12 @@ class SupermemoXmlImporter(NoteImporter):
         else:
             self.logger('No handler for method %s' % _method, level=3)
 
-    def parse_Document(self, node):
+    def parse_Document(self, node) -> None:
         "Parse XML document"
 
         self.parse(node.documentElement)
 
-    def parse_Element(self, node):
+    def parse_Element(self, node) -> None:
         "Parse XML element"
 
         _method = "do_%s" % node.tagName
@@ -322,7 +323,7 @@ class SupermemoXmlImporter(NoteImporter):
             self.logger('No handler for method %s' % _method, level=3)
             #print traceback.print_exc()
 
-    def parse_Text(self, node):
+    def parse_Text(self, node) -> None:
         "Parse text inside elements. Text is stored into local buffer."
 
         text = node.data
@@ -336,12 +337,12 @@ class SupermemoXmlImporter(NoteImporter):
 
 
     # DO
-    def do_SuperMemoCollection(self, node):
+    def do_SuperMemoCollection(self, node) -> None:
         "Process SM Collection"
 
         for child in node.childNodes: self.parse(child)
 
-    def do_SuperMemoElement(self, node):
+    def do_SuperMemoElement(self, node) -> None:
         "Process SM Element (Type - Title,Topics)"
 
         self.logger('='*45, level=3)
@@ -391,14 +392,14 @@ class SupermemoXmlImporter(NoteImporter):
                 t = self.cntMeta['title'].pop()
                 self.logger('End of topic \t- %s' % (t), level=2)
 
-    def do_Content(self, node):
+    def do_Content(self, node) -> None:
         "Process SM element Content"
 
         for child in node.childNodes:
             if hasattr(child,'tagName') and child.firstChild is not None:
                 self.cntElm[-1][child.tagName]=child.firstChild.data
 
-    def do_LearningData(self, node):
+    def do_LearningData(self, node) -> None:
         "Process SM element LearningData"
 
         for child in node.childNodes:
@@ -415,7 +416,7 @@ class SupermemoXmlImporter(NoteImporter):
     #    for child in node.childNodes: self.parse(child)
     #    self.cntElm[-1][node.tagName]=self.cntBuf.pop()
 
-    def do_Title(self, node):
+    def do_Title(self, node) -> None:
         "Process SM element Title"
 
         t = self._decode_htmlescapes(node.firstChild.data)
@@ -425,7 +426,7 @@ class SupermemoXmlImporter(NoteImporter):
         self.logger('Start of topic \t- ' + " / ".join(self.cntMeta['title']), level=2)
 
 
-    def do_Type(self, node):
+    def do_Type(self, node) -> None:
         "Process SM element Type"
 
         if len(self.cntBuf) >=1 :

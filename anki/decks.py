@@ -11,6 +11,7 @@ from anki.hooks import runHook
 from anki.consts import *
 from anki.lang import _
 from anki.errors import DeckRenameError
+from typing import Any, Dict, List, Optional, Tuple
 
 # fixmes:
 # - make sure users can't set grad interval < 1
@@ -94,12 +95,12 @@ class DeckManager:
     # Registry save/load
     #############################################################
 
-    def __init__(self, col):
+    def __init__(self, col) -> None:
         self.col = col
         self.decks = {}
         self.dconf = {}
 
-    def load(self, decks, dconf):
+    def load(self, decks, dconf) -> None:
         self.decks = json.loads(decks)
         self.dconf = json.loads(dconf)
         # set limits to within bounds
@@ -114,14 +115,14 @@ class DeckManager:
         if not found:
             self.changed = False
 
-    def save(self, g=None):
+    def save(self, g=None) -> None:
         "Can be called with either a deck or a deck configuration."
         if g:
             g['mod'] = intTime()
             g['usn'] = self.col.usn()
         self.changed = True
 
-    def flush(self):
+    def flush(self) -> None:
         if self.changed:
             self.col.db.execute("update col set decks=?, dconf=?",
                                  json.dumps(self.decks),
@@ -131,7 +132,7 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name, create=True, type=None):
+    def id(self, name, create=True, type=None) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         if type is None:
             type = defaultDeck
@@ -158,7 +159,7 @@ class DeckManager:
         runHook("newDeck")
         return int(id)
 
-    def rem(self, did, cardsToo=False, childrenToo=True):
+    def rem(self, did, cardsToo=False, childrenToo=True) -> None:
         "Remove the deck. If cardsToo, delete any cards inside."
         if str(did) == '1':
             # we won't allow the default deck to be deleted, but if it's a
@@ -208,58 +209,58 @@ class DeckManager:
             self.select(int(list(self.decks.keys())[0]))
         self.save()
 
-    def allNames(self, dyn=True, forceDefault=True):
+    def allNames(self, dyn=True, forceDefault=True) -> List:
         "An unsorted list of all deck names."
         if dyn:
             return [x['name'] for x in self.all(forceDefault=forceDefault)]
         else:
             return [x['name'] for x in self.all(forceDefault=forceDefault) if not x['dyn']]
 
-    def all(self, forceDefault=True):
+    def all(self, forceDefault=True) -> List:
         "A list of all decks."
         decks = list(self.decks.values())
         if not forceDefault and not self.col.db.scalar("select 1 from cards where did = 1 limit 1") and len(decks)>1:
             decks = [deck for deck in decks if deck['id'] != 1]
         return decks
 
-    def allIds(self):
+    def allIds(self) -> List[str]:
         return list(self.decks.keys())
 
-    def collapse(self, did):
+    def collapse(self, did) -> None:
         deck = self.get(did)
         deck['collapsed'] = not deck['collapsed']
         self.save(deck)
 
-    def collapseBrowser(self, did):
+    def collapseBrowser(self, did) -> None:
         deck = self.get(did)
         collapsed = deck.get('browserCollapsed', False)
         deck['browserCollapsed'] = not collapsed
         self.save(deck)
 
-    def count(self):
+    def count(self) -> int:
         return len(self.decks)
 
-    def get(self, did, default=True):
+    def get(self, did, default=True) -> Any:
         id = str(did)
         if id in self.decks:
             return self.decks[id]
         elif default:
             return self.decks['1']
 
-    def byName(self, name):
+    def byName(self, name) -> Any:
         """Get deck with NAME, ignoring case."""
         for m in list(self.decks.values()):
             if self.equalName(m['name'], name):
                 return m
 
-    def update(self, g):
+    def update(self, g) -> None:
         "Add or update an existing deck. Used for syncing and merging."
         self.decks[str(g['id'])] = g
         self.maybeAddToActive()
         # mark registry changed, but don't bump mod time
         self.save()
 
-    def rename(self, g, newName):
+    def rename(self, g, newName) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
         if self.byName(newName):
@@ -284,7 +285,7 @@ class DeckManager:
         # renaming may have altered active did order
         self.maybeAddToActive()
 
-    def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid):
+    def renameForDragAndDrop(self, draggedDeckDid, ontoDeckDid) -> None:
         draggedDeck = self.get(draggedDeckDid)
         draggedDeckName = draggedDeck['name']
         ontoDeckName = self.get(ontoDeckDid)['name']
@@ -299,7 +300,7 @@ class DeckManager:
             assert ontoDeckName.strip()
             self.rename(draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName))
 
-    def _canDragAndDrop(self, draggedDeckName, ontoDeckName):
+    def _canDragAndDrop(self, draggedDeckName, ontoDeckName) -> bool:
         if draggedDeckName == ontoDeckName \
             or self._isParent(ontoDeckName, draggedDeckName) \
             or self._isAncestor(draggedDeckName, ontoDeckName):
@@ -307,19 +308,19 @@ class DeckManager:
         else:
             return True
 
-    def _isParent(self, parentDeckName, childDeckName):
+    def _isParent(self, parentDeckName, childDeckName) -> Any:
         return self._path(childDeckName) == self._path(parentDeckName) + [ self._basename(childDeckName) ]
 
-    def _isAncestor(self, ancestorDeckName, descendantDeckName):
+    def _isAncestor(self, ancestorDeckName, descendantDeckName) -> Any:
         ancestorPath = self._path(ancestorDeckName)
         return ancestorPath == self._path(descendantDeckName)[0:len(ancestorPath)]
 
-    def _path(self, name):
+    def _path(self, name) -> Any:
         return name.split("::")
-    def _basename(self, name):
+    def _basename(self, name) -> Any:
         return self._path(name)[-1]
 
-    def _ensureParents(self, name):
+    def _ensureParents(self, name) -> Any:
         "Ensure parents exist, and return name with case matching parents."
         s = ""
         path = self._path(name)
@@ -340,11 +341,11 @@ class DeckManager:
     # Deck configurations
     #############################################################
 
-    def allConf(self):
+    def allConf(self) -> List:
         "A list of all deck config."
         return list(self.dconf.values())
 
-    def confForDid(self, did):
+    def confForDid(self, did) -> Any:
         deck = self.get(did, default=False)
         assert deck
         if 'conf' in deck:
@@ -354,14 +355,14 @@ class DeckManager:
         # dynamic decks have embedded conf
         return deck
 
-    def getConf(self, confId):
+    def getConf(self, confId) -> Any:
         return self.dconf[str(confId)]
 
-    def updateConf(self, g):
+    def updateConf(self, g) -> None:
         self.dconf[str(g['id'])] = g
         self.save()
 
-    def confId(self, name, cloneFrom=None):
+    def confId(self, name, cloneFrom=None) -> int:
         "Create a new configuration and return id."
         if cloneFrom is None:
             cloneFrom = defaultConf
@@ -376,7 +377,7 @@ class DeckManager:
         self.save(c)
         return id
 
-    def remConf(self, id):
+    def remConf(self, id) -> None:
         "Remove a configuration and update all decks using it."
         assert int(id) != 1
         self.col.modSchema(check=True)
@@ -389,18 +390,18 @@ class DeckManager:
                 g['conf'] = 1
                 self.save(g)
 
-    def setConf(self, grp, id):
+    def setConf(self, grp, id) -> None:
         grp['conf'] = id
         self.save(grp)
 
-    def didsForConf(self, conf):
+    def didsForConf(self, conf) -> List:
         dids = []
         for deck in list(self.decks.values()):
             if 'conf' in deck and deck['conf'] == conf['id']:
                 dids.append(deck['id'])
         return dids
 
-    def restoreToDefault(self, conf):
+    def restoreToDefault(self, conf) -> None:
         oldOrder = conf['new']['order']
         new = copy.deepcopy(defaultConf)
         new['id'] = conf['id']
@@ -414,29 +415,29 @@ class DeckManager:
     # Deck utils
     #############################################################
 
-    def name(self, did, default=False):
+    def name(self, did, default=False) -> Any:
         deck = self.get(did, default=default)
         if deck:
             return deck['name']
         return _("[no deck]")
 
-    def nameOrNone(self, did):
+    def nameOrNone(self, did) -> Any:
         deck = self.get(did, default=False)
         if deck:
             return deck['name']
         return None
 
-    def setDeck(self, cids, did):
+    def setDeck(self, cids, did) -> None:
         self.col.db.execute(
             "update cards set did=?,usn=?,mod=? where id in "+
             ids2str(cids), did, self.col.usn(), intTime())
 
-    def maybeAddToActive(self):
+    def maybeAddToActive(self) -> None:
         # reselect current deck, or default if current has disappeared
         c = self.current()
         self.select(c['id'])
 
-    def cids(self, did, children=False):
+    def cids(self, did, children=False) -> Any:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
         dids = [did]
@@ -445,14 +446,14 @@ class DeckManager:
         return self.col.db.list("select id from cards where did in "+
                                 ids2str(dids))
 
-    def _recoverOrphans(self):
+    def _recoverOrphans(self) -> None:
         dids = list(self.decks.keys())
         mod = self.col.db.mod
         self.col.db.execute("update cards set did = 1 where did not in "+
                             ids2str(dids))
         self.col.db.mod = mod
 
-    def _checkDeckTree(self):
+    def _checkDeckTree(self) -> None:
         decks = self.col.decks.all()
         decks.sort(key=operator.itemgetter('name'))
         names = set()
@@ -480,25 +481,25 @@ class DeckManager:
 
             names.add(deck['name'])
 
-    def checkIntegrity(self):
+    def checkIntegrity(self) -> None:
         self._recoverOrphans()
         self._checkDeckTree()
 
     # Deck selection
     #############################################################
 
-    def active(self):
+    def active(self) -> Any:
         "The currrently active dids. Make sure to copy before modifying."
         return self.col.conf['activeDecks']
 
-    def selected(self):
+    def selected(self) -> Any:
         "The currently selected did."
         return self.col.conf['curDeck']
 
-    def current(self):
+    def current(self) -> Any:
         return self.get(self.selected())
 
-    def select(self, did):
+    def select(self, did) -> None:
         "Select a new branch."
         # make sure arg is an int
         did = int(did)
@@ -510,7 +511,7 @@ class DeckManager:
         self.col.conf['activeDecks'] = [did] + [a[1] for a in actv]
         self.changed = True
 
-    def children(self, did):
+    def children(self, did) -> List[Tuple[Any, Any]]:
         "All children of did, as (name, id)."
         name = self.get(did)['name']
         actv = []
@@ -519,7 +520,7 @@ class DeckManager:
                 actv.append((g['name'], g['id']))
         return actv
 
-    def childDids(self, did, childMap):
+    def childDids(self, did, childMap) -> List:
         def gather(node, arr):
             for did, child in node.items():
                 arr.append(did)
@@ -529,7 +530,7 @@ class DeckManager:
         gather(childMap[did], arr)
         return arr
 
-    def childMap(self):
+    def childMap(self) -> Dict[Any, Dict[Any, dict]]:
         nameMap = self.nameMap()
         childMap = {}
 
@@ -547,7 +548,7 @@ class DeckManager:
 
         return childMap
 
-    def parents(self, did, nameMap=None):
+    def parents(self, did, nameMap=None) -> List:
         "All parents of did."
         # get parent and grandparent names
         parents = []
@@ -565,7 +566,7 @@ class DeckManager:
             parents[c] = deck
         return parents
 
-    def parentsByName(self, name):
+    def parentsByName(self, name) -> List:
         "All existing parents of name"
         if "::" not in name:
             return []
@@ -581,13 +582,13 @@ class DeckManager:
 
         return parents
 
-    def nameMap(self):
+    def nameMap(self) -> dict:
         return dict((d['name'], d) for d in self.decks.values())
 
     # Sync handling
     ##########################################################################
 
-    def beforeUpload(self):
+    def beforeUpload(self) -> None:
         for d in self.all():
             d['usn'] = 0
         for c in self.allConf():
@@ -597,19 +598,19 @@ class DeckManager:
     # Dynamic decks
     ##########################################################################
 
-    def newDyn(self, name):
+    def newDyn(self, name) -> int:
         "Return a new dynamic deck and set it as the current deck."
         did = self.id(name, type=defaultDynamicDeck)
         self.select(did)
         return did
 
-    def isDyn(self, did):
+    def isDyn(self, did) -> Any:
         return self.get(did)['dyn']
 
     @staticmethod
-    def normalizeName(name):
+    def normalizeName(name) -> str:
         return unicodedata.normalize("NFC", name.lower())
 
     @staticmethod
-    def equalName(name1, name2):
+    def equalName(name1, name2) -> bool:
         return DeckManager.normalizeName(name1) == DeckManager.normalizeName(name2)

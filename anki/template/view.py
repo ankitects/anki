@@ -1,6 +1,7 @@
 from .template import Template
 import os.path
 import re
+from typing import Any
 
 class View:
     # Path where this view's template(s) live
@@ -24,7 +25,7 @@ class View:
     # do any decoding of the template.
     template_encoding = None
 
-    def __init__(self, template=None, context=None, **kwargs):
+    def __init__(self, template=None, context=None, **kwargs) -> None:
         self.template = template
         self.context = context or {}
 
@@ -36,7 +37,7 @@ class View:
         if kwargs:
             self.context.update(kwargs)
 
-    def inherit_settings(self, view):
+    def inherit_settings(self, view) -> None:
         """Given another View, copies its settings."""
         if view.template_path:
             self.template_path = view.template_path
@@ -44,7 +45,7 @@ class View:
         if view.template_name:
             self.template_name = view.template_name
 
-    def load_template(self):
+    def load_template(self) -> Any:
         if self.template:
             return self.template
 
@@ -65,7 +66,7 @@ class View:
         raise IOError('"%s" not found in "%s"' % (name, ':'.join(self.template_path),))
 
 
-    def _load_template(self):
+    def _load_template(self) -> str:
         f = open(self.template_file, 'r')
         try:
             template = f.read()
@@ -75,7 +76,7 @@ class View:
             f.close()
         return template
 
-    def get_template_name(self, name=None):
+    def get_template_name(self, name=None) -> Any:
         """TemplatePartial => template_partial
         Takes a string but defaults to using the current class' name or
         the `template_name` attribute
@@ -91,16 +92,16 @@ class View:
 
         return re.sub('[A-Z]', repl, name)[1:]
 
-    def __contains__(self, needle):
+    def __contains__(self, needle) -> bool:
         return needle in self.context or hasattr(self, needle)
 
-    def __getitem__(self, attr):
+    def __getitem__(self, attr) -> Any:
         val = self.get(attr, None)
         if not val:
             raise KeyError("No such key.")
         return val
 
-    def get(self, attr, default):
+    def get(self, attr, default) -> Any:
         attr = self.context.get(attr, getattr(self, attr, default))
 
         if hasattr(attr, '__call__'):
@@ -108,9 +109,9 @@ class View:
         else:
             return attr
 
-    def render(self, encoding=None):
+    def render(self, encoding=None) -> str:
         template = self.load_template()
         return Template(template, self).render(encoding=encoding)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.render()

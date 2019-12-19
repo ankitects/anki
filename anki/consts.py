@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.lang import _
+from typing import Any, Dict
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
@@ -57,27 +58,27 @@ HELP_SITE="http://ankisrs.net/docs/manual.html"
 # Labels
 ##########################################################################
 
-def newCardOrderLabels():
+def newCardOrderLabels() -> Dict[int, Any]:
     return {
         0: _("Show new cards in random order"),
         1: _("Show new cards in order added")
         }
 
-def newCardSchedulingLabels():
+def newCardSchedulingLabels() -> Dict[int, Any]:
     return {
         0: _("Mix new cards and reviews"),
         1: _("Show new cards after reviews"),
         2: _("Show new cards before reviews"),
         }
 
-def alignmentLabels():
+def alignmentLabels() -> Dict[int, Any]:
     return {
         0: _("Center"),
         1: _("Left"),
         2: _("Right"),
         }
 
-def dynOrderLabels():
+def dynOrderLabels() -> Dict[int, Any]:
     return {
         0: _("Oldest seen first"),
         1: _("Random"),

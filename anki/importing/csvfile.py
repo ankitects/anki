@@ -7,6 +7,7 @@ import re
 
 from anki.importing.noteimp import NoteImporter, ForeignNote
 from anki.lang import _
+from typing import List
 
 
 class TextImporter(NoteImporter):
@@ -22,7 +23,7 @@ class TextImporter(NoteImporter):
         self.tagsToAdd = []
         self.numFields = 0
 
-    def foreignNotes(self):
+    def foreignNotes(self) -> List[ForeignNote]:
         self.open()
         # process all lines
         log = []
@@ -60,12 +61,12 @@ class TextImporter(NoteImporter):
         # load & look for the right pattern
         self.cacheFile()
 
-    def cacheFile(self):
+    def cacheFile(self) -> None:
         "Read file into self.lines if not already there."
         if not self.fileobj:
             self.openFile()
 
-    def openFile(self):
+    def openFile(self) -> None:
         self.dialect = None
         self.fileobj = open(self.file, "r", encoding='utf-8-sig')
         self.data = self.fileobj.read()
@@ -81,7 +82,7 @@ class TextImporter(NoteImporter):
         if not self.dialect and not self.delimiter:
             raise Exception("unknownFormat")
 
-    def updateDelimiter(self):
+    def updateDelimiter(self) -> None:
         def err():
             raise Exception("unknownFormat")
         self.dialect = None
@@ -126,7 +127,7 @@ class TextImporter(NoteImporter):
         self.open()
         return self.numFields
 
-    def noteFromFields(self, fields):
+    def noteFromFields(self, fields) -> ForeignNote:
         note = ForeignNote()
         note.fields.extend([x for x in fields])
         note.tags.extend(self.tagsToAdd)

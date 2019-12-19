@@ -5,11 +5,12 @@
 
 import re
 from anki.hooks import addHook
+from typing import Any, Callable
 
 r = r' ?([^ >]+?)\[(.+?)\]'
 ruby = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
 
-def noSound(repl):
+def noSound(repl) -> Callable[[Any], Any]:
     def func(match):
         if match.group(2).startswith("sound:"):
             # return without modification
@@ -18,19 +19,19 @@ def noSound(repl):
             return re.sub(r, repl, match.group(0))
     return func
 
-def _munge(s):
+def _munge(s) -> Any:
     return s.replace("&nbsp;", " ")
 
-def kanji(txt, *args):
+def kanji(txt, *args) -> str:
     return re.sub(r, noSound(r'\1'), _munge(txt))
 
-def kana(txt, *args):
+def kana(txt, *args) -> str:
     return re.sub(r, noSound(r'\2'), _munge(txt))
 
-def furigana(txt, *args):
+def furigana(txt, *args) -> str:
     return re.sub(r, noSound(ruby), _munge(txt))
 
-def install():
+def install() -> None:
     addHook('fmod_kanji', kanji)
     addHook('fmod_kana', kana)
     addHook('fmod_furigana', furigana)
