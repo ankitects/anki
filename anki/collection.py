@@ -31,6 +31,9 @@ import anki.template
 import anki.find
 from typing import Any, List, Optional, Tuple, Union, Dict
 
+from anki.cards import Card
+from anki.db import DB
+from anki.notes import Note
 defaultConf = {
     # review options
     'activeDecks': [1],
@@ -59,7 +62,7 @@ def timezoneOffset() -> int:
 # this is initialized by storage.Collection
 class _Collection:
 
-    def __init__(self, db, server=False, log=False) -> None:
+    def __init__(self, db: DB, server: bool = False, log: bool = False) -> None:
         self._debugLog = log
         self.db = db
         self.path = db._path
@@ -111,7 +114,7 @@ class _Collection:
 
         self.sched = Scheduler(self)
 
-    def changeSchedulerVer(self, ver) -> None:
+    def changeSchedulerVer(self, ver: int) -> None:
         if ver == self.schedVer():
             return
         if ver not in self.supportedSchedulerVersions:
@@ -162,7 +165,7 @@ DB operations and the deck/tag/model managers do this automatically, so this
 is only necessary if you modify properties of this object or the conf dict."""
         self.db.mod = True
 
-    def flush(self, mod=None) -> None:
+    def flush(self, mod: None = None) -> None:
         "Flush state to DB, updating mod time."
         self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
@@ -171,7 +174,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             self.crt, self.mod, self.scm, self.dty,
             self._usn, self.ls, json.dumps(self.conf))
 
-    def save(self, name=None, mod=None) -> None:
+    def save(self, name: Optional[str] = None, mod: None = None) -> None:
         "Flush, commit DB, and take out another write lock."
         # let the managers conditionally flush
         self.models.flush()
@@ -198,7 +201,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.db.execute("update col set mod=mod")
         self.db.mod = mod
 
-    def close(self, save=True) -> None:
+    def close(self, save: bool = True) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
@@ -227,7 +230,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.load()
         self.lock()
 
-    def modSchema(self, check) -> None:
+    def modSchema(self, check: bool) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
         if not self.schemaChanged():
             if check and not runFilter("modSchema", True):
@@ -264,16 +267,16 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Object creation helpers
     ##########################################################################
 
-    def getCard(self, id) -> anki.cards.Card:
+    def getCard(self, id: int) -> anki.cards.Card:
         return anki.cards.Card(self, id)
 
-    def getNote(self, id) -> anki.notes.Note:
+    def getNote(self, id: int) -> anki.notes.Note:
         return anki.notes.Note(self, id=id)
 
     # Utils
     ##########################################################################
 
-    def nextID(self, type, inc=True) -> Any:
+    def nextID(self, type: str, inc: bool = True) -> Any:
         type = "next"+type.capitalize()
         id = self.conf.get(type, 1)
         if inc:
@@ -287,7 +290,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Deletion logging
     ##########################################################################
 
-    def _logRem(self, ids, type) -> None:
+    def _logRem(self, ids: List[int], type: int) -> None:
         self.db.executemany("insert into graves values (%d, ?, %d)" % (
             self.usn(), type), ([x] for x in ids))
 
@@ -297,11 +300,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def noteCount(self) -> Any:
         return self.db.scalar("select count() from notes")
 
-    def newNote(self, forDeck=True) -> anki.notes.Note:
+    def newNote(self, forDeck: bool = True) -> anki.notes.Note:
         "Return a new note with the current model."
         return anki.notes.Note(self, self.models.current(forDeck))
 
-    def addNote(self, note) -> int:
+    def addNote(self, note: Note) -> int:
         "Add a note to the collection. Return number of new cards."
         # check we have card models available, then save
         cms = self.findTemplates(note)
@@ -321,7 +324,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.remCards(self.db.list("select id from cards where nid in "+
                                    ids2str(ids)))
 
-    def _remNotes(self, ids) -> None:
+    def _remNotes(self, ids: List[int]) -> None:
         "Bulk delete notes by ID. Don't call this directly."
         if not ids:
             return
@@ -335,13 +338,13 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Card creation
     ##########################################################################
 
-    def findTemplates(self, note) -> List:
+    def findTemplates(self, note: Note) -> List:
         "Return (active), non-empty templates."
         model = note.model()
         avail = self.models.availOrds(model, joinFields(note.fields))
         return self._tmplsFromOrds(model, avail)
 
-    def _tmplsFromOrds(self, model, avail) -> List:
+    def _tmplsFromOrds(self, model: Dict[str, Any], avail: List[int]) -> List:
         ok = []
         if model['type'] == MODEL_STD:
             for t in model['tmpls']:
@@ -355,7 +358,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 ok.append(t)
         return ok
 
-    def genCards(self, nids) -> List:
+    def genCards(self, nids: List[int]) -> List:
         "Generate cards for non-empty templates, return ids to remove."
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
@@ -429,7 +432,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     # type 0 - when previewing in add dialog, only non-empty
     # type 1 - when previewing edit, only existing
     # type 2 - when previewing in models dialog, all templates
-    def previewCards(self, note, type=0, did=None) -> List:
+    def previewCards(self, note: Note, type: int = 0, did: None = None) -> List:
         if type == 0:
             cms = self.findTemplates(note)
         elif type == 1:
@@ -443,7 +446,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             cards.append(self._newCard(note, template, 1, flush=False, did=did))
         return cards
 
-    def _newCard(self, note, template, due, flush=True, did=None) -> anki.cards.Card:
+    def _newCard(self, note: Note, template: Dict[str, Any], due: int, flush: bool = True, did: None = None) -> anki.cards.Card:
         "Create a new card."
         card = anki.cards.Card(self)
         card.nid = note.id
@@ -470,7 +473,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             card.flush()
         return card
 
-    def _dueForDid(self, did, due: int) -> int:
+    def _dueForDid(self, did: int, due: int) -> int:
         conf = self.decks.confForDid(did)
         # in order due?
         if conf['new']['order'] == NEW_CARDS_DUE:
@@ -491,7 +494,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remCards(self, ids, notes=True) -> None:
+    def remCards(self, ids: List[int], notes: bool = True) -> None:
         "Bulk delete cards by ID."
         if not ids:
             return
@@ -526,11 +529,11 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
     # Field checksums and sorting fields
     ##########################################################################
 
-    def _fieldData(self, snids) -> Any:
+    def _fieldData(self, snids: str) -> Any:
         return self.db.execute(
             "select id, mid, flds from notes where id in "+snids)
 
-    def updateFieldCache(self, nids) -> None:
+    def updateFieldCache(self, nids: List[int]) -> None:
         "Update field checksums and sort cache, after find&replace, etc."
         snids = ids2str(nids)
         r = []
@@ -564,7 +567,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         return [self._renderQA(row)
                 for row in self._qaData(where)]
 
-    def _renderQA(self, data, qfmt=None, afmt=None) -> Dict:
+    def _renderQA(self, data: Tuple[int,int,int,int,int,str,str,int], qfmt: None = None, afmt: None = None) -> Dict:
         "Returns hash of id, question, answer."
         # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
         # unpack fields and create dict
@@ -619,7 +622,7 @@ from cards c, notes f
 where c.nid == f.id
 %s""" % where)
 
-    def _flagNameFromCardFlags(self, flags) -> str:
+    def _flagNameFromCardFlags(self, flags: int) -> str:
         flag = flags & 0b111
         if not flag:
             return ""
@@ -628,22 +631,22 @@ where c.nid == f.id
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query, order=False) -> Any:
+    def findCards(self, query: str, order: Union[bool, str] = False) -> Any:
         return anki.find.Finder(self).findCards(query, order)
 
-    def findNotes(self, query) -> Any:
+    def findNotes(self, query: str) -> Any:
         return anki.find.Finder(self).findNotes(query)
 
-    def findReplace(self, nids, src, dst, regex=None, field=None, fold=True) -> int:
+    def findReplace(self, nids: List[int], src: str, dst: str, regex: Optional[bool] = None, field: Optional[str] = None, fold: bool = True) -> int:
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
 
-    def findDupes(self, fieldName, search="") -> List[Tuple[Any, list]]:
+    def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
         return anki.find.findDupes(self, fieldName, search)
 
     # Stats
     ##########################################################################
 
-    def cardStats(self, card) -> str:
+    def cardStats(self, card: Card) -> str:
         from anki.stats import CardStats
         return CardStats(self, card).report()
 
@@ -687,7 +690,7 @@ where c.nid == f.id
         else:
             self._undoOp()
 
-    def markReview(self, card) -> None:
+    def markReview(self, card: Card) -> None:
         old = []
         if self._undo:
             if self._undo[0] == 1:
@@ -724,7 +727,7 @@ where c.nid == f.id
         self.sched.reps -= 1
         return c.id
 
-    def _markOp(self, name) -> None:
+    def _markOp(self, name: Optional[str]) -> None:
         "Call via .save()"
         if name:
             self._undo = [2, name]
@@ -947,7 +950,7 @@ and type=0""", [intTime(), self.usn()])
     # Card Flags
     ##########################################################################
 
-    def setUserFlag(self, flag, cids) -> None:
+    def setUserFlag(self, flag: int, cids: List[int]) -> None:
         assert 0 <= flag <= 7
         self.db.execute("update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s" %
                         ids2str(cids), 0b111, flag, self.usn(), intTime())
