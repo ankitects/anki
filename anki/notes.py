@@ -4,11 +4,12 @@
 
 from anki.utils import fieldChecksum, intTime, \
     joinFields, splitFields, stripHTMLMedia, timestampID, guid64
-from typing import Any, List, Tuple
+from typing import List, Tuple
+from typing import Any, Optional
 
 class Note:
 
-    def __init__(self, col, model=None, id=None) -> None:
+    def __init__(self, col, model: Optional[Any] = None, id: Optional[int] = None) -> None:
         assert not (model and id)
         self.col = col
         self.newlyAdded = False
@@ -44,7 +45,7 @@ from notes where id = ?""", self.id)
         self._fmap = self.col.models.fieldMap(self._model)
         self.scm = self.col.scm
 
-    def flush(self, mod=None) -> None:
+    def flush(self, mod: Optional[int] = None) -> None:
         "If fields or tags have changed, write changes to disk."
         assert self.scm == self.col.scm
         self._preFlush()
@@ -90,16 +91,16 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         return [(f['name'], self.fields[ord])
                 for ord, f in sorted(self._fmap.values())]
 
-    def _fieldOrd(self, key) -> Any:
+    def _fieldOrd(self, key: str) -> Any:
         try:
             return self._fmap[key][0]
         except:
             raise KeyError(key)
 
-    def __getitem__(self, key) -> Any:
+    def __getitem__(self, key: str) -> Any:
         return self.fields[self._fieldOrd(key)]
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: str, value: str) -> None:
         self.fields[self._fieldOrd(key)] = value
 
     def __contains__(self, key) -> bool:
@@ -108,7 +109,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     # Tags
     ##################################################
 
-    def hasTag(self, tag) -> Any:
+    def hasTag(self, tag: str) -> Any:
         return self.col.tags.inList(tag, self.tags)
 
     def stringTags(self) -> Any:
@@ -125,7 +126,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         for r in rem:
             self.tags.remove(r)
 
-    def addTag(self, tag) -> None:
+    def addTag(self, tag: str) -> None:
         # duplicates will be stripped on save
         self.tags.append(tag)
 
