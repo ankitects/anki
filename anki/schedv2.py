@@ -13,7 +13,6 @@ from anki.utils import ids2str, intTime, fmtTimeSpan
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
-from typing import Any, List, Optional, Tuple
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -22,6 +21,9 @@ from typing import Any, List, Optional, Tuple
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 # odue/odid store original due/did when cards moved to filtered deck
 
+from anki.cards import Card
+#from anki.collection import _Collection
+from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 class Scheduler:
     name = "std2"
     haveCustomStudy = True
@@ -59,7 +61,7 @@ class Scheduler:
         self._resetNew()
         self._haveQueues = True
 
-    def answerCard(self, card, ease) -> None:
+    def answerCard(self, card: Card, ease: int) -> None:
         self.col.log()
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
@@ -74,7 +76,7 @@ class Scheduler:
         card.usn = self.col.usn()
         card.flushSched()
 
-    def _answerCard(self, card, ease) -> None:
+    def _answerCard(self, card: Card, ease: int) -> None:
         if self._previewingCard(card):
             self._answerCardPreview(card, ease)
             return
@@ -104,7 +106,7 @@ class Scheduler:
         if card.odue:
             card.odue = 0
 
-    def _answerCardPreview(self, card, ease) -> None:
+    def _answerCardPreview(self, card: Card, ease: int) -> None:
         assert 1 <= ease <= 2
 
         if ease == 1:
@@ -117,7 +119,7 @@ class Scheduler:
             self._restorePreviewCard(card)
             self._removeFromFiltered(card)
 
-    def counts(self, card=None) -> tuple:
+    def counts(self, card: None = None) -> tuple:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
@@ -142,12 +144,12 @@ order by due""" % self._deckLimit(),
         ret = [x[1] for x in sorted(daysd.items())]
         return ret
 
-    def countIdx(self, card) -> Any:
+    def countIdx(self, card: Card) -> Any:
         if card.queue in (3,4):
             return 1
         return card.queue
 
-    def answerButtons(self, card) -> int:
+    def answerButtons(self, card: Card) -> int:
         conf = self._cardConf(card)
         if card.odid and not conf['resched']:
             return 2
@@ -156,7 +158,7 @@ order by due""" % self._deckLimit(),
     # Rev/lrn/time daily stats
     ##########################################################################
 
-    def _updateStats(self, card, type, cnt=1) -> None:
+    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
         key = type+"Today"
         for g in ([self.col.decks.get(card.did)] +
                   self.col.decks.parents(card.did)):
@@ -175,7 +177,7 @@ order by due""" % self._deckLimit(),
             g['revToday'][1] -= rev
             self.col.decks.save(g)
 
-    def _walkingCount(self, limFn=None, cntFn=None) -> Any:
+    def _walkingCount(self, limFn: Optional[Callable] = None, cntFn: Optional[Callable] = None) -> Any:
         tot = 0
         pcounts = {}
         # for each of the active decks
@@ -249,7 +251,7 @@ order by due""" % self._deckLimit(),
     def deckDueTree(self) -> Any:
         return self._groupChildren(self.deckDueList())
 
-    def _groupChildren(self, grps) -> Tuple[Tuple[Any, Any, Any, Any, Any, Any], ...]:
+    def _groupChildren(self, grps: List[List]) -> Tuple[Tuple[Any, Any, Any, Any, Any, Any], ...]:
         # first, split the group names into components
         for g in grps:
             g[0] = g[0].split("::")
@@ -258,7 +260,7 @@ order by due""" % self._deckLimit(),
         # then run main function
         return self._groupChildrenMain(grps)
 
-    def _groupChildrenMain(self, grps) -> Tuple[Tuple[Any, Any, Any, Any, Any, Any], ...]:
+    def _groupChildrenMain(self, grps: List[List[Union[List[str], int]]]) -> Tuple[Tuple[Any, Any, Any, Any, Any, Any], ...]:
         tree = []
         # group and recurse
         def key(grp):
@@ -402,7 +404,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
 
-    def _deckNewLimit(self, did, fn=None) -> Any:
+    def _deckNewLimit(self, did: int, fn: None = None) -> Any:
         if not fn:
             fn = self._deckNewLimitSingle
         sel = self.col.decks.get(did)
@@ -416,7 +418,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
                 lim = min(rem, lim)
         return lim
 
-    def _newForDeck(self, did, lim) -> Any:
+    def _newForDeck(self, did: int, lim: int) -> Any:
         "New count for a single deck."
         if not lim:
             return 0
@@ -425,7 +427,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
 select count() from
 (select 1 from cards where did = ? and queue = 0 limit ?)""", did, lim)
 
-    def _deckNewLimitSingle(self, g) -> Any:
+    def _deckNewLimitSingle(self, g: Dict[str, Any]) -> Any:
         "Limit for deck without parent limits."
         if g['dyn']:
             return self.dynReportLimit
@@ -443,14 +445,14 @@ select id from cards where did in %s and queue = 0 limit ?)"""
     ##########################################################################
 
     # scan for any newly due learning cards every minute
-    def _updateLrnCutoff(self, force) -> bool:
+    def _updateLrnCutoff(self, force: bool) -> bool:
         nextCutoff = intTime() + self.col.conf['collapseTime']
         if nextCutoff - self._lrnCutoff > 60 or force:
             self._lrnCutoff = nextCutoff
             return True
         return False
 
-    def _maybeResetLrn(self, force) -> None:
+    def _maybeResetLrn(self, force: bool) -> None:
         if self._updateLrnCutoff(force):
             self._resetLrn()
 
@@ -493,7 +495,7 @@ limit %d""" % (self._deckLimit(), self.reportLimit), lim=cutoff)
         self._lrnQueue.sort()
         return self._lrnQueue
 
-    def _getLrnCard(self, collapse=False) -> Any:
+    def _getLrnCard(self, collapse: bool = False) -> Any:
         self._maybeResetLrn(force=collapse and self.lrnCount == 0)
         if self._fillLrn():
             cutoff = time.time()
@@ -535,7 +537,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
             self.lrnCount -= 1
             return self.col.getCard(self._lrnDayQueue.pop())
 
-    def _answerLrnCard(self, card, ease) -> None:
+    def _answerLrnCard(self, card: Card, ease: int) -> None:
         conf = self._lrnConf(card)
         if card.type in (2,3):
             type = 2
@@ -566,11 +568,11 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
-    def _updateRevIvlOnFail(self, card, conf) -> None:
+    def _updateRevIvlOnFail(self, card: Card, conf: Dict[str, Any]) -> None:
         card.lastIvl = card.ivl
         card.ivl = self._lapseIvl(card, conf)
 
-    def _moveToFirstStep(self, card, conf) -> Any:
+    def _moveToFirstStep(self, card: Card, conf: Dict[str, Any]) -> Any:
         card.left = self._startingLeft(card)
 
         # relearning card?
@@ -579,18 +581,18 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
         return self._rescheduleLrnCard(card, conf)
 
-    def _moveToNextStep(self, card, conf) -> None:
+    def _moveToNextStep(self, card: Card, conf: Dict[str, Any]) -> None:
         # decrement real left count and recalculate left today
         left = (card.left % 1000) - 1
         card.left = self._leftToday(conf['delays'], left)*1000 + left
 
         self._rescheduleLrnCard(card, conf)
 
-    def _repeatStep(self, card, conf) -> None:
+    def _repeatStep(self, card: Card, conf: Dict[str, Any]) -> None:
         delay = self._delayForRepeatingGrade(conf, card.left)
         self._rescheduleLrnCard(card, conf, delay=delay)
 
-    def _rescheduleLrnCard(self, card, conf, delay=None) -> Any:
+    def _rescheduleLrnCard(self, card: Card, conf: Dict[str, Any], delay: Optional[int] = None) -> Any:
         # normal delay for the current step?
         if delay is None:
             delay = self._delayForGrade(conf, card.left)
@@ -620,7 +622,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
             card.queue = 3
         return delay
 
-    def _delayForGrade(self, conf, left) -> Any:
+    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> Any:
         left = left % 1000
         try:
             delay = conf['delays'][-left]
@@ -632,7 +634,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 delay = 1
         return delay*60
 
-    def _delayForRepeatingGrade(self, conf, left) -> Any:
+    def _delayForRepeatingGrade(self, conf: Dict[str, Any], left: int) -> Any:
         # halfway between last and next
         delay1 = self._delayForGrade(conf, left)
         if len(conf['delays']) > 1:
@@ -642,13 +644,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         avg = (delay1+max(delay1, delay2))//2
         return avg
 
-    def _lrnConf(self, card) -> Any:
+    def _lrnConf(self, card: Card) -> Any:
         if card.type in (2, 3):
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
-    def _rescheduleAsRev(self, card, conf, early) -> None:
+    def _rescheduleAsRev(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
         lapse = card.type in (2,3)
 
         if lapse:
@@ -660,14 +662,14 @@ did = ? and queue = 3 and due <= ? limit ?""",
         if card.odid:
             self._removeFromFiltered(card)
 
-    def _rescheduleGraduatingLapse(self, card, early=False) -> None:
+    def _rescheduleGraduatingLapse(self, card: Card, early: bool = False) -> None:
         if early:
             card.ivl += 1
         card.due = self.today+card.ivl
         card.queue = 2
         card.type = 2
 
-    def _startingLeft(self, card) -> int:
+    def _startingLeft(self, card: Card) -> int:
         if card.type == 3:
             conf = self._lapseConf(card)
         else:
@@ -676,7 +678,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         tod = self._leftToday(conf['delays'], tot)
         return tot + tod*1000
 
-    def _leftToday(self, delays, left, now=None) -> int:
+    def _leftToday(self, delays: Union[List[int], List[Union[float, int]]], left: int, now: None = None) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
             now = intTime()
@@ -689,7 +691,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
             ok = i
         return ok+1
 
-    def _graduatingIvl(self, card, conf, early, fuzz=True) -> Any:
+    def _graduatingIvl(self, card: Card, conf: Dict[str, Any], early: bool, fuzz: bool = True) -> Any:
         if card.type in (2,3):
             bonus = early and 1 or 0
             return card.ivl + bonus
@@ -703,14 +705,14 @@ did = ? and queue = 3 and due <= ? limit ?""",
             ideal = self._fuzzedIvl(ideal)
         return ideal
 
-    def _rescheduleNew(self, card, conf, early) -> None:
+    def _rescheduleNew(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
         "Reschedule a new card that's graduated for the first time."
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today+card.ivl
         card.factor = conf['initialFactor']
         card.type = card.queue = 2
 
-    def _logLrn(self, card, ease, conf, leaving, type, lastLeft) -> None:
+    def _logLrn(self, card: Card, ease: int, conf: Dict[str, Any], leaving: bool, type: int, lastLeft: int) -> None:
         lastIvl = -(self._delayForGrade(conf, lastLeft))
         ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.left))
         def log():
@@ -725,7 +727,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
             time.sleep(0.01)
             log()
 
-    def _lrnForDeck(self, did) -> Any:
+    def _lrnForDeck(self, did: int) -> Any:
         cnt = self.col.db.scalar(
             """
 select count() from
@@ -745,7 +747,7 @@ and due <= ? limit ?)""",
         d = self.col.decks.get(self.col.decks.selected(), default=False)
         return self._deckRevLimitSingle(d)
 
-    def _deckRevLimitSingle(self, d, parentLimit=None) -> Any:
+    def _deckRevLimitSingle(self, d: Dict[str, Any], parentLimit: Optional[int] = None) -> Any:
         # invalid deck selected?
         if not d:
             return 0
@@ -766,7 +768,7 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
             return lim
 
-    def _revForDeck(self, did, lim, childMap) -> Any:
+    def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
         dids = [did] + self.col.decks.childDids(did, childMap)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
@@ -829,7 +831,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     # Answering a review card
     ##########################################################################
 
-    def _answerRevCard(self, card, ease) -> None:
+    def _answerRevCard(self, card: Card, ease: int) -> None:
         delay = 0
         early = card.odid and (card.odue > self.today)
         type = early and 3 or 1
@@ -841,7 +843,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
         self._logRev(card, ease, delay, type)
 
-    def _rescheduleLapse(self, card) -> Any:
+    def _rescheduleLapse(self, card: Card) -> Any:
         conf = self._lapseConf(card)
 
         card.lapses += 1
@@ -863,11 +865,11 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
         return delay
 
-    def _lapseIvl(self, card, conf) -> Any:
+    def _lapseIvl(self, card: Card, conf: Dict[str, Any]) -> Any:
         ivl = max(1, conf['minInt'], int(card.ivl*conf['mult']))
         return ivl
 
-    def _rescheduleRev(self, card, ease, early) -> None:
+    def _rescheduleRev(self, card: Card, ease: int, early: Union[bool, int]) -> None:
         # update interval
         card.lastIvl = card.ivl
         if early:
@@ -882,7 +884,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         # card leaves filtered deck
         self._removeFromFiltered(card)
 
-    def _logRev(self, card, ease, delay, type) -> None:
+    def _logRev(self, card: Card, ease: int, delay: int, type: int) -> None:
         def log():
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
@@ -899,7 +901,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     # Interval management
     ##########################################################################
 
-    def _nextRevIvl(self, card, ease, fuzz) -> int:
+    def _nextRevIvl(self, card: Card, ease: int, fuzz: bool) -> int:
         "Next review interval for CARD, given EASE."
         delay = self._daysLate(card)
         conf = self._revConf(card)
@@ -921,11 +923,11 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             (card.ivl + delay) * fct * conf['ease4'], conf, ivl3, fuzz)
         return ivl4
 
-    def _fuzzedIvl(self, ivl) -> int:
+    def _fuzzedIvl(self, ivl: int) -> int:
         min, max = self._fuzzIvlRange(ivl)
         return random.randint(min, max)
 
-    def _fuzzIvlRange(self, ivl) -> List:
+    def _fuzzIvlRange(self, ivl: int) -> List:
         if ivl < 2:
             return [1, 1]
         elif ivl == 2:
@@ -940,7 +942,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         fuzz = max(fuzz, 1)
         return [ivl-fuzz, ivl+fuzz]
 
-    def _constrainedIvl(self, ivl, conf, prev, fuzz) -> int:
+    def _constrainedIvl(self, ivl: Union[int, float], conf: Dict[str, Any], prev: int, fuzz: bool) -> int:
         ivl = int(ivl * conf.get('ivlFct', 1))
         if fuzz:
             ivl = self._fuzzedIvl(ivl)
@@ -948,19 +950,19 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         ivl = min(ivl, conf['maxIvl'])
         return int(ivl)
 
-    def _daysLate(self, card) -> Any:
+    def _daysLate(self, card: Card) -> Any:
         "Number of days later than scheduled."
         due = card.odue if card.odid else card.due
         return max(0, self.today - due)
 
-    def _updateRevIvl(self, card, ease) -> None:
+    def _updateRevIvl(self, card: Card, ease: int) -> None:
         card.ivl = self._nextRevIvl(card, ease, fuzz=True)
 
-    def _updateEarlyRevIvl(self, card, ease) -> None:
+    def _updateEarlyRevIvl(self, card: Card, ease: int) -> None:
         card.ivl = self._earlyReviewIvl(card, ease)
 
     # next interval for card when answered early+correctly
-    def _earlyReviewIvl(self, card, ease) -> int:
+    def _earlyReviewIvl(self, card: Card, ease: int) -> int:
         assert card.odid and card.type == 2
         assert card.factor
         assert ease > 1
@@ -998,7 +1000,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     # Dynamic deck handling
     ##########################################################################
 
-    def rebuildDyn(self, did=None) -> Optional[int]:
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -1012,7 +1014,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         self.col.decks.select(did)
         return cnt
 
-    def _fillDyn(self, deck) -> int:
+    def _fillDyn(self, deck: Dict[str, Any]) -> int:
         start = -100000
         total = 0
         for search, limit, order in deck['terms']:
@@ -1030,7 +1032,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             total += len(ids)
         return total
 
-    def emptyDyn(self, did, lim=None) -> None:
+    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
         if not lim:
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
@@ -1041,10 +1043,10 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             self._restoreQueueSnippet, lim),
                             self.col.usn())
 
-    def remFromDyn(self, cids) -> None:
+    def remFromDyn(self, cids: List[int]) -> None:
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
-    def _dynOrder(self, o, l) -> str:
+    def _dynOrder(self, o: int, l: int) -> str:
         if o == DYN_OLDEST:
             t = "(select max(id) from revlog where cid=c.id)"
         elif o == DYN_RANDOM:
@@ -1066,7 +1068,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             t = "c.due, c.ord"
         return t + " limit %d" % l
 
-    def _moveToDyn(self, did, ids, start=-100000) -> None:
+    def _moveToDyn(self, did: int, ids: List[int], start: int = -100000) -> None:
         deck = self.col.decks.get(did)
         data = []
         u = self.col.usn()
@@ -1090,13 +1092,13 @@ where id = ?
 """ % queue
         self.col.db.executemany(query, data)
 
-    def _removeFromFiltered(self, card) -> None:
+    def _removeFromFiltered(self, card: Card) -> None:
         if card.odid:
             card.did = card.odid
             card.odue = 0
             card.odid = 0
 
-    def _restorePreviewCard(self, card) -> None:
+    def _restorePreviewCard(self, card: Card) -> None:
         assert card.odid
 
         card.due = card.odue
@@ -1114,7 +1116,7 @@ where id = ?
     # Leeches
     ##########################################################################
 
-    def _checkLeech(self, card, conf) -> Optional[bool]:
+    def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> Optional[bool]:
         "Leech handler. True if card was a leech."
         lf = conf['leechFails']
         if not lf:
@@ -1137,10 +1139,10 @@ where id = ?
     # Tools
     ##########################################################################
 
-    def _cardConf(self, card) -> Any:
+    def _cardConf(self, card: Card) -> Any:
         return self.col.decks.confForDid(card.did)
 
-    def _newConf(self, card) -> Any:
+    def _newConf(self, card: Card) -> Any:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:
@@ -1159,7 +1161,7 @@ where id = ?
             perDay=self.reportLimit
         )
 
-    def _lapseConf(self, card) -> Any:
+    def _lapseConf(self, card: Card) -> Any:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:
@@ -1177,7 +1179,7 @@ where id = ?
             resched=conf['resched'],
         )
 
-    def _revConf(self, card) -> Any:
+    def _revConf(self, card: Card) -> Any:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:
@@ -1188,11 +1190,11 @@ where id = ?
     def _deckLimit(self) -> str:
         return ids2str(self.col.decks.active())
 
-    def _previewingCard(self, card) -> Any:
+    def _previewingCard(self, card: Card) -> Any:
         conf = self._cardConf(card)
         return conf['dyn'] and not conf['resched']
 
-    def _previewDelay(self, card) -> Any:
+    def _previewDelay(self, card: Card) -> Any:
         return self._cardConf(card).get("previewDelay", 10)*60
 
     # Daily cutoff
@@ -1310,7 +1312,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
     # Next time reports
     ##########################################################################
 
-    def nextIvlStr(self, card, ease, short=False) -> Any:
+    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> Any:
         "Return the next interval for CARD as a string."
         ivl = self.nextIvl(card, ease)
         if not ivl:
@@ -1320,7 +1322,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             s = "<"+s
         return s
 
-    def nextIvl(self, card, ease) -> Any:
+    def nextIvl(self, card: Card, ease: int) -> Any:
         "Return the next interval for CARD, in seconds."
         # preview mode?
         if self._previewingCard(card):
@@ -1346,7 +1348,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
                 return self._nextRevIvl(card, ease, fuzz=False)*86400
 
     # this isn't easily extracted from the learn code
-    def _nextLrnIvl(self, card, ease) -> Any:
+    def _nextLrnIvl(self, card: Card, ease: int) -> Any:
         if card.queue == 0:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
@@ -1378,14 +1380,14 @@ else
 end)    
 """
 
-    def suspendCards(self, ids) -> None:
+    def suspendCards(self, ids: List[int]) -> None:
         "Suspend cards."
         self.col.log(ids)
         self.col.db.execute(
             "update cards set queue=-1,mod=?,usn=? where id in "+
             ids2str(ids), intTime(), self.col.usn())
 
-    def unsuspendCards(self, ids) -> None:
+    def unsuspendCards(self, ids: List[int]) -> None:
         "Unsuspend cards."
         self.col.log(ids)
         self.col.db.execute(
@@ -1393,7 +1395,7 @@ end)
             "where queue = -1 and id in %s") % (self._restoreQueueSnippet, ids2str(ids)),
             intTime(), self.col.usn())
 
-    def buryCards(self, cids, manual=True) -> None:
+    def buryCards(self, cids: List[int], manual: bool = True) -> None:
         queue = manual and -3 or -2
         self.col.log(cids)
         self.col.db.execute("""
@@ -1413,7 +1415,7 @@ update cards set queue=?,mod=?,usn=? where id in """+ids2str(cids),
         self.col.db.execute(
             "update cards set %s where queue in (-2, -3)" % self._restoreQueueSnippet)
 
-    def unburyCardsForDeck(self, type="all") -> None:
+    def unburyCardsForDeck(self, type: str = "all") -> None:
         if type == "all":
             queue = "queue in (-2, -3)"
         elif type == "manual":
@@ -1434,7 +1436,7 @@ update cards set queue=?,mod=?,usn=? where id in """+ids2str(cids),
     # Sibling spacing
     ##########################################################################
 
-    def _burySiblings(self, card) -> None:
+    def _burySiblings(self, card: Card) -> None:
         toBury = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
@@ -1468,7 +1470,7 @@ and (queue=0 or (queue=2 and due<=?))""",
     # Resetting
     ##########################################################################
 
-    def forgetCards(self, ids) -> None:
+    def forgetCards(self, ids: List[int]) -> None:
         "Put cards at the end of the new queue."
         self.remFromDyn(ids)
         self.col.db.execute(
@@ -1480,7 +1482,7 @@ and (queue=0 or (queue=2 and due<=?))""",
         self.sortCards(ids, start=pmax+1)
         self.col.log(ids)
 
-    def reschedCards(self, ids, imin, imax) -> None:
+    def reschedCards(self, ids: List[int], imin: int, imax: int) -> None:
         "Put cards in review queue with a new interval in days (min, max)."
         d = []
         t = self.today
@@ -1496,7 +1498,7 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
                                 d)
         self.col.log(ids)
 
-    def resetCards(self, ids) -> None:
+    def resetCards(self, ids: List[int]) -> None:
         "Completely reset cards for export."
         sids = ids2str(ids)
         # we want to avoid resetting due number of existing new cards on export
@@ -1515,7 +1517,7 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
     # Repositioning new cards
     ##########################################################################
 
-    def sortCards(self, cids, start=1, step=1, shuffle=False, shift=False) -> None:
+    def sortCards(self, cids: List[int], start: int = 1, step: int = 1, shuffle: bool = False, shift: bool = False) -> None:
         scids = ids2str(cids)
         now = intTime()
         nids = []
@@ -1555,11 +1557,11 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
         self.col.db.executemany(
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d)
 
-    def randomizeCards(self, did) -> None:
+    def randomizeCards(self, did: int) -> None:
         cids = self.col.db.list("select id from cards where did = ?", did)
         self.sortCards(cids, shuffle=True)
 
-    def orderCards(self, did) -> None:
+    def orderCards(self, did: int) -> None:
         cids = self.col.db.list("select id from cards where did = ? order by id", did)
         self.sortCards(cids)
 
@@ -1571,7 +1573,7 @@ and due >= ? and queue = 0""" % scids, now, self.col.usn(), shiftby, low)
                 self.orderCards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did=None) -> None:
+    def maybeRandomizeDeck(self, did: Optional[int] = None) -> None:
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.confForDid(did)
@@ -1594,7 +1596,7 @@ else type end),
 due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                             self.col.usn())
 
-    def _removeAllFromLearning(self, schedVer=2) -> None:
+    def _removeAllFromLearning(self, schedVer: int = 2) -> None:
         # remove review cards from relearning
         if schedVer == 1:
             self.col.db.execute("""
@@ -1630,7 +1632,7 @@ where queue < 0""" % (intTime(), self.col.usn()))
 
     # adding 'hard' in v2 scheduler means old ease entries need shifting
     # up or down
-    def _remapLearningAnswers(self, sql) -> None:
+    def _remapLearningAnswers(self, sql: str) -> None:
         self.col.db.execute("update revlog set %s and type in (0,2)" % sql)
 
     def moveToV1(self) -> None:
