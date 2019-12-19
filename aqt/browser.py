@@ -413,18 +413,15 @@ class SidebarModel(QAbstractItemModel):
         self.root = root
         self.iconCache: Dict[str, QIcon] = {}
 
+    # Qt API
+    ######################################################################
+
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         if not parent.isValid():
             return len(self.root.children)
         else:
             item: SidebarItem = parent.internalPointer()
             return len(item.children)
-
-    def hasChildren(self, parent: QModelIndex = QModelIndex()) -> bool:
-        if not parent.isValid():
-            return True
-        item: SidebarItem = parent.internalPointer()
-        return len(item.children) > 0
 
     def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return 1
@@ -472,12 +469,41 @@ class SidebarModel(QAbstractItemModel):
         else:
             return QVariant(self.iconFromRef(item.icon))
 
+    # Helpers
+    ######################################################################
+
     def iconFromRef(self, iconRef: str) -> QIcon:
         icon = self.iconCache.get(iconRef)
         if icon is None:
             icon = QIcon(iconRef)
             self.iconCache[iconRef] = icon
         return icon
+
+    def expandWhereNeccessary(self, tree: QTreeView) -> None:
+        for row, child in enumerate(self.root.children):
+            if child.expanded:
+                idx = self.index(row, 0, QModelIndex())
+                self._expandWhereNeccessary(idx, tree)
+
+    def _expandWhereNeccessary(self, parent: QModelIndex, tree: QTreeView) -> None:
+        if not parent.isValid():
+            parentItem = self.root
+        else:
+            parentItem: SidebarItem = parent.internalPointer()
+
+        # nothing to do?
+        if not parentItem.expanded:
+            return
+
+        # expand children
+        for row, child in enumerate(parentItem.children):
+            if not child.expanded:
+                continue
+            childIdx = self.index(row, 0, parent)
+            self._expandWhereNeccessary(childIdx, tree)
+
+        # then ourselves
+        tree.setExpanded(parent, True)
 
 # Browser window
 ######################################################################
@@ -928,6 +954,7 @@ by clicking on one on the left."""))
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
         self.sidebarTree.setIndentation(15)
+        self.sidebarTree.expanded.connect(self.onSidebarItemExpanded)
         dw.setWidget(self.sidebarTree)
         p = QPalette()
         p.setColor(QPalette.Base, p.window().color())
@@ -936,6 +963,10 @@ by clicking on one on the left."""))
         self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged) # type: ignore
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
         self.addDockWidget(Qt.LeftDockWidgetArea, dw)
+
+    def onSidebarItemExpanded(self, idx: QModelIndex) -> None:
+        item: SidebarItem = idx.internalPointer()
+        #item.on
 
     def onSidebarVisChanged(self, _visible: bool) -> None:
         self.maybeRefreshSidebar()
@@ -951,6 +982,7 @@ by clicking on one on the left."""))
                 root = self.buildTree()
                 model = SidebarModel(root)
                 self.sidebarTree.setModel(model)
+                model.expandWhereNeccessary(self.sidebarTree)
             self.mw.progress.timer(10, deferredDisplay, False)
 
     def buildTree(self) -> SidebarItem:
