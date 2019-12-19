@@ -336,7 +336,7 @@ function setFields(fields) {
             f = "<br>";
         }
         txt += `<tr><td class=fname>${n}</td></tr><tr><td width=100%>`;
-        txt += `<div id=f${i} onkeydown='onKey(window.event);' oninput='onInput()' onmouseup='onKey();'`;
+        txt += `<div id=f${i} onkeydown='onKey(window.event);' oninput='onInput()' onmouseup='onKey(window.event);'`;
         txt +=
             " onfocus='onFocus(this);' onblur='onBlur();' class='field clearfix' ";
         txt += "ondragover='onDragOver(this);' onpaste='onPaste(this);' ";
