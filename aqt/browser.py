@@ -909,6 +909,7 @@ by clicking on one on the left."""))
                     item.onclick()
 
         def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+            super().mouseReleaseEvent(event)
             self.onClickCurrent()
 
         def keyPressEvent(self, event: QKeyEvent) -> None:
