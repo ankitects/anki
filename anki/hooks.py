@@ -19,9 +19,10 @@ from typing import Dict, List, Callable, Any
 # Hooks
 ##############################################################################
 
+from typing import Callable, Dict, Union
 _hooks: Dict[str, List[Callable[..., Any]]] = {}
 
-def runHook(hook, *args) -> None:
+def runHook(hook: str, *args) -> None:
     "Run all functions on hook."
     hook = _hooks.get(hook, None)
     if hook:
@@ -32,7 +33,7 @@ def runHook(hook, *args) -> None:
                 hook.remove(func)
                 raise
 
-def runFilter(hook, arg, *args) -> Any:
+def runFilter(hook: str, arg: Any, *args) -> Any:
     hook = _hooks.get(hook, None)
     if hook:
         for func in hook:
@@ -43,7 +44,7 @@ def runFilter(hook, arg, *args) -> Any:
                 raise
     return arg
 
-def addHook(hook, func) -> None:
+def addHook(hook: str, func: Callable) -> None:
     "Add a function to hook. Ignore if already on hook."
     if not _hooks.get(hook, None):
         _hooks[hook] = []
