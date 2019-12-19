@@ -5,7 +5,7 @@
 from anki.hooks import addHook
 from anki.lang import _
 
-def hint(txt, extra, context, tag, fullname):
+def hint(txt, extra, context, tag, fullname) -> str:
     if not txt.strip():
         return ""
     # random id
@@ -16,5 +16,5 @@ onclick="this.style.display='none';document.getElementById('%s').style.display='
 %s</a><div id="%s" class=hint style="display: none">%s</div>
 """ % (domid, _("Show %s") % tag, domid, txt)
 
-def install():
+def install() -> None:
     addHook('fmod_hint', hint)

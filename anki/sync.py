@@ -16,6 +16,7 @@ from anki.utils import versionWithBuild
 from .hooks import runHook
 import anki
 from .lang import ngettext
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # syncing vars
 HTTP_TIMEOUT = 90
@@ -30,7 +31,7 @@ class UnexpectedSchemaChange(Exception):
 
 class Syncer:
 
-    def __init__(self, col, server=None):
+    def __init__(self, col, server=None) -> None:
         self.col = col
         self.server = server
 
@@ -39,7 +40,7 @@ class Syncer:
         self.maxUsn = 0
         self.tablesLeft = []
 
-    def sync(self):
+    def sync(self) -> str:
         "Returns 'noChanges', 'fullSync', 'success', etc"
         self.syncMsg = ""
         self.uname = ""
@@ -138,14 +139,14 @@ class Syncer:
         self.finish(mod)
         return "success"
 
-    def _forceFullSync(self):
+    def _forceFullSync(self) -> str:
         # roll back and force full sync
         self.col.rollback()
         self.col.modSchema(False)
         self.col.save()
         return "sanityCheckFailed"
 
-    def _gravesChunk(self, graves):
+    def _gravesChunk(self, graves: Dict) -> Tuple[Dict, Optional[Dict]]:
         lim = 250
         chunk = dict(notes=[], cards=[], decks=[])
         for cat in "notes", "cards", "decks":
@@ -159,7 +160,7 @@ class Syncer:
             return chunk, graves
         return chunk, None
 
-    def meta(self):
+    def meta(self) -> dict:
         return dict(
             mod=self.col.mod,
             scm=self.col.scm,
@@ -170,7 +171,7 @@ class Syncer:
             cont=True
         )
 
-    def changes(self):
+    def changes(self) -> dict:
         "Bundle up small objects."
         d = dict(models=self.getModels(),
                  decks=self.getDecks(),
@@ -180,7 +181,7 @@ class Syncer:
             d['crt'] = self.col.crt
         return d
 
-    def mergeChanges(self, lchg, rchg):
+    def mergeChanges(self, lchg, rchg) -> None:
         # then the other objects
         self.mergeModels(rchg['models'])
         self.mergeDecks(rchg['decks'])
@@ -192,7 +193,7 @@ class Syncer:
             self.col.crt = rchg['crt']
         self.prepareToChunk()
 
-    def sanityCheck(self):
+    def sanityCheck(self) -> Union[list, str]:
         if not self.col.basicCheck():
             return "failed basic check"
         for t in "cards", "notes", "revlog", "graves":
@@ -226,10 +227,10 @@ class Syncer:
             len(self.col.decks.allConf()),
         ]
 
-    def usnLim(self):
+    def usnLim(self) -> str:
         return "usn = -1"
 
-    def finish(self, mod=None):
+    def finish(self, mod: int) -> int:
         self.col.ls = mod
         self.col._usn = self.maxUsn + 1
         # ensure we save the mod time even if no changes made
@@ -240,11 +241,11 @@ class Syncer:
     # Chunked syncing
     ##########################################################################
 
-    def prepareToChunk(self):
+    def prepareToChunk(self) -> None:
         self.tablesLeft = ["revlog", "cards", "notes"]
         self.cursor = None
 
-    def cursorForTable(self, table):
+    def cursorForTable(self, table) -> Any:
         lim = self.usnLim()
         x = self.col.db.execute
         d = (self.maxUsn, lim)
@@ -261,7 +262,7 @@ lapses, left, odue, odid, flags, data from cards where %s""" % d)
 select id, guid, mid, mod, %d, tags, flds, '', '', flags, data
 from notes where %s""" % d)
 
-    def chunk(self):
+    def chunk(self) -> dict:
         buf = dict(done=False)
         lim = 250
         while self.tablesLeft and lim:
@@ -284,7 +285,7 @@ from notes where %s""" % d)
             buf['done'] = True
         return buf
 
-    def applyChunk(self, chunk):
+    def applyChunk(self, chunk) -> None:
         if "revlog" in chunk:
             self.mergeRevlog(chunk['revlog'])
         if "cards" in chunk:
@@ -295,7 +296,7 @@ from notes where %s""" % d)
     # Deletions
     ##########################################################################
 
-    def removed(self):
+    def removed(self) -> dict:
         cards = []
         notes = []
         decks = []
@@ -316,7 +317,7 @@ from notes where %s""" % d)
 
         return dict(cards=cards, notes=notes, decks=decks)
 
-    def remove(self, graves):
+    def remove(self, graves) -> None:
         # pretend to be the server so we don't set usn = -1
         self.col.server = True
 
@@ -333,14 +334,14 @@ from notes where %s""" % d)
     # Models
     ##########################################################################
 
-    def getModels(self):
+    def getModels(self) -> List:
         mods = [m for m in self.col.models.all() if m['usn'] == -1]
         for m in mods:
             m['usn'] = self.maxUsn
         self.col.models.save()
         return mods
 
-    def mergeModels(self, rchg):
+    def mergeModels(self, rchg) -> None:
         for r in rchg:
             l = self.col.models.get(r['id'])
             # if missing locally or server is newer, update
@@ -358,7 +359,7 @@ from notes where %s""" % d)
     # Decks
     ##########################################################################
 
-    def getDecks(self):
+    def getDecks(self) -> List[list]:
         decks = [g for g in self.col.decks.all() if g['usn'] == -1]
         for g in decks:
             g['usn'] = self.maxUsn
@@ -368,7 +369,7 @@ from notes where %s""" % d)
         self.col.decks.save()
         return [decks, dconf]
 
-    def mergeDecks(self, rchg):
+    def mergeDecks(self, rchg) -> None:
         for r in rchg[0]:
             l = self.col.decks.get(r['id'], False)
             # work around mod time being stored as string
@@ -390,7 +391,7 @@ from notes where %s""" % d)
     # Tags
     ##########################################################################
 
-    def getTags(self):
+    def getTags(self) -> List:
         tags = []
         for t, usn in self.col.tags.allItems():
             if usn == -1:
@@ -399,18 +400,18 @@ from notes where %s""" % d)
         self.col.tags.save()
         return tags
 
-    def mergeTags(self, tags):
+    def mergeTags(self, tags) -> None:
         self.col.tags.register(tags, usn=self.maxUsn)
 
     # Cards/notes/revlog
     ##########################################################################
 
-    def mergeRevlog(self, logs):
+    def mergeRevlog(self, logs) -> None:
         self.col.db.executemany(
             "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)",
             logs)
 
-    def newerRows(self, data, table, modIdx):
+    def newerRows(self, data, table, modIdx) -> List:
         ids = (r[0] for r in data)
         lmods = {}
         for id, mod in self.col.db.execute(
@@ -424,13 +425,13 @@ from notes where %s""" % d)
         self.col.log(table, data)
         return update
 
-    def mergeCards(self, cards):
+    def mergeCards(self, cards) -> None:
         self.col.db.executemany(
             "insert or replace into cards values "
             "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             self.newerRows(cards, "cards", 4))
 
-    def mergeNotes(self, notes):
+    def mergeNotes(self, notes) -> None:
         rows = self.newerRows(notes, "notes", 3)
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
@@ -440,10 +441,10 @@ from notes where %s""" % d)
     # Col config
     ##########################################################################
 
-    def getConf(self):
+    def getConf(self) -> Any:
         return self.col.conf
 
-    def mergeConf(self, conf):
+    def mergeConf(self, conf) -> None:
         self.col.conf = conf
 
 # Wrapper for requests that tracks upload/download progress
@@ -454,22 +455,22 @@ class AnkiRequestsClient:
     verify = True
     timeout = 60
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.session = requests.Session()
 
-    def post(self, url, data, headers):
+    def post(self, url, data, headers) -> Any:
         data = _MonitoringFile(data) # pytype: disable=wrong-arg-types
         headers['User-Agent'] = self._agentName()
         return self.session.post(
             url, data=data, headers=headers, stream=True, timeout=self.timeout, verify=self.verify) # pytype: disable=wrong-arg-types
 
-    def get(self, url, headers=None):
+    def get(self, url, headers=None) -> requests.models.Response:
         if headers is None:
             headers = {}
         headers['User-Agent'] = self._agentName()
         return self.session.get(url, stream=True, headers=headers, timeout=self.timeout, verify=self.verify)
 
-    def streamContent(self, resp):
+    def streamContent(self, resp) -> bytes:
         resp.raise_for_status()
 
         buf = io.BytesIO()
@@ -478,7 +479,7 @@ class AnkiRequestsClient:
             buf.write(chunk)
         return buf.getvalue()
 
-    def _agentName(self):
+    def _agentName(self) -> str:
         from anki import version
         return "Anki {}".format(version)
 
@@ -490,7 +491,7 @@ if os.environ.get("ANKI_NOVERIFYSSL"):
     warnings.filterwarnings("ignore")
 
 class _MonitoringFile(io.BufferedReader):
-    def read(self, size=-1):
+    def read(self, size=-1) -> bytes:
         data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
         runHook("httpSend", len(data))
         return data
@@ -500,7 +501,7 @@ class _MonitoringFile(io.BufferedReader):
 
 class HttpSyncer:
 
-    def __init__(self, hkey=None, client=None, hostNum=None):
+    def __init__(self, hkey=None, client=None, hostNum=None) -> None:
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
         self.client = client or AnkiRequestsClient()
@@ -508,14 +509,14 @@ class HttpSyncer:
         self.hostNum = hostNum
         self.prefix = "sync/"
 
-    def syncURL(self):
+    def syncURL(self) -> str:
         if devMode:
             url = "https://l1sync.ankiweb.net/"
         else:
             url = SYNC_BASE % (self.hostNum or "")
         return url + self.prefix
 
-    def assertOk(self, resp):
+    def assertOk(self, resp) -> None:
         # not using raise_for_status() as aqt expects this error msg
         if resp.status_code != 200:
             raise Exception("Unknown response code: %s" % resp.status_code)
@@ -526,7 +527,7 @@ class HttpSyncer:
     # costly. We could send it as a raw post, but more HTTP clients seem to
     # support file uploading, so this is the more compatible choice.
 
-    def _buildPostData(self, fobj, comp):
+    def _buildPostData(self, fobj, comp) -> Tuple[Dict[str, str], io.BytesIO]:
         BOUNDARY=b"Anki-sync-boundary"
         bdry = b"--"+BOUNDARY
         buf = io.BytesIO()
@@ -573,7 +574,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
 
         return headers, buf
 
-    def req(self, method, fobj=None, comp=6, badAuthRaises=True):
+    def req(self, method, fobj=None, comp=6, badAuthRaises=True) -> Any:
         headers, body = self._buildPostData(fobj, comp)
 
         r = self.client.post(self.syncURL()+method, data=body, headers=headers)
@@ -589,10 +590,10 @@ Content-Type: application/octet-stream\r\n\r\n""")
 
 class RemoteServer(HttpSyncer):
 
-    def __init__(self, hkey, hostNum):
+    def __init__(self, hkey, hostNum) -> None:
         HttpSyncer.__init__(self, hkey, hostNum=hostNum)
 
-    def hostKey(self, user, pw):
+    def hostKey(self, user, pw) -> Any:
         "Returns hkey or none if user/pw incorrect."
         self.postVars = dict()
         ret = self.req(
@@ -604,7 +605,7 @@ class RemoteServer(HttpSyncer):
         self.hkey = json.loads(ret.decode("utf8"))['key']
         return self.hkey
 
-    def meta(self):
+    def meta(self) -> Any:
         self.postVars = dict(
             k=self.hkey,
             s=self.skey,
@@ -618,31 +619,31 @@ class RemoteServer(HttpSyncer):
             return
         return json.loads(ret.decode("utf8"))
 
-    def applyGraves(self, **kw):
+    def applyGraves(self, **kw) -> Any:
         return self._run("applyGraves", kw)
 
-    def applyChanges(self, **kw):
+    def applyChanges(self, **kw) -> Any:
         return self._run("applyChanges", kw)
 
-    def start(self, **kw):
+    def start(self, **kw) -> Any:
         return self._run("start", kw)
 
-    def chunk(self, **kw):
+    def chunk(self, **kw) -> Any:
         return self._run("chunk", kw)
 
-    def applyChunk(self, **kw):
+    def applyChunk(self, **kw) -> Any:
         return self._run("applyChunk", kw)
 
-    def sanityCheck2(self, **kw):
+    def sanityCheck2(self, **kw) -> Any:
         return self._run("sanityCheck2", kw)
 
-    def finish(self, **kw):
+    def finish(self, **kw) -> Any:
         return self._run("finish", kw)
 
-    def abort(self, **kw):
+    def abort(self, **kw) -> Any:
         return self._run("abort", kw)
 
-    def _run(self, cmd, data):
+    def _run(self, cmd, data) -> Any:
         return json.loads(
             self.req(cmd, io.BytesIO(json.dumps(data).encode("utf8"))).decode("utf8"))
 
@@ -651,7 +652,7 @@ class RemoteServer(HttpSyncer):
 
 class FullSyncer(HttpSyncer):
 
-    def __init__(self, col, hkey, client, hostNum):
+    def __init__(self, col, hkey, client, hostNum) -> None:
         HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
         self.postVars = dict(
             k=self.hkey,
@@ -659,7 +660,7 @@ class FullSyncer(HttpSyncer):
         )
         self.col = col
 
-    def download(self):
+    def download(self) -> Optional[str]:
         runHook("sync", "download")
         localNotEmpty = self.col.db.scalar("select 1 from cards")
         self.col.close()
@@ -683,7 +684,7 @@ class FullSyncer(HttpSyncer):
         os.rename(tpath, self.col.path)
         self.col = None
 
-    def upload(self):
+    def upload(self) -> bool:
         "True if upload successful."
         runHook("sync", "upload")
         # make sure it's ok before we try to upload
@@ -709,12 +710,12 @@ class FullSyncer(HttpSyncer):
 
 class MediaSyncer:
 
-    def __init__(self, col, server=None):
+    def __init__(self, col, server=None) -> None:
         self.col = col
         self.server = server
         self.downloadCount = 0
 
-    def sync(self):
+    def sync(self) -> Any:
         # check if there have been any changes
         runHook("sync", "findMedia")
         self.col.log("findChanges")
@@ -824,7 +825,7 @@ class MediaSyncer:
             self.col.media.forceResync()
             return ret
 
-    def _downloadFiles(self, fnames):
+    def _downloadFiles(self, fnames) -> None:
         self.col.log("%d files to fetch"%len(fnames))
         while fnames:
             top = fnames[0:SYNC_ZIP_COUNT]
@@ -845,12 +846,12 @@ class MediaSyncer:
 
 class RemoteMediaServer(HttpSyncer):
 
-    def __init__(self, col, hkey, client, hostNum):
+    def __init__(self, col, hkey, client, hostNum) -> None:
         self.col = col
         HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
         self.prefix = "msync/"
 
-    def begin(self):
+    def begin(self) -> Any:
         self.postVars = dict(
             k=self.hkey,
             v="ankidesktop,%s,%s"%(anki.version, platDesc())
@@ -861,7 +862,7 @@ class RemoteMediaServer(HttpSyncer):
         return ret
 
     # args: lastUsn
-    def mediaChanges(self, **kw):
+    def mediaChanges(self, **kw) -> Any:
         self.postVars = dict(
             sk=self.skey,
         )
@@ -869,20 +870,20 @@ class RemoteMediaServer(HttpSyncer):
             self.req("mediaChanges", io.BytesIO(json.dumps(kw).encode("utf8"))))
 
     # args: files
-    def downloadFiles(self, **kw):
+    def downloadFiles(self, **kw) -> Any:
         return self.req("downloadFiles", io.BytesIO(json.dumps(kw).encode("utf8")))
 
-    def uploadChanges(self, zip):
+    def uploadChanges(self, zip) -> Any:
         # no compression, as we compress the zip file instead
         return self._dataOnly(
             self.req("uploadChanges", io.BytesIO(zip), comp=0))
 
     # args: local
-    def mediaSanity(self, **kw):
+    def mediaSanity(self, **kw) -> Any:
         return self._dataOnly(
             self.req("mediaSanity", io.BytesIO(json.dumps(kw).encode("utf8"))))
 
-    def _dataOnly(self, resp):
+    def _dataOnly(self, resp) -> Any:
         resp = json.loads(resp.decode("utf8"))
         if resp['err']:
             self.col.log("error returned:%s"%resp['err'])
@@ -890,7 +891,7 @@ class RemoteMediaServer(HttpSyncer):
         return resp['data']
 
     # only for unit tests
-    def mediatest(self, cmd):
+    def mediatest(self, cmd) -> Any:
         self.postVars = dict(
             k=self.hkey,
         )

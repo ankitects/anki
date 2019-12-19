@@ -8,6 +8,7 @@ import json
 
 from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
+from typing import Any, List, Tuple, Optional
 
 
 # Card stats
@@ -15,12 +16,12 @@ from anki.lang import _, ngettext
 
 class CardStats:
 
-    def __init__(self, col, card):
+    def __init__(self, col, card) -> None:
         self.col = col
         self.card = card
         self.txt = ""
 
-    def report(self):
+    def report(self) -> str:
         c = self.card
         # pylint: disable=unnecessary-lambda
         fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
@@ -65,24 +66,24 @@ class CardStats:
         self.txt += "</table>"
         return self.txt
 
-    def addLine(self, k, v):
+    def addLine(self, k, v) -> None:
         self.txt += self.makeLine(k, v)
 
-    def makeLine(self, k, v):
+    def makeLine(self, k, v) -> str:
         txt = "<tr><td align=left style='padding-right: 3px;'>"
         txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
         return txt
 
-    def date(self, tm):
+    def date(self, tm) -> str:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
-    def time(self, tm):
-        str = ""
+    def time(self, tm) -> str:
+        s = ""
         if tm >= 60:
-            str = fmtTimeSpan((tm/60)*60, short=True, point=-1, unit=1)
-        if tm%60 != 0 or not str:
-            str += fmtTimeSpan(tm%60, point=2 if not str else -1, short=True)
-        return str
+            s = fmtTimeSpan((tm/60)*60, short=True, point=-1, unit=1)
+        if tm%60 != 0 or not s:
+            s += fmtTimeSpan(tm%60, point=2 if not s else -1, short=True)
+        return s
 
 # Collection stats
 ##########################################################################
@@ -101,7 +102,7 @@ colSusp = "#ff0"
 
 class CollectionStats:
 
-    def __init__(self, col):
+    def __init__(self, col) -> None:
         self.col = col
         self._stats = None
         self.type = 0
@@ -110,7 +111,7 @@ class CollectionStats:
         self.wholeCollection = False
 
     # assumes jquery & plot are available in document
-    def report(self, type=0):
+    def report(self, type=0) -> str:
         # 0=days, 1=weeks, 2=months
         self.type = type
         from .statsbg import bg
@@ -126,7 +127,7 @@ class CollectionStats:
         txt += self._section(self.footer())
         return "<center>%s</center>" % txt
 
-    def _section(self, txt):
+    def _section(self, txt) -> str:
         return "<div class=section>%s</div>" % txt
 
     css = """
@@ -143,7 +144,7 @@ body {background-image: url(data:image/png;base64,%s); }
     # Today stats
     ######################################################################
 
-    def todayStats(self):
+    def todayStats(self) -> str:
         b = self._title(_("Today"))
         # studied today
         lim = self._revlogLimit()
@@ -199,13 +200,13 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
     # Due and cumulative due
     ######################################################################
 
-    def get_start_end_chunk(self, by='review'):
+    def get_start_end_chunk(self, by='review') -> Tuple[int, Optional[int], int]:
         start = 0
         if self.type == 0:
             end, chunk = 31, 1
         elif self.type == 1:
             end, chunk = 52, 7
-        elif self.type == 2:
+        else: #  self.type == 2:
             end = None
             if self._deckAge(by) <= 100:
                 chunk = 1
@@ -215,7 +216,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
                 chunk = 31
         return start, end, chunk
 
-    def dueGraph(self):
+    def dueGraph(self) -> str:
         start, end, chunk = self.get_start_end_chunk()
         d = self._due(start, end, chunk)
         yng = []
@@ -251,7 +252,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         txt += self._dueInfo(tot, len(totd)*chunk)
         return txt
 
-    def _dueInfo(self, tot, num):
+    def _dueInfo(self, tot, num) -> str:
         i = []
         self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
         self._line(i, _("Average"), self._avgDay(
@@ -263,7 +264,7 @@ and due = ?""" % self._limit(), self.col.sched.today+1)
         self._line(i, _("Due tomorrow"), tomorrow)
         return self._lineTbl(i)
 
-    def _due(self, start=None, end=None, chunk=1):
+    def _due(self, start=None, end=None, chunk=1) -> Any:
         lim = ""
         if start is not None:
             lim += " and due-:today >= %d" % start
@@ -283,7 +284,7 @@ group by day order by day""" % (self._limit(), lim),
     # Added, reps and time spent
     ######################################################################
 
-    def introductionGraph(self):
+    def introductionGraph(self) -> str:
         start, days, chunk = self.get_start_end_chunk()
         data = self._added(days, chunk)
         if not data:
@@ -315,7 +316,7 @@ group by day order by day""" % (self._limit(), lim),
 
         return txt
 
-    def repsGraphs(self):
+    def repsGraphs(self) -> str:
         start, days, chunk = self.get_start_end_chunk()
         data = self._done(days, chunk)
         if not data:
@@ -363,7 +364,7 @@ group by day order by day""" % (self._limit(), lim),
         txt2 += rep
         return self._section(txt1) + self._section(txt2)
 
-    def _ansInfo(self, totd, studied, first, unit, convHours=False, total=None):
+    def _ansInfo(self, totd, studied, first, unit, convHours=False, total=None) -> Tuple[str, int]:
         assert(totd)
         tot = totd[-1][1]
         period = self._periodDays()
@@ -404,7 +405,7 @@ group by day order by day""" % (self._limit(), lim),
                 _("%(a)0.1fs (%(b)s)") % dict(a=(tot*60)/total, b=text))
         return self._lineTbl(i), int(tot)
 
-    def _splitRepData(self, data, spec):
+    def _splitRepData(self, data, spec) -> Tuple[List[dict], List[Tuple[Any, Any]]]:
         sep = {}
         totcnt = {}
         totd = {}
@@ -433,7 +434,7 @@ group by day order by day""" % (self._limit(), lim),
                 bars={'show': False}, lines=dict(show=True), stack=-n))
         return (ret, alltot)
 
-    def _added(self, num=7, chunk=1):
+    def _added(self, num=7, chunk=1) -> Any:
         lims = []
         if num is not None:
             lims.append("id > %d" % (
@@ -454,7 +455,7 @@ count(id)
 from cards %s
 group by day order by day""" % lim, cut=self.col.sched.dayCutoff,tf=tf, chunk=chunk)
 
-    def _done(self, num=7, chunk=1):
+    def _done(self, num=7, chunk=1) -> Any:
         lims = []
         if num is not None:
             lims.append("id > %d" % (
@@ -490,7 +491,7 @@ group by day order by day""" % lim,
                             tf=tf,
                             chunk=chunk)
 
-    def _daysStudied(self):
+    def _daysStudied(self) -> Any:
         lims = []
         num = self._periodDays()
         if num:
@@ -516,7 +517,7 @@ group by day order by day)""" % lim,
     # Intervals
     ######################################################################
 
-    def ivlGraph(self):
+    def ivlGraph(self) -> str:
         (ivls, all, avg, max_), chunk = self._ivls()
         tot = 0
         totd = []
@@ -545,7 +546,7 @@ group by day order by day)""" % lim,
         self._line(i, _("Longest interval"), fmtTimeSpan(max_*86400))
         return txt + self._lineTbl(i)
 
-    def _ivls(self):
+    def _ivls(self) -> Tuple[list, int]:
         start, end, chunk = self.get_start_end_chunk()
         lim = "and grp <= %d" % end if end else ""
         data = [self.col.db.all("""
@@ -560,7 +561,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
     # Eases
     ######################################################################
 
-    def easeGraph(self):
+    def easeGraph(self) -> str:
         # 3 + 4 + 4 + spaces on sides and middle = 15
         # yng starts at 1+3+1 = 5
         # mtr starts at 5+4+1 = 10
@@ -591,7 +592,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
         txt += self._easeInfo(eases)
         return txt
 
-    def _easeInfo(self, eases):
+    def _easeInfo(self, eases) -> str:
         types = {0: [0, 0], 1: [0, 0], 2: [0,0]}
         for (type, ease, cnt) in eases:
             if ease == 1:
@@ -614,7 +615,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
                 "</td><td align=center>".join(i) +
                 "</td></tr></table></center>")
 
-    def _eases(self):
+    def _eases(self) -> Any:
         lims = []
         lim = self._revlogLimit()
         if lim:
@@ -643,7 +644,7 @@ order by thetype, ease""" % (ease4repl, lim))
     # Hourly retention
     ######################################################################
 
-    def hourGraph(self):
+    def hourGraph(self) -> str:
         data = self._hourRet()
         if not data:
             return ""
@@ -690,7 +691,7 @@ order by thetype, ease""" % (ease4repl, lim))
         txt += _("Hours with less than 30 reviews are not shown.")
         return txt
 
-    def _hourRet(self):
+    def _hourRet(self) -> Any:
         lim = self._revlogLimit()
         if lim:
             lim = " and " + lim
@@ -715,7 +716,7 @@ group by hour having count() > 30 order by hour""" % lim,
     # Cards
     ######################################################################
 
-    def cardGraph(self):
+    def cardGraph(self) -> str:
         # graph data
         div = self._cards()
         d = []
@@ -749,7 +750,7 @@ when you answer "good" on a review.''')
             info)
         return txt
 
-    def _line(self, i, a, b, bold=True):
+    def _line(self, i, a, b, bold=True) -> None:
         #T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
         colon = _(":")
         if bold:
@@ -757,10 +758,10 @@ when you answer "good" on a review.''')
         else:
             i.append(("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>") % (a,colon,b))
 
-    def _lineTbl(self, i):
+    def _lineTbl(self, i) -> str:
         return "<table width=400>" + "".join(i) + "</table>"
 
-    def _factors(self):
+    def _factors(self) -> Any:
         return self.col.db.first("""
 select
 min(factor) / 10.0,
@@ -768,7 +769,7 @@ avg(factor) / 10.0,
 max(factor) / 10.0
 from cards where did in %s and queue = 2""" % self._limit())
 
-    def _cards(self):
+    def _cards(self) -> Any:
         return self.col.db.first("""
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
@@ -780,7 +781,7 @@ from cards where did in %s""" % self._limit())
     # Footer
     ######################################################################
 
-    def footer(self):
+    def footer(self) -> str:
         b = "<br><br><font size=1>"
         b += _("Generated on %s") % time.asctime(time.localtime(time.time()))
         b += "<br>"
@@ -801,7 +802,7 @@ from cards where did in %s""" % self._limit())
     ######################################################################
 
     def _graph(self, id, data, conf=None,
-               type="bars", xunit=1, ylabel=_("Cards"), ylabel2=""):
+               type="bars", xunit=1, ylabel=_("Cards"), ylabel2="") -> str:
         if conf is None:
             conf = {}
         # display settings
@@ -902,21 +903,21 @@ $(function () {
     ylab=ylabel, ylab2=ylabel2,
     data=json.dumps(data), conf=json.dumps(conf)))
 
-    def _limit(self):
+    def _limit(self) -> Any:
         if self.wholeCollection:
             return ids2str([d['id'] for d in self.col.decks.all()])
         return self.col.sched._deckLimit()
 
-    def _revlogLimit(self):
+    def _revlogLimit(self) -> str:
         if self.wholeCollection:
             return ""
         return ("cid in (select id from cards where did in %s)" %
                 ids2str(self.col.decks.active()))
 
-    def _title(self, title, subtitle=""):
+    def _title(self, title, subtitle="") -> str:
         return '<h1>%s</h1>%s' % (title, subtitle)
 
-    def _deckAge(self, by):
+    def _deckAge(self, by) -> int:
         lim = self._revlogLimit()
         if lim:
             lim = " where " + lim
@@ -932,13 +933,13 @@ $(function () {
                 1, int(1+((self.col.sched.dayCutoff - (t/1000)) / 86400)))
         return period
 
-    def _periodDays(self):
+    def _periodDays(self) -> Optional[int]:
         start, end, chunk = self.get_start_end_chunk()
         if end is None:
             return None
         return end * chunk
 
-    def _avgDay(self, tot, num, unit):
+    def _avgDay(self, tot, num, unit) -> str:
         vals = []
         try:
             vals.append(_("%(a)0.1f %(b)s/day") % dict(a=tot/float(num), b=unit))

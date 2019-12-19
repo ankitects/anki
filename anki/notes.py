@@ -4,10 +4,11 @@
 
 from anki.utils import fieldChecksum, intTime, \
     joinFields, splitFields, stripHTMLMedia, timestampID, guid64
+from typing import Any, List, Tuple
 
 class Note:
 
-    def __init__(self, col, model=None, id=None):
+    def __init__(self, col, model=None, id=None) -> None:
         assert not (model and id)
         self.col = col
         self.newlyAdded = False
@@ -26,7 +27,7 @@ class Note:
             self._fmap = self.col.models.fieldMap(self._model)
             self.scm = self.col.scm
 
-    def load(self):
+    def load(self) -> None:
         (self.guid,
          self.mid,
          self.mod,
@@ -43,7 +44,7 @@ from notes where id = ?""", self.id)
         self._fmap = self.col.models.fieldMap(self._model)
         self.scm = self.col.scm
 
-    def flush(self, mod=None):
+    def flush(self, mod=None) -> None:
         "If fields or tags have changed, write changes to disk."
         assert self.scm == self.col.scm
         self._preFlush()
@@ -66,57 +67,57 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         self.col.tags.register(self.tags)
         self._postFlush()
 
-    def joinedFields(self):
+    def joinedFields(self) -> str:
         return joinFields(self.fields)
 
-    def cards(self):
+    def cards(self) -> List:
         return [self.col.getCard(id) for id in self.col.db.list(
             "select id from cards where nid = ? order by ord", self.id)]
 
-    def model(self):
+    def model(self) -> Any:
         return self._model
 
     # Dict interface
     ##################################################
 
-    def keys(self):
+    def keys(self) -> List:
         return list(self._fmap.keys())
 
-    def values(self):
+    def values(self) -> Any:
         return self.fields
 
-    def items(self):
+    def items(self) -> List[Tuple[Any, Any]]:
         return [(f['name'], self.fields[ord])
                 for ord, f in sorted(self._fmap.values())]
 
-    def _fieldOrd(self, key):
+    def _fieldOrd(self, key) -> Any:
         try:
             return self._fmap[key][0]
         except:
             raise KeyError(key)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> Any:
         return self.fields[self._fieldOrd(key)]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         self.fields[self._fieldOrd(key)] = value
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in list(self._fmap.keys())
 
     # Tags
     ##################################################
 
-    def hasTag(self, tag):
+    def hasTag(self, tag) -> Any:
         return self.col.tags.inList(tag, self.tags)
 
-    def stringTags(self):
+    def stringTags(self) -> Any:
         return self.col.tags.join(self.col.tags.canonify(self.tags))
 
-    def setTagsFromStr(self, str):
+    def setTagsFromStr(self, str) -> None:
         self.tags = self.col.tags.split(str)
 
-    def delTag(self, tag):
+    def delTag(self, tag) -> None:
         rem = []
         for t in self.tags:
             if t.lower() == tag.lower():
@@ -124,14 +125,14 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         for r in rem:
             self.tags.remove(r)
 
-    def addTag(self, tag):
+    def addTag(self, tag) -> None:
         # duplicates will be stripped on save
         self.tags.append(tag)
 
     # Unique/duplicate check
     ##################################################
 
-    def dupeOrEmpty(self):
+    def dupeOrEmpty(self) -> int:
         "1 if first is empty; 2 if first is a duplicate, False otherwise."
         val = self.fields[0]
         if not val.strip():
@@ -149,12 +150,12 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     # Flushing cloze notes
     ##################################################
 
-    def _preFlush(self):
+    def _preFlush(self) -> None:
         # have we been added yet?
         self.newlyAdded = not self.col.db.scalar(
             "select 1 from cards where nid = ?", self.id)
 
-    def _postFlush(self):
+    def _postFlush(self) -> None:
         # generate missing cards
         if not self.newlyAdded:
             rem = self.col.genCards([self.id])

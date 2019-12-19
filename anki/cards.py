@@ -7,6 +7,7 @@ import time
 from anki.hooks import runHook
 from anki.utils import intTime, timestampID, joinFields
 from anki.consts import *
+from typing import Any, Optional
 
 # Cards
 ##########################################################################
@@ -21,7 +22,7 @@ from anki.consts import *
 
 class Card:
 
-    def __init__(self, col, id=None):
+    def __init__(self, col, id=None) -> None:
         self.col = col
         self.timerStarted = None
         self._qa = None
@@ -46,7 +47,7 @@ class Card:
             self.flags = 0
             self.data = ""
 
-    def load(self):
+    def load(self) -> None:
         (self.id,
          self.nid,
          self.did,
@@ -69,7 +70,7 @@ class Card:
         self._qa = None
         self._note = None
 
-    def flush(self):
+    def flush(self) -> None:
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
@@ -100,7 +101,7 @@ insert or replace into cards values
             self.data)
         self.col.log(self)
 
-    def flushSched(self):
+    def flushSched(self) -> None:
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug checks
@@ -116,16 +117,16 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self.left, self.odue, self.odid, self.did, self.id)
         self.col.log(self)
 
-    def q(self, reload=False, browser=False):
+    def q(self, reload=False, browser=False) -> str:
         return self.css() + self._getQA(reload, browser)['q']
 
-    def a(self):
+    def a(self) -> str:
         return self.css() + self._getQA()['a']
 
-    def css(self):
+    def css(self) -> str:
         return "<style>%s</style>" % self.model()['css']
 
-    def _getQA(self, reload=False, browser=False):
+    def _getQA(self, reload=False, browser=False) -> Any:
         if not self._qa or reload:
             f = self.note(reload); m = self.model(); t = self.template()
             data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
@@ -137,45 +138,45 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self._qa = self.col._renderQA(data, *args)
         return self._qa
 
-    def note(self, reload=False):
+    def note(self, reload=False) -> Any:
         if not self._note or reload:
             self._note = self.col.getNote(self.nid)
         return self._note
 
-    def model(self):
+    def model(self) -> Any:
         return self.col.models.get(self.note().mid)
 
-    def template(self):
+    def template(self) -> Any:
         m = self.model()
         if m['type'] == MODEL_STD:
             return self.model()['tmpls'][self.ord]
         else:
             return self.model()['tmpls'][0]
 
-    def startTimer(self):
+    def startTimer(self) -> None:
         self.timerStarted = time.time()
 
-    def timeLimit(self):
+    def timeLimit(self) -> Any:
         "Time limit for answering in milliseconds."
         conf = self.col.decks.confForDid(self.odid or self.did)
         return conf['maxTaken']*1000
 
-    def shouldShowTimer(self):
+    def shouldShowTimer(self) -> Any:
         conf = self.col.decks.confForDid(self.odid or self.did)
         return conf['timer']
 
-    def timeTaken(self):
+    def timeTaken(self) -> Any:
         "Time taken to answer card, in integer MS."
         total = int((time.time() - self.timerStarted)*1000)
         return min(total, self.timeLimit())
 
-    def isEmpty(self):
+    def isEmpty(self) -> Optional[bool]:
         ords = self.col.models.availOrds(
             self.model(), joinFields(self.note().fields))
         if self.ord not in ords:
             return True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         d = dict(self.__dict__)
         # remove non-useful elements
         del d['_note']
@@ -184,9 +185,9 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         del d['timerStarted']
         return pprint.pformat(d, width=300)
 
-    def userFlag(self):
+    def userFlag(self) -> Any:
         return self.flags & 0b111
 
-    def setUserFlag(self, flag):
+    def setUserFlag(self, flag) -> None:
         assert 0 <= flag <= 7
         self.flags = (self.flags & ~0b111) | flag

@@ -22,11 +22,14 @@ from anki.lang import _, ngettext
 
 # some add-ons expect json to be in the utils module
 import json # pylint: disable=unused-import
+from typing import Any, Optional, Tuple
+
+_tmpdir: Optional[str]
 
 # Time handling
 ##############################################################################
 
-def intTime(scale=1):
+def intTime(scale=1) -> int:
     "The time in integer seconds. Pass scale=1000 to get milliseconds."
     return int(time.time()*scale)
 
@@ -48,7 +51,7 @@ inTimeTable = {
     "seconds": lambda n: ngettext("in %s second", "in %s seconds", n),
     }
 
-def shortTimeFmt(type):
+def shortTimeFmt(type) -> Any:
     return {
 #T: year is an abbreviation for year. %s is a number of years
     "years": _("%sy"),
@@ -64,7 +67,7 @@ def shortTimeFmt(type):
     "seconds": _("%ss"),
     }[type]
 
-def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
+def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99) -> str:
     "Return a string representing a time span (eg '2 days')."
     (type, point) = optimalPeriod(time, point, unit)
     time = convertSecondsTo(time, type)
@@ -80,7 +83,7 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
     timestr = "%%%(a)d.%(b)df" % {'a': pad, 'b': point}
     return locale.format_string(fmt % timestr, time)
 
-def optimalPeriod(time, point, unit):
+def optimalPeriod(time, point, unit) -> Tuple[str, Any]:
     if abs(time) < 60 or unit < 1:
         type = "seconds"
         point -= 1
@@ -98,7 +101,7 @@ def optimalPeriod(time, point, unit):
         point += 1
     return (type, max(point, 0))
 
-def convertSecondsTo(seconds, type):
+def convertSecondsTo(seconds, type) -> Any:
     if type == "seconds":
         return seconds
     elif type == "minutes":
@@ -113,7 +116,7 @@ def convertSecondsTo(seconds, type):
         return seconds / 31536000
     assert False
 
-def _pluralCount(time, point):
+def _pluralCount(time, point) -> int:
     if point:
         return 2
     return math.floor(time)
@@ -121,12 +124,12 @@ def _pluralCount(time, point):
 # Locale
 ##############################################################################
 
-def fmtPercentage(float_value, point=1):
+def fmtPercentage(float_value, point=1) -> str:
     "Return float with percentage sign"
     fmt = '%' + "0.%(b)df" % {'b': point}
     return locale.format_string(fmt, float_value) + "%"
 
-def fmtFloat(float_value, point=1):
+def fmtFloat(float_value, point=1) -> str:
     "Return a string with decimal separator according to current locale"
     fmt = '%' + "0.%(b)df" % {'b': point}
     return locale.format_string(fmt, float_value)
@@ -140,7 +143,7 @@ reTag = re.compile("(?s)<.*?>")
 reEnts = re.compile(r"&#?\w+;")
 reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
-def stripHTML(s):
+def stripHTML(s) -> str:
     s = reComment.sub("", s)
     s = reStyle.sub("", s)
     s = reScript.sub("", s)
@@ -148,12 +151,12 @@ def stripHTML(s):
     s = entsToTxt(s)
     return s
 
-def stripHTMLMedia(s):
+def stripHTMLMedia(s) -> Any:
     "Strip HTML but keep media filenames"
     s = reMedia.sub(" \\1 ", s)
     return stripHTML(s)
 
-def minimizeHTML(s):
+def minimizeHTML(s) -> str:
     "Correct Qt's verbose bold/underline/etc."
     s = re.sub('<span style="font-weight:600;">(.*?)</span>', '<b>\\1</b>',
                s)
@@ -163,7 +166,7 @@ def minimizeHTML(s):
                '<u>\\1</u>', s)
     return s
 
-def htmlToTextLine(s):
+def htmlToTextLine(s) -> Any:
     s = s.replace("<br>", " ")
     s = s.replace("<br />", " ")
     s = s.replace("<div>", " ")
@@ -174,7 +177,7 @@ def htmlToTextLine(s):
     s = s.strip()
     return s
 
-def entsToTxt(html):
+def entsToTxt(html) -> str:
     # entitydefs defines nbsp as \xa0 instead of a standard space, so we
     # replace it first
     html = html.replace("&nbsp;", " ")
@@ -198,7 +201,7 @@ def entsToTxt(html):
         return text # leave as is
     return reEnts.sub(fixup, html)
 
-def bodyClass(col, card):
+def bodyClass(col, card) -> str:
     bodyclass = "card card%d" % (card.ord+1)
     if col.conf.get("nightMode"):
         bodyclass += " nightMode"
@@ -207,17 +210,17 @@ def bodyClass(col, card):
 # IDs
 ##############################################################################
 
-def hexifyID(id):
+def hexifyID(id) -> str:
     return "%x" % int(id)
 
-def dehexifyID(id):
+def dehexifyID(id) -> int:
     return int(id, 16)
 
-def ids2str(ids):
+def ids2str(ids) -> str:
     """Given a list of integers, return a string '(int1,int2,...)'."""
     return "(%s)" % ",".join(str(i) for i in ids)
 
-def timestampID(db, table):
+def timestampID(db, table) -> int:
     "Return a non-conflicting timestamp for table."
     # be careful not to create multiple objects without flushing them, or they
     # may share an ID.
@@ -226,7 +229,7 @@ def timestampID(db, table):
         t += 1
     return t
 
-def maxID(db):
+def maxID(db) -> Any:
     "Return the first safe ID to use."
     now = intTime(1000)
     for tbl in "cards", "notes":
@@ -234,7 +237,7 @@ def maxID(db):
     return now + 1
 
 # used in ankiweb
-def base62(num, extra=""):
+def base62(num, extra="") -> str:
     s = string; table = s.ascii_letters + s.digits + extra
     buf = ""
     while num:
@@ -243,19 +246,19 @@ def base62(num, extra=""):
     return buf
 
 _base91_extra_chars = "!#$%&()*+,-./:;<=>?@[]^_`{|}~"
-def base91(num):
+def base91(num) -> str:
     # all printable characters minus quotes, backslash and separators
     return base62(num, _base91_extra_chars)
 
-def guid64():
+def guid64() -> Any:
     "Return a base91-encoded 64bit random number."
     return base91(random.randint(0, 2**64-1))
 
 # increment a guid by one, for note type conflicts
-def incGuid(guid):
+def incGuid(guid) -> str:
     return _incGuid(guid[::-1])[::-1]
 
-def _incGuid(guid):
+def _incGuid(guid) -> str:
     s = string; table = s.ascii_letters + s.digits + _base91_extra_chars
     idx = table.index(guid[0])
     if idx + 1 == len(table):
@@ -268,21 +271,21 @@ def _incGuid(guid):
 # Fields
 ##############################################################################
 
-def joinFields(list):
+def joinFields(list) -> str:
     return "\x1f".join(list)
 
-def splitFields(string):
+def splitFields(string) -> Any:
     return string.split("\x1f")
 
 # Checksums
 ##############################################################################
 
-def checksum(data):
+def checksum(data) -> str:
     if isinstance(data, str):
         data = data.encode("utf-8")
     return sha1(data).hexdigest()
 
-def fieldChecksum(data):
+def fieldChecksum(data) -> int:
     # 32 bit unsigned number from first 8 digits of sha1 hash
     return int(checksum(stripHTMLMedia(data).encode("utf-8"))[:8], 16)
 
@@ -291,7 +294,7 @@ def fieldChecksum(data):
 
 _tmpdir = None
 
-def tmpdir():
+def tmpdir() -> Any:
     "A reusable temp folder which we clean out on each program invocation."
     global _tmpdir
     if not _tmpdir:
@@ -305,12 +308,12 @@ def tmpdir():
         os.mkdir(_tmpdir)
     return _tmpdir
 
-def tmpfile(prefix="", suffix=""):
+def tmpfile(prefix="", suffix="") -> Any:
     (fd, name) = tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
     os.close(fd)
     return name
 
-def namedtmp(name, rm=True):
+def namedtmp(name, rm=True) -> Any:
     "Return tmpdir+name. Deletes any existing file."
     path = os.path.join(tmpdir(), name)
     if rm:
@@ -330,7 +333,7 @@ def noBundledLibs():
     if oldlpath is not None:
         os.environ["LD_LIBRARY_PATH"] = oldlpath
 
-def call(argv, wait=True, **kwargs):
+def call(argv, wait=True, **kwargs) -> int:
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
     if isWin:
@@ -372,7 +375,7 @@ devMode = os.getenv("ANKIDEV", "")
 
 invalidFilenameChars = ":*?\"<>|"
 
-def invalidFilename(str, dirsep=True):
+def invalidFilename(str, dirsep=True) -> Optional[str]:
     for c in invalidFilenameChars:
         if c in str:
             return c
@@ -383,7 +386,7 @@ def invalidFilename(str, dirsep=True):
     elif str.strip().startswith("."):
         return "."
 
-def platDesc():
+def platDesc() -> str:
     # we may get an interrupted system call, so try this in a loop
     n = 0
     theos = "unknown"
@@ -410,9 +413,9 @@ def platDesc():
 ##############################################################################
 
 class TimedLog:
-    def __init__(self):
+    def __init__(self) -> None:
         self._last = time.time()
-    def log(self, s):
+    def log(self, s) -> None:
         path, num, fn, y = traceback.extract_stack(limit=2)[0]
         sys.stderr.write("%5dms: %s(): %s\n" % ((time.time() - self._last)*1000, fn, s))
         self._last = time.time()
@@ -420,7 +423,7 @@ class TimedLog:
 # Version
 ##############################################################################
 
-def versionWithBuild():
+def versionWithBuild() -> str:
     from anki import version
     try:
         from anki.buildhash import build # type: ignore

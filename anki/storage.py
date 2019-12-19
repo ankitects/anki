@@ -14,8 +14,11 @@ from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
     addForwardOptionalReverse, addBasicTypingModel
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
-def Collection(path, lock=True, server=False, log=False):
+_Collection: Type[_Collection]
+
+def Collection(path, lock=True, server=False, log=False) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
@@ -54,7 +57,7 @@ def Collection(path, lock=True, server=False, log=False):
         col.lock()
     return col
 
-def _upgradeSchema(db):
+def _upgradeSchema(db) -> Any:
     ver = db.scalar("select ver from col")
     if ver == SCHEMA_VERSION:
         return ver
@@ -83,7 +86,7 @@ id, guid, mid, mod, usn, tags, flds, sfld, csum, flags, data from notes2""")
         _updateIndices(db)
     return ver
 
-def _upgrade(col, ver):
+def _upgrade(col, ver) -> None:
     if ver < 3:
         # new deck properties
         for d in col.decks.all():
@@ -184,7 +187,7 @@ update cards set left = left + left*1000 where queue = 1""")
             col.models.save(m)
         col.db.execute("update col set ver = 11")
 
-def _upgradeClozeModel(col, m):
+def _upgradeClozeModel(col, m) -> None:
     m['type'] = MODEL_CLOZE
     # convert first template
     t = m['tmpls'][0]
@@ -205,7 +208,7 @@ def _upgradeClozeModel(col, m):
 # Creating a new collection
 ######################################################################
 
-def _createDB(db):
+def _createDB(db) -> int:
     db.execute("pragma page_size = 4096")
     db.execute("pragma legacy_file_format = 0")
     db.execute("vacuum")
@@ -214,7 +217,7 @@ def _createDB(db):
     db.execute("analyze")
     return SCHEMA_VERSION
 
-def _addSchema(db, setColConf=True):
+def _addSchema(db, setColConf=True) -> None:
     db.executescript("""
 create table if not exists col (
     id              integer primary key,
@@ -291,7 +294,7 @@ values(1,0,0,%(s)s,%(v)s,0,0,0,'','{}','','','{}');
     if setColConf:
         _addColVars(db, *_getColVars(db))
 
-def _getColVars(db):
+def _getColVars(db) -> Tuple[Any, Any, Dict[str, Optional[Union[int, str, List[int]]]]]:
     import anki.collection
     import anki.decks
     g = copy.deepcopy(anki.decks.defaultDeck)
@@ -303,14 +306,14 @@ def _getColVars(db):
     gc['id'] = 1
     return g, gc, anki.collection.defaultConf.copy()
 
-def _addColVars(db, g, gc, c):
+def _addColVars(db, g, gc, c) -> None:
     db.execute("""
 update col set conf = ?, decks = ?, dconf = ?""",
                    json.dumps(c),
                    json.dumps({'1': g}),
                    json.dumps({'1': gc}))
 
-def _updateIndices(db):
+def _updateIndices(db) -> None:
     "Add indices to the DB."
     db.executescript("""
 -- syncing

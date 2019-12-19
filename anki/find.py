@@ -9,6 +9,7 @@ import unicodedata
 from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
 from anki.hooks import *
+from typing import Any, List, Optional, Tuple
 
 
 # Find
@@ -16,7 +17,7 @@ from anki.hooks import *
 
 class Finder:
 
-    def __init__(self, col):
+    def __init__(self, col) -> None:
         self.col = col
         self.search = dict(
             added=self._findAdded,
@@ -35,7 +36,7 @@ class Finder:
         self.search['is'] = self._findCardState
         runHook("search", self.search)
 
-    def findCards(self, query, order=False):
+    def findCards(self, query, order=False) -> Any:
         "Return a list of card ids for QUERY."
         tokens = self._tokenize(query)
         preds, args = self._where(tokens)
@@ -52,7 +53,7 @@ class Finder:
             res.reverse()
         return res
 
-    def findNotes(self, query):
+    def findNotes(self, query) -> Any:
         tokens = self._tokenize(query)
         preds, args = self._where(tokens)
         if preds is None:
@@ -73,7 +74,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     # Tokenizing
     ######################################################################
 
-    def _tokenize(self, query):
+    def _tokenize(self, query) -> List:
         inQuote = False
         tokens = []
         token = ""
@@ -127,7 +128,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     # Query building
     ######################################################################
 
-    def _where(self, tokens):
+    def _where(self, tokens) -> Tuple[Any, Optional[List[str]]]:
         # state and query
         s = dict(isnot=False, isor=False, join=False, q="", bad=False)
         args = []
@@ -185,7 +186,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             return None, None
         return s['q'], args
 
-    def _query(self, preds, order):
+    def _query(self, preds, order) -> str:
         # can we skip the note table?
         if "n." not in preds and "n." not in order:
             sql = "select c.id from cards c where "
@@ -204,7 +205,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     # Ordering
     ######################################################################
 
-    def _order(self, order):
+    def _order(self, order) -> Tuple[Any, Any]:
         if not order:
             return "", False
         elif order is not True:
@@ -241,7 +242,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     # Commands
     ######################################################################
 
-    def _findTag(self, args):
+    def _findTag(self, args) -> str:
         (val, args) = args
         if val == "none":
             return 'n.tags = ""'
@@ -253,7 +254,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         args.append(val)
         return "n.tags like ? escape '\\'"
 
-    def _findCardState(self, args):
+    def _findCardState(self, args) -> Optional[str]:
         (val, args) = args
         if val in ("review", "new", "learn"):
             if val == "review":
@@ -273,7 +274,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 (c.queue = 1 and c.due <= %d)""" % (
     self.col.sched.today, self.col.sched.dayCutoff)
 
-    def _findFlag(self, args):
+    def _findFlag(self, args) -> Optional[str]:
         (val, args) = args
         if not val or len(val)!=1 or val not in "01234":
             return
@@ -281,7 +282,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         mask = 2**3 - 1
         return "(c.flags & %d) == %d" % (mask, val)
 
-    def _findRated(self, args):
+    def _findRated(self, args) -> Optional[str]:
         # days(:optional_ease)
         (val, args) = args
         r = val.split(":")
@@ -300,7 +301,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         return ("c.id in (select cid from revlog where id>%d %s)" %
                 (cutoff, ease))
 
-    def _findAdded(self, args):
+    def _findAdded(self, args) -> Optional[str]:
         (val, args) = args
         try:
             days = int(val)
@@ -309,7 +310,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return "c.id > %d" % cutoff
 
-    def _findProp(self, args):
+    def _findProp(self, args) -> Optional[str]:
         # extract
         (val, args) = args
         m = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
@@ -340,31 +341,31 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         q.append("(%s %s %s)" % (prop, cmp, val))
         return " and ".join(q)
 
-    def _findText(self, val, args):
+    def _findText(self, val, args) -> str:
         val = val.replace("*", "%")
         args.append("%"+val+"%")
         args.append("%"+val+"%")
         return "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
 
-    def _findNids(self, args):
+    def _findNids(self, args) -> Optional[str]:
         (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "n.id in (%s)" % val
 
-    def _findCids(self, args):
+    def _findCids(self, args) -> Optional[str]:
         (val, args) = args
         if re.search("[^0-9,]", val):
             return
         return "c.id in (%s)" % val
 
-    def _findMid(self, args):
+    def _findMid(self, args) -> Optional[str]:
         (val, args) = args
         if re.search("[^0-9]", val):
             return
         return "n.mid = %s" % val
 
-    def _findModel(self, args):
+    def _findModel(self, args) -> str:
         (val, args) = args
         ids = []
         val = val.lower()
@@ -373,7 +374,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 ids.append(m['id'])
         return "n.mid in %s" % ids2str(ids)
 
-    def _findDeck(self, args):
+    def _findDeck(self, args) -> Optional[str]:
         # if searching for all decks, skip
         (val, args) = args
         if val == "*":
@@ -404,7 +405,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         sids = ids2str(ids)
         return "c.did in %s or c.odid in %s" % (sids, sids)
 
-    def _findTemplate(self, args):
+    def _findTemplate(self, args) -> str:
         # were we given an ordinal number?
         (val, args) = args
         try:
@@ -428,7 +429,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                             m['id'], t['ord']))
         return " or ".join(lims)
 
-    def _findField(self, field, val):
+    def _findField(self, field, val) -> Optional[str]:
         field = field.lower()
         val = val.replace("*", "%")
         # find models that have that field
@@ -460,7 +461,7 @@ where mid in %s and flds like ? escape '\\'""" % (
             return "0"
         return "n.id in %s" % ids2str(nids)
 
-    def _findDupes(self, args):
+    def _findDupes(self, args) -> Optional[str]:
         # caller must call stripHTMLMedia on passed val
         (val, args) = args
         try:
@@ -479,7 +480,7 @@ where mid in %s and flds like ? escape '\\'""" % (
 # Find and replace
 ##########################################################################
 
-def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
+def findReplace(col, nids, src, dst, regex=False, field=None, fold=True) -> int:
     "Find and replace fields in a note."
     mmap = {}
     if field:
@@ -529,7 +530,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True):
     col.genCards(nids)
     return len(d)
 
-def fieldNames(col, downcase=True):
+def fieldNames(col, downcase=True) -> List:
     fields = set()
     for m in col.models.all():
         for f in m['flds']:
@@ -538,7 +539,7 @@ def fieldNames(col, downcase=True):
                 fields.add(name)
     return list(fields)
 
-def fieldNamesForNotes(col, nids):
+def fieldNamesForNotes(col, nids) -> List:
     fields = set()
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:
@@ -551,7 +552,7 @@ def fieldNamesForNotes(col, nids):
 # Find duplicates
 ##########################################################################
 # returns array of ("dupestr", [nids])
-def findDupes(col, fieldName, search=""):
+def findDupes(col, fieldName, search="") -> List[Tuple[Any, List]]:
     # limit search to notes with applicable field name
     if search:
         search = "("+search+") "

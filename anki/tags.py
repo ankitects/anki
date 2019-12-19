@@ -14,21 +14,22 @@ import json
 from anki.utils import intTime, ids2str
 from anki.hooks import runHook
 import re
+from typing import Any, List, Tuple
 
 class TagManager:
 
     # Registry save/load
     #############################################################
 
-    def __init__(self, col):
+    def __init__(self, col) -> None:
         self.col = col
         self.tags = {}
 
-    def load(self, json_):
+    def load(self, json_) -> None:
         self.tags = json.loads(json_)
         self.changed = False
 
-    def flush(self):
+    def flush(self) -> None:
         if self.changed:
             self.col.db.execute("update col set tags=?",
                                  json.dumps(self.tags))
@@ -37,7 +38,7 @@ class TagManager:
     # Registering and fetching tags
     #############################################################
 
-    def register(self, tags, usn=None):
+    def register(self, tags, usn=None) -> None:
         "Given a list of tags, add any missing ones to tag registry."
         found = False
         for t in tags:
@@ -48,10 +49,10 @@ class TagManager:
         if found:
             runHook("newTag")
 
-    def all(self):
+    def all(self) -> List:
         return list(self.tags.keys())
 
-    def registerNotes(self, nids=None):
+    def registerNotes(self, nids=None) -> None:
         "Add any missing tags from notes to the tags list."
         # when called without an argument, the old list is cleared first.
         if nids:
@@ -63,13 +64,13 @@ class TagManager:
         self.register(set(self.split(
             " ".join(self.col.db.list("select distinct tags from notes"+lim)))))
 
-    def allItems(self):
+    def allItems(self) -> List[Tuple[Any, Any]]:
         return list(self.tags.items())
 
-    def save(self):
+    def save(self) -> None:
         self.changed = True
 
-    def byDeck(self, did, children=False):
+    def byDeck(self, did, children=False) -> List:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = basequery + " AND c.did=?"
@@ -85,7 +86,7 @@ class TagManager:
     # Bulk addition/removal from notes
     #############################################################
 
-    def bulkAdd(self, ids, tags, add=True):
+    def bulkAdd(self, ids, tags, add=True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         newTags = self.split(tags)
         if not newTags:
@@ -117,23 +118,23 @@ class TagManager:
             "update notes set tags=:t,mod=:n,usn=:u where id = :id",
             [fix(row) for row in res])
 
-    def bulkRem(self, ids, tags):
+    def bulkRem(self, ids, tags) -> None:
         self.bulkAdd(ids, tags, False)
 
     # String-based utilities
     ##########################################################################
 
-    def split(self, tags):
+    def split(self, tags) -> List:
         "Parse a string and return a list of tags."
         return [t for t in tags.replace('\u3000', ' ').split(" ") if t]
 
-    def join(self, tags):
+    def join(self, tags) -> str:
         "Join tags into a single string, with leading and trailing spaces."
         if not tags:
             return ""
         return " %s " % " ".join(tags)
 
-    def addToStr(self, addtags, tags):
+    def addToStr(self, addtags, tags) -> str:
         "Add tags if they don't exist, and canonify."
         currentTags = self.split(tags)
         for tag in self.split(addtags):
@@ -141,7 +142,7 @@ class TagManager:
                 currentTags.append(tag)
         return self.join(self.canonify(currentTags))
 
-    def remFromStr(self, deltags, tags):
+    def remFromStr(self, deltags, tags) -> str:
         "Delete tags if they exist."
         def wildcard(pat, str):
             pat = re.escape(pat).replace('\\*', '.*')
@@ -161,7 +162,7 @@ class TagManager:
     # List-based utilities
     ##########################################################################
 
-    def canonify(self, tagList):
+    def canonify(self, tagList) -> List:
         "Strip duplicates, adjust case to match existing tags, and sort."
         strippedTags = []
         for t in tagList:
@@ -172,14 +173,14 @@ class TagManager:
             strippedTags.append(s)
         return sorted(set(strippedTags))
 
-    def inList(self, tag, tags):
+    def inList(self, tag, tags) -> bool:
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
 
     # Sync handling
     ##########################################################################
 
-    def beforeUpload(self):
+    def beforeUpload(self) -> None:
         for k in list(self.tags.keys()):
             self.tags[k] = 0
         self.save()

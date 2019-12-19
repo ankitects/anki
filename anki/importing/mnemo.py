@@ -101,7 +101,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
     def fields(self):
         return self._fields
 
-    def _mungeField(self, fld):
+    def _mungeField(self, fld) -> str:
         # \n -> br
         fld = re.sub("\r?\n", "<br>", fld)
         # latex differences
@@ -110,7 +110,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         fld = re.sub("<audio src=\"(.+?)\">(</audio>)?", "[sound:\\1]", fld)
         return fld
 
-    def _addFronts(self, notes, model=None, fields=("f", "b")):
+    def _addFronts(self, notes, model=None, fields=("f", "b")) -> None:
         data = []
         for orig in notes:
             # create a foreign note object
@@ -135,7 +135,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         # import
         self.importNotes(data)
 
-    def _addFrontBacks(self, notes):
+    def _addFrontBacks(self, notes) -> None:
         m = addBasicModel(self.col)
         m['name'] = "Mnemosyne-FrontBack"
         mm = self.col.models
@@ -145,7 +145,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         mm.addTemplate(m, t)
         self._addFronts(notes, m)
 
-    def _addVocabulary(self, notes):
+    def _addVocabulary(self, notes) -> None:
         mm = self.col.models
         m = mm.new("Mnemosyne-Vocabulary")
         for f in "Expression", "Pronunciation", "Meaning", "Notes":
@@ -164,7 +164,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""):
         mm.add(m)
         self._addFronts(notes, m, fields=("f", "p_1", "m_1", "n"))
 
-    def _addCloze(self, notes):
+    def _addCloze(self, notes) -> None:
         data = []
         notes = list(notes.values())
         for orig in notes:

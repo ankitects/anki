@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import Dict, Any
 
 from anki.lang import _
 from anki.consts import MODEL_CLOZE
@@ -10,7 +11,7 @@ models = []
 # Basic
 ##########################################################################
 
-def _newBasicModel(col, name=None):
+def _newBasicModel(col, name=None) -> Dict[str, Any]:
     mm = col.models
     m = mm.new(name or _("Basic"))
     fm = mm.newField(_("Front"))
@@ -23,7 +24,7 @@ def _newBasicModel(col, name=None):
     mm.addTemplate(m, t)
     return m
 
-def addBasicModel(col):
+def addBasicModel(col) -> Dict[str, Any]:
     m = _newBasicModel(col)
     col.models.add(m)
     return m
@@ -33,7 +34,7 @@ models.append((lambda: _("Basic"), addBasicModel))
 # Basic w/ typing
 ##########################################################################
 
-def addBasicTypingModel(col):
+def addBasicTypingModel(col) -> Dict[str, Any]:
     mm = col.models
     m = _newBasicModel(col, _("Basic (type in the answer)"))
     t = m['tmpls'][0]
@@ -47,7 +48,7 @@ models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
 # Forward & Reverse
 ##########################################################################
 
-def _newForwardReverse(col, name=None):
+def _newForwardReverse(col, name=None) -> Dict[str, Any]:
     mm = col.models
     m = _newBasicModel(col, name or _("Basic (and reversed card)"))
     t = mm.newTemplate(_("Card 2"))
@@ -56,7 +57,7 @@ def _newForwardReverse(col, name=None):
     mm.addTemplate(m, t)
     return m
 
-def addForwardReverse(col):
+def addForwardReverse(col) -> Dict[str, Any]:
     m = _newForwardReverse(col)
     col.models.add(m)
     return m
@@ -66,7 +67,7 @@ models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
 # Forward & Optional Reverse
 ##########################################################################
 
-def addForwardOptionalReverse(col):
+def addForwardOptionalReverse(col) -> Dict[str, Any]:
     mm = col.models
     m = _newForwardReverse(col, _("Basic (optional reversed card)"))
     av = _("Add Reverse")
@@ -83,7 +84,7 @@ models.append((lambda: _("Basic (optional reversed card)"),
 # Cloze
 ##########################################################################
 
-def addClozeModel(col):
+def addClozeModel(col) -> Dict[str, Any]:
     mm = col.models
     m = mm.new(_("Cloze"))
     m['type'] = MODEL_CLOZE

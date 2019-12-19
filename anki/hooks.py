@@ -21,7 +21,7 @@ from typing import Dict, List, Callable, Any
 
 _hooks: Dict[str, List[Callable[..., Any]]] = {}
 
-def runHook(hook, *args):
+def runHook(hook, *args) -> None:
     "Run all functions on hook."
     hook = _hooks.get(hook, None)
     if hook:
@@ -32,7 +32,7 @@ def runHook(hook, *args):
                 hook.remove(func)
                 raise
 
-def runFilter(hook, arg, *args):
+def runFilter(hook, arg, *args) -> Any:
     hook = _hooks.get(hook, None)
     if hook:
         for func in hook:
@@ -43,14 +43,14 @@ def runFilter(hook, arg, *args):
                 raise
     return arg
 
-def addHook(hook, func):
+def addHook(hook, func) -> None:
     "Add a function to hook. Ignore if already on hook."
     if not _hooks.get(hook, None):
         _hooks[hook] = []
     if func not in _hooks[hook]:
         _hooks[hook].append(func)
 
-def remHook(hook, func):
+def remHook(hook, func) -> None:
     "Remove a function if is on hook."
     hook = _hooks.get(hook, [])
     if func in hook:
@@ -59,7 +59,7 @@ def remHook(hook, func):
 # Instrumenting
 ##############################################################################
 
-def wrap(old, new, pos="after"):
+def wrap(old, new, pos="after") -> Callable:
     "Override an existing function."
     def repl(*args, **kwargs):
         if pos == "after":
