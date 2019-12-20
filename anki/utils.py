@@ -22,10 +22,10 @@ from anki.lang import _, ngettext
 
 # some add-ons expect json to be in the utils module
 import json # pylint: disable=unused-import
-from typing import Any, Optional, Tuple
 
 from anki.db import DB
-from typing import Any, Iterator, List, Union
+from typing import Any, Iterator, List, Union, Optional, Tuple
+
 _tmpdir: Optional[str]
 
 # Time handling
@@ -339,12 +339,12 @@ def call(argv: List[str], wait: bool = True, **kwargs) -> int:
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
     if isWin:
-        si = subprocess.STARTUPINFO() # pytype: disable=module-attr
+        si = subprocess.STARTUPINFO() # type: ignore
         try:
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW # type: ignore
         except:
             # pylint: disable=no-member
-            si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
+            si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW # type: ignore
     else:
         si = None
     # run
@@ -387,6 +387,7 @@ def invalidFilename(str, dirsep=True) -> Optional[str]:
         return "\\"
     elif str.strip().startswith("."):
         return "."
+    return None
 
 def platDesc() -> str:
     # we may get an interrupted system call, so try this in a loop

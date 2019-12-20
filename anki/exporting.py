@@ -202,6 +202,7 @@ class AnkiExporter(Exporter):
             if int(m['id']) in mids:
                 self.dst.models.update(m)
         # decks
+        dids: List[int]
         if not self.did:
             dids = []
         else:
@@ -294,7 +295,7 @@ class AnkiPackageExporter(AnkiExporter):
         z.writestr("media", json.dumps(media))
         z.close()
 
-    def doExport(self, z: ZipFile, path: str) -> Dict[str, str]:
+    def doExport(self, z: ZipFile, path: str) -> Dict[str, str]: # type: ignore
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)

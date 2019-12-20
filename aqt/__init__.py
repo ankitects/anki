@@ -10,7 +10,7 @@ import tempfile
 import builtins
 import locale
 import gettext
-from typing import Optional
+from typing import Optional, Any
 
 from aqt.qt import *
 import anki.lang
@@ -127,8 +127,8 @@ dialogs = DialogManager()
 # loaded, and we need the Qt language to match the gettext language or
 # translated shortcuts will not work.
 
-_gtrans = None
-_qtrans = None
+_gtrans: Optional[Any] = None
+_qtrans: Optional[QTranslator] = None
 
 def setupLang(pm, app, force=None):
     global _gtrans, _qtrans

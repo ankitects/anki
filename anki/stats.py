@@ -8,7 +8,7 @@ import json
 
 from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
-from typing import Any, List, Tuple, Optional
+from typing import Any, List, Tuple, Optional, Dict
 
 
 # Card stats
@@ -253,7 +253,7 @@ from revlog where id > ? """+lim, (self.col.sched.dayCutoff-86400)*1000)
         return txt
 
     def _dueInfo(self, tot, num) -> str:
-        i = []
+        i: List[str] = []
         self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
         self._line(i, _("Average"), self._avgDay(
             tot, num, _("reviews")))
@@ -289,7 +289,7 @@ group by day order by day""" % (self._limit(), lim),
         data = self._added(days, chunk)
         if not data:
             return ""
-        conf = dict(
+        conf: Dict[str, Any] = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(min=0), dict(position="right", min=0)])
         if days is not None:
@@ -309,7 +309,7 @@ group by day order by day""" % (self._limit(), lim),
         if not period:
             # base off date of earliest added card
             period = self._deckAge('add')
-        i = []
+        i: List[str] = []
         self._line(i, _("Total"), ngettext("%d card", "%d cards", tot) % tot)
         self._line(i, _("Average"), self._avgDay(tot, period, _("cards")))
         txt += self._lineTbl(i)
@@ -321,7 +321,7 @@ group by day order by day""" % (self._limit(), lim),
         data = self._done(days, chunk)
         if not data:
             return ""
-        conf = dict(
+        conf: Dict[str, Any] = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(min=0), dict(position="right", min=0)])
         if days is not None:
@@ -371,7 +371,7 @@ group by day order by day""" % (self._limit(), lim),
         if not period:
             # base off earliest repetition date
             period = self._deckAge('review')
-        i = []
+        i: List[str] = []
         self._line(i, _("Days studied"),
                    _("<b>%(pct)d%%</b> (%(x)s of %(y)s)") % dict(
                        x=studied, y=period, pct=studied/float(period)*100),
@@ -406,9 +406,9 @@ group by day order by day""" % (self._limit(), lim),
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(self, data, spec) -> Tuple[List[dict], List[Tuple[Any, Any]]]:
-        sep = {}
+        sep: Dict[int, Any] = {}
         totcnt = {}
-        totd = {}
+        totd: Dict[int, Any] = {}
         alltot = []
         allcnt = 0
         for (n, col, lab) in spec:
@@ -541,7 +541,7 @@ group by day order by day)""" % lim,
             ], conf=dict(
                 xaxis=dict(min=-0.5, max=ivlmax+0.5),
                 yaxes=[dict(), dict(position="right", max=105)]))
-        i = []
+        i: List[str] = []
         self._line(i, _("Average interval"), fmtTimeSpan(avg*86400))
         self._line(i, _("Longest interval"), fmtTimeSpan(max_*86400))
         return txt + self._lineTbl(i)
@@ -565,7 +565,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2""" %
         # 3 + 4 + 4 + spaces on sides and middle = 15
         # yng starts at 1+3+1 = 5
         # mtr starts at 5+4+1 = 10
-        d = {'lrn':[], 'yng':[], 'mtr':[]}
+        d: Dict[str, List] = {'lrn':[], 'yng':[], 'mtr':[]}
         types = ("lrn", "yng", "mtr")
         eases = self._eases()
         for (type, ease, cnt) in eases:
@@ -651,7 +651,7 @@ order by thetype, ease""" % (ease4repl, lim))
         shifted = []
         counts = []
         mcount = 0
-        trend = []
+        trend: List[Tuple[int,int]] = []
         peak = 0
         for d in data:
             hour = (d[0] - 4) % 24
@@ -727,7 +727,7 @@ group by hour having count() > 30 order by hour""" % lim,
             (_("Suspended+Buried"), colSusp))):
             d.append(dict(data=div[c], label="%s: %s" % (t, div[c]), color=col))
         # text data
-        i = []
+        i: List[str] = []
         (c, f) = self.col.db.first("""
 select count(id), count(distinct nid) from cards
 where did in %s """ % self._limit())
@@ -839,8 +839,8 @@ from cards where did in %s""" % self._limit())
         elif type == "fill":
             conf['series']['lines'] = dict(show=True, fill=True)
         elif type == "pie":
-            width /= 2.3
-            height *= 1.5
+            width = int(float(width)/2.3)
+            height = int(float(height)*1.5)
             ylabel = ""
             conf['series']['pie'] = dict(
                 show=True,

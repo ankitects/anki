@@ -3,21 +3,19 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import copy, re, json
-from typing import Dict, Any
 from anki.utils import intTime, joinFields, splitFields, ids2str,\
     checksum
 from anki.lang import _
 from anki.consts import *
 from anki.hooks import runHook
 import time
-from typing import List, Optional, Tuple, Union
+from typing import Tuple, Union, Any, Callable, Dict, List, Optional
 
 # Models
 ##########################################################################
 
 # - careful not to add any lists/dicts/etc here, as they aren't deep copied
 
-from typing import Any, Callable, Dict, List, Optional
 defaultModel = {
     'sortf': 0,
     'did': 1,
@@ -73,6 +71,7 @@ defaultTemplate = {
 }
 
 class ModelManager:
+    models: Dict[str, Any]
 
     # Saving/loading registry
     #############################################################
@@ -112,6 +111,7 @@ class ModelManager:
             from anki.stdmodels import addBasicModel
             addBasicModel(self.col)
             return True
+        return None
 
     # Retrieving and creating models
     #############################################################

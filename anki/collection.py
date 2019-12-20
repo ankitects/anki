@@ -59,11 +59,20 @@ def timezoneOffset() -> int:
     else:
         return time.timezone//60
 
-from anki.schedv2 import Scheduler
+from anki.sched import Scheduler as V1Scheduler
+from anki.schedv2 import Scheduler as V2Scheduler
 # this is initialized by storage.Collection
 class _Collection:
-    sched: Scheduler
-
+    db: Optional[DB]
+    sched: Union[V1Scheduler, V2Scheduler]
+    crt: int
+    mod: int
+    scm: int
+    dty: bool # no longer used
+    _usn: int
+    ls: int
+    conf: Dict[str, Any]
+    _undo: List[Any]
 
     def __init__(self, db: DB, server: bool = False, log: bool = False) -> None:
         self._debugLog = log
@@ -111,11 +120,9 @@ class _Collection:
     def _loadScheduler(self) -> None:
         ver = self.schedVer()
         if ver == 1:
-            from anki.sched import Scheduler
+            self.sched = V1Scheduler(self)
         elif ver == 2:
-            from anki.schedv2 import Scheduler
-
-        self.sched = Scheduler(self)
+            self.sched = V2Scheduler(self)
 
     def changeSchedulerVer(self, ver: int) -> None:
         if ver == self.schedVer():
@@ -126,8 +133,7 @@ class _Collection:
         self.modSchema(check=True)
         self.clearUndo()
 
-        from anki.schedv2 import Scheduler
-        v2Sched = Scheduler(self)
+        v2Sched = V2Scheduler(self)
 
         if ver == 1:
             v2Sched.moveToV1()
@@ -149,14 +155,14 @@ class _Collection:
          self.dty, # no longer used
          self._usn,
          self.ls,
-         self.conf,
+         conf,
          models,
          decks,
          dconf,
          tags) = self.db.first("""
 select crt, mod, scm, dty, usn, ls,
 conf, models, decks, dconf, tags from col""")
-        self.conf = json.loads(self.conf)
+        self.conf = json.loads(conf) # type: ignore
         self.models.load(models)
         self.decks.load(decks, dconf)
         self.tags.load(tags)
@@ -197,6 +203,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         if time.time() - self._lastSave > 300:
             self.save()
             return True
+        return None
 
     def lock(self) -> None:
         # make sure we don't accidentally bump mod time
@@ -361,13 +368,13 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 ok.append(t)
         return ok
 
-    def genCards(self, nids: List[int]) -> List:
+    def genCards(self, nids: List[int]) -> List[int]:
         "Generate cards for non-empty templates, return ids to remove."
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
-        have = {}
-        dids = {}
-        dues = {}
+        have: Dict[int,Dict[int, int]] = {}
+        dids: Dict[int,Optional[int]] = {}
+        dues: Dict[int,int] = {}
         for id, nid, ord, did, due, odue, odid, type in self.db.execute(
             "select id, nid, ord, did, due, odue, odid, type from cards where nid in "+snids):
             # existing cards
@@ -514,8 +521,8 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
                      ids2str(nids))
         self._remNotes(nids)
 
-    def emptyCids(self) -> List:
-        rem = []
+    def emptyCids(self) -> List[int]:
+        rem: List[int] = []
         for m in self.models.all():
             rem += self.genCards(self.models.nids(m))
         return rem
@@ -592,7 +599,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         fields['Card'] = template['name']
         fields['c%d' % (data[4]+1)] = "1"
         # render q & a
-        d = dict(id=data[0])
+        d: Dict[str,Any] = dict(id=data[0])
         qfmt = qfmt or template['qfmt']
         afmt = afmt or template['afmt']
         for (type, format) in (("q", qfmt), ("a", afmt)):
@@ -664,7 +671,7 @@ where c.nid == f.id
         self._startTime = time.time()
         self._startReps = self.sched.reps
 
-    def timeboxReached(self) -> Optional[Union[bool, Tuple[Any, int]]]:
+    def timeboxReached(self) -> Union[bool, Tuple[Any, int]]:
         "Return (elapsedTime, reps) if timebox reached, or False."
         if not self.conf['timeLim']:
             # timeboxing disabled
@@ -672,6 +679,7 @@ where c.nid == f.id
         elapsed = time.time() - self._startTime
         if elapsed > self.conf['timeLim']:
             return (self.conf['timeLim'], self.sched.reps - self._startReps)
+        return False
 
     # Undo
     ##########################################################################
@@ -694,7 +702,7 @@ where c.nid == f.id
             self._undoOp()
 
     def markReview(self, card: Card) -> None:
-        old = []
+        old: List[Any] = []
         if self._undo:
             if self._undo[0] == 1:
                 old = self._undo[2]
@@ -746,17 +754,17 @@ where c.nid == f.id
     # DB maintenance
     ##########################################################################
 
-    def basicCheck(self) -> Optional[bool]:
+    def basicCheck(self) -> bool:
         "Basic integrity check for syncing. True if ok."
         # cards without notes
         if self.db.scalar("""
 select 1 from cards where nid not in (select id from notes) limit 1"""):
-            return
+            return False
         # notes without cards or models
         if self.db.scalar("""
 select 1 from notes where id not in (select distinct nid from cards)
 or mid not in %s limit 1""" % ids2str(self.models.ids())):
-            return
+            return False
         # invalid ords
         for m in self.models.all():
             # ignore clozes
@@ -767,7 +775,7 @@ select 1 from cards where ord not in %s and nid in (
 select id from notes where mid = ?) limit 1""" %
                                ids2str([t['ord'] for t in m['tmpls']]),
                                m['id']):
-                return
+                return False
         return True
 
     def fixIntegrity(self) -> Tuple[Any, bool]:

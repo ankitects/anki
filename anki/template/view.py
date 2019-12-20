@@ -12,18 +12,18 @@ class View:
 
     # The name of this template. If none is given the View will try
     # to infer it based on the class name.
-    template_name = None
+    template_name: str = None
 
     # Absolute path to the template itself. Pystache will try to guess
     # if it's not provided.
-    template_file = None
+    template_file: str = None
 
     # Contents of the template.
-    template = None
+    template: str = None
 
     # Character encoding of the template file. If None, Pystache will not
     # do any decoding of the template.
-    template_encoding = None
+    template_encoding: str = None
 
     def __init__(self, template=None, context=None, **kwargs) -> None:
         self.template = template

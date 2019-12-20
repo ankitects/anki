@@ -9,7 +9,7 @@ import unicodedata
 from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
 from anki.hooks import *
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Set
 
 
 # Find
@@ -130,20 +130,20 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 
     def _where(self, tokens) -> Tuple[Any, Optional[List[str]]]:
         # state and query
-        s = dict(isnot=False, isor=False, join=False, q="", bad=False)
-        args = []
+        s: Dict[str, Any] = dict(isnot=False, isor=False, join=False, q="", bad=False)
+        args: List[Any] = []
         def add(txt, wrap=True):
             # failed command?
             if not txt:
                 # if it was to be negated then we can just ignore it
                 if s['isnot']:
                     s['isnot'] = False
-                    return
+                    return None, None
                 else:
                     s['bad'] = True
-                    return
+                    return None, None
             elif txt == "skip":
-                return
+                return None, None
             # do we need a conjunction?
             if s['join']:
                 if s['isor']:
@@ -273,11 +273,14 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
 (c.queue in (2,3) and c.due <= %d) or
 (c.queue = 1 and c.due <= %d)""" % (
     self.col.sched.today, self.col.sched.dayCutoff)
+        else:
+            # unknown
+            return None
 
     def _findFlag(self, args) -> Optional[str]:
         (val, args) = args
         if not val or len(val)!=1 or val not in "01234":
-            return
+            return None
         val = int(val)
         mask = 2**3 - 1
         return "(c.flags & %d) == %d" % (mask, val)
@@ -289,13 +292,13 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         try:
             days = int(r[0])
         except ValueError:
-            return
+            return None
         days = min(days, 31)
         # ease
         ease = ""
         if len(r) > 1:
             if r[1] not in ("1", "2", "3", "4"):
-                return
+                return None
             ease = "and ease=%s" % r[1]
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return ("c.id in (select cid from revlog where id>%d %s)" %
@@ -306,7 +309,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         try:
             days = int(val)
         except ValueError:
-            return
+            return None
         cutoff = (self.col.sched.dayCutoff - 86400*days)*1000
         return "c.id > %d" % cutoff
 
@@ -315,7 +318,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
         (val, args) = args
         m = re.match("(^.+?)(<=|>=|!=|=|<|>)(.+?$)", val)
         if not m:
-            return
+            return None
         prop, cmp, val = m.groups()
         prop = prop.lower() # pytype: disable=attribute-error
         # is val valid?
@@ -325,10 +328,10 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
             else:
                 val = int(val)
         except ValueError:
-            return
+            return None
         # is prop valid?
         if prop not in ("due", "ivl", "reps", "lapses", "ease"):
-            return
+            return None
         # query
         q = []
         if prop == "due":
@@ -350,19 +353,19 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
     def _findNids(self, args) -> Optional[str]:
         (val, args) = args
         if re.search("[^0-9,]", val):
-            return
+            return None
         return "n.id in (%s)" % val
 
     def _findCids(self, args) -> Optional[str]:
         (val, args) = args
         if re.search("[^0-9,]", val):
-            return
+            return None
         return "c.id in (%s)" % val
 
     def _findMid(self, args) -> Optional[str]:
         (val, args) = args
         if re.search("[^0-9]", val):
-            return
+            return None
         return "n.mid = %s" % val
 
     def _findModel(self, args) -> str:
@@ -401,7 +404,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                 if re.match("(?i)"+val, unicodedata.normalize("NFC", d['name'])):
                     ids.update(dids(d['id']))
         if not ids:
-            return
+            return None
         sids = ids2str(ids)
         return "c.did in %s or c.odid in %s" % (sids, sids)
 
@@ -440,7 +443,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """+preds
                     mods[str(m['id'])] = (m, f['ord'])
         if not mods:
             # nothing has that field
-            return
+            return None
         # gather nids
         regex = re.escape(val).replace("_", ".").replace(re.escape("%"), ".*")
         nids = []
@@ -456,7 +459,7 @@ where mid in %s and flds like ? escape '\\'""" % (
                 if re.search("(?si)^"+regex+"$", strg):
                     nids.append(id)
             except sre_constants.error:
-                return
+                return None
         if not nids:
             return "0"
         return "n.id in %s" % ids2str(nids)
@@ -467,7 +470,7 @@ where mid in %s and flds like ? escape '\\'""" % (
         try:
             mid, val = val.split(",", 1)
         except OSError:
-            return
+            return None
         csum = fieldChecksum(val)
         nids = []
         for nid, flds in self.col.db.execute(
@@ -531,7 +534,7 @@ def findReplace(col, nids, src, dst, regex=False, field=None, fold=True) -> int:
     return len(d)
 
 def fieldNames(col, downcase=True) -> List:
-    fields = set()
+    fields: Set[str] = set()
     for m in col.models.all():
         for f in m['flds']:
             name=f['name'].lower() if downcase else f['name']
@@ -540,7 +543,7 @@ def fieldNames(col, downcase=True) -> List:
     return list(fields)
 
 def fieldNamesForNotes(col, nids) -> List:
-    fields = set()
+    fields: Set[str] = set()
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:
         model = col.models.get(mid)
@@ -558,9 +561,9 @@ def findDupes(col, fieldName, search="") -> List[Tuple[Any, List]]:
         search = "("+search+") "
     search += "'%s:*'" % fieldName
     # go through notes
-    vals = {}
+    vals: Dict[str, List[int]] = {}
     dupes = []
-    fields = {}
+    fields: Dict[int, int] = {}
     def ordForMid(mid):
         if mid not in fields:
             model = col.models.get(mid)

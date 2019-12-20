@@ -14,7 +14,8 @@ import json
 from anki.utils import intTime, ids2str
 from anki.hooks import runHook
 import re
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Callable, Dict
+
 
 class TagManager:
 
@@ -23,7 +24,7 @@ class TagManager:
 
     def __init__(self, col) -> None:
         self.col = col
-        self.tags = {}
+        self.tags: Dict[str, int] = {}
 
     def load(self, json_) -> None:
         self.tags = json.loads(json_)
@@ -95,6 +96,7 @@ class TagManager:
         if add:
             self.register(newTags)
         # find notes missing the tags
+        fn: Callable[[str, str], str]
         if add:
             l = "tags not "
             fn = self.addToStr

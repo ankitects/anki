@@ -6,10 +6,8 @@ import re, os, shutil, html
 from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
 from anki.hooks import addHook
 from anki.lang import _
-from typing import Any
-
-
 from typing import Any, Dict, List, Optional, Union
+
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
     ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"]

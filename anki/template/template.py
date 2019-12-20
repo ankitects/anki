@@ -1,11 +1,11 @@
 import re
 from anki.utils import stripHTML, stripHTMLMedia
 from anki.hooks import runFilter
-from typing import Any, Callable, NoReturn, Optional
+from typing import Any, Callable, Pattern, Dict
 
 clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
 
-modifiers = {}
+modifiers: Dict[str, Callable] = {}
 def modifier(symbol) -> Callable[[Any], Any]:
     """Decorator for associating a function with a Mustache tag modifier.
 
@@ -35,10 +35,10 @@ def get_or_attr(obj, name, default=None) -> Any:
 
 class Template:
     # The regular expression used to find a #section
-    section_re = None
+    section_re: Pattern = None
 
     # The regular expression used to find a tag.
-    tag_re = None
+    tag_re: Pattern = None
 
     # Opening tag delimiter
     otag = '{{'
@@ -58,8 +58,8 @@ class Template:
 
         template = self.render_sections(template, context)
         result = self.render_tags(template, context)
-        if encoding is not None:
-            result = result.encode(encoding)
+        # if encoding is not None:
+        #     result = result.encode(encoding)
         return result
 
     def compile_regexps(self) -> None:
@@ -72,7 +72,7 @@ class Template:
         tag = r"%(otag)s(#|=|&|!|>|\{)?(.+?)\1?%(ctag)s+"
         self.tag_re = re.compile(tag % tags)
 
-    def render_sections(self, template, context) -> NoReturn:
+    def render_sections(self, template, context) -> str:
         """Expands sections."""
         while 1:
             match = self.section_re.search(template)
@@ -238,12 +238,12 @@ class Template:
         return txt
 
     @modifier('=')
-    def render_delimiter(self, tag_name=None, context=None) -> Optional[str]:
+    def render_delimiter(self, tag_name=None, context=None) -> str:
         """Changes the Mustache delimiter."""
         try:
             self.otag, self.ctag = tag_name.split(' ')
         except ValueError:
             # invalid
-            return
+            return ''
         self.compile_regexps()
         return ''

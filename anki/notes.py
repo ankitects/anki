@@ -8,6 +8,7 @@ from typing import List, Tuple
 from typing import Any, Optional
 
 class Note:
+    tags: List[str]
 
     def __init__(self, col, model: Optional[Any] = None, id: Optional[int] = None) -> None:
         assert not (model and id)
@@ -34,12 +35,12 @@ class Note:
          self.mod,
          self.usn,
          self.tags,
-         self.fields,
+         fields,
          self.flags,
          self.data) = self.col.db.first("""
 select guid, mid, mod, usn, tags, flds, flags, data
 from notes where id = ?""", self.id)
-        self.fields = splitFields(self.fields)
+        self.fields = splitFields(fields)
         self.tags = self.col.tags.split(self.tags)
         self._model = self.col.models.get(self.mid)
         self._fmap = self.col.models.fieldMap(self._model)

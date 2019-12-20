@@ -23,7 +23,9 @@ from anki.hooks import runHook
 
 from anki.cards import Card
 #from anki.collection import _Collection
-from typing import Any, Callable, Dict, List, Optional, Union, Tuple
+from typing import Any, Callable, Dict, List, Optional, Union, Tuple, Set
+
+
 class Scheduler:
     name = "std2"
     haveCustomStudy = True
@@ -35,7 +37,7 @@ class Scheduler:
         self.reportLimit = 1000
         self.dynReportLimit = 99999
         self.reps = 0
-        self.today = None
+        self.today: Optional[int] = None
         self._haveQueues = False
         self._lrnCutoff = 0
         self._updateCutoff()
@@ -179,7 +181,7 @@ order by due""" % self._deckLimit(),
 
     def _walkingCount(self, limFn: Optional[Callable] = None, cntFn: Optional[Callable] = None) -> Any:
         tot = 0
-        pcounts = {}
+        pcounts: Dict[int, int] = {}
         # for each of the active decks
         nameMap = self.col.decks.nameMap()
         for did in self.col.decks.active():
@@ -217,7 +219,7 @@ order by due""" % self._deckLimit(),
         self.col.decks.checkIntegrity()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter('name'))
-        lims = {}
+        lims: Dict[str, List[int]] = {}
         data = []
         def parent(name):
             parts = name.split("::")
@@ -260,18 +262,18 @@ order by due""" % self._deckLimit(),
         # then run main function
         return self._groupChildrenMain(grps)
 
-    def _groupChildrenMain(self, grps: List[List[Union[List[str], int]]]) -> Tuple[Tuple[Any, Any, Any, Any, Any, Any], ...]:
+    def _groupChildrenMain(self, grps: Any) -> Any:
         tree = []
         # group and recurse
         def key(grp):
             return grp[0][0]
         for (head, tail) in itertools.groupby(grps, key=key):
-            tail = list(tail)
+            tail = list(tail) # type: ignore
             did = None
             rev = 0
             new = 0
             lrn = 0
-            children = []
+            children: Any = []
             for c in tail:
                 if len(c[0]) == 1:
                     # current node
@@ -350,7 +352,7 @@ did = ? and queue = 0 limit ?)""", did, lim)
     def _resetNew(self) -> None:
         self._resetNewCount()
         self._newDids = self.col.decks.active()[:]
-        self._newQueue = []
+        self._newQueue: List[int] = []
         self._updateNewCardRatio()
 
     def _fillNew(self) -> Any:
@@ -403,8 +405,11 @@ did = ? and queue = 0 limit ?)""", did, lim)
             return True
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
+        else:
+            # shouldn't reach
+            return False
 
-    def _deckNewLimit(self, did: int, fn: None = None) -> Any:
+    def _deckNewLimit(self, did: int, fn: Callable[[Dict[str, Any]], int] = None) -> Any:
         if not fn:
             fn = self._deckNewLimitSingle
         sel = self.col.decks.get(did)
@@ -476,8 +481,8 @@ select count() from cards where did in %s and queue = 4
     def _resetLrn(self) -> None:
         self._updateLrnCutoff(force=True)
         self._resetLrnCount()
-        self._lrnQueue = []
-        self._lrnDayQueue = []
+        self._lrnQueue: List[Tuple[int,int]] = []
+        self._lrnDayQueue: List[int] = []
         self._lrnDids = self.col.decks.active()[:]
 
     # sub-day learning
@@ -531,6 +536,8 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 return True
             # nothing left in the deck; move to next
             self._lrnDids.pop(0)
+        # shouldn't reach here
+        return False
 
     def _getLrnDayCard(self) -> Any:
         if self._fillLrnDay():
@@ -678,14 +685,14 @@ did = ? and queue = 3 and due <= ? limit ?""",
         tod = self._leftToday(conf['delays'], tot)
         return tot + tod*1000
 
-    def _leftToday(self, delays: Union[List[int], List[Union[float, int]]], left: int, now: None = None) -> int:
+    def _leftToday(self, delays: Union[List[int], List[Union[float, int]]], left: int, now: Optional[int] = None) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
             now = intTime()
         delays = delays[-left:]
         ok = 0
         for i in range(len(delays)):
-            now += delays[i]*60
+            now += int(delays[i]*60)
             if now > self.dayCutoff:
                 break
             ok = i
@@ -787,7 +794,7 @@ did in %s and queue = 2 and due <= ? limit %d)""" % (
 
     def _resetRev(self) -> None:
         self._resetRevCount()
-        self._revQueue = []
+        self._revQueue: List[int] = []
 
     def _fillRev(self) -> Any:
         if self._revQueue:
@@ -1009,7 +1016,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         self.emptyDyn(did)
         cnt = self._fillDyn(deck)
         if not cnt:
-            return
+            return None
         # and change to our new deck
         self.col.decks.select(did)
         return cnt
@@ -1120,7 +1127,7 @@ where id = ?
         "Leech handler. True if card was a leech."
         lf = conf['leechFails']
         if not lf:
-            return
+            return None
         # if over threshold or every half threshold reps after that
         if (card.lapses >= lf and
             (card.lapses-lf) % (max(lf // 2, 1)) == 0):
@@ -1135,6 +1142,7 @@ where id = ?
             # notify UI
             runHook("leech", card)
             return True
+        return None
 
     # Tools
     ##########################################################################
@@ -1521,7 +1529,7 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
         scids = ids2str(cids)
         now = intTime()
         nids = []
-        nidsSet = set()
+        nidsSet: Set[int] = set()
         for id in cids:
             nid = self.col.db.scalar("select nid from cards where id = ?", id)
             if nid not in nidsSet:

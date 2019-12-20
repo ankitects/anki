@@ -128,18 +128,19 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def dir(self) -> Any:
         return self._dir
 
-    def _isFAT32(self) -> Optional[bool]:
+    def _isFAT32(self) -> bool:
         if not isWin:
-            return
+            return False
         # pylint: disable=import-error
         import win32api, win32file # pytype: disable=import-error
         try:
             name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
         except:
             # mapped & unmapped network drive; pray that it's not vfat
-            return
+            return False
         if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
             return True
+        return False
 
     # Adding media
     ##########################################################################
@@ -200,7 +201,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def filesInStr(self, mid: Union[int, str], string: str, includeRemote: bool = False) -> List[str]:
         l = []
         model = self.col.models.get(mid)
-        strings = []
+        strings: List[str] = []
         if model['type'] == MODEL_CLOZE and "{{c" in string:
             # if the field has clozes in it, we'll need to expand the
             # possibilities so we can render latex
@@ -248,6 +249,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         return txt
 
     def escapeImages(self, string: str, unescape: bool = False) -> str:
+        fn: Callable
         if unescape:
             fn = urllib.parse.unquote
         else:
@@ -458,7 +460,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.db.commit()
 
     def _changes(self) -> Tuple[List[Tuple[str, int]], List[str]]:
-        self.cache = {}
+        self.cache: Dict[str, Any] = {}
         for (name, csum, mod) in self.db.execute(
             "select fname, csum, mtime from media where csum is not null"):
             # previous entries may not have been in NFC form
@@ -614,7 +616,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 # normalize name
                 name = unicodedata.normalize("NFC", name)
                 # save file
-                with open(name, "wb") as f:
+                with open(name, "wb") as f: # type: ignore
                     f.write(data)
                 # update db
                 media.append((name, csum, self._mtime(name), 0))
