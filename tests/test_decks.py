@@ -162,10 +162,11 @@ def test_renameForDragAndDrop():
 def test_check():
     d = getEmptyCol()
 
-    foo_did = d.decks.id("foo")
-    FOO_did = d.decks.id("bar")
-    FOO = d.decks.byName("bar")
-    FOO["name"] = "FOO"
-    d.decks.save(FOO)
-    d.decks._checkDeckTree()
-    assert "foo" not in d.decks.allNames() or "FOO" not in d.decks.allNames()
+    # currently disabled - see 5418af00f733ca62b0c087d1422feae01d6571b0
+    # foo_did = d.decks.id("foo")
+    # FOO_did = d.decks.id("bar")
+    # FOO = d.decks.byName("bar")
+    # FOO["name"] = "FOO"
+    # d.decks.save(FOO)
+    # d.decks._checkDeckTree()
+    # assert "foo" not in d.decks.allNames() or "FOO" not in d.decks.allNames()
