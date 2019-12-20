@@ -13,7 +13,6 @@ from threading import Thread
 from typing import Optional
 from send2trash import send2trash
 from anki.collection import _Collection
-from aqt.profiles import ProfileManager
 from aqt.qt import *
 from anki.storage import Collection
 from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
@@ -34,7 +33,7 @@ from aqt.qt import sip
 from anki.lang import _, ngettext
 
 class AnkiQt(QMainWindow):
-    def __init__(self, app: QApplication, profileManager: ProfileManager, opts, args):
+    def __init__(self, app: QApplication, profileManager, opts, args):
         QMainWindow.__init__(self)
         self.state = "startup"
         self.opts = opts
