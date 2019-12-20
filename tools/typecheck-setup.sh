@@ -10,4 +10,4 @@ TOOLS="$(cd "`dirname "$0"`"; pwd)"
 modDir=$(python -c 'import PyQt5, sys, os; print(os.path.dirname(sys.modules["PyQt5"].__file__))')
 cmd="rsync -a $TOOLS/stubs/PyQt5/* $modDir/"
 
-$cmd || sudo $cmd
+$cmd > /dev/null 2>&1 || sudo $cmd
