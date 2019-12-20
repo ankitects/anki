@@ -8,8 +8,10 @@ from anki.storage import Collection
 from anki.utils import intTime, splitFields, joinFields
 from anki.importing.base import Importer
 from anki.lang import _
-from typing import Any
+from typing import Any, Optional
 
+from anki.collection import _Collection
+from typing import List, Union
 GUID = 1
 MID = 2
 MOD = 3
@@ -20,7 +22,7 @@ class Anki2Importer(Importer):
     deckPrefix = None
     allowUpdate = True
 
-    def __init__(self, col, file):
+    def __init__(self, col: _Collection, file: str) -> None:
         super().__init__(col, file)
 
         # set later, defined here for typechecking
@@ -28,7 +30,7 @@ class Anki2Importer(Importer):
         self._decks = {}
         self.mustResetLearning = False
 
-    def run(self, media=None) -> None:
+    def run(self, media: None = None) -> None:
         self._prepareFiles()
         if media is not None:
             # Anki1 importer has provided us with a custom media folder
@@ -69,7 +71,7 @@ class Anki2Importer(Importer):
     # Notes
     ######################################################################
 
-    def _logNoteRow(self, action, noteRow) -> None:
+    def _logNoteRow(self, action: str, noteRow: List[str]) -> None:
         self.log.append("[%s] %s" % (
             action,
             noteRow[6].replace("\x1f", ", ")
@@ -186,7 +188,7 @@ class Anki2Importer(Importer):
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added
-    def _uniquifyNote(self, note) -> bool:
+    def _uniquifyNote(self, note: List[Union[int, str]]) -> bool:
         origGuid = note[GUID]
         srcMid = note[MID]
         dstMid = self._mid(srcMid)
@@ -212,7 +214,7 @@ class Anki2Importer(Importer):
         "Prepare index of schema hashes."
         self._modelMap = {}
 
-    def _mid(self, srcMid) -> Any:
+    def _mid(self, srcMid: int) -> Any:
         "Return local id for remote MID."
         # already processed this mid?
         if srcMid in self._modelMap:
@@ -249,7 +251,7 @@ class Anki2Importer(Importer):
     # Decks
     ######################################################################
 
-    def _did(self, did) -> Any:
+    def _did(self, did: int) -> Any:
         "Given did in src col, return local id."
         # already converted?
         if did in self._decks:
@@ -393,7 +395,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             if fname.startswith("_") and not self.dst.media.have(fname):
                 self._writeDstMedia(fname, self._srcMediaData(fname))
 
-    def _mediaData(self, fname, dir=None) -> bytes:
+    def _mediaData(self, fname: str, dir: Optional[str] = None) -> bytes:
         if not dir:
             dir = self.src.media.dir()
         path = os.path.join(dir, fname)
@@ -403,15 +405,15 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
         except (IOError, OSError):
             return
 
-    def _srcMediaData(self, fname) -> bytes:
+    def _srcMediaData(self, fname: str) -> bytes:
         "Data for FNAME in src collection."
         return self._mediaData(fname, self.src.media.dir())
 
-    def _dstMediaData(self, fname) -> bytes:
+    def _dstMediaData(self, fname: str) -> bytes:
         "Data for FNAME in dst collection."
         return self._mediaData(fname, self.dst.media.dir())
 
-    def _writeDstMedia(self, fname, data) -> None:
+    def _writeDstMedia(self, fname: str, data: bytes) -> None:
         path = os.path.join(self.dst.media.dir(),
                             unicodedata.normalize("NFC", fname))
         try:
@@ -421,7 +423,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             # the user likely used subdirectories
             pass
 
-    def _mungeMedia(self, mid, fields) -> str:
+    def _mungeMedia(self, mid: int, fields: str) -> str:
         fields = splitFields(fields)
         def repl(match):
             fname = match.group("fname")

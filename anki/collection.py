@@ -59,8 +59,11 @@ def timezoneOffset() -> int:
     else:
         return time.timezone//60
 
+from anki.schedv2 import Scheduler
 # this is initialized by storage.Collection
 class _Collection:
+    sched: Scheduler
+
 
     def __init__(self, db: DB, server: bool = False, log: bool = False) -> None:
         self._debugLog = log

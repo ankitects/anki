@@ -9,9 +9,10 @@ from anki.utils import tmpfile
 from anki.importing.anki2 import Anki2Importer
 from typing import Any
 
+from anki.collection import _Collection
 class AnkiPackageImporter(Anki2Importer):
 
-    def __init__(self, col, file):
+    def __init__(self, col: _Collection, file: str) -> None:
         super().__init__(col, file)
         # set later; set here for typechecking
         self.nameToNum = {}
@@ -53,7 +54,7 @@ class AnkiPackageImporter(Anki2Importer):
                 with open(path, "wb") as f:
                     f.write(z.read(c))
 
-    def _srcMediaData(self, fname) -> Any:
+    def _srcMediaData(self, fname: str) -> Any:
         if fname in self.nameToNum:
             return self.zip.read(self.nameToNum[fname])
         return None
