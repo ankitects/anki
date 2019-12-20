@@ -51,9 +51,6 @@ Please make sure 'make check' completes successfully before submitting code.
 If your change is to anki/ and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
 
-If 'make check' fails because the JS styling doesn't match, you can run
-'make pretty' to automatically adjust the styling.
-
 Do One Thing
 -------------
 

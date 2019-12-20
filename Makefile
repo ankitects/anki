@@ -153,7 +153,7 @@ fixpyimports:
 TSCHECKDEPS := $(BUILDDEPS) $(TSDEPS)
 
 .build/checkpretty: $(TSCHECKDEPS)
-	(cd ts && npm run check-pretty)
+	(cd ts && npm run check-pretty) # if this fails, run 'make pretty'
 	touch $@
 
 .build/pretty: $(TSCHECKDEPS)
