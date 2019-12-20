@@ -6,7 +6,6 @@ import gzip, math, random, time, html
 import xml.etree.ElementTree as ET
 from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
 from anki.stdmodels import addForwardReverse
-from typing import List
 
 ONE_DAY = 60*60*24
 
@@ -29,7 +28,7 @@ class PaukerImporter(NoteImporter):
         '''Pauker is Front/Back'''
         return 2
 
-    def foreignNotes(self) -> List[ForeignNote]:
+    def foreignNotes(self):
         '''Build and return a list of notes.'''
         notes = []
 
@@ -67,7 +66,7 @@ class PaukerImporter(NoteImporter):
 
         return notes
 
-    def _learnedCard(self, batch, timestamp) -> ForeignCard:
+    def _learnedCard(self, batch, timestamp):
         ivl = math.exp(batch)
         now = time.time()
         due = ivl - (now - timestamp/1000.0)/ONE_DAY

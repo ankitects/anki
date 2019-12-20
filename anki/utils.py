@@ -276,7 +276,7 @@ def _incGuid(guid) -> str:
 def joinFields(list: List[str]) -> str:
     return "\x1f".join(list)
 
-def splitFields(string: str) -> Any:
+def splitFields(string: str) -> List[str]:
     return string.split("\x1f")
 
 # Checksums

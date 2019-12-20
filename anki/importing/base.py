@@ -3,20 +3,21 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.utils import  maxID
-from typing import Any
+from typing import Any, Optional, List
+from anki.collection import _Collection
 
 # Base importer
 ##########################################################################
 
-from anki.collection import _Collection
 class Importer:
 
     needMapper = False
     needDelimiter = False
+    dst: Optional[_Collection]
 
     def __init__(self, col: _Collection, file: str) -> None:
         self.file = file
-        self.log = []
+        self.log: List[str] = []
         self.col = col
         self.total = 0
         self.dst = None

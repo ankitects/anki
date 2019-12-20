@@ -12,20 +12,19 @@ from anki.utils import fieldChecksum, guid64, timestampID, \
     joinFields, intTime, splitFields
 from anki.importing.base import Importer
 from anki.lang import ngettext
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple, Dict, Union
+from anki.collection import _Collection
 
 # Stores a list of fields, tags and deck
 ######################################################################
 
-from anki.collection import _Collection
-from typing import List, Optional, Union
 class ForeignNote:
     "An temporary object storing fields and attributes."
     def __init__(self) -> None:
-        self.fields = []
-        self.tags = []
+        self.fields: List[str] = []
+        self.tags: List[str] = []
         self.deck = None
-        self.cards = {} # map of ord -> card
+        self.cards: Dict[int,ForeignCard] = {} # map of ord -> card
         self.fieldsStr = ""
 
 class ForeignCard:
@@ -56,12 +55,12 @@ class NoteImporter(Importer):
     needDelimiter = False
     allowHTML = False
     importMode = 0
+    mapping: Optional[List[str]]
 
     def __init__(self, col: _Collection, file: str) -> None:
         Importer.__init__(self, col, file)
         self.model = col.models.current()
         self.mapping = None
-        self._deckMap = {}
         self._tagsMapped = False
 
     def run(self) -> None:
@@ -105,14 +104,14 @@ class NoteImporter(Importer):
             if f == "_tags":
                 self._tagsMapped = True
         # gather checks for duplicate comparison
-        csums = {}
+        csums: Dict[str, List[int]] = {}
         for csum, id in self.col.db.execute(
             "select csum, id from notes where mid = ?", self.model['id']):
             if csum in csums:
                 csums[csum].append(id)
             else:
                 csums[csum] = [id]
-        firsts = {}
+        firsts: Dict[str, bool] = {}
         fld0idx = self.mapping.index(self.model['flds'][0]['name'])
         self._fmap = self.col.models.fieldMap(self.model)
         self._nextID = timestampID(self.col.db, "notes")
@@ -122,11 +121,11 @@ class NoteImporter(Importer):
         updateLogTxt = _("First field matched: %s")
         dupeLogTxt = _("Added duplicate with first field: %s")
         new = []
-        self._ids = []
-        self._cards = []
+        self._ids: List[int] = []
+        self._cards: List[Tuple] = []
         self._emptyNotes = False
         dupeCount = 0
-        dupes = []
+        dupes: List[str] = []
         for n in notes:
             for c in range(len(n.fields)):
                 if not self.allowHTML:
@@ -228,7 +227,7 @@ content in the text file to the correct fields."""))
         self._nextID += 1
         self._ids.append(id)
         if not self.processFields(n):
-            return
+            return None
         # note id for card updates later
         for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
@@ -245,7 +244,7 @@ content in the text file to the correct fields."""))
     def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
         self._ids.append(id)
         if not self.processFields(n, sflds):
-            return
+            return None
         if self._tagsMapped:
             self.col.tags.register(n.tags)
             tags = self.col.tags.join(n.tags)
