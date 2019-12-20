@@ -17,6 +17,8 @@ from typing import Any, List, Optional
 # Stores a list of fields, tags and deck
 ######################################################################
 
+from anki.collection import _Collection
+from typing import List, Optional, Union
 class ForeignNote:
     "An temporary object storing fields and attributes."
     def __init__(self) -> None:
@@ -24,6 +26,7 @@ class ForeignNote:
         self.tags = []
         self.deck = None
         self.cards = {} # map of ord -> card
+        self.fieldsStr = ""
 
 class ForeignCard:
     def __init__(self) -> None:
@@ -54,14 +57,14 @@ class NoteImporter(Importer):
     allowHTML = False
     importMode = 0
 
-    def __init__(self, col, file):
+    def __init__(self, col: _Collection, file: str) -> None:
         Importer.__init__(self, col, file)
         self.model = col.models.current()
         self.mapping = None
         self._deckMap = {}
         self._tagsMapped = False
 
-    def run(self):
+    def run(self) -> None:
         "Import."
         assert self.mapping
         c = self.foreignNotes()
@@ -93,7 +96,7 @@ class NoteImporter(Importer):
         "Open file and ensure it's in the right format."
         return
 
-    def importNotes(self, notes) -> None:
+    def importNotes(self, notes: List[ForeignNote]) -> None:
         "Convert each card into a note, apply attributes and add to col."
         assert self.mappingOk()
         # note whether tags are mapped
@@ -220,7 +223,7 @@ This can happen when you have empty fields or when you have not mapped the \
 content in the text file to the correct fields."""))
         self.total = len(self._ids)
 
-    def newData(self, n) -> Optional[list]:
+    def newData(self, n: ForeignNote) -> Optional[list]:
         id = self._nextID
         self._nextID += 1
         self._ids.append(id)
@@ -234,12 +237,12 @@ content in the text file to the correct fields."""))
                 intTime(), self.col.usn(), self.col.tags.join(n.tags),
                 n.fieldsStr, "", "", 0, ""]
 
-    def addNew(self, rows) -> None:
+    def addNew(self, rows: List[List[Union[int, str]]]) -> None:
         self.col.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
             rows)
 
-    def updateData(self, n, id, sflds) -> Optional[list]:
+    def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
         self._ids.append(id)
         if not self.processFields(n, sflds):
             return
@@ -252,7 +255,7 @@ content in the text file to the correct fields."""))
             return [intTime(), self.col.usn(), n.fieldsStr,
                     id, n.fieldsStr]
 
-    def addUpdates(self, rows) -> None:
+    def addUpdates(self, rows: List[List[Union[int, str]]]) -> None:
         old = self.col.db.totalChanges()
         if self._tagsMapped:
             self.col.db.executemany("""
@@ -264,7 +267,7 @@ update notes set mod = ?, usn = ?, flds = ?
 where id = ? and flds != ?""", rows)
         self.updateCount = self.col.db.totalChanges() - old
 
-    def processFields(self, note, fields=None) -> Any:
+    def processFields(self, note: ForeignNote, fields: Optional[List[str]] = None) -> Any:
         if not fields:
             fields = [""]*len(self.model['flds'])
         for c, f in enumerate(self.mapping):

@@ -10,12 +10,13 @@ from anki.lang import _
 from typing import List
 
 
+from anki.collection import _Collection
 class TextImporter(NoteImporter):
 
     needDelimiter = True
     patterns = "\t|,;:"
 
-    def __init__(self, col, file):
+    def __init__(self, col: _Collection, file: str) -> None:
         NoteImporter.__init__(self, col, file)
         self.lines = None
         self.fileobj = None
@@ -56,7 +57,7 @@ class TextImporter(NoteImporter):
         self.fileobj.close()
         return notes
 
-    def open(self):
+    def open(self) -> None:
         "Parse the top line and determine the pattern and number of fields."
         # load & look for the right pattern
         self.cacheFile()
@@ -122,12 +123,12 @@ class TextImporter(NoteImporter):
             err()
         self.initMapping()
 
-    def fields(self):
+    def fields(self) -> int:
         "Number of fields."
         self.open()
         return self.numFields
 
-    def noteFromFields(self, fields) -> ForeignNote:
+    def noteFromFields(self, fields: List[str]) -> ForeignNote:
         note = ForeignNote()
         note.fields.extend([x for x in fields])
         note.tags.extend(self.tagsToAdd)

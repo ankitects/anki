@@ -8,12 +8,13 @@ from typing import Any
 # Base importer
 ##########################################################################
 
+from anki.collection import _Collection
 class Importer:
 
     needMapper = False
     needDelimiter = False
 
-    def __init__(self, col, file) -> None:
+    def __init__(self, col: _Collection, file: str) -> None:
         self.file = file
         self.log = []
         self.col = col
