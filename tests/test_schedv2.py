@@ -386,7 +386,7 @@ def test_review_limits():
 
     m = d.models.current()
     m['did'] = child['id']
-    d.models.save(m)
+    d.models.save(m, updateReqs=False)
 
     # add some cards
     for i in range(20):
