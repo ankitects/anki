@@ -37,6 +37,33 @@ Examples of changes that are unlikely to be accepted:
 - Adding code that addresses niche issues - they are better handled in an
   add-on.
 
+Type hints
+-----------
+
+Type hints have recently been added to parts of the codebase, mainly using
+automated tools. Patches that improve the type hints are welcome, but
+pragmatism is advised. Anki's codebase is old and of varying quality, and
+there are parts that are difficult to type properly. Don't feel the need to
+avoid 'Any' when a proper type is impractical.
+
+When adding type signatures, please avoid refactoring the code, as this is
+liable to break add-ons or introduce regressions.
+
+Anki's Makefile invokes two type checkers - mypy and pytype. Mypy is fast, but
+not very good at type inference, so it is mostly useful for checking code
+that has type signatures. It is able to read the bundled Qt stubs, and works
+across the whole Anki codebase.
+
+pytype is much slower, but is better able to infer types when typing hints
+are unavailable. It is not able to check the aqt/* code, as it can't read
+the Qt stubs, and it is not currently compatible with Python 3.8.
+
+The Qt stubs are not perfect, so you'll find when doing things like connecting
+signals, you may have to add the following to the end of a line to silence
+the spurious errors.
+
+ # type: ignore
+
 Maintaining Style
 ------------------
 
