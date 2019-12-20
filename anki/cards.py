@@ -5,6 +5,7 @@ import pprint
 import time
 from typing import Any, Dict, Optional
 
+from anki.collection import _Collection
 from anki.consts import *
 from anki.hooks import runHook
 from anki.notes import Note
@@ -21,15 +22,16 @@ from anki.utils import intTime, joinFields, timestampID
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
+
 class Card:
-    _qa: Optional[Dict[str,str]]
+    col: _Collection
+    _qa: Optional[Dict[str, str]]
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: Optional[int]
 
-    def __init__(self, col, id: Optional[int] = None) -> None:
-        from anki.collection import _Collection
-        self.col: _Collection = col
+    def __init__(self, col: _Collection, id: Optional[int] = None) -> None:
+        self.col = col
         self.timerStarted = None
         self._qa = None
         self._note = None
@@ -134,14 +136,16 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def _getQA(self, reload: bool = False, browser: bool = False) -> Any:
         if not self._qa or reload:
-            f = self.note(reload); m = self.model(); t = self.template()
+            f = self.note(reload)
+            m = self.model()
+            t = self.template()
             data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
                     f.stringTags(), f.joinedFields(), self.flags]
             if browser:
                 args = [t.get('bqfmt'), t.get('bafmt')]
             else:
                 args = []
-            self._qa = self.col._renderQA(data, *args) # type: ignore
+            self._qa = self.col._renderQA(data, *args)  # type: ignore
         return self._qa
 
     def note(self, reload: bool = False) -> Any:
