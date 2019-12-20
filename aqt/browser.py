@@ -10,6 +10,7 @@ import unicodedata
 from operator import  itemgetter
 from typing import Callable, List, Dict, Optional
 
+from anki.collection import _Collection
 from anki.lang import ngettext
 import json
 
@@ -512,6 +513,9 @@ class SidebarModel(QAbstractItemModel):
 # fixme: respond to reset+edit hooks
 
 class Browser(QMainWindow):
+    model: DataModel
+    mw: AnkiQt
+    col: _Collection
 
     def __init__(self, mw: AnkiQt):
         QMainWindow.__init__(self, None, Qt.Window)

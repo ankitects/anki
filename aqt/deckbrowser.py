@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import Any
 
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
@@ -14,6 +15,7 @@ from copy import deepcopy
 from anki.lang import _, ngettext
 
 class DeckBrowser:
+    _dueTree: Any
 
     def __init__(self, mw):
         self.mw = mw
