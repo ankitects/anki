@@ -87,7 +87,7 @@ def test_gendeck():
     # set the model to a new default deck
     newId = d.decks.id("new")
     cloze['did'] = newId
-    d.models.save(cloze)
+    d.models.save(cloze, updateReqs=False)
     # a newly generated card should share the first card's deck
     f['Text'] += '{{c2::two}}'
     f.flush()
