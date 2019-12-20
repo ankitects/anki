@@ -27,6 +27,7 @@ appUpdate="https://ankiweb.net/update/desktop"
 appHelpSite=HELP_SITE
 
 from aqt.main import AnkiQt
+from aqt.profiles import ProfileManager
 
 mw: Optional[AnkiQt] = None # set on init
 
@@ -130,7 +131,7 @@ dialogs = DialogManager()
 _gtrans: Optional[Any] = None
 _qtrans: Optional[QTranslator] = None
 
-def setupLang(pm, app, force=None):
+def setupLang(pm: ProfileManager, app: QApplication, force: Optional[str]=None) -> None:
     global _gtrans, _qtrans
     try:
         locale.setlocale(locale.LC_ALL, '')
@@ -303,7 +304,6 @@ def _run(argv=None, exec=True):
     opts, args = parseArgs(argv)
 
     # profile manager
-    from aqt.profiles import ProfileManager
     pm = ProfileManager(opts.base)
     pmLoadResult = pm.setupMeta()
 

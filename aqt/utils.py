@@ -426,7 +426,7 @@ def downArrow():
 ######################################################################
 
 _tooltipTimer: Optional[QTimer] = None
-_tooltipLabel: Optional[str] = None
+_tooltipLabel: Optional[QLabel] = None
 
 def tooltip(msg, period=3000, parent=None):
     global _tooltipTimer, _tooltipLabel
