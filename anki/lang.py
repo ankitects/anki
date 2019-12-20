@@ -116,10 +116,10 @@ def localTranslation() -> Any:
     else:
         return currentTranslation
 
-def _(str) -> Any:
+def _(str: str) -> str:
     return localTranslation().gettext(str)
 
-def ngettext(single, plural, n) -> Any:
+def ngettext(single: str, plural: str, n: int) -> str:
     return localTranslation().ngettext(single, plural, n)
 
 def langDir() -> str:
@@ -135,7 +135,7 @@ def langDir() -> str:
         dir = os.path.abspath(os.path.join(filedir, "..", "locale"))
     return dir
 
-def setLang(lang, local=True) -> None:
+def setLang(lang: str, local: bool = True) -> None:
     lang = mungeCode(lang)
     trans = gettext.translation(
         'anki', langDir(), languages=[lang], fallback=True)
@@ -147,7 +147,7 @@ def setLang(lang, local=True) -> None:
         currentLang = lang
         currentTranslation = trans
 
-def getLang() -> Any:
+def getLang() -> str:
     "Return the language local to this thread, or the default."
     if getattr(threadLocal, 'currentLang', None):
         return threadLocal.currentLang
@@ -158,7 +158,7 @@ def noHint(str) -> str:
     "Remove translation hint from end of string."
     return re.sub(r"(^.*?)( ?\(.+?\))?$", "\\1", str)
 
-def mungeCode(code) -> Any:
+def mungeCode(code: str) -> Any:
     code = code.replace("-", "_")
     if code in compatMap:
         code = compatMap[code]

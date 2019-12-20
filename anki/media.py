@@ -17,9 +17,9 @@ from anki.db import DB, DBError
 from anki.consts import *
 from anki.latex import mungeQA
 from anki.lang import _
-from typing import Any, List, Optional, Tuple, TypeVar, Union
+from typing import Any, List, Optional, Tuple
 
-_T0 = TypeVar('_T0')
+from typing import Callable, Union
 
 class MediaManager:
 
@@ -31,8 +31,9 @@ class MediaManager:
         r"(?i)(<img[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
     ]
     regexps = soundRegexps + imgRegexps
+    db: Optional[DB]
 
-    def __init__(self, col, server) -> None:
+    def __init__(self, col, server: bool) -> None:
         self.col = col
         if server:
             self._dir = None
@@ -144,11 +145,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     ##########################################################################
     # opath must be in unicode
 
-    def addFile(self, opath) -> Any:
+    def addFile(self, opath: str) -> Any:
         with open(opath, "rb") as f:
             return self.writeData(opath, f.read())
 
-    def writeData(self, opath, data, typeHint=None) -> Any:
+    def writeData(self, opath: str, data: bytes, typeHint: Optional[str] = None) -> Any:
         # if fname is a full path, use only the basename
         fname = os.path.basename(opath)
 
@@ -196,7 +197,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # String manipulation
     ##########################################################################
 
-    def filesInStr(self, mid, string, includeRemote=False) -> List[str]:
+    def filesInStr(self, mid: Union[int, str], string: str, includeRemote: bool = False) -> List[str]:
         l = []
         model = self.col.models.get(mid)
         strings = []
@@ -236,17 +237,17 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         strings.append(re.sub(clozeReg%".+?", arepl, string))
         return strings
 
-    def transformNames(self, txt, func) -> Any:
+    def transformNames(self, txt: str, func: Callable) -> Any:
         for reg in self.regexps:
             txt = re.sub(reg, func, txt)
         return txt
 
-    def strip(self, txt: _T0) -> Union[str, _T0]:
+    def strip(self, txt: str) -> str:
         for reg in self.regexps:
             txt = re.sub(reg, "", txt)
         return txt
 
-    def escapeImages(self, string: _T0, unescape=False) -> Union[str, _T0]:
+    def escapeImages(self, string: str, unescape: bool = False) -> str:
         if unescape:
             fn = urllib.parse.unquote
         else:
@@ -264,7 +265,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Rebuilding DB
     ##########################################################################
 
-    def check(self, local=None) -> Any:
+    def check(self, local: Optional[List[str]]) -> Tuple[List[str],List[str],List[str]]:
         "Return (missingFiles, unusedFiles)."
         mdir = self.dir()
         # gather all media references in NFC form
@@ -349,7 +350,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Copying on import
     ##########################################################################
 
-    def have(self, fname) -> bool:
+    def have(self, fname: str) -> bool:
         return os.path.exists(os.path.join(self.dir(), fname))
 
     # Illegal characters and paths
@@ -357,10 +358,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0\r\n]')
 
-    def stripIllegal(self, str) -> str:
+    def stripIllegal(self, str: str) -> str:
         return re.sub(self._illegalCharReg, "", str)
 
-    def hasIllegal(self, s: str):
+    def hasIllegal(self, s: str) -> bool:
         if re.search(self._illegalCharReg, s):
             return True
         try:
@@ -369,7 +370,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             return True
         return False
 
-    def cleanFilename(self, fname) -> str:
+    def cleanFilename(self, fname: str) -> str:
         fname = self.stripIllegal(fname)
         fname = self._cleanWin32Filename(fname)
         fname = self._cleanLongFilename(fname)
@@ -378,7 +379,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
         return fname
 
-    def _cleanWin32Filename(self, fname: _T0) -> Union[str, _T0]:
+    def _cleanWin32Filename(self, fname: str) -> str:
         if not isWin:
             return fname
 
@@ -390,7 +391,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
         return fname
 
-    def _cleanLongFilename(self, fname) -> Any:
+    def _cleanLongFilename(self, fname: str) -> Any:
         # a fairly safe limit that should work on typical windows
         # paths and on eCryptfs partitions, even with a duplicate
         # suffix appended
@@ -427,10 +428,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def haveDirty(self) -> Any:
         return self.db.scalar("select 1 from media where dirty=1 limit 1")
 
-    def _mtime(self, path) -> int:
+    def _mtime(self, path: str) -> int:
         return int(os.stat(path).st_mtime)
 
-    def _checksum(self, path) -> str:
+    def _checksum(self, path: str) -> str:
         with open(path, "rb") as f:
             return checksum(f.read())
 
