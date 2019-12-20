@@ -14,9 +14,12 @@ from anki.hooks import addHook, remHook, runHook
 from anki.utils import htmlToTextLine, isMac
 import aqt.editor, aqt.modelchooser, aqt.deckchooser
 
+from anki.notes import Note
+from typing import Callable
+
 class AddCards(QDialog):
 
-    def __init__(self, mw: AnkiQt):
+    def __init__(self, mw: AnkiQt) -> None:
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
@@ -37,11 +40,11 @@ class AddCards(QDialog):
         addCloseShortcut(self)
         self.show()
 
-    def setupEditor(self):
+    def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(
             self.mw, self.form.fieldsArea, self, True)
 
-    def setupChoosers(self):
+    def setupChoosers(self) -> None:
         self.modelChooser = aqt.modelchooser.ModelChooser(
             self.mw, self.form.modelArea)
         self.deckChooser = aqt.deckchooser.DeckChooser(
@@ -50,7 +53,7 @@ class AddCards(QDialog):
     def helpRequested(self):
         openHelp("addingnotes")
 
-    def setupButtons(self):
+    def setupButtons(self) -> None:
         bb = self.form.buttonBox
         ar = QDialogButtonBox.ActionRole
         # add
@@ -63,7 +66,7 @@ class AddCards(QDialog):
         self.closeButton.setAutoDefault(False)
         bb.addButton(self.closeButton, QDialogButtonBox.RejectRole)
         # help
-        self.helpButton = QPushButton(_("Help"), clicked=self.helpRequested)
+        self.helpButton = QPushButton(_("Help"), clicked=self.helpRequested) # type: ignore
         self.helpButton.setAutoDefault(False)
         bb.addButton(self.helpButton,
                                         QDialogButtonBox.HelpRole)
@@ -80,10 +83,10 @@ class AddCards(QDialog):
         b.setEnabled(False)
         self.historyButton = b
 
-    def setAndFocusNote(self, note):
+    def setAndFocusNote(self, note: Note) -> None:
         self.editor.setNote(note, focusTo=0)
 
-    def onModelChange(self):
+    def onModelChange(self) -> None:
         oldNote = self.editor.note
         note = self.mw.col.newNote()
         self.previousNote = None
@@ -108,7 +111,7 @@ class AddCards(QDialog):
             self.removeTempNote(oldNote)
         self.editor.setNote(note)
 
-    def onReset(self, model=None, keep=False):
+    def onReset(self, model: None = None, keep: bool = False) -> None:
         oldNote = self.editor.note
         note = self.mw.col.newNote()
         flds = note.model()['flds']
@@ -126,7 +129,7 @@ class AddCards(QDialog):
                     break
         self.setAndFocusNote(note)
 
-    def removeTempNote(self, note):
+    def removeTempNote(self, note: Note) -> None:
         if not note or not note.id:
             return
         # we don't have to worry about cards; just the note
@@ -205,10 +208,10 @@ question on all cards."""), help="AddItems")
             return
         return QDialog.keyPressEvent(self, evt)
 
-    def reject(self):
+    def reject(self) -> None:
         self.ifCanClose(self._reject)
 
-    def _reject(self):
+    def _reject(self) -> None:
         remHook('reset', self.onReset)
         remHook('currentModelChanged', self.onModelChange)
         clearAudioQueue()
@@ -221,7 +224,7 @@ question on all cards."""), help="AddItems")
         aqt.dialogs.markClosed("AddCards")
         QDialog.reject(self)
 
-    def ifCanClose(self, onOk):
+    def ifCanClose(self, onOk: Callable) -> None:
         def afterSave():
             ok = (self.editor.fieldsAreBlank(self.previousNote) or
                     askUser(_("Close and lose current input?"), defaultno=True))
