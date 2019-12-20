@@ -265,7 +265,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Rebuilding DB
     ##########################################################################
 
-    def check(self, local: Optional[List[str]]) -> Tuple[List[str],List[str],List[str]]:
+    def check(self, local: Optional[List[str]] = None) -> Tuple[List[str],List[str],List[str]]:
         "Return (missingFiles, unusedFiles)."
         mdir = self.dir()
         # gather all media references in NFC form
