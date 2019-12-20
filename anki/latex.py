@@ -8,6 +8,8 @@ from anki.hooks import addHook
 from anki.lang import _
 from typing import Any
 
+
+from typing import Any, Dict, List, Optional, Union
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
     ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"]
@@ -38,7 +40,7 @@ def stripLatex(text) -> Any:
         text = text.replace(match.group(), "")
     return text
 
-def mungeQA(html, type, fields, model, data, col) -> Any:
+def mungeQA(html: str, type: Optional[str], fields: Optional[Dict[str, str]], model: Dict[str, Any], data: Optional[List[Union[int, str]]], col) -> Any:
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
@@ -51,7 +53,7 @@ def mungeQA(html, type, fields, model, data, col) -> Any:
             "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}", model))
     return html
 
-def _imgLink(col, latex, model) -> Any:
+def _imgLink(col, latex: str, model: Dict[str, Any]) -> Any:
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
 
@@ -76,13 +78,13 @@ def _imgLink(col, latex, model) -> Any:
     else:
         return link
 
-def _latexFromHtml(col, latex) -> Any:
+def _latexFromHtml(col, latex: str) -> Any:
     "Convert entities and fix newlines."
     latex = re.sub("<br( /)?>|<div>", "\n", latex)
     latex = stripHTML(latex)
     return latex
 
-def _buildImg(col, latex, fname, model) -> Any:
+def _buildImg(col, latex: str, fname: str, model: Dict[str, Any]) -> Any:
     # add header/footer
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
@@ -130,7 +132,7 @@ package in the LaTeX header instead.""") % bad
         os.chdir(oldcwd)
         log.close()
 
-def _errMsg(type, texpath) -> Any:
+def _errMsg(type: str, texpath: str) -> Any:
     msg = (_("Error executing %s.") % type) + "<br>"
     msg += (_("Generated file: %s") % texpath) + "<br>"
     try:
