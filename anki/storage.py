@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 _Collection: Type[_Collection]
 
-def Collection(path, lock=True, server=False, log=False) -> _Collection:
+def Collection(path: str, lock: bool = True, server: bool = False, log: bool = False) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
@@ -57,7 +57,7 @@ def Collection(path, lock=True, server=False, log=False) -> _Collection:
         col.lock()
     return col
 
-def _upgradeSchema(db) -> Any:
+def _upgradeSchema(db: DB) -> Any:
     ver = db.scalar("select ver from col")
     if ver == SCHEMA_VERSION:
         return ver
@@ -208,7 +208,7 @@ def _upgradeClozeModel(col, m) -> None:
 # Creating a new collection
 ######################################################################
 
-def _createDB(db) -> int:
+def _createDB(db: DB) -> int:
     db.execute("pragma page_size = 4096")
     db.execute("pragma legacy_file_format = 0")
     db.execute("vacuum")
@@ -217,7 +217,7 @@ def _createDB(db) -> int:
     db.execute("analyze")
     return SCHEMA_VERSION
 
-def _addSchema(db, setColConf=True) -> None:
+def _addSchema(db: DB, setColConf: bool = True) -> None:
     db.executescript("""
 create table if not exists col (
     id              integer primary key,
@@ -294,7 +294,7 @@ values(1,0,0,%(s)s,%(v)s,0,0,0,'','{}','','','{}');
     if setColConf:
         _addColVars(db, *_getColVars(db))
 
-def _getColVars(db) -> Tuple[Any, Any, Dict[str, Optional[Union[int, str, List[int]]]]]:
+def _getColVars(db: DB) -> Tuple[Any, Any, Dict[str, Any]]:
     import anki.collection
     import anki.decks
     g = copy.deepcopy(anki.decks.defaultDeck)
@@ -306,14 +306,14 @@ def _getColVars(db) -> Tuple[Any, Any, Dict[str, Optional[Union[int, str, List[i
     gc['id'] = 1
     return g, gc, anki.collection.defaultConf.copy()
 
-def _addColVars(db, g, gc, c) -> None:
+def _addColVars(db: DB, g: Dict[str, Any], gc: Dict[str, Any], c: Dict[str, Any]) -> None:
     db.execute("""
 update col set conf = ?, decks = ?, dconf = ?""",
                    json.dumps(c),
                    json.dumps({'1': g}),
                    json.dumps({'1': gc}))
 
-def _updateIndices(db) -> None:
+def _updateIndices(db: DB) -> None:
     "Add indices to the DB."
     db.executescript("""
 -- syncing
