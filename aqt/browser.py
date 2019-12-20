@@ -8,7 +8,7 @@ import time
 import re
 import unicodedata
 from operator import  itemgetter
-from typing import Callable, List, Dict, Optional
+from typing import Callable, List, Optional
 
 from anki.collection import _Collection
 from anki.lang import ngettext
