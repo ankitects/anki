@@ -1,14 +1,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import sys, traceback
 import html
 import re
+import sys
+import traceback
 
 from anki.lang import _
+from aqt import mw
 from aqt.qt import *
 from aqt.utils import showText, showWarning, supportText
-from aqt import mw
 
 if not os.environ.get("DEBUG"):
     def excepthook(etype,val,tb):

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
 from anki.lang import _
+from aqt.qt import *
+
 
 class Toolbar:
 

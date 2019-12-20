@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-from aqt.utils import tooltip
 import aqt.editor
-from aqt.utils import saveGeom, restoreGeom
 from anki.hooks import addHook, remHook
-from anki.utils import isMac
 from anki.lang import _
+from aqt.qt import *
+from aqt.utils import restoreGeom, saveGeom, tooltip
+
 
 class EditCurrent(QDialog):
 

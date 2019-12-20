@@ -5,11 +5,12 @@ import time
 
 import requests
 
-from aqt.qt import *
 import aqt
-from aqt.utils import openLink, showText
-from anki.utils import platDesc, versionWithBuild
 from anki.lang import _
+from anki.utils import platDesc, versionWithBuild
+from aqt.qt import *
+from aqt.utils import openLink, showText
+
 
 class LatestVersionFinder(QThread):
 

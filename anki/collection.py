@@ -2,38 +2,40 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import pprint
-import re
-import time
-import os
-import random
-import stat
-import datetime
 import copy
-import traceback
+import datetime
 import json
+import os
+import pprint
+import random
+import re
+import stat
+import time
+import traceback
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from anki.lang import _, ngettext
-from anki.utils import ids2str, fieldChecksum, \
-    intTime, splitFields, joinFields, maxID, devMode, stripHTMLMedia
-from anki.hooks import  runFilter, runHook
-from anki.models import ModelManager
-from anki.media import MediaManager
-from anki.decks import DeckManager
-from anki.tags import TagManager
-from anki.consts import *
-from anki.errors import AnkiError
-from anki.sound import stripSounds
-import anki.latex # sets up hook
 import anki.cards
+import anki.find
+import anki.latex  # sets up hook
 import anki.notes
 import anki.template
-import anki.find
-from typing import Any, List, Optional, Tuple, Union, Dict
-
 from anki.cards import Card
+from anki.consts import *
 from anki.db import DB
+from anki.decks import DeckManager
+from anki.errors import AnkiError
+from anki.hooks import runFilter, runHook
+from anki.lang import _, ngettext
+from anki.media import MediaManager
+from anki.models import ModelManager
 from anki.notes import Note
+from anki.sched import Scheduler as V1Scheduler
+from anki.schedv2 import Scheduler as V2Scheduler
+from anki.sound import stripSounds
+from anki.tags import TagManager
+from anki.utils import (devMode, fieldChecksum, ids2str, intTime, joinFields,
+                        maxID, splitFields, stripHTMLMedia)
+
 defaultConf = {
     # review options
     'activeDecks': [1],
@@ -59,8 +61,6 @@ def timezoneOffset() -> int:
     else:
         return time.timezone//60
 
-from anki.sched import Scheduler as V1Scheduler
-from anki.schedv2 import Scheduler as V2Scheduler
 # this is initialized by storage.Collection
 class _Collection:
     db: Optional[DB]

@@ -3,9 +3,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-from aqt.qt import *
+
 import aqt.forms
 from anki.lang import _
+from aqt.qt import *
 
 # fixme: if mw->subwindow opens a progress dialog with mw as the parent, mw
 # gets raised on finish on compiz. perhaps we should be using the progress

@@ -4,12 +4,13 @@
 
 import csv
 import re
-
-from anki.importing.noteimp import NoteImporter, ForeignNote
-from anki.lang import _
-from typing import List, Optional, Any, TextIO, Union
+from typing import Any, List, Optional, TextIO, Union
 
 from anki.collection import _Collection
+from anki.importing.noteimp import ForeignNote, NoteImporter
+from anki.lang import _
+
+
 class TextImporter(NoteImporter):
 
     needDelimiter = True

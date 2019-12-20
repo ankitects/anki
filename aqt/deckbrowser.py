@@ -1,18 +1,19 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from copy import deepcopy
 from typing import Any
 
-from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openLink, showWarning, shortcut, \
-    openHelp
-from anki.utils import ids2str, fmtTimeSpan
-from anki.errors import DeckRenameError
 import aqt
-from anki.sound import clearAudioQueue
+from anki.errors import DeckRenameError
 from anki.hooks import runHook
-from copy import deepcopy
 from anki.lang import _, ngettext
+from anki.sound import clearAudioQueue
+from anki.utils import fmtTimeSpan, ids2str
+from aqt.qt import *
+from aqt.utils import (askUser, getOnlyText, openHelp, openLink, shortcut,
+                       showWarning)
+
 
 class DeckBrowser:
     _dueTree: Any

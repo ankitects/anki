@@ -5,6 +5,7 @@
 from anki.hooks import addHook
 from anki.lang import _
 
+
 def hint(txt, extra, context, tag, fullname) -> str:
     if not txt.strip():
         return ""

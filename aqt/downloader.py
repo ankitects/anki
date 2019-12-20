@@ -2,12 +2,15 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, re
-from aqt.qt import *
-from anki.sync import AnkiRequestsClient
-from anki.hooks import addHook, remHook
+import re
+import time
+
 import aqt
+from anki.hooks import addHook, remHook
 from anki.lang import _
+from anki.sync import AnkiRequestsClient
+from aqt.qt import *
+
 
 def download(mw, code):
     "Download addon from AnkiWeb. Caller must start & stop progress diag."

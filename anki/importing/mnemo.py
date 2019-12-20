@@ -2,11 +2,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time, re
+import re
+import time
+
 from anki.db import DB
-from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
+from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
+from anki.lang import _, ngettext
 from anki.stdmodels import addBasicModel, addClozeModel
-from anki.lang import ngettext, _
+
 
 class MnemosyneImporter(NoteImporter):
 

@@ -5,12 +5,12 @@
 import re
 import sre_constants
 import unicodedata
+from typing import Any, List, Optional, Set, Tuple
 
-from anki.utils import ids2str, splitFields, joinFields, intTime, fieldChecksum, stripHTMLMedia
 from anki.consts import *
 from anki.hooks import *
-from typing import Any, List, Optional, Tuple, Set
-
+from anki.utils import (fieldChecksum, ids2str, intTime, joinFields,
+                        splitFields, stripHTMLMedia)
 
 # Find
 ##########################################################################

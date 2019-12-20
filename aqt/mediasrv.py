@@ -1,17 +1,18 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import http.server
+import re
+import socket
+import socketserver
+import threading
+from http import HTTPStatus
 from typing import Optional
 
 from anki.collection import _Collection
-from aqt.qt import *
-from http import HTTPStatus
-import http.server
-import socketserver
-import socket
 from anki.utils import devMode
-import threading
-import re
+from aqt.qt import *
+
 
 # locate web folder in source/binary distribution
 def _getExportFolder():

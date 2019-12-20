@@ -2,10 +2,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.utils import openLink, shortcut, tooltip, askUserDialog
 import aqt
-from anki.sound import clearAudioQueue
 from anki.lang import _
+from anki.sound import clearAudioQueue
+from aqt.utils import askUserDialog, openLink, shortcut, tooltip
+
 
 class Overview:
     "Deck overview."

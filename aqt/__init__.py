@@ -1,22 +1,21 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki import version as _version
-
-import getpass
-import sys
 import argparse
-import tempfile
 import builtins
-import locale
+import getpass
 import gettext
-from typing import Optional, Any
+import locale
+import sys
+import tempfile
+from typing import Any, Optional
 
-from aqt.qt import *
 import anki.lang
+from anki import version as _version
 from anki.consts import HELP_SITE
 from anki.lang import langDir
-from anki.utils import isMac, isLin
+from anki.utils import checksum, isLin, isMac
+from aqt.qt import *
 
 appVersion=_version
 appWebsite="http://ankisrs.net/"
@@ -26,8 +25,8 @@ appShared="https://ankiweb.net/shared/"
 appUpdate="https://ankiweb.net/update/desktop"
 appHelpSite=HELP_SITE
 
-from aqt.main import AnkiQt
-from aqt.profiles import ProfileManager
+from aqt.main import AnkiQt # isort:skip
+from aqt.profiles import ProfileManager # isort:skip
 
 mw: Optional[AnkiQt] = None # set on init
 
@@ -41,7 +40,6 @@ except ImportError as e:
         print()
     raise
 
-from anki.utils import checksum
 
 # Dialog manager
 ##########################################################################
@@ -59,8 +57,8 @@ from anki.utils import checksum
 #- make preferences modal? cmd+q does wrong thing
 
 
-from aqt import addcards, browser, editcurrent, stats, about, \
-    preferences
+from aqt import addcards, browser, editcurrent # isort:skip
+from aqt import stats, about, preferences # isort:skip
 
 class DialogManager:
 

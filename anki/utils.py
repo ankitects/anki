@@ -2,29 +2,28 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re
-import os
-import random
-import time
+# some add-ons expect json to be in the utils module
+import json  # pylint: disable=unused-import
+import locale
 import math
-from html.entities import name2codepoint
-import subprocess
-import tempfile
+import os
+import platform
+import random
+import re
 import shutil
 import string
+import subprocess
 import sys
-import locale
-from hashlib import sha1
-import platform
+import tempfile
+import time
 import traceback
 from contextlib import contextmanager
-from anki.lang import _, ngettext
-
-# some add-ons expect json to be in the utils module
-import json # pylint: disable=unused-import
+from hashlib import sha1
+from html.entities import name2codepoint
+from typing import Any, Iterator, List, Optional, Tuple, Union
 
 from anki.db import DB
-from typing import Any, Iterator, List, Union, Optional, Tuple
+from anki.lang import _, ngettext
 
 _tmpdir: Optional[str]
 

@@ -1,16 +1,16 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time
 import gc
+import time
 
-from aqt.qt import *
-from anki.storage import Collection
-from anki.sync import Syncer, RemoteServer, FullSyncer, MediaSyncer, \
-    RemoteMediaServer
 from anki.hooks import addHook, remHook
-from aqt.utils import tooltip, askUserDialog, showWarning, showText, showInfo
 from anki.lang import _
+from anki.storage import Collection
+from anki.sync import (FullSyncer, MediaSyncer, RemoteMediaServer,
+                       RemoteServer, Syncer)
+from aqt.qt import *
+from aqt.utils import askUserDialog, showInfo, showText, showWarning, tooltip
 
 # Sync manager
 ######################################################################
@@ -461,5 +461,3 @@ class SyncThread(QThread):
 
     def fireEvent(self, cmd, arg=""):
         self._event.emit(cmd, arg)
-
-
