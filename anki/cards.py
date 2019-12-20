@@ -5,6 +5,7 @@ import pprint
 import time
 from typing import Any, Dict, Optional
 
+import anki  # pylint: disable=unused-import
 from anki.consts import *
 from anki.hooks import runHook
 from anki.notes import Note
@@ -27,9 +28,8 @@ class Card:
     timerStarted: Optional[float]
     lastIvl: Optional[int]
 
-    def __init__(self, col, id: Optional[int] = None) -> None:
-        from anki.collection import _Collection
-        self.col: _Collection = col
+    def __init__(self, col: "anki.collection._Collection", id: Optional[int] = None) -> None:
+        self.col = col
         self.timerStarted = None
         self._qa = None
         self._note = None
