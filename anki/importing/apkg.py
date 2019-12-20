@@ -7,18 +7,13 @@ import unicodedata
 import json
 from anki.utils import tmpfile
 from anki.importing.anki2 import Anki2Importer
-from typing import Any
+from typing import Any, Dict, Optional
 
-from anki.collection import _Collection
 class AnkiPackageImporter(Anki2Importer):
+    nameToNum: Dict[str, str]
+    zip: Optional[zipfile.ZipFile]
 
-    def __init__(self, col: _Collection, file: str) -> None:
-        super().__init__(col, file)
-        # set later; set here for typechecking
-        self.nameToNum = {}
-        self.zip = None
-
-    def run(self) -> None:
+    def run(self) -> None: # type: ignore
         # extract the deck from the zip file
         self.zip = z = zipfile.ZipFile(self.file)
         # v2 scheduler?
@@ -56,5 +51,5 @@ class AnkiPackageImporter(Anki2Importer):
 
     def _srcMediaData(self, fname: str) -> Any:
         if fname in self.nameToNum:
-            return self.zip.read(self.nameToNum[fname])
+            return self.zip.read(self.nameToNum[fname]) # pytype: disable=attribute-error
         return None

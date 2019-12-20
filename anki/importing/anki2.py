@@ -8,10 +8,9 @@ from anki.storage import Collection
 from anki.utils import intTime, splitFields, joinFields
 from anki.importing.base import Importer
 from anki.lang import _
-from typing import Any, Optional
-
+from typing import Any, Optional, Dict, Tuple, List
 from anki.collection import _Collection
-from typing import List, Union
+
 GUID = 1
 MID = 2
 MOD = 3
@@ -19,15 +18,16 @@ MOD = 3
 class Anki2Importer(Importer):
 
     needMapper = False
-    deckPrefix = None
+    deckPrefix: Optional[str] = None
     allowUpdate = True
+    src: _Collection
+    dst: _Collection
 
     def __init__(self, col: _Collection, file: str) -> None:
         super().__init__(col, file)
 
         # set later, defined here for typechecking
-        self.src = None
-        self._decks = {}
+        self._decks: Dict[int,int] = {}
         self.mustResetLearning = False
 
     def run(self, media: None = None) -> None:
@@ -79,7 +79,7 @@ class Anki2Importer(Importer):
 
     def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
-        self._notes = {}
+        self._notes: Dict[str, Tuple[int,int,int]] = {}
         existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"):
@@ -87,10 +87,10 @@ class Anki2Importer(Importer):
             existing[id] = True
         # we may need to rewrite the guid if the model schemas don't match,
         # so we need to keep track of the changes for the card import stage
-        self._changedGuids = {}
+        self._changedGuids: Dict[str, bool] = {}
         # we ignore updates to changed schemas. we need to note the ignored
         # guids, so we avoid importing invalid cards
-        self._ignoredGuids = {}
+        self._ignoredGuids: Dict[str, bool] = {}
         # iterate over source collection
         add = []
         update = []
@@ -188,7 +188,7 @@ class Anki2Importer(Importer):
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added
-    def _uniquifyNote(self, note: List[Union[int, str]]) -> bool:
+    def _uniquifyNote(self, note: List[Any]) -> bool:
         origGuid = note[GUID]
         srcMid = note[MID]
         dstMid = self._mid(srcMid)
@@ -212,7 +212,7 @@ class Anki2Importer(Importer):
 
     def _prepareModels(self) -> None:
         "Prepare index of schema hashes."
-        self._modelMap = {}
+        self._modelMap: Dict[int, int] = {}
 
     def _mid(self, srcMid: int) -> Any:
         "Return local id for remote MID."
@@ -302,7 +302,7 @@ class Anki2Importer(Importer):
         if self.mustResetLearning:
             self.src.changeSchedulerVer(2)
         # build map of (guid, ord) -> cid and used id cache
-        self._cards = {}
+        self._cards: Dict[Tuple[str,int], int] = {}
         existing = {}
         for guid, ord, cid in self.dst.db.execute(
             "select f.guid, c.ord, c.id from cards c, notes f "
@@ -403,7 +403,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             with open(path, "rb") as f:
                 return f.read()
         except (IOError, OSError):
-            return
+            return b''
 
     def _srcMediaData(self, fname: str) -> bytes:
         "Data for FNAME in src collection."
@@ -423,8 +423,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""", revlog)
             # the user likely used subdirectories
             pass
 
-    def _mungeMedia(self, mid: int, fields: str) -> str:
-        fields = splitFields(fields)
+    def _mungeMedia(self, mid: int, fieldsStr: str) -> str:
+        fields = splitFields(fieldsStr)
         def repl(match):
             fname = match.group("fname")
             srcData = self._srcMediaData(fname)

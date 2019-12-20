@@ -7,8 +7,7 @@ import re
 
 from anki.importing.noteimp import NoteImporter, ForeignNote
 from anki.lang import _
-from typing import List
-
+from typing import List, Optional, Any, TextIO, Union
 
 from anki.collection import _Collection
 class TextImporter(NoteImporter):
@@ -19,10 +18,12 @@ class TextImporter(NoteImporter):
     def __init__(self, col: _Collection, file: str) -> None:
         NoteImporter.__init__(self, col, file)
         self.lines = None
-        self.fileobj = None
-        self.delimiter = None
-        self.tagsToAdd = []
+        self.fileobj: Optional[TextIO] = None
+        self.delimiter: Optional[str] = None
+        self.tagsToAdd: List[str] = []
         self.numFields = 0
+        self.dialect: Optional[Any]
+        self.data: Optional[Union[str, List[str]]]
 
     def foreignNotes(self) -> List[ForeignNote]:
         self.open()
