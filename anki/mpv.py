@@ -39,6 +39,8 @@ import inspect
 from distutils.spawn import find_executable # pylint: disable=import-error,no-name-in-module
 from queue import Queue, Empty, Full
 
+from typing import Dict, Optional
+
 
 class MPVError(Exception):
     pass
@@ -56,7 +58,6 @@ class MPVTimeoutError(MPVError):
     pass
 
 from anki.utils import isWin
-from typing import Any
 if isWin:
     # pylint: disable=import-error
     import win32file, win32pipe, pywintypes, winerror # pytype: disable=import-error
@@ -66,7 +67,7 @@ class MPVBase:
     """
 
     executable = find_executable("mpv")
-    popenEnv = None
+    popenEnv: Optional[Dict[str,str]] = None
 
     default_argv = [
         "--idle",
@@ -77,7 +78,7 @@ class MPVBase:
         "--keep-open=no",
     ]
 
-    def __init__(self, window_id=None, debug=False) -> None:
+    def __init__(self, window_id=None, debug=False):
         self.window_id = window_id
         self.debug = debug
 
@@ -88,18 +89,18 @@ class MPVBase:
         self._prepare_thread()
         self._start_thread()
 
-    def __del__(self) -> None:
+    def __del__(self):
         self._stop_thread()
         self._stop_process()
         self._stop_socket()
 
-    def _thread_id(self) -> int:
+    def _thread_id(self):
         return threading.get_ident()
 
     #
     # Process
     #
-    def _prepare_process(self) -> None:
+    def _prepare_process(self):
         """Prepare the argument list for the mpv process.
         """
         self.argv = [self.executable]
@@ -108,12 +109,12 @@ class MPVBase:
         if self.window_id is not None:
             self.argv += ["--wid", str(self.window_id)]
 
-    def _start_process(self) -> None:
+    def _start_process(self):
         """Start the mpv process.
         """
         self._proc = subprocess.Popen(self.argv, env=self.popenEnv)
 
-    def _stop_process(self) -> None:
+    def _stop_process(self):
         """Stop the mpv process.
         """
         if hasattr(self, "_proc"):
@@ -126,7 +127,7 @@ class MPVBase:
     #
     # Socket communication
     #
-    def _prepare_socket(self) -> None:
+    def _prepare_socket(self):
         """Create a random socket filename which we pass to mpv with the
            --input-unix-socket option.
         """
@@ -137,7 +138,7 @@ class MPVBase:
         os.close(fd)
         os.remove(self._sock_filename)
 
-    def _start_socket(self) -> None:
+    def _start_socket(self):
         """Wait for the mpv process to create the unix socket and finish
            startup.
         """
@@ -174,7 +175,7 @@ class MPVBase:
         else:
             raise MPVProcessError("unable to start process")
 
-    def _stop_socket(self) -> None:
+    def _stop_socket(self):
         """Clean up the socket.
         """
         if hasattr(self, "_sock"):
@@ -185,7 +186,7 @@ class MPVBase:
             except OSError:
                 pass
 
-    def _prepare_thread(self) -> None:
+    def _prepare_thread(self):
         """Set up the queues for the communication threads.
         """
         self._request_queue = Queue(1)
@@ -193,14 +194,14 @@ class MPVBase:
         self._event_queue = Queue()
         self._stop_event = threading.Event()
 
-    def _start_thread(self) -> None:
+    def _start_thread(self):
         """Start up the communication threads.
         """
         self._thread = threading.Thread(target=self._reader)
         self._thread.daemon = True
         self._thread.start()
 
-    def _stop_thread(self) -> None:
+    def _stop_thread(self):
         """Stop the communication threads.
         """
         if hasattr(self, "_stop_event"):
@@ -208,7 +209,7 @@ class MPVBase:
         if hasattr(self, "_thread"):
             self._thread.join()
 
-    def _reader(self) -> None:
+    def _reader(self):
         """Read the incoming json messages from the unix socket that is
            connected to the mpv process. Pass them on to the message handler.
         """
@@ -250,21 +251,21 @@ class MPVBase:
     #
     # Message handling
     #
-    def _compose_message(self, message) -> bytes:
+    def _compose_message(self, message):
         """Return a json representation from a message dictionary.
         """
         # XXX may be strict is too strict ;-)
         data = json.dumps(message)
         return data.encode("utf8", "strict") + b"\n"
 
-    def _parse_message(self, data) -> Any:
+    def _parse_message(self, data):
         """Return a message dictionary from a json representation.
         """
         # XXX may be strict is too strict ;-)
         data = data.decode("utf8", "strict")
         return json.loads(data)
 
-    def _handle_message(self, message) -> None:
+    def _handle_message(self, message):
         """Handle different types of incoming messages, i.e. responses to
            commands or asynchronous events.
         """
@@ -284,7 +285,7 @@ class MPVBase:
         else:
             raise MPVCommunicationError("invalid message %r" % message)
 
-    def _send_message(self, message, timeout=None) -> None:
+    def _send_message(self, message, timeout=None):
         """Send a message/command to the mpv process, message must be a
            dictionary of the form {"command": ["arg1", "arg2", ...]}. Responses
            from the mpv process must be collected using _get_response().
@@ -321,7 +322,7 @@ class MPVBase:
                     raise MPVCommunicationError("broken sender socket")
                 data = data[size:]
 
-    def _get_response(self, timeout=None) -> Any:
+    def _get_response(self, timeout=None):
         """Collect the response message to a previous request. If there was an
            error a MPVCommandError exception is raised, otherwise the command
            specific data is returned.
@@ -336,7 +337,7 @@ class MPVBase:
         else:
             return message.get("data")
 
-    def _get_event(self, timeout=None) -> Any:
+    def _get_event(self, timeout=None):
         """Collect a single event message that has been received out-of-band
            from the mpv process. If a timeout is specified and there have not
            been any events during that period, None is returned.
@@ -346,7 +347,7 @@ class MPVBase:
         except Empty:
             return None
 
-    def _send_request(self, message, timeout=None, _retry=1) -> Any:
+    def _send_request(self, message, timeout=None, _retry=1):
         """Send a command to the mpv process and collect the result.
         """
         self.ensure_running()
@@ -366,12 +367,12 @@ class MPVBase:
     #
     # Public API
     #
-    def is_running(self) -> bool:
+    def is_running(self):
         """Return True if the mpv process is still active.
         """
         return self._proc.poll() is None
 
-    def ensure_running(self) -> None:
+    def ensure_running(self):
         if not self.is_running():
             self._stop_thread()
             self._stop_process()
@@ -383,7 +384,7 @@ class MPVBase:
             self._prepare_thread()
             self._start_thread()
 
-    def close(self) -> None:
+    def close(self):
         """Shutdown the mpv process and our communication setup.
         """
         if self.is_running():
@@ -414,7 +415,7 @@ class MPV(MPVBase):
        threads to the same MPV instance are synchronized.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._callbacks = {}
@@ -464,7 +465,7 @@ class MPV(MPVBase):
     #
     # Event/callback API
     #
-    def _event_reader(self) -> None:
+    def _event_reader(self):
         """Collect incoming event messages and call the event handler.
         """
         while not self._stop_event.is_set():
@@ -474,7 +475,7 @@ class MPV(MPVBase):
 
             self._handle_event(message)
 
-    def _handle_event(self, message) -> None:
+    def _handle_event(self, message):
         """Lookup and call the callbacks for a particular event message.
         """
         if message["event"] == "property-change":
@@ -488,7 +489,7 @@ class MPV(MPVBase):
             else:
                 callback()
 
-    def register_callback(self, name, callback) -> None:
+    def register_callback(self, name, callback):
         """Register a function `callback` for the event `name`.
         """
         try:
@@ -498,7 +499,7 @@ class MPV(MPVBase):
 
         self._callbacks.setdefault(name, []).append(callback)
 
-    def unregister_callback(self, name, callback) -> None:
+    def unregister_callback(self, name, callback):
         """Unregister a previously registered function `callback` for the event
            `name`.
         """
@@ -512,7 +513,7 @@ class MPV(MPVBase):
         except ValueError:
             raise MPVError("callback %r not registered for event %r" % (callback, name))
 
-    def register_property_callback(self, name, callback) -> int:
+    def register_property_callback(self, name, callback):
         """Register a function `callback` for the property-change event on
            property `name`.
         """
@@ -534,7 +535,7 @@ class MPV(MPVBase):
         self._property_serials[(name, callback)] = serial
         return serial
 
-    def unregister_property_callback(self, name, callback) -> None:
+    def unregister_property_callback(self, name, callback):
         """Unregister a previously registered function `callback` for the
            property-change event on property `name`.
         """
@@ -554,17 +555,17 @@ class MPV(MPVBase):
     #
     # Public API
     #
-    def command(self, *args, timeout=1) -> Any:
+    def command(self, *args, timeout=1):
         """Execute a single command on the mpv process and return the result.
         """
         return self._send_request({"command": list(args)}, timeout=timeout)
 
-    def get_property(self, name) -> Any:
+    def get_property(self, name):
         """Return the value of property `name`.
         """
         return self.command("get_property", name)
 
-    def set_property(self, name, value) -> Any:
+    def set_property(self, name, value):
         """Set the value of property `name`.
         """
         return self.command("set_property", name, value)
