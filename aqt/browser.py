@@ -486,10 +486,11 @@ class SidebarModel(QAbstractItemModel):
                 self._expandWhereNeccessary(idx, tree)
 
     def _expandWhereNeccessary(self, parent: QModelIndex, tree: QTreeView) -> None:
+        parentItem: SidebarItem
         if not parent.isValid():
             parentItem = self.root
         else:
-            parentItem: SidebarItem = parent.internalPointer()
+            parentItem = parent.internalPointer()
 
         # nothing to do?
         if not parentItem.expanded:
@@ -972,7 +973,7 @@ by clicking on one on the left."""))
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
         self.sidebarTree.setIndentation(15)
-        self.sidebarTree.expanded.connect(self.onSidebarItemExpanded)
+        self.sidebarTree.expanded.connect(self.onSidebarItemExpanded) # type: ignore
         dw.setWidget(self.sidebarTree)
         p = QPalette()
         p.setColor(QPalette.Base, p.window().color())
