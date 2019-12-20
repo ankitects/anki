@@ -1,7 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import Optional
 
+from anki.collection import _Collection
 from aqt.qt import *
 from http import HTTPStatus
 import http.server
@@ -45,7 +47,7 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 class MediaServer(threading.Thread):
 
-    _port = None
+    _port: Optional[int] = None
     _ready = threading.Event()
     daemon = True
 
@@ -69,7 +71,7 @@ class MediaServer(threading.Thread):
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     timeout = 1
-    mw = None
+    mw: Optional[_Collection] = None
 
     def do_GET(self):
         f = self.send_head()

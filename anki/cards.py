@@ -7,7 +7,8 @@ import time
 from anki.hooks import runHook
 from anki.utils import intTime, timestampID, joinFields
 from anki.consts import *
-from typing import Any, Optional
+from anki.notes import Note
+from typing import Any, Optional, Dict
 
 # Cards
 ##########################################################################
@@ -21,6 +22,10 @@ from typing import Any, Optional
 # - lrn queue: integer timestamp
 
 class Card:
+    _qa: Optional[Dict[str,str]]
+    _note: Optional[Note]
+    timerStarted: Optional[float]
+    lastIvl: Optional[int]
 
     def __init__(self, col, id: Optional[int] = None) -> None:
         from anki.collection import _Collection
@@ -133,10 +138,10 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
                     f.stringTags(), f.joinedFields(), self.flags]
             if browser:
-                args = (t.get('bqfmt'), t.get('bafmt'))
+                args = [t.get('bqfmt'), t.get('bafmt')]
             else:
-                args = tuple()
-            self._qa = self.col._renderQA(data, *args)
+                args = []
+            self._qa = self.col._renderQA(data, *args) # type: ignore
         return self._qa
 
     def note(self, reload: bool = False) -> Any:
@@ -176,6 +181,7 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self.model(), joinFields(self.note().fields))
         if self.ord not in ords:
             return True
+        return False
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)

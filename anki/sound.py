@@ -67,6 +67,7 @@ processingChain = [
     ]
 
 # don't show box on windows
+si: Optional[Any]
 if sys.platform == "win32":
     si = subprocess.STARTUPINFO() # pytype: disable=module-attr
     try:
@@ -93,7 +94,7 @@ from anki.mpv import MPV, MPVBase
 
 _player: Optional[Callable[[Any], Any]]
 _queueEraser: Optional[Callable[[], Any]]
-_soundReg: str
+mpvManager: Optional["MpvManager"] = None
 
 mpvPath, mpvEnv = _packagedCmd(["mpv"])
 
@@ -134,8 +135,6 @@ def setMpvConfigBase(base) -> None:
         "--no-config",
         "--include="+mpvConfPath,
     ]
-
-mpvManager = None
 
 def setupMPV() -> None:
     global mpvManager, _player, _queueEraser
@@ -185,14 +184,12 @@ if isWin:
     cleanupOldMplayerProcesses()
 
 mplayerQueue: List[str] = []
-mplayerManager = None
-mplayerReader = None
 mplayerEvt = threading.Event()
 mplayerClear = False
 
 class MplayerMonitor(threading.Thread):
 
-    mplayer = None
+    mplayer: Optional[subprocess.Popen] = None
     deadPlayers: List[subprocess.Popen] = []
 
     def run(self) -> NoReturn:
@@ -273,6 +270,8 @@ class MplayerMonitor(threading.Thread):
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
 
+mplayerManager: Optional[MplayerMonitor] = None
+
 def queueMplayer(path) -> None:
     ensureMplayerThreads()
     if isWin and os.path.exists(path):
@@ -326,7 +325,7 @@ try:
 
     PYAU_FORMAT = pyaudio.paInt16
     PYAU_CHANNELS = 1
-    PYAU_INPUT_INDEX = None
+    PYAU_INPUT_INDEX: Optional[int] = None
 except:
     pyaudio = None
 

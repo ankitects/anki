@@ -14,33 +14,32 @@ automatically but can be called with _old().
 """
 
 import decorator
-from typing import Dict, List, Callable, Any
+from typing import List, Any, Callable, Dict
 
 # Hooks
 ##############################################################################
 
-from typing import Callable, Dict, Union
 _hooks: Dict[str, List[Callable[..., Any]]] = {}
 
 def runHook(hook: str, *args) -> None:
     "Run all functions on hook."
-    hook = _hooks.get(hook, None)
-    if hook:
-        for func in hook:
+    hookFuncs = _hooks.get(hook, None)
+    if hookFuncs:
+        for func in hookFuncs:
             try:
                 func(*args)
             except:
-                hook.remove(func)
+                hookFuncs.remove(func)
                 raise
 
 def runFilter(hook: str, arg: Any, *args) -> Any:
-    hook = _hooks.get(hook, None)
-    if hook:
-        for func in hook:
+    hookFuncs = _hooks.get(hook, None)
+    if hookFuncs:
+        for func in hookFuncs:
             try:
                 arg = func(arg, *args)
             except:
-                hook.remove(func)
+                hookFuncs.remove(func)
                 raise
     return arg
 

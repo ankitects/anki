@@ -11,12 +11,11 @@ from anki.hooks import runHook
 from anki.consts import *
 from anki.lang import _
 from anki.errors import DeckRenameError
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Set, Union
 
 # fixmes:
 # - make sure users can't set grad interval < 1
 
-from typing import Any, Dict, List, Optional, Union
 defaultDeck = {
     'newToday': [0, 0], # currentDay, count
     'revToday': [0, 0],
@@ -92,6 +91,8 @@ defaultConf = {
 }
 
 class DeckManager:
+    decks: Dict[str, Any]
+    dconf: Dict[str, Any]
 
     # Registry save/load
     #############################################################
@@ -457,7 +458,7 @@ class DeckManager:
     def _checkDeckTree(self) -> None:
         decks = self.col.decks.all()
         decks.sort(key=operator.itemgetter('name'))
-        names = set()
+        names: Set[str] = set()
 
         for deck in decks:
             # two decks with the same name?
@@ -527,7 +528,7 @@ class DeckManager:
                 arr.append(did)
                 gather(child, arr)
 
-        arr = []
+        arr: List = []
         gather(childMap[did], arr)
         return arr
 
@@ -537,7 +538,7 @@ class DeckManager:
 
         # go through all decks, sorted by name
         for deck in sorted(self.all(), key=operator.itemgetter("name")):
-            node = {}
+            node: Dict[int, Any] = {}
             childMap[deck['id']] = node
 
             # add note to immediate parent
@@ -552,7 +553,7 @@ class DeckManager:
     def parents(self, did: int, nameMap: Optional[Any] = None) -> List:
         "All parents of did."
         # get parent and grandparent names
-        parents = []
+        parents: List[str] = []
         for part in self.get(did)['name'].split("::")[:-1]:
             if not parents:
                 parents.append(part)

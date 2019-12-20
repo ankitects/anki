@@ -8,6 +8,7 @@ import random
 import requests
 import json
 import os
+import sqlite3
 
 from anki.db import DB, DBError
 from anki.utils import ids2str, intTime, platDesc, checksum, devMode
@@ -20,7 +21,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 # syncing vars
 HTTP_TIMEOUT = 90
-HTTP_PROXY = None
 HTTP_BUF_SIZE = 64*1024
 
 class UnexpectedSchemaChange(Exception):
@@ -30,6 +30,7 @@ class UnexpectedSchemaChange(Exception):
 ##########################################################################
 
 class Syncer:
+    cursor: Optional[sqlite3.Cursor]
 
     def __init__(self, col, server=None) -> None:
         self.col = col
@@ -38,7 +39,7 @@ class Syncer:
         # these are set later; provide dummy values for type checking
         self.lnewer = False
         self.maxUsn = 0
-        self.tablesLeft = []
+        self.tablesLeft: List[str] = []
 
     def sync(self) -> str:
         "Returns 'noChanges', 'fullSync', 'success', etc"
@@ -148,7 +149,7 @@ class Syncer:
 
     def _gravesChunk(self, graves: Dict) -> Tuple[Dict, Optional[Dict]]:
         lim = 250
-        chunk = dict(notes=[], cards=[], decks=[])
+        chunk: Dict[str, Any] = dict(notes=[], cards=[], decks=[])
         for cat in "notes", "cards", "decks":
             if lim and graves[cat]:
                 chunk[cat] = graves[cat][:lim]
@@ -245,7 +246,7 @@ class Syncer:
         self.tablesLeft = ["revlog", "cards", "notes"]
         self.cursor = None
 
-    def cursorForTable(self, table) -> Any:
+    def cursorForTable(self, table) -> sqlite3.Cursor:
         lim = self.usnLim()
         x = self.col.db.execute
         d = (self.maxUsn, lim)
@@ -263,7 +264,7 @@ select id, guid, mid, mod, %d, tags, flds, '', '', flags, data
 from notes where %s""" % d)
 
     def chunk(self) -> dict:
-        buf = dict(done=False)
+        buf: Dict[str, Any] = dict(done=False)
         lim = 250
         while self.tablesLeft and lim:
             curTable = self.tablesLeft[0]
@@ -505,7 +506,7 @@ class HttpSyncer:
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
         self.client = client or AnkiRequestsClient()
-        self.postVars = {}
+        self.postVars: Dict[str,str] = {}
         self.hostNum = hostNum
         self.prefix = "sync/"
 
@@ -532,7 +533,7 @@ class HttpSyncer:
         bdry = b"--"+BOUNDARY
         buf = io.BytesIO()
         # post vars
-        self.postVars['c'] = 1 if comp else 0
+        self.postVars['c'] = "1" if comp else "0"
         for (key, value) in list(self.postVars.items()):
             buf.write(bdry + b"\r\n")
             buf.write(
@@ -550,7 +551,7 @@ Content-Type: application/octet-stream\r\n\r\n""")
             if comp:
                 tgt = gzip.GzipFile(mode="wb", fileobj=buf, compresslevel=comp)
             else:
-                tgt = buf
+                tgt = buf # type: ignore
             while 1:
                 data = fobj.read(65536)
                 if not data:
@@ -668,7 +669,7 @@ class FullSyncer(HttpSyncer):
         tpath = self.col.path + ".tmp"
         if cont == "upgradeRequired":
             runHook("sync", "upgradeRequired")
-            return
+            return None
         open(tpath, "wb").write(cont)
         # check the received file is ok
         d = DB(tpath)
@@ -683,6 +684,7 @@ class FullSyncer(HttpSyncer):
         os.unlink(self.col.path)
         os.rename(tpath, self.col.path)
         self.col = None
+        return None
 
     def upload(self) -> bool:
         "True if upload successful."

@@ -14,9 +14,7 @@ from anki.collection import _Collection
 from anki.consts import *
 from anki.stdmodels import addBasicModel, addClozeModel, addForwardReverse, \
     addForwardOptionalReverse, addBasicTypingModel
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
-
-_Collection: Type[_Collection]
+from typing import Any, Dict, Tuple
 
 def Collection(path: str, lock: bool = True, server: bool = False, log: bool = False) -> _Collection:
     "Open a new or existing collection. Path must be unicode."

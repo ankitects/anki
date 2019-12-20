@@ -106,8 +106,8 @@ compatMap = {
 threadLocal = threading.local()
 
 # global defaults
-currentLang = None
-currentTranslation = None
+currentLang: Any = None
+currentTranslation: Any = None
 
 def localTranslation() -> Any:
     "Return the translation local to this thread, or the default."

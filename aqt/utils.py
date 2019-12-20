@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import Optional
 
 from aqt.qt import *
 import re, os, sys, subprocess
@@ -424,8 +425,8 @@ def downArrow():
 # Tooltips
 ######################################################################
 
-_tooltipTimer = None
-_tooltipLabel = None
+_tooltipTimer: Optional[QTimer] = None
+_tooltipLabel: Optional[str] = None
 
 def tooltip(msg, period=3000, parent=None):
     global _tooltipTimer, _tooltipLabel
