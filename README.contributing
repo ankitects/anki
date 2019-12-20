@@ -64,6 +64,11 @@ the spurious errors.
 
  # type: ignore
 
+In cases where you have two modules that reference each other, you can't simply
+import the types from each module into the other one, as it can cause a cyclic
+import. An example of how to work around this can be seen at
+https://github.com/dae/anki/commit/ed0b3d337458d7161811547932b6476f2d4bc887
+
 Maintaining Style
 ------------------
 
