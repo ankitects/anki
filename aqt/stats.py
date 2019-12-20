@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import *
-import os, time
-from aqt.utils import saveGeom, restoreGeom, maybeHideClose, addCloseShortcut, \
-    tooltip, getSaveFile
+import time
+
 import aqt
 from anki.lang import _
+from aqt.qt import *
+from aqt.utils import (addCloseShortcut, getSaveFile, maybeHideClose,
+                       restoreGeom, saveGeom, tooltip)
 
 # Deck Stats
 ######################################################################

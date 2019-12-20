@@ -1,7 +1,8 @@
 import re
-from anki.utils import stripHTML, stripHTMLMedia
+from typing import Any, Callable, Dict, Pattern
+
 from anki.hooks import runFilter
-from typing import Any, Callable, Pattern, Dict
+from anki.utils import stripHTML, stripHTMLMedia
 
 clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
 

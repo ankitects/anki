@@ -2,18 +2,16 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import  html
-
+import html
 import unicodedata
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
-from anki.lang import _
-from anki.utils import fieldChecksum, guid64, timestampID, \
-    joinFields, intTime, splitFields
-from anki.importing.base import Importer
-from anki.lang import ngettext
-from typing import Any, List, Optional, Tuple, Dict, Union
 from anki.collection import _Collection
+from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
+from anki.importing.base import Importer
+from anki.lang import _, ngettext
+from anki.utils import (fieldChecksum, guid64, intTime, joinFields,
+                        splitFields, timestampID)
 
 # Stores a list of fields, tags and deck
 ######################################################################

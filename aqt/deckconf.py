@@ -3,12 +3,13 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from operator import itemgetter
 
-from anki.consts import NEW_CARDS_RANDOM
-from aqt.qt import *
 import aqt
-from aqt.utils import showInfo, showWarning, openHelp, getOnlyText, askUser, \
-    tooltip, saveGeom, restoreGeom
+from anki.consts import NEW_CARDS_RANDOM
 from anki.lang import _, ngettext
+from aqt.qt import *
+from aqt.utils import (askUser, getOnlyText, openHelp, restoreGeom, saveGeom,
+                       showInfo, showWarning, tooltip)
+
 
 class DeckConf(QDialog):
     def __init__(self, mw, deck):

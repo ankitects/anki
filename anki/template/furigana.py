@@ -4,8 +4,9 @@
 # Based off Kieran Clancy's initial implementation.
 
 import re
-from anki.hooks import addHook
 from typing import Any, Callable
+
+from anki.hooks import addHook
 
 r = r' ?([^ >]+?)\[(.+?)\]'
 ruby = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'

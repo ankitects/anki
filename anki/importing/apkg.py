@@ -2,12 +2,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import zipfile, os
-import unicodedata
 import json
-from anki.utils import tmpfile
-from anki.importing.anki2 import Anki2Importer
+import os
+import unicodedata
+import zipfile
 from typing import Any, Dict, Optional
+
+from anki.importing.anki2 import Anki2Importer
+from anki.utils import tmpfile
+
 
 class AnkiPackageImporter(Anki2Importer):
     nameToNum: Dict[str, str]

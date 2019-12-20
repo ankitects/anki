@@ -3,20 +3,20 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import collections
+import json
 import re
 
-from aqt.qt import *
-from anki.consts import *
 import aqt
-from anki.sound import playFromText, clearAudioQueue
-from aqt.utils import saveGeom, restoreGeom, mungeQA,\
-    showInfo, askUser, getOnlyText, \
-     showWarning, openHelp, downArrow
-from anki.utils import isMac, isWin, joinFields, bodyClass
-from aqt.webview import AnkiWebView
-import json
+from anki.consts import *
 from anki.hooks import runFilter
 from anki.lang import _, ngettext
+from anki.sound import clearAudioQueue, playFromText
+from anki.utils import bodyClass, isMac, isWin, joinFields
+from aqt.qt import *
+from aqt.utils import (askUser, downArrow, getOnlyText, mungeQA, openHelp,
+                       restoreGeom, saveGeom, showInfo, showWarning)
+from aqt.webview import AnkiWebView
+
 
 class CardLayout(QDialog):
 

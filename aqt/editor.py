@@ -1,30 +1,32 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import re
-import urllib.request, urllib.parse, urllib.error
-import warnings
-import html
-import mimetypes
 import base64
-import unicodedata
+import html
 import json
+import mimetypes
+import re
+import unicodedata
+import urllib.error
+import urllib.parse
+import urllib.request
+import warnings
 
+import requests
+from bs4 import BeautifulSoup
+
+import anki.sound
+import aqt
+from anki.hooks import addHook, runFilter, runHook
 from anki.lang import _
+from anki.sync import AnkiRequestsClient
+from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt
 from aqt.qt import *
-from anki.utils import isWin, namedtmp, stripHTMLMedia, \
-    checksum
-import anki.sound
-from anki.hooks import runHook, runFilter, addHook
 from aqt.sound import getAudio
+from aqt.utils import (getFile, openHelp, qtMenuShortcutWorkaround, shortcut,
+                       showInfo, showWarning, tooltip)
 from aqt.webview import AnkiWebView
-from aqt.utils import shortcut, showInfo, showWarning, getFile, \
-    openHelp, tooltip, qtMenuShortcutWorkaround
-import aqt
-from bs4 import BeautifulSoup
-import requests
-from anki.sync import AnkiRequestsClient
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
 audio =  ("wav", "mp3", "ogg", "flac", "mp4", "swf", "mov", "mpeg", "mkv", "m4a", "3gp", "spx", "oga", "webm")

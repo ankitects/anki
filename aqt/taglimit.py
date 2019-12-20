@@ -3,7 +3,8 @@
 
 import aqt
 from aqt.qt import *
-from aqt.utils import saveGeom, restoreGeom
+from aqt.utils import restoreGeom, saveGeom
+
 
 class TagLimit(QDialog):
 

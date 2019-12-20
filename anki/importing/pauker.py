@@ -2,9 +2,14 @@
 # Copyright: Andreas Klauer <Andreas.Klauer@metamorpher.de>
 # License: BSD-3
 
-import gzip, math, random, time, html
+import gzip
+import html
+import math
+import random
+import time
 import xml.etree.ElementTree as ET
-from anki.importing.noteimp import NoteImporter, ForeignNote, ForeignCard
+
+from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
 from anki.stdmodels import addForwardReverse
 
 ONE_DAY = 60*60*24

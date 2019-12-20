@@ -2,39 +2,39 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import faulthandler
+import gc
+import platform
 import re
 import signal
-import zipfile
-import gc
 import time
-import faulthandler
-import platform
+import zipfile
+from argparse import Namespace
 from threading import Thread
-from typing import Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+
 from send2trash import send2trash
+
+import anki.mpv
+import anki.sound
+import aqt
+import aqt.mediasrv
+import aqt.progress
+import aqt.stats
+import aqt.toolbar
+import aqt.webview
 from anki.collection import _Collection
+from anki.hooks import addHook, runFilter, runHook
+from anki.lang import _, ngettext
+from anki.storage import Collection
+from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
-from anki.storage import Collection
-from anki.utils import  isWin, isMac, intTime, splitFields, ids2str, \
-        devMode
-from anki.hooks import runHook, addHook, runFilter
-import aqt
-import aqt.progress
-import aqt.webview
-import aqt.toolbar
-import aqt.stats
-import aqt.mediasrv
-import anki.sound
-import anki.mpv
-from aqt.utils import saveGeom, restoreGeom, showInfo, showWarning, \
-    restoreState, getOnlyText, askUser, showText, tooltip, \
-    openHelp, openLink, checkInvalidFilename, getFile
 from aqt.qt import sip
-from anki.lang import _, ngettext
+from aqt.utils import (askUser, checkInvalidFilename, getFile, getOnlyText,
+                       openHelp, openLink, restoreGeom, restoreState, saveGeom,
+                       showInfo, showText, showWarning, tooltip)
 
-from argparse import Namespace
-from typing import Any, Callable, Dict, List, Optional, Tuple
 
 class AnkiQt(QMainWindow):
     col: _Collection

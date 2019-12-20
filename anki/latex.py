@@ -2,11 +2,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re, os, shutil, html
-from anki.utils import checksum, call, namedtmp, tmpdir, isMac, stripHTML
+import html
+import os
+import re
+import shutil
+from typing import Any, Dict, List, Optional, Union
+
 from anki.hooks import addHook
 from anki.lang import _
-from typing import Any, Dict, List, Optional, Union
+from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],

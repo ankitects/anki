@@ -4,8 +4,8 @@
 
 import os
 import time
-
-from sqlite3 import dbapi2 as sqlite, Cursor
+from sqlite3 import Cursor
+from sqlite3 import dbapi2 as sqlite
 from typing import Any, List
 
 DBError = sqlite.Error

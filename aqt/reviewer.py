@@ -3,25 +3,24 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import difflib
-import re
 import html
-import unicodedata as ucd
 import html.parser
 import json
-
+import re
+import unicodedata as ucd
 from typing import List
 
+import aqt
 from anki.cards import Card
+from anki.hooks import addHook, runFilter, runHook
 from anki.lang import _, ngettext
+from anki.sound import clearAudioQueue, play, playFromText
+from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt
 from aqt.qt import *
-from anki.utils import stripHTML, bodyClass
-from anki.hooks import addHook, runHook, runFilter
-from anki.sound import playFromText, clearAudioQueue, play
-from aqt.utils import mungeQA, tooltip, askUserDialog, \
-    downArrow, qtMenuShortcutWorkaround
 from aqt.sound import getAudio
-import aqt
+from aqt.utils import (askUserDialog, downArrow, mungeQA,
+                       qtMenuShortcutWorkaround, tooltip)
 
 
 class Reviewer:

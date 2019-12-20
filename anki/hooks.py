@@ -13,8 +13,9 @@ If you call wrap() with pos='around', the original function will not be called
 automatically but can be called with _old().
 """
 
+from typing import Any, Callable, Dict, List
+
 import decorator
-from typing import List, Any, Callable, Dict
 
 # Hooks
 ##############################################################################

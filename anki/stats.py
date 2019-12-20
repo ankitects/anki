@@ -2,14 +2,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time
 import datetime
 import json
+import time
+from typing import Any, Dict, List, Optional, Tuple
 
-from anki.utils import fmtTimeSpan, ids2str
 from anki.lang import _, ngettext
-from typing import Any, List, Tuple, Optional, Dict
-
+from anki.utils import fmtTimeSpan, ids2str
 
 # Card stats
 ##########################################################################

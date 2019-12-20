@@ -2,9 +2,10 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.utils import  maxID
-from typing import Any, Optional, List
+from typing import Any, List, Optional
+
 from anki.collection import _Collection
+from anki.utils import maxID
 
 # Base importer
 ##########################################################################

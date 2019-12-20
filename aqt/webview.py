@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import json
-import sys
 import math
+import sys
+
 from anki.hooks import runHook
+from anki.lang import _
+from anki.utils import isLin, isMac, isWin
 from aqt.qt import *
 from aqt.utils import openLink
-from anki.utils import isMac, isWin, isLin
-from anki.lang import _
 
 # Page for debug messages
 ##########################################################################

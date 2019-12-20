@@ -6,24 +6,24 @@
 # - Saves in pickles rather than json to easily store Qt window state.
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
-import random
-import pickle
-import shutil
 import io
 import locale
+import pickle
+import random
+import shutil
+from typing import Any, Dict
 
-from typing import Dict, Any
-
-from aqt.qt import *
-from anki.db import DB
-from anki.utils import isMac, isWin, intTime
-import anki.lang
-from aqt.utils import showWarning
-from aqt import appHelpSite
-import aqt.forms
 from send2trash import send2trash
+
+import anki.lang
 import anki.sound
+import aqt.forms
+from anki.db import DB
 from anki.lang import _
+from anki.utils import intTime, isMac, isWin
+from aqt import appHelpSite
+from aqt.qt import *
+from aqt.utils import showWarning
 
 metaConf = dict(
     ver=0,

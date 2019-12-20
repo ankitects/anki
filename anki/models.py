@@ -2,14 +2,16 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import copy, re, json
-from anki.utils import intTime, joinFields, splitFields, ids2str,\
-    checksum
-from anki.lang import _
+import copy
+import json
+import re
+import time
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 from anki.consts import *
 from anki.hooks import runHook
-import time
-from typing import Tuple, Union, Any, Callable, Dict, List, Optional
+from anki.lang import _
+from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
 # Models
 ##########################################################################

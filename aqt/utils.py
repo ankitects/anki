@@ -1,15 +1,19 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import os
+import re
+import subprocess
+import sys
 from typing import Optional
 
-from aqt.qt import *
-import re, os, sys, subprocess
 import aqt
-from anki.sound import stripSounds
-from anki.utils import isWin, isMac, invalidFilename, noBundledLibs, \
-    versionWithBuild
 from anki.lang import _
+from anki.sound import stripSounds
+from anki.utils import (invalidFilename, isMac, isWin, noBundledLibs,
+                        versionWithBuild)
+from aqt.qt import *
+
 
 def openHelp(section):
     link = aqt.appHelpSite

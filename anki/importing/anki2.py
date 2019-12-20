@@ -4,12 +4,13 @@
 
 import os
 import unicodedata
-from anki.storage import Collection
-from anki.utils import intTime, splitFields, joinFields
+from typing import Any, Dict, List, Optional, Tuple
+
+from anki.collection import _Collection
 from anki.importing.base import Importer
 from anki.lang import _
-from typing import Any, Optional, Dict, Tuple, List
-from anki.collection import _Collection
+from anki.storage import Collection
+from anki.utils import intTime, joinFields, splitFields
 
 GUID = 1
 MID = 2

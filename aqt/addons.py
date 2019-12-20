@@ -6,24 +6,25 @@ import json
 import re
 import zipfile
 from collections import defaultdict
-from typing import Callable, Dict, Any
-
-import markdown
-from send2trash import send2trash
-import jsonschema
-from jsonschema.exceptions import ValidationError
-
-from aqt.qt import *
-from aqt.utils import showInfo, openFolder, isWin, openLink, \
-    askUser, restoreGeom, saveGeom, restoreSplitter, saveSplitter, \
-    showWarning, tooltip, getFile
+from typing import Any, Callable, Dict
 from zipfile import ZipFile
-import aqt.forms
+
+import jsonschema
+import markdown
+from jsonschema.exceptions import ValidationError
+from send2trash import send2trash
+
 import aqt
-from aqt.downloader import download
+import aqt.forms
 from anki.lang import _, ngettext
-from anki.utils import intTime
 from anki.sync import AnkiRequestsClient
+from anki.utils import intTime
+from aqt.downloader import download
+from aqt.qt import *
+from aqt.utils import (askUser, getFile, isWin, openFolder, openLink,
+                       restoreGeom, restoreSplitter, saveGeom, saveSplitter,
+                       showInfo, showWarning, tooltip)
+
 
 class AddonManager:
 

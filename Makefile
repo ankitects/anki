@@ -108,7 +108,7 @@ run: build
 ######################
 
 .PHONY: check
-check: mypy pytest pylint pytype checkpretty
+check: mypy pyimports pytest pylint pytype checkpretty
 
 # Checking python
 ######################
@@ -131,11 +131,21 @@ PYCHECKDEPS := $(BUILDDEPS) $(shell find anki aqt -name '*.py' | grep -v buildha
 	pytype --config pytype.conf
 	touch $@
 
-.PHONY: mypy pytest pylint pytype
+.build/pyimports: $(PYCHECKDEPS)
+	isort -rc anki aqt --check # if this fails, run 'make fixpyimports'
+	touch $@
+
+.PHONY: mypy pytest pylint pytype pyimports fixpyimports
 mypy: .build/mypy
 pytest: .build/pytest
 pylint: .build/pylint
 pytype: .build/pytype
+pyimports: .build/pyimports
+
+.PHONY: fixpyimports
+
+fixpyimports:
+	isort -rc anki aqt
 
 # Checking typescript
 ######################

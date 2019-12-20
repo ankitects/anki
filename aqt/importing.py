@@ -2,24 +2,25 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import json
 import os
 import re
-import traceback
-import zipfile
-import json
-import unicodedata
 import shutil
+import traceback
+import unicodedata
+import zipfile
 
-from aqt import AnkiQt
-from aqt.qt import *
 import anki.importing as importing
-from aqt.utils import getOnlyText, getFile, showText, showWarning, openHelp, \
-    askUser, tooltip, showInfo
-from anki.hooks import addHook, remHook
+import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-import aqt.deckchooser
-from anki.lang import ngettext, _
+from anki.hooks import addHook, remHook
+from anki.lang import _, ngettext
+from aqt import AnkiQt
+from aqt.qt import *
+from aqt.utils import (askUser, getFile, getOnlyText, openHelp, showInfo,
+                       showText, showWarning, tooltip)
+
 
 class ChangeMap(QDialog):
     def __init__(self, mw: AnkiQt, model, current):
