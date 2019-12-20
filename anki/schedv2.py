@@ -294,7 +294,7 @@ order by due""" % self._deckLimit(),
             conf = self.col.decks.confForDid(did)
             deck = self.col.decks.get(did)
             if not conf['dyn']:
-                new = max(0, min(new, conf['new']['perDay']-deck['newToday'][1]))
+                new = max(0, min(new, self._deckNewLimitSingle(deck)))
             tree.append((head, did, rev, lrn, new, children))
         return tuple(tree)
 
