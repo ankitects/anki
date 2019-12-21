@@ -14,7 +14,7 @@ declare interface String {
 
 /* kept for compatibility with add-ons */
 String.prototype.format = function() {
-    let args = arguments;
+    const args = arguments;
     return this.replace(/\{\d+\}/g, function(m) {
         return args[m.match(/\d+/)];
     });
@@ -193,7 +193,7 @@ function focusPrevious() {
 }
 
 function onDragOver(elem) {
-    let e = (window.event as unknown) as DragOverEvent;
+    const e = (window.event as unknown) as DragOverEvent;
     //e.dataTransfer.dropEffect = "copy";
     e.preventDefault();
     // if we focus the target element immediately, the drag&drop turns into a
@@ -214,10 +214,10 @@ function onPaste(elem) {
 }
 
 function caretToEnd() {
-    let r = document.createRange();
+    const r = document.createRange();
     r.selectNodeContents(currentField);
     r.collapse(false);
-    let s = document.getSelection();
+    const s = document.getSelection();
     s.removeAllRanges();
     s.addRange(r);
 }
@@ -299,10 +299,10 @@ function wrapInternal(front, back, plainText) {
         front = "&#8235;" + front + "&#8236;";
         back = "&#8235;" + back + "&#8236;";
     }
-    let s = window.getSelection();
+    const s = window.getSelection();
     let r = s.getRangeAt(0);
-    let content = r.cloneContents();
-    let span = document.createElement("span");
+    const content = r.cloneContents();
+    const span = document.createElement("span");
     span.appendChild(content);
     if (plainText) {
         const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
@@ -329,7 +329,7 @@ function onCutOrCopy() {
 function setFields(fields) {
     let txt = "";
     for (let i = 0; i < fields.length; i++) {
-        let n = fields[i][0];
+        const n = fields[i][0];
         let f = fields[i][1];
         if (!f) {
             f = "<br>";
@@ -359,7 +359,7 @@ function setBackgrounds(cols) {
 
 function setFonts(fonts) {
     for (let i = 0; i < fonts.length; i++) {
-        let n = $("#f" + i);
+        const n = $("#f" + i);
         n.css("font-family", fonts[i][0]).css("font-size", fonts[i][1]);
         n[0].dir = fonts[i][2] ? "rtl" : "ltr";
     }
@@ -377,7 +377,7 @@ function hideDupes() {
     $("#dupes").hide();
 }
 
-const pasteHTML = function(html, internal, extendedMode) {
+let pasteHTML = function(html, internal, extendedMode) {
     html = filterHTML(html, internal, extendedMode);
     if (html !== "") {
         // remove trailing <br> in empty field
@@ -388,7 +388,7 @@ const pasteHTML = function(html, internal, extendedMode) {
     }
 };
 
-const filterHTML = function(html, internal, extendedMode) {
+let filterHTML = function(html, internal, extendedMode) {
     // wrap it in <top> as we aren't allowed to change top level elements
     const top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0] as Element;
     if (internal) {
@@ -456,7 +456,7 @@ const allowedStyling = {
     "text-decoration-line": true,
 };
 
-const filterExternalSpan = function(node) {
+let filterExternalSpan = function(node) {
     // filter out attributes
     let toRemove = [];
     for (const attr of node.attributes) {
@@ -490,7 +490,7 @@ allowedTagsExtended["SPAN"] = filterExternalSpan;
 Object.assign(allowedTagsExtended, allowedTagsBasic);
 
 // filtering from another field
-const filterInternalNode = function(node) {
+let filterInternalNode = function(node) {
     if (node.style) {
         node.style.removeProperty("background-color");
         node.style.removeProperty("font-size");
@@ -503,7 +503,7 @@ const filterInternalNode = function(node) {
 };
 
 // filtering from external sources
-const filterNode = function(node, extendedMode) {
+let filterNode = function(node, extendedMode) {
     // text node?
     if (node.nodeType === 3) {
         return;
@@ -512,7 +512,7 @@ const filterNode = function(node, extendedMode) {
     // descend first, and take a copy of the child nodes as the loop will skip
     // elements due to node modifications otherwise
 
-    let nodes = [];
+    const nodes = [];
     for (const child of node.childNodes) {
         nodes.push(child);
     }
@@ -542,7 +542,7 @@ const filterNode = function(node, extendedMode) {
             tag(node);
         } else {
             // allowed, filter out attributes
-            let toRemove = [];
+            const toRemove = [];
             for (const attr of node.attributes) {
                 const attrName = attr.name.toUpperCase();
                 if (tag.attrs.indexOf(attrName) === -1) {
@@ -556,7 +556,7 @@ const filterNode = function(node, extendedMode) {
     }
 };
 
-const adjustFieldsTopMargin = function() {
+let adjustFieldsTopMargin = function() {
     const topHeight = $("#topbuts").height();
     const margin = topHeight + 8;
     document.getElementById("fields").style.marginTop = margin + "px";
@@ -574,7 +574,7 @@ $(function() {
     };
 
     document.onclick = function(evt: MouseEvent) {
-        let src = evt.target as Element;
+        const src = evt.target as Element;
         if (src.tagName === "IMG") {
             // image clicked; find contenteditable parent
             let p = src;
