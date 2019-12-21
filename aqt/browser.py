@@ -394,7 +394,7 @@ class SidebarItem:
         self.expanded = expanded
         self.children: List["SidebarItem"] = []
         self.parentItem: Optional[SidebarItem] = None
-        self.tooltip = None
+        self.tooltip: Optional[str] = None
 
     def addChild(self, cb: "SidebarItem") -> None:
         self.children.append(cb)
