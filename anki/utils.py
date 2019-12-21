@@ -52,7 +52,7 @@ inTimeTable = {
     "seconds": lambda n: ngettext("in %s second", "in %s seconds", n),
     }
 
-def shortTimeFmt(type: str) -> Any:
+def shortTimeFmt(type: str) -> str:
     return {
 #T: year is an abbreviation for year. %s is a number of years
     "years": _("%sy"),
@@ -84,7 +84,7 @@ def fmtTimeSpan(time: Union[int, float], pad: int = 0, point: int = 0, short: bo
     timestr = "%%%(a)d.%(b)df" % {'a': pad, 'b': point}
     return locale.format_string(fmt % timestr, time)
 
-def optimalPeriod(time: Union[int, float], point: int, unit: int) -> Tuple[str, Any]:
+def optimalPeriod(time: Union[int, float], point: int, unit: int) -> Tuple[str, int]:
     if abs(time) < 60 or unit < 1:
         type = "seconds"
         point -= 1
@@ -152,7 +152,7 @@ def stripHTML(s: str) -> str:
     s = entsToTxt(s)
     return s
 
-def stripHTMLMedia(s: str) -> Any:
+def stripHTMLMedia(s: str) -> str:
     "Strip HTML but keep media filenames"
     s = reMedia.sub(" \\1 ", s)
     return stripHTML(s)
@@ -167,7 +167,7 @@ def minimizeHTML(s) -> str:
                '<u>\\1</u>', s)
     return s
 
-def htmlToTextLine(s) -> Any:
+def htmlToTextLine(s) -> str:
     s = s.replace("<br>", " ")
     s = s.replace("<br />", " ")
     s = s.replace("<div>", " ")

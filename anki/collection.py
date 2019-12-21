@@ -33,6 +33,7 @@ from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sound import stripSounds
 from anki.tags import TagManager
+from anki.types import Model, Template
 from anki.utils import (devMode, fieldChecksum, ids2str, intTime, joinFields,
                         maxID, splitFields, stripHTMLMedia)
 
@@ -354,7 +355,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         avail = self.models.availOrds(model, joinFields(note.fields))
         return self._tmplsFromOrds(model, avail)
 
-    def _tmplsFromOrds(self, model: Dict[str, Any], avail: List[int]) -> List:
+    def _tmplsFromOrds(self, model: Model, avail: List[int]) -> List:
         ok = []
         if model['type'] == MODEL_STD:
             for t in model['tmpls']:
@@ -456,7 +457,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             cards.append(self._newCard(note, template, 1, flush=False, did=did))
         return cards
 
-    def _newCard(self, note: Note, template: Dict[str, Any], due: int, flush: bool = True, did: None = None) -> anki.cards.Card:
+    def _newCard(self, note: Note, template: Template, due: int, flush: bool = True, did: None = None) -> anki.cards.Card:
         "Create a new card."
         card = anki.cards.Card(self)
         card.nid = note.id
@@ -465,7 +466,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         # Use template did (deck override) if valid, otherwise did in argument, otherwise model did
         if not card.did:
             if template['did'] and str(template['did']) in self.decks.decks:
-                card.did = template['did']
+                card.did = int(template['did'])
             elif did:
                 card.did = did
             else:

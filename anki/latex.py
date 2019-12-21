@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from anki.hooks import addHook
 from anki.lang import _
+from anki.types import Model
 from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [
@@ -42,7 +43,8 @@ def stripLatex(text) -> Any:
         text = text.replace(match.group(), "")
     return text
 
-def mungeQA(html: str, type: Optional[str], fields: Optional[Dict[str, str]], model: Dict[str, Any], data: Optional[List[Union[int, str]]], col) -> Any:
+def mungeQA(html: str, type: Optional[str], fields: Optional[Dict[str, str]],
+            model: Model, data: Optional[List[Union[int, str]]], col) -> Any:
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
@@ -55,7 +57,7 @@ def mungeQA(html: str, type: Optional[str], fields: Optional[Dict[str, str]], mo
             "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}", model))
     return html
 
-def _imgLink(col, latex: str, model: Dict[str, Any]) -> Any:
+def _imgLink(col, latex: str, model: Model) -> str:
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
 
@@ -80,13 +82,13 @@ def _imgLink(col, latex: str, model: Dict[str, Any]) -> Any:
     else:
         return link
 
-def _latexFromHtml(col, latex: str) -> Any:
+def _latexFromHtml(col, latex: str) -> str:
     "Convert entities and fix newlines."
     latex = re.sub("<br( /)?>|<div>", "\n", latex)
     latex = stripHTML(latex)
     return latex
 
-def _buildImg(col, latex: str, fname: str, model: Dict[str, Any]) -> Any:
+def _buildImg(col, latex: str, fname: str, model: Model) -> Optional[str]:
     # add header/footer
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +
@@ -129,7 +131,7 @@ package in the LaTeX header instead.""") % bad
                 return _errMsg(latexCmd[0], texpath)
         # add to media
         shutil.copyfile(png, os.path.join(mdir, fname))
-        return
+        return None
     finally:
         os.chdir(oldcwd)
         log.close()
