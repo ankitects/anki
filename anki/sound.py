@@ -11,7 +11,7 @@ import subprocess
 import sys
 import threading
 import time
-from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from anki.hooks import addHook, runHook
 from anki.lang import _
@@ -197,7 +197,7 @@ class MplayerMonitor(threading.Thread):
     mplayer: Optional[subprocess.Popen] = None
     deadPlayers: List[subprocess.Popen] = []
 
-    def run(self) -> NoReturn:
+    def run(self) -> None:
         global mplayerClear
         self.mplayer = None
         self.deadPlayers = []
