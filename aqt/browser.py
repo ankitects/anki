@@ -394,6 +394,7 @@ class SidebarItem:
         self.expanded = expanded
         self.children: List["SidebarItem"] = []
         self.parentItem: Optional[SidebarItem] = None
+        self.tooltip: Optional[str] = None
 
     def addChild(self, cb: "SidebarItem") -> None:
         self.children.append(cb)
@@ -457,13 +458,15 @@ class SidebarModel(QAbstractItemModel):
         if not index.isValid():
             return QVariant()
 
-        if role not in (Qt.DisplayRole, Qt.DecorationRole):
+        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole):
             return QVariant()
 
         item: SidebarItem = index.internalPointer()
 
         if role == Qt.DisplayRole:
             return QVariant(item.name)
+        elif role == Qt.ToolTipRole:
+            return QVariant(item.tooltip)
         else:
             return QVariant(self.iconFromRef(item.icon))
 
