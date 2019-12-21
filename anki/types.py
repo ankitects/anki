@@ -5,7 +5,8 @@ from typing import Any, Dict, Union
 # for methods that operate on models.
 # TODO: Use https://www.python.org/dev/peps/pep-0589/ when available in
 # supported Python versions.
-Model = Dict[str, Any]
+
+NoteType = Dict[str, Any]
 
 Field = Dict[str, Any]
 

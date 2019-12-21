@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from anki.hooks import addHook
 from anki.lang import _
-from anki.types import Model
+from anki.types import NoteType
 from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [
@@ -44,7 +44,7 @@ def stripLatex(text) -> Any:
     return text
 
 def mungeQA(html: str, type: Optional[str], fields: Optional[Dict[str, str]],
-            model: Model, data: Optional[List[Union[int, str]]], col) -> Any:
+            model: NoteType, data: Optional[List[Union[int, str]]], col) -> Any:
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps['standard'].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
@@ -57,7 +57,7 @@ def mungeQA(html: str, type: Optional[str], fields: Optional[Dict[str, str]],
             "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}", model))
     return html
 
-def _imgLink(col, latex: str, model: Model) -> str:
+def _imgLink(col, latex: str, model: NoteType) -> str:
     "Return an img link for LATEX, creating if necesssary."
     txt = _latexFromHtml(col, latex)
 
@@ -88,7 +88,7 @@ def _latexFromHtml(col, latex: str) -> str:
     latex = stripHTML(latex)
     return latex
 
-def _buildImg(col, latex: str, fname: str, model: Model) -> Optional[str]:
+def _buildImg(col, latex: str, fname: str, model: NoteType) -> Optional[str]:
     # add header/footer
     latex = (model["latexPre"] + "\n" +
              latex + "\n" +

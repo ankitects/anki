@@ -33,7 +33,7 @@ from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sound import stripSounds
 from anki.tags import TagManager
-from anki.types import Model, Template
+from anki.types import NoteType, Template
 from anki.utils import (devMode, fieldChecksum, ids2str, intTime, joinFields,
                         maxID, splitFields, stripHTMLMedia)
 
@@ -355,7 +355,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         avail = self.models.availOrds(model, joinFields(note.fields))
         return self._tmplsFromOrds(model, avail)
 
-    def _tmplsFromOrds(self, model: Model, avail: List[int]) -> List:
+    def _tmplsFromOrds(self, model: NoteType, avail: List[int]) -> List:
         ok = []
         if model['type'] == MODEL_STD:
             for t in model['tmpls']:
