@@ -49,14 +49,17 @@ avoid 'Any' when a proper type is impractical.
 When adding type signatures, please avoid refactoring the code, as this is
 liable to break add-ons or introduce regressions.
 
-Anki's Makefile invokes two type checkers - mypy and pytype. Mypy is fast, but
-not very good at type inference, so it is mostly useful for checking code
+When running 'make check', Anki uses mypy to typecheck the code. Mypy is fast,
+but not very good at type inference, so it is mostly useful for checking code
 that has type signatures. It is able to read the bundled Qt stubs, and works
 across the whole Anki codebase.
 
-pytype is much slower, but is better able to infer types when typing hints
-are unavailable. It is not able to check the aqt/* code, as it can't read
-the Qt stubs, and it is not currently compatible with Python 3.8.
+When you use 'make pytype', Anki will typecheck the code with pytype. Pytype
+is much slower, but it can catch errors in untyped code that mypy misses. It
+is not able to check the aqt/* code, as it can't read the Qt stubs, and it is
+not currently compatible with Python 3.8. It can also be difficult to build,
+so it is not included in the default 'make check', but it will be run when a
+pull request is submitted.
 
 The Qt stubs are not perfect, so you'll find when doing things like connecting
 signals, you may have to add the following to the end of a line to silence

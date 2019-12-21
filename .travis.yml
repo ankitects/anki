@@ -11,7 +11,7 @@ jobs:
     - python: 3.6
       script: make -j 4 pytest pylint pytype
     - python: 3.7
-      script: make -j 4 check
+      script: make -j 4 check pytype
 
 notifications:
   email:
