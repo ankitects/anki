@@ -25,8 +25,8 @@ function init() {
 }
 
 function handleDropEvent(event, ui) {
-    var draggedDeckId = ui.draggable.attr("id");
-    var ontoDeckId = $(this).attr("id") || "";
+    const draggedDeckId = ui.draggable.attr("id");
+    const ontoDeckId = $(this).attr("id") || "";
 
     pycmd("drag:" + draggedDeckId + "," + ontoDeckId);
 }
