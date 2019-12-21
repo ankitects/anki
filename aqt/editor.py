@@ -11,6 +11,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import warnings
+from typing import Optional, Callable, List, Tuple
 
 import requests
 from bs4 import BeautifulSoup
@@ -74,7 +75,7 @@ class Editor:
         self.web.onBridgeCmd = self.onBridgeCmd
         self.outerLayout.addWidget(self.web, 1)
 
-        righttopbtns = list()
+        righttopbtns: List[str] = list()
         righttopbtns.append(self._addButton('text_bold', 'bold', _("Bold text (Ctrl+B)"), id='bold'))
         righttopbtns.append(self._addButton('text_italic', 'italic', _("Italic text (Ctrl+I)"), id='italic'))
         righttopbtns.append(self._addButton('text_under', 'underline', _("Underline text (Ctrl+U)"), id='underline'))
@@ -131,20 +132,23 @@ class Editor:
             return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
 
-    def addButton(self, icon, cmd, func, tip="", label="", 
-                  id=None, toggleable=False, keys=None, disables=True):
+    def addButton(self, icon: str, cmd: str, func: Callable[["Editor"], None],
+                  tip: str = "", label: str = "",  id: str = None,
+                  toggleable: bool = False, keys: str = None,
+                  disables: bool = True):
         """Assign func to bridge cmd, register shortcut, return button"""
         if cmd not in self._links:
             self._links[cmd] = func
         if keys:
             QShortcut(QKeySequence(keys), self.widget,
-                      activated = lambda s=self: func(s))
+                      activated=lambda s=self: func(s))
         btn = self._addButton(icon, cmd, tip=tip, label=label,
                               id=id, toggleable=toggleable, disables=disables)
         return btn
 
-    def _addButton(self, icon, cmd, tip="", label="", id=None, toggleable=False,
-                   disables=True):
+    def _addButton(self, icon: str, cmd: str, tip: str = "", label: str = "",
+                   id: Optional[str] = None, toggleable: bool = False,
+                   disables: bool = True):
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon
@@ -180,7 +184,7 @@ class Editor:
 
     def setupShortcuts(self):
         # if a third element is provided, enable shortcut even when no field selected
-        cuts = [
+        cuts: List[Tuple] = [
             ("Ctrl+L", self.onCardLayout, True),
             ("Ctrl+B", self.toggleBold),
             ("Ctrl+I", self.toggleItalic),

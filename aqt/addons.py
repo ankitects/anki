@@ -389,7 +389,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     # Add-on Config API
     ######################################################################
 
-    def getConfig(self, module):
+    def getConfig(self, module: str) -> Optional[dict]:
         addon = self.addonFromModule(module)
         # get default config
         config = self.addonConfigDefaults(addon)
@@ -401,15 +401,15 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
         config.update(userConf)
         return config
 
-    def setConfigAction(self, module, fn):
+    def setConfigAction(self, module: str, fn: Callable[[], Optional[bool]]):
         addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
 
-    def setConfigUpdatedAction(self, module, fn):
+    def setConfigUpdatedAction(self, module: str, fn: Callable[[Any], None]):
         addon = self.addonFromModule(module)
         self._configUpdatedActions[addon] = fn
 
-    def writeConfig(self, module, conf):
+    def writeConfig(self, module: str, conf: dict):
         addon = self.addonFromModule(module)
         meta = self.addonMeta(addon)
         meta['config'] = conf
@@ -442,7 +442,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
 
     _webExports: Dict[str, str] = {}
 
-    def setWebExports(self, module, pattern):
+    def setWebExports(self, module: str, pattern: str):
         addon = self.addonFromModule(module)
         self._webExports[addon] = pattern
     
