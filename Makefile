@@ -54,15 +54,31 @@ uninstall:
 # Prerequisites
 ######################
 
-REQS := .build/pyrunreqs .build/pydevreqs .build/jsreqs
+REQS := .build/pyrunreqs .build/jsreqs
 
 .build/pyrunreqs: requirements.txt
 	pip install -r $<
 	./tools/typecheck-setup.sh
 	touch $@
 
-.build/pydevreqs: requirements.dev
-	pip install -r $<
+.build/pytest-deps:
+	pip install nose mock
+	touch $@
+
+.build/mypy-deps:
+	pip install mypy==0.750
+	touch $@
+
+.build/pylint-deps:
+	pip install pylint
+	touch $@
+
+.build/pyimport-deps:
+	pip install isort
+	touch $@
+
+.build/pytype-deps:
+	pip install pytype
 	touch $@
 
 .build/jsreqs: ts/package.json
@@ -108,30 +124,30 @@ run: build
 ######################
 
 .PHONY: check
-check: mypy pyimports pytest pylint pytype checkpretty
+check: mypy pyimports pytest pylint checkpretty
 
 # Checking python
 ######################
 
 PYCHECKDEPS := $(BUILDDEPS) $(shell find anki aqt -name '*.py' | grep -v buildhash.py)
 
-.build/mypy: $(PYCHECKDEPS)
+.build/mypy: .build/mypy-deps $(PYCHECKDEPS)
 	mypy anki aqt
 	touch $@
 
-.build/pytest: $(PYCHECKDEPS)
+.build/pytest: .build/pytest-deps $(PYCHECKDEPS)
 	./tools/tests.sh
 	touch $@
 
-.build/pylint: $(PYCHECKDEPS)
+.build/pylint: .build/pylint-deps $(PYCHECKDEPS)
 	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5 anki aqt
 	touch $@
 
-.build/pytype: $(PYCHECKDEPS)
+.build/pytype: .build/pytype-deps $(PYCHECKDEPS)
 	pytype --config pytype.conf
 	touch $@
 
-.build/pyimports: $(PYCHECKDEPS)
+.build/pyimports: .build/pyimport-deps $(PYCHECKDEPS)
 	isort -rc anki aqt --check # if this fails, run 'make fixpyimports'
 	touch $@
 
