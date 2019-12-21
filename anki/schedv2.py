@@ -1249,10 +1249,19 @@ where id = ?
         return stamp
 
     def _daysSinceCreation(self) -> int:
-        startDate = datetime.datetime.fromtimestamp(self.col.crt)
-        startDate = startDate.replace(hour=self.col.conf.get("rollover", 4),
-                                      minute=0, second=0, microsecond=0)
-        return int((time.time() - time.mktime(startDate.timetuple())) // 86400)
+        rolloverTime = self.col.conf.get("rollover", 4)
+        if rolloverTime < 0:
+            rolloverTime = 24+rolloverTime
+        startTime = datetime.datetime.fromtimestamp(self.col.crt)
+        startDate = startTime.date()
+        if startTime.hour < rolloverTime:
+            startDate = startDate + datetime.timedelta(days=-1)
+        endTime = datetime.datetime.today()
+        endDate = endTime.date()
+        if endTime.hour < rolloverTime:
+            endDate = startDate + datetime.timedelta(days=-1)
+        delta = endDate - startDate
+        return delta.days
 
     # Deck finished state
     ##########################################################################
