@@ -6,7 +6,7 @@ import json
 import re
 import zipfile
 from collections import defaultdict
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 from zipfile import ZipFile
 
 import jsonschema
@@ -358,7 +358,7 @@ and have been disabled: %(found)s") % dict(name=self.addonName(dir), found=addon
     # Add-on Config
     ######################################################################
 
-    _configButtonActions: Dict[str, Callable[[], None]] = {}
+    _configButtonActions: Dict[str, Callable[[], Optional[bool]]] = {}
     _configUpdatedActions: Dict[str, Callable[[Any], None]] = {}
 
     def addonConfigDefaults(self, dir):
@@ -640,8 +640,9 @@ class AddonsDialog(QDialog):
         # does add-on manage its own config?
         act = self.mgr.configAction(addon)
         if act:
-            act()
-            return
+            ret = act()
+            if ret is not False:
+                return
 
         conf = self.mgr.getConfig(addon)
         if conf is None:
