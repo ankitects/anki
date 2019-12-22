@@ -75,13 +75,20 @@ class Editor:
         self.web.onBridgeCmd = self.onBridgeCmd
         self.outerLayout.addWidget(self.web, 1)
 
-        righttopbtns: List[str] = list()
-        righttopbtns.append(self._addButton('text_bold', 'bold', _("Bold text (Ctrl+B)"), id='bold'))
-        righttopbtns.append(self._addButton('text_italic', 'italic', _("Italic text (Ctrl+I)"), id='italic'))
-        righttopbtns.append(self._addButton('text_under', 'underline', _("Underline text (Ctrl+U)"), id='underline'))
-        righttopbtns.append(self._addButton('text_super', 'super', _("Superscript (Ctrl++)"), id='superscript'))
-        righttopbtns.append(self._addButton('text_sub', 'sub', _("Subscript (Ctrl+=)"), id='subscript'))
-        righttopbtns.append(self._addButton('text_clear', 'clear', _("Remove formatting (Ctrl+R)")))
+        righttopbtns: List[str] = [
+            self._addButton('text_bold', 'bold',
+                            _("Bold text (Ctrl+B)"), id='bold'),
+            self._addButton('text_italic', 'italic',
+                            _("Italic text (Ctrl+I)"), id='italic'),
+            self._addButton('text_under', 'underline',
+                            _("Underline text (Ctrl+U)"), id='underline'),
+            self._addButton('text_super', 'super',
+                            _("Superscript (Ctrl++)"), id='superscript'),
+            self._addButton('text_sub', 'sub',
+                            _("Subscript (Ctrl+=)"), id='subscript'),
+            self._addButton('text_clear', 'clear',
+                            _("Remove formatting (Ctrl+R)"))
+        ]
         # The color selection buttons do not use an icon so the HTML must be specified manually
         tip = _("Set foreground colour (F7)")
         righttopbtns.append('''<button tabindex=-1 class=linkb title="{}"
@@ -89,14 +96,18 @@ class Editor:
             <div id=forecolor style="display:inline-block; background: #000;border-radius: 5px;"
             class=topbut></div></button>'''.format(tip))
         tip = _("Change colour (F8)")
-        righttopbtns.append('''<button tabindex=-1 class=linkb title="{}"
-            type="button" onclick="pycmd('changeCol');return false;">
-            <div style="display:inline-block; border-radius: 5px;"
-            class="topbut rainbow"></div></button>'''.format(tip))
-        righttopbtns.append(self._addButton('text_cloze', 'cloze', _("Cloze deletion (Ctrl+Shift+C)")))
-        righttopbtns.append(self._addButton('paperclip', 'attach', _("Attach pictures/audio/video (F3)")))
-        righttopbtns.append(self._addButton('media-record', 'record', _("Record audio (F5)")))
-        righttopbtns.append(self._addButton('more', 'more'))
+        righttopbtns.append(
+            '''<button tabindex=-1 class=linkb title="{}"
+                type="button" onclick="pycmd('changeCol');return false;">
+                <div style="display:inline-block; border-radius: 5px;"
+                class="topbut rainbow"></div></button>'''.format(tip),
+            self._addButton('text_cloze', 'cloze',
+                            _("Cloze deletion (Ctrl+Shift+C)")),
+            self._addButton('paperclip', 'attach',
+                            _("Attach pictures/audio/video (F3)")),
+            self._addButton('media-record', 'record', _("Record audio (F5)")),
+            self._addButton('more', 'more')
+        )
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
             <div id="topbutsleft" style="float:left;">
@@ -106,15 +117,13 @@ class Editor:
             <div id="topbutsright" style="float:right;">
                 %(rightbts)s
             </div>
-        """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns),
+        """ % dict(flds=_("Fields"), cards=_("Cards"),
+                   rightbts="".join(righttopbtns),
                    fldsTitle=_("Customize Fields"),
                    cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")))
         bgcol = self.mw.app.palette().window().color().name()
         # then load page
-        self.web.stdHtml(_html % (
-            bgcol, bgcol,
-            topbuts,
-            _("Show Duplicates")),
+        self.web.stdHtml(_html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
                          css=["editor.css"],
                          js=["jquery.js", "editor.js"])
 
@@ -322,9 +331,8 @@ class Editor:
         if not self.note:
             return
 
-        data = []
-        for fld, val in list(self.note.items()):
-            data.append((fld, self.mw.col.media.escapeImages(val)))
+        data = [(fld, self.mw.col.media.escapeImages(val))
+                for fld, val in self.note.items()]
         self.widget.show()
         self.updateTags()
 
@@ -337,11 +345,12 @@ class Editor:
                 self.web.setFocus()
             runHook("loadNote", self)
 
-        self.web.evalWithCallback("setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
-            json.dumps(data),
-            json.dumps(self.fonts()), json.dumps(focusTo),
-                                  json.dumps(self.note.id)),
-                                  oncallback)
+        self.web.evalWithCallback(
+            "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
+                json.dumps(data),
+                json.dumps(self.fonts()), json.dumps(focusTo),
+                                      json.dumps(self.note.id)),
+                                      oncallback)
 
     def fonts(self):
         return [(runFilter("mungeEditingFontName", f['font']),
@@ -358,10 +367,7 @@ class Editor:
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     def checkValid(self):
-        cols = []
-        err = None
-        for f in self.note.fields:
-            cols.append("#fff")
+        cols = ['#fff'] * len(self.note.fields)
         err = self.note.dupeOrEmpty()
         if err == 2:
             cols[0] = "#fcc"
@@ -374,8 +380,7 @@ class Editor:
         contents = stripHTMLMedia(self.note.fields[0])
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
-            '"dupe:%s,%s"' % (self.note.model()['id'],
-                              contents))
+            '"dupe:%s,%s"' % (self.note.model()['id'], contents))
         browser.onSearchActivated()
 
     def fieldsAreBlank(self, previousNote=None):
@@ -767,27 +772,19 @@ to a cloze type first, via Edit>Change Note Type."""))
 
     def onAdvanced(self):
         m = QMenu(self.mw)
-        a = m.addAction(_("MathJax inline"))
-        a.triggered.connect(self.insertMathjaxInline)
-        a.setShortcut(QKeySequence("Ctrl+M, M"))
-        a = m.addAction(_("MathJax block"))
-        a.triggered.connect(self.insertMathjaxBlock)
-        a.setShortcut(QKeySequence("Ctrl+M, E"))
-        a = m.addAction(_("MathJax chemistry"))
-        a.triggered.connect(self.insertMathjaxChemistry)
-        a.setShortcut(QKeySequence("Ctrl+M, C"))
-        a = m.addAction(_("LaTeX"))
-        a.triggered.connect(self.insertLatex)
-        a.setShortcut(QKeySequence("Ctrl+T, T"))
-        a = m.addAction(_("LaTeX equation"))
-        a.triggered.connect(self.insertLatexEqn)
-        a.setShortcut(QKeySequence("Ctrl+T, E"))
-        a = m.addAction(_("LaTeX math env."))
-        a.triggered.connect(self.insertLatexMathEnv)
-        a.setShortcut(QKeySequence("Ctrl+T, M"))
-        a = m.addAction(_("Edit HTML"))
-        a.triggered.connect(self.onHtmlEdit)
-        a.setShortcut(QKeySequence("Ctrl+Shift+X"))
+
+        for text, handler, shortcut in (
+            (_("MathJax inline"), self.insertMathjaxInline, "Ctrl+M, M"),
+            (_("MathJax block"), self.insertMathjaxBlock, "Ctrl+M, E"),
+            (_("MathJax chemistry"), self.insertMathjaxChemistry, "Ctrl+M, C"),
+            (_("LaTeX"), self.insertLatex, "Ctrl+T, T"),
+            (_("LaTeX equation"), self.insertLatexEqn, "Ctrl+T, E"),
+            (_("LaTeX math env."), self.insertLatexMathEnv, "Ctrl+T, M"),
+            (_("Edit HTML"), self.onHtmlEdit, "Ctrl+Shift+X")
+        ):
+            a = m.addAction(text)
+            a.triggered.connect(handler)
+            a.setShortcut(QKeySequence(shortcut))
 
         qtMenuShortcutWorkaround(m)
 
