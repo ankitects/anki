@@ -20,11 +20,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Install dependencies
-        run: |
-          sudo apt install portaudio19-dev
-          pip install -r requirements.qt
       - name: Run checks
         run: |
+          sudo apt install portaudio19-dev
+          python${{ matrix.python-version }} -m venv ~/pyenv
+          . ~/pyenv/bin/activate
+          pip install -r requirements.qt
           make check
-
