@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, Pattern
 from anki.hooks import runFilter
 from anki.utils import stripHTML, stripHTMLMedia
 
+# Matches a {{c123::clozed-out text::hint}} Cloze deletion, case-insensitively.
 clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
 
 modifiers: Dict[str, Callable] = {}
@@ -32,6 +33,7 @@ def get_or_attr(obj, name, default=None) -> Any:
             return getattr(obj, name)
         except AttributeError:
             return default
+
 
 
 class Template:
@@ -197,6 +199,7 @@ class Template:
     def clozeText(self, txt, ord, type) -> str:
         reg = clozeReg
         if not re.search(reg%ord, txt):
+            # No Cloze deletion was found in txt.
             return ""
         txt = self._removeFormattingFromMathjax(txt, ord)
         def repl(m):
@@ -216,27 +219,56 @@ class Template:
         # and display other clozes normally
         return re.sub(reg%r"\d+", "\\2", txt)
 
-    # look for clozes wrapped in mathjax, and change {{cx to {{Cx
     def _removeFormattingFromMathjax(self, txt, ord) -> str:
-        opening = ["\\(", "\\["]
-        closing = ["\\)", "\\]"]
-        # flags in middle of expression deprecated
+        """Marks all clozes within MathJax to prevent formatting them.
+
+        Active Cloze deletions within MathJax should not be wrapped inside
+        a Cloze <span>, as that would interfere with MathJax.
+
+        This method finds all Cloze deletions number `ord` in `txt` which are
+        inside MathJax inline or display formulas, and replaces their opening
+        '{{c123' with a '{{C123'. The clozeText method interprets the upper-case
+        C as "don't wrap this Cloze in a <span>".
+        """
         creg = clozeReg.replace("(?si)", "")
-        regex = r"(?si)(\\[([])(.*?)"+(creg%ord)+r"(.*?)(\\[\])])"
-        def repl(m):
-            enclosed = True
-            for s in closing:
-                if s in m.group(1):
-                    enclosed = False
-            for s in opening:
-                if s in m.group(7):
-                    enclosed = False
-            if not enclosed:
-                return m.group(0)
-            # remove formatting
-            return m.group(0).replace("{{c", "{{C")
-        txt = re.sub(regex, repl, txt)
-        return txt
+
+        # Scan the string left to right.
+        # After a MathJax opening - \( or \[ - flip in_mathjax to True.
+        # After a MathJax closing - \) or \] - flip in_mathjax to False.
+        # When a Cloze pattern number `ord` is found and we are in MathJax,
+        # replace its '{{c' with '{{C'.
+        #
+        # TODO: Report mismatching opens/closes - e.g. '\(\]'
+        # TODO: Report errors in this method better than printing to stdout.
+        # flags in middle of expression deprecated
+        in_mathjax = False
+        def replace(match):
+            nonlocal in_mathjax
+            if match.group('mathjax_open'):
+                if in_mathjax:
+                    print("MathJax opening found while already in MathJax")
+                in_mathjax = True
+            elif match.group('mathjax_close'):
+                if not in_mathjax:
+                    print("MathJax close found while not in MathJax")
+                in_mathjax = False
+            elif match.group('cloze'):
+                if in_mathjax:
+                    return match.group(0).replace(
+                        '{{c{}::'.format(ord),
+                        '{{C{}::'.format(ord))
+            else:
+                print("Unexpected: no expected capture group is present")
+            return match.group(0)
+        # The following regex matches one of:
+        #  -  MathJax opening
+        #  -  MathJax close
+        #  -  Cloze deletion number `ord`
+        return re.sub(
+            r"(?si)"
+            r"(?P<mathjax_open>\\[([])|"
+            r"(?P<mathjax_close>\\[\])])|"
+            r"(?P<cloze>" + (creg%ord) + ")", replace, txt)
 
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None) -> str:
