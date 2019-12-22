@@ -11,6 +11,6 @@ def test_remove_formatting_from_mathjax():
     # formatting.
     assert t._removeFormattingFromMathjax(txt, 2) == txt
 
-    # TODO: r'\(a\) {{c1::b}} \[ {{c1::c}} \]', ord=1 should return
-    # r'\(a\) {{c1::b}} \[ {{C1::c}} \]', but actually fails to mark the cloze
-    # as not-to-be-formatted.
+    txt = r'\(a\) {{c1::b}} \[ {{c1::c}} \]'
+    assert t._removeFormattingFromMathjax(txt, 1) == (
+        r'\(a\) {{c1::b}} \[ {{C1::c}} \]')

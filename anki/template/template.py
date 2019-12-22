@@ -232,34 +232,45 @@ class Template:
         '{{c123' with a '{{C123'. The clozeText method interprets the upper-case
         C as "don't wrap this Cloze in a <span>".
         """
-        # TODO: There is a bug in this method.
-        # Say txt = r'\(a\) {{c1::b}} \[ {{c1::c}} \]', ord = 1.
-        #
-        # This method should return: '\(a\) {{c1::b}} \[ {{C1::c}} \]'.
-        # Since the {{c1::c}} occurs within a MathJax display formula.
-        # However, it returns '\(a\) {{c1::b}} \[ {{c1::c}} \]'.
-        # This causes the Cloze within the MathJax display formula
-        # to be erroneously formatted with a <span>.
-        opening = ["\\(", "\\["]
-        closing = ["\\)", "\\]"]
-        # flags in middle of expression deprecated
         creg = clozeReg.replace("(?si)", "")
-        regex = r"(?si)(\\[([])(.*?)"+(creg%ord)+r"(.*?)(\\[\])])"
 
-        def repl(m):
-            enclosed = True
-            for s in closing:
-                if s in m.group(1):
-                    enclosed = False
-            for s in opening:
-                if s in m.group(7):
-                    enclosed = False
-            if not enclosed:
-                return m.group(0)
-            # remove formatting
-            return m.group(0).replace("{{c", "{{C")
-        txt = re.sub(regex, repl, txt)
-        return txt
+        # Scan the string left to right.
+        # After a MathJax opening - \( or \[ - flip in_mathjax to True.
+        # After a MathJax closing - \) or \] - flip in_mathjax to False.
+        # When a Cloze pattern number `ord` is found and we are in MathJax,
+        # replace its '{{c' with '{{C'.
+        #
+        # TODO: Report mismatching opens/closes - e.g. '\(\]'
+        # TODO: Report errors in this method better than printing to stdout.
+        # flags in middle of expression deprecated
+        in_mathjax = False
+        def replace(match):
+            nonlocal in_mathjax
+            if match.group('mathjax_open'):
+                if in_mathjax:
+                    print("MathJax opening found while already in MathJax")
+                in_mathjax = True
+            elif match.group('mathjax_close'):
+                if not in_mathjax:
+                    print("MathJax close found while not in MathJax")
+                in_mathjax = False
+            elif match.group('cloze'):
+                if in_mathjax:
+                    return match.group(0).replace(
+                        '{{c{}::'.format(ord),
+                        '{{C{}::'.format(ord))
+            else:
+                print("Unexpected: no expected capture group is present")
+            return match.group(0)
+        # The following regex matches one of:
+        #  -  MathJax opening
+        #  -  MathJax close
+        #  -  Cloze deletion number `ord`
+        return re.sub(
+            r"(?si)"
+            r"(?P<mathjax_open>\\[([])|"
+            r"(?P<mathjax_close>\\[\])])|"
+            r"(?P<cloze>" + (creg%ord) + ")", replace, txt)
 
     @modifier('=')
     def render_delimiter(self, tag_name=None, context=None) -> str:
