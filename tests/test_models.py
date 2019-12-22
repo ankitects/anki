@@ -199,18 +199,12 @@ def test_cloze_mathjax():
     assert "class=cloze" in f.cards()[3].q()
     assert "class=cloze" in f.cards()[4].q()
 
-def test_cloze_mathjax_bug():
-    d = getEmptyCol()
-    d.models.setCurrent(d.models.byName("Cloze"))
-
     f = d.newNote()
     f['Text'] = r'\(a\) {{c1::b}} \[ {{c1::c}} \]'
     assert d.addNote(f)
     assert len(f.cards()) == 1
+    assert f.cards()[0].q().endswith('\(a\) <span class=cloze>[...]</span> \[ [...] \]')
 
-    # TODO: The following assertion should work, but currently fails due
-    # to a bug in _removeFormatingFromMathjax.
-    #   assert f.cards()[0].q() == '\(a\) <span class=cloze>[...]</span> \[ [...] \]'
 
 def test_chained_mods():
     d = getEmptyCol()
