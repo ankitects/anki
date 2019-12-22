@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import base64
 import html
+import itertools
 import json
 import mimetypes
 import re
@@ -553,10 +554,10 @@ to a cloze type first, via Edit>Change Note Type."""))
     ######################################################################
 
     def onAddMedia(self):
-        key = (_("Media") +
-               " (*.jpg *.png *.gif *.tiff *.svg *.tif *.jpeg "+
-               "*.mp3 *.ogg *.wav *.avi *.ogv *.mpg *.mpeg *.mov *.mp4 " +
-               "*.mkv *.ogx *.ogv *.oga *.flv *.swf *.flac *.webp *.m4a)")
+        extension_filter = ' '.join(
+            '*.' + extension
+            for extension in sorted(itertools.chain(pics, audio)))
+        key = (_("Media") + " (" + extension_filter + ")")
         def accept(file):
             self.addMedia(file, canDelete=True)
         file = getFile(self.widget, _("Add Media"), accept, key, key="media")
