@@ -26,5 +26,5 @@ jobs:
           pip install -r requirements.qt
       - name: Run checks
         run: |
-          make check pytype
+          make check
 
