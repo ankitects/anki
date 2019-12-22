@@ -14,4 +14,4 @@ To run from source, please see README.development.
 If you are interested in contributing changes to Anki, please
 see README.contributing before you begin work.
 
-![](https://github.com/dae/anki/workflows/Checks/badge.svg)]
+![](https://github.com/dae/anki/workflows/Checks/badge.svg)
