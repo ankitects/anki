@@ -305,8 +305,10 @@ def tmpdir() -> Any:
         import atexit
         atexit.register(cleanup)
         _tmpdir = os.path.join(tempfile.gettempdir(), "anki_temp")
-    if not os.path.exists(_tmpdir):
+    try:
         os.mkdir(_tmpdir)
+    except FileExistsError:
+        pass
     return _tmpdir
 
 def tmpfile(prefix: str = "", suffix: str = "") -> Any:
