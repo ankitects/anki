@@ -11,7 +11,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import warnings
-from typing import Optional, Callable, List, Tuple
+from typing import Callable, List, Optional, Tuple
 
 import requests
 from bs4 import BeautifulSoup
@@ -140,7 +140,7 @@ class Editor:
         if cmd not in self._links:
             self._links[cmd] = func
         if keys:
-            QShortcut(QKeySequence(keys), self.widget,
+            QShortcut(QKeySequence(keys), self.widget,  # type: ignore
                       activated=lambda s=self: func(s))
         btn = self._addButton(icon, cmd, tip=tip, label=label,
                               id=id, toggleable=toggleable, disables=disables)
