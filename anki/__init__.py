@@ -6,6 +6,9 @@ import sys
 
 from anki.storage import Collection
 
+# temporary
+from . import rsbridge
+
 if sys.version_info[0] < 3 or sys.version_info[1] < 5:
     raise Exception("Anki requires Python 3.5+")
 

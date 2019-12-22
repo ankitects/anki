@@ -1,0 +1,20 @@
+[package]
+name = "ankirs"
+version = "0.1.0"
+edition = "2018"
+authors = ["Ankitects Pty Ltd and contributors"]
+
+[dependencies]
+
+
+[dependencies.pyo3]
+version = "0.8.0"
+features = ["extension-module"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+
+[lib]
+name = "_ankirs"
+crate-type = ["cdylib"]

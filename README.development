@@ -18,6 +18,17 @@ To start, make sure you have the following installed:
  - mpv
  - lame
  - npm
+ - your platform's C compiler, eg gcc, Xcode or Visual Studio 2017.
+ - GNU make
+
+Once the above are installed, install rustup from https://rustup.rs/. You can
+save some time by choosing a custom installation, and selecting a toolkit of
+'none' and 'minimal' tools.
+
+Next, build a Python virtual environment and activate it:
+
+$ python3 -m venv ~/pyenv
+$ . ~/pyenv/bin/activate
 
 If the distro you are using has PyQt5 installed, make sure you have the PyQt5
 WebEngine module and development tools (eg pyqt5-dev-tools) installed as well.
