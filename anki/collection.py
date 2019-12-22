@@ -33,7 +33,7 @@ from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sound import stripSounds
 from anki.tags import TagManager
-from anki.types import NoteType, Template
+from anki.types import NoteType, QAData, Template
 from anki.utils import (devMode, fieldChecksum, ids2str, intTime, joinFields,
                         maxID, splitFields, stripHTMLMedia)
 
@@ -578,7 +578,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         return [self._renderQA(row)
                 for row in self._qaData(where)]
 
-    def _renderQA(self, data: Tuple[int,int,int,int,int,str,str,int], qfmt: None = None, afmt: None = None) -> Dict:
+    def _renderQA(self, data: QAData, qfmt: None = None, afmt: None = None) -> Dict:
         "Returns hash of id, question, answer."
         # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
         # unpack fields and create dict
@@ -627,6 +627,7 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
 
     def _qaData(self, where="") -> Any:
         "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
+        # NOTE: order selected from database must match order of QAData fields.
         return self.db.execute("""
 select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds, c.flags
 from cards c, notes f
