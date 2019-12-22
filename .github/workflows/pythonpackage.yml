@@ -1,10 +1,9 @@
-name: Python package
+name: Integration tests
 
 on: [push]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -17,13 +16,13 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
     - name: Install dependencies
       run: |
-        sudo apt install portaudio19-dev npm
+        sudo apt install portaudio19-dev
         pip install -r requirements.qt
-    - name: Build
-      run: |
-        make -j 4 build
     - name: Check
       run: |
-        make -j 4 check pytype
+        make check pytype
