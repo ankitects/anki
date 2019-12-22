@@ -20,7 +20,7 @@ import traceback
 from contextlib import contextmanager
 from hashlib import sha1
 from html.entities import name2codepoint
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
 
 from anki.db import DB
 from anki.lang import _, ngettext
@@ -41,7 +41,7 @@ timeTable = {
     "hours": lambda n: ngettext("%s hour", "%s hours", n),
     "minutes": lambda n: ngettext("%s minute", "%s minutes", n),
     "seconds": lambda n: ngettext("%s second", "%s seconds", n),
-    }
+}
 
 inTimeTable = {
     "years": lambda n: ngettext("in %s year", "in %s years", n),
@@ -50,7 +50,7 @@ inTimeTable = {
     "hours": lambda n: ngettext("in %s hour", "in %s hours", n),
     "minutes": lambda n: ngettext("in %s minute", "in %s minutes", n),
     "seconds": lambda n: ngettext("in %s second", "in %s seconds", n),
-    }
+}
 
 def shortTimeFmt(type: str) -> str:
     return {
@@ -68,7 +68,9 @@ def shortTimeFmt(type: str) -> str:
     "seconds": _("%ss"),
     }[type]
 
-def fmtTimeSpan(time: Union[int, float], pad: int = 0, point: int = 0, short: bool = False, inTime: bool = False, unit: int = 99) -> str:
+def fmtTimeSpan(time: Union[int, float], pad: int = 0, point: int = 0,
+                short: bool = False, inTime: bool = False,
+                unit: int = 99) -> str:
     "Return a string representing a time span (eg '2 days')."
     (type, point) = optimalPeriod(time, point, unit)
     time = convertSecondsTo(time, type)
@@ -84,7 +86,8 @@ def fmtTimeSpan(time: Union[int, float], pad: int = 0, point: int = 0, short: bo
     timestr = "%%%(a)d.%(b)df" % {'a': pad, 'b': point}
     return locale.format_string(fmt % timestr, time)
 
-def optimalPeriod(time: Union[int, float], point: int, unit: int) -> Tuple[str, int]:
+def optimalPeriod(time: Union[int, float], point: int,
+                  unit: int) -> Tuple[str, int]:
     if abs(time) < 60 or unit < 1:
         type = "seconds"
         point -= 1
@@ -157,7 +160,7 @@ def stripHTMLMedia(s: str) -> str:
     s = reMedia.sub(" \\1 ", s)
     return stripHTML(s)
 
-def minimizeHTML(s) -> str:
+def minimizeHTML(s: str) -> str:
     "Correct Qt's verbose bold/underline/etc."
     s = re.sub('<span style="font-weight:600;">(.*?)</span>', '<b>\\1</b>',
                s)
@@ -167,7 +170,7 @@ def minimizeHTML(s) -> str:
                '<u>\\1</u>', s)
     return s
 
-def htmlToTextLine(s) -> str:
+def htmlToTextLine(s: str) -> str:
     s = s.replace("<br>", " ")
     s = s.replace("<br />", " ")
     s = s.replace("<div>", " ")
@@ -217,7 +220,7 @@ def hexifyID(id) -> str:
 def dehexifyID(id) -> int:
     return int(id, 16)
 
-def ids2str(ids: Any) -> str:
+def ids2str(ids: Iterable[Union[int, str]]) -> str:
     """Given a list of integers, return a string '(int1,int2,...)'."""
     return "(%s)" % ",".join(str(i) for i in ids)
 
@@ -230,7 +233,7 @@ def timestampID(db: DB, table: str) -> int:
         t += 1
     return t
 
-def maxID(db: DB) -> Any:
+def maxID(db: DB) -> int:
     "Return the first safe ID to use."
     now = intTime(1000)
     for tbl in "cards", "notes":
@@ -251,7 +254,7 @@ def base91(num: int) -> str:
     # all printable characters minus quotes, backslash and separators
     return base62(num, _base91_extra_chars)
 
-def guid64() -> Any:
+def guid64() -> str:
     "Return a base91-encoded 64bit random number."
     return base91(random.randint(0, 2**64-1))
 
@@ -295,7 +298,7 @@ def fieldChecksum(data: str) -> int:
 
 _tmpdir = None
 
-def tmpdir() -> Any:
+def tmpdir() -> str:
     "A reusable temp folder which we clean out on each program invocation."
     global _tmpdir
     if not _tmpdir:
@@ -311,12 +314,12 @@ def tmpdir() -> Any:
         pass
     return _tmpdir
 
-def tmpfile(prefix: str = "", suffix: str = "") -> Any:
+def tmpfile(prefix: str = "", suffix: str = "") -> str:
     (fd, name) = tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
     os.close(fd)
     return name
 
-def namedtmp(name: str, rm: bool = True) -> Any:
+def namedtmp(name: str, rm: bool = True) -> str:
     "Return tmpdir+name. Deletes any existing file."
     path = os.path.join(tmpdir(), name)
     if rm:
