@@ -9,7 +9,7 @@ install:
 jobs:
   include:
     - python: 3.6
-      script: make -j 4 pytest pylint pytype
+      script: make -j 4 check pytype
     - python: 3.7
       script: make -j 4 check pytype
 
