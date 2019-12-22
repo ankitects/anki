@@ -516,10 +516,13 @@ select id from notes where mid = ?)""" % " ".join(map),
         for f in flds:
             a.append("ankiflag")
             b.append("")
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(a), 0]
-        full = self.col._renderQA(data)['q']
-        data = [1, 1, m['id'], 1, t['ord'], "", joinFields(b), 0]
-        empty = self.col._renderQA(data)['q']
+
+        def renderWithFields(fields):
+            return self.col._renderQA(
+                (1, 1, m['id'], 1, t['ord'], "", joinFields(fields), 0))['q']
+
+        full = renderWithFields(a)
+        empty = renderWithFields(b)
         # if full and empty are the same, the template is invalid and there is
         # no way to satisfy it
         if full == empty:
@@ -529,9 +532,8 @@ select id from notes where mid = ?)""" % " ".join(map),
         for i in range(len(flds)):
             tmp = a[:]
             tmp[i] = ""
-            data[6] = joinFields(tmp)
             # if no field content appeared, field is required
-            if "ankiflag" not in self.col._renderQA(data)['q']:
+            if "ankiflag" not in renderWithFields(tmp):
                 req.append(i)
         if req:
             return type, req
@@ -541,9 +543,8 @@ select id from notes where mid = ?)""" % " ".join(map),
         for i in range(len(flds)):
             tmp = b[:]
             tmp[i] = "1"
-            data[6] = joinFields(tmp)
             # if not the same as empty, this field can make the card non-blank
-            if self.col._renderQA(data)['q'] != empty:
+            if renderWithFields(tmp) != empty:
                 req.append(i)
         return type, req
 
