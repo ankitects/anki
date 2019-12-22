@@ -88,7 +88,7 @@ BUILDDEPS := .build/ui .build/js
 	./tools/build_ui.sh
 	touch $@
 
-.build/js: $(RUNREQS) $(TSDEPS)
+.build/js: .build/jsreqs $(TSDEPS)
 	(cd ts && npm run build)
 	touch $@
 
