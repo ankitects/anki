@@ -26,4 +26,4 @@ jobs:
           python${{ matrix.python-version }} -m venv ~/pyenv
           . ~/pyenv/bin/activate
           pip install -r requirements.qt
-          make check
+          make check RUSTARGS=""
