@@ -54,30 +54,18 @@ uninstall:
 # Prerequisites
 ######################
 
-REQS := .build/pyrunreqs .build/jsreqs
+RUNREQS := .build/pyrunreqs .build/jsreqs
 
 .build/pyrunreqs: requirements.txt
+	pip install -r $<
+	touch $@
+
+.build/pycheckreqs: requirements.check .build/pyrunreqs
 	pip install -r $<
 	./tools/typecheck-setup.sh
 	touch $@
 
-.build/pytest-deps:
-	pip install nose mock
-	touch $@
-
-.build/mypy-deps:
-	pip install mypy==0.750
-	touch $@
-
-.build/pylint-deps:
-	pip install pylint
-	touch $@
-
-.build/pyimport-deps:
-	pip install isort
-	touch $@
-
-.build/pytype-deps:
+.build/pytypereqs: .build/pycheckreqs
 	pip install pytype
 	touch $@
 
@@ -96,11 +84,11 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 BUILDDEPS := .build/ui .build/js
 
-.build/ui: $(REQS) $(shell find designer -type f)
+.build/ui: $(RUNREQS) $(shell find designer -type f)
 	./tools/build_ui.sh
 	touch $@
 
-.build/js: $(REQS) $(TSDEPS)
+.build/js: $(RUNREQS) $(TSDEPS)
 	(cd ts && npm run build)
 	touch $@
 
@@ -129,26 +117,26 @@ check: mypy pyimports pytest pylint checkpretty
 # Checking python
 ######################
 
-PYCHECKDEPS := $(BUILDDEPS) $(shell find anki aqt -name '*.py' | grep -v buildhash.py)
+PYCHECKDEPS := $(BUILDDEPS) .build/pycheckreqs $(shell find anki aqt -name '*.py' | grep -v buildhash.py)
 
-.build/mypy: .build/mypy-deps $(PYCHECKDEPS)
+.build/mypy: $(PYCHECKDEPS)
 	mypy anki aqt
 	touch $@
 
-.build/pytest: .build/pytest-deps $(PYCHECKDEPS)
+.build/pytest: $(PYCHECKDEPS)
 	./tools/tests.sh
 	touch $@
 
-.build/pylint: .build/pylint-deps $(PYCHECKDEPS)
+.build/pylint: $(PYCHECKDEPS)
 	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5 anki aqt
 	touch $@
 
-.build/pytype: .build/pytype-deps $(PYCHECKDEPS)
-	pytype --config pytype.conf
+.build/pyimports: $(PYCHECKDEPS)
+	isort -rc anki aqt --check # if this fails, run 'make fixpyimports'
 	touch $@
 
-.build/pyimports: .build/pyimport-deps $(PYCHECKDEPS)
-	isort -rc anki aqt --check # if this fails, run 'make fixpyimports'
+.build/pytype: $(PYCHECKDEPS) .build/pytypereqs
+	pytype --config pytype.conf
 	touch $@
 
 .PHONY: mypy pytest pylint pytype pyimports fixpyimports

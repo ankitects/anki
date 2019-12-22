@@ -1,0 +1,5 @@
+nose
+mock
+mypy==0.750
+pylint
+isort
