@@ -4,9 +4,7 @@ from typing import Any, Callable, Dict, Pattern
 from anki.hooks import runFilter
 from anki.utils import stripHTML, stripHTMLMedia
 
-# The (?si) flags make the regex match case-insensitively and make . match any
-# character including newlines.
-# See: https://docs.python.org/3/howto/regex.html#compilation-flags
+# Matches a {{c123::clozed-out text::hint}} Cloze deletion, case-insensitively.
 clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
 
 modifiers: Dict[str, Callable] = {}
