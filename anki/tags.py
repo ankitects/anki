@@ -12,7 +12,7 @@ This module manages the tag cache and tags for notes.
 
 import json
 import re
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 from anki.hooks import runHook
 from anki.utils import ids2str, intTime
@@ -66,13 +66,13 @@ class TagManager:
         self.register(set(self.split(
             " ".join(self.col.db.list("select distinct tags from notes"+lim)))))
 
-    def allItems(self) -> List[Tuple[Any, Any]]:
+    def allItems(self) -> List[Tuple[str, int]]:
         return list(self.tags.items())
 
     def save(self) -> None:
         self.changed = True
 
-    def byDeck(self, did, children=False) -> List:
+    def byDeck(self, did, children=False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = basequery + " AND c.did=?"
@@ -127,7 +127,7 @@ class TagManager:
     # String-based utilities
     ##########################################################################
 
-    def split(self, tags) -> List:
+    def split(self, tags) -> List[str]:
         "Parse a string and return a list of tags."
         return [t for t in tags.replace('\u3000', ' ').split(" ") if t]
 
@@ -165,7 +165,7 @@ class TagManager:
     # List-based utilities
     ##########################################################################
 
-    def canonify(self, tagList) -> List:
+    def canonify(self, tagList) -> List[str]:
         "Strip duplicates, adjust case to match existing tags, and sort."
         strippedTags = []
         for t in tagList:
