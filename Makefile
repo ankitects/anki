@@ -8,6 +8,7 @@ MAKEFLAGS += --no-builtin-rules
 RUNARGS :=
 .SUFFIXES:
 BLACKARGS := -t py36 anki aqt
+RUSTARGS := --release --strip
 
 $(shell mkdir -p .build)
 
@@ -66,6 +67,10 @@ RUNREQS := .build/pyrunreqs .build/jsreqs
 	./tools/typecheck-setup.sh
 	touch $@
 
+.build/rustreqs: .build/pyrunreqs
+	pip install maturin
+	touch $@
+
 .build/jsreqs: ts/package.json
 	(cd ts && npm i)
 	touch $@
@@ -76,10 +81,15 @@ RUNREQS := .build/pyrunreqs .build/jsreqs
 TSDEPS := $(wildcard ts/src/*.ts)
 JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
+# Rust source
+######################
+
+RSDEPS := $(wildcard rs/src/*.rs)
+
 # Building
 ######################
 
-BUILDDEPS := .build/ui .build/js
+BUILDDEPS := .build/ui .build/js .build/rs
 
 .build/ui: $(RUNREQS) $(shell find designer -type f)
 	./tools/build_ui.sh
@@ -87,6 +97,10 @@ BUILDDEPS := .build/ui .build/js
 
 .build/js: .build/jsreqs $(TSDEPS)
 	(cd ts && npm run build)
+	touch $@
+
+.build/rs: .build/rustreqs $(RUNREQS) $(RSDEPS)
+	(cd rs && maturin develop $(RUSTARGS))
 	touch $@
 
 .PHONY: build clean
@@ -97,6 +111,7 @@ build: $(BUILDDEPS)
 clean:
 	rm -rf .build
 	rm -rf $(JSDEPS)
+	rm -rf rs/target
 
 # Running
 ######################
@@ -125,7 +140,7 @@ PYCHECKDEPS := $(BUILDDEPS) .build/pycheckreqs $(shell find anki aqt -name '*.py
 	touch $@
 
 .build/pylint: $(PYCHECKDEPS)
-	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5 anki aqt
+	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5,_ankirs anki aqt
 	touch $@
 
 .build/pyimports: $(PYCHECKDEPS)
