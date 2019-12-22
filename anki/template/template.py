@@ -4,6 +4,9 @@ from typing import Any, Callable, Dict, Pattern
 from anki.hooks import runFilter
 from anki.utils import stripHTML, stripHTMLMedia
 
+# The (?si) flags make the regex match case-insensitively and make . match any
+# character including newlines.
+# See: https://docs.python.org/3/howto/regex.html#compilation-flags
 clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
 
 modifiers: Dict[str, Callable] = {}
@@ -32,6 +35,7 @@ def get_or_attr(obj, name, default=None) -> Any:
             return getattr(obj, name)
         except AttributeError:
             return default
+
 
 
 class Template:
@@ -197,6 +201,7 @@ class Template:
     def clozeText(self, txt, ord, type) -> str:
         reg = clozeReg
         if not re.search(reg%ord, txt):
+            # No Cloze deletion was found in txt.
             return ""
         txt = self._removeFormattingFromMathjax(txt, ord)
         def repl(m):
@@ -216,13 +221,31 @@ class Template:
         # and display other clozes normally
         return re.sub(reg%r"\d+", "\\2", txt)
 
-    # look for clozes wrapped in mathjax, and change {{cx to {{Cx
     def _removeFormattingFromMathjax(self, txt, ord) -> str:
+        """Marks all clozes within MathJax to prevent formatting them.
+
+        Active Cloze deletions within MathJax should not be wrapped inside
+        a Cloze <span>, as that would interfere with MathJax.
+
+        This method finds all Cloze deletions number `ord` in `txt` which are
+        inside MathJax inline or display formulas, and replaces their opening
+        '{{c123' with a '{{C123'. The clozeText method interprets the upper-case
+        C as "don't wrap this Cloze in a <span>".
+        """
+        # TODO: There is a bug in this method.
+        # Say txt = r'\(a\) {{c1::b}} \[ {{c1::c}} \]', ord = 1.
+        #
+        # This method should return: '\(a\) {{c1::b}} \[ {{C1::c}} \]'.
+        # Since the {{c1::c}} occurs within a MathJax display formula.
+        # However, it returns '\(a\) {{c1::b}} \[ {{c1::c}} \]'.
+        # This causes the Cloze within the MathJax display formula
+        # to be erroneously formatted with a <span>.
         opening = ["\\(", "\\["]
         closing = ["\\)", "\\]"]
         # flags in middle of expression deprecated
         creg = clozeReg.replace("(?si)", "")
         regex = r"(?si)(\\[([])(.*?)"+(creg%ord)+r"(.*?)(\\[\])])"
+
         def repl(m):
             enclosed = True
             for s in closing:
