@@ -20,6 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt install portaudio19-dev npm
+        pip install -r requirements.qt
     - name: Build
       run: |
         make -j 4 build
