@@ -345,12 +345,10 @@ class Editor:
                 self.web.setFocus()
             runHook("loadNote", self)
 
-        self.web.evalWithCallback(
-            "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
-                json.dumps(data),
-                json.dumps(self.fonts()), json.dumps(focusTo),
-                                      json.dumps(self.note.id)),
-                                      oncallback)
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
+            json.dumps(data), json.dumps(self.fonts()), json.dumps(focusTo),
+            json.dumps(self.note.id))
+        self.web.evalWithCallback(js, oncallback)
 
     def fonts(self):
         return [(runFilter("mungeEditingFontName", f['font']),
