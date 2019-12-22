@@ -74,6 +74,7 @@ defaultTemplate: Template = {
 }
 
 class ModelManager:
+    # Models keyed by their ID, as a string.
     models: Dict[str, NoteType]
 
     # Saving/loading registry
@@ -130,11 +131,12 @@ class ModelManager:
         self.col.conf['curModel'] = m['id']
         self.col.setMod()
 
-    def get(self, id: Any) -> Any:
+    def get(self, id: int) -> Optional[NoteType]:
         "Get model with ID, or None."
-        id = str(id)
-        if id in self.models:
-            return self.models[id]
+        id_str = str(id)
+        if id_str in self.models:
+            return self.models[id_str]
+        return None
 
     def all(self) -> List:
         "Get all models."
@@ -245,9 +247,9 @@ and notes.mid = ? and cards.ord = ?""", m['id'], ord)
         f['name'] = name
         return f
 
-    def fieldMap(self, m: NoteType) -> Dict[str, Tuple[Any, Any]]:
+    def fieldMap(self, m: NoteType) -> Dict[str, Tuple[int, Any]]:
         "Mapping of field name -> (ord, field)."
-        return dict((f['name'], (f['ord'], f)) for f in m['flds'])
+        return {f['name']: (f['ord'], f) for f in m['flds']}
 
     def fieldNames(self, m: NoteType) -> List[str]:
         return [f['name'] for f in m['flds']]

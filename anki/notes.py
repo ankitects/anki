@@ -2,7 +2,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from anki.utils import (fieldChecksum, guid64, intTime, joinFields,
                         splitFields, stripHTMLMedia, timestampID)
@@ -10,6 +10,8 @@ from anki.utils import (fieldChecksum, guid64, intTime, joinFields,
 
 class Note:
     tags: List[str]
+    fields: Optional[List[str]]
+    _fmap: Dict[str, Tuple[Any, Any]]
 
     def __init__(self, col, model: Optional[Any] = None, id: Optional[int] = None) -> None:
         assert not (model and id)
@@ -83,17 +85,17 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     # Dict interface
     ##################################################
 
-    def keys(self) -> List:
+    def keys(self) -> List[str]:
         return list(self._fmap.keys())
 
-    def values(self) -> Any:
+    def values(self) -> Optional[List[str]]:
         return self.fields
 
     def items(self) -> List[Tuple[Any, Any]]:
         return [(f['name'], self.fields[ord])
                 for ord, f in sorted(self._fmap.values())]
 
-    def _fieldOrd(self, key: str) -> Any:
+    def _fieldOrd(self, key: str) -> int:
         try:
             return self._fmap[key][0]
         except:
@@ -106,7 +108,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         self.fields[self._fieldOrd(key)] = value
 
     def __contains__(self, key) -> bool:
-        return key in list(self._fmap.keys())
+        return key in self._fmap
 
     # Tags
     ##################################################
@@ -135,7 +137,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     # Unique/duplicate check
     ##################################################
 
-    def dupeOrEmpty(self) -> int:
+    def dupeOrEmpty(self) -> Union[int, bool]:
         "1 if first is empty; 2 if first is a duplicate, False otherwise."
         val = self.fields[0]
         if not val.strip():

@@ -102,7 +102,7 @@ class _Collection:
             self.conf['newBury'] = True
             self.setMod()
 
-    def name(self) -> Any:
+    def name(self) -> str:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
 
@@ -711,7 +711,7 @@ where c.nid == f.id
         wasLeech = card.note().hasTag("leech") or False
         self._undo = [1, _("Review"), old + [copy.copy(card)], wasLeech]
 
-    def _undoReview(self) -> Any:
+    def _undoReview(self) -> int:
         data = self._undo[2]
         wasLeech = self._undo[3]
         c = data.pop() # pytype: disable=attribute-error
@@ -779,7 +779,7 @@ select id from notes where mid = ?) limit 1""" %
                 return False
         return True
 
-    def fixIntegrity(self) -> Tuple[Any, bool]:
+    def fixIntegrity(self) -> Tuple[str, bool]:
         "Fix possible problems and rebuild caches."
         problems = []
         curs = self.db.cursor()

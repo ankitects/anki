@@ -43,7 +43,7 @@ def hasSound(text) -> bool:
 
 # return modified command array that points to bundled command, and return
 # required environment
-def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
+def _packagedCmd(cmd: List[str]) -> Tuple[List[str], Dict[str, str]]:
     cmd = cmd[:]
     env = os.environ.copy()
     if "LD_LIBRARY_PATH" in env:
@@ -365,7 +365,7 @@ class PyAudioThreadedRecorder(threading.Thread):
         self.startupDelay = startupDelay
         self.finish = False
 
-    def run(self) -> Any:
+    def run(self) -> None:
         chunk = 1024
         p = pyaudio.PyAudio()
 

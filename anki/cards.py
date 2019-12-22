@@ -9,6 +9,7 @@ import anki  # pylint: disable=unused-import
 from anki.consts import *
 from anki.hooks import runHook
 from anki.notes import Note
+from anki.types import NoteType
 from anki.utils import intTime, joinFields, timestampID
 
 # Cards
@@ -134,7 +135,9 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def _getQA(self, reload: bool = False, browser: bool = False) -> Any:
         if not self._qa or reload:
-            f = self.note(reload); m = self.model(); t = self.template()
+            f = self.note(reload)
+            m = self.model()
+            t = self.template()
             data = [self.id, f.id, m['id'], self.odid or self.did, self.ord,
                     f.stringTags(), f.joinedFields(), self.flags]
             if browser:
@@ -144,12 +147,12 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
             self._qa = self.col._renderQA(data, *args) # type: ignore
         return self._qa
 
-    def note(self, reload: bool = False) -> Any:
+    def note(self, reload: bool = False) -> Note:
         if not self._note or reload:
             self._note = self.col.getNote(self.nid)
         return self._note
 
-    def model(self) -> Any:
+    def model(self) -> Optional[NoteType]:
         return self.col.models.get(self.note().mid)
 
     def template(self) -> Any:

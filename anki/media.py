@@ -394,7 +394,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
         return fname
 
-    def _cleanLongFilename(self, fname: str) -> Any:
+    def _cleanLongFilename(self, fname: str) -> str:
         # a fairly safe limit that should work on typical windows
         # paths and on eCryptfs partitions, even with a duplicate
         # suffix appended
@@ -544,11 +544,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             os.unlink(fname)
         self.db.execute("delete from media where fname=?", fname)
 
-    def mediaCount(self) -> Any:
+    def mediaCount(self) -> int:
         return self.db.scalar(
             "select count() from media where csum is not null")
 
-    def dirtyCount(self) -> Any:
+    def dirtyCount(self) -> int:
         return self.db.scalar(
             "select count() from media where dirty=1")
 
