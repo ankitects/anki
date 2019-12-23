@@ -12,9 +12,6 @@ dependencies = [
 [[package]]
 name = "ankirs"
 version = "0.1.0"
-dependencies = [
- "pyo3",
-]
 
 [[package]]
 name = "autocfg"
@@ -161,6 +158,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c9e470a8dc4aeae2dee2f335e8f533e2d4b347e1434e5671afc49b054592f27"
 dependencies = [
  "unicode-xid",
+]
+
+[[package]]
+name = "pybridge"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
 ]
 
 [[package]]
