@@ -41,6 +41,8 @@ install:
 	-xdg-mime default anki.desktop application/x-apkg
 	@echo
 	@echo "Install complete."
+	# fixme: _ankirs.so needs to be copied into system python env or
+	# 'maturin build' used
 
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
@@ -56,24 +58,43 @@ uninstall:
 # Prerequisites
 ######################
 
-RUNREQS := .build/pyrunreqs .build/jsreqs
+RUNREQS := .build/py-run-deps .build/ts-deps
 
-.build/pyrunreqs: requirements.txt
+# Python prerequisites
+######################
+
+.build/py-run-deps: requirements.txt
 	pip install -r $<
-	touch $@
+	@touch $@
 
-.build/pycheckreqs: requirements.check .build/pyrunreqs
+.build/py-check-reqs: requirements.check .build/py-run-deps
 	pip install -r $<
 	./tools/typecheck-setup.sh
-	touch $@
+	@touch $@
 
-.build/rustreqs: .build/pyrunreqs
-	pip install maturin
-	touch $@
+# TS prerequisites
+######################
 
-.build/jsreqs: ts/package.json
+.build/ts-deps: ts/package.json
 	(cd ts && npm i)
-	touch $@
+	@touch $@
+
+# Rust prerequisites
+######################
+
+.build/rust-deps: .build/py-run-deps
+	pip install maturin
+	@touch $@
+
+RUST_TOOLCHAIN := $(shell cat rs/rust-toolchain)
+
+.build/rs-fmt-deps:
+	rustup component add rustfmt-preview --toolchain $(RUST_TOOLCHAIN)
+	@touch $@
+
+.build/rs-clippy-deps:
+	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
+	@touch $@
 
 # Typescript source
 ######################
@@ -84,7 +105,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 # Rust source
 ######################
 
-RSDEPS := $(wildcard rs/src/*.rs)
+RSDEPS := $(wildcard rs/*/src/*.rs)
 
 # Building
 ######################
@@ -93,15 +114,15 @@ BUILDDEPS := .build/ui .build/js .build/rs
 
 .build/ui: $(RUNREQS) $(shell find designer -type f)
 	./tools/build_ui.sh
-	touch $@
+	@touch $@
 
-.build/js: .build/jsreqs $(TSDEPS)
+.build/js: .build/ts-deps $(TSDEPS)
 	(cd ts && npm run build)
-	touch $@
+	@touch $@
 
-.build/rs: .build/rustreqs $(RUNREQS) $(RSDEPS)
-	(cd rs && maturin develop $(RUSTARGS))
-	touch $@
+.build/rs: .build/rust-deps $(RUNREQS) $(RSDEPS)
+	(cd rs/pybridge && maturin develop $(RUSTARGS))
+	@touch $@
 
 .PHONY: build clean
 
@@ -124,61 +145,85 @@ run: build
 ######################
 
 .PHONY: check
-check: mypy pyimports pyfmt pytest pylint checkpretty
+check: rs-test rs-fmt rs-clippy py-mypy py-test py-fmt py-imports py-lint ts-fmt
 
 # Checking python
 ######################
 
-PYCHECKDEPS := $(BUILDDEPS) .build/pycheckreqs $(shell find anki aqt -name '*.py' | grep -v buildhash.py)
+PYCHECKDEPS := $(BUILDDEPS) .build/py-check-reqs $(shell find anki aqt -name '*.py' | grep -v buildhash.py)
 
-.build/mypy: $(PYCHECKDEPS)
+.build/py-mypy: $(PYCHECKDEPS)
 	mypy anki aqt
-	touch $@
+	@touch $@
 
 .build/pytest: $(PYCHECKDEPS) $(wildcard tests/*.py)
 	./tools/tests.sh
-	touch $@
+	@touch $@
 
-.build/pylint: $(PYCHECKDEPS)
+.build/py-lint: $(PYCHECKDEPS)
 	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5,_ankirs anki aqt
-	touch $@
+	@touch $@
 
-.build/pyimports: $(PYCHECKDEPS)
-	isort anki aqt --check # if this fails, run 'make fixpyimports'
-	touch $@
+.build/py-imports: $(PYCHECKDEPS)
+	isort anki aqt --check # if this fails, run 'make fix-py-imports'
+	@touch $@
 
-.build/pyfmt: $(PYCHECKDEPS)
-	black --check $(BLACKARGS) # if this fails, run 'make fixpyfmt'
-	touch $@
+.build/py-fmt: $(PYCHECKDEPS)
+	black --check $(BLACKARGS) # if this fails, run 'make fix-py-fmt'
+	@touch $@
 
-.PHONY: mypy pytest pylint pyimports pyfmt
-mypy: .build/mypy
-pytest: .build/pytest
-pylint: .build/pylint
-pyimports: .build/pyimports
-pyfmt: .build/pyfmt
+.PHONY: py-mypy py-test py-lint py-imports py-fmt
+py-mypy: .build/py-mypy
+py-test: .build/py-test
+py-lint: .build/py-lint
+py-imports: .build/py-imports
+py-fmt: .build/py-fmt
 
-.PHONY: fixpyimports fixpyfmt
+.PHONY: fix-py-imports fix-py-fmt
 
-fixpyimports:
+fix-py-imports:
 	isort anki aqt
 
-fixpyfmt:
+fix-py-fmt:
 	black $(BLACKARGS) anki aqt
+
+# Checking rust
+######################
+
+.build/rs-test: $(RSDEPS)
+	(cd rs/ankirs && cargo test)
+	@touch $@
+
+.build/rs-fmt: .build/rs-fmt-deps $(RSDEPS)
+	(cd rs && cargo fmt -- --check) # if this fails, run 'make fix-rs-fmt'
+	@touch $@
+
+.build/rs-clippy: .build/rs-clippy-deps $(RSDEPS)
+	(cd rs && cargo clippy -- -D warnings)
+	@touch $@
+
+.PHONY: rs-test rs-fmt fix-rs-fmt rs-clippy
+
+rs-test: .build/rs-test
+rs-fmt: .build/rs-fmt
+rs-clippy: .build/rs-clippy
+
+fix-rs-fmt:
+	(cd rs && cargo fmt)
+
 
 # Checking typescript
 ######################
 
 TSCHECKDEPS := $(BUILDDEPS) $(TSDEPS)
 
-.build/checkpretty: $(TSCHECKDEPS)
-	(cd ts && npm run check-pretty) # if this fails, run 'make pretty'
-	touch $@
+.build/ts-fmt: $(TSCHECKDEPS)
+	(cd ts && npm run check-pretty) # if this fails, run 'make fix-ts-fmt'
+	@touch $@
 
-.build/pretty: $(TSCHECKDEPS)
+.PHONY: fix-ts-fmt ts-fmt
+ts-fmt: .build/ts-fmt
+
+fix-ts-fmt:
 	(cd ts && npm run pretty)
-	touch $@
 
-.PHONY: pretty checkpretty
-pretty: .build/pretty
-checkpretty: .build/checkpretty
