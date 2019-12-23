@@ -1,0 +1,5 @@
+[package]
+name = "ankirs"
+version = "0.1.0"
+edition = "2018"
+authors = ["Ankitects Pty Ltd and contributors"]
