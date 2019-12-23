@@ -462,7 +462,7 @@ def platDesc() -> str:
             elif isWin:
                 theos = "win:%s" % (platform.win32_ver()[0])
             elif system == "Linux":
-                import distro  # pytype: disable=import-error
+                import distro  # pytype: disable=import-error # pylint: disable=import-error
 
                 r = distro.linux_distribution(full_distribution_name=False)
                 theos = "lin:%s:%s" % (r[0], r[1])

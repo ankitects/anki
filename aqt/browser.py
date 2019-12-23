@@ -1105,8 +1105,8 @@ by clicking on one on the left."""
         assert self.col
         for t in sorted(self.col.tags.all(), key=lambda t: t.lower()):
             item = SidebarItem(
-                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)
-            )  # type: ignore
+                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)  # type: ignore
+            )
             root.addChild(item)
 
     def _decksTree(self, root) -> None:
@@ -1134,8 +1134,8 @@ by clicking on one on the left."""
             item = SidebarItem(
                 m["name"],
                 ":/icons/notetype.svg",
-                lambda m=m: self.setFilter("note", m["name"]),
-            )  # type: ignore
+                lambda m=m: self.setFilter("note", m["name"]),  # type: ignore
+            )
             root.addChild(item)
 
     # Filter tree
