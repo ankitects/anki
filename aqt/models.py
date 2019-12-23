@@ -8,8 +8,15 @@ from anki import stdmodels
 from anki.lang import _, ngettext
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import (askUser, getText, maybeHideClose, openHelp, restoreGeom,
-                       saveGeom, showInfo)
+from aqt.utils import (
+    askUser,
+    getText,
+    maybeHideClose,
+    openHelp,
+    restoreGeom,
+    saveGeom,
+    showInfo,
+)
 
 
 class Models(QDialog):
@@ -19,7 +26,7 @@ class Models(QDialog):
         self.fromMain = fromMain
         QDialog.__init__(self, parent, Qt.Window)
         self.col = mw.col
-        assert(self.col)
+        assert self.col
         self.mm = self.col.models
         self.mw.checkpoint(_("Note Types"))
         self.form = aqt.forms.models.Ui_Dialog()
@@ -34,7 +41,8 @@ class Models(QDialog):
 
     def setupModels(self):
         self.model = None
-        f = self.form; box = f.buttonBox
+        f = self.form
+        box = f.buttonBox
         t = QDialogButtonBox.ActionRole
         b = box.addButton(_("Add"), t)
         b.clicked.connect(self.onAdd)
@@ -56,9 +64,9 @@ class Models(QDialog):
         maybeHideClose(box)
 
     def onRename(self):
-        txt = getText(_("New name:"), default=self.model['name'])
+        txt = getText(_("New name:"), default=self.model["name"])
         if txt[1] and txt[0]:
-            self.model['name'] = txt[0]
+            self.model["name"] = txt[0]
             self.mm.save(self.model, updateReqs=False)
         self.updateModelsList()
 
@@ -72,7 +80,7 @@ class Models(QDialog):
         for m in self.models:
             mUse = self.mm.useCount(m)
             mUse = ngettext("%d note", "%d notes", mUse) % mUse
-            item = QListWidgetItem("%s [%s]" % (m['name'], mUse))
+            item = QListWidgetItem("%s [%s]" % (m["name"], mUse))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
@@ -85,17 +93,16 @@ class Models(QDialog):
     def onAdd(self):
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(_("Name:"), default=m['name'])[0]
+            txt = getText(_("Name:"), default=m["name"])[0]
             if txt:
-                m['name'] = txt
+                m["name"] = txt
             self.mm.ensureNameUnique(m)
             self.mm.save(m)
             self.updateModelsList()
 
     def onDelete(self):
         if len(self.models) < 2:
-            showInfo(_("Please add another note type first."),
-                     parent=self)
+            showInfo(_("Please add another note type first."), parent=self)
             return
         if self.mm.useCount(self.model):
             msg = _("Delete this note type and all its cards?")
@@ -112,16 +119,16 @@ class Models(QDialog):
         frm = aqt.forms.modelopts.Ui_Dialog()
         frm.setupUi(d)
         frm.latexsvg.setChecked(self.model.get("latexsvg", False))
-        frm.latexHeader.setText(self.model['latexPre'])
-        frm.latexFooter.setText(self.model['latexPost'])
-        d.setWindowTitle(_("Options for %s") % self.model['name'])
+        frm.latexHeader.setText(self.model["latexPre"])
+        frm.latexFooter.setText(self.model["latexPost"])
+        d.setWindowTitle(_("Options for %s") % self.model["name"])
         frm.buttonBox.helpRequested.connect(lambda: openHelp("latex"))
         restoreGeom(d, "modelopts")
         d.exec_()
         saveGeom(d, "modelopts")
-        self.model['latexsvg'] = frm.latexsvg.isChecked()
-        self.model['latexPre'] = str(frm.latexHeader.toPlainText())
-        self.model['latexPost'] = str(frm.latexFooter.toPlainText())
+        self.model["latexsvg"] = frm.latexsvg.isChecked()
+        self.model["latexPre"] = str(frm.latexHeader.toPlainText())
+        self.model["latexPost"] = str(frm.latexFooter.toPlainText())
 
     def saveModel(self):
         self.mm.save(self.model, updateReqs=False)
@@ -130,10 +137,10 @@ class Models(QDialog):
         self.mm.setCurrent(self.model)
         n = self.col.newNote(forDeck=False)
         for name in list(n.keys()):
-            n[name] = "("+name+")"
+            n[name] = "(" + name + ")"
         try:
-            if "{{cloze:Text}}" in self.model['tmpls'][0]['qfmt']:
-                n['Text'] = _("This is a {{c1::sample}} cloze deletion.")
+            if "{{cloze:Text}}" in self.model["tmpls"][0]["qfmt"]:
+                n["Text"] = _("This is a {{c1::sample}} cloze deletion.")
         except:
             # invalid cloze
             pass
@@ -141,11 +148,13 @@ class Models(QDialog):
 
     def onFields(self):
         from aqt.fields import FieldDialog
+
         n = self._tmpNote()
         FieldDialog(self.mw, n, parent=self)
 
     def onCards(self):
         from aqt.clayout import CardLayout
+
         n = self._tmpNote()
         CardLayout(self.mw, n, ord=0, parent=self, addMode=True)
 
@@ -160,8 +169,8 @@ class Models(QDialog):
         saveGeom(self, "models")
         QDialog.reject(self)
 
-class AddModel(QDialog):
 
+class AddModel(QDialog):
     def __init__(self, mw, parent=None):
         self.parent = parent or mw
         self.mw = mw
@@ -180,7 +189,7 @@ class AddModel(QDialog):
             self.models.append((True, func))
         # add copies
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(_("Clone: %s") % m['name'])
+            item = QListWidgetItem(_("Clone: %s") % m["name"])
             self.dialog.models.addItem(item)
             self.models.append((False, m))
         self.dialog.models.setCurrentRow(0)

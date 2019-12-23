@@ -7,27 +7,26 @@ import time
 from anki.hooks import addHook, remHook
 from anki.lang import _
 from anki.storage import Collection
-from anki.sync import (FullSyncer, MediaSyncer, RemoteMediaServer,
-                       RemoteServer, Syncer)
+from anki.sync import FullSyncer, MediaSyncer, RemoteMediaServer, RemoteServer, Syncer
 from aqt.qt import *
 from aqt.utils import askUserDialog, showInfo, showText, showWarning, tooltip
 
 # Sync manager
 ######################################################################
 
-class SyncManager(QObject):
 
+class SyncManager(QObject):
     def __init__(self, mw, pm):
         QObject.__init__(self, mw)
         self.mw = mw
         self.pm = pm
 
     def sync(self):
-        if not self.pm.profile['syncKey']:
+        if not self.pm.profile["syncKey"]:
             auth = self._getUserPass()
             if not auth:
                 return
-            self.pm.profile['syncUser'] = auth[0]
+            self.pm.profile["syncUser"] = auth[0]
             self._sync(auth)
         else:
             self._sync()
@@ -40,8 +39,10 @@ class SyncManager(QObject):
         gc.collect()
         # create the thread, setup signals and start running
         t = self.thread = SyncThread(
-            self.pm.collectionPath(), self.pm.profile['syncKey'],
-            auth=auth, media=self.pm.profile['syncMedia'],
+            self.pm.collectionPath(),
+            self.pm.profile["syncKey"],
+            auth=auth,
+            media=self.pm.profile["syncMedia"],
             hostNum=self.pm.profile.get("hostNum"),
         )
         t._event.connect(self.onEvent)
@@ -63,39 +64,49 @@ class SyncManager(QObject):
         if self.thread.syncMsg:
             showText(self.thread.syncMsg)
         if self.thread.uname:
-            self.pm.profile['syncUser'] = self.thread.uname
-        self.pm.profile['hostNum'] = self.thread.hostNum
+            self.pm.profile["syncUser"] = self.thread.uname
+        self.pm.profile["hostNum"] = self.thread.hostNum
+
         def delayedInfo():
             if self._didFullUp and not self._didError:
-                showInfo(_("""\
+                showInfo(
+                    _(
+                        """\
 Your collection was successfully uploaded to AnkiWeb.
 
 If you use any other devices, please sync them now, and choose \
 to download the collection you have just uploaded from this computer. \
 After doing so, future reviews and added cards will be merged \
-automatically."""))
+automatically."""
+                    )
+                )
+
         self.mw.progress.timer(1000, delayedInfo, False, requiresCollection=False)
 
     def _updateLabel(self):
-        self.mw.progress.update(label="%s\n%s" % (
-            self.label,
-            _("%(a)0.1fkB up, %(b)0.1fkB down") % dict(
-                a=self.sentBytes / 1024,
-                b=self.recvBytes / 1024)))
+        self.mw.progress.update(
+            label="%s\n%s"
+            % (
+                self.label,
+                _("%(a)0.1fkB up, %(b)0.1fkB down")
+                % dict(a=self.sentBytes / 1024, b=self.recvBytes / 1024),
+            )
+        )
 
     def onEvent(self, evt, *args):
         pu = self.mw.progress.update
         if evt == "badAuth":
             tooltip(
                 _("AnkiWeb ID or password was incorrect; please try again."),
-                parent=self.mw)
+                parent=self.mw,
+            )
             # blank the key so we prompt user again
-            self.pm.profile['syncKey'] = None
+            self.pm.profile["syncKey"] = None
             self.pm.save()
         elif evt == "corrupt":
             pass
         elif evt == "newKey":
-            self.pm.profile['syncKey'] = args[0]
+            self.pm.profile["syncKey"] = args[0]
             self.pm.save()
         elif evt == "offline":
             tooltip(_("Syncing failed; internet offline."))
@@ -103,7 +114,8 @@ automatically."""))
             self._didFullUp = False
             self._checkFailed()
         elif evt == "sync":
-            m = None; t = args[0]
+            m = None
+            t = args[0]
             if t == "login":
                 m = _("Syncing...")
             elif t == "upload":
@@ -116,8 +128,12 @@ automatically."""))
             elif t == "findMedia":
                 m = _("Checking media...")
             elif t == "upgradeRequired":
-                showText(_("""\
-Please visit AnkiWeb, upgrade your deck, then try again."""))
+                showText(
+                    _(
+                        """\
+Please visit AnkiWeb, upgrade your deck, then try again."""
+                    )
+                )
             if m:
                 self.label = m
                 self._updateLabel()
@@ -126,22 +142,29 @@ Please visit AnkiWeb, upgrade your deck, then try again."""))
             self._updateLabel()
         elif evt == "error":
             self._didError = True
-            showText(_("Syncing failed:\n%s")%
-                     self._rewriteError(args[0]))
+            showText(_("Syncing failed:\n%s") % self._rewriteError(args[0]))
         elif evt == "clockOff":
             self._clockOff()
         elif evt == "checkFailed":
             self._checkFailed()
         elif evt == "mediaSanity":
-            showWarning(_("""\
+            showWarning(
+                _(
+                    """\
 A problem occurred while syncing media. Please use Tools>Check Media, then \
-sync again to correct the issue."""))
+sync again to correct the issue."""
+                )
+            )
         elif evt == "noChanges":
             pass
         elif evt == "fullSync":
             self._confirmFullSync()
         elif evt == "downloadClobber":
-            showInfo(_("Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."))
+            showInfo(
+                _(
+                    "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
+                )
+            )
         elif evt == "send":
             # posted events not guaranteed to arrive in order
             self.sentBytes = max(self.sentBytes, int(args[0]))
@@ -152,48 +175,76 @@ sync again to correct the issue."""))
 
     def _rewriteError(self, err):
         if "Errno 61" in err:
-            return _("""\
+            return _(
+                """\
 Couldn't connect to AnkiWeb. Please check your network connection \
-and try again.""")
+and try again."""
+            )
         elif "timed out" in err or "10060" in err:
-            return _("""\
+            return _(
+                """\
 The connection to AnkiWeb timed out. Please check your network \
-connection and try again.""")
+connection and try again."""
+            )
         elif "code: 500" in err:
-            return _("""\
+            return _(
+                """\
 AnkiWeb encountered an error. Please try again in a few minutes, and if \
-the problem persists, please file a bug report.""")
+the problem persists, please file a bug report."""
+            )
         elif "code: 501" in err:
-            return _("""\
-Please upgrade to the latest version of Anki.""")
+            return _(
+                """\
+Please upgrade to the latest version of Anki."""
+            )
         # 502 is technically due to the server restarting, but we reuse the
         # error message
         elif "code: 502" in err:
             return _("AnkiWeb is under maintenance. Please try again in a few minutes.")
         elif "code: 503" in err:
-            return _("""\
-AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
+            return _(
+                """\
+AnkiWeb is too busy at the moment. Please try again in a few minutes."""
+            )
         elif "code: 504" in err:
-            return _("504 gateway timeout error received. Please try temporarily disabling your antivirus.")
+            return _(
+                "504 gateway timeout error received. Please try temporarily disabling your antivirus."
+            )
         elif "code: 409" in err:
-            return _("Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes.")
+            return _(
+                "Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes."
+            )
         elif "10061" in err or "10013" in err or "10053" in err:
             return _(
-                "Antivirus or firewall software is preventing Anki from connecting to the internet.")
+                "Antivirus or firewall software is preventing Anki from connecting to the internet."
+            )
         elif "10054" in err or "Broken pipe" in err:
-            return _("Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder.")
+            return _(
+                "Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder."
+            )
         elif "Unable to find the server" in err or "socket.gaierror" in err:
             return _(
                 "Server not found. Either your connection is down, or antivirus/firewall "
-                "software is blocking Anki from connecting to the internet.")
+                "software is blocking Anki from connecting to the internet."
+            )
         elif "code: 407" in err:
             return _("Proxy authentication required.")
         elif "code: 413" in err:
             return _("Your collection or a media file is too large to sync.")
         elif "EOF occurred in violation of protocol" in err:
-            return _("Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP.") + " (eof)"
+            return (
+                _(
+                    "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
+                )
+                + " (eof)"
+            )
         elif "certificate verify failed" in err:
-            return _("Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP.") + " (invalid cert)"
+            return (
+                _(
+                    "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
+                )
+                + " (invalid cert)"
+            )
         return err
 
     def _getUserPass(self):
@@ -201,12 +252,16 @@ AnkiWeb is too busy at the moment. Please try again in a few minutes.""")
         d.setWindowTitle("Anki")
         d.setWindowModality(Qt.WindowModal)
         vbox = QVBoxLayout()
-        l = QLabel(_("""\
+        l = QLabel(
+            _(
+                """\
 <h1>Account Required</h1>
 A free account is required to keep your collection synchronized. Please \
 <a href="%s">sign up</a> for an account, then \
-enter your details below.""") %
-                   "https://ankiweb.net/account/login")
+enter your details below."""
+            )
+            % "https://ankiweb.net/account/login"
+        )
         l.setOpenExternalLinks(True)
         l.setWordWrap(True)
         vbox.addWidget(l)
@@ -222,7 +277,7 @@ enter your details below.""") %
         passwd.setEchoMode(QLineEdit.Password)
         g.addWidget(passwd, 1, 1)
         vbox.addLayout(g)
-        bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.button(QDialogButtonBox.Ok).setAutoDefault(True)
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
@@ -241,10 +296,13 @@ enter your details below.""") %
         if self.thread.localIsEmpty:
             diag = askUserDialog(
                 _("Local collection has no cards. Download from AnkiWeb?"),
-                [_("Download from AnkiWeb"), _("Cancel")])
+                [_("Download from AnkiWeb"), _("Cancel")],
+            )
             diag.setDefault(1)
         else:
-            diag = askUserDialog(_("""\
+            diag = askUserDialog(
+                _(
+                    """\
 Your decks here and on AnkiWeb differ in such a way that they can't \
 be merged together, so it's necessary to overwrite the decks on one \
 side with the decks from the other.
@@ -258,10 +316,10 @@ any changes you have made on AnkiWeb or your other devices since the \
 last sync to this device will be lost.
 
 After all devices are in sync, future reviews and added cards can be merged \
-automatically."""),
-                [_("Upload to AnkiWeb"),
-                 _("Download from AnkiWeb"),
-                 _("Cancel")])
+automatically."""
+                ),
+                [_("Upload to AnkiWeb"), _("Download from AnkiWeb"), _("Cancel")],
+            )
             diag.setDefault(2)
         ret = diag.run()
         if ret == _("Upload to AnkiWeb"):
@@ -273,17 +331,27 @@ automatically."""),
         self.mw.progress.start(immediate=True)
 
     def _clockOff(self):
-        showWarning(_("""\
+        showWarning(
+            _(
+                """\
 Syncing requires the clock on your computer to be set correctly. Please \
-fix the clock and try again."""))
+fix the clock and try again."""
+            )
+        )
 
     def _checkFailed(self):
-        showWarning(_("""\
+        showWarning(
+            _(
+                """\
 Your collection is in an inconsistent state. Please run Tools>\
-Check Database, then sync again."""))
+Check Database, then sync again."""
+            )
+        )
+
 
 # Sync thread
 ######################################################################
+
 
 class SyncThread(QThread):
 
@@ -296,7 +364,7 @@ class SyncThread(QThread):
         self.auth = auth
         self.media = media
         self.hostNum = hostNum
-        self._abort = 0 # 1=flagged, 2=aborting
+        self._abort = 0  # 1=flagged, 2=aborting
 
     def flagAbort(self):
         self._abort = 1
@@ -315,10 +383,13 @@ class SyncThread(QThread):
         self.client = Syncer(self.col, self.server)
         self.sentTotal = 0
         self.recvTotal = 0
+
         def syncEvent(type):
             self.fireEvent("sync", type)
+
         def syncMsg(msg):
             self.fireEvent("syncMsg", msg)
+
         def sendEvent(bytes):
             if not self._abort:
                 self.sentTotal += bytes
@@ -326,6 +397,7 @@ class SyncThread(QThread):
             elif self._abort == 1:
                 self._abort = 2
                 raise Exception("sync cancelled")
+
         def recvEvent(bytes):
             if not self._abort:
                 self.recvTotal += bytes
@@ -333,6 +405,7 @@ class SyncThread(QThread):
             elif self._abort == 1:
                 self._abort = 2
                 raise Exception("sync cancelled")
+
         addHook("sync", syncEvent)
         addHook("syncMsg", syncMsg)
         addHook("httpSend", sendEvent)
@@ -377,8 +450,11 @@ class SyncThread(QThread):
         except Exception as e:
             log = traceback.format_exc()
             err = repr(str(e))
-            if ("Unable to find the server" in err or
-                "Errno 2" in err or "getaddrinfo" in err):
+            if (
+                "Unable to find the server" in err
+                or "Errno 2" in err
+                or "getaddrinfo" in err
+            ):
                 self.fireEvent("offline")
             elif "sync cancelled" in err:
                 pass
@@ -421,8 +497,9 @@ class SyncThread(QThread):
         f = self.fullSyncChoice
         if f == "cancel":
             return
-        self.client = FullSyncer(self.col, self.hkey, self.server.client,
-                                 hostNum=self.hostNum)
+        self.client = FullSyncer(
+            self.col, self.hkey, self.server.client, hostNum=self.hostNum
+        )
         try:
             if f == "upload":
                 if not self.client.upload():
@@ -443,8 +520,9 @@ class SyncThread(QThread):
     def _syncMedia(self):
         if not self.media:
             return
-        self.server = RemoteMediaServer(self.col, self.hkey, self.server.client,
-                                        hostNum=self.hostNum)
+        self.server = RemoteMediaServer(
+            self.col, self.hkey, self.server.client, hostNum=self.hostNum
+        )
         self.client = MediaSyncer(self.col, self.server)
         try:
             ret = self.client.sync()

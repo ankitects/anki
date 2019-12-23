@@ -23,20 +23,25 @@ from anki.utils import isLin, isMac, isWin, tmpdir
 
 _soundReg = r"\[sound:(.*?)\]"
 
+
 def playFromText(text) -> None:
     for match in allSounds(text):
         # filename is html encoded
         match = html.unescape(match)
         play(match)
 
+
 def allSounds(text) -> List:
     return re.findall(_soundReg, text)
+
 
 def stripSounds(text) -> str:
     return re.sub(_soundReg, "", text)
 
+
 def hasSound(text) -> bool:
     return re.search(_soundReg, text) is not None
+
 
 # Packaged commands
 ##########################################################################
@@ -47,7 +52,7 @@ def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
     cmd = cmd[:]
     env = os.environ.copy()
     if "LD_LIBRARY_PATH" in env:
-        del env['LD_LIBRARY_PATH']
+        del env["LD_LIBRARY_PATH"]
     if isMac:
         dir = os.path.dirname(os.path.abspath(__file__))
         exeDir = os.path.abspath(dir + "/../../Resources/audio")
@@ -61,6 +66,7 @@ def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
     cmd[0] = path
     return cmd, env
 
+
 ##########################################################################
 
 processingSrc = "rec.wav"
@@ -70,20 +76,23 @@ recFiles: List[str] = []
 
 processingChain = [
     ["lame", processingSrc, processingDst, "--noreplaygain", "--quiet"],
-    ]
+]
 
 # don't show box on windows
 si: Optional[Any]
 if sys.platform == "win32":
-    si = subprocess.STARTUPINFO() # pytype: disable=module-attr
+    si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
     try:
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
     except:
         # pylint: disable=no-member
         # python2.7+
-        si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW # pytype: disable=module-attr
+        si.dwFlags |= (
+            subprocess._subprocess.STARTF_USESHOWWINDOW
+        )  # pytype: disable=module-attr
 else:
     si = None
+
 
 def retryWait(proc) -> Any:
     # osx throws interrupted system call errors frequently
@@ -92,6 +101,7 @@ def retryWait(proc) -> Any:
             return proc.wait()
         except OSError:
             continue
+
 
 # MPV
 ##########################################################################
@@ -102,6 +112,7 @@ _queueEraser: Optional[Callable[[], Any]]
 mpvManager: Optional["MpvManager"] = None
 
 mpvPath, mpvEnv = _packagedCmd(["mpv"])
+
 
 class MpvManager(MPV):
 
@@ -134,12 +145,14 @@ class MpvManager(MPV):
     def on_idle(self) -> None:
         runHook("mpvIdleHook")
 
+
 def setMpvConfigBase(base) -> None:
     mpvConfPath = os.path.join(base, "mpv.conf")
     MpvManager.default_argv += [
         "--no-config",
-        "--include="+mpvConfPath,
+        "--include=" + mpvConfPath,
     ]
+
 
 def setupMPV() -> None:
     global mpvManager, _player, _queueEraser
@@ -147,6 +160,7 @@ def setupMPV() -> None:
     _player = mpvManager.queueFile
     _queueEraser = mpvManager.clearQueue
     atexit.register(cleanupMPV)
+
 
 def cleanupMPV() -> None:
     global mpvManager, _player, _queueEraser
@@ -156,6 +170,7 @@ def cleanupMPV() -> None:
         _player = None
         _queueEraser = None
 
+
 # Mplayer in slave mode
 ##########################################################################
 
@@ -163,24 +178,25 @@ def cleanupMPV() -> None:
 # which prevents renaming or deleting the profile
 def cleanupOldMplayerProcesses() -> None:
     # pylint: disable=import-error
-    import psutil # pytype: disable=import-error
+    import psutil  # pytype: disable=import-error
 
     exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
     for proc in psutil.process_iter():
         try:
-            info = proc.as_dict(attrs=['pid', 'name', 'exe'])
-            if not info['exe'] or info['name'] != 'mplayer.exe':
+            info = proc.as_dict(attrs=["pid", "name", "exe"])
+            if not info["exe"] or info["name"] != "mplayer.exe":
                 continue
 
             # not anki's bundled mplayer
-            if os.path.dirname(info['exe']) != exeDir:
+            if os.path.dirname(info["exe"]) != exeDir:
                 continue
 
             print("terminating old mplayer process...")
             proc.kill()
         except:
             print("error iterating mplayer processes")
+
 
 mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
 if isWin:
@@ -191,6 +207,7 @@ if isWin:
 mplayerQueue: List[str] = []
 mplayerEvt = threading.Event()
 mplayerClear = False
+
 
 class MplayerMonitor(threading.Thread):
 
@@ -250,6 +267,7 @@ class MplayerMonitor(threading.Thread):
                     return False
                 else:
                     return True
+
             self.deadPlayers = [pl for pl in self.deadPlayers if clean(pl)]
 
     def kill(self) -> None:
@@ -268,14 +286,20 @@ class MplayerMonitor(threading.Thread):
             cmd = mplayerCmd + ["-slave", "-idle"]
             cmd, env = _packagedCmd(cmd)
             return subprocess.Popen(
-                cmd, startupinfo=si, stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                env=env)
+                cmd,
+                startupinfo=si,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                env=env,
+            )
         except OSError:
             mplayerEvt.clear()
             raise Exception("Did you install mplayer?")
 
+
 mplayerManager: Optional[MplayerMonitor] = None
+
 
 def queueMplayer(path) -> None:
     ensureMplayerThreads()
@@ -284,8 +308,9 @@ def queueMplayer(path) -> None:
         # temporary file instead. oddly, foreign characters in the dirname
         # don't seem to matter.
         dir = tmpdir()
-        name = os.path.join(dir, "audio%s%s" % (
-            random.randrange(0, 1000000), os.path.splitext(path)[1]))
+        name = os.path.join(
+            dir, "audio%s%s" % (random.randrange(0, 1000000), os.path.splitext(path)[1])
+        )
         f = open(name, "wb")
         f.write(open(path, "rb").read())
         f.close()
@@ -294,11 +319,13 @@ def queueMplayer(path) -> None:
     mplayerQueue.append(path)
     mplayerEvt.set()
 
+
 def clearMplayerQueue() -> None:
     global mplayerClear, mplayerQueue
     mplayerQueue = []
     mplayerClear = True
     mplayerEvt.set()
+
 
 def ensureMplayerThreads() -> None:
     global mplayerManager
@@ -312,12 +339,14 @@ def ensureMplayerThreads() -> None:
         # clean up mplayer on exit
         atexit.register(stopMplayer)
 
+
 def stopMplayer(*args) -> None:
     if not mplayerManager:
         return
     mplayerManager.kill()
     if isWin:
         cleanupOldMplayerProcesses()
+
 
 addHook("unloadProfile", stopMplayer)
 
@@ -334,13 +363,13 @@ try:
 except:
     pyaudio = None
 
-class _Recorder:
 
+class _Recorder:
     def postprocess(self, encode=True) -> None:
         self.encode = encode
         for c in processingChain:
-            #print c
-            if not self.encode and c[0] == 'lame':
+            # print c
+            if not self.encode and c[0] == "lame":
                 continue
             try:
                 cmd, env = _packagedCmd(c)
@@ -350,16 +379,14 @@ class _Recorder:
             finally:
                 self.cleanup()
             if ret:
-                raise Exception(_(
-                    "Error running %s") %
-                                " ".join(cmd))
+                raise Exception(_("Error running %s") % " ".join(cmd))
 
     def cleanup(self) -> None:
         if os.path.exists(processingSrc):
             os.unlink(processingSrc)
 
-class PyAudioThreadedRecorder(threading.Thread):
 
+class PyAudioThreadedRecorder(threading.Thread):
     def __init__(self, startupDelay) -> None:
         threading.Thread.__init__(self)
         self.startupDelay = startupDelay
@@ -369,15 +396,17 @@ class PyAudioThreadedRecorder(threading.Thread):
         chunk = 1024
         p = pyaudio.PyAudio()
 
-        rate = int(p.get_default_input_device_info()['defaultSampleRate'])
+        rate = int(p.get_default_input_device_info()["defaultSampleRate"])
         wait = int(rate * self.startupDelay)
 
-        stream = p.open(format=PYAU_FORMAT,
-                        channels=PYAU_CHANNELS,
-                        rate=rate,
-                        input=True,
-                        input_device_index=PYAU_INPUT_INDEX,
-                        frames_per_buffer=chunk)
+        stream = p.open(
+            format=PYAU_FORMAT,
+            channels=PYAU_CHANNELS,
+            rate=rate,
+            input=True,
+            input_device_index=PYAU_INPUT_INDEX,
+            frames_per_buffer=chunk,
+        )
 
         stream.read(wait)
 
@@ -386,12 +415,13 @@ class PyAudioThreadedRecorder(threading.Thread):
             data += stream.read(chunk, exception_on_overflow=False)
         stream.close()
         p.terminate()
-        wf = wave.open(processingSrc, 'wb')
+        wf = wave.open(processingSrc, "wb")
         wf.setnchannels(PYAU_CHANNELS)
         wf.setsampwidth(p.get_sample_size(PYAU_FORMAT))
         wf.setframerate(rate)
         wf.writeframes(data)
         wf.close()
+
 
 class PyAudioRecorder(_Recorder):
 
@@ -422,8 +452,9 @@ class PyAudioRecorder(_Recorder):
         else:
             return processingSrc
 
+
 if not pyaudio:
-    PyAudioRecorder = None # type: ignore
+    PyAudioRecorder = None  # type: ignore
 
 # Audio interface
 ##########################################################################
@@ -431,10 +462,13 @@ if not pyaudio:
 _player = queueMplayer
 _queueEraser = clearMplayerQueue
 
+
 def play(path) -> None:
     _player(path)
 
+
 def clearAudioQueue() -> None:
     _queueEraser()
+
 
 Recorder = PyAudioRecorder

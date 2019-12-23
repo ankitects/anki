@@ -10,8 +10,7 @@ from typing import Optional
 import aqt
 from anki.lang import _
 from anki.sound import stripSounds
-from anki.utils import (invalidFilename, isMac, isWin, noBundledLibs,
-                        versionWithBuild)
+from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 
 
@@ -21,18 +20,22 @@ def openHelp(section):
         link += "#%s" % section
     openLink(link)
 
+
 def openLink(link):
     tooltip(_("Loading..."), period=1000)
     with noBundledLibs():
         QDesktopServices.openUrl(QUrl(link))
 
+
 def showWarning(text, parent=None, help="", title="Anki", textFormat=None):
     "Show a small warning with an OK button."
     return showInfo(text, parent, help, "warning", title=title, textFormat=textFormat)
 
+
 def showCritical(text, parent=None, help="", title="Anki", textFormat=None):
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
+
 
 def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=None):
     "Show a small info window with an OK button."
@@ -62,8 +65,18 @@ def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=
         b.setAutoDefault(False)
     return mb.exec_()
 
-def showText(txt, parent=None, type="text", run=True, geomKey=None, \
-        minWidth=500, minHeight=400, title="Anki", copyBtn=False):
+
+def showText(
+    txt,
+    parent=None,
+    type="text",
+    run=True,
+    geomKey=None,
+    minWidth=500,
+    minHeight=400,
+    title="Anki",
+    copyBtn=False,
+):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
@@ -80,19 +93,25 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
     box = QDialogButtonBox(QDialogButtonBox.Close)
     layout.addWidget(box)
     if copyBtn:
+
         def onCopy():
             QApplication.clipboard().setText(text.toPlainText())
+
         btn = QPushButton(_("Copy to Clipboard"))
         btn.clicked.connect(onCopy)
         box.addButton(btn, QDialogButtonBox.ActionRole)
+
     def onReject():
         if geomKey:
             saveGeom(diag, geomKey)
         QDialog.reject(diag)
+
     box.rejected.connect(onReject)
+
     def onFinish():
         if geomKey:
             saveGeom(diag, geomKey)
+
     box.accepted.connect(onFinish)
     diag.setMinimumHeight(minHeight)
     diag.setMinimumWidth(minWidth)
@@ -103,8 +122,8 @@ def showText(txt, parent=None, type="text", run=True, geomKey=None, \
     else:
         return diag, box
 
-def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, \
-        title="Anki"):
+
+def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="Anki"):
     "Show a yes/no question. Return true if yes."
     if not parent:
         parent = aqt.mw.app.activeWindow()
@@ -126,8 +145,8 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, \
             break
     return r == QMessageBox.Yes
 
-class ButtonedDialog(QMessageBox):
 
+class ButtonedDialog(QMessageBox):
     def __init__(self, text, buttons, parent=None, help="", title="Anki"):
         QMessageBox.__init__(self, parent)
         self.buttons = []
@@ -140,12 +159,11 @@ class ButtonedDialog(QMessageBox):
         # box = QDialogButtonBox()
         # v.addWidget(box)
         for b in buttons:
-            self.buttons.append(
-                self.addButton(b, QMessageBox.AcceptRole))
+            self.buttons.append(self.addButton(b, QMessageBox.AcceptRole))
         if help:
             self.addButton(_("Help"), QMessageBox.HelpRole)
             buttons.append(_("Help"))
-        #self.setLayout(v)
+        # self.setLayout(v)
 
     def run(self):
         self.exec_()
@@ -160,16 +178,25 @@ class ButtonedDialog(QMessageBox):
     def setDefault(self, idx):
         self.setDefaultButton(self.buttons[idx])
 
+
 def askUserDialog(text, buttons, parent=None, help="", title="Anki"):
     if not parent:
         parent = aqt.mw
     diag = ButtonedDialog(text, buttons, parent, help, title=title)
     return diag
 
-class GetTextDialog(QDialog):
 
-    def __init__(self, parent, question, help=None, edit=None, default="", \
-                 title="Anki", minWidth=400):
+class GetTextDialog(QDialog):
+    def __init__(
+        self,
+        parent,
+        question,
+        help=None,
+        edit=None,
+        default="",
+        title="Anki",
+        minWidth=400,
+    ):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
         self.question = question
@@ -205,12 +232,22 @@ class GetTextDialog(QDialog):
     def helpRequested(self):
         openHelp(self.help)
 
-def getText(prompt, parent=None, help=None, edit=None, default="",
-            title="Anki", geomKey=None, **kwargs):
+
+def getText(
+    prompt,
+    parent=None,
+    help=None,
+    edit=None,
+    default="",
+    title="Anki",
+    geomKey=None,
+    **kwargs,
+):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
-    d = GetTextDialog(parent, prompt, help=help, edit=edit,
-                      default=default, title=title, **kwargs)
+    d = GetTextDialog(
+        parent, prompt, help=help, edit=edit, default=default, title=title, **kwargs
+    )
     d.setWindowModality(Qt.WindowModal)
     if geomKey:
         restoreGeom(d, geomKey)
@@ -219,12 +256,14 @@ def getText(prompt, parent=None, help=None, edit=None, default="",
         saveGeom(d, geomKey)
     return (str(d.l.text()), ret)
 
+
 def getOnlyText(*args, **kwargs):
     (s, r) = getText(*args, **kwargs)
     if r:
         return s
     else:
         return ""
+
 
 # fixme: these utilities could be combined into a single base class
 def chooseList(prompt, choices, startrow=0, parent=None):
@@ -246,23 +285,26 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     d.exec_()
     return c.currentRow()
 
+
 def getTag(parent, deck, question, tags="user", **kwargs):
     from aqt.tagedit import TagEdit
+
     te = TagEdit(parent)
     te.setCol(deck)
-    ret = getText(question, parent, edit=te,
-                  geomKey='getTag', **kwargs)
+    ret = getText(question, parent, edit=te, geomKey="getTag", **kwargs)
     te.hideCompleter()
     return ret
 
+
 # File handling
 ######################################################################
+
 
 def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
     "Ask the user for a file."
     assert not dir or not key
     if not dir:
-        dirkey = key+"Directory"
+        dirkey = key + "Directory"
         dir = aqt.mw.pm.profile.get(dirkey, "")
     else:
         dirkey = None
@@ -274,6 +316,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
     d.setWindowTitle(title)
     d.setNameFilter(filter)
     ret = []
+
     def accept():
         files = list(d.selectedFiles())
         if dirkey:
@@ -283,6 +326,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
         if cb:
             cb(result)
         ret.append(result)
+
     d.accepted.connect(accept)
     if key:
         restoreState(d, key)
@@ -291,17 +335,22 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
         saveState(d, key)
     return ret and ret[0]
 
+
 def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     """Ask the user for a file to save. Use DIR_DESCRIPTION as config
     variable. The file dialog will default to open with FNAME."""
-    config_key = dir_description + 'Directory'
+    config_key = dir_description + "Directory"
 
     defaultPath = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
     base = aqt.mw.pm.profile.get(config_key, defaultPath)
     path = os.path.join(base, fname)
     file = QFileDialog.getSaveFileName(
-        parent, title, path, "{0} (*{1})".format(key, ext),
-        options=QFileDialog.DontConfirmOverwrite)[0]
+        parent,
+        title,
+        path,
+        "{0} (*{1})".format(key, ext),
+        options=QFileDialog.DontConfirmOverwrite,
+    )[0]
     if file:
         # add extension
         if not file.lower().endswith(ext):
@@ -312,10 +361,11 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
         # check if it exists
         if os.path.exists(file):
             if not askUser(
-                _("This file exists. Are you sure you want to overwrite it?"),
-                parent):
+                _("This file exists. Are you sure you want to overwrite it?"), parent
+            ):
                 return None
     return file
+
 
 def saveGeom(widget, key):
     key += "Geom"
@@ -325,6 +375,7 @@ def saveGeom(widget, key):
         geom = widget.saveGeometry()
     aqt.mw.pm.profile[key] = geom
 
+
 def restoreGeom(widget, key, offset=None, adjustSize=False):
     key += "Geom"
     if aqt.mw.pm.profile.get(key):
@@ -333,11 +384,12 @@ def restoreGeom(widget, key, offset=None, adjustSize=False):
             if qtminor > 6:
                 # bug in osx toolkit
                 s = widget.size()
-                widget.resize(s.width(), s.height()+offset*2)
+                widget.resize(s.width(), s.height() + offset * 2)
         ensureWidgetInScreenBoundaries(widget)
     else:
         if adjustSize:
             widget.adjustSize()
+
 
 def ensureWidgetInScreenBoundaries(widget):
     handle = widget.window().windowHandle()
@@ -359,54 +411,64 @@ def ensureWidgetInScreenBoundaries(widget):
     x = max(geom.x(), wpos.x())
     y = max(geom.y(), wpos.y())
     # and bottom right
-    x = min(x, geom.width()+geom.x()-cappedWidth)
-    y = min(y, geom.height()+geom.y()-cappedHeight)
+    x = min(x, geom.width() + geom.x() - cappedWidth)
+    y = min(y, geom.height() + geom.y() - cappedHeight)
     if x != wpos.x() or y != wpos.y():
         widget.move(x, y)
+
 
 def saveState(widget, key):
     key += "State"
     aqt.mw.pm.profile[key] = widget.saveState()
+
 
 def restoreState(widget, key):
     key += "State"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
 
+
 def saveSplitter(widget, key):
     key += "Splitter"
     aqt.mw.pm.profile[key] = widget.saveState()
+
 
 def restoreSplitter(widget, key):
     key += "Splitter"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
 
+
 def saveHeader(widget, key):
     key += "Header"
     aqt.mw.pm.profile[key] = widget.saveState()
+
 
 def restoreHeader(widget, key):
     key += "Header"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
 
+
 def mungeQA(col, txt):
     txt = col.media.escapeImages(txt)
     txt = stripSounds(txt)
     return txt
 
+
 def openFolder(path):
     if isWin:
-        subprocess.Popen(["explorer", "file://"+path])
+        subprocess.Popen(["explorer", "file://" + path])
     else:
         with noBundledLibs():
             QDesktopServices.openUrl(QUrl("file://" + path))
+
 
 def shortcut(key):
     if isMac:
         return re.sub("(?i)ctrl", "Command", key)
     return key
+
 
 def maybeHideClose(bbox):
     if isMac:
@@ -414,11 +476,13 @@ def maybeHideClose(bbox):
         if b:
             bbox.removeButton(b)
 
+
 def addCloseShortcut(widg):
     if not isMac:
         return
     widg._closeShortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
     widg._closeShortcut.activated.connect(widg.reject)
+
 
 def downArrow():
     if isWin:
@@ -426,27 +490,36 @@ def downArrow():
     # windows 10 is lacking the smaller arrow on English installs
     return "▾"
 
+
 # Tooltips
 ######################################################################
 
 _tooltipTimer: Optional[QTimer] = None
 _tooltipLabel: Optional[QLabel] = None
 
+
 def tooltip(msg, period=3000, parent=None):
     global _tooltipTimer, _tooltipLabel
+
     class CustomLabel(QLabel):
         silentlyClose = True
+
         def mousePressEvent(self, evt):
             evt.accept()
             self.hide()
+
     closeTooltip()
     aw = parent or aqt.mw.app.activeWindow() or aqt.mw
-    lab = CustomLabel("""\
+    lab = CustomLabel(
+        """\
 <table cellpadding=10>
 <tr>
 <td>%s</td>
 </tr>
-</table>""" % msg, aw)
+</table>"""
+        % msg,
+        aw,
+    )
     lab.setFrameStyle(QFrame.Panel)
     lab.setLineWidth(2)
     lab.setWindowFlags(Qt.ToolTip)
@@ -454,12 +527,13 @@ def tooltip(msg, period=3000, parent=None):
     p.setColor(QPalette.Window, QColor("#feffc4"))
     p.setColor(QPalette.WindowText, QColor("#000000"))
     lab.setPalette(p)
-    lab.move(
-        aw.mapToGlobal(QPoint(0, -100 + aw.height())))
+    lab.move(aw.mapToGlobal(QPoint(0, -100 + aw.height())))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
-        period, closeTooltip, False, requiresCollection=False)
+        period, closeTooltip, False, requiresCollection=False
+    )
     _tooltipLabel = lab
+
 
 def closeTooltip():
     global _tooltipLabel, _tooltipTimer
@@ -474,17 +548,19 @@ def closeTooltip():
         _tooltipTimer.stop()
         _tooltipTimer = None
 
+
 # true if invalid; print warning
 def checkInvalidFilename(str, dirsep=True):
     bad = invalidFilename(str, dirsep)
     if bad:
-        showWarning(_("The following character can not be used: %s") %
-                    bad)
+        showWarning(_("The following character can not be used: %s") % bad)
         return True
     return False
 
+
 # Menus
 ######################################################################
+
 
 class MenuList:
     def __init__(self):
@@ -518,7 +594,7 @@ class MenuList:
     def popupOver(self, widget):
         qmenu = QMenu()
         self.renderTo(qmenu)
-        qmenu.exec_(widget.mapToGlobal(QPoint(0,0)))
+        qmenu.exec_(widget.mapToGlobal(QPoint(0, 0)))
 
     # Chunking
     ######################################################################
@@ -532,8 +608,8 @@ class MenuList:
         newList = MenuList()
         oldItems = self.children[:]
         while oldItems:
-            chunk = oldItems[:self.chunkSize]
-            del oldItems[:self.chunkSize]
+            chunk = oldItems[: self.chunkSize]
+            del oldItems[: self.chunkSize]
             label = self._chunkLabel(chunk)
             menu = newList.addMenu(label)
             menu.children = chunk
@@ -543,8 +619,9 @@ class MenuList:
         start = items[0].title
         end = items[-1].title
         prefix = os.path.commonprefix([start.upper(), end.upper()])
-        n = len(prefix)+1
+        n = len(prefix) + 1
         return "{}-{}".format(start[:n].upper(), end[:n].upper())
+
 
 class SubMenu(MenuList):
     def __init__(self, title):
@@ -555,6 +632,7 @@ class SubMenu(MenuList):
         submenu = menu.addMenu(self.title)
         super().renderTo(submenu)
 
+
 class MenuItem:
     def __init__(self, title, func):
         self.title = title
@@ -564,13 +642,16 @@ class MenuItem:
         a = qmenu.addAction(self.title)
         a.triggered.connect(self.func)
 
+
 def qtMenuShortcutWorkaround(qmenu):
     if qtminor < 10:
         return
     for act in qmenu.actions():
         act.setShortcutVisibleInContextMenu(True)
 
+
 ######################################################################
+
 
 def supportText():
     import platform
@@ -593,10 +674,17 @@ def supportText():
 Anki {} Python {} Qt {} PyQt {}
 Platform: {}
 Flags: frz={} ao={} sv={}
-""".format(versionWithBuild(), platform.python_version(),
-           QT_VERSION_STR, PYQT_VERSION_STR, platname,
-           getattr(sys, "frozen", False),
-           mw.addonManager.dirty, schedVer())
+""".format(
+        versionWithBuild(),
+        platform.python_version(),
+        QT_VERSION_STR,
+        PYQT_VERSION_STR,
+        platname,
+        getattr(sys, "frozen", False),
+        mw.addonManager.dirty,
+        schedVer(),
+    )
+
 
 ######################################################################
 
@@ -638,6 +726,7 @@ def opengl_vendor():
         ctx.doneCurrent()
         if old_context and old_surface:
             old_context.makeCurrent(old_surface)
+
 
 def gfxDriverIsBroken():
     driver = opengl_vendor()

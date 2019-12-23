@@ -9,18 +9,17 @@ from aqt.utils import shortcut
 
 
 class DeckChooser(QHBoxLayout):
-
     def __init__(self, mw, widget, label=True, start=None):
         QHBoxLayout.__init__(self)
         self.widget = widget
         self.mw = mw
         self.deck = mw.col
         self.label = label
-        self.setContentsMargins(0,0,0,0)
+        self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
         self.setupDecks()
         self.widget.setLayout(self)
-        addHook('currentModelChanged', self.onModelChange)
+        addHook("currentModelChanged", self.onModelChange)
 
     def setupDecks(self):
         if self.label:
@@ -30,12 +29,14 @@ class DeckChooser(QHBoxLayout):
         self.deck = QPushButton(clicked=self.onDeckChange)
         self.deck.setAutoDefault(False)
         self.deck.setToolTip(shortcut(_("Target Deck (Ctrl+D)")))
-        s = QShortcut(QKeySequence(_("Ctrl+D")), self.widget, activated=self.onDeckChange)
+        s = QShortcut(
+            QKeySequence(_("Ctrl+D")), self.widget, activated=self.onDeckChange
+        )
         self.addWidget(self.deck)
         # starting label
         if self.mw.col.conf.get("addToCur", True):
             col = self.mw.col
-            did = col.conf['curDeck']
+            did = col.conf["curDeck"]
             if col.decks.isDyn(did):
                 # if they're reviewing, try default to current card
                 c = self.mw.reviewer.card
@@ -46,15 +47,14 @@ class DeckChooser(QHBoxLayout):
                         did = c.odid
                 else:
                     did = 1
-            self.setDeckName(self.mw.col.decks.nameOrNone(
-                did) or _("Default"))
+            self.setDeckName(self.mw.col.decks.nameOrNone(did) or _("Default"))
         else:
-            self.setDeckName(self.mw.col.decks.nameOrNone(
-                self.mw.col.models.current()['did']) or _("Default"))
+            self.setDeckName(
+                self.mw.col.decks.nameOrNone(self.mw.col.models.current()["did"])
+                or _("Default")
+            )
         # layout
-        sizePolicy = QSizePolicy(
-            QSizePolicy.Policy(7),
-            QSizePolicy.Policy(0))
+        sizePolicy = QSizePolicy(QSizePolicy.Policy(7), QSizePolicy.Policy(0))
         self.deck.setSizePolicy(sizePolicy)
 
     def show(self):
@@ -64,20 +64,29 @@ class DeckChooser(QHBoxLayout):
         self.widget.hide()
 
     def cleanup(self):
-        remHook('currentModelChanged', self.onModelChange)
+        remHook("currentModelChanged", self.onModelChange)
 
     def onModelChange(self):
         if not self.mw.col.conf.get("addToCur", True):
-            self.setDeckName(self.mw.col.decks.nameOrNone(
-                self.mw.col.models.current()['did']) or _("Default"))
+            self.setDeckName(
+                self.mw.col.decks.nameOrNone(self.mw.col.models.current()["did"])
+                or _("Default")
+            )
 
     def onDeckChange(self):
         from aqt.studydeck import StudyDeck
+
         current = self.deckName()
         ret = StudyDeck(
-            self.mw, current=current, accept=_("Choose"),
-            title=_("Choose Deck"), help="addingnotes",
-            cancel=False, parent=self.widget, geomKey="selectDeck")
+            self.mw,
+            current=current,
+            accept=_("Choose"),
+            title=_("Choose Deck"),
+            help="addingnotes",
+            cancel=False,
+            parent=self.widget,
+            geomKey="selectDeck",
+        )
         if ret.name:
             self.setDeckName(ret.name)
 

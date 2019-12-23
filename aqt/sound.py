@@ -11,6 +11,7 @@ from aqt.utils import restoreGeom, saveGeom, showWarning
 if not Recorder:
     print("pyaudio not installed")
 
+
 def getAudio(parent, encode=True):
     "Record and return filename"
     # record first
@@ -34,7 +35,7 @@ def getAudio(parent, encode=True):
     time.sleep(r.startupDelay)
     QApplication.instance().processEvents()
     while not mb.clickedButton():
-        txt =_("Recording...<br>Time: %0.1f")
+        txt = _("Recording...<br>Time: %0.1f")
         mb.setText(txt % (time.time() - t))
         mb.show()
         QApplication.instance().processEvents()

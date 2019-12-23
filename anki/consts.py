@@ -49,35 +49,39 @@ STARTING_FACTOR = 2500
 
 # deck schema & syncing vars
 SCHEMA_VERSION = 11
-SYNC_ZIP_SIZE = int(2.5*1024*1024)
+SYNC_ZIP_SIZE = int(2.5 * 1024 * 1024)
 SYNC_ZIP_COUNT = 25
 SYNC_BASE = "https://sync%s.ankiweb.net/"
 SYNC_VER = 9
 
-HELP_SITE="http://ankisrs.net/docs/manual.html"
+HELP_SITE = "http://ankisrs.net/docs/manual.html"
 
 # Labels
 ##########################################################################
 
+
 def newCardOrderLabels() -> Dict[int, Any]:
     return {
         0: _("Show new cards in random order"),
-        1: _("Show new cards in order added")
-        }
+        1: _("Show new cards in order added"),
+    }
+
 
 def newCardSchedulingLabels() -> Dict[int, Any]:
     return {
         0: _("Mix new cards and reviews"),
         1: _("Show new cards after reviews"),
         2: _("Show new cards before reviews"),
-        }
+    }
+
 
 def alignmentLabels() -> Dict[int, Any]:
     return {
         0: _("Center"),
         1: _("Left"),
         2: _("Right"),
-        }
+    }
+
 
 def dynOrderLabels() -> Dict[int, Any]:
     return {
@@ -90,4 +94,4 @@ def dynOrderLabels() -> Dict[int, Any]:
         6: _("Order due"),
         7: _("Latest added first"),
         8: _("Relative overdueness"),
-        }
+    }

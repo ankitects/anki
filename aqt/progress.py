@@ -15,8 +15,8 @@ from aqt.qt import *
 # Progress info
 ##########################################################################
 
-class ProgressManager:
 
+class ProgressManager:
     def __init__(self, mw):
         self.mw = mw
         self.app = QApplication.instance()
@@ -71,6 +71,7 @@ class ProgressManager:
                 print("Ignored progress func as collection unloaded: %s" % repr(func))
             else:
                 func()
+
         t = QTimer(self.mw)
         if not repeat:
             t.setSingleShot(True)
@@ -97,13 +98,13 @@ class ProgressManager:
             if self._closingDown:
                 evt.accept()
             else:
-                self.wantCancel  = True
+                self.wantCancel = True
                 evt.ignore()
 
         def keyPressEvent(self, evt):
             if evt.key() == Qt.Key_Escape:
                 evt.ignore()
-                self.wantCancel  = True
+                self.wantCancel = True
 
     def start(self, max=0, min=0, label=None, parent=None, immediate=False):
         self._levels += 1
@@ -136,7 +137,7 @@ class ProgressManager:
         return self._win
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
-        #print self._min, self._counter, self._max, label, time.time() - self._lastTime
+        # print self._min, self._counter, self._max, label, time.time() - self._lastTime
         if self._updating:
             return
         if maybeShow:
@@ -147,7 +148,7 @@ class ProgressManager:
         if label:
             self._win.form.label.setText(label)
         if self._max:
-            self._counter = value or (self._counter+1)
+            self._counter = value or (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
         if process and elapsed >= 0.2:
             self._updating = True

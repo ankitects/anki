@@ -33,8 +33,7 @@ class TagManager:
 
     def flush(self) -> None:
         if self.changed:
-            self.col.db.execute("update col set tags=?",
-                                 json.dumps(self.tags))
+            self.col.db.execute("update col set tags=?", json.dumps(self.tags))
             self.changed = False
 
     # Registering and fetching tags
@@ -63,8 +62,13 @@ class TagManager:
             lim = ""
             self.tags = {}
             self.changed = True
-        self.register(set(self.split(
-            " ".join(self.col.db.list("select distinct tags from notes"+lim)))))
+        self.register(
+            set(
+                self.split(
+                    " ".join(self.col.db.list("select distinct tags from notes" + lim))
+                )
+            )
+        )
 
     def allItems(self) -> List[Tuple[str, int]]:
         return list(self.tags.items())
@@ -104,22 +108,32 @@ class TagManager:
         else:
             l = "tags "
             fn = self.remFromStr
-        lim = " or ".join(
-            [l+"like :_%d" % c for c, t in enumerate(newTags)])
+        lim = " or ".join([l + "like :_%d" % c for c, t in enumerate(newTags)])
         res = self.col.db.all(
-            "select id, tags from notes where id in %s and (%s)" % (
-                ids2str(ids), lim),
-            **dict([("_%d" % x, '%% %s %%' % y.replace('*', '%'))
-                    for x, y in enumerate(newTags)]))
+            "select id, tags from notes where id in %s and (%s)" % (ids2str(ids), lim),
+            **dict(
+                [
+                    ("_%d" % x, "%% %s %%" % y.replace("*", "%"))
+                    for x, y in enumerate(newTags)
+                ]
+            ),
+        )
         # update tags
         nids = []
+
         def fix(row):
             nids.append(row[0])
-            return {'id': row[0], 't': fn(tags, row[1]), 'n':intTime(),
-                'u':self.col.usn()}
+            return {
+                "id": row[0],
+                "t": fn(tags, row[1]),
+                "n": intTime(),
+                "u": self.col.usn(),
+            }
+
         self.col.db.executemany(
             "update notes set tags=:t,mod=:n,usn=:u where id = :id",
-            [fix(row) for row in res])
+            [fix(row) for row in res],
+        )
 
     def bulkRem(self, ids, tags) -> None:
         self.bulkAdd(ids, tags, False)
@@ -129,7 +143,7 @@ class TagManager:
 
     def split(self, tags) -> List[str]:
         "Parse a string and return a list of tags."
-        return [t for t in tags.replace('\u3000', ' ').split(" ") if t]
+        return [t for t in tags.replace("\u3000", " ").split(" ") if t]
 
     def join(self, tags) -> str:
         "Join tags into a single string, with leading and trailing spaces."
@@ -147,9 +161,11 @@ class TagManager:
 
     def remFromStr(self, deltags, tags) -> str:
         "Delete tags if they exist."
+
         def wildcard(pat, str):
-            pat = re.escape(pat).replace('\\*', '.*')
-            return re.match("^"+pat+"$", str, re.IGNORECASE)
+            pat = re.escape(pat).replace("\\*", ".*")
+            return re.match("^" + pat + "$", str, re.IGNORECASE)
+
         currentTags = self.split(tags)
         for tag in self.split(deltags):
             # find tags, ignoring case

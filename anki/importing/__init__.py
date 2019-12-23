@@ -16,4 +16,4 @@ Importers = (
     (_("Mnemosyne 2.0 Deck (*.db)"), MnemosyneImporter),
     (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
     (_("Pauker 1.8 Lesson (*.pau.gz)"), PaukerImporter),
-    )
+)

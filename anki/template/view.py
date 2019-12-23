@@ -7,10 +7,10 @@ from .template import Template
 
 class View:
     # Path where this view's template(s) live
-    template_path = '.'
+    template_path = "."
 
     # Extension for templates
-    template_extension = 'mustache'
+    template_extension = "mustache"
 
     # The name of this template. If none is given the View will try
     # to infer it based on the class name.
@@ -54,7 +54,7 @@ class View:
         if self.template_file:
             return self._load_template()
 
-        name = self.get_template_name() + '.' + self.template_extension
+        name = self.get_template_name() + "." + self.template_extension
 
         if isinstance(self.template_path, str):
             self.template_file = os.path.join(self.template_path, name)
@@ -65,11 +65,10 @@ class View:
             if os.path.exists(self.template_file):
                 return self._load_template()
 
-        raise IOError('"%s" not found in "%s"' % (name, ':'.join(self.template_path),))
-
+        raise IOError('"%s" not found in "%s"' % (name, ":".join(self.template_path),))
 
     def _load_template(self) -> str:
-        f = open(self.template_file, 'r')
+        f = open(self.template_file, "r")
         try:
             template = f.read()
             if self.template_encoding and isinstance(template, bytes):
@@ -90,9 +89,9 @@ class View:
             name = self.__class__.__name__
 
         def repl(match):
-            return '_' + match.group(0).lower()
+            return "_" + match.group(0).lower()
 
-        return re.sub('[A-Z]', repl, name)[1:]
+        return re.sub("[A-Z]", repl, name)[1:]
 
     def __contains__(self, needle) -> bool:
         return needle in self.context or hasattr(self, needle)
@@ -106,7 +105,7 @@ class View:
     def get(self, attr, default) -> Any:
         attr = self.context.get(attr, getattr(self, attr, default))
 
-        if hasattr(attr, '__call__'):
+        if hasattr(attr, "__call__"):
             return attr()
         else:
             return attr

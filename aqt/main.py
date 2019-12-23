@@ -31,9 +31,21 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
-from aqt.utils import (askUser, checkInvalidFilename, getFile, getOnlyText,
-                       openHelp, openLink, restoreGeom, restoreState, saveGeom,
-                       showInfo, showText, showWarning, tooltip)
+from aqt.utils import (
+    askUser,
+    checkInvalidFilename,
+    getFile,
+    getOnlyText,
+    openHelp,
+    openLink,
+    restoreGeom,
+    restoreState,
+    saveGeom,
+    showInfo,
+    showText,
+    showWarning,
+    tooltip,
+)
 
 
 class AnkiQt(QMainWindow):
@@ -41,7 +53,13 @@ class AnkiQt(QMainWindow):
     pm: ProfileManagerType
     web: aqt.webview.AnkiWebView
 
-    def __init__(self, app: QApplication, profileManager: ProfileManagerType, opts: Namespace, args: List[Any]) -> None:
+    def __init__(
+        self,
+        app: QApplication,
+        profileManager: ProfileManagerType,
+        opts: Namespace,
+        args: List[Any],
+    ) -> None:
         QMainWindow.__init__(self)
         self.state = "startup"
         self.opts = opts
@@ -59,8 +77,12 @@ class AnkiQt(QMainWindow):
             sys.exit(1)
         # must call this after ui set up
         if self.safeMode:
-            tooltip(_("Shift key was held down. Skipping automatic "
-                    "syncing and add-on loading."))
+            tooltip(
+                _(
+                    "Shift key was held down. Skipping automatic "
+                    "syncing and add-on loading."
+                )
+            )
         # were we given a file to import?
         if args and args[0]:
             self.onAppMsg(args[0])
@@ -101,7 +123,12 @@ class AnkiQt(QMainWindow):
     def setupProfileAfterWebviewsLoaded(self):
         for w in (self.web, self.bottomWeb):
             if not w._domDone:
-                self.progress.timer(10, self.setupProfileAfterWebviewsLoaded, False, requiresCollection=False)
+                self.progress.timer(
+                    10,
+                    self.setupProfileAfterWebviewsLoaded,
+                    False,
+                    requiresCollection=False,
+                )
                 return
             else:
                 w.requiresCol = True
@@ -126,10 +153,10 @@ class AnkiQt(QMainWindow):
             self.closeFires = True
 
     def setupProfile(self) -> None:
-        if self.pm.meta['firstRun']:
+        if self.pm.meta["firstRun"]:
             # load the new deck user profile
             self.pm.load(self.pm.profiles()[0])
-            self.pm.meta['firstRun'] = False
+            self.pm.meta["firstRun"] = False
             self.pm.save()
 
         self.pendingImport: Optional[str] = None
@@ -162,7 +189,7 @@ class AnkiQt(QMainWindow):
         f.profiles.currentRowChanged.connect(self.onProfileRowChange)
         f.statusbar.setVisible(False)
         # enter key opens profile
-        QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile) # type: ignore
+        QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)  # type: ignore
         self.refreshProfilesList()
         # raise first, for osx testing
         d.show()
@@ -227,38 +254,63 @@ class AnkiQt(QMainWindow):
         if len(profs) < 2:
             return showWarning(_("There must be at least one profile."))
         # sure?
-        if not askUser(_("""\
+        if not askUser(
+            _(
+                """\
 All cards, notes, and media for this profile will be deleted. \
-Are you sure?"""), msgfunc=QMessageBox.warning, defaultno=True):
+Are you sure?"""
+            ),
+            msgfunc=QMessageBox.warning,
+            defaultno=True,
+        ):
             return
         self.pm.remove(self.pm.name)
         self.refreshProfilesList()
 
     def onOpenBackup(self):
-        if not askUser(_("""\
-Replace your collection with an earlier backup?"""),
-                       msgfunc=QMessageBox.warning,
-                       defaultno=True):
+        if not askUser(
+            _(
+                """\
+Replace your collection with an earlier backup?"""
+            ),
+            msgfunc=QMessageBox.warning,
+            defaultno=True,
+        ):
             return
+
         def doOpen(path):
             self._openBackup(path)
-        getFile(self.profileDiag, _("Revert to backup"),
-                cb=doOpen, filter="*.colpkg", dir=self.pm.backupFolder())
+
+        getFile(
+            self.profileDiag,
+            _("Revert to backup"),
+            cb=doOpen,
+            filter="*.colpkg",
+            dir=self.pm.backupFolder(),
+        )
 
     def _openBackup(self, path):
         try:
             # move the existing collection to the trash, as it may not open
             self.pm.trashCollection()
         except:
-            showWarning(_("Unable to move existing file to trash - please try restarting your computer."))
+            showWarning(
+                _(
+                    "Unable to move existing file to trash - please try restarting your computer."
+                )
+            )
             return
 
         self.pendingImport = path
         self.restoringBackup = True
 
-        showInfo(_("""\
+        showInfo(
+            _(
+                """\
 Automatic syncing and backups have been disabled while restoring. To enable them again, \
-close the profile or restart Anki."""))
+close the profile or restart Anki."""
+            )
+        )
 
         self.onOpenProfile()
 
@@ -269,7 +321,7 @@ close the profile or restart Anki."""))
             return
 
         # show main window
-        if self.pm.profile['mainWindowState']:
+        if self.pm.profile["mainWindowState"]:
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
@@ -296,8 +348,8 @@ close the profile or restart Anki."""))
         self.unloadCollection(callback)
 
     def _unloadProfile(self) -> None:
-        self.pm.profile['mainWindowGeom'] = self.saveGeometry()
-        self.pm.profile['mainWindowState'] = self.saveState()
+        self.pm.profile["mainWindowGeom"] = self.saveGeometry()
+        self.pm.profile["mainWindowState"] = self.saveState()
         self.pm.save()
         self.hide()
 
@@ -349,13 +401,18 @@ close the profile or restart Anki."""))
         try:
             return self._loadCollection()
         except Exception as e:
-            showWarning(_("""\
+            showWarning(
+                _(
+                    """\
 Anki was unable to open your collection file. If problems persist after \
 restarting your computer, please use the Open Backup button in the profile \
 manager.
 
 Debug info:
-""")+traceback.format_exc())
+"""
+                )
+                + traceback.format_exc()
+            )
             # clean up open collection if possible
             if self.col:
                 try:
@@ -410,11 +467,15 @@ Debug info:
         finally:
             self.col = None
         if corrupt:
-            showWarning(_("Your collection file appears to be corrupt. \
+            showWarning(
+                _(
+                    "Your collection file appears to be corrupt. \
 This can happen when the file is copied or moved while Anki is open, or \
 when the collection is stored on a network or cloud drive. If problems \
 persist after restarting your computer, please open an automatic backup \
-from the profile screen."))
+from the profile screen."
+                )
+            )
         if not corrupt and not self.restoringBackup:
             self.backup()
 
@@ -439,14 +500,16 @@ from the profile screen."))
             z.close()
 
     def backup(self) -> None:
-        nbacks = self.pm.profile['numBackups']
+        nbacks = self.pm.profile["numBackups"]
         if not nbacks or devMode:
             return
         dir = self.pm.backupFolder()
         path = self.pm.collectionPath()
 
         # do backup
-        fname = time.strftime("backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time()))
+        fname = time.strftime(
+            "backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time())
+        )
         newpath = os.path.join(dir, fname)
         with open(path, "rb") as f:
             data = f.read()
@@ -471,11 +534,11 @@ from the profile screen."))
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
-        if (intTime() - self.pm.profile['lastOptimize']) < 86400*14:
+        if (intTime() - self.pm.profile["lastOptimize"]) < 86400 * 14:
             return
         self.progress.start(label=_("Optimizing..."), immediate=True)
         self.col.optimize()
-        self.pm.profile['lastOptimize'] = intTime()
+        self.pm.profile["lastOptimize"] = intTime()
         self.pm.save()
         self.progress.finish()
 
@@ -483,19 +546,19 @@ from the profile screen."))
     ##########################################################################
 
     def moveToState(self, state: str, *args) -> None:
-        #print("-> move from", self.state, "to", state)
+        # print("-> move from", self.state, "to", state)
         oldState = self.state or "dummy"
-        cleanup = getattr(self, "_"+oldState+"Cleanup", None)
+        cleanup = getattr(self, "_" + oldState + "Cleanup", None)
         if cleanup:
             # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state
-        runHook('beforeStateChange', state, oldState, *args)
-        getattr(self, "_"+state+"State")(oldState, *args)
+        runHook("beforeStateChange", state, oldState, *args)
+        getattr(self, "_" + state + "State")(oldState, *args)
         if state != "resetRequired":
             self.bottomWeb.show()
-        runHook('afterStateChange', state, oldState, *args)
+        runHook("afterStateChange", state, oldState, *args)
 
     def _deckBrowserState(self, oldState: str) -> None:
         self.deckBrowser.show()
@@ -576,29 +639,46 @@ from the profile screen."))
         self.web.onBridgeCmd = lambda url: self.delayedMaybeReset()
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"), id="resume")
-        self.web.stdHtml("""
+        self.web.stdHtml(
+            """
 <center><div style="height: 100%%">
 <div style="position:relative; vertical-align: middle;">
 %s<br><br>
 %s</div></div></center>
 <script>$('#resume').focus()</script>
-""" % (i, b))
+"""
+            % (i, b)
+        )
         self.bottomWeb.hide()
         self.web.setFocus()
 
     # HTML helpers
     ##########################################################################
 
-    def button(self, link: str, name: str, key: Optional[str] = None, class_: str = "", id: str = "", extra: str = "") -> str:
-        class_ = "but "+ class_
+    def button(
+        self,
+        link: str,
+        name: str,
+        key: Optional[str] = None,
+        class_: str = "",
+        id: str = "",
+        extra: str = "",
+    ) -> str:
+        class_ = "but " + class_
         if key:
             key = _("Shortcut key: %s") % key
         else:
             key = ""
-        return '''
+        return """
 <button id="%s" class="%s" onclick="pycmd('%s');return false;"
-title="%s" %s>%s</button>''' % (
-            id, class_, link, key, extra, name)
+title="%s" %s>%s</button>""" % (
+            id,
+            class_,
+            link,
+            key,
+            extra,
+            name,
+        )
 
     # Main window setup
     ##########################################################################
@@ -624,7 +704,7 @@ title="%s" %s>%s</button>''' % (
         sweb.setFocusPolicy(Qt.WheelFocus)
         # add in a layout
         self.mainLayout = QVBoxLayout()
-        self.mainLayout.setContentsMargins(0,0,0,0)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(0)
         self.mainLayout.addWidget(tweb)
         self.mainLayout.addWidget(self.web)
@@ -651,9 +731,11 @@ title="%s" %s>%s</button>''' % (
         # interrupt any current transaction and schedule a rollback & quit
         if self.col:
             self.col.db.interrupt()
+
         def quit():
             self.col.db.rollback()
             self.close()
+
         self.progress.timer(100, quit, False)
 
     def setupProgress(self) -> None:
@@ -661,17 +743,20 @@ title="%s" %s>%s</button>''' % (
 
     def setupErrorHandler(self) -> None:
         import aqt.errors
+
         self.errorHandler = aqt.errors.ErrorHandler(self)
 
     def setupAddons(self) -> None:
         import aqt.addons
+
         self.addonManager = aqt.addons.AddonManager(self)
         if not self.safeMode:
             self.addonManager.loadAddons()
 
     def setupSpellCheck(self) -> None:
-        os.environ["QTWEBENGINE_DICTIONARIES_PATH"] = (
-            os.path.join(self.pm.base, "dictionaries"))
+        os.environ["QTWEBENGINE_DICTIONARIES_PATH"] = os.path.join(
+            self.pm.base, "dictionaries"
+        )
 
     def setupThreads(self) -> None:
         self._mainThread = QThread.currentThread()
@@ -681,14 +766,17 @@ title="%s" %s>%s</button>''' % (
 
     def setupDeckBrowser(self) -> None:
         from aqt.deckbrowser import DeckBrowser
+
         self.deckBrowser = DeckBrowser(self)
 
     def setupOverview(self) -> None:
         from aqt.overview import Overview
+
         self.overview = Overview(self)
 
     def setupReviewer(self) -> None:
         from aqt.reviewer import Reviewer
+
         self.reviewer = Reviewer(self)
 
     # Syncing
@@ -706,10 +794,12 @@ title="%s" %s>%s</button>''' % (
 
     # expects a current profile, but no collection loaded
     def maybeAutoSync(self) -> None:
-        if (not self.pm.profile['syncKey']
-            or not self.pm.profile['autoSync']
+        if (
+            not self.pm.profile["syncKey"]
+            or not self.pm.profile["autoSync"]
             or self.safeMode
-            or self.restoringBackup):
+            or self.restoringBackup
+        ):
             return
 
         # ok to sync
@@ -717,6 +807,7 @@ title="%s" %s>%s</button>''' % (
 
     def _sync(self):
         from aqt.sync import SyncManager
+
         self.state = "sync"
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync()
@@ -733,7 +824,7 @@ title="%s" %s>%s</button>''' % (
     def setupStyle(self) -> None:
         buf = ""
 
-        if isWin and platform.release() == '10':
+        if isWin and platform.release() == "10":
             # add missing bottom border to menubar
             buf += """
 QMenuBar {
@@ -770,22 +861,24 @@ QTreeWidget {
             ("a", self.onAddCard),
             ("b", self.onBrowse),
             ("t", self.onStats),
-            ("y", self.onSync)
+            ("y", self.onSync),
         ]
         self.applyShortcuts(globalShortcuts)
 
         self.stateShortcuts: Sequence[Tuple[str, Callable]] = []
 
-    def applyShortcuts(self, shortcuts: Sequence[Tuple[str, Callable]]) -> List[QShortcut]:
+    def applyShortcuts(
+        self, shortcuts: Sequence[Tuple[str, Callable]]
+    ) -> List[QShortcut]:
         qshortcuts = []
         for key, fn in shortcuts:
-            scut = QShortcut(QKeySequence(key), self, activated=fn) # type: ignore
+            scut = QShortcut(QKeySequence(key), self, activated=fn)  # type: ignore
             scut.setAutoRepeat(False)
             qshortcuts.append(scut)
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts: List[Tuple[str, Callable]]) -> None:
-        runHook(self.state+"StateShortcuts", shortcuts)
+        runHook(self.state + "StateShortcuts", shortcuts)
         self.stateShortcuts = self.applyShortcuts(shortcuts)
 
     def clearStateShortcuts(self) -> None:
@@ -836,8 +929,7 @@ QTreeWidget {
 
     def maybeEnableUndo(self) -> None:
         if self.col and self.col.undoName():
-            self.form.actionUndo.setText(_("Undo %s") %
-                                            self.col.undoName())
+            self.form.actionUndo.setText(_("Undo %s") % self.col.undoName())
             self.form.actionUndo.setEnabled(True)
             runHook("undoState", True)
         else:
@@ -870,11 +962,13 @@ QTreeWidget {
     def onDeckConf(self, deck=None):
         if not deck:
             deck = self.col.decks.current()
-        if deck['dyn']:
+        if deck["dyn"]:
             import aqt.dyndeckconf
+
             aqt.dyndeckconf.DeckConf(self, deck=deck)
         else:
             import aqt.deckconf
+
             aqt.deckconf.DeckConf(self, deck)
 
     def onOverview(self):
@@ -892,6 +986,7 @@ QTreeWidget {
 
     def onNoteTypes(self):
         import aqt.models
+
         aqt.models.Models(self, self, fromMain=True)
 
     def onAbout(self):
@@ -908,6 +1003,7 @@ QTreeWidget {
 
     def handleImport(self, path: str) -> None:
         import aqt.importing
+
         if not os.path.exists(path):
             showInfo(_("Please use File>Import to import this file."))
             return None
@@ -917,10 +1013,12 @@ QTreeWidget {
 
     def onImport(self):
         import aqt.importing
+
         aqt.importing.onImport(self)
 
     def onExport(self, did=None):
         import aqt.exporting
+
         aqt.exporting.ExportDialog(self, did=did)
 
     # Cramming
@@ -928,11 +1026,12 @@ QTreeWidget {
 
     def onCram(self, search=""):
         import aqt.dyndeckconf
+
         n = 1
         deck = self.col.decks.current()
         if not search:
-            if not deck['dyn']:
-                search = 'deck:"%s" ' % deck['name']
+            if not deck["dyn"]:
+                search = 'deck:"%s" ' % deck["name"]
         decks = self.col.decks.allNames()
         while _("Filtered Deck %d") % n in decks:
             n += 1
@@ -942,15 +1041,14 @@ QTreeWidget {
         if not diag.ok:
             # user cancelled first config
             self.col.decks.rem(did)
-            self.col.decks.select(deck['id'])
+            self.col.decks.select(deck["id"])
 
     # Menu, title bar & status
     ##########################################################################
 
     def setupMenus(self) -> None:
         m = self.form
-        m.actionSwitchProfile.triggered.connect(
-            self.unloadProfileAndShowProfileManager)
+        m.actionSwitchProfile.triggered.connect(self.unloadProfileAndShowProfileManager)
         m.actionImport.triggered.connect(self.onImport)
         m.actionExport.triggered.connect(self.onExport)
         m.actionExit.triggered.connect(self.close)
@@ -976,14 +1074,15 @@ QTreeWidget {
 
     def setupAutoUpdate(self) -> None:
         import aqt.update
+
         self.autoUpdate = aqt.update.LatestVersionFinder(self)
-        self.autoUpdate.newVerAvail.connect(self.newVerAvail) # type: ignore
-        self.autoUpdate.newMsg.connect(self.newMsg) # type: ignore
-        self.autoUpdate.clockIsOff.connect(self.clockIsOff) # type: ignore
+        self.autoUpdate.newVerAvail.connect(self.newVerAvail)  # type: ignore
+        self.autoUpdate.newMsg.connect(self.newMsg)  # type: ignore
+        self.autoUpdate.clockIsOff.connect(self.clockIsOff)  # type: ignore
         self.autoUpdate.start()
 
     def newVerAvail(self, ver):
-        if self.pm.meta.get('suppressUpdate', None) != ver:
+        if self.pm.meta.get("suppressUpdate", None) != ver:
             aqt.update.askAndUpdate(self, ver)
 
     def newMsg(self, data):
@@ -991,7 +1090,9 @@ QTreeWidget {
 
     def clockIsOff(self, diff):
         diffText = ngettext("%s second", "%s seconds", diff) % diff
-        warn = _("""\
+        warn = (
+            _(
+                """\
 In order to ensure your collection works correctly when moved between \
 devices, Anki requires your computer's internal clock to be set correctly. \
 The internal clock can be wrong even if your system is showing the correct \
@@ -1005,7 +1106,10 @@ Please go to the time settings on your computer and check the following:
 - Timezone
 - Daylight savings
 
-Difference to correct time: %s.""") % diffText
+Difference to correct time: %s."""
+            )
+            % diffText
+        )
         showWarning(warn)
         self.app.closeAllWindows()
 
@@ -1014,7 +1118,7 @@ Difference to correct time: %s.""") % diffText
 
     def setupRefreshTimer(self) -> None:
         # every 10 minutes
-        self.progress.timer(10*60*1000, self.onRefreshTimer, True)
+        self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
 
     def onRefreshTimer(self):
         if self.state == "deckBrowser":
@@ -1035,9 +1139,13 @@ Difference to correct time: %s.""") % diffText
         self._activeWindowOnPlay = None
 
     def onOdueInvalid(self):
-        showWarning(_("""\
+        showWarning(
+            _(
+                """\
 Invalid property found on card. Please use Tools>Check Database, \
-and if the problem comes up again, please ask on the support site."""))
+and if the problem comes up again, please ask on the support site."""
+            )
+        )
 
     def _isVideo(self, file):
         head, ext = os.path.splitext(file.lower())
@@ -1066,8 +1174,8 @@ and if the problem comes up again, please ask on the support site."""))
             if not existed:
                 f.write(b"nid\tmid\tfields\n")
             for id, mid, flds in col.db.execute(
-                    "select id, mid, flds from notes where id in %s" %
-                ids2str(nids)):
+                "select id, mid, flds from notes where id in %s" % ids2str(nids)
+            ):
                 fields = splitFields(flds)
                 f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
                 f.write(b"\n")
@@ -1076,11 +1184,15 @@ and if the problem comes up again, please ask on the support site."""))
     ##########################################################################
 
     def onSchemaMod(self, arg):
-        return askUser(_("""\
+        return askUser(
+            _(
+                """\
 The requested change will require a full upload of the database when \
 you next synchronize your collection. If you have reviews or other changes \
 waiting on another device that haven't been synchronized here yet, they \
-will be lost. Continue?"""))
+will be lost. Continue?"""
+            )
+        )
 
     # Advanced features
     ##########################################################################
@@ -1119,15 +1231,19 @@ will be lost. Continue?"""))
             numberOfUnusedFilesLabel = len(unused)
             if report:
                 report += "\n\n\n"
-            report += ngettext("%d file found in media folder not used by any cards:",
-                "%d files found in media folder not used by any cards:",
-                numberOfUnusedFilesLabel) % numberOfUnusedFilesLabel
+            report += (
+                ngettext(
+                    "%d file found in media folder not used by any cards:",
+                    "%d files found in media folder not used by any cards:",
+                    numberOfUnusedFilesLabel,
+                )
+                % numberOfUnusedFilesLabel
+            )
             report += "\n" + "\n".join(unused)
         if nohave:
             if report:
                 report += "\n\n\n"
-            report += _(
-                "Used on cards but missing from media folder:")
+            report += _("Used on cards but missing from media folder:")
             report += "\n" + "\n".join(nohave)
         if not report:
             tooltip(_("No unused or missing files found."))
@@ -1147,8 +1263,7 @@ will be lost. Continue?"""))
             b = QPushButton(_("Delete Unused Files"))
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.ActionRole)
-            b.clicked.connect(
-                lambda c, u=unused, d=diag: self.deleteUnused(u, d))
+            b.clicked.connect(lambda c, u=unused, d=diag: self.deleteUnused(u, d))
 
         box.rejected.connect(diag.reject)
         diag.setMinimumHeight(400)
@@ -1158,8 +1273,7 @@ will be lost. Continue?"""))
         saveGeom(diag, "checkmediadb")
 
     def deleteUnused(self, unused, diag):
-        if not askUser(
-            _("Delete unused media?")):
+        if not askUser(_("Delete unused media?")):
             return
         mdir = self.col.media.dir()
         self.progress.start(immediate=True)
@@ -1174,24 +1288,30 @@ will be lost. Continue?"""))
                 if now - lastProgress >= 0.3:
                     numberOfRemainingFilesToBeDeleted = len(unused) - c
                     lastProgress = now
-                    label = ngettext("%d file remaining...",
-                    "%d files remaining...",
-                    numberOfRemainingFilesToBeDeleted) % numberOfRemainingFilesToBeDeleted
+                    label = (
+                        ngettext(
+                            "%d file remaining...",
+                            "%d files remaining...",
+                            numberOfRemainingFilesToBeDeleted,
+                        )
+                        % numberOfRemainingFilesToBeDeleted
+                    )
                     self.progress.update(label)
         finally:
             self.progress.finish()
         # caller must not pass in empty list
         # pylint: disable=undefined-loop-variable
         numberOfFilesDeleted = c + 1
-        tooltip(ngettext("Deleted %d file.",
-        "Deleted %d files.",
-        numberOfFilesDeleted) % numberOfFilesDeleted)
+        tooltip(
+            ngettext("Deleted %d file.", "Deleted %d files.", numberOfFilesDeleted)
+            % numberOfFilesDeleted
+        )
         diag.close()
 
     def onStudyDeck(self):
         from aqt.studydeck import StudyDeck
-        ret = StudyDeck(
-            self, dyn=True, current=self.col.decks.current()['name'])
+
+        ret = StudyDeck(self, dyn=True, current=self.col.decks.current()["name"])
         if ret.name:
             self.col.decks.select(self.col.decks.id(ret.name))
             self.moveToState("overview")
@@ -1207,17 +1327,20 @@ will be lost. Continue?"""))
         self.progress.finish()
         part1 = ngettext("%d card", "%d cards", len(cids)) % len(cids)
         part1 = _("%s to delete:") % part1
-        diag, box = showText(part1 + "\n\n" + report, run=False,
-                geomKey="emptyCards")
+        diag, box = showText(part1 + "\n\n" + report, run=False, geomKey="emptyCards")
         box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
         box.button(QDialogButtonBox.Close).setDefault(True)
+
         def onDelete():
             saveGeom(diag, "emptyCards")
             QDialog.accept(diag)
             self.checkpoint(_("Delete Empty"))
             self.col.remCards(cids)
-            tooltip(ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids))
+            tooltip(
+                ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids)
+            )
             self.reset()
+
         box.accepted.connect(onDelete)
         diag.show()
 
@@ -1235,8 +1358,7 @@ will be lost. Continue?"""))
         frm.log.setFont(font)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
         s.activated.connect(lambda: self.onDebugRet(frm))
-        s = self.debugDiagShort = QShortcut(
-            QKeySequence("ctrl+shift+return"), d)
+        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+return"), d)
         s.activated.connect(lambda: self.onDebugPrint(frm))
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
         s.activated.connect(frm.log.clear)
@@ -1246,9 +1368,11 @@ will be lost. Continue?"""))
 
     def _captureOutput(self, on):
         mw = self
+
         class Stream:
             def write(self, data):
                 mw._output += data
+
         if on:
             self._output = ""
             self._oldStderr = sys.stderr
@@ -1264,7 +1388,7 @@ will be lost. Continue?"""))
         return self.reviewer.card.__dict__
 
     def _debugBrowserCard(self):
-        return aqt.dialogs._dialogs['Browser'][1].card.__dict__
+        return aqt.dialogs._dialogs["Browser"][1].card.__dict__
 
     def onDebugPrint(self, frm):
         cursor = frm.text.textCursor()
@@ -1281,6 +1405,7 @@ will be lost. Continue?"""))
 
     def onDebugRet(self, frm):
         import pprint, traceback
+
         text = frm.text.toPlainText()
         card = self._debugCard
         bcard = self._debugBrowserCard
@@ -1313,13 +1438,14 @@ will be lost. Continue?"""))
         if isMac:
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+M", self)
-            self.minimizeShortcut.activated.connect(self.onMacMinimize) # type: ignore
+            self.minimizeShortcut.activated.connect(self.onMacMinimize)  # type: ignore
             self.hideMenuAccels = True
             self.maybeHideAccelerators()
             self.hideStatusTips()
         elif isWin:
             # make sure ctypes is bundled
-            from ctypes import windll, wintypes # type: ignore
+            from ctypes import windll, wintypes  # type: ignore
+
             _dummy = windll
             _dummy = wintypes
 
@@ -1349,8 +1475,9 @@ will be lost. Continue?"""))
     def onAppMsg(self, buf: str) -> Optional[QTimer]:
         if self.state == "startup":
             # try again in a second
-            return self.progress.timer(1000, lambda: self.onAppMsg(buf), False,
-                                       requiresCollection=False)
+            return self.progress.timer(
+                1000, lambda: self.onAppMsg(buf), False, requiresCollection=False
+            )
         elif self.state == "profileManager":
             # can't raise window while in profile manager
             if buf == "raise":
@@ -1360,9 +1487,13 @@ will be lost. Continue?"""))
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":
-                showInfo(_("""\
-Please ensure a profile is open and Anki is not busy, then try again."""),
-                     parent=None)
+                showInfo(
+                    _(
+                        """\
+Please ensure a profile is open and Anki is not busy, then try again."""
+                    ),
+                    parent=None,
+                )
             return None
         # raise window
         if isWin:
@@ -1385,7 +1516,7 @@ Please ensure a profile is open and Anki is not busy, then try again."""),
     # ensure gc runs in main thread
 
     def setupDialogGC(self, obj: Any) -> None:
-        obj.finished.connect(lambda: self.gcWindow(obj)) # type: ignore
+        obj.finished.connect(lambda: self.gcWindow(obj))  # type: ignore
 
     def gcWindow(self, obj: Any) -> None:
         obj.deleteLater()

@@ -18,8 +18,16 @@ from anki.hooks import addHook, remHook
 from anki.lang import _, ngettext
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import (askUser, getFile, getOnlyText, openHelp, showInfo,
-                       showText, showWarning, tooltip)
+from aqt.utils import (
+    askUser,
+    getFile,
+    getOnlyText,
+    openHelp,
+    showInfo,
+    showText,
+    showWarning,
+    tooltip,
+)
 
 
 class ChangeMap(QDialog):
@@ -31,10 +39,10 @@ class ChangeMap(QDialog):
         self.frm.setupUi(self)
         n = 0
         setCurrent = False
-        for field in self.model['flds']:
-            item = QListWidgetItem(_("Map to %s") % field['name'])
+        for field in self.model["flds"]:
+            item = QListWidgetItem(_("Map to %s") % field["name"])
             self.frm.fields.addItem(item)
-            if current == field['name']:
+            if current == field["name"]:
                 setCurrent = True
                 self.frm.fields.setCurrentRow(n)
             n += 1
@@ -44,7 +52,7 @@ class ChangeMap(QDialog):
             if current == "_tags":
                 self.frm.fields.setCurrentRow(n)
             else:
-                self.frm.fields.setCurrentRow(n+1)
+                self.frm.fields.setCurrentRow(n + 1)
         self.field = None
 
     def getField(self):
@@ -53,8 +61,8 @@ class ChangeMap(QDialog):
 
     def accept(self):
         row = self.frm.fields.currentRow()
-        if row < len(self.model['flds']):
-            self.field = self.model['flds'][row]['name']
+        if row < len(self.model["flds"]):
+            self.field = self.model["flds"][row]["name"]
         elif row == self.frm.fields.count() - 2:
             self.field = "_tags"
         else:
@@ -64,8 +72,8 @@ class ChangeMap(QDialog):
     def reject(self):
         self.accept()
 
-class ImportDialog(QDialog):
 
+class ImportDialog(QDialog):
     def __init__(self, mw: AnkiQt, importer):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
@@ -73,7 +81,8 @@ class ImportDialog(QDialog):
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
         self.frm.buttonBox.button(QDialogButtonBox.Help).clicked.connect(
-            self.helpRequested)
+            self.helpRequested
+        )
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()
@@ -81,8 +90,8 @@ class ImportDialog(QDialog):
         addHook("currentModelChanged", self.modelChanged)
         self.frm.autoDetect.clicked.connect(self.onDelimiter)
         self.updateDelimiterButtonText()
-        self.frm.allowHTML.setChecked(self.mw.pm.profile.get('allowHTML', True))
-        self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get('importMode', 1))
+        self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
+        self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
         # import button
         b = QPushButton(_("Import"))
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
@@ -91,38 +100,51 @@ class ImportDialog(QDialog):
     def setupOptions(self):
         self.model = self.mw.col.models.current()
         self.modelChooser = aqt.modelchooser.ModelChooser(
-            self.mw, self.frm.modelArea, label=False)
-        self.deck = aqt.deckchooser.DeckChooser(
-            self.mw, self.frm.deckArea, label=False)
+            self.mw, self.frm.modelArea, label=False
+        )
+        self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
     def modelChanged(self):
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
         if self.mw.col.conf.get("addToCur", True):
-            did = self.mw.col.conf['curDeck']
+            did = self.mw.col.conf["curDeck"]
             if self.mw.col.decks.isDyn(did):
                 did = 1
         else:
-            did = self.importer.model['did']
-        #self.deck.setText(self.mw.col.decks.name(did))
+            did = self.importer.model["did"]
+        # self.deck.setText(self.mw.col.decks.name(did))
 
     def onDelimiter(self):
-        str = getOnlyText(_("""\
+        str = (
+            getOnlyText(
+                _(
+                    """\
 By default, Anki will detect the character between fields, such as
 a tab, comma, and so on. If Anki is detecting the character incorrectly,
-you can enter it here. Use \\t to represent tab."""),
-                self, help="importing") or "\t"
+you can enter it here. Use \\t to represent tab."""
+                ),
+                self,
+                help="importing",
+            )
+            or "\t"
+        )
         str = str.replace("\\t", "\t")
         if len(str) > 1:
-            showWarning(_(
-                "Multi-character separators are not supported. "
-                "Please enter one character only."))
+            showWarning(
+                _(
+                    "Multi-character separators are not supported. "
+                    "Please enter one character only."
+                )
+            )
             return
         self.hideMapping()
+
         def updateDelim():
             self.importer.delimiter = str
             self.importer.updateDelimiter()
+
         self.showMapping(hook=updateDelim)
         self.updateDelimiterButtonText()
 
@@ -151,16 +173,15 @@ you can enter it here. Use \\t to represent tab."""),
     def accept(self):
         self.importer.mapping = self.mapping
         if not self.importer.mappingOk():
-            showWarning(
-                _("The first field of the note type must be mapped."))
+            showWarning(_("The first field of the note type must be mapped."))
             return
         self.importer.importMode = self.frm.importMode.currentIndex()
-        self.mw.pm.profile['importMode'] = self.importer.importMode
+        self.mw.pm.profile["importMode"] = self.importer.importMode
         self.importer.allowHTML = self.frm.allowHTML.isChecked()
-        self.mw.pm.profile['allowHTML'] = self.importer.allowHTML
+        self.mw.pm.profile["allowHTML"] = self.importer.allowHTML
         did = self.deck.selectedId()
-        if did != self.importer.model['did']:
-            self.importer.model['did'] = did
+        if did != self.importer.model["did"]:
+            self.importer.model["did"] = did
             self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.col.decks.select(did)
         self.mw.progress.start(immediate=True)
@@ -196,7 +217,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.frame = QFrame(self.frm.mappingArea)
         self.frm.mappingArea.setWidget(self.frame)
         self.mapbox = QVBoxLayout(self.frame)
-        self.mapbox.setContentsMargins(0,0,0,0)
+        self.mapbox.setContentsMargins(0, 0, 0, 0)
         self.mapwidget = None
 
     def hideMapping(self):
@@ -217,7 +238,7 @@ you can enter it here. Use \\t to represent tab."""),
         self.mapbox.addWidget(self.mapwidget)
         self.grid = QGridLayout(self.mapwidget)
         self.mapwidget.setLayout(self.grid)
-        self.grid.setContentsMargins(3,3,3,3)
+        self.grid.setContentsMargins(3, 3, 3, 3)
         self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
@@ -232,7 +253,7 @@ you can enter it here. Use \\t to represent tab."""),
             self.grid.addWidget(QLabel(text), num, 1)
             button = QPushButton(_("Change"))
             self.grid.addWidget(button, num, 2)
-            button.clicked.connect(lambda _, s=self,n=num: s.changeMappingNum(n))
+            button.clicked.connect(lambda _, s=self, n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n):
         f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
@@ -245,8 +266,10 @@ you can enter it here. Use \\t to represent tab."""),
         self.mapping[n] = f
         if getattr(self.importer, "delimiter", False):
             self.savedDelimiter = self.importer.delimiter
+
             def updateDelim():
                 self.importer.delimiter = self.savedDelimiter
+
             self.showMapping(hook=updateDelim, keepMapping=True)
         else:
             self.showMapping(keepMapping=True)
@@ -263,15 +286,17 @@ you can enter it here. Use \\t to represent tab."""),
 
 def showUnicodeWarning():
     """Shorthand to show a standard warning."""
-    showWarning(_(
-        "Selected file was not in UTF-8 format. Please see the "
-        "importing section of the manual."))
+    showWarning(
+        _(
+            "Selected file was not in UTF-8 format. Please see the "
+            "importing section of the manual."
+        )
+    )
 
 
 def onImport(mw):
     filt = ";;".join([x[0] for x in importing.Importers])
-    file = getFile(mw, _("Import"), None, key="import",
-                   filter=filt)
+    file = getFile(mw, _("Import"), None, key="import", filter=filt)
     if not file:
         return
     file = str(file)
@@ -279,13 +304,22 @@ def onImport(mw):
     head, ext = os.path.splitext(file)
     ext = ext.lower()
     if ext == ".anki":
-        showInfo(_(".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."))
+        showInfo(
+            _(
+                ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
+            )
+        )
         return
     elif ext == ".anki2":
-        showInfo(_(".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."))
+        showInfo(
+            _(
+                ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
+            )
+        )
         return
 
     importFile(mw, file)
+
 
 def importFile(mw, file):
     importerClass = None
@@ -346,14 +380,20 @@ def importFile(mw, file):
         except Exception as e:
             err = repr(str(e))
             if "invalidFile" in err:
-                msg = _("""\
-Invalid file. Please restore from backup.""")
+                msg = _(
+                    """\
+Invalid file. Please restore from backup."""
+                )
                 showWarning(msg)
             elif "invalidTempFolder" in err:
                 showWarning(mw.errorHandler.tempFolderMsg())
             elif "readonly" in err:
-                showWarning(_("""\
-Unable to import from a read-only file."""))
+                showWarning(
+                    _(
+                        """\
+Unable to import from a read-only file."""
+                    )
+                )
             else:
                 msg = _("Import failed.\n")
                 msg += str(traceback.format_exc())
@@ -366,31 +406,44 @@ Unable to import from a read-only file."""))
                 showText(log)
         mw.reset()
 
+
 def invalidZipMsg():
-    return _("""\
+    return _(
+        """\
 This file does not appear to be a valid .apkg file. If you're getting this \
 error from a file downloaded from AnkiWeb, chances are that your download \
 failed. Please try again, and if the problem persists, please try again \
-with a different browser.""")
+with a different browser."""
+    )
+
 
 def setupApkgImport(mw, importer):
     base = os.path.basename(importer.file).lower()
-    full = ((base == "collection.apkg") or
-            re.match("backup-.*\\.apkg", base) or
-            base.endswith(".colpkg"))
+    full = (
+        (base == "collection.apkg")
+        or re.match("backup-.*\\.apkg", base)
+        or base.endswith(".colpkg")
+    )
     if not full:
         # adding
         return True
-    if not mw.restoringBackup and not askUser(_("""\
+    if not mw.restoringBackup and not askUser(
+        _(
+            """\
 This will delete your existing collection and replace it with the data in \
-the file you're importing. Are you sure?"""), msgfunc=QMessageBox.warning,
-                                              defaultno=True):
+the file you're importing. Are you sure?"""
+        ),
+        msgfunc=QMessageBox.warning,
+        defaultno=True,
+    ):
         return False
 
     replaceWithApkg(mw, importer.file, mw.restoringBackup)
 
+
 def replaceWithApkg(mw, file, backup):
     mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
+
 
 def _replaceWithApkg(mw, file, backup):
     mw.progress.start(immediate=True)
@@ -405,8 +458,7 @@ def _replaceWithApkg(mw, file, backup):
         colname = "collection.anki2"
 
     try:
-        with z.open(colname) as source, \
-                open(mw.pm.collectionPath(), "wb") as target:
+        with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
             shutil.copyfileobj(source, target)
     except:
         mw.progress.finish()
@@ -418,9 +470,11 @@ def _replaceWithApkg(mw, file, backup):
     # step
     d = os.path.join(mw.pm.profileFolder(), "collection.media")
     for n, (cStr, file) in enumerate(
-            json.loads(z.read("media").decode("utf8")).items()):
-        mw.progress.update(ngettext("Processed %d media file",
-                                    "Processed %d media files", n) % n)
+        json.loads(z.read("media").decode("utf8")).items()
+    ):
+        mw.progress.update(
+            ngettext("Processed %d media file", "Processed %d media files", n) % n
+        )
         size = z.getinfo(cStr).file_size
         dest = os.path.join(d, unicodedata.normalize("NFC", file))
         # if we have a matching file size

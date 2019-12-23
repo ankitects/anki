@@ -42,7 +42,7 @@ class TagEdit(QLineEdit):
             if not self.completer.popup().isVisible():
                 self.showCompleter()
             return
-        if (evt.key() == Qt.Key_Tab and evt.modifiers() & Qt.ControlModifier):
+        if evt.key() == Qt.Key_Tab and evt.modifiers() & Qt.ControlModifier:
             # select next completion
             if not self.completer.popup().isVisible():
                 self.showCompleter()
@@ -67,8 +67,14 @@ class TagEdit(QLineEdit):
             # if it's a modifier, don't show
             return
         if evt.key() not in (
-            Qt.Key_Enter, Qt.Key_Return, Qt.Key_Escape, Qt.Key_Space,
-            Qt.Key_Tab, Qt.Key_Backspace, Qt.Key_Delete):
+            Qt.Key_Enter,
+            Qt.Key_Return,
+            Qt.Key_Escape,
+            Qt.Key_Space,
+            Qt.Key_Tab,
+            Qt.Key_Backspace,
+            Qt.Key_Delete,
+        ):
             self.showCompleter()
 
     def showCompleter(self):
@@ -85,8 +91,8 @@ class TagEdit(QLineEdit):
             return
         self.completer.popup().hide()
 
-class TagCompleter(QCompleter):
 
+class TagCompleter(QCompleter):
     def __init__(self, model, parent, edit, *args):
         QCompleter.__init__(self, model, parent)
         self.tags = []

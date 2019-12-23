@@ -9,17 +9,16 @@ from aqt.utils import shortcut
 
 
 class ModelChooser(QHBoxLayout):
-
     def __init__(self, mw, widget, label=True):
         QHBoxLayout.__init__(self)
         self.widget = widget
         self.mw = mw
         self.deck = mw.col
         self.label = label
-        self.setContentsMargins(0,0,0,0)
+        self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
         self.setupModels()
-        addHook('reset', self.onReset)
+        addHook("reset", self.onReset)
         self.widget.setLayout(self)
 
     def setupModels(self):
@@ -28,21 +27,21 @@ class ModelChooser(QHBoxLayout):
             self.addWidget(self.modelLabel)
         # models box
         self.models = QPushButton()
-        #self.models.setStyleSheet("* { text-align: left; }")
+        # self.models.setStyleSheet("* { text-align: left; }")
         self.models.setToolTip(shortcut(_("Change Note Type (Ctrl+N)")))
-        s = QShortcut(QKeySequence(_("Ctrl+N")), self.widget, activated=self.onModelChange)
+        s = QShortcut(
+            QKeySequence(_("Ctrl+N")), self.widget, activated=self.onModelChange
+        )
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
         self.models.clicked.connect(self.onModelChange)
         # layout
-        sizePolicy = QSizePolicy(
-            QSizePolicy.Policy(7),
-            QSizePolicy.Policy(0))
+        sizePolicy = QSizePolicy(QSizePolicy.Policy(7), QSizePolicy.Policy(0))
         self.models.setSizePolicy(sizePolicy)
         self.updateModels()
 
     def cleanup(self):
-        remHook('reset', self.onReset)
+        remHook("reset", self.onReset)
 
     def onReset(self):
         self.updateModels()
@@ -55,29 +54,40 @@ class ModelChooser(QHBoxLayout):
 
     def onEdit(self):
         import aqt.models
+
         aqt.models.Models(self.mw, self.widget)
 
     def onModelChange(self):
         from aqt.studydeck import StudyDeck
-        current = self.deck.models.current()['name']
+
+        current = self.deck.models.current()["name"]
         # edit button
         edit = QPushButton(_("Manage"), clicked=self.onEdit)
+
         def nameFunc():
             return sorted(self.deck.models.allNames())
+
         ret = StudyDeck(
-            self.mw, names=nameFunc,
-            accept=_("Choose"), title=_("Choose Note Type"),
-            help="_notes", current=current, parent=self.widget,
-            buttons=[edit], cancel=True, geomKey="selectModel")
+            self.mw,
+            names=nameFunc,
+            accept=_("Choose"),
+            title=_("Choose Note Type"),
+            help="_notes",
+            current=current,
+            parent=self.widget,
+            buttons=[edit],
+            cancel=True,
+            geomKey="selectModel",
+        )
         if not ret.name:
             return
         m = self.deck.models.byName(ret.name)
-        self.deck.conf['curModel'] = m['id']
+        self.deck.conf["curModel"] = m["id"]
         cdeck = self.deck.decks.current()
-        cdeck['mid'] = m['id']
+        cdeck["mid"] = m["id"]
         self.deck.decks.save(cdeck)
         runHook("currentModelChanged")
         self.mw.reset()
 
     def updateModels(self):
-        self.models.setText(self.deck.models.current()['name'])
+        self.models.setText(self.deck.models.current()["name"])

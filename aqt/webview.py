@@ -14,8 +14,8 @@ from aqt.utils import openLink
 # Page for debug messages
 ##########################################################################
 
-class AnkiWebPage(QWebEnginePage): # type: ignore
 
+class AnkiWebPage(QWebEnginePage):  # type: ignore
     def __init__(self, onBridgeCmd):
         QWebEnginePage.__init__(self)
         self._onBridgeCmd = onBridgeCmd
@@ -34,12 +34,14 @@ class AnkiWebPage(QWebEnginePage): # type: ignore
         self._channel.registerObject("py", self._bridge)
         self.setWebChannel(self._channel)
 
-        js = QFile(':/qtwebchannel/qwebchannel.js')
+        js = QFile(":/qtwebchannel/qwebchannel.js")
         assert js.open(QIODevice.ReadOnly)
-        js = bytes(js.readAll()).decode('utf-8')
+        js = bytes(js.readAll()).decode("utf-8")
 
         script = QWebEngineScript()
-        script.setSourceCode(js + '''
+        script.setSourceCode(
+            js
+            + """
             var pycmd;
             new QWebChannel(qt.webChannelTransport, function(channel) {
                 pycmd = function (arg, cb) {
@@ -55,7 +57,8 @@ class AnkiWebPage(QWebEnginePage): # type: ignore
                 }
                 pycmd("domDone");
             });
-        ''')
+        """
+        )
         script.setWorldId(QWebEngineScript.MainWorld)
         script.setInjectionPoint(QWebEngineScript.DocumentReady)
         script.setRunsOnSubFrames(False)
@@ -64,9 +67,11 @@ class AnkiWebPage(QWebEnginePage): # type: ignore
     def javaScriptConsoleMessage(self, lvl, msg, line, srcID):
         # not translated because console usually not visible,
         # and may only accept ascii text
-        buf = "JS error on line %(a)d: %(b)s" % dict(a=line, b=msg+"\n")
+        buf = "JS error on line %(a)d: %(b)s" % dict(a=line, b=msg + "\n")
         # ensure we don't try to write characters the terminal can't handle
-        buf = buf.encode(sys.stdout.encoding, "backslashreplace").decode(sys.stdout.encoding)
+        buf = buf.encode(sys.stdout.encoding, "backslashreplace").decode(
+            sys.stdout.encoding
+        )
         sys.stdout.write(buf)
 
     def acceptNavigationRequest(self, url, navType, isMainFrame):
@@ -77,6 +82,7 @@ class AnkiWebPage(QWebEnginePage): # type: ignore
             return True
         # catch buggy <a href='#' onclick='func()'> links
         from aqt import mw
+
         if url.matches(QUrl(mw.serverURL()), QUrl.RemoveFragment):
             print("onclick handler needs to return false")
             return False
@@ -87,11 +93,12 @@ class AnkiWebPage(QWebEnginePage): # type: ignore
     def _onCmd(self, str):
         return self._onBridgeCmd(str)
 
+
 # Main web view
 ##########################################################################
 
-class AnkiWebView(QWebEngineView): # type: ignore
 
+class AnkiWebView(QWebEngineView):  # type: ignore
     def __init__(self, parent=None):
         QWebEngineView.__init__(self, parent=parent)
         self.title = "default"
@@ -107,8 +114,12 @@ class AnkiWebView(QWebEngineView): # type: ignore
         self.resetHandlers()
         self.allowDrops = False
         self._filterSet = False
-        QShortcut(QKeySequence("Esc"), self,
-                  context=Qt.WidgetWithChildrenShortcut, activated=self.onEsc)
+        QShortcut(
+            QKeySequence("Esc"),
+            self,
+            context=Qt.WidgetWithChildrenShortcut,
+            activated=self.onEsc,
+        )
         if isMac:
             for key, fn in [
                 (QKeySequence.Copy, self.onCopy),
@@ -116,11 +127,15 @@ class AnkiWebView(QWebEngineView): # type: ignore
                 (QKeySequence.Cut, self.onCut),
                 (QKeySequence.SelectAll, self.onSelectAll),
             ]:
-                QShortcut(key, self,
-                          context=Qt.WidgetWithChildrenShortcut,
-                          activated=fn)
-            QShortcut(QKeySequence("ctrl+shift+v"), self,
-                      context=Qt.WidgetWithChildrenShortcut, activated=self.onPaste)
+                QShortcut(
+                    key, self, context=Qt.WidgetWithChildrenShortcut, activated=fn
+                )
+            QShortcut(
+                QKeySequence("ctrl+shift+v"),
+                self,
+                context=Qt.WidgetWithChildrenShortcut,
+                activated=self.onPaste,
+            )
 
     def eventFilter(self, obj, evt):
         # disable pinch to zoom gesture
@@ -138,6 +153,7 @@ class AnkiWebView(QWebEngineView): # type: ignore
         while w:
             if isinstance(w, QDialog) or isinstance(w, QMainWindow):
                 from aqt import mw
+
                 # esc in a child window closes the window
                 if w != mw:
                     w.close()
@@ -241,15 +257,14 @@ class AnkiWebView(QWebEngineView): # type: ignore
         color_hl = palette.color(QPalette.Highlight).name()
 
         if isWin:
-            #T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
+            # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = _('"Segoe UI"')
             widgetspec = "button { font-size: 12px; font-family:%s; }" % family
             widgetspec += "\n:focus { outline: 1px solid %s; }" % color_hl
-            fontspec = 'font-size:12px;font-family:%s;' % family
+            fontspec = "font-size:12px;font-family:%s;" % family
         elif isMac:
-            family="Helvetica"
-            fontspec = 'font-size:15px;font-family:"%s";'% \
-                       family
+            family = "Helvetica"
+            fontspec = 'font-size:15px;font-family:"%s";' % family
             widgetspec = """
 button { font-size: 13px; -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px; font-family: Helvetica }"""
@@ -257,7 +272,7 @@ border-radius:5px; font-family: Helvetica }"""
             family = self.font().family()
             color_hl_txt = palette.color(QPalette.HighlightedText).name()
             color_btn = palette.color(QPalette.Button).name()
-            fontspec = 'font-size:14px;font-family:"%s";'% family
+            fontspec = 'font-size:14px;font-family:"%s";' % family
             widgetspec = """
 /* Buttons */
 button{ font-size:14px; -webkit-appearance:none; outline:0;
@@ -271,15 +286,23 @@ textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
 div[contenteditable="true"]:focus {   
     outline: 0 none;
     border-color: %(color_hl)s;
-}""" % {"family": family, "color_btn": color_btn,
-        "color_hl": color_hl, "color_hl_txt": color_hl_txt}
-        
-        csstxt = "\n".join([self.bundledCSS("webview.css")]+
-                           [self.bundledCSS(fname) for fname in css])
-        jstxt = "\n".join([self.bundledScript("webview.js")]+
-                          [self.bundledScript(fname) for fname in js])
+}""" % {
+                "family": family,
+                "color_btn": color_btn,
+                "color_hl": color_hl,
+                "color_hl_txt": color_hl_txt,
+            }
+
+        csstxt = "\n".join(
+            [self.bundledCSS("webview.css")] + [self.bundledCSS(fname) for fname in css]
+        )
+        jstxt = "\n".join(
+            [self.bundledScript("webview.js")]
+            + [self.bundledScript(fname) for fname in js]
+        )
         from aqt import mw
-        head =  mw.baseHTML() + head + csstxt + jstxt
+
+        head = mw.baseHTML() + head + csstxt + jstxt
 
         html = """
 <!doctype html>
@@ -295,20 +318,30 @@ body {{ zoom: {}; background: {}; {} }}
 </head>
 
 <body>{}</body>
-</html>""".format(self.title, self.zoomFactor(), self._getWindowColor().name(),
-                  fontspec, widgetspec, head, body)
-        #print(html)
+</html>""".format(
+            self.title,
+            self.zoomFactor(),
+            self._getWindowColor().name(),
+            fontspec,
+            widgetspec,
+            head,
+            body,
+        )
+        # print(html)
         self.setHtml(html)
 
     def webBundlePath(self, path):
         from aqt import mw
+
         return "http://127.0.0.1:%d/_anki/%s" % (mw.mediaServer.getPort(), path)
 
     def bundledScript(self, fname):
         return '<script src="%s"></script>' % self.webBundlePath(fname)
 
     def bundledCSS(self, fname):
-        return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(fname)
+        return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(
+            fname
+        )
 
     def eval(self, js):
         self.evalWithCallback(js, None)
@@ -318,11 +351,13 @@ body {{ zoom: {}; background: {}; {} }}
 
     def _evalWithCallback(self, js, cb):
         if cb:
+
             def handler(val):
                 if self._shouldIgnoreWebEvent():
                     print("ignored late js callback", cb)
                     return
                 cb(val)
+
             self.page().runJavaScript(js, handler)
         else:
             self.page().runJavaScript(js)
@@ -349,6 +384,7 @@ body {{ zoom: {}; background: {}; {} }}
         # async web events may be received after the profile has been closed
         # or the underlying webview has been deleted
         from aqt import mw
+
         if sip.isdeleted(self):
             return True
         if not mw.col and self.requiresCol:
@@ -382,8 +418,9 @@ body {{ zoom: {}; background: {}; {} }}
     def _onHeight(self, qvar):
         if qvar is None:
             from aqt import mw
+
             mw.progress.timer(1000, mw.reset, False)
             return
 
-        height = math.ceil(qvar*self.zoomFactor())
+        height = math.ceil(qvar * self.zoomFactor())
         self.setFixedHeight(height)

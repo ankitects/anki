@@ -14,7 +14,6 @@ from aqt.utils import askUser, openHelp, showInfo
 
 
 class Preferences(QDialog):
-
     def __init__(self, mw: AnkiQt):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
@@ -74,6 +73,7 @@ class Preferences(QDialog):
 
     def setupCollection(self):
         import anki.consts as c
+
         f = self.form
         qc = self.mw.col.conf
         self._setupDayCutoff()
@@ -81,13 +81,13 @@ class Preferences(QDialog):
             f.hwAccel.setVisible(False)
         else:
             f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
-        f.lrnCutoff.setValue(qc['collapseTime']/60.0)
-        f.timeLimit.setValue(qc['timeLim']/60.0)
-        f.showEstimates.setChecked(qc['estTimes'])
-        f.showProgress.setChecked(qc['dueCounts'])
+        f.lrnCutoff.setValue(qc["collapseTime"] / 60.0)
+        f.timeLimit.setValue(qc["timeLim"] / 60.0)
+        f.showEstimates.setChecked(qc["estTimes"])
+        f.showProgress.setChecked(qc["dueCounts"])
         f.nightMode.setChecked(qc.get("nightMode", False))
         f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
-        f.newSpread.setCurrentIndex(qc['newSpread'])
+        f.newSpread.setCurrentIndex(qc["newSpread"])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
         if self.mw.col.schedVer() != 2:
@@ -110,14 +110,14 @@ class Preferences(QDialog):
                 showInfo(_("Changes will take effect when you restart Anki."))
 
         qc = d.conf
-        qc['dueCounts'] = f.showProgress.isChecked()
-        qc['estTimes'] = f.showEstimates.isChecked()
-        qc['newSpread'] = f.newSpread.currentIndex()
-        qc['nightMode'] = f.nightMode.isChecked()
-        qc['timeLim'] = f.timeLimit.value()*60
-        qc['collapseTime'] = f.lrnCutoff.value()*60
-        qc['addToCur'] = not f.useCurrent.currentIndex()
-        qc['dayLearnFirst'] = f.dayLearnFirst.isChecked()
+        qc["dueCounts"] = f.showProgress.isChecked()
+        qc["estTimes"] = f.showEstimates.isChecked()
+        qc["newSpread"] = f.newSpread.currentIndex()
+        qc["nightMode"] = f.nightMode.isChecked()
+        qc["timeLim"] = f.timeLimit.value() * 60
+        qc["collapseTime"] = f.lrnCutoff.value() * 60
+        qc["addToCur"] = not f.useCurrent.currentIndex()
+        qc["dayLearnFirst"] = f.dayLearnFirst.isChecked()
         self._updateDayCutoff()
         self._updateSchedVer(f.newSched.isChecked())
         d.setMod()
@@ -132,14 +132,17 @@ class Preferences(QDialog):
         if haveNew == wantNew:
             return
 
-        if not askUser(_("This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?")):
+        if not askUser(
+            _(
+                "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
+            )
+        ):
             return
 
         if wantNew:
             self.mw.col.changeSchedulerVer(2)
         else:
             self.mw.col.changeSchedulerVer(1)
-
 
     # Day cutoff
     ######################################################################
@@ -166,42 +169,43 @@ class Preferences(QDialog):
     def _updateDayCutoffV1(self):
         hrs = self.form.dayOffset.value()
         old = self.startDate
-        date = datetime.datetime(
-            old.year, old.month, old.day, hrs)
+        date = datetime.datetime(old.year, old.month, old.day, hrs)
         self.mw.col.crt = int(time.mktime(date.timetuple()))
 
     def _updateDayCutoffV2(self):
-        self.mw.col.conf['rollover'] = self.form.dayOffset.value()
+        self.mw.col.conf["rollover"] = self.form.dayOffset.value()
 
     # Network
     ######################################################################
 
     def setupNetwork(self):
-        self.form.syncOnProgramOpen.setChecked(
-            self.prof['autoSync'])
-        self.form.syncMedia.setChecked(
-            self.prof['syncMedia'])
-        if not self.prof['syncKey']:
+        self.form.syncOnProgramOpen.setChecked(self.prof["autoSync"])
+        self.form.syncMedia.setChecked(self.prof["syncMedia"])
+        if not self.prof["syncKey"]:
             self._hideAuth()
         else:
-            self.form.syncUser.setText(self.prof.get('syncUser', ""))
+            self.form.syncUser.setText(self.prof.get("syncUser", ""))
             self.form.syncDeauth.clicked.connect(self.onSyncDeauth)
 
     def _hideAuth(self):
         self.form.syncDeauth.setVisible(False)
         self.form.syncUser.setText("")
-        self.form.syncLabel.setText(_("""\
+        self.form.syncLabel.setText(
+            _(
+                """\
 <b>Synchronization</b><br>
-Not currently enabled; click the sync button in the main window to enable."""))
+Not currently enabled; click the sync button in the main window to enable."""
+            )
+        )
 
     def onSyncDeauth(self):
-        self.prof['syncKey'] = None
+        self.prof["syncKey"] = None
         self.mw.col.media.forceResync()
         self._hideAuth()
 
     def updateNetwork(self):
-        self.prof['autoSync'] = self.form.syncOnProgramOpen.isChecked()
-        self.prof['syncMedia'] = self.form.syncMedia.isChecked()
+        self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
+        self.prof["syncMedia"] = self.form.syncMedia.isChecked()
         if self.form.fullSync.isChecked():
             self.mw.col.modSchema(check=False)
             self.mw.col.setMod()
@@ -210,21 +214,21 @@ Not currently enabled; click the sync button in the main window to enable."""))
     ######################################################################
 
     def setupBackup(self):
-        self.form.numBackups.setValue(self.prof['numBackups'])
+        self.form.numBackups.setValue(self.prof["numBackups"])
 
     def updateBackup(self):
-        self.prof['numBackups'] = self.form.numBackups.value()
+        self.prof["numBackups"] = self.form.numBackups.value()
 
     # Basic & Advanced Options
     ######################################################################
 
     def setupOptions(self):
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
-        self.form.uiScale.setValue(self.mw.pm.uiScale()*100)
+        self.form.uiScale.setValue(self.mw.pm.uiScale() * 100)
 
     def updateOptions(self):
-        self.prof['pastePNG'] = self.form.pastePNG.isChecked()
-        newScale = self.form.uiScale.value()/100
+        self.prof["pastePNG"] = self.form.pastePNG.isChecked()
+        newScale = self.form.uiScale.value() / 100
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
             showInfo(_("Changes will take effect when you restart Anki."))

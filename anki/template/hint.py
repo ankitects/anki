@@ -15,7 +15,13 @@ def hint(txt, extra, context, tag, fullname) -> str:
 <a class=hint href="#"
 onclick="this.style.display='none';document.getElementById('%s').style.display='block';return false;">
 %s</a><div id="%s" class=hint style="display: none">%s</div>
-""" % (domid, _("Show %s") % tag, domid, txt)
+""" % (
+        domid,
+        _("Show %s") % tag,
+        domid,
+        txt,
+    )
+
 
 def install() -> None:
-    addHook('fmod_hint', hint)
+    addHook("fmod_hint", hint)

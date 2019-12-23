@@ -27,6 +27,7 @@ def _getExportFolder():
     else:
         raise Exception("couldn't find web folder")
 
+
 _exportFolder = _getExportFolder()
 
 # webengine on windows sometimes opens a connection and fails to send a request,
@@ -45,6 +46,7 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
         except:
             self.server_name = "server"
         self.server_port = port
+
 
 class MediaServer(threading.Thread):
 
@@ -68,6 +70,7 @@ class MediaServer(threading.Thread):
 
     def shutdown(self):
         self.server.shutdown()
+
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
@@ -106,7 +109,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
         ctype = self.guess_type(path)
         try:
-            f = open(path, 'rb')
+            f = open(path, "rb")
         except OSError:
             self.send_error(HTTPStatus.NOT_FOUND, "File not found")
             return None
@@ -126,19 +129,18 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         if not devMode:
             return
-        print("%s - - [%s] %s" %
-                         (self.address_string(),
-                          self.log_date_time_string(),
-                          format%args))
-
+        print(
+            "%s - - [%s] %s"
+            % (self.address_string(), self.log_date_time_string(), format % args)
+        )
 
     def _redirectWebExports(self, path):
         # catch /_anki references and rewrite them to web export folder
         targetPath = os.path.join(os.getcwd(), "_anki", "")
         if path.startswith(targetPath):
-            newPath = os.path.join(_exportFolder, path[len(targetPath):])
+            newPath = os.path.join(_exportFolder, path[len(targetPath) :])
             return newPath
-        
+
         # catch /_addons references and rewrite them to addons folder
         targetPath = os.path.join(os.getcwd(), "_addons", "")
         if path.startswith(targetPath):
@@ -146,27 +148,28 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 addMgr = self.mw.addonManager
             except AttributeError:
                 return path
-            
-            addonPath = path[len(targetPath):]
-            
+
+            addonPath = path[len(targetPath) :]
+
             try:
                 addon, subPath = addonPath.split(os.path.sep, 1)
             except ValueError:
                 return path
             if not addon:
                 return path
-            
+
             pattern = addMgr.getWebExports(addon)
             if not pattern:
                 return path
-            
+
             if not re.fullmatch(pattern, subPath):
                 return path
-            
+
             newPath = os.path.join(addMgr.addonsFolder(), addonPath)
             return newPath
-        
+
         return path
 
+
 # work around Windows machines with incorrect mime type
-RequestHandler.extensions_map['.css'] = "text/css"
+RequestHandler.extensions_map[".css"] = "text/css"

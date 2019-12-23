@@ -29,5 +29,5 @@ QAData = Tuple[
     # Corresponds to 'flds' column. TODO: document.
     str,
     # Corresponds to 'cardFlags' column. TODO: document
-    int
+    int,
 ]

@@ -12,10 +12,15 @@ from aqt.qt import *
 from aqt.utils import showText, showWarning, supportText
 
 if not os.environ.get("DEBUG"):
-    def excepthook(etype,val,tb):
-        sys.stderr.write("Caught exception:\n%s\n" % (
-            ''.join(traceback.format_exception(etype, val, tb))))
+
+    def excepthook(etype, val, tb):
+        sys.stderr.write(
+            "Caught exception:\n%s\n"
+            % ("".join(traceback.format_exception(etype, val, tb)))
+        )
+
     sys.excepthook = excepthook
+
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
@@ -58,8 +63,10 @@ class ErrorHandler(QObject):
         self.timer.start()
 
     def tempFolderMsg(self):
-        return _("""Unable to access Anki media folder. The permissions on \
-your system's temporary folder may be incorrect.""")
+        return _(
+            """Unable to access Anki media folder. The permissions on \
+your system's temporary folder may be incorrect."""
+        )
 
     def onTimeout(self):
         error = html.escape(self.pool)
@@ -68,22 +75,40 @@ your system's temporary folder may be incorrect.""")
         if "abortSchemaMod" in error:
             return
         if "10013" in error:
-            return showWarning(_("Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."))
+            return showWarning(
+                _(
+                    "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
+                )
+            )
         if "Pyaudio not" in error:
             return showWarning(_("Please install PyAudio"))
         if "install mplayer" in error:
-            return showWarning(_("Sound and video on cards will not function until mpv or mplayer is installed."))
+            return showWarning(
+                _(
+                    "Sound and video on cards will not function until mpv or mplayer is installed."
+                )
+            )
         if "no default input" in error.lower():
-            return showWarning(_("Please connect a microphone, and ensure "
-                                 "other programs are not using the audio device."))
+            return showWarning(
+                _(
+                    "Please connect a microphone, and ensure "
+                    "other programs are not using the audio device."
+                )
+            )
         if "invalidTempFolder" in error:
             return showWarning(self.tempFolderMsg())
         if "Beautiful Soup is not an HTTP client" in error:
             return
         if "database or disk is full" in error or "Errno 28" in error:
-            return showWarning(_("Your computer's storage may be full. Please delete some unneeded files, then try again."))
+            return showWarning(
+                _(
+                    "Your computer's storage may be full. Please delete some unneeded files, then try again."
+                )
+            )
         if "disk I/O error" in error:
-            return showWarning(_("""\
+            return showWarning(
+                _(
+                    """\
 An error occurred while accessing the database.
 
 Possible causes:
@@ -98,9 +123,12 @@ Possible causes:
 
 It's a good idea to run Tools>Check Database to ensure your collection \
 is not corrupt.
-"""))
+"""
+                )
+            )
 
-        stdText = _("""\
+        stdText = _(
+            """\
 <h1>Error</h1>
 
 <p>An error occurred. Please use <b>Tools &gt; Check Database</b> to see if \
@@ -108,9 +136,11 @@ that fixes the problem.</p>
 
 <p>If problems persist, please report the problem on our \
 <a href="https://help.ankiweb.net">support site</a>. Please copy and paste \
- the information below into your report.</p>""")
+ the information below into your report.</p>"""
+        )
 
-        pluginText = _("""\
+        pluginText = _(
+            """\
 <h1>Error</h1>
 
 <p>An error occurred. Please start Anki while holding down the shift \
@@ -125,14 +155,15 @@ report the issue on the <a href="https://help.ankiweb.net/discussions/add-ons/">
 add-ons section</a> of our support site.
 
 <p>Debug info:</p>
-""")        
+"""
+        )
         if self.mw.addonManager.dirty:
             txt = pluginText
             error = supportText() + self._addonText(error) + "\n" + error
         else:
             txt = stdText
             error = supportText() + "\n" + error
-        
+
         # show dialog
         txt = txt + "<div style='white-space: pre-wrap'>" + error + "</div>"
         showText(txt, type="html", copyBtn=True)
@@ -142,8 +173,9 @@ add-ons section</a> of our support site.
         if not matches:
             return ""
         # reverse to list most likely suspect first, dict to deduplicate:
-        addons = [mw.addonManager.addonName(i) for i in
-                  dict.fromkeys(reversed(matches))]
+        addons = [
+            mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
+        ]
         txt = _("""Add-ons possibly involved: {}\n""")
         # highlight importance of first add-on:
         addons[0] = "<b>{}</b>".format(addons[0])

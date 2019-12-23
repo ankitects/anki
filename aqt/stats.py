@@ -7,14 +7,20 @@ import time
 import aqt
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import (addCloseShortcut, getSaveFile, maybeHideClose,
-                       restoreGeom, saveGeom, tooltip)
+from aqt.utils import (
+    addCloseShortcut,
+    getSaveFile,
+    maybeHideClose,
+    restoreGeom,
+    saveGeom,
+    tooltip,
+)
 
 # Deck Stats
 ######################################################################
 
-class DeckStats(QDialog):
 
+class DeckStats(QDialog):
     def __init__(self, mw):
         QDialog.__init__(self, mw, Qt.Window)
         mw.setupDialogGC(self)
@@ -28,8 +34,7 @@ class DeckStats(QDialog):
         f = self.form
         f.setupUi(self)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(_("Save PDF"),
-                                          QDialogButtonBox.ActionRole)
+        b = f.buttonBox.addButton(_("Save PDF"), QDialogButtonBox.ActionRole)
         b.clicked.connect(self.saveImage)
         b.setAutoDefault(False)
         f.groups.clicked.connect(lambda: self.changeScope("deck"))
@@ -55,14 +60,16 @@ class DeckStats(QDialog):
         callback()
 
     def _imagePath(self):
-        name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf",
-                             time.localtime(time.time()))
-        name = "anki-"+_("stats")+name
-        file = getSaveFile(self, title=_("Save PDF"),
-                           dir_description="stats",
-                           key="stats",
-                           ext=".pdf",
-                           fname=name)
+        name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
+        name = "anki-" + _("stats") + name
+        file = getSaveFile(
+            self,
+            title=_("Save PDF"),
+            dir_description="stats",
+            key="stats",
+            ext=".pdf",
+            fname=name,
+        )
         return file
 
     def saveImage(self):
@@ -85,6 +92,7 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.stdHtml("<html><body>"+self.report+"</body></html>",
-                              js=["jquery.js", "plot.js"])
+        self.form.web.stdHtml(
+            "<html><body>" + self.report + "</body></html>", js=["jquery.js", "plot.js"]
+        )
         self.mw.progress.finish()

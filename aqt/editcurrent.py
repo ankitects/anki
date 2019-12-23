@@ -10,7 +10,6 @@ from aqt.utils import restoreGeom, saveGeom, tooltip
 
 
 class EditCurrent(QDialog):
-
     def __init__(self, mw):
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
@@ -21,7 +20,8 @@ class EditCurrent(QDialog):
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
-                QKeySequence("Ctrl+Return"))
+            QKeySequence("Ctrl+Return")
+        )
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         self.editor.card = self.mw.reviewer.card
         self.editor.setNote(self.mw.reviewer.card.note(), focusTo=0)
@@ -37,7 +37,7 @@ class EditCurrent(QDialog):
         # lazy approach for now: throw away edits
         try:
             n = self.editor.note
-            n.load()#reload in case the model changed
+            n.load()  # reload in case the model changed
         except:
             # card's been deleted
             remHook("reset", self.onReset)
@@ -48,10 +48,10 @@ class EditCurrent(QDialog):
             return
         self.editor.setNote(n)
 
-    def reopen(self,mw):
+    def reopen(self, mw):
         tooltip("Please finish editing the existing card first.")
         self.onReset()
-        
+
     def reject(self):
         self.saveAndClose()
 
@@ -78,4 +78,5 @@ class EditCurrent(QDialog):
         def callback():
             self._saveAndClose()
             onsuccess()
+
         self.editor.saveNow(callback)

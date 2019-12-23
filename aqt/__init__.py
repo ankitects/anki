@@ -17,18 +17,18 @@ from anki.lang import langDir
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
 
-appVersion=_version
-appWebsite="http://ankisrs.net/"
-appChanges="http://ankisrs.net/docs/changes.html"
-appDonate="http://ankisrs.net/support/"
-appShared="https://ankiweb.net/shared/"
-appUpdate="https://ankiweb.net/update/desktop"
-appHelpSite=HELP_SITE
+appVersion = _version
+appWebsite = "http://ankisrs.net/"
+appChanges = "http://ankisrs.net/docs/changes.html"
+appDonate = "http://ankisrs.net/support/"
+appShared = "https://ankiweb.net/shared/"
+appUpdate = "https://ankiweb.net/update/desktop"
+appHelpSite = HELP_SITE
 
-from aqt.main import AnkiQt # isort:skip
-from aqt.profiles import ProfileManager # isort:skip
+from aqt.main import AnkiQt  # isort:skip
+from aqt.profiles import ProfileManager  # isort:skip
 
-mw: Optional[AnkiQt] = None # set on init
+mw: Optional[AnkiQt] = None  # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
@@ -54,11 +54,12 @@ except ImportError as e:
 # - have the window opened via aqt.dialogs.open(<name>, self)
 # - have a method reopen(*args), called if the user ask to open the window a second time. Arguments passed are the same than for original opening.
 
-#- make preferences modal? cmd+q does wrong thing
+# - make preferences modal? cmd+q does wrong thing
 
 
-from aqt import addcards, browser, editcurrent # isort:skip
-from aqt import stats, about, preferences # isort:skip
+from aqt import addcards, browser, editcurrent  # isort:skip
+from aqt import stats, about, preferences  # isort:skip
+
 
 class DialogManager:
 
@@ -78,7 +79,7 @@ class DialogManager:
                 instance.setWindowState(instance.windowState() & ~Qt.WindowMinimized)
             instance.activateWindow()
             instance.raise_()
-            if hasattr(instance,"reopen"):
+            if hasattr(instance, "reopen"):
                 instance.reopen(*args)
             return instance
         else:
@@ -118,6 +119,7 @@ class DialogManager:
 
         return True
 
+
 dialogs = DialogManager()
 
 # Language handling
@@ -129,32 +131,40 @@ dialogs = DialogManager()
 _gtrans: Optional[Any] = None
 _qtrans: Optional[QTranslator] = None
 
-def setupLang(pm: ProfileManager, app: QApplication, force: Optional[str]=None) -> None:
+
+def setupLang(
+    pm: ProfileManager, app: QApplication, force: Optional[str] = None
+) -> None:
     global _gtrans, _qtrans
     try:
-        locale.setlocale(locale.LC_ALL, '')
+        locale.setlocale(locale.LC_ALL, "")
     except:
         pass
     lang = force or pm.meta["defaultLang"]
     dir = langDir()
     # gettext
-    _gtrans = gettext.translation(
-        'anki', dir, languages=[lang], fallback=True)
+    _gtrans = gettext.translation("anki", dir, languages=[lang], fallback=True)
+
     def fn__(arg):
         print("accessing _ without importing from anki.lang will break in the future")
         print("".join(traceback.format_stack()[-2]))
         from anki.lang import _
+
         return _(arg)
+
     def fn_ngettext(a, b, c):
-        print("accessing ngettext without importing from anki.lang will break in the future")
+        print(
+            "accessing ngettext without importing from anki.lang will break in the future"
+        )
         print("".join(traceback.format_stack()[-2]))
         from anki.lang import ngettext
+
         return ngettext(a, b, c)
 
-    builtins.__dict__['_'] = fn__
-    builtins.__dict__['ngettext'] = fn_ngettext
+    builtins.__dict__["_"] = fn__
+    builtins.__dict__["ngettext"] = fn_ngettext
     anki.lang.setLang(lang, local=False)
-    if lang in ("he","ar","fa"):
+    if lang in ("he", "ar", "fa"):
         app.setLayoutDirection(Qt.RightToLeft)
     else:
         app.setLayoutDirection(Qt.LeftToRight)
@@ -163,8 +173,10 @@ def setupLang(pm: ProfileManager, app: QApplication, force: Optional[str]=None) 
     if _qtrans.load("qt_" + lang, dir):
         app.installTranslator(_qtrans)
 
+
 # App initialisation
 ##########################################################################
+
 
 class AnkiApp(QApplication):
 
@@ -173,7 +185,7 @@ class AnkiApp(QApplication):
 
     appMsg = pyqtSignal(str)
 
-    KEY = "anki"+checksum(getpass.getuser())
+    KEY = "anki" + checksum(getpass.getuser())
     TMOUT = 30000
 
     def __init__(self, argv):
@@ -208,8 +220,11 @@ class AnkiApp(QApplication):
         sock.write(txt.encode("utf8"))
         if not sock.waitForBytesWritten(self.TMOUT):
             # existing instance running but hung
-            QMessageBox.warning(None, "Anki Already Running",
-                                 "If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.")
+            QMessageBox.warning(
+                None,
+                "Anki Already Running",
+                "If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.",
+            )
 
             sys.exit(1)
         sock.disconnectFromServer()
@@ -233,6 +248,7 @@ class AnkiApp(QApplication):
             return True
         return QApplication.event(self, evt)
 
+
 def parseArgs(argv):
     "Returns (opts, args)."
     # py2app fails to strip this in some instances, then anki dies
@@ -246,6 +262,7 @@ def parseArgs(argv):
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
     return parser.parse_known_args(argv[1:])
 
+
 def setupGL(pm):
     if isMac:
         return
@@ -255,16 +272,23 @@ def setupGL(pm):
     # work around pyqt loading wrong GL library
     if isLin:
         import ctypes
-        ctypes.CDLL('libGL.so.1', ctypes.RTLD_GLOBAL)
+
+        ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
 
     # catch opengl errors
     def msgHandler(type, ctx, msg):
         if "Failed to create OpenGL context" in msg:
-            QMessageBox.critical(None, "Error", "Error loading '%s' graphics driver. Please start Anki again to try next driver." % mode)
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Error loading '%s' graphics driver. Please start Anki again to try next driver."
+                % mode,
+            )
             pm.nextGlMode()
             return
         else:
             print("qt:", msg)
+
     qInstallMessageHandler(msgHandler)
 
     if mode == "auto":
@@ -274,14 +298,18 @@ def setupGL(pm):
     else:
         os.environ["QT_OPENGL"] = mode
 
+
 def run():
     try:
         _run()
     except Exception as e:
         traceback.print_exc()
-        QMessageBox.critical(None, "Startup Error",
-                             "Please notify support of this error:\n\n"+
-                             traceback.format_exc())
+        QMessageBox.critical(
+            None,
+            "Startup Error",
+            "Please notify support of this error:\n\n" + traceback.format_exc(),
+        )
+
 
 def _run(argv=None, exec=True):
     """Start AnkiQt application or reuse an existing instance if one exists.
@@ -314,7 +342,6 @@ def _run(argv=None, exec=True):
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
         os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
 
-
     # Opt into software rendering. Useful for buggy systems.
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
@@ -340,7 +367,8 @@ def _run(argv=None, exec=True):
 
     # proxy configured?
     from urllib.request import proxy_bypass, getproxies
-    if 'http' in getproxies():
+
+    if "http" in getproxies():
         # if it's not set up to bypass localhost, we'll
         # need to disable proxies in the webviews
         if not proxy_bypass("127.0.0.1"):
@@ -354,16 +382,22 @@ def _run(argv=None, exec=True):
         tempfile.gettempdir()
     except:
         QMessageBox.critical(
-            None, "Error", """\
+            None,
+            "Error",
+            """\
 No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
-environment points to a valid, writable folder.""")
+environment points to a valid, writable folder.""",
+        )
         return
 
     if pmLoadResult.loadError:
         QMessageBox.warning(
-            None, "Preferences Corrupt", """\
+            None,
+            "Preferences Corrupt",
+            """\
     Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
-    profiles, please add them back using the same names to recover your cards.""")
+    profiles, please add them back using the same names to recover your cards.""",
+        )
 
     if opts.profile:
         pm.openProfile(opts.profile)
@@ -373,13 +407,19 @@ environment points to a valid, writable folder.""")
 
     if isLin and pm.glMode() == "auto":
         from aqt.utils import gfxDriverIsBroken
+
         if gfxDriverIsBroken():
             pm.nextGlMode()
-            QMessageBox.critical(None, "Error", "Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.")
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.",
+            )
             sys.exit(1)
 
     # load the main window
     import aqt.main
+
     mw = aqt.main.AnkiQt(app, pm, opts, args)
     if exec:
         app.exec()

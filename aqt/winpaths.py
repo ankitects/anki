@@ -14,6 +14,7 @@ __version__ = "0.2"
 __author__ = "Ryan Ginstrom"
 __description__ = "Retrieves common Windows system paths as Unicode strings"
 
+
 class PathConstants(object):
     """
     Define constants here to avoid dependency on shellcon.
@@ -64,7 +65,7 @@ class PathConstants(object):
     CSIDL_COMMON_TEMPLATES = 45
     CSIDL_COMMON_DOCUMENTS = 46
     CSIDL_COMMON_ADMINTOOLS = 47
-    CSIDL_ADMINTOOLS  = 48
+    CSIDL_ADMINTOOLS = 48
     CSIDL_CONNECTIONS = 49
     CSIDL_COMMON_MUSIC = 53
     CSIDL_COMMON_PICTURES = 54
@@ -76,8 +77,10 @@ class PathConstants(object):
     # 60 unused
     CSIDL_COMPUTERSNEARME = 61
 
+
 class WinPathsException(Exception):
     pass
+
 
 def _err_unless_zero(result):
     if result == 0:
@@ -85,84 +88,110 @@ def _err_unless_zero(result):
     else:
         raise WinPathsException("Failed to retrieve windows path: %s" % result)
 
+
 _SHGetFolderPath = windll.shell32.SHGetFolderPathW
-_SHGetFolderPath.argtypes = [wintypes.HWND,
-                            ctypes.c_int,
-                            wintypes.HANDLE,
-                            wintypes.DWORD, wintypes.LPCWSTR]
+_SHGetFolderPath.argtypes = [
+    wintypes.HWND,
+    ctypes.c_int,
+    wintypes.HANDLE,
+    wintypes.DWORD,
+    wintypes.LPCWSTR,
+]
 _SHGetFolderPath.restype = _err_unless_zero
+
 
 def _get_path_buf(csidl):
     path_buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
     result = _SHGetFolderPath(0, csidl, 0, 0, path_buf)
     return path_buf.value
 
+
 def get_local_appdata():
     return _get_path_buf(PathConstants.CSIDL_LOCAL_APPDATA)
+
 
 def get_appdata():
     return _get_path_buf(PathConstants.CSIDL_APPDATA)
 
+
 def get_desktop():
     return _get_path_buf(PathConstants.CSIDL_DESKTOP)
+
 
 def get_programs():
     """current user -> Start menu -> Programs"""
     return _get_path_buf(PathConstants.CSIDL_PROGRAMS)
 
+
 def get_admin_tools():
     """current user -> Start menu -> Programs -> Admin tools"""
     return _get_path_buf(PathConstants.CSIDL_ADMINTOOLS)
+
 
 def get_common_admin_tools():
     """all users -> Start menu -> Programs -> Admin tools"""
     return _get_path_buf(PathConstants.CSIDL_COMMON_ADMINTOOLS)
 
+
 def get_common_appdata():
     return _get_path_buf(PathConstants.CSIDL_COMMON_APPDATA)
+
 
 def get_common_documents():
     return _get_path_buf(PathConstants.CSIDL_COMMON_DOCUMENTS)
 
+
 def get_cookies():
     return _get_path_buf(PathConstants.CSIDL_COOKIES)
+
 
 def get_history():
     return _get_path_buf(PathConstants.CSIDL_HISTORY)
 
+
 def get_internet_cache():
     return _get_path_buf(PathConstants.CSIDL_INTERNET_CACHE)
+
 
 def get_my_pictures():
     """Get the user's My Pictures folder"""
     return _get_path_buf(PathConstants.CSIDL_MYPICTURES)
 
+
 def get_personal():
     """AKA 'My Documents'"""
     return _get_path_buf(PathConstants.CSIDL_PERSONAL)
 
+
 get_my_documents = get_personal
+
 
 def get_program_files():
     return _get_path_buf(PathConstants.CSIDL_PROGRAM_FILES)
 
+
 def get_program_files_common():
     return _get_path_buf(PathConstants.CSIDL_PROGRAM_FILES_COMMON)
+
 
 def get_system():
     """Use with care and discretion"""
     return _get_path_buf(PathConstants.CSIDL_SYSTEM)
 
+
 def get_windows():
     """Use with care and discretion"""
     return _get_path_buf(PathConstants.CSIDL_WINDOWS)
 
+
 def get_favorites():
     return _get_path_buf(PathConstants.CSIDL_FAVORITES)
+
 
 def get_startup():
     """current user -> start menu -> programs -> startup"""
     return _get_path_buf(PathConstants.CSIDL_STARTUP)
+
 
 def get_recent():
     return _get_path_buf(PathConstants.CSIDL_RECENT)

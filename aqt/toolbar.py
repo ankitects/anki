@@ -7,7 +7,6 @@ from aqt.qt import *
 
 
 class Toolbar:
-
     def __init__(self, mw, web):
         self.mw = mw
         self.web = web
@@ -24,8 +23,7 @@ class Toolbar:
 
     def draw(self):
         self.web.onBridgeCmd = self._linkHandler
-        self.web.stdHtml(self._body % self._centerLinks(),
-                         css=["toolbar.css"])
+        self.web.stdHtml(self._body % self._centerLinks(), css=["toolbar.css"])
         self.web.adjustHeightToFit()
 
     # Available links
@@ -44,9 +42,13 @@ class Toolbar:
     def _linkHTML(self, links):
         buf = ""
         for ln, name, title in links:
-            buf += '''
-            <a class=hitem tabindex="-1" aria-label="%s" title="%s" href=# onclick="return pycmd('%s')">%s</a>''' % (
-                name, title, ln, name)
+            buf += """
+            <a class=hitem tabindex="-1" aria-label="%s" title="%s" href=# onclick="return pycmd('%s')">%s</a>""" % (
+                name,
+                title,
+                ln,
+                name,
+            )
         return buf
 
     # Link handling
@@ -92,8 +94,10 @@ class Toolbar:
 </center>
 """
 
+
 # Bottom bar
 ######################################################################
+
 
 class BottomBar(Toolbar):
 
@@ -105,6 +109,6 @@ class BottomBar(Toolbar):
     def draw(self, buf):
         self.web.onBridgeCmd = self._linkHandler
         self.web.stdHtml(
-            self._centerBody % buf,
-            css=["toolbar.css", "toolbar-bottom.css"])
+            self._centerBody % buf, css=["toolbar.css", "toolbar-bottom.css"]
+        )
         self.web.adjustHeightToFit()

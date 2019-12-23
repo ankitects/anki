@@ -35,8 +35,9 @@ import sys
 import tempfile
 import threading
 import time
-from distutils.spawn import \
-    find_executable  # pylint: disable=import-error,no-name-in-module
+from distutils.spawn import (  # pylint: disable=import-error,no-name-in-module
+    find_executable,
+)
 from queue import Empty, Full, Queue
 from typing import Dict, Optional
 
@@ -46,28 +47,35 @@ from anki.utils import isWin
 class MPVError(Exception):
     pass
 
+
 class MPVProcessError(MPVError):
     pass
+
 
 class MPVCommunicationError(MPVError):
     pass
 
+
 class MPVCommandError(MPVError):
     pass
+
 
 class MPVTimeoutError(MPVError):
     pass
 
+
 if isWin:
     # pylint: disable=import-error
-    import win32file, win32pipe, pywintypes, winerror # pytype: disable=import-error
+    import win32file, win32pipe, pywintypes, winerror  # pytype: disable=import-error
+
+
 class MPVBase:
     """Base class for communication with the mpv media player via unix socket
        based JSON IPC.
     """
 
     executable = find_executable("mpv")
-    popenEnv: Optional[Dict[str,str]] = None
+    popenEnv: Optional[Dict[str, str]] = None
 
     default_argv = [
         "--idle",
@@ -143,18 +151,24 @@ class MPVBase:
            startup.
         """
         start = time.time()
-        while self.is_running() and time.time() < start+10:
+        while self.is_running() and time.time() < start + 10:
             time.sleep(0.1)
 
             if isWin:
                 # named pipe
                 try:
-                    self._sock = win32file.CreateFile(r'\\.\pipe\ankimpv',
-                                                      win32file.GENERIC_READ | win32file.GENERIC_WRITE,
-                                                      0, None, win32file.OPEN_EXISTING, 0, None)
-                    win32pipe.SetNamedPipeHandleState(self._sock,
-                                                      1, # PIPE_NOWAIT
-                                                      None, None)
+                    self._sock = win32file.CreateFile(
+                        r"\\.\pipe\ankimpv",
+                        win32file.GENERIC_READ | win32file.GENERIC_WRITE,
+                        0,
+                        None,
+                        win32file.OPEN_EXISTING,
+                        0,
+                        None,
+                    )
+                    win32pipe.SetNamedPipeHandleState(
+                        self._sock, 1, None, None  # PIPE_NOWAIT
+                    )
                 except pywintypes.error as err:
                     if err.args[0] == winerror.ERROR_FILE_NOT_FOUND:
                         pass
@@ -237,8 +251,8 @@ class MPVBase:
 
             newline = buf.find(b"\n")
             while newline >= 0:
-                data = buf[:newline + 1]
-                buf = buf[newline + 1:]
+                data = buf[: newline + 1]
+                buf = buf[newline + 1 :]
 
                 if self.debug:
                     sys.stdout.write("<<< " + data.decode("utf8", "replace"))
@@ -328,7 +342,9 @@ class MPVBase:
            specific data is returned.
         """
         try:
-            message = self._response_queues[self._thread_id()].get(block=True, timeout=timeout)
+            message = self._response_queues[self._thread_id()].get(
+                block=True, timeout=timeout
+            )
         except Empty:
             raise MPVTimeoutError("unable to get response")
 
@@ -360,7 +376,7 @@ class MPVBase:
             if _retry:
                 print("mpv timed out, restarting")
                 self._stop_process()
-                return self._send_request(message, timeout, _retry-1)
+                return self._send_request(message, timeout, _retry - 1)
             else:
                 raise
 
@@ -547,7 +563,9 @@ class MPV(MPVBase):
         try:
             callbacks.remove(callback)
         except ValueError:
-            raise MPVError("callback %r not registered for property %r" % (callback, name))
+            raise MPVError(
+                "callback %r not registered for property %r" % (callback, name)
+            )
 
         serial = self._property_serials.pop((name, callback))
         self.command("unobserve_property", serial)

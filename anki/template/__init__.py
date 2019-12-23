@@ -1,9 +1,12 @@
 from typing import Any
 
+from . import furigana, hint
 from .template import Template
 
-from . import furigana; furigana.install()
-from . import hint; hint.install()
+furigana.install()
+
+hint.install()
+
 
 def render(template, context=None, **kwargs) -> Any:
     context = context and context.copy() or {}
