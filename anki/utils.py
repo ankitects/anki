@@ -498,7 +498,7 @@ def versionWithBuild() -> str:
     from anki import version
 
     try:
-        from anki.buildhash import build  # type: ignore
+        from anki.buildhash import build  # type: ignore # pylint: disable=import-error
     except:
         build = "dev"
     return "%s (%s)" % (version, build)
