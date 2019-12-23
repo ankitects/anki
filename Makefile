@@ -7,6 +7,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 RUNARGS :=
 .SUFFIXES:
+BLACKARGS := -t py36 anki aqt
 
 $(shell mkdir -p .build)
 
@@ -112,7 +113,7 @@ run: build
 ######################
 
 .PHONY: check
-check: mypy pyimports pytest pylint checkpretty
+check: mypy pyimports pyfmt pytest pylint checkpretty
 
 # Checking python
 ######################
@@ -132,24 +133,32 @@ PYCHECKDEPS := $(BUILDDEPS) .build/pycheckreqs $(shell find anki aqt -name '*.py
 	touch $@
 
 .build/pyimports: $(PYCHECKDEPS)
-	isort -rc anki aqt --check # if this fails, run 'make fixpyimports'
+	isort anki aqt --check # if this fails, run 'make fixpyimports'
+	touch $@
+
+.build/pyfmt: $(PYCHECKDEPS)
+	black --check $(BLACKARGS) # if this fails, run 'make fixpyfmt'
 	touch $@
 
 .build/pytype: $(PYCHECKDEPS) .build/pytypereqs
 	pytype --config pytype.conf
 	touch $@
 
-.PHONY: mypy pytest pylint pytype pyimports fixpyimports
+.PHONY: mypy pytest pylint pytype pyimports pyfmt
 mypy: .build/mypy
 pytest: .build/pytest
 pylint: .build/pylint
 pytype: .build/pytype
 pyimports: .build/pyimports
+pyfmt: .build/pyfmt
 
-.PHONY: fixpyimports
+.PHONY: fixpyimports fixpyfmt
 
 fixpyimports:
-	isort -rc anki aqt
+	isort anki aqt
+
+fixpyfmt:
+	black $(BLACKARGS) anki aqt
 
 # Checking typescript
 ######################

@@ -2,4 +2,6 @@ nose
 mock
 mypy==0.750
 pylint
-isort
+# fixme: when isort 5.0 is released, switch to pypy
+git+https://github.com/dae/isort
+black
