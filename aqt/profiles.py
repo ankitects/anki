@@ -29,7 +29,7 @@ metaConf = dict(
     ver=0,
     updates=True,
     created=intTime(),
-    id=random.randrange(0, 2**63),
+    id=random.randrange(0, 2 ** 63),
     lastMsg=-1,
     suppressUpdate=False,
     firstRun=True,
@@ -37,7 +37,7 @@ metaConf = dict(
     disabledAddons=[],
 )
 
-profileConf: Dict[str,Any] = dict(
+profileConf: Dict[str, Any] = dict(
     # profile
     mainWindowGeom=None,
     mainWindowState=None,
@@ -61,12 +61,13 @@ profileConf: Dict[str,Any] = dict(
     importMode=1,
 )
 
+
 class LoadMetaResult:
     firstTime: bool
     loadError: bool
 
-class ProfileManager:
 
+class ProfileManager:
     def __init__(self, base=None):
         self.name = None
         self.db = None
@@ -102,11 +103,15 @@ class ProfileManager:
             # can't translate, as lang not initialized, and qt may not be
             print("unable to create base folder")
             QMessageBox.critical(
-                None, "Error", """\
+                None,
+                "Error",
+                """\
 Anki could not create the folder %s. Please ensure that location is not \
 read-only and you have permission to write to it. If you cannot fix this \
 issue, please see the documentation for information on running Anki from \
-a flash drive.""" % self.base)
+a flash drive."""
+                % self.base,
+            )
             raise
 
     # Folder migration
@@ -117,6 +122,7 @@ a flash drive.""" % self.base)
             return os.path.expanduser("~/Documents/Anki")
         elif isWin:
             from aqt.winpaths import get_personal
+
             return os.path.join(get_personal(), "Anki")
         else:
             p = os.path.expanduser("~/Anki")
@@ -149,20 +155,23 @@ a flash drive.""" % self.base)
             def find_class(self, module, name):
                 if module == "PyQt5.sip":
                     try:
-                        import PyQt5.sip # type: ignore # pylint: disable=unused-import
+                        import PyQt5.sip  # type: ignore # pylint: disable=unused-import
                     except:
                         # use old sip location
                         module = "sip"
                 fn = super().find_class(module, name)
                 if module == "sip" and name == "_unpickle_type":
+
                     def wrapper(mod, obj, args):
                         if mod.startswith("PyQt4") and obj == "QByteArray":
                             # can't trust str objects from python 2
                             return QByteArray()
                         return fn(mod, obj, args)
+
                     return wrapper
                 else:
                     return fn
+
         up = Unpickler(io.BytesIO(data), errors="ignore")
         return up.load()
 
@@ -171,15 +180,22 @@ a flash drive.""" % self.base)
 
     def load(self, name):
         assert name != "_global"
-        data = self.db.scalar("select cast(data as blob) from profiles where name = ?", name)
+        data = self.db.scalar(
+            "select cast(data as blob) from profiles where name = ?", name
+        )
         self.name = name
         try:
             self.profile = self._unpickle(data)
         except:
             QMessageBox.warning(
-                None, _("Profile Corrupt"), _("""\
+                None,
+                _("Profile Corrupt"),
+                _(
+                    """\
 Anki could not read your profile data. Window sizes and your sync login \
-details have been forgotten."""))
+details have been forgotten."""
+                ),
+            )
 
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
@@ -194,8 +210,9 @@ details have been forgotten."""))
 
     def create(self, name):
         prof = profileConf.copy()
-        self.db.execute("insert or ignore into profiles values (?, ?)",
-                        name, self._pickle(prof))
+        self.db.execute(
+            "insert or ignore into profiles values (?, ?)", name, self._pickle(prof)
+        )
         self.db.commit()
 
     def remove(self, name):
@@ -216,17 +233,17 @@ details have been forgotten."""))
         self.name = name
         newFolder = self.profileFolder(create=False)
         if os.path.exists(newFolder):
-            if (oldFolder != newFolder) and (
-                    oldFolder.lower() == newFolder.lower()):
+            if (oldFolder != newFolder) and (oldFolder.lower() == newFolder.lower()):
                 # OS is telling us the folder exists because it does not take
                 # case into account; use a temporary folder location
-                midFolder = ''.join([oldFolder, '-temp'])
+                midFolder = "".join([oldFolder, "-temp"])
                 if not os.path.exists(midFolder):
                     os.rename(oldFolder, midFolder)
                     oldFolder = midFolder
                 else:
-                    showWarning(_("Please remove the folder %s and try again.")
-                            % midFolder)
+                    showWarning(
+                        _("Please remove the folder %s and try again.") % midFolder
+                    )
                     self.name = oldName
                     return
             else:
@@ -235,18 +252,21 @@ details have been forgotten."""))
                 return
 
         # update name
-        self.db.execute("update profiles set name = ? where name = ?",
-                        name, oldName)
+        self.db.execute("update profiles set name = ? where name = ?", name, oldName)
         # rename folder
         try:
             os.rename(oldFolder, newFolder)
         except Exception as e:
             self.db.rollback()
             if "WinError 5" in str(e):
-                showWarning(_("""\
+                showWarning(
+                    _(
+                        """\
 Anki could not rename your profile because it could not rename the profile \
 folder on disk. Please ensure you have permission to write to Documents/Anki \
-and no other programs are accessing your profile folders, then try again."""))
+and no other programs are accessing your profile folders, then try again."""
+                    )
+                )
             else:
                 raise
         except:
@@ -268,8 +288,7 @@ and no other programs are accessing your profile folders, then try again."""))
         return self._ensureExists(os.path.join(self.base, "addons21"))
 
     def backupFolder(self):
-        return self._ensureExists(
-            os.path.join(self.profileFolder(), "backups"))
+        return self._ensureExists(os.path.join(self.profileFolder(), "backups"))
 
     def collectionPath(self):
         return os.path.join(self.profileFolder(), "collection.anki2")
@@ -295,17 +314,19 @@ and no other programs are accessing your profile folders, then try again."""))
     def _defaultBase(self):
         if isWin:
             from aqt.winpaths import get_appdata
+
             return os.path.join(get_appdata(), "Anki2")
         elif isMac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
         else:
             dataDir = os.environ.get(
-                "XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+                "XDG_DATA_HOME", os.path.expanduser("~/.local/share")
+            )
             if not os.path.exists(dataDir):
                 os.makedirs(dataDir)
             return os.path.join(dataDir, "Anki2")
 
-    def _loadMeta(self, retrying = False) -> LoadMetaResult:
+    def _loadMeta(self, retrying=False) -> LoadMetaResult:
         result = LoadMetaResult()
         result.firstTime = False
         result.loadError = retrying
@@ -316,6 +337,7 @@ and no other programs are accessing your profile folders, then try again."""))
             shutil.copy(opath, path)
 
         result.firstTime = not os.path.exists(path)
+
         def recover():
             # if we can't load profile, start with a new one
             if self.db:
@@ -332,11 +354,14 @@ and no other programs are accessing your profile folders, then try again."""))
         try:
             self.db = DB(path)
             assert self.db.scalar("pragma integrity_check") == "ok"
-            self.db.execute("""
+            self.db.execute(
+                """
 create table if not exists profiles
-(name text primary key, data text not null);""")
+(name text primary key, data text not null);"""
+            )
             data = self.db.scalar(
-                "select cast(data as blob) from profiles where name = '_global'")
+                "select cast(data as blob) from profiles where name = '_global'"
+            )
         except:
             if result.loadError:
                 # already failed, prevent infinite loop
@@ -356,8 +381,10 @@ create table if not exists profiles
 
         # if new or read failed, create a default global profile
         self.meta = metaConf.copy()
-        self.db.execute("insert or replace into profiles values ('_global', ?)",
-                        self._pickle(metaConf))
+        self.db.execute(
+            "insert or replace into profiles values ('_global', ?)",
+            self._pickle(metaConf),
+        )
         self._setDefaultLang()
         return result
 
@@ -365,13 +392,18 @@ create table if not exists profiles
         "Create a new profile if none exists."
         self.create(_("User 1"))
         p = os.path.join(self.base, "README.txt")
-        open(p, "w", encoding="utf8").write(_("""\
+        open(p, "w", encoding="utf8").write(
+            _(
+                """\
 This folder stores all of your Anki data in a single location,
 to make backups easy. To tell Anki to use a different location,
 please see:
 
 %s
-""") % (appHelpSite +  "#startupopts"))
+"""
+            )
+            % (appHelpSite + "#startupopts")
+        )
 
     # Default language
     ######################################################################
@@ -382,6 +414,7 @@ please see:
         class NoCloseDiag(QDialog):
             def reject(self):
                 pass
+
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
         f.setupUi(d)
@@ -416,14 +449,14 @@ please see:
         name = obj[0]
         en = "Are you sure you wish to display Anki's interface in %s?"
         r = QMessageBox.question(
-            None, "Anki", en%name, QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No)
+            None, "Anki", en % name, QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
         if r != QMessageBox.Yes:
             return self._setDefaultLang()
         self.setLang(code)
 
     def setLang(self, code):
-        self.meta['defaultLang'] = code
+        self.meta["defaultLang"] = code
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()

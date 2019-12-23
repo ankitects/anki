@@ -41,13 +41,14 @@ class TextImporter(NoteImporter):
             for row in reader:
                 if len(row) != self.numFields:
                     if row:
-                        log.append(_(
-                            "'%(row)s' had %(num1)d fields, "
-                            "expected %(num2)d") % {
-                            "row": " ".join(row),
-                            "num1": len(row),
-                            "num2": self.numFields,
-                            })
+                        log.append(
+                            _("'%(row)s' had %(num1)d fields, " "expected %(num2)d")
+                            % {
+                                "row": " ".join(row),
+                                "num1": len(row),
+                                "num2": self.numFields,
+                            }
+                        )
                         ignored += 1
                     continue
                 note = self.noteFromFields(row)
@@ -71,11 +72,15 @@ class TextImporter(NoteImporter):
 
     def openFile(self) -> None:
         self.dialect = None
-        self.fileobj = open(self.file, "r", encoding='utf-8-sig')
+        self.fileobj = open(self.file, "r", encoding="utf-8-sig")
         self.data = self.fileobj.read()
+
         def sub(s):
             return re.sub(r"^\#.*$", "__comment", s)
-        self.data = [sub(x)+"\n" for x in self.data.split("\n") if sub(x) != "__comment"]
+
+        self.data = [
+            sub(x) + "\n" for x in self.data.split("\n") if sub(x) != "__comment"
+        ]
         if self.data:
             if self.data[0].startswith("tags:"):
                 tags = str(self.data[0][5:]).strip()
@@ -88,12 +93,12 @@ class TextImporter(NoteImporter):
     def updateDelimiter(self) -> None:
         def err():
             raise Exception("unknownFormat")
+
         self.dialect = None
         sniffer = csv.Sniffer()
         if not self.delimiter:
             try:
-                self.dialect = sniffer.sniff("\n".join(self.data[:10]),
-                                             self.patterns)
+                self.dialect = sniffer.sniff("\n".join(self.data[:10]), self.patterns)
             except:
                 try:
                     self.dialect = sniffer.sniff(self.data[0], self.patterns)

@@ -4,14 +4,23 @@
 
 from typing import Any, List, Optional, Tuple
 
-from anki.utils import (fieldChecksum, guid64, intTime, joinFields,
-                        splitFields, stripHTMLMedia, timestampID)
+from anki.utils import (
+    fieldChecksum,
+    guid64,
+    intTime,
+    joinFields,
+    splitFields,
+    stripHTMLMedia,
+    timestampID,
+)
 
 
 class Note:
     tags: List[str]
 
-    def __init__(self, col, model: Optional[Any] = None, id: Optional[int] = None) -> None:
+    def __init__(
+        self, col, model: Optional[Any] = None, id: Optional[int] = None
+    ) -> None:
         assert not (model and id)
         self.col = col
         self.newlyAdded = False
@@ -22,25 +31,30 @@ class Note:
             self.id = timestampID(col.db, "notes")
             self.guid = guid64()
             self._model = model
-            self.mid = model['id']
+            self.mid = model["id"]
             self.tags = []
-            self.fields = [""] * len(self._model['flds'])
+            self.fields = [""] * len(self._model["flds"])
             self.flags = 0
             self.data = ""
             self._fmap = self.col.models.fieldMap(self._model)
             self.scm = self.col.scm
 
     def load(self) -> None:
-        (self.guid,
-         self.mid,
-         self.mod,
-         self.usn,
-         self.tags,
-         fields,
-         self.flags,
-         self.data) = self.col.db.first("""
+        (
+            self.guid,
+            self.mid,
+            self.mod,
+            self.usn,
+            self.tags,
+            fields,
+            self.flags,
+            self.data,
+        ) = self.col.db.first(
+            """
 select guid, mid, mod, usn, tags, flds, flags, data
-from notes where id = ?""", self.id)
+from notes where id = ?""",
+            self.id,
+        )
         self.fields = splitFields(fields)
         self.tags = self.col.tags.split(self.tags)
         self._model = self.col.models.get(self.mid)
@@ -56,17 +70,29 @@ from notes where id = ?""", self.id)
         fields = self.joinedFields()
         if not mod and self.col.db.scalar(
             "select 1 from notes where id = ? and tags = ? and flds = ?",
-            self.id, tags, fields):
+            self.id,
+            tags,
+            fields,
+        ):
             return
         csum = fieldChecksum(self.fields[0])
         self.mod = mod if mod else intTime()
         self.usn = self.col.usn()
-        res = self.col.db.execute("""
+        res = self.col.db.execute(
+            """
 insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
-                            self.id, self.guid, self.mid,
-                            self.mod, self.usn, tags,
-                            fields, sfld, csum, self.flags,
-                            self.data)
+            self.id,
+            self.guid,
+            self.mid,
+            self.mod,
+            self.usn,
+            tags,
+            fields,
+            sfld,
+            csum,
+            self.flags,
+            self.data,
+        )
         self.col.tags.register(self.tags)
         self._postFlush()
 
@@ -74,8 +100,12 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         return joinFields(self.fields)
 
     def cards(self) -> List:
-        return [self.col.getCard(id) for id in self.col.db.list(
-            "select id from cards where nid = ? order by ord", self.id)]
+        return [
+            self.col.getCard(id)
+            for id in self.col.db.list(
+                "select id from cards where nid = ? order by ord", self.id
+            )
+        ]
 
     def model(self) -> Any:
         return self._model
@@ -90,8 +120,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         return self.fields
 
     def items(self) -> List[Tuple[Any, Any]]:
-        return [(f['name'], self.fields[ord])
-                for ord, f in sorted(self._fmap.values())]
+        return [(f["name"], self.fields[ord]) for ord, f in sorted(self._fmap.values())]
 
     def _fieldOrd(self, key: str) -> Any:
         try:
@@ -144,9 +173,11 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         # find any matching csums and compare
         for flds in self.col.db.list(
             "select flds from notes where csum = ? and id != ? and mid = ?",
-            csum, self.id or 0, self.mid):
-            if stripHTMLMedia(
-                splitFields(flds)[0]) == stripHTMLMedia(self.fields[0]):
+            csum,
+            self.id or 0,
+            self.mid,
+        ):
+            if stripHTMLMedia(splitFields(flds)[0]) == stripHTMLMedia(self.fields[0]):
                 return 2
         return False
 
@@ -156,7 +187,8 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     def _preFlush(self) -> None:
         # have we been added yet?
         self.newlyAdded = not self.col.db.scalar(
-            "select 1 from cards where nid = ?", self.id)
+            "select 1 from cards where nid = ?", self.id
+        )
 
     def _postFlush(self) -> None:
         # generate missing cards
@@ -165,4 +197,4 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
             # popping up a dialog while editing is confusing; instead we can
             # document that the user should open the templates window to
             # garbage collect empty cards
-            #self.col.remEmptyCards(ids)
+            # self.col.remEmptyCards(ids)

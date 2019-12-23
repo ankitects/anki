@@ -6,14 +6,24 @@ import aqt
 from anki.hooks import addHook, remHook
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import (getOnlyText, openHelp, restoreGeom, saveGeom, shortcut,
-                       showInfo)
+from aqt.utils import getOnlyText, openHelp, restoreGeom, saveGeom, shortcut, showInfo
 
 
 class StudyDeck(QDialog):
-    def __init__(self, mw, names=None, accept=None, title=None,
-                 help="studydeck", current=None, cancel=True,
-                 parent=None, dyn=False, buttons=None, geomKey="default"):
+    def __init__(
+        self,
+        mw,
+        names=None,
+        accept=None,
+        title=None,
+        help="studydeck",
+        current=None,
+        cancel=True,
+        parent=None,
+        dyn=False,
+        buttons=None,
+        geomKey="default",
+    ):
         QDialog.__init__(self, parent or mw)
         if buttons is None:
             buttons = []
@@ -22,12 +32,13 @@ class StudyDeck(QDialog):
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
         self.cancel = cancel
-        addHook('reset', self.onReset)
-        self.geomKey = "studyDeck-"+geomKey
+        addHook("reset", self.onReset)
+        self.geomKey = "studyDeck-" + geomKey
         restoreGeom(self, self.geomKey)
         if not cancel:
             self.form.buttonBox.removeButton(
-                self.form.buttonBox.button(QDialogButtonBox.Cancel))
+                self.form.buttonBox.button(QDialogButtonBox.Cancel)
+            )
         if buttons:
             for b in buttons:
                 self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
@@ -48,7 +59,8 @@ class StudyDeck(QDialog):
             self.origNames = names()
         self.name = None
         self.ok = self.form.buttonBox.addButton(
-            accept or _("Study"), QDialogButtonBox.AcceptRole)
+            accept or _("Study"), QDialogButtonBox.AcceptRole
+        )
         self.setWindowModality(Qt.WindowModal)
         self.form.buttonBox.helpRequested.connect(lambda: openHelp(help))
         self.form.filter.textEdited.connect(self.redraw)
@@ -108,7 +120,7 @@ class StudyDeck(QDialog):
 
     def accept(self):
         saveGeom(self, self.geomKey)
-        remHook('reset', self.onReset)
+        remHook("reset", self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
             showInfo(_("Please select something."))
@@ -118,7 +130,7 @@ class StudyDeck(QDialog):
 
     def reject(self):
         saveGeom(self, self.geomKey)
-        remHook('reset', self.onReset)
+        remHook("reset", self.onReset)
         QDialog.reject(self)
 
     def onAddDeck(self):
@@ -132,5 +144,5 @@ class StudyDeck(QDialog):
             self.mw.col.decks.id(n)
             self.name = n
             # make sure we clean up reset hook when manually exiting
-            remHook('reset', self.onReset)
+            remHook("reset", self.onReset)
             QDialog.accept(self)

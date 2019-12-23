@@ -58,7 +58,7 @@ class MediaManager:
     def connect(self) -> None:
         if self.col.server:
             return
-        path = self.dir()+".db2"
+        path = self.dir() + ".db2"
         create = not os.path.exists(path)
         os.chdir(self._dir)
         self.db = DB(path)
@@ -67,7 +67,8 @@ class MediaManager:
         self.maybeUpgrade()
 
     def _initDB(self) -> None:
-        self.db.executescript("""
+        self.db.executescript(
+            """
 create table media (
  fname text not null primary key,
  csum text,           -- null indicates deleted file
@@ -78,29 +79,34 @@ create table media (
 create index idx_media_dirty on media (dirty);
 
 create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
-""")
+"""
+        )
 
     def maybeUpgrade(self) -> None:
-        oldpath = self.dir()+".db"
+        oldpath = self.dir() + ".db"
         if os.path.exists(oldpath):
             self.db.execute('attach "../collection.media.db" as old')
             try:
-                self.db.execute("""
+                self.db.execute(
+                    """
     insert into media
      select m.fname, csum, mod, ifnull((select 1 from log l2 where l2.fname=m.fname), 0) as dirty
      from old.media m
      left outer join old.log l using (fname)
      union
-     select fname, null, 0, 1 from old.log where type=1;""")
+     select fname, null, 0, 1 from old.log where type=1;"""
+                )
                 self.db.execute("delete from meta")
-                self.db.execute("""
+                self.db.execute(
+                    """
     insert into meta select dirMod, usn from old.meta
-    """)
+    """
+                )
                 self.db.commit()
             except Exception as e:
                 # if we couldn't import the old db for some reason, just start
                 # anew
-                self.col.log("failed to import old media db:"+traceback.format_exc())
+                self.col.log("failed to import old media db:" + traceback.format_exc())
             self.db.execute("detach old")
             npath = "../collection.media.db.old"
             if os.path.exists(npath):
@@ -133,7 +139,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if not isWin:
             return False
         # pylint: disable=import-error
-        import win32api, win32file # pytype: disable=import-error
+        import win32api, win32file  # pytype: disable=import-error
+
         try:
             name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
         except:
@@ -172,9 +179,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         # ensure it's a valid filename
         base = self.cleanFilename(fname)
         (root, ext) = os.path.splitext(base)
+
         def repl(match):
             n = int(match.group(1))
-            return " (%d)" % (n+1)
+            return " (%d)" % (n + 1)
+
         # find the first available name
         csum = checksum(data)
         while True:
@@ -199,11 +208,13 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # String manipulation
     ##########################################################################
 
-    def filesInStr(self, mid: Union[int, str], string: str, includeRemote: bool = False) -> List[str]:
+    def filesInStr(
+        self, mid: Union[int, str], string: str, includeRemote: bool = False
+    ) -> List[str]:
         l = []
         model = self.col.models.get(mid)
         strings: List[str] = []
-        if model['type'] == MODEL_CLOZE and "{{c" in string:
+        if model["type"] == MODEL_CLOZE and "{{c" in string:
             # if the field has clozes in it, we'll need to expand the
             # possibilities so we can render latex
             strings = self._expandClozes(string)
@@ -225,18 +236,21 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         strings = []
         from anki.template.template import clozeReg
+
         def qrepl(m):
             if m.group(4):
                 return "[%s]" % m.group(4)
             else:
                 return "[...]"
+
         def arepl(m):
             return m.group(2)
+
         for ord in ords:
-            s = re.sub(clozeReg%ord, qrepl, string)
-            s = re.sub(clozeReg%".+?", "\\2", s)
+            s = re.sub(clozeReg % ord, qrepl, string)
+            s = re.sub(clozeReg % ".+?", "\\2", s)
             strings.append(s)
-        strings.append(re.sub(clozeReg%".+?", arepl, string))
+        strings.append(re.sub(clozeReg % ".+?", arepl, string))
         return strings
 
     def transformNames(self, txt: str, func: Callable) -> Any:
@@ -255,12 +269,14 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             fn = urllib.parse.unquote
         else:
             fn = urllib.parse.quote
+
         def repl(match):
             tag = match.group(0)
             fname = match.group("fname")
             if re.match("(https?|ftp)://", fname):
                 return tag
             return tag.replace(fname, fn(fname))
+
         for reg in self.imgRegexps:
             string = re.sub(reg, repl, string)
         return string
@@ -268,7 +284,9 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     # Rebuilding DB
     ##########################################################################
 
-    def check(self, local: Optional[List[str]] = None) -> Tuple[List[str],List[str],List[str]]:
+    def check(
+        self, local: Optional[List[str]] = None
+    ) -> Tuple[List[str], List[str], List[str]]:
         "Return (missingFiles, unusedFiles)."
         mdir = self.dir()
         # gather all media references in NFC form
@@ -305,8 +323,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if self.hasIllegal(file):
                 name = file.encode(sys.getfilesystemencoding(), errors="replace")
                 name = str(name, sys.getfilesystemencoding())
-                warnings.append(
-                    _("Invalid file name, please rename: %s") % name)
+                warnings.append(_("Invalid file name, please rename: %s") % name)
                 continue
 
             nfcFile = unicodedata.normalize("NFC", file)
@@ -339,7 +356,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
         if dirFound:
             warnings.append(
-                _("Anki does not support files in subfolders of the collection.media folder."))
+                _(
+                    "Anki does not support files in subfolders of the collection.media folder."
+                )
+            )
         return (nohave, unused, warnings)
 
     def _normalizeNoteRefs(self, nid) -> None:
@@ -416,7 +436,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             headmax = namemax - len(ext)
             head = head[0:headmax]
             fname = head + ext
-            assert(len(fname) <= namemax)
+            assert len(fname) <= namemax
 
         return fname
 
@@ -455,15 +475,15 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         for f in removed:
             media.append((f, None, 0, 1))
         # update media db
-        self.db.executemany("insert or replace into media values (?,?,?,?)",
-                            media)
+        self.db.executemany("insert or replace into media values (?,?,?,?)", media)
         self.db.execute("update meta set dirMod = ?", self._mtime(self.dir()))
         self.db.commit()
 
     def _changes(self) -> Tuple[List[Tuple[str, int]], List[str]]:
         self.cache: Dict[str, Any] = {}
         for (name, csum, mod) in self.db.execute(
-            "select fname, csum, mtime from media where csum is not null"):
+            "select fname, csum, mtime from media where csum is not null"
+        ):
             # previous entries may not have been in NFC form
             normname = unicodedata.normalize("NFC", name)
             self.cache[normname] = [csum, mod, False]
@@ -485,7 +505,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 if not sz:
                     os.unlink(f.name)
                     continue
-                if sz > 100*1024*1024:
+                if sz > 100 * 1024 * 1024:
                     self.col.log("ignoring file over 100MB", f.name)
                     continue
                 # check encoding
@@ -530,14 +550,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.db.commit()
 
     def syncInfo(self, fname) -> Any:
-        ret = self.db.first(
-            "select csum, dirty from media where fname=?", fname)
+        ret = self.db.first("select csum, dirty from media where fname=?", fname)
         return ret or (None, 0)
 
     def markClean(self, fnames) -> None:
         for fname in fnames:
-            self.db.execute(
-                "update media set dirty=0 where fname=?", fname)
+            self.db.execute("update media set dirty=0 where fname=?", fname)
 
     def syncDelete(self, fname) -> None:
         if os.path.exists(fname):
@@ -545,12 +563,10 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         self.db.execute("delete from media where fname=?", fname)
 
     def mediaCount(self) -> Any:
-        return self.db.scalar(
-            "select count() from media where csum is not null")
+        return self.db.scalar("select count() from media where csum is not null")
 
     def dirtyCount(self) -> Any:
-        return self.db.scalar(
-            "select count() from media where dirty=1")
+        return self.db.scalar("select count() from media where dirty=1")
 
     def forceResync(self) -> None:
         self.db.execute("delete from media")
@@ -574,9 +590,12 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         meta = []
         sz = 0
 
-        for c, (fname, csum) in enumerate(self.db.execute(
-                        "select fname, csum from media where dirty=1"
-                        " limit %d"%SYNC_ZIP_COUNT)):
+        for c, (fname, csum) in enumerate(
+            self.db.execute(
+                "select fname, csum from media where dirty=1"
+                " limit %d" % SYNC_ZIP_COUNT
+            )
+        ):
 
             fnames.append(fname)
             normname = unicodedata.normalize("NFC", fname)
@@ -617,12 +636,11 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                 # normalize name
                 name = unicodedata.normalize("NFC", name)
                 # save file
-                with open(name, "wb") as f: # type: ignore
+                with open(name, "wb") as f:  # type: ignore
                     f.write(data)
                 # update db
                 media.append((name, csum, self._mtime(name), 0))
                 cnt += 1
         if media:
-            self.db.executemany(
-                "insert or replace into media values (?,?,?,?)", media)
+            self.db.executemany("insert or replace into media values (?,?,?,?)", media)
         return cnt

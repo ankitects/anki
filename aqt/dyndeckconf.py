@@ -20,12 +20,11 @@ class DeckConf(QDialog):
             label = _("Build")
         else:
             label = _("Rebuild")
-        self.ok = self.form.buttonBox.addButton(
-            label, QDialogButtonBox.AcceptRole)
+        self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(_("Options"))
         self.setWindowModality(Qt.WindowModal)
         self.form.buttonBox.helpRequested.connect(lambda: openHelp("filtered"))
-        self.setWindowTitle(_("Options for %s") % self.deck['name'])
+        self.setWindowTitle(_("Options for %s") % self.deck["name"])
         restoreGeom(self, "dyndeckconf")
         self.initialSetup()
         self.loadConf()
@@ -43,28 +42,30 @@ class DeckConf(QDialog):
 
     def initialSetup(self):
         import anki.consts as cs
+
         self.form.order.addItems(list(cs.dynOrderLabels().values()))
         self.form.order_2.addItems(list(cs.dynOrderLabels().values()))
 
         self.form.resched.stateChanged.connect(self._onReschedToggled)
 
     def _onReschedToggled(self, _state):
-        self.form.previewDelayWidget.setVisible(not self.form.resched.isChecked()
-                                                and self.mw.col.schedVer() > 1)
+        self.form.previewDelayWidget.setVisible(
+            not self.form.resched.isChecked() and self.mw.col.schedVer() > 1
+        )
 
     def loadConf(self):
         f = self.form
         d = self.deck
 
-        f.resched.setChecked(d['resched'])
+        f.resched.setChecked(d["resched"])
         self._onReschedToggled(0)
 
-        search, limit, order = d['terms'][0]
+        search, limit, order = d["terms"][0]
         f.search.setText(search)
 
         if self.mw.col.schedVer() == 1:
-            if d['delays']:
-                f.steps.setText(self.listToUser(d['delays']))
+            if d["delays"]:
+                f.steps.setText(self.listToUser(d["delays"]))
                 f.stepsOn.setChecked(True)
         else:
             f.steps.setVisible(False)
@@ -74,8 +75,8 @@ class DeckConf(QDialog):
         f.limit.setValue(limit)
         f.previewDelay.setValue(d.get("previewDelay", 10))
 
-        if len(d['terms']) > 1:
-            search, limit, order = d['terms'][1]
+        if len(d["terms"]) > 1:
+            search, limit, order = d["terms"][1]
             f.search_2.setText(search)
             f.order_2.setCurrentIndex(order)
             f.limit_2.setValue(limit)
@@ -90,29 +91,25 @@ class DeckConf(QDialog):
     def saveConf(self):
         f = self.form
         d = self.deck
-        d['resched'] = f.resched.isChecked()
-        d['delays'] = None
+        d["resched"] = f.resched.isChecked()
+        d["delays"] = None
 
         if self.mw.col.schedVer() == 1 and f.stepsOn.isChecked():
             steps = self.userToList(f.steps)
             if steps:
-                d['delays'] = steps
+                d["delays"] = steps
             else:
-                d['delays'] = None
+                d["delays"] = None
 
-        terms = [[
-            f.search.text(),
-            f.limit.value(),
-            f.order.currentIndex()]]
+        terms = [[f.search.text(), f.limit.value(), f.order.currentIndex()]]
 
         if f.secondFilter.isChecked():
-            terms.append([
-                f.search_2.text(),
-                f.limit_2.value(),
-                f.order_2.currentIndex()])
+            terms.append(
+                [f.search_2.text(), f.limit_2.value(), f.order_2.currentIndex()]
+            )
 
-        d['terms'] = terms
-        d['previewDelay'] = f.previewDelay.value()
+        d["terms"] = terms
+        d["previewDelay"] = f.previewDelay.value()
 
         self.mw.col.decks.save(d)
         return True
@@ -125,9 +122,13 @@ class DeckConf(QDialog):
         if not self.saveConf():
             return
         if not self.mw.col.sched.rebuildDyn():
-            if askUser(_("""\
+            if askUser(
+                _(
+                    """\
 The provided search did not match any cards. Would you like to revise \
-it?""")):
+it?"""
+                )
+            ):
                 return
         self.mw.reset()
         QDialog.accept(self)

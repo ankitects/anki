@@ -22,6 +22,7 @@ import decorator
 
 _hooks: Dict[str, List[Callable[..., Any]]] = {}
 
+
 def runHook(hook: str, *args) -> None:
     "Run all functions on hook."
     hookFuncs = _hooks.get(hook, None)
@@ -32,6 +33,7 @@ def runHook(hook: str, *args) -> None:
             except:
                 hookFuncs.remove(func)
                 raise
+
 
 def runFilter(hook: str, arg: Any, *args) -> Any:
     hookFuncs = _hooks.get(hook, None)
@@ -44,6 +46,7 @@ def runFilter(hook: str, arg: Any, *args) -> Any:
                 raise
     return arg
 
+
 def addHook(hook: str, func: Callable) -> None:
     "Add a function to hook. Ignore if already on hook."
     if not _hooks.get(hook, None):
@@ -51,17 +54,21 @@ def addHook(hook: str, func: Callable) -> None:
     if func not in _hooks[hook]:
         _hooks[hook].append(func)
 
+
 def remHook(hook, func) -> None:
     "Remove a function if is on hook."
     hook = _hooks.get(hook, [])
     if func in hook:
         hook.remove(func)
 
+
 # Instrumenting
 ##############################################################################
 
+
 def wrap(old, new, pos="after") -> Callable:
     "Override an existing function."
+
     def repl(*args, **kwargs):
         if pos == "after":
             old(*args, **kwargs)

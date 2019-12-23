@@ -14,12 +14,20 @@ from anki.sound import clearAudioQueue
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import (addCloseShortcut, askUser, downArrow, openHelp,
-                       restoreGeom, saveGeom, shortcut, showWarning, tooltip)
+from aqt.utils import (
+    addCloseShortcut,
+    askUser,
+    downArrow,
+    openHelp,
+    restoreGeom,
+    saveGeom,
+    shortcut,
+    showWarning,
+    tooltip,
+)
 
 
 class AddCards(QDialog):
-
     def __init__(self, mw: AnkiQt) -> None:
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
@@ -36,20 +44,17 @@ class AddCards(QDialog):
         self.history: List[int] = []
         self.previousNote = None
         restoreGeom(self, "add")
-        addHook('reset', self.onReset)
-        addHook('currentModelChanged', self.onModelChange)
+        addHook("reset", self.onReset)
+        addHook("currentModelChanged", self.onModelChange)
         addCloseShortcut(self)
         self.show()
 
     def setupEditor(self) -> None:
-        self.editor = aqt.editor.Editor(
-            self.mw, self.form.fieldsArea, self, True)
+        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
 
     def setupChoosers(self) -> None:
-        self.modelChooser = aqt.modelchooser.ModelChooser(
-            self.mw, self.form.modelArea)
-        self.deckChooser = aqt.deckchooser.DeckChooser(
-            self.mw, self.form.deckArea)
+        self.modelChooser = aqt.modelchooser.ModelChooser(self.mw, self.form.modelArea)
+        self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.form.deckArea)
 
     def helpRequested(self):
         openHelp("addingnotes")
@@ -67,13 +72,11 @@ class AddCards(QDialog):
         self.closeButton.setAutoDefault(False)
         bb.addButton(self.closeButton, QDialogButtonBox.RejectRole)
         # help
-        self.helpButton = QPushButton(_("Help"), clicked=self.helpRequested) # type: ignore
+        self.helpButton = QPushButton(_("Help"), clicked=self.helpRequested)  # type: ignore
         self.helpButton.setAutoDefault(False)
-        bb.addButton(self.helpButton,
-                                        QDialogButtonBox.HelpRole)
+        bb.addButton(self.helpButton, QDialogButtonBox.HelpRole)
         # history
-        b = bb.addButton(
-            _("History")+ " "+downArrow(), ar)
+        b = bb.addButton(_("History") + " " + downArrow(), ar)
         if isMac:
             sc = "Ctrl+Shift+H"
         else:
@@ -94,10 +97,10 @@ class AddCards(QDialog):
         if oldNote:
             oldFields = list(oldNote.keys())
             newFields = list(note.keys())
-            for n, f in enumerate(note.model()['flds']):
-                fieldName = f['name']
+            for n, f in enumerate(note.model()["flds"]):
+                fieldName = f["name"]
                 try:
-                    oldFieldName = oldNote.model()['flds'][n]['name']
+                    oldFieldName = oldNote.model()["flds"][n]["name"]
                 except IndexError:
                     oldFieldName = None
                 # copy identical fields
@@ -115,14 +118,14 @@ class AddCards(QDialog):
     def onReset(self, model: None = None, keep: bool = False) -> None:
         oldNote = self.editor.note
         note = self.mw.col.newNote()
-        flds = note.model()['flds']
+        flds = note.model()["flds"]
         # copy fields from old note
         if oldNote:
             if not keep:
                 self.removeTempNote(oldNote)
             for n in range(len(note.fields)):
                 try:
-                    if not keep or flds[n]['sticky']:
+                    if not keep or flds[n]["sticky"]:
                         note.fields[n] = oldNote.fields[n]
                     else:
                         note.fields[n] = ""
@@ -149,13 +152,13 @@ class AddCards(QDialog):
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
-                a = m.addAction(_("Edit \"%s\"") % txt)
+                a = m.addAction(_('Edit "%s"') % txt)
                 a.triggered.connect(lambda b, nid=nid: self.editHistory(nid))
             else:
                 a = m.addAction(_("(Note deleted)"))
                 a.setEnabled(False)
         runHook("AddCards.onHistory", self, m)
-        m.exec_(self.historyButton.mapToGlobal(QPoint(0,0)))
+        m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
     def editHistory(self, nid):
         browser = aqt.dialogs.open("Browser", self.mw)
@@ -163,24 +166,32 @@ class AddCards(QDialog):
         browser.onSearchActivated()
 
     def addNote(self, note):
-        note.model()['did'] = self.deckChooser.selectedId()
+        note.model()["did"] = self.deckChooser.selectedId()
         ret = note.dupeOrEmpty()
         if ret == 1:
-            showWarning(_(
-                "The first field is empty."),
-                help="AddItems#AddError")
+            showWarning(_("The first field is empty."), help="AddItems#AddError")
             return
-        if '{{cloze:' in note.model()['tmpls'][0]['qfmt']:
+        if "{{cloze:" in note.model()["tmpls"][0]["qfmt"]:
             if not self.mw.col.models._availClozeOrds(
-                    note.model(), note.joinedFields(), False):
-                if not askUser(_("You have a cloze deletion note type "
-                "but have not made any cloze deletions. Proceed?")):
+                note.model(), note.joinedFields(), False
+            ):
+                if not askUser(
+                    _(
+                        "You have a cloze deletion note type "
+                        "but have not made any cloze deletions. Proceed?"
+                    )
+                ):
                     return
         cards = self.mw.col.addNote(note)
         if not cards:
-            showWarning(_("""\
+            showWarning(
+                _(
+                    """\
 The input you have provided would make an empty \
-question on all cards."""), help="AddItems")
+question on all cards."""
+                ),
+                help="AddItems",
+            )
             return
         self.mw.col.clearUndo()
         self.addHistory(note)
@@ -203,8 +214,7 @@ question on all cards."""), help="AddItems")
 
     def keyPressEvent(self, evt):
         "Show answer on RET or register answer."
-        if (evt.key() in (Qt.Key_Enter, Qt.Key_Return)
-            and self.editor.tags.hasFocus()):
+        if evt.key() in (Qt.Key_Enter, Qt.Key_Return) and self.editor.tags.hasFocus():
             evt.accept()
             return
         return QDialog.keyPressEvent(self, evt)
@@ -213,8 +223,8 @@ question on all cards."""), help="AddItems")
         self.ifCanClose(self._reject)
 
     def _reject(self) -> None:
-        remHook('reset', self.onReset)
-        remHook('currentModelChanged', self.onModelChange)
+        remHook("reset", self.onReset)
+        remHook("currentModelChanged", self.onModelChange)
         clearAudioQueue()
         self.removeTempNote(self.editor.note)
         self.editor.cleanup()
@@ -227,8 +237,9 @@ question on all cards."""), help="AddItems")
 
     def ifCanClose(self, onOk: Callable) -> None:
         def afterSave():
-            ok = (self.editor.fieldsAreBlank(self.previousNote) or
-                    askUser(_("Close and lose current input?"), defaultno=True))
+            ok = self.editor.fieldsAreBlank(self.previousNote) or askUser(
+                _("Close and lose current input?"), defaultno=True
+            )
             if ok:
                 onOk()
 
@@ -238,4 +249,5 @@ question on all cards."""), help="AddItems")
         def doClose():
             self._reject()
             cb()
+
         self.ifCanClose(doClose)

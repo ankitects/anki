@@ -10,6 +10,7 @@ from typing import Any, List
 
 DBError = sqlite.Error
 
+
 class DB:
     def __init__(self, path: str, timeout: int = 0) -> None:
         self._db = sqlite.connect(path, timeout=timeout)
@@ -32,8 +33,8 @@ class DB:
             # execute("...where id = ?", 5)
             res = self._db.execute(sql, a)
         if self.echo:
-            #print a, ka
-            print(sql, "%0.3fms" % ((time.time() - t)*1000))
+            # print a, ka
+            print(sql, "%0.3fms" % ((time.time() - t) * 1000))
             if self.echo == "2":
                 print(a, ka)
         return res
@@ -43,7 +44,7 @@ class DB:
         t = time.time()
         self._db.executemany(sql, l)
         if self.echo:
-            print(sql, "%0.3fms" % ((time.time() - t)*1000))
+            print(sql, "%0.3fms" % ((time.time() - t) * 1000))
             if self.echo == "2":
                 print(l)
 
@@ -51,7 +52,7 @@ class DB:
         t = time.time()
         self._db.commit()
         if self.echo:
-            print("commit %0.3fms" % ((time.time() - t)*1000))
+            print("commit %0.3fms" % ((time.time() - t) * 1000))
 
     def executescript(self, sql: str) -> None:
         self.mod = True
@@ -104,7 +105,7 @@ class DB:
         if autocommit:
             self._db.isolation_level = None
         else:
-            self._db.isolation_level = ''
+            self._db.isolation_level = ""
 
     # strip out invalid utf-8 when reading from db
     def _textFactory(self, data: bytes) -> str:

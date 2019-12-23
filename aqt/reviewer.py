@@ -19,8 +19,13 @@ from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt
 from aqt.qt import *
 from aqt.sound import getAudio
-from aqt.utils import (askUserDialog, downArrow, mungeQA,
-                       qtMenuShortcutWorkaround, tooltip)
+from aqt.utils import (
+    askUserDialog,
+    downArrow,
+    mungeQA,
+    qtMenuShortcutWorkaround,
+    tooltip,
+)
 
 
 class Reviewer:
@@ -34,7 +39,7 @@ class Reviewer:
         self.hadCardQueue = False
         self._answeredIds: List[int] = []
         self._recordedAudio = None
-        self.typeCorrect = None # web init happens before this is set
+        self.typeCorrect = None  # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         addHook("leech", self.onLeech)
@@ -66,12 +71,14 @@ class Reviewer:
     def nextCard(self):
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
-            part1 = ngettext("%d card studied in", "%d cards studied in", elapsed[1]) % elapsed[1]
-            mins = int(round(elapsed[0]/60))
+            part1 = (
+                ngettext("%d card studied in", "%d cards studied in", elapsed[1])
+                % elapsed[1]
+            )
+            mins = int(round(elapsed[0] / 60))
             part2 = ngettext("%s minute.", "%s minutes.", mins) % mins
             fin = _("Finish")
-            diag = askUserDialog("%s %s" % (part1, part2),
-                             [_("Continue"), fin])
+            diag = askUserDialog("%s %s" % (part1, part2), [_("Continue"), fin])
             diag.setIcon(QMessageBox.Information)
             if diag.run() == fin:
                 return self.mw.moveToState("deckBrowser")
@@ -123,33 +130,39 @@ class Reviewer:
 
     def revHtml(self):
         extra = self.mw.col.conf.get("reviewExtra", "")
-        fade=""
+        fade = ""
         if self.mw.pm.glMode() == "software":
-            fade="<script>qFade=0;</script>"
+            fade = "<script>qFade=0;</script>"
         return """
 <div id=_mark>&#x2605;</div>
 <div id=_flag>&#x2691;</div>
 {}
 <div id=qa></div>
 {}
-""".format(fade, extra)
+""".format(
+            fade, extra
+        )
 
     def _initWeb(self):
         self._reps = 0
         # main window
-        self.web.stdHtml(self.revHtml(),
-                         css=["reviewer.css"],
-                         js=["jquery.js",
-                             "browsersel.js",
-                             "mathjax/conf.js",
-                             "mathjax/MathJax.js",
-                             "reviewer.js"])
+        self.web.stdHtml(
+            self.revHtml(),
+            css=["reviewer.css"],
+            js=[
+                "jquery.js",
+                "browsersel.js",
+                "mathjax/conf.js",
+                "mathjax/MathJax.js",
+                "reviewer.js",
+            ],
+        )
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
             css=["toolbar-bottom.css", "reviewer-bottom.css"],
-            js=["jquery.js", "reviewer-bottom.js"]
+            js=["jquery.js", "reviewer-bottom.js"],
         )
 
     # Showing the question
@@ -165,8 +178,10 @@ class Reviewer:
         c = self.card
         # grab the question and play audio
         if c.isEmpty():
-            q = _("""\
-The front of this card is empty. Please run Tools>Empty Cards.""")
+            q = _(
+                """\
+The front of this card is empty. Please run Tools>Empty Cards."""
+            )
         else:
             q = c.q()
         if self.autoplay(c):
@@ -185,23 +200,20 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.typeCorrect:
             self.mw.web.setFocus()
         # user hook
-        runHook('showQuestion')
+        runHook("showQuestion")
 
     def autoplay(self, card):
-        return self.mw.col.decks.confForDid(
-            card.odid or card.did)['autoplay']
+        return self.mw.col.decks.confForDid(card.odid or card.did)["autoplay"]
 
     def _replayq(self, card, previewer=None):
         s = previewer if previewer else self
-        return s.mw.col.decks.confForDid(
-            s.card.odid or s.card.did).get('replayq', True)
+        return s.mw.col.decks.confForDid(s.card.odid or s.card.did).get("replayq", True)
 
     def _drawFlag(self):
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())
 
     def _drawMark(self):
-        self.web.eval("_drawMark(%s);" % json.dumps(
-                        self.card.note().hasTag("marked")))
+        self.web.eval("_drawMark(%s);" % json.dumps(self.card.note().hasTag("marked")))
 
     # Showing the answer
     ##########################################################################
@@ -223,7 +235,7 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
-        runHook('showAnswer')
+        runHook("showAnswer")
 
     # Answering a card
     ############################################################
@@ -276,7 +288,9 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
         if self.state == "question":
             self._getTypedAnswer()
         elif self.state == "answer":
-            self.bottom.web.evalWithCallback("selectedAnswerButton()", self._onAnswerButton)
+            self.bottom.web.evalWithCallback(
+                "selectedAnswerButton()", self._onAnswerButton
+            )
 
     def _onAnswerButton(self, val):
         # button selected?
@@ -321,33 +335,39 @@ The front of this card is empty. Please run Tools>Empty Cards.""")
             clozeIdx = self.card.ord + 1
             fld = fld.split(":")[1]
         # loop through fields for a match
-        for f in self.card.model()['flds']:
-            if f['name'] == fld:
-                self.typeCorrect = self.card.note()[f['name']]
+        for f in self.card.model()["flds"]:
+            if f["name"] == fld:
+                self.typeCorrect = self.card.note()[f["name"]]
                 if clozeIdx:
                     # narrow to cloze
-                    self.typeCorrect = self._contentForCloze(
-                        self.typeCorrect, clozeIdx)
-                self.typeFont = f['font']
-                self.typeSize = f['size']
+                    self.typeCorrect = self._contentForCloze(self.typeCorrect, clozeIdx)
+                self.typeFont = f["font"]
+                self.typeSize = f["size"]
                 break
         if not self.typeCorrect:
             if self.typeCorrect is None:
                 if clozeIdx:
-                    warn = _("""\
-Please run Tools>Empty Cards""")
+                    warn = _(
+                        """\
+Please run Tools>Empty Cards"""
+                    )
                 else:
                     warn = _("Type answer: unknown field %s") % fld
                 return re.sub(self.typeAnsPat, warn, buf)
             else:
                 # empty field, remove type answer pattern
                 return re.sub(self.typeAnsPat, "", buf)
-        return re.sub(self.typeAnsPat, """
+        return re.sub(
+            self.typeAnsPat,
+            """
 <center>
 <input type=text id=typeans onkeypress="_typeAnsPress();"
    style="font-family: '%s'; font-size: %spx;">
 </center>
-""" % (self.typeFont, self.typeSize), buf)
+"""
+            % (self.typeFont, self.typeSize),
+            buf,
+        )
 
     def typeAnsAnswerFilter(self, buf):
         if not self.typeCorrect:
@@ -374,22 +394,28 @@ Please run Tools>Empty Cards""")
             # escapes too much
             s = """
 <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
-                self.typeFont, self.typeSize, res)
+                self.typeFont,
+                self.typeSize,
+                res,
+            )
             if hadHR:
                 # a hack to ensure the q/a separator falls before the answer
                 # comparison when user is using {{FrontSide}}
                 s = "<hr id=answer>" + s
             return s
+
         return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt, idx):
-        matches = re.findall(r"\{\{c%s::(.+?)\}\}"%idx, txt, re.DOTALL)
+        matches = re.findall(r"\{\{c%s::(.+?)\}\}" % idx, txt, re.DOTALL)
         if not matches:
             return None
+
         def noHint(txt):
             if "::" in txt:
                 return txt.split("::")[0]
             return txt
+
         matches = [noHint(txt) for txt in matches]
         uniqMatches = set(matches)
         if len(uniqMatches) == 1:
@@ -408,22 +434,25 @@ Please run Tools>Empty Cards""")
         givenPoint = 0
         correctPoint = 0
         offby = 0
+
         def logBad(old, new, str, array):
             if old != new:
                 array.append((False, str[old:new]))
+
         def logGood(start, cnt, str, array):
             if cnt:
-                array.append((True, str[start:start+cnt]))
+                array.append((True, str[start : start + cnt]))
+
         for x, y, cnt in s.get_matching_blocks():
             # if anything was missed in correct, pad given
-            if cnt and y-offby > x:
-                givenElems.append((False, "-"*(y-x-offby)))
-                offby = y-x
+            if cnt and y - offby > x:
+                givenElems.append((False, "-" * (y - x - offby)))
+                offby = y - x
             # log any proceeding bad elems
             logBad(givenPoint, x, given, givenElems)
             logBad(correctPoint, y, correct, correctElems)
-            givenPoint = x+cnt
-            correctPoint = y+cnt
+            givenPoint = x + cnt
+            correctPoint = y + cnt
             # log the match
             logGood(x, cnt, given, givenElems)
             logGood(y, cnt, correct, correctElems)
@@ -432,12 +461,16 @@ Please run Tools>Empty Cards""")
     def correct(self, given, correct, showBad=True):
         "Diff-corrects the typed-in answer."
         givenElems, correctElems = self.tokenizeComparison(given, correct)
+
         def good(s):
-            return "<span class=typeGood>"+html.escape(s)+"</span>"
+            return "<span class=typeGood>" + html.escape(s) + "</span>"
+
         def bad(s):
-            return "<span class=typeBad>"+html.escape(s)+"</span>"
+            return "<span class=typeBad>" + html.escape(s) + "</span>"
+
         def missed(s):
-            return "<span class=typeMissed>"+html.escape(s)+"</span>"
+            return "<span class=typeMissed>" + html.escape(s) + "</span>"
+
         if given == correct:
             res = good(given)
         else:
@@ -495,27 +528,35 @@ Please run Tools>Empty Cards""")
 <script>
 time = %(time)d;
 </script>
-""" % dict(rem=self._remaining(), edit=_("Edit"),
-           editkey=_("Shortcut key: %s") % "E",
-           more=_("More"),
-           downArrow=downArrow(),
-           time=self.card.timeTaken() // 1000)
+""" % dict(
+            rem=self._remaining(),
+            edit=_("Edit"),
+            editkey=_("Shortcut key: %s") % "E",
+            more=_("More"),
+            downArrow=downArrow(),
+            time=self.card.timeTaken() // 1000,
+        )
 
     def _showAnswerButton(self):
         if not self.typeCorrect:
             self.bottom.web.setFocus()
-        middle = '''
+        middle = """
 <span class=stattxt>%s</span><br>
-<button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>''' % (
-        self._remaining(), _("Shortcut key: %s") % _("Space"), _("Show Answer"))
+<button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>""" % (
+            self._remaining(),
+            _("Shortcut key: %s") % _("Space"),
+            _("Show Answer"),
+        )
         # wrap it in a table so it has the same top margin as the ease buttons
-        middle = "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>" % middle
+        middle = (
+            "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>"
+            % middle
+        )
         if self.card.shouldShowTimer():
             maxTime = self.card.timeLimit() / 1000
         else:
             maxTime = 0
-        self.bottom.web.eval("showQuestion(%s,%d);" % (
-            json.dumps(middle), maxTime))
+        self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
         self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self):
@@ -524,7 +565,7 @@ time = %(time)d;
         self.bottom.web.eval("showAnswer(%s);" % json.dumps(middle))
 
     def _remaining(self):
-        if not self.mw.col.conf['dueCounts']:
+        if not self.mw.col.conf["dueCounts"]:
             return ""
         if self.hadCardQueue:
             # if it's come from the undo queue, don't count it separately
@@ -557,15 +598,24 @@ time = %(time)d;
 
     def _answerButtons(self):
         default = self._defaultEase()
+
         def but(i, label):
             if i == default:
                 extra = "id=defease"
             else:
                 extra = ""
             due = self._buttonTime(i)
-            return '''
+            return """
 <td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
-%s</button></td>''' % (due, extra, _("Shortcut key: %s") % i, i, i, label)
+%s</button></td>""" % (
+                due,
+                extra,
+                _("Shortcut key: %s") % i,
+                i,
+                i,
+                label,
+            )
+
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
@@ -575,10 +625,10 @@ time = %(time)d;
         return buf + script
 
     def _buttonTime(self, i):
-        if not self.mw.col.conf['estTimes']:
+        if not self.mw.col.conf["estTimes"]:
             return "<div class=spacer></div>"
         txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
-        return '<span class=nobold>%s</span><br>' % txt
+        return "<span class=nobold>%s</span><br>" % txt
 
     # Leeches
     ##########################################################################
@@ -597,16 +647,35 @@ time = %(time)d;
     def _contextMenu(self):
         currentFlag = self.card and self.card.userFlag()
         opts = [
-            [_("Flag Card"), [
-                [_("Red Flag"), "Ctrl+1", lambda: self.setFlag(1),
-                 dict(checked=currentFlag == 1)],
-                [_("Orange Flag"), "Ctrl+2", lambda: self.setFlag(2),
-                 dict(checked=currentFlag == 2)],
-                [_("Green Flag"), "Ctrl+3", lambda: self.setFlag(3),
-                 dict(checked=currentFlag == 3)],
-                [_("Blue Flag"), "Ctrl+4", lambda: self.setFlag(4),
-                 dict(checked=currentFlag == 4)],
-            ]],
+            [
+                _("Flag Card"),
+                [
+                    [
+                        _("Red Flag"),
+                        "Ctrl+1",
+                        lambda: self.setFlag(1),
+                        dict(checked=currentFlag == 1),
+                    ],
+                    [
+                        _("Orange Flag"),
+                        "Ctrl+2",
+                        lambda: self.setFlag(2),
+                        dict(checked=currentFlag == 2),
+                    ],
+                    [
+                        _("Green Flag"),
+                        "Ctrl+3",
+                        lambda: self.setFlag(3),
+                        dict(checked=currentFlag == 3),
+                    ],
+                    [
+                        _("Blue Flag"),
+                        "Ctrl+4",
+                        lambda: self.setFlag(4),
+                        dict(checked=currentFlag == 4),
+                    ],
+                ],
+            ],
             [_("Mark Note"), "*", self.onMark],
             [_("Bury Card"), "-", self.onBuryCard],
             [_("Bury Note"), "=", self.onBuryNote],
@@ -620,7 +689,7 @@ time = %(time)d;
             [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
         return opts
-    
+
     def showContextMenu(self):
         opts = self._contextMenu()
         m = QMenu(self.mw)
@@ -654,8 +723,7 @@ time = %(time)d;
             a.triggered.connect(func)
 
     def onOptions(self):
-        self.mw.onDeckConf(self.mw.col.decks.get(
-            self.card.odid or self.card.did))
+        self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))
 
     def setFlag(self, flag):
         # need to toggle off?
@@ -676,8 +744,7 @@ time = %(time)d;
 
     def onSuspend(self):
         self.mw.checkpoint(_("Suspend"))
-        self.mw.col.sched.suspendCards(
-            [c.id for c in self.card.note().cards()])
+        self.mw.col.sched.suspendCards([c.id for c in self.card.note().cards()])
         tooltip(_("Note suspended."))
         self.mw.reset()
 
@@ -696,10 +763,12 @@ time = %(time)d;
         cnt = len(self.card.note().cards())
         self.mw.col.remNotes([self.card.note().id])
         self.mw.reset()
-        tooltip(ngettext(
-            "Note and its %d card deleted.",
-            "Note and its %d cards deleted.",
-            cnt) % cnt)
+        tooltip(
+            ngettext(
+                "Note and its %d card deleted.", "Note and its %d cards deleted.", cnt
+            )
+            % cnt
+        )
 
     def onBuryCard(self):
         self.mw.checkpoint(_("Bury"))

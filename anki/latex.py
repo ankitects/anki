@@ -15,47 +15,62 @@ from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
-    ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"]
+    ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"],
 ]
 
 svgCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
-    ["dvisvgm", "--no-fonts", "--exact", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"]
+    ["dvisvgm", "--no-fonts", "--exact", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"],
 ]
 
-build = True # if off, use existing media but don't create new
+build = True  # if off, use existing media but don't create new
 regexps = {
     "standard": re.compile(r"\[latex\](.+?)\[/latex\]", re.DOTALL | re.IGNORECASE),
     "expression": re.compile(r"\[\$\](.+?)\[/\$\]", re.DOTALL | re.IGNORECASE),
     "math": re.compile(r"\[\$\$\](.+?)\[/\$\$\]", re.DOTALL | re.IGNORECASE),
-    }
+}
 
 # add standard tex install location to osx
 if isMac:
-    os.environ['PATH'] += ":/usr/texbin:/Library/TeX/texbin"
+    os.environ["PATH"] += ":/usr/texbin:/Library/TeX/texbin"
+
 
 def stripLatex(text) -> Any:
-    for match in regexps['standard'].finditer(text):
+    for match in regexps["standard"].finditer(text):
         text = text.replace(match.group(), "")
-    for match in regexps['expression'].finditer(text):
+    for match in regexps["expression"].finditer(text):
         text = text.replace(match.group(), "")
-    for match in regexps['math'].finditer(text):
+    for match in regexps["math"].finditer(text):
         text = text.replace(match.group(), "")
     return text
 
-def mungeQA(html: str, type: Optional[str], fields: Optional[Dict[str, str]],
-            model: NoteType, data: Optional[List[Union[int, str]]], col) -> Any:
+
+def mungeQA(
+    html: str,
+    type: Optional[str],
+    fields: Optional[Dict[str, str]],
+    model: NoteType,
+    data: Optional[List[Union[int, str]]],
+    col,
+) -> Any:
     "Convert TEXT with embedded latex tags to image links."
-    for match in regexps['standard'].finditer(html):
+    for match in regexps["standard"].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
-    for match in regexps['expression'].finditer(html):
-        html = html.replace(match.group(), _imgLink(
-            col, "$" + match.group(1) + "$", model))
-    for match in regexps['math'].finditer(html):
-        html = html.replace(match.group(), _imgLink(
-            col,
-            "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}", model))
+    for match in regexps["expression"].finditer(html):
+        html = html.replace(
+            match.group(), _imgLink(col, "$" + match.group(1) + "$", model)
+        )
+    for match in regexps["math"].finditer(html):
+        html = html.replace(
+            match.group(),
+            _imgLink(
+                col,
+                "\\begin{displaymath}" + match.group(1) + "\\end{displaymath}",
+                model,
+            ),
+        )
     return html
+
 
 def _imgLink(col, latex: str, model: NoteType) -> str:
     "Return an img link for LATEX, creating if necesssary."
@@ -82,29 +97,43 @@ def _imgLink(col, latex: str, model: NoteType) -> str:
     else:
         return link
 
+
 def _latexFromHtml(col, latex: str) -> str:
     "Convert entities and fix newlines."
     latex = re.sub("<br( /)?>|<div>", "\n", latex)
     latex = stripHTML(latex)
     return latex
 
+
 def _buildImg(col, latex: str, fname: str, model: NoteType) -> Optional[str]:
     # add header/footer
-    latex = (model["latexPre"] + "\n" +
-             latex + "\n" +
-             model["latexPost"])
+    latex = model["latexPre"] + "\n" + latex + "\n" + model["latexPost"]
     # it's only really secure if run in a jail, but these are the most common
     tmplatex = latex.replace("\\includegraphics", "")
-    for bad in ("\\write18", "\\readline", "\\input", "\\include",
-                "\\catcode", "\\openout", "\\write", "\\loop",
-                "\\def", "\\shipout"):
+    for bad in (
+        "\\write18",
+        "\\readline",
+        "\\input",
+        "\\include",
+        "\\catcode",
+        "\\openout",
+        "\\write",
+        "\\loop",
+        "\\def",
+        "\\shipout",
+    ):
         # don't mind if the sequence is only part of a command
         bad_re = "\\" + bad + "[^a-zA-Z]"
         if re.search(bad_re, tmplatex):
-            return _("""\
+            return (
+                _(
+                    """\
 For security reasons, '%s' is not allowed on cards. You can still use \
 it by placing the command in a different package, and importing that \
-package in the LaTeX header instead.""") % bad
+package in the LaTeX header instead."""
+                )
+                % bad
+            )
 
     # commands to use?
     if model.get("latexsvg", False):
@@ -136,6 +165,7 @@ package in the LaTeX header instead.""") % bad
         os.chdir(oldcwd)
         log.close()
 
+
 def _errMsg(type: str, texpath: str) -> Any:
     msg = (_("Error executing %s.") % type) + "<br>"
     msg += (_("Generated file: %s") % texpath) + "<br>"
@@ -148,6 +178,7 @@ def _errMsg(type: str, texpath: str) -> Any:
     except:
         msg += _("Have you installed latex and dvipng/dvisvgm?")
     return msg
+
 
 # setup q/a filter
 addHook("mungeQA", mungeQA)

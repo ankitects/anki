@@ -7,7 +7,6 @@ from aqt.utils import restoreGeom, saveGeom
 
 
 class TagLimit(QDialog):
-
     def __init__(self, mw, parent):
         QDialog.__init__(self, parent, Qt.Window)
         self.mw = mw
@@ -15,16 +14,20 @@ class TagLimit(QDialog):
         self.deck = self.parent.deck
         self.dialog = aqt.forms.taglimit.Ui_Dialog()
         self.dialog.setupUi(self)
-        s = QShortcut(QKeySequence("ctrl+d"), self.dialog.activeList, context=Qt.WidgetShortcut)
+        s = QShortcut(
+            QKeySequence("ctrl+d"), self.dialog.activeList, context=Qt.WidgetShortcut
+        )
         s.activated.connect(self.dialog.activeList.clearSelection)
-        s = QShortcut(QKeySequence("ctrl+d"), self.dialog.inactiveList, context=Qt.WidgetShortcut)
+        s = QShortcut(
+            QKeySequence("ctrl+d"), self.dialog.inactiveList, context=Qt.WidgetShortcut
+        )
         s.activated.connect(self.dialog.inactiveList.clearSelection)
         self.rebuildTagList()
         restoreGeom(self, "tagLimit")
         self.exec_()
 
     def rebuildTagList(self):
-        usertags = self.mw.col.tags.byDeck(self.deck['id'], True)
+        usertags = self.mw.col.tags.byDeck(self.deck["id"], True)
         yes = self.deck.get("activeTags", [])
         no = self.deck.get("inactiveTags", [])
         yesHash = {}
@@ -82,8 +85,8 @@ class TagLimit(QDialog):
             if self.dialog.inactiveList.selectionModel().isSelected(idx):
                 no.append(self.tags[c])
         # save in the deck for future invocations
-        self.deck['activeTags'] = yes
-        self.deck['inactiveTags'] = no
+        self.deck["activeTags"] = yes
+        self.deck["inactiveTags"] = no
         self.mw.col.decks.save(self.deck)
         # build query string
         self.tags = ""

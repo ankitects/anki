@@ -10,6 +10,7 @@ from anki.utils import maxID
 # Base importer
 ##########################################################################
 
+
 class Importer:
 
     needMapper = False

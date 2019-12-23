@@ -34,33 +34,43 @@ from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sound import stripSounds
 from anki.tags import TagManager
 from anki.types import NoteType, QAData, Template
-from anki.utils import (devMode, fieldChecksum, ids2str, intTime, joinFields,
-                        maxID, splitFields, stripHTMLMedia)
+from anki.utils import (
+    devMode,
+    fieldChecksum,
+    ids2str,
+    intTime,
+    joinFields,
+    maxID,
+    splitFields,
+    stripHTMLMedia,
+)
 
 defaultConf = {
     # review options
-    'activeDecks': [1],
-    'curDeck': 1,
-    'newSpread': NEW_CARDS_DISTRIBUTE,
-    'collapseTime': 1200,
-    'timeLim': 0,
-    'estTimes': True,
-    'dueCounts': True,
+    "activeDecks": [1],
+    "curDeck": 1,
+    "newSpread": NEW_CARDS_DISTRIBUTE,
+    "collapseTime": 1200,
+    "timeLim": 0,
+    "estTimes": True,
+    "dueCounts": True,
     # other config
-    'curModel': None,
-    'nextPos': 1,
-    'sortType': "noteFld",
-    'sortBackwards': False,
-    'addToCur': True, # add new to currently selected deck?
-    'dayLearnFirst': False,
-    'schedVer': 2,
+    "curModel": None,
+    "nextPos": 1,
+    "sortType": "noteFld",
+    "sortBackwards": False,
+    "addToCur": True,  # add new to currently selected deck?
+    "dayLearnFirst": False,
+    "schedVer": 2,
 }
+
 
 def timezoneOffset() -> int:
     if time.localtime().tm_isdst:
-        return time.altzone//60
+        return time.altzone // 60
     else:
-        return time.timezone//60
+        return time.timezone // 60
+
 
 # this is initialized by storage.Collection
 class _Collection:
@@ -69,7 +79,7 @@ class _Collection:
     crt: int
     mod: int
     scm: int
-    dty: bool # no longer used
+    dty: bool  # no longer used
     _usn: int
     ls: int
     conf: Dict[str, Any]
@@ -96,10 +106,10 @@ class _Collection:
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
         if not server:
-            self.conf['localOffset'] = timezoneOffset()
+            self.conf["localOffset"] = timezoneOffset()
         self._loadScheduler()
         if not self.conf.get("newBury", False):
-            self.conf['newBury'] = True
+            self.conf["newBury"] = True
             self.setMod()
 
     def name(self) -> Any:
@@ -141,7 +151,7 @@ class _Collection:
         else:
             v2Sched.moveToV2()
 
-        self.conf['schedVer'] = ver
+        self.conf["schedVer"] = ver
         self.setMod()
 
         self._loadScheduler()
@@ -150,20 +160,24 @@ class _Collection:
     ##########################################################################
 
     def load(self) -> None:
-        (self.crt,
-         self.mod,
-         self.scm,
-         self.dty, # no longer used
-         self._usn,
-         self.ls,
-         conf,
-         models,
-         decks,
-         dconf,
-         tags) = self.db.first("""
+        (
+            self.crt,
+            self.mod,
+            self.scm,
+            self.dty,  # no longer used
+            self._usn,
+            self.ls,
+            conf,
+            models,
+            decks,
+            dconf,
+            tags,
+        ) = self.db.first(
+            """
 select crt, mod, scm, dty, usn, ls,
-conf, models, decks, dconf, tags from col""")
-        self.conf = json.loads(conf) # type: ignore
+conf, models, decks, dconf, tags from col"""
+        )
+        self.conf = json.loads(conf)  # type: ignore
         self.models.load(models)
         self.decks.load(decks, dconf)
         self.tags.load(tags)
@@ -181,8 +195,14 @@ is only necessary if you modify properties of this object or the conf dict."""
         self.db.execute(
             """update col set
 crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
-            self.crt, self.mod, self.scm, self.dty,
-            self._usn, self.ls, json.dumps(self.conf))
+            self.crt,
+            self.mod,
+            self.scm,
+            self.dty,
+            self._usn,
+            self.ls,
+            json.dumps(self.conf),
+        )
 
     def save(self, name: Optional[str] = None, mod: None = None) -> None:
         "Flush, commit DB, and take out another write lock."
@@ -231,6 +251,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def reopen(self) -> None:
         "Reconnect to DB (after changing threads, etc)."
         import anki.db
+
         if not self.db:
             self.db = anki.db.DB(self.path)
             self.media.connect()
@@ -288,10 +309,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     ##########################################################################
 
     def nextID(self, type: str, inc: bool = True) -> Any:
-        type = "next"+type.capitalize()
+        type = "next" + type.capitalize()
         id = self.conf.get(type, 1)
         if inc:
-            self.conf[type] = id+1
+            self.conf[type] = id + 1
         return id
 
     def reset(self) -> None:
@@ -302,8 +323,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     ##########################################################################
 
     def _logRem(self, ids: List[int], type: int) -> None:
-        self.db.executemany("insert into graves values (%d, ?, %d)" % (
-            self.usn(), type), ([x] for x in ids))
+        self.db.executemany(
+            "insert into graves values (%d, ?, %d)" % (self.usn(), type),
+            ([x] for x in ids),
+        )
 
     # Notes
     ##########################################################################
@@ -332,8 +355,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return ncards
 
     def remNotes(self, ids) -> None:
-        self.remCards(self.db.list("select id from cards where nid in "+
-                                   ids2str(ids)))
+        self.remCards(self.db.list("select id from cards where nid in " + ids2str(ids)))
 
     def _remNotes(self, ids: List[int]) -> None:
         "Bulk delete notes by ID. Don't call this directly."
@@ -357,15 +379,15 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def _tmplsFromOrds(self, model: NoteType, avail: List[int]) -> List:
         ok = []
-        if model['type'] == MODEL_STD:
-            for t in model['tmpls']:
-                if t['ord'] in avail:
+        if model["type"] == MODEL_STD:
+            for t in model["tmpls"]:
+                if t["ord"] in avail:
                     ok.append(t)
         else:
             # cloze - generate temporary templates from first
             for ord in avail:
-                t = copy.copy(model['tmpls'][0])
-                t['ord'] = ord
+                t = copy.copy(model["tmpls"][0])
+                t["ord"] = ord
                 ok.append(t)
         return ok
 
@@ -373,11 +395,13 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         "Generate cards for non-empty templates, return ids to remove."
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
-        have: Dict[int,Dict[int, int]] = {}
-        dids: Dict[int,Optional[int]] = {}
-        dues: Dict[int,int] = {}
+        have: Dict[int, Dict[int, int]] = {}
+        dids: Dict[int, Optional[int]] = {}
+        dues: Dict[int, int] = {}
         for id, nid, ord, did, due, odue, odid, type in self.db.execute(
-            "select id, nid, ord, did, due, odue, odid, type from cards where nid in "+snids):
+            "select id, nid, ord, did, due, odue, odid, type from cards where nid in "
+            + snids
+        ):
             # existing cards
             if nid not in have:
                 have[nid] = {}
@@ -407,27 +431,27 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         rem = []
         usn = self.usn()
         for nid, mid, flds in self.db.execute(
-            "select id, mid, flds from notes where id in "+snids):
+            "select id, mid, flds from notes where id in " + snids
+        ):
             model = self.models.get(mid)
-            assert(model)
+            assert model
             avail = self.models.availOrds(model, flds)
-            did = dids.get(nid) or model['did']
+            did = dids.get(nid) or model["did"]
             due = dues.get(nid)
             # add any missing cards
             for t in self._tmplsFromOrds(model, avail):
-                doHave = nid in have and t['ord'] in have[nid]
+                doHave = nid in have and t["ord"] in have[nid]
                 if not doHave:
                     # check deck is not a cram deck
-                    did = t['did'] or did
+                    did = t["did"] or did
                     if self.decks.isDyn(did):
                         did = 1
                     # if the deck doesn't exist, use default instead
-                    did = self.decks.get(did)['id']
+                    did = self.decks.get(did)["id"]
                     # use sibling due# if there is one, else use a new id
                     if due is None:
                         due = self.nextID("pos")
-                    data.append((ts, nid, did, t['ord'],
-                                 now, usn, due))
+                    data.append((ts, nid, did, t["ord"], now, usn, due))
                     ts += 1
             # note any cards that need removing
             if nid in have:
@@ -435,9 +459,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     if ord not in avail:
                         rem.append(id)
         # bulk update
-        self.db.executemany("""
+        self.db.executemany(
+            """
 insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
-                            data)
+            data,
+        )
         return rem
 
     # type 0 - when previewing in add dialog, only non-empty
@@ -449,7 +475,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         elif type == 1:
             cms = [c.template() for c in note.cards()]
         else:
-            cms = note.model()['tmpls']
+            cms = note.model()["tmpls"]
         if not cms:
             return []
         cards = []
@@ -457,28 +483,37 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             cards.append(self._newCard(note, template, 1, flush=False, did=did))
         return cards
 
-    def _newCard(self, note: Note, template: Template, due: int, flush: bool = True, did: None = None) -> anki.cards.Card:
+    def _newCard(
+        self,
+        note: Note,
+        template: Template,
+        due: int,
+        flush: bool = True,
+        did: None = None,
+    ) -> anki.cards.Card:
         "Create a new card."
         card = anki.cards.Card(self)
         card.nid = note.id
-        card.ord = template['ord']
-        card.did = self.db.scalar("select did from cards where nid = ? and ord = ?", card.nid, card.ord)
+        card.ord = template["ord"]
+        card.did = self.db.scalar(
+            "select did from cards where nid = ? and ord = ?", card.nid, card.ord
+        )
         # Use template did (deck override) if valid, otherwise did in argument, otherwise model did
         if not card.did:
-            if template['did'] and str(template['did']) in self.decks.decks:
-                card.did = int(template['did'])
+            if template["did"] and str(template["did"]) in self.decks.decks:
+                card.did = int(template["did"])
             elif did:
                 card.did = did
             else:
-                card.did = note.model()['did']
+                card.did = note.model()["did"]
         # if invalid did, use default instead
         deck = self.decks.get(card.did)
-        assert(deck)
-        if deck['dyn']:
+        assert deck
+        if deck["dyn"]:
             # must not be a filtered deck
             card.did = 1
         else:
-            card.did = deck['id']
+            card.did = deck["id"]
         card.due = self._dueForDid(card.did, due)
         if flush:
             card.flush()
@@ -487,7 +522,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     def _dueForDid(self, did: int, due: int) -> int:
         conf = self.decks.confForDid(did)
         # in order due?
-        if conf['new']['order'] == NEW_CARDS_DUE:
+        if conf["new"]["order"] == NEW_CARDS_DUE:
             return due
         else:
             # random mode; seed with note ts so all cards of this note get the
@@ -510,16 +545,18 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         if not ids:
             return
         sids = ids2str(ids)
-        nids = self.db.list("select nid from cards where id in "+sids)
+        nids = self.db.list("select nid from cards where id in " + sids)
         # remove cards
         self._logRem(ids, REM_CARD)
-        self.db.execute("delete from cards where id in "+sids)
+        self.db.execute("delete from cards where id in " + sids)
         # then notes
         if not notes:
             return
-        nids = self.db.list("""
-select id from notes where id in %s and id not in (select nid from cards)""" %
-                     ids2str(nids))
+        nids = self.db.list(
+            """
+select id from notes where id in %s and id not in (select nid from cards)"""
+            % ids2str(nids)
+        )
         self._remNotes(nids)
 
     def emptyCids(self) -> List[int]:
@@ -530,19 +567,22 @@ select id from notes where id in %s and id not in (select nid from cards)""" %
 
     def emptyCardReport(self, cids) -> str:
         rep = ""
-        for ords, cnt, flds in self.db.all("""
+        for ords, cnt, flds in self.db.all(
+            """
 select group_concat(ord+1), count(), flds from cards c, notes n
-where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
+where c.nid = n.id and c.id in %s group by nid"""
+            % ids2str(cids)
+        ):
             rep += _("Empty card numbers: %(c)s\nFields: %(f)s\n\n") % dict(
-                c=ords, f=flds.replace("\x1f", " / "))
+                c=ords, f=flds.replace("\x1f", " / ")
+            )
         return rep
 
     # Field checksums and sorting fields
     ##########################################################################
 
     def _fieldData(self, snids: str) -> Any:
-        return self.db.execute(
-            "select id, mid, flds from notes where id in "+snids)
+        return self.db.execute("select id, mid, flds from notes where id in " + snids)
 
     def updateFieldCache(self, nids: List[int]) -> None:
         "Update field checksums and sort cache, after find&replace, etc."
@@ -554,9 +594,13 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
             if not model:
                 # note points to invalid model
                 continue
-            r.append((stripHTMLMedia(fields[self.models.sortIdx(model)]),
-                      fieldChecksum(fields[0]),
-                      nid))
+            r.append(
+                (
+                    stripHTMLMedia(fields[self.models.sortIdx(model)]),
+                    fieldChecksum(fields[0]),
+                    nid,
+                )
+            )
         # apply, relying on calling code to bump usn+mod
         self.db.executemany("update notes set sfld=?, csum=? where id=?", r)
 
@@ -584,55 +628,56 @@ where c.nid = n.id and c.id in %s group by nid""" % ids2str(cids)):
         flist = splitFields(data[6])
         fields = {}
         model = self.models.get(data[2])
-        assert(model)
+        assert model
         for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
             fields[name] = flist[idx]
-        fields['Tags'] = data[5].strip()
-        fields['Type'] = model['name']
-        fields['Deck'] = self.decks.name(data[3])
-        fields['Subdeck'] = fields['Deck'].split('::')[-1]
-        fields['CardFlag'] = self._flagNameFromCardFlags(data[7])
-        if model['type'] == MODEL_STD:
-            template = model['tmpls'][data[4]]
+        fields["Tags"] = data[5].strip()
+        fields["Type"] = model["name"]
+        fields["Deck"] = self.decks.name(data[3])
+        fields["Subdeck"] = fields["Deck"].split("::")[-1]
+        fields["CardFlag"] = self._flagNameFromCardFlags(data[7])
+        if model["type"] == MODEL_STD:
+            template = model["tmpls"][data[4]]
         else:
-            template = model['tmpls'][0]
-        fields['Card'] = template['name']
-        fields['c%d' % (data[4]+1)] = "1"
+            template = model["tmpls"][0]
+        fields["Card"] = template["name"]
+        fields["c%d" % (data[4] + 1)] = "1"
         # render q & a
-        d: Dict[str,Any] = dict(id=data[0])
-        qfmt = qfmt or template['qfmt']
-        afmt = afmt or template['afmt']
+        d: Dict[str, Any] = dict(id=data[0])
+        qfmt = qfmt or template["qfmt"]
+        afmt = afmt or template["afmt"]
         for (type, format) in (("q", qfmt), ("a", afmt)):
             if type == "q":
-                format = re.sub("{{(?!type:)(.*?)cloze:",
-                                r"{{\1cq-%d:" % (data[4]+1), format)
-                format = format.replace("<%cloze:", "<%%cq:%d:" % (data[4]+1))
-            else:
                 format = re.sub(
-                    "{{(.*?)cloze:", r"{{\1ca-%d:" % (data[4]+1), format)
-                format = format.replace(
-                    "<%cloze:", "<%%ca:%d:" % (data[4]+1))
-                fields['FrontSide'] = stripSounds(d['q'])
+                    "{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (data[4] + 1), format
+                )
+                format = format.replace("<%cloze:", "<%%cq:%d:" % (data[4] + 1))
+            else:
+                format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (data[4] + 1), format)
+                format = format.replace("<%cloze:", "<%%ca:%d:" % (data[4] + 1))
+                fields["FrontSide"] = stripSounds(d["q"])
             fields = runFilter("mungeFields", fields, model, data, self)
             html = anki.template.render(format, fields)
-            d[type] = runFilter(
-                "mungeQA", html, type, fields, model, data, self)
+            d[type] = runFilter("mungeQA", html, type, fields, model, data, self)
             # empty cloze?
-            if type == 'q' and model['type'] == MODEL_CLOZE:
+            if type == "q" and model["type"] == MODEL_CLOZE:
                 if not self.models._availClozeOrds(model, data[6], False):
-                    d['q'] += ("<p>" + _(
-                "Please edit this note and add some cloze deletions. (%s)") % (
-                "<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help"))))
+                    d["q"] += "<p>" + _(
+                        "Please edit this note and add some cloze deletions. (%s)"
+                    ) % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
         return d
 
     def _qaData(self, where="") -> Any:
         "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
         # NOTE: order selected from database must match order of QAData fields.
-        return self.db.execute("""
+        return self.db.execute(
+            """
 select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds, c.flags
 from cards c, notes f
 where c.nid == f.id
-%s""" % where)
+%s"""
+            % where
+        )
 
     def _flagNameFromCardFlags(self, flags: int) -> str:
         flag = flags & 0b111
@@ -649,7 +694,15 @@ where c.nid == f.id
     def findNotes(self, query: str) -> Any:
         return anki.find.Finder(self).findNotes(query)
 
-    def findReplace(self, nids: List[int], src: str, dst: str, regex: Optional[bool] = None, field: Optional[str] = None, fold: bool = True) -> int:
+    def findReplace(
+        self,
+        nids: List[int],
+        src: str,
+        dst: str,
+        regex: Optional[bool] = None,
+        field: Optional[str] = None,
+        fold: bool = True,
+    ) -> int:
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)
 
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
@@ -660,10 +713,12 @@ where c.nid == f.id
 
     def cardStats(self, card: Card) -> str:
         from anki.stats import CardStats
+
         return CardStats(self, card).report()
 
     def stats(self) -> "anki.stats.CollectionStats":
         from anki.stats import CollectionStats
+
         return CollectionStats(self)
 
     # Timeboxing
@@ -675,12 +730,12 @@ where c.nid == f.id
 
     def timeboxReached(self) -> Union[bool, Tuple[Any, int]]:
         "Return (elapsedTime, reps) if timebox reached, or False."
-        if not self.conf['timeLim']:
+        if not self.conf["timeLim"]:
             # timeboxing disabled
             return False
         elapsed = time.time() - self._startTime
-        if elapsed > self.conf['timeLim']:
-            return (self.conf['timeLim'], self.sched.reps - self._startReps)
+        if elapsed > self.conf["timeLim"]:
+            return (self.conf["timeLim"], self.sched.reps - self._startReps)
         return False
 
     # Undo
@@ -715,7 +770,7 @@ where c.nid == f.id
     def _undoReview(self) -> Any:
         data = self._undo[2]
         wasLeech = self._undo[3]
-        c = data.pop() # pytype: disable=attribute-error
+        c = data.pop()  # pytype: disable=attribute-error
         if not data:
             self.clearUndo()
         # remove leech tag if it didn't have it before
@@ -726,13 +781,16 @@ where c.nid == f.id
         c.flush()
         # and delete revlog entry
         last = self.db.scalar(
-            "select id from revlog where cid = ? "
-            "order by id desc limit 1", c.id)
+            "select id from revlog where cid = ? " "order by id desc limit 1", c.id
+        )
         self.db.execute("delete from revlog where id = ?", last)
         # restore any siblings
         self.db.execute(
             "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
-            intTime(), self.usn(), c.nid)
+            intTime(),
+            self.usn(),
+            c.nid,
+        )
         # and finally, update daily counts
         n = 1 if c.queue == 3 else c.queue
         type = ("new", "lrn", "rev")[n]
@@ -759,24 +817,31 @@ where c.nid == f.id
     def basicCheck(self) -> bool:
         "Basic integrity check for syncing. True if ok."
         # cards without notes
-        if self.db.scalar("""
-select 1 from cards where nid not in (select id from notes) limit 1"""):
+        if self.db.scalar(
+            """
+select 1 from cards where nid not in (select id from notes) limit 1"""
+        ):
             return False
         # notes without cards or models
-        if self.db.scalar("""
+        if self.db.scalar(
+            """
 select 1 from notes where id not in (select distinct nid from cards)
-or mid not in %s limit 1""" % ids2str(self.models.ids())):
+or mid not in %s limit 1"""
+            % ids2str(self.models.ids())
+        ):
             return False
         # invalid ords
         for m in self.models.all():
             # ignore clozes
-            if m['type'] != MODEL_STD:
+            if m["type"] != MODEL_STD:
                 continue
-            if self.db.scalar("""
+            if self.db.scalar(
+                """
 select 1 from cards where ord not in %s and nid in (
-select id from notes where mid = ?) limit 1""" %
-                               ids2str([t['ord'] for t in m['tmpls']]),
-                               m['id']):
+select id from notes where mid = ?) limit 1"""
+                % ids2str([t["ord"] for t in m["tmpls"]]),
+                m["id"],
+            ):
                 return False
         return True
 
@@ -789,89 +854,136 @@ select id from notes where mid = ?) limit 1""" %
         if self.db.scalar("pragma integrity_check") != "ok":
             return (_("Collection is corrupt. Please see the manual."), False)
         # note types with a missing model
-        ids = self.db.list("""
-select id from notes where mid not in """ + ids2str(self.models.ids()))
+        ids = self.db.list(
+            """
+select id from notes where mid not in """
+            + ids2str(self.models.ids())
+        )
         if ids:
             problems.append(
-                ngettext("Deleted %d note with missing note type.",
-                         "Deleted %d notes with missing note type.", len(ids))
-                         % len(ids))
+                ngettext(
+                    "Deleted %d note with missing note type.",
+                    "Deleted %d notes with missing note type.",
+                    len(ids),
+                )
+                % len(ids)
+            )
             self.remNotes(ids)
         # for each model
         for m in self.models.all():
-            for t in m['tmpls']:
-                if t['did'] == "None":
-                    t['did'] = None
+            for t in m["tmpls"]:
+                if t["did"] == "None":
+                    t["did"] = None
                     problems.append(_("Fixed AnkiDroid deck override bug."))
                     self.models.save(m, updateReqs=False)
-            if m['type'] == MODEL_STD:
+            if m["type"] == MODEL_STD:
                 # model with missing req specification
-                if 'req' not in m:
+                if "req" not in m:
                     self.models._updateRequired(m)
-                    problems.append(_("Fixed note type: %s") % m['name'])
+                    problems.append(_("Fixed note type: %s") % m["name"])
                 # cards with invalid ordinal
-                ids = self.db.list("""
+                ids = self.db.list(
+                    """
 select id from cards where ord not in %s and nid in (
-select id from notes where mid = ?)""" %
-                                   ids2str([t['ord'] for t in m['tmpls']]),
-                                   m['id'])
+select id from notes where mid = ?)"""
+                    % ids2str([t["ord"] for t in m["tmpls"]]),
+                    m["id"],
+                )
                 if ids:
                     problems.append(
-                        ngettext("Deleted %d card with missing template.",
-                                 "Deleted %d cards with missing template.",
-                                 len(ids)) % len(ids))
+                        ngettext(
+                            "Deleted %d card with missing template.",
+                            "Deleted %d cards with missing template.",
+                            len(ids),
+                        )
+                        % len(ids)
+                    )
                     self.remCards(ids)
             # notes with invalid field count
             ids = []
             for id, flds in self.db.execute(
-                    "select id, flds from notes where mid = ?", m['id']):
-                if (flds.count("\x1f") + 1) != len(m['flds']):
+                "select id, flds from notes where mid = ?", m["id"]
+            ):
+                if (flds.count("\x1f") + 1) != len(m["flds"]):
                     ids.append(id)
             if ids:
                 problems.append(
-                    ngettext("Deleted %d note with wrong field count.",
-                             "Deleted %d notes with wrong field count.",
-                             len(ids)) % len(ids))
+                    ngettext(
+                        "Deleted %d note with wrong field count.",
+                        "Deleted %d notes with wrong field count.",
+                        len(ids),
+                    )
+                    % len(ids)
+                )
                 self.remNotes(ids)
         # delete any notes with missing cards
-        ids = self.db.list("""
-select id from notes where id not in (select distinct nid from cards)""")
+        ids = self.db.list(
+            """
+select id from notes where id not in (select distinct nid from cards)"""
+        )
         if ids:
             cnt = len(ids)
             problems.append(
-                ngettext("Deleted %d note with no cards.",
-                         "Deleted %d notes with no cards.", cnt) % cnt)
+                ngettext(
+                    "Deleted %d note with no cards.",
+                    "Deleted %d notes with no cards.",
+                    cnt,
+                )
+                % cnt
+            )
             self._remNotes(ids)
         # cards with missing notes
-        ids = self.db.list("""
-select id from cards where nid not in (select id from notes)""")
+        ids = self.db.list(
+            """
+select id from cards where nid not in (select id from notes)"""
+        )
         if ids:
             cnt = len(ids)
             problems.append(
-                ngettext("Deleted %d card with missing note.",
-                         "Deleted %d cards with missing note.", cnt) % cnt)
+                ngettext(
+                    "Deleted %d card with missing note.",
+                    "Deleted %d cards with missing note.",
+                    cnt,
+                )
+                % cnt
+            )
             self.remCards(ids)
         # cards with odue set when it shouldn't be
-        ids = self.db.list("""
-select id from cards where odue > 0 and (type=1 or queue=2) and not odid""")
+        ids = self.db.list(
+            """
+select id from cards where odue > 0 and (type=1 or queue=2) and not odid"""
+        )
         if ids:
             cnt = len(ids)
             problems.append(
-                ngettext("Fixed %d card with invalid properties.",
-                         "Fixed %d cards with invalid properties.", cnt) % cnt)
-            self.db.execute("update cards set odue=0 where id in "+
-                ids2str(ids))
+                ngettext(
+                    "Fixed %d card with invalid properties.",
+                    "Fixed %d cards with invalid properties.",
+                    cnt,
+                )
+                % cnt
+            )
+            self.db.execute("update cards set odue=0 where id in " + ids2str(ids))
         # cards with odid set when not in a dyn deck
         dids = [id for id in self.decks.allIds() if not self.decks.isDyn(id)]
-        ids = self.db.list("""
-select id from cards where odid > 0 and did in %s""" % ids2str(dids))
+        ids = self.db.list(
+            """
+select id from cards where odid > 0 and did in %s"""
+            % ids2str(dids)
+        )
         if ids:
             cnt = len(ids)
             problems.append(
-                ngettext("Fixed %d card with invalid properties.",
-                         "Fixed %d cards with invalid properties.", cnt) % cnt)
-            self.db.execute("update cards set odid=0, odue=0 where id in "+
-                ids2str(ids))
+                ngettext(
+                    "Fixed %d card with invalid properties.",
+                    "Fixed %d cards with invalid properties.",
+                    cnt,
+                )
+                % cnt
+            )
+            self.db.execute(
+                "update cards set odid=0, odue=0 where id in " + ids2str(ids)
+            )
         # tags
         self.tags.registerNotes()
         # field cache
@@ -879,30 +991,46 @@ select id from cards where odid > 0 and did in %s""" % ids2str(dids))
             self.updateFieldCache(self.models.nids(m))
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
-        curs.execute("""
+        curs.execute(
+            """
 update cards set due=1000000+due%1000000,mod=?,usn=? where due>=1000000
-and type=0""", [intTime(), self.usn()])
+and type=0""",
+            [intTime(), self.usn()],
+        )
         if curs.rowcount:
-            problems.append("Found %d new cards with a due number >= 1,000,000 - consider repositioning them in the Browse screen." % curs.rowcount)
+            problems.append(
+                "Found %d new cards with a due number >= 1,000,000 - consider repositioning them in the Browse screen."
+                % curs.rowcount
+            )
         # new card position
-        self.conf['nextPos'] = self.db.scalar(
-            "select max(due)+1 from cards where type = 0") or 0
+        self.conf["nextPos"] = (
+            self.db.scalar("select max(due)+1 from cards where type = 0") or 0
+        )
         # reviews should have a reasonable due #
-        ids = self.db.list(
-            "select id from cards where queue = 2 and due > 100000")
+        ids = self.db.list("select id from cards where queue = 2 and due > 100000")
         if ids:
             problems.append("Reviews had incorrect due date.")
             self.db.execute(
                 "update cards set due = ?, ivl = 1, mod = ?, usn = ? where id in %s"
-                % ids2str(ids), self.sched.today, intTime(), self.usn())
+                % ids2str(ids),
+                self.sched.today,
+                intTime(),
+                self.usn(),
+            )
         # v2 sched had a bug that could create decimal intervals
-        curs.execute("update cards set ivl=round(ivl),due=round(due) where ivl!=round(ivl) or due!=round(due)")
+        curs.execute(
+            "update cards set ivl=round(ivl),due=round(due) where ivl!=round(ivl) or due!=round(due)"
+        )
         if curs.rowcount:
             problems.append("Fixed %d cards with v2 scheduler bug." % curs.rowcount)
 
-        curs.execute("update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)")
+        curs.execute(
+            "update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)"
+        )
         if curs.rowcount:
-            problems.append("Fixed %d review history entries with v2 scheduler bug." % curs.rowcount)
+            problems.append(
+                "Fixed %d review history entries with v2 scheduler bug." % curs.rowcount
+            )
         # models
         if self.models.ensureNotEmpty():
             problems.append("Added missing note type.")
@@ -931,14 +1059,19 @@ and type=0""", [intTime(), self.usn()])
     def log(self, *args, **kwargs) -> None:
         if not self._debugLog:
             return
+
         def customRepr(x):
             if isinstance(x, str):
                 return x
             return pprint.pformat(x)
-        path, num, fn, y = traceback.extract_stack(
-            limit=2+kwargs.get("stack", 0))[0]
-        buf = "[%s] %s:%s(): %s" % (intTime(), os.path.basename(path), fn,
-                                     ", ".join([customRepr(x) for x in args]))
+
+        path, num, fn, y = traceback.extract_stack(limit=2 + kwargs.get("stack", 0))[0]
+        buf = "[%s] %s:%s(): %s" % (
+            intTime(),
+            os.path.basename(path),
+            fn,
+            ", ".join([customRepr(x) for x in args]),
+        )
         self._logHnd.write(buf + "\n")
         if devMode:
             print(buf)
@@ -947,7 +1080,7 @@ and type=0""", [intTime(), self.usn()])
         if not self._debugLog:
             return
         lpath = re.sub(r"\.anki2$", ".log", self.path)
-        if os.path.exists(lpath) and os.path.getsize(lpath) > 10*1024*1024:
+        if os.path.exists(lpath) and os.path.getsize(lpath) > 10 * 1024 * 1024:
             lpath2 = lpath + ".old"
             if os.path.exists(lpath2):
                 os.unlink(lpath2)
@@ -965,5 +1098,11 @@ and type=0""", [intTime(), self.usn()])
 
     def setUserFlag(self, flag: int, cids: List[int]) -> None:
         assert 0 <= flag <= 7
-        self.db.execute("update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s" %
-                        ids2str(cids), 0b111, flag, self.usn(), intTime())
+        self.db.execute(
+            "update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s"
+            % ids2str(cids),
+            0b111,
+            flag,
+            self.usn(),
+            intTime(),
+        )

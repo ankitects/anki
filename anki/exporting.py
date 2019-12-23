@@ -52,8 +52,8 @@ class Exporter:
         text = text.replace("\t", " " * 8)
         text = re.sub("(?i)<style>.*?</style>", "", text)
         text = re.sub(r"\[\[type:[^]]+\]\]", "", text)
-        if "\"" in text:
-            text = "\"" + text.replace("\"", "\"\"") + "\""
+        if '"' in text:
+            text = '"' + text.replace('"', '""') + '"'
         return text
 
     def stripHTML(self, text: str) -> str:
@@ -74,8 +74,10 @@ class Exporter:
         self.count = len(cids)
         return cids
 
+
 # Cards as TSV
 ######################################################################
+
 
 class TextCardExporter(Exporter):
 
@@ -89,10 +91,12 @@ class TextCardExporter(Exporter):
     def doExport(self, file) -> None:
         ids = sorted(self.cardIds())
         strids = ids2str(ids)
+
         def esc(s):
             # strip off the repeated question in answer if exists
             s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
             return self.processText(s)
+
         out = ""
         for cid in ids:
             c = self.col.getCard(cid)
@@ -100,8 +104,10 @@ class TextCardExporter(Exporter):
             out += "\t" + esc(c.a()) + "\n"
         file.write(out.encode("utf-8"))
 
+
 # Notes as TSV
 ######################################################################
+
 
 class TextNoteExporter(Exporter):
 
@@ -117,11 +123,14 @@ class TextNoteExporter(Exporter):
     def doExport(self, file: BufferedWriter) -> None:
         cardIds = self.cardIds()
         data = []
-        for id, flds, tags in self.col.db.execute("""
+        for id, flds, tags in self.col.db.execute(
+            """
 select guid, flds, tags from notes
 where id in
 (select nid from cards
-where cards.id in %s)""" % ids2str(cardIds)):
+where cards.id in %s)"""
+            % ids2str(cardIds)
+        ):
             row = []
             # note id
             if self.includeID:
@@ -136,9 +145,11 @@ where cards.id in %s)""" % ids2str(cardIds)):
         out = "\n".join(data)
         file.write(out.encode("utf-8"))
 
+
 # Anki decks
 ######################################################################
 # media files are stored in self.mediaFiles, but not exported.
+
 
 class AnkiExporter(Exporter):
 
@@ -167,70 +178,67 @@ class AnkiExporter(Exporter):
         nids = {}
         data = []
         for row in self.src.db.execute(
-            "select * from cards where id in "+ids2str(cids)):
+            "select * from cards where id in " + ids2str(cids)
+        ):
             nids[row[1]] = True
             data.append(row)
             # clear flags
             row = list(row)
             row[-2] = 0
         self.dst.db.executemany(
-            "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            data)
+            "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data
+        )
         # notes
         strnids = ids2str(list(nids.keys()))
         notedata = []
-        for row in self.src.db.all(
-            "select * from notes where id in "+strnids):
+        for row in self.src.db.all("select * from notes where id in " + strnids):
             # remove system tags if not exporting scheduling info
             if not self.includeSched:
                 row = list(row)
                 row[5] = self.removeSystemTags(row[5])
             notedata.append(row)
         self.dst.db.executemany(
-            "insert into notes values (?,?,?,?,?,?,?,?,?,?,?)",
-            notedata)
+            "insert into notes values (?,?,?,?,?,?,?,?,?,?,?)", notedata
+        )
         # models used by the notes
-        mids = self.dst.db.list("select distinct mid from notes where id in "+
-                                strnids)
+        mids = self.dst.db.list("select distinct mid from notes where id in " + strnids)
         # card history and revlog
         if self.includeSched:
-            data = self.src.db.all(
-                "select * from revlog where cid in "+ids2str(cids))
+            data = self.src.db.all("select * from revlog where cid in " + ids2str(cids))
             self.dst.db.executemany(
-                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
-                data)
+                "insert into revlog values (?,?,?,?,?,?,?,?,?)", data
+            )
         else:
             # need to reset card state
             self.dst.sched.resetCards(cids)
         # models - start with zero
         self.dst.models.models = {}
         for m in self.src.models.all():
-            if int(m['id']) in mids:
+            if int(m["id"]) in mids:
                 self.dst.models.update(m)
         # decks
         dids: List[int]
         if not self.did:
             dids = []
         else:
-            dids = [self.did] + [
-                x[1] for x in self.src.decks.children(self.did)]
+            dids = [self.did] + [x[1] for x in self.src.decks.children(self.did)]
         dconfs = {}
         for d in self.src.decks.all():
-            if str(d['id']) == "1":
+            if str(d["id"]) == "1":
                 continue
-            if dids and d['id'] not in dids:
+            if dids and d["id"] not in dids:
                 continue
-            if not d['dyn'] and d['conf'] != 1:
+            if not d["dyn"] and d["conf"] != 1:
                 if self.includeSched:
-                    dconfs[d['conf']] = True
+                    dconfs[d["conf"]] = True
             if not self.includeSched:
                 # scheduling not included, so reset deck settings to default
                 d = dict(d)
-                d['conf'] = 1
+                d["conf"] = 1
             self.dst.decks.update(d)
         # copy used deck confs
         for dc in self.src.decks.allConf():
-            if dc['id'] in dconfs:
+            if dc["id"] in dconfs:
                 self.dst.decks.updateConf(dc)
         # find used media
         media = {}
@@ -252,7 +260,7 @@ class AnkiExporter(Exporter):
                     if fname.startswith("_"):
                         # Scan all models in mids for reference to fname
                         for m in self.src.models.all():
-                            if int(m['id']) in mids:
+                            if int(m["id"]) in mids:
                                 if self._modelHasMedia(m, fname):
                                     media[fname] = True
                                     break
@@ -268,7 +276,7 @@ class AnkiExporter(Exporter):
         # overwrite to apply customizations to the deck before it's closed,
         # such as update the deck description
         pass
-    
+
     def removeSystemTags(self, tags: str) -> Any:
         return self.src.tags.remFromStr("marked leech", tags)
 
@@ -282,8 +290,10 @@ class AnkiExporter(Exporter):
                 return True
         return False
 
+
 # Packaged Anki decks
 ######################################################################
+
 
 class AnkiPackageExporter(AnkiExporter):
 
@@ -301,7 +311,7 @@ class AnkiPackageExporter(AnkiExporter):
         z.writestr("media", json.dumps(media))
         z.close()
 
-    def doExport(self, z: ZipFile, path: str) -> Dict[str, str]: # type: ignore
+    def doExport(self, z: ZipFile, path: str) -> Dict[str, str]:  # type: ignore
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
@@ -333,7 +343,7 @@ class AnkiPackageExporter(AnkiExporter):
             if os.path.isdir(mpath):
                 continue
             if os.path.exists(mpath):
-                if re.search(r'\.svg$', file, re.IGNORECASE):
+                if re.search(r"\.svg$", file, re.IGNORECASE):
                     z.write(mpath, cStr, zipfile.ZIP_DEFLATED)
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
@@ -353,7 +363,7 @@ class AnkiPackageExporter(AnkiExporter):
         path = namedtmp("dummy.anki2")
         c = Collection(path)
         n = c.newNote()
-        n[_('Front')] = "This file requires a newer version of Anki."
+        n[_("Front")] = "This file requires a newer version of Anki."
         c.addNote(n)
         c.save()
         c.close()
@@ -361,8 +371,10 @@ class AnkiPackageExporter(AnkiExporter):
         zip.write(path, "collection.anki2")
         os.unlink(path)
 
+
 # Collection package
 ######################################################################
+
 
 class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
@@ -391,12 +403,15 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
         mdir = self.col.media.dir()
         return self._exportMedia(z, os.listdir(mdir), mdir)
 
+
 # Export modules
 ##########################################################################
+
 
 def exporters() -> List[Tuple[str, Any]]:
     def id(obj):
         return ("%s (*%s)" % (obj.key, obj.ext), obj)
+
     exps = [
         id(AnkiCollectionPackageExporter),
         id(AnkiPackageExporter),

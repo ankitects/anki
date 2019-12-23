@@ -10,20 +10,29 @@ from anki.collection import _Collection
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
 from anki.lang import _, ngettext
-from anki.utils import (fieldChecksum, guid64, intTime, joinFields,
-                        splitFields, timestampID)
+from anki.utils import (
+    fieldChecksum,
+    guid64,
+    intTime,
+    joinFields,
+    splitFields,
+    timestampID,
+)
 
 # Stores a list of fields, tags and deck
 ######################################################################
 
+
 class ForeignNote:
     "An temporary object storing fields and attributes."
+
     def __init__(self) -> None:
         self.fields: List[str] = []
         self.tags: List[str] = []
         self.deck = None
-        self.cards: Dict[int,ForeignCard] = {} # map of ord -> card
+        self.cards: Dict[int, ForeignCard] = {}  # map of ord -> card
         self.fieldsStr = ""
+
 
 class ForeignCard:
     def __init__(self) -> None:
@@ -32,6 +41,7 @@ class ForeignCard:
         self.factor = STARTING_FACTOR
         self.reps = 0
         self.lapses = 0
+
 
 # Base class for CSV and similar text-based imports
 ######################################################################
@@ -46,6 +56,7 @@ class ForeignCard:
 # 0: update if first field matches existing note
 # 1: ignore if first field matches existing note
 # 2: import even if first field matches existing note
+
 
 class NoteImporter(Importer):
 
@@ -72,9 +83,9 @@ class NoteImporter(Importer):
         return 0
 
     def initMapping(self) -> None:
-        flds = [f['name'] for f in self.model['flds']]
+        flds = [f["name"] for f in self.model["flds"]]
         # truncate to provided count
-        flds = flds[0:self.fields()]
+        flds = flds[0 : self.fields()]
         # if there's room left, add tags
         if self.fields() > len(flds):
             flds.append("_tags")
@@ -83,7 +94,7 @@ class NoteImporter(Importer):
         self.mapping = flds
 
     def mappingOk(self) -> bool:
-        return self.model['flds'][0]['name'] in self.mapping
+        return self.model["flds"][0]["name"] in self.mapping
 
     def foreignNotes(self) -> List:
         "Return a list of foreign notes for importing."
@@ -104,13 +115,14 @@ class NoteImporter(Importer):
         # gather checks for duplicate comparison
         csums: Dict[str, List[int]] = {}
         for csum, id in self.col.db.execute(
-            "select csum, id from notes where mid = ?", self.model['id']):
+            "select csum, id from notes where mid = ?", self.model["id"]
+        ):
             if csum in csums:
                 csums[csum].append(id)
             else:
                 csums[csum] = [id]
         firsts: Dict[str, bool] = {}
-        fld0idx = self.mapping.index(self.model['flds'][0]['name'])
+        fld0idx = self.mapping.index(self.model["flds"][0]["name"])
         self._fmap = self.col.models.fieldMap(self.model)
         self._nextID = timestampID(self.col.db, "notes")
         # loop through the notes
@@ -137,14 +149,12 @@ class NoteImporter(Importer):
             csum = fieldChecksum(fld0)
             # first field must exist
             if not fld0:
-                self.log.append(_("Empty first field: %s") %
-                                " ".join(n.fields))
+                self.log.append(_("Empty first field: %s") % " ".join(n.fields))
                 continue
             # earlier in import?
             if fld0 in firsts and self.importMode != 2:
                 # duplicates in source file; log and ignore
-                self.log.append(_("Appeared twice in file: %s") %
-                                fld0)
+                self.log.append(_("Appeared twice in file: %s") % fld0)
                 continue
             firsts[fld0] = True
             # already exists?
@@ -152,8 +162,7 @@ class NoteImporter(Importer):
             if csum in csums:
                 # csum is not a guarantee; have to check
                 for id in csums[csum]:
-                    flds = self.col.db.scalar(
-                        "select flds from notes where id = ?", id)
+                    flds = self.col.db.scalar("select flds from notes where id = ?", id)
                     sflds = splitFields(flds)
                     if fld0 == sflds[0]:
                         # duplicate
@@ -188,8 +197,7 @@ class NoteImporter(Importer):
         self.col.updateFieldCache(self._ids)
         # generate cards
         if self.col.genCards(self._ids):
-            self.log.insert(0, _(
-                "Empty cards found. Please run Tools>Empty Cards."))
+            self.log.insert(0, _("Empty cards found. Please run Tools>Empty Cards."))
         # apply scheduling updates
         self.updateCards()
         # we randomize or order here, to ensure that siblings
@@ -197,27 +205,34 @@ class NoteImporter(Importer):
         did = self.col.decks.selected()
         conf = self.col.decks.confForDid(did)
         # in order due?
-        if conf['new']['order'] == NEW_CARDS_RANDOM:
+        if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.col.sched.randomizeCards(did)
 
         part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
-        part2 = ngettext("%d note updated", "%d notes updated",
-                         self.updateCount) % self.updateCount
+        part2 = (
+            ngettext("%d note updated", "%d notes updated", self.updateCount)
+            % self.updateCount
+        )
         if self.importMode == 0:
             unchanged = dupeCount - self.updateCount
         elif self.importMode == 1:
             unchanged = dupeCount
         else:
             unchanged = 0
-        part3 = ngettext("%d note unchanged", "%d notes unchanged",
-                         unchanged) % unchanged
+        part3 = (
+            ngettext("%d note unchanged", "%d notes unchanged", unchanged) % unchanged
+        )
         self.log.append("%s, %s, %s." % (part1, part2, part3))
         self.log.extend(updateLog)
         if self._emptyNotes:
-            self.log.append(_("""\
+            self.log.append(
+                _(
+                    """\
 One or more notes were not imported, because they didn't generate any cards. \
 This can happen when you have empty fields or when you have not mapped the \
-content in the text file to the correct fields."""))
+content in the text file to the correct fields."""
+                )
+            )
         self.total = len(self._ids)
 
     def newData(self, n: ForeignNote) -> Optional[list]:
@@ -230,14 +245,24 @@ content in the text file to the correct fields."""))
         for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
         self.col.tags.register(n.tags)
-        return [id, guid64(), self.model['id'],
-                intTime(), self.col.usn(), self.col.tags.join(n.tags),
-                n.fieldsStr, "", "", 0, ""]
+        return [
+            id,
+            guid64(),
+            self.model["id"],
+            intTime(),
+            self.col.usn(),
+            self.col.tags.join(n.tags),
+            n.fieldsStr,
+            "",
+            "",
+            0,
+            "",
+        ]
 
     def addNew(self, rows: List[List[Union[int, str]]]) -> None:
         self.col.db.executemany(
-            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)",
-            rows)
+            "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", rows
+        )
 
     def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
         self._ids.append(id)
@@ -246,27 +271,33 @@ content in the text file to the correct fields."""))
         if self._tagsMapped:
             self.col.tags.register(n.tags)
             tags = self.col.tags.join(n.tags)
-            return [intTime(), self.col.usn(), n.fieldsStr, tags,
-                    id, n.fieldsStr, tags]
+            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
         else:
-            return [intTime(), self.col.usn(), n.fieldsStr,
-                    id, n.fieldsStr]
+            return [intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr]
 
     def addUpdates(self, rows: List[List[Union[int, str]]]) -> None:
         old = self.col.db.totalChanges()
         if self._tagsMapped:
-            self.col.db.executemany("""
+            self.col.db.executemany(
+                """
 update notes set mod = ?, usn = ?, flds = ?, tags = ?
-where id = ? and (flds != ? or tags != ?)""", rows)
+where id = ? and (flds != ? or tags != ?)""",
+                rows,
+            )
         else:
-            self.col.db.executemany("""
+            self.col.db.executemany(
+                """
 update notes set mod = ?, usn = ?, flds = ?
-where id = ? and flds != ?""", rows)
+where id = ? and flds != ?""",
+                rows,
+            )
         self.updateCount = self.col.db.totalChanges() - old
 
-    def processFields(self, note: ForeignNote, fields: Optional[List[str]] = None) -> Any:
+    def processFields(
+        self, note: ForeignNote, fields: Optional[List[str]] = None
+    ) -> Any:
         if not fields:
-            fields = [""]*len(self.model['flds'])
+            fields = [""] * len(self.model["flds"])
         for c, f in enumerate(self.mapping):
             if not f:
                 continue
@@ -286,6 +317,9 @@ where id = ? and flds != ?""", rows)
         for nid, ord, c in self._cards:
             data.append((c.ivl, c.due, c.factor, c.reps, c.lapses, nid, ord))
         # we assume any updated cards are reviews
-        self.col.db.executemany("""
+        self.col.db.executemany(
+            """
 update cards set type = 2, queue = 2, ivl = ?, due = ?,
-factor = ?, reps = ?, lapses = ? where nid = ? and ord = ?""", data)
+factor = ?, reps = ?, lapses = ? where nid = ? and ord = ?""",
+            data,
+        )

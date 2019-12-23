@@ -22,13 +22,16 @@ from anki.utils import intTime, joinFields, timestampID
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
+
 class Card:
-    _qa: Optional[Dict[str,str]]
+    _qa: Optional[Dict[str, str]]
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: Optional[int]
 
-    def __init__(self, col: "anki.collection._Collection", id: Optional[int] = None) -> None:
+    def __init__(
+        self, col: "anki.collection._Collection", id: Optional[int] = None
+    ) -> None:
         self.col = col
         self.timerStarted = None
         self._qa = None
@@ -54,25 +57,26 @@ class Card:
             self.data = ""
 
     def load(self) -> None:
-        (self.id,
-         self.nid,
-         self.did,
-         self.ord,
-         self.mod,
-         self.usn,
-         self.type,
-         self.queue,
-         self.due,
-         self.ivl,
-         self.factor,
-         self.reps,
-         self.lapses,
-         self.left,
-         self.odue,
-         self.odid,
-         self.flags,
-         self.data) = self.col.db.first(
-             "select * from cards where id = ?", self.id)
+        (
+            self.id,
+            self.nid,
+            self.did,
+            self.ord,
+            self.mod,
+            self.usn,
+            self.type,
+            self.queue,
+            self.due,
+            self.ivl,
+            self.factor,
+            self.reps,
+            self.lapses,
+            self.left,
+            self.odue,
+            self.odid,
+            self.flags,
+            self.data,
+        ) = self.col.db.first("select * from cards where id = ?", self.id)
         self._qa = None
         self._note = None
 
@@ -104,7 +108,8 @@ insert or replace into cards values
             self.odue,
             self.odid,
             self.flags,
-            self.data)
+            self.data,
+        )
         self.col.log(self)
 
     def flushSched(self) -> None:
@@ -118,31 +123,54 @@ insert or replace into cards values
             """update cards set
 mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
 lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
-            self.mod, self.usn, self.type, self.queue, self.due, self.ivl,
-            self.factor, self.reps, self.lapses,
-            self.left, self.odue, self.odid, self.did, self.id)
+            self.mod,
+            self.usn,
+            self.type,
+            self.queue,
+            self.due,
+            self.ivl,
+            self.factor,
+            self.reps,
+            self.lapses,
+            self.left,
+            self.odue,
+            self.odid,
+            self.did,
+            self.id,
+        )
         self.col.log(self)
 
     def q(self, reload: bool = False, browser: bool = False) -> str:
-        return self.css() + self._getQA(reload, browser)['q']
+        return self.css() + self._getQA(reload, browser)["q"]
 
     def a(self) -> str:
-        return self.css() + self._getQA()['a']
+        return self.css() + self._getQA()["a"]
 
     def css(self) -> str:
-        return "<style>%s</style>" % self.model()['css']
+        return "<style>%s</style>" % self.model()["css"]
 
     def _getQA(self, reload: bool = False, browser: bool = False) -> Any:
         if not self._qa or reload:
-            f = self.note(reload); m = self.model(); t = self.template()
+            f = self.note(reload)
+            m = self.model()
+            t = self.template()
             if browser:
-                args = [t.get('bqfmt'), t.get('bafmt')]
+                args = [t.get("bqfmt"), t.get("bafmt")]
             else:
                 args = []
             self._qa = self.col._renderQA(
-                (self.id, f.id, m['id'], self.odid or self.did, self.ord,
-                 f.stringTags(), f.joinedFields(), self.flags),
-                *args)  # type: ignore
+                (
+                    self.id,
+                    f.id,
+                    m["id"],
+                    self.odid or self.did,
+                    self.ord,
+                    f.stringTags(),
+                    f.joinedFields(),
+                    self.flags,
+                ),
+                *args,
+            )  # type: ignore
         return self._qa
 
     def note(self, reload: bool = False) -> Any:
@@ -155,10 +183,10 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def template(self) -> Any:
         m = self.model()
-        if m['type'] == MODEL_STD:
-            return self.model()['tmpls'][self.ord]
+        if m["type"] == MODEL_STD:
+            return self.model()["tmpls"][self.ord]
         else:
-            return self.model()['tmpls'][0]
+            return self.model()["tmpls"][0]
 
     def startTimer(self) -> None:
         self.timerStarted = time.time()
@@ -166,20 +194,19 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def timeLimit(self) -> Any:
         "Time limit for answering in milliseconds."
         conf = self.col.decks.confForDid(self.odid or self.did)
-        return conf['maxTaken']*1000
+        return conf["maxTaken"] * 1000
 
     def shouldShowTimer(self) -> Any:
         conf = self.col.decks.confForDid(self.odid or self.did)
-        return conf['timer']
+        return conf["timer"]
 
     def timeTaken(self) -> Any:
         "Time taken to answer card, in integer MS."
-        total = int((time.time() - self.timerStarted)*1000)
+        total = int((time.time() - self.timerStarted) * 1000)
         return min(total, self.timeLimit())
 
     def isEmpty(self) -> Optional[bool]:
-        ords = self.col.models.availOrds(
-            self.model(), joinFields(self.note().fields))
+        ords = self.col.models.availOrds(self.model(), joinFields(self.note().fields))
         if self.ord not in ords:
             return True
         return False
@@ -187,10 +214,10 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def __repr__(self) -> str:
         d = dict(self.__dict__)
         # remove non-useful elements
-        del d['_note']
-        del d['_qa']
-        del d['col']
-        del d['timerStarted']
+        del d["_note"]
+        del d["_qa"]
+        del d["col"]
+        del d["timerStarted"]
         return pprint.pformat(d, width=300)
 
     def userFlag(self) -> Any:

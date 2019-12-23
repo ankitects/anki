@@ -16,7 +16,7 @@ class AnkiPackageImporter(Anki2Importer):
     nameToNum: Dict[str, str]
     zip: Optional[zipfile.ZipFile]
 
-    def run(self) -> None: # type: ignore
+    def run(self) -> None:  # type: ignore
         # extract the deck from the zip file
         self.zip = z = zipfile.ZipFile(self.file)
         # v2 scheduler?
@@ -26,7 +26,7 @@ class AnkiPackageImporter(Anki2Importer):
         except KeyError:
             suffix = ".anki2"
 
-        col = z.read("collection"+suffix)
+        col = z.read("collection" + suffix)
         colpath = tmpfile(suffix=suffix)
         with open(colpath, "wb") as f:
             f.write(col)
@@ -40,7 +40,7 @@ class AnkiPackageImporter(Anki2Importer):
             if os.path.commonprefix([path, dir]) != dir:
                 raise Exception("Invalid file")
 
-            self.nameToNum[unicodedata.normalize("NFC",v)] = k
+            self.nameToNum[unicodedata.normalize("NFC", v)] = k
         # run anki2 importer
         Anki2Importer.run(self)
         # import static media
@@ -54,5 +54,7 @@ class AnkiPackageImporter(Anki2Importer):
 
     def _srcMediaData(self, fname: str) -> Any:
         if fname in self.nameToNum:
-            return self.zip.read(self.nameToNum[fname]) # pytype: disable=attribute-error
+            return self.zip.read(
+                self.nameToNum[fname]
+            )  # pytype: disable=attribute-error
         return None
