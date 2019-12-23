@@ -71,12 +71,6 @@ import the types from each module into the other one, as it can cause a cyclic
 import. An example of how to work around this can be seen at
 https://github.com/dae/anki/commit/ed0b3d337458d7161811547932b6476f2d4bc887
 
-Maintaining Style
-------------------
-
-For consistency, changes should maintain the existing code style - camelCaps,
-<80 column lines, succinct variable names and so on.
-
 Tests Must Pass
 ----------------
 
@@ -84,6 +78,16 @@ Please make sure 'make check' completes successfully before submitting code.
 
 If your change is to anki/ and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
+
+Code Style
+------------------
+
+You are welcome to use snake_case variable names and functions in newly
+introduced code, but please avoid renaming existing variables and functions
+that use camelCaps.
+
+If your code isn't formatted correctly, 'make check' will report problems.
+You can fix the formatting automatically with 'make fixpyfmt'.
 
 Do One Thing
 -------------
