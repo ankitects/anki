@@ -190,10 +190,8 @@ class Editor:
         if cmd not in self._links:
             self._links[cmd] = func
         if keys:
-            QShortcut(
-                QKeySequence(keys),
-                self.widget,  # type: ignore
-                activated=lambda s=self: func(s),
+            QShortcut(  # type: ignore
+                QKeySequence(keys), self.widget, activated=lambda s=self: func(s),
             )
         btn = self._addButton(
             icon,
@@ -284,7 +282,7 @@ class Editor:
         runHook("setupEditorShortcuts", cuts, self)
         for row in cuts:
             if len(row) == 2:
-                keys, fn = row
+                keys, fn = row  # pylint: disable=unbalanced-tuple-unpacking
                 fn = self._addFocusCheck(fn)
             else:
                 keys, fn, _ = row
