@@ -123,19 +123,23 @@ class Editor:
             )
         )
         tip = _("Change colour (F8)")
-        righttopbtns.append(
-            """<button tabindex=-1 class=linkb title="{}"
+        righttopbtns.extend(
+            [
+                """<button tabindex=-1 class=linkb title="{}"
                 type="button" onclick="pycmd('changeCol');return false;">
                 <div style="display:inline-block; border-radius: 5px;"
                 class="topbut rainbow"></div></button>""".format(
-                tip
-            ),
-            self._addButton("text_cloze", "cloze", _("Cloze deletion (Ctrl+Shift+C)")),
-            self._addButton(
-                "paperclip", "attach", _("Attach pictures/audio/video (F3)")
-            ),
-            self._addButton("media-record", "record", _("Record audio (F5)")),
-            self._addButton("more", "more"),
+                    tip
+                ),
+                self._addButton(
+                    "text_cloze", "cloze", _("Cloze deletion (Ctrl+Shift+C)")
+                ),
+                self._addButton(
+                    "paperclip", "attach", _("Attach pictures/audio/video (F3)")
+                ),
+                self._addButton("media-record", "record", _("Record audio (F5)")),
+                self._addButton("more", "more"),
+            ]
         )
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
