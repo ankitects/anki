@@ -6,8 +6,10 @@ import builtins
 import getpass
 import gettext
 import locale
+import os
 import sys
 import tempfile
+import traceback
 from typing import Any, Optional
 
 import anki.lang
