@@ -54,12 +54,6 @@ but not very good at type inference, so it is mostly useful for checking code
 that has type signatures. It is able to read the bundled Qt stubs, and works
 across the whole Anki codebase.
 
-You can optionally use 'make pytype' to typecheck the code with pytype. Pytype
-is much slower, but it can catch errors in untyped code that mypy misses. It
-is not able to check the aqt/* code, as it can't read the Qt stubs, and it is
-not currently compatible with Python 3.8. It can be difficult to build on
-some platforms.
-
 The Qt stubs are not perfect, so you'll find when doing things like connecting
 signals, you may have to add the following to the end of a line to silence
 the spurious errors.
