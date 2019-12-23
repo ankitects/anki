@@ -6,4 +6,5 @@ class RSBridge:
         self._bridge = _ankirs.Bridge()
         assert self._bridge.cmd("") == "test"
 
+
 bridge = RSBridge()
