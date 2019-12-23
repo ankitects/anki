@@ -66,10 +66,6 @@ RUNREQS := .build/pyrunreqs .build/jsreqs
 	./tools/typecheck-setup.sh
 	touch $@
 
-.build/pytypereqs: .build/pycheckreqs
-	pip install pytype
-	touch $@
-
 .build/jsreqs: ts/package.json
 	(cd ts && npm i)
 	touch $@
@@ -140,15 +136,10 @@ PYCHECKDEPS := $(BUILDDEPS) .build/pycheckreqs $(shell find anki aqt -name '*.py
 	black --check $(BLACKARGS) # if this fails, run 'make fixpyfmt'
 	touch $@
 
-.build/pytype: $(PYCHECKDEPS) .build/pytypereqs
-	pytype --config pytype.conf
-	touch $@
-
-.PHONY: mypy pytest pylint pytype pyimports pyfmt
+.PHONY: mypy pytest pylint pyimports pyfmt
 mypy: .build/mypy
 pytest: .build/pytest
 pylint: .build/pylint
-pytype: .build/pytype
 pyimports: .build/pyimports
 pyfmt: .build/pyfmt
 
