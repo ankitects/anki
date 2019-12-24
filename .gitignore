@@ -10,7 +10,7 @@
 .pytype
 __pycache__
 anki/buildhash.py
-anki/bridge_pb2.py
+anki/bridge_pb2.*
 aqt/forms
 locale
 rs/ankirs/src/proto.rs

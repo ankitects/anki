@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from typing import Dict, List
 
 import _ankirs  # pytype: disable=import-error
@@ -66,4 +68,5 @@ class RSBridge:
             )
         )
         output = self._run_command(input).template_requirements
-        return proto_template_reqs_to_legacy(output.requirements)
+        reqs: List[pb.TemplateRequirement] = output.requirements  # type: ignore
+        return proto_template_reqs_to_legacy(reqs)

@@ -130,7 +130,7 @@ BUILDDEPS := .build/ui .build/js .build/rs .build/py-proto
 	@touch $@
 
 .build/py-proto: $(RUNREQS) $(PROTODEPS)
-	protoc --proto_path=proto --python_out=anki proto/bridge.proto
+	protoc --proto_path=proto --python_out=anki --mypy_out=anki proto/bridge.proto
 	@touch $@
 
 .PHONY: build clean
