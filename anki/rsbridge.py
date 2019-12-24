@@ -1,7 +1,11 @@
+from typing import Dict, List
+
 import _ankirs  # pytype: disable=import-error
 import betterproto
 
 from anki.proto import proto as pb
+
+from .types import AllTemplateReqs
 
 
 class BridgeException(Exception):
@@ -10,8 +14,28 @@ class BridgeException(Exception):
         (kind, obj) = betterproto.which_one_of(err, "value")
         if kind == "invalid_input":
             return f"invalid input: {obj.info}"
+        elif kind == "template_parse":
+            return f"template parse: {obj.info}"
         else:
             return f"unhandled error: {err} {obj}"
+
+
+def proto_template_reqs_to_legacy(
+    reqs: List[pb.TemplateRequirement],
+) -> AllTemplateReqs:
+    legacy_reqs = []
+    for (idx, req) in enumerate(reqs):
+        (kind, val) = betterproto.which_one_of(req, "value")
+        # fixme: sorting is for the unit tests - should check if any
+        # code depends on the order
+        if kind == "any":
+            legacy_reqs.append((idx, "any", sorted(req.any.ords)))
+        elif kind == "all":
+            legacy_reqs.append((idx, "all", sorted(req.all.ords)))
+        else:
+            l: List[int] = []
+            legacy_reqs.append((idx, "none", l))
+    return legacy_reqs
 
 
 class RSBridge:
@@ -33,5 +57,13 @@ class RSBridge:
         output = self._run_command(input)
         return output.plus_one.num
 
-
-bridge = RSBridge()
+    def template_requirements(
+        self, template_fronts: List[str], field_map: Dict[str, int]
+    ) -> AllTemplateReqs:
+        input = pb.BridgeInput(
+            template_requirements=pb.TemplateRequirementsIn(
+                template_front=template_fronts, field_names_to_ordinals=field_map
+            )
+        )
+        output = self._run_command(input).template_requirements
+        return proto_template_reqs_to_legacy(output.requirements)
