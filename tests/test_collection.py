@@ -8,11 +8,7 @@ from anki.stdmodels import addBasicModel, models
 
 from anki import Collection as aopen
 
-newPath = None
-newMod = None
-
 def test_create_open():
-    global newPath, newMod
     (fd, path) = tempfile.mkstemp(suffix=".anki2", prefix="test_attachNew")
     try:
         os.close(fd)
