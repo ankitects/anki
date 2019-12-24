@@ -392,12 +392,14 @@ environment points to a valid, writable folder.""",
         )
         return
 
+    if pmLoadResult.firstTime:
+        pm.setDefaultLang()
+
     if pmLoadResult.loadError:
         QMessageBox.warning(
             None,
             "Preferences Corrupt",
-            """\
-    Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
+            """Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
     profiles, please add them back using the same names to recover your cards.""",
         )
 
