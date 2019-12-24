@@ -348,10 +348,15 @@ def test_req():
     basic = mm.byName("Basic")
     assert 'req' in basic
     reqSize(basic)
-    assert basic['req'][0] == [0, 'all', [0]]
+    r = basic['req'][0]
+    assert r[0] == 0
+    assert r[1] in ("any", "all")
+    assert r[2] == [0]
     opt = mm.byName("Basic (optional reversed card)")
     reqSize(opt)
-    assert opt['req'][0] == [0, 'all', [0]]
+    r = opt['req'][0]
+    assert r[1] in ("any", "all")
+    assert r[2] == [0]
     assert opt['req'][1] == [1, 'all', [1, 2]]
     #testing any
     opt['tmpls'][1]['qfmt'] = "{{Back}}{{Add Reverse}}"
