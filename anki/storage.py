@@ -63,7 +63,11 @@ def Collection(
         addBasicModel(col)
         col.save()
     if lock:
-        col.lock()
+        try:
+            col.lock()
+        except:
+            col.db.close()
+            raise
     return col
 
 
