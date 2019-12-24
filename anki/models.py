@@ -8,6 +8,7 @@ import re
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+import anki  # pylint: disable=unused-import
 from anki.consts import *
 from anki.hooks import runHook
 from anki.lang import _
@@ -80,7 +81,7 @@ class ModelManager:
     # Saving/loading registry
     #############################################################
 
-    def __init__(self, col) -> None:
+    def __init__(self, col: "anki.storage._Collection") -> None:
         self.col = col
         self.models = {}
         self.changed = False
