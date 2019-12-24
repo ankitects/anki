@@ -10,10 +10,10 @@
 .pytype
 __pycache__
 anki/buildhash.py
-anki/bridge_pb2.*
+anki/backend_pb2.*
 aqt/forms
 locale
-rs/ankirs/src/proto.rs
+rs/ankirs/src/backend_proto.rs
 rs/target
 tools/runanki.system
 ts/node_modules

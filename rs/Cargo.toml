@@ -1,5 +1,5 @@
 [workspace]
-members = ["ankirs", "pybridge"]
+members = ["ankirs", "pymod"]
 
 [profile.release]
 lto = true

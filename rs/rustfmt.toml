@@ -1,1 +1,1 @@
-ignore = ["proto.rs"]
+ignore = ["backend_proto.rs"]

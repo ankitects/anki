@@ -1,22 +1,22 @@
+use crate::backend_proto as pt;
+use crate::backend_proto::backend_input::Value;
 use crate::err::{AnkiError, Result};
-use crate::proto as pt;
-use crate::proto::bridge_input::Value;
 use crate::template::{FieldMap, FieldRequirements, ParsedTemplate};
 use prost::Message;
 use std::collections::HashSet;
 
-pub struct Bridge {}
+pub struct Backend {}
 
-impl Default for Bridge {
+impl Default for Backend {
     fn default() -> Self {
-        Bridge {}
+        Backend {}
     }
 }
 
 /// Convert an Anki error to a protobuf error.
-impl std::convert::From<AnkiError> for pt::BridgeError {
+impl std::convert::From<AnkiError> for pt::BackendError {
     fn from(err: AnkiError) -> Self {
-        use pt::bridge_error::Value as V;
+        use pt::backend_error::Value as V;
         let value = match err {
             AnkiError::InvalidInput { info } => V::InvalidInput(pt::InvalidInputError { info }),
             AnkiError::TemplateParseError { info } => {
@@ -24,32 +24,32 @@ impl std::convert::From<AnkiError> for pt::BridgeError {
             }
         };
 
-        pt::BridgeError { value: Some(value) }
+        pt::BackendError { value: Some(value) }
     }
 }
 
 // Convert an Anki error to a protobuf output.
-impl std::convert::From<AnkiError> for pt::bridge_output::Value {
+impl std::convert::From<AnkiError> for pt::backend_output::Value {
     fn from(err: AnkiError) -> Self {
-        pt::bridge_output::Value::Error(err.into())
+        pt::backend_output::Value::Error(err.into())
     }
 }
 
-impl Bridge {
-    pub fn new() -> Bridge {
-        Bridge::default()
+impl Backend {
+    pub fn new() -> Backend {
+        Backend::default()
     }
 
     /// Decode a request, process it, and return the encoded result.
     pub fn run_command_bytes(&mut self, req: &[u8]) -> Vec<u8> {
         let mut buf = vec![];
 
-        let req = match pt::BridgeInput::decode(req) {
+        let req = match pt::BackendInput::decode(req) {
             Ok(req) => req,
             Err(_e) => {
                 // unable to decode
-                let err = AnkiError::invalid_input("couldn't decode bridge request");
-                let output = pt::BridgeOutput {
+                let err = AnkiError::invalid_input("couldn't decode backend request");
+                let output = pt::BackendOutput {
                     value: Some(err.into()),
                 };
                 output.encode(&mut buf).expect("encode failed");
@@ -62,21 +62,24 @@ impl Bridge {
         buf
     }
 
-    fn run_command(&self, input: pt::BridgeInput) -> pt::BridgeOutput {
+    fn run_command(&self, input: pt::BackendInput) -> pt::BackendOutput {
         let oval = if let Some(ival) = input.value {
             match self.run_command_inner(ival) {
                 Ok(output) => output,
                 Err(err) => err.into(),
             }
         } else {
-            AnkiError::invalid_input("unrecognized bridge input value").into()
+            AnkiError::invalid_input("unrecognized backend input value").into()
         };
 
-        pt::BridgeOutput { value: Some(oval) }
+        pt::BackendOutput { value: Some(oval) }
     }
 
-    fn run_command_inner(&self, ival: pt::bridge_input::Value) -> Result<pt::bridge_output::Value> {
-        use pt::bridge_output::Value as OValue;
+    fn run_command_inner(
+        &self,
+        ival: pt::backend_input::Value,
+    ) -> Result<pt::backend_output::Value> {
+        use pt::backend_output::Value as OValue;
         Ok(match ival {
             Value::TemplateRequirements(input) => {
                 OValue::TemplateRequirements(self.template_requirements(input)?)
@@ -100,7 +103,7 @@ impl Bridge {
             .map(|(name, ord)| (name.as_str(), *ord as u16))
             .collect();
         // map each provided template into a requirements list
-        use crate::proto::template_requirement::Value;
+        use crate::backend_proto::template_requirement::Value;
         let all_reqs = input
             .template_front
             .into_iter()
