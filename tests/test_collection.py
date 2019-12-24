@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import os, tempfile
+
+from anki.utils import isWin
 from tests.shared import assertException, getEmptyCol
 from anki.stdmodels import addBasicModel, models
 
@@ -30,8 +32,12 @@ def test_create_open():
     deck.close()
 
     # non-writeable dir
+    if isWin:
+        dir = "c:\root.anki2"
+    else:
+        dir = "/attachroot.anki2"
     assertException(Exception,
-                    lambda: aopen("/attachroot.anki2"))
+                    lambda: aopen(dir))
     # reuse tmp file from before, test non-writeable file
     os.chmod(newPath, 0)
     assertException(Exception,
