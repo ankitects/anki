@@ -1,6 +1,9 @@
 # coding: utf-8
 
-import nose, os, tempfile
+import os, tempfile
+
+from nose2.tools.decorators import with_setup
+
 from anki import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
@@ -24,7 +27,7 @@ def setup1():
 
 ##########################################################################
 
-@nose.with_setup(setup1)
+@with_setup(setup1)
 def test_export_anki():
     # create a new deck with its own conf to test conf copying
     did = deck.decks.id("test")
@@ -65,7 +68,7 @@ def test_export_anki():
     d2 = aopen(newname)
     assert d2.cardCount() == 1
 
-@nose.with_setup(setup1)
+@with_setup(setup1)
 def test_export_ankipkg():
     # add a test file to the media folder
     with open(os.path.join(deck.media.dir(), "今日.mp3"), "w") as f:
@@ -80,7 +83,7 @@ def test_export_ankipkg():
     os.unlink(newname)
     e.exportInto(newname)
 
-@nose.with_setup(setup1)
+@with_setup(setup1)
 def test_export_anki_due():
     deck = getEmptyCol()
     f = deck.newNote()
@@ -112,7 +115,7 @@ def test_export_anki_due():
     deck2.sched.reset()
     assert c.due - deck2.sched.today == 1
 
-# @nose.with_setup(setup1)
+# @with_setup(setup1)
 # def test_export_textcard():
 #     e = TextCardExporter(deck)
 #     f = unicode(tempfile.mkstemp(prefix="ankitest")[1])
@@ -121,7 +124,7 @@ def test_export_anki_due():
 #     e.includeTags = True
 #     e.exportInto(f)
 
-@nose.with_setup(setup1)
+@with_setup(setup1)
 def test_export_textnote():
     e = TextNoteExporter(deck)
     fd, f = tempfile.mkstemp(prefix="ankitest")
