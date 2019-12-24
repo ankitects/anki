@@ -20,10 +20,8 @@ To start, make sure you have the following installed:
  - npm
  - your platform's C compiler, eg gcc, Xcode or Visual Studio 2017.
  - GNU make
-
-Once the above are installed, install rustup from https://rustup.rs/. You can
-save some time by choosing a custom installation, and selecting a toolkit of
-'none' and 'minimal' tools.
+ - protoc (https://github.com/protocolbuffers/protobuf/releases)
+ - rustup (https://rustup.rs/)
 
 Next, build a Python virtual environment and activate it:
 
