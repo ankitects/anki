@@ -120,7 +120,7 @@ PYCHECKDEPS := $(BUILDDEPS) .build/pycheckreqs $(shell find anki aqt -name '*.py
 	mypy anki aqt
 	touch $@
 
-.build/pytest: $(PYCHECKDEPS)
+.build/pytest: $(PYCHECKDEPS) $(wildcard tests/*.py)
 	./tools/tests.sh
 	touch $@
 
