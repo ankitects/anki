@@ -5,6 +5,7 @@ edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors"]
 
 [dependencies]
+nom = "5.0.1"
 failure = "0.1.6"
 prost = "0.5.0"
 bytes = "0.4"

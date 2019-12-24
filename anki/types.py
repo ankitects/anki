@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 # Model attributes are stored in a dict keyed by strings. This type alias
 # provides more descriptive function signatures than just 'Dict[str, Any]'
@@ -31,3 +31,8 @@ QAData = Tuple[
     # Corresponds to 'cardFlags' column. TODO: document
     int,
 ]
+
+TemplateRequirementType = str  # Union["all", "any", "none"]
+# template ordinal, type, list of field ordinals
+TemplateRequiredFieldOrds = Tuple[int, TemplateRequirementType, List[int]]
+AllTemplateReqs = List[TemplateRequiredFieldOrds]
