@@ -1,4 +1,4 @@
-nose
+nose2
 mock
 mypy==0.750
 # fixme: when isort 5.0 is released, switch to pypy
