@@ -417,6 +417,7 @@ body {{ zoom: {}; background: {}; {} }}
 
     def _onHeight(self, qvar):
         from aqt import mw
+
         if qvar is None:
 
             mw.progress.timer(1000, mw.reset, False)
