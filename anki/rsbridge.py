@@ -1,9 +1,8 @@
 from typing import Dict, List
 
 import _ankirs  # pytype: disable=import-error
-import betterproto
 
-from anki.proto import proto as pb
+import anki.bridge_pb2 as pb
 
 from .types import AllTemplateReqs
 
@@ -11,13 +10,13 @@ from .types import AllTemplateReqs
 class BridgeException(Exception):
     def __str__(self) -> str:
         err: pb.BridgeError = self.args[0]  # pylint: disable=unsubscriptable-object
-        (kind, obj) = betterproto.which_one_of(err, "value")
+        kind = err.WhichOneof("value")
         if kind == "invalid_input":
-            return f"invalid input: {obj.info}"
+            return f"invalid input: {err.invalid_input.info}"
         elif kind == "template_parse":
-            return f"template parse: {obj.info}"
+            return f"template parse: {err.template_parse.info}"
         else:
-            return f"unhandled error: {err} {obj}"
+            return f"unhandled error: {err}"
 
 
 def proto_template_reqs_to_legacy(
@@ -25,7 +24,7 @@ def proto_template_reqs_to_legacy(
 ) -> AllTemplateReqs:
     legacy_reqs = []
     for (idx, req) in enumerate(reqs):
-        (kind, val) = betterproto.which_one_of(req, "value")
+        kind = req.WhichOneof("value")
         # fixme: sorting is for the unit tests - should check if any
         # code depends on the order
         if kind == "any":
@@ -43,12 +42,13 @@ class RSBridge:
         self._bridge = _ankirs.Bridge()
 
     def _run_command(self, input: pb.BridgeInput) -> pb.BridgeOutput:
-        input_bytes = bytes(input)
+        input_bytes = input.SerializeToString()
         output_bytes = self._bridge.command(input_bytes)
-        output = pb.BridgeOutput().parse(output_bytes)
-        (kind, obj) = betterproto.which_one_of(output, "value")
+        output = pb.BridgeOutput()
+        output.ParseFromString(output_bytes)
+        kind = output.WhichOneof("value")
         if kind == "error":
-            raise BridgeException(obj)
+            raise BridgeException(output.error)
         else:
             return output
 
