@@ -1,8 +1,9 @@
 # coding: utf-8
+import time
 
 from tests.shared import getEmptyCol
 from anki.consts import MODEL_CLOZE
-from anki.utils import stripHTML, joinFields
+from anki.utils import stripHTML, joinFields, isWin
 import anki.template
 
 def test_modelDelete():
@@ -267,6 +268,9 @@ def test_modelChange():
     assert f.cards()[0].id == c1.id
     # delete first card
     map = {0: None, 1: 1}
+    if isWin:
+        # The low precision timer on Windows reveals a race condition
+        time.sleep(0.05)
     deck.models.change(basic, [f.id], basic, None, map)
     f.load()
     c0.load()
