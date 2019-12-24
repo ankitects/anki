@@ -110,7 +110,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 # Rust source
 ######################
 
-RSDEPS := $(shell find rs -type f | grep -v target)
+RSDEPS := $(shell find rs -type f | egrep -v 'target|/\.|proto.rs')
 
 # Building
 ######################
