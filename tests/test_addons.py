@@ -1,8 +1,8 @@
 import os.path
-from nose.tools import assert_equals
 from mock import MagicMock
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
+from nose2.tools.such import helper
 
 from aqt.addons import AddonManager
 
@@ -80,4 +80,4 @@ def assertReadManifest(contents, expectedManifest, nameInZip="manifest.json"):
         adm = AddonManager(MagicMock())
 
         with ZipFile(zfn, "r") as zfile:
-            assert_equals(adm.readManifestFile(zfile), expectedManifest)
+            helper.assertEquals(adm.readManifestFile(zfile), expectedManifest)
