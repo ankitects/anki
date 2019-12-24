@@ -19,6 +19,7 @@ import anki.find
 import anki.latex  # sets up hook
 import anki.notes
 import anki.template
+from anki.backend import Backend
 from anki.cards import Card
 from anki.consts import *
 from anki.db import DB
@@ -29,7 +30,6 @@ from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbridge import RSBridge
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sound import stripSounds
@@ -85,12 +85,12 @@ class _Collection:
     ls: int
     conf: Dict[str, Any]
     _undo: List[Any]
-    rust: RSBridge
+    backend: Backend
 
     def __init__(
-        self, db: DB, server: bool = False, log: bool = False, rust: RSBridge = None
+        self, db: DB, backend: Backend, server: bool = False, log: bool = False
     ) -> None:
-        self.rust = rust
+        self.backend = backend
         self._debugLog = log
         self.db = db
         self.path = db._path

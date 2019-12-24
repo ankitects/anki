@@ -574,7 +574,7 @@ select id from notes where mid = ?)"""
         field_map = {}
         for (idx, fld) in enumerate(m["flds"]):
             field_map[fld["name"]] = idx
-        reqs = self.col.rust.template_requirements(fronts, field_map)
+        reqs = self.col.backend.template_requirements(fronts, field_map)
         m["req"] = [list(l) for l in reqs]
 
     def _reqForTemplate(

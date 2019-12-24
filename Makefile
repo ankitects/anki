@@ -126,11 +126,11 @@ BUILDDEPS := .build/ui .build/js .build/rs .build/py-proto
 	@touch $@
 
 .build/rs: .build/rust-deps $(RUNREQS) $(RSDEPS) $(PROTODEPS)
-	(cd rs/pybridge && maturin develop $(RUSTARGS))
+	(cd rs/pymod && maturin develop $(RUSTARGS))
 	@touch $@
 
 .build/py-proto: $(RUNREQS) $(PROTODEPS)
-	protoc --proto_path=proto --python_out=anki --mypy_out=anki proto/bridge.proto
+	protoc --proto_path=proto --python_out=anki --mypy_out=anki proto/backend.proto
 	@touch $@
 
 .PHONY: build clean

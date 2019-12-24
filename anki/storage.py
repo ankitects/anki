@@ -8,11 +8,11 @@ import os
 import re
 from typing import Any, Dict, Tuple
 
+from anki.backend import Backend
 from anki.collection import _Collection
 from anki.consts import *
 from anki.db import DB
 from anki.lang import _
-from anki.rsbridge import RSBridge
 from anki.stdmodels import (
     addBasicModel,
     addBasicTypingModel,
@@ -27,8 +27,10 @@ def Collection(
     path: str, lock: bool = True, server: bool = False, log: bool = False
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
-    bridge = RSBridge()
-    assert bridge.plus_one(5) == 6
+    backend = Backend()
+    # fixme: this call is temporarily here to ensure the brige is working
+    # on all platforms, and should be removed in a future beta
+    assert backend.plus_one(5) == 6
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
     create = not os.path.exists(path)
@@ -49,7 +51,7 @@ def Collection(
         db.execute("pragma journal_mode = wal")
     db.setAutocommit(False)
     # add db to col and do any remaining upgrades
-    col = _Collection(db, server, log, rust=bridge)
+    col = _Collection(db, backend=backend, server=server, log=log)
     if ver < SCHEMA_VERSION:
         _upgrade(col, ver)
     elif ver > SCHEMA_VERSION:

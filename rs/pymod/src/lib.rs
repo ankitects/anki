@@ -1,25 +1,25 @@
-use ankirs::bridge::Bridge as RustBridge;
+use ankirs::backend::Backend as RustBackend;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
 #[pyclass]
-struct Bridge {
-    bridge: RustBridge,
+struct Backend {
+    backend: RustBackend,
 }
 
 #[pymethods]
-impl Bridge {
+impl Backend {
     #[new]
     fn init(obj: &PyRawObject) {
         obj.init({
-            Bridge {
-                bridge: Default::default(),
+            Backend {
+                backend: Default::default(),
             }
         });
     }
 
     fn command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
-        let out_bytes = self.bridge.run_command_bytes(input.as_bytes());
+        let out_bytes = self.backend.run_command_bytes(input.as_bytes());
         let out_obj = PyBytes::new(py, &out_bytes);
         Ok(out_obj.into())
     }
@@ -27,7 +27,7 @@ impl Bridge {
 
 #[pymodule]
 fn _ankirs(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<Bridge>()?;
+    m.add_class::<Backend>()?;
 
     Ok(())
 }
