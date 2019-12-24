@@ -371,17 +371,17 @@ def test_req():
     mm.save(opt, templates=True)
     assert opt['req'][1] == [1, 'none', []]
 
-def test_updatereqs_performance():
-    import time
-    d = getEmptyCol()
-    mm = d.models
-    m = mm.byName("Basic")
-    for i in range(100):
-        fld = mm.newField(f"field{i}")
-        mm.addField(m, fld)
-        tmpl = mm.newTemplate(f"template{i}")
-        tmpl['qfmt'] = "{{field%s}}" % i
-        mm.addTemplate(m, tmpl)
-    t = time.time()
-    mm.save(m, templates=True)
-    print("took", (time.time()-t)*100)
+# def test_updatereqs_performance():
+#     import time
+#     d = getEmptyCol()
+#     mm = d.models
+#     m = mm.byName("Basic")
+#     for i in range(100):
+#         fld = mm.newField(f"field{i}")
+#         mm.addField(m, fld)
+#         tmpl = mm.newTemplate(f"template{i}")
+#         tmpl['qfmt'] = "{{field%s}}" % i
+#         mm.addTemplate(m, tmpl)
+#     t = time.time()
+#     mm.save(m, templates=True)
+#     print("took", (time.time()-t)*100)
