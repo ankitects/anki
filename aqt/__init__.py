@@ -332,11 +332,19 @@ def _run(argv=None, exec=True):
     opts, args = parseArgs(argv)
 
     # profile manager
-    pm = ProfileManager(opts.base)
-    pmLoadResult = pm.setupMeta()
+    pm = None
+    try:
+        pm = ProfileManager(opts.base)
+        pmLoadResult = pm.setupMeta()
+    except:
+        # will handle below
+        pass
 
-    # gl workarounds
-    setupGL(pm)
+    if pm:
+        # gl workarounds
+        setupGL(pm)
+        # apply user-provided scale factor
+        os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
 
     # opt in to full hidpi support?
     if not os.environ.get("ANKI_NOHIGHDPI"):
@@ -348,15 +356,22 @@ def _run(argv=None, exec=True):
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
 
-    # apply user-provided scale factor
-    os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
-
     # create the app
     QCoreApplication.setApplicationName("Anki")
     QGuiApplication.setDesktopFileName("anki.desktop")
     app = AnkiApp(argv)
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
+        return
+
+    if not pm:
+        QMessageBox.critical(
+            None,
+            "Error",
+            """\
+Anki could not create its data folder. Please see the File Locations \
+section of the manual, and ensure that location is not read-only.""",
+        )
         return
 
     # disable icons on mac; this must be done before window created
