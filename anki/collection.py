@@ -29,6 +29,7 @@ from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager
 from anki.notes import Note
+from anki.rsbridge import RSBridge
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sound import stripSounds
@@ -84,8 +85,12 @@ class _Collection:
     ls: int
     conf: Dict[str, Any]
     _undo: List[Any]
+    rust: RSBridge
 
-    def __init__(self, db: DB, server: bool = False, log: bool = False) -> None:
+    def __init__(
+        self, db: DB, server: bool = False, log: bool = False, rust: RSBridge = None
+    ) -> None:
+        self.rust = rust
         self._debugLog = log
         self.db = db
         self.path = db._path

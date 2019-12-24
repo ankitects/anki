@@ -3,15 +3,18 @@
 *\#
 *~
 .*.swp
-.DS_Store
 .build
 .coverage
+.DS_Store
 .mypy_cache
 .pytype
 __pycache__
 anki/buildhash.py
+anki/proto
 aqt/forms
 locale
+rs/ankirs/src/proto.rs
+rs/target
 tools/runanki.system
 ts/node_modules
 web/deckbrowser.js
@@ -20,4 +23,3 @@ web/overview.js
 web/reviewer-bottom.js
 web/reviewer.js
 web/webview.js
-rs/target

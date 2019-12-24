@@ -3,3 +3,11 @@ name = "ankirs"
 version = "0.1.0"
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors"]
+
+[dependencies]
+failure = "0.1.6"
+prost = "0.5.0"
+bytes = "0.4"
+
+[build-dependencies]
+prost-build = "0.5.0"

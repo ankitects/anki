@@ -96,6 +96,11 @@ RUST_TOOLCHAIN := $(shell cat rs/rust-toolchain)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
 	@touch $@
 
+# Protobuf
+######################
+
+PROTODEPS := $(wildcard proto/*.proto)
+
 # Typescript source
 ######################
 
@@ -105,12 +110,12 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 # Rust source
 ######################
 
-RSDEPS := $(wildcard rs/*/src/*.rs)
+RSDEPS := $(shell find rs -type f | grep -v target)
 
 # Building
 ######################
 
-BUILDDEPS := .build/ui .build/js .build/rs
+BUILDDEPS := .build/ui .build/js .build/rs .build/py-proto
 
 .build/ui: $(RUNREQS) $(shell find designer -type f)
 	./tools/build_ui.sh
@@ -120,8 +125,12 @@ BUILDDEPS := .build/ui .build/js .build/rs
 	(cd ts && npm run build)
 	@touch $@
 
-.build/rs: .build/rust-deps $(RUNREQS) $(RSDEPS)
+.build/rs: .build/rust-deps $(RUNREQS) $(RSDEPS) $(PROTODEPS)
 	(cd rs/pybridge && maturin develop $(RUSTARGS))
+	@touch $@
+
+.build/py-proto: $(RUNREQS) $(PROTODEPS)
+	protoc -I proto --python_betterproto_out=anki/proto proto/bridge.proto
 	@touch $@
 
 .PHONY: build clean
@@ -147,6 +156,9 @@ run: build
 .PHONY: check
 check: rs-test rs-fmt rs-clippy py-mypy py-test py-fmt py-imports py-lint ts-fmt
 
+.PHONY: fix
+fix: fix-py-fmt fix-py-imports fix-rs-fmt fix-ts-fmt
+
 # Checking python
 ######################
 
@@ -156,7 +168,7 @@ PYCHECKDEPS := $(BUILDDEPS) .build/py-check-reqs $(shell find anki aqt -name '*.
 	mypy anki aqt
 	@touch $@
 
-.build/pytest: $(PYCHECKDEPS) $(wildcard tests/*.py)
+.build/py-test: $(PYCHECKDEPS) $(wildcard tests/*.py)
 	./tools/tests.sh
 	@touch $@
 

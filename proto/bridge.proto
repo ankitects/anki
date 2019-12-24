@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package proto;
+
+message Empty {}
+
+message BridgeInput {
+    oneof value {
+        PlusOneIn plus_one = 2;
+    }
+}
+
+message BridgeOutput {
+    oneof value {
+        BridgeError error = 1;
+        PlusOneOut plus_one = 2;
+    }
+}
+
+message BridgeError {
+    oneof value {
+        InvalidInputError invalid_input = 1;
+    }
+}
+
+message InvalidInputError {
+    string info = 1;
+}
+
+message PlusOneIn {
+    int32 num = 1;
+}
+
+message PlusOneOut {
+    int32 num = 1;
+}
