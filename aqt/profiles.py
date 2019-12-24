@@ -97,22 +97,7 @@ class ProfileManager:
     ######################################################################
 
     def ensureBaseExists(self):
-        try:
-            self._ensureExists(self.base)
-        except:
-            # can't translate, as lang not initialized, and qt may not be
-            print("unable to create base folder")
-            QMessageBox.critical(
-                None,
-                "Error",
-                """\
-Anki could not create the folder %s. Please ensure that location is not \
-read-only and you have permission to write to it. If you cannot fix this \
-issue, please see the documentation for information on running Anki from \
-a flash drive."""
-                % self.base,
-            )
-            raise
+        self._ensureExists(self.base)
 
     # Folder migration
     ######################################################################
