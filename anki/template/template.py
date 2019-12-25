@@ -200,12 +200,13 @@ class Template:
                     return "{unknown field %s}" % tag_name
         return txt
 
-    def clozeText(self, txt, ord, type) -> str:
+    @classmethod
+    def clozeText(cls, txt, ord, type) -> str:
         reg = clozeReg
         if not re.search(reg % ord, txt):
             # No Cloze deletion was found in txt.
             return ""
-        txt = self._removeFormattingFromMathjax(txt, ord)
+        txt = cls._removeFormattingFromMathjax(txt, ord)
 
         def repl(m):
             # replace chosen cloze with type
@@ -225,7 +226,8 @@ class Template:
         # and display other clozes normally
         return re.sub(reg % r"\d+", "\\2", txt)
 
-    def _removeFormattingFromMathjax(self, txt, ord) -> str:
+    @classmethod
+    def _removeFormattingFromMathjax(cls, txt, ord) -> str:
         """Marks all clozes within MathJax to prevent formatting them.
 
         Active Cloze deletions within MathJax should not be wrapped inside
