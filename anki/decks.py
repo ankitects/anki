@@ -8,6 +8,7 @@ import operator
 import unicodedata
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
+import anki  # pylint: disable=unused-import
 from anki.consts import *
 from anki.errors import DeckRenameError
 from anki.hooks import runHook
@@ -98,7 +99,7 @@ class DeckManager:
     # Registry save/load
     #############################################################
 
-    def __init__(self, col) -> None:
+    def __init__(self, col: "anki.storage._Collection") -> None:
         self.col = col
         self.decks = {}
         self.dconf = {}

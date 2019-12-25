@@ -8,3 +8,7 @@ jsonschema
 psutil; sys_platform == "win32"
 distro; sys_platform != "win32" and sys_platform != "darwin"
 typing
+protobuf
+mypy==0.750
+mypy_protobuf
+

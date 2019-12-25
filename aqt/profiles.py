@@ -97,22 +97,7 @@ class ProfileManager:
     ######################################################################
 
     def ensureBaseExists(self):
-        try:
-            self._ensureExists(self.base)
-        except:
-            # can't translate, as lang not initialized, and qt may not be
-            print("unable to create base folder")
-            QMessageBox.critical(
-                None,
-                "Error",
-                """\
-Anki could not create the folder %s. Please ensure that location is not \
-read-only and you have permission to write to it. If you cannot fix this \
-issue, please see the documentation for information on running Anki from \
-a flash drive."""
-                % self.base,
-            )
-            raise
+        self._ensureExists(self.base)
 
     # Folder migration
     ######################################################################
@@ -385,7 +370,6 @@ create table if not exists profiles
             "insert or replace into profiles values ('_global', ?)",
             self._pickle(metaConf),
         )
-        self._setDefaultLang()
         return result
 
     def _ensureProfile(self):
@@ -409,7 +393,7 @@ please see:
     ######################################################################
     # On first run, allow the user to choose the default language
 
-    def _setDefaultLang(self):
+    def setDefaultLang(self):
         # create dialog
         class NoCloseDiag(QDialog):
             def reject(self):
@@ -452,7 +436,7 @@ please see:
             None, "Anki", en % name, QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         if r != QMessageBox.Yes:
-            return self._setDefaultLang()
+            return self.setDefaultLang()
         self.setLang(code)
 
     def setLang(self, code):

@@ -1,0 +1,1 @@
+ignore = ["backend_proto.rs"]

@@ -10,11 +10,7 @@ set -e
 BIN="$(cd "`dirname "$0"`"; pwd)"
 export PYTHONPATH=${BIN}/..:${PYTHONPATH}
 
-# favour nosetests3 if available
-nose=nosetests
-if which nosetests3 >/dev/null 2>&1; then
-    nose=nosetests3
-fi
+nose="python -m nose2 --plugin=nose2.plugins.mp -N 16"
 
 dir=.
 
@@ -24,7 +20,4 @@ else
     lim="tests.test_$1"
 fi
 
-if [ x$coverage != x ]; then
-    args="--with-coverage"
-fi
-(cd $dir && $nose -s --processes=16 --process-timeout=300 $lim $args --cover-package=anki)
+(cd $dir && $nose $lim $args)

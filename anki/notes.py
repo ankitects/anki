@@ -4,6 +4,7 @@
 
 from typing import Any, List, Optional, Tuple
 
+import anki  # pylint: disable=unused-import
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -19,7 +20,10 @@ class Note:
     tags: List[str]
 
     def __init__(
-        self, col, model: Optional[Any] = None, id: Optional[int] = None
+        self,
+        col: "anki.storage._Collection",
+        model: Optional[Any] = None,
+        id: Optional[int] = None,
     ) -> None:
         assert not (model and id)
         self.col = col

@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package backend_proto;
+
+message Empty {}
+
+message BackendInput {
+    oneof value {
+        PlusOneIn plus_one = 2;
+        TemplateRequirementsIn template_requirements = 3;
+    }
+}
+
+message BackendOutput {
+    oneof value {
+        BackendError error = 1;
+        PlusOneOut plus_one = 2;
+        TemplateRequirementsOut template_requirements = 3;
+    }
+}
+
+message BackendError {
+    oneof value {
+        InvalidInputError invalid_input = 1;
+        TemplateParseError template_parse = 2;
+    }
+}
+
+message InvalidInputError {
+    string info = 1;
+}
+
+message PlusOneIn {
+    int32 num = 1;
+}
+
+message PlusOneOut {
+    int32 num = 1;
+}
+
+message TemplateParseError {
+    string info = 1;
+}
+
+message TemplateRequirementsIn {
+    repeated string template_front = 1;
+    map<string, uint32> field_names_to_ordinals = 2;
+}
+
+message TemplateRequirementsOut {
+    repeated TemplateRequirement requirements = 1;
+}
+
+message TemplateRequirement {
+    oneof value {
+        TemplateRequirementAll all = 1;
+        TemplateRequirementAny any = 2;
+        Empty none = 3;
+    }
+}
+
+message TemplateRequirementAll {
+    repeated uint32 ords = 1;
+}
+
+message TemplateRequirementAny {
+    repeated uint32 ords = 1;
+}
