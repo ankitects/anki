@@ -2,6 +2,7 @@
 
 import os
 from tests.shared import getEmptyCol
+import tempfile
 
 
 def test_stats():
@@ -26,10 +27,11 @@ def test_graphs_empty():
 
 def test_graphs():
     from anki import Collection as aopen
+    dir = tempfile.gettempdir()
 
-    d = aopen(os.path.expanduser("~/test.anki2"))
+    d = aopen(os.path.join(dir, "test.anki2"))
     g = d.stats()
     rep = g.report()
-    with open(os.path.expanduser("~/test.html"), "w") as f:
+    with open(os.path.join(dir, "test.html"), "w") as f:
         f.write(rep)
     return
