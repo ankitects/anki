@@ -705,6 +705,9 @@ def test_filt_reviewing_early_normal():
 
 def test_filt_keep_lrn_state():
     d = getEmptyCol()
+    if (d.sched.dayCutoff - time.time()) < 60*60*3:
+        print("test_filt_keep_lrn_state disabled due to time of day")
+        return
 
     f = d.newNote()
     f['Front'] = "one"
