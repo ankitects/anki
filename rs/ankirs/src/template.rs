@@ -177,7 +177,12 @@ fn template_is_empty<'a>(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode<'a
         match node {
             // ignore normal text
             Text(_) => (),
-            Replacement { key, .. } => {
+            Replacement { key, filters } => {
+                // Anki doesn't consider a type: reference as a required field
+                if filters.contains(&"type") {
+                    continue;
+                }
+
                 if nonempty_fields.contains(*key) {
                     // a single replacement is enough
                     return false;
@@ -307,7 +312,7 @@ mod test {
         let mut tmpl = PT::from_text("{{2}}{{1}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), true);
         tmpl = PT::from_text("{{2}}{{type:cloze:1}}").unwrap();
-        assert_eq!(tmpl.renders_with_fields(&fields), true);
+        assert_eq!(tmpl.renders_with_fields(&fields), false);
         tmpl = PT::from_text("{{2}}{{4}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), false);
         tmpl = PT::from_text("{{#3}}{{^2}}{{1}}{{/2}}{{/3}}").unwrap();
@@ -346,8 +351,10 @@ mod test {
             FieldRequirements::All(HashSet::from_iter(vec![0, 1].into_iter()))
         );
 
-        // fixme: handling of type in answer card reqs doesn't match desktop,
-        // which only requires first field
-        //
+        tmpl = PT::from_text("{{a}}{{type:b}}").unwrap();
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(HashSet::from_iter(vec![0].into_iter()))
+        );
     }
 }

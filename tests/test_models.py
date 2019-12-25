@@ -371,6 +371,12 @@ def test_req():
     mm.save(opt, templates=True)
     assert opt['req'][1] == [1, 'none', []]
 
+    opt = mm.byName("Basic (type in the answer)")
+    reqSize(opt)
+    r = opt['req'][0]
+    assert r[1] in ("any", "all")
+    assert r[2] == [0]
+
 # def test_updatereqs_performance():
 #     import time
 #     d = getEmptyCol()
