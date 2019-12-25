@@ -8,6 +8,14 @@ from tests.shared import getEmptyCol
 from anki.utils import  intTime
 from anki.hooks import addHook
 
+# Between 2-4AM, shift the time back so test assumptions hold.
+lt = time.localtime()
+if lt.tm_hour > 2 and lt.tm_hour < 4:
+    orig_time = time.time
+    def adjusted_time():
+        return orig_time() - 60*60*2
+    time.time = adjusted_time
+
 def test_clock():
     d = getEmptyCol()
     if (d.sched.dayCutoff - intTime()) < 10*60:
@@ -705,9 +713,6 @@ def test_filt_reviewing_early_normal():
 
 def test_filt_keep_lrn_state():
     d = getEmptyCol()
-    if (d.sched.dayCutoff - time.time()) < 60*60*3:
-        print("test_filt_keep_lrn_state disabled due to time of day")
-        return
 
     f = d.newNote()
     f['Front'] = "one"
