@@ -1,10 +1,10 @@
 # coding: utf-8
 import time
 
-from tests.shared import getEmptyCol
-from anki.consts import MODEL_CLOZE
-from anki.utils import stripHTML, joinFields, isWin
 import anki.template
+from anki.consts import MODEL_CLOZE
+from anki.utils import isWin, joinFields, stripHTML
+from tests.shared import getEmptyCol
 
 
 def test_modelDelete():

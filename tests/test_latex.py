@@ -1,11 +1,10 @@
 # coding: utf-8
 
 import os
-
 import shutil
 
-from tests.shared import getEmptyCol
 from anki.utils import stripHTML
+from tests.shared import getEmptyCol
 
 
 def test_latex():
