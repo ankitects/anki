@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
+      - name: Set up Protoc
+        uses: Arduino/actions/setup-protoc@master
       - name: Run checks
         run: |
           sudo apt install portaudio19-dev
