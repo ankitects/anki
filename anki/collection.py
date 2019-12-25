@@ -5,6 +5,7 @@
 import copy
 import datetime
 import json
+import logging
 import os
 import pprint
 import random
@@ -592,7 +593,7 @@ where c.nid = n.id and c.id in %s group by nid"""
             fields = splitFields(flds)
             model = self.models.get(mid)
             if not model:
-                # note points to invalid model
+                logging.error("note %d points to invalid model %d", nid, mid)
                 continue
             r.append(
                 (
