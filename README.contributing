@@ -69,6 +69,12 @@ Tests Must Pass
 ----------------
 
 Please make sure 'make check' completes successfully before submitting code.
+You can do this automatically by adding the following into .git/hooks/pre-push
+and making it executable.
+
+#!/bin/bash
+set -e
+make check
 
 If your change is to anki/ and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
