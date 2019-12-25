@@ -1,22 +1,28 @@
 # coding: utf-8
 
-import  os
-from tests.shared import  getUpgradeDeckPath, getEmptyCol
+import os
+from tests.shared import getUpgradeDeckPath, getEmptyCol
 from anki.utils import ids2str
-from anki.importing import Anki2Importer, TextImporter, \
-    SupermemoXmlImporter, MnemosyneImporter, AnkiPackageImporter
+from anki.importing import (
+    Anki2Importer,
+    TextImporter,
+    SupermemoXmlImporter,
+    MnemosyneImporter,
+    AnkiPackageImporter,
+)
 
 testDir = os.path.dirname(__file__)
 
-srcNotes=None
-srcCards=None
+srcNotes = None
+srcCards = None
+
 
 def test_anki2_mediadupes():
     tmp = getEmptyCol()
     # add a note that references a sound
     n = tmp.newNote()
-    n['Front'] = "[sound:foo.mp3]"
-    mid = n.model()['id']
+    n["Front"] = "[sound:foo.mp3]"
+    mid = n.model()["id"]
     tmp.addNote(n)
     # add that sound to media folder
     with open(os.path.join(tmp.media.dir(), "foo.mp3"), "w") as f:
@@ -41,8 +47,7 @@ def test_anki2_mediadupes():
         f.write("bar")
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
-    assert sorted(os.listdir(empty.media.dir())) == [
-        "foo.mp3", "foo_%s.mp3" % mid]
+    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
     n = empty.getNote(empty.db.scalar("select id from notes"))
     assert "_" in n.fields[0]
     # if the localized media file already exists, we rewrite the note and
@@ -52,12 +57,11 @@ def test_anki2_mediadupes():
         f.write("bar")
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
-    assert sorted(os.listdir(empty.media.dir())) == [
-        "foo.mp3", "foo_%s.mp3" % mid]
-    assert sorted(os.listdir(empty.media.dir())) == [
-        "foo.mp3", "foo_%s.mp3" % mid]
+    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
+    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
     n = empty.getNote(empty.db.scalar("select id from notes"))
     assert "_" in n.fields[0]
+
 
 def test_apkg():
     tmp = getEmptyCol()
@@ -65,12 +69,12 @@ def test_apkg():
     imp = AnkiPackageImporter(tmp, apkg)
     assert os.listdir(tmp.media.dir()) == []
     imp.run()
-    assert os.listdir(tmp.media.dir()) == ['foo.wav']
+    assert os.listdir(tmp.media.dir()) == ["foo.wav"]
     # importing again should be idempotent in terms of media
     tmp.remCards(tmp.db.list("select id from cards"))
     imp = AnkiPackageImporter(tmp, apkg)
     imp.run()
-    assert os.listdir(tmp.media.dir()) == ['foo.wav']
+    assert os.listdir(tmp.media.dir()) == ["foo.wav"]
     # but if the local file has different data, it will rename
     tmp.remCards(tmp.db.list("select id from cards"))
     with open(os.path.join(tmp.media.dir(), "foo.wav"), "w") as f:
@@ -78,6 +82,7 @@ def test_apkg():
     imp = AnkiPackageImporter(tmp, apkg)
     imp.run()
     assert len(os.listdir(tmp.media.dir())) == 2
+
 
 def test_anki2_diffmodel_templates():
     # different from the above as this one tests only the template text being
@@ -94,11 +99,12 @@ def test_anki2_diffmodel_templates():
     imp.dupeOnSchemaChange = True
     imp.run()
     # collection should contain the note we imported
-    assert(dst.noteCount() == 1)
+    assert dst.noteCount() == 1
     # the front template should contain the text added in the 2nd package
-    tcid = dst.findCards("")[0] # only 1 note in collection
+    tcid = dst.findCards("")[0]  # only 1 note in collection
     tnote = dst.getCard(tcid).note()
-    assert("Changed Front Template" in dst.findTemplates(tnote)[0]['qfmt'])
+    assert "Changed Front Template" in dst.findTemplates(tnote)[0]["qfmt"]
+
 
 def test_anki2_updates():
     # create a new empty deck
@@ -127,6 +133,7 @@ def test_anki2_updates():
     assert dst.noteCount() == 1
     assert dst.db.scalar("select flds from notes").startswith("goodbye")
 
+
 def test_csv():
     deck = getEmptyCol()
     file = str(os.path.join(testDir, "support/text-2fields.txt"))
@@ -147,7 +154,7 @@ def test_csv():
     n.flush()
     i.run()
     n.load()
-    assert n.tags == ['test']
+    assert n.tags == ["test"]
     # if add-only mode, count will be 0
     i.importMode = 1
     i.run()
@@ -161,6 +168,7 @@ def test_csv():
     assert deck.cardCount() == 11
     deck.close()
 
+
 def test_csv2():
     deck = getEmptyCol()
     mm = deck.models
@@ -169,9 +177,9 @@ def test_csv2():
     mm.addField(m, f)
     mm.save(m)
     n = deck.newNote()
-    n['Front'] = "1"
-    n['Back'] = "2"
-    n['Three'] = "3"
+    n["Front"] = "1"
+    n["Back"] = "2"
+    n["Three"] = "3"
     deck.addNote(n)
     # an update with unmapped fields should not clobber those fields
     file = str(os.path.join(testDir, "support/text-update.txt"))
@@ -179,16 +187,17 @@ def test_csv2():
     i.initMapping()
     i.run()
     n.load()
-    assert n['Front'] == "1"
-    assert n['Back'] == "x"
-    assert n['Three'] == "3"
+    assert n["Front"] == "1"
+    assert n["Back"] == "x"
+    assert n["Three"] == "3"
     deck.close()
+
 
 def test_supermemo_xml_01_unicode():
     deck = getEmptyCol()
     file = str(os.path.join(testDir, "support/supermemo1.xml"))
     i = SupermemoXmlImporter(deck, file)
-    #i.META.logToStdOutput = True
+    # i.META.logToStdOutput = True
     i.run()
     assert i.total == 1
     cid = deck.db.scalar("select id from cards")
@@ -197,6 +206,7 @@ def test_supermemo_xml_01_unicode():
     assert c.factor == 2879
     assert c.reps == 7
     deck.close()
+
 
 def test_mnemo():
     deck = getEmptyCol()

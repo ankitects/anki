@@ -13,19 +13,25 @@ deck = None
 ds = None
 testDir = os.path.dirname(__file__)
 
+
 def setup1():
     global deck
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = "foo"; f['Back'] = "bar<br>"; f.tags = ["tag", "tag2"]
+    f["Front"] = "foo"
+    f["Back"] = "bar<br>"
+    f.tags = ["tag", "tag2"]
     deck.addNote(f)
     # with a different deck
     f = deck.newNote()
-    f['Front'] = "baz"; f['Back'] = "qux"
-    f.model()['did'] = deck.decks.id("new deck")
+    f["Front"] = "baz"
+    f["Back"] = "qux"
+    f.model()["did"] = deck.decks.id("new deck")
     deck.addNote(f)
 
+
 ##########################################################################
+
 
 @with_setup(setup1)
 def test_export_anki():
@@ -34,7 +40,7 @@ def test_export_anki():
     dobj = deck.decks.get(did)
     confId = deck.decks.confId("newconf")
     conf = deck.decks.getConf(confId)
-    conf['new']['perDay'] = 5
+    conf["new"]["perDay"] = 5
     deck.decks.save(conf)
     deck.decks.setConf(dobj, confId)
     # export
@@ -46,7 +52,7 @@ def test_export_anki():
     e.exportInto(newname)
     # exporting should not have changed conf for original deck
     conf = deck.decks.confForDid(did)
-    assert conf['id'] != 1
+    assert conf["id"] != 1
     # connect to new deck
     d2 = aopen(newname)
     assert d2.cardCount() == 2
@@ -54,10 +60,10 @@ def test_export_anki():
     did = d2.decks.id("test", create=False)
     assert did
     conf2 = d2.decks.confForDid(did)
-    assert conf2['new']['perDay'] == 20
+    assert conf2["new"]["perDay"] == 20
     dobj = d2.decks.get(did)
     # conf should be 1
-    assert dobj['conf'] == 1
+    assert dobj["conf"] == 1
     # try again, limited to a deck
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
     newname = str(newname)
@@ -68,13 +74,14 @@ def test_export_anki():
     d2 = aopen(newname)
     assert d2.cardCount() == 1
 
+
 @with_setup(setup1)
 def test_export_ankipkg():
     # add a test file to the media folder
     with open(os.path.join(deck.media.dir(), "今日.mp3"), "w") as f:
         f.write("test")
     n = deck.newNote()
-    n['Front'] = '[sound:今日.mp3]'
+    n["Front"] = "[sound:今日.mp3]"
     deck.addNote(n)
     e = AnkiPackageExporter(deck)
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".apkg")
@@ -83,13 +90,14 @@ def test_export_ankipkg():
     os.unlink(newname)
     e.exportInto(newname)
 
+
 @with_setup(setup1)
 def test_export_anki_due():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = "foo"
+    f["Front"] = "foo"
     deck.addNote(f)
-    deck.crt -= 86400*10
+    deck.crt -= 86400 * 10
     deck.sched.reset()
     c = deck.sched.getCard()
     deck.sched.answerCard(c, 3)
@@ -115,6 +123,7 @@ def test_export_anki_due():
     deck2.sched.reset()
     assert c.due - deck2.sched.today == 1
 
+
 # @with_setup(setup1)
 # def test_export_textcard():
 #     e = TextCardExporter(deck)
@@ -123,6 +132,7 @@ def test_export_anki_due():
 #     e.exportInto(f)
 #     e.includeTags = True
 #     e.exportInto(f)
+
 
 @with_setup(setup1)
 def test_export_textnote():
@@ -137,6 +147,7 @@ def test_export_textnote():
     e.includeHTML = False
     e.exportInto(f)
     assert open(f).readline() == "foo\tbar\n"
+
 
 def test_exporters():
     assert "*.apkg" in str(exporters())

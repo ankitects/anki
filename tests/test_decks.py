@@ -3,6 +3,7 @@
 from anki.errors import DeckRenameError
 from tests.shared import assertException, getEmptyCol
 
+
 def test_basic():
     deck = getEmptyCol()
     # we start with a standard deck
@@ -34,21 +35,22 @@ def test_basic():
     # parents with a different case should be handled correctly
     deck.decks.id("ONE")
     m = deck.models.current()
-    m['did'] = deck.decks.id("one::two")
+    m["did"] = deck.decks.id("one::two")
     deck.models.save(m, updateReqs=False)
     n = deck.newNote()
-    n['Front'] = "abc"
+    n["Front"] = "abc"
     deck.addNote(n)
     # this will error if child and parent case don't match
     deck.sched.deckDueList()
+
 
 def test_remove():
     deck = getEmptyCol()
     # create a new deck, and add a note/card to it
     g1 = deck.decks.id("g1")
     f = deck.newNote()
-    f['Front'] = "1"
-    f.model()['did'] = g1
+    f["Front"] = "1"
+    f.model()["did"] = g1
     deck.addNote(f)
     c = f.cards()[0]
     assert c.did == g1
@@ -62,11 +64,13 @@ def test_remove():
     assert deck.decks.name(c.did) == "[no deck]"
     # let's create another deck and explicitly set the card to it
     g2 = deck.decks.id("g2")
-    c.did = g2; c.flush()
+    c.did = g2
+    c.flush()
     # this time we'll delete the card/note too
     deck.decks.rem(g2, cardsToo=True)
     assert deck.cardCount() == 0
     assert deck.noteCount() == 0
+
 
 def test_rename():
     d = getEmptyCol()
@@ -80,8 +84,7 @@ def test_rename():
     # create another deck
     id = d.decks.id("tmp")
     # we can't rename it if it conflicts
-    assertException(
-        Exception, lambda: d.decks.rename(d.decks.get(id), "foo"))
+    assertException(Exception, lambda: d.decks.rename(d.decks.get(id), "foo"))
     # when renaming, the children should be renamed too
     d.decks.id("one::two::three")
     id = d.decks.id("one")
@@ -102,62 +105,66 @@ def test_rename():
     assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::child"))
 
 
-
 def test_renameForDragAndDrop():
     d = getEmptyCol()
 
     def deckNames():
-        return [ name for name in sorted(d.decks.allNames()) if name != 'Default' ]
+        return [name for name in sorted(d.decks.allNames()) if name != "Default"]
 
-    languages_did = d.decks.id('Languages')
-    chinese_did = d.decks.id('Chinese')
-    hsk_did = d.decks.id('Chinese::HSK')
+    languages_did = d.decks.id("Languages")
+    chinese_did = d.decks.id("Chinese")
+    hsk_did = d.decks.id("Chinese::HSK")
 
     # Renaming also renames children
     d.decks.renameForDragAndDrop(chinese_did, languages_did)
-    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
     # Dragging a deck onto itself is a no-op
     d.decks.renameForDragAndDrop(languages_did, languages_did)
-    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
     # Dragging a deck onto its parent is a no-op
     d.decks.renameForDragAndDrop(hsk_did, chinese_did)
-    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
     # Dragging a deck onto a descendant is a no-op
     d.decks.renameForDragAndDrop(languages_did, hsk_did)
-    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
     # Can drag a grandchild onto its grandparent.  It becomes a child
     d.decks.renameForDragAndDrop(hsk_did, languages_did)
-    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::HSK' ]
+    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::HSK"]
 
     # Can drag a deck onto its sibling
     d.decks.renameForDragAndDrop(hsk_did, chinese_did)
-    assert deckNames() == [ 'Languages', 'Languages::Chinese', 'Languages::Chinese::HSK' ]
+    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
     # Can drag a deck back to the top level
     d.decks.renameForDragAndDrop(chinese_did, None)
-    assert deckNames() == [ 'Chinese', 'Chinese::HSK', 'Languages' ]
+    assert deckNames() == ["Chinese", "Chinese::HSK", "Languages"]
 
     # Dragging a top level deck to the top level is a no-op
     d.decks.renameForDragAndDrop(chinese_did, None)
-    assert deckNames() == [ 'Chinese', 'Chinese::HSK', 'Languages' ]
+    assert deckNames() == ["Chinese", "Chinese::HSK", "Languages"]
 
     # can't drack a deck where sibling have same name
     new_hsk_did = d.decks.id("HSK")
-    assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
+    assertException(
+        DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
+    )
     d.decks.rem(new_hsk_did)
 
     # can't drack a deck where sibling have same name different case
     new_hsk_did = d.decks.id("hsk")
-    assertException(DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did))
+    assertException(
+        DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
+    )
     d.decks.rem(new_hsk_did)
 
     # '' is a convenient alias for the top level DID
-    d.decks.renameForDragAndDrop(hsk_did, '')
-    assert deckNames() == [ 'Chinese', 'HSK', 'Languages' ]
+    d.decks.renameForDragAndDrop(hsk_did, "")
+    assert deckNames() == ["Chinese", "HSK", "Languages"]
+
 
 def test_check():
     d = getEmptyCol()
