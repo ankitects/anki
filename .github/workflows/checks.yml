@@ -20,11 +20,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Install dependencies
-        run: |
-          sudo apt install portaudio19-dev
-          pip install -r requirements.qt
+      - name: Set up Protoc
+        uses: Arduino/actions/setup-protoc@master
       - name: Run checks
         run: |
-          make check
-
+          sudo apt install portaudio19-dev
+          python${{ matrix.python-version }} -m venv ~/pyenv
+          . ~/pyenv/bin/activate
+          pip install -r requirements.qt
+          pip install --upgrade setuptools pip
+          make check RUSTARGS=""

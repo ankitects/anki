@@ -1,31 +1,36 @@
 # coding: utf-8
 
-import time
 import copy
+import time
 
 from anki.consts import STARTING_FACTOR
-from tests.shared import getEmptyCol as getEmptyColOrig
-from anki.utils import  intTime
 from anki.hooks import addHook
+from anki.utils import intTime
+from tests.shared import getEmptyCol as getEmptyColOrig
+
 
 def getEmptyCol():
     col = getEmptyColOrig()
     col.changeSchedulerVer(1)
     return col
 
+
 def test_clock():
     d = getEmptyCol()
-    if (d.sched.dayCutoff - intTime()) < 10*60:
+    if (d.sched.dayCutoff - intTime()) < 10 * 60:
         raise Exception("Unit tests will fail around the day rollover.")
+
 
 def checkRevIvl(d, c, targetIvl):
     min, max = d.sched._fuzzIvlRange(targetIvl)
     return min <= c.ivl <= max
 
+
 def test_basics():
     d = getEmptyCol()
     d.reset()
     assert not d.sched.getCard()
+
 
 def test_new():
     d = getEmptyCol()
@@ -33,7 +38,8 @@ def test_new():
     assert d.sched.newCount == 0
     # add a note
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "two"
+    f["Front"] = "one"
+    f["Back"] = "two"
     d.addNote(f)
     d.reset()
     assert d.sched.newCount == 1
@@ -71,15 +77,16 @@ def test_new():
     #     assert qs[n] in c.q()
     #     d.sched.answerCard(c, 2)
 
+
 def test_newLimits():
     d = getEmptyCol()
     # add some notes
     g2 = d.decks.id("Default::foo")
     for i in range(30):
         f = d.newNote()
-        f['Front'] = str(i)
+        f["Front"] = str(i)
         if i > 4:
-            f.model()['did'] = g2
+            f.model()["did"] = g2
         d.addNote(f)
     # give the child deck a different configuration
     c2 = d.decks.confId("new conf")
@@ -92,33 +99,36 @@ def test_newLimits():
     assert c.did == 1
     # limit the parent to 10 cards, meaning we get 10 in total
     conf1 = d.decks.confForDid(1)
-    conf1['new']['perDay'] = 10
+    conf1["new"]["perDay"] = 10
     d.reset()
     assert d.sched.newCount == 10
     # if we limit child to 4, we should get 9
     conf2 = d.decks.confForDid(g2)
-    conf2['new']['perDay'] = 4
+    conf2["new"]["perDay"] = 4
     d.reset()
     assert d.sched.newCount == 9
+
 
 def test_newBoxes():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     d.reset()
     c = d.sched.getCard()
-    d.sched._cardConf(c)['new']['delays'] = [1,2,3,4,5]
+    d.sched._cardConf(c)["new"]["delays"] = [1, 2, 3, 4, 5]
     d.sched.answerCard(c, 2)
     # should handle gracefully
-    d.sched._cardConf(c)['new']['delays'] = [1]
+    d.sched._cardConf(c)["new"]["delays"] = [1]
     d.sched.answerCard(c, 2)
+
 
 def test_learn():
     d = getEmptyCol()
     # add a note
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "two"
+    f["Front"] = "one"
+    f["Back"] = "two"
     f = d.addNote(f)
     # set as a learn card and rebuild queues
     d.db.execute("update cards set queue=0, type=0")
@@ -126,12 +136,12 @@ def test_learn():
     # sched.getCard should return it, since it's due in the past
     c = d.sched.getCard()
     assert c
-    d.sched._cardConf(c)['new']['delays'] = [0.5, 3, 10]
+    d.sched._cardConf(c)["new"]["delays"] = [0.5, 3, 10]
     # fail it
     d.sched.answerCard(c, 1)
     # it should have three reps left to graduation
-    assert c.left%1000 == 3
-    assert c.left//1000 == 3
+    assert c.left % 1000 == 3
+    assert c.left // 1000 == 3
     # it should by due in 30 seconds
     t = round(c.due - time.time())
     assert t >= 25 and t <= 40
@@ -139,8 +149,8 @@ def test_learn():
     d.sched.answerCard(c, 2)
     # it should by due in 3 minutes
     assert round(c.due - time.time()) in (179, 180)
-    assert c.left%1000 == 2
-    assert c.left//1000 == 2
+    assert c.left % 1000 == 2
+    assert c.left // 1000 == 2
     # check log is accurate
     log = d.db.first("select * from revlog order by id desc")
     assert log[3] == 2
@@ -150,8 +160,8 @@ def test_learn():
     d.sched.answerCard(c, 2)
     # it should by due in 10 minutes
     assert round(c.due - time.time()) in (599, 600)
-    assert c.left%1000 == 1
-    assert c.left//1000 == 1
+    assert c.left % 1000 == 1
+    assert c.left // 1000 == 1
     # the next pass should graduate the card
     assert c.queue == 1
     assert c.type == 1
@@ -159,7 +169,7 @@ def test_learn():
     assert c.queue == 2
     assert c.type == 2
     # should be due tomorrow, with an interval of 1
-    assert c.due == d.sched.today+1
+    assert c.due == d.sched.today + 1
     assert c.ivl == 1
     # or normal removal
     c.type = 0
@@ -188,14 +198,15 @@ def test_learn():
     assert c.queue == 2
     assert c.due == 321
 
+
 def test_learn_collapsed():
     d = getEmptyCol()
     # add 2 notes
     f = d.newNote()
-    f['Front'] = "1"
+    f["Front"] = "1"
     f = d.addNote(f)
     f = d.newNote()
-    f['Front'] = "2"
+    f["Front"] = "2"
     f = d.addNote(f)
     # set as a learn card and rebuild queues
     d.db.execute("update cards set queue=0, type=0")
@@ -214,27 +225,28 @@ def test_learn_collapsed():
     c = d.sched.getCard()
     assert not c.q().endswith("2")
 
+
 def test_learn_day():
     d = getEmptyCol()
     # add a note
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     f = d.addNote(f)
     d.sched.reset()
     c = d.sched.getCard()
-    d.sched._cardConf(c)['new']['delays'] = [1, 10, 1440, 2880]
+    d.sched._cardConf(c)["new"]["delays"] = [1, 10, 1440, 2880]
     # pass it
     d.sched.answerCard(c, 2)
     # two reps to graduate, 1 more today
-    assert c.left%1000 == 3
-    assert c.left//1000 == 1
+    assert c.left % 1000 == 3
+    assert c.left // 1000 == 1
     assert d.sched.counts() == (0, 1, 0)
     c = d.sched.getCard()
     ni = d.sched.nextIvl
     assert ni(c, 2) == 86400
     # answering it will place it in queue 3
     d.sched.answerCard(c, 2)
-    assert c.due == d.sched.today+1
+    assert c.due == d.sched.today + 1
     assert c.queue == 3
     assert not d.sched.getCard()
     # for testing, move it back a day
@@ -244,7 +256,7 @@ def test_learn_day():
     assert d.sched.counts() == (0, 1, 0)
     c = d.sched.getCard()
     # nextIvl should work
-    assert ni(c, 2) == 86400*2
+    assert ni(c, 2) == 86400 * 2
     # if we fail it, it should be back in the correct queue
     d.sched.answerCard(c, 1)
     assert c.queue == 1
@@ -266,17 +278,19 @@ def test_learn_day():
     c.flush()
     d.reset()
     assert d.sched.counts() == (0, 0, 1)
-    d.sched._cardConf(c)['lapse']['delays'] = [1440]
+    d.sched._cardConf(c)["lapse"]["delays"] = [1440]
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.queue == 3
     assert d.sched.counts() == (0, 0, 0)
 
+
 def test_reviews():
     d = getEmptyCol()
     # add a note
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "two"
+    f["Front"] = "one"
+    f["Back"] = "two"
     d.addNote(f)
     # set the card up as a review card, due 8 days ago
     c = f.cards()[0]
@@ -295,7 +309,7 @@ def test_reviews():
     ##################################################
     # different delay to new
     d.reset()
-    d.sched._cardConf(c)['lapse']['delays'] = [2, 20]
+    d.sched._cardConf(c)["lapse"]["delays"] = [2, 20]
     d.sched.answerCard(c, 1)
     assert c.queue == 1
     # it should be due tomorrow, with an interval of 1
@@ -313,7 +327,7 @@ def test_reviews():
     # check ests.
     ni = d.sched.nextIvl
     assert ni(c, 1) == 120
-    assert ni(c, 2) == 20*60
+    assert ni(c, 2) == 20 * 60
     # try again with an ease of 2 instead
     ##################################################
     c = copy.copy(cardcopy)
@@ -355,8 +369,10 @@ def test_reviews():
     c.flush()
     # steup hook
     hooked = []
+
     def onLeech(card):
         hooked.append(1)
+
     addHook("leech", onLeech)
     d.sched.answerCard(c, 1)
     assert hooked
@@ -364,10 +380,11 @@ def test_reviews():
     c.load()
     assert c.queue == -1
 
+
 def test_button_spacing():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     # 1 day ivl review card due now
     c = f.cards()[0]
@@ -384,13 +401,14 @@ def test_button_spacing():
     assert ni(c, 3) == "3 days"
     assert ni(c, 4) == "4 days"
 
+
 def test_overdue_lapse():
     # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
     return
     d = getEmptyCol()
     # add a note
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     # simulate a review that was lapsed and is now due for its normal review
     c = f.cards()[0]
@@ -419,13 +437,15 @@ def test_overdue_lapse():
     d.sched.reset()
     assert d.sched.counts() == (0, 0, 1)
 
+
 def test_finished():
     d = getEmptyCol()
     # nothing due
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "two"
+    f["Front"] = "one"
+    f["Back"] = "two"
     d.addNote(f)
     # have a new card
     assert "new cards available" in d.sched.finishedMsg()
@@ -438,44 +458,46 @@ def test_finished():
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
 
+
 def test_nextIvl():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "two"
+    f["Front"] = "one"
+    f["Back"] = "two"
     d.addNote(f)
     d.reset()
     conf = d.decks.confForDid(1)
-    conf['new']['delays'] = [0.5, 3, 10]
-    conf['lapse']['delays'] = [1, 5, 9]
+    conf["new"]["delays"] = [0.5, 3, 10]
+    conf["lapse"]["delays"] = [1, 5, 9]
     c = d.sched.getCard()
     # new cards
     ##################################################
     ni = d.sched.nextIvl
     assert ni(c, 1) == 30
     assert ni(c, 2) == 180
-    assert ni(c, 3) == 4*86400
+    assert ni(c, 3) == 4 * 86400
     d.sched.answerCard(c, 1)
     # cards in learning
     ##################################################
     assert ni(c, 1) == 30
     assert ni(c, 2) == 180
-    assert ni(c, 3) == 4*86400
+    assert ni(c, 3) == 4 * 86400
     d.sched.answerCard(c, 2)
     assert ni(c, 1) == 30
     assert ni(c, 2) == 600
-    assert ni(c, 3) == 4*86400
+    assert ni(c, 3) == 4 * 86400
     d.sched.answerCard(c, 2)
     # normal graduation is tomorrow
-    assert ni(c, 2) == 1*86400
-    assert ni(c, 3) == 4*86400
+    assert ni(c, 2) == 1 * 86400
+    assert ni(c, 3) == 4 * 86400
     # lapsed cards
     ##################################################
     c.type = 2
     c.ivl = 100
     c.factor = STARTING_FACTOR
     assert ni(c, 1) == 60
-    assert ni(c, 2) == 100*86400
-    assert ni(c, 3) == 100*86400
+    assert ni(c, 2) == 100 * 86400
+    assert ni(c, 3) == 100 * 86400
     # review cards
     ##################################################
     c.queue = 2
@@ -484,8 +506,8 @@ def test_nextIvl():
     # failing it should put it at 60s
     assert ni(c, 1) == 60
     # or 1 day if relearn is false
-    d.sched._cardConf(c)['lapse']['delays']=[]
-    assert ni(c, 1) == 1*86400
+    d.sched._cardConf(c)["lapse"]["delays"] = []
+    assert ni(c, 1) == 1 * 86400
     # (* 100 1.2 86400)10368000.0
     assert ni(c, 2) == 10368000
     # (* 100 2.5 86400)21600000.0
@@ -494,10 +516,11 @@ def test_nextIvl():
     assert ni(c, 4) == 28080000
     assert d.sched.nextIvlStr(c, 4) == "10.8 months"
 
+
 def test_misc():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     c = f.cards()[0]
     # burying
@@ -508,10 +531,11 @@ def test_misc():
     d.reset()
     assert d.sched.getCard()
 
+
 def test_suspend():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     c = f.cards()[0]
     # suspending
@@ -525,7 +549,11 @@ def test_suspend():
     d.reset()
     assert d.sched.getCard()
     # should cope with rev cards being relearnt
-    c.due = 0; c.ivl = 100; c.type = 2; c.queue = 2; c.flush()
+    c.due = 0
+    c.ivl = 100
+    c.type = 2
+    c.queue = 2
+    c.flush()
     d.reset()
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
@@ -551,10 +579,11 @@ def test_suspend():
     assert c.due == 1
     assert c.did == 1
 
+
 def test_cram():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     c = f.cards()[0]
     c.ivl = 100
@@ -566,7 +595,7 @@ def test_cram():
     c.startTimer()
     c.flush()
     d.reset()
-    assert d.sched.counts() == (0,0,0)
+    assert d.sched.counts() == (0, 0, 0)
     cardcopy = copy.copy(c)
     # create a dynamic deck and refresh it
     did = d.decks.newDyn("Cram")
@@ -575,18 +604,18 @@ def test_cram():
     # should appear as new in the deck list
     assert sorted(d.sched.deckDueList())[0][4] == 1
     # and should appear in the counts
-    assert d.sched.counts() == (1,0,0)
+    assert d.sched.counts() == (1, 0, 0)
     # grab it and check estimates
     c = d.sched.getCard()
     assert d.sched.answerButtons(c) == 2
     assert d.sched.nextIvl(c, 1) == 600
-    assert d.sched.nextIvl(c, 2) == 138*60*60*24
+    assert d.sched.nextIvl(c, 2) == 138 * 60 * 60 * 24
     cram = d.decks.get(did)
-    cram['delays'] = [1, 10]
+    cram["delays"] = [1, 10]
     assert d.sched.answerButtons(c) == 3
     assert d.sched.nextIvl(c, 1) == 60
     assert d.sched.nextIvl(c, 2) == 600
-    assert d.sched.nextIvl(c, 3) == 138*60*60*24
+    assert d.sched.nextIvl(c, 3) == 138 * 60 * 60 * 24
     d.sched.answerCard(c, 2)
     # elapsed time was 75 days
     # factor = 2.5+1.2/2 = 1.85
@@ -595,12 +624,11 @@ def test_cram():
     assert c.odue == 138
     assert c.queue == 1
     # should be logged as a cram rep
-    assert d.db.scalar(
-        "select type from revlog order by id desc limit 1") == 3
+    assert d.db.scalar("select type from revlog order by id desc limit 1") == 3
     # check ivls again
     assert d.sched.nextIvl(c, 1) == 60
-    assert d.sched.nextIvl(c, 2) == 138*60*60*24
-    assert d.sched.nextIvl(c, 3) == 138*60*60*24
+    assert d.sched.nextIvl(c, 2) == 138 * 60 * 60 * 24
+    assert d.sched.nextIvl(c, 3) == 138 * 60 * 60 * 24
     # when it graduates, due is updated
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
@@ -616,7 +644,7 @@ def test_cram():
     # check ivls again - passing should be idempotent
     assert d.sched.nextIvl(c, 1) == 60
     assert d.sched.nextIvl(c, 2) == 600
-    assert d.sched.nextIvl(c, 3) == 138*60*60*24
+    assert d.sched.nextIvl(c, 3) == 138 * 60 * 60 * 24
     d.sched.answerCard(c, 2)
     assert c.ivl == 138
     assert c.odue == 138
@@ -630,20 +658,20 @@ def test_cram():
     assert len(d.sched.deckDueList()) == 1
     c.load()
     assert c.ivl == 1
-    assert c.due == d.sched.today+1
+    assert c.due == d.sched.today + 1
     # make it due
     d.reset()
-    assert d.sched.counts() == (0,0,0)
+    assert d.sched.counts() == (0, 0, 0)
     c.due = -5
     c.ivl = 100
     c.flush()
     d.reset()
-    assert d.sched.counts() == (0,0,1)
+    assert d.sched.counts() == (0, 0, 1)
     # cram again
     did = d.decks.newDyn("Cram")
     d.sched.rebuildDyn(did)
     d.reset()
-    assert d.sched.counts() == (0,0,1)
+    assert d.sched.counts() == (0, 0, 1)
     c.load()
     assert d.sched.answerButtons(c) == 4
     # add a sibling so we can test minSpace, etc
@@ -661,10 +689,11 @@ def test_cram():
     # it should have been moved back to the original deck
     assert c.did == 1
 
+
 def test_cram_rem():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     oldDue = f.cards()[0].due
     did = d.decks.newDyn("Cram")
@@ -681,16 +710,17 @@ def test_cram_rem():
     assert c.type == c.queue == 0
     assert c.due == oldDue
 
+
 def test_cram_resched():
     # add card
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     # cram deck
     did = d.decks.newDyn("Cram")
     cram = d.decks.get(did)
-    cram['resched'] = False
+    cram["resched"] = False
     d.sched.rebuildDyn(did)
     d.reset()
     # graduate should return it to new
@@ -786,22 +816,25 @@ def test_cram_resched():
     # d.sched.answerCard(c, 2)
     # print c.__dict__
 
+
 def test_ordcycle():
     d = getEmptyCol()
     # add two more templates and set second active
-    m = d.models.current(); mm = d.models
+    m = d.models.current()
+    mm = d.models
     t = mm.newTemplate("Reverse")
-    t['qfmt'] = "{{Back}}"
-    t['afmt'] = "{{Front}}"
+    t["qfmt"] = "{{Back}}"
+    t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     t = mm.newTemplate("f2")
-    t['qfmt'] = "{{Front}}"
-    t['afmt'] = "{{Back}}"
+    t["qfmt"] = "{{Front}}"
+    t["afmt"] = "{{Back}}"
     mm.addTemplate(m, t)
     mm.save(m)
     # create a new note; it should have 3 cards
     f = d.newNote()
-    f['Front'] = "1"; f['Back'] = "1"
+    f["Front"] = "1"
+    f["Back"] = "1"
     d.addNote(f)
     assert d.cardCount() == 3
     d.reset()
@@ -810,10 +843,12 @@ def test_ordcycle():
     assert d.sched.getCard().ord == 1
     assert d.sched.getCard().ord == 2
 
+
 def test_counts_idx():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "two"
+    f["Front"] = "one"
+    f["Back"] = "two"
     d.addNote(f)
     d.reset()
     assert d.sched.counts() == (1, 0, 0)
@@ -832,10 +867,11 @@ def test_counts_idx():
     d.sched.answerCard(c, 1)
     assert d.sched.counts() == (0, 2, 0)
 
+
 def test_repCounts():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     d.reset()
     # lrnReps should be accurate on pass/fail
@@ -853,7 +889,7 @@ def test_repCounts():
     d.sched.answerCard(d.sched.getCard(), 2)
     assert d.sched.counts() == (0, 0, 0)
     f = d.newNote()
-    f['Front'] = "two"
+    f["Front"] = "two"
     d.addNote(f)
     d.reset()
     # initial pass should be correct too
@@ -865,14 +901,14 @@ def test_repCounts():
     assert d.sched.counts() == (0, 0, 0)
     # immediate graduate should work
     f = d.newNote()
-    f['Front'] = "three"
+    f["Front"] = "three"
     d.addNote(f)
     d.reset()
     d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.counts() == (0, 0, 0)
     # and failing a review should too
     f = d.newNote()
-    f['Front'] = "three"
+    f["Front"] = "three"
     d.addNote(f)
     c = f.cards()[0]
     c.type = 2
@@ -884,12 +920,13 @@ def test_repCounts():
     d.sched.answerCard(d.sched.getCard(), 1)
     assert d.sched.counts() == (0, 1, 0)
 
+
 def test_timing():
     d = getEmptyCol()
     # add a few review cards, due today
     for i in range(5):
         f = d.newNote()
-        f['Front'] = "num"+str(i)
+        f["Front"] = "num" + str(i)
         d.addNote(f)
         c = f.cards()[0]
         c.type = 2
@@ -900,7 +937,7 @@ def test_timing():
     d.reset()
     c = d.sched.getCard()
     # set a a fail delay of 1 second so we don't have to wait
-    d.sched._cardConf(c)['lapse']['delays'][0] = 1/60.0
+    d.sched._cardConf(c)["lapse"]["delays"][0] = 1 / 60.0
     d.sched.answerCard(c, 1)
     # the next card should be another review
     c = d.sched.getCard()
@@ -910,11 +947,12 @@ def test_timing():
     c = d.sched.getCard()
     assert c.queue == 1
 
+
 def test_collapse():
     d = getEmptyCol()
     # add a note
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     d.reset()
     # test collapsing
@@ -924,16 +962,17 @@ def test_collapse():
     d.sched.answerCard(c, 3)
     assert not d.sched.getCard()
 
+
 def test_deckDue():
     d = getEmptyCol()
     # add a note with default deck
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     # and one that's a child
     f = d.newNote()
-    f['Front'] = "two"
-    default1 = f.model()['did'] = d.decks.id("Default::1")
+    f["Front"] = "two"
+    default1 = f.model()["did"] = d.decks.id("Default::1")
     d.addNote(f)
     # make it a review card
     c = f.cards()[0]
@@ -942,13 +981,13 @@ def test_deckDue():
     c.flush()
     # add one more with a new deck
     f = d.newNote()
-    f['Front'] = "two"
-    foobar = f.model()['did'] = d.decks.id("foo::bar")
+    f["Front"] = "two"
+    foobar = f.model()["did"] = d.decks.id("foo::bar")
     d.addNote(f)
     # and one that's a sibling
     f = d.newNote()
-    f['Front'] = "three"
-    foobaz = f.model()['did'] = d.decks.id("foo::baz")
+    f["Front"] = "three"
+    foobaz = f.model()["did"] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
     assert len(d.decks.decks) == 5
@@ -970,9 +1009,11 @@ def test_deckDue():
     assert tree[0][5][0][2] == 1
     assert tree[0][5][0][4] == 0
     # code should not fail if a card has an invalid deck
-    c.did = 12345; c.flush()
+    c.did = 12345
+    c.flush()
     d.sched.deckDueList()
     d.sched.deckDueTree()
+
 
 def test_deckTree():
     d = getEmptyCol()
@@ -983,75 +1024,80 @@ def test_deckTree():
     names.remove("new")
     assert "new" not in names
 
+
 def test_deckFlow():
     d = getEmptyCol()
     # add a note with default deck
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     # and one that's a child
     f = d.newNote()
-    f['Front'] = "two"
-    default1 = f.model()['did'] = d.decks.id("Default::2")
+    f["Front"] = "two"
+    default1 = f.model()["did"] = d.decks.id("Default::2")
     d.addNote(f)
     # and another that's higher up
     f = d.newNote()
-    f['Front'] = "three"
-    default1 = f.model()['did'] = d.decks.id("Default::1")
+    f["Front"] = "three"
+    default1 = f.model()["did"] = d.decks.id("Default::1")
     d.addNote(f)
     # should get top level one first, then ::1, then ::2
     d.reset()
-    assert d.sched.counts() == (3,0,0)
+    assert d.sched.counts() == (3, 0, 0)
     for i in "one", "three", "two":
         c = d.sched.getCard()
-        assert c.note()['Front'] == i
+        assert c.note()["Front"] == i
         d.sched.answerCard(c, 2)
+
 
 def test_reorder():
     d = getEmptyCol()
     # add a note with default deck
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     f2 = d.newNote()
-    f2['Front'] = "two"
+    f2["Front"] = "two"
     d.addNote(f2)
     assert f2.cards()[0].due == 2
-    found=False
+    found = False
     # 50/50 chance of being reordered
     for i in range(20):
         d.sched.randomizeCards(1)
         if f.cards()[0].due != f.id:
-            found=True
+            found = True
             break
     assert found
     d.sched.orderCards(1)
     assert f.cards()[0].due == 1
     # shifting
     f3 = d.newNote()
-    f3['Front'] = "three"
+    f3["Front"] = "three"
     d.addNote(f3)
     f4 = d.newNote()
-    f4['Front'] = "four"
+    f4["Front"] = "four"
     d.addNote(f4)
     assert f.cards()[0].due == 1
     assert f2.cards()[0].due == 2
     assert f3.cards()[0].due == 3
     assert f4.cards()[0].due == 4
-    d.sched.sortCards([
-        f3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
+    d.sched.sortCards([f3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
     assert f.cards()[0].due == 3
     assert f2.cards()[0].due == 4
     assert f3.cards()[0].due == 1
     assert f4.cards()[0].due == 2
 
+
 def test_forget():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     c = f.cards()[0]
-    c.queue = 2; c.type = 2; c.ivl = 100; c.due = 0
+    c.queue = 2
+    c.type = 2
+    c.ivl = 100
+    c.due = 0
     c.flush()
     d.reset()
     assert d.sched.counts() == (0, 0, 1)
@@ -1059,10 +1105,11 @@ def test_forget():
     d.reset()
     assert d.sched.counts() == (1, 0, 0)
 
+
 def test_resched():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     c = f.cards()[0]
     d.sched.reschedCards([c.id], 0, 0)
@@ -1072,14 +1119,15 @@ def test_resched():
     assert c.queue == c.type == 2
     d.sched.reschedCards([c.id], 1, 1)
     c.load()
-    assert c.due == d.sched.today+1
+    assert c.due == d.sched.today + 1
     assert c.ivl == +1
+
 
 def test_norelearn():
     d = getEmptyCol()
     # add a note
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     c = f.cards()[0]
     c.type = 2
@@ -1093,13 +1141,15 @@ def test_norelearn():
     c.flush()
     d.reset()
     d.sched.answerCard(c, 1)
-    d.sched._cardConf(c)['lapse']['delays'] = []
+    d.sched._cardConf(c)["lapse"]["delays"] = []
     d.sched.answerCard(c, 1)
+
 
 def test_failmult():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "two"
+    f["Front"] = "one"
+    f["Back"] = "two"
     d.addNote(f)
     c = f.cards()[0]
     c.type = 2
@@ -1111,7 +1161,7 @@ def test_failmult():
     c.lapses = 1
     c.startTimer()
     c.flush()
-    d.sched._cardConf(c)['lapse']['mult'] = 0.5
+    d.sched._cardConf(c)["lapse"]["mult"] = 0.5
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.ivl == 50

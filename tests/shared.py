@@ -1,5 +1,9 @@
-import tempfile, os, shutil
+import os
+import shutil
+import tempfile
+
 from anki import Collection as aopen
+
 
 def assertException(exception, func):
     found = False
@@ -25,6 +29,7 @@ def getEmptyCol():
     col = aopen(nam)
     return col
 
+
 getEmptyCol.master = ""
 
 # Fallback for when the DB needs options passed in.
@@ -34,10 +39,12 @@ def getEmptyDeckWith(**kwargs):
     os.unlink(nam)
     return aopen(nam, **kwargs)
 
+
 def getUpgradeDeckPath(name="anki12.anki"):
     src = os.path.join(testDir, "support", name)
     (fd, dst) = tempfile.mkstemp(suffix=".anki2")
     shutil.copy(src, dst)
     return dst
+
 
 testDir = os.path.dirname(__file__)

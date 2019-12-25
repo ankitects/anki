@@ -18,6 +18,16 @@ To start, make sure you have the following installed:
  - mpv
  - lame
  - npm
+ - your platform's C compiler, eg gcc, Xcode or Visual Studio 2017.
+ - GNU make
+ - protoc v3 (https://github.com/protocolbuffers/protobuf/releases)
+ - rustup (https://rustup.rs/)
+ - pip 19+
+
+Next, build a Python virtual environment and activate it:
+
+$ python3 -m venv ~/pyenv
+$ . ~/pyenv/bin/activate
 
 If the distro you are using has PyQt5 installed, make sure you have the PyQt5
 WebEngine module and development tools (eg pyqt5-dev-tools) installed as well.
@@ -49,11 +59,11 @@ Mac users
 
 You can use homebrew to install some dependencies:
 
-$ brew install python mpv lame portaudio
+$ brew install python mpv lame portaudio protobuf npm rustup-init
 
 Windows users
 --------------
 
-The build scripts have not been tested on Windows, and you'll find things
-easiest if you build Anki using WSL.
-https://docs.microsoft.com/en-us/windows/wsl/install-win10
+The build process uses a GNU makefile, so you'll either need to run
+GNU make via WSL (https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+or Cygwin, or manually execute the build steps.

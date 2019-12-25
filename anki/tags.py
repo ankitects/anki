@@ -14,6 +14,7 @@ import json
 import re
 from typing import Callable, Dict, List, Tuple
 
+import anki  # pylint: disable=unused-import
 from anki.hooks import runHook
 from anki.utils import ids2str, intTime
 
@@ -23,7 +24,7 @@ class TagManager:
     # Registry save/load
     #############################################################
 
-    def __init__(self, col) -> None:
+    def __init__(self, col: "anki.storage._Collection") -> None:
         self.col = col
         self.tags: Dict[str, int] = {}
 

@@ -556,6 +556,9 @@ select id from notes where mid = ?)"""
     ##########################################################################
 
     def _updateRequired(self, m: NoteType) -> None:
+        self._updateRequiredNew(m)
+
+    def _updateRequiredLegacy(self, m: NoteType) -> None:
         if m["type"] == MODEL_CLOZE:
             # nothing to do
             return
@@ -565,6 +568,14 @@ select id from notes where mid = ?)"""
             ret = self._reqForTemplate(m, flds, t)
             req.append([t["ord"], ret[0], ret[1]])
         m["req"] = req
+
+    def _updateRequiredNew(self, m: NoteType) -> None:
+        fronts = [t["qfmt"] for t in m["tmpls"]]
+        field_map = {}
+        for (idx, fld) in enumerate(m["flds"]):
+            field_map[fld["name"]] = idx
+        reqs = self.col.backend.template_requirements(fronts, field_map)
+        m["req"] = [list(l) for l in reqs]
 
     def _reqForTemplate(
         self, m: NoteType, flds: List[str], t: Template

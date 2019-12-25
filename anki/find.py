@@ -608,9 +608,7 @@ def findDupes(col, fieldName, search="") -> List[Tuple[Any, List]]:
         # empty does not count as duplicate
         if not val:
             continue
-        if val not in vals:
-            vals[val] = []
-        vals[val].append(nid)
+        vals.setdefault(val, []).append(nid)
         if len(vals[val]) == 2:
             dupes.append((val, vals[val]))
     return dupes

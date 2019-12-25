@@ -1,9 +1,11 @@
 from tests.shared import assertException, getEmptyCol
 
+
 def test_flags():
     col = getEmptyCol()
     n = col.newNote()
-    n['Front'] = "one"; n['Back'] = "two"
+    n["Front"] = "one"
+    n["Back"] = "two"
     cnt = col.addNote(n)
     c = n.cards()[0]
     # make sure higher bits are preserved

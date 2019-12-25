@@ -416,11 +416,16 @@ body {{ zoom: {}; background: {}; {} }}
         self.evalWithCallback("$(document.body).height()", self._onHeight)
 
     def _onHeight(self, qvar):
+        from aqt import mw
+
         if qvar is None:
-            from aqt import mw
 
             mw.progress.timer(1000, mw.reset, False)
             return
 
-        height = math.ceil(qvar * self.zoomFactor())
+        scaleFactor = self.zoomFactor()
+        if scaleFactor == 1:
+            scaleFactor = mw.pm.uiScale()
+
+        height = math.ceil(qvar * scaleFactor)
         self.setFixedHeight(height)

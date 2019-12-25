@@ -1,12 +1,15 @@
 # coding: utf-8
 
-import  os
-from tests.shared import  getEmptyCol
+import os
+import tempfile
+
+from tests.shared import getEmptyCol
+
 
 def test_stats():
     d = getEmptyCol()
     f = d.newNote()
-    f['Front'] = "foo"
+    f["Front"] = "foo"
     d.addNote(f)
     c = f.cards()[0]
     # card stats
@@ -17,15 +20,20 @@ def test_stats():
     d.sched.answerCard(c, 2)
     assert d.cardStats(c)
 
+
 def test_graphs_empty():
     d = getEmptyCol()
     assert d.stats().report()
 
+
 def test_graphs():
     from anki import Collection as aopen
-    d = aopen(os.path.expanduser("~/test.anki2"))
+
+    dir = tempfile.gettempdir()
+
+    d = aopen(os.path.join(dir, "test.anki2"))
     g = d.stats()
     rep = g.report()
-    with open(os.path.expanduser("~/test.html"), "w") as f:
+    with open(os.path.join(dir, "test.html"), "w") as f:
         f.write(rep)
     return
