@@ -1,12 +1,12 @@
 # coding: utf-8
 
-import os, tempfile
-
-from anki.utils import isWin
-from tests.shared import assertException, getEmptyCol
-from anki.stdmodels import addBasicModel, models
+import os
+import tempfile
 
 from anki import Collection as aopen
+from anki.stdmodels import addBasicModel, models
+from anki.utils import isWin
+from tests.shared import assertException, getEmptyCol
 
 
 def test_create_open():

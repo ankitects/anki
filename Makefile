@@ -8,6 +8,7 @@ RUNARGS :=
 .SUFFIXES:
 BLACKARGS := -t py36 anki aqt tests
 RUSTARGS := --release --strip
+ISORTARGS := anki aqt tests
 
 $(shell mkdir -p .build)
 
@@ -162,12 +163,13 @@ fix: fix-py-fmt fix-py-imports fix-rs-fmt fix-ts-fmt
 ######################
 
 PYCHECKDEPS := $(BUILDDEPS) .build/py-check-reqs $(shell find anki aqt -name '*.py' | grep -v buildhash.py)
+PYTESTDEPS := $(wildcard tests/*.py)
 
 .build/py-mypy: $(PYCHECKDEPS)
 	mypy anki aqt
 	@touch $@
 
-.build/py-test: $(PYCHECKDEPS) $(wildcard tests/*.py)
+.build/py-test: $(PYCHECKDEPS) $(PYTESTDEPS)
 	./tools/tests.sh
 	@touch $@
 
@@ -175,11 +177,11 @@ PYCHECKDEPS := $(BUILDDEPS) .build/py-check-reqs $(shell find anki aqt -name '*.
 	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5,_ankirs anki aqt
 	@touch $@
 
-.build/py-imports: $(PYCHECKDEPS)
-	isort anki aqt --check # if this fails, run 'make fix-py-imports'
+.build/py-imports: $(PYCHECKDEPS) $(PYTESTDEPS)
+	isort $(ISORTARGS) --check # if this fails, run 'make fix-py-imports'
 	@touch $@
 
-.build/py-fmt: $(PYCHECKDEPS)
+.build/py-fmt: $(PYCHECKDEPS) $(PYTESTDEPS)
 	black --check $(BLACKARGS) # if this fails, run 'make fix-py-fmt'
 	@touch $@
 
@@ -193,7 +195,7 @@ py-fmt: .build/py-fmt
 .PHONY: fix-py-imports fix-py-fmt
 
 fix-py-imports:
-	isort anki aqt
+	isort $(ISORTARGS)
 
 fix-py-fmt:
 	black $(BLACKARGS) anki aqt

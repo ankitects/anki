@@ -1,7 +1,8 @@
 import os.path
-from mock import MagicMock
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
+
+from mock import MagicMock
 from nose2.tools.such import helper
 
 from aqt.addons import AddonManager

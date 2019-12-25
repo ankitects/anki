@@ -1,8 +1,9 @@
 # coding: utf-8
 
 import time
-from tests.shared import getEmptyCol
+
 from anki.consts import *
+from tests.shared import getEmptyCol
 
 
 def test_op():

@@ -1,7 +1,7 @@
 # coding: utf-8
 
-import tempfile
 import os
+import tempfile
 import time
 
 from .shared import getEmptyCol, testDir
