@@ -13,9 +13,9 @@ from anki.utils import stripHTML, stripHTMLMedia
 clozeReg = r"(?si)\{\{(?P<tag>c)%s::(?P<content>.*?)(::(?P<hint>.*?))?\}\}"
 
 # Constants referring to group names within clozeReg.
-matchGroupTag = "tag"
-matchGroupContent = "content"
-matchGroupHint = "hint"
+CLOZE_REGEX_MATCH_GROUP_TAG = "tag"
+CLOZE_REGEX_MATCH_GROUP_CONTENT = "content"
+CLOZE_REGEX_MATCH_GROUP_HINT = "hint"
 
 modifiers: Dict[str, Callable] = {}
 
@@ -106,7 +106,7 @@ class Template:
                 txt = get_or_attr(context, m.group(2), None)
                 m = re.search(clozeReg % m.group(1), txt)
                 if m:
-                    val = m.group(matchGroupTag)
+                    val = m.group(CLOZE_REGEX_MATCH_GROUP_TAG)
             else:
                 val = get_or_attr(context, section_name, None)
 
@@ -211,7 +211,7 @@ class Template:
         return txt
 
     @classmethod
-    def clozeText(self, txt: str, ord: str, type: str) -> str:
+    def clozeText(cls, txt: str, ord: str, type: str) -> str:
         """Processe the given Cloze deletion within the given template."""
         reg = clozeReg
         currentRegex = clozeReg % ord
@@ -223,14 +223,14 @@ class Template:
         def repl(m):
             # replace chosen cloze with type
             if type == "q":
-                if m.group(matchGroupHint):
-                    buf = "[%s]" % m.group(matchGroupHint)
+                if m.group(CLOZE_REGEX_MATCH_GROUP_HINT):
+                    buf = "[%s]" % m.group(CLOZE_REGEX_MATCH_GROUP_HINT)
                 else:
                     buf = "[...]"
             else:
-                buf = m.group(matchGroupContent)
+                buf = m.group(CLOZE_REGEX_MATCH_GROUP_CONTENT)
             # uppercase = no formatting
-            if m.group(matchGroupTag) == "c":
+            if m.group(CLOZE_REGEX_MATCH_GROUP_TAG) == "c":
                 buf = "<span class=cloze>%s</span>" % buf
             return buf
 
