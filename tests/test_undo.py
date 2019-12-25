@@ -1,8 +1,9 @@
 # coding: utf-8
 
 import time
-from tests.shared import  getEmptyCol
+from tests.shared import getEmptyCol
 from anki.consts import *
+
 
 def test_op():
     d = getEmptyCol()
@@ -10,7 +11,7 @@ def test_op():
     assert not d.undoName()
     # let's adjust a study option
     d.save("studyopts")
-    d.conf['abc'] = 5
+    d.conf["abc"] = 5
     # it should be listed as undoable
     assert d.undoName() == "studyopts"
     # with about 5 minutes until it's clobbered
@@ -18,7 +19,7 @@ def test_op():
     # undoing should restore the old value
     d.undo()
     assert not d.undoName()
-    assert 'abc' not in d.conf
+    assert "abc" not in d.conf
     # an (auto)save will clear the undo
     d.save("foo")
     assert d.undoName() == "foo"
@@ -27,7 +28,7 @@ def test_op():
     # and a review will, too
     d.save("add")
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     d.reset()
     assert d.undoName() == "add"
@@ -35,11 +36,12 @@ def test_op():
     d.sched.answerCard(c, 2)
     assert d.undoName() == "Review"
 
+
 def test_review():
     d = getEmptyCol()
-    d.conf['counts'] = COUNT_REMAINING
+    d.conf["counts"] = COUNT_REMAINING
     f = d.newNote()
-    f['Front'] = "one"
+    f["Front"] = "one"
     d.addNote(f)
     d.reset()
     assert not d.undoName()
@@ -62,7 +64,7 @@ def test_review():
     assert not d.undoName()
     # we should be able to undo multiple answers too
     f = d.newNote()
-    f['Front'] = "two"
+    f["Front"] = "two"
     d.addNote(f)
     d.reset()
     assert d.sched.counts() == (2, 0, 0)
@@ -85,5 +87,3 @@ def test_review():
     assert d.undoName() == "foo"
     d.undo()
     assert not d.undoName()
-
-

@@ -4,6 +4,7 @@ from nose2.tools.such import helper
 from anki.find import Finder
 from tests.shared import getEmptyCol
 
+
 def test_parse():
     f = Finder(None)
     assert f._tokenize("hello world") == ["hello", "world"]
@@ -12,43 +13,54 @@ def test_parse():
     assert f._tokenize("one --two") == ["one", "-", "two"]
     assert f._tokenize("one - two") == ["one", "-", "two"]
     assert f._tokenize("one or -two") == ["one", "or", "-", "two"]
-    assert f._tokenize("'hello \"world\"'") == ["hello \"world\""]
+    assert f._tokenize("'hello \"world\"'") == ['hello "world"']
     assert f._tokenize('"hello world"') == ["hello world"]
     assert f._tokenize("one (two or ( three or four))") == [
-        "one", "(", "two", "or", "(", "three", "or", "four",
-        ")", ")"]
+        "one",
+        "(",
+        "two",
+        "or",
+        "(",
+        "three",
+        "or",
+        "four",
+        ")",
+        ")",
+    ]
     assert f._tokenize("embedded'string") == ["embedded'string"]
     assert f._tokenize("deck:'two words'") == ["deck:two words"]
+
 
 def test_findCards():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = 'dog'
-    f['Back'] = 'cat'
+    f["Front"] = "dog"
+    f["Back"] = "cat"
     f.tags.append("monkey animal_1 * %")
     f1id = f.id
     deck.addNote(f)
     firstCardId = f.cards()[0].id
     f = deck.newNote()
-    f['Front'] = 'goats are fun'
-    f['Back'] = 'sheep'
+    f["Front"] = "goats are fun"
+    f["Back"] = "sheep"
     f.tags.append("sheep goat horse animal11")
     deck.addNote(f)
     f2id = f.id
     f = deck.newNote()
-    f['Front'] = 'cat'
-    f['Back'] = 'sheep'
+    f["Front"] = "cat"
+    f["Back"] = "sheep"
     deck.addNote(f)
     catCard = f.cards()[0]
-    m = deck.models.current(); mm = deck.models
+    m = deck.models.current()
+    mm = deck.models
     t = mm.newTemplate("Reverse")
-    t['qfmt'] = "{{Back}}"
-    t['afmt'] = "{{Front}}"
+    t["qfmt"] = "{{Back}}"
+    t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
     f = deck.newNote()
-    f['Front'] = 'test'
-    f['Back'] = 'foo bar'
+    f["Front"] = "test"
+    f["Back"] = "foo bar"
     deck.addNote(f)
     latestCardIds = [c.id for c in f.cards()]
     # tag searches
@@ -66,9 +78,7 @@ def test_findCards():
     assert len(deck.findCards("tag:sheep -tag:monkey")) == 1
     assert len(deck.findCards("-tag:sheep")) == 4
     deck.tags.bulkAdd(deck.db.list("select id from notes"), "foo bar")
-    assert (len(deck.findCards("tag:foo")) ==
-            len(deck.findCards("tag:bar")) ==
-            5)
+    assert len(deck.findCards("tag:foo")) == len(deck.findCards("tag:bar")) == 5
     deck.tags.bulkRem(deck.db.list("select id from notes"), "foo")
     assert len(deck.findCards("tag:foo")) == 0
     assert len(deck.findCards("tag:bar")) == 5
@@ -86,7 +96,8 @@ def test_findCards():
     c.flush()
     assert deck.findCards("is:review") == [c.id]
     assert deck.findCards("is:due") == []
-    c.due = 0; c.queue = 2
+    c.due = 0
+    c.queue = 2
     c.flush()
     assert deck.findCards("is:due") == [c.id]
     assert len(deck.findCards("-is:due")) == 4
@@ -97,7 +108,7 @@ def test_findCards():
     assert deck.findCards("is:suspended") == [c.id]
     # nids
     assert deck.findCards("nid:54321") == []
-    assert len(deck.findCards("nid:%d"%f.id)) == 2
+    assert len(deck.findCards("nid:%d" % f.id)) == 2
     assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
     with helper.assertRaises(Exception):
@@ -115,16 +126,16 @@ def test_findCards():
     assert len(deck.findCards("front:do")) == 0
     assert len(deck.findCards("front:*")) == 5
     # ordering
-    deck.conf['sortType'] = "noteCrt"
+    deck.conf["sortType"] = "noteCrt"
     assert deck.findCards("front:*", order=True)[-1] in latestCardIds
     assert deck.findCards("", order=True)[-1] in latestCardIds
-    deck.conf['sortType'] = "noteFld"
+    deck.conf["sortType"] = "noteFld"
     assert deck.findCards("", order=True)[0] == catCard.id
     assert deck.findCards("", order=True)[-1] in latestCardIds
-    deck.conf['sortType'] = "cardMod"
+    deck.conf["sortType"] = "cardMod"
     assert deck.findCards("", order=True)[-1] in latestCardIds
     assert deck.findCards("", order=True)[0] == firstCardId
-    deck.conf['sortBackwards'] = True
+    deck.conf["sortBackwards"] = True
     assert deck.findCards("", order=True)[0] in latestCardIds
     # model
     assert len(deck.findCards("note:basic")) == 5
@@ -140,25 +151,26 @@ def test_findCards():
         deck.findCards("deck:*cefault")
     # full search
     f = deck.newNote()
-    f['Front'] = 'hello<b>world</b>'
-    f['Back'] = 'abc'
+    f["Front"] = "hello<b>world</b>"
+    f["Back"] = "abc"
     deck.addNote(f)
     # as it's the sort field, it matches
     assert len(deck.findCards("helloworld")) == 2
-    #assert len(deck.findCards("helloworld", full=True)) == 2
+    # assert len(deck.findCards("helloworld", full=True)) == 2
     # if we put it on the back, it won't
-    (f['Front'], f['Back']) = (f['Back'], f['Front'])
+    (f["Front"], f["Back"]) = (f["Back"], f["Front"])
     f.flush()
     assert len(deck.findCards("helloworld")) == 0
-    #assert len(deck.findCards("helloworld", full=True)) == 2
-    #assert len(deck.findCards("back:helloworld", full=True)) == 2
+    # assert len(deck.findCards("helloworld", full=True)) == 2
+    # assert len(deck.findCards("back:helloworld", full=True)) == 2
     # searching for an invalid special tag should not error
     with helper.assertRaises(Exception):
         len(deck.findCards("is:invalid"))
     # should be able to limit to parent deck, no children
     id = deck.db.scalar("select id from cards limit 1")
-    deck.db.execute("update cards set did = ? where id = ?",
-                    deck.decks.id("Default::Child"), id)
+    deck.db.execute(
+        "update cards set did = ? where id = ?", deck.decks.id("Default::Child"), id
+    )
     assert len(deck.findCards("deck:default")) == 7
     assert len(deck.findCards("deck:default::child")) == 1
     assert len(deck.findCards("deck:default -deck:default::*")) == 6
@@ -166,7 +178,9 @@ def test_findCards():
     id = deck.db.scalar("select id from cards limit 1")
     deck.db.execute(
         "update cards set queue=2, ivl=10, reps=20, due=30, factor=2200 "
-        "where id = ?", id)
+        "where id = ?",
+        id,
+    )
     assert len(deck.findCards("prop:ivl>5")) == 1
     assert len(deck.findCards("prop:ivl<5")) > 1
     assert len(deck.findCards("prop:ivl>=5")) == 1
@@ -205,8 +219,8 @@ def test_findCards():
     # empty field
     assert len(deck.findCards("front:")) == 0
     f = deck.newNote()
-    f['Front'] = ''
-    f['Back'] = 'abc2'
+    f["Front"] = ""
+    f["Back"] = "abc2"
     assert deck.addNote(f) == 1
     assert len(deck.findCards("front:")) == 1
     # OR searches and nesting
@@ -220,8 +234,7 @@ def test_findCards():
     assert len(deck.findCards("(()")) == 0
     # added
     assert len(deck.findCards("added:0")) == 0
-    deck.db.execute("update cards set id = id - 86400*1000 where id = ?",
-                    id)
+    deck.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
     assert len(deck.findCards("added:1")) == deck.cardCount() - 1
     assert len(deck.findCards("added:2")) == deck.cardCount()
     # flag
@@ -230,50 +243,58 @@ def test_findCards():
     with helper.assertRaises(Exception):
         deck.findCards("flag:12")
 
+
 def test_findReplace():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = 'foo'
-    f['Back'] = 'bar'
+    f["Front"] = "foo"
+    f["Back"] = "bar"
     deck.addNote(f)
     f2 = deck.newNote()
-    f2['Front'] = 'baz'
-    f2['Back'] = 'foo'
+    f2["Front"] = "baz"
+    f2["Back"] = "foo"
     deck.addNote(f2)
     nids = [f.id, f2.id]
     # should do nothing
     assert deck.findReplace(nids, "abc", "123") == 0
     # global replace
     assert deck.findReplace(nids, "foo", "qux") == 2
-    f.load(); assert f['Front'] == "qux"
-    f2.load(); assert f2['Back'] == "qux"
+    f.load()
+    assert f["Front"] == "qux"
+    f2.load()
+    assert f2["Back"] == "qux"
     # single field replace
     assert deck.findReplace(nids, "qux", "foo", field="Front") == 1
-    f.load(); assert f['Front'] == "foo"
-    f2.load(); assert f2['Back'] == "qux"
+    f.load()
+    assert f["Front"] == "foo"
+    f2.load()
+    assert f2["Back"] == "qux"
     # regex replace
     assert deck.findReplace(nids, "B.r", "reg") == 0
-    f.load(); assert f['Back'] != "reg"
+    f.load()
+    assert f["Back"] != "reg"
     assert deck.findReplace(nids, "B.r", "reg", regex=True) == 1
-    f.load(); assert f['Back'] == "reg"
+    f.load()
+    assert f["Back"] == "reg"
+
 
 def test_findDupes():
     deck = getEmptyCol()
     f = deck.newNote()
-    f['Front'] = 'foo'
-    f['Back'] = 'bar'
+    f["Front"] = "foo"
+    f["Back"] = "bar"
     deck.addNote(f)
     f2 = deck.newNote()
-    f2['Front'] = 'baz'
-    f2['Back'] = 'bar'
+    f2["Front"] = "baz"
+    f2["Back"] = "bar"
     deck.addNote(f2)
     f3 = deck.newNote()
-    f3['Front'] = 'quux'
-    f3['Back'] = 'bar'
+    f3["Front"] = "quux"
+    f3["Back"] = "bar"
     deck.addNote(f3)
     f4 = deck.newNote()
-    f4['Front'] = 'quuux'
-    f4['Back'] = 'nope'
+    f4["Front"] = "quuux"
+    f4["Back"] = "nope"
     deck.addNote(f4)
     r = deck.findDupes("Back")
     assert r[0][0] == "bar"

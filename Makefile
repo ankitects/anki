@@ -7,7 +7,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 RUNARGS :=
 .SUFFIXES:
-BLACKARGS := -t py36 anki aqt
+BLACKARGS := -t py36 anki aqt tests
 RUSTARGS := --release --strip
 
 $(shell mkdir -p .build)

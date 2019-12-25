@@ -23,6 +23,7 @@ def test_add():
         f.write("world")
     assert d.media.addFile(path) == "foo (1).jpg"
 
+
 def test_strings():
     d = getEmptyCol()
     mf = d.media.filesInStr
@@ -31,12 +32,16 @@ def test_strings():
     assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
     assert mf(mid, "aoeu<img src='foo.jpg' style='test'>ao") == ["foo.jpg"]
     assert mf(mid, "aoeu<img src='foo.jpg'><img src=\"bar.jpg\">ao") == [
-            "foo.jpg", "bar.jpg"]
+        "foo.jpg",
+        "bar.jpg",
+    ]
     assert mf(mid, "aoeu<img src=foo.jpg style=bar>ao") == ["foo.jpg"]
     assert mf(mid, "<img src=one><img src=two>") == ["one", "two"]
-    assert mf(mid, "aoeu<img src=\"foo.jpg\">ao") == ["foo.jpg"]
-    assert mf(mid, "aoeu<img src=\"foo.jpg\"><img class=yo src=fo>ao") == [
-            "foo.jpg", "fo"]
+    assert mf(mid, 'aoeu<img src="foo.jpg">ao') == ["foo.jpg"]
+    assert mf(mid, 'aoeu<img src="foo.jpg"><img class=yo src=fo>ao') == [
+        "foo.jpg",
+        "fo",
+    ]
     assert mf(mid, "aou[sound:foo.mp3]aou") == ["foo.mp3"]
     sp = d.media.strip
     assert sp("aoeu") == "aoeu"
@@ -47,6 +52,7 @@ def test_strings():
     assert es("<img src='http://foo.com'>") == "<img src='http://foo.com'>"
     assert es('<img src="foo bar.jpg">') == '<img src="foo%20bar.jpg">'
 
+
 def test_deckIntegration():
     d = getEmptyCol()
     # create a media dir
@@ -56,11 +62,13 @@ def test_deckIntegration():
     d.media.addFile(file)
     # add a note which references it
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "<img src='fake.png'>"
+    f["Front"] = "one"
+    f["Back"] = "<img src='fake.png'>"
     d.addNote(f)
     # and one which references a non-existent file
     f = d.newNote()
-    f['Front'] = "one"; f['Back'] = "<img src='fake2.png'>"
+    f["Front"] = "one"
+    f["Back"] = "<img src='fake2.png'>"
     d.addNote(f)
     # and add another file which isn't used
     with open(os.path.join(d.media.dir(), "foo.jpg"), "w") as f:
@@ -70,12 +78,16 @@ def test_deckIntegration():
     assert ret[0] == ["fake2.png"]
     assert ret[1] == ["foo.jpg"]
 
+
 def test_changes():
     d = getEmptyCol()
+
     def added():
         return d.media.db.execute("select fname from media where csum is not null")
+
     def removed():
         return d.media.db.execute("select fname from media where csum is null")
+
     assert not list(added())
     assert not list(removed())
     # add a file
@@ -97,17 +109,18 @@ def test_changes():
     assert not list(removed())
     # but if we add another file, it will
     time.sleep(1)
-    with open(path+"2", "w") as f:
+    with open(path + "2", "w") as f:
         f.write("yo")
     d.media.findChanges()
     assert len(list(added())) == 2
     assert not list(removed())
     # deletions should get noticed too
     time.sleep(1)
-    os.unlink(path+"2")
+    os.unlink(path + "2")
     d.media.findChanges()
     assert len(list(added())) == 1
     assert len(list(removed())) == 1
+
 
 def test_illegal():
     d = getEmptyCol()
@@ -115,8 +128,8 @@ def test_illegal():
     good = "abcdefgh"
     assert d.media.stripIllegal(aString) == good
     for c in aString:
-        bad = d.media.hasIllegal("somestring"+c+"morestring")
+        bad = d.media.hasIllegal("somestring" + c + "morestring")
         if bad:
-            assert(c not in good)
+            assert c not in good
         else:
-            assert(c in good)
+            assert c in good
