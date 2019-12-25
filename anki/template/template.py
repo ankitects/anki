@@ -5,7 +5,17 @@ from anki.hooks import runFilter
 from anki.utils import stripHTML, stripHTMLMedia
 
 # Matches a {{c123::clozed-out text::hint}} Cloze deletion, case-insensitively.
-clozeReg = r"(?si)\{\{(c)%s::(.*?)(::(.*?))?\}\}"
+# The regex should be interpolated with a regex number and creates the following
+# named groups:
+#   - tag: The lowercase or uppercase 'c' letter opening the Cloze.
+#   - content: Clozed-out content.
+#   - hint: Cloze hint, if provided.
+clozeReg = r"(?si)\{\{(?P<tag>c)%s::(?P<content>.*?)(::(?P<hint>.*?))?\}\}"
+
+# Constants referring to group names within clozeReg.
+matchGroupTag = "tag"
+matchGroupContent = "content"
+matchGroupHint = "hint"
 
 modifiers: Dict[str, Callable] = {}
 
@@ -96,7 +106,7 @@ class Template:
                 txt = get_or_attr(context, m.group(2), None)
                 m = re.search(clozeReg % m.group(1), txt)
                 if m:
-                    val = m.group(1)
+                    val = m.group(matchGroupTag)
             else:
                 val = get_or_attr(context, section_name, None)
 
@@ -200,9 +210,11 @@ class Template:
                     return "{unknown field %s}" % tag_name
         return txt
 
-    def clozeText(self, txt, ord, type) -> str:
+    def clozeText(self, txt: str, ord: str, type: str) -> str:
+        """Processes the given Cloze deletion within the given template."""
         reg = clozeReg
-        if not re.search(reg % ord, txt):
+        currentRegex = clozeReg % ord
+        if not re.search(currentRegex, txt):
             # No Cloze deletion was found in txt.
             return ""
         txt = self._removeFormattingFromMathjax(txt, ord)
@@ -210,18 +222,18 @@ class Template:
         def repl(m):
             # replace chosen cloze with type
             if type == "q":
-                if m.group(4):
-                    buf = "[%s]" % m.group(4)
+                if m.group(matchGroupHint):
+                    buf = "[%s]" % m.group(matchGroupHint)
                 else:
                     buf = "[...]"
             else:
-                buf = m.group(2)
+                buf = m.group(matchGroupContent)
             # uppercase = no formatting
-            if m.group(1) == "c":
+            if m.group(matchGroupTag) == "c":
                 buf = "<span class=cloze>%s</span>" % buf
             return buf
 
-        txt = re.sub(reg % ord, repl, txt)
+        txt = re.sub(currentRegex, repl, txt)
         # and display other clozes normally
         return re.sub(reg % r"\d+", "\\2", txt)
 
