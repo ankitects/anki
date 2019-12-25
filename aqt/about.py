@@ -148,6 +148,7 @@ system. It's free and open source."
             "David Bailey",
             "Arman High",
             "Arthur Milchior",
+            "Rai (Michael Pokorny)",
         )
     )
 
