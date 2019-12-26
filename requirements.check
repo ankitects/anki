@@ -5,3 +5,6 @@ git+https://github.com/dae/isort#egg=isort
 # fixme: when pylint supports isort 5.0, switch to pypy
 git+https://github.com/dae/pylint#egg=pylint
 black
+
+# For fuzz testing.
+pythonfuzz
