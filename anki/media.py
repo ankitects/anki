@@ -232,23 +232,27 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                         l.append(fname)
         return l
 
-    def _expandClozes(self, string) -> List[str]:
+    def _expandClozes(self, string: str) -> List[str]:
         ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
         strings = []
-        from anki.template.template import clozeReg
+        from anki.template.template import (
+            clozeReg,
+            CLOZE_REGEX_MATCH_GROUP_HINT,
+            CLOZE_REGEX_MATCH_GROUP_CONTENT,
+        )
 
         def qrepl(m):
-            if m.group(4):
-                return "[%s]" % m.group(4)
+            if m.group(CLOZE_REGEX_MATCH_GROUP_HINT):
+                return "[%s]" % m.group(CLOZE_REGEX_MATCH_GROUP_HINT)
             else:
                 return "[...]"
 
         def arepl(m):
-            return m.group(2)
+            return m.group(CLOZE_REGEX_MATCH_GROUP_CONTENT)
 
         for ord in ords:
             s = re.sub(clozeReg % ord, qrepl, string)
-            s = re.sub(clozeReg % ".+?", "\\2", s)
+            s = re.sub(clozeReg % ".+?", arepl, s)
             strings.append(s)
         strings.append(re.sub(clozeReg % ".+?", arepl, string))
         return strings
