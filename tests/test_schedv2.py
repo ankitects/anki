@@ -10,7 +10,7 @@ from tests.shared import getEmptyCol
 
 # Between 2-4AM, shift the time back so test assumptions hold.
 lt = time.localtime()
-if lt.tm_hour > 2 and lt.tm_hour < 4:
+if lt.tm_hour >= 2 and lt.tm_hour < 4:
     orig_time = time.time
 
     def adjusted_time():
