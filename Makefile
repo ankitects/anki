@@ -154,7 +154,7 @@ run: build
 ######################
 
 .PHONY: check
-check: rs-test rs-fmt rs-clippy py-mypy py-test py-fmt py-imports py-lint ts-fmt
+check: build rs-test rs-fmt rs-clippy py-mypy py-test py-fmt py-imports py-lint ts-fmt
 
 .PHONY: fix
 fix: fix-py-fmt fix-py-imports fix-rs-fmt fix-ts-fmt
