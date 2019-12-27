@@ -22,7 +22,7 @@ class Note:
     def __init__(
         self,
         col: "anki.storage._Collection",
-        model: Optional[Any] = None,
+        model: Optional[NoteType] = None,
         id: Optional[int] = None,
     ) -> None:
         assert not (model and id)
