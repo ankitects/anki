@@ -77,14 +77,33 @@ def timezoneOffset() -> int:
 class _Collection:
     db: Optional[DB]
     sched: Union[V1Scheduler, V2Scheduler]
+    # Timestamp when the collection was created in seconds since the epoch.
     crt: int
+    # Last modification time of the collection in milliseconds since the epoch.
     mod: int
+    # Last modification time of the schema in milliseconds since the epoch.
     scm: int
-    dty: bool  # no longer used
+    # No longer used.
+    dty: bool
+    # TODO: document
     _usn: int
+    # Last modification time of the schema as of the last full upload.
     ls: int
+    # Various configuration, stored in the database as a JSON string.
     conf: Dict[str, Any]
-    _undo: List[Any]
+    # Undo data. If None, there is nothing to undo.
+    # Otherwise, list of [type: int, undoName: str, ... optionally more ...].
+    # undoName is the name of the undo action to show in the menu.
+    # 'type' can be:
+    #   - 1, meaning "undo a review".
+    #     In this case, self._undo will have 2 more items:
+    #       - TODO: document self._undo[2] (seems to be some kind of list
+    #         representing the card to undo)
+    #       - self._undo[3] will be a boolean specifying whether the review
+    #         to undo switched the card to the Leech state.
+    #   - 2, meaning "rollback the database to a previous state".
+    #     In this case, there will be no 3rd item in self._undo.
+    _undo: Optional[List[Any]]
     backend: Backend
 
     def __init__(
