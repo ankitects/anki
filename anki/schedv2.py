@@ -45,8 +45,8 @@ class Scheduler:
         self._lrnCutoff = 0
         self._updateCutoff()
 
-    def getCard(self) -> Any:
-        "Pop the next card from the queue. None if finished."
+    def getCard(self) -> Optional[Card]:
+        """Pop the next card from the queue. None if finished."""
         self._checkDay()
         if not self._haveQueues:
             self.reset()
@@ -58,6 +58,7 @@ class Scheduler:
             self.reps += 1
             card.startTimer()
             return card
+        return None
 
     def reset(self) -> None:
         self._updateCutoff()
@@ -317,8 +318,8 @@ order by due"""
     # Getting the next card
     ##########################################################################
 
-    def _getCard(self) -> Any:
-        "Return the next due card id, or None."
+    def _getCard(self) -> Optional[Card]:
+        """Return the next due card, or None."""
         # learning card due?
         c = self._getLrnCard()
         if c:
@@ -403,10 +404,11 @@ did = ? and queue = 0 limit ?)""",
             self._resetNew()
             return self._fillNew()
 
-    def _getNewCard(self) -> Any:
+    def _getNewCard(self) -> Optional[Card]:
         if self._fillNew():
             self.newCount -= 1
             return self.col.getCard(self._newQueue.pop())
+        return None
 
     def _updateNewCardRatio(self) -> None:
         if self.col.conf["newSpread"] == NEW_CARDS_DISTRIBUTE:
@@ -546,7 +548,7 @@ limit %d"""
         self._lrnQueue.sort()
         return self._lrnQueue
 
-    def _getLrnCard(self, collapse: bool = False) -> Any:
+    def _getLrnCard(self, collapse: bool = False) -> Optional[Card]:
         self._maybeResetLrn(force=collapse and self.lrnCount == 0)
         if self._fillLrn():
             cutoff = time.time()
@@ -557,6 +559,7 @@ limit %d"""
                 card = self.col.getCard(id)
                 self.lrnCount -= 1
                 return card
+        return None
 
     # daily learning
     def _fillLrnDay(self) -> Optional[bool]:
@@ -589,10 +592,11 @@ did = ? and queue = 3 and due <= ? limit ?""",
         # shouldn't reach here
         return False
 
-    def _getLrnDayCard(self) -> Any:
+    def _getLrnDayCard(self) -> Optional[Card]:
         if self._fillLrnDay():
             self.lrnCount -= 1
             return self.col.getCard(self._lrnDayQueue.pop())
+        return None
 
     def _answerLrnCard(self, card: Card, ease: int) -> None:
         conf = self._lrnConf(card)
@@ -921,12 +925,13 @@ limit ?"""
             self._resetRev()
             return self._fillRev()
 
-    def _getRevCard(self) -> Any:
+    def _getRevCard(self) -> Optional[Card]:
         if self._fillRev():
             self.revCount -= 1
             return self.col.getCard(self._revQueue.pop())
+        return None
 
-    def totalRevForCurrentDeck(self) -> Any:
+    def totalRevForCurrentDeck(self) -> int:
         return self.col.db.scalar(
             """
 select count() from cards where id in (
@@ -1493,7 +1498,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
     # Next time reports
     ##########################################################################
 
-    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> Any:
+    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
         ivl = self.nextIvl(card, ease)
         if not ivl:
