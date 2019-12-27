@@ -6,7 +6,14 @@ import time
 from anki.consts import STARTING_FACTOR
 from anki.hooks import addHook
 from anki.utils import intTime
-from tests.shared import getEmptyCol
+from tests.shared import getEmptyCol as getEmptyColOrig
+
+
+def getEmptyCol():
+    col = getEmptyColOrig()
+    col.changeSchedulerVer(2)
+    return col
+
 
 # Between 2-4AM, shift the time back so test assumptions hold.
 lt = time.localtime()

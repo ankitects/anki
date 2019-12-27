@@ -3,7 +3,13 @@
 import time
 
 from anki.consts import *
-from tests.shared import getEmptyCol
+from tests.shared import getEmptyCol as getEmptyColOrig
+
+
+def getEmptyCol():
+    col = getEmptyColOrig()
+    col.changeSchedulerVer(2)
+    return col
 
 
 def test_op():

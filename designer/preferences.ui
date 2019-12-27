@@ -111,7 +111,7 @@
        <item>
         <widget class="QCheckBox" name="newSched">
          <property name="text">
-          <string>Anki 2.1 scheduler</string>
+          <string>Anki 2.1 scheduler (beta)</string>
          </property>
         </widget>
        </item>
