@@ -2,9 +2,10 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
+from anki.types import NoteType
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -17,12 +18,23 @@ from anki.utils import (
 
 
 class Note:
+    col: "anki.storage._Collection"
+    newlyAdded: bool
+    id: int
+    guid: str
+    _model: NoteType
+    mid: int
     tags: List[str]
+    fields: List[str]
+    flags: int
+    data: str
+    _fmap: Dict[str, Tuple[Any, Any]]
+    scm: int
 
     def __init__(
         self,
         col: "anki.storage._Collection",
-        model: Optional[Any] = None,
+        model: Optional[NoteType] = None,
         id: Optional[int] = None,
     ) -> None:
         assert not (model and id)
@@ -111,16 +123,16 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
             )
         ]
 
-    def model(self) -> Any:
+    def model(self) -> Optional[NoteType]:
         return self._model
 
     # Dict interface
     ##################################################
 
-    def keys(self) -> List:
+    def keys(self) -> List[str]:
         return list(self._fmap.keys())
 
-    def values(self) -> Any:
+    def values(self) -> List[str]:
         return self.fields
 
     def items(self) -> List[Tuple[Any, Any]]:
@@ -132,14 +144,14 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         except:
             raise KeyError(key)
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> str:
         return self.fields[self._fieldOrd(key)]
 
     def __setitem__(self, key: str, value: str) -> None:
         self.fields[self._fieldOrd(key)] = value
 
     def __contains__(self, key) -> bool:
-        return key in list(self._fmap.keys())
+        return key in self._fmap
 
     # Tags
     ##################################################
@@ -150,10 +162,10 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     def stringTags(self) -> Any:
         return self.col.tags.join(self.col.tags.canonify(self.tags))
 
-    def setTagsFromStr(self, str) -> None:
-        self.tags = self.col.tags.split(str)
+    def setTagsFromStr(self, tags: str) -> None:
+        self.tags = self.col.tags.split(tags)
 
-    def delTag(self, tag) -> None:
+    def delTag(self, tag: str) -> None:
         rem = []
         for t in self.tags:
             if t.lower() == tag.lower():
