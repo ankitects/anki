@@ -1,6 +1,7 @@
 use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
 use crate::err::{AnkiError, Result};
+use crate::sched::sched_timing_today;
 use crate::template::{FieldMap, FieldRequirements, ParsedTemplate};
 use prost::Message;
 use std::collections::HashSet;
@@ -85,6 +86,9 @@ impl Backend {
                 OValue::TemplateRequirements(self.template_requirements(input)?)
             }
             Value::PlusOne(input) => OValue::PlusOne(self.plus_one(input)?),
+            Value::SchedTimingToday(input) => {
+                OValue::SchedTimingToday(self.sched_timing_today(input))
+            }
         })
     }
 
@@ -131,6 +135,19 @@ impl Backend {
         Ok(pt::TemplateRequirementsOut {
             requirements: all_reqs,
         })
+    }
+
+    fn sched_timing_today(&self, input: pt::SchedTimingTodayIn) -> pt::SchedTimingTodayOut {
+        let today = sched_timing_today(
+            input.created as i64,
+            input.now as i64,
+            input.minutes_west,
+            input.rollover_hour as i8,
+        );
+        pt::SchedTimingTodayOut {
+            days_elapsed: today.days_elapsed,
+            next_day_at: today.next_day_at,
+        }
     }
 }
 

@@ -4,18 +4,27 @@ package backend_proto;
 
 message Empty {}
 
+// 1-15 reserved for future use; 2047 for errors
+
 message BackendInput {
+    reserved 2047;
     oneof value {
-        PlusOneIn plus_one = 2;
-        TemplateRequirementsIn template_requirements = 3;
+        TemplateRequirementsIn template_requirements = 16;
+        SchedTimingTodayIn sched_timing_today = 17;
+
+        PlusOneIn plus_one = 2046; // temporary, for testing
+
     }
 }
 
 message BackendOutput {
     oneof value {
-        BackendError error = 1;
-        PlusOneOut plus_one = 2;
-        TemplateRequirementsOut template_requirements = 3;
+        TemplateRequirementsOut template_requirements = 16;
+        SchedTimingTodayOut sched_timing_today = 17;
+
+        PlusOneOut plus_one = 2046; // temporary, for testing
+
+        BackendError error = 2047;
     }
 }
 
@@ -65,4 +74,16 @@ message TemplateRequirementAll {
 
 message TemplateRequirementAny {
     repeated uint32 ords = 1;
+}
+
+message SchedTimingTodayIn {
+    int64 created = 1;
+    int64 now = 2;
+    sint32 minutes_west = 3;
+    sint32 rollover_hour = 4;
+}
+
+message SchedTimingTodayOut {
+    uint32 days_elapsed = 1;
+    int64 next_day_at = 2;
 }
