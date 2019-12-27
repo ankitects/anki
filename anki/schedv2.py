@@ -20,6 +20,7 @@ from anki.lang import _
 from anki.utils import fmtTimeSpan, ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
+CARD_TYPE_RELEARNING = 3
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
@@ -599,7 +600,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
 
     def _answerLrnCard(self, card: Card, ease: int) -> None:
         conf = self._lrnConf(card)
-        if card.type in (2, 3):
+        if card.type in (2, CARD_TYPE_RELEARNING):
             type = 2
         else:
             type = 0
@@ -636,7 +637,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.left = self._startingLeft(card)
 
         # relearning card?
-        if card.type == 3:
+        if card.type == CARD_TYPE_RELEARNING:
             self._updateRevIvlOnFail(card, conf)
 
         return self._rescheduleLrnCard(card, conf)
@@ -707,13 +708,13 @@ did = ? and queue = 3 and due <= ? limit ?""",
         return avg
 
     def _lrnConf(self, card: Card) -> Any:
-        if card.type in (2, 3):
+        if card.type in (2, CARD_TYPE_RELEARNING):
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
     def _rescheduleAsRev(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
-        lapse = card.type in (2, 3)
+        lapse = card.type in (2, CARD_TYPE_RELEARNING)
 
         if lapse:
             self._rescheduleGraduatingLapse(card, early)
@@ -732,7 +733,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         card.type = 2
 
     def _startingLeft(self, card: Card) -> int:
-        if card.type == 3:
+        if card.type == CARD_TYPE_RELEARNING:
             conf = self._lapseConf(card)
         else:
             conf = self._lrnConf(card)
@@ -761,7 +762,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
     def _graduatingIvl(
         self, card: Card, conf: Dict[str, Any], early: bool, fuzz: bool = True
     ) -> Any:
-        if card.type in (2, 3):
+        if card.type in (2, CARD_TYPE_RELEARNING):
             bonus = early and 1 or 0
             return card.ivl + bonus
         if not early:
@@ -965,7 +966,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         suspended = self._checkLeech(card, conf) and card.queue == -1
 
         if conf["delays"] and not suspended:
-            card.type = 3
+            card.type = CARD_TYPE_RELEARNING
             delay = self._moveToFirstStep(card, conf)
         else:
             # no relearning steps
@@ -1236,7 +1237,7 @@ where id = ?
 
         # learning and relearning cards may be seconds-based or day-based;
         # other types map directly to queues
-        if card.type in (1, 3):
+        if card.type in (1, CARD_TYPE_RELEARNING):
             if card.odue > 1000000000:
                 card.queue = 1
             else:
@@ -1558,8 +1559,8 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     # learning and relearning cards may be seconds-based or day-based;
     # other types map directly to queues
-    _restoreQueueSnippet = """
-queue = (case when type in (1,3) then
+    _restoreQueueSnippet = f"""
+queue = (case when type in (1,{CARD_TYPE_RELEARNING}) then
   (case when (case when odue then odue else due end) > 1000000000 then 1 else 3 end)
 else
   type
@@ -1819,13 +1820,13 @@ and due >= ? and queue = 0"""
 
     def _emptyAllFiltered(self) -> None:
         self.col.db.execute(
-            """
+            f"""
 update cards set did = odid, queue = (case
 when type = 1 then 0
-when type = 3 then 2
+when type = {CARD_TYPE_RELEARNING} then 2
 else type end), type = (case
 when type = 1 then 0
-when type = 3 then 2
+when type = {CARD_TYPE_RELEARNING} then 2
 else type end),
 due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
             self.col.usn(),
@@ -1835,19 +1836,19 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
         # remove review cards from relearning
         if schedVer == 1:
             self.col.db.execute(
-                """
+                f"""
     update cards set
     due = odue, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
-    where queue in (1,3) and type in (2, 3)
+    where queue in (1,3) and type in (2, {CARD_TYPE_RELEARNING})
     """
                 % (intTime(), self.col.usn())
             )
         else:
             self.col.db.execute(
-                """
+                f"""
     update cards set
     due = %d+ivl, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
-    where queue in (1,3) and type in (2, 3)
+    where queue in (1,3) and type in (2, {CARD_TYPE_RELEARNING})
     """
                 % (self.today, intTime(), self.col.usn())
             )
@@ -1857,10 +1858,10 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
     # v1 doesn't support buried/suspended (re)learning cards
     def _resetSuspendedLearning(self) -> None:
         self.col.db.execute(
-            """
+            f"""
 update cards set type = (case
 when type = 1 then 0
-when type in (2, 3) then 2
+when type in (2, {CARD_TYPE_RELEARNING}) then 2
 else type end),
 due = (case when odue then odue else due end),
 odue = 0,
