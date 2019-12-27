@@ -23,6 +23,7 @@ from anki.utils import fmtTimeSpan, ids2str, intTime
 CARD_TYPE_RELEARNING = 3
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
+QUEUE_TYPE_MANUALLY_BURIED = -3
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 # odue/odid store original due/did when cards moved to filtered deck
@@ -1488,7 +1489,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def haveManuallyBuried(self) -> bool:
         cnt = self.col.db.scalar(
-            "select 1 from cards where queue = -3 and did in %s limit 1"
+            f"select 1 from cards where queue = {QUEUE_TYPE_MANUALLY_BURIED} and did in %s limit 1"
             % self._deckLimit()
         )
         return not not cnt
@@ -1587,7 +1588,7 @@ end)
         )
 
     def buryCards(self, cids: List[int], manual: bool = True) -> None:
-        queue = manual and -3 or -2
+        queue = manual and QUEUE_TYPE_MANUALLY_BURIED or -2
         self.col.log(cids)
         self.col.db.execute(
             """
@@ -1607,16 +1608,21 @@ update cards set queue=?,mod=?,usn=? where id in """
 
     def unburyCards(self) -> None:
         "Unbury all buried cards in all decks."
-        self.col.log(self.col.db.list("select id from cards where queue in (-2, -3)"))
+        self.col.log(
+            self.col.db.list(
+                f"select id from cards where queue in (-2, {QUEUE_TYPE_MANUALLY_BURIED})"
+            )
+        )
         self.col.db.execute(
-            "update cards set %s where queue in (-2, -3)" % self._restoreQueueSnippet
+            f"update cards set %s where queue in (-2, {QUEUE_TYPE_MANUALLY_BURIED})"
+            % self._restoreQueueSnippet
         )
 
     def unburyCardsForDeck(self, type: str = "all") -> None:
         if type == "all":
-            queue = "queue in (-2, -3)"
+            queue = f"queue in (-2, {QUEUE_TYPE_MANUALLY_BURIED})"
         elif type == "manual":
-            queue = "queue = -3"
+            queue = f"queue = {QUEUE_TYPE_MANUALLY_BURIED}"
         elif type == "siblings":
             queue = "queue = -2"
         else:
@@ -1873,7 +1879,8 @@ where queue < 0"""
     # no 'manually buried' queue in v1
     def _moveManuallyBuried(self) -> None:
         self.col.db.execute(
-            "update cards set queue=-2,mod=%d where queue=-3" % intTime()
+            f"update cards set queue=-2,mod=%d where queue={QUEUE_TYPE_MANUALLY_BURIED}"
+            % intTime()
         )
 
     # adding 'hard' in v2 scheduler means old ease entries need shifting
