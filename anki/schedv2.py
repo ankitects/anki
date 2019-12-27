@@ -474,7 +474,7 @@ select count() from
             """
 select count() from cards where id in (
 select id from cards where did in %s and queue = 0 limit ?)"""
-            % ids2str(self.col.decks.active()),
+            % self._deckLimit(),
             self.reportLimit,
         )
 
@@ -884,9 +884,10 @@ and due <= ? limit ?)"""
         self.revCount = self.col.db.scalar(
             """
 select count() from (select id from cards where
-did in %s and queue = 2 and due <= ? limit %d)"""
-            % (ids2str(self.col.decks.active()), lim),
+did in %s and queue = 2 and due <= ? limit ?)"""
+            % self._deckLimit(),
             self.today,
+            lim,
         )
 
     def _resetRev(self) -> None:
@@ -907,7 +908,7 @@ select id from cards where
 did in %s and queue = 2 and due <= ?
 order by due, random()
 limit ?"""
-                % (ids2str(self.col.decks.active())),
+                % self._deckLimit(),
                 self.today,
                 lim,
             )
@@ -935,7 +936,7 @@ limit ?"""
             """
 select count() from cards where id in (
 select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
-            % ids2str(self.col.decks.active()),
+            % self._deckLimit(),
             self.today,
             self.reportLimit,
         )
@@ -1478,16 +1479,16 @@ To study outside of the normal schedule, click the Custom Study button below."""
         )
 
     def haveBuriedSiblings(self) -> bool:
-        sdids = ids2str(self.col.decks.active())
         cnt = self.col.db.scalar(
-            "select 1 from cards where queue = -2 and did in %s limit 1" % sdids
+            "select 1 from cards where queue = -2 and did in %s limit 1"
+            % self._deckLimit()
         )
         return not not cnt
 
     def haveManuallyBuried(self) -> bool:
-        sdids = ids2str(self.col.decks.active())
         cnt = self.col.db.scalar(
-            "select 1 from cards where queue = -3 and did in %s limit 1" % sdids
+            "select 1 from cards where queue = -3 and did in %s limit 1"
+            % self._deckLimit()
         )
         return not not cnt
 
@@ -1620,15 +1621,15 @@ update cards set queue=?,mod=?,usn=? where id in """
         else:
             raise Exception("unknown type")
 
-        sids = ids2str(self.col.decks.active())
         self.col.log(
             self.col.db.list(
-                "select id from cards where %s and did in %s" % (queue, sids)
+                "select id from cards where %s and did in %s"
+                % (queue, self._deckLimit())
             )
         )
         self.col.db.execute(
             "update cards set mod=?,usn=?,%s where %s and did in %s"
-            % (self._restoreQueueSnippet, queue, sids),
+            % (self._restoreQueueSnippet, queue, self._deckLimit()),
             intTime(),
             self.col.usn(),
         )
