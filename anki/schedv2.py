@@ -24,6 +24,7 @@ CARD_TYPE_RELEARNING = 3
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
 QUEUE_TYPE_PREVIEW = 4
+QUEUE_TYPE_DAY_LEARN_RELEARN = 3
 QUEUE_TYPE_SIBLING_BURIED = -2
 QUEUE_TYPE_MANUALLY_BURIED = -3
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
@@ -101,7 +102,7 @@ class Scheduler:
             # update daily limit
             self._updateStats(card, "new")
 
-        if card.queue in (1, 3):
+        if card.queue in (1, QUEUE_TYPE_DAY_LEARN_RELEARN):
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
             self._answerRevCard(card, ease)
@@ -159,7 +160,7 @@ order by due"""
         return ret
 
     def countIdx(self, card: Card) -> Any:
-        if card.queue in (3, QUEUE_TYPE_PREVIEW):
+        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
             return 1
         return card.queue
 
@@ -511,8 +512,8 @@ and due < ?"""
         )
         # day
         self.lrnCount += self.col.db.scalar(
-            """
-select count() from cards where did in %s and queue = 3
+            f"""
+select count() from cards where did in %s and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN}
 and due <= ?"""
             % (self._deckLimit()),
             self.today,
@@ -574,9 +575,9 @@ limit %d"""
             did = self._lrnDids[0]
             # fill the queue with the current did
             self._lrnDayQueue = self.col.db.list(
-                """
+                f"""
 select id from cards where
-did = ? and queue = 3 and due <= ? limit ?""",
+did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
                 did,
                 self.today,
                 self.queueLimit,
@@ -685,7 +686,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
             # day learn queue
             ahead = ((card.due - self.dayCutoff) // 86400) + 1
             card.due = self.today + ahead
-            card.queue = 3
+            card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
 
     def _delayForGrade(self, conf: Dict[str, Any], left: int) -> Any:
@@ -831,9 +832,9 @@ select count() from
             or 0
         )
         return cnt + self.col.db.scalar(
-            """
+            f"""
 select count() from
-(select null from cards where did = ? and queue = 3
+(select null from cards where did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN}
 and due <= ? limit ?)""",
             did,
             self.today,
@@ -1244,7 +1245,7 @@ where id = ?
             if card.odue > 1000000000:
                 card.queue = 1
             else:
-                card.queue = 3
+                card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         else:
             card.queue = card.type
 
@@ -1521,7 +1522,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             return 0
 
         # (re)learning?
-        if card.queue in (0, 1, 3):
+        if card.queue in (0, 1, QUEUE_TYPE_DAY_LEARN_RELEARN):
             return self._nextLrnIvl(card, ease)
         elif ease == 1:
             # lapse
@@ -1564,7 +1565,8 @@ To study outside of the normal schedule, click the Custom Study button below."""
     # other types map directly to queues
     _restoreQueueSnippet = f"""
 queue = (case when type in (1,{CARD_TYPE_RELEARNING}) then
-  (case when (case when odue then odue else due end) > 1000000000 then 1 else 3 end)
+  (case when (case when odue then odue else due end) > 1000000000 then 1 else
+  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
 else
   type
 end)
@@ -1849,7 +1851,7 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                 f"""
     update cards set
     due = odue, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
-    where queue in (1,3) and type in (2, {CARD_TYPE_RELEARNING})
+    where queue in (1,{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in (2, {CARD_TYPE_RELEARNING})
     """
                 % (intTime(), self.col.usn())
             )
@@ -1858,12 +1860,16 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                 f"""
     update cards set
     due = %d+ivl, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
-    where queue in (1,3) and type in (2, {CARD_TYPE_RELEARNING})
+    where queue in (1,{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in (2, {CARD_TYPE_RELEARNING})
     """
                 % (self.today, intTime(), self.col.usn())
             )
         # remove new cards from learning
-        self.forgetCards(self.col.db.list("select id from cards where queue in (1,3)"))
+        self.forgetCards(
+            self.col.db.list(
+                f"select id from cards where queue in (1,{QUEUE_TYPE_DAY_LEARN_RELEARN})"
+            )
+        )
 
     # v1 doesn't support buried/suspended (re)learning cards
     def _resetSuspendedLearning(self) -> None:
