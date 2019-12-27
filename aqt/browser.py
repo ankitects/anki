@@ -1041,9 +1041,9 @@ by clicking on one on the left."""
         self.sidebarTree.setIndentation(15)
         self.sidebarTree.expanded.connect(self.onSidebarItemExpanded)  # type: ignore
         dw.setWidget(self.sidebarTree)
-        p = QPalette()
-        p.setColor(QPalette.Base, p.window().color())
-        self.sidebarTree.setPalette(p)
+        # match window background color
+        bgcolor = QPalette().window().color().name()
+        self.sidebarTree.setStyleSheet("QTreeView { background: '%s'; }" % bgcolor)
         self.sidebarDockWidget.setFloating(False)
         self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged)  # type: ignore
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
