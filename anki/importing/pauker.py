@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: Andreas Klauer <Andreas.Klauer@metamorpher.de>
 # License: BSD-3
 
