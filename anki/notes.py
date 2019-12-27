@@ -5,6 +5,7 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
+from anki.types import NoteType
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -14,7 +15,6 @@ from anki.utils import (
     stripHTMLMedia,
     timestampID,
 )
-from anki.types import NoteType
 
 
 class Note:
