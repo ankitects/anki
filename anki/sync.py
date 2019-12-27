@@ -36,7 +36,7 @@ class UnexpectedSchemaChange(Exception):
 class Syncer:
     cursor: Optional[sqlite3.Cursor]
 
-    def __init__(self, col, server=None) -> None:
+    def __init__(self, col: "anki.storage._Collection", server=None) -> None:
         self.col = col
         self.server = server
 
@@ -95,7 +95,9 @@ class Syncer:
             return "basicCheckFailed"
         # step 2: startup and deletions
         runHook("sync", "meta")
-        rrem = self.server.start(minUsn=self.minUsn, lnewer=self.lnewer)
+        rrem = self.server.start(
+            minUsn=self.minUsn, lnewer=self.lnewer, offset=self.col.localOffset()
+        )
 
         # apply deletions to server
         lgraves = self.removed()
@@ -178,7 +180,9 @@ class Syncer:
 
     def changes(self) -> dict:
         "Bundle up small objects."
-        d = dict(models=self.getModels(), decks=self.getDecks(), tags=self.getTags())
+        d: Dict[str, Any] = dict(
+            models=self.getModels(), decks=self.getDecks(), tags=self.getTags()
+        )
         if self.lnewer:
             d["conf"] = self.getConf()
             d["crt"] = self.col.crt
@@ -328,7 +332,7 @@ from notes where %s"""
 
     def remove(self, graves) -> None:
         # pretend to be the server so we don't set usn = -1
-        self.col.server = True
+        self.col.server = True  # type: ignore
 
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves["notes"])
@@ -338,7 +342,7 @@ from notes where %s"""
         for oid in graves["decks"]:
             self.col.decks.rem(oid, childrenToo=False)
 
-        self.col.server = False
+        self.col.server = False  # type: ignore
 
     # Models
     ##########################################################################
