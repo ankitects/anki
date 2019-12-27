@@ -6,7 +6,7 @@ import copy
 import json
 import os
 import re
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from anki.backend import Backend
 from anki.collection import _Collection
@@ -23,8 +23,12 @@ from anki.stdmodels import (
 from anki.utils import intTime, isWin
 
 
+class ServerData:
+    minutes_west: Optional[int]
+
+
 def Collection(
-    path: str, lock: bool = True, server: bool = False, log: bool = False
+    path: str, lock: bool = True, server: Optional[ServerData] = None, log: bool = False
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
     backend = Backend()

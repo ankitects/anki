@@ -81,7 +81,11 @@ class _Collection:
     backend: Backend
 
     def __init__(
-        self, db: DB, backend: Backend, server: bool = False, log: bool = False
+        self,
+        db: DB,
+        backend: Backend,
+        server: Optional["anki.storage.ServerData"] = None,
+        log: bool = False,
     ) -> None:
         self.backend = backend
         self._debugLog = log
@@ -92,7 +96,7 @@ class _Collection:
         self.server = server
         self._lastSave = time.time()
         self.clearUndo()
-        self.media = MediaManager(self, server)
+        self.media = MediaManager(self, server is not None)
         self.models = ModelManager(self)
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
@@ -132,6 +136,8 @@ class _Collection:
             self.sched = V2Scheduler(self)
             if not self.server:
                 self.conf["localOffset"] = self.sched.timezoneOffset()
+            elif self.server.minutes_west is not None:
+                self.conf["localOffset"] = self.server.minutes_west
 
     def changeSchedulerVer(self, ver: int) -> None:
         if ver == self.schedVer():
