@@ -856,8 +856,12 @@ select id from notes where mid = ?) limit 1"""
                 return False
         return True
 
-    def fixIntegrity(self) -> Tuple[Any, bool]:
-        "Fix possible problems and rebuild caches."
+    def fixIntegrity(self) -> Tuple[str, bool]:
+        """Fix possible problems and rebuild caches.
+
+        Returns tuple of (error: str, ok: bool). 'ok' will be true if no
+        problems were found.
+        """
         problems = []
         curs = self.db.cursor()
         self.save()
