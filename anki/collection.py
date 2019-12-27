@@ -62,7 +62,7 @@ defaultConf = {
     "sortBackwards": False,
     "addToCur": True,  # add new to currently selected deck?
     "dayLearnFirst": False,
-    "schedVer": 2,
+    "schedVer": 1,
 }
 
 

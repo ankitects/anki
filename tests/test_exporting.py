@@ -8,8 +8,14 @@ from nose2.tools.decorators import with_setup
 from anki import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
+from tests.shared import getEmptyCol as getEmptyColOrig
 
-from .shared import getEmptyCol
+
+def getEmptyCol():
+    col = getEmptyColOrig()
+    col.changeSchedulerVer(2)
+    return col
+
 
 deck = None
 ds = None
