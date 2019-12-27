@@ -1557,7 +1557,7 @@ queue = (case when type in (1,3) then
   (case when (case when odue then odue else due end) > 1000000000 then 1 else 3 end)
 else
   type
-end)    
+end)
 """
 
     def suspendCards(self, ids: List[int]) -> None:
