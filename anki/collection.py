@@ -66,13 +66,6 @@ defaultConf = {
 }
 
 
-def timezoneOffset() -> int:
-    if time.localtime().tm_isdst:
-        return time.altzone // 60
-    else:
-        return time.timezone // 60
-
-
 # this is initialized by storage.Collection
 class _Collection:
     db: Optional[DB]
@@ -110,8 +103,6 @@ class _Collection:
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
-        if not server:
-            self.conf["localOffset"] = timezoneOffset()
         self._loadScheduler()
         if not self.conf.get("newBury", False):
             self.conf["newBury"] = True
@@ -139,6 +130,8 @@ class _Collection:
             self.sched = V1Scheduler(self)
         elif ver == 2:
             self.sched = V2Scheduler(self)
+            if not self.server:
+                self.conf["localOffset"] = self.sched.timezoneOffset()
 
     def changeSchedulerVer(self, ver: int) -> None:
         if ver == self.schedVer():
@@ -160,6 +153,13 @@ class _Collection:
         self.setMod()
 
         self._loadScheduler()
+
+    def localOffset(self) -> Optional[int]:
+        "Minutes west of UTC. Only applies to V2 scheduler."
+        if isinstance(self.sched, V1Scheduler):
+            return None
+        else:
+            return self.sched.timezoneOffset()
 
     # DB-related
     ##########################################################################
@@ -194,7 +194,7 @@ DB operations and the deck/tag/model managers do this automatically, so this
 is only necessary if you modify properties of this object or the conf dict."""
         self.db.mod = True
 
-    def flush(self, mod: None = None) -> None:
+    def flush(self, mod: Optional[int] = None) -> None:
         "Flush state to DB, updating mod time."
         self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
@@ -209,7 +209,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             json.dumps(self.conf),
         )
 
-    def save(self, name: Optional[str] = None, mod: None = None) -> None:
+    def save(self, name: Optional[str] = None, mod: Optional[int] = None) -> None:
         "Flush, commit DB, and take out another write lock."
         # let the managers conditionally flush
         self.models.flush()

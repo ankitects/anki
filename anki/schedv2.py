@@ -12,6 +12,8 @@ from operator import itemgetter
 # from anki.collection import _Collection
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
+import anki  # pylint: disable=unused-import
+from anki.backend import SchedTimingToday
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import runHook
@@ -30,8 +32,9 @@ class Scheduler:
     name = "std2"
     haveCustomStudy = True
     _burySiblingsOnAnswer = True
+    revCount: int
 
-    def __init__(self, col) -> None:
+    def __init__(self, col: "anki.storage._Collection") -> None:
         self.col = col
         self.queueLimit = 50
         self.reportLimit = 1000
@@ -1325,12 +1328,18 @@ where id = ?
 
     def _updateCutoff(self) -> None:
         oldToday = self.today
-        # days since col created
-        self.today = self._daysSinceCreation()
-        # end of day cutoff
-        self.dayCutoff = self._dayCutoff()
+        timing = self._timingToday()
+
+        if self._newTimezoneEnabled():
+            self.today = timing.days_elapsed
+            self.dayCutoff = timing.next_day_at
+        else:
+            self.today = self._daysSinceCreation()
+            self.dayCutoff = self._dayCutoff()
+
         if oldToday != self.today:
             self.col.log(self.today, self.dayCutoff)
+
         # update all daily counts, but don't save decks to prevent needless
         # conflicts. we'll save on card answer instead
         def update(g):
@@ -1367,9 +1376,29 @@ where id = ?
     def _daysSinceCreation(self) -> int:
         startDate = datetime.datetime.fromtimestamp(self.col.crt)
         startDate = startDate.replace(
-            hour=self.col.conf.get("rollover", 4), minute=0, second=0, microsecond=0
+            hour=self._rolloverHour(), minute=0, second=0, microsecond=0
         )
         return int((time.time() - time.mktime(startDate.timetuple())) // 86400)
+
+    def _rolloverHour(self) -> int:
+        return self.col.conf.get("rollover", 4)
+
+    def _newTimezoneEnabled(self) -> bool:
+        return self.col.conf.get("newTimezone", False)
+
+    def _timingToday(self) -> SchedTimingToday:
+        return self.col.backend.sched_timing_today(
+            self.col.crt, intTime(), self.timezoneOffset(), self._rolloverHour(),
+        )
+
+    def timezoneOffset(self) -> int:
+        if self.col.server:
+            return self.col.conf.get("localOffset", 0)
+        else:
+            if time.localtime().tm_isdst:
+                return time.altzone // 60
+            else:
+                return time.timezone // 60
 
     # Deck finished state
     ##########################################################################

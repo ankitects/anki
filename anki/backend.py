@@ -8,6 +8,8 @@ import anki.backend_pb2 as pb
 
 from .types import AllTemplateReqs
 
+SchedTimingToday = pb.SchedTimingTodayOut
+
 
 class BackendException(Exception):
     def __str__(self) -> str:
@@ -70,3 +72,14 @@ class Backend:
         output = self._run_command(input).template_requirements
         reqs: List[pb.TemplateRequirement] = output.requirements  # type: ignore
         return proto_template_reqs_to_legacy(reqs)
+
+    def sched_timing_today(
+        self, start: int, end: int, offset: int, rollover: int
+    ) -> SchedTimingToday:
+        return self._run_command(
+            pb.BackendInput(
+                sched_timing_today=pb.SchedTimingTodayIn(
+                    created=start, now=end, minutes_west=offset, rollover_hour=rollover,
+                )
+            )
+        ).sched_timing_today
