@@ -12,12 +12,10 @@ import re
 import stat
 import time
 import traceback
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-import anki.cards
 import anki.find
 import anki.latex  # sets up hook
-import anki.notes
 import anki.template
 from anki.backend import Backend
 from anki.cards import Card
@@ -308,11 +306,11 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Object creation helpers
     ##########################################################################
 
-    def getCard(self, id: int) -> anki.cards.Card:
-        return anki.cards.Card(self, id)
+    def getCard(self, id: int) -> Card:
+        return Card(self, id)
 
-    def getNote(self, id: int) -> anki.notes.Note:
-        return anki.notes.Note(self, id=id)
+    def getNote(self, id: int) -> Note:
+        return Note(self, id=id)
 
     # Utils
     ##########################################################################
@@ -343,12 +341,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def noteCount(self) -> Any:
         return self.db.scalar("select count() from notes")
 
-    def newNote(self, forDeck: bool = True) -> anki.notes.Note:
+    def newNote(self, forDeck: bool = True) -> Note:
         "Return a new note with the current model."
-        return anki.notes.Note(self, self.models.current(forDeck))
+        return Note(self, self.models.current(forDeck))
 
     def addNote(self, note: Note) -> int:
-        "Add a note to the collection. Return number of new cards."
+        """Add a note to the collection. Return number of new cards."""
         # check we have card models available, then save
         cms = self.findTemplates(note)
         if not cms:
@@ -363,11 +361,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             ncards += 1
         return ncards
 
-    def remNotes(self, ids) -> None:
+    def remNotes(self, ids: Iterable[int]) -> None:
+        """Deletes notes with the given IDs."""
         self.remCards(self.db.list("select id from cards where nid in " + ids2str(ids)))
 
     def _remNotes(self, ids: List[int]) -> None:
-        "Bulk delete notes by ID. Don't call this directly."
+        """Bulk delete notes by ID. Don't call this directly."""
         if not ids:
             return
         strids = ids2str(ids)
@@ -499,9 +498,9 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         due: int,
         flush: bool = True,
         did: None = None,
-    ) -> anki.cards.Card:
+    ) -> Card:
         "Create a new card."
-        card = anki.cards.Card(self)
+        card = Card(self)
         card.nid = note.id
         card.ord = template["ord"]
         card.did = self.db.scalar(
@@ -569,6 +568,7 @@ select id from notes where id in %s and id not in (select nid from cards)"""
         self._remNotes(nids)
 
     def emptyCids(self) -> List[int]:
+        """Returns IDs of empty cards."""
         rem: List[int] = []
         for m in self.models.all():
             rem += self.genCards(self.models.nids(m))
