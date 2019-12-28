@@ -23,6 +23,7 @@ from anki.utils import fmtTimeSpan, ids2str, intTime
 CARD_TYPE_RELEARNING = 3
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
+QUEUE_TYPE_PREVIEW = 4
 QUEUE_TYPE_SIBLING_BURIED = -2
 QUEUE_TYPE_MANUALLY_BURIED = -3
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
@@ -119,7 +120,7 @@ class Scheduler:
 
         if ease == 1:
             # repeat after delay
-            card.queue = 4
+            card.queue = QUEUE_TYPE_PREVIEW
             card.due = intTime() + self._previewDelay(card)
             self.lrnCount += 1
         else:
@@ -158,7 +159,7 @@ order by due"""
         return ret
 
     def countIdx(self, card: Card) -> Any:
-        if card.queue in (3, 4):
+        if card.queue in (3, QUEUE_TYPE_PREVIEW):
             return 1
         return card.queue
 
@@ -518,8 +519,8 @@ and due <= ?"""
         )
         # previews
         self.lrnCount += self.col.db.scalar(
-            """
-select count() from cards where did in %s and queue = 4
+            f"""
+select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
 """
             % (self._deckLimit())
         )
@@ -539,9 +540,9 @@ select count() from cards where did in %s and queue = 4
             return True
         cutoff = intTime() + self.col.conf["collapseTime"]
         self._lrnQueue = self.col.db.all(
-            """
+            f"""
 select due, id from cards where
-did in %s and queue in (1,4) and due < :lim
+did in %s and queue in (1,{QUEUE_TYPE_PREVIEW}) and due < :lim
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
             lim=cutoff,
