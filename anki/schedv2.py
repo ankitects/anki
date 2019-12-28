@@ -23,6 +23,7 @@ from anki.utils import fmtTimeSpan, ids2str, intTime
 CARD_TYPE_RELEARNING = 3
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
+QUEUE_TYPE_SIBLING_BURIED = -2
 QUEUE_TYPE_MANUALLY_BURIED = -3
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
@@ -1482,7 +1483,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def haveBuriedSiblings(self) -> bool:
         cnt = self.col.db.scalar(
-            "select 1 from cards where queue = -2 and did in %s limit 1"
+            f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
             % self._deckLimit()
         )
         return not not cnt
@@ -1588,7 +1589,7 @@ end)
         )
 
     def buryCards(self, cids: List[int], manual: bool = True) -> None:
-        queue = manual and QUEUE_TYPE_MANUALLY_BURIED or -2
+        queue = manual and QUEUE_TYPE_MANUALLY_BURIED or QUEUE_TYPE_SIBLING_BURIED
         self.col.log(cids)
         self.col.db.execute(
             """
@@ -1620,11 +1621,13 @@ update cards set queue=?,mod=?,usn=? where id in """
 
     def unburyCardsForDeck(self, type: str = "all") -> None:
         if type == "all":
-            queue = f"queue in (-2, {QUEUE_TYPE_MANUALLY_BURIED})"
+            queue = (
+                f"queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
+            )
         elif type == "manual":
             queue = f"queue = {QUEUE_TYPE_MANUALLY_BURIED}"
         elif type == "siblings":
-            queue = "queue = -2"
+            queue = f"queue = {QUEUE_TYPE_SIBLING_BURIED}"
         else:
             raise Exception("unknown type")
 
@@ -1879,7 +1882,7 @@ where queue < 0"""
     # no 'manually buried' queue in v1
     def _moveManuallyBuried(self) -> None:
         self.col.db.execute(
-            f"update cards set queue=-2,mod=%d where queue={QUEUE_TYPE_MANUALLY_BURIED}"
+            f"update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=%d where queue={QUEUE_TYPE_MANUALLY_BURIED}"
             % intTime()
         )
 
