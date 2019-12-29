@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+# Please leave the coding line in this file to prevent xgettext complaining.
 
 import gettext
 import os
