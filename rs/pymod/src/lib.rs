@@ -10,10 +10,10 @@ struct Backend {
 #[pymethods]
 impl Backend {
     #[new]
-    fn init(obj: &PyRawObject) {
+    fn init(obj: &PyRawObject, path: String) {
         obj.init({
             Backend {
-                backend: Default::default(),
+                backend: RustBackend::new(path),
             }
         });
     }

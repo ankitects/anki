@@ -5,13 +5,11 @@ use crate::sched::sched_timing_today;
 use crate::template::{FieldMap, FieldRequirements, ParsedTemplate};
 use prost::Message;
 use std::collections::HashSet;
+use std::path::PathBuf;
 
-pub struct Backend {}
-
-impl Default for Backend {
-    fn default() -> Self {
-        Backend {}
-    }
+pub struct Backend {
+    #[allow(dead_code)]
+    path: PathBuf,
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -37,8 +35,8 @@ impl std::convert::From<AnkiError> for pt::backend_output::Value {
 }
 
 impl Backend {
-    pub fn new() -> Backend {
-        Backend::default()
+    pub fn new<P: Into<PathBuf>>(path: P) -> Backend {
+        Backend { path: path.into() }
     }
 
     /// Decode a request, process it, and return the encoded result.
