@@ -4,6 +4,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::error::ErrorKind;
 use nom::sequence::delimited;
+use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
@@ -107,7 +108,26 @@ enum ParsedNode<'a> {
 #[derive(Debug)]
 pub struct ParsedTemplate<'a>(Vec<ParsedNode<'a>>);
 
+static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
+
+/// Convert legacy alternate syntax to standard syntax.
+pub fn without_legacy_template_directives(text: &str) -> Cow<str> {
+    if text.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
+        text.trim_start()
+            .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE)
+            .replace("<%", "{{")
+            .replace("%>", "}}")
+            .into()
+    } else {
+        text.into()
+    }
+}
+
 impl ParsedTemplate<'_> {
+    /// Create a template from the provided text.
+    ///
+    /// The legacy alternate syntax is not supported, so the provided text
+    /// should be run through without_legacy_template_directives() first.
     pub fn from_text(template: &str) -> Result<ParsedTemplate> {
         let mut iter = tokens(template);
         Ok(Self(parse_inner(&mut iter, None)?))
@@ -260,7 +280,7 @@ impl ParsedTemplate<'_> {
 #[cfg(test)]
 mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
-    use crate::template::FieldRequirements;
+    use crate::template::{without_legacy_template_directives, FieldRequirements};
     use std::collections::HashSet;
     use std::iter::FromIterator;
 
@@ -356,5 +376,20 @@ mod test {
             tmpl.requirements(&field_map),
             FieldRequirements::Any(HashSet::from_iter(vec![0].into_iter()))
         );
+    }
+
+    #[test]
+    fn test_alt_syntax() {
+        let input = "
+{{=<% %>=}}
+<%Front%>
+<% #Back %>
+<%/Back%>";
+        let output = "
+{{Front}}
+{{ #Back }}
+{{/Back}}";
+
+        assert_eq!(without_legacy_template_directives(input), output);
     }
 }

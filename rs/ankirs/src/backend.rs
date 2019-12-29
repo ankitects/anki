@@ -2,7 +2,9 @@ use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
 use crate::err::{AnkiError, Result};
 use crate::sched::sched_timing_today;
-use crate::template::{FieldMap, FieldRequirements, ParsedTemplate};
+use crate::template::{
+    without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
+};
 use prost::Message;
 use std::collections::HashSet;
 use std::path::PathBuf;
@@ -110,7 +112,8 @@ impl Backend {
             .template_front
             .into_iter()
             .map(|template| {
-                if let Ok(tmpl) = ParsedTemplate::from_text(&template) {
+                let normalized = without_legacy_template_directives(&template);
+                if let Ok(tmpl) = ParsedTemplate::from_text(normalized.as_ref()) {
                     // convert the rust structure into a protobuf one
                     let val = match tmpl.requirements(&map) {
                         FieldRequirements::Any(ords) => Value::Any(pt::TemplateRequirementAny {
