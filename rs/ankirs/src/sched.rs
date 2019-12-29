@@ -1,4 +1,4 @@
-use chrono::{DateTime, FixedOffset, Local, TimeZone, Timelike};
+use chrono::{DateTime, Datelike, FixedOffset, Local, TimeZone};
 
 pub struct SchedTimingToday {
     /// The number of days that have passed since the collection was created.
@@ -34,10 +34,10 @@ fn rollover_for_today(
 ) -> DateTime<FixedOffset> {
     let local_offset = fixed_offset_from_minutes(minutes_west);
     let rollover_hour = normalized_rollover_hour(rollover_hour);
+    let dt = local_offset.timestamp(timestamp, 0);
     local_offset
-        .timestamp(timestamp, 0)
-        .with_hour(rollover_hour as u32)
-        .unwrap()
+        .ymd(dt.year(), dt.month(), dt.day())
+        .and_hms(rollover_hour as u32, 0, 0)
 }
 
 /// The number of times the day rolled over between two timestamps.
@@ -82,10 +82,10 @@ fn utc_minus_local_mins() -> i32 {
 #[cfg(test)]
 mod test {
     use crate::sched::{
-        fixed_offset_from_minutes, normalized_rollover_hour, sched_timing_today,
-        utc_minus_local_mins,
+        fixed_offset_from_minutes, normalized_rollover_hour, rollover_for_today,
+        sched_timing_today, utc_minus_local_mins,
     };
-    use chrono::{FixedOffset, TimeZone};
+    use chrono::{Datelike, FixedOffset, TimeZone, Timelike};
 
     #[test]
     fn test_rollover() {
@@ -96,6 +96,15 @@ mod test {
         assert_eq!(normalized_rollover_hour(-2), 22);
         assert_eq!(normalized_rollover_hour(-23), 1);
         assert_eq!(normalized_rollover_hour(-24), 1);
+
+        let now_dt = FixedOffset::west(-600).ymd(2019, 12, 1).and_hms(2, 3, 4);
+        let roll_dt = rollover_for_today(now_dt.timestamp(), -600, 4);
+        assert_eq!(roll_dt.year(), 2019);
+        assert_eq!(roll_dt.month(), 12);
+        assert_eq!(roll_dt.day(), 1);
+        assert_eq!(roll_dt.hour(), 4);
+        assert_eq!(roll_dt.minute(), 0);
+        assert_eq!(roll_dt.second(), 0);
     }
 
     #[test]
