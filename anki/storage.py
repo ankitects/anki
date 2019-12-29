@@ -30,7 +30,7 @@ def Collection(
     path: str, lock: bool = True, server: Optional[ServerData] = None, log: bool = False
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
-    backend = Backend()
+    backend = Backend(path)
     # fixme: this call is temporarily here to ensure the brige is working
     # on all platforms, and should be removed in a future beta
     assert backend.plus_one(5) == 6
