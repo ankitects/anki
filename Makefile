@@ -19,11 +19,6 @@ $(shell mkdir -p .build)
 
 all:
 	@echo "You can run Anki from this folder with 'make run'."
-	@echo
-	@echo "After confirming it's working, to install Anki system-wide, use"
-	@echo "'make build && sudo make install'."
-	@echo
-	@echo "To undo a system install, use 'sudo make uninstall'."
 
 install:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
@@ -40,9 +35,9 @@ install:
 	-xdg-mime default anki.desktop application/x-anki
 	-xdg-mime default anki.desktop application/x-apkg
 	@echo
-	@echo "Install complete."
-	# fixme: _ankirs.so needs to be copied into system python env or
-	# 'maturin build' used
+	@echo "To finish the installation, you will need to copy the _ankirs module"
+	@echo "from the venv into your system Python folder, and install all the "
+	@echo "necessary dependencies."
 
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/share/anki
