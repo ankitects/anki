@@ -49,6 +49,7 @@ class CardLayout(QDialog):
                 self.emptyFields.append(name)
                 note[name] = "(%s)" % name
             note.flush()
+        self.removeColons()
         self.setupTopArea()
         self.setupMainArea()
         self.setupButtons()
@@ -241,6 +242,12 @@ Please create a new card type first."""
                 )
             )
         self.redraw()
+
+    def removeColons(self):
+        # colons in field names conflict with the template language
+        for fld in self.model["flds"]:
+            if ":" in fld["name"]:
+                self.mm.renameField(self.model, fld, fld["name"])
 
     # Buttons
     ##########################################################################
