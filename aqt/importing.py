@@ -199,7 +199,7 @@ you can enter it here. Use \\t to represent tab."""
             elif "invalidTempFolder" in err:
                 msg += self.mw.errorHandler.tempFolderMsg()
             else:
-                msg += str(traceback.format_exc(), "ascii", "replace")
+                msg += traceback.format_exc()
             showText(msg)
             return
         finally:
