@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Pulls the latest translations from crowdin and commits them here.
+# To use this, key must be set to a crowdin API key.
+# Aborts if there are any uncommited changes prior to running.
+#
 
 set -e
 
@@ -6,6 +11,11 @@ proj=anki
 
 if [ "$key" = "" ]; then
     echo "key not defined"
+    exit 1
+fi
+
+if ! git diff-index --quiet HEAD --; then
+    echo "working directory is not clean"
     exit 1
 fi
 

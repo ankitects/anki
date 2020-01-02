@@ -26,13 +26,17 @@ all: check
 	./tools/build_ui.sh
 	@touch $@
 
+.build/i18n: $(wildcard i18n/translations/anki.pot/*)
+	(cd i18n && ./build-mo-files && ./copy-qt-files)
+	@touch $@
+
 TSDEPS := $(wildcard ts/src/*.ts)
 
 .build/js: $(TSDEPS)
 	(cd ts && npm i && npm run build)
 	@touch $@
 
-BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui
+BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui .build/i18n
 
 # Checking
 ######################

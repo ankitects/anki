@@ -3,7 +3,7 @@
 # build mo files
 #
 
-targetDir="../anki-qt/aqt_data/locale"
+targetDir="../aqt_data/locale"
 mkdir -p $targetDir
 
 echo "Compiling *.po..."
