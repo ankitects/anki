@@ -88,6 +88,10 @@ def test_changes():
     def removed():
         return d.media.db.execute("select fname from media where csum is null")
 
+    def advanceTime():
+        d.media.db.execute("update media set mtime=mtime-1")
+        d.media.db.execute("update meta set dirMod = dirMod - 1")
+
     assert not list(added())
     assert not list(removed())
     # add a file
@@ -95,27 +99,26 @@ def test_changes():
     path = os.path.join(dir, "foo.jpg")
     with open(path, "w") as f:
         f.write("hello")
-    time.sleep(1)
     path = d.media.addFile(path)
     # should have been logged
     d.media.findChanges()
     assert list(added())
     assert not list(removed())
     # if we modify it, the cache won't notice
-    time.sleep(1)
+    advanceTime()
     with open(path, "w") as f:
         f.write("world")
     assert len(list(added())) == 1
     assert not list(removed())
     # but if we add another file, it will
-    time.sleep(1)
+    advanceTime()
     with open(path + "2", "w") as f:
         f.write("yo")
     d.media.findChanges()
     assert len(list(added())) == 2
     assert not list(removed())
     # deletions should get noticed too
-    time.sleep(1)
+    advanceTime()
     os.unlink(path + "2")
     d.media.findChanges()
     assert len(list(added())) == 1
