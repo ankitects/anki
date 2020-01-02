@@ -55,7 +55,7 @@ CHECKDEPS := $(shell find anki tests -name '*.py' | grep -v buildhash.py)
 	@touch $@
 
 .build/test: $(CHECKDEPS)
-	python -m pytest
+	python -m pytest --durations=1
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
