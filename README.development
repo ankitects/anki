@@ -36,14 +36,13 @@ of http://ankisrs.net/docs/manual.html#_contributing
 Subcomponents
 --------------
 
+- pylib contains a Python module (anki) with most of the non-GUI code.
+- qt contains the Qt GUI implementation (aqt).
+- rspy contains a Python module (ankirspy) for accessing the Rust code.
+- rslib contains the parts of the code implemented in Rust. This
+  is only a tiny subsection at the moment.
 - proto contains the interface used to communicate between the Rust and
   Python code.
-- lib-rust contains the parts of the code implemented in Rust. This
-  is only a tiny subsection at the moment.
-- lib-rspy contains a Python module (ankirspy) for accessing the Rust code.
-- lib-python contains a Python module (anki) that covers all of the work
-  not related to the user interface.
-- anki-qt contains the Qt GUI implementation (aqt).
 
 Helper scripts
 --------------

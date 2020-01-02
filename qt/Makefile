@@ -62,12 +62,12 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 # Checking python
 ######################
 
-LIBPY := ../lib-python
+PYLIB := ../pylib
 
 CHECKDEPS := $(shell find aqt tests -name '*.py')
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
-	MYPYPATH=$(LIBPY) mypy aqt
+	MYPYPATH=$(PYLIB) mypy aqt
 	@touch $@
 
 .build/test: $(CHECKDEPS)

@@ -5,7 +5,7 @@ edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors"]
 
 [dependencies]
-anki = { path = "../lib-rust" }
+anki = { path = "../rslib" }
 
 [dependencies.pyo3]
 version = "0.8.0"
