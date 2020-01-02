@@ -1,0 +1,77 @@
+TODO: translations
+
+For non-developers who want to try this development code, the easiest way is
+to use a binary package - please see:
+
+https://anki.tenderapp.com/discussions/beta-testing
+
+You are welcome to run Anki from source instead, but it is expected that you
+can sort out all dependencies and issues by yourself - we are not able to
+provide support for problems you encounter when running from source.
+
+To start, make sure you have the following installed:
+
+ - Python 3.6+
+ - portaudio
+ - mpv
+ - lame
+ - npm
+ - your platform's C compiler, eg gcc, Xcode or Visual Studio 2017.
+ - GNU make
+ - protoc v3 (https://github.com/protocolbuffers/protobuf/releases)
+ - rustup (https://rustup.rs/)
+
+The build scripts assume a UNIX-like environment, so on Windows you will
+need to use WSL or Cygwin to use them.
+
+Once you've installed the above components, execute ./run in this repo,
+which will  build the subcomponents, and start Anki.
+
+Before contributing code, please read README.contributing.
+
+If you'd like to contribute translations, please see the translations section
+of http://ankisrs.net/docs/manual.html#_contributing
+
+Subcomponents
+--------------
+
+- proto contains the interface used to communicate between the Rust and
+  Python code.
+- lib-rust contains the parts of the code implemented in Rust. This
+  is only a tiny subsection at the moment.
+- lib-rspy contains a Python module (ankirspy) for accessing the Rust code.
+- lib-python contains a Python module (anki) that covers all of the work
+  not related to the user interface.
+- anki-qt contains the Qt GUI implementation (aqt).
+
+Helper scripts
+--------------
+
+There are some helper scripts in this folder:
+
+run: builds Anki and runs it in place. Command line arguments will be passed
+on to Anki.
+
+bundle: builds the subcomponents into binary wheels stored in the build/ folder.
+
+check: runs tests on each of the subcomponents.
+
+fix: fix any code formatting issues in the subcomponents.
+
+clean: remove generated build files and force a (mostly) full rebuild on the
+next run/check.
+
+PyQt
+-----
+
+The build scripts will use PyQt/Qt from Pypi by default. If you wish to use a
+system install, you will need to set up the pyenv folder yourself, making sure
+you have PyQt5, the WebEngine module and development tools (eg pyqt5-dev-tools)
+installed as well. You'll need to create the venv with --system-site-packages.
+
+Mac users
+----------
+
+You can use homebrew to install some dependencies:
+
+$ brew install python mpv lame portaudio protobuf npm rustup-init
