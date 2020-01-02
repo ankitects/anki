@@ -1,0 +1,19 @@
+name: Checks
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set up protoc
+        uses: Arduino/actions/setup-protoc@master
+      - name: Run checks
+        run: |
+          (cd .. && git clone https://github.com/ankitects/anki-proto.git)
+          make check

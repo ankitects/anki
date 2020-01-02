@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+. scripts.inc
+
+for dir in $CHECKABLE; do
+  echo $dir
+  (cd $dir && make fix)
+done

@@ -1,0 +1,9 @@
+wheel
+mypy
+mypy_protobuf
+black
+nose2
+# fixme: when isort 5.0 is released, switch to pypi
+git+https://github.com/ankitects/isort#egg=isort
+# fixme: when pylint supports isort 5.0, switch to pypi
+git+https://github.com/ankitects/pylint#egg=pylint

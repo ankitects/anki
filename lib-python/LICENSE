@@ -1,0 +1,10 @@
+Anki is licensed under the GNU Affero General Public License, version 3 or
+later, with portions contributed by Anki users licensed under the BSD-3
+license: https://github.com/ankitects/anki-contributors.
+
+The following included source code items use a license other than AGPL3:
+
+ * The anki/template/ folder is based off pystache: MIT.
+ * The SuperMemo importer: GPL3.
+ * The Pauker importer: BSD-3.
+ * statsbg.py: CC BY-SA 3.0.

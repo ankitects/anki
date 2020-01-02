@@ -5,28 +5,22 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.6, 3.7]
-
     steps:
-      - uses: actions/checkout@v1
-      - name: Set up Python ${{ matrix.python-version }}
+      - uses: actions/checkout@v2
+      - name: Set up python
         uses: actions/setup-python@v1
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Set up Node
+          python-version: '3.6'
+      - name: Set up protoc
+        uses: Arduino/actions/setup-protoc@master
+      - name: Set up node
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Set up Protoc
-        uses: Arduino/actions/setup-protoc@master
       - name: Run checks
         run: |
+          # add requirements
           sudo apt install portaudio19-dev
-          python${{ matrix.python-version }} -m venv ~/pyenv
-          . ~/pyenv/bin/activate
-          pip install -r requirements.qt
-          pip install --upgrade setuptools pip
-          make check RUSTARGS=""
+          export UNOPT=1
+          ./check
+          ./bundle
