@@ -12,9 +12,11 @@ else
 fi
 
 # activate venv
-test -d pyenv || python -m venv pyenv
+if [ ! -d pyenv ]; then
+    python -m venv pyenv
+    pip install --upgrade pip setuptools
+fi
 . pyenv/bin/activate
-pip install --upgrade pip setuptools
 
 # add qt if missing
 python -c 'import PyQt5' 2>/dev/null || pip install -r anki-qt/requirements.qt
