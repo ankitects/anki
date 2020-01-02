@@ -943,9 +943,15 @@ def test_timing():
     c = d.sched.getCard()
     assert c.queue == 2
     # but if we wait for a second, the failed card should come back
-    time.sleep(1)
+    orig_time = time.time
+
+    def adjusted_time():
+        return orig_time() + 1
+
+    time.time = adjusted_time
     c = d.sched.getCard()
     assert c.queue == 1
+    time.time = orig_time
 
 
 def test_collapse():
