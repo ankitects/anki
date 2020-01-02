@@ -22,4 +22,4 @@ fi
 python -c 'import PyQt5' 2>/dev/null || pip install -r anki-qt/requirements.qt
 
 # fetch i18n files
-test -d i18n || git clone -depth 1 https://github.com/ankitects/anki-i18n i18n
+test -d i18n || git clone --depth 1 https://github.com/ankitects/anki-i18n i18n
