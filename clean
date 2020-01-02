@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+. scripts.inc
+
+for dir in $DEVEL; do
+  echo $dir
+  (cd $dir && make clean)
+done

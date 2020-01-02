@@ -1,7 +1,0 @@
-nose2
-mock
-# fixme: when isort 5.0 is released, switch to pypi
-git+https://github.com/dae/isort#egg=isort
-# fixme: when pylint supports isort 5.0, switch to pypi
-git+https://github.com/dae/pylint#egg=pylint
-black

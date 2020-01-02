@@ -1,6 +1,0 @@
-[workspace]
-members = ["ankirs", "pymod"]
-
-[profile.release]
-lto = true
-codegen-units = 1

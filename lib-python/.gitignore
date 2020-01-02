@@ -6,7 +6,11 @@
 .build
 .coverage
 .DS_Store
-build
-pyenv
 .mypy_cache
+.pytype
 __pycache__
+anki.egg-info
+anki/backend_pb2.*
+anki/buildhash.py
+build
+dist
