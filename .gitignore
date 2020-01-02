@@ -10,4 +10,3 @@ build
 pyenv
 .mypy_cache
 __pycache__
-i18n

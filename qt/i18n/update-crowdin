@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+proj=anki
+
+if [ "$key" = "" ]; then
+    echo "key not defined"
+    exit 1
+fi
+
+./update-pot
+
+curl \
+  -F "files[/anki.pot]=@anki.pot" \
+  https://api.crowdin.com/api/project/$proj/update-file?key=$key
