@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+proj=anki
+
+if [ "$key" = "" ]; then
+    echo "key not defined"
+    exit 1
+fi
+
+# fetch translations from crowdin
+if [ ! -f all.zip ]; then
+    curl https://api.crowdin.com/api/project/$proj/export?key=$key
+    curl -o all.zip https://api.crowdin.com/api/project/$proj/download/all.zip?key=$key
+fi
+
+# unzip
+unzip -o all.zip
+
+# make sure translations are valid
+python check-po-files.py
+
+rm all.zip
+
+# send translations to github
+git add translations
+git commit -m update || true
+git push
