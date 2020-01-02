@@ -275,7 +275,7 @@ content in the text file to the correct fields."""
             return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
         elif self.tagModified:
             tags = self.col.db.scalar("select tags from notes where id = ?", id)
-            tagList = self.col.tags.split(tags) + self.tagModified.split(",")
+            tagList = self.col.tags.split(tags) + self.tagModified.split()
             tagList = self.col.tags.canonify(tagList)
             self.col.tags.register(tagList)
             tags = self.col.tags.join(tagList)

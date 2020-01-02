@@ -249,7 +249,7 @@ def test_tsv_tag_multiple_tags():
         tf.flush()
         i = TextImporter(deck, tf.name)
         i.initMapping()
-        i.tagModified = "five,six"
+        i.tagModified = "five six"
         i.run()
 
     n.load()
