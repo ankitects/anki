@@ -6,6 +6,9 @@ Please see LICENSE.logo for the copyright and license of Anki's logo.
 
 The following included source code items use a license other than AGPL3:
 
+ * Anki's translations are a mix of BSD and public domain.
+ * The Qt translations that are copied in as part of the build process
+   are licensed under the LGPL.
  * mpv.py: MIT.
  * winpaths.py: MIT.
  * MathJax: Apache 2.
