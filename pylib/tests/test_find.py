@@ -1,5 +1,5 @@
 # coding: utf-8
-from nose2.tools.such import helper
+import pytest
 
 from anki.find import Finder
 from tests.shared import getEmptyCol
@@ -111,7 +111,7 @@ def test_findCards():
     assert len(deck.findCards("nid:%d" % f.id)) == 2
     assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
-    with helper.assertRaises(Exception):
+    with pytest.raises(Exception):
         deck.findCards("card:foo")
     assert len(deck.findCards("'card:card 1'")) == 4
     assert len(deck.findCards("card:reverse")) == 1
@@ -147,7 +147,7 @@ def test_findCards():
     assert len(deck.findCards("-deck:foo")) == 5
     assert len(deck.findCards("deck:def*")) == 5
     assert len(deck.findCards("deck:*EFAULT")) == 5
-    with helper.assertRaises(Exception):
+    with pytest.raises(Exception):
         deck.findCards("deck:*cefault")
     # full search
     f = deck.newNote()
@@ -164,7 +164,7 @@ def test_findCards():
     # assert len(deck.findCards("helloworld", full=True)) == 2
     # assert len(deck.findCards("back:helloworld", full=True)) == 2
     # searching for an invalid special tag should not error
-    with helper.assertRaises(Exception):
+    with pytest.raises(Exception):
         len(deck.findCards("is:invalid"))
     # should be able to limit to parent deck, no children
     id = deck.db.scalar("select id from cards limit 1")
@@ -238,9 +238,9 @@ def test_findCards():
     assert len(deck.findCards("added:1")) == deck.cardCount() - 1
     assert len(deck.findCards("added:2")) == deck.cardCount()
     # flag
-    with helper.assertRaises(Exception):
+    with pytest.raises(Exception):
         deck.findCards("flag:01")
-    with helper.assertRaises(Exception):
+    with pytest.raises(Exception):
         deck.findCards("flag:12")
 
 

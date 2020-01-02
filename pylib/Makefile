@@ -55,7 +55,7 @@ CHECKDEPS := $(shell find anki tests -name '*.py' | grep -v buildhash.py)
 	@touch $@
 
 .build/test: $(CHECKDEPS)
-	python -m nose2 --plugin=nose2.plugins.mp -N 16
+	python -m pytest
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
