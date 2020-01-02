@@ -179,6 +179,9 @@ you can enter it here. Use \\t to represent tab."""
         self.mw.pm.profile["importMode"] = self.importer.importMode
         self.importer.allowHTML = self.frm.allowHTML.isChecked()
         self.mw.pm.profile["allowHTML"] = self.importer.allowHTML
+        if self.frm.tagModifiedCheck.isChecked():
+            self.importer.tagModified = self.frm.tagModifiedTag.toPlainText()
+        self.mw.pm.profile["tagModified"] = self.importer.tagModified
         did = self.deck.selectedId()
         if did != self.importer.model["did"]:
             self.importer.model["did"] = did
