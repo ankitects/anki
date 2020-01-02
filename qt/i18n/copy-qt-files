@@ -2,8 +2,8 @@
 
 set -e
 
-out=../anki-qt/aqt_data/locale
+out=../aqt_data/locale
 mkdir -p $out
 
 qtTranslations=$(python -c "from PyQt5.QtCore import *; print(QLibraryInfo.location(QLibraryInfo.TranslationsPath))")
-rsync -av $qtTranslations/qt* $out
+rsync -a $qtTranslations/qt* $out

@@ -3,7 +3,7 @@
 set -e
 
 CHECKABLE="rslib pylib qt"
-DEVEL="rspy pylib qt i18n"
+DEVEL="rspy pylib qt"
 
 if [ "$UNOPT" = "" ]; then
     BUILDFLAGS="--release --strip"
@@ -23,6 +23,3 @@ fi
 
 # add qt if missing
 python -c 'import PyQt5' 2>/dev/null || pip install -r qt/requirements.qt
-
-# fetch i18n files
-test -d i18n || git clone --depth 1 https://github.com/ankitects/anki-i18n i18n

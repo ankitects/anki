@@ -5,10 +5,10 @@
 
 all=all.files
 echo "Updating anki.pot..."
-for i in ../anki-lib-python/anki/{*.py,importing/*.py,template/*.py}; do
+for i in ../../pylib/anki/{*.py,importing/*.py,template/*.py}; do
     echo $i >> $all
 done
-for i in ../anki-qt/aqt/{*.py,forms/*.py}; do
+for i in ../aqt/{*.py,forms/*.py}; do
     echo $i >> $all
 done
 
