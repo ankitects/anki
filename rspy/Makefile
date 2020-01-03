@@ -13,10 +13,10 @@ BUILDFLAGS := --release --strip
 
 all: develop
 
-develop: .build/tools
+develop: .build/tools .build/vernum
 	maturin develop $(BUILDFLAGS)
 
-build: .build/tools
+build: .build/tools .build/vernum
 	rm -rf $(OUTDIR)/ankirspy*
 	maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
 
@@ -41,4 +41,9 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 .build/check: build
 	cargo fmt -- --check
 	cargo clippy -- -D warnings
+	@touch $@
+
+VER := $(shell cat ../meta/version)
+.build/vernum: ../meta/version
+	sed -i '' 's/.*automatically updated.*/version = "$(VER)" # automatically updated/' Cargo.toml
 	@touch $@

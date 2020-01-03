@@ -3,6 +3,9 @@ import setuptools, sys, os
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open("../meta/version") as fh:
+    version = fh.read().strip()
+
 platform_reqs = []
 if sys.platform == "win32":
     platform_reqs.append("psutil")
@@ -17,7 +20,7 @@ extra_files = package_files('aqt_data')
 
 setuptools.setup(
     name="aqt",
-    version="0.1.0",
+    version=version,
     author="Ankitects Pty Ltd",
     description="Anki's Qt GUI code",
     long_description=long_description,

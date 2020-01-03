@@ -78,7 +78,7 @@ CHECKDEPS := $(shell find anki tests -name '*.py' | grep -v buildhash.py)
 .PHONY: build
 build: $(BUILD_STEPS) $(CHECKDEPS)
 	rm -rf dist
-	echo "build='$$(git rev-parse --short HEAD)'" > anki/buildhash.py
+	echo "build='$$(cat ../meta/buildhash)'" > anki/buildhash.py
 	python setup.py bdist_wheel
 	rsync -a dist/*.whl ../dist/
 
