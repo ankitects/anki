@@ -20,6 +20,12 @@ else
     . pyenv/bin/activate
 fi
 
-
 # add qt if missing
 python -c 'import PyQt5' 2>/dev/null || pip install -r qt/requirements.qt
+
+# update build hash
+oldhash=$(test -f meta/buildhash && cat meta/buildhash || true)
+newhash=$(git rev-parse --short HEAD)
+if [ "$oldhash" != "$newhash" ]; then
+    echo $newhash > meta/buildhash
+fi
