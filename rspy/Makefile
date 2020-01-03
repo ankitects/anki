@@ -4,9 +4,9 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-$(shell mkdir -p .build ../build)
+$(shell mkdir -p .build ../dist)
 
-OUTDIR := ../build
+OUTDIR := ../dist
 BUILDFLAGS := --release --strip
 
 .PHONY: all develop build check fix clean

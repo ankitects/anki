@@ -6,7 +6,7 @@
 .build
 .coverage
 .DS_Store
-build
+dist
 pyenv
 .mypy_cache
 __pycache__

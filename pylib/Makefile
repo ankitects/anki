@@ -9,7 +9,7 @@ RUNARGS :=
 BLACKARGS := -t py36 anki tests --exclude='backend_pb2|buildhash'
 ISORTARGS := anki tests
 
-$(shell mkdir -p .build ../build)
+$(shell mkdir -p .build ../dist)
 
 PHONY: all
 all: check
@@ -80,7 +80,7 @@ build: $(BUILD_STEPS) $(CHECKDEPS)
 	rm -rf dist
 	echo "build='$$(git rev-parse --short HEAD)'" > anki/buildhash.py
 	python setup.py bdist_wheel
-	rsync -a dist/*.whl ../build/
+	rsync -a dist/*.whl ../dist/
 
 # prepare code for running in place
 .PHONY: develop
