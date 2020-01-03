@@ -21,6 +21,4 @@ jobs:
         run: |
           # add requirements
           sudo apt install portaudio19-dev gettext rename
-          export UNOPT=1
-          ./check
-          ./build
+          make check build BUILDFLAGS=""

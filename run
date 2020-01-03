@@ -1,12 +1,3 @@
 #!/bin/bash
 
-set -e
-
-. scripts.inc
-
-for dir in $DEVEL; do
-  echo $dir
-  (cd $dir && make develop BUILDFLAGS="$BUILDFLAGS")
-done
-
-qt/runanki "$@"
+make -C $(dirname $0) run RUNFLAGS="$*"
