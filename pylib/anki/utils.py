@@ -494,10 +494,6 @@ class TimedLog:
 
 
 def versionWithBuild() -> str:
-    from anki import version
+    from anki.buildinfo import version, buildhash
 
-    try:
-        from anki.buildhash import build  # type: ignore # pylint: disable=import-error,no-name-in-module
-    except:
-        build = "dev"
-    return "%s (%s)" % (version, build)
+    return "%s (%s)" % (version, buildhash)

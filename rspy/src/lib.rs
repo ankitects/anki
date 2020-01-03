@@ -1,10 +1,16 @@
 use anki::backend::Backend as RustBackend;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
+use pyo3::wrap_pyfunction;
 
 #[pyclass]
 struct Backend {
     backend: RustBackend,
+}
+
+#[pyfunction]
+fn buildhash() -> &'static str {
+    include_str!("../../meta/buildhash").trim()
 }
 
 #[pymethods]
@@ -28,6 +34,7 @@ impl Backend {
 #[pymodule]
 fn ankirspy(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Backend>()?;
+    m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
 
     Ok(())
 }

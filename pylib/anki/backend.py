@@ -5,8 +5,11 @@ from typing import Dict, List
 import ankirspy  # pytype: disable=import-error
 
 import anki.backend_pb2 as pb
+import anki.buildinfo
 
 from .types import AllTemplateReqs
+
+assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
 

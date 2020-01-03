@@ -12,12 +12,16 @@ import tempfile
 import traceback
 from typing import Any, Optional
 
+import anki.buildinfo
 import anki.lang
+import aqt.buildinfo
 from anki import version as _version
 from anki.consts import HELP_SITE
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
 from aqt.utils import locale_dir
+
+assert anki.buildinfo.buildhash == aqt.buildinfo.buildhash
 
 appVersion = _version
 appWebsite = "http://ankisrs.net/"

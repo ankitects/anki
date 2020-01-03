@@ -6,7 +6,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
-BLACKARGS := -t py36 aqt tests --exclude=aqt/forms
+BLACKARGS := -t py36 aqt tests --exclude='aqt/forms|buildinfo'
 ISORTARGS := aqt tests
 
 $(shell mkdir -p .build ../dist)
@@ -36,7 +36,7 @@ TSDEPS := $(wildcard ts/src/*.ts)
 	(cd ts && npm i && npm run build)
 	@touch $@
 
-BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui .build/i18n
+BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui .build/i18n aqt/buildinfo.py
 
 # Checking
 ######################
@@ -107,3 +107,7 @@ build: $(BUILD_STEPS)
 
 .PHONY: develop
 develop: $(BUILD_STEPS)
+
+aqt/buildinfo.py: ../meta/version ../meta/buildhash
+	echo "buildhash='$$(cat ../meta/buildhash)'" > $@
+	echo "version='$$(cat ../meta/version)'" >> $@
