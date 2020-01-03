@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# add buildhash to output files
+top=$(dirname $0)/..
+ver=$(cat $top/meta/version)
+hash=$(cat $top/meta/buildhash)
+rename "s/-${ver}-/-${ver}+${hash}-/" $top/dist/*
+
+
