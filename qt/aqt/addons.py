@@ -7,7 +7,7 @@ import os
 import re
 import zipfile
 from collections import defaultdict
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import IO, Any, Callable, Dict, List, NamedTuple, Optional, Tuple, Union
 from zipfile import ZipFile
 
 import jsonschema
@@ -209,7 +209,9 @@ and have been disabled: %(found)s"
             return {}
         return manifest
 
-    def install(self, file, manifest=None) -> AddonInstallationResult:
+    def install(
+        self, file: Union[IO, str], manifest: dict = None
+    ) -> AddonInstallationResult:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overriden by supplying a 'manifest'
         dictionary"""
@@ -284,11 +286,14 @@ and have been disabled: %(found)s"
     # Processing local add-on files
     ######################################################################
 
-    def processPackages(self, paths) -> Tuple[List[str], List[str]]:
+    def processPackages(
+        self, paths: List[str], parent: QWidget = None
+    ) -> Tuple[List[str], List[str]]:
+
         log = []
         errs = []
 
-        self.mw.progress.start(immediate=True)
+        self.mw.progress.start(immediate=True, parent=parent)
         try:
             for path in paths:
                 base = os.path.basename(path)
@@ -661,7 +666,7 @@ class AddonsDialog(QDialog):
     def onGetAddons(self):
         GetAddons(self)
 
-    def onInstallFiles(self, paths=None):
+    def onInstallFiles(self, paths: List[str] = None, external: bool = False):
         if not paths:
             key = _("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext)
             paths = getFile(
@@ -670,17 +675,7 @@ class AddonsDialog(QDialog):
             if not paths:
                 return False
 
-        log, errs = self.mgr.processPackages(paths)
-
-        if log:
-            log_html = "<br>".join(log)
-            if len(log) == 1:
-                tooltip(log_html, parent=self)
-            else:
-                showInfo(log_html, parent=self, textFormat="rich")
-        if errs:
-            msg = _("Please report this to the respective add-on author(s).")
-            showWarning("<br><br>".join(errs + [msg]), parent=self, textFormat="rich")
+        installAddonPackages(self.mgr, paths, parent=self)
 
         self.redrawAddons()
 
@@ -855,3 +850,65 @@ class ConfigEditor(QDialog):
 
         self.onClose()
         super().accept()
+
+
+# .ankiaddon installation wizard
+######################################################################
+
+
+def installAddonPackages(
+    addonsManager: AddonManager,
+    paths: List[str],
+    parent: QWidget = None,
+    external: bool = False,
+) -> bool:
+
+    if external:
+        names_str = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
+        q = _(
+            "<b>Important</b>: As add-ons are programs downloaded from the internet, "
+            "they are potentially malicious."
+            "<b>You should only install add-ons you trust.</b><br><br>"
+            "Are you sure you want to proceed with the installation of the "
+            f"following add-on(s)?<br><br>{names_str}<i>"
+        )
+        if (
+            not showInfo(
+                q,
+                parent=parent,
+                title=_("Install Anki add-on"),
+                type="warning",
+                customBtns=[QMessageBox.No, QMessageBox.Yes],
+            )
+            == QMessageBox.Yes
+        ):
+            tooltip(_("Add-on installation aborted"), parent=parent)
+            return False
+
+    log, errs = addonsManager.processPackages(paths, parent=parent)
+
+    if log:
+        log_html = "<br>".join(log)
+        if external:
+            log_html += "<br><br>" + _(
+                "<b>Please restart Anki to complete the installation.</b>"
+            )
+        if len(log) == 1:
+            tooltip(log_html, parent=parent)
+        else:
+            showInfo(
+                log_html,
+                parent=parent,
+                textFormat="rich",
+                title=_("Installation complete"),
+            )
+    if errs:
+        msg = _("Please report this to the respective add-on author(s).")
+        showWarning(
+            "<br><br>".join(errs + [msg]),
+            parent=parent,
+            textFormat="rich",
+            title=_("Add-on installation error"),
+        )
+
+    return not errs
