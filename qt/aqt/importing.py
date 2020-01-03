@@ -91,6 +91,7 @@ class ImportDialog(QDialog):
         self.frm.autoDetect.clicked.connect(self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
+        self.frm.importMode.currentIndexChanged.connect(self.importModeChanged)
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
         # import button
         b = QPushButton(_("Import"))
@@ -285,6 +286,14 @@ you can enter it here. Use \\t to represent tab."""
 
     def helpRequested(self):
         openHelp("importing")
+
+    def importModeChanged(self, newImportMode):
+        if newImportMode == 0:
+            allowTagModified = True
+        else:
+            allowTagModified = False
+        self.frm.tagModifiedCheck.setEnabled(allowTagModified)
+        self.frm.tagModifiedTag.setEnabled(allowTagModified)
 
 
 def showUnicodeWarning():
