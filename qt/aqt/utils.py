@@ -57,7 +57,7 @@ def showInfo(
     type="info",
     title="Anki",
     textFormat=None,
-    customBtns=None
+    customBtns=None,
 ):
     "Show a small info window with an OK button."
     if parent is False:

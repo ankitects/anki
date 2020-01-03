@@ -47,8 +47,8 @@ class AddonInstallationResult(NamedTuple):
 
 class AddonManager:
 
-    ext = ".ankiaddon"
-    _manifest_schema = {
+    ext: str = ".ankiaddon"
+    _manifest_schema: dict = {
         "type": "object",
         "properties": {
             "package": {"type": "string", "meta": False},

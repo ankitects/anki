@@ -1027,6 +1027,7 @@ QTreeWidget {
 
     def installAddon(self, path):
         from aqt.addons import installAddonPackages
+
         installAddonPackages(self.addonManager, [path], external=True, parent=self)
 
     # Cramming
@@ -1482,7 +1483,7 @@ will be lost. Continue?"""
 
     def onAppMsg(self, buf: str) -> Optional[QTimer]:
         is_addon = buf.endswith(".ankiaddon")
-        
+
         if self.state == "startup":
             # try again in a second
             return self.progress.timer(
@@ -1521,13 +1522,13 @@ Please ensure a profile is open and Anki is not busy, then try again."""
             self.raise_()
         if buf == "raise":
             return None
-        
+
         # import / add-on installation
         if is_addon:
             self.installAddon(buf)
         else:
             self.handleImport(buf)
-        
+
         return None
 
     # GC
