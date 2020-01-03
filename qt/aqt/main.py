@@ -4,6 +4,7 @@
 
 import faulthandler
 import gc
+import os
 import platform
 import re
 import signal
@@ -1021,6 +1022,13 @@ QTreeWidget {
 
         aqt.exporting.ExportDialog(self, did=did)
 
+    # Installing add-ons from CLI / mimetype handler
+    ##########################################################################
+
+    def installAddon(self, path):
+        from aqt.addons import installAddonPackages
+        installAddonPackages(self.addonManager, [path], external=True, parent=self)
+
     # Cramming
     ##########################################################################
 
@@ -1473,6 +1481,8 @@ will be lost. Continue?"""
         self.app.appMsg.connect(self.onAppMsg)
 
     def onAppMsg(self, buf: str) -> Optional[QTimer]:
+        is_addon = buf.endswith(".ankiaddon")
+        
         if self.state == "startup":
             # try again in a second
             return self.progress.timer(
@@ -1483,7 +1493,11 @@ will be lost. Continue?"""
             if buf == "raise":
                 return None
             self.pendingImport = buf
-            return tooltip(_("Deck will be imported when a profile is opened."))
+            if is_addon:
+                msg = _("Add-on will be installed when a profile is opened.")
+            else:
+                msg = _("Deck will be imported when a profile is opened.")
+            return tooltip(msg)
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":
@@ -1507,8 +1521,13 @@ Please ensure a profile is open and Anki is not busy, then try again."""
             self.raise_()
         if buf == "raise":
             return None
-        # import
-        self.handleImport(buf)
+        
+        # import / add-on installation
+        if is_addon:
+            self.installAddon(buf)
+        else:
+            self.handleImport(buf)
+        
         return None
 
     # GC
