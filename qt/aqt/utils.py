@@ -50,7 +50,15 @@ def showCritical(text, parent=None, help="", title="Anki", textFormat=None):
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
 
 
-def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=None):
+def showInfo(
+    text,
+    parent=False,
+    help="",
+    type="info",
+    title="Anki",
+    textFormat=None,
+    customBtns=None
+):
     "Show a small info window with an OK button."
     if parent is False:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -70,8 +78,16 @@ def showInfo(text, parent=False, help="", type="info", title="Anki", textFormat=
     mb.setText(text)
     mb.setIcon(icon)
     mb.setWindowTitle(title)
-    b = mb.addButton(QMessageBox.Ok)
-    b.setDefault(True)
+    if customBtns:
+        default = None
+        for btn in customBtns:
+            b = mb.addButton(btn)
+            if not default:
+                default = b
+        mb.setDefaultButton(default)
+    else:
+        b = mb.addButton(QMessageBox.Ok)
+        b.setDefault(True)
     if help:
         b = mb.addButton(QMessageBox.Help)
         b.clicked.connect(lambda: openHelp(help))
