@@ -64,11 +64,13 @@ class NoteImporter(Importer):
     allowHTML = False
     importMode = 0
     mapping: Optional[List[str]]
+    tagModified: Optional[str]
 
     def __init__(self, col: _Collection, file: str) -> None:
         Importer.__init__(self, col, file)
         self.model = col.models.current()
         self.mapping = None
+        self.tagModified = None
         self._tagsMapped = False
 
     def run(self) -> None:
@@ -271,6 +273,13 @@ content in the text file to the correct fields."""
             self.col.tags.register(n.tags)
             tags = self.col.tags.join(n.tags)
             return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
+        elif self.tagModified:
+            tags = self.col.db.scalar("select tags from notes where id = ?", id)
+            tagList = self.col.tags.split(tags) + self.tagModified.split()
+            tagList = self.col.tags.canonify(tagList)
+            self.col.tags.register(tagList)
+            tags = self.col.tags.join(tagList)
+            return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr]
         else:
             return [intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr]
 
@@ -281,6 +290,13 @@ content in the text file to the correct fields."""
                 """
 update notes set mod = ?, usn = ?, flds = ?, tags = ?
 where id = ? and (flds != ? or tags != ?)""",
+                rows,
+            )
+        elif self.tagModified:
+            self.col.db.executemany(
+                """
+update notes set mod = ?, usn = ?, flds = ?, tags = ?
+where id = ? and flds != ?""",
                 rows,
             )
         else:

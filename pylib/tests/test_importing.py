@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import os
+from tempfile import NamedTemporaryFile
 
 from anki.importing import (
     Anki2Importer,
@@ -191,6 +192,100 @@ def test_csv2():
     assert n["Front"] == "1"
     assert n["Back"] == "x"
     assert n["Three"] == "3"
+    deck.close()
+
+
+def test_tsv_tag_modified():
+    deck = getEmptyCol()
+    mm = deck.models
+    m = mm.current()
+    f = mm.newField("Top")
+    mm.addField(m, f)
+    mm.save(m)
+    n = deck.newNote()
+    n["Front"] = "1"
+    n["Back"] = "2"
+    n["Top"] = "3"
+    n.addTag("four")
+    deck.addNote(n)
+
+    with NamedTemporaryFile(mode="w") as tf:
+        tf.write("1\tb\tc\n")
+        tf.flush()
+        i = TextImporter(deck, tf.name)
+        i.initMapping()
+        i.tagModified = "boom"
+        i.run()
+
+    n.load()
+    assert n["Front"] == "1"
+    assert n["Back"] == "b"
+    assert n["Top"] == "c"
+    assert "four" in n.tags
+    assert "boom" in n.tags
+    assert len(n.tags) == 2
+    assert i.updateCount == 1
+
+    deck.close()
+
+
+def test_tsv_tag_multiple_tags():
+    deck = getEmptyCol()
+    mm = deck.models
+    m = mm.current()
+    f = mm.newField("Top")
+    mm.addField(m, f)
+    mm.save(m)
+    n = deck.newNote()
+    n["Front"] = "1"
+    n["Back"] = "2"
+    n["Top"] = "3"
+    n.addTag("four")
+    n.addTag("five")
+    deck.addNote(n)
+
+    with NamedTemporaryFile(mode="w") as tf:
+        tf.write("1\tb\tc\n")
+        tf.flush()
+        i = TextImporter(deck, tf.name)
+        i.initMapping()
+        i.tagModified = "five six"
+        i.run()
+
+    n.load()
+    assert n["Front"] == "1"
+    assert n["Back"] == "b"
+    assert n["Top"] == "c"
+    assert list(sorted(n.tags)) == list(sorted(["four", "five", "six"]))
+
+    deck.close()
+
+
+def test_csv_tag_only_if_modified():
+    deck = getEmptyCol()
+    mm = deck.models
+    m = mm.current()
+    f = mm.newField("Left")
+    mm.addField(m, f)
+    mm.save(m)
+    n = deck.newNote()
+    n["Front"] = "1"
+    n["Back"] = "2"
+    n["Left"] = "3"
+    deck.addNote(n)
+
+    with NamedTemporaryFile(mode="w") as tf:
+        tf.write("1,2,3\n")
+        tf.flush()
+        i = TextImporter(deck, tf.name)
+        i.initMapping()
+        i.tagModified = "right"
+        i.run()
+
+    n.load()
+    assert n.tags == []
+    assert i.updateCount == 0
+
     deck.close()
 
 
