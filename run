@@ -9,4 +9,4 @@ for dir in $DEVEL; do
   (cd $dir && make develop BUILDFLAGS="$BUILDFLAGS")
 done
 
-anki-qt/runanki "$@"
+qt/runanki "$@"
