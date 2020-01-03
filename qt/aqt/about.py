@@ -149,6 +149,7 @@ system. It's free and open source."
             "Arman High",
             "Arthur Milchior",
             "Rai (Michael Pokorny)",
+            "AMBOSS MD Inc.",
         )
     )
 
