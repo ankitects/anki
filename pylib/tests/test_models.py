@@ -215,7 +215,7 @@ def test_cloze_mathjax():
     f["Text"] = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
     assert d.addNote(f)
     assert len(f.cards()) == 1
-    assert f.cards()[0].q().endswith("\(a\) <span class=cloze>[...]</span> \[ [...] \]")
+    assert f.cards()[0].q().endswith(r"\(a\) <span class=cloze>[...]</span> \[ [...] \]")
 
 
 def test_chained_mods():
