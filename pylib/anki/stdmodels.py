@@ -101,8 +101,6 @@ def addClozeModel(col) -> NoteType:
     txt = _("Text")
     fm = mm.newField(txt)
     mm.addField(m, fm)
-    fm = mm.newField(_("Extra"))
-    mm.addField(m, fm)
     t = mm.newTemplate(_("Cloze"))
     fmt = "{{cloze:%s}}" % txt
     m[
@@ -116,7 +114,7 @@ def addClozeModel(col) -> NoteType:
  color: lightblue;
 }"""
     t["qfmt"] = fmt
-    t["afmt"] = fmt + "<br>\n{{%s}}" % _("Extra")
+    t["afmt"] = fmt
     mm.addTemplate(m, t)
     mm.add(m)
     return m

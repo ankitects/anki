@@ -331,6 +331,7 @@ def test_modelChange():
     # back the other way, with deletion of second ord
     deck.models.remTemplate(basic, basic["tmpls"][1])
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 2
+    map = {0: 0}
     deck.models.change(cloze, [f.id], basic, map, map)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
 
