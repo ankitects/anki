@@ -9,7 +9,7 @@ MAKEFLAGS += --no-builtin-rules
 BLACKARGS := -t py36 aqt tests --exclude=aqt/forms
 ISORTARGS := aqt tests
 
-$(shell mkdir -p .build ../build)
+$(shell mkdir -p .build ../dist)
 
 PHONY: all
 all: check
@@ -103,7 +103,7 @@ CHECKDEPS := $(shell find aqt tests -name '*.py')
 build: $(BUILD_STEPS)
 	rm -rf dist
 	python setup.py bdist_wheel
-	rsync -a dist/*.whl ../build/
+	rsync -a dist/*.whl ../dist/
 
 .PHONY: develop
 develop: $(BUILD_STEPS)
