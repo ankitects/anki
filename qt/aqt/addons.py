@@ -3,10 +3,11 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import io
 import json
+import os
 import re
 import zipfile
 from collections import defaultdict
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 from zipfile import ZipFile
 
 import jsonschema
@@ -35,6 +36,13 @@ from aqt.utils import (
     showWarning,
     tooltip,
 )
+
+
+class AddonInstallationResult(NamedTuple):
+    success: bool
+    errmsg: Optional[str] = None
+    name: Optional[str] = None
+    conflicts: Optional[List[str]] = None
 
 
 class AddonManager:
@@ -201,14 +209,14 @@ and have been disabled: %(found)s"
             return {}
         return manifest
 
-    def install(self, file, manifest=None):
+    def install(self, file, manifest=None) -> AddonInstallationResult:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overriden by supplying a 'manifest'
         dictionary"""
         try:
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
-            return False, "zip"
+            return AddonInstallationResult(success=False, errmsg="zip")
 
         with zfile:
             file_manifest = self.readManifestFile(zfile)
@@ -216,7 +224,7 @@ and have been disabled: %(found)s"
                 file_manifest.update(manifest)
             manifest = file_manifest
             if not manifest:
-                return False, "manifest"
+                return AddonInstallationResult(success=False, errmsg="manifest")
             package = manifest["package"]
             conflicts = manifest.get("conflicts", [])
             found_conflicts = self._disableConflicting(package, conflicts)
@@ -230,7 +238,9 @@ and have been disabled: %(found)s"
         meta.update(manifest_meta)
         self.writeAddonMeta(package, meta)
 
-        return True, meta["name"], found_conflicts
+        return AddonInstallationResult(
+            success=True, name=meta["name"], conflicts=found_conflicts
+        )
 
     def _install(self, dir, zfile):
         # previously installed?
@@ -274,40 +284,30 @@ and have been disabled: %(found)s"
     # Processing local add-on files
     ######################################################################
 
-    def processPackages(self, paths):
+    def processPackages(self, paths) -> Tuple[List[str], List[str]]:
         log = []
         errs = []
+
         self.mw.progress.start(immediate=True)
         try:
             for path in paths:
                 base = os.path.basename(path)
-                ret = self.install(path)
-                if ret[0] is False:
-                    if ret[1] == "zip":
-                        msg = _("Corrupt add-on file.")
-                    elif ret[1] == "manifest":
-                        msg = _("Invalid add-on manifest.")
-                    else:
-                        msg = "Unknown error: {}".format(ret[1])
-                    errs.append(
-                        _(
-                            "Error installing <i>%(base)s</i>: %(error)s"
-                            % dict(base=base, error=msg)
-                        )
+                result = self.install(path)
+
+                if not result.success:
+                    errs.extend(
+                        self._installationErrorReport(result, base, mode="local")
                     )
                 else:
-                    log.append(_("Installed %(name)s" % dict(name=ret[1])))
-                    if ret[2]:
-                        log.append(
-                            _("The following conflicting add-ons were disabled:")
-                            + " "
-                            + " ".join(ret[2])
-                        )
+                    log.extend(
+                        self._installationSuccessReport(result, base, mode="local")
+                    )
         finally:
             self.mw.progress.finish()
+
         return log, errs
 
-    # Downloading
+    # Downloading add-ons from AnkiWeb
     ######################################################################
 
     def downloadIds(self, ids):
@@ -324,31 +324,66 @@ and have been disabled: %(found)s"
             data, fname = ret
             fname = fname.replace("_", " ")
             name = os.path.splitext(fname)[0]
-            ret = self.install(
+            result = self.install(
                 io.BytesIO(data),
                 manifest={"package": str(n), "name": name, "mod": intTime()},
             )
-            if ret[0] is False:
-                if ret[1] == "zip":
-                    msg = _("Corrupt add-on file.")
-                elif ret[1] == "manifest":
-                    msg = _("Invalid add-on manifest.")
-                else:
-                    msg = "Unknown error: {}".format(ret[1])
-                errs.append(
-                    _("Error downloading %(id)s: %(error)s") % dict(id=n, error=msg)
-                )
+            if not result.success:
+                errs.extend(self._installationErrorReport(result, n))
             else:
-                log.append(_("Downloaded %(fname)s" % dict(fname=name)))
-                if ret[2]:
-                    log.append(
-                        _("The following conflicting add-ons were disabled:")
-                        + " "
-                        + " ".join(ret[2])
-                    )
+                log.extend(self._installationSuccessReport(result, n))
 
         self.mw.progress.finish()
         return log, errs
+
+    # Installation messaging
+    ######################################################################
+
+    def _installationErrorReport(
+        self, result: AddonInstallationResult, base: str, mode="download"
+    ) -> List[str]:
+
+        messages = {
+            "zip": _("Corrupt add-on file."),
+            "manifest": _("Invalid add-on manifest."),
+        }
+
+        if result.errmsg:
+            msg = messages.get(
+                result.errmsg, _("Unknown error: {}".format(result.errmsg))
+            )
+        else:
+            msg = _("Unknown error")
+
+        if mode == "download":  # preserve old format strings for i18n
+            template = _("Error downloading <i>%(id)s</i>: %(error)s")
+        else:
+            template = _("Error installing <i>%(base)s</i>: %(error)s")
+
+        name = result.name or base
+
+        return [template % dict(base=name, id=name, error=msg)]
+
+    def _installationSuccessReport(
+        self, result: AddonInstallationResult, base: str, mode="download"
+    ) -> List[str]:
+
+        if mode == "download":  # preserve old format strings for i18n
+            template = _("Downloaded %(fname)s")
+        else:
+            template = _("Installed %(name)s")
+
+        name = result.name or base
+        strings = [template % dict(name=name, fname=name)]
+
+        if result.conflicts:
+            strings.append(
+                _("The following conflicting add-ons were disabled:")
+                + " "
+                + " ".join(result.conflicts)
+            )
+
+        return strings
 
     # Updating
     ######################################################################
