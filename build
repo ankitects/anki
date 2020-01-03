@@ -11,7 +11,4 @@ for dir in $DEVEL; do
   (cd $dir && make build BUILDFLAGS="$BUILDFLAGS")
 done
 
-# add build hash to outputs
-ver=$(cat meta/version)
-hash=$(cat meta/buildhash)
-(cd dist && rename "s/$ver/${ver}+$hash/" *.whl)
+helpers/rename-with-buildhash
