@@ -23,7 +23,7 @@ from anki.utils import intTime, isWin
 
 
 class ServerData:
-    minutes_west: Optional[int]
+    minutes_west: Optional[int] = None
 
 
 def Collection(
