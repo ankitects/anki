@@ -2,8 +2,8 @@
 
 set -e
 
-CHECKABLE="lib-rust lib-python anki-qt"
-DEVEL="lib-rspy lib-python anki-qt i18n"
+CHECKABLE="rslib pylib qt"
+DEVEL="rspy pylib qt"
 
 if [ "$UNOPT" = "" ]; then
     BUILDFLAGS="--release --strip"
@@ -20,9 +20,12 @@ else
     . pyenv/bin/activate
 fi
 
-
 # add qt if missing
-python -c 'import PyQt5' 2>/dev/null || pip install -r anki-qt/requirements.qt
+python -c 'import PyQt5' 2>/dev/null || pip install -r qt/requirements.qt
 
-# fetch i18n files
-test -d i18n || git clone --depth 1 https://github.com/ankitects/anki-i18n i18n
+# update build hash
+oldhash=$(test -f meta/buildhash && cat meta/buildhash || true)
+newhash=$(git rev-parse --short HEAD)
+if [ "$oldhash" != "$newhash" ]; then
+    echo $newhash > meta/buildhash
+fi

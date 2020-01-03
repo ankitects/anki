@@ -1,0 +1,4115 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: anki\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-01 08:34+1000\n"
+"PO-Revision-Date: 2020-01-02 06:16\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Basque\n"
+"Language: eu_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: anki\n"
+"X-Crowdin-Language: eu\n"
+"X-Crowdin-File: anki.pot\n"
+
+#: ../dtop/aqt/clayout.py:223
+#, python-format
+msgid " (1 of %d)"
+msgstr " (%d-(e)tik 1)"
+
+#: ../dtop/aqt/addons.py:155
+msgid " (disabled)"
+msgstr " (desgaituta)"
+
+#: ../dtop/aqt/clayout.py:480
+msgid " (off)"
+msgstr " (itzalita)"
+
+#: ../dtop/aqt/clayout.py:478
+msgid " (on)"
+msgstr " (piztuta)"
+
+#: ../dtop/aqt/deckbrowser.py:298
+#, python-format
+msgid " It has %d card."
+msgid_plural " It has %d cards."
+msgstr[0] " Karta %d du."
+msgstr[1] " %d karta ditu."
+
+#. T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
+#: ../dtop/aqt/webview.py:261
+msgid "\"Segoe UI\""
+msgstr ""
+
+#: ../dtop/aqt/forms/dconf.py:354 ../dtop/aqt/forms/dconf.py:366
+#: ../dtop/aqt/forms/dconf.py:367 ../dtop/aqt/forms/dconf.py:374
+#: ../dtop/aqt/forms/dconf.py:385 ../dtop/aqt/forms/preferences.py:256
+msgid "%"
+msgstr ""
+
+#: ../dtop/anki/stats.py:811 ../dtop/anki/stats.py:833
+msgid "% Correct"
+msgstr "% Zuzenak"
+
+#: ../dtop/anki/stats.py:1115
+#, python-format
+msgid "%(a)0.1f %(b)s/day"
+msgstr "%(a)0.1f %(b)s/egun"
+
+#: ../dtop/aqt/sync.py:91
+#, python-format
+msgid "%(a)0.1fkB up, %(b)0.1fkB down"
+msgstr ""
+
+#: ../dtop/anki/stats.py:460
+#, python-format
+msgid "%(a)0.1fs (%(b)s)"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:2097
+#, python-format
+msgid "%(a)d of %(b)d note updated"
+msgid_plural "%(a)d of %(b)d notes updated"
+msgstr[0] "%(b)d oharretik %(a)d eguneratuta"
+msgstr[1] "%(b)d oharretik %(a)d eguneratuta"
+
+#. T: name is a card type name. n it's order in the list of card type.
+#. T: this is shown in browser's filter, when seeing the list of card type of a note type.
+#: ../dtop/aqt/browser.py:1307
+#, python-format
+msgid "%(n)d: %(name)s"
+msgstr ""
+
+#: ../dtop/anki/stats.py:438
+#, python-format
+msgid "%(tot)s %(unit)s"
+msgstr ""
+
+#: ../dtop/anki/stats.py:456
+#, python-format
+msgid "%.01f cards/minute"
+msgstr "%.01f karta minutuko"
+
+#: ../dtop/anki/stats.py:288 ../dtop/anki/stats.py:344
+#: ../dtop/aqt/clayout.py:230 ../dtop/aqt/main.py:1328
+#, python-format
+msgid "%d card"
+msgid_plural "%d cards"
+msgstr[0] "Karta %d"
+msgstr[1] "%d karta"
+
+#: ../dtop/aqt/main.py:1340
+#, python-format
+msgid "%d card deleted."
+msgid_plural "%d cards deleted."
+msgstr[0] "Karta %d ezabatuta."
+msgstr[1] "%d karta ezabatuta."
+
+#: ../dtop/aqt/exporting.py:154
+#, python-format
+msgid "%d card exported."
+msgid_plural "%d cards exported."
+msgstr[0] "Karta %d esportatuta."
+msgstr[1] "%d karta esportatuta."
+
+#: ../dtop/anki/importing/supermemo_xml.py:193
+#, python-format
+msgid "%d card imported."
+msgid_plural "%d cards imported."
+msgstr[0] "Karta %d inportatuta."
+msgstr[1] "%d karta inportatuta."
+
+#: ../dtop/aqt/reviewer.py:75
+#, python-format
+msgid "%d card studied in"
+msgid_plural "%d cards studied in"
+msgstr[0] "Karta %d ikasita"
+msgstr[1] "%d karta ikasita"
+
+#: ../dtop/aqt/deckconf.py:157
+#, python-format
+msgid "%d deck updated."
+msgid_plural "%d decks updated."
+msgstr[0] "Sorta %d eguneratuta."
+msgstr[1] "%d sorta eguneratuta."
+
+#: ../dtop/aqt/main.py:1236
+#, python-format
+msgid "%d file found in media folder not used by any cards:"
+msgid_plural "%d files found in media folder not used by any cards:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/aqt/main.py:1293
+#, python-format
+msgid "%d file remaining..."
+msgid_plural "%d files remaining..."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/aqt/browser.py:2150
+#, python-format
+msgid "%d group"
+msgid_plural "%d groups"
+msgstr[0] "Talde %d"
+msgstr[1] "%d talde"
+
+#: ../dtop/anki/sync.py:839
+#, python-format
+msgid "%d media change to upload"
+msgid_plural "%d media changes to upload"
+msgstr[0] "%d euskarri aldaketa kargatzeko"
+msgstr[1] "%d euskarri aldaketak kargatzeko"
+
+#: ../dtop/anki/sync.py:890
+#, python-format
+msgid "%d media file downloaded"
+msgid_plural "%d media files downloaded"
+msgstr[0] "%d mediako fitxategi deskargatuta"
+msgstr[1] "%d mediako fitxategi deskargatuta"
+
+#: ../dtop/aqt/browser.py:2151 ../dtop/aqt/browser.py:2159
+#: ../dtop/aqt/fields.py:96 ../dtop/aqt/models.py:82
+#, python-format
+msgid "%d note"
+msgid_plural "%d notes"
+msgstr[0] "Ohar %d"
+msgstr[1] "%d ohar"
+
+#: ../dtop/anki/importing/noteimp.py:210
+#, python-format
+msgid "%d note added"
+msgid_plural "%d notes added"
+msgstr[0] "Ohar %d erantsita"
+msgstr[1] "%d ohar erantsita"
+
+#: ../dtop/aqt/browser.py:1781
+#, python-format
+msgid "%d note deleted."
+msgid_plural "%d notes deleted."
+msgstr[0] "%d nota ezabatuta"
+msgstr[1] "%d nota ezabatuta"
+
+#: ../dtop/aqt/exporting.py:145
+#, python-format
+msgid "%d note exported."
+msgid_plural "%d notes exported."
+msgstr[0] "%d ohar esportatuta"
+msgstr[1] "%d ohar esportatuta"
+
+#: ../dtop/anki/importing/mnemo.py:105
+#, python-format
+msgid "%d note imported."
+msgid_plural "%d notes imported."
+msgstr[0] "Ohar %d inportatuta."
+msgstr[1] "%d ohar inportatuta."
+
+#: ../dtop/anki/importing/noteimp.py:222
+#, python-format
+msgid "%d note unchanged"
+msgid_plural "%d notes unchanged"
+msgstr[0] "%d ohar berdin"
+msgstr[1] "%d ohar berdin"
+
+#: ../dtop/anki/importing/noteimp.py:212
+#, python-format
+msgid "%d note updated"
+msgid_plural "%d notes updated"
+msgstr[0] "Ohar %d eguneratuta"
+msgstr[1] "%d ohar eguneratuta"
+
+#: ../dtop/anki/stats.py:279
+#, python-format
+msgid "%d review"
+msgid_plural "%d reviews"
+msgstr[0] "Berrikuspen %d"
+msgstr[1] "%d berrikuspen"
+
+#: ../dtop/aqt/browser.py:800
+#, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%d hautatuta"
+msgstr[1] "%d hautatuta"
+
+#: ../dtop/anki/models.py:247
+#, python-format
+msgid "%s copy"
+msgstr "%s-ren kopia"
+
+#: ../dtop/anki/utils.py:41
+#, python-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "Egun %s"
+msgstr[1] "%s egun"
+
+#: ../dtop/anki/utils.py:42
+#, python-format
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] "Ordu %s"
+msgstr[1] "%s ordu"
+
+#: ../dtop/anki/utils.py:43
+#, python-format
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] "Minutu %s"
+msgstr[1] "%s minutu"
+
+#: ../dtop/aqt/reviewer.py:79
+#, python-format
+msgid "%s minute."
+msgid_plural "%s minutes."
+msgstr[0] "Minutu %s."
+msgstr[1] "%s minutu."
+
+#: ../dtop/anki/utils.py:40
+#, python-format
+msgid "%s month"
+msgid_plural "%s months"
+msgstr[0] "Hilabete %s"
+msgstr[1] "%s hilabete"
+
+#: ../dtop/anki/utils.py:44 ../dtop/aqt/main.py:1092
+#, python-format
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] "Segundo %s"
+msgstr[1] "%s segundo"
+
+#: ../dtop/aqt/main.py:1329
+#, python-format
+msgid "%s to delete:"
+msgstr "%s ezabatzeko:"
+
+#: ../dtop/anki/utils.py:39
+#, python-format
+msgid "%s year"
+msgid_plural "%s years"
+msgstr[0] "Urte %s"
+msgstr[1] "%s urte"
+
+#. T: d is an abbreviation for day. %s is a number of days
+#: ../dtop/anki/utils.py:64
+#, python-format
+msgid "%sd"
+msgstr "%se"
+
+#. T: h is an abbreviation for hour. %s is a number of hours
+#: ../dtop/anki/utils.py:66
+#, python-format
+msgid "%sh"
+msgstr "%so"
+
+#. T: m is an abbreviation for minute. %s is a number of minutes
+#: ../dtop/anki/utils.py:68
+#, python-format
+msgid "%sm"
+msgstr ""
+
+#. T: m is an abbreviation for month. %s is a number of months
+#: ../dtop/anki/utils.py:62
+#, python-format
+msgid "%smo"
+msgstr "%sh"
+
+#. T: s is an abbreviation for second. %s is a number of seconds
+#: ../dtop/anki/utils.py:70
+#, python-format
+msgid "%ss"
+msgstr ""
+
+#. T: year is an abbreviation for year. %s is a number of years
+#: ../dtop/anki/utils.py:60
+#, python-format
+msgid "%sy"
+msgstr "%su"
+
+#: ../dtop/aqt/forms/main.py:139
+msgid "&About..."
+msgstr "&Honi buruz..."
+
+#: ../dtop/aqt/forms/main.py:145
+msgid "&Browse and Install..."
+msgstr "&Aztertu eta Instalatu..."
+
+#: ../dtop/aqt/forms/browser.py:298
+msgid "&Cards"
+msgstr "&Kartak"
+
+#: ../dtop/aqt/forms/main.py:146
+msgid "&Check Database"
+msgstr "Datu-basea &Egiaztatu"
+
+#: ../dtop/aqt/forms/browser.py:313
+msgid "&Cram..."
+msgstr "&Buru-belarri ikasi..."
+
+#: ../dtop/aqt/forms/browser.py:295 ../dtop/aqt/forms/main.py:133
+msgid "&Edit"
+msgstr "&Editatu"
+
+#: ../dtop/aqt/forms/main.py:149
+msgid "&Export..."
+msgstr "&Esportatu..."
+
+#: ../dtop/aqt/forms/main.py:134
+msgid "&File"
+msgstr "&Fitxategia"
+
+#: ../dtop/aqt/forms/browser.py:305
+msgid "&Find"
+msgstr "&Bilatu"
+
+#: ../dtop/aqt/forms/browser.py:296
+msgid "&Go"
+msgstr "&Joan"
+
+#: ../dtop/aqt/forms/browser.py:309 ../dtop/aqt/forms/main.py:147
+msgid "&Guide..."
+msgstr "&Gida..."
+
+#: ../dtop/aqt/forms/browser.py:297 ../dtop/aqt/forms/main.py:132
+msgid "&Help"
+msgstr "&Laguntza"
+
+#: ../dtop/aqt/forms/main.py:150
+msgid "&Import..."
+msgstr "&Inportatu..."
+
+#: ../dtop/aqt/forms/browser.py:323
+msgid "&Info..."
+msgstr "&Informazioa..."
+
+#: ../dtop/aqt/forms/browser.py:304
+msgid "&Invert Selection"
+msgstr "&Alderantzikatu hautapena"
+
+#: ../dtop/aqt/forms/browser.py:307
+msgid "&Next Card"
+msgstr "&Hurrengo karta"
+
+#: ../dtop/aqt/forms/browser.py:300
+msgid "&Notes"
+msgstr "&Oharrak"
+
+#: ../dtop/aqt/forms/main.py:143
+msgid "&Open Add-ons Folder..."
+msgstr "&Ireki gehigarrien karpeta..."
+
+#: ../dtop/aqt/forms/main.py:137
+msgid "&Preferences..."
+msgstr "&Hobespenak..."
+
+#: ../dtop/aqt/forms/browser.py:308
+msgid "&Previous Card"
+msgstr "&Aurreko karta"
+
+#: ../dtop/aqt/forms/browser.py:301
+msgid "&Reschedule..."
+msgstr "&Birprogramatu..."
+
+#: ../dtop/aqt/forms/main.py:144
+msgid "&Support Anki..."
+msgstr "&Lagundu Ankiri..."
+
+#: ../dtop/aqt/forms/main.py:148
+msgid "&Switch Profile"
+msgstr "Profil aldatu"
+
+#: ../dtop/aqt/forms/main.py:135
+msgid "&Tools"
+msgstr "&Tresnak"
+
+#: ../dtop/aqt/forms/browser.py:303 ../dtop/aqt/forms/main.py:140
+msgid "&Undo"
+msgstr "&Desegin"
+
+#: ../dtop/anki/importing/csvfile.py:44
+#, python-format
+msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
+msgstr "'%(row)s' %(num1)d eremu zituzten, %(num2)d espero ziren"
+
+#: ../dtop/anki/stats.py:186
+#, python-format
+msgid "(%s correct)"
+msgstr "(%s zuzenak)"
+
+#: ../dtop/aqt/addcards.py:158
+msgid "(Note deleted)"
+msgstr "(Ohar ezabatuta)"
+
+#: ../dtop/anki/sched.py:1336 ../dtop/anki/schedv2.py:1510
+msgid "(end)"
+msgstr "(bukaera)"
+
+#: ../dtop/aqt/browser.py:339
+msgid "(filtered)"
+msgstr "(hiragazita)"
+
+#: ../dtop/aqt/browser.py:306
+msgid "(learning)"
+msgstr "(ikasten)"
+
+#: ../dtop/aqt/browser.py:304 ../dtop/aqt/browser.py:310
+msgid "(new)"
+msgstr "(berria)"
+
+#: ../dtop/aqt/deckconf.py:179
+#, python-format
+msgid "(parent limit: %d)"
+msgstr "gurasoen muga : %d"
+
+#: ../dtop/aqt/browser.py:1682
+msgid "(please select 1 card)"
+msgstr "aukeratu karta bat mesedez"
+
+#: ../dtop/aqt/importing.py:309
+msgid ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
+msgstr ""
+
+#: ../dtop/aqt/importing.py:316
+msgid ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1452
+msgid "0d"
+msgstr "0e"
+
+#: ../dtop/aqt/forms/dyndconf.py:146
+msgid "1 10"
+msgstr ""
+
+#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:78
+msgid "1 month"
+msgstr "Hilabete 1"
+
+#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:79
+msgid "1 year"
+msgstr "Urte 1"
+
+#: ../dtop/anki/stats.py:825
+msgid "10AM"
+msgstr ""
+
+#: ../dtop/anki/stats.py:827
+msgid "10PM"
+msgstr ""
+
+#: ../dtop/anki/stats.py:828
+msgid "3AM"
+msgstr ""
+
+#: ../dtop/anki/stats.py:824
+msgid "4AM"
+msgstr ""
+
+#: ../dtop/anki/stats.py:826
+msgid "4PM"
+msgstr ""
+
+#: ../dtop/aqt/sync.py:211
+msgid "504 gateway timeout error received. Please try temporarily disabling your antivirus."
+msgstr "504 pasabideko iraunaldi gainezkatuta errore hartuta.  Zure antibirusa aldi baterako ezgaitu saiatu zaitez mesedez"
+
+#. T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
+#: ../dtop/anki/stats.py:911
+msgid ":"
+msgstr ""
+
+#: ../dtop/anki/stats.py:175 ../dtop/aqt/deckbrowser.py:120
+#, python-format
+msgid "<!--studied-->%d card"
+msgid_plural "<!--studied-->%d cards"
+msgstr[0] "<!--studied-->karta %d"
+msgstr[1] "<!--studied-->%d karta"
+
+#: ../dtop/aqt/about.py:64
+#, python-format
+msgid "<a href='%s'>Visit website</a>"
+msgstr "<a href='%s'>Bisitatu webgunea</a>"
+
+#: ../dtop/anki/stats.py:428
+#, python-format
+msgid "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
+msgstr "<b>%%%(pct)d</b> (%(y)s-(e)tik %(x)s)"
+
+#: ../dtop/aqt/browser.py:1431
+msgid "<b>%Y-%m-%d</b> @ %H:%M"
+msgstr ""
+
+#: ../dtop/aqt/forms/preferences.py:264
+msgid "<b>Backups</b><br>Anki will create a backup of your collection each time it is closed or synchronized."
+msgstr "<b>Babeskopiak</b><br>Anki-k zure bildumaren babeskopia bat sortuko du ixten edo sinkronizatzen den bakoitzean."
+
+#: ../dtop/aqt/forms/exporting.py:75
+msgid "<b>Export format</b>:"
+msgstr "<b>Esportatzeko formatua</b>:"
+
+#: ../dtop/aqt/forms/findreplace.py:69
+msgid "<b>Find</b>:"
+msgstr "<b>Bilatu</b>:"
+
+#: ../dtop/aqt/forms/browseropts.py:71
+msgid "<b>Font Size</b>:"
+msgstr "<b>Letra-tipoaren neurria</b>:"
+
+#: ../dtop/aqt/forms/browseropts.py:70
+msgid "<b>Font</b>:"
+msgstr "<b>Letra-tipoa</b>:"
+
+#: ../dtop/aqt/forms/findreplace.py:71
+msgid "<b>In</b>:"
+msgstr "<b>Hemen</b>:"
+
+#: ../dtop/aqt/forms/exporting.py:76
+msgid "<b>Include</b>:"
+msgstr "<b>Erantsi</b>:"
+
+#: ../dtop/aqt/forms/browseropts.py:72
+msgid "<b>Line Size</b>:"
+msgstr "<b>Lerroaren neurria</b>:"
+
+#: ../dtop/aqt/forms/findreplace.py:70
+msgid "<b>Replace With</b>:"
+msgstr "<b>Ordezkatu honekin</b>:"
+
+#: ../dtop/aqt/forms/preferences.py:258
+msgid "<b>Synchronisation</b>"
+msgstr "<b>Sinkronizazioa</b>"
+
+#: ../dtop/aqt/preferences.py:195
+msgid "<b>Synchronization</b><br>\n"
+"Not currently enabled; click the sync button in the main window to enable."
+msgstr "<b>Sinkronizazioa</b><br>\n"
+"Ez dago unean gaituta; klikatu leiho nagusiko sinkronizatu botoia gaitzeko."
+
+#: ../dtop/aqt/sync.py:257
+#, python-format
+msgid "<h1>Account Required</h1>\n"
+"A free account is required to keep your collection synchronized. Please <a href=\"%s\">sign up</a> for an account, then enter your details below."
+msgstr "<h1>Kontua beharrezkoa da</h1>\n"
+"Doako kontu bat eskatzen da zure bilduma sinkronizatuta mantentzeko. Mesedez <a href=\"%s\">Izena eman</a> kontu bat lortzeko, ondoren sartu zure xehetasunak azpian."
+
+#: ../dtop/aqt/update.py:60
+#, python-format
+msgid "<h1>Anki Updated</h1>Anki %s has been released.<br><br>"
+msgstr "<h1>Anki eguneratuta</h1>Anki %s argitaratu da.<br><br>"
+
+#: ../dtop/aqt/errors.py:143
+msgid "<h1>Error</h1>\n\n"
+"<p>An error occurred. Please start Anki while holding down the shift key, which will temporarily disable the add-ons you have installed.</p>\n\n"
+"<p>If the issue only occurs when add-ons are enabled, please use the Tools&gt;Add-ons menu item to disable some add-ons and restart Anki, repeating until you discover the add-on that is causing the problem.</p>\n\n"
+"<p>When you've discovered the add-on that is causing the problem, please report the issue on the <a href=\"https://help.ankiweb.net/discussions/add-ons/\">add-ons section</a> of our support site.\n\n"
+"<p>Debug info:</p>\n"
+msgstr ""
+
+#: ../dtop/aqt/errors.py:131
+msgid "<h1>Error</h1>\n\n"
+"<p>An error occurred. Please use <b>Tools &gt; Check Database</b> to see if that fixes the problem.</p>\n\n"
+"<p>If problems persist, please report the problem on our <a href=\"https://help.ankiweb.net\">support site</a>. Please copy and paste  the information below into your report.</p>"
+msgstr ""
+
+#: ../dtop/aqt/importing.py:252
+msgid "<ignored>"
+msgstr "<ez ikusia>"
+
+#: ../dtop/aqt/main.py:1430
+msgid "<non-unicode text>"
+msgstr "ez unicode testua"
+
+#: ../dtop/aqt/browser.py:735
+msgid "<type here to search; hit enter to show current deck>"
+msgstr "<idatzi hemen bilatzeko; sakatu sartu uneko bilduma erakusteko>"
+
+#: ../dtop/aqt/about.py:168
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr "Eskerrik asko iradokizunak, akatsen txostenak eta dohaintzak egin dituzten guztiei."
+
+#: ../dtop/anki/stats.py:897
+msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
+msgstr "Karta baten <i>erraztasuna</i> berrikuspen batean \"ondo\" erantzun arteko hurrengo denbora tartearen luzera da."
+
+#: ../dtop/anki/decks.py:285
+msgid "A filtered deck cannot have subdecks."
+msgstr "iragazitako sorta batek ezin ditu azpisortak izaten"
+
+#: ../dtop/aqt/sync.py:153
+msgid "A problem occurred while syncing media. Please use Tools>Check Media, then sync again to correct the issue."
+msgstr "Arazo bat agertu da media sinkronizatzean. Mesedez erabili tresnak  > Egiaztu Media eta berriro sinkronizatu arazoa konpontzeko."
+
+#: ../dtop/anki/importing/csvfile.py:56
+#, python-format
+msgid "Aborted: %s"
+msgstr "utzi : %s"
+
+#: ../dtop/aqt/forms/about.py:43
+msgid "About Anki"
+msgstr "Anki-ri buruz"
+
+#: ../dtop/aqt/addcards.py:37 ../dtop/aqt/addcards.py:66
+#: ../dtop/aqt/deckconf.py:81 ../dtop/aqt/models.py:47
+#: ../dtop/aqt/studydeck.py:46 ../dtop/aqt/toolbar.py:35
+#: ../dtop/aqt/forms/addcards.py:63 ../dtop/aqt/forms/fields.py:101
+#: ../dtop/aqt/forms/profiles.py:76
+msgid "Add"
+msgstr "Erantsi"
+
+#: ../dtop/aqt/addcards.py:69
+msgid "Add (shortcut: ctrl+enter)"
+msgstr "Erantsi (lasterbidea: ktrl+enter)"
+
+#: ../dtop/aqt/clayout.py:462
+msgid "Add Card Type..."
+msgstr "Erantsi karta mota..."
+
+#: ../dtop/aqt/clayout.py:262 ../dtop/aqt/forms/addfield.py:73
+msgid "Add Field"
+msgstr "Erantsi eremua"
+
+#: ../dtop/aqt/editor.py:651
+msgid "Add Media"
+msgstr "Erantsi euskarria"
+
+#: ../dtop/aqt/studydeck.py:48
+msgid "Add New Deck (Ctrl+N)"
+msgstr "Erantsi bilduma berria (Ktrl+N)"
+
+#: ../dtop/aqt/forms/addmodel.py:44
+msgid "Add Note Type"
+msgstr "Erantsi ohar mota"
+
+#: ../dtop/aqt/forms/browser.py:328
+msgid "Add Notes..."
+msgstr ""
+
+#: ../dtop/anki/stdmodels.py:82
+msgid "Add Reverse"
+msgstr "Erantsi alderantzizkoa"
+
+#: ../dtop/aqt/browser.py:1851
+msgid "Add Tags"
+msgstr "Erantsi etiketak"
+
+#: ../dtop/aqt/forms/browser.py:324
+msgid "Add Tags..."
+msgstr "Etiketak erantsi..."
+
+#: ../dtop/aqt/forms/addfield.py:79
+msgid "Add to:"
+msgstr "Erantsi honi:"
+
+#: ../dtop/aqt/browser.py:145
+msgid "Add-on"
+msgstr ""
+
+#: ../dtop/aqt/addons.py:693
+msgid "Add-on has no configuration."
+msgstr "Gehigarria ez dauka konfigurazio"
+
+#: ../dtop/aqt/addons.py:591
+msgid "Add-on was not downloaded from AnkiWeb."
+msgstr "Gehigarria es da AnkiWeb-tik deskargatuta."
+
+#: ../dtop/aqt/forms/addons.py:67 ../dtop/aqt/forms/main.py:155
+msgid "Add-ons"
+msgstr "Gehigarriak"
+
+#: ../dtop/aqt/errors.py:179
+msgid "Add-ons possibly involved: {}\n"
+msgstr ""
+
+#: ../dtop/aqt/models.py:187
+#, python-format
+msgid "Add: %s"
+msgstr "Erantsi: %s"
+
+#: ../dtop/anki/stats.py:27 ../dtop/anki/stats.py:335
+#: ../dtop/anki/importing/anki2.py:168 ../dtop/aqt/addcards.py:209
+msgid "Added"
+msgstr "Erantsita"
+
+#: ../dtop/aqt/browser.py:1218
+msgid "Added Today"
+msgstr "Gaur erantsita"
+
+#: ../dtop/anki/importing/noteimp.py:131
+#, python-format
+msgid "Added duplicate with first field: %s"
+msgstr "gehitu bikoiztua lehengo eremuarekin : %s"
+
+#: ../dtop/aqt/reviewer.py:590
+msgid "Again"
+msgstr "Berriro"
+
+#: ../dtop/aqt/browser.py:1220
+msgid "Again Today"
+msgstr "Gaur berriro"
+
+#: ../dtop/anki/stats.py:184
+#, python-format
+msgid "Again count: %s"
+msgstr "Berriro zenbaketa: %s"
+
+#: ../dtop/aqt/overview.py:105
+msgid "All Buried Cards"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1300
+msgid "All Card Types"
+msgstr ""
+
+#: ../dtop/aqt/exporting.py:41
+msgid "All Decks"
+msgstr "Bilduma guztiak"
+
+#: ../dtop/aqt/browser.py:2063
+msgid "All Fields"
+msgstr "Eremu guztiak"
+
+#: ../dtop/aqt/forms/customstudy.py:116
+msgid "All cards in random order (don't reschedule)"
+msgstr ""
+
+#: ../dtop/aqt/main.py:259
+msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
+msgstr "Profil honen karta, ohar eta euskarri guztiak ezabatuko dira. Ziur zaude?"
+
+#: ../dtop/aqt/forms/customstudy.py:114
+msgid "All review cards in random order"
+msgstr ""
+
+#: ../dtop/aqt/forms/importing.py:101
+msgid "Allow HTML in fields"
+msgstr "Onartu HTML eremuetan"
+
+#: ../dtop/aqt/forms/dconf.py:391
+msgid "Always include question side when replaying audio"
+msgstr ""
+
+#: ../dtop/aqt/addons.py:93
+#, python-format
+msgid "An add-on you installed failed to load. If problems persist, please go to the Tools>Add-ons menu, and disable or delete the add-on.\n\n"
+"When loading '%(name)s':\n"
+"%(traceback)s\n"
+msgstr ""
+
+#: ../dtop/aqt/errors.py:111
+msgid "An error occurred while accessing the database.\n\n"
+"Possible causes:\n\n"
+"- Antivirus, firewall, backup, or synchronization software may be   interfering with Anki. Try disabling such software and see if the   problem goes away.\n"
+"- Your disk may be full.\n"
+"- The Documents/Anki folder may be on a network drive.\n"
+"- Files in the Documents/Anki folder may not be writeable.\n"
+"- Your hard disk may have errors.\n\n"
+"It's a good idea to run Tools>Check Database to ensure your collection is not corrupt.\n"
+msgstr "Akats bat gertatu zen datu-basean sartzean.\n"
+"Kari posibleak dira :\n"
+"- Antibirus , suhebaki, segurtasun kopiako programa nahas dezake Anki-rekin.\n"
+" mota horreko softwarea desaktibatzen saiatu eta ea honek arazoa kenduko duen \n"
+" egiaztatu.\n"
+"- Zure disko gogorra beteta dago.\n"
+"- Documents/Anki direktorioa sare-unitate batean dago \n"
+"- Documents/Anki direktorioan dauden fitxategiak irakurketarako soilik\n"
+"  dira \n"
+"- Zure disko gogorrak akatsak dauzka\n\n"
+"Tresnak> Egiaztatu Datu-basea exekutatzea idea ona izango litzateke \n"
+"zure bilduma ustel ez dela egiaztatzeko\n"
+
+#: ../dtop/aqt/editor.py:782 ../dtop/aqt/editor.py:785
+#, python-format
+msgid "An error occurred while opening %s"
+msgstr "errore bat gertatu zen %s ikeritzean"
+
+#: ../dtop/aqt/forms/main.py:131 ../dtop/aqt/forms/setgroup.py:38
+#: ../dtop/aqt/forms/setlang.py:39
+msgid "Anki"
+msgstr ""
+
+#: ../dtop/anki/exporting.py:155
+msgid "Anki 2.0 Deck"
+msgstr "Anki 2.0 Bilduma"
+
+#: ../dtop/aqt/forms/preferences.py:246
+msgid "Anki 2.1 scheduler (beta)"
+msgstr ""
+
+#: ../dtop/anki/exporting.py:380
+msgid "Anki Collection Package"
+msgstr ""
+
+#: ../dtop/anki/exporting.py:299
+msgid "Anki Deck Package"
+msgstr "Anki Bilduma paketea"
+
+#: ../dtop/aqt/profiles.py:179
+msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
+msgstr ""
+
+#: ../dtop/aqt/profiles.py:249
+msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
+msgstr "Zure profilaren izena alda ez dezake Anki-k, diskoan profil direktorio alda\r\n"
+"ez dezakelako. Mesedez, egiaztatu Documents/Anki-n idazteko baimendua\r\n"
+"daukazula, eta beste programek zure profile karpetak erabiltzen ez dituztela.\r\n"
+"Berriz saiatu beranduago"
+
+#: ../dtop/aqt/clayout.py:448
+msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
+msgstr "Ankik ezin izan du aurkitu galdera eta erantzunaren arteko lerroa. Mesedez doitu txantiloia eskuz galdera eta erantzuna trukatzeko."
+
+#: ../dtop/anki/media.py:363
+msgid "Anki does not support files in subfolders of the collection.media folder."
+msgstr ""
+
+#: ../dtop/aqt/about.py:51
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
+msgstr "Anki ikasketa tartekatuko sistema adimendun eta lagunkoia da. Askea da eta iturburu irekikoa."
+
+#: ../dtop/aqt/about.py:55
+msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
+msgstr "Anki AGPL3  lizentziatuta dago. Mesedez ikusi iturburu-distribuzioan  lizenzako fitxategia  informazio gehiago lortzeko"
+
+#: ../dtop/aqt/main.py:406
+msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
+"Debug info:\n"
+msgstr ""
+
+#: ../dtop/aqt/sync.py:100
+msgid "AnkiWeb ID or password was incorrect; please try again."
+msgstr "AnkiWeb ID edo pasahitz okerra; mesedez saiatu berriz."
+
+#: ../dtop/aqt/sync.py:270
+msgid "AnkiWeb ID:"
+msgstr ""
+
+#: ../dtop/aqt/sync.py:191
+msgid "AnkiWeb encountered an error. Please try again in a few minutes, and if the problem persists, please file a bug report."
+msgstr "AnkiWeb-ek akats bat aurkitu du. Mesedez saiatu berriz minutu batzuk barru, eta arazoa mantentzen bada, mesedez bidali akats-txosten bat."
+
+#: ../dtop/aqt/sync.py:206
+msgid "AnkiWeb is too busy at the moment. Please try again in a few minutes."
+msgstr "AnkiWeb lanpetuegi dago une honetan. Mesedez saiatu berriz minutu batzuk barru."
+
+#: ../dtop/aqt/sync.py:203
+msgid "AnkiWeb is under maintenance. Please try again in a few minutes."
+msgstr "Anki Web mantentzen ari da. minutu gutxi barruan saiatu berriro, mesedez"
+
+#: ../dtop/aqt/browser.py:711
+msgid "Answer"
+msgstr "Erantzuna"
+
+#: ../dtop/anki/stats.py:696
+msgid "Answer Buttons"
+msgstr "Erantzunen botoiak"
+
+#: ../dtop/anki/stats.py:383 ../dtop/anki/stats.py:707
+#: ../dtop/anki/stats.py:815
+msgid "Answers"
+msgstr "Erantzunak"
+
+#: ../dtop/aqt/sync.py:219
+msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
+msgstr "Birusen aurkakoa edo suhesi softwarea Anki Internetera konektatzea eragozten ari da."
+
+#: ../dtop/aqt/browser.py:1244
+msgid "Any Flag"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:2413
+msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
+msgstr "Ezertara mapatu gabeko kartak ezabatu egingo dira. Ohar bati ez bazaizkio kartak gelditzen, galdu egingo da. Ziur zaude jarraitu nahi duzula?"
+
+#: ../dtop/anki/importing/noteimp.py:156
+#, python-format
+msgid "Appeared twice in file: %s"
+msgstr "Bitan agertu da fitxategian: %s"
+
+#: ../dtop/aqt/deckbrowser.py:305
+#, python-format
+msgid "Are you sure you wish to delete %s?"
+msgstr "Ziur zaude %s ezabatu nahi duzula?"
+
+#: ../dtop/aqt/clayout.py:227
+msgid "At least one card type is required."
+msgstr "behintzat karta mota bat beharrezkoa da"
+
+#: ../dtop/aqt/deckconf.py:261 ../dtop/aqt/dyndeckconf.py:159
+msgid "At least one step is required."
+msgstr "Gutxienez urrats bat behar da."
+
+#: ../dtop/aqt/editor.py:138
+msgid "Attach pictures/audio/video (F3)"
+msgstr "Erantsi argazkiak/audio/bideo (F3)"
+
+#: ../dtop/aqt/main.py:309
+msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
+msgstr ""
+
+#: ../dtop/aqt/forms/dconf.py:390
+msgid "Automatically play audio"
+msgstr "Automatikoki audioa jo"
+
+#: ../dtop/aqt/forms/preferences.py:260
+msgid "Automatically sync on profile open/close"
+msgstr "Automatikoki sinkronizatu profila ireki/ixterakoan"
+
+#: ../dtop/anki/stats.py:280 ../dtop/anki/stats.py:345
+msgid "Average"
+msgstr "Batez bestekoa"
+
+#: ../dtop/anki/stats.py:53
+msgid "Average Time"
+msgstr "Batez besteko denbora"
+
+#: ../dtop/anki/stats.py:459
+msgid "Average answer time"
+msgstr "Erantzuteko batez besteko denbora"
+
+#: ../dtop/anki/stats.py:893
+msgid "Average ease"
+msgstr "Erraztasun batezbestekoa"
+
+#: ../dtop/anki/stats.py:443
+msgid "Average for days studied"
+msgstr "ikasitako egunaren batez bestekoa"
+
+#: ../dtop/anki/stats.py:633
+msgid "Average interval"
+msgstr "batezbesteko tartea"
+
+#: ../dtop/anki/stdmodels.py:20 ../dtop/anki/stdmodels.py:24
+#: ../dtop/anki/stdmodels.py:45 ../dtop/anki/stdmodels.py:46
+#: ../dtop/anki/stdmodels.py:61 ../dtop/aqt/forms/addfield.py:78
+msgid "Back"
+msgstr "Atzera"
+
+#: ../dtop/aqt/forms/preview.py:41
+msgid "Back Preview"
+msgstr "Atzera aurrebista"
+
+#: ../dtop/aqt/forms/template.py:109
+msgid "Back Template"
+msgstr "Atzera txantiloia"
+
+#: ../dtop/aqt/main.py:454
+msgid "Backing Up..."
+msgstr "Babeskpopia egiten..."
+
+#: ../dtop/aqt/forms/preferences.py:270
+msgid "Backups"
+msgstr "Babeskopiak"
+
+#: ../dtop/anki/stdmodels.py:17 ../dtop/anki/stdmodels.py:35
+#: ../dtop/aqt/forms/preferences.py:257
+msgid "Basic"
+msgstr "Oinarrizkoa"
+
+#: ../dtop/anki/stdmodels.py:59 ../dtop/anki/stdmodels.py:73
+msgid "Basic (and reversed card)"
+msgstr "Oinarrizko (eta alderantzizko karta)"
+
+#: ../dtop/anki/stdmodels.py:81 ../dtop/anki/stdmodels.py:91
+msgid "Basic (optional reversed card)"
+msgstr "Oinarrizko( aukerako alderantzizko karta)"
+
+#: ../dtop/anki/stdmodels.py:43 ../dtop/anki/stdmodels.py:51
+msgid "Basic (type in the answer)"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1242 ../dtop/aqt/reviewer.py:672
+#: ../dtop/aqt/forms/browser.py:333
+msgid "Blue Flag"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:102
+msgid "Bold text (Ctrl+B)"
+msgstr "Letra lodi (Ktrl+B)"
+
+#: ../dtop/aqt/toolbar.py:36
+msgid "Browse"
+msgstr "Arakatu"
+
+#: ../dtop/aqt/browser.py:794
+#, python-format
+msgid "Browse (%(cur)d card shown; %(sel)s)"
+msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/aqt/addons.py:712
+msgid "Browse Add-ons"
+msgstr ""
+
+#: ../dtop/aqt/forms/browserdisp.py:69
+msgid "Browser Appearance"
+msgstr "Nabigatzailearen Itxura"
+
+#: ../dtop/aqt/clayout.py:484
+msgid "Browser Appearance..."
+msgstr ""
+
+#: ../dtop/aqt/forms/browseropts.py:69
+msgid "Browser Options"
+msgstr "Arakatzailearen aukerak"
+
+#: ../dtop/aqt/dyndeckconf.py:20
+msgid "Build"
+msgstr "Eraiki"
+
+#: ../dtop/aqt/browser.py:1237
+msgid "Buried"
+msgstr ""
+
+#: ../dtop/aqt/overview.py:104
+msgid "Buried Siblings"
+msgstr ""
+
+#: ../dtop/aqt/reviewer.py:774 ../dtop/aqt/reviewer.py:780
+msgid "Bury"
+msgstr "lurperatu"
+
+#: ../dtop/aqt/reviewer.py:680
+msgid "Bury Card"
+msgstr "Karta lurperatu"
+
+#: ../dtop/aqt/reviewer.py:681
+msgid "Bury Note"
+msgstr "Oharra lurperatu"
+
+#: ../dtop/aqt/forms/dconf.py:361
+msgid "Bury related new cards until the next day"
+msgstr "hurrengo egun arte harremanak dituzten kartak lurperatu"
+
+#: ../dtop/aqt/forms/dconf.py:372
+msgid "Bury related reviews until the next day"
+msgstr "hurrengo egun arte harremanak dituzten ikuskatzeak lurperatu"
+
+#: ../dtop/aqt/importing.py:123
+msgid "By default, Anki will detect the character between fields, such as\n"
+"a tab, comma, and so on. If Anki is detecting the character incorrectly,\n"
+"you can enter it here. Use \\t to represent tab."
+msgstr "Lehenetsiz, Ankik eremuen artean karakterea antzemango du : Tabulazio bat,\n"
+"kakotx bat eta abar. Anki karakterea zuzenki detektatzen ez badu, han sar\n"
+"dezakezu. Erabili \\t tabulazio irudikatzeko."
+
+#: ../dtop/aqt/overview.py:106 ../dtop/aqt/sound.py:30 ../dtop/aqt/sync.py:299
+#: ../dtop/aqt/sync.py:321
+msgid "Cancel"
+msgstr "Utzi"
+
+#: ../dtop/aqt/browser.py:712
+msgid "Card"
+msgstr "Karta"
+
+#: ../dtop/aqt/clayout.py:411
+#, python-format
+msgid "Card %d"
+msgstr "%d karta"
+
+#: ../dtop/anki/stdmodels.py:22
+msgid "Card 1"
+msgstr "1 karta"
+
+#: ../dtop/anki/stdmodels.py:60
+msgid "Card 2"
+msgstr "bigarren karta"
+
+#: ../dtop/anki/stats.py:61
+msgid "Card ID"
+msgstr "Kartaren ID"
+
+#: ../dtop/aqt/forms/browser.py:315
+msgid "Card List"
+msgstr "Karta zerrenda"
+
+#: ../dtop/aqt/browser.py:1227
+msgid "Card State"
+msgstr "Karta egoera"
+
+#: ../dtop/anki/stats.py:57
+msgid "Card Type"
+msgstr "Karta mota"
+
+#: ../dtop/aqt/forms/clayout_top.py:57
+msgid "Card Type:"
+msgstr "Karta mota:"
+
+#: ../dtop/anki/stats.py:901 ../dtop/aqt/clayout.py:41
+msgid "Card Types"
+msgstr "Karta motak"
+
+#: ../dtop/aqt/clayout.py:57
+#, python-format
+msgid "Card Types for %s"
+msgstr "%s-(r)entzako karta motak"
+
+#: ../dtop/aqt/reviewer.py:777
+msgid "Card buried."
+msgstr "lurperatuta karta"
+
+#: ../dtop/aqt/reviewer.py:754
+msgid "Card suspended."
+msgstr "Karta zintzilik"
+
+#: ../dtop/aqt/reviewer.py:638
+msgid "Card was a leech."
+msgstr "Karta izain bat zen."
+
+#: ../dtop/anki/stats.py:336 ../dtop/anki/stats.py:969
+#: ../dtop/aqt/editor.py:155 ../dtop/aqt/forms/changemodel.py:112
+msgid "Cards"
+msgstr "Kartak"
+
+#: ../dtop/aqt/browser.py:1811
+msgid "Cards can't be manually moved into a filtered deck."
+msgstr "Kartak sorta iragazitako batera ezin mugi daitezke  eskuz"
+
+#: ../dtop/anki/exporting.py:83
+msgid "Cards in Plain Text"
+msgstr "Kartak in testu xumea"
+
+#: ../dtop/aqt/overview.py:154
+msgid "Cards will be automatically returned to their original decks after you review them."
+msgstr "zuk berrikusi eta gero kartak bere jatorrizko sortetara automatikoki itzuliko dira"
+
+#: ../dtop/aqt/models.py:56
+msgid "Cards..."
+msgstr "Kartak..."
+
+#: ../dtop/anki/consts.py:79
+msgid "Center"
+msgstr "Erdian"
+
+#: ../dtop/aqt/importing.py:254
+msgid "Change"
+msgstr "Aldatu"
+
+#: ../dtop/aqt/browser.py:2334
+#, python-format
+msgid "Change %s to:"
+msgstr "Aldatu %s :"
+
+#: ../dtop/aqt/browser.py:1802 ../dtop/aqt/browser.py:1814
+msgid "Change Deck"
+msgstr "Aldatu karta-sorta"
+
+#: ../dtop/aqt/forms/browser.py:329
+msgid "Change Deck..."
+msgstr ""
+
+#: ../dtop/aqt/browser.py:2420 ../dtop/aqt/forms/changemodel.py:109
+msgid "Change Note Type"
+msgstr "Aldatu ohar-mota"
+
+#: ../dtop/aqt/modelchooser.py:31
+msgid "Change Note Type (Ctrl+N)"
+msgstr "Aldatu ohar-mota (Ktrl+N)"
+
+#: ../dtop/aqt/forms/browser.py:310
+msgid "Change Note Type..."
+msgstr "Aldatu ohar-mota..."
+
+#: ../dtop/aqt/editor.py:125
+msgid "Change colour (F8)"
+msgstr "Kolore aldatu (F8)"
+
+#: ../dtop/aqt/forms/preferences.py:248
+msgid "Change deck depending on note type"
+msgstr "Aldatu karta-sorta nota-motaren arabera"
+
+#: ../dtop/aqt/browser.py:717
+msgid "Changed"
+msgstr "Aldatuta"
+
+#: ../dtop/aqt/clayout.py:111
+#, python-format
+msgid "Changes below will affect the %(cnt)d note that uses this card type."
+msgid_plural "Changes below will affect the %(cnt)d notes that use this card type."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/aqt/forms/addons.py:68
+msgid "Changes will take effect when Anki is restarted."
+msgstr ""
+
+#: ../dtop/aqt/preferences.py:110 ../dtop/aqt/preferences.py:234
+msgid "Changes will take effect when you restart Anki."
+msgstr ""
+
+#: ../dtop/aqt/forms/main.py:141
+msgid "Check &Media..."
+msgstr "Egiaztatu &Media"
+
+#: ../dtop/aqt/forms/addons.py:71
+msgid "Check for Updates"
+msgstr "Eguneraketak bilatu"
+
+#: ../dtop/aqt/forms/main.py:142
+msgid "Check the files in the media directory"
+msgstr "Egiaztatu edukien direktorioko fitxategiak"
+
+#: ../dtop/aqt/sync.py:129
+msgid "Checking media..."
+msgstr "Multimedia egiaztu"
+
+#: ../dtop/aqt/sync.py:127
+msgid "Checking..."
+msgstr "Egiaztatzen..."
+
+#: ../dtop/aqt/deckchooser.py:83 ../dtop/aqt/modelchooser.py:73
+msgid "Choose"
+msgstr "Aukeratu"
+
+#: ../dtop/aqt/deckchooser.py:84
+msgid "Choose Deck"
+msgstr "Aukeratu karta-sorta"
+
+#: ../dtop/aqt/modelchooser.py:74
+msgid "Choose Note Type"
+msgstr "Aukeratu nota-mota"
+
+#: ../dtop/aqt/customstudy.py:102
+msgid "Choose Tags"
+msgstr "Etiketak Aukeratu"
+
+#: ../dtop/aqt/browser.py:1253
+msgid "Clear Unused"
+msgstr ""
+
+#: ../dtop/aqt/forms/browser.py:335
+msgid "Clear Unused Tags"
+msgstr ""
+
+#: ../dtop/aqt/models.py:192
+#, python-format
+msgid "Clone: %s"
+msgstr "Klonatu: %s"
+
+#: ../dtop/aqt/addcards.py:71 ../dtop/aqt/clayout.py:272
+#: ../dtop/aqt/forms/browser.py:322
+msgid "Close"
+msgstr "Irten"
+
+#: ../dtop/aqt/addcards.py:241
+msgid "Close and lose current input?"
+msgstr "Irten eta uneko sarrera galdu?"
+
+#: ../dtop/aqt/main.py:452
+msgid "Closing..."
+msgstr "Ixten..."
+
+#: ../dtop/anki/stdmodels.py:99 ../dtop/anki/stdmodels.py:106
+#: ../dtop/anki/stdmodels.py:125 ../dtop/anki/storage.py:222
+msgid "Cloze"
+msgstr "hutsuneak betetzea"
+
+#: ../dtop/aqt/editor.py:135
+msgid "Cloze deletion (Ctrl+Shift+C)"
+msgstr ""
+
+#: ../dtop/aqt/forms/getaddons.py:50
+msgid "Code:"
+msgstr "Kodea:"
+
+#: ../dtop/aqt/exporting.py:140
+msgid "Collection exported."
+msgstr ""
+
+#: ../dtop/anki/collection.py:867
+msgid "Collection is corrupt. Please see the manual."
+msgstr "Bilduma oker dago. Mezedez jo ezazu eskuliburura."
+
+#: ../dtop/aqt/importing.py:167
+msgid "Colon"
+msgstr "Bi puntu"
+
+#: ../dtop/aqt/importing.py:161
+msgid "Comma"
+msgstr "Koma"
+
+#: ../dtop/aqt/forms/addons.py:73
+msgid "Config"
+msgstr "Konfig"
+
+#: ../dtop/aqt/forms/addonconf.py:70
+msgid "Configuration"
+msgstr "Konfigurazioa"
+
+#: ../dtop/aqt/forms/main.py:138
+msgid "Configure interface language and options"
+msgstr "Konfiguratu interfazearen hizkuntza eta aukerak"
+
+#: ../dtop/anki/sched.py:1255 ../dtop/anki/schedv2.py:1419
+msgid "Congratulations! You have finished this deck for now."
+msgstr "Zorionak! sorta hau amaitu duzu oraindik"
+
+#: ../dtop/aqt/sync.py:49
+msgid "Connecting..."
+msgstr "Konektatzen..."
+
+#: ../dtop/aqt/sync.py:223
+msgid "Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder."
+msgstr "Konexio epea  gaindituta dago : zure internet konexioak  zenbat arazo dauzka edo oso fixtategi handi bat daukazu zure euskarri direktorioan"
+
+#: ../dtop/aqt/reviewer.py:81
+msgid "Continue"
+msgstr "Jarraitu"
+
+#: ../dtop/aqt/about.py:40
+msgid "Copied to clipboard"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:1108 ../dtop/aqt/webview.py:183
+msgid "Copy"
+msgstr "Kopiatu"
+
+#: ../dtop/aqt/about.py:42
+msgid "Copy Debug Info"
+msgstr ""
+
+#: ../dtop/aqt/utils.py:100
+msgid "Copy to Clipboard"
+msgstr ""
+
+#: ../dtop/anki/stats.py:205
+#, python-format
+msgid "Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)"
+msgstr "erantzun zuzenak karta mardulentzat : %(a)d/%(b)d (%(c).1f%%)"
+
+#: ../dtop/anki/stats.py:728
+#, python-format
+msgid "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
+msgstr "zuzen :  <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
+
+#: ../dtop/aqt/addons.py:287 ../dtop/aqt/addons.py:333
+msgid "Corrupt add-on file."
+msgstr ""
+
+#: ../dtop/aqt/sync.py:179
+msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
+msgstr "Ezin izan da AnkiWeb-era konektatu. Mesedez egiaztatu zure sareko konexioa eta saiatu berriro."
+
+#: ../dtop/aqt/editor.py:680
+msgid "Couldn't record audio. Have you installed 'lame'?"
+msgstr ""
+
+#: ../dtop/aqt/exporting.py:126
+#, python-format
+msgid "Couldn't save file: %s"
+msgstr "Ezin izan da fitxategia gorde: %s"
+
+#: ../dtop/anki/stats.py:376 ../dtop/anki/stats.py:396
+msgid "Cram"
+msgstr "gogor ikasi"
+
+#: ../dtop/aqt/deckbrowser.py:318
+msgid "Create Deck"
+msgstr "sorta sortu"
+
+#: ../dtop/aqt/forms/main.py:153
+msgid "Create Filtered Deck..."
+msgstr "iragazitako sorta sortu"
+
+#: ../dtop/aqt/forms/modelopts.py:64
+msgid "Create scalable images with dvisvgm"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:715
+msgid "Created"
+msgstr "Sortuta"
+
+#: ../dtop/aqt/main.py:1059
+msgid "Ctrl+Alt+Z"
+msgstr "Ktrl+Alt+Z"
+
+#: ../dtop/aqt/deckchooser.py:33
+msgid "Ctrl+D"
+msgstr "Ktrl+D"
+
+#: ../dtop/aqt/modelchooser.py:33
+msgid "Ctrl+N"
+msgstr "Ktrl+N"
+
+#: ../dtop/aqt/browser.py:593
+msgid "Ctrl+Shift+P"
+msgstr "Ktrl+Shift+P"
+
+#: ../dtop/anki/stats.py:253
+msgid "Cumulative"
+msgstr "Metatuta"
+
+#: ../dtop/anki/stats.py:408
+#, python-format
+msgid "Cumulative %s"
+msgstr "Metatuta %s"
+
+#: ../dtop/anki/stats.py:383
+msgid "Cumulative Answers"
+msgstr "Erantzun Metatutak"
+
+#: ../dtop/anki/stats.py:268 ../dtop/anki/stats.py:336
+msgid "Cumulative Cards"
+msgstr "Karta Metatutak"
+
+#: ../dtop/aqt/browser.py:1086 ../dtop/aqt/browser.py:1210
+msgid "Current Deck"
+msgstr "Uneko karta-sorta"
+
+#: ../dtop/aqt/forms/changemodel.py:110
+msgid "Current note type:"
+msgstr "Uneko ohar-mota"
+
+#: ../dtop/aqt/overview.py:225 ../dtop/aqt/forms/customstudy.py:100
+msgid "Custom Study"
+msgstr "Ikasketa itxuratuta"
+
+#: ../dtop/aqt/customstudy.py:136 ../dtop/aqt/customstudy.py:148
+msgid "Custom Study Session"
+msgstr "Ikasketa itxuratutako Saio"
+
+#: ../dtop/aqt/forms/dyndconf.py:147
+msgid "Custom steps (in minutes)"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:158
+msgid "Customize Card Templates (Ctrl+L)"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:157
+msgid "Customize Fields"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:1106
+msgid "Cut"
+msgstr "Ebaki"
+
+#: ../dtop/anki/collection.py:1052
+msgid "Database rebuilt and optimized."
+msgstr "Datu-basea berreraiki eta optimizatuta."
+
+#: ../dtop/aqt/browser.py:1419
+msgid "Date"
+msgstr "Data"
+
+#: ../dtop/anki/stats.py:427
+msgid "Days studied"
+msgstr "Egun ikasitakoak"
+
+#: ../dtop/aqt/forms/preferences.py:262
+msgid "Deauthorize"
+msgstr "Baimena kendu"
+
+#: ../dtop/aqt/forms/debug.py:46
+msgid "Debug Console"
+msgstr "Arazketa kontsola"
+
+#: ../dtop/anki/stats.py:59 ../dtop/aqt/browser.py:713
+#: ../dtop/aqt/deckbrowser.py:150 ../dtop/aqt/deckchooser.py:26
+#: ../dtop/aqt/forms/importing.py:97
+msgid "Deck"
+msgstr "Sorta"
+
+#: ../dtop/aqt/clayout.py:481
+msgid "Deck Override..."
+msgstr ""
+
+#: ../dtop/aqt/main.py:1486
+msgid "Deck will be imported when a profile is opened."
+msgstr "profila ireki bezain laster sorta inportuta izango da"
+
+#: ../dtop/aqt/browser.py:1281 ../dtop/aqt/toolbar.py:34
+msgid "Decks"
+msgstr "Karta-sortak"
+
+#: ../dtop/anki/consts.py:90
+msgid "Decreasing intervals"
+msgstr "Tarte beherakorrak"
+
+#: ../dtop/anki/decks.py:55 ../dtop/anki/storage.py:336
+#: ../dtop/aqt/deckchooser.py:50 ../dtop/aqt/deckchooser.py:54
+#: ../dtop/aqt/deckchooser.py:73
+msgid "Default"
+msgstr "Lehenetsia"
+
+#: ../dtop/anki/stats.py:611
+msgid "Delays until reviews are shown again."
+msgstr "berrikusi arte epeak berriro erakutsiak dira"
+
+#: ../dtop/aqt/deckbrowser.py:246 ../dtop/aqt/deckconf.py:83
+#: ../dtop/aqt/models.py:51 ../dtop/aqt/reviewer.py:762
+#: ../dtop/aqt/forms/addons.py:76 ../dtop/aqt/forms/browser.py:327
+#: ../dtop/aqt/forms/fields.py:102 ../dtop/aqt/forms/profiles.py:78
+msgid "Delete"
+msgstr "Ezabatu"
+
+#: ../dtop/aqt/main.py:1331
+msgid "Delete Cards"
+msgstr "Ezabatu kartak"
+
+#: ../dtop/aqt/deckbrowser.py:289
+msgid "Delete Deck"
+msgstr "Ezabatu karta-sorta"
+
+#: ../dtop/aqt/main.py:1337
+msgid "Delete Empty"
+msgstr "hutsa kendu"
+
+#: ../dtop/aqt/reviewer.py:684
+msgid "Delete Note"
+msgstr "Ezabatu oharra"
+
+#: ../dtop/aqt/browser.py:1755
+msgid "Delete Notes"
+msgstr "Ezabatu oharrak"
+
+#: ../dtop/aqt/browser.py:1861
+msgid "Delete Tags"
+msgstr "Ezabatu etiketak"
+
+#: ../dtop/aqt/main.py:1263
+msgid "Delete Unused Files"
+msgstr ""
+
+#: ../dtop/aqt/fields.py:97
+#, python-format
+msgid "Delete field from %s?"
+msgstr "zutabea kendu %s-tik"
+
+#: ../dtop/aqt/addons.py:613
+#, python-format
+msgid "Delete the %(num)d selected add-on?"
+msgid_plural "Delete the %(num)d selected add-ons?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/aqt/clayout.py:231
+#, python-format
+msgid "Delete the '%(a)s' card type, and its %(b)s?"
+msgstr "'%(a)s'-ren kartako mota kendu, eta bere %(b)s?"
+
+#: ../dtop/aqt/models.py:108
+msgid "Delete this note type and all its cards?"
+msgstr "Ezabatu ohar-mota hau eta bere karta guztiak?"
+
+#: ../dtop/aqt/models.py:110
+msgid "Delete this unused note type?"
+msgstr "Erabili gabeko ohar-mota hau ezabatu?"
+
+#: ../dtop/aqt/main.py:1276
+msgid "Delete unused media?"
+msgstr "ez dena erabiltzen media kendu ?"
+
+#: ../dtop/anki/collection.py:956
+#, python-format
+msgid "Deleted %d card with missing note."
+msgid_plural "Deleted %d cards with missing note."
+msgstr[0] "oharrik gabeko %d karta kenduta"
+msgstr[1] "oharrik gabeko %d karta kenduta"
+
+#: ../dtop/anki/collection.py:907
+#, python-format
+msgid "Deleted %d card with missing template."
+msgid_plural "Deleted %d cards with missing template."
+msgstr[0] "eremurik gabeko %d karta kenduta"
+msgstr[1] "eremurik gabeko %d karta kendutak"
+
+#: ../dtop/aqt/main.py:1306
+#, python-format
+msgid "Deleted %d file."
+msgid_plural "Deleted %d files."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/anki/collection.py:877
+#, python-format
+msgid "Deleted %d note with missing note type."
+msgid_plural "Deleted %d notes with missing note type."
+msgstr[0] "ohar motarrik gabeko %d karta ezabatuta"
+msgstr[1] "ohar motarrik gabeko %d karta ezabatutak"
+
+#: ../dtop/anki/collection.py:940
+#, python-format
+msgid "Deleted %d note with no cards."
+msgid_plural "Deleted %d notes with no cards."
+msgstr[0] "kartarik gabe %d oharra"
+msgstr[1] "kartarik gabe %d oharrak"
+
+#: ../dtop/anki/collection.py:924
+#, python-format
+msgid "Deleted %d note with wrong field count."
+msgid_plural "Deleted %d notes with wrong field count."
+msgstr[0] "eremu zenbaketa okerrarekin %d ohar ezabatuta"
+msgstr[1] "eremu zenbaketa okerrarekin %d ohar ezabatuta"
+
+#: ../dtop/aqt/overview.py:159
+msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
+msgstr "Sorta zerrendatik sorta hau kentzeak geratutako karta guztiak bere jatorrizko sortetara mugituko ditu"
+
+#: ../dtop/aqt/forms/dconf.py:394
+msgid "Description"
+msgstr "Deskribapena"
+
+#: ../dtop/aqt/forms/dconf.py:393
+msgid "Description to show on study screen (current deck only):"
+msgstr "Ikasi pantailan erakusteko deskribapena (bakarrik sorta azkenerako ):"
+
+#: ../dtop/aqt/forms/dyndconf.py:132 ../dtop/aqt/forms/editaddon.py:40
+#: ../dtop/aqt/forms/editcurrent.py:41 ../dtop/aqt/forms/progress.py:40
+msgid "Dialog"
+msgstr "Elkarrizketa"
+
+#: ../dtop/aqt/sync.py:299 ../dtop/aqt/sync.py:321 ../dtop/aqt/sync.py:327
+msgid "Download from AnkiWeb"
+msgstr "AnkiWebetik deskargatu"
+
+#: ../dtop/aqt/addons.py:342
+#, python-format
+msgid "Downloaded %(fname)s"
+msgstr ""
+
+#: ../dtop/aqt/sync.py:125
+msgid "Downloading from AnkiWeb..."
+msgstr "AnkiWebetik deskargatzen ...."
+
+#: ../dtop/anki/stats.py:43 ../dtop/aqt/browser.py:718
+#: ../dtop/aqt/browser.py:1234 ../dtop/aqt/deckbrowser.py:151
+msgid "Due"
+msgstr "Zor izanda"
+
+#: ../dtop/aqt/forms/customstudy.py:112
+msgid "Due cards only"
+msgstr "Bakarrik zor izanda dauden kartak"
+
+#: ../dtop/anki/stats.py:289
+msgid "Due tomorrow"
+msgstr "Biharko zor izanda"
+
+#: ../dtop/aqt/forms/main.py:136
+msgid "E&xit"
+msgstr "I&rten"
+
+#: ../dtop/anki/stats.py:46 ../dtop/aqt/browser.py:720
+#: ../dtop/aqt/browser.py:1424
+msgid "Ease"
+msgstr "Erraztasun"
+
+#: ../dtop/aqt/reviewer.py:595 ../dtop/aqt/reviewer.py:597
+msgid "Easy"
+msgstr "Erraza"
+
+#: ../dtop/aqt/forms/dconf.py:365
+msgid "Easy bonus"
+msgstr "Erraztasunako hobaria"
+
+#: ../dtop/aqt/forms/dconf.py:357
+msgid "Easy interval"
+msgstr "Erraztasunako tarte"
+
+#: ../dtop/aqt/reviewer.py:533
+msgid "Edit"
+msgstr "Editatu"
+
+#: ../dtop/aqt/addcards.py:155
+#, python-format
+msgid "Edit \"%s\""
+msgstr "Editatu \"%s\""
+
+#: ../dtop/aqt/editcurrent.py:19
+msgid "Edit Current"
+msgstr "Editatu azkena"
+
+#: ../dtop/aqt/editor.py:874
+msgid "Edit HTML"
+msgstr "HTML editatu"
+
+#: ../dtop/aqt/browser.py:716
+msgid "Edited"
+msgstr "Editatua"
+
+#: ../dtop/aqt/forms/fields.py:105
+msgid "Editing Font"
+msgstr "Letra-Tipoa editatzen"
+
+#: ../dtop/aqt/overview.py:223
+msgid "Empty"
+msgstr "Huts"
+
+#: ../dtop/aqt/forms/main.py:152
+msgid "Empty Cards..."
+msgstr "Karta hutsak"
+
+#: ../dtop/anki/collection.py:584
+#, python-format
+msgid "Empty card numbers: %(c)s\n"
+"Fields: %(f)s\n\n"
+msgstr "Karta hutsetako zenbakiak : %(c)s\n"
+"Eremuak : %(f)s\n\n"
+
+#: ../dtop/anki/importing/noteimp.py:199
+msgid "Empty cards found. Please run Tools>Empty Cards."
+msgstr "Karta huts aurkitutakoak. Mesedez, exekutatu Tresnak> Karta Hutsak"
+
+#: ../dtop/anki/importing/noteimp.py:151
+#, python-format
+msgid "Empty first field: %s"
+msgstr "Hustu lehenengo eremua: %s"
+
+#: ../dtop/aqt/forms/dyndconf.py:143
+msgid "Enable second filter"
+msgstr ""
+
+#: ../dtop/aqt/forms/browser.py:321
+msgid "End"
+msgstr "Bukatu"
+
+#: ../dtop/aqt/clayout.py:525
+#, python-format
+msgid "Enter deck to place new %s cards in, or leave blank:"
+msgstr "non %s karta berriak jarriko duen sorta sartu edo huts utzi"
+
+#: ../dtop/aqt/clayout.py:392
+#, python-format
+msgid "Enter new card position (1...%s):"
+msgstr "karta berriaren lekua sartu (1.. %s):"
+
+#: ../dtop/aqt/browser.py:1841
+msgid "Enter tags to add:"
+msgstr "Etiketak sartu eransteko"
+
+#: ../dtop/aqt/browser.py:1863
+msgid "Enter tags to delete:"
+msgstr "Sartu ezabatzeko etiketak"
+
+#: ../dtop/aqt/addons.py:321 ../dtop/aqt/addons.py:339
+#, python-format
+msgid "Error downloading %(id)s: %(error)s"
+msgstr ""
+
+#: ../dtop/aqt/main.py:76
+#, python-format
+msgid "Error during startup:\n"
+"%s"
+msgstr "Abiarazteko akatsa:\n"
+"%s"
+
+#: ../dtop/aqt/sync.py:237 ../dtop/aqt/sync.py:244
+msgid "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
+msgstr "Akats bat gertatu zen konexio segur bat jarririk."
+
+#: ../dtop/anki/latex.py:169
+#, python-format
+msgid "Error executing %s."
+msgstr "Errorea %s exekutatzean."
+
+#: ../dtop/aqt/addons.py:294
+#, python-format
+msgid "Error installing <i>%(base)s</i>: %(error)s"
+msgstr ""
+
+#: ../dtop/anki/sound.py:381
+#, python-format
+msgid "Error running %s"
+msgstr "Errorea %s martxan jartzean"
+
+#: ../dtop/aqt/deckbrowser.py:244 ../dtop/aqt/exporting.py:108
+#: ../dtop/aqt/forms/exporting.py:74
+msgid "Export"
+msgstr "Esportatu"
+
+#: ../dtop/aqt/exporting.py:44
+msgid "Export..."
+msgstr "Esportatu..."
+
+#: ../dtop/aqt/exporting.py:131
+#, python-format
+msgid "Exported %d media file"
+msgid_plural "Exported %d media files"
+msgstr[0] "euskarri fitxategi esportatua %d"
+msgstr[1] "%d euskarri fitxategi esportatuak"
+
+#: ../dtop/anki/stdmodels.py:104 ../dtop/anki/stdmodels.py:119
+msgid "Extra"
+msgstr "Estra"
+
+#: ../dtop/aqt/importing.py:245
+#, python-format
+msgid "Field <b>%d</b> of file is:"
+msgstr "filtxategiko  <b>%d</b> eremua da :"
+
+#: ../dtop/aqt/forms/importing.py:102
+msgid "Field mapping"
+msgstr "Eremutako korrespondentzia"
+
+#: ../dtop/aqt/fields.py:81
+msgid "Field name:"
+msgstr "Eremu izena"
+
+#: ../dtop/aqt/forms/addfield.py:75
+msgid "Field:"
+msgstr "Eremua:"
+
+#: ../dtop/aqt/editor.py:154 ../dtop/aqt/fields.py:20
+#: ../dtop/aqt/forms/changemodel.py:113 ../dtop/aqt/forms/fields.py:100
+msgid "Fields"
+msgstr "Eremuak"
+
+#: ../dtop/aqt/fields.py:23
+#, python-format
+msgid "Fields for %s"
+msgstr "%s-ko eremuak"
+
+#: ../dtop/aqt/importing.py:170
+#, python-format
+msgid "Fields separated by: %s"
+msgstr "%s-(e)k banatzen dituen eremuak"
+
+#: ../dtop/aqt/models.py:54
+msgid "Fields..."
+msgstr "Eremuak..."
+
+#: ../dtop/aqt/forms/browser.py:314
+msgid "Fil&ter"
+msgstr ""
+
+#: ../dtop/anki/importing/mnemo.py:23
+msgid "File version unknown, trying import anyway."
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1270 ../dtop/aqt/forms/dyndconf.py:133
+msgid "Filter"
+msgstr "Iragazia"
+
+#: ../dtop/aqt/forms/dyndconf.py:137
+msgid "Filter 2"
+msgstr "Iragazki 2"
+
+#: ../dtop/aqt/forms/browser.py:294
+msgid "Filter..."
+msgstr "Iragazki..."
+
+#: ../dtop/aqt/forms/studydeck.py:46
+msgid "Filter:"
+msgstr "Iragazkia:"
+
+#: ../dtop/aqt/browser.py:1433
+msgid "Filtered"
+msgstr "Iragazia"
+
+#: ../dtop/aqt/main.py:1036 ../dtop/aqt/main.py:1038
+#, python-format
+msgid "Filtered Deck %d"
+msgstr "Sorta iragazitakoa %d"
+
+#: ../dtop/aqt/forms/browser.py:316
+msgid "Find &Duplicates..."
+msgstr "Aurkitu bizkoitutak"
+
+#: ../dtop/aqt/forms/finddupes.py:62
+msgid "Find Duplicates"
+msgstr "Bilatu bikoiztuak"
+
+#: ../dtop/aqt/forms/browser.py:312
+msgid "Find and Re&place..."
+msgstr "Aurkitu eta  ordeztu"
+
+#: ../dtop/aqt/browser.py:2074 ../dtop/aqt/forms/findreplace.py:68
+msgid "Find and Replace"
+msgstr "Bilatu eta ordeztu"
+
+#: ../dtop/aqt/reviewer.py:80
+msgid "Finish"
+msgstr "Bukatu"
+
+#: ../dtop/aqt/forms/browser.py:318
+msgid "First Card"
+msgstr "Lehengo karta"
+
+#: ../dtop/anki/stats.py:31
+msgid "First Review"
+msgstr "Lehen berrikuspena"
+
+#: ../dtop/anki/importing/noteimp.py:130
+#, python-format
+msgid "First field matched: %s"
+msgstr "bat datorren lehen eremua : %s"
+
+#: ../dtop/anki/collection.py:972 ../dtop/anki/collection.py:990
+#, python-format
+msgid "Fixed %d card with invalid properties."
+msgid_plural "Fixed %d cards with invalid properties."
+msgstr[0] "Ezaugarri baliogabe dauzkan %d karta finkatuta"
+msgstr[1] "Ezaugarri baliogabe dauzkan %d karta finkatutak"
+
+#: ../dtop/anki/collection.py:889
+msgid "Fixed AnkiDroid deck override bug."
+msgstr "AnkiDroid sorta ordezteko zorria finkatuta da."
+
+#: ../dtop/anki/collection.py:895
+#, python-format
+msgid "Fixed note type: %s"
+msgstr "ohar mota finkatuta : %s"
+
+#: ../dtop/aqt/forms/browser.py:299
+msgid "Flag"
+msgstr ""
+
+#: ../dtop/aqt/reviewer.py:651
+msgid "Flag Card"
+msgstr ""
+
+#: ../dtop/aqt/clayout.py:267
+msgid "Flip"
+msgstr "alderantzikatu"
+
+#: ../dtop/aqt/profiles.py:235
+msgid "Folder already exists."
+msgstr "Jadanik direktorioa existitzen da"
+
+#: ../dtop/aqt/forms/addfield.py:76
+msgid "Font:"
+msgstr "Letra-tipoa:"
+
+#: ../dtop/aqt/forms/modelopts.py:66
+msgid "Footer"
+msgstr "Oina"
+
+#: ../dtop/anki/latex.py:129
+#, python-format
+msgid "For security reasons, '%s' is not allowed on cards. You can still use it by placing the command in a different package, and importing that package in the LaTeX header instead."
+msgstr "Segurtasunagatik, '%s' kartetan sartzea  debekatuta dago. Alabaina, erabil dezakezu beste pakete batean kommandoa sartzerik eta gero LateX goiburukoan pakete hori inportaŧzea beharrean."
+
+#: ../dtop/anki/stats.py:260
+msgid "Forecast"
+msgstr "Iragarpena"
+
+#: ../dtop/aqt/forms/clayout_top.py:56 ../dtop/aqt/forms/preview.py:39
+#: ../dtop/aqt/forms/template.py:106
+msgid "Form"
+msgstr "Forma"
+
+#: ../dtop/aqt/browser.py:2152
+#, python-format
+msgid "Found %(a)s across %(b)s."
+msgstr "%(b)s -en zehar %(a)s aurkituta"
+
+#: ../dtop/anki/exporting.py:365 ../dtop/anki/stdmodels.py:18
+#: ../dtop/anki/stdmodels.py:23 ../dtop/anki/stdmodels.py:45
+#: ../dtop/anki/stdmodels.py:46 ../dtop/anki/stdmodels.py:62
+#: ../dtop/aqt/forms/addfield.py:74
+msgid "Front"
+msgstr "Aurrea"
+
+#: ../dtop/aqt/forms/preview.py:40
+msgid "Front Preview"
+msgstr "Aurreko aurreikustea"
+
+#: ../dtop/aqt/forms/template.py:107
+msgid "Front Template"
+msgstr "Aurreko txantxiloia"
+
+#: ../dtop/aqt/forms/dconf.py:392
+msgid "General"
+msgstr "Orokorra"
+
+#: ../dtop/anki/latex.py:170
+#, python-format
+msgid "Generated file: %s"
+msgstr "fitxategi sortua : %s"
+
+#: ../dtop/anki/stats.py:954
+#, python-format
+msgid "Generated on %s"
+msgstr "%s-(e)an sortuta"
+
+#: ../dtop/aqt/forms/addons.py:69
+msgid "Get Add-ons..."
+msgstr ""
+
+#: ../dtop/aqt/deckbrowser.py:317
+msgid "Get Shared"
+msgstr "partekatuta lortu"
+
+#: ../dtop/aqt/reviewer.py:593 ../dtop/aqt/reviewer.py:595
+#: ../dtop/aqt/reviewer.py:597
+msgid "Good"
+msgstr "Ondo"
+
+#: ../dtop/aqt/forms/dconf.py:358
+msgid "Graduating interval"
+msgstr "gainditzeko tartea"
+
+#: ../dtop/aqt/browser.py:1241 ../dtop/aqt/reviewer.py:666
+#: ../dtop/aqt/forms/browser.py:332
+msgid "Green Flag"
+msgstr ""
+
+#: ../dtop/aqt/forms/edithtml.py:37
+msgid "HTML Editor"
+msgstr "HTML editorea"
+
+#: ../dtop/aqt/reviewer.py:597
+msgid "Hard"
+msgstr "Gogorra"
+
+#: ../dtop/aqt/forms/dconf.py:373
+msgid "Hard interval"
+msgstr ""
+
+#: ../dtop/aqt/forms/preferences.py:240
+msgid "Hardware acceleration (faster, may cause display issues)"
+msgstr ""
+
+#: ../dtop/anki/latex.py:178
+msgid "Have you installed latex and dvipng/dvisvgm?"
+msgstr ""
+
+#: ../dtop/aqt/forms/modelopts.py:65
+msgid "Header"
+msgstr "Goiburua"
+
+#: ../dtop/aqt/addcards.py:75 ../dtop/aqt/clayout.py:257
+#: ../dtop/aqt/utils.py:164 ../dtop/aqt/utils.py:165
+msgid "Help"
+msgstr "Laguntza"
+
+#: ../dtop/anki/stats.py:894
+msgid "Highest ease"
+msgstr "erraztasun handiena"
+
+#: ../dtop/aqt/addcards.py:79
+msgid "History"
+msgstr "Historia"
+
+#: ../dtop/aqt/forms/browser.py:319
+msgid "Home"
+msgstr "Direktorio Pertsonala"
+
+#: ../dtop/anki/stats.py:806
+msgid "Hourly Breakdown"
+msgstr "ordu-zatiketa"
+
+#: ../dtop/anki/stats.py:403
+msgid "Hours"
+msgstr "Orduak"
+
+#: ../dtop/anki/stats.py:836
+msgid "Hours with less than 30 reviews are not shown."
+msgstr "30 berrikuspen baino gutxiagoko orduak ez dira erakusten."
+
+#: ../dtop/anki/importing/anki2.py:171
+msgid "Identical"
+msgstr ""
+
+#: ../dtop/aqt/about.py:164
+msgid "If you have contributed and are not on this list, please get in touch."
+msgstr "parte hartu baduzu eta zerrenda honetan ez bazaude, berria eman mesedez"
+
+#: ../dtop/anki/stats.py:447
+msgid "If you studied every day"
+msgstr "egunero ikasi baduzu"
+
+#: ../dtop/aqt/forms/dconf.py:387
+msgid "Ignore answer times longer than"
+msgstr "erantzun denbora handiena bazter uzti baino lehen :"
+
+#: ../dtop/aqt/forms/findreplace.py:73
+msgid "Ignore case"
+msgstr "Ezikusi maius./minus."
+
+#: ../dtop/aqt/importing.py:50
+msgid "Ignore field"
+msgstr "Ezikusi egin eremuari"
+
+#: ../dtop/aqt/forms/importing.py:99
+msgid "Ignore lines where first field matches existing note"
+msgstr "dagoeneko existitzen den lehengo eremu dauzkaten kartak bazter uzti"
+
+#: ../dtop/aqt/update.py:65
+msgid "Ignore this update"
+msgstr "Ezikusi egin eguneratze honi"
+
+#: ../dtop/aqt/importing.py:96 ../dtop/aqt/importing.py:188
+#: ../dtop/aqt/importing.py:299 ../dtop/aqt/forms/changemap.py:41
+#: ../dtop/aqt/forms/importing.py:94
+msgid "Import"
+msgstr "Inportatu"
+
+#: ../dtop/aqt/deckbrowser.py:319
+msgid "Import File"
+msgstr "Inportatu fitxategia"
+
+#: ../dtop/aqt/forms/importing.py:100
+msgid "Import even if existing note has same first field"
+msgstr "lehen eremu berea daukan ohar existitua bat dagoen arren, inportatzen da ?"
+
+#: ../dtop/aqt/importing.py:195 ../dtop/aqt/importing.py:398
+msgid "Import failed.\n"
+msgstr "Inportatzea huts eginda\n"
+
+#: ../dtop/aqt/importing.py:353
+msgid "Import failed. Debugging info:\n"
+msgstr "inportatzea huts eginda. Arazketako informazioa :\n"
+
+#: ../dtop/aqt/forms/importing.py:95
+msgid "Import options"
+msgstr "Inportatzeko aukerak"
+
+#: ../dtop/aqt/importing.py:207
+msgid "Importing complete."
+msgstr "inportatzea osatuta"
+
+#: ../dtop/aqt/main.py:1095
+#, python-format
+msgid "In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.\n\n"
+"Please go to the time settings on your computer and check the following:\n\n"
+"- AM/PM\n"
+"- Clock drift\n"
+"- Day, month and year\n"
+"- Timezone\n"
+"- Daylight savings\n\n"
+"Difference to correct time: %s."
+msgstr "Gailu batetik beste batera mugitu duzun bilduma ondo dabilela egiaztatzeko, Anki-k zure ordenagiluko barne-erlojua konpontuta dagoela behar du. Barne-erlojua oker ibil daiteke, nahiz eta zure sistemak tokiko denbora zuzena erakusten duen.\n\n"
+"Mesedez, denborako kudeatzailera joan eta hori zehaztu : \n\n"
+"- AM/PM\n"
+"- erlojuaren joera\n"
+"- Egun, hilabete eta urte\n"
+"- ordu eremua\n"
+"- Udako ordutegia\n\n"
+"kendura denbora zuzenera : %s"
+
+#: ../dtop/aqt/forms/exporting.py:80
+msgid "Include HTML and media references"
+msgstr ""
+
+#: ../dtop/aqt/forms/exporting.py:78
+msgid "Include media"
+msgstr "Sartu euskarria"
+
+#: ../dtop/aqt/forms/exporting.py:77
+msgid "Include scheduling information"
+msgstr "Sartu antolaketako informazioa"
+
+#: ../dtop/aqt/forms/exporting.py:79
+msgid "Include tags"
+msgstr "Sartu etiketak"
+
+#: ../dtop/aqt/forms/customstudy.py:103
+msgid "Increase today's new card limit"
+msgstr "Gaurko karta berrietan muga handitu"
+
+#: ../dtop/aqt/customstudy.py:71
+msgid "Increase today's new card limit by"
+msgstr "Gaurko karta berri mugako gehikuntza :"
+
+#: ../dtop/aqt/forms/customstudy.py:104
+msgid "Increase today's review card limit"
+msgstr "gaurko kartako muga handitu"
+
+#: ../dtop/aqt/customstudy.py:83
+msgid "Increase today's review limit by"
+msgstr "Gaurko berrikusi mugako gehikuntza :"
+
+#: ../dtop/anki/consts.py:89
+msgid "Increasing intervals"
+msgstr "tarteak handitik"
+
+#: ../dtop/aqt/forms/getaddons.py:48
+msgid "Install Add-on"
+msgstr "Hedadura  instalatu"
+
+#: ../dtop/aqt/addons.py:633
+msgid "Install Add-on(s)"
+msgstr ""
+
+#: ../dtop/aqt/forms/addons.py:70
+msgid "Install from file..."
+msgstr ""
+
+#: ../dtop/aqt/addons.py:299
+#, python-format
+msgid "Installed %(name)s"
+msgstr ""
+
+#: ../dtop/aqt/forms/preferences.py:239 ../dtop/aqt/forms/setlang.py:40
+msgid "Interface language:"
+msgstr "Interfazeko hizkuntza"
+
+#: ../dtop/anki/stats.py:45 ../dtop/aqt/browser.py:719
+#: ../dtop/aqt/browser.py:1423
+msgid "Interval"
+msgstr "Denbora-tartea"
+
+#: ../dtop/aqt/forms/dconf.py:368
+msgid "Interval modifier"
+msgstr "tarte aldatzaile"
+
+#: ../dtop/anki/stats.py:611
+msgid "Intervals"
+msgstr "Tarteak"
+
+#: ../dtop/aqt/addons.py:289 ../dtop/aqt/addons.py:335
+msgid "Invalid add-on manifest."
+msgstr ""
+
+#: ../dtop/aqt/downloader.py:68
+msgid "Invalid code, or add-on not available for your version of Anki."
+msgstr ""
+
+#: ../dtop/aqt/addons.py:727
+msgid "Invalid code."
+msgstr "Kode baliogabea."
+
+#: ../dtop/aqt/addons.py:807
+msgid "Invalid configuration: "
+msgstr "Baliogabe konfigurazioa: "
+
+#: ../dtop/aqt/addons.py:811
+msgid "Invalid configuration: top level object must be a map"
+msgstr ""
+
+#: ../dtop/anki/media.py:329
+#, python-format
+msgid "Invalid file name, please rename: %s"
+msgstr ""
+
+#: ../dtop/aqt/importing.py:384
+msgid "Invalid file. Please restore from backup."
+msgstr "Fitxategia baliogabea. Mesedez, babeskopiatik lehengoratu."
+
+#: ../dtop/aqt/main.py:1144
+msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
+msgstr "kartan ezaugarri baliogabe bat dago. Mesedez erabili Tresnak> Egiaztatu Datu-basea eta arazoak agertzen bada berriro, Anki webgunean galdetu"
+
+#: ../dtop/aqt/browser.py:2087
+msgid "Invalid regular expression."
+msgstr "Adierazpen erregularra baliogabea."
+
+#: ../dtop/aqt/browser.py:175
+msgid "Invalid search - please check for typing mistakes."
+msgstr ""
+
+#: ../dtop/aqt/reviewer.py:640
+msgid "It has been suspended."
+msgstr "zintzilikatuta zegoen"
+
+#: ../dtop/aqt/editor.py:104
+msgid "Italic text (Ctrl+I)"
+msgstr "Etzan letra (Ktrl+I)"
+
+#: ../dtop/aqt/editor.py:518
+msgid "Jump to tags with Ctrl+Shift+T"
+msgstr "Krtl+Shift+T etiketetara joateko"
+
+#: ../dtop/aqt/forms/preferences.py:265
+msgid "Keep"
+msgstr "Gorde"
+
+#: ../dtop/aqt/editor.py:871 ../dtop/aqt/forms/modelopts.py:67
+msgid "LaTeX"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:872
+msgid "LaTeX equation"
+msgstr "LaTeX ekuazioa"
+
+#: ../dtop/aqt/editor.py:873
+msgid "LaTeX math env."
+msgstr "Latex Math  ingurunea"
+
+#: ../dtop/anki/stats.py:48 ../dtop/aqt/browser.py:722
+#: ../dtop/aqt/forms/dconf.py:386
+msgid "Lapses"
+msgstr "Hutsegiteak"
+
+#: ../dtop/aqt/forms/browser.py:320
+msgid "Last Card"
+msgstr "Karta azkena"
+
+#: ../dtop/anki/stats.py:32
+msgid "Latest Review"
+msgstr "Azken berrikuspena"
+
+#: ../dtop/anki/consts.py:94
+msgid "Latest added first"
+msgstr "lehengoan gehituta azkena"
+
+#: ../dtop/anki/stats.py:375 ../dtop/anki/stats.py:395
+#: ../dtop/aqt/browser.py:1433
+msgid "Learn"
+msgstr "Ikasi"
+
+#: ../dtop/aqt/forms/preferences.py:252
+msgid "Learn ahead limit"
+msgstr "muga arte ikasi"
+
+#: ../dtop/anki/stats.py:192
+#, python-format
+msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
+msgstr "Ikasitak : %(a)s, Berrikusitak : %(b)s , Berrikasitak : %(c)s, Iragazitak : %(d)s"
+
+#: ../dtop/anki/stats.py:701 ../dtop/aqt/browser.py:1232
+#: ../dtop/aqt/overview.py:198
+msgid "Learning"
+msgstr "Ikasten"
+
+#: ../dtop/aqt/forms/dconf.py:380
+msgid "Leech action"
+msgstr "Neketsuko tratamendua"
+
+#: ../dtop/aqt/forms/dconf.py:378
+msgid "Leech threshold"
+msgstr "Neketsua izateko ataria"
+
+#: ../dtop/anki/consts.py:80
+msgid "Left"
+msgstr "Ezkerra"
+
+#: ../dtop/aqt/forms/dyndconf.py:134 ../dtop/aqt/forms/dyndconf.py:138
+msgid "Limit to"
+msgstr "Mugatu hona:"
+
+#: ../dtop/aqt/utils.py:25
+msgid "Loading..."
+msgstr "Kargatzen..."
+
+#: ../dtop/aqt/sync.py:298
+msgid "Local collection has no cards. Download from AnkiWeb?"
+msgstr ""
+
+#: ../dtop/anki/stats.py:634
+msgid "Longest interval"
+msgstr "tarte handiena"
+
+#: ../dtop/anki/stats.py:892
+msgid "Lowest ease"
+msgstr "erraztasuna txikiena"
+
+#: ../dtop/aqt/modelchooser.py:65
+msgid "Manage"
+msgstr "Kudeatu"
+
+#: ../dtop/aqt/forms/main.py:154
+msgid "Manage Note Types"
+msgstr ""
+
+#: ../dtop/aqt/forms/browser.py:336
+msgid "Manage Note Types..."
+msgstr "ohar motakoak kudeatu..."
+
+#: ../dtop/aqt/browser.py:1289 ../dtop/aqt/forms/dconf.py:353
+msgid "Manage..."
+msgstr ""
+
+#: ../dtop/aqt/overview.py:103
+msgid "Manually Buried Cards"
+msgstr ""
+
+#: ../dtop/aqt/importing.py:43
+#, python-format
+msgid "Map to %s"
+msgstr "lotu %s-(r)ekin"
+
+#: ../dtop/aqt/importing.py:49
+msgid "Map to Tags"
+msgstr "Etiketeekin kidetu"
+
+#: ../dtop/aqt/reviewer.py:679
+msgid "Mark Note"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:869
+msgid "MathJax block"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:870
+msgid "MathJax chemistry"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:868
+msgid "MathJax inline"
+msgstr ""
+
+#: ../dtop/anki/stats.py:245 ../dtop/anki/stats.py:372
+#: ../dtop/anki/stats.py:392 ../dtop/anki/stats.py:703
+#: ../dtop/anki/stats.py:873
+msgid "Mature"
+msgstr "heldua"
+
+#: ../dtop/aqt/forms/dconf.py:370
+msgid "Maximum interval"
+msgstr "denbora-tarte handiena"
+
+#: ../dtop/aqt/forms/dconf.py:369
+msgid "Maximum reviews/day"
+msgstr "Genieneko berrikuspen/egun"
+
+#: ../dtop/aqt/editor.py:646
+msgid "Media"
+msgstr "Euskarria"
+
+#: ../dtop/aqt/forms/dconf.py:381
+msgid "Minimum interval"
+msgstr "Denbora-tarte txikiena"
+
+#: ../dtop/anki/stats.py:400
+msgid "Minutes"
+msgstr "Minutu"
+
+#: ../dtop/anki/consts.py:71
+msgid "Mix new cards and reviews"
+msgstr "Nahastu karta berriak eta berrikuspenak"
+
+#: ../dtop/anki/importing/__init__.py:15
+msgid "Mnemosyne 2.0 Deck (*.db)"
+msgstr "Mnemosyne 2.0 karta-sorta (*.db)"
+
+#: ../dtop/aqt/reviewer.py:535
+msgid "More"
+msgstr "Gehiago"
+
+#: ../dtop/anki/consts.py:91
+msgid "Most lapses"
+msgstr "zailenak (hutsegite zenbatzen)"
+
+#: ../dtop/aqt/browser.py:1801
+msgid "Move Cards"
+msgstr "Txartelak lekuz aldatu"
+
+#: ../dtop/aqt/forms/setgroup.py:39
+msgid "Move cards to deck:"
+msgstr "sortara kartak mugitu :"
+
+#: ../dtop/aqt/importing.py:137
+msgid "Multi-character separators are not supported. Please enter one character only."
+msgstr ""
+
+#: ../dtop/aqt/forms/browser.py:306
+msgid "N&ote"
+msgstr "&Oharra"
+
+#: ../dtop/aqt/main.py:232 ../dtop/aqt/main.py:246
+msgid "Name exists."
+msgstr "Izena existitzen da jadanik."
+
+#: ../dtop/aqt/deckbrowser.py:57
+msgid "Name for deck:"
+msgstr "Sortarako izena"
+
+#: ../dtop/aqt/main.py:229 ../dtop/aqt/models.py:96
+msgid "Name:"
+msgstr "Izena:"
+
+#: ../dtop/aqt/forms/preferences.py:263
+msgid "Network"
+msgstr "Sarea"
+
+#: ../dtop/aqt/browser.py:1231 ../dtop/aqt/deckbrowser.py:152
+#: ../dtop/aqt/overview.py:196
+msgid "New"
+msgstr "Berria"
+
+#: ../dtop/aqt/forms/dconf.py:364
+msgid "New Cards"
+msgstr "Karta berriak"
+
+#: ../dtop/aqt/customstudy.py:70
+#, python-format
+msgid "New cards in deck over today limit: %s"
+msgstr ""
+
+#: ../dtop/aqt/forms/customstudy.py:110
+msgid "New cards only"
+msgstr "Soilik karta berriak"
+
+#: ../dtop/aqt/forms/dconf.py:359
+msgid "New cards/day"
+msgstr "karta berri egungo"
+
+#: ../dtop/aqt/deckbrowser.py:258 ../dtop/aqt/studydeck.py:142
+msgid "New deck name:"
+msgstr "Bilduma berriaren izena:"
+
+#: ../dtop/aqt/forms/dconf.py:377
+msgid "New interval"
+msgstr "Bitarte berria"
+
+#: ../dtop/aqt/clayout.py:379 ../dtop/aqt/deckconf.py:139
+#: ../dtop/aqt/fields.py:72 ../dtop/aqt/main.py:240 ../dtop/aqt/models.py:67
+msgid "New name:"
+msgstr "Izen berria:"
+
+#: ../dtop/aqt/forms/changemodel.py:111
+msgid "New note type:"
+msgstr "Ohar mota berria:"
+
+#: ../dtop/aqt/deckconf.py:117
+msgid "New options group name:"
+msgstr "aukeren taldeko izen berria :"
+
+#: ../dtop/aqt/fields.py:109
+#, python-format
+msgid "New position (1...%d):"
+msgstr "leku berria (1..%d):"
+
+#: ../dtop/aqt/forms/preferences.py:251
+msgid "Next day starts at"
+msgstr "noiz hasi da hurrengo eguna?"
+
+#: ../dtop/aqt/browser.py:1243
+msgid "No Flag"
+msgstr ""
+
+#: ../dtop/aqt/overview.py:40
+msgid "No cards are due yet."
+msgstr "oraindik ez dira karta behartutak"
+
+#: ../dtop/anki/stats.py:210
+msgid "No cards have been studied today."
+msgstr ""
+
+#: ../dtop/aqt/customstudy.py:183
+msgid "No cards matched the criteria you provided."
+msgstr "eman duzun irizpidearekin bat datorren kartarik ez dago"
+
+#: ../dtop/aqt/main.py:1324
+msgid "No empty cards."
+msgstr "ez dago karta hutsarik"
+
+#: ../dtop/anki/stats.py:208
+msgid "No mature cards were studied today."
+msgstr "Gaur ikasitako kartarik ez dago"
+
+#: ../dtop/aqt/main.py:1249
+msgid "No unused or missing files found."
+msgstr "ez dira fitxategi erabilezinak edo faltatzen direnak aurkitu"
+
+#: ../dtop/aqt/addons.py:663
+msgid "No updates available."
+msgstr ""
+
+#: ../dtop/aqt/browser.py:724
+msgid "Note"
+msgstr "Oharra"
+
+#: ../dtop/anki/stats.py:60
+msgid "Note ID"
+msgstr "ohar identifikadorea"
+
+#: ../dtop/anki/stats.py:58
+msgid "Note Type"
+msgstr "Ohar-mota"
+
+#: ../dtop/aqt/browser.py:1287 ../dtop/aqt/models.py:31
+#: ../dtop/aqt/forms/models.py:54
+msgid "Note Types"
+msgstr "ohar-motak"
+
+#: ../dtop/aqt/reviewer.py:768
+#, python-format
+msgid "Note and its %d card deleted."
+msgid_plural "Note and its %d cards deleted."
+msgstr[0] "oharra eta bere %d karta ezabatuta dira"
+msgstr[1] "oharra eta bere %d kartak ezabatutak dira"
+
+#: ../dtop/aqt/reviewer.py:783
+msgid "Note buried."
+msgstr "Ohar luperatuta"
+
+#: ../dtop/aqt/reviewer.py:748
+msgid "Note suspended."
+msgstr "Ohar zintzilikatuta"
+
+#: ../dtop/aqt/forms/preferences.py:268
+msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
+msgstr "Oharra : Euskarri ez du babeskopiarik. Mesedez, zure Anki direktorioko aldizkako babeskopia sortu badaezpada"
+
+#: ../dtop/aqt/browser.py:1467
+msgid "Note: Some of the history is missing. For more information, please see the browser documentation."
+msgstr "Oharra : istoriko parte bat falta da. Informazio gehiago lortzeko,  nabigatzaileko dokumentazio ikusi mesedez"
+
+#: ../dtop/anki/importing/anki2.py:151
+#, python-format
+msgid "Notes added from file: %d"
+msgstr ""
+
+#: ../dtop/anki/importing/anki2.py:139
+#, python-format
+msgid "Notes found in file: %d"
+msgstr ""
+
+#: ../dtop/anki/exporting.py:113
+msgid "Notes in Plain Text"
+msgstr "Oharrak testu arruntean"
+
+#: ../dtop/aqt/fields.py:94
+msgid "Notes require at least one field."
+msgstr "oharrek eredu bat behinztat behar dute"
+
+#: ../dtop/anki/importing/anki2.py:154
+#, python-format
+msgid "Notes skipped, as they're already in your collection: %d"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:2180
+msgid "Notes tagged."
+msgstr "ohar etiketatuak"
+
+#: ../dtop/anki/importing/anki2.py:143
+#, python-format
+msgid "Notes that could not be imported as note type has changed: %d"
+msgstr ""
+
+#: ../dtop/anki/importing/anki2.py:148
+#, python-format
+msgid "Notes updated, as file had newer version: %d"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:2331
+msgid "Nothing"
+msgstr "Ezer ez"
+
+#: ../dtop/aqt/customstudy.py:56
+msgid "OK"
+msgstr "Ongi"
+
+#: ../dtop/anki/consts.py:87
+msgid "Oldest seen first"
+msgstr "zaharrenak lehenik ikusi"
+
+#: ../dtop/aqt/forms/preferences.py:261
+msgid "On next sync, force changes in one direction"
+msgstr "datorren sinkronizatzean, norabide bateko aldaketak ezarri"
+
+#: ../dtop/anki/importing/noteimp.py:229
+msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
+msgstr "Ohar bat edo gehiago ez dago inportatuta, kartarik sortzen ez duelako. Hau gerta daiteke eremu hutsik batzuk dauzkazunean edo fitxategia betetzen eremuak oker lotu dituzunean"
+
+#: ../dtop/aqt/browser.py:1943
+msgid "Only new cards can be repositioned."
+msgstr "bakarrik karta berriak berriz koka daitezke"
+
+#: ../dtop/aqt/sync.py:215
+msgid "Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes."
+msgstr "Bezero bakar batek  Ankiweb-i konekta diezaoke aldi berean. Aurreko sinkronizatzea huts egin baldin badu, zenbat minutu denbora berriro saiatu mesedez."
+
+#: ../dtop/aqt/forms/profiles.py:75
+msgid "Open"
+msgstr "Ireki"
+
+#: ../dtop/aqt/forms/profiles.py:80
+msgid "Open Backup..."
+msgstr "Babeskopia ireki..."
+
+#: ../dtop/aqt/main.py:539
+msgid "Optimizing..."
+msgstr "Optimizatzen"
+
+#: ../dtop/aqt/forms/finddupes.py:63
+msgid "Optional filter:"
+msgstr ""
+
+#: ../dtop/aqt/clayout.py:103 ../dtop/aqt/deckbrowser.py:242
+#: ../dtop/aqt/deckconf.py:31 ../dtop/aqt/dyndeckconf.py:24
+#: ../dtop/aqt/overview.py:219 ../dtop/aqt/reviewer.py:685
+#: ../dtop/aqt/forms/dyndconf.py:141 ../dtop/aqt/forms/fields.py:108
+msgid "Options"
+msgstr "Aukerak"
+
+#: ../dtop/aqt/deckconf.py:40 ../dtop/aqt/dyndeckconf.py:27
+#: ../dtop/aqt/models.py:124
+#, python-format
+msgid "Options for %s"
+msgstr "%s-(r)en aukerak"
+
+#: ../dtop/aqt/forms/dconf.py:352
+msgid "Options group:"
+msgstr "aukeretako profilea"
+
+#: ../dtop/aqt/models.py:58
+msgid "Options..."
+msgstr "Aukerak..."
+
+#: ../dtop/aqt/browser.py:1240 ../dtop/aqt/reviewer.py:660
+#: ../dtop/aqt/forms/browser.py:331
+msgid "Orange Flag"
+msgstr ""
+
+#: ../dtop/aqt/forms/dconf.py:356
+msgid "Order"
+msgstr "Ordena"
+
+#: ../dtop/anki/consts.py:92
+msgid "Order added"
+msgstr "oraintsu ikusitakoak lehenik"
+
+#: ../dtop/anki/consts.py:93
+msgid "Order due"
+msgstr "epemuga hurrenkera"
+
+#: ../dtop/aqt/forms/browserdisp.py:71
+msgid "Override back template:"
+msgstr "atzealdeko eredu ordeztu"
+
+#: ../dtop/aqt/forms/browserdisp.py:72
+msgid "Override font:"
+msgstr "letra tipoa ordeztu"
+
+#: ../dtop/aqt/forms/browserdisp.py:70
+msgid "Override front template:"
+msgstr "aurkiko eredua ordeztu"
+
+#: ../dtop/aqt/addons.py:631
+msgid "Packaged Anki Add-on"
+msgstr ""
+
+#: ../dtop/anki/importing/__init__.py:14
+msgid "Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)"
+msgstr ""
+
+#: ../dtop/aqt/sync.py:274
+msgid "Password:"
+msgstr "Pasahitza"
+
+#: ../dtop/aqt/editor.py:1110
+msgid "Paste"
+msgstr "Itsatsi"
+
+#: ../dtop/aqt/forms/preferences.py:243
+msgid "Paste clipboard images as PNG"
+msgstr "PNG legez papergainekoko irudiak erantsi"
+
+#: ../dtop/anki/importing/__init__.py:17
+msgid "Pauker 1.8 Lesson (*.pau.gz)"
+msgstr "Pauker 1.8 ikastaroa (*.pau.gz)"
+
+#: ../dtop/anki/stats.py:614
+msgid "Percentage"
+msgstr "Ehunekoa"
+
+#: ../dtop/anki/stats.py:962
+#, python-format
+msgid "Period: %s"
+msgstr "Periodoa : %s"
+
+#: ../dtop/aqt/forms/reschedule.py:74
+msgid "Place at end of new card queue"
+msgstr "karta berri ilarako bukaeran ipini"
+
+#: ../dtop/aqt/forms/reschedule.py:75
+msgid "Place in review queue with interval between:"
+msgstr "Errepasatzea itxaroten jarri, tarte horrekin :"
+
+#: ../dtop/aqt/models.py:105
+msgid "Please add another note type first."
+msgstr "Mesedez, erantsi beste ohar mota bat lehenik"
+
+#: ../dtop/aqt/addons.py:657 ../dtop/aqt/downloader.py:75
+msgid "Please check your internet connection."
+msgstr ""
+
+#: ../dtop/aqt/errors.py:94
+msgid "Please connect a microphone, and ensure other programs are not using the audio device."
+msgstr "Mesedez, mikrofon bat konektatu eta beste programek ez dutela audio gailua erabiltzen egiazta ezazu"
+
+#: ../dtop/anki/collection.py:674
+#, python-format
+msgid "Please edit this note and add some cloze deletions. (%s)"
+msgstr "Mesedez, ohar hau editatu eta hustuneak betetzea egin ezazu. (%s)"
+
+#: ../dtop/aqt/main.py:1492
+msgid "Please ensure a profile is open and Anki is not busy, then try again."
+msgstr "mesedez profil bat irekita dagoela eta anki ez dagoela lanpetuta segurta ezazu, eta gero berriro entseatu"
+
+#: ../dtop/aqt/browser.py:1342
+msgid "Please give your filter a name:"
+msgstr ""
+
+#: ../dtop/aqt/errors.py:84
+msgid "Please install PyAudio"
+msgstr "mesedez PyAudio installatu"
+
+#: ../dtop/aqt/profiles.py:230
+#, python-format
+msgid "Please remove the folder %s and try again."
+msgstr "Mesedez direktorio %s ezaba ezazu eta berriro saiatu"
+
+#: ../dtop/aqt/addons.py:647
+msgid "Please report this to the respective add-on author(s)."
+msgstr ""
+
+#: ../dtop/aqt/preferences.py:69
+msgid "Please restart Anki to complete language change."
+msgstr "Mesedez, berriabazi Anki hizkuntzako aldaketa osatzeko"
+
+#: ../dtop/aqt/reviewer.py:351
+msgid "Please run Tools>Empty Cards"
+msgstr "Mesedez Tresnak> Karta Hutsak exekutatu"
+
+#: ../dtop/aqt/main.py:577
+msgid "Please select a deck."
+msgstr "Mesedez, sorta bat aukera ezazu"
+
+#: ../dtop/aqt/addons.py:575
+msgid "Please select a single add-on first."
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1512
+msgid "Please select cards from only one note type."
+msgstr "Mesedez, mota bakar bateko kartak aukera itzazu"
+
+#: ../dtop/aqt/studydeck.py:126
+msgid "Please select something."
+msgstr "Mesedez zerbait aukera ezazu"
+
+#: ../dtop/aqt/sync.py:197
+msgid "Please upgrade to the latest version of Anki."
+msgstr "Mesedez, azken Anki bertsioa egunera ezazu"
+
+#: ../dtop/aqt/main.py:1008
+msgid "Please use File>Import to import this file."
+msgstr "Mesedez, Fitxategi>Inportatu menuz fitxategi hau inportatu"
+
+#: ../dtop/aqt/sync.py:133
+msgid "Please visit AnkiWeb, upgrade your deck, then try again."
+msgstr "AnkiWeb bisita bat eman, zure sorta gaurkotu eta berriro saiatu"
+
+#: ../dtop/anki/stats.py:56
+msgid "Position"
+msgstr "Kokapena"
+
+#: ../dtop/aqt/forms/preferences.py:238
+msgid "Preferences"
+msgstr "Hobespenak"
+
+#: ../dtop/aqt/browser.py:1548 ../dtop/aqt/forms/browser.py:293
+msgid "Preview"
+msgstr "Aurrebista"
+
+#: ../dtop/aqt/browser.py:593
+#, python-format
+msgid "Preview Selected Card (%s)"
+msgstr "Karta aukeratutak (%s) aurreikusi"
+
+#: ../dtop/aqt/forms/customstudy.py:106
+msgid "Preview new cards"
+msgstr "Karta berriak aurreikusi"
+
+#: ../dtop/aqt/customstudy.py:95
+msgid "Preview new cards added in the last"
+msgstr "kartak ezezagunak aurreikusi"
+
+#: ../dtop/aqt/importing.py:476
+#, python-format
+msgid "Processed %d media file"
+msgid_plural "Processed %d media files"
+msgstr[0] "Euskarri fixtategi prozesatua %d"
+msgstr[1] "Euskarri fixtategi prozesatuak %d"
+
+#: ../dtop/aqt/progress.py:118
+msgid "Processing..."
+msgstr "Prozesatzen..."
+
+#: ../dtop/aqt/profiles.py:177
+msgid "Profile Corrupt"
+msgstr ""
+
+#: ../dtop/aqt/forms/profiles.py:74
+msgid "Profiles"
+msgstr "Profilak"
+
+#: ../dtop/aqt/sync.py:231
+msgid "Proxy authentication required."
+msgstr "Proxy autentifikazioa beharrezkoa da."
+
+#: ../dtop/aqt/browser.py:710
+msgid "Question"
+msgstr "Galdera"
+
+#: ../dtop/aqt/browser.py:1954
+#, python-format
+msgid "Queue bottom: %d"
+msgstr "Ilarako bukaera : %d"
+
+#: ../dtop/aqt/browser.py:1953
+#, python-format
+msgid "Queue top: %d"
+msgstr "Ilarako hasiera : %d"
+
+#: ../dtop/aqt/forms/profiles.py:79
+msgid "Quit"
+msgstr "Irten"
+
+#: ../dtop/anki/consts.py:88
+msgid "Random"
+msgstr "Ausazkoa"
+
+#: ../dtop/aqt/forms/reposition.py:73
+msgid "Randomize order"
+msgstr "ausazko hurrenkera"
+
+#: ../dtop/aqt/browser.py:1422
+msgid "Rating"
+msgstr "ebaluazioa"
+
+#: ../dtop/aqt/dyndeckconf.py:22 ../dtop/aqt/overview.py:222
+msgid "Rebuild"
+msgstr "Berreraiki"
+
+#: ../dtop/aqt/reviewer.py:688
+msgid "Record Own Voice"
+msgstr "Bere buruari erregistratu"
+
+#: ../dtop/aqt/editor.py:140
+msgid "Record audio (F5)"
+msgstr "Audio grabatu (F5)"
+
+#: ../dtop/aqt/sound.py:38
+#, python-format
+msgid "Recording...<br>Time: %0.1f"
+msgstr "Erregistratzen...<br>Denbora: %0.1f"
+
+#: ../dtop/aqt/browser.py:1239 ../dtop/aqt/reviewer.py:654
+#: ../dtop/aqt/forms/browser.py:330
+msgid "Red Flag"
+msgstr ""
+
+#: ../dtop/anki/consts.py:95
+msgid "Relative overdueness"
+msgstr "epemuga gainditutari erlatiboa"
+
+#: ../dtop/anki/stats.py:374 ../dtop/anki/stats.py:394
+#: ../dtop/aqt/browser.py:1433
+msgid "Relearn"
+msgstr "Berrikasi"
+
+#: ../dtop/aqt/forms/fields.py:107
+msgid "Remember last input when adding"
+msgstr "azken sarrera gorde eransten"
+
+#: ../dtop/aqt/browser.py:1352
+#, python-format
+msgid "Remove %s from your saved searches?"
+msgstr ""
+
+#: ../dtop/aqt/clayout.py:465
+msgid "Remove Card Type..."
+msgstr "Karta mota ezabatu..."
+
+#: ../dtop/aqt/browser.py:1327
+msgid "Remove Current Filter..."
+msgstr ""
+
+#: ../dtop/aqt/forms/browser.py:325
+msgid "Remove Tags..."
+msgstr ""
+
+#: ../dtop/aqt/editor.py:113
+msgid "Remove formatting (Ctrl+R)"
+msgstr "Formatu ezabatu (Ktrl+R)"
+
+#: ../dtop/aqt/clayout.py:239
+msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
+msgstr "Karta hau ezabatuak ohar bat edo gehiago ezabatzea eragingo luke"
+
+#: ../dtop/aqt/deckbrowser.py:240 ../dtop/aqt/deckconf.py:85
+#: ../dtop/aqt/models.py:49 ../dtop/aqt/forms/fields.py:103
+#: ../dtop/aqt/forms/profiles.py:77
+msgid "Rename"
+msgstr "Berrizendatu"
+
+#: ../dtop/aqt/clayout.py:468
+msgid "Rename Card Type..."
+msgstr ""
+
+#: ../dtop/aqt/deckbrowser.py:255
+msgid "Rename Deck"
+msgstr "Sorta berrizendatu"
+
+#: ../dtop/aqt/forms/dyndconf.py:144
+msgid "Repeat failed cards after"
+msgstr ""
+
+#: ../dtop/aqt/main.py:273
+msgid "Replace your collection with an earlier backup?"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1559 ../dtop/aqt/reviewer.py:687
+msgid "Replay Audio"
+msgstr "Grabaketa berriro jarri"
+
+#: ../dtop/aqt/reviewer.py:689
+msgid "Replay Own Voice"
+msgstr "Erregistrazioa berriro jarri"
+
+#: ../dtop/aqt/browser.py:1959 ../dtop/aqt/forms/fields.py:104
+msgid "Reposition"
+msgstr "Berreposizionatu"
+
+#: ../dtop/aqt/clayout.py:471
+msgid "Reposition Card Type..."
+msgstr ""
+
+#: ../dtop/aqt/forms/reposition.py:70
+msgid "Reposition New Cards"
+msgstr "Karta berriak berreposizionatu"
+
+#: ../dtop/aqt/forms/browser.py:317
+msgid "Reposition..."
+msgstr "Berreposizionatu"
+
+#: ../dtop/aqt/forms/taglimit.py:61
+msgid "Require one or more of these tags:"
+msgstr "Etiketaren hauetako bat edo gehiago beharrezkoa da :"
+
+#: ../dtop/aqt/browser.py:1433
+msgid "Resched"
+msgstr "Atzeratuta"
+
+#: ../dtop/aqt/browser.py:1985 ../dtop/aqt/forms/reschedule.py:73
+msgid "Reschedule"
+msgstr "Berreplanifikatu"
+
+#: ../dtop/aqt/forms/dyndconf.py:142
+msgid "Reschedule cards based on my answers in this deck"
+msgstr "Sorta honetan egindakoak erantzunen arabera kartak berreposizionatu"
+
+#: ../dtop/aqt/addons.py:769
+msgid "Restored defaults"
+msgstr ""
+
+#: ../dtop/aqt/main.py:641
+msgid "Resume Now"
+msgstr "orain jarraitu"
+
+#: ../dtop/aqt/forms/fields.py:106
+msgid "Reverse text direction (RTL)"
+msgstr "Irakurtzeko noranzko alderantzizkoa (eskuinetik ezkerrera)"
+
+#: ../dtop/aqt/main.py:286
+msgid "Revert to backup"
+msgstr ""
+
+#: ../dtop/aqt/main.py:926
+#, python-format
+msgid "Reverted to state prior to '%s'."
+msgstr "aurreko egoerara '%s' itzulita"
+
+#: ../dtop/anki/collection.py:776 ../dtop/aqt/browser.py:1233
+#: ../dtop/aqt/browser.py:1433
+msgid "Review"
+msgstr "Berrikusi"
+
+#: ../dtop/anki/stats.py:380
+msgid "Review Count"
+msgstr "Berrikuspen kopurua"
+
+#: ../dtop/anki/stats.py:406
+msgid "Review Time"
+msgstr "Berrikuspen denbora"
+
+#: ../dtop/aqt/forms/customstudy.py:101
+msgid "Review ahead"
+msgstr "Berrikuspena aurreratu"
+
+#: ../dtop/aqt/customstudy.py:92
+msgid "Review ahead by"
+msgstr "Berrikuspen aurrerakada :"
+
+#: ../dtop/aqt/customstudy.py:88
+msgid "Review cards forgotten in last"
+msgstr "Azken aldian ahaztutako kartak berrikusi"
+
+#: ../dtop/aqt/forms/customstudy.py:102
+msgid "Review forgotten cards"
+msgstr "Karta ahaztutak berrikusi"
+
+#: ../dtop/anki/stats.py:806
+msgid "Review success rate for each hour of the day."
+msgstr "eguneko orduaren arabera ongi egindako berrikuspen tasa"
+
+#: ../dtop/anki/stats.py:47 ../dtop/anki/stats.py:834
+#: ../dtop/aqt/browser.py:721 ../dtop/aqt/forms/dconf.py:375
+msgid "Reviews"
+msgstr "Berrikuspenak"
+
+#: ../dtop/aqt/customstudy.py:82
+#, python-format
+msgid "Reviews due in deck over today limit: %s"
+msgstr ""
+
+#: ../dtop/anki/consts.py:81
+msgid "Right"
+msgstr "Eskuina"
+
+#: ../dtop/aqt/sound.py:27
+msgid "Save"
+msgstr "Gorde"
+
+#: ../dtop/aqt/browser.py:1329
+msgid "Save Current Filter..."
+msgstr ""
+
+#: ../dtop/aqt/stats.py:37 ../dtop/aqt/stats.py:67
+msgid "Save PDF"
+msgstr "Gorde PDF"
+
+#: ../dtop/aqt/stats.py:80
+msgid "Saved."
+msgstr "Gordetuta"
+
+#: ../dtop/anki/stats.py:960
+#, python-format
+msgid "Scope: %s"
+msgstr "helmen : %s"
+
+#: ../dtop/aqt/browser.py:2135 ../dtop/aqt/forms/browser.py:292
+#: ../dtop/aqt/forms/dyndconf.py:135 ../dtop/aqt/forms/dyndconf.py:139
+msgid "Search"
+msgstr "Bilatu"
+
+#: ../dtop/aqt/forms/finddupes.py:64
+msgid "Search in:"
+msgstr ""
+
+#: ../dtop/aqt/forms/browseropts.py:73
+msgid "Search within formatting (slow)"
+msgstr "formatuaz bilatzen (astitsu)"
+
+#: ../dtop/aqt/customstudy.py:99
+msgid "Select"
+msgstr "Hautatu"
+
+#: ../dtop/aqt/forms/browser.py:302
+msgid "Select &All"
+msgstr "H&autatu dena"
+
+#: ../dtop/aqt/forms/browser.py:311
+msgid "Select &Notes"
+msgstr "&Oharrak Aukeratu"
+
+#: ../dtop/aqt/forms/taglimit.py:62
+msgid "Select tags to exclude:"
+msgstr "baztertzeko etiketak hautatu"
+
+#: ../dtop/aqt/importing.py:291
+msgid "Selected file was not in UTF-8 format. Please see the importing section of the manual."
+msgstr "Fitxategi aukeratuta ez dago UTF-8 formatuan. Mesedez, gidaliburuaren inportatu-atala ikus ezazu."
+
+#: ../dtop/aqt/forms/taglimit.py:60
+msgid "Selective Study"
+msgstr "Hautatzeko errepasatzea"
+
+#: ../dtop/aqt/importing.py:165
+msgid "Semicolon"
+msgstr "Puntu eta koma"
+
+#: ../dtop/aqt/sync.py:227
+msgid "Server not found. Either your connection is down, or antivirus/firewall software is blocking Anki from connecting to the internet."
+msgstr "Zerbitzari ez dago aurkituta. Zure konexioa ez dabil edo antibirus/suhesi programa batek Anki interneti konektatzen trabatzen du."
+
+#: ../dtop/aqt/deckconf.py:147
+#, python-format
+msgid "Set all decks below %s to this option group?"
+msgstr "%s azpian dauden sorta guztiei aukera multzoa ?"
+
+#: ../dtop/aqt/deckconf.py:87
+msgid "Set for all subdecks"
+msgstr "Azpisorta guztietarako jarri"
+
+#: ../dtop/aqt/editor.py:116
+msgid "Set foreground colour (F7)"
+msgstr ""
+
+#: ../dtop/aqt/main.py:82
+msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
+msgstr "Shift Tekla sakatuta gelditu da. Sinkronizatze automatikoa eta gehigarriak kargatzea baztertu."
+
+#: ../dtop/aqt/forms/reposition.py:74
+msgid "Shift position of existing cards"
+msgstr "existitzen diren karten kokapena aldatu"
+
+#: ../dtop/aqt/browser.py:1563 ../dtop/aqt/browser.py:1581
+#: ../dtop/aqt/deckbrowser.py:327 ../dtop/aqt/main.py:669
+#: ../dtop/aqt/overview.py:232 ../dtop/aqt/reviewer.py:534
+#: ../dtop/aqt/reviewer.py:547 ../dtop/aqt/reviewer.py:613
+#: ../dtop/aqt/toolbar.py:34 ../dtop/aqt/toolbar.py:35
+#: ../dtop/aqt/toolbar.py:36 ../dtop/aqt/toolbar.py:37
+#: ../dtop/aqt/toolbar.py:38
+#, python-format
+msgid "Shortcut key: %s"
+msgstr "Tekla bizkor: %s"
+
+#: ../dtop/aqt/browser.py:1568
+msgid "Shortcut key: Left arrow"
+msgstr "Zuzeneko azipen tekla: Ezker gezi"
+
+#: ../dtop/aqt/browser.py:1573
+msgid "Shortcut key: Right arrow or Enter"
+msgstr "Zuzeneko azipen tekla: Eskuin gezi edo Enter"
+
+#: ../dtop/aqt/addcards.py:85
+#, python-format
+msgid "Shortcut: %s"
+msgstr "Laster-tekla: %s"
+
+#: ../dtop/anki/template/hint.py:19
+#, python-format
+msgid "Show %s"
+msgstr "Erakutsi %s"
+
+#: ../dtop/aqt/reviewer.py:548
+msgid "Show Answer"
+msgstr "Erantzuna aurkeztu"
+
+#: ../dtop/aqt/browser.py:1579
+msgid "Show Both Sides"
+msgstr "Erakutsi bi aldeak"
+
+#: ../dtop/aqt/editor.py:163
+msgid "Show Duplicates"
+msgstr "bizkoitutak erakutsi"
+
+#: ../dtop/aqt/forms/dconf.py:389
+msgid "Show answer timer"
+msgstr "kronometroa erakutsi"
+
+#: ../dtop/aqt/forms/preferences.py:244
+msgid "Show cards as white on black (night mode)"
+msgstr ""
+
+#: ../dtop/aqt/forms/preferences.py:245
+msgid "Show learning cards with larger steps before reviews"
+msgstr ""
+
+#: ../dtop/anki/consts.py:72
+msgid "Show new cards after reviews"
+msgstr "Erakutsi karta berriak berrikuspenen ondoren"
+
+#: ../dtop/anki/consts.py:73
+msgid "Show new cards before reviews"
+msgstr "Erakutsi karta berriak berrikuspenen aurretik"
+
+#: ../dtop/anki/consts.py:65
+msgid "Show new cards in order added"
+msgstr "Erakutsi karta berriak gehitutako ordenean"
+
+#: ../dtop/anki/consts.py:64
+msgid "Show new cards in random order"
+msgstr "Erakutsi karta berriak ausazko ordenean"
+
+#: ../dtop/aqt/forms/preferences.py:241
+msgid "Show next review time above answer buttons"
+msgstr "botoiaren gainean hurrengo berrikuspen eguna erakutsi"
+
+#: ../dtop/aqt/forms/preferences.py:242
+msgid "Show remaining card count during review"
+msgstr "Berrikuspen honetan falta diren karten kopurua erakutsi"
+
+#: ../dtop/aqt/browser.py:1033 ../dtop/aqt/forms/browser.py:334
+msgid "Sidebar"
+msgstr ""
+
+#: ../dtop/aqt/forms/addfield.py:77
+msgid "Size:"
+msgstr "Neurria:"
+
+#: ../dtop/anki/importing/anki2.py:162
+msgid "Skipped"
+msgstr ""
+
+#: ../dtop/anki/sched.py:1290 ../dtop/anki/schedv2.py:1454
+msgid "Some related or buried cards were delayed until a later session."
+msgstr "karta lotuta edo lurperatuta batzuk beste ekitaldi bat arte gibelatu dira"
+
+#: ../dtop/aqt/forms/preferences.py:269
+msgid "Some settings will take effect after you restart Anki."
+msgstr "Doikuntza batzuk Anki berrabiarazi ondoren baliozkoak izango dira"
+
+#: ../dtop/aqt/browser.py:714
+msgid "Sort Field"
+msgstr "Eremuaren arabera sailkatu"
+
+#: ../dtop/aqt/forms/fields.py:109
+msgid "Sort by this field in the browser"
+msgstr "Nabigatzailean eremu horren arabera sailkatu"
+
+#: ../dtop/aqt/browser.py:913
+msgid "Sorting on this column is not supported. Please choose another."
+msgstr "Zutabe honetan ordena ez dezake. Mesedez beste bat aukera."
+
+#: ../dtop/aqt/errors.py:88
+msgid "Sound and video on cards will not function until mpv or mplayer is installed."
+msgstr ""
+
+#: ../dtop/aqt/importing.py:163 ../dtop/aqt/reviewer.py:547
+msgid "Space"
+msgstr "Espazioa"
+
+#: ../dtop/aqt/forms/reposition.py:71
+msgid "Start position:"
+msgstr "Abiapuntu"
+
+#: ../dtop/aqt/forms/dconf.py:355
+msgid "Starting ease"
+msgstr "Hasteko erraztasuna"
+
+#: ../dtop/aqt/forms/stats.py:75
+msgid "Statistics"
+msgstr "Estatistikak"
+
+#: ../dtop/aqt/toolbar.py:37
+msgid "Stats"
+msgstr ""
+
+#: ../dtop/aqt/forms/reposition.py:72
+msgid "Step:"
+msgstr "Urratsa:"
+
+#: ../dtop/aqt/forms/dconf.py:360 ../dtop/aqt/forms/dconf.py:376
+msgid "Steps (in minutes)"
+msgstr "Urratsak (min)"
+
+#: ../dtop/aqt/deckconf.py:258 ../dtop/aqt/dyndeckconf.py:156
+msgid "Steps must be numbers."
+msgstr "Urratask zenbakiak izan behar dute"
+
+#: ../dtop/aqt/sync.py:60
+msgid "Stopping..."
+msgstr "Gelditzen..."
+
+#: ../dtop/anki/stats.py:178
+#, python-format
+msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
+msgstr ""
+
+#: ../dtop/aqt/deckbrowser.py:122
+#, python-format
+msgid "Studied %(a)s %(b)s today."
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1219
+msgid "Studied Today"
+msgstr "Gaur ikasitakoak"
+
+#: ../dtop/aqt/studydeck.py:62
+msgid "Study"
+msgstr "Ikasi"
+
+#: ../dtop/aqt/forms/studydeck.py:45
+msgid "Study Deck"
+msgstr "Sorta ikasi"
+
+#: ../dtop/aqt/forms/main.py:151
+msgid "Study Deck..."
+msgstr "Ikasi sorta..."
+
+#: ../dtop/aqt/overview.py:202
+msgid "Study Now"
+msgstr "Orain ikasi"
+
+#: ../dtop/aqt/forms/customstudy.py:105
+msgid "Study by card state or tag"
+msgstr "Kartaz edo etiketaz Ikasi"
+
+#: ../dtop/aqt/forms/template.py:108
+msgid "Styling"
+msgstr "Estiloa"
+
+#: ../dtop/aqt/clayout.py:180
+msgid "Styling (shared between cards)"
+msgstr "Estiloa (karten artean partekartuta)"
+
+#: ../dtop/aqt/editor.py:112
+msgid "Subscript (Ctrl+=)"
+msgstr "Azpiindize (Ktrl+=)"
+
+#: ../dtop/anki/importing/__init__.py:16
+msgid "Supermemo XML export (*.xml)"
+msgstr "Supermemotik datorren XML(*.xml)"
+
+#: ../dtop/aqt/editor.py:110
+msgid "Superscript (Ctrl++)"
+msgstr "Goi-idize (Ktrl++)"
+
+#: ../dtop/aqt/reviewer.py:746 ../dtop/aqt/reviewer.py:752
+msgid "Suspend"
+msgstr "Eten"
+
+#: ../dtop/aqt/reviewer.py:682 ../dtop/aqt/forms/dconf.py:383
+msgid "Suspend Card"
+msgstr "Karta eten"
+
+#: ../dtop/aqt/reviewer.py:683
+msgid "Suspend Note"
+msgstr "Oharra eten"
+
+#: ../dtop/aqt/browser.py:1236
+msgid "Suspended"
+msgstr "Etenda"
+
+#: ../dtop/anki/stats.py:876
+msgid "Suspended+Buried"
+msgstr "Etenda + lurperatuta"
+
+#: ../dtop/aqt/toolbar.py:38
+msgid "Sync"
+msgstr "Sinkronizatu"
+
+#: ../dtop/aqt/forms/preferences.py:259
+msgid "Synchronize audio and images too"
+msgstr "Soinuak eta irudiak ere sinkronizatu"
+
+#: ../dtop/aqt/sync.py:145
+#, python-format
+msgid "Syncing failed:\n"
+"%s"
+msgstr "Sinkronizatzea huts eginda:\n"
+"%s"
+
+#: ../dtop/aqt/sync.py:112
+msgid "Syncing failed; internet offline."
+msgstr "Sinkronizatzea huts eginda, deskonetatuta baitzaude"
+
+#: ../dtop/aqt/sync.py:336
+msgid "Syncing requires the clock on your computer to be set correctly. Please fix the clock and try again."
+msgstr "Zure ordenagailuaren erlojua ongi konponduta egon behar da sinkronizatzeko. Mesedez, erlojua konpon ezazu eta berriz entseatu."
+
+#: ../dtop/aqt/sync.py:120
+msgid "Syncing..."
+msgstr "Sinkronizatzen..."
+
+#: ../dtop/aqt/importing.py:159
+msgid "Tab"
+msgstr "Tabulazioa"
+
+#: ../dtop/aqt/browser.py:2144 ../dtop/aqt/browser.py:2172
+msgid "Tag Duplicates"
+msgstr "Bizkoitutak etiketatu"
+
+#: ../dtop/aqt/forms/dconf.py:384
+msgid "Tag Only"
+msgstr "Etiketatu (*)"
+
+#: ../dtop/aqt/browser.py:723 ../dtop/aqt/browser.py:1251
+#: ../dtop/aqt/editor.py:514
+msgid "Tags"
+msgstr "Etiketak"
+
+#: ../dtop/aqt/deckchooser.py:31
+msgid "Target Deck (Ctrl+D)"
+msgstr "Jomuga izanda sorta(Ktrl+D)"
+
+#: ../dtop/aqt/forms/changemap.py:42
+msgid "Target field:"
+msgstr "Jomuga izanda eremua:"
+
+#: ../dtop/anki/stdmodels.py:101
+msgid "Text"
+msgstr "Testua"
+
+#: ../dtop/anki/importing/__init__.py:13
+msgid "Text separated by tabs or semicolons (*)"
+msgstr "Tabulazioaz edo puntu-komaz banandutako testu fitxategia (*)"
+
+#: ../dtop/anki/decks.py:281
+msgid "That deck already exists."
+msgstr "Karta-sorta hori existitzen da dagoeneko."
+
+#: ../dtop/aqt/fields.py:65
+msgid "That field name is already used."
+msgstr "Eremu hau dagoeneko erabilituta dago"
+
+#: ../dtop/aqt/clayout.py:385
+msgid "That name is already used."
+msgstr "Izen hau dagoeneko erabilatuta dago"
+
+#: ../dtop/aqt/sync.py:185
+msgid "The connection to AnkiWeb timed out. Please check your network connection and try again."
+msgstr "Ankiweb-ekin konexioa denbora mugara heldu da. Mesedez zure sarea miatu eta berriz saia zaitez"
+
+#: ../dtop/aqt/deckconf.py:131
+msgid "The default configuration can't be removed."
+msgstr "Itxura lehentsia ezin da ezabatu"
+
+#: ../dtop/aqt/deckbrowser.py:288
+msgid "The default deck can't be deleted."
+msgstr "Sorta lehentsia ezin da ezabatu."
+
+#: ../dtop/anki/stats.py:901
+msgid "The division of cards in your deck(s)."
+msgstr "Sortearen arabera kartak  banaketa"
+
+#: ../dtop/aqt/addcards.py:172
+msgid "The first field is empty."
+msgstr "Lehengo eremua hutsik dago"
+
+#: ../dtop/aqt/importing.py:176
+msgid "The first field of the note type must be mapped."
+msgstr "Ohar motako lehenengo eremua ezin da hutsik egon"
+
+#: ../dtop/aqt/addons.py:139
+#, python-format
+msgid "The following add-ons are incompatible with %(name)s and have been disabled: %(found)s"
+msgstr ""
+
+#: ../dtop/aqt/utils.py:556
+#, python-format
+msgid "The following character can not be used: %s"
+msgstr "Ez da posible %s karakterea erabiltzea"
+
+#: ../dtop/aqt/addons.py:302 ../dtop/aqt/addons.py:345
+msgid "The following conflicting add-ons were disabled:"
+msgstr ""
+
+#: ../dtop/aqt/reviewer.py:182
+msgid "The front of this card is empty. Please run Tools>Empty Cards."
+msgstr "Kartako aurkia hutsik dago.Mesedez, exekutatu Tresnak> Karta Hutsak"
+
+#: ../dtop/aqt/addcards.py:189
+msgid "The input you have provided would make an empty question on all cards."
+msgstr "Zuk emandako sarrerak karta guztitan galdera bat jarriko luke."
+
+#: ../dtop/anki/stats.py:335
+msgid "The number of new cards you have added."
+msgstr "gehitu dituzun karta berrien kopurua"
+
+#: ../dtop/anki/stats.py:380
+msgid "The number of questions you have answered."
+msgstr "Erantzundako galdera kopurua."
+
+#: ../dtop/anki/stats.py:260
+msgid "The number of reviews due in the future."
+msgstr "Geroan zor izandako berrikuspen kopurua"
+
+#: ../dtop/anki/stats.py:696
+msgid "The number of times you have pressed each button."
+msgstr "botoi bakoitz sakatu duzuen aldi-kopurua"
+
+#: ../dtop/aqt/importing.py:465
+msgid "The provided file is not a valid .apkg file."
+msgstr "Emandako fixtategia ez da .apkg fitxategi baliozko bat"
+
+#: ../dtop/aqt/dyndeckconf.py:127
+msgid "The provided search did not match any cards. Would you like to revise it?"
+msgstr "ez dago bilaketa horrekin datorren kartarik. Aldatu nahi duzu?"
+
+#: ../dtop/aqt/main.py:1189
+msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
+msgstr "Eskatutako aldaketa datu-baseko kargatze osoa beharko du hurrengo aldian zure bilduma sinkronizatzeko. Berrikuspenak edo beste gailu batean itxoiten ari diren aldaketa batzuk baldin badituzu, eta ez dira dagoeneko sinkronizatuak, galduta egongo dira. Jarrai ?"
+
+#: ../dtop/anki/stats.py:406
+msgid "The time taken to answer the questions."
+msgstr "Galderei erantzuneko denbora"
+
+#: ../dtop/anki/sched.py:1276 ../dtop/anki/schedv2.py:1440
+msgid "There are more new cards available, but the daily limit has been\n"
+"reached. You can increase the limit in the options, but please\n"
+"bear in mind that the more new cards you introduce, the higher\n"
+"your short-term review workload will become."
+msgstr "Karta berri gehiagoa erabilgarria da, baina eguneroko muga orain\n"
+"heldu da. Aukeretan muga handi dezakezu, baina mesedez\n"
+"hau gogoratu : zenbat eta karta berri gehiago sartzen duzu, \n"
+"orduan eta epe motza duen berrikuspena gehiago kargatua izango da."
+
+#: ../dtop/aqt/main.py:255
+msgid "There must be at least one profile."
+msgstr "Profila bat existitu behar du gutxienez"
+
+#: ../dtop/aqt/browser.py:897
+msgid "This column can't be sorted on, but you can search for individual card types, such as 'card:1'."
+msgstr ""
+
+#: ../dtop/aqt/browser.py:905
+msgid "This column can't be sorted on, but you can search for specific decks by clicking on one on the left."
+msgstr "Zutabe hau ez daiteke ordena, baina ezkerrean dagoen batean klik egiten sorta bereziak bila ditzakezu."
+
+#: ../dtop/aqt/importing.py:412
+msgid "This file does not appear to be a valid .apkg file. If you're getting this error from a file downloaded from AnkiWeb, chances are that your download failed. Please try again, and if the problem persists, please try again with a different browser."
+msgstr "Dirudinez, fitxategia hau ez da .apkg fitxategi baliozko bat. Ankiwebtik deskargatutako fixtategi batetik lortzen baldin baduzu akats hau, agian zure deskargatzeak huts egin du. Mesedez, berriro entseatu, eta arazoak baldin badirau, beste nabigatzaile batekin berriz saia zaitez."
+
+#: ../dtop/aqt/utils.py:364
+msgid "This file exists. Are you sure you want to overwrite it?"
+msgstr "Fitxategia existitzen da. Ziur zaude gainidatzi nahi duzula?"
+
+#: ../dtop/aqt/profiles.py:381
+#, python-format
+msgid "This folder stores all of your Anki data in a single location,\n"
+"to make backups easy. To tell Anki to use a different location,\n"
+"please see:\n\n"
+"%s\n"
+msgstr "Direktorio honek leku bakar batean Ankiren datu guztiak gordetzen  ditu,\n"
+"babes-kopiak errazteko. Beste toki bat erabiltzeko Anki-ri esateko,\n"
+"mesedez ikusi : \n\n"
+"%s\n"
+
+#: ../dtop/aqt/overview.py:150
+msgid "This is a special deck for studying outside of the normal schedule."
+msgstr "Hau sorta berezi bat da ohizko progamatik kanpoan ikasteko"
+
+#: ../dtop/aqt/models.py:143
+msgid "This is a {{c1::sample}} cloze deletion."
+msgstr "Hau da {{c1::lagina}} ezabatzea"
+
+#: ../dtop/aqt/clayout.py:421
+#, python-format
+msgid "This will create %d card. Proceed?"
+msgid_plural "This will create %d cards. Proceed?"
+msgstr[0] "Hau %d karta sortuko du. Jarraitu?"
+msgstr[1] "Hau %d kartak sortuko du. Jarraitu?"
+
+#: ../dtop/aqt/importing.py:432
+msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
+msgstr "Hark zure bilduma ezabatuko du eta zuk inportatzen duzun fitxategi datuekin ordezkatuko du. Ziur zaude ?"
+
+#: ../dtop/aqt/preferences.py:137
+msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:1425
+msgid "Time"
+msgstr "Denbora"
+
+#: ../dtop/aqt/forms/preferences.py:253
+msgid "Timebox time limit"
+msgstr "Denbora muga"
+
+#: ../dtop/aqt/overview.py:200
+msgid "To Review"
+msgstr "Berrikusteko"
+
+#: ../dtop/aqt/forms/getaddons.py:49
+msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
+msgstr ""
+
+#: ../dtop/aqt/editor.py:589
+msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
+msgstr "Hustuneak betetzea existitzen den ohar batean egiteko, lehenik bere tipo aldatu behar duzu, Editatu>Aldatu ohar-mota-en bidez."
+
+#: ../dtop/anki/sched.py:1285 ../dtop/anki/schedv2.py:1449
+msgid "To see them now, click the Unbury button below."
+msgstr "Oraintxe bertan haiek ikusteko, Lurpetik jalgi botoian klik egin behean"
+
+#: ../dtop/anki/sched.py:1298 ../dtop/anki/schedv2.py:1462
+msgid "To study outside of the normal schedule, click the Custom Study button below."
+msgstr "Ohiko programatik kanpoan ikasteko, Ikasketa itxuratuta botoian klik egin ezazu azpian."
+
+#: ../dtop/anki/stats.py:146 ../dtop/aqt/browser.py:1214
+msgid "Today"
+msgstr "Gaur"
+
+#: ../dtop/anki/sched.py:1267 ../dtop/anki/schedv2.py:1431
+msgid "Today's review limit has been reached, but there are still cards\n"
+"waiting to be reviewed. For optimum memory, consider increasing\n"
+"the daily limit in the options."
+msgstr "Gaurko berrikuspen muga helduta da, baina oraindik karta batzuk berrikustekozain daude. Memorizazioa hobetzeko, aukeretan eguneroko muga handitzerik ez ahaztu"
+
+#: ../dtop/aqt/forms/addons.py:75
+msgid "Toggle Enabled"
+msgstr ""
+
+#: ../dtop/aqt/forms/browser.py:337
+msgid "Toggle Mark"
+msgstr ""
+
+#: ../dtop/aqt/forms/browser.py:326
+msgid "Toggle Suspend"
+msgstr ""
+
+#: ../dtop/anki/stats.py:279 ../dtop/anki/stats.py:344
+#: ../dtop/anki/stats.py:438
+msgid "Total"
+msgstr "Guztira"
+
+#: ../dtop/anki/stats.py:54
+msgid "Total Time"
+msgstr "Denbora guztira"
+
+#: ../dtop/anki/stats.py:888
+msgid "Total cards"
+msgstr "Kartak guztira"
+
+#: ../dtop/anki/stats.py:889
+msgid "Total notes"
+msgstr "Oharrak guztira"
+
+#: ../dtop/aqt/forms/findreplace.py:72
+msgid "Treat input as regular expression"
+msgstr "Sarrera adierazpen erregular batentzat hartu"
+
+#: ../dtop/aqt/browser.py:1421 ../dtop/aqt/modelchooser.py:26
+#: ../dtop/aqt/forms/importing.py:96
+msgid "Type"
+msgstr "Mota"
+
+#: ../dtop/aqt/reviewer.py:355
+#, python-format
+msgid "Type answer: unknown field %s"
+msgstr "Eremu ezezagunai : %s"
+
+#: ../dtop/aqt/errors.py:67
+msgid "Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect."
+msgstr ""
+
+#: ../dtop/aqt/importing.py:393
+msgid "Unable to import from a read-only file."
+msgstr "Irakurketa soilerako fitxategitik ezin da inportatu"
+
+#: ../dtop/aqt/main.py:299
+msgid "Unable to move existing file to trash - please try restarting your computer."
+msgstr ""
+
+#: ../dtop/aqt/addons.py:267
+#, python-format
+msgid "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\n"
+"Debug info: %s"
+msgstr ""
+
+#: ../dtop/aqt/overview.py:228
+msgid "Unbury"
+msgstr "Lurpetik jalgi"
+
+#: ../dtop/aqt/editor.py:107
+msgid "Underline text (Ctrl+U)"
+msgstr "Azpimarratu (Ktrl+U)"
+
+#: ../dtop/aqt/main.py:936
+msgid "Undo"
+msgstr "Desegin"
+
+#: ../dtop/aqt/main.py:932
+#, python-format
+msgid "Undo %s"
+msgstr "%s desegin"
+
+#: ../dtop/aqt/downloader.py:72 ../dtop/aqt/editor.py:777
+#, python-format
+msgid "Unexpected response code: %s"
+msgstr ""
+
+#: ../dtop/aqt/importing.py:351
+msgid "Unknown file format."
+msgstr "Fitxategi-formatu ezezaguna."
+
+#: ../dtop/anki/stats.py:875
+msgid "Unseen"
+msgstr "Ikusi gabe"
+
+#: ../dtop/aqt/forms/importing.py:98
+msgid "Update existing notes when first field matches"
+msgstr "Lehengo eremu bat datorrenean existitzen den ohar eguneratu"
+
+#: ../dtop/aqt/addons.py:666
+msgid "Update the following add-ons?"
+msgstr ""
+
+#: ../dtop/anki/importing/anki2.py:165
+msgid "Updated"
+msgstr ""
+
+#: ../dtop/aqt/sync.py:321 ../dtop/aqt/sync.py:325
+msgid "Upload to AnkiWeb"
+msgstr "Kargatu AnkiWeb-era"
+
+#: ../dtop/aqt/sync.py:123
+msgid "Uploading to AnkiWeb..."
+msgstr "AnkiWeb-era kargatzen..."
+
+#: ../dtop/aqt/main.py:1246
+msgid "Used on cards but missing from media folder:"
+msgstr "Euskarri direktorian falta den arren kartak erabilitakoa da"
+
+#: ../dtop/aqt/profiles.py:377
+msgid "User 1"
+msgstr "1 erabiltzailea"
+
+#: ../dtop/aqt/forms/preferences.py:255
+msgid "User interface size"
+msgstr ""
+
+#: ../dtop/aqt/about.py:58
+#, python-format
+msgid "Version %s"
+msgstr "%s bertsioa"
+
+#: ../dtop/aqt/forms/addons.py:72
+msgid "View Add-on Page"
+msgstr ""
+
+#: ../dtop/aqt/forms/addons.py:74
+msgid "View Files"
+msgstr "Artxiboak ikusi"
+
+#: ../dtop/aqt/main.py:640
+msgid "Waiting for editing to finish."
+msgstr "editatzeari itxoin bukatzeko"
+
+#: ../dtop/aqt/editor.py:582
+msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
+msgstr "Kontuz, zuloekin testua ez baldin baduzu bihurrarazten karta mota,  zuloekin testua ez da ongi funtzionatuko"
+
+#: ../dtop/aqt/overview.py:109
+msgid "What would you like to unbury?"
+msgstr ""
+
+#: ../dtop/aqt/forms/preferences.py:247
+msgid "When adding, default to current deck"
+msgstr "gehitzen denean, sorta azkena lehenetsia da"
+
+#: ../dtop/aqt/browser.py:1085 ../dtop/aqt/browser.py:1210
+msgid "Whole Collection"
+msgstr "Bilduma osoa"
+
+#: ../dtop/aqt/update.py:64
+msgid "Would you like to download it now?"
+msgstr "Orain deskargatu nahi duzu?"
+
+#: ../dtop/aqt/about.py:158
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation,    testing and design from:<p>%(cont)s"
+msgstr ""
+
+#: ../dtop/aqt/forms/preferences.py:267
+msgid "You can restore backups via File>Switch Profile."
+msgstr ""
+
+#: ../dtop/aqt/addcards.py:180
+msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
+msgstr "Bete hutsuneak ariketa ohar bat izan duzu baina ez duzu bete hutsuneak ariketarik egin. Aurrera ?"
+
+#: ../dtop/aqt/deckbrowser.py:131
+#, python-format
+msgid "You have a lot of decks. Please see %(a)s. %(b)s"
+msgstr "sorta asko dauzkazu. Mesedez ikusi %(a)s. %(b)s"
+
+#: ../dtop/aqt/reviewer.py:791
+msgid "You haven't recorded your voice yet."
+msgstr "Ez duzu zure ahotsa grabatu oraindik."
+
+#: ../dtop/aqt/browser.py:965
+msgid "You must have at least one column."
+msgstr "Gutxienez zutabe bat izan behar duzu."
+
+#: ../dtop/anki/stats.py:246 ../dtop/anki/stats.py:373
+#: ../dtop/anki/stats.py:393 ../dtop/anki/stats.py:702
+msgid "Young"
+msgstr "Gazte"
+
+#: ../dtop/anki/stats.py:874
+msgid "Young+Learn"
+msgstr "Berriak"
+
+#: ../dtop/aqt/sync.py:165
+msgid "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
+msgstr ""
+
+#: ../dtop/aqt/deckconf.py:109
+msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
+msgstr "zure aldaketeek hainbat sorta eragingo dituzte.Uneko sorta aldatu nahi baduzu, lehenbizi aukerako talde berri bat gehitu ezazu mesedez"
+
+#: ../dtop/aqt/main.py:472
+msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
+msgstr ""
+
+#: ../dtop/aqt/sync.py:345
+msgid "Your collection is in an inconsistent state. Please run Tools>Check Database, then sync again."
+msgstr "zure bilduma ez da egoera trinkoa. Mesedez exekutatu Tresnak>Egiaztatu Datu-basea eta Sinkronizatu berriro"
+
+#: ../dtop/aqt/sync.py:233
+msgid "Your collection or a media file is too large to sync."
+msgstr "zure bilduma edo media fitxategi bat handiegia sinkronizatzeko"
+
+#: ../dtop/aqt/sync.py:74
+msgid "Your collection was successfully uploaded to AnkiWeb.\n\n"
+"If you use any other devices, please sync them now, and choose to download the collection you have just uploaded from this computer. After doing so, future reviews and added cards will be merged automatically."
+msgstr "Zure bilduma ondo kargatu zen AnkiWeb-en\n\n"
+"beste gailu erabiltzen baldin baduzu, mesedez orain sinkronizatu eta ordenagailu horretik kargatu duzun sorta deskargatu. hori egin eta gero, hurrengo \n"
+"berrikusketak eta karta gehitutakoak automatikoki fusionatutak izango dira."
+
+#: ../dtop/aqt/errors.py:105
+msgid "Your computer's storage may be full. Please delete some unneeded files, then try again."
+msgstr ""
+
+#: ../dtop/aqt/sync.py:305
+msgid "Your decks here and on AnkiWeb differ in such a way that they can't be merged together, so it's necessary to overwrite the decks on one side with the decks from the other.\n\n"
+"If you choose download, Anki will download the collection from AnkiWeb, and any changes you have made on your computer since the last sync will be lost.\n\n"
+"If you choose upload, Anki will upload your collection to AnkiWeb, and any changes you have made on AnkiWeb or your other devices since the last sync to this device will be lost.\n\n"
+"After all devices are in sync, future reviews and added cards can be merged automatically."
+msgstr "Halako moduz hemengo sortak eta Ankikoak desberdintzen dute, non ez daitezke fusiona batera ; Orduan, bestetik datozenak baten sorteek ordezkatzen dituztela beharrezkoa da.\n"
+"Deskargartzea aukeratzen baldin baduzu, Ankik Ankiwebetik bilduma deskargatuko  du eta zuk ordenagailuan egindako aldaketa guztiak sinkronizatze azkenetik galduta egongo dira.\n"
+"Zerbitzarira kargatzea aukeratzen baldin baduzu, Ankik Ankiweb-era bilduma kargatuko du, eta zuk Ankiwebean edo beste gailutan egindako aldeketa guztiak sinkronizatze azkenetik galduta egongo dira.\n"
+"Gailu guztiak sinkronizatu ondoren geroko berrikuspenak eta karta gehituak fusionatutak automatikoki izango dira."
+
+#: ../dtop/aqt/errors.py:80
+msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
+msgstr ""
+
+#: ../dtop/anki/decks.py:442
+msgid "[no deck]"
+msgstr "[karta-sortarik ez]"
+
+#: ../dtop/aqt/forms/preferences.py:266
+msgid "backups"
+msgstr "segurtasun kopiak"
+
+#: ../dtop/anki/stats.py:345 ../dtop/aqt/customstudy.py:52
+msgid "cards"
+msgstr "kartak"
+
+#: ../dtop/aqt/customstudy.py:100
+msgid "cards from the deck"
+msgstr "sortako kartak"
+
+#: ../dtop/aqt/forms/dyndconf.py:136 ../dtop/aqt/forms/dyndconf.py:140
+msgid "cards selected by"
+msgstr "Kartak aukeratzeko irizpidea :"
+
+#: ../dtop/aqt/exporting.py:87 ../dtop/aqt/forms/stats.py:77
+msgid "collection"
+msgstr "bilduma"
+
+#. T: abbreviation of day
+#: ../dtop/anki/stats.py:988
+msgid "d"
+msgstr "eg"
+
+#: ../dtop/aqt/customstudy.py:89 ../dtop/aqt/customstudy.py:93
+#: ../dtop/aqt/customstudy.py:96 ../dtop/aqt/forms/dconf.py:362
+#: ../dtop/aqt/forms/dconf.py:363 ../dtop/aqt/forms/dconf.py:371
+#: ../dtop/aqt/forms/dconf.py:382 ../dtop/aqt/forms/reschedule.py:77
+msgid "days"
+msgstr "egunak"
+
+#: ../dtop/aqt/forms/stats.py:76
+msgid "deck"
+msgstr "karta-sorta"
+
+#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:80
+msgid "deck life"
+msgstr "Sortko bizitza"
+
+#: ../dtop/aqt/browser.py:2176
+msgid "duplicate"
+msgstr "bikoiztua"
+
+#: ../dtop/anki/collection.py:675
+msgid "help"
+msgstr "laguntza"
+
+#: ../dtop/aqt/deckbrowser.py:138
+msgid "hide"
+msgstr "Ezkutatu"
+
+#: ../dtop/anki/stats.py:433
+msgid "hours"
+msgstr "ordu"
+
+#: ../dtop/aqt/forms/preferences.py:249
+msgid "hours past midnight"
+msgstr "gauerdiaren ondoko orduak"
+
+#: ../dtop/anki/utils.py:50
+#, python-format
+msgid "in %s day"
+msgid_plural "in %s days"
+msgstr[0] "egun %s -(n)"
+msgstr[1] "%s egunetan"
+
+#: ../dtop/anki/utils.py:51
+#, python-format
+msgid "in %s hour"
+msgid_plural "in %s hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/anki/utils.py:52
+#, python-format
+msgid "in %s minute"
+msgid_plural "in %s minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/anki/utils.py:49
+#, python-format
+msgid "in %s month"
+msgid_plural "in %s months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/anki/utils.py:53
+#, python-format
+msgid "in %s second"
+msgid_plural "in %s seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/anki/utils.py:48
+#, python-format
+msgid "in %s year"
+msgid_plural "in %s years"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../dtop/aqt/forms/dconf.py:379
+msgid "lapses"
+msgstr "denbora-tarteak"
+
+#: ../dtop/anki/stats.py:454
+msgid "less than 0.1 cards/minute"
+msgstr "0,1 kart minutuko baino gutxiago"
+
+#: ../dtop/aqt/importing.py:250
+#, python-format
+msgid "mapped to <b>%s</b>"
+msgstr "lotuta <b> %s</b>"
+
+#: ../dtop/aqt/importing.py:248
+msgid "mapped to <b>Tags</b>"
+msgstr "lotuta <b>Etiketeekin</b>"
+
+#: ../dtop/aqt/forms/preferences.py:250 ../dtop/aqt/forms/preferences.py:254
+msgid "mins"
+msgstr "minutu"
+
+#: ../dtop/anki/stats.py:410 ../dtop/aqt/forms/dyndconf.py:145
+msgid "minutes"
+msgstr "minutu"
+
+#. T: abbreviation of month
+#: ../dtop/anki/stats.py:992
+msgid "mo"
+msgstr "hl"
+
+#: ../dtop/anki/stats.py:280 ../dtop/anki/stats.py:386
+msgid "reviews"
+msgstr "berrikuspenak"
+
+#: ../dtop/aqt/forms/dconf.py:388
+msgid "seconds"
+msgstr "segundo"
+
+#: ../dtop/aqt/stats.py:64
+msgid "stats"
+msgstr "estatistikak"
+
+#: ../dtop/aqt/deckbrowser.py:134
+msgid "this page"
+msgstr "orrialde hau"
+
+#. T: abbreviation of week
+#: ../dtop/anki/stats.py:990
+msgid "w"
+msgstr "a"
+
+#: ../dtop/anki/stats.py:957
+msgid "whole collection"
+msgstr "bilduma osoa"
+
+#: ../dtop/aqt/forms/reschedule.py:76
+msgid "~"
+msgstr ""
+

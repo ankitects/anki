@@ -1,0 +1,4219 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: anki\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-01 08:34+1000\n"
+"PO-Revision-Date: 2020-01-02 06:16\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian\n"
+"Language: ru_RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"X-Crowdin-Project: anki\n"
+"X-Crowdin-Language: ru\n"
+"X-Crowdin-File: anki.pot\n"
+
+#: ../dtop/aqt/clayout.py:223
+#, python-format
+msgid " (1 of %d)"
+msgstr " (1 из %d)"
+
+#: ../dtop/aqt/addons.py:155
+msgid " (disabled)"
+msgstr " (отключён)"
+
+#: ../dtop/aqt/clayout.py:480
+msgid " (off)"
+msgstr " (выкл.)"
+
+#: ../dtop/aqt/clayout.py:478
+msgid " (on)"
+msgstr " (вкл.)"
+
+#: ../dtop/aqt/deckbrowser.py:298
+#, python-format
+msgid " It has %d card."
+msgid_plural " It has %d cards."
+msgstr[0] " Содержит %d карточку."
+msgstr[1] " Содержит %d карточки."
+msgstr[2] " Содержит %d карточек."
+msgstr[3] " Содержит %d карточек."
+
+#. T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
+#: ../dtop/aqt/webview.py:261
+msgid "\"Segoe UI\""
+msgstr ""
+
+#: ../dtop/aqt/forms/dconf.py:354 ../dtop/aqt/forms/dconf.py:366
+#: ../dtop/aqt/forms/dconf.py:367 ../dtop/aqt/forms/dconf.py:374
+#: ../dtop/aqt/forms/dconf.py:385 ../dtop/aqt/forms/preferences.py:256
+msgid "%"
+msgstr "%"
+
+#: ../dtop/anki/stats.py:811 ../dtop/anki/stats.py:833
+msgid "% Correct"
+msgstr "% правильных"
+
+#: ../dtop/anki/stats.py:1115
+#, python-format
+msgid "%(a)0.1f %(b)s/day"
+msgstr "%(a)0.1f %(b)s в день"
+
+#: ../dtop/aqt/sync.py:91
+#, python-format
+msgid "%(a)0.1fkB up, %(b)0.1fkB down"
+msgstr "%(a)0.1f кБ выгружено, %(b)0.1f кБ загружено"
+
+#: ../dtop/anki/stats.py:460
+#, python-format
+msgid "%(a)0.1fs (%(b)s)"
+msgstr "%(a)0.1f с (%(b)s)"
+
+#: ../dtop/aqt/browser.py:2097
+#, python-format
+msgid "%(a)d of %(b)d note updated"
+msgid_plural "%(a)d of %(b)d notes updated"
+msgstr[0] "%(a)d из %(b)d записей обновлена"
+msgstr[1] "%(a)d из %(b)d записей обновлены"
+msgstr[2] "%(a)d из %(b)d записей обновлены"
+msgstr[3] "%(a)d из %(b)d записей обновлены"
+
+#. T: name is a card type name. n it's order in the list of card type.
+#. T: this is shown in browser's filter, when seeing the list of card type of a note type.
+#: ../dtop/aqt/browser.py:1307
+#, python-format
+msgid "%(n)d: %(name)s"
+msgstr ""
+
+#: ../dtop/anki/stats.py:438
+#, python-format
+msgid "%(tot)s %(unit)s"
+msgstr ""
+
+#: ../dtop/anki/stats.py:456
+#, python-format
+msgid "%.01f cards/minute"
+msgstr "%.01f карточек/мин."
+
+#: ../dtop/anki/stats.py:288 ../dtop/anki/stats.py:344
+#: ../dtop/aqt/clayout.py:230 ../dtop/aqt/main.py:1328
+#, python-format
+msgid "%d card"
+msgid_plural "%d cards"
+msgstr[0] "%d карточка"
+msgstr[1] "%d карточки"
+msgstr[2] "%d карточек"
+msgstr[3] "%d карточек"
+
+#: ../dtop/aqt/main.py:1340
+#, python-format
+msgid "%d card deleted."
+msgid_plural "%d cards deleted."
+msgstr[0] "%d карточка удалена."
+msgstr[1] "%d карточки удалены."
+msgstr[2] "%d карточек удалены."
+msgstr[3] "%d карточек удалено."
+
+#: ../dtop/aqt/exporting.py:154
+#, python-format
+msgid "%d card exported."
+msgid_plural "%d cards exported."
+msgstr[0] "%d карточка экспортирована."
+msgstr[1] "%d карточки экспортированы."
+msgstr[2] "%d карточек экспортированы."
+msgstr[3] "%d карточек экспортировано."
+
+#: ../dtop/anki/importing/supermemo_xml.py:193
+#, python-format
+msgid "%d card imported."
+msgid_plural "%d cards imported."
+msgstr[0] "%d карточка импортирована."
+msgstr[1] "%d карточки импортированы."
+msgstr[2] "%d карточки импортированы."
+msgstr[3] "%d карточки импортировано."
+
+#: ../dtop/aqt/reviewer.py:75
+#, python-format
+msgid "%d card studied in"
+msgid_plural "%d cards studied in"
+msgstr[0] "%d карточка изучена за"
+msgstr[1] "%d карточки изучены за"
+msgstr[2] "%d карточек изучены за"
+msgstr[3] "%d карточек изучено за"
+
+#: ../dtop/aqt/deckconf.py:157
+#, python-format
+msgid "%d deck updated."
+msgid_plural "%d decks updated."
+msgstr[0] "%d колода обновлена."
+msgstr[1] "%d колоды обновлены."
+msgstr[2] "%d колод обновлены."
+msgstr[3] "%d колод обновлены."
+
+#: ../dtop/aqt/main.py:1236
+#, python-format
+msgid "%d file found in media folder not used by any cards:"
+msgid_plural "%d files found in media folder not used by any cards:"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ../dtop/aqt/main.py:1293
+#, python-format
+msgid "%d file remaining..."
+msgid_plural "%d files remaining..."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ../dtop/aqt/browser.py:2150
+#, python-format
+msgid "%d group"
+msgid_plural "%d groups"
+msgstr[0] "%d группа"
+msgstr[1] "%d группы"
+msgstr[2] "%d групп"
+msgstr[3] "%d групп"
+
+#: ../dtop/anki/sync.py:839
+#, python-format
+msgid "%d media change to upload"
+msgid_plural "%d media changes to upload"
+msgstr[0] "Будyет выгружен %d изменённый медиафайл"
+msgstr[1] "Будут выгружены %d изменённых медиафайлов"
+msgstr[2] "Будут выгружены %d изменённых медиафайлов"
+msgstr[3] "Будут выгружены %d изменённых медиафайлов"
+
+#: ../dtop/anki/sync.py:890
+#, python-format
+msgid "%d media file downloaded"
+msgid_plural "%d media files downloaded"
+msgstr[0] "%d медиафайл загружен"
+msgstr[1] "%d медиафайла загружены"
+msgstr[2] "%d медиафайлов загружены"
+msgstr[3] "%d медиафайлов загружены"
+
+#: ../dtop/aqt/browser.py:2151 ../dtop/aqt/browser.py:2159
+#: ../dtop/aqt/fields.py:96 ../dtop/aqt/models.py:82
+#, python-format
+msgid "%d note"
+msgid_plural "%d notes"
+msgstr[0] "%d запись"
+msgstr[1] "%d записи"
+msgstr[2] "%d записей"
+msgstr[3] "%d записей"
+
+#: ../dtop/anki/importing/noteimp.py:210
+#, python-format
+msgid "%d note added"
+msgid_plural "%d notes added"
+msgstr[0] "%d запись добавлена"
+msgstr[1] "%d записи добавлено"
+msgstr[2] "%d записей добавлено"
+msgstr[3] "%d записей добавлено"
+
+#: ../dtop/aqt/browser.py:1781
+#, python-format
+msgid "%d note deleted."
+msgid_plural "%d notes deleted."
+msgstr[0] "%d запись удалена."
+msgstr[1] "%d записи удалены."
+msgstr[2] "%d записей удалены."
+msgstr[3] "%d записей удалено."
+
+#: ../dtop/aqt/exporting.py:145
+#, python-format
+msgid "%d note exported."
+msgid_plural "%d notes exported."
+msgstr[0] "%d запись экспортирована."
+msgstr[1] "%d записи экспортированы."
+msgstr[2] "%d записей экспортированы."
+msgstr[3] "%d записей экспортировано."
+
+#: ../dtop/anki/importing/mnemo.py:105
+#, python-format
+msgid "%d note imported."
+msgid_plural "%d notes imported."
+msgstr[0] "%d запись импортирована."
+msgstr[1] "%d записи импортированы."
+msgstr[2] "%d записей импортированы."
+msgstr[3] "%d записей импортировано."
+
+#: ../dtop/anki/importing/noteimp.py:222
+#, python-format
+msgid "%d note unchanged"
+msgid_plural "%d notes unchanged"
+msgstr[0] "%d запись не изменена"
+msgstr[1] "%d записи не изменены"
+msgstr[2] "%d записей не изменены"
+msgstr[3] "%d записей не изменено"
+
+#: ../dtop/anki/importing/noteimp.py:212
+#, python-format
+msgid "%d note updated"
+msgid_plural "%d notes updated"
+msgstr[0] "%d запись обновлена"
+msgstr[1] "%d записи обновлены"
+msgstr[2] "%d записей обновлены"
+msgstr[3] "%d записей обновлено"
+
+#: ../dtop/anki/stats.py:279
+#, python-format
+msgid "%d review"
+msgid_plural "%d reviews"
+msgstr[0] "%d повторение"
+msgstr[1] "%d повторения"
+msgstr[2] "%d повторений"
+msgstr[3] "%d повторений"
+
+#: ../dtop/aqt/browser.py:800
+#, python-format
+msgid "%d selected"
+msgid_plural "%d selected"
+msgstr[0] "%d выбрана"
+msgstr[1] "%d выбраны"
+msgstr[2] "%d выбраны"
+msgstr[3] "%d выбрано"
+
+#: ../dtop/anki/models.py:247
+#, python-format
+msgid "%s copy"
+msgstr "Копия %s"
+
+#: ../dtop/anki/utils.py:41
+#, python-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "%s день"
+msgstr[1] "%s дня"
+msgstr[2] "%s дней"
+msgstr[3] "%s дней"
+
+#: ../dtop/anki/utils.py:42
+#, python-format
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] "%s час"
+msgstr[1] "%s часа"
+msgstr[2] "%s часов"
+msgstr[3] "%s часов"
+
+#: ../dtop/anki/utils.py:43
+#, python-format
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] "%s минуту"
+msgstr[1] "%s минуты"
+msgstr[2] "%s минут"
+msgstr[3] "%s минут"
+
+#: ../dtop/aqt/reviewer.py:79
+#, python-format
+msgid "%s minute."
+msgid_plural "%s minutes."
+msgstr[0] "%s минуту."
+msgstr[1] "%s минуты."
+msgstr[2] "%s минут."
+msgstr[3] "%s минут."
+
+#: ../dtop/anki/utils.py:40
+#, python-format
+msgid "%s month"
+msgid_plural "%s months"
+msgstr[0] "%s месяц"
+msgstr[1] "%s месяца"
+msgstr[2] "%s месяцев"
+msgstr[3] "%s месяцев"
+
+#: ../dtop/anki/utils.py:44 ../dtop/aqt/main.py:1092
+#, python-format
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] "%s секунду"
+msgstr[1] "%s секунды"
+msgstr[2] "%s секунд"
+msgstr[3] "%s секунд"
+
+#: ../dtop/aqt/main.py:1329
+#, python-format
+msgid "%s to delete:"
+msgstr "%s к удалению:"
+
+#: ../dtop/anki/utils.py:39
+#, python-format
+msgid "%s year"
+msgid_plural "%s years"
+msgstr[0] "%s год"
+msgstr[1] "%s года"
+msgstr[2] "%s лет"
+msgstr[3] "%s лет"
+
+#. T: d is an abbreviation for day. %s is a number of days
+#: ../dtop/anki/utils.py:64
+#, python-format
+msgid "%sd"
+msgstr "%s дн."
+
+#. T: h is an abbreviation for hour. %s is a number of hours
+#: ../dtop/anki/utils.py:66
+#, python-format
+msgid "%sh"
+msgstr "%s ч."
+
+#. T: m is an abbreviation for minute. %s is a number of minutes
+#: ../dtop/anki/utils.py:68
+#, python-format
+msgid "%sm"
+msgstr "%s мин."
+
+#. T: m is an abbreviation for month. %s is a number of months
+#: ../dtop/anki/utils.py:62
+#, python-format
+msgid "%smo"
+msgstr "%s мес."
+
+#. T: s is an abbreviation for second. %s is a number of seconds
+#: ../dtop/anki/utils.py:70
+#, python-format
+msgid "%ss"
+msgstr "%s с"
+
+#. T: year is an abbreviation for year. %s is a number of years
+#: ../dtop/anki/utils.py:60
+#, python-format
+msgid "%sy"
+msgstr "%s г."
+
+#: ../dtop/aqt/forms/main.py:139
+msgid "&About..."
+msgstr "&О программе…"
+
+#: ../dtop/aqt/forms/main.py:145
+msgid "&Browse and Install..."
+msgstr "Просмотреть и установить..."
+
+#: ../dtop/aqt/forms/browser.py:298
+msgid "&Cards"
+msgstr "&Карточки"
+
+#: ../dtop/aqt/forms/main.py:146
+msgid "&Check Database"
+msgstr "&Проверить базу данных"
+
+#: ../dtop/aqt/forms/browser.py:313
+msgid "&Cram..."
+msgstr "&Зубрить..."
+
+#: ../dtop/aqt/forms/browser.py:295 ../dtop/aqt/forms/main.py:133
+msgid "&Edit"
+msgstr "&Править"
+
+#: ../dtop/aqt/forms/main.py:149
+msgid "&Export..."
+msgstr "&Экспортировать…"
+
+#: ../dtop/aqt/forms/main.py:134
+msgid "&File"
+msgstr "&Файл"
+
+#: ../dtop/aqt/forms/browser.py:305
+msgid "&Find"
+msgstr "&Найти"
+
+#: ../dtop/aqt/forms/browser.py:296
+msgid "&Go"
+msgstr "Пе&рейти"
+
+#: ../dtop/aqt/forms/browser.py:309 ../dtop/aqt/forms/main.py:147
+msgid "&Guide..."
+msgstr "&Руководство…"
+
+#: ../dtop/aqt/forms/browser.py:297 ../dtop/aqt/forms/main.py:132
+msgid "&Help"
+msgstr "&Справка"
+
+#: ../dtop/aqt/forms/main.py:150
+msgid "&Import..."
+msgstr "&Импортировать…"
+
+#: ../dtop/aqt/forms/browser.py:323
+msgid "&Info..."
+msgstr "&Инфо..."
+
+#: ../dtop/aqt/forms/browser.py:304
+msgid "&Invert Selection"
+msgstr "&Инвертировать выделение"
+
+#: ../dtop/aqt/forms/browser.py:307
+msgid "&Next Card"
+msgstr "&Следующая карточка"
+
+#: ../dtop/aqt/forms/browser.py:300
+msgid "&Notes"
+msgstr "&Записи"
+
+#: ../dtop/aqt/forms/main.py:143
+msgid "&Open Add-ons Folder..."
+msgstr "&Открыть папку дополнений..."
+
+#: ../dtop/aqt/forms/main.py:137
+msgid "&Preferences..."
+msgstr "&Настройки…"
+
+#: ../dtop/aqt/forms/browser.py:308
+msgid "&Previous Card"
+msgstr "&Предыдущая карточка"
+
+#: ../dtop/aqt/forms/browser.py:301
+msgid "&Reschedule..."
+msgstr "&Перепланировать..."
+
+#: ../dtop/aqt/forms/main.py:144
+msgid "&Support Anki..."
+msgstr "&Поддержать Anki…"
+
+#: ../dtop/aqt/forms/main.py:148
+msgid "&Switch Profile"
+msgstr "Сменить профиль"
+
+#: ../dtop/aqt/forms/main.py:135
+msgid "&Tools"
+msgstr "&Инструменты"
+
+#: ../dtop/aqt/forms/browser.py:303 ../dtop/aqt/forms/main.py:140
+msgid "&Undo"
+msgstr "&Отменить"
+
+#: ../dtop/anki/importing/csvfile.py:44
+#, python-format
+msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
+msgstr "В '%(row)s' %(num1)d полей, но должно быть %(num2)d"
+
+#: ../dtop/anki/stats.py:186
+#, python-format
+msgid "(%s correct)"
+msgstr "(%s верных)"
+
+#: ../dtop/aqt/addcards.py:158
+msgid "(Note deleted)"
+msgstr "(запись удалена)"
+
+#: ../dtop/anki/sched.py:1336 ../dtop/anki/schedv2.py:1510
+msgid "(end)"
+msgstr "(конец)"
+
+#: ../dtop/aqt/browser.py:339
+msgid "(filtered)"
+msgstr "(фильтрованные)"
+
+#: ../dtop/aqt/browser.py:306
+msgid "(learning)"
+msgstr "(изучаемые)"
+
+#: ../dtop/aqt/browser.py:304 ../dtop/aqt/browser.py:310
+msgid "(new)"
+msgstr "(новые)"
+
+#: ../dtop/aqt/deckconf.py:179
+#, python-format
+msgid "(parent limit: %d)"
+msgstr "(лимит у вышестоящей: %d)"
+
+#: ../dtop/aqt/browser.py:1682
+msgid "(please select 1 card)"
+msgstr "(выберите 1 карточку)"
+
+#: ../dtop/aqt/importing.py:309
+msgid ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
+msgstr "Эти файлы .anki для старой версии Anki. Их можно импортировать через Anki 2.0, доступной на сайте."
+
+#: ../dtop/aqt/importing.py:316
+msgid ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
+msgstr "Эти файлы .anki2 нельзя импортировать напрямую. Импортируйте .apkg или .zip, которые вы получили."
+
+#: ../dtop/aqt/browser.py:1452
+msgid "0d"
+msgstr "0 дн."
+
+#: ../dtop/aqt/forms/dyndconf.py:146
+msgid "1 10"
+msgstr ""
+
+#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:78
+msgid "1 month"
+msgstr "1 месяц"
+
+#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:79
+msgid "1 year"
+msgstr "1 год"
+
+#: ../dtop/anki/stats.py:825
+msgid "10AM"
+msgstr "10:00"
+
+#: ../dtop/anki/stats.py:827
+msgid "10PM"
+msgstr "22:00"
+
+#: ../dtop/anki/stats.py:828
+msgid "3AM"
+msgstr "03:00"
+
+#: ../dtop/anki/stats.py:824
+msgid "4AM"
+msgstr "04:00"
+
+#: ../dtop/anki/stats.py:826
+msgid "4PM"
+msgstr "16:00"
+
+#: ../dtop/aqt/sync.py:211
+msgid "504 gateway timeout error received. Please try temporarily disabling your antivirus."
+msgstr "Произошла ошибка 504: шлюз не отвечает. Попробуйте временно отключить антивирус."
+
+#. T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
+#: ../dtop/anki/stats.py:911
+msgid ":"
+msgstr ""
+
+#: ../dtop/anki/stats.py:175 ../dtop/aqt/deckbrowser.py:120
+#, python-format
+msgid "<!--studied-->%d card"
+msgid_plural "<!--studied-->%d cards"
+msgstr[0] "<!--studied-->%d карточку"
+msgstr[1] "<!--studied-->%d карточки"
+msgstr[2] "<!--studied-->%d карточек"
+msgstr[3] "<!--studied-->%d карточек"
+
+#: ../dtop/aqt/about.py:64
+#, python-format
+msgid "<a href='%s'>Visit website</a>"
+msgstr "<a href='%s'>Посетить сайт</a>"
+
+#: ../dtop/anki/stats.py:428
+#, python-format
+msgid "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
+msgstr "<b>%(pct)d %%</b> (%(x)s из %(y)s)"
+
+#: ../dtop/aqt/browser.py:1431
+msgid "<b>%Y-%m-%d</b> @ %H:%M"
+msgstr ""
+
+#: ../dtop/aqt/forms/preferences.py:264
+msgid "<b>Backups</b><br>Anki will create a backup of your collection each time it is closed or synchronized."
+msgstr "<b>Резервные копии</b><br>Anki делает резервную копию коллекции при закрытии или синхронизации."
+
+#: ../dtop/aqt/forms/exporting.py:75
+msgid "<b>Export format</b>:"
+msgstr "<b>Формат экспорта</b>:"
+
+#: ../dtop/aqt/forms/findreplace.py:69
+msgid "<b>Find</b>:"
+msgstr "<b>Найти</b>:"
+
+#: ../dtop/aqt/forms/browseropts.py:71
+msgid "<b>Font Size</b>:"
+msgstr "<b>Размер шрифта</b>:"
+
+#: ../dtop/aqt/forms/browseropts.py:70
+msgid "<b>Font</b>:"
+msgstr "<b>Шрифт</b>:"
+
+#: ../dtop/aqt/forms/findreplace.py:71
+msgid "<b>In</b>:"
+msgstr "<b>Где искать</b>:"
+
+#: ../dtop/aqt/forms/exporting.py:76
+msgid "<b>Include</b>:"
+msgstr "<b>Содержит</b>:"
+
+#: ../dtop/aqt/forms/browseropts.py:72
+msgid "<b>Line Size</b>:"
+msgstr "<b>Высота строки</b>:"
+
+#: ../dtop/aqt/forms/findreplace.py:70
+msgid "<b>Replace With</b>:"
+msgstr "<b>Заменить на</b>:"
+
+#: ../dtop/aqt/forms/preferences.py:258
+msgid "<b>Synchronisation</b>"
+msgstr "<b>Синхронизация</b>"
+
+#: ../dtop/aqt/preferences.py:195
+msgid "<b>Synchronization</b><br>\n"
+"Not currently enabled; click the sync button in the main window to enable."
+msgstr "<b>Синхронизация</b><br>\n"
+"Выключена. Чтобы включить её, щёлкните кнопку в главном окне."
+
+#: ../dtop/aqt/sync.py:257
+#, python-format
+msgid "<h1>Account Required</h1>\n"
+"A free account is required to keep your collection synchronized. Please <a href=\"%s\">sign up</a> for an account, then enter your details below."
+msgstr "<h1>Нужна учётная запись</h1>\n"
+"Для синхронизации коллекции необходима учётная запись.  <a href=\"%s\">Создайте</a> учётную запись, и добавьте её внизу."
+
+#: ../dtop/aqt/update.py:60
+#, python-format
+msgid "<h1>Anki Updated</h1>Anki %s has been released.<br><br>"
+msgstr "<h1>Anki обновлена</h1>Была выпущена Anki %s.<br><br>"
+
+#: ../dtop/aqt/errors.py:143
+msgid "<h1>Error</h1>\n\n"
+"<p>An error occurred. Please start Anki while holding down the shift key, which will temporarily disable the add-ons you have installed.</p>\n\n"
+"<p>If the issue only occurs when add-ons are enabled, please use the Tools&gt;Add-ons menu item to disable some add-ons and restart Anki, repeating until you discover the add-on that is causing the problem.</p>\n\n"
+"<p>When you've discovered the add-on that is causing the problem, please report the issue on the <a href=\"https://help.ankiweb.net/discussions/add-ons/\">add-ons section</a> of our support site.\n\n"
+"<p>Debug info:</p>\n"
+msgstr "<h1>Ошибка</h1>\n"
+"<p>Произошла ошибка. Запустите Anki зажав Shift, чтобы временно отключить дополнения.</p>\n"
+"<p>Если проблема появляется включёнными дополнениями, выберите в меню «Инструменты»—«Дополнения», чтобы отключить несколько дополнений, и перезапустите Anki. Повторяйте эти действия, пока не найдёте проблемное дополнение.</p>\n"
+"<p>Когда вы нашли дополнение, ставшее причиной ошибки, пожалуйста, сообщите об ошибке в <a href=\"https://help.ankiweb.net/discussions/add-ons/\">разделе дополнений</a> нашего сайта поддержки.\n"
+"<p>Отладочная информация:</p>\n"
+
+#: ../dtop/aqt/errors.py:131
+msgid "<h1>Error</h1>\n\n"
+"<p>An error occurred. Please use <b>Tools &gt; Check Database</b> to see if that fixes the problem.</p>\n\n"
+"<p>If problems persist, please report the problem on our <a href=\"https://help.ankiweb.net\">support site</a>. Please copy and paste  the information below into your report.</p>"
+msgstr "<h1>Ошибка</h1>\n"
+"<p>Произошла ошибка. Выберите в меню «Инструменты»—«Проверить базу данных»</b>, чтобы посмотреть, исправит ли это проблему.</p>\n"
+"<p>Если проблема осталась, пожалуйста, сообщите о ней на нашем <a href=\"https://help.ankiweb.net\">сайте поддержки</a>. Пожалуйста, скопируйте информацию ниже и вставьте её в Ваш отчёт об ошибке.</p>"
+
+#: ../dtop/aqt/importing.py:252
+msgid "<ignored>"
+msgstr "<проигнорировано>"
+
+#: ../dtop/aqt/main.py:1430
+msgid "<non-unicode text>"
+msgstr "<текст не в юникоде>"
+
+#: ../dtop/aqt/browser.py:735
+msgid "<type here to search; hit enter to show current deck>"
+msgstr "<введите здесь поисковый запрос или нажмите «Ввод», чтобы показать текущую колоду>"
+
+#: ../dtop/aqt/about.py:168
+msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
+msgstr "Большое спасибо всем людям, помогавшим проекту идеями, сообщениями об ошибках и пожертвованиями."
+
+#: ../dtop/anki/stats.py:897
+msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
+msgstr "<i>Лёгкость</i> карточки — длина следующего интервала при ответе «Хорошо» при повторении."
+
+#: ../dtop/anki/decks.py:285
+msgid "A filtered deck cannot have subdecks."
+msgstr "В фильтрованной колоде не может быть подколод."
+
+#: ../dtop/aqt/sync.py:153
+msgid "A problem occurred while syncing media. Please use Tools>Check Media, then sync again to correct the issue."
+msgstr "Возникла проблема при синхронизации медиафайлов. Выберите в меню «Инструменты»—«Проверить медиафайлы», затем повторите синхронизацию."
+
+#: ../dtop/anki/importing/csvfile.py:56
+#, python-format
+msgid "Aborted: %s"
+msgstr "Прервано: %s"
+
+#: ../dtop/aqt/forms/about.py:43
+msgid "About Anki"
+msgstr "Об Anki"
+
+#: ../dtop/aqt/addcards.py:37 ../dtop/aqt/addcards.py:66
+#: ../dtop/aqt/deckconf.py:81 ../dtop/aqt/models.py:47
+#: ../dtop/aqt/studydeck.py:46 ../dtop/aqt/toolbar.py:35
+#: ../dtop/aqt/forms/addcards.py:63 ../dtop/aqt/forms/fields.py:101
+#: ../dtop/aqt/forms/profiles.py:76
+msgid "Add"
+msgstr "Добавить"
+
+#: ../dtop/aqt/addcards.py:69
+msgid "Add (shortcut: ctrl+enter)"
+msgstr "Добавить (комбинация: Ctrl+Enter)"
+
+#: ../dtop/aqt/clayout.py:462
+msgid "Add Card Type..."
+msgstr "Добавить тип карточек..."
+
+#: ../dtop/aqt/clayout.py:262 ../dtop/aqt/forms/addfield.py:73
+msgid "Add Field"
+msgstr "Добавить поле"
+
+#: ../dtop/aqt/editor.py:651
+msgid "Add Media"
+msgstr "Добавить медиафайл"
+
+#: ../dtop/aqt/studydeck.py:48
+msgid "Add New Deck (Ctrl+N)"
+msgstr "Добавить новую колоду (Ctrl+N)"
+
+#: ../dtop/aqt/forms/addmodel.py:44
+msgid "Add Note Type"
+msgstr "Добавить тип записи"
+
+#: ../dtop/aqt/forms/browser.py:328
+msgid "Add Notes..."
+msgstr "Добавить записи..."
+
+#: ../dtop/anki/stdmodels.py:82
+msgid "Add Reverse"
+msgstr "Добавить обратную"
+
+#: ../dtop/aqt/browser.py:1851
+msgid "Add Tags"
+msgstr "Добавить метки"
+
+#: ../dtop/aqt/forms/browser.py:324
+msgid "Add Tags..."
+msgstr "Добавить метки..."
+
+#: ../dtop/aqt/forms/addfield.py:79
+msgid "Add to:"
+msgstr "Добавить в:"
+
+#: ../dtop/aqt/browser.py:145
+msgid "Add-on"
+msgstr ""
+
+#: ../dtop/aqt/addons.py:693
+msgid "Add-on has no configuration."
+msgstr "У дополнения нет настроек."
+
+#: ../dtop/aqt/addons.py:591
+msgid "Add-on was not downloaded from AnkiWeb."
+msgstr "Дополнение не было загружено с AnkiWeb."
+
+#: ../dtop/aqt/forms/addons.py:67 ../dtop/aqt/forms/main.py:155
+msgid "Add-ons"
+msgstr "Дополнения"
+
+#: ../dtop/aqt/errors.py:179
+msgid "Add-ons possibly involved: {}\n"
+msgstr "Причиной могли послужить: {}\n"
+
+#: ../dtop/aqt/models.py:187
+#, python-format
+msgid "Add: %s"
+msgstr "Добавить: %s"
+
+#: ../dtop/anki/stats.py:27 ../dtop/anki/stats.py:335
+#: ../dtop/anki/importing/anki2.py:168 ../dtop/aqt/addcards.py:209
+msgid "Added"
+msgstr "Добавлено"
+
+#: ../dtop/aqt/browser.py:1218
+msgid "Added Today"
+msgstr "Добавленные сегодня"
+
+#: ../dtop/anki/importing/noteimp.py:131
+#, python-format
+msgid "Added duplicate with first field: %s"
+msgstr "Добавлен дубликат с первым полем: %s"
+
+#: ../dtop/aqt/reviewer.py:590
+msgid "Again"
+msgstr "Снова"
+
+#: ../dtop/aqt/browser.py:1220
+msgid "Again Today"
+msgstr "Возвратов сегодня"
+
+#: ../dtop/anki/stats.py:184
+#, python-format
+msgid "Again count: %s"
+msgstr "Возвратов: %s"
+
+#: ../dtop/aqt/overview.py:105
+msgid "All Buried Cards"
+msgstr "Все отложенные карточки"
+
+#: ../dtop/aqt/browser.py:1300
+msgid "All Card Types"
+msgstr "Все типы карточек"
+
+#: ../dtop/aqt/exporting.py:41
+msgid "All Decks"
+msgstr "Все колоды"
+
+#: ../dtop/aqt/browser.py:2063
+msgid "All Fields"
+msgstr "Все поля"
+
+#: ../dtop/aqt/forms/customstudy.py:116
+msgid "All cards in random order (don't reschedule)"
+msgstr "Все карточки в случайном порядке (без перепланирования)"
+
+#: ../dtop/aqt/main.py:259
+msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
+msgstr "Все карточки, записи и медиафайлы этого профиля будут удалены. Вы уверены?"
+
+#: ../dtop/aqt/forms/customstudy.py:114
+msgid "All review cards in random order"
+msgstr "Все повторяемые карточки в случайном порядке"
+
+#: ../dtop/aqt/forms/importing.py:101
+msgid "Allow HTML in fields"
+msgstr "Разрешить HTML в полях"
+
+#: ../dtop/aqt/forms/dconf.py:391
+msgid "Always include question side when replaying audio"
+msgstr "Всегда повторять вопрос при повторении аудио"
+
+#: ../dtop/aqt/addons.py:93
+#, python-format
+msgid "An add-on you installed failed to load. If problems persist, please go to the Tools>Add-ons menu, and disable or delete the add-on.\n\n"
+"When loading '%(name)s':\n"
+"%(traceback)s\n"
+msgstr "Установленное дополнение не было загружено. Если проблема сохраняется, выберите в меню «Инструменты»—«Дополнения» и отключите или удалите это дополнение.\n\n"
+"При загрузке '%(name)s':\n"
+"%(traceback)s\n"
+
+#: ../dtop/aqt/errors.py:111
+msgid "An error occurred while accessing the database.\n\n"
+"Possible causes:\n\n"
+"- Antivirus, firewall, backup, or synchronization software may be   interfering with Anki. Try disabling such software and see if the   problem goes away.\n"
+"- Your disk may be full.\n"
+"- The Documents/Anki folder may be on a network drive.\n"
+"- Files in the Documents/Anki folder may not be writeable.\n"
+"- Your hard disk may have errors.\n\n"
+"It's a good idea to run Tools>Check Database to ensure your collection is not corrupt.\n"
+msgstr "Произошла ошибка при обращении к базе данных.\n\n"
+"Возможные причины:\n\n"
+"- Антивирус, брандмауэр, резервное копирование или программы для синхронизации могут мешать Anki. Попробуйте отключить их.\n"
+"- Диск может быть переполнен.\n"
+"- Папка «Документы» или папка Anki может быть на сетевом диске.\n"
+"- Файлы в «Документах» папке Анки могут быть не доступными для записи.\n"
+"- Жёсткий диск может иметь ошибки.\n\n"
+"Выберите в меню «Инструменты»—«Проверить базу данных», чтобы убедиться, что коллекция не повреждена.\n"
+
+#: ../dtop/aqt/editor.py:782 ../dtop/aqt/editor.py:785
+#, python-format
+msgid "An error occurred while opening %s"
+msgstr "При открытии %s возникла ошибка"
+
+#: ../dtop/aqt/forms/main.py:131 ../dtop/aqt/forms/setgroup.py:38
+#: ../dtop/aqt/forms/setlang.py:39
+msgid "Anki"
+msgstr "Anki"
+
+#: ../dtop/anki/exporting.py:155
+msgid "Anki 2.0 Deck"
+msgstr "Колода Anki 2.0"
+
+#: ../dtop/aqt/forms/preferences.py:246
+msgid "Anki 2.1 scheduler (beta)"
+msgstr ""
+
+#: ../dtop/anki/exporting.py:380
+msgid "Anki Collection Package"
+msgstr "Пакет коллекции Anki"
+
+#: ../dtop/anki/exporting.py:299
+msgid "Anki Deck Package"
+msgstr "Пакет колод Anki"
+
+#: ../dtop/aqt/profiles.py:179
+msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
+msgstr "Anki не смогла прочесть ваш профиль. Размеры окон и учётная запись сброшены."
+
+#: ../dtop/aqt/profiles.py:249
+msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
+msgstr "Anki не смогла переименовать ваш профиль, потому что не смогла переименовать папку на диске. Проверьте, что у вас права записи в «Документы» и папку Anki и что другие программы не используют эти папку. Потом попробуйте снова."
+
+#: ../dtop/aqt/clayout.py:448
+msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
+msgstr "Anki не нашла строку между вопросом и ответом. Отредактируйте шаблон вручную, чтобы поменять их местами."
+
+#: ../dtop/anki/media.py:363
+msgid "Anki does not support files in subfolders of the collection.media folder."
+msgstr "Anki не поддерживает файлы в подпапках папки collection.media."
+
+#: ../dtop/aqt/about.py:51
+msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
+msgstr "Anki — это дружелюбная, умная обучающая система, основанная на методе интервальных повторений. Полностью бесплатная и с открытым исходным кодом."
+
+#: ../dtop/aqt/about.py:55
+msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
+msgstr "Anki распространяется под лицензией AGPL3. Смотрите файл лицензии в дистрибутиве для более точной информации."
+
+#: ../dtop/aqt/main.py:406
+msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
+"Debug info:\n"
+msgstr "Anki не смогла открыть файл коллекции. Если проблема сохраняется после перезапуска компьютера, выберите «Открыть резервную копию» в менеджере профиле.\n\n"
+"Отладочная информация:\n"
+
+#: ../dtop/aqt/sync.py:100
+msgid "AnkiWeb ID or password was incorrect; please try again."
+msgstr "Имя и пароль AnkiWeb неверны. Попробуйте ещё раз."
+
+#: ../dtop/aqt/sync.py:270
+msgid "AnkiWeb ID:"
+msgstr "Логин на AnkiWeb:"
+
+#: ../dtop/aqt/sync.py:191
+msgid "AnkiWeb encountered an error. Please try again in a few minutes, and if the problem persists, please file a bug report."
+msgstr "AnkiWeb обнаружила ошибку. Попробуйте ещё раз через несколько минут. Если проблема повторится, отправьте сообщение об ошибке."
+
+#: ../dtop/aqt/sync.py:206
+msgid "AnkiWeb is too busy at the moment. Please try again in a few minutes."
+msgstr "AnkiWeb сейчас перегружен. Повторите попытку через несколько минут."
+
+#: ../dtop/aqt/sync.py:203
+msgid "AnkiWeb is under maintenance. Please try again in a few minutes."
+msgstr "На AnkiWeb ведутся профилактические работы. Попробуйте ещё раз через несколько минут."
+
+#: ../dtop/aqt/browser.py:711
+msgid "Answer"
+msgstr "Ответ"
+
+#: ../dtop/anki/stats.py:696
+msgid "Answer Buttons"
+msgstr "Кнопки ответа"
+
+#: ../dtop/anki/stats.py:383 ../dtop/anki/stats.py:707
+#: ../dtop/anki/stats.py:815
+msgid "Answers"
+msgstr "Ответы"
+
+#: ../dtop/aqt/sync.py:219
+msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
+msgstr "Антивирус или брандмауэр не дают Anki подключиться к интернету."
+
+#: ../dtop/aqt/browser.py:1244
+msgid "Any Flag"
+msgstr "Любой флаг"
+
+#: ../dtop/aqt/browser.py:2413
+msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
+msgstr "Несопоставленные карты будут удалены. Записи, оставшиеся без карт, будут утеряны. Продолжить?"
+
+#: ../dtop/anki/importing/noteimp.py:156
+#, python-format
+msgid "Appeared twice in file: %s"
+msgstr "Дважды встречается в файле: %s"
+
+#: ../dtop/aqt/deckbrowser.py:305
+#, python-format
+msgid "Are you sure you wish to delete %s?"
+msgstr "Вы уверены, что хотите удалить %s?"
+
+#: ../dtop/aqt/clayout.py:227
+msgid "At least one card type is required."
+msgstr "Должен быть хотя бы один тип карточки."
+
+#: ../dtop/aqt/deckconf.py:261 ../dtop/aqt/dyndeckconf.py:159
+msgid "At least one step is required."
+msgstr "Должен быть хотя бы один шаг."
+
+#: ../dtop/aqt/editor.py:138
+msgid "Attach pictures/audio/video (F3)"
+msgstr "Прикрепить изображение, аудио, видео (F3)"
+
+#: ../dtop/aqt/main.py:309
+msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
+msgstr "Автоматическая синхронизация и резервное копирование были отключены при восстановлении. Чтобы включить их снова, закройте профиль или перезапустите Anki."
+
+#: ../dtop/aqt/forms/dconf.py:390
+msgid "Automatically play audio"
+msgstr "Автоматически воспроизводить аудио"
+
+#: ../dtop/aqt/forms/preferences.py:260
+msgid "Automatically sync on profile open/close"
+msgstr "Автоматически синхронизировать при открытии или закрытии профиля"
+
+#: ../dtop/anki/stats.py:280 ../dtop/anki/stats.py:345
+msgid "Average"
+msgstr "В среднем"
+
+#: ../dtop/anki/stats.py:53
+msgid "Average Time"
+msgstr "Среднее время"
+
+#: ../dtop/anki/stats.py:459
+msgid "Average answer time"
+msgstr "Среднее время ответа"
+
+#: ../dtop/anki/stats.py:893
+msgid "Average ease"
+msgstr "Средняя лёгкость"
+
+#: ../dtop/anki/stats.py:443
+msgid "Average for days studied"
+msgstr "В среднем в день учёбы"
+
+#: ../dtop/anki/stats.py:633
+msgid "Average interval"
+msgstr "Средний интервал"
+
+#: ../dtop/anki/stdmodels.py:20 ../dtop/anki/stdmodels.py:24
+#: ../dtop/anki/stdmodels.py:45 ../dtop/anki/stdmodels.py:46
+#: ../dtop/anki/stdmodels.py:61 ../dtop/aqt/forms/addfield.py:78
+msgid "Back"
+msgstr "Обратная сторона"
+
+#: ../dtop/aqt/forms/preview.py:41
+msgid "Back Preview"
+msgstr "Предпросмотр оборотной стороны"
+
+#: ../dtop/aqt/forms/template.py:109
+msgid "Back Template"
+msgstr "Шаблон оборотной стороны"
+
+#: ../dtop/aqt/main.py:454
+msgid "Backing Up..."
+msgstr "Резервное копирование..."
+
+#: ../dtop/aqt/forms/preferences.py:270
+msgid "Backups"
+msgstr "Резервные копии"
+
+#: ../dtop/anki/stdmodels.py:17 ../dtop/anki/stdmodels.py:35
+#: ../dtop/aqt/forms/preferences.py:257
+msgid "Basic"
+msgstr "Основная"
+
+#: ../dtop/anki/stdmodels.py:59 ../dtop/anki/stdmodels.py:73
+msgid "Basic (and reversed card)"
+msgstr "Основная (с обратной карточкой)"
+
+#: ../dtop/anki/stdmodels.py:81 ../dtop/anki/stdmodels.py:91
+msgid "Basic (optional reversed card)"
+msgstr "Основная (обратная по выбору)"
+
+#: ../dtop/anki/stdmodels.py:43 ../dtop/anki/stdmodels.py:51
+msgid "Basic (type in the answer)"
+msgstr "Основная (с вводом ответа)"
+
+#: ../dtop/aqt/browser.py:1242 ../dtop/aqt/reviewer.py:672
+#: ../dtop/aqt/forms/browser.py:333
+msgid "Blue Flag"
+msgstr "Синий флаг"
+
+#: ../dtop/aqt/editor.py:102
+msgid "Bold text (Ctrl+B)"
+msgstr "Полужирный текст  (Ctrl+B)"
+
+#: ../dtop/aqt/toolbar.py:36
+msgid "Browse"
+msgstr "Обзор"
+
+#: ../dtop/aqt/browser.py:794
+#, python-format
+msgid "Browse (%(cur)d card shown; %(sel)s)"
+msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
+msgstr[0] "Обзор (%(cur)d карточка показана; %(sel)s)"
+msgstr[1] "Обзор (%(cur)d карточки показаны; %(sel)s)"
+msgstr[2] "Обзор (%(cur)d карточек показано; %(sel)s)"
+msgstr[3] "Обзор (%(cur)d карточек показано; %(sel)s)"
+
+#: ../dtop/aqt/addons.py:712
+msgid "Browse Add-ons"
+msgstr "Посмотреть дополнения"
+
+#: ../dtop/aqt/forms/browserdisp.py:69
+msgid "Browser Appearance"
+msgstr "Вид списка"
+
+#: ../dtop/aqt/clayout.py:484
+msgid "Browser Appearance..."
+msgstr "Вид списка..."
+
+#: ../dtop/aqt/forms/browseropts.py:69
+msgid "Browser Options"
+msgstr "Параметры списка"
+
+#: ../dtop/aqt/dyndeckconf.py:20
+msgid "Build"
+msgstr "Сборка"
+
+#: ../dtop/aqt/browser.py:1237
+msgid "Buried"
+msgstr "Отложены"
+
+#: ../dtop/aqt/overview.py:104
+msgid "Buried Siblings"
+msgstr "Отложенные связанные карточки"
+
+#: ../dtop/aqt/reviewer.py:774 ../dtop/aqt/reviewer.py:780
+msgid "Bury"
+msgstr "Отложить"
+
+#: ../dtop/aqt/reviewer.py:680
+msgid "Bury Card"
+msgstr "Отложить карточку"
+
+#: ../dtop/aqt/reviewer.py:681
+msgid "Bury Note"
+msgstr "Отложить запись"
+
+#: ../dtop/aqt/forms/dconf.py:361
+msgid "Bury related new cards until the next day"
+msgstr "Откладывать связанные новые карточки до следующего дня"
+
+#: ../dtop/aqt/forms/dconf.py:372
+msgid "Bury related reviews until the next day"
+msgstr "Откладывать повторение связанных карточек до следующего дня"
+
+#: ../dtop/aqt/importing.py:123
+msgid "By default, Anki will detect the character between fields, such as\n"
+"a tab, comma, and so on. If Anki is detecting the character incorrectly,\n"
+"you can enter it here. Use \\t to represent tab."
+msgstr "По умолчанию, Anki будет обнаруживать знаки между полями, такие как\n"
+"символ табуляции, запятая, и т.д. Если Anki определит символ неправильно,\n"
+"Вы можете ввести его здесь. Используйте \\t для отображения TAB."
+
+#: ../dtop/aqt/overview.py:106 ../dtop/aqt/sound.py:30 ../dtop/aqt/sync.py:299
+#: ../dtop/aqt/sync.py:321
+msgid "Cancel"
+msgstr "Отменить"
+
+#: ../dtop/aqt/browser.py:712
+msgid "Card"
+msgstr "Карточка"
+
+#: ../dtop/aqt/clayout.py:411
+#, python-format
+msgid "Card %d"
+msgstr "Карточка %d"
+
+#: ../dtop/anki/stdmodels.py:22
+msgid "Card 1"
+msgstr "Карточка 1"
+
+#: ../dtop/anki/stdmodels.py:60
+msgid "Card 2"
+msgstr "Карточка 2"
+
+#: ../dtop/anki/stats.py:61
+msgid "Card ID"
+msgstr "ID карточки"
+
+#: ../dtop/aqt/forms/browser.py:315
+msgid "Card List"
+msgstr "Список карточек"
+
+#: ../dtop/aqt/browser.py:1227
+msgid "Card State"
+msgstr "Состояние карточки"
+
+#: ../dtop/anki/stats.py:57
+msgid "Card Type"
+msgstr "Тип карточки"
+
+#: ../dtop/aqt/forms/clayout_top.py:57
+msgid "Card Type:"
+msgstr "Тип карточки:"
+
+#: ../dtop/anki/stats.py:901 ../dtop/aqt/clayout.py:41
+msgid "Card Types"
+msgstr "Типы карточек"
+
+#: ../dtop/aqt/clayout.py:57
+#, python-format
+msgid "Card Types for %s"
+msgstr "Типы карточек для %s"
+
+#: ../dtop/aqt/reviewer.py:777
+msgid "Card buried."
+msgstr "Карточка отложена."
+
+#: ../dtop/aqt/reviewer.py:754
+msgid "Card suspended."
+msgstr "Карточка исключена."
+
+#: ../dtop/aqt/reviewer.py:638
+msgid "Card was a leech."
+msgstr "Карточка была приставучей."
+
+#: ../dtop/anki/stats.py:336 ../dtop/anki/stats.py:969
+#: ../dtop/aqt/editor.py:155 ../dtop/aqt/forms/changemodel.py:112
+msgid "Cards"
+msgstr "Карточки"
+
+#: ../dtop/aqt/browser.py:1811
+msgid "Cards can't be manually moved into a filtered deck."
+msgstr "Нельзя вручную переместить карточку в фильтрованную колоду."
+
+#: ../dtop/anki/exporting.py:83
+msgid "Cards in Plain Text"
+msgstr "Карточки в текст"
+
+#: ../dtop/aqt/overview.py:154
+msgid "Cards will be automatically returned to their original decks after you review them."
+msgstr "Карточки автоматически вернуться в свои колоды после повторения."
+
+#: ../dtop/aqt/models.py:56
+msgid "Cards..."
+msgstr "Карточки…"
+
+#: ../dtop/anki/consts.py:79
+msgid "Center"
+msgstr "В центре"
+
+#: ../dtop/aqt/importing.py:254
+msgid "Change"
+msgstr "Изменить"
+
+#: ../dtop/aqt/browser.py:2334
+#, python-format
+msgid "Change %s to:"
+msgstr "Изменить %s на:"
+
+#: ../dtop/aqt/browser.py:1802 ../dtop/aqt/browser.py:1814
+msgid "Change Deck"
+msgstr "Сменить колоду"
+
+#: ../dtop/aqt/forms/browser.py:329
+msgid "Change Deck..."
+msgstr "Сменить колоду..."
+
+#: ../dtop/aqt/browser.py:2420 ../dtop/aqt/forms/changemodel.py:109
+msgid "Change Note Type"
+msgstr "Поменять тип записи"
+
+#: ../dtop/aqt/modelchooser.py:31
+msgid "Change Note Type (Ctrl+N)"
+msgstr "Сменить тип записи (Ctrl+N)"
+
+#: ../dtop/aqt/forms/browser.py:310
+msgid "Change Note Type..."
+msgstr "Поменять тип записи…"
+
+#: ../dtop/aqt/editor.py:125
+msgid "Change colour (F8)"
+msgstr "Изменить цвет (F8)"
+
+#: ../dtop/aqt/forms/preferences.py:248
+msgid "Change deck depending on note type"
+msgstr "Изменить колоду в зависимости от типа записи"
+
+#: ../dtop/aqt/browser.py:717
+msgid "Changed"
+msgstr "Изменена"
+
+#: ../dtop/aqt/clayout.py:111
+#, python-format
+msgid "Changes below will affect the %(cnt)d note that uses this card type."
+msgid_plural "Changes below will affect the %(cnt)d notes that use this card type."
+msgstr[0] "Следующие изменения затронут %(cnt)d запись, использующую этот тип карточек."
+msgstr[1] "Следующие изменения затронут %(cnt)d записи, использующих этот тип карточек."
+msgstr[2] "Следующие изменения затронут %(cnt)d записей, использующих этот тип карточек."
+msgstr[3] "Следующие изменения затронут %(cnt)d записей, использующих этот тип карточек."
+
+#: ../dtop/aqt/forms/addons.py:68
+msgid "Changes will take effect when Anki is restarted."
+msgstr "Изменения вступят в силу при перезапуске Anki."
+
+#: ../dtop/aqt/preferences.py:110 ../dtop/aqt/preferences.py:234
+msgid "Changes will take effect when you restart Anki."
+msgstr "Изменения вступят в силу при перезапуске Anki."
+
+#: ../dtop/aqt/forms/main.py:141
+msgid "Check &Media..."
+msgstr "Проверить &медиафайлы..."
+
+#: ../dtop/aqt/forms/addons.py:71
+msgid "Check for Updates"
+msgstr "Проверить обновления"
+
+#: ../dtop/aqt/forms/main.py:142
+msgid "Check the files in the media directory"
+msgstr "Проверить файлы в медиакаталоге"
+
+#: ../dtop/aqt/sync.py:129
+msgid "Checking media..."
+msgstr "Медиафайлы проверяются…"
+
+#: ../dtop/aqt/sync.py:127
+msgid "Checking..."
+msgstr "Проверяется..."
+
+#: ../dtop/aqt/deckchooser.py:83 ../dtop/aqt/modelchooser.py:73
+msgid "Choose"
+msgstr "Выбрать"
+
+#: ../dtop/aqt/deckchooser.py:84
+msgid "Choose Deck"
+msgstr "Выбрать колоду"
+
+#: ../dtop/aqt/modelchooser.py:74
+msgid "Choose Note Type"
+msgstr "Выбрать тим записи"
+
+#: ../dtop/aqt/customstudy.py:102
+msgid "Choose Tags"
+msgstr "Выбрать метки"
+
+#: ../dtop/aqt/browser.py:1253
+msgid "Clear Unused"
+msgstr "Снять неиспользуемые"
+
+#: ../dtop/aqt/forms/browser.py:335
+msgid "Clear Unused Tags"
+msgstr "Снять неиспользуемые метки"
+
+#: ../dtop/aqt/models.py:192
+#, python-format
+msgid "Clone: %s"
+msgstr "Клонировать: %s"
+
+#: ../dtop/aqt/addcards.py:71 ../dtop/aqt/clayout.py:272
+#: ../dtop/aqt/forms/browser.py:322
+msgid "Close"
+msgstr "Закрыть"
+
+#: ../dtop/aqt/addcards.py:241
+msgid "Close and lose current input?"
+msgstr "Закрыть и потерять текущий ввод?"
+
+#: ../dtop/aqt/main.py:452
+msgid "Closing..."
+msgstr "Закрывается..."
+
+#: ../dtop/anki/stdmodels.py:99 ../dtop/anki/stdmodels.py:106
+#: ../dtop/anki/stdmodels.py:125 ../dtop/anki/storage.py:222
+msgid "Cloze"
+msgstr "Задание с пропусками"
+
+#: ../dtop/aqt/editor.py:135
+msgid "Cloze deletion (Ctrl+Shift+C)"
+msgstr "Задание с пропусками (Ctrl+Shift+C)"
+
+#: ../dtop/aqt/forms/getaddons.py:50
+msgid "Code:"
+msgstr "Код:"
+
+#: ../dtop/aqt/exporting.py:140
+msgid "Collection exported."
+msgstr "Коллекция экспортирована."
+
+#: ../dtop/anki/collection.py:867
+msgid "Collection is corrupt. Please see the manual."
+msgstr "Коллекция повреждена. См. руководство пользователя."
+
+#: ../dtop/aqt/importing.py:167
+msgid "Colon"
+msgstr "Двоеточие"
+
+#: ../dtop/aqt/importing.py:161
+msgid "Comma"
+msgstr "Запятая"
+
+#: ../dtop/aqt/forms/addons.py:73
+msgid "Config"
+msgstr "Конфигурация"
+
+#: ../dtop/aqt/forms/addonconf.py:70
+msgid "Configuration"
+msgstr "Конфигурация"
+
+#: ../dtop/aqt/forms/main.py:138
+msgid "Configure interface language and options"
+msgstr "Выбрать язык и настройки"
+
+#: ../dtop/anki/sched.py:1255 ../dtop/anki/schedv2.py:1419
+msgid "Congratulations! You have finished this deck for now."
+msgstr "Ура! На сегодня всё."
+
+#: ../dtop/aqt/sync.py:49
+msgid "Connecting..."
+msgstr "Подключается..."
+
+#: ../dtop/aqt/sync.py:223
+msgid "Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder."
+msgstr "Время ожидания истекло. У вас или проблемы с подключением к интернету, или очень большие медиафайлы."
+
+#: ../dtop/aqt/reviewer.py:81
+msgid "Continue"
+msgstr "Продолжить"
+
+#: ../dtop/aqt/about.py:40
+msgid "Copied to clipboard"
+msgstr "Скопировано в буфер обмена"
+
+#: ../dtop/aqt/editor.py:1108 ../dtop/aqt/webview.py:183
+msgid "Copy"
+msgstr "Копировать"
+
+#: ../dtop/aqt/about.py:42
+msgid "Copy Debug Info"
+msgstr "Копировать отладочную информацию"
+
+#: ../dtop/aqt/utils.py:100
+msgid "Copy to Clipboard"
+msgstr "Копировать в буфер обмена"
+
+#: ../dtop/anki/stats.py:205
+#, python-format
+msgid "Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)"
+msgstr "Правильных ответов на развитые карты: %(a)d/%(b)d (%(c).1f%%)"
+
+#: ../dtop/anki/stats.py:728
+#, python-format
+msgid "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
+msgstr "Правильно: <b>%(pct)0.2f%%</b><br>(%(good)d из %(tot)d)"
+
+#: ../dtop/aqt/addons.py:287 ../dtop/aqt/addons.py:333
+msgid "Corrupt add-on file."
+msgstr "Файл дополнения поврежден."
+
+#: ../dtop/aqt/sync.py:179
+msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
+msgstr "Невозможно подключиться к AnkiWeb. Пожалуйста, проверьте подключение к сети и повторите попытку."
+
+#: ../dtop/aqt/editor.py:680
+msgid "Couldn't record audio. Have you installed 'lame'?"
+msgstr "Не получается записать звук. У вас установлен \"lame\"?"
+
+#: ../dtop/aqt/exporting.py:126
+#, python-format
+msgid "Couldn't save file: %s"
+msgstr "Не удалось сохранить файл: %s"
+
+#: ../dtop/anki/stats.py:376 ../dtop/anki/stats.py:396
+msgid "Cram"
+msgstr "Зубрить"
+
+#: ../dtop/aqt/deckbrowser.py:318
+msgid "Create Deck"
+msgstr "Создать колоду"
+
+#: ../dtop/aqt/forms/main.py:153
+msgid "Create Filtered Deck..."
+msgstr "Создать фильтрованную колоду…"
+
+#: ../dtop/aqt/forms/modelopts.py:64
+msgid "Create scalable images with dvisvgm"
+msgstr "Создать масштабируемые изображения с помощью dvisvgm"
+
+#: ../dtop/aqt/browser.py:715
+msgid "Created"
+msgstr "Создана"
+
+#: ../dtop/aqt/main.py:1059
+msgid "Ctrl+Alt+Z"
+msgstr ""
+
+#: ../dtop/aqt/deckchooser.py:33
+msgid "Ctrl+D"
+msgstr ""
+
+#: ../dtop/aqt/modelchooser.py:33
+msgid "Ctrl+N"
+msgstr ""
+
+#: ../dtop/aqt/browser.py:593
+msgid "Ctrl+Shift+P"
+msgstr ""
+
+#: ../dtop/anki/stats.py:253
+msgid "Cumulative"
+msgstr "Совокупно"
+
+#: ../dtop/anki/stats.py:408
+#, python-format
+msgid "Cumulative %s"
+msgstr "Совокупно %s"
+
+#: ../dtop/anki/stats.py:383
+msgid "Cumulative Answers"
+msgstr "Совокупно ответов"
+
+#: ../dtop/anki/stats.py:268 ../dtop/anki/stats.py:336
+msgid "Cumulative Cards"
+msgstr "Совокупно карточек"
+
+#: ../dtop/aqt/browser.py:1086 ../dtop/aqt/browser.py:1210
+msgid "Current Deck"
+msgstr "Текущая колода"
+
+#: ../dtop/aqt/forms/changemodel.py:110
+msgid "Current note type:"
+msgstr "Текущий тип записи:"
+
+#: ../dtop/aqt/overview.py:225 ../dtop/aqt/forms/customstudy.py:100
+msgid "Custom Study"
+msgstr "Учить ещё"
+
+#: ../dtop/aqt/customstudy.py:136 ../dtop/aqt/customstudy.py:148
+msgid "Custom Study Session"
+msgstr "Учить ещё"
+
+#: ../dtop/aqt/forms/dyndconf.py:147
+msgid "Custom steps (in minutes)"
+msgstr "Заданные шаги (мин.)"
+
+#: ../dtop/aqt/editor.py:158
+msgid "Customize Card Templates (Ctrl+L)"
+msgstr "Изменить шаблоны карточек (Ctrl+L)"
+
+#: ../dtop/aqt/editor.py:157
+msgid "Customize Fields"
+msgstr "Изменить поля"
+
+#: ../dtop/aqt/editor.py:1106
+msgid "Cut"
+msgstr "Вырезать"
+
+#: ../dtop/anki/collection.py:1052
+msgid "Database rebuilt and optimized."
+msgstr "База данных перестроена и оптимизирована."
+
+#: ../dtop/aqt/browser.py:1419
+msgid "Date"
+msgstr "Дата"
+
+#: ../dtop/anki/stats.py:427
+msgid "Days studied"
+msgstr "Дней учёбы"
+
+#: ../dtop/aqt/forms/preferences.py:262
+msgid "Deauthorize"
+msgstr "Отменить авторизацию"
+
+#: ../dtop/aqt/forms/debug.py:46
+msgid "Debug Console"
+msgstr "Консоль отладки"
+
+#: ../dtop/anki/stats.py:59 ../dtop/aqt/browser.py:713
+#: ../dtop/aqt/deckbrowser.py:150 ../dtop/aqt/deckchooser.py:26
+#: ../dtop/aqt/forms/importing.py:97
+msgid "Deck"
+msgstr "Колода"
+
+#: ../dtop/aqt/clayout.py:481
+msgid "Deck Override..."
+msgstr "Подмена колоды..."
+
+#: ../dtop/aqt/main.py:1486
+msgid "Deck will be imported when a profile is opened."
+msgstr "Колода будет импортирована после открытия профиля."
+
+#: ../dtop/aqt/browser.py:1281 ../dtop/aqt/toolbar.py:34
+msgid "Decks"
+msgstr "Колоды"
+
+#: ../dtop/anki/consts.py:90
+msgid "Decreasing intervals"
+msgstr "От большего интервала к меньшему"
+
+#: ../dtop/anki/decks.py:55 ../dtop/anki/storage.py:336
+#: ../dtop/aqt/deckchooser.py:50 ../dtop/aqt/deckchooser.py:54
+#: ../dtop/aqt/deckchooser.py:73
+msgid "Default"
+msgstr "По умолчанию"
+
+#: ../dtop/anki/stats.py:611
+msgid "Delays until reviews are shown again."
+msgstr "Задержки перед следующим повторением."
+
+#: ../dtop/aqt/deckbrowser.py:246 ../dtop/aqt/deckconf.py:83
+#: ../dtop/aqt/models.py:51 ../dtop/aqt/reviewer.py:762
+#: ../dtop/aqt/forms/addons.py:76 ../dtop/aqt/forms/browser.py:327
+#: ../dtop/aqt/forms/fields.py:102 ../dtop/aqt/forms/profiles.py:78
+msgid "Delete"
+msgstr "Удалить"
+
+#: ../dtop/aqt/main.py:1331
+msgid "Delete Cards"
+msgstr "Удалить карточки"
+
+#: ../dtop/aqt/deckbrowser.py:289
+msgid "Delete Deck"
+msgstr "Удалить колоду"
+
+#: ../dtop/aqt/main.py:1337
+msgid "Delete Empty"
+msgstr "Удалить пустые"
+
+#: ../dtop/aqt/reviewer.py:684
+msgid "Delete Note"
+msgstr "Удалить запись"
+
+#: ../dtop/aqt/browser.py:1755
+msgid "Delete Notes"
+msgstr "Удалить записи"
+
+#: ../dtop/aqt/browser.py:1861
+msgid "Delete Tags"
+msgstr "Удалить метки"
+
+#: ../dtop/aqt/main.py:1263
+msgid "Delete Unused Files"
+msgstr "Удалить неиспользуемые файлы"
+
+#: ../dtop/aqt/fields.py:97
+#, python-format
+msgid "Delete field from %s?"
+msgstr "Удалить поле из %s?"
+
+#: ../dtop/aqt/addons.py:613
+#, python-format
+msgid "Delete the %(num)d selected add-on?"
+msgid_plural "Delete the %(num)d selected add-ons?"
+msgstr[0] "Удалить %(num)d дополнение?"
+msgstr[1] "Удалить %(num)d дополнения?"
+msgstr[2] "Удалить %(num)d дополнений?"
+msgstr[3] "Удалить %(num)d дополнений?"
+
+#: ../dtop/aqt/clayout.py:231
+#, python-format
+msgid "Delete the '%(a)s' card type, and its %(b)s?"
+msgstr "Удалить тип карточек '%(a)s' и его %(b)s?"
+
+#: ../dtop/aqt/models.py:108
+msgid "Delete this note type and all its cards?"
+msgstr "Удалить этот тип записи и все его карточки?"
+
+#: ../dtop/aqt/models.py:110
+msgid "Delete this unused note type?"
+msgstr "Удалить этот неиспользуемый тип записи?"
+
+#: ../dtop/aqt/main.py:1276
+msgid "Delete unused media?"
+msgstr "Удалить неиспользуемые медиафайлы?"
+
+#: ../dtop/anki/collection.py:956
+#, python-format
+msgid "Deleted %d card with missing note."
+msgid_plural "Deleted %d cards with missing note."
+msgstr[0] "Удалена %d карточка с отсутствующей записью."
+msgstr[1] "Удалены %d карточки с отсутствующей записью."
+msgstr[2] "Удалено %d карточек с отсутствующей записью."
+msgstr[3] "Удалено %d карточек с отсутствующей записью."
+
+#: ../dtop/anki/collection.py:907
+#, python-format
+msgid "Deleted %d card with missing template."
+msgid_plural "Deleted %d cards with missing template."
+msgstr[0] "Удалена %d карточка с отсутствующим шаблоном."
+msgstr[1] "Удалены %d карточки с отсутствующим шаблоном."
+msgstr[2] "Удалено %d карточек с отсутствующим шаблоном."
+msgstr[3] "Удалено %d карточек с отсутствующим шаблоном."
+
+#: ../dtop/aqt/main.py:1306
+#, python-format
+msgid "Deleted %d file."
+msgid_plural "Deleted %d files."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ../dtop/anki/collection.py:877
+#, python-format
+msgid "Deleted %d note with missing note type."
+msgid_plural "Deleted %d notes with missing note type."
+msgstr[0] "Удалена %d запись с отсутствующим типом записи."
+msgstr[1] "Удалены %d записи с отсутствующим типом записи."
+msgstr[2] "Удалено %d записей с отсутсвующим типом записи."
+msgstr[3] "Удалено %d записей с отсутсвующим типом записи."
+
+#: ../dtop/anki/collection.py:940
+#, python-format
+msgid "Deleted %d note with no cards."
+msgid_plural "Deleted %d notes with no cards."
+msgstr[0] "Удалена %d запись без карточек."
+msgstr[1] "Удалены %d записи без карточек."
+msgstr[2] "Удалено %d записей без карточек."
+msgstr[3] "Удалено %d записей без карточек."
+
+#: ../dtop/anki/collection.py:924
+#, python-format
+msgid "Deleted %d note with wrong field count."
+msgid_plural "Deleted %d notes with wrong field count."
+msgstr[0] "Удалена %d карточка с неверным числом полей."
+msgstr[1] "Удалены %d карточки с неверным числом полей."
+msgstr[2] "Удалено %d карточек с неверным числом полей."
+msgstr[3] "Удалено %d карточек с неверным числом полей."
+
+#: ../dtop/aqt/overview.py:159
+msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
+msgstr "Удаление этой колоды из списка вернёт все оставшиеся карточки в их колоды."
+
+#: ../dtop/aqt/forms/dconf.py:394
+msgid "Description"
+msgstr "Описание"
+
+#: ../dtop/aqt/forms/dconf.py:393
+msgid "Description to show on study screen (current deck only):"
+msgstr "Описание на экране обучения (только для текущей колоды):"
+
+#: ../dtop/aqt/forms/dyndconf.py:132 ../dtop/aqt/forms/editaddon.py:40
+#: ../dtop/aqt/forms/editcurrent.py:41 ../dtop/aqt/forms/progress.py:40
+msgid "Dialog"
+msgstr "Диалог"
+
+#: ../dtop/aqt/sync.py:299 ../dtop/aqt/sync.py:321 ../dtop/aqt/sync.py:327
+msgid "Download from AnkiWeb"
+msgstr "Загрузить с AnkiWeb"
+
+#: ../dtop/aqt/addons.py:342
+#, python-format
+msgid "Downloaded %(fname)s"
+msgstr "Загружен %(fname)s"
+
+#: ../dtop/aqt/sync.py:125
+msgid "Downloading from AnkiWeb..."
+msgstr "Загружается с AnkiWeb..."
+
+#: ../dtop/anki/stats.py:43 ../dtop/aqt/browser.py:718
+#: ../dtop/aqt/browser.py:1234 ../dtop/aqt/deckbrowser.py:151
+msgid "Due"
+msgstr "К просмотру"
+
+#: ../dtop/aqt/forms/customstudy.py:112
+msgid "Due cards only"
+msgstr "Только карточки к просмотру"
+
+#: ../dtop/anki/stats.py:289
+msgid "Due tomorrow"
+msgstr "На завтра"
+
+#: ../dtop/aqt/forms/main.py:136
+msgid "E&xit"
+msgstr "&Выход"
+
+#: ../dtop/anki/stats.py:46 ../dtop/aqt/browser.py:720
+#: ../dtop/aqt/browser.py:1424
+msgid "Ease"
+msgstr "Лёгкость"
+
+#: ../dtop/aqt/reviewer.py:595 ../dtop/aqt/reviewer.py:597
+msgid "Easy"
+msgstr "Легко"
+
+#: ../dtop/aqt/forms/dconf.py:365
+msgid "Easy bonus"
+msgstr "Множитель для «Легко»"
+
+#: ../dtop/aqt/forms/dconf.py:357
+msgid "Easy interval"
+msgstr "Интервал для «Легко»"
+
+#: ../dtop/aqt/reviewer.py:533
+msgid "Edit"
+msgstr "Править"
+
+#: ../dtop/aqt/addcards.py:155
+#, python-format
+msgid "Edit \"%s\""
+msgstr "Править \"%s\""
+
+#: ../dtop/aqt/editcurrent.py:19
+msgid "Edit Current"
+msgstr "Править текущую"
+
+#: ../dtop/aqt/editor.py:874
+msgid "Edit HTML"
+msgstr "Править HTML"
+
+#: ../dtop/aqt/browser.py:716
+msgid "Edited"
+msgstr "Правлено"
+
+#: ../dtop/aqt/forms/fields.py:105
+msgid "Editing Font"
+msgstr "Шрифт в редакторе"
+
+#: ../dtop/aqt/overview.py:223
+msgid "Empty"
+msgstr "Очистить"
+
+#: ../dtop/aqt/forms/main.py:152
+msgid "Empty Cards..."
+msgstr "Пустые карточки…"
+
+#: ../dtop/anki/collection.py:584
+#, python-format
+msgid "Empty card numbers: %(c)s\n"
+"Fields: %(f)s\n\n"
+msgstr "Номера пустых карточек: %(c)s\n"
+"Поля: %(f)s\n\n"
+
+#: ../dtop/anki/importing/noteimp.py:199
+msgid "Empty cards found. Please run Tools>Empty Cards."
+msgstr "Найдены пустые карточки. Выберите в меню «Инструменты»—«Пустые карточки»."
+
+#: ../dtop/anki/importing/noteimp.py:151
+#, python-format
+msgid "Empty first field: %s"
+msgstr "Пустое первое поле: %s"
+
+#: ../dtop/aqt/forms/dyndconf.py:143
+msgid "Enable second filter"
+msgstr "Использовать второй фильтр"
+
+#: ../dtop/aqt/forms/browser.py:321
+msgid "End"
+msgstr ""
+
+#: ../dtop/aqt/clayout.py:525
+#, python-format
+msgid "Enter deck to place new %s cards in, or leave blank:"
+msgstr "Укажите колоду для новых %s карточек, или оставьте поле пустым:"
+
+#: ../dtop/aqt/clayout.py:392
+#, python-format
+msgid "Enter new card position (1...%s):"
+msgstr "Введите позиция новых карточек (1...%s):"
+
+#: ../dtop/aqt/browser.py:1841
+msgid "Enter tags to add:"
+msgstr "Введите метки для добавления:"
+
+#: ../dtop/aqt/browser.py:1863
+msgid "Enter tags to delete:"
+msgstr "Введите метки для удаления:"
+
+#: ../dtop/aqt/addons.py:321 ../dtop/aqt/addons.py:339
+#, python-format
+msgid "Error downloading %(id)s: %(error)s"
+msgstr "Ошибка загрузки %(id)s: %(error)s"
+
+#: ../dtop/aqt/main.py:76
+#, python-format
+msgid "Error during startup:\n"
+"%s"
+msgstr "Ошибка при запуске:\n"
+"%s"
+
+#: ../dtop/aqt/sync.py:237 ../dtop/aqt/sync.py:244
+msgid "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
+msgstr "Ошибка создания защищённого соединения. Обычно она вызвана антивирусом, брандмауэром, VPN или проблемами вашего провайдера."
+
+#: ../dtop/anki/latex.py:169
+#, python-format
+msgid "Error executing %s."
+msgstr "Ошибка выполнения %s."
+
+#: ../dtop/aqt/addons.py:294
+#, python-format
+msgid "Error installing <i>%(base)s</i>: %(error)s"
+msgstr "Ошибка при установке <i>%(base)s</i>: %(error)s"
+
+#: ../dtop/anki/sound.py:381
+#, python-format
+msgid "Error running %s"
+msgstr "Ошибка при работе %s"
+
+#: ../dtop/aqt/deckbrowser.py:244 ../dtop/aqt/exporting.py:108
+#: ../dtop/aqt/forms/exporting.py:74
+msgid "Export"
+msgstr "Экспортировать"
+
+#: ../dtop/aqt/exporting.py:44
+msgid "Export..."
+msgstr "Экспортировать..."
+
+#: ../dtop/aqt/exporting.py:131
+#, python-format
+msgid "Exported %d media file"
+msgid_plural "Exported %d media files"
+msgstr[0] "Экспортирован %d медиафайл"
+msgstr[1] "Экспортировано %d медиафайла"
+msgstr[2] "Экспортированы %d медиафайлов"
+msgstr[3] "Экспортированы %d медиафайлов"
+
+#: ../dtop/anki/stdmodels.py:104 ../dtop/anki/stdmodels.py:119
+msgid "Extra"
+msgstr "Дополнительно"
+
+#: ../dtop/aqt/importing.py:245
+#, python-format
+msgid "Field <b>%d</b> of file is:"
+msgstr "Поле <b>%d</b> файла:"
+
+#: ../dtop/aqt/forms/importing.py:102
+msgid "Field mapping"
+msgstr "Сопоставление полей"
+
+#: ../dtop/aqt/fields.py:81
+msgid "Field name:"
+msgstr "Имя поля:"
+
+#: ../dtop/aqt/forms/addfield.py:75
+msgid "Field:"
+msgstr "Поле:"
+
+#: ../dtop/aqt/editor.py:154 ../dtop/aqt/fields.py:20
+#: ../dtop/aqt/forms/changemodel.py:113 ../dtop/aqt/forms/fields.py:100
+msgid "Fields"
+msgstr "Поля"
+
+#: ../dtop/aqt/fields.py:23
+#, python-format
+msgid "Fields for %s"
+msgstr "Поля для %s"
+
+#: ../dtop/aqt/importing.py:170
+#, python-format
+msgid "Fields separated by: %s"
+msgstr "Поля разделены: %s"
+
+#: ../dtop/aqt/models.py:54
+msgid "Fields..."
+msgstr "Поля..."
+
+#: ../dtop/aqt/forms/browser.py:314
+msgid "Fil&ter"
+msgstr "Филь&тр"
+
+#: ../dtop/anki/importing/mnemo.py:23
+msgid "File version unknown, trying import anyway."
+msgstr "Версия файла неизвестна. Пытается импортировать."
+
+#: ../dtop/aqt/browser.py:1270 ../dtop/aqt/forms/dyndconf.py:133
+msgid "Filter"
+msgstr "Фильтр"
+
+#: ../dtop/aqt/forms/dyndconf.py:137
+msgid "Filter 2"
+msgstr "Фильтр 2"
+
+#: ../dtop/aqt/forms/browser.py:294
+msgid "Filter..."
+msgstr "Фильтровать..."
+
+#: ../dtop/aqt/forms/studydeck.py:46
+msgid "Filter:"
+msgstr "Фильтр:"
+
+#: ../dtop/aqt/browser.py:1433
+msgid "Filtered"
+msgstr "Отфильтрованые"
+
+#: ../dtop/aqt/main.py:1036 ../dtop/aqt/main.py:1038
+#, python-format
+msgid "Filtered Deck %d"
+msgstr "Фильтрованная колода %d"
+
+#: ../dtop/aqt/forms/browser.py:316
+msgid "Find &Duplicates..."
+msgstr "Найти &повторы..."
+
+#: ../dtop/aqt/forms/finddupes.py:62
+msgid "Find Duplicates"
+msgstr "Найти повторы"
+
+#: ../dtop/aqt/forms/browser.py:312
+msgid "Find and Re&place..."
+msgstr "&Найти и заменить..."
+
+#: ../dtop/aqt/browser.py:2074 ../dtop/aqt/forms/findreplace.py:68
+msgid "Find and Replace"
+msgstr "Найти и заменить"
+
+#: ../dtop/aqt/reviewer.py:80
+msgid "Finish"
+msgstr "Завершить"
+
+#: ../dtop/aqt/forms/browser.py:318
+msgid "First Card"
+msgstr "Первая карточка"
+
+#: ../dtop/anki/stats.py:31
+msgid "First Review"
+msgstr "Просмотрена впервые"
+
+#: ../dtop/anki/importing/noteimp.py:130
+#, python-format
+msgid "First field matched: %s"
+msgstr "Подходящее первое поле: %s"
+
+#: ../dtop/anki/collection.py:972 ../dtop/anki/collection.py:990
+#, python-format
+msgid "Fixed %d card with invalid properties."
+msgid_plural "Fixed %d cards with invalid properties."
+msgstr[0] "Исправлена %d карточка с неправильными свойствами."
+msgstr[1] "Исправлены %d карточки с неправильными свойствами."
+msgstr[2] "Исправлены %d карточек с неправильными свойствами."
+msgstr[3] "Исправлены %d карточек с неправильными свойствами."
+
+#: ../dtop/anki/collection.py:889
+msgid "Fixed AnkiDroid deck override bug."
+msgstr "Исправлена ошибка подмены колоды AnkiDroid."
+
+#: ../dtop/anki/collection.py:895
+#, python-format
+msgid "Fixed note type: %s"
+msgstr "Исправлен тип записи: %s"
+
+#: ../dtop/aqt/forms/browser.py:299
+msgid "Flag"
+msgstr "Флаг"
+
+#: ../dtop/aqt/reviewer.py:651
+msgid "Flag Card"
+msgstr "Поставить флаг"
+
+#: ../dtop/aqt/clayout.py:267
+msgid "Flip"
+msgstr "Перевернуть"
+
+#: ../dtop/aqt/profiles.py:235
+msgid "Folder already exists."
+msgstr "Папка уже существует."
+
+#: ../dtop/aqt/forms/addfield.py:76
+msgid "Font:"
+msgstr "Шрифт:"
+
+#: ../dtop/aqt/forms/modelopts.py:66
+msgid "Footer"
+msgstr "Подвал"
+
+#: ../dtop/anki/latex.py:129
+#, python-format
+msgid "For security reasons, '%s' is not allowed on cards. You can still use it by placing the command in a different package, and importing that package in the LaTeX header instead."
+msgstr "Ради безопасности '%s' нельзя использовать в карточках. Вы можете вписать команду в другой пакет, и импортировать этот пакет в заголовоке LaTeX."
+
+#: ../dtop/anki/stats.py:260
+msgid "Forecast"
+msgstr "Прогноз"
+
+#: ../dtop/aqt/forms/clayout_top.py:56 ../dtop/aqt/forms/preview.py:39
+#: ../dtop/aqt/forms/template.py:106
+msgid "Form"
+msgstr "Форма"
+
+#: ../dtop/aqt/browser.py:2152
+#, python-format
+msgid "Found %(a)s across %(b)s."
+msgstr "Найдено %(a)s среди %(b)s."
+
+#: ../dtop/anki/exporting.py:365 ../dtop/anki/stdmodels.py:18
+#: ../dtop/anki/stdmodels.py:23 ../dtop/anki/stdmodels.py:45
+#: ../dtop/anki/stdmodels.py:46 ../dtop/anki/stdmodels.py:62
+#: ../dtop/aqt/forms/addfield.py:74
+msgid "Front"
+msgstr "Лицевая сторона"
+
+#: ../dtop/aqt/forms/preview.py:40
+msgid "Front Preview"
+msgstr "Предпросмотр лицевой стороны"
+
+#: ../dtop/aqt/forms/template.py:107
+msgid "Front Template"
+msgstr "Шаблон лицевой стороны"
+
+#: ../dtop/aqt/forms/dconf.py:392
+msgid "General"
+msgstr "Общие"
+
+#: ../dtop/anki/latex.py:170
+#, python-format
+msgid "Generated file: %s"
+msgstr "Создан файл: %s"
+
+#: ../dtop/anki/stats.py:954
+#, python-format
+msgid "Generated on %s"
+msgstr "Создан на %s"
+
+#: ../dtop/aqt/forms/addons.py:69
+msgid "Get Add-ons..."
+msgstr "Загрузить дополнения..."
+
+#: ../dtop/aqt/deckbrowser.py:317
+msgid "Get Shared"
+msgstr "Скачать колоду"
+
+#: ../dtop/aqt/reviewer.py:593 ../dtop/aqt/reviewer.py:595
+#: ../dtop/aqt/reviewer.py:597
+msgid "Good"
+msgstr "Хорошо"
+
+#: ../dtop/aqt/forms/dconf.py:358
+msgid "Graduating interval"
+msgstr "Интервал для «Хорошо»"
+
+#: ../dtop/aqt/browser.py:1241 ../dtop/aqt/reviewer.py:666
+#: ../dtop/aqt/forms/browser.py:332
+msgid "Green Flag"
+msgstr "Зелёный флаг"
+
+#: ../dtop/aqt/forms/edithtml.py:37
+msgid "HTML Editor"
+msgstr "Редактор HTML"
+
+#: ../dtop/aqt/reviewer.py:597
+msgid "Hard"
+msgstr "Трудно"
+
+#: ../dtop/aqt/forms/dconf.py:373
+msgid "Hard interval"
+msgstr "Интервал для «Трудно»"
+
+#: ../dtop/aqt/forms/preferences.py:240
+msgid "Hardware acceleration (faster, may cause display issues)"
+msgstr "Аппаратное ускорение (может вызвать проблемы)"
+
+#: ../dtop/anki/latex.py:178
+msgid "Have you installed latex and dvipng/dvisvgm?"
+msgstr "Вы установили LaTeX и dvipng/dvisvgm?"
+
+#: ../dtop/aqt/forms/modelopts.py:65
+msgid "Header"
+msgstr "Заголовок"
+
+#: ../dtop/aqt/addcards.py:75 ../dtop/aqt/clayout.py:257
+#: ../dtop/aqt/utils.py:164 ../dtop/aqt/utils.py:165
+msgid "Help"
+msgstr "Справка"
+
+#: ../dtop/anki/stats.py:894
+msgid "Highest ease"
+msgstr "Наибольшая лёгкость"
+
+#: ../dtop/aqt/addcards.py:79
+msgid "History"
+msgstr "История"
+
+#: ../dtop/aqt/forms/browser.py:319
+msgid "Home"
+msgstr ""
+
+#: ../dtop/anki/stats.py:806
+msgid "Hourly Breakdown"
+msgstr "По часам"
+
+#: ../dtop/anki/stats.py:403
+msgid "Hours"
+msgstr "Часы"
+
+#: ../dtop/anki/stats.py:836
+msgid "Hours with less than 30 reviews are not shown."
+msgstr "Не показаны часы с менее чем 30 повторениями."
+
+#: ../dtop/anki/importing/anki2.py:171
+msgid "Identical"
+msgstr "Одинаковые"
+
+#: ../dtop/aqt/about.py:164
+msgid "If you have contributed and are not on this list, please get in touch."
+msgstr "Если вы внесли свой вклад, но вас нет в этом списке, пожалуйста, свяжитесь с нами."
+
+#: ../dtop/anki/stats.py:447
+msgid "If you studied every day"
+msgstr "Если бы вы учились каждый день"
+
+#: ../dtop/aqt/forms/dconf.py:387
+msgid "Ignore answer times longer than"
+msgstr "Не учитывать время ответа больше"
+
+#: ../dtop/aqt/forms/findreplace.py:73
+msgid "Ignore case"
+msgstr "Игнорировать регистр"
+
+#: ../dtop/aqt/importing.py:50
+msgid "Ignore field"
+msgstr "Игнорировать поле"
+
+#: ../dtop/aqt/forms/importing.py:99
+msgid "Ignore lines where first field matches existing note"
+msgstr "Игнорировать строки, если существует запись с таким же первым полем"
+
+#: ../dtop/aqt/update.py:65
+msgid "Ignore this update"
+msgstr "Игнорировать это обновление"
+
+#: ../dtop/aqt/importing.py:96 ../dtop/aqt/importing.py:188
+#: ../dtop/aqt/importing.py:299 ../dtop/aqt/forms/changemap.py:41
+#: ../dtop/aqt/forms/importing.py:94
+msgid "Import"
+msgstr "Импортировать"
+
+#: ../dtop/aqt/deckbrowser.py:319
+msgid "Import File"
+msgstr "Импорт файла"
+
+#: ../dtop/aqt/forms/importing.py:100
+msgid "Import even if existing note has same first field"
+msgstr "Импортировать, даже если существует запись с таким же первым полем"
+
+#: ../dtop/aqt/importing.py:195 ../dtop/aqt/importing.py:398
+msgid "Import failed.\n"
+msgstr "Не удалось импортировать.\n"
+
+#: ../dtop/aqt/importing.py:353
+msgid "Import failed. Debugging info:\n"
+msgstr "Не удалось импортировать. Отладочная информация:\n"
+
+#: ../dtop/aqt/forms/importing.py:95
+msgid "Import options"
+msgstr "Настройки импорта"
+
+#: ../dtop/aqt/importing.py:207
+msgid "Importing complete."
+msgstr "Импорт завершён."
+
+#: ../dtop/aqt/main.py:1095
+#, python-format
+msgid "In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.\n\n"
+"Please go to the time settings on your computer and check the following:\n\n"
+"- AM/PM\n"
+"- Clock drift\n"
+"- Day, month and year\n"
+"- Timezone\n"
+"- Daylight savings\n\n"
+"Difference to correct time: %s."
+msgstr "Чтобы избежать проблем при переносе коллекций между устройствами, Anki требует, чтобы встроенные часы компьютера были установлены правильно. Даже если система показывает точное местное время, настройки встроенных часов могут быть неверны.\n\n"
+"Перейдите к настройкам времени компьютера и проверьте:\n\n"
+"— AM/PM,\n"
+"— отставание и убегание вперёд,\n"
+"— число, месяц и год,\n"
+"— часовой пояс,\n"
+"— настройки летнего времени.\n\n"
+"Разница с правильным временем: %s."
+
+#: ../dtop/aqt/forms/exporting.py:80
+msgid "Include HTML and media references"
+msgstr "Вместе с HTML и ссылками на медиафайлы"
+
+#: ../dtop/aqt/forms/exporting.py:78
+msgid "Include media"
+msgstr "Вместе с медиафайлы"
+
+#: ../dtop/aqt/forms/exporting.py:77
+msgid "Include scheduling information"
+msgstr "Вместе с расписанием"
+
+#: ../dtop/aqt/forms/exporting.py:79
+msgid "Include tags"
+msgstr "Вместе с метками"
+
+#: ../dtop/aqt/forms/customstudy.py:103
+msgid "Increase today's new card limit"
+msgstr "Добавить новых на сегодня"
+
+#: ../dtop/aqt/customstudy.py:71
+msgid "Increase today's new card limit by"
+msgstr "Увеличить лимит новых на"
+
+#: ../dtop/aqt/forms/customstudy.py:104
+msgid "Increase today's review card limit"
+msgstr "Добавить повторяемых на сегодня"
+
+#: ../dtop/aqt/customstudy.py:83
+msgid "Increase today's review limit by"
+msgstr "Увеличить лимит повторениемых на"
+
+#: ../dtop/anki/consts.py:89
+msgid "Increasing intervals"
+msgstr "По возрастанию интервалов"
+
+#: ../dtop/aqt/forms/getaddons.py:48
+msgid "Install Add-on"
+msgstr "Установить дополнение"
+
+#: ../dtop/aqt/addons.py:633
+msgid "Install Add-on(s)"
+msgstr "Установить дополнения"
+
+#: ../dtop/aqt/forms/addons.py:70
+msgid "Install from file..."
+msgstr "Установить из файла..."
+
+#: ../dtop/aqt/addons.py:299
+#, python-format
+msgid "Installed %(name)s"
+msgstr "Установлено %(name)s"
+
+#: ../dtop/aqt/forms/preferences.py:239 ../dtop/aqt/forms/setlang.py:40
+msgid "Interface language:"
+msgstr "Язык интерфейса:"
+
+#: ../dtop/anki/stats.py:45 ../dtop/aqt/browser.py:719
+#: ../dtop/aqt/browser.py:1423
+msgid "Interval"
+msgstr "Интервал"
+
+#: ../dtop/aqt/forms/dconf.py:368
+msgid "Interval modifier"
+msgstr "Модификатор интервала"
+
+#: ../dtop/anki/stats.py:611
+msgid "Intervals"
+msgstr "Интервалы"
+
+#: ../dtop/aqt/addons.py:289 ../dtop/aqt/addons.py:335
+msgid "Invalid add-on manifest."
+msgstr "Неправильный манифест дополнения."
+
+#: ../dtop/aqt/downloader.py:68
+msgid "Invalid code, or add-on not available for your version of Anki."
+msgstr "Недопустимый код, либо дополнение не для вашей версии Anki."
+
+#: ../dtop/aqt/addons.py:727
+msgid "Invalid code."
+msgstr "Недопустимый код."
+
+#: ../dtop/aqt/addons.py:807
+msgid "Invalid configuration: "
+msgstr "Недопустимая конфигурация: "
+
+#: ../dtop/aqt/addons.py:811
+msgid "Invalid configuration: top level object must be a map"
+msgstr "Недопустимая конфигурация: объект верхнего уровня должен быть отображением"
+
+#: ../dtop/anki/media.py:329
+#, python-format
+msgid "Invalid file name, please rename: %s"
+msgstr "Недопустимое имя файла. Переименуйте: %s"
+
+#: ../dtop/aqt/importing.py:384
+msgid "Invalid file. Please restore from backup."
+msgstr "Недопустимый файл. Восстановите из резервной копии."
+
+#: ../dtop/aqt/main.py:1144
+msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
+msgstr "Недопустимое свойство карточки. Выберите в меню «Инструменты»—«Проверить базу данных». Если проблема повторилась, перейдите на сайт поддержки."
+
+#: ../dtop/aqt/browser.py:2087
+msgid "Invalid regular expression."
+msgstr "Недопустимое регулярное выражение."
+
+#: ../dtop/aqt/browser.py:175
+msgid "Invalid search - please check for typing mistakes."
+msgstr "Недопустимый запрос. Проверьте опечатки."
+
+#: ../dtop/aqt/reviewer.py:640
+msgid "It has been suspended."
+msgstr "Исключена."
+
+#: ../dtop/aqt/editor.py:104
+msgid "Italic text (Ctrl+I)"
+msgstr "Курсив (Ctrl+I)"
+
+#: ../dtop/aqt/editor.py:518
+msgid "Jump to tags with Ctrl+Shift+T"
+msgstr "Перейти к меткам (Ctrl+Shift+T)"
+
+#: ../dtop/aqt/forms/preferences.py:265
+msgid "Keep"
+msgstr "Хранить"
+
+#: ../dtop/aqt/editor.py:871 ../dtop/aqt/forms/modelopts.py:67
+msgid "LaTeX"
+msgstr ""
+
+#: ../dtop/aqt/editor.py:872
+msgid "LaTeX equation"
+msgstr "Формула LaTeX"
+
+#: ../dtop/aqt/editor.py:873
+msgid "LaTeX math env."
+msgstr "Окружение LaTeX"
+
+#: ../dtop/anki/stats.py:48 ../dtop/aqt/browser.py:722
+#: ../dtop/aqt/forms/dconf.py:386
+msgid "Lapses"
+msgstr "Забытые"
+
+#: ../dtop/aqt/forms/browser.py:320
+msgid "Last Card"
+msgstr "Последняя карточка"
+
+#: ../dtop/anki/stats.py:32
+msgid "Latest Review"
+msgstr "Последнее повторение"
+
+#: ../dtop/anki/consts.py:94
+msgid "Latest added first"
+msgstr "Сначала последняя добавленная"
+
+#: ../dtop/anki/stats.py:375 ../dtop/anki/stats.py:395
+#: ../dtop/aqt/browser.py:1433
+msgid "Learn"
+msgstr "Изучаемые"
+
+#: ../dtop/aqt/forms/preferences.py:252
+msgid "Learn ahead limit"
+msgstr "Лимит опережения"
+
+#: ../dtop/anki/stats.py:192
+#, python-format
+msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
+msgstr "Изучаемых: %(a)s, повторяемых: %(b)s, переучиваемых: %(c)s, фильтрованных: %(d)s"
+
+#: ../dtop/anki/stats.py:701 ../dtop/aqt/browser.py:1232
+#: ../dtop/aqt/overview.py:198
+msgid "Learning"
+msgstr "Изучаемые"
+
+#: ../dtop/aqt/forms/dconf.py:380
+msgid "Leech action"
+msgstr "Что делать с приставучими"
+
+#: ../dtop/aqt/forms/dconf.py:378
+msgid "Leech threshold"
+msgstr "Пород для приставучих"
+
+#: ../dtop/anki/consts.py:80
+msgid "Left"
+msgstr "Осталось"
+
+#: ../dtop/aqt/forms/dyndconf.py:134 ../dtop/aqt/forms/dyndconf.py:138
+msgid "Limit to"
+msgstr "Количество"
+
+#: ../dtop/aqt/utils.py:25
+msgid "Loading..."
+msgstr "Грузится..."
+
+#: ../dtop/aqt/sync.py:298
+msgid "Local collection has no cards. Download from AnkiWeb?"
+msgstr "В локальной коллекции нет карточек. Загрузить их с AnkiWeb?"
+
+#: ../dtop/anki/stats.py:634
+msgid "Longest interval"
+msgstr "Самый длинный интервал"
+
+#: ../dtop/anki/stats.py:892
+msgid "Lowest ease"
+msgstr "Наименьшая лёгкость"
+
+#: ../dtop/aqt/modelchooser.py:65
+msgid "Manage"
+msgstr "Управлять"
+
+#: ../dtop/aqt/forms/main.py:154
+msgid "Manage Note Types"
+msgstr "Управлять типами записей"
+
+#: ../dtop/aqt/forms/browser.py:336
+msgid "Manage Note Types..."
+msgstr "Управлять типами записей…"
+
+#: ../dtop/aqt/browser.py:1289 ../dtop/aqt/forms/dconf.py:353
+msgid "Manage..."
+msgstr "Управлять..."
+
+#: ../dtop/aqt/overview.py:103
+msgid "Manually Buried Cards"
+msgstr "Отложенные вручную"
+
+#: ../dtop/aqt/importing.py:43
+#, python-format
+msgid "Map to %s"
+msgstr "Сопоставить %s"
+
+#: ../dtop/aqt/importing.py:49
+msgid "Map to Tags"
+msgstr "Сопоставить меткам"
+
+#: ../dtop/aqt/reviewer.py:679
+msgid "Mark Note"
+msgstr "Отметить запись"
+
+#: ../dtop/aqt/editor.py:869
+msgid "MathJax block"
+msgstr "MathJax с выключкой"
+
+#: ../dtop/aqt/editor.py:870
+msgid "MathJax chemistry"
+msgstr "MathJax для химии"
+
+#: ../dtop/aqt/editor.py:868
+msgid "MathJax inline"
+msgstr "MathJax в строке"
+
+#: ../dtop/anki/stats.py:245 ../dtop/anki/stats.py:372
+#: ../dtop/anki/stats.py:392 ../dtop/anki/stats.py:703
+#: ../dtop/anki/stats.py:873
+msgid "Mature"
+msgstr "Закреплённые"
+
+#: ../dtop/aqt/forms/dconf.py:370
+msgid "Maximum interval"
+msgstr "Максимальный интервал"
+
+#: ../dtop/aqt/forms/dconf.py:369
+msgid "Maximum reviews/day"
+msgstr "Максимум повторений в день"
+
+#: ../dtop/aqt/editor.py:646
+msgid "Media"
+msgstr "Медиафайлы"
+
+#: ../dtop/aqt/forms/dconf.py:381
+msgid "Minimum interval"
+msgstr "Минимальный интервал"
+
+#: ../dtop/anki/stats.py:400
+msgid "Minutes"
+msgstr "Минут"
+
+#: ../dtop/anki/consts.py:71
+msgid "Mix new cards and reviews"
+msgstr "Перемешивать новые и повторяемые"
+
+#: ../dtop/anki/importing/__init__.py:15
+msgid "Mnemosyne 2.0 Deck (*.db)"
+msgstr "Колода Mnemosyne 2.0 (*.db)"
+
+#: ../dtop/aqt/reviewer.py:535
+msgid "More"
+msgstr "Ещё"
+
+#: ../dtop/anki/consts.py:91
+msgid "Most lapses"
+msgstr "Наиболее забываемые"
+
+#: ../dtop/aqt/browser.py:1801
+msgid "Move Cards"
+msgstr "Переместить карточки"
+
+#: ../dtop/aqt/forms/setgroup.py:39
+msgid "Move cards to deck:"
+msgstr "Переместить карточки в колоду:"
+
+#: ../dtop/aqt/importing.py:137
+msgid "Multi-character separators are not supported. Please enter one character only."
+msgstr "Разделители из нескольких символов не поддерживаются. Введите только один символ."
+
+#: ../dtop/aqt/forms/browser.py:306
+msgid "N&ote"
+msgstr "&Запись"
+
+#: ../dtop/aqt/main.py:232 ../dtop/aqt/main.py:246
+msgid "Name exists."
+msgstr "Имя уже существует."
+
+#: ../dtop/aqt/deckbrowser.py:57
+msgid "Name for deck:"
+msgstr "Название колоды:"
+
+#: ../dtop/aqt/main.py:229 ../dtop/aqt/models.py:96
+msgid "Name:"
+msgstr "Имя поля:"
+
+#: ../dtop/aqt/forms/preferences.py:263
+msgid "Network"
+msgstr "С"
+
+#: ../dtop/aqt/browser.py:1231 ../dtop/aqt/deckbrowser.py:152
+#: ../dtop/aqt/overview.py:196
+msgid "New"
+msgstr "Новые"
+
+#: ../dtop/aqt/forms/dconf.py:364
+msgid "New Cards"
+msgstr "Новые карточки"
+
+#: ../dtop/aqt/customstudy.py:70
+#, python-format
+msgid "New cards in deck over today limit: %s"
+msgstr "Новые карточки в колоде сверх лимита: %s"
+
+#: ../dtop/aqt/forms/customstudy.py:110
+msgid "New cards only"
+msgstr "Только новые карточки"
+
+#: ../dtop/aqt/forms/dconf.py:359
+msgid "New cards/day"
+msgstr "Новых карточек в день"
+
+#: ../dtop/aqt/deckbrowser.py:258 ../dtop/aqt/studydeck.py:142
+msgid "New deck name:"
+msgstr "Имя новой колоды:"
+
+#: ../dtop/aqt/forms/dconf.py:377
+msgid "New interval"
+msgstr "Новый интервал"
+
+#: ../dtop/aqt/clayout.py:379 ../dtop/aqt/deckconf.py:139
+#: ../dtop/aqt/fields.py:72 ../dtop/aqt/main.py:240 ../dtop/aqt/models.py:67
+msgid "New name:"
+msgstr "Новое имя:"
+
+#: ../dtop/aqt/forms/changemodel.py:111
+msgid "New note type:"
+msgstr "Новый тип записи:"
+
+#: ../dtop/aqt/deckconf.py:117
+msgid "New options group name:"
+msgstr "Имя новой группы настроек:"
+
+#: ../dtop/aqt/fields.py:109
+#, python-format
+msgid "New position (1...%d):"
+msgstr "Новая позиция (1…%d):"
+
+#: ../dtop/aqt/forms/preferences.py:251
+msgid "Next day starts at"
+msgstr "Начало следующего дня"
+
+#: ../dtop/aqt/browser.py:1243
+msgid "No Flag"
+msgstr "Без флага"
+
+#: ../dtop/aqt/overview.py:40
+msgid "No cards are due yet."
+msgstr "Нет карточек на сегодня."
+
+#: ../dtop/anki/stats.py:210
+msgid "No cards have been studied today."
+msgstr "Ни одна карточка не была повторена сегодня."
+
+#: ../dtop/aqt/customstudy.py:183
+msgid "No cards matched the criteria you provided."
+msgstr "Нет карточек, подходящих под запрос."
+
+#: ../dtop/aqt/main.py:1324
+msgid "No empty cards."
+msgstr "Нет пустых карточек."
+
+#: ../dtop/anki/stats.py:208
+msgid "No mature cards were studied today."
+msgstr "Ни одна закреплённая не была повторена сегодня"
+
+#: ../dtop/aqt/main.py:1249
+msgid "No unused or missing files found."
+msgstr "Неиспользуемые и отсутствующие файлы не найдены."
+
+#: ../dtop/aqt/addons.py:663
+msgid "No updates available."
+msgstr "Нет обновлений."
+
+#: ../dtop/aqt/browser.py:724
+msgid "Note"
+msgstr "Запись"
+
+#: ../dtop/anki/stats.py:60
+msgid "Note ID"
+msgstr "ID записи"
+
+#: ../dtop/anki/stats.py:58
+msgid "Note Type"
+msgstr "Тип записи"
+
+#: ../dtop/aqt/browser.py:1287 ../dtop/aqt/models.py:31
+#: ../dtop/aqt/forms/models.py:54
+msgid "Note Types"
+msgstr "Типы записей"
+
+#: ../dtop/aqt/reviewer.py:768
+#, python-format
+msgid "Note and its %d card deleted."
+msgid_plural "Note and its %d cards deleted."
+msgstr[0] "Запись и %d карточка удалены."
+msgstr[1] "Запись и %d карточки удалены."
+msgstr[2] "Запись и %d карточек удалены."
+msgstr[3] "Запись и %d карточек удалены."
+
+#: ../dtop/aqt/reviewer.py:783
+msgid "Note buried."
+msgstr "Запись отложена."
+
+#: ../dtop/aqt/reviewer.py:748
+msgid "Note suspended."
+msgstr "Запись исключена."
+
+#: ../dtop/aqt/forms/preferences.py:268
+msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
+msgstr "Примечание: медиафайлы не резервируются. Делайте резервные копии своей папки Anki."
+
+#: ../dtop/aqt/browser.py:1467
+msgid "Note: Some of the history is missing. For more information, please see the browser documentation."
+msgstr "Примечание: часть истории отсутствует. Для получения справки смотрите документацию списка карточек."
+
+#: ../dtop/anki/importing/anki2.py:151
+#, python-format
+msgid "Notes added from file: %d"
+msgstr "Записи, добавленные из файла: %d"
+
+#: ../dtop/anki/importing/anki2.py:139
+#, python-format
+msgid "Notes found in file: %d"
+msgstr "Записи, найденные в файле: %d"
+
+#: ../dtop/anki/exporting.py:113
+msgid "Notes in Plain Text"
+msgstr "Записи в текст"
+
+#: ../dtop/aqt/fields.py:94
+msgid "Notes require at least one field."
+msgstr "В записи должно быть хотя бы одно поле."
+
+#: ../dtop/anki/importing/anki2.py:154
+#, python-format
+msgid "Notes skipped, as they're already in your collection: %d"
+msgstr "Пропущенные записи, которые уже есть в коллекции: %d"
+
+#: ../dtop/aqt/browser.py:2180
+msgid "Notes tagged."
+msgstr "Метки добавлены."
+
+#: ../dtop/anki/importing/anki2.py:143
+#, python-format
+msgid "Notes that could not be imported as note type has changed: %d"
+msgstr "Записи, которые не импортированы, потому что изменился их тип: %d"
+
+#: ../dtop/anki/importing/anki2.py:148
+#, python-format
+msgid "Notes updated, as file had newer version: %d"
+msgstr "Записи, которые обновлены: %d"
+
+#: ../dtop/aqt/browser.py:2331
+msgid "Nothing"
+msgstr "Ничего"
+
+#: ../dtop/aqt/customstudy.py:56
+msgid "OK"
+msgstr "ОК"
+
+#: ../dtop/anki/consts.py:87
+msgid "Oldest seen first"
+msgstr "Сначала просмотренные давно"
+
+#: ../dtop/aqt/forms/preferences.py:261
+msgid "On next sync, force changes in one direction"
+msgstr "При следующей синхронизации перезаписать в одном направлении"
+
+#: ../dtop/anki/importing/noteimp.py:229
+msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
+msgstr "Некоторые записи не импортированы, так как они не создали ни одной карточки. Это могло произойти из-за пустых полей или из-за неправильного сопоставления содержимого файла и полей."
+
+#: ../dtop/aqt/browser.py:1943
+msgid "Only new cards can be repositioned."
+msgstr "Можно переместить только новые карточки."
+
+#: ../dtop/aqt/sync.py:215
+msgid "Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes."
+msgstr "Только один клиент за раз может быть подключён к AnkiWeb. Если синхронизация не удалась, попробуйте позже."
+
+#: ../dtop/aqt/forms/profiles.py:75
+msgid "Open"
+msgstr "Открыть"
+
+#: ../dtop/aqt/forms/profiles.py:80
+msgid "Open Backup..."
+msgstr "Открыть резервную копию..."
+
+#: ../dtop/aqt/main.py:539
+msgid "Optimizing..."
+msgstr "Оптимизируется..."
+
+#: ../dtop/aqt/forms/finddupes.py:63
+msgid "Optional filter:"
+msgstr "Опциональный фильтр:"
+
+#: ../dtop/aqt/clayout.py:103 ../dtop/aqt/deckbrowser.py:242
+#: ../dtop/aqt/deckconf.py:31 ../dtop/aqt/dyndeckconf.py:24
+#: ../dtop/aqt/overview.py:219 ../dtop/aqt/reviewer.py:685
+#: ../dtop/aqt/forms/dyndconf.py:141 ../dtop/aqt/forms/fields.py:108
+msgid "Options"
+msgstr "Настройки"
+
+#: ../dtop/aqt/deckconf.py:40 ../dtop/aqt/dyndeckconf.py:27
+#: ../dtop/aqt/models.py:124
+#, python-format
+msgid "Options for %s"
+msgstr "Конфигурация %s"
+
+#: ../dtop/aqt/forms/dconf.py:352
+msgid "Options group:"
+msgstr "Конфигурация"
+
+#: ../dtop/aqt/models.py:58
+msgid "Options..."
+msgstr "Настройки..."
+
+#: ../dtop/aqt/browser.py:1240 ../dtop/aqt/reviewer.py:660
+#: ../dtop/aqt/forms/browser.py:331
+msgid "Orange Flag"
+msgstr "Оранжевая флаг"
+
+#: ../dtop/aqt/forms/dconf.py:356
+msgid "Order"
+msgstr "Порядок"
+
+#: ../dtop/anki/consts.py:92
+msgid "Order added"
+msgstr "В порядке добавления"
+
+#: ../dtop/anki/consts.py:93
+msgid "Order due"
+msgstr "По расписанию повторения"
+
+#: ../dtop/aqt/forms/browserdisp.py:71
+msgid "Override back template:"
+msgstr "Подменить шаблон оборотной стороны:"
+
+#: ../dtop/aqt/forms/browserdisp.py:72
+msgid "Override font:"
+msgstr "Подменить шрифт:"
+
+#: ../dtop/aqt/forms/browserdisp.py:70
+msgid "Override front template:"
+msgstr "Подменить шаблон лицевой стороны:"
+
+#: ../dtop/aqt/addons.py:631
+msgid "Packaged Anki Add-on"
+msgstr "Упакованное дополнение Anki"
+
+#: ../dtop/anki/importing/__init__.py:14
+msgid "Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)"
+msgstr "Упакованная колода/коллекция Anki (*.apkg *.colpkg *.zip)"
+
+#: ../dtop/aqt/sync.py:274
+msgid "Password:"
+msgstr "Пароль:"
+
+#: ../dtop/aqt/editor.py:1110
+msgid "Paste"
+msgstr "Вставить"
+
+#: ../dtop/aqt/forms/preferences.py:243
+msgid "Paste clipboard images as PNG"
+msgstr "Вставлять изображения из буфера как PNG"
+
+#: ../dtop/anki/importing/__init__.py:17
+msgid "Pauker 1.8 Lesson (*.pau.gz)"
+msgstr "Урок Pauker 1.8 (*.pau.gz)"
+
+#: ../dtop/anki/stats.py:614
+msgid "Percentage"
+msgstr "Процент"
+
+#: ../dtop/anki/stats.py:962
+#, python-format
+msgid "Period: %s"
+msgstr "Период: %s"
+
+#: ../dtop/aqt/forms/reschedule.py:74
+msgid "Place at end of new card queue"
+msgstr "Поместить в конец очереди новых карточек"
+
+#: ../dtop/aqt/forms/reschedule.py:75
+msgid "Place in review queue with interval between:"
+msgstr "Поместить в очередь на повторение с интервалами между:"
+
+#: ../dtop/aqt/models.py:105
+msgid "Please add another note type first."
+msgstr "Сначала добавьте другой тип записи."
+
+#: ../dtop/aqt/addons.py:657 ../dtop/aqt/downloader.py:75
+msgid "Please check your internet connection."
+msgstr "Проверьте соединение с интернетом."
+
+#: ../dtop/aqt/errors.py:94
+msgid "Please connect a microphone, and ensure other programs are not using the audio device."
+msgstr "Подсоедините микрофон и убедитесь, что другие программы не используют это аудиоустройтво."
+
+#: ../dtop/anki/collection.py:674
+#, python-format
+msgid "Please edit this note and add some cloze deletions. (%s)"
+msgstr "Отредактируйте эту запись, добавив несколько пропусков для заполнения. (%s)"
+
+#: ../dtop/aqt/main.py:1492
+msgid "Please ensure a profile is open and Anki is not busy, then try again."
+msgstr "Убедитесь, что профиль открыт и Anki не занята, затем попробуйте снова."
+
+#: ../dtop/aqt/browser.py:1342
+msgid "Please give your filter a name:"
+msgstr "Задайте имя фильтра:"
+
+#: ../dtop/aqt/errors.py:84
+msgid "Please install PyAudio"
+msgstr "Установите PyAudio"
+
+#: ../dtop/aqt/profiles.py:230
+#, python-format
+msgid "Please remove the folder %s and try again."
+msgstr "Удалите папку %s и попробуйте снова."
+
+#: ../dtop/aqt/addons.py:647
+msgid "Please report this to the respective add-on author(s)."
+msgstr "Сообщите об этом автору дополнения."
+
+#: ../dtop/aqt/preferences.py:69
+msgid "Please restart Anki to complete language change."
+msgstr "Перезагрузите Anki для завершения смены языка."
+
+#: ../dtop/aqt/reviewer.py:351
+msgid "Please run Tools>Empty Cards"
+msgstr "Выберите в меню «Инструменты»—«Пустые карточки»"
+
+#: ../dtop/aqt/main.py:577
+msgid "Please select a deck."
+msgstr "Выберите колоду."
+
+#: ../dtop/aqt/addons.py:575
+msgid "Please select a single add-on first."
+msgstr "Сначала выберите одно дополнение."
+
+#: ../dtop/aqt/browser.py:1512
+msgid "Please select cards from only one note type."
+msgstr "Выберите карточки только одного типа."
+
+#: ../dtop/aqt/studydeck.py:126
+msgid "Please select something."
+msgstr "Выберите что-нибудь."
+
+#: ../dtop/aqt/sync.py:197
+msgid "Please upgrade to the latest version of Anki."
+msgstr "Установите последнюю версию Anki."
+
+#: ../dtop/aqt/main.py:1008
+msgid "Please use File>Import to import this file."
+msgstr "Используйте «Файл»—«Импортировать»."
+
+#: ../dtop/aqt/sync.py:133
+msgid "Please visit AnkiWeb, upgrade your deck, then try again."
+msgstr "Посетите AnkiWeb, обновите вашу колоду, затем попытайтесь ещё раз."
+
+#: ../dtop/anki/stats.py:56
+msgid "Position"
+msgstr "Позиция"
+
+#: ../dtop/aqt/forms/preferences.py:238
+msgid "Preferences"
+msgstr "Настройки"
+
+#: ../dtop/aqt/browser.py:1548 ../dtop/aqt/forms/browser.py:293
+msgid "Preview"
+msgstr "Предпросмотр"
+
+#: ../dtop/aqt/browser.py:593
+#, python-format
+msgid "Preview Selected Card (%s)"
+msgstr "Предпросмотр выбранной карточки (%s)"
+
+#: ../dtop/aqt/forms/customstudy.py:106
+msgid "Preview new cards"
+msgstr "Предпросмотр новых карточек"
+
+#: ../dtop/aqt/customstudy.py:95
+msgid "Preview new cards added in the last"
+msgstr "Предпросмотр новых карточек, добавленных за последние"
+
+#: ../dtop/aqt/importing.py:476
+#, python-format
+msgid "Processed %d media file"
+msgid_plural "Processed %d media files"
+msgstr[0] "Обработан %d медиафайл"
+msgstr[1] "Обработано %d медиафайла"
+msgstr[2] "Обработаны %d медиафайлов"
+msgstr[3] "Обработаны %d медиафайлов"
+
+#: ../dtop/aqt/progress.py:118
+msgid "Processing..."
+msgstr "Обрабатывается..."
+
+#: ../dtop/aqt/profiles.py:177
+msgid "Profile Corrupt"
+msgstr "Профиль повреждён"
+
+#: ../dtop/aqt/forms/profiles.py:74
+msgid "Profiles"
+msgstr "Профили"
+
+#: ../dtop/aqt/sync.py:231
+msgid "Proxy authentication required."
+msgstr "Требуется аутентификация в прокси."
+
+#: ../dtop/aqt/browser.py:710
+msgid "Question"
+msgstr "Вопрос"
+
+#: ../dtop/aqt/browser.py:1954
+#, python-format
+msgid "Queue bottom: %d"
+msgstr "Конец очереди: %d"
+
+#: ../dtop/aqt/browser.py:1953
+#, python-format
+msgid "Queue top: %d"
+msgstr "Начало очереди: %d"
+
+#: ../dtop/aqt/forms/profiles.py:79
+msgid "Quit"
+msgstr "Выйти"
+
+#: ../dtop/anki/consts.py:88
+msgid "Random"
+msgstr "В случайном порядке"
+
+#: ../dtop/aqt/forms/reposition.py:73
+msgid "Randomize order"
+msgstr "В случайном порядке"
+
+#: ../dtop/aqt/browser.py:1422
+msgid "Rating"
+msgstr "Оценка"
+
+#: ../dtop/aqt/dyndeckconf.py:22 ../dtop/aqt/overview.py:222
+msgid "Rebuild"
+msgstr "Перестроить"
+
+#: ../dtop/aqt/reviewer.py:688
+msgid "Record Own Voice"
+msgstr "Записать свой голос"
+
+#: ../dtop/aqt/editor.py:140
+msgid "Record audio (F5)"
+msgstr "Запись аудио (F5)"
+
+#: ../dtop/aqt/sound.py:38
+#, python-format
+msgid "Recording...<br>Time: %0.1f"
+msgstr "Началась запись...<br>Время: %0.1f"
+
+#: ../dtop/aqt/browser.py:1239 ../dtop/aqt/reviewer.py:654
+#: ../dtop/aqt/forms/browser.py:330
+msgid "Red Flag"
+msgstr "Красный флаг"
+
+#: ../dtop/anki/consts.py:95
+msgid "Relative overdueness"
+msgstr "Относительная просроченность"
+
+#: ../dtop/anki/stats.py:374 ../dtop/anki/stats.py:394
+#: ../dtop/aqt/browser.py:1433
+msgid "Relearn"
+msgstr "Переучиваемые"
+
+#: ../dtop/aqt/forms/fields.py:107
+msgid "Remember last input when adding"
+msgstr "Помнить последние введённые данные"
+
+#: ../dtop/aqt/browser.py:1352
+#, python-format
+msgid "Remove %s from your saved searches?"
+msgstr "Удалить %s из сохраненных поисков?"
+
+#: ../dtop/aqt/clayout.py:465
+msgid "Remove Card Type..."
+msgstr "Удалить тип карточек..."
+
+#: ../dtop/aqt/browser.py:1327
+msgid "Remove Current Filter..."
+msgstr "Удалить текущий фильтр..."
+
+#: ../dtop/aqt/forms/browser.py:325
+msgid "Remove Tags..."
+msgstr "Удалить метки..."
+
+#: ../dtop/aqt/editor.py:113
+msgid "Remove formatting (Ctrl+R)"
+msgstr "Удалить форматирование (Ctrl+R)"
+
+#: ../dtop/aqt/clayout.py:239
+msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
+msgstr "Удаление этого типа карточки привело бы к удалению одной или более записей.  Пожалуйста, создайте сначала новый тип карточки."
+
+#: ../dtop/aqt/deckbrowser.py:240 ../dtop/aqt/deckconf.py:85
+#: ../dtop/aqt/models.py:49 ../dtop/aqt/forms/fields.py:103
+#: ../dtop/aqt/forms/profiles.py:77
+msgid "Rename"
+msgstr "Переименовать"
+
+#: ../dtop/aqt/clayout.py:468
+msgid "Rename Card Type..."
+msgstr "Переименовать тип карточек..."
+
+#: ../dtop/aqt/deckbrowser.py:255
+msgid "Rename Deck"
+msgstr "Переименовать колоду"
+
+#: ../dtop/aqt/forms/dyndconf.py:144
+msgid "Repeat failed cards after"
+msgstr "Повторить забытые карточки после"
+
+#: ../dtop/aqt/main.py:273
+msgid "Replace your collection with an earlier backup?"
+msgstr "Заместить вашу коллекцию более ранней резервной копией?"
+
+#: ../dtop/aqt/browser.py:1559 ../dtop/aqt/reviewer.py:687
+msgid "Replay Audio"
+msgstr "Повторное воспроизведение аудио"
+
+#: ../dtop/aqt/reviewer.py:689
+msgid "Replay Own Voice"
+msgstr "Воспроизвести свой голос"
+
+#: ../dtop/aqt/browser.py:1959 ../dtop/aqt/forms/fields.py:104
+msgid "Reposition"
+msgstr "Переместить"
+
+#: ../dtop/aqt/clayout.py:471
+msgid "Reposition Card Type..."
+msgstr "Переместить тип карточек..."
+
+#: ../dtop/aqt/forms/reposition.py:70
+msgid "Reposition New Cards"
+msgstr "Переместить новые карты"
+
+#: ../dtop/aqt/forms/browser.py:317
+msgid "Reposition..."
+msgstr "Очередь…"
+
+#: ../dtop/aqt/forms/taglimit.py:61
+msgid "Require one or more of these tags:"
+msgstr "Требуется одна или несколько из этих меток:"
+
+#: ../dtop/aqt/browser.py:1433
+msgid "Resched"
+msgstr "Перенести"
+
+#: ../dtop/aqt/browser.py:1985 ../dtop/aqt/forms/reschedule.py:73
+msgid "Reschedule"
+msgstr "Перепланировать"
+
+#: ../dtop/aqt/forms/dyndconf.py:142
+msgid "Reschedule cards based on my answers in this deck"
+msgstr "Перепланировать карточки на основе моих ответов в этой колоде"
+
+#: ../dtop/aqt/addons.py:769
+msgid "Restored defaults"
+msgstr "Настройки сброшены"
+
+#: ../dtop/aqt/main.py:641
+msgid "Resume Now"
+msgstr "Продолжить сейчас"
+
+#: ../dtop/aqt/forms/fields.py:106
+msgid "Reverse text direction (RTL)"
+msgstr "Направление текста справа-налево"
+
+#: ../dtop/aqt/main.py:286
+msgid "Revert to backup"
+msgstr "Возврат к резервной копии"
+
+#: ../dtop/aqt/main.py:926
+#, python-format
+msgid "Reverted to state prior to '%s'."
+msgstr "Возврат к состоянию до '%s'."
+
+#: ../dtop/anki/collection.py:776 ../dtop/aqt/browser.py:1233
+#: ../dtop/aqt/browser.py:1433
+msgid "Review"
+msgstr "Повторение"
+
+#: ../dtop/anki/stats.py:380
+msgid "Review Count"
+msgstr "Количество повторений"
+
+#: ../dtop/anki/stats.py:406
+msgid "Review Time"
+msgstr "Время на повторения"
+
+#: ../dtop/aqt/forms/customstudy.py:101
+msgid "Review ahead"
+msgstr "Просмотреть вперед (вне дневного лимита)"
+
+#: ../dtop/aqt/customstudy.py:92
+msgid "Review ahead by"
+msgstr "Просмотреть вперед на"
+
+#: ../dtop/aqt/customstudy.py:88
+msgid "Review cards forgotten in last"
+msgstr "Пересмотреть карточки, забытые в прошлом"
+
+#: ../dtop/aqt/forms/customstudy.py:102
+msgid "Review forgotten cards"
+msgstr "Повторить забытые карточки"
+
+#: ../dtop/anki/stats.py:806
+msgid "Review success rate for each hour of the day."
+msgstr "Доля удачных просмотров в определенный час"
+
+#: ../dtop/anki/stats.py:47 ../dtop/anki/stats.py:834
+#: ../dtop/aqt/browser.py:721 ../dtop/aqt/forms/dconf.py:375
+msgid "Reviews"
+msgstr "Повторение"
+
+#: ../dtop/aqt/customstudy.py:82
+#, python-format
+msgid "Reviews due in deck over today limit: %s"
+msgstr "Просмотреть в колоде повторяемые карточки сверх дневного лимита: %s"
+
+#: ../dtop/anki/consts.py:81
+msgid "Right"
+msgstr "Справа"
+
+#: ../dtop/aqt/sound.py:27
+msgid "Save"
+msgstr "Сохранить"
+
+#: ../dtop/aqt/browser.py:1329
+msgid "Save Current Filter..."
+msgstr "Сохранить текущий фильтр..."
+
+#: ../dtop/aqt/stats.py:37 ../dtop/aqt/stats.py:67
+msgid "Save PDF"
+msgstr "Сохранить как PDF"
+
+#: ../dtop/aqt/stats.py:80
+msgid "Saved."
+msgstr "Сохранено."
+
+#: ../dtop/anki/stats.py:960
+#, python-format
+msgid "Scope: %s"
+msgstr "Охват: %s"
+
+#: ../dtop/aqt/browser.py:2135 ../dtop/aqt/forms/browser.py:292
+#: ../dtop/aqt/forms/dyndconf.py:135 ../dtop/aqt/forms/dyndconf.py:139
+msgid "Search"
+msgstr "Поиск"
+
+#: ../dtop/aqt/forms/finddupes.py:64
+msgid "Search in:"
+msgstr "Искать в:"
+
+#: ../dtop/aqt/forms/browseropts.py:73
+msgid "Search within formatting (slow)"
+msgstr "Поиск с форматированием (медленно)"
+
+#: ../dtop/aqt/customstudy.py:99
+msgid "Select"
+msgstr "Выбрать"
+
+#: ../dtop/aqt/forms/browser.py:302
+msgid "Select &All"
+msgstr "&Выделить всё"
+
+#: ../dtop/aqt/forms/browser.py:311
+msgid "Select &Notes"
+msgstr "Выбрать &записи"
+
+#: ../dtop/aqt/forms/taglimit.py:62
+msgid "Select tags to exclude:"
+msgstr "Выберите исключаемые метки:"
+
+#: ../dtop/aqt/importing.py:291
+msgid "Selected file was not in UTF-8 format. Please see the importing section of the manual."
+msgstr "Выбранный файл не в кодировке UTF-8. Пожалуйста, прочтите раздел об импорте в руководстве."
+
+#: ../dtop/aqt/forms/taglimit.py:60
+msgid "Selective Study"
+msgstr "Выборочное обучение"
+
+#: ../dtop/aqt/importing.py:165
+msgid "Semicolon"
+msgstr "Точка с запятой"
+
+#: ../dtop/aqt/sync.py:227
+msgid "Server not found. Either your connection is down, or antivirus/firewall software is blocking Anki from connecting to the internet."
+msgstr "Сервер не найден. Либо соединение разорвано, либо антивирус или файервол блокируют подключение Anki к интернету."
+
+#: ../dtop/aqt/deckconf.py:147
+#, python-format
+msgid "Set all decks below %s to this option group?"
+msgstr "Отметить все колоды под %s как эта опциональная группа?"
+
+#: ../dtop/aqt/deckconf.py:87
+msgid "Set for all subdecks"
+msgstr "Назначить всем подколодам"
+
+#: ../dtop/aqt/editor.py:116
+msgid "Set foreground colour (F7)"
+msgstr "Повторить последний использованный цвет шрифта (F7)"
+
+#: ../dtop/aqt/main.py:82
+msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
+msgstr "Была зажата клавиша \"Shift\". Автоматическая синхронизация и загрузка дополнений пропускаются."
+
+#: ../dtop/aqt/forms/reposition.py:74
+msgid "Shift position of existing cards"
+msgstr "Сдвигать позиции других карточек"
+
+#: ../dtop/aqt/browser.py:1563 ../dtop/aqt/browser.py:1581
+#: ../dtop/aqt/deckbrowser.py:327 ../dtop/aqt/main.py:669
+#: ../dtop/aqt/overview.py:232 ../dtop/aqt/reviewer.py:534
+#: ../dtop/aqt/reviewer.py:547 ../dtop/aqt/reviewer.py:613
+#: ../dtop/aqt/toolbar.py:34 ../dtop/aqt/toolbar.py:35
+#: ../dtop/aqt/toolbar.py:36 ../dtop/aqt/toolbar.py:37
+#: ../dtop/aqt/toolbar.py:38
+#, python-format
+msgid "Shortcut key: %s"
+msgstr "Горячая клавиша: %s"
+
+#: ../dtop/aqt/browser.py:1568
+msgid "Shortcut key: Left arrow"
+msgstr "Горячая клавиша: Стрелка влево"
+
+#: ../dtop/aqt/browser.py:1573
+msgid "Shortcut key: Right arrow or Enter"
+msgstr "Горячая клавиша: Стрелка вправо или Enter"
+
+#: ../dtop/aqt/addcards.py:85
+#, python-format
+msgid "Shortcut: %s"
+msgstr "Горячая клавиша: %s"
+
+#: ../dtop/anki/template/hint.py:19
+#, python-format
+msgid "Show %s"
+msgstr "Показать %s"
+
+#: ../dtop/aqt/reviewer.py:548
+msgid "Show Answer"
+msgstr "Показать ответ"
+
+#: ../dtop/aqt/browser.py:1579
+msgid "Show Both Sides"
+msgstr "Показать обе стороны"
+
+#: ../dtop/aqt/editor.py:163
+msgid "Show Duplicates"
+msgstr "Показать дубликаты"
+
+#: ../dtop/aqt/forms/dconf.py:389
+msgid "Show answer timer"
+msgstr "Показывать время ответа"
+
+#: ../dtop/aqt/forms/preferences.py:244
+msgid "Show cards as white on black (night mode)"
+msgstr "Показывать карточки белым по чёрному (ночной режим)"
+
+#: ../dtop/aqt/forms/preferences.py:245
+msgid "Show learning cards with larger steps before reviews"
+msgstr "Показывать разучиваемые карточки с большими интервалами до повторений"
+
+#: ../dtop/anki/consts.py:72
+msgid "Show new cards after reviews"
+msgstr "Показывать новые карточки после повторений"
+
+#: ../dtop/anki/consts.py:73
+msgid "Show new cards before reviews"
+msgstr "Показывать новые карточки перед повторениями"
+
+#: ../dtop/anki/consts.py:65
+msgid "Show new cards in order added"
+msgstr "Показывать новые карточки в порядке их добавления"
+
+#: ../dtop/anki/consts.py:64
+msgid "Show new cards in random order"
+msgstr "Показывать новые карточки в случайном порядке"
+
+#: ../dtop/aqt/forms/preferences.py:241
+msgid "Show next review time above answer buttons"
+msgstr "Показывать время следующего повторения над кнопками ответа"
+
+#: ../dtop/aqt/forms/preferences.py:242
+msgid "Show remaining card count during review"
+msgstr "Показывать при просмотре число оставшихся карточек"
+
+#: ../dtop/aqt/browser.py:1033 ../dtop/aqt/forms/browser.py:334
+msgid "Sidebar"
+msgstr "Боковая панель"
+
+#: ../dtop/aqt/forms/addfield.py:77
+msgid "Size:"
+msgstr "Размер:"
+
+#: ../dtop/anki/importing/anki2.py:162
+msgid "Skipped"
+msgstr "Пропущено"
+
+#: ../dtop/anki/sched.py:1290 ../dtop/anki/schedv2.py:1454
+msgid "Some related or buried cards were delayed until a later session."
+msgstr "Некоторые связанные и отложенные карточки задержаны до другого сеанса."
+
+#: ../dtop/aqt/forms/preferences.py:269
+msgid "Some settings will take effect after you restart Anki."
+msgstr "Некоторые параметры вступят в силу только после перезапуска Anki."
+
+#: ../dtop/aqt/browser.py:714
+msgid "Sort Field"
+msgstr "Поле сортировки"
+
+#: ../dtop/aqt/forms/fields.py:109
+msgid "Sort by this field in the browser"
+msgstr "Сортировать список по этому полю"
+
+#: ../dtop/aqt/browser.py:913
+msgid "Sorting on this column is not supported. Please choose another."
+msgstr "Сортировка по данной колонке не поддерживается. Пожалуйста, выберите другую колонку."
+
+#: ../dtop/aqt/errors.py:88
+msgid "Sound and video on cards will not function until mpv or mplayer is installed."
+msgstr "Озвучки и видео на карточках не будут функционировать до установки mpv или mplayer."
+
+#: ../dtop/aqt/importing.py:163 ../dtop/aqt/reviewer.py:547
+msgid "Space"
+msgstr "Пробел"
+
+#: ../dtop/aqt/forms/reposition.py:71
+msgid "Start position:"
+msgstr "Первая позиция:"
+
+#: ../dtop/aqt/forms/dconf.py:355
+msgid "Starting ease"
+msgstr "Исходная лёгкость"
+
+#: ../dtop/aqt/forms/stats.py:75
+msgid "Statistics"
+msgstr "Статистика"
+
+#: ../dtop/aqt/toolbar.py:37
+msgid "Stats"
+msgstr "Статистика"
+
+#: ../dtop/aqt/forms/reposition.py:72
+msgid "Step:"
+msgstr "Шаг:"
+
+#: ../dtop/aqt/forms/dconf.py:360 ../dtop/aqt/forms/dconf.py:376
+msgid "Steps (in minutes)"
+msgstr "Шаги (в минутах)"
+
+#: ../dtop/aqt/deckconf.py:258 ../dtop/aqt/dyndeckconf.py:156
+msgid "Steps must be numbers."
+msgstr "Шаги указываются в виде чисел."
+
+#: ../dtop/aqt/sync.py:60
+msgid "Stopping..."
+msgstr "Завершение..."
+
+#: ../dtop/anki/stats.py:178
+#, python-format
+msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
+msgstr "Сегодня изучено %(a)s %(b)s  (%(secs).1fs/карточка)"
+
+#: ../dtop/aqt/deckbrowser.py:122
+#, python-format
+msgid "Studied %(a)s %(b)s today."
+msgstr "Просмотрено сегодня %(a)s %(b)s"
+
+#: ../dtop/aqt/browser.py:1219
+msgid "Studied Today"
+msgstr "Просмотрено сегодня"
+
+#: ../dtop/aqt/studydeck.py:62
+msgid "Study"
+msgstr "Учить"
+
+#: ../dtop/aqt/forms/studydeck.py:45
+msgid "Study Deck"
+msgstr "Учить колоду"
+
+#: ../dtop/aqt/forms/main.py:151
+msgid "Study Deck..."
+msgstr "Учить колоду..."
+
+#: ../dtop/aqt/overview.py:202
+msgid "Study Now"
+msgstr "Учить"
+
+#: ../dtop/aqt/forms/customstudy.py:105
+msgid "Study by card state or tag"
+msgstr "Учить по состоянию карточки или по метке"
+
+#: ../dtop/aqt/forms/template.py:108
+msgid "Styling"
+msgstr "Таблица стилей"
+
+#: ../dtop/aqt/clayout.py:180
+msgid "Styling (shared between cards)"
+msgstr "Стиль (используется во всех карточках в записи)"
+
+#: ../dtop/aqt/editor.py:112
+msgid "Subscript (Ctrl+=)"
+msgstr "Нижний индекс (Ctrl+=)"
+
+#: ../dtop/anki/importing/__init__.py:16
+msgid "Supermemo XML export (*.xml)"
+msgstr "Экспорт в Supermemo XML (*.xml)"
+
+#: ../dtop/aqt/editor.py:110
+msgid "Superscript (Ctrl++)"
+msgstr "Верхний индекс (Ctrl++)"
+
+#: ../dtop/aqt/reviewer.py:746 ../dtop/aqt/reviewer.py:752
+msgid "Suspend"
+msgstr "Исключить"
+
+#: ../dtop/aqt/reviewer.py:682 ../dtop/aqt/forms/dconf.py:383
+msgid "Suspend Card"
+msgstr "Исключить карточку"
+
+#: ../dtop/aqt/reviewer.py:683
+msgid "Suspend Note"
+msgstr "Исключить запись"
+
+#: ../dtop/aqt/browser.py:1236
+msgid "Suspended"
+msgstr "Исключённые"
+
+#: ../dtop/anki/stats.py:876
+msgid "Suspended+Buried"
+msgstr "Исключённые и отложенные"
+
+#: ../dtop/aqt/toolbar.py:38
+msgid "Sync"
+msgstr "Синхронизация"
+
+#: ../dtop/aqt/forms/preferences.py:259
+msgid "Synchronize audio and images too"
+msgstr "Синхронизировать звуки и изображения"
+
+#: ../dtop/aqt/sync.py:145
+#, python-format
+msgid "Syncing failed:\n"
+"%s"
+msgstr "Синхронизация не удалась:\n"
+"%s"
+
+#: ../dtop/aqt/sync.py:112
+msgid "Syncing failed; internet offline."
+msgstr "Синхронизация не удалась; нет подключения к Интернету."
+
+#: ../dtop/aqt/sync.py:336
+msgid "Syncing requires the clock on your computer to be set correctly. Please fix the clock and try again."
+msgstr "Для синхронизации на вашем компьютере должно быть точное время.  Настройте часы и попробуйте снова."
+
+#: ../dtop/aqt/sync.py:120
+msgid "Syncing..."
+msgstr "Выполняется синхронизация…"
+
+#: ../dtop/aqt/importing.py:159
+msgid "Tab"
+msgstr "Символы табуляции"
+
+#: ../dtop/aqt/browser.py:2144 ../dtop/aqt/browser.py:2172
+msgid "Tag Duplicates"
+msgstr "Отметить дупликаты"
+
+#: ../dtop/aqt/forms/dconf.py:384
+msgid "Tag Only"
+msgstr "только пометить"
+
+#: ../dtop/aqt/browser.py:723 ../dtop/aqt/browser.py:1251
+#: ../dtop/aqt/editor.py:514
+msgid "Tags"
+msgstr "Метки"
+
+#: ../dtop/aqt/deckchooser.py:31
+msgid "Target Deck (Ctrl+D)"
+msgstr "Целевая колода (Ctrl+D)"
+
+#: ../dtop/aqt/forms/changemap.py:42
+msgid "Target field:"
+msgstr "Целевое поле:"
+
+#: ../dtop/anki/stdmodels.py:101
+msgid "Text"
+msgstr "Текст"
+
+#: ../dtop/anki/importing/__init__.py:13
+msgid "Text separated by tabs or semicolons (*)"
+msgstr "Текст, разделённый символами табуляции или точками с запятой (*)"
+
+#: ../dtop/anki/decks.py:281
+msgid "That deck already exists."
+msgstr "Колода с таким названием уже есть."
+
+#: ../dtop/aqt/fields.py:65
+msgid "That field name is already used."
+msgstr "Заданное имя уже используется"
+
+#: ../dtop/aqt/clayout.py:385
+msgid "That name is already used."
+msgstr "Заданное имя уже используется"
+
+#: ../dtop/aqt/sync.py:185
+msgid "The connection to AnkiWeb timed out. Please check your network connection and try again."
+msgstr "Ошибка времени ожидания при подключении к AnkiWeb. Пожалуйста, проверьте ваше соединение и повторите попытку."
+
+#: ../dtop/aqt/deckconf.py:131
+msgid "The default configuration can't be removed."
+msgstr "Стандартные настройки не могут быть удалены."
+
+#: ../dtop/aqt/deckbrowser.py:288
+msgid "The default deck can't be deleted."
+msgstr "Стандартные настройки не могут быть удалены"
+
+#: ../dtop/anki/stats.py:901
+msgid "The division of cards in your deck(s)."
+msgstr "Распределение карточек в колоде (-ах)."
+
+#: ../dtop/aqt/addcards.py:172
+msgid "The first field is empty."
+msgstr "Первое поле пусто."
+
+#: ../dtop/aqt/importing.py:176
+msgid "The first field of the note type must be mapped."
+msgstr "Первое поле записи должно быть прикрепленно."
+
+#: ../dtop/aqt/addons.py:139
+#, python-format
+msgid "The following add-ons are incompatible with %(name)s and have been disabled: %(found)s"
+msgstr "Дополнения, несовместимые с %(name)s, были отключены: %(found)s"
+
+#: ../dtop/aqt/utils.py:556
+#, python-format
+msgid "The following character can not be used: %s"
+msgstr "Символ %s не может быть использован."
+
+#: ../dtop/aqt/addons.py:302 ../dtop/aqt/addons.py:345
+msgid "The following conflicting add-ons were disabled:"
+msgstr "Отключённые конфликтующие дополнения:"
+
+#: ../dtop/aqt/reviewer.py:182
+msgid "The front of this card is empty. Please run Tools>Empty Cards."
+msgstr "Лицевая сторона этой карточки пуста. Выберите в меню «Инструменты»—«Пустые карточки»."
+
+#: ../dtop/aqt/addcards.py:189
+msgid "The input you have provided would make an empty question on all cards."
+msgstr "Пустой вопрос будет сгенерирован для всех карт для того, что вы ввели."
+
+#: ../dtop/anki/stats.py:335
+msgid "The number of new cards you have added."
+msgstr "Количество новых карт, которые вы добавили."
+
+#: ../dtop/anki/stats.py:380
+msgid "The number of questions you have answered."
+msgstr "Количество вопросов, на которые вы ответили."
+
+#: ../dtop/anki/stats.py:260
+msgid "The number of reviews due in the future."
+msgstr "Число повторений, запланированных на будущее."
+
+#: ../dtop/anki/stats.py:696
+msgid "The number of times you have pressed each button."
+msgstr "Сколько раз Вы нажали каждую кнопку."
+
+#: ../dtop/aqt/importing.py:465
+msgid "The provided file is not a valid .apkg file."
+msgstr "Указанный файл должен быть в формате .apkg."
+
+#: ../dtop/aqt/dyndeckconf.py:127
+msgid "The provided search did not match any cards. Would you like to revise it?"
+msgstr "Нет карточек, удовлетворяющих условиям поиска. Желаете задать новые?"
+
+#: ../dtop/aqt/main.py:1189
+msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
+msgstr "Последние изменения требуют полную выгрузку базы данных при следующей синхронизации. Если на другом вашем устройстве есть изменения, они будут утеряны. Продолжить?"
+
+#: ../dtop/anki/stats.py:406
+msgid "The time taken to answer the questions."
+msgstr "Время, затраченное на ответы"
+
+#: ../dtop/anki/sched.py:1276 ../dtop/anki/schedv2.py:1440
+msgid "There are more new cards available, but the daily limit has been\n"
+"reached. You can increase the limit in the options, but please\n"
+"bear in mind that the more new cards you introduce, the higher\n"
+"your short-term review workload will become."
+msgstr "Есть ещё новые карточки, но дневной лимит исчерпан.\n"
+"Вы можете увеличить лимит в настройках, но, пожалуйста,\n"
+"имейте в виду, что чем больше новых карточек вы просмотрите,\n"
+"тем больше вам надо будет повторять в ближайшее время."
+
+#: ../dtop/aqt/main.py:255
+msgid "There must be at least one profile."
+msgstr "Должен остаться хотя бы один профиль."
+
+#: ../dtop/aqt/browser.py:897
+msgid "This column can't be sorted on, but you can search for individual card types, such as 'card:1'."
+msgstr "Нельзя сортировать по этому столбцу, но вы можете искать конкретный тип карточек, например, 'card:1'."
+
+#: ../dtop/aqt/browser.py:905
+msgid "This column can't be sorted on, but you can search for specific decks by clicking on one on the left."
+msgstr "Нельзя сортировать по этому столбцу, но вы можете найти конкретную колоду, щёлкнув по ней слева."
+
+#: ../dtop/aqt/importing.py:412
+msgid "This file does not appear to be a valid .apkg file. If you're getting this error from a file downloaded from AnkiWeb, chances are that your download failed. Please try again, and if the problem persists, please try again with a different browser."
+msgstr "Это негодный файл .apkg. Если вы скачали файл с AnkiWeb, может быть, загрузка произошла с ошибкой. Попробуйте скачать файл в другом браузере."
+
+#: ../dtop/aqt/utils.py:364
+msgid "This file exists. Are you sure you want to overwrite it?"
+msgstr "Этот файл уже существует. Вы уверены, что хотите перезаписать его?"
+
+#: ../dtop/aqt/profiles.py:381
+#, python-format
+msgid "This folder stores all of your Anki data in a single location,\n"
+"to make backups easy. To tell Anki to use a different location,\n"
+"please see:\n\n"
+"%s\n"
+msgstr "Эта папка содержит всю вашу информацию используемую в Anki,\n"
+"чтобы создавать резервные копии быстрее.\n"
+"Если вы хотите использовать другую папку, прочтите следующее:\n\n"
+"%s\n"
+
+#: ../dtop/aqt/overview.py:150
+msgid "This is a special deck for studying outside of the normal schedule."
+msgstr "Это специальная колода для обучения вне обычного расписания."
+
+#: ../dtop/aqt/models.py:143
+msgid "This is a {{c1::sample}} cloze deletion."
+msgstr "Вот {{c1::пример}} заполнения пропуска."
+
+#: ../dtop/aqt/clayout.py:421
+#, python-format
+msgid "This will create %d card. Proceed?"
+msgid_plural "This will create %d cards. Proceed?"
+msgstr[0] "Будет создана %d карточка. Продолжить?"
+msgstr[1] "Будут созданы %d карточки. Продолжить?"
+msgstr[2] "Будет создано %d карточек. Продолжить?"
+msgstr[3] "Будет создано %d карточек. Продолжить?"
+
+#: ../dtop/aqt/importing.py:432
+msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
+msgstr "Это действие удалит существующую коллекцию, заменив её данными из импортируемого файла. Вы уверены?"
+
+#: ../dtop/aqt/preferences.py:137
+msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
+msgstr "Будут сброшены все изучаемые карточки, очищены фильтрованные колоды и изменена версия планировщика. Продолжить?"
+
+#: ../dtop/aqt/browser.py:1425
+msgid "Time"
+msgstr "Время"
+
+#: ../dtop/aqt/forms/preferences.py:253
+msgid "Timebox time limit"
+msgstr "Лимит ограничения времени"
+
+#: ../dtop/aqt/overview.py:200
+msgid "To Review"
+msgstr "Повторяемые"
+
+#: ../dtop/aqt/forms/getaddons.py:49
+msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
+msgstr "Для просмотра дополнений, кликните по кнопке Обзор ниже. <br><br>Когда вы нашли дополнение, которое вам нравится, пожалуйста, вставьте его код ниже. Вы можете вставить несколько кодов, разделяя их пробелом."
+
+#: ../dtop/aqt/editor.py:589
+msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
+msgstr "Чтобы добавить заполнение пропусков к существующей записи, вы прежде должны изменить её тип на «пропуски», выбрав Редактировать>Поменять тип записи."
+
+#: ../dtop/anki/sched.py:1285 ../dtop/anki/schedv2.py:1449
+msgid "To see them now, click the Unbury button below."
+msgstr "Чтобы увидеть их сейчас, нажмите кнопку «Вернуть»."
+
+#: ../dtop/anki/sched.py:1298 ../dtop/anki/schedv2.py:1462
+msgid "To study outside of the normal schedule, click the Custom Study button below."
+msgstr "Для обучения сверх обычного расписания, нажмите кнопку 'Дополнительное обучение' ниже."
+
+#: ../dtop/anki/stats.py:146 ../dtop/aqt/browser.py:1214
+msgid "Today"
+msgstr "Сегодня"
+
+#: ../dtop/anki/sched.py:1267 ../dtop/anki/schedv2.py:1431
+msgid "Today's review limit has been reached, but there are still cards\n"
+"waiting to be reviewed. For optimum memory, consider increasing\n"
+"the daily limit in the options."
+msgstr "Сегодняшний лимит просмотров был достигнут, но некоторые\n"
+"карточки ещё не были просмотрены.  Для оптимального запоминания\n"
+"подумайте об увеличении дневного лимита просмотров в опциях."
+
+#: ../dtop/aqt/forms/addons.py:75
+msgid "Toggle Enabled"
+msgstr "Переключить Enabled"
+
+#: ../dtop/aqt/forms/browser.py:337
+msgid "Toggle Mark"
+msgstr "Отметить — снять"
+
+#: ../dtop/aqt/forms/browser.py:326
+msgid "Toggle Suspend"
+msgstr "Исключить — включить"
+
+#: ../dtop/anki/stats.py:279 ../dtop/anki/stats.py:344
+#: ../dtop/anki/stats.py:438
+msgid "Total"
+msgstr "Всего"
+
+#: ../dtop/anki/stats.py:54
+msgid "Total Time"
+msgstr "Общее время"
+
+#: ../dtop/anki/stats.py:888
+msgid "Total cards"
+msgstr "Всего карточек"
+
+#: ../dtop/anki/stats.py:889
+msgid "Total notes"
+msgstr "Всего записей"
+
+#: ../dtop/aqt/forms/findreplace.py:72
+msgid "Treat input as regular expression"
+msgstr "Трактовать текущий ввод как регулярное выражение"
+
+#: ../dtop/aqt/browser.py:1421 ../dtop/aqt/modelchooser.py:26
+#: ../dtop/aqt/forms/importing.py:96
+msgid "Type"
+msgstr "Тип"
+
+#: ../dtop/aqt/reviewer.py:355
+#, python-format
+msgid "Type answer: unknown field %s"
+msgstr "Напишите ответ: неизвестное поле %s"
+
+#: ../dtop/aqt/errors.py:67
+msgid "Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect."
+msgstr "Не получается получить доступ к папке с медиафайлами. Возможно, в системе неправильные права доступа к папке временных файлов."
+
+#: ../dtop/aqt/importing.py:393
+msgid "Unable to import from a read-only file."
+msgstr "Не удалось импортировать из доступного только для чтения файла."
+
+#: ../dtop/aqt/main.py:299
+msgid "Unable to move existing file to trash - please try restarting your computer."
+msgstr "Невозможно переместить существующий файл в корзину — пожалуйста, перезагрузите свой комп."
+
+#: ../dtop/aqt/addons.py:267
+#, python-format
+msgid "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\n"
+"Debug info: %s"
+msgstr "Не получается обновить или удалить дополнение. Запустите Anki зажав Shift, чтобы временно отключить дополнения. Потом попробуйте снова.\n\n"
+"Отладочная информация: %s"
+
+#: ../dtop/aqt/overview.py:228
+msgid "Unbury"
+msgstr "Вернуть"
+
+#: ../dtop/aqt/editor.py:107
+msgid "Underline text (Ctrl+U)"
+msgstr "Подчеркнуть текст (Ctrl+U)"
+
+#: ../dtop/aqt/main.py:936
+msgid "Undo"
+msgstr "Отмена"
+
+#: ../dtop/aqt/main.py:932
+#, python-format
+msgid "Undo %s"
+msgstr "Отменить - %s"
+
+#: ../dtop/aqt/downloader.py:72 ../dtop/aqt/editor.py:777
+#, python-format
+msgid "Unexpected response code: %s"
+msgstr "Неожиданный код ответа: %s"
+
+#: ../dtop/aqt/importing.py:351
+msgid "Unknown file format."
+msgstr "Неизвестный формат файла."
+
+#: ../dtop/anki/stats.py:875
+msgid "Unseen"
+msgstr "Не просмотрено"
+
+#: ../dtop/aqt/forms/importing.py:98
+msgid "Update existing notes when first field matches"
+msgstr "Обновлять существующие записи, когда первое поле совпадает"
+
+#: ../dtop/aqt/addons.py:666
+msgid "Update the following add-ons?"
+msgstr "Обновить следующие дополнения?"
+
+#: ../dtop/anki/importing/anki2.py:165
+msgid "Updated"
+msgstr "Обновлено"
+
+#: ../dtop/aqt/sync.py:321 ../dtop/aqt/sync.py:325
+msgid "Upload to AnkiWeb"
+msgstr "Выгрузить на AnkiWeb"
+
+#: ../dtop/aqt/sync.py:123
+msgid "Uploading to AnkiWeb..."
+msgstr "Выгрузка на AnkiWeb..."
+
+#: ../dtop/aqt/main.py:1246
+msgid "Used on cards but missing from media folder:"
+msgstr "Использовано в карточках, но отсутствует в медиа-папке:"
+
+#: ../dtop/aqt/profiles.py:377
+msgid "User 1"
+msgstr "1-й пользователь"
+
+#: ../dtop/aqt/forms/preferences.py:255
+msgid "User interface size"
+msgstr ""
+
+#: ../dtop/aqt/about.py:58
+#, python-format
+msgid "Version %s"
+msgstr "Версия %s"
+
+#: ../dtop/aqt/forms/addons.py:72
+msgid "View Add-on Page"
+msgstr "Посмотреть страницу дополнения"
+
+#: ../dtop/aqt/forms/addons.py:74
+msgid "View Files"
+msgstr "Просмотреть файлы"
+
+#: ../dtop/aqt/main.py:640
+msgid "Waiting for editing to finish."
+msgstr "Ожидание окончания правки."
+
+#: ../dtop/aqt/editor.py:582
+msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
+msgstr "Предупреждение. Заполнение пропусков не будет работать, пока вы не смените тип на «Пропуски» выше."
+
+#: ../dtop/aqt/overview.py:109
+msgid "What would you like to unbury?"
+msgstr "Какие вы хотите вернуть?"
+
+#: ../dtop/aqt/forms/preferences.py:247
+msgid "When adding, default to current deck"
+msgstr "По умолчанию помещать создаваемое в текущую колоду"
+
+#: ../dtop/aqt/browser.py:1085 ../dtop/aqt/browser.py:1210
+msgid "Whole Collection"
+msgstr "Вся коллекция"
+
+#: ../dtop/aqt/update.py:64
+msgid "Would you like to download it now?"
+msgstr "Вы желаете скачать её сейчас?"
+
+#: ../dtop/aqt/about.py:158
+#, python-format
+msgid "Written by Damien Elmes, with patches, translation,    testing and design from:<p>%(cont)s"
+msgstr "Написал Damien Elmes, с патчами, переводами,    проверкой и дизайном из:<p>%(cont)s"
+
+#: ../dtop/aqt/forms/preferences.py:267
+msgid "You can restore backups via File>Switch Profile."
+msgstr ""
+
+#: ../dtop/aqt/addcards.py:180
+msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
+msgstr "Тип записи - заполнение, но вы не заполнили пропуски. Продолжить?"
+
+#: ../dtop/aqt/deckbrowser.py:131
+#, python-format
+msgid "You have a lot of decks. Please see %(a)s. %(b)s"
+msgstr "У вас много колод. Пожалуйста, посмотрите %(a)s. %(b)s"
+
+#: ../dtop/aqt/reviewer.py:791
+msgid "You haven't recorded your voice yet."
+msgstr "Вы ещё не записали своего голоса."
+
+#: ../dtop/aqt/browser.py:965
+msgid "You must have at least one column."
+msgstr "Вы должны иметь хотя бы один столбец."
+
+#: ../dtop/anki/stats.py:246 ../dtop/anki/stats.py:373
+#: ../dtop/anki/stats.py:393 ../dtop/anki/stats.py:702
+msgid "Young"
+msgstr "Свежие"
+
+#: ../dtop/anki/stats.py:874
+msgid "Young+Learn"
+msgstr "Свежие+Изучаемые"
+
+#: ../dtop/aqt/sync.py:165
+msgid "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
+msgstr "В вашей коллекции AnkiWeb нет карточек. Запустите синхронизацию снова или нажмине \"Выгрузить\"."
+
+#: ../dtop/aqt/deckconf.py:109
+msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
+msgstr "Изменения затронут несколько колод. Если вы хотите поменять только текущую колоду, пожалуйста, добавьте новую группу настроек."
+
+#: ../dtop/aqt/main.py:472
+msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
+msgstr "Представляется, что файл вашей коллекции разрушен. Это могло произойти, когда файл скопировали или переместили при работающей Anki, либо когда коллекция хранилась на сетевом или облачном диске. Если проблема сохраняется и после перезапуска вашего компьютера, пожалуйста, откройте автоматическую резервную копию из экрана профилей."
+
+#: ../dtop/aqt/sync.py:345
+msgid "Your collection is in an inconsistent state. Please run Tools>Check Database, then sync again."
+msgstr "Ваша коллекция в несогласованном состоянии. Нажимите \"Иструменты - Проверить базу данных...\" и повторите синхронизацию."
+
+#: ../dtop/aqt/sync.py:233
+msgid "Your collection or a media file is too large to sync."
+msgstr "Ваша коллекция или медиафайлы слишком велики для синхронизации."
+
+#: ../dtop/aqt/sync.py:74
+msgid "Your collection was successfully uploaded to AnkiWeb.\n\n"
+"If you use any other devices, please sync them now, and choose to download the collection you have just uploaded from this computer. After doing so, future reviews and added cards will be merged automatically."
+msgstr "Ваша коллекция успешно выгружена на AnkiWeb.\n\n"
+"Если вы используете другие устройства, при синхронизации загрузите на них коллекцию, которую вы только что выгрузили. После этого информация о просмотрах и новые карточки будут обновляться автоматически."
+
+#: ../dtop/aqt/errors.py:105
+msgid "Your computer's storage may be full. Please delete some unneeded files, then try again."
+msgstr "Возможно, на компьютере закончилось место. Освободите место и попробуйте снова."
+
+#: ../dtop/aqt/sync.py:305
+msgid "Your decks here and on AnkiWeb differ in such a way that they can't be merged together, so it's necessary to overwrite the decks on one side with the decks from the other.\n\n"
+"If you choose download, Anki will download the collection from AnkiWeb, and any changes you have made on your computer since the last sync will be lost.\n\n"
+"If you choose upload, Anki will upload your collection to AnkiWeb, and any changes you have made on AnkiWeb or your other devices since the last sync to this device will be lost.\n\n"
+"After all devices are in sync, future reviews and added cards can be merged automatically."
+msgstr "Ваши колоды на AnkiWeb отличаются от локальной копии и не могут быть объединены. Вы можете перезаписать локальную коллекцию версией с AnkiWeb или наоборот.\n\n"
+"Если вы выберете загрузку с AnkiWeb, то Anki скачает колоды с AnkiWeb, и все изменения, произведённые на этом компьютере с момента последней синхронизации, будут утеряны.\n\n"
+"Если вы выберете выгрузку на AnkiWeb, то Anki выгрузит колоды на AnkiWeb, и все изменения, произведённые на AnkiWeb или других устройствах с момента последней синхронизации, будут утеряны.\n\n"
+"После того как все устройства будут синхронизированы, информация о просмотрах и новые карточки будут обновляться автоматически."
+
+#: ../dtop/aqt/errors.py:80
+msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
+msgstr "Ваш брандмауэр или антивирус предохраняет Anki он подключения к самой себе. Пожалуйста, создайте правило исключения для Анки."
+
+#: ../dtop/anki/decks.py:442
+msgid "[no deck]"
+msgstr "[нет колоды]"
+
+#: ../dtop/aqt/forms/preferences.py:266
+msgid "backups"
+msgstr "резервных копий"
+
+#: ../dtop/anki/stats.py:345 ../dtop/aqt/customstudy.py:52
+msgid "cards"
+msgstr "карточки"
+
+#: ../dtop/aqt/customstudy.py:100
+msgid "cards from the deck"
+msgstr "карточки из колоды"
+
+#: ../dtop/aqt/forms/dyndconf.py:136 ../dtop/aqt/forms/dyndconf.py:140
+msgid "cards selected by"
+msgstr "карт, выбранных"
+
+#: ../dtop/aqt/exporting.py:87 ../dtop/aqt/forms/stats.py:77
+msgid "collection"
+msgstr "коллекция"
+
+#. T: abbreviation of day
+#: ../dtop/anki/stats.py:988
+msgid "d"
+msgstr "д."
+
+#: ../dtop/aqt/customstudy.py:89 ../dtop/aqt/customstudy.py:93
+#: ../dtop/aqt/customstudy.py:96 ../dtop/aqt/forms/dconf.py:362
+#: ../dtop/aqt/forms/dconf.py:363 ../dtop/aqt/forms/dconf.py:371
+#: ../dtop/aqt/forms/dconf.py:382 ../dtop/aqt/forms/reschedule.py:77
+msgid "days"
+msgstr "дней"
+
+#: ../dtop/aqt/forms/stats.py:76
+msgid "deck"
+msgstr "пакет"
+
+#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:80
+msgid "deck life"
+msgstr "всё время"
+
+#: ../dtop/aqt/browser.py:2176
+msgid "duplicate"
+msgstr "дубликат"
+
+#: ../dtop/anki/collection.py:675
+msgid "help"
+msgstr "справка"
+
+#: ../dtop/aqt/deckbrowser.py:138
+msgid "hide"
+msgstr "скрыть"
+
+#: ../dtop/anki/stats.py:433
+msgid "hours"
+msgstr "часов"
+
+#: ../dtop/aqt/forms/preferences.py:249
+msgid "hours past midnight"
+msgstr "часов после полуночи"
+
+#: ../dtop/anki/utils.py:50
+#, python-format
+msgid "in %s day"
+msgid_plural "in %s days"
+msgstr[0] "за %s день"
+msgstr[1] "за %s дня"
+msgstr[2] "за %s дней"
+msgstr[3] "за %s дней"
+
+#: ../dtop/anki/utils.py:51
+#, python-format
+msgid "in %s hour"
+msgid_plural "in %s hours"
+msgstr[0] "за %s час"
+msgstr[1] "за %s часа"
+msgstr[2] "за %s часов"
+msgstr[3] "за %s часов"
+
+#: ../dtop/anki/utils.py:52
+#, python-format
+msgid "in %s minute"
+msgid_plural "in %s minutes"
+msgstr[0] "за %s минуту"
+msgstr[1] "за %s минуты"
+msgstr[2] "за %s минут"
+msgstr[3] "за %s минут"
+
+#: ../dtop/anki/utils.py:49
+#, python-format
+msgid "in %s month"
+msgid_plural "in %s months"
+msgstr[0] "за %s месяц"
+msgstr[1] "за %s месяца"
+msgstr[2] "за %s месяцев"
+msgstr[3] "за %s месяцев"
+
+#: ../dtop/anki/utils.py:53
+#, python-format
+msgid "in %s second"
+msgid_plural "in %s seconds"
+msgstr[0] "в %s секунду"
+msgstr[1] "в %s секунд"
+msgstr[2] "в %s секунды"
+msgstr[3] "в %s секунды"
+
+#: ../dtop/anki/utils.py:48
+#, python-format
+msgid "in %s year"
+msgid_plural "in %s years"
+msgstr[0] "за %s год"
+msgstr[1] "за %s года"
+msgstr[2] "за %s лет"
+msgstr[3] "за %s лет"
+
+#: ../dtop/aqt/forms/dconf.py:379
+msgid "lapses"
+msgstr "забываний"
+
+#: ../dtop/anki/stats.py:454
+msgid "less than 0.1 cards/minute"
+msgstr "меньше, чем 0,1-карты / минуту"
+
+#: ../dtop/aqt/importing.py:250
+#, python-format
+msgid "mapped to <b>%s</b>"
+msgstr "отображать на <b>%s</b>"
+
+#: ../dtop/aqt/importing.py:248
+msgid "mapped to <b>Tags</b>"
+msgstr "отображать на <b>метки</b>"
+
+#: ../dtop/aqt/forms/preferences.py:250 ../dtop/aqt/forms/preferences.py:254
+msgid "mins"
+msgstr "мин"
+
+#: ../dtop/anki/stats.py:410 ../dtop/aqt/forms/dyndconf.py:145
+msgid "minutes"
+msgstr "мин."
+
+#. T: abbreviation of month
+#: ../dtop/anki/stats.py:992
+msgid "mo"
+msgstr "мес."
+
+#: ../dtop/anki/stats.py:280 ../dtop/anki/stats.py:386
+msgid "reviews"
+msgstr "повторений"
+
+#: ../dtop/aqt/forms/dconf.py:388
+msgid "seconds"
+msgstr "секунд"
+
+#: ../dtop/aqt/stats.py:64
+msgid "stats"
+msgstr "статистика"
+
+#: ../dtop/aqt/deckbrowser.py:134
+msgid "this page"
+msgstr "эту страницу"
+
+#. T: abbreviation of week
+#: ../dtop/anki/stats.py:990
+msgid "w"
+msgstr "нед."
+
+#: ../dtop/anki/stats.py:957
+msgid "whole collection"
+msgstr "вся коллекция"
+
+#: ../dtop/aqt/forms/reschedule.py:76
+msgid "~"
+msgstr ""
+

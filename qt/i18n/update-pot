@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# update translation files
+#
+
+all=all.files
+echo "Updating anki.pot..."
+for i in ../../pylib/anki/{*.py,importing/*.py,template/*.py}; do
+    echo $i >> $all
+done
+for i in ../aqt/{*.py,forms/*.py}; do
+    echo $i >> $all
+done
+
+xgettext -cT: -s --no-wrap --files-from=$all --output=anki.pot
+rm $all
