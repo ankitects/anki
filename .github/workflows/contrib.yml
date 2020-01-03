@@ -1,0 +1,13 @@
+name: Author in CONTRIBUTORS
+
+on: [pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check
+        run: |
+          headAuthor=$(git log -1 --pretty=format:'%ae')
+          git log --pretty=format:'%ae' CONTRIBUTORS | grep -q "$headAuthor"
