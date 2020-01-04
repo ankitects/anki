@@ -33,7 +33,6 @@ python check-po-files.py
 
 rm all.zip
 
-# send translations to github
+# commit them to the repo
 git add translations
 git commit -m 'update translations' || true
-git push
