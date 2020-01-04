@@ -32,5 +32,6 @@ setuptools.setup(
         'markdown',
         'jsonschema',
         'psutil; sys.platform == "win32"',
+        'pywin32; sys.platform == "win32"',
     ]
 )
