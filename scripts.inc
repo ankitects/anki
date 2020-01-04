@@ -13,7 +13,7 @@ fi
 
 # activate venv
 if [ ! -d pyenv ]; then
-    python -m venv pyenv
+    python3 -m venv pyenv
     . pyenv/bin/activate
     pip install --upgrade pip setuptools
 else
