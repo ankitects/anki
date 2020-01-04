@@ -72,7 +72,7 @@ class AnkiQt(QMainWindow):
         self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
         try:
             self.setupUI()
-            self.setupAddons()
+            self.setupAddons(args)
         except:
             showInfo(_("Error during startup:\n%s") % traceback.format_exc())
             sys.exit(1)
@@ -85,7 +85,7 @@ class AnkiQt(QMainWindow):
                 )
             )
         # were we given a file to import?
-        if args and args[0]:
+        if args and args[0] and not self._isAddon(args[0]):
             self.onAppMsg(args[0])
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
@@ -750,10 +750,14 @@ title="%s" %s>%s</button>""" % (
 
         self.errorHandler = aqt.errors.ErrorHandler(self)
 
-    def setupAddons(self) -> None:
+    def setupAddons(self, args: Optional[List]) -> None:
         import aqt.addons
 
         self.addonManager = aqt.addons.AddonManager(self)
+
+        if args and args[0] and self._isAddon(args[0]):
+            self.installAddon(args[0], startup=True)
+
         if not self.safeMode:
             self.addonManager.loadAddons()
 
@@ -1028,10 +1032,14 @@ QTreeWidget {
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################
 
-    def installAddon(self, path):
+    def installAddon(self, path: str, startup: bool = False):
         from aqt.addons import installAddonPackages
 
-        installAddonPackages(self.addonManager, [path], external=True, parent=self)
+        parent = None if startup else self
+
+        installAddonPackages(
+            self.addonManager, [path], warn=True, strictly_modal=startup, parent=parent
+        )
 
     # Cramming
     ##########################################################################

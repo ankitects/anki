@@ -859,18 +859,19 @@ class ConfigEditor(QDialog):
 def installAddonPackages(
     addonsManager: AddonManager,
     paths: List[str],
-    parent: QWidget = None,
-    external: bool = False,
+    parent: Optional[QWidget] = None,
+    warn: bool = False,
+    strictly_modal: bool = False
 ) -> bool:
 
-    if external:
+    if warn:
         names = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
         q = _(
             "<b>Important</b>: As add-ons are programs downloaded from the internet, "
             "they are potentially malicious."
             "<b>You should only install add-ons you trust.</b><br><br>"
             "Are you sure you want to proceed with the installation of the "
-            "following add-on(s)?<br><br>%(names)s"
+            "following Anki add-on(s)?<br><br>%(names)s"
         ) % dict(names=names)
         if (
             not showInfo(
@@ -888,11 +889,7 @@ def installAddonPackages(
 
     if log:
         log_html = "<br>".join(log)
-        if external:
-            log_html += "<br><br>" + _(
-                "<b>Please restart Anki to complete the installation.</b>"
-            )
-        if len(log) == 1:
+        if len(log) == 1 and not strictly_modal:
             tooltip(log_html, parent=parent)
         else:
             showInfo(
