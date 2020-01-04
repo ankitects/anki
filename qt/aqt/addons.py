@@ -345,7 +345,7 @@ and have been disabled: %(found)s"
     ######################################################################
 
     def _installationErrorReport(
-        self, result: AddonInstallationResult, base: str, mode="download"
+        self, result: AddonInstallationResult, base: str, mode: str = "download"
     ) -> List[str]:
 
         messages = {
@@ -370,7 +370,7 @@ and have been disabled: %(found)s"
         return [template % dict(base=name, id=name, error=msg)]
 
     def _installationSuccessReport(
-        self, result: AddonInstallationResult, base: str, mode="download"
+        self, result: AddonInstallationResult, base: str, mode: str = "download"
     ) -> List[str]:
 
         if mode == "download":  # preserve old format strings for i18n
@@ -666,7 +666,7 @@ class AddonsDialog(QDialog):
     def onGetAddons(self):
         GetAddons(self)
 
-    def onInstallFiles(self, paths: Optional[List[str]] = None, external: bool = False):
+    def onInstallFiles(self, paths: Optional[List[str]] = None):
         if not paths:
             key = _("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext)
             paths = getFile(
