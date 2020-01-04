@@ -37,21 +37,34 @@ run: pyenv meta/buildhash
 	qt/runanki $(RUNFLAGS)
 
 .PHONY: build
-build: pyenv meta/buildhash
-	@. pyenv/bin/activate && \
-	for dir in $(DEVEL); do \
-	  $(SUBMAKE) -C $$dir build BUILDFLAGS="$(BUILDFLAGS)"; \
-	done; \
-	helpers/rename-with-buildhash
+build: clean-dist build-rspy build-pylib build-qt add-buildhash
 	@echo
 	@echo "Build complete."
 
+.PHONY: build-rspy
+build-rspy: pyenv meta/buildhash
+	@. pyenv/bin/activate && \
+	$(SUBMAKE) -C rspy build BUILDFLAGS="$(BUILDFLAGS)"
+
+.PHONY: build-pylib
+build-pylib:
+	@. pyenv/bin/activate && \
+	$(SUBMAKE) -C pylib build
+
+.PHONY: build-qt
+build-qt:
+	@. pyenv/bin/activate && \
+	$(SUBMAKE) -C qt build
+
 .PHONY: clean
-clean:
-	rm -rf dist
+clean: clean-dist
 	@for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir clean; \
 	done
+
+.PHONY: clean-dist
+clean-dist:
+	rm -rf dist
 
 .PHONY: check
 check: pyenv meta/buildhash
@@ -67,3 +80,9 @@ fix:
 	for dir in $(CHECKABLE); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \
+
+.PHONY: add-buildhash
+add-buildhash:
+	@ver=$$(cat meta/version); \
+	hash=$$(cat meta/buildhash); \
+	rename "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-$$ver-*
