@@ -1,5 +1,3 @@
-TODO: translations
-
 For non-developers who want to try this development code, the easiest way is
 to use a binary package - please see:
 
@@ -21,12 +19,14 @@ To start, make sure you have the following installed:
  - protoc v3 (https://github.com/protocolbuffers/protobuf/releases)
  - rustup (https://rustup.rs/)
  - gettext
+ - rename
 
 The build scripts assume a UNIX-like environment, so on Windows you will
 need to use WSL or Cygwin to use them.
 
 Once you've installed the above components, execute ./run in this repo,
-which will  build the subcomponents, and start Anki.
+which will build the subcomponents, and start Anki. Any arguments included
+on the command line will be passed on to Anki.
 
 Before contributing code, please read README.contributing.
 
@@ -44,27 +44,23 @@ Subcomponents
 - proto contains the interface used to communicate between the Rust and
   Python code.
 
-Helper scripts
+Makefile
 --------------
 
-There are some helper scripts in this folder:
+Use 'make check' to run unit tests, type checking and linting on all of the
+subcomponents.
 
-run: builds Anki and runs it in place. Command line arguments will be passed
-on to Anki.
+Use 'make fix' to fix any formatting issues that were found with 'make check'.
 
-bundle: builds the subcomponents into binary wheels stored in the build/ folder.
+Use 'make build' to output Python wheels of the subcomponents into the dist/
+folder.
 
-check: runs tests on each of the subcomponents.
-
-fix: fix any code formatting issues in the subcomponents.
-
-clean: remove generated build files and force a (mostly) full rebuild on the
-next run/check.
+Use 'make clean' to remove some generated files.
 
 PyQt
 -----
 
-The build scripts will use PyQt/Qt from Pypi by default. If you wish to use a
+The build scripts will use PyQt/Qt from PyPI by default. If you wish to use a
 system install, you will need to set up the pyenv folder yourself, making sure
 you have PyQt5, the WebEngine module and development tools (eg pyqt5-dev-tools)
 installed as well. You'll need to create the venv with --system-site-packages.
@@ -74,4 +70,5 @@ Mac users
 
 You can use homebrew to install some dependencies:
 
-$ brew install python mpv lame portaudio protobuf npm rustup-init
+$ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename
+
