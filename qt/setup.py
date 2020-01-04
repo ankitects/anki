@@ -1,8 +1,5 @@
 import setuptools, sys, os
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
 with open("../meta/version") as fh:
     version = fh.read().strip()
 
@@ -23,7 +20,7 @@ setuptools.setup(
     version=version,
     author="Ankitects Pty Ltd",
     description="Anki's Qt GUI code",
-    long_description=long_description,
+    long_description="Anki's QT GUI code",
     long_description_content_type="text/markdown",
     url="https://apps.ankiweb.net",
     packages=setuptools.find_packages(".", exclude=["tests"]),
