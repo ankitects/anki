@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-01 08:34+1000\n"
-"PO-Revision-Date: 2020-01-02 06:16\n"
+"POT-Creation-Date: 2020-01-05 08:13+1000\n"
+"PO-Revision-Date: 2020-01-04 22:15\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Esperanto\n"
 "Language: eo_UY\n"
@@ -15,24 +15,24 @@ msgstr ""
 "X-Crowdin-Language: eo\n"
 "X-Crowdin-File: anki.pot\n"
 
-#: ../dtop/aqt/clayout.py:223
+#: ../aqt/clayout.py:223
 #, python-format
 msgid " (1 of %d)"
 msgstr " (1 el %d)"
 
-#: ../dtop/aqt/addons.py:155
+#: ../aqt/addons.py:163
 msgid " (disabled)"
 msgstr " malvalidigita"
 
-#: ../dtop/aqt/clayout.py:480
+#: ../aqt/clayout.py:480
 msgid " (off)"
 msgstr " malŝaltita"
 
-#: ../dtop/aqt/clayout.py:478
+#: ../aqt/clayout.py:478
 msgid " (on)"
 msgstr " ŝaltita"
 
-#: ../dtop/aqt/deckbrowser.py:298
+#: ../aqt/deckbrowser.py:298
 #, python-format
 msgid " It has %d card."
 msgid_plural " It has %d cards."
@@ -40,36 +40,36 @@ msgstr[0] " Ĝi enhavas %d karton."
 msgstr[1] " Ĝi enhavas %d kartojn."
 
 #. T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
-#: ../dtop/aqt/webview.py:261
+#: ../aqt/webview.py:261
 msgid "\"Segoe UI\""
 msgstr ""
 
-#: ../dtop/aqt/forms/dconf.py:354 ../dtop/aqt/forms/dconf.py:366
-#: ../dtop/aqt/forms/dconf.py:367 ../dtop/aqt/forms/dconf.py:374
-#: ../dtop/aqt/forms/dconf.py:385 ../dtop/aqt/forms/preferences.py:256
+#: ../aqt/forms/dconf.py:354 ../aqt/forms/dconf.py:366
+#: ../aqt/forms/dconf.py:367 ../aqt/forms/dconf.py:374
+#: ../aqt/forms/dconf.py:385 ../aqt/forms/preferences.py:256
 msgid "%"
 msgstr ""
 
-#: ../dtop/anki/stats.py:811 ../dtop/anki/stats.py:833
+#: ../../pylib/anki/stats.py:811 ../../pylib/anki/stats.py:833
 msgid "% Correct"
 msgstr "% Ĝusta"
 
-#: ../dtop/anki/stats.py:1115
+#: ../../pylib/anki/stats.py:1115
 #, python-format
 msgid "%(a)0.1f %(b)s/day"
 msgstr "%(a)0.1f %(b)s/tago"
 
-#: ../dtop/aqt/sync.py:91
+#: ../aqt/sync.py:91
 #, python-format
 msgid "%(a)0.1fkB up, %(b)0.1fkB down"
 msgstr "%(a)0.1fkB alŝutita, %(b)0.1fkB elŝutita"
 
-#: ../dtop/anki/stats.py:460
+#: ../../pylib/anki/stats.py:460
 #, python-format
 msgid "%(a)0.1fs (%(b)s)"
 msgstr ""
 
-#: ../dtop/aqt/browser.py:2097
+#: ../aqt/browser.py:2097
 #, python-format
 msgid "%(a)d of %(b)d note updated"
 msgid_plural "%(a)d of %(b)d notes updated"
@@ -78,216 +78,216 @@ msgstr[1] "%(a)d el %(b)d notoj estas ĝisdatigitaj"
 
 #. T: name is a card type name. n it's order in the list of card type.
 #. T: this is shown in browser's filter, when seeing the list of card type of a note type.
-#: ../dtop/aqt/browser.py:1307
+#: ../aqt/browser.py:1307
 #, python-format
 msgid "%(n)d: %(name)s"
 msgstr ""
 
-#: ../dtop/anki/stats.py:438
+#: ../../pylib/anki/stats.py:438
 #, python-format
 msgid "%(tot)s %(unit)s"
 msgstr ""
 
-#: ../dtop/anki/stats.py:456
+#: ../../pylib/anki/stats.py:456
 #, python-format
 msgid "%.01f cards/minute"
 msgstr "%.01f kartoj/minuto"
 
-#: ../dtop/anki/stats.py:288 ../dtop/anki/stats.py:344
-#: ../dtop/aqt/clayout.py:230 ../dtop/aqt/main.py:1328
+#: ../../pylib/anki/stats.py:288 ../../pylib/anki/stats.py:344
+#: ../aqt/clayout.py:230 ../aqt/main.py:1351
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
 msgstr[0] "%d karto"
 msgstr[1] "%d kartoj"
 
-#: ../dtop/aqt/main.py:1340
+#: ../aqt/main.py:1363
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
 msgstr[0] "%d karto estas forigita."
 msgstr[1] "%d kartoj estas forigitaj."
 
-#: ../dtop/aqt/exporting.py:154
+#: ../aqt/exporting.py:154
 #, python-format
 msgid "%d card exported."
 msgid_plural "%d cards exported."
 msgstr[0] "%d karto estas elportita."
 msgstr[1] "%d kartoj estas elportitaj."
 
-#: ../dtop/anki/importing/supermemo_xml.py:193
+#: ../../pylib/anki/importing/supermemo_xml.py:193
 #, python-format
 msgid "%d card imported."
 msgid_plural "%d cards imported."
 msgstr[0] "%d karto estas enportita."
 msgstr[1] "%d kartoj estas enportitaj."
 
-#: ../dtop/aqt/reviewer.py:75
+#: ../aqt/reviewer.py:74
 #, python-format
 msgid "%d card studied in"
 msgid_plural "%d cards studied in"
 msgstr[0] "%d karto estis lernata en"
 msgstr[1] "%d kartoj estis lernataj en"
 
-#: ../dtop/aqt/deckconf.py:157
+#: ../aqt/deckconf.py:157
 #, python-format
 msgid "%d deck updated."
 msgid_plural "%d decks updated."
 msgstr[0] "%d kartaro estas ĝisdatigita."
 msgstr[1] "%d kartaroj estas ĝisdatigitaj."
 
-#: ../dtop/aqt/main.py:1236
+#: ../aqt/main.py:1259
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../dtop/aqt/main.py:1293
+#: ../aqt/main.py:1316
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../dtop/aqt/browser.py:2150
+#: ../aqt/browser.py:2150
 #, python-format
 msgid "%d group"
 msgid_plural "%d groups"
 msgstr[0] "%d grupo"
 msgstr[1] "%d grupoj"
 
-#: ../dtop/anki/sync.py:839
+#: ../../pylib/anki/sync.py:839
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "%d ŝanĝita aŭdovidaĵo estas alŝutata"
 msgstr[1] "%d ŝanĝitaj aŭdovidaĵoj estas alŝutataj"
 
-#: ../dtop/anki/sync.py:890
+#: ../../pylib/anki/sync.py:890
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
 msgstr[0] "%d aŭdividaĵa dosiero estas elŝutita"
 msgstr[1] "%d aŭdividaĵaj dosieroj estas elŝutitaj"
 
-#: ../dtop/aqt/browser.py:2151 ../dtop/aqt/browser.py:2159
-#: ../dtop/aqt/fields.py:96 ../dtop/aqt/models.py:82
+#: ../aqt/browser.py:2151 ../aqt/browser.py:2159 ../aqt/fields.py:96
+#: ../aqt/models.py:82
 #, python-format
 msgid "%d note"
 msgid_plural "%d notes"
 msgstr[0] "%d noto"
 msgstr[1] "%d notoj"
 
-#: ../dtop/anki/importing/noteimp.py:210
+#: ../../pylib/anki/importing/noteimp.py:212
 #, python-format
 msgid "%d note added"
 msgid_plural "%d notes added"
 msgstr[0] "%d noto estas aldonita"
 msgstr[1] "%d notoj estas aldonitaj"
 
-#: ../dtop/aqt/browser.py:1781
+#: ../aqt/browser.py:1781
 #, python-format
 msgid "%d note deleted."
 msgid_plural "%d notes deleted."
 msgstr[0] "%d noto estas forigita."
 msgstr[1] "%d notoj estas forigitaj."
 
-#: ../dtop/aqt/exporting.py:145
+#: ../aqt/exporting.py:145
 #, python-format
 msgid "%d note exported."
 msgid_plural "%d notes exported."
 msgstr[0] "%d noto estas elportita"
 msgstr[1] "%d notoj estas elportitaj"
 
-#: ../dtop/anki/importing/mnemo.py:105
+#: ../../pylib/anki/importing/mnemo.py:105
 #, python-format
 msgid "%d note imported."
 msgid_plural "%d notes imported."
 msgstr[0] "%d noto estas enportita."
 msgstr[1] "%d notoj estas enportitaj."
 
-#: ../dtop/anki/importing/noteimp.py:222
+#: ../../pylib/anki/importing/noteimp.py:224
 #, python-format
 msgid "%d note unchanged"
 msgid_plural "%d notes unchanged"
 msgstr[0] "%d noto restas senŝanĝa"
 msgstr[1] "%d notoj restas senŝanĝaj"
 
-#: ../dtop/anki/importing/noteimp.py:212
+#: ../../pylib/anki/importing/noteimp.py:214
 #, python-format
 msgid "%d note updated"
 msgid_plural "%d notes updated"
 msgstr[0] "%d noto estas ĝisdatigita"
 msgstr[1] "%d notoj estas ĝisdatigitaj"
 
-#: ../dtop/anki/stats.py:279
+#: ../../pylib/anki/stats.py:279
 #, python-format
 msgid "%d review"
 msgid_plural "%d reviews"
 msgstr[0] "%d ripeto"
 msgstr[1] "%d ripetoj"
 
-#: ../dtop/aqt/browser.py:800
+#: ../aqt/browser.py:800
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] "%d elektita"
 msgstr[1] "%d elektitaj"
 
-#: ../dtop/anki/models.py:247
+#: ../../pylib/anki/models.py:247
 #, python-format
 msgid "%s copy"
 msgstr "%s kopio"
 
-#: ../dtop/anki/utils.py:41
+#: ../../pylib/anki/utils.py:41
 #, python-format
 msgid "%s day"
 msgid_plural "%s days"
 msgstr[0] "%s tago"
 msgstr[1] "%s tagoj"
 
-#: ../dtop/anki/utils.py:42
+#: ../../pylib/anki/utils.py:42
 #, python-format
 msgid "%s hour"
 msgid_plural "%s hours"
 msgstr[0] "%s horo"
 msgstr[1] "%s horoj"
 
-#: ../dtop/anki/utils.py:43
+#: ../../pylib/anki/utils.py:43
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
 msgstr[0] "%s minuto"
 msgstr[1] "%s minutoj"
 
-#: ../dtop/aqt/reviewer.py:79
+#: ../aqt/reviewer.py:78
 #, python-format
 msgid "%s minute."
 msgid_plural "%s minutes."
 msgstr[0] "%s minuto."
 msgstr[1] "%s minutoj."
 
-#: ../dtop/anki/utils.py:40
+#: ../../pylib/anki/utils.py:40
 #, python-format
 msgid "%s month"
 msgid_plural "%s months"
 msgstr[0] "%s monato"
 msgstr[1] "%s monatoj"
 
-#: ../dtop/anki/utils.py:44 ../dtop/aqt/main.py:1092
+#: ../../pylib/anki/utils.py:44 ../aqt/main.py:1115
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] "%s sekundo"
 msgstr[1] "%s sekundoj"
 
-#: ../dtop/aqt/main.py:1329
+#: ../aqt/main.py:1352
 #, python-format
 msgid "%s to delete:"
 msgstr "%s estas forigenda(j):"
 
-#: ../dtop/anki/utils.py:39
+#: ../../pylib/anki/utils.py:39
 #, python-format
 msgid "%s year"
 msgid_plural "%s years"
@@ -295,313 +295,322 @@ msgstr[0] "%s jaro"
 msgstr[1] "%s jaroj"
 
 #. T: d is an abbreviation for day. %s is a number of days
-#: ../dtop/anki/utils.py:64
+#: ../../pylib/anki/utils.py:64
 #, python-format
 msgid "%sd"
 msgstr "%s t"
 
 #. T: h is an abbreviation for hour. %s is a number of hours
-#: ../dtop/anki/utils.py:66
+#: ../../pylib/anki/utils.py:66
 #, python-format
 msgid "%sh"
 msgstr "%s h"
 
 #. T: m is an abbreviation for minute. %s is a number of minutes
-#: ../dtop/anki/utils.py:68
+#: ../../pylib/anki/utils.py:68
 #, python-format
 msgid "%sm"
 msgstr "%s m"
 
 #. T: m is an abbreviation for month. %s is a number of months
-#: ../dtop/anki/utils.py:62
+#: ../../pylib/anki/utils.py:62
 #, python-format
 msgid "%smo"
 msgstr "%s mo"
 
 #. T: s is an abbreviation for second. %s is a number of seconds
-#: ../dtop/anki/utils.py:70
+#: ../../pylib/anki/utils.py:70
 #, python-format
 msgid "%ss"
 msgstr "%s s"
 
 #. T: year is an abbreviation for year. %s is a number of years
-#: ../dtop/anki/utils.py:60
+#: ../../pylib/anki/utils.py:60
 #, python-format
 msgid "%sy"
 msgstr "%s j"
 
-#: ../dtop/aqt/forms/main.py:139
+#: ../aqt/forms/main.py:139
 msgid "&About..."
 msgstr "&Pri..."
 
-#: ../dtop/aqt/forms/main.py:145
+#: ../aqt/forms/main.py:145
 msgid "&Browse and Install..."
 msgstr "&Foliumi kaj instali..."
 
-#: ../dtop/aqt/forms/browser.py:298
+#: ../aqt/forms/browser.py:298
 msgid "&Cards"
 msgstr "&Kartoj"
 
-#: ../dtop/aqt/forms/main.py:146
+#: ../aqt/forms/main.py:146
 msgid "&Check Database"
 msgstr "&Kontroli datumbazon"
 
-#: ../dtop/aqt/forms/browser.py:313
+#: ../aqt/forms/browser.py:313
 msgid "&Cram..."
 msgstr "&Studegi..."
 
-#: ../dtop/aqt/forms/browser.py:295 ../dtop/aqt/forms/main.py:133
+#: ../aqt/forms/browser.py:295 ../aqt/forms/main.py:133
 msgid "&Edit"
 msgstr "&Redakti"
 
-#: ../dtop/aqt/forms/main.py:149
+#: ../aqt/forms/main.py:149
 msgid "&Export..."
 msgstr "&Elporti..."
 
-#: ../dtop/aqt/forms/main.py:134
+#: ../aqt/forms/main.py:134
 msgid "&File"
 msgstr "&Dosiero"
 
-#: ../dtop/aqt/forms/browser.py:305
+#: ../aqt/forms/browser.py:305
 msgid "&Find"
 msgstr "&Trovi"
 
-#: ../dtop/aqt/forms/browser.py:296
+#: ../aqt/forms/browser.py:296
 msgid "&Go"
 msgstr "&Ek"
 
-#: ../dtop/aqt/forms/browser.py:309 ../dtop/aqt/forms/main.py:147
+#: ../aqt/forms/browser.py:309 ../aqt/forms/main.py:147
 msgid "&Guide..."
 msgstr "&Gvidlibro..."
 
-#: ../dtop/aqt/forms/browser.py:297 ../dtop/aqt/forms/main.py:132
+#: ../aqt/forms/browser.py:297 ../aqt/forms/main.py:132
 msgid "&Help"
 msgstr "&Helpo"
 
-#: ../dtop/aqt/forms/main.py:150
+#: ../aqt/forms/main.py:150
 msgid "&Import..."
 msgstr "E&nporti"
 
-#: ../dtop/aqt/forms/browser.py:323
+#: ../aqt/forms/browser.py:323
 msgid "&Info..."
 msgstr "&Informo..."
 
-#: ../dtop/aqt/forms/browser.py:304
+#: ../aqt/forms/browser.py:304
 msgid "&Invert Selection"
 msgstr "&Inversigi elekton"
 
-#: ../dtop/aqt/forms/browser.py:307
+#: ../aqt/forms/browser.py:307
 msgid "&Next Card"
 msgstr "&Sekva karto"
 
-#: ../dtop/aqt/forms/browser.py:300
+#: ../aqt/forms/browser.py:300
 msgid "&Notes"
 msgstr "&Notoj"
 
-#: ../dtop/aqt/forms/main.py:143
+#: ../aqt/forms/main.py:143
 msgid "&Open Add-ons Folder..."
 msgstr "&Malfermi dosierujon de aldonaĵoj..."
 
-#: ../dtop/aqt/forms/main.py:137
+#: ../aqt/forms/main.py:137
 msgid "&Preferences..."
 msgstr "&Preferoj..."
 
-#: ../dtop/aqt/forms/browser.py:308
+#: ../aqt/forms/browser.py:308
 msgid "&Previous Card"
 msgstr "&Antaŭa karto"
 
-#: ../dtop/aqt/forms/browser.py:301
+#: ../aqt/forms/browser.py:301
 msgid "&Reschedule..."
 msgstr "&Replani..."
 
-#: ../dtop/aqt/forms/main.py:144
+#: ../aqt/forms/main.py:144
 msgid "&Support Anki..."
 msgstr "&Subteni Anki"
 
-#: ../dtop/aqt/forms/main.py:148
+#: ../aqt/forms/main.py:148
 msgid "&Switch Profile"
 msgstr "Ŝanĝi &profilon"
 
-#: ../dtop/aqt/forms/main.py:135
+#: ../aqt/forms/main.py:135
 msgid "&Tools"
 msgstr "&Iloj"
 
-#: ../dtop/aqt/forms/browser.py:303 ../dtop/aqt/forms/main.py:140
+#: ../aqt/forms/browser.py:303 ../aqt/forms/main.py:140
 msgid "&Undo"
 msgstr "&Malfari"
 
-#: ../dtop/anki/importing/csvfile.py:44
+#: ../../pylib/anki/importing/csvfile.py:44
 #, python-format
 msgid "'%(row)s' had %(num1)d fields, expected %(num2)d"
 msgstr "'%(row)s' havis %(num1)d kampojn, anstataŭ la atendita %(num2)d"
 
-#: ../dtop/anki/stats.py:186
+#: ../../pylib/anki/stats.py:186
 #, python-format
 msgid "(%s correct)"
 msgstr "(%s ĝusta)"
 
-#: ../dtop/aqt/addcards.py:158
+#: ../aqt/addcards.py:158
 msgid "(Note deleted)"
 msgstr "(Noto estas forigita)"
 
-#: ../dtop/anki/sched.py:1336 ../dtop/anki/schedv2.py:1510
+#: ../../pylib/anki/sched.py:1336 ../../pylib/anki/schedv2.py:1510
 msgid "(end)"
 msgstr "(fino)"
 
-#: ../dtop/aqt/browser.py:339
+#: ../aqt/browser.py:339
 msgid "(filtered)"
 msgstr "(filtrita)"
 
-#: ../dtop/aqt/browser.py:306
+#: ../aqt/browser.py:306
 msgid "(learning)"
 msgstr "(lernado)"
 
-#: ../dtop/aqt/browser.py:304 ../dtop/aqt/browser.py:310
+#: ../aqt/browser.py:304 ../aqt/browser.py:310
 msgid "(new)"
 msgstr "(nova)"
 
-#: ../dtop/aqt/deckconf.py:179
+#: ../aqt/deckconf.py:179
 #, python-format
 msgid "(parent limit: %d)"
 msgstr "(limigo de patraj kartaroj: %d)"
 
-#: ../dtop/aqt/browser.py:1682
+#: ../aqt/browser.py:1682
 msgid "(please select 1 card)"
 msgstr "(bonvole elektu unu karton)"
 
-#: ../dtop/aqt/importing.py:309
+#: ../aqt/importing.py:321
 msgid ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
 msgstr ".anki-dosieroj devenas de malnovegaj versioj de Anki. Vi povas enporti ilin per Anki 2.0, kiu estas havebla sur la retpaĝo de Anki."
 
-#: ../dtop/aqt/importing.py:316
+#: ../aqt/importing.py:328
 msgid ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
 msgstr ".anki2-dosieroj ne estas senpere enportebla - bonvolu enporti anstataŭe la .apkg aŭ .zip-dosieron, kiun vi ricevis."
 
-#: ../dtop/aqt/browser.py:1452
+#: ../aqt/browser.py:1452
 msgid "0d"
 msgstr "0 t"
 
-#: ../dtop/aqt/forms/dyndconf.py:146
+#: ../aqt/forms/dyndconf.py:146
 msgid "1 10"
 msgstr ""
 
-#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:78
+#: ../../pylib/anki/stats.py:962 ../aqt/forms/stats.py:78
 msgid "1 month"
 msgstr "1 monato"
 
-#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:79
+#: ../../pylib/anki/stats.py:962 ../aqt/forms/stats.py:79
 msgid "1 year"
 msgstr "1 jaro"
 
-#: ../dtop/anki/stats.py:825
+#: ../../pylib/anki/stats.py:825
 msgid "10AM"
 msgstr "10 atm"
 
-#: ../dtop/anki/stats.py:827
+#: ../../pylib/anki/stats.py:827
 msgid "10PM"
 msgstr "10 ptm"
 
-#: ../dtop/anki/stats.py:828
+#: ../../pylib/anki/stats.py:828
 msgid "3AM"
 msgstr "3 atm"
 
-#: ../dtop/anki/stats.py:824
+#: ../../pylib/anki/stats.py:824
 msgid "4AM"
 msgstr "4 atm"
 
-#: ../dtop/anki/stats.py:826
+#: ../../pylib/anki/stats.py:826
 msgid "4PM"
 msgstr "4 ptm"
 
-#: ../dtop/aqt/sync.py:211
+#: ../aqt/sync.py:211
 msgid "504 gateway timeout error received. Please try temporarily disabling your antivirus."
 msgstr "Eraro 504: Gateway timeout. Bonvolu provi malaktivigi la senvirusigilon portempe."
 
 #. T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
-#: ../dtop/anki/stats.py:911
+#: ../../pylib/anki/stats.py:911
 msgid ":"
 msgstr ""
 
-#: ../dtop/anki/stats.py:175 ../dtop/aqt/deckbrowser.py:120
+#: ../../pylib/anki/stats.py:175 ../aqt/deckbrowser.py:120
 #, python-format
 msgid "<!--studied-->%d card"
 msgid_plural "<!--studied-->%d cards"
 msgstr[0] "<!--studied-->%d karton"
 msgstr[1] "<!--studied-->%d kartojn"
 
-#: ../dtop/aqt/about.py:64
+#: ../aqt/about.py:64
 #, python-format
 msgid "<a href='%s'>Visit website</a>"
 msgstr "<a href='%s'>Viziti la retpaĝaron</a>"
 
-#: ../dtop/anki/stats.py:428
+#: ../../pylib/anki/stats.py:428
 #, python-format
 msgid "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
 msgstr "<b>%(pct)d%%</b> (%(x)s el %(y)s)"
 
-#: ../dtop/aqt/browser.py:1431
+#: ../aqt/browser.py:1431
 msgid "<b>%Y-%m-%d</b> @ %H:%M"
 msgstr "%H:%M, <b>%d-%m-%Y</b>"
 
-#: ../dtop/aqt/forms/preferences.py:264
+#: ../aqt/forms/preferences.py:264
 msgid "<b>Backups</b><br>Anki will create a backup of your collection each time it is closed or synchronized."
 msgstr "<b>Sekurkopioj</b><br>Anki kreos sekurkopion de via kolekto ĉiutempe ĝi estas fermata aŭ samtempigata."
 
-#: ../dtop/aqt/forms/exporting.py:75
+#: ../aqt/forms/exporting.py:75
 msgid "<b>Export format</b>:"
 msgstr "<b>Elportoformato</b>:"
 
-#: ../dtop/aqt/forms/findreplace.py:69
+#: ../aqt/forms/findreplace.py:69
 msgid "<b>Find</b>:"
 msgstr "<b>Trovi</b>:"
 
-#: ../dtop/aqt/forms/browseropts.py:71
+#: ../aqt/forms/browseropts.py:71
 msgid "<b>Font Size</b>:"
 msgstr "<b>Tipara grando</b>:"
 
-#: ../dtop/aqt/forms/browseropts.py:70
+#: ../aqt/forms/browseropts.py:70
 msgid "<b>Font</b>:"
 msgstr "<b>Tiparo</b>:"
 
-#: ../dtop/aqt/forms/findreplace.py:71
+#: ../aqt/addons.py:871
+#, python-format
+msgid "<b>Important</b>: As add-ons are programs downloaded from the internet, they are potentially malicious.<b>You should only install add-ons you trust.</b><br><br>Are you sure you want to proceed with the installation of the following Anki add-on(s)?<br><br>%(names)s"
+msgstr ""
+
+#: ../aqt/forms/findreplace.py:71
 msgid "<b>In</b>:"
 msgstr "<b>En</b>:"
 
-#: ../dtop/aqt/forms/exporting.py:76
+#: ../aqt/forms/exporting.py:76
 msgid "<b>Include</b>:"
 msgstr "<b>Inkluzive</b>:"
 
-#: ../dtop/aqt/forms/browseropts.py:72
+#: ../aqt/forms/browseropts.py:72
 msgid "<b>Line Size</b>:"
 msgstr "<b>Grandeco de linio</b>:"
 
-#: ../dtop/aqt/forms/findreplace.py:70
+#: ../aqt/addons.py:895
+msgid "<b>Please restart Anki to complete the installation.</b>"
+msgstr ""
+
+#: ../aqt/forms/findreplace.py:70
 msgid "<b>Replace With</b>:"
 msgstr "<b>Anstataŭigi per</b>:"
 
-#: ../dtop/aqt/forms/preferences.py:258
+#: ../aqt/forms/preferences.py:258
 msgid "<b>Synchronisation</b>"
 msgstr "<b>Samtempigo</b>"
 
-#: ../dtop/aqt/preferences.py:195
+#: ../aqt/preferences.py:195
 msgid "<b>Synchronization</b><br>\n"
 "Not currently enabled; click the sync button in the main window to enable."
 msgstr "<b>Samtempigo</b><br>\n"
 "Nuntempe ne ebligita; klaki la Samtempigo-butonon en la ĉefa fenestro por ebligi ĝin."
 
-#: ../dtop/aqt/sync.py:257
+#: ../aqt/sync.py:257
 #, python-format
 msgid "<h1>Account Required</h1>\n"
 "A free account is required to keep your collection synchronized. Please <a href=\"%s\">sign up</a> for an account, then enter your details below."
 msgstr "<h1>Konto necesas</h1>\n"
 "Senkosta konto necesas por teni vian kolekton samtempigita. Bonvolu <a href=\"%s\">ensaluti</a> por konto, poste entajpu viajn indikojn malsupre."
 
-#: ../dtop/aqt/update.py:60
+#: ../aqt/update.py:60
 #, python-format
 msgid "<h1>Anki Updated</h1>Anki %s has been released.<br><br>"
 msgstr "<h1>Anki ĝisdatigita</h1>Anki %s estas eldonita.<br><br>"
 
-#: ../dtop/aqt/errors.py:143
+#: ../aqt/errors.py:143
 msgid "<h1>Error</h1>\n\n"
 "<p>An error occurred. Please start Anki while holding down the shift key, which will temporarily disable the add-ons you have installed.</p>\n\n"
 "<p>If the issue only occurs when add-ons are enabled, please use the Tools&gt;Add-ons menu item to disable some add-ons and restart Anki, repeating until you discover the add-on that is causing the problem.</p>\n\n"
@@ -613,7 +622,7 @@ msgstr "h1>Eraro</h1>\n\n"
 "<p>Kiam vi eltrovis la problemkaŭzan aldonaĵon, bonvolu raporti ĝin al la <a href=\"https://help.ankiweb.net/discussions/add-ons/\">aldonaĵo-sekcio</a> de nia subteno-retpaĝo.\n\n"
 "<p>Sencimiga informo:</p>\n"
 
-#: ../dtop/aqt/errors.py:131
+#: ../aqt/errors.py:131
 msgid "<h1>Error</h1>\n\n"
 "<p>An error occurred. Please use <b>Tools &gt; Check Database</b> to see if that fixes the problem.</p>\n\n"
 "<p>If problems persist, please report the problem on our <a href=\"https://help.ankiweb.net\">support site</a>. Please copy and paste  the information below into your report.</p>"
@@ -621,184 +630,191 @@ msgstr "<h1>Eraro</h1>\n\n"
 "<p>Eraro okazis. Bonvolu uzi la menueron <b>Iloj&gt; Kontroli datumbazon</b> por kontroli, ĉu ĝi solvas la problemon.</p>\n\n"
 "<p>Se problemo daŭras, bonvolu raporti ĝin sur nia <a href=\"https://help.ankiweb.net\">subteno-retpaĝo</a>. Bonvolu kopii la jenajn informojn en vian raporton.</p>"
 
-#: ../dtop/aqt/importing.py:252
+#: ../aqt/importing.py:256
 msgid "<ignored>"
 msgstr "<ignorata>"
 
-#: ../dtop/aqt/main.py:1430
+#: ../aqt/main.py:1453
 msgid "<non-unicode text>"
 msgstr "<neunikoda teksto>"
 
-#: ../dtop/aqt/browser.py:735
+#: ../aqt/browser.py:735
 msgid "<type here to search; hit enter to show current deck>"
 msgstr "<tajpi ĉi tie por serĉi; premi la enen-klavon(Enter) por montri la aktualan kartaron>"
 
-#: ../dtop/aqt/about.py:168
+#: ../aqt/about.py:169
 msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
 msgstr "Dankegon al ĉiuj kiuj donis sugestojn, cimraportojn kaj donacojn."
 
-#: ../dtop/anki/stats.py:897
+#: ../../pylib/anki/stats.py:897
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "La <i>facileco</i> de karto estas la longeco de la sekva intertempo, kiam vi respondas \"Bona\" je ripeto."
 
-#: ../dtop/anki/decks.py:285
+#: ../../pylib/anki/decks.py:285
 msgid "A filtered deck cannot have subdecks."
 msgstr "Filtrita kartaro ne povas havi subkartarojn"
 
-#: ../dtop/aqt/sync.py:153
+#: ../aqt/sync.py:153
 msgid "A problem occurred while syncing media. Please use Tools>Check Media, then sync again to correct the issue."
 msgstr "Problemo okazis dum la samtempigo de aŭdovidaĵoj. Por korekti la eraron, bonvolu uzi la menueron Iloj>Kontroli aŭdvidaĵojn. Poste reprovu ĝin."
 
-#: ../dtop/anki/importing/csvfile.py:56
+#: ../../pylib/anki/importing/csvfile.py:56
 #, python-format
 msgid "Aborted: %s"
 msgstr "Nuligita: %s"
 
-#: ../dtop/aqt/forms/about.py:43
+#: ../aqt/forms/about.py:43
 msgid "About Anki"
 msgstr "Pri Anki"
 
-#: ../dtop/aqt/addcards.py:37 ../dtop/aqt/addcards.py:66
-#: ../dtop/aqt/deckconf.py:81 ../dtop/aqt/models.py:47
-#: ../dtop/aqt/studydeck.py:46 ../dtop/aqt/toolbar.py:35
-#: ../dtop/aqt/forms/addcards.py:63 ../dtop/aqt/forms/fields.py:101
-#: ../dtop/aqt/forms/profiles.py:76
+#: ../aqt/addcards.py:37 ../aqt/addcards.py:66 ../aqt/deckconf.py:81
+#: ../aqt/models.py:47 ../aqt/studydeck.py:46 ../aqt/toolbar.py:35
+#: ../aqt/forms/addcards.py:63 ../aqt/forms/fields.py:101
+#: ../aqt/forms/profiles.py:76
 msgid "Add"
 msgstr "Aldoni"
 
-#: ../dtop/aqt/addcards.py:69
+#: ../aqt/addcards.py:69
 msgid "Add (shortcut: ctrl+enter)"
 msgstr "Aldoni (fulmoklavo: Ctrl+Enter)"
 
-#: ../dtop/aqt/clayout.py:462
+#: ../aqt/clayout.py:462
 msgid "Add Card Type..."
 msgstr "Aldoni kartotipon..."
 
-#: ../dtop/aqt/clayout.py:262 ../dtop/aqt/forms/addfield.py:73
+#: ../aqt/clayout.py:262 ../aqt/forms/addfield.py:73
 msgid "Add Field"
 msgstr "Aldoni kampon"
 
-#: ../dtop/aqt/editor.py:651
+#: ../aqt/editor.py:651
 msgid "Add Media"
 msgstr "Aldoni aŭdovidaĵon"
 
-#: ../dtop/aqt/studydeck.py:48
+#: ../aqt/studydeck.py:48
 msgid "Add New Deck (Ctrl+N)"
 msgstr "Aldoni novan kartaron (Ctrl+N)"
 
-#: ../dtop/aqt/forms/addmodel.py:44
+#: ../aqt/forms/addmodel.py:44
 msgid "Add Note Type"
 msgstr "Aldoni nototipon"
 
-#: ../dtop/aqt/forms/browser.py:328
+#: ../aqt/forms/browser.py:328
 msgid "Add Notes..."
 msgstr "Aldoni notojn..."
 
-#: ../dtop/anki/stdmodels.py:82
+#: ../../pylib/anki/stdmodels.py:82
 msgid "Add Reverse"
 msgstr "Aldoni malan direkton"
 
-#: ../dtop/aqt/browser.py:1851
+#: ../aqt/browser.py:1851
 msgid "Add Tags"
 msgstr "Aldoni etikedojn"
 
-#: ../dtop/aqt/forms/browser.py:324
+#: ../aqt/forms/browser.py:324
 msgid "Add Tags..."
 msgstr "Aldoni etikedojn..."
 
-#: ../dtop/aqt/forms/addfield.py:79
+#: ../aqt/forms/addfield.py:79
 msgid "Add to:"
 msgstr "Aldoni al:"
 
-#: ../dtop/aqt/browser.py:145
+#: ../aqt/browser.py:145
 msgid "Add-on"
 msgstr ""
 
-#: ../dtop/aqt/addons.py:693
+#: ../aqt/addons.py:723
 msgid "Add-on has no configuration."
 msgstr "La aldonaĵo ne havas agordojn."
 
-#: ../dtop/aqt/addons.py:591
+#: ../aqt/addons.py:912
+msgid "Add-on installation error"
+msgstr ""
+
+#: ../aqt/addons.py:631
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr "La aldonaĵo ne estas elŝutita de AnkiWeb."
 
-#: ../dtop/aqt/forms/addons.py:67 ../dtop/aqt/forms/main.py:155
+#: ../aqt/main.py:1512
+msgid "Add-on will be installed when a profile is opened."
+msgstr ""
+
+#: ../aqt/forms/addons.py:67 ../aqt/forms/main.py:155
 msgid "Add-ons"
 msgstr "Aldonaĵoj"
 
-#: ../dtop/aqt/errors.py:179
+#: ../aqt/errors.py:179
 msgid "Add-ons possibly involved: {}\n"
 msgstr "Aldonaĵoj, kiuj eble misfunkciis: {}\n"
 
-#: ../dtop/aqt/models.py:187
+#: ../aqt/models.py:187
 #, python-format
 msgid "Add: %s"
 msgstr "Aldoni: %s"
 
-#: ../dtop/anki/stats.py:27 ../dtop/anki/stats.py:335
-#: ../dtop/anki/importing/anki2.py:168 ../dtop/aqt/addcards.py:209
+#: ../../pylib/anki/stats.py:27 ../../pylib/anki/stats.py:335
+#: ../../pylib/anki/importing/anki2.py:168 ../aqt/addcards.py:209
 msgid "Added"
 msgstr "Aldonita"
 
-#: ../dtop/aqt/browser.py:1218
+#: ../aqt/browser.py:1218
 msgid "Added Today"
 msgstr "Aldonita hodiaŭ"
 
-#: ../dtop/anki/importing/noteimp.py:131
+#: ../../pylib/anki/importing/noteimp.py:133
 #, python-format
 msgid "Added duplicate with first field: %s"
 msgstr "Aldono de duoblaĵo kun la unua kampo: %s"
 
-#: ../dtop/aqt/reviewer.py:590
+#: ../aqt/reviewer.py:589
 msgid "Again"
 msgstr "Denove"
 
-#: ../dtop/aqt/browser.py:1220
+#: ../aqt/browser.py:1220
 msgid "Again Today"
 msgstr "Hodiaŭaj Denove markitaj"
 
-#: ../dtop/anki/stats.py:184
+#: ../../pylib/anki/stats.py:184
 #, python-format
 msgid "Again count: %s"
 msgstr "Denove-nombro: %s"
 
-#: ../dtop/aqt/overview.py:105
+#: ../aqt/overview.py:105
 msgid "All Buried Cards"
 msgstr "Ĉiuj portage kaŝitaj kartoj"
 
-#: ../dtop/aqt/browser.py:1300
+#: ../aqt/browser.py:1300
 msgid "All Card Types"
 msgstr "Ĉiuj kartotipoj"
 
-#: ../dtop/aqt/exporting.py:41
+#: ../aqt/exporting.py:41
 msgid "All Decks"
 msgstr "Ĉiuj kartaroj"
 
-#: ../dtop/aqt/browser.py:2063
+#: ../aqt/browser.py:2063
 msgid "All Fields"
 msgstr "Ĉiuj kampoj"
 
-#: ../dtop/aqt/forms/customstudy.py:116
+#: ../aqt/forms/customstudy.py:116
 msgid "All cards in random order (don't reschedule)"
 msgstr "Ĉiuj kartoj en hazarda ordo (ne replani)"
 
-#: ../dtop/aqt/main.py:259
+#: ../aqt/main.py:260
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "Ĉiuj kartoj, notoj, kaj aŭdovidaĵoj al ĉi tiu profilo estos forigitaj. Ĉu vi certas?"
 
-#: ../dtop/aqt/forms/customstudy.py:114
+#: ../aqt/forms/customstudy.py:114
 msgid "All review cards in random order"
 msgstr "Ĉiuj ripetokartoj en hazarda ordo"
 
-#: ../dtop/aqt/forms/importing.py:101
+#: ../aqt/forms/importing.py:110
 msgid "Allow HTML in fields"
 msgstr "Permesi HTML en kampoj"
 
-#: ../dtop/aqt/forms/dconf.py:391
+#: ../aqt/forms/dconf.py:391
 msgid "Always include question side when replaying audio"
 msgstr "Ĉiam inkluzivi la demandoflankon dum la reludo de sono"
 
-#: ../dtop/aqt/addons.py:93
+#: ../aqt/addons.py:101
 #, python-format
 msgid "An add-on you installed failed to load. If problems persist, please go to the Tools>Add-ons menu, and disable or delete the add-on.\n\n"
 "When loading '%(name)s':\n"
@@ -807,7 +823,7 @@ msgstr "Aldonaĵo, kion vi instalis, ne povis esti ŝarĝita. Se problemoj persi
 "Dum la ŝarĝado de '%(name)s':\n"
 "%(traceback)s\n"
 
-#: ../dtop/aqt/errors.py:111
+#: ../aqt/errors.py:111
 msgid "An error occurred while accessing the database.\n\n"
 "Possible causes:\n\n"
 "- Antivirus, firewall, backup, or synchronization software may be   interfering with Anki. Try disabling such software and see if the   problem goes away.\n"
@@ -825,273 +841,272 @@ msgstr "Eraro okazis dum la atingo de la datumbazo.\n\n"
 "- Via diskaparato estas mankohava.\n\n"
 "Estas bona ideo ruli Iloj>Kontroli datumbazon por certigi, ke via kolekto ne estas difektohava.\n"
 
-#: ../dtop/aqt/editor.py:782 ../dtop/aqt/editor.py:785
+#: ../aqt/editor.py:782 ../aqt/editor.py:785
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "Okazis eraro dum malfermo de %s"
 
-#: ../dtop/aqt/forms/main.py:131 ../dtop/aqt/forms/setgroup.py:38
-#: ../dtop/aqt/forms/setlang.py:39
+#: ../aqt/forms/main.py:131 ../aqt/forms/setgroup.py:38
+#: ../aqt/forms/setlang.py:39
 msgid "Anki"
 msgstr "Ankio"
 
-#: ../dtop/anki/exporting.py:155
+#: ../../pylib/anki/exporting.py:155
 msgid "Anki 2.0 Deck"
 msgstr "Anki 2.0 kartaro"
 
-#: ../dtop/aqt/forms/preferences.py:246
+#: ../aqt/forms/preferences.py:246
 msgid "Anki 2.1 scheduler (beta)"
 msgstr ""
 
-#: ../dtop/anki/exporting.py:380
+#: ../../pylib/anki/exporting.py:380
 msgid "Anki Collection Package"
 msgstr "Anki-kolektopakaĵo"
 
-#: ../dtop/anki/exporting.py:299
+#: ../../pylib/anki/exporting.py:299
 msgid "Anki Deck Package"
 msgstr "Pakaĵa Anki-kartaro"
 
-#: ../dtop/aqt/profiles.py:179
+#: ../aqt/profiles.py:179
 msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
 msgstr "Anki ne povis legi vian profilan datumojn. Fenestro-grandoj kaj viaj detaloj de la sinkonigo-ensaluto estis forgesitaj."
 
-#: ../dtop/aqt/profiles.py:249
+#: ../aqt/profiles.py:249
 msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
 msgstr "Anki ne povis alinomi vian profilon, ĉar ĝi ne povis alinomi vian profildosierujon sur la disko. Bonvolu certigi vin, ĉu vi havas skriborajton sur Documents/Anki kaj neniu alia programo atingas vian profildosierujon. Poste reprovu ĝin."
 
-#: ../dtop/aqt/clayout.py:448
+#: ../aqt/clayout.py:448
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki ne trovis la dividon inter la demando kaj la respondo. Bonvolu permane adapti la ŝablonon por ŝanĝi demandon kaj respondon."
 
-#: ../dtop/anki/media.py:363
+#: ../../pylib/anki/media.py:363
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr "Anki ne subtenas dosierojn en subdosierujoj de la dosiero collection.media."
 
-#: ../dtop/aqt/about.py:51
+#: ../aqt/about.py:51
 msgid "Anki is a friendly, intelligent spaced learning system. It's free and open source."
 msgstr "Ankio estas amikeca, inteligenta interspaca lernsistemo. Ĝi estas senkosta kaj la kodo estas malfermita."
 
-#: ../dtop/aqt/about.py:55
+#: ../aqt/about.py:55
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki estas licencita sub la AGPL3-licenco. Bonvolu legi la licencodosieron en la fontodisdono por pli da informoj"
 
-#: ../dtop/aqt/main.py:406
+#: ../aqt/main.py:410
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr "Anki ne povis malfermi vian kolektodosieron. Se problemoj daŭras post restartigo de la komputilo, bonvolu uzi la butonon Malfermi sekurkopion en la profila administrilo.\n\n"
 "Sencimiga informo:\n"
 
-#: ../dtop/aqt/sync.py:100
+#: ../aqt/sync.py:100
 msgid "AnkiWeb ID or password was incorrect; please try again."
 msgstr "AnkiWeb-identeco aŭ -pasvorto estis malĝusta; bonvolu provi denove."
 
-#: ../dtop/aqt/sync.py:270
+#: ../aqt/sync.py:270
 msgid "AnkiWeb ID:"
 msgstr "AnkiWeb-identeco:"
 
-#: ../dtop/aqt/sync.py:191
+#: ../aqt/sync.py:191
 msgid "AnkiWeb encountered an error. Please try again in a few minutes, and if the problem persists, please file a bug report."
 msgstr "Eraro okazis ĉe AnkiWeb. Bonvolu provi denove post kelkaj minutoj, kaj se la problemo daŭros, bonvolu sendi cimraporton."
 
-#: ../dtop/aqt/sync.py:206
+#: ../aqt/sync.py:206
 msgid "AnkiWeb is too busy at the moment. Please try again in a few minutes."
 msgstr "AnkiWeb estas nuntempe tro okupata. Bonvolu provi denove post kelkaj minutoj."
 
-#: ../dtop/aqt/sync.py:203
+#: ../aqt/sync.py:203
 msgid "AnkiWeb is under maintenance. Please try again in a few minutes."
 msgstr "AnkiWeb estas vartata. Bonvolu reprovi ĝin en kelkaj minutoj."
 
-#: ../dtop/aqt/browser.py:711
+#: ../aqt/browser.py:711
 msgid "Answer"
 msgstr "Respondo"
 
-#: ../dtop/anki/stats.py:696
+#: ../../pylib/anki/stats.py:696
 msgid "Answer Buttons"
 msgstr "Respondobutonoj"
 
-#: ../dtop/anki/stats.py:383 ../dtop/anki/stats.py:707
-#: ../dtop/anki/stats.py:815
+#: ../../pylib/anki/stats.py:383 ../../pylib/anki/stats.py:707
+#: ../../pylib/anki/stats.py:815
 msgid "Answers"
 msgstr "Respondoj"
 
-#: ../dtop/aqt/sync.py:219
+#: ../aqt/sync.py:219
 msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
 msgstr "Kontraŭvirusilo aŭ fajroŝirmilo malebligas, ke Anki konektu al la interreto."
 
-#: ../dtop/aqt/browser.py:1244
+#: ../aqt/browser.py:1244
 msgid "Any Flag"
 msgstr "Ĉiu flago"
 
-#: ../dtop/aqt/browser.py:2413
+#: ../aqt/browser.py:2413
 msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
 msgstr "Ĉiuj kartoj mapitaj al nenio estos forigitaj. Se noto ne havas restantajn kartojn, ĝi perdiĝos. Ĉu vi vere volas daŭrigi?"
 
-#: ../dtop/anki/importing/noteimp.py:156
+#: ../../pylib/anki/importing/noteimp.py:158
 #, python-format
 msgid "Appeared twice in file: %s"
 msgstr "Troviĝis duoble en dosiero: %s"
 
-#: ../dtop/aqt/deckbrowser.py:305
+#: ../aqt/deckbrowser.py:305
 #, python-format
 msgid "Are you sure you wish to delete %s?"
 msgstr "Ĉu vi certas ke vi volas forigi %s?"
 
-#: ../dtop/aqt/clayout.py:227
+#: ../aqt/clayout.py:227
 msgid "At least one card type is required."
 msgstr "Almenaŭ unu kartotipo necesas."
 
-#: ../dtop/aqt/deckconf.py:261 ../dtop/aqt/dyndeckconf.py:159
+#: ../aqt/deckconf.py:261 ../aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "Almenaŭ unu paŝo necesas."
 
-#: ../dtop/aqt/editor.py:138
+#: ../aqt/editor.py:138
 msgid "Attach pictures/audio/video (F3)"
 msgstr "Aldoni bildojn/sonojn/videojn (F3)"
 
-#: ../dtop/aqt/main.py:309
+#: ../aqt/main.py:310
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr "Aŭtomata samtempigo kaj sekurkopioj estas malvalidigitaj dum la restaŭrado. Por revalidigi ilin, fermi la profilon aŭ relanĉi Anki."
 
-#: ../dtop/aqt/forms/dconf.py:390
+#: ../aqt/forms/dconf.py:390
 msgid "Automatically play audio"
 msgstr "Aŭtomate ludi sonon"
 
-#: ../dtop/aqt/forms/preferences.py:260
+#: ../aqt/forms/preferences.py:260
 msgid "Automatically sync on profile open/close"
 msgstr "Aŭtomate samtempigi je fermo aŭ malfermo de profilo"
 
-#: ../dtop/anki/stats.py:280 ../dtop/anki/stats.py:345
+#: ../../pylib/anki/stats.py:280 ../../pylib/anki/stats.py:345
 msgid "Average"
 msgstr "Meznombro"
 
-#: ../dtop/anki/stats.py:53
+#: ../../pylib/anki/stats.py:53
 msgid "Average Time"
 msgstr "Mezuma tempo"
 
-#: ../dtop/anki/stats.py:459
+#: ../../pylib/anki/stats.py:459
 msgid "Average answer time"
 msgstr "Mezuma respondotempo"
 
-#: ../dtop/anki/stats.py:893
+#: ../../pylib/anki/stats.py:893
 msgid "Average ease"
 msgstr "Mezuma facileco"
 
-#: ../dtop/anki/stats.py:443
+#: ../../pylib/anki/stats.py:443
 msgid "Average for days studied"
 msgstr "Meznombro por lerntagoj"
 
-#: ../dtop/anki/stats.py:633
+#: ../../pylib/anki/stats.py:633
 msgid "Average interval"
 msgstr "Mezuma intertempo"
 
-#: ../dtop/anki/stdmodels.py:20 ../dtop/anki/stdmodels.py:24
-#: ../dtop/anki/stdmodels.py:45 ../dtop/anki/stdmodels.py:46
-#: ../dtop/anki/stdmodels.py:61 ../dtop/aqt/forms/addfield.py:78
+#: ../../pylib/anki/stdmodels.py:20 ../../pylib/anki/stdmodels.py:24
+#: ../../pylib/anki/stdmodels.py:45 ../../pylib/anki/stdmodels.py:46
+#: ../../pylib/anki/stdmodels.py:61 ../aqt/forms/addfield.py:78
 msgid "Back"
 msgstr "Reen"
 
-#: ../dtop/aqt/forms/preview.py:41
+#: ../aqt/forms/preview.py:41
 msgid "Back Preview"
 msgstr "Dorso-antaŭmontro"
 
-#: ../dtop/aqt/forms/template.py:109
+#: ../aqt/forms/template.py:109
 msgid "Back Template"
 msgstr "Dorso-ŝablono"
 
-#: ../dtop/aqt/main.py:454
+#: ../aqt/main.py:458
 msgid "Backing Up..."
 msgstr "Kreado de sekurkopioj..."
 
-#: ../dtop/aqt/forms/preferences.py:270
+#: ../aqt/forms/preferences.py:270
 msgid "Backups"
 msgstr "Sekurkopioj"
 
-#: ../dtop/anki/stdmodels.py:17 ../dtop/anki/stdmodels.py:35
-#: ../dtop/aqt/forms/preferences.py:257
+#: ../../pylib/anki/stdmodels.py:17 ../../pylib/anki/stdmodels.py:35
+#: ../aqt/forms/preferences.py:257
 msgid "Basic"
 msgstr "Baza"
 
-#: ../dtop/anki/stdmodels.py:59 ../dtop/anki/stdmodels.py:73
+#: ../../pylib/anki/stdmodels.py:59 ../../pylib/anki/stdmodels.py:73
 msgid "Basic (and reversed card)"
 msgstr "Baza (en ambaŭ direktoj)"
 
-#: ../dtop/anki/stdmodels.py:81 ../dtop/anki/stdmodels.py:91
+#: ../../pylib/anki/stdmodels.py:81 ../../pylib/anki/stdmodels.py:91
 msgid "Basic (optional reversed card)"
 msgstr "Baza (en unu aŭ ambaŭ direktoj)"
 
-#: ../dtop/anki/stdmodels.py:43 ../dtop/anki/stdmodels.py:51
+#: ../../pylib/anki/stdmodels.py:43 ../../pylib/anki/stdmodels.py:51
 msgid "Basic (type in the answer)"
 msgstr "Baza (entajpi la respondon)"
 
-#: ../dtop/aqt/browser.py:1242 ../dtop/aqt/reviewer.py:672
-#: ../dtop/aqt/forms/browser.py:333
+#: ../aqt/browser.py:1242 ../aqt/reviewer.py:671 ../aqt/forms/browser.py:333
 msgid "Blue Flag"
 msgstr "Blua flago"
 
-#: ../dtop/aqt/editor.py:102
+#: ../aqt/editor.py:102
 msgid "Bold text (Ctrl+B)"
 msgstr "Grasa teksto (Ctrl+B)"
 
-#: ../dtop/aqt/toolbar.py:36
+#: ../aqt/toolbar.py:36
 msgid "Browse"
 msgstr "Foliumi"
 
-#: ../dtop/aqt/browser.py:794
+#: ../aqt/browser.py:794
 #, python-format
 msgid "Browse (%(cur)d card shown; %(sel)s)"
 msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
 msgstr[0] "Foliumi (%(cur)d karto estas montrata; %(sel)s)"
 msgstr[1] "Foliumi (%(cur)d kartoj estas montrataj; %(sel)s)"
 
-#: ../dtop/aqt/addons.py:712
+#: ../aqt/addons.py:742
 msgid "Browse Add-ons"
 msgstr "Foliumi aldonaĵojn"
 
-#: ../dtop/aqt/forms/browserdisp.py:69
+#: ../aqt/forms/browserdisp.py:69
 msgid "Browser Appearance"
 msgstr "Foliumila aspekto"
 
-#: ../dtop/aqt/clayout.py:484
+#: ../aqt/clayout.py:484
 msgid "Browser Appearance..."
 msgstr "Foliumila aspekto..."
 
-#: ../dtop/aqt/forms/browseropts.py:69
+#: ../aqt/forms/browseropts.py:69
 msgid "Browser Options"
 msgstr "Foliumilo-opcioj"
 
-#: ../dtop/aqt/dyndeckconf.py:20
+#: ../aqt/dyndeckconf.py:20
 msgid "Build"
 msgstr "Kunmeti"
 
-#: ../dtop/aqt/browser.py:1237
+#: ../aqt/browser.py:1237
 msgid "Buried"
 msgstr "kaŝita por tago"
 
-#: ../dtop/aqt/overview.py:104
+#: ../aqt/overview.py:104
 msgid "Buried Siblings"
 msgstr "portage kaŝitaj parencaj kartoj"
 
-#: ../dtop/aqt/reviewer.py:774 ../dtop/aqt/reviewer.py:780
+#: ../aqt/reviewer.py:773 ../aqt/reviewer.py:779
 msgid "Bury"
 msgstr "Kaŝi por tago"
 
-#: ../dtop/aqt/reviewer.py:680
+#: ../aqt/reviewer.py:679
 msgid "Bury Card"
 msgstr "Kaŝi karton por tago"
 
-#: ../dtop/aqt/reviewer.py:681
+#: ../aqt/reviewer.py:680
 msgid "Bury Note"
 msgstr "kaŝi noton por tago"
 
-#: ../dtop/aqt/forms/dconf.py:361
+#: ../aqt/forms/dconf.py:361
 msgid "Bury related new cards until the next day"
 msgstr "Kaŝi rilatajn novajn kartojn ĝis la venonta tago"
 
-#: ../dtop/aqt/forms/dconf.py:372
+#: ../aqt/forms/dconf.py:372
 msgid "Bury related reviews until the next day"
 msgstr "Kaŝi rilatajn ripetojn ĝis la venonta tago"
 
-#: ../dtop/aqt/importing.py:123
+#: ../aqt/importing.py:124
 msgid "By default, Anki will detect the character between fields, such as\n"
 "a tab, comma, and so on. If Anki is detecting the character incorrectly,\n"
 "you can enter it here. Use \\t to represent tab."
@@ -1099,1073 +1114,1066 @@ msgstr "Laŭnorme Anki detektos la signojn inter kampoj, kiel ekzemple\n"
 "tabulatoron, komon, ktp. Se Anki malĝuste detektas signon,\n"
 "vi povas enmeti ĝin ĉi tie. Uzu \\t por reprezenti tabulatoron."
 
-#: ../dtop/aqt/overview.py:106 ../dtop/aqt/sound.py:30 ../dtop/aqt/sync.py:299
-#: ../dtop/aqt/sync.py:321
+#: ../aqt/overview.py:106 ../aqt/sound.py:38 ../aqt/sync.py:299
+#: ../aqt/sync.py:321
 msgid "Cancel"
 msgstr "Nuligi"
 
-#: ../dtop/aqt/browser.py:712
+#: ../aqt/browser.py:712
 msgid "Card"
 msgstr "Karto"
 
-#: ../dtop/aqt/clayout.py:411
+#: ../aqt/clayout.py:411
 #, python-format
 msgid "Card %d"
 msgstr "%d-a karto"
 
-#: ../dtop/anki/stdmodels.py:22
+#: ../../pylib/anki/stdmodels.py:22
 msgid "Card 1"
 msgstr "1-a karto"
 
-#: ../dtop/anki/stdmodels.py:60
+#: ../../pylib/anki/stdmodels.py:60
 msgid "Card 2"
 msgstr "2-a karto"
 
-#: ../dtop/anki/stats.py:61
+#: ../../pylib/anki/stats.py:61
 msgid "Card ID"
 msgstr "Karto-identigilo"
 
-#: ../dtop/aqt/forms/browser.py:315
+#: ../aqt/forms/browser.py:315
 msgid "Card List"
 msgstr "&Kartlisto"
 
-#: ../dtop/aqt/browser.py:1227
+#: ../aqt/browser.py:1227
 msgid "Card State"
 msgstr "Kartostato"
 
-#: ../dtop/anki/stats.py:57
+#: ../../pylib/anki/stats.py:57
 msgid "Card Type"
 msgstr "Kartotipo"
 
-#: ../dtop/aqt/forms/clayout_top.py:57
+#: ../aqt/forms/clayout_top.py:57
 msgid "Card Type:"
 msgstr "Kartotipo:"
 
-#: ../dtop/anki/stats.py:901 ../dtop/aqt/clayout.py:41
+#: ../../pylib/anki/stats.py:901 ../aqt/clayout.py:41
 msgid "Card Types"
 msgstr "Kartotipoj"
 
-#: ../dtop/aqt/clayout.py:57
+#: ../aqt/clayout.py:57
 #, python-format
 msgid "Card Types for %s"
 msgstr "Kartotipoj al %s"
 
-#: ../dtop/aqt/reviewer.py:777
+#: ../aqt/reviewer.py:776
 msgid "Card buried."
 msgstr "Karto estas kaŝita por tago."
 
-#: ../dtop/aqt/reviewer.py:754
+#: ../aqt/reviewer.py:753
 msgid "Card suspended."
 msgstr "Karto estas daŭre kaŝita"
 
-#: ../dtop/aqt/reviewer.py:638
+#: ../aqt/reviewer.py:637
 msgid "Card was a leech."
 msgstr "La karto estis sangosuĉanto."
 
-#: ../dtop/anki/stats.py:336 ../dtop/anki/stats.py:969
-#: ../dtop/aqt/editor.py:155 ../dtop/aqt/forms/changemodel.py:112
+#: ../../pylib/anki/stats.py:336 ../../pylib/anki/stats.py:969
+#: ../aqt/editor.py:155 ../aqt/forms/changemodel.py:112
 msgid "Cards"
 msgstr "Kartoj"
 
-#: ../dtop/aqt/browser.py:1811
+#: ../aqt/browser.py:1811
 msgid "Cards can't be manually moved into a filtered deck."
 msgstr "Oni ne povas permane alilokigi kartojn en filtritan kartaron."
 
-#: ../dtop/anki/exporting.py:83
+#: ../../pylib/anki/exporting.py:83
 msgid "Cards in Plain Text"
 msgstr "Kartoj en plata teksto"
 
-#: ../dtop/aqt/overview.py:154
+#: ../aqt/overview.py:154
 msgid "Cards will be automatically returned to their original decks after you review them."
 msgstr "Kartoj estos aŭtomate remetitaj al siaj originalaj kartaroj post vi ripetos ilin."
 
-#: ../dtop/aqt/models.py:56
+#: ../aqt/models.py:56
 msgid "Cards..."
 msgstr "Kartoj..."
 
-#: ../dtop/anki/consts.py:79
+#: ../../pylib/anki/consts.py:79
 msgid "Center"
 msgstr "Centre"
 
-#: ../dtop/aqt/importing.py:254
+#: ../aqt/importing.py:258
 msgid "Change"
 msgstr "Ŝanĝi"
 
-#: ../dtop/aqt/browser.py:2334
+#: ../aqt/browser.py:2334
 #, python-format
 msgid "Change %s to:"
 msgstr "Ŝanĝi %s al:"
 
-#: ../dtop/aqt/browser.py:1802 ../dtop/aqt/browser.py:1814
+#: ../aqt/browser.py:1802 ../aqt/browser.py:1814
 msgid "Change Deck"
 msgstr "Ŝanĝi kartaron"
 
-#: ../dtop/aqt/forms/browser.py:329
+#: ../aqt/forms/browser.py:329
 msgid "Change Deck..."
 msgstr "Ŝanĝi kartaron..."
 
-#: ../dtop/aqt/browser.py:2420 ../dtop/aqt/forms/changemodel.py:109
+#: ../aqt/browser.py:2420 ../aqt/forms/changemodel.py:109
 msgid "Change Note Type"
 msgstr "Ŝanĝi nototipon"
 
-#: ../dtop/aqt/modelchooser.py:31
+#: ../aqt/modelchooser.py:31
 msgid "Change Note Type (Ctrl+N)"
 msgstr "Ŝanĝi nototipon (Ctrl+N)"
 
-#: ../dtop/aqt/forms/browser.py:310
+#: ../aqt/forms/browser.py:310
 msgid "Change Note Type..."
 msgstr "Ŝanĝi noto&tipon..."
 
-#: ../dtop/aqt/editor.py:125
+#: ../aqt/editor.py:125
 msgid "Change colour (F8)"
 msgstr "Ŝanĝi koloron (F8)"
 
-#: ../dtop/aqt/forms/preferences.py:248
+#: ../aqt/forms/preferences.py:248
 msgid "Change deck depending on note type"
 msgstr "Ŝanĝi kartaron laŭ nototipo"
 
-#: ../dtop/aqt/browser.py:717
+#: ../aqt/browser.py:717
 msgid "Changed"
 msgstr "Ŝanĝita"
 
-#: ../dtop/aqt/clayout.py:111
+#: ../aqt/clayout.py:111
 #, python-format
 msgid "Changes below will affect the %(cnt)d note that uses this card type."
 msgid_plural "Changes below will affect the %(cnt)d notes that use this card type."
 msgstr[0] "La jenaj ŝanĝoj efikos sur %(cnt)d noto, kiu uzas tiun kartotipon."
 msgstr[1] "La jenaj ŝanĝoj efikos sur %(cnt)d notoj, kiuj uzas tiun kartotipon."
 
-#: ../dtop/aqt/forms/addons.py:68
+#: ../aqt/forms/addons.py:68
 msgid "Changes will take effect when Anki is restarted."
 msgstr "Ŝanĝoj efikos post relanĉo de Anki."
 
-#: ../dtop/aqt/preferences.py:110 ../dtop/aqt/preferences.py:234
+#: ../aqt/preferences.py:110 ../aqt/preferences.py:234
 msgid "Changes will take effect when you restart Anki."
 msgstr "Ŝanĝoj efikos post relanĉo de Anki."
 
-#: ../dtop/aqt/forms/main.py:141
+#: ../aqt/forms/main.py:141
 msgid "Check &Media..."
 msgstr "Kontroli &aŭdovidaĵojn"
 
-#: ../dtop/aqt/forms/addons.py:71
+#: ../aqt/forms/addons.py:71
 msgid "Check for Updates"
 msgstr "Serĉi ĝisdatigojn"
 
-#: ../dtop/aqt/forms/main.py:142
+#: ../aqt/forms/main.py:142
 msgid "Check the files in the media directory"
 msgstr "Kontroli la dosierojn en la aŭdovidaĵo-dosierujo"
 
-#: ../dtop/aqt/sync.py:129
+#: ../aqt/sync.py:129
 msgid "Checking media..."
 msgstr "Kontrolado de aŭdovidaĵoj..."
 
-#: ../dtop/aqt/sync.py:127
+#: ../aqt/sync.py:127
 msgid "Checking..."
 msgstr "Kontrolado..."
 
-#: ../dtop/aqt/deckchooser.py:83 ../dtop/aqt/modelchooser.py:73
+#: ../aqt/deckchooser.py:83 ../aqt/modelchooser.py:73
 msgid "Choose"
 msgstr "Elekti"
 
-#: ../dtop/aqt/deckchooser.py:84
+#: ../aqt/deckchooser.py:84
 msgid "Choose Deck"
 msgstr "Elekti kartaron"
 
-#: ../dtop/aqt/modelchooser.py:74
+#: ../aqt/modelchooser.py:74
 msgid "Choose Note Type"
 msgstr "Elekti nototipon"
 
-#: ../dtop/aqt/customstudy.py:102
+#: ../aqt/customstudy.py:102
 msgid "Choose Tags"
 msgstr "Elekti etikedojn"
 
-#: ../dtop/aqt/browser.py:1253
+#: ../aqt/browser.py:1253
 msgid "Clear Unused"
 msgstr "Forigi neuzatajn"
 
-#: ../dtop/aqt/forms/browser.py:335
+#: ../aqt/forms/browser.py:335
 msgid "Clear Unused Tags"
 msgstr "Forigi neuzatajn etikedojn"
 
-#: ../dtop/aqt/models.py:192
+#: ../aqt/models.py:192
 #, python-format
 msgid "Clone: %s"
 msgstr "Kloni: %s"
 
-#: ../dtop/aqt/addcards.py:71 ../dtop/aqt/clayout.py:272
-#: ../dtop/aqt/forms/browser.py:322
+#: ../aqt/addcards.py:71 ../aqt/clayout.py:272 ../aqt/forms/browser.py:322
 msgid "Close"
 msgstr "Fermi"
 
-#: ../dtop/aqt/addcards.py:241
+#: ../aqt/addcards.py:241
 msgid "Close and lose current input?"
 msgstr "Ĉu fermi kaj perdi nunan enmetitaĵon?"
 
-#: ../dtop/aqt/main.py:452
+#: ../aqt/main.py:456
 msgid "Closing..."
 msgstr "Fermado..."
 
-#: ../dtop/anki/stdmodels.py:99 ../dtop/anki/stdmodels.py:106
-#: ../dtop/anki/stdmodels.py:125 ../dtop/anki/storage.py:222
+#: ../../pylib/anki/stdmodels.py:99 ../../pylib/anki/stdmodels.py:104
+#: ../../pylib/anki/stdmodels.py:123 ../../pylib/anki/storage.py:222
 msgid "Cloze"
 msgstr "Truteksto"
 
-#: ../dtop/aqt/editor.py:135
+#: ../aqt/editor.py:135
 msgid "Cloze deletion (Ctrl+Shift+C)"
 msgstr "Truteksta malpleno (Ctrl+Shift+C)"
 
-#: ../dtop/aqt/forms/getaddons.py:50
+#: ../aqt/forms/getaddons.py:50
 msgid "Code:"
 msgstr "Kodo:"
 
-#: ../dtop/aqt/exporting.py:140
+#: ../aqt/exporting.py:140
 msgid "Collection exported."
 msgstr "Kolekto estas elportita."
 
-#: ../dtop/anki/collection.py:867
+#: ../../pylib/anki/collection.py:867
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Kolekto estas difektita. Bonvolu vidi la gvidlibron."
 
-#: ../dtop/aqt/importing.py:167
+#: ../aqt/importing.py:168
 msgid "Colon"
 msgstr "Dupunkto"
 
-#: ../dtop/aqt/importing.py:161
+#: ../aqt/importing.py:162
 msgid "Comma"
 msgstr "Komo"
 
-#: ../dtop/aqt/forms/addons.py:73
+#: ../aqt/forms/addons.py:73
 msgid "Config"
 msgstr "Agordo"
 
-#: ../dtop/aqt/forms/addonconf.py:70
+#: ../aqt/forms/addonconf.py:70
 msgid "Configuration"
 msgstr "Agordo"
 
-#: ../dtop/aqt/forms/main.py:138
+#: ../aqt/forms/main.py:138
 msgid "Configure interface language and options"
 msgstr "Agordi interfacan lingvon kaj opciojn"
 
-#: ../dtop/anki/sched.py:1255 ../dtop/anki/schedv2.py:1419
+#: ../../pylib/anki/sched.py:1255 ../../pylib/anki/schedv2.py:1419
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Gratulon! Vi finis ĉi tiun kartaron por hodiaŭ."
 
-#: ../dtop/aqt/sync.py:49
+#: ../aqt/sync.py:49
 msgid "Connecting..."
 msgstr "Konektado..."
 
-#: ../dtop/aqt/sync.py:223
+#: ../aqt/sync.py:223
 msgid "Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder."
 msgstr "Tempolimo de konekto. Aŭ okazas problemo ĉe via interreta konekto aŭ vi havas tre grandan dosieron en via aŭdovidaĵa dosierujo."
 
-#: ../dtop/aqt/reviewer.py:81
+#: ../aqt/reviewer.py:80
 msgid "Continue"
 msgstr "Daŭrigi"
 
-#: ../dtop/aqt/about.py:40
+#: ../aqt/about.py:40
 msgid "Copied to clipboard"
 msgstr "Kopiita en la tondujon"
 
-#: ../dtop/aqt/editor.py:1108 ../dtop/aqt/webview.py:183
+#: ../aqt/editor.py:1108 ../aqt/webview.py:183
 msgid "Copy"
 msgstr "Kopii"
 
-#: ../dtop/aqt/about.py:42
+#: ../aqt/about.py:42
 msgid "Copy Debug Info"
 msgstr "Kopii sencimigo-informon"
 
-#: ../dtop/aqt/utils.py:100
+#: ../aqt/utils.py:129
 msgid "Copy to Clipboard"
 msgstr "Kopii al la tondujo"
 
-#: ../dtop/anki/stats.py:205
+#: ../../pylib/anki/stats.py:205
 #, python-format
 msgid "Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)"
 msgstr "Ĝustaj respondoj ĉe maljunaj kartoj: %(a)d/%(b)d (%(c).1f%%)"
 
-#: ../dtop/anki/stats.py:728
+#: ../../pylib/anki/stats.py:728
 #, python-format
 msgid "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
 msgstr "Ĝusta: <b>%(pct)0.2f%%</b><br>(%(good)d el %(tot)d)"
 
-#: ../dtop/aqt/addons.py:287 ../dtop/aqt/addons.py:333
+#: ../aqt/addons.py:352
 msgid "Corrupt add-on file."
 msgstr "Difekta aldonaĵo-dosiero"
 
-#: ../dtop/aqt/sync.py:179
+#: ../aqt/sync.py:179
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "Konekto al AnkiWeb ne estas ebla. Bonvolu kontroli vian retkonekton kaj reprovu ĝin."
 
-#: ../dtop/aqt/editor.py:680
+#: ../aqt/editor.py:680
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr "La registro de sono ne estas ebla. Ĉu vi instalis 'lame'?"
 
-#: ../dtop/aqt/exporting.py:126
+#: ../aqt/exporting.py:126
 #, python-format
 msgid "Couldn't save file: %s"
 msgstr "Ne povis konservi dosieron: %s"
 
-#: ../dtop/anki/stats.py:376 ../dtop/anki/stats.py:396
+#: ../../pylib/anki/stats.py:376 ../../pylib/anki/stats.py:396
 msgid "Cram"
 msgstr "Studego"
 
-#: ../dtop/aqt/deckbrowser.py:318
+#: ../aqt/deckbrowser.py:318
 msgid "Create Deck"
 msgstr "Krei kartaron"
 
-#: ../dtop/aqt/forms/main.py:153
+#: ../aqt/forms/main.py:153
 msgid "Create Filtered Deck..."
 msgstr "Krei filtritan kartaron..."
 
-#: ../dtop/aqt/forms/modelopts.py:64
+#: ../aqt/forms/modelopts.py:64
 msgid "Create scalable images with dvisvgm"
 msgstr "Krei skaleblan bildon per dvisvgm"
 
-#: ../dtop/aqt/browser.py:715
+#: ../aqt/browser.py:715
 msgid "Created"
 msgstr "Kreita"
 
-#: ../dtop/aqt/main.py:1059
+#: ../aqt/main.py:1082
 msgid "Ctrl+Alt+Z"
 msgstr ""
 
-#: ../dtop/aqt/deckchooser.py:33
+#: ../aqt/deckchooser.py:33
 msgid "Ctrl+D"
 msgstr ""
 
-#: ../dtop/aqt/modelchooser.py:33
+#: ../aqt/modelchooser.py:33
 msgid "Ctrl+N"
 msgstr ""
 
-#: ../dtop/aqt/browser.py:593
+#: ../aqt/browser.py:593
 msgid "Ctrl+Shift+P"
 msgstr ""
 
-#: ../dtop/anki/stats.py:253
+#: ../../pylib/anki/stats.py:253
 msgid "Cumulative"
 msgstr "Akumula"
 
-#: ../dtop/anki/stats.py:408
+#: ../../pylib/anki/stats.py:408
 #, python-format
 msgid "Cumulative %s"
 msgstr "Akumula %s"
 
-#: ../dtop/anki/stats.py:383
+#: ../../pylib/anki/stats.py:383
 msgid "Cumulative Answers"
 msgstr "Akumulaj respondoj"
 
-#: ../dtop/anki/stats.py:268 ../dtop/anki/stats.py:336
+#: ../../pylib/anki/stats.py:268 ../../pylib/anki/stats.py:336
 msgid "Cumulative Cards"
 msgstr "Akumulaj kartoj"
 
-#: ../dtop/aqt/browser.py:1086 ../dtop/aqt/browser.py:1210
+#: ../aqt/browser.py:1086 ../aqt/browser.py:1210
 msgid "Current Deck"
 msgstr "Aktuala kartaro"
 
-#: ../dtop/aqt/forms/changemodel.py:110
+#: ../aqt/forms/changemodel.py:110
 msgid "Current note type:"
 msgstr "Aktuala nototipo:"
 
-#: ../dtop/aqt/overview.py:225 ../dtop/aqt/forms/customstudy.py:100
+#: ../aqt/overview.py:225 ../aqt/forms/customstudy.py:100
 msgid "Custom Study"
 msgstr "Propra lernado"
 
-#: ../dtop/aqt/customstudy.py:136 ../dtop/aqt/customstudy.py:148
+#: ../aqt/customstudy.py:136 ../aqt/customstudy.py:148
 msgid "Custom Study Session"
 msgstr "Krei lernadan seancon"
 
-#: ../dtop/aqt/forms/dyndconf.py:147
+#: ../aqt/forms/dyndconf.py:147
 msgid "Custom steps (in minutes)"
 msgstr "Propraj paŝoj (en minutoj)"
 
-#: ../dtop/aqt/editor.py:158
+#: ../aqt/editor.py:158
 msgid "Customize Card Templates (Ctrl+L)"
 msgstr "Akomodi la kartoŝablonon (Crtl+L)"
 
-#: ../dtop/aqt/editor.py:157
+#: ../aqt/editor.py:157
 msgid "Customize Fields"
 msgstr "Akomodi kampojn"
 
-#: ../dtop/aqt/editor.py:1106
+#: ../aqt/editor.py:1106
 msgid "Cut"
 msgstr "Eltondi"
 
-#: ../dtop/anki/collection.py:1052
+#: ../../pylib/anki/collection.py:1052
 msgid "Database rebuilt and optimized."
 msgstr "La datumbazo estas rekunmetita kaj optimumigita."
 
-#: ../dtop/aqt/browser.py:1419
+#: ../aqt/browser.py:1419
 msgid "Date"
 msgstr "Dato"
 
-#: ../dtop/anki/stats.py:427
+#: ../../pylib/anki/stats.py:427
 msgid "Days studied"
 msgstr "Tagoj de lernado"
 
-#: ../dtop/aqt/forms/preferences.py:262
+#: ../aqt/forms/preferences.py:262
 msgid "Deauthorize"
 msgstr "Malrajtigi"
 
-#: ../dtop/aqt/forms/debug.py:46
+#: ../aqt/forms/debug.py:46
 msgid "Debug Console"
 msgstr "Sencimiga konzolo"
 
-#: ../dtop/anki/stats.py:59 ../dtop/aqt/browser.py:713
-#: ../dtop/aqt/deckbrowser.py:150 ../dtop/aqt/deckchooser.py:26
-#: ../dtop/aqt/forms/importing.py:97
+#: ../../pylib/anki/stats.py:59 ../aqt/browser.py:713 ../aqt/deckbrowser.py:150
+#: ../aqt/deckchooser.py:26 ../aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Kartaro"
 
-#: ../dtop/aqt/clayout.py:481
+#: ../aqt/clayout.py:481
 msgid "Deck Override..."
 msgstr "Superskribi kartaron..."
 
-#: ../dtop/aqt/main.py:1486
+#: ../aqt/main.py:1514
 msgid "Deck will be imported when a profile is opened."
 msgstr "La kartaro estos enportita, kiam profilo estas malfermita."
 
-#: ../dtop/aqt/browser.py:1281 ../dtop/aqt/toolbar.py:34
+#: ../aqt/browser.py:1281 ../aqt/toolbar.py:34
 msgid "Decks"
 msgstr "Kartaroj"
 
-#: ../dtop/anki/consts.py:90
+#: ../../pylib/anki/consts.py:90
 msgid "Decreasing intervals"
 msgstr "malkreskaj intertempoj"
 
-#: ../dtop/anki/decks.py:55 ../dtop/anki/storage.py:336
-#: ../dtop/aqt/deckchooser.py:50 ../dtop/aqt/deckchooser.py:54
-#: ../dtop/aqt/deckchooser.py:73
+#: ../../pylib/anki/decks.py:55 ../../pylib/anki/storage.py:336
+#: ../aqt/deckchooser.py:50 ../aqt/deckchooser.py:54 ../aqt/deckchooser.py:73
 msgid "Default"
 msgstr "Defaŭlta"
 
-#: ../dtop/anki/stats.py:611
+#: ../../pylib/anki/stats.py:611
 msgid "Delays until reviews are shown again."
 msgstr "Intertempoj ĝis ripetoj denove montriĝas."
 
-#: ../dtop/aqt/deckbrowser.py:246 ../dtop/aqt/deckconf.py:83
-#: ../dtop/aqt/models.py:51 ../dtop/aqt/reviewer.py:762
-#: ../dtop/aqt/forms/addons.py:76 ../dtop/aqt/forms/browser.py:327
-#: ../dtop/aqt/forms/fields.py:102 ../dtop/aqt/forms/profiles.py:78
+#: ../aqt/deckbrowser.py:246 ../aqt/deckconf.py:83 ../aqt/models.py:51
+#: ../aqt/reviewer.py:761 ../aqt/forms/addons.py:76 ../aqt/forms/browser.py:327
+#: ../aqt/forms/fields.py:102 ../aqt/forms/profiles.py:78
 msgid "Delete"
 msgstr "Forigi"
 
-#: ../dtop/aqt/main.py:1331
+#: ../aqt/main.py:1354
 msgid "Delete Cards"
 msgstr "Forigi kartojn"
 
-#: ../dtop/aqt/deckbrowser.py:289
+#: ../aqt/deckbrowser.py:289
 msgid "Delete Deck"
 msgstr "Forigi kartaron"
 
-#: ../dtop/aqt/main.py:1337
+#: ../aqt/main.py:1360
 msgid "Delete Empty"
 msgstr "Forigi malplenajn"
 
-#: ../dtop/aqt/reviewer.py:684
+#: ../aqt/reviewer.py:683
 msgid "Delete Note"
 msgstr "Forigi noton"
 
-#: ../dtop/aqt/browser.py:1755
+#: ../aqt/browser.py:1755
 msgid "Delete Notes"
 msgstr "Forigi notojn"
 
-#: ../dtop/aqt/browser.py:1861
+#: ../aqt/browser.py:1861
 msgid "Delete Tags"
 msgstr "Forigi etikedojn"
 
-#: ../dtop/aqt/main.py:1263
+#: ../aqt/main.py:1286
 msgid "Delete Unused Files"
 msgstr "Forigi neuzatajn dosierojn"
 
-#: ../dtop/aqt/fields.py:97
+#: ../aqt/fields.py:97
 #, python-format
 msgid "Delete field from %s?"
 msgstr "Ĉu forigi la kampon el %s?"
 
-#: ../dtop/aqt/addons.py:613
+#: ../aqt/addons.py:653
 #, python-format
 msgid "Delete the %(num)d selected add-on?"
 msgid_plural "Delete the %(num)d selected add-ons?"
 msgstr[0] "Ĉu vi volas forigi %(num)d elektitan aldonaĵon?"
 msgstr[1] "Ĉu vi volas forigi %(num)d elektitajn aldonaĵojn?"
 
-#: ../dtop/aqt/clayout.py:231
+#: ../aqt/clayout.py:231
 #, python-format
 msgid "Delete the '%(a)s' card type, and its %(b)s?"
 msgstr "Ĉu forigi la kartotipon '%(a)s' kaj ĝiajn %(b)s?"
 
-#: ../dtop/aqt/models.py:108
+#: ../aqt/models.py:108
 msgid "Delete this note type and all its cards?"
 msgstr "Ĉu forigi ĉi tiun nototipon kaj ĉiujn ĝiajn kartojn?"
 
-#: ../dtop/aqt/models.py:110
+#: ../aqt/models.py:110
 msgid "Delete this unused note type?"
 msgstr "Ĉu forigi ĉi tiun neuzatan nototipon?"
 
-#: ../dtop/aqt/main.py:1276
+#: ../aqt/main.py:1299
 msgid "Delete unused media?"
 msgstr "Ĉu forigi neuzatajn aŭdovidaĵojn?"
 
-#: ../dtop/anki/collection.py:956
+#: ../../pylib/anki/collection.py:956
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "Forigis %d karton kies noto mankis."
 msgstr[1] "Forigis %d kartojn kies notoj mankis."
 
-#: ../dtop/anki/collection.py:907
+#: ../../pylib/anki/collection.py:907
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
 msgstr[0] "Forigis %d karton kun mankanta ŝablono."
 msgstr[1] "Forigis %d kartojn kun mankanta ŝablono."
 
-#: ../dtop/aqt/main.py:1306
+#: ../aqt/main.py:1329
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../dtop/anki/collection.py:877
+#: ../../pylib/anki/collection.py:877
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "%d noto sen nototipo estas forigita."
 msgstr[1] "%d notoj sen nototipo estas forigitaj."
 
-#: ../dtop/anki/collection.py:940
+#: ../../pylib/anki/collection.py:940
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "%d noto sen karto estas forigita."
 msgstr[1] "%d notoj sen karto estas forigitaj."
 
-#: ../dtop/anki/collection.py:924
+#: ../../pylib/anki/collection.py:924
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
 msgstr[0] "%d noto kun malĝusta nombro de kampoj estas forigita."
 msgstr[1] "%d notoj kun malĝusta nombro de kampoj estas forigitaj."
 
-#: ../dtop/aqt/overview.py:159
+#: ../aqt/overview.py:159
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr "Forigo de ĉi tiu kartaro el la kartaro-listo remetos ĉiujn restantajn kartojn al siaj originalaj kartaroj."
 
-#: ../dtop/aqt/forms/dconf.py:394
+#: ../aqt/forms/dconf.py:394
 msgid "Description"
 msgstr "Priskribo"
 
-#: ../dtop/aqt/forms/dconf.py:393
+#: ../aqt/forms/dconf.py:393
 msgid "Description to show on study screen (current deck only):"
 msgstr "Priskribo kiu montriĝu sur studekrano (nur por aktuala kartaro):"
 
-#: ../dtop/aqt/forms/dyndconf.py:132 ../dtop/aqt/forms/editaddon.py:40
-#: ../dtop/aqt/forms/editcurrent.py:41 ../dtop/aqt/forms/progress.py:40
+#: ../aqt/forms/dyndconf.py:132 ../aqt/forms/editaddon.py:40
+#: ../aqt/forms/editcurrent.py:41 ../aqt/forms/progress.py:40
 msgid "Dialog"
 msgstr "Dialogujo"
 
-#: ../dtop/aqt/sync.py:299 ../dtop/aqt/sync.py:321 ../dtop/aqt/sync.py:327
+#: ../aqt/sync.py:299 ../aqt/sync.py:321 ../aqt/sync.py:327
 msgid "Download from AnkiWeb"
 msgstr "Elŝuto el AnkiWeb"
 
-#: ../dtop/aqt/addons.py:342
+#: ../aqt/addons.py:377
 #, python-format
 msgid "Downloaded %(fname)s"
 msgstr "Elŝutis %(fname)s"
 
-#: ../dtop/aqt/sync.py:125
+#: ../aqt/sync.py:125
 msgid "Downloading from AnkiWeb..."
 msgstr "Elŝutado el AnkiWeb..."
 
-#: ../dtop/anki/stats.py:43 ../dtop/aqt/browser.py:718
-#: ../dtop/aqt/browser.py:1234 ../dtop/aqt/deckbrowser.py:151
+#: ../../pylib/anki/stats.py:43 ../aqt/browser.py:718 ../aqt/browser.py:1234
+#: ../aqt/deckbrowser.py:151
 msgid "Due"
 msgstr "Limdato"
 
-#: ../dtop/aqt/forms/customstudy.py:112
+#: ../aqt/forms/customstudy.py:112
 msgid "Due cards only"
 msgstr "Nur lernendaj kartoj"
 
-#: ../dtop/anki/stats.py:289
+#: ../../pylib/anki/stats.py:289
 msgid "Due tomorrow"
 msgstr "Lernenda morgaŭ"
 
-#: ../dtop/aqt/forms/main.py:136
+#: ../aqt/forms/main.py:136
 msgid "E&xit"
 msgstr "&Forlasi"
 
-#: ../dtop/anki/stats.py:46 ../dtop/aqt/browser.py:720
-#: ../dtop/aqt/browser.py:1424
+#: ../../pylib/anki/stats.py:46 ../aqt/browser.py:720 ../aqt/browser.py:1424
 msgid "Ease"
 msgstr "Facileco"
 
-#: ../dtop/aqt/reviewer.py:595 ../dtop/aqt/reviewer.py:597
+#: ../aqt/reviewer.py:594 ../aqt/reviewer.py:596
 msgid "Easy"
 msgstr "Facila"
 
-#: ../dtop/aqt/forms/dconf.py:365
+#: ../aqt/forms/dconf.py:365
 msgid "Easy bonus"
 msgstr "Facileca premio"
 
-#: ../dtop/aqt/forms/dconf.py:357
+#: ../aqt/forms/dconf.py:357
 msgid "Easy interval"
 msgstr "Intertempo de facila respondo"
 
-#: ../dtop/aqt/reviewer.py:533
+#: ../aqt/reviewer.py:532
 msgid "Edit"
 msgstr "Redakti"
 
-#: ../dtop/aqt/addcards.py:155
+#: ../aqt/addcards.py:155
 #, python-format
 msgid "Edit \"%s\""
 msgstr "Redakti \"%s\""
 
-#: ../dtop/aqt/editcurrent.py:19
+#: ../aqt/editcurrent.py:19
 msgid "Edit Current"
 msgstr "Redakti aktualan"
 
-#: ../dtop/aqt/editor.py:874
+#: ../aqt/editor.py:874
 msgid "Edit HTML"
 msgstr "Redakti HTML"
 
-#: ../dtop/aqt/browser.py:716
+#: ../aqt/browser.py:716
 msgid "Edited"
 msgstr "Redaktita"
 
-#: ../dtop/aqt/forms/fields.py:105
+#: ../aqt/forms/fields.py:105
 msgid "Editing Font"
 msgstr "Redakta tiparo"
 
-#: ../dtop/aqt/overview.py:223
+#: ../aqt/overview.py:223
 msgid "Empty"
 msgstr "Malplenigi"
 
-#: ../dtop/aqt/forms/main.py:152
+#: ../aqt/forms/main.py:152
 msgid "Empty Cards..."
 msgstr "Malplenaj kartoj..."
 
-#: ../dtop/anki/collection.py:584
+#: ../../pylib/anki/collection.py:584
 #, python-format
 msgid "Empty card numbers: %(c)s\n"
 "Fields: %(f)s\n\n"
 msgstr "Nombro de malplenaj kartoj: %(c)s\n"
 "Kampoj: %(f)s\n\n"
 
-#: ../dtop/anki/importing/noteimp.py:199
+#: ../../pylib/anki/importing/noteimp.py:201
 msgid "Empty cards found. Please run Tools>Empty Cards."
 msgstr "Malplenaj kartoj estas trovita. Bonvolu ruli Iloj>Malplenaj kartoj."
 
-#: ../dtop/anki/importing/noteimp.py:151
+#: ../../pylib/anki/importing/noteimp.py:153
 #, python-format
 msgid "Empty first field: %s"
 msgstr "Malplena unua kampo: %s"
 
-#: ../dtop/aqt/forms/dyndconf.py:143
+#: ../aqt/forms/dyndconf.py:143
 msgid "Enable second filter"
 msgstr "Aktivigi duan filtrilon"
 
-#: ../dtop/aqt/forms/browser.py:321
+#: ../aqt/forms/browser.py:321
 msgid "End"
 msgstr "Fino"
 
-#: ../dtop/aqt/clayout.py:525
+#: ../aqt/clayout.py:525
 #, python-format
 msgid "Enter deck to place new %s cards in, or leave blank:"
 msgstr "Entajpu kartaron por enmeti %s novajn kartojn, aŭ lasu ĝin malplena:"
 
-#: ../dtop/aqt/clayout.py:392
+#: ../aqt/clayout.py:392
 #, python-format
 msgid "Enter new card position (1...%s):"
 msgstr "Entajpu novan kartopozicion (1...%s):"
 
-#: ../dtop/aqt/browser.py:1841
+#: ../aqt/browser.py:1841
 msgid "Enter tags to add:"
 msgstr "Entajpu aldonotajn etikedojn:"
 
-#: ../dtop/aqt/browser.py:1863
+#: ../aqt/browser.py:1863
 msgid "Enter tags to delete:"
 msgstr "Entajpu forigotajn etikedojn:"
 
-#: ../dtop/aqt/addons.py:321 ../dtop/aqt/addons.py:339
+#: ../aqt/addons.py:326
 #, python-format
 msgid "Error downloading %(id)s: %(error)s"
 msgstr "Eraro dum la elŝutado de %(id)s: %(error)s"
 
-#: ../dtop/aqt/main.py:76
+#: ../aqt/addons.py:364
+#, python-format
+msgid "Error downloading <i>%(id)s</i>: %(error)s"
+msgstr ""
+
+#: ../aqt/main.py:77
 #, python-format
 msgid "Error during startup:\n"
 "%s"
 msgstr "Eraro dum lanĉo:\n"
 "%s"
 
-#: ../dtop/aqt/sync.py:237 ../dtop/aqt/sync.py:244
+#: ../aqt/sync.py:237 ../aqt/sync.py:244
 msgid "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
 msgstr "Sekura konekto ne estas starigebla. Tio ordinare estas kaŭzita de senvirusigilo, fajroŝirmilo, VPN programaro aŭ problemoj kun via retkonekta provizanto."
 
-#: ../dtop/anki/latex.py:169
+#: ../../pylib/anki/latex.py:169
 #, python-format
 msgid "Error executing %s."
 msgstr "Eraro dum la plenumo de %s."
 
-#: ../dtop/aqt/addons.py:294
+#: ../aqt/addons.py:366
 #, python-format
 msgid "Error installing <i>%(base)s</i>: %(error)s"
 msgstr "Eraro dum instalado de <i>%(base)s</i>: %(error)s"
 
-#: ../dtop/anki/sound.py:381
+#: ../aqt/sound.py:411
 #, python-format
 msgid "Error running %s"
 msgstr "Eraro dum la rulo de %s."
 
-#: ../dtop/aqt/deckbrowser.py:244 ../dtop/aqt/exporting.py:108
-#: ../dtop/aqt/forms/exporting.py:74
+#: ../aqt/deckbrowser.py:244 ../aqt/exporting.py:108
+#: ../aqt/forms/exporting.py:74
 msgid "Export"
 msgstr "Elporti"
 
-#: ../dtop/aqt/exporting.py:44
+#: ../aqt/exporting.py:44
 msgid "Export..."
 msgstr "Elporti..."
 
-#: ../dtop/aqt/exporting.py:131
+#: ../aqt/exporting.py:131
 #, python-format
 msgid "Exported %d media file"
 msgid_plural "Exported %d media files"
 msgstr[0] "%d aŭdovidaĵo estas elportita"
 msgstr[1] "%d aŭdovidaĵoj estas elportitaj"
 
-#: ../dtop/anki/stdmodels.py:104 ../dtop/anki/stdmodels.py:119
-msgid "Extra"
-msgstr "Kromaĵoj"
-
-#: ../dtop/aqt/importing.py:245
+#: ../aqt/importing.py:249
 #, python-format
 msgid "Field <b>%d</b> of file is:"
 msgstr "Kampo <b>%d</b> de dosiero estas:"
 
-#: ../dtop/aqt/forms/importing.py:102
+#: ../aqt/forms/importing.py:112
 msgid "Field mapping"
 msgstr "Akordigo de kampoj"
 
-#: ../dtop/aqt/fields.py:81
+#: ../aqt/fields.py:81
 msgid "Field name:"
 msgstr "Kamponomo:"
 
-#: ../dtop/aqt/forms/addfield.py:75
+#: ../aqt/forms/addfield.py:75
 msgid "Field:"
 msgstr "Kampo:"
 
-#: ../dtop/aqt/editor.py:154 ../dtop/aqt/fields.py:20
-#: ../dtop/aqt/forms/changemodel.py:113 ../dtop/aqt/forms/fields.py:100
+#: ../aqt/editor.py:154 ../aqt/fields.py:20 ../aqt/forms/changemodel.py:113
+#: ../aqt/forms/fields.py:100
 msgid "Fields"
 msgstr "Kampoj"
 
-#: ../dtop/aqt/fields.py:23
+#: ../aqt/fields.py:23
 #, python-format
 msgid "Fields for %s"
 msgstr "Kampoj por %s"
 
-#: ../dtop/aqt/importing.py:170
+#: ../aqt/importing.py:171
 #, python-format
 msgid "Fields separated by: %s"
 msgstr "Kampoj estas apartigataj per: %s"
 
-#: ../dtop/aqt/models.py:54
+#: ../aqt/models.py:54
 msgid "Fields..."
 msgstr "Kampoj..."
 
-#: ../dtop/aqt/forms/browser.py:314
+#: ../aqt/forms/browser.py:314
 msgid "Fil&ter"
 msgstr "Fil&trilo"
 
-#: ../dtop/anki/importing/mnemo.py:23
+#: ../../pylib/anki/importing/mnemo.py:23
 msgid "File version unknown, trying import anyway."
 msgstr "La versio de la dosiero estas nekonata. Tamen estas provata realigi la enporton."
 
-#: ../dtop/aqt/browser.py:1270 ../dtop/aqt/forms/dyndconf.py:133
+#: ../aqt/browser.py:1270 ../aqt/forms/dyndconf.py:133
 msgid "Filter"
 msgstr "Filtrilo"
 
-#: ../dtop/aqt/forms/dyndconf.py:137
+#: ../aqt/forms/dyndconf.py:137
 msgid "Filter 2"
 msgstr "Filtrilo 2"
 
-#: ../dtop/aqt/forms/browser.py:294
+#: ../aqt/forms/browser.py:294
 msgid "Filter..."
 msgstr "Filtrilo..."
 
-#: ../dtop/aqt/forms/studydeck.py:46
+#: ../aqt/forms/studydeck.py:46
 msgid "Filter:"
 msgstr "Filtrilo:"
 
-#: ../dtop/aqt/browser.py:1433
+#: ../aqt/browser.py:1433
 msgid "Filtered"
 msgstr "Filtrita"
 
-#: ../dtop/aqt/main.py:1036 ../dtop/aqt/main.py:1038
+#: ../aqt/main.py:1059 ../aqt/main.py:1061
 #, python-format
 msgid "Filtered Deck %d"
 msgstr "%d-a filtrita kartaro"
 
-#: ../dtop/aqt/forms/browser.py:316
+#: ../aqt/forms/browser.py:316
 msgid "Find &Duplicates..."
 msgstr "Trovi &duoblaĵojn..."
 
-#: ../dtop/aqt/forms/finddupes.py:62
+#: ../aqt/forms/finddupes.py:62
 msgid "Find Duplicates"
 msgstr "Trovi duoblaĵojn"
 
-#: ../dtop/aqt/forms/browser.py:312
+#: ../aqt/forms/browser.py:312
 msgid "Find and Re&place..."
 msgstr "Serĉi kaj &anstataŭigi..."
 
-#: ../dtop/aqt/browser.py:2074 ../dtop/aqt/forms/findreplace.py:68
+#: ../aqt/browser.py:2074 ../aqt/forms/findreplace.py:68
 msgid "Find and Replace"
 msgstr "Serĉi kaj anstataŭigi"
 
-#: ../dtop/aqt/reviewer.py:80
+#: ../aqt/reviewer.py:79
 msgid "Finish"
 msgstr "Fini"
 
-#: ../dtop/aqt/forms/browser.py:318
+#: ../aqt/forms/browser.py:318
 msgid "First Card"
 msgstr "&Unua karto"
 
-#: ../dtop/anki/stats.py:31
+#: ../../pylib/anki/stats.py:31
 msgid "First Review"
 msgstr "Unua ripeto"
 
-#: ../dtop/anki/importing/noteimp.py:130
+#: ../../pylib/anki/importing/noteimp.py:132
 #, python-format
 msgid "First field matched: %s"
 msgstr "La unua kampo estas egala al: %s"
 
-#: ../dtop/anki/collection.py:972 ../dtop/anki/collection.py:990
+#: ../../pylib/anki/collection.py:972 ../../pylib/anki/collection.py:990
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "Nevalidaj ecoj de %d karto estas korektita."
 msgstr[1] "Nevalidaj ecoj de %d kartoj estas korektitaj."
 
-#: ../dtop/anki/collection.py:889
+#: ../../pylib/anki/collection.py:889
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "La kartaro-superskribo-cimo de AnkiDroid estas korektita."
 
-#: ../dtop/anki/collection.py:895
+#: ../../pylib/anki/collection.py:895
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Korekto de la nototipo: %s"
 
-#: ../dtop/aqt/forms/browser.py:299
+#: ../aqt/forms/browser.py:299
 msgid "Flag"
 msgstr "Flago"
 
-#: ../dtop/aqt/reviewer.py:651
+#: ../aqt/reviewer.py:650
 msgid "Flag Card"
 msgstr "Flagi karton"
 
-#: ../dtop/aqt/clayout.py:267
+#: ../aqt/clayout.py:267
 msgid "Flip"
 msgstr "Renversi"
 
-#: ../dtop/aqt/profiles.py:235
+#: ../aqt/profiles.py:235
 msgid "Folder already exists."
 msgstr "La dosierujo jam ekzistas."
 
-#: ../dtop/aqt/forms/addfield.py:76
+#: ../aqt/forms/addfield.py:76
 msgid "Font:"
 msgstr "Tiparo:"
 
-#: ../dtop/aqt/forms/modelopts.py:66
+#: ../aqt/forms/modelopts.py:66
 msgid "Footer"
 msgstr "Paĝopiedo"
 
-#: ../dtop/anki/latex.py:129
+#: ../../pylib/anki/latex.py:129
 #, python-format
 msgid "For security reasons, '%s' is not allowed on cards. You can still use it by placing the command in a different package, and importing that package in the LaTeX header instead."
 msgstr "Por sekureco, '%s' ne estas permesita sur kartoj. Tamen vi povas uzi ĝin se vi metas la komandon en alian pakaĵon, kaj vi enportas tiun pakaĵon en la LaTex-ĉapon."
 
-#: ../dtop/anki/stats.py:260
+#: ../../pylib/anki/stats.py:260
 msgid "Forecast"
 msgstr "Prognozo"
 
-#: ../dtop/aqt/forms/clayout_top.py:56 ../dtop/aqt/forms/preview.py:39
-#: ../dtop/aqt/forms/template.py:106
+#: ../aqt/forms/clayout_top.py:56 ../aqt/forms/preview.py:39
+#: ../aqt/forms/template.py:106
 msgid "Form"
 msgstr "Formularo"
 
-#: ../dtop/aqt/browser.py:2152
+#: ../aqt/browser.py:2152
 #, python-format
 msgid "Found %(a)s across %(b)s."
 msgstr "Mi trovis %(a)s-n en %(b)s."
 
-#: ../dtop/anki/exporting.py:365 ../dtop/anki/stdmodels.py:18
-#: ../dtop/anki/stdmodels.py:23 ../dtop/anki/stdmodels.py:45
-#: ../dtop/anki/stdmodels.py:46 ../dtop/anki/stdmodels.py:62
-#: ../dtop/aqt/forms/addfield.py:74
+#: ../../pylib/anki/exporting.py:365 ../../pylib/anki/stdmodels.py:18
+#: ../../pylib/anki/stdmodels.py:23 ../../pylib/anki/stdmodels.py:45
+#: ../../pylib/anki/stdmodels.py:46 ../../pylib/anki/stdmodels.py:62
+#: ../aqt/forms/addfield.py:74
 msgid "Front"
 msgstr "Antaŭo"
 
-#: ../dtop/aqt/forms/preview.py:40
+#: ../aqt/forms/preview.py:40
 msgid "Front Preview"
 msgstr "Fronto-antaŭmontro"
 
-#: ../dtop/aqt/forms/template.py:107
+#: ../aqt/forms/template.py:107
 msgid "Front Template"
 msgstr "Fronto-ŝablono"
 
-#: ../dtop/aqt/forms/dconf.py:392
+#: ../aqt/forms/dconf.py:392
 msgid "General"
 msgstr "Ĝenerala"
 
-#: ../dtop/anki/latex.py:170
+#: ../../pylib/anki/latex.py:170
 #, python-format
 msgid "Generated file: %s"
 msgstr "Kreita dosiero: %s"
 
-#: ../dtop/anki/stats.py:954
+#: ../../pylib/anki/stats.py:954
 #, python-format
 msgid "Generated on %s"
 msgstr "Kreita je %s"
 
-#: ../dtop/aqt/forms/addons.py:69
+#: ../aqt/forms/addons.py:69
 msgid "Get Add-ons..."
 msgstr "Havigi aldonaĵojn..."
 
-#: ../dtop/aqt/deckbrowser.py:317
+#: ../aqt/deckbrowser.py:317
 msgid "Get Shared"
 msgstr "Elŝuti kartaron"
 
-#: ../dtop/aqt/reviewer.py:593 ../dtop/aqt/reviewer.py:595
-#: ../dtop/aqt/reviewer.py:597
+#: ../aqt/reviewer.py:592 ../aqt/reviewer.py:594 ../aqt/reviewer.py:596
 msgid "Good"
 msgstr "Bona"
 
-#: ../dtop/aqt/forms/dconf.py:358
+#: ../aqt/forms/dconf.py:358
 msgid "Graduating interval"
 msgstr "Gradiga intertempo"
 
-#: ../dtop/aqt/browser.py:1241 ../dtop/aqt/reviewer.py:666
-#: ../dtop/aqt/forms/browser.py:332
+#: ../aqt/browser.py:1241 ../aqt/reviewer.py:665 ../aqt/forms/browser.py:332
 msgid "Green Flag"
 msgstr "Verda flago"
 
-#: ../dtop/aqt/forms/edithtml.py:37
+#: ../aqt/forms/edithtml.py:37
 msgid "HTML Editor"
 msgstr "HTML-redaktilo"
 
-#: ../dtop/aqt/reviewer.py:597
+#: ../aqt/reviewer.py:596
 msgid "Hard"
 msgstr "Malfacila"
 
-#: ../dtop/aqt/forms/dconf.py:373
+#: ../aqt/forms/dconf.py:373
 msgid "Hard interval"
 msgstr "Intertempo de malfacila respondo"
 
-#: ../dtop/aqt/forms/preferences.py:240
+#: ../aqt/forms/preferences.py:240
 msgid "Hardware acceleration (faster, may cause display issues)"
 msgstr "Aparatara plirapidigo (pli rapida, eble kaŭzos vidigilajn problemojn)"
 
-#: ../dtop/anki/latex.py:178
+#: ../../pylib/anki/latex.py:178
 msgid "Have you installed latex and dvipng/dvisvgm?"
 msgstr "Ĉu vi instalis latex kaj dvipng/dvisvgm?"
 
-#: ../dtop/aqt/forms/modelopts.py:65
+#: ../aqt/forms/modelopts.py:65
 msgid "Header"
 msgstr "Ĉapo"
 
-#: ../dtop/aqt/addcards.py:75 ../dtop/aqt/clayout.py:257
-#: ../dtop/aqt/utils.py:164 ../dtop/aqt/utils.py:165
+#: ../aqt/addcards.py:75 ../aqt/clayout.py:257 ../aqt/utils.py:193
+#: ../aqt/utils.py:194
 msgid "Help"
 msgstr "Helpo"
 
-#: ../dtop/anki/stats.py:894
+#: ../../pylib/anki/stats.py:894
 msgid "Highest ease"
 msgstr "Plej alta facileco"
 
-#: ../dtop/aqt/addcards.py:79
+#: ../aqt/addcards.py:79
 msgid "History"
 msgstr "Antaŭaĵo"
 
-#: ../dtop/aqt/forms/browser.py:319
+#: ../aqt/forms/browser.py:319
 msgid "Home"
 msgstr "Hejmo"
 
-#: ../dtop/anki/stats.py:806
+#: ../../pylib/anki/stats.py:806
 msgid "Hourly Breakdown"
 msgstr "Hora disigo"
 
-#: ../dtop/anki/stats.py:403
+#: ../../pylib/anki/stats.py:403
 msgid "Hours"
 msgstr "Horoj"
 
-#: ../dtop/anki/stats.py:836
+#: ../../pylib/anki/stats.py:836
 msgid "Hours with less than 30 reviews are not shown."
 msgstr "Horoj kun malpli ol 30 ripetoj ne videblas."
 
-#: ../dtop/anki/importing/anki2.py:171
+#: ../../pylib/anki/importing/anki2.py:171
 msgid "Identical"
 msgstr "Identa"
 
-#: ../dtop/aqt/about.py:164
+#: ../aqt/about.py:165
 msgid "If you have contributed and are not on this list, please get in touch."
 msgstr "Bonvolu kontakti nin, se vi kontribuis, sed via nomo ne troviĝas en ĉi tiu listo."
 
-#: ../dtop/anki/stats.py:447
+#: ../../pylib/anki/stats.py:447
 msgid "If you studied every day"
 msgstr "Se vi lernus ĉiutage"
 
-#: ../dtop/aqt/forms/dconf.py:387
+#: ../aqt/forms/dconf.py:387
 msgid "Ignore answer times longer than"
 msgstr "Ignori respondotempon pli longa ol"
 
-#: ../dtop/aqt/forms/findreplace.py:73
+#: ../aqt/forms/findreplace.py:73
 msgid "Ignore case"
 msgstr "Ignori usklecon"
 
-#: ../dtop/aqt/importing.py:50
+#: ../aqt/importing.py:50
 msgid "Ignore field"
 msgstr "Ignori kampon"
 
-#: ../dtop/aqt/forms/importing.py:99
+#: ../aqt/forms/importing.py:108
 msgid "Ignore lines where first field matches existing note"
 msgstr "Ignori liniojn, en kiuj la unua kampo kongruas kun ekzistanta noto"
 
-#: ../dtop/aqt/update.py:65
+#: ../aqt/update.py:65
 msgid "Ignore this update"
 msgstr "Ignori ĉi tiun ĝisdatigon"
 
-#: ../dtop/aqt/importing.py:96 ../dtop/aqt/importing.py:188
-#: ../dtop/aqt/importing.py:299 ../dtop/aqt/forms/changemap.py:41
-#: ../dtop/aqt/forms/importing.py:94
+#: ../aqt/importing.py:97 ../aqt/importing.py:192 ../aqt/importing.py:311
+#: ../aqt/forms/changemap.py:41 ../aqt/forms/importing.py:103
 msgid "Import"
 msgstr "Enporti"
 
-#: ../dtop/aqt/deckbrowser.py:319
+#: ../aqt/deckbrowser.py:319
 msgid "Import File"
 msgstr "Enporti dosieron"
 
-#: ../dtop/aqt/forms/importing.py:100
+#: ../aqt/forms/importing.py:109
 msgid "Import even if existing note has same first field"
 msgstr "Enporti eĉ se ekzistanta noto havas la saman unuan kampon"
 
-#: ../dtop/aqt/importing.py:195 ../dtop/aqt/importing.py:398
+#: ../aqt/importing.py:199 ../aqt/importing.py:410
 msgid "Import failed.\n"
 msgstr "Enporto fiaskis.\n"
 
-#: ../dtop/aqt/importing.py:353
+#: ../aqt/importing.py:365
 msgid "Import failed. Debugging info:\n"
 msgstr "Enporto fiaskis. Sencimigaj informoj:\n"
 
-#: ../dtop/aqt/forms/importing.py:95
+#: ../aqt/forms/importing.py:104
 msgid "Import options"
 msgstr "Opcioj de enporto"
 
-#: ../dtop/aqt/importing.py:207
+#: ../aqt/importing.py:211
 msgid "Importing complete."
 msgstr "Enporto finiĝis."
 
-#: ../dtop/aqt/main.py:1095
+#: ../aqt/main.py:1118
 #, python-format
 msgid "In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.\n\n"
 "Please go to the time settings on your computer and check the following:\n\n"
@@ -2183,1431 +2191,1430 @@ msgstr "Por senerare interŝanĝi vian kolekton inter aparatoj, la horloĝo de v
 "- somera aŭ vintra tempo\n\n"
 "Diferenco disde la ĝusta tempo: %s."
 
-#: ../dtop/aqt/forms/exporting.py:80
+#: ../aqt/forms/exporting.py:80
 msgid "Include HTML and media references"
 msgstr "Inkluzivi HTML kaj aŭdovidaĵajn referencojn"
 
-#: ../dtop/aqt/forms/exporting.py:78
+#: ../aqt/forms/exporting.py:78
 msgid "Include media"
 msgstr "Inkluzivi aŭdovidaĵojn"
 
-#: ../dtop/aqt/forms/exporting.py:77
+#: ../aqt/forms/exporting.py:77
 msgid "Include scheduling information"
 msgstr "Inkluzivi lerntempajn informojn"
 
-#: ../dtop/aqt/forms/exporting.py:79
+#: ../aqt/forms/exporting.py:79
 msgid "Include tags"
 msgstr "Inkluzivi etikedojn"
 
-#: ../dtop/aqt/forms/customstudy.py:103
+#: ../aqt/forms/customstudy.py:103
 msgid "Increase today's new card limit"
 msgstr "Kreskigi hodiaŭan limigon de novaj kartoj"
 
-#: ../dtop/aqt/customstudy.py:71
+#: ../aqt/customstudy.py:71
 msgid "Increase today's new card limit by"
 msgstr "Kreskigi hodiaŭan limigon de novaj kartoj per"
 
-#: ../dtop/aqt/forms/customstudy.py:104
+#: ../aqt/forms/customstudy.py:104
 msgid "Increase today's review card limit"
 msgstr "Kreskigi hodiaŭan limigon de ripetokartoj"
 
-#: ../dtop/aqt/customstudy.py:83
+#: ../aqt/customstudy.py:83
 msgid "Increase today's review limit by"
 msgstr "Kreskigi hodiaŭan limigon de ripetokartoj per"
 
-#: ../dtop/anki/consts.py:89
+#: ../../pylib/anki/consts.py:89
 msgid "Increasing intervals"
 msgstr "kreskaj intertempoj"
 
-#: ../dtop/aqt/forms/getaddons.py:48
+#: ../aqt/forms/getaddons.py:48
 msgid "Install Add-on"
 msgstr "Instali aldonaĵon"
 
-#: ../dtop/aqt/addons.py:633
+#: ../aqt/addons.py:673
 msgid "Install Add-on(s)"
 msgstr "Instali aldonaĵo(j)n"
 
-#: ../dtop/aqt/forms/addons.py:70
+#: ../aqt/addons.py:881
+msgid "Install Anki add-on"
+msgstr ""
+
+#: ../aqt/forms/addons.py:70
 msgid "Install from file..."
 msgstr "Instali el dosiero..."
 
-#: ../dtop/aqt/addons.py:299
+#: ../aqt/addons.py:904
+msgid "Installation complete"
+msgstr ""
+
+#: ../aqt/addons.py:379
 #, python-format
 msgid "Installed %(name)s"
 msgstr "%(name)s estas instalita"
 
-#: ../dtop/aqt/forms/preferences.py:239 ../dtop/aqt/forms/setlang.py:40
+#: ../aqt/forms/preferences.py:239 ../aqt/forms/setlang.py:40
 msgid "Interface language:"
 msgstr "Interfaca lingvo:"
 
-#: ../dtop/anki/stats.py:45 ../dtop/aqt/browser.py:719
-#: ../dtop/aqt/browser.py:1423
+#: ../../pylib/anki/stats.py:45 ../aqt/browser.py:719 ../aqt/browser.py:1423
 msgid "Interval"
 msgstr "Intertempo"
 
-#: ../dtop/aqt/forms/dconf.py:368
+#: ../aqt/forms/dconf.py:368
 msgid "Interval modifier"
 msgstr "Intertempo-modifilo"
 
-#: ../dtop/anki/stats.py:611
+#: ../../pylib/anki/stats.py:611
 msgid "Intervals"
 msgstr "Intertempoj"
 
-#: ../dtop/aqt/addons.py:289 ../dtop/aqt/addons.py:335
+#: ../aqt/addons.py:353
 msgid "Invalid add-on manifest."
 msgstr "Nevalida aldonaĵa manifesto"
 
-#: ../dtop/aqt/downloader.py:68
+#: ../aqt/downloader.py:68
 msgid "Invalid code, or add-on not available for your version of Anki."
 msgstr "Nevalida kodo, aŭ aldonaĵo ne estas havebla por via versio de Anki."
 
-#: ../dtop/aqt/addons.py:727
+#: ../aqt/addons.py:757
 msgid "Invalid code."
 msgstr "Nevalida kodo."
 
-#: ../dtop/aqt/addons.py:807
+#: ../aqt/addons.py:837
 msgid "Invalid configuration: "
 msgstr "Nevalida agordo: "
 
-#: ../dtop/aqt/addons.py:811
+#: ../aqt/addons.py:841
 msgid "Invalid configuration: top level object must be a map"
 msgstr "Nevalida agordo: supra objekto devas esti bildigo"
 
-#: ../dtop/anki/media.py:329
+#: ../../pylib/anki/media.py:329
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr "Nevalida dosiera nomo, bonvolu alinomi: %s"
 
-#: ../dtop/aqt/importing.py:384
+#: ../aqt/importing.py:396
 msgid "Invalid file. Please restore from backup."
 msgstr "Malvalida dosiero. Bonvolu rekreu ĝin el savkopio."
 
-#: ../dtop/aqt/main.py:1144
+#: ../aqt/main.py:1167
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "Malvalidaj ecoj estas trovitaj sur karto. Bonvolu uzi la menueron Iloj>Kontroli datumbazon. Se la problemo daŭras aŭ reaperas, turni vin al la subteno-retpaĝo."
 
-#: ../dtop/aqt/browser.py:2087
+#: ../aqt/browser.py:2087
 msgid "Invalid regular expression."
 msgstr "Nevalida regulesprimo."
 
-#: ../dtop/aqt/browser.py:175
+#: ../aqt/browser.py:175
 msgid "Invalid search - please check for typing mistakes."
 msgstr "Nevalida serĉo - bonvolu kontroli, ĉu vi skribis ĉion ĝuste."
 
-#: ../dtop/aqt/reviewer.py:640
+#: ../aqt/reviewer.py:639
 msgid "It has been suspended."
 msgstr "Ĝi estis daŭre kaŝita."
 
-#: ../dtop/aqt/editor.py:104
+#: ../aqt/editor.py:104
 msgid "Italic text (Ctrl+I)"
 msgstr "Kursiva teksto (Ctrl+I)"
 
-#: ../dtop/aqt/editor.py:518
+#: ../aqt/editor.py:518
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Salti al etikedoj per Ctrl+Shift+T"
 
-#: ../dtop/aqt/forms/preferences.py:265
+#: ../aqt/forms/preferences.py:265
 msgid "Keep"
 msgstr "Konservi"
 
-#: ../dtop/aqt/editor.py:871 ../dtop/aqt/forms/modelopts.py:67
+#: ../aqt/editor.py:871 ../aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr ""
 
-#: ../dtop/aqt/editor.py:872
+#: ../aqt/editor.py:872
 msgid "LaTeX equation"
 msgstr "LaTeX-formulo"
 
-#: ../dtop/aqt/editor.py:873
+#: ../aqt/editor.py:873
 msgid "LaTeX math env."
 msgstr "LaTeX matematika ĉirkaŭaĵo"
 
-#: ../dtop/anki/stats.py:48 ../dtop/aqt/browser.py:722
-#: ../dtop/aqt/forms/dconf.py:386
+#: ../../pylib/anki/stats.py:48 ../aqt/browser.py:722 ../aqt/forms/dconf.py:386
 msgid "Lapses"
 msgstr "Misrespondoj"
 
-#: ../dtop/aqt/forms/browser.py:320
+#: ../aqt/forms/browser.py:320
 msgid "Last Card"
 msgstr "&Lasta karto"
 
-#: ../dtop/anki/stats.py:32
+#: ../../pylib/anki/stats.py:32
 msgid "Latest Review"
 msgstr "Plej lasta ripeto"
 
-#: ../dtop/anki/consts.py:94
+#: ../../pylib/anki/consts.py:94
 msgid "Latest added first"
 msgstr "plej laste aldonitaj unuafoje"
 
-#: ../dtop/anki/stats.py:375 ../dtop/anki/stats.py:395
-#: ../dtop/aqt/browser.py:1433
+#: ../../pylib/anki/stats.py:375 ../../pylib/anki/stats.py:395
+#: ../aqt/browser.py:1433
 msgid "Learn"
 msgstr "Lerni"
 
-#: ../dtop/aqt/forms/preferences.py:252
+#: ../aqt/forms/preferences.py:252
 msgid "Learn ahead limit"
 msgstr "Antaŭlerna limigo"
 
-#: ../dtop/anki/stats.py:192
+#: ../../pylib/anki/stats.py:192
 #, python-format
 msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
 msgstr "Por lerni: %(a)s, ripeti: %(b)s, relerni: %(c)s, filtrilaĵo: %(d)s"
 
-#: ../dtop/anki/stats.py:701 ../dtop/aqt/browser.py:1232
-#: ../dtop/aqt/overview.py:198
+#: ../../pylib/anki/stats.py:701 ../aqt/browser.py:1232 ../aqt/overview.py:198
 msgid "Learning"
 msgstr "Lernado"
 
-#: ../dtop/aqt/forms/dconf.py:380
+#: ../aqt/forms/dconf.py:380
 msgid "Leech action"
 msgstr "Farendaĵo en kazo de sangosuĉanto"
 
-#: ../dtop/aqt/forms/dconf.py:378
+#: ../aqt/forms/dconf.py:378
 msgid "Leech threshold"
 msgstr "Sojlo de sangosuĉantoj"
 
-#: ../dtop/anki/consts.py:80
+#: ../../pylib/anki/consts.py:80
 msgid "Left"
 msgstr "Maldekstra"
 
-#: ../dtop/aqt/forms/dyndconf.py:134 ../dtop/aqt/forms/dyndconf.py:138
+#: ../aqt/forms/dyndconf.py:134 ../aqt/forms/dyndconf.py:138
 msgid "Limit to"
 msgstr "Limigi ĝis"
 
-#: ../dtop/aqt/utils.py:25
+#: ../aqt/utils.py:38
 msgid "Loading..."
 msgstr "Ŝarĝado..."
 
-#: ../dtop/aqt/sync.py:298
+#: ../aqt/sync.py:298
 msgid "Local collection has no cards. Download from AnkiWeb?"
 msgstr "La loka kolekto havas neniujn kartojn. Ĉu vi volas elŝuti kartojn de AnkiWeb?"
 
-#: ../dtop/anki/stats.py:634
+#: ../../pylib/anki/stats.py:634
 msgid "Longest interval"
 msgstr "Plej longa intertempo"
 
-#: ../dtop/anki/stats.py:892
+#: ../../pylib/anki/stats.py:892
 msgid "Lowest ease"
 msgstr "Plej malalta facileco"
 
-#: ../dtop/aqt/modelchooser.py:65
+#: ../aqt/modelchooser.py:65
 msgid "Manage"
 msgstr "Administri"
 
-#: ../dtop/aqt/forms/main.py:154
+#: ../aqt/forms/main.py:154
 msgid "Manage Note Types"
 msgstr "Administri nototipojn"
 
-#: ../dtop/aqt/forms/browser.py:336
+#: ../aqt/forms/browser.py:336
 msgid "Manage Note Types..."
 msgstr "Administri nototipojn..."
 
-#: ../dtop/aqt/browser.py:1289 ../dtop/aqt/forms/dconf.py:353
+#: ../aqt/browser.py:1289 ../aqt/forms/dconf.py:353
 msgid "Manage..."
 msgstr "Administri..."
 
-#: ../dtop/aqt/overview.py:103
+#: ../aqt/overview.py:103
 msgid "Manually Buried Cards"
 msgstr "Permane portage kaŝitaj kartoj"
 
-#: ../dtop/aqt/importing.py:43
+#: ../aqt/importing.py:43
 #, python-format
 msgid "Map to %s"
 msgstr "Mapi al %s"
 
-#: ../dtop/aqt/importing.py:49
+#: ../aqt/importing.py:49
 msgid "Map to Tags"
 msgstr "Mapi al etikedoj"
 
-#: ../dtop/aqt/reviewer.py:679
+#: ../aqt/reviewer.py:678
 msgid "Mark Note"
 msgstr "Marki noton"
 
-#: ../dtop/aqt/editor.py:869
+#: ../aqt/editor.py:869
 msgid "MathJax block"
 msgstr "MathJax bloko"
 
-#: ../dtop/aqt/editor.py:870
+#: ../aqt/editor.py:870
 msgid "MathJax chemistry"
 msgstr "MathJax ĥemio"
 
-#: ../dtop/aqt/editor.py:868
+#: ../aqt/editor.py:868
 msgid "MathJax inline"
 msgstr "Enlinia MathJax-Elemento"
 
-#: ../dtop/anki/stats.py:245 ../dtop/anki/stats.py:372
-#: ../dtop/anki/stats.py:392 ../dtop/anki/stats.py:703
-#: ../dtop/anki/stats.py:873
+#: ../../pylib/anki/stats.py:245 ../../pylib/anki/stats.py:372
+#: ../../pylib/anki/stats.py:392 ../../pylib/anki/stats.py:703
+#: ../../pylib/anki/stats.py:873
 msgid "Mature"
 msgstr "Maljuna"
 
-#: ../dtop/aqt/forms/dconf.py:370
+#: ../aqt/forms/dconf.py:370
 msgid "Maximum interval"
 msgstr "Maksimuma intertempo"
 
-#: ../dtop/aqt/forms/dconf.py:369
+#: ../aqt/forms/dconf.py:369
 msgid "Maximum reviews/day"
 msgstr "Maksimumaj ripetoj/tago"
 
-#: ../dtop/aqt/editor.py:646
+#: ../aqt/editor.py:646
 msgid "Media"
 msgstr "Aŭdovidaĵo"
 
-#: ../dtop/aqt/forms/dconf.py:381
+#: ../aqt/forms/dconf.py:381
 msgid "Minimum interval"
 msgstr "Minimuma intertempo"
 
-#: ../dtop/anki/stats.py:400
+#: ../../pylib/anki/stats.py:400
 msgid "Minutes"
 msgstr "Minutoj"
 
-#: ../dtop/anki/consts.py:71
+#: ../../pylib/anki/consts.py:71
 msgid "Mix new cards and reviews"
 msgstr "Miksi novajn kartojn kaj ripetojn"
 
-#: ../dtop/anki/importing/__init__.py:15
+#: ../../pylib/anki/importing/__init__.py:15
 msgid "Mnemosyne 2.0 Deck (*.db)"
 msgstr "Mnemosyne 2.0 kartaro (*.db)"
 
-#: ../dtop/aqt/reviewer.py:535
+#: ../aqt/reviewer.py:534
 msgid "More"
 msgstr "Pli"
 
-#: ../dtop/anki/consts.py:91
+#: ../../pylib/anki/consts.py:91
 msgid "Most lapses"
 msgstr "plej multaj misrespondoj"
 
-#: ../dtop/aqt/browser.py:1801
+#: ../aqt/browser.py:1801
 msgid "Move Cards"
 msgstr "Alilokigi kartojn"
 
-#: ../dtop/aqt/forms/setgroup.py:39
+#: ../aqt/forms/setgroup.py:39
 msgid "Move cards to deck:"
 msgstr "Alilokigi kartojn en kartaron:"
 
-#: ../dtop/aqt/importing.py:137
+#: ../aqt/importing.py:138
 msgid "Multi-character separators are not supported. Please enter one character only."
 msgstr "Plursignaj disigiloj ne estas subtenataj. Bonvolu enigi nur unu signon."
 
-#: ../dtop/aqt/forms/browser.py:306
+#: ../aqt/forms/browser.py:306
 msgid "N&ote"
 msgstr "&Noto"
 
-#: ../dtop/aqt/main.py:232 ../dtop/aqt/main.py:246
+#: ../aqt/main.py:233 ../aqt/main.py:247
 msgid "Name exists."
 msgstr "La nomo jam ekzistas."
 
-#: ../dtop/aqt/deckbrowser.py:57
+#: ../aqt/deckbrowser.py:57
 msgid "Name for deck:"
 msgstr "Nomo de la kartaro:"
 
-#: ../dtop/aqt/main.py:229 ../dtop/aqt/models.py:96
+#: ../aqt/main.py:230 ../aqt/models.py:96
 msgid "Name:"
 msgstr "Nomo:"
 
-#: ../dtop/aqt/forms/preferences.py:263
+#: ../aqt/forms/preferences.py:263
 msgid "Network"
 msgstr "Reto"
 
-#: ../dtop/aqt/browser.py:1231 ../dtop/aqt/deckbrowser.py:152
-#: ../dtop/aqt/overview.py:196
+#: ../aqt/browser.py:1231 ../aqt/deckbrowser.py:152 ../aqt/overview.py:196
 msgid "New"
 msgstr "Nova"
 
-#: ../dtop/aqt/forms/dconf.py:364
+#: ../aqt/forms/dconf.py:364
 msgid "New Cards"
 msgstr "Novaj kartoj"
 
-#: ../dtop/aqt/customstudy.py:70
+#: ../aqt/customstudy.py:70
 #, python-format
 msgid "New cards in deck over today limit: %s"
 msgstr "Novaj kartoj en la kartaro super la hodiaŭa limigo: %s"
 
-#: ../dtop/aqt/forms/customstudy.py:110
+#: ../aqt/forms/customstudy.py:110
 msgid "New cards only"
 msgstr "Nur novaj kartoj"
 
-#: ../dtop/aqt/forms/dconf.py:359
+#: ../aqt/forms/dconf.py:359
 msgid "New cards/day"
 msgstr "Novaj kartoj/tago"
 
-#: ../dtop/aqt/deckbrowser.py:258 ../dtop/aqt/studydeck.py:142
+#: ../aqt/deckbrowser.py:258 ../aqt/studydeck.py:142
 msgid "New deck name:"
 msgstr "Nomo de la nova kartaro:"
 
-#: ../dtop/aqt/forms/dconf.py:377
+#: ../aqt/forms/dconf.py:377
 msgid "New interval"
 msgstr "Nova intertempo"
 
-#: ../dtop/aqt/clayout.py:379 ../dtop/aqt/deckconf.py:139
-#: ../dtop/aqt/fields.py:72 ../dtop/aqt/main.py:240 ../dtop/aqt/models.py:67
+#: ../aqt/clayout.py:379 ../aqt/deckconf.py:139 ../aqt/fields.py:72
+#: ../aqt/main.py:241 ../aqt/models.py:67
 msgid "New name:"
 msgstr "Nova nomo:"
 
-#: ../dtop/aqt/forms/changemodel.py:111
+#: ../aqt/forms/changemodel.py:111
 msgid "New note type:"
 msgstr "Nova nototipo:"
 
-#: ../dtop/aqt/deckconf.py:117
+#: ../aqt/deckconf.py:117
 msgid "New options group name:"
 msgstr "Nomo de nova opciogrupo:"
 
-#: ../dtop/aqt/fields.py:109
+#: ../aqt/fields.py:109
 #, python-format
 msgid "New position (1...%d):"
 msgstr "Nova pozicio (1...%d):"
 
-#: ../dtop/aqt/forms/preferences.py:251
+#: ../aqt/forms/preferences.py:251
 msgid "Next day starts at"
 msgstr "Sekva tago komencas je"
 
-#: ../dtop/aqt/browser.py:1243
+#: ../aqt/browser.py:1243
 msgid "No Flag"
 msgstr "Neniu flago"
 
-#: ../dtop/aqt/overview.py:40
+#: ../aqt/overview.py:40
 msgid "No cards are due yet."
 msgstr "Neniuj kartoj estas jam lernendaj."
 
-#: ../dtop/anki/stats.py:210
+#: ../../pylib/anki/stats.py:210
 msgid "No cards have been studied today."
 msgstr "Hodiaŭ vi lernis neniujn kartojn."
 
-#: ../dtop/aqt/customstudy.py:183
+#: ../aqt/customstudy.py:183
 msgid "No cards matched the criteria you provided."
 msgstr "Neniuj kartoj kongruis kun la kriterioj, kiujn vi enigis."
 
-#: ../dtop/aqt/main.py:1324
+#: ../aqt/main.py:1347
 msgid "No empty cards."
 msgstr "Neniu malplena karto."
 
-#: ../dtop/anki/stats.py:208
+#: ../../pylib/anki/stats.py:208
 msgid "No mature cards were studied today."
 msgstr "Hodiaŭ vi lernis neniujn maljunajn kartojn."
 
-#: ../dtop/aqt/main.py:1249
+#: ../aqt/main.py:1272
 msgid "No unused or missing files found."
 msgstr "Neniu neuzata aŭ mankanta dosiero estis trovita."
 
-#: ../dtop/aqt/addons.py:663
+#: ../aqt/addons.py:693
 msgid "No updates available."
 msgstr "Neniu ĝisdatigo estas havebla."
 
-#: ../dtop/aqt/browser.py:724
+#: ../aqt/browser.py:724
 msgid "Note"
 msgstr "Noto"
 
-#: ../dtop/anki/stats.py:60
+#: ../../pylib/anki/stats.py:60
 msgid "Note ID"
 msgstr "Noto-identigilo"
 
-#: ../dtop/anki/stats.py:58
+#: ../../pylib/anki/stats.py:58
 msgid "Note Type"
 msgstr "Nototipo"
 
-#: ../dtop/aqt/browser.py:1287 ../dtop/aqt/models.py:31
-#: ../dtop/aqt/forms/models.py:54
+#: ../aqt/browser.py:1287 ../aqt/models.py:31 ../aqt/forms/models.py:54
 msgid "Note Types"
 msgstr "Nototipoj"
 
-#: ../dtop/aqt/reviewer.py:768
+#: ../aqt/reviewer.py:767
 #, python-format
 msgid "Note and its %d card deleted."
 msgid_plural "Note and its %d cards deleted."
 msgstr[0] "Noto kaj ĝia %d karto estas forigita."
 msgstr[1] "Noto kaj ĝia %d kartoj estas forigitaj."
 
-#: ../dtop/aqt/reviewer.py:783
+#: ../aqt/reviewer.py:782
 msgid "Note buried."
 msgstr "Noto estas kaŝita por tago."
 
-#: ../dtop/aqt/reviewer.py:748
+#: ../aqt/reviewer.py:747
 msgid "Note suspended."
 msgstr "La noto estas daŭre kaŝita"
 
-#: ../dtop/aqt/forms/preferences.py:268
+#: ../aqt/forms/preferences.py:268
 msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
 msgstr "Noto: aŭdovidaĵoj ne estas sekurkopiitaj. Bonvolu krei regulan sekurkopion de via Ankio-dosierujo por esti sekura."
 
-#: ../dtop/aqt/browser.py:1467
+#: ../aqt/browser.py:1467
 msgid "Note: Some of the history is missing. For more information, please see the browser documentation."
 msgstr "Noto: iom da historio mankas. Por pli da informoj, bonvolu vidi la foliumilo-dokumenton."
 
-#: ../dtop/anki/importing/anki2.py:151
+#: ../../pylib/anki/importing/anki2.py:151
 #, python-format
 msgid "Notes added from file: %d"
 msgstr "Notoj, kiuj  estas aldonitaj de la dosiero: %d"
 
-#: ../dtop/anki/importing/anki2.py:139
+#: ../../pylib/anki/importing/anki2.py:139
 #, python-format
 msgid "Notes found in file: %d"
 msgstr "Notoj, kiuj estas trovitaj en la dosiero: %d"
 
-#: ../dtop/anki/exporting.py:113
+#: ../../pylib/anki/exporting.py:113
 msgid "Notes in Plain Text"
 msgstr "Notoj en plata teksto"
 
-#: ../dtop/aqt/fields.py:94
+#: ../aqt/fields.py:94
 msgid "Notes require at least one field."
 msgstr "Notoj bezonas almenaŭ unu kampon."
 
-#: ../dtop/anki/importing/anki2.py:154
+#: ../../pylib/anki/importing/anki2.py:154
 #, python-format
 msgid "Notes skipped, as they're already in your collection: %d"
 msgstr "Notoj estas preterpasitaj, ĉar ili jam troviĝas en via kolekto: %d"
 
-#: ../dtop/aqt/browser.py:2180
+#: ../aqt/browser.py:2180
 msgid "Notes tagged."
 msgstr "Etikedoj estas aldonitaj"
 
-#: ../dtop/anki/importing/anki2.py:143
+#: ../../pylib/anki/importing/anki2.py:143
 #, python-format
 msgid "Notes that could not be imported as note type has changed: %d"
 msgstr "Notoj, kiuj ne estas enportebla, ĉar la nototipo ŝanĝiĝis: %d"
 
-#: ../dtop/anki/importing/anki2.py:148
+#: ../../pylib/anki/importing/anki2.py:148
 #, python-format
 msgid "Notes updated, as file had newer version: %d"
 msgstr "Notoj estas ĝisdatigitaj, ĉar dosiero havas pli novan version: %d"
 
-#: ../dtop/aqt/browser.py:2331
+#: ../aqt/browser.py:2331
 msgid "Nothing"
 msgstr "Nenio"
 
-#: ../dtop/aqt/customstudy.py:56
+#: ../aqt/customstudy.py:56
 msgid "OK"
 msgstr "Bone"
 
-#: ../dtop/anki/consts.py:87
+#: ../../pylib/anki/consts.py:87
 msgid "Oldest seen first"
 msgstr "plej frue viditaj unuafoje"
 
-#: ../dtop/aqt/forms/preferences.py:261
+#: ../aqt/forms/preferences.py:261
 msgid "On next sync, force changes in one direction"
 msgstr "Ĉe la venonta samtempigo, devigi ŝanĝojn en unu direkto"
 
-#: ../dtop/anki/importing/noteimp.py:229
+#: ../../pylib/anki/importing/noteimp.py:231
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr "Unu aŭ pli da notoj ne estas enportitaj, ĉar ili ne kreis kartojn. Tio povas okazi kiam ĉeestas malplena kampo aŭ kiam vi ne akordigis la enhavon en la tekstodosiero al la ĝustaj kampoj."
 
-#: ../dtop/aqt/browser.py:1943
+#: ../aqt/browser.py:1943
 msgid "Only new cards can be repositioned."
 msgstr "Nur novaj kartoj povas esti repoziciitaj."
 
-#: ../dtop/aqt/sync.py:215
+#: ../aqt/sync.py:215
 msgid "Only one client can access AnkiWeb at a time. If a previous sync failed, please try again in a few minutes."
 msgstr "Nur unu kliento povas atingi AnkiWeb samtempe. Se antaŭa samtempigo malsukcesis, bonvolu reprovi ĝin en kelkaj minutoj."
 
-#: ../dtop/aqt/forms/profiles.py:75
+#: ../aqt/forms/profiles.py:75
 msgid "Open"
 msgstr "Malfermi"
 
-#: ../dtop/aqt/forms/profiles.py:80
+#: ../aqt/forms/profiles.py:80
 msgid "Open Backup..."
 msgstr "Malfermi sekurkopion..."
 
-#: ../dtop/aqt/main.py:539
+#: ../aqt/main.py:543
 msgid "Optimizing..."
 msgstr "Optimumigado..."
 
-#: ../dtop/aqt/forms/finddupes.py:63
+#: ../aqt/forms/finddupes.py:63
 msgid "Optional filter:"
 msgstr "Malnepra filtrilo:"
 
-#: ../dtop/aqt/clayout.py:103 ../dtop/aqt/deckbrowser.py:242
-#: ../dtop/aqt/deckconf.py:31 ../dtop/aqt/dyndeckconf.py:24
-#: ../dtop/aqt/overview.py:219 ../dtop/aqt/reviewer.py:685
-#: ../dtop/aqt/forms/dyndconf.py:141 ../dtop/aqt/forms/fields.py:108
+#: ../aqt/clayout.py:103 ../aqt/deckbrowser.py:242 ../aqt/deckconf.py:31
+#: ../aqt/dyndeckconf.py:24 ../aqt/overview.py:219 ../aqt/reviewer.py:684
+#: ../aqt/forms/dyndconf.py:141 ../aqt/forms/fields.py:108
 msgid "Options"
 msgstr "Opcioj"
 
-#: ../dtop/aqt/deckconf.py:40 ../dtop/aqt/dyndeckconf.py:27
-#: ../dtop/aqt/models.py:124
+#: ../aqt/deckconf.py:40 ../aqt/dyndeckconf.py:27 ../aqt/models.py:124
 #, python-format
 msgid "Options for %s"
 msgstr "Opcioj por %s"
 
-#: ../dtop/aqt/forms/dconf.py:352
+#: ../aqt/forms/dconf.py:352
 msgid "Options group:"
 msgstr "Opciogrupo:"
 
-#: ../dtop/aqt/models.py:58
+#: ../aqt/models.py:58
 msgid "Options..."
 msgstr "Opcioj..."
 
-#: ../dtop/aqt/browser.py:1240 ../dtop/aqt/reviewer.py:660
-#: ../dtop/aqt/forms/browser.py:331
+#: ../aqt/browser.py:1240 ../aqt/reviewer.py:659 ../aqt/forms/browser.py:331
 msgid "Orange Flag"
 msgstr "Oranĝkolora flago"
 
-#: ../dtop/aqt/forms/dconf.py:356
+#: ../aqt/forms/dconf.py:356
 msgid "Order"
 msgstr "Ordo"
 
-#: ../dtop/anki/consts.py:92
+#: ../../pylib/anki/consts.py:92
 msgid "Order added"
 msgstr "ordo de aldono"
 
-#: ../dtop/anki/consts.py:93
+#: ../../pylib/anki/consts.py:93
 msgid "Order due"
 msgstr "ordo de endeco"
 
-#: ../dtop/aqt/forms/browserdisp.py:71
+#: ../aqt/forms/browserdisp.py:71
 msgid "Override back template:"
 msgstr "Anstataŭigu la dorsoflankan ŝablonon:"
 
-#: ../dtop/aqt/forms/browserdisp.py:72
+#: ../aqt/forms/browserdisp.py:72
 msgid "Override font:"
 msgstr "Anstataŭigu la tiparon:"
 
-#: ../dtop/aqt/forms/browserdisp.py:70
+#: ../aqt/forms/browserdisp.py:70
 msgid "Override front template:"
 msgstr "Anstataŭigu la frontflankan ŝablonon:"
 
-#: ../dtop/aqt/addons.py:631
+#: ../aqt/addons.py:671
 msgid "Packaged Anki Add-on"
 msgstr "Pakita Anki-aldonaĵo"
 
-#: ../dtop/anki/importing/__init__.py:14
+#: ../../pylib/anki/importing/__init__.py:14
 msgid "Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)"
 msgstr "Pakita Anki-Kartaro/Kolekto (*.apkg *.colpkg *.zip)"
 
-#: ../dtop/aqt/sync.py:274
+#: ../aqt/sync.py:274
 msgid "Password:"
 msgstr "Pasvorto:"
 
-#: ../dtop/aqt/editor.py:1110
+#: ../aqt/editor.py:1110
 msgid "Paste"
 msgstr "Alglui"
 
-#: ../dtop/aqt/forms/preferences.py:243
+#: ../aqt/forms/preferences.py:243
 msgid "Paste clipboard images as PNG"
 msgstr "Alglui tondujajn bildojn kiel PNG"
 
-#: ../dtop/anki/importing/__init__.py:17
+#: ../../pylib/anki/importing/__init__.py:17
 msgid "Pauker 1.8 Lesson (*.pau.gz)"
 msgstr "Leciono de Pauker 1.8 (*.pau.gz)"
 
-#: ../dtop/anki/stats.py:614
+#: ../../pylib/anki/stats.py:614
 msgid "Percentage"
 msgstr "Elcento"
 
-#: ../dtop/anki/stats.py:962
+#: ../../pylib/anki/stats.py:962
 #, python-format
 msgid "Period: %s"
 msgstr "Periodo: %s"
 
-#: ../dtop/aqt/forms/reschedule.py:74
+#: ../aqt/forms/reschedule.py:74
 msgid "Place at end of new card queue"
 msgstr "Meti ĝin al la fino de vico de novaj kartoj"
 
-#: ../dtop/aqt/forms/reschedule.py:75
+#: ../aqt/forms/reschedule.py:75
 msgid "Place in review queue with interval between:"
 msgstr "Meti ĝin en ripetovicon kun intertempo inter:"
 
-#: ../dtop/aqt/models.py:105
+#: ../aqt/models.py:105
 msgid "Please add another note type first."
 msgstr "Bonvolu aldoni alian nototipon antaŭe."
 
-#: ../dtop/aqt/addons.py:657 ../dtop/aqt/downloader.py:75
+#: ../aqt/addons.py:687 ../aqt/downloader.py:75
 msgid "Please check your internet connection."
 msgstr "Bonvolu kontroli vian retkonekton"
 
-#: ../dtop/aqt/errors.py:94
+#: ../aqt/errors.py:94
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Bonvolu konekti mikrofonon kaj certigu ke neniuj aliaj programoj uzas la sonilon."
 
-#: ../dtop/anki/collection.py:674
+#: ../../pylib/anki/collection.py:674
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Bonvolu redakti ĉi tiun noton kaj aldoni trutekston. (%s)"
 
-#: ../dtop/aqt/main.py:1492
+#: ../aqt/main.py:1521
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr "Bonvolu kontroli, ĉu profilo estas malferma kaj Anki ne estas okupata. Poste reprovu ĝin."
 
-#: ../dtop/aqt/browser.py:1342
+#: ../aqt/browser.py:1342
 msgid "Please give your filter a name:"
 msgstr "Bonvolu doni nomon al via filtrilo:"
 
-#: ../dtop/aqt/errors.py:84
+#: ../aqt/errors.py:84
 msgid "Please install PyAudio"
 msgstr "Bonvolu instali PyAudio"
 
-#: ../dtop/aqt/profiles.py:230
+#: ../aqt/profiles.py:230
 #, python-format
 msgid "Please remove the folder %s and try again."
 msgstr "Bonvolu forigi la dosierujon %s kaj reprovi ĝin."
 
-#: ../dtop/aqt/addons.py:647
+#: ../aqt/addons.py:907
 msgid "Please report this to the respective add-on author(s)."
 msgstr "Bonvolu raporti ĉi tion al la respektiva(j) aldonaĵo-kreinto(j)"
 
-#: ../dtop/aqt/preferences.py:69
+#: ../aqt/preferences.py:69
 msgid "Please restart Anki to complete language change."
 msgstr "Bonvolu relanĉi Anki pro finfari la lingvoŝanĝon."
 
-#: ../dtop/aqt/reviewer.py:351
+#: ../aqt/reviewer.py:350
 msgid "Please run Tools>Empty Cards"
 msgstr "Bonvolu ruli Iloj > Malplenaj kartoj"
 
-#: ../dtop/aqt/main.py:577
+#: ../aqt/main.py:581
 msgid "Please select a deck."
 msgstr "Bonvolu elekti kartaron."
 
-#: ../dtop/aqt/addons.py:575
+#: ../aqt/addons.py:615
 msgid "Please select a single add-on first."
 msgstr "Bonvolu unue elekti unuopan aldonaĵon."
 
-#: ../dtop/aqt/browser.py:1512
+#: ../aqt/browser.py:1512
 msgid "Please select cards from only one note type."
 msgstr "Bonvolu elekti kartojn el nur unu nototipo."
 
-#: ../dtop/aqt/studydeck.py:126
+#: ../aqt/studydeck.py:126
 msgid "Please select something."
 msgstr "Bonvolu elekti ion."
 
-#: ../dtop/aqt/sync.py:197
+#: ../aqt/sync.py:197
 msgid "Please upgrade to the latest version of Anki."
 msgstr "Bonvolu ĝisdatigi al la plej lasta versio de Anki."
 
-#: ../dtop/aqt/main.py:1008
+#: ../aqt/main.py:1016
 msgid "Please use File>Import to import this file."
 msgstr "Bonvolu uzi la menueron Dosiero>Enporti por enporti ĉi tiun dosieron."
 
-#: ../dtop/aqt/sync.py:133
+#: ../aqt/sync.py:133
 msgid "Please visit AnkiWeb, upgrade your deck, then try again."
 msgstr "Bonvolu viziti AnkiWeb, ĝisdatigi vian kartaron kaj reprovi ĝin poste."
 
-#: ../dtop/anki/stats.py:56
+#: ../../pylib/anki/stats.py:56
 msgid "Position"
 msgstr "Pozicio"
 
-#: ../dtop/aqt/forms/preferences.py:238
+#: ../aqt/forms/preferences.py:238
 msgid "Preferences"
 msgstr "Preferoj"
 
-#: ../dtop/aqt/browser.py:1548 ../dtop/aqt/forms/browser.py:293
+#: ../aqt/browser.py:1548 ../aqt/forms/browser.py:293
 msgid "Preview"
 msgstr "Antaŭmontro"
 
-#: ../dtop/aqt/browser.py:593
+#: ../aqt/browser.py:593
 #, python-format
 msgid "Preview Selected Card (%s)"
 msgstr "Antaŭmontri elektitan karton (%s)"
 
-#: ../dtop/aqt/forms/customstudy.py:106
+#: ../aqt/forms/customstudy.py:106
 msgid "Preview new cards"
 msgstr "Antaŭmontri novajn kartojn"
 
-#: ../dtop/aqt/customstudy.py:95
+#: ../aqt/customstudy.py:95
 msgid "Preview new cards added in the last"
 msgstr "Antaŭmontri novajn kartojn, kiuj estas aldonitaj en la lasta"
 
-#: ../dtop/aqt/importing.py:476
+#: ../aqt/importing.py:488
 #, python-format
 msgid "Processed %d media file"
 msgid_plural "Processed %d media files"
 msgstr[0] "%d prilaborita aŭdovidaĵo"
 msgstr[1] "%d prilaboritaj aŭdovidaĵoj"
 
-#: ../dtop/aqt/progress.py:118
+#: ../aqt/progress.py:118
 msgid "Processing..."
 msgstr "Laborado..."
 
-#: ../dtop/aqt/profiles.py:177
+#: ../aqt/profiles.py:177
 msgid "Profile Corrupt"
 msgstr "La profilo estas difektohava."
 
-#: ../dtop/aqt/forms/profiles.py:74
+#: ../aqt/forms/profiles.py:74
 msgid "Profiles"
 msgstr "Profiloj"
 
-#: ../dtop/aqt/sync.py:231
+#: ../aqt/sync.py:231
 msgid "Proxy authentication required."
 msgstr "Rajtigo de prokurilo necesas."
 
-#: ../dtop/aqt/browser.py:710
+#: ../aqt/browser.py:710
 msgid "Question"
 msgstr "Demando"
 
-#: ../dtop/aqt/browser.py:1954
+#: ../aqt/browser.py:1954
 #, python-format
 msgid "Queue bottom: %d"
 msgstr "Fino de la vico: %d"
 
-#: ../dtop/aqt/browser.py:1953
+#: ../aqt/browser.py:1953
 #, python-format
 msgid "Queue top: %d"
 msgstr "Komenco de la vico: %d"
 
-#: ../dtop/aqt/forms/profiles.py:79
+#: ../aqt/forms/profiles.py:79
 msgid "Quit"
 msgstr "Forlasi"
 
-#: ../dtop/anki/consts.py:88
+#: ../../pylib/anki/consts.py:88
 msgid "Random"
 msgstr "hazarde"
 
-#: ../dtop/aqt/forms/reposition.py:73
+#: ../aqt/forms/reposition.py:73
 msgid "Randomize order"
 msgstr "Hazardigi ordon"
 
-#: ../dtop/aqt/browser.py:1422
+#: ../aqt/browser.py:1422
 msgid "Rating"
 msgstr "Pritakso"
 
-#: ../dtop/aqt/dyndeckconf.py:22 ../dtop/aqt/overview.py:222
+#: ../aqt/dyndeckconf.py:22 ../aqt/overview.py:222
 msgid "Rebuild"
 msgstr "Rekunmeti"
 
-#: ../dtop/aqt/reviewer.py:688
+#: ../aqt/reviewer.py:687
 msgid "Record Own Voice"
 msgstr "Registri sian sonon"
 
-#: ../dtop/aqt/editor.py:140
+#: ../aqt/editor.py:140
 msgid "Record audio (F5)"
 msgstr "Registri sonon (F5)"
 
-#: ../dtop/aqt/sound.py:38
+#: ../aqt/sound.py:46
 #, python-format
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Registrado...<br>Tempo: %0.1f"
 
-#: ../dtop/aqt/browser.py:1239 ../dtop/aqt/reviewer.py:654
-#: ../dtop/aqt/forms/browser.py:330
+#: ../aqt/browser.py:1239 ../aqt/reviewer.py:653 ../aqt/forms/browser.py:330
 msgid "Red Flag"
 msgstr "Ruĝa flago"
 
-#: ../dtop/anki/consts.py:95
+#: ../../pylib/anki/consts.py:95
 msgid "Relative overdueness"
 msgstr "Relativa malfruo"
 
-#: ../dtop/anki/stats.py:374 ../dtop/anki/stats.py:394
-#: ../dtop/aqt/browser.py:1433
+#: ../../pylib/anki/stats.py:374 ../../pylib/anki/stats.py:394
+#: ../aqt/browser.py:1433
 msgid "Relearn"
 msgstr "Relerni"
 
-#: ../dtop/aqt/forms/fields.py:107
+#: ../aqt/forms/fields.py:107
 msgid "Remember last input when adding"
 msgstr "Memori lastan enigon kiam aldonante"
 
-#: ../dtop/aqt/browser.py:1352
+#: ../aqt/browser.py:1352
 #, python-format
 msgid "Remove %s from your saved searches?"
 msgstr "Ĉu vi volas forigi %s el viaj konservitaj serĉoj?"
 
-#: ../dtop/aqt/clayout.py:465
+#: ../aqt/clayout.py:465
 msgid "Remove Card Type..."
 msgstr "Forigi kartotipon"
 
-#: ../dtop/aqt/browser.py:1327
+#: ../aqt/browser.py:1327
 msgid "Remove Current Filter..."
 msgstr "Forigi aktualan filtrilon..."
 
-#: ../dtop/aqt/forms/browser.py:325
+#: ../aqt/forms/browser.py:325
 msgid "Remove Tags..."
 msgstr "Forigi etikedojn..."
 
-#: ../dtop/aqt/editor.py:113
+#: ../aqt/editor.py:113
 msgid "Remove formatting (Ctrl+R)"
 msgstr "Forigi aranĝon (Ctrl+R)"
 
-#: ../dtop/aqt/clayout.py:239
+#: ../aqt/clayout.py:239
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr "Forigo de ĉi tiu kartotipo forigus unu aŭ pli notojn. Bonvolu krei antaŭe novan kartotipon."
 
-#: ../dtop/aqt/deckbrowser.py:240 ../dtop/aqt/deckconf.py:85
-#: ../dtop/aqt/models.py:49 ../dtop/aqt/forms/fields.py:103
-#: ../dtop/aqt/forms/profiles.py:77
+#: ../aqt/deckbrowser.py:240 ../aqt/deckconf.py:85 ../aqt/models.py:49
+#: ../aqt/forms/fields.py:103 ../aqt/forms/profiles.py:77
 msgid "Rename"
 msgstr "Alinomi"
 
-#: ../dtop/aqt/clayout.py:468
+#: ../aqt/clayout.py:468
 msgid "Rename Card Type..."
 msgstr "Alinomi kartotipon..."
 
-#: ../dtop/aqt/deckbrowser.py:255
+#: ../aqt/deckbrowser.py:255
 msgid "Rename Deck"
 msgstr "Alinomi kartaron"
 
-#: ../dtop/aqt/forms/dyndconf.py:144
+#: ../aqt/forms/dyndconf.py:144
 msgid "Repeat failed cards after"
 msgstr "Ripeti malsukcese lernitajn kartojn post"
 
-#: ../dtop/aqt/main.py:273
+#: ../aqt/main.py:274
 msgid "Replace your collection with an earlier backup?"
 msgstr "Ĉu vi volas anstataŭigi vian kolekton per antaŭa sekurkopio?"
 
-#: ../dtop/aqt/browser.py:1559 ../dtop/aqt/reviewer.py:687
+#: ../aqt/browser.py:1559 ../aqt/reviewer.py:686
 msgid "Replay Audio"
 msgstr "Reludi sonon"
 
-#: ../dtop/aqt/reviewer.py:689
+#: ../aqt/reviewer.py:688
 msgid "Replay Own Voice"
 msgstr "Reludi sian voĉon"
 
-#: ../dtop/aqt/browser.py:1959 ../dtop/aqt/forms/fields.py:104
+#: ../aqt/browser.py:1959 ../aqt/forms/fields.py:104
 msgid "Reposition"
 msgstr "Repozicii"
 
-#: ../dtop/aqt/clayout.py:471
+#: ../aqt/clayout.py:471
 msgid "Reposition Card Type..."
 msgstr "Repozicii kartotipon..."
 
-#: ../dtop/aqt/forms/reposition.py:70
+#: ../aqt/forms/reposition.py:70
 msgid "Reposition New Cards"
 msgstr "Repozicii novajn kartojn"
 
-#: ../dtop/aqt/forms/browser.py:317
+#: ../aqt/forms/browser.py:317
 msgid "Reposition..."
 msgstr "Re&pozicii"
 
-#: ../dtop/aqt/forms/taglimit.py:61
+#: ../aqt/forms/taglimit.py:61
 msgid "Require one or more of these tags:"
 msgstr "Nepri unu aŭ pli el ĉi tiuj etikedoj:"
 
-#: ../dtop/aqt/browser.py:1433
+#: ../aqt/browser.py:1433
 msgid "Resched"
 msgstr "Replani"
 
-#: ../dtop/aqt/browser.py:1985 ../dtop/aqt/forms/reschedule.py:73
+#: ../aqt/browser.py:1985 ../aqt/forms/reschedule.py:73
 msgid "Reschedule"
 msgstr "Replani"
 
-#: ../dtop/aqt/forms/dyndconf.py:142
+#: ../aqt/forms/dyndconf.py:142
 msgid "Reschedule cards based on my answers in this deck"
 msgstr "Replani kartojn laŭ miaj respondoj donitaj en ĉi tiu kartaro"
 
-#: ../dtop/aqt/addons.py:769
+#: ../aqt/addons.py:799
 msgid "Restored defaults"
 msgstr "Implicitaj agordoj estas rekreitaj"
 
-#: ../dtop/aqt/main.py:641
+#: ../aqt/main.py:645
 msgid "Resume Now"
 msgstr "Daŭrigi nun"
 
-#: ../dtop/aqt/forms/fields.py:106
+#: ../aqt/forms/fields.py:106
 msgid "Reverse text direction (RTL)"
 msgstr "Dekstre-maldekstren tekstodirekto (RTL)"
 
-#: ../dtop/aqt/main.py:286
+#: ../aqt/main.py:287
 msgid "Revert to backup"
 msgstr "Reiri al la stato de sekurkopio"
 
-#: ../dtop/aqt/main.py:926
+#: ../aqt/main.py:934
 #, python-format
 msgid "Reverted to state prior to '%s'."
 msgstr "Reirita al stato antaŭ '%s'."
 
-#: ../dtop/anki/collection.py:776 ../dtop/aqt/browser.py:1233
-#: ../dtop/aqt/browser.py:1433
+#: ../../pylib/anki/collection.py:776 ../aqt/browser.py:1233
+#: ../aqt/browser.py:1433
 msgid "Review"
 msgstr "ripeto"
 
-#: ../dtop/anki/stats.py:380
+#: ../../pylib/anki/stats.py:380
 msgid "Review Count"
 msgstr "Nombro de ripetoj"
 
-#: ../dtop/anki/stats.py:406
+#: ../../pylib/anki/stats.py:406
 msgid "Review Time"
 msgstr "Tempo de ripeto"
 
-#: ../dtop/aqt/forms/customstudy.py:101
+#: ../aqt/forms/customstudy.py:101
 msgid "Review ahead"
 msgstr "Ripeti antaŭe"
 
-#: ../dtop/aqt/customstudy.py:92
+#: ../aqt/customstudy.py:92
 msgid "Review ahead by"
 msgstr "Ripeti antaŭe al"
 
-#: ../dtop/aqt/customstudy.py:88
+#: ../aqt/customstudy.py:88
 msgid "Review cards forgotten in last"
 msgstr "Ripeti kartojn, kiujn vi forgesis en la lasta(j)"
 
-#: ../dtop/aqt/forms/customstudy.py:102
+#: ../aqt/forms/customstudy.py:102
 msgid "Review forgotten cards"
 msgstr "Ripeti forgesitajn kartojn"
 
-#: ../dtop/anki/stats.py:806
+#: ../../pylib/anki/stats.py:806
 msgid "Review success rate for each hour of the day."
 msgstr "Sukceso-proporcio al horoj de la tago"
 
-#: ../dtop/anki/stats.py:47 ../dtop/anki/stats.py:834
-#: ../dtop/aqt/browser.py:721 ../dtop/aqt/forms/dconf.py:375
+#: ../../pylib/anki/stats.py:47 ../../pylib/anki/stats.py:834
+#: ../aqt/browser.py:721 ../aqt/forms/dconf.py:375
 msgid "Reviews"
 msgstr "Ripetoj"
 
-#: ../dtop/aqt/customstudy.py:82
+#: ../aqt/customstudy.py:82
 #, python-format
 msgid "Reviews due in deck over today limit: %s"
 msgstr "Lernendaj ripetoj en la kartaro super la hodiaŭa limigo: %s"
 
-#: ../dtop/anki/consts.py:81
+#: ../../pylib/anki/consts.py:81
 msgid "Right"
 msgstr "Dekstra"
 
-#: ../dtop/aqt/sound.py:27
+#: ../aqt/sound.py:35
 msgid "Save"
 msgstr "Konservi"
 
-#: ../dtop/aqt/browser.py:1329
+#: ../aqt/browser.py:1329
 msgid "Save Current Filter..."
 msgstr "Konservi la aktualan filtrilon..."
 
-#: ../dtop/aqt/stats.py:37 ../dtop/aqt/stats.py:67
+#: ../aqt/stats.py:37 ../aqt/stats.py:67
 msgid "Save PDF"
 msgstr "Konservi kiel PDF"
 
-#: ../dtop/aqt/stats.py:80
+#: ../aqt/stats.py:80
 msgid "Saved."
 msgstr "Konservita."
 
-#: ../dtop/anki/stats.py:960
+#: ../../pylib/anki/stats.py:960
 #, python-format
 msgid "Scope: %s"
 msgstr "Kartaro: %s"
 
-#: ../dtop/aqt/browser.py:2135 ../dtop/aqt/forms/browser.py:292
-#: ../dtop/aqt/forms/dyndconf.py:135 ../dtop/aqt/forms/dyndconf.py:139
+#: ../aqt/browser.py:2135 ../aqt/forms/browser.py:292
+#: ../aqt/forms/dyndconf.py:135 ../aqt/forms/dyndconf.py:139
 msgid "Search"
 msgstr "Serĉi"
 
-#: ../dtop/aqt/forms/finddupes.py:64
+#: ../aqt/forms/finddupes.py:64
 msgid "Search in:"
 msgstr "Serĉi en:"
 
-#: ../dtop/aqt/forms/browseropts.py:73
+#: ../aqt/forms/browseropts.py:73
 msgid "Search within formatting (slow)"
 msgstr "Serĉi ene de aranĝo (malrapida)"
 
-#: ../dtop/aqt/customstudy.py:99
+#: ../aqt/customstudy.py:99
 msgid "Select"
 msgstr "Elekti"
 
-#: ../dtop/aqt/forms/browser.py:302
+#: ../aqt/forms/browser.py:302
 msgid "Select &All"
 msgstr "&Elekti ĉiujn"
 
-#: ../dtop/aqt/forms/browser.py:311
+#: ../aqt/forms/browser.py:311
 msgid "Select &Notes"
 msgstr "Elekti &notojn"
 
-#: ../dtop/aqt/forms/taglimit.py:62
+#: ../aqt/forms/taglimit.py:62
 msgid "Select tags to exclude:"
 msgstr "Elektu etikedojn por ekskluzivi:"
 
-#: ../dtop/aqt/importing.py:291
+#: ../aqt/importing.py:303
 msgid "Selected file was not in UTF-8 format. Please see the importing section of the manual."
 msgstr "La elektita dosiero ne havis la datumaranĝon UTF-8. Bonvolu atenti la ĉapitron \"Import\" en la manlibro."
 
-#: ../dtop/aqt/forms/taglimit.py:60
+#: ../aqt/forms/taglimit.py:60
 msgid "Selective Study"
 msgstr "Selektiva lernado"
 
-#: ../dtop/aqt/importing.py:165
+#: ../aqt/importing.py:166
 msgid "Semicolon"
 msgstr "Punktokomo"
 
-#: ../dtop/aqt/sync.py:227
+#: ../aqt/sync.py:227
 msgid "Server not found. Either your connection is down, or antivirus/firewall software is blocking Anki from connecting to the internet."
 msgstr "La servilo ne estas trovita. Aŭ via konekto interrompiĝis aŭ senvirusigila/fajroŝirmila programaro malhelpas Anki starigi konekton al la interreto."
 
-#: ../dtop/aqt/deckconf.py:147
+#: ../aqt/deckconf.py:147
 #, python-format
 msgid "Set all decks below %s to this option group?"
 msgstr "Ĉu agordi ĉiujn kartarojn sub %s al ĉi tiu opciogrupo?"
 
-#: ../dtop/aqt/deckconf.py:87
+#: ../aqt/deckconf.py:87
 msgid "Set for all subdecks"
 msgstr "Agordi al ĉiuj subkartaroj"
 
-#: ../dtop/aqt/editor.py:116
+#: ../aqt/editor.py:116
 msgid "Set foreground colour (F7)"
 msgstr "Difini la koloron de la malfono (F7)"
 
-#: ../dtop/aqt/main.py:82
+#: ../aqt/main.py:83
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr "La supra registrumo estis premita. Preterpaso de aŭtomata samtempigo kaj ŝarĝo de aldonaĵoj."
 
-#: ../dtop/aqt/forms/reposition.py:74
+#: ../aqt/forms/reposition.py:74
 msgid "Shift position of existing cards"
 msgstr "Ŝovi pozicion de ekzistantaj kartoj"
 
-#: ../dtop/aqt/browser.py:1563 ../dtop/aqt/browser.py:1581
-#: ../dtop/aqt/deckbrowser.py:327 ../dtop/aqt/main.py:669
-#: ../dtop/aqt/overview.py:232 ../dtop/aqt/reviewer.py:534
-#: ../dtop/aqt/reviewer.py:547 ../dtop/aqt/reviewer.py:613
-#: ../dtop/aqt/toolbar.py:34 ../dtop/aqt/toolbar.py:35
-#: ../dtop/aqt/toolbar.py:36 ../dtop/aqt/toolbar.py:37
-#: ../dtop/aqt/toolbar.py:38
+#: ../aqt/browser.py:1563 ../aqt/browser.py:1581 ../aqt/deckbrowser.py:327
+#: ../aqt/main.py:673 ../aqt/overview.py:232 ../aqt/reviewer.py:533
+#: ../aqt/reviewer.py:546 ../aqt/reviewer.py:612 ../aqt/toolbar.py:34
+#: ../aqt/toolbar.py:35 ../aqt/toolbar.py:36 ../aqt/toolbar.py:37
+#: ../aqt/toolbar.py:38
 #, python-format
 msgid "Shortcut key: %s"
 msgstr "Fulmoklavo: %s"
 
-#: ../dtop/aqt/browser.py:1568
+#: ../aqt/browser.py:1568
 msgid "Shortcut key: Left arrow"
 msgstr "Fulmoklavo: sago maldekstren"
 
-#: ../dtop/aqt/browser.py:1573
+#: ../aqt/browser.py:1573
 msgid "Shortcut key: Right arrow or Enter"
 msgstr "Fulmoklavo: sago dekstren aŭ enenklavo"
 
-#: ../dtop/aqt/addcards.py:85
+#: ../aqt/addcards.py:85
 #, python-format
 msgid "Shortcut: %s"
 msgstr "Fulmoklavo: %s"
 
-#: ../dtop/anki/template/hint.py:19
+#: ../../pylib/anki/template/hint.py:19
 #, python-format
 msgid "Show %s"
 msgstr "Montri %s"
 
-#: ../dtop/aqt/reviewer.py:548
+#: ../aqt/reviewer.py:547
 msgid "Show Answer"
 msgstr "Montri la respondon"
 
-#: ../dtop/aqt/browser.py:1579
+#: ../aqt/browser.py:1579
 msgid "Show Both Sides"
 msgstr "Montri ambaŭ flankojn"
 
-#: ../dtop/aqt/editor.py:163
+#: ../aqt/editor.py:163
 msgid "Show Duplicates"
 msgstr "Montri duoblaĵojn"
 
-#: ../dtop/aqt/forms/dconf.py:389
+#: ../aqt/forms/dconf.py:389
 msgid "Show answer timer"
 msgstr "Montri tempomezurilon por respondoj"
 
-#: ../dtop/aqt/forms/preferences.py:244
+#: ../aqt/forms/preferences.py:244
 msgid "Show cards as white on black (night mode)"
 msgstr "Montri la kartotekston blanka sur nigra fono (nokta reĝimo)"
 
-#: ../dtop/aqt/forms/preferences.py:245
+#: ../aqt/forms/preferences.py:245
 msgid "Show learning cards with larger steps before reviews"
 msgstr "Montri lernkartojn kun pli grandaj paŝoj antaŭ ripetokarojn"
 
-#: ../dtop/anki/consts.py:72
+#: ../../pylib/anki/consts.py:72
 msgid "Show new cards after reviews"
 msgstr "Montri novajn kartojn post ripetoj"
 
-#: ../dtop/anki/consts.py:73
+#: ../../pylib/anki/consts.py:73
 msgid "Show new cards before reviews"
 msgstr "Montri novajn kartojn antaŭ ripetoj"
 
-#: ../dtop/anki/consts.py:65
+#: ../../pylib/anki/consts.py:65
 msgid "Show new cards in order added"
 msgstr "Montri novajn kartojn laŭ ordo de aldono"
 
-#: ../dtop/anki/consts.py:64
+#: ../../pylib/anki/consts.py:64
 msgid "Show new cards in random order"
 msgstr "Montri novajn kartojn en hazarda ordo"
 
-#: ../dtop/aqt/forms/preferences.py:241
+#: ../aqt/forms/preferences.py:241
 msgid "Show next review time above answer buttons"
 msgstr "Montri tempon de sekva ripeto super respondobutonoj"
 
-#: ../dtop/aqt/forms/preferences.py:242
+#: ../aqt/forms/preferences.py:242
 msgid "Show remaining card count during review"
 msgstr "Montri nombron de restantaj kartoj dum ripetado"
 
-#: ../dtop/aqt/browser.py:1033 ../dtop/aqt/forms/browser.py:334
+#: ../aqt/browser.py:1033 ../aqt/forms/browser.py:334
 msgid "Sidebar"
 msgstr "Flankostrio"
 
-#: ../dtop/aqt/forms/addfield.py:77
+#: ../aqt/forms/addfield.py:77
 msgid "Size:"
 msgstr "Grando:"
 
-#: ../dtop/anki/importing/anki2.py:162
+#: ../../pylib/anki/importing/anki2.py:162
 msgid "Skipped"
 msgstr "Preterpasita"
 
-#: ../dtop/anki/sched.py:1290 ../dtop/anki/schedv2.py:1454
+#: ../../pylib/anki/sched.py:1290 ../../pylib/anki/schedv2.py:1454
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Kelkaj rilataj aŭ portage kaŝitaj kartoj estis flankenmetitaj. Ili reaperos en posta seanco."
 
-#: ../dtop/aqt/forms/preferences.py:269
+#: ../aqt/forms/preferences.py:269
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Kelkaj agordoj efektivos nur post relanĉo de Anki."
 
-#: ../dtop/aqt/browser.py:714
+#: ../aqt/browser.py:714
 msgid "Sort Field"
 msgstr "Ordiga kampo"
 
-#: ../dtop/aqt/forms/fields.py:109
+#: ../aqt/forms/fields.py:109
 msgid "Sort by this field in the browser"
 msgstr "Ordigi per ĉi tiu kampo en la foliumilo"
 
-#: ../dtop/aqt/browser.py:913
+#: ../aqt/browser.py:913
 msgid "Sorting on this column is not supported. Please choose another."
 msgstr "Ordigado je ĉi tiu kolono ne eblas. Bonvolu elekti alian."
 
-#: ../dtop/aqt/errors.py:88
+#: ../aqt/errors.py:88
 msgid "Sound and video on cards will not function until mpv or mplayer is installed."
 msgstr "Sonoj aŭ videoj de kartoj nur funkcios, kiam mpv aŭ mplayer estas instalita."
 
-#: ../dtop/aqt/importing.py:163 ../dtop/aqt/reviewer.py:547
+#: ../aqt/importing.py:164 ../aqt/reviewer.py:546
 msgid "Space"
 msgstr "Spaceto"
 
-#: ../dtop/aqt/forms/reposition.py:71
+#: ../aqt/forms/reposition.py:71
 msgid "Start position:"
 msgstr "Komenca pozicio:"
 
-#: ../dtop/aqt/forms/dconf.py:355
+#: ../aqt/forms/dconf.py:355
 msgid "Starting ease"
 msgstr "Komenca facileco"
 
-#: ../dtop/aqt/forms/stats.py:75
+#: ../aqt/forms/stats.py:75
 msgid "Statistics"
 msgstr "Statistikoj"
 
-#: ../dtop/aqt/toolbar.py:37
+#: ../aqt/toolbar.py:37
 msgid "Stats"
 msgstr "Statistikoj"
 
-#: ../dtop/aqt/forms/reposition.py:72
+#: ../aqt/forms/reposition.py:72
 msgid "Step:"
 msgstr "Paŝo:"
 
-#: ../dtop/aqt/forms/dconf.py:360 ../dtop/aqt/forms/dconf.py:376
+#: ../aqt/forms/dconf.py:360 ../aqt/forms/dconf.py:376
 msgid "Steps (in minutes)"
 msgstr "Paŝoj (en minutoj)"
 
-#: ../dtop/aqt/deckconf.py:258 ../dtop/aqt/dyndeckconf.py:156
+#: ../aqt/deckconf.py:258 ../aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "Paŝoj devas esti nombroj."
 
-#: ../dtop/aqt/sync.py:60
+#: ../aqt/sync.py:60
 msgid "Stopping..."
 msgstr "Haltado..."
 
-#: ../dtop/anki/stats.py:178
+#: ../../pylib/anki/stats.py:178
 #, python-format
 msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
 msgstr "Vi hodiaŭ lernis %(a)s %(b)s (%(secs).1fs/karto)"
 
-#: ../dtop/aqt/deckbrowser.py:122
+#: ../aqt/deckbrowser.py:122
 #, python-format
 msgid "Studied %(a)s %(b)s today."
 msgstr "Vi hodiaŭ lernis %(a)s %(b)s."
 
-#: ../dtop/aqt/browser.py:1219
+#: ../aqt/browser.py:1219
 msgid "Studied Today"
 msgstr "Hodiaŭ lernitaj"
 
-#: ../dtop/aqt/studydeck.py:62
+#: ../aqt/studydeck.py:62
 msgid "Study"
 msgstr "Lernado"
 
-#: ../dtop/aqt/forms/studydeck.py:45
+#: ../aqt/forms/studydeck.py:45
 msgid "Study Deck"
 msgstr "Lernkartaro"
 
-#: ../dtop/aqt/forms/main.py:151
+#: ../aqt/forms/main.py:151
 msgid "Study Deck..."
 msgstr "&Lernkartaro..."
 
-#: ../dtop/aqt/overview.py:202
+#: ../aqt/overview.py:202
 msgid "Study Now"
 msgstr "Nun lerni"
 
-#: ../dtop/aqt/forms/customstudy.py:105
+#: ../aqt/forms/customstudy.py:105
 msgid "Study by card state or tag"
 msgstr "Lerni laŭ kartostato aŭ etikedo"
 
-#: ../dtop/aqt/forms/template.py:108
+#: ../aqt/forms/template.py:108
 msgid "Styling"
 msgstr "Stilo"
 
-#: ../dtop/aqt/clayout.py:180
+#: ../aqt/clayout.py:180
 msgid "Styling (shared between cards)"
 msgstr "Stilo (kunhava inter kartoj)"
 
-#: ../dtop/aqt/editor.py:112
+#: ../aqt/editor.py:112
 msgid "Subscript (Ctrl+=)"
 msgstr "Suba indico (Ctrl+=)"
 
-#: ../dtop/anki/importing/__init__.py:16
+#: ../../pylib/anki/importing/__init__.py:16
 msgid "Supermemo XML export (*.xml)"
 msgstr "Supermemo XML elportaĵo (*.xml)"
 
-#: ../dtop/aqt/editor.py:110
+#: ../aqt/editor.py:110
 msgid "Superscript (Ctrl++)"
 msgstr "Supra indico (Ctrl++)"
 
-#: ../dtop/aqt/reviewer.py:746 ../dtop/aqt/reviewer.py:752
+#: ../aqt/reviewer.py:745 ../aqt/reviewer.py:751
 msgid "Suspend"
 msgstr "Daŭre kaŝi"
 
-#: ../dtop/aqt/reviewer.py:682 ../dtop/aqt/forms/dconf.py:383
+#: ../aqt/reviewer.py:681 ../aqt/forms/dconf.py:383
 msgid "Suspend Card"
 msgstr "Daŭre kaŝi karton"
 
-#: ../dtop/aqt/reviewer.py:683
+#: ../aqt/reviewer.py:682
 msgid "Suspend Note"
 msgstr "Daŭre kaŝi noton"
 
-#: ../dtop/aqt/browser.py:1236
+#: ../aqt/browser.py:1236
 msgid "Suspended"
 msgstr "Daŭre kaŝita"
 
-#: ../dtop/anki/stats.py:876
+#: ../../pylib/anki/stats.py:876
 msgid "Suspended+Buried"
 msgstr "Kaŝata"
 
-#: ../dtop/aqt/toolbar.py:38
+#: ../aqt/toolbar.py:38
 msgid "Sync"
 msgstr "Samtempigi"
 
-#: ../dtop/aqt/forms/preferences.py:259
+#: ../aqt/forms/preferences.py:259
 msgid "Synchronize audio and images too"
 msgstr "Samtempigi ankaŭ sonojn kaj bildojn"
 
-#: ../dtop/aqt/sync.py:145
+#: ../aqt/sync.py:145
 #, python-format
 msgid "Syncing failed:\n"
 "%s"
 msgstr "Samtempigo malsukcesis:\n"
 "%s"
 
-#: ../dtop/aqt/sync.py:112
+#: ../aqt/sync.py:112
 msgid "Syncing failed; internet offline."
 msgstr "Samtempigo malsukcesis; interreto estas nekonektita."
 
-#: ../dtop/aqt/sync.py:336
+#: ../aqt/sync.py:336
 msgid "Syncing requires the clock on your computer to be set correctly. Please fix the clock and try again."
 msgstr "Samtempigo necesigas, ke la horloĝo ĉe via komputilo estu agordita. Bonvolu agordi la horloĝon kaj provu denove."
 
-#: ../dtop/aqt/sync.py:120
+#: ../aqt/sync.py:120
 msgid "Syncing..."
 msgstr "Samtempigado..."
 
-#: ../dtop/aqt/importing.py:159
+#: ../aqt/importing.py:160
 msgid "Tab"
 msgstr ""
 
-#: ../dtop/aqt/browser.py:2144 ../dtop/aqt/browser.py:2172
+#: ../aqt/browser.py:2144 ../aqt/browser.py:2172
 msgid "Tag Duplicates"
 msgstr "Etikedi duoblaĵojn"
 
-#: ../dtop/aqt/forms/dconf.py:384
+#: ../aqt/forms/dconf.py:384
 msgid "Tag Only"
 msgstr "Aldoni nur etikedon"
 
-#: ../dtop/aqt/browser.py:723 ../dtop/aqt/browser.py:1251
-#: ../dtop/aqt/editor.py:514
+#: ../aqt/forms/importing.py:111
+msgid "Tag modified notes:"
+msgstr ""
+
+#: ../aqt/browser.py:723 ../aqt/browser.py:1251 ../aqt/editor.py:514
 msgid "Tags"
 msgstr "Etikedoj"
 
-#: ../dtop/aqt/deckchooser.py:31
+#: ../aqt/deckchooser.py:31
 msgid "Target Deck (Ctrl+D)"
 msgstr "Celkartaro (Ctrl+D)"
 
-#: ../dtop/aqt/forms/changemap.py:42
+#: ../aqt/forms/changemap.py:42
 msgid "Target field:"
 msgstr "Celkampo:"
 
-#: ../dtop/anki/stdmodels.py:101
+#: ../../pylib/anki/stdmodels.py:101
 msgid "Text"
 msgstr "Teksto"
 
-#: ../dtop/anki/importing/__init__.py:13
+#: ../../pylib/anki/importing/__init__.py:13
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Teksto apartigite per taboj aŭ punktokomoj (*)"
 
-#: ../dtop/anki/decks.py:281
+#: ../../pylib/anki/decks.py:281
 msgid "That deck already exists."
 msgstr "Tiu kartaro jam ekzistas."
 
-#: ../dtop/aqt/fields.py:65
+#: ../aqt/fields.py:65
 msgid "That field name is already used."
 msgstr "Tiu kamponomo jam estas uzata."
 
-#: ../dtop/aqt/clayout.py:385
+#: ../aqt/clayout.py:385
 msgid "That name is already used."
 msgstr "Tiu nomo jam estas uzata."
 
-#: ../dtop/aqt/sync.py:185
+#: ../aqt/sync.py:185
 msgid "The connection to AnkiWeb timed out. Please check your network connection and try again."
 msgstr "La konekto al AnkiWeb transtemplimiĝis. Bonvolu kontroli vian retkonekton kaj provi denove."
 
-#: ../dtop/aqt/deckconf.py:131
+#: ../aqt/deckconf.py:131
 msgid "The default configuration can't be removed."
 msgstr "La apriora agordo ne povas esti forigita."
 
-#: ../dtop/aqt/deckbrowser.py:288
+#: ../aqt/deckbrowser.py:288
 msgid "The default deck can't be deleted."
 msgstr "La apriora kartaro ne povas esti forigita."
 
-#: ../dtop/anki/stats.py:901
+#: ../../pylib/anki/stats.py:901
 msgid "The division of cards in your deck(s)."
 msgstr "Dividiĝo de kartoj en via(j) kartaro(j)."
 
-#: ../dtop/aqt/addcards.py:172
+#: ../aqt/addcards.py:172
 msgid "The first field is empty."
 msgstr "La unua kampo estas malplena."
 
-#: ../dtop/aqt/importing.py:176
+#: ../aqt/importing.py:177
 msgid "The first field of the note type must be mapped."
 msgstr "La unua kampo de la nototipo devas esti mapita."
 
-#: ../dtop/aqt/addons.py:139
+#: ../aqt/addons.py:147
 #, python-format
 msgid "The following add-ons are incompatible with %(name)s and have been disabled: %(found)s"
 msgstr "La jenaj aldonaĵoj malkongruas kun %(name)s kaj estis malvalidigitaj: %(found)s"
 
-#: ../dtop/aqt/utils.py:556
+#: ../aqt/utils.py:585
 #, python-format
 msgid "The following character can not be used: %s"
 msgstr "Ĉi tiu signo estas neuzebla: %s"
 
-#: ../dtop/aqt/addons.py:302 ../dtop/aqt/addons.py:345
+#: ../aqt/addons.py:386
 msgid "The following conflicting add-ons were disabled:"
 msgstr "La jenaj malakordaj aldonaĵoj estas malvalidigitaj:"
 
-#: ../dtop/aqt/reviewer.py:182
+#: ../aqt/reviewer.py:181
 msgid "The front of this card is empty. Please run Tools>Empty Cards."
 msgstr "La fronta flanko de la karto estas malplena. Bonvolu ruli Iloj>Malplenaj kartoj."
 
-#: ../dtop/aqt/addcards.py:189
+#: ../aqt/addcards.py:189
 msgid "The input you have provided would make an empty question on all cards."
 msgstr "Tiu enigo farus malplenan demandon sur ĉiuj kartoj."
 
-#: ../dtop/anki/stats.py:335
+#: ../../pylib/anki/stats.py:335
 msgid "The number of new cards you have added."
 msgstr "La nombro de novaj kartoj, kiujn vi aldonis."
 
-#: ../dtop/anki/stats.py:380
+#: ../../pylib/anki/stats.py:380
 msgid "The number of questions you have answered."
 msgstr "Nombro de demandoj, kiujn vi respondis."
 
-#: ../dtop/anki/stats.py:260
+#: ../../pylib/anki/stats.py:260
 msgid "The number of reviews due in the future."
 msgstr "La nombro de ripetoj, kiuj estas lernendaj en la estonto."
 
-#: ../dtop/anki/stats.py:696
+#: ../../pylib/anki/stats.py:696
 msgid "The number of times you have pressed each button."
 msgstr "Nombro de fojoj kiam vi premis specifajn butonojn."
 
-#: ../dtop/aqt/importing.py:465
+#: ../aqt/importing.py:477
 msgid "The provided file is not a valid .apkg file."
 msgstr "La elektita dosiero ne estas valida .apkg-dosiero"
 
-#: ../dtop/aqt/dyndeckconf.py:127
+#: ../aqt/dyndeckconf.py:127
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr "La donita serĉo ne kongruis kun iu karto. Ĉu vi ŝatus revizii ĝin?"
 
-#: ../dtop/aqt/main.py:1189
+#: ../aqt/main.py:1212
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr "La petita modifo necesigos tutan alŝuton de la datumbazo, kiam vi venontfoje samtempigos vian kolekton. Se ŝanĝoj troviĝas sur aliaj aparatoj, kiuj ankoraŭ ne estis samtempigitaj, tiuj ŝanĝoj perdiĝos. Ĉu vi volas daŭrigi?"
 
-#: ../dtop/anki/stats.py:406
+#: ../../pylib/anki/stats.py:406
 msgid "The time taken to answer the questions."
 msgstr "La tempo, kiu pasis por respondi la demandojn."
 
-#: ../dtop/anki/sched.py:1276 ../dtop/anki/schedv2.py:1440
+#: ../../pylib/anki/sched.py:1276 ../../pylib/anki/schedv2.py:1440
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3616,27 +3623,27 @@ msgstr "Ĉeestas ankoraŭ pli da kartoj, sed la taga limigo estis atingita. Vi p
 "kreski la limigon ĉe la opcioj, sed bonvolu teni en la kapo ke ju pli da kartoj\n"
 "vi enkondukas, des pli ŝarĝanta via mallongdaŭra ripetado estos."
 
-#: ../dtop/aqt/main.py:255
+#: ../aqt/main.py:256
 msgid "There must be at least one profile."
 msgstr "Devas esti almenaŭ unu profilo."
 
-#: ../dtop/aqt/browser.py:897
+#: ../aqt/browser.py:897
 msgid "This column can't be sorted on, but you can search for individual card types, such as 'card:1'."
 msgstr "Tiu kolumno estas neordigebla, sed vi povas serĉi unuopajn kartotipojn ekzemple per 'card:1'."
 
-#: ../dtop/aqt/browser.py:905
+#: ../aqt/browser.py:905
 msgid "This column can't be sorted on, but you can search for specific decks by clicking on one on the left."
 msgstr "Tiu kolumno estas neordigebla, sed vi povas serĉi specifan kartaron per klaki sur kartaro ĉe la maldekstra flanko."
 
-#: ../dtop/aqt/importing.py:412
+#: ../aqt/importing.py:424
 msgid "This file does not appear to be a valid .apkg file. If you're getting this error from a file downloaded from AnkiWeb, chances are that your download failed. Please try again, and if the problem persists, please try again with a different browser."
 msgstr "Tiu dosiero verŝajne ne estas valida .apkg-dosiero. Se tiu eraro okazas ĉe dosiero, kiun vi elŝutis de AnkiWeb, la elŝutado verŝajne malsukcesis. Bonvolu reprovi ĝin kaj se la problemo daŭras, bonvolu reprovi ĝin per alia foliumilo."
 
-#: ../dtop/aqt/utils.py:364
+#: ../aqt/utils.py:393
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Tiu dosiero ekzistas. Ĉu vi volas anstataŭigi ĝin?"
 
-#: ../dtop/aqt/profiles.py:381
+#: ../aqt/profiles.py:381
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3646,62 +3653,62 @@ msgstr "Ĉi tiu dosierujo konservas ĉiujn viajn Anki-datumojn ĉe unu loko,\n"
 "por simple fari sekurkopiojn. Por ke Anki uzu alian lokon, bonvolu vidi:\n\n"
 "%s\n"
 
-#: ../dtop/aqt/overview.py:150
+#: ../aqt/overview.py:150
 msgid "This is a special deck for studying outside of the normal schedule."
 msgstr "Ĉi tiu estas speciala kartaro por lerni ekster la normala plano."
 
-#: ../dtop/aqt/models.py:143
+#: ../aqt/models.py:143
 msgid "This is a {{c1::sample}} cloze deletion."
 msgstr "Tiu estas {{c1::ekzempla}} truteksta malpleno."
 
-#: ../dtop/aqt/clayout.py:421
+#: ../aqt/clayout.py:421
 #, python-format
 msgid "This will create %d card. Proceed?"
 msgid_plural "This will create %d cards. Proceed?"
 msgstr[0] "Tio kreos %d karton. Daŭrigi?"
 msgstr[1] "Tio kreos %d kartojn. Daŭrigi?"
 
-#: ../dtop/aqt/importing.py:432
+#: ../aqt/importing.py:444
 msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
 msgstr "Ĉi tio forigos vian ekzistantan kolekton kaj anstataŭigos ĝin per la datumoj en la dosiero, kiun vi enportas. Ĉu vi certas?"
 
-#: ../dtop/aqt/preferences.py:137
+#: ../aqt/preferences.py:137
 msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
 msgstr "Tiu procezo nuligos ĉiujn kartojn en lernado, forigi filtritajn kartarojn kaj ŝanĝi la planiloversion. Daŭrigi?"
 
-#: ../dtop/aqt/browser.py:1425
+#: ../aqt/browser.py:1425
 msgid "Time"
 msgstr "Tempo"
 
-#: ../dtop/aqt/forms/preferences.py:253
+#: ../aqt/forms/preferences.py:253
 msgid "Timebox time limit"
 msgstr "Tempokadra limigo"
 
-#: ../dtop/aqt/overview.py:200
+#: ../aqt/overview.py:200
 msgid "To Review"
 msgstr "Por ripeti"
 
-#: ../dtop/aqt/forms/getaddons.py:49
+#: ../aqt/forms/getaddons.py:49
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr "Por foliumi aldonaĵojn, bonvolu alklaki la butonon sube.<br><br>Kiam vi trovis aldonaĵon, kiu plaĉas al vi, bonvolu enmeti ĝian kodon sube. Vi povas enmeti plurajn kodojn, disigitaj per spacetoj."
 
-#: ../dtop/aqt/editor.py:589
+#: ../aqt/editor.py:589
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Por krei trutekston ĉe ekzistanta noto, unuafoje vi devas ŝanĝi ĝin al truteksto-tipo, ĉe Redakti > Ŝanĝi nototipon."
 
-#: ../dtop/anki/sched.py:1285 ../dtop/anki/schedv2.py:1449
+#: ../../pylib/anki/sched.py:1285 ../../pylib/anki/schedv2.py:1449
 msgid "To see them now, click the Unbury button below."
 msgstr "Por vidi ilin nun, klaku la ĉi-suban butonon Malkaŝi."
 
-#: ../dtop/anki/sched.py:1298 ../dtop/anki/schedv2.py:1462
+#: ../../pylib/anki/sched.py:1298 ../../pylib/anki/schedv2.py:1462
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Por lerni ekster la normala plano, bonvolu alklaki la butonon Propra lernado malsupre."
 
-#: ../dtop/anki/stats.py:146 ../dtop/aqt/browser.py:1214
+#: ../../pylib/anki/stats.py:146 ../aqt/browser.py:1214
 msgid "Today"
 msgstr "Hodiaŭ"
 
-#: ../dtop/anki/sched.py:1267 ../dtop/anki/schedv2.py:1431
+#: ../../pylib/anki/sched.py:1267 ../../pylib/anki/schedv2.py:1431
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3709,233 +3716,241 @@ msgstr "La hodiaŭa ripetlimigo estas atingita, sed ankoraŭ ĉeestas\n"
 "ripetendaj kartoj. Por memori optimume, bonvolu pripensi\n"
 "la altigon de la taga limigo ĉe la opcioj."
 
-#: ../dtop/aqt/forms/addons.py:75
+#: ../aqt/forms/addons.py:75
 msgid "Toggle Enabled"
 msgstr "Baskuli aktivecon"
 
-#: ../dtop/aqt/forms/browser.py:337
+#: ../aqt/forms/browser.py:337
 msgid "Toggle Mark"
 msgstr "Baskuli markon"
 
-#: ../dtop/aqt/forms/browser.py:326
+#: ../aqt/forms/browser.py:326
 msgid "Toggle Suspend"
 msgstr "daŭre (mal)kaŝi"
 
-#: ../dtop/anki/stats.py:279 ../dtop/anki/stats.py:344
-#: ../dtop/anki/stats.py:438
+#: ../../pylib/anki/stats.py:279 ../../pylib/anki/stats.py:344
+#: ../../pylib/anki/stats.py:438
 msgid "Total"
 msgstr "Sumo"
 
-#: ../dtop/anki/stats.py:54
+#: ../../pylib/anki/stats.py:54
 msgid "Total Time"
 msgstr "Suma tempo"
 
-#: ../dtop/anki/stats.py:888
+#: ../../pylib/anki/stats.py:888
 msgid "Total cards"
 msgstr "Kartoj entute"
 
-#: ../dtop/anki/stats.py:889
+#: ../../pylib/anki/stats.py:889
 msgid "Total notes"
 msgstr "Notoj entute"
 
-#: ../dtop/aqt/forms/findreplace.py:72
+#: ../aqt/forms/findreplace.py:72
 msgid "Treat input as regular expression"
 msgstr "Trakti enigon kiel regulan esprimon"
 
-#: ../dtop/aqt/browser.py:1421 ../dtop/aqt/modelchooser.py:26
-#: ../dtop/aqt/forms/importing.py:96
+#: ../aqt/browser.py:1421 ../aqt/modelchooser.py:26
+#: ../aqt/forms/importing.py:105
 msgid "Type"
 msgstr "Tipo"
 
-#: ../dtop/aqt/reviewer.py:355
+#: ../aqt/reviewer.py:354
 #, python-format
 msgid "Type answer: unknown field %s"
 msgstr "Entajpu respondon: nekonata kampo %s"
 
-#: ../dtop/aqt/errors.py:67
+#: ../aqt/errors.py:67
 msgid "Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect."
 msgstr "La aŭdovidaĵa dosierujo de Anki estas neatingebla. La atingopermeso al la labora dosierujo eble estas malĝusta."
 
-#: ../dtop/aqt/importing.py:393
+#: ../aqt/importing.py:405
 msgid "Unable to import from a read-only file."
 msgstr "Enporto el nurlega dosiero ne estas ebla."
 
-#: ../dtop/aqt/main.py:299
+#: ../aqt/main.py:300
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr "Ne eblas movi la ekzistantan dosieron en la rubujon - bonvolu provi restartigi vian komputilon."
 
-#: ../dtop/aqt/addons.py:267
+#: ../aqt/addons.py:279
 #, python-format
 msgid "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\n"
 "Debug info: %s"
 msgstr "Ne eblas ĝisdatigi aŭ forigi aldonaĵon. Bonvolu relanĉi Anki premante la supran registrumon (shift) por portempe malvalidigi aldonaĵojn. Poste reprovu ĝin.\n\n"
 "Sencimiga informo: %s"
 
-#: ../dtop/aqt/overview.py:228
+#: ../aqt/overview.py:228
 msgid "Unbury"
 msgstr "Malkaŝi"
 
-#: ../dtop/aqt/editor.py:107
+#: ../aqt/editor.py:107
 msgid "Underline text (Ctrl+U)"
 msgstr "Substreki (Ctrl+U)"
 
-#: ../dtop/aqt/main.py:936
+#: ../aqt/main.py:944
 msgid "Undo"
 msgstr "Malfari"
 
-#: ../dtop/aqt/main.py:932
+#: ../aqt/main.py:940
 #, python-format
 msgid "Undo %s"
 msgstr "&Malfari %sn"
 
-#: ../dtop/aqt/downloader.py:72 ../dtop/aqt/editor.py:777
+#: ../aqt/downloader.py:72 ../aqt/editor.py:777
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr "Neatendita responda kodo: %s"
 
-#: ../dtop/aqt/importing.py:351
+#: ../aqt/addons.py:361
+msgid "Unknown error"
+msgstr ""
+
+#: ../aqt/addons.py:358
+msgid "Unknown error: {}"
+msgstr ""
+
+#: ../aqt/importing.py:363
 msgid "Unknown file format."
 msgstr "Nekonata dosierformato."
 
-#: ../dtop/anki/stats.py:875
+#: ../../pylib/anki/stats.py:875
 msgid "Unseen"
 msgstr "Nevidata"
 
-#: ../dtop/aqt/forms/importing.py:98
+#: ../aqt/forms/importing.py:107
 msgid "Update existing notes when first field matches"
 msgstr "Ĝisdatigi ekzistantan noton, kiam la unua kampo kongruas kun"
 
-#: ../dtop/aqt/addons.py:666
+#: ../aqt/addons.py:696
 msgid "Update the following add-ons?"
 msgstr "Ĉu vi volas ĝisdatigi la jenajn aldonaĵojn?"
 
-#: ../dtop/anki/importing/anki2.py:165
+#: ../../pylib/anki/importing/anki2.py:165
 msgid "Updated"
 msgstr "Ĝisdatigita"
 
-#: ../dtop/aqt/sync.py:321 ../dtop/aqt/sync.py:325
+#: ../aqt/sync.py:321 ../aqt/sync.py:325
 msgid "Upload to AnkiWeb"
 msgstr "Alŝuto al AnkiWeb"
 
-#: ../dtop/aqt/sync.py:123
+#: ../aqt/sync.py:123
 msgid "Uploading to AnkiWeb..."
 msgstr "Alŝutado al AnkiWeb..."
 
-#: ../dtop/aqt/main.py:1246
+#: ../aqt/main.py:1269
 msgid "Used on cards but missing from media folder:"
 msgstr "Uzita sur kartoj sed mankanta el aŭdovidaĵo-dosierujo:"
 
-#: ../dtop/aqt/profiles.py:377
+#: ../aqt/profiles.py:377
 msgid "User 1"
 msgstr "1-a uzanto"
 
-#: ../dtop/aqt/forms/preferences.py:255
+#: ../aqt/forms/preferences.py:255
 msgid "User interface size"
 msgstr ""
 
-#: ../dtop/aqt/about.py:58
+#: ../aqt/about.py:58
 #, python-format
 msgid "Version %s"
 msgstr "Versio %s"
 
-#: ../dtop/aqt/forms/addons.py:72
+#: ../aqt/forms/addons.py:72
 msgid "View Add-on Page"
 msgstr "Retpaĝo de la aldonaĵo"
 
-#: ../dtop/aqt/forms/addons.py:74
+#: ../aqt/forms/addons.py:74
 msgid "View Files"
 msgstr "Dosierujo de la aldonaĵo"
 
-#: ../dtop/aqt/main.py:640
+#: ../aqt/main.py:644
 msgid "Waiting for editing to finish."
 msgstr "Atendado por la fino de redakto."
 
-#: ../dtop/aqt/editor.py:582
+#: ../aqt/editor.py:582
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr "Averto! Trutekstaj malplenoj ne funkcios, ĝis vi supre elektos la nototipon Truteksto."
 
-#: ../dtop/aqt/overview.py:109
+#: ../aqt/overview.py:109
 msgid "What would you like to unbury?"
 msgstr "Kion vi volas malkaŝi?"
 
-#: ../dtop/aqt/forms/preferences.py:247
+#: ../aqt/forms/preferences.py:247
 msgid "When adding, default to current deck"
 msgstr "Ĉe aldono, apriori al aktuala kartaro"
 
-#: ../dtop/aqt/browser.py:1085 ../dtop/aqt/browser.py:1210
+#: ../aqt/browser.py:1085 ../aqt/browser.py:1210
 msgid "Whole Collection"
 msgstr "Tuta kolekto"
 
-#: ../dtop/aqt/update.py:64
+#: ../aqt/update.py:64
 msgid "Would you like to download it now?"
 msgstr "Ĉu vi volas elŝuti ĝin nun?"
 
-#: ../dtop/aqt/about.py:158
+#: ../aqt/about.py:159
 #, python-format
 msgid "Written by Damien Elmes, with patches, translation,    testing and design from:<p>%(cont)s"
 msgstr "Skribita de Damien Elmes, kun flikaĵoj, tradukoj, testado kaj fasono de:<p>%(cont)s"
 
-#: ../dtop/aqt/forms/preferences.py:267
+#: ../aqt/forms/preferences.py:267
 msgid "You can restore backups via File>Switch Profile."
 msgstr "Vi povas rekrei sekurkopion per la menuero Dosiero>Ŝanĝi profilon"
 
-#: ../dtop/aqt/addcards.py:180
+#: ../aqt/addcards.py:180
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "Vi elektis la nototipon truteksto, sed ne faris trutekstajn malplenojn. Daŭrigi?"
 
-#: ../dtop/aqt/deckbrowser.py:131
+#: ../aqt/deckbrowser.py:131
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr "Vi havas multege da kartaroj. Bonvolu legi %(a)s. %(b)s"
 
-#: ../dtop/aqt/reviewer.py:791
+#: ../aqt/reviewer.py:790
 msgid "You haven't recorded your voice yet."
 msgstr "Vi ankoraŭ ne registris vian sonon."
 
-#: ../dtop/aqt/browser.py:965
+#: ../aqt/browser.py:965
 msgid "You must have at least one column."
 msgstr "Oni devas havi almenaŭ unu kolonon."
 
-#: ../dtop/anki/stats.py:246 ../dtop/anki/stats.py:373
-#: ../dtop/anki/stats.py:393 ../dtop/anki/stats.py:702
+#: ../../pylib/anki/stats.py:246 ../../pylib/anki/stats.py:373
+#: ../../pylib/anki/stats.py:393 ../../pylib/anki/stats.py:702
 msgid "Young"
 msgstr "Juna"
 
-#: ../dtop/anki/stats.py:874
+#: ../../pylib/anki/stats.py:874
 msgid "Young+Learn"
 msgstr "Juna + lernata"
 
-#: ../dtop/aqt/sync.py:165
+#: ../aqt/sync.py:165
 msgid "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
 msgstr "Via AnkiWeb-kolekto enhavas neniujn kartojn. Bonvolu refoje samtempigi ĝin kaj tiufoje elekti 'Alŝuto'."
 
-#: ../dtop/aqt/deckconf.py:109
+#: ../aqt/deckconf.py:109
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr "Viaj ŝanĝoj efikos sur multaj kartaroj. Se vi nur volas ŝanĝi la aktualan kartaron, bonvolu unue aldoni novan opciogrupon."
 
-#: ../dtop/aqt/main.py:472
+#: ../aqt/main.py:476
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr "Via kolektodosiero ŝajne estas difektohava. Tio povas okazi kiam dosiero estas kopiita aŭ movita dum Anki estas malferma aŭ kiam la kolekto troviĝas sur reta aŭ nuba disko. Se problemoj daŭras post restartigo de via komputilo, bonvolu malfermi aŭtomatan sekurkopion en la profilmenuo."
 
-#: ../dtop/aqt/sync.py:345
+#: ../aqt/sync.py:345
 msgid "Your collection is in an inconsistent state. Please run Tools>Check Database, then sync again."
 msgstr "Via kolekto estas en memkontraŭa stato. Bonvolu ruli Iloj>Kontroli datumbazon kaj samtempigi ĝin denove."
 
-#: ../dtop/aqt/sync.py:233
+#: ../aqt/sync.py:233
 msgid "Your collection or a media file is too large to sync."
 msgstr "Via koletko aŭ aŭdovidaĵo estas tro grando por samtempigo."
 
-#: ../dtop/aqt/sync.py:74
+#: ../aqt/sync.py:74
 msgid "Your collection was successfully uploaded to AnkiWeb.\n\n"
 "If you use any other devices, please sync them now, and choose to download the collection you have just uploaded from this computer. After doing so, future reviews and added cards will be merged automatically."
 msgstr "Via kolekto estis sukcese alŝutita al AnkiWeb.\n\n"
 "Se vi uzas aliajn aranĝaĵojn, bonvolu samtempigi ilin nun kaj elŝuti la kolekton, kiun vi ĵus alŝutis de ĉi tiu komputilo. Estontaj ripetoj kaj aldonitaj kartoj estos aŭtomate kunfanditaj."
 
-#: ../dtop/aqt/errors.py:105
+#: ../aqt/errors.py:105
 msgid "Your computer's storage may be full. Please delete some unneeded files, then try again."
 msgstr "La memoro de via komputilo eble estas plena. Bonvolu forigi kelkajn nebezonatajn dosierojn kaj reprovi ĝin."
 
-#: ../dtop/aqt/sync.py:305
+#: ../aqt/sync.py:305
 msgid "Your decks here and on AnkiWeb differ in such a way that they can't be merged together, so it's necessary to overwrite the decks on one side with the decks from the other.\n\n"
 "If you choose download, Anki will download the collection from AnkiWeb, and any changes you have made on your computer since the last sync will be lost.\n\n"
 "If you choose upload, Anki will upload your collection to AnkiWeb, and any changes you have made on AnkiWeb or your other devices since the last sync to this device will be lost.\n\n"
@@ -3945,172 +3960,172 @@ msgstr "La kartaroj ĉi tie kaj sur AnkiWeb diferencas tiel, ke ili estas nekunf
 "Se vi elektas alŝuton, Anki alŝutos vian kolekton al AnkiWeb kaj vi perdos ĉiujn ŝanĝojn sur AnkiWeb aŭ aliaj aranĝaĵoj ekde ties lasta samtempigo.\n\n"
 "Post kiam ĉiuj aranĝaĵoj estas samtempigitaj, estontaj ripetoj kaj aldonitaj kartoj povos esti aŭtomate kunfanditaj."
 
-#: ../dtop/aqt/errors.py:80
+#: ../aqt/errors.py:80
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr "Via fajroŝirmilo aŭ senvirusigilo malhelpas Anki krei konekton al si mem. Bonvolu aldoni escepton por Anki."
 
-#: ../dtop/anki/decks.py:442
+#: ../../pylib/anki/decks.py:442
 msgid "[no deck]"
 msgstr "[neniu kartaro]"
 
-#: ../dtop/aqt/forms/preferences.py:266
+#: ../aqt/forms/preferences.py:266
 msgid "backups"
 msgstr "sekurkopiojn"
 
-#: ../dtop/anki/stats.py:345 ../dtop/aqt/customstudy.py:52
+#: ../../pylib/anki/stats.py:345 ../aqt/customstudy.py:52
 msgid "cards"
 msgstr "kartoj"
 
-#: ../dtop/aqt/customstudy.py:100
+#: ../aqt/customstudy.py:100
 msgid "cards from the deck"
 msgstr "kartoj de la kartaro"
 
-#: ../dtop/aqt/forms/dyndconf.py:136 ../dtop/aqt/forms/dyndconf.py:140
+#: ../aqt/forms/dyndconf.py:136 ../aqt/forms/dyndconf.py:140
 msgid "cards selected by"
 msgstr "kartoj elektitaj laŭ"
 
-#: ../dtop/aqt/exporting.py:87 ../dtop/aqt/forms/stats.py:77
+#: ../aqt/exporting.py:87 ../aqt/forms/stats.py:77
 msgid "collection"
 msgstr "kolekto"
 
 #. T: abbreviation of day
-#: ../dtop/anki/stats.py:988
+#: ../../pylib/anki/stats.py:988
 msgid "d"
 msgstr "t"
 
-#: ../dtop/aqt/customstudy.py:89 ../dtop/aqt/customstudy.py:93
-#: ../dtop/aqt/customstudy.py:96 ../dtop/aqt/forms/dconf.py:362
-#: ../dtop/aqt/forms/dconf.py:363 ../dtop/aqt/forms/dconf.py:371
-#: ../dtop/aqt/forms/dconf.py:382 ../dtop/aqt/forms/reschedule.py:77
+#: ../aqt/customstudy.py:89 ../aqt/customstudy.py:93 ../aqt/customstudy.py:96
+#: ../aqt/forms/dconf.py:362 ../aqt/forms/dconf.py:363
+#: ../aqt/forms/dconf.py:371 ../aqt/forms/dconf.py:382
+#: ../aqt/forms/reschedule.py:77
 msgid "days"
 msgstr "tagoj"
 
-#: ../dtop/aqt/forms/stats.py:76
+#: ../aqt/forms/stats.py:76
 msgid "deck"
 msgstr "kartaro"
 
-#: ../dtop/anki/stats.py:962 ../dtop/aqt/forms/stats.py:80
+#: ../../pylib/anki/stats.py:962 ../aqt/forms/stats.py:80
 msgid "deck life"
 msgstr "Ekde kreo"
 
-#: ../dtop/aqt/browser.py:2176
+#: ../aqt/browser.py:2176
 msgid "duplicate"
 msgstr "duoblaĵo"
 
-#: ../dtop/anki/collection.py:675
+#: ../../pylib/anki/collection.py:675
 msgid "help"
 msgstr "helpo"
 
-#: ../dtop/aqt/deckbrowser.py:138
+#: ../aqt/deckbrowser.py:138
 msgid "hide"
 msgstr "kaŝi"
 
-#: ../dtop/anki/stats.py:433
+#: ../../pylib/anki/stats.py:433
 msgid "hours"
 msgstr "horoj"
 
-#: ../dtop/aqt/forms/preferences.py:249
+#: ../aqt/forms/preferences.py:249
 msgid "hours past midnight"
 msgstr "horoj post noktomezo"
 
-#: ../dtop/anki/utils.py:50
+#: ../../pylib/anki/utils.py:50
 #, python-format
 msgid "in %s day"
 msgid_plural "in %s days"
 msgstr[0] "en %s tago"
 msgstr[1] "en %s tagoj"
 
-#: ../dtop/anki/utils.py:51
+#: ../../pylib/anki/utils.py:51
 #, python-format
 msgid "in %s hour"
 msgid_plural "in %s hours"
 msgstr[0] "en %s horo"
 msgstr[1] "en %s horoj"
 
-#: ../dtop/anki/utils.py:52
+#: ../../pylib/anki/utils.py:52
 #, python-format
 msgid "in %s minute"
 msgid_plural "in %s minutes"
 msgstr[0] "en %s minuto"
 msgstr[1] "en %s minutoj"
 
-#: ../dtop/anki/utils.py:49
+#: ../../pylib/anki/utils.py:49
 #, python-format
 msgid "in %s month"
 msgid_plural "in %s months"
 msgstr[0] "en %s monato"
 msgstr[1] "en %s monatoj"
 
-#: ../dtop/anki/utils.py:53
+#: ../../pylib/anki/utils.py:53
 #, python-format
 msgid "in %s second"
 msgid_plural "in %s seconds"
 msgstr[0] "en %s sekundo"
 msgstr[1] "en %s sekundoj"
 
-#: ../dtop/anki/utils.py:48
+#: ../../pylib/anki/utils.py:48
 #, python-format
 msgid "in %s year"
 msgid_plural "in %s years"
 msgstr[0] "en %s jaro"
 msgstr[1] "en %s jaroj"
 
-#: ../dtop/aqt/forms/dconf.py:379
+#: ../aqt/forms/dconf.py:379
 msgid "lapses"
 msgstr "misrespondoj"
 
-#: ../dtop/anki/stats.py:454
+#: ../../pylib/anki/stats.py:454
 msgid "less than 0.1 cards/minute"
 msgstr "malpli ol 0,1 kartoj/minuto"
 
-#: ../dtop/aqt/importing.py:250
+#: ../aqt/importing.py:254
 #, python-format
 msgid "mapped to <b>%s</b>"
 msgstr "mapita al <b>%s</b>"
 
-#: ../dtop/aqt/importing.py:248
+#: ../aqt/importing.py:252
 msgid "mapped to <b>Tags</b>"
 msgstr "mapita al <b>Etikedoj</b>"
 
-#: ../dtop/aqt/forms/preferences.py:250 ../dtop/aqt/forms/preferences.py:254
+#: ../aqt/forms/preferences.py:250 ../aqt/forms/preferences.py:254
 msgid "mins"
 msgstr "minutoj"
 
-#: ../dtop/anki/stats.py:410 ../dtop/aqt/forms/dyndconf.py:145
+#: ../../pylib/anki/stats.py:410 ../aqt/forms/dyndconf.py:145
 msgid "minutes"
 msgstr "minutoj"
 
 #. T: abbreviation of month
-#: ../dtop/anki/stats.py:992
+#: ../../pylib/anki/stats.py:992
 msgid "mo"
 msgstr ""
 
-#: ../dtop/anki/stats.py:280 ../dtop/anki/stats.py:386
+#: ../../pylib/anki/stats.py:280 ../../pylib/anki/stats.py:386
 msgid "reviews"
 msgstr "ripetoj"
 
-#: ../dtop/aqt/forms/dconf.py:388
+#: ../aqt/forms/dconf.py:388
 msgid "seconds"
 msgstr "sekundoj"
 
-#: ../dtop/aqt/stats.py:64
+#: ../aqt/stats.py:64
 msgid "stats"
 msgstr "statistikoj"
 
-#: ../dtop/aqt/deckbrowser.py:134
+#: ../aqt/deckbrowser.py:134
 msgid "this page"
 msgstr "ĉi tiun retpaĝon"
 
 #. T: abbreviation of week
-#: ../dtop/anki/stats.py:990
+#: ../../pylib/anki/stats.py:990
 msgid "w"
 msgstr "s"
 
-#: ../dtop/anki/stats.py:957
+#: ../../pylib/anki/stats.py:957
 msgid "whole collection"
 msgstr "tuta kolekto"
 
-#: ../dtop/aqt/forms/reschedule.py:76
+#: ../aqt/forms/reschedule.py:76
 msgid "~"
 msgstr ""
 
