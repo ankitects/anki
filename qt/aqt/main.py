@@ -334,7 +334,10 @@ close the profile or restart Anki."""
 
         # import pending?
         if self.pendingImport:
-            self.handleImport(self.pendingImport)
+            if self._isAddon(self.pendingImport):
+                self.installAddon(self.pendingImport)
+            else:
+                self.handleImport(self.pendingImport)
             self.pendingImport = None
         runHook("profileLoaded")
         if onsuccess:
@@ -1482,7 +1485,7 @@ will be lost. Continue?"""
         self.app.appMsg.connect(self.onAppMsg)
 
     def onAppMsg(self, buf: str) -> Optional[QTimer]:
-        is_addon = buf.endswith(".ankiaddon")
+        is_addon = self._isAddon(buf)
 
         if self.state == "startup":
             # try again in a second
@@ -1530,6 +1533,9 @@ Please ensure a profile is open and Anki is not busy, then try again."""
             self.handleImport(buf)
 
         return None
+
+    def _isAddon(self, buf: str) -> bool:
+        return buf.endswith(self.addonManager.ext)
 
     # GC
     ##########################################################################
