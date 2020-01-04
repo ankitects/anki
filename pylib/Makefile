@@ -6,7 +6,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 RUNARGS :=
 .SUFFIXES:
-BLACKARGS := -t py36 anki tests --exclude='backend_pb2|buildinfo'
+BLACKARGS := -t py36 anki tests --exclude='backend_pb2|buildinfo|buildhash'
 ISORTARGS := anki tests
 
 $(shell mkdir -p .build ../dist)
