@@ -385,7 +385,7 @@ and have been disabled: %(found)s"
             strings.append(
                 _("The following conflicting add-ons were disabled:")
                 + " "
-                + " ".join(result.conflicts)
+                + ", ".join(self.addonName(f) for f in result.conflicts)
             )
 
         return strings
