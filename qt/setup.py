@@ -3,10 +3,6 @@ import setuptools, sys, os
 with open("../meta/version") as fh:
     version = fh.read().strip()
 
-platform_reqs = []
-if sys.platform == "win32":
-    platform_reqs.append("psutil")
-
 def package_files(directory):
     entries = []
     for (path, directories, filenames) in os.walk(directory):
@@ -34,6 +30,7 @@ setuptools.setup(
         'send2trash',
         'pyaudio',
         'markdown',
-        'jsonschema'
-    ] + platform_reqs
+        'jsonschema',
+        'psutil; sys.platform == "win32"',
+    ]
 )

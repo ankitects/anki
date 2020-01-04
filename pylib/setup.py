@@ -3,12 +3,6 @@ import setuptools, sys
 with open("../meta/version") as fh:
     version = fh.read().strip()
 
-platform_reqs = []
-if sys.platform == "win32":
-    platform_reqs.append("psutil")
-if sys.platform != "win32" and sys.platform != "darwin":
-    platform_reqs.append("distro")
-
 setuptools.setup(
     name="anki",
     version=version,
@@ -26,5 +20,7 @@ setuptools.setup(
         'requests',
         'decorator',
         'protobuf',
-    ] + platform_reqs
+        'psutil; sys_platform == "win32"',
+        'distro; sys_platform != "darwin" and sys_platform != "win32"'
+    ]
 )
