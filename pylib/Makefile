@@ -77,7 +77,7 @@ CHECKDEPS := $(shell find anki tests -name '*.py')
 .PHONY: build
 build: $(BUILD_STEPS) $(CHECKDEPS)
 	rm -rf dist
-	python setup.py bdist_wheel
+	python setup.py -q bdist_wheel
 	rsync -a dist/*.whl ../dist/
 
 # prepare code for running in place
