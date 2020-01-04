@@ -1035,10 +1035,13 @@ QTreeWidget {
     def installAddon(self, path: str, startup: bool = False):
         from aqt.addons import installAddonPackages
 
-        parent = None if startup else self
-
         installAddonPackages(
-            self.addonManager, [path], warn=True, strictly_modal=startup, parent=parent
+            self.addonManager,
+            [path],
+            warn=True,
+            advise_restart=not startup,
+            strictly_modal=startup,
+            parent=None if startup else self,
         )
 
     # Cramming

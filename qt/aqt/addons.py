@@ -861,7 +861,8 @@ def installAddonPackages(
     paths: List[str],
     parent: Optional[QWidget] = None,
     warn: bool = False,
-    strictly_modal: bool = False
+    strictly_modal: bool = False,
+    advise_restart: bool = False,
 ) -> bool:
 
     if warn:
@@ -889,6 +890,10 @@ def installAddonPackages(
 
     if log:
         log_html = "<br>".join(log)
+        if advise_restart:
+            log_html += "<br><br>" + _(
+                "<b>Please restart Anki to complete the installation.</b>"
+            )
         if len(log) == 1 and not strictly_modal:
             tooltip(log_html, parent=parent)
         else:
