@@ -666,7 +666,7 @@ class AddonsDialog(QDialog):
     def onGetAddons(self):
         GetAddons(self)
 
-    def onInstallFiles(self, paths: List[str] = None, external: bool = False):
+    def onInstallFiles(self, paths: Optional[List[str]] = None, external: bool = False):
         if not paths:
             key = _("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext)
             paths = getFile(
@@ -864,14 +864,14 @@ def installAddonPackages(
 ) -> bool:
 
     if external:
-        names_str = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
+        names = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
         q = _(
             "<b>Important</b>: As add-ons are programs downloaded from the internet, "
             "they are potentially malicious."
             "<b>You should only install add-ons you trust.</b><br><br>"
             "Are you sure you want to proceed with the installation of the "
-            f"following add-on(s)?<br><br>{names_str}<i>"
-        )
+            "following add-on(s)?<br><br>%(names)s"
+        ) % dict(names=names)
         if (
             not showInfo(
                 q,
@@ -882,7 +882,6 @@ def installAddonPackages(
             )
             == QMessageBox.Yes
         ):
-            tooltip(_("Add-on installation aborted"), parent=parent)
             return False
 
     log, errs = addonsManager.processPackages(paths, parent=parent)
