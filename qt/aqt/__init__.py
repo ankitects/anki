@@ -261,7 +261,7 @@ def parseArgs(argv):
     if isMac and len(argv) > 1 and argv[1].startswith("-psn"):
         argv = [argv[0]]
     parser = argparse.ArgumentParser(description="Anki " + appVersion)
-    parser.usage = "%(prog)s [OPTIONS] [file to import]"
+    parser.usage = "%(prog)s [OPTIONS] [file to import/add-on to install]"
     parser.add_argument("-b", "--base", help="path to base folder", default="")
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
