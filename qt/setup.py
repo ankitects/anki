@@ -1,4 +1,4 @@
-import setuptools, sys, os
+import setuptools, os
 
 with open("../meta/version") as fh:
     version = fh.read().strip()
