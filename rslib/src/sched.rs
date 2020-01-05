@@ -42,9 +42,13 @@ fn rollover_for_today(
 
 /// The number of times the day rolled over between two timestamps.
 fn days_elapsed(start: i64, end: i64, rollover_today: i64) -> u32 {
+    println!("start: {}", start);
+    println!("end: {}", end);
+    println!("rollover_today: {}", rollover_today);
     // get the number of full days that have elapsed
     let secs = (end - start).max(0);
     let days = (secs / 86_400) as u32;
+    println!("days: {}", days);
 
     // minus one if today's cutoff hasn't passed
     if days > 0 && end < rollover_today {
@@ -154,5 +158,129 @@ mod test {
         // to DST, but the number shouldn't change
         let offset = mdt.utc_minus_local() / 60;
         assert_eq!(elap(crt, now, offset, 4), 507);
+        // Rollover time is correct
+        println!("");
+        println!("Rollover time is correct");
+        println!("2018/08/06");
+        let crt = mdt.ymd(2018, 8, 6).and_hms(3, 0, 0).timestamp();
+        println!("00:00:00");
+        let now = mdt.ymd(2018, 8, 6).and_hms(0, 0, 0).timestamp();
+        let offset = mdt.utc_minus_local() / 60;
+        assert_eq!(elap(crt, now, offset, 4), 0);
+
+        println!("04:00:00");
+        let now = mdt.ymd(2018, 8, 6).and_hms(4, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 0);
+
+        println!("2018/08/07");
+        println!("00:00:00");
+        let now = mdt.ymd(2018, 8, 7).and_hms(0, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 0);
+
+        println!("02:59:59");
+        let now = mdt.ymd(2018, 8, 7).and_hms(2, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 0);
+
+        println!("03:00:00");
+        let now = mdt.ymd(2018, 8, 7).and_hms(3, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 0);
+
+        println!("03:59:59");
+        let now = mdt.ymd(2018, 8, 7).and_hms(3, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 0);
+
+        println!("04:00:00");
+        let now = mdt.ymd(2018, 8, 7).and_hms(4, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 1);
+
+        println!("05:00:00");
+        let now = mdt.ymd(2018, 8, 7).and_hms(5, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 1);
+
+        println!("23:59:59");
+        let now = mdt.ymd(2018, 8, 7).and_hms(23, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 1);
+
+        println!("2018/08/08");
+        println!("00:00:00");
+        let now = mdt.ymd(2018, 8, 8).and_hms(0, 0, 0).timestamp();
+        // This fails - returns 0 instead of 1
+        // assert_eq!(elap(crt, now, offset, 4), 1);
+
+        println!("02:59:59");
+        let now = mdt.ymd(2018, 8, 8).and_hms(2, 59, 59).timestamp();
+        // This fails - returns 0 instead of 1
+        // assert_eq!(elap(crt, now, offset, 4), 1);
+
+        println!("03:00:00");
+        let now = mdt.ymd(2018, 8, 8).and_hms(3, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 1);
+
+        println!("03:59:59");
+        let now = mdt.ymd(2018, 8, 8).and_hms(3, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 1);
+
+        println!("04:00:00");
+        let now = mdt.ymd(2018, 8, 8).and_hms(4, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 2);
+
+        println!("23:59:59");
+        let now = mdt.ymd(2018, 8, 8).and_hms(23, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 2);
+
+        println!("2018/12/2");
+        let offset = mst.utc_minus_local() / 60;
+
+        println!("00:00:00");
+        let now = mst.ymd(2018, 12, 2).and_hms(0, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 116);
+
+        println!("01:00:00");
+        let now = mst.ymd(2018, 12, 2).and_hms(1, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 116);
+
+        println!("01:59:59");
+        let now = mst.ymd(2018, 12, 2).and_hms(1, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 116);
+
+        println!("02:00:00");
+        let now = mst.ymd(2018, 12, 2).and_hms(2, 0, 0).timestamp();
+        // This fails - returning 117 instead of 116
+        // assert_eq!(elap(crt, now, offset, 4), 116);
+
+        println!("02:59:59");
+        let now = mst.ymd(2018, 12, 2).and_hms(2, 59, 59).timestamp();
+        // This fails - returning 117 instead of 116
+        // assert_eq!(elap(crt, now, offset, 4), 116);
+
+        println!("03:00:00");
+        let now = mst.ymd(2018, 12, 2).and_hms(3, 0, 0).timestamp();
+        // This fails - returning 117 instead of 116
+        // assert_eq!(elap(crt, now, offset, 4), 116);
+
+        println!("03:59:59");
+        let now = mst.ymd(2018, 12, 2).and_hms(3, 59, 59).timestamp();
+        // This fails - returning 117 instead of 116
+        // assert_eq!(elap(crt, now, offset, 4), 116);
+
+        println!("04:00:00");
+        let now = mst.ymd(2018, 12, 2).and_hms(4, 0, 0).timestamp();
+        // This fails - returning 118 instead of 117
+        // assert_eq!(elap(crt, now, offset, 4), 117);
+
+        println!("23:59:59");
+        let now = mst.ymd(2018, 12, 2).and_hms(23, 59, 59).timestamp();
+        // This fails - returning 118 instead of 117
+        // assert_eq!(elap(crt, now, offset, 4), 117);
+
+
+        println!("2018/12/3");
+        println!("00:00:00");
+        let now = mst.ymd(2018, 12, 3).and_hms(0, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, offset, 4), 117);
+
+
+        // This will fail
+        assert_eq!(elap(crt, now, offset, 4), 1000);
     }
 }
