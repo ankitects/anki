@@ -546,11 +546,13 @@ select id from notes where mid = ?)"""
 
     def scmhash(self, m: NoteType) -> str:
         "Return a hash of the schema, to see if models are compatible."
-        s = ""
+        s = m["css"]
         for f in m["flds"]:
             s += f["name"]
         for t in m["tmpls"]:
             s += t["name"]
+            for fmt in ("qfmt", "afmt"):
+                s += t[fmt]
         return checksum(s)
 
     # Required field/text cache
