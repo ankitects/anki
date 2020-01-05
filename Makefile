@@ -20,7 +20,8 @@ pyenv:
 	python -c 'import PyQt5' 2>/dev/null || pip install -r qt/requirements.qt
 
 # update build hash
-meta/buildhash:
+.PHONY: buildhash
+buildhash:
 	oldhash=$$(test -f meta/buildhash && cat meta/buildhash || true); \
 	newhash=$$(git rev-parse --short HEAD); \
 	if [ "$$oldhash" != "$$newhash" ]; then \
@@ -28,7 +29,7 @@ meta/buildhash:
 	fi
 
 .PHONY: run
-run: pyenv meta/buildhash
+run: pyenv buildhash
 	@. pyenv/bin/activate && \
 	for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
@@ -42,7 +43,7 @@ build: clean-dist build-rspy build-pylib build-qt add-buildhash
 	@echo "Build complete."
 
 .PHONY: build-rspy
-build-rspy: pyenv meta/buildhash
+build-rspy: pyenv buildhash
 	@. pyenv/bin/activate && \
 	$(SUBMAKE) -C rspy build BUILDFLAGS="$(BUILDFLAGS)"
 
@@ -67,7 +68,7 @@ clean-dist:
 	rm -rf dist
 
 .PHONY: check
-check: pyenv meta/buildhash
+check: pyenv buildhash
 	@. pyenv/bin/activate && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \
