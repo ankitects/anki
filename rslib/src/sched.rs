@@ -42,8 +42,7 @@ fn rollover_for_today(
 
 /// The number of times the day rolled over between two timestamps.
 fn days_elapsed(start: i64, end: i64, rollover_today: i64) -> u32 {
-    // get the number of full days that have elapsed
-    let secs = (end - start).max(0);
+    let secs = (rollover_today - start).max(0);
     let days = (secs / 86_400) as u32;
 
     // minus one if today's cutoff hasn't passed
