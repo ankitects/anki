@@ -16,7 +16,6 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 import anki.find
 import anki.latex  # sets up hook
 import anki.template
-from anki.backend import Backend
 from anki.cards import Card
 from anki.consts import *
 from anki.db import DB
@@ -27,6 +26,7 @@ from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager
 from anki.notes import Note
+from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.sound import stripSounds
@@ -75,12 +75,12 @@ class _Collection:
     ls: int
     conf: Dict[str, Any]
     _undo: List[Any]
-    backend: Backend
+    backend: RustBackend
 
     def __init__(
         self,
         db: DB,
-        backend: Backend,
+        backend: RustBackend,
         server: Optional["anki.storage.ServerData"] = None,
         log: bool = False,
     ) -> None:
