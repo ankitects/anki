@@ -67,7 +67,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 PYLIB := ../pylib
 
-CHECKDEPS := $(shell find aqt tests -name '*.py')
+CHECKDEPS := $(shell find aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
 	MYPYPATH=$(PYLIB) mypy aqt
