@@ -20,6 +20,7 @@ To start, make sure you have the following installed:
  - rustup (https://rustup.rs/)
  - gettext
  - rename
+ - rsync
 
 The build scripts assume a UNIX-like environment, so on Windows you will
 need to use WSL or Cygwin to use them.
