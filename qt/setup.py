@@ -1,7 +1,10 @@
-import setuptools, sys, os
+import os
+
+import setuptools
 
 with open("../meta/version") as fh:
     version = fh.read().strip()
+
 
 def package_files(directory):
     entries = []
@@ -9,7 +12,8 @@ def package_files(directory):
         entries.append((path, [os.path.join(path, f) for f in filenames]))
     return entries
 
-extra_files = package_files('aqt_data')
+
+extra_files = package_files("aqt_data")
 
 setuptools.setup(
     name="aqt",
@@ -21,17 +25,16 @@ setuptools.setup(
     url="https://apps.ankiweb.net",
     packages=setuptools.find_packages(".", exclude=["tests"]),
     data_files=extra_files,
-    classifiers=[
-    ],
-    python_requires='>=3.6',
+    classifiers=[],
+    python_requires=">=3.6",
     install_requires=[
-        'beautifulsoup4',
-        'requests',
-        'send2trash',
-        'pyaudio',
-        'markdown',
-        'jsonschema',
+        "beautifulsoup4",
+        "requests",
+        "send2trash",
+        "pyaudio",
+        "markdown",
+        "jsonschema",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
-    ]
+    ],
 )

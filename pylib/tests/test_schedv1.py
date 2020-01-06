@@ -405,7 +405,7 @@ def test_button_spacing():
 def test_overdue_lapse():
     # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
     return
-    d = getEmptyCol()
+    d = getEmptyCol()  # pylint: disable=unreachable
     # add a note
     f = d.newNote()
     f["Front"] = "one"

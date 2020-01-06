@@ -10,7 +10,6 @@ from anki.importing import (
     SupermemoXmlImporter,
     TextImporter,
 )
-from anki.utils import ids2str
 from tests.shared import getEmptyCol, getUpgradeDeckPath
 
 testDir = os.path.dirname(__file__)
