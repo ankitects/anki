@@ -69,7 +69,8 @@ clean-dist:
 
 .PHONY: check
 check: pyenv buildhash
-	@. pyenv/bin/activate && \
+	@set -e && \
+	. pyenv/bin/activate && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \
 	for dir in $(CHECKABLE); do \
