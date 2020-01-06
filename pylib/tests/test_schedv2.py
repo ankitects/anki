@@ -496,7 +496,7 @@ def test_button_spacing():
 def test_overdue_lapse():
     # disabled in commit 3069729776990980f34c25be66410e947e9d51a2
     return
-    d = getEmptyCol()
+    d = getEmptyCol()  # pylint: disable=unreachable
     # add a note
     f = d.newNote()
     f["Front"] = "one"
@@ -622,28 +622,30 @@ def test_bury():
     d.addNote(f)
     c2 = f.cards()[0]
     # burying
-    d.sched.buryCards([c.id], manual=True)
+    d.sched.buryCards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
     c.load()
     assert c.queue == -3
-    d.sched.buryCards([c2.id], manual=False)
+    d.sched.buryCards([c2.id], manual=False)  # pylint: disable=unexpected-keyword-arg
     c2.load()
     assert c2.queue == -2
 
     d.reset()
     assert not d.sched.getCard()
 
-    d.sched.unburyCardsForDeck(type="manual")
+    d.sched.unburyCardsForDeck(type="manual")  # pylint: disable=unexpected-keyword-arg
     c.load()
     assert c.queue == 0
     c2.load()
     assert c2.queue == -2
 
-    d.sched.unburyCardsForDeck(type="siblings")
+    d.sched.unburyCardsForDeck(  # pylint: disable=unexpected-keyword-arg
+        type="siblings"
+    )
     c2.load()
     assert c2.queue == 0
 
     d.sched.buryCards([c.id, c2.id])
-    d.sched.unburyCardsForDeck(type="all")
+    d.sched.unburyCardsForDeck(type="all")  # pylint: disable=unexpected-keyword-arg
 
     d.reset()
 

@@ -5,8 +5,8 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
-BLACKARGS := -t py36 aqt tests --exclude='aqt/forms|buildinfo'
-ISORTARGS := aqt tests
+BLACKARGS := -t py36 aqt tests setup.py --exclude='aqt/forms|buildinfo'
+ISORTARGS := aqt tests setup.py
 
 $(shell mkdir -p .build ../dist)
 
@@ -78,7 +78,7 @@ CHECKDEPS := $(shell find aqt tests -name '*.py')
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5,ankirspy aqt
+	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5,ankirspy aqt tests setup.py
 	@touch $@
 
 .build/imports: $(CHECKDEPS)

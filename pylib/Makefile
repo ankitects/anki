@@ -5,8 +5,8 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 RUNARGS :=
 .SUFFIXES:
-BLACKARGS := -t py36 anki tests --exclude='backend_pb2|buildinfo'
-ISORTARGS := anki tests
+BLACKARGS := -t py36 anki tests setup.py --exclude='backend_pb2|buildinfo'
+ISORTARGS := anki tests setup.py
 
 $(shell mkdir -p .build ../dist)
 
@@ -58,7 +58,7 @@ CHECKDEPS := $(shell find anki tests -name '*.py')
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=ankirspy anki
+	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=ankirspy anki tests setup.py
 	@touch $@
 
 .build/imports: $(CHECKDEPS)

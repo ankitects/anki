@@ -338,7 +338,7 @@ def test_modelChange():
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
 
 
-def test_templates():
+def test_templates2():
     d = dict(Foo="x", Bar="y")
     assert anki.template.render("{{Foo}}", d) == "x"
     assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"

@@ -1,4 +1,4 @@
-from tests.shared import assertException, getEmptyCol
+from tests.shared import getEmptyCol
 
 
 def test_flags():
