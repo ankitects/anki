@@ -31,8 +31,8 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
 	@touch $@
 
-.build/check: .build/rs-tools
-	cargo test
+.build/check: .build/rs-tools $(ALL_SOURCE)
+	cargo test -- --nocapture
 	cargo fmt -- --check
 	cargo clippy -- -D warnings
 	@touch $@
