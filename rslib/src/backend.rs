@@ -89,6 +89,9 @@ impl Backend {
             Value::SchedTimingToday(input) => {
                 OValue::SchedTimingToday(self.sched_timing_today(input))
             }
+            Value::DeckTree(_) => todo!(),
+            Value::FindCards(_) => todo!(),
+            Value::BrowserRows(_) => todo!(),
         })
     }
 

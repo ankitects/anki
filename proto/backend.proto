@@ -11,9 +11,11 @@ message BackendInput {
     oneof value {
         TemplateRequirementsIn template_requirements = 16;
         SchedTimingTodayIn sched_timing_today = 17;
+        Empty deck_tree = 18;
+        FindCardsIn find_cards = 19;
+        BrowserRowsIn browser_rows = 20;
 
         PlusOneIn plus_one = 2046; // temporary, for testing
-
     }
 }
 
@@ -21,6 +23,9 @@ message BackendOutput {
     oneof value {
         TemplateRequirementsOut template_requirements = 16;
         SchedTimingTodayOut sched_timing_today = 17;
+        DeckTreeOut deck_tree = 18;
+        FindCardsOut find_cards = 19;
+        BrowserRowsOut browser_rows = 20;
 
         PlusOneOut plus_one = 2046; // temporary, for testing
 
@@ -86,4 +91,36 @@ message SchedTimingTodayIn {
 message SchedTimingTodayOut {
     uint32 days_elapsed = 1;
     int64 next_day_at = 2;
+}
+
+message DeckTreeOut {
+    DeckTreeNode top = 1;
+}
+
+message DeckTreeNode {
+    // the components of a deck, split on ::
+    repeated string names = 1;
+    int64 deck_id = 2;
+    uint32 review_count = 3;
+    uint32 learn_count = 4;
+    uint32 new_count = 5;
+    repeated DeckTreeNode children = 6;
+    bool collapsed = 7;
+}
+
+message FindCardsIn {
+    string search = 1;
+}
+
+message FindCardsOut {
+    repeated int64 card_ids = 1;
+}
+
+message BrowserRowsIn {
+    repeated int64 card_ids = 1;
+}
+
+message BrowserRowsOut {
+    // just sort fields for proof of concept
+    repeated string sort_fields = 1;
 }
