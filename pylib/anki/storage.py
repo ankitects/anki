@@ -7,11 +7,11 @@ import os
 import re
 from typing import Any, Dict, Optional, Tuple
 
-from anki.backend import Backend
 from anki.collection import _Collection
 from anki.consts import *
 from anki.db import DB
 from anki.lang import _
+from anki.rsbackend import RustBackend
 from anki.stdmodels import (
     addBasicModel,
     addBasicTypingModel,
@@ -30,7 +30,7 @@ def Collection(
     path: str, lock: bool = True, server: Optional[ServerData] = None, log: bool = False
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
-    backend = Backend(path)
+    backend = RustBackend(path)
     # fixme: this call is temporarily here to ensure the brige is working
     # on all platforms, and should be removed in a future beta
     assert backend.plus_one(5) == 6

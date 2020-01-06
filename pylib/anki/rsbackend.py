@@ -1,3 +1,5 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
 
 from typing import Dict, List
@@ -44,7 +46,7 @@ def proto_template_reqs_to_legacy(
     return legacy_reqs
 
 
-class Backend:
+class RustBackend:
     def __init__(self, path: str):
         self._backend = ankirspy.Backend(path)
 

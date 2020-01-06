@@ -12,11 +12,11 @@ from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-from anki.backend import SchedTimingToday
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import runHook
 from anki.lang import _
+from anki.rsbackend import SchedTimingToday
 from anki.utils import fmtTimeSpan, ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
