@@ -154,5 +154,16 @@ mod test {
         // to DST, but the number shouldn't change
         let offset = mdt.utc_minus_local() / 60;
         assert_eq!(elap(crt, now, offset, 4), 507);
+
+        // collection created at 3am on the 6th, so day 1 starts at 4am on the 7th, and day 3 on the 9th.
+        let crt = mdt.ymd(2018, 8, 6).and_hms(3, 0, 0).timestamp();
+
+        let mst_offset = mst.utc_minus_local() / 60;
+        let now = mst.ymd(2018, 8, 9).and_hms(1, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, mst_offset, 4), 2);
+        let now = mst.ymd(2018, 8, 9).and_hms(3, 59, 59).timestamp();
+        assert_eq!(elap(crt, now, mst_offset, 4), 2);
+        let now = mst.ymd(2018, 8, 9).and_hms(4, 0, 0).timestamp();
+        assert_eq!(elap(crt, now, mst_offset, 4), 3);
     }
 }
