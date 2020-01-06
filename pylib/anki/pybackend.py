@@ -7,7 +7,7 @@ A Python implementation of some backend commands.
 Unimplemented commands will be forwarded on to the Rust backend.
 """
 
-from typing import Tuple, Any, Dict
+from typing import Any, Dict, Tuple
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
