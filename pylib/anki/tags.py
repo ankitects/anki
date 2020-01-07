@@ -9,6 +9,8 @@ tracked, so unused tags can only be removed from the list with a DB check.
 This module manages the tag cache and tags for notes.
 """
 
+from __future__ import annotations
+
 import json
 import re
 from typing import Callable, Dict, List, Tuple
@@ -23,7 +25,7 @@ class TagManager:
     # Registry save/load
     #############################################################
 
-    def __init__(self, col: "anki.storage._Collection") -> None:
+    def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col
         self.tags: Dict[str, int] = {}
 

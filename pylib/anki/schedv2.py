@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import datetime
 import itertools
 import random
@@ -38,7 +40,7 @@ class Scheduler:
     _burySiblingsOnAnswer = True
     revCount: int
 
-    def __init__(self, col: "anki.storage._Collection") -> None:
+    def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col
         self.queueLimit = 50
         self.reportLimit = 1000

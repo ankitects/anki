@@ -7,6 +7,8 @@ A Python implementation of some backend commands.
 Unimplemented commands will be forwarded on to the Rust backend.
 """
 
+from __future__ import annotations
+
 from typing import Any, Dict, Tuple
 
 import anki  # pylint: disable=unused-import
@@ -14,7 +16,7 @@ import anki.backend_pb2 as pb
 
 
 class PythonBackend:
-    def __init__(self, col: "anki.storage._Collection"):
+    def __init__(self, col: anki.storage._Collection):
         self.col = col
 
     def run_command_bytes(self, input: bytes) -> bytes:

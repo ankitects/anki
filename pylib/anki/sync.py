@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import gzip
 import io
 import json
@@ -35,7 +37,7 @@ class UnexpectedSchemaChange(Exception):
 class Syncer:
     cursor: Optional[sqlite3.Cursor]
 
-    def __init__(self, col: "anki.storage._Collection", server=None) -> None:
+    def __init__(self, col: anki.storage._Collection, server=None) -> None:
         self.col = col
         self.server = server
 

@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
@@ -17,7 +19,7 @@ from anki.utils import (
 
 
 class Note:
-    col: "anki.storage._Collection"
+    col: anki.storage._Collection
     newlyAdded: bool
     id: int
     guid: str
@@ -32,7 +34,7 @@ class Note:
 
     def __init__(
         self,
-        col: "anki.storage._Collection",
+        col: anki.storage._Collection,
         model: Optional[NoteType] = None,
         id: Optional[int] = None,
     ) -> None:
