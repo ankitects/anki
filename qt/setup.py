@@ -26,7 +26,7 @@ setuptools.setup(
     packages=setuptools.find_packages(".", exclude=["tests"]),
     data_files=extra_files,
     classifiers=[],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "beautifulsoup4",
         "requests",
