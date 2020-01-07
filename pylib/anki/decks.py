@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import copy
 import json
 import operator
@@ -98,7 +100,7 @@ class DeckManager:
     # Registry save/load
     #############################################################
 
-    def __init__(self, col: "anki.storage._Collection") -> None:
+    def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col
         self.decks = {}
         self.dconf = {}

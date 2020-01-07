@@ -1,5 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import pprint
 import time
 from typing import Any, Dict, Optional
@@ -29,7 +32,7 @@ class Card:
     lastIvl: Optional[int]
 
     def __init__(
-        self, col: "anki.collection._Collection", id: Optional[int] = None
+        self, col: anki.collection._Collection, id: Optional[int] = None
     ) -> None:
         self.col = col
         self.timerStarted = None
