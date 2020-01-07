@@ -6,8 +6,8 @@ import sys
 from anki.buildinfo import version
 from anki.storage import Collection
 
-if sys.version_info[0] < 3 or sys.version_info[1] < 5:
-    raise Exception("Anki requires Python 3.5+")
+if sys.version_info[0] < 3 or sys.version_info[1] < 7:
+    raise Exception("Anki requires Python 3.7+")
 
 if sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
     raise Exception("Anki requires a UTF-8 locale.")

@@ -13,7 +13,7 @@ setuptools.setup(
     url="https://apps.ankiweb.net",
     packages=setuptools.find_packages(".", exclude=["tests"]),
     classifiers=[],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "beautifulsoup4",
         "requests",

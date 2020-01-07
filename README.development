@@ -9,7 +9,7 @@ provide support for problems you encounter when running from source.
 
 To start, make sure you have the following installed:
 
- - Python 3.6+
+ - Python 3.7+
  - portaudio
  - mpv
  - lame
