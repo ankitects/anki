@@ -1,6 +1,6 @@
 name: Author in CONTRIBUTORS
 
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
   check:
