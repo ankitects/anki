@@ -30,7 +30,8 @@ buildhash:
 
 .PHONY: run
 run: pyenv buildhash
-	@. pyenv/bin/activate && \
+	@set -e && \
+	. pyenv/bin/activate && \
 	for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
 	done; \
@@ -59,7 +60,8 @@ build-qt:
 
 .PHONY: clean
 clean: clean-dist
-	@for dir in $(DEVEL); do \
+	@set -e && \
+	for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir clean; \
 	done
 
@@ -81,6 +83,7 @@ check: pyenv buildhash
 
 .PHONY: fix
 fix:
+	@set -e && \
 	for dir in $(CHECKABLE); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \
