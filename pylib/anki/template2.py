@@ -118,7 +118,7 @@ def apply_field_filters(
     field_name: str, field_text: str, fields: Dict[str, str], filters: List[str]
 ) -> str:
     """Apply filters to field text, returning modified text."""
-    _sort_filters(filters)
+    filters = _adjust_filters(filters)
 
     for filter in filters:
         if "-" in filter:
@@ -137,15 +137,11 @@ def apply_field_filters(
     return field_text
 
 
-def _sort_filters(filters: List[str]):
-    "Mutate the list of filters into the correct order."
-    # Since 'text:' and other mods can affect html on which Anki relies to
-    # process clozes, we need to make sure clozes are always
-    # treated after all the other mods, regardless of how they're specified
-    # in the template, so that {{cloze:text: == {{text:cloze:
-    # For type:, we return directly since no other mod than cloze (or other
-    # pre-defined mods) can be present and those are treated separately
-    filters.sort(key=lambda s: not s == "type")
+def _adjust_filters(filters: List[str]) -> List[str]:
+    "Handle the type:cloze: special case."
+    if filters == ["cloze", "type"]:
+        filters = ["type-cloze"]
+    return filters
 
 
 # Cloze filter
@@ -344,9 +340,12 @@ def text_filter(txt: str, *args) -> str:
     return stripHTML(txt)
 
 
-def type_answer_filter(txt: str, args, context, tag: str, dummy) -> str:
+def type_answer_filter(txt: str, filter_args: str, context, tag: str, dummy) -> str:
     # convert it to [[type:...]] for the gui code to process
-    return "[[type:%s]]" % tag
+    if filter_args:
+        return f"[[type:{filter_args}:{tag}]]"
+    else:
+        return f"[[type:{tag}]]"
 
 
 addHook("fmod_text", text_filter)

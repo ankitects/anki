@@ -220,6 +220,18 @@ def test_cloze_mathjax():
     )
 
 
+def test_typecloze():
+    d = getEmptyCol()
+    m = d.models.byName("Cloze")
+    d.models.setCurrent(m)
+    m["tmpls"][0]["qfmt"] = "{{type:cloze:Text}}"
+    d.models.save(m)
+    f = d.newNote()
+    f["Text"] = "hello {{c1::world}}"
+    d.addNote(f)
+    assert "[[type:cloze:Text]]" in f.cards()[0].q()
+
+
 def test_chained_mods():
     d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
