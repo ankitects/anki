@@ -141,6 +141,8 @@ class Template:
         if txt is None:
             return "{unknown field %s}" % tag_name
 
+        # the filter closest to the field name is applied first
+        mods.reverse()
         return apply_field_filters(tag, txt, context, mods)
 
     @modifier("=")
