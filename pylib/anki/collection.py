@@ -30,7 +30,7 @@ from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.template2 import renderFromFieldMap
+from anki.template2 import render_from_field_map
 from anki.types import NoteType, QAData, Template
 from anki.utils import (
     devMode,
@@ -666,7 +666,7 @@ where c.nid = n.id and c.id in %s group by nid"""
         fields = runFilter("mungeFields", fields, model, data, self)
 
         # render fields
-        qatext = renderFromFieldMap(qfmt, afmt, fields, card_ord)
+        qatext = render_from_field_map(qfmt, afmt, fields, card_ord)
         ret: Dict[str, Any] = dict(q=qatext[0], a=qatext[1], id=card_id)
 
         # allow add-ons to modify the generated result

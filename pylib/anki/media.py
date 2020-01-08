@@ -18,6 +18,7 @@ from anki.consts import *
 from anki.db import DB, DBError
 from anki.lang import _
 from anki.latex import mungeQA
+from anki.template2 import expand_clozes
 from anki.utils import checksum, isMac, isWin
 
 
@@ -216,7 +217,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         if model["type"] == MODEL_CLOZE and "{{c" in string:
             # if the field has clozes in it, we'll need to expand the
             # possibilities so we can render latex
-            strings = self._expandClozes(string)
+            strings = expand_clozes(string)
         else:
             strings = [string]
         for string in strings:
@@ -230,31 +231,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
                     if isLocal or includeRemote:
                         l.append(fname)
         return l
-
-    def _expandClozes(self, string: str) -> List[str]:
-        ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
-        strings = []
-        from anki.template.template import (
-            clozeReg,
-            CLOZE_REGEX_MATCH_GROUP_HINT,
-            CLOZE_REGEX_MATCH_GROUP_CONTENT,
-        )
-
-        def qrepl(m):
-            if m.group(CLOZE_REGEX_MATCH_GROUP_HINT):
-                return "[%s]" % m.group(CLOZE_REGEX_MATCH_GROUP_HINT)
-            else:
-                return "[...]"
-
-        def arepl(m):
-            return m.group(CLOZE_REGEX_MATCH_GROUP_CONTENT)
-
-        for ord in ords:
-            s = re.sub(clozeReg % ord, qrepl, string)
-            s = re.sub(clozeReg % ".+?", arepl, s)
-            strings.append(s)
-        strings.append(re.sub(clozeReg % ".+?", arepl, string))
-        return strings
 
     def transformNames(self, txt: str, func: Callable) -> Any:
         for reg in self.regexps:
