@@ -158,22 +158,13 @@ class Template:
     @modifier(None)
     def render_unescaped(self, tag_name=None, context=None) -> Any:
         """Render a tag without escaping it."""
-        txt = get_or_attr(context, tag_name)
-        if txt is not None:
-            # some field names could have colons in them
-            # avoid interpreting these as field modifiers
-            # better would probably be to put some restrictions on field names
-            return txt
+        # split out field modifiers
+        *mods, tag = tag_name.split(":")
 
-        # field modifiers
-        parts = tag_name.split(":")
-        extra = None
-        if len(parts) == 1 or parts[0] == "":
-            return "{unknown field %s}" % tag_name
-        else:
-            mods, tag = parts[:-1], parts[-1]  # py3k has *mods, tag = parts
-
+        # return an error if field doesn't exist
         txt = get_or_attr(context, tag)
+        if txt is None:
+            return "{unknown field %s}" % tag_name
 
         # Since 'text:' and other mods can affect html on which Anki relies to
         # process clozes, we need to make sure clozes are always
