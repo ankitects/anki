@@ -344,7 +344,7 @@ def text_filter(txt: str, *args) -> str:
     return stripHTML(txt)
 
 
-def type_answer_filter(txt: str, args, context, tag: str) -> str:
+def type_answer_filter(txt: str, args, context, tag: str, dummy) -> str:
     # convert it to [[type:...]] for the gui code to process
     return "[[type:%s]]" % tag
 
