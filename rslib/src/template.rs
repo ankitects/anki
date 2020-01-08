@@ -21,13 +21,24 @@ pub enum Token<'a> {
     CloseConditional(&'a str),
 }
 
-/// a span of text, terminated by {{, }} or end of string
-pub(crate) fn text_until_handlebars(s: &str) -> nom::IResult<&str, &str> {
+/// a span of text, terminated by {{ or end of string
+pub(crate) fn text_until_open_handlebars(s: &str) -> nom::IResult<&str, &str> {
     let end = s.len();
 
-    let limited_end = end
-        .min(s.find("{{").unwrap_or(end))
-        .min(s.find("}}").unwrap_or(end));
+    let limited_end = end.min(s.find("{{").unwrap_or(end));
+    let (output, input) = s.split_at(limited_end);
+    if output.is_empty() {
+        Err(nom::Err::Error((input, ErrorKind::TakeUntil)))
+    } else {
+        Ok((input, output))
+    }
+}
+
+/// a span of text, terminated by }} or end of string
+pub(crate) fn text_until_close_handlebars(s: &str) -> nom::IResult<&str, &str> {
+    let end = s.len();
+
+    let limited_end = end.min(s.find("}}").unwrap_or(end));
     let (output, input) = s.split_at(limited_end);
     if output.is_empty() {
         Err(nom::Err::Error((input, ErrorKind::TakeUntil)))
@@ -38,12 +49,12 @@ pub(crate) fn text_until_handlebars(s: &str) -> nom::IResult<&str, &str> {
 
 /// text outside handlebars
 fn text_token(s: &str) -> nom::IResult<&str, Token> {
-    text_until_handlebars(s).map(|(input, output)| (input, Token::Text(output)))
+    text_until_open_handlebars(s).map(|(input, output)| (input, Token::Text(output)))
 }
 
 /// text wrapped in handlebars
 fn handle_token(s: &str) -> nom::IResult<&str, Token> {
-    delimited(tag("{{"), text_until_handlebars, tag("}}"))(s)
+    delimited(tag("{{"), text_until_close_handlebars, tag("}}"))(s)
         .map(|(input, output)| (input, classify_handle(output)))
 }
 
@@ -392,6 +403,12 @@ mod test {
                 key: "tag",
                 filters: vec![]
             }]
+        );
+
+        // stray closing characters (like in javascript) are ignored
+        assert_eq!(
+            PT::from_text("text }} more").unwrap().0,
+            vec![Text("text }} more")]
         );
     }
 
