@@ -46,6 +46,13 @@ def field_is_not_empty(field_text: str) -> bool:
 
 # Filters
 ##########################################################################
+#
+# Applies field filters defined by hooks. Given {{filterName:field}} in
+# the template, the hook fmod_filterName is called with the arguments
+# (field_text, filter_args, fields, field_name, "").
+# The last argument is no longer used.
+# If the field name contains a hyphen, it is split on the hyphen, eg
+# {{foo-bar:baz}} calls fmod_foo with filter_args set to "bar".
 
 
 def apply_field_filters(
@@ -55,27 +62,19 @@ def apply_field_filters(
     _sort_filters(filters)
 
     for filter in filters:
-        # built-in modifiers
-        if filter == "text":
-            # strip html
-            field_text = stripHTML(field_text) if field_text else ""
-        elif filter == "type":
-            # type answer field; convert it to [[type:...]] for the gui code
-            # to process
-            field_text = "[[type:%s]]" % field_name
-        elif filter.startswith("cq-") or filter.startswith("ca-"):
-            # cloze deletion
-            filter, extra = filter.split("-")
-            field_text = (
-                _clozeText(field_text, extra, filter[1]) if field_text and extra else ""
-            )
+        if "-" in filter:
+            filter_base, filter_args = filter.split("-", maxsplit=1)
         else:
-            # the second and fifth arguments are no longer used
-            field_text = runFilter(
-                "fmod_" + filter, field_text, "", fields, field_name, ""
-            )
-            if not isinstance(field_text, str):
-                return "{field modifier '%s' on template invalid}" % filter
+            filter_base = filter
+            filter_args = ""
+
+        # the fifth argument is no longer used
+
+        field_text = runFilter(
+            "fmod_" + filter_base, field_text, filter_args, fields, field_name, ""
+        )
+        if not isinstance(field_text, str):
+            return "{field modifier '%s' on template invalid}" % filter
     return field_text
 
 
@@ -92,6 +91,9 @@ def _sort_filters(filters: List[str]):
     # pre-defined mods) can be present and those are treated separately
     filters.sort(key=lambda s: not s == "type")
 
+
+# Cloze filter
+##########################################################################
 
 # Matches a {{c123::clozed-out text::hint}} Cloze deletion, case-insensitively.
 # The regex should be interpolated with a regex number and creates the following
@@ -215,7 +217,26 @@ def expand_clozes(string: str) -> List[str]:
     return strings
 
 
-def hint(txt, extra, context, tag, fullname) -> str:
+def _cloze_filter(field_text: str, filter_args: str, q_or_a: str):
+    return _clozeText(field_text, filter_args, q_or_a)
+
+
+def cloze_qfilter(field_text: str, filter_args: str, *args):
+    return _cloze_filter(field_text, filter_args, "q")
+
+
+def cloze_afilter(field_text: str, filter_args: str, *args):
+    return _cloze_filter(field_text, filter_args, "a")
+
+
+addHook("fmod_cq", cloze_qfilter)
+addHook("fmod_ca", cloze_afilter)
+
+# Other filters
+##########################################################################
+
+
+def hint_filter(txt: str, args, context, tag: str, fullname) -> str:
     if not txt.strip():
         return ""
     # random id
@@ -251,19 +272,30 @@ def without_nbsp(s: str) -> str:
     return s.replace("&nbsp;", " ")
 
 
-def kanji(txt: str, *args) -> str:
+def kanji_filter(txt: str, *args) -> str:
     return re.sub(FURIGANA_RE, replace_if_not_audio(r"\1"), without_nbsp(txt))
 
 
-def kana(txt: str, *args) -> str:
+def kana_filter(txt: str, *args) -> str:
     return re.sub(FURIGANA_RE, replace_if_not_audio(r"\2"), without_nbsp(txt))
 
 
-def furigana(txt: str, *args) -> str:
+def furigana_filter(txt: str, *args) -> str:
     return re.sub(FURIGANA_RE, replace_if_not_audio(RUBY_REPL), without_nbsp(txt))
 
 
-addHook("fmod_hint", hint)
-addHook("fmod_kanji", kanji)
-addHook("fmod_kana", kana)
-addHook("fmod_furigana", furigana)
+def text_filter(txt: str, *args) -> str:
+    return stripHTML(txt)
+
+
+def type_answer_filter(txt: str, args, context, tag: str) -> str:
+    # convert it to [[type:...]] for the gui code to process
+    return "[[type:%s]]" % tag
+
+
+addHook("fmod_text", text_filter)
+addHook("fmod_type", type_answer_filter)
+addHook("fmod_hint", hint_filter)
+addHook("fmod_kanji", kanji_filter)
+addHook("fmod_kana", kana_filter)
+addHook("fmod_furigana", furigana_filter)
