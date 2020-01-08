@@ -98,17 +98,7 @@ class Template:
             section, section_name, inner = match.group(0, 1, 2)
             section_name = section_name.strip()
 
-            # check for cloze
-            val = None
-            m = re.match(r"c[qa]:(\d+):(.+)", section_name)
-            if m:
-                # get full field text
-                txt = get_or_attr(context, m.group(2), None)
-                m = re.search(clozeReg % m.group(1), txt)
-                if m:
-                    val = m.group(CLOZE_REGEX_MATCH_GROUP_TAG)
-            else:
-                val = get_or_attr(context, section_name, None)
+            val = get_or_attr(context, section_name, None)
 
             replacer = ""
             inverted = section[2] == "^"
