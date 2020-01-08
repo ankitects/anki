@@ -1,21 +1,7 @@
 import re
 from typing import Any, Callable, Dict, Pattern
 
-from anki.hooks import runFilter
-from anki.utils import stripHTML, stripHTMLMedia
-
-# Matches a {{c123::clozed-out text::hint}} Cloze deletion, case-insensitively.
-# The regex should be interpolated with a regex number and creates the following
-# named groups:
-#   - tag: The lowercase or uppercase 'c' letter opening the Cloze.
-#   - content: Clozed-out content.
-#   - hint: Cloze hint, if provided.
-clozeReg = r"(?si)\{\{(?P<tag>c)%s::(?P<content>.*?)(::(?P<hint>.*?))?\}\}"
-
-# Constants referring to group names within clozeReg.
-CLOZE_REGEX_MATCH_GROUP_TAG = "tag"
-CLOZE_REGEX_MATCH_GROUP_CONTENT = "content"
-CLOZE_REGEX_MATCH_GROUP_HINT = "hint"
+from anki.template2 import apply_field_filters, field_is_not_empty
 
 modifiers: Dict[str, Callable] = {}
 
@@ -102,9 +88,8 @@ class Template:
 
             replacer = ""
             inverted = section[2] == "^"
-            if val:
-                val = stripHTMLMedia(val).strip()
-            if (val and not inverted) or (not val and inverted):
+            nonempty = field_is_not_empty(val or "")
+            if (nonempty and not inverted) or (not nonempty and inverted):
                 replacer = inner
 
             template = template.replace(section, replacer)
@@ -156,125 +141,7 @@ class Template:
         if txt is None:
             return "{unknown field %s}" % tag_name
 
-        # Since 'text:' and other mods can affect html on which Anki relies to
-        # process clozes, we need to make sure clozes are always
-        # treated after all the other mods, regardless of how they're specified
-        # in the template, so that {{cloze:text: == {{text:cloze:
-        # For type:, we return directly since no other mod than cloze (or other
-        # pre-defined mods) can be present and those are treated separately
-        mods.reverse()
-        mods.sort(key=lambda s: not s == "type")
-
-        for mod in mods:
-            # built-in modifiers
-            if mod == "text":
-                # strip html
-                txt = stripHTML(txt) if txt else ""
-            elif mod == "type":
-                # type answer field; convert it to [[type:...]] for the gui code
-                # to process
-                return "[[%s]]" % tag_name
-            elif mod.startswith("cq-") or mod.startswith("ca-"):
-                # cloze deletion
-                mod, extra = mod.split("-")
-                txt = self.clozeText(txt, extra, mod[1]) if txt and extra else ""
-            else:
-                # hook-based field modifier
-                m = re.search(r"^(.*?)(?:\((.*)\))?$", mod)
-                if not m:
-                    return "invalid field modifier " + mod
-                mod, extra = m.groups()
-                txt = runFilter(
-                    "fmod_" + mod, txt or "", extra or "", context, tag, tag_name
-                )
-                if txt is None:
-                    return "{unknown field %s}" % tag_name
-        return txt
-
-    @classmethod
-    def clozeText(cls, txt: str, ord: str, type: str) -> str:
-        """Processe the given Cloze deletion within the given template."""
-        reg = clozeReg
-        currentRegex = clozeReg % ord
-        if not re.search(currentRegex, txt):
-            # No Cloze deletion was found in txt.
-            return ""
-        txt = cls._removeFormattingFromMathjax(txt, ord)
-
-        def repl(m):
-            # replace chosen cloze with type
-            if type == "q":
-                if m.group(CLOZE_REGEX_MATCH_GROUP_HINT):
-                    buf = "[%s]" % m.group(CLOZE_REGEX_MATCH_GROUP_HINT)
-                else:
-                    buf = "[...]"
-            else:
-                buf = m.group(CLOZE_REGEX_MATCH_GROUP_CONTENT)
-            # uppercase = no formatting
-            if m.group(CLOZE_REGEX_MATCH_GROUP_TAG) == "c":
-                buf = "<span class=cloze>%s</span>" % buf
-            return buf
-
-        txt = re.sub(currentRegex, repl, txt)
-        # and display other clozes normally
-        return re.sub(reg % r"\d+", "\\2", txt)
-
-    @classmethod
-    def _removeFormattingFromMathjax(cls, txt, ord) -> str:
-        """Marks all clozes within MathJax to prevent formatting them.
-
-        Active Cloze deletions within MathJax should not be wrapped inside
-        a Cloze <span>, as that would interfere with MathJax.
-
-        This method finds all Cloze deletions number `ord` in `txt` which are
-        inside MathJax inline or display formulas, and replaces their opening
-        '{{c123' with a '{{C123'. The clozeText method interprets the upper-case
-        C as "don't wrap this Cloze in a <span>".
-        """
-        creg = clozeReg.replace("(?si)", "")
-
-        # Scan the string left to right.
-        # After a MathJax opening - \( or \[ - flip in_mathjax to True.
-        # After a MathJax closing - \) or \] - flip in_mathjax to False.
-        # When a Cloze pattern number `ord` is found and we are in MathJax,
-        # replace its '{{c' with '{{C'.
-        #
-        # TODO: Report mismatching opens/closes - e.g. '\(\]'
-        # TODO: Report errors in this method better than printing to stdout.
-        # flags in middle of expression deprecated
-        in_mathjax = False
-
-        def replace(match):
-            nonlocal in_mathjax
-            if match.group("mathjax_open"):
-                if in_mathjax:
-                    print("MathJax opening found while already in MathJax")
-                in_mathjax = True
-            elif match.group("mathjax_close"):
-                if not in_mathjax:
-                    print("MathJax close found while not in MathJax")
-                in_mathjax = False
-            elif match.group("cloze"):
-                if in_mathjax:
-                    return match.group(0).replace(
-                        "{{c{}::".format(ord), "{{C{}::".format(ord)
-                    )
-            else:
-                print("Unexpected: no expected capture group is present")
-            return match.group(0)
-
-        # The following regex matches one of:
-        #  -  MathJax opening
-        #  -  MathJax close
-        #  -  Cloze deletion number `ord`
-        return re.sub(
-            r"(?si)"
-            r"(?P<mathjax_open>\\[([])|"
-            r"(?P<mathjax_close>\\[\])])|"
-            r"(?P<cloze>" + (creg % ord) + ")",
-            replace,
-            txt,
-        )
+        return apply_field_filters(tag, txt, context, mods)
 
     @modifier("=")
     def render_delimiter(self, tag_name=None, context=None) -> str:
