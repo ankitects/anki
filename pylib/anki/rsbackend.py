@@ -1,8 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
-
-from typing import Dict, List
+from dataclasses import dataclass
+from typing import Dict, List, Union
 
 import ankirspy  # pytype: disable=import-error
 
@@ -44,6 +44,12 @@ def proto_template_reqs_to_legacy(
             l: List[int] = []
             legacy_reqs.append((idx, "none", l))
     return legacy_reqs
+
+
+@dataclass
+class TemplateReplacement:
+    field_name: str
+    filters: List[str]
 
 
 class RustBackend:
@@ -88,3 +94,26 @@ class RustBackend:
                 )
             )
         ).sched_timing_today
+
+    def flatten_template(
+        self, template: str, nonempty_fields: List[str]
+    ) -> List[Union[str, TemplateReplacement]]:
+        out = self._run_command(
+            pb.BackendInput(
+                flatten_template=pb.FlattenTemplateIn(
+                    template_text=template, nonempty_field_names=nonempty_fields
+                )
+            )
+        ).flatten_template
+        results: List[Union[str, TemplateReplacement]] = []
+        for node in out.nodes:
+            if node.WhichOneof("value") == "text":
+                results.append(node.text)
+            else:
+                results.append(
+                    TemplateReplacement(
+                        field_name=node.replacement.field_name,
+                        filters=list(node.replacement.filters),
+                    )
+                )
+        return results

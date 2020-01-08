@@ -226,7 +226,71 @@ fn template_is_empty<'a>(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode<'a
     true
 }
 
-// Compatibility with old Anki versions
+// Flattening
+//----------------------------------------
+
+#[derive(Debug, PartialEq)]
+pub enum FlattenedNode {
+    Text {
+        text: String,
+    },
+    /// Filters are in the order they should be applied.
+    Replacement {
+        field: String,
+        filters: Vec<String>,
+    },
+}
+
+impl ParsedTemplate<'_> {
+    /// Resolve conditional replacements, returning a list of nodes.
+    ///
+    /// This leaves the field replacement (with any filters that were provided)
+    /// up to the calling code to handle.
+    pub fn flatten(&self, nonempty_fields: &HashSet<&str>) -> Vec<FlattenedNode> {
+        let mut flattened = vec![];
+
+        flatten_into(&mut flattened, self.0.as_ref(), nonempty_fields);
+
+        flattened
+    }
+}
+
+fn flatten_into(
+    rendered_nodes: &mut Vec<FlattenedNode>,
+    nodes: &[ParsedNode],
+    fields: &HashSet<&str>,
+) {
+    use ParsedNode::*;
+    for node in nodes {
+        match node {
+            Text(t) => {
+                if let Some(FlattenedNode::Text { ref mut text }) = rendered_nodes.last_mut() {
+                    text.push_str(t)
+                } else {
+                    rendered_nodes.push(FlattenedNode::Text {
+                        text: (*t).to_string(),
+                    })
+                }
+            }
+            Replacement { key, filters } => rendered_nodes.push(FlattenedNode::Replacement {
+                field: (*key).to_string(),
+                filters: filters.iter().map(|&e| e.to_string()).collect(),
+            }),
+            Conditional { key, children } => {
+                if fields.contains(key) {
+                    flatten_into(rendered_nodes, children.as_ref(), fields);
+                }
+            }
+            NegatedConditional { key, children } => {
+                if !fields.contains(key) {
+                    flatten_into(rendered_nodes, children.as_ref(), fields);
+                }
+            }
+        };
+    }
+}
+
+// Field requirements
 //----------------------------------------
 
 #[derive(Debug, Clone, PartialEq)]
@@ -240,8 +304,13 @@ impl ParsedTemplate<'_> {
     /// Return fields required by template.
     ///
     /// This is not able to represent negated expressions or combinations of
-    /// Any and All, and is provided only for the sake of backwards
-    /// compatibility.
+    /// Any and All, but is compatible with older Anki clients.
+    ///
+    /// In the future, it may be feasible to calculate the requirements
+    /// when adding cards, instead of caching them up front, which would mean
+    /// the above restrictions could be lifted. We would probably
+    /// want to add a cache of non-zero fields -> available cards to avoid
+    /// slowing down bulk operations like importing too much.
     pub fn requirements(&self, field_map: &FieldMap) -> FieldRequirements {
         let mut nonempty: HashSet<_> = Default::default();
         let mut ords = HashSet::new();
@@ -391,5 +460,73 @@ mod test {
 {{/Back}}";
 
         assert_eq!(without_legacy_template_directives(input), output);
+    }
+
+    #[test]
+    fn test_render() {
+        let map: HashSet<_> = vec!["F", "B"].into_iter().collect();
+
+        use crate::template::FlattenedNode as FN;
+        let mut tmpl = PT::from_text("{{B}}A{{F}}").unwrap();
+        assert_eq!(
+            tmpl.flatten(&map),
+            vec![
+                FN::Replacement {
+                    field: "B".to_owned(),
+                    filters: vec![]
+                },
+                FN::Text {
+                    text: "A".to_owned()
+                },
+                FN::Replacement {
+                    field: "F".to_owned(),
+                    filters: vec![]
+                },
+            ]
+        );
+
+        // empty
+        tmpl = PT::from_text("{{#E}}A{{/E}}").unwrap();
+        assert_eq!(tmpl.flatten(&map), vec![]);
+
+        // missing
+        tmpl = PT::from_text("{{^M}}A{{/M}}").unwrap();
+        assert_eq!(
+            tmpl.flatten(&map),
+            vec![FN::Text {
+                text: "A".to_owned()
+            },]
+        );
+
+        // nested
+        tmpl = PT::from_text("{{^E}}1{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}{{/E}}").unwrap();
+        assert_eq!(
+            tmpl.flatten(&map),
+            vec![
+                FN::Text {
+                    text: "12".to_owned()
+                },
+                FN::Replacement {
+                    field: "F".to_owned(),
+                    filters: vec![]
+                },
+            ]
+        );
+
+        // filters
+        tmpl = PT::from_text("{{one:two:B}}{{three:X}}").unwrap();
+        assert_eq!(
+            tmpl.flatten(&map),
+            vec![
+                FN::Replacement {
+                    field: "B".to_owned(),
+                    filters: vec!["two".to_string(), "one".to_string()]
+                },
+                FN::Replacement {
+                    field: "X".to_owned(),
+                    filters: vec!["three".to_string()]
+                },
+            ]
+        );
     }
 }
