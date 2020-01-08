@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pprint
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import anki  # pylint: disable=unused-import
 from anki.consts import *
@@ -26,7 +26,7 @@ from anki.utils import intTime, joinFields, timestampID
 
 
 class Card:
-    _qa: Optional[Dict[str, str]]
+    _qa: Optional[Dict[str, Union[str, int]]]
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: Optional[int]
