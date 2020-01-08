@@ -197,6 +197,7 @@ question on all cards."""
         self.addHistory(note)
         self.mw.requireReset()
         self.previousNote = note
+        runHook("AddCards.noteAdded", note)
         return note
 
     def addCards(self):
