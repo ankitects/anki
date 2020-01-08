@@ -74,7 +74,7 @@ CHECKDEPS := $(shell find aqt tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/test: $(CHECKDEPS)
-	python -m pytest
+	python -m pytest -s
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
