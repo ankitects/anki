@@ -1,9 +1,10 @@
 use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
+use crate::backend_proto::FlattenedTemplateReplacement;
 use crate::err::{AnkiError, Result};
 use crate::sched::sched_timing_today;
 use crate::template::{
-    without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
+    without_legacy_template_directives, FieldMap, FieldRequirements, FlattenedNode, ParsedTemplate,
 };
 use prost::Message;
 use std::collections::HashSet;
@@ -92,6 +93,7 @@ impl Backend {
             Value::DeckTree(_) => todo!(),
             Value::FindCards(_) => todo!(),
             Value::BrowserRows(_) => todo!(),
+            Value::FlattenTemplate(input) => OValue::FlattenTemplate(self.flatten_template(input)?),
         })
     }
 
@@ -153,8 +155,43 @@ impl Backend {
             next_day_at: today.next_day_at,
         }
     }
+
+    fn flatten_template(&self, input: pt::FlattenTemplateIn) -> Result<pt::FlattenTemplateOut> {
+        let field_refs: HashSet<_> = input
+            .nonempty_field_names
+            .iter()
+            .map(AsRef::as_ref)
+            .collect();
+
+        let normalized = without_legacy_template_directives(&input.template_text);
+        match ParsedTemplate::from_text(normalized.as_ref()) {
+            Ok(tmpl) => {
+                let nodes = tmpl.flatten(&field_refs);
+                let out_nodes = nodes
+                    .into_iter()
+                    .map(|n| pt::FlattenedTemplateNode {
+                        value: Some(flattened_node_to_proto(n)),
+                    })
+                    .collect();
+                Ok(pt::FlattenTemplateOut { nodes: out_nodes })
+            }
+            Err(e) => Err(e),
+        }
+    }
 }
 
 fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
     ords.iter().map(|ord| *ord as u32).collect()
+}
+
+fn flattened_node_to_proto(node: FlattenedNode) -> pt::flattened_template_node::Value {
+    match node {
+        FlattenedNode::Text { text } => pt::flattened_template_node::Value::Text(text),
+        FlattenedNode::Replacement { field, filters } => {
+            pt::flattened_template_node::Value::Replacement(FlattenedTemplateReplacement {
+                field_name: field,
+                filters,
+            })
+        }
+    }
 }

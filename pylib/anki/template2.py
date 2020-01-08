@@ -9,31 +9,73 @@ connected to pystache. It may be renamed in the future.
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 import anki
 from anki.hooks import addHook, runFilter
 from anki.lang import _
+from anki.rsbackend import TemplateReplacement
 from anki.sound import stripSounds
 from anki.utils import stripHTML, stripHTMLMedia
 
 
-def render_from_field_map(
-    qfmt: str, afmt: str, fields: Dict[str, str], card_ord: int
+def render_qa_from_field_map(
+    col: anki.storage._Collection,
+    qfmt: str,
+    afmt: str,
+    fields: Dict[str, str],
+    card_ord: int,
 ) -> Tuple[str, str]:
     "Renders the provided templates, returning rendered q & a text."
     # question
     format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (card_ord + 1), qfmt)
     format = format.replace("<%cloze:", "<%%cq:%d:" % (card_ord + 1))
-    qtext = anki.template.render(format, fields)
+    qtext = render_template(col, format, fields)
 
     # answer
     format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (card_ord + 1), afmt)
     format = format.replace("<%cloze:", "<%%ca:%d:" % (card_ord + 1))
     fields["FrontSide"] = stripSounds(qtext)
-    atext = anki.template.render(format, fields)
+    atext = render_template(col, format, fields)
 
     return qtext, atext
+
+
+def render_template(
+    col: anki.storage._Collection, format: str, fields: Dict[str, str]
+) -> str:
+    "Render a single template."
+    old_output = anki.template.render(format, fields)
+
+    nonempty = nonempty_fields(fields)
+    flattened = col.backend.flatten_template(format, nonempty)
+    new_output = render_flattened_template(flattened, fields)
+
+    if old_output != new_output:
+        print(
+            f"template rendering didn't match - please report:\n'{old_output}'\n'{new_output}'"
+        )
+        # import os
+        # open(os.path.expanduser("~/temp1.txt"), "w").write(old_output)
+        # open(os.path.expanduser("~/temp2.txt"), "w").write(new_output)
+    return new_output
+
+
+def render_flattened_template(
+    flattened: List[Union[str, TemplateReplacement]], fields: Dict[str, str]
+) -> str:
+    "Render a list of strings or replacements into a string."
+    res = ""
+    for node in flattened:
+        if isinstance(node, str):
+            res += node
+        else:
+            text = fields.get(node.field_name)
+            if text is None:
+                res += unknown_field_message(node)
+                continue
+            res += apply_field_filters(node.field_name, text, fields, node.filters)
+    return res
 
 
 def field_is_not_empty(field_text: str) -> bool:
@@ -42,6 +84,23 @@ def field_is_not_empty(field_text: str) -> bool:
     field_text = stripHTMLMedia(field_text)
 
     return field_text.strip() != ""
+
+
+def nonempty_fields(fields: Dict[str, str]) -> List[str]:
+    res = []
+    for field, text in fields.items():
+        if field_is_not_empty(text):
+            res.append(field)
+    return res
+
+
+def unknown_field_message(node: TemplateReplacement) -> str:
+    # mirror the pystache message for now
+    field = node.field_name
+    if node.filters:
+        field_and_filters = list(reversed(node.filters)) + [field]
+        field = ":".join(field_and_filters)
+    return "{unknown field %s}" % field
 
 
 # Filters
