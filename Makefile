@@ -28,13 +28,18 @@ buildhash:
 		echo $$newhash > meta/buildhash; \
 	fi
 
-.PHONY: run
-run: pyenv buildhash
+.PHONY: develop
+develop: pyenv buildhash
 	@set -e && \
 	. pyenv/bin/activate && \
 	for dir in $(DEVEL); do \
-	  $(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
-	done; \
+		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
+	done
+
+.PHONY: run
+run: develop
+	@set -e && \
+	. pyenv/bin/activate && \
 	echo "Starting Anki..."; \
 	qt/runanki $(RUNFLAGS)
 
