@@ -80,9 +80,6 @@ def apply_field_filters(
 
 def _sort_filters(filters: List[str]):
     "Mutate the list of filters into the correct order."
-
-    # the filter closest to the field name is applied first
-    filters.reverse()
     # Since 'text:' and other mods can affect html on which Anki relies to
     # process clozes, we need to make sure clozes are always
     # treated after all the other mods, regardless of how they're specified
