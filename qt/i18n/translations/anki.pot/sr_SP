@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:42\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:20\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Serbian (Cyrillic)\n"
 "Language: sr_SP\n"
@@ -168,7 +168,7 @@ msgstr[0] "%d група"
 msgstr[1] "%d групе"
 msgstr[2] "%d група"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
@@ -176,7 +176,7 @@ msgstr[0] "учитај измене у %d медија датотеци"
 msgstr[1] "учитај иземене у %d медија датотекама"
 msgstr[2] "учитај иземене у %d медија датотекама"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -257,7 +257,7 @@ msgstr[0] "%d изабрана"
 msgstr[1] "%d изабране"
 msgstr[2] "%d изабрано"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "%s копија"
@@ -473,7 +473,7 @@ msgstr "(%s тачних)"
 msgid "(Note deleted)"
 msgstr ""
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(крај)"
 
@@ -674,7 +674,7 @@ msgstr "Велико хвала свима који су давали предл
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "<i>Лакоћа</i> карте - величина следећег интервала када, при понављању, дате оцену \"Добро\"."
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr "Филтрирани шпил не може да има под-шпилове."
 
@@ -776,7 +776,7 @@ msgid "Add: %s"
 msgstr "Додај: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "Додато"
 
@@ -901,7 +901,7 @@ msgstr "Anki не може да преименује ваш профил, зат
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki није пронашао линију између питања и одговора. Да бисте заменили њихова места, уредите шаблон ручно."
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -976,7 +976,7 @@ msgstr "Да ли заиста желите да избришете %s?"
 msgid "At least one card type is required."
 msgstr "Мора да постоји бар један тип карте."
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "Мора да постоји бар један корак."
 
@@ -1333,7 +1333,7 @@ msgstr "Клонирај: %s"
 msgid "Close"
 msgstr "Затвори"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr "Затвори и поништи унос?"
 
@@ -1358,7 +1358,7 @@ msgstr "Код:"
 msgid "Collection exported."
 msgstr ""
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Колекција је оштећена. Погледајте упутство."
 
@@ -1382,7 +1382,7 @@ msgstr "Конфигурација"
 msgid "Configure interface language and options"
 msgstr "Изабери језик сучеља и друге могућности"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Честитамо! Завршили сте овај шпил за сада."
 
@@ -1526,7 +1526,7 @@ msgstr ""
 msgid "Cut"
 msgstr "Исеци"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr "База података је обновљена и оптимизована."
 
@@ -1567,7 +1567,7 @@ msgstr "Шпилови"
 msgid "Decreasing intervals"
 msgstr "Смањивање интервала"
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr "Подразумевано"
@@ -1640,7 +1640,7 @@ msgstr "Да избришем овај некоришћени тип белеш�
 msgid "Delete unused media?"
 msgstr "Да избришем некоришћени тип медија датотеке?"
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
@@ -1648,7 +1648,7 @@ msgstr[0] "Избрисана %d карта са непостојећом бел
 msgstr[1] "Избрисане %d карте са непостојећом белешком."
 msgstr[2] "Избрисано %d карата са непостојећом белешком."
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1664,7 +1664,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
@@ -1672,7 +1672,7 @@ msgstr[0] "Избрисана %d белешка са непостојећим т
 msgstr[1] "Избрисане %d белешке са непостојећим типом белешке."
 msgstr[2] "Избрисано %d бележака са непостојећим типом белешке."
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
@@ -1680,7 +1680,7 @@ msgstr[0] "Избрисана %d белешка без карте."
 msgstr[1] "Избрисане %d белешке без карата."
 msgstr[2] "Избрисано %d бележака без карата."
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1981,7 +1981,7 @@ msgstr "Виђена први пут"
 msgid "First field matched: %s"
 msgstr "Прво поље подударно: %s"
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
@@ -1989,11 +1989,11 @@ msgstr[0] "Фиксирана %d картица са неважећим свој
 msgstr[1] "Фиксиране %d картице са неважећим својствима."
 msgstr[2] "Фиксиране %d картице са неважећим својствима."
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "Исправљено AnkiDroid редефинисање грешке шпила."
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Фиксни тип белешке: %s"
@@ -2320,7 +2320,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2856,7 +2856,7 @@ msgstr ""
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Повежите микрофон и обезбедите да други програми не користе аудио уређај."
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Молимо уредите ову белешку, додајући неколико пропуста за попуњавање. (%s)"
@@ -3137,7 +3137,7 @@ msgstr ""
 msgid "Reverted to state prior to '%s'."
 msgstr "Врати на стање пре '%s'."
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "Понављање"
 
@@ -3292,7 +3292,7 @@ msgstr ""
 msgid "Shortcut: %s"
 msgstr "Пречица: %s"
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr "Прикажи %s"
@@ -3357,7 +3357,7 @@ msgstr "Величина:"
 msgid "Skipped"
 msgstr "Прескочено"
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Неке повезане или сачуване карте ће бити обрисане после ове сесије."
 
@@ -3409,7 +3409,7 @@ msgstr "Корак:"
 msgid "Steps (in minutes)"
 msgstr "Корака (у минутима)"
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "Кораке наводити у виду бројева."
 
@@ -3554,7 +3554,7 @@ msgstr "Текст"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Текст, одељен симболима табулације или тачкама са зарезом (*)"
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr "Овакав шпил већ постоји."
 
@@ -3644,7 +3644,7 @@ msgstr "Измена, коју сте затражили, захтеваће у�
 msgid "The time taken to answer the questions."
 msgstr "Време потрошено на одговоре."
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3724,11 +3724,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Да бисте додали попуњавање пропуста у постојећој белешци, потребно је да јој прво измените тип у \"пропуст\" (cloze), преко Уреди>Измени тип белешке"
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "Да бисте их видели, кликните испод на дугме Прикажи."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "За учење ван обичног распореда, кликните на дугме Додатно учење испод."
 
@@ -3736,7 +3736,7 @@ msgstr "За учење ван обичног распореда, кликнит
 msgid "Today"
 msgstr "Данас"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3988,7 +3988,7 @@ msgstr "Ваши шпилови овде и на AnkiWeb се разликују
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr ""
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr "[нема шпилова]"
 
@@ -4036,7 +4036,7 @@ msgstr "све време"
 msgid "duplicate"
 msgstr "дупликат"
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr "помоћ"
 
