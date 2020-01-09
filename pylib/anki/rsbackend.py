@@ -85,12 +85,21 @@ class RustBackend:
         return proto_template_reqs_to_legacy(reqs)
 
     def sched_timing_today(
-        self, start: int, end: int, offset: int, rollover: int
+        self,
+        created_secs: int,
+        created_mins_west: int,
+        now_secs: int,
+        now_mins_west: int,
+        rollover: int,
     ) -> SchedTimingToday:
         return self._run_command(
             pb.BackendInput(
                 sched_timing_today=pb.SchedTimingTodayIn(
-                    created=start, now=end, minutes_west=offset, rollover_hour=rollover,
+                    created_secs=created_secs,
+                    created_mins_west=created_mins_west,
+                    now_secs=now_secs,
+                    now_mins_west=now_mins_west,
+                    rollover_hour=rollover,
                 )
             )
         ).sched_timing_today

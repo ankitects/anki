@@ -84,10 +84,11 @@ message TemplateRequirementAny {
 }
 
 message SchedTimingTodayIn {
-    int64 created = 1;
-    int64 now = 2;
-    sint32 minutes_west = 3;
-    sint32 rollover_hour = 4;
+    int64 created_secs = 1;
+    sint32 created_mins_west = 2;
+    int64 now_secs = 3;
+    sint32 now_mins_west = 4;
+    sint32 rollover_hour = 5;
 }
 
 message SchedTimingTodayOut {

@@ -145,9 +145,10 @@ impl Backend {
 
     fn sched_timing_today(&self, input: pt::SchedTimingTodayIn) -> pt::SchedTimingTodayOut {
         let today = sched_timing_today(
-            input.created as i64,
-            input.now as i64,
-            input.minutes_west,
+            input.created_secs as i64,
+            input.created_mins_west,
+            input.now_secs as i64,
+            input.now_mins_west,
             input.rollover_hour as i8,
         );
         pt::SchedTimingTodayOut {
