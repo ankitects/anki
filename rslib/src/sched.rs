@@ -89,7 +89,7 @@ mod test {
         fixed_offset_from_minutes, normalized_rollover_hour, sched_timing_today,
         utc_minus_local_mins,
     };
-    use chrono::{FixedOffset, TimeZone};
+    use chrono::{FixedOffset, Local, TimeZone};
 
     #[test]
     fn test_rollover() {
@@ -201,5 +201,103 @@ mod test {
                 }
             }
         }
+    }
+
+    #[test]
+    fn test_next_day_at() {
+        std::env::set_var("TZ", "America/Denver");
+        let rollhour = 4;
+
+        let crt = Local.ymd(2019, 1, 1).and_hms(2, 0, 0);
+
+        // Test a day without DST transition, now before rollover
+        let now = Local.ymd(2019, 1, 3).and_hms(2, 0, 0);
+        let next_day_at = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        println!();
+        println!("now: {}", now);
+        println!("next_day_at: {}", next_day_at);
+        println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
+        // This fails - returning rollover next day instead of current day
+        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+
+        // Test a day without DST transition, now is rollover
+        let now = Local.ymd(2019, 1, 3).and_hms(4, 0, 0);
+        let next_day_at = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        println!();
+        println!("now: {}", now);
+        println!("next_day_at: {}", next_day_at);
+        println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
+        // This fails - returning rollover next day instead of current day
+        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+
+        // Test a day without DST transition, now after rollover
+        let now = Local.ymd(2019, 1, 3).and_hms(8, 0, 0);
+        let next_day_at = Local.ymd(2019, 1, 4).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        println!();
+        println!("now: {}", now);
+        println!("next_day_at: {}", next_day_at);
+        println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
+
+        // For TZ America/Denver
+        // MST to MDT Sun, 10 Mar 2019 at 2am
+        let now = Local.ymd(2019, 3, 9).and_hms(20, 0, 0);
+        let next_day_at = Local.ymd(2019, 3, 10).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        println!();
+        println!("now: {}", now);
+        println!("next_day_at: {}", next_day_at);
+        println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
+        // This fails - returning 5am on the 10th instead of 4am
+        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+
+
+        // For TZ America/Denver
+        // MDT to MST Sun 3 Nov 2019 at 2am
+        let now = Local.ymd(2019, 11, 2).and_hms(20, 0, 0);
+        let next_day_at = Local.ymd(2019, 11, 3).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        println!();
+        println!("now: {}", now);
+        println!("next_day_at: {}", next_day_at);
+        println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
+        // This fails - returning 3am on the 3rd instead of 4am
+        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+
+        assert_eq!(123, 456);
+
     }
 }
