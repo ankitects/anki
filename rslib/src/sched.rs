@@ -242,6 +242,9 @@ mod test {
         println!("next_day_at: {}", next_day_at);
         println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
         // This fails - returning rollover next day instead of current day
+        // This isn't inherently wrong but I think it is inconsistent with
+        // the current Python implementation. But this "fault" probably
+        // isn't significant.
         // assert_eq!(today.next_day_at, next_day_at.timestamp());
 
         // Test a day without DST transition, now after rollover
