@@ -32,7 +32,11 @@ pub fn sched_timing_today(
     let rollover_hour = normalized_rollover_hour(rollover_hour);
     let rollover_today_datetime = today.and_hms(rollover_hour as u32, 0, 0);
     let rollover_passed = rollover_today_datetime <= now_datetime;
-    let next_day_at = (rollover_today_datetime + Duration::days(1)).timestamp();
+    let next_day_at = if rollover_passed {
+        (rollover_today_datetime + Duration::days(1)).timestamp()
+    } else {
+        rollover_today_datetime.timestamp()
+    };
 
     // day count
     let days_elapsed = days_elapsed(created_date, today, rollover_passed);
@@ -89,7 +93,7 @@ mod test {
         fixed_offset_from_minutes, normalized_rollover_hour, sched_timing_today,
         utc_minus_local_mins,
     };
-    use chrono::{FixedOffset, TimeZone};
+    use chrono::{FixedOffset, Local, TimeZone};
 
     #[test]
     fn test_rollover() {
@@ -201,5 +205,47 @@ mod test {
                 }
             }
         }
+    }
+
+    #[test]
+    fn test_next_day_at() {
+        let rollhour = 4;
+        let crt = Local.ymd(2019, 1, 1).and_hms(2, 0, 0);
+
+        // before the rollover, the next day should be later on the same day
+        let now = Local.ymd(2019, 1, 3).and_hms(2, 0, 0);
+        let next_day_at = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
+
+        // after the rollover, the next day should be the next day
+        let now = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
+        let next_day_at = Local.ymd(2019, 1, 4).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
+
+        // after the rollover, the next day should be the next day
+        let now = Local.ymd(2019, 1, 3).and_hms(rollhour + 3, 0, 0);
+        let next_day_at = Local.ymd(2019, 1, 4).and_hms(rollhour, 0, 0);
+        let today = sched_timing_today(
+            crt.timestamp(),
+            crt.offset().utc_minus_local() / 60,
+            now.timestamp(),
+            now.offset().utc_minus_local() / 60,
+            rollhour as i8,
+        );
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
     }
 }
