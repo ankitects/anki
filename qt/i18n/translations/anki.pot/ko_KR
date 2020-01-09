@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:41\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:19\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
@@ -146,13 +146,13 @@ msgid "%d group"
 msgid_plural "%d groups"
 msgstr[0] "%d그룹"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "업로드할 미디어 변경사항 %d개"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -213,7 +213,7 @@ msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] "%d개 선택"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "%s 복사"
@@ -415,7 +415,7 @@ msgstr "(%s 정답)"
 msgid "(Note deleted)"
 msgstr "(노트 삭제됨)"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(종료)"
 
@@ -621,7 +621,7 @@ msgstr "제안, 버그 신고, 기부를 해주신 모든 분께 감사드립니
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "카드의 <i>수월함</i>은 \"알맞음\" 답 버튼에 지정된 다음 복습 간격의 크기로 나타납니다."
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr "여과된 뭉치는 하위 뭉치를 가질 수 없습니다."
 
@@ -723,7 +723,7 @@ msgid "Add: %s"
 msgstr "추가: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "추가됨"
 
@@ -850,7 +850,7 @@ msgstr "Anki가 하드디스크에 있는 프로필 폴더의 이름을 바꿀 �
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "질문과 답을 구분하는 선을 찾을 수 없습니다. 서식을 수동으로 수정해서 질문과 답을 바꾸세요."
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr "Anki가 지원하지 않는 파일이 collection.media 폴더의 하위 폴더에 있습니다."
 
@@ -926,7 +926,7 @@ msgstr "%s 뭉치를 삭제하시겠습니까?"
 msgid "At least one card type is required."
 msgstr "최소한 하나의 카드 유형이 필요합니다."
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "적어도 하나의 단계는 반드시 필요합니다."
 
@@ -1279,7 +1279,7 @@ msgstr "복제: %s"
 msgid "Close"
 msgstr "닫기"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr "입력한 내용을 포기하고 창을 닫을까요?"
 
@@ -1304,7 +1304,7 @@ msgstr "코드:"
 msgid "Collection exported."
 msgstr "모음집 내보내기 완료."
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr "모음집이 깨졌습니다. 사용 설명서를 참고하세요."
 
@@ -1328,7 +1328,7 @@ msgstr "설정"
 msgid "Configure interface language and options"
 msgstr "인터페이스 언어 및 기타 옵션 설정"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "축하합니다! 현재까지 이 뭉치에서 만기된 모든 카드를 공부했습니다."
 
@@ -1472,7 +1472,7 @@ msgstr "필드 맞춤 설정"
 msgid "Cut"
 msgstr "잘라내기"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr "데이터베이스를 재구성하고 최적화했습니다."
 
@@ -1513,7 +1513,7 @@ msgstr "뭉치"
 msgid "Decreasing intervals"
 msgstr "복습 간격이 긴 것부터"
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr "기본"
@@ -1584,13 +1584,13 @@ msgstr "사용하지 않는 이 노트 유형을 삭제할까요?"
 msgid "Delete unused media?"
 msgstr "사용되지 않는 미디어 파일을 지울까요?"
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "노트가 사라진 %d카드를 삭제했습니다."
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1602,19 +1602,19 @@ msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "사라진 노트 형식으로 작성된 노트 %d개를 삭제했습니다."
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "카드가 없는 노트 %d개를 삭제했습니다."
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1911,17 +1911,17 @@ msgstr "최초 복습"
 msgid "First field matched: %s"
 msgstr "정렬 필드 일치: %s"
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "잘못된 설정을 가진 카드 %d개를 수정했습니다."
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "AnkiDroid 뭉치 재설정 버그 수정"
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "노트 유형 수정: %s"
@@ -2248,7 +2248,7 @@ msgstr "지원하지 않는 형식 "
 msgid "Invalid configuration: top level object must be a map"
 msgstr "지원하지 않는 형식 : 최상단에는 반드시 맵이어야 함."
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr "지원하지 않는 파일명. 다음의 것을 고쳐주세요. : %s"
@@ -2782,7 +2782,7 @@ msgstr "인터넷 연결 상태를 확인하십시오."
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "마이크를 연결하고, 다른 프로그램이 오디오 장치를 사용하고 있지 않은지 확인하세요."
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "노트를 편집해서 빈칸을 뚫으세요. (%s)"
@@ -3061,7 +3061,7 @@ msgstr "백업한 것으로 돌아가기"
 msgid "Reverted to state prior to '%s'."
 msgstr "'%s' 이전 상태도 되돌리기"
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "복습"
 
@@ -3216,7 +3216,7 @@ msgstr "단축키: 오른쪽 화살표 또는 Enter"
 msgid "Shortcut: %s"
 msgstr "단축키: %s"
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr "%s 보기"
@@ -3281,7 +3281,7 @@ msgstr "크기:"
 msgid "Skipped"
 msgstr "건너뜀"
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "관련된 카드 또는 덮어진 카드는 다음 세션까지 연기됩니다."
 
@@ -3333,7 +3333,7 @@ msgstr "단계:"
 msgid "Steps (in minutes)"
 msgstr "익힘 단계(분 단위)"
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "익힘 단계는 반드시 숫자로 지정하세요."
 
@@ -3478,7 +3478,7 @@ msgstr "내용"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "탭이나 쌍반점으로 구분한 텍스트 파일 (*)"
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr "그 뭉치는 이미 존재합니다."
 
@@ -3568,7 +3568,7 @@ msgstr "이 변경 사항을 적용할 경우, 다음 동기화 때 데이터베
 msgid "The time taken to answer the questions."
 msgstr "질문에 답을 하기까지 걸린 시간"
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3651,11 +3651,11 @@ msgstr "확장 프로그램을 찾으려면, 아래 버튼을 클릭하십시오
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "이미 존재하는 노트에 빈칸 뚫기를 만들려면, 편집>노트 유형 바꾸기를 통해서 빈칸(cloze) 유형으로 먼저 바꾸어야 합니다."
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "이 카드들을 지금 보려면 아래의 '덮기 해제' 버튼을 눌러 주세요."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "정상 복습 일정을 벗어나 공부를 하고 싶다면, 아래에 있는 맞춤 공부 버튼을 클릭하세요."
 
@@ -3663,7 +3663,7 @@ msgstr "정상 복습 일정을 벗어나 공부를 하고 싶다면, 아래에 
 msgid "Today"
 msgstr "오늘"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3918,7 +3918,7 @@ msgstr "이 기기에 저장된 내용과 AnkiWeb에 저장된 내용이 차이�
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr "Anki가 연결을 하는 것을 방화벽이나 백신이  막고 있습니다. Anki를 예외 항목에 추가해주세요."
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr "[뭉치 없음]"
 
@@ -3966,7 +3966,7 @@ msgstr "뭉치 일생"
 msgid "duplicate"
 msgstr "복제"
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr "도움말"
 

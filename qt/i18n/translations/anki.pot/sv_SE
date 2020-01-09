@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:42\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:20\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
@@ -157,14 +157,14 @@ msgid_plural "%d groups"
 msgstr[0] "%d grupp"
 msgstr[1] "%d grupper"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "%d mediaändring att ladda upp"
 msgstr[1] "%d mediaändringar att ladda upp"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -235,7 +235,7 @@ msgid_plural "%d selected"
 msgstr[0] "%d vald"
 msgstr[1] "%d valda"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "%s-kopia"
@@ -444,7 +444,7 @@ msgstr "(%s korrekta)"
 msgid "(Note deleted)"
 msgstr "(Not borttagen)"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(slut)"
 
@@ -644,7 +644,7 @@ msgstr "Ett stort tack till alla som har bidragit med förslag, buggrapporter oc
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "Ett korts <i>lätthet</i> är storleken på nästa intervall när du svarar \"bra\" under en repetition."
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr "En filtrerad kortlek kan inte ha underkortlekar."
 
@@ -746,7 +746,7 @@ msgid "Add: %s"
 msgstr "Lägg till: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "Tillagda"
 
@@ -873,7 +873,7 @@ msgstr "Anki kunde inte byta namnet på din profil eftersom den inte kunde byta 
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki kunde inte hitta linjen mellan frågan och svaret. Anpassa mallen manuellt för att byta plats på frågan och svaret."
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -949,7 +949,7 @@ msgstr "Är du säker på att du vill ta bort %s?"
 msgid "At least one card type is required."
 msgstr "Åtminstone en korttyp krävs."
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "Åtminstone ett steg krävs."
 
@@ -1304,7 +1304,7 @@ msgstr "Klona: %s"
 msgid "Close"
 msgstr "Stäng"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr "Stäng och gå miste om nuvarande inmatning?"
 
@@ -1329,7 +1329,7 @@ msgstr "Kod:"
 msgid "Collection exported."
 msgstr ""
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Samlingen korrupt. Var vänlig se manualen."
 
@@ -1353,7 +1353,7 @@ msgstr ""
 msgid "Configure interface language and options"
 msgstr "Anpassa gränssnittets språk och andra alternativ"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Grattis! Du är klar med den här kortleken för idag."
 
@@ -1497,7 +1497,7 @@ msgstr ""
 msgid "Cut"
 msgstr "Klipp"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr "Databasen återuppbyggd och optimerad."
 
@@ -1538,7 +1538,7 @@ msgstr "Kortlekar"
 msgid "Decreasing intervals"
 msgstr "Minskande intervaller"
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr "Standard"
@@ -1610,14 +1610,14 @@ msgstr "Ta bort den här oanvända nottypen?"
 msgid "Delete unused media?"
 msgstr "Ta bort oanvända media?"
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "Tog bort %d kort utan not."
 msgstr[1] "Tog bort %d kort utan noter."
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1631,21 +1631,21 @@ msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "Tog bort %d noter som saknade nottyp."
 msgstr[1] "Tog bort %d noter som saknade nottyper."
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "Tog bort %d not utan kort."
 msgstr[1] "Tog bort %d noter utan kort."
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1944,18 +1944,18 @@ msgstr "Första repetitionen"
 msgid "First field matched: %s"
 msgstr "Första matchande fält: %s"
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "Åtgärdade %d kort med ogiltiga egenskaper"
 msgstr[1] "Åtgärdade %d kort med ogiltiga egenskaper"
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "Korrigerade åsidosatt kortlek-bugg i AnkiDroid"
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Fixade nottyp: %s"
@@ -2282,7 +2282,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2817,7 +2817,7 @@ msgstr ""
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Vänligen koppla in en mikrofon och säkerställ att inga andra program använder ljudenheten."
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Redigera noten och lägg till luckor. (%s)"
@@ -3097,7 +3097,7 @@ msgstr "Återställ till säkerhetskopia"
 msgid "Reverted to state prior to '%s'."
 msgstr "Återställde till status innan '%s'."
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "Repetera"
 
@@ -3252,7 +3252,7 @@ msgstr "Kortkommando: Högerpil eller Enter"
 msgid "Shortcut: %s"
 msgstr "Genväg: %s"
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr "Visa %s"
@@ -3317,7 +3317,7 @@ msgstr "Storlek:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Vissa relaterade eller gömda kort sköts upp till en senare session."
 
@@ -3369,7 +3369,7 @@ msgstr "Steg:"
 msgid "Steps (in minutes)"
 msgstr "Steg (i minuter)"
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "Steg måste vara siffror"
 
@@ -3514,7 +3514,7 @@ msgstr "Text"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Text separerad med tabbar eller semikolon (*)"
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr "Kortleken finns redan."
 
@@ -3604,7 +3604,7 @@ msgstr "De ändringar du försöker göra kommer att kräva en fullständig uppl
 msgid "The time taken to answer the questions."
 msgstr "Hur lång tid det tagit att repetera korten."
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3688,11 +3688,11 @@ msgstr "För att utforska tillägg, klicka på bläddra-knappen nedan.<br><br>N�
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "För att göra en existerande not till en lucktext måste du ändra korttypen till 'Lucktext' först, via Redigera>Ändra nottyp."
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "För att se dem nu, klicka på knappen \"Visa gömda\" nedan."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "För att studera utanför det vanliga schemat, tryck på knappen Anpassade studier nedan."
 
@@ -3700,7 +3700,7 @@ msgstr "För att studera utanför det vanliga schemat, tryck på knappen Anpassa
 msgid "Today"
 msgstr "Idag"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3954,7 +3954,7 @@ msgstr "Dina kortlekar här och på AnkiWeb skiljer sig från varandra på ett s
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr "Din brandvägg eller ditt antivirusprogram förhindrar Anki från att ansluta till sig självt. Lägg till ett undantag för Anki."
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr "[ingen kortlek]"
 
@@ -4002,7 +4002,7 @@ msgstr "kortlekens liv"
 msgid "duplicate"
 msgstr "dublett"
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr "hjälp"
 

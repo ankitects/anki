@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:42\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:20\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -146,13 +146,13 @@ msgid "%d group"
 msgid_plural "%d groups"
 msgstr[0] "%d nhóm"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "%d thay đổi phương tiện chờ tải lên"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -213,7 +213,7 @@ msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] "%d được chọn"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "bản sao %s"
@@ -415,7 +415,7 @@ msgstr "(chính xác %s)"
 msgid "(Note deleted)"
 msgstr ""
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(cuối)"
 
@@ -614,7 +614,7 @@ msgstr "Xin cảm ơn tất cả những bạn đã đưa đến cho chúng tôi
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "Độ <i>dễ</i> của thẻ là kích thước của khoảng cách tiếp theo khi bạn trả lời \"Tốt\" trong lần ôn tập,"
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr "Bộ thẻ lọc không được có các bộ thẻ con."
 
@@ -716,7 +716,7 @@ msgid "Add: %s"
 msgstr "Thêm: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "Đã thêm"
 
@@ -841,7 +841,7 @@ msgstr "Anki không đổi tên hồ sơ của bạn được vì không thể �
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki không tìm thấy đường gạch giữa câu hỏi và câu trả lời. Xin vui lòng tự điều chỉnh lại kiểu mẫu để chuyển đổi giữa câu hỏi và câu trả lời."
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -916,7 +916,7 @@ msgstr "Bạn có chắc chắn muốn xóa %s?"
 msgid "At least one card type is required."
 msgstr "Cần chọn ít nhất một kiểu thẻ."
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "Cần ít nhất một bước."
 
@@ -1269,7 +1269,7 @@ msgstr "Nhân bản: %s"
 msgid "Close"
 msgstr "Đóng"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr "Đóng và bỏ qua các nhập liệu hiện hành"
 
@@ -1294,7 +1294,7 @@ msgstr "Mã:"
 msgid "Collection exported."
 msgstr ""
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Bộ sưu tập bị hỏng. Xin vui lòng tham khảo tài liệu hướng dẫn."
 
@@ -1318,7 +1318,7 @@ msgstr ""
 msgid "Configure interface language and options"
 msgstr "Cấu hình ngôn ngữ và tùy chọn giao diện"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Xin chúc mừng! Hiện giờ bạn đã học xong bộ thẻ này."
 
@@ -1462,7 +1462,7 @@ msgstr ""
 msgid "Cut"
 msgstr "Cắt"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr "Đã tái dựng và tối ưu hóa cơ sở dữ liệu."
 
@@ -1503,7 +1503,7 @@ msgstr "Bộ thẻ"
 msgid "Decreasing intervals"
 msgstr "Khoảng cách giảm dần"
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr "Mặc định"
@@ -1574,13 +1574,13 @@ msgstr "Xóa kiểu phiếu thừa này?"
 msgid "Delete unused media?"
 msgstr "Xoá dữ liệu phương tiện không dùng ?"
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "Đã xóa %d thẻ thiếu ghi chú."
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1592,19 +1592,19 @@ msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "Đã xóa %d phiếu thiếu kiểu phiếu."
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "Đã xóa %d ghi chú không có thẻ."
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1901,17 +1901,17 @@ msgstr "Ôn tập Lần đầu"
 msgid "First field matched: %s"
 msgstr "Trường đầu tiên khớp: %s"
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "Đã sửa %d thẻ có thuộc tính không hợp lệ."
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "Đã sửa lỗi ghi đè bộ thẻ AnkiDroid."
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Kiếu phiếu cố định: %s"
@@ -2238,7 +2238,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2772,7 +2772,7 @@ msgstr ""
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Xin vui lòng gắn micro vào, và chắc chắn rằng những chương trình khác đang không dùng thiết bị tiếng."
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Xin vui lòng sửa phiếu này và tạo một vài chỗ trống. (%s)"
@@ -3051,7 +3051,7 @@ msgstr ""
 msgid "Reverted to state prior to '%s'."
 msgstr "Phục hồi lại trạng thái trước '%s'."
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "Ôn tập"
 
@@ -3206,7 +3206,7 @@ msgstr ""
 msgid "Shortcut: %s"
 msgstr "Phím tắt: %s"
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr "Hiện %s"
@@ -3271,7 +3271,7 @@ msgstr "Cỡ:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Vài thẻ liên quan hoặc thẻ chôn bị hoãn lại đến phiên sau."
 
@@ -3323,7 +3323,7 @@ msgstr "Bước:"
 msgid "Steps (in minutes)"
 msgstr "Bước (phút)"
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "Bước phải là số"
 
@@ -3468,7 +3468,7 @@ msgstr "Văn bản"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Văn bản ngăn cách bởi ký tự Tab hay Dấu chấm phẩy (*)"
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr "Bộ thẻ đã tồn tại."
 
@@ -3558,7 +3558,7 @@ msgstr "Thao tác thay đổi này yêu cầu tải lên toàn bộ cơ sở d�
 msgid "The time taken to answer the questions."
 msgstr "Thời gian trả lời câu hỏi."
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3641,11 +3641,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Để tạo chỗ điền trống trong phiếu hiện có, trước tiên cần chuyển nó sang kiểu phiếu điền chỗ trống, bằng cách chọn Chỉnh sửa>Đổi Kiểu Phiếu."
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "Để xem ngay bây giờ, nhấp nút Bỏ tạm hoãn bên dưới."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Để học thêm ngoài thời khóa biểu bình thường, nhấp nút Học Tùy biến bên dưới."
 
@@ -3653,7 +3653,7 @@ msgstr "Để học thêm ngoài thời khóa biểu bình thường, nhấp nú
 msgid "Today"
 msgstr "Hôm nay"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3907,7 +3907,7 @@ msgstr "Bộ thẻ của bạn ở đây và trên AnkiWeb khác nhau đến n�
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr ""
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr "[không có bộ thẻ]"
 
@@ -3955,7 +3955,7 @@ msgstr "dòng đời bộ thẻ"
 msgid "duplicate"
 msgstr "trùng"
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr "trợ giúp"
 

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:40\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:19\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Afrikaans\n"
 "Language: af_ZA\n"
@@ -157,14 +157,14 @@ msgid_plural "%d groups"
 msgstr[0] "%d groep"
 msgstr[1] "%d groepe"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "%d media verandering om op te laai"
 msgstr[1] "%d media veranderinge om op te laai"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -235,7 +235,7 @@ msgid_plural "%d selected"
 msgstr[0] "%d geselekteer"
 msgstr[1] "%d geselekteer"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "%s kopie"
@@ -444,7 +444,7 @@ msgstr "(%s korrek)"
 msgid "(Note deleted)"
 msgstr "(Nota verwyder)"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(einde)"
 
@@ -644,7 +644,7 @@ msgstr "Baie dankie aan al die mense wat voorstelle, foutverslae en skenkings aa
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "'n Kaart se <i> gemak </ i> is die grootte van die volgende tussenpouse wanneer jy \"goed\" antwoord op 'n hersiening."
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr "n Gefiltreerde pak kan nie sub-pakke hê nie."
 
@@ -746,7 +746,7 @@ msgid "Add: %s"
 msgstr "Voeg by: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "Bygevoeg"
 
@@ -871,7 +871,7 @@ msgstr "Anki kon nie jou profiel vernoem nie, omdat dit nie die profiel lêer op
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki kon nie die lyn tussen die vraag en antwoord vind nie. Stel asseblief die profielvorm met die hand  om te skakel van vraag na antwoord."
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -946,7 +946,7 @@ msgstr "Is jy seker jy wil %s verwyder?"
 msgid "At least one card type is required."
 msgstr "Ten minste een kaart tipe word benodig."
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "Ten minste een stap word vereis."
 
@@ -1301,7 +1301,7 @@ msgstr "Kloon: %s"
 msgid "Close"
 msgstr "Sluit"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr "Sluit en verloor huidige insette?"
 
@@ -1326,7 +1326,7 @@ msgstr "Kode:"
 msgid "Collection exported."
 msgstr ""
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Versameling is korrup. Sien asseblief die handleiding."
 
@@ -1350,7 +1350,7 @@ msgstr ""
 msgid "Configure interface language and options"
 msgstr "Stel koppelvlak taal en opsies"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Veels geluk! Jy is vir eers klaar met hierdie kaartpak."
 
@@ -1494,7 +1494,7 @@ msgstr ""
 msgid "Cut"
 msgstr "Knip"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr "Databasis herbou en geoptimaliseer."
 
@@ -1535,7 +1535,7 @@ msgstr "Kaartpak"
 msgid "Decreasing intervals"
 msgstr "Verminderende tussenpouses"
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr ""
@@ -1607,14 +1607,14 @@ msgstr "Skrap hierdie ongebruikte nota tipe?"
 msgid "Delete unused media?"
 msgstr "Skrap ongebruikte media."
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "Geskrapte %d kaart met vermiste nota"
 msgstr[1] "Geskrapte %d kaarte met vermiste nota"
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1628,21 +1628,21 @@ msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "%d nota geskrap met ontbrekende nota tipe."
 msgstr[1] "%d geskrap met ontbrekende nota tipe."
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "%d nota geskrap met geen kaarte."
 msgstr[1] "%d notas geskrap met geen kaarte."
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1941,18 +1941,18 @@ msgstr "Eerste Hersienning"
 msgid "First field matched: %s"
 msgstr "Eerste ooreenstemmende veld: %s"
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "%d kaart reggestel met ongeldige eienskappe."
 msgstr[1] "%d kaarte reggestel met ongeldige eienskappe."
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "AnkiDroid  dek oorskryf gogga herstel."
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Kaart tipe herstel: %s"
@@ -2279,7 +2279,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2814,7 +2814,7 @@ msgstr ""
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Koppel asseblief 'n mikrofoon en verseker dat ander programme nie die klank toestel gebruik nie."
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Wysig hierdie nota en voeg 'n paar cloze weglatings by. (%s)"
@@ -3094,7 +3094,7 @@ msgstr ""
 msgid "Reverted to state prior to '%s'."
 msgstr "Keer terug na 'n toestand voor '%s'."
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "Hersien"
 
@@ -3249,7 +3249,7 @@ msgstr "Kortpad sleutel: Regter pyltjie of Enter"
 msgid "Shortcut: %s"
 msgstr "Kortpad: %s"
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr "Wys %s"
@@ -3314,7 +3314,7 @@ msgstr "Grootte:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Sommige verwante of kaarte wat gebêre is, is uitgestel tot 'n latere sessie."
 
@@ -3366,7 +3366,7 @@ msgstr "Stap:"
 msgid "Steps (in minutes)"
 msgstr "Stappe (in minute)"
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "Stappe moet getalle wees."
 
@@ -3511,7 +3511,7 @@ msgstr "Teks"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Teks geskei deur tabs of kommapunte (*)"
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr "Daardie kaartpak bestaan ​​reeds."
 
@@ -3601,7 +3601,7 @@ msgstr "Die versoekte wysiging sal 'n oplaai van jou hele databasis vereis wanne
 msgid "The time taken to answer the questions."
 msgstr "Die tyd wat dit neem om die vrae te beantwoord."
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3684,11 +3684,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Om 'n cloze (selektiewe) verwydering te maak op 'n bestaande nota, moet jy dit eers na 'n cloze-tipe verander via Wysig>Verander nota tipe."
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "Om hulle nou te sien, kliek op die Opgrawe knoppie hieronder."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Om buite jou normale skedule te studeer, kliek die Studie Aanpas knoppie hieronder."
 
@@ -3696,7 +3696,7 @@ msgstr "Om buite jou normale skedule te studeer, kliek die Studie Aanpas knoppie
 msgid "Today"
 msgstr "Vandag"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3950,7 +3950,7 @@ msgstr "Die verskil tussen jou versamelinge hier en op AnkiWeb is van so n aard 
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr ""
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr "[geen kaartpak]"
 
@@ -3998,7 +3998,7 @@ msgstr "kaartpak tydlyn"
 msgid "duplicate"
 msgstr "duplikaat"
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr "hulp"
 
