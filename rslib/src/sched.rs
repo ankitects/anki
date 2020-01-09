@@ -225,7 +225,7 @@ mod test {
         println!("next_day_at: {}", next_day_at);
         println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
         // This fails - returning rollover next day instead of current day
-        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
 
         // Test a day without DST transition, now is rollover
         let now = Local.ymd(2019, 1, 3).and_hms(4, 0, 0);
@@ -243,9 +243,9 @@ mod test {
         println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
         // This fails - returning rollover next day instead of current day
         // This isn't inherently wrong but I think it is inconsistent with
-        // the current Python implementation. But this "fault" probably
-        // isn't significant.
-        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+        // the current Python implementation. It probably isn't significant,
+        // so it might be better to omit this case.
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
 
         // Test a day without DST transition, now after rollover
         let now = Local.ymd(2019, 1, 3).and_hms(8, 0, 0);
@@ -279,7 +279,7 @@ mod test {
         println!("next_day_at: {}", next_day_at);
         println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
         // This fails - returning 5am on the 10th instead of 4am
-        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
 
 
         // For TZ America/Denver
@@ -298,7 +298,7 @@ mod test {
         println!("next_day_at: {}", next_day_at);
         println!("next_day_at: {}", Local.timestamp(today.next_day_at, 0));
         // This fails - returning 3am on the 3rd instead of 4am
-        // assert_eq!(today.next_day_at, next_day_at.timestamp());
+        assert_eq!(today.next_day_at, next_day_at.timestamp());
 
         assert_eq!(123, 456);
 
