@@ -1,3 +1,6 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 use chrono::{Date, Duration, FixedOffset, Local, TimeZone};
 
 pub struct SchedTimingToday {
