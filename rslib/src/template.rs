@@ -290,7 +290,7 @@ fn render_into(
             }
             Replacement { key, filters } => {
                 let (text, remaining_filters) = match fields.get(key) {
-                    Some(text) => apply_filters(text, filters),
+                    Some(text) => apply_filters(text, filters, key),
                     None => (unknown_field_message(key, filters).into(), vec![]),
                 };
 
