@@ -188,11 +188,14 @@ fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
 fn rendered_node_to_proto(node: RenderedNode) -> pt::rendered_template_node::Value {
     match node {
         RenderedNode::Text { text } => pt::rendered_template_node::Value::Text(text),
-        RenderedNode::Replacement { field, filters } => {
-            pt::rendered_template_node::Value::Replacement(RenderedTemplateReplacement {
-                field_name: field,
-                filters,
-            })
-        }
+        RenderedNode::Replacement {
+            field_name,
+            current_text,
+            filters,
+        } => pt::rendered_template_node::Value::Replacement(RenderedTemplateReplacement {
+            field_name,
+            current_text,
+            filters,
+        }),
     }
 }

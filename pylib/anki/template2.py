@@ -48,7 +48,7 @@ def render_template(
     old_output = anki.template.render(format, fields)
 
     rendered = col.backend.render_template(format, fields)
-    new_output = render_flattened_template(rendered, fields)
+    new_output = apply_custom_filters(rendered, fields)
 
     if old_output != new_output:
         print(
@@ -60,30 +60,19 @@ def render_template(
     return new_output
 
 
-def render_flattened_template(
+def apply_custom_filters(
     rendered: List[Union[str, TemplateReplacement]], fields: Dict[str, str]
 ) -> str:
-    "Render a list of strings or replacements into a string."
+    "Complete rendering by applying any pending custom filters."
     res = ""
     for node in rendered:
         if isinstance(node, str):
             res += node
         else:
-            text = fields.get(node.field_name)
-            if text is None:
-                res += unknown_field_message(node)
-                continue
-            res += apply_field_filters(node.field_name, text, fields, node.filters)
+            res += apply_field_filters(
+                node.field_name, node.current_text, fields, node.filters
+            )
     return res
-
-
-def unknown_field_message(node: TemplateReplacement) -> str:
-    # mirror the pystache message for now
-    field = node.field_name
-    if node.filters:
-        field_and_filters = list(reversed(node.filters)) + [field]
-        field = ":".join(field_and_filters)
-    return "{unknown field %s}" % field
 
 
 # Filters

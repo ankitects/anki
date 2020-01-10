@@ -8,6 +8,7 @@ use nom::sequence::delimited;
 use regex::Regex;
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
+use std::iter;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 
@@ -247,18 +248,20 @@ pub enum RenderedNode {
     Text {
         text: String,
     },
-    /// Filters are in the order they should be applied.
     Replacement {
-        field: String,
+        field_name: String,
+        current_text: String,
+        /// Filters are in the order they should be applied.
         filters: Vec<String>,
     },
 }
 
 impl ParsedTemplate<'_> {
-    /// Resolve conditional replacements, returning a list of nodes.
+    /// Render the template with the provided fields.
     ///
-    /// This leaves the field replacement (with any filters that were provided)
-    /// up to the calling code to handle.
+    /// Replacements that use only standard filters will become part of
+    /// a text node. If a non-standard filter is encountered, a partially
+    /// rendered Replacement is returned for the calling code to complete.
     pub fn render(&self, fields: &HashMap<&str, &str>) -> Vec<RenderedNode> {
         let mut rendered = vec![];
         let nonempty = nonempty_fields(fields);
@@ -278,19 +281,26 @@ fn render_into(
     use ParsedNode::*;
     for node in nodes {
         match node {
-            Text(t) => {
-                if let Some(RenderedNode::Text { ref mut text }) = rendered_nodes.last_mut() {
-                    text.push_str(t)
+            Text(text) => {
+                append_str_to_nodes(rendered_nodes, text);
+            }
+            Replacement { key, filters } => {
+                let (text, remaining_filters) = match fields.get(key) {
+                    Some(text) => apply_filters(text, filters),
+                    None => (unknown_field_message(key, filters).into(), vec![]),
+                };
+
+                // fully processed?
+                if remaining_filters.is_empty() {
+                    append_str_to_nodes(rendered_nodes, text.as_ref())
                 } else {
-                    rendered_nodes.push(RenderedNode::Text {
-                        text: (*t).to_string(),
-                    })
+                    rendered_nodes.push(RenderedNode::Replacement {
+                        field_name: (*key).to_string(),
+                        filters: remaining_filters,
+                        current_text: text.into(),
+                    });
                 }
             }
-            Replacement { key, filters } => rendered_nodes.push(RenderedNode::Replacement {
-                field: (*key).to_string(),
-                filters: filters.iter().map(|&e| e.to_string()).collect(),
-            }),
             Conditional { key, children } => {
                 if nonempty.contains(key) {
                     render_into(rendered_nodes, children.as_ref(), fields, nonempty);
@@ -302,6 +312,22 @@ fn render_into(
                 }
             }
         };
+    }
+}
+
+/// Append to last node if last node is a string, else add new node.
+fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
+    if let Some(RenderedNode::Text {
+        text: ref mut existing_text,
+    }) = nodes.last_mut()
+    {
+        // append to existing last node
+        existing_text.push_str(text)
+    } else {
+        // otherwise, add a new string node
+        nodes.push(RenderedNode::Text {
+            text: text.to_string(),
+        })
     }
 }
 
@@ -334,6 +360,62 @@ fn nonempty_fields<'a>(fields: &'a HashMap<&str, &str>) -> HashSet<&'a str> {
         })
         .collect()
 }
+
+fn unknown_field_message(field_name: &str, filters: &[&str]) -> String {
+    format!(
+        "{{unknown field {}}}",
+        filters
+            .iter()
+            .rev()
+            .cloned()
+            .chain(iter::once(field_name))
+            .collect::<Vec<_>>()
+            .join(":")
+    )
+}
+
+// Filtering
+//----------------------------------------
+
+/// Applies built in filters, returning the resulting text and remaining filters.
+///
+/// The first non-standard filter that is encountered will terminate processing,
+/// so non-standard filters must come at the end.
+fn apply_filters<'a>(text: &'a str, filters: &[&str]) -> (Cow<'a, str>, Vec<String>) {
+    let mut text: Cow<str> = text.into();
+
+    for (idx, &filter_name) in filters.iter().enumerate() {
+        match apply_filter(filter_name, text.as_ref()) {
+            Some(output) => {
+                text = output.into();
+            }
+            None => {
+                // unrecognized filter, return current text and remaining filters
+                return (
+                    text,
+                    filters.iter().skip(idx).map(ToString::to_string).collect(),
+                );
+            }
+        }
+    }
+
+    // all filters processed
+    (text, vec![])
+}
+
+fn apply_filter(filter_name: &str, text: &str) -> Option<String> {
+    let output_text = match filter_name {
+        "text" => text_filter(text),
+        _ => return None,
+    };
+    output_text.into()
+}
+
+fn text_filter(text: &str) -> String {
+    // fixme: implement properly
+    Regex::new(r"<.+?>").unwrap().replace_all(text, "").into()
+}
+
 // Field requirements
 //----------------------------------------
 
@@ -525,7 +607,7 @@ mod test {
 
     #[test]
     fn test_render() {
-        let map: HashMap<_, _> = vec![("F", "1"), ("B", "2"), ("E", " ")]
+        let map: HashMap<_, _> = vec![("F", "f"), ("B", "b"), ("E", " ")]
             .into_iter()
             .collect();
 
@@ -533,19 +615,9 @@ mod test {
         let mut tmpl = PT::from_text("{{B}}A{{F}}").unwrap();
         assert_eq!(
             tmpl.render(&map),
-            vec![
-                FN::Replacement {
-                    field: "B".to_owned(),
-                    filters: vec![]
-                },
-                FN::Text {
-                    text: "A".to_owned()
-                },
-                FN::Replacement {
-                    field: "F".to_owned(),
-                    filters: vec![]
-                },
-            ]
+            vec![FN::Text {
+                text: "bAf".to_owned()
+            },]
         );
 
         // empty
@@ -565,31 +637,58 @@ mod test {
         tmpl = PT::from_text("{{^E}}1{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}{{/E}}").unwrap();
         assert_eq!(
             tmpl.render(&map),
-            vec![
-                FN::Text {
-                    text: "12".to_owned()
-                },
-                FN::Replacement {
-                    field: "F".to_owned(),
-                    filters: vec![]
-                },
-            ]
+            vec![FN::Text {
+                text: "12f".to_owned()
+            },]
         );
 
-        // filters
-        tmpl = PT::from_text("{{one:two:B}}{{three:X}}").unwrap();
+        // unknown filters
+        tmpl = PT::from_text("{{one:two:B}}").unwrap();
         assert_eq!(
             tmpl.render(&map),
-            vec![
-                FN::Replacement {
-                    field: "B".to_owned(),
-                    filters: vec!["two".to_string(), "one".to_string()]
-                },
-                FN::Replacement {
-                    field: "X".to_owned(),
-                    filters: vec!["three".to_string()]
-                },
-            ]
+            vec![FN::Replacement {
+                field_name: "B".to_owned(),
+                filters: vec!["two".to_string(), "one".to_string()],
+                current_text: "b".to_owned()
+            },]
+        );
+
+        // partially unknown filters
+        tmpl = PT::from_text("{{one:text:B}}").unwrap();
+        assert_eq!(
+            tmpl.render(&map),
+            vec![FN::Replacement {
+                field_name: "B".to_owned(),
+                filters: vec!["one".to_string()],
+                current_text: "b".to_owned()
+            },]
+        );
+
+        // known filter
+        tmpl = PT::from_text("{{text:B}}").unwrap();
+        assert_eq!(
+            tmpl.render(&map),
+            vec![FN::Text {
+                text: "b".to_owned()
+            }]
+        );
+
+        // unknown field
+        tmpl = PT::from_text("{{X}}").unwrap();
+        assert_eq!(
+            tmpl.render(&map),
+            vec![FN::Text {
+                text: "{unknown field X}".to_owned()
+            }]
+        );
+
+        // unknown field with filters
+        tmpl = PT::from_text("{{foo:text:X}}").unwrap();
+        assert_eq!(
+            tmpl.render(&map),
+            vec![FN::Text {
+                text: "{unknown field foo:text:X}".to_owned()
+            }]
         );
     }
 }

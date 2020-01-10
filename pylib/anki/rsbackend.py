@@ -49,6 +49,7 @@ def proto_template_reqs_to_legacy(
 @dataclass
 class TemplateReplacement:
     field_name: str
+    current_text: str
     filters: List[str]
 
 
@@ -122,6 +123,7 @@ class RustBackend:
                 results.append(
                     TemplateReplacement(
                         field_name=node.replacement.field_name,
+                        current_text=node.replacement.current_text,
                         filters=list(node.replacement.filters),
                     )
                 )
