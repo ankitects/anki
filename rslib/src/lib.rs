@@ -7,3 +7,4 @@ pub mod backend;
 pub mod err;
 pub mod sched;
 pub mod template;
+pub mod text;
