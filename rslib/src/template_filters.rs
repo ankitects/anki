@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::text::strip_html;
+use blake3::Hasher;
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;
@@ -13,11 +14,22 @@ use std::borrow::Cow;
 ///
 /// The first non-standard filter that is encountered will terminate processing,
 /// so non-standard filters must come at the end.
-pub(crate) fn apply_filters<'a>(text: &'a str, filters: &[&str]) -> (Cow<'a, str>, Vec<String>) {
+pub(crate) fn apply_filters<'a>(
+    text: &'a str,
+    filters: &[&str],
+    field_name: &str,
+) -> (Cow<'a, str>, Vec<String>) {
     let mut text: Cow<str> = text.into();
 
+    // type:cloze is handled specially
+    let filters = if filters == ["type", "cloze"] {
+        &["type-cloze"]
+    } else {
+        filters
+    };
+
     for (idx, &filter_name) in filters.iter().enumerate() {
-        match apply_filter(filter_name, text.as_ref()) {
+        match apply_filter(filter_name, text.as_ref(), field_name) {
             (true, None) => {
                 // filter did not change text
             }
@@ -43,13 +55,22 @@ pub(crate) fn apply_filters<'a>(text: &'a str, filters: &[&str]) -> (Cow<'a, str
 ///
 /// Returns true if filter was valid.
 /// Returns string if input text changed.
-fn apply_filter<'a>(filter_name: &str, text: &'a str) -> (bool, Option<String>) {
+fn apply_filter<'a>(filter_name: &str, text: &'a str, field_name: &str) -> (bool, Option<String>) {
     let output_text = match filter_name {
         "text" => strip_html(text),
         "furigana" => furigana_filter(text),
         "kanji" => kanji_filter(text),
         "kana" => kana_filter(text),
-        _ => return (false, None),
+        other => {
+            let split: Vec<_> = other.splitn(2, '-').collect();
+            let base = split[0];
+            let filter_args = *split.get(1).unwrap_or(&"");
+            match base {
+                "type" => type_filter(text, filter_args, field_name),
+                "hint" => hint_filter(text, field_name),
+                _ => return (false, None),
+            }
+        }
     };
 
     (
@@ -122,15 +143,50 @@ fn furigana_filter(text: &str) -> Cow<str> {
 // Other filters
 //----------------------------------------
 
-// - type
-// - hint
+/// convert to [[type:...]] for the gui code to process
+fn type_filter<'a>(_text: &'a str, filter_args: &str, field_name: &str) -> Cow<'a, str> {
+    if filter_args.is_empty() {
+        format!("[[type:{}]]", field_name)
+    } else {
+        format!("[[type:{}:{}]]", filter_args, field_name)
+    }
+    .into()
+}
+
+// fixme: i18n
+fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
+    if text.trim().is_empty() {
+        return text.into();
+    }
+
+    // generate a unique DOM id
+    let mut hasher = Hasher::new();
+    hasher.update(text.as_bytes());
+    hasher.update(field_name.as_bytes());
+    let id = hex::encode(&hasher.finalize().as_bytes()[0..8]);
+
+    format!(
+        r##"
+<a class=hint href="#"
+onclick="this.style.display='none';
+document.getElementById('hint{}').style.display='block';
+return false;">
+{}</a>
+<div id="hint{}" class=hint style="display: none">Show {}</div>
+"##,
+        id, text, id, field_name
+    )
+    .into()
+}
 
 // Tests
 //----------------------------------------
 
 #[cfg(test)]
 mod test {
-    use crate::template_filters::{furigana_filter, kana_filter, kanji_filter};
+    use crate::template_filters::{
+        apply_filters, furigana_filter, hint_filter, kana_filter, kanji_filter, type_filter,
+    };
 
     #[test]
     fn test_furigana() {
@@ -140,6 +196,34 @@ mod test {
         assert_eq!(
             furigana_filter("first[second]").as_ref(),
             "<ruby><rb>first</rb><rt>second</rt></ruby>"
+        );
+    }
+
+    #[test]
+    fn test_hint() {
+        assert_eq!(
+            hint_filter("foo", "field"),
+            r##"
+<a class=hint href="#"
+onclick="this.style.display='none';
+document.getElementById('hint83fe48607f0f3a66').style.display='block';
+return false;">
+foo</a>
+<div id="hint83fe48607f0f3a66" class=hint style="display: none">Show field</div>
+"##
+        );
+    }
+
+    #[test]
+    fn test_type() {
+        assert_eq!(type_filter("ignored", "", "Front"), "[[type:Front]]");
+        assert_eq!(
+            type_filter("ignored", "cloze", "Front"),
+            "[[type:cloze:Front]]"
+        );
+        assert_eq!(
+            apply_filters("ignored", &["type", "cloze"], "Text"),
+            ("[[type:cloze:Text]]".into(), vec![])
         );
     }
 }
