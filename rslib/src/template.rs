@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result};
+use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
 use nom;
 use nom::branch::alt;
@@ -375,48 +376,6 @@ fn unknown_field_message(field_name: &str, filters: &[&str]) -> String {
             .collect::<Vec<_>>()
             .join(":")
     )
-}
-
-// Filtering
-//----------------------------------------
-
-/// Applies built in filters, returning the resulting text and remaining filters.
-///
-/// The first non-standard filter that is encountered will terminate processing,
-/// so non-standard filters must come at the end.
-fn apply_filters<'a>(text: &'a str, filters: &[&str]) -> (Cow<'a, str>, Vec<String>) {
-    let mut text: Cow<str> = text.into();
-
-    for (idx, &filter_name) in filters.iter().enumerate() {
-        match apply_filter(filter_name, text.as_ref()) {
-            Some(output) => {
-                text = output.into();
-            }
-            None => {
-                // unrecognized filter, return current text and remaining filters
-                return (
-                    text,
-                    filters.iter().skip(idx).map(ToString::to_string).collect(),
-                );
-            }
-        }
-    }
-
-    // all filters processed
-    (text, vec![])
-}
-
-fn apply_filter(filter_name: &str, text: &str) -> Option<String> {
-    let output_text = match filter_name {
-        "text" => text_filter(text),
-        _ => return None,
-    };
-    output_text.into()
-}
-
-fn text_filter(text: &str) -> String {
-    // fixme: implement properly
-    Regex::new(r"<.+?>").unwrap().replace_all(text, "").into()
 }
 
 // Field requirements
