@@ -146,5 +146,6 @@ message RenderedTemplateNode {
 
 message RenderedTemplateReplacement {
     string field_name = 1;
-    repeated string filters = 2;
+    string current_text = 2;
+    repeated string filters = 3;
 }
