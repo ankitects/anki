@@ -89,6 +89,7 @@ check: pyenv buildhash
 .PHONY: fix
 fix:
 	@set -e && \
+	. pyenv/bin/activate && \
 	for dir in $(CHECKABLE); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \
