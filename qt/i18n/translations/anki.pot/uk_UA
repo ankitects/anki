@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:42\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:20\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Ukrainian\n"
 "Language: uk_UA\n"
@@ -179,7 +179,7 @@ msgstr[1] "%d груп"
 msgstr[2] "%d груп"
 msgstr[3] "%d груп"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
@@ -188,7 +188,7 @@ msgstr[1] "%d змін у медіафайлах для завантаження
 msgstr[2] "%d змін у медіафайлах для завантаження на сервер"
 msgstr[3] "%d змін у медіафайлах для завантаження на сервер"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -279,7 +279,7 @@ msgstr[1] "%d вибрано"
 msgstr[2] "%d вибрано"
 msgstr[3] "%d вибрано"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "копія %s"
@@ -502,7 +502,7 @@ msgstr "(%s правильно)"
 msgid "(Note deleted)"
 msgstr "(Нотатку видалено)"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(кінець)"
 
@@ -708,7 +708,7 @@ msgstr "Дуже дякуємо всім за ваші пропозиції, п�
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "<i>Легкість</i> картки - це інтервал, через який цю картку знову буде показано, якщо ви дали відповідь \"добре\" під час повторення."
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr "Відфільтрована колода не може мати підколоди."
 
@@ -810,7 +810,7 @@ msgid "Add: %s"
 msgstr "Додати: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "Додано"
 
@@ -935,7 +935,7 @@ msgstr "Anki не вдалося перейменувати ваш профіл�
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Анкі не вдалося знайти межу між питанням і відповіддю. Налаштуйте шаблон вручну, щоб розділити питання та відповідь."
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -1010,7 +1010,7 @@ msgstr "Ви впевнені, що хочете видалити %s?"
 msgid "At least one card type is required."
 msgstr "Необхідно принаймні один тип карток."
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "Необхідно принаймні один крок."
 
@@ -1369,7 +1369,7 @@ msgstr "Клон: %s"
 msgid "Close"
 msgstr "Закрити"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr "Закрити та втратити поточні дані?"
 
@@ -1394,7 +1394,7 @@ msgstr "Код:"
 msgid "Collection exported."
 msgstr "Колекцію експортовано."
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Колекція пошкоджена. Зверніться до інструкції користувача."
 
@@ -1418,7 +1418,7 @@ msgstr "Налаштування"
 msgid "Configure interface language and options"
 msgstr "Вибіо мови інтерфейсу та інших налаштувань"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Вітаємо! В даний момент ви закінчили роботу з цією колодою."
 
@@ -1562,7 +1562,7 @@ msgstr ""
 msgid "Cut"
 msgstr "Вирізати"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr "База даних перебудована та оптимізована"
 
@@ -1603,7 +1603,7 @@ msgstr "Колоди"
 msgid "Decreasing intervals"
 msgstr "Нисхідні інтервали"
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr "Типовий"
@@ -1677,7 +1677,7 @@ msgstr "Видалити цей невикористаний тип нотато
 msgid "Delete unused media?"
 msgstr "Видалити невикористані медіа-файли?"
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
@@ -1686,7 +1686,7 @@ msgstr[1] "Вилучено %d карток з відсутньою нотатк
 msgstr[2] "Вилучено %d карток з відсутньою нотаткою."
 msgstr[3] "Вилучено %d карток з відсутньою нотаткою."
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1704,7 +1704,7 @@ msgstr[1] ""
 msgstr[2] ""
 msgstr[3] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
@@ -1713,7 +1713,7 @@ msgstr[1] "Вилучено %d карток з відсутнім типом н�
 msgstr[2] "Вилучено %d карток з відсутнім типом нотатки."
 msgstr[3] "Вилучено %d карток з відсутнім типом нотатки."
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
@@ -1722,7 +1722,7 @@ msgstr[1] "Вилучено %d нотаток без карток."
 msgstr[2] "Вилучено %d нотаток без карток."
 msgstr[3] "Вилучено %d нотаток без карток."
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -2025,7 +2025,7 @@ msgstr "Вперше побачена"
 msgid "First field matched: %s"
 msgstr "Перше поле співпало: %s"
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
@@ -2034,11 +2034,11 @@ msgstr[1] "Виправлено %d карток з недійсними влас
 msgstr[2] "Виправлено %d карток з недійсними властивостями."
 msgstr[3] "Виправлено %d карток з недійсними властивостями."
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "Виправлено помилку блокування налаштувань колоди в AnkiDroid."
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Виправлено тип нотаток: %s"
@@ -2365,7 +2365,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2902,7 +2902,7 @@ msgstr ""
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Будь ласка, під'єднайте мікрофон і переконайтеся, що інші програми не використовують аудіо-пристрій."
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Відредагуйте цю нотатку та додайте кілька карток для тесту з пробілами. (%s)"
@@ -3184,7 +3184,7 @@ msgstr ""
 msgid "Reverted to state prior to '%s'."
 msgstr "Повернення до стану перед '%s'."
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "Проглянути"
 
@@ -3339,7 +3339,7 @@ msgstr "Гаряча клавіша: Права стрілка або Enter"
 msgid "Shortcut: %s"
 msgstr "Гаряча клавіша: %s"
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr "Показати %s"
@@ -3404,7 +3404,7 @@ msgstr "Розмір:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Деякі пов'язані або поховані картки було відкладено до наступного сеансу."
 
@@ -3456,7 +3456,7 @@ msgstr "Крок:"
 msgid "Steps (in minutes)"
 msgstr "Кроки (у хвилинах)"
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "Кроки мають бути числами."
 
@@ -3601,7 +3601,7 @@ msgstr "Текст"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Текстовий файл, розділений TAB або крапкою з комою (*)"
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr "Така колода вже існує."
 
@@ -3691,7 +3691,7 @@ msgstr "Бажані зміни вимагатимуть повної відпр
 msgid "The time taken to answer the questions."
 msgstr "Час, витрачений, щоб відповісти на питання."
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3778,11 +3778,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Для створення картки з тестом з пробілами по існуючій нотатці, спочатку потрібно змінити її тип на тип тесту з пробілами командою \"Редагування>Змінити тип нотатки...\""
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "Щоб побачити їх зараз, клацніть внизу на кнопку \"Розкопати\"."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Для навчання за межами звичайного графіка, натисніть на кнопку \"Додаткове навчання\" внизу."
 
@@ -3790,7 +3790,7 @@ msgstr "Для навчання за межами звичайного граф�
 msgid "Today"
 msgstr "Сьогодні"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -4044,7 +4044,7 @@ msgstr "Ваші колоди тут та на сервері AnkiWeb відрі
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr ""
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr "[нема колоди]"
 
@@ -4092,7 +4092,7 @@ msgstr "тривалість життя колоди"
 msgid "duplicate"
 msgstr "дублікат"
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr "допомога"
 

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:43\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:21\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Lojban\n"
 "Language: jbo_EN\n"
@@ -146,13 +146,13 @@ msgid "%d group"
 msgid_plural "%d groups"
 msgstr[0] "%d selcmi"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] ".i ba kibdu'a lo datni be %d nu basti lo ganvi"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -213,7 +213,7 @@ msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] ".i cuxna %d da"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "%s fukpi"
@@ -415,7 +415,7 @@ msgstr "to %s pi'i ro co'e cu drani toi"
 msgid "(Note deleted)"
 msgstr "mo'u se vimcu"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "fanmo"
 
@@ -620,7 +620,7 @@ msgstr ".i ki'e sai ro da poi stidi ja cu te notci lo samcfi ja cu rupsra"
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr ".i ro da poi karda zo'u lo za'u moi temci be lo nu do morji spuda fi zo fu'i mapti fi lo ni tu'a da za'e frili ca'e"
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr ".i .e'a nai lo'e se julne karda selcmi cu se pagbu su'o karda selcmi"
 
@@ -723,7 +723,7 @@ msgid "Add: %s"
 msgstr "nu jmina la'o zoi. %s .zoi"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "se jmina"
 
@@ -851,7 +851,7 @@ msgstr ".i la .ankis. na kakne lo ka ce'u basygau fo lo ka ce'u cmene lo do piln
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr ".i la .ankis. na kakne lo ka ce'u ganse lo te sepli be lo preti bei lo danfu .i gau ko macnu simbasti lo preti lo danfu"
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ".i la .ankis. ka'e nai samymo'i lo datnyvei poi se datnyveimei lo se datnyveimei be la'o zoi. collection.media .zoi"
 
@@ -927,7 +927,7 @@ msgstr ".i xu do birti lo du'u do djica lo ka ce'u vimcu la'o zoi. %s .zoi"
 msgid "At least one card type is required."
 msgstr ".i nitcu lo ka su'o karda klesi cu srana ce'u"
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr ""
 
@@ -1278,7 +1278,7 @@ msgstr "ve fukpi la'o zoi. %s .zoi"
 msgid "Close"
 msgstr "nu mipri"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr ".i xu do djica lo nu mipri je lo nu ju'i do cirko lo ka ce'u te samci'a"
 
@@ -1303,7 +1303,7 @@ msgstr "judri"
 msgid "Collection exported."
 msgstr ".i mo'u barbei lo karda selcmi selcmi"
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr ".i lo datni be lo karda selcmi selcmi cu spofu .i ko tcidu lo djunoi"
 
@@ -1327,7 +1327,7 @@ msgstr "te tcimi'e"
 msgid "Configure interface language and options"
 msgstr "nu tcimi'e fi tu'a lo sazycimde je lo bangu be lo sazycimde"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr ".i do ba'o .ui tadni pa karda selcmi"
 
@@ -1471,7 +1471,7 @@ msgstr ""
 msgid "Cut"
 msgstr "nu vicra'e"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr ".i mo'u za'u re'u zbasu lo datni vasru je mo'u gasnu lo nu tu'a dy vy. sutra"
 
@@ -1512,7 +1512,7 @@ msgstr "karda selcmi"
 msgid "Decreasing intervals"
 msgstr ""
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr ""
@@ -1583,13 +1583,13 @@ msgstr ".i pa da poi karda datni klesi je cu se pilno no da zo'u xu do djica lo 
 msgid "Delete unused media?"
 msgstr ".i xu do djica lo ka ce'u vimcu ro ganvi poi se pilno no da"
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] ".i mo'u vimcu %d karda pe no karda datni"
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1601,19 +1601,19 @@ msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] ".i mo'u vimcu %d karda datni pe no karda datni klesi"
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] ".i mo'u vimcu %d karda datni pe no karda"
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1909,17 +1909,17 @@ msgstr ""
 msgid "First field matched: %s"
 msgstr ""
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] ".i mo'u cikre %d karda poi ckaji lo toldra"
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr ".i mo'u cikre fi tu'a lo me la .ankidroid. ku ke karda selcmi jdice minde samcfi"
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr ".i mo'u cikre la'o zoi. %s .zoi poi karda datni klesi"
@@ -2239,7 +2239,7 @@ msgstr ".i lo te tcimi'e cu toldra fo la'e di'e .i "
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ".i pa cmene be pa datnyvei cu toldra .i ko cmene basygau fi zoi zoi. %s .zoi"
@@ -2773,7 +2773,7 @@ msgstr ".i ko cipcta lo do te samjo'e"
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr ".i ko jongau pa snaveitci goi sy. .i ko birti lo du'u no samtci poi drata ca'o pilno sy."
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr ""
@@ -3052,7 +3052,7 @@ msgstr "nu xruti fi pa nurfu'i"
 msgid "Reverted to state prior to '%s'."
 msgstr ".i mo'u xruti fo la'o zoi. %s .zoi"
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "te morji"
 
@@ -3207,7 +3207,7 @@ msgstr ""
 msgid "Shortcut: %s"
 msgstr ""
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr ""
@@ -3272,7 +3272,7 @@ msgstr ""
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr ".i su'o karda poi ckini ja cu zasni se mipri pu zi binxo lo ka ce'u jai balvi"
 
@@ -3324,7 +3324,7 @@ msgstr ""
 msgid "Steps (in minutes)"
 msgstr ""
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr ""
 
@@ -3469,7 +3469,7 @@ msgstr ""
 msgid "Text separated by tabs or semicolons (*)"
 msgstr ""
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr ".i lo karda selcmi xa'o zasti"
 
@@ -3560,7 +3560,7 @@ msgstr ""
 msgid "The time taken to answer the questions."
 msgstr ".i temci fi lo nu spuda lo preti"
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3644,11 +3644,11 @@ msgstr ".i lo nu do catlu lo liste be lo se samtcise'a cu se rinka lo nu do terc
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr ""
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr ".i ga na ja do djica lo ka ce'u ba'e ca viska lo karda gi ko terca'a fi la nu to'e ke zasni mipri noi batkyuidje noi cnita"
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr ".i ga na ja do djica lo ka ce'u tadni na'e ca'o lo fadni tcika gi ko terca'a fi la nu macnu tadni noi batkyuidje noi cnita"
 
@@ -3656,7 +3656,7 @@ msgstr ".i ga na ja do djica lo ka ce'u tadni na'e ca'o lo fadni tcika gi ko ter
 msgid "Today"
 msgstr "cabdei"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3906,7 +3906,7 @@ msgstr ""
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr ""
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr ""
 
@@ -3954,7 +3954,7 @@ msgstr ""
 msgid "duplicate"
 msgstr ""
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr ""
 

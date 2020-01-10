@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 08:36+1000\n"
-"PO-Revision-Date: 2020-01-04 22:41\n"
+"POT-Creation-Date: 2020-01-09 19:16+1000\n"
+"PO-Revision-Date: 2020-01-09 09:19\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Armenian\n"
 "Language: hy_AM\n"
@@ -157,14 +157,14 @@ msgid_plural "%d groups"
 msgstr[0] "%d խումբ"
 msgstr[1] "%d խումբ"
 
-#: pylib/anki/sync.py:839
+#: pylib/anki/sync.py:841
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "Վերբեռնել %d մեդիանիշքի փոփոխությունները"
 msgstr[1] "Վերբեռնել %d մեդիանիշքի փոփոխությունները"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:892
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -235,7 +235,7 @@ msgid_plural "%d selected"
 msgstr[0] "%d ընտրված է"
 msgstr[1] "%d ընտրված է"
 
-#: pylib/anki/models.py:247
+#: pylib/anki/models.py:249
 #, python-format
 msgid "%s copy"
 msgstr "%s պատճեն"
@@ -444,7 +444,7 @@ msgstr "(%s ճիշտ)"
 msgid "(Note deleted)"
 msgstr "(Գրառումը ջնջված է)"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1510
+#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(վերջ)"
 
@@ -650,7 +650,7 @@ msgstr "Շատ շնորհակալ ենք բոլոր նրանց, ովքեր օգ�
 msgid "A card's <i>ease</i> is the size of the next interval when you answer \"good\" on a review."
 msgstr "Քարտի <i>հեշտությունը</i> հաջորդ ժամանակամիջոցի չափն է, երբ դուք կրկնելիս պատասխանում եք «Լավ է»:"
 
-#: pylib/anki/decks.py:285
+#: pylib/anki/decks.py:287
 msgid "A filtered deck cannot have subdecks."
 msgstr "Զտված կապուկը չի կարող ենթակապուկներ ունենալ:"
 
@@ -752,7 +752,7 @@ msgid "Add: %s"
 msgstr "Ավելացնել՝ %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
 msgid "Added"
 msgstr "Ավելացվել է"
 
@@ -879,7 +879,7 @@ msgstr "Anki-ն չի կարող անվանափոխել ձեր հատկագիրը
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki-ն չգտավ հարցի և պատասխանի միջև գիծը: Նրանք տեղերով փոխելու համար ձեռքով կարգաբերեք կաղապարը:"
 
-#: pylib/anki/media.py:363
+#: pylib/anki/media.py:339
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr "Anki-ն չի օժանդակում հավաքածուներ.մեդիա ենթապանակի նիշքերը:"
 
@@ -955,7 +955,7 @@ msgstr "Վստա՞հ եք, որ ուզում եք ջնջել %s:"
 msgid "At least one card type is required."
 msgstr "Անհրաժեշտ է քարտի առնվազն մեկ տեսակ:"
 
-#: qt/aqt/deckconf.py:261 qt/aqt/dyndeckconf.py:159
+#: qt/aqt/deckconf.py:260 qt/aqt/dyndeckconf.py:159
 msgid "At least one step is required."
 msgstr "Անհրաժեշտ է առնվազն մեկ քայլ:"
 
@@ -1308,7 +1308,7 @@ msgstr "Կրկնօրինակել՝ %s"
 msgid "Close"
 msgstr "Փակել"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:242
 msgid "Close and lose current input?"
 msgstr "Փակել և կորցնե՞լ ընթացիկ ներածումը:"
 
@@ -1333,7 +1333,7 @@ msgstr "Կոդ՝"
 msgid "Collection exported."
 msgstr "Հավաքածուն արտահանված է:"
 
-#: pylib/anki/collection.py:867
+#: pylib/anki/collection.py:874
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Հավաքածուն վնասված է: Մանրամասների համար կարդացեք ձեռնարկը:"
 
@@ -1357,7 +1357,7 @@ msgstr "Կազմաձև"
 msgid "Configure interface language and options"
 msgstr "Կազմաձևել միջերեսի լեզուն և ընտրանքները"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1419
+#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Դուք այս պահի դրությամբ ավարտել եք սույն կապուկը:"
 
@@ -1501,7 +1501,7 @@ msgstr "Կարգավորել դաշտերը"
 msgid "Cut"
 msgstr "Կտրել"
 
-#: pylib/anki/collection.py:1052
+#: pylib/anki/collection.py:1059
 msgid "Database rebuilt and optimized."
 msgstr "Շտեմարանը կառուցված և լավարկված է:"
 
@@ -1542,7 +1542,7 @@ msgstr "Կապուկներ"
 msgid "Decreasing intervals"
 msgstr "Փոքրացող ժամանակամիջոցների"
 
-#: pylib/anki/decks.py:55 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
 msgid "Default"
 msgstr "Սկզբնադիր"
@@ -1614,14 +1614,14 @@ msgstr "Ջնջե՞լ գրառման այս չօգտագործվող տեսակը
 msgid "Delete unused media?"
 msgstr "Ջնջե՞լ չօգտագործվող մեդիանիշքերը:"
 
-#: pylib/anki/collection.py:956
+#: pylib/anki/collection.py:963
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "Ջնջվեց %d բացակայող գրառումով քարտը:"
 msgstr[1] "Ջնջվեց %d բացակայող գրառումով քարտը:"
 
-#: pylib/anki/collection.py:907
+#: pylib/anki/collection.py:914
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1635,21 +1635,21 @@ msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: pylib/anki/collection.py:877
+#: pylib/anki/collection.py:884
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "Ջնջվեց %d բացակայող գրառման տեսակով գրառումը:"
 msgstr[1] "Ջնջվեց %d բացակայող գրառման տեսակով գրառումը:"
 
-#: pylib/anki/collection.py:940
+#: pylib/anki/collection.py:947
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "Ջնջվեց %d քարտեր չունեցող գրառումը:"
 msgstr[1] "Ջնջվեց %d քարտեր չունեցող գրառումը:"
 
-#: pylib/anki/collection.py:924
+#: pylib/anki/collection.py:931
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1948,18 +1948,18 @@ msgstr "Առաջին ցուցադրություն"
 msgid "First field matched: %s"
 msgstr "Առաջին դաշտի համընկնում՝ %s"
 
-#: pylib/anki/collection.py:972 pylib/anki/collection.py:990
+#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "Սխալ հատկություններով %d քարտը շտկված է:"
 msgstr[1] "Սխալ հատկություններով %d քարտը շտկված է:"
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:896
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "AnkiDroid կապուկի վերագրման վրեպը շտկված է:"
 
-#: pylib/anki/collection.py:895
+#: pylib/anki/collection.py:902
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Շտկված է գրառման տեսակը՝ %s"
@@ -2285,7 +2285,7 @@ msgstr "Անվավեր կազմաձև՝ "
 msgid "Invalid configuration: top level object must be a map"
 msgstr "Անվավեր կազմաձև՝ վերին մակարդակի առարկան պետք է քարտեզ լինի"
 
-#: pylib/anki/media.py:329
+#: pylib/anki/media.py:305
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr "Նիշքի անվավեր անվանում: Վերանվանեք այն՝ %s"
@@ -2820,7 +2820,7 @@ msgstr "Ստուգեք Համացանցային միացումը:"
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Միացրեք խոսափողը և համոզվեք, որ այլ ծրագրերը չեն օգտագործում ձայնային սարքը:"
 
-#: pylib/anki/collection.py:674
+#: pylib/anki/collection.py:680
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Խմբագրեք այս գրառումը՝ ավելացնելով մի քանի բացատ լրացնելու համար: (%s)"
@@ -3100,7 +3100,7 @@ msgstr "Հետադարձել պահուստին"
 msgid "Reverted to state prior to '%s'."
 msgstr "Հետադարձել մինչև '%s' կարգավիճակին:"
 
-#: pylib/anki/collection.py:776 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
 msgid "Review"
 msgstr "Կրկնություն"
 
@@ -3255,7 +3255,7 @@ msgstr "Ստեղնաշարի ստեղնը՝ Աջ սլաք կամ Enter"
 msgid "Shortcut: %s"
 msgstr "Կարճատ՝ %s"
 
-#: pylib/anki/template/hint.py:19
+#: pylib/anki/template2.py:302
 #, python-format
 msgid "Show %s"
 msgstr "Ցուցադրել %s"
@@ -3320,7 +3320,7 @@ msgstr "Չափ՝"
 msgid "Skipped"
 msgstr "Բաց թողնված"
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1454
+#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Որոշ կապակցված կամ առանձնացված քարտերի ցուցադրութունը հետաձգվել է մինչև մեկ այլ աշխատաշրջան:"
 
@@ -3372,7 +3372,7 @@ msgstr "Քայլ՝"
 msgid "Steps (in minutes)"
 msgstr "Քայլեր (րոպե)"
 
-#: qt/aqt/deckconf.py:258 qt/aqt/dyndeckconf.py:156
+#: qt/aqt/deckconf.py:257 qt/aqt/dyndeckconf.py:156
 msgid "Steps must be numbers."
 msgstr "Քայլերը պետք է թվեր լինեն:"
 
@@ -3517,7 +3517,7 @@ msgstr "Գրվածք"
 msgid "Text separated by tabs or semicolons (*)"
 msgstr "Ներդիրներով կամ կետ-ստորակետներով բաժանված գրվածք (*)"
 
-#: pylib/anki/decks.py:281
+#: pylib/anki/decks.py:283
 msgid "That deck already exists."
 msgstr "Այդ անվանումով կապուկ արդեն արկա է:"
 
@@ -3607,7 +3607,7 @@ msgstr "Հարցվող գործողությունը կպահանջի տվյալ�
 msgid "The time taken to answer the questions."
 msgstr "Պատասխանների վրա ծախսված ժամանակ:"
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1440
+#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3688,11 +3688,11 @@ msgstr "Հավելումները զննելու համար սեղմեք ներք
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Առկա գրառման բացթողումների լրացումը ավելացնելու համար պետք է նրա տեսակը փոխել «բացթողումների», ընտրելով Խմբագրել>Փոխել գրառման տեսակը:"
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1449
+#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "Հիմա սովորելու համար, սեղմեք ներքևի «Վերադարձնել առանձնացվածները» կոճակը:"
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1462
+#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Արտահերթ սովորելու համար սեղմեք ներքևի «Լրացուցիչ ուսուցում» կոճակը:"
 
@@ -3700,7 +3700,7 @@ msgstr "Արտահերթ սովորելու համար սեղմեք ներքևի
 msgid "Today"
 msgstr "Այսօր"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1431
+#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3954,7 +3954,7 @@ msgstr "AnkiWeb-ում գտնվող Ձեր կապուկները տարբերվո
 msgid "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
 msgstr "Ձեր հրապատը կամ հակավիրուսային ծրագիրը չեն թողնում Anki-ին միացում հաստատել: Anki-ի համար բացառություն ավելացրեք այդ ծրագրերում:"
 
-#: pylib/anki/decks.py:442
+#: pylib/anki/decks.py:444
 msgid "[no deck]"
 msgstr "[կապուկ չկա]"
 
@@ -4002,7 +4002,7 @@ msgstr "ամբողջ ընթացքում"
 msgid "duplicate"
 msgstr "կրկնօրինակ"
 
-#: pylib/anki/collection.py:675
+#: pylib/anki/collection.py:681
 msgid "help"
 msgstr "օգնություն"
 
