@@ -1,9 +1,11 @@
 use crate::err::{AnkiError, Result};
+use lazy_static::lazy_static;
 use nom;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::error::ErrorKind;
 use nom::sequence::delimited;
+use regex::Regex;
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 
@@ -237,11 +239,11 @@ fn template_is_empty<'a>(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode<'a
     true
 }
 
-// Flattening
+// Rendering
 //----------------------------------------
 
 #[derive(Debug, PartialEq)]
-pub enum FlattenedNode {
+pub enum RenderedNode {
     Text {
         text: String,
     },
@@ -257,50 +259,81 @@ impl ParsedTemplate<'_> {
     ///
     /// This leaves the field replacement (with any filters that were provided)
     /// up to the calling code to handle.
-    pub fn flatten(&self, nonempty_fields: &HashSet<&str>) -> Vec<FlattenedNode> {
-        let mut flattened = vec![];
+    pub fn render(&self, fields: &HashMap<&str, &str>) -> Vec<RenderedNode> {
+        let mut rendered = vec![];
+        let nonempty = nonempty_fields(fields);
 
-        flatten_into(&mut flattened, self.0.as_ref(), nonempty_fields);
+        render_into(&mut rendered, self.0.as_ref(), fields, &nonempty);
 
-        flattened
+        rendered
     }
 }
 
-fn flatten_into(
-    rendered_nodes: &mut Vec<FlattenedNode>,
+fn render_into(
+    rendered_nodes: &mut Vec<RenderedNode>,
     nodes: &[ParsedNode],
-    fields: &HashSet<&str>,
+    fields: &HashMap<&str, &str>,
+    nonempty: &HashSet<&str>,
 ) {
     use ParsedNode::*;
     for node in nodes {
         match node {
             Text(t) => {
-                if let Some(FlattenedNode::Text { ref mut text }) = rendered_nodes.last_mut() {
+                if let Some(RenderedNode::Text { ref mut text }) = rendered_nodes.last_mut() {
                     text.push_str(t)
                 } else {
-                    rendered_nodes.push(FlattenedNode::Text {
+                    rendered_nodes.push(RenderedNode::Text {
                         text: (*t).to_string(),
                     })
                 }
             }
-            Replacement { key, filters } => rendered_nodes.push(FlattenedNode::Replacement {
+            Replacement { key, filters } => rendered_nodes.push(RenderedNode::Replacement {
                 field: (*key).to_string(),
                 filters: filters.iter().map(|&e| e.to_string()).collect(),
             }),
             Conditional { key, children } => {
-                if fields.contains(key) {
-                    flatten_into(rendered_nodes, children.as_ref(), fields);
+                if nonempty.contains(key) {
+                    render_into(rendered_nodes, children.as_ref(), fields, nonempty);
                 }
             }
             NegatedConditional { key, children } => {
-                if !fields.contains(key) {
-                    flatten_into(rendered_nodes, children.as_ref(), fields);
+                if !nonempty.contains(key) {
+                    render_into(rendered_nodes, children.as_ref(), fields, nonempty);
                 }
             }
         };
     }
 }
 
+/// True if provided text contains only whitespace and/or empty BR/DIV tags.
+fn field_is_empty(text: &str) -> bool {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(
+            r#"(?xsi)
+            ^(?:
+            [[:space:]]
+            |
+            </?(?:br|div)\ ?/?>
+            )*$
+        "#
+        )
+        .unwrap();
+    }
+    RE.is_match(text)
+}
+
+fn nonempty_fields<'a>(fields: &'a HashMap<&str, &str>) -> HashSet<&'a str> {
+    fields
+        .iter()
+        .filter_map(|(name, val)| {
+            if !field_is_empty(val) {
+                Some(*name)
+            } else {
+                None
+            }
+        })
+        .collect()
+}
 // Field requirements
 //----------------------------------------
 
@@ -360,9 +393,20 @@ impl ParsedTemplate<'_> {
 #[cfg(test)]
 mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
-    use crate::template::{without_legacy_template_directives, FieldRequirements};
-    use std::collections::HashSet;
+    use crate::template::{field_is_empty, without_legacy_template_directives, FieldRequirements};
+    use std::collections::{HashMap, HashSet};
     use std::iter::FromIterator;
+
+    #[test]
+    fn test_field_empty() {
+        assert_eq!(field_is_empty(""), true);
+        assert_eq!(field_is_empty(" "), true);
+        assert_eq!(field_is_empty("x"), false);
+        assert_eq!(field_is_empty("<BR>"), true);
+        assert_eq!(field_is_empty("<div />"), true);
+        assert_eq!(field_is_empty(" <div> <br> </div>\n"), true);
+        assert_eq!(field_is_empty(" <div>x</div>\n"), false);
+    }
 
     #[test]
     fn test_parsing() {
@@ -481,12 +525,14 @@ mod test {
 
     #[test]
     fn test_render() {
-        let map: HashSet<_> = vec!["F", "B"].into_iter().collect();
+        let map: HashMap<_, _> = vec![("F", "1"), ("B", "2"), ("E", " ")]
+            .into_iter()
+            .collect();
 
-        use crate::template::FlattenedNode as FN;
+        use crate::template::RenderedNode as FN;
         let mut tmpl = PT::from_text("{{B}}A{{F}}").unwrap();
         assert_eq!(
-            tmpl.flatten(&map),
+            tmpl.render(&map),
             vec![
                 FN::Replacement {
                     field: "B".to_owned(),
@@ -504,12 +550,12 @@ mod test {
 
         // empty
         tmpl = PT::from_text("{{#E}}A{{/E}}").unwrap();
-        assert_eq!(tmpl.flatten(&map), vec![]);
+        assert_eq!(tmpl.render(&map), vec![]);
 
         // missing
         tmpl = PT::from_text("{{^M}}A{{/M}}").unwrap();
         assert_eq!(
-            tmpl.flatten(&map),
+            tmpl.render(&map),
             vec![FN::Text {
                 text: "A".to_owned()
             },]
@@ -518,7 +564,7 @@ mod test {
         // nested
         tmpl = PT::from_text("{{^E}}1{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}{{/E}}").unwrap();
         assert_eq!(
-            tmpl.flatten(&map),
+            tmpl.render(&map),
             vec![
                 FN::Text {
                     text: "12".to_owned()
@@ -533,7 +579,7 @@ mod test {
         // filters
         tmpl = PT::from_text("{{one:two:B}}{{three:X}}").unwrap();
         assert_eq!(
-            tmpl.flatten(&map),
+            tmpl.render(&map),
             vec![
                 FN::Replacement {
                     field: "B".to_owned(),

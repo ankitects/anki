@@ -1,9 +1,19 @@
 import re
 from typing import Any, Callable, Dict, Pattern
 
-from anki.template2 import apply_field_filters, field_is_not_empty
+from anki.template2 import apply_field_filters
 
 modifiers: Dict[str, Callable] = {}
+
+
+def field_is_not_empty(field_text: str) -> bool:
+    # fixme: this is an overkill way of preventing a field with only
+    # a <br> or <div> from appearing non-empty
+    from anki.utils import stripHTMLMedia
+
+    field_text = stripHTMLMedia(field_text)
+
+    return field_text.strip() != ""
 
 
 def modifier(symbol) -> Callable[[Any], Any]:
