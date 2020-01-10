@@ -104,16 +104,16 @@ class RustBackend:
             )
         ).sched_timing_today
 
-    def flatten_template(
-        self, template: str, nonempty_fields: List[str]
+    def render_template(
+        self, template: str, fields: Dict[str, str]
     ) -> List[Union[str, TemplateReplacement]]:
         out = self._run_command(
             pb.BackendInput(
-                flatten_template=pb.FlattenTemplateIn(
-                    template_text=template, nonempty_field_names=nonempty_fields
+                render_template=pb.RenderTemplateIn(
+                    template_text=template, fields=fields
                 )
             )
-        ).flatten_template
+        ).render_template
         results: List[Union[str, TemplateReplacement]] = []
         for node in out.nodes:
             if node.WhichOneof("value") == "text":

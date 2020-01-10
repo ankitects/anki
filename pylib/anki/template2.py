@@ -16,7 +16,7 @@ from anki.hooks import addHook, runFilter
 from anki.lang import _
 from anki.rsbackend import TemplateReplacement
 from anki.sound import stripSounds
-from anki.utils import stripHTML, stripHTMLMedia
+from anki.utils import stripHTML
 
 
 def render_qa_from_field_map(
@@ -47,9 +47,8 @@ def render_template(
     "Render a single template."
     old_output = anki.template.render(format, fields)
 
-    nonempty = nonempty_fields(fields)
-    flattened = col.backend.flatten_template(format, nonempty)
-    new_output = render_flattened_template(flattened, fields)
+    rendered = col.backend.render_template(format, fields)
+    new_output = render_flattened_template(rendered, fields)
 
     if old_output != new_output:
         print(
@@ -62,11 +61,11 @@ def render_template(
 
 
 def render_flattened_template(
-    flattened: List[Union[str, TemplateReplacement]], fields: Dict[str, str]
+    rendered: List[Union[str, TemplateReplacement]], fields: Dict[str, str]
 ) -> str:
     "Render a list of strings or replacements into a string."
     res = ""
-    for node in flattened:
+    for node in rendered:
         if isinstance(node, str):
             res += node
         else:
@@ -75,22 +74,6 @@ def render_flattened_template(
                 res += unknown_field_message(node)
                 continue
             res += apply_field_filters(node.field_name, text, fields, node.filters)
-    return res
-
-
-def field_is_not_empty(field_text: str) -> bool:
-    # fixme: this is an overkill way of preventing a field with only
-    # a <br> or <div> from appearing non-empty
-    field_text = stripHTMLMedia(field_text)
-
-    return field_text.strip() != ""
-
-
-def nonempty_fields(fields: Dict[str, str]) -> List[str]:
-    res = []
-    for field, text in fields.items():
-        if field_is_not_empty(text):
-            res.append(field)
     return res
 
 

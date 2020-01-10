@@ -14,7 +14,7 @@ message BackendInput {
         Empty deck_tree = 18;
         FindCardsIn find_cards = 19;
         BrowserRowsIn browser_rows = 20;
-        FlattenTemplateIn flatten_template = 21;
+        RenderTemplateIn render_template = 21;
 
         PlusOneIn plus_one = 2046; // temporary, for testing
     }
@@ -27,7 +27,7 @@ message BackendOutput {
         DeckTreeOut deck_tree = 18;
         FindCardsOut find_cards = 19;
         BrowserRowsOut browser_rows = 20;
-        FlattenTemplateOut flatten_template = 21;
+        RenderTemplateOut render_template = 21;
 
         PlusOneOut plus_one = 2046; // temporary, for testing
 
@@ -128,23 +128,23 @@ message BrowserRowsOut {
     repeated string sort_fields = 1;
 }
 
-message FlattenTemplateIn {
+message RenderTemplateIn {
     string template_text = 1;
-    repeated string nonempty_field_names = 2;
+    map<string,string> fields = 2;
 }
 
-message FlattenTemplateOut {
-    repeated FlattenedTemplateNode nodes = 1;
+message RenderTemplateOut {
+    repeated RenderedTemplateNode nodes = 1;
 }
 
-message FlattenedTemplateNode {
+message RenderedTemplateNode {
     oneof value {
         string text = 1;
-        FlattenedTemplateReplacement replacement = 2;
+        RenderedTemplateReplacement replacement = 2;
     }
 }
 
-message FlattenedTemplateReplacement {
+message RenderedTemplateReplacement {
     string field_name = 1;
     repeated string filters = 2;
 }
