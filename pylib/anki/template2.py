@@ -45,19 +45,8 @@ def render_template(
     col: anki.storage._Collection, format: str, fields: Dict[str, str]
 ) -> str:
     "Render a single template."
-    old_output = anki.template.render(format, fields)
-
     rendered = col.backend.render_template(format, fields)
-    new_output = apply_custom_filters(rendered, fields)
-
-    if old_output != new_output:
-        print(
-            f"template rendering didn't match - please report:\n'{old_output}'\n'{new_output}'"
-        )
-        # import os
-        # open(os.path.expanduser("~/temp1.txt"), "w").write(old_output)
-        # open(os.path.expanduser("~/temp2.txt"), "w").write(new_output)
-    return new_output
+    return apply_custom_filters(rendered, fields)
 
 
 def apply_custom_filters(
