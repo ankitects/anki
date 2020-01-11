@@ -1,6 +1,7 @@
 # coding: utf-8
 import time
 
+import anki.template
 from anki.consts import MODEL_CLOZE
 from anki.utils import isWin, joinFields, stripHTML
 from tests.shared import getEmptyCol
@@ -219,18 +220,6 @@ def test_cloze_mathjax():
     )
 
 
-def test_typecloze():
-    d = getEmptyCol()
-    m = d.models.byName("Cloze")
-    d.models.setCurrent(m)
-    m["tmpls"][0]["qfmt"] = "{{type:cloze:Text}}"
-    d.models.save(m)
-    f = d.newNote()
-    f["Text"] = "hello {{c1::world}}"
-    d.addNote(f)
-    assert "[[type:cloze:Text]]" in f.cards()[0].q()
-
-
 def test_chained_mods():
     d = getEmptyCol()
     d.models.setCurrent(d.models.byName("Cloze"))
@@ -347,6 +336,15 @@ def test_modelChange():
     map = {0: 0}
     deck.models.change(cloze, [f.id], basic, map, map)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
+
+
+def test_templates2():
+    d = dict(Foo="x", Bar="y")
+    assert anki.template.render("{{Foo}}", d) == "x"
+    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
+    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
+    assert anki.template.render("{{#Bar}}{{#Foo}}{{Foo}}{{/Foo}}{{/Bar}}", d) == "x"
+    assert anki.template.render("{{#Baz}}{{#Foo}}{{Foo}}{{/Foo}}{{/Baz}}", d) == ""
 
 
 def test_availOrds():

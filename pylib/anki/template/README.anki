@@ -1,0 +1,8 @@
+Anki uses a modified version of Pystache to provide Mustache-like syntax.
+Behaviour is a little different from standard Mustache:
+
+- {{text}} returns text verbatim with no HTML escaping
+- {{{text}}} does the same and exists for backwards compatibility
+- partial rendering is disabled for security reasons
+- certain keywords like 'cloze' are treated specially
+

@@ -29,8 +29,8 @@ from anki.notes import Note
 from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
+from anki.sound import stripSounds
 from anki.tags import TagManager
-from anki.template import render_qa_from_field_map
 from anki.types import NoteType, QAData, Template
 from anki.utils import (
     devMode,
@@ -629,58 +629,51 @@ where c.nid = n.id and c.id in %s group by nid"""
             raise Exception()
         return [self._renderQA(*row) for row in self._qaData(where)]
 
-    # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
-    def _renderQA(
-        self, data: QAData, qfmt: Optional[str] = None, afmt: Optional[str] = None
-    ) -> Dict[str, Union[str, int]]:
+    def _renderQA(self, data: QAData, qfmt: None = None, afmt: None = None) -> Dict:
         "Returns hash of id, question, answer."
-        # extract info from data
-        split_fields = splitFields(data[6])
-        card_ord = data[4]
+        # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
+        # unpack fields and create dict
+        flist = splitFields(data[6])
+        fields = {}
         model = self.models.get(data[2])
+        assert model
+        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
+            fields[name] = flist[idx]
+        fields["Tags"] = data[5].strip()
+        fields["Type"] = model["name"]
+        fields["Deck"] = self.decks.name(data[3])
+        fields["Subdeck"] = fields["Deck"].split("::")[-1]
+        fields["CardFlag"] = self._flagNameFromCardFlags(data[7])
         if model["type"] == MODEL_STD:
             template = model["tmpls"][data[4]]
         else:
             template = model["tmpls"][0]
-        flag = data[7]
-        deck_id = data[3]
-        card_id = data[0]
-        tags = data[5]
+        fields["Card"] = template["name"]
+        fields["c%d" % (data[4] + 1)] = "1"
+        # render q & a
+        d: Dict[str, Any] = dict(id=data[0])
         qfmt = qfmt or template["qfmt"]
         afmt = afmt or template["afmt"]
-
-        # create map of field names -> field content
-        fields: Dict[str, str] = {}
-        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
-            fields[name] = split_fields[idx]
-
-        # add special fields
-        fields["Tags"] = tags.strip()
-        fields["Type"] = model["name"]
-        fields["Deck"] = self.decks.name(deck_id)
-        fields["Subdeck"] = fields["Deck"].split("::")[-1]
-        fields["Card"] = template["name"]
-        fields["CardFlag"] = self._flagNameFromCardFlags(flag)
-        fields["c%d" % (card_ord + 1)] = "1"
-
-        fields = runFilter("mungeFields", fields, model, data, self)
-
-        # render fields
-        qatext = render_qa_from_field_map(self, qfmt, afmt, fields, card_ord)
-        ret: Dict[str, Any] = dict(q=qatext[0], a=qatext[1], id=card_id)
-
-        # allow add-ons to modify the generated result
-        for type in "q", "a":
-            ret[type] = runFilter("mungeQA", ret[type], type, fields, model, data, self)
-
-        # empty cloze?
-        if type == "q" and model["type"] == MODEL_CLOZE:
-            if not self.models._availClozeOrds(model, data[6], False):
-                ret["q"] += "<p>" + _(
-                    "Please edit this note and add some cloze deletions. (%s)"
-                ) % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
-
-        return ret
+        for (type, format) in (("q", qfmt), ("a", afmt)):
+            if type == "q":
+                format = re.sub(
+                    "{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (data[4] + 1), format
+                )
+                format = format.replace("<%cloze:", "<%%cq:%d:" % (data[4] + 1))
+            else:
+                format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (data[4] + 1), format)
+                format = format.replace("<%cloze:", "<%%ca:%d:" % (data[4] + 1))
+                fields["FrontSide"] = stripSounds(d["q"])
+            fields = runFilter("mungeFields", fields, model, data, self)
+            html = anki.template.render(format, fields)
+            d[type] = runFilter("mungeQA", html, type, fields, model, data, self)
+            # empty cloze?
+            if type == "q" and model["type"] == MODEL_CLOZE:
+                if not self.models._availClozeOrds(model, data[6], False):
+                    d["q"] += "<p>" + _(
+                        "Please edit this note and add some cloze deletions. (%s)"
+                    ) % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
+        return d
 
     def _qaData(self, where="") -> Any:
         "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
