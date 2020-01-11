@@ -68,8 +68,9 @@ fn apply_filter<'a>(filter_name: &str, text: &'a str, field_name: &str) -> (bool
             match base {
                 "type" => type_filter(text, filter_args, field_name),
                 "hint" => hint_filter(text, field_name),
-                //"cq" => cloze_filter(text, filter_args, true),
-                //"ca" => cloze_filter(text, filter_args, false),
+                "cq" => cloze_filter(text, filter_args, true),
+                "ca" => cloze_filter(text, filter_args, false),
+                // unrecognized filter
                 _ => return (false, None),
             }
         }
@@ -90,14 +91,22 @@ fn apply_filter<'a>(filter_name: &str, text: &'a str, field_name: &str) -> (bool
 lazy_static! {
     static ref CLOZE: Regex = Regex::new(
         r#"(?xsi)
-                \{\{
-                (c)(\d+)::  # 1 = c or C, 2 = cloze number
-                (.*?) # 3 = clozed text
-                (?:
-                  ::(.*?) # 4 = optional hint
-                )?
-                \}\}
-                "#
+            \{\{
+            (c)(\d+)::  # 1 = c or C, 2 = cloze number
+            (.*?)       # 3 = clozed text
+            (?:
+              ::(.*?)   # 4 = optional hint
+            )?
+            \}\}
+        "#
+    )
+    .unwrap();
+    static ref MATHJAX: Regex = Regex::new(
+        r#"(?xsi)
+            (\\[(\[])       # 1 = mathjax opening tag
+            (.*?)           # 2 = inner content
+            (\\[])])        # 3 = mathjax closing tag 
+           "#
     )
     .unwrap();
 }
@@ -111,6 +120,12 @@ mod cloze_caps {
     pub static TEXT: usize = 3;
     // optional hint
     pub static HINT: usize = 4;
+}
+
+mod mathjax_caps {
+    pub static OPENING_TAG: usize = 1;
+    pub static INNER_TEXT: usize = 2;
+    pub static CLOSING_TAG: usize = 3;
 }
 
 fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
@@ -154,10 +169,22 @@ fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
     }
 }
 
-#[allow(dead_code)]
+fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
+    MATHJAX.replace_all(text, |caps: &Captures| -> String {
+        format!(
+            "{}{}{}",
+            caps.get(mathjax_caps::OPENING_TAG).unwrap().as_str(),
+            strip_html(caps.get(mathjax_caps::INNER_TEXT).unwrap().as_str()).as_ref(),
+            caps.get(mathjax_caps::CLOSING_TAG).unwrap().as_str()
+        )
+    })
+}
+
 fn cloze_filter<'a>(text: &'a str, filter_args: &str, question: bool) -> Cow<'a, str> {
     let cloze_ord = filter_args.parse().unwrap_or(0);
-    reveal_cloze_text(text, cloze_ord, question)
+    strip_html_inside_mathjax(reveal_cloze_text(text, cloze_ord, question).as_ref())
+        .into_owned()
+        .into()
 }
 
 // Ruby filters
