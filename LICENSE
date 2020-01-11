@@ -6,7 +6,6 @@ The following included source code items use a license other than AGPL3:
 
 In the pylib folder:
 
- * The anki/template/ folder is based off pystache: MIT.
  * The SuperMemo importer: GPL3.
  * The Pauker importer: BSD-3.
  * statsbg.py: CC BY-SA 3.0.

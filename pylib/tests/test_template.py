@@ -1,4 +1,4 @@
-from anki.template2 import _removeFormattingFromMathjax
+from anki.template_legacy import _removeFormattingFromMathjax
 
 
 def test_remove_formatting_from_mathjax():

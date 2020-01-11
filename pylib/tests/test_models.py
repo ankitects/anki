@@ -1,7 +1,6 @@
 # coding: utf-8
 import time
 
-import anki.template
 from anki.consts import MODEL_CLOZE
 from anki.utils import isWin, joinFields, stripHTML
 from tests.shared import getEmptyCol
@@ -348,15 +347,6 @@ def test_modelChange():
     map = {0: 0}
     deck.models.change(cloze, [f.id], basic, map, map)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
-
-
-def test_templates2():
-    d = dict(Foo="x", Bar="y")
-    assert anki.template.render("{{Foo}}", d) == "x"
-    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
-    assert anki.template.render("{{#Foo}}{{Foo}}{{/Foo}}", d) == "x"
-    assert anki.template.render("{{#Bar}}{{#Foo}}{{Foo}}{{/Foo}}{{/Bar}}", d) == "x"
-    assert anki.template.render("{{#Baz}}{{#Foo}}{{Foo}}{{/Foo}}{{/Baz}}", d) == ""
 
 
 def test_availOrds():
