@@ -92,10 +92,10 @@ lazy_static! {
     static ref CLOZE: Regex = Regex::new(
         r#"(?xsi)
             \{\{
-            (c)(\d+)::  # 1 = c or C, 2 = cloze number
-            (.*?)       # 3 = clozed text
+            c(\d+)::    # 1 = cloze number
+            (.*?)       # 2 = clozed text
             (?:
-              ::(.*?)   # 4 = optional hint
+              ::(.*?)   # 3 = optional hint
             )?
             \}\}
         "#
@@ -112,14 +112,12 @@ lazy_static! {
 }
 
 mod cloze_caps {
-    // the lower or uppercase C in the cloze deletion
-    pub static C_CHAR: usize = 1;
     // cloze ordinal
-    pub static ORD: usize = 2;
+    pub static ORD: usize = 1;
     // the occluded text
-    pub static TEXT: usize = 3;
+    pub static TEXT: usize = 2;
     // optional hint
-    pub static HINT: usize = 4;
+    pub static HINT: usize = 3;
 }
 
 mod mathjax_caps {
@@ -142,7 +140,7 @@ fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
             return caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
         }
 
-        let mut replacement;
+        let replacement;
         if question {
             // hint provided?
             if let Some(hint) = caps.get(cloze_caps::HINT) {
@@ -154,12 +152,7 @@ fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
             replacement = caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
         }
 
-        let can_use_html = caps.get(cloze_caps::C_CHAR).unwrap().as_str() == "c";
-        if can_use_html {
-            replacement = format!("<span class=cloze>{}</span>", replacement);
-        }
-
-        replacement
+        format!("<span class=cloze>{}</span>", replacement)
     });
 
     // if no cloze deletions are found, Anki returns an empty string
@@ -290,6 +283,7 @@ mod test {
         apply_filters, cloze_filter, furigana_filter, hint_filter, kana_filter, kanji_filter,
         type_filter,
     };
+    use crate::text::strip_html;
 
     #[test]
     fn test_furigana() {
@@ -332,16 +326,25 @@ foo</a>
 
     #[test]
     fn test_cloze() {
-        let text = "{{C1::one}} {{C2::two::hint}}";
-        assert_eq!(cloze_filter(text, "1", true), "[...] two");
-        assert_eq!(cloze_filter(text, "2", true), "one [hint]");
-        assert_eq!(cloze_filter(text, "1", false), "one two");
+        let text = "{{c1::one}} {{c2::two::hint}}";
         assert_eq!(
-            cloze_filter(&text.replace('C', "c"), "1", false),
+            strip_html(&cloze_filter(text, "1", true)).as_ref(),
+            "[...] two"
+        );
+        assert_eq!(
+            strip_html(&cloze_filter(text, "2", true)).as_ref(),
+            "one [hint]"
+        );
+        assert_eq!(
+            strip_html(&cloze_filter(text, "1", false)).as_ref(),
+            "one two"
+        );
+        assert_eq!(
+            cloze_filter(text, "1", false),
             "<span class=cloze>one</span> two"
         );
         assert_eq!(
-            cloze_filter(&text.replace('C', "c"), "1", true),
+            cloze_filter(text, "1", true),
             "<span class=cloze>[...]</span> two"
         );
     }
