@@ -68,6 +68,8 @@ fn apply_filter<'a>(filter_name: &str, text: &'a str, field_name: &str) -> (bool
             match base {
                 "type" => type_filter(text, filter_args, field_name),
                 "hint" => hint_filter(text, field_name),
+                //"cq" => cloze_filter(text, filter_args, true),
+                //"ca" => cloze_filter(text, filter_args, false),
                 _ => return (false, None),
             }
         }
@@ -84,6 +86,79 @@ fn apply_filter<'a>(filter_name: &str, text: &'a str, field_name: &str) -> (bool
 
 // Cloze filter
 //----------------------------------------
+
+lazy_static! {
+    static ref CLOZE: Regex = Regex::new(
+        r#"(?xsi)
+                \{\{
+                (c)(\d+)::  # 1 = c or C, 2 = cloze number
+                (.*?) # 3 = clozed text
+                (?:
+                  ::(.*?) # 4 = optional hint
+                )?
+                \}\}
+                "#
+    )
+    .unwrap();
+}
+
+mod cloze_caps {
+    // the lower or uppercase C in the cloze deletion
+    pub static C_CHAR: usize = 1;
+    // cloze ordinal
+    pub static ORD: usize = 2;
+    // the occluded text
+    pub static TEXT: usize = 3;
+    // optional hint
+    pub static HINT: usize = 4;
+}
+
+fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
+    let output = CLOZE.replace_all(text, |caps: &Captures| {
+        let captured_ord = caps
+            .get(cloze_caps::ORD)
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap_or(0);
+
+        if captured_ord != ord {
+            // other cloze deletions are unchanged
+            return caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+        }
+
+        let mut replacement;
+        if question {
+            // hint provided?
+            if let Some(hint) = caps.get(cloze_caps::HINT) {
+                replacement = format!("[{}]", hint.as_str());
+            } else {
+                replacement = "[...]".to_string()
+            }
+        } else {
+            replacement = caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+        }
+
+        let can_use_html = caps.get(cloze_caps::C_CHAR).unwrap().as_str() == "c";
+        if can_use_html {
+            replacement = format!("<span class=cloze>{}</span>", replacement);
+        }
+
+        replacement
+    });
+
+    // if no cloze deletions are found, Anki returns an empty string
+    match output {
+        Cow::Borrowed(_) => "".into(),
+        other => other,
+    }
+}
+
+#[allow(dead_code)]
+fn cloze_filter<'a>(text: &'a str, filter_args: &str, question: bool) -> Cow<'a, str> {
+    let cloze_ord = filter_args.parse().unwrap_or(0);
+    reveal_cloze_text(text, cloze_ord, question)
+}
 
 // Ruby filters
 //----------------------------------------
@@ -185,7 +260,8 @@ return false;">
 #[cfg(test)]
 mod test {
     use crate::template_filters::{
-        apply_filters, furigana_filter, hint_filter, kana_filter, kanji_filter, type_filter,
+        apply_filters, cloze_filter, furigana_filter, hint_filter, kana_filter, kanji_filter,
+        type_filter,
     };
 
     #[test]
@@ -224,6 +300,22 @@ foo</a>
         assert_eq!(
             apply_filters("ignored", &["type", "cloze"], "Text"),
             ("[[type:cloze:Text]]".into(), vec![])
+        );
+    }
+
+    #[test]
+    fn test_cloze() {
+        let text = "{{C1::one}} {{C2::two::hint}}";
+        assert_eq!(cloze_filter(text, "1", true), "[...] two");
+        assert_eq!(cloze_filter(text, "2", true), "one [hint]");
+        assert_eq!(cloze_filter(text, "1", false), "one two");
+        assert_eq!(
+            cloze_filter(&text.replace('C', "c"), "1", false),
+            "<span class=cloze>one</span> two"
+        );
+        assert_eq!(
+            cloze_filter(&text.replace('C', "c"), "1", true),
+            "<span class=cloze>[...]</span> two"
         );
     }
 }
