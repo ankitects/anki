@@ -67,7 +67,7 @@ fn handle_token(s: &str) -> nom::IResult<&str, Token> {
 
 /// classify handle based on leading character
 fn classify_handle(s: &str) -> Token {
-    let start = s.trim();
+    let start = s.trim_start_matches('{').trim();
     if start.len() < 2 {
         return Token::Replacement(start);
     }
