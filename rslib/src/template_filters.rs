@@ -22,7 +22,7 @@ pub(crate) fn apply_filters<'a>(
     let mut text: Cow<str> = text.into();
 
     // type:cloze is handled specially
-    let filters = if filters == ["type", "cloze"] {
+    let filters = if filters == ["cloze", "type"] {
         &["type-cloze"]
     } else {
         filters
@@ -319,7 +319,7 @@ foo</a>
             "[[type:cloze:Front]]"
         );
         assert_eq!(
-            apply_filters("ignored", &["type", "cloze"], "Text"),
+            apply_filters("ignored", &["cloze", "type"], "Text"),
             ("[[type:cloze:Text]]".into(), vec![])
         );
     }
