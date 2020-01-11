@@ -113,17 +113,17 @@ lazy_static! {
 
 mod cloze_caps {
     // cloze ordinal
-    pub static ORD: usize = 1;
+    pub const ORD: usize = 1;
     // the occluded text
-    pub static TEXT: usize = 2;
+    pub const TEXT: usize = 2;
     // optional hint
-    pub static HINT: usize = 3;
+    pub const HINT: usize = 3;
 }
 
 mod mathjax_caps {
-    pub static OPENING_TAG: usize = 1;
-    pub static INNER_TEXT: usize = 2;
-    pub static CLOSING_TAG: usize = 3;
+    pub const OPENING_TAG: usize = 1;
+    pub const INNER_TEXT: usize = 2;
+    pub const CLOSING_TAG: usize = 3;
 }
 
 fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
