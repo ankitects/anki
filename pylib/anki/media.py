@@ -18,7 +18,7 @@ from anki.consts import *
 from anki.db import DB, DBError
 from anki.lang import _
 from anki.latex import mungeQA
-from anki.template2 import expand_clozes
+from anki.template import expand_clozes
 from anki.utils import checksum, isMac, isWin
 
 

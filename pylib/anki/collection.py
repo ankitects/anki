@@ -30,7 +30,7 @@ from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.template2 import render_qa_from_field_map
+from anki.template import render_qa_from_field_map
 from anki.types import NoteType, QAData, Template
 from anki.utils import (
     devMode,
