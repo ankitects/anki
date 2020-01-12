@@ -3,6 +3,7 @@
 
 use crate::err::{AnkiError, Result};
 use crate::template_filters::apply_filters;
+use crate::text::strip_sounds;
 use lazy_static::lazy_static;
 use nom;
 use nom::branch::alt;
@@ -126,21 +127,6 @@ enum ParsedNode<'a> {
 #[derive(Debug)]
 pub struct ParsedTemplate<'a>(Vec<ParsedNode<'a>>);
 
-static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
-
-/// Convert legacy alternate syntax to standard syntax.
-pub fn without_legacy_template_directives(text: &str) -> Cow<str> {
-    if text.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
-        text.trim_start()
-            .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE)
-            .replace("<%", "{{")
-            .replace("%>", "}}")
-            .into()
-    } else {
-        text.into()
-    }
-}
-
 impl ParsedTemplate<'_> {
     /// Create a template from the provided text.
     ///
@@ -196,6 +182,24 @@ fn parse_inner<'a, I: Iterator<Item = Result<Token<'a>>>>(
         Err(AnkiError::parse(format!("unclosed conditional {}", open)))
     } else {
         Ok(nodes)
+    }
+}
+
+// Legacy support
+//----------------------------------------
+
+static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
+
+/// Convert legacy alternate syntax to standard syntax.
+pub fn without_legacy_template_directives(text: &str) -> Cow<str> {
+    if text.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
+        text.trim_start()
+            .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE)
+            .replace("<%", "{{")
+            .replace("%>", "}}")
+            .into()
+    } else {
+        text.into()
     }
 }
 
@@ -260,17 +264,24 @@ pub enum RenderedNode {
     },
 }
 
+pub(crate) struct RenderContext<'a> {
+    pub fields: &'a HashMap<&'a str, &'a str>,
+    pub nonempty_fields: &'a HashSet<&'a str>,
+    pub question_side: bool,
+    pub card_ord: u16,
+    pub front_text: Option<Cow<'a, str>>,
+}
+
 impl ParsedTemplate<'_> {
     /// Render the template with the provided fields.
     ///
     /// Replacements that use only standard filters will become part of
     /// a text node. If a non-standard filter is encountered, a partially
     /// rendered Replacement is returned for the calling code to complete.
-    pub fn render(&self, fields: &HashMap<&str, &str>) -> Vec<RenderedNode> {
+    fn render(&self, context: &RenderContext) -> Vec<RenderedNode> {
         let mut rendered = vec![];
-        let nonempty = nonempty_fields(fields);
 
-        render_into(&mut rendered, self.0.as_ref(), fields, &nonempty);
+        render_into(&mut rendered, self.0.as_ref(), context);
 
         rendered
     }
@@ -279,8 +290,7 @@ impl ParsedTemplate<'_> {
 fn render_into(
     rendered_nodes: &mut Vec<RenderedNode>,
     nodes: &[ParsedNode],
-    fields: &HashMap<&str, &str>,
-    nonempty: &HashSet<&str>,
+    context: &RenderContext,
 ) {
     use ParsedNode::*;
     for node in nodes {
@@ -288,9 +298,28 @@ fn render_into(
             Text(text) => {
                 append_str_to_nodes(rendered_nodes, text);
             }
+            Replacement {
+                key: key @ "FrontSide",
+                ..
+            } => {
+                if let Some(front_side) = &context.front_text {
+                    // a fully rendered front side is available, so we can
+                    // bake it into the output
+                    append_str_to_nodes(rendered_nodes, front_side.as_ref());
+                } else {
+                    // the front side contains unknown filters, and must
+                    // be completed by the Python code
+                    rendered_nodes.push(RenderedNode::Replacement {
+                        field_name: (*key).to_string(),
+                        filters: vec![],
+                        current_text: "".into(),
+                    });
+                }
+            }
             Replacement { key, filters } => {
-                let (text, remaining_filters) = match fields.get(key) {
-                    Some(text) => apply_filters(text, filters, key),
+                // apply built in filters if field exists
+                let (text, remaining_filters) = match context.fields.get(key) {
+                    Some(text) => apply_filters(text, filters, key, context),
                     None => (unknown_field_message(key, filters).into(), vec![]),
                 };
 
@@ -306,13 +335,13 @@ fn render_into(
                 }
             }
             Conditional { key, children } => {
-                if nonempty.contains(key) {
-                    render_into(rendered_nodes, children.as_ref(), fields, nonempty);
+                if context.nonempty_fields.contains(key) {
+                    render_into(rendered_nodes, children.as_ref(), context);
                 }
             }
             NegatedConditional { key, children } => {
-                if !nonempty.contains(key) {
-                    render_into(rendered_nodes, children.as_ref(), fields, nonempty);
+                if !context.nonempty_fields.contains(key) {
+                    render_into(rendered_nodes, children.as_ref(), context);
                 }
             }
         };
@@ -378,6 +407,53 @@ fn unknown_field_message(field_name: &str, filters: &[&str]) -> String {
     )
 }
 
+// Rendering both sides
+//----------------------------------------
+
+#[allow(clippy::implicit_hasher)]
+pub fn render_card(
+    qfmt: &str,
+    afmt: &str,
+    field_map: &HashMap<&str, &str>,
+    card_ord: u16,
+) -> (Vec<RenderedNode>, Vec<RenderedNode>) {
+    // prepare context
+    let mut context = RenderContext {
+        fields: field_map,
+        nonempty_fields: &nonempty_fields(field_map),
+        question_side: true,
+        card_ord,
+        front_text: None,
+    };
+
+    // question side
+    let qnorm = without_legacy_template_directives(qfmt);
+    let qnodes = match ParsedTemplate::from_text(qnorm.as_ref()) {
+        Ok(tmpl) => tmpl.render(&context),
+        Err(e) => vec![RenderedNode::Text {
+            text: format!("{:?}", e),
+        }],
+    };
+
+    // if the question side didn't have any unknown filters, we can pass
+    // FrontSide in now
+    if let [RenderedNode::Text { ref text }] = *qnodes.as_slice() {
+        context.front_text = Some(strip_sounds(text));
+    }
+
+    // answer side
+    context.question_side = false;
+    let anorm = without_legacy_template_directives(afmt);
+    let anodes = match ParsedTemplate::from_text(anorm.as_ref()) {
+        Ok(tmpl) => tmpl.render(&context),
+        Err(e) => vec![RenderedNode::Text {
+            text: format!("{:?}", e),
+        }],
+    };
+
+    (qnodes, anodes)
+}
+
 // Field requirements
 //----------------------------------------
 
@@ -437,7 +513,11 @@ impl ParsedTemplate<'_> {
 #[cfg(test)]
 mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
-    use crate::template::{field_is_empty, without_legacy_template_directives, FieldRequirements};
+    use crate::template::{
+        field_is_empty, nonempty_fields, render_card, without_legacy_template_directives,
+        FieldRequirements, RenderContext, RenderedNode,
+    };
+    use crate::text::strip_html;
     use std::collections::{HashMap, HashSet};
     use std::iter::FromIterator;
 
@@ -568,15 +648,23 @@ mod test {
     }
 
     #[test]
-    fn test_render() {
+    fn test_render_single() {
         let map: HashMap<_, _> = vec![("F", "f"), ("B", "b"), ("E", " ")]
             .into_iter()
             .collect();
 
+        let ctx = RenderContext {
+            fields: &map,
+            nonempty_fields: &nonempty_fields(&map),
+            question_side: true,
+            card_ord: 1,
+            front_text: None,
+        };
+
         use crate::template::RenderedNode as FN;
         let mut tmpl = PT::from_text("{{B}}A{{F}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Text {
                 text: "bAf".to_owned()
             },]
@@ -584,12 +672,12 @@ mod test {
 
         // empty
         tmpl = PT::from_text("{{#E}}A{{/E}}").unwrap();
-        assert_eq!(tmpl.render(&map), vec![]);
+        assert_eq!(tmpl.render(&ctx), vec![]);
 
         // missing
         tmpl = PT::from_text("{{^M}}A{{/M}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Text {
                 text: "A".to_owned()
             },]
@@ -598,7 +686,7 @@ mod test {
         // nested
         tmpl = PT::from_text("{{^E}}1{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}{{/E}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Text {
                 text: "12f".to_owned()
             },]
@@ -607,7 +695,7 @@ mod test {
         // unknown filters
         tmpl = PT::from_text("{{one:two:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Replacement {
                 field_name: "B".to_owned(),
                 filters: vec!["two".to_string(), "one".to_string()],
@@ -616,9 +704,10 @@ mod test {
         );
 
         // partially unknown filters
-        tmpl = PT::from_text("{{one:text:B}}").unwrap();
+        // excess colons are ignored
+        tmpl = PT::from_text("{{one::text:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Replacement {
                 field_name: "B".to_owned(),
                 filters: vec!["one".to_string()],
@@ -629,7 +718,7 @@ mod test {
         // known filter
         tmpl = PT::from_text("{{text:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Text {
                 text: "b".to_owned()
             }]
@@ -638,7 +727,7 @@ mod test {
         // unknown field
         tmpl = PT::from_text("{{X}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Text {
                 text: "{unknown field X}".to_owned()
             }]
@@ -647,10 +736,44 @@ mod test {
         // unknown field with filters
         tmpl = PT::from_text("{{foo:text:X}}").unwrap();
         assert_eq!(
-            tmpl.render(&map),
+            tmpl.render(&ctx),
             vec![FN::Text {
                 text: "{unknown field foo:text:X}".to_owned()
             }]
         );
+    }
+
+    fn get_complete_template(nodes: &Vec<RenderedNode>) -> Option<&str> {
+        if let [RenderedNode::Text { ref text }] = nodes.as_slice() {
+            Some(text.as_str())
+        } else {
+            None
+        }
+    }
+
+    #[test]
+    fn test_render_full() {
+        // make sure front and back side renders cloze differently
+        let fmt = "{{cloze:Text}}";
+        let clozed_text = "{{c1::one}} {{c2::two::hint}}";
+        let map: HashMap<_, _> = vec![("Text", clozed_text)].into_iter().collect();
+
+        let (qnodes, anodes) = render_card(fmt, fmt, &map, 0);
+        assert_eq!(
+            strip_html(get_complete_template(&qnodes).unwrap()),
+            "[...] two"
+        );
+        assert_eq!(
+            strip_html(get_complete_template(&anodes).unwrap()),
+            "one two"
+        );
+
+        // FrontSide should render if only standard modifiers were used
+        let (_qnodes, anodes) = render_card("{{kana:text:Text}}", "{{FrontSide}}", &map, 1);
+        assert_eq!(get_complete_template(&anodes).unwrap(), clozed_text);
+
+        // But if a custom modifier was used, it's deferred to the Python code
+        let (_qnodes, anodes) = render_card("{{custom:Text}}", "{{FrontSide}}", &map, 1);
+        assert_eq!(get_complete_template(&anodes).is_none(), true)
     }
 }

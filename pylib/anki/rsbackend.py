@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
 from dataclasses import dataclass
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 
 import ankirspy  # pytype: disable=import-error
 
@@ -51,6 +51,27 @@ class TemplateReplacement:
     field_name: str
     current_text: str
     filters: List[str]
+
+
+TemplateReplacementList = List[Union[str, TemplateReplacement]]
+
+
+def proto_replacement_list_to_native(
+    nodes: List[pb.RenderedTemplateNode],
+) -> TemplateReplacementList:
+    results: TemplateReplacementList = []
+    for node in nodes:
+        if node.WhichOneof("value") == "text":
+            results.append(node.text)
+        else:
+            results.append(
+                TemplateReplacement(
+                    field_name=node.replacement.field_name,
+                    current_text=node.replacement.current_text,
+                    filters=list(node.replacement.filters),
+                )
+            )
+    return results
 
 
 class RustBackend:
@@ -105,26 +126,21 @@ class RustBackend:
             )
         ).sched_timing_today
 
-    def render_template(
-        self, template: str, fields: Dict[str, str]
-    ) -> List[Union[str, TemplateReplacement]]:
+    def render_card(
+        self, qfmt: str, afmt: str, fields: Dict[str, str], card_ord: int
+    ) -> Tuple[TemplateReplacementList, TemplateReplacementList]:
         out = self._run_command(
             pb.BackendInput(
-                render_template=pb.RenderTemplateIn(
-                    template_text=template, fields=fields
+                render_card=pb.RenderCardIn(
+                    question_template=qfmt,
+                    answer_template=afmt,
+                    fields=fields,
+                    card_ordinal=card_ord,
                 )
             )
-        ).render_template
-        results: List[Union[str, TemplateReplacement]] = []
-        for node in out.nodes:
-            if node.WhichOneof("value") == "text":
-                results.append(node.text)
-            else:
-                results.append(
-                    TemplateReplacement(
-                        field_name=node.replacement.field_name,
-                        current_text=node.replacement.current_text,
-                        filters=list(node.replacement.filters),
-                    )
-                )
-        return results
+        ).render_card
+
+        qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
+        anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
+
+        return (qnodes, anodes)

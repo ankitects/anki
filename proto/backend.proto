@@ -14,7 +14,7 @@ message BackendInput {
         Empty deck_tree = 18;
         FindCardsIn find_cards = 19;
         BrowserRowsIn browser_rows = 20;
-        RenderTemplateIn render_template = 21;
+        RenderCardIn render_card = 21;
 
         PlusOneIn plus_one = 2046; // temporary, for testing
     }
@@ -27,7 +27,7 @@ message BackendOutput {
         DeckTreeOut deck_tree = 18;
         FindCardsOut find_cards = 19;
         BrowserRowsOut browser_rows = 20;
-        RenderTemplateOut render_template = 21;
+        RenderCardOut render_card = 21;
 
         PlusOneOut plus_one = 2046; // temporary, for testing
 
@@ -128,13 +128,16 @@ message BrowserRowsOut {
     repeated string sort_fields = 1;
 }
 
-message RenderTemplateIn {
-    string template_text = 1;
-    map<string,string> fields = 2;
+message RenderCardIn {
+    string question_template = 1;
+    string answer_template = 2;
+    map<string,string> fields = 3;
+    int32 card_ordinal = 4;
 }
 
-message RenderTemplateOut {
-    repeated RenderedTemplateNode nodes = 1;
+message RenderCardOut {
+    repeated RenderedTemplateNode question_nodes = 1;
+    repeated RenderedTemplateNode answer_nodes = 2;
 }
 
 message RenderedTemplateNode {

@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::template::RenderContext;
 use crate::text::strip_html;
 use blake3::Hasher;
 use lazy_static::lazy_static;
@@ -18,6 +19,7 @@ pub(crate) fn apply_filters<'a>(
     text: &'a str,
     filters: &[&str],
     field_name: &str,
+    context: &RenderContext,
 ) -> (Cow<'a, str>, Vec<String>) {
     let mut text: Cow<str> = text.into();
 
@@ -29,7 +31,7 @@ pub(crate) fn apply_filters<'a>(
     };
 
     for (idx, &filter_name) in filters.iter().enumerate() {
-        match apply_filter(filter_name, text.as_ref(), field_name) {
+        match apply_filter(filter_name, text.as_ref(), field_name, context) {
             (true, None) => {
                 // filter did not change text
             }
@@ -55,24 +57,26 @@ pub(crate) fn apply_filters<'a>(
 ///
 /// Returns true if filter was valid.
 /// Returns string if input text changed.
-fn apply_filter<'a>(filter_name: &str, text: &'a str, field_name: &str) -> (bool, Option<String>) {
+fn apply_filter<'a>(
+    filter_name: &str,
+    text: &'a str,
+    field_name: &str,
+    context: &RenderContext,
+) -> (bool, Option<String>) {
     let output_text = match filter_name {
         "text" => strip_html(text),
         "furigana" => furigana_filter(text),
         "kanji" => kanji_filter(text),
         "kana" => kana_filter(text),
-        other => {
-            let split: Vec<_> = other.splitn(2, '-').collect();
-            let base = split[0];
-            let filter_args = *split.get(1).unwrap_or(&"");
-            match base {
-                "type" => type_filter(text, filter_args, field_name),
-                "hint" => hint_filter(text, field_name),
-                "cq" => cloze_filter(text, filter_args, true),
-                "ca" => cloze_filter(text, filter_args, false),
-                // unrecognized filter
-                _ => return (false, None),
-            }
+        "type" => type_filter(field_name),
+        "type-cloze" => type_cloze_filter(field_name),
+        "hint" => hint_filter(text, field_name),
+        "cloze" => cloze_filter(text, context),
+        // an empty filter name (caused by using two colons) is ignored
+        "" => text.into(),
+        _ => {
+            // unrecognized filter
+            return (false, None);
         }
     };
 
@@ -126,7 +130,7 @@ mod mathjax_caps {
     pub const CLOSING_TAG: usize = 3;
 }
 
-fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
+fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
     let output = CLOZE.replace_all(text, |caps: &Captures| {
         let captured_ord = caps
             .get(cloze_caps::ORD)
@@ -135,7 +139,7 @@ fn reveal_cloze_text(text: &str, ord: u16, question: bool) -> Cow<str> {
             .parse()
             .unwrap_or(0);
 
-        if captured_ord != ord {
+        if captured_ord != cloze_ord {
             // other cloze deletions are unchanged
             return caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
         }
@@ -173,11 +177,12 @@ fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
     })
 }
 
-fn cloze_filter<'a>(text: &'a str, filter_args: &str, question: bool) -> Cow<'a, str> {
-    let cloze_ord = filter_args.parse().unwrap_or(0);
-    strip_html_inside_mathjax(reveal_cloze_text(text, cloze_ord, question).as_ref())
-        .into_owned()
-        .into()
+fn cloze_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a, str> {
+    strip_html_inside_mathjax(
+        reveal_cloze_text(text, context.card_ord + 1, context.question_side).as_ref(),
+    )
+    .into_owned()
+    .into()
 }
 
 // Ruby filters
@@ -239,16 +244,14 @@ fn furigana_filter(text: &str) -> Cow<str> {
 //----------------------------------------
 
 /// convert to [[type:...]] for the gui code to process
-fn type_filter<'a>(_text: &'a str, filter_args: &str, field_name: &str) -> Cow<'a, str> {
-    if filter_args.is_empty() {
-        format!("[[type:{}]]", field_name)
-    } else {
-        format!("[[type:{}:{}]]", filter_args, field_name)
-    }
-    .into()
+fn type_filter<'a>(field_name: &str) -> Cow<'a, str> {
+    format!("[[type:{}]]", field_name).into()
 }
 
-// fixme: i18n
+fn type_cloze_filter<'a>(field_name: &str) -> Cow<'a, str> {
+    format!("[[type:cloze:{}]]", field_name).into()
+}
+
 fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
     if text.trim().is_empty() {
         return text.into();
@@ -267,9 +270,9 @@ onclick="this.style.display='none';
 document.getElementById('hint{}').style.display='block';
 return false;">
 {}</a>
-<div id="hint{}" class=hint style="display: none">Show {}</div>
+<div id="hint{}" class=hint style="display: none">{}</div>
 "##,
-        id, text, id, field_name
+        id, field_name, id, text
     )
     .into()
 }
@@ -279,9 +282,10 @@ return false;">
 
 #[cfg(test)]
 mod test {
+    use crate::template::RenderContext;
     use crate::template_filters::{
         apply_filters, cloze_filter, furigana_filter, hint_filter, kana_filter, kanji_filter,
-        type_filter,
+        type_cloze_filter, type_filter,
     };
     use crate::text::strip_html;
 
@@ -305,21 +309,25 @@ mod test {
 onclick="this.style.display='none';
 document.getElementById('hint83fe48607f0f3a66').style.display='block';
 return false;">
-foo</a>
-<div id="hint83fe48607f0f3a66" class=hint style="display: none">Show field</div>
+field</a>
+<div id="hint83fe48607f0f3a66" class=hint style="display: none">foo</div>
 "##
         );
     }
 
     #[test]
     fn test_type() {
-        assert_eq!(type_filter("ignored", "", "Front"), "[[type:Front]]");
+        assert_eq!(type_filter("Front"), "[[type:Front]]");
+        assert_eq!(type_cloze_filter("Front"), "[[type:cloze:Front]]");
+        let ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            question_side: false,
+            card_ord: 0,
+            front_text: None,
+        };
         assert_eq!(
-            type_filter("ignored", "cloze", "Front"),
-            "[[type:cloze:Front]]"
-        );
-        assert_eq!(
-            apply_filters("ignored", &["cloze", "type"], "Text"),
+            apply_filters("ignored", &["cloze", "type"], "Text", &ctx),
             ("[[type:cloze:Text]]".into(), vec![])
         );
     }
@@ -327,25 +335,23 @@ foo</a>
     #[test]
     fn test_cloze() {
         let text = "{{c1::one}} {{c2::two::hint}}";
+        let mut ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            question_side: true,
+            card_ord: 0,
+            front_text: None,
+        };
+        assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "[...] two");
         assert_eq!(
-            strip_html(&cloze_filter(text, "1", true)).as_ref(),
-            "[...] two"
-        );
-        assert_eq!(
-            strip_html(&cloze_filter(text, "2", true)).as_ref(),
-            "one [hint]"
-        );
-        assert_eq!(
-            strip_html(&cloze_filter(text, "1", false)).as_ref(),
-            "one two"
-        );
-        assert_eq!(
-            cloze_filter(text, "1", false),
-            "<span class=cloze>one</span> two"
-        );
-        assert_eq!(
-            cloze_filter(text, "1", true),
+            cloze_filter(text, &ctx),
             "<span class=cloze>[...]</span> two"
         );
+
+        ctx.card_ord = 1;
+        assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "one [hint]");
+
+        ctx.question_side = false;
+        assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "one two");
     }
 }
