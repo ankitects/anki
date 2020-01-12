@@ -70,7 +70,7 @@ PYLIB := ../pylib
 CHECKDEPS := $(shell find aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
-	MYPYPATH=$(PYLIB) mypy aqt
+	mypy aqt
 	@touch $@
 
 .build/test: $(CHECKDEPS)
