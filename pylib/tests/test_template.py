@@ -1,4 +1,5 @@
 from anki.template_legacy import _removeFormattingFromMathjax
+from tests.shared import getEmptyCol
 
 
 def test_remove_formatting_from_mathjax():
@@ -14,3 +15,17 @@ def test_remove_formatting_from_mathjax():
 
     txt = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
     assert _removeFormattingFromMathjax(txt, 1) == (r"\(a\) {{c1::b}} \[ {{C1::c}} \]")
+
+
+def test_deferred_frontside():
+    d = getEmptyCol()
+    m = d.models.current()
+    m["tmpls"][0]["qfmt"] = "{{custom:Front}}"
+    d.models.save(m)
+
+    f = d.newNote()
+    f["Front"] = "xxtest"
+    f["Back"] = ""
+    d.addNote(f)
+
+    assert "xxtest" in f.cards()[0].a()

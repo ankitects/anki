@@ -10,7 +10,7 @@ unrecognized filter. The remaining filters are returned to Python,
 and applied using the hook system. For example,
 {{myfilter:hint:text:Field}} will apply the built in text and hint filters,
 and then attempt to apply myfilter. If no add-ons have provided the filter,
-the text is not modified.
+the filter is skipped.
 
 Add-ons can register a filter by adding a hook to "fmod_<filter name>".
 As standard filters will not be run after a custom filter, it is up to the
@@ -29,23 +29,14 @@ template_legacy.py file.
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import anki
 from anki.hooks import runFilter
-from anki.rsbackend import TemplateReplacement
-from anki.sound import stripSounds
+from anki.rsbackend import TemplateReplacementList
 
 
-def render_template(
-    col: anki.storage._Collection, format: str, fields: Dict[str, str]
-) -> str:
-    "Render a single template."
-    rendered = col.backend.render_template(format, fields)
-    return apply_custom_filters(rendered, fields)
-
-
-def render_qa_from_field_map(
+def render_card(
     col: anki.storage._Collection,
     qfmt: str,
     afmt: str,
@@ -53,37 +44,36 @@ def render_qa_from_field_map(
     card_ord: int,
 ) -> Tuple[str, str]:
     "Renders the provided templates, returning rendered q & a text."
-    # question
-    format = re.sub("{{(?!type:)(.*?)cloze:", r"{{\1cq-%d:" % (card_ord + 1), qfmt)
-    format = format.replace("<%cloze:", "<%%cq:%d:" % (card_ord + 1))
-    qtext = render_template(col, format, fields)
 
-    # answer
-    format = re.sub("{{(.*?)cloze:", r"{{\1ca-%d:" % (card_ord + 1), afmt)
-    format = format.replace("<%cloze:", "<%%ca:%d:" % (card_ord + 1))
-    fields["FrontSide"] = stripSounds(qtext)
-    atext = render_template(col, format, fields)
+    (qnodes, anodes) = col.backend.render_card(qfmt, afmt, fields, card_ord)
+
+    qtext = apply_custom_filters(qnodes, fields, front_side=None)
+    atext = apply_custom_filters(anodes, fields, front_side=qtext)
 
     return qtext, atext
 
 
 def apply_custom_filters(
-    rendered: List[Union[str, TemplateReplacement]], fields: Dict[str, str]
+    rendered: TemplateReplacementList, fields: Dict[str, str], front_side: Optional[str]
 ) -> str:
     "Complete rendering by applying any pending custom filters."
+    # template already fully rendered?
+    if len(rendered) == 1 and isinstance(rendered[0], str):
+        return rendered[0]
+
     res = ""
     for node in rendered:
         if isinstance(node, str):
             res += node
         else:
+            # do we need to inject in FrontSide?
+            if node.field_name == "FrontSide" and front_side is not None:
+                node.current_text = front_side
+
             res += apply_field_filters(
                 node.field_name, node.current_text, fields, node.filters
             )
     return res
-
-
-# Filters
-##########################################################################
 
 
 def apply_field_filters(

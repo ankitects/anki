@@ -7,7 +7,8 @@ use crate::backend_proto::RenderedTemplateReplacement;
 use crate::err::{AnkiError, Result};
 use crate::sched::sched_timing_today;
 use crate::template::{
-    without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate, RenderedNode,
+    render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
+    RenderedNode,
 };
 use prost::Message;
 use std::collections::{HashMap, HashSet};
@@ -96,7 +97,7 @@ impl Backend {
             Value::DeckTree(_) => todo!(),
             Value::FindCards(_) => todo!(),
             Value::BrowserRows(_) => todo!(),
-            Value::RenderTemplate(input) => OValue::RenderTemplate(self.render_template(input)?),
+            Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)),
         })
     }
 
@@ -160,32 +161,41 @@ impl Backend {
         }
     }
 
-    fn render_template(&self, input: pt::RenderTemplateIn) -> Result<pt::RenderTemplateOut> {
+    fn render_template(&self, input: pt::RenderCardIn) -> pt::RenderCardOut {
+        // convert string map to &str
         let fields: HashMap<_, _> = input
             .fields
             .iter()
             .map(|(k, v)| (k.as_ref(), v.as_ref()))
             .collect();
 
-        let normalized = without_legacy_template_directives(&input.template_text);
-        match ParsedTemplate::from_text(normalized.as_ref()) {
-            Ok(tmpl) => {
-                let nodes = tmpl.render(&fields);
-                let out_nodes = nodes
-                    .into_iter()
-                    .map(|n| pt::RenderedTemplateNode {
-                        value: Some(rendered_node_to_proto(n)),
-                    })
-                    .collect();
-                Ok(pt::RenderTemplateOut { nodes: out_nodes })
-            }
-            Err(e) => Err(e),
+        // render
+        let (qnodes, anodes) = render_card(
+            &input.question_template,
+            &input.answer_template,
+            &fields,
+            input.card_ordinal as u16,
+        );
+
+        // return
+        pt::RenderCardOut {
+            question_nodes: rendered_nodes_to_proto(qnodes),
+            answer_nodes: rendered_nodes_to_proto(anodes),
         }
     }
 }
 
 fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
     ords.iter().map(|ord| *ord as u32).collect()
+}
+
+fn rendered_nodes_to_proto(nodes: Vec<RenderedNode>) -> Vec<pt::RenderedTemplateNode> {
+    nodes
+        .into_iter()
+        .map(|n| pt::RenderedTemplateNode {
+            value: Some(rendered_node_to_proto(n)),
+        })
+        .collect()
 }
 
 fn rendered_node_to_proto(node: RenderedNode) -> pt::rendered_template_node::Value {
