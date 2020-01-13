@@ -31,7 +31,7 @@ PROTODEPS := $(wildcard ../proto/*.proto)
 	python tools/genhooks.py
 	@touch $@
 
-BUILD_STEPS := .build/run-deps .build/dev-deps .build/py-proto .build/hooks anki/buildinfo.py
+BUILD_STEPS := .build/run-deps .build/dev-deps .build/py-proto anki/buildinfo.py .build/hooks
 
 # Checking
 ######################

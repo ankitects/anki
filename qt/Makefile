@@ -39,7 +39,7 @@ TSDEPS := $(wildcard ts/src/*.ts)
 	python tools/genhooks.py
 	@touch $@
 
-BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui .build/hooks .build/i18n aqt/buildinfo.py
+BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui aqt/buildinfo.py .build/hooks .build/i18n
 
 # Checking
 ######################
