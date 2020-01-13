@@ -25,7 +25,12 @@ hooks = [
         args=["col: anki.storage._Collection", "ids: List[int]"],
         legacy_hook="remNotes",
     ),
-    Hook(name="deck_created", args=["deck: Dict[str, Any]"]),
+    Hook(
+        name="deck_created",
+        args=["deck: Dict[str, Any]"],
+        legacy_hook="newDeck",
+        legacy_no_args=True,
+    ),
     Hook(name="exported_media_files", args=["count: int"]),
     Hook(
         name="create_exporters_list",
@@ -37,11 +42,19 @@ hooks = [
         args=["searches: Dict[str, Callable]"],
         legacy_hook="search",
     ),
-    Hook(name="note_type_created", args=["notetype: Dict[str, Any]"]),
-    Hook(name="sync_stage", args=["stage: str"]),
+    Hook(
+        name="note_type_created",
+        args=["notetype: Dict[str, Any]"],
+        legacy_hook="newModel",
+        legacy_no_args=True,
+    ),
+    Hook(name="sync_stage", args=["stage: str"], legacy_hook="sync"),
+    Hook(name="sync_progress_message", args=["msg: str"], legacy_hook="syncMsg"),
     Hook(name="http_data_sent", args=["bytes: int"]),
     Hook(name="http_data_received", args=["bytes: int"]),
-    Hook(name="tag_created", args=["tag: str"]),
+    Hook(
+        name="tag_created", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True
+    ),
     Hook(
         name="modify_fields_for_rendering",
         args=["fields: Dict[str, str]", "notetype: Dict[str, Any]", "data: QAData",],

@@ -54,6 +54,7 @@ rendered_card_template_filter: List[
         str,
     ]
 ] = []
+sync_progress_message_hook: List[Callable[[str], None]] = []
 sync_stage_hook: List[Callable[[str], None]] = []
 tag_created_hook: List[Callable[[str], None]] = []
 
@@ -78,6 +79,8 @@ def run_deck_created_hook(deck: Dict[str, Any]) -> None:
             # if the hook fails, remove it
             deck_created_hook.remove(hook)
             raise
+    # legacy support
+    runHook("newDeck")
 
 
 def run_exported_media_files_hook(count: int) -> None:
@@ -166,6 +169,8 @@ def run_note_type_created_hook(notetype: Dict[str, Any]) -> None:
             # if the hook fails, remove it
             note_type_created_hook.remove(hook)
             raise
+    # legacy support
+    runHook("newModel")
 
 
 def run_odue_invalid_hook() -> None:
@@ -222,6 +227,18 @@ def run_rendered_card_template_filter(
     return text
 
 
+def run_sync_progress_message_hook(msg: str) -> None:
+    for hook in sync_progress_message_hook:
+        try:
+            hook(msg)
+        except:
+            # if the hook fails, remove it
+            sync_progress_message_hook.remove(hook)
+            raise
+    # legacy support
+    runHook("syncMsg", msg)
+
+
 def run_sync_stage_hook(stage: str) -> None:
     for hook in sync_stage_hook:
         try:
@@ -230,6 +247,8 @@ def run_sync_stage_hook(stage: str) -> None:
             # if the hook fails, remove it
             sync_stage_hook.remove(hook)
             raise
+    # legacy support
+    runHook("sync", stage)
 
 
 def run_tag_created_hook(tag: str) -> None:
@@ -240,6 +259,8 @@ def run_tag_created_hook(tag: str) -> None:
             # if the hook fails, remove it
             tag_created_hook.remove(hook)
             raise
+    # legacy support
+    runHook("newTag")
 
 
 # @@AUTOGEN@@

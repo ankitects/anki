@@ -15,6 +15,18 @@ from anki.hooks_gen import Hook, update_file
 hooks = [
     Hook(name="mpv_idle"),
     Hook(name="mpv_will_play", args=["file: str"], legacy_hook="mpvWillPlay"),
+    Hook(
+        name="reviewer_showing_question",
+        args=["card: Card"],
+        legacy_hook="showQuestion",
+        legacy_no_args=True,
+    ),
+    Hook(
+        name="reviewer_showing_answer",
+        args=["card: Card"],
+        legacy_hook="showAnswer",
+        legacy_no_args=True,
+    ),
 ]
 
 if __name__ == "__main__":
