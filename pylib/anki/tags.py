@@ -17,7 +17,6 @@ from typing import Callable, Dict, List, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
-from anki.hooks import runHook
 from anki.utils import ids2str, intTime
 
 
@@ -52,7 +51,6 @@ class TagManager:
                 self.changed = True
         if found:
             hooks.run_tag_created_hook(t)  # pylint: disable=undefined-loop-variable
-            runHook("newTag")
 
     def all(self) -> List:
         return list(self.tags.keys())

@@ -16,7 +16,7 @@ from anki.cards import Card
 from anki.hooks import runFilter, runHook
 from anki.lang import _, ngettext
 from anki.utils import bodyClass, stripHTML
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import clearAudioQueue, getAudio, play, playFromText
 from aqt.utils import (
@@ -200,7 +200,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         if self.typeCorrect:
             self.mw.web.setFocus()
         # user hook
-        runHook("showQuestion")
+        gui_hooks.run_reviewer_showing_question_hook(c)
 
     def autoplay(self, card):
         return self.mw.col.decks.confForDid(card.odid or card.did)["autoplay"]
@@ -235,7 +235,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
-        runHook("showAnswer")
+        gui_hooks.run_reviewer_showing_answer_hook(c)
 
     # Answering a card
     ############################################################

@@ -19,7 +19,6 @@ from anki.db import DB, DBError
 from anki.utils import checksum, devMode, ids2str, intTime, platDesc, versionWithBuild
 
 from . import hooks
-from .hooks import runHook
 from .lang import ngettext
 
 # syncing vars
@@ -836,8 +835,7 @@ class MediaSyncer:
             if not fnames:
                 break
 
-            runHook(
-                "syncMsg",
+            hooks.run_sync_progress_message_hook(
                 ngettext(
                     "%d media change to upload", "%d media changes to upload", toSend
                 )
@@ -888,8 +886,7 @@ class MediaSyncer:
             fnames = fnames[cnt:]
 
             n = self.downloadCount
-            runHook(
-                "syncMsg",
+            hooks.run_sync_progress_message_hook(
                 ngettext("%d media file downloaded", "%d media files downloaded", n)
                 % n,
             )

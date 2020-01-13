@@ -13,7 +13,6 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
 from anki.errors import DeckRenameError
-from anki.hooks import runHook
 from anki.lang import _
 from anki.utils import ids2str, intTime
 
@@ -167,8 +166,6 @@ class DeckManager:
         self.save(g)
         self.maybeAddToActive()
         hooks.run_deck_created_hook(g)
-        # legacy hook did not pass deck
-        runHook("newDeck")
         return int(id)
 
     def rem(self, did: int, cardsToo: bool = False, childrenToo: bool = True) -> None:

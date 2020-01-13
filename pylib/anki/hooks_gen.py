@@ -22,6 +22,8 @@ class Hook:
     return_type: Optional[str] = None
     # if add-ons may be relying on the legacy hook name, add it here
     legacy_hook: Optional[str] = None
+    # if legacy hook takes no arguments but the new hook does, set this
+    legacy_no_args: bool = False
 
     def callable(self) -> str:
         "Convert args into a Callable."
@@ -63,6 +65,13 @@ class Hook:
             # hook
             return self.hook_fire_code()
 
+    def legacy_args(self) -> str:
+        if self.legacy_no_args:
+            # hook name only
+            return f'"{self.legacy_hook}"'
+        else:
+            return ", ".join([f'"{self.legacy_hook}"'] + self.arg_names())
+
     def hook_fire_code(self) -> str:
         arg_names = self.arg_names()
         out = f"""\
@@ -76,10 +85,9 @@ def run_{self.full_name()}({", ".join(self.args or [])}) -> None:
             raise
 """
         if self.legacy_hook:
-            args = ", ".join([f'"{self.legacy_hook}"'] + arg_names)
             out += f"""\
     # legacy support
-    runHook({args})
+    runHook({self.legacy_args()})
 """
         return out + "\n\n"
 
@@ -96,10 +104,9 @@ def run_{self.full_name()}({", ".join(self.args or [])}) -> {self.return_type}:
             raise
 """
         if self.legacy_hook:
-            args = ", ".join([f'"{self.legacy_hook}"'] + arg_names)
             out += f"""\
     # legacy support
-    runFilter({args})
+    runFilter({self.legacy_args()})
 """
 
         out += f"""\
