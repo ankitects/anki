@@ -27,8 +27,9 @@ PROTODEPS := $(wildcard ../proto/*.proto)
 	protoc --proto_path=../proto --python_out=anki --mypy_out=anki $(PROTODEPS)
 	@touch $@
 
-.build/hooks: tools/genhooks.py
+.build/hooks: tools/genhooks.py anki/hooks_gen.py
 	python tools/genhooks.py
+	black anki/hooks.py
 	@touch $@
 
 BUILD_STEPS := .build/run-deps .build/dev-deps .build/py-proto anki/buildinfo.py .build/hooks
