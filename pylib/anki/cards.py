@@ -8,8 +8,8 @@ import time
 from typing import Any, Dict, Optional, Union
 
 import anki  # pylint: disable=unused-import
+from anki import hooks
 from anki.consts import *
-from anki.hooks import runHook
 from anki.notes import Note
 from anki.utils import intTime, joinFields, timestampID
 
@@ -87,7 +87,7 @@ class Card:
         self.usn = self.col.usn()
         # bug check
         if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
-            runHook("odueInvalid")
+            hooks.run_odue_invalid_hook()
         assert self.due < 4294967296
         self.col.db.execute(
             """
@@ -119,7 +119,7 @@ insert or replace into cards values
         self.usn = self.col.usn()
         # bug checks
         if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
-            runHook("odueInvalid")
+            hooks.run_odue_invalid_hook()
         assert self.due < 4294967296
         self.col.db.execute(
             """update cards set

@@ -3,8 +3,8 @@
 import copy
 import time
 
+from anki import hooks
 from anki.consts import STARTING_FACTOR
-from anki.hooks import addHook
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -395,7 +395,7 @@ def test_reviews():
     def onLeech(card):
         hooked.append(1)
 
-    addHook("leech", onLeech)
+    hooks.leech_hook.append(onLeech)
     d.sched.answerCard(c, 1)
     assert hooked
     assert c.queue == -1

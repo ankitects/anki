@@ -11,8 +11,9 @@ import unicodedata as ucd
 from typing import List
 
 import aqt
+from anki import hooks
 from anki.cards import Card
-from anki.hooks import addHook, runFilter, runHook
+from anki.hooks import runFilter, runHook
 from anki.lang import _, ngettext
 from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt
@@ -30,7 +31,7 @@ from aqt.utils import (
 class Reviewer:
     "Manage reviews.  Maintains a separate state."
 
-    def __init__(self, mw: AnkiQt):
+    def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
         self.card = None
@@ -41,7 +42,7 @@ class Reviewer:
         self.typeCorrect = None  # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
-        addHook("leech", self.onLeech)
+        hooks.leech_hook.append(self.onLeech)
 
     def show(self):
         self.mw.col.reset()

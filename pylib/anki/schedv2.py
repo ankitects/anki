@@ -14,9 +14,9 @@ from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
+from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.hooks import runHook
 from anki.lang import _
 from anki.rsbackend import SchedTimingToday
 from anki.utils import fmtTimeSpan, ids2str, intTime
@@ -1270,7 +1270,7 @@ where id = ?
             if a == 0:
                 card.queue = -1
             # notify UI
-            runHook("leech", card)
+            hooks.run_leech_hook(card)
             return True
         return None
 
