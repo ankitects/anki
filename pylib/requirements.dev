@@ -7,3 +7,4 @@ pytest
 git+https://github.com/ankitects/isort#egg=isort
 # fixme: when pylint supports isort 5.0, switch to pypi
 git+https://github.com/ankitects/pylint#egg=pylint
+stringcase==1.2.0

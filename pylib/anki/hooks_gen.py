@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from operator import attrgetter
 from typing import List, Optional
 
+import stringcase
+
 
 @dataclass
 class Hook:
@@ -52,10 +54,30 @@ class Hook:
         else:
             return "hook"
 
+    def classname(self) -> str:
+        return stringcase.pascalcase(self.full_name())
+
     def list_code(self) -> str:
         return f"""\
-{self.full_name()}: List[{self.callable()}] = []
+_hooks: List[{self.callable()}] = []
 """
+
+    def code(self) -> str:
+        doc = f"({', '.join(self.args or [])})"
+        code = f"""\
+class {self.classname()}:
+    {self.list_code()}
+    
+    def append(self, cb: {self.callable()}) -> None:
+        '''{doc}'''
+        self._hooks.append(cb)
+
+    def remove(self, cb: {self.callable()}) -> None:
+        self._hooks.remove(cb)
+{self.fire_code()}
+{self.full_name()} = {self.classname()}()
+"""
+        return code
 
     def fire_code(self) -> str:
         if self.return_type is not None:
@@ -74,43 +96,45 @@ class Hook:
 
     def hook_fire_code(self) -> str:
         arg_names = self.arg_names()
+        args_including_self = ["self"] + (self.args or [])
         out = f"""\
-def run_{self.full_name()}({", ".join(self.args or [])}) -> None:
-    for hook in {self.full_name()}:
-        try:
-            hook({", ".join(arg_names)})
-        except:
-            # if the hook fails, remove it
-            {self.full_name()}.remove(hook)
-            raise
+    def __call__({", ".join(args_including_self)}) -> None:
+        for hook in self._hooks:
+            try:
+                hook({", ".join(arg_names)})
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
 """
         if self.legacy_hook:
             out += f"""\
-    # legacy support
-    runHook({self.legacy_args()})
+        # legacy support
+        runHook({self.legacy_args()})
 """
         return out + "\n\n"
 
     def filter_fire_code(self) -> str:
         arg_names = self.arg_names()
+        args_including_self = ["self"] + (self.args or [])
         out = f"""\
-def run_{self.full_name()}({", ".join(self.args or [])}) -> {self.return_type}:
-    for filter in {self.full_name()}:
-        try:
-            {arg_names[0]} = filter({", ".join(arg_names)})
-        except:
-            # if the hook fails, remove it
-            {self.full_name()}.remove(filter)
-            raise
+    def __call__({", ".join(args_including_self)}) -> {self.return_type}:
+        for filter in self._hooks:
+            try:
+                {arg_names[0]} = filter({", ".join(arg_names)})
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
 """
         if self.legacy_hook:
             out += f"""\
-    # legacy support
-    runFilter({self.legacy_args()})
+        # legacy support
+        runFilter({self.legacy_args()})
 """
 
         out += f"""\
-    return {arg_names[0]}
+        return {arg_names[0]}
 """
         return out + "\n\n"
 
@@ -119,10 +143,7 @@ def update_file(path: str, hooks: List[Hook]):
     hooks.sort(key=attrgetter("name"))
     code = ""
     for hook in hooks:
-        code += hook.list_code()
-    code += "\n\n"
-    for hook in hooks:
-        code += hook.fire_code()
+        code += hook.code()
 
     orig = open(path).read()
     new = re.sub(

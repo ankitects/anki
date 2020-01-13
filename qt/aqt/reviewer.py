@@ -200,7 +200,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         if self.typeCorrect:
             self.mw.web.setFocus()
         # user hook
-        gui_hooks.run_reviewer_showing_question_hook(c)
+        gui_hooks.reviewer_showing_question_hook(c)
 
     def autoplay(self, card):
         return self.mw.col.decks.confForDid(card.odid or card.did)["autoplay"]
@@ -235,7 +235,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
-        gui_hooks.run_reviewer_showing_answer_hook(c)
+        gui_hooks.reviewer_showing_answer_hook(c)
 
     # Answering a card
     ############################################################
