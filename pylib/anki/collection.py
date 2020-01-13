@@ -16,6 +16,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 import anki.find
 import anki.latex  # sets up hook
 import anki.template
+from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.db import DB
@@ -271,7 +272,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def modSchema(self, check: bool) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
         if not self.schemaChanged():
-            if check and not runFilter("modSchema", True):
+            if check and not hooks.run_mod_schema_filter(proceed=True):
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
         self.setMod()

@@ -7,8 +7,8 @@ import time
 from heapq import *
 from operator import itemgetter
 
+from anki import hooks
 from anki.consts import *
-from anki.hooks import runHook
 from anki.lang import _
 
 # from anki.cards import Card
@@ -1150,7 +1150,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
                 card.odue = card.odid = 0
                 card.queue = -1
             # notify UI
-            runHook("leech", card)
+            hooks.run_leech_hook(card)
             return True
 
     # Tools

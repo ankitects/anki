@@ -24,6 +24,7 @@ import aqt.sound
 import aqt.stats
 import aqt.toolbar
 import aqt.webview
+from anki import hooks
 from anki.collection import _Collection
 from anki.hooks import addHook, runFilter, runHook
 from anki.lang import _, ngettext
@@ -1153,9 +1154,9 @@ Difference to correct time: %s."""
     ##########################################################################
 
     def setupHooks(self) -> None:
-        addHook("modSchema", self.onSchemaMod)
+        hooks.mod_schema_filter.append(self.onSchemaMod)
         addHook("remNotes", self.onRemNotes)
-        addHook("odueInvalid", self.onOdueInvalid)
+        hooks.odue_invalid_hook.append(self.onOdueInvalid)
 
         addHook("mpvWillPlay", self.onMpvWillPlay)
         addHook("mpvIdleHook", self.onMpvIdle)
