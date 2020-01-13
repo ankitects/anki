@@ -670,7 +670,7 @@ where c.nid = n.id and c.id in %s group by nid"""
 
         # and the template prior to rendering
         qfmt = hooks.original_card_template_filter(qfmt, True)
-        afmt = hooks.original_card_template_filter(qfmt, False)
+        afmt = hooks.original_card_template_filter(afmt, False)
 
         # render fields
         qatext = render_card(self, qfmt, afmt, fields, card_ord)
