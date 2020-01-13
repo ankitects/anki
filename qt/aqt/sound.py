@@ -11,10 +11,11 @@ import threading
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook
 from anki.lang import _
 from anki.sound import allSounds
 from anki.utils import isLin, isMac, isWin, tmpdir
+from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom, showWarning
@@ -156,8 +157,8 @@ class MpvManager(MPV):
     def __init__(self) -> None:
         super().__init__(window_id=None, debug=False)
 
-    def queueFile(self, file) -> None:
-        runHook("mpvWillPlay", file)
+    def queueFile(self, file: str) -> None:
+        gui_hooks.run_mpv_will_play_hook(file)
 
         path = os.path.join(os.getcwd(), file)
         self.command("loadfile", path, "append-play")
@@ -172,7 +173,7 @@ class MpvManager(MPV):
         self.command("seek", secs, "relative")
 
     def on_idle(self) -> None:
-        runHook("mpvIdleHook")
+        gui_hooks.run_mpv_idle_hook()
 
 
 def setMpvConfigBase(base) -> None:

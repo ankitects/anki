@@ -5,7 +5,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
-BLACKARGS := -t py36 aqt tests setup.py --exclude='aqt/forms|buildinfo'
+BLACKARGS := -t py36 aqt tests setup.py tools/*.py --exclude='aqt/forms|buildinfo'
 ISORTARGS := aqt tests setup.py
 
 $(shell mkdir -p .build ../dist)
@@ -35,7 +35,11 @@ TSDEPS := $(wildcard ts/src/*.ts)
 	(cd ts && npm i && npm run build)
 	@touch $@
 
-BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui .build/i18n aqt/buildinfo.py
+.build/hooks: tools/genhooks.py
+	python tools/genhooks.py
+	@touch $@
+
+BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui .build/hooks .build/i18n aqt/buildinfo.py
 
 # Checking
 ######################
