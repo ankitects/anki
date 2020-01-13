@@ -13,7 +13,13 @@ def package_files(directory):
     return entries
 
 
-extra_files = package_files("aqt_data")
+# just the Python files for type hints?
+pyonly = os.getenv("PYFILESONLY")
+
+if pyonly:
+    extra_files = []
+else:
+    extra_files = package_files("aqt_data")
 
 setuptools.setup(
     name="aqt",
@@ -25,6 +31,7 @@ setuptools.setup(
     url="https://apps.ankiweb.net",
     packages=setuptools.find_packages(".", exclude=["tests"]),
     data_files=extra_files,
+    license="License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     classifiers=[],
     python_requires=">=3.7",
     install_requires=[
