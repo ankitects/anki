@@ -13,6 +13,7 @@ setuptools.setup(
     url="https://apps.ankiweb.net",
     packages=setuptools.find_packages(".", exclude=["tests"]),
     license="License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    package_data={"anki": ["py.typed"]},
     classifiers=[],
     python_requires=">=3.7",
     install_requires=[
