@@ -60,6 +60,11 @@ hooks = [
         args=["fields: Dict[str, str]", "notetype: Dict[str, Any]", "data: QAData",],
     ),
     Hook(
+        name="original_card_template",
+        args=["template: str", "question_side: bool"],
+        return_type="str",
+    ),
+    Hook(
         name="rendered_card_template",
         args=[
             "text: str",

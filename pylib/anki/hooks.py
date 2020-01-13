@@ -46,6 +46,7 @@ modify_fields_for_rendering_hook: List[
 ] = []
 note_type_created_hook: List[Callable[[Dict[str, Any]], None]] = []
 odue_invalid_hook: List[Callable[[], None]] = []
+original_card_template_filter: List[Callable[[str, bool], str]] = []
 prepare_searches_hook: List[Callable[[Dict[str, Callable]], None]] = []
 remove_notes_hook: List[Callable[[anki.storage._Collection, List[int]], None]] = []
 rendered_card_template_filter: List[
@@ -181,6 +182,17 @@ def run_odue_invalid_hook() -> None:
             # if the hook fails, remove it
             odue_invalid_hook.remove(hook)
             raise
+
+
+def run_original_card_template_filter(template: str, question_side: bool) -> str:
+    for filter in original_card_template_filter:
+        try:
+            template = filter(template, question_side)
+        except:
+            # if the hook fails, remove it
+            original_card_template_filter.remove(filter)
+            raise
+    return template
 
 
 def run_prepare_searches_hook(searches: Dict[str, Callable]) -> None:
