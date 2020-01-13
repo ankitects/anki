@@ -30,6 +30,7 @@ from anki.hooks import addHook, runFilter, runHook
 from anki.lang import _, ngettext
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
+from aqt import gui_hooks
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
@@ -1158,9 +1159,10 @@ Difference to correct time: %s."""
         addHook("remNotes", self.onRemNotes)
         hooks.odue_invalid_hook.append(self.onOdueInvalid)
 
-        addHook("mpvWillPlay", self.onMpvWillPlay)
-        addHook("mpvIdleHook", self.onMpvIdle)
-        self._activeWindowOnPlay = None
+        gui_hooks.mpv_will_play_hook.append(self.on_mpv_will_play)
+        gui_hooks.mpv_idle_hook.append(self.on_mpv_idle)
+
+        self._activeWindowOnPlay: Optional[QWidget] = None
 
     def onOdueInvalid(self):
         showWarning(
@@ -1175,13 +1177,13 @@ and if the problem comes up again, please ask on the support site."""
         head, ext = os.path.splitext(file.lower())
         return ext in (".mp4", ".mov", ".mpg", ".mpeg", ".mkv", ".avi")
 
-    def onMpvWillPlay(self, file):
+    def on_mpv_will_play(self, file: str) -> None:
         if not self._isVideo(file):
             return
 
         self._activeWindowOnPlay = self.app.activeWindow() or self._activeWindowOnPlay
 
-    def onMpvIdle(self):
+    def on_mpv_idle(self) -> None:
         w = self._activeWindowOnPlay
         if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
             w.activateWindow()
