@@ -10,6 +10,7 @@ import unicodedata
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
+from anki import hooks
 from anki.consts import *
 from anki.errors import DeckRenameError
 from anki.hooks import runHook
@@ -165,6 +166,8 @@ class DeckManager:
         self.decks[str(id)] = g
         self.save(g)
         self.maybeAddToActive()
+        hooks.run_deck_created_hook(g)
+        # legacy hook did not pass deck
         runHook("newDeck")
         return int(id)
 

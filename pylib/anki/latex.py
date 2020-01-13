@@ -1,15 +1,18 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import html
 import os
 import re
 import shutil
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
-from anki.hooks import addHook
+import anki
+from anki import hooks
 from anki.lang import _
-from anki.types import NoteType
+from anki.types import NoteType, QAData
 from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [
@@ -44,14 +47,15 @@ def stripLatex(text) -> Any:
     return text
 
 
+# media code and some add-ons depend on the current name
 def mungeQA(
     html: str,
-    type: Optional[str],
-    fields: Optional[Dict[str, str]],
+    type: str,
+    fields: Dict[str, str],
     model: NoteType,
-    data: Optional[List[Union[int, str]]],
-    col,
-) -> Any:
+    data: QAData,
+    col: anki.storage._Collection,
+) -> str:
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps["standard"].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
@@ -180,4 +184,4 @@ def _errMsg(type: str, texpath: str) -> Any:
 
 
 # setup q/a filter
-addHook("mungeQA", mungeQA)
+hooks.rendered_card_template_filter.append(mungeQA)

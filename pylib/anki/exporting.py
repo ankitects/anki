@@ -12,8 +12,8 @@ from io import BufferedWriter
 from typing import Any, Dict, List, Tuple
 from zipfile import ZipFile
 
+from anki import hooks
 from anki.collection import _Collection
-from anki.hooks import runHook
 from anki.lang import _
 from anki.storage import Collection
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
@@ -347,7 +347,7 @@ class AnkiPackageExporter(AnkiExporter):
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
                 media[cStr] = unicodedata.normalize("NFC", file)
-                runHook("exportedMediaFiles", c)
+                hooks.run_exported_media_files_hook(c)
 
         return media
 
@@ -417,5 +417,5 @@ def exporters() -> List[Tuple[str, Any]]:
         id(TextNoteExporter),
         id(TextCardExporter),
     ]
-    runHook("exportersList", exps)
+    hooks.run_create_exporters_list_hook(exps)
     return exps

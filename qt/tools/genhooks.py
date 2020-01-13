@@ -14,7 +14,7 @@ from anki.hooks_gen import Hook, update_file
 
 hooks = [
     Hook(name="mpv_idle"),
-    Hook(name="mpv_will_play", cb_args="file: str", legacy_hook="mpvWillPlay"),
+    Hook(name="mpv_will_play", args=["file: str"], legacy_hook="mpvWillPlay"),
 ]
 
 if __name__ == "__main__":

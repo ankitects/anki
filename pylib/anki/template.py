@@ -12,18 +12,18 @@ and applied using the hook system. For example,
 and then attempt to apply myfilter. If no add-ons have provided the filter,
 the filter is skipped.
 
-Add-ons can register a filter by adding a hook to "fmod_<filter name>".
-As standard filters will not be run after a custom filter, it is up to the
-add-on to do any further processing that is required.
+Add-ons can register a filter with the following code:
 
-The hook is called with the arguments
-(field_text, filter_args, field_map, field_name, "").
-The last argument is no longer used.
-If the field name contains a hyphen, it is split on the hyphen, eg
-{{foo-bar:baz}} calls fmod_foo with filter_args set to "bar".
+from anki import hooks
+hooks.field_replacement_filter.append(myfunc)
+
+This will call myfunc, passing the field text in as the first argument.
+Your function should decide if it wants to modify the text by checking
+the filter_name argument, and then return the text whether it has been
+modified or not.
 
 A Python implementation of the standard filters is currently available in the
-template_legacy.py file.
+template_legacy.py file, using the legacy addHook() system.
 """
 
 from __future__ import annotations
@@ -32,6 +32,7 @@ import re
 from typing import Dict, List, Optional, Tuple
 
 import anki
+from anki import hooks
 from anki.hooks import runFilter
 from anki.rsbackend import TemplateReplacementList
 
@@ -44,7 +45,6 @@ def render_card(
     card_ord: int,
 ) -> Tuple[str, str]:
     "Renders the provided templates, returning rendered q & a text."
-
     (qnodes, anodes) = col.backend.render_card(qfmt, afmt, fields, card_ord)
 
     qtext = apply_custom_filters(qnodes, fields, front_side=None)
@@ -70,28 +70,18 @@ def apply_custom_filters(
             if node.field_name == "FrontSide" and front_side is not None:
                 node.current_text = front_side
 
-            res += apply_field_filters(
-                node.field_name, node.current_text, fields, node.filters
-            )
+            field_text = node.current_text
+            for filter_name in node.filters:
+                field_text = hooks.run_field_replacement_filter(
+                    field_text, node.field_name, filter_name, fields
+                )
+                # legacy hook - the second and fifth argument are no longer used
+                field_text = runFilter(
+                    "fmod_" + filter_name, field_text, "", fields, node.field_name, ""
+                )
+
+            res += field_text
     return res
-
-
-def apply_field_filters(
-    field_name: str, field_text: str, fields: Dict[str, str], filters: List[str]
-) -> str:
-    """Apply filters to field text, returning modified text."""
-    for filter in filters:
-        if "-" in filter:
-            filter_base, filter_args = filter.split("-", maxsplit=1)
-        else:
-            filter_base = filter
-            filter_args = ""
-
-        # the fifth argument is no longer used
-        field_text = runFilter(
-            "fmod_" + filter_base, field_text, filter_args, fields, field_name, ""
-        )
-    return field_text
 
 
 # Cloze handling
