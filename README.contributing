@@ -34,6 +34,8 @@ pragmatism is advised. Anki's codebase is old and of varying quality, and
 there are parts that are difficult to type properly. Don't feel the need to
 avoid 'Any' when a proper type is impractical.
 
+Please use type hints in any new code that you are contributing.
+
 When running 'make check', Anki uses mypy to typecheck the code. Mypy only
 checks parts of the code that have type signatures, so adding more type
 signatures to the code improves code coverage.
