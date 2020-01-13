@@ -18,6 +18,7 @@ from anki.consts import *
 from anki.db import DB, DBError
 from anki.utils import checksum, devMode, ids2str, intTime, platDesc, versionWithBuild
 
+from . import hooks
 from .hooks import runHook
 from .lang import ngettext
 
@@ -55,7 +56,7 @@ class Syncer:
         self.col.save()
 
         # step 1: login & metadata
-        runHook("sync", "login")
+        hooks.run_sync_stage_hook("login")
         meta = self.server.meta()
         self.col.log("rmeta", meta)
         if not meta:
@@ -95,7 +96,7 @@ class Syncer:
             self.col.log("basic check")
             return "basicCheckFailed"
         # step 2: startup and deletions
-        runHook("sync", "meta")
+        hooks.run_sync_stage_hook("meta")
         rrem = self.server.start(
             minUsn=self.minUsn, lnewer=self.lnewer, offset=self.col.localOffset()
         )
@@ -118,31 +119,31 @@ class Syncer:
             self.server.abort()
             return self._forceFullSync()
         # step 3: stream large tables from server
-        runHook("sync", "server")
+        hooks.run_sync_stage_hook("server")
         while 1:
-            runHook("sync", "stream")
+            hooks.run_sync_stage_hook("stream")
             chunk = self.server.chunk()
             self.col.log("server chunk", chunk)
             self.applyChunk(chunk=chunk)
             if chunk["done"]:
                 break
         # step 4: stream to server
-        runHook("sync", "client")
+        hooks.run_sync_stage_hook("client")
         while 1:
-            runHook("sync", "stream")
+            hooks.run_sync_stage_hook("stream")
             chunk = self.chunk()
             self.col.log("client chunk", chunk)
             self.server.applyChunk(chunk=chunk)
             if chunk["done"]:
                 break
         # step 5: sanity check
-        runHook("sync", "sanity")
+        hooks.run_sync_stage_hook("sanity")
         c = self.sanityCheck()
         ret = self.server.sanityCheck2(client=c)
         if ret["status"] != "ok":
             return self._forceFullSync()
         # finalize
-        runHook("sync", "finalize")
+        hooks.run_sync_stage_hook("finalize")
         mod = self.server.finish()
         self.finish(mod)
         return "success"
@@ -501,7 +502,7 @@ class AnkiRequestsClient:
 
         buf = io.BytesIO()
         for chunk in resp.iter_content(chunk_size=HTTP_BUF_SIZE):
-            runHook("httpRecv", len(chunk))
+            hooks.run_http_data_received_hook(len(chunk))
             buf.write(chunk)
         return buf.getvalue()
 
@@ -523,7 +524,7 @@ if os.environ.get("ANKI_NOVERIFYSSL"):
 class _MonitoringFile(io.BufferedReader):
     def read(self, size=-1) -> bytes:
         data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
-        runHook("httpSend", len(data))
+        hooks.run_http_data_sent_hook(len(data))
         return data
 
 
@@ -707,13 +708,13 @@ class FullSyncer(HttpSyncer):
         self.col = col
 
     def download(self) -> Optional[str]:
-        runHook("sync", "download")
+        hooks.run_sync_stage_hook("download")
         localNotEmpty = self.col.db.scalar("select 1 from cards")
         self.col.close()
         cont = self.req("download")
         tpath = self.col.path + ".tmp"
         if cont == "upgradeRequired":
-            runHook("sync", "upgradeRequired")
+            hooks.run_sync_stage_hook("upgradeRequired")
             return None
         open(tpath, "wb").write(cont)
         # check the received file is ok
@@ -733,7 +734,7 @@ class FullSyncer(HttpSyncer):
 
     def upload(self) -> bool:
         "True if upload successful."
-        runHook("sync", "upload")
+        hooks.run_sync_stage_hook("upload")
         # make sure it's ok before we try to upload
         if self.col.db.scalar("pragma integrity_check") != "ok":
             return False
@@ -765,7 +766,7 @@ class MediaSyncer:
 
     def sync(self) -> Any:
         # check if there have been any changes
-        runHook("sync", "findMedia")
+        hooks.run_sync_stage_hook("findMedia")
         self.col.log("findChanges")
         try:
             self.col.media.findChanges()

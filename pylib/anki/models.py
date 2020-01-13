@@ -10,6 +10,7 @@ import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import anki  # pylint: disable=unused-import
+from anki import hooks
 from anki.consts import *
 from anki.hooks import runHook
 from anki.lang import _
@@ -107,6 +108,8 @@ class ModelManager:
             if templates:
                 self._syncTemplates(m)
         self.changed = True
+        hooks.run_note_type_created_hook(m)
+        # legacy hook did not pass note type
         runHook("newModel")
 
     def flush(self) -> None:

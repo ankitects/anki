@@ -22,7 +22,7 @@ from anki.consts import *
 from anki.db import DB
 from anki.decks import DeckManager
 from anki.errors import AnkiError
-from anki.hooks import runFilter, runHook
+from anki.hooks import runFilter
 from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager
@@ -372,7 +372,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
-        runHook("remNotes", self, ids)
+        hooks.run_remove_notes_hook(self, ids)
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
 
@@ -664,7 +664,9 @@ where c.nid = n.id and c.id in %s group by nid"""
         fields["CardFlag"] = self._flagNameFromCardFlags(flag)
         fields["c%d" % (card_ord + 1)] = "1"
 
-        fields = runFilter("mungeFields", fields, model, data, self)
+        # allow add-ons to modify the available fields
+        hooks.run_modify_fields_for_rendering_hook(fields, model, data)
+        fields = runFilter("mungeFields", fields, model, data, self)  # legacy
 
         # render fields
         qatext = render_card(self, qfmt, afmt, fields, card_ord)
@@ -672,7 +674,9 @@ where c.nid = n.id and c.id in %s group by nid"""
 
         # allow add-ons to modify the generated result
         for type in "q", "a":
-            ret[type] = runFilter("mungeQA", ret[type], type, fields, model, data, self)
+            ret[type] = hooks.run_rendered_card_template_filter(
+                ret[type], type, fields, model, data, self
+            )
 
         # empty cloze?
         if type == "q" and model["type"] == MODEL_CLOZE:

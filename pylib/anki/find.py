@@ -6,6 +6,7 @@ import sre_constants
 import unicodedata
 from typing import Any, List, Optional, Set, Tuple
 
+from anki import hooks
 from anki.consts import *
 from anki.hooks import *
 from anki.utils import (
@@ -39,7 +40,7 @@ class Finder:
             flag=self._findFlag,
         )
         self.search["is"] = self._findCardState
-        runHook("search", self.search)
+        hooks.run_prepare_searches_hook(self.search)
 
     def findCards(self, query, order=False) -> Any:
         "Return a list of card ids for QUERY."

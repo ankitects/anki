@@ -16,8 +16,8 @@ class Hook:
     # the name of the hook. _filter or _hook is appending automatically.
     name: str
     # string of the typed arguments passed to the callback, eg
-    # "kind: str, val: int"
-    cb_args: str = ""
+    # ["kind: str", "val: int"]
+    args: List[str] = None
     # string of the return type. if set, hook is a filter.
     return_type: Optional[str] = None
     # if add-ons may be relying on the legacy hook name, add it here
@@ -26,9 +26,7 @@ class Hook:
     def callable(self) -> str:
         "Convert args into a Callable."
         types = []
-        for arg in self.cb_args.split(","):
-            if not arg:
-                continue
+        for arg in self.args or []:
             (name, type) = arg.split(":")
             types.append(type.strip())
         types_str = ", ".join(types)
@@ -36,7 +34,7 @@ class Hook:
 
     def arg_names(self) -> List[str]:
         names = []
-        for arg in self.cb_args.split(","):
+        for arg in self.args or []:
             if not arg:
                 continue
             (name, type) = arg.split(":")
@@ -68,7 +66,7 @@ class Hook:
     def hook_fire_code(self) -> str:
         arg_names = self.arg_names()
         out = f"""\
-def run_{self.full_name()}({self.cb_args}) -> None:
+def run_{self.full_name()}({", ".join(self.args or [])}) -> None:
     for hook in {self.full_name()}:
         try:
             hook({", ".join(arg_names)})
@@ -88,7 +86,7 @@ def run_{self.full_name()}({self.cb_args}) -> None:
     def filter_fire_code(self) -> str:
         arg_names = self.arg_names()
         out = f"""\
-def run_{self.full_name()}({self.cb_args}) -> {self.return_type}:
+def run_{self.full_name()}({", ".join(self.args or [])}) -> {self.return_type}:
     for filter in {self.full_name()}:
         try:
             {arg_names[0]} = filter({", ".join(arg_names)})
