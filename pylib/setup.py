@@ -12,6 +12,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://apps.ankiweb.net",
     packages=setuptools.find_packages(".", exclude=["tests"]),
+    license="License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     classifiers=[],
     python_requires=">=3.7",
     install_requires=[
