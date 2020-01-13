@@ -13,7 +13,7 @@ carry the risk of regressions.
 So to start with, the primary focus is on changes that will make future
 maintenance and refactoring easier - improving tooling and linting, static
 type checking, more unit tests, and so on. Contributions that move the code in
- this direction or fix bugs would be appreciated.
+this direction or fix bugs would be appreciated.
 
 If you would like to add a new feature or alter existing functionality in the
 Python code, please reach out on the support site before you begin work, as
