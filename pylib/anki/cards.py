@@ -87,7 +87,7 @@ class Card:
         self.usn = self.col.usn()
         # bug check
         if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
-            hooks.run_odue_invalid_hook()
+            hooks.odue_invalid_hook()
         assert self.due < 4294967296
         self.col.db.execute(
             """
@@ -119,7 +119,7 @@ insert or replace into cards values
         self.usn = self.col.usn()
         # bug checks
         if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
-            hooks.run_odue_invalid_hook()
+            hooks.odue_invalid_hook()
         assert self.due < 4294967296
         self.col.db.execute(
             """update cards set

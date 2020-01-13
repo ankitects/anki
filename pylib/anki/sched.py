@@ -1150,7 +1150,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
                 card.odue = card.odid = 0
                 card.queue = -1
             # notify UI
-            hooks.run_leech_hook(card)
+            hooks.leech_hook(card)
             return True
 
     # Tools

@@ -158,7 +158,7 @@ class MpvManager(MPV):
         super().__init__(window_id=None, debug=False)
 
     def queueFile(self, file: str) -> None:
-        gui_hooks.run_mpv_will_play_hook(file)
+        gui_hooks.mpv_will_play_hook(file)
 
         path = os.path.join(os.getcwd(), file)
         self.command("loadfile", path, "append-play")
@@ -173,7 +173,7 @@ class MpvManager(MPV):
         self.command("seek", secs, "relative")
 
     def on_idle(self) -> None:
-        gui_hooks.run_mpv_idle_hook()
+        gui_hooks.mpv_idle_hook()
 
 
 def setMpvConfigBase(base) -> None:

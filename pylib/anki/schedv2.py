@@ -1270,7 +1270,7 @@ where id = ?
             if a == 0:
                 card.queue = -1
             # notify UI
-            hooks.run_leech_hook(card)
+            hooks.leech_hook(card)
             return True
         return None
 

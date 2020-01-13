@@ -19,56 +19,101 @@ from anki.hooks import runFilter, runHook  # pylint: disable=unused-import
 #
 # @@AUTOGEN@@
 
-mpv_idle_hook: List[Callable[[], None]] = []
-mpv_will_play_hook: List[Callable[[str], None]] = []
-reviewer_showing_answer_hook: List[Callable[[Card], None]] = []
-reviewer_showing_question_hook: List[Callable[[Card], None]] = []
+
+class MpvIdleHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
 
 
-def run_mpv_idle_hook() -> None:
-    for hook in mpv_idle_hook:
-        try:
-            hook()
-        except:
-            # if the hook fails, remove it
-            mpv_idle_hook.remove(hook)
-            raise
+mpv_idle_hook = MpvIdleHook()
 
 
-def run_mpv_will_play_hook(file: str) -> None:
-    for hook in mpv_will_play_hook:
-        try:
-            hook(file)
-        except:
-            # if the hook fails, remove it
-            mpv_will_play_hook.remove(hook)
-            raise
-    # legacy support
-    runHook("mpvWillPlay", file)
+class MpvWillPlayHook:
+    _hooks: List[Callable[[str], None]] = []
+
+    def append(self, cb: Callable[[str], None]) -> None:
+        """(file: str)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str], None]) -> None:
+        self._hooks.remove(cb)
+
+    def __call__(self, file: str) -> None:
+        for hook in self._hooks:
+            try:
+                hook(file)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("mpvWillPlay", file)
 
 
-def run_reviewer_showing_answer_hook(card: Card) -> None:
-    for hook in reviewer_showing_answer_hook:
-        try:
-            hook(card)
-        except:
-            # if the hook fails, remove it
-            reviewer_showing_answer_hook.remove(hook)
-            raise
-    # legacy support
-    runHook("showAnswer")
+mpv_will_play_hook = MpvWillPlayHook()
 
 
-def run_reviewer_showing_question_hook(card: Card) -> None:
-    for hook in reviewer_showing_question_hook:
-        try:
-            hook(card)
-        except:
-            # if the hook fails, remove it
-            reviewer_showing_question_hook.remove(hook)
-            raise
-    # legacy support
-    runHook("showQuestion")
+class ReviewerShowingAnswerHook:
+    _hooks: List[Callable[[Card], None]] = []
+
+    def append(self, cb: Callable[[Card], None]) -> None:
+        """(card: Card)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Card], None]) -> None:
+        self._hooks.remove(cb)
+
+    def __call__(self, card: Card) -> None:
+        for hook in self._hooks:
+            try:
+                hook(card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("showAnswer")
 
 
+reviewer_showing_answer_hook = ReviewerShowingAnswerHook()
+
+
+class ReviewerShowingQuestionHook:
+    _hooks: List[Callable[[Card], None]] = []
+
+    def append(self, cb: Callable[[Card], None]) -> None:
+        """(card: Card)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Card], None]) -> None:
+        self._hooks.remove(cb)
+
+    def __call__(self, card: Card) -> None:
+        for hook in self._hooks:
+            try:
+                hook(card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("showQuestion")
+
+
+reviewer_showing_question_hook = ReviewerShowingQuestionHook()
 # @@AUTOGEN@@
