@@ -34,6 +34,7 @@ setuptools.setup(
     license="License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     classifiers=[],
     python_requires=">=3.7",
+    package_data={"aqt": ["py.typed"]},
     install_requires=[
         "beautifulsoup4",
         "requests",
