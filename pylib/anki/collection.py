@@ -668,6 +668,10 @@ where c.nid = n.id and c.id in %s group by nid"""
         hooks.run_modify_fields_for_rendering_hook(fields, model, data)
         fields = runFilter("mungeFields", fields, model, data, self)  # legacy
 
+        # and the template prior to rendering
+        qfmt = hooks.run_original_card_template_filter(qfmt, True)
+        afmt = hooks.run_original_card_template_filter(qfmt, False)
+
         # render fields
         qatext = render_card(self, qfmt, afmt, fields, card_ord)
         ret: Dict[str, Any] = dict(q=qatext[0], a=qatext[1], id=card_id)
