@@ -131,6 +131,8 @@ mod mathjax_caps {
 }
 
 fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
+    let mut cloze_ord_was_in_text = false;
+
     let output = CLOZE.replace_all(text, |caps: &Captures| {
         let captured_ord = caps
             .get(cloze_caps::ORD)
@@ -142,6 +144,8 @@ fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
         if captured_ord != cloze_ord {
             // other cloze deletions are unchanged
             return caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+        } else {
+            cloze_ord_was_in_text = true;
         }
 
         let replacement;
@@ -158,6 +162,10 @@ fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
 
         format!("<span class=cloze>{}</span>", replacement)
     });
+
+    if !cloze_ord_was_in_text {
+        return "".into();
+    }
 
     // if no cloze deletions are found, Anki returns an empty string
     match output {
@@ -353,5 +361,11 @@ field</a>
 
         ctx.question_side = false;
         assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "one two");
+
+        // if the provided ordinal did not match any cloze deletions,
+        // Anki treats the string as blank, which add-ons like
+        // cloze overlapper take advantage of.
+        ctx.card_ord = 2;
+        assert_eq!(cloze_filter(text, &ctx).as_ref(), "");
     }
 }
