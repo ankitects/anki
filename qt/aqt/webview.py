@@ -5,9 +5,9 @@ import json
 import math
 import sys
 
-from anki.hooks import runHook
 from anki.lang import _
 from anki.utils import isLin, isMac, isWin
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import openLink
 
@@ -182,7 +182,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         m = QMenu(self)
         a = m.addAction(_("Copy"))
         a.triggered.connect(self.onCopy)
-        runHook("AnkiWebView.contextMenuEvent", self, m)
+        gui_hooks.webview_context_menu_hook(self, m)
         m.popup(QCursor.pos())
 
     def dropEvent(self, evt):

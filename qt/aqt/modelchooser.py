@@ -2,8 +2,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.hooks import addHook, remHook, runHook
+from anki.hooks import addHook, remHook
 from anki.lang import _
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import shortcut
 
@@ -86,7 +87,7 @@ class ModelChooser(QHBoxLayout):
         cdeck = self.deck.decks.current()
         cdeck["mid"] = m["id"]
         self.deck.decks.save(cdeck)
-        runHook("currentModelChanged")
+        gui_hooks.current_note_type_changed_hook(current)
         self.mw.reset()
 
     def updateModels(self):

@@ -15,7 +15,7 @@ import anki
 import aqt.forms
 from anki.collection import _Collection
 from anki.consts import *
-from anki.hooks import addHook, remHook, runFilter, runHook
+from anki.hooks import addHook, remHook
 from anki.lang import _, ngettext
 from anki.utils import (
     bodyClass,
@@ -26,7 +26,7 @@ from anki.utils import (
     isMac,
     isWin,
 )
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import allSounds, clearAudioQueue, play
 from aqt.utils import (
@@ -639,7 +639,7 @@ class Browser(QMainWindow):
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         self.pgDownCut.activated.connect(self.onLastCard)
         # add-on hook
-        runHook("browser.setupMenus", self)
+        gui_hooks.browser_setup_menus_hook(self)
         self.mw.maybeHideAccelerators(self)
 
         # context menu
@@ -653,8 +653,7 @@ class Browser(QMainWindow):
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-        runHook("browser.onContextMenu", self, m)
-
+        gui_hooks.browser_context_menu_hook(self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
@@ -845,7 +844,7 @@ class Browser(QMainWindow):
             self.editor.card = self.card
             self.singleCard = True
         self._updateFlagsMenu()
-        runHook("browser.rowChanged", self)
+        gui_hooks.browser_row_changed_hook(self)
         self._renderPreview(True)
 
     def refreshCurrentCard(self, note):
@@ -1717,8 +1716,8 @@ where id in %s"""
                         play(audio)
 
             txt = mungeQA(self.col, txt)
-            txt = runFilter(
-                "prepareQA", txt, c, "preview" + self._previewState.capitalize()
+            gui_hooks.card_text_filter(
+                txt, c, "preview" + self._previewState.capitalize()
             )
             self._lastPreviewState = self._previewStateAndMod()
         self._updatePreviewButtons()

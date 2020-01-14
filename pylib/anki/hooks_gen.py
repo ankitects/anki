@@ -32,7 +32,9 @@ class Hook:
         types = []
         for arg in self.args or []:
             (name, type) = arg.split(":")
-            types.append(type.strip())
+            if "." in type:
+                type = '"' + type.strip() + '"'
+            types.append(type)
         types_str = ", ".join(types)
         return f"Callable[[{types_str}], {self.return_type or 'None'}]"
 

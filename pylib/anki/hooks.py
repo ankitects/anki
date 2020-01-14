@@ -355,13 +355,17 @@ prepare_searches_hook = PrepareSearchesHook()
 
 
 class RemoveNotesHook:
-    _hooks: List[Callable[[anki.storage._Collection, List[int]], None]] = []
+    _hooks: List[Callable[["anki.storage._Collection", List[int]], None]] = []
 
-    def append(self, cb: Callable[[anki.storage._Collection, List[int]], None]) -> None:
+    def append(
+        self, cb: Callable[["anki.storage._Collection", List[int]], None]
+    ) -> None:
         """(col: anki.storage._Collection, ids: List[int])"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[anki.storage._Collection, List[int]], None]) -> None:
+    def remove(
+        self, cb: Callable[["anki.storage._Collection", List[int]], None]
+    ) -> None:
         self._hooks.remove(cb)
 
     def __call__(self, col: anki.storage._Collection, ids: List[int]) -> None:
@@ -388,7 +392,7 @@ class RenderedCardTemplateFilter:
                 Dict[str, str],
                 Dict[str, Any],
                 QAData,
-                anki.storage._Collection,
+                "anki.storage._Collection",
             ],
             str,
         ]
@@ -403,7 +407,7 @@ class RenderedCardTemplateFilter:
                 Dict[str, str],
                 Dict[str, Any],
                 QAData,
-                anki.storage._Collection,
+                "anki.storage._Collection",
             ],
             str,
         ],
@@ -420,7 +424,7 @@ class RenderedCardTemplateFilter:
                 Dict[str, str],
                 Dict[str, Any],
                 QAData,
-                anki.storage._Collection,
+                "anki.storage._Collection",
             ],
             str,
         ],
