@@ -363,6 +363,7 @@ create table if not exists profiles
             except:
                 print("resetting corrupt _global")
                 result.loadError = True
+                result.firstTime = True
 
         # if new or read failed, create a default global profile
         self.meta = metaConf.copy()
