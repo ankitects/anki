@@ -341,7 +341,8 @@ def _run(argv=None, exec=True):
         pmLoadResult = pm.setupMeta()
     except:
         # will handle below
-        pass
+        traceback.print_exc()
+        pm = None
 
     if pm:
         # gl workarounds
