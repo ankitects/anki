@@ -27,6 +27,38 @@ hooks = [
         legacy_hook="showAnswer",
         legacy_no_args=True,
     ),
+    Hook(
+        name="current_note_type_changed",
+        args=["notetype: Dict[str, Any]"],
+        legacy_hook="currentModelChanged",
+        legacy_no_args=True,
+    ),
+    Hook(
+        name="browser_setup_menus",
+        args=["browser: aqt.browser.Browser"],
+        legacy_hook="browser.setupMenus",
+    ),
+    Hook(
+        name="browser_context_menu",
+        args=["browser: aqt.browser.Browser", "menu: QMenu"],
+        legacy_hook="browser.onContextMenu",
+    ),
+    Hook(
+        name="browser_row_changed",
+        args=["browser: aqt.browser.Browser"],
+        legacy_hook="browser.rowChanged",
+    ),
+    Hook(
+        name="card_text",
+        args=["text: str", "card: Card", "kind: str"],
+        return_type="str",
+        legacy_hook="prepareQA",
+    ),
+    Hook(
+        name="webview_context_menu",
+        args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
+        legacy_hook="AnkiWebView.contextMenuEvent",
+    ),
 ]
 
 if __name__ == "__main__":
