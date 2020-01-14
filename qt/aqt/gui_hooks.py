@@ -22,7 +22,7 @@ from aqt.qt import QMenu
 # @@AUTOGEN@@
 
 
-class BrowserContextMenuHook:
+class _BrowserContextMenuHook:
     _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
 
     def append(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
@@ -44,10 +44,10 @@ class BrowserContextMenuHook:
         runHook("browser.onContextMenu", browser, menu)
 
 
-browser_context_menu_hook = BrowserContextMenuHook()
+browser_context_menu_hook = _BrowserContextMenuHook()
 
 
-class BrowserRowChangedHook:
+class _BrowserRowChangedHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
     def append(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
@@ -69,10 +69,10 @@ class BrowserRowChangedHook:
         runHook("browser.rowChanged", browser)
 
 
-browser_row_changed_hook = BrowserRowChangedHook()
+browser_row_changed_hook = _BrowserRowChangedHook()
 
 
-class BrowserSetupMenusHook:
+class _BrowserSetupMenusHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
     def append(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
@@ -94,10 +94,10 @@ class BrowserSetupMenusHook:
         runHook("browser.setupMenus", browser)
 
 
-browser_setup_menus_hook = BrowserSetupMenusHook()
+browser_setup_menus_hook = _BrowserSetupMenusHook()
 
 
-class CardTextFilter:
+class _CardTextFilter:
     _hooks: List[Callable[[str, Card, str], str]] = []
 
     def append(self, cb: Callable[[str, Card, str], str]) -> None:
@@ -120,10 +120,10 @@ class CardTextFilter:
         return text
 
 
-card_text_filter = CardTextFilter()
+card_text_filter = _CardTextFilter()
 
 
-class CurrentNoteTypeChangedHook:
+class _CurrentNoteTypeChangedHook:
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
@@ -145,10 +145,10 @@ class CurrentNoteTypeChangedHook:
         runHook("currentModelChanged")
 
 
-current_note_type_changed_hook = CurrentNoteTypeChangedHook()
+current_note_type_changed_hook = _CurrentNoteTypeChangedHook()
 
 
-class MpvIdleHook:
+class _MpvIdleHook:
     _hooks: List[Callable[[], None]] = []
 
     def append(self, cb: Callable[[], None]) -> None:
@@ -168,10 +168,10 @@ class MpvIdleHook:
                 raise
 
 
-mpv_idle_hook = MpvIdleHook()
+mpv_idle_hook = _MpvIdleHook()
 
 
-class MpvWillPlayHook:
+class _MpvWillPlayHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -193,10 +193,10 @@ class MpvWillPlayHook:
         runHook("mpvWillPlay", file)
 
 
-mpv_will_play_hook = MpvWillPlayHook()
+mpv_will_play_hook = _MpvWillPlayHook()
 
 
-class ReviewerShowingAnswerHook:
+class _ReviewerShowingAnswerHook:
     _hooks: List[Callable[[Card], None]] = []
 
     def append(self, cb: Callable[[Card], None]) -> None:
@@ -218,10 +218,10 @@ class ReviewerShowingAnswerHook:
         runHook("showAnswer")
 
 
-reviewer_showing_answer_hook = ReviewerShowingAnswerHook()
+reviewer_showing_answer_hook = _ReviewerShowingAnswerHook()
 
 
-class ReviewerShowingQuestionHook:
+class _ReviewerShowingQuestionHook:
     _hooks: List[Callable[[Card], None]] = []
 
     def append(self, cb: Callable[[Card], None]) -> None:
@@ -243,10 +243,10 @@ class ReviewerShowingQuestionHook:
         runHook("showQuestion")
 
 
-reviewer_showing_question_hook = ReviewerShowingQuestionHook()
+reviewer_showing_question_hook = _ReviewerShowingQuestionHook()
 
 
-class WebviewContextMenuHook:
+class _WebviewContextMenuHook:
     _hooks: List[Callable[["aqt.webview.AnkiWebView", QMenu], None]] = []
 
     def append(self, cb: Callable[["aqt.webview.AnkiWebView", QMenu], None]) -> None:
@@ -268,5 +268,5 @@ class WebviewContextMenuHook:
         runHook("AnkiWebView.contextMenuEvent", webview, menu)
 
 
-webview_context_menu_hook = WebviewContextMenuHook()
+webview_context_menu_hook = _WebviewContextMenuHook()
 # @@AUTOGEN@@
