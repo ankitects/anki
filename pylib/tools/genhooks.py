@@ -11,7 +11,7 @@ To add a new hook:
 """
 
 import os
-from anki.hooks_gen import Hook, update_file
+from hookslib import Hook, update_file
 
 # Hook/filter list
 ######################################################################

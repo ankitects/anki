@@ -35,8 +35,8 @@ TSDEPS := $(wildcard ts/src/*.ts)
 	(cd ts && npm i && npm run build)
 	@touch $@
 
-.build/hooks: tools/genhooks.py ../pylib/anki/hooks_gen.py
-	python tools/genhooks.py
+.build/hooks: tools/genhooks_gui.py ../pylib/tools/hookslib.py
+	python tools/genhooks_gui.py
 	black aqt/gui_hooks.py
 	@touch $@
 
