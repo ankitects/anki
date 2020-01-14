@@ -6,8 +6,12 @@ See pylib/tools/genhooks.py for more info.
 """
 
 import os
+import sys
 
-from anki.hooks_gen import Hook, update_file
+pylib = os.path.join(os.path.dirname(__file__), "..", "..", "pylib")
+sys.path.append(pylib)
+
+from tools.hookslib import Hook, update_file
 
 # Hook list
 ######################################################################
