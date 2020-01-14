@@ -57,7 +57,7 @@ class Hook:
             return "hook"
 
     def classname(self) -> str:
-        return stringcase.pascalcase(self.full_name())
+        return "_" + stringcase.pascalcase(self.full_name())
 
     def list_code(self) -> str:
         return f"""\

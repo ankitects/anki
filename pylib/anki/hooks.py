@@ -34,7 +34,7 @@ from anki.types import QAData
 # @@AUTOGEN@@
 
 
-class CreateExportersListHook:
+class _CreateExportersListHook:
     _hooks: List[Callable[[List[Tuple[str, Any]]], None]] = []
 
     def append(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
@@ -56,10 +56,10 @@ class CreateExportersListHook:
         runHook("exportersList", exporters)
 
 
-create_exporters_list_hook = CreateExportersListHook()
+create_exporters_list_hook = _CreateExportersListHook()
 
 
-class DeckCreatedHook:
+class _DeckCreatedHook:
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
@@ -81,10 +81,10 @@ class DeckCreatedHook:
         runHook("newDeck")
 
 
-deck_created_hook = DeckCreatedHook()
+deck_created_hook = _DeckCreatedHook()
 
 
-class ExportedMediaFilesHook:
+class _ExportedMediaFilesHook:
     _hooks: List[Callable[[int], None]] = []
 
     def append(self, cb: Callable[[int], None]) -> None:
@@ -104,10 +104,10 @@ class ExportedMediaFilesHook:
                 raise
 
 
-exported_media_files_hook = ExportedMediaFilesHook()
+exported_media_files_hook = _ExportedMediaFilesHook()
 
 
-class FieldReplacementFilter:
+class _FieldReplacementFilter:
     _hooks: List[Callable[[str, str, str, Dict[str, str]], str]] = []
 
     def append(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
@@ -130,10 +130,10 @@ class FieldReplacementFilter:
         return field_text
 
 
-field_replacement_filter = FieldReplacementFilter()
+field_replacement_filter = _FieldReplacementFilter()
 
 
-class HttpDataReceivedHook:
+class _HttpDataReceivedHook:
     _hooks: List[Callable[[int], None]] = []
 
     def append(self, cb: Callable[[int], None]) -> None:
@@ -153,10 +153,10 @@ class HttpDataReceivedHook:
                 raise
 
 
-http_data_received_hook = HttpDataReceivedHook()
+http_data_received_hook = _HttpDataReceivedHook()
 
 
-class HttpDataSentHook:
+class _HttpDataSentHook:
     _hooks: List[Callable[[int], None]] = []
 
     def append(self, cb: Callable[[int], None]) -> None:
@@ -176,10 +176,10 @@ class HttpDataSentHook:
                 raise
 
 
-http_data_sent_hook = HttpDataSentHook()
+http_data_sent_hook = _HttpDataSentHook()
 
 
-class LeechHook:
+class _LeechHook:
     _hooks: List[Callable[[Card], None]] = []
 
     def append(self, cb: Callable[[Card], None]) -> None:
@@ -201,10 +201,10 @@ class LeechHook:
         runHook("leech", card)
 
 
-leech_hook = LeechHook()
+leech_hook = _LeechHook()
 
 
-class ModSchemaFilter:
+class _ModSchemaFilter:
     _hooks: List[Callable[[bool], bool]] = []
 
     def append(self, cb: Callable[[bool], bool]) -> None:
@@ -225,10 +225,10 @@ class ModSchemaFilter:
         return proceed
 
 
-mod_schema_filter = ModSchemaFilter()
+mod_schema_filter = _ModSchemaFilter()
 
 
-class ModifyFieldsForRenderingHook:
+class _ModifyFieldsForRenderingHook:
     _hooks: List[Callable[[Dict[str, str], Dict[str, Any], QAData], None]] = []
 
     def append(
@@ -254,10 +254,10 @@ class ModifyFieldsForRenderingHook:
                 raise
 
 
-modify_fields_for_rendering_hook = ModifyFieldsForRenderingHook()
+modify_fields_for_rendering_hook = _ModifyFieldsForRenderingHook()
 
 
-class NoteTypeCreatedHook:
+class _NoteTypeCreatedHook:
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
@@ -279,10 +279,10 @@ class NoteTypeCreatedHook:
         runHook("newModel")
 
 
-note_type_created_hook = NoteTypeCreatedHook()
+note_type_created_hook = _NoteTypeCreatedHook()
 
 
-class OdueInvalidHook:
+class _OdueInvalidHook:
     _hooks: List[Callable[[], None]] = []
 
     def append(self, cb: Callable[[], None]) -> None:
@@ -302,10 +302,10 @@ class OdueInvalidHook:
                 raise
 
 
-odue_invalid_hook = OdueInvalidHook()
+odue_invalid_hook = _OdueInvalidHook()
 
 
-class OriginalCardTemplateFilter:
+class _OriginalCardTemplateFilter:
     _hooks: List[Callable[[str, bool], str]] = []
 
     def append(self, cb: Callable[[str, bool], str]) -> None:
@@ -326,10 +326,10 @@ class OriginalCardTemplateFilter:
         return template
 
 
-original_card_template_filter = OriginalCardTemplateFilter()
+original_card_template_filter = _OriginalCardTemplateFilter()
 
 
-class PrepareSearchesHook:
+class _PrepareSearchesHook:
     _hooks: List[Callable[[Dict[str, Callable]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
@@ -351,10 +351,10 @@ class PrepareSearchesHook:
         runHook("search", searches)
 
 
-prepare_searches_hook = PrepareSearchesHook()
+prepare_searches_hook = _PrepareSearchesHook()
 
 
-class RemoveNotesHook:
+class _RemoveNotesHook:
     _hooks: List[Callable[["anki.storage._Collection", List[int]], None]] = []
 
     def append(
@@ -380,10 +380,10 @@ class RemoveNotesHook:
         runHook("remNotes", col, ids)
 
 
-remove_notes_hook = RemoveNotesHook()
+remove_notes_hook = _RemoveNotesHook()
 
 
-class RenderedCardTemplateFilter:
+class _RenderedCardTemplateFilter:
     _hooks: List[
         Callable[
             [
@@ -452,10 +452,10 @@ class RenderedCardTemplateFilter:
         return text
 
 
-rendered_card_template_filter = RenderedCardTemplateFilter()
+rendered_card_template_filter = _RenderedCardTemplateFilter()
 
 
-class SyncProgressMessageHook:
+class _SyncProgressMessageHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -477,10 +477,10 @@ class SyncProgressMessageHook:
         runHook("syncMsg", msg)
 
 
-sync_progress_message_hook = SyncProgressMessageHook()
+sync_progress_message_hook = _SyncProgressMessageHook()
 
 
-class SyncStageHook:
+class _SyncStageHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -502,10 +502,10 @@ class SyncStageHook:
         runHook("sync", stage)
 
 
-sync_stage_hook = SyncStageHook()
+sync_stage_hook = _SyncStageHook()
 
 
-class TagCreatedHook:
+class _TagCreatedHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -527,7 +527,7 @@ class TagCreatedHook:
         runHook("newTag")
 
 
-tag_created_hook = TagCreatedHook()
+tag_created_hook = _TagCreatedHook()
 # @@AUTOGEN@@
 
 # Legacy hook handling
