@@ -318,7 +318,7 @@ and no other programs are accessing your profile folders, then try again."""
 
         opath = os.path.join(self.base, "prefs.db")
         path = os.path.join(self.base, "prefs21.db")
-        if os.path.exists(opath) and not os.path.exists(path):
+        if not retrying and os.path.exists(opath) and not os.path.exists(path):
             shutil.copy(opath, path)
 
         result.firstTime = not os.path.exists(path)
