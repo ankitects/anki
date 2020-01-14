@@ -101,8 +101,6 @@ CHECKDEPS := $(shell find aqt tests -name '*.py' | grep -v buildinfo.py)
 # Building
 ######################
 
-# we only want the wheel when building, but passing -f wheel to poetry
-# breaks the inclusion of files listed in pyproject.toml
 .PHONY: build
 build: $(BUILD_STEPS)
 	rm -rf dist
