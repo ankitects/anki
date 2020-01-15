@@ -316,6 +316,16 @@ fn render_into(
                     });
                 }
             }
+            Replacement { key: "", filters } if !filters.is_empty() => {
+                // if a filter is provided, we accept an empty field name to
+                // mean 'pass an empty string to the filter, and it will add
+                // its own text'
+                rendered_nodes.push(RenderedNode::Replacement {
+                    field_name: "".to_string(),
+                    current_text: "".to_string(),
+                    filters: filters.iter().map(|&f| f.to_string()).collect(),
+                })
+            }
             Replacement { key, filters } => {
                 // apply built in filters if field exists
                 let (text, remaining_filters) = match context.fields.get(key) {
@@ -739,6 +749,17 @@ mod test {
             tmpl.render(&ctx),
             vec![FN::Text {
                 text: "{unknown field foo:text:X}".to_owned()
+            }]
+        );
+
+        // a blank field is allowed if it has filters
+        tmpl = PT::from_text("{{filter:}}").unwrap();
+        assert_eq!(
+            tmpl.render(&ctx),
+            vec![FN::Replacement {
+                field_name: "".to_string(),
+                current_text: "".to_string(),
+                filters: vec!["filter".to_string()]
             }]
         );
     }
