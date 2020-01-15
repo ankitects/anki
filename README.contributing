@@ -64,15 +64,19 @@ currently have a hook, a pull request that adds the required hooks would be
 welcome. If you could mention your use case in the pull request, that would be
 appreciated.
 
-The GUI hooks try to follow a consistent naming format:
+The hooks try to follow one of two formats:
 
-([module]) [subject] [passive verb]
+[subject] [verb] - eg, note_type_added, card_will_render
 
-For example, editor_context_menu_will_show, browser_row_did_change, etc. This
-makes it easier to locate relevant hooks in autocomplete by typing a prefix.
-Using "did" instead of the past test "changed" can seem awkward, but makes it
-consistent with "will", and is similar to the naming style used in iOS's
-libraries.
+[module] [verb] [subject] - eg, browser_did_change_row, editor_did_update_tags
+
+The qt code tends to use the second form as the hooks tend to focus on
+particular screens. The pylib code tends to use the first form, as the focus
+is usually subjects like cards, notes, etc.
+
+Using "did change" instead of the past test "changed" can seem awkward, but
+makes it consistent with "will", and is similar to the naming style used in
+iOS's libraries.
 
 The hook code is automatically generated using the definitions in
 pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
