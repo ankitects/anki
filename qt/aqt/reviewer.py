@@ -13,7 +13,6 @@ from typing import List
 import aqt
 from anki import hooks
 from anki.cards import Card
-from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt, gui_hooks
@@ -63,7 +62,7 @@ class Reviewer:
                     return
 
     def cleanup(self):
-        runHook("reviewCleanup")
+        gui_hooks.reviewer_will_end_hook()
 
     # Fetching a card
     ##########################################################################
