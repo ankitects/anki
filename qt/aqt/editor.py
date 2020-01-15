@@ -160,7 +160,7 @@ class Editor:
             fldsTitle=_("Customize Fields"),
             cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")),
         )
-        bgcol = self.mw.app.palette().window().color().name() # type: ignore
+        bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
             _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
@@ -293,7 +293,7 @@ class Editor:
                 fn = self._addFocusCheck(fn)
             else:
                 keys, fn, _ = row
-            QShortcut(QKeySequence(keys), self.widget, activated=fn) # type: ignore
+            QShortcut(QKeySequence(keys), self.widget, activated=fn)  # type: ignore
 
     def _addFocusCheck(self, fn):
         def checkFocus():
@@ -427,7 +427,7 @@ class Editor:
         )
         self.web.evalWithCallback(js, oncallback)
 
-    def fonts(self) -> List[Tuple[str,int,bool]]:
+    def fonts(self) -> List[Tuple[str, int, bool]]:
         return [
             (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
             for f in self.note.model()["flds"]

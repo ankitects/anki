@@ -18,6 +18,8 @@ from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.notes import Note
+from anki.types import NoteType
 from anki.utils import (
     bodyClass,
     fmtTimeSpan,
@@ -656,7 +658,7 @@ class Browser(QMainWindow):
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-        gui_hooks.browser_will_show_context_menu(self)
+        gui_hooks.browser_will_show_context_menu(self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
@@ -844,13 +846,13 @@ class Browser(QMainWindow):
         else:
             self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
-            self.editor.card = self.card # type: ignore
+            self.editor.card = self.card  # type: ignore
             self.singleCard = True
         self._updateFlagsMenu()
         gui_hooks.browser_did_change_row(self)
         self._renderPreview(True)
 
-    def refreshCurrentCard(self, note):
+    def refreshCurrentCard(self, note: Note) -> None:
         self.model.refreshNote(note)
         self._renderPreview(False)
 
@@ -1533,7 +1535,7 @@ where id in %s"""
     ######################################################################
 
     _previewTimer = None
-    _lastPreviewRender: Union[int,float] = 0
+    _lastPreviewRender: Union[int, float] = 0
     _lastPreviewState = None
     _previewCardChanged = False
 
@@ -2019,7 +2021,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.form.tableView.selectAll()
         sm.select(items, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
 
-    # Edit: undo
+    # Hooks
     ######################################################################
 
     def setupHooks(self) -> None:
@@ -2027,20 +2029,27 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.append(self.onLoadNote)
-        gui_hooks.editor_did_unfocus_field.append(self.refreshCurrentCard)
-        hooks.tag_added.append(self.maybeRefreshSidebar)
-        hooks.note_type_added.append(self.maybeRefreshSidebar)
-        hooks.deck_added.append(self.maybeRefreshSidebar)
+        gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
+        hooks.tag_added.append(self.on_item_added)
+        hooks.note_type_added.append(self.on_item_added)
+        hooks.deck_added.append(self.on_item_added)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
         gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.remove(self.onLoadNote)
-        gui_hooks.editor_did_unfocus_field.remove(self.refreshCurrentCard)
-        hooks.tag_added.remove(self.maybeRefreshSidebar)
-        hooks.note_type_added.remove(self.maybeRefreshSidebar)
-        hooks.deck_added.remove(self.maybeRefreshSidebar)
+        gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
+        hooks.tag_added.remove(self.on_item_added)
+        hooks.note_type_added.remove(self.on_item_added)
+        hooks.deck_added.remove(self.on_item_added)
+
+    def onUnfocusCard(self, changed: bool, note: Note, field_idx: int):
+        self.refreshCurrentCard(note)
+
+    # covers the tag, note and deck case
+    def on_item_added(self, item):
+        self.maybeRefreshSidebar()
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
@@ -2275,8 +2284,11 @@ class ChangeModel(QDialog):
         self.setup()
         restoreGeom(self, "changeModel")
         gui_hooks.state_did_reset.append(self.onReset)
-        gui_hooks.current_note_type_did_change.append(self.onReset)
+        gui_hooks.current_note_type_did_change.append(self.on_note_type_change)
         self.exec_()
+
+    def on_note_type_change(self, notetype: NoteType) -> None:
+        self.onReset()
 
     def setup(self):
         # maps
@@ -2399,7 +2411,7 @@ class ChangeModel(QDialog):
 
     def cleanup(self) -> None:
         gui_hooks.state_did_reset.remove(self.onReset)
-        gui_hooks.current_note_type_did_change.remove(self.onReset)
+        gui_hooks.current_note_type_did_change.remove(self.on_note_type_change)
         self.modelChooser.cleanup()
         saveGeom(self, "changeModel")
 

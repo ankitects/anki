@@ -11,7 +11,7 @@ from aqt.utils import shortcut
 class ModelChooser(QHBoxLayout):
     def __init__(self, mw, widget, label=True) -> None:
         QHBoxLayout.__init__(self)
-        self.widget = widget # type: ignore
+        self.widget = widget  # type: ignore
         self.mw = mw
         self.deck = mw.col
         self.label = label
