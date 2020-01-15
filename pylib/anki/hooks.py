@@ -42,7 +42,8 @@ class _CreateExportersListHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, exporters: List[Tuple[str, Any]]) -> None:
         for hook in self._hooks:
@@ -67,7 +68,8 @@ class _DeckCreatedHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, deck: Dict[str, Any]) -> None:
         for hook in self._hooks:
@@ -92,7 +94,8 @@ class _ExportedMediaFilesHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[int], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, count: int) -> None:
         for hook in self._hooks:
@@ -115,7 +118,8 @@ class _FieldReplacementFilter:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(
         self, field_text: str, field_name: str, filter_name: str, fields: Dict[str, str]
@@ -141,7 +145,8 @@ class _HttpDataReceivedHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[int], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, bytes: int) -> None:
         for hook in self._hooks:
@@ -164,7 +169,8 @@ class _HttpDataSentHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[int], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, bytes: int) -> None:
         for hook in self._hooks:
@@ -187,7 +193,8 @@ class _LeechHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[Card], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, card: Card) -> None:
         for hook in self._hooks:
@@ -212,7 +219,8 @@ class _ModSchemaFilter:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[bool], bool]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, proceed: bool) -> bool:
         for filter in self._hooks:
@@ -240,7 +248,8 @@ class _ModifyFieldsForRenderingHook:
     def remove(
         self, cb: Callable[[Dict[str, str], Dict[str, Any], QAData], None]
     ) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(
         self, fields: Dict[str, str], notetype: Dict[str, Any], data: QAData
@@ -265,7 +274,8 @@ class _NoteTypeCreatedHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, notetype: Dict[str, Any]) -> None:
         for hook in self._hooks:
@@ -290,7 +300,8 @@ class _OdueInvalidHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self) -> None:
         for hook in self._hooks:
@@ -313,7 +324,8 @@ class _OriginalCardTemplateFilter:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[str, bool], str]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, template: str, question_side: bool) -> str:
         for filter in self._hooks:
@@ -337,7 +349,8 @@ class _PrepareSearchesHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, searches: Dict[str, Callable]) -> None:
         for hook in self._hooks:
@@ -366,7 +379,8 @@ class _RemoveNotesHook:
     def remove(
         self, cb: Callable[["anki.storage._Collection", List[int]], None]
     ) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, col: anki.storage._Collection, ids: List[int]) -> None:
         for hook in self._hooks:
@@ -429,7 +443,8 @@ class _RenderedCardTemplateFilter:
             str,
         ],
     ) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(
         self,
@@ -463,7 +478,8 @@ class _SyncProgressMessageHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[str], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, msg: str) -> None:
         for hook in self._hooks:
@@ -488,7 +504,8 @@ class _SyncStageHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[str], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, stage: str) -> None:
         for hook in self._hooks:
@@ -513,7 +530,8 @@ class _TagCreatedHook:
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[[str], None]) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 
     def __call__(self, tag: str) -> None:
         for hook in self._hooks:

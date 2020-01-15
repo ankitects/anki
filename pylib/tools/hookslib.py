@@ -81,7 +81,8 @@ class {self.classname()}:
         self._hooks.append(cb)
 
     def remove(self, cb: {self.callable()}) -> None:
-        self._hooks.remove(cb)
+        if cb in self._hooks:
+            self._hooks.remove(cb)
 {self.fire_code()}
 {self.full_name()} = {self.classname()}()
 """
