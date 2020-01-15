@@ -26,6 +26,8 @@ class Hook:
     legacy_hook: Optional[str] = None
     # if legacy hook takes no arguments but the new hook does, set this
     legacy_no_args: bool = False
+    # docstring to add to hook class
+    doc: Optional[str] = None
 
     def callable(self) -> str:
         "Convert args into a Callable."
@@ -61,17 +63,21 @@ class Hook:
 
     def list_code(self) -> str:
         return f"""\
-_hooks: List[{self.callable()}] = []
+    _hooks: List[{self.callable()}] = []
 """
 
     def code(self) -> str:
-        doc = f"({', '.join(self.args or [])})"
+        appenddoc = f"({', '.join(self.args or [])})"
+        if self.doc:
+            classdoc = f"    '''{self.doc}'''\n"
+        else:
+            classdoc = ""
         code = f"""\
 class {self.classname()}:
-    {self.list_code()}
+{classdoc}{self.list_code()}
     
     def append(self, cb: {self.callable()}) -> None:
-        '''{doc}'''
+        '''{appenddoc}'''
         self._hooks.append(cb)
 
     def remove(self, cb: {self.callable()}) -> None:
