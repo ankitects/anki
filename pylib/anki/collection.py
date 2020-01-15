@@ -474,22 +474,23 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         )
         return rem
 
-    # type 0 - when previewing in add dialog, only non-empty
-    # type 1 - when previewing edit, only existing
-    # type 2 - when previewing in models dialog, all templates
-    def previewCards(self, note: Note, type: int = 0, did: None = None) -> List:
-        if type == 0:
-            cms = self.findTemplates(note)
-        elif type == 1:
-            cms = [c.template() for c in note.cards()]
-        else:
-            cms = note.model()["tmpls"]
-        if not cms:
-            return []
-        cards = []
-        for template in cms:
-            cards.append(self._newCard(note, template, 1, flush=False, did=did))
-        return cards
+    # type is no longer used
+    def previewCards(
+        self, note: Note, type: int = 0, did: Optional[int] = None
+    ) -> List:
+        existing_cards = {}
+        for card in note.cards():
+            existing_cards[card.ord] = card
+
+        all_cards = []
+        for idx, template in enumerate(note.model()["tmpls"]):
+            if idx in existing_cards:
+                all_cards.append(existing_cards[idx])
+            else:
+                # card not currently in database, generate an ephemeral one
+                all_cards.append(self._newCard(note, template, 1, flush=False, did=did))
+
+        return all_cards
 
     def _newCard(
         self,
@@ -497,12 +498,12 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         template: Template,
         due: int,
         flush: bool = True,
-        did: None = None,
+        did: Optional[int] = None,
     ) -> Card:
         "Create a new card."
         card = Card(self)
         card.nid = note.id
-        card.ord = template["ord"]
+        card.ord = template["ord"]  # type: ignore
         card.did = self.db.scalar(
             "select did from cards where nid = ? and ord = ?", card.nid, card.ord
         )
