@@ -235,16 +235,16 @@ where id > ?""",
     # Options
     ##########################################################################
 
-    def _showOptions(self, did):
+    def _showOptions(self, did) -> None:
         m = QMenu(self.mw)
         a = m.addAction(_("Rename"))
-        a.triggered.connect(lambda b, did=did: self._rename(did))
+        qconnect(a.triggered, lambda b, did=did: self._rename(did))
         a = m.addAction(_("Options"))
-        a.triggered.connect(lambda b, did=did: self._options(did))
+        qconnect(a.triggered, lambda b, did=did: self._options(did))
         a = m.addAction(_("Export"))
-        a.triggered.connect(lambda b, did=did: self._export(did))
+        qconnect(a.triggered, lambda b, did=did: self._export(did))
         a = m.addAction(_("Delete"))
-        a.triggered.connect(lambda b, did=did: self._delete(did))
+        qconnect(a.triggered, lambda b, did=did: self._delete(did))
         gui_hooks.deck_browser_will_show_options_menu(m, did)
         m.exec_(QCursor.pos())
 

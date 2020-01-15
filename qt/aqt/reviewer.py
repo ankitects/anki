@@ -8,7 +8,7 @@ import html.parser
 import json
 import re
 import unicodedata as ucd
-from typing import List
+from typing import List, Optional
 
 import aqt
 from anki import hooks
@@ -33,13 +33,13 @@ class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
-        self.card = None
+        self.card: Optional[Card] = None
         self.cardQueue: List[Card] = []
         self.hadCardQueue = False
         self._answeredIds: List[int] = []
         self._recordedAudio = None
         self.typeCorrect = None  # web init happens before this is set
-        self.state = None
+        self.state: Optional[str] = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
@@ -61,7 +61,7 @@ class Reviewer:
                     # id was deleted
                     return
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
 
     # Fetching a card
@@ -170,7 +170,7 @@ class Reviewer:
     def _mungeQA(self, buf):
         return self.typeAnsFilter(mungeQA(self.mw.col, buf))
 
-    def _showQuestion(self):
+    def _showQuestion(self) -> None:
         self._reps += 1
         self.state = "question"
         self.typedAnswer = None
@@ -217,7 +217,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
     # Showing the answer
     ##########################################################################
 
-    def _showAnswer(self):
+    def _showAnswer(self) -> None:
         if self.mw.state != "review":
             # showing resetRequired screen; ignore space
             return
@@ -689,7 +689,7 @@ time = %(time)d;
         ]
         return opts
 
-    def showContextMenu(self):
+    def showContextMenu(self) -> None:
         opts = self._contextMenu()
         m = QMenu(self.mw)
         self._addMenuItems(m, opts)

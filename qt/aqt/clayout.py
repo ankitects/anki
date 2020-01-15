@@ -326,7 +326,7 @@ Please create a new card type first."""
             self._previewTimer.stop()
             self._previewTimer = None
 
-    def _renderPreview(self):
+    def _renderPreview(self) -> None:
         self.cancelPreviewTimer()
 
         c = self.card

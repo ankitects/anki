@@ -23,7 +23,7 @@ class StudyDeck(QDialog):
         dyn=False,
         buttons=None,
         geomKey="default",
-    ):
+    ) -> None:
         QDialog.__init__(self, parent or mw)
         if buttons is None:
             buttons = []
@@ -118,7 +118,7 @@ class StudyDeck(QDialog):
             self.origNames = self.nameFunc()
         self.redraw(self.filt, self.focus)
 
-    def accept(self):
+    def accept(self) -> None:
         saveGeom(self, self.geomKey)
         gui_hooks.state_did_reset.remove(self.onReset)
         row = self.form.list.currentRow()
@@ -128,12 +128,12 @@ class StudyDeck(QDialog):
         self.name = self.names[self.form.list.currentRow()]
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         saveGeom(self, self.geomKey)
         gui_hooks.state_did_reset.remove(self.onReset)
         QDialog.reject(self)
 
-    def onAddDeck(self):
+    def onAddDeck(self) -> None:
         row = self.form.list.currentRow()
         if row < 0:
             default = self.form.filter.text()

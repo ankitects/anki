@@ -9,9 +9,9 @@ from aqt.utils import shortcut
 
 
 class ModelChooser(QHBoxLayout):
-    def __init__(self, mw, widget, label=True):
+    def __init__(self, mw, widget, label=True) -> None:
         QHBoxLayout.__init__(self)
-        self.widget = widget
+        self.widget = widget # type: ignore
         self.mw = mw
         self.deck = mw.col
         self.label = label
@@ -19,7 +19,7 @@ class ModelChooser(QHBoxLayout):
         self.setSpacing(8)
         self.setupModels()
         gui_hooks.state_did_reset.append(self.onReset)
-        self.widget.setLayout(self)
+        self.widget.setLayout(self)  # type: ignore
 
     def setupModels(self):
         if self.label:
@@ -40,7 +40,7 @@ class ModelChooser(QHBoxLayout):
         self.models.setSizePolicy(sizePolicy)
         self.updateModels()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         gui_hooks.state_did_reset.remove(self.onReset)
 
     def onReset(self):
@@ -57,12 +57,12 @@ class ModelChooser(QHBoxLayout):
 
         aqt.models.Models(self.mw, self.widget)
 
-    def onModelChange(self):
+    def onModelChange(self) -> None:
         from aqt.studydeck import StudyDeck
 
         current = self.deck.models.current()["name"]
         # edit button
-        edit = QPushButton(_("Manage"), clicked=self.onEdit)
+        edit = QPushButton(_("Manage"), clicked=self.onEdit)  # type: ignore
 
         def nameFunc():
             return sorted(self.deck.models.allNames())

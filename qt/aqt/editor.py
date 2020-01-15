@@ -21,6 +21,7 @@ import aqt
 import aqt.sound
 from anki.hooks import runFilter
 from anki.lang import _
+from anki.notes import Note
 from anki.sync import AnkiRequestsClient
 from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
@@ -67,13 +68,13 @@ html { background: %s; }
 
 # caller is responsible for resetting note on reset
 class Editor:
-    def __init__(self, mw: AnkiQt, widget, parentWindow, addMode=False):
+    def __init__(self, mw: AnkiQt, widget, parentWindow, addMode=False) -> None:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
-        self.note = None
+        self.note: Optional[Note] = None
         self.addMode = addMode
-        self.currentField = None
+        self.currentField: Optional[int] = None
         # current card, for card layout
         self.card = None
         self.setupOuter()
@@ -91,7 +92,7 @@ class Editor:
         self.widget.setLayout(l)
         self.outerLayout = l
 
-    def setupWeb(self):
+    def setupWeb(self) -> None:
         self.web = EditorWebView(self.widget, self)
         self.web.title = "editor"
         self.web.allowDrops = True
@@ -159,7 +160,7 @@ class Editor:
             fldsTitle=_("Customize Fields"),
             cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")),
         )
-        bgcol = self.mw.app.palette().window().color().name()
+        bgcol = self.mw.app.palette().window().color().name() # type: ignore
         # then load page
         self.web.stdHtml(
             _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
@@ -260,7 +261,7 @@ class Editor:
             )
         )
 
-    def setupShortcuts(self):
+    def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected
         cuts: List[Tuple] = [
             ("Ctrl+L", self.onCardLayout, True),
@@ -292,7 +293,7 @@ class Editor:
                 fn = self._addFocusCheck(fn)
             else:
                 keys, fn, _ = row
-            QShortcut(QKeySequence(keys), self.widget, activated=fn)
+            QShortcut(QKeySequence(keys), self.widget, activated=fn) # type: ignore
 
     def _addFocusCheck(self, fn):
         def checkFocus():
@@ -329,7 +330,7 @@ class Editor:
     # JS->Python bridge
     ######################################################################
 
-    def onBridgeCmd(self, cmd):
+    def onBridgeCmd(self, cmd) -> None:
         if not self.note:
             # shutdown
             return
@@ -399,7 +400,7 @@ class Editor:
     def loadNoteKeepingFocus(self):
         self.loadNote(self.currentField)
 
-    def loadNote(self, focusTo=None):
+    def loadNote(self, focusTo=None) -> None:
         if not self.note:
             return
 
@@ -426,7 +427,7 @@ class Editor:
         )
         self.web.evalWithCallback(js, oncallback)
 
-    def fonts(self):
+    def fonts(self) -> List[Tuple[str,int,bool]]:
         return [
             (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
             for f in self.note.model()["flds"]
@@ -528,7 +529,7 @@ class Editor:
         if not self.tags.text() or not self.addMode:
             self.tags.setText(self.note.stringTags().strip())
 
-    def saveTags(self):
+    def saveTags(self) -> None:
         if not self.note:
             return
         tagsTxt = unicodedata.normalize("NFC", self.tags.text())
@@ -1103,14 +1104,14 @@ class EditorWebView(AnkiWebView):
         mime.setHtml("<!--anki-->" + html)
         clip.setMimeData(mime)
 
-    def contextMenuEvent(self, evt):
+    def contextMenuEvent(self, evt) -> None:
         m = QMenu(self)
         a = m.addAction(_("Cut"))
-        a.triggered.connect(self.onCut)
+        qconnect(a.triggered, self.onCut)
         a = m.addAction(_("Copy"))
-        a.triggered.connect(self.onCopy)
+        qconnect(a.triggered, self.onCopy)
         a = m.addAction(_("Paste"))
-        a.triggered.connect(self.onPaste)
+        qconnect(a.triggered, self.onPaste)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
 
