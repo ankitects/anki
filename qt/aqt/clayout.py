@@ -8,9 +8,9 @@ import re
 
 import aqt
 from anki.consts import *
-from anki.hooks import runFilter
 from anki.lang import _, ngettext
 from anki.utils import bodyClass, isMac, isWin, joinFields
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sound import clearAudioQueue, playFromText
 from aqt.utils import (
@@ -335,10 +335,10 @@ Please create a new card type first."""
         bodyclass = bodyClass(self.mw.col, c)
 
         q = ti(mungeQA(self.mw.col, c.q(reload=True)))
-        q = runFilter("prepareQA", q, c, "clayoutQuestion")
+        q = gui_hooks.card_text_filter(q, c, "clayoutQuestion")
 
         a = ti(mungeQA(self.mw.col, c.a()), type="a")
-        a = runFilter("prepareQA", a, c, "clayoutAnswer")
+        a = gui_hooks.card_text_filter(a, c, "clayoutAnswer")
 
         # use _showAnswer to avoid the longer delay
         self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
