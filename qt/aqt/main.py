@@ -1153,9 +1153,9 @@ Difference to correct time: %s."""
     ##########################################################################
 
     def setupHooks(self) -> None:
-        hooks.mod_schema_filter.append(self.onSchemaMod)
-        hooks.remove_notes_hook.append(self.onRemNotes)
-        hooks.odue_invalid_hook.append(self.onOdueInvalid)
+        hooks.schema_will_change_filter.append(self.onSchemaMod)
+        hooks.notes_will_delete_hook.append(self.onRemNotes)
+        hooks.card_odue_was_invalid_hook.append(self.onOdueInvalid)
 
         gui_hooks.mpv_will_play_hook.append(self.on_mpv_will_play)
         gui_hooks.mpv_did_idle_hook.append(self.on_mpv_idle)

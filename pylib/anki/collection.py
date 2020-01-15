@@ -272,7 +272,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def modSchema(self, check: bool) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
         if not self.schemaChanged():
-            if check and not hooks.mod_schema_filter(proceed=True):
+            if check and not hooks.schema_will_change_filter(proceed=True):
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
         self.setMod()
@@ -372,7 +372,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
-        hooks.remove_notes_hook(self, ids)
+        hooks.notes_will_delete_hook(self, ids)
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
 
@@ -665,12 +665,12 @@ where c.nid = n.id and c.id in %s group by nid"""
         fields["c%d" % (card_ord + 1)] = "1"
 
         # allow add-ons to modify the available fields
-        hooks.modify_fields_for_rendering_hook(fields, model, data)
+        hooks.fields_will_render_hook(fields, model, data)
         fields = runFilter("mungeFields", fields, model, data, self)  # legacy
 
         # and the template prior to rendering
-        qfmt = hooks.original_card_template_filter(qfmt, True)
-        afmt = hooks.original_card_template_filter(afmt, False)
+        qfmt = hooks.card_template_will_render_filter(qfmt, True)
+        afmt = hooks.card_template_will_render_filter(afmt, False)
 
         # render fields
         qatext = render_card(self, qfmt, afmt, fields, card_ord)
@@ -678,7 +678,7 @@ where c.nid = n.id and c.id in %s group by nid"""
 
         # allow add-ons to modify the generated result
         for type in "q", "a":
-            ret[type] = hooks.rendered_card_template_filter(
+            ret[type] = hooks.card_template_did_render_filter(
                 ret[type], type, fields, model, data, self
             )
 

@@ -41,7 +41,7 @@ class Reviewer:
         self.typeCorrect = None  # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
-        hooks.leech_hook.append(self.onLeech)
+        hooks.card_did_leech_hook.append(self.onLeech)
 
     def show(self):
         self.mw.col.reset()

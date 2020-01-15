@@ -72,7 +72,7 @@ def apply_custom_filters(
 
             field_text = node.current_text
             for filter_name in node.filters:
-                field_text = hooks.field_replacement_filter(
+                field_text = hooks.card_template_filter_will_apply_filter(
                     field_text, node.field_name, filter_name, fields
                 )
                 # legacy hook - the second and fifth argument are no longer used

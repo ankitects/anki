@@ -17,55 +17,60 @@ from hookslib import Hook, update_file
 ######################################################################
 
 hooks = [
-    Hook(name="leech", args=["card: Card"], legacy_hook="leech"),
-    Hook(name="odue_invalid"),
-    Hook(name="mod_schema", args=["proceed: bool"], return_type="bool"),
+    Hook(name="card_did_leech", args=["card: Card"], legacy_hook="leech"),
+    Hook(name="card_odue_was_invalid"),
+    Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
-        name="remove_notes",
+        name="notes_will_delete",
         args=["col: anki.storage._Collection", "ids: List[int]"],
         legacy_hook="remNotes",
     ),
     Hook(
-        name="deck_created",
+        name="deck_did_create",
         args=["deck: Dict[str, Any]"],
         legacy_hook="newDeck",
         legacy_no_args=True,
     ),
-    Hook(name="exported_media_files", args=["count: int"]),
+    Hook(name="media_files_did_export", args=["count: int"]),
     Hook(
-        name="create_exporters_list",
+        name="exporters_list_did_create",
         args=["exporters: List[Tuple[str, Any]]"],
         legacy_hook="exportersList",
     ),
     Hook(
-        name="prepare_searches",
+        name="search_terms_did_prepare",
         args=["searches: Dict[str, Callable]"],
         legacy_hook="search",
     ),
     Hook(
-        name="note_type_created",
+        name="note_type_did_create",
         args=["notetype: Dict[str, Any]"],
         legacy_hook="newModel",
         legacy_no_args=True,
     ),
-    Hook(name="sync_stage", args=["stage: str"], legacy_hook="sync"),
-    Hook(name="sync_progress_message", args=["msg: str"], legacy_hook="syncMsg"),
-    Hook(name="http_data_sent", args=["bytes: int"]),
-    Hook(name="http_data_received", args=["bytes: int"]),
+    Hook(name="sync_stage_did_change", args=["stage: str"], legacy_hook="sync"),
+    Hook(name="sync_progress_did_change", args=["msg: str"], legacy_hook="syncMsg"),
+    Hook(name="http_data_did_send", args=["bytes: int"]),
+    Hook(name="http_data_did_receive", args=["bytes: int"]),
     Hook(
-        name="tag_created", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True
+        name="tag_did_create",
+        args=["tag: str"],
+        legacy_hook="newTag",
+        legacy_no_args=True,
     ),
     Hook(
-        name="modify_fields_for_rendering",
+        name="fields_will_render",
         args=["fields: Dict[str, str]", "notetype: Dict[str, Any]", "data: QAData",],
+        doc="Can modify the available fields prior to rendering.",
     ),
     Hook(
-        name="original_card_template",
+        name="card_template_will_render",
         args=["template: str", "question_side: bool"],
         return_type="str",
+        doc="Can modify the the card template used for rendering.",
     ),
     Hook(
-        name="rendered_card_template",
+        name="card_template_did_render",
         args=[
             "text: str",
             "side: str",
@@ -78,9 +83,10 @@ hooks = [
         ],
         return_type="str",
         legacy_hook="mungeQA",
+        doc="Can modify the resulting text after rendering completes.",
     ),
     Hook(
-        name="field_replacement",
+        name="card_template_filter_will_apply",
         args=[
             "field_text: str",
             "field_name: str",

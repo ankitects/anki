@@ -107,7 +107,7 @@ class ModelManager:
             if templates:
                 self._syncTemplates(m)
         self.changed = True
-        hooks.note_type_created_hook(m)
+        hooks.note_type_did_create_hook(m)
 
     def flush(self) -> None:
         "Flush the registry if any models were changed."
