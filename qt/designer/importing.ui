@@ -80,14 +80,14 @@
       <item>
        <layout class="QHBoxLayout" name="tagModifiedLayout">
         <item>
-         <widget class="QCheckBox" name="tagModifiedCheck">
+         <widget class="QLabel" name="tagModifiedLabel">
           <property name="text">
            <string>Tag modified notes:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="tagModifiedTag"/>
+         <widget class="TagEdit" name="tagModified"/>
         </item>
        </layout>
       </item>
@@ -157,6 +157,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TagEdit</class>
+   <extends>QLineEdit</extends>
+   <header>aqt/tagedit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>buttonBox</tabstop>
  </tabstops>
