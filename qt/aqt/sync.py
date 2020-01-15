@@ -406,10 +406,10 @@ class SyncThread(QThread):
                 self._abort = 2
                 raise Exception("sync cancelled")
 
-        hooks.sync_stage_did_change_hook.append(syncEvent)
-        hooks.sync_progress_did_change_hook.append(syncMsg)
-        hooks.http_data_did_send_hook.append(sendEvent)
-        hooks.http_data_did_receive_hook.append(recvEvent)
+        hooks.sync_stage_did_change.append(syncEvent)
+        hooks.sync_progress_did_change.append(syncMsg)
+        hooks.http_data_did_send.append(sendEvent)
+        hooks.http_data_did_receive.append(recvEvent)
         # run sync and catch any errors
         try:
             self._sync()
@@ -419,10 +419,10 @@ class SyncThread(QThread):
         finally:
             # don't bump mod time unless we explicitly save
             self.col.close(save=False)
-            hooks.sync_stage_did_change_hook.remove(syncEvent)
-            hooks.sync_progress_did_change_hook.remove(syncMsg)
-            hooks.http_data_did_send_hook.remove(sendEvent)
-            hooks.http_data_did_receive_hook.remove(recvEvent)
+            hooks.sync_stage_did_change.remove(syncEvent)
+            hooks.sync_progress_did_change.remove(syncMsg)
+            hooks.http_data_did_send.remove(sendEvent)
+            hooks.http_data_did_receive.remove(recvEvent)
 
     def _abortingSync(self):
         try:

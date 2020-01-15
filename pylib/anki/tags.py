@@ -50,7 +50,7 @@ class TagManager:
                 self.tags[t] = self.col.usn() if usn is None else usn
                 self.changed = True
         if found:
-            hooks.tag_did_create_hook(t)  # pylint: disable=undefined-loop-variable
+            hooks.tag_did_create(t)  # pylint: disable=undefined-loop-variable
 
     def all(self) -> List:
         return list(self.tags.keys())

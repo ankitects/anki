@@ -19,7 +19,7 @@ class DeckChooser(QHBoxLayout):
         self.setSpacing(8)
         self.setupDecks()
         self.widget.setLayout(self)
-        gui_hooks.current_note_type_did_change_hook.append(self.onModelChange)
+        gui_hooks.current_note_type_did_change.append(self.onModelChange)
 
     def setupDecks(self):
         if self.label:
@@ -64,7 +64,7 @@ class DeckChooser(QHBoxLayout):
         self.widget.hide()
 
     def cleanup(self):
-        gui_hooks.current_note_type_did_change_hook.remove(self.onModelChange)
+        gui_hooks.current_note_type_did_change.remove(self.onModelChange)
 
     def onModelChange(self):
         if not self.mw.col.conf.get("addToCur", True):

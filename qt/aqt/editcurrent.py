@@ -26,7 +26,7 @@ class EditCurrent(QDialog):
         self.editor.card = self.mw.reviewer.card
         self.editor.setNote(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
-        gui_hooks.state_did_reset_hook.append(self.onReset)
+        gui_hooks.state_did_reset.append(self.onReset)
         self.mw.requireReset()
         self.show()
         # reset focus after open, taking care not to retain webview
@@ -40,7 +40,7 @@ class EditCurrent(QDialog):
             n.load()  # reload in case the model changed
         except:
             # card's been deleted
-            gui_hooks.state_did_reset_hook.remove(self.onReset)
+            gui_hooks.state_did_reset.remove(self.onReset)
             self.editor.setNote(None)
             self.mw.reset()
             aqt.dialogs.markClosed("EditCurrent")
@@ -59,7 +59,7 @@ class EditCurrent(QDialog):
         self.editor.saveNow(self._saveAndClose)
 
     def _saveAndClose(self):
-        gui_hooks.state_did_reset_hook.remove(self.onReset)
+        gui_hooks.state_did_reset.remove(self.onReset)
         r = self.mw.reviewer
         try:
             r.card.load()

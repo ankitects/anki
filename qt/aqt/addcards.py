@@ -43,8 +43,8 @@ class AddCards(QDialog):
         self.history: List[int] = []
         self.previousNote = None
         restoreGeom(self, "add")
-        gui_hooks.state_did_reset_hook.append(self.onReset)
-        gui_hooks.current_note_type_did_change_hook.append(self.onModelChange)
+        gui_hooks.state_did_reset.append(self.onReset)
+        gui_hooks.current_note_type_did_change.append(self.onModelChange)
         addCloseShortcut(self)
         self.show()
 
@@ -156,7 +156,7 @@ class AddCards(QDialog):
             else:
                 a = m.addAction(_("(Note deleted)"))
                 a.setEnabled(False)
-        gui_hooks.add_cards_history_menu_will_show_hook(self, m)
+        gui_hooks.add_cards_history_menu_will_show(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
     def editHistory(self, nid):
@@ -196,7 +196,7 @@ question on all cards."""
         self.addHistory(note)
         self.mw.requireReset()
         self.previousNote = note
-        gui_hooks.add_cards_note_did_add_hook(note)
+        gui_hooks.add_cards_note_did_add(note)
         return note
 
     def addCards(self):
@@ -223,8 +223,8 @@ question on all cards."""
         self.ifCanClose(self._reject)
 
     def _reject(self) -> None:
-        gui_hooks.state_did_reset_hook.remove(self.onReset)
-        gui_hooks.current_note_type_did_change_hook.remove(self.onModelChange)
+        gui_hooks.state_did_reset.remove(self.onReset)
+        gui_hooks.current_note_type_did_change.remove(self.onModelChange)
         clearAudioQueue()
         self.removeTempNote(self.editor.note)
         self.editor.cleanup()

@@ -41,7 +41,7 @@ class Reviewer:
         self.typeCorrect = None  # web init happens before this is set
         self.state = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
-        hooks.card_did_leech_hook.append(self.onLeech)
+        hooks.card_did_leech.append(self.onLeech)
 
     def show(self):
         self.mw.col.reset()
@@ -62,7 +62,7 @@ class Reviewer:
                     return
 
     def cleanup(self):
-        gui_hooks.reviewer_will_end_hook()
+        gui_hooks.reviewer_will_end()
 
     # Fetching a card
     ##########################################################################
@@ -187,7 +187,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        q = gui_hooks.card_text_filter(q, c, "reviewQuestion")
+        q = gui_hooks.card_text(q, c, "reviewQuestion")
 
         bodyclass = bodyClass(self.mw.col, c)
 
@@ -199,7 +199,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         if self.typeCorrect:
             self.mw.web.setFocus()
         # user hook
-        gui_hooks.reviewer_question_did_show_hook(c)
+        gui_hooks.reviewer_question_did_show(c)
 
     def autoplay(self, card):
         return self.mw.col.decks.confForDid(card.odid or card.did)["autoplay"]
@@ -229,12 +229,12 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         if self.autoplay(c):
             playFromText(a)
         a = self._mungeQA(a)
-        a = gui_hooks.card_text_filter(a, c, "reviewAnswer")
+        a = gui_hooks.card_text(a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
-        gui_hooks.reviewer_answer_did_show_hook(c)
+        gui_hooks.reviewer_answer_did_show(c)
 
     # Answering a card
     ############################################################
@@ -694,7 +694,7 @@ time = %(time)d;
         m = QMenu(self.mw)
         self._addMenuItems(m, opts)
 
-        gui_hooks.reviewer_context_menu_will_show_hook(self, m)
+        gui_hooks.reviewer_context_menu_will_show(self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 

@@ -15,7 +15,7 @@ the filter is skipped.
 Add-ons can register a filter with the following code:
 
 from anki import hooks
-hooks.field_replacement_filter.append(myfunc)
+hooks.field_replacement.append(myfunc)
 
 This will call myfunc, passing the field text in as the first argument.
 Your function should decide if it wants to modify the text by checking
@@ -72,7 +72,7 @@ def apply_custom_filters(
 
             field_text = node.current_text
             for filter_name in node.filters:
-                field_text = hooks.card_template_filter_will_apply_filter(
+                field_text = hooks.card_template_filter_will_apply(
                     field_text, node.field_name, filter_name, fields
                 )
                 # legacy hook - the second and fifth argument are no longer used

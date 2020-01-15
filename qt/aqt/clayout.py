@@ -335,10 +335,10 @@ Please create a new card type first."""
         bodyclass = bodyClass(self.mw.col, c)
 
         q = ti(mungeQA(self.mw.col, c.q(reload=True)))
-        q = gui_hooks.card_text_filter(q, c, "clayoutQuestion")
+        q = gui_hooks.card_text(q, c, "clayoutQuestion")
 
         a = ti(mungeQA(self.mw.col, c.a()), type="a")
-        a = gui_hooks.card_text_filter(a, c, "clayoutAnswer")
+        a = gui_hooks.card_text(a, c, "clayoutAnswer")
 
         # use _showAnswer to avoid the longer delay
         self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))

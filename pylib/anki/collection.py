@@ -272,7 +272,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def modSchema(self, check: bool) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
         if not self.schemaChanged():
-            if check and not hooks.schema_will_change_filter(proceed=True):
+            if check and not hooks.schema_will_change(proceed=True):
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
         self.setMod()
@@ -372,7 +372,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
-        hooks.notes_will_delete_hook(self, ids)
+        hooks.notes_will_delete(self, ids)
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
 
@@ -665,12 +665,12 @@ where c.nid = n.id and c.id in %s group by nid"""
         fields["c%d" % (card_ord + 1)] = "1"
 
         # allow add-ons to modify the available fields
-        hooks.fields_will_render_hook(fields, model, data)
+        hooks.fields_will_render(fields, model, data)
         fields = runFilter("mungeFields", fields, model, data, self)  # legacy
 
         # and the template prior to rendering
-        qfmt = hooks.card_template_will_render_filter(qfmt, True)
-        afmt = hooks.card_template_will_render_filter(afmt, False)
+        qfmt = hooks.card_template_will_render(qfmt, True)
+        afmt = hooks.card_template_will_render(afmt, False)
 
         # render fields
         qatext = render_card(self, qfmt, afmt, fields, card_ord)
@@ -678,7 +678,7 @@ where c.nid = n.id and c.id in %s group by nid"""
 
         # allow add-ons to modify the generated result
         for type in "q", "a":
-            ret[type] = hooks.card_template_did_render_filter(
+            ret[type] = hooks.card_template_did_render(
                 ret[type], type, fields, model, data, self
             )
 

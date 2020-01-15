@@ -132,9 +132,9 @@ class ExportDialog(QDialog):
                     )
                     % cnt
                 )
-                hooks.media_files_did_export_hook.append(exportedMedia)
+                hooks.media_files_did_export.append(exportedMedia)
                 self.exporter.exportInto(file)
-                hooks.media_files_did_export_hook.remove(exportedMedia)
+                hooks.media_files_did_export.remove(exportedMedia)
                 period = 3000
                 if self.isVerbatim:
                     msg = _("Collection exported.")

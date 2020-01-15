@@ -245,7 +245,7 @@ where id > ?""",
         a.triggered.connect(lambda b, did=did: self._export(did))
         a = m.addAction(_("Delete"))
         a.triggered.connect(lambda b, did=did: self._delete(did))
-        gui_hooks.deck_browser_options_menu_will_show_hook(m, did)
+        gui_hooks.deck_browser_options_menu_will_show(m, did)
         m.exec_(QCursor.pos())
 
     def _export(self, did):

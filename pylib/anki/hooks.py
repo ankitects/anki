@@ -51,7 +51,7 @@ class _CardDidLeechHook:
         runHook("leech", card)
 
 
-card_did_leech_hook = _CardDidLeechHook()
+card_did_leech = _CardDidLeechHook()
 
 
 class _CardOdueWasInvalidHook:
@@ -75,7 +75,7 @@ class _CardOdueWasInvalidHook:
                 raise
 
 
-card_odue_was_invalid_hook = _CardOdueWasInvalidHook()
+card_odue_was_invalid = _CardOdueWasInvalidHook()
 
 
 class _CardTemplateDidRenderFilter:
@@ -150,7 +150,7 @@ class _CardTemplateDidRenderFilter:
         return text
 
 
-card_template_did_render_filter = _CardTemplateDidRenderFilter()
+card_template_did_render = _CardTemplateDidRenderFilter()
 
 
 class _CardTemplateFilterWillApplyFilter:
@@ -177,7 +177,7 @@ class _CardTemplateFilterWillApplyFilter:
         return field_text
 
 
-card_template_filter_will_apply_filter = _CardTemplateFilterWillApplyFilter()
+card_template_filter_will_apply = _CardTemplateFilterWillApplyFilter()
 
 
 class _CardTemplateWillRenderFilter:
@@ -204,7 +204,7 @@ class _CardTemplateWillRenderFilter:
         return template
 
 
-card_template_will_render_filter = _CardTemplateWillRenderFilter()
+card_template_will_render = _CardTemplateWillRenderFilter()
 
 
 class _DeckDidCreateHook:
@@ -230,7 +230,7 @@ class _DeckDidCreateHook:
         runHook("newDeck")
 
 
-deck_did_create_hook = _DeckDidCreateHook()
+deck_did_create = _DeckDidCreateHook()
 
 
 class _ExportersListDidCreateHook:
@@ -256,7 +256,7 @@ class _ExportersListDidCreateHook:
         runHook("exportersList", exporters)
 
 
-exporters_list_did_create_hook = _ExportersListDidCreateHook()
+exporters_list_did_create = _ExportersListDidCreateHook()
 
 
 class _FieldsWillRenderHook:
@@ -288,7 +288,7 @@ class _FieldsWillRenderHook:
                 raise
 
 
-fields_will_render_hook = _FieldsWillRenderHook()
+fields_will_render = _FieldsWillRenderHook()
 
 
 class _HttpDataDidReceiveHook:
@@ -312,7 +312,7 @@ class _HttpDataDidReceiveHook:
                 raise
 
 
-http_data_did_receive_hook = _HttpDataDidReceiveHook()
+http_data_did_receive = _HttpDataDidReceiveHook()
 
 
 class _HttpDataDidSendHook:
@@ -336,7 +336,7 @@ class _HttpDataDidSendHook:
                 raise
 
 
-http_data_did_send_hook = _HttpDataDidSendHook()
+http_data_did_send = _HttpDataDidSendHook()
 
 
 class _MediaFilesDidExportHook:
@@ -360,7 +360,7 @@ class _MediaFilesDidExportHook:
                 raise
 
 
-media_files_did_export_hook = _MediaFilesDidExportHook()
+media_files_did_export = _MediaFilesDidExportHook()
 
 
 class _NoteTypeDidCreateHook:
@@ -386,7 +386,7 @@ class _NoteTypeDidCreateHook:
         runHook("newModel")
 
 
-note_type_did_create_hook = _NoteTypeDidCreateHook()
+note_type_did_create = _NoteTypeDidCreateHook()
 
 
 class _NotesWillDeleteHook:
@@ -416,7 +416,7 @@ class _NotesWillDeleteHook:
         runHook("remNotes", col, ids)
 
 
-notes_will_delete_hook = _NotesWillDeleteHook()
+notes_will_delete = _NotesWillDeleteHook()
 
 
 class _SchemaWillChangeFilter:
@@ -441,7 +441,7 @@ class _SchemaWillChangeFilter:
         return proceed
 
 
-schema_will_change_filter = _SchemaWillChangeFilter()
+schema_will_change = _SchemaWillChangeFilter()
 
 
 class _SearchTermsDidPrepareHook:
@@ -467,7 +467,7 @@ class _SearchTermsDidPrepareHook:
         runHook("search", searches)
 
 
-search_terms_did_prepare_hook = _SearchTermsDidPrepareHook()
+search_terms_did_prepare = _SearchTermsDidPrepareHook()
 
 
 class _SyncProgressDidChangeHook:
@@ -493,7 +493,7 @@ class _SyncProgressDidChangeHook:
         runHook("syncMsg", msg)
 
 
-sync_progress_did_change_hook = _SyncProgressDidChangeHook()
+sync_progress_did_change = _SyncProgressDidChangeHook()
 
 
 class _SyncStageDidChangeHook:
@@ -519,7 +519,7 @@ class _SyncStageDidChangeHook:
         runHook("sync", stage)
 
 
-sync_stage_did_change_hook = _SyncStageDidChangeHook()
+sync_stage_did_change = _SyncStageDidChangeHook()
 
 
 class _TagDidCreateHook:
@@ -545,7 +545,7 @@ class _TagDidCreateHook:
         runHook("newTag")
 
 
-tag_did_create_hook = _TagDidCreateHook()
+tag_did_create = _TagDidCreateHook()
 # @@AUTOGEN@@
 
 # Legacy hook handling

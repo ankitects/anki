@@ -46,7 +46,7 @@ class _AddCardsHistoryMenuWillShowHook:
         runHook("AddCards.onHistory", addcards, menu)
 
 
-add_cards_history_menu_will_show_hook = _AddCardsHistoryMenuWillShowHook()
+add_cards_history_menu_will_show = _AddCardsHistoryMenuWillShowHook()
 
 
 class _AddCardsNoteDidAddHook:
@@ -72,7 +72,7 @@ class _AddCardsNoteDidAddHook:
         runHook("AddCards.noteAdded", note)
 
 
-add_cards_note_did_add_hook = _AddCardsNoteDidAddHook()
+add_cards_note_did_add = _AddCardsNoteDidAddHook()
 
 
 class _BrowserContextMenuWillShowHook:
@@ -98,7 +98,7 @@ class _BrowserContextMenuWillShowHook:
         runHook("browser.onContextMenu", browser, menu)
 
 
-browser_context_menu_will_show_hook = _BrowserContextMenuWillShowHook()
+browser_context_menu_will_show = _BrowserContextMenuWillShowHook()
 
 
 class _BrowserMenusDidSetupHook:
@@ -124,7 +124,7 @@ class _BrowserMenusDidSetupHook:
         runHook("browser.setupMenus", browser)
 
 
-browser_menus_did_setup_hook = _BrowserMenusDidSetupHook()
+browser_menus_did_setup = _BrowserMenusDidSetupHook()
 
 
 class _BrowserRowDidChangeHook:
@@ -150,7 +150,7 @@ class _BrowserRowDidChangeHook:
         runHook("browser.rowChanged", browser)
 
 
-browser_row_did_change_hook = _BrowserRowDidChangeHook()
+browser_row_did_change = _BrowserRowDidChangeHook()
 
 
 class _CardTextFilter:
@@ -179,7 +179,7 @@ class _CardTextFilter:
         return text
 
 
-card_text_filter = _CardTextFilter()
+card_text = _CardTextFilter()
 
 
 class _CollectionDidLoadHook:
@@ -205,7 +205,7 @@ class _CollectionDidLoadHook:
         runHook("colLoading", col)
 
 
-collection_did_load_hook = _CollectionDidLoadHook()
+collection_did_load = _CollectionDidLoadHook()
 
 
 class _CurrentNoteTypeDidChangeHook:
@@ -231,7 +231,7 @@ class _CurrentNoteTypeDidChangeHook:
         runHook("currentModelChanged")
 
 
-current_note_type_did_change_hook = _CurrentNoteTypeDidChangeHook()
+current_note_type_did_change = _CurrentNoteTypeDidChangeHook()
 
 
 class _DeckBrowserOptionsMenuWillShowHook:
@@ -257,7 +257,7 @@ class _DeckBrowserOptionsMenuWillShowHook:
         runHook("showDeckOptions", menu, deck_id)
 
 
-deck_browser_options_menu_will_show_hook = _DeckBrowserOptionsMenuWillShowHook()
+deck_browser_options_menu_will_show = _DeckBrowserOptionsMenuWillShowHook()
 
 
 class _EditorButtonsDidSetupHook:
@@ -281,7 +281,7 @@ class _EditorButtonsDidSetupHook:
                 raise
 
 
-editor_buttons_did_setup_hook = _EditorButtonsDidSetupHook()
+editor_buttons_did_setup = _EditorButtonsDidSetupHook()
 
 
 class _EditorContextMenuWillShowHook:
@@ -307,7 +307,7 @@ class _EditorContextMenuWillShowHook:
         runHook("EditorWebView.contextMenuEvent", editor_webview, menu)
 
 
-editor_context_menu_will_show_hook = _EditorContextMenuWillShowHook()
+editor_context_menu_will_show = _EditorContextMenuWillShowHook()
 
 
 class _EditorFieldDidGainFocusHook:
@@ -333,7 +333,7 @@ class _EditorFieldDidGainFocusHook:
         runHook("editFocusGained", note, current_field_idx)
 
 
-editor_field_did_gain_focus_hook = _EditorFieldDidGainFocusHook()
+editor_field_did_gain_focus = _EditorFieldDidGainFocusHook()
 
 
 class _EditorFieldDidLoseFocusFilter:
@@ -362,7 +362,7 @@ class _EditorFieldDidLoseFocusFilter:
         return changed
 
 
-editor_field_did_lose_focus_filter = _EditorFieldDidLoseFocusFilter()
+editor_field_did_lose_focus = _EditorFieldDidLoseFocusFilter()
 
 
 class _EditorFontForFieldFilter:
@@ -389,7 +389,7 @@ class _EditorFontForFieldFilter:
         return font
 
 
-editor_font_for_field_filter = _EditorFontForFieldFilter()
+editor_font_for_field = _EditorFontForFieldFilter()
 
 
 class _EditorNoteDidLoadHook:
@@ -415,7 +415,7 @@ class _EditorNoteDidLoadHook:
         runHook("loadNote", editor)
 
 
-editor_note_did_load_hook = _EditorNoteDidLoadHook()
+editor_note_did_load = _EditorNoteDidLoadHook()
 
 
 class _EditorShortcutsDidSetupHook:
@@ -441,7 +441,7 @@ class _EditorShortcutsDidSetupHook:
         runHook("setupEditorShortcuts", shortcuts, editor)
 
 
-editor_shortcuts_did_setup_hook = _EditorShortcutsDidSetupHook()
+editor_shortcuts_did_setup = _EditorShortcutsDidSetupHook()
 
 
 class _EditorTagsDidUpdateHook:
@@ -467,7 +467,7 @@ class _EditorTagsDidUpdateHook:
         runHook("tagsUpdated", note)
 
 
-editor_tags_did_update_hook = _EditorTagsDidUpdateHook()
+editor_tags_did_update = _EditorTagsDidUpdateHook()
 
 
 class _EditorTypingTimerDidFireHook:
@@ -493,7 +493,7 @@ class _EditorTypingTimerDidFireHook:
         runHook("editTimer", note)
 
 
-editor_typing_timer_did_fire_hook = _EditorTypingTimerDidFireHook()
+editor_typing_timer_did_fire = _EditorTypingTimerDidFireHook()
 
 
 class _MpvDidIdleHook:
@@ -517,7 +517,7 @@ class _MpvDidIdleHook:
                 raise
 
 
-mpv_did_idle_hook = _MpvDidIdleHook()
+mpv_did_idle = _MpvDidIdleHook()
 
 
 class _MpvWillPlayHook:
@@ -543,7 +543,7 @@ class _MpvWillPlayHook:
         runHook("mpvWillPlay", file)
 
 
-mpv_will_play_hook = _MpvWillPlayHook()
+mpv_will_play = _MpvWillPlayHook()
 
 
 class _ProfileDidOpenHook:
@@ -569,7 +569,7 @@ class _ProfileDidOpenHook:
         runHook("profileLoaded")
 
 
-profile_did_open_hook = _ProfileDidOpenHook()
+profile_did_open = _ProfileDidOpenHook()
 
 
 class _ProfileWillCloseHook:
@@ -595,7 +595,7 @@ class _ProfileWillCloseHook:
         runHook("unloadProfile")
 
 
-profile_will_close_hook = _ProfileWillCloseHook()
+profile_will_close = _ProfileWillCloseHook()
 
 
 class _ReviewDidUndoHook:
@@ -621,7 +621,7 @@ class _ReviewDidUndoHook:
         runHook("revertedCard", card_id)
 
 
-review_did_undo_hook = _ReviewDidUndoHook()
+review_did_undo = _ReviewDidUndoHook()
 
 
 class _ReviewerAnswerDidShowHook:
@@ -647,7 +647,7 @@ class _ReviewerAnswerDidShowHook:
         runHook("showAnswer")
 
 
-reviewer_answer_did_show_hook = _ReviewerAnswerDidShowHook()
+reviewer_answer_did_show = _ReviewerAnswerDidShowHook()
 
 
 class _ReviewerContextMenuWillShowHook:
@@ -673,7 +673,7 @@ class _ReviewerContextMenuWillShowHook:
         runHook("Reviewer.contextMenuEvent", reviewer, menu)
 
 
-reviewer_context_menu_will_show_hook = _ReviewerContextMenuWillShowHook()
+reviewer_context_menu_will_show = _ReviewerContextMenuWillShowHook()
 
 
 class _ReviewerQuestionDidShowHook:
@@ -699,7 +699,7 @@ class _ReviewerQuestionDidShowHook:
         runHook("showQuestion")
 
 
-reviewer_question_did_show_hook = _ReviewerQuestionDidShowHook()
+reviewer_question_did_show = _ReviewerQuestionDidShowHook()
 
 
 class _ReviewerWillEndHook:
@@ -727,7 +727,7 @@ class _ReviewerWillEndHook:
         runHook("reviewCleanup")
 
 
-reviewer_will_end_hook = _ReviewerWillEndHook()
+reviewer_will_end = _ReviewerWillEndHook()
 
 
 class _StateDidChangeHook:
@@ -753,7 +753,7 @@ class _StateDidChangeHook:
         runHook("afterStateChange", new_state, old_state)
 
 
-state_did_change_hook = _StateDidChangeHook()
+state_did_change = _StateDidChangeHook()
 
 
 class _StateDidResetHook:
@@ -781,7 +781,7 @@ class _StateDidResetHook:
         runHook("reset")
 
 
-state_did_reset_hook = _StateDidResetHook()
+state_did_reset = _StateDidResetHook()
 
 
 class _StateDidRevertHook:
@@ -809,7 +809,7 @@ class _StateDidRevertHook:
         runHook("revertedState", action)
 
 
-state_did_revert_hook = _StateDidRevertHook()
+state_did_revert = _StateDidRevertHook()
 
 
 class _StateShortcutsWillChangeHook:
@@ -833,7 +833,7 @@ class _StateShortcutsWillChangeHook:
                 raise
 
 
-state_shortcuts_will_change_hook = _StateShortcutsWillChangeHook()
+state_shortcuts_will_change = _StateShortcutsWillChangeHook()
 
 
 class _StateWillChangeHook:
@@ -859,7 +859,7 @@ class _StateWillChangeHook:
         runHook("beforeStateChange", new_state, old_state)
 
 
-state_will_change_hook = _StateWillChangeHook()
+state_will_change = _StateWillChangeHook()
 
 
 class _StyleDidSetupFilter:
@@ -886,7 +886,7 @@ class _StyleDidSetupFilter:
         return style
 
 
-style_did_setup_filter = _StyleDidSetupFilter()
+style_did_setup = _StyleDidSetupFilter()
 
 
 class _UndoStateDidChangeHook:
@@ -912,7 +912,7 @@ class _UndoStateDidChangeHook:
         runHook("undoState", can_undo)
 
 
-undo_state_did_change_hook = _UndoStateDidChangeHook()
+undo_state_did_change = _UndoStateDidChangeHook()
 
 
 class _WebviewContextMenuWillShowHook:
@@ -938,5 +938,5 @@ class _WebviewContextMenuWillShowHook:
         runHook("AnkiWebView.contextMenuEvent", webview, menu)
 
 
-webview_context_menu_will_show_hook = _WebviewContextMenuWillShowHook()
+webview_context_menu_will_show = _WebviewContextMenuWillShowHook()
 # @@AUTOGEN@@

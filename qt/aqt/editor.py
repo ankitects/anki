@@ -141,7 +141,7 @@ class Editor:
                 self._addButton("more", "more"),
             ]
         )
-        gui_hooks.editor_buttons_did_setup_hook(righttopbtns, self)
+        gui_hooks.editor_buttons_did_setup(righttopbtns, self)
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
@@ -285,7 +285,7 @@ class Editor:
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags, True),
         ]
-        gui_hooks.editor_shortcuts_did_setup_hook(cuts, self)
+        gui_hooks.editor_shortcuts_did_setup(cuts, self)
         for row in cuts:
             if len(row) == 2:
                 keys, fn = row  # pylint: disable=unbalanced-tuple-unpacking
@@ -358,20 +358,20 @@ class Editor:
             if type == "blur":
                 self.currentField = None
                 # run any filters
-                if gui_hooks.editor_field_did_lose_focus_filter(False, self.note, ord):
+                if gui_hooks.editor_field_did_lose_focus(False, self.note, ord):
                     # something updated the note; update it after a subsequent focus
                     # event has had time to fire
                     self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
                 else:
                     self.checkValid()
             else:
-                gui_hooks.editor_typing_timer_did_fire_hook(self.note)
+                gui_hooks.editor_typing_timer_did_fire(self.note)
                 self.checkValid()
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
             self.currentField = int(num)
-            gui_hooks.editor_field_did_gain_focus_hook(self.note, self.currentField)
+            gui_hooks.editor_field_did_gain_focus(self.note, self.currentField)
         elif cmd in self._links:
             self._links[cmd](self)
         else:
@@ -416,7 +416,7 @@ class Editor:
             self.checkValid()
             if focusTo is not None:
                 self.web.setFocus()
-            gui_hooks.editor_note_did_load_hook(self)
+            gui_hooks.editor_note_did_load(self)
 
         js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
@@ -428,7 +428,7 @@ class Editor:
 
     def fonts(self):
         return [
-            (gui_hooks.editor_font_for_field_filter(f["font"]), f["size"], f["rtl"])
+            (gui_hooks.editor_font_for_field(f["font"]), f["size"], f["rtl"])
             for f in self.note.model()["flds"]
         ]
 
@@ -536,7 +536,7 @@ class Editor:
         self.tags.setText(self.mw.col.tags.join(self.note.tags).strip())
         if not self.addMode:
             self.note.flush()
-        gui_hooks.editor_tags_did_update_hook(self.note)
+        gui_hooks.editor_tags_did_update(self.note)
 
     def saveAddModeVars(self):
         if self.addMode:
@@ -1111,7 +1111,7 @@ class EditorWebView(AnkiWebView):
         a.triggered.connect(self.onCopy)
         a = m.addAction(_("Paste"))
         a.triggered.connect(self.onPaste)
-        gui_hooks.editor_context_menu_will_show_hook(self, m)
+        gui_hooks.editor_context_menu_will_show(self, m)
         m.popup(QCursor.pos())
 
 
@@ -1122,4 +1122,4 @@ def fontMungeHack(font):
     return re.sub(" L$", " Light", font)
 
 
-gui_hooks.editor_font_for_field_filter.append(fontMungeHack)
+gui_hooks.editor_font_for_field.append(fontMungeHack)
