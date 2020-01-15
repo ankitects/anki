@@ -87,7 +87,7 @@ class ModelChooser(QHBoxLayout):
         cdeck = self.deck.decks.current()
         cdeck["mid"] = m["id"]
         self.deck.decks.save(cdeck)
-        gui_hooks.current_note_type_changed_hook(current)
+        gui_hooks.current_note_type_did_change_hook(current)
         self.mw.reset()
 
     def updateModels(self):

@@ -13,7 +13,7 @@ from typing import List
 import aqt
 from anki import hooks
 from anki.cards import Card
-from anki.hooks import runFilter, runHook
+from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt, gui_hooks
@@ -188,7 +188,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
             playFromText(q)
         # render & update bottom
         q = self._mungeQA(q)
-        q = runFilter("prepareQA", q, c, "reviewQuestion")
+        q = gui_hooks.card_text_filter(q, c, "reviewQuestion")
 
         bodyclass = bodyClass(self.mw.col, c)
 
@@ -200,7 +200,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         if self.typeCorrect:
             self.mw.web.setFocus()
         # user hook
-        gui_hooks.reviewer_showing_question_hook(c)
+        gui_hooks.reviewer_question_did_show_hook(c)
 
     def autoplay(self, card):
         return self.mw.col.decks.confForDid(card.odid or card.did)["autoplay"]
@@ -230,12 +230,12 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         if self.autoplay(c):
             playFromText(a)
         a = self._mungeQA(a)
-        a = runFilter("prepareQA", a, c, "reviewAnswer")
+        a = gui_hooks.card_text_filter(a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
         # user hook
-        gui_hooks.reviewer_showing_answer_hook(c)
+        gui_hooks.reviewer_answer_did_show_hook(c)
 
     # Answering a card
     ############################################################
@@ -695,6 +695,7 @@ time = %(time)d;
         m = QMenu(self.mw)
         self._addMenuItems(m, opts)
 
+        gui_hooks.reviewer_context_menu_will_show_hook(self, m)
         runHook("Reviewer.contextMenuEvent", self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())

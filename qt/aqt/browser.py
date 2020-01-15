@@ -639,7 +639,7 @@ class Browser(QMainWindow):
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         self.pgDownCut.activated.connect(self.onLastCard)
         # add-on hook
-        gui_hooks.browser_setup_menus_hook(self)
+        gui_hooks.browser_menus_did_setup_hook(self)
         self.mw.maybeHideAccelerators(self)
 
         # context menu
@@ -653,7 +653,7 @@ class Browser(QMainWindow):
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-        gui_hooks.browser_context_menu_hook(self, m)
+        gui_hooks.browser_context_menu_will_show_hook(self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
@@ -844,7 +844,7 @@ class Browser(QMainWindow):
             self.editor.card = self.card
             self.singleCard = True
         self._updateFlagsMenu()
-        gui_hooks.browser_row_changed_hook(self)
+        gui_hooks.browser_row_did_change_hook(self)
         self._renderPreview(True)
 
     def refreshCurrentCard(self, note):
