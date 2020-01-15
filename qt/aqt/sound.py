@@ -11,7 +11,6 @@ import threading
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from anki.hooks import addHook
 from anki.lang import _
 from anki.sound import allSounds
 from anki.utils import isLin, isMac, isWin, tmpdir
@@ -378,7 +377,7 @@ def stopMplayer(*args) -> None:
         cleanupOldMplayerProcesses()
 
 
-addHook("unloadProfile", stopMplayer)
+gui_hooks.profile_will_close_hook.append(stopMplayer)
 
 # PyAudio recording
 ##########################################################################

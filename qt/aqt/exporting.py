@@ -6,8 +6,8 @@ import re
 import time
 
 import aqt
+from anki import hooks
 from anki.exporting import exporters
-from anki.hooks import addHook, remHook
 from anki.lang import _, ngettext
 from aqt.qt import *
 from aqt.utils import checkInvalidFilename, getSaveFile, showInfo, showWarning, tooltip
@@ -132,9 +132,9 @@ class ExportDialog(QDialog):
                     )
                     % cnt
                 )
-                addHook("exportedMediaFiles", exportedMedia)
+                hooks.exported_media_files_hook.append(exportedMedia)
                 self.exporter.exportInto(file)
-                remHook("exportedMediaFiles", exportedMedia)
+                hooks.exported_media_files_hook.remove(exportedMedia)
                 period = 3000
                 if self.isVerbatim:
                     msg = _("Collection exported.")

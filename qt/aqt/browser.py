@@ -13,9 +13,9 @@ from typing import Callable, List, Optional
 
 import anki
 import aqt.forms
+from anki import hooks
 from anki.collection import _Collection
 from anki.consts import *
-from anki.hooks import addHook, remHook
 from anki.lang import _, ngettext
 from anki.utils import (
     bodyClass,
@@ -2020,22 +2020,24 @@ update cards set usn=?, mod=?, did=? where id in """
     ######################################################################
 
     def setupHooks(self):
-        addHook("undoState", self.onUndoState)
-        addHook("reset", self.onReset)
-        addHook("editTimer", self.refreshCurrentCard)
-        addHook("loadNote", self.onLoadNote)
-        addHook("editFocusLost", self.refreshCurrentCardFilter)
-        for t in "newTag", "newModel", "newDeck":
-            addHook(t, self.maybeRefreshSidebar)
+        gui_hooks.undo_state_did_change_hook.append(self.onUndoState)
+        gui_hooks.state_did_reset_hook.append(self.onReset)
+        gui_hooks.editor_typing_timer_did_fire_hook.append(self.refreshCurrentCard)
+        gui_hooks.editor_note_did_load_hook.append(self.onLoadNote)
+        gui_hooks.editor_field_did_lose_focus_filter.append(self.refreshCurrentCard)
+        hooks.tag_created_hook.append(self.maybeRefreshSidebar)
+        hooks.note_type_created_hook.append(self.maybeRefreshSidebar)
+        hooks.deck_created_hook.append(self.maybeRefreshSidebar)
 
     def teardownHooks(self):
-        remHook("reset", self.onReset)
-        remHook("editTimer", self.refreshCurrentCard)
-        remHook("loadNote", self.onLoadNote)
-        remHook("editFocusLost", self.refreshCurrentCardFilter)
-        remHook("undoState", self.onUndoState)
-        for t in "newTag", "newModel", "newDeck":
-            remHook(t, self.maybeRefreshSidebar)
+        gui_hooks.undo_state_did_change_hook.remove(self.onUndoState)
+        gui_hooks.state_did_reset_hook.remove(self.onReset)
+        gui_hooks.editor_typing_timer_did_fire_hook.remove(self.refreshCurrentCard)
+        gui_hooks.editor_note_did_load_hook.remove(self.onLoadNote)
+        gui_hooks.editor_field_did_lose_focus_filter.remove(self.refreshCurrentCard)
+        hooks.tag_created_hook.remove(self.maybeRefreshSidebar)
+        hooks.note_type_created_hook.remove(self.maybeRefreshSidebar)
+        hooks.deck_created_hook.remove(self.maybeRefreshSidebar)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
@@ -2269,8 +2271,8 @@ class ChangeModel(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setup()
         restoreGeom(self, "changeModel")
-        addHook("reset", self.onReset)
-        addHook("currentModelChanged", self.onReset)
+        gui_hooks.state_did_reset_hook.append(self.onReset)
+        gui_hooks.current_note_type_did_change_hook.append(self.onReset)
         self.exec_()
 
     def setup(self):
@@ -2393,8 +2395,8 @@ class ChangeModel(QDialog):
         )
 
     def cleanup(self):
-        remHook("reset", self.onReset)
-        remHook("currentModelChanged", self.onReset)
+        gui_hooks.state_did_reset_hook.remove(self.onReset)
+        gui_hooks.current_note_type_did_change_hook.remove(self.onReset)
         self.modelChooser.cleanup()
         saveGeom(self, "changeModel")
 

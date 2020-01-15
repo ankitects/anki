@@ -26,7 +26,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki.collection import _Collection
-from anki.hooks import addHook, runHook
+from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -1154,7 +1154,7 @@ Difference to correct time: %s."""
 
     def setupHooks(self) -> None:
         hooks.mod_schema_filter.append(self.onSchemaMod)
-        addHook("remNotes", self.onRemNotes)
+        hooks.remove_notes_hook.append(self.onRemNotes)
         hooks.odue_invalid_hook.append(self.onOdueInvalid)
 
         gui_hooks.mpv_will_play_hook.append(self.on_mpv_will_play)
