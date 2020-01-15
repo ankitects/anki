@@ -116,7 +116,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     def joinedFields(self) -> str:
         return joinFields(self.fields)
 
-    def cards(self) -> List:
+    def cards(self) -> List[anki.cards.Card]:
         return [
             self.col.getCard(id)
             for id in self.col.db.list(

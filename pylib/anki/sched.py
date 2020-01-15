@@ -6,12 +6,12 @@ import random
 import time
 from heapq import *
 from operator import itemgetter
-from typing import List, Set
+from typing import List, Optional, Set
 
 from anki import hooks
+from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
-
 from anki.utils import fmtTimeSpan, ids2str, intTime
 
 # queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
@@ -37,7 +37,7 @@ class Scheduler:
         self._haveQueues = False
         self._updateCutoff()
 
-    def getCard(self):
+    def getCard(self) -> Optional[Card]:
         "Pop the next card from the queue. None if finished."
         self._checkDay()
         if not self._haveQueues:
@@ -50,6 +50,7 @@ class Scheduler:
             self.reps += 1
             card.startTimer()
             return card
+        return None
 
     def reset(self):
         self._updateCutoff()
