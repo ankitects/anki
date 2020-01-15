@@ -86,7 +86,7 @@ class ImportDialog(QDialog):
         self.setupOptions()
         self.modelChanged()
         self.frm.autoDetect.setVisible(self.importer.needDelimiter)
-        gui_hooks.current_note_type_did_change_hook.append(self.modelChanged)
+        gui_hooks.current_note_type_did_change.append(self.modelChanged)
         self.frm.autoDetect.clicked.connect(self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
@@ -280,7 +280,7 @@ you can enter it here. Use \\t to represent tab."""
     def reject(self):
         self.modelChooser.cleanup()
         self.deck.cleanup()
-        gui_hooks.current_note_type_did_change_hook.remove(self.modelChanged)
+        gui_hooks.current_note_type_did_change.remove(self.modelChanged)
         QDialog.reject(self)
 
     def helpRequested(self):

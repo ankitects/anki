@@ -184,4 +184,4 @@ def _errMsg(type: str, texpath: str) -> Any:
 
 
 # setup q/a filter - type ignored due to import cycle
-hooks.card_template_did_render_filter.append(mungeQA)  # type: ignore
+hooks.card_template_did_render.append(mungeQA)  # type: ignore

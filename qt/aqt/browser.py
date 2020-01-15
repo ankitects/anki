@@ -639,7 +639,7 @@ class Browser(QMainWindow):
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         self.pgDownCut.activated.connect(self.onLastCard)
         # add-on hook
-        gui_hooks.browser_menus_did_setup_hook(self)
+        gui_hooks.browser_menus_did_setup(self)
         self.mw.maybeHideAccelerators(self)
 
         # context menu
@@ -653,7 +653,7 @@ class Browser(QMainWindow):
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-        gui_hooks.browser_context_menu_will_show_hook(self, m)
+        gui_hooks.browser_context_menu_will_show(self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
@@ -844,7 +844,7 @@ class Browser(QMainWindow):
             self.editor.card = self.card
             self.singleCard = True
         self._updateFlagsMenu()
-        gui_hooks.browser_row_did_change_hook(self)
+        gui_hooks.browser_row_did_change(self)
         self._renderPreview(True)
 
     def refreshCurrentCard(self, note):
@@ -1716,9 +1716,7 @@ where id in %s"""
                         play(audio)
 
             txt = mungeQA(self.col, txt)
-            gui_hooks.card_text_filter(
-                txt, c, "preview" + self._previewState.capitalize()
-            )
+            gui_hooks.card_text(txt, c, "preview" + self._previewState.capitalize())
             self._lastPreviewState = self._previewStateAndMod()
         self._updatePreviewButtons()
         self._previewWeb.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
@@ -2020,24 +2018,24 @@ update cards set usn=?, mod=?, did=? where id in """
     ######################################################################
 
     def setupHooks(self):
-        gui_hooks.undo_state_did_change_hook.append(self.onUndoState)
-        gui_hooks.state_did_reset_hook.append(self.onReset)
-        gui_hooks.editor_typing_timer_did_fire_hook.append(self.refreshCurrentCard)
-        gui_hooks.editor_note_did_load_hook.append(self.onLoadNote)
-        gui_hooks.editor_field_did_lose_focus_filter.append(self.refreshCurrentCard)
-        hooks.tag_did_create_hook.append(self.maybeRefreshSidebar)
-        hooks.note_type_did_create_hook.append(self.maybeRefreshSidebar)
-        hooks.deck_did_create_hook.append(self.maybeRefreshSidebar)
+        gui_hooks.undo_state_did_change.append(self.onUndoState)
+        gui_hooks.state_did_reset.append(self.onReset)
+        gui_hooks.editor_typing_timer_did_fire.append(self.refreshCurrentCard)
+        gui_hooks.editor_note_did_load.append(self.onLoadNote)
+        gui_hooks.editor_field_did_lose_focus.append(self.refreshCurrentCard)
+        hooks.tag_did_create.append(self.maybeRefreshSidebar)
+        hooks.note_type_did_create.append(self.maybeRefreshSidebar)
+        hooks.deck_did_create.append(self.maybeRefreshSidebar)
 
     def teardownHooks(self):
-        gui_hooks.undo_state_did_change_hook.remove(self.onUndoState)
-        gui_hooks.state_did_reset_hook.remove(self.onReset)
-        gui_hooks.editor_typing_timer_did_fire_hook.remove(self.refreshCurrentCard)
-        gui_hooks.editor_note_did_load_hook.remove(self.onLoadNote)
-        gui_hooks.editor_field_did_lose_focus_filter.remove(self.refreshCurrentCard)
-        hooks.tag_did_create_hook.remove(self.maybeRefreshSidebar)
-        hooks.note_type_did_create_hook.remove(self.maybeRefreshSidebar)
-        hooks.deck_did_create_hook.remove(self.maybeRefreshSidebar)
+        gui_hooks.undo_state_did_change.remove(self.onUndoState)
+        gui_hooks.state_did_reset.remove(self.onReset)
+        gui_hooks.editor_typing_timer_did_fire.remove(self.refreshCurrentCard)
+        gui_hooks.editor_note_did_load.remove(self.onLoadNote)
+        gui_hooks.editor_field_did_lose_focus.remove(self.refreshCurrentCard)
+        hooks.tag_did_create.remove(self.maybeRefreshSidebar)
+        hooks.note_type_did_create.remove(self.maybeRefreshSidebar)
+        hooks.deck_did_create.remove(self.maybeRefreshSidebar)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)
@@ -2271,8 +2269,8 @@ class ChangeModel(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setup()
         restoreGeom(self, "changeModel")
-        gui_hooks.state_did_reset_hook.append(self.onReset)
-        gui_hooks.current_note_type_did_change_hook.append(self.onReset)
+        gui_hooks.state_did_reset.append(self.onReset)
+        gui_hooks.current_note_type_did_change.append(self.onReset)
         self.exec_()
 
     def setup(self):
@@ -2395,8 +2393,8 @@ class ChangeModel(QDialog):
         )
 
     def cleanup(self):
-        gui_hooks.state_did_reset_hook.remove(self.onReset)
-        gui_hooks.current_note_type_did_change_hook.remove(self.onReset)
+        gui_hooks.state_did_reset.remove(self.onReset)
+        gui_hooks.current_note_type_did_change.remove(self.onReset)
         self.modelChooser.cleanup()
         saveGeom(self, "changeModel")
 

@@ -84,7 +84,7 @@ class {self.classname()}:
         if cb in self._hooks:
             self._hooks.remove(cb)
 {self.fire_code()}
-{self.full_name()} = {self.classname()}()
+{self.name} = {self.classname()}()
 """
         return code
 

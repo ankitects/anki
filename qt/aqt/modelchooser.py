@@ -18,7 +18,7 @@ class ModelChooser(QHBoxLayout):
         self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
         self.setupModels()
-        gui_hooks.state_did_reset_hook.append(self.onReset)
+        gui_hooks.state_did_reset.append(self.onReset)
         self.widget.setLayout(self)
 
     def setupModels(self):
@@ -41,7 +41,7 @@ class ModelChooser(QHBoxLayout):
         self.updateModels()
 
     def cleanup(self):
-        gui_hooks.state_did_reset_hook.remove(self.onReset)
+        gui_hooks.state_did_reset.remove(self.onReset)
 
     def onReset(self):
         self.updateModels()
@@ -86,7 +86,7 @@ class ModelChooser(QHBoxLayout):
         cdeck = self.deck.decks.current()
         cdeck["mid"] = m["id"]
         self.deck.decks.save(cdeck)
-        gui_hooks.current_note_type_did_change_hook(current)
+        gui_hooks.current_note_type_did_change(current)
         self.mw.reset()
 
     def updateModels(self):

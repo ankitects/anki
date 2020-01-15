@@ -341,7 +341,7 @@ close the profile or restart Anki."""
             else:
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
-        gui_hooks.profile_did_open_hook()
+        gui_hooks.profile_did_open()
         if onsuccess:
             onsuccess()
 
@@ -350,7 +350,7 @@ close the profile or restart Anki."""
             self._unloadProfile()
             onsuccess()
 
-        gui_hooks.profile_will_close_hook()
+        gui_hooks.profile_will_close()
         self.unloadCollection(callback)
 
     def _unloadProfile(self) -> None:
@@ -560,11 +560,11 @@ from the profile screen."
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state
-        gui_hooks.state_will_change_hook(state, oldState)
+        gui_hooks.state_will_change(state, oldState)
         getattr(self, "_" + state + "State")(oldState, *args)
         if state != "resetRequired":
             self.bottomWeb.show()
-        gui_hooks.state_did_change_hook(state, oldState)
+        gui_hooks.state_did_change(state, oldState)
 
     def _deckBrowserState(self, oldState: str) -> None:
         self.deckBrowser.show()
@@ -574,7 +574,7 @@ from the profile screen."
         self.enableColMenuItems()
         # ensure cwd is set if media dir exists
         self.col.media.dir()
-        gui_hooks.collection_did_load_hook(self.col)
+        gui_hooks.collection_did_load(self.col)
         self.moveToState("overview")
 
     def _selectedDeck(self) -> Optional[Dict[str, Any]]:
@@ -605,7 +605,7 @@ from the profile screen."
         if self.col:
             if not guiOnly:
                 self.col.reset()
-            gui_hooks.state_did_reset_hook()
+            gui_hooks.state_did_reset()
             self.maybeEnableUndo()
             self.moveToState(self.state)
 
@@ -847,7 +847,7 @@ QTreeWidget {
             """
 
         # allow addons to modify the styling
-        buf = gui_hooks.style_did_setup_filter(buf)
+        buf = gui_hooks.style_did_setup(buf)
 
         # allow users to extend styling
         p = os.path.join(aqt.mw.pm.base, "style.css")
@@ -884,7 +884,7 @@ QTreeWidget {
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts: List[Tuple[str, Callable]]) -> None:
-        gui_hooks.state_shortcuts_will_change_hook(self.state, shortcuts)
+        gui_hooks.state_shortcuts_will_change(self.state, shortcuts)
         # legacy hook
         runHook(self.state + "StateShortcuts", shortcuts)
         self.stateShortcuts = self.applyShortcuts(shortcuts)
@@ -928,22 +928,22 @@ QTreeWidget {
             self.col.sched.reset()
             self.reviewer.cardQueue.append(card)
             self.reviewer.nextCard()
-            gui_hooks.review_did_undo_hook(cid)
+            gui_hooks.review_did_undo(cid)
         else:
             self.reset()
             tooltip(_("Reverted to state prior to '%s'.") % n.lower())
-            gui_hooks.state_did_revert_hook(n)
+            gui_hooks.state_did_revert(n)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
         if self.col and self.col.undoName():
             self.form.actionUndo.setText(_("Undo %s") % self.col.undoName())
             self.form.actionUndo.setEnabled(True)
-            gui_hooks.undo_state_did_change_hook(True)
+            gui_hooks.undo_state_did_change(True)
         else:
             self.form.actionUndo.setText(_("Undo"))
             self.form.actionUndo.setEnabled(False)
-            gui_hooks.undo_state_did_change_hook(False)
+            gui_hooks.undo_state_did_change(False)
 
     def checkpoint(self, name):
         self.col.save(name)
@@ -1153,12 +1153,12 @@ Difference to correct time: %s."""
     ##########################################################################
 
     def setupHooks(self) -> None:
-        hooks.schema_will_change_filter.append(self.onSchemaMod)
-        hooks.notes_will_delete_hook.append(self.onRemNotes)
-        hooks.card_odue_was_invalid_hook.append(self.onOdueInvalid)
+        hooks.schema_will_change.append(self.onSchemaMod)
+        hooks.notes_will_delete.append(self.onRemNotes)
+        hooks.card_odue_was_invalid.append(self.onOdueInvalid)
 
-        gui_hooks.mpv_will_play_hook.append(self.on_mpv_will_play)
-        gui_hooks.mpv_did_idle_hook.append(self.on_mpv_idle)
+        gui_hooks.mpv_will_play.append(self.on_mpv_will_play)
+        gui_hooks.mpv_did_idle.append(self.on_mpv_idle)
 
         self._activeWindowOnPlay: Optional[QWidget] = None
 

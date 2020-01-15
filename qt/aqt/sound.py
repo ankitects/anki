@@ -157,7 +157,7 @@ class MpvManager(MPV):
         super().__init__(window_id=None, debug=False)
 
     def queueFile(self, file: str) -> None:
-        gui_hooks.mpv_will_play_hook(file)
+        gui_hooks.mpv_will_play(file)
 
         path = os.path.join(os.getcwd(), file)
         self.command("loadfile", path, "append-play")
@@ -172,7 +172,7 @@ class MpvManager(MPV):
         self.command("seek", secs, "relative")
 
     def on_idle(self) -> None:
-        gui_hooks.mpv_did_idle_hook()
+        gui_hooks.mpv_did_idle()
 
 
 def setMpvConfigBase(base) -> None:
@@ -377,7 +377,7 @@ def stopMplayer(*args) -> None:
         cleanupOldMplayerProcesses()
 
 
-gui_hooks.profile_will_close_hook.append(stopMplayer)
+gui_hooks.profile_will_close.append(stopMplayer)
 
 # PyAudio recording
 ##########################################################################

@@ -32,7 +32,7 @@ class StudyDeck(QDialog):
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
         self.cancel = cancel
-        gui_hooks.state_did_reset_hook.append(self.onReset)
+        gui_hooks.state_did_reset.append(self.onReset)
         self.geomKey = "studyDeck-" + geomKey
         restoreGeom(self, self.geomKey)
         if not cancel:
@@ -120,7 +120,7 @@ class StudyDeck(QDialog):
 
     def accept(self):
         saveGeom(self, self.geomKey)
-        gui_hooks.state_did_reset_hook.remove(self.onReset)
+        gui_hooks.state_did_reset.remove(self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
             showInfo(_("Please select something."))
@@ -130,7 +130,7 @@ class StudyDeck(QDialog):
 
     def reject(self):
         saveGeom(self, self.geomKey)
-        gui_hooks.state_did_reset_hook.remove(self.onReset)
+        gui_hooks.state_did_reset.remove(self.onReset)
         QDialog.reject(self)
 
     def onAddDeck(self):
@@ -144,5 +144,5 @@ class StudyDeck(QDialog):
             self.mw.col.decks.id(n)
             self.name = n
             # make sure we clean up reset hook when manually exiting
-            gui_hooks.state_did_reset_hook.remove(self.onReset)
+            gui_hooks.state_did_reset.remove(self.onReset)
             QDialog.accept(self)

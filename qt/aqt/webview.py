@@ -182,7 +182,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         m = QMenu(self)
         a = m.addAction(_("Copy"))
         a.triggered.connect(self.onCopy)
-        gui_hooks.webview_context_menu_will_show_hook(self, m)
+        gui_hooks.webview_context_menu_will_show(self, m)
         m.popup(QCursor.pos())
 
     def dropEvent(self, evt):
