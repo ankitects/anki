@@ -51,7 +51,7 @@ hooks = [
     # Browser
     ###################
     Hook(
-        name="browser_menus_did_setup",
+        name="browser_menus_did_init",
         args=["browser: aqt.browser.Browser"],
         legacy_hook="browser.setupMenus",
     ),
@@ -112,7 +112,7 @@ hooks = [
     ),
     Hook(name="review_did_undo", args=["card_id: int"], legacy_hook="revertedCard"),
     Hook(
-        name="style_did_setup",
+        name="style_did_init",
         args=["style: str"],
         return_type="str",
         legacy_hook="setupStyle",
@@ -132,11 +132,11 @@ hooks = [
     # Editing
     ###################
     Hook(
-        name="editor_buttons_did_setup",
+        name="editor_buttons_did_init",
         args=["buttons: List", "editor: aqt.editor.Editor"],
     ),
     Hook(
-        name="editor_shortcuts_did_setup",
+        name="editor_shortcuts_did_init",
         args=["shortcuts: List[Tuple]", "editor: aqt.editor.Editor"],
         legacy_hook="setupEditorShortcuts",
     ),

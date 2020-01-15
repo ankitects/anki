@@ -639,7 +639,7 @@ class Browser(QMainWindow):
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         self.pgDownCut.activated.connect(self.onLastCard)
         # add-on hook
-        gui_hooks.browser_menus_did_setup(self)
+        gui_hooks.browser_menus_did_init(self)
         self.mw.maybeHideAccelerators(self)
 
         # context menu

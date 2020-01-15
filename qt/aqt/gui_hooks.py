@@ -101,7 +101,7 @@ class _BrowserContextMenuWillShowHook:
 browser_context_menu_will_show = _BrowserContextMenuWillShowHook()
 
 
-class _BrowserMenusDidSetupHook:
+class _BrowserMenusDidInitHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
     def append(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
@@ -124,7 +124,7 @@ class _BrowserMenusDidSetupHook:
         runHook("browser.setupMenus", browser)
 
 
-browser_menus_did_setup = _BrowserMenusDidSetupHook()
+browser_menus_did_init = _BrowserMenusDidInitHook()
 
 
 class _BrowserRowDidChangeHook:
@@ -260,7 +260,7 @@ class _DeckBrowserOptionsMenuWillShowHook:
 deck_browser_options_menu_will_show = _DeckBrowserOptionsMenuWillShowHook()
 
 
-class _EditorButtonsDidSetupHook:
+class _EditorButtonsDidInitHook:
     _hooks: List[Callable[[List, "aqt.editor.Editor"], None]] = []
 
     def append(self, cb: Callable[[List, "aqt.editor.Editor"], None]) -> None:
@@ -281,7 +281,7 @@ class _EditorButtonsDidSetupHook:
                 raise
 
 
-editor_buttons_did_setup = _EditorButtonsDidSetupHook()
+editor_buttons_did_init = _EditorButtonsDidInitHook()
 
 
 class _EditorContextMenuWillShowHook:
@@ -418,7 +418,7 @@ class _EditorNoteDidLoadHook:
 editor_note_did_load = _EditorNoteDidLoadHook()
 
 
-class _EditorShortcutsDidSetupHook:
+class _EditorShortcutsDidInitHook:
     _hooks: List[Callable[[List[Tuple], "aqt.editor.Editor"], None]] = []
 
     def append(self, cb: Callable[[List[Tuple], "aqt.editor.Editor"], None]) -> None:
@@ -441,7 +441,7 @@ class _EditorShortcutsDidSetupHook:
         runHook("setupEditorShortcuts", shortcuts, editor)
 
 
-editor_shortcuts_did_setup = _EditorShortcutsDidSetupHook()
+editor_shortcuts_did_init = _EditorShortcutsDidInitHook()
 
 
 class _EditorTagsDidUpdateHook:
@@ -862,7 +862,7 @@ class _StateWillChangeHook:
 state_will_change = _StateWillChangeHook()
 
 
-class _StyleDidSetupFilter:
+class _StyleDidInitFilter:
     _hooks: List[Callable[[str], str]] = []
 
     def append(self, cb: Callable[[str], str]) -> None:
@@ -886,7 +886,7 @@ class _StyleDidSetupFilter:
         return style
 
 
-style_did_setup = _StyleDidSetupFilter()
+style_did_init = _StyleDidInitFilter()
 
 
 class _UndoStateDidChangeHook:

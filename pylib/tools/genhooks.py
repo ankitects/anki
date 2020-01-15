@@ -59,15 +59,15 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
-        name="fields_will_render",
-        args=["fields: Dict[str, str]", "notetype: Dict[str, Any]", "data: QAData",],
-        doc="Can modify the available fields prior to rendering.",
-    ),
-    Hook(
         name="card_template_will_render",
-        args=["template: str", "question_side: bool"],
-        return_type="str",
-        doc="Can modify the the card template used for rendering.",
+        args=[
+            "templates: Tuple[str, str]",
+            "fields: Dict[str, str]",
+            "notetype: Dict[str, Any]",
+            "data: QAData",
+        ],
+        return_type="Tuple[str, str]",
+        doc="Can modify the available fields and question/answer templates prior to rendering.",
     ),
     Hook(
         name="card_template_did_render",
@@ -86,7 +86,7 @@ hooks = [
         doc="Can modify the resulting text after rendering completes.",
     ),
     Hook(
-        name="card_template_filter_will_apply",
+        name="field_will_be_filtered",
         args=[
             "field_text: str",
             "field_name: str",

@@ -153,55 +153,48 @@ class _CardTemplateDidRenderFilter:
 card_template_did_render = _CardTemplateDidRenderFilter()
 
 
-class _CardTemplateFilterWillApplyFilter:
-    _hooks: List[Callable[[str, str, str, Dict[str, str]], str]] = []
+class _CardTemplateWillRenderFilter:
+    """Can modify the available fields and question/answer templates prior to rendering."""
 
-    def append(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
-        """(field_text: str, field_name: str, filter_name: str, fields: Dict[str, str])"""
+    _hooks: List[
+        Callable[
+            [Tuple[str, str], Dict[str, str], Dict[str, Any], QAData], Tuple[str, str]
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [Tuple[str, str], Dict[str, str], Dict[str, Any], QAData], Tuple[str, str]
+        ],
+    ) -> None:
+        """(templates: Tuple[str, str], fields: Dict[str, str], notetype: Dict[str, Any], data: QAData)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
+    def remove(
+        self,
+        cb: Callable[
+            [Tuple[str, str], Dict[str, str], Dict[str, Any], QAData], Tuple[str, str]
+        ],
+    ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def __call__(
-        self, field_text: str, field_name: str, filter_name: str, fields: Dict[str, str]
-    ) -> str:
+        self,
+        templates: Tuple[str, str],
+        fields: Dict[str, str],
+        notetype: Dict[str, Any],
+        data: QAData,
+    ) -> Tuple[str, str]:
         for filter in self._hooks:
             try:
-                field_text = filter(field_text, field_name, filter_name, fields)
+                templates = filter(templates, fields, notetype, data)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(filter)
                 raise
-        return field_text
-
-
-card_template_filter_will_apply = _CardTemplateFilterWillApplyFilter()
-
-
-class _CardTemplateWillRenderFilter:
-    """Can modify the the card template used for rendering."""
-
-    _hooks: List[Callable[[str, bool], str]] = []
-
-    def append(self, cb: Callable[[str, bool], str]) -> None:
-        """(template: str, question_side: bool)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[str, bool], str]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, template: str, question_side: bool) -> str:
-        for filter in self._hooks:
-            try:
-                template = filter(template, question_side)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return template
+        return templates
 
 
 card_template_will_render = _CardTemplateWillRenderFilter()
@@ -259,36 +252,31 @@ class _ExportersListDidCreateHook:
 exporters_list_did_create = _ExportersListDidCreateHook()
 
 
-class _FieldsWillRenderHook:
-    """Can modify the available fields prior to rendering."""
+class _FieldWillBeFilteredFilter:
+    _hooks: List[Callable[[str, str, str, Dict[str, str]], str]] = []
 
-    _hooks: List[Callable[[Dict[str, str], Dict[str, Any], QAData], None]] = []
-
-    def append(
-        self, cb: Callable[[Dict[str, str], Dict[str, Any], QAData], None]
-    ) -> None:
-        """(fields: Dict[str, str], notetype: Dict[str, Any], data: QAData)"""
+    def append(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
+        """(field_text: str, field_name: str, filter_name: str, fields: Dict[str, str])"""
         self._hooks.append(cb)
 
-    def remove(
-        self, cb: Callable[[Dict[str, str], Dict[str, Any], QAData], None]
-    ) -> None:
+    def remove(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def __call__(
-        self, fields: Dict[str, str], notetype: Dict[str, Any], data: QAData
-    ) -> None:
-        for hook in self._hooks:
+        self, field_text: str, field_name: str, filter_name: str, fields: Dict[str, str]
+    ) -> str:
+        for filter in self._hooks:
             try:
-                hook(fields, notetype, data)
+                field_text = filter(field_text, field_name, filter_name, fields)
             except:
                 # if the hook fails, remove it
-                self._hooks.remove(hook)
+                self._hooks.remove(filter)
                 raise
+        return field_text
 
 
-fields_will_render = _FieldsWillRenderHook()
+field_will_be_filtered = _FieldWillBeFilteredFilter()
 
 
 class _HttpDataDidReceiveHook:
