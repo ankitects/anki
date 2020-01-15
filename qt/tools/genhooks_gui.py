@@ -17,8 +17,8 @@ from tools.hookslib import Hook, update_file
 ######################################################################
 
 hooks = [
-    Hook(name="mpv_did_idle"),
-    Hook(name="mpv_will_play", args=["file: str"], legacy_hook="mpvWillPlay"),
+    # Reviewing
+    ###################
     Hook(
         name="reviewer_question_did_show",
         args=["card: Card"],
@@ -32,11 +32,24 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
-        name="current_note_type_did_change",
-        args=["notetype: Dict[str, Any]"],
-        legacy_hook="currentModelChanged",
-        legacy_no_args=True,
+        name="reviewer_context_menu_will_show",
+        args=["reviewer: aqt.reviewer.Reviewer", "menu: QMenu"],
+        legacy_hook="Reviewer.contextMenuEvent",
     ),
+    Hook(
+        name="reviewer_will_end",
+        legacy_hook="reviewCleanup",
+        doc="Called before Anki transitions from the review screen to another screen.",
+    ),
+    Hook(
+        name="card_text",
+        args=["text: str", "card: Card", "kind: str"],
+        return_type="str",
+        legacy_hook="prepareQA",
+        doc="Can modify card text before review/preview.",
+    ),
+    # Browser
+    ###################
     Hook(
         name="browser_menus_did_setup",
         args=["browser: aqt.browser.Browser"],
@@ -53,23 +66,12 @@ hooks = [
         legacy_hook="browser.rowChanged",
     ),
     Hook(
-        name="card_text",
-        args=["text: str", "card: Card", "kind: str"],
-        return_type="str",
-        legacy_hook="prepareQA",
-    ),
-    Hook(
         name="webview_context_menu_will_show",
         args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
         legacy_hook="AnkiWebView.contextMenuEvent",
     ),
-    Hook(
-        name="reviewer_context_menu_will_show",
-        args=["reviewer: aqt.reviewer.Reviewer", "menu: QMenu"],
-        legacy_hook="Reviewer.contextMenuEvent",
-    ),
-    Hook(name="profile_did_open", legacy_hook="profileLoaded"),
-    Hook(name="profile_will_close", legacy_hook="unloadProfile"),
+    # States
+    ###################
     Hook(
         name="state_will_change",
         args=["new_state: str", "old_state: str"],
@@ -86,11 +88,6 @@ hooks = [
         args=["state: str", "shortcuts: List[Tuple[str, Callable]]"],
     ),
     Hook(
-        name="collection_did_load",
-        args=["col: anki.storage._Collection"],
-        legacy_hook="colLoading",
-    ),
-    Hook(
         name="state_did_revert",
         args=["action: str"],
         legacy_hook="revertedState",
@@ -100,6 +97,15 @@ hooks = [
         name="state_did_reset",
         legacy_hook="reset",
         doc="Called when the interface needs to be redisplayed after non-trivial changes have been made.",
+    ),
+    # Main
+    ###################
+    Hook(name="profile_did_open", legacy_hook="profileLoaded"),
+    Hook(name="profile_will_close", legacy_hook="unloadProfile"),
+    Hook(
+        name="collection_did_load",
+        args=["col: anki.storage._Collection"],
+        legacy_hook="colLoading",
     ),
     Hook(
         name="undo_state_did_change", args=["can_undo: bool"], legacy_hook="undoState"
@@ -111,6 +117,8 @@ hooks = [
         return_type="str",
         legacy_hook="setupStyle",
     ),
+    # Adding cards
+    ###################
     Hook(
         name="add_cards_history_menu_will_show",
         args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
@@ -121,12 +129,8 @@ hooks = [
         args=["note: anki.notes.Note"],
         legacy_hook="AddCards.noteAdded",
     ),
-    Hook(
-        name="deck_browser_options_menu_will_show",
-        args=["menu: QMenu", "deck_id: int"],
-        legacy_hook="showDeckOptions",
-    ),
-    # no return like setupEditorButtons
+    # Editing
+    ###################
     Hook(
         name="editor_buttons_did_setup",
         args=["buttons: List", "editor: aqt.editor.Editor"],
@@ -173,10 +177,21 @@ hooks = [
         return_type="str",
         legacy_hook="mungeEditingFontName",
     ),
-    #
-    # aqt/reviewer.py
-    # 66:        runHook("reviewCleanup")
-    #
+    # Other
+    ###################
+    Hook(name="mpv_did_idle"),
+    Hook(name="mpv_will_play", args=["file: str"], legacy_hook="mpvWillPlay"),
+    Hook(
+        name="current_note_type_did_change",
+        args=["notetype: Dict[str, Any]"],
+        legacy_hook="currentModelChanged",
+        legacy_no_args=True,
+    ),
+    Hook(
+        name="deck_browser_options_menu_will_show",
+        args=["menu: QMenu", "deck_id: int"],
+        legacy_hook="showDeckOptions",
+    ),
 ]
 
 if __name__ == "__main__":

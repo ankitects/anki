@@ -149,6 +149,8 @@ browser_row_did_change_hook = _BrowserRowDidChangeHook()
 
 
 class _CardTextFilter:
+    """Can modify card text before review/preview."""
+
     _hooks: List[Callable[[str, Card, str], str]] = []
 
     def append(self, cb: Callable[[str, Card, str], str]) -> None:
@@ -672,6 +674,33 @@ class _ReviewerQuestionDidShowHook:
 
 
 reviewer_question_did_show_hook = _ReviewerQuestionDidShowHook()
+
+
+class _ReviewerWillEndHook:
+    """Called before Anki transitions from the review screen to another screen."""
+
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("reviewCleanup")
+
+
+reviewer_will_end_hook = _ReviewerWillEndHook()
 
 
 class _StateDidChangeHook:
