@@ -6,12 +6,12 @@ import random
 import time
 from heapq import *
 from operator import itemgetter
+from typing import List, Set
 
 from anki import hooks
 from anki.consts import *
 from anki.lang import _
 
-# from anki.cards import Card
 from anki.utils import fmtTimeSpan, ids2str, intTime
 
 # queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
@@ -30,6 +30,9 @@ class Scheduler:
         self.queueLimit = 50
         self.reportLimit = 1000
         self.reps = 0
+        self.lrnCount = 0
+        self.revCount = 0
+        self.newCount = 0
         self.today = None
         self._haveQueues = False
         self._updateCutoff()
@@ -191,7 +194,7 @@ order by due"""
 
     def _walkingCount(self, limFn=None, cntFn=None):
         tot = 0
-        pcounts = {}
+        pcounts: Dict[int, int] = {}
         # for each of the active decks
         nameMap = self.col.decks.nameMap()
         for did in self.col.decks.active():
@@ -229,7 +232,7 @@ order by due"""
         self.col.decks.checkIntegrity()
         decks = self.col.decks.all()
         decks.sort(key=itemgetter("name"))
-        lims = {}
+        lims: Dict[str, List[int]] = {}
         data = []
 
         def parent(name):
@@ -278,7 +281,7 @@ order by due"""
             return grp[0][0]
 
         for (head, tail) in itertools.groupby(grps, key=key):
-            tail = list(tail)
+            tail = list(tail)  # type: ignore
             did = None
             rev = 0
             new = 0
@@ -1529,7 +1532,7 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
         scids = ids2str(cids)
         now = intTime()
         nids = []
-        nidsSet = set()
+        nidsSet: Set[int] = set()
         for id in cids:
             nid = self.col.db.scalar("select nid from cards where id = ?", id)
             if nid not in nidsSet:

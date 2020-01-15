@@ -6,7 +6,7 @@ from anki.importing.apkg import AnkiPackageImporter
 from anki.importing.csvfile import TextImporter
 from anki.importing.mnemo import MnemosyneImporter
 from anki.importing.pauker import PaukerImporter
-from anki.importing.supermemo_xml import SupermemoXmlImporter
+from anki.importing.supermemo_xml import SupermemoXmlImporter  # type: ignore
 from anki.lang import _
 
 Importers = (
