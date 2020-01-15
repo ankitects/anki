@@ -55,7 +55,7 @@ class Syncer:
         self.col.save()
 
         # step 1: login & metadata
-        hooks.sync_stage_hook("login")
+        hooks.sync_stage_did_change_hook("login")
         meta = self.server.meta()
         self.col.log("rmeta", meta)
         if not meta:
@@ -95,7 +95,7 @@ class Syncer:
             self.col.log("basic check")
             return "basicCheckFailed"
         # step 2: startup and deletions
-        hooks.sync_stage_hook("meta")
+        hooks.sync_stage_did_change_hook("meta")
         rrem = self.server.start(
             minUsn=self.minUsn, lnewer=self.lnewer, offset=self.col.localOffset()
         )
@@ -118,31 +118,31 @@ class Syncer:
             self.server.abort()
             return self._forceFullSync()
         # step 3: stream large tables from server
-        hooks.sync_stage_hook("server")
+        hooks.sync_stage_did_change_hook("server")
         while 1:
-            hooks.sync_stage_hook("stream")
+            hooks.sync_stage_did_change_hook("stream")
             chunk = self.server.chunk()
             self.col.log("server chunk", chunk)
             self.applyChunk(chunk=chunk)
             if chunk["done"]:
                 break
         # step 4: stream to server
-        hooks.sync_stage_hook("client")
+        hooks.sync_stage_did_change_hook("client")
         while 1:
-            hooks.sync_stage_hook("stream")
+            hooks.sync_stage_did_change_hook("stream")
             chunk = self.chunk()
             self.col.log("client chunk", chunk)
             self.server.applyChunk(chunk=chunk)
             if chunk["done"]:
                 break
         # step 5: sanity check
-        hooks.sync_stage_hook("sanity")
+        hooks.sync_stage_did_change_hook("sanity")
         c = self.sanityCheck()
         ret = self.server.sanityCheck2(client=c)
         if ret["status"] != "ok":
             return self._forceFullSync()
         # finalize
-        hooks.sync_stage_hook("finalize")
+        hooks.sync_stage_did_change_hook("finalize")
         mod = self.server.finish()
         self.finish(mod)
         return "success"
@@ -501,7 +501,7 @@ class AnkiRequestsClient:
 
         buf = io.BytesIO()
         for chunk in resp.iter_content(chunk_size=HTTP_BUF_SIZE):
-            hooks.http_data_received_hook(len(chunk))
+            hooks.http_data_did_receive_hook(len(chunk))
             buf.write(chunk)
         return buf.getvalue()
 
@@ -523,7 +523,7 @@ if os.environ.get("ANKI_NOVERIFYSSL"):
 class _MonitoringFile(io.BufferedReader):
     def read(self, size=-1) -> bytes:
         data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
-        hooks.http_data_sent_hook(len(data))
+        hooks.http_data_did_send_hook(len(data))
         return data
 
 
@@ -707,13 +707,13 @@ class FullSyncer(HttpSyncer):
         self.col = col
 
     def download(self) -> Optional[str]:
-        hooks.sync_stage_hook("download")
+        hooks.sync_stage_did_change_hook("download")
         localNotEmpty = self.col.db.scalar("select 1 from cards")
         self.col.close()
         cont = self.req("download")
         tpath = self.col.path + ".tmp"
         if cont == "upgradeRequired":
-            hooks.sync_stage_hook("upgradeRequired")
+            hooks.sync_stage_did_change_hook("upgradeRequired")
             return None
         open(tpath, "wb").write(cont)
         # check the received file is ok
@@ -733,7 +733,7 @@ class FullSyncer(HttpSyncer):
 
     def upload(self) -> bool:
         "True if upload successful."
-        hooks.sync_stage_hook("upload")
+        hooks.sync_stage_did_change_hook("upload")
         # make sure it's ok before we try to upload
         if self.col.db.scalar("pragma integrity_check") != "ok":
             return False
@@ -765,7 +765,7 @@ class MediaSyncer:
 
     def sync(self) -> Any:
         # check if there have been any changes
-        hooks.sync_stage_hook("findMedia")
+        hooks.sync_stage_did_change_hook("findMedia")
         self.col.log("findChanges")
         try:
             self.col.media.findChanges()
@@ -835,7 +835,7 @@ class MediaSyncer:
             if not fnames:
                 break
 
-            hooks.sync_progress_message_hook(
+            hooks.sync_progress_did_change_hook(
                 ngettext(
                     "%d media change to upload", "%d media changes to upload", toSend
                 )
@@ -886,7 +886,7 @@ class MediaSyncer:
             fnames = fnames[cnt:]
 
             n = self.downloadCount
-            hooks.sync_progress_message_hook(
+            hooks.sync_progress_did_change_hook(
                 ngettext("%d media file downloaded", "%d media files downloaded", n)
                 % n,
             )

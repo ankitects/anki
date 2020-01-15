@@ -373,7 +373,7 @@ def test_reviews():
     def onLeech(card):
         hooked.append(1)
 
-    hooks.leech_hook.append(onLeech)
+    hooks.card_did_leech_hook.append(onLeech)
     d.sched.answerCard(c, 1)
     assert hooked
     assert c.queue == -1

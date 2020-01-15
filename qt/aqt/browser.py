@@ -2025,9 +2025,9 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_typing_timer_did_fire_hook.append(self.refreshCurrentCard)
         gui_hooks.editor_note_did_load_hook.append(self.onLoadNote)
         gui_hooks.editor_field_did_lose_focus_filter.append(self.refreshCurrentCard)
-        hooks.tag_created_hook.append(self.maybeRefreshSidebar)
-        hooks.note_type_created_hook.append(self.maybeRefreshSidebar)
-        hooks.deck_created_hook.append(self.maybeRefreshSidebar)
+        hooks.tag_did_create_hook.append(self.maybeRefreshSidebar)
+        hooks.note_type_did_create_hook.append(self.maybeRefreshSidebar)
+        hooks.deck_did_create_hook.append(self.maybeRefreshSidebar)
 
     def teardownHooks(self):
         gui_hooks.undo_state_did_change_hook.remove(self.onUndoState)
@@ -2035,9 +2035,9 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_typing_timer_did_fire_hook.remove(self.refreshCurrentCard)
         gui_hooks.editor_note_did_load_hook.remove(self.onLoadNote)
         gui_hooks.editor_field_did_lose_focus_filter.remove(self.refreshCurrentCard)
-        hooks.tag_created_hook.remove(self.maybeRefreshSidebar)
-        hooks.note_type_created_hook.remove(self.maybeRefreshSidebar)
-        hooks.deck_created_hook.remove(self.maybeRefreshSidebar)
+        hooks.tag_did_create_hook.remove(self.maybeRefreshSidebar)
+        hooks.note_type_did_create_hook.remove(self.maybeRefreshSidebar)
+        hooks.deck_did_create_hook.remove(self.maybeRefreshSidebar)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)

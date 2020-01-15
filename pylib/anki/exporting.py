@@ -347,7 +347,7 @@ class AnkiPackageExporter(AnkiExporter):
                 else:
                     z.write(mpath, cStr, zipfile.ZIP_STORED)
                 media[cStr] = unicodedata.normalize("NFC", file)
-                hooks.exported_media_files_hook(c)
+                hooks.media_files_did_export_hook(c)
 
         return media
 
@@ -417,5 +417,5 @@ def exporters() -> List[Tuple[str, Any]]:
         id(TextNoteExporter),
         id(TextCardExporter),
     ]
-    hooks.create_exporters_list_hook(exps)
+    hooks.exporters_list_did_create_hook(exps)
     return exps

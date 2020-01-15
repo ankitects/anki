@@ -25,167 +25,10 @@ from anki.types import QAData
 # The code in this section is automatically generated - any edits you make
 # will be lost. To add new hooks, see ../tools/genhooks.py
 #
-# To use an existing hook such as leech_hook, you would call the following
-# in your code:
-#
-# from anki import hooks
-# hooks.leech_hook.append(myfunc)
-#
 # @@AUTOGEN@@
 
 
-class _CreateExportersListHook:
-    _hooks: List[Callable[[List[Tuple[str, Any]]], None]] = []
-
-    def append(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
-        """(exporters: List[Tuple[str, Any]])"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, exporters: List[Tuple[str, Any]]) -> None:
-        for hook in self._hooks:
-            try:
-                hook(exporters)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("exportersList", exporters)
-
-
-create_exporters_list_hook = _CreateExportersListHook()
-
-
-class _DeckCreatedHook:
-    _hooks: List[Callable[[Dict[str, Any]], None]] = []
-
-    def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        """(deck: Dict[str, Any])"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, deck: Dict[str, Any]) -> None:
-        for hook in self._hooks:
-            try:
-                hook(deck)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("newDeck")
-
-
-deck_created_hook = _DeckCreatedHook()
-
-
-class _ExportedMediaFilesHook:
-    _hooks: List[Callable[[int], None]] = []
-
-    def append(self, cb: Callable[[int], None]) -> None:
-        """(count: int)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[int], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, count: int) -> None:
-        for hook in self._hooks:
-            try:
-                hook(count)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-exported_media_files_hook = _ExportedMediaFilesHook()
-
-
-class _FieldReplacementFilter:
-    _hooks: List[Callable[[str, str, str, Dict[str, str]], str]] = []
-
-    def append(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
-        """(field_text: str, field_name: str, filter_name: str, fields: Dict[str, str])"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(
-        self, field_text: str, field_name: str, filter_name: str, fields: Dict[str, str]
-    ) -> str:
-        for filter in self._hooks:
-            try:
-                field_text = filter(field_text, field_name, filter_name, fields)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return field_text
-
-
-field_replacement_filter = _FieldReplacementFilter()
-
-
-class _HttpDataReceivedHook:
-    _hooks: List[Callable[[int], None]] = []
-
-    def append(self, cb: Callable[[int], None]) -> None:
-        """(bytes: int)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[int], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, bytes: int) -> None:
-        for hook in self._hooks:
-            try:
-                hook(bytes)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-http_data_received_hook = _HttpDataReceivedHook()
-
-
-class _HttpDataSentHook:
-    _hooks: List[Callable[[int], None]] = []
-
-    def append(self, cb: Callable[[int], None]) -> None:
-        """(bytes: int)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[int], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, bytes: int) -> None:
-        for hook in self._hooks:
-            try:
-                hook(bytes)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-http_data_sent_hook = _HttpDataSentHook()
-
-
-class _LeechHook:
+class _CardDidLeechHook:
     _hooks: List[Callable[[Card], None]] = []
 
     def append(self, cb: Callable[[Card], None]) -> None:
@@ -208,91 +51,10 @@ class _LeechHook:
         runHook("leech", card)
 
 
-leech_hook = _LeechHook()
+card_did_leech_hook = _CardDidLeechHook()
 
 
-class _ModSchemaFilter:
-    _hooks: List[Callable[[bool], bool]] = []
-
-    def append(self, cb: Callable[[bool], bool]) -> None:
-        """(proceed: bool)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[bool], bool]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, proceed: bool) -> bool:
-        for filter in self._hooks:
-            try:
-                proceed = filter(proceed)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return proceed
-
-
-mod_schema_filter = _ModSchemaFilter()
-
-
-class _ModifyFieldsForRenderingHook:
-    _hooks: List[Callable[[Dict[str, str], Dict[str, Any], QAData], None]] = []
-
-    def append(
-        self, cb: Callable[[Dict[str, str], Dict[str, Any], QAData], None]
-    ) -> None:
-        """(fields: Dict[str, str], notetype: Dict[str, Any], data: QAData)"""
-        self._hooks.append(cb)
-
-    def remove(
-        self, cb: Callable[[Dict[str, str], Dict[str, Any], QAData], None]
-    ) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(
-        self, fields: Dict[str, str], notetype: Dict[str, Any], data: QAData
-    ) -> None:
-        for hook in self._hooks:
-            try:
-                hook(fields, notetype, data)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-modify_fields_for_rendering_hook = _ModifyFieldsForRenderingHook()
-
-
-class _NoteTypeCreatedHook:
-    _hooks: List[Callable[[Dict[str, Any]], None]] = []
-
-    def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        """(notetype: Dict[str, Any])"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, notetype: Dict[str, Any]) -> None:
-        for hook in self._hooks:
-            try:
-                hook(notetype)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("newModel")
-
-
-note_type_created_hook = _NoteTypeCreatedHook()
-
-
-class _OdueInvalidHook:
+class _CardOdueWasInvalidHook:
     _hooks: List[Callable[[], None]] = []
 
     def append(self, cb: Callable[[], None]) -> None:
@@ -313,91 +75,12 @@ class _OdueInvalidHook:
                 raise
 
 
-odue_invalid_hook = _OdueInvalidHook()
+card_odue_was_invalid_hook = _CardOdueWasInvalidHook()
 
 
-class _OriginalCardTemplateFilter:
-    _hooks: List[Callable[[str, bool], str]] = []
+class _CardTemplateDidRenderFilter:
+    """Can modify the resulting text after rendering completes."""
 
-    def append(self, cb: Callable[[str, bool], str]) -> None:
-        """(template: str, question_side: bool)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[str, bool], str]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, template: str, question_side: bool) -> str:
-        for filter in self._hooks:
-            try:
-                template = filter(template, question_side)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return template
-
-
-original_card_template_filter = _OriginalCardTemplateFilter()
-
-
-class _PrepareSearchesHook:
-    _hooks: List[Callable[[Dict[str, Callable]], None]] = []
-
-    def append(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
-        """(searches: Dict[str, Callable])"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, searches: Dict[str, Callable]) -> None:
-        for hook in self._hooks:
-            try:
-                hook(searches)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("search", searches)
-
-
-prepare_searches_hook = _PrepareSearchesHook()
-
-
-class _RemoveNotesHook:
-    _hooks: List[Callable[["anki.storage._Collection", List[int]], None]] = []
-
-    def append(
-        self, cb: Callable[["anki.storage._Collection", List[int]], None]
-    ) -> None:
-        """(col: anki.storage._Collection, ids: List[int])"""
-        self._hooks.append(cb)
-
-    def remove(
-        self, cb: Callable[["anki.storage._Collection", List[int]], None]
-    ) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, col: anki.storage._Collection, ids: List[int]) -> None:
-        for hook in self._hooks:
-            try:
-                hook(col, ids)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("remNotes", col, ids)
-
-
-remove_notes_hook = _RemoveNotesHook()
-
-
-class _RenderedCardTemplateFilter:
     _hooks: List[
         Callable[
             [
@@ -467,10 +150,327 @@ class _RenderedCardTemplateFilter:
         return text
 
 
-rendered_card_template_filter = _RenderedCardTemplateFilter()
+card_template_did_render_filter = _CardTemplateDidRenderFilter()
 
 
-class _SyncProgressMessageHook:
+class _CardTemplateFilterWillApplyFilter:
+    _hooks: List[Callable[[str, str, str, Dict[str, str]], str]] = []
+
+    def append(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
+        """(field_text: str, field_name: str, filter_name: str, fields: Dict[str, str])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, field_text: str, field_name: str, filter_name: str, fields: Dict[str, str]
+    ) -> str:
+        for filter in self._hooks:
+            try:
+                field_text = filter(field_text, field_name, filter_name, fields)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return field_text
+
+
+card_template_filter_will_apply_filter = _CardTemplateFilterWillApplyFilter()
+
+
+class _CardTemplateWillRenderFilter:
+    """Can modify the the card template used for rendering."""
+
+    _hooks: List[Callable[[str, bool], str]] = []
+
+    def append(self, cb: Callable[[str, bool], str]) -> None:
+        """(template: str, question_side: bool)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str, bool], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, template: str, question_side: bool) -> str:
+        for filter in self._hooks:
+            try:
+                template = filter(template, question_side)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return template
+
+
+card_template_will_render_filter = _CardTemplateWillRenderFilter()
+
+
+class _DeckDidCreateHook:
+    _hooks: List[Callable[[Dict[str, Any]], None]] = []
+
+    def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
+        """(deck: Dict[str, Any])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, deck: Dict[str, Any]) -> None:
+        for hook in self._hooks:
+            try:
+                hook(deck)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("newDeck")
+
+
+deck_did_create_hook = _DeckDidCreateHook()
+
+
+class _ExportersListDidCreateHook:
+    _hooks: List[Callable[[List[Tuple[str, Any]]], None]] = []
+
+    def append(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
+        """(exporters: List[Tuple[str, Any]])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, exporters: List[Tuple[str, Any]]) -> None:
+        for hook in self._hooks:
+            try:
+                hook(exporters)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("exportersList", exporters)
+
+
+exporters_list_did_create_hook = _ExportersListDidCreateHook()
+
+
+class _FieldsWillRenderHook:
+    """Can modify the available fields prior to rendering."""
+
+    _hooks: List[Callable[[Dict[str, str], Dict[str, Any], QAData], None]] = []
+
+    def append(
+        self, cb: Callable[[Dict[str, str], Dict[str, Any], QAData], None]
+    ) -> None:
+        """(fields: Dict[str, str], notetype: Dict[str, Any], data: QAData)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[Dict[str, str], Dict[str, Any], QAData], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, fields: Dict[str, str], notetype: Dict[str, Any], data: QAData
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(fields, notetype, data)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+fields_will_render_hook = _FieldsWillRenderHook()
+
+
+class _HttpDataDidReceiveHook:
+    _hooks: List[Callable[[int], None]] = []
+
+    def append(self, cb: Callable[[int], None]) -> None:
+        """(bytes: int)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[int], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, bytes: int) -> None:
+        for hook in self._hooks:
+            try:
+                hook(bytes)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+http_data_did_receive_hook = _HttpDataDidReceiveHook()
+
+
+class _HttpDataDidSendHook:
+    _hooks: List[Callable[[int], None]] = []
+
+    def append(self, cb: Callable[[int], None]) -> None:
+        """(bytes: int)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[int], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, bytes: int) -> None:
+        for hook in self._hooks:
+            try:
+                hook(bytes)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+http_data_did_send_hook = _HttpDataDidSendHook()
+
+
+class _MediaFilesDidExportHook:
+    _hooks: List[Callable[[int], None]] = []
+
+    def append(self, cb: Callable[[int], None]) -> None:
+        """(count: int)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[int], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, count: int) -> None:
+        for hook in self._hooks:
+            try:
+                hook(count)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+media_files_did_export_hook = _MediaFilesDidExportHook()
+
+
+class _NoteTypeDidCreateHook:
+    _hooks: List[Callable[[Dict[str, Any]], None]] = []
+
+    def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
+        """(notetype: Dict[str, Any])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, notetype: Dict[str, Any]) -> None:
+        for hook in self._hooks:
+            try:
+                hook(notetype)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("newModel")
+
+
+note_type_did_create_hook = _NoteTypeDidCreateHook()
+
+
+class _NotesWillDeleteHook:
+    _hooks: List[Callable[["anki.storage._Collection", List[int]], None]] = []
+
+    def append(
+        self, cb: Callable[["anki.storage._Collection", List[int]], None]
+    ) -> None:
+        """(col: anki.storage._Collection, ids: List[int])"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["anki.storage._Collection", List[int]], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, col: anki.storage._Collection, ids: List[int]) -> None:
+        for hook in self._hooks:
+            try:
+                hook(col, ids)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("remNotes", col, ids)
+
+
+notes_will_delete_hook = _NotesWillDeleteHook()
+
+
+class _SchemaWillChangeFilter:
+    _hooks: List[Callable[[bool], bool]] = []
+
+    def append(self, cb: Callable[[bool], bool]) -> None:
+        """(proceed: bool)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[bool], bool]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, proceed: bool) -> bool:
+        for filter in self._hooks:
+            try:
+                proceed = filter(proceed)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return proceed
+
+
+schema_will_change_filter = _SchemaWillChangeFilter()
+
+
+class _SearchTermsDidPrepareHook:
+    _hooks: List[Callable[[Dict[str, Callable]], None]] = []
+
+    def append(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
+        """(searches: Dict[str, Callable])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, searches: Dict[str, Callable]) -> None:
+        for hook in self._hooks:
+            try:
+                hook(searches)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("search", searches)
+
+
+search_terms_did_prepare_hook = _SearchTermsDidPrepareHook()
+
+
+class _SyncProgressDidChangeHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -493,10 +493,10 @@ class _SyncProgressMessageHook:
         runHook("syncMsg", msg)
 
 
-sync_progress_message_hook = _SyncProgressMessageHook()
+sync_progress_did_change_hook = _SyncProgressDidChangeHook()
 
 
-class _SyncStageHook:
+class _SyncStageDidChangeHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -519,10 +519,10 @@ class _SyncStageHook:
         runHook("sync", stage)
 
 
-sync_stage_hook = _SyncStageHook()
+sync_stage_did_change_hook = _SyncStageDidChangeHook()
 
 
-class _TagCreatedHook:
+class _TagDidCreateHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -545,7 +545,7 @@ class _TagCreatedHook:
         runHook("newTag")
 
 
-tag_created_hook = _TagCreatedHook()
+tag_did_create_hook = _TagDidCreateHook()
 # @@AUTOGEN@@
 
 # Legacy hook handling

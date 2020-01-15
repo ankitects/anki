@@ -165,7 +165,7 @@ class DeckManager:
         self.decks[str(id)] = g
         self.save(g)
         self.maybeAddToActive()
-        hooks.deck_created_hook(g)
+        hooks.deck_did_create_hook(g)
         return int(id)
 
     def rem(self, did: int, cardsToo: bool = False, childrenToo: bool = True) -> None:
