@@ -150,6 +150,7 @@ system. It's free and open source."
             "Arthur Milchior",
             "Rai (Michael Pokorny)",
             "AMBOSS MD Inc.",
+            "Erez Volk",
         )
     )
 
