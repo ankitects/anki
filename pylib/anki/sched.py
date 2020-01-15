@@ -1128,11 +1128,11 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     # Leeches
     ##########################################################################
 
-    def _checkLeech(self, card, conf):
+    def _checkLeech(self, card, conf) -> bool:
         "Leech handler. True if card was a leech."
         lf = conf["leechFails"]
         if not lf:
-            return
+            return False
         # if over threshold or every half threshold reps after that
         if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
             # add a leech tag
@@ -1152,6 +1152,8 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             # notify UI
             hooks.card_did_leech(card)
             return True
+        else:
+            return False
 
     # Tools
     ##########################################################################
