@@ -18,7 +18,7 @@ from aqt.qt import QMenu
 # New hook/filter handling
 ##############################################################################
 # The code in this section is automatically generated - any edits you make
-# will be lost. To add new hooks, see ../tools/genhooks.py
+# will be lost. To add new hooks, see ../tools/genhooks_gui.py
 #
 # @@AUTOGEN@@
 
