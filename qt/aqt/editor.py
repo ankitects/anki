@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 
 import aqt
 import aqt.sound
-from anki.hooks import addHook, runFilter
+from anki.hooks import runFilter
 from anki.lang import _
 from anki.sync import AnkiRequestsClient
 from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
@@ -1122,4 +1122,4 @@ def fontMungeHack(font):
     return re.sub(" L$", " Light", font)
 
 
-addHook("mungeEditingFontName", fontMungeHack)
+gui_hooks.editor_font_for_field_filter.append(fontMungeHack)

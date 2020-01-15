@@ -6,7 +6,7 @@ import re
 import time
 
 import aqt
-from anki.hooks import addHook, remHook
+from anki import hooks
 from anki.lang import _
 from anki.sync import AnkiRequestsClient
 from aqt.qt import *
@@ -57,7 +57,7 @@ class Downloader(QThread):
             self.recvTotal += bytes
             self.recv.emit()
 
-        addHook("httpRecv", recvEvent)
+        hooks.http_data_received_hook.append(recvEvent)
         client = AnkiRequestsClient()
         try:
             resp = client.get(aqt.appShared + "download/%s?v=2.1" % self.code)
@@ -75,7 +75,7 @@ class Downloader(QThread):
             self.error = _("Please check your internet connection.") + "\n\n" + str(e)
             return
         finally:
-            remHook("httpRecv", recvEvent)
+            hooks.http_data_received_hook.remove(recvEvent)
 
         self.fname = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]

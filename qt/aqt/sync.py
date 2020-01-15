@@ -4,7 +4,7 @@
 import gc
 import time
 
-from anki.hooks import addHook, remHook
+from anki import hooks
 from anki.lang import _
 from anki.storage import Collection
 from anki.sync import FullSyncer, MediaSyncer, RemoteMediaServer, RemoteServer, Syncer
@@ -406,10 +406,10 @@ class SyncThread(QThread):
                 self._abort = 2
                 raise Exception("sync cancelled")
 
-        addHook("sync", syncEvent)
-        addHook("syncMsg", syncMsg)
-        addHook("httpSend", sendEvent)
-        addHook("httpRecv", recvEvent)
+        hooks.sync_stage_hook.append(syncEvent)
+        hooks.sync_progress_message_hook.append(syncMsg)
+        hooks.http_data_sent_hook.append(sendEvent)
+        hooks.http_data_received_hook.append(recvEvent)
         # run sync and catch any errors
         try:
             self._sync()
@@ -419,10 +419,10 @@ class SyncThread(QThread):
         finally:
             # don't bump mod time unless we explicitly save
             self.col.close(save=False)
-            remHook("sync", syncEvent)
-            remHook("syncMsg", syncMsg)
-            remHook("httpSend", sendEvent)
-            remHook("httpRecv", recvEvent)
+            hooks.sync_stage_hook.remove(syncEvent)
+            hooks.sync_progress_message_hook.remove(syncMsg)
+            hooks.http_data_sent_hook.remove(sendEvent)
+            hooks.http_data_received_hook.remove(recvEvent)
 
     def _abortingSync(self):
         try:

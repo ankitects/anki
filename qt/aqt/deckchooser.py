@@ -2,8 +2,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.hooks import addHook, remHook
 from anki.lang import _
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import shortcut
 
@@ -19,7 +19,7 @@ class DeckChooser(QHBoxLayout):
         self.setSpacing(8)
         self.setupDecks()
         self.widget.setLayout(self)
-        addHook("currentModelChanged", self.onModelChange)
+        gui_hooks.current_note_type_did_change_hook.append(self.onModelChange)
 
     def setupDecks(self):
         if self.label:
@@ -64,7 +64,7 @@ class DeckChooser(QHBoxLayout):
         self.widget.hide()
 
     def cleanup(self):
-        remHook("currentModelChanged", self.onModelChange)
+        gui_hooks.current_note_type_did_change_hook.remove(self.onModelChange)
 
     def onModelChange(self):
         if not self.mw.col.conf.get("addToCur", True):

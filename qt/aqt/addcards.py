@@ -7,7 +7,6 @@ import aqt.deckchooser
 import aqt.editor
 import aqt.forms
 import aqt.modelchooser
-from anki.hooks import addHook, remHook
 from anki.lang import _
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
@@ -44,8 +43,8 @@ class AddCards(QDialog):
         self.history: List[int] = []
         self.previousNote = None
         restoreGeom(self, "add")
-        addHook("reset", self.onReset)
-        addHook("currentModelChanged", self.onModelChange)
+        gui_hooks.state_did_reset_hook.append(self.onReset)
+        gui_hooks.current_note_type_did_change_hook.append(self.onModelChange)
         addCloseShortcut(self)
         self.show()
 
@@ -90,7 +89,7 @@ class AddCards(QDialog):
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.setNote(note, focusTo=0)
 
-    def onModelChange(self) -> None:
+    def onModelChange(self, unused) -> None:
         oldNote = self.editor.note
         note = self.mw.col.newNote()
         self.previousNote = None
@@ -224,8 +223,8 @@ question on all cards."""
         self.ifCanClose(self._reject)
 
     def _reject(self) -> None:
-        remHook("reset", self.onReset)
-        remHook("currentModelChanged", self.onModelChange)
+        gui_hooks.state_did_reset_hook.remove(self.onReset)
+        gui_hooks.current_note_type_did_change_hook.remove(self.onModelChange)
         clearAudioQueue()
         self.removeTempNote(self.editor.note)
         self.editor.cleanup()

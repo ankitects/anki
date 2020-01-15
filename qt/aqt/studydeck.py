@@ -3,8 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import aqt
-from anki.hooks import addHook, remHook
 from anki.lang import _
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import getOnlyText, openHelp, restoreGeom, saveGeom, shortcut, showInfo
 
@@ -32,7 +32,7 @@ class StudyDeck(QDialog):
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
         self.cancel = cancel
-        addHook("reset", self.onReset)
+        gui_hooks.state_did_reset_hook.append(self.onReset)
         self.geomKey = "studyDeck-" + geomKey
         restoreGeom(self, self.geomKey)
         if not cancel:
@@ -120,7 +120,7 @@ class StudyDeck(QDialog):
 
     def accept(self):
         saveGeom(self, self.geomKey)
-        remHook("reset", self.onReset)
+        gui_hooks.state_did_reset_hook.remove(self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
             showInfo(_("Please select something."))
@@ -130,7 +130,7 @@ class StudyDeck(QDialog):
 
     def reject(self):
         saveGeom(self, self.geomKey)
-        remHook("reset", self.onReset)
+        gui_hooks.state_did_reset_hook.remove(self.onReset)
         QDialog.reject(self)
 
     def onAddDeck(self):
@@ -144,5 +144,5 @@ class StudyDeck(QDialog):
             self.mw.col.decks.id(n)
             self.name = n
             # make sure we clean up reset hook when manually exiting
-            remHook("reset", self.onReset)
+            gui_hooks.state_did_reset_hook.remove(self.onReset)
             QDialog.accept(self)

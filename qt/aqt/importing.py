@@ -14,9 +14,8 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-from anki.hooks import addHook, remHook
 from anki.lang import _, ngettext
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -87,7 +86,7 @@ class ImportDialog(QDialog):
         self.setupOptions()
         self.modelChanged()
         self.frm.autoDetect.setVisible(self.importer.needDelimiter)
-        addHook("currentModelChanged", self.modelChanged)
+        gui_hooks.current_note_type_did_change_hook.append(self.modelChanged)
         self.frm.autoDetect.clicked.connect(self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
@@ -105,7 +104,7 @@ class ImportDialog(QDialog):
         )
         self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
-    def modelChanged(self):
+    def modelChanged(self, unused=None):
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
@@ -281,7 +280,7 @@ you can enter it here. Use \\t to represent tab."""
     def reject(self):
         self.modelChooser.cleanup()
         self.deck.cleanup()
-        remHook("currentModelChanged", self.modelChanged)
+        gui_hooks.current_note_type_did_change_hook.remove(self.modelChanged)
         QDialog.reject(self)
 
     def helpRequested(self):

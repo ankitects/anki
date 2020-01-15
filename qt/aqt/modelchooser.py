@@ -2,7 +2,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.hooks import addHook, remHook
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
@@ -19,7 +18,7 @@ class ModelChooser(QHBoxLayout):
         self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
         self.setupModels()
-        addHook("reset", self.onReset)
+        gui_hooks.state_did_reset_hook.append(self.onReset)
         self.widget.setLayout(self)
 
     def setupModels(self):
@@ -42,7 +41,7 @@ class ModelChooser(QHBoxLayout):
         self.updateModels()
 
     def cleanup(self):
-        remHook("reset", self.onReset)
+        gui_hooks.state_did_reset_hook.remove(self.onReset)
 
     def onReset(self):
         self.updateModels()
