@@ -597,10 +597,6 @@ from the profile screen."
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
 
-    def noteChanged(self, nid):
-        "Called when a card or note is edited (but not deleted)."
-        runHook("noteChanged", nid)
-
     # Resetting state
     ##########################################################################
 
