@@ -1254,11 +1254,11 @@ where id = ?
     # Leeches
     ##########################################################################
 
-    def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> Optional[bool]:
+    def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> bool:
         "Leech handler. True if card was a leech."
         lf = conf["leechFails"]
         if not lf:
-            return None
+            return False
         # if over threshold or every half threshold reps after that
         if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
             # add a leech tag
@@ -1272,7 +1272,7 @@ where id = ?
             # notify UI
             hooks.card_did_leech(card)
             return True
-        return None
+        return False
 
     # Tools
     ##########################################################################
