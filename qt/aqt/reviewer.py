@@ -696,7 +696,6 @@ time = %(time)d;
         self._addMenuItems(m, opts)
 
         gui_hooks.reviewer_context_menu_will_show_hook(self, m)
-        runHook("Reviewer.contextMenuEvent", self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 

@@ -26,7 +26,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki.collection import _Collection
-from anki.hooks import addHook, runFilter, runHook
+from anki.hooks import addHook, runHook
 from anki.lang import _, ngettext
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -341,7 +341,7 @@ close the profile or restart Anki."""
             else:
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
-        runHook("profileLoaded")
+        gui_hooks.profile_did_open_hook()
         if onsuccess:
             onsuccess()
 
@@ -350,7 +350,7 @@ close the profile or restart Anki."""
             self._unloadProfile()
             onsuccess()
 
-        runHook("unloadProfile")
+        gui_hooks.profile_will_close_hook()
         self.unloadCollection(callback)
 
     def _unloadProfile(self) -> None:
@@ -560,11 +560,11 @@ from the profile screen."
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state
-        runHook("beforeStateChange", state, oldState, *args)
+        gui_hooks.state_will_change_hook(state, oldState)
         getattr(self, "_" + state + "State")(oldState, *args)
         if state != "resetRequired":
             self.bottomWeb.show()
-        runHook("afterStateChange", state, oldState, *args)
+        gui_hooks.state_did_change_hook(state, oldState)
 
     def _deckBrowserState(self, oldState: str) -> None:
         self.deckBrowser.show()
@@ -574,7 +574,7 @@ from the profile screen."
         self.enableColMenuItems()
         # ensure cwd is set if media dir exists
         self.col.media.dir()
-        runHook("colLoading", self.col)
+        gui_hooks.collection_did_load_hook(self.col)
         self.moveToState("overview")
 
     def _selectedDeck(self) -> Optional[Dict[str, Any]]:
@@ -605,7 +605,7 @@ from the profile screen."
         if self.col:
             if not guiOnly:
                 self.col.reset()
-            runHook("reset")
+            gui_hooks.state_did_reset_hook()
             self.maybeEnableUndo()
             self.moveToState(self.state)
 
@@ -847,7 +847,7 @@ QTreeWidget {
             """
 
         # allow addons to modify the styling
-        buf = runFilter("setupStyle", buf)
+        buf = gui_hooks.style_did_setup_filter(buf)
 
         # allow users to extend styling
         p = os.path.join(aqt.mw.pm.base, "style.css")
@@ -884,6 +884,8 @@ QTreeWidget {
         return qshortcuts
 
     def setStateShortcuts(self, shortcuts: List[Tuple[str, Callable]]) -> None:
+        gui_hooks.state_shortcuts_will_change_hook(self.state, shortcuts)
+        # legacy hook
         runHook(self.state + "StateShortcuts", shortcuts)
         self.stateShortcuts = self.applyShortcuts(shortcuts)
 
@@ -926,22 +928,22 @@ QTreeWidget {
             self.col.sched.reset()
             self.reviewer.cardQueue.append(card)
             self.reviewer.nextCard()
-            runHook("revertedCard", cid)
+            gui_hooks.review_did_undo_hook(cid)
         else:
             self.reset()
             tooltip(_("Reverted to state prior to '%s'.") % n.lower())
-            runHook("revertedState", n)
+            gui_hooks.state_did_revert_hook(n)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
         if self.col and self.col.undoName():
             self.form.actionUndo.setText(_("Undo %s") % self.col.undoName())
             self.form.actionUndo.setEnabled(True)
-            runHook("undoState", True)
+            gui_hooks.undo_state_did_change_hook(True)
         else:
             self.form.actionUndo.setText(_("Undo"))
             self.form.actionUndo.setEnabled(False)
-            runHook("undoState", False)
+            gui_hooks.undo_state_did_change_hook(False)
 
     def checkpoint(self, name):
         self.col.save(name)
@@ -1156,7 +1158,7 @@ Difference to correct time: %s."""
         hooks.odue_invalid_hook.append(self.onOdueInvalid)
 
         gui_hooks.mpv_will_play_hook.append(self.on_mpv_will_play)
-        gui_hooks.mpv_idle_hook.append(self.on_mpv_idle)
+        gui_hooks.mpv_did_idle_hook.append(self.on_mpv_idle)
 
         self._activeWindowOnPlay: Optional[QWidget] = None
 

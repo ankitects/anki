@@ -173,7 +173,7 @@ class MpvManager(MPV):
         self.command("seek", secs, "relative")
 
     def on_idle(self) -> None:
-        gui_hooks.mpv_idle_hook()
+        gui_hooks.mpv_did_idle_hook()
 
 
 def setMpvConfigBase(base) -> None:

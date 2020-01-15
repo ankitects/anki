@@ -6,9 +6,9 @@ from typing import Any
 
 import aqt
 from anki.errors import DeckRenameError
-from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.utils import fmtTimeSpan, ids2str
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sound import clearAudioQueue
 from aqt.utils import askUser, getOnlyText, openHelp, openLink, shortcut, showWarning
@@ -245,7 +245,7 @@ where id > ?""",
         a.triggered.connect(lambda b, did=did: self._export(did))
         a = m.addAction(_("Delete"))
         a.triggered.connect(lambda b, did=did: self._delete(did))
-        runHook("showDeckOptions", m, did)
+        gui_hooks.deck_browser_options_menu_will_show_hook(m, did)
         m.exec_(QCursor.pos())
 
     def _export(self, did):
