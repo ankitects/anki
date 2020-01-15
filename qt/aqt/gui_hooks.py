@@ -13,7 +13,7 @@ import anki
 import aqt
 from anki.cards import Card
 from anki.hooks import runFilter, runHook
-from aqt.qt import QMenu, QShortcut
+from aqt.qt import QMenu
 
 # New hook/filter handling
 ##############################################################################
@@ -376,7 +376,7 @@ class _EditorFontForFieldFilter:
 editor_font_for_field_filter = _EditorFontForFieldFilter()
 
 
-class _EditorNoteDidUpdateHook:
+class _EditorNoteDidLoadHook:
     _hooks: List[Callable[["aqt.editor.Editor"], None]] = []
 
     def append(self, cb: Callable[["aqt.editor.Editor"], None]) -> None:
@@ -398,7 +398,7 @@ class _EditorNoteDidUpdateHook:
         runHook("loadNote", editor)
 
 
-editor_note_did_update_hook = _EditorNoteDidUpdateHook()
+editor_note_did_load_hook = _EditorNoteDidLoadHook()
 
 
 class _EditorShortcutsDidSetupHook:
@@ -476,7 +476,7 @@ class _EditorTypingTimerDidFireHook:
 editor_typing_timer_did_fire_hook = _EditorTypingTimerDidFireHook()
 
 
-class _MpvIdleHook:
+class _MpvDidIdleHook:
     _hooks: List[Callable[[], None]] = []
 
     def append(self, cb: Callable[[], None]) -> None:
@@ -496,7 +496,7 @@ class _MpvIdleHook:
                 raise
 
 
-mpv_idle_hook = _MpvIdleHook()
+mpv_did_idle_hook = _MpvDidIdleHook()
 
 
 class _MpvWillPlayHook:
@@ -674,32 +674,6 @@ class _ReviewerQuestionDidShowHook:
 reviewer_question_did_show_hook = _ReviewerQuestionDidShowHook()
 
 
-class _SetupStyleFilter:
-    _hooks: List[Callable[[str], str]] = []
-
-    def append(self, cb: Callable[[str], str]) -> None:
-        """(style: str)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[str], str]) -> None:
-        self._hooks.remove(cb)
-
-    def __call__(self, style: str) -> str:
-        for filter in self._hooks:
-            try:
-                style = filter(style)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        # legacy support
-        runFilter("setupStyle", style)
-        return style
-
-
-setup_style_filter = _SetupStyleFilter()
-
-
 class _StateDidChangeHook:
     _hooks: List[Callable[[str, str], None]] = []
 
@@ -753,6 +727,8 @@ state_did_reset_hook = _StateDidResetHook()
 
 
 class _StateDidRevertHook:
+    """Called when user used the undo option to restore to an earlier database state."""
+
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -778,16 +754,16 @@ state_did_revert_hook = _StateDidRevertHook()
 
 
 class _StateShortcutsWillChangeHook:
-    _hooks: List[Callable[[str, List[QShortcut]], None]] = []
+    _hooks: List[Callable[[str, List[Tuple[str, Callable]]], None]] = []
 
-    def append(self, cb: Callable[[str, List[QShortcut]], None]) -> None:
-        """(state: str, shortcuts: List[QShortcut])"""
+    def append(self, cb: Callable[[str, List[Tuple[str, Callable]]], None]) -> None:
+        """(state: str, shortcuts: List[Tuple[str, Callable]])"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[str, List[QShortcut]], None]) -> None:
+    def remove(self, cb: Callable[[str, List[Tuple[str, Callable]]], None]) -> None:
         self._hooks.remove(cb)
 
-    def __call__(self, state: str, shortcuts: List[QShortcut]) -> None:
+    def __call__(self, state: str, shortcuts: List[Tuple[str, Callable]]) -> None:
         for hook in self._hooks:
             try:
                 hook(state, shortcuts)
@@ -823,6 +799,32 @@ class _StateWillChangeHook:
 
 
 state_will_change_hook = _StateWillChangeHook()
+
+
+class _StyleDidSetupFilter:
+    _hooks: List[Callable[[str], str]] = []
+
+    def append(self, cb: Callable[[str], str]) -> None:
+        """(style: str)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str], str]) -> None:
+        self._hooks.remove(cb)
+
+    def __call__(self, style: str) -> str:
+        for filter in self._hooks:
+            try:
+                style = filter(style)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        # legacy support
+        runFilter("setupStyle", style)
+        return style
+
+
+style_did_setup_filter = _StyleDidSetupFilter()
 
 
 class _UndoStateDidChangeHook:

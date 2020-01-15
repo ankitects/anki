@@ -17,7 +17,7 @@ from tools.hookslib import Hook, update_file
 ######################################################################
 
 hooks = [
-    Hook(name="mpv_idle"),
+    Hook(name="mpv_did_idle"),
     Hook(name="mpv_will_play", args=["file: str"], legacy_hook="mpvWillPlay"),
     Hook(
         name="reviewer_question_did_show",
@@ -83,14 +83,19 @@ hooks = [
     # different sig to original
     Hook(
         name="state_shortcuts_will_change",
-        args=["state: str", "shortcuts: List[QShortcut]"],
+        args=["state: str", "shortcuts: List[Tuple[str, Callable]]"],
     ),
     Hook(
         name="collection_did_load",
         args=["col: anki.storage._Collection"],
         legacy_hook="colLoading",
     ),
-    Hook(name="state_did_revert", args=["action: str"], legacy_hook="revertedState"),
+    Hook(
+        name="state_did_revert",
+        args=["action: str"],
+        legacy_hook="revertedState",
+        doc="Called when user used the undo option to restore to an earlier database state.",
+    ),
     Hook(
         name="state_did_reset",
         legacy_hook="reset",
@@ -101,7 +106,7 @@ hooks = [
     ),
     Hook(name="review_did_undo", args=["card_id: int"], legacy_hook="revertedCard"),
     Hook(
-        name="setup_style",
+        name="style_did_setup",
         args=["style: str"],
         return_type="str",
         legacy_hook="setupStyle",
@@ -153,7 +158,7 @@ hooks = [
         legacy_hook="editFocusLost",
     ),
     Hook(
-        name="editor_note_did_update",
+        name="editor_note_did_load",
         args=["editor: aqt.editor.Editor"],
         legacy_hook="loadNote",
     ),

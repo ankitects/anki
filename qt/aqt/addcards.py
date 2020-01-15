@@ -7,11 +7,11 @@ import aqt.deckchooser
 import aqt.editor
 import aqt.forms
 import aqt.modelchooser
-from anki.hooks import addHook, remHook, runHook
+from anki.hooks import addHook, remHook
 from anki.lang import _
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import clearAudioQueue
 from aqt.utils import (
@@ -157,7 +157,7 @@ class AddCards(QDialog):
             else:
                 a = m.addAction(_("(Note deleted)"))
                 a.setEnabled(False)
-        runHook("AddCards.onHistory", self, m)
+        gui_hooks.add_cards_history_menu_will_show_hook(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
     def editHistory(self, nid):
@@ -197,7 +197,7 @@ question on all cards."""
         self.addHistory(note)
         self.mw.requireReset()
         self.previousNote = note
-        runHook("AddCards.noteAdded", note)
+        gui_hooks.add_cards_note_did_add_hook(note)
         return note
 
     def addCards(self):

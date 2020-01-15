@@ -19,11 +19,11 @@ from bs4 import BeautifulSoup
 
 import aqt
 import aqt.sound
-from anki.hooks import addHook, runFilter, runHook
+from anki.hooks import addHook, runFilter
 from anki.lang import _
 from anki.sync import AnkiRequestsClient
 from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import getAudio
 from aqt.utils import (
@@ -141,6 +141,8 @@ class Editor:
                 self._addButton("more", "more"),
             ]
         )
+        gui_hooks.editor_buttons_did_setup_hook(righttopbtns, self)
+        # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
             <div id="topbutsleft" style="float:left;">
@@ -283,7 +285,7 @@ class Editor:
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags, True),
         ]
-        runHook("setupEditorShortcuts", cuts, self)
+        gui_hooks.editor_shortcuts_did_setup_hook(cuts, self)
         for row in cuts:
             if len(row) == 2:
                 keys, fn = row  # pylint: disable=unbalanced-tuple-unpacking
@@ -328,7 +330,7 @@ class Editor:
     ######################################################################
 
     def onBridgeCmd(self, cmd):
-        if not self.note or not runHook:
+        if not self.note:
             # shutdown
             return
         # focus lost or key/button pressed?
@@ -356,20 +358,20 @@ class Editor:
             if type == "blur":
                 self.currentField = None
                 # run any filters
-                if runFilter("editFocusLost", False, self.note, ord):
+                if gui_hooks.editor_field_did_lose_focus_filter(False, self.note, ord):
                     # something updated the note; update it after a subsequent focus
                     # event has had time to fire
                     self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
                 else:
                     self.checkValid()
             else:
-                runHook("editTimer", self.note)
+                gui_hooks.editor_typing_timer_did_fire_hook(self.note)
                 self.checkValid()
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
             self.currentField = int(num)
-            runHook("editFocusGained", self.note, self.currentField)
+            gui_hooks.editor_field_did_gain_focus_hook(self.note, self.currentField)
         elif cmd in self._links:
             self._links[cmd](self)
         else:
@@ -414,7 +416,7 @@ class Editor:
             self.checkValid()
             if focusTo is not None:
                 self.web.setFocus()
-            runHook("loadNote", self)
+            gui_hooks.editor_note_did_load_hook(self)
 
         js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s)" % (
             json.dumps(data),
@@ -426,7 +428,7 @@ class Editor:
 
     def fonts(self):
         return [
-            (runFilter("mungeEditingFontName", f["font"]), f["size"], f["rtl"])
+            (gui_hooks.editor_font_for_field_filter(f["font"]), f["size"], f["rtl"])
             for f in self.note.model()["flds"]
         ]
 
@@ -534,7 +536,7 @@ class Editor:
         self.tags.setText(self.mw.col.tags.join(self.note.tags).strip())
         if not self.addMode:
             self.note.flush()
-        runHook("tagsUpdated", self.note)
+        gui_hooks.editor_tags_did_update_hook(self.note)
 
     def saveAddModeVars(self):
         if self.addMode:
@@ -1109,7 +1111,7 @@ class EditorWebView(AnkiWebView):
         a.triggered.connect(self.onCopy)
         a = m.addAction(_("Paste"))
         a.triggered.connect(self.onPaste)
-        runHook("EditorWebView.contextMenuEvent", self, m)
+        gui_hooks.editor_context_menu_will_show_hook(self, m)
         m.popup(QCursor.pos())
 
 
