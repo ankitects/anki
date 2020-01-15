@@ -23,33 +23,7 @@ from aqt.qt import QMenu
 # @@AUTOGEN@@
 
 
-class _AddCardsHistoryMenuWillShowHook:
-    _hooks: List[Callable[["aqt.addcards.AddCards", QMenu], None]] = []
-
-    def append(self, cb: Callable[["aqt.addcards.AddCards", QMenu], None]) -> None:
-        """(addcards: aqt.addcards.AddCards, menu: QMenu)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[["aqt.addcards.AddCards", QMenu], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, addcards: aqt.addcards.AddCards, menu: QMenu) -> None:
-        for hook in self._hooks:
-            try:
-                hook(addcards, menu)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("AddCards.onHistory", addcards, menu)
-
-
-add_cards_history_menu_will_show = _AddCardsHistoryMenuWillShowHook()
-
-
-class _AddCardsNoteDidAddHook:
+class _AddCardsDidAddNoteHook:
     _hooks: List[Callable[["anki.notes.Note"], None]] = []
 
     def append(self, cb: Callable[["anki.notes.Note"], None]) -> None:
@@ -72,33 +46,59 @@ class _AddCardsNoteDidAddHook:
         runHook("AddCards.noteAdded", note)
 
 
-add_cards_note_did_add = _AddCardsNoteDidAddHook()
+add_cards_did_add_note = _AddCardsDidAddNoteHook()
 
 
-class _BrowserContextMenuWillShowHook:
-    _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
+class _AddCardsWillShowHistoryMenuHook:
+    _hooks: List[Callable[["aqt.addcards.AddCards", QMenu], None]] = []
 
-    def append(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
-        """(browser: aqt.browser.Browser, menu: QMenu)"""
+    def append(self, cb: Callable[["aqt.addcards.AddCards", QMenu], None]) -> None:
+        """(addcards: aqt.addcards.AddCards, menu: QMenu)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
+    def remove(self, cb: Callable[["aqt.addcards.AddCards", QMenu], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, browser: aqt.browser.Browser, menu: QMenu) -> None:
+    def __call__(self, addcards: aqt.addcards.AddCards, menu: QMenu) -> None:
         for hook in self._hooks:
             try:
-                hook(browser, menu)
+                hook(addcards, menu)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
         # legacy support
-        runHook("browser.onContextMenu", browser, menu)
+        runHook("AddCards.onHistory", addcards, menu)
 
 
-browser_context_menu_will_show = _BrowserContextMenuWillShowHook()
+add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
+
+
+class _BrowserDidChangeRowHook:
+    _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
+
+    def append(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
+        """(browser: aqt.browser.Browser)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, browser: aqt.browser.Browser) -> None:
+        for hook in self._hooks:
+            try:
+                hook(browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("browser.rowChanged", browser)
+
+
+browser_did_change_row = _BrowserDidChangeRowHook()
 
 
 class _BrowserMenusDidInitHook:
@@ -127,33 +127,33 @@ class _BrowserMenusDidInitHook:
 browser_menus_did_init = _BrowserMenusDidInitHook()
 
 
-class _BrowserRowDidChangeHook:
-    _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
+class _BrowserWillShowContextMenuHook:
+    _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
 
-    def append(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
-        """(browser: aqt.browser.Browser)"""
+    def append(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
+        """(browser: aqt.browser.Browser, menu: QMenu)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
+    def remove(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, browser: aqt.browser.Browser) -> None:
+    def __call__(self, browser: aqt.browser.Browser, menu: QMenu) -> None:
         for hook in self._hooks:
             try:
-                hook(browser)
+                hook(browser, menu)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
         # legacy support
-        runHook("browser.rowChanged", browser)
+        runHook("browser.onContextMenu", browser, menu)
 
 
-browser_row_did_change = _BrowserRowDidChangeHook()
+browser_will_show_context_menu = _BrowserWillShowContextMenuHook()
 
 
-class _CardTextFilter:
+class _CardWillShowFilter:
     """Can modify card text before review/preview."""
 
     _hooks: List[Callable[[str, Card, str], str]] = []
@@ -179,7 +179,7 @@ class _CardTextFilter:
         return text
 
 
-card_text = _CardTextFilter()
+card_will_show = _CardWillShowFilter()
 
 
 class _CollectionDidLoadHook:
@@ -234,7 +234,7 @@ class _CurrentNoteTypeDidChangeHook:
 current_note_type_did_change = _CurrentNoteTypeDidChangeHook()
 
 
-class _DeckBrowserOptionsMenuWillShowHook:
+class _DeckBrowserWillShowOptionsMenuHook:
     _hooks: List[Callable[[QMenu, int], None]] = []
 
     def append(self, cb: Callable[[QMenu, int], None]) -> None:
@@ -257,60 +257,36 @@ class _DeckBrowserOptionsMenuWillShowHook:
         runHook("showDeckOptions", menu, deck_id)
 
 
-deck_browser_options_menu_will_show = _DeckBrowserOptionsMenuWillShowHook()
+deck_browser_will_show_options_menu = _DeckBrowserWillShowOptionsMenuHook()
 
 
-class _EditorButtonsDidInitHook:
-    _hooks: List[Callable[[List, "aqt.editor.Editor"], None]] = []
+class _EditorDidFireTypingTimerHook:
+    _hooks: List[Callable[["anki.notes.Note"], None]] = []
 
-    def append(self, cb: Callable[[List, "aqt.editor.Editor"], None]) -> None:
-        """(buttons: List, editor: aqt.editor.Editor)"""
+    def append(self, cb: Callable[["anki.notes.Note"], None]) -> None:
+        """(note: anki.notes.Note)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[List, "aqt.editor.Editor"], None]) -> None:
+    def remove(self, cb: Callable[["anki.notes.Note"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, buttons: List, editor: aqt.editor.Editor) -> None:
+    def __call__(self, note: anki.notes.Note) -> None:
         for hook in self._hooks:
             try:
-                hook(buttons, editor)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-editor_buttons_did_init = _EditorButtonsDidInitHook()
-
-
-class _EditorContextMenuWillShowHook:
-    _hooks: List[Callable[["aqt.editor.EditorWebView", QMenu], None]] = []
-
-    def append(self, cb: Callable[["aqt.editor.EditorWebView", QMenu], None]) -> None:
-        """(editor_webview: aqt.editor.EditorWebView, menu: QMenu)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[["aqt.editor.EditorWebView", QMenu], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, editor_webview: aqt.editor.EditorWebView, menu: QMenu) -> None:
-        for hook in self._hooks:
-            try:
-                hook(editor_webview, menu)
+                hook(note)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
         # legacy support
-        runHook("EditorWebView.contextMenuEvent", editor_webview, menu)
+        runHook("editTimer", note)
 
 
-editor_context_menu_will_show = _EditorContextMenuWillShowHook()
+editor_did_fire_typing_timer = _EditorDidFireTypingTimerHook()
 
 
-class _EditorFieldDidGainFocusHook:
+class _EditorDidFocusFieldHook:
     _hooks: List[Callable[["anki.notes.Note", int], None]] = []
 
     def append(self, cb: Callable[["anki.notes.Note", int], None]) -> None:
@@ -333,10 +309,86 @@ class _EditorFieldDidGainFocusHook:
         runHook("editFocusGained", note, current_field_idx)
 
 
-editor_field_did_gain_focus = _EditorFieldDidGainFocusHook()
+editor_did_focus_field = _EditorDidFocusFieldHook()
 
 
-class _EditorFieldDidLoseFocusFilter:
+class _EditorDidInitButtonsHook:
+    _hooks: List[Callable[[List, "aqt.editor.Editor"], None]] = []
+
+    def append(self, cb: Callable[[List, "aqt.editor.Editor"], None]) -> None:
+        """(buttons: List, editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[List, "aqt.editor.Editor"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, buttons: List, editor: aqt.editor.Editor) -> None:
+        for hook in self._hooks:
+            try:
+                hook(buttons, editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+editor_did_init_buttons = _EditorDidInitButtonsHook()
+
+
+class _EditorDidInitShortcutsHook:
+    _hooks: List[Callable[[List[Tuple], "aqt.editor.Editor"], None]] = []
+
+    def append(self, cb: Callable[[List[Tuple], "aqt.editor.Editor"], None]) -> None:
+        """(shortcuts: List[Tuple], editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[List[Tuple], "aqt.editor.Editor"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, shortcuts: List[Tuple], editor: aqt.editor.Editor) -> None:
+        for hook in self._hooks:
+            try:
+                hook(shortcuts, editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("setupEditorShortcuts", shortcuts, editor)
+
+
+editor_did_init_shortcuts = _EditorDidInitShortcutsHook()
+
+
+class _EditorDidLoadNoteHook:
+    _hooks: List[Callable[["aqt.editor.Editor"], None]] = []
+
+    def append(self, cb: Callable[["aqt.editor.Editor"], None]) -> None:
+        """(editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.editor.Editor"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, editor: aqt.editor.Editor) -> None:
+        for hook in self._hooks:
+            try:
+                hook(editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("loadNote", editor)
+
+
+editor_did_load_note = _EditorDidLoadNoteHook()
+
+
+class _EditorDidUnfocusFieldFilter:
     _hooks: List[Callable[[bool, "anki.notes.Note", int], bool]] = []
 
     def append(self, cb: Callable[[bool, "anki.notes.Note", int], bool]) -> None:
@@ -362,10 +414,62 @@ class _EditorFieldDidLoseFocusFilter:
         return changed
 
 
-editor_field_did_lose_focus = _EditorFieldDidLoseFocusFilter()
+editor_did_unfocus_field = _EditorDidUnfocusFieldFilter()
 
 
-class _EditorFontForFieldFilter:
+class _EditorDidUpdateTagsHook:
+    _hooks: List[Callable[["anki.notes.Note"], None]] = []
+
+    def append(self, cb: Callable[["anki.notes.Note"], None]) -> None:
+        """(note: anki.notes.Note)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["anki.notes.Note"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, note: anki.notes.Note) -> None:
+        for hook in self._hooks:
+            try:
+                hook(note)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("tagsUpdated", note)
+
+
+editor_did_update_tags = _EditorDidUpdateTagsHook()
+
+
+class _EditorWillShowContextMenuHook:
+    _hooks: List[Callable[["aqt.editor.EditorWebView", QMenu], None]] = []
+
+    def append(self, cb: Callable[["aqt.editor.EditorWebView", QMenu], None]) -> None:
+        """(editor_webview: aqt.editor.EditorWebView, menu: QMenu)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.editor.EditorWebView", QMenu], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, editor_webview: aqt.editor.EditorWebView, menu: QMenu) -> None:
+        for hook in self._hooks:
+            try:
+                hook(editor_webview, menu)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("EditorWebView.contextMenuEvent", editor_webview, menu)
+
+
+editor_will_show_context_menu = _EditorWillShowContextMenuHook()
+
+
+class _EditorWillUseFontForFieldFilter:
     _hooks: List[Callable[[str], str]] = []
 
     def append(self, cb: Callable[[str], str]) -> None:
@@ -389,111 +493,7 @@ class _EditorFontForFieldFilter:
         return font
 
 
-editor_font_for_field = _EditorFontForFieldFilter()
-
-
-class _EditorNoteDidLoadHook:
-    _hooks: List[Callable[["aqt.editor.Editor"], None]] = []
-
-    def append(self, cb: Callable[["aqt.editor.Editor"], None]) -> None:
-        """(editor: aqt.editor.Editor)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[["aqt.editor.Editor"], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, editor: aqt.editor.Editor) -> None:
-        for hook in self._hooks:
-            try:
-                hook(editor)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("loadNote", editor)
-
-
-editor_note_did_load = _EditorNoteDidLoadHook()
-
-
-class _EditorShortcutsDidInitHook:
-    _hooks: List[Callable[[List[Tuple], "aqt.editor.Editor"], None]] = []
-
-    def append(self, cb: Callable[[List[Tuple], "aqt.editor.Editor"], None]) -> None:
-        """(shortcuts: List[Tuple], editor: aqt.editor.Editor)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[List[Tuple], "aqt.editor.Editor"], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, shortcuts: List[Tuple], editor: aqt.editor.Editor) -> None:
-        for hook in self._hooks:
-            try:
-                hook(shortcuts, editor)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("setupEditorShortcuts", shortcuts, editor)
-
-
-editor_shortcuts_did_init = _EditorShortcutsDidInitHook()
-
-
-class _EditorTagsDidUpdateHook:
-    _hooks: List[Callable[["anki.notes.Note"], None]] = []
-
-    def append(self, cb: Callable[["anki.notes.Note"], None]) -> None:
-        """(note: anki.notes.Note)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[["anki.notes.Note"], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, note: anki.notes.Note) -> None:
-        for hook in self._hooks:
-            try:
-                hook(note)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("tagsUpdated", note)
-
-
-editor_tags_did_update = _EditorTagsDidUpdateHook()
-
-
-class _EditorTypingTimerDidFireHook:
-    _hooks: List[Callable[["anki.notes.Note"], None]] = []
-
-    def append(self, cb: Callable[["anki.notes.Note"], None]) -> None:
-        """(note: anki.notes.Note)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[["anki.notes.Note"], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, note: anki.notes.Note) -> None:
-        for hook in self._hooks:
-            try:
-                hook(note)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("editTimer", note)
-
-
-editor_typing_timer_did_fire = _EditorTypingTimerDidFireHook()
+editor_will_use_font_for_field = _EditorWillUseFontForFieldFilter()
 
 
 class _MpvDidIdleHook:
@@ -624,7 +624,7 @@ class _ReviewDidUndoHook:
 review_did_undo = _ReviewDidUndoHook()
 
 
-class _ReviewerAnswerDidShowHook:
+class _ReviewerDidShowAnswerHook:
     _hooks: List[Callable[[Card], None]] = []
 
     def append(self, cb: Callable[[Card], None]) -> None:
@@ -647,36 +647,10 @@ class _ReviewerAnswerDidShowHook:
         runHook("showAnswer")
 
 
-reviewer_answer_did_show = _ReviewerAnswerDidShowHook()
+reviewer_did_show_answer = _ReviewerDidShowAnswerHook()
 
 
-class _ReviewerContextMenuWillShowHook:
-    _hooks: List[Callable[["aqt.reviewer.Reviewer", QMenu], None]] = []
-
-    def append(self, cb: Callable[["aqt.reviewer.Reviewer", QMenu], None]) -> None:
-        """(reviewer: aqt.reviewer.Reviewer, menu: QMenu)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[["aqt.reviewer.Reviewer", QMenu], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, reviewer: aqt.reviewer.Reviewer, menu: QMenu) -> None:
-        for hook in self._hooks:
-            try:
-                hook(reviewer, menu)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("Reviewer.contextMenuEvent", reviewer, menu)
-
-
-reviewer_context_menu_will_show = _ReviewerContextMenuWillShowHook()
-
-
-class _ReviewerQuestionDidShowHook:
+class _ReviewerDidShowQuestionHook:
     _hooks: List[Callable[[Card], None]] = []
 
     def append(self, cb: Callable[[Card], None]) -> None:
@@ -699,7 +673,7 @@ class _ReviewerQuestionDidShowHook:
         runHook("showQuestion")
 
 
-reviewer_question_did_show = _ReviewerQuestionDidShowHook()
+reviewer_did_show_question = _ReviewerDidShowQuestionHook()
 
 
 class _ReviewerWillEndHook:
@@ -728,6 +702,32 @@ class _ReviewerWillEndHook:
 
 
 reviewer_will_end = _ReviewerWillEndHook()
+
+
+class _ReviewerWillShowContextMenuHook:
+    _hooks: List[Callable[["aqt.reviewer.Reviewer", QMenu], None]] = []
+
+    def append(self, cb: Callable[["aqt.reviewer.Reviewer", QMenu], None]) -> None:
+        """(reviewer: aqt.reviewer.Reviewer, menu: QMenu)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.reviewer.Reviewer", QMenu], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, reviewer: aqt.reviewer.Reviewer, menu: QMenu) -> None:
+        for hook in self._hooks:
+            try:
+                hook(reviewer, menu)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+        # legacy support
+        runHook("Reviewer.contextMenuEvent", reviewer, menu)
+
+
+reviewer_will_show_context_menu = _ReviewerWillShowContextMenuHook()
 
 
 class _StateDidChangeHook:
@@ -915,7 +915,7 @@ class _UndoStateDidChangeHook:
 undo_state_did_change = _UndoStateDidChangeHook()
 
 
-class _WebviewContextMenuWillShowHook:
+class _WebviewWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.webview.AnkiWebView", QMenu], None]] = []
 
     def append(self, cb: Callable[["aqt.webview.AnkiWebView", QMenu], None]) -> None:
@@ -938,5 +938,5 @@ class _WebviewContextMenuWillShowHook:
         runHook("AnkiWebView.contextMenuEvent", webview, menu)
 
 
-webview_context_menu_will_show = _WebviewContextMenuWillShowHook()
+webview_will_show_context_menu = _WebviewWillShowContextMenuHook()
 # @@AUTOGEN@@

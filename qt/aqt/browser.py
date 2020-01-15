@@ -653,7 +653,7 @@ class Browser(QMainWindow):
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-        gui_hooks.browser_context_menu_will_show(self, m)
+        gui_hooks.browser_will_show_context_menu(self, m)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
@@ -844,7 +844,7 @@ class Browser(QMainWindow):
             self.editor.card = self.card
             self.singleCard = True
         self._updateFlagsMenu()
-        gui_hooks.browser_row_did_change(self)
+        gui_hooks.browser_did_change_row(self)
         self._renderPreview(True)
 
     def refreshCurrentCard(self, note):
@@ -1716,7 +1716,9 @@ where id in %s"""
                         play(audio)
 
             txt = mungeQA(self.col, txt)
-            gui_hooks.card_text(txt, c, "preview" + self._previewState.capitalize())
+            gui_hooks.card_will_show(
+                txt, c, "preview" + self._previewState.capitalize()
+            )
             self._lastPreviewState = self._previewStateAndMod()
         self._updatePreviewButtons()
         self._previewWeb.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
@@ -2020,22 +2022,22 @@ update cards set usn=?, mod=?, did=? where id in """
     def setupHooks(self):
         gui_hooks.undo_state_did_change.append(self.onUndoState)
         gui_hooks.state_did_reset.append(self.onReset)
-        gui_hooks.editor_typing_timer_did_fire.append(self.refreshCurrentCard)
-        gui_hooks.editor_note_did_load.append(self.onLoadNote)
-        gui_hooks.editor_field_did_lose_focus.append(self.refreshCurrentCard)
-        hooks.tag_did_create.append(self.maybeRefreshSidebar)
-        hooks.note_type_did_create.append(self.maybeRefreshSidebar)
-        hooks.deck_did_create.append(self.maybeRefreshSidebar)
+        gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
+        gui_hooks.editor_did_load_note.append(self.onLoadNote)
+        gui_hooks.editor_did_unfocus_field.append(self.refreshCurrentCard)
+        hooks.tag_added.append(self.maybeRefreshSidebar)
+        hooks.note_type_added.append(self.maybeRefreshSidebar)
+        hooks.deck_added.append(self.maybeRefreshSidebar)
 
     def teardownHooks(self):
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
         gui_hooks.state_did_reset.remove(self.onReset)
-        gui_hooks.editor_typing_timer_did_fire.remove(self.refreshCurrentCard)
-        gui_hooks.editor_note_did_load.remove(self.onLoadNote)
-        gui_hooks.editor_field_did_lose_focus.remove(self.refreshCurrentCard)
-        hooks.tag_did_create.remove(self.maybeRefreshSidebar)
-        hooks.note_type_did_create.remove(self.maybeRefreshSidebar)
-        hooks.deck_did_create.remove(self.maybeRefreshSidebar)
+        gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
+        gui_hooks.editor_did_load_note.remove(self.onLoadNote)
+        gui_hooks.editor_did_unfocus_field.remove(self.refreshCurrentCard)
+        hooks.tag_added.remove(self.maybeRefreshSidebar)
+        hooks.note_type_added.remove(self.maybeRefreshSidebar)
+        hooks.deck_added.remove(self.maybeRefreshSidebar)
 
     def onUndoState(self, on):
         self.form.actionUndo.setEnabled(on)

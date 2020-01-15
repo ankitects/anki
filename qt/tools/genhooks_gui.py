@@ -20,19 +20,19 @@ hooks = [
     # Reviewing
     ###################
     Hook(
-        name="reviewer_question_did_show",
+        name="reviewer_did_show_question",
         args=["card: Card"],
         legacy_hook="showQuestion",
         legacy_no_args=True,
     ),
     Hook(
-        name="reviewer_answer_did_show",
+        name="reviewer_did_show_answer",
         args=["card: Card"],
         legacy_hook="showAnswer",
         legacy_no_args=True,
     ),
     Hook(
-        name="reviewer_context_menu_will_show",
+        name="reviewer_will_show_context_menu",
         args=["reviewer: aqt.reviewer.Reviewer", "menu: QMenu"],
         legacy_hook="Reviewer.contextMenuEvent",
     ),
@@ -42,7 +42,7 @@ hooks = [
         doc="Called before Anki transitions from the review screen to another screen.",
     ),
     Hook(
-        name="card_text",
+        name="card_will_show",
         args=["text: str", "card: Card", "kind: str"],
         return_type="str",
         legacy_hook="prepareQA",
@@ -56,17 +56,17 @@ hooks = [
         legacy_hook="browser.setupMenus",
     ),
     Hook(
-        name="browser_context_menu_will_show",
+        name="browser_will_show_context_menu",
         args=["browser: aqt.browser.Browser", "menu: QMenu"],
         legacy_hook="browser.onContextMenu",
     ),
     Hook(
-        name="browser_row_did_change",
+        name="browser_did_change_row",
         args=["browser: aqt.browser.Browser"],
         legacy_hook="browser.rowChanged",
     ),
     Hook(
-        name="webview_context_menu_will_show",
+        name="webview_will_show_context_menu",
         args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
         legacy_hook="AnkiWebView.contextMenuEvent",
     ),
@@ -120,59 +120,59 @@ hooks = [
     # Adding cards
     ###################
     Hook(
-        name="add_cards_history_menu_will_show",
+        name="add_cards_will_show_history_menu",
         args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
         legacy_hook="AddCards.onHistory",
     ),
     Hook(
-        name="add_cards_note_did_add",
+        name="add_cards_did_add_note",
         args=["note: anki.notes.Note"],
         legacy_hook="AddCards.noteAdded",
     ),
     # Editing
     ###################
     Hook(
-        name="editor_buttons_did_init",
+        name="editor_did_init_buttons",
         args=["buttons: List", "editor: aqt.editor.Editor"],
     ),
     Hook(
-        name="editor_shortcuts_did_init",
+        name="editor_did_init_shortcuts",
         args=["shortcuts: List[Tuple]", "editor: aqt.editor.Editor"],
         legacy_hook="setupEditorShortcuts",
     ),
     Hook(
-        name="editor_context_menu_will_show",
+        name="editor_will_show_context_menu",
         args=["editor_webview: aqt.editor.EditorWebView", "menu: QMenu"],
         legacy_hook="EditorWebView.contextMenuEvent",
     ),
     Hook(
-        name="editor_typing_timer_did_fire",
+        name="editor_did_fire_typing_timer",
         args=["note: anki.notes.Note"],
         legacy_hook="editTimer",
     ),
     Hook(
-        name="editor_field_did_gain_focus",
+        name="editor_did_focus_field",
         args=["note: anki.notes.Note", "current_field_idx: int"],
         legacy_hook="editFocusGained",
     ),
     Hook(
-        name="editor_field_did_lose_focus",
+        name="editor_did_unfocus_field",
         args=["changed: bool", "note: anki.notes.Note", "current_field_idx: int"],
         return_type="bool",
         legacy_hook="editFocusLost",
     ),
     Hook(
-        name="editor_note_did_load",
+        name="editor_did_load_note",
         args=["editor: aqt.editor.Editor"],
         legacy_hook="loadNote",
     ),
     Hook(
-        name="editor_tags_did_update",
+        name="editor_did_update_tags",
         args=["note: anki.notes.Note"],
         legacy_hook="tagsUpdated",
     ),
     Hook(
-        name="editor_font_for_field",
+        name="editor_will_use_font_for_field",
         args=["font: str"],
         return_type="str",
         legacy_hook="mungeEditingFontName",
@@ -188,7 +188,7 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
-        name="deck_browser_options_menu_will_show",
+        name="deck_browser_will_show_options_menu",
         args=["menu: QMenu", "deck_id: int"],
         legacy_hook="showDeckOptions",
     ),
