@@ -591,7 +591,7 @@ select id from notes where mid = ?)"""
 
         def renderWithFields(fields):
             return self.col._renderQA(
-                (1, 1, m["id"], 1, t["ord"], "", joinFields(fields), 0)
+                (1, 1, m["id"], 1, t["ord"], "", joinFields(fields), 0)  # type: ignore
             )["q"]
 
         full = renderWithFields(a)

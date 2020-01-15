@@ -148,7 +148,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         mm = self.col.models
         t = mm.newTemplate("Back")
         t["qfmt"] = "{{Back}}"
-        t["afmt"] = t["qfmt"] + "\n\n<hr id=answer>\n\n{{Front}}"
+        t["afmt"] = t["qfmt"] + "\n\n<hr id=answer>\n\n{{Front}}"  # type: ignore
         mm.addTemplate(m, t)
         self._addFronts(notes, m)
 
@@ -163,7 +163,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         t["afmt"] = (
             t["qfmt"]
             + """\n\n<hr id=answer>\n\n\
-{{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""
+{{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""  # type: ignore
         )
         mm.addTemplate(m, t)
         t = mm.newTemplate("Production")
@@ -171,7 +171,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         t["afmt"] = (
             t["qfmt"]
             + """\n\n<hr id=answer>\n\n\
-{{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""
+{{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""  # type: ignore
         )
         mm.addTemplate(m, t)
         mm.add(m)
