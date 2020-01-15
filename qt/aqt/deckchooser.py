@@ -9,9 +9,9 @@ from aqt.utils import shortcut
 
 
 class DeckChooser(QHBoxLayout):
-    def __init__(self, mw, widget, label=True, start=None):
+    def __init__(self, mw, widget: QWidget, label=True, start=None) -> None:
         QHBoxLayout.__init__(self)
-        self.widget = widget
+        self.widget = widget # type: ignore
         self.mw = mw
         self.deck = mw.col
         self.label = label
@@ -63,7 +63,7 @@ class DeckChooser(QHBoxLayout):
     def hide(self):
         self.widget.hide()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         gui_hooks.current_note_type_did_change.remove(self.onModelChange)
 
     def onModelChange(self):

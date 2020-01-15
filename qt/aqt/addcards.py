@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import aqt.deckchooser
 import aqt.editor
@@ -143,7 +143,7 @@ class AddCards(QDialog):
         self.history = self.history[:15]
         self.historyButton.setEnabled(True)
 
-    def onHistory(self):
+    def onHistory(self) -> None:
         m = QMenu(self)
         for nid in self.history:
             if self.mw.col.findNotes("nid:%s" % nid):
@@ -152,7 +152,7 @@ class AddCards(QDialog):
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
                 a = m.addAction(_('Edit "%s"') % txt)
-                a.triggered.connect(lambda b, nid=nid: self.editHistory(nid))
+                qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
             else:
                 a = m.addAction(_("(Note deleted)"))
                 a.setEnabled(False)
@@ -164,12 +164,12 @@ class AddCards(QDialog):
         browser.form.searchEdit.lineEdit().setText("nid:%d" % nid)
         browser.onSearchActivated()
 
-    def addNote(self, note):
+    def addNote(self, note) -> Optional[Note]:
         note.model()["did"] = self.deckChooser.selectedId()
         ret = note.dupeOrEmpty()
         if ret == 1:
             showWarning(_("The first field is empty."), help="AddItems#AddError")
-            return
+            return None
         if "{{cloze:" in note.model()["tmpls"][0]["qfmt"]:
             if not self.mw.col.models._availClozeOrds(
                 note.model(), note.joinedFields(), False
@@ -180,7 +180,7 @@ class AddCards(QDialog):
                         "but have not made any cloze deletions. Proceed?"
                     )
                 ):
-                    return
+                    return None
         cards = self.mw.col.addNote(note)
         if not cards:
             showWarning(
@@ -191,7 +191,7 @@ question on all cards."""
                 ),
                 help="AddItems",
             )
-            return
+            return None
         self.mw.col.clearUndo()
         self.addHistory(note)
         self.mw.requireReset()

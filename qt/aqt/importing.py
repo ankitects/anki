@@ -73,7 +73,7 @@ class ChangeMap(QDialog):
 
 
 class ImportDialog(QDialog):
-    def __init__(self, mw: AnkiQt, importer):
+    def __init__(self, mw: AnkiQt, importer) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.importer = importer
@@ -278,7 +278,7 @@ you can enter it here. Use \\t to represent tab."""
         else:
             self.showMapping(keepMapping=True)
 
-    def reject(self):
+    def reject(self) -> None:
         self.modelChooser.cleanup()
         self.deck.cleanup()
         gui_hooks.current_note_type_did_change.remove(self.modelChanged)

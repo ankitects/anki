@@ -569,7 +569,7 @@ from the profile screen."
     def _deckBrowserState(self, oldState: str) -> None:
         self.deckBrowser.show()
 
-    def _colLoadingState(self, oldState):
+    def _colLoadingState(self, oldState) -> None:
         "Run once, when col is loaded."
         self.enableColMenuItems()
         # ensure cwd is set if media dir exists
@@ -918,7 +918,7 @@ QTreeWidget {
     # Undo & autosave
     ##########################################################################
 
-    def onUndo(self):
+    def onUndo(self) -> None:
         n = self.col.undoName()
         if not n:
             return

@@ -9,11 +9,12 @@ import sre_constants
 import time
 import unicodedata
 from operator import itemgetter
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 import anki
 import aqt.forms
 from anki import hooks
+from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
 from anki.lang import _, ngettext
@@ -27,6 +28,7 @@ from anki.utils import (
     isWin,
 )
 from aqt import AnkiQt, gui_hooks
+from aqt.editor import Editor
 from aqt.qt import *
 from aqt.sound import allSounds, clearAudioQueue, play
 from aqt.utils import (
@@ -556,8 +558,9 @@ class Browser(QMainWindow):
     model: DataModel
     mw: AnkiQt
     col: _Collection
+    editor: Optional[Editor]
 
-    def __init__(self, mw: AnkiQt):
+    def __init__(self, mw: AnkiQt) -> None:
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
@@ -572,7 +575,7 @@ class Browser(QMainWindow):
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
-        self.card = None
+        self.card: Optional[Card] = None
         self.setupColumns()
         self.setupTable()
         self.setupMenus()
@@ -584,7 +587,7 @@ class Browser(QMainWindow):
         self.setupSearch()
         self.show()
 
-    def setupMenus(self):
+    def setupMenus(self) -> None:
         # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
@@ -635,9 +638,9 @@ class Browser(QMainWindow):
         f.actionGuide.triggered.connect(self.onHelp)
         # keyboard shortcut for shift+home/end
         self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
-        self.pgUpCut.activated.connect(self.onFirstCard)
+        qconnect(self.pgUpCut.activated, self.onFirstCard)
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
-        self.pgDownCut.activated.connect(self.onLastCard)
+        qconnect(self.pgDownCut.activated, self.onLastCard)
         # add-on hook
         gui_hooks.browser_menus_did_init(self)
         self.mw.maybeHideAccelerators(self)
@@ -646,14 +649,14 @@ class Browser(QMainWindow):
         self.form.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.form.tableView.customContextMenuRequested.connect(self.onContextMenu)
 
-    def onContextMenu(self, _point):
+    def onContextMenu(self, _point) -> None:
         m = QMenu()
         for act in self.form.menu_Cards.actions():
             m.addAction(act)
         m.addSeparator()
         for act in self.form.menu_Notes.actions():
             m.addAction(act)
-        gui_hooks.browser_will_show_context_menu(self, m)
+        gui_hooks.browser_will_show_context_menu(self)
         qtMenuShortcutWorkaround(m)
         m.exec_(QCursor.pos())
 
@@ -771,7 +774,7 @@ class Browser(QMainWindow):
         self.search()
 
     # search triggered programmatically. caller must have saved note first.
-    def search(self):
+    def search(self) -> None:
         if "is:current" in self._lastSearchTxt:
             # show current card if there is one
             c = self.mw.reviewer.card
@@ -827,7 +830,7 @@ class Browser(QMainWindow):
         "Update current note and hide/show editor."
         self.editor.saveNow(lambda: self._onRowChanged(current, previous))
 
-    def _onRowChanged(self, current, previous):
+    def _onRowChanged(self, current, previous) -> None:
         update = self.updateTitle()
         show = self.model.cards and update == 1
         self.form.splitter.widget(1).setVisible(not not show)
@@ -841,7 +844,7 @@ class Browser(QMainWindow):
         else:
             self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
-            self.editor.card = self.card
+            self.editor.card = self.card # type: ignore
             self.singleCard = True
         self._updateFlagsMenu()
         gui_hooks.browser_did_change_row(self)
@@ -1530,7 +1533,7 @@ where id in %s"""
     ######################################################################
 
     _previewTimer = None
-    _lastPreviewRender = 0
+    _lastPreviewRender: Union[int,float] = 0
     _lastPreviewState = None
     _previewCardChanged = False
 
@@ -1669,7 +1672,7 @@ where id in %s"""
             self._previewTimer.stop()
             self._previewTimer = None
 
-    def _renderScheduledPreview(self):
+    def _renderScheduledPreview(self) -> None:
         self._cancelPreviewTimer()
         self._lastPreviewRender = time.time()
 
@@ -2019,7 +2022,7 @@ update cards set usn=?, mod=?, did=? where id in """
     # Edit: undo
     ######################################################################
 
-    def setupHooks(self):
+    def setupHooks(self) -> None:
         gui_hooks.undo_state_did_change.append(self.onUndoState)
         gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
@@ -2029,7 +2032,7 @@ update cards set usn=?, mod=?, did=? where id in """
         hooks.note_type_added.append(self.maybeRefreshSidebar)
         hooks.deck_added.append(self.maybeRefreshSidebar)
 
-    def teardownHooks(self):
+    def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
         gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
@@ -2261,7 +2264,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
 
 class ChangeModel(QDialog):
-    def __init__(self, browser, nids):
+    def __init__(self, browser, nids) -> None:
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids
@@ -2394,7 +2397,7 @@ class ChangeModel(QDialog):
             old=self.oldModel["flds"], combos=self.fcombos, new=self.targetModel["flds"]
         )
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.current_note_type_did_change.remove(self.onReset)
         self.modelChooser.cleanup()

@@ -10,7 +10,7 @@ from aqt.utils import restoreGeom, saveGeom, tooltip
 
 
 class EditCurrent(QDialog):
-    def __init__(self, mw):
+    def __init__(self, mw) -> None:
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw
@@ -33,7 +33,7 @@ class EditCurrent(QDialog):
         # pylint: disable=unnecessary-lambda
         self.mw.progress.timer(100, lambda: self.editor.web.setFocus(), False)
 
-    def onReset(self):
+    def onReset(self) -> None:
         # lazy approach for now: throw away edits
         try:
             n = self.editor.note
@@ -58,7 +58,7 @@ class EditCurrent(QDialog):
     def saveAndClose(self):
         self.editor.saveNow(self._saveAndClose)
 
-    def _saveAndClose(self):
+    def _saveAndClose(self) -> None:
         gui_hooks.state_did_reset.remove(self.onReset)
         r = self.mw.reviewer
         try:
