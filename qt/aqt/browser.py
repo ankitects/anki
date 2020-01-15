@@ -2044,11 +2044,11 @@ update cards set usn=?, mod=?, did=? where id in """
         hooks.note_type_added.remove(self.on_item_added)
         hooks.deck_added.remove(self.on_item_added)
 
-    def onUnfocusCard(self, changed: bool, note: Note, field_idx: int):
+    def on_unfocus_field(self, changed: bool, note: Note, field_idx: int) -> None:
         self.refreshCurrentCard(note)
 
     # covers the tag, note and deck case
-    def on_item_added(self, item):
+    def on_item_added(self, item: Any) -> None:
         self.maybeRefreshSidebar()
 
     def onUndoState(self, on):
