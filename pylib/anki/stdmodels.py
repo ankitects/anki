@@ -1,12 +1,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Any, Callable, List, Tuple
+
+from typing import Any, Callable, List, Tuple, Union
 
 from anki.consts import MODEL_CLOZE
 from anki.lang import _
 from anki.types import NoteType
 
-models: List[Tuple[Callable[[], str], Callable[[Any], NoteType]]] = []
+models: List[Tuple[Union[Callable[[], str], str], Callable[[Any], NoteType]]] = []
 
 # Basic
 ##########################################################################
