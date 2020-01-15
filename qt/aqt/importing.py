@@ -92,6 +92,8 @@ class ImportDialog(QDialog):
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
         self.frm.importMode.currentIndexChanged.connect(self.importModeChanged)
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
+        self.frm.tagModified.setText(self.mw.pm.profile.get("tagModified", ""))
+        self.frm.tagModified.setCol(self.mw.col)
         # import button
         b = QPushButton(_("Import"))
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
@@ -179,8 +181,7 @@ you can enter it here. Use \\t to represent tab."""
         self.mw.pm.profile["importMode"] = self.importer.importMode
         self.importer.allowHTML = self.frm.allowHTML.isChecked()
         self.mw.pm.profile["allowHTML"] = self.importer.allowHTML
-        if self.frm.tagModifiedCheck.isChecked():
-            self.importer.tagModified = self.frm.tagModifiedTag.text()
+        self.importer.tagModified = self.frm.tagModified.text()
         self.mw.pm.profile["tagModified"] = self.importer.tagModified
         did = self.deck.selectedId()
         if did != self.importer.model["did"]:
@@ -288,11 +289,9 @@ you can enter it here. Use \\t to represent tab."""
 
     def importModeChanged(self, newImportMode):
         if newImportMode == 0:
-            allowTagModified = True
+            self.frm.tagModified.setEnabled(True)
         else:
-            allowTagModified = False
-        self.frm.tagModifiedCheck.setEnabled(allowTagModified)
-        self.frm.tagModifiedTag.setEnabled(allowTagModified)
+            self.frm.tagModified.setEnabled(False)
 
 
 def showUnicodeWarning():
