@@ -847,7 +847,7 @@ QTreeWidget {
             """
 
         # allow addons to modify the styling
-        buf = gui_hooks.style_did_setup(buf)
+        buf = gui_hooks.style_did_init(buf)
 
         # allow users to extend styling
         p = os.path.join(aqt.mw.pm.base, "style.css")

@@ -664,13 +664,13 @@ where c.nid = n.id and c.id in %s group by nid"""
         fields["CardFlag"] = self._flagNameFromCardFlags(flag)
         fields["c%d" % (card_ord + 1)] = "1"
 
-        # allow add-ons to modify the available fields
-        hooks.fields_will_render(fields, model, data)
-        fields = runFilter("mungeFields", fields, model, data, self)  # legacy
+        # legacy
+        fields = runFilter("mungeFields", fields, model, data, self)
 
-        # and the template prior to rendering
-        qfmt = hooks.card_template_will_render(qfmt, True)
-        afmt = hooks.card_template_will_render(afmt, False)
+        # allow add-ons to modify the available fields & templates
+        (qfmt, afmt) = hooks.card_template_will_render(
+            (qfmt, afmt), fields, model, data
+        )
 
         # render fields
         qatext = render_card(self, qfmt, afmt, fields, card_ord)

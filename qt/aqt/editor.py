@@ -141,7 +141,7 @@ class Editor:
                 self._addButton("more", "more"),
             ]
         )
-        gui_hooks.editor_buttons_did_setup(righttopbtns, self)
+        gui_hooks.editor_buttons_did_init(righttopbtns, self)
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
         topbuts = """
@@ -285,7 +285,7 @@ class Editor:
             ("Ctrl+Shift+X", self.onHtmlEdit),
             ("Ctrl+Shift+T", self.onFocusTags, True),
         ]
-        gui_hooks.editor_shortcuts_did_setup(cuts, self)
+        gui_hooks.editor_shortcuts_did_init(cuts, self)
         for row in cuts:
             if len(row) == 2:
                 keys, fn = row  # pylint: disable=unbalanced-tuple-unpacking
