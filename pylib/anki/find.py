@@ -40,7 +40,7 @@ class Finder:
             flag=self._findFlag,
         )
         self.search["is"] = self._findCardState
-        hooks.search_terms_did_prepare(self.search)
+        hooks.search_terms_prepared(self.search)
 
     def findCards(self, query, order=False) -> Any:
         "Return a list of card ids for QUERY."

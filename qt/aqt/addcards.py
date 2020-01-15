@@ -156,7 +156,7 @@ class AddCards(QDialog):
             else:
                 a = m.addAction(_("(Note deleted)"))
                 a.setEnabled(False)
-        gui_hooks.add_cards_history_menu_will_show(self, m)
+        gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
     def editHistory(self, nid):
@@ -196,7 +196,7 @@ question on all cards."""
         self.addHistory(note)
         self.mw.requireReset()
         self.previousNote = note
-        gui_hooks.add_cards_note_did_add(note)
+        gui_hooks.add_cards_did_add_note(note)
         return note
 
     def addCards(self):

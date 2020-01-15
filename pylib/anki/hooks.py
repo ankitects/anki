@@ -54,31 +54,7 @@ class _CardDidLeechHook:
 card_did_leech = _CardDidLeechHook()
 
 
-class _CardOdueWasInvalidHook:
-    _hooks: List[Callable[[], None]] = []
-
-    def append(self, cb: Callable[[], None]) -> None:
-        """()"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self) -> None:
-        for hook in self._hooks:
-            try:
-                hook()
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-card_odue_was_invalid = _CardOdueWasInvalidHook()
-
-
-class _CardTemplateDidRenderFilter:
+class _CardDidRenderFilter:
     """Can modify the resulting text after rendering completes."""
 
     _hooks: List[
@@ -150,10 +126,34 @@ class _CardTemplateDidRenderFilter:
         return text
 
 
-card_template_did_render = _CardTemplateDidRenderFilter()
+card_did_render = _CardDidRenderFilter()
 
 
-class _CardTemplateWillRenderFilter:
+class _CardOdueWasInvalidHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+card_odue_was_invalid = _CardOdueWasInvalidHook()
+
+
+class _CardWillRenderFilter:
     """Can modify the available fields and question/answer templates prior to rendering."""
 
     _hooks: List[
@@ -197,10 +197,10 @@ class _CardTemplateWillRenderFilter:
         return templates
 
 
-card_template_will_render = _CardTemplateWillRenderFilter()
+card_will_render = _CardWillRenderFilter()
 
 
-class _DeckDidCreateHook:
+class _DeckAddedHook:
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
@@ -223,10 +223,10 @@ class _DeckDidCreateHook:
         runHook("newDeck")
 
 
-deck_did_create = _DeckDidCreateHook()
+deck_added = _DeckAddedHook()
 
 
-class _ExportersListDidCreateHook:
+class _ExportersListCreatedHook:
     _hooks: List[Callable[[List[Tuple[str, Any]]], None]] = []
 
     def append(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
@@ -249,10 +249,10 @@ class _ExportersListDidCreateHook:
         runHook("exportersList", exporters)
 
 
-exporters_list_did_create = _ExportersListDidCreateHook()
+exporters_list_created = _ExportersListCreatedHook()
 
 
-class _FieldWillBeFilteredFilter:
+class _FieldFilterFilter:
     _hooks: List[Callable[[str, str, str, Dict[str, str]], str]] = []
 
     def append(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
@@ -276,7 +276,7 @@ class _FieldWillBeFilteredFilter:
         return field_text
 
 
-field_will_be_filtered = _FieldWillBeFilteredFilter()
+field_filter = _FieldFilterFilter()
 
 
 class _HttpDataDidReceiveHook:
@@ -351,7 +351,7 @@ class _MediaFilesDidExportHook:
 media_files_did_export = _MediaFilesDidExportHook()
 
 
-class _NoteTypeDidCreateHook:
+class _NoteTypeAddedHook:
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
@@ -374,10 +374,10 @@ class _NoteTypeDidCreateHook:
         runHook("newModel")
 
 
-note_type_did_create = _NoteTypeDidCreateHook()
+note_type_added = _NoteTypeAddedHook()
 
 
-class _NotesWillDeleteHook:
+class _NotesWillBeDeletedHook:
     _hooks: List[Callable[["anki.storage._Collection", List[int]], None]] = []
 
     def append(
@@ -404,7 +404,7 @@ class _NotesWillDeleteHook:
         runHook("remNotes", col, ids)
 
 
-notes_will_delete = _NotesWillDeleteHook()
+notes_will_be_deleted = _NotesWillBeDeletedHook()
 
 
 class _SchemaWillChangeFilter:
@@ -432,7 +432,7 @@ class _SchemaWillChangeFilter:
 schema_will_change = _SchemaWillChangeFilter()
 
 
-class _SearchTermsDidPrepareHook:
+class _SearchTermsPreparedHook:
     _hooks: List[Callable[[Dict[str, Callable]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
@@ -455,7 +455,7 @@ class _SearchTermsDidPrepareHook:
         runHook("search", searches)
 
 
-search_terms_did_prepare = _SearchTermsDidPrepareHook()
+search_terms_prepared = _SearchTermsPreparedHook()
 
 
 class _SyncProgressDidChangeHook:
@@ -510,7 +510,7 @@ class _SyncStageDidChangeHook:
 sync_stage_did_change = _SyncStageDidChangeHook()
 
 
-class _TagDidCreateHook:
+class _TagAddedHook:
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -533,7 +533,7 @@ class _TagDidCreateHook:
         runHook("newTag")
 
 
-tag_did_create = _TagDidCreateHook()
+tag_added = _TagAddedHook()
 # @@AUTOGEN@@
 
 # Legacy hook handling

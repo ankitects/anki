@@ -372,7 +372,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         strids = ids2str(ids)
         # we need to log these independently of cards, as one side may have
         # more card templates
-        hooks.notes_will_delete(self, ids)
+        hooks.notes_will_be_deleted(self, ids)
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
 
@@ -668,9 +668,7 @@ where c.nid = n.id and c.id in %s group by nid"""
         fields = runFilter("mungeFields", fields, model, data, self)
 
         # allow add-ons to modify the available fields & templates
-        (qfmt, afmt) = hooks.card_template_will_render(
-            (qfmt, afmt), fields, model, data
-        )
+        (qfmt, afmt) = hooks.card_will_render((qfmt, afmt), fields, model, data)
 
         # render fields
         qatext = render_card(self, qfmt, afmt, fields, card_ord)
@@ -678,7 +676,7 @@ where c.nid = n.id and c.id in %s group by nid"""
 
         # allow add-ons to modify the generated result
         for type in "q", "a":
-            ret[type] = hooks.card_template_did_render(
+            ret[type] = hooks.card_did_render(
                 ret[type], type, fields, model, data, self
             )
 

@@ -417,5 +417,5 @@ def exporters() -> List[Tuple[str, Any]]:
         id(TextNoteExporter),
         id(TextCardExporter),
     ]
-    hooks.exporters_list_did_create(exps)
+    hooks.exporters_list_created(exps)
     return exps

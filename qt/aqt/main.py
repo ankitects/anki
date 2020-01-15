@@ -1154,7 +1154,7 @@ Difference to correct time: %s."""
 
     def setupHooks(self) -> None:
         hooks.schema_will_change.append(self.onSchemaMod)
-        hooks.notes_will_delete.append(self.onRemNotes)
+        hooks.notes_will_be_deleted.append(self.onRemNotes)
         hooks.card_odue_was_invalid.append(self.onOdueInvalid)
 
         gui_hooks.mpv_will_play.append(self.on_mpv_will_play)
