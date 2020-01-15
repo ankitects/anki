@@ -29,7 +29,8 @@ class Card:
     _qa: Optional[Dict[str, Union[str, int]]]
     _note: Optional[Note]
     timerStarted: Optional[float]
-    lastIvl: Optional[int]
+    lastIvl: int
+    ord: int
 
     def __init__(
         self, col: anki.collection._Collection, id: Optional[int] = None
