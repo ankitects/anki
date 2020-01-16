@@ -1584,7 +1584,7 @@ and due >= ? and queue = 0"""
         self.sortCards(cids, shuffle=True)
 
     def orderCards(self, did):
-        cids = self.col.db.list("select id from cards where did = ? order by id", did)
+        cids = self.col.db.list("select id from cards where did = ? order by nid", did)
         self.sortCards(cids)
 
     def resortConf(self, conf):
