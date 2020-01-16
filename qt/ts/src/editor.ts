@@ -284,13 +284,12 @@ function maybeDisableButtons() {
     }
 }
 
-/* old method, kept around for the benefit of add-ons that were using it */
 function wrap(front, back) {
     wrapInternal(front, back, false);
 }
 
-/* new method */
-function wrap2(front, back) {
+/* currently unused */
+function wrapIntoText(front, back) {
     wrapInternal(front, back, true);
 }
 
