@@ -686,12 +686,12 @@ where c.nid = n.id and c.id in %s group by nid"""
                 ret[type], type, fields, model, data, self
             )
 
-        # empty cloze?
-        if type == "q" and model["type"] == MODEL_CLOZE:
-            if not self.models._availClozeOrds(model, data[6], False):
-                ret["q"] += "<p>" + _(
-                    "Please edit this note and add some cloze deletions. (%s)"
-                ) % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
+            # empty cloze?
+            if type == "q" and model["type"] == MODEL_CLOZE:
+                if not self.models._availClozeOrds(model, data[6], False):
+                    ret["q"] += "<p>" + _(
+                        "Please edit this note and add some cloze deletions. (%s)"
+                    ) % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
 
         return ret
 
