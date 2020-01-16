@@ -56,41 +56,24 @@ hooks = [
         name="tag_added", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True,
     ),
     Hook(
-        name="card_will_render",
-        args=[
-            "templates: Tuple[str, str]",
-            "fields: Dict[str, str]",
-            "notetype: Dict[str, Any]",
-            "data: QAData",
-        ],
-        return_type="Tuple[str, str]",
-        doc="Can modify the available fields and question/answer templates prior to rendering.",
-    ),
-    Hook(
-        name="card_did_render",
-        args=[
-            "text: str",
-            "side: str",
-            "fields: Dict[str, str]",
-            "notetype: Dict[str, Any]",
-            "data: QAData",
-            # the hook in latex.py needs access to the collection and
-            # can't rely on the GUI's mw.col
-            "col: anki.storage._Collection",
-        ],
-        return_type="str",
-        legacy_hook="mungeQA",
-        doc="Can modify the resulting text after rendering completes.",
-    ),
-    Hook(
         name="field_filter",
         args=[
             "field_text: str",
             "field_name: str",
             "filter_name: str",
-            "fields: Dict[str, str]",
+            "ctx: TemplateRenderContext",
         ],
         return_type="str",
+        doc="""Allows you to define custom {{filters:..}}
+        
+        Your add-on can check filter_name to decide whether it should modify
+        field_text or not before returning it.""",
+    ),
+    Hook(
+        name="card_did_render",
+        args=["text: Tuple[str, str]", "ctx: TemplateRenderContext",],
+        return_type="Tuple[str, str]",
+        doc="Can modify the resulting text after rendering completes.",
     ),
 ]
 

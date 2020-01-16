@@ -7,12 +7,13 @@ import html
 import os
 import re
 import shutil
-from typing import Any, Dict, Optional
+from typing import Any, Optional, Tuple
 
 import anki
 from anki import hooks
 from anki.lang import _
-from anki.types import NoteType, QAData
+from anki.template import TemplateRenderContext
+from anki.types import NoteType
 from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [
@@ -47,15 +48,18 @@ def stripLatex(text) -> Any:
     return text
 
 
-# media code and some add-ons depend on the current name
-def mungeQA(
-    html: str,
-    type: str,
-    fields: Dict[str, str],
-    model: NoteType,
-    data: QAData,
-    col: anki.storage._Collection,
-) -> str:
+def on_card_did_render(
+    text: Tuple[str, str], ctx: TemplateRenderContext
+) -> Tuple[str, str]:
+    qtext, atext = text
+
+    qtext = render_latex(qtext, ctx.note_type(), ctx.col())
+    atext = render_latex(atext, ctx.note_type(), ctx.col())
+
+    return (qtext, atext)
+
+
+def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> str:
     "Convert TEXT with embedded latex tags to image links."
     for match in regexps["standard"].finditer(html):
         html = html.replace(match.group(), _imgLink(col, match.group(1), model))
@@ -184,4 +188,4 @@ def _errMsg(type: str, texpath: str) -> Any:
 
 
 # setup q/a filter - type ignored due to import cycle
-hooks.card_did_render.append(mungeQA)  # type: ignore
+hooks.card_did_render.append(on_card_did_render)  # type: ignore
