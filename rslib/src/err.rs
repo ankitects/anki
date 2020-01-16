@@ -11,7 +11,7 @@ pub enum AnkiError {
     InvalidInput { info: String },
 
     #[fail(display = "invalid card template: {}", info)]
-    TemplateParseError { info: String },
+    TemplateError { info: String },
 }
 
 // error helpers
@@ -21,24 +21,29 @@ impl AnkiError {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TemplateError {
     NoClosingBrackets(String),
     ConditionalNotClosed(String),
     ConditionalNotOpen(String),
+    FieldNotFound(String),
 }
 
 impl From<TemplateError> for AnkiError {
     fn from(terr: TemplateError) -> Self {
-        AnkiError::TemplateParseError {
+        AnkiError::TemplateError {
             info: match terr {
                 TemplateError::NoClosingBrackets(context) => {
-                    format!("expected '{{{{field name}}}}', found '{}'", context)
+                    format!("missing '}}}}' in '{}'", context)
                 }
                 TemplateError::ConditionalNotClosed(tag) => format!("missing '{{{{/{}}}}}'", tag),
                 TemplateError::ConditionalNotOpen(tag) => {
                     format!("missing '{{{{#{}}}}}' or '{{{{^{}}}}}'", tag, tag)
                 }
+                TemplateError::FieldNotFound(field) => format!(
+                    "found '{{{{{}}}}}', but there is no field called '{}'",
+                    field, field
+                ),
             },
         }
     }

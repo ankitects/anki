@@ -16,6 +16,7 @@ use std::collections::{HashMap, HashSet};
 use std::iter;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
+type TemplateResult<T> = std::result::Result<T, TemplateError>;
 
 // Lexing
 //----------------------------------------
@@ -87,7 +88,7 @@ fn next_token(input: &str) -> nom::IResult<&str, Token> {
     alt((handle_token, text_token))(input)
 }
 
-fn tokens(template: &str) -> impl Iterator<Item = std::result::Result<Token, TemplateError>> {
+fn tokens(template: &str) -> impl Iterator<Item = TemplateResult<Token>> {
     let mut data = template;
 
     std::iter::from_fn(move || {
@@ -132,16 +133,16 @@ impl ParsedTemplate<'_> {
     ///
     /// The legacy alternate syntax is not supported, so the provided text
     /// should be run through without_legacy_template_directives() first.
-    pub fn from_text(template: &str) -> std::result::Result<ParsedTemplate, TemplateError> {
+    pub fn from_text(template: &str) -> TemplateResult<ParsedTemplate> {
         let mut iter = tokens(template);
         Ok(Self(parse_inner(&mut iter, None)?))
     }
 }
 
-fn parse_inner<'a, I: Iterator<Item = std::result::Result<Token<'a>, TemplateError>>>(
+fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
     iter: &mut I,
     open_tag: Option<&'a str>,
-) -> std::result::Result<Vec<ParsedNode<'a>>, TemplateError> {
+) -> TemplateResult<Vec<ParsedNode<'a>>> {
     let mut nodes = vec![];
 
     while let Some(token) = iter.next() {
@@ -275,12 +276,12 @@ impl ParsedTemplate<'_> {
     /// Replacements that use only standard filters will become part of
     /// a text node. If a non-standard filter is encountered, a partially
     /// rendered Replacement is returned for the calling code to complete.
-    fn render(&self, context: &RenderContext) -> Vec<RenderedNode> {
+    fn render(&self, context: &RenderContext) -> TemplateResult<Vec<RenderedNode>> {
         let mut rendered = vec![];
 
-        render_into(&mut rendered, self.0.as_ref(), context);
+        render_into(&mut rendered, self.0.as_ref(), context)?;
 
-        rendered
+        Ok(rendered)
     }
 }
 
@@ -288,7 +289,7 @@ fn render_into(
     rendered_nodes: &mut Vec<RenderedNode>,
     nodes: &[ParsedNode],
     context: &RenderContext,
-) {
+) -> TemplateResult<()> {
     use ParsedNode::*;
     for node in nodes {
         match node {
@@ -327,7 +328,17 @@ fn render_into(
                 // apply built in filters if field exists
                 let (text, remaining_filters) = match context.fields.get(key) {
                     Some(text) => apply_filters(text, filters, key, context),
-                    None => (unknown_field_message(key, filters).into(), vec![]),
+                    None => {
+                        // unknown field encountered
+                        let name_including_filters = filters
+                            .iter()
+                            .rev()
+                            .cloned()
+                            .chain(iter::once(*key))
+                            .collect::<Vec<_>>()
+                            .join(":");
+                        return Err(TemplateError::FieldNotFound(name_including_filters));
+                    }
                 };
 
                 // fully processed?
@@ -343,16 +354,18 @@ fn render_into(
             }
             Conditional { key, children } => {
                 if context.nonempty_fields.contains(key) {
-                    render_into(rendered_nodes, children.as_ref(), context);
+                    render_into(rendered_nodes, children.as_ref(), context)?;
                 }
             }
             NegatedConditional { key, children } => {
                 if !context.nonempty_fields.contains(key) {
-                    render_into(rendered_nodes, children.as_ref(), context);
+                    render_into(rendered_nodes, children.as_ref(), context)?;
                 }
             }
         };
     }
+
+    Ok(())
 }
 
 /// Append to last node if last node is a string, else add new node.
@@ -401,19 +414,6 @@ fn nonempty_fields<'a>(fields: &'a HashMap<&str, &str>) -> HashSet<&'a str> {
         .collect()
 }
 
-fn unknown_field_message(field_name: &str, filters: &[&str]) -> String {
-    format!(
-        "{{unknown field {}}}",
-        filters
-            .iter()
-            .rev()
-            .cloned()
-            .chain(iter::once(field_name))
-            .collect::<Vec<_>>()
-            .join(":")
-    )
-}
-
 // Rendering both sides
 //----------------------------------------
 
@@ -435,7 +435,7 @@ pub fn render_card(
 
     // question side
     let qnorm = without_legacy_template_directives(qfmt);
-    let qnodes = ParsedTemplate::from_text(qnorm.as_ref())?.render(&context);
+    let qnodes = ParsedTemplate::from_text(qnorm.as_ref())?.render(&context)?;
 
     // if the question side didn't have any unknown filters, we can pass
     // FrontSide in now
@@ -446,7 +446,7 @@ pub fn render_card(
     // answer side
     context.question_side = false;
     let anorm = without_legacy_template_directives(afmt);
-    let anodes = ParsedTemplate::from_text(anorm.as_ref())?.render(&context);
+    let anodes = ParsedTemplate::from_text(anorm.as_ref())?.render(&context)?;
 
     Ok((qnodes, anodes))
 }
@@ -510,6 +510,7 @@ impl ParsedTemplate<'_> {
 #[cfg(test)]
 mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
+    use crate::err::TemplateError;
     use crate::template::{
         field_is_empty, nonempty_fields, render_card, without_legacy_template_directives,
         FieldRequirements, RenderContext, RenderedNode,
@@ -661,7 +662,7 @@ mod test {
         use crate::template::RenderedNode as FN;
         let mut tmpl = PT::from_text("{{B}}A{{F}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
+            tmpl.render(&ctx).unwrap(),
             vec![FN::Text {
                 text: "bAf".to_owned()
             },]
@@ -669,12 +670,12 @@ mod test {
 
         // empty
         tmpl = PT::from_text("{{#E}}A{{/E}}").unwrap();
-        assert_eq!(tmpl.render(&ctx), vec![]);
+        assert_eq!(tmpl.render(&ctx).unwrap(), vec![]);
 
         // missing
         tmpl = PT::from_text("{{^M}}A{{/M}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
+            tmpl.render(&ctx).unwrap(),
             vec![FN::Text {
                 text: "A".to_owned()
             },]
@@ -683,7 +684,7 @@ mod test {
         // nested
         tmpl = PT::from_text("{{^E}}1{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}{{/E}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
+            tmpl.render(&ctx).unwrap(),
             vec![FN::Text {
                 text: "12f".to_owned()
             },]
@@ -692,7 +693,7 @@ mod test {
         // unknown filters
         tmpl = PT::from_text("{{one:two:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
+            tmpl.render(&ctx).unwrap(),
             vec![FN::Replacement {
                 field_name: "B".to_owned(),
                 filters: vec!["two".to_string(), "one".to_string()],
@@ -704,7 +705,7 @@ mod test {
         // excess colons are ignored
         tmpl = PT::from_text("{{one::text:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
+            tmpl.render(&ctx).unwrap(),
             vec![FN::Replacement {
                 field_name: "B".to_owned(),
                 filters: vec!["one".to_string()],
@@ -715,7 +716,7 @@ mod test {
         // known filter
         tmpl = PT::from_text("{{text:B}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
+            tmpl.render(&ctx).unwrap(),
             vec![FN::Text {
                 text: "b".to_owned()
             }]
@@ -724,25 +725,21 @@ mod test {
         // unknown field
         tmpl = PT::from_text("{{X}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
-            vec![FN::Text {
-                text: "{unknown field X}".to_owned()
-            }]
+            tmpl.render(&ctx).unwrap_err(),
+            TemplateError::FieldNotFound("X".to_owned())
         );
 
         // unknown field with filters
         tmpl = PT::from_text("{{foo:text:X}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
-            vec![FN::Text {
-                text: "{unknown field foo:text:X}".to_owned()
-            }]
+            tmpl.render(&ctx).unwrap_err(),
+            TemplateError::FieldNotFound("foo:text:X".to_owned())
         );
 
         // a blank field is allowed if it has filters
         tmpl = PT::from_text("{{filter:}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx),
+            tmpl.render(&ctx).unwrap(),
             vec![FN::Replacement {
                 field_name: "".to_string(),
                 current_text: "".to_string(),
