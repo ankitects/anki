@@ -22,12 +22,13 @@ TYPE_ALL = 3
 
 
 class CustomStudy(QDialog):
-    def __init__(self, mw):
+    def __init__(self, mw) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
         self.conf = self.mw.col.decks.getConf(self.deck["conf"])
         self.form = f = aqt.forms.customstudy.Ui_Dialog()
+        self.created_custom_study = False
         f.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
@@ -179,10 +180,18 @@ class CustomStudy(QDialog):
         # add deck limit
         dyn["terms"][0][0] = 'deck:"%s" %s ' % (self.deck["name"], dyn["terms"][0][0])
         # generate cards
+        self.created_custom_study = True
         if not self.mw.col.sched.rebuildDyn():
             return showWarning(_("No cards matched the criteria you provided."))
         self.mw.moveToState("overview")
         QDialog.accept(self)
+
+    def reject(self) -> None:
+        if self.created_custom_study:
+            # set the original deck back to current
+            self.mw.col.decks.select(self.deck['id'])
+            # fixme: clean up the empty custom study deck
+        QDialog.reject(self)
 
     def _getTags(self):
         from aqt.taglimit import TagLimit
