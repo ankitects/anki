@@ -592,6 +592,7 @@ class Browser(QMainWindow):
         f.previewButton.setToolTip(
             _("Preview Selected Card (%s)") % shortcut(_("Ctrl+Shift+P"))
         )
+        f.previewButton.setShortcut("Ctrl+Shift+P")
 
         f.filter.clicked.connect(self.onFilterButton)
         # edit
