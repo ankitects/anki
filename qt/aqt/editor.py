@@ -956,6 +956,8 @@ class EditorWebView(AnkiWebView):
 
     def _onPaste(self, mode):
         extended = not (self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier)
+        if self.editor.mw.pm.profile.get("pasteInvert", False):
+            extended = not extended
         mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
         html, internal = self._processMime(mime)
         if not html:

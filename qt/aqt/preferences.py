@@ -225,9 +225,11 @@ Not currently enabled; click the sync button in the main window to enable."""
     def setupOptions(self):
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
         self.form.uiScale.setValue(self.mw.pm.uiScale() * 100)
+        self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
 
     def updateOptions(self):
         self.prof["pastePNG"] = self.form.pastePNG.isChecked()
+        self.prof["pasteInvert"] = self.form.pasteInvert.isChecked()
         newScale = self.form.uiScale.value() / 100
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)

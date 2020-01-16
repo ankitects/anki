@@ -95,6 +95,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="pasteInvert">
+         <property name="text">
+          <string>Paste without shift key strips formatting</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="nightMode">
          <property name="text">
           <string>Show cards as white on black (night mode)</string>
@@ -508,6 +515,7 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>pastePNG</tabstop>
+  <tabstop>pasteInvert</tabstop>
   <tabstop>nightMode</tabstop>
   <tabstop>dayLearnFirst</tabstop>
   <tabstop>newSched</tabstop>
