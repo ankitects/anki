@@ -44,7 +44,9 @@ def render_card(
     fields: Dict[str, str],
     card_ord: int,
 ) -> Tuple[str, str]:
-    "Renders the provided templates, returning rendered q & a text."
+    """Renders the provided templates, returning rendered q & a text.
+
+    Will raise if the template is invalid."""
     (qnodes, anodes) = col.backend.render_card(qfmt, afmt, fields, card_ord)
 
     qtext = apply_custom_filters(qnodes, fields, front_side=None)

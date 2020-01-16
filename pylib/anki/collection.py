@@ -672,7 +672,12 @@ where c.nid = n.id and c.id in %s group by nid"""
         (qfmt, afmt) = hooks.card_will_render((qfmt, afmt), fields, model, data)
 
         # render fields
-        qatext = render_card(self, qfmt, afmt, fields, card_ord)
+        try:
+            qatext = render_card(self, qfmt, afmt, fields, card_ord)
+        except anki.rsbackend.BackendException as e:
+            errmsg = f"Card template has a problem:<br>{e}"
+            qatext = (errmsg, errmsg)
+
         ret: Dict[str, Any] = dict(q=qatext[0], a=qatext[1], id=card_id)
 
         # allow add-ons to modify the generated result

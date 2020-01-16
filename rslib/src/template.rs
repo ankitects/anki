@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
+use crate::err::{Result, TemplateError};
 use crate::template_filters::apply_filters;
 use crate::text::strip_sounds;
 use lazy_static::lazy_static;
@@ -87,7 +87,7 @@ fn next_token(input: &str) -> nom::IResult<&str, Token> {
     alt((handle_token, text_token))(input)
 }
 
-fn tokens(template: &str) -> impl Iterator<Item = Result<Token>> {
+fn tokens(template: &str) -> impl Iterator<Item = std::result::Result<Token, TemplateError>> {
     let mut data = template;
 
     std::iter::from_fn(move || {
@@ -99,7 +99,7 @@ fn tokens(template: &str) -> impl Iterator<Item = Result<Token>> {
                 data = i;
                 Some(Ok(o))
             }
-            Err(e) => Some(Err(AnkiError::parse(format!("{:?}", e)))),
+            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
         }
     })
 }
@@ -132,16 +132,16 @@ impl ParsedTemplate<'_> {
     ///
     /// The legacy alternate syntax is not supported, so the provided text
     /// should be run through without_legacy_template_directives() first.
-    pub fn from_text(template: &str) -> Result<ParsedTemplate> {
+    pub fn from_text(template: &str) -> std::result::Result<ParsedTemplate, TemplateError> {
         let mut iter = tokens(template);
         Ok(Self(parse_inner(&mut iter, None)?))
     }
 }
 
-fn parse_inner<'a, I: Iterator<Item = Result<Token<'a>>>>(
+fn parse_inner<'a, I: Iterator<Item = std::result::Result<Token<'a>, TemplateError>>>(
     iter: &mut I,
     open_tag: Option<&'a str>,
-) -> Result<Vec<ParsedNode<'a>>> {
+) -> std::result::Result<Vec<ParsedNode<'a>>, TemplateError> {
     let mut nodes = vec![];
 
     while let Some(token) = iter.next() {
@@ -170,16 +170,13 @@ fn parse_inner<'a, I: Iterator<Item = Result<Token<'a>>>>(
                         return Ok(nodes);
                     }
                 }
-                return Err(AnkiError::parse(format!(
-                    "unbalanced closing tag: {:?} / {}",
-                    open_tag, t
-                )));
+                return Err(TemplateError::ConditionalNotOpen(t.to_string()));
             }
         });
     }
 
     if let Some(open) = open_tag {
-        Err(AnkiError::parse(format!("unclosed conditional {}", open)))
+        Err(TemplateError::ConditionalNotClosed(open.to_string()))
     } else {
         Ok(nodes)
     }
@@ -426,7 +423,7 @@ pub fn render_card(
     afmt: &str,
     field_map: &HashMap<&str, &str>,
     card_ord: u16,
-) -> (Vec<RenderedNode>, Vec<RenderedNode>) {
+) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
     let mut context = RenderContext {
         fields: field_map,
@@ -438,12 +435,7 @@ pub fn render_card(
 
     // question side
     let qnorm = without_legacy_template_directives(qfmt);
-    let qnodes = match ParsedTemplate::from_text(qnorm.as_ref()) {
-        Ok(tmpl) => tmpl.render(&context),
-        Err(e) => vec![RenderedNode::Text {
-            text: format!("{:?}", e),
-        }],
-    };
+    let qnodes = ParsedTemplate::from_text(qnorm.as_ref())?.render(&context);
 
     // if the question side didn't have any unknown filters, we can pass
     // FrontSide in now
@@ -454,14 +446,9 @@ pub fn render_card(
     // answer side
     context.question_side = false;
     let anorm = without_legacy_template_directives(afmt);
-    let anodes = match ParsedTemplate::from_text(anorm.as_ref()) {
-        Ok(tmpl) => tmpl.render(&context),
-        Err(e) => vec![RenderedNode::Text {
-            text: format!("{:?}", e),
-        }],
-    };
+    let anodes = ParsedTemplate::from_text(anorm.as_ref())?.render(&context);
 
-    (qnodes, anodes)
+    Ok((qnodes, anodes))
 }
 
 // Field requirements
@@ -779,7 +766,7 @@ mod test {
         let clozed_text = "{{c1::one}} {{c2::two::hint}}";
         let map: HashMap<_, _> = vec![("Text", clozed_text)].into_iter().collect();
 
-        let (qnodes, anodes) = render_card(fmt, fmt, &map, 0);
+        let (qnodes, anodes) = render_card(fmt, fmt, &map, 0).unwrap();
         assert_eq!(
             strip_html(get_complete_template(&qnodes).unwrap()),
             "[...] two"
@@ -790,11 +777,12 @@ mod test {
         );
 
         // FrontSide should render if only standard modifiers were used
-        let (_qnodes, anodes) = render_card("{{kana:text:Text}}", "{{FrontSide}}", &map, 1);
+        let (_qnodes, anodes) =
+            render_card("{{kana:text:Text}}", "{{FrontSide}}", &map, 1).unwrap();
         assert_eq!(get_complete_template(&anodes).unwrap(), clozed_text);
 
         // But if a custom modifier was used, it's deferred to the Python code
-        let (_qnodes, anodes) = render_card("{{custom:Text}}", "{{FrontSide}}", &map, 1);
+        let (_qnodes, anodes) = render_card("{{custom:Text}}", "{{FrontSide}}", &map, 1).unwrap();
         assert_eq!(get_complete_template(&anodes).is_none(), true)
     }
 }
