@@ -675,7 +675,7 @@ where c.nid = n.id and c.id in %s group by nid"""
         try:
             qatext = render_card(self, qfmt, afmt, fields, card_ord)
         except anki.rsbackend.BackendException as e:
-            errmsg = f"Card template has a problem:<br>{e}"
+            errmsg = _("Card template has a problem:") + f"<br>{e}"
             qatext = (errmsg, errmsg)
 
         ret: Dict[str, Any] = dict(q=qatext[0], a=qatext[1], id=card_id)
