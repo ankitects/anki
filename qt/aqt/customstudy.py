@@ -189,7 +189,7 @@ class CustomStudy(QDialog):
     def reject(self) -> None:
         if self.created_custom_study:
             # set the original deck back to current
-            self.mw.col.decks.select(self.deck['id'])
+            self.mw.col.decks.select(self.deck["id"])
             # fixme: clean up the empty custom study deck
         QDialog.reject(self)
 
