@@ -18,7 +18,7 @@ import decorator
 
 import anki
 from anki.cards import Card
-from anki.types import QAData
+from anki.template import TemplateRenderContext
 
 # New hook/filter handling
 ##############################################################################
@@ -58,71 +58,31 @@ class _CardDidRenderFilter:
     """Can modify the resulting text after rendering completes."""
 
     _hooks: List[
-        Callable[
-            [
-                str,
-                str,
-                Dict[str, str],
-                Dict[str, Any],
-                QAData,
-                "anki.storage._Collection",
-            ],
-            str,
-        ]
+        Callable[[Tuple[str, str], TemplateRenderContext], Tuple[str, str]]
     ] = []
 
     def append(
-        self,
-        cb: Callable[
-            [
-                str,
-                str,
-                Dict[str, str],
-                Dict[str, Any],
-                QAData,
-                "anki.storage._Collection",
-            ],
-            str,
-        ],
+        self, cb: Callable[[Tuple[str, str], TemplateRenderContext], Tuple[str, str]]
     ) -> None:
-        """(text: str, side: str, fields: Dict[str, str], notetype: Dict[str, Any], data: QAData, col: anki.storage._Collection)"""
+        """(text: Tuple[str, str], ctx: TemplateRenderContext)"""
         self._hooks.append(cb)
 
     def remove(
-        self,
-        cb: Callable[
-            [
-                str,
-                str,
-                Dict[str, str],
-                Dict[str, Any],
-                QAData,
-                "anki.storage._Collection",
-            ],
-            str,
-        ],
+        self, cb: Callable[[Tuple[str, str], TemplateRenderContext], Tuple[str, str]]
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def __call__(
-        self,
-        text: str,
-        side: str,
-        fields: Dict[str, str],
-        notetype: Dict[str, Any],
-        data: QAData,
-        col: anki.storage._Collection,
-    ) -> str:
+        self, text: Tuple[str, str], ctx: TemplateRenderContext
+    ) -> Tuple[str, str]:
         for filter in self._hooks:
             try:
-                text = filter(text, side, fields, notetype, data, col)
+                text = filter(text, ctx)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(filter)
                 raise
-        # legacy support
-        runFilter("mungeQA", text, side, fields, notetype, data, col)
         return text
 
 
@@ -151,53 +111,6 @@ class _CardOdueWasInvalidHook:
 
 
 card_odue_was_invalid = _CardOdueWasInvalidHook()
-
-
-class _CardWillRenderFilter:
-    """Can modify the available fields and question/answer templates prior to rendering."""
-
-    _hooks: List[
-        Callable[
-            [Tuple[str, str], Dict[str, str], Dict[str, Any], QAData], Tuple[str, str]
-        ]
-    ] = []
-
-    def append(
-        self,
-        cb: Callable[
-            [Tuple[str, str], Dict[str, str], Dict[str, Any], QAData], Tuple[str, str]
-        ],
-    ) -> None:
-        """(templates: Tuple[str, str], fields: Dict[str, str], notetype: Dict[str, Any], data: QAData)"""
-        self._hooks.append(cb)
-
-    def remove(
-        self,
-        cb: Callable[
-            [Tuple[str, str], Dict[str, str], Dict[str, Any], QAData], Tuple[str, str]
-        ],
-    ) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(
-        self,
-        templates: Tuple[str, str],
-        fields: Dict[str, str],
-        notetype: Dict[str, Any],
-        data: QAData,
-    ) -> Tuple[str, str]:
-        for filter in self._hooks:
-            try:
-                templates = filter(templates, fields, notetype, data)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return templates
-
-
-card_will_render = _CardWillRenderFilter()
 
 
 class _DeckAddedHook:
@@ -253,22 +166,31 @@ exporters_list_created = _ExportersListCreatedHook()
 
 
 class _FieldFilterFilter:
-    _hooks: List[Callable[[str, str, str, Dict[str, str]], str]] = []
+    """Allows you to define custom {{filters:..}}
+        
+        Your add-on can check filter_name to decide whether it should modify
+        field_text or not before returning it."""
 
-    def append(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
-        """(field_text: str, field_name: str, filter_name: str, fields: Dict[str, str])"""
+    _hooks: List[Callable[[str, str, str, TemplateRenderContext], str]] = []
+
+    def append(self, cb: Callable[[str, str, str, TemplateRenderContext], str]) -> None:
+        """(field_text: str, field_name: str, filter_name: str, ctx: TemplateRenderContext)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[str, str, str, Dict[str, str]], str]) -> None:
+    def remove(self, cb: Callable[[str, str, str, TemplateRenderContext], str]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def __call__(
-        self, field_text: str, field_name: str, filter_name: str, fields: Dict[str, str]
+        self,
+        field_text: str,
+        field_name: str,
+        filter_name: str,
+        ctx: TemplateRenderContext,
     ) -> str:
         for filter in self._hooks:
             try:
-                field_text = filter(field_text, field_name, filter_name, fields)
+                field_text = filter(field_text, field_name, filter_name, ctx)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(filter)

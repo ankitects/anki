@@ -15,7 +15,7 @@ the filter is skipped.
 Add-ons can register a filter with the following code:
 
 from anki import hooks
-hooks.field_replacement.append(myfunc)
+hooks.field_filter.append(myfunc)
 
 This will call myfunc, passing the field text in as the first argument.
 Your function should decide if it wants to modify the text by checking
@@ -29,35 +29,98 @@ template_legacy.py file, using the legacy addHook() system.
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import anki
 from anki import hooks
-from anki.hooks import runFilter
 from anki.rsbackend import TemplateReplacementList
 from anki.sound import stripSounds
+from anki.types import NoteType, QAData
+
+
+class TemplateRenderContext:
+    """Holds information for the duration of one card render.
+
+    This may fetch information lazily in the future, so please avoid
+    using the _private fields directly."""
+
+    def __init__(
+        self, col: anki.storage._Collection, qadata: QAData, fields: Dict[str, str]
+    ) -> None:
+        self._col = col
+        self._qadata = qadata
+        self._fields = fields
+
+        self._note_type: Optional[NoteType] = None
+        self._card: Optional[anki.cards.Card] = None
+        self._note: Optional[anki.notes.Note] = None
+
+        # if you need to store extra state to share amongst rendering
+        # hooks, you can insert it into this dictionary
+        self.extra_state: Dict[str, Any] = {}
+
+    def col(self) -> anki.storage._Collection:
+        return self._col
+
+    def fields(self) -> Dict[str, str]:
+        return self._fields
+
+    def card_id(self) -> int:
+        return self._qadata[0]
+
+    def note_id(self) -> int:
+        return self._qadata[1]
+
+    def deck_id(self) -> int:
+        return self._qadata[3]
+
+    def card_ord(self) -> int:
+        return self._qadata[4]
+
+    def card(self) -> Optional[anki.cards.Card]:
+        """Returns the card being rendered. Will return None in the add screen.
+
+        Be careful not to call .q() or .a() on the card, or you'll create an
+        infinite loop."""
+        if not self._card:
+            try:
+                self._card = self.col().getCard(self.card_id())
+            except:
+                return None
+
+        return self._card
+
+    def note(self) -> anki.notes.Note:
+        if not self._note:
+            self._note = self.col().getNote(self.note_id())
+
+        return self._note
+
+    def note_type(self) -> NoteType:
+        if not self._note_type:
+            self._note_type = self.col().models.get(self._qadata[2])
+
+        return self._note_type
 
 
 def render_card(
-    col: anki.storage._Collection,
-    qfmt: str,
-    afmt: str,
-    fields: Dict[str, str],
-    card_ord: int,
+    col: anki.storage._Collection, qfmt: str, afmt: str, ctx: TemplateRenderContext
 ) -> Tuple[str, str]:
     """Renders the provided templates, returning rendered q & a text.
 
     Will raise if the template is invalid."""
-    (qnodes, anodes) = col.backend.render_card(qfmt, afmt, fields, card_ord)
+    (qnodes, anodes) = col.backend.render_card(qfmt, afmt, ctx.fields(), ctx.card_ord())
 
-    qtext = apply_custom_filters(qnodes, fields, front_side=None)
-    atext = apply_custom_filters(anodes, fields, front_side=qtext)
+    qtext = apply_custom_filters(qnodes, ctx, front_side=None)
+    atext = apply_custom_filters(anodes, ctx, front_side=qtext)
 
     return qtext, atext
 
 
 def apply_custom_filters(
-    rendered: TemplateReplacementList, fields: Dict[str, str], front_side: Optional[str]
+    rendered: TemplateReplacementList,
+    ctx: TemplateRenderContext,
+    front_side: Optional[str],
 ) -> str:
     "Complete rendering by applying any pending custom filters."
     # template already fully rendered?
@@ -76,11 +139,16 @@ def apply_custom_filters(
             field_text = node.current_text
             for filter_name in node.filters:
                 field_text = hooks.field_filter(
-                    field_text, node.field_name, filter_name, fields
+                    field_text, node.field_name, filter_name, ctx
                 )
-                # legacy hook - the second and fifth argument are no longer used
-                field_text = runFilter(
-                    "fmod_" + filter_name, field_text, "", fields, node.field_name, ""
+                # legacy hook - the second and fifth argument are no longer used.
+                field_text = anki.hooks.runFilter(
+                    "fmod_" + filter_name,
+                    field_text,
+                    "",
+                    ctx.fields(),
+                    node.field_name,
+                    "",
                 )
 
             res += field_text

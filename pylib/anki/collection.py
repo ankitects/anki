@@ -31,7 +31,7 @@ from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.template import render_card
+from anki.template import TemplateRenderContext, render_card
 from anki.types import NoteType, QAData, Template
 from anki.utils import (
     devMode,
@@ -635,7 +635,6 @@ where c.nid = n.id and c.id in %s group by nid"""
     def _renderQA(
         self, data: QAData, qfmt: Optional[str] = None, afmt: Optional[str] = None
     ) -> Dict[str, Union[str, int]]:
-        "Returns hash of id, question, answer."
         # extract info from data
         split_fields = splitFields(data[6])
         card_ord = data[4]
@@ -665,35 +664,39 @@ where c.nid = n.id and c.id in %s group by nid"""
         fields["CardFlag"] = self._flagNameFromCardFlags(flag)
         fields["c%d" % (card_ord + 1)] = "1"
 
-        # legacy
+        # legacy hook
         fields = runFilter("mungeFields", fields, model, data, self)
 
-        # allow add-ons to modify the available fields & templates
-        (qfmt, afmt) = hooks.card_will_render((qfmt, afmt), fields, model, data)
+        ctx = TemplateRenderContext(self, data, fields)
 
-        # render fields
+        # render fields. if any custom filters are encountered,
+        # the field_filter hook will be called.
         try:
-            qatext = render_card(self, qfmt, afmt, fields, card_ord)
+            qtext, atext = render_card(self, qfmt, afmt, ctx)
         except anki.rsbackend.BackendException as e:
             errmsg = _("Card template has a problem:") + f"<br>{e}"
-            qatext = (errmsg, errmsg)
+            qtext = errmsg
+            atext = errmsg
 
-        ret: Dict[str, Any] = dict(q=qatext[0], a=qatext[1], id=card_id)
+        # avoid showing the user a confusing blank card if they've
+        # forgotten to add a cloze deletion
+        if model["type"] == MODEL_CLOZE:
+            if not self.models._availClozeOrds(model, data[6], False):
+                qtext = (
+                    qtext
+                    + "<p>"
+                    + _("Please edit this note and add some cloze deletions. (%s)")
+                    % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
+                )
 
         # allow add-ons to modify the generated result
-        for type in "q", "a":
-            ret[type] = hooks.card_did_render(
-                ret[type], type, fields, model, data, self
-            )
+        (qtext, atext) = hooks.card_did_render((qtext, atext), ctx)
 
-            # empty cloze?
-            if type == "q" and model["type"] == MODEL_CLOZE:
-                if not self.models._availClozeOrds(model, data[6], False):
-                    ret["q"] += "<p>" + _(
-                        "Please edit this note and add some cloze deletions. (%s)"
-                    ) % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
+        # legacy hook
+        qtext = runFilter("mungeQA", qtext, "q", fields, model, data, self)
+        atext = runFilter("mungeQA", atext, "a", fields, model, data, self)
 
-        return ret
+        return dict(q=qtext, a=atext, id=card_id)
 
     def _qaData(self, where="") -> Any:
         "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"

@@ -17,7 +17,7 @@ from typing import Any, Callable, List, Optional, Tuple, Union
 from anki.consts import *
 from anki.db import DB, DBError
 from anki.lang import _
-from anki.latex import mungeQA
+from anki.latex import render_latex
 from anki.template import expand_clozes
 from anki.utils import checksum, isMac, isWin
 
@@ -222,7 +222,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             strings = [string]
         for string in strings:
             # handle latex
-            string = mungeQA(string, None, None, model, None, self.col)
+            string = render_latex(string, model, self.col)
             # extract filenames
             for reg in self.regexps:
                 for match in re.finditer(reg, string):
