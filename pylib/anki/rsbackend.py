@@ -23,7 +23,7 @@ class BackendException(Exception):
         if kind == "invalid_input":
             return f"invalid input: {err.invalid_input.info}"
         elif kind == "template_parse":
-            return f"template parse: {err.template_parse.info}"
+            return err.template_parse.info
         else:
             return f"unhandled error: {err}"
 

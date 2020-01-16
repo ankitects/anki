@@ -97,7 +97,7 @@ impl Backend {
             Value::DeckTree(_) => todo!(),
             Value::FindCards(_) => todo!(),
             Value::BrowserRows(_) => todo!(),
-            Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)),
+            Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
         })
     }
 
@@ -161,7 +161,7 @@ impl Backend {
         }
     }
 
-    fn render_template(&self, input: pt::RenderCardIn) -> pt::RenderCardOut {
+    fn render_template(&self, input: pt::RenderCardIn) -> Result<pt::RenderCardOut> {
         // convert string map to &str
         let fields: HashMap<_, _> = input
             .fields
@@ -175,13 +175,13 @@ impl Backend {
             &input.answer_template,
             &fields,
             input.card_ordinal as u16,
-        );
+        )?;
 
         // return
-        pt::RenderCardOut {
+        Ok(pt::RenderCardOut {
             question_nodes: rendered_nodes_to_proto(qnodes),
             answer_nodes: rendered_nodes_to_proto(anodes),
-        }
+        })
     }
 }
 
