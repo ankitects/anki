@@ -330,14 +330,17 @@ fn render_into(
                     Some(text) => apply_filters(text, filters, key, context),
                     None => {
                         // unknown field encountered
-                        let name_including_filters = filters
+                        let filters_str = filters
                             .iter()
                             .rev()
                             .cloned()
-                            .chain(iter::once(*key))
+                            .chain(iter::once(""))
                             .collect::<Vec<_>>()
                             .join(":");
-                        return Err(TemplateError::FieldNotFound(name_including_filters));
+                        return Err(TemplateError::FieldNotFound {
+                            field: (*key).to_string(),
+                            filters: filters_str,
+                        });
                     }
                 };
 
@@ -726,14 +729,20 @@ mod test {
         tmpl = PT::from_text("{{X}}").unwrap();
         assert_eq!(
             tmpl.render(&ctx).unwrap_err(),
-            TemplateError::FieldNotFound("X".to_owned())
+            TemplateError::FieldNotFound {
+                field: "X".to_owned(),
+                filters: "".to_owned()
+            }
         );
 
         // unknown field with filters
         tmpl = PT::from_text("{{foo:text:X}}").unwrap();
         assert_eq!(
             tmpl.render(&ctx).unwrap_err(),
-            TemplateError::FieldNotFound("foo:text:X".to_owned())
+            TemplateError::FieldNotFound {
+                field: "X".to_owned(),
+                filters: "foo:text:".to_owned()
+            }
         );
 
         // a blank field is allowed if it has filters
