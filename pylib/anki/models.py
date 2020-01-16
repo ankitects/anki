@@ -559,67 +559,12 @@ select id from notes where mid = ?)"""
     ##########################################################################
 
     def _updateRequired(self, m: NoteType) -> None:
-        self._updateRequiredNew(m)
-
-    def _updateRequiredLegacy(self, m: NoteType) -> None:
-        if m["type"] == MODEL_CLOZE:
-            # nothing to do
-            return
-        req = []
-        flds = [f["name"] for f in m["flds"]]
-        for t in m["tmpls"]:
-            ret = self._reqForTemplate(m, flds, t)
-            req.append([t["ord"], ret[0], ret[1]])
-        m["req"] = req
-
-    def _updateRequiredNew(self, m: NoteType) -> None:
         fronts = [t["qfmt"] for t in m["tmpls"]]
         field_map = {}
         for (idx, fld) in enumerate(m["flds"]):
             field_map[fld["name"]] = idx
         reqs = self.col.backend.template_requirements(fronts, field_map)
         m["req"] = [list(l) for l in reqs]
-
-    def _reqForTemplate(
-        self, m: NoteType, flds: List[str], t: Template
-    ) -> Tuple[Union[str, List[int]], ...]:
-        a = []
-        b = []
-        for f in flds:
-            a.append("ankiflag")
-            b.append("")
-
-        def renderWithFields(fields):
-            return self.col._renderQA(
-                (1, 1, m["id"], 1, t["ord"], "", joinFields(fields), 0)  # type: ignore
-            )["q"]
-
-        full = renderWithFields(a)
-        empty = renderWithFields(b)
-        # if full and empty are the same, the template is invalid and there is
-        # no way to satisfy it
-        if full == empty:
-            return "none", [], []
-        type = "all"
-        req = []
-        for i in range(len(flds)):
-            tmp = a[:]
-            tmp[i] = ""
-            # if no field content appeared, field is required
-            if "ankiflag" not in renderWithFields(tmp):
-                req.append(i)
-        if req:
-            return type, req
-        # if there are no required fields, switch to any mode
-        type = "any"
-        req = []
-        for i in range(len(flds)):
-            tmp = b[:]
-            tmp[i] = "1"
-            # if not the same as empty, this field can make the card non-blank
-            if renderWithFields(tmp) != empty:
-                req.append(i)
-        return type, req
 
     def availOrds(self, m: NoteType, flds: str) -> List:
         "Given a joined field string, return available template ordinals."
