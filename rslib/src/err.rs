@@ -26,7 +26,7 @@ pub enum TemplateError {
     NoClosingBrackets(String),
     ConditionalNotClosed(String),
     ConditionalNotOpen(String),
-    FieldNotFound(String),
+    FieldNotFound { filters: String, field: String },
 }
 
 impl From<TemplateError> for AnkiError {
@@ -40,9 +40,9 @@ impl From<TemplateError> for AnkiError {
                 TemplateError::ConditionalNotOpen(tag) => {
                     format!("missing '{{{{#{}}}}}' or '{{{{^{}}}}}'", tag, tag)
                 }
-                TemplateError::FieldNotFound(field) => format!(
-                    "found '{{{{{}}}}}', but there is no field called '{}'",
-                    field, field
+                TemplateError::FieldNotFound { field, filters } => format!(
+                    "found '{{{{{}{}}}}}', but there is no field called '{}'",
+                    filters, field, field
                 ),
             },
         }
