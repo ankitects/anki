@@ -9,7 +9,7 @@ cd $topDir
 
 all=all.files
 echo "Updating anki.pot..."
-for i in pylib/anki/{*.py,importing/*.py,template/*.py}; do
+for i in pylib/anki/{*.py,importing/*.py}; do
     echo $i >> $all
 done
 for i in qt/aqt/{*.py,forms/*.py}; do
