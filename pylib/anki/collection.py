@@ -25,14 +25,13 @@ from anki.errors import AnkiError
 from anki.hooks import runFilter
 from anki.lang import _, ngettext
 from anki.media import MediaManager
-from anki.models import ModelManager
+from anki.models import ModelManager, NoteType, Template
 from anki.notes import Note
 from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.template import TemplateRenderContext, render_card
-from anki.types import NoteType, QAData, Template
+from anki.template import QAData, TemplateRenderContext, render_card
 from anki.utils import (
     devMode,
     fieldChecksum,

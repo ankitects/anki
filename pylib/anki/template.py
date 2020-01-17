@@ -33,9 +33,29 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import anki
 from anki import hooks
+from anki.models import NoteType
 from anki.rsbackend import TemplateReplacementList
 from anki.sound import stripSounds
-from anki.types import NoteType, QAData
+
+QAData = Tuple[
+    # Card ID this QA comes from. Corresponds to 'cid' column.
+    int,
+    # Note ID this QA comes from. Corresponds to 'nid' column.
+    int,
+    # ID of the model (i.e., NoteType) for this QA's note. Corresponds to 'mid' column.
+    int,
+    # Deck ID. Corresponds to 'did' column.
+    int,
+    # Index of the card template (within the NoteType) this QA was built
+    # from. Corresponds to 'ord' column.
+    int,
+    # Tags, separated by space. Corresponds to 'tags' column.
+    str,
+    # Corresponds to 'flds' column. TODO: document.
+    str,
+    # Corresponds to 'cardFlags' column. TODO: document
+    int,
+]
 
 
 class TemplateRenderContext:
