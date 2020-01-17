@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-09 19:16+1000\n"
-"PO-Revision-Date: 2020-01-09 09:19\n"
+"PO-Revision-Date: 2020-01-17 01:07\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -483,7 +483,7 @@ msgstr "0T"
 
 #: qt/aqt/forms/dyndconf.py:146
 msgid "1 10"
-msgstr ""
+msgstr "1 10"
 
 #: pylib/anki/stats.py:962 qt/aqt/forms/stats.py:78
 msgid "1 month"
@@ -566,11 +566,11 @@ msgstr "<b>Schriftart</b>:"
 #: qt/aqt/addons.py:871
 #, python-format
 msgid "<b>Important</b>: As add-ons are programs downloaded from the internet, they are potentially malicious.<b>You should only install add-ons you trust.</b><br><br>Are you sure you want to proceed with the installation of the following Anki add-on(s)?<br><br>%(names)s"
-msgstr ""
+msgstr "<b>Wichtig</b>: Da Erweiterungen aus dem Internet heruntergeladene Programme sind, sind sie potenziell schädlich.<b>Sie sollten nur Add-ons installieren, denen Sie vertrauen.</b><br><br>Sind Sie sicher, dass Sie mit der Installation der folgenden Anki-Erweiterung(en) fortfahren möchten?<br><br>%(names)s"
 
 #: qt/aqt/forms/findreplace.py:71
 msgid "<b>In</b>:"
-msgstr ""
+msgstr "<b>In</b>:"
 
 #: qt/aqt/forms/exporting.py:76
 msgid "<b>Include</b>:"
@@ -582,7 +582,7 @@ msgstr "<b>Liniengröße</b>:"
 
 #: qt/aqt/addons.py:895
 msgid "<b>Please restart Anki to complete the installation.</b>"
-msgstr ""
+msgstr "<b>Bitte starten Sie Anki neu, um die Installation abzuschließen.</b>"
 
 #: qt/aqt/forms/findreplace.py:70
 msgid "<b>Replace With</b>:"
@@ -720,7 +720,7 @@ msgstr "Hinzufügen zu:"
 
 #: qt/aqt/browser.py:145
 msgid "Add-on"
-msgstr ""
+msgstr "Erweiterung"
 
 #: qt/aqt/addons.py:723
 msgid "Add-on has no configuration."
@@ -728,7 +728,7 @@ msgstr "Die Erweiterung bietet keine Konfigurationsmöglichkeiten."
 
 #: qt/aqt/addons.py:912
 msgid "Add-on installation error"
-msgstr ""
+msgstr "Erweiterung - Installationsfehler"
 
 #: qt/aqt/addons.py:631
 msgid "Add-on was not downloaded from AnkiWeb."
@@ -736,7 +736,7 @@ msgstr "Die Erweiterung wurde nicht von AnkiWeb heruntergeladen."
 
 #: qt/aqt/main.py:1512
 msgid "Add-on will be installed when a profile is opened."
-msgstr ""
+msgstr "Die Erweiterung wird installiert, sobald ein Profil geöffnet wird."
 
 #: qt/aqt/forms/addons.py:67 qt/aqt/forms/main.py:155
 msgid "Add-ons"
@@ -857,7 +857,7 @@ msgstr "Anki 2.0-Stapel"
 
 #: qt/aqt/forms/preferences.py:246
 msgid "Anki 2.1 scheduler (beta)"
-msgstr ""
+msgstr "Anki 2.1-Zeitplaner (Beta)"
 
 #: pylib/anki/exporting.py:380
 msgid "Anki Collection Package"
@@ -1804,7 +1804,7 @@ msgstr "Fehler beim Herunterladen von %(id)s: %(error)s"
 #: qt/aqt/addons.py:364
 #, python-format
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
-msgstr ""
+msgstr "Fehler beim Herunterladen von <i>%(id)s</i>: %(error)s"
 
 #: qt/aqt/main.py:77
 #, python-format
@@ -2235,7 +2235,7 @@ msgstr "Erweiterung(en) installieren"
 
 #: qt/aqt/addons.py:881
 msgid "Install Anki add-on"
-msgstr ""
+msgstr "Anki-Erweiterung installieren"
 
 #: qt/aqt/forms/addons.py:70
 msgid "Install from file..."
@@ -2243,7 +2243,7 @@ msgstr "Aus Datei installieren...."
 
 #: qt/aqt/addons.py:904
 msgid "Installation complete"
-msgstr ""
+msgstr "Installation abgeschlossen"
 
 #: qt/aqt/addons.py:379
 #, python-format
@@ -3797,11 +3797,11 @@ msgstr "Unerwarteter Antwortcode: %s"
 
 #: qt/aqt/addons.py:361
 msgid "Unknown error"
-msgstr ""
+msgstr "Unbekannter Fehler"
 
 #: qt/aqt/addons.py:358
 msgid "Unknown error: {}"
-msgstr ""
+msgstr "Unbekannter Fehler: {}"
 
 #: qt/aqt/importing.py:363
 msgid "Unknown file format."
@@ -3841,7 +3841,7 @@ msgstr "Benutzer 1"
 
 #: qt/aqt/forms/preferences.py:255
 msgid "User interface size"
-msgstr ""
+msgstr "Schriftgröße der Benutzeroberfläche"
 
 #: qt/aqt/about.py:58
 #, python-format
