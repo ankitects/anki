@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-09 19:16+1000\n"
-"PO-Revision-Date: 2020-01-09 09:19\n"
+"PO-Revision-Date: 2020-01-17 01:08\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
@@ -552,7 +552,7 @@ msgstr "<b>行のサイズ</b>:"
 
 #: qt/aqt/addons.py:895
 msgid "<b>Please restart Anki to complete the installation.</b>"
-msgstr ""
+msgstr "<b>インストールを完了させるためにAnkiを再起動してください。</b>"
 
 #: qt/aqt/forms/findreplace.py:70
 msgid "<b>Replace With</b>:"
@@ -839,7 +839,7 @@ msgstr "Anki デッキパッケージ"
 
 #: qt/aqt/profiles.py:179
 msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
-msgstr ""
+msgstr "プロファイルデータを読み込むことができません。ウィンドウサイズと同期のためのログイン詳細が除去されています。"
 
 #: qt/aqt/profiles.py:249
 msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
@@ -935,7 +935,7 @@ msgstr "メディア(画像/音声/動画)を追加 (F3)"
 
 #: qt/aqt/main.py:310
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
-msgstr ""
+msgstr "復元中、自動で行われる同期とバックアップが無効化されました。プロファイルを閉じ、Ankiを再起動させることで再び自動で行われるようになります。"
 
 #: qt/aqt/forms/dconf.py:390
 msgid "Automatically play audio"
@@ -1018,7 +1018,7 @@ msgstr "太字 (Ctrl+B)"
 
 #: qt/aqt/toolbar.py:36
 msgid "Browse"
-msgstr "ブラウザ"
+msgstr "検索"
 
 #: qt/aqt/browser.py:794
 #, python-format
@@ -1032,15 +1032,15 @@ msgstr "アドオン一覧"
 
 #: qt/aqt/forms/browserdisp.py:69
 msgid "Browser Appearance"
-msgstr "ブラウザのカードリストの表示を設定"
+msgstr "検索の表示設定"
 
 #: qt/aqt/clayout.py:484
 msgid "Browser Appearance..."
-msgstr "ブラウザのカードリストの表示を設定..."
+msgstr "検索の表示設定..."
 
 #: qt/aqt/forms/browseropts.py:69
 msgid "Browser Options"
-msgstr "ブラウザのオプション"
+msgstr "検索オプション"
 
 #: qt/aqt/dyndeckconf.py:20
 msgid "Build"
@@ -1052,7 +1052,7 @@ msgstr "延期"
 
 #: qt/aqt/overview.py:104
 msgid "Buried Siblings"
-msgstr ""
+msgstr "延期した兄弟カード"
 
 #: qt/aqt/reviewer.py:773 qt/aqt/reviewer.py:779
 msgid "Bury"
@@ -1068,7 +1068,7 @@ msgstr "ノートを延期"
 
 #: qt/aqt/forms/dconf.py:361
 msgid "Bury related new cards until the next day"
-msgstr "新規の関連カードの基本学習を翌日まで延期する"
+msgstr "関連する新規カードを翌日まで延期する"
 
 #: qt/aqt/forms/dconf.py:372
 msgid "Bury related reviews until the next day"
@@ -2027,7 +2027,7 @@ msgstr "難しい"
 
 #: qt/aqt/forms/dconf.py:373
 msgid "Hard interval"
-msgstr ""
+msgstr "難しいから復習開始までの間隔"
 
 #: qt/aqt/forms/preferences.py:240
 msgid "Hardware acceleration (faster, may cause display issues)"
@@ -2172,7 +2172,7 @@ msgstr "今日の新規カードの上限を上げる"
 
 #: qt/aqt/customstudy.py:71
 msgid "Increase today's new card limit by"
-msgstr "今日の新規カードの上限に追加"
+msgstr "今日の新規カードの上限に上乗せ"
 
 #: qt/aqt/forms/customstudy.py:104
 msgid "Increase today's review card limit"
@@ -2180,7 +2180,7 @@ msgstr "今日の復習カードの上限を上げる"
 
 #: qt/aqt/customstudy.py:83
 msgid "Increase today's review limit by"
-msgstr "今日の復習カードの上限に追加"
+msgstr "今日の復習カードの上限に上乗せ"
 
 #: pylib/anki/consts.py:89
 msgid "Increasing intervals"
@@ -2314,7 +2314,7 @@ msgstr "追加時期が新しい順"
 
 #: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1433
 msgid "Learn"
-msgstr "基本学習"
+msgstr "学習"
 
 #: qt/aqt/forms/preferences.py:252
 msgid "Learn ahead limit"
@@ -2400,11 +2400,11 @@ msgstr "MathJaxブロック"
 
 #: qt/aqt/editor.py:870
 msgid "MathJax chemistry"
-msgstr ""
+msgstr "MathJax 化学"
 
 #: qt/aqt/editor.py:868
 msgid "MathJax inline"
-msgstr ""
+msgstr "MathJax インライン"
 
 #: pylib/anki/stats.py:245 pylib/anki/stats.py:372 pylib/anki/stats.py:392
 #: pylib/anki/stats.py:703 pylib/anki/stats.py:873
@@ -2457,7 +2457,7 @@ msgstr "カードをデッキに移動："
 
 #: qt/aqt/importing.py:138
 msgid "Multi-character separators are not supported. Please enter one character only."
-msgstr ""
+msgstr "複数文字のデリミタを使用することができません。１文字のみ入力してください。"
 
 #: qt/aqt/forms/browser.py:306
 msgid "N&ote"
@@ -2490,7 +2490,7 @@ msgstr "新規カード"
 #: qt/aqt/customstudy.py:70
 #, python-format
 msgid "New cards in deck over today limit: %s"
-msgstr "デッキ内の新規カードが本日の上限を超えています：%s"
+msgstr "デッキ内の今日の上限を超えている新規カード数：%s"
 
 #: qt/aqt/forms/customstudy.py:110
 msgid "New cards only"
@@ -3074,7 +3074,7 @@ msgstr "履歴（時間）"
 
 #: qt/aqt/forms/customstudy.py:101
 msgid "Review ahead"
-msgstr "先取りして復習する"
+msgstr "先取りして学習する"
 
 #: qt/aqt/customstudy.py:92
 msgid "Review ahead by"
@@ -3082,7 +3082,7 @@ msgstr "先取りする日数"
 
 #: qt/aqt/customstudy.py:88
 msgid "Review cards forgotten in last"
-msgstr "忘れたカードを復習する: 過去"
+msgstr "もう一度と回答したカードを復習:：過去"
 
 #: qt/aqt/forms/customstudy.py:102
 msgid "Review forgotten cards"
@@ -3100,7 +3100,7 @@ msgstr "復習"
 #: qt/aqt/customstudy.py:82
 #, python-format
 msgid "Reviews due in deck over today limit: %s"
-msgstr "デッキ内の復習課題が本日の上限を超えています：%s"
+msgstr "デッキ内の今日の上限を超えている復習カード数：%s"
 
 #: pylib/anki/consts.py:81
 msgid "Right"
@@ -3278,7 +3278,7 @@ msgstr "サイズ:"
 
 #: pylib/anki/importing/anki2.py:162
 msgid "Skipped"
-msgstr ""
+msgstr "除外"
 
 #: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
@@ -3368,7 +3368,7 @@ msgstr "デッキを選択..."
 
 #: qt/aqt/overview.py:202
 msgid "Study Now"
-msgstr "学習する"
+msgstr "学習開始"
 
 #: qt/aqt/forms/customstudy.py:105
 msgid "Study by card state or tag"
@@ -3572,9 +3572,7 @@ msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
 "your short-term review workload will become."
-msgstr "新規カードはまだ残っていますが、今日の最大出題数に達しました。\n"
-"最大出題数を増やすこともできますが、さらにカードを追加すると\n"
-"それだけ短期的に復習の負荷が掛かることに注意してください。"
+msgstr "まだ新規カードは残っていますが、設定した一日の上限に達しました。学習設定より上限を変更することも可能ですが、それにより短期的に一日の復習量が増え、しばらくの間、通常よりも学習負荷がかかりますのでご注意ください。"
 
 #: qt/aqt/main.py:256
 msgid "There must be at least one profile."
@@ -3775,7 +3773,7 @@ msgstr "次のアドオンをアップデートしますか？"
 
 #: pylib/anki/importing/anki2.py:165
 msgid "Updated"
-msgstr ""
+msgstr "更新"
 
 #: qt/aqt/sync.py:321 qt/aqt/sync.py:325
 msgid "Upload to AnkiWeb"
@@ -3923,7 +3921,7 @@ msgstr "バックアップ"
 
 #: pylib/anki/stats.py:345 qt/aqt/customstudy.py:52
 msgid "cards"
-msgstr "枚数"
+msgstr "枚"
 
 #: qt/aqt/customstudy.py:100
 msgid "cards from the deck"
