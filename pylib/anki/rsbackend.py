@@ -8,8 +8,7 @@ import ankirspy  # pytype: disable=import-error
 
 import anki.backend_pb2 as pb
 import anki.buildinfo
-
-from .types import AllTemplateReqs
+from anki.models import AllTemplateReqs
 
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 

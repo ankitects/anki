@@ -13,8 +13,16 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
 from anki.lang import _
-from anki.types import Field, NoteType, Template
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
+
+# types
+NoteType = Dict[str, Any]
+Field = Dict[str, Any]
+Template = Dict[str, Union[str, int, None]]
+TemplateRequirementType = str  # Union["all", "any", "none"]
+# template ordinal, type, list of field ordinals
+TemplateRequiredFieldOrds = Tuple[int, TemplateRequirementType, List[int]]
+AllTemplateReqs = List[TemplateRequiredFieldOrds]
 
 # Models
 ##########################################################################

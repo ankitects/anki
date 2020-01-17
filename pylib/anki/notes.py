@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
-from anki.types import NoteType
+from anki.models import NoteType
 from anki.utils import (
     fieldChecksum,
     guid64,

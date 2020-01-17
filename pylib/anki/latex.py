@@ -12,8 +12,8 @@ from typing import Any, Optional, Tuple
 import anki
 from anki import hooks
 from anki.lang import _
+from anki.models import NoteType
 from anki.template import TemplateRenderContext
-from anki.types import NoteType
 from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [

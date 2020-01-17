@@ -5,7 +5,7 @@ from typing import Any, Callable, List, Tuple, Union
 
 from anki.consts import MODEL_CLOZE
 from anki.lang import _
-from anki.types import NoteType
+from anki.models import NoteType
 
 models: List[Tuple[Union[Callable[[], str], str], Callable[[Any], NoteType]]] = []
 

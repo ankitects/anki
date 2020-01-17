@@ -18,8 +18,8 @@ from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.models import NoteType
 from anki.notes import Note
-from anki.types import NoteType
 from anki.utils import (
     bodyClass,
     fmtTimeSpan,
