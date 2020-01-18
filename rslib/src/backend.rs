@@ -88,7 +88,6 @@ impl Backend {
             Value::TemplateRequirements(input) => {
                 OValue::TemplateRequirements(self.template_requirements(input)?)
             }
-            Value::PlusOne(input) => OValue::PlusOne(self.plus_one(input)?),
             Value::SchedTimingToday(input) => {
                 OValue::SchedTimingToday(self.sched_timing_today(input))
             }
@@ -100,11 +99,6 @@ impl Backend {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
             }
         })
-    }
-
-    fn plus_one(&self, input: pt::PlusOneIn) -> Result<pt::PlusOneOut> {
-        let num = input.num + 1;
-        Ok(pt::PlusOneOut { num })
     }
 
     fn template_requirements(

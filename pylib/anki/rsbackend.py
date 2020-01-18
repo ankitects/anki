@@ -88,11 +88,6 @@ class RustBackend:
         else:
             return output
 
-    def plus_one(self, num: int) -> int:
-        input = pb.BackendInput(plus_one=pb.PlusOneIn(num=num))
-        output = self._run_command(input)
-        return output.plus_one.num
-
     def template_requirements(
         self, template_fronts: List[str], field_map: Dict[str, int]
     ) -> AllTemplateReqs:

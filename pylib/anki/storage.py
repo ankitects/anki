@@ -31,9 +31,6 @@ def Collection(
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
     backend = RustBackend(path)
-    # fixme: this call is temporarily here to ensure the brige is working
-    # on all platforms, and should be removed in a future beta
-    assert backend.plus_one(5) == 6
     assert path.endswith(".anki2")
     path = os.path.abspath(path)
     create = not os.path.exists(path)
