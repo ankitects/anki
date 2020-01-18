@@ -17,8 +17,8 @@ from send2trash import send2trash
 
 import aqt
 import aqt.forms
+from anki.httpclient import AnkiRequestsClient
 from anki.lang import _, ngettext
-from anki.sync import AnkiRequestsClient
 from anki.utils import intTime
 from aqt.downloader import download
 from aqt.qt import *
