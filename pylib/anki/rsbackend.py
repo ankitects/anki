@@ -143,3 +143,8 @@ class RustBackend:
         anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
 
         return (qnodes, anodes)
+
+    def local_minutes_west(self, stamp: int) -> int:
+        return self._run_command(
+            pb.BackendInput(local_minutes_west=stamp)
+        ).local_minutes_west

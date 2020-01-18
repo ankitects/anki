@@ -15,6 +15,7 @@ message BackendInput {
         FindCardsIn find_cards = 19;
         BrowserRowsIn browser_rows = 20;
         RenderCardIn render_card = 21;
+        int64 local_minutes_west = 22;
 
         PlusOneIn plus_one = 2046; // temporary, for testing
     }
@@ -28,6 +29,7 @@ message BackendOutput {
         FindCardsOut find_cards = 19;
         BrowserRowsOut browser_rows = 20;
         RenderCardOut render_card = 21;
+        sint32 local_minutes_west = 22;
 
         PlusOneOut plus_one = 2046; // temporary, for testing
 

@@ -82,21 +82,21 @@ fn fixed_offset_from_minutes(minutes_west: i32) -> FixedOffset {
     FixedOffset::west(bounded_minutes * 60)
 }
 
-/// Relative to the local timezone, the number of minutes UTC differs by.
+/// For the given timestamp, return minutes west of UTC in the
+/// local timezone.
 /// eg, Australia at +10 hours is -600.
 /// Includes the daylight savings offset if applicable.
-#[allow(dead_code)]
-fn utc_minus_local_mins() -> i32 {
-    Local::now().offset().utc_minus_local() / 60
+pub fn local_minutes_west_for_stamp(stamp: i64) -> i32 {
+    Local.timestamp(stamp, 0).offset().utc_minus_local() / 60
 }
 
 #[cfg(test)]
 mod test {
     use crate::sched::{
-        fixed_offset_from_minutes, normalized_rollover_hour, sched_timing_today,
-        utc_minus_local_mins,
+        fixed_offset_from_minutes, local_minutes_west_for_stamp, normalized_rollover_hour,
+        sched_timing_today,
     };
-    use chrono::{FixedOffset, Local, TimeZone};
+    use chrono::{FixedOffset, Local, TimeZone, Utc};
 
     #[test]
     fn test_rollover() {
@@ -122,8 +122,15 @@ mod test {
     }
 
     #[test]
+    fn test_local_minutes_west() {
+        // -480 throughout the year
+        std::env::set_var("TZ", "Australia/Perth");
+        assert_eq!(local_minutes_west_for_stamp(Utc::now().timestamp()), -480);
+    }
+
+    #[test]
     fn test_days_elapsed() {
-        let local_offset = utc_minus_local_mins();
+        let local_offset = local_minutes_west_for_stamp(Utc::now().timestamp());
 
         let created_dt = FixedOffset::west(local_offset * 60)
             .ymd(2019, 12, 1)

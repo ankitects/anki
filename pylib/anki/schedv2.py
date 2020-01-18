@@ -1340,9 +1340,9 @@ where id = ?
 
     def _updateCutoff(self) -> None:
         oldToday = self.today
-        timing = self._timingToday()
+        timing = self._timing_today()
 
-        if self._newTimezoneEnabled():
+        if self._new_timezone_enabled():
             self.today = timing.days_elapsed
             self.dayCutoff = timing.next_day_at
         else:
@@ -1398,41 +1398,40 @@ where id = ?
     # New timezone handling
     ##########################################################################
 
-    def _newTimezoneEnabled(self) -> bool:
+    def _new_timezone_enabled(self) -> bool:
         return self.col.conf.get("creationOffset") is not None
 
-    def _timingToday(self) -> SchedTimingToday:
+    def _timing_today(self) -> SchedTimingToday:
         return self.col.backend.sched_timing_today(
             self.col.crt,
-            self.creationTimezoneOffset(),
+            self._creation_timezone_offset(),
             intTime(),
-            self.currentTimezoneOffset(),
+            self._current_timezone_offset(),
             self._rolloverHour(),
         )
 
-    def currentTimezoneOffset(self) -> int:
+    def _current_timezone_offset(self) -> int:
         if self.col.server:
             return self.col.conf.get("localOffset", 0)
         else:
-            return self._localOffsetForDate(datetime.datetime.today())
+            return self.col.backend.local_minutes_west(intTime())
 
-    def creationTimezoneOffset(self) -> int:
+    def _creation_timezone_offset(self) -> int:
         return self.col.conf.get("creationOffset", 0)
 
-    def setCreationOffset(self):
+    def set_creation_offset(self):
         """Save the UTC west offset at the time of creation into the DB.
 
         Once stored, this activates the new timezone handling code.
         """
-        mins_west = self._localOffsetForDate(
-            datetime.datetime.fromtimestamp(self.col.crt)
-        )
+        mins_west = self.col.backend.local_minutes_west(self.col.crt)
         self.col.conf["creationOffset"] = mins_west
         self.col.setMod()
 
-    def _localOffsetForDate(self, date: datetime.datetime) -> int:
-        "Minutes west of UTC for a given datetime in the local timezone."
-        return date.astimezone().utcoffset().seconds // -60
+    def clear_creation_offset(self):
+        if "creationOffset" in self.col.conf:
+            del self.col.conf["creationOffset"]
+            self.col.setMod()
 
     # Deck finished state
     ##########################################################################
