@@ -46,6 +46,7 @@ class SyncManager(QObject):
             hostNum=self.pm.profile.get("hostNum"),
         )
         t._event.connect(self.onEvent)
+        t.progress_event.connect(self.on_progress)
         self.label = _("Connecting...")
         prog = self.mw.progress.start(immediate=True, label=self.label)
         self.sentBytes = self.recvBytes = 0
@@ -92,6 +93,12 @@ automatically."""
                 % dict(a=self.sentBytes / 1024, b=self.recvBytes / 1024),
             )
         )
+
+    def on_progress(self, upload: int, download: int) -> None:
+        # posted events not guaranteed to arrive in order; don't go backwards
+        self.sentBytes = max(self.sentBytes, upload)
+        self.recvBytes = max(self.recvBytes, download)
+        self._updateLabel()
 
     def onEvent(self, evt, *args):
         pu = self.mw.progress.update
@@ -165,13 +172,6 @@ sync again to correct the issue."""
                     "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
                 )
             )
-        elif evt == "send":
-            # posted events not guaranteed to arrive in order
-            self.sentBytes = max(self.sentBytes, int(args[0]))
-            self._updateLabel()
-        elif evt == "recv":
-            self.recvBytes = max(self.recvBytes, int(args[0]))
-            self._updateLabel()
 
     def _rewriteError(self, err):
         if "Errno 61" in err:
@@ -356,6 +356,7 @@ Check Database, then sync again."""
 class SyncThread(QThread):
 
     _event = pyqtSignal(str, str)
+    progress_event = pyqtSignal(int, int)
 
     def __init__(self, path, hkey, auth=None, media=True, hostNum=None):
         QThread.__init__(self)
@@ -390,26 +391,19 @@ class SyncThread(QThread):
         def syncMsg(msg):
             self.fireEvent("syncMsg", msg)
 
-        def sendEvent(bytes):
+        def http_progress(upload: int, download: int) -> None:
             if not self._abort:
-                self.sentTotal += bytes
-                self.fireEvent("send", str(self.sentTotal))
+                self.sentTotal += upload
+                self.recvTotal += download
+                self.progress_event.emit(self.sentTotal, self.recvTotal)  # type: ignore
             elif self._abort == 1:
                 self._abort = 2
                 raise Exception("sync cancelled")
 
-        def recvEvent(bytes):
-            if not self._abort:
-                self.recvTotal += bytes
-                self.fireEvent("recv", str(self.recvTotal))
-            elif self._abort == 1:
-                self._abort = 2
-                raise Exception("sync cancelled")
+        self.server.client.progress_hook = http_progress
 
         hooks.sync_stage_did_change.append(syncEvent)
         hooks.sync_progress_did_change.append(syncMsg)
-        hooks.http_data_did_send.append(sendEvent)
-        hooks.http_data_did_receive.append(recvEvent)
         # run sync and catch any errors
         try:
             self._sync()
@@ -421,8 +415,6 @@ class SyncThread(QThread):
             self.col.close(save=False)
             hooks.sync_stage_did_change.remove(syncEvent)
             hooks.sync_progress_did_change.remove(syncMsg)
-            hooks.http_data_did_send.remove(sendEvent)
-            hooks.http_data_did_receive.remove(recvEvent)
 
     def _abortingSync(self):
         try:

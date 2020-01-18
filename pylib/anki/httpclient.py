@@ -2,20 +2,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 """
-Wrapper for requests that adds hooks for tracking upload/download progress.
-
-The hooks http_data_did_send and http_data_did_receive will be called for each
-chunk or partial read, on the thread that is running the request.
+Wrapper for requests that adds a callback for tracking upload/download progress.
 """
 
 import io
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import requests
 from requests import Response
-
-from anki import hooks
 
 HTTP_BUF_SIZE = 64 * 1024
 
@@ -24,12 +19,19 @@ class AnkiRequestsClient:
 
     verify = True
     timeout = 60
+    # args are (upload_bytes_in_chunk, download_bytes_in_chunk)
+    progress_hook: Optional[Callable[[int, int], None]] = None
 
-    def __init__(self) -> None:
+    def __init__(
+        self, progress_hook: Optional[Callable[[int, int], None]] = None
+    ) -> None:
+        self.progress_hook = progress_hook
         self.session = requests.Session()
 
     def post(self, url: str, data: Any, headers: Optional[Dict[str, str]]) -> Response:
-        data = _MonitoringFile(data)  # pytype: disable=wrong-arg-types
+        data = _MonitoringFile(
+            data, hook=self.progress_hook
+        )  # pytype: disable=wrong-arg-types
         headers["User-Agent"] = self._agentName()
         return self.session.post(
             url,
@@ -53,7 +55,8 @@ class AnkiRequestsClient:
 
         buf = io.BytesIO()
         for chunk in resp.iter_content(chunk_size=HTTP_BUF_SIZE):
-            hooks.http_data_did_receive(len(chunk))
+            if self.progress_hook:
+                self.progress_hook(0, len(chunk))
             buf.write(chunk)
         return buf.getvalue()
 
@@ -73,7 +76,12 @@ if os.environ.get("ANKI_NOVERIFYSSL"):
 
 
 class _MonitoringFile(io.BufferedReader):
+    def __init__(self, raw: io.RawIOBase, hook: Optional[Callable[[int, int], None]]):
+        io.BufferedReader.__init__(self, raw)
+        self.hook = hook
+
     def read(self, size=-1) -> bytes:
         data = io.BufferedReader.read(self, HTTP_BUF_SIZE)
-        hooks.http_data_did_send(len(data))
+        if self.hook:
+            self.hook(len(data), 0)
         return data
