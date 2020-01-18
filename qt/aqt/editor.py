@@ -20,9 +20,9 @@ from bs4 import BeautifulSoup
 import aqt
 import aqt.sound
 from anki.hooks import runFilter
+from anki.httpclient import AnkiRequestsClient
 from anki.lang import _
 from anki.notes import Note
-from anki.sync import AnkiRequestsClient
 from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *

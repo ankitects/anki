@@ -7,8 +7,8 @@ import time
 
 import aqt
 from anki import hooks
+from anki.httpclient import AnkiRequestsClient
 from anki.lang import _
-from anki.sync import AnkiRequestsClient
 from aqt.qt import *
 
 
