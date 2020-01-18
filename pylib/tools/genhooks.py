@@ -50,8 +50,6 @@ hooks = [
     ),
     Hook(name="sync_stage_did_change", args=["stage: str"], legacy_hook="sync"),
     Hook(name="sync_progress_did_change", args=["msg: str"], legacy_hook="syncMsg"),
-    Hook(name="http_data_did_send", args=["bytes: int"]),
-    Hook(name="http_data_did_receive", args=["bytes: int"]),
     Hook(
         name="tag_added", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True,
     ),

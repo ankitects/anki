@@ -201,54 +201,6 @@ class _FieldFilterFilter:
 field_filter = _FieldFilterFilter()
 
 
-class _HttpDataDidReceiveHook:
-    _hooks: List[Callable[[int], None]] = []
-
-    def append(self, cb: Callable[[int], None]) -> None:
-        """(bytes: int)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[int], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, bytes: int) -> None:
-        for hook in self._hooks:
-            try:
-                hook(bytes)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-http_data_did_receive = _HttpDataDidReceiveHook()
-
-
-class _HttpDataDidSendHook:
-    _hooks: List[Callable[[int], None]] = []
-
-    def append(self, cb: Callable[[int], None]) -> None:
-        """(bytes: int)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[int], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, bytes: int) -> None:
-        for hook in self._hooks:
-            try:
-                hook(bytes)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-http_data_did_send = _HttpDataDidSendHook()
-
-
 class _MediaFilesDidExportHook:
     _hooks: List[Callable[[int], None]] = []
 
