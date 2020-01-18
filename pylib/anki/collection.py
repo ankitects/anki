@@ -132,7 +132,7 @@ class _Collection:
         elif ver == 2:
             self.sched = V2Scheduler(self)
             if not self.server:
-                self.conf["localOffset"] = self.sched.currentTimezoneOffset()
+                self.conf["localOffset"] = self.sched._current_timezone_offset()
             elif self.server.minutes_west is not None:
                 self.conf["localOffset"] = self.server.minutes_west
 
@@ -162,7 +162,7 @@ class _Collection:
         if isinstance(self.sched, V1Scheduler):
             return None
         else:
-            return self.sched.currentTimezoneOffset()
+            return self.sched._current_timezone_offset()
 
     # DB-related
     ##########################################################################

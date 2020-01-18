@@ -5,7 +5,7 @@ use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::RenderedTemplateReplacement;
 use crate::err::{AnkiError, Result};
-use crate::sched::sched_timing_today;
+use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -96,6 +96,9 @@ impl Backend {
             Value::FindCards(_) => todo!(),
             Value::BrowserRows(_) => todo!(),
             Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
+            Value::LocalMinutesWest(stamp) => {
+                OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
+            }
         })
     }
 
