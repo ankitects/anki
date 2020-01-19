@@ -16,7 +16,3 @@ def allSounds(text) -> List:
 
 def stripSounds(text) -> str:
     return re.sub(_soundReg, "", text)
-
-
-def hasSound(text) -> bool:
-    return re.search(_soundReg, text) is not None
