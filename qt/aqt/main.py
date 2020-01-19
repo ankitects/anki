@@ -34,6 +34,7 @@ from aqt import gui_hooks
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
+from aqt.taskman import TaskManager
 from aqt.utils import (
     askUser,
     checkInvalidFilename,
@@ -67,6 +68,7 @@ class AnkiQt(QMainWindow):
         self.state = "startup"
         self.opts = opts
         self.col: Optional[_Collection] = None
+        self.taskman = TaskManager()
         aqt.mw = self
         self.app = app
         self.pm = profileManager
