@@ -34,7 +34,6 @@ metaConf = dict(
     suppressUpdate=False,
     firstRun=True,
     defaultLang=None,
-    disabledAddons=[],
 )
 
 profileConf: Dict[str, Any] = dict(
@@ -484,7 +483,7 @@ please see:
         elif mode == "angle":
             self.setGlMode("software")
 
-    # Scale
+    # Helpers
     ######################################################################
 
     def uiScale(self) -> float:
@@ -492,3 +491,9 @@ please see:
 
     def setUiScale(self, scale: float) -> None:
         self.meta["uiScale"] = scale
+
+    def last_addon_update_check(self) -> int:
+        return self.meta.get("last_addon_update_check", 0)
+
+    def set_last_addon_update_check(self, secs):
+        self.meta["last_addon_update_check"] = secs
