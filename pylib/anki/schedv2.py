@@ -798,7 +798,13 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         lastLeft: int,
     ) -> None:
         lastIvl = -(self._delayForGrade(conf, lastLeft))
-        ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.left))
+        if leaving:
+            ivl = card.ivl
+        else:
+            if ease == 2:
+                ivl = -self._delayForRepeatingGrade(conf, card.left)
+            else:
+                ivl = -self._delayForGrade(conf, card.left)
 
         def log():
             self.col.db.execute(

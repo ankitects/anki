@@ -1281,3 +1281,23 @@ def test_negativeDueFilter():
 
     c.load()
     assert c.due == -5
+
+
+# hard on the first step should be the average of again and good,
+# and it should be logged properly
+def test_initial_repeat():
+    d = getEmptyCol()
+    f = d.newNote()
+    f["Front"] = "one"
+    f["Back"] = "two"
+    d.addNote(f)
+
+    d.reset()
+    c = d.sched.getCard()
+    d.sched.answerCard(c, 2)
+    # should be due in ~ 5.5 mins
+    expected = time.time() + 5.5 * 60
+    assert expected - 10 < c.due < expected * 1.25
+
+    ivl = d.db.scalar("select ivl from revlog")
+    assert ivl == -5.5 * 60
