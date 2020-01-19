@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-09 19:16+1000\n"
-"PO-Revision-Date: 2020-01-17 01:07\n"
+"POT-Creation-Date: 2020-01-17 11:15+1000\n"
+"PO-Revision-Date: 2020-01-19 06:55\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
@@ -46,7 +46,7 @@ msgstr ""
 
 #: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
 #: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:256
+#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:261
 msgid "%"
 msgstr ""
 
@@ -69,7 +69,7 @@ msgstr ""
 msgid "%(a)0.1fs (%(b)s)"
 msgstr ""
 
-#: qt/aqt/browser.py:2097
+#: qt/aqt/browser.py:2111
 #, python-format
 msgid "%(a)d of %(b)d note updated"
 msgid_plural "%(a)d of %(b)d notes updated"
@@ -78,7 +78,7 @@ msgstr[1] "%(a)d %(b)d:stä muistiinpanosta päivitetty."
 
 #. T: name is a card type name. n it's order in the list of card type.
 #. T: this is shown in browser's filter, when seeing the list of card type of a note type.
-#: qt/aqt/browser.py:1307
+#: qt/aqt/browser.py:1312
 #, python-format
 msgid "%(n)d: %(name)s"
 msgstr ""
@@ -94,14 +94,14 @@ msgid "%.01f cards/minute"
 msgstr "%.01f korttia/minuutissa"
 
 #: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:230
-#: qt/aqt/main.py:1351
+#: qt/aqt/main.py:1352
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
 msgstr[0] "%d kortti"
 msgstr[1] "%d korttia"
 
-#: qt/aqt/main.py:1363
+#: qt/aqt/main.py:1364
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
@@ -115,7 +115,7 @@ msgid_plural "%d cards exported."
 msgstr[0] "%d kortti tuotu."
 msgstr[1] "%d korttia tuotu."
 
-#: pylib/anki/importing/supermemo_xml.py:193
+#: pylib/anki/importing/supermemo_xml.py:194
 #, python-format
 msgid "%d card imported."
 msgid_plural "%d cards imported."
@@ -136,42 +136,42 @@ msgid_plural "%d decks updated."
 msgstr[0] "%d pakka päivitetty."
 msgstr[1] "%d pakkaa päivitetty."
 
-#: qt/aqt/main.py:1259
+#: qt/aqt/main.py:1260
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/main.py:1316
+#: qt/aqt/main.py:1317
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/browser.py:2150
+#: qt/aqt/browser.py:2164
 #, python-format
 msgid "%d group"
 msgid_plural "%d groups"
 msgstr[0] "%d ryhmä"
 msgstr[1] "%d ryhmää"
 
-#: pylib/anki/sync.py:841
+#: pylib/anki/sync.py:840
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "%d mediamuutos lähetettävissä palvelimeen"
 msgstr[1] "%d mediamuutosta lähetettävissä palvelimeen"
 
-#: pylib/anki/sync.py:892
+#: pylib/anki/sync.py:890
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
 msgstr[0] "%d media-tiedosto ladattu"
 msgstr[1] "%d media-tiedostoa ladattu"
 
-#: qt/aqt/browser.py:2151 qt/aqt/browser.py:2159 qt/aqt/fields.py:96
+#: qt/aqt/browser.py:2165 qt/aqt/browser.py:2173 qt/aqt/fields.py:96
 #: qt/aqt/models.py:82
 #, python-format
 msgid "%d note"
@@ -186,7 +186,7 @@ msgid_plural "%d notes added"
 msgstr[0] "%d muistiinpano lisätty"
 msgstr[1] "%d muistiinpanoa lisätty"
 
-#: qt/aqt/browser.py:1781
+#: qt/aqt/browser.py:1786
 #, python-format
 msgid "%d note deleted."
 msgid_plural "%d notes deleted."
@@ -228,14 +228,14 @@ msgid_plural "%d reviews"
 msgstr[0] "%d kertaus"
 msgstr[1] "%d kertausta"
 
-#: qt/aqt/browser.py:800
+#: qt/aqt/browser.py:805
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] "%d valittu"
 msgstr[1] "%d valittua"
 
-#: pylib/anki/models.py:249
+#: pylib/anki/models.py:257
 #, python-format
 msgid "%s copy"
 msgstr "%s (kopio)"
@@ -282,7 +282,7 @@ msgid_plural "%s seconds"
 msgstr[0] "%s sekunti"
 msgstr[1] "%s sekuntia"
 
-#: qt/aqt/main.py:1352
+#: qt/aqt/main.py:1353
 #, python-format
 msgid "%s to delete:"
 msgstr "%s poistettava:"
@@ -440,23 +440,23 @@ msgstr "'%(row)s':ssa oli %(num1)d kenttää, pitäisi olla %(num2)d"
 msgid "(%s correct)"
 msgstr "(%s oikein)"
 
-#: qt/aqt/addcards.py:158
+#: qt/aqt/addcards.py:157
 msgid "(Note deleted)"
 msgstr "(Muistiinpano poistettu)"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(loppu)"
 
-#: qt/aqt/browser.py:339
+#: qt/aqt/browser.py:343
 msgid "(filtered)"
 msgstr "(suodatettu)"
 
-#: qt/aqt/browser.py:306
+#: qt/aqt/browser.py:310
 msgid "(learning)"
 msgstr "(opiskeltavana)"
 
-#: qt/aqt/browser.py:304 qt/aqt/browser.py:310
+#: qt/aqt/browser.py:308 qt/aqt/browser.py:314
 msgid "(new)"
 msgstr "(uusi)"
 
@@ -465,19 +465,19 @@ msgstr "(uusi)"
 msgid "(parent limit: %d)"
 msgstr "(emorajoitus: %d)"
 
-#: qt/aqt/browser.py:1682
+#: qt/aqt/browser.py:1687
 msgid "(please select 1 card)"
 msgstr "(valitse 1 kortti)"
 
-#: qt/aqt/importing.py:321
+#: qt/aqt/importing.py:319
 msgid ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
 msgstr ".anki-tiedostot ovat todella vanhasta Ankin versiosta. Voit tuoda ne Anki 2.0 -versiolla, jonka voit ladata Ankin verkkosivulta."
 
-#: qt/aqt/importing.py:328
+#: qt/aqt/importing.py:326
 msgid ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
 msgstr ""
 
-#: qt/aqt/browser.py:1452
+#: qt/aqt/browser.py:1457
 msgid "0d"
 msgstr ""
 
@@ -539,11 +539,11 @@ msgstr "<a href='%s'>Käy verkkosivulla</a>"
 msgid "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
 msgstr "<b>%(pct)d%%</b> (%(x)s/%(y)s)"
 
-#: qt/aqt/browser.py:1431
+#: qt/aqt/browser.py:1436
 msgid "<b>%Y-%m-%d</b> @ %H:%M"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:264
+#: qt/aqt/forms/preferences.py:269
 msgid "<b>Backups</b><br>Anki will create a backup of your collection each time it is closed or synchronized."
 msgstr "<b>Varmuuskopiot</b><br>Anki luo varmuuskopion kokoelmastasi joka kerta kun se suljetaan tai synkronoidaan."
 
@@ -588,7 +588,7 @@ msgstr ""
 msgid "<b>Replace With</b>:"
 msgstr "<b>Korvaus</b>"
 
-#: qt/aqt/forms/preferences.py:258
+#: qt/aqt/forms/preferences.py:263
 msgid "<b>Synchronisation</b>"
 msgstr "<b>Synkronointi</b>"
 
@@ -628,15 +628,15 @@ msgstr ""
 msgid "<ignored>"
 msgstr "<hylätty>"
 
-#: qt/aqt/main.py:1453
+#: qt/aqt/main.py:1454
 msgid "<non-unicode text>"
 msgstr "<ei-unicode tekstiä>"
 
-#: qt/aqt/browser.py:735
+#: qt/aqt/browser.py:740
 msgid "<type here to search; hit enter to show current deck>"
 msgstr "<kirjoita tähän hakusana tai paina enteriä nähdäksesi nykyisen pakan>"
 
-#: qt/aqt/about.py:169
+#: qt/aqt/about.py:170
 msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
 msgstr "Kiitokset kaikille, jotka ovat lähettäneet ehdotuksia ja lahjoituksia sekä raportoineet virheistä!"
 
@@ -661,14 +661,14 @@ msgstr "Keskeytetty: %s"
 msgid "About Anki"
 msgstr "Tietoja Ankista"
 
-#: qt/aqt/addcards.py:37 qt/aqt/addcards.py:66 qt/aqt/deckconf.py:81
+#: qt/aqt/addcards.py:36 qt/aqt/addcards.py:65 qt/aqt/deckconf.py:81
 #: qt/aqt/models.py:47 qt/aqt/studydeck.py:46 qt/aqt/toolbar.py:35
 #: qt/aqt/forms/addcards.py:63 qt/aqt/forms/fields.py:101
 #: qt/aqt/forms/profiles.py:76
 msgid "Add"
 msgstr "Lisää"
 
-#: qt/aqt/addcards.py:69
+#: qt/aqt/addcards.py:68
 msgid "Add (shortcut: ctrl+enter)"
 msgstr "Lisää (pikanäppäinyhdistelmä: Ctrl + enter)"
 
@@ -680,7 +680,7 @@ msgstr "Lisää kortin tyyppi..."
 msgid "Add Field"
 msgstr "Lisää kenttä"
 
-#: qt/aqt/editor.py:651
+#: qt/aqt/editor.py:654
 msgid "Add Media"
 msgstr "Lisää mediatiedosto"
 
@@ -696,11 +696,11 @@ msgstr "Lisää muistiinpanotyyppi"
 msgid "Add Notes..."
 msgstr "Lisää muistiinpanoja..."
 
-#: pylib/anki/stdmodels.py:82
+#: pylib/anki/stdmodels.py:83
 msgid "Add Reverse"
 msgstr "Lisää kääntöpuoli"
 
-#: qt/aqt/browser.py:1851
+#: qt/aqt/browser.py:1856
 msgid "Add Tags"
 msgstr "Lisää tunnisteita"
 
@@ -712,7 +712,7 @@ msgstr "Lisää tunnisteita..."
 msgid "Add to:"
 msgstr "Lisää kohteeseen:"
 
-#: qt/aqt/browser.py:145
+#: qt/aqt/browser.py:149
 msgid "Add-on"
 msgstr ""
 
@@ -728,7 +728,7 @@ msgstr ""
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr ""
 
-#: qt/aqt/main.py:1512
+#: qt/aqt/main.py:1513
 msgid "Add-on will be installed when a profile is opened."
 msgstr ""
 
@@ -746,11 +746,11 @@ msgid "Add: %s"
 msgstr "Lisää: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
 msgid "Added"
 msgstr "Lisätty"
 
-#: qt/aqt/browser.py:1218
+#: qt/aqt/browser.py:1223
 msgid "Added Today"
 msgstr "Lisätty tänään"
 
@@ -763,7 +763,7 @@ msgstr "Lisätty ensimmäisen kentän kaksoiskappale: %s"
 msgid "Again"
 msgstr "Uudestaan"
 
-#: qt/aqt/browser.py:1220
+#: qt/aqt/browser.py:1225
 msgid "Again Today"
 msgstr "Uudestaan tänään"
 
@@ -776,7 +776,7 @@ msgstr "Uudelleen näyttettäväksi pyydettyjen korttien lukumäärä: %s"
 msgid "All Buried Cards"
 msgstr "Kaikki haudatut kortit"
 
-#: qt/aqt/browser.py:1300
+#: qt/aqt/browser.py:1305
 msgid "All Card Types"
 msgstr "Kaikki korttien tyypit"
 
@@ -784,7 +784,7 @@ msgstr "Kaikki korttien tyypit"
 msgid "All Decks"
 msgstr "Kaikki pakat"
 
-#: qt/aqt/browser.py:2063
+#: qt/aqt/browser.py:2077
 msgid "All Fields"
 msgstr "Kaikki kentät"
 
@@ -792,7 +792,7 @@ msgstr "Kaikki kentät"
 msgid "All cards in random order (don't reschedule)"
 msgstr "Kaikki kortin satunnaisessa järjestyksessä (älä ajasta uudelleen)"
 
-#: qt/aqt/main.py:260
+#: qt/aqt/main.py:262
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "Kaikki tämän käyttäjätilin kortit, muistiinpanot ja mediatiedostot poistetaan. Oletko varma?"
 
@@ -833,7 +833,7 @@ msgstr "Tietokannan avaamisessa tapahtui virhe.\n\n"
 "– Kovalevyssäsi saattaa olla virheitä.\n\n"
 "Hyvä ajatus on käynnistää ”Työkalut” > ”Tarkista tietokanta” sen varmistamiseksi, ettei kokoelmasi ole vioittunut.\n"
 
-#: qt/aqt/editor.py:782 qt/aqt/editor.py:785
+#: qt/aqt/editor.py:785 qt/aqt/editor.py:788
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "Kohdetta %s avattaessa tapahtui virhe"
@@ -847,7 +847,7 @@ msgstr ""
 msgid "Anki 2.0 Deck"
 msgstr "Anki 2.0 -pakka"
 
-#: qt/aqt/forms/preferences.py:246
+#: qt/aqt/forms/preferences.py:251
 msgid "Anki 2.1 scheduler (beta)"
 msgstr ""
 
@@ -883,7 +883,7 @@ msgstr "Anki on fiksu ja näppärä intervalliharjoittelun apuväline. Se on lis
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki on lisenssoitu AGPL3-lisenssillä. Katso lisätietoja lähdejakelun lisenssitiedostosta."
 
-#: qt/aqt/main.py:410
+#: qt/aqt/main.py:412
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr ""
@@ -908,7 +908,7 @@ msgstr "AnkiWebissä on tällä hetkellä paljon liikennettä. Yritä uudestaan 
 msgid "AnkiWeb is under maintenance. Please try again in a few minutes."
 msgstr "AnkiWebiä huolletaan. Yritä uudelleen muutaman minuutin kuluttua."
 
-#: qt/aqt/browser.py:711
+#: qt/aqt/browser.py:716
 msgid "Answer"
 msgstr "Vastaus"
 
@@ -924,11 +924,11 @@ msgstr "Vastaukset"
 msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
 msgstr "Viruksentorjunta- tai palomuuriohjelma estää Ankia ottamasta yhteyttä internettiin."
 
-#: qt/aqt/browser.py:1244
+#: qt/aqt/browser.py:1249
 msgid "Any Flag"
 msgstr "Mikä tahansa lippu"
 
-#: qt/aqt/browser.py:2413
+#: qt/aqt/browser.py:2430
 msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
 msgstr "Kortit, joita ei ole liitetty mihinkään, poistetaan. Jos muistiinpanoon ei liity jäljelle jääviä kortteja, se katoaa. Oletko varma, että haluat jatkaa?"
 
@@ -950,11 +950,11 @@ msgstr "Vähintään yksi korttityyppi on annettava."
 msgid "At least one step is required."
 msgstr "Vaaditaan vähintään yksi vaihe."
 
-#: qt/aqt/editor.py:138
+#: qt/aqt/editor.py:139
 msgid "Attach pictures/audio/video (F3)"
 msgstr "Liitä kuva/äänite/video (F3)"
 
-#: qt/aqt/main.py:310
+#: qt/aqt/main.py:312
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ""
 
@@ -962,7 +962,7 @@ msgstr ""
 msgid "Automatically play audio"
 msgstr "Toista äänitiedosto automaattisesti"
 
-#: qt/aqt/forms/preferences.py:260
+#: qt/aqt/forms/preferences.py:265
 msgid "Automatically sync on profile open/close"
 msgstr "Synkronoi automaattisesti kun käyttäjätili avataan/suljetaan"
 
@@ -990,9 +990,9 @@ msgstr "Opiskelupäivien keskiarvo"
 msgid "Average interval"
 msgstr "Keskimääräinen kertausväli"
 
-#: pylib/anki/stdmodels.py:20 pylib/anki/stdmodels.py:24
-#: pylib/anki/stdmodels.py:45 pylib/anki/stdmodels.py:46
-#: pylib/anki/stdmodels.py:61 qt/aqt/forms/addfield.py:78
+#: pylib/anki/stdmodels.py:21 pylib/anki/stdmodels.py:25
+#: pylib/anki/stdmodels.py:46 pylib/anki/stdmodels.py:47
+#: pylib/anki/stdmodels.py:62 qt/aqt/forms/addfield.py:78
 msgid "Back"
 msgstr "Kääntöpuoli"
 
@@ -1004,36 +1004,36 @@ msgstr "Kääntöpuolen esikatselu"
 msgid "Back Template"
 msgstr "Kääntöpuolen malline"
 
-#: qt/aqt/main.py:458
+#: qt/aqt/main.py:460
 msgid "Backing Up..."
 msgstr "Tehdään varmuuskopiota..."
 
-#: qt/aqt/forms/preferences.py:270
+#: qt/aqt/forms/preferences.py:275
 msgid "Backups"
 msgstr "Varmuuskopiot"
 
-#: pylib/anki/stdmodels.py:17 pylib/anki/stdmodels.py:35
-#: qt/aqt/forms/preferences.py:257
+#: pylib/anki/stdmodels.py:18 pylib/anki/stdmodels.py:36
+#: qt/aqt/forms/preferences.py:262
 msgid "Basic"
 msgstr "Perusasetukset"
 
-#: pylib/anki/stdmodels.py:59 pylib/anki/stdmodels.py:73
+#: pylib/anki/stdmodels.py:60 pylib/anki/stdmodels.py:74
 msgid "Basic (and reversed card)"
 msgstr "Perusmalli (ja käännetty kortti)"
 
-#: pylib/anki/stdmodels.py:81 pylib/anki/stdmodels.py:91
+#: pylib/anki/stdmodels.py:82 pylib/anki/stdmodels.py:92
 msgid "Basic (optional reversed card)"
 msgstr "Perusmalli (valinnainen käännetty kortti)"
 
-#: pylib/anki/stdmodels.py:43 pylib/anki/stdmodels.py:51
+#: pylib/anki/stdmodels.py:44 pylib/anki/stdmodels.py:52
 msgid "Basic (type in the answer)"
 msgstr "Perus (kirjoita vastaus)"
 
-#: qt/aqt/browser.py:1242 qt/aqt/reviewer.py:671 qt/aqt/forms/browser.py:333
+#: qt/aqt/browser.py:1247 qt/aqt/reviewer.py:671 qt/aqt/forms/browser.py:333
 msgid "Blue Flag"
 msgstr "Sininen lippu"
 
-#: qt/aqt/editor.py:102
+#: qt/aqt/editor.py:103
 msgid "Bold text (Ctrl+B)"
 msgstr "Lihavointi (Ctrl+B)"
 
@@ -1041,7 +1041,7 @@ msgstr "Lihavointi (Ctrl+B)"
 msgid "Browse"
 msgstr "Selaa"
 
-#: qt/aqt/browser.py:794
+#: qt/aqt/browser.py:799
 #, python-format
 msgid "Browse (%(cur)d card shown; %(sel)s)"
 msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
@@ -1068,7 +1068,7 @@ msgstr "Selainasetukset"
 msgid "Build"
 msgstr "Kokoa"
 
-#: qt/aqt/browser.py:1237
+#: qt/aqt/browser.py:1242
 msgid "Buried"
 msgstr "Haudattu"
 
@@ -1096,7 +1096,7 @@ msgstr "Piilota tähän liittyvät uudet kortit seuraavaan päivään saakka"
 msgid "Bury related reviews until the next day"
 msgstr "Piilota tähän liittyvät kertaukset seuraavaan päivään saakka"
 
-#: qt/aqt/importing.py:124
+#: qt/aqt/importing.py:125
 msgid "By default, Anki will detect the character between fields, such as\n"
 "a tab, comma, and so on. If Anki is detecting the character incorrectly,\n"
 "you can enter it here. Use \\t to represent tab."
@@ -1109,7 +1109,7 @@ msgstr "Anki yrittää tunnistaa erotinmerkin automaattisesti. Jos\n"
 msgid "Cancel"
 msgstr "Peruuta"
 
-#: qt/aqt/browser.py:712
+#: qt/aqt/browser.py:717
 msgid "Card"
 msgstr "Kortti"
 
@@ -1118,11 +1118,11 @@ msgstr "Kortti"
 msgid "Card %d"
 msgstr "Kortti %d"
 
-#: pylib/anki/stdmodels.py:22
+#: pylib/anki/stdmodels.py:23
 msgid "Card 1"
 msgstr "Kortti 1"
 
-#: pylib/anki/stdmodels.py:60
+#: pylib/anki/stdmodels.py:61
 msgid "Card 2"
 msgstr "Kortti 2"
 
@@ -1134,7 +1134,7 @@ msgstr "Kortin tunnus"
 msgid "Card List"
 msgstr "Korttiluettelo"
 
-#: qt/aqt/browser.py:1227
+#: qt/aqt/browser.py:1232
 msgid "Card State"
 msgstr "Kortin tila"
 
@@ -1163,16 +1163,20 @@ msgstr "Kortti piilotettu."
 msgid "Card suspended."
 msgstr "Kortti hyllytetty."
 
+#: pylib/anki/collection.py:676
+msgid "Card template has a problem:"
+msgstr ""
+
 #: qt/aqt/reviewer.py:637
 msgid "Card was a leech."
 msgstr "Kortti oli resurssisyöppö."
 
-#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:155
+#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:158
 #: qt/aqt/forms/changemodel.py:112
 msgid "Cards"
 msgstr "Kortit"
 
-#: qt/aqt/browser.py:1811
+#: qt/aqt/browser.py:1816
 msgid "Cards can't be manually moved into a filtered deck."
 msgstr "Kortteja ei voi siirtää manuaalisesti suodatettuun pakkaan."
 
@@ -1196,12 +1200,12 @@ msgstr "Keskitä"
 msgid "Change"
 msgstr "Muuta"
 
-#: qt/aqt/browser.py:2334
+#: qt/aqt/browser.py:2351
 #, python-format
 msgid "Change %s to:"
 msgstr "%s →"
 
-#: qt/aqt/browser.py:1802 qt/aqt/browser.py:1814
+#: qt/aqt/browser.py:1807 qt/aqt/browser.py:1819
 msgid "Change Deck"
 msgstr "Vaihda pakkaa"
 
@@ -1209,7 +1213,7 @@ msgstr "Vaihda pakkaa"
 msgid "Change Deck..."
 msgstr "Vaida pakkaa..."
 
-#: qt/aqt/browser.py:2420 qt/aqt/forms/changemodel.py:109
+#: qt/aqt/browser.py:2437 qt/aqt/forms/changemodel.py:109
 msgid "Change Note Type"
 msgstr "Vaihda muistiinpanotyyppiä"
 
@@ -1221,15 +1225,15 @@ msgstr "Vaihda muistiinpanotyyppiä (Ctrl + N)"
 msgid "Change Note Type..."
 msgstr "Vaihda muistiinpanotyyppiä..."
 
-#: qt/aqt/editor.py:125
+#: qt/aqt/editor.py:126
 msgid "Change colour (F8)"
 msgstr "Vaihda väriä (F8)"
 
-#: qt/aqt/forms/preferences.py:248
+#: qt/aqt/forms/preferences.py:253
 msgid "Change deck depending on note type"
 msgstr "Vaihda pakkaa muistiinpanotyypistä riippuen"
 
-#: qt/aqt/browser.py:717
+#: qt/aqt/browser.py:722
 msgid "Changed"
 msgstr "Muutettu"
 
@@ -1244,7 +1248,7 @@ msgstr[1] ""
 msgid "Changes will take effect when Anki is restarted."
 msgstr "Muutokset tulevat voimaan, kun Anki käynnistetään uudelleen."
 
-#: qt/aqt/preferences.py:110 qt/aqt/preferences.py:234
+#: qt/aqt/preferences.py:110 qt/aqt/preferences.py:236
 msgid "Changes will take effect when you restart Anki."
 msgstr "Muutokset tulevat voimaan, kun käynnistät Ankin uudelleen."
 
@@ -1268,11 +1272,11 @@ msgstr "Tarkistetaan mediaa..."
 msgid "Checking..."
 msgstr "Tarkistetaan..."
 
-#: qt/aqt/deckchooser.py:83 qt/aqt/modelchooser.py:73
+#: qt/aqt/deckchooser.py:86 qt/aqt/modelchooser.py:73
 msgid "Choose"
 msgstr "Valitse"
 
-#: qt/aqt/deckchooser.py:84
+#: qt/aqt/deckchooser.py:87
 msgid "Choose Deck"
 msgstr "Valitse pakka"
 
@@ -1280,11 +1284,11 @@ msgstr "Valitse pakka"
 msgid "Choose Note Type"
 msgstr "Valitse muistiinpanotyyppi"
 
-#: qt/aqt/customstudy.py:102
+#: qt/aqt/customstudy.py:103
 msgid "Choose Tags"
 msgstr "Valitse tunnisteet"
 
-#: qt/aqt/browser.py:1253
+#: qt/aqt/browser.py:1258
 msgid "Clear Unused"
 msgstr "Tyhjennä käyttämättömät"
 
@@ -1297,24 +1301,24 @@ msgstr "Poista käyttämättömät tunnisteet"
 msgid "Clone: %s"
 msgstr "Kloonaa: %s"
 
-#: qt/aqt/addcards.py:71 qt/aqt/clayout.py:272 qt/aqt/forms/browser.py:322
+#: qt/aqt/addcards.py:70 qt/aqt/clayout.py:272 qt/aqt/forms/browser.py:322
 msgid "Close"
 msgstr "Sulje"
 
-#: qt/aqt/addcards.py:242
+#: qt/aqt/addcards.py:241
 msgid "Close and lose current input?"
 msgstr "Avoinna olevan kortin tiedot katoavat. Haluatko sulkea ikkunan?"
 
-#: qt/aqt/main.py:456
+#: qt/aqt/main.py:458
 msgid "Closing..."
 msgstr "Suljetaan..."
 
-#: pylib/anki/stdmodels.py:99 pylib/anki/stdmodels.py:104
-#: pylib/anki/stdmodels.py:123 pylib/anki/storage.py:222
+#: pylib/anki/stdmodels.py:100 pylib/anki/stdmodels.py:105
+#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:222
 msgid "Cloze"
 msgstr "Aukkotehtävä"
 
-#: qt/aqt/editor.py:135
+#: qt/aqt/editor.py:136
 msgid "Cloze deletion (Ctrl+Shift+C)"
 msgstr ""
 
@@ -1326,15 +1330,15 @@ msgstr "Koodi:"
 msgid "Collection exported."
 msgstr "Kokoelma viety."
 
-#: pylib/anki/collection.py:874
+#: pylib/anki/collection.py:889
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Kokoelma on vioittunut. Katso käyttöohjeista mitä tehdä."
 
-#: qt/aqt/importing.py:168
+#: qt/aqt/importing.py:169
 msgid "Colon"
 msgstr "Kaksoispiste"
 
-#: qt/aqt/importing.py:162
+#: qt/aqt/importing.py:163
 msgid "Comma"
 msgstr "Pilkku"
 
@@ -1350,7 +1354,7 @@ msgstr "Asetukset"
 msgid "Configure interface language and options"
 msgstr "Käyttöliittymän kieli ja asetukset"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Onneksi olkoon! Olet käynyt tämän pakan kertaukset läpi toistaiseksi."
 
@@ -1370,7 +1374,7 @@ msgstr "Jatka"
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
 
-#: qt/aqt/editor.py:1108 qt/aqt/webview.py:183
+#: qt/aqt/editor.py:1113 qt/aqt/webview.py:183
 msgid "Copy"
 msgstr "Kopioi"
 
@@ -1400,7 +1404,7 @@ msgstr "Korruptoitunut add-on -tiedosto"
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "Ei yhteyttä AnkiWebiin. Tarkista verkkoyhteytesi ja yritä uudestaan."
 
-#: qt/aqt/editor.py:680
+#: qt/aqt/editor.py:683
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr ""
 
@@ -1425,7 +1429,7 @@ msgstr "Luo suodatettu pakka..."
 msgid "Create scalable images with dvisvgm"
 msgstr "Luo skaalattavia kuvia dvisvgm:llä"
 
-#: qt/aqt/browser.py:715
+#: qt/aqt/browser.py:720
 msgid "Created"
 msgstr "Luomisaika"
 
@@ -1441,7 +1445,7 @@ msgstr "Ctrl + D"
 msgid "Ctrl+N"
 msgstr ""
 
-#: qt/aqt/browser.py:593
+#: qt/aqt/browser.py:598
 msgid "Ctrl+Shift+P"
 msgstr "Ctrl + Shift + P"
 
@@ -1462,7 +1466,7 @@ msgstr "Kumulatiiviset vastaukset"
 msgid "Cumulative Cards"
 msgstr "Kumulatiiviset kortit"
 
-#: qt/aqt/browser.py:1086 qt/aqt/browser.py:1210
+#: qt/aqt/browser.py:1091 qt/aqt/browser.py:1215
 msgid "Current Deck"
 msgstr "Nykyinen pakka"
 
@@ -1474,7 +1478,7 @@ msgstr "Nykyinen muistiinpanotyyppi:"
 msgid "Custom Study"
 msgstr "Mukautettu opiskelu"
 
-#: qt/aqt/customstudy.py:136 qt/aqt/customstudy.py:148
+#: qt/aqt/customstudy.py:137 qt/aqt/customstudy.py:149
 msgid "Custom Study Session"
 msgstr "Mukautettu opiskeluistonto"
 
@@ -1482,23 +1486,23 @@ msgstr "Mukautettu opiskeluistonto"
 msgid "Custom steps (in minutes)"
 msgstr ""
 
-#: qt/aqt/editor.py:158
+#: qt/aqt/editor.py:161
 msgid "Customize Card Templates (Ctrl+L)"
 msgstr ""
 
-#: qt/aqt/editor.py:157
+#: qt/aqt/editor.py:160
 msgid "Customize Fields"
 msgstr ""
 
-#: qt/aqt/editor.py:1106
+#: qt/aqt/editor.py:1111
 msgid "Cut"
 msgstr "Leikkaa"
 
-#: pylib/anki/collection.py:1059
+#: pylib/anki/collection.py:1074
 msgid "Database rebuilt and optimized."
 msgstr "Tietokanta on rakennettu uudelleen ja optimoitu"
 
-#: qt/aqt/browser.py:1419
+#: qt/aqt/browser.py:1424
 msgid "Date"
 msgstr "Päivämäärä"
 
@@ -1506,7 +1510,7 @@ msgstr "Päivämäärä"
 msgid "Days studied"
 msgstr "Opiskelupäivät"
 
-#: qt/aqt/forms/preferences.py:262
+#: qt/aqt/forms/preferences.py:267
 msgid "Deauthorize"
 msgstr "Poista valtuutus"
 
@@ -1514,7 +1518,7 @@ msgstr "Poista valtuutus"
 msgid "Debug Console"
 msgstr "Vianjäljityskonsoli"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:713 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:718 qt/aqt/deckbrowser.py:150
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Pakka"
@@ -1523,11 +1527,11 @@ msgstr "Pakka"
 msgid "Deck Override..."
 msgstr ""
 
-#: qt/aqt/main.py:1514
+#: qt/aqt/main.py:1515
 msgid "Deck will be imported when a profile is opened."
 msgstr "Pakka tuodaan kun käyttäjätili avataan"
 
-#: qt/aqt/browser.py:1281 qt/aqt/toolbar.py:34
+#: qt/aqt/browser.py:1286 qt/aqt/toolbar.py:34
 msgid "Decks"
 msgstr "Pakat"
 
@@ -1536,7 +1540,7 @@ msgid "Decreasing intervals"
 msgstr "Laskevat kertausvälit"
 
 #: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
-#: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
+#: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:76
 msgid "Default"
 msgstr "Oletusarvo"
 
@@ -1550,7 +1554,7 @@ msgstr "Viivästykset, joiden jälkeen kerrattavat kortit näytetään uudestaan
 msgid "Delete"
 msgstr "Poista"
 
-#: qt/aqt/main.py:1354
+#: qt/aqt/main.py:1355
 msgid "Delete Cards"
 msgstr "Poista kortit"
 
@@ -1558,7 +1562,7 @@ msgstr "Poista kortit"
 msgid "Delete Deck"
 msgstr "Poista pakka"
 
-#: qt/aqt/main.py:1360
+#: qt/aqt/main.py:1361
 msgid "Delete Empty"
 msgstr "Poista tyhjät"
 
@@ -1566,15 +1570,15 @@ msgstr "Poista tyhjät"
 msgid "Delete Note"
 msgstr "Poista muistiinpano"
 
-#: qt/aqt/browser.py:1755
+#: qt/aqt/browser.py:1760
 msgid "Delete Notes"
 msgstr "Poista muistiinpanot"
 
-#: qt/aqt/browser.py:1861
+#: qt/aqt/browser.py:1866
 msgid "Delete Tags"
 msgstr "Poista tunnisteet"
 
-#: qt/aqt/main.py:1286
+#: qt/aqt/main.py:1287
 msgid "Delete Unused Files"
 msgstr "Poista käyttämättömät tiedostot"
 
@@ -1603,46 +1607,46 @@ msgstr "Poistetaanko tämä muistiinpano ja kaikki sen kortit?"
 msgid "Delete this unused note type?"
 msgstr "Poistetaanko tämä käyttämätön muistiinpanotyyppi?"
 
-#: qt/aqt/main.py:1299
+#: qt/aqt/main.py:1300
 msgid "Delete unused media?"
 msgstr "Poistetaanko käyttämätön media?"
 
-#: pylib/anki/collection.py:963
+#: pylib/anki/collection.py:978
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "Poistettu %d kortti, josta puuttui muistiinpanot."
 msgstr[1] "Poistettu %d korttia, joista puuttui muistiinpanot."
 
-#: pylib/anki/collection.py:914
+#: pylib/anki/collection.py:929
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
 msgstr[0] "Poistettiin %d kortti, josta puuttui malline."
 msgstr[1] "Poistettiin %d korttia, joista puuttui malline."
 
-#: qt/aqt/main.py:1329
+#: qt/aqt/main.py:1330
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: pylib/anki/collection.py:884
+#: pylib/anki/collection.py:899
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "Poistettiin %d muistiinpano, josta puuttui muistiinpanotyyppi."
 msgstr[1] "Poistettiin %d muistiinpanoa, joista puuttui muistiinpanotyyppi."
 
-#: pylib/anki/collection.py:947
+#: pylib/anki/collection.py:962
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "Poistettiin %d muistiinpano, jolla ei ole yhtään korttia."
 msgstr[1] "Poistettiin %d muistiinpanoa, joilla ei ole yhtään korttia."
 
-#: pylib/anki/collection.py:931
+#: pylib/anki/collection.py:946
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1679,7 +1683,7 @@ msgstr ""
 msgid "Downloading from AnkiWeb..."
 msgstr "Ladataan AnkiWebistä..."
 
-#: pylib/anki/stats.py:43 qt/aqt/browser.py:718 qt/aqt/browser.py:1234
+#: pylib/anki/stats.py:43 qt/aqt/browser.py:723 qt/aqt/browser.py:1239
 #: qt/aqt/deckbrowser.py:151
 msgid "Due"
 msgstr "Erääntyvät"
@@ -1696,7 +1700,7 @@ msgstr "Erääntyy huomenna"
 msgid "E&xit"
 msgstr "&Lopeta"
 
-#: pylib/anki/stats.py:46 qt/aqt/browser.py:720 qt/aqt/browser.py:1424
+#: pylib/anki/stats.py:46 qt/aqt/browser.py:725 qt/aqt/browser.py:1429
 msgid "Ease"
 msgstr "Helppous"
 
@@ -1716,7 +1720,7 @@ msgstr "Helppo kertausväli"
 msgid "Edit"
 msgstr "Muokkaa"
 
-#: qt/aqt/addcards.py:155
+#: qt/aqt/addcards.py:154
 #, python-format
 msgid "Edit \"%s\""
 msgstr "Muokkaa \"%s\""
@@ -1725,11 +1729,11 @@ msgstr "Muokkaa \"%s\""
 msgid "Edit Current"
 msgstr "Muokkaa nykyistä"
 
-#: qt/aqt/editor.py:874
+#: qt/aqt/editor.py:877
 msgid "Edit HTML"
 msgstr "Muokkaa HTML:ää"
 
-#: qt/aqt/browser.py:716
+#: qt/aqt/browser.py:721
 msgid "Edited"
 msgstr "Muokattu"
 
@@ -1745,7 +1749,7 @@ msgstr "Tyhjä"
 msgid "Empty Cards..."
 msgstr "Tyhjät kortit..."
 
-#: pylib/anki/collection.py:584
+#: pylib/anki/collection.py:585
 #, python-format
 msgid "Empty card numbers: %(c)s\n"
 "Fields: %(f)s\n\n"
@@ -1779,11 +1783,11 @@ msgstr "Syötä pakka, johon asetetaan uudet %s korttia tai jätä tyhjäksi:"
 msgid "Enter new card position (1...%s):"
 msgstr "Syötä kortin uusi sijainti (1...%s):"
 
-#: qt/aqt/browser.py:1841
+#: qt/aqt/browser.py:1846
 msgid "Enter tags to add:"
 msgstr "Lisättävät tunnisteet:"
 
-#: qt/aqt/browser.py:1863
+#: qt/aqt/browser.py:1868
 msgid "Enter tags to delete:"
 msgstr "Poistettavat tunnisteet:"
 
@@ -1797,7 +1801,7 @@ msgstr ""
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
 msgstr ""
 
-#: qt/aqt/main.py:77
+#: qt/aqt/main.py:79
 #, python-format
 msgid "Error during startup:\n"
 "%s"
@@ -1808,7 +1812,7 @@ msgstr "Virhe käynnistyksessä:</ br>\n"
 msgid "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
 msgstr "Virhe muodostettaessa turvattua yhteyttä. Tämä johtuu yleensä virustorjunta-, palomuuri tai VPN-ohjelmistosta tai internet-palveluntarjoajastasi johtuvasta ongelmasta."
 
-#: pylib/anki/latex.py:169
+#: pylib/anki/latex.py:177
 #, python-format
 msgid "Error executing %s."
 msgstr "Virhe suoritettaessa %s."
@@ -1856,7 +1860,7 @@ msgstr "Kentän nimi:"
 msgid "Field:"
 msgstr "Kenttä:"
 
-#: qt/aqt/editor.py:154 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
+#: qt/aqt/editor.py:157 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
 #: qt/aqt/forms/fields.py:100
 msgid "Fields"
 msgstr "Kentät"
@@ -1866,7 +1870,7 @@ msgstr "Kentät"
 msgid "Fields for %s"
 msgstr "Kentät kohteessa %s"
 
-#: qt/aqt/importing.py:171
+#: qt/aqt/importing.py:172
 #, python-format
 msgid "Fields separated by: %s"
 msgstr "Kenttien erotin: %s"
@@ -1883,7 +1887,7 @@ msgstr ""
 msgid "File version unknown, trying import anyway."
 msgstr ""
 
-#: qt/aqt/browser.py:1270 qt/aqt/forms/dyndconf.py:133
+#: qt/aqt/browser.py:1275 qt/aqt/forms/dyndconf.py:133
 msgid "Filter"
 msgstr "Suodatin"
 
@@ -1899,7 +1903,7 @@ msgstr ""
 msgid "Filter:"
 msgstr "Suodatin:"
 
-#: qt/aqt/browser.py:1433
+#: qt/aqt/browser.py:1438
 msgid "Filtered"
 msgstr "Suodatettu"
 
@@ -1920,7 +1924,7 @@ msgstr "Etsi kaksoiskappaleet"
 msgid "Find and Re&place..."
 msgstr "&Etsi ja korvaa..."
 
-#: qt/aqt/browser.py:2074 qt/aqt/forms/findreplace.py:68
+#: qt/aqt/browser.py:2088 qt/aqt/forms/findreplace.py:68
 msgid "Find and Replace"
 msgstr "Etsi ja korvaa"
 
@@ -1941,18 +1945,18 @@ msgstr "Ensimmäinen kertaus"
 msgid "First field matched: %s"
 msgstr "Ensimmäinen kenttä täsmää: %s"
 
-#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
+#: pylib/anki/collection.py:994 pylib/anki/collection.py:1012
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "Korjattiin %d kortti, jossa oli virheellisiä ominaisuuksia."
 msgstr[1] "Korjattiin %d korttia, joissa oli virheellisiä ominaisuuksia."
 
-#: pylib/anki/collection.py:896
+#: pylib/anki/collection.py:911
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "Korjattu AnkiDroid-pankan päälletallennusvirhe"
 
-#: pylib/anki/collection.py:902
+#: pylib/anki/collection.py:917
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Korjattu muistiinpanotyyppi: %s"
@@ -1981,7 +1985,7 @@ msgstr "Fontti:"
 msgid "Footer"
 msgstr "Alatunniste"
 
-#: pylib/anki/latex.py:129
+#: pylib/anki/latex.py:137
 #, python-format
 msgid "For security reasons, '%s' is not allowed on cards. You can still use it by placing the command in a different package, and importing that package in the LaTeX header instead."
 msgstr "Turvallisuussyistä \"%s\" ei ole sallittu korteissa. Voit yhä käyttää sitä sijoittamalla komennon eri pakkaukseen and tuomalla pakkauksen sitten LaTeX-ylätunnisteeseen."
@@ -1995,14 +1999,14 @@ msgstr "Ennuste"
 msgid "Form"
 msgstr "Lomake"
 
-#: qt/aqt/browser.py:2152
+#: qt/aqt/browser.py:2166
 #, python-format
 msgid "Found %(a)s across %(b)s."
 msgstr "Löytyi %(a)s, joissa on %(b)s."
 
-#: pylib/anki/exporting.py:365 pylib/anki/stdmodels.py:18
-#: pylib/anki/stdmodels.py:23 pylib/anki/stdmodels.py:45
-#: pylib/anki/stdmodels.py:46 pylib/anki/stdmodels.py:62
+#: pylib/anki/exporting.py:365 pylib/anki/stdmodels.py:19
+#: pylib/anki/stdmodels.py:24 pylib/anki/stdmodels.py:46
+#: pylib/anki/stdmodels.py:47 pylib/anki/stdmodels.py:63
 #: qt/aqt/forms/addfield.py:74
 msgid "Front"
 msgstr "Etupuoli"
@@ -2019,7 +2023,7 @@ msgstr "Etupuolen malline"
 msgid "General"
 msgstr "Yleistä"
 
-#: pylib/anki/latex.py:170
+#: pylib/anki/latex.py:178
 #, python-format
 msgid "Generated file: %s"
 msgstr "Luotu tiedosto: %s"
@@ -2045,7 +2049,7 @@ msgstr "Hyvä"
 msgid "Graduating interval"
 msgstr "Valmistujaiskertausväli"
 
-#: qt/aqt/browser.py:1241 qt/aqt/reviewer.py:665 qt/aqt/forms/browser.py:332
+#: qt/aqt/browser.py:1246 qt/aqt/reviewer.py:665 qt/aqt/forms/browser.py:332
 msgid "Green Flag"
 msgstr ""
 
@@ -2061,11 +2065,11 @@ msgstr "Vaikea"
 msgid "Hard interval"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:240
+#: qt/aqt/forms/preferences.py:244
 msgid "Hardware acceleration (faster, may cause display issues)"
 msgstr ""
 
-#: pylib/anki/latex.py:178
+#: pylib/anki/latex.py:186
 msgid "Have you installed latex and dvipng/dvisvgm?"
 msgstr ""
 
@@ -2073,7 +2077,7 @@ msgstr ""
 msgid "Header"
 msgstr "Ylätunniste"
 
-#: qt/aqt/addcards.py:75 qt/aqt/clayout.py:257 qt/aqt/utils.py:193
+#: qt/aqt/addcards.py:74 qt/aqt/clayout.py:257 qt/aqt/utils.py:193
 #: qt/aqt/utils.py:194
 msgid "Help"
 msgstr "Ohje"
@@ -2082,7 +2086,7 @@ msgstr "Ohje"
 msgid "Highest ease"
 msgstr "Suurin helppous"
 
-#: qt/aqt/addcards.py:79
+#: qt/aqt/addcards.py:78
 msgid "History"
 msgstr "Historia"
 
@@ -2106,7 +2110,7 @@ msgstr "Tunteja, joiden aikana on ollut vähemmän kuin 30 kertausta, ei näytet
 msgid "Identical"
 msgstr ""
 
-#: qt/aqt/about.py:165
+#: qt/aqt/about.py:166
 msgid "If you have contributed and are not on this list, please get in touch."
 msgstr "Jos olet tehnyt työtä Ankin hyväksi, mutta et ole listalla, ota yhteyttä."
 
@@ -2122,7 +2126,7 @@ msgstr "Älä huomioi pidempiä vastausaikoja kuin"
 msgid "Ignore case"
 msgstr "Älä huomioi kirjasinkokoa"
 
-#: qt/aqt/importing.py:50
+#: qt/aqt/importing.py:49
 msgid "Ignore field"
 msgstr "Jätä kenttä huomioimatta"
 
@@ -2134,7 +2138,7 @@ msgstr "Älä huomioi rivejä, joiden ensimmäinen kenttä vastaa olemassaolevaa
 msgid "Ignore this update"
 msgstr "Unohda tämä päivitys"
 
-#: qt/aqt/importing.py:97 qt/aqt/importing.py:192 qt/aqt/importing.py:311
+#: qt/aqt/importing.py:98 qt/aqt/importing.py:192 qt/aqt/importing.py:309
 #: qt/aqt/forms/changemap.py:41 qt/aqt/forms/importing.py:103
 msgid "Import"
 msgstr "Tuo"
@@ -2147,11 +2151,11 @@ msgstr "Tuo tiedosto"
 msgid "Import even if existing note has same first field"
 msgstr "Tuo vaikka olemassa olevassa muistiinpanossa on sama ensimmäinen kenttä"
 
-#: qt/aqt/importing.py:199 qt/aqt/importing.py:410
+#: qt/aqt/importing.py:199 qt/aqt/importing.py:408
 msgid "Import failed.\n"
 msgstr "Tuonti epäonnistui.\n"
 
-#: qt/aqt/importing.py:365
+#: qt/aqt/importing.py:363
 msgid "Import failed. Debugging info:\n"
 msgstr "Tuonti epäonnistui. Virheidenjäljitystietoa:</ br>\n"
 
@@ -2202,7 +2206,7 @@ msgstr "Liitä tunnisteet:"
 msgid "Increase today's new card limit"
 msgstr "Kasvata tämän päivän uusien korttien ylärajaa"
 
-#: qt/aqt/customstudy.py:71
+#: qt/aqt/customstudy.py:72
 msgid "Increase today's new card limit by"
 msgstr "Kasvata tämän päivän uusien korttien ylärajaa"
 
@@ -2210,7 +2214,7 @@ msgstr "Kasvata tämän päivän uusien korttien ylärajaa"
 msgid "Increase today's review card limit"
 msgstr "Kasvata tämän päivän kerrattavien korttien ylärajaa"
 
-#: qt/aqt/customstudy.py:83
+#: qt/aqt/customstudy.py:84
 msgid "Increase today's review limit by"
 msgstr "Kasvata tämän päivän kerrattavien korttien yläraja"
 
@@ -2243,11 +2247,11 @@ msgstr ""
 msgid "Installed %(name)s"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:239 qt/aqt/forms/setlang.py:40
+#: qt/aqt/forms/preferences.py:243 qt/aqt/forms/setlang.py:40
 msgid "Interface language:"
 msgstr "Käyttöliittymän kieli:"
 
-#: pylib/anki/stats.py:45 qt/aqt/browser.py:719 qt/aqt/browser.py:1423
+#: pylib/anki/stats.py:45 qt/aqt/browser.py:724 qt/aqt/browser.py:1428
 msgid "Interval"
 msgstr "Kertausväli"
 
@@ -2284,19 +2288,19 @@ msgstr ""
 msgid "Invalid file name, please rename: %s"
 msgstr ""
 
-#: qt/aqt/importing.py:396
+#: qt/aqt/importing.py:394
 msgid "Invalid file. Please restore from backup."
 msgstr "Viallinen tiedosto. Palauta aikaisempi versio varmuuskopiosta."
 
-#: qt/aqt/main.py:1167
+#: qt/aqt/main.py:1168
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "Kortista löydettiin virheellinen ominaisuus. Valitse Työkalut>Tarkista tietokanta. Jos ongelma ilmenee uudelleen, pyydä apua <a href=\"http://ankisrs.net/docs/help.html\">tukisivulta</a>."
 
-#: qt/aqt/browser.py:2087
+#: qt/aqt/browser.py:2101
 msgid "Invalid regular expression."
 msgstr "Säännöllinen lauseke on virheellinen."
 
-#: qt/aqt/browser.py:175
+#: qt/aqt/browser.py:179
 msgid "Invalid search - please check for typing mistakes."
 msgstr ""
 
@@ -2304,31 +2308,31 @@ msgstr ""
 msgid "It has been suspended."
 msgstr "Se on hyllytetty."
 
-#: qt/aqt/editor.py:104
+#: qt/aqt/editor.py:105
 msgid "Italic text (Ctrl+I)"
 msgstr "Kursivointi (Ctrl+I)"
 
-#: qt/aqt/editor.py:518
+#: qt/aqt/editor.py:521
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Siirry tunnisteisiin painamalla Ctrl+Shift+T"
 
-#: qt/aqt/forms/preferences.py:265
+#: qt/aqt/forms/preferences.py:270
 msgid "Keep"
 msgstr "Pidä"
 
-#: qt/aqt/editor.py:871 qt/aqt/forms/modelopts.py:67
+#: qt/aqt/editor.py:874 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr ""
 
-#: qt/aqt/editor.py:872
+#: qt/aqt/editor.py:875
 msgid "LaTeX equation"
 msgstr "LaTeX-yhtälö"
 
-#: qt/aqt/editor.py:873
+#: qt/aqt/editor.py:876
 msgid "LaTeX math env."
 msgstr "LaTeX matem. ympär."
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:722 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:727 qt/aqt/forms/dconf.py:386
 msgid "Lapses"
 msgstr "Virheet"
 
@@ -2344,11 +2348,11 @@ msgstr "Viimeisin kertaus"
 msgid "Latest added first"
 msgstr "Viimeisenä lisätty ensimmäisenä"
 
-#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1433
+#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1438
 msgid "Learn"
 msgstr "Opitut"
 
-#: qt/aqt/forms/preferences.py:252
+#: qt/aqt/forms/preferences.py:257
 msgid "Learn ahead limit"
 msgstr "Ennalta opiskeltavien yläraja"
 
@@ -2357,7 +2361,7 @@ msgstr "Ennalta opiskeltavien yläraja"
 msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
 msgstr "Opitut: %(a)s, Kerratut: %(b)s, Uudelleen opitut: %(c)s, Suodatetut: %(d)s"
 
-#: pylib/anki/stats.py:701 qt/aqt/browser.py:1232 qt/aqt/overview.py:198
+#: pylib/anki/stats.py:701 qt/aqt/browser.py:1237 qt/aqt/overview.py:198
 msgid "Learning"
 msgstr "Opiskeltavat"
 
@@ -2405,7 +2409,7 @@ msgstr ""
 msgid "Manage Note Types..."
 msgstr "Hallinnoi muistiinpanotyyppejä..."
 
-#: qt/aqt/browser.py:1289 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1294 qt/aqt/forms/dconf.py:353
 msgid "Manage..."
 msgstr ""
 
@@ -2413,12 +2417,12 @@ msgstr ""
 msgid "Manually Buried Cards"
 msgstr ""
 
-#: qt/aqt/importing.py:43
+#: qt/aqt/importing.py:42
 #, python-format
 msgid "Map to %s"
 msgstr "Liitä kenttään %s"
 
-#: qt/aqt/importing.py:49
+#: qt/aqt/importing.py:48
 msgid "Map to Tags"
 msgstr "Liitä tunnisteisiin"
 
@@ -2426,15 +2430,15 @@ msgstr "Liitä tunnisteisiin"
 msgid "Mark Note"
 msgstr ""
 
-#: qt/aqt/editor.py:869
+#: qt/aqt/editor.py:872
 msgid "MathJax block"
 msgstr ""
 
-#: qt/aqt/editor.py:870
+#: qt/aqt/editor.py:873
 msgid "MathJax chemistry"
 msgstr ""
 
-#: qt/aqt/editor.py:868
+#: qt/aqt/editor.py:871
 msgid "MathJax inline"
 msgstr ""
 
@@ -2451,7 +2455,7 @@ msgstr "Enimmäiskertausväli"
 msgid "Maximum reviews/day"
 msgstr "Kertausten enimmäismäärä/päivä"
 
-#: qt/aqt/editor.py:646
+#: qt/aqt/editor.py:649
 msgid "Media"
 msgstr "Mediatiedostot"
 
@@ -2479,7 +2483,7 @@ msgstr "Lisää"
 msgid "Most lapses"
 msgstr "Eniten virheitä"
 
-#: qt/aqt/browser.py:1801
+#: qt/aqt/browser.py:1806
 msgid "Move Cards"
 msgstr "Siirrä kortit"
 
@@ -2487,7 +2491,7 @@ msgstr "Siirrä kortit"
 msgid "Move cards to deck:"
 msgstr "Siirrä kortit pakkaan:"
 
-#: qt/aqt/importing.py:138
+#: qt/aqt/importing.py:139
 msgid "Multi-character separators are not supported. Please enter one character only."
 msgstr ""
 
@@ -2495,7 +2499,7 @@ msgstr ""
 msgid "N&ote"
 msgstr "Muistiinpan&o"
 
-#: qt/aqt/main.py:233 qt/aqt/main.py:247
+#: qt/aqt/main.py:235 qt/aqt/main.py:249
 msgid "Name exists."
 msgstr "Nimi on olemassa."
 
@@ -2503,15 +2507,15 @@ msgstr "Nimi on olemassa."
 msgid "Name for deck:"
 msgstr "Pakan nimi:"
 
-#: qt/aqt/main.py:230 qt/aqt/models.py:96
+#: qt/aqt/main.py:232 qt/aqt/models.py:96
 msgid "Name:"
 msgstr "Nimi:"
 
-#: qt/aqt/forms/preferences.py:263
+#: qt/aqt/forms/preferences.py:268
 msgid "Network"
 msgstr "Verkko"
 
-#: qt/aqt/browser.py:1231 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:196
+#: qt/aqt/browser.py:1236 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:196
 msgid "New"
 msgstr "Uudet"
 
@@ -2519,7 +2523,7 @@ msgstr "Uudet"
 msgid "New Cards"
 msgstr "Uudet kortit"
 
-#: qt/aqt/customstudy.py:70
+#: qt/aqt/customstudy.py:71
 #, python-format
 msgid "New cards in deck over today limit: %s"
 msgstr ""
@@ -2541,7 +2545,7 @@ msgid "New interval"
 msgstr "Uusi kertausväli"
 
 #: qt/aqt/clayout.py:379 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
-#: qt/aqt/main.py:241 qt/aqt/models.py:67
+#: qt/aqt/main.py:243 qt/aqt/models.py:67
 msgid "New name:"
 msgstr "Uusi nimi:"
 
@@ -2558,11 +2562,11 @@ msgstr "Uusi valintaryhmän nimi:"
 msgid "New position (1...%d):"
 msgstr "Uusi sijainti (1...%d):"
 
-#: qt/aqt/forms/preferences.py:251
+#: qt/aqt/forms/preferences.py:256
 msgid "Next day starts at"
 msgstr "Uusi päivää alkaa"
 
-#: qt/aqt/browser.py:1243
+#: qt/aqt/browser.py:1248
 msgid "No Flag"
 msgstr ""
 
@@ -2574,11 +2578,11 @@ msgstr "Ei vielä erääntyneitä kortteja."
 msgid "No cards have been studied today."
 msgstr ""
 
-#: qt/aqt/customstudy.py:183
+#: qt/aqt/customstudy.py:185
 msgid "No cards matched the criteria you provided."
 msgstr "Yksikään kortti ei vastaa annettuja ehtoja"
 
-#: qt/aqt/main.py:1347
+#: qt/aqt/main.py:1348
 msgid "No empty cards."
 msgstr "Ei tyhjiä kortteja."
 
@@ -2586,7 +2590,7 @@ msgstr "Ei tyhjiä kortteja."
 msgid "No mature cards were studied today."
 msgstr "Yhtään varmaa korttia ei opiskeltu tänään."
 
-#: qt/aqt/main.py:1272
+#: qt/aqt/main.py:1273
 msgid "No unused or missing files found."
 msgstr "Käyttämättömiä tai puuttuvia tiedostoja ei löytynyt"
 
@@ -2594,7 +2598,7 @@ msgstr "Käyttämättömiä tai puuttuvia tiedostoja ei löytynyt"
 msgid "No updates available."
 msgstr ""
 
-#: qt/aqt/browser.py:724
+#: qt/aqt/browser.py:729
 msgid "Note"
 msgstr "Muistiinpano"
 
@@ -2606,7 +2610,7 @@ msgstr "Muistiinpanon tunnus"
 msgid "Note Type"
 msgstr "Muistiinpanotyyppi"
 
-#: qt/aqt/browser.py:1287 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
+#: qt/aqt/browser.py:1292 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
 msgid "Note Types"
 msgstr "Muistiinpanotyypit"
 
@@ -2625,11 +2629,11 @@ msgstr "Muistiinpano piilotettu."
 msgid "Note suspended."
 msgstr "Muistiinpano hyllytetty."
 
-#: qt/aqt/forms/preferences.py:268
+#: qt/aqt/forms/preferences.py:273
 msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
 msgstr "Huomautus: Mediatiedostoista ei ole otettu varmuuskopiota. Ota Anki-kansiostasi säännöllisin väliajoin varmuuskopio, että tiedostosi ovat turvassa."
 
-#: qt/aqt/browser.py:1467
+#: qt/aqt/browser.py:1472
 msgid "Note: Some of the history is missing. For more information, please see the browser documentation."
 msgstr "Huomautus: osa historiasta puuttuu. Katso lisätietoja selaimen dokumentaatiosta."
 
@@ -2656,7 +2660,7 @@ msgstr "Muistiinpanoissa täytyy olla vähintään yksi kenttä."
 msgid "Notes skipped, as they're already in your collection: %d"
 msgstr ""
 
-#: qt/aqt/browser.py:2180
+#: qt/aqt/browser.py:2194
 msgid "Notes tagged."
 msgstr "Merkityt muistiinpanot"
 
@@ -2670,11 +2674,11 @@ msgstr ""
 msgid "Notes updated, as file had newer version: %d"
 msgstr ""
 
-#: qt/aqt/browser.py:2331
+#: qt/aqt/browser.py:2348
 msgid "Nothing"
 msgstr "ei mitään"
 
-#: qt/aqt/customstudy.py:56
+#: qt/aqt/customstudy.py:57
 msgid "OK"
 msgstr ""
 
@@ -2682,7 +2686,7 @@ msgstr ""
 msgid "Oldest seen first"
 msgstr "Vanhin nähty ensin"
 
-#: qt/aqt/forms/preferences.py:261
+#: qt/aqt/forms/preferences.py:266
 msgid "On next sync, force changes in one direction"
 msgstr "Seuraavassa sykronoinnissa pakota muutokset toiseen suuntaan"
 
@@ -2690,7 +2694,7 @@ msgstr "Seuraavassa sykronoinnissa pakota muutokset toiseen suuntaan"
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr "Yhtä tai useampaa muistiinpanoa ei tuotu, koska ne eivät luoneet yhtään korttia. Näin voi tapahtua kun muistiinpanossa on tyhjiä kenttiä tai kun et ole liittänyt tekstitiedoston sisältöä oikeisiin kenttiin."
 
-#: qt/aqt/browser.py:1943
+#: qt/aqt/browser.py:1948
 msgid "Only new cards can be repositioned."
 msgstr "Vain uusien korttien sijaintia pakassa voi muuttaa."
 
@@ -2706,7 +2710,7 @@ msgstr "Avaa"
 msgid "Open Backup..."
 msgstr ""
 
-#: qt/aqt/main.py:543
+#: qt/aqt/main.py:545
 msgid "Optimizing..."
 msgstr "Optimoidaan..."
 
@@ -2733,7 +2737,7 @@ msgstr "Valintaryhmä:"
 msgid "Options..."
 msgstr "Valinnat..."
 
-#: qt/aqt/browser.py:1240 qt/aqt/reviewer.py:659 qt/aqt/forms/browser.py:331
+#: qt/aqt/browser.py:1245 qt/aqt/reviewer.py:659 qt/aqt/forms/browser.py:331
 msgid "Orange Flag"
 msgstr ""
 
@@ -2773,13 +2777,17 @@ msgstr ""
 msgid "Password:"
 msgstr "Salasana:"
 
-#: qt/aqt/editor.py:1110
+#: qt/aqt/editor.py:1115
 msgid "Paste"
 msgstr "Liitä"
 
-#: qt/aqt/forms/preferences.py:243
+#: qt/aqt/forms/preferences.py:247
 msgid "Paste clipboard images as PNG"
 msgstr "Liitä leikepöydän kuvat PNG-muodossa"
+
+#: qt/aqt/forms/preferences.py:248
+msgid "Paste without shift key strips formatting"
+msgstr ""
 
 #: pylib/anki/importing/__init__.py:17
 msgid "Pauker 1.8 Lesson (*.pau.gz)"
@@ -2814,16 +2822,16 @@ msgstr ""
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Yhdistä mikrofoni ja varmista, etteivät muut ohjelmat käytä audiolaitetta."
 
-#: pylib/anki/collection.py:680
+#: pylib/anki/collection.py:687
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Muokkaa tätä muistiinpanoa ja lisää aukkotehtäviä. (%s)"
 
-#: qt/aqt/main.py:1521
+#: qt/aqt/main.py:1522
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr "Varmista, että käyttäjätili on auki eikä Anki ei käsittele muuta tietoa ja yritä sitten uudestaan."
 
-#: qt/aqt/browser.py:1342
+#: qt/aqt/browser.py:1347
 msgid "Please give your filter a name:"
 msgstr ""
 
@@ -2848,7 +2856,7 @@ msgstr "Käynnistä Anki uudelleen, niin että kielivalinnan muutos tulee voimaa
 msgid "Please run Tools>Empty Cards"
 msgstr "Valitse Työkalut > Tyhjät kortit"
 
-#: qt/aqt/main.py:581
+#: qt/aqt/main.py:583
 msgid "Please select a deck."
 msgstr "Valitse pakka"
 
@@ -2856,7 +2864,7 @@ msgstr "Valitse pakka"
 msgid "Please select a single add-on first."
 msgstr ""
 
-#: qt/aqt/browser.py:1512
+#: qt/aqt/browser.py:1517
 msgid "Please select cards from only one note type."
 msgstr "Valitse vain yhden muistiinpanotyypin kortteja."
 
@@ -2880,15 +2888,15 @@ msgstr "Käy AnkiWebissä, päivitä pakkasi ja yritä sitten uudestaan."
 msgid "Position"
 msgstr "Sijainti"
 
-#: qt/aqt/forms/preferences.py:238
+#: qt/aqt/forms/preferences.py:242
 msgid "Preferences"
 msgstr "Asetukset"
 
-#: qt/aqt/browser.py:1548 qt/aqt/forms/browser.py:293
+#: qt/aqt/browser.py:1553 qt/aqt/forms/browser.py:293
 msgid "Preview"
 msgstr "Esikatselu"
 
-#: qt/aqt/browser.py:593
+#: qt/aqt/browser.py:598
 #, python-format
 msgid "Preview Selected Card (%s)"
 msgstr "Esikatsele valittuja kortteja (%s)"
@@ -2897,11 +2905,11 @@ msgstr "Esikatsele valittuja kortteja (%s)"
 msgid "Preview new cards"
 msgstr "Esikatsele uusia kortteja"
 
-#: qt/aqt/customstudy.py:95
+#: qt/aqt/customstudy.py:96
 msgid "Preview new cards added in the last"
 msgstr "Esikatsele uusia kortteja, jotka on lisätty viimeisenä"
 
-#: qt/aqt/importing.py:488
+#: qt/aqt/importing.py:486
 #, python-format
 msgid "Processed %d media file"
 msgid_plural "Processed %d media files"
@@ -2924,16 +2932,16 @@ msgstr "Käyttäjätilit"
 msgid "Proxy authentication required."
 msgstr "Välityspalvelimen todentaminen vaaditaan."
 
-#: qt/aqt/browser.py:710
+#: qt/aqt/browser.py:715
 msgid "Question"
 msgstr "Kysymys"
 
-#: qt/aqt/browser.py:1954
+#: qt/aqt/browser.py:1959
 #, python-format
 msgid "Queue bottom: %d"
 msgstr "Jonon loppu: %d"
 
-#: qt/aqt/browser.py:1953
+#: qt/aqt/browser.py:1958
 #, python-format
 msgid "Queue top: %d"
 msgstr "Jonon alku: %d"
@@ -2950,7 +2958,7 @@ msgstr "Satunnainen"
 msgid "Randomize order"
 msgstr "Sekoita järjestys"
 
-#: qt/aqt/browser.py:1422
+#: qt/aqt/browser.py:1427
 msgid "Rating"
 msgstr "Luokitus"
 
@@ -2962,7 +2970,7 @@ msgstr "Koosta uudelleen"
 msgid "Record Own Voice"
 msgstr "Nauhoita oma äänite"
 
-#: qt/aqt/editor.py:140
+#: qt/aqt/editor.py:141
 msgid "Record audio (F5)"
 msgstr ""
 
@@ -2971,7 +2979,7 @@ msgstr ""
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Nauhoitetaan...<br>Kesto: %0.1f"
 
-#: qt/aqt/browser.py:1239 qt/aqt/reviewer.py:653 qt/aqt/forms/browser.py:330
+#: qt/aqt/browser.py:1244 qt/aqt/reviewer.py:653 qt/aqt/forms/browser.py:330
 msgid "Red Flag"
 msgstr ""
 
@@ -2979,7 +2987,7 @@ msgstr ""
 msgid "Relative overdueness"
 msgstr "Suhteellinen erääntyneisyys"
 
-#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1433
+#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1438
 msgid "Relearn"
 msgstr "Uudelleenopitut"
 
@@ -2987,7 +2995,7 @@ msgstr "Uudelleenopitut"
 msgid "Remember last input when adding"
 msgstr "Muista viimeisin syötetty tieto lisätessä"
 
-#: qt/aqt/browser.py:1352
+#: qt/aqt/browser.py:1357
 #, python-format
 msgid "Remove %s from your saved searches?"
 msgstr ""
@@ -2996,7 +3004,7 @@ msgstr ""
 msgid "Remove Card Type..."
 msgstr ""
 
-#: qt/aqt/browser.py:1327
+#: qt/aqt/browser.py:1332
 msgid "Remove Current Filter..."
 msgstr ""
 
@@ -3004,7 +3012,7 @@ msgstr ""
 msgid "Remove Tags..."
 msgstr ""
 
-#: qt/aqt/editor.py:113
+#: qt/aqt/editor.py:114
 msgid "Remove formatting (Ctrl+R)"
 msgstr ""
 
@@ -3029,11 +3037,11 @@ msgstr "Nimeä pakka uudelleen"
 msgid "Repeat failed cards after"
 msgstr ""
 
-#: qt/aqt/main.py:274
+#: qt/aqt/main.py:276
 msgid "Replace your collection with an earlier backup?"
 msgstr ""
 
-#: qt/aqt/browser.py:1559 qt/aqt/reviewer.py:686
+#: qt/aqt/browser.py:1564 qt/aqt/reviewer.py:686
 msgid "Replay Audio"
 msgstr "Toista äänitiedosto"
 
@@ -3041,7 +3049,7 @@ msgstr "Toista äänitiedosto"
 msgid "Replay Own Voice"
 msgstr "Toista oma äänite"
 
-#: qt/aqt/browser.py:1959 qt/aqt/forms/fields.py:104
+#: qt/aqt/browser.py:1964 qt/aqt/forms/fields.py:104
 msgid "Reposition"
 msgstr "Uuden sijainnin määrittäminen"
 
@@ -3061,11 +3069,11 @@ msgstr "Uuden sijainnin määrittäminen..."
 msgid "Require one or more of these tags:"
 msgstr "Vaadi yksi tai useampi näistä tunnisteista:"
 
-#: qt/aqt/browser.py:1433
+#: qt/aqt/browser.py:1438
 msgid "Resched"
 msgstr "Uudelleenajastus"
 
-#: qt/aqt/browser.py:1985 qt/aqt/forms/reschedule.py:73
+#: qt/aqt/browser.py:1990 qt/aqt/forms/reschedule.py:73
 msgid "Reschedule"
 msgstr "Ajasta uudelleen"
 
@@ -3077,7 +3085,7 @@ msgstr "Ajasta kortit uudestaan perustuen vastauksiini tässä pakassa"
 msgid "Restored defaults"
 msgstr ""
 
-#: qt/aqt/main.py:645
+#: qt/aqt/main.py:643
 msgid "Resume Now"
 msgstr "Jatka nyt"
 
@@ -3085,7 +3093,7 @@ msgstr "Jatka nyt"
 msgid "Reverse text direction (RTL)"
 msgstr "Päinvastainen tekstinsuunta (RTL)"
 
-#: qt/aqt/main.py:287
+#: qt/aqt/main.py:289
 msgid "Revert to backup"
 msgstr ""
 
@@ -3094,7 +3102,7 @@ msgstr ""
 msgid "Reverted to state prior to '%s'."
 msgstr "Palautettu \"%s\" edeltävään tilaan."
 
-#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:798 qt/aqt/browser.py:1238 qt/aqt/browser.py:1438
 msgid "Review"
 msgstr "Kertaus"
 
@@ -3110,11 +3118,11 @@ msgstr "Kertausaika"
 msgid "Review ahead"
 msgstr "Kertaa etukäteen"
 
-#: qt/aqt/customstudy.py:92
+#: qt/aqt/customstudy.py:93
 msgid "Review ahead by"
 msgstr "Kertaa ennalta"
 
-#: qt/aqt/customstudy.py:88
+#: qt/aqt/customstudy.py:89
 msgid "Review cards forgotten in last"
 msgstr "Kertaa unohdetut kortit viimeiseltä"
 
@@ -3126,12 +3134,12 @@ msgstr "Kertaa unohdettuja kortteja"
 msgid "Review success rate for each hour of the day."
 msgstr "Kertausten onnistumisaste tunneittain"
 
-#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:721
+#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:726
 #: qt/aqt/forms/dconf.py:375
 msgid "Reviews"
 msgstr "Kertaukset"
 
-#: qt/aqt/customstudy.py:82
+#: qt/aqt/customstudy.py:83
 #, python-format
 msgid "Reviews due in deck over today limit: %s"
 msgstr ""
@@ -3144,7 +3152,7 @@ msgstr "Oikea"
 msgid "Save"
 msgstr "Tallenna"
 
-#: qt/aqt/browser.py:1329
+#: qt/aqt/browser.py:1334
 msgid "Save Current Filter..."
 msgstr ""
 
@@ -3161,7 +3169,7 @@ msgstr ""
 msgid "Scope: %s"
 msgstr "Kohde: %s"
 
-#: qt/aqt/browser.py:2135 qt/aqt/forms/browser.py:292
+#: qt/aqt/browser.py:2149 qt/aqt/forms/browser.py:292
 #: qt/aqt/forms/dyndconf.py:135 qt/aqt/forms/dyndconf.py:139
 msgid "Search"
 msgstr "Etsi"
@@ -3174,7 +3182,7 @@ msgstr ""
 msgid "Search within formatting (slow)"
 msgstr "Etsi muotoiluista (hidas)"
 
-#: qt/aqt/customstudy.py:99
+#: qt/aqt/customstudy.py:100
 msgid "Select"
 msgstr "Valitse"
 
@@ -3190,7 +3198,7 @@ msgstr "Valitse &muistiinpanot"
 msgid "Select tags to exclude:"
 msgstr "Valitse poissuljettavat tunnisteet:"
 
-#: qt/aqt/importing.py:303
+#: qt/aqt/importing.py:301
 msgid "Selected file was not in UTF-8 format. Please see the importing section of the manual."
 msgstr "Valittu tiedosto ei ollut UTF-8-muodossa. Katso käyttöohjeen tuonti-osio."
 
@@ -3198,7 +3206,7 @@ msgstr "Valittu tiedosto ei ollut UTF-8-muodossa. Katso käyttöohjeen tuonti-os
 msgid "Selective Study"
 msgstr "Valikoiva opiskelu"
 
-#: qt/aqt/importing.py:166
+#: qt/aqt/importing.py:167
 msgid "Semicolon"
 msgstr "Puolipiste"
 
@@ -3215,11 +3223,11 @@ msgstr "Asetetaanko kaikki %s alapuoliset pakat tähän valintaryhmään?"
 msgid "Set for all subdecks"
 msgstr "Aseta kaikille alipakoille"
 
-#: qt/aqt/editor.py:116
+#: qt/aqt/editor.py:117
 msgid "Set foreground colour (F7)"
 msgstr ""
 
-#: qt/aqt/main.py:83
+#: qt/aqt/main.py:85
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr "Shift-näppäin oli painettuna. Ohitetaan automaattinen synkronointi ja liitännäisten lataus."
 
@@ -3227,8 +3235,8 @@ msgstr "Shift-näppäin oli painettuna. Ohitetaan automaattinen synkronointi ja 
 msgid "Shift position of existing cards"
 msgstr "Vaihda olemassa olevien korttien sijaintia"
 
-#: qt/aqt/browser.py:1563 qt/aqt/browser.py:1581 qt/aqt/deckbrowser.py:327
-#: qt/aqt/main.py:673 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
+#: qt/aqt/browser.py:1568 qt/aqt/browser.py:1586 qt/aqt/deckbrowser.py:327
+#: qt/aqt/main.py:671 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
 #: qt/aqt/reviewer.py:546 qt/aqt/reviewer.py:612 qt/aqt/toolbar.py:34
 #: qt/aqt/toolbar.py:35 qt/aqt/toolbar.py:36 qt/aqt/toolbar.py:37
 #: qt/aqt/toolbar.py:38
@@ -3236,33 +3244,28 @@ msgstr "Vaihda olemassa olevien korttien sijaintia"
 msgid "Shortcut key: %s"
 msgstr "Pikavalintanäppäin: %s"
 
-#: qt/aqt/browser.py:1568
+#: qt/aqt/browser.py:1573
 msgid "Shortcut key: Left arrow"
 msgstr "Pikanäppäinyhdistelmä: Vasen nuoli"
 
-#: qt/aqt/browser.py:1573
+#: qt/aqt/browser.py:1578
 msgid "Shortcut key: Right arrow or Enter"
 msgstr "Pikanäppäinyhdistelmä: Oikea nuoli tai Enter"
 
-#: qt/aqt/addcards.py:85
+#: qt/aqt/addcards.py:84
 #, python-format
 msgid "Shortcut: %s"
 msgstr "Oikotie: %s"
-
-#: pylib/anki/template2.py:302
-#, python-format
-msgid "Show %s"
-msgstr "Näytä %s"
 
 #: qt/aqt/reviewer.py:547
 msgid "Show Answer"
 msgstr "Näytä vastaus"
 
-#: qt/aqt/browser.py:1579
+#: qt/aqt/browser.py:1584
 msgid "Show Both Sides"
 msgstr ""
 
-#: qt/aqt/editor.py:163
+#: qt/aqt/editor.py:166
 msgid "Show Duplicates"
 msgstr "Näytä kaksoiskappaleet"
 
@@ -3270,11 +3273,11 @@ msgstr "Näytä kaksoiskappaleet"
 msgid "Show answer timer"
 msgstr "Näytä vastausaika"
 
-#: qt/aqt/forms/preferences.py:244
+#: qt/aqt/forms/preferences.py:249
 msgid "Show cards as white on black (night mode)"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:245
+#: qt/aqt/forms/preferences.py:250
 msgid "Show learning cards with larger steps before reviews"
 msgstr ""
 
@@ -3294,15 +3297,15 @@ msgstr "Näytä uudet kortit lisäysjärjestyksessä"
 msgid "Show new cards in random order"
 msgstr "Näytä uudet kortit satunnaisessa järjestyksessä"
 
-#: qt/aqt/forms/preferences.py:241
+#: qt/aqt/forms/preferences.py:245
 msgid "Show next review time above answer buttons"
 msgstr "Näytä seuraava kertausaika vastauspainikkeiden yläpuolella"
 
-#: qt/aqt/forms/preferences.py:242
+#: qt/aqt/forms/preferences.py:246
 msgid "Show remaining card count during review"
 msgstr "Näytä jäljellä olevien korttien lukumäärä kertauksen aikana"
 
-#: qt/aqt/browser.py:1033 qt/aqt/forms/browser.py:334
+#: qt/aqt/browser.py:1038 qt/aqt/forms/browser.py:334
 msgid "Sidebar"
 msgstr ""
 
@@ -3314,16 +3317,16 @@ msgstr "Koko:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Joitakin kertaamiisi kortteihin liittyviä tai piilotettuja kortteja viivästettiin myöhempään istuntoon."
 
-#: qt/aqt/forms/preferences.py:269
+#: qt/aqt/forms/preferences.py:274
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Osa asetuksista tulee voimaan vasta\r\n"
 "Ankin uudelleenkäynnistyksen jälkeen."
 
-#: qt/aqt/browser.py:714
+#: qt/aqt/browser.py:719
 msgid "Sort Field"
 msgstr "Lajittelukenttä"
 
@@ -3331,7 +3334,7 @@ msgstr "Lajittelukenttä"
 msgid "Sort by this field in the browser"
 msgstr "Lajittele tämän kentän mukaan selaimessa"
 
-#: qt/aqt/browser.py:913
+#: qt/aqt/browser.py:918
 msgid "Sorting on this column is not supported. Please choose another."
 msgstr "Lajittelu tämän sarakkeen mukaan ei ole mahdollista. Valitse toinen sarake."
 
@@ -3339,7 +3342,7 @@ msgstr "Lajittelu tämän sarakkeen mukaan ei ole mahdollista. Valitse toinen sa
 msgid "Sound and video on cards will not function until mpv or mplayer is installed."
 msgstr ""
 
-#: qt/aqt/importing.py:164 qt/aqt/reviewer.py:546
+#: qt/aqt/importing.py:165 qt/aqt/reviewer.py:546
 msgid "Space"
 msgstr "Välilyönti"
 
@@ -3385,7 +3388,7 @@ msgstr ""
 msgid "Studied %(a)s %(b)s today."
 msgstr ""
 
-#: qt/aqt/browser.py:1219
+#: qt/aqt/browser.py:1224
 msgid "Studied Today"
 msgstr "Opiskeltu tänään"
 
@@ -3417,7 +3420,7 @@ msgstr "Muotoilu"
 msgid "Styling (shared between cards)"
 msgstr "Muotoilu (jaetaan korttien välillä)"
 
-#: qt/aqt/editor.py:112
+#: qt/aqt/editor.py:113
 msgid "Subscript (Ctrl+=)"
 msgstr ""
 
@@ -3425,7 +3428,7 @@ msgstr ""
 msgid "Supermemo XML export (*.xml)"
 msgstr "Supermemo XML -vienti (*.xml)"
 
-#: qt/aqt/editor.py:110
+#: qt/aqt/editor.py:111
 msgid "Superscript (Ctrl++)"
 msgstr ""
 
@@ -3441,7 +3444,7 @@ msgstr "Hyllytä kortti"
 msgid "Suspend Note"
 msgstr "Hyllytä muistiinpano"
 
-#: qt/aqt/browser.py:1236
+#: qt/aqt/browser.py:1241
 msgid "Suspended"
 msgstr "Hyllytetyt"
 
@@ -3453,7 +3456,7 @@ msgstr "Hyllytetyt + piilotetut"
 msgid "Sync"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:259
+#: qt/aqt/forms/preferences.py:264
 msgid "Synchronize audio and images too"
 msgstr "Synkronoi myös äänitiedostot ja kuvat"
 
@@ -3476,11 +3479,11 @@ msgstr "Synkronointi vaatii, että tietokoneesi kello on asetettu oikeaan aikaan
 msgid "Syncing..."
 msgstr "Synkronoidaan..."
 
-#: qt/aqt/importing.py:160
+#: qt/aqt/importing.py:161
 msgid "Tab"
 msgstr "Sarkain"
 
-#: qt/aqt/browser.py:2144 qt/aqt/browser.py:2172
+#: qt/aqt/browser.py:2158 qt/aqt/browser.py:2186
 msgid "Tag Duplicates"
 msgstr "Lisää tunniste kaksoiskappaleisiin"
 
@@ -3492,7 +3495,7 @@ msgstr "Liitä vain tunniste"
 msgid "Tag modified notes:"
 msgstr ""
 
-#: qt/aqt/browser.py:723 qt/aqt/browser.py:1251 qt/aqt/editor.py:514
+#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:517
 msgid "Tags"
 msgstr "Tunnisteet"
 
@@ -3504,7 +3507,7 @@ msgstr "Kohdepakka (Ctrl + D)"
 msgid "Target field:"
 msgstr "Kohdekenttä:"
 
-#: pylib/anki/stdmodels.py:101
+#: pylib/anki/stdmodels.py:102
 msgid "Text"
 msgstr "Teksti"
 
@@ -3540,11 +3543,11 @@ msgstr "Oletuspakkaa ei voi poistaa."
 msgid "The division of cards in your deck(s)."
 msgstr "Korttien jakautuminen pakkaasi/pakkoihisi."
 
-#: qt/aqt/addcards.py:172
+#: qt/aqt/addcards.py:171
 msgid "The first field is empty."
 msgstr "Ensimmäinen kenttä on tyhjä."
 
-#: qt/aqt/importing.py:177
+#: qt/aqt/importing.py:178
 msgid "The first field of the note type must be mapped."
 msgstr "Muistiinpanotyypin ensimmäinen kenttä on liitettävä."
 
@@ -3566,7 +3569,7 @@ msgstr ""
 msgid "The front of this card is empty. Please run Tools>Empty Cards."
 msgstr "Tämän kortin etupuoli on tyhjä. Suorita Työkalut > Tyhjät kortit."
 
-#: qt/aqt/addcards.py:189
+#: qt/aqt/addcards.py:188
 msgid "The input you have provided would make an empty question on all cards."
 msgstr "Syöttämäsi tieto lisää tyhjän kysymyksen kaikkiin kortteihin."
 
@@ -3586,7 +3589,7 @@ msgstr "Tulevaisuudessa erääntyvien kertausten määrä."
 msgid "The number of times you have pressed each button."
 msgstr "Kunkin painikkeen painalluskertojen määrä."
 
-#: qt/aqt/importing.py:477
+#: qt/aqt/importing.py:475
 msgid "The provided file is not a valid .apkg file."
 msgstr "Tarjottu tiedosto ei ole kelvollinen .apkg-tiedosto."
 
@@ -3594,7 +3597,7 @@ msgstr "Tarjottu tiedosto ei ole kelvollinen .apkg-tiedosto."
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr "Annetut hakuehdot eivät vastanneet yhtään korttia. Haluatko korjata hakuehtojasi?"
 
-#: qt/aqt/main.py:1212
+#: qt/aqt/main.py:1213
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr "Pyytämäsi muutos vaatii tietokannan täyden lähetyksen AnkiWebiin kun synkronoit kokoelmasi seuraavan kerran. Jos sinulla on kertauksia tai muita muutoksia odottamassa toisessa laitteessa, jota ei ole vielä synkronoitu tänne, nämä synkronoimattomat tiedot katoavat. Haluatko jatkaa?"
 
@@ -3602,7 +3605,7 @@ msgstr "Pyytämäsi muutos vaatii tietokannan täyden lähetyksen AnkiWebiin kun
 msgid "The time taken to answer the questions."
 msgstr "Kysymyksiin vastaamiseen käytetty aika."
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3612,19 +3615,19 @@ msgstr "Pakassa on vielä uusia kortteja, mutta päivittäinen yläraja on tullu
 "että mitä enemmän uusia kortteja alat opiskella sitä suuremmaksi</ br>\n"
 "lyhyen aikavälin kertauskuormasi tulee."
 
-#: qt/aqt/main.py:256
+#: qt/aqt/main.py:258
 msgid "There must be at least one profile."
 msgstr "On luotava vähintään yksi käyttäjätili."
 
-#: qt/aqt/browser.py:897
+#: qt/aqt/browser.py:902
 msgid "This column can't be sorted on, but you can search for individual card types, such as 'card:1'."
 msgstr ""
 
-#: qt/aqt/browser.py:905
+#: qt/aqt/browser.py:910
 msgid "This column can't be sorted on, but you can search for specific decks by clicking on one on the left."
 msgstr "Et voi lajitella tämän sarekkeen mukaan, mutta voit etsiä tietystä pakasta klikkaamalla haluamaasi pakan nimeä vasemmalta."
 
-#: qt/aqt/importing.py:424
+#: qt/aqt/importing.py:422
 msgid "This file does not appear to be a valid .apkg file. If you're getting this error from a file downloaded from AnkiWeb, chances are that your download failed. Please try again, and if the problem persists, please try again with a different browser."
 msgstr "Tämä tiedosto ei vaikuta olevan kelvollinen .apkg-tiedosto. Jos saat tämän virheen AnkiWebistä ladatusta tiedostosta, voi olla, että latauksesi epännistui. Yritä uudelleen ja jos ongelma jatkuu, yritä uudelleen eri selaimella."
 
@@ -3632,7 +3635,7 @@ msgstr "Tämä tiedosto ei vaikuta olevan kelvollinen .apkg-tiedosto. Jos saat t
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Tiedosto on olemassa. Haluatko korvata sen?"
 
-#: qt/aqt/profiles.py:381
+#: qt/aqt/profiles.py:382
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3659,7 +3662,7 @@ msgid_plural "This will create %d cards. Proceed?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/importing.py:444
+#: qt/aqt/importing.py:442
 msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
 msgstr "Olet poistamassa olemassa olevaa kokoelmaasi ja korvaamassa sitä tuotavassa tiedostossa olevalla tiedolla. Oletko varma?"
 
@@ -3667,11 +3670,11 @@ msgstr "Olet poistamassa olemassa olevaa kokoelmaasi ja korvaamassa sitä tuotav
 msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
 msgstr ""
 
-#: qt/aqt/browser.py:1425
+#: qt/aqt/browser.py:1430
 msgid "Time"
 msgstr "Aika"
 
-#: qt/aqt/forms/preferences.py:253
+#: qt/aqt/forms/preferences.py:258
 msgid "Timebox time limit"
 msgstr "Määritetyn ajan yläraja"
 
@@ -3683,23 +3686,23 @@ msgstr "Kerrattavat"
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr ""
 
-#: qt/aqt/editor.py:589
+#: qt/aqt/editor.py:592
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Voidaksesi tehdä aukkotehtävän olemassa olevasta muistiinpanosta, sinun täytyy ensin muuttaa se aukkotehtävätyypiksi: Muokkaa>Vaihda muistiinpanotyyppiä"
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "Nähdäksesi ne nyt, klikkaa alla olevaa Poista piilotus -painetta."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Opiskellaksesi normaalin ajastuksen ulkopuolella, klikkaa allaolevaa Mukautettu opiskelu -painiketta."
 
-#: pylib/anki/stats.py:146 qt/aqt/browser.py:1214
+#: pylib/anki/stats.py:146 qt/aqt/browser.py:1219
 msgid "Today"
 msgstr "Tänään"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3739,7 +3742,7 @@ msgstr "Muistiinpanoja yhteensä"
 msgid "Treat input as regular expression"
 msgstr "Tulkitse syöte säännöllisenä lausekkeena"
 
-#: qt/aqt/browser.py:1421 qt/aqt/modelchooser.py:26
+#: qt/aqt/browser.py:1426 qt/aqt/modelchooser.py:26
 #: qt/aqt/forms/importing.py:105
 msgid "Type"
 msgstr "Tyyppi"
@@ -3753,11 +3756,11 @@ msgstr "Kirjoita vastaus: tuntematon kenttä %s"
 msgid "Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect."
 msgstr ""
 
-#: qt/aqt/importing.py:405
+#: qt/aqt/importing.py:403
 msgid "Unable to import from a read-only file."
 msgstr "Vain luku -tilassa olevaa tiedostoa ei voida tuoda."
 
-#: qt/aqt/main.py:300
+#: qt/aqt/main.py:302
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr ""
 
@@ -3771,7 +3774,7 @@ msgstr ""
 msgid "Unbury"
 msgstr "Poista piilotus"
 
-#: qt/aqt/editor.py:107
+#: qt/aqt/editor.py:108
 msgid "Underline text (Ctrl+U)"
 msgstr ""
 
@@ -3784,7 +3787,7 @@ msgstr "Kumoa"
 msgid "Undo %s"
 msgstr "Kumoa %s"
 
-#: qt/aqt/downloader.py:72 qt/aqt/editor.py:777
+#: qt/aqt/downloader.py:72 qt/aqt/editor.py:780
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr ""
@@ -3797,7 +3800,7 @@ msgstr ""
 msgid "Unknown error: {}"
 msgstr ""
 
-#: qt/aqt/importing.py:363
+#: qt/aqt/importing.py:361
 msgid "Unknown file format."
 msgstr "Tuntematon tiedostotyyppi"
 
@@ -3825,15 +3828,15 @@ msgstr "Lähetä AnkiWebiin"
 msgid "Uploading to AnkiWeb..."
 msgstr "Lähetetään AnkiWebiin..."
 
-#: qt/aqt/main.py:1269
+#: qt/aqt/main.py:1270
 msgid "Used on cards but missing from media folder:"
 msgstr "Käytetty korteissa mutta puuttuu mediakansiosta:"
 
-#: qt/aqt/profiles.py:377
+#: qt/aqt/profiles.py:378
 msgid "User 1"
 msgstr "Käyttäjä 1"
 
-#: qt/aqt/forms/preferences.py:255
+#: qt/aqt/forms/preferences.py:260
 msgid "User interface size"
 msgstr ""
 
@@ -3850,11 +3853,11 @@ msgstr ""
 msgid "View Files"
 msgstr ""
 
-#: qt/aqt/main.py:644
+#: qt/aqt/main.py:642
 msgid "Waiting for editing to finish."
 msgstr "Odotetaan että muokkaus valmistuu."
 
-#: qt/aqt/editor.py:582
+#: qt/aqt/editor.py:585
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr "Varoitus: aukkotehtävät eivät toimi ennen kun vaihdat tyypin ylhäältä aukkotehtäväksi."
 
@@ -3862,11 +3865,11 @@ msgstr "Varoitus: aukkotehtävät eivät toimi ennen kun vaihdat tyypin ylhääl
 msgid "What would you like to unbury?"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:247
+#: qt/aqt/forms/preferences.py:252
 msgid "When adding, default to current deck"
 msgstr "Kun lisätään, on oletuksena nykyinen pakka"
 
-#: qt/aqt/browser.py:1085 qt/aqt/browser.py:1210
+#: qt/aqt/browser.py:1090 qt/aqt/browser.py:1215
 msgid "Whole Collection"
 msgstr "Koko kokoelma"
 
@@ -3874,16 +3877,16 @@ msgstr "Koko kokoelma"
 msgid "Would you like to download it now?"
 msgstr "Haluatko ladata sen nyt?"
 
-#: qt/aqt/about.py:159
+#: qt/aqt/about.py:160
 #, python-format
 msgid "Written by Damien Elmes, with patches, translation,    testing and design from:<p>%(cont)s"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:267
+#: qt/aqt/forms/preferences.py:272
 msgid "You can restore backups via File>Switch Profile."
 msgstr ""
 
-#: qt/aqt/addcards.py:180
+#: qt/aqt/addcards.py:179
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "Sinulla on aukkotehtävätyyppi, mutta et ole tehnyt yhtään aukkotehtävää. Jatketaanko?"
 
@@ -3896,7 +3899,7 @@ msgstr "Sinulla on useita pakkoja. Katso %(a)s. %(b)s"
 msgid "You haven't recorded your voice yet."
 msgstr "Et ole vielä nauhoittanut ääntäsi."
 
-#: qt/aqt/browser.py:965
+#: qt/aqt/browser.py:970
 msgid "You must have at least one column."
 msgstr "Pitää olla vähintään yksi sarake."
 
@@ -3917,7 +3920,7 @@ msgstr ""
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr "Muutoksesi vaikuttavat useisiin pakkoihin. Jos haluat muuttaa vain nykyistä pakkaa, lisää ensin uusi valintaryhmä."
 
-#: qt/aqt/main.py:476
+#: qt/aqt/main.py:478
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr ""
 
@@ -3957,15 +3960,15 @@ msgstr ""
 msgid "[no deck]"
 msgstr "[ei pakkaa]"
 
-#: qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/preferences.py:271
 msgid "backups"
 msgstr "varmuuskopiota"
 
-#: pylib/anki/stats.py:345 qt/aqt/customstudy.py:52
+#: pylib/anki/stats.py:345 qt/aqt/customstudy.py:53
 msgid "cards"
 msgstr "kortilla"
 
-#: qt/aqt/customstudy.py:100
+#: qt/aqt/customstudy.py:101
 msgid "cards from the deck"
 msgstr "korttia pakasta"
 
@@ -3982,7 +3985,7 @@ msgstr "kokoelma"
 msgid "d"
 msgstr "pv"
 
-#: qt/aqt/customstudy.py:89 qt/aqt/customstudy.py:93 qt/aqt/customstudy.py:96
+#: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
 #: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
 #: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
 #: qt/aqt/forms/reschedule.py:77
@@ -3997,11 +4000,11 @@ msgstr "pakka"
 msgid "deck life"
 msgstr "pakan elinkaari"
 
-#: qt/aqt/browser.py:2176
+#: qt/aqt/browser.py:2190
 msgid "duplicate"
 msgstr "kaksoiskappale"
 
-#: pylib/anki/collection.py:681
+#: pylib/anki/collection.py:688
 msgid "help"
 msgstr "ohje"
 
@@ -4013,7 +4016,7 @@ msgstr "piilota"
 msgid "hours"
 msgstr "tuntia"
 
-#: qt/aqt/forms/preferences.py:249
+#: qt/aqt/forms/preferences.py:254
 msgid "hours past midnight"
 msgstr "tuntia yli keskiyön"
 
@@ -4076,7 +4079,7 @@ msgstr "liitetty kenttään <b>%s</b>"
 msgid "mapped to <b>Tags</b>"
 msgstr "liitetty <b>tunnisteisiin</b>"
 
-#: qt/aqt/forms/preferences.py:250 qt/aqt/forms/preferences.py:254
+#: qt/aqt/forms/preferences.py:255 qt/aqt/forms/preferences.py:259
 msgid "mins"
 msgstr "min"
 
