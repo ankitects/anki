@@ -855,7 +855,7 @@ def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadErr
 
 
 def download_log_to_html(log: List[DownloadLogEntry]) -> str:
-    return "\n".join(map(describe_log_entry, log))
+    return "<br>".join(map(describe_log_entry, log))
 
 
 def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
