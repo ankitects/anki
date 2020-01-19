@@ -78,32 +78,37 @@ class UpdateInfo:
     max_point_version: Optional[int]
 
 
+ANKIWEB_ID_RE = re.compile(r"^\d+$")
+
+
 @dataclass
 class AddonMeta:
     dir_name: str
-    human_name: str
+    provided_name: Optional[str]
     enabled: bool
     installed_at: int
-    ankiweb_id: Optional[int]
     conflicts: List[str]
+    max_point_version: Optional[int]
 
+    def human_name(self) -> str:
+        return self.provided_name or self.dir_name
 
-def ankiweb_id_for_dir(dir_name: str) -> Optional[int]:
-    m = re.match(r"^\d+", dir_name)
-    if m:
-        return int(m.group(0))
-    else:
-        return None
+    def ankiweb_id(self) -> Optional[int]:
+        m = ANKIWEB_ID_RE.match(self.dir_name)
+        if m:
+            return int(m.group(0))
+        else:
+            return None
 
 
 def addon_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
     return AddonMeta(
         dir_name=dir_name,
-        human_name=json_meta.get("name", dir_name),
+        provided_name=json_meta.get("name", dir_name),
         enabled=not json_meta.get("disabled"),
         installed_at=json_meta.get("mod", 0),
-        ankiweb_id=ankiweb_id_for_dir(dir_name),
         conflicts=json_meta.get("conflicts", []),
+        max_point_version=json_meta.get("max_point_version"),
     )
 
 
@@ -169,7 +174,7 @@ When loading '%(name)s':
 %(traceback)s
 """
                     )
-                    % dict(name=addon.human_name, traceback=traceback.format_exc())
+                    % dict(name=addon.human_name(), traceback=traceback.format_exc())
                 )
 
     def onAddonsDialog(self):
@@ -183,6 +188,19 @@ When loading '%(name)s':
         json_obj = self.addonMeta(dir_name)
         return addon_meta(dir_name, json_obj)
 
+    def write_addon_meta(self, addon: AddonMeta) -> None:
+        # preserve any unknown attributes
+        json_obj = self.addonMeta(addon.dir_name)
+
+        if addon.provided_name is not None:
+            json_obj["name"] = addon.provided_name
+        json_obj["disabled"] = not addon.enabled
+        json_obj["mod"] = addon.installed_at
+        json_obj["conflicts"] = addon.conflicts
+        json_obj["max_point_version"] = addon.max_point_version
+
+        self.writeAddonMeta(addon.dir_name, json_obj)
+
     def _addonMetaPath(self, dir):
         return os.path.join(self.addonsFolder(dir), "meta.json")
 
@@ -195,15 +213,16 @@ When loading '%(name)s':
         except:
             return dict()
 
+    # in new code, use write_addon_meta() instead
     def writeAddonMeta(self, dir, meta):
         path = self._addonMetaPath(dir)
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
 
-    def toggleEnabled(self, dir, enable=None):
-        meta = self.addonMeta(dir)
-        enabled = enable if enable is not None else meta.get("disabled")
-        if enabled is True:
+    def toggleEnabled(self, dir: str, enable: Optional[bool] = None) -> None:
+        addon = self.addon_meta(dir)
+        should_enable = enable if enable is not None else not addon.enabled
+        if should_enable is True:
             conflicting = self._disableConflicting(dir)
             if conflicting:
                 addons = ", ".join(self.addonName(f) for f in conflicting)
@@ -212,18 +231,18 @@ When loading '%(name)s':
                         "The following add-ons are incompatible with %(name)s \
 and have been disabled: %(found)s"
                     )
-                    % dict(name=self.addonName(dir), found=addons),
+                    % dict(name=addon.human_name(), found=addons),
                     textFormat="plain",
                 )
 
-        meta["disabled"] = not enabled
-        self.writeAddonMeta(dir, meta)
+        addon.enabled = should_enable
+        self.write_addon_meta(addon)
 
     def enabled_ankiweb_addons(self) -> List[int]:
         ids = []
         for meta in self.all_addon_meta():
-            if meta.ankiweb_id is not None and meta.enabled:
-                ids.append(meta.ankiweb_id)
+            if meta.ankiweb_id() is not None and meta.enabled:
+                ids.append(meta.ankiweb_id())
         return ids
 
     # Legacy helpers
@@ -233,14 +252,14 @@ and have been disabled: %(found)s"
         return self.addon_meta(dir).enabled
 
     def addonName(self, dir: str) -> str:
-        return self.addon_meta(dir).human_name
+        return self.addon_meta(dir).human_name()
 
     def addonConflicts(self, dir) -> List[str]:
         return self.addon_meta(dir).conflicts
 
     def annotatedName(self, dir: str) -> str:
         meta = self.addon_meta(dir)
-        name = meta.human_name
+        name = meta.human_name()
         if not meta.enabled:
             name += _(" (disabled)")
         return name
@@ -598,7 +617,7 @@ class AddonsDialog(QDialog):
         return QDialog.reject(self)
 
     def name_for_addon_list(self, addon: AddonMeta) -> str:
-        name = addon.human_name
+        name = addon.human_name()
 
         if not addon.enabled:
             return name + " " + _("(disabled)")
@@ -610,7 +629,7 @@ class AddonsDialog(QDialog):
         mgr = self.mgr
 
         self.addons = list(mgr.all_addon_meta())
-        self.addons.sort(key=lambda a: a.human_name.lower())
+        self.addons.sort(key=lambda a: a.human_name().lower())
         self.addons.sort(key=lambda a: a.enabled, reverse=True)
 
         selected = set(self.selectedAddons())
@@ -630,7 +649,7 @@ class AddonsDialog(QDialog):
             addon = self.addons[row_int]
         except IndexError:
             return
-        self.form.viewPage.setEnabled(addon.ankiweb_id is not None)
+        self.form.viewPage.setEnabled(addon.ankiweb_id() is not None)
         self.form.config.setEnabled(
             bool(
                 self.mgr.getConfig(addon.dir_name)
