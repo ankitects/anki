@@ -593,7 +593,7 @@ class AddonsDialog(QDialog):
             if dir in selected:
                 item.setSelected(True)
 
-        addonList.repaint()
+        addonList.reset()
 
     def _onAddonItemSelected(self, row_int):
         try:
