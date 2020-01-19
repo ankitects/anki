@@ -839,7 +839,7 @@ class GetAddons(QDialog):
 def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadError]:
     "Fetch a single add-on from AnkiWeb."
     try:
-        resp = client.get(aqt.appShared + f"download/{id}?v=2.1")
+        resp = client.get(aqt.appShared + f"download/{id}?v=2.1&p={pointVersion}")
         if resp.status_code != 200:
             return DownloadError(status_code=resp.status_code)
 
