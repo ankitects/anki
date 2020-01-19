@@ -497,3 +497,9 @@ def versionWithBuild() -> str:
     from anki.buildinfo import version, buildhash
 
     return "%s (%s)" % (version, buildhash)
+
+
+def pointVersion() -> int:
+    from anki.buildinfo import version
+
+    return int(version.split(".")[-1])

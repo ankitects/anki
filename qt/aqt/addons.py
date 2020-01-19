@@ -20,6 +20,7 @@ import markdown
 from jsonschema.exceptions import ValidationError
 from send2trash import send2trash
 
+import anki
 import aqt
 import aqt.forms
 from anki.httpclient import HttpClient
@@ -80,6 +81,8 @@ class UpdateInfo:
 
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
 
+pointVersion = anki.utils.pointVersion()
+
 
 @dataclass
 class AddonMeta:
@@ -99,6 +102,11 @@ class AddonMeta:
             return int(m.group(0))
         else:
             return None
+
+    def compatible(self) -> bool:
+        if self.max_point_version is None:
+            return True
+        return pointVersion <= self.max_point_version
 
 
 def addon_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
@@ -159,6 +167,8 @@ class AddonManager:
     def loadAddons(self) -> None:
         for addon in self.all_addon_meta():
             if not addon.enabled:
+                continue
+            if not addon.compatible():
                 continue
             self.dirty = True
             try:
@@ -455,8 +465,24 @@ and have been disabled: %(found)s"
     ######################################################################
 
     def update_max_supported_versions(self, items: List[UpdateInfo]) -> None:
-        # todo
-        pass
+        for item in items:
+            self.update_max_supported_version(item)
+
+    def update_max_supported_version(self, item: UpdateInfo):
+        addon = self.addon_meta(str(item.id))
+
+        # if different to the stored value
+        if addon.max_point_version != item.max_point_version:
+            # max version currently specified?
+            if item.max_point_version is not None:
+                addon.max_point_version = item.max_point_version
+                self.write_addon_meta(addon)
+            else:
+                # no max currently specified. we can clear any
+                # existing record provided the user is up to date
+                if self.addon_is_latest(item.id, item.last_updated):
+                    addon.max_point_version = item.max_point_version
+                    self.write_addon_meta(addon)
 
     def updates_required(self, items: List[UpdateInfo]) -> List[int]:
         """Return ids of add-ons requiring an update."""
@@ -621,8 +647,13 @@ class AddonsDialog(QDialog):
 
         if not addon.enabled:
             return name + " " + _("(disabled)")
+        elif not addon.compatible():
+            return name + " " + _("(not compatible)")
 
         return name
+
+    def should_grey(self, addon: AddonMeta):
+        return not addon.enabled or not addon.compatible()
 
     def redrawAddons(self,) -> None:
         addonList = self.form.addonList
@@ -630,14 +661,14 @@ class AddonsDialog(QDialog):
 
         self.addons = list(mgr.all_addon_meta())
         self.addons.sort(key=lambda a: a.human_name().lower())
-        self.addons.sort(key=lambda a: a.enabled, reverse=True)
+        self.addons.sort(key=self.should_grey)
 
         selected = set(self.selectedAddons())
         addonList.clear()
         for addon in self.addons:
             name = self.name_for_addon_list(addon)
             item = QListWidgetItem(name, addonList)
-            if not addon.enabled:
+            if self.should_grey(addon):
                 item.setForeground(Qt.gray)
             if addon.dir_name in selected:
                 item.setSelected(True)
@@ -722,8 +753,8 @@ class AddonsDialog(QDialog):
             download_addons(self, self.mgr, obj.ids, self.after_downloading)
 
     def after_downloading(self, log: List[DownloadLogEntry]):
+        self.redrawAddons()
         if log:
-            self.redrawAddons()
             show_log_to_user(self, log)
         else:
             tooltip(_("No updates available."))
@@ -1050,7 +1081,6 @@ def handle_update_info(
     if not updated_ids:
         on_done([])
         return
-        #    tooltip(_("No updates available."))
 
     prompt_to_update(parent, mgr, client, updated_ids, on_done)
 
