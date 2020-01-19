@@ -655,7 +655,7 @@ to a cloze type first, via Edit>Change Note Type."""
 
     def addMedia(self, path, canDelete=False):
         html = self._addMedia(path, canDelete)
-        self.web.eval("setFormat('inserthtml', %s);" % json.dumps(html))
+        self.web.eval("insertHtmlRemovingInitialBR(%s);" % json.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
         "Add to media folder and return local img or sound tag."

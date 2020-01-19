@@ -376,15 +376,20 @@ function hideDupes() {
     $("#dupes").hide();
 }
 
-let pasteHTML = function(html, internal, extendedMode) {
-    html = filterHTML(html, internal, extendedMode);
+/// If the field has only an empty br, remove it first.
+let insertHtmlRemovingInitialBR = function(html: string) {
     if (html !== "") {
-        // remove trailing <br> in empty field
+        // remove <br> in empty field
         if (currentField && currentField.innerHTML === "<br>") {
             currentField.innerHTML = "";
         }
         setFormat("inserthtml", html);
     }
+};
+
+let pasteHTML = function(html, internal, extendedMode) {
+    html = filterHTML(html, internal, extendedMode);
+    insertHtmlRemovingInitialBR(html);
 };
 
 let filterHTML = function(html, internal, extendedMode) {
