@@ -248,10 +248,10 @@ and have been disabled: %(found)s"
         addon.enabled = should_enable
         self.write_addon_meta(addon)
 
-    def enabled_ankiweb_addons(self) -> List[int]:
+    def ankiweb_addons(self) -> List[int]:
         ids = []
         for meta in self.all_addon_meta():
-            if meta.ankiweb_id() is not None and meta.enabled:
+            if meta.ankiweb_id() is not None:
                 ids.append(meta.ankiweb_id())
         return ids
 
@@ -1041,7 +1041,7 @@ def check_for_updates(
     client = HttpClient()
 
     def check():
-        return fetch_update_info(client, mgr.enabled_ankiweb_addons())
+        return fetch_update_info(client, mgr.ankiweb_addons())
 
     def update_info_received(future: Future):
         # if syncing/in profile screen, defer message delivery
