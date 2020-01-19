@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 import aqt
 import aqt.sound
 from anki.hooks import runFilter
-from anki.httpclient import AnkiRequestsClient
+from anki.httpclient import HttpClient
 from anki.lang import _
 from anki.notes import Note
 from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
@@ -773,7 +773,7 @@ to a cloze type first, via Edit>Change Note Type."""
                 )
                 filecontents = urllib.request.urlopen(req).read()
             else:
-                reqs = AnkiRequestsClient()
+                reqs = HttpClient()
                 reqs.timeout = 30
                 r = reqs.get(url)
                 if r.status_code != 200:
