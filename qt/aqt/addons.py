@@ -1,13 +1,18 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import io
 import json
 import os
 import re
 import zipfile
 from collections import defaultdict
-from typing import IO, Any, Callable, Dict, List, NamedTuple, Optional, Tuple, Union
+from concurrent.futures import Future
+from dataclasses import dataclass
+from typing import IO, Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 import jsonschema
@@ -20,7 +25,6 @@ import aqt.forms
 from anki.httpclient import AnkiRequestsClient
 from anki.lang import _, ngettext
 from anki.utils import intTime
-from aqt.downloader import download
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -38,13 +42,42 @@ from aqt.utils import (
 )
 
 
-class AddonInstallationResult(NamedTuple):
-    success: bool
-    errmsg: Optional[str] = None
-    name: Optional[str] = None
-    conflicts: Optional[List[str]] = None
+@dataclass
+class InstallOk:
+    name: str
+    conflicts: List[str]
 
 
+@dataclass
+class InstallError:
+    errmsg: str
+
+
+@dataclass
+class DownloadOk:
+    data: bytes
+    filename: str
+
+
+@dataclass
+class DownloadError:
+    # set if result was not 200
+    status_code: Optional[int] = None
+    # set if an exception occurred
+    exception: Optional[Exception] = None
+
+
+@dataclass
+class UpdateInfo:
+    id: int
+    last_updated: int
+    max_point_version: Optional[int]
+
+
+# first arg is add-on id
+DownloadLogEntry = Tuple[int, Union[DownloadError, InstallError, InstallOk]]
+
+# fixme: this class should not have any GUI code in it
 class AddonManager:
 
     ext: str = ".ankiaddon"
@@ -59,7 +92,7 @@ class AddonManager:
         "required": ["package", "name"],
     }
 
-    def __init__(self, mw):
+    def __init__(self, mw: aqt.main.AnkiQt):
         self.mw = mw
         self.dirty = False
         f = self.mw.form
@@ -118,7 +151,7 @@ When loading '%(name)s':
     def _addonMetaPath(self, dir):
         return os.path.join(self.addonsFolder(dir), "meta.json")
 
-    def addonMeta(self, dir):
+    def addonMeta(self, dir: str) -> Dict[str, Any]:
         path = self._addonMetaPath(dir)
         try:
             with open(path, encoding="utf8") as f:
@@ -162,6 +195,14 @@ and have been disabled: %(found)s"
         if not self.isEnabled(dir):
             buf += _(" (disabled)")
         return buf
+
+    def enabled_addon_ids(self) -> List[int]:
+        ids = []
+        for dir in self.managedAddons():
+            meta = self.addonMeta(dir)
+            if not meta.get("disabled"):
+                ids.append(int(dir))
+        return ids
 
     # Conflict resolution
     ######################################################################
@@ -211,14 +252,14 @@ and have been disabled: %(found)s"
 
     def install(
         self, file: Union[IO, str], manifest: dict = None
-    ) -> AddonInstallationResult:
+    ) -> Union[InstallOk, InstallError]:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overriden by supplying a 'manifest'
         dictionary"""
         try:
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
-            return AddonInstallationResult(success=False, errmsg="zip")
+            return InstallError(errmsg="zip")
 
         with zfile:
             file_manifest = self.readManifestFile(zfile)
@@ -226,7 +267,7 @@ and have been disabled: %(found)s"
                 file_manifest.update(manifest)
             manifest = file_manifest
             if not manifest:
-                return AddonInstallationResult(success=False, errmsg="manifest")
+                return InstallError(errmsg="manifest")
             package = manifest["package"]
             conflicts = manifest.get("conflicts", [])
             found_conflicts = self._disableConflicting(package, conflicts)
@@ -240,9 +281,7 @@ and have been disabled: %(found)s"
         meta.update(manifest_meta)
         self.writeAddonMeta(package, meta)
 
-        return AddonInstallationResult(
-            success=True, name=meta["name"], conflicts=found_conflicts
-        )
+        return InstallOk(name=meta["name"], conflicts=found_conflicts)
 
     def _install(self, dir, zfile):
         # previously installed?
@@ -299,7 +338,7 @@ and have been disabled: %(found)s"
                 base = os.path.basename(path)
                 result = self.install(path)
 
-                if not result.success:
+                if isinstance(result, InstallError):
                     errs.extend(
                         self._installationErrorReport(result, base, mode="local")
                     )
@@ -312,40 +351,11 @@ and have been disabled: %(found)s"
 
         return log, errs
 
-    # Downloading add-ons from AnkiWeb
-    ######################################################################
-
-    def downloadIds(self, ids):
-        log = []
-        errs = []
-        self.mw.progress.start(immediate=True)
-        for n in ids:
-            ret = download(self.mw, n)
-            if ret[0] == "error":
-                errs.append(
-                    _("Error downloading %(id)s: %(error)s") % dict(id=n, error=ret[1])
-                )
-                continue
-            data, fname = ret
-            fname = fname.replace("_", " ")
-            name = os.path.splitext(fname)[0]
-            result = self.install(
-                io.BytesIO(data),
-                manifest={"package": str(n), "name": name, "mod": intTime()},
-            )
-            if not result.success:
-                errs.extend(self._installationErrorReport(result, n))
-            else:
-                log.extend(self._installationSuccessReport(result, n))
-
-        self.mw.progress.finish()
-        return log, errs
-
     # Installation messaging
     ######################################################################
 
     def _installationErrorReport(
-        self, result: AddonInstallationResult, base: str, mode: str = "download"
+        self, result: InstallError, base: str, mode: str = "download"
     ) -> List[str]:
 
         messages = {
@@ -353,24 +363,19 @@ and have been disabled: %(found)s"
             "manifest": _("Invalid add-on manifest."),
         }
 
-        if result.errmsg:
-            msg = messages.get(
-                result.errmsg, _("Unknown error: {}".format(result.errmsg))
-            )
-        else:
-            msg = _("Unknown error")
+        msg = messages.get(result.errmsg, _("Unknown error: {}".format(result.errmsg)))
 
         if mode == "download":  # preserve old format strings for i18n
             template = _("Error downloading <i>%(id)s</i>: %(error)s")
         else:
             template = _("Error installing <i>%(base)s</i>: %(error)s")
 
-        name = result.name or base
+        name = base
 
         return [template % dict(base=name, id=name, error=msg)]
 
     def _installationSuccessReport(
-        self, result: AddonInstallationResult, base: str, mode: str = "download"
+        self, result: InstallOk, base: str, mode: str = "download"
     ) -> List[str]:
 
         if mode == "download":  # preserve old format strings for i18n
@@ -393,44 +398,21 @@ and have been disabled: %(found)s"
     # Updating
     ######################################################################
 
-    def checkForUpdates(self):
-        client = AnkiRequestsClient()
+    def update_max_supported_versions(self, items: List[UpdateInfo]) -> None:
+        # todo
+        pass
 
-        # get mod times
-        self.mw.progress.start(immediate=True)
-        try:
-            # ..of enabled items downloaded from ankiweb
-            addons = []
-            for dir in self.managedAddons():
-                meta = self.addonMeta(dir)
-                if not meta.get("disabled"):
-                    addons.append(dir)
+    def updates_required(self, items: List[UpdateInfo]) -> List[int]:
+        """Return ids of add-ons requiring an update."""
+        need_update = []
+        for item in items:
+            if not self.addon_is_latest(item.id, item.last_updated):
+                need_update.append(item.id)
 
-            mods = []
-            while addons:
-                chunk = addons[:25]
-                del addons[:25]
-                mods.extend(self._getModTimes(client, chunk))
-            return self._updatedIds(mods)
-        finally:
-            self.mw.progress.finish()
+        return need_update
 
-    def _getModTimes(self, client, chunk):
-        resp = client.get(aqt.appShared + "updates/" + ",".join(chunk))
-        if resp.status_code == 200:
-            return resp.json()
-        else:
-            raise Exception(
-                "Unexpected response code from AnkiWeb: {}".format(resp.status_code)
-            )
-
-    def _updatedIds(self, mods):
-        updated = []
-        for dir, ts in mods:
-            sid = str(dir)
-            if self.addonMeta(sid).get("mod", 0) < (ts or 0):
-                updated.append(sid)
-        return updated
+    def addon_is_latest(self, id: int, server_update: int) -> bool:
+        return self.addonMeta(str(id)).get("mod", 0) >= (server_update or 0)
 
     # Add-on Config
     ######################################################################
@@ -532,7 +514,7 @@ and have been disabled: %(found)s"
 
 
 class AddonsDialog(QDialog):
-    def __init__(self, addonsManager):
+    def __init__(self, addonsManager: AddonManager):
         self.mgr = addonsManager
         self.mw = addonsManager.mw
 
@@ -542,7 +524,7 @@ class AddonsDialog(QDialog):
         f.setupUi(self)
         f.getAddons.clicked.connect(self.onGetAddons)
         f.installFromFile.clicked.connect(self.onInstallFiles)
-        f.checkForUpdates.clicked.connect(self.onCheckForUpdates)
+        f.checkForUpdates.clicked.connect(self.check_for_updates)
         f.toggleEnabled.clicked.connect(self.onToggleEnabled)
         f.viewPage.clicked.connect(self.onViewPage)
         f.viewFiles.clicked.connect(self.onViewFiles)
@@ -664,7 +646,16 @@ class AddonsDialog(QDialog):
         self.redrawAddons()
 
     def onGetAddons(self):
-        GetAddons(self)
+        obj = GetAddons(self)
+        if obj.ids:
+            download_addons(self, self.mgr, obj.ids, self.after_downloading)
+
+    def after_downloading(self, log: List[DownloadLogEntry]):
+        if log:
+            self.redrawAddons()
+            show_log_to_user(self, log)
+        else:
+            tooltip(_("No updates available."))
 
     def onInstallFiles(self, paths: Optional[List[str]] = None):
         if not paths:
@@ -679,32 +670,9 @@ class AddonsDialog(QDialog):
 
         self.redrawAddons()
 
-    def onCheckForUpdates(self):
-        try:
-            updated = self.mgr.checkForUpdates()
-        except Exception as e:
-            showWarning(
-                _("Please check your internet connection.") + "\n\n" + str(e),
-                textFormat="plain",
-            )
-            return
-
-        if not updated:
-            tooltip(_("No updates available."))
-        else:
-            names = [self.mgr.addonName(d) for d in updated]
-            if askUser(_("Update the following add-ons?") + "\n" + "\n".join(names)):
-                log, errs = self.mgr.downloadIds(updated)
-                if log:
-                    log_html = "<br>".join(log)
-                    if len(log) == 1:
-                        tooltip(log_html, parent=self)
-                    else:
-                        showInfo(log_html, parent=self, textFormat="rich")
-                if errs:
-                    showWarning("\n\n".join(errs), parent=self, textFormat="plain")
-
-                self.redrawAddons()
+    def check_for_updates(self):
+        tooltip(_("Checking..."))
+        check_and_prompt_for_updates(self, self.mgr, self.after_downloading)
 
     def onConfig(self):
         addon = self.onlyOneSelected()
@@ -736,6 +704,7 @@ class GetAddons(QDialog):
         self.addonsDlg = dlg
         self.mgr = dlg.mgr
         self.mw = self.mgr.mw
+        self.ids: List[int] = []
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)
         b = self.form.buttonBox.addButton(
@@ -757,19 +726,285 @@ class GetAddons(QDialog):
             showWarning(_("Invalid code."))
             return
 
-        log, errs = self.mgr.downloadIds(ids)
-
-        if log:
-            log_html = "<br>".join(log)
-            if len(log) == 1:
-                tooltip(log_html, parent=self)
-            else:
-                showInfo(log_html, parent=self, textFormat="rich")
-        if errs:
-            showWarning("\n\n".join(errs), textFormat="plain")
-
-        self.addonsDlg.redrawAddons()
+        self.ids = ids
         QDialog.accept(self)
+
+
+# Downloading
+######################################################################
+
+
+def download_addon(
+    client: AnkiRequestsClient, id: int
+) -> Union[DownloadOk, DownloadError]:
+    "Fetch a single add-on from AnkiWeb."
+    try:
+        resp = client.get(aqt.appShared + f"download/{id}?v=2.1")
+        if resp.status_code != 200:
+            return DownloadError(status_code=resp.status_code)
+
+        data = client.streamContent(resp)
+
+        fname = re.match(
+            "attachment; filename=(.+)", resp.headers["content-disposition"]
+        ).group(1)
+
+        return DownloadOk(data=data, filename=fname)
+    except Exception as e:
+        return DownloadError(exception=e)
+
+
+def download_log_to_html(log: List[DownloadLogEntry]) -> str:
+    return "\n".join(map(describe_log_entry, log))
+
+
+def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
+    (id, entry) = id_and_entry
+    buf = f"{id}: "
+
+    if isinstance(entry, DownloadError):
+        if entry.status_code is not None:
+            if entry.status_code in (403, 404):
+                buf += _(
+                    "Invalid code, or add-on not available for your version of Anki."
+                )
+            else:
+                buf += _("Unexpected response code: %s") % entry.status_code
+        else:
+            buf += (
+                _("Please check your internet connection.")
+                + "\n\n"
+                + str(entry.exception)
+            )
+    elif isinstance(entry, InstallError):
+        buf += entry.errmsg
+    else:
+        buf += _("Installed successfully.")
+
+    return buf
+
+
+def download_encountered_problem(log: List[DownloadLogEntry]) -> bool:
+    return any(not isinstance(e[1], InstallOk) for e in log)
+
+
+def download_and_install_addon(
+    mgr: AddonManager, client: AnkiRequestsClient, id: int
+) -> DownloadLogEntry:
+    "Download and install a single add-on."
+    result = download_addon(client, id)
+    if isinstance(result, DownloadError):
+        return (id, result)
+
+    fname = result.filename.replace("_", " ")
+    name = os.path.splitext(fname)[0]
+
+    result2 = mgr.install(
+        io.BytesIO(result.data),
+        manifest={"package": str(id), "name": name, "mod": intTime()},
+    )
+
+    return (id, result2)
+
+
+class DownloaderInstaller(QObject):
+    progressSignal = pyqtSignal(int, int)
+
+    def __init__(
+        self, parent: QWidget, mgr: AddonManager, client: AnkiRequestsClient
+    ) -> None:
+        QObject.__init__(self, parent)
+        self.mgr = mgr
+        self.client = client
+        self.progressSignal.connect(self._progress_callback)  # type: ignore
+
+        def bg_thread_progress(up, down):
+            self.progressSignal.emit(up, down)  # type: ignore
+
+        self.client.progress_hook = bg_thread_progress
+
+    def download(
+        self, ids: List[int], on_done: Callable[[List[DownloadLogEntry]], None]
+    ) -> None:
+        self.ids = ids
+        self.log: List[DownloadLogEntry] = []
+
+        self.dl_bytes = 0
+        self.last_tooltip = 0
+
+        self.on_done = on_done
+
+        self.mgr.mw.progress.start(immediate=True, parent=self.parent())
+        self.mgr.mw.taskman.run(self._download_all, self._download_done)
+
+    def _progress_callback(self, up: int, down: int) -> None:
+        self.dl_bytes += down
+        self.mgr.mw.progress.update(
+            label=_("Downloading %(a)d/%(b)d (%(kb)0.2fKB)...")
+            % dict(a=len(self.log) + 1, b=len(self.ids), kb=self.dl_bytes / 1024)
+        )
+
+    def _download_all(self):
+        for id in self.ids:
+            self.log.append(download_and_install_addon(self.mgr, self.client, id))
+
+    def _download_done(self, future):
+        self.mgr.mw.progress.finish()
+        # qt gets confused if on_done() opens new windows while the progress
+        # modal is still cleaning up
+        self.mgr.mw.progress.timer(50, lambda: self.on_done(self.log), False)
+
+
+def show_log_to_user(parent: QWidget, log: List[DownloadLogEntry]) -> None:
+    have_problem = download_encountered_problem(log)
+
+    if have_problem:
+        text = _("One or more errors occurred:")
+    else:
+        text = _("Download complete. Please restart Anki to apply changes.")
+    text += "<br><br>" + download_log_to_html(log)
+
+    if have_problem:
+        showWarning(text, textFormat="rich", parent=parent)
+    else:
+        showInfo(text, parent=parent)
+
+
+def download_addons(
+    parent: QWidget,
+    mgr: AddonManager,
+    ids: List[int],
+    on_done: Callable[[List[DownloadLogEntry]], None],
+    client: Optional[AnkiRequestsClient] = None,
+) -> None:
+    if client is None:
+        client = AnkiRequestsClient()
+    downloader = DownloaderInstaller(parent, mgr, client)
+    downloader.download(ids, on_done=on_done)
+
+
+# Update checking
+######################################################################
+
+
+def fetch_update_info(client: AnkiRequestsClient, ids: List[int]) -> List[UpdateInfo]:
+    """Fetch update info from AnkiWeb in one or more batches."""
+    all_info: List[UpdateInfo] = []
+
+    while ids:
+        # get another chunk
+        chunk = ids[:25]
+        del ids[:25]
+
+        batch_results = _fetch_update_info_batch(client, map(str, chunk))
+        all_info.extend(batch_results)
+
+    return all_info
+
+
+def _fetch_update_info_batch(
+    client: AnkiRequestsClient, chunk: Iterable[str]
+) -> Iterable[UpdateInfo]:
+    """Get update info from AnkiWeb.
+
+    Chunk must not contain more than 25 ids."""
+    resp = client.get(aqt.appShared + "updates/" + ",".join(chunk) + "?v=2")
+    if resp.status_code == 200:
+        return json_update_info_to_native(resp.json())
+    else:
+        raise Exception(
+            "Unexpected response code from AnkiWeb: {}".format(resp.status_code)
+        )
+
+
+def json_update_info_to_native(json_obj: List[Dict]) -> Iterable[UpdateInfo]:
+    def from_json(d: Dict[str, Any]) -> UpdateInfo:
+        return UpdateInfo(
+            id=d["id"], last_updated=d["updated"], max_point_version=d["maxver"]
+        )
+
+    return map(from_json, json_obj)
+
+
+def check_and_prompt_for_updates(
+    parent: QWidget,
+    mgr: AddonManager,
+    on_done: Callable[[List[DownloadLogEntry]], None],
+):
+    def on_updates_received(client: AnkiRequestsClient, items: List[UpdateInfo]):
+        handle_update_info(parent, mgr, client, items, on_done)
+
+    check_for_updates(mgr, on_updates_received)
+
+
+def check_for_updates(
+    mgr: AddonManager, on_done: Callable[[AnkiRequestsClient, List[UpdateInfo]], None]
+):
+    client = AnkiRequestsClient()
+
+    def check():
+        return fetch_update_info(client, mgr.enabled_addon_ids())
+
+    def update_info_received(future: Future):
+        # if syncing/in profile screen, defer message delivery
+        if not mgr.mw.col:
+            mgr.mw.progress.timer(
+                1000,
+                lambda: update_info_received(future),
+                False,
+                requiresCollection=False,
+            )
+            return
+
+        if future.exception():
+            # swallow network errors
+            print(str(future.exception()))
+            result = []
+        else:
+            result = future.result()
+
+        on_done(client, result)
+
+    mgr.mw.taskman.run(check, update_info_received)
+
+
+def handle_update_info(
+    parent: QWidget,
+    mgr: AddonManager,
+    client: AnkiRequestsClient,
+    items: List[UpdateInfo],
+    on_done: Callable[[List[DownloadLogEntry]], None],
+) -> None:
+    # record maximum supported versions
+    mgr.update_max_supported_versions(items)
+
+    updated_ids = mgr.updates_required(items)
+
+    if not updated_ids:
+        on_done([])
+        return
+        #    tooltip(_("No updates available."))
+
+    prompt_to_update(parent, mgr, client, updated_ids, on_done)
+
+
+def prompt_to_update(
+    parent: QWidget,
+    mgr: AddonManager,
+    client: AnkiRequestsClient,
+    ids: List[int],
+    on_done: Callable[[List[DownloadLogEntry]], None],
+) -> None:
+    names = map(lambda x: mgr.addonName(str(x)), ids)
+    if not askUser(
+        _("The following add-ons have updates available. Install them now?")
+        + "\n\n"
+        + "\n".join(names)
+    ):
+        # on_done is not called if the user cancels
+        return
+
+    download_addons(parent, mgr, ids, on_done, client)
 
 
 # Editing config
