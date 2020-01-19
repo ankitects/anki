@@ -22,7 +22,7 @@ from send2trash import send2trash
 
 import aqt
 import aqt.forms
-from anki.httpclient import AnkiRequestsClient
+from anki.httpclient import HttpClient
 from anki.lang import _, ngettext
 from anki.utils import intTime
 from aqt.qt import *
@@ -734,9 +734,7 @@ class GetAddons(QDialog):
 ######################################################################
 
 
-def download_addon(
-    client: AnkiRequestsClient, id: int
-) -> Union[DownloadOk, DownloadError]:
+def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadError]:
     "Fetch a single add-on from AnkiWeb."
     try:
         resp = client.get(aqt.appShared + f"download/{id}?v=2.1")
@@ -789,7 +787,7 @@ def download_encountered_problem(log: List[DownloadLogEntry]) -> bool:
 
 
 def download_and_install_addon(
-    mgr: AddonManager, client: AnkiRequestsClient, id: int
+    mgr: AddonManager, client: HttpClient, id: int
 ) -> DownloadLogEntry:
     "Download and install a single add-on."
     result = download_addon(client, id)
@@ -810,9 +808,7 @@ def download_and_install_addon(
 class DownloaderInstaller(QObject):
     progressSignal = pyqtSignal(int, int)
 
-    def __init__(
-        self, parent: QWidget, mgr: AddonManager, client: AnkiRequestsClient
-    ) -> None:
+    def __init__(self, parent: QWidget, mgr: AddonManager, client: HttpClient) -> None:
         QObject.__init__(self, parent)
         self.mgr = mgr
         self.client = client
@@ -875,10 +871,10 @@ def download_addons(
     mgr: AddonManager,
     ids: List[int],
     on_done: Callable[[List[DownloadLogEntry]], None],
-    client: Optional[AnkiRequestsClient] = None,
+    client: Optional[HttpClient] = None,
 ) -> None:
     if client is None:
-        client = AnkiRequestsClient()
+        client = HttpClient()
     downloader = DownloaderInstaller(parent, mgr, client)
     downloader.download(ids, on_done=on_done)
 
@@ -887,7 +883,7 @@ def download_addons(
 ######################################################################
 
 
-def fetch_update_info(client: AnkiRequestsClient, ids: List[int]) -> List[UpdateInfo]:
+def fetch_update_info(client: HttpClient, ids: List[int]) -> List[UpdateInfo]:
     """Fetch update info from AnkiWeb in one or more batches."""
     all_info: List[UpdateInfo] = []
 
@@ -903,7 +899,7 @@ def fetch_update_info(client: AnkiRequestsClient, ids: List[int]) -> List[Update
 
 
 def _fetch_update_info_batch(
-    client: AnkiRequestsClient, chunk: Iterable[str]
+    client: HttpClient, chunk: Iterable[str]
 ) -> Iterable[UpdateInfo]:
     """Get update info from AnkiWeb.
 
@@ -931,16 +927,16 @@ def check_and_prompt_for_updates(
     mgr: AddonManager,
     on_done: Callable[[List[DownloadLogEntry]], None],
 ):
-    def on_updates_received(client: AnkiRequestsClient, items: List[UpdateInfo]):
+    def on_updates_received(client: HttpClient, items: List[UpdateInfo]):
         handle_update_info(parent, mgr, client, items, on_done)
 
     check_for_updates(mgr, on_updates_received)
 
 
 def check_for_updates(
-    mgr: AddonManager, on_done: Callable[[AnkiRequestsClient, List[UpdateInfo]], None]
+    mgr: AddonManager, on_done: Callable[[HttpClient, List[UpdateInfo]], None]
 ):
-    client = AnkiRequestsClient()
+    client = HttpClient()
 
     def check():
         return fetch_update_info(client, mgr.enabled_addon_ids())
@@ -971,7 +967,7 @@ def check_for_updates(
 def handle_update_info(
     parent: QWidget,
     mgr: AddonManager,
-    client: AnkiRequestsClient,
+    client: HttpClient,
     items: List[UpdateInfo],
     on_done: Callable[[List[DownloadLogEntry]], None],
 ) -> None:
@@ -991,7 +987,7 @@ def handle_update_info(
 def prompt_to_update(
     parent: QWidget,
     mgr: AddonManager,
-    client: AnkiRequestsClient,
+    client: HttpClient,
     ids: List[int],
     on_done: Callable[[List[DownloadLogEntry]], None],
 ) -> None:

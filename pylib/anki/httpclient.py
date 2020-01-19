@@ -17,7 +17,7 @@ HTTP_BUF_SIZE = 64 * 1024
 ProgressCallback = Callable[[int, int], None]
 
 
-class AnkiRequestsClient:
+class HttpClient:
 
     verify = True
     timeout = 60
@@ -68,7 +68,7 @@ class AnkiRequestsClient:
 
 # allow user to accept invalid certs in work/school settings
 if os.environ.get("ANKI_NOVERIFYSSL"):
-    AnkiRequestsClient.verify = False
+    HttpClient.verify = False
 
     import warnings
 

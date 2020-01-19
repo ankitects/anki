@@ -17,8 +17,11 @@ from anki.db import DB, DBError
 from anki.utils import checksum, devMode, ids2str, intTime, platDesc, versionWithBuild
 
 from . import hooks
-from .httpclient import AnkiRequestsClient
+from .httpclient import HttpClient
 from .lang import ngettext
+
+# add-on compat
+AnkiRequestsClient = HttpClient
 
 
 class UnexpectedSchemaChange(Exception):
@@ -467,7 +470,7 @@ class HttpSyncer:
     def __init__(self, hkey=None, client=None, hostNum=None) -> None:
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
-        self.client = client or AnkiRequestsClient()
+        self.client = client or HttpClient()
         self.postVars: Dict[str, str] = {}
         self.hostNum = hostNum
         self.prefix = "sync/"
