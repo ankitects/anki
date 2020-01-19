@@ -345,7 +345,6 @@ class Editor:
             if nid != self.note.id:
                 print("ignored late blur")
                 return
-            txt = urllib.parse.unquote(txt)
             txt = unicodedata.normalize("NFC", txt)
             txt = self.mungeHTML(txt)
             # misbehaving apps may include a null byte in the text
