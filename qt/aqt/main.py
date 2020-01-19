@@ -31,6 +31,7 @@ from anki.lang import _, ngettext
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
+from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
@@ -569,6 +570,7 @@ from the profile screen."
         gui_hooks.state_did_change(state, oldState)
 
     def _deckBrowserState(self, oldState: str) -> None:
+        self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
     def _colLoadingState(self, oldState) -> None:
@@ -760,6 +762,21 @@ title="%s" %s>%s</button>""" % (
 
         if not self.safeMode:
             self.addonManager.loadAddons()
+            self.maybe_check_for_addon_updates()
+
+    def maybe_check_for_addon_updates(self):
+        last_check = self.pm.last_addon_update_check()
+        elap = intTime() - last_check
+
+        if elap > 86_400:
+            check_and_prompt_for_updates(
+                self, self.addonManager, self.on_updates_installed
+            )
+            self.pm.set_last_addon_update_check(intTime())
+
+    def on_updates_installed(self, log: List[DownloadLogEntry]) -> None:
+        if log:
+            show_log_to_user(self, log)
 
     def setupSpellCheck(self) -> None:
         os.environ["QTWEBENGINE_DICTIONARIES_PATH"] = os.path.join(
