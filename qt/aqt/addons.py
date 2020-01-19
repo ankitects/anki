@@ -67,6 +67,10 @@ class DownloadError:
     exception: Optional[Exception] = None
 
 
+# first arg is add-on id
+DownloadLogEntry = Tuple[int, Union[DownloadError, InstallError, InstallOk]]
+
+
 @dataclass
 class UpdateInfo:
     id: int
@@ -74,8 +78,34 @@ class UpdateInfo:
     max_point_version: Optional[int]
 
 
-# first arg is add-on id
-DownloadLogEntry = Tuple[int, Union[DownloadError, InstallError, InstallOk]]
+@dataclass
+class AddonMeta:
+    dir_name: str
+    human_name: str
+    enabled: bool
+    installed_at: int
+    ankiweb_id: Optional[int]
+    conflicts: List[str]
+
+
+def ankiweb_id_for_dir(dir_name: str) -> Optional[int]:
+    m = re.match(r"^\d+", dir_name)
+    if m:
+        return int(m.group(0))
+    else:
+        return None
+
+
+def addon_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
+    return AddonMeta(
+        dir_name=dir_name,
+        human_name=json_meta.get("name", dir_name),
+        enabled=not json_meta.get("disabled"),
+        installed_at=json_meta.get("mod", 0),
+        ankiweb_id=ankiweb_id_for_dir(dir_name),
+        conflicts=json_meta.get("conflicts", []),
+    )
+
 
 # fixme: this class should not have any GUI code in it
 class AddonManager:
@@ -99,6 +129,7 @@ class AddonManager:
         f.actionAdd_ons.triggered.connect(self.onAddonsDialog)
         sys.path.insert(0, self.addonsFolder())
 
+    # in new code, you may want all_addon_meta() instead
     def allAddons(self):
         l = []
         for d in os.listdir(self.addonsFolder()):
@@ -111,8 +142,8 @@ class AddonManager:
             l = reversed(l)
         return l
 
-    def managedAddons(self):
-        return [d for d in self.allAddons() if re.match(r"^\d+$", d)]
+    def all_addon_meta(self) -> Iterable[AddonMeta]:
+        return map(self.addon_meta, self.allAddons())
 
     def addonsFolder(self, dir=None):
         root = self.mw.pm.addonFolder()
@@ -120,14 +151,13 @@ class AddonManager:
             return root
         return os.path.join(root, dir)
 
-    def loadAddons(self):
-        for dir in self.allAddons():
-            meta = self.addonMeta(dir)
-            if meta.get("disabled"):
+    def loadAddons(self) -> None:
+        for addon in self.all_addon_meta():
+            if not addon.enabled:
                 continue
             self.dirty = True
             try:
-                __import__(dir)
+                __import__(addon.dir_name)
             except:
                 showWarning(
                     _(
@@ -139,7 +169,7 @@ When loading '%(name)s':
 %(traceback)s
 """
                     )
-                    % dict(name=meta.get("name", dir), traceback=traceback.format_exc())
+                    % dict(name=addon.human_name, traceback=traceback.format_exc())
                 )
 
     def onAddonsDialog(self):
@@ -148,9 +178,15 @@ When loading '%(name)s':
     # Metadata
     ######################################################################
 
+    def addon_meta(self, dir_name: str) -> AddonMeta:
+        """Get info about an installed add-on."""
+        json_obj = self.addonMeta(dir_name)
+        return addon_meta(dir_name, json_obj)
+
     def _addonMetaPath(self, dir):
         return os.path.join(self.addonsFolder(dir), "meta.json")
 
+    # in new code, use addon_meta() instead
     def addonMeta(self, dir: str) -> Dict[str, Any]:
         path = self._addonMetaPath(dir)
         try:
@@ -163,10 +199,6 @@ When loading '%(name)s':
         path = self._addonMetaPath(dir)
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
-
-    def isEnabled(self, dir):
-        meta = self.addonMeta(dir)
-        return not meta.get("disabled")
 
     def toggleEnabled(self, dir, enable=None):
         meta = self.addonMeta(dir)
@@ -187,37 +219,42 @@ and have been disabled: %(found)s"
         meta["disabled"] = not enabled
         self.writeAddonMeta(dir, meta)
 
-    def addonName(self, dir):
-        return self.addonMeta(dir).get("name", dir)
-
-    def annotatedName(self, dir):
-        buf = self.addonName(dir)
-        if not self.isEnabled(dir):
-            buf += _(" (disabled)")
-        return buf
-
-    def enabled_addon_ids(self) -> List[int]:
+    def enabled_ankiweb_addons(self) -> List[int]:
         ids = []
-        for dir in self.managedAddons():
-            meta = self.addonMeta(dir)
-            if not meta.get("disabled"):
-                ids.append(int(dir))
+        for meta in self.all_addon_meta():
+            if meta.ankiweb_id is not None and meta.enabled:
+                ids.append(meta.ankiweb_id)
         return ids
+
+    # Legacy helpers
+    ######################################################################
+
+    def isEnabled(self, dir: str) -> bool:
+        return self.addon_meta(dir).enabled
+
+    def addonName(self, dir: str) -> str:
+        return self.addon_meta(dir).human_name
+
+    def addonConflicts(self, dir) -> List[str]:
+        return self.addon_meta(dir).conflicts
+
+    def annotatedName(self, dir: str) -> str:
+        meta = self.addon_meta(dir)
+        name = meta.human_name
+        if not meta.enabled:
+            name += _(" (disabled)")
+        return name
 
     # Conflict resolution
     ######################################################################
 
-    def addonConflicts(self, dir):
-        return self.addonMeta(dir).get("conflicts", [])
-
-    def allAddonConflicts(self):
-        all_conflicts = defaultdict(list)
-        for dir in self.allAddons():
-            if not self.isEnabled(dir):
+    def allAddonConflicts(self) -> Dict[str, List[str]]:
+        all_conflicts: Dict[str, List[str]] = defaultdict(list)
+        for addon in self.all_addon_meta():
+            if not addon.enabled:
                 continue
-            conflicts = self.addonConflicts(dir)
-            for other_dir in conflicts:
-                all_conflicts[other_dir].append(dir)
+            for other_dir in addon.conflicts:
+                all_conflicts[other_dir].append(addon.dir_name)
         return all_conflicts
 
     def _disableConflicting(self, dir, conflicts=None):
@@ -412,7 +449,8 @@ and have been disabled: %(found)s"
         return need_update
 
     def addon_is_latest(self, id: int, server_update: int) -> bool:
-        return self.addonMeta(str(id)).get("mod", 0) >= (server_update or 0)
+        meta = self.addon_meta(str(id))
+        return meta.installed_at >= server_update
 
     # Add-on Config
     ######################################################################
@@ -439,10 +477,10 @@ and have been disabled: %(found)s"
     def addonFromModule(self, module):
         return module.split(".")[0]
 
-    def configAction(self, addon):
+    def configAction(self, addon: str) -> Callable[[], Optional[bool]]:
         return self._configButtonActions.get(addon)
 
-    def configUpdatedAction(self, addon):
+    def configUpdatedAction(self, addon: str) -> Callable[[Any], None]:
         return self._configUpdatedActions.get(addon)
 
     # Add-on Config API
@@ -559,37 +597,51 @@ class AddonsDialog(QDialog):
         saveGeom(self, "addons")
         return QDialog.reject(self)
 
-    def redrawAddons(self):
+    def name_for_addon_list(self, addon: AddonMeta) -> str:
+        name = addon.human_name
+
+        if not addon.enabled:
+            return name + " " + _("(disabled)")
+
+        return name
+
+    def redrawAddons(self,) -> None:
         addonList = self.form.addonList
         mgr = self.mgr
 
-        self.addons = [(mgr.annotatedName(d), d) for d in mgr.allAddons()]
-        self.addons.sort()
+        self.addons = list(mgr.all_addon_meta())
+        self.addons.sort(key=lambda a: a.human_name.lower())
+        self.addons.sort(key=lambda a: a.enabled, reverse=True)
 
         selected = set(self.selectedAddons())
         addonList.clear()
-        for name, dir in self.addons:
+        for addon in self.addons:
+            name = self.name_for_addon_list(addon)
             item = QListWidgetItem(name, addonList)
-            if not mgr.isEnabled(dir):
+            if not addon.enabled:
                 item.setForeground(Qt.gray)
-            if dir in selected:
+            if addon.dir_name in selected:
                 item.setSelected(True)
 
         addonList.reset()
 
-    def _onAddonItemSelected(self, row_int):
+    def _onAddonItemSelected(self, row_int: int) -> None:
         try:
-            addon = self.addons[row_int][1]
+            addon = self.addons[row_int]
         except IndexError:
-            addon = ""
-        self.form.viewPage.setEnabled(bool(re.match(r"^\d+$", addon)))
+            return
+        self.form.viewPage.setEnabled(addon.ankiweb_id is not None)
         self.form.config.setEnabled(
-            bool(self.mgr.getConfig(addon) or self.mgr.configAction(addon))
+            bool(
+                self.mgr.getConfig(addon.dir_name)
+                or self.mgr.configAction(addon.dir_name)
+            )
         )
+        return
 
-    def selectedAddons(self):
+    def selectedAddons(self) -> List[str]:
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
-        return [self.addons[idx][1] for idx in idxs]
+        return [self.addons[idx].dir_name for idx in idxs]
 
     def onlyOneSelected(self):
         dirs = self.selectedAddons()
@@ -939,7 +991,7 @@ def check_for_updates(
     client = HttpClient()
 
     def check():
-        return fetch_update_info(client, mgr.enabled_addon_ids())
+        return fetch_update_info(client, mgr.enabled_ankiweb_addons())
 
     def update_info_received(future: Future):
         # if syncing/in profile screen, defer message delivery
