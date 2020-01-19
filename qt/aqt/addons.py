@@ -112,7 +112,7 @@ class AddonMeta:
 def addon_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
     return AddonMeta(
         dir_name=dir_name,
-        provided_name=json_meta.get("name", dir_name),
+        provided_name=json_meta.get("name"),
         enabled=not json_meta.get("disabled"),
         installed_at=json_meta.get("mod", 0),
         conflicts=json_meta.get("conflicts", []),
