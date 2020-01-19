@@ -14,17 +14,17 @@ from requests import Response
 
 HTTP_BUF_SIZE = 64 * 1024
 
+ProgressCallback = Callable[[int, int], None]
+
 
 class AnkiRequestsClient:
 
     verify = True
     timeout = 60
     # args are (upload_bytes_in_chunk, download_bytes_in_chunk)
-    progress_hook: Optional[Callable[[int, int], None]] = None
+    progress_hook: Optional[ProgressCallback] = None
 
-    def __init__(
-        self, progress_hook: Optional[Callable[[int, int], None]] = None
-    ) -> None:
+    def __init__(self, progress_hook: Optional[ProgressCallback] = None) -> None:
         self.progress_hook = progress_hook
         self.session = requests.Session()
 
@@ -76,7 +76,7 @@ if os.environ.get("ANKI_NOVERIFYSSL"):
 
 
 class _MonitoringFile(io.BufferedReader):
-    def __init__(self, raw: io.RawIOBase, hook: Optional[Callable[[int, int], None]]):
+    def __init__(self, raw: io.RawIOBase, hook: Optional[ProgressCallback]):
         io.BufferedReader.__init__(self, raw)
         self.hook = hook
 
