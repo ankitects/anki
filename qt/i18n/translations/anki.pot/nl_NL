@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-09 19:16+1000\n"
-"PO-Revision-Date: 2020-01-17 01:08\n"
+"POT-Creation-Date: 2020-01-17 11:15+1000\n"
+"PO-Revision-Date: 2020-01-19 06:56\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
@@ -46,7 +46,7 @@ msgstr ""
 
 #: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
 #: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:256
+#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:261
 msgid "%"
 msgstr ""
 
@@ -69,7 +69,7 @@ msgstr "%(a)0.1fkB omhoog, %(b)0.1fkB omlaag"
 msgid "%(a)0.1fs (%(b)s)"
 msgstr ""
 
-#: qt/aqt/browser.py:2097
+#: qt/aqt/browser.py:2111
 #, python-format
 msgid "%(a)d of %(b)d note updated"
 msgid_plural "%(a)d of %(b)d notes updated"
@@ -78,7 +78,7 @@ msgstr[1] "%(a)d van %(b)d aantekeningen bijgewerkt"
 
 #. T: name is a card type name. n it's order in the list of card type.
 #. T: this is shown in browser's filter, when seeing the list of card type of a note type.
-#: qt/aqt/browser.py:1307
+#: qt/aqt/browser.py:1312
 #, python-format
 msgid "%(n)d: %(name)s"
 msgstr ""
@@ -94,14 +94,14 @@ msgid "%.01f cards/minute"
 msgstr "%.01f kaarten/minuut"
 
 #: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:230
-#: qt/aqt/main.py:1351
+#: qt/aqt/main.py:1352
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
 msgstr[0] "%d kaart"
 msgstr[1] "%d kaarten"
 
-#: qt/aqt/main.py:1363
+#: qt/aqt/main.py:1364
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
@@ -115,7 +115,7 @@ msgid_plural "%d cards exported."
 msgstr[0] "%d kaart geëxporteerd."
 msgstr[1] "%d kaarten geëxporteerd."
 
-#: pylib/anki/importing/supermemo_xml.py:193
+#: pylib/anki/importing/supermemo_xml.py:194
 #, python-format
 msgid "%d card imported."
 msgid_plural "%d cards imported."
@@ -136,42 +136,42 @@ msgid_plural "%d decks updated."
 msgstr[0] "%d set bijgewerkt."
 msgstr[1] "%d sets bijgewerkt."
 
-#: qt/aqt/main.py:1259
+#: qt/aqt/main.py:1260
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/main.py:1316
+#: qt/aqt/main.py:1317
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/browser.py:2150
+#: qt/aqt/browser.py:2164
 #, python-format
 msgid "%d group"
 msgid_plural "%d groups"
 msgstr[0] "%d groep"
 msgstr[1] "%d groepen"
 
-#: pylib/anki/sync.py:841
+#: pylib/anki/sync.py:840
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "Nog %d media wijziging uploaden"
 msgstr[1] "Nog %d media wijzigingen uploaden"
 
-#: pylib/anki/sync.py:892
+#: pylib/anki/sync.py:890
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
 msgstr[0] "%d mediabestand gedownload"
 msgstr[1] "%d mediabestanden gedownload"
 
-#: qt/aqt/browser.py:2151 qt/aqt/browser.py:2159 qt/aqt/fields.py:96
+#: qt/aqt/browser.py:2165 qt/aqt/browser.py:2173 qt/aqt/fields.py:96
 #: qt/aqt/models.py:82
 #, python-format
 msgid "%d note"
@@ -186,7 +186,7 @@ msgid_plural "%d notes added"
 msgstr[0] "%d aantekening toegevoegd"
 msgstr[1] "%d aantekeningen toegevoegd"
 
-#: qt/aqt/browser.py:1781
+#: qt/aqt/browser.py:1786
 #, python-format
 msgid "%d note deleted."
 msgid_plural "%d notes deleted."
@@ -228,14 +228,14 @@ msgid_plural "%d reviews"
 msgstr[0] "%d herhaling"
 msgstr[1] "%d herhalingen"
 
-#: qt/aqt/browser.py:800
+#: qt/aqt/browser.py:805
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
 msgstr[0] "%d geselecteerd"
 msgstr[1] "%d geselecteerd"
 
-#: pylib/anki/models.py:249
+#: pylib/anki/models.py:257
 #, python-format
 msgid "%s copy"
 msgstr "%s kopiëren"
@@ -282,7 +282,7 @@ msgid_plural "%s seconds"
 msgstr[0] "%s seconde"
 msgstr[1] "%s seconden"
 
-#: qt/aqt/main.py:1352
+#: qt/aqt/main.py:1353
 #, python-format
 msgid "%s to delete:"
 msgstr "%s te verwijderen:"
@@ -440,23 +440,23 @@ msgstr "%(row)s' bevatten %(num1)d velden, verwachtte er %(num2)d"
 msgid "(%s correct)"
 msgstr "(%s juist)"
 
-#: qt/aqt/addcards.py:158
+#: qt/aqt/addcards.py:157
 msgid "(Note deleted)"
 msgstr "(Aantekening verwijderd)"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(einde)"
 
-#: qt/aqt/browser.py:339
+#: qt/aqt/browser.py:343
 msgid "(filtered)"
 msgstr "(gefilterd)"
 
-#: qt/aqt/browser.py:306
+#: qt/aqt/browser.py:310
 msgid "(learning)"
 msgstr "(aan het leren)"
 
-#: qt/aqt/browser.py:304 qt/aqt/browser.py:310
+#: qt/aqt/browser.py:308 qt/aqt/browser.py:314
 msgid "(new)"
 msgstr "(nieuw)"
 
@@ -465,19 +465,19 @@ msgstr "(nieuw)"
 msgid "(parent limit: %d)"
 msgstr "(limiet van bovenliggend niveau: %d)"
 
-#: qt/aqt/browser.py:1682
+#: qt/aqt/browser.py:1687
 msgid "(please select 1 card)"
 msgstr "(kies 1 kaart)"
 
-#: qt/aqt/importing.py:321
+#: qt/aqt/importing.py:319
 msgid ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
 msgstr ".anki-bestanden komen van een zeer oude versie van Anki. U kunt ze importeren met Anki 2.0 die beschikbaar is op Anki's website."
 
-#: qt/aqt/importing.py:328
+#: qt/aqt/importing.py:326
 msgid ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
 msgstr ".anki2-bestanden kunnen niet rechtstreeks geïmporteerd worden. Importeer het .apkg- of .zip-bestand dat u in plaats daarvan hebt ontvangen."
 
-#: qt/aqt/browser.py:1452
+#: qt/aqt/browser.py:1457
 msgid "0d"
 msgstr ""
 
@@ -539,11 +539,11 @@ msgstr "<a href='%s'>Bezoek website</a>"
 msgid "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
 msgstr "<b>%(pct)d%%</b> (%(x)s van de %(y)s)"
 
-#: qt/aqt/browser.py:1431
+#: qt/aqt/browser.py:1436
 msgid "<b>%Y-%m-%d</b> @ %H:%M"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:264
+#: qt/aqt/forms/preferences.py:269
 msgid "<b>Backups</b><br>Anki will create a backup of your collection each time it is closed or synchronized."
 msgstr "<b>Back-ups</b><br>Anki zal een back-up maken van uw collectie telkens wanneer het programma geopend of gesynchroniseerd wordt."
 
@@ -588,7 +588,7 @@ msgstr ""
 msgid "<b>Replace With</b>:"
 msgstr "<b>Vervangen door</b>:"
 
-#: qt/aqt/forms/preferences.py:258
+#: qt/aqt/forms/preferences.py:263
 msgid "<b>Synchronisation</b>"
 msgstr "<b>Synchronisatie</b>"
 
@@ -634,15 +634,15 @@ msgstr "<h1>Fout</h1>\n\n"
 msgid "<ignored>"
 msgstr "<genegeerd>"
 
-#: qt/aqt/main.py:1453
+#: qt/aqt/main.py:1454
 msgid "<non-unicode text>"
 msgstr "<niet-unicode tekst>"
 
-#: qt/aqt/browser.py:735
+#: qt/aqt/browser.py:740
 msgid "<type here to search; hit enter to show current deck>"
 msgstr "<typ hier om te zoeken; druk op enter om de huidige set te tonen>"
 
-#: qt/aqt/about.py:169
+#: qt/aqt/about.py:170
 msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
 msgstr "Hartelijk dank aan iedereen die heeft bijgedragen met suggesties, foutrapporten of giften."
 
@@ -667,14 +667,14 @@ msgstr "Afgebroken: %s"
 msgid "About Anki"
 msgstr "Over Anki"
 
-#: qt/aqt/addcards.py:37 qt/aqt/addcards.py:66 qt/aqt/deckconf.py:81
+#: qt/aqt/addcards.py:36 qt/aqt/addcards.py:65 qt/aqt/deckconf.py:81
 #: qt/aqt/models.py:47 qt/aqt/studydeck.py:46 qt/aqt/toolbar.py:35
 #: qt/aqt/forms/addcards.py:63 qt/aqt/forms/fields.py:101
 #: qt/aqt/forms/profiles.py:76
 msgid "Add"
 msgstr "Toevoegen"
 
-#: qt/aqt/addcards.py:69
+#: qt/aqt/addcards.py:68
 msgid "Add (shortcut: ctrl+enter)"
 msgstr "Toevoegen (sneltoets: ctrl+enter)"
 
@@ -686,7 +686,7 @@ msgstr "Kaarttype toevoegen..."
 msgid "Add Field"
 msgstr "Veld toevoegen"
 
-#: qt/aqt/editor.py:651
+#: qt/aqt/editor.py:654
 msgid "Add Media"
 msgstr "Media toevoegen"
 
@@ -702,11 +702,11 @@ msgstr "Aantekeningstype toevoegen"
 msgid "Add Notes..."
 msgstr "Aantekeningen toevoegen..."
 
-#: pylib/anki/stdmodels.py:82
+#: pylib/anki/stdmodels.py:83
 msgid "Add Reverse"
 msgstr "Omgekeerde toevoegen"
 
-#: qt/aqt/browser.py:1851
+#: qt/aqt/browser.py:1856
 msgid "Add Tags"
 msgstr "Tags toevoegen"
 
@@ -718,7 +718,7 @@ msgstr "Tags toevoegen..."
 msgid "Add to:"
 msgstr "Toevoegen aan:"
 
-#: qt/aqt/browser.py:145
+#: qt/aqt/browser.py:149
 msgid "Add-on"
 msgstr ""
 
@@ -734,7 +734,7 @@ msgstr ""
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr "De add-on werd niet gedownload vanuit AnkiWeb."
 
-#: qt/aqt/main.py:1512
+#: qt/aqt/main.py:1513
 msgid "Add-on will be installed when a profile is opened."
 msgstr ""
 
@@ -752,11 +752,11 @@ msgid "Add: %s"
 msgstr "Toevoegen: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
 msgid "Added"
 msgstr "Toegevoegd"
 
-#: qt/aqt/browser.py:1218
+#: qt/aqt/browser.py:1223
 msgid "Added Today"
 msgstr "Vandaag toegevoegd"
 
@@ -769,7 +769,7 @@ msgstr "Dubbel toegevoegd met eerste veld: %s"
 msgid "Again"
 msgstr "Opnieuw"
 
-#: qt/aqt/browser.py:1220
+#: qt/aqt/browser.py:1225
 msgid "Again Today"
 msgstr "Vandaag opnieuw"
 
@@ -782,7 +782,7 @@ msgstr "Aantal te herdoen: %s"
 msgid "All Buried Cards"
 msgstr "Alle begraven kaarten"
 
-#: qt/aqt/browser.py:1300
+#: qt/aqt/browser.py:1305
 msgid "All Card Types"
 msgstr "Alle soorten kaarten"
 
@@ -790,7 +790,7 @@ msgstr "Alle soorten kaarten"
 msgid "All Decks"
 msgstr "Alle sets"
 
-#: qt/aqt/browser.py:2063
+#: qt/aqt/browser.py:2077
 msgid "All Fields"
 msgstr "Alle velden"
 
@@ -798,7 +798,7 @@ msgstr "Alle velden"
 msgid "All cards in random order (don't reschedule)"
 msgstr "Alle kaarten in willekeurige volgorde (niet herschikken)"
 
-#: qt/aqt/main.py:260
+#: qt/aqt/main.py:262
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "Alle kaarten, aantekeningen en media voor dit profiel zullen worden verwijderd. Weet u het zeker?"
 
@@ -841,7 +841,7 @@ msgstr "Er is een fout opgetreden bij het benaderen van de database.\n\n"
 "- Uw harde schijf kan fouten vertonen.\n\n"
 "Om te controleren of uw collectie niet corrupt is kunt u het beste via het menu Hulpmiddelen>Database Controleren... selecteren.\n"
 
-#: qt/aqt/editor.py:782 qt/aqt/editor.py:785
+#: qt/aqt/editor.py:785 qt/aqt/editor.py:788
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "Er deed zich een probleem voor bij het openen van %s"
@@ -855,7 +855,7 @@ msgstr ""
 msgid "Anki 2.0 Deck"
 msgstr "Anki 2.0 set"
 
-#: qt/aqt/forms/preferences.py:246
+#: qt/aqt/forms/preferences.py:251
 msgid "Anki 2.1 scheduler (beta)"
 msgstr ""
 
@@ -891,7 +891,7 @@ msgstr "Anki is een toegankelijk en intelligent systeem voor studie d.m.v. gespr
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki gebruikt de AGPL3 licentie. Gelieve het licensiebestand in de brondistributie raad te plegen voor verdere informatie."
 
-#: qt/aqt/main.py:410
+#: qt/aqt/main.py:412
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr "Anki kon uw verzamelingsbestand niet openen. Als het probleem aanhoudt nadat u uw computer opnieuw hebt opgestart, gebruik de knop Open Backup in de profielbeheerder.\n\n"
@@ -917,7 +917,7 @@ msgstr "AnkiWeb is momenteel te zwaar belast. Probeer het over enkele minuten op
 msgid "AnkiWeb is under maintenance. Please try again in a few minutes."
 msgstr "AnkiWeb is in onderhoud. Gelieve over enkele minuten opnieuw te proberen."
 
-#: qt/aqt/browser.py:711
+#: qt/aqt/browser.py:716
 msgid "Answer"
 msgstr "Antwoord"
 
@@ -933,11 +933,11 @@ msgstr "Antwoorden"
 msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
 msgstr "Anki wordt door antivirus of firewall-software gehinderd bij het maken van een internetverbinding."
 
-#: qt/aqt/browser.py:1244
+#: qt/aqt/browser.py:1249
 msgid "Any Flag"
 msgstr "Elke vlag"
 
-#: qt/aqt/browser.py:2413
+#: qt/aqt/browser.py:2430
 msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
 msgstr "Kaarten die nergens aan gekoppeld zijn zullen verwijderd worden. Als een aantekening geen kaarten meer heeft, zal deze verdwijnen. Weet u zeker dat u verder wilt gaan?"
 
@@ -959,11 +959,11 @@ msgstr "Minstens één kaarttype is vereist."
 msgid "At least one step is required."
 msgstr "Minstens één leerstap is vereist."
 
-#: qt/aqt/editor.py:138
+#: qt/aqt/editor.py:139
 msgid "Attach pictures/audio/video (F3)"
 msgstr "Foto's/audio/video toevoegen (F3)"
 
-#: qt/aqt/main.py:310
+#: qt/aqt/main.py:312
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr "Automatische synchronisatie en back-ups zijn uitgeschakeld tijdens het herstellen. Om ze weer in te schakelen, sluit het profiel of start Anki opnieuw."
 
@@ -971,7 +971,7 @@ msgstr "Automatische synchronisatie en back-ups zijn uitgeschakeld tijdens het h
 msgid "Automatically play audio"
 msgstr "Geluid automatisch afspelen"
 
-#: qt/aqt/forms/preferences.py:260
+#: qt/aqt/forms/preferences.py:265
 msgid "Automatically sync on profile open/close"
 msgstr "Profiel automatisch synchroniseren bij openen/sluiten"
 
@@ -999,9 +999,9 @@ msgstr "Gemiddelde voor dagen waarop je geleerd hebt"
 msgid "Average interval"
 msgstr "Gemiddeld interval"
 
-#: pylib/anki/stdmodels.py:20 pylib/anki/stdmodels.py:24
-#: pylib/anki/stdmodels.py:45 pylib/anki/stdmodels.py:46
-#: pylib/anki/stdmodels.py:61 qt/aqt/forms/addfield.py:78
+#: pylib/anki/stdmodels.py:21 pylib/anki/stdmodels.py:25
+#: pylib/anki/stdmodels.py:46 pylib/anki/stdmodels.py:47
+#: pylib/anki/stdmodels.py:62 qt/aqt/forms/addfield.py:78
 msgid "Back"
 msgstr "Achterkant"
 
@@ -1013,36 +1013,36 @@ msgstr "Voorvertoning achterkant"
 msgid "Back Template"
 msgstr "Sjabloon achterkant"
 
-#: qt/aqt/main.py:458
+#: qt/aqt/main.py:460
 msgid "Backing Up..."
 msgstr "Aanmaak van back-up..."
 
-#: qt/aqt/forms/preferences.py:270
+#: qt/aqt/forms/preferences.py:275
 msgid "Backups"
 msgstr "Back-ups"
 
-#: pylib/anki/stdmodels.py:17 pylib/anki/stdmodels.py:35
-#: qt/aqt/forms/preferences.py:257
+#: pylib/anki/stdmodels.py:18 pylib/anki/stdmodels.py:36
+#: qt/aqt/forms/preferences.py:262
 msgid "Basic"
 msgstr "Basis"
 
-#: pylib/anki/stdmodels.py:59 pylib/anki/stdmodels.py:73
+#: pylib/anki/stdmodels.py:60 pylib/anki/stdmodels.py:74
 msgid "Basic (and reversed card)"
 msgstr "Basis (en omgekeerde kaart)"
 
-#: pylib/anki/stdmodels.py:81 pylib/anki/stdmodels.py:91
+#: pylib/anki/stdmodels.py:82 pylib/anki/stdmodels.py:92
 msgid "Basic (optional reversed card)"
 msgstr "Basis (omgekeerde kaart optioneel)"
 
-#: pylib/anki/stdmodels.py:43 pylib/anki/stdmodels.py:51
+#: pylib/anki/stdmodels.py:44 pylib/anki/stdmodels.py:52
 msgid "Basic (type in the answer)"
 msgstr "Basisch (typ het antwoord in)"
 
-#: qt/aqt/browser.py:1242 qt/aqt/reviewer.py:671 qt/aqt/forms/browser.py:333
+#: qt/aqt/browser.py:1247 qt/aqt/reviewer.py:671 qt/aqt/forms/browser.py:333
 msgid "Blue Flag"
 msgstr "Blauwe vlag"
 
-#: qt/aqt/editor.py:102
+#: qt/aqt/editor.py:103
 msgid "Bold text (Ctrl+B)"
 msgstr "Vetgedrukte tekst (Ctrl + B)"
 
@@ -1050,7 +1050,7 @@ msgstr "Vetgedrukte tekst (Ctrl + B)"
 msgid "Browse"
 msgstr "Bladeren"
 
-#: qt/aqt/browser.py:794
+#: qt/aqt/browser.py:799
 #, python-format
 msgid "Browse (%(cur)d card shown; %(sel)s)"
 msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
@@ -1077,7 +1077,7 @@ msgstr "Browserinstellingen"
 msgid "Build"
 msgstr "Bouw"
 
-#: qt/aqt/browser.py:1237
+#: qt/aqt/browser.py:1242
 msgid "Buried"
 msgstr "Begraven"
 
@@ -1105,7 +1105,7 @@ msgstr "Begraaf gerelateerde nieuwe kaarten tot het eind van de dag"
 msgid "Bury related reviews until the next day"
 msgstr "Begraaf gerelateerde herhalingen tot de volgende dag"
 
-#: qt/aqt/importing.py:124
+#: qt/aqt/importing.py:125
 msgid "By default, Anki will detect the character between fields, such as\n"
 "a tab, comma, and so on. If Anki is detecting the character incorrectly,\n"
 "you can enter it here. Use \\t to represent tab."
@@ -1118,7 +1118,7 @@ msgstr "Anki detecteert standaard het karakter tussen velden, zoals tabs,\n"
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: qt/aqt/browser.py:712
+#: qt/aqt/browser.py:717
 msgid "Card"
 msgstr "Kaart"
 
@@ -1127,11 +1127,11 @@ msgstr "Kaart"
 msgid "Card %d"
 msgstr "Kaart %d"
 
-#: pylib/anki/stdmodels.py:22
+#: pylib/anki/stdmodels.py:23
 msgid "Card 1"
 msgstr "Kaart 1"
 
-#: pylib/anki/stdmodels.py:60
+#: pylib/anki/stdmodels.py:61
 msgid "Card 2"
 msgstr "Kaart 2"
 
@@ -1143,7 +1143,7 @@ msgstr "Kaart-ID"
 msgid "Card List"
 msgstr "Kaartenlijst"
 
-#: qt/aqt/browser.py:1227
+#: qt/aqt/browser.py:1232
 msgid "Card State"
 msgstr "Kaartstaat"
 
@@ -1172,16 +1172,20 @@ msgstr "Kaart begraven"
 msgid "Card suspended."
 msgstr "Kaart opgeschort."
 
+#: pylib/anki/collection.py:676
+msgid "Card template has a problem:"
+msgstr ""
+
 #: qt/aqt/reviewer.py:637
 msgid "Card was a leech."
 msgstr "Deze kaart was moeilijk."
 
-#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:155
+#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:158
 #: qt/aqt/forms/changemodel.py:112
 msgid "Cards"
 msgstr "Kaarten"
 
-#: qt/aqt/browser.py:1811
+#: qt/aqt/browser.py:1816
 msgid "Cards can't be manually moved into a filtered deck."
 msgstr "Kaarten kunnen niet handmatig aan een gefilterde set toegevoegd worden."
 
@@ -1205,12 +1209,12 @@ msgstr "Centreren"
 msgid "Change"
 msgstr "Wijzigen"
 
-#: qt/aqt/browser.py:2334
+#: qt/aqt/browser.py:2351
 #, python-format
 msgid "Change %s to:"
 msgstr "%s wijzigen naar:"
 
-#: qt/aqt/browser.py:1802 qt/aqt/browser.py:1814
+#: qt/aqt/browser.py:1807 qt/aqt/browser.py:1819
 msgid "Change Deck"
 msgstr "Set veranderen"
 
@@ -1218,7 +1222,7 @@ msgstr "Set veranderen"
 msgid "Change Deck..."
 msgstr "Set veranderen..."
 
-#: qt/aqt/browser.py:2420 qt/aqt/forms/changemodel.py:109
+#: qt/aqt/browser.py:2437 qt/aqt/forms/changemodel.py:109
 msgid "Change Note Type"
 msgstr "Aantekeningstype veranderen"
 
@@ -1230,15 +1234,15 @@ msgstr "Aantekeningstype veranderen (Ctrl+N)"
 msgid "Change Note Type..."
 msgstr "Aantekeningstype veranderen..."
 
-#: qt/aqt/editor.py:125
+#: qt/aqt/editor.py:126
 msgid "Change colour (F8)"
 msgstr "Van kleur veranderen (F8)"
 
-#: qt/aqt/forms/preferences.py:248
+#: qt/aqt/forms/preferences.py:253
 msgid "Change deck depending on note type"
 msgstr "Set veranderen op basis van aantekeningstype"
 
-#: qt/aqt/browser.py:717
+#: qt/aqt/browser.py:722
 msgid "Changed"
 msgstr "Gewijzigd"
 
@@ -1253,7 +1257,7 @@ msgstr[1] "De onderstaande wijzigingen zullen een effect hebben op de %(cnt)d aa
 msgid "Changes will take effect when Anki is restarted."
 msgstr "De wijzigingen treden in werking wanneer Anki opnieuw wordt opgestart."
 
-#: qt/aqt/preferences.py:110 qt/aqt/preferences.py:234
+#: qt/aqt/preferences.py:110 qt/aqt/preferences.py:236
 msgid "Changes will take effect when you restart Anki."
 msgstr "De wijzigingen treden in werking wanneer u Anki opnieuw opstart."
 
@@ -1277,11 +1281,11 @@ msgstr "Media wordt gecontroleerd..."
 msgid "Checking..."
 msgstr "Bezig met controleren..."
 
-#: qt/aqt/deckchooser.py:83 qt/aqt/modelchooser.py:73
+#: qt/aqt/deckchooser.py:86 qt/aqt/modelchooser.py:73
 msgid "Choose"
 msgstr "Kiezen"
 
-#: qt/aqt/deckchooser.py:84
+#: qt/aqt/deckchooser.py:87
 msgid "Choose Deck"
 msgstr "Set selecteren"
 
@@ -1289,11 +1293,11 @@ msgstr "Set selecteren"
 msgid "Choose Note Type"
 msgstr "Aantekeningstype selecteren"
 
-#: qt/aqt/customstudy.py:102
+#: qt/aqt/customstudy.py:103
 msgid "Choose Tags"
 msgstr "Tags kiezen"
 
-#: qt/aqt/browser.py:1253
+#: qt/aqt/browser.py:1258
 msgid "Clear Unused"
 msgstr "Ongebruikte wissen"
 
@@ -1306,24 +1310,24 @@ msgstr "Ongebruikte tags wissen"
 msgid "Clone: %s"
 msgstr "Dupliceer: %s"
 
-#: qt/aqt/addcards.py:71 qt/aqt/clayout.py:272 qt/aqt/forms/browser.py:322
+#: qt/aqt/addcards.py:70 qt/aqt/clayout.py:272 qt/aqt/forms/browser.py:322
 msgid "Close"
 msgstr "Sluiten"
 
-#: qt/aqt/addcards.py:242
+#: qt/aqt/addcards.py:241
 msgid "Close and lose current input?"
 msgstr "Sluiten en huidige invoer verwerpen?"
 
-#: qt/aqt/main.py:456
+#: qt/aqt/main.py:458
 msgid "Closing..."
 msgstr "Sluitend..."
 
-#: pylib/anki/stdmodels.py:99 pylib/anki/stdmodels.py:104
-#: pylib/anki/stdmodels.py:123 pylib/anki/storage.py:222
+#: pylib/anki/stdmodels.py:100 pylib/anki/stdmodels.py:105
+#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:222
 msgid "Cloze"
 msgstr ""
 
-#: qt/aqt/editor.py:135
+#: qt/aqt/editor.py:136
 msgid "Cloze deletion (Ctrl+Shift+C)"
 msgstr "Cloze (Ctrl+Shift+C)"
 
@@ -1335,15 +1339,15 @@ msgstr ""
 msgid "Collection exported."
 msgstr "Verzameling geëxporteerd."
 
-#: pylib/anki/collection.py:874
+#: pylib/anki/collection.py:889
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Collectie is beschadigd. Gelieve de handleiding te raadplegen."
 
-#: qt/aqt/importing.py:168
+#: qt/aqt/importing.py:169
 msgid "Colon"
 msgstr "Dubbele punt"
 
-#: qt/aqt/importing.py:162
+#: qt/aqt/importing.py:163
 msgid "Comma"
 msgstr "Komma"
 
@@ -1359,7 +1363,7 @@ msgstr "Configuratie"
 msgid "Configure interface language and options"
 msgstr "Interfacetaal en -instellingen configureren"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Proficiat! U bent voorlopig klaar met deze set."
 
@@ -1379,7 +1383,7 @@ msgstr "Doorgaan"
 msgid "Copied to clipboard"
 msgstr "Gekopieerd naar klembord"
 
-#: qt/aqt/editor.py:1108 qt/aqt/webview.py:183
+#: qt/aqt/editor.py:1113 qt/aqt/webview.py:183
 msgid "Copy"
 msgstr "Kopiëren"
 
@@ -1409,7 +1413,7 @@ msgstr "Corrupt add-on-bestand."
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "Kon geen verbinding maken met AnkiWeb. Gelieve uw netwerkverbinding te controleren en dan opnieuw te proberen."
 
-#: qt/aqt/editor.py:680
+#: qt/aqt/editor.py:683
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr "Kon audio niet opnemen. Hebt u 'lame' geïnstalleerd?"
 
@@ -1434,7 +1438,7 @@ msgstr "Gefilterde set aanmaken..."
 msgid "Create scalable images with dvisvgm"
 msgstr "Schaalbare afbeeldingen met dvisvgm aanmaken"
 
-#: qt/aqt/browser.py:715
+#: qt/aqt/browser.py:720
 msgid "Created"
 msgstr "Aangemaakt"
 
@@ -1450,7 +1454,7 @@ msgstr ""
 msgid "Ctrl+N"
 msgstr ""
 
-#: qt/aqt/browser.py:593
+#: qt/aqt/browser.py:598
 msgid "Ctrl+Shift+P"
 msgstr ""
 
@@ -1471,7 +1475,7 @@ msgstr "Cumulatieve antwoorden"
 msgid "Cumulative Cards"
 msgstr "Cumulatieve kaarten"
 
-#: qt/aqt/browser.py:1086 qt/aqt/browser.py:1210
+#: qt/aqt/browser.py:1091 qt/aqt/browser.py:1215
 msgid "Current Deck"
 msgstr "Huidige set"
 
@@ -1483,7 +1487,7 @@ msgstr "Huidige aantekeningstype:"
 msgid "Custom Study"
 msgstr "Aangepaste studie"
 
-#: qt/aqt/customstudy.py:136 qt/aqt/customstudy.py:148
+#: qt/aqt/customstudy.py:137 qt/aqt/customstudy.py:149
 msgid "Custom Study Session"
 msgstr "Aangepaste studiesessie"
 
@@ -1491,23 +1495,23 @@ msgstr "Aangepaste studiesessie"
 msgid "Custom steps (in minutes)"
 msgstr "Aangepaste leerstappen (in minuten)"
 
-#: qt/aqt/editor.py:158
+#: qt/aqt/editor.py:161
 msgid "Customize Card Templates (Ctrl+L)"
 msgstr "Kaartsjablonen aanpassen (Ctrl+L)"
 
-#: qt/aqt/editor.py:157
+#: qt/aqt/editor.py:160
 msgid "Customize Fields"
 msgstr "Velden aanpassen"
 
-#: qt/aqt/editor.py:1106
+#: qt/aqt/editor.py:1111
 msgid "Cut"
 msgstr "Knippen"
 
-#: pylib/anki/collection.py:1059
+#: pylib/anki/collection.py:1074
 msgid "Database rebuilt and optimized."
 msgstr "Database herbouwd en geoptimaliseerd."
 
-#: qt/aqt/browser.py:1419
+#: qt/aqt/browser.py:1424
 msgid "Date"
 msgstr "Datum"
 
@@ -1515,7 +1519,7 @@ msgstr "Datum"
 msgid "Days studied"
 msgstr "Dagen geleerd"
 
-#: qt/aqt/forms/preferences.py:262
+#: qt/aqt/forms/preferences.py:267
 msgid "Deauthorize"
 msgstr "Machtiging intrekken"
 
@@ -1523,7 +1527,7 @@ msgstr "Machtiging intrekken"
 msgid "Debug Console"
 msgstr "Debug console"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:713 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:718 qt/aqt/deckbrowser.py:150
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Set"
@@ -1532,11 +1536,11 @@ msgstr "Set"
 msgid "Deck Override..."
 msgstr "Set overschijven..."
 
-#: qt/aqt/main.py:1514
+#: qt/aqt/main.py:1515
 msgid "Deck will be imported when a profile is opened."
 msgstr "Set zal geïmporteerd worden zodra een profiel wordt geopend."
 
-#: qt/aqt/browser.py:1281 qt/aqt/toolbar.py:34
+#: qt/aqt/browser.py:1286 qt/aqt/toolbar.py:34
 msgid "Decks"
 msgstr "Sets"
 
@@ -1545,7 +1549,7 @@ msgid "Decreasing intervals"
 msgstr "Afnemende intervallen"
 
 #: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
-#: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
+#: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:76
 msgid "Default"
 msgstr "Standaard"
 
@@ -1559,7 +1563,7 @@ msgstr "Vertragingen totdat herhalingen weer getoond worden."
 msgid "Delete"
 msgstr "Verwijderen"
 
-#: qt/aqt/main.py:1354
+#: qt/aqt/main.py:1355
 msgid "Delete Cards"
 msgstr "Kaarten verwijderen"
 
@@ -1567,7 +1571,7 @@ msgstr "Kaarten verwijderen"
 msgid "Delete Deck"
 msgstr "Set verwijderen"
 
-#: qt/aqt/main.py:1360
+#: qt/aqt/main.py:1361
 msgid "Delete Empty"
 msgstr "Lege kaarten verwijderen"
 
@@ -1575,15 +1579,15 @@ msgstr "Lege kaarten verwijderen"
 msgid "Delete Note"
 msgstr "Aantekening verwijderen"
 
-#: qt/aqt/browser.py:1755
+#: qt/aqt/browser.py:1760
 msgid "Delete Notes"
 msgstr "Aantekeningen verwijderen"
 
-#: qt/aqt/browser.py:1861
+#: qt/aqt/browser.py:1866
 msgid "Delete Tags"
 msgstr "Tags verwijderen"
 
-#: qt/aqt/main.py:1286
+#: qt/aqt/main.py:1287
 msgid "Delete Unused Files"
 msgstr "Ongebruikte bestanden verwijderen"
 
@@ -1612,46 +1616,46 @@ msgstr "Wilt u dit aantekeningstype en alle bijbehorende kaarten verwijderen?"
 msgid "Delete this unused note type?"
 msgstr "Wilt u dit ongebruikte aantekeningstype verwijderen?"
 
-#: qt/aqt/main.py:1299
+#: qt/aqt/main.py:1300
 msgid "Delete unused media?"
 msgstr "Ongebruikte media verwijderen?"
 
-#: pylib/anki/collection.py:963
+#: pylib/anki/collection.py:978
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "%d kaart met ontbrekende aantekening verwijderd."
 msgstr[1] "%d kaarten met ontbrekende aantekening verwijderd."
 
-#: pylib/anki/collection.py:914
+#: pylib/anki/collection.py:929
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
 msgstr[0] "%d kaart met ontbrekend sjabloon verwijderd."
 msgstr[1] "%d kaarten met ontbrekend sjabloon verwijderd."
 
-#: qt/aqt/main.py:1329
+#: qt/aqt/main.py:1330
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: pylib/anki/collection.py:884
+#: pylib/anki/collection.py:899
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "%d aantekening met ontbrekend aantekeningstype verwijderd."
 msgstr[1] "%d aantekeningen met ontbrekend aantekeningstype verwijderd."
 
-#: pylib/anki/collection.py:947
+#: pylib/anki/collection.py:962
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "%d aantekening met 0 kaarten verwijderd."
 msgstr[1] "%d aantekeningen met 0 kaarten verwijderd."
 
-#: pylib/anki/collection.py:931
+#: pylib/anki/collection.py:946
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1688,7 +1692,7 @@ msgstr "Gedownloade %(fname)s"
 msgid "Downloading from AnkiWeb..."
 msgstr "Bezig met downloaden van AnkiWeb..."
 
-#: pylib/anki/stats.py:43 qt/aqt/browser.py:718 qt/aqt/browser.py:1234
+#: pylib/anki/stats.py:43 qt/aqt/browser.py:723 qt/aqt/browser.py:1239
 #: qt/aqt/deckbrowser.py:151
 msgid "Due"
 msgstr "Verwacht"
@@ -1705,7 +1709,7 @@ msgstr "Morgen verwacht"
 msgid "E&xit"
 msgstr "&Afsluiten"
 
-#: pylib/anki/stats.py:46 qt/aqt/browser.py:720 qt/aqt/browser.py:1424
+#: pylib/anki/stats.py:46 qt/aqt/browser.py:725 qt/aqt/browser.py:1429
 msgid "Ease"
 msgstr "Gemakkelijkheidsgraad"
 
@@ -1725,7 +1729,7 @@ msgstr "Interval voor makkelijke kaarten"
 msgid "Edit"
 msgstr "Bewerken"
 
-#: qt/aqt/addcards.py:155
+#: qt/aqt/addcards.py:154
 #, python-format
 msgid "Edit \"%s\""
 msgstr "Bewerk \"%s\""
@@ -1734,11 +1738,11 @@ msgstr "Bewerk \"%s\""
 msgid "Edit Current"
 msgstr "Huidige bewerken"
 
-#: qt/aqt/editor.py:874
+#: qt/aqt/editor.py:877
 msgid "Edit HTML"
 msgstr "HTML bewerken"
 
-#: qt/aqt/browser.py:716
+#: qt/aqt/browser.py:721
 msgid "Edited"
 msgstr "Bewerkt"
 
@@ -1754,7 +1758,7 @@ msgstr "Leeg"
 msgid "Empty Cards..."
 msgstr "Lege kaarten..."
 
-#: pylib/anki/collection.py:584
+#: pylib/anki/collection.py:585
 #, python-format
 msgid "Empty card numbers: %(c)s\n"
 "Fields: %(f)s\n\n"
@@ -1788,11 +1792,11 @@ msgstr "Geef de set op waar de %s nieuwe kaarten aan toegevoegd moeten worden, o
 msgid "Enter new card position (1...%s):"
 msgstr "Nieuwe kaartpositie (1...%s):"
 
-#: qt/aqt/browser.py:1841
+#: qt/aqt/browser.py:1846
 msgid "Enter tags to add:"
 msgstr "Voer nieuwe tags in:"
 
-#: qt/aqt/browser.py:1863
+#: qt/aqt/browser.py:1868
 msgid "Enter tags to delete:"
 msgstr "Voer te verwijderen tags in:"
 
@@ -1806,7 +1810,7 @@ msgstr "Fout bij downloaden van %(id)s: %(error)s"
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
 msgstr ""
 
-#: qt/aqt/main.py:77
+#: qt/aqt/main.py:79
 #, python-format
 msgid "Error during startup:\n"
 "%s"
@@ -1817,7 +1821,7 @@ msgstr "Fout tijdens opstarten:\n"
 msgid "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
 msgstr "Fout bij het opzetten van een beveiligde verbinding. Dit wordt meestal veroorzaakt door antivirus, firewall of VPN software, of door problemen met uw internet provider."
 
-#: pylib/anki/latex.py:169
+#: pylib/anki/latex.py:177
 #, python-format
 msgid "Error executing %s."
 msgstr "Fout bij uitvoeren %s."
@@ -1865,7 +1869,7 @@ msgstr "Veldnaam:"
 msgid "Field:"
 msgstr "Veld:"
 
-#: qt/aqt/editor.py:154 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
+#: qt/aqt/editor.py:157 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
 #: qt/aqt/forms/fields.py:100
 msgid "Fields"
 msgstr "Velden"
@@ -1875,7 +1879,7 @@ msgstr "Velden"
 msgid "Fields for %s"
 msgstr "Velden voor %s"
 
-#: qt/aqt/importing.py:171
+#: qt/aqt/importing.py:172
 #, python-format
 msgid "Fields separated by: %s"
 msgstr "Velden gescheiden door: %s"
@@ -1892,7 +1896,7 @@ msgstr ""
 msgid "File version unknown, trying import anyway."
 msgstr "Bestandsversie onbekend, toch proberen te importeren."
 
-#: qt/aqt/browser.py:1270 qt/aqt/forms/dyndconf.py:133
+#: qt/aqt/browser.py:1275 qt/aqt/forms/dyndconf.py:133
 msgid "Filter"
 msgstr ""
 
@@ -1908,7 +1912,7 @@ msgstr ""
 msgid "Filter:"
 msgstr ""
 
-#: qt/aqt/browser.py:1433
+#: qt/aqt/browser.py:1438
 msgid "Filtered"
 msgstr "Gefilterd"
 
@@ -1929,7 +1933,7 @@ msgstr "Dubbele kaarten zoeken"
 msgid "Find and Re&place..."
 msgstr "Zoeken en &vervangen..."
 
-#: qt/aqt/browser.py:2074 qt/aqt/forms/findreplace.py:68
+#: qt/aqt/browser.py:2088 qt/aqt/forms/findreplace.py:68
 msgid "Find and Replace"
 msgstr "Zoeken en vervangen"
 
@@ -1950,18 +1954,18 @@ msgstr "Eerste herhaling"
 msgid "First field matched: %s"
 msgstr "Eerste veld komt overeen: %s"
 
-#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
+#: pylib/anki/collection.py:994 pylib/anki/collection.py:1012
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "%d kaart met ongeldige eigenschappen hersteld."
 msgstr[1] "%d kaarten met ongeldige eigenschappen hersteld."
 
-#: pylib/anki/collection.py:896
+#: pylib/anki/collection.py:911
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "AnkiDroid deck overschrijving bug gecorrigeerd."
 
-#: pylib/anki/collection.py:902
+#: pylib/anki/collection.py:917
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Aantekeningtype hersteld: %s"
@@ -1990,7 +1994,7 @@ msgstr "Lettertype:"
 msgid "Footer"
 msgstr "Voettekst"
 
-#: pylib/anki/latex.py:129
+#: pylib/anki/latex.py:137
 #, python-format
 msgid "For security reasons, '%s' is not allowed on cards. You can still use it by placing the command in a different package, and importing that package in the LaTeX header instead."
 msgstr "Om veiligheidsredenen is '%s' niet toegestaan in kaarten. U kan dit nog wel gebruiken als u in plaats hiervan het commando in een ander pakket plaatst, en dat pakket importeert in de LaTex koptekst."
@@ -2004,14 +2008,14 @@ msgstr "Voorspelling"
 msgid "Form"
 msgstr "Formulier"
 
-#: qt/aqt/browser.py:2152
+#: qt/aqt/browser.py:2166
 #, python-format
 msgid "Found %(a)s across %(b)s."
 msgstr "%(a)s in %(b)s gevonden."
 
-#: pylib/anki/exporting.py:365 pylib/anki/stdmodels.py:18
-#: pylib/anki/stdmodels.py:23 pylib/anki/stdmodels.py:45
-#: pylib/anki/stdmodels.py:46 pylib/anki/stdmodels.py:62
+#: pylib/anki/exporting.py:365 pylib/anki/stdmodels.py:19
+#: pylib/anki/stdmodels.py:24 pylib/anki/stdmodels.py:46
+#: pylib/anki/stdmodels.py:47 pylib/anki/stdmodels.py:63
 #: qt/aqt/forms/addfield.py:74
 msgid "Front"
 msgstr "Voorkant"
@@ -2028,7 +2032,7 @@ msgstr "Sjabloon voorkant"
 msgid "General"
 msgstr "Algemeen"
 
-#: pylib/anki/latex.py:170
+#: pylib/anki/latex.py:178
 #, python-format
 msgid "Generated file: %s"
 msgstr "Aangemaakt bestand: %s"
@@ -2054,7 +2058,7 @@ msgstr "Goed"
 msgid "Graduating interval"
 msgstr "Interval na leren"
 
-#: qt/aqt/browser.py:1241 qt/aqt/reviewer.py:665 qt/aqt/forms/browser.py:332
+#: qt/aqt/browser.py:1246 qt/aqt/reviewer.py:665 qt/aqt/forms/browser.py:332
 msgid "Green Flag"
 msgstr "Groene vlag"
 
@@ -2070,11 +2074,11 @@ msgstr "Moeilijk"
 msgid "Hard interval"
 msgstr "Interval voor moeilijke kaarten"
 
-#: qt/aqt/forms/preferences.py:240
+#: qt/aqt/forms/preferences.py:244
 msgid "Hardware acceleration (faster, may cause display issues)"
 msgstr "Hardwareversnelling (sneller, kan weergaveproblemen veroorzaken)"
 
-#: pylib/anki/latex.py:178
+#: pylib/anki/latex.py:186
 msgid "Have you installed latex and dvipng/dvisvgm?"
 msgstr "Hebt u latex en dvipng/dvisvgm geïnstalleerd?"
 
@@ -2082,7 +2086,7 @@ msgstr "Hebt u latex en dvipng/dvisvgm geïnstalleerd?"
 msgid "Header"
 msgstr "Koptekst"
 
-#: qt/aqt/addcards.py:75 qt/aqt/clayout.py:257 qt/aqt/utils.py:193
+#: qt/aqt/addcards.py:74 qt/aqt/clayout.py:257 qt/aqt/utils.py:193
 #: qt/aqt/utils.py:194
 msgid "Help"
 msgstr ""
@@ -2091,7 +2095,7 @@ msgstr ""
 msgid "Highest ease"
 msgstr "Hoogste gemak"
 
-#: qt/aqt/addcards.py:79
+#: qt/aqt/addcards.py:78
 msgid "History"
 msgstr "Geschiedenis"
 
@@ -2115,7 +2119,7 @@ msgstr "Uren met minder dan 30 herhalingen worden niet getoond"
 msgid "Identical"
 msgstr "Identiek"
 
-#: qt/aqt/about.py:165
+#: qt/aqt/about.py:166
 msgid "If you have contributed and are not on this list, please get in touch."
 msgstr "Gelieve contact met ons op te nemen als uw bijdrage niet vermeld wordt."
 
@@ -2131,7 +2135,7 @@ msgstr "Negeer antwoordtijden langer dan"
 msgid "Ignore case"
 msgstr "Hoofd-/kleine letters negeren"
 
-#: qt/aqt/importing.py:50
+#: qt/aqt/importing.py:49
 msgid "Ignore field"
 msgstr "Veld negeren"
 
@@ -2143,7 +2147,7 @@ msgstr "Lijnen negeren waarvan het eerste veld identiek is aan een reeds bestaan
 msgid "Ignore this update"
 msgstr "Deze update negeren"
 
-#: qt/aqt/importing.py:97 qt/aqt/importing.py:192 qt/aqt/importing.py:311
+#: qt/aqt/importing.py:98 qt/aqt/importing.py:192 qt/aqt/importing.py:309
 #: qt/aqt/forms/changemap.py:41 qt/aqt/forms/importing.py:103
 msgid "Import"
 msgstr "Importeren"
@@ -2156,11 +2160,11 @@ msgstr "Bestand importeren"
 msgid "Import even if existing note has same first field"
 msgstr "Importeren zelfs als het eerste veld hetzelfde is als in een bestaande aantekening"
 
-#: qt/aqt/importing.py:199 qt/aqt/importing.py:410
+#: qt/aqt/importing.py:199 qt/aqt/importing.py:408
 msgid "Import failed.\n"
 msgstr "Importeren mislukt.\n"
 
-#: qt/aqt/importing.py:365
+#: qt/aqt/importing.py:363
 msgid "Import failed. Debugging info:\n"
 msgstr "Importeren mislukt. Debug-informatie:\n"
 
@@ -2211,7 +2215,7 @@ msgstr "Tags toevoegen"
 msgid "Increase today's new card limit"
 msgstr "De limiet op nieuwe kaarten vandaag verhogen"
 
-#: qt/aqt/customstudy.py:71
+#: qt/aqt/customstudy.py:72
 msgid "Increase today's new card limit by"
 msgstr "De limiet op nieuwe kaarten vandaag verhogen met"
 
@@ -2219,7 +2223,7 @@ msgstr "De limiet op nieuwe kaarten vandaag verhogen met"
 msgid "Increase today's review card limit"
 msgstr "De limiet op herhaalkaarten vandaag verhogen"
 
-#: qt/aqt/customstudy.py:83
+#: qt/aqt/customstudy.py:84
 msgid "Increase today's review limit by"
 msgstr "De limiet op herhaalkaarten vandaag verhogen met"
 
@@ -2252,11 +2256,11 @@ msgstr ""
 msgid "Installed %(name)s"
 msgstr "Geïnstalleerde %(name)s"
 
-#: qt/aqt/forms/preferences.py:239 qt/aqt/forms/setlang.py:40
+#: qt/aqt/forms/preferences.py:243 qt/aqt/forms/setlang.py:40
 msgid "Interface language:"
 msgstr "Interfacetaal:"
 
-#: pylib/anki/stats.py:45 qt/aqt/browser.py:719 qt/aqt/browser.py:1423
+#: pylib/anki/stats.py:45 qt/aqt/browser.py:724 qt/aqt/browser.py:1428
 msgid "Interval"
 msgstr ""
 
@@ -2293,19 +2297,19 @@ msgstr "Ongeldige configuratie: het object op topniveau moet een map zijn"
 msgid "Invalid file name, please rename: %s"
 msgstr "Ongeldige bestandsnaam, hernoem: %s"
 
-#: qt/aqt/importing.py:396
+#: qt/aqt/importing.py:394
 msgid "Invalid file. Please restore from backup."
 msgstr "Ongeldig bestand. Gelieve te herladen van back-up."
 
-#: qt/aqt/main.py:1167
+#: qt/aqt/main.py:1168
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "Kaart heeft ongeldige eigenschap. Gebruik Hulpmiddelen>Database controleren. Indien het probleem zich opnieuw voordoet, contacteer de supportwebsite."
 
-#: qt/aqt/browser.py:2087
+#: qt/aqt/browser.py:2101
 msgid "Invalid regular expression."
 msgstr "Ongeldige reguliere expressie."
 
-#: qt/aqt/browser.py:175
+#: qt/aqt/browser.py:179
 msgid "Invalid search - please check for typing mistakes."
 msgstr "Ongeldige zoekopdracht - controleer op typfouten."
 
@@ -2313,31 +2317,31 @@ msgstr "Ongeldige zoekopdracht - controleer op typfouten."
 msgid "It has been suspended."
 msgstr "Daarom werd hij opgeschort."
 
-#: qt/aqt/editor.py:104
+#: qt/aqt/editor.py:105
 msgid "Italic text (Ctrl+I)"
 msgstr "Cursieve tekst (Ctrl + I)"
 
-#: qt/aqt/editor.py:518
+#: qt/aqt/editor.py:521
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Spring naar tags met Ctrl+Shift+T"
 
-#: qt/aqt/forms/preferences.py:265
+#: qt/aqt/forms/preferences.py:270
 msgid "Keep"
 msgstr "Bewaar"
 
-#: qt/aqt/editor.py:871 qt/aqt/forms/modelopts.py:67
+#: qt/aqt/editor.py:874 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr ""
 
-#: qt/aqt/editor.py:872
+#: qt/aqt/editor.py:875
 msgid "LaTeX equation"
 msgstr "LaTeX-formule"
 
-#: qt/aqt/editor.py:873
+#: qt/aqt/editor.py:876
 msgid "LaTeX math env."
 msgstr "LaTeX wiskunde-omgeving"
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:722 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:727 qt/aqt/forms/dconf.py:386
 msgid "Lapses"
 msgstr "Vergissingen"
 
@@ -2353,11 +2357,11 @@ msgstr "Meest recente herhaling"
 msgid "Latest added first"
 msgstr "Meest recent toegevoegde eerst"
 
-#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1433
+#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1438
 msgid "Learn"
 msgstr "Leren"
 
-#: qt/aqt/forms/preferences.py:252
+#: qt/aqt/forms/preferences.py:257
 msgid "Learn ahead limit"
 msgstr "Maximaal vooruit leren"
 
@@ -2366,7 +2370,7 @@ msgstr "Maximaal vooruit leren"
 msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
 msgstr "Leren: %(a)s, Herhalen: %(b)s, Opnieuw leren: %(c)s, Gefilterd: %(d)s"
 
-#: pylib/anki/stats.py:701 qt/aqt/browser.py:1232 qt/aqt/overview.py:198
+#: pylib/anki/stats.py:701 qt/aqt/browser.py:1237 qt/aqt/overview.py:198
 msgid "Learning"
 msgstr "Aan het leren"
 
@@ -2414,7 +2418,7 @@ msgstr "Aantekeningstype beheren"
 msgid "Manage Note Types..."
 msgstr "Aantekeningstypes beheren..."
 
-#: qt/aqt/browser.py:1289 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1294 qt/aqt/forms/dconf.py:353
 msgid "Manage..."
 msgstr "Beheren..."
 
@@ -2422,12 +2426,12 @@ msgstr "Beheren..."
 msgid "Manually Buried Cards"
 msgstr "Handmatig begraven kaarten"
 
-#: qt/aqt/importing.py:43
+#: qt/aqt/importing.py:42
 #, python-format
 msgid "Map to %s"
 msgstr "Koppelen aan %s"
 
-#: qt/aqt/importing.py:49
+#: qt/aqt/importing.py:48
 msgid "Map to Tags"
 msgstr "Koppelen aan tags"
 
@@ -2435,15 +2439,15 @@ msgstr "Koppelen aan tags"
 msgid "Mark Note"
 msgstr "Aantekening markeren"
 
-#: qt/aqt/editor.py:869
+#: qt/aqt/editor.py:872
 msgid "MathJax block"
 msgstr "MathJaxblok"
 
-#: qt/aqt/editor.py:870
+#: qt/aqt/editor.py:873
 msgid "MathJax chemistry"
 msgstr "MathJax chemie"
 
-#: qt/aqt/editor.py:868
+#: qt/aqt/editor.py:871
 msgid "MathJax inline"
 msgstr "MathJaxinline"
 
@@ -2460,7 +2464,7 @@ msgstr "Maximuminterval"
 msgid "Maximum reviews/day"
 msgstr "Maximum herhalingen/dag"
 
-#: qt/aqt/editor.py:646
+#: qt/aqt/editor.py:649
 msgid "Media"
 msgstr ""
 
@@ -2488,7 +2492,7 @@ msgstr "Meer"
 msgid "Most lapses"
 msgstr "Meeste vergissingen"
 
-#: qt/aqt/browser.py:1801
+#: qt/aqt/browser.py:1806
 msgid "Move Cards"
 msgstr "Kaarten verplaatsen"
 
@@ -2496,7 +2500,7 @@ msgstr "Kaarten verplaatsen"
 msgid "Move cards to deck:"
 msgstr "Kaarten verplaatsen naar set:"
 
-#: qt/aqt/importing.py:138
+#: qt/aqt/importing.py:139
 msgid "Multi-character separators are not supported. Please enter one character only."
 msgstr "Scheidingstekens bestaande uit meerdere karakters worden niet ondersteund. Voer slechts één karakter in."
 
@@ -2504,7 +2508,7 @@ msgstr "Scheidingstekens bestaande uit meerdere karakters worden niet ondersteun
 msgid "N&ote"
 msgstr "&Aantekening"
 
-#: qt/aqt/main.py:233 qt/aqt/main.py:247
+#: qt/aqt/main.py:235 qt/aqt/main.py:249
 msgid "Name exists."
 msgstr "Naam bestaat."
 
@@ -2512,15 +2516,15 @@ msgstr "Naam bestaat."
 msgid "Name for deck:"
 msgstr "Naam voor set:"
 
-#: qt/aqt/main.py:230 qt/aqt/models.py:96
+#: qt/aqt/main.py:232 qt/aqt/models.py:96
 msgid "Name:"
 msgstr "Naam:"
 
-#: qt/aqt/forms/preferences.py:263
+#: qt/aqt/forms/preferences.py:268
 msgid "Network"
 msgstr "Netwerk"
 
-#: qt/aqt/browser.py:1231 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:196
+#: qt/aqt/browser.py:1236 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:196
 msgid "New"
 msgstr "Nieuw"
 
@@ -2528,7 +2532,7 @@ msgstr "Nieuw"
 msgid "New Cards"
 msgstr "Nieuwe kaarten"
 
-#: qt/aqt/customstudy.py:70
+#: qt/aqt/customstudy.py:71
 #, python-format
 msgid "New cards in deck over today limit: %s"
 msgstr "Nieuwe kaarten in de set voorbij de limiet van vandaag: %s"
@@ -2550,7 +2554,7 @@ msgid "New interval"
 msgstr "Interval nieuwe kaarten"
 
 #: qt/aqt/clayout.py:379 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
-#: qt/aqt/main.py:241 qt/aqt/models.py:67
+#: qt/aqt/main.py:243 qt/aqt/models.py:67
 msgid "New name:"
 msgstr "Nieuwe naam:"
 
@@ -2567,11 +2571,11 @@ msgstr "Nieuwe naam voor deze optiegroep:"
 msgid "New position (1...%d):"
 msgstr "Nieuwe positie (1...%d):"
 
-#: qt/aqt/forms/preferences.py:251
+#: qt/aqt/forms/preferences.py:256
 msgid "Next day starts at"
 msgstr "Volgende dag begint om"
 
-#: qt/aqt/browser.py:1243
+#: qt/aqt/browser.py:1248
 msgid "No Flag"
 msgstr "Geen vlag"
 
@@ -2583,11 +2587,11 @@ msgstr "Er worden nog geen kaarten verwacht."
 msgid "No cards have been studied today."
 msgstr "Er zijn vandaag geen kaarten geleerd."
 
-#: qt/aqt/customstudy.py:183
+#: qt/aqt/customstudy.py:185
 msgid "No cards matched the criteria you provided."
 msgstr "Geen enkele kaart voldeed aan de criteria die u ingaf."
 
-#: qt/aqt/main.py:1347
+#: qt/aqt/main.py:1348
 msgid "No empty cards."
 msgstr "Geen lege kaarten."
 
@@ -2595,7 +2599,7 @@ msgstr "Geen lege kaarten."
 msgid "No mature cards were studied today."
 msgstr "Er zijn vandaag geen volwassen kaarten geleerd."
 
-#: qt/aqt/main.py:1272
+#: qt/aqt/main.py:1273
 msgid "No unused or missing files found."
 msgstr "Geen ongebruikte of ontbrekende bestanden gevonden."
 
@@ -2603,7 +2607,7 @@ msgstr "Geen ongebruikte of ontbrekende bestanden gevonden."
 msgid "No updates available."
 msgstr "Geen updates beschikbaar."
 
-#: qt/aqt/browser.py:724
+#: qt/aqt/browser.py:729
 msgid "Note"
 msgstr "Aantekening"
 
@@ -2615,7 +2619,7 @@ msgstr "Aantekening-ID"
 msgid "Note Type"
 msgstr "Aantekeningstype"
 
-#: qt/aqt/browser.py:1287 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
+#: qt/aqt/browser.py:1292 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
 msgid "Note Types"
 msgstr "Aantekeningstypes"
 
@@ -2634,11 +2638,11 @@ msgstr "Aantekening begraven."
 msgid "Note suspended."
 msgstr "Aantekening opgeschort."
 
-#: qt/aqt/forms/preferences.py:268
+#: qt/aqt/forms/preferences.py:273
 msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
 msgstr "Let op: er wordt geen back-up gemaakt van uw media. Maak voor de zekerheid zelf regelmatig een back-up van uw Anki-bestanden."
 
-#: qt/aqt/browser.py:1467
+#: qt/aqt/browser.py:1472
 msgid "Note: Some of the history is missing. For more information, please see the browser documentation."
 msgstr "Let op: een deel van de geschiedenis ontbreekt. Zie voor meer informatie de documentatie van de browser."
 
@@ -2665,7 +2669,7 @@ msgstr "Aantekeningen moeten ten minste één veld bevatten."
 msgid "Notes skipped, as they're already in your collection: %d"
 msgstr "Aantekeningen overgeslagen, omdat ze al in je collectie zijn: %d"
 
-#: qt/aqt/browser.py:2180
+#: qt/aqt/browser.py:2194
 msgid "Notes tagged."
 msgstr "Aantekening getagd."
 
@@ -2679,11 +2683,11 @@ msgstr "Aantekeningen die niet konden worden geïmporteerd omdat het type aantek
 msgid "Notes updated, as file had newer version: %d"
 msgstr "Aantekeningen bijgewerkt, omdat bestand een nieuwere versie had: %d"
 
-#: qt/aqt/browser.py:2331
+#: qt/aqt/browser.py:2348
 msgid "Nothing"
 msgstr "Niets"
 
-#: qt/aqt/customstudy.py:56
+#: qt/aqt/customstudy.py:57
 msgid "OK"
 msgstr "Ok"
 
@@ -2691,7 +2695,7 @@ msgstr "Ok"
 msgid "Oldest seen first"
 msgstr "Oudste eerst"
 
-#: qt/aqt/forms/preferences.py:261
+#: qt/aqt/forms/preferences.py:266
 msgid "On next sync, force changes in one direction"
 msgstr "Forceer veranderingen in één richting bij volgende synchronisatie"
 
@@ -2699,7 +2703,7 @@ msgstr "Forceer veranderingen in één richting bij volgende synchronisatie"
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr "Eén of meerdere aantekeningen werden niet geïmporteerd omdat ze geen kaarten genereerden. Dit kan gebeuren wanneer u lege velden heeft of wanneer u de inhoud van het tekstbestand aan de verkeerde velden hebt gekoppeld."
 
-#: qt/aqt/browser.py:1943
+#: qt/aqt/browser.py:1948
 msgid "Only new cards can be repositioned."
 msgstr "Alleen nieuwe kaarten kunnen hun volgorde veranderen."
 
@@ -2715,7 +2719,7 @@ msgstr "Openen"
 msgid "Open Backup..."
 msgstr "Open back-up..."
 
-#: qt/aqt/main.py:543
+#: qt/aqt/main.py:545
 msgid "Optimizing..."
 msgstr "Bezig met optimaliseren..."
 
@@ -2742,7 +2746,7 @@ msgstr "Optiegroep:"
 msgid "Options..."
 msgstr "Instellingen…"
 
-#: qt/aqt/browser.py:1240 qt/aqt/reviewer.py:659 qt/aqt/forms/browser.py:331
+#: qt/aqt/browser.py:1245 qt/aqt/reviewer.py:659 qt/aqt/forms/browser.py:331
 msgid "Orange Flag"
 msgstr "Oranje vlag"
 
@@ -2782,13 +2786,17 @@ msgstr "Ingepakte Anki-set/verzameling (*.apkg *.colpkg *.zip)"
 msgid "Password:"
 msgstr "Wachtwoord:"
 
-#: qt/aqt/editor.py:1110
+#: qt/aqt/editor.py:1115
 msgid "Paste"
 msgstr "Plakken"
 
-#: qt/aqt/forms/preferences.py:243
+#: qt/aqt/forms/preferences.py:247
 msgid "Paste clipboard images as PNG"
 msgstr "Plak afbeeldingen van het klembord als PNG"
+
+#: qt/aqt/forms/preferences.py:248
+msgid "Paste without shift key strips formatting"
+msgstr ""
 
 #: pylib/anki/importing/__init__.py:17
 msgid "Pauker 1.8 Lesson (*.pau.gz)"
@@ -2823,16 +2831,16 @@ msgstr "Controleer uw internetverbinding."
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Gelieve een microfoon aan te sluiten, en ervoor te zorgen dat geen andere programma's gebruikmaken van het geluidsapparaat."
 
-#: pylib/anki/collection.py:680
+#: pylib/anki/collection.py:687
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Pas deze aantekening aan en voeg een aantal clozes toe. (%s)"
 
-#: qt/aqt/main.py:1521
+#: qt/aqt/main.py:1522
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr "Controleer dat een profiel is geopend en dat Anki niet bezig is, en probeer opnieuw."
 
-#: qt/aqt/browser.py:1342
+#: qt/aqt/browser.py:1347
 msgid "Please give your filter a name:"
 msgstr "Gelieve uw filter een naam te geven:"
 
@@ -2857,7 +2865,7 @@ msgstr "Gelieve Anki te herstarten om de taalverandering te voltooien."
 msgid "Please run Tools>Empty Cards"
 msgstr "Gelieve Extra>Lege kaarten uit te voeren"
 
-#: qt/aqt/main.py:581
+#: qt/aqt/main.py:583
 msgid "Please select a deck."
 msgstr "Gelieve een set te selecteren."
 
@@ -2865,7 +2873,7 @@ msgstr "Gelieve een set te selecteren."
 msgid "Please select a single add-on first."
 msgstr "Selecteer eerst een enkele add-on."
 
-#: qt/aqt/browser.py:1512
+#: qt/aqt/browser.py:1517
 msgid "Please select cards from only one note type."
 msgstr "Gelieve kaarten van één aantekeningstype te selecteren."
 
@@ -2889,15 +2897,15 @@ msgstr "Gelieve AnkiWeb te openen, vervolgens uw set te upgraden en dan opnieuw 
 msgid "Position"
 msgstr "Positie"
 
-#: qt/aqt/forms/preferences.py:238
+#: qt/aqt/forms/preferences.py:242
 msgid "Preferences"
 msgstr "Voorkeuren"
 
-#: qt/aqt/browser.py:1548 qt/aqt/forms/browser.py:293
+#: qt/aqt/browser.py:1553 qt/aqt/forms/browser.py:293
 msgid "Preview"
 msgstr "Voorvertoning"
 
-#: qt/aqt/browser.py:593
+#: qt/aqt/browser.py:598
 #, python-format
 msgid "Preview Selected Card (%s)"
 msgstr "Geselecteerde kaart (%s) vooraf bekijken"
@@ -2906,11 +2914,11 @@ msgstr "Geselecteerde kaart (%s) vooraf bekijken"
 msgid "Preview new cards"
 msgstr "Nieuwe kaarten op voorhand herhalen"
 
-#: qt/aqt/customstudy.py:95
+#: qt/aqt/customstudy.py:96
 msgid "Preview new cards added in the last"
 msgstr "Vooraf nieuwe kaarten bekijken die zijn toegevoegd in de laatste"
 
-#: qt/aqt/importing.py:488
+#: qt/aqt/importing.py:486
 #, python-format
 msgid "Processed %d media file"
 msgid_plural "Processed %d media files"
@@ -2933,16 +2941,16 @@ msgstr "Profielen"
 msgid "Proxy authentication required."
 msgstr "Proxy vereist authenticatie."
 
-#: qt/aqt/browser.py:710
+#: qt/aqt/browser.py:715
 msgid "Question"
 msgstr "Vraag"
 
-#: qt/aqt/browser.py:1954
+#: qt/aqt/browser.py:1959
 #, python-format
 msgid "Queue bottom: %d"
 msgstr "Achterkant wachtrij: %d"
 
-#: qt/aqt/browser.py:1953
+#: qt/aqt/browser.py:1958
 #, python-format
 msgid "Queue top: %d"
 msgstr "Voorkant wachtrij: %d"
@@ -2959,7 +2967,7 @@ msgstr "Willekeurig"
 msgid "Randomize order"
 msgstr "Volgorde willekeurig door elkaar halen"
 
-#: qt/aqt/browser.py:1422
+#: qt/aqt/browser.py:1427
 msgid "Rating"
 msgstr "Beoordeling"
 
@@ -2971,7 +2979,7 @@ msgstr "Opnieuw opbouwen"
 msgid "Record Own Voice"
 msgstr "Eigen stem opnemen"
 
-#: qt/aqt/editor.py:140
+#: qt/aqt/editor.py:141
 msgid "Record audio (F5)"
 msgstr "Audio opnamen (F5)"
 
@@ -2980,7 +2988,7 @@ msgstr "Audio opnamen (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Bezig met opnemen...<br>Tijd: %0.1f"
 
-#: qt/aqt/browser.py:1239 qt/aqt/reviewer.py:653 qt/aqt/forms/browser.py:330
+#: qt/aqt/browser.py:1244 qt/aqt/reviewer.py:653 qt/aqt/forms/browser.py:330
 msgid "Red Flag"
 msgstr "Rode vlag"
 
@@ -2988,7 +2996,7 @@ msgstr "Rode vlag"
 msgid "Relative overdueness"
 msgstr "Relatieve achterstalligheid"
 
-#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1433
+#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1438
 msgid "Relearn"
 msgstr "Herleren"
 
@@ -2996,7 +3004,7 @@ msgstr "Herleren"
 msgid "Remember last input when adding"
 msgstr "Laatste invoer tijdens toevoegen onthouden"
 
-#: qt/aqt/browser.py:1352
+#: qt/aqt/browser.py:1357
 #, python-format
 msgid "Remove %s from your saved searches?"
 msgstr "%s uit uw opgeslagen zoekopdrachten verwijderen?"
@@ -3005,7 +3013,7 @@ msgstr "%s uit uw opgeslagen zoekopdrachten verwijderen?"
 msgid "Remove Card Type..."
 msgstr "Kaarttype verwijderen ..."
 
-#: qt/aqt/browser.py:1327
+#: qt/aqt/browser.py:1332
 msgid "Remove Current Filter..."
 msgstr "Huidige filter verwijderen..."
 
@@ -3013,7 +3021,7 @@ msgstr "Huidige filter verwijderen..."
 msgid "Remove Tags..."
 msgstr "Tags verwijderen..."
 
-#: qt/aqt/editor.py:113
+#: qt/aqt/editor.py:114
 msgid "Remove formatting (Ctrl+R)"
 msgstr "Opmaak verwijderen (Ctrl+R)"
 
@@ -3038,11 +3046,11 @@ msgstr "Set hernoemen"
 msgid "Repeat failed cards after"
 msgstr "Mislukte kaarten herhalen na"
 
-#: qt/aqt/main.py:274
+#: qt/aqt/main.py:276
 msgid "Replace your collection with an earlier backup?"
 msgstr "Uw verzameling door een eerdere back-up vervangen?"
 
-#: qt/aqt/browser.py:1559 qt/aqt/reviewer.py:686
+#: qt/aqt/browser.py:1564 qt/aqt/reviewer.py:686
 msgid "Replay Audio"
 msgstr "Geluid opnieuw afspelen..."
 
@@ -3050,7 +3058,7 @@ msgstr "Geluid opnieuw afspelen..."
 msgid "Replay Own Voice"
 msgstr "Eigen stem afspelen"
 
-#: qt/aqt/browser.py:1959 qt/aqt/forms/fields.py:104
+#: qt/aqt/browser.py:1964 qt/aqt/forms/fields.py:104
 msgid "Reposition"
 msgstr "Volgorde veranderen"
 
@@ -3070,11 +3078,11 @@ msgstr "Volgorde veranderen..."
 msgid "Require one or more of these tags:"
 msgstr "Vereis één of meer van deze tags:"
 
-#: qt/aqt/browser.py:1433
+#: qt/aqt/browser.py:1438
 msgid "Resched"
 msgstr "Herplan"
 
-#: qt/aqt/browser.py:1985 qt/aqt/forms/reschedule.py:73
+#: qt/aqt/browser.py:1990 qt/aqt/forms/reschedule.py:73
 msgid "Reschedule"
 msgstr "Herplannen"
 
@@ -3086,7 +3094,7 @@ msgstr "Herplan kaarten op basis van mijn antwoorden in deze set"
 msgid "Restored defaults"
 msgstr "Gerestaureerde standaardwaarden"
 
-#: qt/aqt/main.py:645
+#: qt/aqt/main.py:643
 msgid "Resume Now"
 msgstr "Nu hervatten"
 
@@ -3094,7 +3102,7 @@ msgstr "Nu hervatten"
 msgid "Reverse text direction (RTL)"
 msgstr "Omgekeerde tekstrichting (RNL)"
 
-#: qt/aqt/main.py:287
+#: qt/aqt/main.py:289
 msgid "Revert to backup"
 msgstr "Naar back-up terugzetten"
 
@@ -3103,7 +3111,7 @@ msgstr "Naar back-up terugzetten"
 msgid "Reverted to state prior to '%s'."
 msgstr "Herzet naar de staat vóór '%s'."
 
-#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:798 qt/aqt/browser.py:1238 qt/aqt/browser.py:1438
 msgid "Review"
 msgstr "Herhalen"
 
@@ -3119,11 +3127,11 @@ msgstr "Herhalingstijd"
 msgid "Review ahead"
 msgstr "Op voorhand herhalen"
 
-#: qt/aqt/customstudy.py:92
+#: qt/aqt/customstudy.py:93
 msgid "Review ahead by"
 msgstr "Op voorhand herhalen voor"
 
-#: qt/aqt/customstudy.py:88
+#: qt/aqt/customstudy.py:89
 msgid "Review cards forgotten in last"
 msgstr "Kaarten herhalen die vergeten waren in de laatste"
 
@@ -3135,12 +3143,12 @@ msgstr "Vergeten kaarten herhalen"
 msgid "Review success rate for each hour of the day."
 msgstr "Succespercentage voor elk uur van de dag bekijken."
 
-#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:721
+#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:726
 #: qt/aqt/forms/dconf.py:375
 msgid "Reviews"
 msgstr "Herhalingen"
 
-#: qt/aqt/customstudy.py:82
+#: qt/aqt/customstudy.py:83
 #, python-format
 msgid "Reviews due in deck over today limit: %s"
 msgstr "De verwachte herhalingen voor de set over de limiet van vandaag: %s"
@@ -3153,7 +3161,7 @@ msgstr "Rechts"
 msgid "Save"
 msgstr "Opslaan"
 
-#: qt/aqt/browser.py:1329
+#: qt/aqt/browser.py:1334
 msgid "Save Current Filter..."
 msgstr "Huidige filter opslaan..."
 
@@ -3170,7 +3178,7 @@ msgstr "Opgeslagen."
 msgid "Scope: %s"
 msgstr "Bereik: %s"
 
-#: qt/aqt/browser.py:2135 qt/aqt/forms/browser.py:292
+#: qt/aqt/browser.py:2149 qt/aqt/forms/browser.py:292
 #: qt/aqt/forms/dyndconf.py:135 qt/aqt/forms/dyndconf.py:139
 msgid "Search"
 msgstr "Zoeken"
@@ -3183,7 +3191,7 @@ msgstr "Zoeken in:"
 msgid "Search within formatting (slow)"
 msgstr "Binnen opmaak zoeken (traag)"
 
-#: qt/aqt/customstudy.py:99
+#: qt/aqt/customstudy.py:100
 msgid "Select"
 msgstr "Willekeurig"
 
@@ -3199,7 +3207,7 @@ msgstr "&Aantekeningen selecteren"
 msgid "Select tags to exclude:"
 msgstr "Selecteer ongewilde tags:"
 
-#: qt/aqt/importing.py:303
+#: qt/aqt/importing.py:301
 msgid "Selected file was not in UTF-8 format. Please see the importing section of the manual."
 msgstr "De geselecteerde file was niet in het UTF-8 formaat. Gelieve de importeersectie in de handleiding erop na te lezen."
 
@@ -3207,7 +3215,7 @@ msgstr "De geselecteerde file was niet in het UTF-8 formaat. Gelieve de importee
 msgid "Selective Study"
 msgstr "Selectief studeren"
 
-#: qt/aqt/importing.py:166
+#: qt/aqt/importing.py:167
 msgid "Semicolon"
 msgstr "Puntkomma"
 
@@ -3224,11 +3232,11 @@ msgstr "Deze optiegroep op alle sets onder %s toepassen?"
 msgid "Set for all subdecks"
 msgstr "Op alle subsets toepassen"
 
-#: qt/aqt/editor.py:116
+#: qt/aqt/editor.py:117
 msgid "Set foreground colour (F7)"
 msgstr "Voorgrondkleur instellen (F7)"
 
-#: qt/aqt/main.py:83
+#: qt/aqt/main.py:85
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr "De shift-toets was ingedrukt. Automatisch synchroniseren en laden van add-ons wordt overgeslagen."
 
@@ -3236,8 +3244,8 @@ msgstr "De shift-toets was ingedrukt. Automatisch synchroniseren en laden van ad
 msgid "Shift position of existing cards"
 msgstr "Positie van bestaande kaarten opschuiven"
 
-#: qt/aqt/browser.py:1563 qt/aqt/browser.py:1581 qt/aqt/deckbrowser.py:327
-#: qt/aqt/main.py:673 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
+#: qt/aqt/browser.py:1568 qt/aqt/browser.py:1586 qt/aqt/deckbrowser.py:327
+#: qt/aqt/main.py:671 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
 #: qt/aqt/reviewer.py:546 qt/aqt/reviewer.py:612 qt/aqt/toolbar.py:34
 #: qt/aqt/toolbar.py:35 qt/aqt/toolbar.py:36 qt/aqt/toolbar.py:37
 #: qt/aqt/toolbar.py:38
@@ -3245,33 +3253,28 @@ msgstr "Positie van bestaande kaarten opschuiven"
 msgid "Shortcut key: %s"
 msgstr "Sneltoets: %s"
 
-#: qt/aqt/browser.py:1568
+#: qt/aqt/browser.py:1573
 msgid "Shortcut key: Left arrow"
 msgstr "Sneltoets: Linkerpijl"
 
-#: qt/aqt/browser.py:1573
+#: qt/aqt/browser.py:1578
 msgid "Shortcut key: Right arrow or Enter"
 msgstr "Sneltoets: Rechterpijl of Enter"
 
-#: qt/aqt/addcards.py:85
+#: qt/aqt/addcards.py:84
 #, python-format
 msgid "Shortcut: %s"
 msgstr "Sneltoets: %s"
-
-#: pylib/anki/template2.py:302
-#, python-format
-msgid "Show %s"
-msgstr "%s tonen"
 
 #: qt/aqt/reviewer.py:547
 msgid "Show Answer"
 msgstr "Antwoord tonen"
 
-#: qt/aqt/browser.py:1579
+#: qt/aqt/browser.py:1584
 msgid "Show Both Sides"
 msgstr "Beide zijden weergeven"
 
-#: qt/aqt/editor.py:163
+#: qt/aqt/editor.py:166
 msgid "Show Duplicates"
 msgstr "Dubbels tonen"
 
@@ -3279,11 +3282,11 @@ msgstr "Dubbels tonen"
 msgid "Show answer timer"
 msgstr "Antwoordtimer tonen"
 
-#: qt/aqt/forms/preferences.py:244
+#: qt/aqt/forms/preferences.py:249
 msgid "Show cards as white on black (night mode)"
 msgstr "Kaarten met witte tekst op zwarte achtergrond weergeven (nachtmodus)"
 
-#: qt/aqt/forms/preferences.py:245
+#: qt/aqt/forms/preferences.py:250
 msgid "Show learning cards with larger steps before reviews"
 msgstr "Leerkaarten met grotere leerstappen voor herhalingen weergeven"
 
@@ -3303,15 +3306,15 @@ msgstr "Nieuwe kaarten in volgorde van toevoegen tonen"
 msgid "Show new cards in random order"
 msgstr "Nieuwe kaarten in willekeurige volgorde tonen"
 
-#: qt/aqt/forms/preferences.py:241
+#: qt/aqt/forms/preferences.py:245
 msgid "Show next review time above answer buttons"
 msgstr "De tijd van de volgende herhaling boven de antwoordknoppen tonen."
 
-#: qt/aqt/forms/preferences.py:242
+#: qt/aqt/forms/preferences.py:246
 msgid "Show remaining card count during review"
 msgstr "Aantal resterende kaarten tijdens leren tonen"
 
-#: qt/aqt/browser.py:1033 qt/aqt/forms/browser.py:334
+#: qt/aqt/browser.py:1038 qt/aqt/forms/browser.py:334
 msgid "Sidebar"
 msgstr "Zijbalk"
 
@@ -3323,15 +3326,15 @@ msgstr "Grootte:"
 msgid "Skipped"
 msgstr "Overgeslagen"
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Enkele gerelateerde of begraven kaarten zijn uitgesteld tot een latere sessie."
 
-#: qt/aqt/forms/preferences.py:269
+#: qt/aqt/forms/preferences.py:274
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Sommige instellingen worden pas toegepast nadat u Anki opnieuw opgestart heeft."
 
-#: qt/aqt/browser.py:714
+#: qt/aqt/browser.py:719
 msgid "Sort Field"
 msgstr "Sorteerveld"
 
@@ -3339,7 +3342,7 @@ msgstr "Sorteerveld"
 msgid "Sort by this field in the browser"
 msgstr "Gebruik dit veld in de browser om te sorteren"
 
-#: qt/aqt/browser.py:913
+#: qt/aqt/browser.py:918
 msgid "Sorting on this column is not supported. Please choose another."
 msgstr "Sorteren op deze kolom is niet mogelijk. Kies een andere kolom."
 
@@ -3347,7 +3350,7 @@ msgstr "Sorteren op deze kolom is niet mogelijk. Kies een andere kolom."
 msgid "Sound and video on cards will not function until mpv or mplayer is installed."
 msgstr "De geluids- en videobestanden op kaarten zullen pas werken indien mpv of mplayer is geïnstalleerd."
 
-#: qt/aqt/importing.py:164 qt/aqt/reviewer.py:546
+#: qt/aqt/importing.py:165 qt/aqt/reviewer.py:546
 msgid "Space"
 msgstr "Spatie"
 
@@ -3393,7 +3396,7 @@ msgstr "%(a)s %(b)s vandaag geleerd (%(secs).1fs/card)"
 msgid "Studied %(a)s %(b)s today."
 msgstr "%(a)s %(b)s vandaag geleerd."
 
-#: qt/aqt/browser.py:1219
+#: qt/aqt/browser.py:1224
 msgid "Studied Today"
 msgstr "Vandaag geleerd"
 
@@ -3425,7 +3428,7 @@ msgstr "Stijl"
 msgid "Styling (shared between cards)"
 msgstr "Stijl (gedeeld tussen kaarten)"
 
-#: qt/aqt/editor.py:112
+#: qt/aqt/editor.py:113
 msgid "Subscript (Ctrl+=)"
 msgstr "Onderschrift (Ctrl+=)"
 
@@ -3433,7 +3436,7 @@ msgstr "Onderschrift (Ctrl+=)"
 msgid "Supermemo XML export (*.xml)"
 msgstr "Supermemo XML uitvoer (*.xml)"
 
-#: qt/aqt/editor.py:110
+#: qt/aqt/editor.py:111
 msgid "Superscript (Ctrl++)"
 msgstr "Bovenschrift (Ctrl++)"
 
@@ -3449,7 +3452,7 @@ msgstr "Kaart opschorten"
 msgid "Suspend Note"
 msgstr "Aantekening opschorten"
 
-#: qt/aqt/browser.py:1236
+#: qt/aqt/browser.py:1241
 msgid "Suspended"
 msgstr "Opgeschort"
 
@@ -3461,7 +3464,7 @@ msgstr "Opgeschort+Begraven"
 msgid "Sync"
 msgstr "Synchroniseren"
 
-#: qt/aqt/forms/preferences.py:259
+#: qt/aqt/forms/preferences.py:264
 msgid "Synchronize audio and images too"
 msgstr "Geluiden en afbeeldingen ook synchroniseren"
 
@@ -3484,11 +3487,11 @@ msgstr "Synchronisatie vereist dat de klok op uw computer juist is ingesteld. St
 msgid "Syncing..."
 msgstr "Bezig met synchroniseren..."
 
-#: qt/aqt/importing.py:160
+#: qt/aqt/importing.py:161
 msgid "Tab"
 msgstr ""
 
-#: qt/aqt/browser.py:2144 qt/aqt/browser.py:2172
+#: qt/aqt/browser.py:2158 qt/aqt/browser.py:2186
 msgid "Tag Duplicates"
 msgstr "Tag dubbels"
 
@@ -3500,7 +3503,7 @@ msgstr "Alleen taggen"
 msgid "Tag modified notes:"
 msgstr ""
 
-#: qt/aqt/browser.py:723 qt/aqt/browser.py:1251 qt/aqt/editor.py:514
+#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:517
 msgid "Tags"
 msgstr ""
 
@@ -3512,7 +3515,7 @@ msgstr "Doelset (Ctrl+D)"
 msgid "Target field:"
 msgstr "Doelveld:"
 
-#: pylib/anki/stdmodels.py:101
+#: pylib/anki/stdmodels.py:102
 msgid "Text"
 msgstr "Tekst"
 
@@ -3548,11 +3551,11 @@ msgstr "De standaardset kan niet verwijderd worden."
 msgid "The division of cards in your deck(s)."
 msgstr "De verdeling van kaarten in uw set(s)."
 
-#: qt/aqt/addcards.py:172
+#: qt/aqt/addcards.py:171
 msgid "The first field is empty."
 msgstr "Het eerste veld is leeg."
 
-#: qt/aqt/importing.py:177
+#: qt/aqt/importing.py:178
 msgid "The first field of the note type must be mapped."
 msgstr "Het eerste veld van dit aantekeningstype moet gekoppeld zijn."
 
@@ -3574,7 +3577,7 @@ msgstr "De volgende conflicterende add-ons werden uitgeschakeld:"
 msgid "The front of this card is empty. Please run Tools>Empty Cards."
 msgstr "De voorzijde van deze kaart is leeg. Gebruik Extra>Lege kaarten."
 
-#: qt/aqt/addcards.py:189
+#: qt/aqt/addcards.py:188
 msgid "The input you have provided would make an empty question on all cards."
 msgstr "Met uw invoer zou de vraag op alle kaarten leeg zijn."
 
@@ -3594,7 +3597,7 @@ msgstr "Het aantal op komst zijnde herhalingen."
 msgid "The number of times you have pressed each button."
 msgstr "Het aantal keer dat u de verschillende knoppen heeft ingedrukt."
 
-#: qt/aqt/importing.py:477
+#: qt/aqt/importing.py:475
 msgid "The provided file is not a valid .apkg file."
 msgstr "Het geselecteerde bestand is geen geldig .apkg bestand."
 
@@ -3602,7 +3605,7 @@ msgstr "Het geselecteerde bestand is geen geldig .apkg bestand."
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr "Er zijn geen kaarten met die zoektermen. Wilt u de termen aanpassen?"
 
-#: qt/aqt/main.py:1212
+#: qt/aqt/main.py:1213
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr "Voor deze verandering is het nodig om bij de volgende synchronisatie de hele database op te laden. Als er op een ander apparaat nog herhalingen of andere veranderingen zijn die nog niet gesynchroniseerd zijn, dan zullen deze verloren gaan. Doorgaan?"
 
@@ -3610,7 +3613,7 @@ msgstr "Voor deze verandering is het nodig om bij de volgende synchronisatie de 
 msgid "The time taken to answer the questions."
 msgstr "De tijd die u nam om vragen te beantwoorden."
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3619,19 +3622,19 @@ msgstr "Er zijn meer nieuwe kaarten beschikbaar, maar de dagelijkse limiet\n"
 "is bereikt. U kunt de limiet in de instellingen verhogen, maar let er op\n"
 "dat dit uw werkdruk op de korte termijn zal verzwaren."
 
-#: qt/aqt/main.py:256
+#: qt/aqt/main.py:258
 msgid "There must be at least one profile."
 msgstr "Er moet minstens één profiel bestaan."
 
-#: qt/aqt/browser.py:897
+#: qt/aqt/browser.py:902
 msgid "This column can't be sorted on, but you can search for individual card types, such as 'card:1'."
 msgstr "Op deze kolom kan niet gesorteerd worden, maar u kunt wel zoeken naar specifieke kaartsoorten, zoals 'kaar:1'."
 
-#: qt/aqt/browser.py:905
+#: qt/aqt/browser.py:910
 msgid "This column can't be sorted on, but you can search for specific decks by clicking on one on the left."
 msgstr "Op deze kolom kan niet gesorteerd worden, maar u kunt wel zoeken naar specifieke sets door een set aan de linkerkant te selecteren."
 
-#: qt/aqt/importing.py:424
+#: qt/aqt/importing.py:422
 msgid "This file does not appear to be a valid .apkg file. If you're getting this error from a file downloaded from AnkiWeb, chances are that your download failed. Please try again, and if the problem persists, please try again with a different browser."
 msgstr "Dit bestand lijkt geen geldig .apkg bestand te zijn. Indien u deze fout kriigt voor een bestand dat werd gedownload van AnkiWeb, is de kans groot dat uw download mislukte. Gelieve nogmaals te proberen, en indien het probleem zich herhaalt, gelieve de download in een andere browser te proberen."
 
@@ -3639,7 +3642,7 @@ msgstr "Dit bestand lijkt geen geldig .apkg bestand te zijn. Indien u deze fout 
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Dit bestand bestaat. Bent u zeker dat u het wil overschrijven?"
 
-#: qt/aqt/profiles.py:381
+#: qt/aqt/profiles.py:382
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3665,7 +3668,7 @@ msgid_plural "This will create %d cards. Proceed?"
 msgstr[0] "Dit zal %d kaart aanmaken. Verdergaan?"
 msgstr[1] "Dit zal %d kaarten aanmaken. Verdergaan?"
 
-#: qt/aqt/importing.py:444
+#: qt/aqt/importing.py:442
 msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
 msgstr "Dit zal uw bestaande collectie verwijderen en vervangen door de data in het bestand dat u aan het importeren bent. Weet u het zeker?"
 
@@ -3673,11 +3676,11 @@ msgstr "Dit zal uw bestaande collectie verwijderen en vervangen door de data in 
 msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
 msgstr "Hiermee worden alle leerkaarten opnieuw ingesteld, gefilterde kaartspellen gewist en de plannerversie gewijzigd. Verdergaan?"
 
-#: qt/aqt/browser.py:1425
+#: qt/aqt/browser.py:1430
 msgid "Time"
 msgstr "Tijd"
 
-#: qt/aqt/forms/preferences.py:253
+#: qt/aqt/forms/preferences.py:258
 msgid "Timebox time limit"
 msgstr "Maximale studeertijd"
 
@@ -3689,23 +3692,23 @@ msgstr "Te herhalen"
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr "Om de add-ons te verkennen, klik op de onderstaande Browse-knop.<br><br>Als u een add-on heeft gevonden die u bevalt, plak de onderstaande code. U kunt meerdere codes plakken, door ze met spaties te scheiden."
 
-#: qt/aqt/editor.py:589
+#: qt/aqt/editor.py:592
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Om een cloze te maken van een bestaande aantekening moet u eerst het type veranderen naar cloze, via Bewerken>Aantekeningstype."
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr "Om deze nu te zien, klik op de 'Graaf op' knop hieronder."
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Klik op onderstaande Aangepaste studie knop om buiten de normale planning te studeren."
 
-#: pylib/anki/stats.py:146 qt/aqt/browser.py:1214
+#: pylib/anki/stats.py:146 qt/aqt/browser.py:1219
 msgid "Today"
 msgstr "Vandaag"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3745,7 +3748,7 @@ msgstr "Totaal aantal aantekeningen"
 msgid "Treat input as regular expression"
 msgstr "Invoer behandelen als reguliere expressie"
 
-#: qt/aqt/browser.py:1421 qt/aqt/modelchooser.py:26
+#: qt/aqt/browser.py:1426 qt/aqt/modelchooser.py:26
 #: qt/aqt/forms/importing.py:105
 msgid "Type"
 msgstr ""
@@ -3759,11 +3762,11 @@ msgstr "Type antwoord: onbekend veld %s"
 msgid "Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect."
 msgstr "Geen toegang tot de mediamap van Anki. De toegangsrechten tot de tijdelijke map van uw systeem zijn mogelijk onjuist."
 
-#: qt/aqt/importing.py:405
+#: qt/aqt/importing.py:403
 msgid "Unable to import from a read-only file."
 msgstr "Kan een alleen-lezen bestand niet importeren."
 
-#: qt/aqt/main.py:300
+#: qt/aqt/main.py:302
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr "Het bestaande bestand kon niet naar de prullenbak verplaatst worden - probeer uw computer opnieuw op te starten."
 
@@ -3778,7 +3781,7 @@ msgstr "Kan add-on niet bijwerken of verwijderen. Start Anki terwijl u de shift-
 msgid "Unbury"
 msgstr "Graaf op"
 
-#: qt/aqt/editor.py:107
+#: qt/aqt/editor.py:108
 msgid "Underline text (Ctrl+U)"
 msgstr "Tekst onderstrepen (Ctrl+U)"
 
@@ -3791,7 +3794,7 @@ msgstr "Ongedaan maken"
 msgid "Undo %s"
 msgstr "%s ongedaan maken"
 
-#: qt/aqt/downloader.py:72 qt/aqt/editor.py:777
+#: qt/aqt/downloader.py:72 qt/aqt/editor.py:780
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr "Onverwachte reactie code: %s"
@@ -3804,7 +3807,7 @@ msgstr ""
 msgid "Unknown error: {}"
 msgstr ""
 
-#: qt/aqt/importing.py:363
+#: qt/aqt/importing.py:361
 msgid "Unknown file format."
 msgstr "Onbekend bestandsformaat"
 
@@ -3832,15 +3835,15 @@ msgstr "Opladen naar AnkiWeb"
 msgid "Uploading to AnkiWeb..."
 msgstr "Bezig met opladen naar AnkiWeb..."
 
-#: qt/aqt/main.py:1269
+#: qt/aqt/main.py:1270
 msgid "Used on cards but missing from media folder:"
 msgstr "Gebruikt in kaarten maar niet gevonden in media-map:"
 
-#: qt/aqt/profiles.py:377
+#: qt/aqt/profiles.py:378
 msgid "User 1"
 msgstr "Gebruiker 1"
 
-#: qt/aqt/forms/preferences.py:255
+#: qt/aqt/forms/preferences.py:260
 msgid "User interface size"
 msgstr ""
 
@@ -3857,11 +3860,11 @@ msgstr "Add-onpagina weergeven"
 msgid "View Files"
 msgstr "Bestanden weergeven"
 
-#: qt/aqt/main.py:644
+#: qt/aqt/main.py:642
 msgid "Waiting for editing to finish."
 msgstr "Aan het wachten tot u klaar bent met bewerken."
 
-#: qt/aqt/editor.py:582
+#: qt/aqt/editor.py:585
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr "Waarschuwing, clozes zullen niet werken zolang u het type bovenaan niet verandert naar Cloze."
 
@@ -3869,11 +3872,11 @@ msgstr "Waarschuwing, clozes zullen niet werken zolang u het type bovenaan niet 
 msgid "What would you like to unbury?"
 msgstr "Wat zou u willen opgraven?"
 
-#: qt/aqt/forms/preferences.py:247
+#: qt/aqt/forms/preferences.py:252
 msgid "When adding, default to current deck"
 msgstr "Gebruik standaard de huidige set bij het toevoegen"
 
-#: qt/aqt/browser.py:1085 qt/aqt/browser.py:1210
+#: qt/aqt/browser.py:1090 qt/aqt/browser.py:1215
 msgid "Whole Collection"
 msgstr "Volledige collectie"
 
@@ -3881,16 +3884,16 @@ msgstr "Volledige collectie"
 msgid "Would you like to download it now?"
 msgstr "Wilt u het nu downloaden?"
 
-#: qt/aqt/about.py:159
+#: qt/aqt/about.py:160
 #, python-format
 msgid "Written by Damien Elmes, with patches, translation,    testing and design from:<p>%(cont)s"
 msgstr "Geschreven door Damien Elmes, met patches, vertalingen, testen en ontwerp van:<p>%(cont)s"
 
-#: qt/aqt/forms/preferences.py:267
+#: qt/aqt/forms/preferences.py:272
 msgid "You can restore backups via File>Switch Profile."
 msgstr "U kunt back-ups herstellen via Bestand > Profiel omschakelen."
 
-#: qt/aqt/addcards.py:180
+#: qt/aqt/addcards.py:179
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "U hebt een cloze aantekeningstype, maar u heeft nog geen clozes gecreëerd. Verdergaan?"
 
@@ -3903,7 +3906,7 @@ msgstr "U heeft een groot aantal sets. Gelieve %(a)s te lezen. %(b)s"
 msgid "You haven't recorded your voice yet."
 msgstr "U heeft uw stem nog niet opgenomen."
 
-#: qt/aqt/browser.py:965
+#: qt/aqt/browser.py:970
 msgid "You must have at least one column."
 msgstr "U moet minstens één kolom hebben."
 
@@ -3924,7 +3927,7 @@ msgstr "Uw AnkiWeb-collectie bevat geen kaarten. Synchroniseer opnieuw en kies i
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr "Uw aanpassingen zullen een effect hebben op verschillende sets. Als u enkel deze set wenst te veranderen, gelieve eerst een nieuwe optiegroep aan te maken."
 
-#: qt/aqt/main.py:476
+#: qt/aqt/main.py:478
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr "Uw verzamelingsbestand lijkt beschadigd te zijn. Dit kan gebeuren wanneer het bestand gekopieerd of verplaatst wordt terwijl Anki open is, of wanneer de verzameling opgeslagen is op een netwerk- of cloudstation. Als het probleem zich blijft voordoen nadat u uw computer opnieuw hebt opgestart, open een automatische back-up via het profielscherm."
 
@@ -3964,15 +3967,15 @@ msgstr "Uw firewall of antivirusprogramma verhindert dat Anki verbinding maakt m
 msgid "[no deck]"
 msgstr "[geen set]"
 
-#: qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/preferences.py:271
 msgid "backups"
 msgstr "back-ups"
 
-#: pylib/anki/stats.py:345 qt/aqt/customstudy.py:52
+#: pylib/anki/stats.py:345 qt/aqt/customstudy.py:53
 msgid "cards"
 msgstr "kaarten"
 
-#: qt/aqt/customstudy.py:100
+#: qt/aqt/customstudy.py:101
 msgid "cards from the deck"
 msgstr "kaarten van de set"
 
@@ -3989,7 +3992,7 @@ msgstr "collectie"
 msgid "d"
 msgstr ""
 
-#: qt/aqt/customstudy.py:89 qt/aqt/customstudy.py:93 qt/aqt/customstudy.py:96
+#: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
 #: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
 #: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
 #: qt/aqt/forms/reschedule.py:77
@@ -4004,11 +4007,11 @@ msgstr "set"
 msgid "deck life"
 msgstr "levensduur set"
 
-#: qt/aqt/browser.py:2176
+#: qt/aqt/browser.py:2190
 msgid "duplicate"
 msgstr "dubbel"
 
-#: pylib/anki/collection.py:681
+#: pylib/anki/collection.py:688
 msgid "help"
 msgstr ""
 
@@ -4020,7 +4023,7 @@ msgstr "verbergen"
 msgid "hours"
 msgstr "uur"
 
-#: qt/aqt/forms/preferences.py:249
+#: qt/aqt/forms/preferences.py:254
 msgid "hours past midnight"
 msgstr "uur na middernacht"
 
@@ -4083,7 +4086,7 @@ msgstr "gekoppeld aan <b>%s</b>"
 msgid "mapped to <b>Tags</b>"
 msgstr "gekoppeld aan <b>Tags</b>"
 
-#: qt/aqt/forms/preferences.py:250 qt/aqt/forms/preferences.py:254
+#: qt/aqt/forms/preferences.py:255 qt/aqt/forms/preferences.py:259
 msgid "mins"
 msgstr "minuten"
 

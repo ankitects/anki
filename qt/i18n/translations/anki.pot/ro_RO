@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-09 19:16+1000\n"
-"PO-Revision-Date: 2020-01-17 01:07\n"
+"POT-Creation-Date: 2020-01-17 11:15+1000\n"
+"PO-Revision-Date: 2020-01-19 06:54\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Romanian\n"
 "Language: ro_RO\n"
@@ -47,7 +47,7 @@ msgstr "Segoe UI"
 
 #: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
 #: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:256
+#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:261
 msgid "%"
 msgstr "ce'i"
 
@@ -70,7 +70,7 @@ msgstr ".i kibdu'a %(a)0.1f ki'orbivysamsle .i kibycpa %(b)0.1f ki'orbivysamsle"
 msgid "%(a)0.1fs (%(b)s)"
 msgstr "snidu li %(a)0.1f to %(b)s toi"
 
-#: qt/aqt/browser.py:2097
+#: qt/aqt/browser.py:2111
 #, python-format
 msgid "%(a)d of %(b)d note updated"
 msgid_plural "%(a)d of %(b)d notes updated"
@@ -80,7 +80,7 @@ msgstr[2] "%(a)d din %(b)d note actualize"
 
 #. T: name is a card type name. n it's order in the list of card type.
 #. T: this is shown in browser's filter, when seeing the list of card type of a note type.
-#: qt/aqt/browser.py:1307
+#: qt/aqt/browser.py:1312
 #, python-format
 msgid "%(n)d: %(name)s"
 msgstr "%(n)d moi me'e zoi zoi. %(name)s .zoi"
@@ -96,7 +96,7 @@ msgid "%.01f cards/minute"
 msgstr "%.01f karda fe'i mentu"
 
 #: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:230
-#: qt/aqt/main.py:1351
+#: qt/aqt/main.py:1352
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
@@ -104,7 +104,7 @@ msgstr[0] "%d karda"
 msgstr[1] "%d carduri"
 msgstr[2] "%d carduri"
 
-#: qt/aqt/main.py:1363
+#: qt/aqt/main.py:1364
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
@@ -120,7 +120,7 @@ msgstr[0] "%d card export at."
 msgstr[1] "%d carduri exportate."
 msgstr[2] "%d carduri exportate."
 
-#: pylib/anki/importing/supermemo_xml.py:193
+#: pylib/anki/importing/supermemo_xml.py:194
 #, python-format
 msgid "%d card imported."
 msgid_plural "%d cards imported."
@@ -144,7 +144,7 @@ msgstr[0] "%d pachet actualizat."
 msgstr[1] "%d pachete actualizate."
 msgstr[2] "%d pachete actualizate."
 
-#: qt/aqt/main.py:1259
+#: qt/aqt/main.py:1260
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
@@ -152,7 +152,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: qt/aqt/main.py:1316
+#: qt/aqt/main.py:1317
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
@@ -160,7 +160,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: qt/aqt/browser.py:2150
+#: qt/aqt/browser.py:2164
 #, python-format
 msgid "%d group"
 msgid_plural "%d groups"
@@ -168,7 +168,7 @@ msgstr[0] "%d grup"
 msgstr[1] "%d grupuri"
 msgstr[2] "%d grupuri"
 
-#: pylib/anki/sync.py:841
+#: pylib/anki/sync.py:840
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
@@ -176,7 +176,7 @@ msgstr[0] ".i ba kibdu'a lo datni be %d nu basti lo ganvi"
 msgstr[1] ".i ba kibdu'a lo datni be %d nu basti lo ganvi"
 msgstr[2] ".i ba kibdu'a lo datni be %d nu basti lo ganvi"
 
-#: pylib/anki/sync.py:892
+#: pylib/anki/sync.py:890
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -184,7 +184,7 @@ msgstr[0] ".i mo'u kibycpa %d ganvi datnyvei"
 msgstr[1] ".i mo'u kibycpa %d ganvi datnyvei"
 msgstr[2] ".i mo'u kibycpa %d ganvi datnyvei"
 
-#: qt/aqt/browser.py:2151 qt/aqt/browser.py:2159 qt/aqt/fields.py:96
+#: qt/aqt/browser.py:2165 qt/aqt/browser.py:2173 qt/aqt/fields.py:96
 #: qt/aqt/models.py:82
 #, python-format
 msgid "%d note"
@@ -201,7 +201,7 @@ msgstr[0] "%d notă adăugată"
 msgstr[1] "%d note adăugate"
 msgstr[2] "%d note adăugate"
 
-#: qt/aqt/browser.py:1781
+#: qt/aqt/browser.py:1786
 #, python-format
 msgid "%d note deleted."
 msgid_plural "%d notes deleted."
@@ -249,7 +249,7 @@ msgstr[0] "%d repetiție"
 msgstr[1] "%d repetiții"
 msgstr[2] "%d repetiții"
 
-#: qt/aqt/browser.py:800
+#: qt/aqt/browser.py:805
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -257,7 +257,7 @@ msgstr[0] "%d selectată"
 msgstr[1] "%d selectate"
 msgstr[2] "%d selectate"
 
-#: pylib/anki/models.py:249
+#: pylib/anki/models.py:257
 #, python-format
 msgid "%s copy"
 msgstr "Copie a %s"
@@ -310,7 +310,7 @@ msgstr[0] "%s secundă"
 msgstr[1] "%s secunde"
 msgstr[2] "%s de secunde"
 
-#: qt/aqt/main.py:1352
+#: qt/aqt/main.py:1353
 #, python-format
 msgid "%s to delete:"
 msgstr "%s de șters:"
@@ -469,23 +469,23 @@ msgstr "'%(row)s' are %(num1)d câmpuri, din %(num2)d prevăzute"
 msgid "(%s correct)"
 msgstr "(%s corecte)"
 
-#: qt/aqt/addcards.py:158
+#: qt/aqt/addcards.py:157
 msgid "(Note deleted)"
 msgstr "mo'u se vimcu"
 
-#: pylib/anki/sched.py:1336 pylib/anki/schedv2.py:1534
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1534
 msgid "(end)"
 msgstr "(sfârșit)"
 
-#: qt/aqt/browser.py:339
+#: qt/aqt/browser.py:343
 msgid "(filtered)"
 msgstr "(filtrate)"
 
-#: qt/aqt/browser.py:306
+#: qt/aqt/browser.py:310
 msgid "(learning)"
 msgstr "(învățare)"
 
-#: qt/aqt/browser.py:304 qt/aqt/browser.py:310
+#: qt/aqt/browser.py:308 qt/aqt/browser.py:314
 msgid "(new)"
 msgstr "(nou)"
 
@@ -494,19 +494,19 @@ msgstr "(nou)"
 msgid "(parent limit: %d)"
 msgstr "(limita părintelui: %d)"
 
-#: qt/aqt/browser.py:1682
+#: qt/aqt/browser.py:1687
 msgid "(please select 1 card)"
 msgstr "(te rog să selectezi 1 card)"
 
-#: qt/aqt/importing.py:321
+#: qt/aqt/importing.py:319
 msgid ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
 msgstr ".i lo datnyvei pe zoi zoi. .anki .zoi se krasi la .ankis. poi mutce tolci'o .i do ka'e pilno la .ankis. xi re lo nu nerbei dy. .i do ka'e cpacu .abu lo me la .ankis. ku kibystu"
 
-#: qt/aqt/importing.py:328
+#: qt/aqt/importing.py:326
 msgid ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
 msgstr ".i ka'e nai nerbei lo datnyvei pe zoi zoi. .anki2 .zoi .i ko basti nerbei lo datnyvei pe zoi zoi. .apkg .zoi ja zoi zoi. .zip .zoi"
 
-#: qt/aqt/browser.py:1452
+#: qt/aqt/browser.py:1457
 msgid "0d"
 msgstr ""
 
@@ -569,11 +569,11 @@ msgstr "<a href='%s'>Accesează  website-ul</a>"
 msgid "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
 msgstr "<b>%(pct)d%%</b> (%(x)s din %(y)s)"
 
-#: qt/aqt/browser.py:1431
+#: qt/aqt/browser.py:1436
 msgid "<b>%Y-%m-%d</b> @ %H:%M"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:264
+#: qt/aqt/forms/preferences.py:269
 msgid "<b>Backups</b><br>Anki will create a backup of your collection each time it is closed or synchronized."
 msgstr "<b> Backup </ b> <br> Anki va crea o copie de rezervă a colecției de fiecare dată când este închisă sau sincronizată."
 
@@ -618,7 +618,7 @@ msgstr ""
 msgid "<b>Replace With</b>:"
 msgstr "<b>Înlocuiește cu</b>:"
 
-#: qt/aqt/forms/preferences.py:258
+#: qt/aqt/forms/preferences.py:263
 msgid "<b>Synchronisation</b>"
 msgstr "<b>Sincronizare</b>"
 
@@ -664,15 +664,15 @@ msgstr "<h1>nabmi</h1>\n\n"
 msgid "<ignored>"
 msgstr "<ignorat>"
 
-#: qt/aqt/main.py:1453
+#: qt/aqt/main.py:1454
 msgid "<non-unicode text>"
 msgstr "sei sa'a na'e me la .iunikod. ku lerpoi"
 
-#: qt/aqt/browser.py:735
+#: qt/aqt/browser.py:740
 msgid "<type here to search; hit enter to show current deck>"
 msgstr "<tastați aici pentru a căuta; apăsați enter pentru a afișa pachetul curent>"
 
-#: qt/aqt/about.py:169
+#: qt/aqt/about.py:170
 msgid "A big thanks to all the people who have provided suggestions, bug reports and donations."
 msgstr "Mulțumiri tuturor celor care au contribuit cu sugestii, rapoarte de erori și donații."
 
@@ -697,14 +697,14 @@ msgstr "Nereușite: %s"
 msgid "About Anki"
 msgstr "Despre Anki"
 
-#: qt/aqt/addcards.py:37 qt/aqt/addcards.py:66 qt/aqt/deckconf.py:81
+#: qt/aqt/addcards.py:36 qt/aqt/addcards.py:65 qt/aqt/deckconf.py:81
 #: qt/aqt/models.py:47 qt/aqt/studydeck.py:46 qt/aqt/toolbar.py:35
 #: qt/aqt/forms/addcards.py:63 qt/aqt/forms/fields.py:101
 #: qt/aqt/forms/profiles.py:76
 msgid "Add"
 msgstr "Adaugă"
 
-#: qt/aqt/addcards.py:69
+#: qt/aqt/addcards.py:68
 msgid "Add (shortcut: ctrl+enter)"
 msgstr "Adaugă (scurtătură: ctrl+enter)"
 
@@ -716,7 +716,7 @@ msgstr "nu jmina pa karda klesi"
 msgid "Add Field"
 msgstr "Adaugă câmp"
 
-#: qt/aqt/editor.py:651
+#: qt/aqt/editor.py:654
 msgid "Add Media"
 msgstr "Adaugă fişierul multimedia"
 
@@ -732,11 +732,11 @@ msgstr "Adaugă tip de notă"
 msgid "Add Notes..."
 msgstr "Adaugă notițe..."
 
-#: pylib/anki/stdmodels.py:82
+#: pylib/anki/stdmodels.py:83
 msgid "Add Reverse"
 msgstr "Adaugă verso"
 
-#: qt/aqt/browser.py:1851
+#: qt/aqt/browser.py:1856
 msgid "Add Tags"
 msgstr "Adaugă etichete"
 
@@ -748,7 +748,7 @@ msgstr "Adaugă marcaje..."
 msgid "Add to:"
 msgstr "Adaugă în:"
 
-#: qt/aqt/browser.py:145
+#: qt/aqt/browser.py:149
 msgid "Add-on"
 msgstr ""
 
@@ -764,7 +764,7 @@ msgstr ""
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr ".i kibycpa lo se samtcise'a na'e la .ankiueb."
 
-#: qt/aqt/main.py:1512
+#: qt/aqt/main.py:1513
 msgid "Add-on will be installed when a profile is opened."
 msgstr ""
 
@@ -783,11 +783,11 @@ msgid "Add: %s"
 msgstr "Adaugă: %s"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
-#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:210
+#: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
 msgid "Added"
 msgstr "Adăugat(e)"
 
-#: qt/aqt/browser.py:1218
+#: qt/aqt/browser.py:1223
 msgid "Added Today"
 msgstr "Adăugate astăzi"
 
@@ -800,7 +800,7 @@ msgstr "Adaugă duplicat cu primul câmp: %s"
 msgid "Again"
 msgstr "Din nou"
 
-#: qt/aqt/browser.py:1220
+#: qt/aqt/browser.py:1225
 msgid "Again Today"
 msgstr "Repetate astăzi"
 
@@ -813,7 +813,7 @@ msgstr "Numărate din nou: %s"
 msgid "All Buried Cards"
 msgstr "selcmi ro karda poi zasni se mipri"
 
-#: qt/aqt/browser.py:1300
+#: qt/aqt/browser.py:1305
 msgid "All Card Types"
 msgstr "Toate tipurile de carduri"
 
@@ -821,7 +821,7 @@ msgstr "Toate tipurile de carduri"
 msgid "All Decks"
 msgstr "Toate pachetele"
 
-#: qt/aqt/browser.py:2063
+#: qt/aqt/browser.py:2077
 msgid "All Fields"
 msgstr "Toate câmpurile"
 
@@ -829,7 +829,7 @@ msgstr "Toate câmpurile"
 msgid "All cards in random order (don't reschedule)"
 msgstr "porsi lo cunso lu'i ro karda to na basti lo tcika toi"
 
-#: qt/aqt/main.py:260
+#: qt/aqt/main.py:262
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "Toate cartelele, notele şi fișierele multimedia pentru acest profil vor fi şterse. Eşti sigur?"
 
@@ -873,7 +873,7 @@ msgstr ".i da goi ny. nabmi fi lo nu jonse lo datni vasru\n\n"
 "tu'u\n\n"
 ".i .e'u sai do terca'a fi la'au nu cipcta lo datni vasru li'u pe la tutci ku'o noi cipcta lo karda selcmi selcmi lo ka ce'u spofu\n"
 
-#: qt/aqt/editor.py:782 qt/aqt/editor.py:785
+#: qt/aqt/editor.py:785 qt/aqt/editor.py:788
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "A apărut o eroare la deschiderea %s"
@@ -887,7 +887,7 @@ msgstr "me la .ankis."
 msgid "Anki 2.0 Deck"
 msgstr "Pachet Anki 2.0"
 
-#: qt/aqt/forms/preferences.py:246
+#: qt/aqt/forms/preferences.py:251
 msgid "Anki 2.1 scheduler (beta)"
 msgstr ""
 
@@ -923,7 +923,7 @@ msgstr "Anki este un sistem de învățare spațiată, inteligent și ușor de f
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki este licențiat sub licența AGPL3. Pentru mai multe informații, te rog să citești fișierul din distribuția sursă."
 
-#: qt/aqt/main.py:410
+#: qt/aqt/main.py:412
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr ".i la .ankis. na kakne lo ka ce'u samymo'i lo karda selcmi selcmi datnyvei .i ga na ja lo nabmi cu renvi lo nu do krefu katcygau lo skami gi ko terca'a fi la'au nu samymo'i lo nurfu'i li'u noi batkyuidje\n\n"
@@ -949,7 +949,7 @@ msgstr "AnkiWeb este prea ocupat în acest moment. Te rog să încerci din nou �
 msgid "AnkiWeb is under maintenance. Please try again in a few minutes."
 msgstr "AnkiWeb se află sub mentenanță. Te rog să încerci din nou în câteva minute."
 
-#: qt/aqt/browser.py:711
+#: qt/aqt/browser.py:716
 msgid "Answer"
 msgstr "Răspuns"
 
@@ -965,11 +965,11 @@ msgstr "Răspunsuri"
 msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
 msgstr "Antivirsul sau programul firewall nu permite lui Anki să se conecteze la internet."
 
-#: qt/aqt/browser.py:1244
+#: qt/aqt/browser.py:1249
 msgid "Any Flag"
 msgstr "Orice fanion"
 
-#: qt/aqt/browser.py:2413
+#: qt/aqt/browser.py:2430
 msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
 msgstr "Orice card mapat la nimic va fi șters. Dacă o notă nu mai are carduri, va fi ștearsă. Sigur vrei să continui?"
 
@@ -991,11 +991,11 @@ msgstr "E nevoie de cel puțin un tip de card."
 msgid "At least one step is required."
 msgstr "Cel puțin o etapă este necesară."
 
-#: qt/aqt/editor.py:138
+#: qt/aqt/editor.py:139
 msgid "Attach pictures/audio/video (F3)"
 msgstr "nu jmina lo pixra ja lo snavi ja lo vidvi (F3)"
 
-#: qt/aqt/main.py:310
+#: qt/aqt/main.py:312
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ".i ca'o lo nu cikre cu ganda lo ka ce'u datni sarxe zmiku ja cu zmiku cupra lo nurfu'i .i lo nu za'u re'u katci cu se rinka lo nu to'e samymo'i lo pilno datni ja lo nu za'u re'u katcygau la .ankis."
 
@@ -1003,7 +1003,7 @@ msgstr ".i ca'o lo nu cikre cu ganda lo ka ce'u datni sarxe zmiku ja cu zmiku cu
 msgid "Automatically play audio"
 msgstr "Redare automată audio"
 
-#: qt/aqt/forms/preferences.py:260
+#: qt/aqt/forms/preferences.py:265
 msgid "Automatically sync on profile open/close"
 msgstr "Sincronizare automată la deschiderea / închiderea profilului"
 
@@ -1031,9 +1031,9 @@ msgstr "Media zilelor studiate"
 msgid "Average interval"
 msgstr "Interval mediu"
 
-#: pylib/anki/stdmodels.py:20 pylib/anki/stdmodels.py:24
-#: pylib/anki/stdmodels.py:45 pylib/anki/stdmodels.py:46
-#: pylib/anki/stdmodels.py:61 qt/aqt/forms/addfield.py:78
+#: pylib/anki/stdmodels.py:21 pylib/anki/stdmodels.py:25
+#: pylib/anki/stdmodels.py:46 pylib/anki/stdmodels.py:47
+#: pylib/anki/stdmodels.py:62 qt/aqt/forms/addfield.py:78
 msgid "Back"
 msgstr "Verso"
 
@@ -1045,36 +1045,36 @@ msgstr "Previzualizare verso"
 msgid "Back Template"
 msgstr "Șablon verso"
 
-#: qt/aqt/main.py:458
+#: qt/aqt/main.py:460
 msgid "Backing Up..."
 msgstr "Se creează copia de rezervă..."
 
-#: qt/aqt/forms/preferences.py:270
+#: qt/aqt/forms/preferences.py:275
 msgid "Backups"
 msgstr "Salvări de siguranță"
 
-#: pylib/anki/stdmodels.py:17 pylib/anki/stdmodels.py:35
-#: qt/aqt/forms/preferences.py:257
+#: pylib/anki/stdmodels.py:18 pylib/anki/stdmodels.py:36
+#: qt/aqt/forms/preferences.py:262
 msgid "Basic"
 msgstr "De bază"
 
-#: pylib/anki/stdmodels.py:59 pylib/anki/stdmodels.py:73
+#: pylib/anki/stdmodels.py:60 pylib/anki/stdmodels.py:74
 msgid "Basic (and reversed card)"
 msgstr "De bază (și cu card întors)"
 
-#: pylib/anki/stdmodels.py:81 pylib/anki/stdmodels.py:91
+#: pylib/anki/stdmodels.py:82 pylib/anki/stdmodels.py:92
 msgid "Basic (optional reversed card)"
 msgstr "De bază (opțional cu card întors)"
 
-#: pylib/anki/stdmodels.py:43 pylib/anki/stdmodels.py:51
+#: pylib/anki/stdmodels.py:44 pylib/anki/stdmodels.py:52
 msgid "Basic (type in the answer)"
 msgstr "De bază(tastați răspunsul)"
 
-#: qt/aqt/browser.py:1242 qt/aqt/reviewer.py:671 qt/aqt/forms/browser.py:333
+#: qt/aqt/browser.py:1247 qt/aqt/reviewer.py:671 qt/aqt/forms/browser.py:333
 msgid "Blue Flag"
 msgstr "Fanion albastru"
 
-#: qt/aqt/editor.py:102
+#: qt/aqt/editor.py:103
 msgid "Bold text (Ctrl+B)"
 msgstr ""
 
@@ -1082,7 +1082,7 @@ msgstr ""
 msgid "Browse"
 msgstr "Răsfoire"
 
-#: qt/aqt/browser.py:794
+#: qt/aqt/browser.py:799
 #, python-format
 msgid "Browse (%(cur)d card shown; %(sel)s)"
 msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
@@ -1110,7 +1110,7 @@ msgstr "Optiuni browser"
 msgid "Build"
 msgstr "Construieşte"
 
-#: qt/aqt/browser.py:1237
+#: qt/aqt/browser.py:1242
 msgid "Buried"
 msgstr "zasni se mipri"
 
@@ -1138,7 +1138,7 @@ msgstr "Ascunde cardurile noi până în ziua următoare"
 msgid "Bury related reviews until the next day"
 msgstr "Ascunde recapitulările asociate până în ziua următoare"
 
-#: qt/aqt/importing.py:124
+#: qt/aqt/importing.py:125
 msgid "By default, Anki will detect the character between fields, such as\n"
 "a tab, comma, and so on. If Anki is detecting the character incorrectly,\n"
 "you can enter it here. Use \\t to represent tab."
@@ -1151,7 +1151,7 @@ msgstr "Anki detectează caracterul dintre câmpuri, cum ar fi\n"
 msgid "Cancel"
 msgstr "Anulare"
 
-#: qt/aqt/browser.py:712
+#: qt/aqt/browser.py:717
 msgid "Card"
 msgstr "karda klesi"
 
@@ -1160,11 +1160,11 @@ msgstr "karda klesi"
 msgid "Card %d"
 msgstr "%d moi lo'i karda klesi"
 
-#: pylib/anki/stdmodels.py:22
+#: pylib/anki/stdmodels.py:23
 msgid "Card 1"
 msgstr "pa moi lo'i karda klesi"
 
-#: pylib/anki/stdmodels.py:60
+#: pylib/anki/stdmodels.py:61
 msgid "Card 2"
 msgstr "re moi lo'i karda klesi"
 
@@ -1176,7 +1176,7 @@ msgstr "ID card"
 msgid "Card List"
 msgstr "Listă carduri"
 
-#: qt/aqt/browser.py:1227
+#: qt/aqt/browser.py:1232
 msgid "Card State"
 msgstr "se ckaji lo karda"
 
@@ -1205,16 +1205,20 @@ msgstr "Card ascuns."
 msgid "Card suspended."
 msgstr "Card suspendat."
 
+#: pylib/anki/collection.py:676
+msgid "Card template has a problem:"
+msgstr ""
+
 #: qt/aqt/reviewer.py:637
 msgid "Card was a leech."
 msgstr "Cardul a fost un parazit."
 
-#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:155
+#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:158
 #: qt/aqt/forms/changemodel.py:112
 msgid "Cards"
 msgstr "Carduri"
 
-#: qt/aqt/browser.py:1811
+#: qt/aqt/browser.py:1816
 msgid "Cards can't be manually moved into a filtered deck."
 msgstr "Cardurile nu pot fi mutate manual într-un pachet filtrat."
 
@@ -1238,12 +1242,12 @@ msgstr "Centrat"
 msgid "Change"
 msgstr "Modifică"
 
-#: qt/aqt/browser.py:2334
+#: qt/aqt/browser.py:2351
 #, python-format
 msgid "Change %s to:"
 msgstr "Schimbă %s în:"
 
-#: qt/aqt/browser.py:1802 qt/aqt/browser.py:1814
+#: qt/aqt/browser.py:1807 qt/aqt/browser.py:1819
 msgid "Change Deck"
 msgstr "Modifică pachet"
 
@@ -1251,7 +1255,7 @@ msgstr "Modifică pachet"
 msgid "Change Deck..."
 msgstr "nu muvdu lo karda selcmi poi drata"
 
-#: qt/aqt/browser.py:2420 qt/aqt/forms/changemodel.py:109
+#: qt/aqt/browser.py:2437 qt/aqt/forms/changemodel.py:109
 msgid "Change Note Type"
 msgstr "Schimbă tipul notei"
 
@@ -1263,15 +1267,15 @@ msgstr "Schimbă tipul notei (Ctrl+N)"
 msgid "Change Note Type..."
 msgstr "Schimbă tipul notei…"
 
-#: qt/aqt/editor.py:125
+#: qt/aqt/editor.py:126
 msgid "Change colour (F8)"
 msgstr "nu basti lo se skari (F8)"
 
-#: qt/aqt/forms/preferences.py:248
+#: qt/aqt/forms/preferences.py:253
 msgid "Change deck depending on note type"
 msgstr "Schimbă pachetul în funcție de tipul notei"
 
-#: qt/aqt/browser.py:717
+#: qt/aqt/browser.py:722
 msgid "Changed"
 msgstr "Schimbat"
 
@@ -1287,7 +1291,7 @@ msgstr[2] ".i %(cnt)d karda datni pe lo karda datni klesi ba binxo xoi se skicu 
 msgid "Changes will take effect when Anki is restarted."
 msgstr ".i binxo mo'u lo nu do za'u re'u katcygau la .ankis."
 
-#: qt/aqt/preferences.py:110 qt/aqt/preferences.py:234
+#: qt/aqt/preferences.py:110 qt/aqt/preferences.py:236
 msgid "Changes will take effect when you restart Anki."
 msgstr ".i binxo mo'u lo nu do za'u re'u katcygau lo .ankis."
 
@@ -1311,11 +1315,11 @@ msgstr ".i ca'o cipcta lo ganvi"
 msgid "Checking..."
 msgstr "Se verifică…"
 
-#: qt/aqt/deckchooser.py:83 qt/aqt/modelchooser.py:73
+#: qt/aqt/deckchooser.py:86 qt/aqt/modelchooser.py:73
 msgid "Choose"
 msgstr "Alege"
 
-#: qt/aqt/deckchooser.py:84
+#: qt/aqt/deckchooser.py:87
 msgid "Choose Deck"
 msgstr "Alege pachet"
 
@@ -1323,11 +1327,11 @@ msgstr "Alege pachet"
 msgid "Choose Note Type"
 msgstr "Alege tipul notei"
 
-#: qt/aqt/customstudy.py:102
+#: qt/aqt/customstudy.py:103
 msgid "Choose Tags"
 msgstr "Alege etichetele"
 
-#: qt/aqt/browser.py:1253
+#: qt/aqt/browser.py:1258
 msgid "Clear Unused"
 msgstr "nu vimcu ro se pilno be no da"
 
@@ -1340,24 +1344,24 @@ msgstr "nu vimcu ro tcita poi no da pilno"
 msgid "Clone: %s"
 msgstr "Clonează: %s"
 
-#: qt/aqt/addcards.py:71 qt/aqt/clayout.py:272 qt/aqt/forms/browser.py:322
+#: qt/aqt/addcards.py:70 qt/aqt/clayout.py:272 qt/aqt/forms/browser.py:322
 msgid "Close"
 msgstr "Închide"
 
-#: qt/aqt/addcards.py:242
+#: qt/aqt/addcards.py:241
 msgid "Close and lose current input?"
 msgstr "Închid și pierd ce ați introdus?"
 
-#: qt/aqt/main.py:456
+#: qt/aqt/main.py:458
 msgid "Closing..."
 msgstr "Se închide..."
 
-#: pylib/anki/stdmodels.py:99 pylib/anki/stdmodels.py:104
-#: pylib/anki/stdmodels.py:123 pylib/anki/storage.py:222
+#: pylib/anki/stdmodels.py:100 pylib/anki/stdmodels.py:105
+#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:222
 msgid "Cloze"
 msgstr "Test cu cuvinte lipsă"
 
-#: qt/aqt/editor.py:135
+#: qt/aqt/editor.py:136
 msgid "Cloze deletion (Ctrl+Shift+C)"
 msgstr ""
 
@@ -1369,15 +1373,15 @@ msgstr "Cod:"
 msgid "Collection exported."
 msgstr "Colecție exportată."
 
-#: pylib/anki/collection.py:874
+#: pylib/anki/collection.py:889
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Colecția este coruptă. Te rog să verifici manualul."
 
-#: qt/aqt/importing.py:168
+#: qt/aqt/importing.py:169
 msgid "Colon"
 msgstr "Două puncte"
 
-#: qt/aqt/importing.py:162
+#: qt/aqt/importing.py:163
 msgid "Comma"
 msgstr "Virgulă"
 
@@ -1393,7 +1397,7 @@ msgstr "te tcimi'e"
 msgid "Configure interface language and options"
 msgstr "Configurează limba interfeței și alte opțiuni"
 
-#: pylib/anki/sched.py:1255 pylib/anki/schedv2.py:1443
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1443
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Felicitări! Ai terminat acest pachet pentru moment."
 
@@ -1413,7 +1417,7 @@ msgstr "Continuă"
 msgid "Copied to clipboard"
 msgstr ".i mo'u co'a fukra'e"
 
-#: qt/aqt/editor.py:1108 qt/aqt/webview.py:183
+#: qt/aqt/editor.py:1113 qt/aqt/webview.py:183
 msgid "Copy"
 msgstr "Copiaza"
 
@@ -1443,7 +1447,7 @@ msgstr ".i da datnyvei fi pa se samtcise'a je cu spofu"
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "Nu s-a putut conecta la AnkiWeb. Te rog să verifici conexiunea la rețea și să încerci din nou."
 
-#: qt/aqt/editor.py:680
+#: qt/aqt/editor.py:683
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr ".i ka'e nai rejgau lo snavei .i ko ci'erse'a la'o zoi. lame .zoi"
 
@@ -1468,7 +1472,7 @@ msgstr "Creează pachet filtrat…"
 msgid "Create scalable images with dvisvgm"
 msgstr ""
 
-#: qt/aqt/browser.py:715
+#: qt/aqt/browser.py:720
 msgid "Created"
 msgstr "Creată"
 
@@ -1484,7 +1488,7 @@ msgstr ""
 msgid "Ctrl+N"
 msgstr ""
 
-#: qt/aqt/browser.py:593
+#: qt/aqt/browser.py:598
 msgid "Ctrl+Shift+P"
 msgstr ""
 
@@ -1505,7 +1509,7 @@ msgstr "Răspunsuri cumulate"
 msgid "Cumulative Cards"
 msgstr "Carduri cumulate"
 
-#: qt/aqt/browser.py:1086 qt/aqt/browser.py:1210
+#: qt/aqt/browser.py:1091 qt/aqt/browser.py:1215
 msgid "Current Deck"
 msgstr "Pachetul curent"
 
@@ -1517,7 +1521,7 @@ msgstr "Tipul notei curente:"
 msgid "Custom Study"
 msgstr "Studiu personalizat"
 
-#: qt/aqt/customstudy.py:136 qt/aqt/customstudy.py:148
+#: qt/aqt/customstudy.py:137 qt/aqt/customstudy.py:149
 msgid "Custom Study Session"
 msgstr "Sesiunea de studiu personalizat"
 
@@ -1525,23 +1529,23 @@ msgstr "Sesiunea de studiu personalizat"
 msgid "Custom steps (in minutes)"
 msgstr "Pași personalizați (în minute)"
 
-#: qt/aqt/editor.py:158
+#: qt/aqt/editor.py:161
 msgid "Customize Card Templates (Ctrl+L)"
 msgstr ""
 
-#: qt/aqt/editor.py:157
+#: qt/aqt/editor.py:160
 msgid "Customize Fields"
 msgstr ""
 
-#: qt/aqt/editor.py:1106
+#: qt/aqt/editor.py:1111
 msgid "Cut"
 msgstr "Tăiere"
 
-#: pylib/anki/collection.py:1059
+#: pylib/anki/collection.py:1074
 msgid "Database rebuilt and optimized."
 msgstr "Bază de date reconstruită și optimizată."
 
-#: qt/aqt/browser.py:1419
+#: qt/aqt/browser.py:1424
 msgid "Date"
 msgstr "Data"
 
@@ -1549,7 +1553,7 @@ msgstr "Data"
 msgid "Days studied"
 msgstr "Zile studiate"
 
-#: qt/aqt/forms/preferences.py:262
+#: qt/aqt/forms/preferences.py:267
 msgid "Deauthorize"
 msgstr "Dezautorizează"
 
@@ -1557,7 +1561,7 @@ msgstr "Dezautorizează"
 msgid "Debug Console"
 msgstr "Consolă pentru depanare"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:713 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:718 qt/aqt/deckbrowser.py:150
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Pachet"
@@ -1566,11 +1570,11 @@ msgstr "Pachet"
 msgid "Deck Override..."
 msgstr ""
 
-#: qt/aqt/main.py:1514
+#: qt/aqt/main.py:1515
 msgid "Deck will be imported when a profile is opened."
 msgstr "Pachetul va fi importat dacă un profil este deschis"
 
-#: qt/aqt/browser.py:1281 qt/aqt/toolbar.py:34
+#: qt/aqt/browser.py:1286 qt/aqt/toolbar.py:34
 msgid "Decks"
 msgstr "Pachete"
 
@@ -1579,7 +1583,7 @@ msgid "Decreasing intervals"
 msgstr "Intervale de scădere"
 
 #: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
-#: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:73
+#: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:76
 msgid "Default"
 msgstr "Implicit"
 
@@ -1593,7 +1597,7 @@ msgstr "Amână până când repetițiile sunt afișate din nou."
 msgid "Delete"
 msgstr "Șterge"
 
-#: qt/aqt/main.py:1354
+#: qt/aqt/main.py:1355
 msgid "Delete Cards"
 msgstr "Șterge carduri"
 
@@ -1601,7 +1605,7 @@ msgstr "Șterge carduri"
 msgid "Delete Deck"
 msgstr "Ştergere pachet"
 
-#: qt/aqt/main.py:1360
+#: qt/aqt/main.py:1361
 msgid "Delete Empty"
 msgstr "Șterge goale"
 
@@ -1609,15 +1613,15 @@ msgstr "Șterge goale"
 msgid "Delete Note"
 msgstr "Șterge notița"
 
-#: qt/aqt/browser.py:1755
+#: qt/aqt/browser.py:1760
 msgid "Delete Notes"
 msgstr "Șterge notițele"
 
-#: qt/aqt/browser.py:1861
+#: qt/aqt/browser.py:1866
 msgid "Delete Tags"
 msgstr "Șterge etichete"
 
-#: qt/aqt/main.py:1286
+#: qt/aqt/main.py:1287
 msgid "Delete Unused Files"
 msgstr "Șterge fișierele neutilizate"
 
@@ -1647,11 +1651,11 @@ msgstr "Ștergi acest tip de notă și toate cardurile lui?"
 msgid "Delete this unused note type?"
 msgstr "Ștergi acest tip de notă nefolosit?"
 
-#: qt/aqt/main.py:1299
+#: qt/aqt/main.py:1300
 msgid "Delete unused media?"
 msgstr "Ștergi fișierele media nefolosite?"
 
-#: pylib/anki/collection.py:963
+#: pylib/anki/collection.py:978
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
@@ -1659,7 +1663,7 @@ msgstr[0] "A fost șters %d card cu nota lipsă."
 msgstr[1] "Au fost șterse %d carduri cu nota lipsă."
 msgstr[2] "Au fost șterse %d carduri cu nota lipsă."
 
-#: pylib/anki/collection.py:914
+#: pylib/anki/collection.py:929
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
@@ -1667,7 +1671,7 @@ msgstr[0] "A fost șters %d card cu șablonul lipsă."
 msgstr[1] "Au fost șterse %d carduri cu șablonul lipsă."
 msgstr[2] "Au fost șterse %d carduri cu șablonul lipsă."
 
-#: qt/aqt/main.py:1329
+#: qt/aqt/main.py:1330
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
@@ -1675,7 +1679,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: pylib/anki/collection.py:884
+#: pylib/anki/collection.py:899
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
@@ -1683,7 +1687,7 @@ msgstr[0] "A fost ștearsă %d notă cu tipul notei lipsă."
 msgstr[1] "Au fost șterse %d note cu tipul notei lipsă."
 msgstr[2] "Au fost șterse %d note cu tipul notei lipsă."
 
-#: pylib/anki/collection.py:947
+#: pylib/anki/collection.py:962
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
@@ -1691,7 +1695,7 @@ msgstr[0] "A fost ștearsă %d notă fără carduri."
 msgstr[1] "Au fost șterse %d note fără carduri."
 msgstr[2] "Au fost șterse %d note fără carduri."
 
-#: pylib/anki/collection.py:931
+#: pylib/anki/collection.py:946
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
@@ -1729,7 +1733,7 @@ msgstr ".i mo'u kibycpa la'o zoi. %(fname)s .zoi"
 msgid "Downloading from AnkiWeb..."
 msgstr "Descărcare de la AnkiWeb..."
 
-#: pylib/anki/stats.py:43 qt/aqt/browser.py:718 qt/aqt/browser.py:1234
+#: pylib/anki/stats.py:43 qt/aqt/browser.py:723 qt/aqt/browser.py:1239
 #: qt/aqt/deckbrowser.py:151
 msgid "Due"
 msgstr "Programate"
@@ -1746,7 +1750,7 @@ msgstr "Programate pentru mâine"
 msgid "E&xit"
 msgstr "Ieși&re"
 
-#: pylib/anki/stats.py:46 qt/aqt/browser.py:720 qt/aqt/browser.py:1424
+#: pylib/anki/stats.py:46 qt/aqt/browser.py:725 qt/aqt/browser.py:1429
 msgid "Ease"
 msgstr "Ușurință"
 
@@ -1766,7 +1770,7 @@ msgstr "Interval ușor"
 msgid "Edit"
 msgstr "Editează"
 
-#: qt/aqt/addcards.py:155
+#: qt/aqt/addcards.py:154
 #, python-format
 msgid "Edit \"%s\""
 msgstr "Editează „%s”"
@@ -1775,11 +1779,11 @@ msgstr "Editează „%s”"
 msgid "Edit Current"
 msgstr "Editează curent"
 
-#: qt/aqt/editor.py:874
+#: qt/aqt/editor.py:877
 msgid "Edit HTML"
 msgstr "Editează HTML"
 
-#: qt/aqt/browser.py:716
+#: qt/aqt/browser.py:721
 msgid "Edited"
 msgstr "Modificat"
 
@@ -1795,7 +1799,7 @@ msgstr "Golește"
 msgid "Empty Cards..."
 msgstr "Carduri goale…"
 
-#: pylib/anki/collection.py:584
+#: pylib/anki/collection.py:585
 #, python-format
 msgid "Empty card numbers: %(c)s\n"
 "Fields: %(f)s\n\n"
@@ -1829,11 +1833,11 @@ msgstr "Introdu pachetul pentru a plasa cele %s carduri noi sau lasă-l necomple
 msgid "Enter new card position (1...%s):"
 msgstr "Introdu noua poziție a cardului (1...%s):"
 
-#: qt/aqt/browser.py:1841
+#: qt/aqt/browser.py:1846
 msgid "Enter tags to add:"
 msgstr "Scrieți etichetele de adăugat:"
 
-#: qt/aqt/browser.py:1863
+#: qt/aqt/browser.py:1868
 msgid "Enter tags to delete:"
 msgstr "Scrieți etichetele de șters:"
 
@@ -1847,7 +1851,7 @@ msgstr "Eroare la descărcarea %(id)s: %(error)s"
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
 msgstr ""
 
-#: qt/aqt/main.py:77
+#: qt/aqt/main.py:79
 #, python-format
 msgid "Error during startup:\n"
 "%s"
@@ -1858,7 +1862,7 @@ msgstr "Eroare în timpul pornirii aplicației:\n"
 msgid "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
 msgstr ".i da nabmi fi lo nu samjongau fi lo snura .i so'e roi rinka fa lo nabmi pe lo malsamtci bandu samtci ja lo seltcana kevlu'a samtci ja lo samtcana selfu be do"
 
-#: pylib/anki/latex.py:169
+#: pylib/anki/latex.py:177
 #, python-format
 msgid "Error executing %s."
 msgstr "Eroare la execuția %s."
@@ -1907,7 +1911,7 @@ msgstr "Nume câmp:"
 msgid "Field:"
 msgstr "Câmp:"
 
-#: qt/aqt/editor.py:154 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
+#: qt/aqt/editor.py:157 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
 #: qt/aqt/forms/fields.py:100
 msgid "Fields"
 msgstr "Câmpuri"
@@ -1917,7 +1921,7 @@ msgstr "Câmpuri"
 msgid "Fields for %s"
 msgstr "Câmpuri pentru %s"
 
-#: qt/aqt/importing.py:171
+#: qt/aqt/importing.py:172
 #, python-format
 msgid "Fields separated by: %s"
 msgstr "Câmpuri separate de: %s"
@@ -1934,7 +1938,7 @@ msgstr "Fil&tru"
 msgid "File version unknown, trying import anyway."
 msgstr ".i lo datnyvei klesi cu cnino .i ku'i ca'o troci lo ka ce'u nerbei"
 
-#: qt/aqt/browser.py:1270 qt/aqt/forms/dyndconf.py:133
+#: qt/aqt/browser.py:1275 qt/aqt/forms/dyndconf.py:133
 msgid "Filter"
 msgstr "Filtru"
 
@@ -1950,7 +1954,7 @@ msgstr "Filtrare..."
 msgid "Filter:"
 msgstr "Filtru:"
 
-#: qt/aqt/browser.py:1433
+#: qt/aqt/browser.py:1438
 msgid "Filtered"
 msgstr "Filtrate"
 
@@ -1971,7 +1975,7 @@ msgstr "Găsește dubluri"
 msgid "Find and Re&place..."
 msgstr "Caută și î&nlocuiește"
 
-#: qt/aqt/browser.py:2074 qt/aqt/forms/findreplace.py:68
+#: qt/aqt/browser.py:2088 qt/aqt/forms/findreplace.py:68
 msgid "Find and Replace"
 msgstr "Caută și înlocuiește"
 
@@ -1992,7 +1996,7 @@ msgstr "Prima recapitulare"
 msgid "First field matched: %s"
 msgstr "Primul câmp potrivit: %s"
 
-#: pylib/anki/collection.py:979 pylib/anki/collection.py:997
+#: pylib/anki/collection.py:994 pylib/anki/collection.py:1012
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
@@ -2000,11 +2004,11 @@ msgstr[0] "Rezolvat %d card cu proprietăți nevalide."
 msgstr[1] "Rezolvate %d carduri cu proprietăți nevalide."
 msgstr[2] "Rezolvate %d carduri cu proprietăți nevalide."
 
-#: pylib/anki/collection.py:896
+#: pylib/anki/collection.py:911
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "Rezolvat bug de suprascriere a pachetului AnkiDroid"
 
-#: pylib/anki/collection.py:902
+#: pylib/anki/collection.py:917
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Rezolvat tipul notei: %s"
@@ -2033,7 +2037,7 @@ msgstr "ci'artadji"
 msgid "Footer"
 msgstr "Subsol"
 
-#: pylib/anki/latex.py:129
+#: pylib/anki/latex.py:137
 #, python-format
 msgid "For security reasons, '%s' is not allowed on cards. You can still use it by placing the command in a different package, and importing that package in the LaTeX header instead."
 msgstr "Din rațiuni de securitate, '%s' nu pe permis pe carduri. În schimb poate fi folosit prin plasarea comenzii într-un pachet diferit și apoi prin importarea acelui pachet în antetul LaTeX."
@@ -2047,14 +2051,14 @@ msgstr "Previziune"
 msgid "Form"
 msgstr "Formular"
 
-#: qt/aqt/browser.py:2152
+#: qt/aqt/browser.py:2166
 #, python-format
 msgid "Found %(a)s across %(b)s."
 msgstr "Găsite %(a)s prin %(b)s."
 
-#: pylib/anki/exporting.py:365 pylib/anki/stdmodels.py:18
-#: pylib/anki/stdmodels.py:23 pylib/anki/stdmodels.py:45
-#: pylib/anki/stdmodels.py:46 pylib/anki/stdmodels.py:62
+#: pylib/anki/exporting.py:365 pylib/anki/stdmodels.py:19
+#: pylib/anki/stdmodels.py:24 pylib/anki/stdmodels.py:46
+#: pylib/anki/stdmodels.py:47 pylib/anki/stdmodels.py:63
 #: qt/aqt/forms/addfield.py:74
 msgid "Front"
 msgstr "Față"
@@ -2071,7 +2075,7 @@ msgstr "Șablon față"
 msgid "General"
 msgstr "Generalități"
 
-#: pylib/anki/latex.py:170
+#: pylib/anki/latex.py:178
 #, python-format
 msgid "Generated file: %s"
 msgstr "Fișier generat: %s"
@@ -2097,7 +2101,7 @@ msgstr "Bine"
 msgid "Graduating interval"
 msgstr "Intervalul de divizare"
 
-#: qt/aqt/browser.py:1241 qt/aqt/reviewer.py:665 qt/aqt/forms/browser.py:332
+#: qt/aqt/browser.py:1246 qt/aqt/reviewer.py:665 qt/aqt/forms/browser.py:332
 msgid "Green Flag"
 msgstr "Fanion verde"
 
@@ -2113,11 +2117,11 @@ msgstr "Dificil"
 msgid "Hard interval"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:240
+#: qt/aqt/forms/preferences.py:244
 msgid "Hardware acceleration (faster, may cause display issues)"
 msgstr ""
 
-#: pylib/anki/latex.py:178
+#: pylib/anki/latex.py:186
 msgid "Have you installed latex and dvipng/dvisvgm?"
 msgstr "Ați instalat  latex și dvipng/dvisvgm?"
 
@@ -2125,7 +2129,7 @@ msgstr "Ați instalat  latex și dvipng/dvisvgm?"
 msgid "Header"
 msgstr "Antet"
 
-#: qt/aqt/addcards.py:75 qt/aqt/clayout.py:257 qt/aqt/utils.py:193
+#: qt/aqt/addcards.py:74 qt/aqt/clayout.py:257 qt/aqt/utils.py:193
 #: qt/aqt/utils.py:194
 msgid "Help"
 msgstr "Ajutor"
@@ -2134,7 +2138,7 @@ msgstr "Ajutor"
 msgid "Highest ease"
 msgstr "Cea mai mare ușurință"
 
-#: qt/aqt/addcards.py:79
+#: qt/aqt/addcards.py:78
 msgid "History"
 msgstr "Istoric"
 
@@ -2158,7 +2162,7 @@ msgstr "Orele cu mai puțin de 30 de revederi nu sunt afișate."
 msgid "Identical"
 msgstr "mintu"
 
-#: qt/aqt/about.py:165
+#: qt/aqt/about.py:166
 msgid "If you have contributed and are not on this list, please get in touch."
 msgstr "Dacă ați contribuit dar nu sunteți pe listă, contactați-ne."
 
@@ -2174,7 +2178,7 @@ msgstr "Ignoră timpul de răspuns mai mare de"
 msgid "Ignore case"
 msgstr "Ignoră majusculele"
 
-#: qt/aqt/importing.py:50
+#: qt/aqt/importing.py:49
 msgid "Ignore field"
 msgstr "Ignoră câmpul"
 
@@ -2186,7 +2190,7 @@ msgstr "Ignoră liniile în care primul câmp se potrivește cu nota existentă"
 msgid "Ignore this update"
 msgstr "Ignoră această actualizare"
 
-#: qt/aqt/importing.py:97 qt/aqt/importing.py:192 qt/aqt/importing.py:311
+#: qt/aqt/importing.py:98 qt/aqt/importing.py:192 qt/aqt/importing.py:309
 #: qt/aqt/forms/changemap.py:41 qt/aqt/forms/importing.py:103
 msgid "Import"
 msgstr "Importă"
@@ -2199,11 +2203,11 @@ msgstr "Importă fișier"
 msgid "Import even if existing note has same first field"
 msgstr "Importă chiar dacă nota existentă are același prim câmp"
 
-#: qt/aqt/importing.py:199 qt/aqt/importing.py:410
+#: qt/aqt/importing.py:199 qt/aqt/importing.py:408
 msgid "Import failed.\n"
 msgstr "Import eșuat.\n"
 
-#: qt/aqt/importing.py:365
+#: qt/aqt/importing.py:363
 msgid "Import failed. Debugging info:\n"
 msgstr "Import nereușit. Informații de depanare:\n"
 
@@ -2254,7 +2258,7 @@ msgstr "Include etichete"
 msgid "Increase today's new card limit"
 msgstr "Crește limita cardurilor noi de astăzi"
 
-#: qt/aqt/customstudy.py:71
+#: qt/aqt/customstudy.py:72
 msgid "Increase today's new card limit by"
 msgstr "Mărește limita cardurilor noi de astăzi la"
 
@@ -2262,7 +2266,7 @@ msgstr "Mărește limita cardurilor noi de astăzi la"
 msgid "Increase today's review card limit"
 msgstr "Mărește limita cardurilor repetate astăzi"
 
-#: qt/aqt/customstudy.py:83
+#: qt/aqt/customstudy.py:84
 msgid "Increase today's review limit by"
 msgstr "Mărește limita repetițiilor de astăzi la"
 
@@ -2295,11 +2299,11 @@ msgstr ""
 msgid "Installed %(name)s"
 msgstr ".i mo'u samtcise'a la'o zoi. %(name)s .zoi"
 
-#: qt/aqt/forms/preferences.py:239 qt/aqt/forms/setlang.py:40
+#: qt/aqt/forms/preferences.py:243 qt/aqt/forms/setlang.py:40
 msgid "Interface language:"
 msgstr "Limba interfeței:"
 
-#: pylib/anki/stats.py:45 qt/aqt/browser.py:719 qt/aqt/browser.py:1423
+#: pylib/anki/stats.py:45 qt/aqt/browser.py:724 qt/aqt/browser.py:1428
 msgid "Interval"
 msgstr ""
 
@@ -2336,19 +2340,19 @@ msgstr ""
 msgid "Invalid file name, please rename: %s"
 msgstr ".i pa cmene be pa datnyvei cu toldra .i ko cmene basygau fi zoi zoi. %s .zoi"
 
-#: qt/aqt/importing.py:396
+#: qt/aqt/importing.py:394
 msgid "Invalid file. Please restore from backup."
 msgstr "Fișier invalid. Te rog să-l restaurezi dintr-o copie de siguranță."
 
-#: qt/aqt/main.py:1167
+#: qt/aqt/main.py:1168
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "Proprietate invalidă găsită pe card. Te rog să folosești Instrumente>Verifică baza de date și, dacă problema revine, te rog să ceri ajutor pe site-ul de suport."
 
-#: qt/aqt/browser.py:2087
+#: qt/aqt/browser.py:2101
 msgid "Invalid regular expression."
 msgstr "Expresie regulată eronată."
 
-#: qt/aqt/browser.py:175
+#: qt/aqt/browser.py:179
 msgid "Invalid search - please check for typing mistakes."
 msgstr ".i lo se sisku cu toldra .i ko cipcta lo se samci'a lo se srera"
 
@@ -2356,31 +2360,31 @@ msgstr ".i lo se sisku cu toldra .i ko cipcta lo se samci'a lo se srera"
 msgid "It has been suspended."
 msgstr "A fost suspendat."
 
-#: qt/aqt/editor.py:104
+#: qt/aqt/editor.py:105
 msgid "Italic text (Ctrl+I)"
 msgstr ""
 
-#: qt/aqt/editor.py:518
+#: qt/aqt/editor.py:521
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Sări la etichete cu Ctrl+Shift+T"
 
-#: qt/aqt/forms/preferences.py:265
+#: qt/aqt/forms/preferences.py:270
 msgid "Keep"
 msgstr "Păstrează"
 
-#: qt/aqt/editor.py:871 qt/aqt/forms/modelopts.py:67
+#: qt/aqt/editor.py:874 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr "me la .latex."
 
-#: qt/aqt/editor.py:872
+#: qt/aqt/editor.py:875
 msgid "LaTeX equation"
 msgstr "Ecuație LaTeX"
 
-#: qt/aqt/editor.py:873
+#: qt/aqt/editor.py:876
 msgid "LaTeX math env."
 msgstr "Mediu matematic LaTex"
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:722 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:727 qt/aqt/forms/dconf.py:386
 msgid "Lapses"
 msgstr "Rateuri"
 
@@ -2396,11 +2400,11 @@ msgstr "Ultimele repetiții"
 msgid "Latest added first"
 msgstr "Ultimele adăugate mai întâi"
 
-#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1433
+#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1438
 msgid "Learn"
 msgstr "Învățate"
 
-#: qt/aqt/forms/preferences.py:252
+#: qt/aqt/forms/preferences.py:257
 msgid "Learn ahead limit"
 msgstr "Limita de sus pentru cele învățate"
 
@@ -2409,7 +2413,7 @@ msgstr "Limita de sus pentru cele învățate"
 msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
 msgstr "Învățate: %(a)s, Repetate: %(b)s, Reînvățate: %(c)s, Filtrate: %(d)s"
 
-#: pylib/anki/stats.py:701 qt/aqt/browser.py:1232 qt/aqt/overview.py:198
+#: pylib/anki/stats.py:701 qt/aqt/browser.py:1237 qt/aqt/overview.py:198
 msgid "Learning"
 msgstr "Învățate"
 
@@ -2457,7 +2461,7 @@ msgstr "nu jitro lo karda datni klesi"
 msgid "Manage Note Types..."
 msgstr "Tipuri de note…"
 
-#: qt/aqt/browser.py:1289 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1294 qt/aqt/forms/dconf.py:353
 msgid "Manage..."
 msgstr "Administrare..."
 
@@ -2465,12 +2469,12 @@ msgstr "Administrare..."
 msgid "Manually Buried Cards"
 msgstr "macnu ke zasni se mipri"
 
-#: qt/aqt/importing.py:43
+#: qt/aqt/importing.py:42
 #, python-format
 msgid "Map to %s"
 msgstr "Transformă în %s"
 
-#: qt/aqt/importing.py:49
+#: qt/aqt/importing.py:48
 msgid "Map to Tags"
 msgstr "Transformă în etichete"
 
@@ -2478,15 +2482,15 @@ msgstr "Transformă în etichete"
 msgid "Mark Note"
 msgstr "nu tcita lo karda datni"
 
-#: qt/aqt/editor.py:869
+#: qt/aqt/editor.py:872
 msgid "MathJax block"
 msgstr ""
 
-#: qt/aqt/editor.py:870
+#: qt/aqt/editor.py:873
 msgid "MathJax chemistry"
 msgstr ""
 
-#: qt/aqt/editor.py:868
+#: qt/aqt/editor.py:871
 msgid "MathJax inline"
 msgstr ""
 
@@ -2503,7 +2507,7 @@ msgstr "Interval maxim"
 msgid "Maximum reviews/day"
 msgstr "Repetiții maxime/zi"
 
-#: qt/aqt/editor.py:646
+#: qt/aqt/editor.py:649
 msgid "Media"
 msgstr "te ganvi"
 
@@ -2531,7 +2535,7 @@ msgstr "Mai mult"
 msgid "Most lapses"
 msgstr "Cele mai multe greșeli"
 
-#: qt/aqt/browser.py:1801
+#: qt/aqt/browser.py:1806
 msgid "Move Cards"
 msgstr "Mută carduri"
 
@@ -2539,7 +2543,7 @@ msgstr "Mută carduri"
 msgid "Move cards to deck:"
 msgstr "Mută carduri în pachet:"
 
-#: qt/aqt/importing.py:138
+#: qt/aqt/importing.py:139
 msgid "Multi-character separators are not supported. Please enter one character only."
 msgstr ""
 
@@ -2547,7 +2551,7 @@ msgstr ""
 msgid "N&ote"
 msgstr "N&otă"
 
-#: qt/aqt/main.py:233 qt/aqt/main.py:247
+#: qt/aqt/main.py:235 qt/aqt/main.py:249
 msgid "Name exists."
 msgstr "Numele există."
 
@@ -2555,15 +2559,15 @@ msgstr "Numele există."
 msgid "Name for deck:"
 msgstr "Nume pentru pachet:"
 
-#: qt/aqt/main.py:230 qt/aqt/models.py:96
+#: qt/aqt/main.py:232 qt/aqt/models.py:96
 msgid "Name:"
 msgstr "Nume:"
 
-#: qt/aqt/forms/preferences.py:263
+#: qt/aqt/forms/preferences.py:268
 msgid "Network"
 msgstr "Rețea"
 
-#: qt/aqt/browser.py:1231 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:196
+#: qt/aqt/browser.py:1236 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:196
 msgid "New"
 msgstr "Noi"
 
@@ -2571,7 +2575,7 @@ msgstr "Noi"
 msgid "New Cards"
 msgstr "Carduri noi"
 
-#: qt/aqt/customstudy.py:70
+#: qt/aqt/customstudy.py:71
 #, python-format
 msgid "New cards in deck over today limit: %s"
 msgstr ""
@@ -2593,7 +2597,7 @@ msgid "New interval"
 msgstr "Interval nou"
 
 #: qt/aqt/clayout.py:379 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
-#: qt/aqt/main.py:241 qt/aqt/models.py:67
+#: qt/aqt/main.py:243 qt/aqt/models.py:67
 msgid "New name:"
 msgstr "Nume nou:"
 
@@ -2610,11 +2614,11 @@ msgstr "Nume nou pentru grupul de opțiuni"
 msgid "New position (1...%d):"
 msgstr "Poziție nouă (1...%d):"
 
-#: qt/aqt/forms/preferences.py:251
+#: qt/aqt/forms/preferences.py:256
 msgid "Next day starts at"
 msgstr "Ziua următoare începe la"
 
-#: qt/aqt/browser.py:1243
+#: qt/aqt/browser.py:1248
 msgid "No Flag"
 msgstr "Fără fanion"
 
@@ -2626,11 +2630,11 @@ msgstr "Niciun card nu este programat încă."
 msgid "No cards have been studied today."
 msgstr "Nu s-au studiat carduri astăzi."
 
-#: qt/aqt/customstudy.py:183
+#: qt/aqt/customstudy.py:185
 msgid "No cards matched the criteria you provided."
 msgstr "Niciun card nu s-a potrivit cu criteriul pe care l-ai oferit"
 
-#: qt/aqt/main.py:1347
+#: qt/aqt/main.py:1348
 msgid "No empty cards."
 msgstr "Niciun card gol."
 
@@ -2638,7 +2642,7 @@ msgstr "Niciun card gol."
 msgid "No mature cards were studied today."
 msgstr "Niciun card matur nu a fost studiat astăzi."
 
-#: qt/aqt/main.py:1272
+#: qt/aqt/main.py:1273
 msgid "No unused or missing files found."
 msgstr "Nu s-au găsit fișiere nefolosite sau lipsă."
 
@@ -2646,7 +2650,7 @@ msgstr "Nu s-au găsit fișiere nefolosite sau lipsă."
 msgid "No updates available."
 msgstr "Nu sunt actualizări disponibile."
 
-#: qt/aqt/browser.py:724
+#: qt/aqt/browser.py:729
 msgid "Note"
 msgstr "Notă"
 
@@ -2658,7 +2662,7 @@ msgstr "ID notă"
 msgid "Note Type"
 msgstr "Tip notă"
 
-#: qt/aqt/browser.py:1287 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
+#: qt/aqt/browser.py:1292 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
 msgid "Note Types"
 msgstr "Tipuri notă"
 
@@ -2678,11 +2682,11 @@ msgstr ".i mo'u co'a zasni mipri pa karda datni"
 msgid "Note suspended."
 msgstr "Notă suspendată."
 
-#: qt/aqt/forms/preferences.py:268
+#: qt/aqt/forms/preferences.py:273
 msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
 msgstr ".i ju'i do no da zmiku nurfu'i lo te ganvi .i ko di'i macnu cupra lo nurfu'i be lo datnyveimei pe la .ankis."
 
-#: qt/aqt/browser.py:1467
+#: qt/aqt/browser.py:1472
 msgid "Note: Some of the history is missing. For more information, please see the browser documentation."
 msgstr ""
 
@@ -2709,7 +2713,7 @@ msgstr ".i lo karda datni cu nitcu lo ka su'o datnyvau cu srana ce'u"
 msgid "Notes skipped, as they're already in your collection: %d"
 msgstr ""
 
-#: qt/aqt/browser.py:2180
+#: qt/aqt/browser.py:2194
 msgid "Notes tagged."
 msgstr ".i mo'u tcitygau fi lo karda datni"
 
@@ -2723,11 +2727,11 @@ msgstr ""
 msgid "Notes updated, as file had newer version: %d"
 msgstr ".i ningau %d karda datni se ki'u lo nu da datnyvei fi lo cnino zmadu"
 
-#: qt/aqt/browser.py:2331
+#: qt/aqt/browser.py:2348
 msgid "Nothing"
 msgstr "Nimic"
 
-#: qt/aqt/customstudy.py:56
+#: qt/aqt/customstudy.py:57
 msgid "OK"
 msgstr ".i'e"
 
@@ -2735,7 +2739,7 @@ msgstr ".i'e"
 msgid "Oldest seen first"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:261
+#: qt/aqt/forms/preferences.py:266
 msgid "On next sync, force changes in one direction"
 msgstr ""
 
@@ -2743,7 +2747,7 @@ msgstr ""
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr ""
 
-#: qt/aqt/browser.py:1943
+#: qt/aqt/browser.py:1948
 msgid "Only new cards can be repositioned."
 msgstr "Doar cardurile noi pot fi repoziționate."
 
@@ -2759,7 +2763,7 @@ msgstr "Deschide"
 msgid "Open Backup..."
 msgstr "nu samymo'i pa nurfu'i"
 
-#: qt/aqt/main.py:543
+#: qt/aqt/main.py:545
 msgid "Optimizing..."
 msgstr "Se optimizează..."
 
@@ -2786,7 +2790,7 @@ msgstr "Grup de opțiuni:"
 msgid "Options..."
 msgstr "Opțiuni…"
 
-#: qt/aqt/browser.py:1240 qt/aqt/reviewer.py:659 qt/aqt/forms/browser.py:331
+#: qt/aqt/browser.py:1245 qt/aqt/reviewer.py:659 qt/aqt/forms/browser.py:331
 msgid "Orange Flag"
 msgstr "narju lanci tcita"
 
@@ -2826,13 +2830,17 @@ msgstr "me la .ankis. ku karda selcmi bakfu (*.apkg *.colpkg *.zip)"
 msgid "Password:"
 msgstr "Parolă:"
 
-#: qt/aqt/editor.py:1110
+#: qt/aqt/editor.py:1115
 msgid "Paste"
 msgstr "Lipește"
 
-#: qt/aqt/forms/preferences.py:243
+#: qt/aqt/forms/preferences.py:247
 msgid "Paste clipboard images as PNG"
 msgstr "nu ro se fukpu'i poi pixra cu me la me py ny gy."
+
+#: qt/aqt/forms/preferences.py:248
+msgid "Paste without shift key strips formatting"
+msgstr ""
 
 #: pylib/anki/importing/__init__.py:17
 msgid "Pauker 1.8 Lesson (*.pau.gz)"
@@ -2867,16 +2875,16 @@ msgstr ".i ko cipcta lo do te samjo'e"
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr ".i ko jongau pa snaveitci goi sy. .i ko birti lo du'u no samtci poi drata ca'o pilno sy."
 
-#: pylib/anki/collection.py:680
+#: pylib/anki/collection.py:687
 #, python-format
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr ""
 
-#: qt/aqt/main.py:1521
+#: qt/aqt/main.py:1522
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr ".i ko birti lo du'u ga je mo'u samymo'i pa pilno datni gi la .ankis. na'e zuktce kei ce'o cu za'u re'u troci"
 
-#: qt/aqt/browser.py:1342
+#: qt/aqt/browser.py:1347
 msgid "Please give your filter a name:"
 msgstr ".i ko samci'a pa cmene be lo julne"
 
@@ -2901,7 +2909,7 @@ msgstr ".i ko za'u re'u katcygau la .ankis. no'au rinka lo nu mo'u bangu basygau
 msgid "Please run Tools>Empty Cards"
 msgstr ".i ko terca'a fi la'au nu cipcta lo karda lo ka ce'u kunti li'u pe la tutci"
 
-#: qt/aqt/main.py:581
+#: qt/aqt/main.py:583
 msgid "Please select a deck."
 msgstr "Te rog să selectezi un pachet."
 
@@ -2909,7 +2917,7 @@ msgstr "Te rog să selectezi un pachet."
 msgid "Please select a single add-on first."
 msgstr ".i ko cuxna pa je nai za'u pa se samtcise'a"
 
-#: qt/aqt/browser.py:1512
+#: qt/aqt/browser.py:1517
 msgid "Please select cards from only one note type."
 msgstr ".i ko cuxna fi lo'i karda pe pa je nai za'u pa karda datni klesi"
 
@@ -2933,15 +2941,15 @@ msgstr ".i ko vitke la .ankiueb. je cu ningau lo karda selcmi je cu za'u re'u tr
 msgid "Position"
 msgstr "Poziție"
 
-#: qt/aqt/forms/preferences.py:238
+#: qt/aqt/forms/preferences.py:242
 msgid "Preferences"
 msgstr "Preferințe"
 
-#: qt/aqt/browser.py:1548 qt/aqt/forms/browser.py:293
+#: qt/aqt/browser.py:1553 qt/aqt/forms/browser.py:293
 msgid "Preview"
 msgstr "Previzualizare"
 
-#: qt/aqt/browser.py:593
+#: qt/aqt/browser.py:598
 #, python-format
 msgid "Preview Selected Card (%s)"
 msgstr "Previzualizare card selectat (%s)"
@@ -2950,11 +2958,11 @@ msgstr "Previzualizare card selectat (%s)"
 msgid "Preview new cards"
 msgstr "Previzualizare carduri noi"
 
-#: qt/aqt/customstudy.py:95
+#: qt/aqt/customstudy.py:96
 msgid "Preview new cards added in the last"
 msgstr "Previzualizare carduri noi adăugate în ultima/ultimele"
 
-#: qt/aqt/importing.py:488
+#: qt/aqt/importing.py:486
 #, python-format
 msgid "Processed %d media file"
 msgid_plural "Processed %d media files"
@@ -2978,16 +2986,16 @@ msgstr "Profiluri"
 msgid "Proxy authentication required."
 msgstr "Autentificare proxy necesară."
 
-#: qt/aqt/browser.py:710
+#: qt/aqt/browser.py:715
 msgid "Question"
 msgstr "Întrebare"
 
-#: qt/aqt/browser.py:1954
+#: qt/aqt/browser.py:1959
 #, python-format
 msgid "Queue bottom: %d"
 msgstr ".i li %d cu ro moi"
 
-#: qt/aqt/browser.py:1953
+#: qt/aqt/browser.py:1958
 #, python-format
 msgid "Queue top: %d"
 msgstr ".i li %d cu pa moi"
@@ -3004,7 +3012,7 @@ msgstr "Aleator"
 msgid "Randomize order"
 msgstr "Ordine aleatoare"
 
-#: qt/aqt/browser.py:1422
+#: qt/aqt/browser.py:1427
 msgid "Rating"
 msgstr "vamji"
 
@@ -3016,7 +3024,7 @@ msgstr "nu za'u re'u zbasu"
 msgid "Record Own Voice"
 msgstr "nu rejgau pa sevzi voksa snavei"
 
-#: qt/aqt/editor.py:140
+#: qt/aqt/editor.py:141
 msgid "Record audio (F5)"
 msgstr "nu rejgau pa snavei (F5)"
 
@@ -3025,7 +3033,7 @@ msgstr "nu rejgau pa snavei (F5)"
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Se înregistrează...<br>Timp: %0.1f"
 
-#: qt/aqt/browser.py:1239 qt/aqt/reviewer.py:653 qt/aqt/forms/browser.py:330
+#: qt/aqt/browser.py:1244 qt/aqt/reviewer.py:653 qt/aqt/forms/browser.py:330
 msgid "Red Flag"
 msgstr "Fanion roșu"
 
@@ -3033,7 +3041,7 @@ msgstr "Fanion roșu"
 msgid "Relative overdueness"
 msgstr ""
 
-#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1433
+#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1438
 msgid "Relearn"
 msgstr "za'u re'u te cilre"
 
@@ -3041,7 +3049,7 @@ msgstr "za'u re'u te cilre"
 msgid "Remember last input when adding"
 msgstr "nu ralte lo prula'i se samci'a ca lo nu jmina"
 
-#: qt/aqt/browser.py:1352
+#: qt/aqt/browser.py:1357
 #, python-format
 msgid "Remove %s from your saved searches?"
 msgstr ".i xu do djica lo ka ce'u vimcu zoi zoi. %s .zoi lo do sisku vreji"
@@ -3050,7 +3058,7 @@ msgstr ".i xu do djica lo ka ce'u vimcu zoi zoi. %s .zoi lo do sisku vreji"
 msgid "Remove Card Type..."
 msgstr "nu vimcu lo karda klesi"
 
-#: qt/aqt/browser.py:1327
+#: qt/aqt/browser.py:1332
 msgid "Remove Current Filter..."
 msgstr "nu co'u julne"
 
@@ -3058,7 +3066,7 @@ msgstr "nu co'u julne"
 msgid "Remove Tags..."
 msgstr "nu vimcu lo tcita"
 
-#: qt/aqt/editor.py:113
+#: qt/aqt/editor.py:114
 msgid "Remove formatting (Ctrl+R)"
 msgstr ""
 
@@ -3083,11 +3091,11 @@ msgstr "Redenumire pachet"
 msgid "Repeat failed cards after"
 msgstr ""
 
-#: qt/aqt/main.py:274
+#: qt/aqt/main.py:276
 msgid "Replace your collection with an earlier backup?"
 msgstr ".i xu do djica lo nu pa nurfu'i cu basti lo ca karda selcmi selcmi"
 
-#: qt/aqt/browser.py:1559 qt/aqt/reviewer.py:686
+#: qt/aqt/browser.py:1564 qt/aqt/reviewer.py:686
 msgid "Replay Audio"
 msgstr "nu za'u re'u snavi"
 
@@ -3095,7 +3103,7 @@ msgstr "nu za'u re'u snavi"
 msgid "Replay Own Voice"
 msgstr "nu za'u re'u snavi lo sevzi voksa snavei"
 
-#: qt/aqt/browser.py:1959 qt/aqt/forms/fields.py:104
+#: qt/aqt/browser.py:1964 qt/aqt/forms/fields.py:104
 msgid "Reposition"
 msgstr "Repoziționează"
 
@@ -3115,11 +3123,11 @@ msgstr "Repoziționează…"
 msgid "Require one or more of these tags:"
 msgstr "nu nitcu lo ka su'o da pe di'e tcita ce'u"
 
-#: qt/aqt/browser.py:1433
+#: qt/aqt/browser.py:1438
 msgid "Resched"
 msgstr "Reprogramează"
 
-#: qt/aqt/browser.py:1985 qt/aqt/forms/reschedule.py:73
+#: qt/aqt/browser.py:1990 qt/aqt/forms/reschedule.py:73
 msgid "Reschedule"
 msgstr "Re-planifică"
 
@@ -3131,7 +3139,7 @@ msgstr "nu lo ckini be lo ba te spuda be mi cu basti lo tcika"
 msgid "Restored defaults"
 msgstr ""
 
-#: qt/aqt/main.py:645
+#: qt/aqt/main.py:643
 msgid "Resume Now"
 msgstr "nu mo'u denpa"
 
@@ -3139,7 +3147,7 @@ msgstr "nu mo'u denpa"
 msgid "Reverse text direction (RTL)"
 msgstr "Direcție inversată a textului"
 
-#: qt/aqt/main.py:287
+#: qt/aqt/main.py:289
 msgid "Revert to backup"
 msgstr "nu xruti fi pa nurfu'i"
 
@@ -3148,7 +3156,7 @@ msgstr "nu xruti fi pa nurfu'i"
 msgid "Reverted to state prior to '%s'."
 msgstr ".i mo'u xruti fo la'o zoi. %s .zoi"
 
-#: pylib/anki/collection.py:783 qt/aqt/browser.py:1233 qt/aqt/browser.py:1433
+#: pylib/anki/collection.py:798 qt/aqt/browser.py:1238 qt/aqt/browser.py:1438
 msgid "Review"
 msgstr "te morji"
 
@@ -3164,11 +3172,11 @@ msgstr "Timpul repetărilor"
 msgid "Review ahead"
 msgstr ""
 
-#: qt/aqt/customstudy.py:92
+#: qt/aqt/customstudy.py:93
 msgid "Review ahead by"
 msgstr ""
 
-#: qt/aqt/customstudy.py:88
+#: qt/aqt/customstudy.py:89
 msgid "Review cards forgotten in last"
 msgstr ""
 
@@ -3180,12 +3188,12 @@ msgstr "nu tadni lo karda poi te tolmo'i"
 msgid "Review success rate for each hour of the day."
 msgstr ""
 
-#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:721
+#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:726
 #: qt/aqt/forms/dconf.py:375
 msgid "Reviews"
 msgstr "Repetiții"
 
-#: qt/aqt/customstudy.py:82
+#: qt/aqt/customstudy.py:83
 #, python-format
 msgid "Reviews due in deck over today limit: %s"
 msgstr ""
@@ -3198,7 +3206,7 @@ msgstr "Dreapta"
 msgid "Save"
 msgstr "Salvează"
 
-#: qt/aqt/browser.py:1329
+#: qt/aqt/browser.py:1334
 msgid "Save Current Filter..."
 msgstr "nu rejgau lo ca julne"
 
@@ -3215,7 +3223,7 @@ msgstr "Salvat."
 msgid "Scope: %s"
 msgstr ".i kuspe la'o zoi. %s .zoi"
 
-#: qt/aqt/browser.py:2135 qt/aqt/forms/browser.py:292
+#: qt/aqt/browser.py:2149 qt/aqt/forms/browser.py:292
 #: qt/aqt/forms/dyndconf.py:135 qt/aqt/forms/dyndconf.py:139
 msgid "Search"
 msgstr "Caută"
@@ -3228,7 +3236,7 @@ msgstr "te sisku"
 msgid "Search within formatting (slow)"
 msgstr "Caută în formatări (lent)"
 
-#: qt/aqt/customstudy.py:99
+#: qt/aqt/customstudy.py:100
 msgid "Select"
 msgstr "Selectează"
 
@@ -3244,7 +3252,7 @@ msgstr "nu cuxna lo karda datni"
 msgid "Select tags to exclude:"
 msgstr "nu nitcu lo ka no da pe di'e tcita ce'u"
 
-#: qt/aqt/importing.py:303
+#: qt/aqt/importing.py:301
 msgid "Selected file was not in UTF-8 format. Please see the importing section of the manual."
 msgstr ".i pa datnyvei poi se cuxna cu datni tarmi na'e la'o zoi. UTF-8 .zoi .i ko tcidu lo nu nerbei kei te fendi be lo djunoi"
 
@@ -3252,7 +3260,7 @@ msgstr ".i pa datnyvei poi se cuxna cu datni tarmi na'e la'o zoi. UTF-8 .zoi .i 
 msgid "Selective Study"
 msgstr "Studiu selectiv"
 
-#: qt/aqt/importing.py:166
+#: qt/aqt/importing.py:167
 msgid "Semicolon"
 msgstr ".semikolon. bu"
 
@@ -3269,11 +3277,11 @@ msgstr ""
 msgid "Set for all subdecks"
 msgstr ""
 
-#: qt/aqt/editor.py:116
+#: qt/aqt/editor.py:117
 msgid "Set foreground colour (F7)"
 msgstr "nu basti lo crane se skari (F7)"
 
-#: qt/aqt/main.py:83
+#: qt/aqt/main.py:85
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr ".i la'o zoi. Shift .zoi katci .i ca'o na zmiku lo nu datni sarxe ja cu samymo'i lo se samtcise'a"
 
@@ -3281,8 +3289,8 @@ msgstr ".i la'o zoi. Shift .zoi katci .i ca'o na zmiku lo nu datni sarxe ja cu s
 msgid "Shift position of existing cards"
 msgstr ""
 
-#: qt/aqt/browser.py:1563 qt/aqt/browser.py:1581 qt/aqt/deckbrowser.py:327
-#: qt/aqt/main.py:673 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
+#: qt/aqt/browser.py:1568 qt/aqt/browser.py:1586 qt/aqt/deckbrowser.py:327
+#: qt/aqt/main.py:671 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
 #: qt/aqt/reviewer.py:546 qt/aqt/reviewer.py:612 qt/aqt/toolbar.py:34
 #: qt/aqt/toolbar.py:35 qt/aqt/toolbar.py:36 qt/aqt/toolbar.py:37
 #: qt/aqt/toolbar.py:38
@@ -3290,33 +3298,28 @@ msgstr ""
 msgid "Shortcut key: %s"
 msgstr ""
 
-#: qt/aqt/browser.py:1568
+#: qt/aqt/browser.py:1573
 msgid "Shortcut key: Left arrow"
 msgstr ""
 
-#: qt/aqt/browser.py:1573
+#: qt/aqt/browser.py:1578
 msgid "Shortcut key: Right arrow or Enter"
 msgstr ""
 
-#: qt/aqt/addcards.py:85
+#: qt/aqt/addcards.py:84
 #, python-format
 msgid "Shortcut: %s"
-msgstr ""
-
-#: pylib/anki/template2.py:302
-#, python-format
-msgid "Show %s"
 msgstr ""
 
 #: qt/aqt/reviewer.py:547
 msgid "Show Answer"
 msgstr "Arată răspuns"
 
-#: qt/aqt/browser.py:1579
+#: qt/aqt/browser.py:1584
 msgid "Show Both Sides"
 msgstr ""
 
-#: qt/aqt/editor.py:163
+#: qt/aqt/editor.py:166
 msgid "Show Duplicates"
 msgstr "liste lo fukpi"
 
@@ -3324,11 +3327,11 @@ msgstr "liste lo fukpi"
 msgid "Show answer timer"
 msgstr "nu lo spuda temci cu visycu'i"
 
-#: qt/aqt/forms/preferences.py:244
+#: qt/aqt/forms/preferences.py:249
 msgid "Show cards as white on black (night mode)"
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:245
+#: qt/aqt/forms/preferences.py:250
 msgid "Show learning cards with larger steps before reviews"
 msgstr ""
 
@@ -3348,15 +3351,15 @@ msgstr "Arată cărțile noi în ordinea adăugării"
 msgid "Show new cards in random order"
 msgstr "Arată cărțile noi în ordine aleatoare"
 
-#: qt/aqt/forms/preferences.py:241
+#: qt/aqt/forms/preferences.py:245
 msgid "Show next review time above answer buttons"
 msgstr "nu lo bavla'i ke te morji temci cu visycu'i fi lo nu ri gapru lo te spuda batkyuidje"
 
-#: qt/aqt/forms/preferences.py:242
+#: qt/aqt/forms/preferences.py:246
 msgid "Show remaining card count during review"
 msgstr ""
 
-#: qt/aqt/browser.py:1033 qt/aqt/forms/browser.py:334
+#: qt/aqt/browser.py:1038 qt/aqt/forms/browser.py:334
 msgid "Sidebar"
 msgstr ""
 
@@ -3368,15 +3371,15 @@ msgstr "Mărime:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1290 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1478
 msgid "Some related or buried cards were delayed until a later session."
 msgstr ".i su'o karda poi ckini ja cu zasni se mipri pu zi binxo lo ka ce'u jai balvi"
 
-#: qt/aqt/forms/preferences.py:269
+#: qt/aqt/forms/preferences.py:274
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Unele configurări vor intra în vigoare după ce reporniți Anki"
 
-#: qt/aqt/browser.py:714
+#: qt/aqt/browser.py:719
 msgid "Sort Field"
 msgstr "Sortează câmp"
 
@@ -3384,7 +3387,7 @@ msgstr "Sortează câmp"
 msgid "Sort by this field in the browser"
 msgstr ""
 
-#: qt/aqt/browser.py:913
+#: qt/aqt/browser.py:918
 msgid "Sorting on this column is not supported. Please choose another."
 msgstr ""
 
@@ -3392,7 +3395,7 @@ msgstr ""
 msgid "Sound and video on cards will not function until mpv or mplayer is installed."
 msgstr ".i spofu lo nu snavi je lo nu vidvi vu'o pe lo karda pu'o lo nu ci'erse'a la'o gy. mpv .gy. ja la'o gy. mplayer .gy."
 
-#: qt/aqt/importing.py:164 qt/aqt/reviewer.py:546
+#: qt/aqt/importing.py:165 qt/aqt/reviewer.py:546
 msgid "Space"
 msgstr "Spațiu"
 
@@ -3438,7 +3441,7 @@ msgstr ".i tadni %(a)s %(b)s ca lo cabdei to karda snidu li %(secs).1f toi"
 msgid "Studied %(a)s %(b)s today."
 msgstr ".i tadni %(a)s %(b)s ca lo cabdei"
 
-#: qt/aqt/browser.py:1219
+#: qt/aqt/browser.py:1224
 msgid "Studied Today"
 msgstr "Studiate astăzi"
 
@@ -3470,7 +3473,7 @@ msgstr ""
 msgid "Styling (shared between cards)"
 msgstr ""
 
-#: qt/aqt/editor.py:112
+#: qt/aqt/editor.py:113
 msgid "Subscript (Ctrl+=)"
 msgstr ""
 
@@ -3478,7 +3481,7 @@ msgstr ""
 msgid "Supermemo XML export (*.xml)"
 msgstr "XML exportat din Supermemo (*.xml)"
 
-#: qt/aqt/editor.py:110
+#: qt/aqt/editor.py:111
 msgid "Superscript (Ctrl++)"
 msgstr ""
 
@@ -3494,7 +3497,7 @@ msgstr "Suspendă card"
 msgid "Suspend Note"
 msgstr "Suspendă notă"
 
-#: qt/aqt/browser.py:1236
+#: qt/aqt/browser.py:1241
 msgid "Suspended"
 msgstr "Suspendate"
 
@@ -3506,7 +3509,7 @@ msgstr "se mipri je cu zasni se mipri"
 msgid "Sync"
 msgstr "nu co'a datni sarxe"
 
-#: qt/aqt/forms/preferences.py:259
+#: qt/aqt/forms/preferences.py:264
 msgid "Synchronize audio and images too"
 msgstr "Sincronizarea fişierelor audio şi a imaginilor"
 
@@ -3529,11 +3532,11 @@ msgstr ""
 msgid "Syncing..."
 msgstr "Sincronizare..."
 
-#: qt/aqt/importing.py:160
+#: qt/aqt/importing.py:161
 msgid "Tab"
 msgstr ""
 
-#: qt/aqt/browser.py:2144 qt/aqt/browser.py:2172
+#: qt/aqt/browser.py:2158 qt/aqt/browser.py:2186
 msgid "Tag Duplicates"
 msgstr ""
 
@@ -3545,7 +3548,7 @@ msgstr ""
 msgid "Tag modified notes:"
 msgstr ""
 
-#: qt/aqt/browser.py:723 qt/aqt/browser.py:1251 qt/aqt/editor.py:514
+#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:517
 msgid "Tags"
 msgstr "Etichete"
 
@@ -3557,7 +3560,7 @@ msgstr ""
 msgid "Target field:"
 msgstr ""
 
-#: pylib/anki/stdmodels.py:101
+#: pylib/anki/stdmodels.py:102
 msgid "Text"
 msgstr ""
 
@@ -3593,11 +3596,11 @@ msgstr "Pachetul implicit nu poate fi şters."
 msgid "The division of cards in your deck(s)."
 msgstr "Împărțirea cardurilor în pachetul/pachetele tale."
 
-#: qt/aqt/addcards.py:172
+#: qt/aqt/addcards.py:171
 msgid "The first field is empty."
 msgstr ".i lo pa moi datnyvau cu kunti"
 
-#: qt/aqt/importing.py:177
+#: qt/aqt/importing.py:178
 msgid "The first field of the note type must be mapped."
 msgstr ""
 
@@ -3620,7 +3623,7 @@ msgstr ""
 msgid "The front of this card is empty. Please run Tools>Empty Cards."
 msgstr ".i lo crane be lo karda cu kunti .i ko terca'a fi la'au nu cipcta lo karda lo ka ce'u kunti li'u pe la tutci"
 
-#: qt/aqt/addcards.py:189
+#: qt/aqt/addcards.py:188
 msgid "The input you have provided would make an empty question on all cards."
 msgstr ".i ju'i do'u tu'a da'i lo se samci'a be do cu rinka lo nu ro karda cu preti kunti"
 
@@ -3640,7 +3643,7 @@ msgstr "Numărul de repetiții programate în viitor"
 msgid "The number of times you have pressed each button."
 msgstr "De câte ori ați apăsat fiecare buton."
 
-#: qt/aqt/importing.py:477
+#: qt/aqt/importing.py:475
 msgid "The provided file is not a valid .apkg file."
 msgstr ".i da na'e drani lo ka ce'u srana be zoi zoi. .apkg .zoi datnyvei"
 
@@ -3648,7 +3651,7 @@ msgstr ".i da na'e drani lo ka ce'u srana be zoi zoi. .apkg .zoi datnyvei"
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr ".i lo se sisku cu ckaji no karda .i xu do djica lo ka ce'u basygau fi sy."
 
-#: qt/aqt/main.py:1212
+#: qt/aqt/main.py:1213
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr ""
 
@@ -3656,7 +3659,7 @@ msgstr ""
 msgid "The time taken to answer the questions."
 msgstr "Timpul de care a fost nevoie pentru a răspunde întrebărilor"
 
-#: pylib/anki/sched.py:1276 pylib/anki/schedv2.py:1464
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1464
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3666,19 +3669,19 @@ msgstr "Mai există carduri noi valabile, dar a fost atinsă limita \n"
 "de faptul că, introducând mai multe carduri noi, volumul \n"
 "de muncă al repetițiilor pe termen scurt va deveni mai mare."
 
-#: qt/aqt/main.py:256
+#: qt/aqt/main.py:258
 msgid "There must be at least one profile."
 msgstr ".i su'o pa lo pilno cu sarcu"
 
-#: qt/aqt/browser.py:897
+#: qt/aqt/browser.py:902
 msgid "This column can't be sorted on, but you can search for individual card types, such as 'card:1'."
 msgstr ""
 
-#: qt/aqt/browser.py:905
+#: qt/aqt/browser.py:910
 msgid "This column can't be sorted on, but you can search for specific decks by clicking on one on the left."
 msgstr ""
 
-#: qt/aqt/importing.py:424
+#: qt/aqt/importing.py:422
 msgid "This file does not appear to be a valid .apkg file. If you're getting this error from a file downloaded from AnkiWeb, chances are that your download failed. Please try again, and if the problem persists, please try again with a different browser."
 msgstr ".i da goi dy. simlu lo ka ce'u na'e drani lo ka ce'u srana be zoi zoi. .apkg .zoi datnyvei .i ga na ja dy. se kibycpa fi la .ankiueb. gi la'a sai da pu nabmi fi lo nu kibycpa dy. .i na ja stidi lo nu do za'u re'u troci je cu pilno pa drata kibyca'o ja nai bo cu renvi se nabmi"
 
@@ -3686,7 +3689,7 @@ msgstr ".i da goi dy. simlu lo ka ce'u na'e drani lo ka ce'u srana be zoi zoi. .
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Fișierul există. Sunteți sigur(ă) că vreți să îl suprascrieți?"
 
-#: qt/aqt/profiles.py:381
+#: qt/aqt/profiles.py:382
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3714,7 +3717,7 @@ msgstr[0] ".i ba cupra %d karda .i xu do djica"
 msgstr[1] ".i ba cupra %d karda .i xu do djica"
 msgstr[2] ".i ba cupra %d karda .i xu do djica"
 
-#: qt/aqt/importing.py:444
+#: qt/aqt/importing.py:442
 msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
 msgstr ".i ju'i do lo ca karda selcmi selcmi ba se vimcu je ba se basti lo se datnyvei be lo se nerbei .i xu do birti"
 
@@ -3722,11 +3725,11 @@ msgstr ".i ju'i do lo ca karda selcmi selcmi ba se vimcu je ba se basti lo se da
 msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
 msgstr ".i ju'i do rinka lo nu ro karda poi ca'o te cilre cu zilxru je lo nu ro se julne karda selcmi co'a kunti je lo nu lo namcu be lo tcika ciste cu binxo .i xu do djica"
 
-#: qt/aqt/browser.py:1425
+#: qt/aqt/browser.py:1430
 msgid "Time"
 msgstr "spuda temci"
 
-#: qt/aqt/forms/preferences.py:253
+#: qt/aqt/forms/preferences.py:258
 msgid "Timebox time limit"
 msgstr ""
 
@@ -3738,23 +3741,23 @@ msgstr "De revăzut"
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr ".i lo nu do catlu lo liste be lo se samtcise'a cu se rinka lo nu do terca'a fi lo nu catlu vau batkyuidje poi cnita<br><br>.i ga na ja da zo'u do djica lo ka ce'u samtcise'a da gi ko fukpu'i lo namcu judri lo cnita .i do zifre lo ka ce'u fukpu'i lo selcmi be za'u pa namcu judri be'o poi sepli be fi canlu bu simxu"
 
-#: qt/aqt/editor.py:589
+#: qt/aqt/editor.py:592
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr ""
 
-#: pylib/anki/sched.py:1285 pylib/anki/schedv2.py:1473
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1473
 msgid "To see them now, click the Unbury button below."
 msgstr ".i ga na ja do djica lo ka ce'u ba'e ca viska lo karda gi ko terca'a fi la nu to'e ke zasni mipri noi batkyuidje noi cnita"
 
-#: pylib/anki/sched.py:1298 pylib/anki/schedv2.py:1486
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1486
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Pentru a studia peste programul normal, fă clic pe butonul de mai jos Studiu personalizat."
 
-#: pylib/anki/stats.py:146 qt/aqt/browser.py:1214
+#: pylib/anki/stats.py:146 qt/aqt/browser.py:1219
 msgid "Today"
 msgstr "Astăzi"
 
-#: pylib/anki/sched.py:1267 pylib/anki/schedv2.py:1455
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1455
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3794,7 +3797,7 @@ msgstr "Total note"
 msgid "Treat input as regular expression"
 msgstr "Șirul este expresie regulată"
 
-#: qt/aqt/browser.py:1421 qt/aqt/modelchooser.py:26
+#: qt/aqt/browser.py:1426 qt/aqt/modelchooser.py:26
 #: qt/aqt/forms/importing.py:105
 msgid "Type"
 msgstr "Tip"
@@ -3808,11 +3811,11 @@ msgstr ""
 msgid "Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect."
 msgstr ""
 
-#: qt/aqt/importing.py:405
+#: qt/aqt/importing.py:403
 msgid "Unable to import from a read-only file."
 msgstr ".i ka'e nai nerbei lo datnyvei poi ka'e se tcidu po'o"
 
-#: qt/aqt/main.py:300
+#: qt/aqt/main.py:302
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr ""
 
@@ -3826,7 +3829,7 @@ msgstr ""
 msgid "Unbury"
 msgstr "nu to'e ke zasni mipri"
 
-#: qt/aqt/editor.py:107
+#: qt/aqt/editor.py:108
 msgid "Underline text (Ctrl+U)"
 msgstr ""
 
@@ -3839,7 +3842,7 @@ msgstr "nu xruti"
 msgid "Undo %s"
 msgstr "Refă %s"
 
-#: qt/aqt/downloader.py:72 qt/aqt/editor.py:777
+#: qt/aqt/downloader.py:72 qt/aqt/editor.py:780
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr ""
@@ -3852,7 +3855,7 @@ msgstr ""
 msgid "Unknown error: {}"
 msgstr ""
 
-#: qt/aqt/importing.py:363
+#: qt/aqt/importing.py:361
 msgid "Unknown file format."
 msgstr ".i na djuno fi lo datnyvei klesi"
 
@@ -3880,15 +3883,15 @@ msgstr "kibydu'a fi la .anki,ueb."
 msgid "Uploading to AnkiWeb..."
 msgstr ".i ca kibydu'a fi la .anki,ueb."
 
-#: qt/aqt/main.py:1269
+#: qt/aqt/main.py:1270
 msgid "Used on cards but missing from media folder:"
 msgstr "Folosite în carduri, dar care lipsesc din dosarul media:"
 
-#: qt/aqt/profiles.py:377
+#: qt/aqt/profiles.py:378
 msgid "User 1"
 msgstr "pa moi pilno"
 
-#: qt/aqt/forms/preferences.py:255
+#: qt/aqt/forms/preferences.py:260
 msgid "User interface size"
 msgstr ""
 
@@ -3905,11 +3908,11 @@ msgstr "nu catlu lo se samtcise'a papri"
 msgid "View Files"
 msgstr "catlu lo datnyvei"
 
-#: qt/aqt/main.py:644
+#: qt/aqt/main.py:642
 msgid "Waiting for editing to finish."
 msgstr ".i ca'o denpa lo nu mo'u basygau"
 
-#: qt/aqt/editor.py:582
+#: qt/aqt/editor.py:585
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr ""
 
@@ -3917,11 +3920,11 @@ msgstr ""
 msgid "What would you like to unbury?"
 msgstr ".i .au dai do to'e ke zasni mipri ma"
 
-#: qt/aqt/forms/preferences.py:247
+#: qt/aqt/forms/preferences.py:252
 msgid "When adding, default to current deck"
 msgstr ""
 
-#: qt/aqt/browser.py:1085 qt/aqt/browser.py:1210
+#: qt/aqt/browser.py:1090 qt/aqt/browser.py:1215
 msgid "Whole Collection"
 msgstr "Întreaga colecție"
 
@@ -3929,16 +3932,16 @@ msgstr "Întreaga colecție"
 msgid "Would you like to download it now?"
 msgstr "Doriți să îl descărcați acum?"
 
-#: qt/aqt/about.py:159
+#: qt/aqt/about.py:160
 #, python-format
 msgid "Written by Damien Elmes, with patches, translation,    testing and design from:<p>%(cont)s"
 msgstr ".i la'o zoi. Damien Elmes .zoi finti .a bu .i ro la'e di'e favgau sidju fi tu'a .a bu ja cu cipra fi .a bu ja cu platu fi tu'a .a bu<p>%(cont)s"
 
-#: qt/aqt/forms/preferences.py:267
+#: qt/aqt/forms/preferences.py:272
 msgid "You can restore backups via File>Switch Profile."
 msgstr ""
 
-#: qt/aqt/addcards.py:180
+#: qt/aqt/addcards.py:179
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr ""
 
@@ -3951,7 +3954,7 @@ msgstr ""
 msgid "You haven't recorded your voice yet."
 msgstr "Nu ți-ai înregistrat încă vocea."
 
-#: qt/aqt/browser.py:965
+#: qt/aqt/browser.py:970
 msgid "You must have at least one column."
 msgstr "Trebuie să ai cel puțin o coloană."
 
@@ -3972,7 +3975,7 @@ msgstr ""
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr ".i za'u pa karda selcmi pu'o binxo .i pa da poi karda selcmi je cu se cuxna zo'u ga na ja do djica lo ka ce'u bixygau da po'o gi ko cupra pa te tcimi'e selcmi poi cnino"
 
-#: qt/aqt/main.py:476
+#: qt/aqt/main.py:478
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr ".i lo do karda selcmi selcmi datnyvei cu simlu lo ka ce'u spofu .i ky sy sy dy. kakne ri lo ka ca lo nu la .ankis. cu katci kei ce'u se fukpu'i ja cu se muvgau ja lo ka vreji ce'u fo pa samseltcana co'e ja pa kibro co'e .i ga na ja lo nabmi cu renvi lo nu do krefu katci lo do skami gi do bilga lo ka gau ce'u samymo'i pa zmiku nurfu'i pe lo pilno datni"
 
@@ -4008,15 +4011,15 @@ msgstr ""
 msgid "[no deck]"
 msgstr "[fără pachet]"
 
-#: qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/preferences.py:271
 msgid "backups"
 msgstr "copii de rezervă"
 
-#: pylib/anki/stats.py:345 qt/aqt/customstudy.py:52
+#: pylib/anki/stats.py:345 qt/aqt/customstudy.py:53
 msgid "cards"
 msgstr "carduri"
 
-#: qt/aqt/customstudy.py:100
+#: qt/aqt/customstudy.py:101
 msgid "cards from the deck"
 msgstr "carduri din pachet"
 
@@ -4033,7 +4036,7 @@ msgstr "colecție"
 msgid "d"
 msgstr "z"
 
-#: qt/aqt/customstudy.py:89 qt/aqt/customstudy.py:93 qt/aqt/customstudy.py:96
+#: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
 #: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
 #: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
 #: qt/aqt/forms/reschedule.py:77
@@ -4048,11 +4051,11 @@ msgstr "pachet"
 msgid "deck life"
 msgstr "viață pachet"
 
-#: qt/aqt/browser.py:2176
+#: qt/aqt/browser.py:2190
 msgid "duplicate"
 msgstr ""
 
-#: pylib/anki/collection.py:681
+#: pylib/anki/collection.py:688
 msgid "help"
 msgstr "ajutor"
 
@@ -4064,7 +4067,7 @@ msgstr "ascunde"
 msgid "hours"
 msgstr "ore"
 
-#: qt/aqt/forms/preferences.py:249
+#: qt/aqt/forms/preferences.py:254
 msgid "hours past midnight"
 msgstr "ore trecute de miezul nopții"
 
@@ -4133,7 +4136,7 @@ msgstr "transformat în <b>%s</b>"
 msgid "mapped to <b>Tags</b>"
 msgstr "transformat în <b>etichete</b>"
 
-#: qt/aqt/forms/preferences.py:250 qt/aqt/forms/preferences.py:254
+#: qt/aqt/forms/preferences.py:255 qt/aqt/forms/preferences.py:259
 msgid "mins"
 msgstr "minute"
 
