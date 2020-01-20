@@ -4,7 +4,7 @@
 
 import aqt
 from anki.lang import _
-from aqt.sound import clearAudioQueue
+from aqt.sound import av_player
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip
 
 
@@ -17,7 +17,7 @@ class Overview:
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
 
     def show(self):
-        clearAudioQueue()
+        av_player.stop_and_clear_queue()
         self.web.resetHandlers()
         self.web.onBridgeCmd = self._linkHandler
         self.mw.setStateShortcuts(self._shortcutKeys())

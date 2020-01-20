@@ -9,7 +9,6 @@ from typing import Optional
 
 import aqt
 from anki.lang import _
-from anki.sound import stripSounds
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 
@@ -481,7 +480,7 @@ def restoreHeader(widget, key):
 
 def mungeQA(col, txt):
     txt = col.media.escapeImages(txt)
-    txt = stripSounds(txt)
+    txt = col.backend.strip_av_tags(txt)
     return txt
 
 
