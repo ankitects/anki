@@ -16,6 +16,8 @@ message BackendInput {
         BrowserRowsIn browser_rows = 20;
         RenderCardIn render_card = 21;
         int64 local_minutes_west = 22;
+        string strip_av_tags = 23;
+        string get_av_tags = 24;
     }
 }
 
@@ -28,6 +30,8 @@ message BackendOutput {
         BrowserRowsOut browser_rows = 20;
         RenderCardOut render_card = 21;
         sint32 local_minutes_west = 22;
+        string strip_av_tags = 23;
+        GetAVTagsOut get_av_tags = 24;
 
         BackendError error = 2047;
     }
@@ -42,14 +46,6 @@ message BackendError {
 
 message InvalidInputError {
     string info = 1;
-}
-
-message PlusOneIn {
-    int32 num = 1;
-}
-
-message PlusOneOut {
-    int32 num = 1;
 }
 
 message TemplateParseError {
@@ -149,4 +145,20 @@ message RenderedTemplateReplacement {
     string field_name = 1;
     string current_text = 2;
     repeated string filters = 3;
+}
+
+message GetAVTagsOut {
+    repeated AVTag av_tags = 1;
+}
+
+message AVTag {
+    oneof value {
+        string sound_or_video = 1;
+        TTSTag tts = 2;
+    }
+}
+
+message TTSTag {
+    repeated string args = 1;
+    string text = 2;
 }

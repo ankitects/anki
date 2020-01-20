@@ -10,6 +10,7 @@ use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
 };
+use crate::text::{av_tags_in_string, strip_av_tags, AVTag};
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -98,6 +99,8 @@ impl Backend {
             Value::LocalMinutesWest(stamp) => {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
             }
+            Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
+            Value::GetAvTags(text) => OValue::GetAvTags(self.get_av_tags(&text)),
         })
     }
 
@@ -177,6 +180,24 @@ impl Backend {
             question_nodes: rendered_nodes_to_proto(qnodes),
             answer_nodes: rendered_nodes_to_proto(anodes),
         })
+    }
+
+    fn get_av_tags(&self, text: &str) -> pt::GetAvTagsOut {
+        let tags = av_tags_in_string(text)
+            .map(|avtag| match avtag {
+                AVTag::SoundOrVideo(file) => pt::AvTag {
+                    value: Some(pt::av_tag::Value::SoundOrVideo(file.to_string())),
+                },
+                AVTag::TextToSpeech { args, field_text } => pt::AvTag {
+                    value: Some(pt::av_tag::Value::Tts(pt::TtsTag {
+                        args: args.iter().map(|&s| s.to_string()).collect(),
+                        text: field_text.to_string(),
+                    })),
+                },
+            })
+            .collect();
+
+        pt::GetAvTagsOut { av_tags: tags }
     }
 }
 

@@ -75,8 +75,12 @@ fn apply_filter<'a>(
         // an empty filter name (caused by using two colons) is ignored
         "" => text.into(),
         _ => {
-            // unrecognized filter
-            return (false, None);
+            if filter_name.starts_with("tts ") {
+                tts_filter(filter_name, text)
+            } else {
+                // unrecognized filter
+                return (false, None);
+            }
         }
     };
 
@@ -285,6 +289,11 @@ return false;">
     .into()
 }
 
+fn tts_filter(filter_name: &str, text: &str) -> Cow<'static, str> {
+    let args = filter_name.splitn(2, ' ').nth(1).unwrap_or("");
+
+    format!("[anki:tts][{}]{}[/anki:tts]", args, text).into()
+}
 // Tests
 //----------------------------------------
 
@@ -293,7 +302,7 @@ mod test {
     use crate::template::RenderContext;
     use crate::template_filters::{
         apply_filters, cloze_filter, furigana_filter, hint_filter, kana_filter, kanji_filter,
-        type_cloze_filter, type_filter,
+        tts_filter, type_cloze_filter, type_filter,
     };
     use crate::text::strip_html;
 
@@ -367,5 +376,13 @@ field</a>
         // cloze overlapper take advantage of.
         ctx.card_ord = 2;
         assert_eq!(cloze_filter(text, &ctx).as_ref(), "");
+    }
+
+    #[test]
+    fn test_tts() {
+        assert_eq!(
+            tts_filter("tts lang=en_US", "foo"),
+            "[anki:tts][lang=en_US]foo[/anki:tts]"
+        );
     }
 }

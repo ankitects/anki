@@ -3,7 +3,7 @@
 
 use crate::err::{Result, TemplateError};
 use crate::template_filters::apply_filters;
-use crate::text::strip_sounds;
+use crate::text::strip_av_tags;
 use lazy_static::lazy_static;
 use nom;
 use nom::branch::alt;
@@ -443,7 +443,7 @@ pub fn render_card(
     // if the question side didn't have any unknown filters, we can pass
     // FrontSide in now
     if let [RenderedNode::Text { ref text }] = *qnodes.as_slice() {
-        context.front_text = Some(strip_sounds(text));
+        context.front_text = Some(strip_av_tags(text));
     }
 
     // answer side

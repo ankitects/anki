@@ -9,6 +9,7 @@ import ankirspy  # pytype: disable=import-error
 import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki.models import AllTemplateReqs
+from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
@@ -43,6 +44,14 @@ def proto_template_reqs_to_legacy(
             l: List[int] = []
             legacy_reqs.append((idx, "none", l))
     return legacy_reqs
+
+
+def av_tag_to_native(tag: pb.AVTag) -> AVTag:
+    val = tag.WhichOneof("value")
+    if val == "sound_or_video":
+        return SoundOrVideoTag(filename=tag.sound_or_video)
+    else:
+        return TTSTag(args=list(tag.tts.args), text=tag.tts.text)
 
 
 @dataclass
@@ -143,3 +152,16 @@ class RustBackend:
         return self._run_command(
             pb.BackendInput(local_minutes_west=stamp)
         ).local_minutes_west
+
+    def strip_av_tags(self, text: str) -> str:
+        return self._run_command(pb.BackendInput(strip_av_tags=text)).strip_av_tags
+
+    def get_av_tags(self, text: str) -> List[AVTag]:
+        return list(
+            map(
+                av_tag_to_native,
+                self._run_command(
+                    pb.BackendInput(get_av_tags=text)
+                ).get_av_tags.av_tags,
+            )
+        )
