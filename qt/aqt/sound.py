@@ -647,6 +647,10 @@ def setup_audio(base_folder: str) -> None:
         mpv.args.append("--include=" + base_folder)
         av_player.players.append(mpv)
 
+    if isMac:
+        from aqt.tts import MacTTSPlayer
+
+        av_player.players.append(MacTTSPlayer())
 
 # Legacy audio interface
 ##########################################################################
