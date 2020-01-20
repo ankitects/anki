@@ -17,7 +17,7 @@ from anki.lang import _, ngettext
 from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.sound import clearAudioQueue, getAudio, play, playFromText
+from aqt.sound import av_player, getAudio
 from aqt.utils import (
     askUserDialog,
     downArrow,
@@ -95,7 +95,6 @@ class Reviewer:
                 self.hadCardQueue = False
             c = self.mw.col.sched.getCard()
         self.card = c
-        clearAudioQueue()
         if not c:
             self.mw.moveToState("overview")
             return
@@ -114,15 +113,14 @@ class Reviewer:
         else:
             state = self.state
             c = self.card
-        clearAudioQueue()
         if state == "question":
-            playFromText(c.q())
+            av_player.play_from_text(self.mw.col, c.q())
         elif state == "answer":
             txt = ""
             if self._replayq(c, previewer):
                 txt = c.q()
             txt += c.a()
-            playFromText(txt)
+            av_player.play_from_text(self.mw.col, txt)
 
     # Initializing the webview
     ##########################################################################
@@ -184,7 +182,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         else:
             q = c.q()
         if self.autoplay(c):
-            playFromText(q)
+            av_player.play_from_text(self.mw.col, q)
         # render & update bottom
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
@@ -225,9 +223,8 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         c = self.card
         a = c.a()
         # play audio?
-        clearAudioQueue()
         if self.autoplay(c):
-            playFromText(a)
+            av_player.play_from_text(self.mw.col, a)
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
@@ -788,5 +785,4 @@ time = %(time)d;
     def onReplayRecorded(self):
         if not self._recordedAudio:
             return tooltip(_("You haven't recorded your voice yet."))
-        clearAudioQueue()
-        play(self._recordedAudio)
+        av_player.play_file(self._recordedAudio)

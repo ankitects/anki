@@ -12,7 +12,7 @@ from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.sound import clearAudioQueue
+from aqt.sound import av_player
 from aqt.utils import (
     addCloseShortcut,
     askUser,
@@ -207,8 +207,7 @@ question on all cards."""
         if not self.addNote(self.editor.note):
             return
         tooltip(_("Added"), period=500)
-        # stop anything playing
-        clearAudioQueue()
+        av_player.stop_and_clear_queue()
         self.onReset(keep=True)
         self.mw.col.autosave()
 
@@ -225,7 +224,7 @@ question on all cards."""
     def _reject(self) -> None:
         gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.current_note_type_did_change.remove(self.onModelChange)
-        clearAudioQueue()
+        av_player.stop_and_clear_queue()
         self.removeTempNote(self.editor.note)
         self.editor.cleanup()
         self.modelChooser.cleanup()

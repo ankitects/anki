@@ -10,7 +10,7 @@ from anki.lang import _, ngettext
 from anki.utils import fmtTimeSpan, ids2str
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.sound import clearAudioQueue
+from aqt.sound import av_player
 from aqt.utils import askUser, getOnlyText, openHelp, openLink, shortcut, showWarning
 
 
@@ -24,7 +24,7 @@ class DeckBrowser:
         self.scrollPos = QPoint(0, 0)
 
     def show(self):
-        clearAudioQueue()
+        av_player.stop_and_clear_queue()
         self.web.resetHandlers()
         self.web.onBridgeCmd = self._linkHandler
         self._renderPage()

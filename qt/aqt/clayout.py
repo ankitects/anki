@@ -12,7 +12,7 @@ from anki.lang import _, ngettext
 from anki.utils import bodyClass, isMac, isWin, joinFields
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.sound import clearAudioQueue, playFromText
+from aqt.sound import av_player
 from aqt.utils import (
     askUser,
     downArrow,
@@ -344,10 +344,8 @@ Please create a new card type first."""
         self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
         self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
 
-        clearAudioQueue()
         if c.id not in self.playedAudio:
-            playFromText(c.q())
-            playFromText(c.a())
+            av_player.play_from_text(self.mw.col, c.q() + c.a())
             self.playedAudio[c.id] = True
 
         self.updateCardNames()
@@ -593,7 +591,7 @@ Enter deck to place new %s cards in, or leave blank:"""
 
     def reject(self):
         self.cancelPreviewTimer()
-        clearAudioQueue()
+        av_player.stop_and_clear_queue()
         if self.addMode:
             # remove the filler fields we added
             for name in self.emptyFields:

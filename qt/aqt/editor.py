@@ -26,7 +26,7 @@ from anki.notes import Note
 from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.sound import getAudio
+from aqt.sound import av_player, getAudio
 from aqt.utils import (
     getFile,
     openHelp,
@@ -702,8 +702,7 @@ to a cloze type first, via Edit>Change Note Type."""
             name = urllib.parse.quote(fname.encode("utf8"))
             return '<img src="%s">' % name
         else:
-            aqt.sound.clearAudioQueue()
-            aqt.sound.play(fname)
+            av_player.play_file(fname)
             return "[sound:%s]" % fname
 
     def urlToFile(self, url):

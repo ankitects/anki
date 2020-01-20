@@ -32,7 +32,7 @@ from anki.utils import (
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.qt import *
-from aqt.sound import allSounds, clearAudioQueue, play
+from aqt.sound import av_player
 from aqt.utils import (
     MenuList,
     SubMenu,
@@ -1703,7 +1703,7 @@ where id in %s"""
 
             questionAudio = []
             if self._previewBothSides:
-                questionAudio = allSounds(txt)
+                questionAudio = self.mw.col.backend.get_av_tags(txt)
             if self._previewState == "answer":
                 func = "_showAnswer"
                 txt = c.a()
@@ -1711,15 +1711,13 @@ where id in %s"""
 
             bodyclass = bodyClass(self.mw.col, c)
 
-            clearAudioQueue()
             if self.mw.reviewer.autoplay(c):
                 # if we're showing both sides at once, play question audio first
-                for audio in questionAudio:
-                    play(audio)
+                av_player.play_tags(questionAudio)
                 # then play any audio that hasn't already been played
-                for audio in allSounds(txt):
-                    if audio not in questionAudio:
-                        play(audio)
+                answer_audio = self.mw.col.backend.get_av_tags(txt)
+                unplayed_audio = [x for x in answer_audio if x not in questionAudio]
+                av_player.extend_and_play(unplayed_audio)
 
             txt = mungeQA(self.col, txt)
             gui_hooks.card_will_show(
