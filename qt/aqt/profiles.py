@@ -73,8 +73,6 @@ class ProfileManager:
         # instantiate base folder
         self._setBaseFolder(base)
 
-        aqt.sound.setMpvConfigBase(self.base)
-
     def setupMeta(self) -> LoadMetaResult:
         # load metadata
         res = self._loadMeta()

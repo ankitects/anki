@@ -75,6 +75,54 @@ class _AddCardsWillShowHistoryMenuHook:
 add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
 
 
+class _AvPlayerDidPlayHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+av_player_did_play = _AvPlayerDidPlayHook()
+
+
+class _AvPlayerWillPlayHook:
+    _hooks: List[Callable[["anki.sound.AVTag"], None]] = []
+
+    def append(self, cb: Callable[["anki.sound.AVTag"], None]) -> None:
+        """(tag: anki.sound.AVTag)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["anki.sound.AVTag"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, tag: anki.sound.AVTag) -> None:
+        for hook in self._hooks:
+            try:
+                hook(tag)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+av_player_will_play = _AvPlayerWillPlayHook()
+
+
 class _BrowserDidChangeRowHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
@@ -494,56 +542,6 @@ class _EditorWillUseFontForFieldFilter:
 
 
 editor_will_use_font_for_field = _EditorWillUseFontForFieldFilter()
-
-
-class _MpvDidIdleHook:
-    _hooks: List[Callable[[], None]] = []
-
-    def append(self, cb: Callable[[], None]) -> None:
-        """()"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self) -> None:
-        for hook in self._hooks:
-            try:
-                hook()
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-
-
-mpv_did_idle = _MpvDidIdleHook()
-
-
-class _MpvWillPlayHook:
-    _hooks: List[Callable[[str], None]] = []
-
-    def append(self, cb: Callable[[str], None]) -> None:
-        """(file: str)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[str], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, file: str) -> None:
-        for hook in self._hooks:
-            try:
-                hook(file)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("mpvWillPlay", file)
-
-
-mpv_will_play = _MpvWillPlayHook()
 
 
 class _ProfileDidOpenHook:
