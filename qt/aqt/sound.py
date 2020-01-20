@@ -55,7 +55,9 @@ class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
 
 class AVPlayer:
     players: List[Player] = []
-    interrupt_playing = True
+    # when a new batch of audio is played, shoud the currently playing
+    # audio be stopped?
+    interrupt_current_audio = True
 
     def __init__(self):
         self._enqueued: List[AVTag] = []
@@ -64,7 +66,7 @@ class AVPlayer:
     def play_tags(self, tags: List[AVTag]) -> None:
         """Clear the existing queue, then start playing provided tags."""
         self._enqueued = tags
-        if self.interrupt_playing:
+        if self.interrupt_current_audio:
             self._stop_if_playing()
         self._play_next_if_idle()
 
@@ -259,6 +261,9 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self._on_done = on_done
         path = os.path.join(os.getcwd(), stag.filename)
         self.command("loadfile", path, "append-play")
+
+    def stop(self) -> None:
+        self.command("stop")
 
     def togglePause(self) -> None:
         self.set_property("pause", not self.get_property("pause"))
