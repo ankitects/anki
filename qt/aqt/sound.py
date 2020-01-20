@@ -652,6 +652,7 @@ def setup_audio(base_folder: str) -> None:
 
         av_player.players.append(MacTTSPlayer())
 
+
 # Legacy audio interface
 ##########################################################################
 # these will be removed in the future
@@ -673,11 +674,6 @@ def playFromText(text) -> None:
 
 _player = play
 _queueEraser = clearAudioQueue
-
-# imports that add-ons may be expecting
-# fmt:off
-from anki.sound import allSounds, stripSounds # isort:skip pylint: disable=unused-import
-# fmt:on
 
 # add everything from this module into anki.sound for backwards compat
 _exports = [i for i in locals().items() if not i[0].startswith("__")]
