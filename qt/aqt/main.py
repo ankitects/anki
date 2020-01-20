@@ -28,6 +28,7 @@ from anki import hooks
 from anki.collection import _Collection
 from anki.hooks import runHook
 from anki.lang import _, ngettext
+from anki.sound import AVTag, SoundOrVideoTag
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
@@ -1169,8 +1170,8 @@ Difference to correct time: %s."""
         hooks.notes_will_be_deleted.append(self.onRemNotes)
         hooks.card_odue_was_invalid.append(self.onOdueInvalid)
 
-        gui_hooks.mpv_will_play.append(self.on_mpv_will_play)
-        gui_hooks.mpv_did_idle.append(self.on_mpv_idle)
+        gui_hooks.av_player_will_play.append(self.on_av_player_will_play)
+        gui_hooks.av_player_did_play.append(self.on_av_player_did_play)
 
         self._activeWindowOnPlay: Optional[QWidget] = None
 
@@ -1183,17 +1184,22 @@ and if the problem comes up again, please ask on the support site."""
             )
         )
 
-    def _isVideo(self, file):
-        head, ext = os.path.splitext(file.lower())
-        return ext in (".mp4", ".mov", ".mpg", ".mpeg", ".mkv", ".avi")
+    def _isVideo(self, tag: AVTag) -> bool:
+        if isinstance(tag, SoundOrVideoTag):
+            head, ext = os.path.splitext(tag.filename.lower())
+            return ext in (".mp4", ".mov", ".mpg", ".mpeg", ".mkv", ".avi")
 
-    def on_mpv_will_play(self, file: str) -> None:
-        if not self._isVideo(file):
+        return False
+
+    def on_av_player_will_play(self, tag: AVTag) -> None:
+        "Record active window to restore after video playing."
+        if not self._isVideo(tag):
             return
 
         self._activeWindowOnPlay = self.app.activeWindow() or self._activeWindowOnPlay
 
-    def on_mpv_idle(self) -> None:
+    def on_av_player_did_play(self) -> None:
+        "Restore window focus after a video was played."
         w = self._activeWindowOnPlay
         if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
             w.activateWindow()

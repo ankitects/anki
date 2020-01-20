@@ -15,6 +15,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 import pyaudio
 
 import anki
+import aqt
 from anki.lang import _
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import isLin, isMac, isWin, tmpdir
@@ -99,6 +100,7 @@ class AVPlayer:
 
     def _on_play_finished(self) -> None:
         self._current_player = None
+        gui_hooks.av_player_did_play()
         self._play_next_if_idle()
 
     def _play_next_if_idle(self) -> None:
@@ -113,6 +115,7 @@ class AVPlayer:
         for player in self.players:
             if player.can_play(tag):
                 self._current_player = player
+                gui_hooks.av_player_will_play(tag)
                 player.play(tag, self._on_play_finished)
                 return
         print("no players found for", tag)
@@ -193,6 +196,10 @@ class SimpleMpvPlayer(SimpleProcessPlayer):
         ]
     )
 
+    def __init__(self, base_folder: str) -> None:
+        conf_path = os.path.join(base_folder, "mpv.conf")
+        self.args += ["--no-config", "--include=" + conf_path]
+
 
 class SimpleMplayerPlayer(SimpleProcessPlayer):
     args, env = _packagedCmd(["mplayer", "-really-quiet", "-noautosub"])
@@ -232,34 +239,26 @@ def retryWait(proc) -> Any:
 ##########################################################################
 
 
-_player: Optional[Callable[[Any], Any]]
-_queueEraser: Optional[Callable[[], Any]]
-mpvManager: Optional["MpvManager"] = None
-
-mpvPath, mpvEnv = _packagedCmd(["mpv"])
-
-
-class MpvManager(MPV):
-
-    executable = mpvPath[0]
-    popenEnv = mpvEnv
+class MpvManager(MPV, SoundOrVideoPlayer):
 
     if not isLin:
         default_argv = MPVBase.default_argv + [
             "--input-media-keys=no",
         ]
 
-    def __init__(self) -> None:
+    def __init__(self, base_path: str) -> None:
         super().__init__(window_id=None, debug=False)
+        mpvPath, self.popenEnv = _packagedCmd(["mpv"])
+        self.executable = mpvPath[0]
+        self._on_done: Optional[OnDoneCallback] = None
+        conf_path = os.path.join(base_path, "mpv.conf")
+        self.default_argv += ["--no-config", "--include=" + conf_path]
 
-    def queueFile(self, file: str) -> None:
-        gui_hooks.mpv_will_play(file)
-
-        path = os.path.join(os.getcwd(), file)
+    def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
+        stag = cast(SoundOrVideoTag, tag)
+        self._on_done = on_done
+        path = os.path.join(os.getcwd(), stag.filename)
         self.command("loadfile", path, "append-play")
-
-    def clearQueue(self) -> None:
-        self.command("stop")
 
     def togglePause(self) -> None:
         self.set_property("pause", not self.get_property("pause"))
@@ -268,32 +267,25 @@ class MpvManager(MPV):
         self.command("seek", secs, "relative")
 
     def on_idle(self) -> None:
-        gui_hooks.mpv_did_idle()
+        if self._on_done:
+            self._on_done()
 
+    # Legacy, not used
+    ##################################################
 
-def setMpvConfigBase(base) -> None:
-    mpvConfPath = os.path.join(base, "mpv.conf")
-    MpvManager.default_argv += [
-        "--no-config",
-        "--include=" + mpvConfPath,
-    ]
+    def queueFile(self, file: str) -> None:
+        path = os.path.join(os.getcwd(), file)
+        self.command("loadfile", path, "append-play")
 
-
-def setupMPV() -> None:
-    global mpvManager, _player, _queueEraser
-    mpvManager = MpvManager()
-    _player = mpvManager.queueFile
-    _queueEraser = mpvManager.clearQueue
-    atexit.register(cleanupMPV)
+    def clearQueue(self) -> None:
+        self.command("stop")
 
 
 def cleanupMPV() -> None:
-    global mpvManager, _player, _queueEraser
+    global mpvManager
     if mpvManager:
         mpvManager.close()
         mpvManager = None
-        _player = None
-        _queueEraser = None
 
 
 # Mplayer in slave mode
@@ -624,35 +616,6 @@ def getAudio(parent, encode=True):
     return r.file()
 
 
-# Init defaults
-##########################################################################
-
-
-def setup_audio(base_folder: str) -> None:
-    # if isWin:
-    #     return
-    # try:
-    #     setupMPV()
-    # except FileNotFoundError:
-    #     print("mpv not found, reverting to mplayer")
-    # except aqt.mpv.MPVProcessError:
-    #     print("mpv too old, reverting to mplayer")
-    #
-
-    if isWin:
-        mplayer = SimpleMplayerPlayer()
-        av_player.players.append(mplayer)
-    else:
-        mpv = SimpleMpvPlayer()
-        mpv.args.append("--include=" + base_folder)
-        av_player.players.append(mpv)
-
-    if isMac:
-        from aqt.tts import MacTTSPlayer
-
-        av_player.players.append(MacTTSPlayer())
-
-
 # Legacy audio interface
 ##########################################################################
 # these will be removed in the future
@@ -672,10 +635,46 @@ def playFromText(text) -> None:
     av_player.extend_from_text(mw.col, text)
 
 
+# legacy globals
 _player = play
 _queueEraser = clearAudioQueue
+mpvManager: Optional["MpvManager"] = None
 
 # add everything from this module into anki.sound for backwards compat
 _exports = [i for i in locals().items() if not i[0].startswith("__")]
 for (k, v) in _exports:
     sys.modules["anki.sound"].__dict__[k] = v
+
+# Init defaults
+##########################################################################
+
+
+def setup_audio(base_folder: str) -> None:
+    # legacy global var
+    global mpvManager
+
+    if not isWin:
+        try:
+            mpvManager = MpvManager(base_folder)
+        except FileNotFoundError:
+            print("mpv not found, reverting to mplayer")
+        except aqt.mpv.MPVProcessError:
+            print("mpv too old, reverting to mplayer")
+
+    if mpvManager is not None:
+        av_player.players.append(mpvManager)
+        atexit.register(cleanupMPV)
+    else:
+        # fall back on mplayer
+        mplayer = SimpleMplayerPlayer()
+        av_player.players.append(mplayer)
+
+    # currently unused
+    # mpv = SimpleMpvPlayer(base_folder)
+    # av_player.players.append(mpv)
+
+    # tts support
+    if isMac:
+        from aqt.tts import MacTTSPlayer
+
+        av_player.players.append(MacTTSPlayer())

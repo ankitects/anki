@@ -177,10 +177,12 @@ hooks = [
         return_type="str",
         legacy_hook="mungeEditingFontName",
     ),
+    # Sound/video
+    ###################
+    Hook(name="av_player_will_play", args=["tag: anki.sound.AVTag"]),
+    Hook(name="av_player_did_play"),
     # Other
     ###################
-    Hook(name="mpv_did_idle"),
-    Hook(name="mpv_will_play", args=["file: str"], legacy_hook="mpvWillPlay"),
     Hook(
         name="current_note_type_did_change",
         args=["notetype: Dict[str, Any]"],
