@@ -394,14 +394,7 @@ close the profile or restart Anki."""
     ##########################################################################
 
     def setupSound(self) -> None:
-        if isWin:
-            return
-        try:
-            aqt.sound.setupMPV()
-        except FileNotFoundError:
-            print("mpv not found, reverting to mplayer")
-        except aqt.mpv.MPVProcessError:
-            print("mpv too old, reverting to mplayer")
+        aqt.sound.setup_audio(self.pm.base)
 
     # Collection load/unload
     ##########################################################################
