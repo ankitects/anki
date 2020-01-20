@@ -3,7 +3,6 @@
 
 import atexit
 import os
-import random
 import subprocess
 import sys
 import threading
@@ -19,7 +18,7 @@ import anki
 import aqt
 from anki.lang import _
 from anki.sound import AVTag, SoundOrVideoTag
-from anki.utils import isLin, isMac, isWin, tmpdir
+from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase
 from aqt.qt import *
@@ -46,6 +45,15 @@ class Player(ABC):
 
         If implemented, the player must not call on_done() when the audio is stopped."""
 
+    def seek_relative(self, secs: int) -> None:
+        "Jump forward or back by secs. Optional."
+
+    def toggle_pause(self) -> None:
+        "Optional."
+
+    def shutdown(self) -> None:
+        "Do any cleanup required at program termination. Optional."
+
 
 class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
     def can_play(self, tag: AVTag) -> bool:
@@ -64,7 +72,7 @@ class AVPlayer:
 
     def __init__(self):
         self._enqueued: List[AVTag] = []
-        self._current_player: Optional[Player] = None
+        self.current_player: Optional[Player] = None
 
     def play_tags(self, tags: List[AVTag]) -> None:
         """Clear the existing queue, then start playing provided tags."""
@@ -93,10 +101,23 @@ class AVPlayer:
     def play_file(self, filename: str) -> None:
         self.play_tags([SoundOrVideoTag(filename=filename)])
 
+    def toggle_pause(self):
+        if self.current_player:
+            self.current_player.toggle_pause()
+
+    def seek_relative(self, secs: int) -> None:
+        if self.current_player:
+            self.current_player.seek_relative(secs)
+
+    def shutdown(self) -> None:
+        self.stop_and_clear_queue()
+        for player in self.players:
+            player.shutdown()
+
     def _stop_if_playing(self) -> None:
-        if self._current_player:
-            self._current_player.stop()
-        self._current_player = None
+        if self.current_player:
+            self.current_player.stop()
+        self.current_player = None
 
     def _pop_next(self) -> Optional[AVTag]:
         if not self._enqueued:
@@ -104,12 +125,12 @@ class AVPlayer:
         return self._enqueued.pop(0)
 
     def _on_play_finished(self) -> None:
-        self._current_player = None
+        self.current_player = None
         gui_hooks.av_player_did_play()
         self._play_next_if_idle()
 
     def _play_next_if_idle(self) -> None:
-        if self._current_player:
+        if self.current_player:
             return
 
         next = self._pop_next()
@@ -119,7 +140,7 @@ class AVPlayer:
     def _play(self, tag: AVTag) -> None:
         for player in self.players:
             if player.can_play(tag):
-                self._current_player = player
+                self.current_player = player
                 gui_hooks.av_player_will_play(tag)
                 player.play(tag, self._on_play_finished)
                 return
@@ -289,212 +310,74 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def stop(self) -> None:
         self.command("stop")
 
-    def togglePause(self) -> None:
+    def toggle_pause(self) -> None:
         self.set_property("pause", not self.get_property("pause"))
 
-    def seekRelative(self, secs) -> None:
+    def seek_relative(self, secs) -> None:
         self.command("seek", secs, "relative")
 
     def on_idle(self) -> None:
         if self._on_done:
             self._on_done()
 
+    def shutdown(self) -> None:
+        self.close()
+
     # Legacy, not used
     ##################################################
 
+    togglePause = toggle_pause
+    seekRelative = seek_relative
+
     def queueFile(self, file: str) -> None:
-        path = os.path.join(os.getcwd(), file)
-        self.command("loadfile", path, "append-play")
+        return
 
     def clearQueue(self) -> None:
-        self.command("stop")
-
-
-def cleanupMPV() -> None:
-    global mpvManager
-    if mpvManager:
-        mpvManager.close()
-        mpvManager = None
+        return
 
 
 # Mplayer in slave mode
 ##########################################################################
 
-# if anki crashes, an old mplayer instance may be left lying around,
-# which prevents renaming or deleting the profile
-def cleanupOldMplayerProcesses() -> None:
-    # pylint: disable=import-error
-    import psutil  # pytype: disable=import-error
 
-    exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
+class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
+    def __init__(self, taskman: TaskManager):
+        super().__init__(taskman)
 
-    for proc in psutil.process_iter():
-        try:
-            info = proc.as_dict(attrs=["pid", "name", "exe"])
-            if not info["exe"] or info["name"] != "mplayer.exe":
-                continue
+        self._process: Optional[subprocess.Popen] = None
 
-            # not anki's bundled mplayer
-            if os.path.dirname(info["exe"]) != exeDir:
-                continue
+        self.args.append("-slave")
 
-            print("terminating old mplayer process...")
-            proc.kill()
-        except:
-            print("error iterating mplayer processes")
-
-
-mplayerCmd = ["mplayer", "-really-quiet", "-noautosub"]
-if isWin:
-    mplayerCmd += ["-ao", "win32"]
-
-    cleanupOldMplayerProcesses()
-
-mplayerQueue: List[str] = []
-mplayerEvt = threading.Event()
-mplayerClear = False
-
-
-class MplayerMonitor(threading.Thread):
-
-    mplayer: Optional[subprocess.Popen] = None
-    deadPlayers: List[subprocess.Popen] = []
-
-    def run(self) -> None:
-        global mplayerClear
-        self.mplayer = None
-        self.deadPlayers = []
-        while 1:
-            mplayerEvt.wait()
-            mplayerEvt.clear()
-            # clearing queue?
-            if mplayerClear and self.mplayer:
-                try:
-                    self.mplayer.stdin.write(b"stop\n")
-                    self.mplayer.stdin.flush()
-                except:
-                    # mplayer quit by user (likely video)
-                    self.deadPlayers.append(self.mplayer)
-                    self.mplayer = None
-            # loop through files to play
-            while mplayerQueue:
-                # ensure started
-                if not self.mplayer:
-                    self.mplayer = self.startProcess()
-                # pop a file
-                try:
-                    item = mplayerQueue.pop(0)
-                except IndexError:
-                    # queue was cleared by main thread
-                    continue
-                if mplayerClear:
-                    mplayerClear = False
-                    extra = b""
-                else:
-                    extra = b" 1"
-                cmd = b'loadfile "%s"%s\n' % (item.encode("utf8"), extra)
-                try:
-                    self.mplayer.stdin.write(cmd)
-                    self.mplayer.stdin.flush()
-                except:
-                    # mplayer has quit and needs restarting
-                    self.deadPlayers.append(self.mplayer)
-                    self.mplayer = None
-                    self.mplayer = self.startProcess()
-                    self.mplayer.stdin.write(cmd)
-                    self.mplayer.stdin.flush()
-                # if we feed mplayer too fast it loses files
-                time.sleep(1)
-            # wait() on finished processes. we don't want to block on the
-            # wait, so we keep trying each time we're reactivated
-            def clean(pl):
-                if pl.poll() is not None:
-                    pl.wait()
-                    return False
-                else:
-                    return True
-
-            self.deadPlayers = [pl for pl in self.deadPlayers if clean(pl)]
-
-    def kill(self) -> None:
-        if not self.mplayer:
-            return
-        try:
-            self.mplayer.stdin.write(b"quit\n")
-            self.mplayer.stdin.flush()
-            self.deadPlayers.append(self.mplayer)
-        except:
-            pass
-        self.mplayer = None
-
-    def startProcess(self) -> subprocess.Popen:
-        try:
-            cmd = mplayerCmd + ["-slave", "-idle"]
-            cmd, env = _packagedCmd(cmd)
-            return subprocess.Popen(
-                cmd,
-                startupinfo=si,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                env=env,
-            )
-        except OSError:
-            mplayerEvt.clear()
-            raise Exception("Did you install mplayer?")
-
-
-mplayerManager: Optional[MplayerMonitor] = None
-
-
-def queueMplayer(path) -> None:
-    ensureMplayerThreads()
-    if isWin and os.path.exists(path):
-        # mplayer on windows doesn't like the encoding, so we create a
-        # temporary file instead. oddly, foreign characters in the dirname
-        # don't seem to matter.
-        dir = tmpdir()
-        name = os.path.join(
-            dir, "audio%s%s" % (random.randrange(0, 1000000), os.path.splitext(path)[1])
+    def _play(self, filename: str) -> None:
+        self._process = subprocess.Popen(
+            self.args + [filename], env=self.env, stdin=subprocess.PIPE
         )
-        f = open(name, "wb")
-        f.write(open(path, "rb").read())
-        f.close()
-        # it wants unix paths, too!
-        path = name.replace("\\", "/")
-    mplayerQueue.append(path)
-    mplayerEvt.set()
+        while True:
+            try:
+                self._process.wait(0.1)
+                if self._process.returncode != 0:
+                    print(f"player got return code: {self._process.returncode}")
+                return
+            except subprocess.TimeoutExpired:
+                pass
+            if self._terminate_flag:
+                self._process.terminate()
+                self._terminate_flag = False
+                raise PlayerInterrupted()
 
+    def command(self, text: str) -> None:
+        """Send a command over the slave interface.
 
-def clearMplayerQueue() -> None:
-    global mplayerClear, mplayerQueue
-    mplayerQueue = []
-    mplayerClear = True
-    mplayerEvt.set()
+        The trailing newline is automatically added."""
+        self._process.stdin.write(text.encode("utf8") + b"\n")
+        self._process.stdin.flush()
 
+    def seek_relative(self, secs: int) -> None:
+        self.command(f"seek {secs} 0")
 
-def ensureMplayerThreads() -> None:
-    global mplayerManager
-    if not mplayerManager:
-        mplayerManager = MplayerMonitor()
-        mplayerManager.daemon = True
-        mplayerManager.start()
-        # ensure the tmpdir() exit handler is registered first so it runs
-        # after the mplayer exit
-        tmpdir()
-        # clean up mplayer on exit
-        atexit.register(stopMplayer)
+    def toggle_pause(self):
+        self.command("pause")
 
-
-def stopMplayer(*args) -> None:
-    if not mplayerManager:
-        return
-    mplayerManager.kill()
-    if isWin:
-        cleanupOldMplayerProcesses()
-
-
-gui_hooks.profile_will_close.append(stopMplayer)
 
 # PyAudio recording
 ##########################################################################
@@ -692,10 +575,8 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
 
     if mpvManager is not None:
         av_player.players.append(mpvManager)
-        atexit.register(cleanupMPV)
     else:
-        # fall back on mplayer
-        mplayer = SimpleMplayerPlayer(taskman)
+        mplayer = SimpleMplayerSlaveModePlayer(taskman)
         av_player.players.append(mplayer)
 
     # currently unused
@@ -707,3 +588,5 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
         from aqt.tts import MacTTSPlayer
 
         av_player.players.append(MacTTSPlayer(taskman))
+
+    atexit.register(av_player.shutdown)
