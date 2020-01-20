@@ -17,7 +17,8 @@ class TTSPlayer(Player):  # pylint: disable=abstract-method
 
 
 class MacTTSPlayer(TTSPlayer):
-    _taskman = TaskManager()
+    def __init__(self, taskman: TaskManager):
+        self._taskman = taskman
 
     def play(self, tag: AVTag, on_done: Callable[[], None]) -> None:
         ttag = cast(TTSTag, tag)

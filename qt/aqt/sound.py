@@ -157,10 +157,12 @@ class SimpleProcessPlayer(SoundOrVideoPlayer):
     "A player that invokes a new process for each file to play."
 
     _on_done: Optional[OnDoneCallback]
-    _taskman = TaskManager()
     _terminate_flag = False
     args: List[str] = []
     env: Optional[Dict[str, str]] = None
+
+    def __init__(self, taskman: TaskManager):
+        self._taskman = taskman
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         stag = cast(SoundOrVideoTag, tag)
@@ -198,7 +200,8 @@ class SimpleMpvPlayer(SimpleProcessPlayer):
         ]
     )
 
-    def __init__(self, base_folder: str) -> None:
+    def __init__(self, taskman: TaskManager, base_folder: str) -> None:
+        super().__init__(taskman)
         conf_path = os.path.join(base_folder, "mpv.conf")
         self.args += ["--no-config", "--include=" + conf_path]
 
@@ -654,7 +657,7 @@ for (k, v) in _exports:
 ##########################################################################
 
 
-def setup_audio(base_folder: str) -> None:
+def setup_audio(taskman: TaskManager, base_folder: str) -> None:
     # legacy global var
     global mpvManager
 
@@ -671,7 +674,7 @@ def setup_audio(base_folder: str) -> None:
         atexit.register(cleanupMPV)
     else:
         # fall back on mplayer
-        mplayer = SimpleMplayerPlayer()
+        mplayer = SimpleMplayerPlayer(taskman)
         av_player.players.append(mplayer)
 
     # currently unused
@@ -682,4 +685,4 @@ def setup_audio(base_folder: str) -> None:
     if isMac:
         from aqt.tts import MacTTSPlayer
 
-        av_player.players.append(MacTTSPlayer())
+        av_player.players.append(MacTTSPlayer(taskman))
