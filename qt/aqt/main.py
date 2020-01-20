@@ -388,7 +388,6 @@ close the profile or restart Anki."""
     def cleanupAndExit(self) -> None:
         self.errorHandler.unload()
         self.mediaServer.shutdown()
-        aqt.sound.cleanupMPV()
         self.app.exit(0)
 
     # Sound/video
