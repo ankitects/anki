@@ -11,6 +11,7 @@ import threading
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+import pyaudio
 from anki.lang import _
 from anki.sound import allSounds
 from anki.utils import isLin, isMac, isWin, tmpdir
@@ -20,45 +21,7 @@ from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom, showWarning
 
 
-def getAudio(parent, encode=True):
-    "Record and return filename"
-    # record first
-    if not Recorder:
-        showWarning("pyaudio not installed")
-        return
 
-    r = Recorder()
-    mb = QMessageBox(parent)
-    restoreGeom(mb, "audioRecorder")
-    mb.setWindowTitle("Anki")
-    mb.setIconPixmap(QPixmap(":/icons/media-record.png"))
-    but = QPushButton(_("Save"))
-    mb.addButton(but, QMessageBox.AcceptRole)
-    but.setDefault(True)
-    but = QPushButton(_("Cancel"))
-    mb.addButton(but, QMessageBox.RejectRole)
-    mb.setEscapeButton(but)
-    t = time.time()
-    r.start()
-    time.sleep(r.startupDelay)
-    QApplication.instance().processEvents()
-    while not mb.clickedButton():
-        txt = _("Recording...<br>Time: %0.1f")
-        mb.setText(txt % (time.time() - t))
-        mb.show()
-        QApplication.instance().processEvents()
-    if mb.clickedButton() == mb.escapeButton():
-        r.stop()
-        r.cleanup()
-        return
-    saveGeom(mb, "audioRecorder")
-    # ensure at least a second captured
-    while time.time() - t < 1:
-        time.sleep(0.1)
-    r.stop()
-    # process
-    r.postprocess(encode)
-    return r.file()
 
 
 # Shared utils
@@ -382,15 +345,10 @@ gui_hooks.profile_will_close.append(stopMplayer)
 # PyAudio recording
 ##########################################################################
 
-try:
-    import pyaudio
-    import wave
 
-    PYAU_FORMAT = pyaudio.paInt16
-    PYAU_CHANNELS = 1
-    PYAU_INPUT_INDEX: Optional[int] = None
-except:
-    pyaudio = None
+PYAU_FORMAT = pyaudio.paInt16
+PYAU_CHANNELS = 1
+PYAU_INPUT_INDEX: Optional[int] = None
 
 
 class _Recorder:
@@ -482,15 +440,49 @@ class PyAudioRecorder(_Recorder):
             return processingSrc
 
 
-if not pyaudio:
-    PyAudioRecorder = None  # type: ignore
+Recorder = PyAudioRecorder
 
-# Audio interface
+# Recording dialog
 ##########################################################################
 
 _player = queueMplayer
 _queueEraser = clearMplayerQueue
 
+def getAudio(parent, encode=True):
+    "Record and return filename"
+    # record first
+    r = Recorder()
+    mb = QMessageBox(parent)
+    restoreGeom(mb, "audioRecorder")
+    mb.setWindowTitle("Anki")
+    mb.setIconPixmap(QPixmap(":/icons/media-record.png"))
+    but = QPushButton(_("Save"))
+    mb.addButton(but, QMessageBox.AcceptRole)
+    but.setDefault(True)
+    but = QPushButton(_("Cancel"))
+    mb.addButton(but, QMessageBox.RejectRole)
+    mb.setEscapeButton(but)
+    t = time.time()
+    r.start()
+    time.sleep(r.startupDelay)
+    QApplication.instance().processEvents()
+    while not mb.clickedButton():
+        txt = _("Recording...<br>Time: %0.1f")
+        mb.setText(txt % (time.time() - t))
+        mb.show()
+        QApplication.instance().processEvents()
+    if mb.clickedButton() == mb.escapeButton():
+        r.stop()
+        r.cleanup()
+        return
+    saveGeom(mb, "audioRecorder")
+    # ensure at least a second captured
+    while time.time() - t < 1:
+        time.sleep(0.1)
+    r.stop()
+    # process
+    r.postprocess(encode)
+    return r.file()
 
 def play(path) -> None:
     _player(path)
@@ -500,9 +492,6 @@ def clearAudioQueue() -> None:
     _queueEraser()
 
 
-Recorder = PyAudioRecorder
-if not Recorder:
-    print("pyaudio not installed")
 
 # add everything from this module into anki.sound for backwards compat
 _exports = [i for i in locals().items() if not i[0].startswith("__")]
