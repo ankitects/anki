@@ -10,6 +10,7 @@ import threading
 import time
 import wave
 from abc import ABC, abstractmethod
+from concurrent.futures import Future
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 import pyaudio
@@ -41,7 +42,9 @@ class Player(ABC):
         pass
 
     def stop(self) -> None:
-        "Optional."
+        """Optional.
+
+        If implemented, the player must not call on_done() when the audio is stopped."""
 
 
 class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
@@ -153,24 +156,32 @@ def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
 ##########################################################################
 
 
+class PlayerInterrupted(Exception):
+    pass
+
+
 class SimpleProcessPlayer(SoundOrVideoPlayer):
     "A player that invokes a new process for each file to play."
 
-    _on_done: Optional[OnDoneCallback]
-    _terminate_flag = False
     args: List[str] = []
     env: Optional[Dict[str, str]] = None
 
     def __init__(self, taskman: TaskManager):
         self._taskman = taskman
+        _terminate_flag = False
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         stag = cast(SoundOrVideoTag, tag)
         self._terminate_flag = False
-        self._taskman.run(lambda: self._play(stag.filename), lambda res: on_done())
+        self._taskman.run(
+            lambda: self._play(stag.filename), lambda res: self._on_done(res, on_done)
+        )
 
     def stop(self):
         self._terminate_flag = True
+        # block until stopped
+        while self._terminate_flag:
+            time.sleep(0.1)
 
     def _play(self, filename: str) -> None:
         process = subprocess.Popen(self.args + [filename], env=self.env)
@@ -178,12 +189,22 @@ class SimpleProcessPlayer(SoundOrVideoPlayer):
             try:
                 process.wait(0.1)
                 if process.returncode != 0:
-                    raise Exception(f"player got return code: {process.returncode}")
+                    print(f"player got return code: {process.returncode}")
                 return
             except subprocess.TimeoutExpired:
                 pass
             if self._terminate_flag:
                 process.terminate()
+                self._terminate_flag = False
+                raise PlayerInterrupted()
+
+    def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
+        try:
+            ret.result()
+        except PlayerInterrupted:
+            # don't fire done callback when interrupted
+            return
+        cb()
 
 
 class SimpleMpvPlayer(SimpleProcessPlayer):
