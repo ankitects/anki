@@ -200,16 +200,8 @@ class SimpleMplayerPlayer(SimpleProcessPlayer):
         args += ["-ao", "win32"]
 
 
+# Platform hacks
 ##########################################################################
-
-processingSrc = "rec.wav"
-processingDst = "rec.mp3"
-processingChain: List[List[str]] = []
-recFiles: List[str] = []
-
-processingChain = [
-    ["lame", processingSrc, processingDst, "--noreplaygain", "--quiet"],
-]
 
 # don't show box on windows
 si: Optional[Any]
@@ -227,8 +219,8 @@ else:
     si = None
 
 
+# osx throws interrupted system call errors frequently
 def retryWait(proc) -> Any:
-    # osx throws interrupted system call errors frequently
     while 1:
         try:
             return proc.wait()
@@ -490,6 +482,14 @@ gui_hooks.profile_will_close.append(stopMplayer)
 PYAU_FORMAT = pyaudio.paInt16
 PYAU_CHANNELS = 1
 PYAU_INPUT_INDEX: Optional[int] = None
+
+processingSrc = "rec.wav"
+processingDst = "rec.mp3"
+recFiles: List[str] = []
+
+processingChain: List[List[str]] = [
+    ["lame", processingSrc, processingDst, "--noreplaygain", "--quiet"],
+]
 
 
 class _Recorder:
