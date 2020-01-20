@@ -2,38 +2,123 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import atexit
-import html
 import os
 import random
 import subprocess
 import sys
 import threading
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple
+import wave
+from abc import ABC, abstractmethod
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 import pyaudio
+
+import anki
 from anki.lang import _
-from anki.sound import allSounds
+from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import isLin, isMac, isWin, tmpdir
 from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase
 from aqt.qt import *
-from aqt.utils import restoreGeom, saveGeom, showWarning
+from aqt.taskman import TaskManager
+from aqt.utils import restoreGeom, saveGeom
+
+# AV player protocol
+##########################################################################
+
+OnDoneCallback = Callable[[], None]
 
 
+class Player(ABC):
+    @abstractmethod
+    def can_play(self, tag: AVTag) -> bool:
+        pass
+
+    @abstractmethod
+    def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
+        pass
+
+    def stop(self) -> None:
+        "Optional."
 
 
+class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
+    def can_play(self, tag: AVTag) -> bool:
+        return isinstance(tag, SoundOrVideoTag)
 
-# Shared utils
+
+# Main playing interface
 ##########################################################################
 
 
-def playFromText(text) -> None:
-    for match in allSounds(text):
-        # filename is html encoded
-        match = html.unescape(match)
-        play(match)
+class AVPlayer:
+    players: List[Player] = []
+    interrupt_playing = True
 
+    def __init__(self):
+        self._enqueued: List[AVTag] = []
+        self._current_player: Optional[Player] = None
+
+    def play_tags(self, tags: List[AVTag]) -> None:
+        """Clear the existing queue, then start playing provided tags."""
+        self._enqueued = tags
+        if self.interrupt_playing:
+            self._stop_if_playing()
+        self._play_next_if_idle()
+
+    def extend_and_play(self, tags: List[AVTag]) -> None:
+        """Add extra tags to queue, without clearing it."""
+        self._enqueued.extend(tags)
+        self._play_next_if_idle()
+
+    def play_from_text(self, col: anki.storage._Collection, text: str) -> None:
+        tags = col.backend.get_av_tags(text)
+        self.play_tags(tags)
+
+    def extend_from_text(self, col: anki.storage._Collection, text: str) -> None:
+        tags = col.backend.get_av_tags(text)
+        self.extend_and_play(tags)
+
+    def stop_and_clear_queue(self) -> None:
+        self._enqueued = []
+        self._stop_if_playing()
+
+    def play_file(self, filename: str) -> None:
+        self.play_tags([SoundOrVideoTag(filename=filename)])
+
+    def _stop_if_playing(self) -> None:
+        if self._current_player:
+            self._current_player.stop()
+        self._current_player = None
+
+    def _pop_next(self) -> Optional[AVTag]:
+        if not self._enqueued:
+            return None
+        return self._enqueued.pop(0)
+
+    def _on_play_finished(self) -> None:
+        self._current_player = None
+        self._play_next_if_idle()
+
+    def _play_next_if_idle(self) -> None:
+        if self._current_player:
+            return
+
+        next = self._pop_next()
+        if next is not None:
+            self._play(next)
+
+    def _play(self, tag: AVTag) -> None:
+        for player in self.players:
+            if player.can_play(tag):
+                self._current_player = player
+                player.play(tag, self._on_play_finished)
+                return
+        print("no players found for", tag)
+
+
+av_player = AVPlayer()
 
 # Packaged commands
 ##########################################################################
@@ -57,6 +142,62 @@ def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
         return cmd, env
     cmd[0] = path
     return cmd, env
+
+
+# Simple player implementations
+##########################################################################
+
+
+class SimpleProcessPlayer(SoundOrVideoPlayer):
+    "A player that invokes a new process for each file to play."
+
+    _on_done: Optional[OnDoneCallback]
+    _taskman = TaskManager()
+    _terminate_flag = False
+    args: List[str] = []
+    env: Optional[Dict[str, str]] = None
+
+    def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
+        stag = cast(SoundOrVideoTag, tag)
+        self._terminate_flag = False
+        self._taskman.run(lambda: self._play(stag.filename), lambda res: on_done())
+
+    def stop(self):
+        self._terminate_flag = True
+
+    def _play(self, filename: str) -> None:
+        process = subprocess.Popen(self.args + [filename], env=self.env)
+        while True:
+            try:
+                process.wait(0.1)
+                if process.returncode != 0:
+                    raise Exception(f"player got return code: {process.returncode}")
+                return
+            except subprocess.TimeoutExpired:
+                pass
+            if self._terminate_flag:
+                process.terminate()
+
+
+class SimpleMpvPlayer(SimpleProcessPlayer):
+    args, env = _packagedCmd(
+        [
+            "mpv",
+            "--no-terminal",
+            "--force-window=no",
+            "--ontop",
+            "--audio-display=no",
+            "--keep-open=no",
+            "--input-media-keys=no",
+            "--no-config",
+        ]
+    )
+
+
+class SimpleMplayerPlayer(SimpleProcessPlayer):
+    args, env = _packagedCmd(["mplayer", "-really-quiet", "-noautosub"])
+    if isWin:
+        args += ["-ao", "win32"]
 
 
 ##########################################################################
@@ -445,8 +586,6 @@ Recorder = PyAudioRecorder
 # Recording dialog
 ##########################################################################
 
-_player = queueMplayer
-_queueEraser = clearMplayerQueue
 
 def getAudio(parent, encode=True):
     "Record and return filename"
@@ -484,14 +623,57 @@ def getAudio(parent, encode=True):
     r.postprocess(encode)
     return r.file()
 
-def play(path) -> None:
-    _player(path)
+
+# Init defaults
+##########################################################################
+
+
+def setup_audio(base_folder: str) -> None:
+    # if isWin:
+    #     return
+    # try:
+    #     setupMPV()
+    # except FileNotFoundError:
+    #     print("mpv not found, reverting to mplayer")
+    # except aqt.mpv.MPVProcessError:
+    #     print("mpv too old, reverting to mplayer")
+    #
+
+    if isWin:
+        mplayer = SimpleMplayerPlayer()
+        av_player.players.append(mplayer)
+    else:
+        mpv = SimpleMpvPlayer()
+        mpv.args.append("--include=" + base_folder)
+        av_player.players.append(mpv)
+
+
+# Legacy audio interface
+##########################################################################
+# these will be removed in the future
 
 
 def clearAudioQueue() -> None:
-    _queueEraser()
+    av_player.stop_and_clear_queue()
 
 
+def play(filename: str) -> None:
+    av_player.play_file(filename)
+
+
+def playFromText(text) -> None:
+    from aqt import mw
+
+    av_player.extend_from_text(mw.col, text)
+
+
+_player = play
+_queueEraser = clearAudioQueue
+
+# imports that add-ons may be expecting
+# fmt:off
+from anki.sound import allSounds, stripSounds # isort:skip pylint: disable=unused-import
+# fmt:on
 
 # add everything from this module into anki.sound for backwards compat
 _exports = [i for i in locals().items() if not i[0].startswith("__")]

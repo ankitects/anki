@@ -35,7 +35,6 @@ import anki
 from anki import hooks
 from anki.models import NoteType
 from anki.rsbackend import TemplateReplacementList
-from anki.sound import stripSounds
 
 QAData = Tuple[
     # Card ID this QA comes from. Corresponds to 'cid' column.
@@ -154,7 +153,7 @@ def apply_custom_filters(
         else:
             # do we need to inject in FrontSide?
             if node.field_name == "FrontSide" and front_side is not None:
-                node.current_text = stripSounds(front_side)
+                node.current_text = ctx.col().backend.strip_av_tags(front_side)
 
             field_text = node.current_text
             for filter_name in node.filters:
