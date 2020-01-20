@@ -395,7 +395,7 @@ close the profile or restart Anki."""
     ##########################################################################
 
     def setupSound(self) -> None:
-        aqt.sound.setup_audio(self.pm.base)
+        aqt.sound.setup_audio(self.taskman, self.pm.base)
 
     # Collection load/unload
     ##########################################################################
