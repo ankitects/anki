@@ -103,7 +103,7 @@ class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
 class MacTTSPlayer(TTSProcessPlayer):
     "Invokes a process to play the audio in the background."
 
-    VOICE_HELP_LINE_RE = re.compile(r"^(\S+)\s+(\S+)\s+.*$")
+    VOICE_HELP_LINE_RE = re.compile(r"^(.+)\s+(\S+)\s+#.*$")
 
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, TTSTag)
@@ -139,7 +139,7 @@ class MacTTSPlayer(TTSProcessPlayer):
         m = self.VOICE_HELP_LINE_RE.match(line)
         if not m:
             return None
-        return TTSVoice(name=m.group(1), lang=m.group(2))
+        return TTSVoice(name=m.group(1).strip(), lang=m.group(2))
 
 
 class MacTTSFilePlayer(MacTTSPlayer):
