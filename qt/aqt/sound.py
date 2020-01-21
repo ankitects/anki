@@ -112,6 +112,10 @@ class AVPlayer:
     def play_file(self, filename: str) -> None:
         self.play_tags([SoundOrVideoTag(filename=filename)])
 
+    def insert_file(self, filename: str) -> None:
+        self._enqueued.insert(0, SoundOrVideoTag(filename=filename))
+        self._play_next_if_idle()
+
     def toggle_pause(self):
         if self.current_player:
             self.current_player.toggle_pause()
