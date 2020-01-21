@@ -10,7 +10,7 @@ import time
 import wave
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pyaudio
 
@@ -33,12 +33,18 @@ OnDoneCallback = Callable[[], None]
 
 class Player(ABC):
     @abstractmethod
-    def can_play(self, tag: AVTag) -> bool:
+    def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         pass
 
     @abstractmethod
-    def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
-        pass
+    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+        """How suited this player is to playing tag.
+
+        AVPlayer will choose the player that returns the highest rank
+        for a given tag.
+
+        If None, this player can not play the tag.
+        """
 
     def stop(self) -> None:
         """Optional.
@@ -56,8 +62,13 @@ class Player(ABC):
 
 
 class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
-    def can_play(self, tag: AVTag) -> bool:
-        return isinstance(tag, SoundOrVideoTag)
+    default_rank = 0
+
+    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+        if isinstance(tag, SoundOrVideoTag):
+            return self.default_rank
+        else:
+            return None
 
 
 # Main playing interface
@@ -138,13 +149,28 @@ class AVPlayer:
             self._play(next)
 
     def _play(self, tag: AVTag) -> None:
-        for player in self.players:
-            if player.can_play(tag):
-                self.current_player = player
-                gui_hooks.av_player_will_play(tag)
-                player.play(tag, self._on_play_finished)
-                return
-        print("no players found for", tag)
+        best_player = self._best_player_for_tag(tag)
+        if best_player:
+            self.current_player = best_player
+            gui_hooks.av_player_will_play(tag)
+            self.current_player.play(tag, self._on_play_finished)
+        else:
+            print("no players found for", tag)
+
+    def _best_player_for_tag(self, tag: AVTag) -> Optional[Player]:
+        ranked = []
+        for p in self.players:
+            rank = p.rank_for_tag(tag)
+            if rank is not None:
+                ranked.append((rank, p))
+
+        ranked.sort()
+
+        print(ranked)
+        if ranked:
+            return ranked[-1][1]
+        else:
+            return None
 
 
 av_player = AVPlayer()
@@ -181,43 +207,50 @@ class PlayerInterrupted(Exception):
     pass
 
 
-class SimpleProcessPlayer(SoundOrVideoPlayer):
-    "A player that invokes a new process for each file to play."
+class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
+    "A player that invokes a new process for each tag to play."
 
     args: List[str] = []
     env: Optional[Dict[str, str]] = None
 
     def __init__(self, taskman: TaskManager):
         self._taskman = taskman
-        _terminate_flag = False
+        self._terminate_flag = False
+        self._process: Optional[subprocess.Popen] = None
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
-        stag = cast(SoundOrVideoTag, tag)
-        self._terminate_flag = False
         self._taskman.run(
-            lambda: self._play(stag.filename), lambda res: self._on_done(res, on_done)
+            lambda: self._play(tag), lambda res: self._on_done(res, on_done)
         )
 
     def stop(self):
         self._terminate_flag = True
         # block until stopped
-        while self._terminate_flag:
+        t = time.time()
+        while self._terminate_flag and time.time() - t < 10:
             time.sleep(0.1)
 
-    def _play(self, filename: str) -> None:
-        process = subprocess.Popen(self.args + [filename], env=self.env)
-        while True:
-            try:
-                process.wait(0.1)
-                if process.returncode != 0:
-                    print(f"player got return code: {process.returncode}")
-                return
-            except subprocess.TimeoutExpired:
-                pass
-            if self._terminate_flag:
-                process.terminate()
-                self._terminate_flag = False
-                raise PlayerInterrupted()
+    def _play(self, tag: AVTag) -> None:
+        assert isinstance(tag, SoundOrVideoTag)
+        self._process = subprocess.Popen(self.args + [tag.filename], env=self.env)
+        self._wait_for_termination()
+
+    def _wait_for_termination(self):
+        try:
+            while True:
+                try:
+                    self._process.wait(0.1)
+                    if self._process.returncode != 0:
+                        print(f"player got return code: {self._process.returncode}")
+                    return
+                except subprocess.TimeoutExpired:
+                    pass
+                if self._terminate_flag:
+                    self._process.terminate()
+                    raise PlayerInterrupted()
+        finally:
+            self._process = None
+            self._terminate_flag = False
 
     def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
         try:
@@ -228,7 +261,7 @@ class SimpleProcessPlayer(SoundOrVideoPlayer):
         cb()
 
 
-class SimpleMpvPlayer(SimpleProcessPlayer):
+class SimpleMpvPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
     args, env = _packagedCmd(
         [
             "mpv",
@@ -248,7 +281,7 @@ class SimpleMpvPlayer(SimpleProcessPlayer):
         self.args += ["--no-config", "--include=" + conf_path]
 
 
-class SimpleMplayerPlayer(SimpleProcessPlayer):
+class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
     args, env = _packagedCmd(["mplayer", "-really-quiet", "-noautosub"])
     if isWin:
         args += ["-ao", "win32"]
@@ -302,9 +335,9 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self.default_argv += ["--no-config", "--include=" + conf_path]
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
-        stag = cast(SoundOrVideoTag, tag)
+        assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
-        path = os.path.join(os.getcwd(), stag.filename)
+        path = os.path.join(os.getcwd(), tag.filename)
         self.command("loadfile", path, "append-play")
 
     def stop(self) -> None:
@@ -343,27 +376,14 @@ class MpvManager(MPV, SoundOrVideoPlayer):
 class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
     def __init__(self, taskman: TaskManager):
         super().__init__(taskman)
-
-        self._process: Optional[subprocess.Popen] = None
-
         self.args.append("-slave")
 
-    def _play(self, filename: str) -> None:
+    def _play(self, tag: AVTag) -> None:
+        assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(
-            self.args + [filename], env=self.env, stdin=subprocess.PIPE
+            self.args + [tag.filename], env=self.env, stdin=subprocess.PIPE
         )
-        while True:
-            try:
-                self._process.wait(0.1)
-                if self._process.returncode != 0:
-                    print(f"player got return code: {self._process.returncode}")
-                return
-            except subprocess.TimeoutExpired:
-                pass
-            if self._terminate_flag:
-                self._process.terminate()
-                self._terminate_flag = False
-                raise PlayerInterrupted()
+        self._wait_for_termination()
 
     def command(self, text: str) -> None:
         """Send a command over the slave interface.
