@@ -226,6 +226,7 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.form.pastePNG.setChecked(self.prof.get("pastePNG", False))
         self.form.uiScale.setValue(self.mw.pm.uiScale() * 100)
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
+        self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
 
     def updateOptions(self):
         self.prof["pastePNG"] = self.form.pastePNG.isChecked()
@@ -234,3 +235,4 @@ Not currently enabled; click the sync button in the main window to enable."""
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
             showInfo(_("Changes will take effect when you restart Anki."))
+        self.prof["showPlayButtons"] = self.form.showPlayButtons.isChecked()
