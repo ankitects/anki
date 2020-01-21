@@ -14,10 +14,11 @@ import aqt
 from anki import hooks
 from anki.cards import Card
 from anki.lang import _, ngettext
+from anki.sound import AVTag
 from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.sound import av_player, getAudio
+from aqt.sound import av_player, getAudio, process_av_tags
 from aqt.utils import (
     askUserDialog,
     downArrow,
@@ -38,6 +39,7 @@ class Reviewer:
         self.hadCardQueue = False
         self._answeredIds: List[int] = []
         self._recordedAudio = None
+        self._current_side_audio: Optional[List[AVTag]] = None
         self.typeCorrect = None  # web init happens before this is set
         self.state: Optional[str] = None
         self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
@@ -122,6 +124,14 @@ class Reviewer:
             txt += c.a()
             av_player.play_from_text(self.mw.col, txt)
 
+    def on_play_button(self, idx: int):
+        try:
+            tag = self._current_side_audio[idx]
+        except IndexError:
+            return
+
+        av_player.play_tags([tag])
+
     # Initializing the webview
     ##########################################################################
 
@@ -181,8 +191,11 @@ The front of this card is empty. Please run Tools>Empty Cards."""
             )
         else:
             q = c.q()
+
+        q, self._current_side_audio = process_av_tags(self.mw.col, q)
         if self.autoplay(c):
-            av_player.play_from_text(self.mw.col, q)
+            av_player.play_tags(self._current_side_audio)
+
         # render & update bottom
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
@@ -223,8 +236,9 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         c = self.card
         a = c.a()
         # play audio?
+        a, self._current_side_audio = process_av_tags(self.mw.col, a)
         if self.autoplay(c):
-            av_player.play_from_text(self.mw.col, a)
+            av_player.play_tags(self._current_side_audio)
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
@@ -304,6 +318,8 @@ The front of this card is empty. Please run Tools>Empty Cards."""
             self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
+        elif url.startswith("play:"):
+            self.on_play_button(int(url.split(":")[1]))
         else:
             print("unrecognized anki link:", url)
 

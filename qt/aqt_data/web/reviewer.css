@@ -56,3 +56,6 @@ img {
 .typeMissed {
     background: #ccc;
 }
+
+.playImage { zoom: 50% }
+.soundLink { text-decoration: none; }

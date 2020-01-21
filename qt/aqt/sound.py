@@ -3,6 +3,7 @@
 
 import atexit
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -579,6 +580,33 @@ mpvManager: Optional["MpvManager"] = None
 _exports = [i for i in locals().items() if not i[0].startswith("__")]
 for (k, v) in _exports:
     sys.modules["anki.sound"].__dict__[k] = v
+
+# Tag handling
+##########################################################################
+
+
+def process_av_tags(
+    col: anki.storage._Collection, text: str
+) -> Tuple[str, List[AVTag]]:
+    "Return card text with play buttons added, and the extracted AV tags."
+    return (
+        av_flags_to_html(col.backend.flag_av_tags(text)),
+        col.backend.get_av_tags(text),
+    )
+
+
+AV_FLAG_RE = re.compile(r"\[anki:play\](\d+)\[/anki:play]")
+
+
+def av_flags_to_html(text: str) -> str:
+    def repl(match: re.Match) -> str:
+        return f"""
+<a class=soundLink href=# onclick="pycmd('play:{match.group(1)}'); return false;">
+  <img class=playImage src='/_anki/imgs/play.png'>
+</a>"""
+
+    return AV_FLAG_RE.sub(repl, text)
+
 
 # Init defaults
 ##########################################################################
