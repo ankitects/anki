@@ -639,5 +639,10 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
         from aqt.tts import MacTTSPlayer
 
         av_player.players.append(MacTTSPlayer(taskman))
+    elif isWin:
+        from aqt.tts import WindowsTTSPlayer
 
+        av_player.players.append(WindowsTTSPlayer(taskman))
+
+    # cleanup at shutdown
     atexit.register(av_player.shutdown)
