@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>423</width>
-    <height>508</height>
+    <width>422</width>
+    <height>579</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,6 +84,13 @@
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
           <string>Show remaining card count during review</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="showPlayButtons">
+         <property name="text">
+          <string>Show play buttons on cards with audio</string>
          </property>
         </widget>
        </item>
@@ -514,6 +521,7 @@
   <tabstop>hwAccel</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
+  <tabstop>showPlayButtons</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>pasteInvert</tabstop>
   <tabstop>nightMode</tabstop>

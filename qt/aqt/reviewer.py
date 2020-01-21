@@ -18,7 +18,7 @@ from anki.sound import AVTag
 from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.sound import av_player, getAudio, process_av_tags
+from aqt.sound import av_player, getAudio
 from aqt.utils import (
     askUserDialog,
     downArrow,
@@ -192,7 +192,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         else:
             q = c.q()
 
-        q, self._current_side_audio = process_av_tags(self.mw.col, q)
+        q, self._current_side_audio = self.mw.process_av_tags(q)
         if self.autoplay(c):
             av_player.play_tags(self._current_side_audio)
 
@@ -236,7 +236,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         c = self.card
         a = c.a()
         # play audio?
-        a, self._current_side_audio = process_av_tags(self.mw.col, a)
+        a, self._current_side_audio = self.mw.process_av_tags(a)
         if self.autoplay(c):
             av_player.play_tags(self._current_side_audio)
         a = self._mungeQA(a)

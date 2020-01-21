@@ -585,17 +585,6 @@ for (k, v) in _exports:
 # Tag handling
 ##########################################################################
 
-
-def process_av_tags(
-    col: anki.storage._Collection, text: str
-) -> Tuple[str, List[AVTag]]:
-    "Return card text with play buttons added, and the extracted AV tags."
-    return (
-        av_flags_to_html(col.backend.flag_av_tags(text)),
-        col.backend.get_av_tags(text),
-    )
-
-
 AV_FLAG_RE = re.compile(r"\[anki:play\](\d+)\[/anki:play]")
 
 
