@@ -126,7 +126,8 @@ class CardLayout(QDialog):
         self.redrawing = False
 
     def _summarizedName(self, tmpl):
-        return "{}: {} -> {}".format(
+        return "{}: {}: {} -> {}".format(
+            tmpl["ord"] + 1,
             tmpl["name"],
             self._fieldsOnTemplate(tmpl["qfmt"]),
             self._fieldsOnTemplate(tmpl["afmt"]),
