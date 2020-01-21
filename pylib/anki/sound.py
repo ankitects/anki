@@ -21,8 +21,11 @@ class TTSTag:
     See tts.py for more information.
     """
 
-    args: List[str]
-    text: str
+    field_text: str
+    lang: str
+    voices: List[str]
+    # each arg should be in the form 'foo=bar'
+    other_args: List[str]
 
 
 @dataclass

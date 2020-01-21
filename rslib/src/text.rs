@@ -12,8 +12,10 @@ use std::ptr;
 pub enum AVTag<'a> {
     SoundOrVideo(Cow<'a, str>),
     TextToSpeech {
-        args: Vec<&'a str>,
         field_text: Cow<'a, str>,
+        lang: &'a str,
+        voices: Vec<&'a str>,
+        other_args: Vec<&'a str>,
     },
 }
 
@@ -83,12 +85,34 @@ pub fn av_tags_in_string(text: &str) -> impl Iterator<Item = AVTag> {
         } else {
             let args = caps.get(2).unwrap();
             let field_text = caps.get(3).unwrap();
-            AVTag::TextToSpeech {
-                args: args.as_str().split(' ').collect(),
-                field_text: strip_html_for_tts(field_text.as_str()),
-            }
+            tts_tag_from_string(field_text.as_str(), args.as_str())
         }
     })
+}
+
+fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag<'a> {
+    let mut other_args = vec![];
+    let mut split_args = args.split(' ');
+    let lang = split_args.next().unwrap_or("");
+    let mut voices = None;
+
+    for remaining_arg in split_args {
+        if remaining_arg.starts_with("voices=") {
+            voices = remaining_arg
+                .split('=')
+                .nth(1)
+                .map(|voices| voices.split(',').collect());
+        } else {
+            other_args.push(remaining_arg);
+        }
+    }
+
+    AVTag::TextToSpeech {
+        field_text: strip_html_for_tts(field_text),
+        lang,
+        voices: voices.unwrap_or_else(Vec::new),
+        other_args,
+    }
 }
 
 pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
@@ -153,15 +177,18 @@ mod test {
 
     #[test]
     fn test_audio() {
-        let s = "abc[sound:fo&amp;o.mp3]def[anki:tts][lang=en_US voices=Bob,Jane]foo<br>1&gt;2[/anki:tts]gh";
+        let s =
+            "abc[sound:fo&amp;o.mp3]def[anki:tts][en_US voices=Bob,Jane]foo<br>1&gt;2[/anki:tts]gh";
         assert_eq!(strip_av_tags(s), "abcdefgh");
         assert_eq!(
             av_tags_in_string(s).collect::<Vec<_>>(),
             vec![
                 AVTag::SoundOrVideo("fo&o.mp3".into()),
                 AVTag::TextToSpeech {
-                    args: vec!["lang=en_US", "voices=Bob,Jane"],
-                    field_text: "foo 1>2".into()
+                    field_text: "foo 1>2".into(),
+                    lang: "en_US",
+                    voices: vec!["Bob", "Jane"],
+                    other_args: vec![]
                 },
             ]
         );

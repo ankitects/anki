@@ -166,7 +166,6 @@ class AVPlayer:
 
         ranked.sort()
 
-        print(ranked)
         if ranked:
             return ranked[-1][1]
         else:
