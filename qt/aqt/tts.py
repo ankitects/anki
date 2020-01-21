@@ -9,7 +9,7 @@ or
 
 {{tts ja_JP voices=Kyoko,Otoya,Another_name:Field}}
 
-The first argument must be a language code.
+The first argument must be an underscored language code, eg en_US.
 
 If provided, voices is a comma-separated list of one or more voices that
 the user would prefer. Spaces must not be included. Underscores will be
