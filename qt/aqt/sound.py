@@ -11,10 +11,10 @@ import time
 import wave
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
+from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pyaudio
-from operator import itemgetter
 
 import anki
 import aqt

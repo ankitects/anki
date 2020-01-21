@@ -30,10 +30,10 @@ import re
 import subprocess
 from concurrent.futures import Future
 from dataclasses import dataclass
-from typing import List, Optional, Any, cast
+from typing import Any, List, Optional, cast
 
 from anki.sound import AVTag, TTSTag
-from anki.utils import tmpdir, isWin, checksum
+from anki.utils import checksum, isWin, tmpdir
 from aqt.sound import OnDoneCallback, PlayerInterrupted, SimpleProcessPlayer
 
 
@@ -88,8 +88,7 @@ class TTSPlayer:
         No file extension is included."""
         assert isinstance(tag, TTSTag)
         buf = f"{voice.name}-{voice.lang}-{tag.field_text}"
-        return os.path.join(tmpdir(),
-            f"tts-{checksum(buf)}")
+        return os.path.join(tmpdir(), f"tts-{checksum(buf)}")
 
 
 class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
@@ -188,12 +187,15 @@ class MacTTSFilePlayer(MacTTSPlayer):
         # then tell player to advance, which will cause the file to be played
         cb()
 
+
 # Windows support
 ##########################################################################
+
 
 @dataclass
 class WindowsVoice(TTSVoice):
     handle: Any
+
 
 if isWin:
     import win32com.client
@@ -401,13 +403,12 @@ if isWin:
         "19466": "es_NI",
         "20490": "es_PR",
         "21514": "es_US",
-        "31748": "zh_CHT"
+        "31748": "zh_CHT",
     }
 
     def lcid_hex_str_to_lang_code(hex: str) -> str:
         dec_str = str(int(hex, 16))
         return LCIDS.get(dec_str, "unknown")
-
 
     class WindowsTTSPlayer(TTSProcessPlayer):
         speaker = win32com.client.Dispatch("SAPI.SpVoice")
@@ -418,9 +419,9 @@ if isWin:
         def _voice_to_object(self, voice: Any):
             lang = voice.GetAttribute("language")
             lang = lcid_hex_str_to_lang_code(lang)
-            return WindowsVoice(name=voice.GetAttribute("name"),
-                                lang=lang,
-                                handle=voice)
+            return WindowsVoice(
+                name=voice.GetAttribute("name"), lang=lang, handle=voice
+            )
 
         def _play(self, tag: AVTag) -> None:
             match = self.voice_for_tag(tag)
@@ -436,8 +437,7 @@ if isWin:
                 while not self.speaker.WaitUntilDone(100):
                     if self._terminate_flag:
                         # stop playing
-                        self.speaker.Skip("Sentence", 2**15)
+                        self.speaker.Skip("Sentence", 2 ** 15)
                         return
             finally:
                 self._terminate_flag = False
-

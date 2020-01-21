@@ -113,9 +113,9 @@ class MPVBase:
         """
         self.argv = [self.executable]
         self.argv += self.default_argv
-        self.argv += ["--input-ipc-server="+self._sock_filename]
+        self.argv += ["--input-ipc-server=" + self._sock_filename]
         if self.window_id is not None:
-            self.argv += ["--wid="+str(self.window_id)]
+            self.argv += ["--wid=" + str(self.window_id)]
 
     def _start_process(self):
         """Start the mpv process.
