@@ -87,7 +87,7 @@ class AVPlayer:
 
     def play_tags(self, tags: List[AVTag]) -> None:
         """Clear the existing queue, then start playing provided tags."""
-        self._enqueued = tags
+        self._enqueued = tags[:]
         if self.interrupt_current_audio:
             self._stop_if_playing()
         self._play_next_if_idle()
