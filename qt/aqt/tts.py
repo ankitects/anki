@@ -25,13 +25,16 @@ expose the name of the engine, which would mean the user could write
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
+from concurrent.futures import Future
 from dataclasses import dataclass
 from typing import List, Optional
 
 from anki.sound import AVTag, TTSTag
-from aqt.sound import SimpleProcessPlayer
+from anki.utils import tmpdir
+from aqt.sound import OnDoneCallback, PlayerInterrupted, SimpleProcessPlayer
 
 
 @dataclass
@@ -81,6 +84,7 @@ class TTSPlayer:
 
 
 class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
+    # mypy gets confused if rank_for_tag is defined in TTSPlayer
     def rank_for_tag(self, tag: AVTag) -> Optional[int]:
         if not isinstance(tag, TTSTag):
             return None
@@ -97,6 +101,8 @@ class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
 
 
 class MacTTSPlayer(TTSProcessPlayer):
+    "Invokes a process to play the audio in the background."
+
     VOICE_HELP_LINE_RE = re.compile(r"^(\S+)\s+(\S+)\s+.*$")
 
     def _play(self, tag: AVTag) -> None:
@@ -134,3 +140,41 @@ class MacTTSPlayer(TTSProcessPlayer):
         if not m:
             return None
         return TTSVoice(name=m.group(1), lang=m.group(2))
+
+
+class MacTTSFilePlayer(MacTTSPlayer):
+    "Generates an .aiff file, which is played using av_player."
+
+    tmppath = os.path.join(tmpdir(), "tts.aiff")
+
+    def _play(self, tag: AVTag) -> None:
+        assert isinstance(tag, TTSTag)
+        match = self.voice_for_tag(tag)
+        assert match
+        voice = match.voice
+
+        self._process = subprocess.Popen(
+            ["say", "-v", voice.name, "-f", "-", "-o", self.tmppath],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        # write the input text to stdin
+        self._process.stdin.write(tag.field_text.encode("utf8"))
+        self._process.stdin.close()
+        self._wait_for_termination()
+
+    def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
+        try:
+            ret.result()
+        except PlayerInterrupted:
+            # don't fire done callback when interrupted
+            return
+
+        # inject file into the top of the audio queue
+        from aqt.sound import av_player
+
+        av_player.insert_file(self.tmppath)
+
+        # then tell player to advance, which will cause the file to be played
+        cb()
