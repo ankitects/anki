@@ -159,6 +159,8 @@ message AVTag {
 }
 
 message TTSTag {
-    repeated string args = 1;
-    string text = 2;
+    string field_text = 1;
+    string lang = 2;
+    repeated string voices = 3;
+    repeated string other_args = 4;
 }

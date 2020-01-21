@@ -188,10 +188,17 @@ impl Backend {
                 AVTag::SoundOrVideo(file) => pt::AvTag {
                     value: Some(pt::av_tag::Value::SoundOrVideo(file.to_string())),
                 },
-                AVTag::TextToSpeech { args, field_text } => pt::AvTag {
+                AVTag::TextToSpeech {
+                    field_text,
+                    lang,
+                    voices,
+                    other_args,
+                } => pt::AvTag {
                     value: Some(pt::av_tag::Value::Tts(pt::TtsTag {
-                        args: args.iter().map(|&s| s.to_string()).collect(),
-                        text: field_text.to_string(),
+                        field_text: field_text.to_string(),
+                        lang: lang.to_string(),
+                        voices: voices.into_iter().map(ToOwned::to_owned).collect(),
+                        other_args: other_args.into_iter().map(ToOwned::to_owned).collect(),
                     })),
                 },
             })

@@ -51,7 +51,12 @@ def av_tag_to_native(tag: pb.AVTag) -> AVTag:
     if val == "sound_or_video":
         return SoundOrVideoTag(filename=tag.sound_or_video)
     else:
-        return TTSTag(args=list(tag.tts.args), text=tag.tts.text)
+        return TTSTag(
+            field_text=tag.tts.field_text,
+            lang=tag.tts.lang,
+            voices=list(tag.tts.voices),
+            other_args=list(tag.tts.other_args),
+        )
 
 
 @dataclass
