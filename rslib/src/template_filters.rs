@@ -381,8 +381,8 @@ field</a>
     #[test]
     fn test_tts() {
         assert_eq!(
-            tts_filter("tts lang=en_US", "foo"),
-            "[anki:tts][lang=en_US]foo[/anki:tts]"
+            tts_filter("tts en_US voices=Bob,Jane", "foo"),
+            "[anki:tts][en_US voices=Bob,Jane]foo[/anki:tts]"
         );
     }
 }
