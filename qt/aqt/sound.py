@@ -14,6 +14,7 @@ from concurrent.futures import Future
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pyaudio
+from operator import itemgetter
 
 import anki
 import aqt
@@ -169,7 +170,7 @@ class AVPlayer:
             if rank is not None:
                 ranked.append((rank, p))
 
-        ranked.sort()
+        ranked.sort(key=itemgetter(0))
 
         if ranked:
             return ranked[-1][1]
