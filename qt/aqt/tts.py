@@ -33,7 +33,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Any, cast
 
 from anki.sound import AVTag, TTSTag
-from anki.utils import tmpdir, isWin
+from anki.utils import tmpdir, isWin, checksum
 from aqt.sound import OnDoneCallback, PlayerInterrupted, SimpleProcessPlayer
 
 
@@ -81,6 +81,15 @@ class TTSPlayer:
                 return TTSVoiceMatch(voice=avail, rank=-100)
 
         return None
+
+    def temp_file_for_tag_and_voice(self, tag: AVTag, voice: TTSVoice) -> str:
+        """Return a hashed filename, to allow for caching generated files.
+
+        No file extension is included."""
+        assert isinstance(tag, TTSTag)
+        buf = f"{voice.name}-{voice.lang}-{tag.field_text}"
+        return os.path.join(tmpdir(),
+            f"tts-{checksum(buf)}")
 
 
 class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
