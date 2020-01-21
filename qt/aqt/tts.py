@@ -198,7 +198,7 @@ class WindowsVoice(TTSVoice):
 
 
 if isWin:
-    import win32com.client
+    import win32com.client  # pylint: disable=import-error
 
     # language ID map from https://github.com/sindresorhus/lcid/blob/master/lcid.json
     LCIDS = {
@@ -424,6 +424,7 @@ if isWin:
             )
 
         def _play(self, tag: AVTag) -> None:
+            assert isinstance(tag, TTSTag)
             match = self.voice_for_tag(tag)
             assert match
             voice = cast(WindowsVoice, match.voice)
