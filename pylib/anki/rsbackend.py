@@ -170,3 +170,6 @@ class RustBackend:
                 ).get_av_tags.av_tags,
             )
         )
+
+    def flag_av_tags(self, text: str) -> str:
+        return self._run_command(pb.BackendInput(flag_av_tags=text)).flag_av_tags

@@ -3,7 +3,7 @@
 
 use htmlescape;
 use lazy_static::lazy_static;
-use regex::Regex;
+use regex::{Captures, Regex};
 use std::borrow::Cow;
 use std::collections::HashSet;
 use std::ptr;
@@ -78,6 +78,14 @@ pub fn strip_av_tags(text: &str) -> Cow<str> {
     AV_TAGS.replace_all(text, "")
 }
 
+pub fn flag_av_tags(text: &str) -> Cow<str> {
+    let mut idx = 0;
+    AV_TAGS.replace_all(text, |_caps: &Captures| {
+        let text = format!("[anki:play]{}[/anki:play]", idx);
+        idx += 1;
+        text
+    })
+}
 pub fn av_tags_in_string(text: &str) -> impl Iterator<Item = AVTag> {
     AV_TAGS.captures_iter(text).map(|caps| {
         if let Some(av_file) = caps.get(1) {
@@ -141,7 +149,7 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
 #[cfg(test)]
 mod test {
     use crate::text::{
-        av_tags_in_string, cloze_numbers_in_string, strip_av_tags, strip_html,
+        av_tags_in_string, cloze_numbers_in_string, flag_av_tags, strip_av_tags, strip_html,
         strip_html_preserving_image_filenames, AVTag,
     };
     use std::collections::HashSet;
@@ -191,6 +199,11 @@ mod test {
                     other_args: vec![]
                 },
             ]
+        );
+
+        assert_eq!(
+            flag_av_tags(s),
+            "abc[anki:play]0[/anki:play]def[anki:play]1[/anki:play]gh"
         );
     }
 }

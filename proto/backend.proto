@@ -18,6 +18,7 @@ message BackendInput {
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
         string get_av_tags = 24;
+        string flag_av_tags = 25;
     }
 }
 
@@ -32,6 +33,7 @@ message BackendOutput {
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
         GetAVTagsOut get_av_tags = 24;
+        string flag_av_tags = 25;
 
         BackendError error = 2047;
     }
