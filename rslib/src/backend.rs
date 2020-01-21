@@ -10,7 +10,7 @@ use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
 };
-use crate::text::{av_tags_in_string, strip_av_tags, AVTag};
+use crate::text::{av_tags_in_string, flag_av_tags, strip_av_tags, AVTag};
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -101,6 +101,7 @@ impl Backend {
             }
             Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
             Value::GetAvTags(text) => OValue::GetAvTags(self.get_av_tags(&text)),
+            Value::FlagAvTags(text) => OValue::FlagAvTags(flag_av_tags(&text).into()),
         })
     }
 
