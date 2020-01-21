@@ -69,7 +69,7 @@ class TTSPlayer:
         # any requested voices match?
         for requested_voice in tag.voices:
             for avail in avail_voices:
-                if avail.name == requested_voice:
+                if avail.name == requested_voice and avail.lang == tag.lang:
                     return TTSVoiceMatch(voice=avail, rank=rank)
 
             rank -= 1
