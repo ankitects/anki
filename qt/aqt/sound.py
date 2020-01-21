@@ -283,7 +283,7 @@ class SimpleMpvPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
     def __init__(self, taskman: TaskManager, base_folder: str) -> None:
         super().__init__(taskman)
         conf_path = os.path.join(base_folder, "mpv.conf")
-        self.args += ["--no-config", "--include=" + conf_path]
+        self.args += ["--include=" + conf_path]
 
 
 class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
