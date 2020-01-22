@@ -75,28 +75,56 @@ class _AddCardsWillShowHistoryMenuHook:
 add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
 
 
-class _AvPlayerDidPlayHook:
-    _hooks: List[Callable[[], None]] = []
+class _AvPlayerDidBeginPlayingHook:
+    _hooks: List[Callable[["aqt.sound.Player", "anki.sound.AVTag"], None]] = []
 
-    def append(self, cb: Callable[[], None]) -> None:
-        """()"""
+    def append(
+        self, cb: Callable[["aqt.sound.Player", "anki.sound.AVTag"], None]
+    ) -> None:
+        """(player: aqt.sound.Player, tag: anki.sound.AVTag)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[], None]) -> None:
+    def remove(
+        self, cb: Callable[["aqt.sound.Player", "anki.sound.AVTag"], None]
+    ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self) -> None:
+    def __call__(self, player: aqt.sound.Player, tag: anki.sound.AVTag) -> None:
         for hook in self._hooks:
             try:
-                hook()
+                hook(player, tag)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
 
 
-av_player_did_play = _AvPlayerDidPlayHook()
+av_player_did_begin_playing = _AvPlayerDidBeginPlayingHook()
+
+
+class _AvPlayerDidEndPlayingHook:
+    _hooks: List[Callable[["aqt.sound.Player"], None]] = []
+
+    def append(self, cb: Callable[["aqt.sound.Player"], None]) -> None:
+        """(player: aqt.sound.Player)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.sound.Player"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, player: aqt.sound.Player) -> None:
+        for hook in self._hooks:
+            try:
+                hook(player)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+av_player_did_end_playing = _AvPlayerDidEndPlayingHook()
 
 
 class _AvPlayerWillPlayHook:

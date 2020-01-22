@@ -36,6 +36,12 @@ OnDoneCallback = Callable[[], None]
 class Player(ABC):
     @abstractmethod
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
+        """Play a file.
+
+        When reimplementing, make sure to call
+        gui_hooks.av_player_did_begin_playing(self, tag)
+        on the main thread after playback begins.
+        """
         pass
 
     @abstractmethod
@@ -142,8 +148,8 @@ class AVPlayer:
         return self._enqueued.pop(0)
 
     def _on_play_finished(self) -> None:
+        gui_hooks.av_player_did_end_playing(self.current_player)
         self.current_player = None
-        gui_hooks.av_player_did_play()
         self._play_next_if_idle()
 
     def _play_next_if_idle(self) -> None:
@@ -238,9 +244,13 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(self.args + [tag.filename], env=self.env)
-        self._wait_for_termination()
+        self._wait_for_termination(tag)
 
-    def _wait_for_termination(self):
+    def _wait_for_termination(self, tag: AVTag):
+        self._taskman.run_on_main(
+            lambda: gui_hooks.av_player_did_begin_playing(self, tag)
+        )
+
         try:
             while True:
                 try:
@@ -344,6 +354,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self._on_done = on_done
         path = os.path.join(os.getcwd(), tag.filename)
         self.command("loadfile", path, "append-play")
+        gui_hooks.av_player_did_begin_playing(self, tag)
 
     def stop(self) -> None:
         self.command("stop")
@@ -388,7 +399,7 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
         self._process = subprocess.Popen(
             self.args + [tag.filename], env=self.env, stdin=subprocess.PIPE
         )
-        self._wait_for_termination()
+        self._wait_for_termination(tag)
 
     def command(self, *args) -> None:
         """Send a command over the slave interface.

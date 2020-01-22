@@ -199,7 +199,11 @@ hooks = [
     # Sound/video
     ###################
     Hook(name="av_player_will_play", args=["tag: anki.sound.AVTag"]),
-    Hook(name="av_player_did_play"),
+    Hook(
+        name="av_player_did_begin_playing",
+        args=["player: aqt.sound.Player", "tag: anki.sound.AVTag"],
+    ),
+    Hook(name="av_player_did_end_playing", args=["player: aqt.sound.Player"]),
     # Other
     ###################
     Hook(

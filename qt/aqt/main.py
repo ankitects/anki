@@ -1180,7 +1180,7 @@ Difference to correct time: %s."""
         hooks.card_odue_was_invalid.append(self.onOdueInvalid)
 
         gui_hooks.av_player_will_play.append(self.on_av_player_will_play)
-        gui_hooks.av_player_did_play.append(self.on_av_player_did_play)
+        gui_hooks.av_player_did_end_playing.append(self.on_av_player_did_end_playing)
 
         self._activeWindowOnPlay: Optional[QWidget] = None
 
@@ -1207,7 +1207,7 @@ and if the problem comes up again, please ask on the support site."""
 
         self._activeWindowOnPlay = self.app.activeWindow() or self._activeWindowOnPlay
 
-    def on_av_player_did_play(self) -> None:
+    def on_av_player_did_end_playing(self, player: Any) -> None:
         "Restore window focus after a video was played."
         w = self._activeWindowOnPlay
         if not self.app.activeWindow() and w and not sip.isdeleted(w) and w.isVisible():
