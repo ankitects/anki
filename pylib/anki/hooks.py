@@ -28,6 +28,30 @@ from anki.template import TemplateRenderContext
 # @@AUTOGEN@@
 
 
+class _CardAnsweredHook:
+    _hooks: List[Callable[[Card, int], None]] = []
+
+    def append(self, cb: Callable[[Card, int], None]) -> None:
+        """(card: Card, ease: int)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Card, int], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, card: Card, ease: int) -> None:
+        for hook in self._hooks:
+            try:
+                hook(card, ease)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+card_answered = _CardAnsweredHook()
+
+
 class _CardDidLeechHook:
     _hooks: List[Callable[[Card], None]] = []
 

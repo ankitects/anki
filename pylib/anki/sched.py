@@ -97,6 +97,7 @@ class Scheduler:
         card.mod = intTime()
         card.usn = self.col.usn()
         card.flushSched()
+        hooks.card_answered(card, ease)
 
     def counts(self, card=None):
         counts = [self.newCount, self.lrnCount, self.revCount]

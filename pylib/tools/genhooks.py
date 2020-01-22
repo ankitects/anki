@@ -19,6 +19,7 @@ from hookslib import Hook, update_file
 hooks = [
     Hook(name="card_did_leech", args=["card: Card"], legacy_hook="leech"),
     Hook(name="card_odue_was_invalid"),
+    Hook(name="card_answered", args=["card: Card", "ease: int"]),
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
         name="notes_will_be_deleted",
