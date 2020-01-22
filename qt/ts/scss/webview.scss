@@ -8,3 +8,8 @@ body {
 h1 {
     margin-bottom: 0.2em;
 }
+
+body.nightMode {
+    color: white;
+    background: #2f2f31;
+}
