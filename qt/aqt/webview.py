@@ -118,12 +118,12 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         self.resetHandlers()
         self.allowDrops = False
         self._filterSet = False
-        QShortcut(
+        QShortcut(  # type: ignore
             QKeySequence("Esc"),
             self,
             context=Qt.WidgetWithChildrenShortcut,
             activated=self.onEsc,
-        )  # type: ignore
+        )
         if isMac:
             for key, fn in [
                 (QKeySequence.Copy, self.onCopy),
@@ -131,15 +131,15 @@ class AnkiWebView(QWebEngineView):  # type: ignore
                 (QKeySequence.Cut, self.onCut),
                 (QKeySequence.SelectAll, self.onSelectAll),
             ]:
-                QShortcut(
+                QShortcut(  # type: ignore
                     key, self, context=Qt.WidgetWithChildrenShortcut, activated=fn
-                )  # type: ignore
-            QShortcut(
+                )
+            QShortcut(  # type: ignore
                 QKeySequence("ctrl+shift+v"),
                 self,
                 context=Qt.WidgetWithChildrenShortcut,
                 activated=self.onPaste,
-            )  # type: ignore
+            )
 
     def eventFilter(self, obj, evt):
         # disable pinch to zoom gesture
