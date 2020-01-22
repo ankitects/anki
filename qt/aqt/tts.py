@@ -34,6 +34,7 @@ from typing import Any, List, Optional, cast
 
 from anki.sound import AVTag, TTSTag
 from anki.utils import checksum, isWin, tmpdir
+from aqt import gui_hooks
 from aqt.sound import OnDoneCallback, PlayerInterrupted, SimpleProcessPlayer
 
 
@@ -128,8 +129,7 @@ class MacTTSPlayer(TTSProcessPlayer):
         # write the input text to stdin
         self._process.stdin.write(tag.field_text.encode("utf8"))
         self._process.stdin.close()
-
-        self._wait_for_termination()
+        self._wait_for_termination(tag)
 
     def get_available_voices(self) -> List[TTSVoice]:
         cmd = subprocess.run(
@@ -170,7 +170,7 @@ class MacTTSFilePlayer(MacTTSPlayer):
         # write the input text to stdin
         self._process.stdin.write(tag.field_text.encode("utf8"))
         self._process.stdin.close()
-        self._wait_for_termination()
+        self._wait_for_termination(tag)
 
     def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
         try:
@@ -433,6 +433,7 @@ if isWin:
                 native_voice = voice.handle
                 self.speaker.Voice = native_voice
                 self.speaker.Speak(tag.field_text, 1)
+                gui_hooks.av_player_did_begin_playing(self, tag)
 
                 # wait 100ms
                 while not self.speaker.WaitUntilDone(100):
