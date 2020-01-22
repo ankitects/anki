@@ -291,7 +291,21 @@ The front of this card is empty. Please run Tools>Empty Cards."""
             ("2", lambda: self._answerCard(2)),
             ("3", lambda: self._answerCard(3)),
             ("4", lambda: self._answerCard(4)),
+            ("5", self.on_pause_audio),
+            ("6", self.on_seek_backward),
+            ("7", self.on_seek_forward),
         ]
+
+    def on_pause_audio(self):
+        av_player.toggle_pause()
+
+    seek_secs = 5
+
+    def on_seek_backward(self):
+        av_player.seek_relative(-self.seek_secs)
+
+    def on_seek_forward(self):
+        av_player.seek_relative(self.seek_secs)
 
     def onEnterKey(self):
         if self.state == "question":
@@ -696,6 +710,9 @@ time = %(time)d;
             [_("Options"), "O", self.onOptions],
             None,
             [_("Replay Audio"), "R", self.replayAudio],
+            [_("Pause Audio"), "5", self.on_pause_audio],
+            [_("Audio -5s"), "6", self.on_seek_backward],
+            [_("Audio +5s"), "7", self.on_seek_forward],
             [_("Record Own Voice"), "Shift+V", self.onRecordVoice],
             [_("Replay Own Voice"), "V", self.onReplayRecorded],
         ]
