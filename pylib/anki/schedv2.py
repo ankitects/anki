@@ -87,6 +87,7 @@ class Scheduler:
         card.mod = intTime()
         card.usn = self.col.usn()
         card.flushSched()
+        hooks.card_answered(card, ease)
 
     def _answerCard(self, card: Card, ease: int) -> None:
         if self._previewingCard(card):
