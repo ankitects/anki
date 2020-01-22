@@ -10,7 +10,6 @@ import re
 import unicodedata as ucd
 from typing import List, Optional
 
-import aqt
 from anki import hooks
 from anki.cards import Card
 from anki.lang import _, ngettext
@@ -19,6 +18,7 @@ from anki.utils import bodyClass, stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player, getAudio
+from aqt.toolbar import BottomBar
 from aqt.utils import (
     askUserDialog,
     downArrow,
@@ -42,15 +42,14 @@ class Reviewer:
         self._current_side_audio: Optional[List[AVTag]] = None
         self.typeCorrect = None  # web init happens before this is set
         self.state: Optional[str] = None
-        self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
+        self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self):
         self.mw.col.reset()
-        self.web.resetHandlers()
         self.mw.setStateShortcuts(self._shortcutKeys())
-        self.web.onBridgeCmd = self._linkHandler
-        self.bottom.web.onBridgeCmd = self._linkHandler
+        self.web.set_bridge_command(self._linkHandler, "reviewer")
+        self.bottom.web.set_bridge_command(self._linkHandler, "reviewer_bottom")
         self._reps = None
         self.nextCard()
 

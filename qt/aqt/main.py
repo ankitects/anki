@@ -643,8 +643,9 @@ from the profile screen."
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
-        self.web.resetHandlers()
-        self.web.onBridgeCmd = lambda url: self.delayedMaybeReset()
+        self.web.set_bridge_command(
+            lambda url: self.delayedMaybeReset(), "reset_required"
+        )
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml(

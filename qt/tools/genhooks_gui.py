@@ -65,11 +65,6 @@ hooks = [
         args=["browser: aqt.browser.Browser"],
         legacy_hook="browser.rowChanged",
     ),
-    Hook(
-        name="webview_will_show_context_menu",
-        args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
-        legacy_hook="AnkiWebView.contextMenuEvent",
-    ),
     # States
     ###################
     Hook(
@@ -97,6 +92,30 @@ hooks = [
         name="state_did_reset",
         legacy_hook="reset",
         doc="Called when the interface needs to be redisplayed after non-trivial changes have been made.",
+    ),
+    # Webview
+    ###################
+    Hook(
+        name="webview_did_receive_js_message",
+        args=["handled: Tuple[bool, Any]", "message: str", "context: str"],
+        return_type="Tuple[bool, Any]",
+        doc="""Used to handle pycmd() messages sent from Javascript.
+        
+        Message is the string passed to pycmd(). Context is what was
+        passed to set_bridge_command(), such as 'editor' or 'reviewer'.
+        
+        For messages you don't want to handle, return handled unchanged.
+        
+        If you handle a message and don't want it passed to the original
+        bridge command handler, return (True, None).
+          
+        If you want to pass a value to pycmd's result callback, you can
+        return it with (True, some_value).""",
+    ),
+    Hook(
+        name="webview_will_show_context_menu",
+        args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
+        legacy_hook="AnkiWebView.contextMenuEvent",
     ),
     # Main
     ###################
