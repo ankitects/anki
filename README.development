@@ -74,3 +74,4 @@ You can use homebrew to install some dependencies:
 
 $ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename
 
+$ brew link gettext --force
