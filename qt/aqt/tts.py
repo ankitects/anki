@@ -109,6 +109,11 @@ class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
 ##########################################################################
 
 
+@dataclass
+class MacVoice(TTSVoice):
+    original_name: str
+
+
 class MacTTSPlayer(TTSProcessPlayer):
     "Invokes a process to play the audio in the background."
 
@@ -119,9 +124,10 @@ class MacTTSPlayer(TTSProcessPlayer):
         match = self.voice_for_tag(tag)
         assert match
         voice = match.voice
+        assert isinstance(voice, MacVoice)
 
         self._process = subprocess.Popen(
-            ["say", "-v", voice.name, "-f", "-"],
+            ["say", "-v", voice.original_name, "-f", "-"],
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -147,7 +153,10 @@ class MacTTSPlayer(TTSProcessPlayer):
         m = self.VOICE_HELP_LINE_RE.match(line)
         if not m:
             return None
-        return TTSVoice(name=m.group(1).strip(), lang=m.group(2))
+
+        original_name = m.group(1).strip()
+        tidy_name = "Apple_" + original_name.replace(" ", "_")
+        return MacVoice(name=tidy_name, original_name=original_name, lang=m.group(2))
 
 
 class MacTTSFilePlayer(MacTTSPlayer):
@@ -160,9 +169,10 @@ class MacTTSFilePlayer(MacTTSPlayer):
         match = self.voice_for_tag(tag)
         assert match
         voice = match.voice
+        assert isinstance(voice, MacVoice)
 
         self._process = subprocess.Popen(
-            ["say", "-v", voice.name, "-f", "-", "-o", self.tmppath],
+            ["say", "-v", voice.original_name, "-f", "-", "-o", self.tmppath],
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -419,9 +429,8 @@ if isWin:
         def _voice_to_object(self, voice: Any):
             lang = voice.GetAttribute("language")
             lang = lcid_hex_str_to_lang_code(lang)
-            return WindowsVoice(
-                name=voice.GetAttribute("name"), lang=lang, handle=voice
-            )
+            name = self._tidy_name(voice.GetAttribute("name"))
+            return WindowsVoice(name=name, lang=lang, handle=voice)
 
         def _play(self, tag: AVTag) -> None:
             assert isinstance(tag, TTSTag)
@@ -443,3 +452,9 @@ if isWin:
                         return
             finally:
                 self._terminate_flag = False
+
+        def _tidy_name(self, name: str) -> str:
+            "eg. Microsoft Haruka Desktop -> MS-Haruka."
+            return re.sub(r"^Microsoft (.+) Desktop$", "Microsoft_\\1", name).replace(
+                " ", "_"
+            )
