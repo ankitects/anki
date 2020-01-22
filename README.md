@@ -1,3 +1,5 @@
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fankitects%2Fanki%2Fbadge&style=flat)](https://actions-badge.atrox.dev/ankitects/anki/goto)
+
 This repo contains all the code for the computer version of Anki.
 
 If you'd like to try development builds of Anki but don't feel comfortable
