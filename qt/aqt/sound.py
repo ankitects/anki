@@ -42,7 +42,6 @@ class Player(ABC):
         gui_hooks.av_player_did_begin_playing(self, tag)
         on the main thread after playback begins.
         """
-        pass
 
     @abstractmethod
     def rank_for_tag(self, tag: AVTag) -> Optional[int]:
