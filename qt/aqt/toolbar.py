@@ -2,12 +2,16 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
+import aqt
 from anki.lang import _
 from aqt.qt import *
+from aqt.webview import AnkiWebView
 
 
 class Toolbar:
-    def __init__(self, mw, web):
+    def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
         self.web = web
         self.link_handlers = {
@@ -22,7 +26,7 @@ class Toolbar:
         self.web.requiresCol = False
 
     def draw(self):
-        self.web.onBridgeCmd = self._linkHandler
+        self.web.set_bridge_command(self._linkHandler, "top_toolbar")
         self.web.stdHtml(self._body % self._centerLinks(), css=["toolbar.css"])
         self.web.adjustHeightToFit()
 
@@ -107,7 +111,8 @@ class BottomBar(Toolbar):
 """
 
     def draw(self, buf):
-        self.web.onBridgeCmd = self._linkHandler
+        # note: some screens may override this
+        self.web.set_bridge_command(self._linkHandler, "bottom_toolbar")
         self.web.stdHtml(
             self._centerBody % buf, css=["toolbar.css", "toolbar-bottom.css"]
         )

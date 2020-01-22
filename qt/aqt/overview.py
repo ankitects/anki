@@ -2,24 +2,26 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import aqt
 from anki.lang import _
 from aqt.sound import av_player
+from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip
 
 
 class Overview:
     "Deck overview."
 
-    def __init__(self, mw):
+    def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
-        self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
+        self.bottom = BottomBar(mw, mw.bottomWeb)
 
     def show(self):
         av_player.stop_and_clear_queue()
-        self.web.resetHandlers()
-        self.web.onBridgeCmd = self._linkHandler
+        self.web.set_bridge_command(self._linkHandler, "overview")
         self.mw.setStateShortcuts(self._shortcutKeys())
         self.refresh()
 
@@ -235,7 +237,7 @@ to their original deck."""
                 b
             )
         self.bottom.draw(buf)
-        self.bottom.web.onBridgeCmd = self._linkHandler
+        self.bottom.web.set_bridge_command(self._linkHandler, "overview_bottom")
 
     # Studying more
     ######################################################################

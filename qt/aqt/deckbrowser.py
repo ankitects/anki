@@ -8,25 +8,25 @@ import aqt
 from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
 from anki.utils import fmtTimeSpan, ids2str
-from aqt import gui_hooks
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
+from aqt.toolbar import BottomBar
 from aqt.utils import askUser, getOnlyText, openHelp, openLink, shortcut, showWarning
 
 
 class DeckBrowser:
     _dueTree: Any
 
-    def __init__(self, mw):
+    def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
-        self.bottom = aqt.toolbar.BottomBar(mw, mw.bottomWeb)
+        self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
 
     def show(self):
         av_player.stop_and_clear_queue()
-        self.web.resetHandlers()
-        self.web.onBridgeCmd = self._linkHandler
+        self.web.set_bridge_command(self._linkHandler, "deck_browser")
         self._renderPage()
 
     def refresh(self):
@@ -330,7 +330,7 @@ where id > ?""",
                 b
             )
         self.bottom.draw(buf)
-        self.bottom.web.onBridgeCmd = self._linkHandler
+        self.bottom.web.set_bridge_command(self._linkHandler, "deck_browser_bottom_bar")
 
     def _onShared(self):
         openLink(aqt.appShared + "decks/")

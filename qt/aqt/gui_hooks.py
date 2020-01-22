@@ -913,6 +913,50 @@ class _UndoStateDidChangeHook:
 undo_state_did_change = _UndoStateDidChangeHook()
 
 
+class _WebviewDidReceiveJsMessageFilter:
+    """Used to handle pycmd() messages sent from Javascript.
+        
+        Message is the string passed to pycmd(). Context is what was
+        passed to set_bridge_command(), such as 'editor' or 'reviewer'.
+        
+        For messages you don't want to handle, return handled unchanged.
+        
+        If you handle a message and don't want it passed to the original
+        bridge command handler, return (True, None).
+          
+        If you want to pass a value to pycmd's result callback, you can
+        return it with (True, some_value)."""
+
+    _hooks: List[Callable[[Tuple[bool, Any], str, str], Tuple[bool, Any]]] = []
+
+    def append(
+        self, cb: Callable[[Tuple[bool, Any], str, str], Tuple[bool, Any]]
+    ) -> None:
+        """(handled: Tuple[bool, Any], message: str, context: str)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[Tuple[bool, Any], str, str], Tuple[bool, Any]]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, handled: Tuple[bool, Any], message: str, context: str
+    ) -> Tuple[bool, Any]:
+        for filter in self._hooks:
+            try:
+                handled = filter(handled, message, context)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return handled
+
+
+webview_did_receive_js_message = _WebviewDidReceiveJsMessageFilter()
+
+
 class _WebviewWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.webview.AnkiWebView", QMenu], None]] = []
 

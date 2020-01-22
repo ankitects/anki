@@ -4,6 +4,7 @@
 import json
 import math
 import sys
+from typing import Any, List, Optional, Tuple
 
 from anki.lang import _
 from anki.utils import isLin, isMac, isWin
@@ -99,18 +100,21 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
 
 
 class AnkiWebView(QWebEngineView):  # type: ignore
-    def __init__(self, parent=None):
-        QWebEngineView.__init__(self, parent=parent)
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        QWebEngineView.__init__(self, parent=parent)  # type: ignore
         self.title = "default"
         self._page = AnkiWebPage(self._onBridgeCmd)
         self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
 
+        # in new code, use .set_bridge_command() instead of setting this directly
+        self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
+
         self._domDone = True
-        self._pendingActions = []
+        self._pendingActions: List[Tuple[str, List[Any]]] = []
         self.requiresCol = True
         self.setPage(self._page)
 
-        self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
+        self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)  # type: ignore
         self.resetHandlers()
         self.allowDrops = False
         self._filterSet = False
@@ -119,7 +123,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
             self,
             context=Qt.WidgetWithChildrenShortcut,
             activated=self.onEsc,
-        )
+        )  # type: ignore
         if isMac:
             for key, fn in [
                 (QKeySequence.Copy, self.onCopy),
@@ -129,13 +133,13 @@ class AnkiWebView(QWebEngineView):  # type: ignore
             ]:
                 QShortcut(
                     key, self, context=Qt.WidgetWithChildrenShortcut, activated=fn
-                )
+                )  # type: ignore
             QShortcut(
                 QKeySequence("ctrl+shift+v"),
                 self,
                 context=Qt.WidgetWithChildrenShortcut,
                 activated=self.onPaste,
-            )
+            )  # type: ignore
 
     def eventFilter(self, obj, evt):
         # disable pinch to zoom gesture
@@ -391,7 +395,7 @@ body {{ zoom: {}; background: {}; {} }}
             return True
         return False
 
-    def _onBridgeCmd(self, cmd):
+    def _onBridgeCmd(self, cmd: str) -> Any:
         if self._shouldIgnoreWebEvent():
             print("ignored late bridge cmd", cmd)
             return
@@ -404,13 +408,21 @@ body {{ zoom: {}; background: {}; {} }}
             self._domDone = True
             self._maybeRunActions()
         else:
-            return self.onBridgeCmd(cmd)
+            handled, result = gui_hooks.webview_did_receive_js_message(
+                (False, None), cmd, self._bridge_command_name
+            )
+            if handled:
+                return result
+            else:
+                return self.onBridgeCmd(cmd)
 
-    def defaultOnBridgeCmd(self, cmd):
+    def defaultOnBridgeCmd(self, cmd: str) -> Any:
         print("unhandled bridge cmd:", cmd)
 
+    # legacy
     def resetHandlers(self):
         self.onBridgeCmd = self.defaultOnBridgeCmd
+        self._bridge_command_name = "unknown"
 
     def adjustHeightToFit(self):
         self.evalWithCallback("$(document.body).height()", self._onHeight)
@@ -429,3 +441,11 @@ body {{ zoom: {}; background: {}; {} }}
 
         height = math.ceil(qvar * scaleFactor)
         self.setFixedHeight(height)
+
+    def set_bridge_command(self, func: Callable[[str], Any], context: str) -> None:
+        """Set a handler for pycmd() messages received from Javascript.
+
+        Context is a human readable name that is provided to the
+        webview_did_receive_js_message hook."""
+        self.onBridgeCmd = func
+        self._bridge_command_name = context

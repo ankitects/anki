@@ -2133,7 +2133,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
-        frm.webView.onBridgeCmd = self.dupeLinkClicked
+        frm.webView.set_bridge_command(self.dupeLinkClicked, "find_dupes")
 
         def onFin(code):
             saveGeom(d, "findDupes")

@@ -216,6 +216,9 @@ class CardLayout(QDialog):
         pform.backWeb.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
         )
+        # specify a context for add-ons
+        pform.frontWeb.set_bridge_command(lambda msg: None, "card_layout")
+        pform.backWeb.set_bridge_command(lambda msg: None, "card_layout")
 
     def updateMainArea(self):
         if self._isCloze():
