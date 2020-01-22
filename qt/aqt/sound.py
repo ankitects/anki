@@ -390,15 +390,16 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
         )
         self._wait_for_termination()
 
-    def command(self, text: str) -> None:
+    def command(self, *args) -> None:
         """Send a command over the slave interface.
 
         The trailing newline is automatically added."""
-        self._process.stdin.write(text.encode("utf8") + b"\n")
+        str_args = [str(x) for x in args]
+        self._process.stdin.write(" ".join(str_args).encode("utf8") + b"\n")
         self._process.stdin.flush()
 
     def seek_relative(self, secs: int) -> None:
-        self.command(f"seek {secs} 0")
+        self.command("seek", secs, 0)
 
     def toggle_pause(self):
         self.command("pause")
