@@ -29,7 +29,7 @@ all: check
 	(cd i18n && ./build-mo-files && ./copy-qt-files)
 	@touch $@
 
-TSDEPS := $(wildcard ts/src/*.ts)
+TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
 
 .build/js: $(TSDEPS)
 	(cd ts && npm i && npm run build)
