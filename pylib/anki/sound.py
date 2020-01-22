@@ -49,7 +49,7 @@ _soundReg = r"\[sound:(.*?)\]"
 
 
 def allSounds(text) -> List:
-    from aqt import mw
+    from aqt import mw  # type: ignore # pylint: disable=import-error
 
     return [
         x.filename
@@ -59,6 +59,6 @@ def allSounds(text) -> List:
 
 
 def stripSounds(text) -> str:
-    from aqt import mw
+    from aqt import mw  # type: ignore # pylint: disable=import-error
 
     return mw.col.backend.strip_av_tags(text)
