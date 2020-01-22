@@ -224,7 +224,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         self._process: Optional[subprocess.Popen] = None
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
-        self._taskman.run(
+        self._taskman.run_in_background(
             lambda: self._play(tag), lambda res: self._on_done(res, on_done)
         )
 

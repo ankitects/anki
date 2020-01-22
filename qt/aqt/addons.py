@@ -933,7 +933,7 @@ class DownloaderInstaller(QObject):
         self.on_done = on_done
 
         self.mgr.mw.progress.start(immediate=True, parent=self.parent())
-        self.mgr.mw.taskman.run(self._download_all, self._download_done)
+        self.mgr.mw.taskman.run_in_background(self._download_all, self._download_done)
 
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
@@ -1063,7 +1063,7 @@ def check_for_updates(
 
         on_done(client, result)
 
-    mgr.mw.taskman.run(check, update_info_received)
+    mgr.mw.taskman.run_in_background(check, update_info_received)
 
 
 def handle_update_info(
