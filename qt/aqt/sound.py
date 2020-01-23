@@ -252,7 +252,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         self._terminate_flag = True
         # block until stopped
         t = time.time()
-        while self._terminate_flag and time.time() - t < 10:
+        while self._terminate_flag and time.time() - t < 1:
             time.sleep(0.1)
 
     def _play(self, tag: AVTag) -> None:
