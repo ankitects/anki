@@ -247,6 +247,8 @@ class AnkiWebView(QWebEngineView):  # type: ignore
             return 3
 
     def _getWindowColor(self):
+        if theme_manager.night_mode:
+            return theme_manager.qcolor("window-bg")
         if isMac:
             # standard palette does not return correct window color on macOS
             return QColor("#ececec")
@@ -317,7 +319,7 @@ div[contenteditable="true"]:focus {
 <title>{}</title>
 
 <style>
-body {{ zoom: {}; background: {}; {} }}
+body {{ zoom: {}; {} }}
 {}
 </style>
   
@@ -328,7 +330,6 @@ body {{ zoom: {}; background: {}; {} }}
 </html>""".format(
             self.title,
             self.zoomFactor(),
-            self._getWindowColor().name(),
             fontspec,
             widgetspec,
             head,
