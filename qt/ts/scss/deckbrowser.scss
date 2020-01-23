@@ -95,4 +95,9 @@ body {
     .gears {
         filter: invert(180);
     }
+
+    .filtered {
+        color: vars.$night-link !important;
+    }
+
 }
