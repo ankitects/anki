@@ -25,7 +25,7 @@ from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase
 from aqt.qt import *
 from aqt.taskman import TaskManager
-from aqt.utils import restoreGeom, saveGeom
+from aqt.utils import restoreGeom, saveGeom, startup_info
 
 # AV player protocol
 ##########################################################################
@@ -209,6 +209,21 @@ def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
     return cmd, env
 
 
+# Platform hacks
+##########################################################################
+
+# legacy global for add-ons
+si = startup_info()
+
+# osx throws interrupted system call errors frequently
+def retryWait(proc) -> Any:
+    while 1:
+        try:
+            return proc.wait()
+        except OSError:
+            continue
+
+
 # Simple player implementations
 ##########################################################################
 
@@ -242,7 +257,9 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
 
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
-        self._process = subprocess.Popen(self.args + [tag.filename], env=self.env)
+        self._process = subprocess.Popen(
+            self.args + [tag.filename], env=self.env, startupinfo=startup_info()
+        )
         self._wait_for_termination(tag)
 
     def _wait_for_termination(self, tag: AVTag):
@@ -299,34 +316,6 @@ class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
     args, env = _packagedCmd(["mplayer", "-really-quiet", "-noautosub"])
     if isWin:
         args += ["-ao", "win32"]
-
-
-# Platform hacks
-##########################################################################
-
-# don't show box on windows
-si: Optional[Any]
-if sys.platform == "win32":
-    si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
-    try:
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
-    except:
-        # pylint: disable=no-member
-        # python2.7+
-        si.dwFlags |= (
-            subprocess._subprocess.STARTF_USESHOWWINDOW
-        )  # pytype: disable=module-attr
-else:
-    si = None
-
-
-# osx throws interrupted system call errors frequently
-def retryWait(proc) -> Any:
-    while 1:
-        try:
-            return proc.wait()
-        except OSError:
-            continue
 
 
 # MPV
@@ -396,7 +385,10 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(
-            self.args + [tag.filename], env=self.env, stdin=subprocess.PIPE
+            self.args + [tag.filename],
+            env=self.env,
+            stdin=subprocess.PIPE,
+            startupinfo=startup_info(),
         )
         self._wait_for_termination(tag)
 
@@ -441,7 +433,9 @@ class _Recorder:
                 continue
             try:
                 cmd, env = _packagedCmd(c)
-                ret = retryWait(subprocess.Popen(cmd, startupinfo=si, env=env))
+                ret = retryWait(
+                    subprocess.Popen(cmd, startupinfo=startup_info(), env=env)
+                )
             except:
                 ret = True
             finally:
