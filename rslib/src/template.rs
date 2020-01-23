@@ -236,9 +236,11 @@ fn template_is_empty<'a>(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode<'a
                     return false;
                 }
             }
-            NegatedConditional { .. } => {
+            NegatedConditional { children, .. } => {
                 // negated conditionals ignored when determining card generation
-                continue;
+                if !template_is_empty(nonempty_fields, children) {
+                    return false;
+                }
             }
         }
     }
@@ -591,7 +593,7 @@ mod test {
         tmpl = PT::from_text("{{2}}{{4}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), false);
         tmpl = PT::from_text("{{#3}}{{^2}}{{1}}{{/2}}{{/3}}").unwrap();
-        assert_eq!(tmpl.renders_with_fields(&fields), false);
+        assert_eq!(tmpl.renders_with_fields(&fields), true);
     }
 
     #[test]
@@ -618,7 +620,10 @@ mod test {
         assert_eq!(tmpl.requirements(&field_map), FieldRequirements::None);
 
         tmpl = PT::from_text("{{^a}}{{b}}{{/a}}").unwrap();
-        assert_eq!(tmpl.requirements(&field_map), FieldRequirements::None);
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(HashSet::from_iter(vec![1].into_iter()))
+        );
 
         tmpl = PT::from_text("{{#a}}{{#b}}{{a}}{{/b}}{{/a}}").unwrap();
         assert_eq!(
@@ -630,6 +635,25 @@ mod test {
         assert_eq!(
             tmpl.requirements(&field_map),
             FieldRequirements::Any(HashSet::from_iter(vec![0].into_iter()))
+        );
+
+        tmpl = PT::from_text(
+            r#"
+{{^a}}
+    {{b}}
+{{/a}}
+
+{{#a}}
+    {{a}}
+    {{b}}
+{{/a}}
+"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(HashSet::from_iter(vec![0, 1].into_iter()))
         );
     }
 
