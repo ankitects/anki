@@ -89,6 +89,13 @@ QTreeWidget {
 }
             """
 
+        if self.night_mode:
+            buf += """
+QToolTip {
+  border: 0;
+}            
+            """
+
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
 
@@ -104,7 +111,6 @@ QTreeWidget {
 
         text_fg = self.qcolor("text-fg")
         palette.setColor(QPalette.WindowText, text_fg)
-        palette.setColor(QPalette.ToolTipBase, text_fg)
         palette.setColor(QPalette.ToolTipText, text_fg)
         palette.setColor(QPalette.Text, text_fg)
         palette.setColor(QPalette.ButtonText, text_fg)
@@ -119,7 +125,9 @@ QTreeWidget {
         palette.setColor(QPalette.AlternateBase, window_bg)
         palette.setColor(QPalette.Button, window_bg)
 
-        palette.setColor(QPalette.Base, self.qcolor("frame-bg"))
+        frame_bg = self.qcolor("frame-bg")
+        palette.setColor(QPalette.Base, frame_bg)
+        palette.setColor(QPalette.ToolTipBase, frame_bg)
 
         disabled_color = self.qcolor("disabled")
         palette.setColor(QPalette.Disabled, QPalette.Text, disabled_color)
