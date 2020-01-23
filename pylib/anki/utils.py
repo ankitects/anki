@@ -228,7 +228,7 @@ def entsToTxt(html: str) -> str:
 
 # legacy function
 def bodyClass(col, card) -> str:
-    from aqt.theme import theme_manager
+    from aqt.theme import theme_manager  # type: ignore # pylint: disable=import-error
 
     print("bodyClass() deprecated")
     return theme_manager.body_classes_for_card_ord(card.ord)
