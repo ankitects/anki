@@ -11,6 +11,7 @@ import aqt
 from anki.lang import _
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
+from aqt.theme import theme_manager
 
 
 def aqt_data_folder() -> str:
@@ -551,10 +552,11 @@ def tooltip(msg, period=3000, parent=None):
     lab.setFrameStyle(QFrame.Panel)
     lab.setLineWidth(2)
     lab.setWindowFlags(Qt.ToolTip)
-    p = QPalette()
-    p.setColor(QPalette.Window, QColor("#feffc4"))
-    p.setColor(QPalette.WindowText, QColor("#000000"))
-    lab.setPalette(p)
+    if not theme_manager.night_mode:
+        p = QPalette()
+        p.setColor(QPalette.Window, QColor("#feffc4"))
+        p.setColor(QPalette.WindowText, QColor("#000000"))
+        lab.setPalette(p)
     lab.move(aw.mapToGlobal(QPoint(0, -100 + aw.height())))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
