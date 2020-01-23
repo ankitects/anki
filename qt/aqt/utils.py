@@ -5,7 +5,7 @@ import os
 import re
 import subprocess
 import sys
-from typing import Optional
+from typing import Any, Optional
 
 import aqt
 from anki.lang import _
@@ -759,3 +759,15 @@ def opengl_vendor():
 def gfxDriverIsBroken():
     driver = opengl_vendor()
     return driver == "nouveau"
+
+
+######################################################################
+
+
+def startup_info() -> Any:
+    "Use subprocess.Popen(startupinfo=...) to avoid opening a console window."
+    if not sys.platform == "win32":
+        return None
+    si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
+    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
+    return si

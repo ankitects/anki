@@ -328,13 +328,7 @@ body {{ zoom: {}; {} }}
 
 <body class="{}">{}</body>
 </html>""".format(
-            self.title,
-            self.zoomFactor(),
-            fontspec,
-            widgetspec,
-            head,
-            body_class,
-            body,
+            self.title, self.zoomFactor(), fontspec, widgetspec, head, body_class, body,
         )
         # print(html)
         self.setHtml(html)
