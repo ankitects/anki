@@ -403,7 +403,7 @@ def test_req():
     mm.save(opt, templates=True)
     assert opt["req"][1] == [1, "any", [1, 2]]
     # testing None
-    opt["tmpls"][1]["qfmt"] = "{{^Add Reverse}}{{Back}}{{/Add Reverse}}"
+    opt["tmpls"][1]["qfmt"] = "{{^Add Reverse}}{{/Add Reverse}}"
     mm.save(opt, templates=True)
     assert opt["req"][1] == [1, "none", []]
 
