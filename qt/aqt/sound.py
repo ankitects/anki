@@ -330,12 +330,12 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         ]
 
     def __init__(self, base_path: str) -> None:
-        super().__init__(window_id=None, debug=False)
         mpvPath, self.popenEnv = _packagedCmd(["mpv"])
         self.executable = mpvPath[0]
         self._on_done: Optional[OnDoneCallback] = None
         conf_path = os.path.join(base_path, "mpv.conf")
         self.default_argv += ["--no-config", "--include=" + conf_path]
+        super().__init__(window_id=None, debug=False)
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
