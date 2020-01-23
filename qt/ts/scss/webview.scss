@@ -17,7 +17,17 @@ h1 {
     margin-bottom: 0.2em;
 }
 
+a {
+    color: vars.$day-link;
+}
+
 body.nightMode {
     color: vars.$night-text-fg;
     background: vars.$night-window-bg;
+}
+
+.nightMode {
+    a {
+        color: vars.$night-link;
+    }
 }
