@@ -20,19 +20,12 @@ from anki.consts import *
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
-from anki.utils import (
-    bodyClass,
-    fmtTimeSpan,
-    htmlToTextLine,
-    ids2str,
-    intTime,
-    isMac,
-    isWin,
-)
+from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.qt import *
 from aqt.sound import av_player
+from aqt.theme import theme_manager
 from aqt.utils import (
     MenuList,
     SubMenu,
@@ -366,16 +359,6 @@ class DataModel(QAbstractTableModel):
 # Line painter
 ######################################################################
 
-COLOUR_SUSPENDED = "#FFFFB2"
-COLOUR_MARKED = "#ccc"
-
-flagColours = {
-    1: "#ffaaaa",
-    2: "#ffb347",
-    3: "#82E0AA",
-    4: "#85C1E9",
-}
-
 
 class StatusDelegate(QItemDelegate):
     def __init__(self, browser, model):
@@ -399,13 +382,13 @@ class StatusDelegate(QItemDelegate):
 
         col = None
         if c.userFlag() > 0:
-            col = flagColours[c.userFlag()]
+            col = theme_manager.qcolor(f"flag{c.userFlag()}-bg")
         elif c.note().hasTag("Marked"):
-            col = COLOUR_MARKED
+            col = theme_manager.qcolor("marked-bg")
         elif c.queue == -1:
-            col = COLOUR_SUSPENDED
+            col = theme_manager.qcolor("suspended-bg")
         if col:
-            brush = QBrush(QColor(col))
+            brush = QBrush(col)
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
@@ -450,7 +433,6 @@ class SidebarModel(QAbstractItemModel):
     def __init__(self, root: SidebarItem) -> None:
         super().__init__()
         self.root = root
-        self.iconCache: Dict[str, QIcon] = {}
 
     # Qt API
     ######################################################################
@@ -510,17 +492,10 @@ class SidebarModel(QAbstractItemModel):
         elif role == Qt.ToolTipRole:
             return QVariant(item.tooltip)
         else:
-            return QVariant(self.iconFromRef(item.icon))
+            return QVariant(theme_manager.icon_from_resources(item.icon))
 
     # Helpers
     ######################################################################
-
-    def iconFromRef(self, iconRef: str) -> QIcon:
-        icon = self.iconCache.get(iconRef)
-        if icon is None:
-            icon = QIcon(iconRef)
-            self.iconCache[iconRef] = icon
-        return icon
 
     def expandWhereNeccessary(self, tree: QTreeView) -> None:
         for row, child in enumerate(self.root.children):
@@ -821,9 +796,11 @@ class Browser(QMainWindow):
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.form.tableView.selectionModel().selectionChanged.connect(self.onRowChanged)
-        self.form.tableView.setStyleSheet(
-            "QTableView{ selection-background-color: rgba(127, 127, 127, 50);  }"
-        )
+        if not theme_manager.night_mode:
+            self.form.tableView.setStyleSheet(
+                "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
+                "selection-color: black; }"
+            )
         self.singleCard = False
 
     def setupEditor(self):
@@ -1709,7 +1686,7 @@ where id in %s"""
                 txt = c.a()
             txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
-            bodyclass = bodyClass(self.mw.col, c)
+            bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
             if self.mw.reviewer.autoplay(c):
                 # if we're showing both sides at once, play question audio first

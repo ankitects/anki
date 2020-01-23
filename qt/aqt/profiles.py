@@ -495,3 +495,9 @@ please see:
 
     def set_last_addon_update_check(self, secs):
         self.meta["last_addon_update_check"] = secs
+
+    def night_mode(self) -> bool:
+        return self.meta.get("night_mode", False)
+
+    def set_night_mode(self, on: bool) -> None:
+        self.meta["night_mode"] = on

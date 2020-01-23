@@ -9,10 +9,11 @@ import re
 import aqt
 from anki.consts import *
 from anki.lang import _, ngettext
-from anki.utils import bodyClass, isMac, isWin, joinFields
+from anki.utils import isMac, isWin, joinFields
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
+from aqt.theme import theme_manager
 from aqt.utils import (
     askUser,
     downArrow,
@@ -336,7 +337,7 @@ Please create a new card type first."""
         c = self.card
         ti = self.maybeTextInput
 
-        bodyclass = bodyClass(self.mw.col, c)
+        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
         q = ti(mungeQA(self.mw.col, c.q(reload=True)))
         q = gui_hooks.card_will_show(q, c, "clayoutQuestion")

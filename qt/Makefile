@@ -5,7 +5,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
-BLACKARGS := -t py36 aqt tests setup.py tools/*.py --exclude='aqt/forms|buildinfo'
+BLACKARGS := -t py36 aqt tests setup.py tools/*.py --exclude='aqt/forms|buildinfo|colors'
 ISORTARGS := aqt tests setup.py
 
 $(shell mkdir -p .build ../dist)
@@ -33,6 +33,7 @@ TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
 
 .build/js: $(TSDEPS)
 	(cd ts && npm i && npm run build)
+	python ./tools/extract_scss_colors.py
 	@touch $@
 
 .build/hooks: tools/genhooks_gui.py ../pylib/tools/hookslib.py

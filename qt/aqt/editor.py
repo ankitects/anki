@@ -442,10 +442,10 @@ class Editor:
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     def checkValid(self):
-        cols = ["#fff"] * len(self.note.fields)
+        cols = [""] * len(self.note.fields)
         err = self.note.dupeOrEmpty()
         if err == 2:
-            cols[0] = "#fcc"
+            cols[0] = "dupe"
             self.web.eval("showDupes();")
         else:
             self.web.eval("hideDupes();")

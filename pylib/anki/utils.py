@@ -226,11 +226,12 @@ def entsToTxt(html: str) -> str:
     return reEnts.sub(fixup, html)
 
 
+# legacy function
 def bodyClass(col, card) -> str:
-    bodyclass = "card card%d" % (card.ord + 1)
-    if col.conf.get("nightMode"):
-        bodyclass += " nightMode"
-    return bodyclass
+    from aqt.theme import theme_manager
+
+    print("bodyClass() deprecated")
+    return theme_manager.body_classes_for_card_ord(card.ord)
 
 
 # IDs

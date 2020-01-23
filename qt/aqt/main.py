@@ -5,7 +5,6 @@
 import faulthandler
 import gc
 import os
-import platform
 import re
 import signal
 import time
@@ -37,6 +36,7 @@ from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
 from aqt.taskman import TaskManager
+from aqt.theme import theme_manager
 from aqt.utils import (
     askUser,
     checkInvalidFilename,
@@ -58,6 +58,7 @@ class AnkiQt(QMainWindow):
     col: _Collection
     pm: ProfileManagerType
     web: aqt.webview.AnkiWebView
+    bottomWeb: aqt.webview.AnkiWebView
 
     def __init__(
         self,
@@ -111,9 +112,9 @@ class AnkiQt(QMainWindow):
         self.setupMediaServer()
         self.setupSound()
         self.setupSpellCheck()
+        self.setupStyle()
         self.setupMainWindow()
         self.setupSystemSpecific()
-        self.setupStyle()
         self.setupMenus()
         self.setupProgress()
         self.setupErrorHandler()
@@ -850,33 +851,8 @@ title="%s" %s>%s</button>""" % (
         return True
 
     def setupStyle(self) -> None:
-        buf = ""
-
-        if isWin and platform.release() == "10":
-            # add missing bottom border to menubar
-            buf += """
-QMenuBar {
-  border-bottom: 1px solid #aaa;
-  background: white;
-}        
-"""
-            # qt bug? setting the above changes the browser sidebar
-            # to white as well, so set it back
-            buf += """
-QTreeWidget {
-  background: #eee;
-}            
-            """
-
-        # allow addons to modify the styling
-        buf = gui_hooks.style_did_init(buf)
-
-        # allow users to extend styling
-        p = os.path.join(aqt.mw.pm.base, "style.css")
-        if os.path.exists(p):
-            buf += open(p).read()
-
-        self.app.setStyleSheet(buf)
+        theme_manager.night_mode = self.pm.night_mode()
+        theme_manager.apply_style(self.app)
 
     # Key handling
     ##########################################################################

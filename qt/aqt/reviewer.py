@@ -14,10 +14,11 @@ from anki import hooks
 from anki.cards import Card
 from anki.lang import _, ngettext
 from anki.sound import AVTag
-from anki.utils import bodyClass, stripHTML
+from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player, getAudio
+from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import (
     askUserDialog,
@@ -199,7 +200,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
 
-        bodyclass = bodyClass(self.mw.col, c)
+        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
         self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
         self._drawFlag()
@@ -600,9 +601,9 @@ time = %(time)d;
         idx = self.mw.col.sched.countIdx(self.card)
         counts[idx] = "<u>%s</u>" % (counts[idx])
         space = " + "
-        ctxt = '<font color="#000099">%s</font>' % counts[0]
-        ctxt += space + '<font color="#C35617">%s</font>' % counts[1]
-        ctxt += space + '<font color="#007700">%s</font>' % counts[2]
+        ctxt = "<span class=new-count>%s</span>" % counts[0]
+        ctxt += space + "<span class=learn-count>%s</span>" % counts[1]
+        ctxt += space + "<span class=review-count>%s</span>" % counts[2]
         return ctxt
 
     def _defaultEase(self):

@@ -189,9 +189,9 @@ to their original deck."""
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
-<tr><td>%s:</td><td><b><font color=#00a>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color=#C35617>%s</font></b></td></tr>
-<tr><td>%s:</td><td><b><font color=#0a0>%s</font></b></td></tr>
+<tr><td>%s:</td><td><b><span class=new-count>%s</span></b></td></tr>
+<tr><td>%s:</td><td><b><font class=learn-count>%s</span></b></td></tr>
+<tr><td>%s:</td><td><b><span class=review-count>%s</span></b></td></tr>
 </table>
 </td><td align=center>
 %s</td></tr></table>""" % (
