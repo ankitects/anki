@@ -6,6 +6,11 @@
 
 body {
     margin: 2em;
+    color: vars.$day-text-fg;
+
+    // currently this is injected via webview.py to try to match the
+    // system background color
+    //    background: vars.$day-window-bg;
 }
 
 h1 {

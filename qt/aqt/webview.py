@@ -319,7 +319,7 @@ div[contenteditable="true"]:focus {
 <title>{}</title>
 
 <style>
-body {{ zoom: {}; {} }}
+body {{ zoom: {}; background: {}; {} }}
 {}
 </style>
   
@@ -328,7 +328,14 @@ body {{ zoom: {}; {} }}
 
 <body class="{}">{}</body>
 </html>""".format(
-            self.title, self.zoomFactor(), fontspec, widgetspec, head, body_class, body,
+            self.title,
+            self.zoomFactor(),
+            self._getWindowColor().name(),
+            fontspec,
+            widgetspec,
+            head,
+            body_class,
+            body,
         )
         # print(html)
         self.setHtml(html)
