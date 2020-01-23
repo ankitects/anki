@@ -1,0 +1,27 @@
+@use 'vars';
+
+.nightMode {
+  button {
+    -webkit-appearance: none;
+    color: vars.$night-text-fg;
+
+    /* match the fusion button gradient */
+    background: linear-gradient(0deg,
+            vars.$fusion-button-gradient-start 0%,
+            vars.$fusion-button-gradient-end 100%);
+    box-shadow: 0 0 3px vars.$fusion-button-outline;
+    border: 1px solid vars.$night-faint-border;
+
+    border-radius: 3px;
+    height: 24px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 18px;
+  }
+
+  button:hover {
+    background: vars.$fusion-button-hover-bg;
+  }
+}
+

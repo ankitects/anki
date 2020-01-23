@@ -1,8 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use 'vars';
+@use 'card_counts';
+
 body {
-    margin: 0px;
+    margin: 0;
     padding: 0;
 }
 
@@ -48,9 +51,15 @@ button {
 }
 
 #outer {
-    border-top: 1px solid #aaa;
+    border-top: 1px solid vars.$day-border;
 }
 
 #innertable {
     padding: 3px;
+}
+
+.nightMode {
+    #outer {
+        border-top-color: vars.$night-border;
+    }
 }

@@ -10,6 +10,7 @@ from anki.lang import _
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.qt import *
+from aqt.theme import theme_manager
 from aqt.utils import openLink
 
 # Page for debug messages
@@ -308,6 +309,8 @@ div[contenteditable="true"]:focus {
 
         head = mw.baseHTML() + head + csstxt + jstxt
 
+        body_class = theme_manager.body_class()
+
         html = """
 <!doctype html>
 <html><head>
@@ -321,7 +324,7 @@ body {{ zoom: {}; background: {}; {} }}
 {}
 </head>
 
-<body>{}</body>
+<body class="{}">{}</body>
 </html>""".format(
             self.title,
             self.zoomFactor(),
@@ -329,6 +332,7 @@ body {{ zoom: {}; background: {}; {} }}
             fontspec,
             widgetspec,
             head,
+            body_class,
             body,
         )
         # print(html)

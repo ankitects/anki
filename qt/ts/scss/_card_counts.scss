@@ -1,0 +1,28 @@
+@use 'vars';
+
+.review-count {
+  color: vars.$day-review-count;
+}
+
+.new-count {
+  color: vars.$day-new-count;
+}
+
+.learn-count {
+  color: vars.$day-learn-count;
+}
+
+.nightMode {
+  .review-count {
+    color: vars.$night-review-count;
+  }
+
+  .new-count {
+    color: vars.$night-new-count;
+  }
+
+  .learn-count {
+    color: vars.$night-learn-count;
+  }
+}
+

@@ -352,7 +352,11 @@ function setFields(fields) {
 
 function setBackgrounds(cols) {
     for (let i = 0; i < cols.length; i++) {
-        $("#f" + i).css("background", cols[i]);
+        if (cols[i] == "dupe") {
+            $("#f" + i).addClass("dupe");
+        } else {
+            $("#f" + i).removeClass("dupe");
+        }
     }
 }
 

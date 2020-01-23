@@ -85,7 +85,6 @@ class Preferences(QDialog):
         f.timeLimit.setValue(qc["timeLim"] / 60.0)
         f.showEstimates.setChecked(qc["estTimes"])
         f.showProgress.setChecked(qc["dueCounts"])
-        f.nightMode.setChecked(qc.get("nightMode", False))
         f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
         f.newSpread.setCurrentIndex(qc["newSpread"])
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
@@ -113,7 +112,6 @@ class Preferences(QDialog):
         qc["dueCounts"] = f.showProgress.isChecked()
         qc["estTimes"] = f.showEstimates.isChecked()
         qc["newSpread"] = f.newSpread.currentIndex()
-        qc["nightMode"] = f.nightMode.isChecked()
         qc["timeLim"] = f.timeLimit.value() * 60
         qc["collapseTime"] = f.lrnCutoff.value() * 60
         qc["addToCur"] = not f.useCurrent.currentIndex()
@@ -227,12 +225,22 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.form.uiScale.setValue(self.mw.pm.uiScale() * 100)
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
         self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
+        self.form.nightMode.setChecked(self.mw.pm.night_mode())
 
     def updateOptions(self):
+        restart_required = False
+
         self.prof["pastePNG"] = self.form.pastePNG.isChecked()
         self.prof["pasteInvert"] = self.form.pasteInvert.isChecked()
         newScale = self.form.uiScale.value() / 100
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
-            showInfo(_("Changes will take effect when you restart Anki."))
+            restart_required = True
         self.prof["showPlayButtons"] = self.form.showPlayButtons.isChecked()
+
+        if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
+            self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
+            restart_required = True
+
+        if restart_required:
+            showInfo(_("Changes will take effect when you restart Anki."))

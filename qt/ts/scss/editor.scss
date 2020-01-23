@@ -1,10 +1,12 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use 'vars';
+
 .field {
-    border: 1px solid #aaa;
-    background: #fff;
-    color: #000;
+    border: 1px solid vars.$day-border;
+    background: vars.$day-frame-bg;
+    color: vars.$day-text-fg;
     padding: 5px;
     overflow-wrap: break-word;
 }
@@ -49,9 +51,10 @@ body {
     color-stop(100%, #77f));
 }
 
-.linkb {
+button.linkb {
     -webkit-appearance: none;
     border: 0;
+    box-shadow: none;
     padding: 0px 2px;
     background: transparent;
 }
@@ -67,4 +70,28 @@ body {
 
 #fields {
     margin-top: 35px;
+}
+
+.dupe {
+    background: #fcc;
+}
+
+.nightMode {
+    .field {
+        border-color: vars.$night-border;
+        background: vars.$night-frame-bg;
+        color: vars.$night-text-fg;
+    }
+
+    button.linkb > img {
+        filter: invert(180);
+    }
+
+    .dupe {
+        background: #a00;
+    }
+
+    #dupes a {
+        color: vars.$night-link;
+    }
 }

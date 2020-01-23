@@ -209,16 +209,16 @@ where id > ?""",
             name,
         )
         # due counts
-        def nonzeroColour(cnt, colour):
+        def nonzeroColour(cnt, klass):
             if not cnt:
-                colour = "#e0e0e0"
+                klass = "zero-count"
             if cnt >= 1000:
                 cnt = "1000+"
-            return "<font color='%s'>%s</font>" % (colour, cnt)
+            return f'<span class="{klass}">{cnt}</span>'
 
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
-            nonzeroColour(due, "#007700"),
-            nonzeroColour(new, "#000099"),
+            nonzeroColour(due, "review-count"),
+            nonzeroColour(new, "new-count"),
         )
         # options
         buf += (

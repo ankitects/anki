@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>422</width>
-    <height>579</height>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -111,7 +111,7 @@
        <item>
         <widget class="QCheckBox" name="nightMode">
          <property name="text">
-          <string>Show cards as white on black (night mode)</string>
+          <string>Night mode</string>
          </property>
         </widget>
        </item>
