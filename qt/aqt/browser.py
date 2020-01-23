@@ -497,6 +497,10 @@ class SidebarModel(QAbstractItemModel):
     # Helpers
     ######################################################################
 
+    def iconFromRef(self, iconRef: str) -> QIcon:
+        print("iconFromRef() deprecated")
+        return theme_manager.icon_from_resources(iconRef)
+
     def expandWhereNeccessary(self, tree: QTreeView) -> None:
         for row, child in enumerate(self.root.children):
             if child.expanded:
