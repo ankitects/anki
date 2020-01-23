@@ -13,11 +13,7 @@
     border: 1px solid vars.$night-faint-border;
 
     border-radius: 3px;
-    height: 24px;
     padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 18px;
   }
 
   button:hover {
@@ -25,3 +21,20 @@
   }
 }
 
+.isWin {
+  button {
+    font-size: 12px;
+  }
+}
+
+.isMac {
+  button {
+    font-size: 13px;
+  }
+}
+
+.isLin {
+  button {
+    font-size: 14px;
+  }
+}
