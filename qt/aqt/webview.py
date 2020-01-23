@@ -266,14 +266,14 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         if isWin:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = _('"Segoe UI"')
-            widgetspec = "button { font-size: 12px; font-family:%s; }" % family
+            widgetspec = "button { font-family:%s; }" % family
             widgetspec += "\n:focus { outline: 1px solid %s; }" % color_hl
             fontspec = "font-size:12px;font-family:%s;" % family
         elif isMac:
             family = "Helvetica"
             fontspec = 'font-size:15px;font-family:"%s";' % family
             widgetspec = """
-button { font-size: 13px; -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
+button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px; font-family: Helvetica }"""
         else:
             family = self.font().family()
@@ -282,7 +282,7 @@ border-radius:5px; font-family: Helvetica }"""
             fontspec = 'font-size:14px;font-family:"%s";' % family
             widgetspec = """
 /* Buttons */
-button{ font-size:14px; -webkit-appearance:none; outline:0;
+button{ -webkit-appearance:none; outline:0;
         background-color: %(color_btn)s; border:1px solid rgba(0,0,0,.2);
         border-radius:2px; height:24px; font-family:"%(family)s"; }
 button:focus{ border-color: %(color_hl)s }

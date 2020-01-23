@@ -5,6 +5,7 @@
 import platform
 from typing import Dict
 
+from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
 from aqt.colors import colors
 from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
@@ -32,8 +33,17 @@ class ThemeManager:
         return self._icon_cache.setdefault(path, icon)
 
     def body_class(self) -> str:
-        "Returns '' in normal mode, 'nightMode' in night mode."
-        return self.night_mode and "nightMode" or ""
+        "Returns space-separated class list for platform/theme."
+        classes = []
+        if isWin:
+            classes.append("isWin")
+        elif isMac:
+            classes.append("isMac")
+        else:
+            classes.append("isLin")
+        if self.night_mode:
+            classes.append("nightMode")
+        return " ".join(classes)
 
     def body_classes_for_card_ord(self, card_ord: int) -> str:
         "Returns body classes used when showing a card."
