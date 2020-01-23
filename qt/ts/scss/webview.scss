@@ -26,6 +26,23 @@ body.nightMode {
     background: vars.$night-window-bg;
 }
 
+body.nightMode::-webkit-scrollbar {
+    background: vars.$night-window-bg;
+}
+
+body.nightMode::-webkit-scrollbar:horizontal {
+    height: 8px;
+}
+
+body.nightMode::-webkit-scrollbar:vertical {
+    width: 8px;
+}
+
+body.nightMode::-webkit-scrollbar-thumb {
+    background: vars.$night-frame-bg;
+    border-radius: 8px;
+}
+
 .nightMode {
     a {
         color: vars.$night-link;
