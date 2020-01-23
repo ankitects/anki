@@ -32,6 +32,7 @@ from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
+from aqt.legacy import install_pylib_legacy
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
@@ -52,6 +53,8 @@ from aqt.utils import (
     showWarning,
     tooltip,
 )
+
+install_pylib_legacy()
 
 
 class AnkiQt(QMainWindow):

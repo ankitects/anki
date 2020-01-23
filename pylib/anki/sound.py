@@ -40,25 +40,3 @@ class SoundOrVideoTag:
 
 # note this does not include image tags, which are handled with HTML.
 AVTag = Union[SoundOrVideoTag, TTSTag]
-
-# Legacy utils
-##########################################################################
-# these will be removed in the future
-
-_soundReg = r"\[sound:(.*?)\]"
-
-
-def allSounds(text) -> List:
-    from aqt import mw  # type: ignore # pylint: disable=import-error
-
-    return [
-        x.filename
-        for x in mw.col.backend.get_av_tags(text)
-        if isinstance(x, SoundOrVideoTag)
-    ]
-
-
-def stripSounds(text) -> str:
-    from aqt import mw  # type: ignore # pylint: disable=import-error
-
-    return mw.col.backend.strip_av_tags(text)
