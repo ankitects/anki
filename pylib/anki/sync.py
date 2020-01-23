@@ -623,7 +623,7 @@ class RemoteServer(HttpSyncer):
     def abort(self, **kw) -> Any:
         return self._run("abort", kw)
 
-    def _run(self, cmd, data) -> Any:
+    def _run(self, cmd: str, data: Any) -> Any:
         return json.loads(
             self.req(cmd, io.BytesIO(json.dumps(data).encode("utf8"))).decode("utf8")
         )
