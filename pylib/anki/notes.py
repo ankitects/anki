@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
-from anki.models import NoteType
+from anki.models import Field, NoteType
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -29,7 +29,7 @@ class Note:
     fields: List[str]
     flags: int
     data: str
-    _fmap: Dict[str, Tuple[Any, Any]]
+    _fmap: Dict[str, Tuple[int, Field]]
     scm: int
 
     def __init__(

@@ -267,7 +267,7 @@ and notes.mid = ? and cards.ord = ?""",
         f["name"] = name
         return f
 
-    def fieldMap(self, m: NoteType) -> Dict[str, Tuple[Any, Any]]:
+    def fieldMap(self, m: NoteType) -> Dict[str, Tuple[int, Field]]:
         "Mapping of field name -> (ord, field)."
         return dict((f["name"], (f["ord"], f)) for f in m["flds"])
 

@@ -18,7 +18,6 @@ import decorator
 
 import anki
 from anki.cards import Card
-from anki.template import TemplateRenderContext
 
 # New hook/filter handling
 ##############################################################################
@@ -54,39 +53,60 @@ class _CardDidLeechHook:
 card_did_leech = _CardDidLeechHook()
 
 
-class _CardDidRenderFilter:
+class _CardDidRenderHook:
     """Can modify the resulting text after rendering completes."""
 
     _hooks: List[
-        Callable[[Tuple[str, str], TemplateRenderContext], Tuple[str, str]]
+        Callable[
+            [
+                "anki.template.TemplateRenderOutput",
+                "anki.template.TemplateRenderContext",
+            ],
+            None,
+        ]
     ] = []
 
     def append(
-        self, cb: Callable[[Tuple[str, str], TemplateRenderContext], Tuple[str, str]]
+        self,
+        cb: Callable[
+            [
+                "anki.template.TemplateRenderOutput",
+                "anki.template.TemplateRenderContext",
+            ],
+            None,
+        ],
     ) -> None:
-        """(text: Tuple[str, str], ctx: TemplateRenderContext)"""
+        """(output: anki.template.TemplateRenderOutput, ctx: anki.template.TemplateRenderContext)"""
         self._hooks.append(cb)
 
     def remove(
-        self, cb: Callable[[Tuple[str, str], TemplateRenderContext], Tuple[str, str]]
+        self,
+        cb: Callable[
+            [
+                "anki.template.TemplateRenderOutput",
+                "anki.template.TemplateRenderContext",
+            ],
+            None,
+        ],
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def __call__(
-        self, text: Tuple[str, str], ctx: TemplateRenderContext
-    ) -> Tuple[str, str]:
-        for filter in self._hooks:
+        self,
+        output: anki.template.TemplateRenderOutput,
+        ctx: anki.template.TemplateRenderContext,
+    ) -> None:
+        for hook in self._hooks:
             try:
-                text = filter(text, ctx)
+                hook(output, ctx)
             except:
                 # if the hook fails, remove it
-                self._hooks.remove(filter)
+                self._hooks.remove(hook)
                 raise
-        return text
 
 
-card_did_render = _CardDidRenderFilter()
+card_did_render = _CardDidRenderHook()
 
 
 class _CardOdueWasInvalidHook:
@@ -171,13 +191,19 @@ class _FieldFilterFilter:
         Your add-on can check filter_name to decide whether it should modify
         field_text or not before returning it."""
 
-    _hooks: List[Callable[[str, str, str, TemplateRenderContext], str]] = []
+    _hooks: List[
+        Callable[[str, str, str, "anki.template.TemplateRenderContext"], str]
+    ] = []
 
-    def append(self, cb: Callable[[str, str, str, TemplateRenderContext], str]) -> None:
-        """(field_text: str, field_name: str, filter_name: str, ctx: TemplateRenderContext)"""
+    def append(
+        self, cb: Callable[[str, str, str, "anki.template.TemplateRenderContext"], str]
+    ) -> None:
+        """(field_text: str, field_name: str, filter_name: str, ctx: anki.template.TemplateRenderContext)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[str, str, str, TemplateRenderContext], str]) -> None:
+    def remove(
+        self, cb: Callable[[str, str, str, "anki.template.TemplateRenderContext"], str]
+    ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
@@ -186,7 +212,7 @@ class _FieldFilterFilter:
         field_text: str,
         field_name: str,
         filter_name: str,
-        ctx: TemplateRenderContext,
+        ctx: anki.template.TemplateRenderContext,
     ) -> str:
         for filter in self._hooks:
             try:

@@ -59,7 +59,7 @@ hooks = [
             "field_text: str",
             "field_name: str",
             "filter_name: str",
-            "ctx: TemplateRenderContext",
+            "ctx: anki.template.TemplateRenderContext",
         ],
         return_type="str",
         doc="""Allows you to define custom {{filters:..}}
@@ -69,8 +69,10 @@ hooks = [
     ),
     Hook(
         name="card_did_render",
-        args=["text: Tuple[str, str]", "ctx: TemplateRenderContext",],
-        return_type="Tuple[str, str]",
+        args=[
+            "output: anki.template.TemplateRenderOutput",
+            "ctx: anki.template.TemplateRenderContext",
+        ],
         doc="Can modify the resulting text after rendering completes.",
     ),
 ]
