@@ -9,6 +9,7 @@ These can be accessed via eg card.question_av_tags()
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import List, Union
 
@@ -39,3 +40,9 @@ class SoundOrVideoTag:
 
 # note this does not include image tags, which are handled with HTML.
 AVTag = Union[SoundOrVideoTag, TTSTag]
+
+AV_REF_RE = re.compile(r"\[anki:(play:(.):(\d+))\]")
+
+
+def strip_av_refs(text: str) -> str:
+    return AV_REF_RE.sub("", text)
