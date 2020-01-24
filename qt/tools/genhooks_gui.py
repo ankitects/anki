@@ -32,6 +32,27 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
+        name="reviewer_will_answer_card",
+        args=[
+            "ease_tuple: Tuple[bool, int]",
+            "reviewer: aqt.reviewer.Reviewer", "card: Card",
+        ],
+        return_type="Tuple[bool, int]",
+        doc="""Used to modify the ease at which a card is rated or to bypass
+        rating the card completely.
+        
+        ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
+        should continue with rating the card, and an integer expressing the ease at
+        which the card should be rated.
+        
+        If your code just needs to be notified of the card rating event, you should use
+        the reviewer_did_answer_card hook instead.""",
+    ),
+    Hook(
+        name="reviewer_did_answer_card",
+        args=["reviewer: aqt.reviewer.Reviewer", "card: Card", "ease: int"],
+    ),
+    Hook(
         name="reviewer_will_show_context_menu",
         args=["reviewer: aqt.reviewer.Reviewer", "menu: QMenu"],
         legacy_hook="Reviewer.contextMenuEvent",
