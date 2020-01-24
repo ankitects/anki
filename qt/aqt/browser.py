@@ -32,7 +32,6 @@ from aqt.utils import (
     askUser,
     getOnlyText,
     getTag,
-    mungeQA,
     openHelp,
     qtMenuShortcutWorkaround,
     restoreGeom,
@@ -1682,9 +1681,9 @@ where id in %s"""
             # need to force reload even if answer
             txt = c.q(reload=True)
 
-            questionAudio = []
+            question_audio = []
             if self._previewBothSides:
-                questionAudio = self.mw.col.backend.get_av_tags(txt)
+                question_audio = c.question_av_tags()
             if self._previewState == "answer":
                 func = "_showAnswer"
                 txt = c.a()
@@ -1694,13 +1693,13 @@ where id in %s"""
 
             if self.mw.reviewer.autoplay(c):
                 # if we're showing both sides at once, play question audio first
-                av_player.play_tags(questionAudio)
+                av_player.play_tags(question_audio)
                 # then play any audio that hasn't already been played
-                answer_audio = self.mw.col.backend.get_av_tags(txt)
-                unplayed_audio = [x for x in answer_audio if x not in questionAudio]
+                answer_audio = c.answer_av_tags()
+                unplayed_audio = [x for x in answer_audio if x not in question_audio]
                 av_player.extend_and_play(unplayed_audio)
 
-            txt = mungeQA(self.col, txt)
+            txt = self.mw.prepare_card_text_for_display(txt)
             gui_hooks.card_will_show(
                 txt, c, "preview" + self._previewState.capitalize()
             )

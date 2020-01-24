@@ -400,14 +400,17 @@ close the profile or restart Anki."""
     def setupSound(self) -> None:
         aqt.sound.setup_audio(self.taskman, self.pm.base)
 
-    def process_av_tags(self, text: str) -> Tuple[str, List[AVTag]]:
-        "Return card text with play buttons added, and the extracted AV tags."
-        tags = self.col.backend.get_av_tags(text)
+    def _add_play_buttons(self, text: str) -> str:
+        "Return card text with play buttons added, or stripped."
         if self.pm.profile.get("showPlayButtons", True):
-            text = aqt.sound.av_flags_to_html(self.col.backend.flag_av_tags(text))
+            return aqt.sound.av_refs_to_play_icons(text)
         else:
-            text = self.col.backend.strip_av_tags(text)
-        return (text, tags)
+            return aqt.sound.strip_av_refs(text)
+
+    def prepare_card_text_for_display(self, text: str) -> str:
+        text = self.col.media.escapeImages(text)
+        text = self._add_play_buttons(text)
+        return text
 
     # Collection load/unload
     ##########################################################################

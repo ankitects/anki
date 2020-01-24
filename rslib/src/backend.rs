@@ -10,7 +10,7 @@ use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
 };
-use crate::text::{av_tags_in_string, flag_av_tags, strip_av_tags, AVTag};
+use crate::text::{extract_av_tags, strip_av_tags, AVTag};
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -100,8 +100,7 @@ impl Backend {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
             }
             Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
-            Value::GetAvTags(text) => OValue::GetAvTags(self.get_av_tags(&text)),
-            Value::FlagAvTags(text) => OValue::FlagAvTags(flag_av_tags(&text).into()),
+            Value::ExtractAvTags(input) => OValue::ExtractAvTags(self.extract_av_tags(input)),
         })
     }
 
@@ -183,11 +182,13 @@ impl Backend {
         })
     }
 
-    fn get_av_tags(&self, text: &str) -> pt::GetAvTagsOut {
-        let tags = av_tags_in_string(text)
+    fn extract_av_tags(&self, input: pt::ExtractAvTagsIn) -> pt::ExtractAvTagsOut {
+        let (text, tags) = extract_av_tags(&input.text, input.question_side);
+        let pt_tags = tags
+            .into_iter()
             .map(|avtag| match avtag {
                 AVTag::SoundOrVideo(file) => pt::AvTag {
-                    value: Some(pt::av_tag::Value::SoundOrVideo(file.to_string())),
+                    value: Some(pt::av_tag::Value::SoundOrVideo(file)),
                 },
                 AVTag::TextToSpeech {
                     field_text,
@@ -196,16 +197,19 @@ impl Backend {
                     other_args,
                 } => pt::AvTag {
                     value: Some(pt::av_tag::Value::Tts(pt::TtsTag {
-                        field_text: field_text.to_string(),
-                        lang: lang.to_string(),
-                        voices: voices.into_iter().map(ToOwned::to_owned).collect(),
-                        other_args: other_args.into_iter().map(ToOwned::to_owned).collect(),
+                        field_text,
+                        lang,
+                        voices,
+                        other_args,
                     })),
                 },
             })
             .collect();
 
-        pt::GetAvTagsOut { av_tags: tags }
+        pt::ExtractAvTagsOut {
+            text: text.into(),
+            av_tags: pt_tags,
+        }
     }
 }
 

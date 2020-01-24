@@ -3,7 +3,6 @@
 
 use crate::err::{Result, TemplateError};
 use crate::template_filters::apply_filters;
-use crate::text::strip_av_tags;
 use lazy_static::lazy_static;
 use nom;
 use nom::branch::alt;
@@ -269,7 +268,6 @@ pub(crate) struct RenderContext<'a> {
     pub nonempty_fields: &'a HashSet<&'a str>,
     pub question_side: bool,
     pub card_ord: u16,
-    pub front_text: Option<Cow<'a, str>>,
 }
 
 impl ParsedTemplate<'_> {
@@ -302,19 +300,13 @@ fn render_into(
                 key: key @ "FrontSide",
                 ..
             } => {
-                if let Some(front_side) = &context.front_text {
-                    // a fully rendered front side is available, so we can
-                    // bake it into the output
-                    append_str_to_nodes(rendered_nodes, front_side.as_ref());
-                } else {
-                    // the front side contains unknown filters, and must
-                    // be completed by the Python code
-                    rendered_nodes.push(RenderedNode::Replacement {
-                        field_name: (*key).to_string(),
-                        filters: vec![],
-                        current_text: "".into(),
-                    });
-                }
+                // defer FrontSide rendering to Python, as extra
+                // filters may be required
+                rendered_nodes.push(RenderedNode::Replacement {
+                    field_name: (*key).to_string(),
+                    filters: vec![],
+                    current_text: "".into(),
+                });
             }
             Replacement { key: "", filters } if !filters.is_empty() => {
                 // if a filter is provided, we accept an empty field name to
@@ -435,18 +427,11 @@ pub fn render_card(
         nonempty_fields: &nonempty_fields(field_map),
         question_side: true,
         card_ord,
-        front_text: None,
     };
 
     // question side
     let qnorm = without_legacy_template_directives(qfmt);
     let qnodes = ParsedTemplate::from_text(qnorm.as_ref())?.render(&context)?;
-
-    // if the question side didn't have any unknown filters, we can pass
-    // FrontSide in now
-    if let [RenderedNode::Text { ref text }] = *qnodes.as_slice() {
-        context.front_text = Some(strip_av_tags(text));
-    }
 
     // answer side
     context.question_side = false;
@@ -517,10 +502,9 @@ mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
     use crate::err::TemplateError;
     use crate::template::{
-        field_is_empty, nonempty_fields, render_card, without_legacy_template_directives,
-        FieldRequirements, RenderContext, RenderedNode,
+        field_is_empty, nonempty_fields, without_legacy_template_directives, FieldRequirements,
+        RenderContext,
     };
-    use crate::text::strip_html;
     use std::collections::{HashMap, HashSet};
     use std::iter::FromIterator;
 
@@ -683,7 +667,6 @@ mod test {
             nonempty_fields: &nonempty_fields(&map),
             question_side: true,
             card_ord: 1,
-            front_text: None,
         };
 
         use crate::template::RenderedNode as FN;
@@ -779,40 +762,5 @@ mod test {
                 filters: vec!["filter".to_string()]
             }]
         );
-    }
-
-    fn get_complete_template(nodes: &Vec<RenderedNode>) -> Option<&str> {
-        if let [RenderedNode::Text { ref text }] = nodes.as_slice() {
-            Some(text.as_str())
-        } else {
-            None
-        }
-    }
-
-    #[test]
-    fn test_render_full() {
-        // make sure front and back side renders cloze differently
-        let fmt = "{{cloze:Text}}";
-        let clozed_text = "{{c1::one}} {{c2::two::hint}}";
-        let map: HashMap<_, _> = vec![("Text", clozed_text)].into_iter().collect();
-
-        let (qnodes, anodes) = render_card(fmt, fmt, &map, 0).unwrap();
-        assert_eq!(
-            strip_html(get_complete_template(&qnodes).unwrap()),
-            "[...] two"
-        );
-        assert_eq!(
-            strip_html(get_complete_template(&anodes).unwrap()),
-            "one two"
-        );
-
-        // FrontSide should render if only standard modifiers were used
-        let (_qnodes, anodes) =
-            render_card("{{kana:text:Text}}", "{{FrontSide}}", &map, 1).unwrap();
-        assert_eq!(get_complete_template(&anodes).unwrap(), clozed_text);
-
-        // But if a custom modifier was used, it's deferred to the Python code
-        let (_qnodes, anodes) = render_card("{{custom:Text}}", "{{FrontSide}}", &map, 1).unwrap();
-        assert_eq!(get_complete_template(&anodes).is_none(), true)
     }
 }

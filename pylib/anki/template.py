@@ -29,12 +29,14 @@ template_legacy.py file, using the legacy addHook() system.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 import anki
 from anki import hooks
 from anki.models import NoteType
 from anki.rsbackend import TemplateReplacementList
+from anki.sound import AVTag
 
 QAData = Tuple[
     # Card ID this QA comes from. Corresponds to 'cid' column.
@@ -122,18 +124,34 @@ class TemplateRenderContext:
         return self._note_type
 
 
+@dataclass
+class RenderOutput:
+    question_text: str
+    answer_text: str
+    question_av_tags: List[AVTag]
+    answer_av_tags: List[AVTag]
+
+
 def render_card(
     col: anki.storage._Collection, qfmt: str, afmt: str, ctx: TemplateRenderContext
-) -> Tuple[str, str]:
-    """Renders the provided templates, returning rendered q & a text.
+) -> RenderOutput:
+    """Renders the provided templates, returning rendered output.
 
     Will raise if the template is invalid."""
     (qnodes, anodes) = col.backend.render_card(qfmt, afmt, ctx.fields(), ctx.card_ord())
 
     qtext = apply_custom_filters(qnodes, ctx, front_side=None)
-    atext = apply_custom_filters(anodes, ctx, front_side=qtext)
+    qtext, q_avtags = col.backend.extract_av_tags(qtext, True)
 
-    return qtext, atext
+    atext = apply_custom_filters(anodes, ctx, front_side=qtext)
+    atext, a_avtags = col.backend.extract_av_tags(atext, False)
+
+    return RenderOutput(
+        question_text=qtext,
+        answer_text=atext,
+        question_av_tags=q_avtags,
+        answer_av_tags=a_avtags,
+    )
 
 
 def apply_custom_filters(
@@ -153,7 +171,7 @@ def apply_custom_filters(
         else:
             # do we need to inject in FrontSide?
             if node.field_name == "FrontSide" and front_side is not None:
-                node.current_text = ctx.col().backend.strip_av_tags(front_side)
+                node.current_text = front_side
 
             field_text = node.current_text
             for filter_name in node.filters:

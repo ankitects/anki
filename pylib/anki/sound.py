@@ -4,8 +4,7 @@
 """
 Sound/TTS references extracted from card text.
 
-Use collection.backend.strip_av_tags(string) to remove all tags,
-and collection.backend.get_av_tags(string) to get a list of AVTags.
+These can be accessed via eg card.question_av_tags()
 """
 
 from __future__ import annotations

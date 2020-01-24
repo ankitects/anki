@@ -5,8 +5,10 @@
 import collections
 import json
 import re
+from typing import Optional
 
 import aqt
+from anki.cards import Card
 from anki.consts import *
 from anki.lang import _, ngettext
 from anki.utils import isMac, isWin, joinFields
@@ -18,7 +20,6 @@ from aqt.utils import (
     askUser,
     downArrow,
     getOnlyText,
-    mungeQA,
     openHelp,
     restoreGeom,
     saveGeom,
@@ -29,6 +30,8 @@ from aqt.webview import AnkiWebView
 
 
 class CardLayout(QDialog):
+    card: Optional[Card]
+
     def __init__(self, mw, note, ord=0, parent=None, addMode=False):
         QDialog.__init__(self, parent or mw, Qt.Window)
         mw.setupDialogGC(self)
@@ -339,10 +342,10 @@ Please create a new card type first."""
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
-        q = ti(mungeQA(self.mw.col, c.q(reload=True)))
+        q = ti(self.mw.prepare_card_text_for_display(c.q(reload=True)))
         q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
 
-        a = ti(mungeQA(self.mw.col, c.a()), type="a")
+        a = ti(self.mw.prepare_card_text_for_display(c.a()), type="a")
         a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
 
         # use _showAnswer to avoid the longer delay
@@ -350,7 +353,7 @@ Please create a new card type first."""
         self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
 
         if c.id not in self.playedAudio:
-            av_player.play_from_text(self.mw.col, c.q() + c.a())
+            av_player.play_tags(c.question_av_tags() + c.answer_av_tags())
             self.playedAudio[c.id] = True
 
         self.updateCardNames()

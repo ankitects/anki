@@ -161,15 +161,16 @@ class RustBackend:
     def strip_av_tags(self, text: str) -> str:
         return self._run_command(pb.BackendInput(strip_av_tags=text)).strip_av_tags
 
-    def get_av_tags(self, text: str) -> List[AVTag]:
-        return list(
-            map(
-                av_tag_to_native,
-                self._run_command(
-                    pb.BackendInput(get_av_tags=text)
-                ).get_av_tags.av_tags,
+    def extract_av_tags(
+        self, text: str, question_side: bool
+    ) -> Tuple[str, List[AVTag]]:
+        out = self._run_command(
+            pb.BackendInput(
+                extract_av_tags=pb.ExtractAVTagsIn(
+                    text=text, question_side=question_side
+                )
             )
-        )
+        ).extract_av_tags
+        native_tags = list(map(av_tag_to_native, out.av_tags))
 
-    def flag_av_tags(self, text: str) -> str:
-        return self._run_command(pb.BackendInput(flag_av_tags=text)).flag_av_tags
+        return out.text, native_tags

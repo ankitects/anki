@@ -480,8 +480,8 @@ def restoreHeader(widget, key):
 
 
 def mungeQA(col, txt):
+    print("mungeQA() deprecated; use mw.prepare_card_text_for_display()")
     txt = col.media.escapeImages(txt)
-    txt = col.backend.strip_av_tags(txt)
     return txt
 
 
