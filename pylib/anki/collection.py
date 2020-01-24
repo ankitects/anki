@@ -617,20 +617,6 @@ where c.nid = n.id and c.id in %s group by nid"""
     # Q/A generation
     ##########################################################################
 
-    def renderQA(self, ids=None, type="card") -> List:
-        # gather metadata
-        if type == "card":
-            where = "and c.id in " + ids2str(ids)
-        elif type == "note":
-            where = "and f.id in " + ids2str(ids)
-        elif type == "model":
-            where = "and m.id in " + ids2str(ids)
-        elif type == "all":
-            where = ""
-        else:
-            raise Exception()
-        return [self._renderQA(*row) for row in self._qaData(where)]
-
     # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
     def _renderQA(
         self, data: QAData, qfmt: Optional[str] = None, afmt: Optional[str] = None
