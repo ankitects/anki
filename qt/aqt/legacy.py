@@ -24,11 +24,8 @@ def bodyClass(col, card) -> str:
 
 def allSounds(text) -> List:
     print("allSounds() deprecated")
-    return [
-        x.filename
-        for x in aqt.mw.col.backend.get_av_tags(text)
-        if isinstance(x, SoundOrVideoTag)
-    ]
+    text, tags = aqt.mw.col.backend.extract_av_tags(text, True)
+    return [x.filename for x in tags if isinstance(x, SoundOrVideoTag)]
 
 
 def stripSounds(text) -> str:

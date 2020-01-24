@@ -16,8 +16,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pyaudio
 
-import anki
 import aqt
+from anki.cards import Card
 from anki.lang import _
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import isLin, isMac, isWin
@@ -103,14 +103,6 @@ class AVPlayer:
         """Add extra tags to queue, without clearing it."""
         self._enqueued.extend(tags)
         self._play_next_if_idle()
-
-    def play_from_text(self, col: anki.storage._Collection, text: str) -> None:
-        tags = col.backend.get_av_tags(text)
-        self.play_tags(tags)
-
-    def extend_from_text(self, col: anki.storage._Collection, text: str) -> None:
-        tags = col.backend.get_av_tags(text)
-        self.extend_and_play(tags)
 
     def stop_and_clear_queue(self) -> None:
         self._enqueued = []
@@ -572,9 +564,7 @@ def play(filename: str) -> None:
 
 
 def playFromText(text) -> None:
-    from aqt import mw
-
-    av_player.extend_from_text(mw.col, text)
+    print("playFromText() deprecated")
 
 
 # legacy globals
@@ -590,17 +580,37 @@ for (k, v) in _exports:
 # Tag handling
 ##########################################################################
 
-AV_FLAG_RE = re.compile(r"\[anki:play\](\d+)\[/anki:play]")
+AV_FLAG_RE = re.compile(r"\[anki:(play:.:\d+)\]")
 
 
-def av_flags_to_html(text: str) -> str:
+def strip_av_refs(text: str) -> str:
+    return AV_FLAG_RE.sub("", text)
+
+
+def av_refs_to_play_icons(text: str) -> str:
+    """Add play icons into the HTML.
+
+    When clicked, the icon will call eg pycmd('play:q:1').
+    """
+
     def repl(match: re.Match) -> str:
         return f"""
-<a class=soundLink href=# onclick="pycmd('play:{match.group(1)}'); return false;">
+<a class=soundLink href=# onclick="pycmd('{match.group(1)}'); return false;">
   <img class=playImage src='/_anki/imgs/play.png'>
 </a>"""
 
     return AV_FLAG_RE.sub(repl, text)
+
+
+def play_clicked_audio(pycmd: str, card: Card) -> None:
+    """eg. if pycmd is 'play:q:0', play the first audio on the question side."""
+    play, context, str_idx = pycmd.split(":")
+    idx = int(str_idx)
+    if context == "q":
+        tags = card.question_av_tags()
+    else:
+        tags = card.answer_av_tags()
+    av_player.play_tags([tags[idx]])
 
 
 # Init defaults

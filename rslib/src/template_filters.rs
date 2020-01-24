@@ -341,7 +341,6 @@ field</a>
             nonempty_fields: &Default::default(),
             question_side: false,
             card_ord: 0,
-            front_text: None,
         };
         assert_eq!(
             apply_filters("ignored", &["cloze", "type"], "Text", &ctx),
@@ -357,7 +356,6 @@ field</a>
             nonempty_fields: &Default::default(),
             question_side: true,
             card_ord: 0,
-            front_text: None,
         };
         assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "[...] two");
         assert_eq!(

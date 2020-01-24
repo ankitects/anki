@@ -5,12 +5,13 @@ from __future__ import annotations
 
 import pprint
 import time
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
 from anki.notes import Note
+from anki.sound import AVTag
 from anki.utils import intTime, joinFields, timestampID
 
 # Cards
@@ -26,7 +27,7 @@ from anki.utils import intTime, joinFields, timestampID
 
 
 class Card:
-    _qa: Optional[Dict[str, Union[str, int]]]
+    _qa: Optional[Dict[str, Union[str, int, List[AVTag]]]]
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: int
@@ -148,6 +149,12 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
 
     def a(self) -> str:
         return self.css() + self._getQA()["a"]
+
+    def question_av_tags(self) -> List[AVTag]:
+        return self._qa["q_av_tags"]  # type: ignore
+
+    def answer_av_tags(self) -> List[AVTag]:
+        return self._qa["a_av_tags"]  # type: ignore
 
     def css(self) -> str:
         return "<style>%s</style>" % self.model()["css"]

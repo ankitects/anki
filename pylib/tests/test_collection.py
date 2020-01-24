@@ -142,7 +142,7 @@ def test_furigana():
     # and should avoid sound
     n["Front"] = "foo[sound:abc.mp3]"
     n.flush()
-    assert "sound:" in c.q(reload=True)
+    assert "anki:play" in c.q(reload=True)
     # it shouldn't throw an error while people are editing
     m["tmpls"][0]["qfmt"] = "{{kana:}}"
     mm.save(m)

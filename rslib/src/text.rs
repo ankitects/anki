@@ -9,13 +9,13 @@ use std::collections::HashSet;
 use std::ptr;
 
 #[derive(Debug, PartialEq)]
-pub enum AVTag<'a> {
-    SoundOrVideo(Cow<'a, str>),
+pub enum AVTag {
+    SoundOrVideo(String),
     TextToSpeech {
-        field_text: Cow<'a, str>,
-        lang: &'a str,
-        voices: Vec<&'a str>,
-        other_args: Vec<&'a str>,
+        field_text: String,
+        lang: String,
+        voices: Vec<String>,
+        other_args: Vec<String>,
     },
 }
 
@@ -78,27 +78,29 @@ pub fn strip_av_tags(text: &str) -> Cow<str> {
     AV_TAGS.replace_all(text, "")
 }
 
-pub fn flag_av_tags(text: &str) -> Cow<str> {
-    let mut idx = 0;
-    AV_TAGS.replace_all(text, |_caps: &Captures| {
-        let text = format!("[anki:play]{}[/anki:play]", idx);
-        idx += 1;
-        text
-    })
-}
-pub fn av_tags_in_string(text: &str) -> impl Iterator<Item = AVTag> {
-    AV_TAGS.captures_iter(text).map(|caps| {
-        if let Some(av_file) = caps.get(1) {
-            AVTag::SoundOrVideo(decode_entities(av_file.as_str()))
+/// Extract audio tags from string, replacing them with [anki:play] refs
+pub fn extract_av_tags<'a>(text: &'a str, question_side: bool) -> (Cow<'a, str>, Vec<AVTag>) {
+    let mut tags = vec![];
+    let context = if question_side { 'q' } else { 'a' };
+    let replaced_text = AV_TAGS.replace_all(text, |caps: &Captures| {
+        // extract
+        let tag = if let Some(av_file) = caps.get(1) {
+            AVTag::SoundOrVideo(decode_entities(av_file.as_str()).into())
         } else {
             let args = caps.get(2).unwrap();
             let field_text = caps.get(3).unwrap();
             tts_tag_from_string(field_text.as_str(), args.as_str())
-        }
-    })
+        };
+        tags.push(tag);
+
+        // and replace with reference
+        format!("[anki:play:{}:{}]", context, tags.len() - 1)
+    });
+
+    (replaced_text, tags)
 }
 
-fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag<'a> {
+fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
     let mut other_args = vec![];
     let mut split_args = args.split(' ');
     let lang = split_args.next().unwrap_or("");
@@ -109,15 +111,15 @@ fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag<'a> {
             voices = remaining_arg
                 .split('=')
                 .nth(1)
-                .map(|voices| voices.split(',').collect());
+                .map(|voices| voices.split(',').map(ToOwned::to_owned).collect());
         } else {
-            other_args.push(remaining_arg);
+            other_args.push(remaining_arg.to_owned());
         }
     }
 
     AVTag::TextToSpeech {
-        field_text: strip_html_for_tts(field_text),
-        lang,
+        field_text: strip_html_for_tts(field_text).into(),
+        lang: lang.into(),
         voices: voices.unwrap_or_else(Vec::new),
         other_args,
     }
@@ -149,7 +151,7 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
 #[cfg(test)]
 mod test {
     use crate::text::{
-        av_tags_in_string, cloze_numbers_in_string, flag_av_tags, strip_av_tags, strip_html,
+        cloze_numbers_in_string, extract_av_tags, strip_av_tags, strip_html,
         strip_html_preserving_image_filenames, AVTag,
     };
     use std::collections::HashSet;
@@ -188,22 +190,21 @@ mod test {
         let s =
             "abc[sound:fo&amp;o.mp3]def[anki:tts][en_US voices=Bob,Jane]foo<br>1&gt;2[/anki:tts]gh";
         assert_eq!(strip_av_tags(s), "abcdefgh");
+
+        let (text, tags) = extract_av_tags(s, true);
+        assert_eq!(text, "abc[anki:play:q:0]def[anki:play:q:1]gh");
+
         assert_eq!(
-            av_tags_in_string(s).collect::<Vec<_>>(),
+            tags,
             vec![
                 AVTag::SoundOrVideo("fo&o.mp3".into()),
                 AVTag::TextToSpeech {
                     field_text: "foo 1>2".into(),
-                    lang: "en_US",
-                    voices: vec!["Bob", "Jane"],
+                    lang: "en_US".into(),
+                    voices: vec!["Bob".into(), "Jane".into()],
                     other_args: vec![]
                 },
             ]
-        );
-
-        assert_eq!(
-            flag_av_tags(s),
-            "abc[anki:play]0[/anki:play]def[anki:play]1[/anki:play]gh"
         );
     }
 }

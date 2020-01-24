@@ -17,8 +17,7 @@ message BackendInput {
         RenderCardIn render_card = 21;
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
-        string get_av_tags = 24;
-        string flag_av_tags = 25;
+        ExtractAVTagsIn extract_av_tags = 24;
     }
 }
 
@@ -32,8 +31,7 @@ message BackendOutput {
         RenderCardOut render_card = 21;
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
-        GetAVTagsOut get_av_tags = 24;
-        string flag_av_tags = 25;
+        ExtractAVTagsOut extract_av_tags = 24;
 
         BackendError error = 2047;
     }
@@ -149,8 +147,14 @@ message RenderedTemplateReplacement {
     repeated string filters = 3;
 }
 
-message GetAVTagsOut {
-    repeated AVTag av_tags = 1;
+message ExtractAVTagsIn {
+    string text = 1;
+    bool question_side = 2;
+}
+
+message ExtractAVTagsOut {
+    string text = 1;
+    repeated AVTag av_tags = 2;
 }
 
 message AVTag {
