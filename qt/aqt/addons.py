@@ -13,6 +13,7 @@ from collections import defaultdict
 from concurrent.futures import Future
 from dataclasses import dataclass
 from typing import IO, Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 
 import jsonschema
@@ -47,6 +48,7 @@ from aqt.utils import (
 class InstallOk:
     name: str
     conflicts: List[str]
+    compatible: bool
 
 
 @dataclass
@@ -58,6 +60,9 @@ class InstallError:
 class DownloadOk:
     data: bytes
     filename: str
+    min_point_version: Optional[int]
+    max_point_version: Optional[int]
+    package_index: Optional[int]
 
 
 @dataclass
@@ -76,12 +81,13 @@ DownloadLogEntry = Tuple[int, Union[DownloadError, InstallError, InstallOk]]
 class UpdateInfo:
     id: int
     last_updated: int
+    min_point_version: Optional[int]
     max_point_version: Optional[int]
 
 
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
 
-pointVersion = anki.utils.pointVersion()
+current_point_version = anki.utils.pointVersion()
 
 
 @dataclass
@@ -91,7 +97,9 @@ class AddonMeta:
     enabled: bool
     installed_at: int
     conflicts: List[str]
+    min_point_version: Optional[int]
     max_point_version: Optional[int]
+    package_index: Optional[int]
 
     def human_name(self) -> str:
         return self.provided_name or self.dir_name
@@ -104,20 +112,26 @@ class AddonMeta:
             return None
 
     def compatible(self) -> bool:
-        if self.max_point_version is None:
-            return True
-        return pointVersion <= self.max_point_version
+        min = self.min_point_version
+        if min is not None and current_point_version < min:
+            return False
+        max = self.max_point_version
+        if max is not None and current_point_version > max:
+            return False
+        return True
 
-
-def addon_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
-    return AddonMeta(
-        dir_name=dir_name,
-        provided_name=json_meta.get("name"),
-        enabled=not json_meta.get("disabled"),
-        installed_at=json_meta.get("mod", 0),
-        conflicts=json_meta.get("conflicts", []),
-        max_point_version=json_meta.get("max_point_version"),
-    )
+    @staticmethod
+    def from_json_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
+        return AddonMeta(
+            dir_name=dir_name,
+            provided_name=json_meta.get("name"),
+            enabled=not json_meta.get("disabled"),
+            installed_at=json_meta.get("mod", 0),
+            conflicts=json_meta.get("conflicts", []),
+            min_point_version=json_meta.get("min_point_version"),
+            max_point_version=json_meta.get("max_point_version"),
+            package_index=json_meta.get("package_index"),
+        )
 
 
 # fixme: this class should not have any GUI code in it
@@ -131,6 +145,9 @@ class AddonManager:
             "name": {"type": "string", "meta": True},
             "mod": {"type": "number", "meta": True},
             "conflicts": {"type": "array", "items": {"type": "string"}, "meta": True},
+            "min_point_version": {"type": "number", "meta": True},
+            "max_point_version": {"type": "number", "meta": True},
+            "package_index": {"type": "number", "meta": True},
         },
         "required": ["package", "name"],
     }
@@ -196,7 +213,7 @@ When loading '%(name)s':
     def addon_meta(self, dir_name: str) -> AddonMeta:
         """Get info about an installed add-on."""
         json_obj = self.addonMeta(dir_name)
-        return addon_meta(dir_name, json_obj)
+        return AddonMeta.from_json_meta(dir_name, json_obj)
 
     def write_addon_meta(self, addon: AddonMeta) -> None:
         # preserve any unknown attributes
@@ -208,13 +225,15 @@ When loading '%(name)s':
         json_obj["mod"] = addon.installed_at
         json_obj["conflicts"] = addon.conflicts
         json_obj["max_point_version"] = addon.max_point_version
+        json_obj["min_point_version"] = addon.min_point_version
+        json_obj["package_index"] = addon.package_index
 
         self.writeAddonMeta(addon.dir_name, json_obj)
 
     def _addonMetaPath(self, dir):
         return os.path.join(self.addonsFolder(dir), "meta.json")
 
-    # in new code, use addon_meta() instead
+    # in new code, use self.addon_meta() instead
     def addonMeta(self, dir: str) -> Dict[str, Any]:
         path = self._addonMetaPath(dir)
         try:
@@ -347,7 +366,11 @@ and have been disabled: %(found)s"
         meta.update(manifest_meta)
         self.writeAddonMeta(package, meta)
 
-        return InstallOk(name=meta["name"], conflicts=found_conflicts)
+        meta2 = self.addon_meta(package)
+
+        return InstallOk(
+            name=meta["name"], conflicts=found_conflicts, compatible=meta2.compatible()
+        )
 
     def _install(self, dir, zfile):
         # previously installed?
@@ -457,6 +480,11 @@ and have been disabled: %(found)s"
                 _("The following conflicting add-ons were disabled:")
                 + " "
                 + ", ".join(self.addonName(f) for f in result.conflicts)
+            )
+
+        if not result.compatible:
+            strings.append(
+                _("This add-on is not compatible with your version of Anki.")
             )
 
         return strings
@@ -648,9 +676,17 @@ class AddonsDialog(QDialog):
         if not addon.enabled:
             return name + " " + _("(disabled)")
         elif not addon.compatible():
-            return name + " " + _("(not compatible)")
+            return name + " " + _("(requires %s)") % self.compatible_string(addon)
 
         return name
+
+    def compatible_string(self, addon: AddonMeta) -> str:
+        min = addon.min_point_version
+        if min is not None and min > current_point_version:
+            return f"Anki >= 2.1.{min}"
+        else:
+            max = addon.max_point_version
+            return f"Anki <= 2.1.{max}"
 
     def should_grey(self, addon: AddonMeta):
         return not addon.enabled or not addon.compatible()
@@ -839,7 +875,9 @@ class GetAddons(QDialog):
 def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadError]:
     "Fetch a single add-on from AnkiWeb."
     try:
-        resp = client.get(aqt.appShared + f"download/{id}?v=2.1&p={pointVersion}")
+        resp = client.get(
+            aqt.appShared + f"download/{id}?v=2.1&p={current_point_version}"
+        )
         if resp.status_code != 200:
             return DownloadError(status_code=resp.status_code)
 
@@ -849,9 +887,45 @@ def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadErr
             "attachment; filename=(.+)", resp.headers["content-disposition"]
         ).group(1)
 
-        return DownloadOk(data=data, filename=fname)
+        meta = extract_meta_from_download_url(resp.url)
+
+        return DownloadOk(
+            data=data,
+            filename=fname,
+            min_point_version=meta.min_point_version,
+            max_point_version=meta.max_point_version,
+            package_index=meta.package_index,
+        )
     except Exception as e:
         return DownloadError(exception=e)
+
+
+@dataclass
+class ExtractedDownloadMeta:
+    min_point_version: Optional[int] = None
+    max_point_version: Optional[int] = None
+    package_index: Optional[int] = None
+
+
+def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
+    urlobj = urlparse(url)
+    query = parse_qs(urlobj.query)
+
+    meta = ExtractedDownloadMeta()
+
+    min = query.get("minpt")
+    if min is not None:
+        meta.min_point_version = int(min[0])
+
+    max = query.get("maxpt")
+    if max is not None:
+        meta.max_point_version = int(max[0])
+
+    pkgidx = query.get("pkgidx")
+    if pkgidx is not None:
+        meta.package_index = int(pkgidx[0])
+
+    return meta
 
 
 def download_log_to_html(log: List[DownloadLogEntry]) -> str:
@@ -899,10 +973,15 @@ def download_and_install_addon(
     fname = result.filename.replace("_", " ")
     name = os.path.splitext(fname)[0]
 
-    result2 = mgr.install(
-        io.BytesIO(result.data),
-        manifest={"package": str(id), "name": name, "mod": intTime()},
-    )
+    manifest = {"package": str(id), "name": name, "mod": intTime()}
+    if result.min_point_version is not None:
+        manifest["min_point_version"] = result.min_point_version
+    if result.max_point_version is not None:
+        manifest["max_point_version"] = result.max_point_version
+    if result.package_index is not None:
+        manifest["package_index"] = result.package_index
+
+    result2 = mgr.install(io.BytesIO(result.data), manifest=manifest,)
 
     return (id, result2)
 
@@ -1018,7 +1097,10 @@ def _fetch_update_info_batch(
 def json_update_info_to_native(json_obj: List[Dict]) -> Iterable[UpdateInfo]:
     def from_json(d: Dict[str, Any]) -> UpdateInfo:
         return UpdateInfo(
-            id=d["id"], last_updated=d["updated"], max_point_version=d["maxver"]
+            id=d["id"],
+            last_updated=d["updated"],
+            max_point_version=d["maxver"],
+            min_point_version=d.get("minver"),
         )
 
     return map(from_json, json_obj)
