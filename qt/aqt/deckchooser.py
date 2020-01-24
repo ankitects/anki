@@ -66,7 +66,7 @@ class DeckChooser(QHBoxLayout):
     def cleanup(self) -> None:
         gui_hooks.current_note_type_did_change.remove(self.onModelChangeNew)
 
-    def onModelChangeNew(self, unused):
+    def onModelChangeNew(self, unused=None):
         self.onModelChange()
 
     def onModelChange(self):
