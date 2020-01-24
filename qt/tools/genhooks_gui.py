@@ -35,7 +35,8 @@ hooks = [
         name="reviewer_will_answer_card",
         args=[
             "ease_tuple: Tuple[bool, int]",
-            "reviewer: aqt.reviewer.Reviewer", "card: Card",
+            "reviewer: aqt.reviewer.Reviewer",
+            "card: Card",
         ],
         return_type="Tuple[bool, int]",
         doc="""Used to modify the ease at which a card is rated or to bypass
