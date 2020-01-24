@@ -59,3 +59,9 @@ img {
 
 .playImage { zoom: 50% }
 .soundLink { text-decoration: none; }
+
+.nightMode {
+    .latex {
+        filter: invert(100%);
+    }
+}
