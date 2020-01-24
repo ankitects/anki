@@ -19,7 +19,7 @@ import pyaudio
 import aqt
 from anki.cards import Card
 from anki.lang import _
-from anki.sound import AVTag, SoundOrVideoTag
+from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase
@@ -580,12 +580,6 @@ for (k, v) in _exports:
 # Tag handling
 ##########################################################################
 
-AV_FLAG_RE = re.compile(r"\[anki:(play:.:\d+)\]")
-
-
-def strip_av_refs(text: str) -> str:
-    return AV_FLAG_RE.sub("", text)
-
 
 def av_refs_to_play_icons(text: str) -> str:
     """Add play icons into the HTML.
@@ -599,7 +593,7 @@ def av_refs_to_play_icons(text: str) -> str:
   <img class=playImage src='/_anki/imgs/play.png'>
 </a>"""
 
-    return AV_FLAG_RE.sub(repl, text)
+    return AV_REF_RE.sub(repl, text)
 
 
 def play_clicked_audio(pycmd: str, card: Card) -> None:

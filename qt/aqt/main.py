@@ -15,6 +15,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from send2trash import send2trash
 
+import anki
 import aqt
 import aqt.mediasrv
 import aqt.mpv
@@ -405,7 +406,7 @@ close the profile or restart Anki."""
         if self.pm.profile.get("showPlayButtons", True):
             return aqt.sound.av_refs_to_play_icons(text)
         else:
-            return aqt.sound.strip_av_refs(text)
+            return anki.sound.strip_av_refs(text)
 
     def prepare_card_text_for_display(self, text: str) -> str:
         text = self.col.media.escapeImages(text)
