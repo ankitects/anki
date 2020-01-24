@@ -89,7 +89,7 @@ class AddCards(QDialog):
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.setNote(note, focusTo=0)
 
-    def onModelChange(self, unused) -> None:
+    def onModelChange(self, unused=None) -> None:
         oldNote = self.editor.note
         note = self.mw.col.newNote()
         self.previousNote = None
