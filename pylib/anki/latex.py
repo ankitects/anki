@@ -7,13 +7,13 @@ import html
 import os
 import re
 import shutil
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import anki
 from anki import hooks
 from anki.lang import _
 from anki.models import NoteType
-from anki.template import TemplateRenderContext
+from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
 
 pngCommands = [
@@ -48,15 +48,11 @@ def stripLatex(text) -> Any:
     return text
 
 
-def on_card_did_render(
-    text: Tuple[str, str], ctx: TemplateRenderContext
-) -> Tuple[str, str]:
-    qtext, atext = text
-
-    qtext = render_latex(qtext, ctx.note_type(), ctx.col())
-    atext = render_latex(atext, ctx.note_type(), ctx.col())
-
-    return (qtext, atext)
+def on_card_did_render(output: TemplateRenderOutput, ctx: TemplateRenderContext):
+    output.question_text = render_latex(
+        output.question_text, ctx.note_type(), ctx.col()
+    )
+    output.answer_text = render_latex(output.answer_text, ctx.note_type(), ctx.col())
 
 
 def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> str:
@@ -187,5 +183,4 @@ def _errMsg(type: str, texpath: str) -> Any:
     return msg
 
 
-# setup q/a filter - type ignored due to import cycle
-hooks.card_did_render.append(on_card_did_render)  # type: ignore
+hooks.card_did_render.append(on_card_did_render)

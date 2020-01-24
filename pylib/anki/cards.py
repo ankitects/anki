@@ -5,11 +5,12 @@ from __future__ import annotations
 
 import pprint
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
+from anki.models import NoteType, Template
 from anki.notes import Note
 from anki.sound import AVTag
 from anki.utils import intTime, joinFields, timestampID
@@ -27,7 +28,6 @@ from anki.utils import intTime, joinFields, timestampID
 
 
 class Card:
-    _qa: Optional[Dict[str, Union[str, int, List[AVTag]]]]
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: int
@@ -38,7 +38,7 @@ class Card:
     ) -> None:
         self.col = col
         self.timerStarted = None
-        self._qa = None
+        self._render_output: Optional[anki.template.TemplateRenderOutput] = None
         self._note = None
         if id:
             self.id = id
@@ -81,7 +81,7 @@ class Card:
             self.flags,
             self.data,
         ) = self.col.db.first("select * from cards where id = ?", self.id)
-        self._qa = None
+        self._render_output = None
         self._note = None
 
     def flush(self) -> None:
@@ -144,54 +144,44 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         )
         self.col.log(self)
 
-    def q(self, reload: bool = False, browser: bool = False) -> str:
-        return self.css() + self._getQA(reload, browser)["q"]
+    def question(self, reload: bool = False, browser: bool = False) -> str:
+        return self.css() + self.render_output(reload, browser).question_text
 
-    def a(self) -> str:
-        return self.css() + self._getQA()["a"]
+    def answer(self) -> str:
+        return self.css() + self.render_output().answer_text
 
     def question_av_tags(self) -> List[AVTag]:
-        return self._qa["q_av_tags"]  # type: ignore
+        return self.render_output().question_av_tags
 
     def answer_av_tags(self) -> List[AVTag]:
-        return self._qa["a_av_tags"]  # type: ignore
+        return self.render_output().answer_av_tags
 
     def css(self) -> str:
         return "<style>%s</style>" % self.model()["css"]
 
-    def _getQA(self, reload: bool = False, browser: bool = False) -> Any:
-        if not self._qa or reload:
-            f = self.note(reload)
-            m = self.model()
-            t = self.template()
-            if browser:
-                args = [t.get("bqfmt"), t.get("bafmt")]
-            else:
-                args = []
-            self._qa = self.col._renderQA(
-                (
-                    self.id,
-                    f.id,
-                    m["id"],
-                    self.odid or self.did,
-                    self.ord,
-                    f.stringTags(),
-                    f.joinedFields(),
-                    self.flags,
-                ),
-                *args,
-            )  # type: ignore
-        return self._qa
+    def render_output(
+        self, reload: bool = False, browser: bool = False
+    ) -> anki.template.TemplateRenderOutput:
+        if not self._render_output or reload:
+            note = self.note(reload)
+            self._render_output = anki.template.render_card(
+                self.col, self, note, browser
+            )
+        return self._render_output
 
-    def note(self, reload: bool = False) -> Any:
+    def note(self, reload: bool = False) -> Note:
         if not self._note or reload:
             self._note = self.col.getNote(self.nid)
         return self._note
 
-    def model(self) -> Any:
+    def note_type(self) -> NoteType:
         return self.col.models.get(self.note().mid)
 
-    def template(self) -> Any:
+    q = question
+    a = answer
+    model = note_type
+
+    def template(self) -> Template:
         m = self.model()
         if m["type"] == MODEL_STD:
             return self.model()["tmpls"][self.ord]
@@ -201,16 +191,16 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def startTimer(self) -> None:
         self.timerStarted = time.time()
 
-    def timeLimit(self) -> Any:
+    def timeLimit(self) -> int:
         "Time limit for answering in milliseconds."
         conf = self.col.decks.confForDid(self.odid or self.did)
         return conf["maxTaken"] * 1000
 
-    def shouldShowTimer(self) -> Any:
+    def shouldShowTimer(self) -> bool:
         conf = self.col.decks.confForDid(self.odid or self.did)
         return conf["timer"]
 
-    def timeTaken(self) -> Any:
+    def timeTaken(self) -> int:
         "Time taken to answer card, in integer MS."
         total = int((time.time() - self.timerStarted) * 1000)
         return min(total, self.timeLimit())
@@ -225,12 +215,12 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
         d = dict(self.__dict__)
         # remove non-useful elements
         del d["_note"]
-        del d["_qa"]
+        del d["_render_output"]
         del d["col"]
         del d["timerStarted"]
         return pprint.pformat(d, width=300)
 
-    def userFlag(self) -> Any:
+    def userFlag(self) -> int:
         return self.flags & 0b111
 
     def setUserFlag(self, flag: int) -> None:

@@ -34,29 +34,13 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import anki
 from anki import hooks
+from anki.cards import Card
+from anki.consts import HELP_SITE
+from anki.lang import _
 from anki.models import NoteType
+from anki.notes import Note
 from anki.rsbackend import TemplateReplacementList
 from anki.sound import AVTag
-
-QAData = Tuple[
-    # Card ID this QA comes from. Corresponds to 'cid' column.
-    int,
-    # Note ID this QA comes from. Corresponds to 'nid' column.
-    int,
-    # ID of the model (i.e., NoteType) for this QA's note. Corresponds to 'mid' column.
-    int,
-    # Deck ID. Corresponds to 'did' column.
-    int,
-    # Index of the card template (within the NoteType) this QA was built
-    # from. Corresponds to 'ord' column.
-    int,
-    # Tags, separated by space. Corresponds to 'tags' column.
-    str,
-    # Corresponds to 'flds' column. TODO: document.
-    str,
-    # Corresponds to 'cardFlags' column. TODO: document
-    int,
-]
 
 
 class TemplateRenderContext:
@@ -66,15 +50,20 @@ class TemplateRenderContext:
     using the _private fields directly."""
 
     def __init__(
-        self, col: anki.storage._Collection, qadata: QAData, fields: Dict[str, str]
+        self,
+        col: anki.storage._Collection,
+        card: Card,
+        note: Note,
+        fields: Dict[str, str],
+        qfmt: str,
+        afmt: str,
     ) -> None:
         self._col = col
-        self._qadata = qadata
+        self._card = card
+        self._note = note
         self._fields = fields
-
-        self._note_type: Optional[NoteType] = None
-        self._card: Optional[anki.cards.Card] = None
-        self._note: Optional[anki.notes.Note] = None
+        self._qfmt = qfmt
+        self._afmt = afmt
 
         # if you need to store extra state to share amongst rendering
         # hooks, you can insert it into this dictionary
@@ -86,46 +75,29 @@ class TemplateRenderContext:
     def fields(self) -> Dict[str, str]:
         return self._fields
 
-    def card_id(self) -> int:
-        return self._qadata[0]
-
-    def note_id(self) -> int:
-        return self._qadata[1]
-
-    def deck_id(self) -> int:
-        return self._qadata[3]
-
-    def card_ord(self) -> int:
-        return self._qadata[4]
-
-    def card(self) -> Optional[anki.cards.Card]:
-        """Returns the card being rendered. Will return None in the add screen.
+    def card(self) -> Card:
+        """Returns the card being rendered.
 
         Be careful not to call .q() or .a() on the card, or you'll create an
         infinite loop."""
-        if not self._card:
-            try:
-                self._card = self.col().getCard(self.card_id())
-            except:
-                return None
-
         return self._card
 
-    def note(self) -> anki.notes.Note:
-        if not self._note:
-            self._note = self.col().getNote(self.note_id())
-
+    def note(self) -> Note:
         return self._note
 
     def note_type(self) -> NoteType:
-        if not self._note_type:
-            self._note_type = self.col().models.get(self._qadata[2])
+        return self.card().note_type()
 
-        return self._note_type
+    def qfmt(self) -> str:
+        return self._qfmt
+
+    def afmt(self) -> str:
+        return self._afmt
 
 
 @dataclass
-class RenderOutput:
+class TemplateRenderOutput:
+    "Stores the rendered templates and extracted AV tags."
     question_text: str
     answer_text: str
     question_av_tags: List[AVTag]
@@ -133,12 +105,71 @@ class RenderOutput:
 
 
 def render_card(
-    col: anki.storage._Collection, qfmt: str, afmt: str, ctx: TemplateRenderContext
-) -> RenderOutput:
+    col: anki.storage._Collection, card: Card, note: Note, browser: bool
+) -> TemplateRenderOutput:
+    "Render a card."
+    # collect data
+    fields = fields_for_rendering(col, card, note)
+    qfmt, afmt = templates_for_card(card, browser)
+    ctx = TemplateRenderContext(
+        col=col, card=card, note=note, fields=fields, qfmt=qfmt, afmt=afmt
+    )
+
+    # render
+    try:
+        output = render_card_from_context(ctx)
+    except anki.rsbackend.BackendException as e:
+        errmsg = _("Card template has a problem:") + f"<br>{e}"
+        output = TemplateRenderOutput(
+            question_text=errmsg,
+            answer_text=errmsg,
+            question_av_tags=[],
+            answer_av_tags=[],
+        )
+
+    if not output.question_text.strip():
+        msg = _("The front of this card is blank.")
+        help = _("More info")
+        msg += f"<a href='{HELP_SITE}'>{help}</a>"
+        output.question_text = msg
+
+    hooks.card_did_render(output, ctx)
+
+    return output
+
+
+def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
+    template = card.template()
+    q, a = browser and ("bqfmt", "bafmt") or ("qfmt", "afmt")
+    return template.get(q), template.get(a)  # type: ignore
+
+
+def fields_for_rendering(col: anki.storage._Collection, card: Card, note: Note):
+    # fields from note
+    fields = dict(note.items())
+
+    # add special fields
+    fields["Tags"] = note.stringTags().strip()
+    fields["Type"] = card.note_type()["name"]
+    fields["Deck"] = col.decks.name(card.did)
+    fields["Subdeck"] = fields["Deck"].split("::")[-1]
+    fields["Card"] = card.template()["name"]  # type: ignore
+    flag = card.userFlag()
+    fields["CardFlag"] = flag and f"flag{flag}" or ""
+    fields["c%d" % (card.ord + 1)] = "1"
+
+    return fields
+
+
+def render_card_from_context(ctx: TemplateRenderContext) -> TemplateRenderOutput:
     """Renders the provided templates, returning rendered output.
 
     Will raise if the template is invalid."""
-    (qnodes, anodes) = col.backend.render_card(qfmt, afmt, ctx.fields(), ctx.card_ord())
+    col = ctx.col()
+
+    (qnodes, anodes) = col.backend.render_card(
+        ctx.qfmt(), ctx.afmt(), ctx.fields(), ctx.card().ord
+    )
 
     qtext = apply_custom_filters(qnodes, ctx, front_side=None)
     qtext, q_avtags = col.backend.extract_av_tags(qtext, True)
@@ -146,7 +177,7 @@ def render_card(
     atext = apply_custom_filters(anodes, ctx, front_side=qtext)
     atext, a_avtags = col.backend.extract_av_tags(atext, False)
 
-    return RenderOutput(
+    return TemplateRenderOutput(
         question_text=qtext,
         answer_text=atext,
         question_av_tags=q_avtags,

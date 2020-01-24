@@ -22,7 +22,6 @@ from anki.consts import *
 from anki.db import DB
 from anki.decks import DeckManager
 from anki.errors import AnkiError
-from anki.hooks import runFilter
 from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager, NoteType, Template
@@ -30,9 +29,7 @@ from anki.notes import Note
 from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
-from anki.sound import AVTag
 from anki.tags import TagManager
-from anki.template import QAData, RenderOutput, TemplateRenderContext, render_card
 from anki.utils import (
     devMode,
     fieldChecksum,
@@ -613,107 +610,6 @@ where c.nid = n.id and c.id in %s group by nid"""
             )
         # apply, relying on calling code to bump usn+mod
         self.db.executemany("update notes set sfld=?, csum=? where id=?", r)
-
-    # Q/A generation
-    ##########################################################################
-
-    # data is [cid, nid, mid, did, ord, tags, flds, cardFlags]
-    def _renderQA(
-        self, data: QAData, qfmt: Optional[str] = None, afmt: Optional[str] = None
-    ) -> Dict[str, Union[str, int, List[AVTag]]]:
-        # extract info from data
-        split_fields = splitFields(data[6])
-        card_ord = data[4]
-        model = self.models.get(data[2])
-        if model["type"] == MODEL_STD:
-            template = model["tmpls"][data[4]]
-        else:
-            template = model["tmpls"][0]
-        flag = data[7]
-        deck_id = data[3]
-        card_id = data[0]
-        tags = data[5]
-        qfmt = qfmt or template["qfmt"]
-        afmt = afmt or template["afmt"]
-
-        # create map of field names -> field content
-        fields: Dict[str, str] = {}
-        for (name, (idx, conf)) in list(self.models.fieldMap(model).items()):
-            fields[name] = split_fields[idx]
-
-        # add special fields
-        fields["Tags"] = tags.strip()
-        fields["Type"] = model["name"]
-        fields["Deck"] = self.decks.name(deck_id)
-        fields["Subdeck"] = fields["Deck"].split("::")[-1]
-        fields["Card"] = template["name"]
-        fields["CardFlag"] = self._flagNameFromCardFlags(flag)
-        fields["c%d" % (card_ord + 1)] = "1"
-
-        # legacy hook
-        fields = runFilter("mungeFields", fields, model, data, self)
-
-        ctx = TemplateRenderContext(self, data, fields)
-
-        # render fields. if any custom filters are encountered,
-        # the field_filter hook will be called.
-        try:
-            output = render_card(self, qfmt, afmt, ctx)
-        except anki.rsbackend.BackendException as e:
-            errmsg = _("Card template has a problem:") + f"<br>{e}"
-            output = RenderOutput(
-                question_text=errmsg,
-                answer_text=errmsg,
-                question_av_tags=[],
-                answer_av_tags=[],
-            )
-
-        # avoid showing the user a confusing blank card if they've
-        # forgotten to add a cloze deletion
-        if model["type"] == MODEL_CLOZE:
-            if not self.models._availClozeOrds(model, data[6], False):
-                output.question_text += "<p>" + _(
-                    "Please edit this note and add some cloze deletions. (%s)"
-                ) % ("<a href=%s#cloze>%s</a>" % (HELP_SITE, _("help")))
-
-        # allow add-ons to modify the generated result
-        (output.question_text, output.answer_text) = hooks.card_did_render(
-            (output.question_text, output.answer_text), ctx
-        )
-
-        # legacy hook
-        output.question_text = runFilter(
-            "mungeQA", output.question_text, "q", fields, model, data, self
-        )
-        output.answer_text = runFilter(
-            "mungeQA", output.answer_text, "a", fields, model, data, self
-        )
-
-        return dict(
-            q=output.question_text,
-            a=output.answer_text,
-            id=card_id,
-            q_av_tags=output.question_av_tags,
-            a_av_tags=output.answer_av_tags,
-        )
-
-    def _qaData(self, where="") -> Any:
-        "Return [cid, nid, mid, did, ord, tags, flds, cardFlags] db query"
-        # NOTE: order selected from database must match order of QAData fields.
-        return self.db.execute(
-            """
-select c.id, f.id, f.mid, c.did, c.ord, f.tags, f.flds, c.flags
-from cards c, notes f
-where c.nid == f.id
-%s"""
-            % where
-        )
-
-    def _flagNameFromCardFlags(self, flags: int) -> str:
-        flag = flags & 0b111
-        if not flag:
-            return ""
-        return "flag%d" % flag
 
     # Finding cards
     ##########################################################################
