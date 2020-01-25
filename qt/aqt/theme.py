@@ -93,7 +93,11 @@ QTreeWidget {
             buf += """
 QToolTip {
   border: 0;
-}            
+}
+
+QGroupBox {
+  padding-top: 0px;
+}              
             """
 
         # allow addons to modify the styling
