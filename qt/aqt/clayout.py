@@ -14,7 +14,7 @@ from anki.lang import _, ngettext
 from anki.utils import isMac, isWin, joinFields
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.sound import av_player
+from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
     askUser,
@@ -220,9 +220,12 @@ class CardLayout(QDialog):
         pform.backWeb.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
         )
-        # specify a context for add-ons
-        pform.frontWeb.set_bridge_command(lambda msg: None, "card_layout")
-        pform.backWeb.set_bridge_command(lambda msg: None, "card_layout")
+        pform.frontWeb.set_bridge_command(self._on_bridge_cmd, "card_layout")
+        pform.backWeb.set_bridge_command(self._on_bridge_cmd, "card_layout")
+
+    def _on_bridge_cmd(self, cmd: str) -> Any:
+        if cmd.startswith("play:"):
+            play_clicked_audio(cmd, self.card)
 
     def updateMainArea(self):
         if self._isCloze():

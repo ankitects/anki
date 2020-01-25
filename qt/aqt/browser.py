@@ -24,7 +24,7 @@ from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isW
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.qt import *
-from aqt.sound import av_player
+from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
     MenuList,
@@ -1634,6 +1634,11 @@ where id in %s"""
         self._previewWeb.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
         )
+        self._previewWeb.set_bridge_command(self._on_preview_bridge_cmd, "preview")
+
+    def _on_preview_bridge_cmd(self, cmd: str) -> Any:
+        if cmd.startswith("play:"):
+            play_clicked_audio(cmd, self.card)
 
     def _renderPreview(self, cardChanged=False):
         self._cancelPreviewTimer()
