@@ -1686,9 +1686,6 @@ where id in %s"""
             # need to force reload even if answer
             txt = c.q(reload=True)
 
-            question_audio = []
-            if self._previewBothSides:
-                question_audio = c.question_av_tags()
             if self._previewState == "answer":
                 func = "_showAnswer"
                 txt = c.a()
@@ -1697,12 +1694,19 @@ where id in %s"""
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
             if self.mw.reviewer.autoplay(c):
-                # if we're showing both sides at once, play question audio first
-                av_player.play_tags(question_audio)
-                # then play any audio that hasn't already been played
-                answer_audio = c.answer_av_tags()
-                unplayed_audio = [x for x in answer_audio if x not in question_audio]
-                av_player.extend_and_play(unplayed_audio)
+                if self._previewBothSides:
+                    # if we're showing both sides at once, remove any audio
+                    # from the answer that's appeared on the question already
+                    question_audio = c.question_av_tags()
+                    only_on_answer_audio = [
+                        x for x in c.answer_av_tags() if x not in question_audio
+                    ]
+                    audio = question_audio + only_on_answer_audio
+                elif self._previewState == "question":
+                    audio = c.question_av_tags()
+                else:
+                    audio = c.answer_av_tags()
+                av_player.play_tags(audio)
 
             txt = self.mw.prepare_card_text_for_display(txt)
             gui_hooks.card_will_show(
