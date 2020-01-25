@@ -650,6 +650,30 @@ class _ReviewDidUndoHook:
 review_did_undo = _ReviewDidUndoHook()
 
 
+class _ReviewerDidAnswerCardHook:
+    _hooks: List[Callable[["aqt.reviewer.Reviewer", Card, int], None]] = []
+
+    def append(self, cb: Callable[["aqt.reviewer.Reviewer", Card, int], None]) -> None:
+        """(reviewer: aqt.reviewer.Reviewer, card: Card, ease: int)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.reviewer.Reviewer", Card, int], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, reviewer: aqt.reviewer.Reviewer, card: Card, ease: int) -> None:
+        for hook in self._hooks:
+            try:
+                hook(reviewer, card, ease)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+reviewer_did_answer_card = _ReviewerDidAnswerCardHook()
+
+
 class _ReviewerDidShowAnswerHook:
     _hooks: List[Callable[[Card], None]] = []
 
@@ -700,6 +724,55 @@ class _ReviewerDidShowQuestionHook:
 
 
 reviewer_did_show_question = _ReviewerDidShowQuestionHook()
+
+
+class _ReviewerWillAnswerCardFilter:
+    """Used to modify the ease at which a card is rated or to bypass
+        rating the card completely.
+        
+        ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
+        should continue with rating the card, and an integer expressing the ease at
+        which the card should be rated.
+        
+        If your code just needs to be notified of the card rating event, you should use
+        the reviewer_did_answer_card hook instead."""
+
+    _hooks: List[
+        Callable[[Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]
+        ],
+    ) -> None:
+        """(ease_tuple: Tuple[bool, int], reviewer: aqt.reviewer.Reviewer, card: Card)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, ease_tuple: Tuple[bool, int], reviewer: aqt.reviewer.Reviewer, card: Card
+    ) -> Tuple[bool, int]:
+        for filter in self._hooks:
+            try:
+                ease_tuple = filter(ease_tuple, reviewer, card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return ease_tuple
+
+
+reviewer_will_answer_card = _ReviewerWillAnswerCardFilter()
 
 
 class _ReviewerWillEndHook:
