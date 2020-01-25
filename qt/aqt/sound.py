@@ -99,11 +99,6 @@ class AVPlayer:
             self._stop_if_playing()
         self._play_next_if_idle()
 
-    def extend_and_play(self, tags: List[AVTag]) -> None:
-        """Add extra tags to queue, without clearing it."""
-        self._enqueued.extend(tags)
-        self._play_next_if_idle()
-
     def stop_and_clear_queue(self) -> None:
         self._enqueued = []
         self._stop_if_playing()
