@@ -1,5 +1,28 @@
 @use 'vars';
 
+.isWin {
+  button {
+    font-size: 12px;
+  }
+}
+
+.isMac {
+  button {
+    font-size: 13px;
+  }
+}
+
+.isLin {
+  button {
+    font-size: 14px;
+
+    -webkit-appearance: none;
+    border-radius: 3px;
+    padding: 5px;
+    border: 1px solid vars.$day-border;
+  }
+}
+
 .nightMode {
   button {
     -webkit-appearance: none;
@@ -18,23 +41,5 @@
 
   button:hover {
     background: vars.$fusion-button-hover-bg;
-  }
-}
-
-.isWin {
-  button {
-    font-size: 12px;
-  }
-}
-
-.isMac {
-  button {
-    font-size: 13px;
-  }
-}
-
-.isLin {
-  button {
-    font-size: 14px;
   }
 }
