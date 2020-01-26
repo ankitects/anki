@@ -1007,7 +1007,7 @@ class EditorWebView(AnkiWebView):
         for fn in types:
             html = fn(mime)
             if html:
-                return html, False
+                return html, True
         return "", False
 
     def _processUrls(self, mime):

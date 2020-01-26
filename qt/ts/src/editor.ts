@@ -405,7 +405,7 @@ let filterHTML = function(html, internal, extendedMode) {
         filterNode(top, extendedMode);
     }
     let outHtml = top.innerHTML;
-    if (!extendedMode) {
+    if (!extendedMode && !internal) {
         // collapse whitespace
         outHtml = outHtml.replace(/[\n\t ]+/g, " ");
     }
