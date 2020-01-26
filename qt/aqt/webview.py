@@ -282,11 +282,10 @@ border-radius:5px; font-family: Helvetica }"""
             fontspec = 'font-size:14px;font-family:"%s";' % family
             widgetspec = """
 /* Buttons */
-button{ -webkit-appearance:none; outline:0;
-        background-color: %(color_btn)s; border:1px solid rgba(0,0,0,.2);
-        border-radius:2px; height:24px; font-family:"%(family)s"; }
+button{ 
+        background-color: %(color_btn)s;
+        font-family:"%(family)s"; }
 button:focus{ border-color: %(color_hl)s }
-button:hover{ background-color:#fff }
 button:active, button:active:hover { background-color: %(color_hl)s; color: %(color_hl_txt)s;}
 /* Input field focus outline */
 textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
