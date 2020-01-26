@@ -31,15 +31,15 @@ body.nightMode::-webkit-scrollbar {
 }
 
 body.nightMode::-webkit-scrollbar:horizontal {
-    height: 8px;
+    height: 10px;
 }
 
 body.nightMode::-webkit-scrollbar:vertical {
-    width: 8px;
+    width: 10px;
 }
 
 body.nightMode::-webkit-scrollbar-thumb {
-    background: vars.$night-frame-bg;
+    background: vars.$fusion-button-hover-bg;
     border-radius: 8px;
 }
 
