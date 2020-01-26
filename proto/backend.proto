@@ -168,5 +168,6 @@ message TTSTag {
     string field_text = 1;
     string lang = 2;
     repeated string voices = 3;
-    repeated string other_args = 4;
+    float speed = 4;
+    repeated string other_args = 5;
 }

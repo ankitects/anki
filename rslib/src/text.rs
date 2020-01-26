@@ -15,6 +15,7 @@ pub enum AVTag {
         field_text: String,
         lang: String,
         voices: Vec<String>,
+        speed: f32,
         other_args: Vec<String>,
     },
 }
@@ -102,9 +103,10 @@ pub fn extract_av_tags<'a>(text: &'a str, question_side: bool) -> (Cow<'a, str>,
 
 fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
     let mut other_args = vec![];
-    let mut split_args = args.split(' ');
+    let mut split_args = args.split_ascii_whitespace();
     let lang = split_args.next().unwrap_or("");
     let mut voices = None;
+    let mut speed = 1.0;
 
     for remaining_arg in split_args {
         if remaining_arg.starts_with("voices=") {
@@ -112,6 +114,13 @@ fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
                 .split('=')
                 .nth(1)
                 .map(|voices| voices.split(',').map(ToOwned::to_owned).collect());
+        } else if remaining_arg.starts_with("speed=") {
+            speed = remaining_arg
+                .split('=')
+                .nth(1)
+                .unwrap()
+                .parse()
+                .unwrap_or(1.0);
         } else {
             other_args.push(remaining_arg.to_owned());
         }
@@ -121,6 +130,7 @@ fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
         field_text: strip_html_for_tts(field_text).into(),
         lang: lang.into(),
         voices: voices.unwrap_or_else(Vec::new),
+        speed,
         other_args,
     }
 }
@@ -188,7 +198,7 @@ mod test {
     #[test]
     fn test_audio() {
         let s =
-            "abc[sound:fo&amp;o.mp3]def[anki:tts][en_US voices=Bob,Jane]foo<br>1&gt;2[/anki:tts]gh";
+            "abc[sound:fo&amp;o.mp3]def[anki:tts][en_US voices=Bob,Jane speed=1.2]foo<br>1&gt;2[/anki:tts]gh";
         assert_eq!(strip_av_tags(s), "abcdefgh");
 
         let (text, tags) = extract_av_tags(s, true);
@@ -202,7 +212,8 @@ mod test {
                     field_text: "foo 1>2".into(),
                     lang: "en_US".into(),
                     voices: vec!["Bob".into(), "Jane".into()],
-                    other_args: vec![]
+                    other_args: vec![],
+                    speed: 1.2
                 },
             ]
         );

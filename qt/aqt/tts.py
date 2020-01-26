@@ -126,8 +126,11 @@ class MacTTSPlayer(TTSProcessPlayer):
         voice = match.voice
         assert isinstance(voice, MacVoice)
 
+        default_wpm = 170
+        words_per_min = str(int(default_wpm * tag.speed))
+
         self._process = subprocess.Popen(
-            ["say", "-v", voice.original_name, "-f", "-"],
+            ["say", "-v", voice.original_name, "-r", words_per_min, "-f", "-"],
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -171,8 +174,21 @@ class MacTTSFilePlayer(MacTTSPlayer):
         voice = match.voice
         assert isinstance(voice, MacVoice)
 
+        default_wpm = 170
+        words_per_min = str(int(default_wpm * tag.speed))
+
         self._process = subprocess.Popen(
-            ["say", "-v", voice.original_name, "-f", "-", "-o", self.tmppath],
+            [
+                "say",
+                "-v",
+                voice.original_name,
+                "-r",
+                words_per_min,
+                "-f",
+                "-",
+                "-o",
+                self.tmppath,
+            ],
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -441,6 +457,7 @@ if isWin:
             try:
                 native_voice = voice.handle
                 self.speaker.Voice = native_voice
+                self.speaker.Rate = self._rate_for_speed(tag.speed)
                 self.speaker.Speak(tag.field_text, 1)
                 gui_hooks.av_player_did_begin_playing(self, tag)
 
@@ -454,7 +471,12 @@ if isWin:
                 self._terminate_flag = False
 
         def _tidy_name(self, name: str) -> str:
-            "eg. Microsoft Haruka Desktop -> MS-Haruka."
+            "eg. Microsoft Haruka Desktop -> Microsoft-Haruka."
             return re.sub(r"^Microsoft (.+) Desktop$", "Microsoft_\\1", name).replace(
                 " ", "_"
             )
+
+        def _rate_for_speed(self, speed: float) -> int:
+            "eg. 1.5 -> 15, 0.5 -> -5"
+            speed = (speed * 10) - 10
+            return int(max(-10, min(10, speed)))
