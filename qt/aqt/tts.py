@@ -131,7 +131,10 @@ def on_tts_voices(text: str, field, filter: str, ctx) -> str:
     voices.sort(key=attrgetter("lang"))
 
     buf = "<div style='font-size: 14px; text-align: left;'>TTS voices available:<br>"
-    buf += "<br>".join(f"{{{{tts {v.lang} voices={v.name}}}}}" for v in voices)
+    buf += "<br>".join(
+        f"{{{{tts {v.lang} voices={v.name}}}}}"  # pylint: disable=no-member
+        for v in voices
+    )
     return buf + "</div>"
 
 
