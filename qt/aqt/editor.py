@@ -27,6 +27,7 @@ from anki.utils import checksum, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player, getAudio
+from aqt.theme import theme_manager
 from aqt.utils import (
     getFile,
     openHelp,
@@ -508,16 +509,18 @@ class Editor:
         import aqt.tagedit
 
         g = QGroupBox(self.widget)
-        g.setFlat(True)
+        g.setStyleSheet("border: 0")
         tb = QGridLayout()
         tb.setSpacing(12)
-        tb.setContentsMargins(6, 6, 6, 6)
+        tb.setContentsMargins(2, 6, 2, 6)
         # tags
         l = QLabel(_("Tags"))
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         self.tags.lostFocus.connect(self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
+        border = theme_manager.str_color("border")
+        self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
         self.outerLayout.addWidget(g)
