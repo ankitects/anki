@@ -24,6 +24,7 @@ class TTSTag:
     field_text: str
     lang: str
     voices: List[str]
+    speed: float
     # each arg should be in the form 'foo=bar'
     other_args: List[str]
 

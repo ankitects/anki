@@ -195,12 +195,14 @@ impl Backend {
                     lang,
                     voices,
                     other_args,
+                    speed,
                 } => pt::AvTag {
                     value: Some(pt::av_tag::Value::Tts(pt::TtsTag {
                         field_text,
                         lang,
                         voices,
                         other_args,
+                        speed,
                     })),
                 },
             })

@@ -56,6 +56,7 @@ def av_tag_to_native(tag: pb.AVTag) -> AVTag:
             lang=tag.tts.lang,
             voices=list(tag.tts.voices),
             other_args=list(tag.tts.other_args),
+            speed=tag.tts.speed,
         )
 
 
