@@ -30,8 +30,10 @@ import re
 import subprocess
 from concurrent.futures import Future
 from dataclasses import dataclass
+from operator import attrgetter
 from typing import Any, List, Optional, cast
 
+from anki import hooks
 from anki.sound import AVTag, TTSTag
 from anki.utils import checksum, isWin, tmpdir
 from aqt import gui_hooks
@@ -104,6 +106,36 @@ class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
         else:
             return None
 
+
+# tts-voices filter
+##########################################################################
+
+
+def all_tts_voices() -> List[TTSVoice]:
+    from aqt.sound import av_player
+
+    all_voices: List[TTSVoice] = []
+    for p in av_player.players:
+        getter = getattr(p, "voices", None)
+        if not getter:
+            continue
+        all_voices.extend(getter())
+    return all_voices
+
+
+def on_tts_voices(text: str, field, filter: str, ctx) -> str:
+    if filter != "tts-voices":
+        return text
+    voices = all_tts_voices()
+    voices.sort(key=attrgetter("name"))
+    voices.sort(key=attrgetter("lang"))
+
+    buf = "<div style='font-size: 14px; text-align: left;'>TTS voices available:<br>"
+    buf += "<br>".join(f"{{{{tts {v.lang} voices={v.name}}}}}" for v in voices)
+    return buf + "</div>"
+
+
+hooks.field_filter.append(on_tts_voices)
 
 # Mac support
 ##########################################################################
