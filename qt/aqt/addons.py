@@ -26,7 +26,6 @@ import aqt
 import aqt.forms
 from anki.httpclient import HttpClient
 from anki.lang import _, ngettext
-from anki.utils import intTime
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -60,9 +59,10 @@ class InstallError:
 class DownloadOk:
     data: bytes
     filename: str
-    min_point_version: Optional[int]
-    max_point_version: Optional[int]
-    package_index: Optional[int]
+    mod_time: int
+    min_point_version: int
+    max_point_version: int
+    branch_index: int
 
 
 @dataclass
@@ -80,9 +80,10 @@ DownloadLogEntry = Tuple[int, Union[DownloadError, InstallError, InstallOk]]
 @dataclass
 class UpdateInfo:
     id: int
-    last_updated: int
-    min_point_version: Optional[int]
-    max_point_version: Optional[int]
+    suitable_branch_last_modified: int
+    current_branch_last_modified: int
+    current_branch_min_point_ver: int
+    current_branch_max_point_ver: int
 
 
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
@@ -97,9 +98,9 @@ class AddonMeta:
     enabled: bool
     installed_at: int
     conflicts: List[str]
-    min_point_version: Optional[int]
-    max_point_version: Optional[int]
-    package_index: Optional[int]
+    min_point_version: int
+    max_point_version: int
+    branch_index: int
 
     def human_name(self) -> str:
         return self.provided_name or self.dir_name
@@ -128,9 +129,9 @@ class AddonMeta:
             enabled=not json_meta.get("disabled"),
             installed_at=json_meta.get("mod", 0),
             conflicts=json_meta.get("conflicts", []),
-            min_point_version=json_meta.get("min_point_version"),
-            max_point_version=json_meta.get("max_point_version"),
-            package_index=json_meta.get("package_index"),
+            min_point_version=json_meta.get("min_point_version", 0) or 0,
+            max_point_version=json_meta.get("max_point_version", 0) or 0,
+            branch_index=json_meta.get("branch_index", 0) or 0,
         )
 
 
@@ -141,13 +142,21 @@ class AddonManager:
     _manifest_schema: dict = {
         "type": "object",
         "properties": {
+            # the name of the folder
             "package": {"type": "string", "meta": False},
+            # the displayed name to the user
             "name": {"type": "string", "meta": True},
+            # the time the add-on was last modified
             "mod": {"type": "number", "meta": True},
+            # a list of other packages that conflict
             "conflicts": {"type": "array", "items": {"type": "string"}, "meta": True},
+            # the minimum 2.1.x version this add-on supports
             "min_point_version": {"type": "number", "meta": True},
+            # if negative, abs(n) is the maximum 2.1.x version this add-on supports
+            # if positive, indicates version tested on, and is ignored
             "max_point_version": {"type": "number", "meta": True},
-            "package_index": {"type": "number", "meta": True},
+            # AnkiWeb sends this to indicate which branch the user downloaded.
+            "branch_index": {"type": "number", "meta": True},
         },
         "required": ["package", "name"],
     }
@@ -226,7 +235,7 @@ When loading '%(name)s':
         json_obj["conflicts"] = addon.conflicts
         json_obj["max_point_version"] = addon.max_point_version
         json_obj["min_point_version"] = addon.min_point_version
-        json_obj["package_index"] = addon.package_index
+        json_obj["branch_index"] = addon.branch_index
 
         self.writeAddonMeta(addon.dir_name, json_obj)
 
@@ -492,31 +501,56 @@ and have been disabled: %(found)s"
     # Updating
     ######################################################################
 
-    def update_max_supported_versions(self, items: List[UpdateInfo]) -> None:
+    def extract_update_info(self, items: List[Dict]) -> List[UpdateInfo]:
+        def extract_one(item: Dict) -> UpdateInfo:
+            id = item["id"]
+            meta = self.addon_meta(str(id))
+            branch_idx = meta.branch_index
+            return extract_update_info(current_point_version, branch_idx, item)
+
+        return list(map(extract_one, items))
+
+    def update_supported_versions(self, items: List[UpdateInfo]) -> None:
         for item in items:
-            self.update_max_supported_version(item)
+            self.update_supported_version(item)
 
-    def update_max_supported_version(self, item: UpdateInfo):
+    def update_supported_version(self, item: UpdateInfo):
         addon = self.addon_meta(str(item.id))
+        updated = False
+        is_latest = self.addon_is_latest(item.id, item.current_branch_last_modified)
 
-        # if different to the stored value
-        if addon.max_point_version != item.max_point_version:
-            # max version currently specified?
-            if item.max_point_version is not None:
-                addon.max_point_version = item.max_point_version
-                self.write_addon_meta(addon)
+        # if max different to the stored value
+        cur_max = item.current_branch_max_point_ver
+        if addon.max_point_version != cur_max:
+            if is_latest:
+                addon.max_point_version = cur_max
+                updated = True
             else:
-                # no max currently specified. we can clear any
-                # existing record provided the user is up to date
-                if self.addon_is_latest(item.id, item.last_updated):
-                    addon.max_point_version = item.max_point_version
-                    self.write_addon_meta(addon)
+                # user is not up to date; only update if new version is stricter
+                if cur_max is not None and cur_max < addon.max_point_version:
+                    addon.max_point_version = cur_max
+                    updated = True
+
+        # if min different to the stored value
+        cur_min = item.current_branch_min_point_ver
+        if addon.min_point_version != cur_min:
+            if is_latest:
+                addon.min_point_version = cur_min
+                updated = True
+            else:
+                # user is not up to date; only update if new version is stricter
+                if cur_min is not None and cur_min > addon.min_point_version:
+                    addon.min_point_version = cur_min
+                    updated = True
+
+        if updated:
+            self.write_addon_meta(addon)
 
     def updates_required(self, items: List[UpdateInfo]) -> List[int]:
         """Return ids of add-ons requiring an update."""
         need_update = []
         for item in items:
-            if not self.addon_is_latest(item.id, item.last_updated):
+            if not self.addon_is_latest(item.id, item.suitable_branch_last_modified):
                 need_update.append(item.id)
 
         return need_update
@@ -892,9 +926,10 @@ def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadErr
         return DownloadOk(
             data=data,
             filename=fname,
+            mod_time=meta.mod_time,
             min_point_version=meta.min_point_version,
             max_point_version=meta.max_point_version,
-            package_index=meta.package_index,
+            branch_index=meta.branch_index,
         )
     except Exception as e:
         return DownloadError(exception=e)
@@ -902,28 +937,22 @@ def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadErr
 
 @dataclass
 class ExtractedDownloadMeta:
-    min_point_version: Optional[int] = None
-    max_point_version: Optional[int] = None
-    package_index: Optional[int] = None
+    mod_time: int
+    min_point_version: int
+    max_point_version: int
+    branch_index: int
 
 
 def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
     urlobj = urlparse(url)
     query = parse_qs(urlobj.query)
 
-    meta = ExtractedDownloadMeta()
-
-    min = query.get("minpt")
-    if min is not None:
-        meta.min_point_version = int(min[0])
-
-    max = query.get("maxpt")
-    if max is not None:
-        meta.max_point_version = int(max[0])
-
-    pkgidx = query.get("pkgidx")
-    if pkgidx is not None:
-        meta.package_index = int(pkgidx[0])
+    meta = ExtractedDownloadMeta(
+        mod_time=int(query.get("t")[0]),
+        min_point_version=int(query.get("minpt")[0]),
+        max_point_version=int(query.get("maxpt")[0]),
+        branch_index=int(query.get("bidx")[0]),
+    )
 
     return meta
 
@@ -973,15 +1002,16 @@ def download_and_install_addon(
     fname = result.filename.replace("_", " ")
     name = os.path.splitext(fname)[0]
 
-    manifest = {"package": str(id), "name": name, "mod": intTime()}
-    if result.min_point_version is not None:
-        manifest["min_point_version"] = result.min_point_version
-    if result.max_point_version is not None:
-        manifest["max_point_version"] = result.max_point_version
-    if result.package_index is not None:
-        manifest["package_index"] = result.package_index
+    manifest = dict(
+        package=str(id),
+        name=name,
+        mod=result.mod_time,
+        min_point_version=result.min_point_version,
+        max_point_version=result.max_point_version,
+        branch_index=result.branch_index,
+    )
 
-    result2 = mgr.install(io.BytesIO(result.data), manifest=manifest,)
+    result2 = mgr.install(io.BytesIO(result.data), manifest=manifest)
 
     return (id, result2)
 
@@ -1064,9 +1094,9 @@ def download_addons(
 ######################################################################
 
 
-def fetch_update_info(client: HttpClient, ids: List[int]) -> List[UpdateInfo]:
+def fetch_update_info(client: HttpClient, ids: List[int]) -> List[Dict]:
     """Fetch update info from AnkiWeb in one or more batches."""
-    all_info: List[UpdateInfo] = []
+    all_info: List[Dict] = []
 
     while ids:
         # get another chunk
@@ -1081,29 +1111,17 @@ def fetch_update_info(client: HttpClient, ids: List[int]) -> List[UpdateInfo]:
 
 def _fetch_update_info_batch(
     client: HttpClient, chunk: Iterable[str]
-) -> Iterable[UpdateInfo]:
+) -> Iterable[Dict]:
     """Get update info from AnkiWeb.
 
     Chunk must not contain more than 25 ids."""
-    resp = client.get(aqt.appShared + "updates/" + ",".join(chunk) + "?v=2")
+    resp = client.get(aqt.appShared + "updates/" + ",".join(chunk) + "?v=3")
     if resp.status_code == 200:
-        return json_update_info_to_native(resp.json())
+        return resp.json()
     else:
         raise Exception(
             "Unexpected response code from AnkiWeb: {}".format(resp.status_code)
         )
-
-
-def json_update_info_to_native(json_obj: List[Dict]) -> Iterable[UpdateInfo]:
-    def from_json(d: Dict[str, Any]) -> UpdateInfo:
-        return UpdateInfo(
-            id=d["id"],
-            last_updated=d["updated"],
-            max_point_version=d["maxver"],
-            min_point_version=d.get("minver"),
-        )
-
-    return map(from_json, json_obj)
 
 
 def check_and_prompt_for_updates(
@@ -1111,14 +1129,14 @@ def check_and_prompt_for_updates(
     mgr: AddonManager,
     on_done: Callable[[List[DownloadLogEntry]], None],
 ):
-    def on_updates_received(client: HttpClient, items: List[UpdateInfo]):
+    def on_updates_received(client: HttpClient, items: List[Dict]):
         handle_update_info(parent, mgr, client, items, on_done)
 
     check_for_updates(mgr, on_updates_received)
 
 
 def check_for_updates(
-    mgr: AddonManager, on_done: Callable[[HttpClient, List[UpdateInfo]], None]
+    mgr: AddonManager, on_done: Callable[[HttpClient, List[Dict]], None]
 ):
     client = HttpClient()
 
@@ -1148,17 +1166,41 @@ def check_for_updates(
     mgr.mw.taskman.run_in_background(check, update_info_received)
 
 
+def extract_update_info(
+    current_point_version: int, current_branch_idx: int, info_json: Dict
+) -> UpdateInfo:
+    "Process branches to determine the updated mod time and min/max versions."
+    branches = info_json["branches"]
+    current = branches[current_branch_idx]
+
+    last_mod = 0
+    for branch in branches:
+        if branch["minpt"] > current_point_version:
+            continue
+        if branch["maxpt"] < 0 and abs(branch["maxpt"]) < current_point_version:
+            continue
+        last_mod = branch["fmod"]
+
+    return UpdateInfo(
+        id=info_json["id"],
+        suitable_branch_last_modified=last_mod,
+        current_branch_last_modified=current["fmod"],
+        current_branch_min_point_ver=current["minpt"],
+        current_branch_max_point_ver=current["maxpt"],
+    )
+
+
 def handle_update_info(
     parent: QWidget,
     mgr: AddonManager,
     client: HttpClient,
-    items: List[UpdateInfo],
+    items: List[Dict],
     on_done: Callable[[List[DownloadLogEntry]], None],
 ) -> None:
-    # record maximum supported versions
-    mgr.update_max_supported_versions(items)
+    update_info = mgr.extract_update_info(items)
+    mgr.update_supported_versions(update_info)
 
-    updated_ids = mgr.updates_required(items)
+    updated_ids = mgr.updates_required(update_info)
 
     if not updated_ids:
         on_done([])
