@@ -1,0 +1,139 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use crate::template::RenderContext;
+use crate::text::strip_html;
+use lazy_static::lazy_static;
+use regex::Captures;
+use regex::Regex;
+use std::borrow::Cow;
+use std::collections::HashSet;
+
+lazy_static! {
+    static ref CLOZE: Regex = Regex::new(
+        r#"(?xsi)
+            \{\{
+            c(\d+)::    # 1 = cloze number
+            (.*?)       # 2 = clozed text
+            (?:
+              ::(.*?)   # 3 = optional hint
+            )?
+            \}\}
+        "#
+    )
+    .unwrap();
+    static ref MATHJAX: Regex = Regex::new(
+        r#"(?xsi)
+            (\\[(\[])       # 1 = mathjax opening tag
+            (.*?)           # 2 = inner content
+            (\\[])])        # 3 = mathjax closing tag 
+           "#
+    )
+    .unwrap();
+}
+
+mod cloze_caps {
+    // cloze ordinal
+    pub const ORD: usize = 1;
+    // the occluded text
+    pub const TEXT: usize = 2;
+    // optional hint
+    pub const HINT: usize = 3;
+}
+
+mod mathjax_caps {
+    pub const OPENING_TAG: usize = 1;
+    pub const INNER_TEXT: usize = 2;
+    pub const CLOSING_TAG: usize = 3;
+}
+
+pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
+    let mut cloze_ord_was_in_text = false;
+
+    let output = CLOZE.replace_all(text, |caps: &Captures| {
+        let captured_ord = caps
+            .get(cloze_caps::ORD)
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap_or(0);
+
+        if captured_ord != cloze_ord {
+            // other cloze deletions are unchanged
+            return caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+        } else {
+            cloze_ord_was_in_text = true;
+        }
+
+        let replacement;
+        if question {
+            // hint provided?
+            if let Some(hint) = caps.get(cloze_caps::HINT) {
+                replacement = format!("[{}]", hint.as_str());
+            } else {
+                replacement = "[...]".to_string()
+            }
+        } else {
+            replacement = caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+        }
+
+        format!("<span class=cloze>{}</span>", replacement)
+    });
+
+    if !cloze_ord_was_in_text {
+        return "".into();
+    }
+
+    // if no cloze deletions are found, Anki returns an empty string
+    match output {
+        Cow::Borrowed(_) => "".into(),
+        other => other,
+    }
+}
+
+pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
+    let mut hash = HashSet::with_capacity(4);
+    for cap in CLOZE.captures_iter(html) {
+        if let Ok(n) = cap[1].parse() {
+            hash.insert(n);
+        }
+    }
+    hash
+}
+
+fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
+    MATHJAX.replace_all(text, |caps: &Captures| -> String {
+        format!(
+            "{}{}{}",
+            caps.get(mathjax_caps::OPENING_TAG).unwrap().as_str(),
+            strip_html(caps.get(mathjax_caps::INNER_TEXT).unwrap().as_str()).as_ref(),
+            caps.get(mathjax_caps::CLOSING_TAG).unwrap().as_str()
+        )
+    })
+}
+
+pub(crate) fn cloze_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a, str> {
+    strip_html_inside_mathjax(
+        reveal_cloze_text(text, context.card_ord + 1, context.question_side).as_ref(),
+    )
+    .into_owned()
+    .into()
+}
+
+#[cfg(test)]
+mod test {
+    use crate::cloze::cloze_numbers_in_string;
+    use std::collections::HashSet;
+
+    #[test]
+    fn test_cloze() {
+        assert_eq!(
+            cloze_numbers_in_string("test"),
+            vec![].into_iter().collect::<HashSet<u16>>()
+        );
+        assert_eq!(
+            cloze_numbers_in_string("{{c2::te}}{{c1::s}}t{{"),
+            vec![1, 2].into_iter().collect::<HashSet<u16>>()
+        );
+    }
+}

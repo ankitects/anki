@@ -5,7 +5,6 @@ use htmlescape;
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;
-use std::collections::HashSet;
 use std::ptr;
 
 #[derive(Debug, PartialEq)]
@@ -45,10 +44,6 @@ lazy_static! {
                 (.*?)           # 3 - field text
             \[/anki:tts\]
             "#).unwrap();
-
-    static ref CLOZED_TEXT: Regex = Regex::new(
-        r"(?s)\{\{c(\d+)::.+?\}\}"
-    ).unwrap();
 }
 
 pub fn strip_html(html: &str) -> Cow<str> {
@@ -148,23 +143,11 @@ pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
     without_html.into_owned().into()
 }
 
-pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
-    let mut hash = HashSet::with_capacity(4);
-    for cap in CLOZED_TEXT.captures_iter(html) {
-        if let Ok(n) = cap[1].parse() {
-            hash.insert(n);
-        }
-    }
-    hash
-}
-
 #[cfg(test)]
 mod test {
     use crate::text::{
-        cloze_numbers_in_string, extract_av_tags, strip_av_tags, strip_html,
-        strip_html_preserving_image_filenames, AVTag,
+        extract_av_tags, strip_av_tags, strip_html, strip_html_preserving_image_filenames, AVTag,
     };
-    use std::collections::HashSet;
 
     #[test]
     fn test_stripping() {
@@ -181,18 +164,6 @@ mod test {
             " foo.jpg "
         );
         assert_eq!(strip_html_preserving_image_filenames("<html>"), "");
-    }
-
-    #[test]
-    fn test_cloze() {
-        assert_eq!(
-            cloze_numbers_in_string("test"),
-            vec![].into_iter().collect::<HashSet<u16>>()
-        );
-        assert_eq!(
-            cloze_numbers_in_string("{{c2::te}}{{c1::s}}t{{"),
-            vec![1, 2].into_iter().collect::<HashSet<u16>>()
-        );
     }
 
     #[test]
