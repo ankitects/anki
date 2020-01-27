@@ -116,7 +116,7 @@ class AddonMeta:
         if min is not None and current_point_version < min:
             return False
         max = self.max_point_version
-        if max is not None and current_point_version > max:
+        if max is not None and max < 0 and current_point_version > abs(max):
             return False
         return True
 
