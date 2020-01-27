@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-17 11:15+1000\n"
-"PO-Revision-Date: 2020-01-19 06:56\n"
+"POT-Creation-Date: 2020-01-19 16:58+1000\n"
+"PO-Revision-Date: 2020-01-27 08:15\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid " (1 of %d)"
 msgstr " (1/%d)"
 
-#: qt/aqt/addons.py:163
+#: qt/aqt/addons.py:274
 msgid " (disabled)"
 msgstr " (비활성화됨)"
 
@@ -58,7 +58,7 @@ msgstr "% 정답"
 msgid "%(a)0.1f %(b)s/day"
 msgstr "%(a)0.1f %(b)s/일"
 
-#: qt/aqt/sync.py:91
+#: qt/aqt/sync.py:92
 #, python-format
 msgid "%(a)0.1fkB up, %(b)0.1fkB down"
 msgstr "%(a)0.1fkB 보냄, %(b)0.1fkB 받음"
@@ -92,13 +92,13 @@ msgid "%.01f cards/minute"
 msgstr "%.01f 카드/분"
 
 #: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:230
-#: qt/aqt/main.py:1352
+#: qt/aqt/main.py:1371
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
 msgstr[0] "%d카드"
 
-#: qt/aqt/main.py:1364
+#: qt/aqt/main.py:1383
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
@@ -128,13 +128,13 @@ msgid "%d deck updated."
 msgid_plural "%d decks updated."
 msgstr[0] "%d뭉치를 업데이트했습니다."
 
-#: qt/aqt/main.py:1260
+#: qt/aqt/main.py:1279
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
 msgstr[0] ""
 
-#: qt/aqt/main.py:1317
+#: qt/aqt/main.py:1336
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
@@ -146,13 +146,13 @@ msgid "%d group"
 msgid_plural "%d groups"
 msgstr[0] "%d그룹"
 
-#: pylib/anki/sync.py:840
+#: pylib/anki/sync.py:775
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "업로드할 미디어 변경사항 %d개"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:825
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -248,13 +248,13 @@ msgid "%s month"
 msgid_plural "%s months"
 msgstr[0] "%s개월"
 
-#: pylib/anki/utils.py:44 qt/aqt/main.py:1115
+#: pylib/anki/utils.py:44 qt/aqt/main.py:1134
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] "%s초"
 
-#: qt/aqt/main.py:1353
+#: qt/aqt/main.py:1372
 #, python-format
 msgid "%s to delete:"
 msgstr "삭제할 %s:"
@@ -415,7 +415,11 @@ msgstr "(%s 정답)"
 msgid "(Note deleted)"
 msgstr "(노트 삭제됨)"
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1534
+#: qt/aqt/addons.py:649
+msgid "(disabled)"
+msgstr ""
+
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
 msgid "(end)"
 msgstr "(종료)"
 
@@ -430,6 +434,10 @@ msgstr "(익히는 중)"
 #: qt/aqt/browser.py:308 qt/aqt/browser.py:314
 msgid "(new)"
 msgstr "(새 카드)"
+
+#: qt/aqt/addons.py:651
+msgid "(not compatible)"
+msgstr ""
 
 #: qt/aqt/deckconf.py:179
 #, python-format
@@ -533,7 +541,7 @@ msgstr "<b>글꼴 크기</b>:"
 msgid "<b>Font</b>:"
 msgstr "<b>글꼴</b>:"
 
-#: qt/aqt/addons.py:871
+#: qt/aqt/addons.py:1203
 #, python-format
 msgid "<b>Important</b>: As add-ons are programs downloaded from the internet, they are potentially malicious.<b>You should only install add-ons you trust.</b><br><br>Are you sure you want to proceed with the installation of the following Anki add-on(s)?<br><br>%(names)s"
 msgstr ""
@@ -550,7 +558,7 @@ msgstr "<b>포함</b>:"
 msgid "<b>Line Size</b>:"
 msgstr "<b>줄 간격</b>:"
 
-#: qt/aqt/addons.py:895
+#: qt/aqt/addons.py:1227
 msgid "<b>Please restart Anki to complete the installation.</b>"
 msgstr ""
 
@@ -605,7 +613,7 @@ msgstr "<h1>오류</h1>\n\n"
 msgid "<ignored>"
 msgstr "<무시>"
 
-#: qt/aqt/main.py:1454
+#: qt/aqt/main.py:1473
 msgid "<non-unicode text>"
 msgstr "<비 유니코드 텍스트>"
 
@@ -625,7 +633,7 @@ msgstr "카드의 <i>수월함</i>은 \"알맞음\" 답 버튼에 지정된 다�
 msgid "A filtered deck cannot have subdecks."
 msgstr "여과된 뭉치는 하위 뭉치를 가질 수 없습니다."
 
-#: qt/aqt/sync.py:153
+#: qt/aqt/sync.py:160
 msgid "A problem occurred while syncing media. Please use Tools>Check Media, then sync again to correct the issue."
 msgstr "미디어를 동기화하는 도중 문제가 발생했습니다. 도구>미디어 검사를 실행한 뒤, 다시 동기화하여 이 문제를 해결하세요."
 
@@ -657,7 +665,7 @@ msgstr "카드 형 추가..."
 msgid "Add Field"
 msgstr "필드 추가"
 
-#: qt/aqt/editor.py:654
+#: qt/aqt/editor.py:653
 msgid "Add Media"
 msgstr "미디어 넣기"
 
@@ -693,19 +701,19 @@ msgstr "삽입 위치:"
 msgid "Add-on"
 msgstr ""
 
-#: qt/aqt/addons.py:723
+#: qt/aqt/addons.py:793
 msgid "Add-on has no configuration."
 msgstr "이 확장 프로그램은 설정 기능이 없습니다."
 
-#: qt/aqt/addons.py:912
+#: qt/aqt/addons.py:1244
 msgid "Add-on installation error"
 msgstr ""
 
-#: qt/aqt/addons.py:631
+#: qt/aqt/addons.py:715
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr "확장 프로그램이 AnkiWeb에서 다운로드 되지 않았습니다."
 
-#: qt/aqt/main.py:1513
+#: qt/aqt/main.py:1532
 msgid "Add-on will be installed when a profile is opened."
 msgstr ""
 
@@ -769,7 +777,7 @@ msgstr "모든 필드"
 msgid "All cards in random order (don't reschedule)"
 msgstr "무작위 순서의 모든 카드"
 
-#: qt/aqt/main.py:262
+#: qt/aqt/main.py:265
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "현재 프로필의 모든 카드, 노트, 미디어 파일이 삭제됩니다. 계속 진행하겠습니까?"
 
@@ -785,7 +793,7 @@ msgstr "필드 안에 HTML 허용"
 msgid "Always include question side when replaying audio"
 msgstr "오디오 재생시 질문 부분을 항상 포함"
 
-#: qt/aqt/addons.py:101
+#: qt/aqt/addons.py:179
 #, python-format
 msgid "An add-on you installed failed to load. If problems persist, please go to the Tools>Add-ons menu, and disable or delete the add-on.\n\n"
 "When loading '%(name)s':\n"
@@ -812,7 +820,7 @@ msgstr "데이터베이스에 접근 도중 오류가 발생했습니다.\n\n"
 "- 하드디스크에 오류가 있을 수도 있습니다.\n\n"
 "\"도구>데이터베이스 검사\"를 실행해서 모음집이 깨진 것은 아닌지 확인하는 것도 좋은 방법입니다.\n"
 
-#: qt/aqt/editor.py:785 qt/aqt/editor.py:788
+#: qt/aqt/editor.py:784 qt/aqt/editor.py:787
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "%s를 여는동안 에러가 발생하였습니다."
@@ -838,11 +846,11 @@ msgstr "Anki 컬랙션 패키지"
 msgid "Anki Deck Package"
 msgstr "Anki 뭉치 꾸러미"
 
-#: qt/aqt/profiles.py:179
+#: qt/aqt/profiles.py:178
 msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
 msgstr "프로필 자료를 읽을 수 없었슨니다. 윈도우 크기와 싱크를 위한 로그인 정보가 사라졌습니다."
 
-#: qt/aqt/profiles.py:249
+#: qt/aqt/profiles.py:248
 msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
 msgstr "Anki가 하드디스크에 있는 프로필 폴더의 이름을 바꿀 수 없습니다. 내 문서/Anki 폴더에 쓰기 권한을 가지고 있는지 확인하고, 다른 프로그램이 프로필 폴더를 접근 중은 아닌지 확인한 후 다시 시도하세요."
 
@@ -862,13 +870,13 @@ msgstr "Anki는 사용하기 편하고, 영리한 분산 학습 시스템입니�
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki는 AGPL3 라이센스를 따릅니다.  더 자세한 정보는 소스 배포판의 라이센스 파일을 참고하세요."
 
-#: qt/aqt/main.py:412
+#: qt/aqt/main.py:415
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr "컬랙션 파일을 열 수 없습니다. 컴퓨터를 재시작 한 후에도 문제가 지속되면, 프로필 관리에서 백업 열기 버튼을 사용해주십시오.\n\n"
 "디버그 정보:\n"
 
-#: qt/aqt/sync.py:100
+#: qt/aqt/sync.py:107
 msgid "AnkiWeb ID or password was incorrect; please try again."
 msgstr "AnkiWeb 아이디나 비밀번호가 틀렸습니다. 다시 시도하세요."
 
@@ -934,7 +942,7 @@ msgstr "적어도 하나의 단계는 반드시 필요합니다."
 msgid "Attach pictures/audio/video (F3)"
 msgstr "사진/오디오/비디오 추가(F3)"
 
-#: qt/aqt/main.py:312
+#: qt/aqt/main.py:315
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr "복원 후 자동 동기화 및 백업기능이 비활성화 되었습니다. 다시 활성화하려면 프로필 창을 닫은 후 Anki를 다시 실행해주십시오."
 
@@ -984,7 +992,7 @@ msgstr "뒷면 미리보기"
 msgid "Back Template"
 msgstr "뒷면 서식"
 
-#: qt/aqt/main.py:460
+#: qt/aqt/main.py:463
 msgid "Backing Up..."
 msgstr "백업중..."
 
@@ -1027,7 +1035,7 @@ msgid "Browse (%(cur)d card shown; %(sel)s)"
 msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
 msgstr[0] "(%(cur)d개 카드 탐색; %(sel)s)"
 
-#: qt/aqt/addons.py:742
+#: qt/aqt/addons.py:813
 msgid "Browse Add-ons"
 msgstr "확장 프로그램 탐색"
 
@@ -1242,11 +1250,11 @@ msgstr "업데이트 확인"
 msgid "Check the files in the media directory"
 msgstr "미디어 디렉토리에 있는 파일 점검"
 
-#: qt/aqt/sync.py:129
+#: qt/aqt/sync.py:136
 msgid "Checking media..."
 msgstr "미디어 파일 확인 중..."
 
-#: qt/aqt/sync.py:127
+#: qt/aqt/addons.py:776 qt/aqt/sync.py:134
 msgid "Checking..."
 msgstr "검사 중..."
 
@@ -1287,12 +1295,12 @@ msgstr "닫기"
 msgid "Close and lose current input?"
 msgstr "입력한 내용을 포기하고 창을 닫을까요?"
 
-#: qt/aqt/main.py:458
+#: qt/aqt/main.py:461
 msgid "Closing..."
 msgstr "종료 중..."
 
 #: pylib/anki/stdmodels.py:100 pylib/anki/stdmodels.py:105
-#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:222
+#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:219
 msgid "Cloze"
 msgstr ""
 
@@ -1332,11 +1340,11 @@ msgstr "설정"
 msgid "Configure interface language and options"
 msgstr "인터페이스 언어 및 기타 옵션 설정"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1443
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
 msgid "Congratulations! You have finished this deck for now."
 msgstr "축하합니다! 현재까지 이 뭉치에서 만기된 모든 카드를 공부했습니다."
 
-#: qt/aqt/sync.py:49
+#: qt/aqt/sync.py:50
 msgid "Connecting..."
 msgstr "연결 중..."
 
@@ -1352,7 +1360,7 @@ msgstr "계속"
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사됨"
 
-#: qt/aqt/editor.py:1113 qt/aqt/webview.py:183
+#: qt/aqt/editor.py:1112 qt/aqt/webview.py:183
 msgid "Copy"
 msgstr "복사하기"
 
@@ -1374,7 +1382,7 @@ msgstr "성숙한 카드 정답률: %(a)d/%(b)d (%(c).1f%%)"
 msgid "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
 msgstr "정답률: <b>%(pct)0.2f%%</b><br>(%(good)d/%(tot)d)"
 
-#: qt/aqt/addons.py:352
+#: qt/aqt/addons.py:428
 msgid "Corrupt add-on file."
 msgstr "확장 프로그램 파일이 손상되었습니다."
 
@@ -1382,7 +1390,7 @@ msgstr "확장 프로그램 파일이 손상되었습니다."
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "AnkiWeb에 연결할 수 없습니다. 네트워크 연결 상태를 확인하고 다시 시도하세요."
 
-#: qt/aqt/editor.py:683
+#: qt/aqt/editor.py:682
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr "오디오를 녹음할 수 없음. 'lame'을 설치하겠습니까?"
 
@@ -1411,7 +1419,7 @@ msgstr "dvisvgm으로 크기를 조절할 수 있는 이미지를 만들기"
 msgid "Created"
 msgstr "생성"
 
-#: qt/aqt/main.py:1082
+#: qt/aqt/main.py:1101
 msgid "Ctrl+Alt+Z"
 msgstr ""
 
@@ -1472,7 +1480,7 @@ msgstr "카드 탬플릿 맞춤 설정"
 msgid "Customize Fields"
 msgstr "필드 맞춤 설정"
 
-#: qt/aqt/editor.py:1111
+#: qt/aqt/editor.py:1110
 msgid "Cut"
 msgstr "잘라내기"
 
@@ -1505,7 +1513,7 @@ msgstr "뭉치"
 msgid "Deck Override..."
 msgstr "덱 전체 적용"
 
-#: qt/aqt/main.py:1515
+#: qt/aqt/main.py:1534
 msgid "Deck will be imported when a profile is opened."
 msgstr "프로필을 열 때 뭉치를 가져올 것입니다."
 
@@ -1517,7 +1525,7 @@ msgstr "뭉치"
 msgid "Decreasing intervals"
 msgstr "복습 간격이 긴 것부터"
 
-#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:333 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:76
 msgid "Default"
 msgstr "기본"
@@ -1532,7 +1540,7 @@ msgstr "다음 번 복습 때까지 기다리는 시간."
 msgid "Delete"
 msgstr "삭제"
 
-#: qt/aqt/main.py:1355
+#: qt/aqt/main.py:1374
 msgid "Delete Cards"
 msgstr "카드 삭제"
 
@@ -1540,7 +1548,7 @@ msgstr "카드 삭제"
 msgid "Delete Deck"
 msgstr "뭉치 삭제"
 
-#: qt/aqt/main.py:1361
+#: qt/aqt/main.py:1380
 msgid "Delete Empty"
 msgstr "빈 카드 삭제"
 
@@ -1556,7 +1564,7 @@ msgstr "노트 삭제"
 msgid "Delete Tags"
 msgstr "태그 삭제"
 
-#: qt/aqt/main.py:1287
+#: qt/aqt/main.py:1306
 msgid "Delete Unused Files"
 msgstr "카드에 쓰이지 않은 잉여파일 지우기"
 
@@ -1565,7 +1573,7 @@ msgstr "카드에 쓰이지 않은 잉여파일 지우기"
 msgid "Delete field from %s?"
 msgstr "%s에서 필드를 삭제할까요?"
 
-#: qt/aqt/addons.py:653
+#: qt/aqt/addons.py:737
 #, python-format
 msgid "Delete the %(num)d selected add-on?"
 msgid_plural "Delete the %(num)d selected add-ons?"
@@ -1584,7 +1592,7 @@ msgstr "이 노트 유형과 여기에 속한 모든 카드를 작제할까요?"
 msgid "Delete this unused note type?"
 msgstr "사용하지 않는 이 노트 유형을 삭제할까요?"
 
-#: qt/aqt/main.py:1300
+#: qt/aqt/main.py:1319
 msgid "Delete unused media?"
 msgstr "사용되지 않는 미디어 파일을 지울까요?"
 
@@ -1600,7 +1608,7 @@ msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
 msgstr[0] "서식이 사라진 %d카드를 삭제했습니다."
 
-#: qt/aqt/main.py:1330
+#: qt/aqt/main.py:1349
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
@@ -1641,16 +1649,25 @@ msgstr "공부 화면에 표시할 설명 (현재 뭉치에만 해당):"
 msgid "Dialog"
 msgstr "대화 상자"
 
+#: qt/aqt/addons.py:962
+msgid "Download complete. Please restart Anki to apply changes."
+msgstr ""
+
 #: qt/aqt/sync.py:299 qt/aqt/sync.py:321 qt/aqt/sync.py:327
 msgid "Download from AnkiWeb"
 msgstr "AnkiWeb에서 다운로드"
 
-#: qt/aqt/addons.py:377
+#: qt/aqt/addons.py:448
 #, python-format
 msgid "Downloaded %(fname)s"
 msgstr "%(fname)s 다운로드됨"
 
-#: qt/aqt/sync.py:125
+#: qt/aqt/addons.py:941
+#, python-format
+msgid "Downloading %(a)d/%(b)d (%(kb)0.2fKB)..."
+msgstr ""
+
+#: qt/aqt/sync.py:132
 msgid "Downloading from AnkiWeb..."
 msgstr "AnkiWeb에서 다운로드하는 중..."
 
@@ -1700,7 +1717,7 @@ msgstr "\"%s\" 수정하기"
 msgid "Edit Current"
 msgstr "현재 카드 편집"
 
-#: qt/aqt/editor.py:877
+#: qt/aqt/editor.py:876
 msgid "Edit HTML"
 msgstr "HTML 편집"
 
@@ -1762,17 +1779,12 @@ msgstr "추가할 태그를 입력하세요:"
 msgid "Enter tags to delete:"
 msgstr "삭제할 태그를 입력하세요:"
 
-#: qt/aqt/addons.py:326
-#, python-format
-msgid "Error downloading %(id)s: %(error)s"
-msgstr "%(id)s: %(error)s.  다운로드 중에 문제가 생겼습니다."
-
-#: qt/aqt/addons.py:364
+#: qt/aqt/addons.py:435
 #, python-format
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
 msgstr ""
 
-#: qt/aqt/main.py:79
+#: qt/aqt/main.py:82
 #, python-format
 msgid "Error during startup:\n"
 "%s"
@@ -1788,7 +1800,7 @@ msgstr "보안 연결에 실패했습니다. 이 오류는 주로 바이러스 �
 msgid "Error executing %s."
 msgstr "%s 실행 중 오류 발생."
 
-#: qt/aqt/addons.py:366
+#: qt/aqt/addons.py:437
 #, python-format
 msgid "Error installing <i>%(base)s</i>: %(error)s"
 msgstr ""
@@ -1877,7 +1889,7 @@ msgstr "여과:"
 msgid "Filtered"
 msgstr "여과됨"
 
-#: qt/aqt/main.py:1059 qt/aqt/main.py:1061
+#: qt/aqt/main.py:1078 qt/aqt/main.py:1080
 #, python-format
 msgid "Filtered Deck %d"
 msgstr "여과된 묶음 %d"
@@ -1942,7 +1954,7 @@ msgstr "카드에 표시 추가"
 msgid "Flip"
 msgstr "뒤집기"
 
-#: qt/aqt/profiles.py:235
+#: qt/aqt/profiles.py:234
 msgid "Folder already exists."
 msgstr "이미 존재하는 폴더입니다."
 
@@ -2136,7 +2148,7 @@ msgstr "가져오기 옵션"
 msgid "Importing complete."
 msgstr "가져오기 완료."
 
-#: qt/aqt/main.py:1118
+#: qt/aqt/main.py:1137
 #, python-format
 msgid "In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.\n\n"
 "Please go to the time settings on your computer and check the following:\n\n"
@@ -2195,11 +2207,11 @@ msgstr "복습 간격이 짧은 것부터"
 msgid "Install Add-on"
 msgstr "확장 프로그램 설치"
 
-#: qt/aqt/addons.py:673
+#: qt/aqt/addons.py:766
 msgid "Install Add-on(s)"
 msgstr "확장 프로그램 설치"
 
-#: qt/aqt/addons.py:881
+#: qt/aqt/addons.py:1213
 msgid "Install Anki add-on"
 msgstr ""
 
@@ -2207,14 +2219,18 @@ msgstr ""
 msgid "Install from file..."
 msgstr "파일에서 설치..."
 
-#: qt/aqt/addons.py:904
+#: qt/aqt/addons.py:1236
 msgid "Installation complete"
 msgstr ""
 
-#: qt/aqt/addons.py:379
+#: qt/aqt/addons.py:450
 #, python-format
 msgid "Installed %(name)s"
 msgstr "%(name)s 이/가 설치되었습니다."
+
+#: qt/aqt/addons.py:882
+msgid "Installed successfully."
+msgstr ""
 
 #: qt/aqt/forms/preferences.py:243 qt/aqt/forms/setlang.py:40
 msgid "Interface language:"
@@ -2232,23 +2248,23 @@ msgstr "복습 간격 조정값"
 msgid "Intervals"
 msgstr "복습 간격"
 
-#: qt/aqt/addons.py:353
+#: qt/aqt/addons.py:429
 msgid "Invalid add-on manifest."
 msgstr "확장 프로그램 manifest가 올바르지 않습니다."
 
-#: qt/aqt/downloader.py:68
+#: qt/aqt/addons.py:869
 msgid "Invalid code, or add-on not available for your version of Anki."
 msgstr "코드가 올바르지 않거나, 해당 버전의 Anki를 지원하지 않는 확장 프로그램입니다."
 
-#: qt/aqt/addons.py:757
+#: qt/aqt/addons.py:828
 msgid "Invalid code."
 msgstr "잘못된 코드."
 
-#: qt/aqt/addons.py:837
+#: qt/aqt/addons.py:1169
 msgid "Invalid configuration: "
 msgstr "지원하지 않는 형식 "
 
-#: qt/aqt/addons.py:841
+#: qt/aqt/addons.py:1173
 msgid "Invalid configuration: top level object must be a map"
 msgstr "지원하지 않는 형식 : 최상단에는 반드시 맵이어야 함."
 
@@ -2261,7 +2277,7 @@ msgstr "지원하지 않는 파일명. 다음의 것을 고쳐주세요. : %s"
 msgid "Invalid file. Please restore from backup."
 msgstr "유효하지 않은 파일. 백업에서 복구하세요."
 
-#: qt/aqt/main.py:1168
+#: qt/aqt/main.py:1187
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "카드에 유효하지 않은 설정이 발견되었습니다. 도구 > 데이터베이스 검사를 실행해 보시고, 이후에도 문제가 지속될 경우 고객지원 웹사이트에 문의해 주세요."
 
@@ -2281,7 +2297,7 @@ msgstr "보류되었습니다."
 msgid "Italic text (Ctrl+I)"
 msgstr "기울임꼴 (Ctrl+I)"
 
-#: qt/aqt/editor.py:521
+#: qt/aqt/editor.py:520
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Ctrl+Shift+T를 눌러 태그로 이동"
 
@@ -2289,15 +2305,15 @@ msgstr "Ctrl+Shift+T를 눌러 태그로 이동"
 msgid "Keep"
 msgstr "보관할 백업"
 
-#: qt/aqt/editor.py:874 qt/aqt/forms/modelopts.py:67
+#: qt/aqt/editor.py:873 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr ""
 
-#: qt/aqt/editor.py:875
+#: qt/aqt/editor.py:874
 msgid "LaTeX equation"
 msgstr ""
 
-#: qt/aqt/editor.py:876
+#: qt/aqt/editor.py:875
 msgid "LaTeX math env."
 msgstr ""
 
@@ -2399,15 +2415,15 @@ msgstr "태그로 배정"
 msgid "Mark Note"
 msgstr "노트에 표시하기"
 
-#: qt/aqt/editor.py:872
+#: qt/aqt/editor.py:871
 msgid "MathJax block"
 msgstr "MathJax 공간"
 
-#: qt/aqt/editor.py:873
+#: qt/aqt/editor.py:872
 msgid "MathJax chemistry"
 msgstr "MathJax 화학"
 
-#: qt/aqt/editor.py:871
+#: qt/aqt/editor.py:870
 msgid "MathJax inline"
 msgstr "MathJax 인라인"
 
@@ -2424,7 +2440,7 @@ msgstr "최대 복습 간격"
 msgid "Maximum reviews/day"
 msgstr "최대 복습량/일"
 
-#: qt/aqt/editor.py:649
+#: qt/aqt/editor.py:648
 msgid "Media"
 msgstr "미디어"
 
@@ -2468,7 +2484,7 @@ msgstr "여러 글자의 분리 기호를 지원하지 않습니다. 하나의 �
 msgid "N&ote"
 msgstr "노트(&O)"
 
-#: qt/aqt/main.py:235 qt/aqt/main.py:249
+#: qt/aqt/main.py:238 qt/aqt/main.py:252
 msgid "Name exists."
 msgstr "이미 존재하는 이름."
 
@@ -2476,7 +2492,7 @@ msgstr "이미 존재하는 이름."
 msgid "Name for deck:"
 msgstr "뭉치 이름:"
 
-#: qt/aqt/main.py:232 qt/aqt/models.py:96
+#: qt/aqt/main.py:235 qt/aqt/models.py:96
 msgid "Name:"
 msgstr "이름:"
 
@@ -2514,7 +2530,7 @@ msgid "New interval"
 msgstr "새 복습 간격"
 
 #: qt/aqt/clayout.py:379 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
-#: qt/aqt/main.py:243 qt/aqt/models.py:67
+#: qt/aqt/main.py:246 qt/aqt/models.py:67
 msgid "New name:"
 msgstr "새 이름:"
 
@@ -2551,7 +2567,7 @@ msgstr "오늘 학습한 카드가 없습니다."
 msgid "No cards matched the criteria you provided."
 msgstr "제시한 기준에 맞는 카드가 없습니다."
 
-#: qt/aqt/main.py:1348
+#: qt/aqt/main.py:1367
 msgid "No empty cards."
 msgstr "빈 카드가 없습니다."
 
@@ -2559,11 +2575,11 @@ msgstr "빈 카드가 없습니다."
 msgid "No mature cards were studied today."
 msgstr "오늘 학습한 성숙한 카드가 없습니다."
 
-#: qt/aqt/main.py:1273
+#: qt/aqt/main.py:1292
 msgid "No unused or missing files found."
 msgstr "사용하지 않거나 빠진 파일이 없습니다."
 
-#: qt/aqt/addons.py:693
+#: qt/aqt/addons.py:760
 msgid "No updates available."
 msgstr "새로운 업데이트 없음."
 
@@ -2658,6 +2674,10 @@ msgstr "처음 공부한 지 오래된 것부터"
 msgid "On next sync, force changes in one direction"
 msgstr "다음 동기화 때, 한 방향으로만 변경 사항 적용하기"
 
+#: qt/aqt/addons.py:960
+msgid "One or more errors occurred:"
+msgstr ""
+
 #: pylib/anki/importing/noteimp.py:231
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr "어떤 카드로 만들어 내지 않는 노트가 하나 이상 있어서 해당 노트를 가져오지 못했습니다. 이 문제는 빈 필드가 있거나, 텍스트 파일의 내용을 올바른 필드에 배정되지 않았기 때문에 발생할 수 있습니다."
@@ -2678,7 +2698,7 @@ msgstr "열기"
 msgid "Open Backup..."
 msgstr "백업 열기..."
 
-#: qt/aqt/main.py:545
+#: qt/aqt/main.py:548
 msgid "Optimizing..."
 msgstr "최적화하는 중..."
 
@@ -2733,7 +2753,7 @@ msgstr "글꼴 교체:"
 msgid "Override front template:"
 msgstr "앞면 서식 교체:"
 
-#: qt/aqt/addons.py:671
+#: qt/aqt/addons.py:764
 msgid "Packaged Anki Add-on"
 msgstr ""
 
@@ -2745,7 +2765,7 @@ msgstr "압축된 앙키 덱/컬렉션 (*.apkg *.colpkg *.zip)"
 msgid "Password:"
 msgstr "비밀번호:"
 
-#: qt/aqt/editor.py:1115
+#: qt/aqt/editor.py:1114
 msgid "Paste"
 msgstr "붙여넣기"
 
@@ -2782,7 +2802,7 @@ msgstr "다음 범위 안의 복습 간격을 유지한 채로 복습 대기열�
 msgid "Please add another note type first."
 msgstr "먼저 다른 노트 유형을 추가하세요."
 
-#: qt/aqt/addons.py:687 qt/aqt/downloader.py:75
+#: qt/aqt/addons.py:875
 msgid "Please check your internet connection."
 msgstr "인터넷 연결 상태를 확인하십시오."
 
@@ -2795,7 +2815,7 @@ msgstr "마이크를 연결하고, 다른 프로그램이 오디오 장치를 �
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "노트를 편집해서 빈칸을 뚫으세요. (%s)"
 
-#: qt/aqt/main.py:1522
+#: qt/aqt/main.py:1541
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr "프로필이 열려 있는 상태이고, Anki가 다른 작업을 진행 중은 아닌지 확인하고, 다시 시도하세요."
 
@@ -2807,12 +2827,12 @@ msgstr "이 필터에 이름을 지으세요:"
 msgid "Please install PyAudio"
 msgstr "PyAudio를 설치하세요"
 
-#: qt/aqt/profiles.py:230
+#: qt/aqt/profiles.py:229
 #, python-format
 msgid "Please remove the folder %s and try again."
 msgstr "%s 폴더를 삭제한 후 다시 시도해 주세요."
 
-#: qt/aqt/addons.py:907
+#: qt/aqt/addons.py:1239
 msgid "Please report this to the respective add-on author(s)."
 msgstr "이 문제를 해당 확장 프로그램의 개발자에게 전달하십시오."
 
@@ -2824,11 +2844,11 @@ msgstr "바뀐 언어 설정을 적용하려면 Anki를 재시작해 주세요."
 msgid "Please run Tools>Empty Cards"
 msgstr "도구>빈 카드를 실행하세요"
 
-#: qt/aqt/main.py:583
+#: qt/aqt/main.py:587
 msgid "Please select a deck."
 msgstr "뭉치를 선택하세요."
 
-#: qt/aqt/addons.py:615
+#: qt/aqt/addons.py:699
 msgid "Please select a single add-on first."
 msgstr "한개의 확장 프로그램을 선택해 주십시오."
 
@@ -2844,11 +2864,11 @@ msgstr "무언가 선택하세요."
 msgid "Please upgrade to the latest version of Anki."
 msgstr "최신 버전의 Anki로 업그레이드하세요."
 
-#: qt/aqt/main.py:1016
+#: qt/aqt/main.py:1035
 msgid "Please use File>Import to import this file."
 msgstr "이 파일을 가져오려면, 파일>가져오기 메뉴를 사용하세요."
 
-#: qt/aqt/sync.py:133
+#: qt/aqt/sync.py:140
 msgid "Please visit AnkiWeb, upgrade your deck, then try again."
 msgstr "AnkiWeb을 방문해서 뭉치를 업그레이드한 뒤 다시 시도하세요."
 
@@ -2887,7 +2907,7 @@ msgstr[0] "%d개의 미디어 파일을 처리함"
 msgid "Processing..."
 msgstr "처리 중..."
 
-#: qt/aqt/profiles.py:177
+#: qt/aqt/profiles.py:176
 msgid "Profile Corrupt"
 msgstr "오류 있는 프로파일"
 
@@ -3004,7 +3024,7 @@ msgstr "뭉치 이름 변경"
 msgid "Repeat failed cards after"
 msgstr "학습 실패한 카드를 다음에 반복하기"
 
-#: qt/aqt/main.py:276
+#: qt/aqt/main.py:279
 msgid "Replace your collection with an earlier backup?"
 msgstr "당신의 컬렉션을 백업된 것으로 교체하시겠습니까?"
 
@@ -3048,11 +3068,11 @@ msgstr "일정 재조정"
 msgid "Reschedule cards based on my answers in this deck"
 msgstr "이 뭉치에서 선택한 답 버튼에 기반하여 카드 일정 조정"
 
-#: qt/aqt/addons.py:799
+#: qt/aqt/addons.py:1131
 msgid "Restored defaults"
 msgstr "설정이 초기화되었습니다."
 
-#: qt/aqt/main.py:643
+#: qt/aqt/main.py:647
 msgid "Resume Now"
 msgstr "다시 진행"
 
@@ -3060,11 +3080,11 @@ msgstr "다시 진행"
 msgid "Reverse text direction (RTL)"
 msgstr "글씨 좌우 뒤집기 (RTL)"
 
-#: qt/aqt/main.py:289
+#: qt/aqt/main.py:292
 msgid "Revert to backup"
 msgstr "백업한 것으로 돌아가기"
 
-#: qt/aqt/main.py:934
+#: qt/aqt/main.py:953
 #, python-format
 msgid "Reverted to state prior to '%s'."
 msgstr "'%s' 이전 상태도 되돌리기"
@@ -3194,7 +3214,7 @@ msgstr "모든 하위 뭉치에도 적용"
 msgid "Set foreground colour (F7)"
 msgstr "외향 색 설명하기"
 
-#: qt/aqt/main.py:85
+#: qt/aqt/main.py:88
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr "Shift 키가 눌러진 채로 실행되었습니다. 자동 동기화와 확장 프로그램 실시를 하지 않습니다."
 
@@ -3203,7 +3223,7 @@ msgid "Shift position of existing cards"
 msgstr "기존 카드의 위치 이동"
 
 #: qt/aqt/browser.py:1568 qt/aqt/browser.py:1586 qt/aqt/deckbrowser.py:327
-#: qt/aqt/main.py:671 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
+#: qt/aqt/main.py:675 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
 #: qt/aqt/reviewer.py:546 qt/aqt/reviewer.py:612 qt/aqt/toolbar.py:34
 #: qt/aqt/toolbar.py:35 qt/aqt/toolbar.py:36 qt/aqt/toolbar.py:37
 #: qt/aqt/toolbar.py:38
@@ -3284,7 +3304,7 @@ msgstr "크기:"
 msgid "Skipped"
 msgstr "건너뜀"
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "관련된 카드 또는 덮어진 카드는 다음 세션까지 연기됩니다."
 
@@ -3340,7 +3360,7 @@ msgstr "익힘 단계(분 단위)"
 msgid "Steps must be numbers."
 msgstr "익힘 단계는 반드시 숫자로 지정하세요."
 
-#: qt/aqt/sync.py:60
+#: qt/aqt/sync.py:61
 msgid "Stopping..."
 msgstr "중지 중..."
 
@@ -3426,14 +3446,14 @@ msgstr "동기화"
 msgid "Synchronize audio and images too"
 msgstr "오디오와 이미지 동기화"
 
-#: qt/aqt/sync.py:145
+#: qt/aqt/sync.py:152
 #, python-format
 msgid "Syncing failed:\n"
 "%s"
 msgstr "동기화 실패:\n"
 "%s"
 
-#: qt/aqt/sync.py:112
+#: qt/aqt/sync.py:119
 msgid "Syncing failed; internet offline."
 msgstr "동기화 실패: 인터넷이 연결되지 않음."
 
@@ -3441,7 +3461,7 @@ msgstr "동기화 실패: 인터넷이 연결되지 않음."
 msgid "Syncing requires the clock on your computer to be set correctly. Please fix the clock and try again."
 msgstr "동기화를 하려면 사용자 컴퓨터의 시각이 정확해야합니다. 시계를 수정한 뒤 다시 시도하세요."
 
-#: qt/aqt/sync.py:120
+#: qt/aqt/sync.py:127
 msgid "Syncing..."
 msgstr "동기화 중..."
 
@@ -3461,7 +3481,7 @@ msgstr "태그만 달기"
 msgid "Tag modified notes:"
 msgstr ""
 
-#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:517
+#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:516
 msgid "Tags"
 msgstr "태그"
 
@@ -3517,17 +3537,21 @@ msgstr "첫째 필드가 비어있습니다."
 msgid "The first field of the note type must be mapped."
 msgstr "노트 유형의 첫 필드는 반드시 배정되야합니다."
 
-#: qt/aqt/addons.py:147
+#: qt/aqt/addons.py:241
 #, python-format
 msgid "The following add-ons are incompatible with %(name)s and have been disabled: %(found)s"
 msgstr "해당 확장 프로그램은 %(name)s 와 호환되지 않아 비활성화 되었습니다: %(found)s"
+
+#: qt/aqt/addons.py:1097
+msgid "The following add-ons have updates available. Install them now?"
+msgstr ""
 
 #: qt/aqt/utils.py:585
 #, python-format
 msgid "The following character can not be used: %s"
 msgstr "다음 문자는 사용할 수 없습니다: %s"
 
-#: qt/aqt/addons.py:386
+#: qt/aqt/addons.py:457
 msgid "The following conflicting add-ons were disabled:"
 msgstr "다음 확장 프로그램이 비활성화 되었습니다."
 
@@ -3563,7 +3587,7 @@ msgstr "유효한 .apkg 파일이 아닙니다."
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr "제시한 검색어에 해당하는 카드가 없습니다. 검색어를 수정하겠습니까?"
 
-#: qt/aqt/main.py:1213
+#: qt/aqt/main.py:1232
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr "이 변경 사항을 적용할 경우, 다음 동기화 때 데이터베이스 전체를 업로드해야합니다. 다른 기기에서 했던 복습 등의 변경 사항이 아직 이 곳에 동기화된 상태가 아니라면, 그대로 잃게됩니다. 계속하겠습니까?"
 
@@ -3571,7 +3595,7 @@ msgstr "이 변경 사항을 적용할 경우, 다음 동기화 때 데이터베
 msgid "The time taken to answer the questions."
 msgstr "질문에 답을 하기까지 걸린 시간"
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1464
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3581,7 +3605,7 @@ msgstr "공부할 수 있는 새 카드가 더 있지만, 일일 제한량에\n"
 "새 카드를 더 많이 시작할수록 그에 따라 단기 복습량도\n"
 "늘어난다는 것을 주의하세요."
 
-#: qt/aqt/main.py:258
+#: qt/aqt/main.py:261
 msgid "There must be at least one profile."
 msgstr "적어도 하나의 프로필은 반드시 있어야합니다."
 
@@ -3601,7 +3625,7 @@ msgstr "유효한 .apkg 파일이 아닙니다. AnkiWeb에서 다운로드한 �
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "파일이 이미 존재합니다. 덮어쓸까요?"
 
-#: qt/aqt/profiles.py:382
+#: qt/aqt/profiles.py:381
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3650,15 +3674,15 @@ msgstr "복습 카드"
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr "확장 프로그램을 찾으려면, 아래 버튼을 클릭하십시오. <br><br> 적당한 확장 프로그램을 찾으면, 밑에 있는 코드를 복사해 아래에 넣어주십시오. 2개 이상의 코드를 입력하려면 코드 사이에 스페이스로 구분해주십시오."
 
-#: qt/aqt/editor.py:592
+#: qt/aqt/editor.py:591
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "이미 존재하는 노트에 빈칸 뚫기를 만들려면, 편집>노트 유형 바꾸기를 통해서 빈칸(cloze) 유형으로 먼저 바꾸어야 합니다."
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1473
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
 msgid "To see them now, click the Unbury button below."
 msgstr "이 카드들을 지금 보려면 아래의 '덮기 해제' 버튼을 눌러 주세요."
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1486
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "정상 복습 일정을 벗어나 공부를 하고 싶다면, 아래에 있는 맞춤 공부 버튼을 클릭하세요."
 
@@ -3666,7 +3690,7 @@ msgstr "정상 복습 일정을 벗어나 공부를 하고 싶다면, 아래에 
 msgid "Today"
 msgstr "오늘"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1455
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3724,11 +3748,11 @@ msgstr "Anki 미디어 폴더에 접근하지 못했습니다. 시스템 임시 
 msgid "Unable to import from a read-only file."
 msgstr "읽기 전용 파일은 가져올 수 없습니다."
 
-#: qt/aqt/main.py:302
+#: qt/aqt/main.py:305
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr "존재하는 파일을 휴지통으로 옮길 수 없습니다. - 컴퓨터 재부팅을 시도해주세요."
 
-#: qt/aqt/addons.py:279
+#: qt/aqt/addons.py:384
 #, python-format
 msgid "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\n"
 "Debug info: %s"
@@ -3743,25 +3767,21 @@ msgstr "덮기 해제"
 msgid "Underline text (Ctrl+U)"
 msgstr "밑줄 (Ctrl+U)"
 
-#: qt/aqt/main.py:944
+#: qt/aqt/main.py:963
 msgid "Undo"
 msgstr "실행 취소"
 
-#: qt/aqt/main.py:940
+#: qt/aqt/main.py:959
 #, python-format
 msgid "Undo %s"
 msgstr "%s 취소"
 
-#: qt/aqt/downloader.py:72 qt/aqt/editor.py:780
+#: qt/aqt/addons.py:872 qt/aqt/editor.py:779
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr "예상하지 못한 응답 코드: %s"
 
-#: qt/aqt/addons.py:361
-msgid "Unknown error"
-msgstr ""
-
-#: qt/aqt/addons.py:358
+#: qt/aqt/addons.py:432
 msgid "Unknown error: {}"
 msgstr ""
 
@@ -3777,10 +3797,6 @@ msgstr "보지 않은 카드"
 msgid "Update existing notes when first field matches"
 msgstr "첫 필드가 일치할 경우 기존의 노트를 업데이트"
 
-#: qt/aqt/addons.py:696
-msgid "Update the following add-ons?"
-msgstr "다음 확장 프로그램들을 업데이트 하시겠습니까?"
-
 #: pylib/anki/importing/anki2.py:165
 msgid "Updated"
 msgstr "업데이트됨"
@@ -3789,15 +3805,15 @@ msgstr "업데이트됨"
 msgid "Upload to AnkiWeb"
 msgstr "AnkiWeb으로 업로드"
 
-#: qt/aqt/sync.py:123
+#: qt/aqt/sync.py:130
 msgid "Uploading to AnkiWeb..."
 msgstr "AnkiWeb에 업로드 중..."
 
-#: qt/aqt/main.py:1270
+#: qt/aqt/main.py:1289
 msgid "Used on cards but missing from media folder:"
 msgstr "카드에 사용되었지만, 미디어 폴더에 없는 파일:"
 
-#: qt/aqt/profiles.py:378
+#: qt/aqt/profiles.py:377
 msgid "User 1"
 msgstr "사용자 1"
 
@@ -3818,11 +3834,11 @@ msgstr "웹사이트 보기"
 msgid "View Files"
 msgstr "파일 보기"
 
-#: qt/aqt/main.py:642
+#: qt/aqt/main.py:646
 msgid "Waiting for editing to finish."
 msgstr "편집이 끝나길 기다리고 있습니다."
 
-#: qt/aqt/editor.py:585
+#: qt/aqt/editor.py:584
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr "빈칸 뚫기는 화면 위쪽에서 유형을 빈칸(Cloze)으로 선택해야만 동작합니다."
 
@@ -3877,7 +3893,7 @@ msgstr "어린 카드"
 msgid "Young+Learn"
 msgstr "어린 카드 + 익힘 카드"
 
-#: qt/aqt/sync.py:165
+#: qt/aqt/sync.py:172
 msgid "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
 msgstr "당신의 AnkiWeb 컬렉션은 어떤 카드도 포함하지 않습니다. 다시 동기화해서 업로드를 선택해주세요."
 
@@ -3885,7 +3901,7 @@ msgstr "당신의 AnkiWeb 컬렉션은 어떤 카드도 포함하지 않습니�
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr "이 변경은 모든 뭉치에 영향을 미칩니다. 만약 현재 뭉치만 바꾸시려면, 먼저 새로운 옵션 그룹을 생성하세요."
 
-#: qt/aqt/main.py:478
+#: qt/aqt/main.py:481
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr "당신의 컬렉션이 망가졌다고 나타납니다. 이것은 Anki가 실행 중일 때 파일이 복사되거나 옮겨졌기 때문이거나 컬렉션이 네트워크나 cloud 드라이브에 저장되었기 때문입니다. 만약 컴퓨터 재부팅 후에 문제가 지속되면 프로필 전환 창에서 (자동) 백업을 열어주세요."
 
@@ -3897,7 +3913,7 @@ msgstr "콜렉션이 일치하지 않는 상태입니다. 도구 > 데이터베�
 msgid "Your collection or a media file is too large to sync."
 msgstr "동기화 하기엔 콜렉션 또는 미디어 파일이 너무 큽니다."
 
-#: qt/aqt/sync.py:74
+#: qt/aqt/sync.py:75
 msgid "Your collection was successfully uploaded to AnkiWeb.\n\n"
 "If you use any other devices, please sync them now, and choose to download the collection you have just uploaded from this computer. After doing so, future reviews and added cards will be merged automatically."
 msgstr "성공적으로 모음집을 AnkiWeb에 업로드했습니다.\n\n"
