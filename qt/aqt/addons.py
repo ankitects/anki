@@ -1171,7 +1171,10 @@ def extract_update_info(
 ) -> UpdateInfo:
     "Process branches to determine the updated mod time and min/max versions."
     branches = info_json["branches"]
-    current = branches[current_branch_idx]
+    try:
+        current = branches[current_branch_idx]
+    except IndexError:
+        current = branches[0]
 
     last_mod = 0
     for branch in branches:
