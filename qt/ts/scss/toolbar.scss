@@ -46,3 +46,7 @@ body {
         border-bottom-color: vars.$night-faint-border;
     }
 }
+
+.isMac.nightMode #header {
+    border-bottom-color: vars.$night-frame-bg;
+}
