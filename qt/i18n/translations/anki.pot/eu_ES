@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-17 11:15+1000\n"
-"PO-Revision-Date: 2020-01-19 06:55\n"
+"POT-Creation-Date: 2020-01-19 16:58+1000\n"
+"PO-Revision-Date: 2020-01-27 08:14\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Basque\n"
 "Language: eu_ES\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid " (1 of %d)"
 msgstr " (%d-(e)tik 1)"
 
-#: qt/aqt/addons.py:163
+#: qt/aqt/addons.py:274
 msgid " (disabled)"
 msgstr " (desgaituta)"
 
@@ -59,7 +59,7 @@ msgstr "% Zuzenak"
 msgid "%(a)0.1f %(b)s/day"
 msgstr "%(a)0.1f %(b)s/egun"
 
-#: qt/aqt/sync.py:91
+#: qt/aqt/sync.py:92
 #, python-format
 msgid "%(a)0.1fkB up, %(b)0.1fkB down"
 msgstr ""
@@ -94,14 +94,14 @@ msgid "%.01f cards/minute"
 msgstr "%.01f karta minutuko"
 
 #: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:230
-#: qt/aqt/main.py:1352
+#: qt/aqt/main.py:1371
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
 msgstr[0] "Karta %d"
 msgstr[1] "%d karta"
 
-#: qt/aqt/main.py:1364
+#: qt/aqt/main.py:1383
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
@@ -136,14 +136,14 @@ msgid_plural "%d decks updated."
 msgstr[0] "Sorta %d eguneratuta."
 msgstr[1] "%d sorta eguneratuta."
 
-#: qt/aqt/main.py:1260
+#: qt/aqt/main.py:1279
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/main.py:1317
+#: qt/aqt/main.py:1336
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
@@ -157,14 +157,14 @@ msgid_plural "%d groups"
 msgstr[0] "Talde %d"
 msgstr[1] "%d talde"
 
-#: pylib/anki/sync.py:840
+#: pylib/anki/sync.py:775
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
 msgstr[0] "%d euskarri aldaketa kargatzeko"
 msgstr[1] "%d euskarri aldaketak kargatzeko"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:825
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -275,14 +275,14 @@ msgid_plural "%s months"
 msgstr[0] "Hilabete %s"
 msgstr[1] "%s hilabete"
 
-#: pylib/anki/utils.py:44 qt/aqt/main.py:1115
+#: pylib/anki/utils.py:44 qt/aqt/main.py:1134
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] "Segundo %s"
 msgstr[1] "%s segundo"
 
-#: qt/aqt/main.py:1353
+#: qt/aqt/main.py:1372
 #, python-format
 msgid "%s to delete:"
 msgstr "%s ezabatzeko:"
@@ -444,7 +444,11 @@ msgstr "(%s zuzenak)"
 msgid "(Note deleted)"
 msgstr "(Ohar ezabatuta)"
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1534
+#: qt/aqt/addons.py:649
+msgid "(disabled)"
+msgstr ""
+
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
 msgid "(end)"
 msgstr "(bukaera)"
 
@@ -459,6 +463,10 @@ msgstr "(ikasten)"
 #: qt/aqt/browser.py:308 qt/aqt/browser.py:314
 msgid "(new)"
 msgstr "(berria)"
+
+#: qt/aqt/addons.py:651
+msgid "(not compatible)"
+msgstr ""
 
 #: qt/aqt/deckconf.py:179
 #, python-format
@@ -563,7 +571,7 @@ msgstr "<b>Letra-tipoaren neurria</b>:"
 msgid "<b>Font</b>:"
 msgstr "<b>Letra-tipoa</b>:"
 
-#: qt/aqt/addons.py:871
+#: qt/aqt/addons.py:1203
 #, python-format
 msgid "<b>Important</b>: As add-ons are programs downloaded from the internet, they are potentially malicious.<b>You should only install add-ons you trust.</b><br><br>Are you sure you want to proceed with the installation of the following Anki add-on(s)?<br><br>%(names)s"
 msgstr ""
@@ -580,7 +588,7 @@ msgstr "<b>Erantsi</b>:"
 msgid "<b>Line Size</b>:"
 msgstr "<b>Lerroaren neurria</b>:"
 
-#: qt/aqt/addons.py:895
+#: qt/aqt/addons.py:1227
 msgid "<b>Please restart Anki to complete the installation.</b>"
 msgstr ""
 
@@ -628,7 +636,7 @@ msgstr ""
 msgid "<ignored>"
 msgstr "<ez ikusia>"
 
-#: qt/aqt/main.py:1454
+#: qt/aqt/main.py:1473
 msgid "<non-unicode text>"
 msgstr "ez unicode testua"
 
@@ -648,7 +656,7 @@ msgstr "Karta baten <i>erraztasuna</i> berrikuspen batean \"ondo\" erantzun arte
 msgid "A filtered deck cannot have subdecks."
 msgstr "iragazitako sorta batek ezin ditu azpisortak izaten"
 
-#: qt/aqt/sync.py:153
+#: qt/aqt/sync.py:160
 msgid "A problem occurred while syncing media. Please use Tools>Check Media, then sync again to correct the issue."
 msgstr "Arazo bat agertu da media sinkronizatzean. Mesedez erabili tresnak  > Egiaztu Media eta berriro sinkronizatu arazoa konpontzeko."
 
@@ -680,7 +688,7 @@ msgstr "Erantsi karta mota..."
 msgid "Add Field"
 msgstr "Erantsi eremua"
 
-#: qt/aqt/editor.py:654
+#: qt/aqt/editor.py:653
 msgid "Add Media"
 msgstr "Erantsi euskarria"
 
@@ -716,19 +724,19 @@ msgstr "Erantsi honi:"
 msgid "Add-on"
 msgstr ""
 
-#: qt/aqt/addons.py:723
+#: qt/aqt/addons.py:793
 msgid "Add-on has no configuration."
 msgstr "Gehigarria ez dauka konfigurazio"
 
-#: qt/aqt/addons.py:912
+#: qt/aqt/addons.py:1244
 msgid "Add-on installation error"
 msgstr ""
 
-#: qt/aqt/addons.py:631
+#: qt/aqt/addons.py:715
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr "Gehigarria es da AnkiWeb-tik deskargatuta."
 
-#: qt/aqt/main.py:1513
+#: qt/aqt/main.py:1532
 msgid "Add-on will be installed when a profile is opened."
 msgstr ""
 
@@ -792,7 +800,7 @@ msgstr "Eremu guztiak"
 msgid "All cards in random order (don't reschedule)"
 msgstr ""
 
-#: qt/aqt/main.py:262
+#: qt/aqt/main.py:265
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "Profil honen karta, ohar eta euskarri guztiak ezabatuko dira. Ziur zaude?"
 
@@ -808,7 +816,7 @@ msgstr "Onartu HTML eremuetan"
 msgid "Always include question side when replaying audio"
 msgstr ""
 
-#: qt/aqt/addons.py:101
+#: qt/aqt/addons.py:179
 #, python-format
 msgid "An add-on you installed failed to load. If problems persist, please go to the Tools>Add-ons menu, and disable or delete the add-on.\n\n"
 "When loading '%(name)s':\n"
@@ -837,7 +845,7 @@ msgstr "Akats bat gertatu zen datu-basean sartzean.\n"
 "Tresnak> Egiaztatu Datu-basea exekutatzea idea ona izango litzateke \n"
 "zure bilduma ustel ez dela egiaztatzeko\n"
 
-#: qt/aqt/editor.py:785 qt/aqt/editor.py:788
+#: qt/aqt/editor.py:784 qt/aqt/editor.py:787
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "errore bat gertatu zen %s ikeritzean"
@@ -863,11 +871,11 @@ msgstr ""
 msgid "Anki Deck Package"
 msgstr "Anki Bilduma paketea"
 
-#: qt/aqt/profiles.py:179
+#: qt/aqt/profiles.py:178
 msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
 msgstr ""
 
-#: qt/aqt/profiles.py:249
+#: qt/aqt/profiles.py:248
 msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
 msgstr "Zure profilaren izena alda ez dezake Anki-k, diskoan profil direktorio alda\r\n"
 "ez dezakelako. Mesedez, egiaztatu Documents/Anki-n idazteko baimendua\r\n"
@@ -890,12 +898,12 @@ msgstr "Anki ikasketa tartekatuko sistema adimendun eta lagunkoia da. Askea da e
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki AGPL3  lizentziatuta dago. Mesedez ikusi iturburu-distribuzioan  lizenzako fitxategia  informazio gehiago lortzeko"
 
-#: qt/aqt/main.py:412
+#: qt/aqt/main.py:415
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr ""
 
-#: qt/aqt/sync.py:100
+#: qt/aqt/sync.py:107
 msgid "AnkiWeb ID or password was incorrect; please try again."
 msgstr "AnkiWeb ID edo pasahitz okerra; mesedez saiatu berriz."
 
@@ -961,7 +969,7 @@ msgstr "Gutxienez urrats bat behar da."
 msgid "Attach pictures/audio/video (F3)"
 msgstr "Erantsi argazkiak/audio/bideo (F3)"
 
-#: qt/aqt/main.py:312
+#: qt/aqt/main.py:315
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ""
 
@@ -1011,7 +1019,7 @@ msgstr "Atzera aurrebista"
 msgid "Back Template"
 msgstr "Atzera txantiloia"
 
-#: qt/aqt/main.py:460
+#: qt/aqt/main.py:463
 msgid "Backing Up..."
 msgstr "Babeskpopia egiten..."
 
@@ -1055,7 +1063,7 @@ msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/addons.py:742
+#: qt/aqt/addons.py:813
 msgid "Browse Add-ons"
 msgstr ""
 
@@ -1271,11 +1279,11 @@ msgstr "Eguneraketak bilatu"
 msgid "Check the files in the media directory"
 msgstr "Egiaztatu edukien direktorioko fitxategiak"
 
-#: qt/aqt/sync.py:129
+#: qt/aqt/sync.py:136
 msgid "Checking media..."
 msgstr "Multimedia egiaztu"
 
-#: qt/aqt/sync.py:127
+#: qt/aqt/addons.py:776 qt/aqt/sync.py:134
 msgid "Checking..."
 msgstr "Egiaztatzen..."
 
@@ -1316,12 +1324,12 @@ msgstr "Irten"
 msgid "Close and lose current input?"
 msgstr "Irten eta uneko sarrera galdu?"
 
-#: qt/aqt/main.py:458
+#: qt/aqt/main.py:461
 msgid "Closing..."
 msgstr "Ixten..."
 
 #: pylib/anki/stdmodels.py:100 pylib/anki/stdmodels.py:105
-#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:222
+#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:219
 msgid "Cloze"
 msgstr "hutsuneak betetzea"
 
@@ -1361,11 +1369,11 @@ msgstr "Konfigurazioa"
 msgid "Configure interface language and options"
 msgstr "Konfiguratu interfazearen hizkuntza eta aukerak"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1443
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Zorionak! sorta hau amaitu duzu oraindik"
 
-#: qt/aqt/sync.py:49
+#: qt/aqt/sync.py:50
 msgid "Connecting..."
 msgstr "Konektatzen..."
 
@@ -1381,7 +1389,7 @@ msgstr "Jarraitu"
 msgid "Copied to clipboard"
 msgstr ""
 
-#: qt/aqt/editor.py:1113 qt/aqt/webview.py:183
+#: qt/aqt/editor.py:1112 qt/aqt/webview.py:183
 msgid "Copy"
 msgstr "Kopiatu"
 
@@ -1403,7 +1411,7 @@ msgstr "erantzun zuzenak karta mardulentzat : %(a)d/%(b)d (%(c).1f%%)"
 msgid "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
 msgstr "zuzen :  <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
 
-#: qt/aqt/addons.py:352
+#: qt/aqt/addons.py:428
 msgid "Corrupt add-on file."
 msgstr ""
 
@@ -1411,7 +1419,7 @@ msgstr ""
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "Ezin izan da AnkiWeb-era konektatu. Mesedez egiaztatu zure sareko konexioa eta saiatu berriro."
 
-#: qt/aqt/editor.py:683
+#: qt/aqt/editor.py:682
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr ""
 
@@ -1440,7 +1448,7 @@ msgstr ""
 msgid "Created"
 msgstr "Sortuta"
 
-#: qt/aqt/main.py:1082
+#: qt/aqt/main.py:1101
 msgid "Ctrl+Alt+Z"
 msgstr "Ktrl+Alt+Z"
 
@@ -1501,7 +1509,7 @@ msgstr ""
 msgid "Customize Fields"
 msgstr ""
 
-#: qt/aqt/editor.py:1111
+#: qt/aqt/editor.py:1110
 msgid "Cut"
 msgstr "Ebaki"
 
@@ -1534,7 +1542,7 @@ msgstr "Sorta"
 msgid "Deck Override..."
 msgstr ""
 
-#: qt/aqt/main.py:1515
+#: qt/aqt/main.py:1534
 msgid "Deck will be imported when a profile is opened."
 msgstr "profila ireki bezain laster sorta inportuta izango da"
 
@@ -1546,7 +1554,7 @@ msgstr "Karta-sortak"
 msgid "Decreasing intervals"
 msgstr "Tarte beherakorrak"
 
-#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:333 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:76
 msgid "Default"
 msgstr "Lehenetsia"
@@ -1561,7 +1569,7 @@ msgstr "berrikusi arte epeak berriro erakutsiak dira"
 msgid "Delete"
 msgstr "Ezabatu"
 
-#: qt/aqt/main.py:1355
+#: qt/aqt/main.py:1374
 msgid "Delete Cards"
 msgstr "Ezabatu kartak"
 
@@ -1569,7 +1577,7 @@ msgstr "Ezabatu kartak"
 msgid "Delete Deck"
 msgstr "Ezabatu karta-sorta"
 
-#: qt/aqt/main.py:1361
+#: qt/aqt/main.py:1380
 msgid "Delete Empty"
 msgstr "hutsa kendu"
 
@@ -1585,7 +1593,7 @@ msgstr "Ezabatu oharrak"
 msgid "Delete Tags"
 msgstr "Ezabatu etiketak"
 
-#: qt/aqt/main.py:1287
+#: qt/aqt/main.py:1306
 msgid "Delete Unused Files"
 msgstr ""
 
@@ -1594,7 +1602,7 @@ msgstr ""
 msgid "Delete field from %s?"
 msgstr "zutabea kendu %s-tik"
 
-#: qt/aqt/addons.py:653
+#: qt/aqt/addons.py:737
 #, python-format
 msgid "Delete the %(num)d selected add-on?"
 msgid_plural "Delete the %(num)d selected add-ons?"
@@ -1614,7 +1622,7 @@ msgstr "Ezabatu ohar-mota hau eta bere karta guztiak?"
 msgid "Delete this unused note type?"
 msgstr "Erabili gabeko ohar-mota hau ezabatu?"
 
-#: qt/aqt/main.py:1300
+#: qt/aqt/main.py:1319
 msgid "Delete unused media?"
 msgstr "ez dena erabiltzen media kendu ?"
 
@@ -1632,7 +1640,7 @@ msgid_plural "Deleted %d cards with missing template."
 msgstr[0] "eremurik gabeko %d karta kenduta"
 msgstr[1] "eremurik gabeko %d karta kendutak"
 
-#: qt/aqt/main.py:1330
+#: qt/aqt/main.py:1349
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
@@ -1677,16 +1685,25 @@ msgstr "Ikasi pantailan erakusteko deskribapena (bakarrik sorta azkenerako ):"
 msgid "Dialog"
 msgstr "Elkarrizketa"
 
+#: qt/aqt/addons.py:962
+msgid "Download complete. Please restart Anki to apply changes."
+msgstr ""
+
 #: qt/aqt/sync.py:299 qt/aqt/sync.py:321 qt/aqt/sync.py:327
 msgid "Download from AnkiWeb"
 msgstr "AnkiWebetik deskargatu"
 
-#: qt/aqt/addons.py:377
+#: qt/aqt/addons.py:448
 #, python-format
 msgid "Downloaded %(fname)s"
 msgstr ""
 
-#: qt/aqt/sync.py:125
+#: qt/aqt/addons.py:941
+#, python-format
+msgid "Downloading %(a)d/%(b)d (%(kb)0.2fKB)..."
+msgstr ""
+
+#: qt/aqt/sync.py:132
 msgid "Downloading from AnkiWeb..."
 msgstr "AnkiWebetik deskargatzen ...."
 
@@ -1736,7 +1753,7 @@ msgstr "Editatu \"%s\""
 msgid "Edit Current"
 msgstr "Editatu azkena"
 
-#: qt/aqt/editor.py:877
+#: qt/aqt/editor.py:876
 msgid "Edit HTML"
 msgstr "HTML editatu"
 
@@ -1798,17 +1815,12 @@ msgstr "Etiketak sartu eransteko"
 msgid "Enter tags to delete:"
 msgstr "Sartu ezabatzeko etiketak"
 
-#: qt/aqt/addons.py:326
-#, python-format
-msgid "Error downloading %(id)s: %(error)s"
-msgstr ""
-
-#: qt/aqt/addons.py:364
+#: qt/aqt/addons.py:435
 #, python-format
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
 msgstr ""
 
-#: qt/aqt/main.py:79
+#: qt/aqt/main.py:82
 #, python-format
 msgid "Error during startup:\n"
 "%s"
@@ -1824,7 +1836,7 @@ msgstr "Akats bat gertatu zen konexio segur bat jarririk."
 msgid "Error executing %s."
 msgstr "Errorea %s exekutatzean."
 
-#: qt/aqt/addons.py:366
+#: qt/aqt/addons.py:437
 #, python-format
 msgid "Error installing <i>%(base)s</i>: %(error)s"
 msgstr ""
@@ -1914,7 +1926,7 @@ msgstr "Iragazkia:"
 msgid "Filtered"
 msgstr "Iragazia"
 
-#: qt/aqt/main.py:1059 qt/aqt/main.py:1061
+#: qt/aqt/main.py:1078 qt/aqt/main.py:1080
 #, python-format
 msgid "Filtered Deck %d"
 msgstr "Sorta iragazitakoa %d"
@@ -1980,7 +1992,7 @@ msgstr ""
 msgid "Flip"
 msgstr "alderantzikatu"
 
-#: qt/aqt/profiles.py:235
+#: qt/aqt/profiles.py:234
 msgid "Folder already exists."
 msgstr "Jadanik direktorioa existitzen da"
 
@@ -2174,7 +2186,7 @@ msgstr "Inportatzeko aukerak"
 msgid "Importing complete."
 msgstr "inportatzea osatuta"
 
-#: qt/aqt/main.py:1118
+#: qt/aqt/main.py:1137
 #, python-format
 msgid "In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.\n\n"
 "Please go to the time settings on your computer and check the following:\n\n"
@@ -2233,11 +2245,11 @@ msgstr "tarteak handitik"
 msgid "Install Add-on"
 msgstr "Hedadura  instalatu"
 
-#: qt/aqt/addons.py:673
+#: qt/aqt/addons.py:766
 msgid "Install Add-on(s)"
 msgstr ""
 
-#: qt/aqt/addons.py:881
+#: qt/aqt/addons.py:1213
 msgid "Install Anki add-on"
 msgstr ""
 
@@ -2245,13 +2257,17 @@ msgstr ""
 msgid "Install from file..."
 msgstr ""
 
-#: qt/aqt/addons.py:904
+#: qt/aqt/addons.py:1236
 msgid "Installation complete"
 msgstr ""
 
-#: qt/aqt/addons.py:379
+#: qt/aqt/addons.py:450
 #, python-format
 msgid "Installed %(name)s"
+msgstr ""
+
+#: qt/aqt/addons.py:882
+msgid "Installed successfully."
 msgstr ""
 
 #: qt/aqt/forms/preferences.py:243 qt/aqt/forms/setlang.py:40
@@ -2270,23 +2286,23 @@ msgstr "tarte aldatzaile"
 msgid "Intervals"
 msgstr "Tarteak"
 
-#: qt/aqt/addons.py:353
+#: qt/aqt/addons.py:429
 msgid "Invalid add-on manifest."
 msgstr ""
 
-#: qt/aqt/downloader.py:68
+#: qt/aqt/addons.py:869
 msgid "Invalid code, or add-on not available for your version of Anki."
 msgstr ""
 
-#: qt/aqt/addons.py:757
+#: qt/aqt/addons.py:828
 msgid "Invalid code."
 msgstr "Kode baliogabea."
 
-#: qt/aqt/addons.py:837
+#: qt/aqt/addons.py:1169
 msgid "Invalid configuration: "
 msgstr "Baliogabe konfigurazioa: "
 
-#: qt/aqt/addons.py:841
+#: qt/aqt/addons.py:1173
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
@@ -2299,7 +2315,7 @@ msgstr ""
 msgid "Invalid file. Please restore from backup."
 msgstr "Fitxategia baliogabea. Mesedez, babeskopiatik lehengoratu."
 
-#: qt/aqt/main.py:1168
+#: qt/aqt/main.py:1187
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "kartan ezaugarri baliogabe bat dago. Mesedez erabili Tresnak> Egiaztatu Datu-basea eta arazoak agertzen bada berriro, Anki webgunean galdetu"
 
@@ -2319,7 +2335,7 @@ msgstr "zintzilikatuta zegoen"
 msgid "Italic text (Ctrl+I)"
 msgstr "Etzan letra (Ktrl+I)"
 
-#: qt/aqt/editor.py:521
+#: qt/aqt/editor.py:520
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Krtl+Shift+T etiketetara joateko"
 
@@ -2327,15 +2343,15 @@ msgstr "Krtl+Shift+T etiketetara joateko"
 msgid "Keep"
 msgstr "Gorde"
 
-#: qt/aqt/editor.py:874 qt/aqt/forms/modelopts.py:67
+#: qt/aqt/editor.py:873 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr ""
 
-#: qt/aqt/editor.py:875
+#: qt/aqt/editor.py:874
 msgid "LaTeX equation"
 msgstr "LaTeX ekuazioa"
 
-#: qt/aqt/editor.py:876
+#: qt/aqt/editor.py:875
 msgid "LaTeX math env."
 msgstr "Latex Math  ingurunea"
 
@@ -2437,15 +2453,15 @@ msgstr "Etiketeekin kidetu"
 msgid "Mark Note"
 msgstr ""
 
-#: qt/aqt/editor.py:872
+#: qt/aqt/editor.py:871
 msgid "MathJax block"
 msgstr ""
 
-#: qt/aqt/editor.py:873
+#: qt/aqt/editor.py:872
 msgid "MathJax chemistry"
 msgstr ""
 
-#: qt/aqt/editor.py:871
+#: qt/aqt/editor.py:870
 msgid "MathJax inline"
 msgstr ""
 
@@ -2462,7 +2478,7 @@ msgstr "denbora-tarte handiena"
 msgid "Maximum reviews/day"
 msgstr "Genieneko berrikuspen/egun"
 
-#: qt/aqt/editor.py:649
+#: qt/aqt/editor.py:648
 msgid "Media"
 msgstr "Euskarria"
 
@@ -2506,7 +2522,7 @@ msgstr ""
 msgid "N&ote"
 msgstr "&Oharra"
 
-#: qt/aqt/main.py:235 qt/aqt/main.py:249
+#: qt/aqt/main.py:238 qt/aqt/main.py:252
 msgid "Name exists."
 msgstr "Izena existitzen da jadanik."
 
@@ -2514,7 +2530,7 @@ msgstr "Izena existitzen da jadanik."
 msgid "Name for deck:"
 msgstr "Sortarako izena"
 
-#: qt/aqt/main.py:232 qt/aqt/models.py:96
+#: qt/aqt/main.py:235 qt/aqt/models.py:96
 msgid "Name:"
 msgstr "Izena:"
 
@@ -2552,7 +2568,7 @@ msgid "New interval"
 msgstr "Bitarte berria"
 
 #: qt/aqt/clayout.py:379 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
-#: qt/aqt/main.py:243 qt/aqt/models.py:67
+#: qt/aqt/main.py:246 qt/aqt/models.py:67
 msgid "New name:"
 msgstr "Izen berria:"
 
@@ -2589,7 +2605,7 @@ msgstr ""
 msgid "No cards matched the criteria you provided."
 msgstr "eman duzun irizpidearekin bat datorren kartarik ez dago"
 
-#: qt/aqt/main.py:1348
+#: qt/aqt/main.py:1367
 msgid "No empty cards."
 msgstr "ez dago karta hutsarik"
 
@@ -2597,11 +2613,11 @@ msgstr "ez dago karta hutsarik"
 msgid "No mature cards were studied today."
 msgstr "Gaur ikasitako kartarik ez dago"
 
-#: qt/aqt/main.py:1273
+#: qt/aqt/main.py:1292
 msgid "No unused or missing files found."
 msgstr "ez dira fitxategi erabilezinak edo faltatzen direnak aurkitu"
 
-#: qt/aqt/addons.py:693
+#: qt/aqt/addons.py:760
 msgid "No updates available."
 msgstr ""
 
@@ -2697,6 +2713,10 @@ msgstr "zaharrenak lehenik ikusi"
 msgid "On next sync, force changes in one direction"
 msgstr "datorren sinkronizatzean, norabide bateko aldaketak ezarri"
 
+#: qt/aqt/addons.py:960
+msgid "One or more errors occurred:"
+msgstr ""
+
 #: pylib/anki/importing/noteimp.py:231
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr "Ohar bat edo gehiago ez dago inportatuta, kartarik sortzen ez duelako. Hau gerta daiteke eremu hutsik batzuk dauzkazunean edo fitxategia betetzen eremuak oker lotu dituzunean"
@@ -2717,7 +2737,7 @@ msgstr "Ireki"
 msgid "Open Backup..."
 msgstr "Babeskopia ireki..."
 
-#: qt/aqt/main.py:545
+#: qt/aqt/main.py:548
 msgid "Optimizing..."
 msgstr "Optimizatzen"
 
@@ -2772,7 +2792,7 @@ msgstr "letra tipoa ordeztu"
 msgid "Override front template:"
 msgstr "aurkiko eredua ordeztu"
 
-#: qt/aqt/addons.py:671
+#: qt/aqt/addons.py:764
 msgid "Packaged Anki Add-on"
 msgstr ""
 
@@ -2784,7 +2804,7 @@ msgstr ""
 msgid "Password:"
 msgstr "Pasahitza"
 
-#: qt/aqt/editor.py:1115
+#: qt/aqt/editor.py:1114
 msgid "Paste"
 msgstr "Itsatsi"
 
@@ -2821,7 +2841,7 @@ msgstr "Errepasatzea itxaroten jarri, tarte horrekin :"
 msgid "Please add another note type first."
 msgstr "Mesedez, erantsi beste ohar mota bat lehenik"
 
-#: qt/aqt/addons.py:687 qt/aqt/downloader.py:75
+#: qt/aqt/addons.py:875
 msgid "Please check your internet connection."
 msgstr ""
 
@@ -2834,7 +2854,7 @@ msgstr "Mesedez, mikrofon bat konektatu eta beste programek ez dutela audio gail
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Mesedez, ohar hau editatu eta hustuneak betetzea egin ezazu. (%s)"
 
-#: qt/aqt/main.py:1522
+#: qt/aqt/main.py:1541
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr "mesedez profil bat irekita dagoela eta anki ez dagoela lanpetuta segurta ezazu, eta gero berriro entseatu"
 
@@ -2846,12 +2866,12 @@ msgstr ""
 msgid "Please install PyAudio"
 msgstr "mesedez PyAudio installatu"
 
-#: qt/aqt/profiles.py:230
+#: qt/aqt/profiles.py:229
 #, python-format
 msgid "Please remove the folder %s and try again."
 msgstr "Mesedez direktorio %s ezaba ezazu eta berriro saiatu"
 
-#: qt/aqt/addons.py:907
+#: qt/aqt/addons.py:1239
 msgid "Please report this to the respective add-on author(s)."
 msgstr ""
 
@@ -2863,11 +2883,11 @@ msgstr "Mesedez, berriabazi Anki hizkuntzako aldaketa osatzeko"
 msgid "Please run Tools>Empty Cards"
 msgstr "Mesedez Tresnak> Karta Hutsak exekutatu"
 
-#: qt/aqt/main.py:583
+#: qt/aqt/main.py:587
 msgid "Please select a deck."
 msgstr "Mesedez, sorta bat aukera ezazu"
 
-#: qt/aqt/addons.py:615
+#: qt/aqt/addons.py:699
 msgid "Please select a single add-on first."
 msgstr ""
 
@@ -2883,11 +2903,11 @@ msgstr "Mesedez zerbait aukera ezazu"
 msgid "Please upgrade to the latest version of Anki."
 msgstr "Mesedez, azken Anki bertsioa egunera ezazu"
 
-#: qt/aqt/main.py:1016
+#: qt/aqt/main.py:1035
 msgid "Please use File>Import to import this file."
 msgstr "Mesedez, Fitxategi>Inportatu menuz fitxategi hau inportatu"
 
-#: qt/aqt/sync.py:133
+#: qt/aqt/sync.py:140
 msgid "Please visit AnkiWeb, upgrade your deck, then try again."
 msgstr "AnkiWeb bisita bat eman, zure sorta gaurkotu eta berriro saiatu"
 
@@ -2927,7 +2947,7 @@ msgstr[1] "Euskarri fixtategi prozesatuak %d"
 msgid "Processing..."
 msgstr "Prozesatzen..."
 
-#: qt/aqt/profiles.py:177
+#: qt/aqt/profiles.py:176
 msgid "Profile Corrupt"
 msgstr ""
 
@@ -3044,7 +3064,7 @@ msgstr "Sorta berrizendatu"
 msgid "Repeat failed cards after"
 msgstr ""
 
-#: qt/aqt/main.py:276
+#: qt/aqt/main.py:279
 msgid "Replace your collection with an earlier backup?"
 msgstr ""
 
@@ -3088,11 +3108,11 @@ msgstr "Berreplanifikatu"
 msgid "Reschedule cards based on my answers in this deck"
 msgstr "Sorta honetan egindakoak erantzunen arabera kartak berreposizionatu"
 
-#: qt/aqt/addons.py:799
+#: qt/aqt/addons.py:1131
 msgid "Restored defaults"
 msgstr ""
 
-#: qt/aqt/main.py:643
+#: qt/aqt/main.py:647
 msgid "Resume Now"
 msgstr "orain jarraitu"
 
@@ -3100,11 +3120,11 @@ msgstr "orain jarraitu"
 msgid "Reverse text direction (RTL)"
 msgstr "Irakurtzeko noranzko alderantzizkoa (eskuinetik ezkerrera)"
 
-#: qt/aqt/main.py:289
+#: qt/aqt/main.py:292
 msgid "Revert to backup"
 msgstr ""
 
-#: qt/aqt/main.py:934
+#: qt/aqt/main.py:953
 #, python-format
 msgid "Reverted to state prior to '%s'."
 msgstr "aurreko egoerara '%s' itzulita"
@@ -3234,7 +3254,7 @@ msgstr "Azpisorta guztietarako jarri"
 msgid "Set foreground colour (F7)"
 msgstr ""
 
-#: qt/aqt/main.py:85
+#: qt/aqt/main.py:88
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr "Shift Tekla sakatuta gelditu da. Sinkronizatze automatikoa eta gehigarriak kargatzea baztertu."
 
@@ -3243,7 +3263,7 @@ msgid "Shift position of existing cards"
 msgstr "existitzen diren karten kokapena aldatu"
 
 #: qt/aqt/browser.py:1568 qt/aqt/browser.py:1586 qt/aqt/deckbrowser.py:327
-#: qt/aqt/main.py:671 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
+#: qt/aqt/main.py:675 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
 #: qt/aqt/reviewer.py:546 qt/aqt/reviewer.py:612 qt/aqt/toolbar.py:34
 #: qt/aqt/toolbar.py:35 qt/aqt/toolbar.py:36 qt/aqt/toolbar.py:37
 #: qt/aqt/toolbar.py:38
@@ -3324,7 +3344,7 @@ msgstr "Neurria:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "karta lotuta edo lurperatuta batzuk beste ekitaldi bat arte gibelatu dira"
 
@@ -3380,7 +3400,7 @@ msgstr "Urratsak (min)"
 msgid "Steps must be numbers."
 msgstr "Urratask zenbakiak izan behar dute"
 
-#: qt/aqt/sync.py:60
+#: qt/aqt/sync.py:61
 msgid "Stopping..."
 msgstr "Gelditzen..."
 
@@ -3466,14 +3486,14 @@ msgstr "Sinkronizatu"
 msgid "Synchronize audio and images too"
 msgstr "Soinuak eta irudiak ere sinkronizatu"
 
-#: qt/aqt/sync.py:145
+#: qt/aqt/sync.py:152
 #, python-format
 msgid "Syncing failed:\n"
 "%s"
 msgstr "Sinkronizatzea huts eginda:\n"
 "%s"
 
-#: qt/aqt/sync.py:112
+#: qt/aqt/sync.py:119
 msgid "Syncing failed; internet offline."
 msgstr "Sinkronizatzea huts eginda, deskonetatuta baitzaude"
 
@@ -3481,7 +3501,7 @@ msgstr "Sinkronizatzea huts eginda, deskonetatuta baitzaude"
 msgid "Syncing requires the clock on your computer to be set correctly. Please fix the clock and try again."
 msgstr "Zure ordenagailuaren erlojua ongi konponduta egon behar da sinkronizatzeko. Mesedez, erlojua konpon ezazu eta berriz entseatu."
 
-#: qt/aqt/sync.py:120
+#: qt/aqt/sync.py:127
 msgid "Syncing..."
 msgstr "Sinkronizatzen..."
 
@@ -3501,7 +3521,7 @@ msgstr "Etiketatu (*)"
 msgid "Tag modified notes:"
 msgstr ""
 
-#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:517
+#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:516
 msgid "Tags"
 msgstr "Etiketak"
 
@@ -3557,9 +3577,13 @@ msgstr "Lehengo eremua hutsik dago"
 msgid "The first field of the note type must be mapped."
 msgstr "Ohar motako lehenengo eremua ezin da hutsik egon"
 
-#: qt/aqt/addons.py:147
+#: qt/aqt/addons.py:241
 #, python-format
 msgid "The following add-ons are incompatible with %(name)s and have been disabled: %(found)s"
+msgstr ""
+
+#: qt/aqt/addons.py:1097
+msgid "The following add-ons have updates available. Install them now?"
 msgstr ""
 
 #: qt/aqt/utils.py:585
@@ -3567,7 +3591,7 @@ msgstr ""
 msgid "The following character can not be used: %s"
 msgstr "Ez da posible %s karakterea erabiltzea"
 
-#: qt/aqt/addons.py:386
+#: qt/aqt/addons.py:457
 msgid "The following conflicting add-ons were disabled:"
 msgstr ""
 
@@ -3603,7 +3627,7 @@ msgstr "Emandako fixtategia ez da .apkg fitxategi baliozko bat"
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr "ez dago bilaketa horrekin datorren kartarik. Aldatu nahi duzu?"
 
-#: qt/aqt/main.py:1213
+#: qt/aqt/main.py:1232
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr "Eskatutako aldaketa datu-baseko kargatze osoa beharko du hurrengo aldian zure bilduma sinkronizatzeko. Berrikuspenak edo beste gailu batean itxoiten ari diren aldaketa batzuk baldin badituzu, eta ez dira dagoeneko sinkronizatuak, galduta egongo dira. Jarrai ?"
 
@@ -3611,7 +3635,7 @@ msgstr "Eskatutako aldaketa datu-baseko kargatze osoa beharko du hurrengo aldian
 msgid "The time taken to answer the questions."
 msgstr "Galderei erantzuneko denbora"
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1464
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3621,7 +3645,7 @@ msgstr "Karta berri gehiagoa erabilgarria da, baina eguneroko muga orain\n"
 "hau gogoratu : zenbat eta karta berri gehiago sartzen duzu, \n"
 "orduan eta epe motza duen berrikuspena gehiago kargatua izango da."
 
-#: qt/aqt/main.py:258
+#: qt/aqt/main.py:261
 msgid "There must be at least one profile."
 msgstr "Profila bat existitu behar du gutxienez"
 
@@ -3641,7 +3665,7 @@ msgstr "Dirudinez, fitxategia hau ez da .apkg fitxategi baliozko bat. Ankiwebtik
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Fitxategia existitzen da. Ziur zaude gainidatzi nahi duzula?"
 
-#: qt/aqt/profiles.py:382
+#: qt/aqt/profiles.py:381
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3691,15 +3715,15 @@ msgstr "Berrikusteko"
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr ""
 
-#: qt/aqt/editor.py:592
+#: qt/aqt/editor.py:591
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Hustuneak betetzea existitzen den ohar batean egiteko, lehenik bere tipo aldatu behar duzu, Editatu>Aldatu ohar-mota-en bidez."
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1473
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
 msgid "To see them now, click the Unbury button below."
 msgstr "Oraintxe bertan haiek ikusteko, Lurpetik jalgi botoian klik egin behean"
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1486
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Ohiko programatik kanpoan ikasteko, Ikasketa itxuratuta botoian klik egin ezazu azpian."
 
@@ -3707,7 +3731,7 @@ msgstr "Ohiko programatik kanpoan ikasteko, Ikasketa itxuratuta botoian klik egi
 msgid "Today"
 msgstr "Gaur"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1455
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3763,11 +3787,11 @@ msgstr ""
 msgid "Unable to import from a read-only file."
 msgstr "Irakurketa soilerako fitxategitik ezin da inportatu"
 
-#: qt/aqt/main.py:302
+#: qt/aqt/main.py:305
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr ""
 
-#: qt/aqt/addons.py:279
+#: qt/aqt/addons.py:384
 #, python-format
 msgid "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\n"
 "Debug info: %s"
@@ -3781,25 +3805,21 @@ msgstr "Lurpetik jalgi"
 msgid "Underline text (Ctrl+U)"
 msgstr "Azpimarratu (Ktrl+U)"
 
-#: qt/aqt/main.py:944
+#: qt/aqt/main.py:963
 msgid "Undo"
 msgstr "Desegin"
 
-#: qt/aqt/main.py:940
+#: qt/aqt/main.py:959
 #, python-format
 msgid "Undo %s"
 msgstr "%s desegin"
 
-#: qt/aqt/downloader.py:72 qt/aqt/editor.py:780
+#: qt/aqt/addons.py:872 qt/aqt/editor.py:779
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr ""
 
-#: qt/aqt/addons.py:361
-msgid "Unknown error"
-msgstr ""
-
-#: qt/aqt/addons.py:358
+#: qt/aqt/addons.py:432
 msgid "Unknown error: {}"
 msgstr ""
 
@@ -3815,10 +3835,6 @@ msgstr "Ikusi gabe"
 msgid "Update existing notes when first field matches"
 msgstr "Lehengo eremu bat datorrenean existitzen den ohar eguneratu"
 
-#: qt/aqt/addons.py:696
-msgid "Update the following add-ons?"
-msgstr ""
-
 #: pylib/anki/importing/anki2.py:165
 msgid "Updated"
 msgstr ""
@@ -3827,15 +3843,15 @@ msgstr ""
 msgid "Upload to AnkiWeb"
 msgstr "Kargatu AnkiWeb-era"
 
-#: qt/aqt/sync.py:123
+#: qt/aqt/sync.py:130
 msgid "Uploading to AnkiWeb..."
 msgstr "AnkiWeb-era kargatzen..."
 
-#: qt/aqt/main.py:1270
+#: qt/aqt/main.py:1289
 msgid "Used on cards but missing from media folder:"
 msgstr "Euskarri direktorian falta den arren kartak erabilitakoa da"
 
-#: qt/aqt/profiles.py:378
+#: qt/aqt/profiles.py:377
 msgid "User 1"
 msgstr "1 erabiltzailea"
 
@@ -3856,11 +3872,11 @@ msgstr ""
 msgid "View Files"
 msgstr "Artxiboak ikusi"
 
-#: qt/aqt/main.py:642
+#: qt/aqt/main.py:646
 msgid "Waiting for editing to finish."
 msgstr "editatzeari itxoin bukatzeko"
 
-#: qt/aqt/editor.py:585
+#: qt/aqt/editor.py:584
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr "Kontuz, zuloekin testua ez baldin baduzu bihurrarazten karta mota,  zuloekin testua ez da ongi funtzionatuko"
 
@@ -3915,7 +3931,7 @@ msgstr "Gazte"
 msgid "Young+Learn"
 msgstr "Berriak"
 
-#: qt/aqt/sync.py:165
+#: qt/aqt/sync.py:172
 msgid "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
 msgstr ""
 
@@ -3923,7 +3939,7 @@ msgstr ""
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr "zure aldaketeek hainbat sorta eragingo dituzte.Uneko sorta aldatu nahi baduzu, lehenbizi aukerako talde berri bat gehitu ezazu mesedez"
 
-#: qt/aqt/main.py:478
+#: qt/aqt/main.py:481
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr ""
 
@@ -3935,7 +3951,7 @@ msgstr "zure bilduma ez da egoera trinkoa. Mesedez exekutatu Tresnak>Egiaztatu D
 msgid "Your collection or a media file is too large to sync."
 msgstr "zure bilduma edo media fitxategi bat handiegia sinkronizatzeko"
 
-#: qt/aqt/sync.py:74
+#: qt/aqt/sync.py:75
 msgid "Your collection was successfully uploaded to AnkiWeb.\n\n"
 "If you use any other devices, please sync them now, and choose to download the collection you have just uploaded from this computer. After doing so, future reviews and added cards will be merged automatically."
 msgstr "Zure bilduma ondo kargatu zen AnkiWeb-en\n\n"

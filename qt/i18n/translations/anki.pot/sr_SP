@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-17 11:15+1000\n"
-"PO-Revision-Date: 2020-01-19 06:56\n"
+"POT-Creation-Date: 2020-01-19 16:58+1000\n"
+"PO-Revision-Date: 2020-01-27 08:15\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Serbian (Cyrillic)\n"
 "Language: sr_SP\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid " (1 of %d)"
 msgstr " (1 од %d)"
 
-#: qt/aqt/addons.py:163
+#: qt/aqt/addons.py:274
 msgid " (disabled)"
 msgstr " (искључен)"
 
@@ -60,7 +60,7 @@ msgstr "% тачних"
 msgid "%(a)0.1f %(b)s/day"
 msgstr "%(a)0.1f %(b)s/ дневно"
 
-#: qt/aqt/sync.py:91
+#: qt/aqt/sync.py:92
 #, python-format
 msgid "%(a)0.1fkB up, %(b)0.1fkB down"
 msgstr ""
@@ -96,7 +96,7 @@ msgid "%.01f cards/minute"
 msgstr "%.01f карата/мин."
 
 #: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:230
-#: qt/aqt/main.py:1352
+#: qt/aqt/main.py:1371
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
@@ -104,7 +104,7 @@ msgstr[0] "%d карата"
 msgstr[1] "%d карте"
 msgstr[2] "%d карата"
 
-#: qt/aqt/main.py:1364
+#: qt/aqt/main.py:1383
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
@@ -144,7 +144,7 @@ msgstr[0] "%d шпил обновљен."
 msgstr[1] "%d шпила обновљена."
 msgstr[2] "%d шпилова обновљено."
 
-#: qt/aqt/main.py:1260
+#: qt/aqt/main.py:1279
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
@@ -152,7 +152,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: qt/aqt/main.py:1317
+#: qt/aqt/main.py:1336
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
@@ -168,7 +168,7 @@ msgstr[0] "%d група"
 msgstr[1] "%d групе"
 msgstr[2] "%d група"
 
-#: pylib/anki/sync.py:840
+#: pylib/anki/sync.py:775
 #, python-format
 msgid "%d media change to upload"
 msgid_plural "%d media changes to upload"
@@ -176,7 +176,7 @@ msgstr[0] "учитај измене у %d медија датотеци"
 msgstr[1] "учитај иземене у %d медија датотекама"
 msgstr[2] "учитај иземене у %d медија датотекама"
 
-#: pylib/anki/sync.py:890
+#: pylib/anki/sync.py:825
 #, python-format
 msgid "%d media file downloaded"
 msgid_plural "%d media files downloaded"
@@ -302,7 +302,7 @@ msgstr[0] "%s месец"
 msgstr[1] "%s месеца"
 msgstr[2] "%s месеци"
 
-#: pylib/anki/utils.py:44 qt/aqt/main.py:1115
+#: pylib/anki/utils.py:44 qt/aqt/main.py:1134
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
@@ -310,7 +310,7 @@ msgstr[0] "%s секунда"
 msgstr[1] "%s секунде"
 msgstr[2] "%s секунди"
 
-#: qt/aqt/main.py:1353
+#: qt/aqt/main.py:1372
 #, python-format
 msgid "%s to delete:"
 msgstr "%s за брисање:"
@@ -473,7 +473,11 @@ msgstr "(%s тачних)"
 msgid "(Note deleted)"
 msgstr ""
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1534
+#: qt/aqt/addons.py:649
+msgid "(disabled)"
+msgstr ""
+
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
 msgid "(end)"
 msgstr "(крај)"
 
@@ -488,6 +492,10 @@ msgstr "(учење)"
 #: qt/aqt/browser.py:308 qt/aqt/browser.py:314
 msgid "(new)"
 msgstr "(нови)"
+
+#: qt/aqt/addons.py:651
+msgid "(not compatible)"
+msgstr ""
 
 #: qt/aqt/deckconf.py:179
 #, python-format
@@ -593,7 +601,7 @@ msgstr "<b>Величина слова</b>:"
 msgid "<b>Font</b>:"
 msgstr "<b>Слова</b>:"
 
-#: qt/aqt/addons.py:871
+#: qt/aqt/addons.py:1203
 #, python-format
 msgid "<b>Important</b>: As add-ons are programs downloaded from the internet, they are potentially malicious.<b>You should only install add-ons you trust.</b><br><br>Are you sure you want to proceed with the installation of the following Anki add-on(s)?<br><br>%(names)s"
 msgstr ""
@@ -610,7 +618,7 @@ msgstr "<b>садржи</b>:"
 msgid "<b>Line Size</b>:"
 msgstr "<b>Величина линије</b>:"
 
-#: qt/aqt/addons.py:895
+#: qt/aqt/addons.py:1227
 msgid "<b>Please restart Anki to complete the installation.</b>"
 msgstr ""
 
@@ -658,7 +666,7 @@ msgstr ""
 msgid "<ignored>"
 msgstr "<игнорисано>"
 
-#: qt/aqt/main.py:1454
+#: qt/aqt/main.py:1473
 msgid "<non-unicode text>"
 msgstr "<текст није у Unicode>"
 
@@ -678,7 +686,7 @@ msgstr "<i>Лакоћа</i> карте - величина следећег ин�
 msgid "A filtered deck cannot have subdecks."
 msgstr "Филтрирани шпил не може да има под-шпилове."
 
-#: qt/aqt/sync.py:153
+#: qt/aqt/sync.py:160
 msgid "A problem occurred while syncing media. Please use Tools>Check Media, then sync again to correct the issue."
 msgstr "Дошло је до проблема при синхронизацији медија. Молимо Вас да користите Алатке>Преглед медија, затим да синхронизујете поново да би се проблем уклонио."
 
@@ -710,7 +718,7 @@ msgstr ""
 msgid "Add Field"
 msgstr "Додај поље"
 
-#: qt/aqt/editor.py:654
+#: qt/aqt/editor.py:653
 msgid "Add Media"
 msgstr "Додај медија датотеку"
 
@@ -746,19 +754,19 @@ msgstr "Додај у:"
 msgid "Add-on"
 msgstr ""
 
-#: qt/aqt/addons.py:723
+#: qt/aqt/addons.py:793
 msgid "Add-on has no configuration."
 msgstr ""
 
-#: qt/aqt/addons.py:912
+#: qt/aqt/addons.py:1244
 msgid "Add-on installation error"
 msgstr ""
 
-#: qt/aqt/addons.py:631
+#: qt/aqt/addons.py:715
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr ""
 
-#: qt/aqt/main.py:1513
+#: qt/aqt/main.py:1532
 msgid "Add-on will be installed when a profile is opened."
 msgstr ""
 
@@ -822,7 +830,7 @@ msgstr "У свим пољима"
 msgid "All cards in random order (don't reschedule)"
 msgstr ""
 
-#: qt/aqt/main.py:262
+#: qt/aqt/main.py:265
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "Све карте, белешке и медија датотеке ће бити избрисане. Да ли то желите?"
 
@@ -838,7 +846,7 @@ msgstr "Дозволи коришћење HTML у пољима"
 msgid "Always include question side when replaying audio"
 msgstr ""
 
-#: qt/aqt/addons.py:101
+#: qt/aqt/addons.py:179
 #, python-format
 msgid "An add-on you installed failed to load. If problems persist, please go to the Tools>Add-ons menu, and disable or delete the add-on.\n\n"
 "When loading '%(name)s':\n"
@@ -863,7 +871,7 @@ msgstr "Дошло је до грешке при прегледу базе по�
 "- Ваш хард диск је можда покварен.\n\n"
 "Добра идеја је да покренете Алатке(Tools)>Провери базу података, да бисте се осигурали да ваша колекција није оштећена.\n"
 
-#: qt/aqt/editor.py:785 qt/aqt/editor.py:788
+#: qt/aqt/editor.py:784 qt/aqt/editor.py:787
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "Грешка при отварању %s"
@@ -889,11 +897,11 @@ msgstr ""
 msgid "Anki Deck Package"
 msgstr "Пакет шпилова Anki"
 
-#: qt/aqt/profiles.py:179
+#: qt/aqt/profiles.py:178
 msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
 msgstr ""
 
-#: qt/aqt/profiles.py:249
+#: qt/aqt/profiles.py:248
 msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
 msgstr "Anki не може да преименује ваш профил, зато што не може да  преименује фасциклу на диску. Уверите се да имате довољно права за записивање у Documents/Anki и да ниједан други програм не користи ту фасциклу, а затим покушајте поново."
 
@@ -913,12 +921,12 @@ msgstr "Anki је једноставан, интелигентан програ�
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki поседује AGPL3 лиценцу. За више информација, погледајте датотеку лиценце."
 
-#: qt/aqt/main.py:412
+#: qt/aqt/main.py:415
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr ""
 
-#: qt/aqt/sync.py:100
+#: qt/aqt/sync.py:107
 msgid "AnkiWeb ID or password was incorrect; please try again."
 msgstr "AnkiWeb ID или лозинка су били погрешни; покушајте поново."
 
@@ -984,7 +992,7 @@ msgstr "Мора да постоји бар један корак."
 msgid "Attach pictures/audio/video (F3)"
 msgstr ""
 
-#: qt/aqt/main.py:312
+#: qt/aqt/main.py:315
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ""
 
@@ -1034,7 +1042,7 @@ msgstr "Преглед наличја"
 msgid "Back Template"
 msgstr "Шаблон наличја"
 
-#: qt/aqt/main.py:460
+#: qt/aqt/main.py:463
 msgid "Backing Up..."
 msgstr ""
 
@@ -1079,7 +1087,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: qt/aqt/addons.py:742
+#: qt/aqt/addons.py:813
 msgid "Browse Add-ons"
 msgstr ""
 
@@ -1296,11 +1304,11 @@ msgstr ""
 msgid "Check the files in the media directory"
 msgstr "Провери фасциклу с медија датотекама"
 
-#: qt/aqt/sync.py:129
+#: qt/aqt/sync.py:136
 msgid "Checking media..."
 msgstr ""
 
-#: qt/aqt/sync.py:127
+#: qt/aqt/addons.py:776 qt/aqt/sync.py:134
 msgid "Checking..."
 msgstr "Provjeravam..."
 
@@ -1341,12 +1349,12 @@ msgstr "Затвори"
 msgid "Close and lose current input?"
 msgstr "Затвори и поништи унос?"
 
-#: qt/aqt/main.py:458
+#: qt/aqt/main.py:461
 msgid "Closing..."
 msgstr ""
 
 #: pylib/anki/stdmodels.py:100 pylib/anki/stdmodels.py:105
-#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:222
+#: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:219
 msgid "Cloze"
 msgstr "Пропусти"
 
@@ -1386,11 +1394,11 @@ msgstr "Конфигурација"
 msgid "Configure interface language and options"
 msgstr "Изабери језик сучеља и друге могућности"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1443
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Честитамо! Завршили сте овај шпил за сада."
 
-#: qt/aqt/sync.py:49
+#: qt/aqt/sync.py:50
 msgid "Connecting..."
 msgstr "Повезивање..."
 
@@ -1406,7 +1414,7 @@ msgstr "Настави"
 msgid "Copied to clipboard"
 msgstr ""
 
-#: qt/aqt/editor.py:1113 qt/aqt/webview.py:183
+#: qt/aqt/editor.py:1112 qt/aqt/webview.py:183
 msgid "Copy"
 msgstr "Копирај"
 
@@ -1428,7 +1436,7 @@ msgstr "Тачни одговори за старије карте: %(a)d/%(b)d 
 msgid "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
 msgstr "Тачно: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
 
-#: qt/aqt/addons.py:352
+#: qt/aqt/addons.py:428
 msgid "Corrupt add-on file."
 msgstr ""
 
@@ -1436,7 +1444,7 @@ msgstr ""
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "Није успело повезивање с AnkiWeb. Проверите свој мрежни прикључак и покушајте поново."
 
-#: qt/aqt/editor.py:683
+#: qt/aqt/editor.py:682
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr ""
 
@@ -1465,7 +1473,7 @@ msgstr ""
 msgid "Created"
 msgstr "Направљен"
 
-#: qt/aqt/main.py:1082
+#: qt/aqt/main.py:1101
 msgid "Ctrl+Alt+Z"
 msgstr "Ctrl+Alt+Z"
 
@@ -1526,7 +1534,7 @@ msgstr ""
 msgid "Customize Fields"
 msgstr ""
 
-#: qt/aqt/editor.py:1111
+#: qt/aqt/editor.py:1110
 msgid "Cut"
 msgstr "Исеци"
 
@@ -1559,7 +1567,7 @@ msgstr "Шпил"
 msgid "Deck Override..."
 msgstr ""
 
-#: qt/aqt/main.py:1515
+#: qt/aqt/main.py:1534
 msgid "Deck will be imported when a profile is opened."
 msgstr "Шпил ће бити увезен после отварања профила."
 
@@ -1571,7 +1579,7 @@ msgstr "Шпилови"
 msgid "Decreasing intervals"
 msgstr "Смањивање интервала"
 
-#: pylib/anki/decks.py:57 pylib/anki/storage.py:336 qt/aqt/deckchooser.py:50
+#: pylib/anki/decks.py:57 pylib/anki/storage.py:333 qt/aqt/deckchooser.py:50
 #: qt/aqt/deckchooser.py:54 qt/aqt/deckchooser.py:76
 msgid "Default"
 msgstr "Подразумевано"
@@ -1586,7 +1594,7 @@ msgstr "Поново се појављује кашњење одзива."
 msgid "Delete"
 msgstr "Избриши"
 
-#: qt/aqt/main.py:1355
+#: qt/aqt/main.py:1374
 msgid "Delete Cards"
 msgstr "Избриши карте"
 
@@ -1594,7 +1602,7 @@ msgstr "Избриши карте"
 msgid "Delete Deck"
 msgstr "Избриши шпил"
 
-#: qt/aqt/main.py:1361
+#: qt/aqt/main.py:1380
 msgid "Delete Empty"
 msgstr "Избриши празне"
 
@@ -1610,7 +1618,7 @@ msgstr "Избриши белешке"
 msgid "Delete Tags"
 msgstr "Избриши ознаке"
 
-#: qt/aqt/main.py:1287
+#: qt/aqt/main.py:1306
 msgid "Delete Unused Files"
 msgstr ""
 
@@ -1619,7 +1627,7 @@ msgstr ""
 msgid "Delete field from %s?"
 msgstr "Избриши поље из %s?"
 
-#: qt/aqt/addons.py:653
+#: qt/aqt/addons.py:737
 #, python-format
 msgid "Delete the %(num)d selected add-on?"
 msgid_plural "Delete the %(num)d selected add-ons?"
@@ -1640,7 +1648,7 @@ msgstr "Да избришем овај тип белешке и све карт�
 msgid "Delete this unused note type?"
 msgstr "Да избришем овај некоришћени тип белешке?"
 
-#: qt/aqt/main.py:1300
+#: qt/aqt/main.py:1319
 msgid "Delete unused media?"
 msgstr "Да избришем некоришћени тип медија датотеке?"
 
@@ -1660,7 +1668,7 @@ msgstr[0] "Избрисана %d карта са непостојећим шаб
 msgstr[1] "Избрисане %d карте са непостојећим шаблоном."
 msgstr[2] "Избрисано %d карата са непостојећим шаблоном."
 
-#: qt/aqt/main.py:1330
+#: qt/aqt/main.py:1349
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
@@ -1709,16 +1717,25 @@ msgstr "Опис се приказује на екрану за учење (са
 msgid "Dialog"
 msgstr "Дијалог"
 
+#: qt/aqt/addons.py:962
+msgid "Download complete. Please restart Anki to apply changes."
+msgstr ""
+
 #: qt/aqt/sync.py:299 qt/aqt/sync.py:321 qt/aqt/sync.py:327
 msgid "Download from AnkiWeb"
 msgstr "Преузми са AnkiWeb"
 
-#: qt/aqt/addons.py:377
+#: qt/aqt/addons.py:448
 #, python-format
 msgid "Downloaded %(fname)s"
 msgstr ""
 
-#: qt/aqt/sync.py:125
+#: qt/aqt/addons.py:941
+#, python-format
+msgid "Downloading %(a)d/%(b)d (%(kb)0.2fKB)..."
+msgstr ""
+
+#: qt/aqt/sync.py:132
 msgid "Downloading from AnkiWeb..."
 msgstr "Преузимање са AnkiWeb..."
 
@@ -1768,7 +1785,7 @@ msgstr "Уреди %s"
 msgid "Edit Current"
 msgstr "Уређивање параметара"
 
-#: qt/aqt/editor.py:877
+#: qt/aqt/editor.py:876
 msgid "Edit HTML"
 msgstr "Уређивање HTML"
 
@@ -1830,17 +1847,12 @@ msgstr "Унесите ознаке за додавање ка свим изаб
 msgid "Enter tags to delete:"
 msgstr "Унесите име постојеће ознаке, за њено удаљавање са свих изабраних карата:"
 
-#: qt/aqt/addons.py:326
-#, python-format
-msgid "Error downloading %(id)s: %(error)s"
-msgstr ""
-
-#: qt/aqt/addons.py:364
+#: qt/aqt/addons.py:435
 #, python-format
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
 msgstr ""
 
-#: qt/aqt/main.py:79
+#: qt/aqt/main.py:82
 #, python-format
 msgid "Error during startup:\n"
 "%s"
@@ -1856,7 +1868,7 @@ msgstr "Грешка у прављењу заштићене конекције. 
 msgid "Error executing %s."
 msgstr "Грешка при извршавању %s."
 
-#: qt/aqt/addons.py:366
+#: qt/aqt/addons.py:437
 #, python-format
 msgid "Error installing <i>%(base)s</i>: %(error)s"
 msgstr ""
@@ -1947,7 +1959,7 @@ msgstr "Филтер:"
 msgid "Filtered"
 msgstr "Филтрирано"
 
-#: qt/aqt/main.py:1059 qt/aqt/main.py:1061
+#: qt/aqt/main.py:1078 qt/aqt/main.py:1080
 #, python-format
 msgid "Filtered Deck %d"
 msgstr "Филтриран је шпил %d"
@@ -2014,7 +2026,7 @@ msgstr ""
 msgid "Flip"
 msgstr "Преврни"
 
-#: qt/aqt/profiles.py:235
+#: qt/aqt/profiles.py:234
 msgid "Folder already exists."
 msgstr "Фасцикла већ постоји."
 
@@ -2208,7 +2220,7 @@ msgstr "Опције увоза"
 msgid "Importing complete."
 msgstr "Завршен увоз."
 
-#: qt/aqt/main.py:1118
+#: qt/aqt/main.py:1137
 #, python-format
 msgid "In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.\n\n"
 "Please go to the time settings on your computer and check the following:\n\n"
@@ -2267,11 +2279,11 @@ msgstr "Интервали увећања"
 msgid "Install Add-on"
 msgstr "Инсталирање додатака"
 
-#: qt/aqt/addons.py:673
+#: qt/aqt/addons.py:766
 msgid "Install Add-on(s)"
 msgstr ""
 
-#: qt/aqt/addons.py:881
+#: qt/aqt/addons.py:1213
 msgid "Install Anki add-on"
 msgstr ""
 
@@ -2279,13 +2291,17 @@ msgstr ""
 msgid "Install from file..."
 msgstr ""
 
-#: qt/aqt/addons.py:904
+#: qt/aqt/addons.py:1236
 msgid "Installation complete"
 msgstr ""
 
-#: qt/aqt/addons.py:379
+#: qt/aqt/addons.py:450
 #, python-format
 msgid "Installed %(name)s"
+msgstr ""
+
+#: qt/aqt/addons.py:882
+msgid "Installed successfully."
 msgstr ""
 
 #: qt/aqt/forms/preferences.py:243 qt/aqt/forms/setlang.py:40
@@ -2304,23 +2320,23 @@ msgstr "Модификатор интервала"
 msgid "Intervals"
 msgstr "Интервали"
 
-#: qt/aqt/addons.py:353
+#: qt/aqt/addons.py:429
 msgid "Invalid add-on manifest."
 msgstr ""
 
-#: qt/aqt/downloader.py:68
+#: qt/aqt/addons.py:869
 msgid "Invalid code, or add-on not available for your version of Anki."
 msgstr ""
 
-#: qt/aqt/addons.py:757
+#: qt/aqt/addons.py:828
 msgid "Invalid code."
 msgstr "Недозвољен код."
 
-#: qt/aqt/addons.py:837
+#: qt/aqt/addons.py:1169
 msgid "Invalid configuration: "
 msgstr ""
 
-#: qt/aqt/addons.py:841
+#: qt/aqt/addons.py:1173
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
@@ -2333,7 +2349,7 @@ msgstr ""
 msgid "Invalid file. Please restore from backup."
 msgstr "Датотека је оштећена. Обновите је из резервне копије."
 
-#: qt/aqt/main.py:1168
+#: qt/aqt/main.py:1187
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "Неважећи подаци на картици. Користите Алатке>Провери базу података, а ако се проблем поново појави, консултујте подршку на сајту."
 
@@ -2353,7 +2369,7 @@ msgstr "Суспендована је."
 msgid "Italic text (Ctrl+I)"
 msgstr ""
 
-#: qt/aqt/editor.py:521
+#: qt/aqt/editor.py:520
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Пређи на ознаке са Ctrl+Shift+T"
 
@@ -2361,15 +2377,15 @@ msgstr "Пређи на ознаке са Ctrl+Shift+T"
 msgid "Keep"
 msgstr "Сачувај до"
 
-#: qt/aqt/editor.py:874 qt/aqt/forms/modelopts.py:67
+#: qt/aqt/editor.py:873 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr "LaTeX"
 
-#: qt/aqt/editor.py:875
+#: qt/aqt/editor.py:874
 msgid "LaTeX equation"
 msgstr "LaTeX формула"
 
-#: qt/aqt/editor.py:876
+#: qt/aqt/editor.py:875
 msgid "LaTeX math env."
 msgstr "Искључена формула LaTeX"
 
@@ -2471,15 +2487,15 @@ msgstr "Пресликавање за ознаке"
 msgid "Mark Note"
 msgstr ""
 
-#: qt/aqt/editor.py:872
+#: qt/aqt/editor.py:871
 msgid "MathJax block"
 msgstr ""
 
-#: qt/aqt/editor.py:873
+#: qt/aqt/editor.py:872
 msgid "MathJax chemistry"
 msgstr ""
 
-#: qt/aqt/editor.py:871
+#: qt/aqt/editor.py:870
 msgid "MathJax inline"
 msgstr ""
 
@@ -2496,7 +2512,7 @@ msgstr "Максимални интервал"
 msgid "Maximum reviews/day"
 msgstr "Максимум прегледа у дану"
 
-#: qt/aqt/editor.py:649
+#: qt/aqt/editor.py:648
 msgid "Media"
 msgstr "Носач"
 
@@ -2540,7 +2556,7 @@ msgstr ""
 msgid "N&ote"
 msgstr "&Белешка"
 
-#: qt/aqt/main.py:235 qt/aqt/main.py:249
+#: qt/aqt/main.py:238 qt/aqt/main.py:252
 msgid "Name exists."
 msgstr "Назив већ постоји."
 
@@ -2548,7 +2564,7 @@ msgstr "Назив већ постоји."
 msgid "Name for deck:"
 msgstr "Назив шпила:"
 
-#: qt/aqt/main.py:232 qt/aqt/models.py:96
+#: qt/aqt/main.py:235 qt/aqt/models.py:96
 msgid "Name:"
 msgstr "Назив:"
 
@@ -2586,7 +2602,7 @@ msgid "New interval"
 msgstr "Нови интервал"
 
 #: qt/aqt/clayout.py:379 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
-#: qt/aqt/main.py:243 qt/aqt/models.py:67
+#: qt/aqt/main.py:246 qt/aqt/models.py:67
 msgid "New name:"
 msgstr "Нови назив:"
 
@@ -2623,7 +2639,7 @@ msgstr ""
 msgid "No cards matched the criteria you provided."
 msgstr "Нема карата које одговарају задатим критеријумима."
 
-#: qt/aqt/main.py:1348
+#: qt/aqt/main.py:1367
 msgid "No empty cards."
 msgstr "Нема празних карата."
 
@@ -2631,11 +2647,11 @@ msgstr "Нема празних карата."
 msgid "No mature cards were studied today."
 msgstr "Нема доспелих карата за изучавање данас."
 
-#: qt/aqt/main.py:1273
+#: qt/aqt/main.py:1292
 msgid "No unused or missing files found."
 msgstr "Нема некоришћених или непостојећих датотека."
 
-#: qt/aqt/addons.py:693
+#: qt/aqt/addons.py:760
 msgid "No updates available."
 msgstr ""
 
@@ -2732,6 +2748,10 @@ msgstr "Прво најстарије"
 msgid "On next sync, force changes in one direction"
 msgstr "При следећој синхронизацији, значење се мења у једном смеру"
 
+#: qt/aqt/addons.py:960
+msgid "One or more errors occurred:"
+msgstr ""
+
 #: pylib/anki/importing/noteimp.py:231
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr "Једна или више бележака нису увезене, јер не генеришу ниједну карту. То се може десити ако имате празна поља или ако нисте мапирали садржај одговарајућих поља у текстуланој датотеци."
@@ -2752,7 +2772,7 @@ msgstr "Отвори"
 msgid "Open Backup..."
 msgstr ""
 
-#: qt/aqt/main.py:545
+#: qt/aqt/main.py:548
 msgid "Optimizing..."
 msgstr "Оптимизација..."
 
@@ -2807,7 +2827,7 @@ msgstr "Замена фонта:"
 msgid "Override front template:"
 msgstr "Замена шаблона фонта:"
 
-#: qt/aqt/addons.py:671
+#: qt/aqt/addons.py:764
 msgid "Packaged Anki Add-on"
 msgstr ""
 
@@ -2819,7 +2839,7 @@ msgstr ""
 msgid "Password:"
 msgstr "Лозинка:"
 
-#: qt/aqt/editor.py:1115
+#: qt/aqt/editor.py:1114
 msgid "Paste"
 msgstr "Налепи"
 
@@ -2856,7 +2876,7 @@ msgstr "Стави у ред за понављање са интервалима
 msgid "Please add another note type first."
 msgstr "Најпре додај нову врсту белешке."
 
-#: qt/aqt/addons.py:687 qt/aqt/downloader.py:75
+#: qt/aqt/addons.py:875
 msgid "Please check your internet connection."
 msgstr ""
 
@@ -2869,7 +2889,7 @@ msgstr "Повежите микрофон и обезбедите да друг�
 msgid "Please edit this note and add some cloze deletions. (%s)"
 msgstr "Молимо уредите ову белешку, додајући неколико пропуста за попуњавање. (%s)"
 
-#: qt/aqt/main.py:1522
+#: qt/aqt/main.py:1541
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr "Уверите се да је профил отворен и да Anki није заузет, а затим покушајте поново."
 
@@ -2881,12 +2901,12 @@ msgstr ""
 msgid "Please install PyAudio"
 msgstr "Молимо, инсталирајте PyAudio"
 
-#: qt/aqt/profiles.py:230
+#: qt/aqt/profiles.py:229
 #, python-format
 msgid "Please remove the folder %s and try again."
 msgstr "Уклоните фасциклу %s и покушајте поново."
 
-#: qt/aqt/addons.py:907
+#: qt/aqt/addons.py:1239
 msgid "Please report this to the respective add-on author(s)."
 msgstr ""
 
@@ -2898,11 +2918,11 @@ msgstr ""
 msgid "Please run Tools>Empty Cards"
 msgstr "Покрените Алатке>Празне карте"
 
-#: qt/aqt/main.py:583
+#: qt/aqt/main.py:587
 msgid "Please select a deck."
 msgstr "Изаберите шпил."
 
-#: qt/aqt/addons.py:615
+#: qt/aqt/addons.py:699
 msgid "Please select a single add-on first."
 msgstr ""
 
@@ -2918,11 +2938,11 @@ msgstr "Одаберите нешто."
 msgid "Please upgrade to the latest version of Anki."
 msgstr "Ажурирајте Anki до последње верзије."
 
-#: qt/aqt/main.py:1016
+#: qt/aqt/main.py:1035
 msgid "Please use File>Import to import this file."
 msgstr "За увоз ове датотеке, користите Датотека>Увоз."
 
-#: qt/aqt/sync.py:133
+#: qt/aqt/sync.py:140
 msgid "Please visit AnkiWeb, upgrade your deck, then try again."
 msgstr "Молимо, посетите AnkiWeb, надоградите свој шпил,а затим покушајте поново."
 
@@ -2963,7 +2983,7 @@ msgstr[2] ""
 msgid "Processing..."
 msgstr "Обрада..."
 
-#: qt/aqt/profiles.py:177
+#: qt/aqt/profiles.py:176
 msgid "Profile Corrupt"
 msgstr ""
 
@@ -3080,7 +3100,7 @@ msgstr "Преименуј шпил"
 msgid "Repeat failed cards after"
 msgstr ""
 
-#: qt/aqt/main.py:276
+#: qt/aqt/main.py:279
 msgid "Replace your collection with an earlier backup?"
 msgstr ""
 
@@ -3124,11 +3144,11 @@ msgstr "Измени редослед"
 msgid "Reschedule cards based on my answers in this deck"
 msgstr "Измени редослед картица на основу мојих одговора у овом шпилу."
 
-#: qt/aqt/addons.py:799
+#: qt/aqt/addons.py:1131
 msgid "Restored defaults"
 msgstr ""
 
-#: qt/aqt/main.py:643
+#: qt/aqt/main.py:647
 msgid "Resume Now"
 msgstr "Настави сад"
 
@@ -3136,11 +3156,11 @@ msgstr "Настави сад"
 msgid "Reverse text direction (RTL)"
 msgstr "Смер текста с десна на лево (RTL)"
 
-#: qt/aqt/main.py:289
+#: qt/aqt/main.py:292
 msgid "Revert to backup"
 msgstr ""
 
-#: qt/aqt/main.py:934
+#: qt/aqt/main.py:953
 #, python-format
 msgid "Reverted to state prior to '%s'."
 msgstr "Врати на стање пре '%s'."
@@ -3270,7 +3290,7 @@ msgstr "Задај за све подшпилове"
 msgid "Set foreground colour (F7)"
 msgstr "Задај бојy текста (F7)"
 
-#: qt/aqt/main.py:85
+#: qt/aqt/main.py:88
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr "Shift типка је притиснута. Прескакање аутоматске синхронизације и учитавање додатка."
 
@@ -3279,7 +3299,7 @@ msgid "Shift position of existing cards"
 msgstr "Промени позицију других карата"
 
 #: qt/aqt/browser.py:1568 qt/aqt/browser.py:1586 qt/aqt/deckbrowser.py:327
-#: qt/aqt/main.py:671 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
+#: qt/aqt/main.py:675 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
 #: qt/aqt/reviewer.py:546 qt/aqt/reviewer.py:612 qt/aqt/toolbar.py:34
 #: qt/aqt/toolbar.py:35 qt/aqt/toolbar.py:36 qt/aqt/toolbar.py:37
 #: qt/aqt/toolbar.py:38
@@ -3360,7 +3380,7 @@ msgstr "Величина:"
 msgid "Skipped"
 msgstr "Прескочено"
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Неке повезане или сачуване карте ће бити обрисане после ове сесије."
 
@@ -3416,7 +3436,7 @@ msgstr "Корака (у минутима)"
 msgid "Steps must be numbers."
 msgstr "Кораке наводити у виду бројева."
 
-#: qt/aqt/sync.py:60
+#: qt/aqt/sync.py:61
 msgid "Stopping..."
 msgstr "Прекидање..."
 
@@ -3502,14 +3522,14 @@ msgstr "Синхронизација"
 msgid "Synchronize audio and images too"
 msgstr "Синхронизуј такође звуке и слике"
 
-#: qt/aqt/sync.py:145
+#: qt/aqt/sync.py:152
 #, python-format
 msgid "Syncing failed:\n"
 "%s"
 msgstr "Синхронизација није успела:\n"
 "%s"
 
-#: qt/aqt/sync.py:112
+#: qt/aqt/sync.py:119
 msgid "Syncing failed; internet offline."
 msgstr "Синхронизација није успела; нема везе са Интернетом."
 
@@ -3517,7 +3537,7 @@ msgstr "Синхронизација није успела; нема везе с
 msgid "Syncing requires the clock on your computer to be set correctly. Please fix the clock and try again."
 msgstr "За синхронизацију, сат на вашем рачунару мора бити исправно подешен. Подесите сат и покушајте поново."
 
-#: qt/aqt/sync.py:120
+#: qt/aqt/sync.py:127
 msgid "Syncing..."
 msgstr "Синхронизација..."
 
@@ -3537,7 +3557,7 @@ msgstr "Само ознака"
 msgid "Tag modified notes:"
 msgstr ""
 
-#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:517
+#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:516
 msgid "Tags"
 msgstr "Ознаке"
 
@@ -3593,9 +3613,13 @@ msgstr "Прво поље је празно."
 msgid "The first field of the note type must be mapped."
 msgstr "Прво поље у типу белешке мора бити мапирано."
 
-#: qt/aqt/addons.py:147
+#: qt/aqt/addons.py:241
 #, python-format
 msgid "The following add-ons are incompatible with %(name)s and have been disabled: %(found)s"
+msgstr ""
+
+#: qt/aqt/addons.py:1097
+msgid "The following add-ons have updates available. Install them now?"
 msgstr ""
 
 #: qt/aqt/utils.py:585
@@ -3603,7 +3627,7 @@ msgstr ""
 msgid "The following character can not be used: %s"
 msgstr "Следећи симбол не може бити коришћен: %s"
 
-#: qt/aqt/addons.py:386
+#: qt/aqt/addons.py:457
 msgid "The following conflicting add-ons were disabled:"
 msgstr ""
 
@@ -3639,7 +3663,7 @@ msgstr "Датотека .apkg није валидна."
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr "Нема картица које задовољавају упит. Желите ли да задате нове?"
 
-#: qt/aqt/main.py:1213
+#: qt/aqt/main.py:1232
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr "Измена, коју сте затражили, захтеваће учитавање целе базе података приликом следеће синхронизације ваше колекције. Ако на другом уређају имате измене које још нису синхронизоване, изгубићете их. Да ли желите да наставите?"
 
@@ -3647,14 +3671,14 @@ msgstr "Измена, коју сте затражили, захтеваће у�
 msgid "The time taken to answer the questions."
 msgstr "Време потрошено на одговоре."
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1464
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
 "your short-term review workload will become."
 msgstr "Доступне су нове карте, али је већ достигнут дневни лимит. Можете да увећате лимит у опцијама, али имајте у виду, да што више нових карата наведете, то ћете имати веће оптерећење у каткорочном приказу."
 
-#: qt/aqt/main.py:258
+#: qt/aqt/main.py:261
 msgid "There must be at least one profile."
 msgstr "Мора да остане бар један профил."
 
@@ -3674,7 +3698,7 @@ msgstr "Ова датотека не изгледа као исправна .apk
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Ова датотека већ постоји. Да ли сте сигурни да желите да је презапишете?"
 
-#: qt/aqt/profiles.py:382
+#: qt/aqt/profiles.py:381
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3723,15 +3747,15 @@ msgstr "За понављање"
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr ""
 
-#: qt/aqt/editor.py:592
+#: qt/aqt/editor.py:591
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Да бисте додали попуњавање пропуста у постојећој белешци, потребно је да јој прво измените тип у \"пропуст\" (cloze), преко Уреди>Измени тип белешке"
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1473
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
 msgid "To see them now, click the Unbury button below."
 msgstr "Да бисте их видели, кликните испод на дугме Прикажи."
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1486
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "За учење ван обичног распореда, кликните на дугме Додатно учење испод."
 
@@ -3739,7 +3763,7 @@ msgstr "За учење ван обичног распореда, кликнит
 msgid "Today"
 msgstr "Данас"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1455
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3795,11 +3819,11 @@ msgstr ""
 msgid "Unable to import from a read-only file."
 msgstr "Није успео увоз из датотеке која је доступна само за читање."
 
-#: qt/aqt/main.py:302
+#: qt/aqt/main.py:305
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr ""
 
-#: qt/aqt/addons.py:279
+#: qt/aqt/addons.py:384
 #, python-format
 msgid "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\n"
 "Debug info: %s"
@@ -3813,25 +3837,21 @@ msgstr "Одвезано"
 msgid "Underline text (Ctrl+U)"
 msgstr ""
 
-#: qt/aqt/main.py:944
+#: qt/aqt/main.py:963
 msgid "Undo"
 msgstr "Опозови"
 
-#: qt/aqt/main.py:940
+#: qt/aqt/main.py:959
 #, python-format
 msgid "Undo %s"
 msgstr "Опозови %s"
 
-#: qt/aqt/downloader.py:72 qt/aqt/editor.py:780
+#: qt/aqt/addons.py:872 qt/aqt/editor.py:779
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr ""
 
-#: qt/aqt/addons.py:361
-msgid "Unknown error"
-msgstr ""
-
-#: qt/aqt/addons.py:358
+#: qt/aqt/addons.py:432
 msgid "Unknown error: {}"
 msgstr ""
 
@@ -3847,10 +3867,6 @@ msgstr "Невиђено"
 msgid "Update existing notes when first field matches"
 msgstr "Ажурирај постојеће белешке када се прво поље подудара"
 
-#: qt/aqt/addons.py:696
-msgid "Update the following add-ons?"
-msgstr ""
-
 #: pylib/anki/importing/anki2.py:165
 msgid "Updated"
 msgstr "Ажурирано"
@@ -3859,15 +3875,15 @@ msgstr "Ажурирано"
 msgid "Upload to AnkiWeb"
 msgstr "Учитај на AnkiWeb"
 
-#: qt/aqt/sync.py:123
+#: qt/aqt/sync.py:130
 msgid "Uploading to AnkiWeb..."
 msgstr "Учитавање на AnkiWeb..."
 
-#: qt/aqt/main.py:1270
+#: qt/aqt/main.py:1289
 msgid "Used on cards but missing from media folder:"
 msgstr "Коришћено на картама, али недостаје у фасцикли за слике и звуке:"
 
-#: qt/aqt/profiles.py:378
+#: qt/aqt/profiles.py:377
 msgid "User 1"
 msgstr "Корисник 1"
 
@@ -3888,11 +3904,11 @@ msgstr ""
 msgid "View Files"
 msgstr ""
 
-#: qt/aqt/main.py:642
+#: qt/aqt/main.py:646
 msgid "Waiting for editing to finish."
 msgstr "Очекивање завршетка уређивања."
 
-#: qt/aqt/editor.py:585
+#: qt/aqt/editor.py:584
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr "Упозорење, пропуштање неће радити док не укључите тип на врху за пропуштање (Cloze)."
 
@@ -3947,7 +3963,7 @@ msgstr "Свеже"
 msgid "Young+Learn"
 msgstr "Свеже-учено"
 
-#: qt/aqt/sync.py:165
+#: qt/aqt/sync.py:172
 msgid "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
 msgstr ""
 
@@ -3955,7 +3971,7 @@ msgstr ""
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr "Промена ће утицати на више шпилова. Ако желите да промените само тренутни шпил, додајте прво нову групу опција."
 
-#: qt/aqt/main.py:478
+#: qt/aqt/main.py:481
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr ""
 
@@ -3967,7 +3983,7 @@ msgstr "Ваша колекција је у лошем стању. Молимо,
 msgid "Your collection or a media file is too large to sync."
 msgstr "Ваша колекција или медија датотека су превелики за синхронизацију."
 
-#: qt/aqt/sync.py:74
+#: qt/aqt/sync.py:75
 msgid "Your collection was successfully uploaded to AnkiWeb.\n\n"
 "If you use any other devices, please sync them now, and choose to download the collection you have just uploaded from this computer. After doing so, future reviews and added cards will be merged automatically."
 msgstr "Ваша колекција је успешно учитана у AnkiWeb.\n\n"
