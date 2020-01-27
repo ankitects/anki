@@ -34,12 +34,15 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki import hooks
 from anki.cards import Card
-from anki.consts import HELP_SITE
 from anki.lang import _
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TemplateReplacementList
 from anki.sound import AVTag
+
+CARD_BLANK_HELP = (
+    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
+)
 
 
 class TemplateRenderContext:
@@ -129,7 +132,8 @@ def render_card(
     if not output.question_text.strip():
         msg = _("The front of this card is blank.")
         help = _("More info")
-        msg += f"<a href='{HELP_SITE}'>{help}</a>"
+        helplink = CARD_BLANK_HELP
+        msg += f"<br><a href='{helplink}'>{help}</a>"
         output.question_text = msg
 
     hooks.card_did_render(output, ctx)
