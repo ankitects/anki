@@ -446,7 +446,7 @@ def runHook(hook: str, *args) -> None:
     "Run all functions on hook."
     hookFuncs = _hooks.get(hook, None)
     if hookFuncs:
-        for func in hookFuncs:
+        for func in hookFuncs.copy():
             try:
                 func(*args)
             except:
@@ -457,7 +457,7 @@ def runHook(hook: str, *args) -> None:
 def runFilter(hook: str, arg: Any, *args) -> Any:
     hookFuncs = _hooks.get(hook, None)
     if hookFuncs:
-        for func in hookFuncs:
+        for func in hookFuncs.copy():
             try:
                 arg = func(arg, *args)
             except:
