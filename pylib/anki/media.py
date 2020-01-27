@@ -1,5 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import io
 import json
 import os
@@ -14,11 +17,11 @@ import urllib.request
 import zipfile
 from typing import Any, Callable, List, Optional, Tuple, Union
 
+import anki
 from anki.consts import *
 from anki.db import DB, DBError
 from anki.lang import _
 from anki.latex import render_latex
-from anki.template import expand_clozes
 from anki.utils import checksum, isMac, isWin
 
 
@@ -34,7 +37,7 @@ class MediaManager:
     regexps = soundRegexps + imgRegexps
     db: Optional[DB]
 
-    def __init__(self, col, server: bool) -> None:
+    def __init__(self, col: anki.storage._Collection, server: bool) -> None:
         self.col = col
         if server:
             self._dir = None
@@ -213,23 +216,21 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     ) -> List[str]:
         l = []
         model = self.col.models.get(mid)
-        strings: List[str] = []
         if model["type"] == MODEL_CLOZE and "{{c" in string:
             # if the field has clozes in it, we'll need to expand the
             # possibilities so we can render latex
-            strings = expand_clozes(string)
+            strings = self.col.backend.expand_clozes_to_reveal_latex(string)
         else:
-            strings = [string]
-        for string in strings:
-            # handle latex
-            string = render_latex(string, model, self.col)
-            # extract filenames
-            for reg in self.regexps:
-                for match in re.finditer(reg, string):
-                    fname = match.group("fname")
-                    isLocal = not re.match("(https?|ftp)://", fname.lower())
-                    if isLocal or includeRemote:
-                        l.append(fname)
+            strings = string
+        # handle latex
+        string = render_latex(string, model, self.col)
+        # extract filenames
+        for reg in self.regexps:
+            for match in re.finditer(reg, string):
+                fname = match.group("fname")
+                isLocal = not re.match("(https?|ftp)://", fname.lower())
+                if isLocal or includeRemote:
+                    l.append(fname)
         return l
 
     def transformNames(self, txt: str, func: Callable) -> Any:

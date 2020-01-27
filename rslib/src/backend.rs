@@ -4,6 +4,7 @@
 use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::RenderedTemplateReplacement;
+use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
@@ -101,6 +102,9 @@ impl Backend {
             }
             Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
             Value::ExtractAvTags(input) => OValue::ExtractAvTags(self.extract_av_tags(input)),
+            Value::ExpandClozesToRevealLatex(input) => {
+                OValue::ExpandClozesToRevealLatex(expand_clozes_to_reveal_latex(&input))
+            }
         })
     }
 

@@ -28,7 +28,6 @@ template_legacy.py file, using the legacy addHook() system.
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -221,44 +220,3 @@ def apply_custom_filters(
 
             res += field_text
     return res
-
-
-# Cloze handling
-##########################################################################
-
-# Matches a {{c123::clozed-out text::hint}} Cloze deletion, case-insensitively.
-# The regex should be interpolated with a regex number and creates the following
-# named groups:
-#   - tag: The lowercase or uppercase 'c' letter opening the Cloze.
-#          The c/C difference is only relevant to the legacy code.
-#   - content: Clozed-out content.
-#   - hint: Cloze hint, if provided.
-clozeReg = r"(?si)\{\{(?P<tag>c)%s::(?P<content>.*?)(::(?P<hint>.*?))?\}\}"
-
-# Constants referring to group names within clozeReg.
-CLOZE_REGEX_MATCH_GROUP_TAG = "tag"
-CLOZE_REGEX_MATCH_GROUP_CONTENT = "content"
-CLOZE_REGEX_MATCH_GROUP_HINT = "hint"
-
-# used by the media check functionality
-def expand_clozes(string: str) -> List[str]:
-    "Render all clozes in string."
-    ords = set(re.findall(r"{{c(\d+)::.+?}}", string))
-    strings = []
-
-    def qrepl(m):
-        if m.group(CLOZE_REGEX_MATCH_GROUP_HINT):
-            return "[%s]" % m.group(CLOZE_REGEX_MATCH_GROUP_HINT)
-        else:
-            return "[...]"
-
-    def arepl(m):
-        return m.group(CLOZE_REGEX_MATCH_GROUP_CONTENT)
-
-    for ord in ords:
-        s = re.sub(clozeReg % ord, qrepl, string)
-        s = re.sub(clozeReg % ".+?", arepl, s)
-        strings.append(s)
-    strings.append(re.sub(clozeReg % ".+?", arepl, string))
-
-    return strings

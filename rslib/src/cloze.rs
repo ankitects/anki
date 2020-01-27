@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::template::RenderContext;
-use crate::text::strip_html;
+use crate::text::{contains_latex, strip_html};
 use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
@@ -91,6 +91,23 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
     }
 }
 
+/// If text contains any LaTeX tags, render the front and back
+/// of each cloze deletion so that LaTeX can be generated. If
+/// no LaTeX is found, returns an empty string.
+pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
+    if !contains_latex(text) {
+        return "".into();
+    }
+    let ords = cloze_numbers_in_string(text);
+    let mut buf = String::new();
+    for ord in ords {
+        buf += reveal_cloze_text(text, ord, true).as_ref();
+        buf += reveal_cloze_text(text, ord, false).as_ref();
+    }
+
+    buf
+}
+
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
     let mut hash = HashSet::with_capacity(4);
     for cap in CLOZE.captures_iter(html) {
@@ -122,7 +139,8 @@ pub(crate) fn cloze_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a
 
 #[cfg(test)]
 mod test {
-    use crate::cloze::cloze_numbers_in_string;
+    use crate::cloze::{cloze_numbers_in_string, expand_clozes_to_reveal_latex};
+    use crate::text::strip_html;
     use std::collections::HashSet;
 
     #[test]
@@ -135,5 +153,16 @@ mod test {
             cloze_numbers_in_string("{{c2::te}}{{c1::s}}t{{"),
             vec![1, 2].into_iter().collect::<HashSet<u16>>()
         );
+
+        assert_eq!(
+            expand_clozes_to_reveal_latex("{{c1::foo}} {{c2::bar::baz}}"),
+            "".to_string()
+        );
+
+        let expanded = expand_clozes_to_reveal_latex("[latex]{{c1::foo}} {{c2::bar::baz}}[/latex]");
+        let expanded = strip_html(expanded.as_ref());
+        assert!(expanded.contains("foo [baz]"));
+        assert!(expanded.contains("[...] bar"));
+        assert!(expanded.contains("foo bar"));
     }
 }
