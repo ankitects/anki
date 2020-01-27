@@ -44,6 +44,15 @@ lazy_static! {
                 (.*?)           # 3 - field text
             \[/anki:tts\]
             "#).unwrap();
+
+    static ref LATEX: Regex = Regex::new(
+        r#"(?xsi)
+            \[latex\](.+?)\[/latex\]     # 1 - standard latex
+            |
+            \[\$\](.+?)\[/\$\]           # 2 - inline math
+            |
+            \[\$\$\](.+?)\[/\$\$\]       # 3 - math environment
+            "#).unwrap();    
 }
 
 pub fn strip_html(html: &str) -> Cow<str> {
@@ -141,6 +150,10 @@ pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
     }
     // make borrow checker happy
     without_html.into_owned().into()
+}
+
+pub(crate) fn contains_latex(text: &str) -> bool {
+    LATEX.is_match(text)
 }
 
 #[cfg(test)]

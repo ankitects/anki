@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
+
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Union
 
@@ -175,3 +176,8 @@ class RustBackend:
         native_tags = list(map(av_tag_to_native, out.av_tags))
 
         return out.text, native_tags
+
+    def expand_clozes_to_reveal_latex(self, text: str) -> str:
+        return self._run_command(
+            pb.BackendInput(expand_clozes_to_reveal_latex=text)
+        ).expand_clozes_to_reveal_latex
