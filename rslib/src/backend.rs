@@ -6,6 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::RenderedTemplateReplacement;
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
+use crate::media::add_data_to_folder_uniquely;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
@@ -18,7 +19,8 @@ use std::path::PathBuf;
 
 pub struct Backend {
     #[allow(dead_code)]
-    path: PathBuf,
+    col_path: PathBuf,
+    media_folder: PathBuf,
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -26,10 +28,11 @@ impl std::convert::From<AnkiError> for pt::BackendError {
     fn from(err: AnkiError) -> Self {
         use pt::backend_error::Value as V;
         let value = match err {
-            AnkiError::InvalidInput { info } => V::InvalidInput(pt::InvalidInputError { info }),
+            AnkiError::InvalidInput { info } => V::InvalidInput(pt::StringError { info }),
             AnkiError::TemplateError { info, q_side } => {
                 V::TemplateParse(pt::TemplateParseError { info, q_side })
-            }
+            },
+            AnkiError::IOError { info } => V::IoError(pt::StringError { info }),
         };
 
         pt::BackendError { value: Some(value) }
@@ -44,8 +47,11 @@ impl std::convert::From<AnkiError> for pt::backend_output::Value {
 }
 
 impl Backend {
-    pub fn new<P: Into<PathBuf>>(path: P) -> Backend {
-        Backend { path: path.into() }
+    pub fn new<P: Into<PathBuf>>(col_path: P, media_folder: P) -> Backend {
+        Backend {
+            col_path: col_path.into(),
+            media_folder: media_folder.into(),
+        }
     }
 
     /// Decode a request, process it, and return the encoded result.
@@ -106,6 +112,9 @@ impl Backend {
             Value::ExtractAvTags(input) => OValue::ExtractAvTags(self.extract_av_tags(input)),
             Value::ExpandClozesToRevealLatex(input) => {
                 OValue::ExpandClozesToRevealLatex(expand_clozes_to_reveal_latex(&input))
+            }
+            Value::AddFileToMediaFolder(input) => {
+                OValue::AddFileToMediaFolder(self.add_file_to_media_folder(input)?)
             }
         })
     }
@@ -218,6 +227,13 @@ impl Backend {
             text: text.into(),
             av_tags: pt_tags,
         }
+    }
+
+    fn add_file_to_media_folder(&self, input: pt::AddFileToMediaFolderIn) -> Result<String> {
+        Ok(
+            add_data_to_folder_uniquely(&self.media_folder, &input.desired_name, &input.data)?
+                .into(),
+        )
     }
 }
 

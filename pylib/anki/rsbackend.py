@@ -90,8 +90,8 @@ def proto_replacement_list_to_native(
 
 
 class RustBackend:
-    def __init__(self, path: str):
-        self._backend = ankirspy.Backend(path)
+    def __init__(self, col_path: str, media_folder: str):
+        self._backend = ankirspy.Backend(col_path, media_folder)
 
     def _run_command(self, input: pb.BackendInput) -> pb.BackendOutput:
         input_bytes = input.SerializeToString()
@@ -181,3 +181,12 @@ class RustBackend:
         return self._run_command(
             pb.BackendInput(expand_clozes_to_reveal_latex=text)
         ).expand_clozes_to_reveal_latex
+
+    def add_file_to_media_folder(self, desired_name: str, data: bytes) -> str:
+        return self._run_command(
+            pb.BackendInput(
+                add_file_to_media_folder=pb.AddFileToMediaFolderIn(
+                    desired_name=desired_name, data=data
+                )
+            )
+        ).add_file_to_media_folder

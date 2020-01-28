@@ -793,8 +793,11 @@ to a cloze type first, via Edit>Change Note Type."""
             self.mw.progress.finish()
         # strip off any query string
         url = re.sub(r"\?.*?$", "", url)
-        path = urllib.parse.unquote(url)
-        return self.mw.col.media.writeData(path, filecontents, typeHint=ct)
+        fname = os.path.basename(urllib.parse.unquote(url))
+        if ct:
+            fname = self.mw.col.media.add_extension_based_on_mime(fname, ct)
+
+        return self.mw.col.media.write_data(fname, filecontents)
 
     # Paste/drag&drop
     ######################################################################

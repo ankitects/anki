@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 pub use failure::{Error, Fail};
+use std::io;
 
 pub type Result<T> = std::result::Result<T, AnkiError>;
 
@@ -12,6 +13,9 @@ pub enum AnkiError {
 
     #[fail(display = "invalid card template: {}", info)]
     TemplateError { info: String, q_side: bool },
+
+    #[fail(display = "I/O error: {}", info)]
+    IOError { info: String },
 }
 
 // error helpers
@@ -33,4 +37,12 @@ pub enum TemplateError {
         filters: String,
         field: String,
     },
+}
+
+impl From<io::Error> for AnkiError {
+    fn from(err: io::Error) -> Self {
+        AnkiError::IOError {
+            info: format!("{:?}", err),
+        }
+    }
 }
