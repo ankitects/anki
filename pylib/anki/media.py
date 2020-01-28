@@ -8,7 +8,6 @@ import json
 import os
 import re
 import sys
-import traceback
 import unicodedata
 import urllib.error
 import urllib.parse
@@ -70,7 +69,6 @@ class MediaManager:
         self.db = DB(path)
         if create:
             self._initDB()
-        self.maybeUpgrade()
 
     def _initDB(self) -> None:
         self.db.executescript(
@@ -87,37 +85,6 @@ create index idx_media_dirty on media (dirty);
 create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 """
         )
-
-    def maybeUpgrade(self) -> None:
-        oldpath = self.dir() + ".db"
-        if os.path.exists(oldpath):
-            self.db.execute('attach "../collection.media.db" as old')
-            try:
-                self.db.execute(
-                    """
-    insert into media
-     select m.fname, csum, mod, ifnull((select 1 from log l2 where l2.fname=m.fname), 0) as dirty
-     from old.media m
-     left outer join old.log l using (fname)
-     union
-     select fname, null, 0, 1 from old.log where type=1;"""
-                )
-                self.db.execute("delete from meta")
-                self.db.execute(
-                    """
-    insert into meta select dirMod, usn from old.meta
-    """
-                )
-                self.db.commit()
-            except Exception as e:
-                # if we couldn't import the old db for some reason, just start
-                # anew
-                self.col.log("failed to import old media db:" + traceback.format_exc())
-            self.db.execute("detach old")
-            npath = "../collection.media.db.old"
-            if os.path.exists(npath):
-                os.unlink(npath)
-            os.rename("../collection.media.db", npath)
 
     def close(self) -> None:
         if self.col.server:
