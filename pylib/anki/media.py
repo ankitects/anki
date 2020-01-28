@@ -20,7 +20,7 @@ from anki.consts import *
 from anki.db import DB, DBError
 from anki.lang import _
 from anki.latex import render_latex
-from anki.utils import checksum, isMac, isWin
+from anki.utils import checksum, isMac
 
 
 def media_folder_from_col_path(col_path: str) -> str:
@@ -107,21 +107,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     def dir(self) -> Any:
         return self._dir
-
-    def _isFAT32(self) -> bool:
-        if not isWin:
-            return False
-        # pylint: disable=import-error
-        import win32api, win32file  # pytype: disable=import-error
-
-        try:
-            name = win32file.GetVolumeNameForVolumeMountPoint(self._dir[:3])
-        except:
-            # mapped & unmapped network drive; pray that it's not vfat
-            return False
-        if win32api.GetVolumeInformation(name)[4].lower().startswith("fat"):
-            return True
-        return False
 
     # Adding media
     ##########################################################################
@@ -352,7 +337,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         # doesn't track edits, but user can add or remove a file to update
         mod = self.db.scalar("select dirMod from meta")
         mtime = self._mtime(self.dir())
-        if not self._isFAT32() and mod and mod == mtime:
+        if mod and mod == mtime:
             return False
         return mtime
 
