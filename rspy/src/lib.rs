@@ -16,10 +16,10 @@ fn buildhash() -> &'static str {
 #[pymethods]
 impl Backend {
     #[new]
-    fn init(obj: &PyRawObject, path: String) {
+    fn init(obj: &PyRawObject, col_path: String, media_folder: String) {
         obj.init({
             Backend {
-                backend: RustBackend::new(path),
+                backend: RustBackend::new(col_path, media_folder),
             }
         });
     }

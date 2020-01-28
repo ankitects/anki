@@ -17,10 +17,10 @@ def test_add():
     assert d.media.addFile(path) == "foo.jpg"
     # adding the same file again should not create a duplicate
     assert d.media.addFile(path) == "foo.jpg"
-    # but if it has a different md5, it should
+    # but if it has a different sha1, it should
     with open(path, "w") as f:
         f.write("world")
-    assert d.media.addFile(path) == "foo (1).jpg"
+    assert d.media.addFile(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
 
 
 def test_strings():

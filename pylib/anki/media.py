@@ -25,6 +25,10 @@ from anki.latex import render_latex
 from anki.utils import checksum, isMac, isWin
 
 
+def media_folder_from_col_path(col_path: str) -> str:
+    return re.sub(r"(?i)\.(anki2)$", ".media", col_path)
+
+
 class MediaManager:
 
     soundRegexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
@@ -43,7 +47,7 @@ class MediaManager:
             self._dir = None
             return
         # media directory
-        self._dir = re.sub(r"(?i)\.(anki2)$", ".media", self.col.path)
+        self._dir = media_folder_from_col_path(self.col.path)
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         try:
@@ -155,58 +159,42 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
 
     # Adding media
     ##########################################################################
-    # opath must be in unicode
 
-    def addFile(self, opath: str) -> Any:
-        with open(opath, "rb") as f:
-            return self.writeData(opath, f.read())
+    def add_file(self, path: str) -> str:
+        """Add basename of path to the media folder, renaming if not unique.
 
-    def writeData(self, opath: str, data: bytes, typeHint: Optional[str] = None) -> Any:
-        # if fname is a full path, use only the basename
-        fname = os.path.basename(opath)
+        Returns possibly-renamed filename."""
+        with open(path, "rb") as f:
+            return self.write_data(os.path.basename(path), f.read())
 
-        # if it's missing an extension and a type hint was provided, use that
-        if not os.path.splitext(fname)[1] and typeHint:
+    def write_data(self, desired_fname: str, data: bytes) -> str:
+        """Write the file to the media folder, renaming if not unique.
+
+        Returns possibly-renamed filename."""
+        return self.col.backend.add_file_to_media_folder(desired_fname, data)
+
+    def add_extension_based_on_mime(self, fname: str, content_type: str) -> str:
+        "If jpg or png mime, add .png/.jpg if missing extension."
+        if not os.path.splitext(fname)[1]:
             # mimetypes is returning '.jpe' even after calling .init(), so we'll do
             # it manually instead
-            typeMap = {
+            type_map = {
                 "image/jpeg": ".jpg",
                 "image/png": ".png",
             }
-            if typeHint in typeMap:
-                fname += typeMap[typeHint]
+            if content_type in type_map:
+                fname += type_map[content_type]
+        return fname
 
-        # make sure we write it in NFC form (pre-APFS Macs will autoconvert to NFD),
-        # and return an NFC-encoded reference
-        fname = unicodedata.normalize("NFC", fname)
-        # ensure it's a valid filename
-        base = self.cleanFilename(fname)
-        (root, ext) = os.path.splitext(base)
+    # legacy
+    addFile = add_file
 
-        def repl(match):
-            n = int(match.group(1))
-            return " (%d)" % (n + 1)
-
-        # find the first available name
-        csum = checksum(data)
-        while True:
-            fname = root + ext
-            path = os.path.join(self.dir(), fname)
-            # if it doesn't exist, copy it directly
-            if not os.path.exists(path):
-                with open(path, "wb") as f:
-                    f.write(data)
-                return fname
-            # if it's identical, reuse
-            with open(path, "rb") as f:
-                if checksum(f.read()) == csum:
-                    return fname
-            # otherwise, increment the index in the filename
-            reg = r" \((\d+)\)$"
-            if not re.search(reg, root):
-                root = root + " (1)"
-            else:
-                root = re.sub(reg, repl, root)
+    # legacy
+    def writeData(self, opath: str, data: bytes, typeHint: Optional[str] = None) -> str:
+        fname = os.path.basename(opath)
+        if typeHint:
+            fname = self.add_extension_based_on_mime(fname, typeHint)
+        return self.write_data(fname, data)
 
     # String manipulation
     ##########################################################################
