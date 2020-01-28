@@ -128,7 +128,6 @@ def test_illegal():
     d = getEmptyCol()
     aString = "a:b|cd\\e/f\0g*h"
     good = "abcdefgh"
-    assert d.media.stripIllegal(aString) == good
     for c in aString:
         bad = d.media.hasIllegal("somestring" + c + "morestring")
         if bad:
