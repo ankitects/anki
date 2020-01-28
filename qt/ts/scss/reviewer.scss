@@ -57,8 +57,23 @@ img {
     background: #ccc;
 }
 
-.playImage { zoom: 50% }
-.soundLink { text-decoration: none; }
+.replay-button {
+    text-decoration: none;
+
+    svg {
+        width: 40px;
+        height: 40px;
+
+        circle {
+            fill: #fff;
+            stroke: #414141;
+        }
+
+        path {
+            fill: #414141;
+        }
+    }
+}
 
 .nightMode {
     .latex {
