@@ -584,8 +584,13 @@ def av_refs_to_play_icons(text: str) -> str:
 
     def repl(match: re.Match) -> str:
         return f"""
-<a class=soundLink href=# onclick="pycmd('{match.group(1)}'); return false;">
-  <img class=playImage src='/_anki/imgs/play.png'>
+<a class=replay-button href=# onclick="pycmd('{match.group(1)}'); return false;">
+    <svg class="playImage" viewBox="0 0 64 64" version="1.1">
+        <g>
+            <circle cx="32" cy="32" r="29" />
+            <path d="M56.502,32.301l-37.502,20.101l0.329,-40.804l37.173,20.703Z" />
+        </g>
+    </svg>
 </a>"""
 
     return AV_REF_RE.sub(repl, text)
