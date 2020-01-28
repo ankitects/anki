@@ -6,7 +6,6 @@ from __future__ import annotations
 import io
 import json
 import os
-import pathlib
 import re
 import sys
 import traceback
@@ -350,6 +349,8 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     _illegalCharReg = re.compile(r'[][><:"/?*^\\|\0\r\n]')
 
     def stripIllegal(self, str: str) -> str:
+        # currently used by ankiconnect
+        print("stripIllegal() will go away")
         return re.sub(self._illegalCharReg, "", str)
 
     def hasIllegal(self, s: str) -> bool:
@@ -360,53 +361,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         except UnicodeEncodeError:
             return True
         return False
-
-    def cleanFilename(self, fname: str) -> str:
-        fname = self.stripIllegal(fname)
-        fname = self._cleanWin32Filename(fname)
-        fname = self._cleanLongFilename(fname)
-        if not fname:
-            fname = "renamed"
-
-        return fname
-
-    def _cleanWin32Filename(self, fname: str) -> str:
-        if not isWin:
-            return fname
-
-        # deal with things like con/prn/etc
-        p = pathlib.WindowsPath(fname)
-        if p.is_reserved():
-            fname = "renamed" + fname
-            assert not pathlib.WindowsPath(fname).is_reserved()
-
-        return fname
-
-    def _cleanLongFilename(self, fname: str) -> Any:
-        # a fairly safe limit that should work on typical windows
-        # paths and on eCryptfs partitions, even with a duplicate
-        # suffix appended
-        namemax = 136
-
-        if isWin:
-            pathmax = 240
-        else:
-            pathmax = 1024
-
-        # cap namemax based on absolute path
-        dirlen = len(os.path.dirname(os.path.abspath(fname)))
-        remaining = pathmax - dirlen
-        namemax = min(remaining, namemax)
-        assert namemax > 0
-
-        if len(fname) > namemax:
-            head, ext = os.path.splitext(fname)
-            headmax = namemax - len(ext)
-            head = head[0:headmax]
-            fname = head + ext
-            assert len(fname) <= namemax
-
-        return fname
 
     # Tracking changes
     ##########################################################################
