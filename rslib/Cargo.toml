@@ -24,3 +24,6 @@ rusqlite = "0.21.0"
 [build-dependencies]
 prost-build = "0.5.0"
 
+[dev-dependencies]
+utime = "0.2.1"
+

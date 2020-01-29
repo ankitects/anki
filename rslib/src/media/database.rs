@@ -2,9 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
+use crate::media::MediaManager;
 use rusqlite::{params, Connection, OptionalExtension, Statement, NO_PARAMS};
+use std::collections::HashMap;
+use std::path::Path;
 
-fn open_or_create(path: &str) -> Result<Connection> {
+pub(super) fn open_or_create<P: AsRef<Path>>(path: P) -> Result<Connection> {
     let mut db = Connection::open(path)?;
 
     db.pragma_update(None, "locking_mode", &"exclusive")?;
@@ -41,7 +44,7 @@ pub struct MediaEntry {
     // Modification time; 0 if deleted
     pub mtime: i64,
     /// True if changed since last sync
-    pub dirty: bool,
+    pub sync_required: bool,
 }
 
 #[derive(Debug, PartialEq)]
@@ -77,11 +80,11 @@ impl MediaDatabaseSession<'_> {
         self.db.execute_batch("commit").map_err(Into::into)
     }
 
-    fn rollback(&mut self) -> Result<()> {
+    pub(super) fn rollback(&mut self) -> Result<()> {
         self.db.execute_batch("rollback").map_err(Into::into)
     }
 
-    fn get_entry(&mut self, fname: &str) -> Result<Option<MediaEntry>> {
+    pub(super) fn get_entry(&mut self, fname: &str) -> Result<Option<MediaEntry>> {
         let stmt = cached_sql!(
             self.get_entry_stmt,
             self.db,
@@ -106,14 +109,14 @@ select fname, csum, mtime, dirty from media where fname=?"
                 fname: row.get(0)?,
                 sha1: sha1_array,
                 mtime: row.get(2)?,
-                dirty: row.get(3)?,
+                sync_required: row.get(3)?,
             })
         })
         .optional()
         .map_err(Into::into)
     }
 
-    fn set_entry(&mut self, entry: &MediaEntry) -> Result<()> {
+    pub(super) fn set_entry(&mut self, entry: &MediaEntry) -> Result<()> {
         let stmt = cached_sql!(
             self.update_entry_stmt,
             self.db,
@@ -123,12 +126,17 @@ values (?, ?, ?, ?)"
         );
 
         let sha1_str = entry.sha1.map(hex::encode);
-        stmt.execute(params![entry.fname, sha1_str, entry.mtime, entry.dirty])?;
+        stmt.execute(params![
+            entry.fname,
+            sha1_str,
+            entry.mtime,
+            entry.sync_required
+        ])?;
 
         Ok(())
     }
 
-    fn remove_entry(&mut self, fname: &str) -> Result<()> {
+    pub(super) fn remove_entry(&mut self, fname: &str) -> Result<()> {
         let stmt = cached_sql!(
             self.remove_entry_stmt,
             self.db,
@@ -141,7 +149,7 @@ delete from media where fname=?"
         Ok(())
     }
 
-    fn get_meta(&mut self) -> Result<MediaDatabaseMetadata> {
+    pub(super) fn get_meta(&mut self) -> Result<MediaDatabaseMetadata> {
         let mut stmt = self.db.prepare("select dirMod, lastUsn from meta")?;
 
         stmt.query_row(NO_PARAMS, |row| {
@@ -153,20 +161,20 @@ delete from media where fname=?"
         .map_err(Into::into)
     }
 
-    fn set_meta(&mut self, meta: &MediaDatabaseMetadata) -> Result<()> {
+    pub(super) fn set_meta(&mut self, meta: &MediaDatabaseMetadata) -> Result<()> {
         let mut stmt = self.db.prepare("update meta set dirMod = ?, lastUsn = ?")?;
         stmt.execute(params![meta.folder_mtime, meta.last_sync_usn])?;
 
         Ok(())
     }
 
-    fn clear(&mut self) -> Result<()> {
+    pub(super) fn clear(&mut self) -> Result<()> {
         self.db
             .execute_batch("delete from media; update meta set lastUsn = 0, dirMod = 0")
             .map_err(Into::into)
     }
 
-    fn changes_pending(&mut self) -> Result<u32> {
+    pub(super) fn changes_pending(&mut self) -> Result<u32> {
         self.db
             .query_row(
                 "select count(*) from media where dirty=1",
@@ -176,7 +184,7 @@ delete from media where fname=?"
             .map_err(Into::into)
     }
 
-    fn count(&mut self) -> Result<u32> {
+    pub(super) fn count(&mut self) -> Result<u32> {
         self.db
             .query_row(
                 "select count(*) from media where csum is not null",
@@ -186,7 +194,7 @@ delete from media where fname=?"
             .map_err(Into::into)
     }
 
-    fn get_pending_uploads(&mut self, max_entries: u32) -> Result<Vec<MediaEntry>> {
+    pub(super) fn get_pending_uploads(&mut self, max_entries: u32) -> Result<Vec<MediaEntry>> {
         let mut stmt = self
             .db
             .prepare("select fname from media where dirty=1 limit ?")?;
@@ -199,18 +207,17 @@ delete from media where fname=?"
 
         results
     }
-}
 
-pub struct MediaDatabase {
-    db: Connection,
-}
-
-impl MediaDatabase {
-    pub fn new(path: &str) -> Result<Self> {
-        let db = open_or_create(path)?;
-        Ok(MediaDatabase { db })
+    pub(super) fn all_mtimes(&mut self) -> Result<HashMap<String, i64>> {
+        let mut stmt = self.db.prepare("select fname, mtime from media")?;
+        let map: std::result::Result<HashMap<String, i64>, rusqlite::Error> = stmt
+            .query_map(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect();
+        Ok(map?)
     }
+}
 
+impl MediaManager {
     pub fn get_entry(&mut self, fname: &str) -> Result<Option<MediaEntry>> {
         self.query(|ctx| ctx.get_entry(fname))
     }
@@ -252,7 +259,7 @@ impl MediaDatabase {
     ///
     /// This function should be used for read-only requests. To mutate
     /// the database, use transact() instead.
-    fn query<F, R>(&self, func: F) -> Result<R>
+    pub(super) fn query<F, R>(&self, func: F) -> Result<R>
     where
         F: FnOnce(&mut MediaDatabaseSession) -> Result<R>,
     {
@@ -268,7 +275,7 @@ impl MediaDatabase {
 
     /// Execute the provided closure in a transaction, rolling back if
     /// an error is returned.
-    fn transact<F, R>(&self, func: F) -> Result<R>
+    pub(super) fn transact<F, R>(&self, func: F) -> Result<R>
     where
         F: FnOnce(&mut MediaDatabaseSession) -> Result<R>,
     {
@@ -295,15 +302,16 @@ impl MediaDatabase {
 #[cfg(test)]
 mod test {
     use crate::err::Result;
-    use crate::media::database::{MediaDatabase, MediaEntry};
+    use crate::media::database::MediaEntry;
     use crate::media::files::sha1_of_data;
+    use crate::media::MediaManager;
     use tempfile::NamedTempFile;
 
     #[test]
     fn test_database() -> Result<()> {
         let db_file = NamedTempFile::new()?;
         let db_file_path = db_file.path().to_str().unwrap();
-        let mut db = MediaDatabase::new(db_file_path)?;
+        let mut db = MediaManager::new("/dummy", db_file_path)?;
 
         // no entry exists yet
         assert_eq!(db.get_entry("test.mp3")?, None);
@@ -313,7 +321,7 @@ mod test {
             fname: "test.mp3".into(),
             sha1: None,
             mtime: 0,
-            dirty: false,
+            sync_required: false,
         };
         db.set_entry(&entry)?;
         assert_eq!(db.get_entry("test.mp3")?.unwrap(), entry);
@@ -321,7 +329,7 @@ mod test {
         // update it
         entry.sha1 = Some(sha1_of_data("hello".as_bytes()));
         entry.mtime = 123;
-        entry.dirty = true;
+        entry.sync_required = true;
         db.set_entry(&entry)?;
         assert_eq!(db.get_entry("test.mp3")?.unwrap(), entry);
 
@@ -342,7 +350,7 @@ mod test {
 
         // reopen database, and ensure data was committed
         drop(db);
-        db = MediaDatabase::new(db_file_path)?;
+        db = MediaManager::new("/dummy", db_file_path)?;
         meta = db.get_meta()?;
         assert_eq!(meta.folder_mtime, 123);
 
