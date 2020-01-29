@@ -6,7 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::RenderedTemplateReplacement;
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
-use crate::media::add_data_to_folder_uniquely;
+use crate::media::files::add_data_to_folder_uniquely;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
@@ -33,6 +33,7 @@ impl std::convert::From<AnkiError> for pt::BackendError {
                 V::TemplateParse(pt::TemplateParseError { info, q_side })
             },
             AnkiError::IOError { info } => V::IoError(pt::StringError { info }),
+            AnkiError::DBError { info } => V::DbError(pt::StringError { info }),
         };
 
         pt::BackendError { value: Some(value) }

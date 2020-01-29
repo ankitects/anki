@@ -19,6 +19,7 @@ htmlescape = "0.3.1"
 sha1 = "0.6.0"
 unicode-normalization = "0.1.12"
 tempfile = "3.1.0"
+rusqlite = "0.21.0"
 
 [build-dependencies]
 prost-build = "0.5.0"
