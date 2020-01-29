@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+#![deny(unused_must_use)]
+
 mod backend_proto;
 
 pub mod backend;
