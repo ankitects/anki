@@ -46,6 +46,7 @@ message BackendError {
         StringError invalid_input = 1;
         StringError template_parse = 2;
         StringError io_error = 3;
+        StringError db_error = 4;
     }
 }
 

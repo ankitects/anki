@@ -16,6 +16,9 @@ pub enum AnkiError {
 
     #[fail(display = "I/O error: {}", info)]
     IOError { info: String },
+
+    #[fail(display = "DB error: {}", info)]
+    DBError { info: String },
 }
 
 // error helpers
@@ -42,6 +45,22 @@ pub enum TemplateError {
 impl From<io::Error> for AnkiError {
     fn from(err: io::Error) -> Self {
         AnkiError::IOError {
+            info: format!("{:?}", err),
+        }
+    }
+}
+
+impl From<rusqlite::Error> for AnkiError {
+    fn from(err: rusqlite::Error) -> Self {
+        AnkiError::DBError {
+            info: format!("{:?}", err),
+        }
+    }
+}
+
+impl From<rusqlite::types::FromSqlError> for AnkiError {
+    fn from(err: rusqlite::types::FromSqlError) -> Self {
+        AnkiError::DBError {
             info: format!("{:?}", err),
         }
     }

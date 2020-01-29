@@ -1,0 +1,351 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use crate::err::Result;
+use rusqlite::{params, Connection, OptionalExtension, Statement, NO_PARAMS};
+
+fn open_or_create(path: &str) -> Result<Connection> {
+    let mut db = Connection::open(path)?;
+
+    db.pragma_update(None, "locking_mode", &"exclusive")?;
+    db.pragma_update(None, "page_size", &4096)?;
+    db.pragma_update(None, "legacy_file_format", &false)?;
+    db.pragma_update(None, "journal", &"wal")?;
+
+    initial_db_setup(&mut db)?;
+
+    Ok(db)
+}
+
+fn initial_db_setup(db: &mut Connection) -> Result<()> {
+    // tables already exist?
+    if db
+        .prepare("select null from sqlite_master where type = 'table' and name = 'media'")?
+        .exists(NO_PARAMS)?
+    {
+        return Ok(());
+    }
+
+    db.execute("begin", NO_PARAMS)?;
+    db.execute_batch(include_str!("schema.sql"))?;
+    db.execute_batch("commit; vacuum; analyze;")?;
+
+    Ok(())
+}
+
+#[derive(Debug, PartialEq)]
+pub struct MediaEntry {
+    pub fname: String,
+    /// If None, file has been deleted
+    pub sha1: Option<[u8; 20]>,
+    // Modification time; 0 if deleted
+    pub mtime: i64,
+    /// True if changed since last sync
+    pub dirty: bool,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct MediaDatabaseMetadata {
+    pub folder_mtime: i64,
+    pub last_sync_usn: i32,
+}
+
+/// Helper to prepare a statement, or return a previously prepared one.
+macro_rules! cached_sql {
+    ( $label:expr, $db:expr, $sql:expr ) => {{
+        if $label.is_none() {
+            $label = Some($db.prepare($sql)?);
+        }
+        $label.as_mut().unwrap()
+    }};
+}
+
+pub struct MediaDatabaseSession<'a> {
+    db: &'a Connection,
+
+    get_entry_stmt: Option<Statement<'a>>,
+    update_entry_stmt: Option<Statement<'a>>,
+    remove_entry_stmt: Option<Statement<'a>>,
+}
+
+impl MediaDatabaseSession<'_> {
+    fn begin(&mut self) -> Result<()> {
+        self.db.execute_batch("begin").map_err(Into::into)
+    }
+
+    fn commit(&mut self) -> Result<()> {
+        self.db.execute_batch("commit").map_err(Into::into)
+    }
+
+    fn rollback(&mut self) -> Result<()> {
+        self.db.execute_batch("rollback").map_err(Into::into)
+    }
+
+    fn get_entry(&mut self, fname: &str) -> Result<Option<MediaEntry>> {
+        let stmt = cached_sql!(
+            self.get_entry_stmt,
+            self.db,
+            "
+select fname, csum, mtime, dirty from media where fname=?"
+        );
+
+        stmt.query_row(params![fname], |row| {
+            // map the string checksum into bytes
+            let sha1_str: Option<String> = row.get(1)?;
+            let sha1_array = if let Some(s) = sha1_str {
+                let mut arr = [0; 20];
+                match hex::decode_to_slice(s, arr.as_mut()) {
+                    Ok(_) => Some(arr),
+                    _ => None,
+                }
+            } else {
+                None
+            };
+            // and return the entry
+            Ok(MediaEntry {
+                fname: row.get(0)?,
+                sha1: sha1_array,
+                mtime: row.get(2)?,
+                dirty: row.get(3)?,
+            })
+        })
+        .optional()
+        .map_err(Into::into)
+    }
+
+    fn set_entry(&mut self, entry: &MediaEntry) -> Result<()> {
+        let stmt = cached_sql!(
+            self.update_entry_stmt,
+            self.db,
+            "
+insert or replace into media (fname, csum, mtime, dirty)
+values (?, ?, ?, ?)"
+        );
+
+        let sha1_str = entry.sha1.map(hex::encode);
+        stmt.execute(params![entry.fname, sha1_str, entry.mtime, entry.dirty])?;
+
+        Ok(())
+    }
+
+    fn remove_entry(&mut self, fname: &str) -> Result<()> {
+        let stmt = cached_sql!(
+            self.remove_entry_stmt,
+            self.db,
+            "
+delete from media where fname=?"
+        );
+
+        stmt.execute(params![fname])?;
+
+        Ok(())
+    }
+
+    fn get_meta(&mut self) -> Result<MediaDatabaseMetadata> {
+        let mut stmt = self.db.prepare("select dirMod, lastUsn from meta")?;
+
+        stmt.query_row(NO_PARAMS, |row| {
+            Ok(MediaDatabaseMetadata {
+                folder_mtime: row.get(0)?,
+                last_sync_usn: row.get(1)?,
+            })
+        })
+        .map_err(Into::into)
+    }
+
+    fn set_meta(&mut self, meta: &MediaDatabaseMetadata) -> Result<()> {
+        let mut stmt = self.db.prepare("update meta set dirMod = ?, lastUsn = ?")?;
+        stmt.execute(params![meta.folder_mtime, meta.last_sync_usn])?;
+
+        Ok(())
+    }
+
+    fn clear(&mut self) -> Result<()> {
+        self.db
+            .execute_batch("delete from media; update meta set lastUsn = 0, dirMod = 0")
+            .map_err(Into::into)
+    }
+
+    fn changes_pending(&mut self) -> Result<u32> {
+        self.db
+            .query_row(
+                "select count(*) from media where dirty=1",
+                NO_PARAMS,
+                |row| Ok(row.get(0)?),
+            )
+            .map_err(Into::into)
+    }
+
+    fn count(&mut self) -> Result<u32> {
+        self.db
+            .query_row(
+                "select count(*) from media where csum is not null",
+                NO_PARAMS,
+                |row| Ok(row.get(0)?),
+            )
+            .map_err(Into::into)
+    }
+
+    fn get_pending_uploads(&mut self, max_entries: u32) -> Result<Vec<MediaEntry>> {
+        let mut stmt = self
+            .db
+            .prepare("select fname from media where dirty=1 limit ?")?;
+        let results: Result<Vec<_>> = stmt
+            .query_and_then(params![max_entries], |row| {
+                let fname = row.get_raw(0).as_str()?;
+                Ok(self.get_entry(fname)?.unwrap())
+            })?
+            .collect();
+
+        results
+    }
+}
+
+pub struct MediaDatabase {
+    db: Connection,
+}
+
+impl MediaDatabase {
+    pub fn new(path: &str) -> Result<Self> {
+        let db = open_or_create(path)?;
+        Ok(MediaDatabase { db })
+    }
+
+    pub fn get_entry(&mut self, fname: &str) -> Result<Option<MediaEntry>> {
+        self.query(|ctx| ctx.get_entry(fname))
+    }
+
+    pub fn set_entry(&mut self, entry: &MediaEntry) -> Result<()> {
+        self.transact(|ctx| ctx.set_entry(entry))
+    }
+
+    pub fn remove_entry(&mut self, fname: &str) -> Result<()> {
+        self.transact(|ctx| ctx.remove_entry(fname))
+    }
+
+    pub fn get_meta(&mut self) -> Result<MediaDatabaseMetadata> {
+        self.query(|ctx| ctx.get_meta())
+    }
+
+    pub fn set_meta(&mut self, meta: &MediaDatabaseMetadata) -> Result<()> {
+        self.transact(|ctx| ctx.set_meta(meta))
+    }
+
+    pub fn clear(&mut self) -> Result<()> {
+        self.transact(|ctx| ctx.clear())
+    }
+
+    pub fn changes_pending(&mut self) -> Result<u32> {
+        self.query(|ctx| ctx.changes_pending())
+    }
+
+    pub fn count(&mut self) -> Result<u32> {
+        self.query(|ctx| ctx.count())
+    }
+
+    pub fn get_pending_uploads(&mut self, max_entries: u32) -> Result<Vec<MediaEntry>> {
+        self.query(|ctx| ctx.get_pending_uploads(max_entries))
+    }
+
+    /// Call the provided closure with a session that exists for
+    /// the duration of the call.
+    ///
+    /// This function should be used for read-only requests. To mutate
+    /// the database, use transact() instead.
+    fn query<F, R>(&self, func: F) -> Result<R>
+    where
+        F: FnOnce(&mut MediaDatabaseSession) -> Result<R>,
+    {
+        let mut session = MediaDatabaseSession {
+            db: &self.db,
+            get_entry_stmt: None,
+            update_entry_stmt: None,
+            remove_entry_stmt: None,
+        };
+
+        func(&mut session)
+    }
+
+    /// Execute the provided closure in a transaction, rolling back if
+    /// an error is returned.
+    fn transact<F, R>(&self, func: F) -> Result<R>
+    where
+        F: FnOnce(&mut MediaDatabaseSession) -> Result<R>,
+    {
+        self.query(|ctx| {
+            ctx.begin()?;
+
+            let mut res = func(ctx);
+
+            if res.is_ok() {
+                if let Err(e) = ctx.commit() {
+                    res = Err(e);
+                }
+            }
+
+            if res.is_err() {
+                ctx.rollback()?;
+            }
+
+            res
+        })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::err::Result;
+    use crate::media::database::{MediaDatabase, MediaEntry};
+    use crate::media::files::sha1_of_data;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_database() -> Result<()> {
+        let db_file = NamedTempFile::new()?;
+        let db_file_path = db_file.path().to_str().unwrap();
+        let mut db = MediaDatabase::new(db_file_path)?;
+
+        // no entry exists yet
+        assert_eq!(db.get_entry("test.mp3")?, None);
+
+        // add one
+        let mut entry = MediaEntry {
+            fname: "test.mp3".into(),
+            sha1: None,
+            mtime: 0,
+            dirty: false,
+        };
+        db.set_entry(&entry)?;
+        assert_eq!(db.get_entry("test.mp3")?.unwrap(), entry);
+
+        // update it
+        entry.sha1 = Some(sha1_of_data("hello".as_bytes()));
+        entry.mtime = 123;
+        entry.dirty = true;
+        db.set_entry(&entry)?;
+        assert_eq!(db.get_entry("test.mp3")?.unwrap(), entry);
+
+        assert_eq!(db.get_pending_uploads(25)?, vec![entry]);
+
+        let mut meta = db.get_meta()?;
+        assert_eq!(meta.folder_mtime, 0);
+        assert_eq!(meta.last_sync_usn, 0);
+
+        meta.folder_mtime = 123;
+        meta.last_sync_usn = 321;
+
+        db.set_meta(&meta)?;
+
+        meta = db.get_meta()?;
+        assert_eq!(meta.folder_mtime, 123);
+        assert_eq!(meta.last_sync_usn, 321);
+
+        // reopen database, and ensure data was committed
+        drop(db);
+        db = MediaDatabase::new(db_file_path)?;
+        meta = db.get_meta()?;
+        assert_eq!(meta.folder_mtime, 123);
+
+        Ok(())
+    }
+}

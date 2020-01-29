@@ -203,7 +203,7 @@ fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
 }
 
 /// Return the SHA1 of provided data.
-fn sha1_of_data(data: &[u8]) -> [u8; 20] {
+pub(crate) fn sha1_of_data(data: &[u8]) -> [u8; 20] {
     let mut hasher = Sha1::new();
     hasher.update(data);
     hasher.digest().bytes()
@@ -211,7 +211,7 @@ fn sha1_of_data(data: &[u8]) -> [u8; 20] {
 
 #[cfg(test)]
 mod test {
-    use crate::media::{
+    use crate::media::files::{
         add_data_to_folder_uniquely, add_hash_suffix_to_file_stem, normalize_filename,
         sha1_of_data, MAX_FILENAME_LENGTH,
     };
