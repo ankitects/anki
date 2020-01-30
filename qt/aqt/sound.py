@@ -584,7 +584,7 @@ def av_refs_to_play_icons(text: str) -> str:
 
     def repl(match: re.Match) -> str:
         return f"""
-<a class=replay-button href=# onclick="pycmd('{match.group(1)}'); return false;">
+<a class="replay-button soundLink" href=# onclick="pycmd('{match.group(1)}'); return false;">
     <svg class="playImage" viewBox="0 0 64 64" version="1.1">
         <g>
             <circle cx="32" cy="32" r="29" />
