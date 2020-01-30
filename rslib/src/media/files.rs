@@ -93,6 +93,7 @@ pub fn add_data_to_folder_uniquely<'a, P>(
     folder: P,
     desired_name: &'a str,
     data: &[u8],
+    sha1: [u8; 20],
 ) -> io::Result<Cow<'a, str>>
 where
     P: AsRef<Path>,
@@ -108,14 +109,13 @@ where
         return Ok(normalized_name);
     }
 
-    let data_hash = sha1_of_data(data);
-    if existing_file_hash.unwrap() == data_hash {
+    if existing_file_hash.unwrap() == sha1 {
         // existing file has same checksum, nothing to do
         return Ok(normalized_name);
     }
 
     // give it a unique name based on its hash
-    let hashed_name = add_hash_suffix_to_file_stem(normalized_name.as_ref(), &data_hash);
+    let hashed_name = add_hash_suffix_to_file_stem(normalized_name.as_ref(), &sha1);
     target_path.set_file_name(&hashed_name);
 
     fs::write(&target_path, data)?;
@@ -233,7 +233,69 @@ struct FilesystemEntry {
     is_new: bool,
 }
 
+fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
+    Ok(path
+        .as_ref()
+        .metadata()?
+        .modified()?
+        .duration_since(time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as i64)
+}
+
 impl MediaManager {
+    /// Add a file to the media folder.
+    ///
+    /// If a file with differing contents already exists, a hash will be
+    /// appended to the name.
+    ///
+    /// Also notes the file in the media database.
+    pub fn add_file<'a>(&mut self, desired_name: &'a str, data: &[u8]) -> Result<Cow<'a, str>> {
+        let pre_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
+
+        // add file to folder
+        let data_hash = sha1_of_data(data);
+        let chosen_fname =
+            add_data_to_folder_uniquely(&self.media_folder, desired_name, data, data_hash)?;
+        let file_mtime = mtime_as_i64(self.media_folder.join(chosen_fname.as_ref()))?;
+        let post_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
+
+        // add to the media DB
+        self.transact(|ctx| {
+            let existing_entry = ctx.get_entry(&chosen_fname)?;
+            let new_sha1 = Some(data_hash);
+
+            let entry_update_required = match existing_entry {
+                Some(existing) if existing.sha1 == new_sha1 => false,
+                _ => true,
+            };
+
+            if entry_update_required {
+                ctx.set_entry(&MediaEntry {
+                    fname: chosen_fname.to_string(),
+                    sha1: new_sha1,
+                    mtime: file_mtime,
+                    sync_required: true,
+                })?;
+            }
+
+            let mut meta = ctx.get_meta()?;
+            if meta.folder_mtime == pre_add_folder_mtime {
+                // if media db was in sync with folder prior to this add,
+                // we can keep it in sync
+                meta.folder_mtime = post_add_folder_mtime;
+                ctx.set_meta(&meta)?;
+            } else {
+                // otherwise, leave it alone so that other pending changes
+                // get picked up later
+            }
+
+            Ok(())
+        })?;
+
+        Ok(chosen_fname)
+    }
+
     /// Note any added/changed/deleted files.
     ///
     /// In the future, we could register files in the media DB as they
@@ -241,18 +303,12 @@ impl MediaManager {
     /// folder scan could be skipped.
     pub fn register_changes(&mut self) -> Result<()> {
         // folder mtime unchanged?
-        let media_dir_modified = self
-            .media_folder
-            .metadata()?
-            .modified()?
-            .duration_since(time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+        let dirmod = mtime_as_i64(&self.media_folder)?;
         let mut meta = self.get_meta()?;
-        if media_dir_modified == meta.folder_mtime {
+        if dirmod == meta.folder_mtime {
             return Ok(());
         } else {
-            meta.folder_mtime = media_dir_modified;
+            meta.folder_mtime = dirmod;
         }
 
         let mtimes = self.query(|ctx| ctx.all_mtimes())?;
@@ -438,20 +494,22 @@ mod test {
         let dpath = dir.path();
 
         // no existing file case
+        let h1 = sha1_of_data("hello".as_bytes());
         assert_eq!(
-            add_data_to_folder_uniquely(dpath, "test.mp3", "hello".as_bytes()).unwrap(),
+            add_data_to_folder_uniquely(dpath, "test.mp3", "hello".as_bytes(), h1).unwrap(),
             "test.mp3"
         );
 
         // same contents case
         assert_eq!(
-            add_data_to_folder_uniquely(dpath, "test.mp3", "hello".as_bytes()).unwrap(),
+            add_data_to_folder_uniquely(dpath, "test.mp3", "hello".as_bytes(), h1).unwrap(),
             "test.mp3"
         );
 
         // different contents
+        let h2 = sha1_of_data("hello1".as_bytes());
         assert_eq!(
-            add_data_to_folder_uniquely(dpath, "test.mp3", "hello1".as_bytes()).unwrap(),
+            add_data_to_folder_uniquely(dpath, "test.mp3", "hello1".as_bytes(), h2).unwrap(),
             "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"
         );
 

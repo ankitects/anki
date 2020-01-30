@@ -10,7 +10,6 @@ use std::path::Path;
 pub(super) fn open_or_create<P: AsRef<Path>>(path: P) -> Result<Connection> {
     let mut db = Connection::open(path)?;
 
-    db.pragma_update(None, "locking_mode", &"exclusive")?;
     db.pragma_update(None, "page_size", &4096)?;
     db.pragma_update(None, "legacy_file_format", &false)?;
     db.pragma_update(None, "journal", &"wal")?;

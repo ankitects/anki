@@ -6,7 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::RenderedTemplateReplacement;
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
-use crate::media::files::add_data_to_folder_uniquely;
+use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
@@ -20,7 +20,7 @@ use std::path::PathBuf;
 pub struct Backend {
     #[allow(dead_code)]
     col_path: PathBuf,
-    media_folder: PathBuf,
+    media_manager: Option<MediaManager>,
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -47,12 +47,33 @@ impl std::convert::From<AnkiError> for pt::backend_output::Value {
     }
 }
 
+pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
+    let input: pt::BackendInit = match pt::BackendInit::decode(init_msg) {
+        Ok(req) => req,
+        Err(_) => return Err("couldn't decode init request".into()),
+    };
+
+    match Backend::new(
+        &input.collection_path,
+        &input.media_folder_path,
+        &input.media_db_path,
+    ) {
+        Ok(backend) => Ok(backend),
+        Err(e) => Err(format!("{:?}", e)),
+    }
+}
+
 impl Backend {
-    pub fn new<P: Into<PathBuf>>(col_path: P, media_folder: P) -> Backend {
-        Backend {
+    pub fn new(col_path: &str, media_folder: &str, media_db: &str) -> Result<Backend> {
+        let media_manager = match (media_folder.is_empty(), media_db.is_empty()) {
+            (false, false) => Some(MediaManager::new(media_folder, media_db)?),
+            _ => None,
+        };
+
+        Ok(Backend {
             col_path: col_path.into(),
-            media_folder: media_folder.into(),
-        }
+            media_manager,
+        })
     }
 
     /// Decode a request, process it, and return the encoded result.
@@ -77,7 +98,7 @@ impl Backend {
         buf
     }
 
-    fn run_command(&self, input: pt::BackendInput) -> pt::BackendOutput {
+    fn run_command(&mut self, input: pt::BackendInput) -> pt::BackendOutput {
         let oval = if let Some(ival) = input.value {
             match self.run_command_inner(ival) {
                 Ok(output) => output,
@@ -91,7 +112,7 @@ impl Backend {
     }
 
     fn run_command_inner(
-        &self,
+        &mut self,
         ival: pt::backend_input::Value,
     ) -> Result<pt::backend_output::Value> {
         use pt::backend_output::Value as OValue;
@@ -230,11 +251,13 @@ impl Backend {
         }
     }
 
-    fn add_file_to_media_folder(&self, input: pt::AddFileToMediaFolderIn) -> Result<String> {
-        Ok(
-            add_data_to_folder_uniquely(&self.media_folder, &input.desired_name, &input.data)?
-                .into(),
-        )
+    fn add_file_to_media_folder(&mut self, input: pt::AddFileToMediaFolderIn) -> Result<String> {
+        Ok(self
+            .media_manager
+            .as_mut()
+            .unwrap()
+            .add_file(&input.desired_name, &input.data)?
+            .into())
     }
 }
 

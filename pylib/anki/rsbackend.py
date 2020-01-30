@@ -90,8 +90,13 @@ def proto_replacement_list_to_native(
 
 
 class RustBackend:
-    def __init__(self, col_path: str, media_folder: str):
-        self._backend = ankirspy.Backend(col_path, media_folder)
+    def __init__(self, col_path: str, media_folder_path: str, media_db_path: str):
+        init_msg = pb.BackendInit(
+            collection_path=col_path,
+            media_folder_path=media_folder_path,
+            media_db_path=media_db_path,
+        )
+        self._backend = ankirspy.Backend(init_msg.SerializeToString())
 
     def _run_command(self, input: pb.BackendInput) -> pb.BackendOutput:
         input_bytes = input.SerializeToString()
