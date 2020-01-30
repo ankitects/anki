@@ -307,6 +307,30 @@ class _NotesWillBeDeletedHook:
 notes_will_be_deleted = _NotesWillBeDeletedHook()
 
 
+class _Schedv2DidAnswerReviewCardHook:
+    _hooks: List[Callable[["anki.cards.Card", int, bool], None]] = []
+
+    def append(self, cb: Callable[["anki.cards.Card", int, bool], None]) -> None:
+        """(card: anki.cards.Card, ease: int, early: bool)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["anki.cards.Card", int, bool], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, card: anki.cards.Card, ease: int, early: bool) -> None:
+        for hook in self._hooks:
+            try:
+                hook(card, ease, early)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+schedv2_did_answer_review_card = _Schedv2DidAnswerReviewCardHook()
+
+
 class _SchemaWillChangeFilter:
     _hooks: List[Callable[[bool], bool]] = []
 

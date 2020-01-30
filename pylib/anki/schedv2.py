@@ -959,7 +959,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _answerRevCard(self, card: Card, ease: int) -> None:
         delay = 0
-        early = card.odid and (card.odue > self.today)
+        early = bool(card.odid and (card.odue > self.today))
         type = early and 3 or 1
 
         if ease == 1:
@@ -967,6 +967,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         else:
             self._rescheduleRev(card, ease, early)
 
+        hooks.schedv2_did_answer_review_card(card, ease, early)
         self._logRev(card, ease, delay, type)
 
     def _rescheduleLapse(self, card: Card) -> Any:

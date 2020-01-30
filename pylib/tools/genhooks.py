@@ -75,6 +75,10 @@ hooks = [
         ],
         doc="Can modify the resulting text after rendering completes.",
     ),
+    Hook(
+        name="schedv2_did_answer_review_card",
+        args=["card: anki.cards.Card", "ease: int", "early: bool"],
+    ),
 ]
 
 if __name__ == "__main__":
