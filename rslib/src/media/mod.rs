@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
-use crate::media::database::{open_or_create, MediaEntry};
+use crate::media::database::{open_or_create, MediaDatabaseContext, MediaEntry};
 use crate::media::files::{
     add_data_to_folder_uniquely, mtime_as_i64, sha1_of_data, sha1_of_file,
     MEDIA_SYNC_FILESIZE_LIMIT, NONSYNCABLE_FILENAME,
@@ -95,150 +95,199 @@ impl MediaManager {
 
     /// Note any added/changed/deleted files.
     pub fn register_changes(&mut self) -> Result<()> {
-        // folder mtime unchanged?
-        let dirmod = mtime_as_i64(&self.media_folder)?;
-        let mut meta = self.get_meta()?;
-        if dirmod == meta.folder_mtime {
-            return Ok(());
-        } else {
-            meta.folder_mtime = dirmod;
-        }
+        self.transact(|ctx| {
+            // folder mtime unchanged?
+            let dirmod = mtime_as_i64(&self.media_folder)?;
 
-        let mtimes = self.query(|ctx| ctx.all_mtimes())?;
+            let mut meta = ctx.get_meta()?;
+            if dirmod == meta.folder_mtime {
+                return Ok(());
+            } else {
+                meta.folder_mtime = dirmod;
+            }
 
-        let (changed, removed) = self.media_folder_changes(mtimes)?;
+            let mtimes = ctx.all_mtimes()?;
 
-        self.add_updated_entries(changed)?;
-        self.remove_deleted_files(removed)?;
+            let (changed, removed) = media_folder_changes(&self.media_folder, mtimes)?;
 
-        self.set_meta(&meta)?;
+            add_updated_entries(ctx, changed)?;
+            remove_deleted_files(ctx, removed)?;
 
-        Ok(())
+            ctx.set_meta(&meta)?;
+
+            Ok(())
+        })
     }
 
-    /// Scan through the media folder, finding changes.
-    /// Returns (added/changed files, removed files).
-    ///
-    /// Checks for invalid filenames and unicode normalization are deferred
-    /// until syncing time, as we can't trust the entries previous Anki versions
-    /// wrote are correct.
-    fn media_folder_changes(
-        &self,
-        mut mtimes: HashMap<String, i64>,
-    ) -> Result<(Vec<FilesystemEntry>, Vec<String>)> {
-        let mut added_or_changed = vec![];
+    // syncDelete
+    pub fn remove_entry(&mut self, fname: &str) -> Result<()> {
+        self.transact(|ctx| ctx.remove_entry(fname))
+    }
 
-        // loop through on-disk files
-        for dentry in self.media_folder.read_dir()? {
-            let dentry = dentry?;
+    // forceResync
+    pub fn clear(&mut self) -> Result<()> {
+        self.transact(|ctx| ctx.clear())
+    }
 
-            // skip folders
-            if dentry.file_type()?.is_dir() {
+    // lastUsn
+    pub fn get_last_usn(&mut self) -> Result<i32> {
+        self.query(|ctx| Ok(ctx.get_meta()?.last_sync_usn))
+    }
+
+    // setLastUsn
+    pub fn set_last_usn(&mut self, usn: i32) -> Result<()> {
+        self.transact(|ctx| {
+            let mut meta = ctx.get_meta()?;
+            meta.last_sync_usn = usn;
+            ctx.set_meta(&meta)
+        })
+    }
+
+    // dirtyCount
+    pub fn changes_pending(&mut self) -> Result<u32> {
+        self.query(|ctx| ctx.changes_pending())
+    }
+
+    // mediaCount
+    pub fn count(&mut self) -> Result<u32> {
+        self.query(|ctx| ctx.count())
+    }
+
+    // mediaChangesZip
+    pub fn get_pending_uploads(&mut self, max_entries: u32) -> Result<Vec<MediaEntry>> {
+        self.query(|ctx| ctx.get_pending_uploads(max_entries))
+    }
+
+    // db helpers
+
+    pub(super) fn query<F, R>(&self, func: F) -> Result<R>
+    where
+        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
+    {
+        MediaDatabaseContext::query(&self.db, func)
+    }
+
+    pub(super) fn transact<F, R>(&self, func: F) -> Result<R>
+    where
+        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
+    {
+        MediaDatabaseContext::transact(&self.db, func)
+    }
+}
+
+/// Scan through the media folder, finding changes.
+/// Returns (added/changed files, removed files).
+///
+/// Checks for invalid filenames and unicode normalization are deferred
+/// until syncing time, as we can't trust the entries previous Anki versions
+/// wrote are correct.
+fn media_folder_changes(
+    media_folder: &Path,
+    mut mtimes: HashMap<String, i64>,
+) -> Result<(Vec<FilesystemEntry>, Vec<String>)> {
+    let mut added_or_changed = vec![];
+
+    // loop through on-disk files
+    for dentry in media_folder.read_dir()? {
+        let dentry = dentry?;
+
+        // skip folders
+        if dentry.file_type()?.is_dir() {
+            continue;
+        }
+
+        // if the filename is not valid unicode, skip it
+        let fname_os = dentry.file_name();
+        let fname = match fname_os.to_str() {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // ignore blacklisted files
+        if NONSYNCABLE_FILENAME.is_match(fname) {
+            continue;
+        }
+
+        // ignore large files
+        let metadata = dentry.metadata()?;
+        if metadata.len() > MEDIA_SYNC_FILESIZE_LIMIT as u64 {
+            continue;
+        }
+
+        // remove from mtimes for later deletion tracking
+        let previous_mtime = mtimes.remove(fname);
+
+        // skip files that have not been modified
+        let mtime = metadata
+            .modified()?
+            .duration_since(time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+        if let Some(previous_mtime) = previous_mtime {
+            if previous_mtime == mtime {
                 continue;
             }
-
-            // if the filename is not valid unicode, skip it
-            let fname_os = dentry.file_name();
-            let fname = match fname_os.to_str() {
-                Some(s) => s,
-                None => continue,
-            };
-
-            // ignore blacklisted files
-            if NONSYNCABLE_FILENAME.is_match(fname) {
-                continue;
-            }
-
-            // ignore large files
-            let metadata = dentry.metadata()?;
-            if metadata.len() > MEDIA_SYNC_FILESIZE_LIMIT as u64 {
-                continue;
-            }
-
-            // remove from mtimes for later deletion tracking
-            let previous_mtime = mtimes.remove(fname);
-
-            // skip files that have not been modified
-            let mtime = metadata
-                .modified()?
-                .duration_since(time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
-            if let Some(previous_mtime) = previous_mtime {
-                if previous_mtime == mtime {
-                    continue;
-                }
-            }
-
-            // add entry to the list
-            let sha1 = Some(sha1_of_file(&dentry.path())?);
-            added_or_changed.push(FilesystemEntry {
-                fname: fname.to_string(),
-                sha1,
-                mtime,
-                is_new: previous_mtime.is_none(),
-            });
         }
 
-        // any remaining entries from the database have been deleted
-        let removed: Vec<_> = mtimes.into_iter().map(|(k, _)| k).collect();
-
-        Ok((added_or_changed, removed))
+        // add entry to the list
+        let sha1 = Some(sha1_of_file(&dentry.path())?);
+        added_or_changed.push(FilesystemEntry {
+            fname: fname.to_string(),
+            sha1,
+            mtime,
+            is_new: previous_mtime.is_none(),
+        });
     }
 
-    /// Add added/updated entries to the media DB.
-    ///
-    /// Skip files where the mod time differed, but checksums are the same.
-    fn add_updated_entries(&mut self, entries: Vec<FilesystemEntry>) -> Result<()> {
-        for chunk in entries.chunks(1_024) {
-            self.transact(|ctx| {
-                for fentry in chunk {
-                    let mut sync_required = true;
-                    if !fentry.is_new {
-                        if let Some(db_entry) = ctx.get_entry(&fentry.fname)? {
-                            if db_entry.sha1 == fentry.sha1 {
-                                // mtime bumped but file contents are the same,
-                                // so we can preserve the current updated flag.
-                                // we still need to update the mtime however.
-                                sync_required = db_entry.sync_required
-                            }
-                        }
-                    };
+    // any remaining entries from the database have been deleted
+    let removed: Vec<_> = mtimes.into_iter().map(|(k, _)| k).collect();
 
-                    ctx.set_entry(&MediaEntry {
-                        fname: fentry.fname.clone(),
-                        sha1: fentry.sha1,
-                        mtime: fentry.mtime,
-                        sync_required,
-                    })?;
+    Ok((added_or_changed, removed))
+}
+
+/// Add added/updated entries to the media DB.
+///
+/// Skip files where the mod time differed, but checksums are the same.
+fn add_updated_entries(
+    ctx: &mut MediaDatabaseContext,
+    entries: Vec<FilesystemEntry>,
+) -> Result<()> {
+    for fentry in entries {
+        let mut sync_required = true;
+        if !fentry.is_new {
+            if let Some(db_entry) = ctx.get_entry(&fentry.fname)? {
+                if db_entry.sha1 == fentry.sha1 {
+                    // mtime bumped but file contents are the same,
+                    // so we can preserve the current updated flag.
+                    // we still need to update the mtime however.
+                    sync_required = db_entry.sync_required
                 }
+            }
+        };
 
-                Ok(())
-            })?;
-        }
-
-        Ok(())
+        ctx.set_entry(&MediaEntry {
+            fname: fentry.fname,
+            sha1: fentry.sha1,
+            mtime: fentry.mtime,
+            sync_required,
+        })?;
     }
 
-    /// Remove deleted files from the media DB.
-    fn remove_deleted_files(&mut self, removed: Vec<String>) -> Result<()> {
-        for chunk in removed.chunks(4_096) {
-            self.transact(|ctx| {
-                for fname in chunk {
-                    ctx.set_entry(&MediaEntry {
-                        fname: fname.clone(),
-                        sha1: None,
-                        mtime: 0,
-                        sync_required: true,
-                    })?;
-                }
+    Ok(())
+}
 
-                Ok(())
-            })?;
-        }
-
-        Ok(())
+/// Remove deleted files from the media DB.
+fn remove_deleted_files(ctx: &mut MediaDatabaseContext, removed: Vec<String>) -> Result<()> {
+    for fname in removed {
+        ctx.set_entry(&MediaEntry {
+            fname,
+            sha1: None,
+            mtime: 0,
+            sync_required: true,
+        })?;
     }
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -271,7 +320,10 @@ mod test {
         let media_db = dir.path().join("media.db");
 
         let mut mgr = MediaManager::new(&media_dir, media_db)?;
-        assert_eq!(mgr.count()?, 0);
+        mgr.query(|ctx| {
+            assert_eq!(ctx.count()?, 0);
+            Ok(())
+        })?;
 
         // add a file and check it's picked up
         let f1 = media_dir.join("file.jpg");
@@ -280,57 +332,66 @@ mod test {
         change_mtime(&media_dir);
         mgr.register_changes()?;
 
-        assert_eq!(mgr.count()?, 1);
-        assert_eq!(mgr.changes_pending()?, 1);
-        let mut entry = mgr.get_entry("file.jpg")?.unwrap();
-        assert_eq!(
-            entry,
-            MediaEntry {
-                fname: "file.jpg".into(),
-                sha1: Some(sha1_of_data("hello".as_bytes())),
-                mtime: f1
-                    .metadata()?
-                    .modified()?
-                    .duration_since(time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs() as i64,
-                sync_required: true,
-            }
-        );
+        let mut entry = mgr.transact(|ctx| {
+            assert_eq!(ctx.count()?, 1);
+            assert_eq!(ctx.changes_pending()?, 1);
+            let mut entry = ctx.get_entry("file.jpg")?.unwrap();
+            assert_eq!(
+                entry,
+                MediaEntry {
+                    fname: "file.jpg".into(),
+                    sha1: Some(sha1_of_data("hello".as_bytes())),
+                    mtime: f1
+                        .metadata()?
+                        .modified()?
+                        .duration_since(time::UNIX_EPOCH)
+                        .unwrap()
+                        .as_secs() as i64,
+                    sync_required: true,
+                }
+            );
 
-        // mark it as unmodified
-        entry.sync_required = false;
-        mgr.set_entry(&entry)?;
-        assert_eq!(mgr.changes_pending()?, 0);
+            // mark it as unmodified
+            entry.sync_required = false;
+            ctx.set_entry(&entry)?;
+            assert_eq!(ctx.changes_pending()?, 0);
 
-        // modify it
-        fs::write(&f1, "hello1")?;
-        change_mtime(&f1);
+            // modify it
+            fs::write(&f1, "hello1")?;
+            change_mtime(&f1);
 
-        change_mtime(&media_dir);
+            change_mtime(&media_dir);
+
+            Ok(entry)
+        })?;
+
         mgr.register_changes()?;
 
-        assert_eq!(mgr.count()?, 1);
-        assert_eq!(mgr.changes_pending()?, 1);
-        assert_eq!(
-            mgr.get_entry("file.jpg")?.unwrap(),
-            MediaEntry {
-                fname: "file.jpg".into(),
-                sha1: Some(sha1_of_data("hello1".as_bytes())),
-                mtime: f1
-                    .metadata()?
-                    .modified()?
-                    .duration_since(time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs() as i64,
-                sync_required: true,
-            }
-        );
+        mgr.transact(|ctx| {
+            assert_eq!(ctx.count()?, 1);
+            assert_eq!(ctx.changes_pending()?, 1);
+            assert_eq!(
+                ctx.get_entry("file.jpg")?.unwrap(),
+                MediaEntry {
+                    fname: "file.jpg".into(),
+                    sha1: Some(sha1_of_data("hello1".as_bytes())),
+                    mtime: f1
+                        .metadata()?
+                        .modified()?
+                        .duration_since(time::UNIX_EPOCH)
+                        .unwrap()
+                        .as_secs() as i64,
+                    sync_required: true,
+                }
+            );
 
-        // mark it as unmodified
-        entry.sync_required = false;
-        mgr.set_entry(&entry)?;
-        assert_eq!(mgr.changes_pending()?, 0);
+            // mark it as unmodified
+            entry.sync_required = false;
+            ctx.set_entry(&entry)?;
+            assert_eq!(ctx.changes_pending()?, 0);
+
+            Ok(())
+        })?;
 
         // delete it
         fs::remove_file(&f1)?;
@@ -338,18 +399,20 @@ mod test {
         change_mtime(&media_dir);
         mgr.register_changes().unwrap();
 
-        assert_eq!(mgr.count()?, 0);
-        assert_eq!(mgr.changes_pending()?, 1);
-        assert_eq!(
-            mgr.get_entry("file.jpg")?.unwrap(),
-            MediaEntry {
-                fname: "file.jpg".into(),
-                sha1: None,
-                mtime: 0,
-                sync_required: true,
-            }
-        );
+        mgr.query(|ctx| {
+            assert_eq!(ctx.count()?, 0);
+            assert_eq!(ctx.changes_pending()?, 1);
+            assert_eq!(
+                ctx.get_entry("file.jpg")?.unwrap(),
+                MediaEntry {
+                    fname: "file.jpg".into(),
+                    sha1: None,
+                    mtime: 0,
+                    sync_required: true,
+                }
+            );
 
-        Ok(())
+            Ok(())
+        })
     }
 }

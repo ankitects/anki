@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
-use crate::media::MediaManager;
 use rusqlite::{params, Connection, OptionalExtension, Statement, NO_PARAMS};
 use std::collections::HashMap;
 use std::path::Path;
@@ -62,7 +61,7 @@ macro_rules! cached_sql {
     }};
 }
 
-pub struct MediaDatabaseSession<'a> {
+pub struct MediaDatabaseContext<'a> {
     db: &'a Connection,
 
     get_entry_stmt: Option<Statement<'a>>,
@@ -70,7 +69,53 @@ pub struct MediaDatabaseSession<'a> {
     remove_entry_stmt: Option<Statement<'a>>,
 }
 
-impl MediaDatabaseSession<'_> {
+impl MediaDatabaseContext<'_> {
+    pub(super) fn new(db: &Connection) -> MediaDatabaseContext {
+        MediaDatabaseContext {
+            db,
+            get_entry_stmt: None,
+            update_entry_stmt: None,
+            remove_entry_stmt: None,
+        }
+    }
+
+    /// Call the provided closure with a session that exists for
+    /// the duration of the call.
+    ///
+    /// This function should be used for read-only requests. To mutate
+    /// the database, use transact() instead.
+    pub(super) fn query<F, R>(db: &Connection, func: F) -> Result<R>
+    where
+        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
+    {
+        func(&mut Self::new(db))
+    }
+
+    /// Execute the provided closure in a transaction, rolling back if
+    /// an error is returned.
+    pub(super) fn transact<F, R>(db: &Connection, func: F) -> Result<R>
+    where
+        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
+    {
+        MediaDatabaseContext::query(db, |ctx| {
+            ctx.begin()?;
+
+            let mut res = func(ctx);
+
+            if res.is_ok() {
+                if let Err(e) = ctx.commit() {
+                    res = Err(e);
+                }
+            }
+
+            if res.is_err() {
+                ctx.rollback()?;
+            }
+
+            res
+        })
+    }
+
     fn begin(&mut self) -> Result<()> {
         self.db.execute_batch("begin").map_err(Into::into)
     }
@@ -79,7 +124,7 @@ impl MediaDatabaseSession<'_> {
         self.db.execute_batch("commit").map_err(Into::into)
     }
 
-    pub(super) fn rollback(&mut self) -> Result<()> {
+    fn rollback(&mut self) -> Result<()> {
         self.db.execute_batch("rollback").map_err(Into::into)
     }
 
@@ -216,88 +261,6 @@ delete from media where fname=?"
     }
 }
 
-impl MediaManager {
-    pub fn get_entry(&mut self, fname: &str) -> Result<Option<MediaEntry>> {
-        self.query(|ctx| ctx.get_entry(fname))
-    }
-
-    pub fn set_entry(&mut self, entry: &MediaEntry) -> Result<()> {
-        self.transact(|ctx| ctx.set_entry(entry))
-    }
-
-    pub fn remove_entry(&mut self, fname: &str) -> Result<()> {
-        self.transact(|ctx| ctx.remove_entry(fname))
-    }
-
-    pub fn get_meta(&mut self) -> Result<MediaDatabaseMetadata> {
-        self.query(|ctx| ctx.get_meta())
-    }
-
-    pub fn set_meta(&mut self, meta: &MediaDatabaseMetadata) -> Result<()> {
-        self.transact(|ctx| ctx.set_meta(meta))
-    }
-
-    pub fn clear(&mut self) -> Result<()> {
-        self.transact(|ctx| ctx.clear())
-    }
-
-    pub fn changes_pending(&mut self) -> Result<u32> {
-        self.query(|ctx| ctx.changes_pending())
-    }
-
-    pub fn count(&mut self) -> Result<u32> {
-        self.query(|ctx| ctx.count())
-    }
-
-    pub fn get_pending_uploads(&mut self, max_entries: u32) -> Result<Vec<MediaEntry>> {
-        self.query(|ctx| ctx.get_pending_uploads(max_entries))
-    }
-
-    /// Call the provided closure with a session that exists for
-    /// the duration of the call.
-    ///
-    /// This function should be used for read-only requests. To mutate
-    /// the database, use transact() instead.
-    pub(super) fn query<F, R>(&self, func: F) -> Result<R>
-    where
-        F: FnOnce(&mut MediaDatabaseSession) -> Result<R>,
-    {
-        let mut session = MediaDatabaseSession {
-            db: &self.db,
-            get_entry_stmt: None,
-            update_entry_stmt: None,
-            remove_entry_stmt: None,
-        };
-
-        func(&mut session)
-    }
-
-    /// Execute the provided closure in a transaction, rolling back if
-    /// an error is returned.
-    pub(super) fn transact<F, R>(&self, func: F) -> Result<R>
-    where
-        F: FnOnce(&mut MediaDatabaseSession) -> Result<R>,
-    {
-        self.query(|ctx| {
-            ctx.begin()?;
-
-            let mut res = func(ctx);
-
-            if res.is_ok() {
-                if let Err(e) = ctx.commit() {
-                    res = Err(e);
-                }
-            }
-
-            if res.is_err() {
-                ctx.rollback()?;
-            }
-
-            res
-        })
-    }
-}
-
 #[cfg(test)]
 mod test {
     use crate::err::Result;
@@ -310,49 +273,55 @@ mod test {
     fn test_database() -> Result<()> {
         let db_file = NamedTempFile::new()?;
         let db_file_path = db_file.path().to_str().unwrap();
-        let mut db = MediaManager::new("/dummy", db_file_path)?;
+        let mut mgr = MediaManager::new("/dummy", db_file_path)?;
 
-        // no entry exists yet
-        assert_eq!(db.get_entry("test.mp3")?, None);
+        mgr.transact(|ctx| {
+            // no entry exists yet
+            assert_eq!(ctx.get_entry("test.mp3")?, None);
 
-        // add one
-        let mut entry = MediaEntry {
-            fname: "test.mp3".into(),
-            sha1: None,
-            mtime: 0,
-            sync_required: false,
-        };
-        db.set_entry(&entry)?;
-        assert_eq!(db.get_entry("test.mp3")?.unwrap(), entry);
+            // add one
+            let mut entry = MediaEntry {
+                fname: "test.mp3".into(),
+                sha1: None,
+                mtime: 0,
+                sync_required: false,
+            };
+            ctx.set_entry(&entry)?;
+            assert_eq!(ctx.get_entry("test.mp3")?.unwrap(), entry);
 
-        // update it
-        entry.sha1 = Some(sha1_of_data("hello".as_bytes()));
-        entry.mtime = 123;
-        entry.sync_required = true;
-        db.set_entry(&entry)?;
-        assert_eq!(db.get_entry("test.mp3")?.unwrap(), entry);
+            // update it
+            entry.sha1 = Some(sha1_of_data("hello".as_bytes()));
+            entry.mtime = 123;
+            entry.sync_required = true;
+            ctx.set_entry(&entry)?;
+            assert_eq!(ctx.get_entry("test.mp3")?.unwrap(), entry);
 
-        assert_eq!(db.get_pending_uploads(25)?, vec![entry]);
+            assert_eq!(ctx.get_pending_uploads(25)?, vec![entry]);
 
-        let mut meta = db.get_meta()?;
-        assert_eq!(meta.folder_mtime, 0);
-        assert_eq!(meta.last_sync_usn, 0);
+            let mut meta = ctx.get_meta()?;
+            assert_eq!(meta.folder_mtime, 0);
+            assert_eq!(meta.last_sync_usn, 0);
 
-        meta.folder_mtime = 123;
-        meta.last_sync_usn = 321;
+            meta.folder_mtime = 123;
+            meta.last_sync_usn = 321;
 
-        db.set_meta(&meta)?;
+            ctx.set_meta(&meta)?;
 
-        meta = db.get_meta()?;
-        assert_eq!(meta.folder_mtime, 123);
-        assert_eq!(meta.last_sync_usn, 321);
+            meta = ctx.get_meta()?;
+            assert_eq!(meta.folder_mtime, 123);
+            assert_eq!(meta.last_sync_usn, 321);
 
-        // reopen database, and ensure data was committed
-        drop(db);
-        db = MediaManager::new("/dummy", db_file_path)?;
-        meta = db.get_meta()?;
-        assert_eq!(meta.folder_mtime, 123);
+            Ok(())
+        })?;
 
-        Ok(())
+        // reopen database and ensure data was committed
+        drop(mgr);
+        mgr = MediaManager::new("/dummy", db_file_path)?;
+        mgr.query(|ctx| {
+            let meta = ctx.get_meta()?;
+            assert_eq!(meta.folder_mtime, 123);
+
+            Ok(())
+        })
     }
 }
