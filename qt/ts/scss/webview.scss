@@ -48,3 +48,5 @@ body.nightMode::-webkit-scrollbar-thumb {
         color: vars.$night-link;
     }
 }
+
+body { overscroll-behavior: none; }
