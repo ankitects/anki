@@ -42,7 +42,7 @@ class ThemeManager:
         else:
             classes.append("isLin")
         if self.night_mode:
-            classes.append("nightMode")
+            classes.extend(["nightMode", "night_mode"])
         return " ".join(classes)
 
     def body_classes_for_card_ord(self, card_ord: int) -> str:
