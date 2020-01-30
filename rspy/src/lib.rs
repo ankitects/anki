@@ -1,7 +1,7 @@
-use anki::backend::Backend as RustBackend;
+use anki::backend::{init_backend, Backend as RustBackend};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use pyo3::wrap_pyfunction;
+use pyo3::{exceptions, wrap_pyfunction};
 
 #[pyclass]
 struct Backend {
@@ -16,18 +16,20 @@ fn buildhash() -> &'static str {
 #[pymethods]
 impl Backend {
     #[new]
-    fn init(obj: &PyRawObject, col_path: String, media_folder: String) {
-        obj.init({
-            Backend {
-                backend: RustBackend::new(col_path, media_folder),
+    fn init(obj: &PyRawObject, init_msg: &PyBytes) -> PyResult<()> {
+        match init_backend(init_msg.as_bytes()) {
+            Ok(backend) => {
+                obj.init({ Backend { backend } });
+                Ok(())
             }
-        });
+            Err(e) => Err(exceptions::Exception::py_err(e)),
+        }
     }
 
-    fn command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
+    fn command(&mut self, py: Python, input: &PyBytes) -> PyObject {
         let out_bytes = self.backend.run_command_bytes(input.as_bytes());
         let out_obj = PyBytes::new(py, &out_bytes);
-        Ok(out_obj.into())
+        out_obj.into()
     }
 }
 

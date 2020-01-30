@@ -4,6 +4,12 @@ package backend_proto;
 
 message Empty {}
 
+message BackendInit {
+    string collection_path = 1;
+    string media_folder_path = 2;
+    string media_db_path = 3;
+}
+
 // 1-15 reserved for future use; 2047 for errors
 
 message BackendInput {

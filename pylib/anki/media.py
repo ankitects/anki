@@ -23,8 +23,10 @@ from anki.latex import render_latex
 from anki.utils import checksum, isMac
 
 
-def media_folder_from_col_path(col_path: str) -> str:
-    return re.sub(r"(?i)\.(anki2)$", ".media", col_path)
+def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
+    media_folder = re.sub(r"(?i)\.(anki2)$", ".media", col_path)
+    media_db = media_folder + ".db2"
+    return (media_folder, media_db)
 
 
 class MediaManager:
@@ -45,7 +47,7 @@ class MediaManager:
             self._dir = None
             return
         # media directory
-        self._dir = media_folder_from_col_path(self.col.path)
+        self._dir = media_paths_from_col_path(self.col.path)[0]
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
         try:
@@ -63,7 +65,7 @@ class MediaManager:
     def connect(self) -> None:
         if self.col.server:
             return
-        path = self.dir() + ".db2"
+        path = media_paths_from_col_path(self.col.path)[1]
         create = not os.path.exists(path)
         os.chdir(self._dir)
         self.db = DB(path)
