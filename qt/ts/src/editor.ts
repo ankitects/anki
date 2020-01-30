@@ -464,6 +464,10 @@ const allowedStyling = {
     "text-decoration-line": true,
 };
 
+let isNightMode = function(): boolean {
+    return document.body.classList.contains("nightMode");
+};
+
 let filterExternalSpan = function(node) {
     // filter out attributes
     let toRemove = [];
@@ -485,6 +489,12 @@ let filterExternalSpan = function(node) {
         if (name === "background-color" && node.style[name] === "transparent") {
             // google docs adds this unnecessarily
             toRemove.push(name);
+        }
+        if (isNightMode()) {
+            // ignore coloured text in night mode for now
+            if (name === "background-color" || name == "color") {
+                toRemove.push(name);
+            }
         }
     }
     for (let name of toRemove) {
