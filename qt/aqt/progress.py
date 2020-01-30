@@ -106,6 +106,7 @@ class ProgressManager:
                 evt.ignore()
                 self.wantCancel = True
 
+    # note: immediate is no longer used
     def start(self, max=0, min=0, label=None, parent=None, immediate=False):
         self._levels += 1
         if self._levels > 1:
@@ -124,10 +125,8 @@ class ProgressManager:
         self._win.setWindowTitle("Anki")
         self._win.setWindowModality(Qt.ApplicationModal)
         self._win.setMinimumWidth(300)
-        if immediate:
-            self._showWin()
-        else:
-            self._shown = False
+        self._setBusy()
+        self._shown = False
         self._counter = min
         self._min = min
         self._max = max
@@ -159,8 +158,10 @@ class ProgressManager:
     def finish(self):
         self._levels -= 1
         self._levels = max(0, self._levels)
-        if self._levels == 0 and self._win:
-            self._closeWin()
+        if self._levels == 0:
+            if self._win:
+                self._closeWin()
+            self._unsetBusy()
 
     def clear(self):
         "Restore the interface after an error."
@@ -181,7 +182,6 @@ class ProgressManager:
     def _showWin(self):
         self._shown = time.time()
         self._win.show()
-        self._setBusy()
 
     def _closeWin(self):
         if self._shown:
@@ -197,7 +197,6 @@ class ProgressManager:
         self._win.cancel()
         self._win = None
         self._shown = False
-        self._unsetBusy()
 
     def _setBusy(self):
         self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
