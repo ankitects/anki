@@ -88,7 +88,7 @@ class Card:
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
-        if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
+        if self.queue == QUEUE_TYPE_REV and self.odue and not self.col.decks.isDyn(self.did):
             hooks.card_odue_was_invalid()
         assert self.due < 4294967296
         self.col.db.execute(
@@ -120,7 +120,7 @@ insert or replace into cards values
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug checks
-        if self.queue == 2 and self.odue and not self.col.decks.isDyn(self.did):
+        if self.queue == QUEUE_TYPE_REV and self.odue and not self.col.decks.isDyn(self.did):
             hooks.card_odue_was_invalid()
         assert self.due < 4294967296
         self.col.db.execute(

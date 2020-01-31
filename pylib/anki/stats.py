@@ -31,18 +31,18 @@ class CardStats:
         if first:
             self.addLine(_("First Review"), self.date(first / 1000))
             self.addLine(_("Latest Review"), self.date(last / 1000))
-        if c.type in (QUEUE_TYPE_LRN, 2):
+        if c.type in (QUEUE_TYPE_LRN, QUEUE_TYPE_REV):
             if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
-                if c.queue in (2, 3):
+                if c.queue in (QUEUE_TYPE_REV, 3):
                     next = time.time() + ((c.due - self.col.sched.today) * 86400)
                 else:
                     next = c.due
                 next = self.date(next)
             if next:
                 self.addLine(_("Due"), next)
-            if c.queue == 2:
+            if c.queue == QUEUE_TYPE_REV:
                 self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor / 10.0))
             self.addLine(_("Reviews"), "%d" % c.reps)
@@ -155,7 +155,7 @@ select count(), sum(time)/1000,
 sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), /* learning */
 sum(case when type = {QUEUE_TYPE_LRN} then 1 else 0 end), /* review */
-sum(case when type = 2 then 1 else 0 end), /* relearn */
+sum(case when type = {QUEUE_TYPE_REV} then 1 else 0 end), /* relearn */
 sum(case when type = 3 then 1 else 0 end) /* filter */
 from revlog where id > ? """
             + lim,
@@ -280,8 +280,8 @@ from revlog where id > ? """
         self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
-            """
-select count() from cards where did in %s and queue in (2,3)
+            f"""
+select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},3)
 and due = ?"""
             % self._limit(),
             self.col.sched.today + 1,
@@ -297,12 +297,12 @@ and due = ?"""
         if end is not None:
             lim += " and day < %d" % end
         return self.col.db.all(
-            """
+            f"""
 select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where did in %s and queue in (2,3)
+where did in %s and queue in ({QUEUE_TYPE_REV},3)
 %s
 group by day order by day"""
             % (self._limit(), lim),
@@ -551,13 +551,13 @@ select
 sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), -- lrn count
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl >= 21 then 1 else 0 end), -- mtr count
-sum(case when type = 2 then 1 else 0 end), -- lapse count
+sum(case when type = {QUEUE_TYPE_REV} then 1 else 0 end), -- lapse count
 sum(case when type = 3 then 1 else 0 end), -- cram count
 sum(case when type = {QUEUE_TYPE_NEW} then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = 2 then time/1000.0 else 0 end)/:tf, -- lapse time
+sum(case when type = {QUEUE_TYPE_REV} then time/1000.0 else 0 end)/:tf, -- lapse time
 sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day"""
@@ -640,9 +640,9 @@ group by day order by day)"""
         lim = "and grp <= %d" % end if end else ""
         data = [
             self.col.db.all(
-                """
+                f"""
 select ivl / :chunk as grp, count() from cards
-where did in %s and queue = 2 %s
+where did in %s and queue = {QUEUE_TYPE_REV} %s
 group by grp
 order by grp"""
                 % (self._limit(), lim),
@@ -653,8 +653,8 @@ order by grp"""
             data
             + list(
                 self.col.db.first(
-                    """
-select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
+                    f"""
+select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE_TYPE_REV}"""
                     % self._limit()
                 )
             ),
@@ -674,7 +674,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         for (type, ease, cnt) in eases:
             if type == QUEUE_TYPE_LRN:
                 ease += 5
-            elif type == 2:
+            elif type == QUEUE_TYPE_REV:
                 ease += 10
             n = types[type]
             d[n].append((ease, cnt))
@@ -758,10 +758,10 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         return self.col.db.all(
             f"""
 select (case
-when type in ({QUEUE_TYPE_NEW},2) then 0
+when type in ({QUEUE_TYPE_NEW},{QUEUE_TYPE_REV}) then 0
 when lastIvl < 21 then 1
-else 2 end) as thetype,
-(case when type in ({QUEUE_TYPE_NEW},2) and ease = 4 then %s else ease end), count() from revlog %s
+else {QUEUE_TYPE_REV} end) as thetype,
+(case when type in ({QUEUE_TYPE_NEW},{QUEUE_TYPE_REV}) and ease = 4 then %s else ease end), count() from revlog %s
 group by thetype, ease
 order by thetype, ease"""
             % (ease4repl, lim)
@@ -926,12 +926,12 @@ when you answer "good" on a review."""
 
     def _factors(self) -> Any:
         return self.col.db.first(
-            """
+            f"""
 select
 min(factor) / 10.0,
 avg(factor) / 10.0,
 max(factor) / 10.0
-from cards where did in %s and queue = 2"""
+from cards where did in %s and queue = {QUEUE_TYPE_REV}"""
             % self._limit()
         )
 
@@ -939,8 +939,8 @@ from cards where did in %s and queue = 2"""
         return self.col.db.first(
             f"""
 select
-sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue in ({QUEUE_TYPE_LRN},3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue={QUEUE_TYPE_REV} and ivl >= 21 then 1 else 0 end), -- mtr
+sum(case when queue in ({QUEUE_TYPE_LRN},3) or (queue={QUEUE_TYPE_REV} and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
 sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""

@@ -22,6 +22,7 @@ QUEUE_TYPE_SUSPENDED = -1
 # Card and queue types
 QUEUE_TYPE_NEW = 0
 QUEUE_TYPE_LRN = 1
+QUEUE_TYPE_REV = 2
 
 # removal types
 REM_CARD = 0
