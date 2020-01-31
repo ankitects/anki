@@ -25,7 +25,6 @@ from anki.utils import fmtTimeSpan, ids2str, intTime
 CARD_TYPE_RELEARNING = 3
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
-QUEUE_TYPE_PREVIEW = 4
 QUEUE_TYPE_DAY_LEARN_RELEARN = 3
 
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
