@@ -1145,7 +1145,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             f.flush()
             # handle
             a = conf["leechAction"]
-            if a == 0:
+            if a == LEECH_SUSPEND:
                 # if it has an old due, remove it from cram/relearning
                 if card.odue:
                     card.due = card.odue
