@@ -69,6 +69,8 @@ BUTTON_TWO = 2
 BUTTON_THREE = 3
 BUTTON_FOUR = 4
 
+# Revlog types
+
 # Labels
 ##########################################################################
 
