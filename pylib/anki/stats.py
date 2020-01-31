@@ -154,7 +154,7 @@ body {background-image: url(data:image/png;base64,%s); }
 select count(), sum(time)/1000,
 sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = {REVLOG_LRN} then 1 else 0 end), /* learning */
-sum(case when type = 1 then 1 else 0 end), /* review */
+sum(case when type = {REVLOG_REV} then 1 else 0 end), /* review */
 sum(case when type = 2 then 1 else 0 end), /* relearn */
 sum(case when type = 3 then 1 else 0 end) /* filter */
 from revlog where id > ? """
@@ -549,14 +549,14 @@ group by day order by day"""
 select
 (cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
 sum(case when type = {REVLOG_LRN} then 1 else 0 end), -- lrn count
-sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
-sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
+sum(case when type = {REVLOG_REV} and lastIvl < 21 then 1 else 0 end), -- yng count
+sum(case when type = {REVLOG_REV} and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = 2 then 1 else 0 end), -- lapse count
 sum(case when type = 3 then 1 else 0 end), -- cram count
 sum(case when type = {REVLOG_LRN} then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
-sum(case when type = 1 and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = 1 and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = {REVLOG_REV} and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = {REVLOG_REV} and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = 2 then time/1000.0 else 0 end)/:tf, -- lapse time
 sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
 from revlog %s
@@ -856,7 +856,7 @@ select
 sum(case when ease = 1 then 0 else 1 end) /
 cast(count() as float) * 100,
 count()
-from revlog where type in ({REVLOG_LRN},1,2) %s
+from revlog where type in ({REVLOG_LRN},{REVLOG_REV},2) %s
 group by hour having count() > 30 order by hour"""
             % lim,
             cut=self.col.sched.dayCutoff - (rolloverHour * 3600),

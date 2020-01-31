@@ -946,7 +946,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
                 card.lastIvl,
                 card.factor,
                 card.timeTaken(),
-                1,
+                REVLOG_REV,
             )
 
         try:

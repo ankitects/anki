@@ -961,7 +961,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     def _answerRevCard(self, card: Card, ease: int) -> None:
         delay = 0
         early = bool(card.odid and (card.odue > self.today))
-        type = early and 3 or 1
+        type = early and 3 or REVLOG_REV
 
         if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)
