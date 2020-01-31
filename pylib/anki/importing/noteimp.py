@@ -53,9 +53,10 @@ class ForeignCard:
 
 # The import mode is one of:
 # updateMode: update if first field matches existing note
-# 1: ignore if first field matches existing note
+# ignoreMode: ignore if first field matches existing note
 # 2: import even if first field matches existing note
 updateMode = 0
+ignoreMode = 1
 
 
 class NoteImporter(Importer):
@@ -176,7 +177,7 @@ class NoteImporter(Importer):
                                 updateLog.append(updateLogTxt % fld0)
                                 dupeCount += 1
                                 found = True
-                        elif self.importMode == 1:
+                        elif self.importMode == ignoreMode:
                             dupeCount += 1
                         elif self.importMode == 2:
                             # allow duplicates in this case
@@ -217,7 +218,7 @@ class NoteImporter(Importer):
         )
         if self.importMode == updateMode:
             unchanged = dupeCount - self.updateCount
-        elif self.importMode == 1:
+        elif self.importMode == ignoreMode:
             unchanged = dupeCount
         else:
             unchanged = 0
