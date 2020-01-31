@@ -976,7 +976,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         card.lapses += 1
         card.factor = max(1300, card.factor - 200)
 
-        suspended = self._checkLeech(card, conf) and card.queue == -1
+        suspended = self._checkLeech(card, conf) and card.queue == QUEUE_TYPE_SUSPENDED
 
         if conf["delays"] and not suspended:
             card.type = CARD_TYPE_RELEARNING
@@ -987,7 +987,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             self._rescheduleAsRev(card, conf, early=False)
             # need to reset the queue after rescheduling
             if suspended:
-                card.queue = -1
+                card.queue = QUEUE_TYPE_SUSPENDED
             delay = 0
 
         return delay
@@ -1275,7 +1275,7 @@ where id = ?
             # handle
             a = conf["leechAction"]
             if a == LEECH_SUSPEND:
-                card.queue = -1
+                card.queue = QUEUE_TYPE_SUSPENDED
             # notify UI
             hooks.card_did_leech(card)
             return True
@@ -1606,7 +1606,7 @@ end)
         "Suspend cards."
         self.col.log(ids)
         self.col.db.execute(
-            "update cards set queue=-1,mod=?,usn=? where id in " + ids2str(ids),
+            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in " + ids2str(ids),
             intTime(),
             self.col.usn(),
         )
@@ -1615,7 +1615,7 @@ end)
         "Unsuspend cards."
         self.col.log(ids)
         self.col.db.execute(
-            ("update cards set %s,mod=?,usn=? " "where queue = -1 and id in %s")
+            (f"update cards set %s,mod=?,usn=? where queue = {QUEUE_TYPE_SUSPENDED} and id in %s")
             % (self._restoreQueueSnippet, ids2str(ids)),
             intTime(),
             self.col.usn(),

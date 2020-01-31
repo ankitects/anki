@@ -893,7 +893,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
                 card.odue = card.due
         # if suspended as a leech, nothing to do
         delay = 0
-        if self._checkLeech(card, conf) and card.queue == -1:
+        if self._checkLeech(card, conf) and card.queue == QUEUE_TYPE_SUSPENDED:
             return delay
         # if no relearning steps, nothing to do
         if not conf["delays"]:
@@ -1152,7 +1152,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
                 if card.odid:
                     card.did = card.odid
                 card.odue = card.odid = 0
-                card.queue = -1
+                card.queue = QUEUE_TYPE_SUSPENDED
             # notify UI
             hooks.card_did_leech(card)
             return True
@@ -1391,7 +1391,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         self.remFromDyn(ids)
         self.removeLrn(ids)
         self.col.db.execute(
-            "update cards set queue=-1,mod=?,usn=? where id in " + ids2str(ids),
+            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in " + ids2str(ids),
             intTime(),
             self.col.usn(),
         )
@@ -1401,7 +1401,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         self.col.log(ids)
         self.col.db.execute(
             "update cards set queue=type,mod=?,usn=? "
-            "where queue = -1 and id in " + ids2str(ids),
+            f"where queue = {QUEUE_TYPE_SUSPENDED} and id in " + ids2str(ids),
             intTime(),
             self.col.usn(),
         )
