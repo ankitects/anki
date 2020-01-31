@@ -63,6 +63,8 @@ class ThemeManager:
             classes.append("isLin")
         if self.night_mode:
             classes.extend(["nightMode", "night_mode"])
+            if self.macos_dark_mode():
+                classes.append("macos-dark-mode")
         return " ".join(classes)
 
     def body_classes_for_card_ord(self, card_ord: int) -> str:
