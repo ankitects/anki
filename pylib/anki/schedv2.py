@@ -97,14 +97,14 @@ class Scheduler:
 
         if card.queue == QUEUE_TYPE_NEW:
             # came from the new queue, move to learning
-            card.queue = 1
-            card.type = 1
+            card.queue = QUEUE_TYPE_LRN
+            card.type = QUEUE_TYPE_LRN
             # init reps to graduation
             card.left = self._startingLeft(card)
             # update daily limit
             self._updateStats(card, "new")
 
-        if card.queue in (1, QUEUE_TYPE_DAY_LEARN_RELEARN):
+        if card.queue in (QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
             self._answerLrnCard(card, ease)
         elif card.queue == 2:
             self._answerRevCard(card, ease)
@@ -505,8 +505,8 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_NEW} limit ?)"""
         # sub-day
         self.lrnCount = (
             self.col.db.scalar(
-                """
-select count() from cards where did in %s and queue = 1
+                f"""
+select count() from cards where did in %s and queue = {QUEUE_TYPE_LRN}
 and due < ?"""
                 % (self._deckLimit()),
                 self._lrnCutoff,
@@ -546,7 +546,7 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
         self._lrnQueue = self.col.db.all(
             f"""
 select due, id from cards where
-did in %s and queue in (1,{QUEUE_TYPE_PREVIEW}) and due < :lim
+did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < :lim
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
             lim=cutoff,
@@ -674,7 +674,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             maxExtra = min(300, int(delay * 0.25))
             fuzz = random.randrange(0, maxExtra)
             card.due = min(self.dayCutoff - 1, card.due + fuzz)
-            card.queue = 1
+            card.queue = QUEUE_TYPE_LRN
             if card.due < (intTime() + self.col.conf["collapseTime"]):
                 self.lrnCount += 1
                 # if the queue is not empty and there's nothing else to do, make
@@ -831,9 +831,9 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
     def _lrnForDeck(self, did: int) -> Any:
         cnt = (
             self.col.db.scalar(
-                """
+                f"""
 select count() from
-(select null from cards where did = ? and queue = 1 and due < ? limit ?)""",
+(select null from cards where did = ? and queue = {QUEUE_TYPE_LRN} and due < ? limit ?)""",
                 did,
                 intTime() + self.col.conf["collapseTime"],
                 self.reportLimit,
@@ -1251,9 +1251,9 @@ where id = ?
 
         # learning and relearning cards may be seconds-based or day-based;
         # other types map directly to queues
-        if card.type in (1, CARD_TYPE_RELEARNING):
+        if card.type in (QUEUE_TYPE_LRN, CARD_TYPE_RELEARNING):
             if card.odue > 1000000000:
-                card.queue = 1
+                card.queue = QUEUE_TYPE_LRN
             else:
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         else:
@@ -1553,7 +1553,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             return 0
 
         # (re)learning?
-        if card.queue in (QUEUE_TYPE_NEW, 1, QUEUE_TYPE_DAY_LEARN_RELEARN):
+        if card.queue in (QUEUE_TYPE_NEW, QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
             return self._nextLrnIvl(card, ease)
         elif ease == BUTTON_ONE:
             # lapse
@@ -1595,7 +1595,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
     # learning and relearning cards may be seconds-based or day-based;
     # other types map directly to queues
     _restoreQueueSnippet = f"""
-queue = (case when type in (1,{CARD_TYPE_RELEARNING}) then
+queue = (case when type in ({QUEUE_TYPE_LRN},{CARD_TYPE_RELEARNING}) then
   (case when (case when odue then odue else due end) > 1000000000 then 1 else
   {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
 else
@@ -1865,10 +1865,10 @@ and due >= ? and queue = {QUEUE_TYPE_NEW}"""
         self.col.db.execute(
             f"""
 update cards set did = odid, queue = (case
-when type = 1 then {QUEUE_TYPE_NEW}
+when type = {QUEUE_TYPE_LRN} then {QUEUE_TYPE_NEW}
 when type = {CARD_TYPE_RELEARNING} then 2
 else type end), type = (case
-when type = 1 then {QUEUE_TYPE_NEW}
+when type = {QUEUE_TYPE_LRN} then {QUEUE_TYPE_NEW}
 when type = {CARD_TYPE_RELEARNING} then 2
 else type end),
 due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
@@ -1882,7 +1882,7 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                 f"""
     update cards set
     due = odue, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
-    where queue in (1,{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in (2, {CARD_TYPE_RELEARNING})
+    where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in (2, {CARD_TYPE_RELEARNING})
     """
                 % (intTime(), self.col.usn())
             )
@@ -1891,14 +1891,14 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                 f"""
     update cards set
     due = %d+ivl, queue = 2, type = 2, mod = %d, usn = %d, odue = 0
-    where queue in (1,{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in (2, {CARD_TYPE_RELEARNING})
+    where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in (2, {CARD_TYPE_RELEARNING})
     """
                 % (self.today, intTime(), self.col.usn())
             )
         # remove new cards from learning
         self.forgetCards(
             self.col.db.list(
-                f"select id from cards where queue in (1,{QUEUE_TYPE_DAY_LEARN_RELEARN})"
+                f"select id from cards where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN})"
             )
         )
 
@@ -1907,7 +1907,7 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
         self.col.db.execute(
             f"""
 update cards set type = (case
-when type = 1 then {QUEUE_TYPE_NEW}
+when type = {QUEUE_TYPE_LRN} then {QUEUE_TYPE_NEW}
 when type in (2, {CARD_TYPE_RELEARNING}) then 2
 else type end),
 due = (case when odue then odue else due end),

@@ -6,6 +6,7 @@ import json
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
+from anki.consts import *
 from anki.lang import _, ngettext
 from anki.utils import fmtTimeSpan, ids2str
 
@@ -30,7 +31,7 @@ class CardStats:
         if first:
             self.addLine(_("First Review"), self.date(first / 1000))
             self.addLine(_("Latest Review"), self.date(last / 1000))
-        if c.type in (1, 2):
+        if c.type in (QUEUE_TYPE_LRN, 2):
             if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
@@ -153,7 +154,7 @@ body {background-image: url(data:image/png;base64,%s); }
 select count(), sum(time)/1000,
 sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), /* learning */
-sum(case when type = 1 then 1 else 0 end), /* review */
+sum(case when type = {QUEUE_TYPE_LRN} then 1 else 0 end), /* review */
 sum(case when type = 2 then 1 else 0 end), /* relearn */
 sum(case when type = 3 then 1 else 0 end) /* filter */
 from revlog where id > ? """
@@ -548,14 +549,14 @@ group by day order by day"""
 select
 (cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
 sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), -- lrn count
-sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
-sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
+sum(case when type = {QUEUE_TYPE_LRN} and lastIvl < 21 then 1 else 0 end), -- yng count
+sum(case when type = {QUEUE_TYPE_LRN} and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = 2 then 1 else 0 end), -- lapse count
 sum(case when type = 3 then 1 else 0 end), -- cram count
 sum(case when type = {QUEUE_TYPE_NEW} then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
-sum(case when type = 1 and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = 1 and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = {QUEUE_TYPE_LRN} and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = {QUEUE_TYPE_LRN} and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = 2 then time/1000.0 else 0 end)/:tf, -- lapse time
 sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
 from revlog %s
@@ -604,7 +605,7 @@ group by day order by day)"""
             totd.append((grp, tot / float(all) * 100))
         if self.type == QUEUE_TYPE_NEW:
             ivlmax = 31
-        elif self.type == 1:
+        elif self.type == QUEUE_TYPE_LRN:
             ivlmax = 52
         else:
             ivlmax = max(5, ivls[-1][0])
@@ -671,7 +672,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         types = ("lrn", "yng", "mtr")
         eases = self._eases()
         for (type, ease, cnt) in eases:
-            if type == 1:
+            if type == QUEUE_TYPE_LRN:
                 ease += 5
             elif type == 2:
                 ease += 10
@@ -939,7 +940,7 @@ from cards where did in %s and queue = 2"""
             f"""
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue in ({QUEUE_TYPE_LRN},3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
 sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""
