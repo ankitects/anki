@@ -54,9 +54,10 @@ class ForeignCard:
 # The import mode is one of:
 # UPDATE_MODE: update if first field matches existing note
 # IGNORE_MODE: ignore if first field matches existing note
-# 2: import even if first field matches existing note
+# ADD_MODE: import even if first field matches existing note
 UPDATE_MODE = 0
 IGNORE_MODE = 1
+ADD_MODE = 2
 
 
 class NoteImporter(Importer):
@@ -155,7 +156,7 @@ class NoteImporter(Importer):
                 self.log.append(_("Empty first field: %s") % " ".join(n.fields))
                 continue
             # earlier in import?
-            if fld0 in firsts and self.importMode != 2:
+            if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
                 self.log.append(_("Appeared twice in file: %s") % fld0)
                 continue
@@ -179,7 +180,7 @@ class NoteImporter(Importer):
                                 found = True
                         elif self.importMode == IGNORE_MODE:
                             dupeCount += 1
-                        elif self.importMode == 2:
+                        elif self.importMode == ADD_MODE:
                             # allow duplicates in this case
                             if fld0 not in dupes:
                                 # only show message once, no matter how many
