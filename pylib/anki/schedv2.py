@@ -27,7 +27,6 @@ CARD_TYPE_RELEARNING = 3
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
 QUEUE_TYPE_PREVIEW = 4
 QUEUE_TYPE_DAY_LEARN_RELEARN = 3
-QUEUE_TYPE_SIBLING_BURIED = -2
 
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
@@ -1655,11 +1654,11 @@ update cards set queue=?,mod=?,usn=? where id in """
         "Unbury all buried cards in all decks."
         self.col.log(
             self.col.db.list(
-                f"select id from cards where queue in (-2, {QUEUE_TYPE_MANUALLY_BURIED})"
+                f"select id from cards where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
             )
         )
         self.col.db.execute(
-            f"update cards set %s where queue in (-2, {QUEUE_TYPE_MANUALLY_BURIED})"
+            f"update cards set %s where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
             % self._restoreQueueSnippet
         )
 
