@@ -52,9 +52,10 @@ class ForeignCard:
 # If the first field of the model is not in the map, the map is invalid.
 
 # The import mode is one of:
-# 0: update if first field matches existing note
+# UPDATE_MODE: update if first field matches existing note
 # 1: ignore if first field matches existing note
 # 2: import even if first field matches existing note
+UPDATE_MODE = 0
 
 
 class NoteImporter(Importer):
@@ -62,7 +63,7 @@ class NoteImporter(Importer):
     needMapper = True
     needDelimiter = False
     allowHTML = False
-    importMode = 0
+    importMode = UPDATE_MODE
     mapping: Optional[List[str]]
     tagModified: Optional[str]
 
@@ -168,7 +169,7 @@ class NoteImporter(Importer):
                     if fld0 == sflds[0]:
                         # duplicate
                         found = True
-                        if self.importMode == 0:
+                        if self.importMode == UPDATE_MODE:
                             data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
@@ -214,7 +215,7 @@ class NoteImporter(Importer):
             ngettext("%d note updated", "%d notes updated", self.updateCount)
             % self.updateCount
         )
-        if self.importMode == 0:
+        if self.importMode == UPDATE_MODE:
             unchanged = dupeCount - self.updateCount
         elif self.importMode == 1:
             unchanged = dupeCount
