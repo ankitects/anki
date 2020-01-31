@@ -32,12 +32,12 @@ class CustomStudy(QDialog):
         f.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
-        f.radio1.click()
+        f.radioNew.click()
         self.exec_()
 
     def setupSignals(self):
         f = self.form
-        f.radio1.clicked.connect(lambda: self.onRadioChange(1))
+        f.radioNew.clicked.connect(lambda: self.onRadioChange(RADIO_NEW))
         f.radio2.clicked.connect(lambda: self.onRadioChange(2))
         f.radio3.clicked.connect(lambda: self.onRadioChange(3))
         f.radio4.clicked.connect(lambda: self.onRadioChange(4))
