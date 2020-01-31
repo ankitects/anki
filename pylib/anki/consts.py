@@ -70,6 +70,7 @@ BUTTON_THREE = 3
 BUTTON_FOUR = 4
 
 # Revlog types
+REVLOG_LRN = 0
 
 # Labels
 ##########################################################################

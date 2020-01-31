@@ -560,7 +560,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         elif card.type == 2:
             type = 2
         else:
-            type = 0
+            type = REVLOG_LRN
         leaving = False
         # lrnCount was decremented once when card was fetched
         lastLeft = card.left
