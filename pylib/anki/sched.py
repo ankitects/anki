@@ -153,18 +153,18 @@ order by due"""
     def unburyCards(self):
         "Unbury cards."
         self.col.conf["lastUnburied"] = self.today
-        self.col.log(self.col.db.list("select id from cards where queue = -2"))
-        self.col.db.execute("update cards set queue=type where queue = -2")
+        self.col.log(self.col.db.list(f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED}"))
+        self.col.db.execute(f"update cards set queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED}")
 
     def unburyCardsForDeck(self):
         sids = ids2str(self.col.decks.active())
         self.col.log(
             self.col.db.list(
-                "select id from cards where queue = -2 and did in %s" % sids
+                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s" % sids
             )
         )
         self.col.db.execute(
-            "update cards set mod=?,usn=?,queue=type where queue = -2 and did in %s"
+            f"update cards set mod=?,usn=?,queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
             % sids,
             intTime(),
             self.col.usn(),
@@ -1328,7 +1328,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
     def haveBuried(self):
         sdids = ids2str(self.col.decks.active())
         cnt = self.col.db.scalar(
-            "select 1 from cards where queue = -2 and did in %s limit 1" % sdids
+            f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1" % sdids
         )
         return not not cnt
 
@@ -1411,8 +1411,8 @@ To study outside of the normal schedule, click the Custom Study button below."""
         self.remFromDyn(cids)
         self.removeLrn(cids)
         self.col.db.execute(
-            """
-update cards set queue=-2,mod=?,usn=? where id in """
+            f"""
+update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in """
             + ids2str(cids),
             intTime(),
             self.col.usn(),
@@ -1462,7 +1462,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue=2 and due<=?))""",
         # then bury
         if toBury:
             self.col.db.execute(
-                "update cards set queue=-2,mod=?,usn=? where id in " + ids2str(toBury),
+                f"update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in " + ids2str(toBury),
                 intTime(),
                 self.col.usn(),
             )

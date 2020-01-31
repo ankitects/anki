@@ -16,6 +16,7 @@ NEW_CARDS_DUE = 1
 
 # Queue types
 QUEUE_TYPE_MANUALLY_BURIED = -3
+QUEUE_TYPE_SIBLING_BURIED = -2
 
 # Card and queue types
 QUEUE_TYPE_NEW = 0

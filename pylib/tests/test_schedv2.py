@@ -627,7 +627,7 @@ def test_bury():
     assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
     d.sched.buryCards([c2.id], manual=False)  # pylint: disable=unexpected-keyword-arg
     c2.load()
-    assert c2.queue == -2
+    assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 
     d.reset()
     assert not d.sched.getCard()
@@ -636,7 +636,7 @@ def test_bury():
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     c2.load()
-    assert c2.queue == -2
+    assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 
     d.sched.unburyCardsForDeck(  # pylint: disable=unexpected-keyword-arg
         type="siblings"
@@ -1233,7 +1233,7 @@ def test_moveVersions():
 
     # card should have moved queues
     c.load()
-    assert c.queue == -2
+    assert c.queue == QUEUE_TYPE_SIBLING_BURIED
 
     # and it should be new again when unburied
     col.sched.unburyCards()
