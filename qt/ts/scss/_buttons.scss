@@ -43,3 +43,19 @@
     background: vars.$fusion-button-hover-bg;
   }
 }
+
+/* imitate standard macOS dark mode buttons */
+.isMac.nightMode button:not(.linkb) {
+    background: #656565;
+    box-shadow: 0 1px 2px #222222;
+    border-top-color: #848484;
+    border-top-width: 0.5px;
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #e5e5e5;
+}

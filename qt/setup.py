@@ -44,5 +44,6 @@ setuptools.setup(
         "jsonschema",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
+        'darkdetect; sys.platform == "darwin"',
     ],
 )
