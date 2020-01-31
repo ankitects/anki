@@ -569,12 +569,12 @@ did = ? and queue = 3 and due <= ? limit ?""",
             self._rescheduleAsRev(card, conf, True)
             leaving = True
         # graduation time?
-        elif ease == 2 and (card.left % 1000) - 1 <= 0:
+        elif ease == BUTTON_TWO and (card.left % 1000) - 1 <= 0:
             self._rescheduleAsRev(card, conf, False)
             leaving = True
         else:
             # one step towards graduation
-            if ease == 2:
+            if ease == BUTTON_TWO:
                 # decrement real left count and recalculate left today
                 left = (card.left % 1000) - 1
                 card.left = self._leftToday(conf["delays"], left) * 1000 + left
@@ -969,7 +969,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         ivl4 = self._constrainedIvl(
             (card.ivl + delay) * fct * conf["ease4"], conf, ivl3
         )
-        if ease == 2:
+        if ease == BUTTON_TWO:
             interval = ivl2
         elif ease == 3:
             interval = ivl3
