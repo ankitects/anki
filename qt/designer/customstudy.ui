@@ -45,7 +45,7 @@
       </widget>
      </item>
      <item row="5" column="0">
-      <widget class="QRadioButton" name="radio6">
+      <widget class="QRadioButton" name="radioCram">
        <property name="text">
         <string>Study by card state or tag</string>
        </property>
@@ -168,7 +168,7 @@
   <tabstop>radioForgot</tabstop>
   <tabstop>radioAhead</tabstop>
   <tabstop>radioPreview</tabstop>
-  <tabstop>radio6</tabstop>
+  <tabstop>radioCram</tabstop>
   <tabstop>spin</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
