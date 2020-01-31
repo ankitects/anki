@@ -608,7 +608,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
     def _answerLrnCard(self, card: Card, ease: int) -> None:
         conf = self._lrnConf(card)
         if card.type in (2, CARD_TYPE_RELEARNING):
-            type = 2
+            type = REVLOG_RELRN
         else:
             type = REVLOG_LRN
         # lrnCount was decremented once when card was fetched
