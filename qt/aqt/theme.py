@@ -5,6 +5,8 @@
 import platform
 from typing import Dict
 
+import darkdetect
+
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
 from aqt.colors import colors
@@ -12,10 +14,20 @@ from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
 
 
 class ThemeManager:
-    night_mode = True
-
+    _night_mode_preference = False
     _icon_cache: Dict[str, QIcon] = {}
     _icon_size = 128
+
+    def macos_dark_mode(self) -> bool:
+        return darkdetect.isDark() is True
+
+    def get_night_mode(self) -> bool:
+        return self.macos_dark_mode() or self._night_mode_preference
+
+    def set_night_mode(self, val: bool) -> None:
+        self._night_mode_preference = val
+
+    night_mode = property(get_night_mode, set_night_mode)
 
     def icon_from_resources(self, path: str) -> QIcon:
         "Fetch icon from Qt resources, and invert if in night mode."
@@ -109,7 +121,8 @@ QGroupBox {
         if not self.night_mode:
             return
 
-        app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
+        if not self.macos_dark_mode():
+            app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 
         palette = QPalette()
 
