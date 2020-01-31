@@ -558,7 +558,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         if card.odid and not card.wasNew:
             type = 3
         elif card.type == 2:
-            type = 2
+            type = REVLOG_RELRN
         else:
             type = REVLOG_LRN
         leaving = False
