@@ -15,7 +15,8 @@ from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
 
 class ThemeManager:
     _night_mode_preference = False
-    _icon_cache: Dict[str, QIcon] = {}
+    _icon_cache_light: Dict[str, QIcon] = {}
+    _icon_cache_dark: Dict[str, QIcon] = {}
     _icon_size = 128
 
     def macos_dark_mode(self) -> bool:
@@ -31,7 +32,11 @@ class ThemeManager:
 
     def icon_from_resources(self, path: str) -> QIcon:
         "Fetch icon from Qt resources, and invert if in night mode."
-        icon = self._icon_cache.get(path)
+        if self.night_mode:
+            cache = self._icon_cache_light
+        else:
+            cache = self._icon_cache_dark
+        icon = cache.get(path)
         if icon:
             return icon
 
@@ -42,7 +47,7 @@ class ThemeManager:
             img.invertPixels()
             icon = QIcon(QPixmap(img))
 
-        return self._icon_cache.setdefault(path, icon)
+        return cache.setdefault(path, icon)
 
     def body_class(self) -> str:
         "Returns space-separated class list for platform/theme."
