@@ -15,6 +15,7 @@ NEW_CARDS_RANDOM = 0
 NEW_CARDS_DUE = 1
 
 # Card and queue types
+QUEUE_TYPE_NEW = 0
 
 # removal types
 REM_CARD = 0

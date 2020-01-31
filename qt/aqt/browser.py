@@ -335,7 +335,7 @@ class DataModel(QAbstractTableModel):
             return _("(filtered)")
         elif c.queue == 1:
             date = c.due
-        elif c.queue == 0 or c.type == 0:
+        elif c.queue == QUEUE_TYPE_NEW or c.type == QUEUE_TYPE_NEW:
             return str(c.due)
         elif c.queue in (2, 3) or (c.type == 2 and c.queue < 0):
             date = time.time() + ((c.due - self.col.sched.today) * 86400)
@@ -1421,7 +1421,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             import anki.stats as st
 
             fmt = "<span style='color:%s'>%s</span>"
-            if type == 0:
+            if type == QUEUE_TYPE_NEW:
                 tstr = fmt % (st.colLearn, tstr)
             elif type == 1:
                 tstr = fmt % (st.colMature, tstr)
@@ -1929,7 +1929,7 @@ update cards set usn=?, mod=?, did=? where id in """
     def _reposition(self):
         cids = self.selectedCards()
         cids2 = self.col.db.list(
-            "select id from cards where type = 0 and id in " + ids2str(cids)
+            f"select id from cards where type = {QUEUE_TYPE_NEW} and id in " + ids2str(cids)
         )
         if not cids2:
             return showInfo(_("Only new cards can be repositioned."))
@@ -1938,7 +1938,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.reposition.Ui_Dialog()
         frm.setupUi(d)
         (pmin, pmax) = self.col.db.first(
-            "select min(due), max(due) from cards where type=0 and odid=0"
+            f"select min(due), max(due) from cards where type={QUEUE_TYPE_NEW} and odid=0"
         )
         pmin = pmin or 0
         pmax = pmax or 0

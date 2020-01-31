@@ -31,7 +31,7 @@ class CardStats:
             self.addLine(_("First Review"), self.date(first / 1000))
             self.addLine(_("Latest Review"), self.date(last / 1000))
         if c.type in (1, 2):
-            if c.odid or c.queue < 0:
+            if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
                 if c.queue in (2, 3):
@@ -52,7 +52,7 @@ class CardStats:
             if cnt:
                 self.addLine(_("Average Time"), self.time(total / float(cnt)))
                 self.addLine(_("Total Time"), self.time(total))
-        elif c.queue == 0:
+        elif c.queue == QUEUE_TYPE_NEW:
             self.addLine(_("Position"), c.due)
         self.addLine(_("Card Type"), c.template()["name"])
         self.addLine(_("Note Type"), c.model()["name"])
@@ -102,13 +102,13 @@ class CollectionStats:
     def __init__(self, col) -> None:
         self.col = col
         self._stats = None
-        self.type = 0
+        self.type = QUEUE_TYPE_NEW
         self.width = 600
         self.height = 200
         self.wholeCollection = False
 
     # assumes jquery & plot are available in document
-    def report(self, type=0) -> str:
+    def report(self, type=QUEUE_TYPE_NEW) -> str:
         # 0=days, 1=weeks, 2=months
         self.type = type
         from .statsbg import bg
@@ -149,10 +149,10 @@ body {background-image: url(data:image/png;base64,%s); }
         if lim:
             lim = " and " + lim
         cards, thetime, failed, lrn, rev, relrn, filt = self.col.db.first(
-            """
+            f"""
 select count(), sum(time)/1000,
 sum(case when ease = 1 then 1 else 0 end), /* failed */
-sum(case when type = 0 then 1 else 0 end), /* learning */
+sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), /* learning */
 sum(case when type = 1 then 1 else 0 end), /* review */
 sum(case when type = 2 then 1 else 0 end), /* relearn */
 sum(case when type = 3 then 1 else 0 end) /* filter */
@@ -215,7 +215,7 @@ from revlog where id > ? """
 
     def get_start_end_chunk(self, by="review") -> Tuple[int, Optional[int], int]:
         start = 0
-        if self.type == 0:
+        if self.type == QUEUE_TYPE_NEW:
             end, chunk = 31, 1
         elif self.type == 1:
             end, chunk = 52, 7
@@ -396,7 +396,7 @@ group by day order by day"""
                 (10, colCram, _("Cram")),
             ),
         )
-        if self.type == 0:
+        if self.type == QUEUE_TYPE_NEW:
             t = _("Minutes")
             convHours = False
         else:
@@ -509,7 +509,7 @@ group by day order by day"""
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        if self.type == 0:
+        if self.type == QUEUE_TYPE_NEW:
             tf = 60.0  # minutes
         else:
             tf = 3600.0  # hours
@@ -539,20 +539,20 @@ group by day order by day"""
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        if self.type == 0:
+        if self.type == QUEUE_TYPE_NEW:
             tf = 60.0  # minutes
         else:
             tf = 3600.0  # hours
         return self.col.db.all(
-            """
+            f"""
 select
 (cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
-sum(case when type = 0 then 1 else 0 end), -- lrn count
+sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), -- lrn count
 sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = 2 then 1 else 0 end), -- lapse count
 sum(case when type = 3 then 1 else 0 end), -- cram count
-sum(case when type = 0 then time/1000.0 else 0 end)/:tf, -- lrn time
+sum(case when type = {QUEUE_TYPE_NEW} then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
 sum(case when type = 1 and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = 1 and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
@@ -602,7 +602,7 @@ group by day order by day)"""
         for (grp, cnt) in ivls:
             tot += cnt
             totd.append((grp, tot / float(all) * 100))
-        if self.type == 0:
+        if self.type == QUEUE_TYPE_NEW:
             ivlmax = 31
         elif self.type == 1:
             ivlmax = 52
@@ -755,12 +755,12 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         else:
             ease4repl = "ease"
         return self.col.db.all(
-            """
+            f"""
 select (case
-when type in (0,2) then 0
+when type in ({QUEUE_TYPE_NEW},2) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in (0,2) and ease = 4 then %s else ease end), count() from revlog %s
+(case when type in ({QUEUE_TYPE_NEW},2) and ease = 4 then %s else ease end), count() from revlog %s
 group by thetype, ease
 order by thetype, ease"""
             % (ease4repl, lim)
@@ -936,12 +936,12 @@ from cards where did in %s and queue = 2"""
 
     def _cards(self) -> Any:
         return self.col.db.first(
-            """
+            f"""
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
 sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
-sum(case when queue=0 then 1 else 0 end), -- new
-sum(case when queue<0 then 1 else 0 end) -- susp
+sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
+sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""
             % self._limit()
         )

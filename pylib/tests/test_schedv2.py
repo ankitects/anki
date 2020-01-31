@@ -4,7 +4,7 @@ import copy
 import time
 
 from anki import hooks
-from anki.consts import STARTING_FACTOR
+from anki.consts import *
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -57,8 +57,8 @@ def test_new():
     # fetch it
     c = d.sched.getCard()
     assert c
-    assert c.queue == 0
-    assert c.type == 0
+    assert c.queue == QUEUE_TYPE_NEW
+    assert c.type == QUEUE_TYPE_NEW
     # if we answer it, it should become a learn card
     t = intTime()
     d.sched.answerCard(c, 1)
@@ -634,7 +634,7 @@ def test_bury():
 
     d.sched.unburyCardsForDeck(type="manual")  # pylint: disable=unexpected-keyword-arg
     c.load()
-    assert c.queue == 0
+    assert c.queue == QUEUE_TYPE_NEW
     c2.load()
     assert c2.queue == -2
 
@@ -642,7 +642,7 @@ def test_bury():
         type="siblings"
     )
     c2.load()
-    assert c2.queue == 0
+    assert c2.queue == QUEUE_TYPE_NEW
 
     d.sched.buryCards([c.id, c2.id])
     d.sched.unburyCardsForDeck(type="all")  # pylint: disable=unexpected-keyword-arg
@@ -833,9 +833,9 @@ def test_preview():
 
     # passing it will remove it
     d.sched.answerCard(c2, 2)
-    assert c2.queue == 0
+    assert c2.queue == QUEUE_TYPE_NEW
     assert c2.reps == 0
-    assert c2.type == 0
+    assert c2.type == QUEUE_TYPE_NEW
 
     # the other card should appear again
     c = d.sched.getCard()
@@ -844,9 +844,9 @@ def test_preview():
     # emptying the filtered deck should restore card
     d.sched.emptyDyn(did)
     c.load()
-    assert c.queue == 0
+    assert c.queue == QUEUE_TYPE_NEW
     assert c.reps == 0
-    assert c.type == 0
+    assert c.type == QUEUE_TYPE_NEW
 
 
 def test_ordcycle():
@@ -1217,8 +1217,8 @@ def test_moveVersions():
     # the move to v2 should reset it to new
     col.changeSchedulerVer(2)
     c.load()
-    assert c.queue == 0
-    assert c.type == 0
+    assert c.queue == QUEUE_TYPE_NEW
+    assert c.type == QUEUE_TYPE_NEW
 
     # fail it again, and manually bury it
     col.reset()
@@ -1238,7 +1238,7 @@ def test_moveVersions():
     # and it should be new again when unburied
     col.sched.unburyCards()
     c.load()
-    assert c.queue == c.type == 0
+    assert c.queue == c.type == QUEUE_TYPE_NEW
 
     # make sure relearning cards transition correctly to v1
     col.changeSchedulerVer(2)
