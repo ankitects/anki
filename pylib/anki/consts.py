@@ -67,6 +67,7 @@ LEECH_TAGONLY = 1
 BUTTON_ONE = 1
 BUTTON_TWO = 2
 BUTTON_THREE = 3
+BUTTON_FOUR = 4
 
 # Labels
 ##########################################################################
