@@ -40,7 +40,7 @@ defaultDynamicDeck = {
     "lrnToday": [0, 0],
     "timeToday": [0, 0],
     "collapsed": False,
-    "dyn": 1,
+    "dyn": DECK_DYN,
     "desc": "",
     "usn": 0,
     "delays": None,
