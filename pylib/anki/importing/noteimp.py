@@ -55,6 +55,9 @@ class ForeignCard:
 # 0: update if first field matches existing note
 # 1: ignore if first field matches existing note
 # 2: import even if first field matches existing note
+updateMode = 0
+ignoreMode = 1
+addMode = 2
 
 
 class NoteImporter(Importer):
