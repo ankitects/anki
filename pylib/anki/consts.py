@@ -71,6 +71,7 @@ BUTTON_FOUR = 4
 
 # Revlog types
 REVLOG_LRN = 0
+REVLOG_REV = 1
 
 # Labels
 ##########################################################################
