@@ -565,7 +565,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         # lrnCount was decremented once when card was fetched
         lastLeft = card.left
         # immediate graduate?
-        if ease == 3:
+        if ease == BUTTON_THREE:
             self._rescheduleAsRev(card, conf, True)
             leaving = True
         # graduation time?
@@ -971,7 +971,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         )
         if ease == BUTTON_TWO:
             interval = ivl2
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             interval = ivl3
         elif ease == 4:
             interval = ivl4
@@ -1367,7 +1367,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         if ease == BUTTON_ONE:
             # fail
             return self._delayForGrade(conf, len(conf["delays"]))
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             # early removal
             if not self._resched(card):
                 return 0
