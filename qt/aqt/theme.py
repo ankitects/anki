@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import platform
+import sys
 from typing import Dict
 
 import darkdetect
@@ -20,6 +21,8 @@ class ThemeManager:
     _icon_size = 128
 
     def macos_dark_mode(self) -> bool:
+        if not getattr(sys, "frozen", False):
+            return False
         return darkdetect.isDark() is True
 
     def get_night_mode(self) -> bool:
