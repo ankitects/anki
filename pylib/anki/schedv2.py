@@ -28,7 +28,7 @@ CARD_TYPE_RELEARNING = 3
 QUEUE_TYPE_PREVIEW = 4
 QUEUE_TYPE_DAY_LEARN_RELEARN = 3
 QUEUE_TYPE_SIBLING_BURIED = -2
-QUEUE_TYPE_MANUALLY_BURIED = -3
+
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 # odue/odid store original due/did when cards moved to filtered deck
