@@ -24,7 +24,7 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QRadioButton" name="radio3">
+      <widget class="QRadioButton" name="radioForgot">
        <property name="text">
         <string>Review forgotten cards</string>
        </property>
@@ -165,7 +165,7 @@
  <tabstops>
   <tabstop>radioNew</tabstop>
   <tabstop>radioRev</tabstop>
-  <tabstop>radio3</tabstop>
+  <tabstop>radioForgot</tabstop>
   <tabstop>radio4</tabstop>
   <tabstop>radio6</tabstop>
   <tabstop>spin</tabstop>
