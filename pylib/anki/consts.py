@@ -64,6 +64,7 @@ LEECH_SUSPEND = 0
 LEECH_TAGONLY = 1
 
 # Buttons
+BUTTON_ONE = 1
 
 # Labels
 ##########################################################################

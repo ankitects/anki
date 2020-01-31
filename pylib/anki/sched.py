@@ -874,7 +874,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
 
     def _answerRevCard(self, card, ease):
         delay = 0
-        if ease == 1:
+        if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)
         else:
             self._rescheduleRev(card, ease)
@@ -1349,7 +1349,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         "Return the next interval for CARD, in seconds."
         if card.queue in (0, 1, 3):
             return self._nextLrnIvl(card, ease)
-        elif ease == 1:
+        elif ease == BUTTON_ONE:
             # lapsed
             conf = self._lapseConf(card)
             if conf["delays"]:
@@ -1364,7 +1364,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         if card.queue == 0:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
-        if ease == 1:
+        if ease == BUTTON_ONE:
             # fail
             return self._delayForGrade(conf, len(conf["delays"]))
         elif ease == 3:
