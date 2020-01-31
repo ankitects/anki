@@ -211,7 +211,7 @@ def test_relearn():
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_LRN
-    assert c.type == 3
+    assert c.type == CARD_TYPE_RELEARNING
     assert c.ivl == 1
 
     # immediately graduate it
@@ -291,7 +291,7 @@ def test_learn_day():
     # answering it will place it in queue 3
     d.sched.answerCard(c, 3)
     assert c.due == d.sched.today + 1
-    assert c.queue == 3
+    assert c.queue == QUEUE_TYPE_DAY_LEARN_RELEARN
     assert not d.sched.getCard()
     # for testing, move it back a day
     c.due -= 1
@@ -325,7 +325,7 @@ def test_learn_day():
     d.sched._cardConf(c)["lapse"]["delays"] = [1440]
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
-    assert c.queue == 3
+    assert c.queue == QUEUE_TYPE_DAY_LEARN_RELEARN
     assert d.sched.counts() == (0, 0, 0)
 
 
@@ -680,12 +680,12 @@ def test_suspend():
     assert c.due >= time.time()
     due = c.due
     assert c.queue == QUEUE_TYPE_LRN
-    assert c.type == 3
+    assert c.type == CARD_TYPE_RELEARNING
     d.sched.suspendCards([c.id])
     d.sched.unsuspendCards([c.id])
     c.load()
     assert c.queue == QUEUE_TYPE_LRN
-    assert c.type == 3
+    assert c.type == CARD_TYPE_RELEARNING
     assert c.due == due
     # should cope with cards in cram decks
     c.due = 1

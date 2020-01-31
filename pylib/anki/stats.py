@@ -35,7 +35,7 @@ class CardStats:
             if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
-                if c.queue in (QUEUE_TYPE_REV, 3):
+                if c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN):
                     next = time.time() + ((c.due - self.col.sched.today) * 86400)
                 else:
                     next = c.due
@@ -156,7 +156,7 @@ sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), /* learning */
 sum(case when type = {QUEUE_TYPE_LRN} then 1 else 0 end), /* review */
 sum(case when type = {QUEUE_TYPE_REV} then 1 else 0 end), /* relearn */
-sum(case when type = 3 then 1 else 0 end) /* filter */
+sum(case when type = {QUEUE_TYPE_DAY_LEARN_RELEARN} then 1 else 0 end) /* filter */
 from revlog where id > ? """
             + lim,
             (self.col.sched.dayCutoff - 86400) * 1000,
@@ -281,7 +281,7 @@ from revlog where id > ? """
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
             f"""
-select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},3)
+select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN})
 and due = ?"""
             % self._limit(),
             self.col.sched.today + 1,
@@ -302,7 +302,7 @@ select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where did in %s and queue in ({QUEUE_TYPE_REV},3)
+where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN})
 %s
 group by day order by day"""
             % (self._limit(), lim),
@@ -552,13 +552,13 @@ sum(case when type = {QUEUE_TYPE_NEW} then 1 else 0 end), -- lrn count
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = {QUEUE_TYPE_REV} then 1 else 0 end), -- lapse count
-sum(case when type = 3 then 1 else 0 end), -- cram count
+sum(case when type = {QUEUE_TYPE_DAY_LEARN_RELEARN} then 1 else 0 end), -- cram count
 sum(case when type = {QUEUE_TYPE_NEW} then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = {QUEUE_TYPE_LRN} and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = {QUEUE_TYPE_REV} then time/1000.0 else 0 end)/:tf, -- lapse time
-sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
+sum(case when type = {QUEUE_TYPE_DAY_LEARN_RELEARN} then time/1000.0 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day"""
             % lim,
@@ -940,7 +940,7 @@ from cards where did in %s and queue = {QUEUE_TYPE_REV}"""
             f"""
 select
 sum(case when queue={QUEUE_TYPE_REV} and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue in ({QUEUE_TYPE_LRN},3) or (queue={QUEUE_TYPE_REV} and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) or (queue={QUEUE_TYPE_REV} and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
 sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""

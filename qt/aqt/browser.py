@@ -337,7 +337,7 @@ class DataModel(QAbstractTableModel):
             date = c.due
         elif c.queue == QUEUE_TYPE_NEW or c.type == QUEUE_TYPE_NEW:
             return str(c.due)
-        elif c.queue in (QUEUE_TYPE_REV, 3) or (c.type == QUEUE_TYPE_REV and c.queue < 0):
+        elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (c.type == QUEUE_TYPE_REV and c.queue < 0):
             date = time.time() + ((c.due - self.col.sched.today) * 86400)
         else:
             return ""
