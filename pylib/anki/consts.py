@@ -59,6 +59,8 @@ SYNC_VER = 9
 
 HELP_SITE = "http://ankisrs.net/docs/manual.html"
 
+# Leech actions
+
 # Labels
 ##########################################################################
 
