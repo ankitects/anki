@@ -38,7 +38,7 @@
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QRadioButton" name="radio2">
+      <widget class="QRadioButton" name="radioRev">
        <property name="text">
         <string>Increase today's review card limit</string>
        </property>
@@ -164,7 +164,7 @@
  </widget>
  <tabstops>
   <tabstop>radioNew</tabstop>
-  <tabstop>radio2</tabstop>
+  <tabstop>radioRev</tabstop>
   <tabstop>radio3</tabstop>
   <tabstop>radio4</tabstop>
   <tabstop>radio6</tabstop>

@@ -38,7 +38,7 @@ class CustomStudy(QDialog):
     def setupSignals(self):
         f = self.form
         f.radioNew.clicked.connect(lambda: self.onRadioChange(RADIO_NEW))
-        f.radio2.clicked.connect(lambda: self.onRadioChange(2))
+        f.radioRev.clicked.connect(lambda: self.onRadioChange(RADIO_REV))
         f.radio3.clicked.connect(lambda: self.onRadioChange(3))
         f.radio4.clicked.connect(lambda: self.onRadioChange(4))
         f.radio5.clicked.connect(lambda: self.onRadioChange(5))
