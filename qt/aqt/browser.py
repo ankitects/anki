@@ -337,7 +337,9 @@ class DataModel(QAbstractTableModel):
             date = c.due
         elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
             return str(c.due)
-        elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (c.type == CARD_TYPE_REV and c.queue < 0):
+        elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
+            c.type == CARD_TYPE_REV and c.queue < 0
+        ):
             date = time.time() + ((c.due - self.col.sched.today) * 86400)
         else:
             return ""
@@ -1936,7 +1938,8 @@ update cards set usn=?, mod=?, did=? where id in """
     def _reposition(self):
         cids = self.selectedCards()
         cids2 = self.col.db.list(
-            f"select id from cards where type = {CARD_TYPE_NEW} and id in " + ids2str(cids)
+            f"select id from cards where type = {CARD_TYPE_NEW} and id in "
+            + ids2str(cids)
         )
         if not cids2:
             return showInfo(_("Only new cards can be repositioned."))

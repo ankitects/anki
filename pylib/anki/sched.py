@@ -153,14 +153,21 @@ order by due"""
     def unburyCards(self):
         "Unbury cards."
         self.col.conf["lastUnburied"] = self.today
-        self.col.log(self.col.db.list(f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED}"))
-        self.col.db.execute(f"update cards set queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED}")
+        self.col.log(
+            self.col.db.list(
+                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED}"
+            )
+        )
+        self.col.db.execute(
+            f"update cards set queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED}"
+        )
 
     def unburyCardsForDeck(self):
         sids = ids2str(self.col.decks.active())
         self.col.log(
             self.col.db.list(
-                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s" % sids
+                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
+                % sids
             )
         )
         self.col.db.execute(
@@ -746,7 +753,10 @@ where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CAR
         )
         # new cards in learning
         self.forgetCards(
-            self.col.db.list(f"select id from cards where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) %s" % extra)
+            self.col.db.list(
+                f"select id from cards where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) %s"
+                % extra
+            )
         )
 
     def _lrnForDeck(self, did):
@@ -1321,14 +1331,18 @@ To study outside of the normal schedule, click the Custom Study button below."""
     def newDue(self):
         "True if there are any new cards due."
         return self.col.db.scalar(
-            (f"select 1 from cards where did in %s and queue = {QUEUE_TYPE_NEW} " "limit 1")
+            (
+                f"select 1 from cards where did in %s and queue = {QUEUE_TYPE_NEW} "
+                "limit 1"
+            )
             % self._deckLimit()
         )
 
     def haveBuried(self):
         sdids = ids2str(self.col.decks.active())
         cnt = self.col.db.scalar(
-            f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1" % sdids
+            f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
+            % sdids
         )
         return not not cnt
 
@@ -1391,7 +1405,8 @@ To study outside of the normal schedule, click the Custom Study button below."""
         self.remFromDyn(ids)
         self.removeLrn(ids)
         self.col.db.execute(
-            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in " + ids2str(ids),
+            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in "
+            + ids2str(ids),
             intTime(),
             self.col.usn(),
         )
@@ -1462,7 +1477,8 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         # then bury
         if toBury:
             self.col.db.execute(
-                f"update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in " + ids2str(toBury),
+                f"update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in "
+                + ids2str(toBury),
                 intTime(),
                 self.col.usn(),
             )
@@ -1479,7 +1495,10 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             " where id in " + ids2str(ids),
             STARTING_FACTOR,
         )
-        pmax = self.col.db.scalar(f"select max(due) from cards where type={CARD_TYPE_NEW}") or 0
+        pmax = (
+            self.col.db.scalar(f"select max(due) from cards where type={CARD_TYPE_NEW}")
+            or 0
+        )
         # takes care of mod + usn
         self.sortCards(ids, start=pmax + 1)
         self.col.log(ids)
@@ -1515,7 +1534,8 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
         sids = ids2str(ids)
         # we want to avoid resetting due number of existing new cards on export
         nonNew = self.col.db.list(
-            f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})" % sids
+            f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})"
+            % sids
         )
         # reset all cards
         self.col.db.execute(
