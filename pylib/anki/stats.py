@@ -849,13 +849,13 @@ order by thetype, ease"""
         if pd:
             lim += " and id > %d" % ((self.col.sched.dayCutoff - (86400 * pd)) * 1000)
         return self.col.db.all(
-            """
+            f"""
 select
 23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
 sum(case when ease = 1 then 0 else 1 end) /
 cast(count() as float) * 100,
 count()
-from revlog where type in (0,1,2) %s
+from revlog where type in ({REVLOG_LRN},1,2) %s
 group by hour having count() > 30 order by hour"""
             % lim,
             cut=self.col.sched.dayCutoff - (rolloverHour * 3600),
