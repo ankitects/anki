@@ -156,7 +156,7 @@ sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = {REVLOG_LRN} then 1 else 0 end), /* learning */
 sum(case when type = {REVLOG_REV} then 1 else 0 end), /* review */
 sum(case when type = {REVLOG_RELRN} then 1 else 0 end), /* relearn */
-sum(case when type = 3 then 1 else 0 end) /* filter */
+sum(case when type = {REVLOG_CRAM} then 1 else 0 end) /* filter */
 from revlog where id > ? """
             + lim,
             (self.col.sched.dayCutoff - 86400) * 1000,
@@ -552,13 +552,13 @@ sum(case when type = {REVLOG_LRN} then 1 else 0 end), -- lrn count
 sum(case when type = {REVLOG_REV} and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = {REVLOG_REV} and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = {REVLOG_RELRN} then 1 else 0 end), -- lapse count
-sum(case when type = 3 then 1 else 0 end), -- cram count
+sum(case when type = {REVLOG_CRAM} then 1 else 0 end), -- cram count
 sum(case when type = {REVLOG_LRN} then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
 sum(case when type = {REVLOG_REV} and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = {REVLOG_REV} and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
 sum(case when type = {REVLOG_RELRN} then time/1000.0 else 0 end)/:tf, -- lapse time
-sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
+sum(case when type = {REVLOG_CRAM} then time/1000.0 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day"""
             % lim,

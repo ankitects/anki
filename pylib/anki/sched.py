@@ -556,7 +556,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
         # ease 1=no, 2=yes, 3=remove
         conf = self._lrnConf(card)
         if card.odid and not card.wasNew:
-            type = 3
+            type = REVLOG_CRAM
         elif card.type == 2:
             type = REVLOG_RELRN
         else:
