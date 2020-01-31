@@ -61,6 +61,7 @@ HELP_SITE = "http://ankisrs.net/docs/manual.html"
 
 # Leech actions
 LEECH_SUSPEND = 0
+LEECH_TAGONLY = 1
 
 # Labels
 ##########################################################################
