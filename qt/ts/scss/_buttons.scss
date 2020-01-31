@@ -45,7 +45,7 @@
 }
 
 /* imitate standard macOS dark mode buttons */
-.isMac.nightMode button:not(.linkb) {
+.isMac.nightMode.macos-dark-mode button:not(.linkb) {
     background: #656565;
     box-shadow: 0 1px 2px #222222;
     border-top-color: #848484;
