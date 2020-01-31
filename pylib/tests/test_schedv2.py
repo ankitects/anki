@@ -624,7 +624,7 @@ def test_bury():
     # burying
     d.sched.buryCards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
     c.load()
-    assert c.queue == -3
+    assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
     d.sched.buryCards([c2.id], manual=False)  # pylint: disable=unexpected-keyword-arg
     c2.load()
     assert c2.queue == -2
@@ -1226,7 +1226,7 @@ def test_moveVersions():
     col.sched.answerCard(c, 1)
     col.sched.buryCards([c.id])
     c.load()
-    assert c.queue == -3
+    assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
 
     # revert to version 1
     col.changeSchedulerVer(1)
