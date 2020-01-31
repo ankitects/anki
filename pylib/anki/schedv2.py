@@ -617,7 +617,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         leaving = False
 
         # immediate graduate?
-        if ease == 4:
+        if ease == BUTTON_FOUR:
             self._rescheduleAsRev(card, conf, True)
             leaving = True
         # next step?
@@ -1121,7 +1121,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             minNewIvl = factor / 2
         elif ease == BUTTON_THREE:
             factor = card.factor / 1000
-        else:  # ease == 4:
+        else:  # ease == BUTTON_FOUR:
             factor = card.factor / 1000
             ease4 = conf["ease4"]
             # 1.3 -> 1.15
@@ -1579,7 +1579,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             return self._delayForGrade(conf, len(conf["delays"]))
         elif ease == BUTTON_TWO:
             return self._delayForRepeatingGrade(conf, card.left)
-        elif ease == 4:
+        elif ease == BUTTON_FOUR:
             return self._graduatingIvl(card, conf, True, fuzz=False) * 86400
         else:  # ease == BUTTON_THREE
             left = card.left % 1000 - 1
