@@ -27,6 +27,8 @@ COUNT_REMAINING = 1
 MEDIA_ADD = 0
 MEDIA_REM = 1
 
+# Kind of decks
+
 # dynamic deck order
 DYN_OLDEST = 0
 DYN_RANDOM = 1
