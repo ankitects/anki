@@ -28,6 +28,7 @@ MEDIA_ADD = 0
 MEDIA_REM = 1
 
 # Kind of decks
+DECK_STD = 0
 
 # dynamic deck order
 DYN_OLDEST = 0
