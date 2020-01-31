@@ -27,7 +27,7 @@ defaultDeck = {
     "conf": 1,
     "usn": 0,
     "desc": "",
-    "dyn": 0,  # anki uses int/bool interchangably here
+    "dyn": DECK_STD,  # anki uses int/bool interchangably here
     "collapsed": False,
     # added in beta11
     "extendNew": 10,
