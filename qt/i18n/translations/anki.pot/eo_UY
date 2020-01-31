@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-19 16:58+1000\n"
-"PO-Revision-Date: 2020-01-27 08:16\n"
+"POT-Creation-Date: 2020-01-27 18:18+1000\n"
+"PO-Revision-Date: 2020-01-31 03:43\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Esperanto\n"
 "Language: eo_UY\n"
@@ -15,20 +15,20 @@ msgstr ""
 "X-Crowdin-Language: eo\n"
 "X-Crowdin-File: anki.pot\n"
 
-#: qt/aqt/clayout.py:223
+#: qt/aqt/clayout.py:234
 #, python-format
 msgid " (1 of %d)"
 msgstr " (1 el %d)"
 
-#: qt/aqt/addons.py:274
+#: qt/aqt/addons.py:302
 msgid " (disabled)"
 msgstr " malvalidigita"
 
-#: qt/aqt/clayout.py:480
+#: qt/aqt/clayout.py:489
 msgid " (off)"
 msgstr " malŝaltita"
 
-#: qt/aqt/clayout.py:478
+#: qt/aqt/clayout.py:487
 msgid " (on)"
 msgstr " ŝaltita"
 
@@ -40,13 +40,13 @@ msgstr[0] " Ĝi enhavas %d karton."
 msgstr[1] " Ĝi enhavas %d kartojn."
 
 #. T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
-#: qt/aqt/webview.py:261
+#: qt/aqt/webview.py:268
 msgid "\"Segoe UI\""
 msgstr ""
 
 #: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
 #: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:261
+#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:266
 msgid "%"
 msgstr ""
 
@@ -69,7 +69,7 @@ msgstr "%(a)0.1fkB alŝutita, %(b)0.1fkB elŝutita"
 msgid "%(a)0.1fs (%(b)s)"
 msgstr ""
 
-#: qt/aqt/browser.py:2111
+#: qt/aqt/browser.py:2098
 #, python-format
 msgid "%(a)d of %(b)d note updated"
 msgid_plural "%(a)d of %(b)d notes updated"
@@ -78,7 +78,7 @@ msgstr[1] "%(a)d el %(b)d notoj estas ĝisdatigitaj"
 
 #. T: name is a card type name. n it's order in the list of card type.
 #. T: this is shown in browser's filter, when seeing the list of card type of a note type.
-#: qt/aqt/browser.py:1312
+#: qt/aqt/browser.py:1292
 #, python-format
 msgid "%(n)d: %(name)s"
 msgstr ""
@@ -93,15 +93,15 @@ msgstr ""
 msgid "%.01f cards/minute"
 msgstr "%.01f kartoj/minuto"
 
-#: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:230
-#: qt/aqt/main.py:1371
+#: pylib/anki/stats.py:288 pylib/anki/stats.py:344 qt/aqt/clayout.py:241
+#: qt/aqt/main.py:1362
 #, python-format
 msgid "%d card"
 msgid_plural "%d cards"
 msgstr[0] "%d karto"
 msgstr[1] "%d kartoj"
 
-#: qt/aqt/main.py:1383
+#: qt/aqt/main.py:1374
 #, python-format
 msgid "%d card deleted."
 msgid_plural "%d cards deleted."
@@ -122,7 +122,7 @@ msgid_plural "%d cards imported."
 msgstr[0] "%d karto estas enportita."
 msgstr[1] "%d kartoj estas enportitaj."
 
-#: qt/aqt/reviewer.py:74
+#: qt/aqt/reviewer.py:68
 #, python-format
 msgid "%d card studied in"
 msgid_plural "%d cards studied in"
@@ -136,21 +136,21 @@ msgid_plural "%d decks updated."
 msgstr[0] "%d kartaro estas ĝisdatigita."
 msgstr[1] "%d kartaroj estas ĝisdatigitaj."
 
-#: qt/aqt/main.py:1279
+#: qt/aqt/main.py:1270
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/main.py:1336
+#: qt/aqt/main.py:1327
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/browser.py:2164
+#: qt/aqt/browser.py:2151
 #, python-format
 msgid "%d group"
 msgid_plural "%d groups"
@@ -171,7 +171,7 @@ msgid_plural "%d media files downloaded"
 msgstr[0] "%d aŭdividaĵa dosiero estas elŝutita"
 msgstr[1] "%d aŭdividaĵaj dosieroj estas elŝutitaj"
 
-#: qt/aqt/browser.py:2165 qt/aqt/browser.py:2173 qt/aqt/fields.py:96
+#: qt/aqt/browser.py:2152 qt/aqt/browser.py:2160 qt/aqt/fields.py:96
 #: qt/aqt/models.py:82
 #, python-format
 msgid "%d note"
@@ -186,7 +186,7 @@ msgid_plural "%d notes added"
 msgstr[0] "%d noto estas aldonita"
 msgstr[1] "%d notoj estas aldonitaj"
 
-#: qt/aqt/browser.py:1786
+#: qt/aqt/browser.py:1773
 #, python-format
 msgid "%d note deleted."
 msgid_plural "%d notes deleted."
@@ -228,7 +228,7 @@ msgid_plural "%d reviews"
 msgstr[0] "%d ripeto"
 msgstr[1] "%d ripetoj"
 
-#: qt/aqt/browser.py:805
+#: qt/aqt/browser.py:783
 #, python-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -261,7 +261,7 @@ msgid_plural "%s minutes"
 msgstr[0] "%s minuto"
 msgstr[1] "%s minutoj"
 
-#: qt/aqt/reviewer.py:78
+#: qt/aqt/reviewer.py:72
 #, python-format
 msgid "%s minute."
 msgid_plural "%s minutes."
@@ -275,14 +275,14 @@ msgid_plural "%s months"
 msgstr[0] "%s monato"
 msgstr[1] "%s monatoj"
 
-#: pylib/anki/utils.py:44 qt/aqt/main.py:1134
+#: pylib/anki/utils.py:44 qt/aqt/main.py:1120
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] "%s sekundo"
 msgstr[1] "%s sekundoj"
 
-#: qt/aqt/main.py:1372
+#: qt/aqt/main.py:1363
 #, python-format
 msgid "%s to delete:"
 msgstr "%s estas forigenda(j):"
@@ -444,7 +444,7 @@ msgstr "(%s ĝusta)"
 msgid "(Note deleted)"
 msgstr "(Noto estas forigita)"
 
-#: qt/aqt/addons.py:649
+#: qt/aqt/addons.py:711
 msgid "(disabled)"
 msgstr ""
 
@@ -452,30 +452,31 @@ msgstr ""
 msgid "(end)"
 msgstr "(fino)"
 
-#: qt/aqt/browser.py:343
+#: qt/aqt/browser.py:335
 msgid "(filtered)"
 msgstr "(filtrita)"
 
-#: qt/aqt/browser.py:310
+#: qt/aqt/browser.py:302
 msgid "(learning)"
 msgstr "(lernado)"
 
-#: qt/aqt/browser.py:308 qt/aqt/browser.py:314
+#: qt/aqt/browser.py:300 qt/aqt/browser.py:306
 msgid "(new)"
 msgstr "(nova)"
-
-#: qt/aqt/addons.py:651
-msgid "(not compatible)"
-msgstr ""
 
 #: qt/aqt/deckconf.py:179
 #, python-format
 msgid "(parent limit: %d)"
 msgstr "(limigo de patraj kartaroj: %d)"
 
-#: qt/aqt/browser.py:1687
+#: qt/aqt/browser.py:1672
 msgid "(please select 1 card)"
 msgstr "(bonvole elektu unu karton)"
+
+#: qt/aqt/addons.py:713
+#, python-format
+msgid "(requires %s)"
+msgstr ""
 
 #: qt/aqt/importing.py:319
 msgid ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
@@ -485,7 +486,7 @@ msgstr ".anki-dosieroj devenas de malnovegaj versioj de Anki. Vi povas enporti i
 msgid ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
 msgstr ".anki2-dosieroj ne estas senpere enportebla - bonvolu enporti anstataŭe la .apkg aŭ .zip-dosieron, kiun vi ricevis."
 
-#: qt/aqt/browser.py:1457
+#: qt/aqt/browser.py:1437
 msgid "0d"
 msgstr "0 t"
 
@@ -547,11 +548,11 @@ msgstr "<a href='%s'>Viziti la retpaĝaron</a>"
 msgid "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
 msgstr "<b>%(pct)d%%</b> (%(x)s el %(y)s)"
 
-#: qt/aqt/browser.py:1436
+#: qt/aqt/browser.py:1416
 msgid "<b>%Y-%m-%d</b> @ %H:%M"
 msgstr "%H:%M, <b>%d-%m-%Y</b>"
 
-#: qt/aqt/forms/preferences.py:269
+#: qt/aqt/forms/preferences.py:274
 msgid "<b>Backups</b><br>Anki will create a backup of your collection each time it is closed or synchronized."
 msgstr "<b>Sekurkopioj</b><br>Anki kreos sekurkopion de via kolekto ĉiutempe ĝi estas fermata aŭ samtempigata."
 
@@ -571,7 +572,7 @@ msgstr "<b>Tipara grando</b>:"
 msgid "<b>Font</b>:"
 msgstr "<b>Tiparo</b>:"
 
-#: qt/aqt/addons.py:1203
+#: qt/aqt/addons.py:1330
 #, python-format
 msgid "<b>Important</b>: As add-ons are programs downloaded from the internet, they are potentially malicious.<b>You should only install add-ons you trust.</b><br><br>Are you sure you want to proceed with the installation of the following Anki add-on(s)?<br><br>%(names)s"
 msgstr ""
@@ -588,7 +589,7 @@ msgstr "<b>Inkluzive</b>:"
 msgid "<b>Line Size</b>:"
 msgstr "<b>Grandeco de linio</b>:"
 
-#: qt/aqt/addons.py:1227
+#: qt/aqt/addons.py:1354
 msgid "<b>Please restart Anki to complete the installation.</b>"
 msgstr ""
 
@@ -596,11 +597,11 @@ msgstr ""
 msgid "<b>Replace With</b>:"
 msgstr "<b>Anstataŭigi per</b>:"
 
-#: qt/aqt/forms/preferences.py:263
+#: qt/aqt/forms/preferences.py:268
 msgid "<b>Synchronisation</b>"
 msgstr "<b>Samtempigo</b>"
 
-#: qt/aqt/preferences.py:195
+#: qt/aqt/preferences.py:193
 msgid "<b>Synchronization</b><br>\n"
 "Not currently enabled; click the sync button in the main window to enable."
 msgstr "<b>Samtempigo</b><br>\n"
@@ -642,11 +643,11 @@ msgstr "<h1>Eraro</h1>\n\n"
 msgid "<ignored>"
 msgstr "<ignorata>"
 
-#: qt/aqt/main.py:1473
+#: qt/aqt/main.py:1464
 msgid "<non-unicode text>"
 msgstr "<neunikoda teksto>"
 
-#: qt/aqt/browser.py:740
+#: qt/aqt/browser.py:718
 msgid "<type here to search; hit enter to show current deck>"
 msgstr "<tajpi ĉi tie por serĉi; premi la enen-klavon(Enter) por montri la aktualan kartaron>"
 
@@ -676,8 +677,8 @@ msgid "About Anki"
 msgstr "Pri Anki"
 
 #: qt/aqt/addcards.py:36 qt/aqt/addcards.py:65 qt/aqt/deckconf.py:81
-#: qt/aqt/models.py:47 qt/aqt/studydeck.py:46 qt/aqt/toolbar.py:35
-#: qt/aqt/forms/addcards.py:63 qt/aqt/forms/fields.py:101
+#: qt/aqt/models.py:47 qt/aqt/studydeck.py:46 qt/aqt/toolbar.py:39
+#: qt/aqt/forms/addcards.py:58 qt/aqt/forms/fields.py:101
 #: qt/aqt/forms/profiles.py:76
 msgid "Add"
 msgstr "Aldoni"
@@ -686,15 +687,15 @@ msgstr "Aldoni"
 msgid "Add (shortcut: ctrl+enter)"
 msgstr "Aldoni (fulmoklavo: Ctrl+Enter)"
 
-#: qt/aqt/clayout.py:462
+#: qt/aqt/clayout.py:471
 msgid "Add Card Type..."
 msgstr "Aldoni kartotipon..."
 
-#: qt/aqt/clayout.py:262 qt/aqt/forms/addfield.py:73
+#: qt/aqt/clayout.py:273 qt/aqt/forms/addfield.py:73
 msgid "Add Field"
 msgstr "Aldoni kampon"
 
-#: qt/aqt/editor.py:653
+#: qt/aqt/editor.py:656
 msgid "Add Media"
 msgstr "Aldoni aŭdovidaĵon"
 
@@ -714,7 +715,7 @@ msgstr "Aldoni notojn..."
 msgid "Add Reverse"
 msgstr "Aldoni malan direkton"
 
-#: qt/aqt/browser.py:1856
+#: qt/aqt/browser.py:1843
 msgid "Add Tags"
 msgstr "Aldoni etikedojn"
 
@@ -726,23 +727,23 @@ msgstr "Aldoni etikedojn..."
 msgid "Add to:"
 msgstr "Aldoni al:"
 
-#: qt/aqt/browser.py:149
+#: qt/aqt/browser.py:141
 msgid "Add-on"
 msgstr ""
 
-#: qt/aqt/addons.py:793
+#: qt/aqt/addons.py:863
 msgid "Add-on has no configuration."
 msgstr "La aldonaĵo ne havas agordojn."
 
-#: qt/aqt/addons.py:1244
+#: qt/aqt/addons.py:1371
 msgid "Add-on installation error"
 msgstr ""
 
-#: qt/aqt/addons.py:715
+#: qt/aqt/addons.py:785
 msgid "Add-on was not downloaded from AnkiWeb."
 msgstr "La aldonaĵo ne estas elŝutita de AnkiWeb."
 
-#: qt/aqt/main.py:1532
+#: qt/aqt/main.py:1523
 msgid "Add-on will be installed when a profile is opened."
 msgstr ""
 
@@ -764,7 +765,7 @@ msgstr "Aldoni: %s"
 msgid "Added"
 msgstr "Aldonita"
 
-#: qt/aqt/browser.py:1223
+#: qt/aqt/browser.py:1203
 msgid "Added Today"
 msgstr "Aldonita hodiaŭ"
 
@@ -773,11 +774,11 @@ msgstr "Aldonita hodiaŭ"
 msgid "Added duplicate with first field: %s"
 msgstr "Aldono de duoblaĵo kun la unua kampo: %s"
 
-#: qt/aqt/reviewer.py:589
+#: qt/aqt/reviewer.py:605
 msgid "Again"
 msgstr "Denove"
 
-#: qt/aqt/browser.py:1225
+#: qt/aqt/browser.py:1205
 msgid "Again Today"
 msgstr "Hodiaŭaj Denove markitaj"
 
@@ -786,11 +787,11 @@ msgstr "Hodiaŭaj Denove markitaj"
 msgid "Again count: %s"
 msgstr "Denove-nombro: %s"
 
-#: qt/aqt/overview.py:105
+#: qt/aqt/overview.py:107
 msgid "All Buried Cards"
 msgstr "Ĉiuj portage kaŝitaj kartoj"
 
-#: qt/aqt/browser.py:1305
+#: qt/aqt/browser.py:1285
 msgid "All Card Types"
 msgstr "Ĉiuj kartotipoj"
 
@@ -798,7 +799,7 @@ msgstr "Ĉiuj kartotipoj"
 msgid "All Decks"
 msgstr "Ĉiuj kartaroj"
 
-#: qt/aqt/browser.py:2077
+#: qt/aqt/browser.py:2064
 msgid "All Fields"
 msgstr "Ĉiuj kampoj"
 
@@ -806,7 +807,7 @@ msgstr "Ĉiuj kampoj"
 msgid "All cards in random order (don't reschedule)"
 msgstr "Ĉiuj kartoj en hazarda ordo (ne replani)"
 
-#: qt/aqt/main.py:265
+#: qt/aqt/main.py:271
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
 msgstr "Ĉiuj kartoj, notoj, kaj aŭdovidaĵoj al ĉi tiu profilo estos forigitaj. Ĉu vi certas?"
 
@@ -822,7 +823,7 @@ msgstr "Permesi HTML en kampoj"
 msgid "Always include question side when replaying audio"
 msgstr "Ĉiam inkluzivi la demandoflankon dum la reludo de sono"
 
-#: qt/aqt/addons.py:179
+#: qt/aqt/addons.py:205
 #, python-format
 msgid "An add-on you installed failed to load. If problems persist, please go to the Tools>Add-ons menu, and disable or delete the add-on.\n\n"
 "When loading '%(name)s':\n"
@@ -849,7 +850,7 @@ msgstr "Eraro okazis dum la atingo de la datumbazo.\n\n"
 "- Via diskaparato estas mankohava.\n\n"
 "Estas bona ideo ruli Iloj>Kontroli datumbazon por certigi, ke via kolekto ne estas difektohava.\n"
 
-#: qt/aqt/editor.py:784 qt/aqt/editor.py:787
+#: qt/aqt/editor.py:786 qt/aqt/editor.py:789
 #, python-format
 msgid "An error occurred while opening %s"
 msgstr "Okazis eraro dum malfermo de %s"
@@ -863,7 +864,7 @@ msgstr "Ankio"
 msgid "Anki 2.0 Deck"
 msgstr "Anki 2.0 kartaro"
 
-#: qt/aqt/forms/preferences.py:251
+#: qt/aqt/forms/preferences.py:256
 msgid "Anki 2.1 scheduler (beta)"
 msgstr ""
 
@@ -875,15 +876,15 @@ msgstr "Anki-kolektopakaĵo"
 msgid "Anki Deck Package"
 msgstr "Pakaĵa Anki-kartaro"
 
-#: qt/aqt/profiles.py:178
+#: qt/aqt/profiles.py:176
 msgid "Anki could not read your profile data. Window sizes and your sync login details have been forgotten."
 msgstr "Anki ne povis legi vian profilan datumojn. Fenestro-grandoj kaj viaj detaloj de la sinkonigo-ensaluto estis forgesitaj."
 
-#: qt/aqt/profiles.py:248
+#: qt/aqt/profiles.py:246
 msgid "Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again."
 msgstr "Anki ne povis alinomi vian profilon, ĉar ĝi ne povis alinomi vian profildosierujon sur la disko. Bonvolu certigi vin, ĉu vi havas skriborajton sur Documents/Anki kaj neniu alia programo atingas vian profildosierujon. Poste reprovu ĝin."
 
-#: qt/aqt/clayout.py:448
+#: qt/aqt/clayout.py:457
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki ne trovis la dividon inter la demando kaj la respondo. Bonvolu permane adapti la ŝablonon por ŝanĝi demandon kaj respondon."
 
@@ -899,7 +900,7 @@ msgstr "Ankio estas amikeca, inteligenta interspaca lernsistemo. Ĝi estas senko
 msgid "Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information."
 msgstr "Anki estas licencita sub la AGPL3-licenco. Bonvolu legi la licencodosieron en la fontodisdono por pli da informoj"
 
-#: qt/aqt/main.py:415
+#: qt/aqt/main.py:425
 msgid "Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.\n\n"
 "Debug info:\n"
 msgstr "Anki ne povis malfermi vian kolektodosieron. Se problemoj daŭras post restartigo de la komputilo, bonvolu uzi la butonon Malfermi sekurkopion en la profila administrilo.\n\n"
@@ -925,7 +926,7 @@ msgstr "AnkiWeb estas nuntempe tro okupata. Bonvolu provi denove post kelkaj min
 msgid "AnkiWeb is under maintenance. Please try again in a few minutes."
 msgstr "AnkiWeb estas vartata. Bonvolu reprovi ĝin en kelkaj minutoj."
 
-#: qt/aqt/browser.py:716
+#: qt/aqt/browser.py:694
 msgid "Answer"
 msgstr "Respondo"
 
@@ -941,11 +942,11 @@ msgstr "Respondoj"
 msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
 msgstr "Kontraŭvirusilo aŭ fajroŝirmilo malebligas, ke Anki konektu al la interreto."
 
-#: qt/aqt/browser.py:1249
+#: qt/aqt/browser.py:1229
 msgid "Any Flag"
 msgstr "Ĉiu flago"
 
-#: qt/aqt/browser.py:2430
+#: qt/aqt/browser.py:2417
 msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
 msgstr "Ĉiuj kartoj mapitaj al nenio estos forigitaj. Se noto ne havas restantajn kartojn, ĝi perdiĝos. Ĉu vi vere volas daŭrigi?"
 
@@ -959,7 +960,7 @@ msgstr "Troviĝis duoble en dosiero: %s"
 msgid "Are you sure you wish to delete %s?"
 msgstr "Ĉu vi certas ke vi volas forigi %s?"
 
-#: qt/aqt/clayout.py:227
+#: qt/aqt/clayout.py:238
 msgid "At least one card type is required."
 msgstr "Almenaŭ unu kartotipo necesas."
 
@@ -967,11 +968,19 @@ msgstr "Almenaŭ unu kartotipo necesas."
 msgid "At least one step is required."
 msgstr "Almenaŭ unu paŝo necesas."
 
-#: qt/aqt/editor.py:139
+#: qt/aqt/editor.py:140
 msgid "Attach pictures/audio/video (F3)"
 msgstr "Aldoni bildojn/sonojn/videojn (F3)"
 
-#: qt/aqt/main.py:315
+#: qt/aqt/reviewer.py:705
+msgid "Audio +5s"
+msgstr ""
+
+#: qt/aqt/reviewer.py:704
+msgid "Audio -5s"
+msgstr ""
+
+#: qt/aqt/main.py:321
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr "Aŭtomata samtempigo kaj sekurkopioj estas malvalidigitaj dum la restaŭrado. Por revalidigi ilin, fermi la profilon aŭ relanĉi Anki."
 
@@ -979,7 +988,7 @@ msgstr "Aŭtomata samtempigo kaj sekurkopioj estas malvalidigitaj dum la restaŭ
 msgid "Automatically play audio"
 msgstr "Aŭtomate ludi sonon"
 
-#: qt/aqt/forms/preferences.py:265
+#: qt/aqt/forms/preferences.py:270
 msgid "Automatically sync on profile open/close"
 msgstr "Aŭtomate samtempigi je fermo aŭ malfermo de profilo"
 
@@ -1021,16 +1030,16 @@ msgstr "Dorso-antaŭmontro"
 msgid "Back Template"
 msgstr "Dorso-ŝablono"
 
-#: qt/aqt/main.py:463
+#: qt/aqt/main.py:473
 msgid "Backing Up..."
 msgstr "Kreado de sekurkopioj..."
 
-#: qt/aqt/forms/preferences.py:275
+#: qt/aqt/forms/preferences.py:280
 msgid "Backups"
 msgstr "Sekurkopioj"
 
 #: pylib/anki/stdmodels.py:18 pylib/anki/stdmodels.py:36
-#: qt/aqt/forms/preferences.py:262
+#: qt/aqt/forms/preferences.py:267
 msgid "Basic"
 msgstr "Baza"
 
@@ -1046,26 +1055,26 @@ msgstr "Baza (en unu aŭ ambaŭ direktoj)"
 msgid "Basic (type in the answer)"
 msgstr "Baza (entajpi la respondon)"
 
-#: qt/aqt/browser.py:1247 qt/aqt/reviewer.py:671 qt/aqt/forms/browser.py:333
+#: qt/aqt/browser.py:1227 qt/aqt/reviewer.py:687 qt/aqt/forms/browser.py:333
 msgid "Blue Flag"
 msgstr "Blua flago"
 
-#: qt/aqt/editor.py:103
+#: qt/aqt/editor.py:104
 msgid "Bold text (Ctrl+B)"
 msgstr "Grasa teksto (Ctrl+B)"
 
-#: qt/aqt/toolbar.py:36
+#: qt/aqt/toolbar.py:40
 msgid "Browse"
 msgstr "Foliumi"
 
-#: qt/aqt/browser.py:799
+#: qt/aqt/browser.py:777
 #, python-format
 msgid "Browse (%(cur)d card shown; %(sel)s)"
 msgid_plural "Browse (%(cur)d cards shown; %(sel)s)"
 msgstr[0] "Foliumi (%(cur)d karto estas montrata; %(sel)s)"
 msgstr[1] "Foliumi (%(cur)d kartoj estas montrataj; %(sel)s)"
 
-#: qt/aqt/addons.py:813
+#: qt/aqt/addons.py:883
 msgid "Browse Add-ons"
 msgstr "Foliumi aldonaĵojn"
 
@@ -1073,7 +1082,7 @@ msgstr "Foliumi aldonaĵojn"
 msgid "Browser Appearance"
 msgstr "Foliumila aspekto"
 
-#: qt/aqt/clayout.py:484
+#: qt/aqt/clayout.py:493
 msgid "Browser Appearance..."
 msgstr "Foliumila aspekto..."
 
@@ -1085,23 +1094,23 @@ msgstr "Foliumilo-opcioj"
 msgid "Build"
 msgstr "Kunmeti"
 
-#: qt/aqt/browser.py:1242
+#: qt/aqt/browser.py:1222
 msgid "Buried"
 msgstr "kaŝita por tago"
 
-#: qt/aqt/overview.py:104
+#: qt/aqt/overview.py:106
 msgid "Buried Siblings"
 msgstr "portage kaŝitaj parencaj kartoj"
 
-#: qt/aqt/reviewer.py:773 qt/aqt/reviewer.py:779
+#: qt/aqt/reviewer.py:792 qt/aqt/reviewer.py:798
 msgid "Bury"
 msgstr "Kaŝi por tago"
 
-#: qt/aqt/reviewer.py:679
+#: qt/aqt/reviewer.py:695
 msgid "Bury Card"
 msgstr "Kaŝi karton por tago"
 
-#: qt/aqt/reviewer.py:680
+#: qt/aqt/reviewer.py:696
 msgid "Bury Note"
 msgstr "kaŝi noton por tago"
 
@@ -1121,16 +1130,16 @@ msgstr "Laŭnorme Anki detektos la signojn inter kampoj, kiel ekzemple\n"
 "tabulatoron, komon, ktp. Se Anki malĝuste detektas signon,\n"
 "vi povas enmeti ĝin ĉi tie. Uzu \\t por reprezenti tabulatoron."
 
-#: qt/aqt/overview.py:106 qt/aqt/sound.py:38 qt/aqt/sync.py:299
+#: qt/aqt/overview.py:108 qt/aqt/sound.py:522 qt/aqt/sync.py:299
 #: qt/aqt/sync.py:321
 msgid "Cancel"
 msgstr "Nuligi"
 
-#: qt/aqt/browser.py:717
+#: qt/aqt/browser.py:695
 msgid "Card"
 msgstr "Karto"
 
-#: qt/aqt/clayout.py:411
+#: qt/aqt/clayout.py:420
 #, python-format
 msgid "Card %d"
 msgstr "%d-a karto"
@@ -1151,7 +1160,7 @@ msgstr "Karto-identigilo"
 msgid "Card List"
 msgstr "&Kartlisto"
 
-#: qt/aqt/browser.py:1232
+#: qt/aqt/browser.py:1212
 msgid "Card State"
 msgstr "Kartostato"
 
@@ -1163,37 +1172,37 @@ msgstr "Kartotipo"
 msgid "Card Type:"
 msgstr "Kartotipo:"
 
-#: pylib/anki/stats.py:901 qt/aqt/clayout.py:41
+#: pylib/anki/stats.py:901 qt/aqt/clayout.py:45
 msgid "Card Types"
 msgstr "Kartotipoj"
 
-#: qt/aqt/clayout.py:57
+#: qt/aqt/clayout.py:61
 #, python-format
 msgid "Card Types for %s"
 msgstr "Kartotipoj al %s"
 
-#: qt/aqt/reviewer.py:776
+#: qt/aqt/reviewer.py:795
 msgid "Card buried."
 msgstr "Karto estas kaŝita por tago."
 
-#: qt/aqt/reviewer.py:753
+#: qt/aqt/reviewer.py:772
 msgid "Card suspended."
 msgstr "Karto estas daŭre kaŝita"
 
-#: pylib/anki/collection.py:676
+#: pylib/anki/template.py:122
 msgid "Card template has a problem:"
 msgstr ""
 
-#: qt/aqt/reviewer.py:637
+#: qt/aqt/reviewer.py:653
 msgid "Card was a leech."
 msgstr "La karto estis sangosuĉanto."
 
-#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:158
+#: pylib/anki/stats.py:336 pylib/anki/stats.py:969 qt/aqt/editor.py:159
 #: qt/aqt/forms/changemodel.py:112
 msgid "Cards"
 msgstr "Kartoj"
 
-#: qt/aqt/browser.py:1816
+#: qt/aqt/browser.py:1803
 msgid "Cards can't be manually moved into a filtered deck."
 msgstr "Oni ne povas permane alilokigi kartojn en filtritan kartaron."
 
@@ -1201,7 +1210,7 @@ msgstr "Oni ne povas permane alilokigi kartojn en filtritan kartaron."
 msgid "Cards in Plain Text"
 msgstr "Kartoj en plata teksto"
 
-#: qt/aqt/overview.py:154
+#: qt/aqt/overview.py:156
 msgid "Cards will be automatically returned to their original decks after you review them."
 msgstr "Kartoj estos aŭtomate remetitaj al siaj originalaj kartaroj post vi ripetos ilin."
 
@@ -1217,12 +1226,12 @@ msgstr "Centre"
 msgid "Change"
 msgstr "Ŝanĝi"
 
-#: qt/aqt/browser.py:2351
+#: qt/aqt/browser.py:2338
 #, python-format
 msgid "Change %s to:"
 msgstr "Ŝanĝi %s al:"
 
-#: qt/aqt/browser.py:1807 qt/aqt/browser.py:1819
+#: qt/aqt/browser.py:1794 qt/aqt/browser.py:1806
 msgid "Change Deck"
 msgstr "Ŝanĝi kartaron"
 
@@ -1230,7 +1239,7 @@ msgstr "Ŝanĝi kartaron"
 msgid "Change Deck..."
 msgstr "Ŝanĝi kartaron..."
 
-#: qt/aqt/browser.py:2437 qt/aqt/forms/changemodel.py:109
+#: qt/aqt/browser.py:2424 qt/aqt/forms/changemodel.py:109
 msgid "Change Note Type"
 msgstr "Ŝanĝi nototipon"
 
@@ -1242,19 +1251,19 @@ msgstr "Ŝanĝi nototipon (Ctrl+N)"
 msgid "Change Note Type..."
 msgstr "Ŝanĝi noto&tipon..."
 
-#: qt/aqt/editor.py:126
+#: qt/aqt/editor.py:127
 msgid "Change colour (F8)"
 msgstr "Ŝanĝi koloron (F8)"
 
-#: qt/aqt/forms/preferences.py:253
+#: qt/aqt/forms/preferences.py:258
 msgid "Change deck depending on note type"
 msgstr "Ŝanĝi kartaron laŭ nototipo"
 
-#: qt/aqt/browser.py:722
+#: qt/aqt/browser.py:700
 msgid "Changed"
 msgstr "Ŝanĝita"
 
-#: qt/aqt/clayout.py:111
+#: qt/aqt/clayout.py:115
 #, python-format
 msgid "Changes below will affect the %(cnt)d note that uses this card type."
 msgid_plural "Changes below will affect the %(cnt)d notes that use this card type."
@@ -1265,7 +1274,7 @@ msgstr[1] "La jenaj ŝanĝoj efikos sur %(cnt)d notoj, kiuj uzas tiun kartotipon
 msgid "Changes will take effect when Anki is restarted."
 msgstr "Ŝanĝoj efikos post relanĉo de Anki."
 
-#: qt/aqt/preferences.py:110 qt/aqt/preferences.py:236
+#: qt/aqt/preferences.py:109 qt/aqt/preferences.py:246
 msgid "Changes will take effect when you restart Anki."
 msgstr "Ŝanĝoj efikos post relanĉo de Anki."
 
@@ -1285,7 +1294,7 @@ msgstr "Kontroli la dosierojn en la aŭdovidaĵo-dosierujo"
 msgid "Checking media..."
 msgstr "Kontrolado de aŭdovidaĵoj..."
 
-#: qt/aqt/addons.py:776 qt/aqt/sync.py:134
+#: qt/aqt/addons.py:846 qt/aqt/sync.py:134
 msgid "Checking..."
 msgstr "Kontrolado..."
 
@@ -1305,7 +1314,7 @@ msgstr "Elekti nototipon"
 msgid "Choose Tags"
 msgstr "Elekti etikedojn"
 
-#: qt/aqt/browser.py:1258
+#: qt/aqt/browser.py:1238
 msgid "Clear Unused"
 msgstr "Forigi neuzatajn"
 
@@ -1318,15 +1327,15 @@ msgstr "Forigi neuzatajn etikedojn"
 msgid "Clone: %s"
 msgstr "Kloni: %s"
 
-#: qt/aqt/addcards.py:70 qt/aqt/clayout.py:272 qt/aqt/forms/browser.py:322
+#: qt/aqt/addcards.py:70 qt/aqt/clayout.py:283 qt/aqt/forms/browser.py:322
 msgid "Close"
 msgstr "Fermi"
 
-#: qt/aqt/addcards.py:241
+#: qt/aqt/addcards.py:240
 msgid "Close and lose current input?"
 msgstr "Ĉu fermi kaj perdi nunan enmetitaĵon?"
 
-#: qt/aqt/main.py:461
+#: qt/aqt/main.py:471
 msgid "Closing..."
 msgstr "Fermado..."
 
@@ -1335,7 +1344,7 @@ msgstr "Fermado..."
 msgid "Cloze"
 msgstr "Truteksto"
 
-#: qt/aqt/editor.py:136
+#: qt/aqt/editor.py:137
 msgid "Cloze deletion (Ctrl+Shift+C)"
 msgstr "Truteksta malpleno (Ctrl+Shift+C)"
 
@@ -1347,7 +1356,7 @@ msgstr "Kodo:"
 msgid "Collection exported."
 msgstr "Kolekto estas elportita."
 
-#: pylib/anki/collection.py:889
+#: pylib/anki/collection.py:785
 msgid "Collection is corrupt. Please see the manual."
 msgstr "Kolekto estas difektita. Bonvolu vidi la gvidlibron."
 
@@ -1383,7 +1392,7 @@ msgstr "Konektado..."
 msgid "Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder."
 msgstr "Tempolimo de konekto. Aŭ okazas problemo ĉe via interreta konekto aŭ vi havas tre grandan dosieron en via aŭdovidaĵa dosierujo."
 
-#: qt/aqt/reviewer.py:80
+#: qt/aqt/reviewer.py:74
 msgid "Continue"
 msgstr "Daŭrigi"
 
@@ -1391,7 +1400,7 @@ msgstr "Daŭrigi"
 msgid "Copied to clipboard"
 msgstr "Kopiita en la tondujon"
 
-#: qt/aqt/editor.py:1112 qt/aqt/webview.py:183
+#: qt/aqt/editor.py:1114 qt/aqt/webview.py:188
 msgid "Copy"
 msgstr "Kopii"
 
@@ -1413,7 +1422,7 @@ msgstr "Ĝustaj respondoj ĉe maljunaj kartoj: %(a)d/%(b)d (%(c).1f%%)"
 msgid "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
 msgstr "Ĝusta: <b>%(pct)0.2f%%</b><br>(%(good)d el %(tot)d)"
 
-#: qt/aqt/addons.py:428
+#: qt/aqt/addons.py:460
 msgid "Corrupt add-on file."
 msgstr "Difekta aldonaĵo-dosiero"
 
@@ -1421,7 +1430,7 @@ msgstr "Difekta aldonaĵo-dosiero"
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
 msgstr "Konekto al AnkiWeb ne estas ebla. Bonvolu kontroli vian retkonekton kaj reprovu ĝin."
 
-#: qt/aqt/editor.py:682
+#: qt/aqt/editor.py:685
 msgid "Couldn't record audio. Have you installed 'lame'?"
 msgstr "La registro de sono ne estas ebla. Ĉu vi instalis 'lame'?"
 
@@ -1446,11 +1455,11 @@ msgstr "Krei filtritan kartaron..."
 msgid "Create scalable images with dvisvgm"
 msgstr "Krei skaleblan bildon per dvisvgm"
 
-#: qt/aqt/browser.py:720
+#: qt/aqt/browser.py:698
 msgid "Created"
 msgstr "Kreita"
 
-#: qt/aqt/main.py:1101
+#: qt/aqt/main.py:1087
 msgid "Ctrl+Alt+Z"
 msgstr ""
 
@@ -1462,7 +1471,7 @@ msgstr ""
 msgid "Ctrl+N"
 msgstr ""
 
-#: qt/aqt/browser.py:598
+#: qt/aqt/browser.py:576
 msgid "Ctrl+Shift+P"
 msgstr ""
 
@@ -1483,7 +1492,7 @@ msgstr "Akumulaj respondoj"
 msgid "Cumulative Cards"
 msgstr "Akumulaj kartoj"
 
-#: qt/aqt/browser.py:1091 qt/aqt/browser.py:1215
+#: qt/aqt/browser.py:1071 qt/aqt/browser.py:1195
 msgid "Current Deck"
 msgstr "Aktuala kartaro"
 
@@ -1491,7 +1500,7 @@ msgstr "Aktuala kartaro"
 msgid "Current note type:"
 msgstr "Aktuala nototipo:"
 
-#: qt/aqt/overview.py:225 qt/aqt/forms/customstudy.py:100
+#: qt/aqt/overview.py:227 qt/aqt/forms/customstudy.py:100
 msgid "Custom Study"
 msgstr "Propra lernado"
 
@@ -1503,23 +1512,23 @@ msgstr "Krei lernadan seancon"
 msgid "Custom steps (in minutes)"
 msgstr "Propraj paŝoj (en minutoj)"
 
-#: qt/aqt/editor.py:161
+#: qt/aqt/editor.py:162
 msgid "Customize Card Templates (Ctrl+L)"
 msgstr "Akomodi la kartoŝablonon (Crtl+L)"
 
-#: qt/aqt/editor.py:160
+#: qt/aqt/editor.py:161
 msgid "Customize Fields"
 msgstr "Akomodi kampojn"
 
-#: qt/aqt/editor.py:1110
+#: qt/aqt/editor.py:1112
 msgid "Cut"
 msgstr "Eltondi"
 
-#: pylib/anki/collection.py:1074
+#: pylib/anki/collection.py:970
 msgid "Database rebuilt and optimized."
 msgstr "La datumbazo estas rekunmetita kaj optimumigita."
 
-#: qt/aqt/browser.py:1424
+#: qt/aqt/browser.py:1404
 msgid "Date"
 msgstr "Dato"
 
@@ -1527,7 +1536,7 @@ msgstr "Dato"
 msgid "Days studied"
 msgstr "Tagoj de lernado"
 
-#: qt/aqt/forms/preferences.py:267
+#: qt/aqt/forms/preferences.py:272
 msgid "Deauthorize"
 msgstr "Malrajtigi"
 
@@ -1535,20 +1544,20 @@ msgstr "Malrajtigi"
 msgid "Debug Console"
 msgstr "Sencimiga konzolo"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:718 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:150
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Kartaro"
 
-#: qt/aqt/clayout.py:481
+#: qt/aqt/clayout.py:490
 msgid "Deck Override..."
 msgstr "Superskribi kartaron..."
 
-#: qt/aqt/main.py:1534
+#: qt/aqt/main.py:1525
 msgid "Deck will be imported when a profile is opened."
 msgstr "La kartaro estos enportita, kiam profilo estas malfermita."
 
-#: qt/aqt/browser.py:1286 qt/aqt/toolbar.py:34
+#: qt/aqt/browser.py:1266 qt/aqt/toolbar.py:38
 msgid "Decks"
 msgstr "Kartaroj"
 
@@ -1566,12 +1575,12 @@ msgid "Delays until reviews are shown again."
 msgstr "Intertempoj ĝis ripetoj denove montriĝas."
 
 #: qt/aqt/deckbrowser.py:246 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
-#: qt/aqt/reviewer.py:761 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
+#: qt/aqt/reviewer.py:780 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
 msgstr "Forigi"
 
-#: qt/aqt/main.py:1374
+#: qt/aqt/main.py:1365
 msgid "Delete Cards"
 msgstr "Forigi kartojn"
 
@@ -1579,23 +1588,23 @@ msgstr "Forigi kartojn"
 msgid "Delete Deck"
 msgstr "Forigi kartaron"
 
-#: qt/aqt/main.py:1380
+#: qt/aqt/main.py:1371
 msgid "Delete Empty"
 msgstr "Forigi malplenajn"
 
-#: qt/aqt/reviewer.py:683
+#: qt/aqt/reviewer.py:699
 msgid "Delete Note"
 msgstr "Forigi noton"
 
-#: qt/aqt/browser.py:1760
+#: qt/aqt/browser.py:1747
 msgid "Delete Notes"
 msgstr "Forigi notojn"
 
-#: qt/aqt/browser.py:1866
+#: qt/aqt/browser.py:1853
 msgid "Delete Tags"
 msgstr "Forigi etikedojn"
 
-#: qt/aqt/main.py:1306
+#: qt/aqt/main.py:1297
 msgid "Delete Unused Files"
 msgstr "Forigi neuzatajn dosierojn"
 
@@ -1604,14 +1613,14 @@ msgstr "Forigi neuzatajn dosierojn"
 msgid "Delete field from %s?"
 msgstr "Ĉu forigi la kampon el %s?"
 
-#: qt/aqt/addons.py:737
+#: qt/aqt/addons.py:807
 #, python-format
 msgid "Delete the %(num)d selected add-on?"
 msgid_plural "Delete the %(num)d selected add-ons?"
 msgstr[0] "Ĉu vi volas forigi %(num)d elektitan aldonaĵon?"
 msgstr[1] "Ĉu vi volas forigi %(num)d elektitajn aldonaĵojn?"
 
-#: qt/aqt/clayout.py:231
+#: qt/aqt/clayout.py:242
 #, python-format
 msgid "Delete the '%(a)s' card type, and its %(b)s?"
 msgstr "Ĉu forigi la kartotipon '%(a)s' kaj ĝiajn %(b)s?"
@@ -1624,53 +1633,53 @@ msgstr "Ĉu forigi ĉi tiun nototipon kaj ĉiujn ĝiajn kartojn?"
 msgid "Delete this unused note type?"
 msgstr "Ĉu forigi ĉi tiun neuzatan nototipon?"
 
-#: qt/aqt/main.py:1319
+#: qt/aqt/main.py:1310
 msgid "Delete unused media?"
 msgstr "Ĉu forigi neuzatajn aŭdovidaĵojn?"
 
-#: pylib/anki/collection.py:978
+#: pylib/anki/collection.py:874
 #, python-format
 msgid "Deleted %d card with missing note."
 msgid_plural "Deleted %d cards with missing note."
 msgstr[0] "Forigis %d karton kies noto mankis."
 msgstr[1] "Forigis %d kartojn kies notoj mankis."
 
-#: pylib/anki/collection.py:929
+#: pylib/anki/collection.py:825
 #, python-format
 msgid "Deleted %d card with missing template."
 msgid_plural "Deleted %d cards with missing template."
 msgstr[0] "Forigis %d karton kun mankanta ŝablono."
 msgstr[1] "Forigis %d kartojn kun mankanta ŝablono."
 
-#: qt/aqt/main.py:1349
+#: qt/aqt/main.py:1340
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: pylib/anki/collection.py:899
+#: pylib/anki/collection.py:795
 #, python-format
 msgid "Deleted %d note with missing note type."
 msgid_plural "Deleted %d notes with missing note type."
 msgstr[0] "%d noto sen nototipo estas forigita."
 msgstr[1] "%d notoj sen nototipo estas forigitaj."
 
-#: pylib/anki/collection.py:962
+#: pylib/anki/collection.py:858
 #, python-format
 msgid "Deleted %d note with no cards."
 msgid_plural "Deleted %d notes with no cards."
 msgstr[0] "%d noto sen karto estas forigita."
 msgstr[1] "%d notoj sen karto estas forigitaj."
 
-#: pylib/anki/collection.py:946
+#: pylib/anki/collection.py:842
 #, python-format
 msgid "Deleted %d note with wrong field count."
 msgid_plural "Deleted %d notes with wrong field count."
 msgstr[0] "%d noto kun malĝusta nombro de kampoj estas forigita."
 msgstr[1] "%d notoj kun malĝusta nombro de kampoj estas forigitaj."
 
-#: qt/aqt/overview.py:159
+#: qt/aqt/overview.py:161
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr "Forigo de ĉi tiu kartaro el la kartaro-listo remetos ĉiujn restantajn kartojn al siaj originalaj kartaroj."
 
@@ -1687,7 +1696,7 @@ msgstr "Priskribo kiu montriĝu sur studekrano (nur por aktuala kartaro):"
 msgid "Dialog"
 msgstr "Dialogujo"
 
-#: qt/aqt/addons.py:962
+#: qt/aqt/addons.py:1071
 msgid "Download complete. Please restart Anki to apply changes."
 msgstr ""
 
@@ -1695,12 +1704,12 @@ msgstr ""
 msgid "Download from AnkiWeb"
 msgstr "Elŝuto el AnkiWeb"
 
-#: qt/aqt/addons.py:448
+#: qt/aqt/addons.py:480
 #, python-format
 msgid "Downloaded %(fname)s"
 msgstr "Elŝutis %(fname)s"
 
-#: qt/aqt/addons.py:941
+#: qt/aqt/addons.py:1050
 #, python-format
 msgid "Downloading %(a)d/%(b)d (%(kb)0.2fKB)..."
 msgstr ""
@@ -1709,7 +1718,7 @@ msgstr ""
 msgid "Downloading from AnkiWeb..."
 msgstr "Elŝutado el AnkiWeb..."
 
-#: pylib/anki/stats.py:43 qt/aqt/browser.py:723 qt/aqt/browser.py:1239
+#: pylib/anki/stats.py:43 qt/aqt/browser.py:701 qt/aqt/browser.py:1219
 #: qt/aqt/deckbrowser.py:151
 msgid "Due"
 msgstr "Limdato"
@@ -1726,11 +1735,11 @@ msgstr "Lernenda morgaŭ"
 msgid "E&xit"
 msgstr "&Forlasi"
 
-#: pylib/anki/stats.py:46 qt/aqt/browser.py:725 qt/aqt/browser.py:1429
+#: pylib/anki/stats.py:46 qt/aqt/browser.py:703 qt/aqt/browser.py:1409
 msgid "Ease"
 msgstr "Facileco"
 
-#: qt/aqt/reviewer.py:594 qt/aqt/reviewer.py:596
+#: qt/aqt/reviewer.py:610 qt/aqt/reviewer.py:612
 msgid "Easy"
 msgstr "Facila"
 
@@ -1742,7 +1751,7 @@ msgstr "Facileca premio"
 msgid "Easy interval"
 msgstr "Intertempo de facila respondo"
 
-#: qt/aqt/reviewer.py:532
+#: qt/aqt/reviewer.py:548
 msgid "Edit"
 msgstr "Redakti"
 
@@ -1755,11 +1764,11 @@ msgstr "Redakti \"%s\""
 msgid "Edit Current"
 msgstr "Redakti aktualan"
 
-#: qt/aqt/editor.py:876
+#: qt/aqt/editor.py:878
 msgid "Edit HTML"
 msgstr "Redakti HTML"
 
-#: qt/aqt/browser.py:721
+#: qt/aqt/browser.py:699
 msgid "Edited"
 msgstr "Redaktita"
 
@@ -1767,7 +1776,7 @@ msgstr "Redaktita"
 msgid "Editing Font"
 msgstr "Redakta tiparo"
 
-#: qt/aqt/overview.py:223
+#: qt/aqt/overview.py:225
 msgid "Empty"
 msgstr "Malplenigi"
 
@@ -1775,7 +1784,7 @@ msgstr "Malplenigi"
 msgid "Empty Cards..."
 msgstr "Malplenaj kartoj..."
 
-#: pylib/anki/collection.py:585
+#: pylib/anki/collection.py:583
 #, python-format
 msgid "Empty card numbers: %(c)s\n"
 "Fields: %(f)s\n\n"
@@ -1799,30 +1808,30 @@ msgstr "Aktivigi duan filtrilon"
 msgid "End"
 msgstr "Fino"
 
-#: qt/aqt/clayout.py:525
+#: qt/aqt/clayout.py:534
 #, python-format
 msgid "Enter deck to place new %s cards in, or leave blank:"
 msgstr "Entajpu kartaron por enmeti %s novajn kartojn, aŭ lasu ĝin malplena:"
 
-#: qt/aqt/clayout.py:392
+#: qt/aqt/clayout.py:401
 #, python-format
 msgid "Enter new card position (1...%s):"
 msgstr "Entajpu novan kartopozicion (1...%s):"
 
-#: qt/aqt/browser.py:1846
+#: qt/aqt/browser.py:1833
 msgid "Enter tags to add:"
 msgstr "Entajpu aldonotajn etikedojn:"
 
-#: qt/aqt/browser.py:1868
+#: qt/aqt/browser.py:1855
 msgid "Enter tags to delete:"
 msgstr "Entajpu forigotajn etikedojn:"
 
-#: qt/aqt/addons.py:435
+#: qt/aqt/addons.py:467
 #, python-format
 msgid "Error downloading <i>%(id)s</i>: %(error)s"
 msgstr ""
 
-#: qt/aqt/main.py:82
+#: qt/aqt/main.py:88
 #, python-format
 msgid "Error during startup:\n"
 "%s"
@@ -1833,17 +1842,17 @@ msgstr "Eraro dum lanĉo:\n"
 msgid "Error establishing a secure connection. This is usually caused by antivirus, firewall or VPN software, or problems with your ISP."
 msgstr "Sekura konekto ne estas starigebla. Tio ordinare estas kaŭzita de senvirusigilo, fajroŝirmilo, VPN programaro aŭ problemoj kun via retkonekta provizanto."
 
-#: pylib/anki/latex.py:177
+#: pylib/anki/latex.py:173
 #, python-format
 msgid "Error executing %s."
 msgstr "Eraro dum la plenumo de %s."
 
-#: qt/aqt/addons.py:437
+#: qt/aqt/addons.py:469
 #, python-format
 msgid "Error installing <i>%(base)s</i>: %(error)s"
 msgstr "Eraro dum instalado de <i>%(base)s</i>: %(error)s"
 
-#: qt/aqt/sound.py:411
+#: qt/aqt/sound.py:431
 #, python-format
 msgid "Error running %s"
 msgstr "Eraro dum la rulo de %s."
@@ -1881,7 +1890,7 @@ msgstr "Kamponomo:"
 msgid "Field:"
 msgstr "Kampo:"
 
-#: qt/aqt/editor.py:157 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
+#: qt/aqt/editor.py:158 qt/aqt/fields.py:20 qt/aqt/forms/changemodel.py:113
 #: qt/aqt/forms/fields.py:100
 msgid "Fields"
 msgstr "Kampoj"
@@ -1908,7 +1917,7 @@ msgstr "Fil&trilo"
 msgid "File version unknown, trying import anyway."
 msgstr "La versio de la dosiero estas nekonata. Tamen estas provata realigi la enporton."
 
-#: qt/aqt/browser.py:1275 qt/aqt/forms/dyndconf.py:133
+#: qt/aqt/browser.py:1255 qt/aqt/forms/dyndconf.py:133
 msgid "Filter"
 msgstr "Filtrilo"
 
@@ -1924,11 +1933,11 @@ msgstr "Filtrilo..."
 msgid "Filter:"
 msgstr "Filtrilo:"
 
-#: qt/aqt/browser.py:1438
+#: qt/aqt/browser.py:1418
 msgid "Filtered"
 msgstr "Filtrita"
 
-#: qt/aqt/main.py:1078 qt/aqt/main.py:1080
+#: qt/aqt/main.py:1064 qt/aqt/main.py:1066
 #, python-format
 msgid "Filtered Deck %d"
 msgstr "%d-a filtrita kartaro"
@@ -1945,11 +1954,11 @@ msgstr "Trovi duoblaĵojn"
 msgid "Find and Re&place..."
 msgstr "Serĉi kaj &anstataŭigi..."
 
-#: qt/aqt/browser.py:2088 qt/aqt/forms/findreplace.py:68
+#: qt/aqt/browser.py:2075 qt/aqt/forms/findreplace.py:68
 msgid "Find and Replace"
 msgstr "Serĉi kaj anstataŭigi"
 
-#: qt/aqt/reviewer.py:79
+#: qt/aqt/reviewer.py:73
 msgid "Finish"
 msgstr "Fini"
 
@@ -1966,18 +1975,18 @@ msgstr "Unua ripeto"
 msgid "First field matched: %s"
 msgstr "La unua kampo estas egala al: %s"
 
-#: pylib/anki/collection.py:994 pylib/anki/collection.py:1012
+#: pylib/anki/collection.py:890 pylib/anki/collection.py:908
 #, python-format
 msgid "Fixed %d card with invalid properties."
 msgid_plural "Fixed %d cards with invalid properties."
 msgstr[0] "Nevalidaj ecoj de %d karto estas korektita."
 msgstr[1] "Nevalidaj ecoj de %d kartoj estas korektitaj."
 
-#: pylib/anki/collection.py:911
+#: pylib/anki/collection.py:807
 msgid "Fixed AnkiDroid deck override bug."
 msgstr "La kartaro-superskribo-cimo de AnkiDroid estas korektita."
 
-#: pylib/anki/collection.py:917
+#: pylib/anki/collection.py:813
 #, python-format
 msgid "Fixed note type: %s"
 msgstr "Korekto de la nototipo: %s"
@@ -1986,15 +1995,15 @@ msgstr "Korekto de la nototipo: %s"
 msgid "Flag"
 msgstr "Flago"
 
-#: qt/aqt/reviewer.py:650
+#: qt/aqt/reviewer.py:666
 msgid "Flag Card"
 msgstr "Flagi karton"
 
-#: qt/aqt/clayout.py:267
+#: qt/aqt/clayout.py:278
 msgid "Flip"
 msgstr "Renversi"
 
-#: qt/aqt/profiles.py:234
+#: qt/aqt/profiles.py:232
 msgid "Folder already exists."
 msgstr "La dosierujo jam ekzistas."
 
@@ -2006,7 +2015,7 @@ msgstr "Tiparo:"
 msgid "Footer"
 msgstr "Paĝopiedo"
 
-#: pylib/anki/latex.py:137
+#: pylib/anki/latex.py:133
 #, python-format
 msgid "For security reasons, '%s' is not allowed on cards. You can still use it by placing the command in a different package, and importing that package in the LaTeX header instead."
 msgstr "Por sekureco, '%s' ne estas permesita sur kartoj. Tamen vi povas uzi ĝin se vi metas la komandon en alian pakaĵon, kaj vi enportas tiun pakaĵon en la LaTex-ĉapon."
@@ -2020,7 +2029,7 @@ msgstr "Prognozo"
 msgid "Form"
 msgstr "Formularo"
 
-#: qt/aqt/browser.py:2166
+#: qt/aqt/browser.py:2153
 #, python-format
 msgid "Found %(a)s across %(b)s."
 msgstr "Mi trovis %(a)s-n en %(b)s."
@@ -2044,7 +2053,7 @@ msgstr "Fronto-ŝablono"
 msgid "General"
 msgstr "Ĝenerala"
 
-#: pylib/anki/latex.py:178
+#: pylib/anki/latex.py:174
 #, python-format
 msgid "Generated file: %s"
 msgstr "Kreita dosiero: %s"
@@ -2062,7 +2071,7 @@ msgstr "Havigi aldonaĵojn..."
 msgid "Get Shared"
 msgstr "Elŝuti kartaron"
 
-#: qt/aqt/reviewer.py:592 qt/aqt/reviewer.py:594 qt/aqt/reviewer.py:596
+#: qt/aqt/reviewer.py:608 qt/aqt/reviewer.py:610 qt/aqt/reviewer.py:612
 msgid "Good"
 msgstr "Bona"
 
@@ -2070,7 +2079,7 @@ msgstr "Bona"
 msgid "Graduating interval"
 msgstr "Gradiga intertempo"
 
-#: qt/aqt/browser.py:1246 qt/aqt/reviewer.py:665 qt/aqt/forms/browser.py:332
+#: qt/aqt/browser.py:1226 qt/aqt/reviewer.py:681 qt/aqt/forms/browser.py:332
 msgid "Green Flag"
 msgstr "Verda flago"
 
@@ -2078,7 +2087,7 @@ msgstr "Verda flago"
 msgid "HTML Editor"
 msgstr "HTML-redaktilo"
 
-#: qt/aqt/reviewer.py:596
+#: qt/aqt/reviewer.py:612
 msgid "Hard"
 msgstr "Malfacila"
 
@@ -2086,11 +2095,11 @@ msgstr "Malfacila"
 msgid "Hard interval"
 msgstr "Intertempo de malfacila respondo"
 
-#: qt/aqt/forms/preferences.py:244
+#: qt/aqt/forms/preferences.py:248
 msgid "Hardware acceleration (faster, may cause display issues)"
 msgstr "Aparatara plirapidigo (pli rapida, eble kaŭzos vidigilajn problemojn)"
 
-#: pylib/anki/latex.py:186
+#: pylib/anki/latex.py:182
 msgid "Have you installed latex and dvipng/dvisvgm?"
 msgstr "Ĉu vi instalis latex kaj dvipng/dvisvgm?"
 
@@ -2098,7 +2107,7 @@ msgstr "Ĉu vi instalis latex kaj dvipng/dvisvgm?"
 msgid "Header"
 msgstr "Ĉapo"
 
-#: qt/aqt/addcards.py:74 qt/aqt/clayout.py:257 qt/aqt/utils.py:193
+#: qt/aqt/addcards.py:74 qt/aqt/clayout.py:268 qt/aqt/utils.py:193
 #: qt/aqt/utils.py:194
 msgid "Help"
 msgstr "Helpo"
@@ -2188,7 +2197,7 @@ msgstr "Opcioj de enporto"
 msgid "Importing complete."
 msgstr "Enporto finiĝis."
 
-#: qt/aqt/main.py:1137
+#: qt/aqt/main.py:1123
 #, python-format
 msgid "In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.\n\n"
 "Please go to the time settings on your computer and check the following:\n\n"
@@ -2246,11 +2255,11 @@ msgstr "kreskaj intertempoj"
 msgid "Install Add-on"
 msgstr "Instali aldonaĵon"
 
-#: qt/aqt/addons.py:766
+#: qt/aqt/addons.py:836
 msgid "Install Add-on(s)"
 msgstr "Instali aldonaĵo(j)n"
 
-#: qt/aqt/addons.py:1213
+#: qt/aqt/addons.py:1340
 msgid "Install Anki add-on"
 msgstr ""
 
@@ -2258,24 +2267,24 @@ msgstr ""
 msgid "Install from file..."
 msgstr "Instali el dosiero..."
 
-#: qt/aqt/addons.py:1236
+#: qt/aqt/addons.py:1363
 msgid "Installation complete"
 msgstr ""
 
-#: qt/aqt/addons.py:450
+#: qt/aqt/addons.py:482
 #, python-format
 msgid "Installed %(name)s"
 msgstr "%(name)s estas instalita"
 
-#: qt/aqt/addons.py:882
+#: qt/aqt/addons.py:985
 msgid "Installed successfully."
 msgstr ""
 
-#: qt/aqt/forms/preferences.py:243 qt/aqt/forms/setlang.py:40
+#: qt/aqt/forms/preferences.py:247 qt/aqt/forms/setlang.py:40
 msgid "Interface language:"
 msgstr "Interfaca lingvo:"
 
-#: pylib/anki/stats.py:45 qt/aqt/browser.py:724 qt/aqt/browser.py:1428
+#: pylib/anki/stats.py:45 qt/aqt/browser.py:702 qt/aqt/browser.py:1408
 msgid "Interval"
 msgstr "Intertempo"
 
@@ -2287,23 +2296,23 @@ msgstr "Intertempo-modifilo"
 msgid "Intervals"
 msgstr "Intertempoj"
 
-#: qt/aqt/addons.py:429
+#: qt/aqt/addons.py:461
 msgid "Invalid add-on manifest."
 msgstr "Nevalida aldonaĵa manifesto"
 
-#: qt/aqt/addons.py:869
+#: qt/aqt/addons.py:972
 msgid "Invalid code, or add-on not available for your version of Anki."
 msgstr "Nevalida kodo, aŭ aldonaĵo ne estas havebla por via versio de Anki."
 
-#: qt/aqt/addons.py:828
+#: qt/aqt/addons.py:898
 msgid "Invalid code."
 msgstr "Nevalida kodo."
 
-#: qt/aqt/addons.py:1169
+#: qt/aqt/addons.py:1296
 msgid "Invalid configuration: "
 msgstr "Nevalida agordo: "
 
-#: qt/aqt/addons.py:1173
+#: qt/aqt/addons.py:1300
 msgid "Invalid configuration: top level object must be a map"
 msgstr "Nevalida agordo: supra objekto devas esti bildigo"
 
@@ -2316,47 +2325,47 @@ msgstr "Nevalida dosiera nomo, bonvolu alinomi: %s"
 msgid "Invalid file. Please restore from backup."
 msgstr "Malvalida dosiero. Bonvolu rekreu ĝin el savkopio."
 
-#: qt/aqt/main.py:1187
+#: qt/aqt/main.py:1173
 msgid "Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site."
 msgstr "Malvalidaj ecoj estas trovitaj sur karto. Bonvolu uzi la menueron Iloj>Kontroli datumbazon. Se la problemo daŭras aŭ reaperas, turni vin al la subteno-retpaĝo."
 
-#: qt/aqt/browser.py:2101
+#: qt/aqt/browser.py:2088
 msgid "Invalid regular expression."
 msgstr "Nevalida regulesprimo."
 
-#: qt/aqt/browser.py:179
+#: qt/aqt/browser.py:171
 msgid "Invalid search - please check for typing mistakes."
 msgstr "Nevalida serĉo - bonvolu kontroli, ĉu vi skribis ĉion ĝuste."
 
-#: qt/aqt/reviewer.py:639
+#: qt/aqt/reviewer.py:655
 msgid "It has been suspended."
 msgstr "Ĝi estis daŭre kaŝita."
 
-#: qt/aqt/editor.py:105
+#: qt/aqt/editor.py:106
 msgid "Italic text (Ctrl+I)"
 msgstr "Kursiva teksto (Ctrl+I)"
 
-#: qt/aqt/editor.py:520
+#: qt/aqt/editor.py:521
 msgid "Jump to tags with Ctrl+Shift+T"
 msgstr "Salti al etikedoj per Ctrl+Shift+T"
 
-#: qt/aqt/forms/preferences.py:270
+#: qt/aqt/forms/preferences.py:275
 msgid "Keep"
 msgstr "Konservi"
 
-#: qt/aqt/editor.py:873 qt/aqt/forms/modelopts.py:67
+#: qt/aqt/editor.py:875 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
 msgstr ""
 
-#: qt/aqt/editor.py:874
+#: qt/aqt/editor.py:876
 msgid "LaTeX equation"
 msgstr "LaTeX-formulo"
 
-#: qt/aqt/editor.py:875
+#: qt/aqt/editor.py:877
 msgid "LaTeX math env."
 msgstr "LaTeX matematika ĉirkaŭaĵo"
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:727 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:386
 msgid "Lapses"
 msgstr "Misrespondoj"
 
@@ -2372,11 +2381,11 @@ msgstr "Plej lasta ripeto"
 msgid "Latest added first"
 msgstr "plej laste aldonitaj unuafoje"
 
-#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1438
+#: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1418
 msgid "Learn"
 msgstr "Lerni"
 
-#: qt/aqt/forms/preferences.py:257
+#: qt/aqt/forms/preferences.py:262
 msgid "Learn ahead limit"
 msgstr "Antaŭlerna limigo"
 
@@ -2385,7 +2394,7 @@ msgstr "Antaŭlerna limigo"
 msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
 msgstr "Por lerni: %(a)s, ripeti: %(b)s, relerni: %(c)s, filtrilaĵo: %(d)s"
 
-#: pylib/anki/stats.py:701 qt/aqt/browser.py:1237 qt/aqt/overview.py:198
+#: pylib/anki/stats.py:701 qt/aqt/browser.py:1217 qt/aqt/overview.py:200
 msgid "Learning"
 msgstr "Lernado"
 
@@ -2433,11 +2442,11 @@ msgstr "Administri nototipojn"
 msgid "Manage Note Types..."
 msgstr "Administri nototipojn..."
 
-#: qt/aqt/browser.py:1294 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:353
 msgid "Manage..."
 msgstr "Administri..."
 
-#: qt/aqt/overview.py:103
+#: qt/aqt/overview.py:105
 msgid "Manually Buried Cards"
 msgstr "Permane portage kaŝitaj kartoj"
 
@@ -2450,19 +2459,19 @@ msgstr "Mapi al %s"
 msgid "Map to Tags"
 msgstr "Mapi al etikedoj"
 
-#: qt/aqt/reviewer.py:678
+#: qt/aqt/reviewer.py:694
 msgid "Mark Note"
 msgstr "Marki noton"
 
-#: qt/aqt/editor.py:871
+#: qt/aqt/editor.py:873
 msgid "MathJax block"
 msgstr "MathJax bloko"
 
-#: qt/aqt/editor.py:872
+#: qt/aqt/editor.py:874
 msgid "MathJax chemistry"
 msgstr "MathJax ĥemio"
 
-#: qt/aqt/editor.py:870
+#: qt/aqt/editor.py:872
 msgid "MathJax inline"
 msgstr "Enlinia MathJax-Elemento"
 
@@ -2479,7 +2488,7 @@ msgstr "Maksimuma intertempo"
 msgid "Maximum reviews/day"
 msgstr "Maksimumaj ripetoj/tago"
 
-#: qt/aqt/editor.py:648
+#: qt/aqt/editor.py:651
 msgid "Media"
 msgstr "Aŭdovidaĵo"
 
@@ -2499,15 +2508,19 @@ msgstr "Miksi novajn kartojn kaj ripetojn"
 msgid "Mnemosyne 2.0 Deck (*.db)"
 msgstr "Mnemosyne 2.0 kartaro (*.db)"
 
-#: qt/aqt/reviewer.py:534
+#: qt/aqt/reviewer.py:550
 msgid "More"
 msgstr "Pli"
+
+#: pylib/anki/template.py:132
+msgid "More info"
+msgstr ""
 
 #: pylib/anki/consts.py:91
 msgid "Most lapses"
 msgstr "plej multaj misrespondoj"
 
-#: qt/aqt/browser.py:1806
+#: qt/aqt/browser.py:1793
 msgid "Move Cards"
 msgstr "Alilokigi kartojn"
 
@@ -2523,7 +2536,7 @@ msgstr "Plursignaj disigiloj ne estas subtenataj. Bonvolu enigi nur unu signon."
 msgid "N&ote"
 msgstr "&Noto"
 
-#: qt/aqt/main.py:238 qt/aqt/main.py:252
+#: qt/aqt/main.py:244 qt/aqt/main.py:258
 msgid "Name exists."
 msgstr "La nomo jam ekzistas."
 
@@ -2531,15 +2544,15 @@ msgstr "La nomo jam ekzistas."
 msgid "Name for deck:"
 msgstr "Nomo de la kartaro:"
 
-#: qt/aqt/main.py:235 qt/aqt/models.py:96
+#: qt/aqt/main.py:241 qt/aqt/models.py:96
 msgid "Name:"
 msgstr "Nomo:"
 
-#: qt/aqt/forms/preferences.py:268
+#: qt/aqt/forms/preferences.py:273
 msgid "Network"
 msgstr "Reto"
 
-#: qt/aqt/browser.py:1236 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:196
+#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:198
 msgid "New"
 msgstr "Nova"
 
@@ -2568,8 +2581,8 @@ msgstr "Nomo de la nova kartaro:"
 msgid "New interval"
 msgstr "Nova intertempo"
 
-#: qt/aqt/clayout.py:379 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
-#: qt/aqt/main.py:246 qt/aqt/models.py:67
+#: qt/aqt/clayout.py:388 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
+#: qt/aqt/main.py:252 qt/aqt/models.py:67
 msgid "New name:"
 msgstr "Nova nomo:"
 
@@ -2586,15 +2599,19 @@ msgstr "Nomo de nova opciogrupo:"
 msgid "New position (1...%d):"
 msgstr "Nova pozicio (1...%d):"
 
-#: qt/aqt/forms/preferences.py:256
+#: qt/aqt/forms/preferences.py:261
 msgid "Next day starts at"
 msgstr "Sekva tago komencas je"
 
-#: qt/aqt/browser.py:1248
+#: qt/aqt/forms/preferences.py:254
+msgid "Night mode"
+msgstr ""
+
+#: qt/aqt/browser.py:1228
 msgid "No Flag"
 msgstr "Neniu flago"
 
-#: qt/aqt/overview.py:40
+#: qt/aqt/overview.py:42
 msgid "No cards are due yet."
 msgstr "Neniuj kartoj estas jam lernendaj."
 
@@ -2606,7 +2623,7 @@ msgstr "Hodiaŭ vi lernis neniujn kartojn."
 msgid "No cards matched the criteria you provided."
 msgstr "Neniuj kartoj kongruis kun la kriterioj, kiujn vi enigis."
 
-#: qt/aqt/main.py:1367
+#: qt/aqt/main.py:1358
 msgid "No empty cards."
 msgstr "Neniu malplena karto."
 
@@ -2614,15 +2631,15 @@ msgstr "Neniu malplena karto."
 msgid "No mature cards were studied today."
 msgstr "Hodiaŭ vi lernis neniujn maljunajn kartojn."
 
-#: qt/aqt/main.py:1292
+#: qt/aqt/main.py:1283
 msgid "No unused or missing files found."
 msgstr "Neniu neuzata aŭ mankanta dosiero estis trovita."
 
-#: qt/aqt/addons.py:760
+#: qt/aqt/addons.py:830
 msgid "No updates available."
 msgstr "Neniu ĝisdatigo estas havebla."
 
-#: qt/aqt/browser.py:729
+#: qt/aqt/browser.py:707
 msgid "Note"
 msgstr "Noto"
 
@@ -2634,30 +2651,30 @@ msgstr "Noto-identigilo"
 msgid "Note Type"
 msgstr "Nototipo"
 
-#: qt/aqt/browser.py:1292 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
+#: qt/aqt/browser.py:1272 qt/aqt/models.py:31 qt/aqt/forms/models.py:54
 msgid "Note Types"
 msgstr "Nototipoj"
 
-#: qt/aqt/reviewer.py:767
+#: qt/aqt/reviewer.py:786
 #, python-format
 msgid "Note and its %d card deleted."
 msgid_plural "Note and its %d cards deleted."
 msgstr[0] "Noto kaj ĝia %d karto estas forigita."
 msgstr[1] "Noto kaj ĝia %d kartoj estas forigitaj."
 
-#: qt/aqt/reviewer.py:782
+#: qt/aqt/reviewer.py:801
 msgid "Note buried."
 msgstr "Noto estas kaŝita por tago."
 
-#: qt/aqt/reviewer.py:747
+#: qt/aqt/reviewer.py:766
 msgid "Note suspended."
 msgstr "La noto estas daŭre kaŝita"
 
-#: qt/aqt/forms/preferences.py:273
+#: qt/aqt/forms/preferences.py:278
 msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
 msgstr "Noto: aŭdovidaĵoj ne estas sekurkopiitaj. Bonvolu krei regulan sekurkopion de via Ankio-dosierujo por esti sekura."
 
-#: qt/aqt/browser.py:1472
+#: qt/aqt/browser.py:1452
 msgid "Note: Some of the history is missing. For more information, please see the browser documentation."
 msgstr "Noto: iom da historio mankas. Por pli da informoj, bonvolu vidi la foliumilo-dokumenton."
 
@@ -2684,7 +2701,7 @@ msgstr "Notoj bezonas almenaŭ unu kampon."
 msgid "Notes skipped, as they're already in your collection: %d"
 msgstr "Notoj estas preterpasitaj, ĉar ili jam troviĝas en via kolekto: %d"
 
-#: qt/aqt/browser.py:2194
+#: qt/aqt/browser.py:2181
 msgid "Notes tagged."
 msgstr "Etikedoj estas aldonitaj"
 
@@ -2698,7 +2715,7 @@ msgstr "Notoj, kiuj ne estas enportebla, ĉar la nototipo ŝanĝiĝis: %d"
 msgid "Notes updated, as file had newer version: %d"
 msgstr "Notoj estas ĝisdatigitaj, ĉar dosiero havas pli novan version: %d"
 
-#: qt/aqt/browser.py:2348
+#: qt/aqt/browser.py:2335
 msgid "Nothing"
 msgstr "Nenio"
 
@@ -2710,11 +2727,11 @@ msgstr "Bone"
 msgid "Oldest seen first"
 msgstr "plej frue viditaj unuafoje"
 
-#: qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/preferences.py:271
 msgid "On next sync, force changes in one direction"
 msgstr "Ĉe la venonta samtempigo, devigi ŝanĝojn en unu direkto"
 
-#: qt/aqt/addons.py:960
+#: qt/aqt/addons.py:1069
 msgid "One or more errors occurred:"
 msgstr ""
 
@@ -2722,7 +2739,7 @@ msgstr ""
 msgid "One or more notes were not imported, because they didn't generate any cards. This can happen when you have empty fields or when you have not mapped the content in the text file to the correct fields."
 msgstr "Unu aŭ pli da notoj ne estas enportitaj, ĉar ili ne kreis kartojn. Tio povas okazi kiam ĉeestas malplena kampo aŭ kiam vi ne akordigis la enhavon en la tekstodosiero al la ĝustaj kampoj."
 
-#: qt/aqt/browser.py:1948
+#: qt/aqt/browser.py:1935
 msgid "Only new cards can be repositioned."
 msgstr "Nur novaj kartoj povas esti repoziciitaj."
 
@@ -2738,7 +2755,7 @@ msgstr "Malfermi"
 msgid "Open Backup..."
 msgstr "Malfermi sekurkopion..."
 
-#: qt/aqt/main.py:548
+#: qt/aqt/main.py:558
 msgid "Optimizing..."
 msgstr "Optimumigado..."
 
@@ -2746,8 +2763,8 @@ msgstr "Optimumigado..."
 msgid "Optional filter:"
 msgstr "Malnepra filtrilo:"
 
-#: qt/aqt/clayout.py:103 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
-#: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:219 qt/aqt/reviewer.py:684
+#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
+#: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:221 qt/aqt/reviewer.py:700
 #: qt/aqt/forms/dyndconf.py:141 qt/aqt/forms/fields.py:108
 msgid "Options"
 msgstr "Opcioj"
@@ -2765,7 +2782,7 @@ msgstr "Opciogrupo:"
 msgid "Options..."
 msgstr "Opcioj..."
 
-#: qt/aqt/browser.py:1245 qt/aqt/reviewer.py:659 qt/aqt/forms/browser.py:331
+#: qt/aqt/browser.py:1225 qt/aqt/reviewer.py:675 qt/aqt/forms/browser.py:331
 msgid "Orange Flag"
 msgstr "Oranĝkolora flago"
 
@@ -2793,7 +2810,7 @@ msgstr "Anstataŭigu la tiparon:"
 msgid "Override front template:"
 msgstr "Anstataŭigu la frontflankan ŝablonon:"
 
-#: qt/aqt/addons.py:764
+#: qt/aqt/addons.py:834
 msgid "Packaged Anki Add-on"
 msgstr "Pakita Anki-aldonaĵo"
 
@@ -2805,21 +2822,25 @@ msgstr "Pakita Anki-Kartaro/Kolekto (*.apkg *.colpkg *.zip)"
 msgid "Password:"
 msgstr "Pasvorto:"
 
-#: qt/aqt/editor.py:1114
+#: qt/aqt/editor.py:1116
 msgid "Paste"
 msgstr "Alglui"
 
-#: qt/aqt/forms/preferences.py:247
+#: qt/aqt/forms/preferences.py:252
 msgid "Paste clipboard images as PNG"
 msgstr "Alglui tondujajn bildojn kiel PNG"
 
-#: qt/aqt/forms/preferences.py:248
+#: qt/aqt/forms/preferences.py:253
 msgid "Paste without shift key strips formatting"
 msgstr ""
 
 #: pylib/anki/importing/__init__.py:17
 msgid "Pauker 1.8 Lesson (*.pau.gz)"
 msgstr "Leciono de Pauker 1.8 (*.pau.gz)"
+
+#: qt/aqt/reviewer.py:703
+msgid "Pause Audio"
+msgstr ""
 
 #: pylib/anki/stats.py:614
 msgid "Percentage"
@@ -2842,7 +2863,7 @@ msgstr "Meti ĝin en ripetovicon kun intertempo inter:"
 msgid "Please add another note type first."
 msgstr "Bonvolu aldoni alian nototipon antaŭe."
 
-#: qt/aqt/addons.py:875
+#: qt/aqt/addons.py:978
 msgid "Please check your internet connection."
 msgstr "Bonvolu kontroli vian retkonekton"
 
@@ -2850,16 +2871,11 @@ msgstr "Bonvolu kontroli vian retkonekton"
 msgid "Please connect a microphone, and ensure other programs are not using the audio device."
 msgstr "Bonvolu konekti mikrofonon kaj certigu ke neniuj aliaj programoj uzas la sonilon."
 
-#: pylib/anki/collection.py:687
-#, python-format
-msgid "Please edit this note and add some cloze deletions. (%s)"
-msgstr "Bonvolu redakti ĉi tiun noton kaj aldoni trutekston. (%s)"
-
-#: qt/aqt/main.py:1541
+#: qt/aqt/main.py:1532
 msgid "Please ensure a profile is open and Anki is not busy, then try again."
 msgstr "Bonvolu kontroli, ĉu profilo estas malferma kaj Anki ne estas okupata. Poste reprovu ĝin."
 
-#: qt/aqt/browser.py:1347
+#: qt/aqt/browser.py:1327
 msgid "Please give your filter a name:"
 msgstr "Bonvolu doni nomon al via filtrilo:"
 
@@ -2867,12 +2883,12 @@ msgstr "Bonvolu doni nomon al via filtrilo:"
 msgid "Please install PyAudio"
 msgstr "Bonvolu instali PyAudio"
 
-#: qt/aqt/profiles.py:229
+#: qt/aqt/profiles.py:227
 #, python-format
 msgid "Please remove the folder %s and try again."
 msgstr "Bonvolu forigi la dosierujon %s kaj reprovi ĝin."
 
-#: qt/aqt/addons.py:1239
+#: qt/aqt/addons.py:1366
 msgid "Please report this to the respective add-on author(s)."
 msgstr "Bonvolu raporti ĉi tion al la respektiva(j) aldonaĵo-kreinto(j)"
 
@@ -2880,19 +2896,19 @@ msgstr "Bonvolu raporti ĉi tion al la respektiva(j) aldonaĵo-kreinto(j)"
 msgid "Please restart Anki to complete language change."
 msgstr "Bonvolu relanĉi Anki pro finfari la lingvoŝanĝon."
 
-#: qt/aqt/reviewer.py:350
+#: qt/aqt/reviewer.py:366
 msgid "Please run Tools>Empty Cards"
 msgstr "Bonvolu ruli Iloj > Malplenaj kartoj"
 
-#: qt/aqt/main.py:587
+#: qt/aqt/main.py:597
 msgid "Please select a deck."
 msgstr "Bonvolu elekti kartaron."
 
-#: qt/aqt/addons.py:699
+#: qt/aqt/addons.py:769
 msgid "Please select a single add-on first."
 msgstr "Bonvolu unue elekti unuopan aldonaĵon."
 
-#: qt/aqt/browser.py:1517
+#: qt/aqt/browser.py:1497
 msgid "Please select cards from only one note type."
 msgstr "Bonvolu elekti kartojn el nur unu nototipo."
 
@@ -2904,7 +2920,7 @@ msgstr "Bonvolu elekti ion."
 msgid "Please upgrade to the latest version of Anki."
 msgstr "Bonvolu ĝisdatigi al la plej lasta versio de Anki."
 
-#: qt/aqt/main.py:1035
+#: qt/aqt/main.py:1021
 msgid "Please use File>Import to import this file."
 msgstr "Bonvolu uzi la menueron Dosiero>Enporti por enporti ĉi tiun dosieron."
 
@@ -2916,15 +2932,15 @@ msgstr "Bonvolu viziti AnkiWeb, ĝisdatigi vian kartaron kaj reprovi ĝin poste.
 msgid "Position"
 msgstr "Pozicio"
 
-#: qt/aqt/forms/preferences.py:242
+#: qt/aqt/forms/preferences.py:246
 msgid "Preferences"
 msgstr "Preferoj"
 
-#: qt/aqt/browser.py:1553 qt/aqt/forms/browser.py:293
+#: qt/aqt/browser.py:1533 qt/aqt/forms/browser.py:293
 msgid "Preview"
 msgstr "Antaŭmontro"
 
-#: qt/aqt/browser.py:598
+#: qt/aqt/browser.py:576
 #, python-format
 msgid "Preview Selected Card (%s)"
 msgstr "Antaŭmontri elektitan karton (%s)"
@@ -2948,7 +2964,7 @@ msgstr[1] "%d prilaboritaj aŭdovidaĵoj"
 msgid "Processing..."
 msgstr "Laborado..."
 
-#: qt/aqt/profiles.py:176
+#: qt/aqt/profiles.py:174
 msgid "Profile Corrupt"
 msgstr "La profilo estas difektohava."
 
@@ -2960,16 +2976,16 @@ msgstr "Profiloj"
 msgid "Proxy authentication required."
 msgstr "Rajtigo de prokurilo necesas."
 
-#: qt/aqt/browser.py:715
+#: qt/aqt/browser.py:693
 msgid "Question"
 msgstr "Demando"
 
-#: qt/aqt/browser.py:1959
+#: qt/aqt/browser.py:1946
 #, python-format
 msgid "Queue bottom: %d"
 msgstr "Fino de la vico: %d"
 
-#: qt/aqt/browser.py:1958
+#: qt/aqt/browser.py:1945
 #, python-format
 msgid "Queue top: %d"
 msgstr "Komenco de la vico: %d"
@@ -2986,28 +3002,28 @@ msgstr "hazarde"
 msgid "Randomize order"
 msgstr "Hazardigi ordon"
 
-#: qt/aqt/browser.py:1427
+#: qt/aqt/browser.py:1407
 msgid "Rating"
 msgstr "Pritakso"
 
-#: qt/aqt/dyndeckconf.py:22 qt/aqt/overview.py:222
+#: qt/aqt/dyndeckconf.py:22 qt/aqt/overview.py:224
 msgid "Rebuild"
 msgstr "Rekunmeti"
 
-#: qt/aqt/reviewer.py:687
+#: qt/aqt/reviewer.py:706
 msgid "Record Own Voice"
 msgstr "Registri sian sonon"
 
-#: qt/aqt/editor.py:141
+#: qt/aqt/editor.py:142
 msgid "Record audio (F5)"
 msgstr "Registri sonon (F5)"
 
-#: qt/aqt/sound.py:46
+#: qt/aqt/sound.py:530
 #, python-format
 msgid "Recording...<br>Time: %0.1f"
 msgstr "Registrado...<br>Tempo: %0.1f"
 
-#: qt/aqt/browser.py:1244 qt/aqt/reviewer.py:653 qt/aqt/forms/browser.py:330
+#: qt/aqt/browser.py:1224 qt/aqt/reviewer.py:669 qt/aqt/forms/browser.py:330
 msgid "Red Flag"
 msgstr "Ruĝa flago"
 
@@ -3015,7 +3031,7 @@ msgstr "Ruĝa flago"
 msgid "Relative overdueness"
 msgstr "Relativa malfruo"
 
-#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1438
+#: pylib/anki/stats.py:374 pylib/anki/stats.py:394 qt/aqt/browser.py:1418
 msgid "Relearn"
 msgstr "Relerni"
 
@@ -3023,16 +3039,16 @@ msgstr "Relerni"
 msgid "Remember last input when adding"
 msgstr "Memori lastan enigon kiam aldonante"
 
-#: qt/aqt/browser.py:1357
+#: qt/aqt/browser.py:1337
 #, python-format
 msgid "Remove %s from your saved searches?"
 msgstr "Ĉu vi volas forigi %s el viaj konservitaj serĉoj?"
 
-#: qt/aqt/clayout.py:465
+#: qt/aqt/clayout.py:474
 msgid "Remove Card Type..."
 msgstr "Forigi kartotipon"
 
-#: qt/aqt/browser.py:1332
+#: qt/aqt/browser.py:1312
 msgid "Remove Current Filter..."
 msgstr "Forigi aktualan filtrilon..."
 
@@ -3040,11 +3056,11 @@ msgstr "Forigi aktualan filtrilon..."
 msgid "Remove Tags..."
 msgstr "Forigi etikedojn..."
 
-#: qt/aqt/editor.py:114
+#: qt/aqt/editor.py:115
 msgid "Remove formatting (Ctrl+R)"
 msgstr "Forigi aranĝon (Ctrl+R)"
 
-#: qt/aqt/clayout.py:239
+#: qt/aqt/clayout.py:250
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr "Forigo de ĉi tiu kartotipo forigus unu aŭ pli notojn. Bonvolu krei antaŭe novan kartotipon."
 
@@ -3053,7 +3069,7 @@ msgstr "Forigo de ĉi tiu kartotipo forigus unu aŭ pli notojn. Bonvolu krei ant
 msgid "Rename"
 msgstr "Alinomi"
 
-#: qt/aqt/clayout.py:468
+#: qt/aqt/clayout.py:477
 msgid "Rename Card Type..."
 msgstr "Alinomi kartotipon..."
 
@@ -3065,23 +3081,23 @@ msgstr "Alinomi kartaron"
 msgid "Repeat failed cards after"
 msgstr "Ripeti malsukcese lernitajn kartojn post"
 
-#: qt/aqt/main.py:279
+#: qt/aqt/main.py:285
 msgid "Replace your collection with an earlier backup?"
 msgstr "Ĉu vi volas anstataŭigi vian kolekton per antaŭa sekurkopio?"
 
-#: qt/aqt/browser.py:1564 qt/aqt/reviewer.py:686
+#: qt/aqt/browser.py:1544 qt/aqt/reviewer.py:702
 msgid "Replay Audio"
 msgstr "Reludi sonon"
 
-#: qt/aqt/reviewer.py:688
+#: qt/aqt/reviewer.py:707
 msgid "Replay Own Voice"
 msgstr "Reludi sian voĉon"
 
-#: qt/aqt/browser.py:1964 qt/aqt/forms/fields.py:104
+#: qt/aqt/browser.py:1951 qt/aqt/forms/fields.py:104
 msgid "Reposition"
 msgstr "Repozicii"
 
-#: qt/aqt/clayout.py:471
+#: qt/aqt/clayout.py:480
 msgid "Reposition Card Type..."
 msgstr "Repozicii kartotipon..."
 
@@ -3097,11 +3113,11 @@ msgstr "Re&pozicii"
 msgid "Require one or more of these tags:"
 msgstr "Nepri unu aŭ pli el ĉi tiuj etikedoj:"
 
-#: qt/aqt/browser.py:1438
+#: qt/aqt/browser.py:1418
 msgid "Resched"
 msgstr "Replani"
 
-#: qt/aqt/browser.py:1990 qt/aqt/forms/reschedule.py:73
+#: qt/aqt/browser.py:1977 qt/aqt/forms/reschedule.py:73
 msgid "Reschedule"
 msgstr "Replani"
 
@@ -3109,11 +3125,11 @@ msgstr "Replani"
 msgid "Reschedule cards based on my answers in this deck"
 msgstr "Replani kartojn laŭ miaj respondoj donitaj en ĉi tiu kartaro"
 
-#: qt/aqt/addons.py:1131
+#: qt/aqt/addons.py:1258
 msgid "Restored defaults"
 msgstr "Implicitaj agordoj estas rekreitaj"
 
-#: qt/aqt/main.py:647
+#: qt/aqt/main.py:658
 msgid "Resume Now"
 msgstr "Daŭrigi nun"
 
@@ -3121,16 +3137,16 @@ msgstr "Daŭrigi nun"
 msgid "Reverse text direction (RTL)"
 msgstr "Dekstre-maldekstren tekstodirekto (RTL)"
 
-#: qt/aqt/main.py:292
+#: qt/aqt/main.py:298
 msgid "Revert to backup"
 msgstr "Reiri al la stato de sekurkopio"
 
-#: qt/aqt/main.py:953
+#: qt/aqt/main.py:939
 #, python-format
 msgid "Reverted to state prior to '%s'."
 msgstr "Reirita al stato antaŭ '%s'."
 
-#: pylib/anki/collection.py:798 qt/aqt/browser.py:1238 qt/aqt/browser.py:1438
+#: pylib/anki/collection.py:694 qt/aqt/browser.py:1218 qt/aqt/browser.py:1418
 msgid "Review"
 msgstr "ripeto"
 
@@ -3162,7 +3178,7 @@ msgstr "Ripeti forgesitajn kartojn"
 msgid "Review success rate for each hour of the day."
 msgstr "Sukceso-proporcio al horoj de la tago"
 
-#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:726
+#: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:704
 #: qt/aqt/forms/dconf.py:375
 msgid "Reviews"
 msgstr "Ripetoj"
@@ -3176,11 +3192,11 @@ msgstr "Lernendaj ripetoj en la kartaro super la hodiaŭa limigo: %s"
 msgid "Right"
 msgstr "Dekstra"
 
-#: qt/aqt/sound.py:35
+#: qt/aqt/sound.py:519
 msgid "Save"
 msgstr "Konservi"
 
-#: qt/aqt/browser.py:1334
+#: qt/aqt/browser.py:1314
 msgid "Save Current Filter..."
 msgstr "Konservi la aktualan filtrilon..."
 
@@ -3197,7 +3213,7 @@ msgstr "Konservita."
 msgid "Scope: %s"
 msgstr "Kartaro: %s"
 
-#: qt/aqt/browser.py:2149 qt/aqt/forms/browser.py:292
+#: qt/aqt/browser.py:2136 qt/aqt/forms/browser.py:292
 #: qt/aqt/forms/dyndconf.py:135 qt/aqt/forms/dyndconf.py:139
 msgid "Search"
 msgstr "Serĉi"
@@ -3251,11 +3267,11 @@ msgstr "Ĉu agordi ĉiujn kartarojn sub %s al ĉi tiu opciogrupo?"
 msgid "Set for all subdecks"
 msgstr "Agordi al ĉiuj subkartaroj"
 
-#: qt/aqt/editor.py:117
+#: qt/aqt/editor.py:118
 msgid "Set foreground colour (F7)"
 msgstr "Difini la koloron de la malfono (F7)"
 
-#: qt/aqt/main.py:88
+#: qt/aqt/main.py:94
 msgid "Shift key was held down. Skipping automatic syncing and add-on loading."
 msgstr "La supra registrumo estis premita. Preterpaso de aŭtomata samtempigo kaj ŝarĝo de aldonaĵoj."
 
@@ -3263,20 +3279,20 @@ msgstr "La supra registrumo estis premita. Preterpaso de aŭtomata samtempigo ka
 msgid "Shift position of existing cards"
 msgstr "Ŝovi pozicion de ekzistantaj kartoj"
 
-#: qt/aqt/browser.py:1568 qt/aqt/browser.py:1586 qt/aqt/deckbrowser.py:327
-#: qt/aqt/main.py:675 qt/aqt/overview.py:232 qt/aqt/reviewer.py:533
-#: qt/aqt/reviewer.py:546 qt/aqt/reviewer.py:612 qt/aqt/toolbar.py:34
-#: qt/aqt/toolbar.py:35 qt/aqt/toolbar.py:36 qt/aqt/toolbar.py:37
-#: qt/aqt/toolbar.py:38
+#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:327
+#: qt/aqt/main.py:686 qt/aqt/overview.py:234 qt/aqt/reviewer.py:549
+#: qt/aqt/reviewer.py:562 qt/aqt/reviewer.py:628 qt/aqt/toolbar.py:38
+#: qt/aqt/toolbar.py:39 qt/aqt/toolbar.py:40 qt/aqt/toolbar.py:41
+#: qt/aqt/toolbar.py:42
 #, python-format
 msgid "Shortcut key: %s"
 msgstr "Fulmoklavo: %s"
 
-#: qt/aqt/browser.py:1573
+#: qt/aqt/browser.py:1553
 msgid "Shortcut key: Left arrow"
 msgstr "Fulmoklavo: sago maldekstren"
 
-#: qt/aqt/browser.py:1578
+#: qt/aqt/browser.py:1558
 msgid "Shortcut key: Right arrow or Enter"
 msgstr "Fulmoklavo: sago dekstren aŭ enenklavo"
 
@@ -3285,15 +3301,15 @@ msgstr "Fulmoklavo: sago dekstren aŭ enenklavo"
 msgid "Shortcut: %s"
 msgstr "Fulmoklavo: %s"
 
-#: qt/aqt/reviewer.py:547
+#: qt/aqt/reviewer.py:563
 msgid "Show Answer"
 msgstr "Montri la respondon"
 
-#: qt/aqt/browser.py:1584
+#: qt/aqt/browser.py:1564
 msgid "Show Both Sides"
 msgstr "Montri ambaŭ flankojn"
 
-#: qt/aqt/editor.py:166
+#: qt/aqt/editor.py:167
 msgid "Show Duplicates"
 msgstr "Montri duoblaĵojn"
 
@@ -3301,11 +3317,7 @@ msgstr "Montri duoblaĵojn"
 msgid "Show answer timer"
 msgstr "Montri tempomezurilon por respondoj"
 
-#: qt/aqt/forms/preferences.py:249
-msgid "Show cards as white on black (night mode)"
-msgstr "Montri la kartotekston blanka sur nigra fono (nokta reĝimo)"
-
-#: qt/aqt/forms/preferences.py:250
+#: qt/aqt/forms/preferences.py:255
 msgid "Show learning cards with larger steps before reviews"
 msgstr "Montri lernkartojn kun pli grandaj paŝoj antaŭ ripetokarojn"
 
@@ -3325,15 +3337,19 @@ msgstr "Montri novajn kartojn laŭ ordo de aldono"
 msgid "Show new cards in random order"
 msgstr "Montri novajn kartojn en hazarda ordo"
 
-#: qt/aqt/forms/preferences.py:245
+#: qt/aqt/forms/preferences.py:249
 msgid "Show next review time above answer buttons"
 msgstr "Montri tempon de sekva ripeto super respondobutonoj"
 
-#: qt/aqt/forms/preferences.py:246
+#: qt/aqt/forms/preferences.py:251
+msgid "Show play buttons on cards with audio"
+msgstr ""
+
+#: qt/aqt/forms/preferences.py:250
 msgid "Show remaining card count during review"
 msgstr "Montri nombron de restantaj kartoj dum ripetado"
 
-#: qt/aqt/browser.py:1038 qt/aqt/forms/browser.py:334
+#: qt/aqt/browser.py:1018 qt/aqt/forms/browser.py:334
 msgid "Sidebar"
 msgstr "Flankostrio"
 
@@ -3349,11 +3365,11 @@ msgstr "Preterpasita"
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Kelkaj rilataj aŭ portage kaŝitaj kartoj estis flankenmetitaj. Ili reaperos en posta seanco."
 
-#: qt/aqt/forms/preferences.py:274
+#: qt/aqt/forms/preferences.py:279
 msgid "Some settings will take effect after you restart Anki."
 msgstr "Kelkaj agordoj efektivos nur post relanĉo de Anki."
 
-#: qt/aqt/browser.py:719
+#: qt/aqt/browser.py:697
 msgid "Sort Field"
 msgstr "Ordiga kampo"
 
@@ -3361,7 +3377,7 @@ msgstr "Ordiga kampo"
 msgid "Sort by this field in the browser"
 msgstr "Ordigi per ĉi tiu kampo en la foliumilo"
 
-#: qt/aqt/browser.py:918
+#: qt/aqt/browser.py:898
 msgid "Sorting on this column is not supported. Please choose another."
 msgstr "Ordigado je ĉi tiu kolono ne eblas. Bonvolu elekti alian."
 
@@ -3369,7 +3385,7 @@ msgstr "Ordigado je ĉi tiu kolono ne eblas. Bonvolu elekti alian."
 msgid "Sound and video on cards will not function until mpv or mplayer is installed."
 msgstr "Sonoj aŭ videoj de kartoj nur funkcios, kiam mpv aŭ mplayer estas instalita."
 
-#: qt/aqt/importing.py:165 qt/aqt/reviewer.py:546
+#: qt/aqt/importing.py:165 qt/aqt/reviewer.py:562
 msgid "Space"
 msgstr "Spaceto"
 
@@ -3385,7 +3401,7 @@ msgstr "Komenca facileco"
 msgid "Statistics"
 msgstr "Statistikoj"
 
-#: qt/aqt/toolbar.py:37
+#: qt/aqt/toolbar.py:41
 msgid "Stats"
 msgstr "Statistikoj"
 
@@ -3415,7 +3431,7 @@ msgstr "Vi hodiaŭ lernis %(a)s %(b)s (%(secs).1fs/karto)"
 msgid "Studied %(a)s %(b)s today."
 msgstr "Vi hodiaŭ lernis %(a)s %(b)s."
 
-#: qt/aqt/browser.py:1224
+#: qt/aqt/browser.py:1204
 msgid "Studied Today"
 msgstr "Hodiaŭ lernitaj"
 
@@ -3431,7 +3447,7 @@ msgstr "Lernkartaro"
 msgid "Study Deck..."
 msgstr "&Lernkartaro..."
 
-#: qt/aqt/overview.py:202
+#: qt/aqt/overview.py:204
 msgid "Study Now"
 msgstr "Nun lerni"
 
@@ -3443,11 +3459,11 @@ msgstr "Lerni laŭ kartostato aŭ etikedo"
 msgid "Styling"
 msgstr "Stilo"
 
-#: qt/aqt/clayout.py:180
+#: qt/aqt/clayout.py:185
 msgid "Styling (shared between cards)"
 msgstr "Stilo (kunhava inter kartoj)"
 
-#: qt/aqt/editor.py:113
+#: qt/aqt/editor.py:114
 msgid "Subscript (Ctrl+=)"
 msgstr "Suba indico (Ctrl+=)"
 
@@ -3455,23 +3471,23 @@ msgstr "Suba indico (Ctrl+=)"
 msgid "Supermemo XML export (*.xml)"
 msgstr "Supermemo XML elportaĵo (*.xml)"
 
-#: qt/aqt/editor.py:111
+#: qt/aqt/editor.py:112
 msgid "Superscript (Ctrl++)"
 msgstr "Supra indico (Ctrl++)"
 
-#: qt/aqt/reviewer.py:745 qt/aqt/reviewer.py:751
+#: qt/aqt/reviewer.py:764 qt/aqt/reviewer.py:770
 msgid "Suspend"
 msgstr "Daŭre kaŝi"
 
-#: qt/aqt/reviewer.py:681 qt/aqt/forms/dconf.py:383
+#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:383
 msgid "Suspend Card"
 msgstr "Daŭre kaŝi karton"
 
-#: qt/aqt/reviewer.py:682
+#: qt/aqt/reviewer.py:698
 msgid "Suspend Note"
 msgstr "Daŭre kaŝi noton"
 
-#: qt/aqt/browser.py:1241
+#: qt/aqt/browser.py:1221
 msgid "Suspended"
 msgstr "Daŭre kaŝita"
 
@@ -3479,11 +3495,11 @@ msgstr "Daŭre kaŝita"
 msgid "Suspended+Buried"
 msgstr "Kaŝata"
 
-#: qt/aqt/toolbar.py:38
+#: qt/aqt/toolbar.py:42
 msgid "Sync"
 msgstr "Samtempigi"
 
-#: qt/aqt/forms/preferences.py:264
+#: qt/aqt/forms/preferences.py:269
 msgid "Synchronize audio and images too"
 msgstr "Samtempigi ankaŭ sonojn kaj bildojn"
 
@@ -3510,7 +3526,7 @@ msgstr "Samtempigado..."
 msgid "Tab"
 msgstr ""
 
-#: qt/aqt/browser.py:2158 qt/aqt/browser.py:2186
+#: qt/aqt/browser.py:2145 qt/aqt/browser.py:2173
 msgid "Tag Duplicates"
 msgstr "Etikedi duoblaĵojn"
 
@@ -3522,7 +3538,7 @@ msgstr "Aldoni nur etikedon"
 msgid "Tag modified notes:"
 msgstr ""
 
-#: qt/aqt/browser.py:728 qt/aqt/browser.py:1256 qt/aqt/editor.py:516
+#: qt/aqt/browser.py:706 qt/aqt/browser.py:1236 qt/aqt/editor.py:517
 msgid "Tags"
 msgstr "Etikedoj"
 
@@ -3550,7 +3566,7 @@ msgstr "Tiu kartaro jam ekzistas."
 msgid "That field name is already used."
 msgstr "Tiu kamponomo jam estas uzata."
 
-#: qt/aqt/clayout.py:385
+#: qt/aqt/clayout.py:394
 msgid "That name is already used."
 msgstr "Tiu nomo jam estas uzata."
 
@@ -3578,25 +3594,29 @@ msgstr "La unua kampo estas malplena."
 msgid "The first field of the note type must be mapped."
 msgstr "La unua kampo de la nototipo devas esti mapita."
 
-#: qt/aqt/addons.py:241
+#: qt/aqt/addons.py:269
 #, python-format
 msgid "The following add-ons are incompatible with %(name)s and have been disabled: %(found)s"
 msgstr "La jenaj aldonaĵoj malkongruas kun %(name)s kaj estis malvalidigitaj: %(found)s"
 
-#: qt/aqt/addons.py:1097
+#: qt/aqt/addons.py:1224
 msgid "The following add-ons have updates available. Install them now?"
 msgstr ""
 
-#: qt/aqt/utils.py:585
+#: qt/aqt/utils.py:586
 #, python-format
 msgid "The following character can not be used: %s"
 msgstr "Ĉi tiu signo estas neuzebla: %s"
 
-#: qt/aqt/addons.py:457
+#: qt/aqt/addons.py:489
 msgid "The following conflicting add-ons were disabled:"
 msgstr "La jenaj malakordaj aldonaĵoj estas malvalidigitaj:"
 
-#: qt/aqt/reviewer.py:181
+#: pylib/anki/template.py:131
+msgid "The front of this card is blank."
+msgstr ""
+
+#: qt/aqt/reviewer.py:172
 msgid "The front of this card is empty. Please run Tools>Empty Cards."
 msgstr "La fronta flanko de la karto estas malplena. Bonvolu ruli Iloj>Malplenaj kartoj."
 
@@ -3628,7 +3648,7 @@ msgstr "La elektita dosiero ne estas valida .apkg-dosiero"
 msgid "The provided search did not match any cards. Would you like to revise it?"
 msgstr "La donita serĉo ne kongruis kun iu karto. Ĉu vi ŝatus revizii ĝin?"
 
-#: qt/aqt/main.py:1232
+#: qt/aqt/main.py:1223
 msgid "The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven't been synchronized here yet, they will be lost. Continue?"
 msgstr "La petita modifo necesigos tutan alŝuton de la datumbazo, kiam vi venontfoje samtempigos vian kolekton. Se ŝanĝoj troviĝas sur aliaj aparatoj, kiuj ankoraŭ ne estis samtempigitaj, tiuj ŝanĝoj perdiĝos. Ĉu vi volas daŭrigi?"
 
@@ -3645,15 +3665,19 @@ msgstr "Ĉeestas ankoraŭ pli da kartoj, sed la taga limigo estis atingita. Vi p
 "kreski la limigon ĉe la opcioj, sed bonvolu teni en la kapo ke ju pli da kartoj\n"
 "vi enkondukas, des pli ŝarĝanta via mallongdaŭra ripetado estos."
 
-#: qt/aqt/main.py:261
+#: qt/aqt/main.py:267
 msgid "There must be at least one profile."
 msgstr "Devas esti almenaŭ unu profilo."
 
-#: qt/aqt/browser.py:902
+#: qt/aqt/addons.py:496
+msgid "This add-on is not compatible with your version of Anki."
+msgstr ""
+
+#: qt/aqt/browser.py:882
 msgid "This column can't be sorted on, but you can search for individual card types, such as 'card:1'."
 msgstr "Tiu kolumno estas neordigebla, sed vi povas serĉi unuopajn kartotipojn ekzemple per 'card:1'."
 
-#: qt/aqt/browser.py:910
+#: qt/aqt/browser.py:890
 msgid "This column can't be sorted on, but you can search for specific decks by clicking on one on the left."
 msgstr "Tiu kolumno estas neordigebla, sed vi povas serĉi specifan kartaron per klaki sur kartaro ĉe la maldekstra flanko."
 
@@ -3665,7 +3689,7 @@ msgstr "Tiu dosiero verŝajne ne estas valida .apkg-dosiero. Se tiu eraro okazas
 msgid "This file exists. Are you sure you want to overwrite it?"
 msgstr "Tiu dosiero ekzistas. Ĉu vi volas anstataŭigi ĝin?"
 
-#: qt/aqt/profiles.py:381
+#: qt/aqt/profiles.py:379
 #, python-format
 msgid "This folder stores all of your Anki data in a single location,\n"
 "to make backups easy. To tell Anki to use a different location,\n"
@@ -3675,7 +3699,7 @@ msgstr "Ĉi tiu dosierujo konservas ĉiujn viajn Anki-datumojn ĉe unu loko,\n"
 "por simple fari sekurkopiojn. Por ke Anki uzu alian lokon, bonvolu vidi:\n\n"
 "%s\n"
 
-#: qt/aqt/overview.py:150
+#: qt/aqt/overview.py:152
 msgid "This is a special deck for studying outside of the normal schedule."
 msgstr "Ĉi tiu estas speciala kartaro por lerni ekster la normala plano."
 
@@ -3683,7 +3707,7 @@ msgstr "Ĉi tiu estas speciala kartaro por lerni ekster la normala plano."
 msgid "This is a {{c1::sample}} cloze deletion."
 msgstr "Tiu estas {{c1::ekzempla}} truteksta malpleno."
 
-#: qt/aqt/clayout.py:421
+#: qt/aqt/clayout.py:430
 #, python-format
 msgid "This will create %d card. Proceed?"
 msgid_plural "This will create %d cards. Proceed?"
@@ -3694,19 +3718,19 @@ msgstr[1] "Tio kreos %d kartojn. Daŭrigi?"
 msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
 msgstr "Ĉi tio forigos vian ekzistantan kolekton kaj anstataŭigos ĝin per la datumoj en la dosiero, kiun vi enportas. Ĉu vi certas?"
 
-#: qt/aqt/preferences.py:137
+#: qt/aqt/preferences.py:135
 msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
 msgstr "Tiu procezo nuligos ĉiujn kartojn en lernado, forigi filtritajn kartarojn kaj ŝanĝi la planiloversion. Daŭrigi?"
 
-#: qt/aqt/browser.py:1430
+#: qt/aqt/browser.py:1410
 msgid "Time"
 msgstr "Tempo"
 
-#: qt/aqt/forms/preferences.py:258
+#: qt/aqt/forms/preferences.py:263
 msgid "Timebox time limit"
 msgstr "Tempokadra limigo"
 
-#: qt/aqt/overview.py:200
+#: qt/aqt/overview.py:202
 msgid "To Review"
 msgstr "Por ripeti"
 
@@ -3714,7 +3738,7 @@ msgstr "Por ripeti"
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
 msgstr "Por foliumi aldonaĵojn, bonvolu alklaki la butonon sube.<br><br>Kiam vi trovis aldonaĵon, kiu plaĉas al vi, bonvolu enmeti ĝian kodon sube. Vi povas enmeti plurajn kodojn, disigitaj per spacetoj."
 
-#: qt/aqt/editor.py:591
+#: qt/aqt/editor.py:594
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Por krei trutekston ĉe ekzistanta noto, unuafoje vi devas ŝanĝi ĝin al truteksto-tipo, ĉe Redakti > Ŝanĝi nototipon."
 
@@ -3726,7 +3750,7 @@ msgstr "Por vidi ilin nun, klaku la ĉi-suban butonon Malkaŝi."
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Por lerni ekster la normala plano, bonvolu alklaki la butonon Propra lernado malsupre."
 
-#: pylib/anki/stats.py:146 qt/aqt/browser.py:1219
+#: pylib/anki/stats.py:146 qt/aqt/browser.py:1199
 msgid "Today"
 msgstr "Hodiaŭ"
 
@@ -3770,12 +3794,12 @@ msgstr "Notoj entute"
 msgid "Treat input as regular expression"
 msgstr "Trakti enigon kiel regulan esprimon"
 
-#: qt/aqt/browser.py:1426 qt/aqt/modelchooser.py:26
+#: qt/aqt/browser.py:1406 qt/aqt/modelchooser.py:26
 #: qt/aqt/forms/importing.py:105
 msgid "Type"
 msgstr "Tipo"
 
-#: qt/aqt/reviewer.py:354
+#: qt/aqt/reviewer.py:370
 #, python-format
 msgid "Type answer: unknown field %s"
 msgstr "Entajpu respondon: nekonata kampo %s"
@@ -3788,40 +3812,40 @@ msgstr "La aŭdovidaĵa dosierujo de Anki estas neatingebla. La atingopermeso al
 msgid "Unable to import from a read-only file."
 msgstr "Enporto el nurlega dosiero ne estas ebla."
 
-#: qt/aqt/main.py:305
+#: qt/aqt/main.py:311
 msgid "Unable to move existing file to trash - please try restarting your computer."
 msgstr "Ne eblas movi la ekzistantan dosieron en la rubujon - bonvolu provi restartigi vian komputilon."
 
-#: qt/aqt/addons.py:384
+#: qt/aqt/addons.py:416
 #, python-format
 msgid "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\n"
 "Debug info: %s"
 msgstr "Ne eblas ĝisdatigi aŭ forigi aldonaĵon. Bonvolu relanĉi Anki premante la supran registrumon (shift) por portempe malvalidigi aldonaĵojn. Poste reprovu ĝin.\n\n"
 "Sencimiga informo: %s"
 
-#: qt/aqt/overview.py:228
+#: qt/aqt/overview.py:230
 msgid "Unbury"
 msgstr "Malkaŝi"
 
-#: qt/aqt/editor.py:108
+#: qt/aqt/editor.py:109
 msgid "Underline text (Ctrl+U)"
 msgstr "Substreki (Ctrl+U)"
 
-#: qt/aqt/main.py:963
+#: qt/aqt/main.py:949
 msgid "Undo"
 msgstr "Malfari"
 
-#: qt/aqt/main.py:959
+#: qt/aqt/main.py:945
 #, python-format
 msgid "Undo %s"
 msgstr "&Malfari %sn"
 
-#: qt/aqt/addons.py:872 qt/aqt/editor.py:779
+#: qt/aqt/addons.py:975 qt/aqt/editor.py:781
 #, python-format
 msgid "Unexpected response code: %s"
 msgstr "Neatendita responda kodo: %s"
 
-#: qt/aqt/addons.py:432
+#: qt/aqt/addons.py:464
 msgid "Unknown error: {}"
 msgstr ""
 
@@ -3849,15 +3873,15 @@ msgstr "Alŝuto al AnkiWeb"
 msgid "Uploading to AnkiWeb..."
 msgstr "Alŝutado al AnkiWeb..."
 
-#: qt/aqt/main.py:1289
+#: qt/aqt/main.py:1280
 msgid "Used on cards but missing from media folder:"
 msgstr "Uzita sur kartoj sed mankanta el aŭdovidaĵo-dosierujo:"
 
-#: qt/aqt/profiles.py:377
+#: qt/aqt/profiles.py:375
 msgid "User 1"
 msgstr "1-a uzanto"
 
-#: qt/aqt/forms/preferences.py:260
+#: qt/aqt/forms/preferences.py:265
 msgid "User interface size"
 msgstr ""
 
@@ -3874,23 +3898,23 @@ msgstr "Retpaĝo de la aldonaĵo"
 msgid "View Files"
 msgstr "Dosierujo de la aldonaĵo"
 
-#: qt/aqt/main.py:646
+#: qt/aqt/main.py:657
 msgid "Waiting for editing to finish."
 msgstr "Atendado por la fino de redakto."
 
-#: qt/aqt/editor.py:584
+#: qt/aqt/editor.py:587
 msgid "Warning, cloze deletions will not work until you switch the type at the top to Cloze."
 msgstr "Averto! Trutekstaj malplenoj ne funkcios, ĝis vi supre elektos la nototipon Truteksto."
 
-#: qt/aqt/overview.py:109
+#: qt/aqt/overview.py:111
 msgid "What would you like to unbury?"
 msgstr "Kion vi volas malkaŝi?"
 
-#: qt/aqt/forms/preferences.py:252
+#: qt/aqt/forms/preferences.py:257
 msgid "When adding, default to current deck"
 msgstr "Ĉe aldono, apriori al aktuala kartaro"
 
-#: qt/aqt/browser.py:1090 qt/aqt/browser.py:1215
+#: qt/aqt/browser.py:1070 qt/aqt/browser.py:1195
 msgid "Whole Collection"
 msgstr "Tuta kolekto"
 
@@ -3903,7 +3927,7 @@ msgstr "Ĉu vi volas elŝuti ĝin nun?"
 msgid "Written by Damien Elmes, with patches, translation,    testing and design from:<p>%(cont)s"
 msgstr "Skribita de Damien Elmes, kun flikaĵoj, tradukoj, testado kaj fasono de:<p>%(cont)s"
 
-#: qt/aqt/forms/preferences.py:272
+#: qt/aqt/forms/preferences.py:277
 msgid "You can restore backups via File>Switch Profile."
 msgstr "Vi povas rekrei sekurkopion per la menuero Dosiero>Ŝanĝi profilon"
 
@@ -3916,11 +3940,11 @@ msgstr "Vi elektis la nototipon truteksto, sed ne faris trutekstajn malplenojn. 
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr "Vi havas multege da kartaroj. Bonvolu legi %(a)s. %(b)s"
 
-#: qt/aqt/reviewer.py:790
+#: qt/aqt/reviewer.py:809
 msgid "You haven't recorded your voice yet."
 msgstr "Vi ankoraŭ ne registris vian sonon."
 
-#: qt/aqt/browser.py:970
+#: qt/aqt/browser.py:950
 msgid "You must have at least one column."
 msgstr "Oni devas havi almenaŭ unu kolonon."
 
@@ -3941,7 +3965,7 @@ msgstr "Via AnkiWeb-kolekto enhavas neniujn kartojn. Bonvolu refoje samtempigi �
 msgid "Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first."
 msgstr "Viaj ŝanĝoj efikos sur multaj kartaroj. Se vi nur volas ŝanĝi la aktualan kartaron, bonvolu unue aldoni novan opciogrupon."
 
-#: qt/aqt/main.py:481
+#: qt/aqt/main.py:491
 msgid "Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen."
 msgstr "Via kolektodosiero ŝajne estas difektohava. Tio povas okazi kiam dosiero estas kopiita aŭ movita dum Anki estas malferma aŭ kiam la kolekto troviĝas sur reta aŭ nuba disko. Se problemoj daŭras post restartigo de via komputilo, bonvolu malfermi aŭtomatan sekurkopion en la profilmenuo."
 
@@ -3981,7 +4005,7 @@ msgstr "Via fajroŝirmilo aŭ senvirusigilo malhelpas Anki krei konekton al si m
 msgid "[no deck]"
 msgstr "[neniu kartaro]"
 
-#: qt/aqt/forms/preferences.py:271
+#: qt/aqt/forms/preferences.py:276
 msgid "backups"
 msgstr "sekurkopiojn"
 
@@ -4021,13 +4045,9 @@ msgstr "kartaro"
 msgid "deck life"
 msgstr "Ekde kreo"
 
-#: qt/aqt/browser.py:2190
+#: qt/aqt/browser.py:2177
 msgid "duplicate"
 msgstr "duoblaĵo"
-
-#: pylib/anki/collection.py:688
-msgid "help"
-msgstr "helpo"
 
 #: qt/aqt/deckbrowser.py:138
 msgid "hide"
@@ -4037,7 +4057,7 @@ msgstr "kaŝi"
 msgid "hours"
 msgstr "horoj"
 
-#: qt/aqt/forms/preferences.py:254
+#: qt/aqt/forms/preferences.py:259
 msgid "hours past midnight"
 msgstr "horoj post noktomezo"
 
@@ -4100,7 +4120,7 @@ msgstr "mapita al <b>%s</b>"
 msgid "mapped to <b>Tags</b>"
 msgstr "mapita al <b>Etikedoj</b>"
 
-#: qt/aqt/forms/preferences.py:255 qt/aqt/forms/preferences.py:259
+#: qt/aqt/forms/preferences.py:260 qt/aqt/forms/preferences.py:264
 msgid "mins"
 msgstr "minutoj"
 
