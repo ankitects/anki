@@ -23,7 +23,7 @@ class ThemeManager:
             return False
         if not isMac:
             return False
-        import darkdetect
+        import darkdetect  # pylint: disable=import-error
 
         return darkdetect.isDark() is True
 
