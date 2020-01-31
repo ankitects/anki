@@ -973,7 +973,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             interval = ivl2
         elif ease == BUTTON_THREE:
             interval = ivl3
-        elif ease == 4:
+        elif ease == BUTTON_FOUR:
             interval = ivl4
         # interval capped?
         return min(interval, conf["maxIvl"])
