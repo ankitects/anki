@@ -94,13 +94,6 @@
          <property name="spacing">
           <number>12</number>
          </property>
-         <item row="5" column="2">
-          <widget class="QLabel" name="label_27">
-           <property name="text">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_24">
            <property name="text">
@@ -110,6 +103,9 @@
          </item>
          <item row="5" column="1">
           <widget class="QSpinBox" name="lrnFactor">
+           <property name="suffix">
+            <string>%</string>
+           </property>
            <property name="minimum">
             <number>130</number>
            </property>
@@ -262,6 +258,9 @@
          </item>
          <item row="1" column="1">
           <widget class="QSpinBox" name="easyBonus">
+           <property name="suffix">
+            <string>%</string>
+           </property>
            <property name="minimum">
             <number>100</number>
            </property>
@@ -270,20 +269,6 @@
            </property>
            <property name="singleStep">
             <number>5</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_21">
-           <property name="text">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="label_34">
-           <property name="text">
-            <string>%</string>
            </property>
           </widget>
          </item>
@@ -320,6 +305,9 @@
          </item>
          <item row="3" column="1">
           <widget class="QSpinBox" name="maxIvl">
+           <property name="suffix">
+            <string/>
+           </property>
            <property name="minimum">
             <number>1</number>
            </property>
@@ -344,6 +332,9 @@
          </item>
          <item row="2" column="1">
           <widget class="QDoubleSpinBox" name="fi1">
+           <property name="suffix">
+            <string>%</string>
+           </property>
            <property name="decimals">
             <number>0</number>
            </property>
@@ -377,18 +368,14 @@
          </item>
          <item row="4" column="1">
           <widget class="QSpinBox" name="hardFactor">
+           <property name="suffix">
+            <string>%</string>
+           </property>
            <property name="minimum">
             <number>5</number>
            </property>
            <property name="maximum">
             <number>120</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>%</string>
            </property>
           </widget>
          </item>
@@ -533,15 +520,11 @@
            </item>
           </layout>
          </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_28">
-           <property name="text">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QSpinBox" name="lapMult">
+           <property name="suffix">
+            <string>%</string>
+           </property>
            <property name="maximum">
             <number>100</number>
            </property>
