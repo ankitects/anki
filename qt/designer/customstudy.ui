@@ -17,7 +17,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="3" column="0">
-      <widget class="QRadioButton" name="radio4">
+      <widget class="QRadioButton" name="radioAhead">
        <property name="text">
         <string>Review ahead</string>
        </property>
@@ -166,7 +166,7 @@
   <tabstop>radioNew</tabstop>
   <tabstop>radioRev</tabstop>
   <tabstop>radioForgot</tabstop>
-  <tabstop>radio4</tabstop>
+  <tabstop>radioAhead</tabstop>
   <tabstop>radio6</tabstop>
   <tabstop>spin</tabstop>
   <tabstop>buttonBox</tabstop>

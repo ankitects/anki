@@ -40,7 +40,7 @@ class CustomStudy(QDialog):
         f.radioNew.clicked.connect(lambda: self.onRadioChange(RADIO_NEW))
         f.radioRev.clicked.connect(lambda: self.onRadioChange(RADIO_REV))
         f.radioForgot.clicked.connect(lambda: self.onRadioChange(RADIO_FORGOT))
-        f.radio4.clicked.connect(lambda: self.onRadioChange(4))
+        f.radioAhead.clicked.connect(lambda: self.onRadioChange(RADIO_AHEAD))
         f.radio5.clicked.connect(lambda: self.onRadioChange(5))
         f.radio6.clicked.connect(lambda: self.onRadioChange(6))
 
