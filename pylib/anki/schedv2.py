@@ -1516,7 +1516,10 @@ To study outside of the normal schedule, click the Custom Study button below."""
     def newDue(self) -> Any:
         "True if there are any new cards due."
         return self.col.db.scalar(
-            (f"select 1 from cards where did in %s and queue = {QUEUE_TYPE_NEW} " "limit 1")
+            (
+                f"select 1 from cards where did in %s and queue = {QUEUE_TYPE_NEW} "
+                "limit 1"
+            )
             % self._deckLimit()
         )
 
@@ -1613,7 +1616,8 @@ end)
         "Suspend cards."
         self.col.log(ids)
         self.col.db.execute(
-            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in " + ids2str(ids),
+            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in "
+            + ids2str(ids),
             intTime(),
             self.col.usn(),
         )
@@ -1622,7 +1626,9 @@ end)
         "Unsuspend cards."
         self.col.log(ids)
         self.col.db.execute(
-            (f"update cards set %s,mod=?,usn=? where queue = {QUEUE_TYPE_SUSPENDED} and id in %s")
+            (
+                f"update cards set %s,mod=?,usn=? where queue = {QUEUE_TYPE_SUSPENDED} and id in %s"
+            )
             % (self._restoreQueueSnippet, ids2str(ids)),
             intTime(),
             self.col.usn(),
@@ -1733,7 +1739,10 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             " where id in " + ids2str(ids),
             STARTING_FACTOR,
         )
-        pmax = self.col.db.scalar(f"select max(due) from cards where type={CARD_TYPE_NEW}") or 0
+        pmax = (
+            self.col.db.scalar(f"select max(due) from cards where type={CARD_TYPE_NEW}")
+            or 0
+        )
         # takes care of mod + usn
         self.sortCards(ids, start=pmax + 1)
         self.col.log(ids)
@@ -1769,7 +1778,8 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
         sids = ids2str(ids)
         # we want to avoid resetting due number of existing new cards on export
         nonNew = self.col.db.list(
-            f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})" % sids
+            f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})"
+            % sids
         )
         # reset all cards
         self.col.db.execute(
@@ -1933,7 +1943,9 @@ where queue < {QUEUE_TYPE_NEW}"""
     # adding 'hard' in v2 scheduler means old ease entries need shifting
     # up or down
     def _remapLearningAnswers(self, sql: str) -> None:
-        self.col.db.execute(f"update revlog set %s and type in ({CARD_TYPE_NEW},{CARD_TYPE_REV})" % sql)
+        self.col.db.execute(
+            f"update revlog set %s and type in ({CARD_TYPE_NEW},{CARD_TYPE_REV})" % sql
+        )
 
     def moveToV1(self) -> None:
         self._emptyAllFiltered()
