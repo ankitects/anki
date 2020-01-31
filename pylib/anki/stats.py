@@ -39,7 +39,7 @@ class CardStats:
             if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
-                if c.queue in (QUEUE_TYPE_REV, 3):
+                if c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN):
                     next = time.time() + ((c.due - self.col.sched.today) * 86400)
                 else:
                     next = c.due
@@ -285,7 +285,7 @@ from revlog where id > ? """
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
             f"""
-select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},3)
+select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN})
 and due = ?"""
             % self._limit(),
             self.col.sched.today + 1,
@@ -306,7 +306,7 @@ select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where did in %s and queue in ({QUEUE_TYPE_REV},3)
+where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN})
 %s
 group by day order by day"""
             % (self._limit(), lim),
@@ -944,7 +944,7 @@ from cards where did in %s and queue = {QUEUE_TYPE_REV}"""
             f"""
 select
 sum(case when queue={QUEUE_TYPE_REV} and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue in ({QUEUE_TYPE_LRN},3) or (queue={QUEUE_TYPE_REV} and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) or (queue={QUEUE_TYPE_REV} and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
 sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""

@@ -344,7 +344,7 @@ class Anki2Importer(Importer):
             card[4] = intTime()
             card[5] = usn
             # review cards have a due date relative to collection
-            if card[7] in (QUEUE_TYPE_REV, 3) or card[6] == CARD_TYPE_REV:
+            if card[7] in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or card[6] == CARD_TYPE_REV:
                 card[8] -= aheadBy
             # odue needs updating too
             if card[14]:

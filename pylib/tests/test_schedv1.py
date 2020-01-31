@@ -247,7 +247,7 @@ def test_learn_day():
     # answering it will place it in queue 3
     d.sched.answerCard(c, 2)
     assert c.due == d.sched.today + 1
-    assert c.queue == 3
+    assert c.queue == CARD_TYPE_RELEARNING
     assert not d.sched.getCard()
     # for testing, move it back a day
     c.due -= 1
@@ -281,7 +281,7 @@ def test_learn_day():
     d.sched._cardConf(c)["lapse"]["delays"] = [1440]
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
-    assert c.queue == 3
+    assert c.queue == CARD_TYPE_RELEARNING
     assert d.sched.counts() == (0, 0, 0)
 
 
