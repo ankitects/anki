@@ -621,7 +621,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             self._rescheduleAsRev(card, conf, True)
             leaving = True
         # next step?
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             # graduation time?
             if (card.left % 1000) - 1 <= 0:
                 self._rescheduleAsRev(card, conf, False)
@@ -1052,7 +1052,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             return ivl2
 
         ivl3 = self._constrainedIvl((card.ivl + delay // 2) * fct, conf, ivl2, fuzz)
-        if ease == 3:
+        if ease == BUTTON_THREE:
             return ivl3
 
         ivl4 = self._constrainedIvl(
@@ -1119,7 +1119,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             # hard cards shouldn't have their interval decreased by more than 50%
             # of the normal factor
             minNewIvl = factor / 2
-        elif ease == 3:
+        elif ease == BUTTON_THREE:
             factor = card.factor / 1000
         else:  # ease == 4:
             factor = card.factor / 1000
@@ -1591,7 +1591,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             return self._delayForRepeatingGrade(conf, card.left)
         elif ease == 4:
             return self._graduatingIvl(card, conf, True, fuzz=False) * 86400
-        else:  # ease == 3
+        else:  # ease == BUTTON_THREE
             left = card.left % 1000 - 1
             if left <= 0:
                 # graduate
