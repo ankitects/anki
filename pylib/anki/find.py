@@ -273,7 +273,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
             elif val == "new":
                 n = CARD_TYPE_NEW
             else:
-                return f"queue in ({QUEUE_TYPE_LRN}, 3)"
+                return f"queue in ({QUEUE_TYPE_LRN}, {QUEUE_TYPE_DAY_LEARN_RELEARN})"
             return "type = %d" % n
         elif val == "suspended":
             return "c.queue = -1"
@@ -281,7 +281,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
             return f"c.queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
         elif val == "due":
             return f"""
-(c.queue in ({QUEUE_TYPE_REV},3) and c.due <= %d) or
+(c.queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and c.due <= %d) or
 (c.queue = {QUEUE_TYPE_LRN} and c.due <= %d)""" % (
                 self.col.sched.today,
                 self.col.sched.dayCutoff,
@@ -349,7 +349,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
         if prop == "due":
             val += self.col.sched.today
             # only valid for review/daily learning
-            q.append(f"(c.queue in ({QUEUE_TYPE_REV},3))")
+            q.append(f"(c.queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN}))")
         elif prop == "ease":
             prop = "factor"
             val = int(val * 1000)

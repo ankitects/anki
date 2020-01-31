@@ -84,7 +84,7 @@ class Scheduler:
                     card.ivl = self._dynIvlBoost(card)
                     card.odue = self.today + card.ivl
             self._updateStats(card, "new")
-        if card.queue in (QUEUE_TYPE_LRN, 3):
+        if card.queue in (QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
             self._answerLrnCard(card, ease)
             if not wasNewQ:
                 self._updateStats(card, "lrn")
@@ -132,7 +132,7 @@ order by due"""
         return ret
 
     def countIdx(self, card):
-        if card.queue == 3:
+        if card.queue == QUEUE_TYPE_DAY_LEARN_RELEARN:
             return 1
         return card.queue
 
@@ -476,8 +476,8 @@ did in %s and queue = {QUEUE_TYPE_LRN} and due < ? limit %d)"""
         )
         # day
         self.lrnCount += self.col.db.scalar(
-            """
-select count() from cards where did in %s and queue = 3
+            f"""
+select count() from cards where did in %s and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN}
 and due <= ? limit %d"""
             % (self._deckLimit(), self.reportLimit),
             self.today,
@@ -528,9 +528,9 @@ limit %d"""
             did = self._lrnDids[0]
             # fill the queue with the current did
             self._lrnDayQueue = self.col.db.list(
-                """
+                f"""
 select id from cards where
-did = ? and queue = 3 and due <= ? limit ?""",
+did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
                 did,
                 self.today,
                 self.queueLimit,
@@ -611,7 +611,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 # day learn queue
                 ahead = ((card.due - self.dayCutoff) // 86400) + 1
                 card.due = self.today + ahead
-                card.queue = 3
+                card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _delayForGrade(self, conf, left):
@@ -739,14 +739,14 @@ did = ? and queue = 3 and due <= ? limit ?""",
             f"""
 update cards set
 due = odue, queue = {QUEUE_TYPE_REV}, mod = %d, usn = %d, odue = 0
-where queue in ({QUEUE_TYPE_LRN},3) and type = {CARD_TYPE_REV}
+where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CARD_TYPE_REV}
 %s
 """
             % (intTime(), self.col.usn(), extra)
         )
         # new cards in learning
         self.forgetCards(
-            self.col.db.list(f"select id from cards where queue in ({QUEUE_TYPE_LRN},3) %s" % extra)
+            self.col.db.list(f"select id from cards where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) %s" % extra)
         )
 
     def _lrnForDeck(self, did):
@@ -762,9 +762,9 @@ select sum(left/1000) from
             or 0
         )
         return cnt + self.col.db.scalar(
-            """
+            f"""
 select count() from
-(select 1 from cards where did = ? and queue = 3
+(select 1 from cards where did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN}
 and due <= ? limit ?)""",
             did,
             self.today,
@@ -913,7 +913,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             # day learn queue
             ahead = ((card.due - self.dayCutoff) // 86400) + 1
             card.due = self.today + ahead
-            card.queue = 3
+            card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
 
     def _nextLapseIvl(self, card, conf):
@@ -1347,7 +1347,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
-        if card.queue in (QUEUE_TYPE_NEW, QUEUE_TYPE_LRN, 3):
+        if card.queue in (QUEUE_TYPE_NEW, QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
             return self._nextLrnIvl(card, ease)
         elif ease == BUTTON_ONE:
             # lapsed

@@ -22,10 +22,8 @@ from anki.rsbackend import SchedTimingToday
 from anki.utils import fmtTimeSpan, ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
-CARD_TYPE_RELEARNING = 3
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
 #   4=preview, -1=suspended, -2=sibling buried, -3=manually buried
-QUEUE_TYPE_DAY_LEARN_RELEARN = 3
 
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=early review
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
