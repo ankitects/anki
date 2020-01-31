@@ -127,6 +127,7 @@ class Scheduler:
             card.due = intTime() + self._previewDelay(card)
             self.lrnCount += 1
         else:
+            # BUTTON_TWO
             # restore original card state and remove from filtered deck
             self._restorePreviewCard(card)
             self._removeFromFiltered(card)
@@ -627,7 +628,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
                 leaving = True
             else:
                 self._moveToNextStep(card, conf)
-        elif ease == 2:
+        elif ease == BUTTON_TWO:
             self._repeatStep(card, conf)
         else:
             # back to first step
@@ -801,7 +802,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         if leaving:
             ivl = card.ivl
         else:
-            if ease == 2:
+            if ease == BUTTON_TWO:
                 ivl = -self._delayForRepeatingGrade(conf, card.left)
             else:
                 ivl = -self._delayForGrade(conf, card.left)
@@ -1047,7 +1048,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         else:
             hardMin = 0
         ivl2 = self._constrainedIvl(card.ivl * hardFactor, conf, hardMin, fuzz)
-        if ease == 2:
+        if ease == BUTTON_TWO:
             return ivl2
 
         ivl3 = self._constrainedIvl((card.ivl + delay // 2) * fct, conf, ivl2, fuzz)
@@ -1113,7 +1114,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         # early 3/4 reviews shouldn't decrease previous interval
         minNewIvl = 1
 
-        if ease == 2:
+        if ease == BUTTON_TWO:
             factor = conf.get("hardFactor", 1.2)
             # hard cards shouldn't have their interval decreased by more than 50%
             # of the normal factor
@@ -1576,7 +1577,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         if ease == BUTTON_ONE:
             # fail
             return self._delayForGrade(conf, len(conf["delays"]))
-        elif ease == 2:
+        elif ease == BUTTON_TWO:
             return self._delayForRepeatingGrade(conf, card.left)
         elif ease == 4:
             return self._graduatingIvl(card, conf, True, fuzz=False) * 86400
