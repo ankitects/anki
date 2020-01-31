@@ -28,6 +28,8 @@ class DeckBrowser:
         av_player.stop_and_clear_queue()
         self.web.set_bridge_command(self._linkHandler, "deck_browser")
         self._renderPage()
+        # redraw top bar for theme change
+        self.mw.toolbar.draw()
 
     def refresh(self):
         self._renderPage()
