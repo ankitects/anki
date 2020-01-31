@@ -855,7 +855,7 @@ select
 sum(case when ease = 1 then 0 else 1 end) /
 cast(count() as float) * 100,
 count()
-from revlog where type in ({REVLOG_LRN},{REVLOG_REV},2) %s
+from revlog where type in ({REVLOG_LRN},{REVLOG_REV},{REVLOG_RELRN}) %s
 group by hour having count() > 30 order by hour"""
             % lim,
             cut=self.col.sched.dayCutoff - (rolloverHour * 3600),
