@@ -610,7 +610,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         if card.type in (2, CARD_TYPE_RELEARNING):
             type = 2
         else:
-            type = 0
+            type = REVLOG_LRN
         # lrnCount was decremented once when card was fetched
         lastLeft = card.left
 
