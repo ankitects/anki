@@ -121,7 +121,7 @@ class Scheduler:
     def _answerCardPreview(self, card: Card, ease: int) -> None:
         assert 1 <= ease <= 2
 
-        if ease == 1:
+        if ease == BUTTON_ONE:
             # repeat after delay
             card.queue = QUEUE_TYPE_PREVIEW
             card.due = intTime() + self._previewDelay(card)
@@ -962,7 +962,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         early = bool(card.odid and (card.odue > self.today))
         type = early and 3 or 1
 
-        if ease == 1:
+        if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)
         else:
             self._rescheduleRev(card, ease, early)
@@ -1557,14 +1557,14 @@ To study outside of the normal schedule, click the Custom Study button below."""
         "Return the next interval for CARD, in seconds."
         # preview mode?
         if self._previewingCard(card):
-            if ease == 1:
+            if ease == BUTTON_ONE:
                 return self._previewDelay(card)
             return 0
 
         # (re)learning?
         if card.queue in (0, 1, QUEUE_TYPE_DAY_LEARN_RELEARN):
             return self._nextLrnIvl(card, ease)
-        elif ease == 1:
+        elif ease == BUTTON_ONE:
             # lapse
             conf = self._lapseConf(card)
             if conf["delays"]:
@@ -1583,7 +1583,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         if card.queue == 0:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
-        if ease == 1:
+        if ease == BUTTON_ONE:
             # fail
             return self._delayForGrade(conf, len(conf["delays"]))
         elif ease == 2:
