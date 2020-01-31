@@ -1284,7 +1284,7 @@ where id = ?
             f.flush()
             # handle
             a = conf["leechAction"]
-            if a == 0:
+            if a == LEECH_SUSPEND:
                 card.queue = -1
             # notify UI
             hooks.card_did_leech(card)
