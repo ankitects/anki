@@ -376,9 +376,9 @@ def test_reviews():
     hooks.card_did_leech.append(onLeech)
     d.sched.answerCard(c, 1)
     assert hooked
-    assert c.queue == -1
+    assert c.queue == QUEUE_TYPE_SUSPENDED
     c.load()
-    assert c.queue == -1
+    assert c.queue == QUEUE_TYPE_SUSPENDED
 
 
 def test_button_spacing():
