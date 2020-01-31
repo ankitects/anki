@@ -6,8 +6,6 @@ import platform
 import sys
 from typing import Dict
 
-import darkdetect
-
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
 from aqt.colors import colors
@@ -23,6 +21,10 @@ class ThemeManager:
     def macos_dark_mode(self) -> bool:
         if not getattr(sys, "frozen", False):
             return False
+        if not isMac:
+            return False
+        import darkdetect
+
         return darkdetect.isDark() is True
 
     def get_night_mode(self) -> bool:
