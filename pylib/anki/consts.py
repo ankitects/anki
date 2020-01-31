@@ -63,6 +63,8 @@ HELP_SITE = "http://ankisrs.net/docs/manual.html"
 LEECH_SUSPEND = 0
 LEECH_TAGONLY = 1
 
+# Buttons
+
 # Labels
 ##########################################################################
 
