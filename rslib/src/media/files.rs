@@ -10,6 +10,7 @@ use std::borrow::Cow;
 use std::io::Read;
 use std::path::Path;
 use std::{fs, io, time};
+use trash::remove_all;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 /// The maximum length we allow a filename to be. When combined
@@ -234,16 +235,20 @@ pub(super) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
         .as_secs() as i64)
 }
 
-pub(super) fn remove_files(media_folder: &Path, files: &[&String]) -> Result<()> {
-    for &file in files {
-        debug!("removing {}", file);
-        let path = media_folder.join(file.as_str());
-        fs::remove_file(path).map_err(|e| AnkiError::IOError {
-            info: format!("Error removing {}: {}", file, e),
-        })?;
+pub(super) fn remove_files<S>(media_folder: &Path, files: &[S]) -> Result<()>
+where
+    S: AsRef<str> + std::fmt::Debug,
+{
+    if files.is_empty() {
+        return Ok(());
     }
 
-    Ok(())
+    let paths = files.iter().map(|f| media_folder.join(f.as_ref()));
+
+    debug!("removing {:?}", files);
+    remove_all(paths).map_err(|e| AnkiError::IOError {
+        info: format!("removing files failed: {:?}", e),
+    })
 }
 
 pub(super) struct AddedFile {
@@ -308,7 +313,7 @@ pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
 mod test {
     use crate::media::files::{
         add_data_to_folder_uniquely, add_hash_suffix_to_file_stem, normalize_filename,
-        sha1_of_data, MAX_FILENAME_LENGTH,
+        remove_files, sha1_of_data, MAX_FILENAME_LENGTH,
     };
     use std::borrow::Cow;
     use tempfile::tempdir;
@@ -338,7 +343,7 @@ mod test {
     }
 
     #[test]
-    fn adding() {
+    fn adding_removing() {
         let dir = tempdir().unwrap();
         let dpath = dir.path();
 
@@ -374,5 +379,8 @@ mod test {
                 "test.mp3",
             ]
         );
+
+        // remove
+        remove_files(dpath, written_files.as_slice()).unwrap();
     }
 }
