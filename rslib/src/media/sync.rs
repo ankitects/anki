@@ -6,7 +6,7 @@ use crate::media::database::{MediaDatabaseContext, MediaEntry};
 use crate::media::files::{
     add_file_from_ankiweb, data_for_file, normalize_filename, remove_files, AddedFile,
 };
-use crate::media::MediaManager;
+use crate::media::{register_changes, MediaManager};
 use bytes::Bytes;
 use log::debug;
 use reqwest;
@@ -32,19 +32,145 @@ static SYNC_URL: &str = "https://sync.ankiweb.net/msync/";
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
 
+struct SyncContext<'a> {
+    mgr: &'a MediaManager,
+    ctx: MediaDatabaseContext<'a>,
+    skey: Option<String>,
+    client: Client,
+}
+
+impl SyncContext<'_> {
+    fn new(mgr: &MediaManager) -> SyncContext {
+        let client = Client::builder()
+            .connect_timeout(time::Duration::from_secs(30))
+            .build()
+            .unwrap();
+        let ctx = mgr.dbctx();
+
+        SyncContext {
+            mgr,
+            ctx,
+            skey: None,
+            client,
+        }
+    }
+
+    fn skey(&self) -> &str {
+        self.skey.as_ref().unwrap()
+    }
+
+    async fn sync_begin(&self, hkey: &str) -> Result<(String, i32)> {
+        let url = format!("{}/begin", SYNC_URL);
+
+        let resp = self
+            .client
+            .get(&url)
+            .query(&[("k", hkey), ("v", "ankidesktop,2.1.19,mac")])
+            .send()
+            .await?
+            .error_for_status()
+            .map_err(rewrite_forbidden)?;
+
+        let reply: SyncBeginResult = resp.json().await?;
+
+        if let Some(data) = reply.data {
+            Ok((data.sync_key, data.usn))
+        } else {
+            Err(AnkiError::AnkiWebMiscError { info: reply.err })
+        }
+    }
+
+    async fn fetch_changes(&mut self, client_usn: i32) -> Result<()> {
+        let mut last_usn = client_usn;
+        loop {
+            debug!("fetching record batch starting from usn {}", last_usn);
+            let batch = fetch_record_batch(&self.client, self.skey(), last_usn).await?;
+            if batch.is_empty() {
+                debug!("empty batch, done");
+                break;
+            }
+            last_usn = batch.last().unwrap().usn;
+
+            let (to_download, to_delete, to_remove_pending) =
+                determine_required_changes(&mut self.ctx, &batch)?;
+
+            // do file removal and additions first
+            remove_files(self.mgr.media_folder.as_path(), to_delete.as_slice())?;
+            let downloaded = download_files(
+                self.mgr.media_folder.as_path(),
+                &self.client,
+                self.skey(),
+                to_download.as_slice(),
+            )
+            .await?;
+
+            // then update the DB
+            self.ctx.transact(|ctx| {
+                record_removals(ctx, &to_delete)?;
+                record_additions(ctx, downloaded)?;
+                record_clean(ctx, &to_remove_pending)?;
+                Ok(())
+            })?;
+        }
+        Ok(())
+    }
+
+    async fn send_changes(&mut self) -> Result<()> {
+        loop {
+            let pending: Vec<MediaEntry> = self.ctx.get_pending_uploads(SYNC_MAX_FILES as u32)?;
+            if pending.is_empty() {
+                break;
+            }
+
+            let zip_data = zip_files(&self.mgr.media_folder, &pending)?;
+            send_zip_data(&self.client, self.skey(), zip_data).await?;
+
+            let fnames: Vec<_> = pending.iter().map(|e| &e.fname).collect();
+            self.ctx
+                .transact(|ctx| record_clean(ctx, fnames.as_slice()))?;
+        }
+
+        Ok(())
+    }
+
+    async fn finalize_sync(&mut self) -> Result<()> {
+        let url = format!("{}/mediaSanity", SYNC_URL);
+        let local = self.ctx.count()?;
+
+        let obj = FinalizeRequest { local };
+        let resp = ankiweb_json_request(&self.client, &url, &obj, self.skey()).await?;
+        let resp: FinalizeResponse = resp.json().await?;
+
+        if let Some(data) = resp.data {
+            if data == "OK" {
+                Ok(())
+            } else {
+                // fixme: force resync
+                Err(AnkiError::AnkiWebMiscError {
+                    info: "resync required ".into(),
+                })
+            }
+        } else {
+            Err(AnkiError::AnkiWebMiscError {
+                info: format!("finalize failed: {}", resp.err),
+            })
+        }
+    }
+}
+
 #[allow(clippy::useless_let_if_seq)]
 pub async fn sync_media(mgr: &mut MediaManager, hkey: &str) -> Result<()> {
+    let mut sctx = SyncContext::new(mgr);
+
     // make sure media DB is up to date
-    mgr.register_changes()?;
+    register_changes(&mut sctx.ctx, mgr.media_folder.as_path())?;
+    //mgr.register_changes()?;
 
-    let client_usn = mgr.query(|ctx| Ok(ctx.get_meta()?.last_sync_usn))?;
-
-    let client = Client::builder()
-        .connect_timeout(time::Duration::from_secs(30))
-        .build()?;
+    let client_usn = sctx.ctx.get_meta()?.last_sync_usn;
 
     debug!("beginning media sync");
-    let (sync_key, server_usn) = sync_begin(&client, hkey).await?;
+    let (sync_key, server_usn) = sctx.sync_begin(hkey).await?;
+    sctx.skey = Some(sync_key);
     debug!("server usn was {}", server_usn);
 
     let mut actions_performed = false;
@@ -52,19 +178,19 @@ pub async fn sync_media(mgr: &mut MediaManager, hkey: &str) -> Result<()> {
     // need to fetch changes from server?
     if client_usn != server_usn {
         debug!("differs from local usn {}, fetching changes", client_usn);
-        fetch_changes(mgr, &client, &sync_key, client_usn).await?;
+        sctx.fetch_changes(client_usn).await?;
         actions_performed = true;
     }
 
     // need to send changes to server?
-    let changes_pending = mgr.query(|ctx| Ok(!ctx.get_pending_uploads(1)?.is_empty()))?;
+    let changes_pending = !sctx.ctx.get_pending_uploads(1)?.is_empty();
     if changes_pending {
-        send_changes(mgr, &client, &sync_key).await?;
+        sctx.send_changes().await?;
         actions_performed = true;
     }
 
     if actions_performed {
-        finalize_sync(mgr, &client, &sync_key).await?;
+        sctx.finalize_sync().await?;
     }
 
     debug!("media sync complete");
@@ -91,65 +217,6 @@ fn rewrite_forbidden(err: reqwest::Error) -> AnkiError {
     } else {
         err.into()
     }
-}
-
-async fn sync_begin(client: &Client, hkey: &str) -> Result<(String, i32)> {
-    let url = format!("{}/begin", SYNC_URL);
-
-    let resp = client
-        .get(&url)
-        .query(&[("k", hkey), ("v", "ankidesktop,2.1.19,mac")])
-        .send()
-        .await?
-        .error_for_status()
-        .map_err(rewrite_forbidden)?;
-
-    let reply: SyncBeginResult = resp.json().await?;
-
-    if let Some(data) = reply.data {
-        Ok((data.sync_key, data.usn))
-    } else {
-        Err(AnkiError::AnkiWebMiscError { info: reply.err })
-    }
-}
-
-async fn fetch_changes(
-    mgr: &mut MediaManager,
-    client: &Client,
-    skey: &str,
-    client_usn: i32,
-) -> Result<()> {
-    let mut last_usn = client_usn;
-    loop {
-        debug!("fetching record batch starting from usn {}", last_usn);
-        let batch = fetch_record_batch(client, skey, last_usn).await?;
-        if batch.is_empty() {
-            debug!("empty batch, done");
-            break;
-        }
-        last_usn = batch.last().unwrap().usn;
-
-        let (to_download, to_delete, to_remove_pending) = determine_required_changes(mgr, &batch)?;
-
-        // do file removal and additions first
-        remove_files(mgr.media_folder.as_path(), to_delete.as_slice())?;
-        let downloaded = download_files(
-            mgr.media_folder.as_path(),
-            client,
-            skey,
-            to_download.as_slice(),
-        )
-        .await?;
-
-        // then update the DB
-        mgr.transact(|ctx| {
-            record_removals(ctx, &to_delete)?;
-            record_additions(ctx, downloaded)?;
-            record_clean(ctx, &to_remove_pending)?;
-            Ok(())
-        })?;
-    }
-    Ok(())
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -204,49 +271,47 @@ fn determine_required_change(
 /// Get a list of server filenames and the actions required on them.
 /// Returns filenames in (to_download, to_delete).
 fn determine_required_changes<'a>(
-    mgr: &mut MediaManager,
+    ctx: &mut MediaDatabaseContext,
     records: &'a [ServerMediaRecord],
 ) -> Result<(Vec<&'a String>, Vec<&'a String>, Vec<&'a String>)> {
-    mgr.query(|ctx| {
-        let mut to_download = vec![];
-        let mut to_delete = vec![];
-        let mut to_remove_pending = vec![];
+    let mut to_download = vec![];
+    let mut to_delete = vec![];
+    let mut to_remove_pending = vec![];
 
-        for remote in records {
-            let (local_sha1, local_state) = match ctx.get_entry(&remote.fname)? {
-                Some(entry) => (
-                    match entry.sha1 {
-                        Some(arr) => hex::encode(arr),
-                        None => "".to_string(),
-                    },
-                    if entry.sync_required {
-                        LocalState::InDBAndPending
-                    } else {
-                        LocalState::InDBNotPending
-                    },
-                ),
-                None => ("".to_string(), LocalState::NotInDB),
-            };
+    for remote in records {
+        let (local_sha1, local_state) = match ctx.get_entry(&remote.fname)? {
+            Some(entry) => (
+                match entry.sha1 {
+                    Some(arr) => hex::encode(arr),
+                    None => "".to_string(),
+                },
+                if entry.sync_required {
+                    LocalState::InDBAndPending
+                } else {
+                    LocalState::InDBNotPending
+                },
+            ),
+            None => ("".to_string(), LocalState::NotInDB),
+        };
 
-            let req_change = determine_required_change(&local_sha1, &remote.sha1, local_state);
-            debug!(
-                "for {}, lsha={} rsha={} lstate={:?} -> {:?}",
-                remote.fname,
-                local_sha1.chars().take(8).collect::<String>(),
-                remote.sha1.chars().take(8).collect::<String>(),
-                local_state,
-                req_change
-            );
-            match req_change {
-                RequiredChange::Download => to_download.push(&remote.fname),
-                RequiredChange::Delete => to_delete.push(&remote.fname),
-                RequiredChange::RemovePending => to_remove_pending.push(&remote.fname),
-                RequiredChange::None => (),
-            };
-        }
+        let req_change = determine_required_change(&local_sha1, &remote.sha1, local_state);
+        debug!(
+            "for {}, lsha={} rsha={} lstate={:?} -> {:?}",
+            remote.fname,
+            local_sha1.chars().take(8).collect::<String>(),
+            remote.sha1.chars().take(8).collect::<String>(),
+            local_state,
+            req_change
+        );
+        match req_change {
+            RequiredChange::Download => to_download.push(&remote.fname),
+            RequiredChange::Delete => to_delete.push(&remote.fname),
+            RequiredChange::RemovePending => to_remove_pending.push(&remote.fname),
+            RequiredChange::None => (),
+        };
+    }
 
-        Ok((to_download, to_delete, to_remove_pending))
-    })
+    Ok((to_download, to_delete, to_remove_pending))
 }
 
 #[derive(Debug, Serialize)]
@@ -444,25 +509,6 @@ fn record_clean(ctx: &mut MediaDatabaseContext, clean: &[&String]) -> Result<()>
     Ok(())
 }
 
-async fn send_changes(mgr: &mut MediaManager, client: &Client, skey: &str) -> Result<()> {
-    loop {
-        let pending: Vec<MediaEntry> = mgr.query(|ctx: &mut MediaDatabaseContext| {
-            ctx.get_pending_uploads(SYNC_MAX_FILES as u32)
-        })?;
-        if pending.is_empty() {
-            break;
-        }
-
-        let zip_data = zip_files(&mgr.media_folder, &pending)?;
-        send_zip_data(client, skey, zip_data).await?;
-
-        let fnames: Vec<_> = pending.iter().map(|e| &e.fname).collect();
-        mgr.transact(|ctx| record_clean(ctx, fnames.as_slice()))?;
-    }
-
-    Ok(())
-}
-
 #[derive(Serialize_tuple)]
 struct UploadEntry<'a> {
     fname: &'a str,
@@ -554,30 +600,6 @@ struct FinalizeRequest {
 struct FinalizeResponse {
     data: Option<String>,
     err: String,
-}
-
-async fn finalize_sync(mgr: &mut MediaManager, client: &Client, skey: &str) -> Result<()> {
-    let url = format!("{}/mediaSanity", SYNC_URL);
-    let local = mgr.query(|ctx| ctx.count())?;
-
-    let obj = FinalizeRequest { local };
-    let resp = ankiweb_json_request(client, &url, &obj, skey).await?;
-    let resp: FinalizeResponse = resp.json().await?;
-
-    if let Some(data) = resp.data {
-        if data == "OK" {
-            Ok(())
-        } else {
-            // fixme: force resync
-            Err(AnkiError::AnkiWebMiscError {
-                info: "resync required ".into(),
-            })
-        }
-    } else {
-        Err(AnkiError::AnkiWebMiscError {
-            info: format!("finalize failed: {}", resp.err),
-        })
-    }
 }
 
 #[cfg(test)]
