@@ -19,6 +19,15 @@ pub enum AnkiError {
 
     #[fail(display = "DB error: {}", info)]
     DBError { info: String },
+
+    #[fail(display = "Network error: {}", info)]
+    NetworkError { info: String },
+
+    #[fail(display = "AnkiWeb authentication failed.")]
+    AnkiWebAuthenticationFailed,
+
+    #[fail(display = "AnkiWeb error: {}", info)]
+    AnkiWebMiscError { info: String },
 }
 
 // error helpers
@@ -61,6 +70,30 @@ impl From<rusqlite::Error> for AnkiError {
 impl From<rusqlite::types::FromSqlError> for AnkiError {
     fn from(err: rusqlite::types::FromSqlError) -> Self {
         AnkiError::DBError {
+            info: format!("{:?}", err),
+        }
+    }
+}
+
+impl From<reqwest::Error> for AnkiError {
+    fn from(err: reqwest::Error) -> Self {
+        AnkiError::NetworkError {
+            info: format!("{:?}", err),
+        }
+    }
+}
+
+impl From<zip::result::ZipError> for AnkiError {
+    fn from(err: zip::result::ZipError) -> Self {
+        AnkiError::AnkiWebMiscError {
+            info: format!("{:?}", err),
+        }
+    }
+}
+
+impl From<serde_json::Error> for AnkiError {
+    fn from(err: serde_json::Error) -> Self {
+        AnkiError::AnkiWebMiscError {
             info: format!("{:?}", err),
         }
     }

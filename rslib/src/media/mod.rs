@@ -15,6 +15,7 @@ use std::time;
 
 pub mod database;
 pub mod files;
+pub mod sync;
 
 pub struct MediaManager {
     db: Connection,
@@ -94,7 +95,7 @@ impl MediaManager {
     }
 
     /// Note any added/changed/deleted files.
-    pub fn register_changes(&mut self) -> Result<()> {
+    fn register_changes(&mut self) -> Result<()> {
         self.transact(|ctx| {
             // folder mtime unchanged?
             let dirmod = mtime_as_i64(&self.media_folder)?;
@@ -119,43 +120,9 @@ impl MediaManager {
         })
     }
 
-    // syncDelete
-    pub fn remove_entry(&mut self, fname: &str) -> Result<()> {
-        self.transact(|ctx| ctx.remove_entry(fname))
-    }
-
     // forceResync
     pub fn clear(&mut self) -> Result<()> {
         self.transact(|ctx| ctx.clear())
-    }
-
-    // lastUsn
-    pub fn get_last_usn(&mut self) -> Result<i32> {
-        self.query(|ctx| Ok(ctx.get_meta()?.last_sync_usn))
-    }
-
-    // setLastUsn
-    pub fn set_last_usn(&mut self, usn: i32) -> Result<()> {
-        self.transact(|ctx| {
-            let mut meta = ctx.get_meta()?;
-            meta.last_sync_usn = usn;
-            ctx.set_meta(&meta)
-        })
-    }
-
-    // dirtyCount
-    pub fn changes_pending(&mut self) -> Result<u32> {
-        self.query(|ctx| ctx.changes_pending())
-    }
-
-    // mediaCount
-    pub fn count(&mut self) -> Result<u32> {
-        self.query(|ctx| ctx.count())
-    }
-
-    // mediaChangesZip
-    pub fn get_pending_uploads(&mut self, max_entries: u32) -> Result<Vec<MediaEntry>> {
-        self.query(|ctx| ctx.get_pending_uploads(max_entries))
     }
 
     // db helpers
@@ -334,7 +301,7 @@ mod test {
 
         let mut entry = mgr.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
-            assert_eq!(ctx.changes_pending()?, 1);
+            assert!(!ctx.get_pending_uploads(1)?.is_empty());
             let mut entry = ctx.get_entry("file.jpg")?.unwrap();
             assert_eq!(
                 entry,
@@ -354,7 +321,7 @@ mod test {
             // mark it as unmodified
             entry.sync_required = false;
             ctx.set_entry(&entry)?;
-            assert_eq!(ctx.changes_pending()?, 0);
+            assert!(ctx.get_pending_uploads(1)?.is_empty());
 
             // modify it
             fs::write(&f1, "hello1")?;
@@ -369,7 +336,7 @@ mod test {
 
         mgr.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
-            assert_eq!(ctx.changes_pending()?, 1);
+            assert!(!ctx.get_pending_uploads(1)?.is_empty());
             assert_eq!(
                 ctx.get_entry("file.jpg")?.unwrap(),
                 MediaEntry {
@@ -388,7 +355,7 @@ mod test {
             // mark it as unmodified
             entry.sync_required = false;
             ctx.set_entry(&entry)?;
-            assert_eq!(ctx.changes_pending()?, 0);
+            assert!(ctx.get_pending_uploads(1)?.is_empty());
 
             Ok(())
         })?;
@@ -401,7 +368,7 @@ mod test {
 
         mgr.query(|ctx| {
             assert_eq!(ctx.count()?, 0);
-            assert_eq!(ctx.changes_pending()?, 1);
+            assert!(!ctx.get_pending_uploads(1)?.is_empty());
             assert_eq!(
                 ctx.get_entry("file.jpg")?.unwrap(),
                 MediaEntry {

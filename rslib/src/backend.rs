@@ -3,7 +3,7 @@
 
 use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
-use crate::backend_proto::RenderedTemplateReplacement;
+use crate::backend_proto::{Empty, RenderedTemplateReplacement};
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
 use crate::media::MediaManager;
@@ -34,6 +34,9 @@ impl std::convert::From<AnkiError> for pt::BackendError {
             },
             AnkiError::IOError { info } => V::IoError(pt::StringError { info }),
             AnkiError::DBError { info } => V::DbError(pt::StringError { info }),
+            AnkiError::NetworkError { info } => V::NetworkError(pt::StringError { info }),
+            AnkiError::AnkiWebAuthenticationFailed => V::AnkiwebAuthFailed(Empty {}),
+            AnkiError::AnkiWebMiscError { info } => V::AnkiwebMiscError(pt::StringError { info }),
         };
 
         pt::BackendError { value: Some(value) }

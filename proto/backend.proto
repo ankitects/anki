@@ -53,6 +53,9 @@ message BackendError {
         StringError template_parse = 2;
         StringError io_error = 3;
         StringError db_error = 4;
+        StringError network_error = 5;
+        Empty ankiweb_auth_failed = 6;
+        StringError ankiweb_misc_error = 7;
     }
 }
 
