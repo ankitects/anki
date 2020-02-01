@@ -88,41 +88,27 @@ impl MediaDatabaseContext<'_> {
         }
     }
 
-    /// Call the provided closure with a session that exists for
-    /// the duration of the call.
-    ///
-    /// This function should be used for read-only requests. To mutate
-    /// the database, use transact() instead.
-    pub(super) fn query<F, R>(db: &Connection, func: F) -> Result<R>
-    where
-        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
-    {
-        func(&mut Self::new(db))
-    }
-
     /// Execute the provided closure in a transaction, rolling back if
     /// an error is returned.
-    pub(super) fn transact<F, R>(db: &Connection, func: F) -> Result<R>
+    pub(super) fn transact<F, R>(&mut self, func: F) -> Result<R>
     where
         F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
     {
-        MediaDatabaseContext::query(db, |ctx| {
-            ctx.begin()?;
+        self.begin()?;
 
-            let mut res = func(ctx);
+        let mut res = func(self);
 
-            if res.is_ok() {
-                if let Err(e) = ctx.commit() {
-                    res = Err(e);
-                }
+        if res.is_ok() {
+            if let Err(e) = self.commit() {
+                res = Err(e);
             }
+        }
 
-            if res.is_err() {
-                ctx.rollback()?;
-            }
+        if res.is_err() {
+            self.rollback()?;
+        }
 
-            res
-        })
+        res
     }
 
     fn begin(&mut self) -> Result<()> {
@@ -273,8 +259,9 @@ mod test {
         let db_file = NamedTempFile::new()?;
         let db_file_path = db_file.path().to_str().unwrap();
         let mut mgr = MediaManager::new("/dummy", db_file_path)?;
+        let mut ctx = mgr.dbctx();
 
-        mgr.transact(|ctx| {
+        ctx.transact(|ctx| {
             // no entry exists yet
             assert_eq!(ctx.get_entry("test.mp3")?, None);
 
@@ -314,13 +301,13 @@ mod test {
         })?;
 
         // reopen database and ensure data was committed
+        drop(ctx);
         drop(mgr);
         mgr = MediaManager::new("/dummy", db_file_path)?;
-        mgr.query(|ctx| {
-            let meta = ctx.get_meta()?;
-            assert_eq!(meta.folder_mtime, 123);
+        let mut ctx = mgr.dbctx();
+        let meta = ctx.get_meta()?;
+        assert_eq!(meta.folder_mtime, 123);
 
-            Ok(())
-        })
+        Ok(())
     }
 }

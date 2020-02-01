@@ -59,7 +59,7 @@ impl MediaManager {
         let post_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
 
         // add to the media DB
-        self.transact(|ctx| {
+        self.dbctx().transact(|ctx| {
             let existing_entry = ctx.get_entry(&chosen_fname)?;
             let new_sha1 = Some(data_hash);
 
@@ -94,52 +94,55 @@ impl MediaManager {
         Ok(chosen_fname)
     }
 
-    /// Note any added/changed/deleted files.
-    fn register_changes(&mut self) -> Result<()> {
-        self.transact(|ctx| {
-            // folder mtime unchanged?
-            let dirmod = mtime_as_i64(&self.media_folder)?;
-
-            let mut meta = ctx.get_meta()?;
-            if dirmod == meta.folder_mtime {
-                return Ok(());
-            } else {
-                meta.folder_mtime = dirmod;
-            }
-
-            let mtimes = ctx.all_mtimes()?;
-
-            let (changed, removed) = media_folder_changes(&self.media_folder, mtimes)?;
-
-            add_updated_entries(ctx, changed)?;
-            remove_deleted_files(ctx, removed)?;
-
-            ctx.set_meta(&meta)?;
-
-            Ok(())
-        })
-    }
-
     // forceResync
     pub fn clear(&mut self) -> Result<()> {
-        self.transact(|ctx| ctx.clear())
+        self.dbctx().transact(|ctx| ctx.clear())
+    }
+
+    fn dbctx(&self) -> MediaDatabaseContext {
+        MediaDatabaseContext::new(&self.db)
     }
 
     // db helpers
 
-    pub(super) fn query<F, R>(&self, func: F) -> Result<R>
-    where
-        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
-    {
-        MediaDatabaseContext::query(&self.db, func)
-    }
+    //    pub(super) fn query<F, R>(&self, func: F) -> Result<R>
+    //    where
+    //        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
+    //    {
+    //        MediaDatabaseContext::query(&self.db, func)
+    //    }
 
-    pub(super) fn transact<F, R>(&self, func: F) -> Result<R>
-    where
-        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
-    {
-        MediaDatabaseContext::transact(&self.db, func)
-    }
+    //    pub(super) fn transact<F, R>(&self, func: F) -> Result<R>
+    //    where
+    //        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
+    //    {
+    //        MediaDatabaseContext::transact(&self.db, func)
+    //    }
+}
+
+fn register_changes(ctx: &mut MediaDatabaseContext, folder: &Path) -> Result<()> {
+    ctx.transact(|ctx| {
+        // folder mtime unchanged?
+        let dirmod = mtime_as_i64(folder)?;
+
+        let mut meta = ctx.get_meta()?;
+        if dirmod == meta.folder_mtime {
+            return Ok(());
+        } else {
+            meta.folder_mtime = dirmod;
+        }
+
+        let mtimes = ctx.all_mtimes()?;
+
+        let (changed, removed) = media_folder_changes(folder, mtimes)?;
+
+        add_updated_entries(ctx, changed)?;
+        remove_deleted_files(ctx, removed)?;
+
+        ctx.set_meta(&meta)?;
+
+        Ok(())
+    })
 }
 
 /// Scan through the media folder, finding changes.
@@ -262,7 +265,7 @@ mod test {
     use crate::err::Result;
     use crate::media::database::MediaEntry;
     use crate::media::files::sha1_of_data;
-    use crate::media::MediaManager;
+    use crate::media::{register_changes, MediaManager};
     use std::path::Path;
     use std::time::Duration;
     use std::{fs, time};
@@ -286,20 +289,19 @@ mod test {
         std::fs::create_dir(&media_dir)?;
         let media_db = dir.path().join("media.db");
 
-        let mut mgr = MediaManager::new(&media_dir, media_db)?;
-        mgr.query(|ctx| {
-            assert_eq!(ctx.count()?, 0);
-            Ok(())
-        })?;
+        let mgr = MediaManager::new(&media_dir, media_db)?;
+        let mut ctx = mgr.dbctx();
+
+        assert_eq!(ctx.count()?, 0);
 
         // add a file and check it's picked up
         let f1 = media_dir.join("file.jpg");
         fs::write(&f1, "hello")?;
 
         change_mtime(&media_dir);
-        mgr.register_changes()?;
+        register_changes(&mut ctx, &mgr.media_folder)?;
 
-        let mut entry = mgr.transact(|ctx| {
+        let mut entry = ctx.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
             assert!(!ctx.get_pending_uploads(1)?.is_empty());
             let mut entry = ctx.get_entry("file.jpg")?.unwrap();
@@ -332,9 +334,9 @@ mod test {
             Ok(entry)
         })?;
 
-        mgr.register_changes()?;
+        register_changes(&mut ctx, &mgr.media_folder)?;
 
-        mgr.transact(|ctx| {
+        ctx.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
             assert!(!ctx.get_pending_uploads(1)?.is_empty());
             assert_eq!(
@@ -364,22 +366,20 @@ mod test {
         fs::remove_file(&f1)?;
 
         change_mtime(&media_dir);
-        mgr.register_changes().unwrap();
+        register_changes(&mut ctx, &mgr.media_folder)?;
 
-        mgr.query(|ctx| {
-            assert_eq!(ctx.count()?, 0);
-            assert!(!ctx.get_pending_uploads(1)?.is_empty());
-            assert_eq!(
-                ctx.get_entry("file.jpg")?.unwrap(),
-                MediaEntry {
-                    fname: "file.jpg".into(),
-                    sha1: None,
-                    mtime: 0,
-                    sync_required: true,
-                }
-            );
+        assert_eq!(ctx.count()?, 0);
+        assert!(!ctx.get_pending_uploads(1)?.is_empty());
+        assert_eq!(
+            ctx.get_entry("file.jpg")?.unwrap(),
+            MediaEntry {
+                fname: "file.jpg".into(),
+                sha1: None,
+                mtime: 0,
+                sync_required: true,
+            }
+        );
 
-            Ok(())
-        })
+        Ok(())
     }
 }
