@@ -2,12 +2,21 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
+use log::debug;
 use rusqlite::{params, Connection, OptionalExtension, Statement, NO_PARAMS};
 use std::collections::HashMap;
 use std::path::Path;
 
+fn trace(s: &str) {
+    debug!("sql: {}", s)
+}
+
 pub(super) fn open_or_create<P: AsRef<Path>>(path: P) -> Result<Connection> {
     let mut db = Connection::open(path)?;
+
+    if std::env::var("TRACESQL").is_ok() {
+        db.trace(Some(trace));
+    }
 
     db.pragma_update(None, "page_size", &4096)?;
     db.pragma_update(None, "legacy_file_format", &false)?;
@@ -215,16 +224,6 @@ delete from media where fname=?"
     pub(super) fn clear(&mut self) -> Result<()> {
         self.db
             .execute_batch("delete from media; update meta set lastUsn = 0, dirMod = 0")
-            .map_err(Into::into)
-    }
-
-    pub(super) fn changes_pending(&mut self) -> Result<u32> {
-        self.db
-            .query_row(
-                "select count(*) from media where dirty=1",
-                NO_PARAMS,
-                |row| Ok(row.get(0)?),
-            )
             .map_err(Into::into)
     }
 

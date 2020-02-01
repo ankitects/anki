@@ -1,14 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::err::{AnkiError, Result};
 use lazy_static::lazy_static;
+use log::debug;
 use regex::Regex;
 use sha1::Sha1;
 use std::borrow::Cow;
 use std::io::Read;
 use std::path::Path;
 use std::{fs, io, time};
-use unicode_normalization::{is_nfc_quick, IsNormalized, UnicodeNormalization};
+use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 /// The maximum length we allow a filename to be. When combined
 /// with the rest of the path, the full path needs to be under ~240 chars
@@ -61,10 +63,10 @@ fn disallowed_char(char: char) -> bool {
 /// - Any problem characters are removed.
 /// - Windows device names like CON and PRN have '_' appended
 /// - The filename is limited to 120 bytes.
-fn normalize_filename(fname: &str) -> Cow<str> {
+pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
     let mut output = Cow::Borrowed(fname);
 
-    if is_nfc_quick(output.chars()) != IsNormalized::Yes {
+    if !is_nfc(output.as_ref()) {
         output = output.chars().nfc().collect::<String>().into();
     }
 
@@ -232,6 +234,76 @@ pub(super) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
         .as_secs() as i64)
 }
 
+pub(super) fn remove_files(media_folder: &Path, files: &[&String]) -> Result<()> {
+    for &file in files {
+        debug!("removing {}", file);
+        let path = media_folder.join(file.as_str());
+        fs::remove_file(path).map_err(|e| AnkiError::IOError {
+            info: format!("Error removing {}: {}", file, e),
+        })?;
+    }
+
+    Ok(())
+}
+
+pub(super) struct AddedFile {
+    pub fname: String,
+    pub sha1: [u8; 20],
+    pub mtime: i64,
+    pub renamed_from: Option<String>,
+}
+
+/// Add a file received from AnkiWeb into the media folder.
+///
+/// Because AnkiWeb did not previously enforce file name limits and invalid
+/// characters, we'll need to rename the file if it is not valid.
+pub(super) fn add_file_from_ankiweb(
+    media_folder: &Path,
+    fname: &str,
+    data: &[u8],
+) -> Result<AddedFile> {
+    let normalized = normalize_filename(fname);
+
+    let path = media_folder.join(normalized.as_ref());
+    fs::write(&path, data)?;
+
+    let sha1 = sha1_of_data(data);
+
+    let mtime = mtime_as_i64(path)?;
+
+    // fixme: could we use the info sent from the server for the hash instead
+    // of hashing it here and returning hash?
+
+    let renamed_from = if let Cow::Borrowed(_) = normalized {
+        None
+    } else {
+        Some(fname.to_string())
+    };
+
+    Ok(AddedFile {
+        fname: normalized.to_string(),
+        sha1,
+        mtime,
+        renamed_from,
+    })
+}
+
+pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<Vec<u8>>> {
+    let mut file = match fs::File::open(&media_folder.join(fname)) {
+        Ok(file) => file,
+        Err(e) => {
+            if e.kind() == io::ErrorKind::NotFound {
+                return Ok(None);
+            } else {
+                return Err(e.into());
+            }
+        }
+    };
+    let mut buf = vec![];
+    file.read_to_end(&mut buf)?;
+    Ok(Some(buf))
+}
+
 #[cfg(test)]
 mod test {
     use crate::media::files::{
@@ -242,7 +314,7 @@ mod test {
     use tempfile::tempdir;
 
     #[test]
-    fn test_normalize() {
+    fn normalize() {
         assert_eq!(normalize_filename("foo.jpg"), Cow::Borrowed("foo.jpg"));
         assert_eq!(
             normalize_filename("con.jpg[]><:\"/?*^\\|\0\r\n").as_ref(),
@@ -257,7 +329,7 @@ mod test {
     }
 
     #[test]
-    fn test_add_hash_suffix() {
+    fn add_hash_suffix() {
         let hash = sha1_of_data("hello".as_bytes());
         assert_eq!(
             add_hash_suffix_to_file_stem("test.jpg", &hash).as_str(),
@@ -266,7 +338,7 @@ mod test {
     }
 
     #[test]
-    fn test_adding() {
+    fn adding() {
         let dir = tempdir().unwrap();
         let dpath = dir.path();
 
