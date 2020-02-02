@@ -51,8 +51,8 @@ def test_new():
     # if we answer it, it should become a learn card
     t = intTime()
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
-    assert c.type == 1
+    assert c.queue == QUEUE_TYPE_LRN
+    assert c.type == CARD_TYPE_LRN
     assert c.due >= t
 
     # disabled for now, as the learn fudging makes this randomly fail
@@ -163,8 +163,8 @@ def test_learn():
     assert c.left % 1000 == 1
     assert c.left // 1000 == 1
     # the next pass should graduate the card
-    assert c.queue == 1
-    assert c.type == 1
+    assert c.queue == QUEUE_TYPE_LRN
+    assert c.type == CARD_TYPE_LRN
     d.sched.answerCard(c, 2)
     assert c.queue == 2
     assert c.type == 2
@@ -259,7 +259,7 @@ def test_learn_day():
     assert ni(c, 2) == 86400 * 2
     # if we fail it, it should be back in the correct queue
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     d.undo()
     d.reset()
     c = d.sched.getCard()
@@ -311,7 +311,7 @@ def test_reviews():
     d.reset()
     d.sched._cardConf(c)["lapse"]["delays"] = [2, 20]
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     # it should be due tomorrow, with an interval of 1
     assert c.odue == d.sched.today + 1
     assert c.ivl == 1
@@ -558,7 +558,7 @@ def test_suspend():
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.due >= time.time()
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     assert c.type == 2
     d.sched.suspendCards([c.id])
     d.sched.unsuspendCards([c.id])
@@ -622,7 +622,7 @@ def test_cram():
     # int(75*1.85) = 138
     assert c.ivl == 138
     assert c.odue == 138
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     # should be logged as a cram rep
     assert d.db.scalar("select type from revlog order by id desc limit 1") == 3
     # check ivls again
@@ -702,7 +702,7 @@ def test_cram_rem():
     c = d.sched.getCard()
     d.sched.answerCard(c, 2)
     # answering the card will put it in the learning queue
-    assert c.type == c.queue == 1
+    assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.due != oldDue
     # if we terminate cramming prematurely it should be set back to new
     d.sched.emptyDyn(did)
@@ -950,7 +950,7 @@ def test_timing():
 
     time.time = adjusted_time
     c = d.sched.getCard()
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     time.time = orig_time
 
 

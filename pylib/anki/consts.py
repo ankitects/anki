@@ -16,9 +16,11 @@ NEW_CARDS_DUE = 1
 
 # Queue types
 QUEUE_TYPE_NEW = 0
+QUEUE_TYPE_LRN = 1
 
 # Card types
 CARD_TYPE_NEW = 0
+CARD_TYPE_LRN = 1
 
 # removal types
 REM_CARD = 0

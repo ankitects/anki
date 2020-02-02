@@ -35,7 +35,7 @@ class CardStats:
         if first:
             self.addLine(_("First Review"), self.date(first / 1000))
             self.addLine(_("Latest Review"), self.date(last / 1000))
-        if c.type in (1, 2):
+        if c.type in (CARD_TYPE_LRN, 2):
             if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
@@ -676,7 +676,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         types = ("lrn", "yng", "mtr")
         eases = self._eases()
         for (type, ease, cnt) in eases:
-            if type == 1:
+            if type == CARD_TYPE_LRN:
                 ease += 5
             elif type == 2:
                 ease += 10
@@ -944,7 +944,7 @@ from cards where did in %s and queue = 2"""
             f"""
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue in ({QUEUE_TYPE_LRN},3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
 sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
 sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""

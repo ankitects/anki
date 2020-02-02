@@ -333,7 +333,7 @@ class DataModel(QAbstractTableModel):
     def nextDue(self, c, index):
         if c.odid:
             return _("(filtered)")
-        elif c.queue == 1:
+        elif c.queue == QUEUE_TYPE_LRN:
             date = c.due
         elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
             return str(c.due)
@@ -1430,7 +1430,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             fmt = "<span style='color:%s'>%s</span>"
             if type == CARD_TYPE_NEW:
                 tstr = fmt % (st.colLearn, tstr)
-            elif type == 1:
+            elif type == CARD_TYPE_LRN:
                 tstr = fmt % (st.colMature, tstr)
             elif type == 2:
                 tstr = fmt % (st.colRelearn, tstr)
