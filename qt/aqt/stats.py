@@ -7,6 +7,7 @@ import time
 import aqt
 from anki.lang import _
 from aqt.qt import *
+from aqt.theme import theme_manager
 from aqt.utils import (
     addCloseShortcut,
     getSaveFile,
@@ -32,6 +33,8 @@ class DeckStats(QDialog):
         self.wholeCollection = False
         self.setMinimumWidth(700)
         f = self.form
+        if theme_manager.night_mode and not theme_manager.macos_dark_mode():
+            self.setStyleSheet("QGroupBox { padding-top: 0; }")
         f.setupUi(self)
         restoreGeom(self, self.name)
         b = f.buttonBox.addButton(_("Save PDF"), QDialogButtonBox.ActionRole)

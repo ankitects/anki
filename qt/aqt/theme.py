@@ -118,10 +118,6 @@ QTreeWidget {
 QToolTip {
   border: 0;
 }
-
-QGroupBox {
-  padding-top: 0px;
-}              
             """
 
             if not self.macos_dark_mode():
