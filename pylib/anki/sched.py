@@ -71,10 +71,10 @@ class Scheduler:
         wasNewQ = card.queue == QUEUE_TYPE_NEW
         if wasNewQ:
             # came from the new queue, move to learning
-            card.queue = 1
+            card.queue = QUEUE_TYPE_LRN
             # if it was a new card, it's now a learning card
             if card.type == CARD_TYPE_NEW:
-                card.type = 1
+                card.type = CARD_TYPE_LRN
             # init reps to graduation
             card.left = self._startingLeft(card)
             # dynamic?
@@ -84,7 +84,7 @@ class Scheduler:
                     card.ivl = self._dynIvlBoost(card)
                     card.odue = self.today + card.ivl
             self._updateStats(card, "new")
-        if card.queue in (1, 3):
+        if card.queue in (QUEUE_TYPE_LRN, 3):
             self._answerLrnCard(card, ease)
             if not wasNewQ:
                 self._updateStats(card, "lrn")
@@ -142,7 +142,7 @@ order by due"""
             if card.odid and card.queue == 2:
                 return 4
             conf = self._lrnConf(card)
-            if card.type in (CARD_TYPE_NEW, 1) or len(conf["delays"]) > 1:
+            if card.type in (CARD_TYPE_NEW, CARD_TYPE_LRN) or len(conf["delays"]) > 1:
                 return 3
             return 2
         elif card.queue == 2:
@@ -466,9 +466,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_NEW} limit ?)"""
         # sub-day
         self.lrnCount = (
             self.col.db.scalar(
-                """
+                f"""
 select sum(left/1000) from (select left from cards where
-did in %s and queue = 1 and due < ? limit %d)"""
+did in %s and queue = {QUEUE_TYPE_LRN} and due < ? limit %d)"""
                 % (self._deckLimit(), self.reportLimit),
                 self.dayCutoff,
             )
@@ -496,9 +496,9 @@ and due <= ? limit %d"""
         if self._lrnQueue:
             return True
         self._lrnQueue = self.col.db.all(
-            """
+            f"""
 select due, id from cards where
-did in %s and queue = 1 and due < :lim
+did in %s and queue = {QUEUE_TYPE_LRN} and due < :lim
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
             lim=self.dayCutoff,
@@ -601,7 +601,7 @@ did = ? and queue = 3 and due <= ? limit ?""",
                 # if the queue is not empty and there's nothing else to do, make
                 # sure we don't put it at the head of the queue and end up showing
                 # it twice in a row
-                card.queue = 1
+                card.queue = QUEUE_TYPE_LRN
                 if self._lrnQueue and not self.revCount and not self.newCount:
                     smallestDue = self._lrnQueue[0][0]
                     card.due = max(card.due, smallestDue + 1)
@@ -736,25 +736,25 @@ did = ? and queue = 3 and due <= ? limit ?""",
             extra = " and did in " + ids2str(self.col.decks.allIds())
         # review cards in relearning
         self.col.db.execute(
-            """
+            f"""
 update cards set
 due = odue, queue = 2, mod = %d, usn = %d, odue = 0
-where queue in (1,3) and type = 2
+where queue in ({QUEUE_TYPE_LRN},3) and type = 2
 %s
 """
             % (intTime(), self.col.usn(), extra)
         )
         # new cards in learning
         self.forgetCards(
-            self.col.db.list("select id from cards where queue in (1,3) %s" % extra)
+            self.col.db.list(f"select id from cards where queue in ({QUEUE_TYPE_LRN},3) %s" % extra)
         )
 
     def _lrnForDeck(self, did):
         cnt = (
             self.col.db.scalar(
-                """
+                f"""
 select sum(left/1000) from
-(select left from cards where did = ? and queue = 1 and due < ? limit ?)""",
+(select left from cards where did = ? and queue = {QUEUE_TYPE_LRN} and due < ? limit ?)""",
                 did,
                 intTime() + self.col.conf["collapseTime"],
                 self.reportLimit,
@@ -907,7 +907,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         # queue 1
         if card.due < self.dayCutoff:
             self.lrnCount += card.left // 1000
-            card.queue = 1
+            card.queue = QUEUE_TYPE_LRN
             heappush(self._lrnQueue, (card.due, card.id))
         else:
             # day learn queue
@@ -1059,8 +1059,8 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         # move out of cram queue
         self.col.db.execute(
             f"""
-update cards set did = odid, queue = (case when type = 1 then {QUEUE_TYPE_NEW}
-else type end), type = (case when type = 1 then {CARD_TYPE_NEW} else type end),
+update cards set did = odid, queue = (case when type = {CARD_TYPE_LRN} then {QUEUE_TYPE_NEW}
+else type end), type = (case when type = {CARD_TYPE_LRN} then {CARD_TYPE_NEW} else type end),
 due = odue, odue = 0, odid = 0, usn = ? where %s"""
             % lim,
             self.col.usn(),
@@ -1347,7 +1347,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvl(self, card, ease):
         "Return the next interval for CARD, in seconds."
-        if card.queue in (QUEUE_TYPE_NEW, 1, 3):
+        if card.queue in (QUEUE_TYPE_NEW, QUEUE_TYPE_LRN, 3):
             return self._nextLrnIvl(card, ease)
         elif ease == BUTTON_ONE:
             # lapsed

@@ -59,7 +59,7 @@ def test_review():
     d.sched.answerCard(c, 3)
     assert c.left == 1001
     assert d.sched.counts() == (0, 1, 0)
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     # undo
     assert d.undoName()
     d.undo()

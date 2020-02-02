@@ -62,8 +62,8 @@ def test_new():
     # if we answer it, it should become a learn card
     t = intTime()
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
-    assert c.type == 1
+    assert c.queue == QUEUE_TYPE_LRN
+    assert c.type == CARD_TYPE_LRN
     assert c.due >= t
 
     # disabled for now, as the learn fudging makes this randomly fail
@@ -176,8 +176,8 @@ def test_learn():
     assert c.left % 1000 == 1
     assert c.left // 1000 == 1
     # the next pass should graduate the card
-    assert c.queue == 1
-    assert c.type == 1
+    assert c.queue == QUEUE_TYPE_LRN
+    assert c.type == CARD_TYPE_LRN
     d.sched.answerCard(c, 3)
     assert c.queue == 2
     assert c.type == 2
@@ -210,7 +210,7 @@ def test_relearn():
     d.reset()
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     assert c.type == 3
     assert c.ivl == 1
 
@@ -303,7 +303,7 @@ def test_learn_day():
     assert ni(c, 3) == 86400 * 2
     # if we fail it, it should be back in the correct queue
     d.sched.answerCard(c, 1)
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     d.undo()
     d.reset()
     c = d.sched.getCard()
@@ -679,12 +679,12 @@ def test_suspend():
     d.sched.answerCard(c, 1)
     assert c.due >= time.time()
     due = c.due
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     assert c.type == 3
     d.sched.suspendCards([c.id])
     d.sched.unsuspendCards([c.id])
     c.load()
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     assert c.type == 3
     assert c.due == due
     # should cope with cards in cram decks
@@ -771,11 +771,11 @@ def test_filt_keep_lrn_state():
 
     d.sched.answerCard(c, 1)
 
-    assert c.type == c.queue == 1
+    assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.left == 3003
 
     d.sched.answerCard(c, 3)
-    assert c.type == c.queue == 1
+    assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
 
     # create a dynamic deck and refresh it
     did = d.decks.newDyn("Cram")
@@ -784,7 +784,7 @@ def test_filt_keep_lrn_state():
 
     # card should still be in learning state
     c.load()
-    assert c.type == c.queue == 1
+    assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.left == 2002
 
     # should be able to advance learning steps
@@ -795,7 +795,7 @@ def test_filt_keep_lrn_state():
     # emptying the deck preserves learning state
     d.sched.emptyDyn(did)
     c.load()
-    assert c.type == c.queue == 1
+    assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.left == 1001
     assert c.due - intTime() > 60 * 60
 
@@ -977,7 +977,7 @@ def test_timing():
     c.flush()
     d.reset()
     c = d.sched.getCard()
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
 
 
 def test_collapse():

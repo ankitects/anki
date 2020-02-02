@@ -357,12 +357,12 @@ class Anki2Importer(Importer):
                 card[8] = card[14]
                 card[14] = 0
                 # queue
-                if card[6] == 1:  # type
+                if card[6] == CARD_TYPE_LRN:  # type
                     card[7] = QUEUE_TYPE_NEW
                 else:
                     card[7] = card[6]
                 # type
-                if card[6] == 1:
+                if card[6] == CARD_TYPE_LRN:
                     card[6] = CARD_TYPE_NEW
             cards.append(card)
             # we need to import revlog, rewriting card ids and bumping usn
