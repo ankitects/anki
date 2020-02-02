@@ -11,6 +11,9 @@ RUNFLAGS :=
 CHECKABLE := rslib pylib qt
 DEVEL := rspy pylib qt
 
+.PHONY: all
+all: run
+
 # - modern pip required for wheel
 # - add qt if missing
 pyenv:
