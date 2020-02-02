@@ -36,7 +36,7 @@ class CardStats:
             self.addLine(_("First Review"), self.date(first / 1000))
             self.addLine(_("Latest Review"), self.date(last / 1000))
         if c.type in (1, 2):
-            if c.odid or c.queue < 0:
+            if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
                 if c.queue in (2, 3):
@@ -57,7 +57,7 @@ class CardStats:
             if cnt:
                 self.addLine(_("Average Time"), self.time(total / float(cnt)))
                 self.addLine(_("Total Time"), self.time(total))
-        elif c.queue == 0:
+        elif c.queue == QUEUE_TYPE_NEW:
             self.addLine(_("Position"), c.due)
         self.addLine(_("Card Type"), c.template()["name"])
         self.addLine(_("Note Type"), c.model()["name"])
@@ -941,12 +941,12 @@ from cards where did in %s and queue = 2"""
 
     def _cards(self) -> Any:
         return self.col.db.first(
-            """
+            f"""
 select
 sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
 sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
-sum(case when queue=0 then 1 else 0 end), -- new
-sum(case when queue<0 then 1 else 0 end) -- susp
+sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
+sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""
             % self._limit()
         )

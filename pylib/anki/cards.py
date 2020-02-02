@@ -48,8 +48,8 @@ class Card:
             self.id = timestampID(col.db, "cards")
             self.did = 1
             self.crt = intTime()
-            self.type = 0
-            self.queue = 0
+            self.type = CARD_TYPE_NEW
+            self.queue = QUEUE_TYPE_NEW
             self.ivl = 0
             self.factor = 0
             self.reps = 0

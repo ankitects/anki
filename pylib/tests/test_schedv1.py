@@ -4,7 +4,7 @@ import copy
 import time
 
 from anki import hooks
-from anki.consts import STARTING_FACTOR
+from anki.consts import *
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -46,8 +46,8 @@ def test_new():
     # fetch it
     c = d.sched.getCard()
     assert c
-    assert c.queue == 0
-    assert c.type == 0
+    assert c.queue == QUEUE_TYPE_NEW
+    assert c.type == CARD_TYPE_NEW
     # if we answer it, it should become a learn card
     t = intTime()
     d.sched.answerCard(c, 1)
@@ -707,7 +707,7 @@ def test_cram_rem():
     # if we terminate cramming prematurely it should be set back to new
     d.sched.emptyDyn(did)
     c.load()
-    assert c.type == c.queue == 0
+    assert c.type == CARD_TYPE_NEW and c.queue == QUEUE_TYPE_NEW
     assert c.due == oldDue
 
 
@@ -731,7 +731,7 @@ def test_cram_resched():
     assert ni(c, 3) == 0
     assert d.sched.nextIvlStr(c, 3) == "(end)"
     d.sched.answerCard(c, 3)
-    assert c.queue == c.type == 0
+    assert c.type == CARD_TYPE_NEW and c.queue == QUEUE_TYPE_NEW
     # undue reviews should also be unaffected
     c.ivl = 100
     c.type = c.queue = 2
