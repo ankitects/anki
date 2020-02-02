@@ -35,8 +35,10 @@
     box-shadow: 0 0 3px vars.$fusion-button-outline;
     border: 1px solid vars.$fusion-button-border;
 
-    border-radius: 3px;
-    padding: 5px;
+    border-radius: 2px;
+    padding: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
   }
 
   button:hover {
