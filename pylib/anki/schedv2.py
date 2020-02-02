@@ -1138,6 +1138,16 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     # Dynamic deck handling
     ##########################################################################
 
+    _restoreQueueWhenEmptyingSnippet = f"""
+queue = (case when queue < 0 then queue
+              when type in (1,{CARD_TYPE_RELEARNING}) then
+  (case when (case when odue then odue else due end) > 1000000000 then 1 else
+  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
+else
+  type
+end)
+"""
+
     def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
@@ -1179,7 +1189,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             """
 update cards set did = odid, %s,
 due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (self._restoreQueueSnippet, lim),
+            % (self._restoreQueueWhenEmptyingSnippet, lim),
             self.col.usn(),
         )
 
