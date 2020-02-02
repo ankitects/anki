@@ -37,6 +37,7 @@ impl std::convert::From<AnkiError> for pt::BackendError {
             AnkiError::NetworkError { info } => V::NetworkError(pt::StringError { info }),
             AnkiError::AnkiWebAuthenticationFailed => V::AnkiwebAuthFailed(Empty {}),
             AnkiError::AnkiWebMiscError { info } => V::AnkiwebMiscError(pt::StringError { info }),
+            AnkiError::Interrupted => V::Interrupted(Empty {}),
         };
 
         pt::BackendError { value: Some(value) }

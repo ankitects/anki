@@ -28,6 +28,9 @@ pub enum AnkiError {
 
     #[fail(display = "AnkiWeb error: {}", info)]
     AnkiWebMiscError { info: String },
+
+    #[fail(display = "The user interrupted the operation.")]
+    Interrupted,
 }
 
 // error helpers

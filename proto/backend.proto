@@ -56,6 +56,8 @@ message BackendError {
         StringError network_error = 5;
         Empty ankiweb_auth_failed = 6;
         StringError ankiweb_misc_error = 7;
+        // user interrupted operation
+        Empty interrupted = 8;
     }
 }
 
