@@ -481,7 +481,7 @@ please see:
         elif mode == "angle":
             self.setGlMode("software")
 
-    # Helpers
+    # Shared options
     ######################################################################
 
     def uiScale(self) -> float:
@@ -501,3 +501,18 @@ please see:
 
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
+
+    # Profile-specific options
+    ######################################################################
+
+    def interrupt_audio(self) -> bool:
+        return self.profile.get("interrupt_audio", True)
+
+    def set_interrupt_audio(self, val: bool) -> None:
+        self.profile["interrupt_audio"] = val
+        aqt.sound.av_player.interrupt_current_audio = val
+
+    ######################################################################
+
+    def apply_profile_options(self) -> None:
+        aqt.sound.av_player.interrupt_current_audio = self.interrupt_audio()

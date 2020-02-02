@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>422</width>
-    <height>586</height>
+    <height>611</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,6 +91,13 @@
         <widget class="QCheckBox" name="showPlayButtons">
          <property name="text">
           <string>Show play buttons on cards with audio</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="interrupt_audio">
+         <property name="text">
+          <string>Interrupt current audio when answering</string>
          </property>
         </widget>
        </item>
@@ -522,6 +529,7 @@
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>showPlayButtons</tabstop>
+  <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>pasteInvert</tabstop>
   <tabstop>nightMode</tabstop>
