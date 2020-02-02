@@ -804,6 +804,11 @@ class Browser(QMainWindow):
                 "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
                 "selection-color: black; }"
             )
+        elif theme_manager.macos_dark_mode():
+            grid = theme_manager.str_color("frame-bg")
+            self.form.tableView.setStyleSheet(f"""
+QTableView {{ gridline-color: {grid} }}           
+            """)
         self.singleCard = False
 
     def setupEditor(self):
