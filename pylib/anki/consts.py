@@ -14,7 +14,11 @@ NEW_CARDS_FIRST = 2
 NEW_CARDS_RANDOM = 0
 NEW_CARDS_DUE = 1
 
-# Card and queue types
+# Queue types
+QUEUE_TYPE_NEW = 0
+
+# Card types
+CARD_TYPE_NEW = 0
 
 # removal types
 REM_CARD = 0

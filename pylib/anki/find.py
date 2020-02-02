@@ -240,7 +240,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
             elif type == "cardDue":
                 sort = "c.type, c.due"
             elif type == "cardEase":
-                sort = "c.type == 0, c.factor"
+                sort = f"c.type == {CARD_TYPE_NEW}, c.factor"
             elif type == "cardLapses":
                 sort = "c.lapses"
             elif type == "cardIvl":
@@ -271,7 +271,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
             if val == "review":
                 n = 2
             elif val == "new":
-                n = 0
+                n = CARD_TYPE_NEW
             else:
                 return "queue in (1, 3)"
             return "type = %d" % n
