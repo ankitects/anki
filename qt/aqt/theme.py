@@ -144,7 +144,12 @@ QScrollBar::sub-line {
       border: none;
       background: none;
 }
-""" % (self.str_color("window-bg"), colors.get("fusion-button-hover-bg"))
+
+QTabWidget { background-color: %s; }
+""" % (self.str_color("window-bg"),
+       colors.get("fusion-button-hover-bg"),
+       self.str_color("window-bg")
+       )
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
@@ -174,7 +179,8 @@ QScrollBar::sub-line {
         window_bg = self.qcolor("window-bg")
         palette.setColor(QPalette.Window, window_bg)
         palette.setColor(QPalette.AlternateBase, window_bg)
-        palette.setColor(QPalette.Button, window_bg)
+
+        palette.setColor(QPalette.Button, QColor(colors.get("fusion-button-base-bg")))
 
         frame_bg = self.qcolor("frame-bg")
         palette.setColor(QPalette.Base, frame_bg)
