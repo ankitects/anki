@@ -96,7 +96,7 @@ class RustBackend:
             media_folder_path=media_folder_path,
             media_db_path=media_db_path,
         )
-        self._backend = ankirspy.Backend(init_msg.SerializeToString())
+        self._backend = ankirspy.open_backend(init_msg.SerializeToString())
 
     def _run_command(self, input: pb.BackendInput) -> pb.BackendOutput:
         input_bytes = input.SerializeToString()

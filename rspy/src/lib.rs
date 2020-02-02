@@ -13,19 +13,16 @@ fn buildhash() -> &'static str {
     include_str!("../../meta/buildhash").trim()
 }
 
+#[pyfunction]
+fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
+    match init_backend(init_msg.as_bytes()) {
+        Ok(backend) => Ok(Backend { backend }),
+        Err(e) => Err(exceptions::Exception::py_err(e)),
+    }
+}
+
 #[pymethods]
 impl Backend {
-    #[new]
-    fn init(obj: &PyRawObject, init_msg: &PyBytes) -> PyResult<()> {
-        match init_backend(init_msg.as_bytes()) {
-            Ok(backend) => {
-                obj.init({ Backend { backend } });
-                Ok(())
-            }
-            Err(e) => Err(exceptions::Exception::py_err(e)),
-        }
-    }
-
     fn command(&mut self, py: Python, input: &PyBytes) -> PyObject {
         let out_bytes = self.backend.run_command_bytes(input.as_bytes());
         let out_obj = PyBytes::new(py, &out_bytes);
@@ -37,6 +34,7 @@ impl Backend {
 fn ankirspy(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Backend>()?;
     m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
+    m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();
 
     Ok(())
 }
