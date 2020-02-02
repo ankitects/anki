@@ -226,6 +226,7 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
         self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
         self.form.nightMode.setChecked(self.mw.pm.night_mode())
+        self.form.interrupt_audio.setChecked(self.mw.pm.interrupt_audio())
 
     def updateOptions(self):
         restart_required = False
@@ -241,6 +242,8 @@ Not currently enabled; click the sync button in the main window to enable."""
         if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
             self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
             restart_required = True
+
+        self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())
 
         if restart_required:
             showInfo(_("Changes will take effect when you restart Anki."))

@@ -332,6 +332,8 @@ close the profile or restart Anki."""
         if not self.loadCollection():
             return
 
+        self.pm.apply_profile_options()
+
         # show main window
         if self.pm.profile["mainWindowState"]:
             restoreGeom(self, "mainWindow")
