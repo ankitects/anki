@@ -124,6 +124,28 @@ QGroupBox {
 }              
             """
 
+            if not self.macos_dark_mode():
+                buf += """
+QScrollBar { background-color: %s; }
+QScrollBar::handle { background-color: %s; border-radius: 5px; } 
+
+QScrollBar:horizontal { height: 12px; }
+QScrollBar::handle:horizontal { min-width: 50px; } 
+
+QScrollBar:vertical { width: 12px; }
+QScrollBar::handle:vertical { min-height: 50px; } 
+    
+QScrollBar::add-line {
+      border: none;
+      background: none;
+}
+
+QScrollBar::sub-line {
+      border: none;
+      background: none;
+}
+""" % (self.str_color("window-bg"), colors.get("fusion-button-hover-bg"))
+
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
 

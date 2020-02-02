@@ -31,16 +31,24 @@ body.nightMode::-webkit-scrollbar {
 }
 
 body.nightMode::-webkit-scrollbar:horizontal {
-    height: 10px;
+    height: 12px;
 }
 
 body.nightMode::-webkit-scrollbar:vertical {
-    width: 10px;
+    width: 12px;
 }
 
 body.nightMode::-webkit-scrollbar-thumb {
     background: vars.$fusion-button-hover-bg;
     border-radius: 8px;
+}
+
+body.nightMode::-webkit-scrollbar-thumb:horizontal {
+    min-width: 50px;
+}
+
+body.nightMode::-webkit-scrollbar-thumb:vertical {
+    min-height: 50px;
 }
 
 .nightMode {
