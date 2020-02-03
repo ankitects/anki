@@ -14,6 +14,7 @@ from anki.utils import fmtTimeSpan, ids2str
 ##########################################################################
 
 PERIOD_MONTH = 0
+PERIOD_YEAR = 1
 
 
 class CardStats:
@@ -112,7 +113,7 @@ class CollectionStats:
 
     # assumes jquery & plot are available in document
     def report(self, type=PERIOD_MONTH) -> str:
-        # 0=month, 1=weeks, 2=months
+        # 0=month, 1=year, 2=months
         self.type = type
         from .statsbg import bg
 
@@ -220,7 +221,7 @@ from revlog where id > ? """
         start = 0
         if self.type == PERIOD_MONTH:
             end, chunk = 31, 1
-        elif self.type == 1:
+        elif self.type == PERIOD_YEAR:
             end, chunk = 52, 7
         else:  #  self.type == 2:
             end = None
@@ -607,7 +608,7 @@ group by day order by day)"""
             totd.append((grp, tot / float(all) * 100))
         if self.type == PERIOD_MONTH:
             ivlmax = 31
-        elif self.type == 1:
+        elif self.type == PERIOD_YEAR:
             ivlmax = 52
         else:
             ivlmax = max(5, ivls[-1][0])
@@ -713,7 +714,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         return txt
 
     def _easeInfo(self, eases) -> str:
-        types = {PERIOD_MONTH: [0, 0], 1: [0, 0], 2: [0, 0]}
+        types = {PERIOD_MONTH: [0, 0], PERIOD_YEAR: [0, 0], 2: [0, 0]}
         for (type, ease, cnt) in eases:
             if ease == 1:
                 types[type][0] += cnt
