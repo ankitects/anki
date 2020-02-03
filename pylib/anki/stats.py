@@ -13,6 +13,8 @@ from anki.utils import fmtTimeSpan, ids2str
 # Card stats
 ##########################################################################
 
+PERIOD_MONTH = 0
+
 
 class CardStats:
     def __init__(self, col, card) -> None:
@@ -103,14 +105,14 @@ class CollectionStats:
     def __init__(self, col) -> None:
         self.col = col
         self._stats = None
-        self.type = 0
+        self.type = PERIOD_MONTH
         self.width = 600
         self.height = 200
         self.wholeCollection = False
 
     # assumes jquery & plot are available in document
-    def report(self, type=0) -> str:
-        # 0=days, 1=weeks, 2=months
+    def report(self, type=PERIOD_MONTH) -> str:
+        # 0=month, 1=weeks, 2=months
         self.type = type
         from .statsbg import bg
 
@@ -216,7 +218,7 @@ from revlog where id > ? """
 
     def get_start_end_chunk(self, by="review") -> Tuple[int, Optional[int], int]:
         start = 0
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             end, chunk = 31, 1
         elif self.type == 1:
             end, chunk = 52, 7
@@ -397,7 +399,7 @@ group by day order by day"""
                 (10, colCram, _("Cram")),
             ),
         )
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             t = _("Minutes")
             convHours = False
         else:
@@ -510,7 +512,7 @@ group by day order by day"""
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             tf = 60.0  # minutes
         else:
             tf = 3600.0  # hours
@@ -540,7 +542,7 @@ group by day order by day"""
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             tf = 60.0  # minutes
         else:
             tf = 3600.0  # hours
@@ -603,7 +605,7 @@ group by day order by day)"""
         for (grp, cnt) in ivls:
             tot += cnt
             totd.append((grp, tot / float(all) * 100))
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             ivlmax = 31
         elif self.type == 1:
             ivlmax = 52
@@ -711,7 +713,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         return txt
 
     def _easeInfo(self, eases) -> str:
-        types = {0: [0, 0], 1: [0, 0], 2: [0, 0]}
+        types = {PERIOD_MONTH: [0, 0], 1: [0, 0], 2: [0, 0]}
         for (type, ease, cnt) in eases:
             if ease == 1:
                 types[type][0] += cnt
