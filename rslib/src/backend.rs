@@ -3,9 +3,10 @@
 
 use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
-use crate::backend_proto::{Empty, RenderedTemplateReplacement};
+use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
+use crate::media::sync::{sync_media, Progress as MediaSyncProgress};
 use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
@@ -16,11 +17,19 @@ use crate::text::{extract_av_tags, strip_av_tags, AVTag};
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
+use tokio::runtime::Runtime;
+
+pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 
 pub struct Backend {
     #[allow(dead_code)]
     col_path: PathBuf,
     media_manager: Option<MediaManager>,
+    progress_callback: Option<ProtoProgressCallback>,
+}
+
+enum Progress {
+    MediaSync(MediaSyncProgress),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -77,6 +86,7 @@ impl Backend {
         Ok(Backend {
             col_path: col_path.into(),
             media_manager,
+            progress_callback: None,
         })
     }
 
@@ -142,7 +152,24 @@ impl Backend {
             Value::AddFileToMediaFolder(input) => {
                 OValue::AddFileToMediaFolder(self.add_file_to_media_folder(input)?)
             }
+            Value::SyncMedia(input) => {
+                self.sync_media(input)?;
+                OValue::SyncMedia(Empty {})
+            }
         })
+    }
+
+    fn fire_progress_callback(&self, progress: Progress) -> bool {
+        if let Some(cb) = &self.progress_callback {
+            let bytes = progress_to_proto_bytes(progress);
+            cb(bytes)
+        } else {
+            true
+        }
+    }
+
+    pub fn set_progress_callback(&mut self, progress_cb: Option<ProtoProgressCallback>) {
+        self.progress_callback = progress_cb;
     }
 
     fn template_requirements(
@@ -263,6 +290,17 @@ impl Backend {
             .add_file(&input.desired_name, &input.data)?
             .into())
     }
+
+    fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
+        let mut mgr = MediaManager::new(&input.media_folder, &input.media_db)?;
+
+        let callback = |progress: MediaSyncProgress| {
+            self.fire_progress_callback(Progress::MediaSync(progress))
+        };
+
+        let mut rt = Runtime::new().unwrap();
+        rt.block_on(sync_media(&mut mgr, &input.hkey, callback))
+    }
 }
 
 fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
@@ -291,4 +329,29 @@ fn rendered_node_to_proto(node: RenderedNode) -> pt::rendered_template_node::Val
             filters,
         }),
     }
+}
+
+fn progress_to_proto_bytes(progress: Progress) -> Vec<u8> {
+    let proto = pt::Progress {
+        value: Some(match progress {
+            Progress::MediaSync(progress) => {
+                use pt::media_sync_progress::Value as V;
+                use MediaSyncProgress as P;
+                let val = match progress {
+                    P::DownloadedChanges(n) => V::DownloadedChanges(n as u32),
+                    P::DownloadedFiles(n) => V::DownloadedFiles(n as u32),
+                    P::Uploaded { files, deletions } => V::Uploaded(pt::MediaSyncUploadProgress {
+                        files: files as u32,
+                        deletions: deletions as u32,
+                    }),
+                    P::RemovedFiles(n) => V::RemovedFiles(n as u32),
+                };
+                pt::progress::Value::MediaSync(pt::MediaSyncProgress { value: Some(val) })
+            }
+        }),
+    };
+
+    let mut buf = vec![];
+    proto.encode(&mut buf).expect("encode failed");
+    buf
 }

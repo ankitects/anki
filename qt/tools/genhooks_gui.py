@@ -266,6 +266,9 @@ hooks = [
         return_type="str",
         legacy_hook="setupStyle",
     ),
+    Hook(
+        name="media_sync_did_progress", args=["entry: aqt.mediasync.LogEntryWithTime"],
+    ),
     # Adding cards
     ###################
     Hook(

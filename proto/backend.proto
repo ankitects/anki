@@ -26,6 +26,7 @@ message BackendInput {
         ExtractAVTagsIn extract_av_tags = 24;
         string expand_clozes_to_reveal_latex = 25;
         AddFileToMediaFolderIn add_file_to_media_folder = 26;
+        SyncMediaIn sync_media = 27;
     }
 }
 
@@ -42,6 +43,7 @@ message BackendOutput {
         ExtractAVTagsOut extract_av_tags = 24;
         string expand_clozes_to_reveal_latex = 25;
         string add_file_to_media_folder = 26;
+        Empty sync_media = 27;
 
         BackendError error = 2047;
     }
@@ -50,7 +52,7 @@ message BackendOutput {
 message BackendError {
     oneof value {
         StringError invalid_input = 1;
-        StringError template_parse = 2;
+        TemplateParseError template_parse = 2;
         StringError io_error = 3;
         StringError db_error = 4;
         StringError network_error = 5;
@@ -61,9 +63,33 @@ message BackendError {
     }
 }
 
+message Progress {
+    oneof value {
+        MediaSyncProgress media_sync = 1;
+    }
+}
+
 message StringError {
     string info = 1;
+}
+
+message TemplateParseError {
+    string info = 1;
     bool q_side = 2;
+}
+
+message MediaSyncProgress {
+    oneof value {
+        uint32 downloaded_changes = 1;
+        uint32 downloaded_files = 2;
+        MediaSyncUploadProgress uploaded = 3;
+        uint32 removed_files = 4;
+    }
+}
+
+message MediaSyncUploadProgress {
+    uint32 files = 1;
+    uint32 deletions = 2;
 }
 
 message TemplateRequirementsIn {
@@ -189,4 +215,11 @@ message TTSTag {
 message AddFileToMediaFolderIn {
     string desired_name = 1;
     bytes data = 2;
+}
+
+message SyncMediaIn {
+    string hkey = 1;
+    string media_folder = 2;
+    string media_db = 3;
+    string endpoint = 4;
 }

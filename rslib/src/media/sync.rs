@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result};
-use crate::media::database::{MediaDatabaseContext, MediaEntry};
+use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
 use crate::media::files::{
     add_file_from_ankiweb, data_for_file, normalize_filename, remove_files, AddedFile,
 };
@@ -95,8 +95,8 @@ where
         }
     }
 
-    async fn fetch_changes(&mut self, client_usn: i32) -> Result<()> {
-        let mut last_usn = client_usn;
+    async fn fetch_changes(&mut self, mut meta: MediaDatabaseMetadata) -> Result<()> {
+        let mut last_usn = meta.last_sync_usn;
         loop {
             debug!("fetching record batch starting from usn {}", last_usn);
 
@@ -140,6 +140,11 @@ where
                 record_removals(ctx, &to_delete)?;
                 record_additions(ctx, downloaded)?;
                 record_clean(ctx, &to_remove_pending)?;
+
+                // update usn
+                meta.last_sync_usn = last_usn;
+                ctx.set_meta(&meta)?;
+
                 Ok(())
             })?;
         }
@@ -214,7 +219,8 @@ where
     // make sure media DB is up to date
     register_changes(&mut sctx.ctx, mgr.media_folder.as_path())?;
 
-    let client_usn = sctx.ctx.get_meta()?.last_sync_usn;
+    let meta = sctx.ctx.get_meta()?;
+    let client_usn = meta.last_sync_usn;
 
     debug!("beginning media sync");
     let (sync_key, server_usn) = sctx.sync_begin(hkey).await?;
@@ -226,7 +232,7 @@ where
     // need to fetch changes from server?
     if client_usn != server_usn {
         debug!("differs from local usn {}, fetching changes", client_usn);
-        sctx.fetch_changes(client_usn).await?;
+        sctx.fetch_changes(meta).await?;
         actions_performed = true;
     }
 

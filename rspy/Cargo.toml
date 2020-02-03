@@ -6,6 +6,9 @@ authors = ["Ankitects Pty Ltd and contributors"]
 
 [dependencies]
 anki = { path = "../rslib" }
+log = "0.4.8"
+env_logger = "0.7.1"
+tokio = "0.2.11"
 
 [dependencies.pyo3]
 version = "0.8.0"
