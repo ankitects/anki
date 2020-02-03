@@ -15,6 +15,7 @@ from anki.utils import fmtTimeSpan, ids2str
 
 PERIOD_MONTH = 0
 PERIOD_YEAR = 1
+PERIOD_LIFE = 2
 
 
 class CardStats:
@@ -113,7 +114,7 @@ class CollectionStats:
 
     # assumes jquery & plot are available in document
     def report(self, type=PERIOD_MONTH) -> str:
-        # 0=month, 1=year, 2=months
+        # 0=month, 1=year, 2=deck life
         self.type = type
         from .statsbg import bg
 
@@ -714,7 +715,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         return txt
 
     def _easeInfo(self, eases) -> str:
-        types = {PERIOD_MONTH: [0, 0], PERIOD_YEAR: [0, 0], 2: [0, 0]}
+        types = {PERIOD_MONTH: [0, 0], PERIOD_YEAR: [0, 0], PERIOD_LIFE: [0, 0]}
         for (type, ease, cnt) in eases:
             if ease == 1:
                 types[type][0] += cnt
