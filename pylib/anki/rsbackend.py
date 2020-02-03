@@ -1,32 +1,78 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
-
+import enum
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union
+from typing import Callable, Dict, List, NewType, NoReturn, Optional, Tuple, Union
 
 import ankirspy  # pytype: disable=import-error
 
 import anki.backend_pb2 as pb
 import anki.buildinfo
+from anki import hooks
 from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
+from anki.types import assert_impossible_literal
 
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
 
 
-class BackendException(Exception):
+class Interrupted(Exception):
+    pass
+
+
+class StringError(Exception):
     def __str__(self) -> str:
-        err: pb.BackendError = self.args[0]  # pylint: disable=unsubscriptable-object
-        kind = err.WhichOneof("value")
-        if kind == "invalid_input":
-            return f"invalid input: {err.invalid_input.info}"
-        elif kind == "template_parse":
-            return err.template_parse.info
-        else:
-            return f"unhandled error: {err}"
+        return self.args[0]  # pylint: disable=unsubscriptable-object
+
+
+class NetworkError(StringError):
+    pass
+
+
+class IOError(StringError):
+    pass
+
+
+class DBError(StringError):
+    pass
+
+
+class TemplateError(StringError):
+    def q_side(self) -> bool:
+        return self.args[1]
+
+
+class AnkiWebError(StringError):
+    pass
+
+
+class AnkiWebAuthFailed(Exception):
+    pass
+
+
+def proto_exception_to_native(err: pb.BackendError) -> Exception:
+    val = err.WhichOneof("value")
+    if val == "interrupted":
+        return Interrupted()
+    elif val == "network_error":
+        return NetworkError(err.network_error.info)
+    elif val == "io_error":
+        return IOError(err.io_error.info)
+    elif val == "db_error":
+        return DBError(err.db_error.info)
+    elif val == "template_parse":
+        return TemplateError(err.template_parse.info, err.template_parse.q_side)
+    elif val == "invalid_input":
+        return StringError(err.invalid_input.info)
+    elif val == "ankiweb_auth_failed":
+        return AnkiWebAuthFailed()
+    elif val == "ankiweb_misc_error":
+        return AnkiWebError(err.ankiweb_misc_error.info)
+    else:
+        assert_impossible_literal(val)
 
 
 def proto_template_reqs_to_legacy(
@@ -71,6 +117,45 @@ class TemplateReplacement:
 TemplateReplacementList = List[Union[str, TemplateReplacement]]
 
 
+@dataclass
+class MediaSyncDownloadedChanges:
+    changes: int
+
+
+@dataclass
+class MediaSyncDownloadedFiles:
+    files: int
+
+
+@dataclass
+class MediaSyncUploaded:
+    files: int
+    deletions: int
+
+
+@dataclass
+class MediaSyncRemovedFiles:
+    files: int
+
+
+MediaSyncProgress = Union[
+    MediaSyncDownloadedChanges,
+    MediaSyncDownloadedFiles,
+    MediaSyncUploaded,
+    MediaSyncRemovedFiles,
+]
+
+
+class ProgressKind(enum.Enum):
+    MediaSyncProgress = 0
+
+
+@dataclass
+class Progress:
+    kind: ProgressKind
+    val: Union[MediaSyncProgress]
+
+
 def proto_replacement_list_to_native(
     nodes: List[pb.RenderedTemplateNode],
 ) -> TemplateReplacementList:
@@ -89,6 +174,36 @@ def proto_replacement_list_to_native(
     return results
 
 
+def proto_progress_to_native(progress: pb.Progress) -> Progress:
+    kind = progress.WhichOneof("value")
+    if kind == "media_sync":
+        ikind = progress.media_sync.WhichOneof("value")
+        pkind = ProgressKind.MediaSyncProgress
+        if ikind == "downloaded_changes":
+            return Progress(
+                kind=pkind,
+                val=MediaSyncDownloadedChanges(progress.media_sync.downloaded_changes),
+            )
+        elif ikind == "downloaded_files":
+            return Progress(
+                kind=pkind,
+                val=MediaSyncDownloadedFiles(progress.media_sync.downloaded_files),
+            )
+        elif ikind == "uploaded":
+            up = progress.media_sync.uploaded
+            return Progress(
+                kind=pkind,
+                val=MediaSyncUploaded(files=up.files, deletions=up.deletions),
+            )
+        elif ikind == "removed_files":
+            return Progress(
+                kind=pkind, val=MediaSyncRemovedFiles(progress.media_sync.removed_files)
+            )
+        else:
+            assert_impossible_literal(ikind)
+    assert_impossible_literal(kind)
+
+
 class RustBackend:
     def __init__(self, col_path: str, media_folder_path: str, media_db_path: str):
         init_msg = pb.BackendInit(
@@ -97,15 +212,24 @@ class RustBackend:
             media_db_path=media_db_path,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
+        self._backend.set_progress_callback(self._on_progress)
 
-    def _run_command(self, input: pb.BackendInput) -> pb.BackendOutput:
+    def _on_progress(self, progress_bytes: bytes) -> bool:
+        progress = pb.Progress()
+        progress.ParseFromString(progress_bytes)
+        native_progress = proto_progress_to_native(progress)
+        return hooks.rust_progress_callback(True, native_progress)
+
+    def _run_command(
+        self, input: pb.BackendInput, release_gil: bool = False
+    ) -> pb.BackendOutput:
         input_bytes = input.SerializeToString()
-        output_bytes = self._backend.command(input_bytes)
+        output_bytes = self._backend.command(input_bytes, release_gil)
         output = pb.BackendOutput()
         output.ParseFromString(output_bytes)
         kind = output.WhichOneof("value")
         if kind == "error":
-            raise BackendException(output.error)
+            raise proto_exception_to_native(output.error)
         else:
             return output
 
@@ -195,3 +319,18 @@ class RustBackend:
                 )
             )
         ).add_file_to_media_folder
+
+    def sync_media(
+        self, hkey: str, media_folder: str, media_db: str, endpoint: str
+    ) -> None:
+        self._run_command(
+            pb.BackendInput(
+                sync_media=pb.SyncMediaIn(
+                    hkey=hkey,
+                    media_folder=media_folder,
+                    media_db=media_db,
+                    endpoint=endpoint,
+                )
+            ),
+            release_gil=True,
+        )

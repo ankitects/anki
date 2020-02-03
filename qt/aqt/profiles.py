@@ -11,7 +11,7 @@ import locale
 import pickle
 import random
 import shutil
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from send2trash import send2trash
 
@@ -502,7 +502,7 @@ please see:
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
 
-    # Profile-specific options
+    # Profile-specific
     ######################################################################
 
     def interrupt_audio(self) -> bool:
@@ -511,6 +511,9 @@ please see:
     def set_interrupt_audio(self, val: bool) -> None:
         self.profile["interrupt_audio"] = val
         aqt.sound.av_player.interrupt_current_audio = val
+
+    def sync_key(self) -> Optional[str]:
+        return self.profile.get("syncKey")
 
     ######################################################################
 

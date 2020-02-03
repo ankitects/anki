@@ -80,9 +80,11 @@ impl From<rusqlite::types::FromSqlError> for AnkiError {
 
 impl From<reqwest::Error> for AnkiError {
     fn from(err: reqwest::Error) -> Self {
-        AnkiError::NetworkError {
-            info: format!("{:?}", err),
-        }
+        let url = err.url().map(|url| url.as_str()).unwrap_or("");
+        let str_err = format!("{}", err);
+        // strip url from error to avoid exposing keys
+        let str_err = str_err.replace(url, "");
+        AnkiError::NetworkError { info: str_err }
     }
 }
 

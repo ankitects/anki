@@ -51,6 +51,12 @@ hooks = [
     Hook(name="sync_stage_did_change", args=["stage: str"], legacy_hook="sync"),
     Hook(name="sync_progress_did_change", args=["msg: str"], legacy_hook="syncMsg"),
     Hook(
+        name="rust_progress_callback",
+        args=["proceed: bool", "progress: anki.rsbackend.Progress"],
+        return_type="bool",
+        doc="Warning: this is called on a background thread.",
+    ),
+    Hook(
         name="tag_added", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True,
     ),
     Hook(

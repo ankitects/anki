@@ -697,6 +697,30 @@ class _EditorWillUseFontForFieldFilter:
 editor_will_use_font_for_field = _EditorWillUseFontForFieldFilter()
 
 
+class _MediaSyncDidProgressHook:
+    _hooks: List[Callable[["aqt.mediasync.LogEntryWithTime"], None]] = []
+
+    def append(self, cb: Callable[["aqt.mediasync.LogEntryWithTime"], None]) -> None:
+        """(entry: aqt.mediasync.LogEntryWithTime)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.mediasync.LogEntryWithTime"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, entry: aqt.mediasync.LogEntryWithTime) -> None:
+        for hook in self._hooks:
+            try:
+                hook(entry)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+media_sync_did_progress = _MediaSyncDidProgressHook()
+
+
 class _OverviewDidRefreshHook:
     """Allow to update the overview window. E.g. add the deck name in the
         title."""
