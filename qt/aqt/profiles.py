@@ -521,6 +521,9 @@ please see:
     def media_syncing_enabled(self) -> bool:
         return self.profile["syncMedia"]
 
+    def sync_shard(self) -> Optional[int]:
+        return self.profile.get("hostNum")
+
     ######################################################################
 
     def apply_profile_options(self) -> None:

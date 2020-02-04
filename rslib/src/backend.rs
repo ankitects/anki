@@ -299,7 +299,7 @@ impl Backend {
         };
 
         let mut rt = Runtime::new().unwrap();
-        rt.block_on(sync_media(&mut mgr, &input.hkey, callback))
+        rt.block_on(sync_media(&mut mgr, &input.hkey, callback, &input.endpoint))
     }
 }
 
