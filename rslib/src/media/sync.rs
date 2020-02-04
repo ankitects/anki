@@ -7,6 +7,7 @@ use crate::media::files::{
     add_file_from_ankiweb, data_for_file, normalize_filename, remove_files, AddedFile,
 };
 use crate::media::{register_changes, MediaManager};
+use crate::version;
 use bytes::Bytes;
 use log::debug;
 use reqwest;
@@ -18,8 +19,6 @@ use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::path::Path;
 use std::{io, time};
-
-// fixme: version string
 
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
@@ -71,12 +70,12 @@ where
     }
 
     async fn sync_begin(&self, hkey: &str) -> Result<(String, i32)> {
-        let url = format!("{}/begin", self.endpoint);
+        let url = format!("{}begin", self.endpoint);
 
         let resp = self
             .client
             .get(&url)
-            .query(&[("k", hkey), ("v", "ankidesktop,2.1.19,mac")])
+            .query(&[("k", hkey), ("v", &version_string())])
             .send()
             .await?
             .error_for_status()?;
@@ -600,6 +599,10 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
     let w = zip.finish()?;
 
     Ok(w.into_inner())
+}
+
+fn version_string() -> String {
+    format!("anki,{},{}", version(), std::env::consts::OS)
 }
 
 #[derive(Serialize)]
