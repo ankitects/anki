@@ -21,6 +21,7 @@ from anki.rsbackend import (
     MediaSyncProgress,
     MediaSyncRemovedFiles,
     MediaSyncUploaded,
+    NetworkError,
     Progress,
     ProgressKind,
 )
@@ -28,7 +29,7 @@ from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton
-from aqt.utils import showInfo
+from aqt.utils import showWarning
 
 
 @dataclass
@@ -40,7 +41,6 @@ class MediaSyncState:
     removed_files: int = 0
 
 
-# fixme: handle network errors
 # fixme: abort when closing collection/app
 # fixme: shards
 # fixme: concurrent modifications during upload step
@@ -151,9 +151,16 @@ class MediaSyncer:
         if isinstance(exc, AnkiWebAuthFailed):
             self.mw.pm.set_sync_key(None)
             self._log_and_notify(_("Authentication failed."))
-            showInfo(_("AnkiWeb ID or password was incorrect; please try again."))
+            showWarning(_("AnkiWeb ID or password was incorrect; please try again."))
         elif isinstance(exc, Interrupted):
             self._log_and_notify(_("Media sync aborted."))
+        elif isinstance(exc, NetworkError):
+            self._log_and_notify(_("Network error."))
+            showWarning(
+                _("Syncing failed; please check your internet connection.")
+                + "\n\n"
+                + _("Detailed error: {}").format(str(exc))
+            )
         else:
             raise exc
 
