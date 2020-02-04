@@ -7,7 +7,7 @@ import time
 from concurrent.futures import Future
 from copy import copy
 from dataclasses import dataclass
-from typing import List, Optional, Union, Callable
+from typing import Callable, List, Optional, Union
 
 import anki
 import aqt
@@ -27,7 +27,7 @@ from anki.rsbackend import (
 from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
-from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QWidget
+from aqt.qt import QDialog, QDialogButtonBox, QPushButton
 from aqt.taskman import TaskManager
 
 

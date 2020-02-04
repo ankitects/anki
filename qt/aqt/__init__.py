@@ -76,7 +76,7 @@ class DialogManager:
         "DeckStats": [stats.DeckStats, None],
         "About": [about.show, None],
         "Preferences": [preferences.Preferences, None],
-        "sync_log": [mediasync.MediaSyncDialog, None]
+        "sync_log": [mediasync.MediaSyncDialog, None],
     }
 
     def open(self, name, *args):

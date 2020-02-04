@@ -36,7 +36,7 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.legacy import install_pylib_legacy
-from aqt.mediasync import MediaSyncDialog, MediaSyncer
+from aqt.mediasync import MediaSyncer
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
@@ -870,14 +870,14 @@ title="%s" %s>%s</button>""" % (
     # fixme: shard
     # fixme: dialog
     # fixme: autosync
-#         elif evt == "mediaSanity":
-#         showWarning(
-#             _(
-#                 """\
-# A problem occurred while syncing media. Please use Tools>Check Media, then \
-# sync again to correct the issue."""
-#             )
-#         )
+    #         elif evt == "mediaSanity":
+    #         showWarning(
+    #             _(
+    #                 """\
+    # A problem occurred while syncing media. Please use Tools>Check Media, then \
+    # sync again to correct the issue."""
+    #             )
+    #         )
 
     def _sync_media(self):
         self.media_syncer.start(self.col, self.pm.sync_key(), None)
