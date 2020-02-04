@@ -84,7 +84,7 @@ class AnkiQt(QMainWindow):
         self.opts = opts
         self.col: Optional[_Collection] = None
         self.taskman = TaskManager()
-        self.media_syncer = MediaSyncer(self.taskman, self._on_media_sync_start_stop)
+        self.media_syncer = MediaSyncer(self)
         aqt.mw = self
         self.app = app
         self.pm = profileManager
@@ -833,7 +833,7 @@ title="%s" %s>%s</button>""" % (
     # collection after sync completes
     def onSync(self):
         if self.media_syncer.is_syncing():
-            self._show_sync_log()
+            self.media_syncer.show_sync_log()
         else:
             self.unloadCollection(self._onSync)
 
@@ -841,7 +841,7 @@ title="%s" %s>%s</button>""" % (
         self._sync()
         if not self.loadCollection():
             return
-        self._sync_media()
+        self.media_syncer.start()
 
     # expects a current profile, but no collection loaded
     def maybeAutoSync(self) -> None:
@@ -862,31 +862,6 @@ title="%s" %s>%s</button>""" % (
         self.state = "sync"
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync()
-
-    # fixme: self.pm.profile["syncMedia"]
-    # fixme: mediaSanity
-    # fixme: corruptMediaDB
-    # fixme: hkey
-    # fixme: shard
-    # fixme: dialog
-    # fixme: autosync
-    #         elif evt == "mediaSanity":
-    #         showWarning(
-    #             _(
-    #                 """\
-    # A problem occurred while syncing media. Please use Tools>Check Media, then \
-    # sync again to correct the issue."""
-    #             )
-    #         )
-
-    def _sync_media(self):
-        self.media_syncer.start(self.col, self.pm.sync_key(), None)
-
-    def _on_media_sync_start_stop(self):
-        self.toolbar.set_sync_active(self.media_syncer.is_syncing())
-
-    def _show_sync_log(self):
-        aqt.dialogs.open("sync_log", self, self.media_syncer)
 
     # Tools
     ##########################################################################
