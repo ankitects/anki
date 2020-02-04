@@ -34,35 +34,38 @@ def show(mw):
 
     # Copy debug info
     ######################################################################
-    def addon_fmt(addmgr: AddonManager, a: AddonMeta) -> str:
-        if a.installed_at:
-            t = time.strftime("%Y-%m-%dT%H:%M", time.localtime(a.installed_at))
+
+    def addon_fmt(addmgr: AddonManager, addon: AddonMeta) -> str:
+        if addon.installed_at:
+            installed = time.strftime(
+                "%Y-%m-%dT%H:%M", time.localtime(addon.installed_at)
+            )
         else:
-            t = "0"
-        if a.provided_name:
-            n = a.provided_name
+            installed = "0"
+        if addon.provided_name:
+            name = addon.provided_name
         else:
-            n = "''"
-        user = addmgr.getConfig(a.dir_name)
-        default = addmgr.addonConfigDefaults(a.dir_name)
+            name = "''"
+        user = addmgr.getConfig(addon.dir_name)
+        default = addmgr.addonConfigDefaults(addon.dir_name)
         if user == default:
-            confstat = "''"
+            modified = "''"
         else:
-            confstat = "mod"
-        return f"{n} ['{a.dir_name}', {t}, '{a.human_version}', {confstat}]"
+            modified = "mod"
+        return f"{name} ['{addon.dir_name}', {installed}, '{addon.human_version}', {modified}]"
 
     def onCopy():
         addmgr = mw.addonManager
         active = []
         activeids = []
         inactive = []
-        for a in addmgr.all_addon_meta():
-            if a.enabled:
-                active.append(addon_fmt(addmgr, a))
-                if a.ankiweb_id():
-                    activeids.append(a.dir_name)
+        for addon in addmgr.all_addon_meta():
+            if addon.enabled:
+                active.append(addon_fmt(addmgr, addon))
+                if addon.ankiweb_id():
+                    activeids.append(addon.dir_name)
             else:
-                inactive.append(addon_fmt(addmgr, a))
+                inactive.append(addon_fmt(addmgr, addon))
         newline = "\n"
         info = f"""
 {supportText()}
