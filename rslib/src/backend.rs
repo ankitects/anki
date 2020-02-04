@@ -24,7 +24,8 @@ pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 pub struct Backend {
     #[allow(dead_code)]
     col_path: PathBuf,
-    media_manager: Option<MediaManager>,
+    media_folder: String,
+    media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
 }
 
@@ -78,14 +79,10 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 
 impl Backend {
     pub fn new(col_path: &str, media_folder: &str, media_db: &str) -> Result<Backend> {
-        let media_manager = match (media_folder.is_empty(), media_db.is_empty()) {
-            (false, false) => Some(MediaManager::new(media_folder, media_db)?),
-            _ => None,
-        };
-
         Ok(Backend {
             col_path: col_path.into(),
-            media_manager,
+            media_folder: media_folder.into(),
+            media_db: media_db.into(),
             progress_callback: None,
         })
     }
@@ -283,12 +280,8 @@ impl Backend {
     }
 
     fn add_file_to_media_folder(&mut self, input: pt::AddFileToMediaFolderIn) -> Result<String> {
-        Ok(self
-            .media_manager
-            .as_mut()
-            .unwrap()
-            .add_file(&input.desired_name, &input.data)?
-            .into())
+        let mut mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        Ok(mgr.add_file(&input.desired_name, &input.data)?.into())
     }
 
     fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
