@@ -5,6 +5,10 @@
 
 mod backend_proto;
 
+pub fn version() -> &'static str {
+    include_str!("../../meta/version").trim()
+}
+
 pub mod backend;
 pub mod cloze;
 pub mod err;
