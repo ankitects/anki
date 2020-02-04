@@ -515,6 +515,12 @@ please see:
     def sync_key(self) -> Optional[str]:
         return self.profile.get("syncKey")
 
+    def set_sync_key(self, val: Optional[str]) -> None:
+        self.profile["syncKey"] = val
+
+    def media_syncing_enabled(self) -> bool:
+        return self.profile["syncMedia"]
+
     ######################################################################
 
     def apply_profile_options(self) -> None:

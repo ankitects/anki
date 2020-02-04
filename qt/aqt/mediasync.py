@@ -7,14 +7,14 @@ import time
 from concurrent.futures import Future
 from copy import copy
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Union
+from typing import List, Optional, Union
 
-import anki
 import aqt
 from anki import hooks
 from anki.lang import _
 from anki.media import media_paths_from_col_path
 from anki.rsbackend import (
+    AnkiWebAuthFailed,
     Interrupted,
     MediaSyncDownloadedChanges,
     MediaSyncDownloadedFiles,
@@ -28,7 +28,7 @@ from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton
-from aqt.taskman import TaskManager
+from aqt.utils import showInfo
 
 
 @dataclass
@@ -40,30 +40,24 @@ class MediaSyncState:
     removed_files: int = 0
 
 
-# fixme: make sure we don't run twice
-# fixme: handle auth errors
 # fixme: handle network errors
-# fixme: show progress in UI
 # fixme: abort when closing collection/app
-# fixme: handle no hkey
 # fixme: shards
-# fixme: dialog should be a singleton
-# fixme: abort button should not be default
+# fixme: concurrent modifications during upload step
+# fixme: mediaSanity
+# fixme: corruptMediaDB
+# fixme: autosync
+#         elif evt == "mediaSanity":
+#         showWarning(
+#             _(
+#                 """\
+# A problem occurred while syncing media. Please use Tools>Check Media, then \
+# sync again to correct the issue."""
+#             )
+#         )
 
 
-class SyncBegun:
-    pass
-
-
-class SyncEnded:
-    pass
-
-
-class SyncAborted:
-    pass
-
-
-LogEntry = Union[MediaSyncState, SyncBegun, SyncEnded, SyncAborted]
+LogEntry = Union[MediaSyncState, str]
 
 
 @dataclass
@@ -73,12 +67,11 @@ class LogEntryWithTime:
 
 
 class MediaSyncer:
-    def __init__(self, taskman: TaskManager, on_start_stop: Callable[[], None]):
-        self._taskman = taskman
+    def __init__(self, mw: aqt.main.AnkiQt):
+        self.mw = mw
         self._sync_state: Optional[MediaSyncState] = None
         self._log: List[LogEntryWithTime] = []
         self._want_stop = False
-        self._on_start_stop = on_start_stop
         hooks.rust_progress_callback.append(self._on_rust_progress)
 
     def _on_rust_progress(self, proceed: bool, progress: Progress) -> bool:
@@ -104,14 +97,22 @@ class MediaSyncer:
         elif isinstance(progress, MediaSyncRemovedFiles):
             self._sync_state.removed_files += progress.files
 
-    def start(
-        self, col: anki.storage._Collection, hkey: str, shard: Optional[int]
-    ) -> None:
+    def start(self) -> None:
         "Start media syncing in the background, if it's not already running."
         if self._sync_state is not None:
             return
 
-        self._log_and_notify(SyncBegun())
+        hkey = self.mw.pm.sync_key()
+        if hkey is None:
+            return
+
+        if not self.mw.pm.media_syncing_enabled():
+            self._log_and_notify(_("Media syncing disabled."))
+            return
+
+        shard = None
+
+        self._log_and_notify(_("Media sync starting..."))
         self._sync_state = MediaSyncState()
         self._want_stop = False
         self._on_start_stop()
@@ -122,17 +123,17 @@ class MediaSyncer:
             shard_str = ""
         endpoint = f"https://sync{shard_str}ankiweb.net"
 
-        (media_folder, media_db) = media_paths_from_col_path(col.path)
+        (media_folder, media_db) = media_paths_from_col_path(self.mw.col.path)
 
         def run() -> None:
-            col.backend.sync_media(hkey, media_folder, media_db, endpoint)
+            self.mw.col.backend.sync_media(hkey, media_folder, media_db, endpoint)
 
-        self._taskman.run_in_background(run, self._on_finished)
+        self.mw.taskman.run_in_background(run, self._on_finished)
 
     def _log_and_notify(self, entry: LogEntry) -> None:
         entry_with_time = LogEntryWithTime(time=intTime(), entry=entry)
         self._log.append(entry_with_time)
-        self._taskman.run_on_main(
+        self.mw.taskman.run_on_main(
             lambda: gui_hooks.media_sync_did_progress(entry_with_time)
         )
 
@@ -142,21 +143,37 @@ class MediaSyncer:
 
         exc = future.exception()
         if exc is not None:
-            if isinstance(exc, Interrupted):
-                self._log_and_notify(SyncAborted())
-            else:
-                raise exc
+            self._handle_sync_error(exc)
         else:
-            self._log_and_notify(SyncEnded())
+            self._log_and_notify(_("Media sync complete."))
+
+    def _handle_sync_error(self, exc: BaseException):
+        if isinstance(exc, AnkiWebAuthFailed):
+            self.mw.pm.set_sync_key(None)
+            self._log_and_notify(_("Authentication failed."))
+            showInfo(_("AnkiWeb ID or password was incorrect; please try again."))
+        elif isinstance(exc, Interrupted):
+            self._log_and_notify(_("Media sync aborted."))
+        else:
+            raise exc
 
     def entries(self) -> List[LogEntryWithTime]:
         return self._log
 
     def abort(self) -> None:
+        if not self.is_syncing():
+            return
+        self._log_and_notify(_("Media sync aborting..."))
         self._want_stop = True
 
     def is_syncing(self) -> bool:
         return self._sync_state is not None
+
+    def _on_start_stop(self):
+        self.mw.toolbar.set_sync_active(self.is_syncing())
+
+    def show_sync_log(self):
+        aqt.dialogs.open("sync_log", self.mw, self)
 
 
 class MediaSyncDialog(QDialog):
@@ -170,6 +187,7 @@ class MediaSyncDialog(QDialog):
         self.form.setupUi(self)
         self.abort_button = QPushButton(_("Abort"))
         self.abort_button.clicked.connect(self._on_abort)  # type: ignore
+        self.abort_button.setAutoDefault(False)
         self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)
 
         gui_hooks.media_sync_did_progress.append(self._on_log_entry)
@@ -191,9 +209,6 @@ class MediaSyncDialog(QDialog):
         self.show()
 
     def _on_abort(self, *args) -> None:
-        self.form.plainTextEdit.appendPlainText(
-            self._time_and_text(intTime(), _("Aborting..."))
-        )
         self._syncer.abort()
         self.abort_button.setHidden(True)
 
@@ -202,12 +217,8 @@ class MediaSyncDialog(QDialog):
         return f"{asctime}: {text}"
 
     def _entry_to_text(self, entry: LogEntryWithTime):
-        if isinstance(entry.entry, SyncBegun):
-            txt = _("Media sync starting...")
-        elif isinstance(entry.entry, SyncEnded):
-            txt = _("Media sync complete.")
-        elif isinstance(entry.entry, SyncAborted):
-            txt = _("Aborted.")
+        if isinstance(entry.entry, str):
+            txt = entry.entry
         elif isinstance(entry.entry, MediaSyncState):
             txt = self._logentry_to_text(entry.entry)
         else:
@@ -227,3 +238,5 @@ class MediaSyncDialog(QDialog):
 
     def _on_log_entry(self, entry: LogEntryWithTime):
         self.form.plainTextEdit.appendPlainText(self._entry_to_text(entry))
+        if not self._syncer.is_syncing():
+            self.abort_button.setHidden(True)
