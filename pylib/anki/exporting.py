@@ -160,6 +160,12 @@ class AnkiExporter(Exporter):
     def __init__(self, col: _Collection) -> None:
         Exporter.__init__(self, col)
 
+    def deckIds(self) -> List[int]:
+        if not self.did:
+            return []
+        else:
+            return [self.did] + [x[1] for x in self.src.decks.children(self.did)]
+
     def exportInto(self, path: str) -> None:
         # sched info+v2 scheduler not compatible w/ older clients
         self._v2sched = self.col.schedVer() != 1 and self.includeSched
@@ -216,11 +222,7 @@ class AnkiExporter(Exporter):
             if int(m["id"]) in mids:
                 self.dst.models.update(m)
         # decks
-        dids: List[int]
-        if not self.did:
-            dids = []
-        else:
-            dids = [self.did] + [x[1] for x in self.src.decks.children(self.did)]
+        dids = self.deckIds()
         dconfs = {}
         for d in self.src.decks.all():
             if str(d["id"]) == "1":
