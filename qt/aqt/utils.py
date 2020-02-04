@@ -685,6 +685,7 @@ def qtMenuShortcutWorkaround(qmenu):
 
 def supportText():
     import platform
+    import time
     from aqt import mw
 
     if isWin:
@@ -700,10 +701,14 @@ def supportText():
         except:
             return "?"
 
+    lc = mw.pm.last_addon_update_check()
+    lcfmt = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(lc))
+
     return """\
 Anki {} Python {} Qt {} PyQt {}
 Platform: {}
 Flags: frz={} ao={} sv={}
+Add-ons, last update check: {}
 """.format(
         versionWithBuild(),
         platform.python_version(),
@@ -713,6 +718,7 @@ Flags: frz={} ao={} sv={}
         getattr(sys, "frozen", False),
         mw.addonManager.dirty,
         schedVer(),
+        lcfmt,
     )
 
 

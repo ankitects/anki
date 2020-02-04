@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import platform
+import time
 
 import aqt.forms
 from anki.lang import _
 from anki.utils import versionWithBuild
+from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
 from aqt.utils import supportText, tooltip
 
@@ -32,10 +34,51 @@ def show(mw):
 
     # Copy debug info
     ######################################################################
+    def addon_fmt(addmgr: AddonManager, a: AddonMeta) -> str:
+        if a.installed_at:
+            t = time.strftime("%Y-%m-%dT%H:%M", time.localtime(a.installed_at))
+        else:
+            t = "0"
+        if a.provided_name:
+            n = a.provided_name
+        else:
+            n = "''"
+        user = addmgr.getConfig(a.dir_name)
+        default = addmgr.addonConfigDefaults(a.dir_name)
+        if user == default:
+            confstat = "''"
+        else:
+            confstat = "mod"
+        return f"{n} ['{a.dir_name}', {t}, '{a.human_version}', {confstat}]"
+
     def onCopy():
         addmgr = mw.addonManager
-        addons = "\n".join(addmgr.annotatedName(d) for d in addmgr.allAddons())
-        info = "\n".join((supportText(), "Add-ons:\n\n{}".format(addons)))
+        active = []
+        activeids = []
+        inactive = []
+        for a in addmgr.all_addon_meta():
+            if a.enabled:
+                active.append(addon_fmt(addmgr, a))
+                if a.ankiweb_id():
+                    activeids.append(a.dir_name)
+            else:
+                inactive.append(addon_fmt(addmgr, a))
+        newline = "\n"
+        info = f"""
+{supportText()}
+
+===Add-ons (active)===
+(add-on provided name [Add-on folder, installed at, version, is config changed])
+{newline.join(sorted(active))}
+
+===Add-ons (active) Ankiweb-IDs===
+{" ".join(activeids)}
+
+===Add-ons (inactive)===
+(add-on provided name [Add-on folder, installed at, version, is config changed])
+{newline.join(sorted(inactive))}
+"""
+        info = "    " + "    ".join(info.splitlines(True))
         QApplication.clipboard().setText(info)
         tooltip(_("Copied to clipboard"), parent=dialog)
 
