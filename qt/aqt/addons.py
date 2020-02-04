@@ -101,6 +101,7 @@ class AddonMeta:
     min_point_version: int
     max_point_version: int
     branch_index: int
+    human_version: Optional[str]
 
     def human_name(self) -> str:
         return self.provided_name or self.dir_name
@@ -132,6 +133,7 @@ class AddonMeta:
             min_point_version=json_meta.get("min_point_version", 0) or 0,
             max_point_version=json_meta.get("max_point_version", 0) or 0,
             branch_index=json_meta.get("branch_index", 0) or 0,
+            human_version=json_meta.get("human_version", ""),
         )
 
 
@@ -157,6 +159,8 @@ class AddonManager:
             "max_point_version": {"type": "number", "meta": True},
             # AnkiWeb sends this to indicate which branch the user downloaded.
             "branch_index": {"type": "number", "meta": True},
+            # version string set by the add-on creator
+            "human_version": {"type": "string", "meta": True},
         },
         "required": ["package", "name"],
     }
@@ -236,6 +240,8 @@ When loading '%(name)s':
         json_obj["max_point_version"] = addon.max_point_version
         json_obj["min_point_version"] = addon.min_point_version
         json_obj["branch_index"] = addon.branch_index
+        if addon.human_version is not None:
+            json_obj["human_version"] = addon.human_version
 
         self.writeAddonMeta(addon.dir_name, json_obj)
 
