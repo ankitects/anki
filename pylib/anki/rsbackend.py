@@ -28,8 +28,12 @@ class StringError(Exception):
         return self.args[0]  # pylint: disable=unsubscriptable-object
 
 
+NetworkErrorKind = pb.NetworkError.NetworkErrorKind
+
+
 class NetworkError(StringError):
-    pass
+    def kind(self) -> NetworkErrorKind:
+        return self.args[1]
 
 
 class IOError(StringError):
@@ -45,12 +49,12 @@ class TemplateError(StringError):
         return self.args[1]
 
 
-class AnkiWebError(StringError):
-    pass
+SyncErrorKind = pb.SyncError.SyncErrorKind
 
 
-class AnkiWebAuthFailed(Exception):
-    pass
+class SyncError(StringError):
+    def kind(self) -> SyncErrorKind:
+        return self.args[1]
 
 
 def proto_exception_to_native(err: pb.BackendError) -> Exception:
@@ -58,7 +62,8 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
     if val == "interrupted":
         return Interrupted()
     elif val == "network_error":
-        return NetworkError(err.network_error.info)
+        e = err.network_error
+        return NetworkError(e.info, e.kind)
     elif val == "io_error":
         return IOError(err.io_error.info)
     elif val == "db_error":
@@ -67,10 +72,9 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return TemplateError(err.template_parse.info, err.template_parse.q_side)
     elif val == "invalid_input":
         return StringError(err.invalid_input.info)
-    elif val == "ankiweb_auth_failed":
-        return AnkiWebAuthFailed()
-    elif val == "ankiweb_misc_error":
-        return AnkiWebError(err.ankiweb_misc_error.info)
+    elif val == "sync_error":
+        e2 = err.sync_error
+        return SyncError(e2.info, e2.kind)
     else:
         assert_impossible_literal(val)
 

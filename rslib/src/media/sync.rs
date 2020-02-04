@@ -10,7 +10,7 @@ use crate::media::{register_changes, MediaManager};
 use bytes::Bytes;
 use log::debug;
 use reqwest;
-use reqwest::{multipart, Client, Response, StatusCode};
+use reqwest::{multipart, Client, Response};
 use serde_derive::{Deserialize, Serialize};
 use serde_tuple::Serialize_tuple;
 use std::borrow::Cow;
@@ -79,15 +79,14 @@ where
             .query(&[("k", hkey), ("v", "ankidesktop,2.1.19,mac")])
             .send()
             .await?
-            .error_for_status()
-            .map_err(rewrite_forbidden)?;
+            .error_for_status()?;
 
         let reply: SyncBeginResult = resp.json().await?;
 
         if let Some(data) = reply.data {
             Ok((data.sync_key, data.usn))
         } else {
-            Err(AnkiError::AnkiWebMiscError { info: reply.err })
+            Err(AnkiError::server_message(reply.err))
         }
     }
 
@@ -184,15 +183,11 @@ where
             if data == "OK" {
                 Ok(())
             } else {
-                // fixme: force resync
-                Err(AnkiError::AnkiWebMiscError {
-                    info: "resync required ".into(),
-                })
+                // fixme: force resync, handle better
+                Err(AnkiError::server_message("resync required"))
             }
         } else {
-            Err(AnkiError::AnkiWebMiscError {
-                info: format!("finalize failed: {}", resp.err),
-            })
+            Err(AnkiError::server_message(resp.err))
         }
     }
 
@@ -214,7 +209,7 @@ where
         if let Some(batch) = res.data {
             Ok(batch)
         } else {
-            Err(AnkiError::AnkiWebMiscError { info: res.err })
+            Err(AnkiError::server_message(res.err))
         }
     }
 
@@ -296,14 +291,6 @@ struct SyncBeginResponse {
     #[serde(rename = "sk")]
     sync_key: String,
     usn: i32,
-}
-
-fn rewrite_forbidden(err: reqwest::Error) -> AnkiError {
-    if err.is_status() && err.status().unwrap() == StatusCode::FORBIDDEN {
-        AnkiError::AnkiWebAuthenticationFailed
-    } else {
-        err.into()
-    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -462,7 +449,7 @@ async fn ankiweb_request(
         .send()
         .await?
         .error_for_status()
-        .map_err(rewrite_forbidden)
+        .map_err(Into::into)
 }
 
 #[derive(Debug, Serialize)]
@@ -486,9 +473,9 @@ fn extract_into_media_folder(media_folder: &Path, zip: Bytes) -> Result<Vec<Adde
             continue;
         }
 
-        let real_name = fmap.get(name).ok_or(AnkiError::AnkiWebMiscError {
-            info: "malformed zip received".into(),
-        })?;
+        let real_name = fmap
+            .get(name)
+            .ok_or_else(|| AnkiError::sync_misc("malformed zip"))?;
 
         let mut data = Vec::with_capacity(file.size() as usize);
         file.read_to_end(&mut data)?;
@@ -571,9 +558,7 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
         let normalized = normalize_filename(&file.fname);
         if let Cow::Owned(_) = normalized {
             // fixme: non-string err, or should ignore instead
-            return Err(AnkiError::AnkiWebMiscError {
-                info: "Invalid filename found. Please use the Check Media function.".to_owned(),
-            });
+            return Err(AnkiError::sync_misc("invalid file found"));
         }
 
         let file_data = data_for_file(media_folder, &file.fname)?;
@@ -581,9 +566,7 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
         if let Some(data) = &file_data {
             if data.is_empty() {
                 // fixme: should ignore these, not error
-                return Err(AnkiError::AnkiWebMiscError {
-                    info: "0 byte file found".to_owned(),
-                });
+                return Err(AnkiError::sync_misc("0 byte file found"));
             }
             accumulated_size += data.len();
             zip.start_file(format!("{}", idx), options)?;

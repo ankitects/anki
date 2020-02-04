@@ -14,7 +14,6 @@ from anki import hooks
 from anki.lang import _
 from anki.media import media_paths_from_col_path
 from anki.rsbackend import (
-    AnkiWebAuthFailed,
     DBError,
     Interrupted,
     MediaSyncDownloadedChanges,
@@ -23,8 +22,11 @@ from anki.rsbackend import (
     MediaSyncRemovedFiles,
     MediaSyncUploaded,
     NetworkError,
+    NetworkErrorKind,
     Progress,
     ProgressKind,
+    SyncError,
+    SyncErrorKind,
 )
 from anki.types import assert_impossible
 from anki.utils import intTime
@@ -42,10 +44,11 @@ class MediaSyncState:
     removed_files: int = 0
 
 
+# fixme: sync.rs fixmes
+# fixme: maximum size when uploading
 # fixme: abort when closing collection/app
 # fixme: concurrent modifications during upload step
 # fixme: mediaSanity
-# fixme: corruptMediaDB
 # fixme: autosync
 #         elif evt == "mediaSanity":
 #         showWarning(
@@ -155,15 +158,31 @@ class MediaSyncer:
             return
 
         self._log_and_notify(_("Media sync failed."))
-        if isinstance(exc, AnkiWebAuthFailed):
-            self.mw.pm.set_sync_key(None)
-            showWarning(_("AnkiWeb ID or password was incorrect; please try again."))
+        if isinstance(exc, SyncError):
+            kind = exc.kind()
+            if kind == SyncErrorKind.AUTH_FAILED:
+                self.mw.pm.set_sync_key(None)
+                showWarning(
+                    _("AnkiWeb ID or password was incorrect; please try again.")
+                )
+            elif kind == SyncErrorKind.SERVER_ERROR:
+                showWarning(
+                    _(
+                        "AnkiWeb encountered a problem. Please try again in a few minutes."
+                    )
+                )
+            else:
+                showWarning(_("Unexpected error: {}").format(str(exc)))
         elif isinstance(exc, NetworkError):
-            showWarning(
-                _("Syncing failed; please check your internet connection.")
-                + "\n\n"
-                + _("Detailed error: {}").format(str(exc))
-            )
+            nkind = exc.kind()
+            if nkind in (NetworkErrorKind.OFFLINE, NetworkErrorKind.TIMEOUT):
+                showWarning(
+                    _("Syncing failed; please check your internet connection.")
+                    + "\n\n"
+                    + _("Detailed error: {}").format(str(exc))
+                )
+            else:
+                showWarning(_("Unexpected error: {}").format(str(exc)))
         elif isinstance(exc, DBError):
             showWarning(_("Problem accessing the media database: {}").format(str(exc)))
         else:

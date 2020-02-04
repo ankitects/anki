@@ -5,7 +5,7 @@ use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::cloze::expand_clozes_to_reveal_latex;
-use crate::err::{AnkiError, Result};
+use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::media::sync::{sync_media, Progress as MediaSyncProgress};
 use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
@@ -41,12 +41,17 @@ impl std::convert::From<AnkiError> for pt::BackendError {
             AnkiError::InvalidInput { info } => V::InvalidInput(pt::StringError { info }),
             AnkiError::TemplateError { info, q_side } => {
                 V::TemplateParse(pt::TemplateParseError { info, q_side })
-            },
+            }
             AnkiError::IOError { info } => V::IoError(pt::StringError { info }),
             AnkiError::DBError { info } => V::DbError(pt::StringError { info }),
-            AnkiError::NetworkError { info } => V::NetworkError(pt::StringError { info }),
-            AnkiError::AnkiWebAuthenticationFailed => V::AnkiwebAuthFailed(Empty {}),
-            AnkiError::AnkiWebMiscError { info } => V::AnkiwebMiscError(pt::StringError { info }),
+            AnkiError::NetworkError { info, kind } => V::NetworkError(pt::NetworkError {
+                info,
+                kind: kind.into(),
+            }),
+            AnkiError::SyncError { info, kind } => V::SyncError(pt::SyncError {
+                info,
+                kind: kind.into(),
+            }),
             AnkiError::Interrupted => V::Interrupted(Empty {}),
         };
 
@@ -58,6 +63,32 @@ impl std::convert::From<AnkiError> for pt::BackendError {
 impl std::convert::From<AnkiError> for pt::backend_output::Value {
     fn from(err: AnkiError) -> Self {
         pt::backend_output::Value::Error(err.into())
+    }
+}
+
+impl std::convert::From<NetworkErrorKind> for i32 {
+    fn from(e: NetworkErrorKind) -> Self {
+        use pt::network_error::NetworkErrorKind as V;
+        (match e {
+            NetworkErrorKind::Offline => V::Offline,
+            NetworkErrorKind::Timeout => V::Timeout,
+            NetworkErrorKind::ProxyAuth => V::ProxyAuth,
+            NetworkErrorKind::Other => V::Other,
+        }) as i32
+    }
+}
+
+impl std::convert::From<SyncErrorKind> for i32 {
+    fn from(e: SyncErrorKind) -> Self {
+        use pt::sync_error::SyncErrorKind as V;
+        (match e {
+            SyncErrorKind::Conflict => V::Conflict,
+            SyncErrorKind::ServerError => V::ServerError,
+            SyncErrorKind::ClientTooOld => V::ClientTooOld,
+            SyncErrorKind::AuthFailed => V::AuthFailed,
+            SyncErrorKind::ServerMessage => V::ServerMessage,
+            SyncErrorKind::Other => V::Other,
+        }) as i32
     }
 }
 
