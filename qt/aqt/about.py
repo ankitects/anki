@@ -7,6 +7,7 @@ import time
 import aqt.forms
 from anki.lang import _
 from anki.utils import versionWithBuild
+from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
 from aqt.utils import supportText, tooltip
 
@@ -33,7 +34,7 @@ def show(mw):
 
     # Copy debug info
     ######################################################################
-    def addon_fmt(addmgr, a):
+    def addon_fmt(addmgr: AddonManager, a: AddonMeta) -> str:
         if a.installed_at:
             t = time.strftime("%Y-%m-%dT%H:%M", time.localtime(a.installed_at))
         else:
