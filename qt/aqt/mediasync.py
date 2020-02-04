@@ -1,11 +1,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import time
 from concurrent.futures import Future
 from copy import copy
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Callable
 
 import anki
 import aqt
@@ -71,11 +73,12 @@ class LogEntryWithTime:
 
 
 class MediaSyncer:
-    def __init__(self, taskman: TaskManager):
+    def __init__(self, taskman: TaskManager, on_start_stop: Callable[[], None]):
         self._taskman = taskman
         self._sync_state: Optional[MediaSyncState] = None
         self._log: List[LogEntryWithTime] = []
         self._want_stop = False
+        self._on_start_stop = on_start_stop
         hooks.rust_progress_callback.append(self._on_rust_progress)
 
     def _on_rust_progress(self, proceed: bool, progress: Progress) -> bool:
@@ -111,6 +114,7 @@ class MediaSyncer:
         self._log_and_notify(SyncBegun())
         self._sync_state = MediaSyncState()
         self._want_stop = False
+        self._on_start_stop()
 
         if shard is not None:
             shard_str = str(shard)
@@ -134,6 +138,7 @@ class MediaSyncer:
 
     def _on_finished(self, future: Future) -> None:
         self._sync_state = None
+        self._on_start_stop()
 
         exc = future.exception()
         if exc is not None:
@@ -150,10 +155,16 @@ class MediaSyncer:
     def abort(self) -> None:
         self._want_stop = True
 
+    def is_syncing(self) -> bool:
+        return self._sync_state is not None
+
 
 class MediaSyncDialog(QDialog):
-    def __init__(self, parent: QWidget, syncer: MediaSyncer) -> None:
-        super().__init__(parent)
+    silentlyClose = True
+
+    def __init__(self, mw: aqt.main.AnkiQt, syncer: MediaSyncer) -> None:
+        super().__init__(mw)
+        self.mw = mw
         self._syncer = syncer
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
@@ -166,6 +177,18 @@ class MediaSyncDialog(QDialog):
         self.form.plainTextEdit.setPlainText(
             "\n".join(self._entry_to_text(x) for x in syncer.entries())
         )
+        self.show()
+
+    def reject(self):
+        aqt.dialogs.markClosed("sync_log")
+        QDialog.reject(self)
+
+    def accept(self):
+        aqt.dialogs.markClosed("sync_log")
+        QDialog.accept(self)
+
+    def reopen(self, *args):
+        self.show()
 
     def _on_abort(self, *args) -> None:
         self.form.plainTextEdit.appendPlainText(
@@ -180,9 +203,9 @@ class MediaSyncDialog(QDialog):
 
     def _entry_to_text(self, entry: LogEntryWithTime):
         if isinstance(entry.entry, SyncBegun):
-            txt = _("Sync starting...")
+            txt = _("Media sync starting...")
         elif isinstance(entry.entry, SyncEnded):
-            txt = _("Sync complete.")
+            txt = _("Media sync complete.")
         elif isinstance(entry.entry, SyncAborted):
             txt = _("Aborted.")
         elif isinstance(entry.entry, MediaSyncState):

@@ -64,7 +64,7 @@ except ImportError as e:
 
 
 from aqt import addcards, browser, editcurrent  # isort:skip
-from aqt import stats, about, preferences  # isort:skip
+from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
 class DialogManager:
@@ -76,6 +76,7 @@ class DialogManager:
         "DeckStats": [stats.DeckStats, None],
         "About": [about.show, None],
         "Preferences": [preferences.Preferences, None],
+        "sync_log": [mediasync.MediaSyncDialog, None]
     }
 
     def open(self, name, *args):

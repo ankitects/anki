@@ -62,9 +62,9 @@ class Toolbar:
             ["add", _("Add"), _("Shortcut key: %s") % "A"],
             ["browse", _("Browse"), _("Shortcut key: %s") % "B"],
             ["stats", _("Stats"), _("Shortcut key: %s") % "T"],
-            ["sync", _("Sync"), _("Shortcut key: %s") % "Y"],
         ]
-        return self._linkHTML(links)
+
+        return self._linkHTML(links) + self._sync_link()
 
     def _linkHTML(self, links):
         buf = ""
@@ -77,6 +77,22 @@ class Toolbar:
                 name,
             )
         return buf
+
+    def _sync_link(self) -> str:
+        name = _("Sync")
+        title = _("Shortcut key: %s") % "Y"
+        label = "sync"
+        return f"""
+<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" href=# onclick="return pycmd('{label}')">{name}
+<img id=sync-spinner src='/_anki/imgs/refresh.svg'>        
+</a>"""
+
+    def set_sync_active(self, active: bool) -> None:
+        if active:
+            meth = "addClass"
+        else:
+            meth = "removeClass"
+        self.web.eval(f"$('#sync-spinner').{meth}('spin')")
 
     # Link handling
     ######################################################################
