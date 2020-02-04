@@ -15,6 +15,7 @@ from anki.lang import _
 from anki.media import media_paths_from_col_path
 from anki.rsbackend import (
     AnkiWebAuthFailed,
+    DBError,
     Interrupted,
     MediaSyncDownloadedChanges,
     MediaSyncDownloadedFiles,
@@ -117,7 +118,9 @@ class MediaSyncer:
         (media_folder, media_db) = media_paths_from_col_path(self.mw.col.path)
 
         def run() -> None:
-            self.mw.col.backend.sync_media(hkey, media_folder, media_db, self._endpoint())
+            self.mw.col.backend.sync_media(
+                hkey, media_folder, media_db, self._endpoint()
+            )
 
         self.mw.taskman.run_in_background(run, self._on_finished)
 
@@ -147,19 +150,22 @@ class MediaSyncer:
             self._log_and_notify(_("Media sync complete."))
 
     def _handle_sync_error(self, exc: BaseException):
+        if isinstance(exc, Interrupted):
+            self._log_and_notify(_("Media sync aborted."))
+            return
+
+        self._log_and_notify(_("Media sync failed."))
         if isinstance(exc, AnkiWebAuthFailed):
             self.mw.pm.set_sync_key(None)
-            self._log_and_notify(_("Authentication failed."))
             showWarning(_("AnkiWeb ID or password was incorrect; please try again."))
-        elif isinstance(exc, Interrupted):
-            self._log_and_notify(_("Media sync aborted."))
         elif isinstance(exc, NetworkError):
-            self._log_and_notify(_("Network error."))
             showWarning(
                 _("Syncing failed; please check your internet connection.")
                 + "\n\n"
                 + _("Detailed error: {}").format(str(exc))
             )
+        elif isinstance(exc, DBError):
+            showWarning(_("Problem accessing the media database: {}").format(str(exc)))
         else:
             raise exc
 
