@@ -5,11 +5,10 @@ import json
 import os
 import re
 import shutil
-import typing
 import unicodedata
 import zipfile
 from io import BufferedWriter
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
@@ -20,7 +19,7 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
 
 class Exporter:
-    includeHTML: typing.Union[bool, None] = None
+    includeHTML: Union[bool, None] = None
 
     def __init__(self, col: _Collection, did: None = None) -> None:
         self.col = col
@@ -154,7 +153,7 @@ class AnkiExporter(Exporter):
 
     key = _("Anki 2.0 Deck")
     ext = ".anki2"
-    includeSched: typing.Union[bool, None] = False
+    includeSched: Union[bool, None] = False
     includeMedia = True
 
     def __init__(self, col: _Collection) -> None:
