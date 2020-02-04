@@ -7,7 +7,7 @@ import time
 from anki import hooks
 from anki.lang import _
 from anki.storage import Collection
-from anki.sync import FullSyncer, MediaSyncer, RemoteMediaServer, RemoteServer, Syncer
+from anki.sync import FullSyncer, RemoteServer, Syncer
 from aqt.qt import *
 from aqt.utils import askUserDialog, showInfo, showText, showWarning, tooltip
 

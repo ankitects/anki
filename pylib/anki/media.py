@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import io
-import json
 import os
 import re
 import sys
@@ -12,7 +10,6 @@ import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
-import zipfile
 from typing import Any, Callable, List, Optional, Tuple, Union
 
 import anki
@@ -414,109 +411,3 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             if not v[2]:
                 removed.append(k)
         return added, removed
-
-    # Syncing-related
-    ##########################################################################
-
-    def lastUsn(self) -> Any:
-        return self.db.scalar("select lastUsn from meta")
-
-    def setLastUsn(self, usn) -> None:
-        self.db.execute("update meta set lastUsn = ?", usn)
-        self.db.commit()
-
-    def syncInfo(self, fname) -> Any:
-        ret = self.db.first("select csum, dirty from media where fname=?", fname)
-        return ret or (None, 0)
-
-    def markClean(self, fnames) -> None:
-        for fname in fnames:
-            self.db.execute("update media set dirty=0 where fname=?", fname)
-
-    def syncDelete(self, fname) -> None:
-        if os.path.exists(fname):
-            os.unlink(fname)
-        self.db.execute("delete from media where fname=?", fname)
-
-    def mediaCount(self) -> Any:
-        return self.db.scalar("select count() from media where csum is not null")
-
-    def dirtyCount(self) -> Any:
-        return self.db.scalar("select count() from media where dirty=1")
-
-    def forceResync(self) -> None:
-        self.db.execute("delete from media")
-        self.db.execute("update meta set lastUsn=0,dirMod=0")
-        self.db.commit()
-        self.db.setAutocommit(True)
-        self.db.execute("vacuum")
-        self.db.execute("analyze")
-        self.db.setAutocommit(False)
-
-    # Media syncing: zips
-    ##########################################################################
-
-    def mediaChangesZip(self) -> Tuple[bytes, list]:
-        f = io.BytesIO()
-        z = zipfile.ZipFile(f, "w", compression=zipfile.ZIP_DEFLATED)
-
-        fnames = []
-        # meta is list of (fname, zipname), where zipname of None
-        # is a deleted file
-        meta = []
-        sz = 0
-
-        for c, (fname, csum) in enumerate(
-            self.db.execute(
-                "select fname, csum from media where dirty=1"
-                " limit %d" % SYNC_ZIP_COUNT
-            )
-        ):
-
-            fnames.append(fname)
-            normname = unicodedata.normalize("NFC", fname)
-
-            if csum:
-                self.col.log("+media zip", fname)
-                z.write(fname, str(c))
-                meta.append((normname, str(c)))
-                sz += os.path.getsize(fname)
-            else:
-                self.col.log("-media zip", fname)
-                meta.append((normname, ""))
-
-            if sz >= SYNC_ZIP_SIZE:
-                break
-
-        z.writestr("_meta", json.dumps(meta))
-        z.close()
-        return f.getvalue(), fnames
-
-    def addFilesFromZip(self, zipData) -> int:
-        "Extract zip data; true if finished."
-        f = io.BytesIO(zipData)
-        z = zipfile.ZipFile(f, "r")
-        media = []
-        # get meta info first
-        meta = json.loads(z.read("_meta").decode("utf8"))
-        # then loop through all files
-        cnt = 0
-        for i in z.infolist():
-            if i.filename == "_meta":
-                # ignore previously-retrieved meta
-                continue
-            else:
-                data = z.read(i)
-                csum = checksum(data)
-                name = meta[i.filename]
-                # normalize name
-                name = unicodedata.normalize("NFC", name)
-                # save file
-                with open(name, "wb") as f:  # type: ignore
-                    f.write(data)
-                # update db
-                media.append((name, csum, self._mtime(name), 0))
-                cnt += 1
-        if media:
-            self.db.executemany("insert or replace into media values (?,?,?,?)", media)
-        return cnt
