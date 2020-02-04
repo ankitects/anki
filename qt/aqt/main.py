@@ -36,6 +36,7 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.legacy import install_pylib_legacy
+from aqt.mediasync import MediaSyncDialog, MediaSyncer
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
@@ -83,6 +84,7 @@ class AnkiQt(QMainWindow):
         self.opts = opts
         self.col: Optional[_Collection] = None
         self.taskman = TaskManager()
+        self.media_syncer = MediaSyncer(self.taskman, self._on_media_sync_start_stop)
         aqt.mw = self
         self.app = app
         self.pm = profileManager
@@ -830,12 +832,16 @@ title="%s" %s>%s</button>""" % (
     # expects a current profile and a loaded collection; reloads
     # collection after sync completes
     def onSync(self):
-        self.unloadCollection(self._onSync)
+        if self.media_syncer.is_syncing():
+            self._show_sync_log()
+        else:
+            self.unloadCollection(self._onSync)
 
     def _onSync(self):
         self._sync()
         if not self.loadCollection():
             return
+        self._sync_media()
 
     # expects a current profile, but no collection loaded
     def maybeAutoSync(self) -> None:
@@ -856,6 +862,31 @@ title="%s" %s>%s</button>""" % (
         self.state = "sync"
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync()
+
+    # fixme: self.pm.profile["syncMedia"]
+    # fixme: mediaSanity
+    # fixme: corruptMediaDB
+    # fixme: hkey
+    # fixme: shard
+    # fixme: dialog
+    # fixme: autosync
+#         elif evt == "mediaSanity":
+#         showWarning(
+#             _(
+#                 """\
+# A problem occurred while syncing media. Please use Tools>Check Media, then \
+# sync again to correct the issue."""
+#             )
+#         )
+
+    def _sync_media(self):
+        self.media_syncer.start(self.col, self.pm.sync_key(), None)
+
+    def _on_media_sync_start_stop(self):
+        self.toolbar.set_sync_active(self.media_syncer.is_syncing())
+
+    def _show_sync_log(self):
+        aqt.dialogs.open("sync_log", self, self.media_syncer)
 
     # Tools
     ##########################################################################
