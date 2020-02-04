@@ -42,7 +42,6 @@ class MediaSyncState:
 
 
 # fixme: abort when closing collection/app
-# fixme: shards
 # fixme: concurrent modifications during upload step
 # fixme: mediaSanity
 # fixme: corruptMediaDB
@@ -110,25 +109,25 @@ class MediaSyncer:
             self._log_and_notify(_("Media syncing disabled."))
             return
 
-        shard = None
-
         self._log_and_notify(_("Media sync starting..."))
         self._sync_state = MediaSyncState()
         self._want_stop = False
         self._on_start_stop()
 
+        (media_folder, media_db) = media_paths_from_col_path(self.mw.col.path)
+
+        def run() -> None:
+            self.mw.col.backend.sync_media(hkey, media_folder, media_db, self._endpoint())
+
+        self.mw.taskman.run_in_background(run, self._on_finished)
+
+    def _endpoint(self) -> str:
+        shard = self.mw.pm.sync_shard()
         if shard is not None:
             shard_str = str(shard)
         else:
             shard_str = ""
-        endpoint = f"https://sync{shard_str}ankiweb.net"
-
-        (media_folder, media_db) = media_paths_from_col_path(self.mw.col.path)
-
-        def run() -> None:
-            self.mw.col.backend.sync_media(hkey, media_folder, media_db, endpoint)
-
-        self.mw.taskman.run_in_background(run, self._on_finished)
+        return f"https://sync{shard_str}.ankiweb.net/msync/"
 
     def _log_and_notify(self, entry: LogEntry) -> None:
         entry_with_time = LogEntryWithTime(time=intTime(), entry=entry)
