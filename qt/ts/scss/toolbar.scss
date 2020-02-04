@@ -62,6 +62,7 @@ body {
     animation-iteration-count: infinite;
     display: inline-block;
     visibility: visible !important;
+    animation-timing-function: linear;
 }
 
 #sync-spinner {
