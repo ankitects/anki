@@ -55,9 +55,8 @@ message BackendError {
         TemplateParseError template_parse = 2;
         StringError io_error = 3;
         StringError db_error = 4;
-        StringError network_error = 5;
-        Empty ankiweb_auth_failed = 6;
-        StringError ankiweb_misc_error = 7;
+        NetworkError network_error = 5;
+        SyncError sync_error = 6;
         // user interrupted operation
         Empty interrupted = 8;
     }
@@ -76,6 +75,30 @@ message StringError {
 message TemplateParseError {
     string info = 1;
     bool q_side = 2;
+}
+
+message NetworkError {
+    string info = 1;
+    enum NetworkErrorKind {
+        OTHER = 0;
+        OFFLINE = 1;
+        TIMEOUT = 2;
+        PROXY_AUTH = 3;
+    }
+    NetworkErrorKind kind = 2;
+}
+
+message SyncError {
+    string info = 1;
+    enum SyncErrorKind {
+        OTHER = 0;
+        CONFLICT = 1;
+        SERVER_ERROR = 2;
+        CLIENT_TOO_OLD = 3;
+        AUTH_FAILED = 4;
+        SERVER_MESSAGE = 5;
+    }
+    SyncErrorKind kind = 2;
 }
 
 message MediaSyncProgress {
