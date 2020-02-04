@@ -52,6 +52,8 @@ class Toolbar:
             self._body % self._centerLinks(), css=["toolbar.css"], context=web_context,
         )
         self.web.adjustHeightToFit()
+        if self.mw.media_syncer.is_syncing():
+            self.set_sync_active(True)
 
     # Available links
     ######################################################################
