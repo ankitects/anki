@@ -133,7 +133,7 @@ class AddonMeta:
             min_point_version=json_meta.get("min_point_version", 0) or 0,
             max_point_version=json_meta.get("max_point_version", 0) or 0,
             branch_index=json_meta.get("branch_index", 0) or 0,
-            human_version=json_meta.get("human_version", ""),
+            human_version=json_meta.get("human_version"),
         )
 
 
