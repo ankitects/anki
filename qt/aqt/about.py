@@ -71,7 +71,7 @@ def show(mw):
 (add-on provided name [Add-on folder, installed at, version, is config changed])
 {newline.join(sorted(active))}
 
-===Add-ons (active) Ankiweb-IDs===
+===IDs of active AnkiWeb add-ons===
 {" ".join(activeids)}
 
 ===Add-ons (inactive)===
