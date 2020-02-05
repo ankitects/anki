@@ -457,6 +457,10 @@ group by day order by day"""
             self._line(
                 i,
                 _("Average answer time"),
+                # T: For example, in the statistics line: " Average
+                # answer time: 16.8s (3.6 cards/minute)", then
+                # "%(a)0.1fs" represents "16.8s" and "%(b)s" represents
+                # "3.6 cards/minutes")
                 _("%(a)0.1fs (%(b)s)") % dict(a=(tot * 60) / total, b=text),
             )
         return self._lineTbl(i), int(tot)
