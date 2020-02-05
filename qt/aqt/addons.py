@@ -1053,6 +1053,11 @@ class DownloaderInstaller(QObject):
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
         self.mgr.mw.progress.update(
+            # T: "%(a)d" is the index of the element currently
+            # downloaded. "%(b)d" is the number of element to download,
+            # and "%(kb)0.2f" is the number of downloaded
+            # kilobytes. This lead for example to "Downloading 3/5
+            # (27KB)"
             label=_("Downloading %(a)d/%(b)d (%(kb)0.2fKB)...")
             % dict(a=len(self.log) + 1, b=len(self.ids), kb=self.dl_bytes / 1024)
         )

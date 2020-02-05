@@ -170,7 +170,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>1 10</string>
+         <string notr="true">1 10</string>
         </property>
        </widget>
       </item>
