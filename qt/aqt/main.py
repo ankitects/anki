@@ -134,7 +134,7 @@ class AnkiQt(QMainWindow):
         self.setupSignals()
         self.setupAutoUpdate()
         self.setupHooks()
-        self.setupRefreshTimer()
+        self.setup_timers()
         self.updateTitleBar()
         # screens
         self.setupDeckBrowser()
@@ -1170,18 +1170,26 @@ Difference to correct time: %s."""
         showWarning(warn)
         self.app.closeAllWindows()
 
-    # Count refreshing
+    # Timers
     ##########################################################################
 
-    def setupRefreshTimer(self) -> None:
-        # every 10 minutes
+    def setup_timers(self) -> None:
+        # refresh decks every 10 minutes
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
+        # check media sync every 5 minutes
+        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True)
 
     def onRefreshTimer(self):
         if self.state == "deckBrowser":
             self.deckBrowser.refresh()
         elif self.state == "overview":
             self.overview.refresh()
+
+    def on_autosync_timer(self):
+        elap = self.media_syncer.seconds_since_last_sync()
+        # autosync if 15 minutes have elapsed since last sync
+        if elap > 15 * 60:
+            self.maybe_auto_sync_media()
 
     # Permanent libanki hooks
     ##########################################################################

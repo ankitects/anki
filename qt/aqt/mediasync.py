@@ -7,7 +7,7 @@ import time
 from concurrent.futures import Future
 from copy import copy
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Union
+from typing import List, Optional, Union
 
 import aqt
 from anki import hooks
@@ -212,6 +212,16 @@ class MediaSyncer:
 
         diag: MediaSyncDialog = aqt.dialogs.open("sync_log", self.mw, self, True)
         diag.exec_()
+
+    def seconds_since_last_sync(self) -> int:
+        if self.is_syncing():
+            return 0
+
+        if self._log:
+            last = self._log[-1].time
+        else:
+            last = 0
+        return intTime() - last
 
 
 class MediaSyncDialog(QDialog):
