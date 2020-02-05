@@ -76,6 +76,7 @@ class MediaSyncer:
         self._log: List[LogEntryWithTime] = []
         self._want_stop = False
         hooks.rust_progress_callback.append(self._on_rust_progress)
+        gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
     def _on_rust_progress(self, proceed: bool, progress: Progress) -> bool:
         if progress.kind != ProgressKind.MediaSyncProgress:
@@ -116,7 +117,7 @@ class MediaSyncer:
         self._log_and_notify(_("Media sync starting..."))
         self._sync_state = MediaSyncState()
         self._want_stop = False
-        self._on_start_stop()
+        gui_hooks.media_sync_did_start_or_stop(True)
 
         (media_folder, media_db) = media_paths_from_col_path(self.mw.col.path)
 
@@ -144,7 +145,7 @@ class MediaSyncer:
 
     def _on_finished(self, future: Future) -> None:
         self._sync_state = None
-        self._on_start_stop()
+        gui_hooks.media_sync_did_start_or_stop(False)
 
         exc = future.exception()
         if exc is not None:
@@ -200,8 +201,8 @@ class MediaSyncer:
     def is_syncing(self) -> bool:
         return self._sync_state is not None
 
-    def _on_start_stop(self):
-        self.mw.toolbar.set_sync_active(self.is_syncing())
+    def _on_start_stop(self, running: bool):
+        self.mw.toolbar.set_sync_active(running)
 
     def show_sync_log(self):
         aqt.dialogs.open("sync_log", self.mw, self)

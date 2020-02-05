@@ -721,6 +721,30 @@ class _MediaSyncDidProgressHook:
 media_sync_did_progress = _MediaSyncDidProgressHook()
 
 
+class _MediaSyncDidStartOrStopHook:
+    _hooks: List[Callable[[bool], None]] = []
+
+    def append(self, cb: Callable[[bool], None]) -> None:
+        """(running: bool)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[bool], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, running: bool) -> None:
+        for hook in self._hooks:
+            try:
+                hook(running)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+media_sync_did_start_or_stop = _MediaSyncDidStartOrStopHook()
+
+
 class _OverviewDidRefreshHook:
     """Allow to update the overview window. E.g. add the deck name in the
         title."""
