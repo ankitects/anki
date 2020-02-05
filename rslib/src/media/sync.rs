@@ -4,7 +4,7 @@
 use crate::err::{AnkiError, Result, SyncErrorKind};
 use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
 use crate::media::files::{
-    add_file_from_ankiweb, data_for_file, normalize_filename, remove_files, AddedFile,
+    add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, remove_files, AddedFile,
 };
 use crate::media::{register_changes, MediaManager};
 use crate::version;
@@ -24,7 +24,6 @@ static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
 static SYNC_SINGLE_FILE_MAX_BYTES: usize = 100 * 1024 * 1024;
 
-// fixme: dir mod handling when downloading files in a sync
 // fixme: concurrent modifications during upload step
 
 /// The counts are not cumulative - the progress hook should accumulate them.
@@ -134,6 +133,7 @@ where
             }
 
             // then update the DB
+            let dirmod = mtime_as_i64(&self.mgr.media_folder)?;
             self.ctx.transact(|ctx| {
                 record_removals(ctx, &to_delete)?;
                 record_additions(ctx, downloaded)?;
@@ -141,6 +141,7 @@ where
 
                 // update usn
                 meta.last_sync_usn = last_usn;
+                meta.folder_mtime = dirmod;
                 ctx.set_meta(&meta)?;
 
                 Ok(())
