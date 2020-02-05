@@ -24,7 +24,7 @@ static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
 static SYNC_SINGLE_FILE_MAX_BYTES: usize = 100 * 1024 * 1024;
 
-// fixme: non-normalized filenames on ankiweb
+// fixme: dir mod handling when downloading files in a sync
 // fixme: concurrent modifications during upload step
 
 /// The counts are not cumulative - the progress hook should accumulate them.
@@ -507,18 +507,41 @@ fn record_removals(ctx: &mut MediaDatabaseContext, removals: &[&String]) -> Resu
 
 fn record_additions(ctx: &mut MediaDatabaseContext, additions: Vec<AddedFile>) -> Result<()> {
     for file in additions {
-        let entry = MediaEntry {
-            fname: file.fname.to_string(),
-            sha1: Some(file.sha1),
-            mtime: file.mtime,
-            sync_required: false,
-        };
-        debug!(
-            "marking added: {} {}",
-            entry.fname,
-            hex::encode(entry.sha1.as_ref().unwrap())
-        );
-        ctx.set_entry(&entry)?;
+        if let Some(renamed) = file.renamed_from {
+            // the file AnkiWeb sent us wasn't normalized, so we need to record
+            // the old file name as a deletion
+            debug!("marking non-normalized file as deleted: {}", renamed);
+            let mut entry = MediaEntry {
+                fname: renamed,
+                sha1: None,
+                mtime: 0,
+                sync_required: true,
+            };
+            ctx.set_entry(&entry)?;
+            // and upload the new filename to ankiweb
+            debug!("marking renamed file as needing upload: {}", file.fname);
+            entry = MediaEntry {
+                fname: file.fname.to_string(),
+                sha1: Some(file.sha1),
+                mtime: file.mtime,
+                sync_required: true,
+            };
+            ctx.set_entry(&entry)?;
+        } else {
+            // a normal addition
+            let entry = MediaEntry {
+                fname: file.fname.to_string(),
+                sha1: Some(file.sha1),
+                mtime: file.mtime,
+                sync_required: false,
+            };
+            debug!(
+                "marking added: {} {}",
+                entry.fname,
+                hex::encode(entry.sha1.as_ref().unwrap())
+            );
+            ctx.set_entry(&entry)?;
+        }
     }
 
     Ok(())
