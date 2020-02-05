@@ -7,7 +7,7 @@ import time
 from concurrent.futures import Future
 from copy import copy
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Callable, List, Optional, Union
 
 import aqt
 from anki import hooks
@@ -46,10 +46,8 @@ class MediaSyncState:
 
 # fixme: sync.rs fixmes
 # fixme: maximum size when uploading
-# fixme: abort when closing collection/app
 # fixme: concurrent modifications during upload step
 # fixme: mediaSanity
-# fixme: autosync
 #         elif evt == "mediaSanity":
 #         showWarning(
 #             _(
@@ -202,19 +200,30 @@ class MediaSyncer:
         return self._sync_state is not None
 
     def _on_start_stop(self, running: bool):
-        self.mw.toolbar.set_sync_active(running)
+        self.mw.toolbar.set_sync_active(running)  # type: ignore
 
     def show_sync_log(self):
         aqt.dialogs.open("sync_log", self.mw, self)
+
+    def show_diag_until_finished(self):
+        # nothing to do if not syncing
+        if not self.is_syncing():
+            return
+
+        diag: MediaSyncDialog = aqt.dialogs.open("sync_log", self.mw, self, True)
+        diag.exec_()
 
 
 class MediaSyncDialog(QDialog):
     silentlyClose = True
 
-    def __init__(self, mw: aqt.main.AnkiQt, syncer: MediaSyncer) -> None:
+    def __init__(
+        self, mw: aqt.main.AnkiQt, syncer: MediaSyncer, close_when_done: bool = False
+    ) -> None:
         super().__init__(mw)
         self.mw = mw
         self._syncer = syncer
+        self._close_when_done = close_when_done
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
         self.abort_button = QPushButton(_("Abort"))
@@ -223,21 +232,24 @@ class MediaSyncDialog(QDialog):
         self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)
 
         gui_hooks.media_sync_did_progress.append(self._on_log_entry)
+        gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
         self.form.plainTextEdit.setPlainText(
             "\n".join(self._entry_to_text(x) for x in syncer.entries())
         )
         self.show()
 
-    def reject(self):
+    def reject(self) -> None:
+        if self._close_when_done and self._syncer.is_syncing():
+            # closing while syncing on close starts an abort
+            self._on_abort()
+            return
+
         aqt.dialogs.markClosed("sync_log")
         QDialog.reject(self)
 
-    def accept(self):
-        aqt.dialogs.markClosed("sync_log")
-        QDialog.accept(self)
-
-    def reopen(self, *args):
+    def reopen(self, mw, syncer, close_when_done: bool = False) -> None:
+        self._close_when_done = close_when_done
         self.show()
 
     def _on_abort(self, *args) -> None:
@@ -272,3 +284,9 @@ class MediaSyncDialog(QDialog):
         self.form.plainTextEdit.appendPlainText(self._entry_to_text(entry))
         if not self._syncer.is_syncing():
             self.abort_button.setHidden(True)
+
+    def _on_start_stop(self, running: bool) -> None:
+        if not running and self._close_when_done:
+            aqt.dialogs.markClosed("sync_log")
+            self._close_when_done = False
+            self.close()
