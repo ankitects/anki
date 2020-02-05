@@ -267,23 +267,25 @@ pub(super) fn add_file_from_ankiweb(
     fname: &str,
     data: &[u8],
 ) -> Result<AddedFile> {
+    let sha1 = sha1_of_data(data);
     let normalized = normalize_filename(fname);
 
-    let path = media_folder.join(normalized.as_ref());
-    fs::write(&path, data)?;
-
-    let sha1 = sha1_of_data(data);
+    // if the filename is already valid, we can write the file directly
+    let (renamed_from, path) = if let Cow::Borrowed(_) = normalized {
+        let path = media_folder.join(normalized.as_ref());
+        fs::write(&path, data)?;
+        (None, path)
+    } else {
+        debug!("non-normalized filename received {}", fname);
+        // ankiweb sent us a non-normalized filename, so we'll rename it
+        let new_name = add_data_to_folder_uniquely(media_folder, fname, data, sha1)?;
+        (
+            Some(new_name.to_string()),
+            media_folder.join(new_name.as_ref()),
+        )
+    };
 
     let mtime = mtime_as_i64(path)?;
-
-    // fixme: could we use the info sent from the server for the hash instead
-    // of hashing it here and returning hash?
-
-    let renamed_from = if let Cow::Borrowed(_) = normalized {
-        None
-    } else {
-        Some(fname.to_string())
-    };
 
     Ok(AddedFile {
         fname: normalized.to_string(),
