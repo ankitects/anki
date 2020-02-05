@@ -344,6 +344,8 @@ close the profile or restart Anki."""
         if not self.loadCollection():
             return
 
+        self.maybe_auto_sync_media()
+
         self.pm.apply_profile_options()
 
         # show main window
@@ -855,6 +857,11 @@ title="%s" %s>%s</button>""" % (
 
         # ok to sync
         self._sync()
+
+    def maybe_auto_sync_media(self) -> None:
+        if not self.pm.profile["autoSync"] or self.safeMode or self.restoringBackup:
+            return
+        self.media_syncer.start()
 
     def _sync(self):
         from aqt.sync import SyncManager
