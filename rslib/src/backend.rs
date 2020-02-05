@@ -6,7 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
-use crate::media::sync::{sync_media, Progress as MediaSyncProgress};
+use crate::media::sync::{MediaSyncer, Progress as MediaSyncProgress};
 use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
@@ -318,14 +318,16 @@ impl Backend {
     }
 
     fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
-        let mut mgr = MediaManager::new(&input.media_folder, &input.media_db)?;
+        let mgr = MediaManager::new(&input.media_folder, &input.media_db)?;
 
         let callback = |progress: MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
         };
 
         let mut rt = Runtime::new().unwrap();
-        rt.block_on(sync_media(&mut mgr, &input.hkey, callback, &input.endpoint))
+
+        let mut syncer = MediaSyncer::new(&mgr, callback, &input.endpoint);
+        rt.block_on(syncer.sync(&input.hkey))
     }
 }
 
