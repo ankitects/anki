@@ -94,11 +94,6 @@ impl MediaManager {
         Ok(chosen_fname)
     }
 
-    // forceResync
-    pub fn clear(&mut self) -> Result<()> {
-        self.dbctx().transact(|ctx| ctx.clear())
-    }
-
     fn dbctx(&self) -> MediaDatabaseContext {
         MediaDatabaseContext::new(&self.db)
     }
