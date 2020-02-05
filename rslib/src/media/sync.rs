@@ -585,7 +585,8 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
         }
 
         let normalized = normalize_filename(&file.fname);
-        if let Cow::Owned(_) = normalized {
+        if let Cow::Owned(o) = normalized {
+            debug!("media check required: {} should be {}", &file.fname, o);
             return Err(media_check_required());
         }
 
