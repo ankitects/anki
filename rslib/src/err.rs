@@ -129,6 +129,8 @@ pub enum SyncErrorKind {
     AuthFailed,
     ServerMessage,
     Other,
+    MediaCheckRequired,
+    ResyncRequired,
 }
 
 fn error_for_status_code(info: String, code: StatusCode) -> AnkiError {

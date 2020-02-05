@@ -44,20 +44,6 @@ class MediaSyncState:
     removed_files: int = 0
 
 
-# fixme: sync.rs fixmes
-# fixme: maximum size when uploading
-# fixme: concurrent modifications during upload step
-# fixme: mediaSanity
-#         elif evt == "mediaSanity":
-#         showWarning(
-#             _(
-#                 """\
-# A problem occurred while syncing media. Please use Tools>Check Media, then \
-# sync again to correct the issue."""
-#             )
-#         )
-
-
 LogEntry = Union[MediaSyncState, str]
 
 
@@ -168,6 +154,14 @@ class MediaSyncer:
                 showWarning(
                     _(
                         "AnkiWeb encountered a problem. Please try again in a few minutes."
+                    )
+                )
+            elif kind == SyncErrorKind.MEDIA_CHECK_REQUIRED:
+                showWarning(_("Please use the Tools>Check Media menu option."))
+            elif kind == SyncErrorKind.RESYNC_REQUIRED:
+                showWarning(
+                    _(
+                        "Please sync again, and post on the support forum if this message keeps appearing."
                     )
                 )
             else:

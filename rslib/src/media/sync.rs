@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
+use crate::err::{AnkiError, Result, SyncErrorKind};
 use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
 use crate::media::files::{
     add_file_from_ankiweb, data_for_file, normalize_filename, remove_files, AddedFile,
@@ -22,6 +22,10 @@ use std::{io, time};
 
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
+static SYNC_SINGLE_FILE_MAX_BYTES: usize = 100 * 1024 * 1024;
+
+// fixme: non-normalized filenames on ankiweb
+// fixme: concurrent modifications during upload step
 
 /// The counts are not cumulative - the progress hook should accumulate them.
 #[derive(Debug)]
@@ -182,8 +186,11 @@ where
             if data == "OK" {
                 Ok(())
             } else {
-                // fixme: force resync, handle better
-                Err(AnkiError::server_message("resync required"))
+                self.ctx.transact(|ctx| ctx.force_resync())?;
+                Err(AnkiError::SyncError {
+                    info: "".into(),
+                    kind: SyncErrorKind::ResyncRequired,
+                })
             }
         } else {
             Err(AnkiError::server_message(resp.err))
@@ -556,16 +563,17 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
 
         let normalized = normalize_filename(&file.fname);
         if let Cow::Owned(_) = normalized {
-            // fixme: non-string err, or should ignore instead
-            return Err(AnkiError::sync_misc("invalid file found"));
+            return Err(media_check_required());
         }
 
         let file_data = data_for_file(media_folder, &file.fname)?;
 
         if let Some(data) = &file_data {
             if data.is_empty() {
-                // fixme: should ignore these, not error
-                return Err(AnkiError::sync_misc("0 byte file found"));
+                return Err(media_check_required());
+            }
+            if data.len() > SYNC_SINGLE_FILE_MAX_BYTES {
+                return Err(media_check_required());
             }
             accumulated_size += data.len();
             zip.start_file(format!("{}", idx), options)?;
@@ -603,6 +611,13 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
 
 fn version_string() -> String {
     format!("anki,{},{}", version(), std::env::consts::OS)
+}
+
+fn media_check_required() -> AnkiError {
+    AnkiError::SyncError {
+        info: "".into(),
+        kind: SyncErrorKind::MediaCheckRequired,
+    }
 }
 
 #[derive(Serialize)]

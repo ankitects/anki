@@ -87,6 +87,8 @@ impl std::convert::From<SyncErrorKind> for i32 {
             SyncErrorKind::ClientTooOld => V::ClientTooOld,
             SyncErrorKind::AuthFailed => V::AuthFailed,
             SyncErrorKind::ServerMessage => V::ServerMessage,
+            SyncErrorKind::MediaCheckRequired => V::MediaCheckRequired,
+            SyncErrorKind::ResyncRequired => V::ResyncRequired,
             SyncErrorKind::Other => V::Other,
         }) as i32
     }
