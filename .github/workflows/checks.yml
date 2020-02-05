@@ -20,5 +20,5 @@ jobs:
       - name: Run checks
         run: |
           # add requirements
-          sudo apt install portaudio19-dev gettext rename
+          sudo apt update; sudo apt install portaudio19-dev gettext rename
           make check build BUILDFLAGS=""
