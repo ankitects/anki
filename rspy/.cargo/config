@@ -1,0 +1,2 @@
+[target.'cfg(target_os="macos")']
+rustflags = ["-Clink-arg=-mmacosx-version-min=10.7"]
