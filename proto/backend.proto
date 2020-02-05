@@ -97,6 +97,8 @@ message SyncError {
         CLIENT_TOO_OLD = 3;
         AUTH_FAILED = 4;
         SERVER_MESSAGE = 5;
+        MEDIA_CHECK_REQUIRED = 6;
+        RESYNC_REQUIRED = 7;
     }
     SyncErrorKind kind = 2;
 }

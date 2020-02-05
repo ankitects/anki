@@ -244,6 +244,12 @@ delete from media where fname=?"
             .collect();
         Ok(map?)
     }
+
+    pub(super) fn force_resync(&mut self) -> Result<()> {
+        self.db
+            .execute_batch("delete from media; update meta set lastUsn=0, usn=0")
+            .map_err(Into::into)
+    }
 }
 
 #[cfg(test)]
