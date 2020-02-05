@@ -247,7 +247,7 @@ delete from media where fname=?"
 
     pub(super) fn force_resync(&mut self) -> Result<()> {
         self.db
-            .execute_batch("delete from media; update meta set lastUsn=0, usn=0")
+            .execute_batch("delete from media; update meta set lastUsn=0, dirMod=0")
             .map_err(Into::into)
     }
 }
