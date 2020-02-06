@@ -144,6 +144,8 @@ class Overview:
             ),
             css=["overview.css"],
             js=["jquery.js", "overview.js"],
+            caller=self,
+            view_name="overview",
         )
 
     def _desc(self, deck):

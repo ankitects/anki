@@ -1639,7 +1639,7 @@ where id in %s"""
             "reviewer.js",
         ]
         self._previewWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, caller=self
         )
         self._previewWeb.set_bridge_command(self._on_preview_bridge_cmd, "preview")
 

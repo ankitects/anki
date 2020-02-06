@@ -27,7 +27,9 @@ class Toolbar:
 
     def draw(self):
         self.web.set_bridge_command(self._linkHandler, "top_toolbar")
-        self.web.stdHtml(self._body % self._centerLinks(), css=["toolbar.css"])
+        self.web.stdHtml(
+            self._body % self._centerLinks(), css=["toolbar.css"], caller=self
+        )
         self.web.adjustHeightToFit()
 
     # Available links
@@ -114,6 +116,8 @@ class BottomBar(Toolbar):
         # note: some screens may override this
         self.web.set_bridge_command(self._linkHandler, "bottom_toolbar")
         self.web.stdHtml(
-            self._centerBody % buf, css=["toolbar.css", "toolbar-bottom.css"]
+            self._centerBody % buf,
+            css=["toolbar.css", "toolbar-bottom.css"],
+            caller=self,
         )
         self.web.adjustHeightToFit()

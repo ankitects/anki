@@ -166,6 +166,7 @@ class Editor:
             _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
             css=["editor.css"],
             js=["jquery.js", "editor.js"],
+            caller=self,
         )
 
     # Top buttons

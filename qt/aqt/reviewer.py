@@ -146,6 +146,8 @@ class Reviewer:
                 "mathjax/MathJax.js",
                 "reviewer.js",
             ],
+            caller=self,
+            view_name="reviewer",
         )
         # show answer / ease buttons
         self.bottom.web.show()
@@ -153,6 +155,7 @@ class Reviewer:
             self._bottomHTML(),
             css=["toolbar-bottom.css", "reviewer-bottom.css"],
             js=["jquery.js", "reviewer-bottom.js"],
+            caller=self,
         )
 
     # Showing the question

@@ -215,10 +215,10 @@ class CardLayout(QDialog):
             "reviewer.js",
         ]
         pform.frontWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, caller=self
         )
         pform.backWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, caller=self
         )
         pform.frontWeb.set_bridge_command(self._on_bridge_cmd, "card_layout")
         pform.backWeb.set_bridge_command(self._on_bridge_cmd, "card_layout")

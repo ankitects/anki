@@ -100,6 +100,8 @@ class DeckBrowser:
             self._body % dict(tree=tree, stats=stats, countwarn=self._countWarn()),
             css=["deckbrowser.css"],
             js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
+            caller=self,
+            view_name="deckbrowser",
         )
         self.web.key = "deckBrowser"
         self._drawButtons()

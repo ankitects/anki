@@ -666,7 +666,9 @@ from the profile screen."
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """
-            % (i, b)
+            % (i, b),
+            caller=self,
+            view_name="reset",
         )
         self.bottomWeb.hide()
         self.web.setFocus()

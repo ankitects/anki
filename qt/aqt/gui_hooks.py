@@ -151,6 +151,52 @@ class _AvPlayerWillPlayHook:
 av_player_will_play = _AvPlayerWillPlayHook()
 
 
+class _BottomToolbarWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.toolbar.BottomBar"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.toolbar.BottomBar"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, bottom_toolbar: aqt.toolbar.BottomBar)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.toolbar.BottomBar"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        bottom_toolbar: aqt.toolbar.BottomBar,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, bottom_toolbar)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+bottom_toolbar_will_set_web_content = _BottomToolbarWillSetWebContentFilter()
+
+
 class _BrowserDidChangeRowHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
@@ -256,6 +302,98 @@ class _CardWillShowFilter:
 
 
 card_will_show = _CardWillShowFilter()
+
+
+class _ClayoutBackWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.clayout.CardLayout"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.clayout.CardLayout"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, clayout: aqt.clayout.CardLayout)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.clayout.CardLayout"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        clayout: aqt.clayout.CardLayout,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, clayout)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+clayout_back_will_set_web_content = _ClayoutBackWillSetWebContentFilter()
+
+
+class _ClayoutFrontWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.clayout.CardLayout"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.clayout.CardLayout"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, clayout: aqt.clayout.CardLayout)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.clayout.CardLayout"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        clayout: aqt.clayout.CardLayout,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, clayout)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+clayout_front_will_set_web_content = _ClayoutFrontWillSetWebContentFilter()
 
 
 class _CollectionDidLoadHook:
@@ -519,6 +657,50 @@ class _EditorDidUpdateTagsHook:
 editor_did_update_tags = _EditorDidUpdateTagsHook()
 
 
+class _EditorWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.editor.Editor"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.editor.Editor"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.editor.Editor"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, web_content: aqt.webview.ModifiableWebContent, editor: aqt.editor.Editor
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+editor_will_set_web_content = _EditorWillSetWebContentFilter()
+
+
 class _EditorWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.editor.EditorWebView", QMenu], None]] = []
 
@@ -570,6 +752,234 @@ class _EditorWillUseFontForFieldFilter:
 
 
 editor_will_use_font_for_field = _EditorWillUseFontForFieldFilter()
+
+
+class _MainDeckbrowserWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.deckbrowser.DeckBrowser"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.deckbrowser.DeckBrowser"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, deckbrowser: aqt.deckbrowser.DeckBrowser)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.deckbrowser.DeckBrowser"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        deckbrowser: aqt.deckbrowser.DeckBrowser,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, deckbrowser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+main_deckbrowser_will_set_web_content = _MainDeckbrowserWillSetWebContentFilter()
+
+
+class _MainOverviewWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.overview.Overview"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.overview.Overview"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, overview: aqt.overview.Overview)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.overview.Overview"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        overview: aqt.overview.Overview,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, overview)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+main_overview_will_set_web_content = _MainOverviewWillSetWebContentFilter()
+
+
+class _MainResetWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.AnkiQt"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.AnkiQt"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, mw: aqt.AnkiQt)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.AnkiQt"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, web_content: aqt.webview.ModifiableWebContent, mw: aqt.AnkiQt
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, mw)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+main_reset_will_set_web_content = _MainResetWillSetWebContentFilter()
+
+
+class _MainReviewerWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.reviewer.Reviewer"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.reviewer.Reviewer"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, reviewer: aqt.reviewer.Reviewer)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.reviewer.Reviewer"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        reviewer: aqt.reviewer.Reviewer,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, reviewer)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+main_reviewer_will_set_web_content = _MainReviewerWillSetWebContentFilter()
+
+
+class _PreviewerWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.browser.Browser"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.browser.Browser"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, browser: aqt.browser.Browser)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.browser.Browser"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        browser: aqt.browser.Browser,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+previewer_will_set_web_content = _PreviewerWillSetWebContentFilter()
 
 
 class _ProfileDidOpenHook:
@@ -961,6 +1371,52 @@ class _StateWillChangeHook:
 state_will_change = _StateWillChangeHook()
 
 
+class _StatsWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.stats.DeckStats"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.stats.DeckStats"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, deckstats: aqt.stats.DeckStats)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.stats.DeckStats"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        deckstats: aqt.stats.DeckStats,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, deckstats)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+stats_will_set_web_content = _StatsWillSetWebContentFilter()
+
+
 class _StyleDidInitFilter:
     _hooks: List[Callable[[str], str]] = []
 
@@ -986,6 +1442,52 @@ class _StyleDidInitFilter:
 
 
 style_did_init = _StyleDidInitFilter()
+
+
+class _TopToolbarWillSetWebContentFilter:
+    _hooks: List[
+        Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.toolbar.Toolbar"],
+            aqt.webview.ModifiableWebContent,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.toolbar.Toolbar"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        """(web_content: aqt.webview.ModifiableWebContent, top_toolbar: aqt.toolbar.Toolbar)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.webview.ModifiableWebContent", "aqt.toolbar.Toolbar"],
+            aqt.webview.ModifiableWebContent,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        web_content: aqt.webview.ModifiableWebContent,
+        top_toolbar: aqt.toolbar.Toolbar,
+    ) -> aqt.webview.ModifiableWebContent:
+        for filter in self._hooks:
+            try:
+                web_content = filter(web_content, top_toolbar)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return web_content
+
+
+top_toolbar_will_set_web_content = _TopToolbarWillSetWebContentFilter()
 
 
 class _UndoStateDidChangeHook:

@@ -239,6 +239,93 @@ hooks = [
         args=["menu: QMenu", "deck_id: int"],
         legacy_hook="showDeckOptions",
     ),
+    # Web view content
+    ###################
+    Hook(
+        name="editor_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "editor: aqt.editor.Editor",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="main_deckbrowser_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "deckbrowser: aqt.deckbrowser.DeckBrowser",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="main_overview_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "overview: aqt.overview.Overview",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="main_reviewer_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "reviewer: aqt.reviewer.Reviewer",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="main_reset_will_set_web_content",
+        args=["web_content: aqt.webview.ModifiableWebContent", "mw: aqt.AnkiQt",],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="stats_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "deckstats: aqt.stats.DeckStats",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="top_toolbar_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "top_toolbar: aqt.toolbar.Toolbar",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="bottom_toolbar_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "bottom_toolbar: aqt.toolbar.BottomBar",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="previewer_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "browser: aqt.browser.Browser",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="clayout_front_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "clayout: aqt.clayout.CardLayout",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
+    Hook(
+        name="clayout_back_will_set_web_content",
+        args=[
+            "web_content: aqt.webview.ModifiableWebContent",
+            "clayout: aqt.clayout.CardLayout",
+        ],
+        return_type="aqt.webview.ModifiableWebContent",
+    ),
 ]
 
 if __name__ == "__main__":

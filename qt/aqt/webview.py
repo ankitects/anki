@@ -275,7 +275,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         caller: Optional[Any],
         view_name: Optional[str],
     ) -> ModifiableWebContent:
-        name = self.title.replace(" ", "_") + f"_{view_name}" if view_name else ""
+        name = self.title.replace(" ", "_") + (f"_{view_name}" if view_name else "")
         hook_name = f"{name}_will_set_web_content"
         hook: Callable[
             [ModifiableWebContent, Optional[Any]], ModifiableWebContent
