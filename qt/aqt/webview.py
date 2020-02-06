@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import dataclasses
 import json
 import math
 import sys
@@ -94,6 +95,18 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
 
     def _onCmd(self, str):
         return self._onBridgeCmd(str)
+
+
+# Add-ons
+##########################################################################
+
+
+@dataclasses.dataclass
+class ModifiableWebContent:
+    body: str = ""
+    head: str = ""
+    addon_css: List[str] = dataclasses.field(default_factory=lambda: [])
+    addon_js: List[str] = dataclasses.field(default_factory=lambda: [])
 
 
 # Main web view
@@ -256,11 +269,44 @@ class AnkiWebView(QWebEngineView):  # type: ignore
             return QColor("#ececec")
         return self.style().standardPalette().color(QPalette.Window)
 
-    def stdHtml(self, body, css=None, js=None, head=""):
+    def _filterWebContent(
+        self, web_content: ModifiableWebContent, caller: Optional[Any]
+    ) -> ModifiableWebContent:
+        name = self.title.replace(" ", "_")
+        hook_name = f"{name}_will_set_web_content"
+        hook: Callable[
+            [ModifiableWebContent, Optional[Any]], ModifiableWebContent
+        ] = getattr(gui_hooks, hook_name, None)
+        if not hook:
+            return web_content
+        return hook(web_content, caller)
+
+    def stdHtml(
+        self,
+        body: str,
+        css: Optional[List[str]] = None,
+        js: Optional[List[str]] = None,
+        head: str = "",
+        caller: Optional[Any] = None,
+    ):
         if css is None:
             css = []
         if js is None:
             js = ["jquery.js"]
+
+        if self.title != "default":
+            # only allow add-on modifications to named web views
+            web_content = self._filterWebContent(
+                ModifiableWebContent(body=body, head=head, addon_js=[], addon_css=[]),
+                caller,
+            )
+            body = web_content.body
+            head = web_content.head
+            addon_js = web_content.addon_js
+            addon_css = web_content.addon_css
+        else:
+            addon_js = []
+            addon_css = []
 
         palette = self.style().standardPalette()
         color_hl = palette.color(QPalette.Highlight).name()
@@ -302,11 +348,14 @@ div[contenteditable="true"]:focus {
             }
 
         csstxt = "\n".join(
-            [self.bundledCSS("webview.css")] + [self.bundledCSS(fname) for fname in css]
+            [self.bundledCSS("webview.css")]
+            + [self.bundledCSS(fname) for fname in css]
+            + [self.bundledCSS(fname, addon=True) for fname in addon_css]
         )
         jstxt = "\n".join(
             [self.bundledScript("webview.js")]
             + [self.bundledScript(fname) for fname in js]
+            + [self.bundledScript(fname, addon=True) for fname in addon_js]
         )
         from aqt import mw
 
@@ -341,17 +390,23 @@ body {{ zoom: {}; background: {}; {} }}
         # print(html)
         self.setHtml(html)
 
-    def webBundlePath(self, path):
+    def webBundlePath(self, path: str, addon: bool = False) -> str:
         from aqt import mw
 
-        return "http://127.0.0.1:%d/_anki/%s" % (mw.mediaServer.getPort(), path)
+        identifier = "_anki" if not addon else "_addons"
 
-    def bundledScript(self, fname):
-        return '<script src="%s"></script>' % self.webBundlePath(fname)
+        return "http://127.0.0.1:%d/%s/%s" % (
+            mw.mediaServer.getPort(),
+            identifier,
+            path,
+        )
 
-    def bundledCSS(self, fname):
+    def bundledScript(self, fname: str, addon: bool = False) -> str:
+        return '<script src="%s"></script>' % self.webBundlePath(fname, addon=addon)
+
+    def bundledCSS(self, fname: str, addon: bool = False) -> str:
         return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(
-            fname
+            fname, addon=addon
         )
 
     def eval(self, js):
