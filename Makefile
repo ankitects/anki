@@ -10,7 +10,7 @@ BUILDFLAGS := --release --strip
 RUNFLAGS :=
 CHECKABLE_PY := pylib qt
 CHECKABLE_RS := rslib
-DEVEL := rspy pylib qt
+DEVEL := rslib rspy pylib qt
 
 .PHONY: all
 all: run
