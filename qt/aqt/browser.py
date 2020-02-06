@@ -573,7 +573,7 @@ class Browser(QMainWindow):
         f = self.form
         f.previewButton.clicked.connect(self.onTogglePreview)
         f.previewButton.setToolTip(
-            _("Preview Selected Card (%s)") % shortcut(_("Ctrl+Shift+P"))
+            _("Preview Selected Card (%s)") % shortcut("Ctrl+Shift+P")
         )
         f.previewButton.setShortcut("Ctrl+Shift+P")
 

@@ -1086,7 +1086,7 @@ title="%s" %s>%s</button>""" % (
         m.actionAbout.triggered.connect(self.onAbout)
         m.actionUndo.triggered.connect(self.onUndo)
         if qtminor < 11:
-            m.actionUndo.setShortcut(QKeySequence(_("Ctrl+Alt+Z")))
+            m.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
         m.actionFullDatabaseCheck.triggered.connect(self.onCheckDB)
         m.actionCheckMediaDatabase.triggered.connect(self.onCheckMediaDB)
         m.actionDocumentation.triggered.connect(self.onDocumentation)
