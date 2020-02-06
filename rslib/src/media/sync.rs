@@ -2,11 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, SyncErrorKind};
+use crate::media::changetracker::register_changes;
 use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
 use crate::media::files::{
     add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, remove_files, AddedFile,
 };
-use crate::media::{register_changes, MediaManager};
+use crate::media::MediaManager;
 use crate::version;
 use bytes::Bytes;
 use log::debug;
