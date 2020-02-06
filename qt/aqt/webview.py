@@ -103,6 +103,48 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
 
 @dataclasses.dataclass
 class ModifiableWebContent:
+    """Data exchange class for web content that is modifiable by add-on filters
+
+    Attributes:
+        body {str} -- HTML body
+        head {str} -- HTML head
+        addon_css {List[str]} -- List of subpaths, each pointing to an add-on-provided
+                                 CSS file
+        addon_js {List[str]} -- List of subpaths, each pointing to an add-on-provided
+                                JavaScript file
+
+    Important Notes:
+        - When modifying the body or head of a web view, please make sure your changes
+          only perform the minimum-required edits to make your add-on work. You should
+          attempt to preserve as much of the original HTML as possible in order to
+          avoid clashes with Anki's code or that of other add-ons. If possible, please
+          only append or prepend your changes to the existing HTML. E.g.:
+          
+          > def on_view_will_set_web_content(web_content: ModifiableWebContent, view):
+          >    web_content.body += "<your_html>"
+          >    return web_content
+        
+        - The paths specified in `addon_css` and `addon_js` need to be accessible by
+          Anki's media server. I.e., they should match the web export patterns you have
+          specified via aqt.addons.AddonManager.setWebExports()
+          
+          E.g., to allow access to an `addon.js` and `addon.css` residing in a "web"
+          subfolder in your add-on package, first register the corresponding web export:
+          
+          > from aqt import mw
+          > mw.addonManager.setWebExports(__name__, r"web/.*(css|js)")
+          
+          Then append the subpaths to the corresponding web_content fields within the
+          filter implemented by your add-on:
+          
+          > def on_view_will_set_web_content(web_content: ModifiableWebContent, view):
+          >     web_content.addon_css.append(
+          >         f"{mw.addonManager.addonFromModule(__name__)}/web/addon.css")
+          >     web_content.addon_js.append(
+          >         f"{mw.addonManager.addonFromModule(__name__)}/web/addon.js")
+          >     return web_content
+    """
+
     body: str = ""
     head: str = ""
     addon_css: List[str] = dataclasses.field(default_factory=lambda: [])
@@ -275,10 +317,40 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         caller: Optional[Any],
         view_name: Optional[str],
     ) -> ModifiableWebContent:
+        """Runs web content through addon-defined filters that are specific to
+        individual web views
+        
+        Arguments:
+            web_content {ModifiableWebContent} -- Data class storing web view HTML and
+                                                  addon-provided JS and CSS additions
+            caller {Optional[Any]} -- Anki object that sets the web view's contents
+                                      (e.g. a Reviewer or Editor instance)
+            view_name {Optional[str]} -- In case of web views that are reused across
+                                         multiple GUI views – the name of that view
+                                         (e.g. "deckbrowser", "overview", or "reviewer"
+                                         for the main webview)
+        
+        Notes:
+            - Filter names are constructed dynamically from the web view title
+              and, optionally, a `view_name` specified by the caller. The general
+              form is: `<caller>[_<view_name>]_will_set_web_content`
+              
+              E.g.:
+              - aqt.reviewer.Reviewer: `main_reviewer_will_set_web_content`
+              - aqt.editor.Editor: `editor_will_set_web_content`
+              
+              For a list of all web content hooks please either see the
+              "Web view content" section in qt/tools/genhooks_gui.py or
+              look through the actual filters generated in gui_hooks.py
+        
+        Returns:
+            ModifiableWebContent -- Web content, with changes applied by add-ons
+                                    (if available)
+        """
         name = self.title.replace(" ", "_") + (f"_{view_name}" if view_name else "")
         hook_name = f"{name}_will_set_web_content"
-        hook: Callable[
-            [ModifiableWebContent, Optional[Any]], ModifiableWebContent
+        hook: Optional[
+            Callable[[ModifiableWebContent, Optional[Any]], ModifiableWebContent]
         ] = getattr(gui_hooks, hook_name, None)
         if not hook:
             return web_content
