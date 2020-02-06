@@ -361,7 +361,7 @@ fn progress_to_proto_bytes(progress: Progress) -> Vec<u8> {
     let proto = pt::Progress {
         value: Some(match progress {
             Progress::MediaSync(p) => pt::progress::Value::MediaSync(pt::MediaSyncProgress {
-                downloaded_meta: p.downloaded_meta as u32,
+                checked: p.checked as u32,
                 downloaded_files: p.downloaded_files as u32,
                 downloaded_deletions: p.downloaded_deletions as u32,
                 uploaded_files: p.uploaded_files as u32,

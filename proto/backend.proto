@@ -104,7 +104,7 @@ message SyncError {
 }
 
 message MediaSyncProgress {
-    uint32 downloaded_meta = 1;
+    uint32 checked = 1;
     uint32 downloaded_files = 2;
     uint32 downloaded_deletions = 3;
     uint32 uploaded_files = 4;

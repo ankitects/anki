@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, SyncErrorKind};
-use crate::media::changetracker::register_changes;
+use crate::media::changetracker::ChangeTracker;
 use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
 use crate::media::files::{
     add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, remove_files, AddedFile,
@@ -10,6 +10,7 @@ use crate::media::files::{
 use crate::media::MediaManager;
 use crate::version;
 use bytes::Bytes;
+use coarsetime::Instant;
 use log::debug;
 use reqwest;
 use reqwest::{multipart, Client, Response};
@@ -25,10 +26,9 @@ static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
 static SYNC_SINGLE_FILE_MAX_BYTES: usize = 100 * 1024 * 1024;
 
-
 #[derive(Debug, Default)]
 pub struct MediaSyncProgress {
-    pub downloaded_meta: usize,
+    pub checked: usize,
     pub downloaded_files: usize,
     pub downloaded_deletions: usize,
     pub uploaded_files: usize,
@@ -45,7 +45,7 @@ where
     client: Client,
     progress_cb: P,
     progress: MediaSyncProgress,
-    progress_updated: u64,
+    progress_updated: Instant,
     endpoint: &'a str,
 }
 
@@ -150,7 +150,7 @@ where
             client,
             progress_cb,
             progress: Default::default(),
-            progress_updated: 0,
+            progress_updated: Instant::now(),
             endpoint,
         }
     }
@@ -161,8 +161,7 @@ where
 
     #[allow(clippy::useless_let_if_seq)]
     pub async fn sync(&mut self, hkey: &str) -> Result<()> {
-        // make sure media DB is up to date
-        register_changes(&mut self.ctx, self.mgr.media_folder.as_path())?;
+        self.register_changes()?;
 
         let meta = self.ctx.get_meta()?;
         let client_usn = meta.last_sync_usn;
@@ -192,9 +191,33 @@ where
             self.finalize_sync().await?;
         }
 
+        self.fire_progress_cb()?;
+
         debug!("media sync complete");
 
         Ok(())
+    }
+
+    /// Make sure media DB is up to date.
+    fn register_changes(&mut self) -> Result<()> {
+        // make borrow checker happy
+        let progress = &mut self.progress;
+        let updated = &mut self.progress_updated;
+        let progress_cb = &self.progress_cb;
+
+        let progress = |checked| {
+            progress.checked = checked;
+            let now = Instant::now();
+            if now.duration_since(*updated).as_secs() < 1 {
+                true
+            } else {
+                *updated = now;
+                (progress_cb)(progress)
+            }
+        };
+
+        ChangeTracker::new(self.mgr.media_folder.as_path(), progress)
+            .register_changes(&mut self.ctx)
     }
 
     async fn sync_begin(&self, hkey: &str) -> Result<(String, i32)> {
@@ -229,8 +252,8 @@ where
             }
             last_usn = batch.last().unwrap().usn;
 
-            self.progress.downloaded_meta += batch.len();
-            self.notify_progress()?;
+            self.progress.checked += batch.len();
+            self.maybe_fire_progress_cb()?;
 
             let (to_download, to_delete, to_remove_pending) =
                 determine_required_changes(&mut self.ctx, &batch)?;
@@ -238,7 +261,7 @@ where
             // file removal
             remove_files(self.mgr.media_folder.as_path(), to_delete.as_slice())?;
             self.progress.downloaded_deletions += to_delete.len();
-            self.notify_progress()?;
+            self.maybe_fire_progress_cb()?;
 
             // file download
             let mut downloaded = vec![];
@@ -258,7 +281,7 @@ where
                 downloaded.extend(download_batch);
 
                 self.progress.downloaded_files += len;
-                self.notify_progress()?;
+                self.maybe_fire_progress_cb()?;
             }
 
             // then update the DB
@@ -296,7 +319,7 @@ where
 
             self.progress.uploaded_files += processed_files.len();
             self.progress.uploaded_deletions += processed_deletions.len();
-            self.notify_progress()?;
+            self.maybe_fire_progress_cb()?;
 
             let fnames: Vec<_> = processed_files
                 .iter()
@@ -347,21 +370,21 @@ where
         }
     }
 
-    fn notify_progress(&mut self) -> Result<()> {
-        let now = time::SystemTime::now()
-            .duration_since(time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        if now - self.progress_updated < 1 {
-            return Ok(());
-        }
-
+    fn fire_progress_cb(&self) -> Result<()> {
         if (self.progress_cb)(&self.progress) {
-            self.progress_updated = now;
             Ok(())
         } else {
             Err(AnkiError::Interrupted)
         }
+    }
+
+    fn maybe_fire_progress_cb(&mut self) -> Result<()> {
+        let now = Instant::now();
+        if now.duration_since(self.progress_updated).as_secs() < 1 {
+            return Ok(());
+        }
+        self.progress_updated = now;
+        self.fire_progress_cb()
     }
 
     async fn fetch_record_batch(&self, last_usn: i32) -> Result<Vec<ServerMediaRecord>> {

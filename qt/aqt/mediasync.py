@@ -248,13 +248,13 @@ class MediaSyncDialog(QDialog):
 
     def _logentry_to_text(self, e: MediaSyncProgress) -> str:
         return _(
-            "Added: %(a_up)s↑, %(a_dwn)s↓, Removed: %(r_up)s↑, %(r_dwn)s↓, Checked: %(chk)s"
+            "Added: %(a_up)s↑ %(a_dwn)s↓, Removed: %(r_up)s↑ %(r_dwn)s↓, Checked: %(chk)s"
         ) % dict(
             a_up=e.uploaded_files,
             a_dwn=e.downloaded_files,
             r_up=e.uploaded_deletions,
             r_dwn=e.downloaded_deletions,
-            chk=e.downloaded_meta,
+            chk=e.checked,
         )
 
     def _on_log_entry(self, entry: LogEntryWithTime):

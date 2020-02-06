@@ -28,6 +28,7 @@ zip = "0.5.4"
 log = "0.4.8"
 serde_tuple = "0.4.0"
 trash = "1.0.0"
+coarsetime = "0.1.12"
 
 [target.'cfg(target_vendor="apple")'.dependencies]
 rusqlite = { version = "0.21.0", features = ["trace"] }
