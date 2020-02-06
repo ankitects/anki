@@ -93,7 +93,14 @@ class Editor:
         self.widget.setLayout(l)
         self.outerLayout = l
 
-    def setupWeb(self) -> None:
+    def setupWeb(self, head: str = "") -> None:
+        """Head -- some string to put in the html's head.
+
+
+        Allows add-ons to add css/js by redefining setupWeb and
+        appending it to the input head, then calling this method.
+
+        """
         self.web = EditorWebView(self.widget, self)
         self.web.title = "editor"
         self.web.allowDrops = True
@@ -167,6 +174,7 @@ class Editor:
             _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
             css=["editor.css"],
             js=["jquery.js", "editor.js"],
+            head=head,
         )
 
     # Top buttons
