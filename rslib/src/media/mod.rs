@@ -7,7 +7,7 @@ use crate::media::files::{
     add_data_to_folder_uniquely, mtime_as_i64, sha1_of_data, sha1_of_file,
     MEDIA_SYNC_FILESIZE_LIMIT, NONSYNCABLE_FILENAME,
 };
-use crate::media::sync::{MediaSyncer, Progress};
+use crate::media::sync::{MediaSyncProgress, MediaSyncer};
 use rusqlite::Connection;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -98,7 +98,7 @@ impl MediaManager {
     /// Sync media.
     pub async fn sync_media<F>(&self, progress: F, endpoint: &str, hkey: &str) -> Result<()>
     where
-        F: Fn(Progress) -> bool,
+        F: Fn(&MediaSyncProgress) -> bool,
     {
         let mut syncer = MediaSyncer::new(self, progress, endpoint);
         syncer.sync(hkey).await

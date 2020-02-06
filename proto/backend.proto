@@ -104,12 +104,11 @@ message SyncError {
 }
 
 message MediaSyncProgress {
-    oneof value {
-        uint32 downloaded_changes = 1;
-        uint32 downloaded_files = 2;
-        MediaSyncUploadProgress uploaded = 3;
-        uint32 removed_files = 4;
-    }
+    uint32 downloaded_meta = 1;
+    uint32 downloaded_files = 2;
+    uint32 downloaded_deletions = 3;
+    uint32 uploaded_files = 4;
+    uint32 uploaded_deletions = 5;
 }
 
 message MediaSyncUploadProgress {
