@@ -275,7 +275,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         caller: Optional[Any],
         view_name: Optional[str],
     ) -> ModifiableWebContent:
-        name = view_name or self.title.replace(" ", "_")
+        name = self.title.replace(" ", "_") + f"_{view_name}" if view_name else ""
         hook_name = f"{name}_will_set_web_content"
         hook: Callable[
             [ModifiableWebContent, Optional[Any]], ModifiableWebContent
@@ -298,7 +298,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         if js is None:
             js = ["jquery.js"]
 
-        if self.title != "default" or not view_name:
+        if self.title != "default":
             # only allow add-on modifications to named web views
             web_content = self._filterWebContent(
                 ModifiableWebContent(body=body, head=head, addon_js=[], addon_css=[]),
