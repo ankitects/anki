@@ -5,9 +5,8 @@ from __future__ import annotations
 
 import time
 from concurrent.futures import Future
-from copy import copy
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import List, Union
 
 import aqt
 from anki import hooks
@@ -16,11 +15,7 @@ from anki.media import media_paths_from_col_path
 from anki.rsbackend import (
     DBError,
     Interrupted,
-    MediaSyncDownloadedChanges,
-    MediaSyncDownloadedFiles,
     MediaSyncProgress,
-    MediaSyncRemovedFiles,
-    MediaSyncUploaded,
     NetworkError,
     NetworkErrorKind,
     Progress,
@@ -34,17 +29,7 @@ from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton
 from aqt.utils import showWarning
 
-
-@dataclass
-class MediaSyncState:
-    downloaded_changes: int = 0
-    downloaded_files: int = 0
-    uploaded_files: int = 0
-    uploaded_removals: int = 0
-    removed_files: int = 0
-
-
-LogEntry = Union[MediaSyncState, str]
+LogEntry = Union[MediaSyncProgress, str]
 
 
 @dataclass
@@ -56,7 +41,7 @@ class LogEntryWithTime:
 class MediaSyncer:
     def __init__(self, mw: aqt.main.AnkiQt):
         self.mw = mw
-        self._sync_state: Optional[MediaSyncState] = None
+        self._syncing: bool = False
         self._log: List[LogEntryWithTime] = []
         self._want_stop = False
         hooks.rust_progress_callback.append(self._on_rust_progress)
@@ -66,28 +51,16 @@ class MediaSyncer:
         if progress.kind != ProgressKind.MediaSyncProgress:
             return proceed
 
-        self._update_state(progress.val)
-        self._log_and_notify(copy(self._sync_state))
+        self._log_and_notify(progress.val)
 
         if self._want_stop:
             return False
         else:
             return proceed
 
-    def _update_state(self, progress: MediaSyncProgress) -> None:
-        if isinstance(progress, MediaSyncDownloadedChanges):
-            self._sync_state.downloaded_changes += progress.changes
-        elif isinstance(progress, MediaSyncDownloadedFiles):
-            self._sync_state.downloaded_files += progress.files
-        elif isinstance(progress, MediaSyncUploaded):
-            self._sync_state.uploaded_files += progress.files
-            self._sync_state.uploaded_removals += progress.deletions
-        elif isinstance(progress, MediaSyncRemovedFiles):
-            self._sync_state.removed_files += progress.files
-
     def start(self) -> None:
         "Start media syncing in the background, if it's not already running."
-        if self._sync_state is not None:
+        if self._syncing:
             return
 
         hkey = self.mw.pm.sync_key()
@@ -99,7 +72,7 @@ class MediaSyncer:
             return
 
         self._log_and_notify(_("Media sync starting..."))
-        self._sync_state = MediaSyncState()
+        self._syncing = True
         self._want_stop = False
         gui_hooks.media_sync_did_start_or_stop(True)
 
@@ -128,7 +101,7 @@ class MediaSyncer:
         )
 
     def _on_finished(self, future: Future) -> None:
-        self._sync_state = None
+        self._syncing = False
         gui_hooks.media_sync_did_start_or_stop(False)
 
         exc = future.exception()
@@ -191,7 +164,7 @@ class MediaSyncer:
         self._want_stop = True
 
     def is_syncing(self) -> bool:
-        return self._sync_state is not None
+        return self._syncing
 
     def _on_start_stop(self, running: bool):
         self.mw.toolbar.set_sync_active(running)  # type: ignore
@@ -267,21 +240,21 @@ class MediaSyncDialog(QDialog):
     def _entry_to_text(self, entry: LogEntryWithTime):
         if isinstance(entry.entry, str):
             txt = entry.entry
-        elif isinstance(entry.entry, MediaSyncState):
+        elif isinstance(entry.entry, MediaSyncProgress):
             txt = self._logentry_to_text(entry.entry)
         else:
             assert_impossible(entry.entry)
         return self._time_and_text(entry.time, txt)
 
-    def _logentry_to_text(self, e: MediaSyncState) -> str:
+    def _logentry_to_text(self, e: MediaSyncProgress) -> str:
         return _(
-            "Added: %(a_up)s ↑, %(a_dwn)s ↓, Removed: %(r_up)s ↑, %(r_dwn)s ↓, Checked: %(chk)s"
+            "Added: %(a_up)s↑, %(a_dwn)s↓, Removed: %(r_up)s↑, %(r_dwn)s↓, Checked: %(chk)s"
         ) % dict(
             a_up=e.uploaded_files,
             a_dwn=e.downloaded_files,
-            r_up=e.uploaded_removals,
-            r_dwn=e.removed_files,
-            chk=e.downloaded_changes,
+            r_up=e.uploaded_deletions,
+            r_dwn=e.downloaded_deletions,
+            chk=e.downloaded_meta,
         )
 
     def _on_log_entry(self, entry: LogEntryWithTime):

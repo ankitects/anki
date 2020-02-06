@@ -6,7 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
-use crate::media::sync::Progress as MediaSyncProgress;
+use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::template::{
@@ -29,8 +29,8 @@ pub struct Backend {
     progress_callback: Option<ProtoProgressCallback>,
 }
 
-enum Progress {
-    MediaSync(MediaSyncProgress),
+enum Progress<'a> {
+    MediaSync(&'a MediaSyncProgress),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -320,7 +320,7 @@ impl Backend {
     fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
         let mgr = MediaManager::new(&input.media_folder, &input.media_db)?;
 
-        let callback = |progress: MediaSyncProgress| {
+        let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
         };
 
@@ -360,20 +360,13 @@ fn rendered_node_to_proto(node: RenderedNode) -> pt::rendered_template_node::Val
 fn progress_to_proto_bytes(progress: Progress) -> Vec<u8> {
     let proto = pt::Progress {
         value: Some(match progress {
-            Progress::MediaSync(progress) => {
-                use pt::media_sync_progress::Value as V;
-                use MediaSyncProgress as P;
-                let val = match progress {
-                    P::DownloadedChanges(n) => V::DownloadedChanges(n as u32),
-                    P::DownloadedFiles(n) => V::DownloadedFiles(n as u32),
-                    P::Uploaded { files, deletions } => V::Uploaded(pt::MediaSyncUploadProgress {
-                        files: files as u32,
-                        deletions: deletions as u32,
-                    }),
-                    P::RemovedFiles(n) => V::RemovedFiles(n as u32),
-                };
-                pt::progress::Value::MediaSync(pt::MediaSyncProgress { value: Some(val) })
-            }
+            Progress::MediaSync(p) => pt::progress::Value::MediaSync(pt::MediaSyncProgress {
+                downloaded_meta: p.downloaded_meta as u32,
+                downloaded_files: p.downloaded_files as u32,
+                downloaded_deletions: p.downloaded_deletions as u32,
+                uploaded_files: p.uploaded_files as u32,
+                uploaded_deletions: p.uploaded_deletions as u32,
+            }),
         }),
     };
 

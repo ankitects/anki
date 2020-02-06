@@ -24,24 +24,27 @@ static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
 static SYNC_SINGLE_FILE_MAX_BYTES: usize = 100 * 1024 * 1024;
 
-/// The counts are not cumulative - the progress hook should accumulate them.
-#[derive(Debug)]
-pub enum Progress {
-    DownloadedChanges(usize),
-    DownloadedFiles(usize),
-    Uploaded { files: usize, deletions: usize },
-    RemovedFiles(usize),
+
+#[derive(Debug, Default)]
+pub struct MediaSyncProgress {
+    pub downloaded_meta: usize,
+    pub downloaded_files: usize,
+    pub downloaded_deletions: usize,
+    pub uploaded_files: usize,
+    pub uploaded_deletions: usize,
 }
 
 pub struct MediaSyncer<'a, P>
 where
-    P: Fn(Progress) -> bool,
+    P: Fn(&MediaSyncProgress) -> bool,
 {
     mgr: &'a MediaManager,
     ctx: MediaDatabaseContext<'a>,
     skey: Option<String>,
     client: Client,
     progress_cb: P,
+    progress: MediaSyncProgress,
+    progress_updated: u64,
     endpoint: &'a str,
 }
 
@@ -130,7 +133,7 @@ struct FinalizeResponse {
 
 impl<P> MediaSyncer<'_, P>
 where
-    P: Fn(Progress) -> bool,
+    P: Fn(&MediaSyncProgress) -> bool,
 {
     pub fn new<'a>(mgr: &'a MediaManager, progress_cb: P, endpoint: &'a str) -> MediaSyncer<'a, P> {
         let client = Client::builder()
@@ -145,6 +148,8 @@ where
             skey: None,
             client,
             progress_cb,
+            progress: Default::default(),
+            progress_updated: 0,
             endpoint,
         }
     }
@@ -223,14 +228,16 @@ where
             }
             last_usn = batch.last().unwrap().usn;
 
-            self.progress(Progress::DownloadedChanges(batch.len()))?;
+            self.progress.downloaded_meta += batch.len();
+            self.notify_progress()?;
 
             let (to_download, to_delete, to_remove_pending) =
                 determine_required_changes(&mut self.ctx, &batch)?;
 
             // file removal
             remove_files(self.mgr.media_folder.as_path(), to_delete.as_slice())?;
-            self.progress(Progress::RemovedFiles(to_delete.len()))?;
+            self.progress.downloaded_deletions += to_delete.len();
+            self.notify_progress()?;
 
             // file download
             let mut downloaded = vec![];
@@ -248,7 +255,9 @@ where
                 let len = download_batch.len();
                 dl_fnames = &dl_fnames[len..];
                 downloaded.extend(download_batch);
-                self.progress(Progress::DownloadedFiles(len))?;
+
+                self.progress.downloaded_files += len;
+                self.notify_progress()?;
             }
 
             // then update the DB
@@ -284,10 +293,9 @@ where
                 .take(reply.processed)
                 .partition(|e| e.sha1.is_some());
 
-            self.progress(Progress::Uploaded {
-                files: processed_files.len(),
-                deletions: processed_deletions.len(),
-            })?;
+            self.progress.uploaded_files += processed_files.len();
+            self.progress.uploaded_deletions += processed_deletions.len();
+            self.notify_progress()?;
 
             let fnames: Vec<_> = processed_files
                 .iter()
@@ -338,8 +346,17 @@ where
         }
     }
 
-    fn progress(&self, progress: Progress) -> Result<()> {
-        if (self.progress_cb)(progress) {
+    fn notify_progress(&mut self) -> Result<()> {
+        let now = time::SystemTime::now()
+            .duration_since(time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        if now - self.progress_updated < 1 {
+            return Ok(());
+        }
+
+        if (self.progress_cb)(&self.progress) {
+            self.progress_updated = now;
             Ok(())
         } else {
             Err(AnkiError::Interrupted)
@@ -685,7 +702,9 @@ fn media_check_required() -> AnkiError {
 #[cfg(test)]
 mod test {
     use crate::err::Result;
-    use crate::media::sync::{determine_required_change, LocalState, RequiredChange};
+    use crate::media::sync::{
+        determine_required_change, LocalState, MediaSyncProgress, RequiredChange,
+    };
     use crate::media::MediaManager;
     use tempfile::tempdir;
     use tokio::runtime::Runtime;
@@ -698,7 +717,7 @@ mod test {
 
         std::fs::write(media_dir.join("test.file").as_path(), "hello")?;
 
-        let progress = |progress| {
+        let progress = |progress: &MediaSyncProgress| {
             println!("got progress: {:?}", progress);
             true
         };

@@ -121,33 +121,7 @@ class TemplateReplacement:
 TemplateReplacementList = List[Union[str, TemplateReplacement]]
 
 
-@dataclass
-class MediaSyncDownloadedChanges:
-    changes: int
-
-
-@dataclass
-class MediaSyncDownloadedFiles:
-    files: int
-
-
-@dataclass
-class MediaSyncUploaded:
-    files: int
-    deletions: int
-
-
-@dataclass
-class MediaSyncRemovedFiles:
-    files: int
-
-
-MediaSyncProgress = Union[
-    MediaSyncDownloadedChanges,
-    MediaSyncDownloadedFiles,
-    MediaSyncUploaded,
-    MediaSyncRemovedFiles,
-]
+MediaSyncProgress = pb.MediaSyncProgress
 
 
 class ProgressKind(enum.Enum):
@@ -181,31 +155,9 @@ def proto_replacement_list_to_native(
 def proto_progress_to_native(progress: pb.Progress) -> Progress:
     kind = progress.WhichOneof("value")
     if kind == "media_sync":
-        ikind = progress.media_sync.WhichOneof("value")
-        pkind = ProgressKind.MediaSyncProgress
-        if ikind == "downloaded_changes":
-            return Progress(
-                kind=pkind,
-                val=MediaSyncDownloadedChanges(progress.media_sync.downloaded_changes),
-            )
-        elif ikind == "downloaded_files":
-            return Progress(
-                kind=pkind,
-                val=MediaSyncDownloadedFiles(progress.media_sync.downloaded_files),
-            )
-        elif ikind == "uploaded":
-            up = progress.media_sync.uploaded
-            return Progress(
-                kind=pkind,
-                val=MediaSyncUploaded(files=up.files, deletions=up.deletions),
-            )
-        elif ikind == "removed_files":
-            return Progress(
-                kind=pkind, val=MediaSyncRemovedFiles(progress.media_sync.removed_files)
-            )
-        else:
-            assert_impossible_literal(ikind)
-    assert_impossible_literal(kind)
+        return Progress(kind=ProgressKind.MediaSyncProgress, val=progress.media_sync)
+    else:
+        assert_impossible_literal(kind)
 
 
 class RustBackend:
