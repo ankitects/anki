@@ -6,7 +6,7 @@ MAKEFLAGS += --no-builtin-rules
 
 $(shell mkdir -p .build)
 
-.PHONY: all check fix clean
+.PHONY: all check fix clean develop
 
 all: check
 
@@ -17,6 +17,8 @@ fix:
 
 clean:
 	rm -rf .build target
+
+develop: .build/vernum
 
 PROTO_SOURCE := $(wildcard ../proto/*.proto)
 RS_SOURCE := $(wildcard src/*)
@@ -37,4 +39,10 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	TZ="Australia/Perth" cargo test --lib -- --nocapture
 	cargo fmt -- --check
 	cargo clippy -- -D warnings
+	@touch $@
+
+VER := $(shell cat ../meta/version)
+.build/vernum: ../meta/version
+	sed -i.bak 's/.*automatically updated.*/version = "$(VER)" # automatically updated/' Cargo.toml
+	rm Cargo.toml.bak
 	@touch $@
