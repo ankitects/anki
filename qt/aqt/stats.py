@@ -95,6 +95,7 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
+        self.form.web.title = "stats"
         self.form.web.stdHtml(
             "<html><body>" + self.report + "</body></html>", js=["jquery.js", "plot.js"]
         )

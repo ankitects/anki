@@ -95,7 +95,6 @@ class Editor:
 
     def setupWeb(self) -> None:
         self.web = EditorWebView(self.widget, self)
-        self.web.title = "editor"
         self.web.allowDrops = True
         self.web.set_bridge_command(self.onBridgeCmd, "editor")
         self.outerLayout.addWidget(self.web, 1)
@@ -936,7 +935,7 @@ to a cloze type first, via Edit>Change Note Type."""
 
 class EditorWebView(AnkiWebView):
     def __init__(self, parent, editor):
-        AnkiWebView.__init__(self)
+        AnkiWebView.__init__(self, title="editor")
         self.editor = editor
         self.strip = self.editor.mw.pm.profile["stripHTML"]
         self.setAcceptDrops(True)

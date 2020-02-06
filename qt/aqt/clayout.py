@@ -203,9 +203,9 @@ class CardLayout(QDialog):
 
     def setupWebviews(self):
         pform = self.pform
-        pform.frontWeb = AnkiWebView()
+        pform.frontWeb = AnkiWebView(title="clayout_front")
         pform.frontPrevBox.addWidget(pform.frontWeb)
-        pform.backWeb = AnkiWebView()
+        pform.backWeb = AnkiWebView(title="clayout_back")
         pform.backPrevBox.addWidget(pform.backWeb)
         jsinc = [
             "jquery.js",
