@@ -270,9 +270,12 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         return self.style().standardPalette().color(QPalette.Window)
 
     def _filterWebContent(
-        self, web_content: ModifiableWebContent, caller: Optional[Any]
+        self,
+        web_content: ModifiableWebContent,
+        caller: Optional[Any],
+        view_name: Optional[str],
     ) -> ModifiableWebContent:
-        name = self.title.replace(" ", "_")
+        name = view_name or self.title.replace(" ", "_")
         hook_name = f"{name}_will_set_web_content"
         hook: Callable[
             [ModifiableWebContent, Optional[Any]], ModifiableWebContent
@@ -288,17 +291,19 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         js: Optional[List[str]] = None,
         head: str = "",
         caller: Optional[Any] = None,
+        view_name: Optional[str] = None,
     ):
         if css is None:
             css = []
         if js is None:
             js = ["jquery.js"]
 
-        if self.title != "default":
+        if self.title != "default" or not view_name:
             # only allow add-on modifications to named web views
             web_content = self._filterWebContent(
                 ModifiableWebContent(body=body, head=head, addon_js=[], addon_css=[]),
                 caller,
+                view_name,
             )
             body = web_content.body
             head = web_content.head
