@@ -685,7 +685,7 @@ fn media_check_required() -> AnkiError {
 #[cfg(test)]
 mod test {
     use crate::err::Result;
-    use crate::media::sync::{determine_required_change, LocalState, MediaSyncer, RequiredChange};
+    use crate::media::sync::{determine_required_change, LocalState, RequiredChange};
     use crate::media::MediaManager;
     use tempfile::tempdir;
     use tokio::runtime::Runtime;
@@ -703,10 +703,9 @@ mod test {
             true
         };
 
-        let mut mgr = MediaManager::new(&media_dir, &media_db)?;
-
-        let mut syncer = MediaSyncer::new(&mut mgr, progress, "https://sync.ankiweb.net/msync/");
-        syncer.sync(hkey).await?;
+        let mgr = MediaManager::new(&media_dir, &media_db)?;
+        mgr.sync_media(progress, "https://sync.ankiweb.net/msync/", hkey)
+            .await?;
 
         Ok(())
     }

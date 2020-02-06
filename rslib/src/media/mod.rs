@@ -7,6 +7,7 @@ use crate::media::files::{
     add_data_to_folder_uniquely, mtime_as_i64, sha1_of_data, sha1_of_file,
     MEDIA_SYNC_FILESIZE_LIMIT, NONSYNCABLE_FILENAME,
 };
+use crate::media::sync::{MediaSyncer, Progress};
 use rusqlite::Connection;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -94,25 +95,18 @@ impl MediaManager {
         Ok(chosen_fname)
     }
 
+    /// Sync media.
+    pub async fn sync_media<F>(&self, progress: F, endpoint: &str, hkey: &str) -> Result<()>
+    where
+        F: Fn(Progress) -> bool,
+    {
+        let mut syncer = MediaSyncer::new(self, progress, endpoint);
+        syncer.sync(hkey).await
+    }
+
     fn dbctx(&self) -> MediaDatabaseContext {
         MediaDatabaseContext::new(&self.db)
     }
-
-    // db helpers
-
-    //    pub(super) fn query<F, R>(&self, func: F) -> Result<R>
-    //    where
-    //        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
-    //    {
-    //        MediaDatabaseContext::query(&self.db, func)
-    //    }
-
-    //    pub(super) fn transact<F, R>(&self, func: F) -> Result<R>
-    //    where
-    //        F: FnOnce(&mut MediaDatabaseContext) -> Result<R>,
-    //    {
-    //        MediaDatabaseContext::transact(&self.db, func)
-    //    }
 }
 
 fn register_changes(ctx: &mut MediaDatabaseContext, folder: &Path) -> Result<()> {
