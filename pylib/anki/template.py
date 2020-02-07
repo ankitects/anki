@@ -143,8 +143,13 @@ def render_card(
 
 def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
     template = card.template()
-    q, a = browser and ("bqfmt", "bafmt") or ("qfmt", "afmt")
-    return template.get(q), template.get(a)  # type: ignore
+    if browser:
+        q, a = template.get("bqfmt"), template.get("bafmt")
+    else:
+        q, a = None, None
+    q = q or template.get("qfmt")
+    a = a or template.get("afmt")
+    return q, a  # type: ignore
 
 
 def fields_for_rendering(col: anki.storage._Collection, card: Card, note: Note):
