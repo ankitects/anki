@@ -197,6 +197,7 @@ QTabWidget { background-color: %s; }
 
     def _update_stat_colors(self):
         import anki.stats as s
+
         s.colLearn = self.str_color("new-count")
         s.colRelearn = self.str_color("learn-count")
         s.colCram = self.str_color("suspended-bg")
