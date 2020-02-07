@@ -185,6 +185,30 @@ class _ExportersListCreatedHook:
 exporters_list_created = _ExportersListCreatedHook()
 
 
+class _ExportersListCreatedWithOptionsHook:
+    _hooks: List[Callable[[List[Tuple[str, Any]], Any], None]] = []
+
+    def append(self, cb: Callable[[List[Tuple[str, Any]], Any], None]) -> None:
+        """(exporters: List[Tuple[str, Any]], options: Any)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[List[Tuple[str, Any]], Any], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, exporters: List[Tuple[str, Any]], options: Any) -> None:
+        for hook in self._hooks:
+            try:
+                hook(exporters, options)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+exporters_list_created_with_options = _ExportersListCreatedWithOptionsHook()
+
+
 class _FieldFilterFilter:
     """Allows you to define custom {{filters:..}}
         

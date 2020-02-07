@@ -408,7 +408,14 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 ##########################################################################
 
 
-def exporters() -> List[Tuple[str, Any]]:
+def exporters(options: Any = None) -> List[Tuple[str, Any]]:
+    """Options -- some option sent to hooks to decide how to update.
+    e.g. the string "browser" may be used to state that this was
+    called from the browser, and an option may be added to export
+    selected cards from browser.
+
+    """
+
     def id(obj):
         return ("%s (*%s)" % (obj.key, obj.ext), obj)
 
@@ -419,4 +426,5 @@ def exporters() -> List[Tuple[str, Any]]:
         id(TextCardExporter),
     ]
     hooks.exporters_list_created(exps)
+    hooks.exporters_list_created_with_options(exps, options)
     return exps

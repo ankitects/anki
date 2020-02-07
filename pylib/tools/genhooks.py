@@ -38,6 +38,10 @@ hooks = [
         legacy_hook="exportersList",
     ),
     Hook(
+        name="exporters_list_created_with_options",
+        args=["exporters: List[Tuple[str, Any]]", "options: Any",],
+    ),
+    Hook(
         name="search_terms_prepared",
         args=["searches: Dict[str, Callable]"],
         legacy_hook="search",

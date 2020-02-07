@@ -14,18 +14,24 @@ from aqt.utils import checkInvalidFilename, getSaveFile, showInfo, showWarning, 
 
 
 class ExportDialog(QDialog):
-    def __init__(self, mw, did=None):
+    def __init__(self, mw, did=None, options=None):
+        """did -- the deck on which "export" was clicked.
+        options -- some opton which may be used to compute
+        the list of exporters (used by add-on only currently)"""
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
-        self.setup(did)
+        self.setup(did, options)
         self.exec_()
 
-    def setup(self, did):
-        self.exporters = exporters()
+    def setup(self, did, options=None):
+        """did -- the deck on which "export" was clicked.
+        options -- some opton which may be used to compute
+        the list of exporters (used by add-on only currently)"""
+        self.exporters = exporters(options)
         # if a deck specified, start with .apkg type selected
         idx = 0
         if did:
