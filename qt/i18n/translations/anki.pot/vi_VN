@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-27 18:18+1000\n"
-"PO-Revision-Date: 2020-01-31 03:43\n"
+"POT-Creation-Date: 2020-01-31 13:44+1000\n"
+"PO-Revision-Date: 2020-02-07 03:25\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -32,7 +32,7 @@ msgstr " (tắt)"
 msgid " (on)"
 msgstr " (bật)"
 
-#: qt/aqt/deckbrowser.py:298
+#: qt/aqt/deckbrowser.py:300
 #, python-format
 msgid " It has %d card."
 msgid_plural " It has %d cards."
@@ -43,9 +43,9 @@ msgstr[0] " Có %d thẻ."
 msgid "\"Segoe UI\""
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
-#: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/dconf.py:341 qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:357 qt/aqt/forms/dconf.py:360
+#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/preferences.py:266
 msgid "%"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "(disabled)"
 msgstr ""
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1540
 msgid "(end)"
 msgstr "(cuối)"
 
@@ -502,7 +502,7 @@ msgstr "Nhận được lỗi quá hạn cổng truy cập 504. Xin vui lòng th
 msgid ":"
 msgstr ""
 
-#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:120
+#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:122
 #, python-format
 msgid "<!--studied-->%d card"
 msgid_plural "<!--studied-->%d cards"
@@ -783,7 +783,7 @@ msgstr ""
 msgid "Allow HTML in fields"
 msgstr "Cho phép HTML trong trường tin"
 
-#: qt/aqt/forms/dconf.py:391
+#: qt/aqt/forms/dconf.py:377
 msgid "Always include question side when replaying audio"
 msgstr ""
 
@@ -850,7 +850,7 @@ msgstr "Anki không đổi tên hồ sơ của bạn được vì không thể �
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki không tìm thấy đường gạch giữa câu hỏi và câu trả lời. Xin vui lòng tự điều chỉnh lại kiểu mẫu để chuyển đổi giữa câu hỏi và câu trả lời."
 
-#: pylib/anki/media.py:339
+#: pylib/anki/media.py:340
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -916,7 +916,7 @@ msgstr "Tất cả những thẻ không được ánh xạ sẽ bị xóa. Nếu
 msgid "Appeared twice in file: %s"
 msgstr "Xuất hiện 2 lần trong tập tin: %s"
 
-#: qt/aqt/deckbrowser.py:305
+#: qt/aqt/deckbrowser.py:307
 #, python-format
 msgid "Are you sure you wish to delete %s?"
 msgstr "Bạn có chắc chắn muốn xóa %s?"
@@ -945,7 +945,7 @@ msgstr ""
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:390
+#: qt/aqt/forms/dconf.py:376
 msgid "Automatically play audio"
 msgstr "Tự động phát âm thanh"
 
@@ -1074,11 +1074,11 @@ msgstr "Tạm hoãn Thẻ"
 msgid "Bury Note"
 msgstr "Tạm hoãn Phiếu"
 
-#: qt/aqt/forms/dconf.py:361
+#: qt/aqt/forms/dconf.py:347
 msgid "Bury related new cards until the next day"
 msgstr "Tạm hoãn các thẻ mới có liên quan cho đến ngày hôm sau"
 
-#: qt/aqt/forms/dconf.py:372
+#: qt/aqt/forms/dconf.py:358
 msgid "Bury related reviews until the next day"
 msgstr "Tạm hoãn nội dung ôn tập có liên quan cho đến ngày hôm sau"
 
@@ -1149,7 +1149,7 @@ msgstr "Đã giấu thẻ."
 msgid "Card suspended."
 msgstr "Đã dừng thẻ."
 
-#: pylib/anki/template.py:122
+#: pylib/anki/template.py:124
 msgid "Card template has a problem:"
 msgstr ""
 
@@ -1339,7 +1339,7 @@ msgstr ""
 msgid "Configure interface language and options"
 msgstr "Cấu hình ngôn ngữ và tùy chọn giao diện"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1449
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Xin chúc mừng! Hiện giờ bạn đã học xong bộ thẻ này."
 
@@ -1402,7 +1402,7 @@ msgstr "Không lưu tập tin được : %s"
 msgid "Cram"
 msgstr "Luyện thi"
 
-#: qt/aqt/deckbrowser.py:318
+#: qt/aqt/deckbrowser.py:320
 msgid "Create Deck"
 msgstr "Tạo Bộ thẻ"
 
@@ -1503,7 +1503,7 @@ msgstr "Bỏ ủy quyền"
 msgid "Debug Console"
 msgstr "Màn hình Gỡ lỗi"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:152
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Bộ thẻ"
@@ -1533,7 +1533,7 @@ msgstr "Mặc định"
 msgid "Delays until reviews are shown again."
 msgstr "Thời gian giãn cách đến khi hiện thẻ ôn tập lần nữa"
 
-#: qt/aqt/deckbrowser.py:246 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
+#: qt/aqt/deckbrowser.py:248 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
 #: qt/aqt/reviewer.py:780 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
@@ -1543,7 +1543,7 @@ msgstr "Xóa"
 msgid "Delete Cards"
 msgstr "Xóa Thẻ"
 
-#: qt/aqt/deckbrowser.py:289
+#: qt/aqt/deckbrowser.py:291
 msgid "Delete Deck"
 msgstr "Xóa Bộ thẻ"
 
@@ -1635,11 +1635,11 @@ msgstr[0] "Đã xoá %d thẻ sai số trường tin."
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr "Khi xóa bộ thẻ này khỏi danh sách, toàn bộ thẻ còn lại sẽ được trả về bộ thẻ gốc."
 
-#: qt/aqt/forms/dconf.py:394
+#: qt/aqt/forms/dconf.py:380
 msgid "Description"
 msgstr "Mô tả"
 
-#: qt/aqt/forms/dconf.py:393
+#: qt/aqt/forms/dconf.py:379
 msgid "Description to show on study screen (current deck only):"
 msgstr "Mô tả hiển thị trên màn hình học tập (chỉ với bộ thẻ hiện tại):"
 
@@ -1671,7 +1671,7 @@ msgid "Downloading from AnkiWeb..."
 msgstr "Đang tải xuống từ AnkiWeb..."
 
 #: pylib/anki/stats.py:43 qt/aqt/browser.py:701 qt/aqt/browser.py:1219
-#: qt/aqt/deckbrowser.py:151
+#: qt/aqt/deckbrowser.py:153
 msgid "Due"
 msgstr "Đến hạn"
 
@@ -1695,11 +1695,11 @@ msgstr "Độ dễ"
 msgid "Easy"
 msgstr "Dễ"
 
-#: qt/aqt/forms/dconf.py:365
+#: qt/aqt/forms/dconf.py:351
 msgid "Easy bonus"
 msgstr "Phần chênh mức Dễ"
 
-#: qt/aqt/forms/dconf.py:357
+#: qt/aqt/forms/dconf.py:343
 msgid "Easy interval"
 msgstr "Khoảng cách mức Dễ"
 
@@ -1809,7 +1809,7 @@ msgstr ""
 msgid "Error running %s"
 msgstr "Gặp lỗi khi chạy %s"
 
-#: qt/aqt/deckbrowser.py:244 qt/aqt/exporting.py:108
+#: qt/aqt/deckbrowser.py:246 qt/aqt/exporting.py:108
 #: qt/aqt/forms/exporting.py:74
 msgid "Export"
 msgstr "Xuất"
@@ -1999,7 +1999,7 @@ msgstr "Xem trước Mặt trước"
 msgid "Front Template"
 msgstr "Kiểu mẫu Mặt trước"
 
-#: qt/aqt/forms/dconf.py:392
+#: qt/aqt/forms/dconf.py:378
 msgid "General"
 msgstr "Tổng quát"
 
@@ -2017,7 +2017,7 @@ msgstr "Đã phát sinh vào %s"
 msgid "Get Add-ons..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:317
+#: qt/aqt/deckbrowser.py:319
 msgid "Get Shared"
 msgstr "Lấy Bộ thẻ Chia sẻ"
 
@@ -2025,7 +2025,7 @@ msgstr "Lấy Bộ thẻ Chia sẻ"
 msgid "Good"
 msgstr "Được"
 
-#: qt/aqt/forms/dconf.py:358
+#: qt/aqt/forms/dconf.py:344
 msgid "Graduating interval"
 msgstr "Khoảng cách mức Được"
 
@@ -2041,7 +2041,7 @@ msgstr "Trình soạn thảo HTML"
 msgid "Hard"
 msgstr "Khó"
 
-#: qt/aqt/forms/dconf.py:373
+#: qt/aqt/forms/dconf.py:359
 msgid "Hard interval"
 msgstr ""
 
@@ -2098,7 +2098,7 @@ msgstr "Xin vui lòng liên lạc với chúng tôi nếu bạn có tham gia đ�
 msgid "If you studied every day"
 msgstr "Nếu học hàng ngày thì"
 
-#: qt/aqt/forms/dconf.py:387
+#: qt/aqt/forms/dconf.py:373
 msgid "Ignore answer times longer than"
 msgstr "Bỏ qua mỗi khi thời gian trả lời lâu hơn"
 
@@ -2123,7 +2123,7 @@ msgstr "Bỏ qua bản cập nhật này"
 msgid "Import"
 msgstr "Nhập"
 
-#: qt/aqt/deckbrowser.py:319
+#: qt/aqt/deckbrowser.py:321
 msgid "Import File"
 msgstr "Nhập Tập tin"
 
@@ -2239,7 +2239,7 @@ msgstr "Ngôn ngữ Giao diện:"
 msgid "Interval"
 msgstr "Khoảng cách"
 
-#: qt/aqt/forms/dconf.py:368
+#: qt/aqt/forms/dconf.py:353
 msgid "Interval modifier"
 msgstr "Hệ số khoảng cách"
 
@@ -2267,7 +2267,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:305
+#: pylib/anki/media.py:306
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2316,7 +2316,7 @@ msgstr "Phương trình LaTeX"
 msgid "LaTeX math env."
 msgstr "Môi trường toán LaTeX"
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:372
 msgid "Lapses"
 msgstr "Hỏng"
 
@@ -2349,11 +2349,11 @@ msgstr "Học: %(a)s, Ôn: %(b)s, Học lại: %(c)s, Lọc: %(d)s"
 msgid "Learning"
 msgstr "Đang học"
 
-#: qt/aqt/forms/dconf.py:380
+#: qt/aqt/forms/dconf.py:366
 msgid "Leech action"
 msgstr "Hành động với thẻ bám"
 
-#: qt/aqt/forms/dconf.py:378
+#: qt/aqt/forms/dconf.py:364
 msgid "Leech threshold"
 msgstr "Ngưỡng thành thẻ bám"
 
@@ -2393,7 +2393,7 @@ msgstr ""
 msgid "Manage Note Types..."
 msgstr "Quản lý các Kiểu Phiếu..."
 
-#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:339
 msgid "Manage..."
 msgstr ""
 
@@ -2431,11 +2431,11 @@ msgstr ""
 msgid "Mature"
 msgstr "Trưởng thành"
 
-#: qt/aqt/forms/dconf.py:370
+#: qt/aqt/forms/dconf.py:355
 msgid "Maximum interval"
 msgstr "Khoảng tối đa"
 
-#: qt/aqt/forms/dconf.py:369
+#: qt/aqt/forms/dconf.py:354
 msgid "Maximum reviews/day"
 msgstr "Ôn tập tối đa/ngày"
 
@@ -2443,7 +2443,7 @@ msgstr "Ôn tập tối đa/ngày"
 msgid "Media"
 msgstr "Phương tiện"
 
-#: qt/aqt/forms/dconf.py:381
+#: qt/aqt/forms/dconf.py:367
 msgid "Minimum interval"
 msgstr "Khoảng tối thiểu"
 
@@ -2463,7 +2463,7 @@ msgstr "Bộ thẻ Mnemosyne 2.0 (*.db)"
 msgid "More"
 msgstr "Thêm"
 
-#: pylib/anki/template.py:132
+#: pylib/anki/template.py:134
 msgid "More info"
 msgstr ""
 
@@ -2491,7 +2491,7 @@ msgstr "&Ghi chú"
 msgid "Name exists."
 msgstr "Trùng tên đã có."
 
-#: qt/aqt/deckbrowser.py:57
+#: qt/aqt/deckbrowser.py:59
 msgid "Name for deck:"
 msgstr "Tên cho bộ thẻ:"
 
@@ -2503,11 +2503,11 @@ msgstr "Tên:"
 msgid "Network"
 msgstr "Mạng"
 
-#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:198
+#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:154 qt/aqt/overview.py:198
 msgid "New"
 msgstr "Mới"
 
-#: qt/aqt/forms/dconf.py:364
+#: qt/aqt/forms/dconf.py:350
 msgid "New Cards"
 msgstr "Thẻ Mới"
 
@@ -2520,15 +2520,15 @@ msgstr ""
 msgid "New cards only"
 msgstr "Chỉ thẻ mới"
 
-#: qt/aqt/forms/dconf.py:359
+#: qt/aqt/forms/dconf.py:345
 msgid "New cards/day"
 msgstr "Thẻ mới/ngày"
 
-#: qt/aqt/deckbrowser.py:258 qt/aqt/studydeck.py:142
+#: qt/aqt/deckbrowser.py:260 qt/aqt/studydeck.py:142
 msgid "New deck name:"
 msgstr "Tên bộ thẻ mới:"
 
-#: qt/aqt/forms/dconf.py:377
+#: qt/aqt/forms/dconf.py:363
 msgid "New interval"
 msgstr "Khoảng mới"
 
@@ -2713,7 +2713,7 @@ msgstr "Đang tối ưu hóa..."
 msgid "Optional filter:"
 msgstr ""
 
-#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
+#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:244 qt/aqt/deckconf.py:31
 #: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:221 qt/aqt/reviewer.py:700
 #: qt/aqt/forms/dyndconf.py:141 qt/aqt/forms/fields.py:108
 msgid "Options"
@@ -2724,7 +2724,7 @@ msgstr "Tuỳ chọn"
 msgid "Options for %s"
 msgstr "Tùy chọn bộ thẻ %s"
 
-#: qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:338
 msgid "Options group:"
 msgstr "Nhóm tùy chọn:"
 
@@ -2736,7 +2736,7 @@ msgstr "Tùy chọn..."
 msgid "Orange Flag"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:356
+#: qt/aqt/forms/dconf.py:342
 msgid "Order"
 msgstr "Thứ tự"
 
@@ -2909,7 +2909,7 @@ msgid "Processed %d media file"
 msgid_plural "Processed %d media files"
 msgstr[0] ""
 
-#: qt/aqt/progress.py:118
+#: qt/aqt/progress.py:119
 msgid "Processing..."
 msgstr "Đang xử lý..."
 
@@ -3013,7 +3013,7 @@ msgstr ""
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr "Loại bỏ kiểu thẻ này sẽ khiến cho một hoặc nhiều phiếu bị xóa. Xin tạo một kiểu thẻ mới trước."
 
-#: qt/aqt/deckbrowser.py:240 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
+#: qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
 #: qt/aqt/forms/fields.py:103 qt/aqt/forms/profiles.py:77
 msgid "Rename"
 msgstr "Đổi tên"
@@ -3022,7 +3022,7 @@ msgstr "Đổi tên"
 msgid "Rename Card Type..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:255
+#: qt/aqt/deckbrowser.py:257
 msgid "Rename Deck"
 msgstr "Đổi tên Bộ thẻ"
 
@@ -3128,7 +3128,7 @@ msgid "Review success rate for each hour of the day."
 msgstr "Tỷ lệ ôn tập thành công mỗi giờ trong ngày"
 
 #: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:704
-#: qt/aqt/forms/dconf.py:375
+#: qt/aqt/forms/dconf.py:361
 msgid "Reviews"
 msgstr "Ôn tập"
 
@@ -3228,7 +3228,7 @@ msgstr "Phím Shift được nhấn giữ. Bỏ qua đồng bộ tự đồng v�
 msgid "Shift position of existing cards"
 msgstr "Dịch chuyển vị trí các thẻ hiện hữu"
 
-#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:327
+#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:329
 #: qt/aqt/main.py:686 qt/aqt/overview.py:234 qt/aqt/reviewer.py:549
 #: qt/aqt/reviewer.py:562 qt/aqt/reviewer.py:628 qt/aqt/toolbar.py:38
 #: qt/aqt/toolbar.py:39 qt/aqt/toolbar.py:40 qt/aqt/toolbar.py:41
@@ -3262,7 +3262,7 @@ msgstr ""
 msgid "Show Duplicates"
 msgstr "Hiện Thẻ trùng"
 
-#: qt/aqt/forms/dconf.py:389
+#: qt/aqt/forms/dconf.py:375
 msgid "Show answer timer"
 msgstr "Hiện đồng hồ bấm giờ trả lời"
 
@@ -3310,7 +3310,7 @@ msgstr "Cỡ:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1484
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Vài thẻ liên quan hoặc thẻ chôn bị hoãn lại đến phiên sau."
 
@@ -3342,7 +3342,7 @@ msgstr "Khoảng trắng"
 msgid "Start position:"
 msgstr "Vị trí bắt đầu:"
 
-#: qt/aqt/forms/dconf.py:355
+#: qt/aqt/forms/dconf.py:340
 msgid "Starting ease"
 msgstr "Độ dễ ban đầu"
 
@@ -3358,7 +3358,7 @@ msgstr ""
 msgid "Step:"
 msgstr "Bước:"
 
-#: qt/aqt/forms/dconf.py:360 qt/aqt/forms/dconf.py:376
+#: qt/aqt/forms/dconf.py:346 qt/aqt/forms/dconf.py:362
 msgid "Steps (in minutes)"
 msgstr "Bước (phút)"
 
@@ -3375,7 +3375,7 @@ msgstr ""
 msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:122
+#: qt/aqt/deckbrowser.py:124
 #, python-format
 msgid "Studied %(a)s %(b)s today."
 msgstr ""
@@ -3428,7 +3428,7 @@ msgstr ""
 msgid "Suspend"
 msgstr "Dừng"
 
-#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:383
+#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:369
 msgid "Suspend Card"
 msgstr "Dừng Thẻ"
 
@@ -3479,7 +3479,7 @@ msgstr ""
 msgid "Tag Duplicates"
 msgstr "Nhãn Trùng"
 
-#: qt/aqt/forms/dconf.py:384
+#: qt/aqt/forms/dconf.py:370
 msgid "Tag Only"
 msgstr "Chỉ gắn Nhãn"
 
@@ -3527,7 +3527,7 @@ msgstr "Kết nối đến AnkiWeb bị quá thời gian. Xin vui lòng kiểm t
 msgid "The default configuration can't be removed."
 msgstr "Không thể loại bỏ cấu hình mặc định."
 
-#: qt/aqt/deckbrowser.py:288
+#: qt/aqt/deckbrowser.py:290
 msgid "The default deck can't be deleted."
 msgstr "Không thể xóa bộ thẻ mặc định."
 
@@ -3561,7 +3561,7 @@ msgstr "Không dùng được ký tự này: %s"
 msgid "The following conflicting add-ons were disabled:"
 msgstr ""
 
-#: pylib/anki/template.py:131
+#: pylib/anki/template.py:133
 msgid "The front of this card is blank."
 msgstr ""
 
@@ -3605,7 +3605,7 @@ msgstr "Thao tác thay đổi này yêu cầu tải lên toàn bộ cơ sở d�
 msgid "The time taken to answer the questions."
 msgstr "Thời gian trả lời câu hỏi."
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1470
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3692,11 +3692,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Để tạo chỗ điền trống trong phiếu hiện có, trước tiên cần chuyển nó sang kiểu phiếu điền chỗ trống, bằng cách chọn Chỉnh sửa>Đổi Kiểu Phiếu."
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1479
 msgid "To see them now, click the Unbury button below."
 msgstr "Để xem ngay bây giờ, nhấp nút Bỏ tạm hoãn bên dưới."
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1492
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Để học thêm ngoài thời khóa biểu bình thường, nhấp nút Học Tùy biến bên dưới."
 
@@ -3704,7 +3704,7 @@ msgstr "Để học thêm ngoài thời khóa biểu bình thường, nhấp nú
 msgid "Today"
 msgstr "Hôm nay"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1461
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3884,7 +3884,7 @@ msgstr ""
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "Bạn có một kiểu Phiếu Điền chỗ trống nhưng chưa tạo chỗ trống nào. Bạn có muốn tiếp tục không?"
 
-#: qt/aqt/deckbrowser.py:131
+#: qt/aqt/deckbrowser.py:133
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr "Bạn có nhiều bộ thẻ. Vui lòng xem %(a)s. %(b)s"
@@ -3980,8 +3980,8 @@ msgid "d"
 msgstr "ng"
 
 #: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
-#: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
-#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
+#: qt/aqt/forms/dconf.py:348 qt/aqt/forms/dconf.py:349
+#: qt/aqt/forms/dconf.py:356 qt/aqt/forms/dconf.py:368
 #: qt/aqt/forms/reschedule.py:77
 msgid "days"
 msgstr "ngày"
@@ -3998,7 +3998,7 @@ msgstr "dòng đời bộ thẻ"
 msgid "duplicate"
 msgstr "trùng"
 
-#: qt/aqt/deckbrowser.py:138
+#: qt/aqt/deckbrowser.py:140
 msgid "hide"
 msgstr "ẩn"
 
@@ -4046,7 +4046,7 @@ msgid "in %s year"
 msgid_plural "in %s years"
 msgstr[0] ""
 
-#: qt/aqt/forms/dconf.py:379
+#: qt/aqt/forms/dconf.py:365
 msgid "lapses"
 msgstr "lần hỏng"
 
@@ -4080,7 +4080,7 @@ msgstr "th"
 msgid "reviews"
 msgstr "thẻ ôn tập"
 
-#: qt/aqt/forms/dconf.py:388
+#: qt/aqt/forms/dconf.py:374
 msgid "seconds"
 msgstr "giây"
 
@@ -4088,7 +4088,7 @@ msgstr "giây"
 msgid "stats"
 msgstr "thống kê"
 
-#: qt/aqt/deckbrowser.py:134
+#: qt/aqt/deckbrowser.py:136
 msgid "this page"
 msgstr "trang này"
 

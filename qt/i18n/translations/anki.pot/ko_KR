@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-27 18:18+1000\n"
-"PO-Revision-Date: 2020-01-31 03:42\n"
+"POT-Creation-Date: 2020-01-31 13:44+1000\n"
+"PO-Revision-Date: 2020-02-07 03:24\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
@@ -32,7 +32,7 @@ msgstr " (꺼짐)"
 msgid " (on)"
 msgstr " (켜짐)"
 
-#: qt/aqt/deckbrowser.py:298
+#: qt/aqt/deckbrowser.py:300
 #, python-format
 msgid " It has %d card."
 msgid_plural " It has %d cards."
@@ -43,9 +43,9 @@ msgstr[0] " %d카드가 들어 있습니다."
 msgid "\"Segoe UI\""
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
-#: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/dconf.py:341 qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:357 qt/aqt/forms/dconf.py:360
+#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/preferences.py:266
 msgid "%"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr "(노트 삭제됨)"
 msgid "(disabled)"
 msgstr ""
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1540
 msgid "(end)"
 msgstr "(종료)"
 
@@ -502,7 +502,7 @@ msgstr "504 gateway timeout 오류가 발생했습니다. 안티바이러스를 
 msgid ":"
 msgstr ""
 
-#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:120
+#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:122
 #, python-format
 msgid "<!--studied-->%d card"
 msgid_plural "<!--studied-->%d cards"
@@ -790,7 +790,7 @@ msgstr "모든 복습 카드를 무작위 순서로"
 msgid "Allow HTML in fields"
 msgstr "필드 안에 HTML 허용"
 
-#: qt/aqt/forms/dconf.py:391
+#: qt/aqt/forms/dconf.py:377
 msgid "Always include question side when replaying audio"
 msgstr "오디오 재생시 질문 부분을 항상 포함"
 
@@ -859,7 +859,7 @@ msgstr "Anki가 하드디스크에 있는 프로필 폴더의 이름을 바꿀 �
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "질문과 답을 구분하는 선을 찾을 수 없습니다. 서식을 수동으로 수정해서 질문과 답을 바꾸세요."
 
-#: pylib/anki/media.py:339
+#: pylib/anki/media.py:340
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr "Anki가 지원하지 않는 파일이 collection.media 폴더의 하위 폴더에 있습니다."
 
@@ -926,7 +926,7 @@ msgstr "어디에도 배정되지 않은 카드는 모두 삭제됩니다. 카�
 msgid "Appeared twice in file: %s"
 msgstr "파일에서 두 번 등장합니다: %s"
 
-#: qt/aqt/deckbrowser.py:305
+#: qt/aqt/deckbrowser.py:307
 #, python-format
 msgid "Are you sure you wish to delete %s?"
 msgstr "%s 뭉치를 삭제하시겠습니까?"
@@ -955,7 +955,7 @@ msgstr ""
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr "복원 후 자동 동기화 및 백업기능이 비활성화 되었습니다. 다시 활성화하려면 프로필 창을 닫은 후 Anki를 다시 실행해주십시오."
 
-#: qt/aqt/forms/dconf.py:390
+#: qt/aqt/forms/dconf.py:376
 msgid "Automatically play audio"
 msgstr "자동으로 오디오 재생"
 
@@ -1084,11 +1084,11 @@ msgstr "카드 덮기"
 msgid "Bury Note"
 msgstr "노트 덮기"
 
-#: qt/aqt/forms/dconf.py:361
+#: qt/aqt/forms/dconf.py:347
 msgid "Bury related new cards until the next day"
 msgstr "연관된 새 카드를 다음날까지 덮어두기"
 
-#: qt/aqt/forms/dconf.py:372
+#: qt/aqt/forms/dconf.py:358
 msgid "Bury related reviews until the next day"
 msgstr "연관된 복습 카드를 다음날까지 덮어두기"
 
@@ -1159,7 +1159,7 @@ msgstr "카드를 덮었습니다."
 msgid "Card suspended."
 msgstr "카드가 보류되었습니다."
 
-#: pylib/anki/template.py:122
+#: pylib/anki/template.py:124
 msgid "Card template has a problem:"
 msgstr ""
 
@@ -1349,7 +1349,7 @@ msgstr "설정"
 msgid "Configure interface language and options"
 msgstr "인터페이스 언어 및 기타 옵션 설정"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1449
 msgid "Congratulations! You have finished this deck for now."
 msgstr "축하합니다! 현재까지 이 뭉치에서 만기된 모든 카드를 공부했습니다."
 
@@ -1412,7 +1412,7 @@ msgstr "파일을 저장할 수 없습니다: %s"
 msgid "Cram"
 msgstr "몰아보기"
 
-#: qt/aqt/deckbrowser.py:318
+#: qt/aqt/deckbrowser.py:320
 msgid "Create Deck"
 msgstr "뭉치 만들기"
 
@@ -1513,7 +1513,7 @@ msgstr "권한 해제"
 msgid "Debug Console"
 msgstr "디버그 콘솔"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:152
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "뭉치"
@@ -1543,7 +1543,7 @@ msgstr "기본"
 msgid "Delays until reviews are shown again."
 msgstr "다음 번 복습 때까지 기다리는 시간."
 
-#: qt/aqt/deckbrowser.py:246 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
+#: qt/aqt/deckbrowser.py:248 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
 #: qt/aqt/reviewer.py:780 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
@@ -1553,7 +1553,7 @@ msgstr "삭제"
 msgid "Delete Cards"
 msgstr "카드 삭제"
 
-#: qt/aqt/deckbrowser.py:289
+#: qt/aqt/deckbrowser.py:291
 msgid "Delete Deck"
 msgstr "뭉치 삭제"
 
@@ -1645,11 +1645,11 @@ msgstr[0] "잘못된 필드를 포함한 %d개 노트를 삭제했습니다."
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr "뭉치 목록에서 이 뭉치를 지우면, 남아 있는 모든 카드는 각자의 원래 뭉치로 돌아갑니다."
 
-#: qt/aqt/forms/dconf.py:394
+#: qt/aqt/forms/dconf.py:380
 msgid "Description"
 msgstr "설명"
 
-#: qt/aqt/forms/dconf.py:393
+#: qt/aqt/forms/dconf.py:379
 msgid "Description to show on study screen (current deck only):"
 msgstr "공부 화면에 표시할 설명 (현재 뭉치에만 해당):"
 
@@ -1681,7 +1681,7 @@ msgid "Downloading from AnkiWeb..."
 msgstr "AnkiWeb에서 다운로드하는 중..."
 
 #: pylib/anki/stats.py:43 qt/aqt/browser.py:701 qt/aqt/browser.py:1219
-#: qt/aqt/deckbrowser.py:151
+#: qt/aqt/deckbrowser.py:153
 msgid "Due"
 msgstr "만기"
 
@@ -1705,11 +1705,11 @@ msgstr "수월함"
 msgid "Easy"
 msgstr "쉬움"
 
-#: qt/aqt/forms/dconf.py:365
+#: qt/aqt/forms/dconf.py:351
 msgid "Easy bonus"
 msgstr "쉬움 버튼 보너스"
 
-#: qt/aqt/forms/dconf.py:357
+#: qt/aqt/forms/dconf.py:343
 msgid "Easy interval"
 msgstr "쉬움 간격"
 
@@ -1819,7 +1819,7 @@ msgstr ""
 msgid "Error running %s"
 msgstr "%s 실행 중 오류 발생."
 
-#: qt/aqt/deckbrowser.py:244 qt/aqt/exporting.py:108
+#: qt/aqt/deckbrowser.py:246 qt/aqt/exporting.py:108
 #: qt/aqt/forms/exporting.py:74
 msgid "Export"
 msgstr "내보내기"
@@ -2009,7 +2009,7 @@ msgstr "앞면 미리보기"
 msgid "Front Template"
 msgstr "앞면 서식"
 
-#: qt/aqt/forms/dconf.py:392
+#: qt/aqt/forms/dconf.py:378
 msgid "General"
 msgstr "일반"
 
@@ -2027,7 +2027,7 @@ msgstr "생성 일시: %s"
 msgid "Get Add-ons..."
 msgstr "확장 프로그램 가져오기..."
 
-#: qt/aqt/deckbrowser.py:317
+#: qt/aqt/deckbrowser.py:319
 msgid "Get Shared"
 msgstr "공유 뭉치 다운로드"
 
@@ -2035,7 +2035,7 @@ msgstr "공유 뭉치 다운로드"
 msgid "Good"
 msgstr "알맞음"
 
-#: qt/aqt/forms/dconf.py:358
+#: qt/aqt/forms/dconf.py:344
 msgid "Graduating interval"
 msgstr "졸업 간격"
 
@@ -2051,7 +2051,7 @@ msgstr "HTML 편집기"
 msgid "Hard"
 msgstr "어려움"
 
-#: qt/aqt/forms/dconf.py:373
+#: qt/aqt/forms/dconf.py:359
 msgid "Hard interval"
 msgstr "어려움 반복 난이도 구간"
 
@@ -2108,7 +2108,7 @@ msgstr "프로그램 제작에 기여했지만, 위 목록에 포함되지 않�
 msgid "If you studied every day"
 msgstr "매일 공부한다면"
 
-#: qt/aqt/forms/dconf.py:387
+#: qt/aqt/forms/dconf.py:373
 msgid "Ignore answer times longer than"
 msgstr "답변 시간이 너무 길 경우 무시할 기준:"
 
@@ -2133,7 +2133,7 @@ msgstr "이 업데이트 무시"
 msgid "Import"
 msgstr "가져오기"
 
-#: qt/aqt/deckbrowser.py:319
+#: qt/aqt/deckbrowser.py:321
 msgid "Import File"
 msgstr "파일 가져오기"
 
@@ -2249,7 +2249,7 @@ msgstr "인터페이스 언어:"
 msgid "Interval"
 msgstr "간격"
 
-#: qt/aqt/forms/dconf.py:368
+#: qt/aqt/forms/dconf.py:353
 msgid "Interval modifier"
 msgstr "복습 간격 조정값"
 
@@ -2277,7 +2277,7 @@ msgstr "지원하지 않는 형식 "
 msgid "Invalid configuration: top level object must be a map"
 msgstr "지원하지 않는 형식 : 최상단에는 반드시 맵이어야 함."
 
-#: pylib/anki/media.py:305
+#: pylib/anki/media.py:306
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr "지원하지 않는 파일명. 다음의 것을 고쳐주세요. : %s"
@@ -2326,7 +2326,7 @@ msgstr ""
 msgid "LaTeX math env."
 msgstr ""
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:372
 msgid "Lapses"
 msgstr "실패"
 
@@ -2359,11 +2359,11 @@ msgstr "익힘: %(a)s, 복습: %(b)s, 재익힘: %(c)s, 여과됨:%(d)s"
 msgid "Learning"
 msgstr "익힘 카드"
 
-#: qt/aqt/forms/dconf.py:380
+#: qt/aqt/forms/dconf.py:366
 msgid "Leech action"
 msgstr "거머리 처리"
 
-#: qt/aqt/forms/dconf.py:378
+#: qt/aqt/forms/dconf.py:364
 msgid "Leech threshold"
 msgstr "거머리 기준"
 
@@ -2403,7 +2403,7 @@ msgstr "노트 타입 관리"
 msgid "Manage Note Types..."
 msgstr "노트 유형 관리..."
 
-#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:339
 msgid "Manage..."
 msgstr "관리..."
 
@@ -2441,11 +2441,11 @@ msgstr "MathJax 인라인"
 msgid "Mature"
 msgstr "성숙한 카드"
 
-#: qt/aqt/forms/dconf.py:370
+#: qt/aqt/forms/dconf.py:355
 msgid "Maximum interval"
 msgstr "최대 복습 간격"
 
-#: qt/aqt/forms/dconf.py:369
+#: qt/aqt/forms/dconf.py:354
 msgid "Maximum reviews/day"
 msgstr "최대 복습량/일"
 
@@ -2453,7 +2453,7 @@ msgstr "최대 복습량/일"
 msgid "Media"
 msgstr "미디어"
 
-#: qt/aqt/forms/dconf.py:381
+#: qt/aqt/forms/dconf.py:367
 msgid "Minimum interval"
 msgstr "최소 복습 간격"
 
@@ -2473,7 +2473,7 @@ msgstr "Mnemosyne 2.0 뭉치 (*.db)"
 msgid "More"
 msgstr "그밖에"
 
-#: pylib/anki/template.py:132
+#: pylib/anki/template.py:134
 msgid "More info"
 msgstr ""
 
@@ -2501,7 +2501,7 @@ msgstr "노트(&O)"
 msgid "Name exists."
 msgstr "이미 존재하는 이름."
 
-#: qt/aqt/deckbrowser.py:57
+#: qt/aqt/deckbrowser.py:59
 msgid "Name for deck:"
 msgstr "뭉치 이름:"
 
@@ -2513,11 +2513,11 @@ msgstr "이름:"
 msgid "Network"
 msgstr "네트워크"
 
-#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:198
+#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:154 qt/aqt/overview.py:198
 msgid "New"
 msgstr "새 카드"
 
-#: qt/aqt/forms/dconf.py:364
+#: qt/aqt/forms/dconf.py:350
 msgid "New Cards"
 msgstr "새 카드"
 
@@ -2530,15 +2530,15 @@ msgstr "오늘의 제한량을 초과하는 새 카드 : %s"
 msgid "New cards only"
 msgstr "새 카드만"
 
-#: qt/aqt/forms/dconf.py:359
+#: qt/aqt/forms/dconf.py:345
 msgid "New cards/day"
 msgstr "새 카드/일"
 
-#: qt/aqt/deckbrowser.py:258 qt/aqt/studydeck.py:142
+#: qt/aqt/deckbrowser.py:260 qt/aqt/studydeck.py:142
 msgid "New deck name:"
 msgstr "새 뭉치 이름:"
 
-#: qt/aqt/forms/dconf.py:377
+#: qt/aqt/forms/dconf.py:363
 msgid "New interval"
 msgstr "새 복습 간격"
 
@@ -2723,7 +2723,7 @@ msgstr "최적화하는 중..."
 msgid "Optional filter:"
 msgstr "필터 선택"
 
-#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
+#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:244 qt/aqt/deckconf.py:31
 #: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:221 qt/aqt/reviewer.py:700
 #: qt/aqt/forms/dyndconf.py:141 qt/aqt/forms/fields.py:108
 msgid "Options"
@@ -2734,7 +2734,7 @@ msgstr "옵션"
 msgid "Options for %s"
 msgstr "%s의 옵션"
 
-#: qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:338
 msgid "Options group:"
 msgstr "옵션 그룹:"
 
@@ -2746,7 +2746,7 @@ msgstr "옵션..."
 msgid "Orange Flag"
 msgstr "오렌지색 깃발"
 
-#: qt/aqt/forms/dconf.py:356
+#: qt/aqt/forms/dconf.py:342
 msgid "Order"
 msgstr "순서"
 
@@ -2919,7 +2919,7 @@ msgid "Processed %d media file"
 msgid_plural "Processed %d media files"
 msgstr[0] "%d개의 미디어 파일을 처리함"
 
-#: qt/aqt/progress.py:118
+#: qt/aqt/progress.py:119
 msgid "Processing..."
 msgstr "처리 중..."
 
@@ -3023,7 +3023,7 @@ msgstr "포맷 지우기"
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr "이 카드 유형을 제거하면 하나 이상의 노트가 삭제될 수 있습니다. 먼저 새로운 카드 유형을 만드세요."
 
-#: qt/aqt/deckbrowser.py:240 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
+#: qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
 #: qt/aqt/forms/fields.py:103 qt/aqt/forms/profiles.py:77
 msgid "Rename"
 msgstr "이름 변경"
@@ -3032,7 +3032,7 @@ msgstr "이름 변경"
 msgid "Rename Card Type..."
 msgstr "카드 유형 이름 변경"
 
-#: qt/aqt/deckbrowser.py:255
+#: qt/aqt/deckbrowser.py:257
 msgid "Rename Deck"
 msgstr "뭉치 이름 변경"
 
@@ -3138,7 +3138,7 @@ msgid "Review success rate for each hour of the day."
 msgstr "하루 중 시간대 별 정답률."
 
 #: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:704
-#: qt/aqt/forms/dconf.py:375
+#: qt/aqt/forms/dconf.py:361
 msgid "Reviews"
 msgstr "복습"
 
@@ -3238,7 +3238,7 @@ msgstr "Shift 키가 눌러진 채로 실행되었습니다. 자동 동기화와
 msgid "Shift position of existing cards"
 msgstr "기존 카드의 위치 이동"
 
-#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:327
+#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:329
 #: qt/aqt/main.py:686 qt/aqt/overview.py:234 qt/aqt/reviewer.py:549
 #: qt/aqt/reviewer.py:562 qt/aqt/reviewer.py:628 qt/aqt/toolbar.py:38
 #: qt/aqt/toolbar.py:39 qt/aqt/toolbar.py:40 qt/aqt/toolbar.py:41
@@ -3272,7 +3272,7 @@ msgstr "양면 보기"
 msgid "Show Duplicates"
 msgstr "중복된 항목 보기"
 
-#: qt/aqt/forms/dconf.py:389
+#: qt/aqt/forms/dconf.py:375
 msgid "Show answer timer"
 msgstr "답변 시간 표시"
 
@@ -3320,7 +3320,7 @@ msgstr "크기:"
 msgid "Skipped"
 msgstr "건너뜀"
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1484
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "관련된 카드 또는 덮어진 카드는 다음 세션까지 연기됩니다."
 
@@ -3352,7 +3352,7 @@ msgstr "스페이스 바"
 msgid "Start position:"
 msgstr "시작 위치:"
 
-#: qt/aqt/forms/dconf.py:355
+#: qt/aqt/forms/dconf.py:340
 msgid "Starting ease"
 msgstr "초기 수월함"
 
@@ -3368,7 +3368,7 @@ msgstr "통계"
 msgid "Step:"
 msgstr "단계:"
 
-#: qt/aqt/forms/dconf.py:360 qt/aqt/forms/dconf.py:376
+#: qt/aqt/forms/dconf.py:346 qt/aqt/forms/dconf.py:362
 msgid "Steps (in minutes)"
 msgstr "익힘 단계(분 단위)"
 
@@ -3385,7 +3385,7 @@ msgstr "중지 중..."
 msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
 msgstr "학습 %(a)s %(b)s 오늘(%(secs).1fs/card)"
 
-#: qt/aqt/deckbrowser.py:122
+#: qt/aqt/deckbrowser.py:124
 #, python-format
 msgid "Studied %(a)s %(b)s today."
 msgstr "오늘은 %(a)s를 %(b)s 공부함."
@@ -3438,7 +3438,7 @@ msgstr "위 첨자 (Ctrl++)"
 msgid "Suspend"
 msgstr "보류"
 
-#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:383
+#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:369
 msgid "Suspend Card"
 msgstr "카드 보류"
 
@@ -3489,7 +3489,7 @@ msgstr "탭"
 msgid "Tag Duplicates"
 msgstr "중복된 태그"
 
-#: qt/aqt/forms/dconf.py:384
+#: qt/aqt/forms/dconf.py:370
 msgid "Tag Only"
 msgstr "태그만 달기"
 
@@ -3537,7 +3537,7 @@ msgstr "AnkiWeb과의 연결 시간이 초과되었습니다. 네트워크 연�
 msgid "The default configuration can't be removed."
 msgstr "기본 설정은 삭제할 수 없습니다."
 
-#: qt/aqt/deckbrowser.py:288
+#: qt/aqt/deckbrowser.py:290
 msgid "The default deck can't be deleted."
 msgstr "기본 뭉치는 삭제할 수 없습니다."
 
@@ -3571,7 +3571,7 @@ msgstr "다음 문자는 사용할 수 없습니다: %s"
 msgid "The following conflicting add-ons were disabled:"
 msgstr "다음 확장 프로그램이 비활성화 되었습니다."
 
-#: pylib/anki/template.py:131
+#: pylib/anki/template.py:133
 msgid "The front of this card is blank."
 msgstr ""
 
@@ -3615,7 +3615,7 @@ msgstr "이 변경 사항을 적용할 경우, 다음 동기화 때 데이터베
 msgid "The time taken to answer the questions."
 msgstr "질문에 답을 하기까지 걸린 시간"
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1470
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3702,11 +3702,11 @@ msgstr "확장 프로그램을 찾으려면, 아래 버튼을 클릭하십시오
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "이미 존재하는 노트에 빈칸 뚫기를 만들려면, 편집>노트 유형 바꾸기를 통해서 빈칸(cloze) 유형으로 먼저 바꾸어야 합니다."
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1479
 msgid "To see them now, click the Unbury button below."
 msgstr "이 카드들을 지금 보려면 아래의 '덮기 해제' 버튼을 눌러 주세요."
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1492
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "정상 복습 일정을 벗어나 공부를 하고 싶다면, 아래에 있는 맞춤 공부 버튼을 클릭하세요."
 
@@ -3714,7 +3714,7 @@ msgstr "정상 복습 일정을 벗어나 공부를 하고 싶다면, 아래에 
 msgid "Today"
 msgstr "오늘"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1461
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3895,7 +3895,7 @@ msgstr ""
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "빈칸 유형의 노트를 지정했지만 빈칸이 뚫리지 않았습니다. 계속 진행할까요?"
 
-#: qt/aqt/deckbrowser.py:131
+#: qt/aqt/deckbrowser.py:133
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr "보유한 뭉치가 많습니다. 다음을 참조해 주세요. %(a)s. %(b)s"
@@ -3991,8 +3991,8 @@ msgid "d"
 msgstr "일"
 
 #: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
-#: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
-#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
+#: qt/aqt/forms/dconf.py:348 qt/aqt/forms/dconf.py:349
+#: qt/aqt/forms/dconf.py:356 qt/aqt/forms/dconf.py:368
 #: qt/aqt/forms/reschedule.py:77
 msgid "days"
 msgstr "일"
@@ -4009,7 +4009,7 @@ msgstr "뭉치 일생"
 msgid "duplicate"
 msgstr "복제"
 
-#: qt/aqt/deckbrowser.py:138
+#: qt/aqt/deckbrowser.py:140
 msgid "hide"
 msgstr "숨김"
 
@@ -4057,7 +4057,7 @@ msgid "in %s year"
 msgid_plural "in %s years"
 msgstr[0] "%s년 내"
 
-#: qt/aqt/forms/dconf.py:379
+#: qt/aqt/forms/dconf.py:365
 msgid "lapses"
 msgstr "실패"
 
@@ -4091,7 +4091,7 @@ msgstr "달"
 msgid "reviews"
 msgstr "복습"
 
-#: qt/aqt/forms/dconf.py:388
+#: qt/aqt/forms/dconf.py:374
 msgid "seconds"
 msgstr "초"
 
@@ -4099,7 +4099,7 @@ msgstr "초"
 msgid "stats"
 msgstr "통계"
 
-#: qt/aqt/deckbrowser.py:134
+#: qt/aqt/deckbrowser.py:136
 msgid "this page"
 msgstr "현재 페이지"
 

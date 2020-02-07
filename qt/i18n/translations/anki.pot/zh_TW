@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-27 18:18+1000\n"
-"PO-Revision-Date: 2020-01-31 03:43\n"
+"POT-Creation-Date: 2020-01-31 13:44+1000\n"
+"PO-Revision-Date: 2020-02-07 03:25\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
@@ -32,7 +32,7 @@ msgstr " (關閉)"
 msgid " (on)"
 msgstr " (開啟)"
 
-#: qt/aqt/deckbrowser.py:298
+#: qt/aqt/deckbrowser.py:300
 #, python-format
 msgid " It has %d card."
 msgid_plural " It has %d cards."
@@ -43,9 +43,9 @@ msgstr[0] " 有 %d 張卡片"
 msgid "\"Segoe UI\""
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
-#: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/dconf.py:341 qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:357 qt/aqt/forms/dconf.py:360
+#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/preferences.py:266
 msgid "%"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr "(筆記已刪除)"
 msgid "(disabled)"
 msgstr ""
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1540
 msgid "(end)"
 msgstr "(結束)"
 
@@ -502,7 +502,7 @@ msgstr "遇到錯誤：504 gateway timeout。 請暫時關閉您的防毒軟體�
 msgid ":"
 msgstr "："
 
-#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:120
+#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:122
 #, python-format
 msgid "<!--studied-->%d card"
 msgid_plural "<!--studied-->%d cards"
@@ -783,7 +783,7 @@ msgstr ""
 msgid "Allow HTML in fields"
 msgstr "允許在欄位中使用HTML語法"
 
-#: qt/aqt/forms/dconf.py:391
+#: qt/aqt/forms/dconf.py:377
 msgid "Always include question side when replaying audio"
 msgstr ""
 
@@ -850,7 +850,7 @@ msgstr "由於無法重新命名硬碟上個人檔案的資料夾，所以無法
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki 找不到問題和答案之間的水平線，請手動調整樣板以交換問題和答案。"
 
-#: pylib/anki/media.py:339
+#: pylib/anki/media.py:340
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -916,7 +916,7 @@ msgstr "空白卡片會被刪除，而筆記如果沒有在卡片上也會遺失
 msgid "Appeared twice in file: %s"
 msgstr "出現兩次：%s"
 
-#: qt/aqt/deckbrowser.py:305
+#: qt/aqt/deckbrowser.py:307
 #, python-format
 msgid "Are you sure you wish to delete %s?"
 msgstr "您確定您要刪除 %s?"
@@ -945,7 +945,7 @@ msgstr ""
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:390
+#: qt/aqt/forms/dconf.py:376
 msgid "Automatically play audio"
 msgstr "自動播放聲音檔"
 
@@ -1074,11 +1074,11 @@ msgstr "暫時隱藏卡片"
 msgid "Bury Note"
 msgstr "暫時隱藏筆記"
 
-#: qt/aqt/forms/dconf.py:361
+#: qt/aqt/forms/dconf.py:347
 msgid "Bury related new cards until the next day"
 msgstr "今日暫時隱藏相關的新卡片"
 
-#: qt/aqt/forms/dconf.py:372
+#: qt/aqt/forms/dconf.py:358
 msgid "Bury related reviews until the next day"
 msgstr "暫時隱藏相關複習卡直到隔天"
 
@@ -1148,7 +1148,7 @@ msgstr "已暫時隱藏卡片"
 msgid "Card suspended."
 msgstr "卡片已長久擱置"
 
-#: pylib/anki/template.py:122
+#: pylib/anki/template.py:124
 msgid "Card template has a problem:"
 msgstr ""
 
@@ -1338,7 +1338,7 @@ msgstr ""
 msgid "Configure interface language and options"
 msgstr "設定介面語言與選項"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1449
 msgid "Congratulations! You have finished this deck for now."
 msgstr "恭喜！您完成本牌組了。"
 
@@ -1401,7 +1401,7 @@ msgstr "無法存檔：%s"
 msgid "Cram"
 msgstr "填鴨模式"
 
-#: qt/aqt/deckbrowser.py:318
+#: qt/aqt/deckbrowser.py:320
 msgid "Create Deck"
 msgstr "建立牌組"
 
@@ -1502,7 +1502,7 @@ msgstr "解除授權"
 msgid "Debug Console"
 msgstr "除錯指令列"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:152
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "牌組"
@@ -1532,7 +1532,7 @@ msgstr "預設"
 msgid "Delays until reviews are shown again."
 msgstr "延遲至複習卡再度出現"
 
-#: qt/aqt/deckbrowser.py:246 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
+#: qt/aqt/deckbrowser.py:248 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
 #: qt/aqt/reviewer.py:780 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
@@ -1542,7 +1542,7 @@ msgstr "刪除"
 msgid "Delete Cards"
 msgstr "刪除卡片"
 
-#: qt/aqt/deckbrowser.py:289
+#: qt/aqt/deckbrowser.py:291
 msgid "Delete Deck"
 msgstr "刪除牌組"
 
@@ -1634,11 +1634,11 @@ msgstr[0] "刪除%d 有錯誤欄位數量的筆記"
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr "如果在牌組列表中刪除這個牌組，其他剩下的卡片也會回歸它們原本的牌組。"
 
-#: qt/aqt/forms/dconf.py:394
+#: qt/aqt/forms/dconf.py:380
 msgid "Description"
 msgstr "敘述"
 
-#: qt/aqt/forms/dconf.py:393
+#: qt/aqt/forms/dconf.py:379
 msgid "Description to show on study screen (current deck only):"
 msgstr "學習畫面上所顯示的敘述 (僅當前牌組)："
 
@@ -1670,7 +1670,7 @@ msgid "Downloading from AnkiWeb..."
 msgstr "從 AnkiWeb 下載中..."
 
 #: pylib/anki/stats.py:43 qt/aqt/browser.py:701 qt/aqt/browser.py:1219
-#: qt/aqt/deckbrowser.py:151
+#: qt/aqt/deckbrowser.py:153
 msgid "Due"
 msgstr "到期"
 
@@ -1694,11 +1694,11 @@ msgstr "難易度"
 msgid "Easy"
 msgstr "簡單"
 
-#: qt/aqt/forms/dconf.py:365
+#: qt/aqt/forms/dconf.py:351
 msgid "Easy bonus"
 msgstr "簡單卡片的間隔倍率"
 
-#: qt/aqt/forms/dconf.py:357
+#: qt/aqt/forms/dconf.py:343
 msgid "Easy interval"
 msgstr "簡單卡片晉階的間隔"
 
@@ -1808,7 +1808,7 @@ msgstr ""
 msgid "Error running %s"
 msgstr "執行 %s 時發生錯誤"
 
-#: qt/aqt/deckbrowser.py:244 qt/aqt/exporting.py:108
+#: qt/aqt/deckbrowser.py:246 qt/aqt/exporting.py:108
 #: qt/aqt/forms/exporting.py:74
 msgid "Export"
 msgstr "匯出"
@@ -1998,7 +1998,7 @@ msgstr "正面預覽"
 msgid "Front Template"
 msgstr "正面樣板"
 
-#: qt/aqt/forms/dconf.py:392
+#: qt/aqt/forms/dconf.py:378
 msgid "General"
 msgstr "一般"
 
@@ -2016,7 +2016,7 @@ msgstr "建立日期： %s"
 msgid "Get Add-ons..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:317
+#: qt/aqt/deckbrowser.py:319
 msgid "Get Shared"
 msgstr "取得共享的牌組"
 
@@ -2024,7 +2024,7 @@ msgstr "取得共享的牌組"
 msgid "Good"
 msgstr "中等"
 
-#: qt/aqt/forms/dconf.py:358
+#: qt/aqt/forms/dconf.py:344
 msgid "Graduating interval"
 msgstr "晉階成複習卡的間隔"
 
@@ -2040,7 +2040,7 @@ msgstr "HTML編輯器"
 msgid "Hard"
 msgstr "難"
 
-#: qt/aqt/forms/dconf.py:373
+#: qt/aqt/forms/dconf.py:359
 msgid "Hard interval"
 msgstr ""
 
@@ -2097,7 +2097,7 @@ msgstr "如果您有貢獻但是未列於清單中，請跟我們聯絡。"
 msgid "If you studied every day"
 msgstr "如果您每天學習的話"
 
-#: qt/aqt/forms/dconf.py:387
+#: qt/aqt/forms/dconf.py:373
 msgid "Ignore answer times longer than"
 msgstr "忽略答題時間，若超過"
 
@@ -2122,7 +2122,7 @@ msgstr "忽略更新"
 msgid "Import"
 msgstr "匯入"
 
-#: qt/aqt/deckbrowser.py:319
+#: qt/aqt/deckbrowser.py:321
 msgid "Import File"
 msgstr "匯入檔案"
 
@@ -2238,7 +2238,7 @@ msgstr "介面語言："
 msgid "Interval"
 msgstr "間隔"
 
-#: qt/aqt/forms/dconf.py:368
+#: qt/aqt/forms/dconf.py:353
 msgid "Interval modifier"
 msgstr "間隔調節器"
 
@@ -2266,7 +2266,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:305
+#: pylib/anki/media.py:306
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2315,7 +2315,7 @@ msgstr "LaTeX 公式"
 msgid "LaTeX math env."
 msgstr "LaTeX 數學環境"
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:372
 msgid "Lapses"
 msgstr "忘記"
 
@@ -2348,11 +2348,11 @@ msgstr "學習：%(a)s　複習：%(b)s　重複學習：%(c)s　已篩選：%(d
 msgid "Learning"
 msgstr "學習中"
 
-#: qt/aqt/forms/dconf.py:380
+#: qt/aqt/forms/dconf.py:366
 msgid "Leech action"
 msgstr "針對榨時卡的動作"
 
-#: qt/aqt/forms/dconf.py:378
+#: qt/aqt/forms/dconf.py:364
 msgid "Leech threshold"
 msgstr "成為榨時卡片的門檻為"
 
@@ -2392,7 +2392,7 @@ msgstr ""
 msgid "Manage Note Types..."
 msgstr "管理筆記類型"
 
-#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:339
 msgid "Manage..."
 msgstr ""
 
@@ -2430,11 +2430,11 @@ msgstr ""
 msgid "Mature"
 msgstr "熟練"
 
-#: qt/aqt/forms/dconf.py:370
+#: qt/aqt/forms/dconf.py:355
 msgid "Maximum interval"
 msgstr "最長間隔為"
 
-#: qt/aqt/forms/dconf.py:369
+#: qt/aqt/forms/dconf.py:354
 msgid "Maximum reviews/day"
 msgstr "每天最大複習量"
 
@@ -2442,7 +2442,7 @@ msgstr "每天最大複習量"
 msgid "Media"
 msgstr "媒體"
 
-#: qt/aqt/forms/dconf.py:381
+#: qt/aqt/forms/dconf.py:367
 msgid "Minimum interval"
 msgstr "至少間隔"
 
@@ -2462,7 +2462,7 @@ msgstr "Mnemosyne 2.0 的牌組 (*.db)"
 msgid "More"
 msgstr "其他"
 
-#: pylib/anki/template.py:132
+#: pylib/anki/template.py:134
 msgid "More info"
 msgstr ""
 
@@ -2490,7 +2490,7 @@ msgstr "筆記(&O)"
 msgid "Name exists."
 msgstr "已經有這個名字了"
 
-#: qt/aqt/deckbrowser.py:57
+#: qt/aqt/deckbrowser.py:59
 msgid "Name for deck:"
 msgstr "牌組名稱："
 
@@ -2502,11 +2502,11 @@ msgstr "名字："
 msgid "Network"
 msgstr "網路"
 
-#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:198
+#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:154 qt/aqt/overview.py:198
 msgid "New"
 msgstr "新卡片"
 
-#: qt/aqt/forms/dconf.py:364
+#: qt/aqt/forms/dconf.py:350
 msgid "New Cards"
 msgstr "新卡片"
 
@@ -2519,15 +2519,15 @@ msgstr ""
 msgid "New cards only"
 msgstr "僅新卡片"
 
-#: qt/aqt/forms/dconf.py:359
+#: qt/aqt/forms/dconf.py:345
 msgid "New cards/day"
 msgstr "每天的新卡片數量"
 
-#: qt/aqt/deckbrowser.py:258 qt/aqt/studydeck.py:142
+#: qt/aqt/deckbrowser.py:260 qt/aqt/studydeck.py:142
 msgid "New deck name:"
 msgstr "輸入新的牌組名稱："
 
-#: qt/aqt/forms/dconf.py:377
+#: qt/aqt/forms/dconf.py:363
 msgid "New interval"
 msgstr "設定新的間隔為"
 
@@ -2712,7 +2712,7 @@ msgstr "最佳化中..."
 msgid "Optional filter:"
 msgstr ""
 
-#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
+#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:244 qt/aqt/deckconf.py:31
 #: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:221 qt/aqt/reviewer.py:700
 #: qt/aqt/forms/dyndconf.py:141 qt/aqt/forms/fields.py:108
 msgid "Options"
@@ -2723,7 +2723,7 @@ msgstr "選項"
 msgid "Options for %s"
 msgstr "%s 的選項"
 
-#: qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:338
 msgid "Options group:"
 msgstr "選項組："
 
@@ -2735,7 +2735,7 @@ msgstr "選項..."
 msgid "Orange Flag"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:356
+#: qt/aqt/forms/dconf.py:342
 msgid "Order"
 msgstr "順序"
 
@@ -2908,7 +2908,7 @@ msgid "Processed %d media file"
 msgid_plural "Processed %d media files"
 msgstr[0] "己處理 %d 個媒體檔"
 
-#: qt/aqt/progress.py:118
+#: qt/aqt/progress.py:119
 msgid "Processing..."
 msgstr "處理中..."
 
@@ -3012,7 +3012,7 @@ msgstr ""
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr "移除此卡片類型也同時會刪除幾個筆記，因此請先新建一個卡片類型。"
 
-#: qt/aqt/deckbrowser.py:240 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
+#: qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
 #: qt/aqt/forms/fields.py:103 qt/aqt/forms/profiles.py:77
 msgid "Rename"
 msgstr "重新命名"
@@ -3021,7 +3021,7 @@ msgstr "重新命名"
 msgid "Rename Card Type..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:255
+#: qt/aqt/deckbrowser.py:257
 msgid "Rename Deck"
 msgstr "重新命名牌組"
 
@@ -3127,7 +3127,7 @@ msgid "Review success rate for each hour of the day."
 msgstr "當日每小時的複習成功率。"
 
 #: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:704
-#: qt/aqt/forms/dconf.py:375
+#: qt/aqt/forms/dconf.py:361
 msgid "Reviews"
 msgstr "複習卡"
 
@@ -3227,7 +3227,7 @@ msgstr "已按下Shift 鍵，略過自動同步，略過載入附加元件。"
 msgid "Shift position of existing cards"
 msgstr "移動現有卡片的順序"
 
-#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:327
+#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:329
 #: qt/aqt/main.py:686 qt/aqt/overview.py:234 qt/aqt/reviewer.py:549
 #: qt/aqt/reviewer.py:562 qt/aqt/reviewer.py:628 qt/aqt/toolbar.py:38
 #: qt/aqt/toolbar.py:39 qt/aqt/toolbar.py:40 qt/aqt/toolbar.py:41
@@ -3261,7 +3261,7 @@ msgstr ""
 msgid "Show Duplicates"
 msgstr "顯示重複項目"
 
-#: qt/aqt/forms/dconf.py:389
+#: qt/aqt/forms/dconf.py:375
 msgid "Show answer timer"
 msgstr "顯示回答計時器"
 
@@ -3309,7 +3309,7 @@ msgstr "大小："
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1484
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "有些相關的卡片或埋藏的卡片被延遲到下一個階段。"
 
@@ -3341,7 +3341,7 @@ msgstr "空白鍵"
 msgid "Start position:"
 msgstr "起始順序："
 
-#: qt/aqt/forms/dconf.py:355
+#: qt/aqt/forms/dconf.py:340
 msgid "Starting ease"
 msgstr "起始難易度"
 
@@ -3357,7 +3357,7 @@ msgstr "統計"
 msgid "Step:"
 msgstr "間隔值："
 
-#: qt/aqt/forms/dconf.py:360 qt/aqt/forms/dconf.py:376
+#: qt/aqt/forms/dconf.py:346 qt/aqt/forms/dconf.py:362
 msgid "Steps (in minutes)"
 msgstr "步(單位是分鐘)"
 
@@ -3374,7 +3374,7 @@ msgstr "正在停止…"
 msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:122
+#: qt/aqt/deckbrowser.py:124
 #, python-format
 msgid "Studied %(a)s %(b)s today."
 msgstr ""
@@ -3427,7 +3427,7 @@ msgstr ""
 msgid "Suspend"
 msgstr "長久擱置"
 
-#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:383
+#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:369
 msgid "Suspend Card"
 msgstr "長久擱置卡片"
 
@@ -3478,7 +3478,7 @@ msgstr ""
 msgid "Tag Duplicates"
 msgstr "把重複的卡片加上標籤"
 
-#: qt/aqt/forms/dconf.py:384
+#: qt/aqt/forms/dconf.py:370
 msgid "Tag Only"
 msgstr "只附上標籤"
 
@@ -3526,7 +3526,7 @@ msgstr "AnkiWeb 的連接已逾時，請檢查您的網路並且再試一次。"
 msgid "The default configuration can't be removed."
 msgstr "無法刪除預設的設定"
 
-#: qt/aqt/deckbrowser.py:288
+#: qt/aqt/deckbrowser.py:290
 msgid "The default deck can't be deleted."
 msgstr "無法刪除預設牌組"
 
@@ -3560,7 +3560,7 @@ msgstr "不可使用下列字元： %s"
 msgid "The following conflicting add-ons were disabled:"
 msgstr ""
 
-#: pylib/anki/template.py:131
+#: pylib/anki/template.py:133
 msgid "The front of this card is blank."
 msgstr ""
 
@@ -3604,7 +3604,7 @@ msgstr "此變動會使您下一次同步您的收藏時，需要完整上傳您
 msgid "The time taken to answer the questions."
 msgstr "答題佔用的時間"
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1470
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3691,11 +3691,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "若要在現有的筆記上做出克漏字，您必須先將其改變成克漏字類型。按一下「編輯」>「改變筆記類型」。"
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1479
 msgid "To see them now, click the Unbury button below."
 msgstr "若現在要查看那些卡片，請按下方的取消暫時隱藏按鈕。"
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1492
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "如果要有額外的學習進度，請按下方的「自訂學習」按鈕。"
 
@@ -3703,7 +3703,7 @@ msgstr "如果要有額外的學習進度，請按下方的「自訂學習」按
 msgid "Today"
 msgstr "今天"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1461
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3882,7 +3882,7 @@ msgstr ""
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "您有克漏字筆記類型，但還沒有任何克漏字，確定要繼續？"
 
-#: qt/aqt/deckbrowser.py:131
+#: qt/aqt/deckbrowser.py:133
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr "您有許多牌組，請看  %(a)s. %(b)s"
@@ -3978,8 +3978,8 @@ msgid "d"
 msgstr "日"
 
 #: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
-#: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
-#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
+#: qt/aqt/forms/dconf.py:348 qt/aqt/forms/dconf.py:349
+#: qt/aqt/forms/dconf.py:356 qt/aqt/forms/dconf.py:368
 #: qt/aqt/forms/reschedule.py:77
 msgid "days"
 msgstr "天"
@@ -3996,7 +3996,7 @@ msgstr "全部時間"
 msgid "duplicate"
 msgstr "重複"
 
-#: qt/aqt/deckbrowser.py:138
+#: qt/aqt/deckbrowser.py:140
 msgid "hide"
 msgstr "隱藏"
 
@@ -4044,7 +4044,7 @@ msgid "in %s year"
 msgid_plural "in %s years"
 msgstr[0] ""
 
-#: qt/aqt/forms/dconf.py:379
+#: qt/aqt/forms/dconf.py:365
 msgid "lapses"
 msgstr "忘記"
 
@@ -4078,7 +4078,7 @@ msgstr "月"
 msgid "reviews"
 msgstr "複習"
 
-#: qt/aqt/forms/dconf.py:388
+#: qt/aqt/forms/dconf.py:374
 msgid "seconds"
 msgstr "秒"
 
@@ -4086,7 +4086,7 @@ msgstr "秒"
 msgid "stats"
 msgstr "統計"
 
-#: qt/aqt/deckbrowser.py:134
+#: qt/aqt/deckbrowser.py:136
 msgid "this page"
 msgstr "本頁面"
 
