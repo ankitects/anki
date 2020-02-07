@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-27 18:18+1000\n"
-"PO-Revision-Date: 2020-01-31 03:42\n"
+"POT-Creation-Date: 2020-01-31 13:44+1000\n"
+"PO-Revision-Date: 2020-02-07 03:24\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Armenian\n"
 "Language: hy_AM\n"
@@ -32,7 +32,7 @@ msgstr " (անջ.)"
 msgid " (on)"
 msgstr " (միաց.)"
 
-#: qt/aqt/deckbrowser.py:298
+#: qt/aqt/deckbrowser.py:300
 #, python-format
 msgid " It has %d card."
 msgid_plural " It has %d cards."
@@ -44,9 +44,9 @@ msgstr[1] " Պարունակում է %d քարտ:"
 msgid "\"Segoe UI\""
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
-#: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/dconf.py:341 qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:357 qt/aqt/forms/dconf.py:360
+#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/preferences.py:266
 msgid "%"
 msgstr ""
 
@@ -448,7 +448,7 @@ msgstr "(Գրառումը ջնջված է)"
 msgid "(disabled)"
 msgstr ""
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1540
 msgid "(end)"
 msgstr "(վերջ)"
 
@@ -531,7 +531,7 @@ msgstr "Սխալ 504: Անցուղիով անցնելու ժամանակը սպ�
 msgid ":"
 msgstr ""
 
-#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:120
+#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:122
 #, python-format
 msgid "<!--studied-->%d card"
 msgid_plural "<!--studied-->%d cards"
@@ -819,7 +819,7 @@ msgstr "Բոլոր կրկնվող քարտերը պատահական հերթակ
 msgid "Allow HTML in fields"
 msgstr "Թույլատրել HTML դաշտերում"
 
-#: qt/aqt/forms/dconf.py:391
+#: qt/aqt/forms/dconf.py:377
 msgid "Always include question side when replaying audio"
 msgstr "Ձայնանյութը կրկին նվագարկելիս միշտ ներառել հարցի կողմը"
 
@@ -888,7 +888,7 @@ msgstr "Anki-ն չի կարող անվանափոխել ձեր հատկագիրը
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki-ն չգտավ հարցի և պատասխանի միջև գիծը: Նրանք տեղերով փոխելու համար ձեռքով կարգաբերեք կաղապարը:"
 
-#: pylib/anki/media.py:339
+#: pylib/anki/media.py:340
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr "Anki-ն չի օժանդակում հավաքածուներ.մեդիա ենթապանակի նիշքերը:"
 
@@ -955,7 +955,7 @@ msgstr "Բոլոր չարտապատկերված քարտերը ջնջվելու 
 msgid "Appeared twice in file: %s"
 msgstr "Երկու անգամ հանդիպում է այս նիշքում՝ %s"
 
-#: qt/aqt/deckbrowser.py:305
+#: qt/aqt/deckbrowser.py:307
 #, python-format
 msgid "Are you sure you wish to delete %s?"
 msgstr "Վստա՞հ եք, որ ուզում եք ջնջել %s:"
@@ -984,7 +984,7 @@ msgstr ""
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr "Վերականգնելու ընթացքում ինքնաշխատ համաժամեցումը և պահուստավորումը անջատվել են: Նրանք կրկին միացնելու համար փակեք հատկագիրը կամ վերամեկնարկեք Anki-ն:"
 
-#: qt/aqt/forms/dconf.py:390
+#: qt/aqt/forms/dconf.py:376
 msgid "Automatically play audio"
 msgstr "Ինքնաշխատորեն նվագարկել ձայնանիշքը"
 
@@ -1114,11 +1114,11 @@ msgstr "Առանձնացնել քարտը"
 msgid "Bury Note"
 msgstr "Առանձնացնել գրառումը"
 
-#: qt/aqt/forms/dconf.py:361
+#: qt/aqt/forms/dconf.py:347
 msgid "Bury related new cards until the next day"
 msgstr "Առանձնացնել կապակցված նոր քարտերը մինչև հաջորդ օրը"
 
-#: qt/aqt/forms/dconf.py:372
+#: qt/aqt/forms/dconf.py:358
 msgid "Bury related reviews until the next day"
 msgstr "Առանձնացնել կապակցված կրկնությունները մինչ հաջորդ օրը"
 
@@ -1187,7 +1187,7 @@ msgstr "Քարտը առանձնացվեց:"
 msgid "Card suspended."
 msgstr "Քարտը հեռացվեց:"
 
-#: pylib/anki/template.py:122
+#: pylib/anki/template.py:124
 msgid "Card template has a problem:"
 msgstr ""
 
@@ -1378,7 +1378,7 @@ msgstr "Կազմաձև"
 msgid "Configure interface language and options"
 msgstr "Կազմաձևել միջերեսի լեզուն և ընտրանքները"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1449
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Դուք այս պահի դրությամբ ավարտել եք սույն կապուկը:"
 
@@ -1441,7 +1441,7 @@ msgstr "Չի հաջողվում պահել նիշքը՝ %s"
 msgid "Cram"
 msgstr "Սովորել"
 
-#: qt/aqt/deckbrowser.py:318
+#: qt/aqt/deckbrowser.py:320
 msgid "Create Deck"
 msgstr "Ստեղծել կապուկ"
 
@@ -1542,7 +1542,7 @@ msgstr "Ապանույնականացնել"
 msgid "Debug Console"
 msgstr "Վրիպազերծման կառավարակետ"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:152
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Կապուկ"
@@ -1572,7 +1572,7 @@ msgstr "Սկզբնադիր"
 msgid "Delays until reviews are shown again."
 msgstr "Հետաձգումները հաջորդ կրկնությունից առաջ:"
 
-#: qt/aqt/deckbrowser.py:246 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
+#: qt/aqt/deckbrowser.py:248 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
 #: qt/aqt/reviewer.py:780 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
@@ -1582,7 +1582,7 @@ msgstr "Ջնջել"
 msgid "Delete Cards"
 msgstr "Ջնջել քարտերը"
 
-#: qt/aqt/deckbrowser.py:289
+#: qt/aqt/deckbrowser.py:291
 msgid "Delete Deck"
 msgstr "Ջնջել կապուկները"
 
@@ -1681,11 +1681,11 @@ msgstr[1] "Ջնջվեց %d դաշտերի սխալ քանակ ունեցող գ�
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr "Կապուկների ցանկից այս կապուկի ջնջումը կվերադարձնի բոլոր մնացած քարտերը իրենց ելման կապուկների մեջ:"
 
-#: qt/aqt/forms/dconf.py:394
+#: qt/aqt/forms/dconf.py:380
 msgid "Description"
 msgstr "Նկարագրություն"
 
-#: qt/aqt/forms/dconf.py:393
+#: qt/aqt/forms/dconf.py:379
 msgid "Description to show on study screen (current deck only):"
 msgstr "Ուսուցման էկրանին ցուցադրվող նկարագրությունը (միայն այս կապուկի համար)՝"
 
@@ -1717,7 +1717,7 @@ msgid "Downloading from AnkiWeb..."
 msgstr "Ներբեռնվում է AnkiWeb-ից..."
 
 #: pylib/anki/stats.py:43 qt/aqt/browser.py:701 qt/aqt/browser.py:1219
-#: qt/aqt/deckbrowser.py:151
+#: qt/aqt/deckbrowser.py:153
 msgid "Due"
 msgstr "Կրկնելիք"
 
@@ -1741,11 +1741,11 @@ msgstr "Հեշտություն"
 msgid "Easy"
 msgstr "Հեշտ է"
 
-#: qt/aqt/forms/dconf.py:365
+#: qt/aqt/forms/dconf.py:351
 msgid "Easy bonus"
 msgstr "Պարգև հեշտերի համար"
 
-#: qt/aqt/forms/dconf.py:357
+#: qt/aqt/forms/dconf.py:343
 msgid "Easy interval"
 msgstr "Հեշտերի ժամանակամիջոցը"
 
@@ -1855,7 +1855,7 @@ msgstr ""
 msgid "Error running %s"
 msgstr "%s գործարկելու սխալ"
 
-#: qt/aqt/deckbrowser.py:244 qt/aqt/exporting.py:108
+#: qt/aqt/deckbrowser.py:246 qt/aqt/exporting.py:108
 #: qt/aqt/forms/exporting.py:74
 msgid "Export"
 msgstr "Արտահանել"
@@ -2047,7 +2047,7 @@ msgstr "Հարցի նախատեսք"
 msgid "Front Template"
 msgstr "Հարցի կաղապար"
 
-#: qt/aqt/forms/dconf.py:392
+#: qt/aqt/forms/dconf.py:378
 msgid "General"
 msgstr "Ընդհանուր"
 
@@ -2065,7 +2065,7 @@ msgstr "Ստեղծված է %s-ին"
 msgid "Get Add-ons..."
 msgstr "Տեղադրել նոր հավելումներ..."
 
-#: qt/aqt/deckbrowser.py:317
+#: qt/aqt/deckbrowser.py:319
 msgid "Get Shared"
 msgstr "Ներբեռնել"
 
@@ -2073,7 +2073,7 @@ msgstr "Ներբեռնել"
 msgid "Good"
 msgstr "Լավ է"
 
-#: qt/aqt/forms/dconf.py:358
+#: qt/aqt/forms/dconf.py:344
 msgid "Graduating interval"
 msgstr "Ժամանակամիջոցը բոլոր քայլերից հետո"
 
@@ -2089,7 +2089,7 @@ msgstr "HTML խմբագրիչ"
 msgid "Hard"
 msgstr "Դժվար է"
 
-#: qt/aqt/forms/dconf.py:373
+#: qt/aqt/forms/dconf.py:359
 msgid "Hard interval"
 msgstr "Դժվարների ժամանակամիջոցը"
 
@@ -2146,7 +2146,7 @@ msgstr "Եթե ներդրում եք կատարել ծրագրի զարգացմ�
 msgid "If you studied every day"
 msgstr "Եթե ամեն օր սովորեիք"
 
-#: qt/aqt/forms/dconf.py:387
+#: qt/aqt/forms/dconf.py:373
 msgid "Ignore answer times longer than"
 msgstr "Անտեսել այսքանից երկար տևող պատասխանի ժամանակը"
 
@@ -2171,7 +2171,7 @@ msgstr "Անտեսել այս արդիացումը"
 msgid "Import"
 msgstr "Ներմուծել"
 
-#: qt/aqt/deckbrowser.py:319
+#: qt/aqt/deckbrowser.py:321
 msgid "Import File"
 msgstr "Ներմուծել նիշք"
 
@@ -2286,7 +2286,7 @@ msgstr "Միջերեսի լեզուն՝"
 msgid "Interval"
 msgstr "Ժամանակամիջոց"
 
-#: qt/aqt/forms/dconf.py:368
+#: qt/aqt/forms/dconf.py:353
 msgid "Interval modifier"
 msgstr "Ժամանակամիջոցի փոփոխիչ"
 
@@ -2314,7 +2314,7 @@ msgstr "Անվավեր կազմաձև՝ "
 msgid "Invalid configuration: top level object must be a map"
 msgstr "Անվավեր կազմաձև՝ վերին մակարդակի առարկան պետք է քարտեզ լինի"
 
-#: pylib/anki/media.py:305
+#: pylib/anki/media.py:306
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr "Նիշքի անվավեր անվանում: Վերանվանեք այն՝ %s"
@@ -2363,7 +2363,7 @@ msgstr "LaTeX հավասարում"
 msgid "LaTeX math env."
 msgstr "LaTeX մաթ. միջավայր"
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:372
 msgid "Lapses"
 msgstr "Մոռացված"
 
@@ -2396,11 +2396,11 @@ msgstr "Սովորվող՝ %(a)s, Կրկնվող՝ %(b)s, Վերասովորվո
 msgid "Learning"
 msgstr "Սովորվող"
 
-#: qt/aqt/forms/dconf.py:380
+#: qt/aqt/forms/dconf.py:366
 msgid "Leech action"
 msgstr "Գործողություն «կպչուն» քարտերի հետ"
 
-#: qt/aqt/forms/dconf.py:378
+#: qt/aqt/forms/dconf.py:364
 msgid "Leech threshold"
 msgstr "«Կպչուն» քարտերի շեմը"
 
@@ -2440,7 +2440,7 @@ msgstr "Գրառումների տեսակները"
 msgid "Manage Note Types..."
 msgstr "Գրառումների տեսակները..."
 
-#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:339
 msgid "Manage..."
 msgstr "Կարգավորել..."
 
@@ -2478,11 +2478,11 @@ msgstr "MathJax ներտողային"
 msgid "Mature"
 msgstr "Հասունները"
 
-#: qt/aqt/forms/dconf.py:370
+#: qt/aqt/forms/dconf.py:355
 msgid "Maximum interval"
 msgstr "Առավելագույն ժամանակամիջոցը"
 
-#: qt/aqt/forms/dconf.py:369
+#: qt/aqt/forms/dconf.py:354
 msgid "Maximum reviews/day"
 msgstr "Կրկնությունների առավելագույն քանակը (օրը)"
 
@@ -2490,7 +2490,7 @@ msgstr "Կրկնությունների առավելագույն քանակը (օ
 msgid "Media"
 msgstr "Մեդիա"
 
-#: qt/aqt/forms/dconf.py:381
+#: qt/aqt/forms/dconf.py:367
 msgid "Minimum interval"
 msgstr "Նվազագույն ժամանակամիջոց"
 
@@ -2510,7 +2510,7 @@ msgstr "Mnemosyne 2.0 կապուկ (*.db)"
 msgid "More"
 msgstr "Ավելին"
 
-#: pylib/anki/template.py:132
+#: pylib/anki/template.py:134
 msgid "More info"
 msgstr ""
 
@@ -2538,7 +2538,7 @@ msgstr "&Գրառում"
 msgid "Name exists."
 msgstr "Անվանումը գոյություն ունի:"
 
-#: qt/aqt/deckbrowser.py:57
+#: qt/aqt/deckbrowser.py:59
 msgid "Name for deck:"
 msgstr "Կապուկի անվանումը՝"
 
@@ -2550,11 +2550,11 @@ msgstr "Անվանում՝"
 msgid "Network"
 msgstr "Համաժամեցում"
 
-#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:198
+#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:154 qt/aqt/overview.py:198
 msgid "New"
 msgstr "Նոր"
 
-#: qt/aqt/forms/dconf.py:364
+#: qt/aqt/forms/dconf.py:350
 msgid "New Cards"
 msgstr "Նոր քարտեր"
 
@@ -2567,15 +2567,15 @@ msgstr "Սահմանափակման այսօրվա շեմը գերազանցող 
 msgid "New cards only"
 msgstr "Միայն նոր քարտերը"
 
-#: qt/aqt/forms/dconf.py:359
+#: qt/aqt/forms/dconf.py:345
 msgid "New cards/day"
 msgstr "Նոր քարտեր (օրական)"
 
-#: qt/aqt/deckbrowser.py:258 qt/aqt/studydeck.py:142
+#: qt/aqt/deckbrowser.py:260 qt/aqt/studydeck.py:142
 msgid "New deck name:"
 msgstr "Նոր կապուկի անվանումը՝"
 
-#: qt/aqt/forms/dconf.py:377
+#: qt/aqt/forms/dconf.py:363
 msgid "New interval"
 msgstr "Նոր ժամանակամիջոց"
 
@@ -2761,7 +2761,7 @@ msgstr "Լավարկում..."
 msgid "Optional filter:"
 msgstr "Ընտրանքային զտիչ՝"
 
-#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
+#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:244 qt/aqt/deckconf.py:31
 #: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:221 qt/aqt/reviewer.py:700
 #: qt/aqt/forms/dyndconf.py:141 qt/aqt/forms/fields.py:108
 msgid "Options"
@@ -2772,7 +2772,7 @@ msgstr "Ընտրանքներ"
 msgid "Options for %s"
 msgstr "Ընտրանքներ %s-ի համար"
 
-#: qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:338
 msgid "Options group:"
 msgstr "Ընտրանքների խումբ՝"
 
@@ -2784,7 +2784,7 @@ msgstr "Ընտրանքներ..."
 msgid "Orange Flag"
 msgstr "Նարնջագույն դրոշ"
 
-#: qt/aqt/forms/dconf.py:356
+#: qt/aqt/forms/dconf.py:342
 msgid "Order"
 msgstr "Կարգ"
 
@@ -2958,7 +2958,7 @@ msgid_plural "Processed %d media files"
 msgstr[0] "Մշակված մեդիա նիշք %d"
 msgstr[1] "Մշակված մեդիա նիշք %d"
 
-#: qt/aqt/progress.py:118
+#: qt/aqt/progress.py:119
 msgid "Processing..."
 msgstr "Մշակում..."
 
@@ -3062,7 +3062,7 @@ msgstr "Հեռացնել ձևաչափումը (Ctrl+R)"
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr "Քարտի այս տեսակի հեռացումը կբերի մեկ կամ մի քանի գրառումների ջնջմանը: Սկզբում քարտի նոր տեսակ ստեղծեք:"
 
-#: qt/aqt/deckbrowser.py:240 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
+#: qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
 #: qt/aqt/forms/fields.py:103 qt/aqt/forms/profiles.py:77
 msgid "Rename"
 msgstr "Վերանվանել"
@@ -3071,7 +3071,7 @@ msgstr "Վերանվանել"
 msgid "Rename Card Type..."
 msgstr "Վերանվանել քարտի տեսակը..."
 
-#: qt/aqt/deckbrowser.py:255
+#: qt/aqt/deckbrowser.py:257
 msgid "Rename Deck"
 msgstr "Վերանվանել կապուկը"
 
@@ -3177,7 +3177,7 @@ msgid "Review success rate for each hour of the day."
 msgstr "Հաջողակ կրկնությունների բաժինը օրվա յուրաքանչյուր ժամի համար:"
 
 #: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:704
-#: qt/aqt/forms/dconf.py:375
+#: qt/aqt/forms/dconf.py:361
 msgid "Reviews"
 msgstr "Կրկնություններ"
 
@@ -3277,7 +3277,7 @@ msgstr "Shift ստեղնը սեղմված էր: Բաց է թողնվում ին�
 msgid "Shift position of existing cards"
 msgstr "Տեղաշարժել առկա քարտերի տեղավորությունը"
 
-#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:327
+#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:329
 #: qt/aqt/main.py:686 qt/aqt/overview.py:234 qt/aqt/reviewer.py:549
 #: qt/aqt/reviewer.py:562 qt/aqt/reviewer.py:628 qt/aqt/toolbar.py:38
 #: qt/aqt/toolbar.py:39 qt/aqt/toolbar.py:40 qt/aqt/toolbar.py:41
@@ -3311,7 +3311,7 @@ msgstr "Երկու կողմերն էլ ցուցադրել"
 msgid "Show Duplicates"
 msgstr "Ցուցադրել կրկնօրինակները"
 
-#: qt/aqt/forms/dconf.py:389
+#: qt/aqt/forms/dconf.py:375
 msgid "Show answer timer"
 msgstr "Ցուցադրել պատասխանի ժամանակը"
 
@@ -3359,7 +3359,7 @@ msgstr "Չափ՝"
 msgid "Skipped"
 msgstr "Բաց թողնված"
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1484
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Որոշ կապակցված կամ առանձնացված քարտերի ցուցադրութունը հետաձգվել է մինչև մեկ այլ աշխատաշրջան:"
 
@@ -3391,7 +3391,7 @@ msgstr "Բացատ"
 msgid "Start position:"
 msgstr "Սկզբնական տեղավորություն՝"
 
-#: qt/aqt/forms/dconf.py:355
+#: qt/aqt/forms/dconf.py:340
 msgid "Starting ease"
 msgstr "Սկզբնական հեշտություն"
 
@@ -3407,7 +3407,7 @@ msgstr "Վիճակագրություն"
 msgid "Step:"
 msgstr "Քայլ՝"
 
-#: qt/aqt/forms/dconf.py:360 qt/aqt/forms/dconf.py:376
+#: qt/aqt/forms/dconf.py:346 qt/aqt/forms/dconf.py:362
 msgid "Steps (in minutes)"
 msgstr "Քայլեր (րոպե)"
 
@@ -3424,7 +3424,7 @@ msgstr "Կանգնեցվում է..."
 msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
 msgstr "Սովորեցիք %(a)s %(b)s այսօր (%(secs).1fվ./քարտ)"
 
-#: qt/aqt/deckbrowser.py:122
+#: qt/aqt/deckbrowser.py:124
 #, python-format
 msgid "Studied %(a)s %(b)s today."
 msgstr "Այսօր սովորեցիք %(a)s %(b)s:"
@@ -3477,7 +3477,7 @@ msgstr "Վերգիր (Ctrl++)"
 msgid "Suspend"
 msgstr "Հեռացնել"
 
-#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:383
+#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:369
 msgid "Suspend Card"
 msgstr "Հեռացնել քարտը"
 
@@ -3528,7 +3528,7 @@ msgstr ""
 msgid "Tag Duplicates"
 msgstr "Պիտակավորել կրկնօրինակները"
 
-#: qt/aqt/forms/dconf.py:384
+#: qt/aqt/forms/dconf.py:370
 msgid "Tag Only"
 msgstr "Միայն պիտակավորել"
 
@@ -3576,7 +3576,7 @@ msgstr "AnkiWeb-ին միանալու փորձի ժամանակը սպառվեց
 msgid "The default configuration can't be removed."
 msgstr "Սկզբնադիր կազմաձևը չի կարելի հեռացնել:"
 
-#: qt/aqt/deckbrowser.py:288
+#: qt/aqt/deckbrowser.py:290
 msgid "The default deck can't be deleted."
 msgstr "Սկզբնադիր կապուկը չի կարելի հեռացնել:"
 
@@ -3610,7 +3610,7 @@ msgstr "Հետևյալ գրանշանը չի կարող օգտագործվել՝
 msgid "The following conflicting add-ons were disabled:"
 msgstr ""
 
-#: pylib/anki/template.py:131
+#: pylib/anki/template.py:133
 msgid "The front of this card is blank."
 msgstr ""
 
@@ -3654,7 +3654,7 @@ msgstr "Հարցվող գործողությունը կպահանջի տվյալ�
 msgid "The time taken to answer the questions."
 msgstr "Պատասխանների վրա ծախսված ժամանակ:"
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1470
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3739,11 +3739,11 @@ msgstr "Հավելումները զննելու համար սեղմեք ներք
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Առկա գրառման բացթողումների լրացումը ավելացնելու համար պետք է նրա տեսակը փոխել «բացթողումների», ընտրելով Խմբագրել>Փոխել գրառման տեսակը:"
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1479
 msgid "To see them now, click the Unbury button below."
 msgstr "Հիմա սովորելու համար, սեղմեք ներքևի «Վերադարձնել առանձնացվածները» կոճակը:"
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1492
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Արտահերթ սովորելու համար սեղմեք ներքևի «Լրացուցիչ ուսուցում» կոճակը:"
 
@@ -3751,7 +3751,7 @@ msgstr "Արտահերթ սովորելու համար սեղմեք ներքևի
 msgid "Today"
 msgstr "Այսօր"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1461
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3931,7 +3931,7 @@ msgstr ""
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "Գրառման տեսակը՝ բացթողումների լրացում է ընտրված , բայց Դուք ոչ մի բացթողում չեք լրացրել: Շարունակե՞լ:"
 
-#: qt/aqt/deckbrowser.py:131
+#: qt/aqt/deckbrowser.py:133
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr "Դուք շատ կապուկներ ունեք: Նայեք %(a)s. %(b)s"
@@ -4027,8 +4027,8 @@ msgid "d"
 msgstr "օր"
 
 #: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
-#: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
-#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
+#: qt/aqt/forms/dconf.py:348 qt/aqt/forms/dconf.py:349
+#: qt/aqt/forms/dconf.py:356 qt/aqt/forms/dconf.py:368
 #: qt/aqt/forms/reschedule.py:77
 msgid "days"
 msgstr "օր"
@@ -4045,7 +4045,7 @@ msgstr "ամբողջ ընթացքում"
 msgid "duplicate"
 msgstr "կրկնօրինակ"
 
-#: qt/aqt/deckbrowser.py:138
+#: qt/aqt/deckbrowser.py:140
 msgid "hide"
 msgstr "թաքցնել"
 
@@ -4099,7 +4099,7 @@ msgid_plural "in %s years"
 msgstr[0] "%s տարում"
 msgstr[1] "%s տարում"
 
-#: qt/aqt/forms/dconf.py:379
+#: qt/aqt/forms/dconf.py:365
 msgid "lapses"
 msgstr "մոռացվածներ"
 
@@ -4133,7 +4133,7 @@ msgstr "ամիս"
 msgid "reviews"
 msgstr "կրկնություն"
 
-#: qt/aqt/forms/dconf.py:388
+#: qt/aqt/forms/dconf.py:374
 msgid "seconds"
 msgstr "վայրկյան"
 
@@ -4141,7 +4141,7 @@ msgstr "վայրկյան"
 msgid "stats"
 msgstr "վիճակագրություն"
 
-#: qt/aqt/deckbrowser.py:134
+#: qt/aqt/deckbrowser.py:136
 msgid "this page"
 msgstr "այս էջը"
 

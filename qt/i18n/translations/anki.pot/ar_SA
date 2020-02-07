@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-27 18:18+1000\n"
-"PO-Revision-Date: 2020-01-31 03:42\n"
+"POT-Creation-Date: 2020-01-31 13:44+1000\n"
+"PO-Revision-Date: 2020-02-07 03:24\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
@@ -32,7 +32,7 @@ msgstr " (غير مفعل)"
 msgid " (on)"
 msgstr " (مفعل)"
 
-#: qt/aqt/deckbrowser.py:298
+#: qt/aqt/deckbrowser.py:300
 #, python-format
 msgid " It has %d card."
 msgid_plural " It has %d cards."
@@ -48,9 +48,9 @@ msgstr[5] " فيها %d بطاقة."
 msgid "\"Segoe UI\""
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
-#: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/dconf.py:341 qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:357 qt/aqt/forms/dconf.py:360
+#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/preferences.py:266
 msgid "%"
 msgstr "٪"
 
@@ -564,7 +564,7 @@ msgstr "(ملاحظة محذوفة)"
 msgid "(disabled)"
 msgstr ""
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1540
 msgid "(end)"
 msgstr "نهاية"
 
@@ -647,7 +647,7 @@ msgstr "تم تلقي خطأ 504 في gateway  . الرجاء محاولة تع�
 msgid ":"
 msgstr ""
 
-#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:120
+#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:122
 #, python-format
 msgid "<!--studied-->%d card"
 msgid_plural "<!--studied-->%d cards"
@@ -939,7 +939,7 @@ msgstr "كل البطاقات التي تحتاج مراجعة  بترتيب ع�
 msgid "Allow HTML in fields"
 msgstr "اسمح بـ HTML في الحقول"
 
-#: qt/aqt/forms/dconf.py:391
+#: qt/aqt/forms/dconf.py:377
 msgid "Always include question side when replaying audio"
 msgstr "دائمًا ضمّن جانب السؤال عند إعادة تشغيل الملفات الصوتية"
 
@@ -1008,7 +1008,7 @@ msgstr ".آنكي لا يستطيع إعادة تسمية ملفك الشخصي 
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr ".آنكي لا يستطيع إيجاد الخط بين السؤال والجواب. الرجاء ضبط النموذج يدويًا لتبديل مكان السؤال والجواب"
 
-#: pylib/anki/media.py:339
+#: pylib/anki/media.py:340
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ".آنكي لا يدعم الملفات في المجلدات الفرعية لمجلد وسائط المجموعة"
 
@@ -1075,7 +1075,7 @@ msgstr ""
 msgid "Appeared twice in file: %s"
 msgstr "%s :ظهر مرتين في الملف"
 
-#: qt/aqt/deckbrowser.py:305
+#: qt/aqt/deckbrowser.py:307
 #, python-format
 msgid "Are you sure you wish to delete %s?"
 msgstr "؟ %s هل أنت متأكد من حذف"
@@ -1104,7 +1104,7 @@ msgstr ""
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:390
+#: qt/aqt/forms/dconf.py:376
 msgid "Automatically play audio"
 msgstr "شغل الملفات الصوتية تلقائيًا"
 
@@ -1238,11 +1238,11 @@ msgstr "ادفن البطاقة"
 msgid "Bury Note"
 msgstr "ادفن الملحوظة"
 
-#: qt/aqt/forms/dconf.py:361
+#: qt/aqt/forms/dconf.py:347
 msgid "Bury related new cards until the next day"
 msgstr "ادفن البطاقات الجديدة ذات الصلة حتى اليوم التالي"
 
-#: qt/aqt/forms/dconf.py:372
+#: qt/aqt/forms/dconf.py:358
 msgid "Bury related reviews until the next day"
 msgstr "ادفن البطاقات التي تحتاج مراجعة حتى اليوم التالي"
 
@@ -1313,7 +1313,7 @@ msgstr ".دُفِنت البطاقة"
 msgid "Card suspended."
 msgstr ".أُوقِفت البطاقة"
 
-#: pylib/anki/template.py:122
+#: pylib/anki/template.py:124
 msgid "Card template has a problem:"
 msgstr ""
 
@@ -1508,7 +1508,7 @@ msgstr "إعداد"
 msgid "Configure interface language and options"
 msgstr "تعديل واجهة اللغات و الخيارات"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1449
 msgid "Congratulations! You have finished this deck for now."
 msgstr "تهانينا لقد انتهيت من هذه المجموعة الآن"
 
@@ -1571,7 +1571,7 @@ msgstr "%s :لا يمكن حفظ الملف"
 msgid "Cram"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:318
+#: qt/aqt/deckbrowser.py:320
 msgid "Create Deck"
 msgstr "مجموعة جديدة"
 
@@ -1672,7 +1672,7 @@ msgstr "سحب الصلاحيات"
 msgid "Debug Console"
 msgstr ""
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:152
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "مجموعة"
@@ -1702,7 +1702,7 @@ msgstr "افتراضي"
 msgid "Delays until reviews are shown again."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:246 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
+#: qt/aqt/deckbrowser.py:248 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
 #: qt/aqt/reviewer.py:780 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
@@ -1712,7 +1712,7 @@ msgstr "حذف"
 msgid "Delete Cards"
 msgstr "احذف بطاقات"
 
-#: qt/aqt/deckbrowser.py:289
+#: qt/aqt/deckbrowser.py:291
 msgid "Delete Deck"
 msgstr "حذف مجموعة"
 
@@ -1839,11 +1839,11 @@ msgstr[5] ""
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:394
+#: qt/aqt/forms/dconf.py:380
 msgid "Description"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:393
+#: qt/aqt/forms/dconf.py:379
 msgid "Description to show on study screen (current deck only):"
 msgstr ""
 
@@ -1875,7 +1875,7 @@ msgid "Downloading from AnkiWeb..."
 msgstr ""
 
 #: pylib/anki/stats.py:43 qt/aqt/browser.py:701 qt/aqt/browser.py:1219
-#: qt/aqt/deckbrowser.py:151
+#: qt/aqt/deckbrowser.py:153
 msgid "Due"
 msgstr ""
 
@@ -1899,11 +1899,11 @@ msgstr "تسهيل"
 msgid "Easy"
 msgstr "سهل"
 
-#: qt/aqt/forms/dconf.py:365
+#: qt/aqt/forms/dconf.py:351
 msgid "Easy bonus"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:357
+#: qt/aqt/forms/dconf.py:343
 msgid "Easy interval"
 msgstr ""
 
@@ -2011,7 +2011,7 @@ msgstr ""
 msgid "Error running %s"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:244 qt/aqt/exporting.py:108
+#: qt/aqt/deckbrowser.py:246 qt/aqt/exporting.py:108
 #: qt/aqt/forms/exporting.py:74
 msgid "Export"
 msgstr "تصدير"
@@ -2211,7 +2211,7 @@ msgstr ""
 msgid "Front Template"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:392
+#: qt/aqt/forms/dconf.py:378
 msgid "General"
 msgstr ""
 
@@ -2229,7 +2229,7 @@ msgstr ""
 msgid "Get Add-ons..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:317
+#: qt/aqt/deckbrowser.py:319
 msgid "Get Shared"
 msgstr ""
 
@@ -2237,7 +2237,7 @@ msgstr ""
 msgid "Good"
 msgstr "جيد"
 
-#: qt/aqt/forms/dconf.py:358
+#: qt/aqt/forms/dconf.py:344
 msgid "Graduating interval"
 msgstr ""
 
@@ -2253,7 +2253,7 @@ msgstr "HTML محرر"
 msgid "Hard"
 msgstr "صعب"
 
-#: qt/aqt/forms/dconf.py:373
+#: qt/aqt/forms/dconf.py:359
 msgid "Hard interval"
 msgstr ""
 
@@ -2310,7 +2310,7 @@ msgstr "اذا كنت مساهم في البرنامج وإسمك غير موج�
 msgid "If you studied every day"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:387
+#: qt/aqt/forms/dconf.py:373
 msgid "Ignore answer times longer than"
 msgstr ""
 
@@ -2335,7 +2335,7 @@ msgstr "تجاهل هذا التحديث"
 msgid "Import"
 msgstr "استيراد"
 
-#: qt/aqt/deckbrowser.py:319
+#: qt/aqt/deckbrowser.py:321
 msgid "Import File"
 msgstr ""
 
@@ -2444,7 +2444,7 @@ msgstr ""
 msgid "Interval"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:368
+#: qt/aqt/forms/dconf.py:353
 msgid "Interval modifier"
 msgstr ""
 
@@ -2472,7 +2472,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:305
+#: pylib/anki/media.py:306
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2521,7 +2521,7 @@ msgstr ""
 msgid "LaTeX math env."
 msgstr ""
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:372
 msgid "Lapses"
 msgstr "هفوات"
 
@@ -2554,11 +2554,11 @@ msgstr ""
 msgid "Learning"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:380
+#: qt/aqt/forms/dconf.py:366
 msgid "Leech action"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:378
+#: qt/aqt/forms/dconf.py:364
 msgid "Leech threshold"
 msgstr ""
 
@@ -2598,7 +2598,7 @@ msgstr ""
 msgid "Manage Note Types..."
 msgstr ""
 
-#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:339
 msgid "Manage..."
 msgstr ""
 
@@ -2636,11 +2636,11 @@ msgstr ""
 msgid "Mature"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:370
+#: qt/aqt/forms/dconf.py:355
 msgid "Maximum interval"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:369
+#: qt/aqt/forms/dconf.py:354
 msgid "Maximum reviews/day"
 msgstr ""
 
@@ -2648,7 +2648,7 @@ msgstr ""
 msgid "Media"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:381
+#: qt/aqt/forms/dconf.py:367
 msgid "Minimum interval"
 msgstr ""
 
@@ -2668,7 +2668,7 @@ msgstr ""
 msgid "More"
 msgstr "المزيد"
 
-#: pylib/anki/template.py:132
+#: pylib/anki/template.py:134
 msgid "More info"
 msgstr ""
 
@@ -2696,7 +2696,7 @@ msgstr ""
 msgid "Name exists."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:57
+#: qt/aqt/deckbrowser.py:59
 msgid "Name for deck:"
 msgstr ""
 
@@ -2708,11 +2708,11 @@ msgstr ""
 msgid "Network"
 msgstr "الشبكة"
 
-#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:198
+#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:154 qt/aqt/overview.py:198
 msgid "New"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:364
+#: qt/aqt/forms/dconf.py:350
 msgid "New Cards"
 msgstr ""
 
@@ -2725,15 +2725,15 @@ msgstr ""
 msgid "New cards only"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:359
+#: qt/aqt/forms/dconf.py:345
 msgid "New cards/day"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:258 qt/aqt/studydeck.py:142
+#: qt/aqt/deckbrowser.py:260 qt/aqt/studydeck.py:142
 msgid "New deck name:"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:377
+#: qt/aqt/forms/dconf.py:363
 msgid "New interval"
 msgstr ""
 
@@ -2923,7 +2923,7 @@ msgstr ""
 msgid "Optional filter:"
 msgstr ""
 
-#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
+#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:244 qt/aqt/deckconf.py:31
 #: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:221 qt/aqt/reviewer.py:700
 #: qt/aqt/forms/dyndconf.py:141 qt/aqt/forms/fields.py:108
 msgid "Options"
@@ -2934,7 +2934,7 @@ msgstr ""
 msgid "Options for %s"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:338
 msgid "Options group:"
 msgstr ""
 
@@ -2946,7 +2946,7 @@ msgstr ""
 msgid "Orange Flag"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:356
+#: qt/aqt/forms/dconf.py:342
 msgid "Order"
 msgstr ""
 
@@ -3124,7 +3124,7 @@ msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
 
-#: qt/aqt/progress.py:118
+#: qt/aqt/progress.py:119
 msgid "Processing..."
 msgstr "معالجة..."
 
@@ -3228,7 +3228,7 @@ msgstr ""
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:240 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
+#: qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
 #: qt/aqt/forms/fields.py:103 qt/aqt/forms/profiles.py:77
 msgid "Rename"
 msgstr ""
@@ -3237,7 +3237,7 @@ msgstr ""
 msgid "Rename Card Type..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:255
+#: qt/aqt/deckbrowser.py:257
 msgid "Rename Deck"
 msgstr ""
 
@@ -3343,7 +3343,7 @@ msgid "Review success rate for each hour of the day."
 msgstr ""
 
 #: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:704
-#: qt/aqt/forms/dconf.py:375
+#: qt/aqt/forms/dconf.py:361
 msgid "Reviews"
 msgstr "مراجعات"
 
@@ -3443,7 +3443,7 @@ msgstr ""
 msgid "Shift position of existing cards"
 msgstr ""
 
-#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:327
+#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:329
 #: qt/aqt/main.py:686 qt/aqt/overview.py:234 qt/aqt/reviewer.py:549
 #: qt/aqt/reviewer.py:562 qt/aqt/reviewer.py:628 qt/aqt/toolbar.py:38
 #: qt/aqt/toolbar.py:39 qt/aqt/toolbar.py:40 qt/aqt/toolbar.py:41
@@ -3477,7 +3477,7 @@ msgstr ""
 msgid "Show Duplicates"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:389
+#: qt/aqt/forms/dconf.py:375
 msgid "Show answer timer"
 msgstr ""
 
@@ -3525,7 +3525,7 @@ msgstr ""
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1484
 msgid "Some related or buried cards were delayed until a later session."
 msgstr ""
 
@@ -3557,7 +3557,7 @@ msgstr ""
 msgid "Start position:"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:355
+#: qt/aqt/forms/dconf.py:340
 msgid "Starting ease"
 msgstr ""
 
@@ -3573,7 +3573,7 @@ msgstr ""
 msgid "Step:"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:360 qt/aqt/forms/dconf.py:376
+#: qt/aqt/forms/dconf.py:346 qt/aqt/forms/dconf.py:362
 msgid "Steps (in minutes)"
 msgstr ""
 
@@ -3590,7 +3590,7 @@ msgstr ""
 msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:122
+#: qt/aqt/deckbrowser.py:124
 #, python-format
 msgid "Studied %(a)s %(b)s today."
 msgstr ""
@@ -3643,7 +3643,7 @@ msgstr ""
 msgid "Suspend"
 msgstr "تعليق"
 
-#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:383
+#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:369
 msgid "Suspend Card"
 msgstr ""
 
@@ -3693,7 +3693,7 @@ msgstr ""
 msgid "Tag Duplicates"
 msgstr "أضف سمة للبطاقات المكررة"
 
-#: qt/aqt/forms/dconf.py:384
+#: qt/aqt/forms/dconf.py:370
 msgid "Tag Only"
 msgstr "أضف سمة فقط"
 
@@ -3741,7 +3741,7 @@ msgstr ""
 msgid "The default configuration can't be removed."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:288
+#: qt/aqt/deckbrowser.py:290
 msgid "The default deck can't be deleted."
 msgstr ""
 
@@ -3775,7 +3775,7 @@ msgstr ""
 msgid "The following conflicting add-ons were disabled:"
 msgstr ""
 
-#: pylib/anki/template.py:131
+#: pylib/anki/template.py:133
 msgid "The front of this card is blank."
 msgstr ""
 
@@ -3819,7 +3819,7 @@ msgstr ""
 msgid "The time taken to answer the questions."
 msgstr ""
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1470
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3905,11 +3905,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr ""
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1479
 msgid "To see them now, click the Unbury button below."
 msgstr ""
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1492
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr ""
 
@@ -3917,7 +3917,7 @@ msgstr ""
 msgid "Today"
 msgstr ""
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1461
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -4095,7 +4095,7 @@ msgstr ""
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:131
+#: qt/aqt/deckbrowser.py:133
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr ""
@@ -4187,8 +4187,8 @@ msgid "d"
 msgstr ""
 
 #: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
-#: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
-#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
+#: qt/aqt/forms/dconf.py:348 qt/aqt/forms/dconf.py:349
+#: qt/aqt/forms/dconf.py:356 qt/aqt/forms/dconf.py:368
 #: qt/aqt/forms/reschedule.py:77
 msgid "days"
 msgstr "ايام"
@@ -4205,7 +4205,7 @@ msgstr ""
 msgid "duplicate"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:138
+#: qt/aqt/deckbrowser.py:140
 msgid "hide"
 msgstr ""
 
@@ -4283,7 +4283,7 @@ msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
 
-#: qt/aqt/forms/dconf.py:379
+#: qt/aqt/forms/dconf.py:365
 msgid "lapses"
 msgstr ""
 
@@ -4317,7 +4317,7 @@ msgstr ""
 msgid "reviews"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:388
+#: qt/aqt/forms/dconf.py:374
 msgid "seconds"
 msgstr ""
 
@@ -4325,7 +4325,7 @@ msgstr ""
 msgid "stats"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:134
+#: qt/aqt/deckbrowser.py:136
 msgid "this page"
 msgstr ""
 

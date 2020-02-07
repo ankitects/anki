@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-27 18:18+1000\n"
-"PO-Revision-Date: 2020-01-31 03:42\n"
+"POT-Creation-Date: 2020-01-31 13:44+1000\n"
+"PO-Revision-Date: 2020-02-07 03:24\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Afrikaans\n"
 "Language: af_ZA\n"
@@ -32,7 +32,7 @@ msgstr " (af)"
 msgid " (on)"
 msgstr " (aan)"
 
-#: qt/aqt/deckbrowser.py:298
+#: qt/aqt/deckbrowser.py:300
 #, python-format
 msgid " It has %d card."
 msgid_plural " It has %d cards."
@@ -44,9 +44,9 @@ msgstr[1] " Dit het %d kaarte."
 msgid "\"Segoe UI\""
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:354 qt/aqt/forms/dconf.py:366
-#: qt/aqt/forms/dconf.py:367 qt/aqt/forms/dconf.py:374
-#: qt/aqt/forms/dconf.py:385 qt/aqt/forms/preferences.py:266
+#: qt/aqt/forms/dconf.py:341 qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:357 qt/aqt/forms/dconf.py:360
+#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/preferences.py:266
 msgid "%"
 msgstr ""
 
@@ -448,7 +448,7 @@ msgstr "(Nota verwyder)"
 msgid "(disabled)"
 msgstr ""
 
-#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1539
+#: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1540
 msgid "(end)"
 msgstr "(einde)"
 
@@ -531,7 +531,7 @@ msgstr "504 tussenganger onderbreking. Probeer asseblief jou anti-virus sagtewar
 msgid ":"
 msgstr ""
 
-#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:120
+#: pylib/anki/stats.py:175 qt/aqt/deckbrowser.py:122
 #, python-format
 msgid "<!--studied-->%d card"
 msgid_plural "<!--studied-->%d cards"
@@ -813,7 +813,7 @@ msgstr ""
 msgid "Allow HTML in fields"
 msgstr "Laat HTML in velde toe"
 
-#: qt/aqt/forms/dconf.py:391
+#: qt/aqt/forms/dconf.py:377
 msgid "Always include question side when replaying audio"
 msgstr ""
 
@@ -880,7 +880,7 @@ msgstr "Anki kon nie jou profiel vernoem nie, omdat dit nie die profiel lêer op
 msgid "Anki couldn't find the line between the question and answer. Please adjust the template manually to switch the question and answer."
 msgstr "Anki kon nie die lyn tussen die vraag en antwoord vind nie. Stel asseblief die profielvorm met die hand  om te skakel van vraag na antwoord."
 
-#: pylib/anki/media.py:339
+#: pylib/anki/media.py:340
 msgid "Anki does not support files in subfolders of the collection.media folder."
 msgstr ""
 
@@ -946,7 +946,7 @@ msgstr "Enige kaarte wat na niks verwys nie sal uitgevee word. As 'n nota geen o
 msgid "Appeared twice in file: %s"
 msgstr "Verskyn twee keer in die lêer: %s"
 
-#: qt/aqt/deckbrowser.py:305
+#: qt/aqt/deckbrowser.py:307
 #, python-format
 msgid "Are you sure you wish to delete %s?"
 msgstr "Is jy seker jy wil %s verwyder?"
@@ -975,7 +975,7 @@ msgstr ""
 msgid "Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki."
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:390
+#: qt/aqt/forms/dconf.py:376
 msgid "Automatically play audio"
 msgstr "Speel outomaties audio"
 
@@ -1105,11 +1105,11 @@ msgstr "Begrawe kaart"
 msgid "Bury Note"
 msgstr "Begrawe Nota"
 
-#: qt/aqt/forms/dconf.py:361
+#: qt/aqt/forms/dconf.py:347
 msgid "Bury related new cards until the next day"
 msgstr "Begrawe verwante kaarte tot môre"
 
-#: qt/aqt/forms/dconf.py:372
+#: qt/aqt/forms/dconf.py:358
 msgid "Bury related reviews until the next day"
 msgstr "Begrawe verwante herhalings tot môre"
 
@@ -1180,7 +1180,7 @@ msgstr "Kaart gebêre"
 msgid "Card suspended."
 msgstr "Kaart opgeskort."
 
-#: pylib/anki/template.py:122
+#: pylib/anki/template.py:124
 msgid "Card template has a problem:"
 msgstr ""
 
@@ -1371,7 +1371,7 @@ msgstr ""
 msgid "Configure interface language and options"
 msgstr "Stel koppelvlak taal en opsies"
 
-#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1448
+#: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1449
 msgid "Congratulations! You have finished this deck for now."
 msgstr "Veels geluk! Jy is vir eers klaar met hierdie kaartpak."
 
@@ -1434,7 +1434,7 @@ msgstr "Kon nie die lêer, %s stoor nie"
 msgid "Cram"
 msgstr "Dril"
 
-#: qt/aqt/deckbrowser.py:318
+#: qt/aqt/deckbrowser.py:320
 msgid "Create Deck"
 msgstr "Skep Kaartpak"
 
@@ -1535,7 +1535,7 @@ msgstr "Ontmagtig"
 msgid "Debug Console"
 msgstr "Ontfout konsole"
 
-#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:150
+#: pylib/anki/stats.py:59 qt/aqt/browser.py:696 qt/aqt/deckbrowser.py:152
 #: qt/aqt/deckchooser.py:26 qt/aqt/forms/importing.py:106
 msgid "Deck"
 msgstr "Kaartpak"
@@ -1565,7 +1565,7 @@ msgstr ""
 msgid "Delays until reviews are shown again."
 msgstr "Vertragings tot hersienings weer getoon word."
 
-#: qt/aqt/deckbrowser.py:246 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
+#: qt/aqt/deckbrowser.py:248 qt/aqt/deckconf.py:83 qt/aqt/models.py:51
 #: qt/aqt/reviewer.py:780 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:327
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
@@ -1575,7 +1575,7 @@ msgstr "Skrap"
 msgid "Delete Cards"
 msgstr "Skrap Kaarte"
 
-#: qt/aqt/deckbrowser.py:289
+#: qt/aqt/deckbrowser.py:291
 msgid "Delete Deck"
 msgstr "Skrap Kaartpak"
 
@@ -1674,11 +1674,11 @@ msgstr[1] "%d kaarte uitgevee met verkeerde velde"
 msgid "Deleting this deck from the deck list will return all remaining cards to their original deck."
 msgstr "Verwydering van hierdie kaartpak van die kaartpak lys sal alle oorblywende kaarte terugkeer na hul oorspronklike kaartpak."
 
-#: qt/aqt/forms/dconf.py:394
+#: qt/aqt/forms/dconf.py:380
 msgid "Description"
 msgstr "Beskrywing"
 
-#: qt/aqt/forms/dconf.py:393
+#: qt/aqt/forms/dconf.py:379
 msgid "Description to show on study screen (current deck only):"
 msgstr "Beskrywing om te vertoon op studie skerm (huidige kaartpak alleenlik):"
 
@@ -1710,7 +1710,7 @@ msgid "Downloading from AnkiWeb..."
 msgstr "Besig om af te laai vanaf AnkiWeb..."
 
 #: pylib/anki/stats.py:43 qt/aqt/browser.py:701 qt/aqt/browser.py:1219
-#: qt/aqt/deckbrowser.py:151
+#: qt/aqt/deckbrowser.py:153
 msgid "Due"
 msgstr "Uitstaande"
 
@@ -1734,11 +1734,11 @@ msgstr "Gemak"
 msgid "Easy"
 msgstr "Maklik"
 
-#: qt/aqt/forms/dconf.py:365
+#: qt/aqt/forms/dconf.py:351
 msgid "Easy bonus"
 msgstr "Maklike bonus"
 
-#: qt/aqt/forms/dconf.py:357
+#: qt/aqt/forms/dconf.py:343
 msgid "Easy interval"
 msgstr "Maklike tussenpouse"
 
@@ -1848,7 +1848,7 @@ msgstr ""
 msgid "Error running %s"
 msgstr "Fout met uitvoer van %s"
 
-#: qt/aqt/deckbrowser.py:244 qt/aqt/exporting.py:108
+#: qt/aqt/deckbrowser.py:246 qt/aqt/exporting.py:108
 #: qt/aqt/forms/exporting.py:74
 msgid "Export"
 msgstr "Uitvoer"
@@ -2040,7 +2040,7 @@ msgstr "Voorkant voorskou"
 msgid "Front Template"
 msgstr "Voorkant Profielvorm"
 
-#: qt/aqt/forms/dconf.py:392
+#: qt/aqt/forms/dconf.py:378
 msgid "General"
 msgstr "Algemeen"
 
@@ -2058,7 +2058,7 @@ msgstr "Gegenereer op %s"
 msgid "Get Add-ons..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:317
+#: qt/aqt/deckbrowser.py:319
 msgid "Get Shared"
 msgstr "Kry Gedeelde"
 
@@ -2066,7 +2066,7 @@ msgstr "Kry Gedeelde"
 msgid "Good"
 msgstr "Goed"
 
-#: qt/aqt/forms/dconf.py:358
+#: qt/aqt/forms/dconf.py:344
 msgid "Graduating interval"
 msgstr "Gradueerende tyssenpouse"
 
@@ -2082,7 +2082,7 @@ msgstr "HTML Wysiger"
 msgid "Hard"
 msgstr "Moeilik"
 
-#: qt/aqt/forms/dconf.py:373
+#: qt/aqt/forms/dconf.py:359
 msgid "Hard interval"
 msgstr ""
 
@@ -2139,7 +2139,7 @@ msgstr "As jy bygedra het, en nie op hierdie lys is nie, tree asseblief in verbi
 msgid "If you studied every day"
 msgstr "As jy elke dag  studeer het"
 
-#: qt/aqt/forms/dconf.py:387
+#: qt/aqt/forms/dconf.py:373
 msgid "Ignore answer times longer than"
 msgstr "Ignoreer antwoord tye langer as"
 
@@ -2164,7 +2164,7 @@ msgstr "Ignoreer hierdie weergawe"
 msgid "Import"
 msgstr "Invoer"
 
-#: qt/aqt/deckbrowser.py:319
+#: qt/aqt/deckbrowser.py:321
 msgid "Import File"
 msgstr "Lêer Invoer"
 
@@ -2280,7 +2280,7 @@ msgstr "Koppelvlak taal:"
 msgid "Interval"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:368
+#: qt/aqt/forms/dconf.py:353
 msgid "Interval modifier"
 msgstr "tussentydse wysiger"
 
@@ -2308,7 +2308,7 @@ msgstr ""
 msgid "Invalid configuration: top level object must be a map"
 msgstr ""
 
-#: pylib/anki/media.py:305
+#: pylib/anki/media.py:306
 #, python-format
 msgid "Invalid file name, please rename: %s"
 msgstr ""
@@ -2357,7 +2357,7 @@ msgstr "LaTeX vergelyking"
 msgid "LaTeX math env."
 msgstr "LaTeX wiskunde omgewing."
 
-#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:386
+#: pylib/anki/stats.py:48 qt/aqt/browser.py:705 qt/aqt/forms/dconf.py:372
 msgid "Lapses"
 msgstr "Gebreke"
 
@@ -2390,11 +2390,11 @@ msgstr "Leer: %(a)s, Hersienning: %(b)s, Herleer: %(c)s, Gefiltered: %(d)s"
 msgid "Learning"
 msgstr "Leer"
 
-#: qt/aqt/forms/dconf.py:380
+#: qt/aqt/forms/dconf.py:366
 msgid "Leech action"
 msgstr "Bloedsuier aksie"
 
-#: qt/aqt/forms/dconf.py:378
+#: qt/aqt/forms/dconf.py:364
 msgid "Leech threshold"
 msgstr "Bloedsuier drumpel"
 
@@ -2434,7 +2434,7 @@ msgstr ""
 msgid "Manage Note Types..."
 msgstr "Beheer Nota Tipes..."
 
-#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:353
+#: qt/aqt/browser.py:1274 qt/aqt/forms/dconf.py:339
 msgid "Manage..."
 msgstr ""
 
@@ -2472,11 +2472,11 @@ msgstr ""
 msgid "Mature"
 msgstr "Volwasse"
 
-#: qt/aqt/forms/dconf.py:370
+#: qt/aqt/forms/dconf.py:355
 msgid "Maximum interval"
 msgstr "Maksimum tussenpose"
 
-#: qt/aqt/forms/dconf.py:369
+#: qt/aqt/forms/dconf.py:354
 msgid "Maximum reviews/day"
 msgstr "Maksimum hersiennings/dag"
 
@@ -2484,7 +2484,7 @@ msgstr "Maksimum hersiennings/dag"
 msgid "Media"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:381
+#: qt/aqt/forms/dconf.py:367
 msgid "Minimum interval"
 msgstr "Minimum tussenpose"
 
@@ -2504,7 +2504,7 @@ msgstr "Mnemosyne 2,0 Kaartpak (*.db)"
 msgid "More"
 msgstr "Meer"
 
-#: pylib/anki/template.py:132
+#: pylib/anki/template.py:134
 msgid "More info"
 msgstr ""
 
@@ -2532,7 +2532,7 @@ msgstr "N&ota"
 msgid "Name exists."
 msgstr "Naam bestaan reeds."
 
-#: qt/aqt/deckbrowser.py:57
+#: qt/aqt/deckbrowser.py:59
 msgid "Name for deck:"
 msgstr "Naam vir kaartpak:"
 
@@ -2544,11 +2544,11 @@ msgstr "Naam:"
 msgid "Network"
 msgstr "Netwerk"
 
-#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:152 qt/aqt/overview.py:198
+#: qt/aqt/browser.py:1216 qt/aqt/deckbrowser.py:154 qt/aqt/overview.py:198
 msgid "New"
 msgstr "Nuut"
 
-#: qt/aqt/forms/dconf.py:364
+#: qt/aqt/forms/dconf.py:350
 msgid "New Cards"
 msgstr "Nuwe Kaarte"
 
@@ -2561,15 +2561,15 @@ msgstr ""
 msgid "New cards only"
 msgstr "Alleenlik nuwe kaarte"
 
-#: qt/aqt/forms/dconf.py:359
+#: qt/aqt/forms/dconf.py:345
 msgid "New cards/day"
 msgstr "Nuwe kaarte/dag"
 
-#: qt/aqt/deckbrowser.py:258 qt/aqt/studydeck.py:142
+#: qt/aqt/deckbrowser.py:260 qt/aqt/studydeck.py:142
 msgid "New deck name:"
 msgstr "Nuwe kaartpak naam:"
 
-#: qt/aqt/forms/dconf.py:377
+#: qt/aqt/forms/dconf.py:363
 msgid "New interval"
 msgstr "Nuwe tussenpouse"
 
@@ -2755,7 +2755,7 @@ msgstr "Optimaliseer..."
 msgid "Optional filter:"
 msgstr ""
 
-#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:31
+#: qt/aqt/clayout.py:107 qt/aqt/deckbrowser.py:244 qt/aqt/deckconf.py:31
 #: qt/aqt/dyndeckconf.py:24 qt/aqt/overview.py:221 qt/aqt/reviewer.py:700
 #: qt/aqt/forms/dyndconf.py:141 qt/aqt/forms/fields.py:108
 msgid "Options"
@@ -2766,7 +2766,7 @@ msgstr "Voorkeure"
 msgid "Options for %s"
 msgstr "Opsies vir %s"
 
-#: qt/aqt/forms/dconf.py:352
+#: qt/aqt/forms/dconf.py:338
 msgid "Options group:"
 msgstr "Opsies groep:"
 
@@ -2778,7 +2778,7 @@ msgstr "Opsies..."
 msgid "Orange Flag"
 msgstr ""
 
-#: qt/aqt/forms/dconf.py:356
+#: qt/aqt/forms/dconf.py:342
 msgid "Order"
 msgstr "Volgorde"
 
@@ -2952,7 +2952,7 @@ msgid_plural "Processed %d media files"
 msgstr[0] "%d Media lêer geprosesseer"
 msgstr[1] "%d Media lêers geprosesseer"
 
-#: qt/aqt/progress.py:118
+#: qt/aqt/progress.py:119
 msgid "Processing..."
 msgstr "Verwerk tans..."
 
@@ -3056,7 +3056,7 @@ msgstr ""
 msgid "Removing this card type would cause one or more notes to be deleted. Please create a new card type first."
 msgstr "Verwydering van hierdie kaart tipe sal maak dat een of meer notas geskrap word. Skep asseblief eers 'n nuwe kaart tipe."
 
-#: qt/aqt/deckbrowser.py:240 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
+#: qt/aqt/deckbrowser.py:242 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
 #: qt/aqt/forms/fields.py:103 qt/aqt/forms/profiles.py:77
 msgid "Rename"
 msgstr "Hernoem"
@@ -3065,7 +3065,7 @@ msgstr "Hernoem"
 msgid "Rename Card Type..."
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:255
+#: qt/aqt/deckbrowser.py:257
 msgid "Rename Deck"
 msgstr "Hernoem Kaartpak"
 
@@ -3171,7 +3171,7 @@ msgid "Review success rate for each hour of the day."
 msgstr "Hersien sukses koers vir elke uur van die dag."
 
 #: pylib/anki/stats.py:47 pylib/anki/stats.py:834 qt/aqt/browser.py:704
-#: qt/aqt/forms/dconf.py:375
+#: qt/aqt/forms/dconf.py:361
 msgid "Reviews"
 msgstr "Hersienings"
 
@@ -3271,7 +3271,7 @@ msgstr "Shift knoppie ingehou. Slaan outomatiese sinchronisasie oor."
 msgid "Shift position of existing cards"
 msgstr "Skuif die posisie van bestaande kaarte"
 
-#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:327
+#: qt/aqt/browser.py:1548 qt/aqt/browser.py:1566 qt/aqt/deckbrowser.py:329
 #: qt/aqt/main.py:686 qt/aqt/overview.py:234 qt/aqt/reviewer.py:549
 #: qt/aqt/reviewer.py:562 qt/aqt/reviewer.py:628 qt/aqt/toolbar.py:38
 #: qt/aqt/toolbar.py:39 qt/aqt/toolbar.py:40 qt/aqt/toolbar.py:41
@@ -3305,7 +3305,7 @@ msgstr ""
 msgid "Show Duplicates"
 msgstr "Wys Duplikate"
 
-#: qt/aqt/forms/dconf.py:389
+#: qt/aqt/forms/dconf.py:375
 msgid "Show answer timer"
 msgstr "Wys antwoord tydhouer"
 
@@ -3353,7 +3353,7 @@ msgstr "Grootte:"
 msgid "Skipped"
 msgstr ""
 
-#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1483
+#: pylib/anki/sched.py:1296 pylib/anki/schedv2.py:1484
 msgid "Some related or buried cards were delayed until a later session."
 msgstr "Sommige verwante of kaarte wat gebêre is, is uitgestel tot 'n latere sessie."
 
@@ -3385,7 +3385,7 @@ msgstr "Spasie"
 msgid "Start position:"
 msgstr "Begin posisie:"
 
-#: qt/aqt/forms/dconf.py:355
+#: qt/aqt/forms/dconf.py:340
 msgid "Starting ease"
 msgstr "Begin gemak"
 
@@ -3401,7 +3401,7 @@ msgstr ""
 msgid "Step:"
 msgstr "Stap:"
 
-#: qt/aqt/forms/dconf.py:360 qt/aqt/forms/dconf.py:376
+#: qt/aqt/forms/dconf.py:346 qt/aqt/forms/dconf.py:362
 msgid "Steps (in minutes)"
 msgstr "Stappe (in minute)"
 
@@ -3418,7 +3418,7 @@ msgstr ""
 msgid "Studied %(a)s %(b)s today (%(secs).1fs/card)"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:122
+#: qt/aqt/deckbrowser.py:124
 #, python-format
 msgid "Studied %(a)s %(b)s today."
 msgstr ""
@@ -3471,7 +3471,7 @@ msgstr ""
 msgid "Suspend"
 msgstr "Skort op"
 
-#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:383
+#: qt/aqt/reviewer.py:697 qt/aqt/forms/dconf.py:369
 msgid "Suspend Card"
 msgstr "Skort Kaart Op"
 
@@ -3522,7 +3522,7 @@ msgstr ""
 msgid "Tag Duplicates"
 msgstr "Etiket Duplikate"
 
-#: qt/aqt/forms/dconf.py:384
+#: qt/aqt/forms/dconf.py:370
 msgid "Tag Only"
 msgstr "Slegs Etiket"
 
@@ -3570,7 +3570,7 @@ msgstr "Die verbinding met AnkiWeb het te lank geneem. Bevestig dat jou netwerkv
 msgid "The default configuration can't be removed."
 msgstr "Die verstekwaarde kan nie verwyder word nie."
 
-#: qt/aqt/deckbrowser.py:288
+#: qt/aqt/deckbrowser.py:290
 msgid "The default deck can't be deleted."
 msgstr "Die standaard kaartpak kan nie geskrap word nie."
 
@@ -3604,7 +3604,7 @@ msgstr "Die volgende karakter kan nie gebruik word nie: %s"
 msgid "The following conflicting add-ons were disabled:"
 msgstr ""
 
-#: pylib/anki/template.py:131
+#: pylib/anki/template.py:133
 msgid "The front of this card is blank."
 msgstr ""
 
@@ -3648,7 +3648,7 @@ msgstr "Die versoekte wysiging sal 'n oplaai van jou hele databasis vereis wanne
 msgid "The time taken to answer the questions."
 msgstr "Die tyd wat dit neem om die vrae te beantwoord."
 
-#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1469
+#: pylib/anki/sched.py:1282 pylib/anki/schedv2.py:1470
 msgid "There are more new cards available, but the daily limit has been\n"
 "reached. You can increase the limit in the options, but please\n"
 "bear in mind that the more new cards you introduce, the higher\n"
@@ -3735,11 +3735,11 @@ msgstr ""
 msgid "To make a cloze deletion on an existing note, you need to change it to a cloze type first, via Edit>Change Note Type."
 msgstr "Om 'n cloze (selektiewe) verwydering te maak op 'n bestaande nota, moet jy dit eers na 'n cloze-tipe verander via Wysig>Verander nota tipe."
 
-#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1478
+#: pylib/anki/sched.py:1291 pylib/anki/schedv2.py:1479
 msgid "To see them now, click the Unbury button below."
 msgstr "Om hulle nou te sien, kliek op die Opgrawe knoppie hieronder."
 
-#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1491
+#: pylib/anki/sched.py:1304 pylib/anki/schedv2.py:1492
 msgid "To study outside of the normal schedule, click the Custom Study button below."
 msgstr "Om buite jou normale skedule te studeer, kliek die Studie Aanpas knoppie hieronder."
 
@@ -3747,7 +3747,7 @@ msgstr "Om buite jou normale skedule te studeer, kliek die Studie Aanpas knoppie
 msgid "Today"
 msgstr "Vandag"
 
-#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1460
+#: pylib/anki/sched.py:1273 pylib/anki/schedv2.py:1461
 msgid "Today's review limit has been reached, but there are still cards\n"
 "waiting to be reviewed. For optimum memory, consider increasing\n"
 "the daily limit in the options."
@@ -3927,7 +3927,7 @@ msgstr ""
 msgid "You have a cloze deletion note type but have not made any cloze deletions. Proceed?"
 msgstr "Jy het 'n cloze weglating nota tipe, maar het nog geen cloze weglatings gemaak nie. Gaan voort?"
 
-#: qt/aqt/deckbrowser.py:131
+#: qt/aqt/deckbrowser.py:133
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
 msgstr "Jy het baie kaartpakke. Sien asseblief %(a)s. %(b)s"
@@ -4023,8 +4023,8 @@ msgid "d"
 msgstr ""
 
 #: qt/aqt/customstudy.py:90 qt/aqt/customstudy.py:94 qt/aqt/customstudy.py:97
-#: qt/aqt/forms/dconf.py:362 qt/aqt/forms/dconf.py:363
-#: qt/aqt/forms/dconf.py:371 qt/aqt/forms/dconf.py:382
+#: qt/aqt/forms/dconf.py:348 qt/aqt/forms/dconf.py:349
+#: qt/aqt/forms/dconf.py:356 qt/aqt/forms/dconf.py:368
 #: qt/aqt/forms/reschedule.py:77
 msgid "days"
 msgstr "dae"
@@ -4041,7 +4041,7 @@ msgstr "kaartpak tydlyn"
 msgid "duplicate"
 msgstr "duplikaat"
 
-#: qt/aqt/deckbrowser.py:138
+#: qt/aqt/deckbrowser.py:140
 msgid "hide"
 msgstr "versteek"
 
@@ -4095,7 +4095,7 @@ msgid_plural "in %s years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qt/aqt/forms/dconf.py:379
+#: qt/aqt/forms/dconf.py:365
 msgid "lapses"
 msgstr "verval"
 
@@ -4129,7 +4129,7 @@ msgstr "maand"
 msgid "reviews"
 msgstr "hersienings"
 
-#: qt/aqt/forms/dconf.py:388
+#: qt/aqt/forms/dconf.py:374
 msgid "seconds"
 msgstr "sekondes"
 
@@ -4137,7 +4137,7 @@ msgstr "sekondes"
 msgid "stats"
 msgstr ""
 
-#: qt/aqt/deckbrowser.py:134
+#: qt/aqt/deckbrowser.py:136
 msgid "this page"
 msgstr "hierdie bladsy"
 
