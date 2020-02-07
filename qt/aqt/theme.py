@@ -32,6 +32,7 @@ class ThemeManager:
 
     def set_night_mode(self, val: bool) -> None:
         self._night_mode_preference = val
+        self._update_stat_colors()
 
     night_mode = property(get_night_mode, set_night_mode)
 
@@ -193,6 +194,14 @@ QTabWidget { background-color: %s; }
         palette.setColor(QPalette.BrightText, Qt.red)
 
         app.setPalette(palette)
+
+    def _update_stat_colors(self):
+        import anki.stats as s
+        s.colLearn = self.str_color("new-count")
+        s.colRelearn = self.str_color("learn-count")
+        s.colCram = self.str_color("suspended-bg")
+        s.colSusp = self.str_color("suspended-bg")
+        s.colMature = self.str_color("review-count")
 
 
 theme_manager = ThemeManager()
