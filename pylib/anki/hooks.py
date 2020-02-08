@@ -20,6 +20,7 @@ import anki
 from anki.cards import Card
 from anki.decks import Deck
 from anki.models import NoteType
+from anki.tags import Tag
 
 # New hook/filter handling
 ##############################################################################
@@ -437,17 +438,17 @@ sync_stage_did_change = _SyncStageDidChangeHook()
 
 
 class _TagAddedHook:
-    _hooks: List[Callable[[str], None]] = []
+    _hooks: List[Callable[[Tag], None]] = []
 
-    def append(self, cb: Callable[[str], None]) -> None:
-        """(tag: str)"""
+    def append(self, cb: Callable[[Tag], None]) -> None:
+        """(tag: Tag)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[str], None]) -> None:
+    def remove(self, cb: Callable[[Tag], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, tag: str) -> None:
+    def __call__(self, tag: Tag) -> None:
         for hook in self._hooks:
             try:
                 hook(tag)

@@ -23,6 +23,7 @@ from anki.consts import *
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note, NoteId
+from anki.tags import Tags
 from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -1853,10 +1854,10 @@ update cards set usn=?, mod=?, did=? where id in """
     # Tags
     ######################################################################
 
-    def addTags(self, tags=None, label=None, prompt=None, func=None):
+    def addTags(self, tags: Optional[Tags] = None, label=None, prompt=None, func=None):
         self.editor.saveNow(lambda: self._addTags(tags, label, prompt, func))
 
-    def _addTags(self, tags, label, prompt, func):
+    def _addTags(self, tags: Optional[Tags], label, prompt, func):
         if prompt is None:
             prompt = _("Enter tags to add:")
         if tags is None:
@@ -1876,7 +1877,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.model.endReset()
         self.mw.requireReset()
 
-    def deleteTags(self, tags=None, label=None):
+    def deleteTags(self, tags: Optional[Tags] = None, label=None):
         if label is None:
             label = _("Delete Tags")
         self.addTags(

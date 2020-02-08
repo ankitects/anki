@@ -15,6 +15,7 @@ import anki
 from anki.consts import *
 from anki.db import DB, DBError
 from anki.models import NoteType
+from anki.tags import Tag
 from anki.utils import checksum, devMode, ids2str, intTime, platDesc, versionWithBuild
 
 from . import hooks
@@ -413,7 +414,7 @@ from notes where %s"""
         self.col.tags.save()
         return tags
 
-    def mergeTags(self, tags) -> None:
+    def mergeTags(self, tags: List[Tag]) -> None:
         self.col.tags.register(tags, usn=self.maxUsn)
 
     # Cards/notes/revlog

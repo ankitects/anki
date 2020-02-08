@@ -27,7 +27,7 @@ class Note:
     guid: str
     _model: NoteType
     mid: int
-    tags: List[str]
+    tags: List[anki.tags.Tag]
     fields: List[str]
     flags: int
     data: str
@@ -64,7 +64,7 @@ class Note:
             self.mid,
             self.mod,
             self.usn,
-            self.tags,
+            tags,
             fields,
             self.flags,
             self.data,
@@ -75,7 +75,7 @@ from notes where id = ?""",
             self.id,
         )
         self.fields = splitFields(fields)
-        self.tags = self.col.tags.split(self.tags)
+        self.tags = self.col.tags.split(tags)
         self._model = self.col.models.get(self.mid)
         self._fmap = self.col.models.fieldMap(self._model)
         self.scm = self.col.scm
@@ -159,16 +159,16 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     # Tags
     ##################################################
 
-    def hasTag(self, tag: str) -> Any:
+    def hasTag(self, tag: anki.tags.Tag) -> bool:
         return self.col.tags.inList(tag, self.tags)
 
-    def stringTags(self) -> Any:
+    def stringTags(self) -> anki.tags.Tags:
         return self.col.tags.join(self.col.tags.canonify(self.tags))
 
-    def setTagsFromStr(self, tags: str) -> None:
+    def setTagsFromStr(self, tags: anki.tags.Tags) -> None:
         self.tags = self.col.tags.split(tags)
 
-    def delTag(self, tag: str) -> None:
+    def delTag(self, tag: anki.tags.Tag) -> None:
         rem = []
         for t in self.tags:
             if t.lower() == tag.lower():
@@ -176,7 +176,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         for r in rem:
             self.tags.remove(r)
 
-    def addTag(self, tag: str) -> None:
+    def addTag(self, tag: anki.tags.Tag) -> None:
         # duplicates will be stripped on save
         self.tags.append(tag)
 

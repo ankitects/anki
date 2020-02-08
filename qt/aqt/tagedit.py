@@ -2,7 +2,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import re
+from typing import List
 
+from anki.tags import Tag, Tags
 from aqt.qt import *
 
 
@@ -93,13 +95,15 @@ class TagEdit(QLineEdit):
 
 
 class TagCompleter(QCompleter):
+    tags: List[Tag]
+
     def __init__(self, model, parent, edit, *args):
         QCompleter.__init__(self, model, parent)
         self.tags = []
         self.edit = edit
         self.cursor = None
 
-    def splitPath(self, tags):
+    def splitPath(self, tags: Tags) -> List[Tag]:
         stripped_tags = tags.strip()
         stripped_tags = re.sub("  +", " ", stripped_tags)
         self.tags = self.edit.col.tags.split(stripped_tags)
@@ -111,7 +115,7 @@ class TagCompleter(QCompleter):
             self.cursor = stripped_tags.count(" ", 0, p)
         return [self.tags[self.cursor]]
 
-    def pathFromIndex(self, idx):
+    def pathFromIndex(self, idx) -> Tags:
         if self.cursor is None:
             return self.edit.text()
         ret = QCompleter.pathFromIndex(self, idx)

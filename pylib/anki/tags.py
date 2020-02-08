@@ -13,22 +13,29 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Collection, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.notes import NoteId
 from anki.utils import ids2str, intTime
 
+# Type of a single tag
+Tag = str
+# Type of a space separated list of tags."""
+Tags = str
+
 
 class TagManager:
+
+    tags: Dict[Tag, int]
 
     # Registry save/load
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col
-        self.tags: Dict[str, int] = {}
+        self.tags = {}
 
     def load(self, json_) -> None:
         self.tags = json.loads(json_)
@@ -42,7 +49,7 @@ class TagManager:
     # Registering and fetching tags
     #############################################################
 
-    def register(self, tags, usn=None) -> None:
+    def register(self, tags: Collection[Tag], usn=None) -> None:
         "Given a list of tags, add any missing ones to tag registry."
         found = False
         for t in tags:
@@ -53,7 +60,7 @@ class TagManager:
         if found:
             hooks.tag_added(t)  # pylint: disable=undefined-loop-variable
 
-    def all(self) -> List:
+    def all(self) -> List[Tag]:
         return list(self.tags.keys())
 
     def registerNotes(self, nids: Optional[List[NoteId]] = None) -> None:
@@ -73,13 +80,13 @@ class TagManager:
             )
         )
 
-    def allItems(self) -> List[Tuple[str, int]]:
+    def allItems(self) -> List[Tuple[Tag, int]]:
         return list(self.tags.items())
 
     def save(self) -> None:
         self.changed = True
 
-    def byDeck(self, did, children=False) -> List[str]:
+    def byDeck(self, did, children=False) -> List[Tag]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = basequery + " AND c.did=?"
@@ -95,7 +102,7 @@ class TagManager:
     # Bulk addition/removal from notes
     #############################################################
 
-    def bulkAdd(self, ids: List[NoteId], tags, add=True) -> None:
+    def bulkAdd(self, ids: List[NoteId], tags: Tags, add=True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         newTags = self.split(tags)
         if not newTags:
@@ -138,23 +145,23 @@ class TagManager:
             [fix(row) for row in res],
         )
 
-    def bulkRem(self, ids, tags) -> None:
+    def bulkRem(self, ids: List[NoteId], tags: Tags) -> None:
         self.bulkAdd(ids, tags, False)
 
     # String-based utilities
     ##########################################################################
 
-    def split(self, tags) -> List[str]:
+    def split(self, tags: Tags) -> List[Tag]:
         "Parse a string and return a list of tags."
         return [t for t in tags.replace("\u3000", " ").split(" ") if t]
 
-    def join(self, tags) -> str:
+    def join(self, tags: List[Tag]) -> Tags:
         "Join tags into a single string, with leading and trailing spaces."
         if not tags:
             return ""
         return " %s " % " ".join(tags)
 
-    def addToStr(self, addtags, tags) -> str:
+    def addToStr(self, addtags: Tags, tags: Tags) -> Tags:
         "Add tags if they don't exist, and canonify."
         currentTags = self.split(tags)
         for tag in self.split(addtags):
@@ -162,7 +169,7 @@ class TagManager:
                 currentTags.append(tag)
         return self.join(self.canonify(currentTags))
 
-    def remFromStr(self, deltags, tags) -> str:
+    def remFromStr(self, deltags: Tags, tags: Tags) -> Tags:
         "Delete tags if they exist."
 
         def wildcard(pat, str):
@@ -184,7 +191,7 @@ class TagManager:
     # List-based utilities
     ##########################################################################
 
-    def canonify(self, tagList) -> List[str]:
+    def canonify(self, tagList: List[Tag]) -> List[Tag]:
         "Strip duplicates, adjust case to match existing tags, and sort."
         strippedTags = []
         for t in tagList:
@@ -195,7 +202,7 @@ class TagManager:
             strippedTags.append(s)
         return sorted(set(strippedTags))
 
-    def inList(self, tag, tags) -> bool:
+    def inList(self, tag: Tag, tags: List[Tag]) -> bool:
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
 

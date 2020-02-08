@@ -51,7 +51,7 @@ hooks = [
     Hook(name="sync_stage_did_change", args=["stage: str"], legacy_hook="sync"),
     Hook(name="sync_progress_did_change", args=["msg: str"], legacy_hook="syncMsg"),
     Hook(
-        name="tag_added", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True,
+        name="tag_added", args=["tag: Tag"], legacy_hook="newTag", legacy_no_args=True,
     ),
     Hook(
         name="field_filter",
