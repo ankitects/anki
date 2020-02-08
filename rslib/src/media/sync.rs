@@ -309,8 +309,16 @@ where
                 break;
             }
 
-            let zip_data = zip_files(&self.mgr.media_folder, &pending)?;
-            let reply = self.send_zip_data(zip_data).await?;
+            let zip_data = zip_files(&mut self.ctx, &self.mgr.media_folder, &pending)?;
+            if zip_data.is_none() {
+                self.progress.checked += pending.len();
+                self.maybe_fire_progress_cb()?;
+                // discard zip info and retry batch - not particularly efficient,
+                // but this is a corner case
+                continue;
+            }
+
+            let reply = self.send_zip_data(zip_data.unwrap()).await?;
 
             let (processed_files, processed_deletions): (Vec<_>, Vec<_>) = pending
                 .iter()
@@ -646,8 +654,13 @@ fn record_clean(ctx: &mut MediaDatabaseContext, clean: &[&String]) -> Result<()>
     Ok(())
 }
 
-fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
+fn zip_files<'a>(
+    ctx: &mut MediaDatabaseContext,
+    media_folder: &Path,
+    files: &'a [MediaEntry],
+) -> Result<Option<Vec<u8>>> {
     let buf = vec![];
+    let mut invalid_entries = vec![];
 
     let w = std::io::Cursor::new(buf);
     let mut zip = zip::ZipWriter::new(w);
@@ -666,17 +679,20 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
         let normalized = normalize_filename(&file.fname);
         if let Cow::Owned(o) = normalized {
             debug!("media check required: {} should be {}", &file.fname, o);
-            return Err(media_check_required());
+            invalid_entries.push(&file.fname);
+            continue;
         }
 
         let file_data = data_for_file(media_folder, &file.fname)?;
 
         if let Some(data) = &file_data {
             if data.is_empty() {
-                return Err(media_check_required());
+                invalid_entries.push(&file.fname);
+                continue;
             }
             if data.len() > SYNC_SINGLE_FILE_MAX_BYTES {
-                return Err(media_check_required());
+                invalid_entries.push(&file.fname);
+                continue;
             }
             accumulated_size += data.len();
             zip.start_file(format!("{}", idx), options)?;
@@ -703,24 +719,28 @@ fn zip_files(media_folder: &Path, files: &[MediaEntry]) -> Result<Vec<u8>> {
         });
     }
 
+    if !invalid_entries.is_empty() {
+        // clean up invalid entries; we'll build a new zip
+        ctx.transact(|ctx| {
+            for fname in invalid_entries {
+                ctx.remove_entry(fname)?;
+            }
+            Ok(())
+        })?;
+        return Ok(None);
+    }
+
     let meta = serde_json::to_string(&entries)?;
     zip.start_file("_meta", options)?;
     zip.write_all(meta.as_bytes())?;
 
     let w = zip.finish()?;
 
-    Ok(w.into_inner())
+    Ok(Some(w.into_inner()))
 }
 
 fn version_string() -> String {
     format!("anki,{},{}", version(), std::env::consts::OS)
-}
-
-fn media_check_required() -> AnkiError {
-    AnkiError::SyncError {
-        info: "".into(),
-        kind: SyncErrorKind::MediaCheckRequired,
-    }
 }
 
 #[cfg(test)]
