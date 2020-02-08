@@ -19,6 +19,7 @@ from anki.utils import ids2str, intTime
 # fixmes:
 # - make sure users can't set grad interval < 1
 DeckName = str
+DConfName = str
 Deck = Dict[str, Any]
 DConf = Dict[str, Any]
 
@@ -391,7 +392,7 @@ class DeckManager:
         self.dconf[str(g["id"])] = g
         self.save()
 
-    def confId(self, name: str, cloneFrom: Optional[DConf] = None) -> int:
+    def confId(self, name: DConfName, cloneFrom: Optional[DConf] = None) -> int:
         "Create a new configuration and return id."
         if cloneFrom is None:
             cloneFrom = defaultConf
