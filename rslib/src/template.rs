@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{Result, TemplateError};
+use crate::err::{AnkiError, Result, TemplateError};
 use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
 use nom;
@@ -186,6 +186,33 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
         Err(TemplateError::ConditionalNotClosed(open.to_string()))
     } else {
         Ok(nodes)
+    }
+}
+
+fn template_error_to_anki_error(err: TemplateError, q_side: bool) -> AnkiError {
+    AnkiError::TemplateError {
+        info: match err {
+            TemplateError::NoClosingBrackets(context) => format!("Missing '}}}}' in '{}'", context),
+            TemplateError::ConditionalNotClosed(tag) => format!("Missing '{{{{/{}}}}}'", tag),
+            TemplateError::ConditionalNotOpen {
+                closed,
+                currently_open,
+            } => {
+                if let Some(open) = currently_open {
+                    format!("Found {{{{/{}}}}}, but expected {{{{/{}}}}}", closed, open)
+                } else {
+                    format!(
+                        "Found {{{{/{}}}}}, but missing '{{{{#{}}}}}' or '{{{{^{}}}}}'",
+                        closed, closed, closed
+                    )
+                }
+            }
+            TemplateError::FieldNotFound { field, filters } => format!(
+                "Found '{{{{{}{}}}}}', but there is no field called '{}'",
+                filters, field, field
+            ),
+        },
+        q_side,
     }
 }
 
@@ -438,12 +465,16 @@ pub fn render_card(
 
     // question side
     let qnorm = without_legacy_template_directives(qfmt);
-    let qnodes = ParsedTemplate::from_text(qnorm.as_ref())?.render(&context)?;
+    let qnodes = ParsedTemplate::from_text(qnorm.as_ref())
+        .and_then(|tmpl| tmpl.render(&context))
+        .map_err(|e| template_error_to_anki_error(e, true))?;
 
     // answer side
     context.question_side = false;
     let anorm = without_legacy_template_directives(afmt);
-    let anodes = ParsedTemplate::from_text(anorm.as_ref())?.render(&context)?;
+    let anodes = ParsedTemplate::from_text(anorm.as_ref())
+        .and_then(|tmpl| tmpl.render(&context))
+        .map_err(|e| template_error_to_anki_error(e, false))?;
 
     Ok((qnodes, anodes))
 }

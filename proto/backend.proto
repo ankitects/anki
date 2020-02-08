@@ -52,6 +52,7 @@ message InvalidInputError {
 
 message TemplateParseError {
     string info = 1;
+    bool q_side = 2;
 }
 
 message TemplateRequirementsIn {
