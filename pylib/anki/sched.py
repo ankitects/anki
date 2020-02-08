@@ -9,7 +9,7 @@ from operator import itemgetter
 from typing import List, Optional, Set
 
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.consts import *
 from anki.lang import _
 from anki.utils import fmtTimeSpan, ids2str, intTime
@@ -1066,7 +1066,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
             self.col.usn(),
         )
 
-    def remFromDyn(self, cids):
+    def remFromDyn(self, cids: List[CardId]):
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
     def _dynOrder(self, o, l):
@@ -1406,7 +1406,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             self.col.usn(),
         )
 
-    def buryCards(self, cids):
+    def buryCards(self, cids: List[CardId]):
         self.col.log(cids)
         self.remFromDyn(cids)
         self.removeLrn(cids)
@@ -1529,7 +1529,9 @@ usn=:usn,mod=:mod,factor=:fact where id=:id""",
     # Repositioning new cards
     ##########################################################################
 
-    def sortCards(self, cids, start=1, step=1, shuffle=False, shift=False):
+    def sortCards(
+        self, cids: List[CardId], start=1, step=1, shuffle=False, shift=False
+    ):
         scids = ids2str(cids)
         now = intTime()
         nids = []

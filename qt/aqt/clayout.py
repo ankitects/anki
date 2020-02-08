@@ -8,7 +8,7 @@ import re
 from typing import Dict, Optional
 
 import aqt
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.consts import *
 from anki.lang import _, ngettext
 from anki.utils import isMac, isWin, joinFields

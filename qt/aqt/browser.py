@@ -17,7 +17,7 @@ from typing import Callable, List, Optional, Union
 import anki
 import aqt.forms
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.collection import _Collection
 from anki.consts import *
 from anki.lang import _, ngettext
@@ -2286,7 +2286,7 @@ update cards set usn=?, mod=?, did=? where id in """
     def onCardList(self):
         self.form.tableView.setFocus()
 
-    def focusCid(self, cid):
+    def focusCid(self, cid: CardId):
         try:
             row = self.model.cards.index(cid)
         except:

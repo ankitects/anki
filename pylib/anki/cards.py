@@ -15,6 +15,8 @@ from anki.notes import Note
 from anki.sound import AVTag
 from anki.utils import intTime, joinFields, timestampID
 
+CardId = int
+
 # Cards
 ##########################################################################
 
@@ -32,9 +34,10 @@ class Card:
     timerStarted: Optional[float]
     lastIvl: int
     ord: int
+    id: CardId
 
     def __init__(
-        self, col: anki.collection._Collection, id: Optional[int] = None
+        self, col: anki.collection._Collection, id: Optional[CardId] = None
     ) -> None:
         self.col = col
         self.timerStarted = None

@@ -15,7 +15,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.consts import *
 from anki.lang import _
 from anki.rsbackend import SchedTimingToday
@@ -1193,7 +1193,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             self.col.usn(),
         )
 
-    def remFromDyn(self, cids: List[int]) -> None:
+    def remFromDyn(self, cids: List[CardId]) -> None:
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
     def _dynOrder(self, o: int, l: int) -> str:
@@ -1631,7 +1631,7 @@ end)
             self.col.usn(),
         )
 
-    def buryCards(self, cids: List[int], manual: bool = True) -> None:
+    def buryCards(self, cids: List[CardId], manual: bool = True) -> None:
         queue = manual and QUEUE_TYPE_MANUALLY_BURIED or QUEUE_TYPE_SIBLING_BURIED
         self.col.log(cids)
         self.col.db.execute(

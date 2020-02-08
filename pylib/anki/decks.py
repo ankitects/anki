@@ -449,7 +449,7 @@ class DeckManager:
             return deck["name"]
         return None
 
-    def setDeck(self, cids, did) -> None:
+    def setDeck(self, cids: List[anki.cards.CardId], did) -> None:
         self.col.db.execute(
             "update cards set did=?,usn=?,mod=? where id in " + ids2str(cids),
             did,
@@ -462,7 +462,7 @@ class DeckManager:
         c = self.current()
         self.select(c["id"])
 
-    def cids(self, did: int, children: bool = False) -> Any:
+    def cids(self, did: int, children: bool = False) -> List[anki.cards.CardId]:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
         dids = [did]

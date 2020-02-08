@@ -17,7 +17,7 @@ import anki.find
 import anki.latex  # sets up hook
 import anki.template
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.consts import *
 from anki.db import DB
 from anki.decks import DeckManager
@@ -326,7 +326,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Deletion logging
     ##########################################################################
 
-    def _logRem(self, ids: List[int], type: int) -> None:
+    def _logRem(self, ids: Union[List[CardId], List[int]], type: int) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
             ([x] for x in ids),
@@ -396,7 +396,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 ok.append(t)
         return ok
 
-    def genCards(self, nids: List[int]) -> List[int]:
+    def genCards(self, nids: List[int]) -> List[CardId]:
         "Generate cards for non-empty templates, return ids to remove."
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
@@ -572,7 +572,7 @@ select id from notes where id in %s and id not in (select nid from cards)"""
             rem += self.genCards(self.models.nids(m))
         return rem
 
-    def emptyCardReport(self, cids) -> str:
+    def emptyCardReport(self, cids: List[CardId]) -> str:
         rep = ""
         for ords, cnt, flds in self.db.all(
             """
@@ -1026,7 +1026,7 @@ and type=0""",
     # Card Flags
     ##########################################################################
 
-    def setUserFlag(self, flag: int, cids: List[int]) -> None:
+    def setUserFlag(self, flag: int, cids: List[CardId]) -> None:
         assert 0 <= flag <= 7
         self.db.execute(
             "update cards set flags = (flags & ~?) | ?, usn=?, mod=? where id in %s"
