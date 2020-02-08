@@ -71,19 +71,58 @@ pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
         output = output.chars().nfc().collect::<String>().into();
     }
 
-    if output.chars().any(disallowed_char) {
-        output = output.replace(disallowed_char, "").into()
+    normalize_nfc_filename(output)
+}
+
+/// See normalize_filename(). This function expects NFC-normalized input.
+fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
+    if fname.chars().any(disallowed_char) {
+        fname = fname.replace(disallowed_char, "").into()
     }
 
-    if let Cow::Owned(o) = WINDOWS_DEVICE_NAME.replace_all(output.as_ref(), "${1}_${2}") {
-        output = o.into();
+    if let Cow::Owned(o) = WINDOWS_DEVICE_NAME.replace_all(fname.as_ref(), "${1}_${2}") {
+        fname = o.into();
     }
 
-    if let Cow::Owned(o) = truncate_filename(output.as_ref(), MAX_FILENAME_LENGTH) {
-        output = o.into();
+    if let Cow::Owned(o) = truncate_filename(fname.as_ref(), MAX_FILENAME_LENGTH) {
+        fname = o.into();
     }
 
-    output
+    fname
+}
+
+/// Return the filename in NFC form if the filename is valid.
+///
+/// Returns None if the filename is not normalized
+/// (NFD, invalid chars, etc)
+///
+/// On Apple devices, the filename may be stored on disk in NFD encoding,
+/// but can be accessed as NFC. On these devices, if the filename
+/// is otherwise valid, the filename is returned as NFC.
+#[allow(clippy::collapsible_if)]
+pub(super) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
+    if cfg!(target_vendor = "apple") {
+        if !is_nfc(fname) {
+            let as_nfc = fname.chars().nfc().collect::<String>();
+            if let Cow::Borrowed(_) = normalize_nfc_filename(as_nfc.as_str().into()) {
+                Some(as_nfc.into())
+            } else {
+                None
+            }
+        } else {
+            if let Cow::Borrowed(_) = normalize_nfc_filename(fname.into()) {
+                Some(fname.into())
+            } else {
+                None
+            }
+        }
+    } else {
+        if let Cow::Borrowed(_) = normalize_filename(fname) {
+            Some(fname.into())
+        } else {
+            None
+        }
+    }
 }
 
 /// Write desired_name into folder, renaming if existing file has different content.
