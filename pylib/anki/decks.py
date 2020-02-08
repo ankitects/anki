@@ -20,6 +20,7 @@ from anki.utils import ids2str, intTime
 # - make sure users can't set grad interval < 1
 DeckName = str
 DConfName = str
+DConfId = int
 Deck = Dict[str, Any]
 DConf = Dict[str, Any]
 
@@ -28,7 +29,7 @@ defaultDeck = {
     "revToday": [0, 0],
     "lrnToday": [0, 0],
     "timeToday": [0, 0],  # time in ms
-    "conf": 1,
+    "conf": DConfId(1),
     "usn": 0,
     "desc": "",
     "dyn": 0,  # anki uses int/bool interchangably here
@@ -99,7 +100,7 @@ defaultConf = {
 
 class DeckManager:
     decks: Dict[str, Deck]
-    dconf: Dict[str, DConf]
+    dconf: Dict[DConfId, DConf]
 
     # Registry save/load
     #############################################################
@@ -111,7 +112,8 @@ class DeckManager:
 
     def load(self, decks: str, dconf: str) -> None:
         self.decks = json.loads(decks)
-        self.dconf = json.loads(dconf)
+        # ensuring ids are int and not string
+        self.dconf = {DConfId(id): value for id, value in json.loads(dconf).items()}
         # set limits to within bounds
         found = False
         for c in list(self.dconf.values()):
@@ -385,42 +387,42 @@ class DeckManager:
         # dynamic decks have embedded conf
         return deck
 
-    def getConf(self, confId: int) -> DConf:
-        return self.dconf[str(confId)]
+    def getConf(self, confId: DConfId) -> DConf:
+        return self.dconf[DConfId(confId)]
 
     def updateConf(self, g: DConf) -> None:
-        self.dconf[str(g["id"])] = g
+        self.dconf[DConfId(g["id"])] = g
         self.save()
 
-    def confId(self, name: DConfName, cloneFrom: Optional[DConf] = None) -> int:
+    def confId(self, name: DConfName, cloneFrom: Optional[DConf] = None) -> DConfId:
         "Create a new configuration and return id."
         if cloneFrom is None:
             cloneFrom = defaultConf
         c = copy.deepcopy(cloneFrom)
         while 1:
-            id = intTime(1000)
-            if str(id) not in self.dconf:
+            id = DConfId(intTime(1000))
+            if id not in self.dconf:
                 break
         c["id"] = id
         c["name"] = name
-        self.dconf[str(id)] = c
+        self.dconf[id] = c
         self.save(c)
         return id
 
-    def remConf(self, id) -> None:
+    def remConf(self, id: DConfId) -> None:
         "Remove a configuration and update all decks using it."
-        assert int(id) != 1
+        assert DConfId(id) != 1
         self.col.modSchema(check=True)
-        del self.dconf[str(id)]
+        del self.dconf[DConfId(id)]
         for g in self.all():
             # ignore cram decks
             if "conf" not in g:
                 continue
-            if str(g["conf"]) == str(id):
+            if DConfId(g["conf"]) == DConfId(id):
                 g["conf"] = 1
                 self.save(g)
 
-    def setConf(self, grp: DConf, id: int) -> None:
+    def setConf(self, grp: DConf, id: DConfId) -> None:
         grp["conf"] = id
         self.save(grp)
 
@@ -436,7 +438,7 @@ class DeckManager:
         new = copy.deepcopy(defaultConf)
         new["id"] = conf["id"]
         new["name"] = conf["name"]
-        self.dconf[str(conf["id"])] = new
+        self.dconf[DConfId(conf["id"])] = new
         self.save(new)
         # if it was previously randomized, resort
         if not oldOrder:
