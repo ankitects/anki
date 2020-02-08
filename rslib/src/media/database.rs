@@ -3,7 +3,7 @@
 
 use crate::err::Result;
 use log::debug;
-use rusqlite::{params, Connection, OptionalExtension, Statement, NO_PARAMS};
+use rusqlite::{params, Connection, OptionalExtension, Row, Statement, NO_PARAMS};
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -131,28 +131,9 @@ impl MediaDatabaseContext<'_> {
 select fname, csum, mtime, dirty from media where fname=?"
         );
 
-        stmt.query_row(params![fname], |row| {
-            // map the string checksum into bytes
-            let sha1_str: Option<String> = row.get(1)?;
-            let sha1_array = if let Some(s) = sha1_str {
-                let mut arr = [0; 20];
-                match hex::decode_to_slice(s, arr.as_mut()) {
-                    Ok(_) => Some(arr),
-                    _ => None,
-                }
-            } else {
-                None
-            };
-            // and return the entry
-            Ok(MediaEntry {
-                fname: row.get(0)?,
-                sha1: sha1_array,
-                mtime: row.get(2)?,
-                sync_required: row.get(3)?,
-            })
-        })
-        .optional()
-        .map_err(Into::into)
+        stmt.query_row(params![fname], row_to_entry)
+            .optional()
+            .map_err(Into::into)
     }
 
     pub(super) fn set_entry(&mut self, entry: &MediaEntry) -> Result<()> {
@@ -244,6 +225,27 @@ delete from media where fname=?"
             .execute_batch("delete from media; update meta set lastUsn = 0, dirMod = 0")
             .map_err(Into::into)
     }
+}
+
+fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
+    // map the string checksum into bytes
+    let sha1_str: Option<String> = row.get(1)?;
+    let sha1_array = if let Some(s) = sha1_str {
+        let mut arr = [0; 20];
+        match hex::decode_to_slice(s, arr.as_mut()) {
+            Ok(_) => Some(arr),
+            _ => None,
+        }
+    } else {
+        None
+    };
+    // and return the entry
+    Ok(MediaEntry {
+        fname: row.get(0)?,
+        sha1: sha1_array,
+        mtime: row.get(2)?,
+        sync_required: row.get(3)?,
+    })
 }
 
 #[cfg(test)]
