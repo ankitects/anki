@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result};
+use crate::media::database::MediaDatabaseContext;
 use crate::media::files::{
     data_for_file, filename_if_normalized, remove_files, MEDIA_SYNC_FILESIZE_LIMIT,
 };
@@ -60,6 +61,7 @@ where
         let mut oversize = vec![];
         let mut all_files = vec![];
         let mut renamed_files = vec![];
+        let mut ctx = self.mgr.dbctx();
         for dentry in self.mgr.media_folder.read_dir()? {
             let dentry = dentry?;
 
@@ -92,7 +94,7 @@ where
             }
 
             // rename if required
-            let (norm_name, renamed) = self.normalize_and_maybe_rename(&disk_fname)?;
+            let (norm_name, renamed) = self.normalize_and_maybe_rename(&mut ctx, &disk_fname)?;
             if renamed {
                 renamed_files.push(RenamedFile {
                     current_fname: norm_name.to_string(),
@@ -114,6 +116,7 @@ where
     /// Returns (normalized_form, needs_rename)
     fn normalize_and_maybe_rename<'a>(
         &mut self,
+        ctx: &mut MediaDatabaseContext,
         disk_fname: &'a str,
     ) -> Result<(Cow<'a, str>, bool)> {
         // already normalized?
@@ -127,7 +130,7 @@ where
                 info: "file disappeared".into(),
             }
         })?;
-        let fname = self.mgr.add_file(disk_fname, &data)?;
+        let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
         debug!("renamed {} to {}", disk_fname, fname);
         assert_ne!(fname.as_ref(), disk_fname);
 

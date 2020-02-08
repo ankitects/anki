@@ -39,7 +39,12 @@ impl MediaManager {
     /// appended to the name.
     ///
     /// Also notes the file in the media database.
-    pub fn add_file<'a>(&self, desired_name: &'a str, data: &[u8]) -> Result<Cow<'a, str>> {
+    pub fn add_file<'a>(
+        &self,
+        ctx: &mut MediaDatabaseContext,
+        desired_name: &'a str,
+        data: &[u8],
+    ) -> Result<Cow<'a, str>> {
         let pre_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
 
         // add file to folder
@@ -50,7 +55,7 @@ impl MediaManager {
         let post_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
 
         // add to the media DB
-        self.dbctx().transact(|ctx| {
+        ctx.transact(|ctx| {
             let existing_entry = ctx.get_entry(&chosen_fname)?;
             let new_sha1 = Some(data_hash);
 
@@ -94,7 +99,7 @@ impl MediaManager {
         syncer.sync(hkey).await
     }
 
-    fn dbctx(&self) -> MediaDatabaseContext {
+    pub fn dbctx(&self) -> MediaDatabaseContext {
         MediaDatabaseContext::new(&self.db)
     }
 }
