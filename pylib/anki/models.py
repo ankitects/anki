@@ -19,6 +19,7 @@ from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 FieldName = str
+TemplateName = str
 Template = Dict[str, Union[str, int, None]]
 TemplateRequirementType = str  # Union["all", "any", "none"]
 # template ordinal, type, list of field ordinals
@@ -72,7 +73,7 @@ defaultField: Field = {
 }
 
 defaultTemplate: Template = {
-    "name": "",
+    "name": "",  # TemplateName
     "ord": None,
     "qfmt": "",
     "afmt": "",
