@@ -115,9 +115,12 @@ where
                 continue;
             }
 
-            // ignore large files
+            // ignore large files and zero byte files
             let metadata = dentry.metadata()?;
             if metadata.len() > MEDIA_SYNC_FILESIZE_LIMIT as u64 {
+                continue;
+            }
+            if metadata.len() == 0 {
                 continue;
             }
 
