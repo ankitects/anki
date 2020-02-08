@@ -122,7 +122,7 @@ def render_card(
         output = render_card_from_context(ctx)
     except anki.rsbackend.BackendException as e:
         # fixme: specific exception in 2.1.21
-        err = e.args[0].template_parse
+        err = e.args[0].template_parse  # pylint: disable=no-member
         if err.q_side:
             side = _("Front")
         else:
