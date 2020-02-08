@@ -683,7 +683,14 @@ fn zip_files<'a>(
             continue;
         }
 
-        let file_data = data_for_file(media_folder, &file.fname)?;
+        let file_data = match data_for_file(media_folder, &file.fname) {
+            Ok(data) => data,
+            Err(e) => {
+                debug!("error accessing {}: {}", &file.fname, e);
+                invalid_entries.push(&file.fname);
+                continue;
+            }
+        };
 
         if let Some(data) = &file_data {
             if data.is_empty() {
