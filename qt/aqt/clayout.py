@@ -220,8 +220,8 @@ class CardLayout(QDialog):
         pform.backWeb.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
         )
-        pform.frontWeb.set_bridge_command(self._on_bridge_cmd, "card_layout")
-        pform.backWeb.set_bridge_command(self._on_bridge_cmd, "card_layout")
+        pform.frontWeb.set_bridge_command(self._on_bridge_cmd, self)
+        pform.backWeb.set_bridge_command(self._on_bridge_cmd, self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):

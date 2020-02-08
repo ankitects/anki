@@ -97,7 +97,7 @@ class Editor:
         self.web = EditorWebView(self.widget, self)
         self.web.title = "editor"
         self.web.allowDrops = True
-        self.web.set_bridge_command(self.onBridgeCmd, "editor")
+        self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
         righttopbtns: List[str] = [

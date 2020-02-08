@@ -49,6 +49,15 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView
 
+
+class PreviewDialog(QDialog):
+    pass
+
+
+class FindDupesDialog(QDialog):
+    pass
+
+
 # Data model
 ##########################################################################
 
@@ -1536,7 +1545,7 @@ where id in %s"""
     def _openPreview(self):
         self._previewState = "question"
         self._lastPreviewState = None
-        self._previewWindow = QDialog(None, Qt.Window)
+        self._previewWindow = PreviewDialog(None, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
 
         self._previewWindow.finished.connect(self._onPreviewFinished)
@@ -1641,7 +1650,9 @@ where id in %s"""
         self._previewWeb.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
         )
-        self._previewWeb.set_bridge_command(self._on_preview_bridge_cmd, "preview")
+        self._previewWeb.set_bridge_command(
+            self._on_preview_bridge_cmd, self._previewWindow
+        )
 
     def _on_preview_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
@@ -2118,7 +2129,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.editor.saveNow(self._onFindDupes)
 
     def _onFindDupes(self):
-        d = QDialog(self)
+        d = FindDupesDialog(self)
         self.mw.setupDialogGC(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
@@ -2129,7 +2140,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
-        frm.webView.set_bridge_command(self.dupeLinkClicked, "find_dupes")
+        frm.webView.set_bridge_command(self.dupeLinkClicked, d)
 
         def onFin(code):
             saveGeom(d, "findDupes")

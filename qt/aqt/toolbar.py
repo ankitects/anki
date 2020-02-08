@@ -10,6 +10,18 @@ from aqt.qt import *
 from aqt.webview import AnkiWebView
 
 
+# wrapper class for set_bridge_command()
+class TopToolbar:
+    def __init__(self, toolbar: Toolbar):
+        self.toolbar = toolbar
+
+
+# wrapper class for set_bridge_command()
+class BottomToolbar:
+    def __init__(self, toolbar: Toolbar):
+        self.toolbar = toolbar
+
+
 class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
@@ -26,7 +38,7 @@ class Toolbar:
         self.web.requiresCol = False
 
     def draw(self):
-        self.web.set_bridge_command(self._linkHandler, "top_toolbar")
+        self.web.set_bridge_command(self._linkHandler, TopToolbar(self))
         self.web.stdHtml(self._body % self._centerLinks(), css=["toolbar.css"])
         self.web.adjustHeightToFit()
 
@@ -112,7 +124,7 @@ class BottomBar(Toolbar):
 
     def draw(self, buf):
         # note: some screens may override this
-        self.web.set_bridge_command(self._linkHandler, "bottom_toolbar")
+        self.web.set_bridge_command(self._linkHandler, BottomToolbar(self))
         self.web.stdHtml(
             self._centerBody % buf, css=["toolbar.css", "toolbar-bottom.css"]
         )

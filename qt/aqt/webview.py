@@ -414,7 +414,7 @@ body {{ zoom: {}; background: {}; {} }}
             self._maybeRunActions()
         else:
             handled, result = gui_hooks.webview_did_receive_js_message(
-                (False, None), cmd, self._bridge_command_name
+                (False, None), cmd, self._bridge_context
             )
             if handled:
                 return result
@@ -427,7 +427,7 @@ body {{ zoom: {}; background: {}; {} }}
     # legacy
     def resetHandlers(self):
         self.onBridgeCmd = self.defaultOnBridgeCmd
-        self._bridge_command_name = "unknown"
+        self._bridge_context = None
 
     def adjustHeightToFit(self):
         self.evalWithCallback("$(document.body).height()", self._onHeight)
@@ -447,10 +447,10 @@ body {{ zoom: {}; background: {}; {} }}
         height = math.ceil(qvar * scaleFactor)
         self.setFixedHeight(height)
 
-    def set_bridge_command(self, func: Callable[[str], Any], context: str) -> None:
+    def set_bridge_command(self, func: Callable[[str], Any], context: Any) -> None:
         """Set a handler for pycmd() messages received from Javascript.
 
-        Context is a human readable name that is provided to the
-        webview_did_receive_js_message hook."""
+        Context is the object calling this routine, eg an instance of
+        aqt.reviewer.Reviewer or aqt.deckbrowser.DeckBrowser."""
         self.onBridgeCmd = func
-        self._bridge_command_name = context
+        self._bridge_context = context

@@ -2,6 +2,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import difflib
 import html
 import html.parser
@@ -20,6 +22,11 @@ from aqt.sound import av_player, getAudio, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip
+
+
+class ReviewerBottomBar:
+    def __init__(self, reviewer: Reviewer):
+        self.reviewer = reviewer
 
 
 class Reviewer:
@@ -41,8 +48,8 @@ class Reviewer:
     def show(self):
         self.mw.col.reset()
         self.mw.setStateShortcuts(self._shortcutKeys())
-        self.web.set_bridge_command(self._linkHandler, "reviewer")
-        self.bottom.web.set_bridge_command(self._linkHandler, "reviewer_bottom")
+        self.web.set_bridge_command(self._linkHandler, self)
+        self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._reps = None
         self.nextCard()
 

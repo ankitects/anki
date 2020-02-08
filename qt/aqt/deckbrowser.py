@@ -1,6 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 from copy import deepcopy
 from typing import Any
 
@@ -15,6 +18,11 @@ from aqt.toolbar import BottomBar
 from aqt.utils import askUser, getOnlyText, openHelp, openLink, shortcut, showWarning
 
 
+class DeckBrowserBottomBar:
+    def __init__(self, deck_browser: DeckBrowser):
+        self.deck_browser = deck_browser
+
+
 class DeckBrowser:
     _dueTree: Any
 
@@ -26,7 +34,7 @@ class DeckBrowser:
 
     def show(self):
         av_player.stop_and_clear_queue()
-        self.web.set_bridge_command(self._linkHandler, "deck_browser")
+        self.web.set_bridge_command(self._linkHandler, self)
         self._renderPage()
         # redraw top bar for theme change
         self.mw.toolbar.draw()
@@ -333,7 +341,9 @@ where id > ?""",
                 b
             )
         self.bottom.draw(buf)
-        self.bottom.web.set_bridge_command(self._linkHandler, "deck_browser_bottom_bar")
+        self.bottom.web.set_bridge_command(
+            self._linkHandler, DeckBrowserBottomBar(self)
+        )
 
     def _onShared(self):
         openLink(aqt.appShared + "decks/")

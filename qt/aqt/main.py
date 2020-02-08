@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import faulthandler
 import gc
 import os
@@ -56,6 +58,11 @@ from aqt.utils import (
 )
 
 install_pylib_legacy()
+
+
+class ResetRequired:
+    def __init__(self, mw: AnkiQt):
+        self.mw = mw
 
 
 class AnkiQt(QMainWindow):
@@ -647,14 +654,14 @@ from the profile screen."
         # windows
         self.progress.timer(100, self.maybeReset, False)
 
-    def _resetRequiredState(self, oldState):
+    def _resetRequiredState(self, oldState: str) -> None:
         if oldState != "resetRequired":
             self.returnState = oldState
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
         self.web.set_bridge_command(
-            lambda url: self.delayedMaybeReset(), "reset_required"
+            lambda url: self.delayedMaybeReset(), ResetRequired(self)
         )
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"), id="resume")
