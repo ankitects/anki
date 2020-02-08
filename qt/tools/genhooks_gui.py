@@ -20,6 +20,17 @@ hooks = [
     # Reviewing
     ###################
     Hook(
+        name="overview_did_refresh",
+        args=["overview: aqt.overview.Overview"],
+        doc="""Allow to update the overview window. E.g. add the deck name in the
+        title.""",
+    ),
+    Hook(
+        name="deck_browser_did_render",
+        args=["deck_browser: aqt.deckbrowser.DeckBrowser"],
+        doc="""Allow to update the deck browser window. E.g. change its title.""",
+    ),
+    Hook(
         name="reviewer_did_show_question",
         args=["card: Card"],
         legacy_hook="showQuestion",
