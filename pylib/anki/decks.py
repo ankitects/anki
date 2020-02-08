@@ -19,6 +19,7 @@ from anki.utils import ids2str, intTime
 # fixmes:
 # - make sure users can't set grad interval < 1
 Deck = Dict[str, Any]
+DConf = Dict[str, Any]
 
 defaultDeck = {
     "newToday": [0, 0],  # currentDay, count
@@ -96,7 +97,7 @@ defaultConf = {
 
 class DeckManager:
     decks: Dict[str, Deck]
-    dconf: Dict[str, Any]
+    dconf: Dict[str, DConf]
 
     # Registry save/load
     #############################################################
@@ -364,11 +365,11 @@ class DeckManager:
     # Deck configurations
     #############################################################
 
-    def allConf(self) -> List:
+    def allConf(self) -> List[DConf]:
         "A list of all deck config."
         return list(self.dconf.values())
 
-    def confForDid(self, did: int) -> Any:
+    def confForDid(self, did: int) -> DConf:
         deck = self.get(did, default=False)
         assert deck
         if "conf" in deck:
@@ -378,14 +379,14 @@ class DeckManager:
         # dynamic decks have embedded conf
         return deck
 
-    def getConf(self, confId: int) -> Any:
+    def getConf(self, confId: int) -> DConf:
         return self.dconf[str(confId)]
 
-    def updateConf(self, g: Dict[str, Any]) -> None:
+    def updateConf(self, g: DConf) -> None:
         self.dconf[str(g["id"])] = g
         self.save()
 
-    def confId(self, name: str, cloneFrom: Optional[Dict[str, Any]] = None) -> int:
+    def confId(self, name: str, cloneFrom: Optional[DConf] = None) -> int:
         "Create a new configuration and return id."
         if cloneFrom is None:
             cloneFrom = defaultConf
@@ -413,7 +414,7 @@ class DeckManager:
                 g["conf"] = 1
                 self.save(g)
 
-    def setConf(self, grp: Dict[str, Any], id: int) -> None:
+    def setConf(self, grp: DConf, id: int) -> None:
         grp["conf"] = id
         self.save(grp)
 
