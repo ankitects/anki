@@ -310,6 +310,32 @@ class _CurrentNoteTypeDidChangeHook:
 current_note_type_did_change = _CurrentNoteTypeDidChangeHook()
 
 
+class _DeckBrowserDidRenderHook:
+    """Allow to update the deck browser window. E.g. change its title."""
+
+    _hooks: List[Callable[["aqt.deckbrowser.DeckBrowser"], None]] = []
+
+    def append(self, cb: Callable[["aqt.deckbrowser.DeckBrowser"], None]) -> None:
+        """(deck_browser: aqt.deckbrowser.DeckBrowser)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.deckbrowser.DeckBrowser"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, deck_browser: aqt.deckbrowser.DeckBrowser) -> None:
+        for hook in self._hooks:
+            try:
+                hook(deck_browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+deck_browser_did_render = _DeckBrowserDidRenderHook()
+
+
 class _DeckBrowserWillShowOptionsMenuHook:
     _hooks: List[Callable[[QMenu, int], None]] = []
 
@@ -570,6 +596,33 @@ class _EditorWillUseFontForFieldFilter:
 
 
 editor_will_use_font_for_field = _EditorWillUseFontForFieldFilter()
+
+
+class _OverviewDidRefreshHook:
+    """Allow to update the overview window. E.g. add the deck name in the
+        title."""
+
+    _hooks: List[Callable[["aqt.overview.Overview"], None]] = []
+
+    def append(self, cb: Callable[["aqt.overview.Overview"], None]) -> None:
+        """(overview: aqt.overview.Overview)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.overview.Overview"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, overview: aqt.overview.Overview) -> None:
+        for hook in self._hooks:
+            try:
+                hook(overview)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+overview_did_refresh = _OverviewDidRefreshHook()
 
 
 class _ProfileDidOpenHook:
