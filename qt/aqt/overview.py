@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import aqt
 from anki.lang import _
+from aqt import gui_hooks
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip
@@ -30,6 +31,7 @@ class Overview:
         self._renderPage()
         self._renderBottom()
         self.mw.web.setFocus()
+        gui_hooks.overview_did_refresh(self)
 
     # Handlers
     ############################################################

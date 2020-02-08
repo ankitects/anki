@@ -92,6 +92,7 @@ class DeckBrowser:
             self.__renderPage(None)
             return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+        gui_hooks.deck_browser_did_render(self)
 
     def __renderPage(self, offset):
         tree = self._renderDeckTree(self._dueTree)
