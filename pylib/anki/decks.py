@@ -18,6 +18,7 @@ from anki.utils import ids2str, intTime
 
 # fixmes:
 # - make sure users can't set grad interval < 1
+DeckName = str
 Deck = Dict[str, Any]
 DConf = Dict[str, Any]
 
@@ -56,7 +57,7 @@ defaultDynamicDeck = {
 }
 
 defaultConf = {
-    "name": _("Default"),
+    "name": _("Default"),  # DeckName
     "new": {
         "delays": [1, 10],
         "ints": [1, 4, 7],  # 7 is not currently used
@@ -142,7 +143,7 @@ class DeckManager:
     #############################################################
 
     def id(
-        self, name: str, create: bool = True, type: Optional[Deck] = None
+        self, name: DeckName, create: bool = True, type: Optional[Deck] = None
     ) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         if type is None:
@@ -221,7 +222,7 @@ class DeckManager:
             self.select(int(list(self.decks.keys())[0]))
         self.save()
 
-    def allNames(self, dyn: bool = True, forceDefault: bool = True) -> List:
+    def allNames(self, dyn: bool = True, forceDefault: bool = True) -> List[DeckName]:
         "An unsorted list of all deck names."
         if dyn:
             return [x["name"] for x in self.all(forceDefault=forceDefault)]
@@ -265,7 +266,7 @@ class DeckManager:
         elif default:
             return self.decks["1"]
 
-    def byName(self, name: str) -> Any:
+    def byName(self, name: DeckName) -> Any:
         """Get deck with NAME, ignoring case."""
         for m in list(self.decks.values()):
             if self.equalName(m["name"], name):
@@ -278,7 +279,7 @@ class DeckManager:
         # mark registry changed, but don't bump mod time
         self.save()
 
-    def rename(self, g: Deck, newName: str) -> None:
+    def rename(self, g: Deck, newName: DeckName) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
         if self.byName(newName):
@@ -319,7 +320,9 @@ class DeckManager:
                 draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName)
             )
 
-    def _canDragAndDrop(self, draggedDeckName: str, ontoDeckName: str) -> bool:
+    def _canDragAndDrop(
+        self, draggedDeckName: DeckName, ontoDeckName: DeckName
+    ) -> bool:
         if (
             draggedDeckName == ontoDeckName
             or self._isParent(ontoDeckName, draggedDeckName)
@@ -329,22 +332,24 @@ class DeckManager:
         else:
             return True
 
-    def _isParent(self, parentDeckName: str, childDeckName: str) -> Any:
+    def _isParent(self, parentDeckName: DeckName, childDeckName: DeckName) -> Any:
         return self._path(childDeckName) == self._path(parentDeckName) + [
             self._basename(childDeckName)
         ]
 
-    def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> Any:
+    def _isAncestor(
+        self, ancestorDeckName: DeckName, descendantDeckName: DeckName
+    ) -> Any:
         ancestorPath = self._path(ancestorDeckName)
         return ancestorPath == self._path(descendantDeckName)[0 : len(ancestorPath)]
 
-    def _path(self, name: str) -> Any:
+    def _path(self, name: DeckName) -> Any:
         return name.split("::")
 
-    def _basename(self, name: str) -> Any:
+    def _basename(self, name: DeckName) -> Any:
         return self._path(name)[-1]
 
-    def _ensureParents(self, name: str) -> Any:
+    def _ensureParents(self, name: DeckName) -> Any:
         "Ensure parents exist, and return name with case matching parents."
         s = ""
         path = self._path(name)
@@ -486,7 +491,7 @@ class DeckManager:
     def _checkDeckTree(self) -> None:
         decks = self.col.decks.all()
         decks.sort(key=operator.itemgetter("name"))
-        names: Set[str] = set()
+        names: Set[DeckName] = set()
 
         for deck in decks:
             # two decks with the same name?
@@ -581,7 +586,7 @@ class DeckManager:
     def parents(self, did: int, nameMap: Optional[Any] = None) -> List[Deck]:
         "All parents decks of did."
         # get parent and grandparent names
-        parents_names: List[str] = []
+        parents_names: List[DeckName] = []
         for part in self.get(did)["name"].split("::")[:-1]:
             if not parents_names:
                 parents_names.append(part)
@@ -597,7 +602,7 @@ class DeckManager:
             parents.append(deck)
         return parents
 
-    def parentsByName(self, name: str) -> List:
+    def parentsByName(self, name: DeckName) -> List[Deck]:
         "All existing parents of name"
         if "::" not in name:
             return []
@@ -629,8 +634,8 @@ class DeckManager:
     # Dynamic decks
     ##########################################################################
 
-    def newDyn(self, name: str) -> int:
-        "Return a new dynamic deck and set it as the current deck."
+    def newDyn(self, name: DeckName) -> int:
+        "Return a new dynamic deck id and set it as the current deck."
         did = self.id(name, type=defaultDynamicDeck)
         self.select(did)
         return did
@@ -639,9 +644,9 @@ class DeckManager:
         return self.get(did)["dyn"]
 
     @staticmethod
-    def normalizeName(name: str) -> str:
+    def normalizeName(name: DeckName) -> DeckName:
         return unicodedata.normalize("NFC", name.lower())
 
     @staticmethod
-    def equalName(name1: str, name2: str) -> bool:
+    def equalName(name1: DeckName, name2: DeckName) -> bool:
         return DeckManager.normalizeName(name1) == DeckManager.normalizeName(name2)
