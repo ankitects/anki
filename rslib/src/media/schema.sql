@@ -3,7 +3,7 @@ create table media (
  csum text,           -- null indicates deleted file
  mtime int not null,  -- zero if deleted
  dirty int not null
-);
+) without rowid;
 
 create index idx_media_dirty on media (dirty) where dirty=1;
 
