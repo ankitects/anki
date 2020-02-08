@@ -11,7 +11,7 @@ from typing import List, Optional, Set
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.consts import *
-from anki.decks import Deck
+from anki.decks import Deck, DeckId
 from anki.lang import _
 from anki.notes import NoteId
 from anki.utils import fmtTimeSpan, ids2str, intTime
@@ -418,7 +418,7 @@ did = ? and queue = 0 limit ?)""",
         elif self.newCardModulus:
             return self.reps and self.reps % self.newCardModulus == 0
 
-    def _deckNewLimit(self, did, fn=None):
+    def _deckNewLimit(self, did: DeckId, fn=None):
         if not fn:
             fn = self._deckNewLimitSingle
         sel = self.col.decks.get(did)
@@ -432,7 +432,7 @@ did = ? and queue = 0 limit ?)""",
                 lim = min(rem, lim)
         return lim
 
-    def _newForDeck(self, did, lim):
+    def _newForDeck(self, did: DeckId, lim):
         "New count for a single deck."
         if not lim:
             return 0
@@ -751,7 +751,7 @@ where queue in (1,3) and type = 2
             self.col.db.list("select id from cards where queue in (1,3) %s" % extra)
         )
 
-    def _lrnForDeck(self, did):
+    def _lrnForDeck(self, did: DeckId):
         cnt = (
             self.col.db.scalar(
                 """
@@ -776,7 +776,7 @@ and due <= ? limit ?)""",
     # Reviews
     ##########################################################################
 
-    def _deckRevLimit(self, did):
+    def _deckRevLimit(self, did: DeckId):
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
     def _deckRevLimitSingle(self, d):
@@ -785,7 +785,7 @@ and due <= ? limit ?)""",
         c = self.col.decks.confForDid(d["id"])
         return max(0, c["rev"]["perDay"] - d["revToday"][1])
 
-    def _revForDeck(self, did, lim):
+    def _revForDeck(self, did: DeckId, lim):
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             """
@@ -798,7 +798,7 @@ and due <= ? limit ?)""",
         )
 
     def _resetRevCount(self):
-        def cntFn(did, lim):
+        def cntFn(did: DeckId, lim):
             return self.col.db.scalar(
                 """
 select count() from (select id from cards where
@@ -1024,7 +1024,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
     # Dynamic deck handling
     ##########################################################################
 
-    def rebuildDyn(self, did=None):
+    def rebuildDyn(self, did: Optional[DeckId] = None):
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -1054,7 +1054,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         self._moveToDyn(deck["id"], ids)
         return ids
 
-    def emptyDyn(self, did, lim=None):
+    def emptyDyn(self, did: DeckId, lim=None):
         if not lim:
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
@@ -1098,7 +1098,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
             t = "c.due"
         return t + " limit %d" % l
 
-    def _moveToDyn(self, did, ids):
+    def _moveToDyn(self, did: DeckId, ids):
         deck = self.col.decks.get(did)
         data = []
         t = intTime()
@@ -1583,11 +1583,11 @@ and due >= ? and queue = 0"""
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d
         )
 
-    def randomizeCards(self, did):
+    def randomizeCards(self, did: DeckId):
         cids = self.col.db.list("select id from cards where did = ?", did)
         self.sortCards(cids, shuffle=True)
 
-    def orderCards(self, did):
+    def orderCards(self, did: DeckId):
         cids = self.col.db.list("select id from cards where did = ? order by nid", did)
         self.sortCards(cids)
 
@@ -1599,7 +1599,7 @@ and due >= ? and queue = 0"""
                 self.orderCards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did=None):
+    def maybeRandomizeDeck(self, did: Optional[DeckId] = None):
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.confForDid(did)

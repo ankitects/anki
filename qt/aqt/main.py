@@ -28,7 +28,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki.collection import _Collection
-from anki.decks import Deck
+from anki.decks import Deck, DeckId
 from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.notes import NoteId
@@ -1043,7 +1043,7 @@ title="%s" %s>%s</button>""" % (
 
         aqt.importing.onImport(self)
 
-    def onExport(self, did=None):
+    def onExport(self, did: Optional[DeckId] = None):
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)

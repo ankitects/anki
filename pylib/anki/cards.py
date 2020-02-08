@@ -35,6 +35,8 @@ class Card:
     lastIvl: int
     ord: FieldOrd
     id: CardId
+    odid: anki.decks.DeckId
+    did: anki.decks.DeckId
 
     def __init__(
         self, col: anki.collection._Collection, id: Optional[CardId] = None
@@ -67,7 +69,7 @@ class Card:
         (
             self.id,
             self.nid,
-            self.did,
+            did,
             self.ord,
             self.mod,
             self.usn,
@@ -80,10 +82,13 @@ class Card:
             self.lapses,
             self.left,
             self.odue,
-            self.odid,
+            odid,
             self.flags,
             self.data,
         ) = self.col.db.first("select * from cards where id = ?", self.id)
+        self.did = anki.decks.DeckId(did)
+        self.odid = anki.decks.DeckId(odid)
+        # because sometime did was saved as int
         self._render_output = None
         self._note = None
 

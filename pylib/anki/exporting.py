@@ -12,7 +12,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
+from anki.cards import CardId
 from anki.collection import _Collection
+from anki.decks import DeckId
 from anki.lang import _
 from anki.storage import Collection
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
@@ -24,8 +26,8 @@ class Exporter:
     def __init__(
         self,
         col: _Collection,
-        did: Optional[int] = None,
-        cids: Optional[List[int]] = None,
+        did: Optional[DeckId] = None,
+        cids: Optional[List[CardId]] = None,
     ) -> None:
         self.col = col
         self.did = did
@@ -167,7 +169,7 @@ class AnkiExporter(Exporter):
     def __init__(self, col: _Collection) -> None:
         Exporter.__init__(self, col)
 
-    def deckIds(self) -> List[int]:
+    def deckIds(self) -> List[DeckId]:
         if self.cids:
             return self.col.decks.for_card_ids(self.cids)
         elif self.did:

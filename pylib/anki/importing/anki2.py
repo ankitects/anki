@@ -6,6 +6,7 @@ import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
 from anki.collection import _Collection
+from anki.decks import DeckId
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.storage import Collection
@@ -14,6 +15,9 @@ from anki.utils import intTime, joinFields, splitFields
 GUID = 1
 MID = 2
 MOD = 3
+
+SrcDeckId = DeckId
+DstDeckId = DeckId
 
 
 class Anki2Importer(Importer):
@@ -28,7 +32,7 @@ class Anki2Importer(Importer):
         super().__init__(col, file)
 
         # set later, defined here for typechecking
-        self._decks: Dict[int, int] = {}
+        self._decks: Dict[SrcDeckId, DstDeckId] = {}
         self.mustResetLearning = False
 
     def run(self, media: None = None) -> None:
@@ -249,7 +253,7 @@ class Anki2Importer(Importer):
     # Decks
     ######################################################################
 
-    def _did(self, did: int) -> Any:
+    def _did(self, did: SrcDeckId) -> Any:
         "Given did in src col, return local id."
         # already converted?
         if did in self._decks:

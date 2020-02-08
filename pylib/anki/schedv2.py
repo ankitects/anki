@@ -17,7 +17,7 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.consts import *
-from anki.decks import Deck
+from anki.decks import Deck, DeckId
 from anki.lang import _
 from anki.notes import NoteId
 from anki.rsbackend import SchedTimingToday
@@ -443,7 +443,7 @@ did = ? and queue = 0 limit ?)""",
             return False
 
     def _deckNewLimit(
-        self, did: int, fn: Callable[[Dict[str, Any]], int] = None
+        self, did: DeckId, fn: Callable[[Dict[str, Any]], int] = None
     ) -> Any:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -458,7 +458,7 @@ did = ? and queue = 0 limit ?)""",
                 lim = min(rem, lim)
         return lim
 
-    def _newForDeck(self, did: int, lim: int) -> Any:
+    def _newForDeck(self, did: DeckId, lim: int) -> Any:
         "New count for a single deck."
         if not lim:
             return 0
@@ -829,7 +829,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             time.sleep(0.01)
             log()
 
-    def _lrnForDeck(self, did: int) -> Any:
+    def _lrnForDeck(self, did: DeckId) -> Any:
         cnt = (
             self.col.db.scalar(
                 """
@@ -881,7 +881,7 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
             return lim
 
-    def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
+    def _revForDeck(self, did: DeckId, lim: int, childMap: Dict[DeckId, Any]) -> Any:
         dids = [did] + self.col.decks.childDids(did, childMap)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
@@ -1150,7 +1150,7 @@ else
 end)
 """
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+    def rebuildDyn(self, did: Optional[DeckId] = None) -> Optional[int]:
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -1182,7 +1182,7 @@ end)
             total += len(ids)
         return total
 
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+    def emptyDyn(self, did: Optional[DeckId], lim: Optional[str] = None) -> None:
         if not lim:
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
@@ -1222,7 +1222,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             t = "c.due, c.ord"
         return t + " limit %d" % l
 
-    def _moveToDyn(self, did: int, ids: List[int], start: int = -100000) -> None:
+    def _moveToDyn(self, did: DeckId, ids: List[int], start: int = -100000) -> None:
         deck = self.col.decks.get(did)
         data = []
         u = self.col.usn()
@@ -1845,11 +1845,11 @@ and due >= ? and queue = 0"""
             "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d
         )
 
-    def randomizeCards(self, did: int) -> None:
+    def randomizeCards(self, did: DeckId) -> None:
         cids = self.col.db.list("select id from cards where did = ?", did)
         self.sortCards(cids, shuffle=True)
 
-    def orderCards(self, did: int) -> None:
+    def orderCards(self, did: DeckId) -> None:
         cids = self.col.db.list("select id from cards where did = ? order by nid", did)
         self.sortCards(cids)
 
@@ -1861,7 +1861,7 @@ and due >= ? and queue = 0"""
                 self.orderCards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did: Optional[int] = None) -> None:
+    def maybeRandomizeDeck(self, did: Optional[DeckId] = None) -> None:
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.confForDid(did)

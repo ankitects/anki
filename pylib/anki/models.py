@@ -12,6 +12,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
+from anki.decks import DeckId
 from anki.lang import _
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
@@ -36,7 +37,7 @@ AllTemplateReqs = List[TemplateRequiredFieldOrds]
 
 defaultModel: NoteType = {
     "sortf": 0,
-    "did": 1,
+    "did": DeckId(1),
     "latexPre": """\
 \\documentclass[12pt]{article}
 \\special{papersize=3in,5in}

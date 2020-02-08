@@ -17,6 +17,7 @@ from typing import Callable, Collection, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
+from anki.decks import DeckId
 from anki.notes import NoteId
 from anki.utils import ids2str, intTime
 
@@ -88,7 +89,7 @@ class TagManager:
     def save(self) -> None:
         self.changed = True
 
-    def byDeck(self, did, children=False) -> List[Tag]:
+    def byDeck(self, did: DeckId, children=False) -> List[Tag]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = basequery + " AND c.did=?"

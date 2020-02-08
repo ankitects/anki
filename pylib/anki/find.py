@@ -8,6 +8,7 @@ from typing import Any, List, Optional, Set, Tuple
 
 from anki import hooks
 from anki.consts import *
+from anki.decks import DeckId
 from anki.hooks import *
 from anki.models import FieldName
 from anki.notes import NoteId
@@ -400,7 +401,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
         elif val == "filtered":
             return "c.odid"
 
-        def dids(did):
+        def dids(did: DeckId):
             if not did:
                 return None
             return [did] + [a[1] for a in self.col.decks.children(did)]

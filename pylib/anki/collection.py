@@ -20,7 +20,7 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.consts import *
 from anki.db import DB
-from anki.decks import DeckManager
+from anki.decks import DeckId, DeckManager
 from anki.errors import AnkiError
 from anki.lang import _, ngettext
 from anki.media import MediaManager
@@ -328,7 +328,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Deletion logging
     ##########################################################################
 
-    def _logRem(self, ids: Union[List[CardId], List[NoteId], List[int]], type: int) -> None:
+    def _logRem(
+        self, ids: Union[List[CardId], List[NoteId], List[DeckId]], type: int
+    ) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
             ([x] for x in ids),
@@ -475,7 +477,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
 
     # type is no longer used
     def previewCards(
-        self, note: Note, type: int = 0, did: Optional[int] = None
+        self, note: Note, type: int = 0, did: Optional[DeckId] = None
     ) -> List[Card]:
         existing_cards = {}
         for card in note.cards():
@@ -497,19 +499,22 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         template: Template,
         due: int,
         flush: bool = True,
-        did: Optional[int] = None,
+        did: Optional[DeckId] = None,
     ) -> Card:
         "Create a new card."
         card = Card(self)
         card.nid = note.id
         card.ord = template["ord"]  # type: ignore
-        card.did = self.db.scalar(
-            "select did from cards where nid = ? and ord = ?", card.nid, card.ord
+        card.did = DeckId(
+            self.db.scalar(
+                "select did from cards where nid = ? and ord = ?", card.nid, card.ord
+            )
+            or 0
         )
         # Use template did (deck override) if valid, otherwise did in argument, otherwise model did
         if not card.did:
             if template["did"] and str(template["did"]) in self.decks.decks:
-                card.did = int(template["did"])
+                card.did = DeckId(template["did"])
             elif did:
                 card.did = did
             else:
@@ -521,13 +526,14 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
             # must not be a filtered deck
             card.did = 1
         else:
-            card.did = deck["id"]
+            card.did = DeckId(deck["id"])
         card.due = self._dueForDid(card.did, due)
         if flush:
             card.flush()
+        card.did = DeckId(card.did)
         return card
 
-    def _dueForDid(self, did: int, due: int) -> int:
+    def _dueForDid(self, did: DeckId, due: int) -> int:
         conf = self.decks.confForDid(did)
         # in order due?
         if conf["new"]["order"] == NEW_CARDS_DUE:

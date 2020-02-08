@@ -8,6 +8,8 @@ from typing import List, Optional
 
 import aqt
 from anki import hooks
+from anki.cards import CardId
+from anki.decks import DeckId
 from anki.exporting import exporters
 from anki.lang import _, ngettext
 from aqt.qt import *
@@ -15,7 +17,9 @@ from aqt.utils import checkInvalidFilename, getSaveFile, showInfo, showWarning, 
 
 
 class ExportDialog(QDialog):
-    def __init__(self, mw, did: Optional[int] = None, cids: Optional[List[int]] = None):
+    def __init__(
+        self, mw, did: Optional[DeckId] = None, cids: Optional[List[CardId]] = None
+    ):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col
@@ -26,7 +30,7 @@ class ExportDialog(QDialog):
         self.setup(did)
         self.exec_()
 
-    def setup(self, did: Optional[int]):
+    def setup(self, did: Optional[DeckId]):
         self.exporters = exporters()
         # if a deck specified, start with .apkg type selected
         idx = 0

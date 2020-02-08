@@ -8,6 +8,7 @@ from copy import deepcopy
 from typing import Any
 
 import aqt
+from anki.decks import DeckId
 from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
 from anki.utils import fmtTimeSpan, ids2str
@@ -75,7 +76,7 @@ class DeckBrowser:
             self._collapse(arg)
         return False
 
-    def _selDeck(self, did):
+    def _selDeck(self, did: DeckId):
         self.mw.col.decks.select(did)
         self.mw.onOverview()
 
@@ -246,7 +247,7 @@ where id > ?""",
     # Options
     ##########################################################################
 
-    def _showOptions(self, did) -> None:
+    def _showOptions(self, did: DeckId) -> None:
         m = QMenu(self.mw)
         a = m.addAction(_("Rename"))
         qconnect(a.triggered, lambda b, did=did: self._rename(did))
@@ -259,10 +260,10 @@ where id > ?""",
         gui_hooks.deck_browser_will_show_options_menu(m, did)
         m.exec_(QCursor.pos())
 
-    def _export(self, did):
+    def _export(self, did: DeckId):
         self.mw.onExport(did=did)
 
-    def _rename(self, did):
+    def _rename(self, did: DeckId):
         self.mw.checkpoint(_("Rename Deck"))
         deck = self.mw.col.decks.get(did)
         oldName = deck["name"]
@@ -276,13 +277,13 @@ where id > ?""",
             return showWarning(e.description)
         self.show()
 
-    def _options(self, did):
+    def _options(self, did: DeckId):
         # select the deck first, because the dyn deck conf assumes the deck
         # we're editing is the current one
         self.mw.col.decks.select(did)
         self.mw.onDeckConf()
 
-    def _collapse(self, did):
+    def _collapse(self, did: DeckId):
         self.mw.col.decks.collapse(did)
         self._renderPage(reuse=True)
 
@@ -294,8 +295,8 @@ where id > ?""",
 
         self.show()
 
-    def _delete(self, did):
-        if str(did) == "1":
+    def _delete(self, did: DeckId):
+        if DeckId(did) == DeckId(1):
             return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
