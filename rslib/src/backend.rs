@@ -313,7 +313,7 @@ impl Backend {
     }
 
     fn add_file_to_media_folder(&mut self, input: pt::AddFileToMediaFolderIn) -> Result<String> {
-        let mut mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         Ok(mgr.add_file(&input.desired_name, &input.data)?.into())
     }
 
