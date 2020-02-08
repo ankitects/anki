@@ -164,13 +164,20 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
                 children: parse_inner(iter, Some(t))?,
             },
             CloseConditional(t) => {
-                if let Some(open) = open_tag {
+                let currently_open = if let Some(open) = open_tag {
                     if open == t {
                         // matching closing tag, move back to parent
                         return Ok(nodes);
+                    } else {
+                        Some(open.to_string())
                     }
-                }
-                return Err(TemplateError::ConditionalNotOpen(t.to_string()));
+                } else {
+                    None
+                };
+                return Err(TemplateError::ConditionalNotOpen {
+                    closed: t.to_string(),
+                    currently_open,
+                });
             }
         });
     }
