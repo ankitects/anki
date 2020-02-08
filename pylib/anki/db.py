@@ -5,7 +5,7 @@ import os
 import time
 from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
-from typing import Any, List
+from typing import Any, List, Tuple
 
 DBError = sqlite.Error
 
@@ -68,7 +68,7 @@ class DB:
             return res[0]
         return None
 
-    def all(self, *a, **kw) -> List:
+    def all(self, *a, **kw) -> List[Tuple]:
         return self.execute(*a, **kw).fetchall()
 
     def first(self, *a, **kw) -> Any:

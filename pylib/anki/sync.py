@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import anki
 from anki.consts import *
 from anki.db import DB, DBError
+from anki.models import NoteType
 from anki.utils import checksum, devMode, ids2str, intTime, platDesc, versionWithBuild
 
 from . import hooks
@@ -346,7 +347,7 @@ from notes where %s"""
     # Models
     ##########################################################################
 
-    def getModels(self) -> List:
+    def getModels(self) -> List[NoteType]:
         mods = [m for m in self.col.models.all() if m["usn"] == -1]
         for m in mods:
             m["usn"] = self.maxUsn
@@ -423,7 +424,7 @@ from notes where %s"""
             "insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)", logs
         )
 
-    def newerRows(self, data, table, modIdx) -> List:
+    def newerRows(self, data, table, modIdx) -> List[Tuple]:
         ids = (r[0] for r in data)
         lmods = {}
         for id, mod in self.col.db.execute(

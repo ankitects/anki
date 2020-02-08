@@ -97,7 +97,7 @@ class NoteImporter(Importer):
     def mappingOk(self) -> bool:
         return self.model["flds"][0]["name"] in self.mapping
 
-    def foreignNotes(self) -> List:
+    def foreignNotes(self) -> List[ForeignNote]:
         "Return a list of foreign notes for importing."
         return []
 

@@ -376,13 +376,13 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Card creation
     ##########################################################################
 
-    def findTemplates(self, note: Note) -> List:
+    def findTemplates(self, note: Note) -> List[Template]:
         "Return (active), non-empty templates."
         model = note.model()
         avail = self.models.availOrds(model, joinFields(note.fields))
         return self._tmplsFromOrds(model, avail)
 
-    def _tmplsFromOrds(self, model: NoteType, avail: List[int]) -> List:
+    def _tmplsFromOrds(self, model: NoteType, avail: List[int]) -> List[Template]:
         ok = []
         if model["type"] == MODEL_STD:
             for t in model["tmpls"]:
@@ -474,7 +474,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
     # type is no longer used
     def previewCards(
         self, note: Note, type: int = 0, did: Optional[int] = None
-    ) -> List:
+    ) -> List[Card]:
         existing_cards = {}
         for card in note.cards():
             existing_cards[card.ord] = card

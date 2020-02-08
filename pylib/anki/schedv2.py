@@ -138,10 +138,10 @@ class Scheduler:
             counts[idx] += 1
         return tuple(counts)
 
-    def dueForecast(self, days=7) -> List:
+    def dueForecast(self, days=7) -> List[int]:
         "Return counts over next DAYS. Includes today."
-        daysd = dict(
-            self.col.db.all(
+        daysd = dict(  # type: ignore
+            self.col.db.all(  # type: ignore
                 """
 select due, count() from cards
 where did in %s and queue = 2
@@ -542,7 +542,7 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
         if self._lrnQueue:
             return True
         cutoff = intTime() + self.col.conf["collapseTime"]
-        self._lrnQueue = self.col.db.all(
+        self._lrnQueue = self.col.db.all(  # type: ignore
             f"""
 select due, id from cards where
 did in %s and queue in (1,{QUEUE_TYPE_PREVIEW}) and due < :lim
@@ -1063,11 +1063,11 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         min, max = self._fuzzIvlRange(ivl)
         return random.randint(min, max)
 
-    def _fuzzIvlRange(self, ivl: int) -> List:
+    def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
         if ivl < 2:
-            return [1, 1]
+            return (1, 1)
         elif ivl == 2:
-            return [2, 3]
+            return (2, 3)
         elif ivl < 7:
             fuzz = int(ivl * 0.25)
         elif ivl < 30:
@@ -1076,7 +1076,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
             fuzz = max(4, int(ivl * 0.05))
         # fuzz at least a day
         fuzz = max(fuzz, 1)
-        return [ivl - fuzz, ivl + fuzz]
+        return (ivl - fuzz, ivl + fuzz)
 
     def _constrainedIvl(
         self, ivl: Union[int, float], conf: Dict[str, Any], prev: int, fuzz: bool

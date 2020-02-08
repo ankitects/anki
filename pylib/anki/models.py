@@ -574,7 +574,7 @@ select id from notes where mid = ?)"""
         reqs = self.col.backend.template_requirements(fronts, field_map)
         m["req"] = [list(l) for l in reqs]
 
-    def availOrds(self, m: NoteType, flds: str) -> List:
+    def availOrds(self, m: NoteType, flds: str) -> List[int]:
         "Given a joined field string, return available template ordinals."
         if m["type"] == MODEL_CLOZE:
             return self._availClozeOrds(m, flds)
@@ -608,7 +608,9 @@ select id from notes where mid = ?)"""
             avail.append(ord)
         return avail
 
-    def _availClozeOrds(self, m: NoteType, flds: str, allowEmpty: bool = True) -> List:
+    def _availClozeOrds(
+        self, m: NoteType, flds: str, allowEmpty: bool = True
+    ) -> List[int]:
         sflds = splitFields(flds)
         map = self.fieldMap(m)
         ords = set()

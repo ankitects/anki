@@ -83,7 +83,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
     # Tokenizing
     ######################################################################
 
-    def _tokenize(self, query) -> List:
+    def _tokenize(self, query) -> List[str]:
         inQuote = False
         tokens = []
         token = ""

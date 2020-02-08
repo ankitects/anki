@@ -183,4 +183,5 @@ def _errMsg(type: str, texpath: str) -> Any:
     return msg
 
 
-hooks.card_did_render.append(on_card_did_render)
+hooks.card_did_render.append(on_card_did_render)  # type: ignore
+# For some reason, Anki's type keep telling "Cannot determine type of 'card_did_render'  [has-type]". So ignoring is necessary here.
