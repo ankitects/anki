@@ -38,7 +38,7 @@ impl MediaManager {
     /// appended to the name.
     ///
     /// Also notes the file in the media database.
-    pub fn add_file<'a>(&mut self, desired_name: &'a str, data: &[u8]) -> Result<Cow<'a, str>> {
+    pub fn add_file<'a>(&self, desired_name: &'a str, data: &[u8]) -> Result<Cow<'a, str>> {
         let pre_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
 
         // add file to folder
