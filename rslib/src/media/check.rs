@@ -13,7 +13,7 @@ use std::borrow::Cow;
 
 #[derive(Debug, PartialEq)]
 pub struct MediaCheckOutput {
-    all_files: Vec<String>,
+    files: Vec<String>,
     renamed: Vec<RenamedFile>,
     dirs: Vec<String>,
     oversize: Vec<String>,
@@ -51,11 +51,6 @@ where
     }
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
-        // rename any invalid files, by copying+trashing original
-        // note the rename in the list
-        // record current name regardless of rename
-        // note dirs/oversized files
-
         // loop through on-disk files
         let mut dirs = vec![];
         let mut oversize = vec![];
@@ -106,7 +101,7 @@ where
         }
 
         Ok(MediaCheckOutput {
-            all_files,
+            files: all_files,
             renamed: renamed_files,
             dirs,
             oversize,
@@ -194,7 +189,7 @@ mod test {
         assert_eq!(
             output,
             MediaCheckOutput {
-                all_files: vec!["con_.jpg".to_string(), "normal.jpg".to_string()],
+                files: vec!["con_.jpg".to_string(), "normal.jpg".to_string()],
                 renamed: vec![RenamedFile {
                     current_fname: "con_.jpg".to_string(),
                     original_fname: "con.jpg".to_string()
@@ -226,7 +221,7 @@ mod test {
             assert_eq!(
                 output,
                 MediaCheckOutput {
-                    all_files: vec!["ぱぱ.jpg".to_string()],
+                    files: vec!["ぱぱ.jpg".to_string()],
                     renamed: vec![],
                     dirs: vec![],
                     oversize: vec![]
@@ -238,7 +233,7 @@ mod test {
             assert_eq!(
                 output,
                 MediaCheckOutput {
-                    all_files: vec!["ぱぱ.jpg".to_string()],
+                    files: vec!["ぱぱ.jpg".to_string()],
                     renamed: vec![RenamedFile {
                         current_fname: "ぱぱ.jpg".to_string(),
                         original_fname: "ぱぱ.jpg".to_string()
