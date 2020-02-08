@@ -314,7 +314,10 @@ impl Backend {
 
     fn add_file_to_media_folder(&mut self, input: pt::AddFileToMediaFolderIn) -> Result<String> {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        Ok(mgr.add_file(&input.desired_name, &input.data)?.into())
+        let mut ctx = mgr.dbctx();
+        Ok(mgr
+            .add_file(&mut ctx, &input.desired_name, &input.data)?
+            .into())
     }
 
     fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
