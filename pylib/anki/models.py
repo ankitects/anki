@@ -18,6 +18,7 @@ from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 # types
 NoteType = Dict[str, Any]
 Field = Dict[str, Any]
+FieldName = str
 Template = Dict[str, Union[str, int, None]]
 TemplateRequirementType = str  # Union["all", "any", "none"]
 # template ordinal, type, list of field ordinals
@@ -58,7 +59,7 @@ defaultModel: NoteType = {
 }
 
 defaultField: Field = {
-    "name": "",
+    "name": "",  # FieldName
     "ord": None,
     "sticky": False,
     # the following alter editing, and are used as defaults for the
@@ -261,17 +262,17 @@ and notes.mid = ? and cards.ord = ?""",
     # Fields
     ##################################################
 
-    def newField(self, name: str) -> Field:
+    def newField(self, name: FieldName) -> Field:
         assert isinstance(name, str)
         f = defaultField.copy()
         f["name"] = name
         return f
 
-    def fieldMap(self, m: NoteType) -> Dict[str, Tuple[int, Field]]:
+    def fieldMap(self, m: NoteType) -> Dict[FieldName, Tuple[int, Field]]:
         "Mapping of field name -> (ord, field)."
         return dict((f["name"], (f["ord"], f)) for f in m["flds"])
 
-    def fieldNames(self, m: NoteType) -> List[str]:
+    def fieldNames(self, m: NoteType) -> List[FieldName]:
         return [f["name"] for f in m["flds"]]
 
     def sortIdx(self, m: NoteType) -> Any:
@@ -346,7 +347,9 @@ and notes.mid = ? and cards.ord = ?""",
 
         self._transformFields(m, move)
 
-    def renameField(self, m: NoteType, field: Field, newName: Optional[str]) -> None:
+    def renameField(
+        self, m: NoteType, field: Field, newName: Optional[FieldName]
+    ) -> None:
         self.col.modSchema(check=True)
         if newName is not None:
             newName = newName.replace(":", "")
