@@ -1070,33 +1070,51 @@ undo_state_did_change = _UndoStateDidChangeHook()
 class _WebviewDidReceiveJsMessageFilter:
     """Used to handle pycmd() messages sent from Javascript.
         
-        Message is the string passed to pycmd(). Context is what was
-        passed to set_bridge_command(), such as 'editor' or 'reviewer'.
-        
-        For messages you don't want to handle, return handled unchanged.
+        Message is the string passed to pycmd().
+
+        For messages you don't want to handle, return 'handled' unchanged.
         
         If you handle a message and don't want it passed to the original
         bridge command handler, return (True, None).
-          
+        
         If you want to pass a value to pycmd's result callback, you can
-        return it with (True, some_value)."""
+        return it with (True, some_value).
+                
+        Context is the instance that was passed to set_bridge_command().
+        It can be inspected to check which screen this hook is firing
+        in, and to get a reference to the screen. For example, if your
+        code wishes to function only in the review screen, you could do:
 
-    _hooks: List[Callable[[Tuple[bool, Any], str, str], Tuple[bool, Any]]] = []
+            if not isinstance(context, aqt.reviewer.Reviewer):
+                # not reviewer, pass on message
+                return handled
+    
+            if message == "my-mark-action":
+                # our message, call onMark() on the reviewer instance
+                context.onMark()
+                # and don't pass message to other handlers
+                return (True, None)
+            else:
+                # some other command, pass it on
+                return handled
+        """
+
+    _hooks: List[Callable[[Tuple[bool, Any], str, Any], Tuple[bool, Any]]] = []
 
     def append(
-        self, cb: Callable[[Tuple[bool, Any], str, str], Tuple[bool, Any]]
+        self, cb: Callable[[Tuple[bool, Any], str, Any], Tuple[bool, Any]]
     ) -> None:
-        """(handled: Tuple[bool, Any], message: str, context: str)"""
+        """(handled: Tuple[bool, Any], message: str, context: Any)"""
         self._hooks.append(cb)
 
     def remove(
-        self, cb: Callable[[Tuple[bool, Any], str, str], Tuple[bool, Any]]
+        self, cb: Callable[[Tuple[bool, Any], str, Any], Tuple[bool, Any]]
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def __call__(
-        self, handled: Tuple[bool, Any], message: str, context: str
+        self, handled: Tuple[bool, Any], message: str, context: Any
     ) -> Tuple[bool, Any]:
         for filter in self._hooks:
             try:
