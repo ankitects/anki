@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from typing import Optional
+
 import aqt
 from anki.lang import _
 from aqt import gui_hooks
@@ -57,7 +59,7 @@ class StudyDeck(QDialog):
         else:
             self.nameFunc = names
             self.origNames = names()
-        self.name = None
+        self.name: Optional[str] = None
         self.ok = self.form.buttonBox.addButton(
             accept or _("Study"), QDialogButtonBox.AcceptRole
         )
