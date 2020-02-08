@@ -4,7 +4,8 @@
 use crate::err::{AnkiError, Result};
 use crate::media::database::{MediaDatabaseContext, MediaEntry};
 use crate::media::files::{
-    mtime_as_i64, sha1_of_file, MEDIA_SYNC_FILESIZE_LIMIT, NONSYNCABLE_FILENAME,
+    filename_if_normalized, mtime_as_i64, sha1_of_file, MEDIA_SYNC_FILESIZE_LIMIT,
+    NONSYNCABLE_FILENAME,
 };
 use std::collections::HashMap;
 use std::path::Path;
@@ -78,10 +79,6 @@ where
 
     /// Scan through the media folder, finding changes.
     /// Returns (added/changed files, removed files).
-    ///
-    /// Checks for invalid filenames and unicode normalization are deferred
-    /// until syncing time, as we can't trust the entries previous Anki versions
-    /// wrote are correct.
     fn media_folder_changes(
         &mut self,
         mut mtimes: HashMap<String, i64>,
@@ -99,13 +96,22 @@ where
 
             // if the filename is not valid unicode, skip it
             let fname_os = dentry.file_name();
-            let fname = match fname_os.to_str() {
+            let disk_fname = match fname_os.to_str() {
                 Some(s) => s,
                 None => continue,
             };
 
+            // make sure the filename is normalized
+            let fname = match filename_if_normalized(&disk_fname) {
+                Some(fname) => fname,
+                None => {
+                    // not normalized; skip it
+                    continue;
+                }
+            };
+
             // ignore blacklisted files
-            if NONSYNCABLE_FILENAME.is_match(fname) {
+            if NONSYNCABLE_FILENAME.is_match(fname.as_ref()) {
                 continue;
             }
 
@@ -116,7 +122,7 @@ where
             }
 
             // remove from mtimes for later deletion tracking
-            let previous_mtime = mtimes.remove(fname);
+            let previous_mtime = mtimes.remove(fname.as_ref());
 
             // skip files that have not been modified
             let mtime = metadata
