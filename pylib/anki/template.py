@@ -128,7 +128,9 @@ def render_card(
         else:
             side = _("Back")
         errmsg = _("{} template has a problem:").format(side) + f"<br>{e}"
-        errmsg += "<br><a href=https://anki.tenderapp.com/kb/problems/card-template-has-a-problem>{}</a>".format(_("More info"))
+        errmsg += "<br><a href=https://anki.tenderapp.com/kb/problems/card-template-has-a-problem>{}</a>".format(
+            _("More info")
+        )
         output = TemplateRenderOutput(
             question_text=errmsg,
             answer_text=errmsg,
