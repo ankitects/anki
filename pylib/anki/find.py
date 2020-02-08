@@ -9,6 +9,7 @@ from typing import Any, List, Optional, Set, Tuple
 from anki import hooks
 from anki.consts import *
 from anki.hooks import *
+from anki.models import FieldName
 from anki.notes import NoteId
 from anki.utils import (
     fieldChecksum,
@@ -556,8 +557,8 @@ def findReplace(
     return len(d)
 
 
-def fieldNames(col, downcase=True) -> List:
-    fields: Set[str] = set()
+def fieldNames(col, downcase=True) -> List[FieldName]:
+    fields: Set[FieldName] = set()
     for m in col.models.all():
         for f in m["flds"]:
             name = f["name"].lower() if downcase else f["name"]
@@ -566,7 +567,7 @@ def fieldNames(col, downcase=True) -> List:
     return list(fields)
 
 
-def fieldNamesForNotes(col, nids: List[NoteId]) -> List:
+def fieldNamesForNotes(col, nids: List[NoteId]) -> List[FieldName]:
     fields: Set[str] = set()
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:
