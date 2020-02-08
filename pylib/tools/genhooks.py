@@ -27,7 +27,7 @@ hooks = [
     ),
     Hook(
         name="deck_added",
-        args=["deck: Dict[str, Any]"],
+        args=["deck: Deck"],
         legacy_hook="newDeck",
         legacy_no_args=True,
     ),

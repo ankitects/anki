@@ -28,6 +28,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki.collection import _Collection
+from anki.decks import Deck
 from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.notes import NoteId
@@ -985,7 +986,7 @@ title="%s" %s>%s</button>""" % (
     def onEditCurrent(self):
         aqt.dialogs.open("EditCurrent", self)
 
-    def onDeckConf(self, deck=None):
+    def onDeckConf(self, deck: Optional[Deck] = None):
         if not deck:
             deck = self.col.decks.current()
         if deck["dyn"]:

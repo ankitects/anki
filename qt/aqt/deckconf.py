@@ -5,6 +5,7 @@ from operator import itemgetter
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
+from anki.decks import Deck
 from anki.lang import _, ngettext
 from aqt.qt import *
 from aqt.utils import (
@@ -20,7 +21,7 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
-    def __init__(self, mw, deck):
+    def __init__(self, mw, deck: Deck):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck

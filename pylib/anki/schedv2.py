@@ -17,6 +17,7 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.consts import *
+from anki.decks import Deck
 from anki.lang import _
 from anki.notes import NoteId
 from anki.rsbackend import SchedTimingToday
@@ -1163,7 +1164,7 @@ end)
         self.col.decks.select(did)
         return cnt
 
-    def _fillDyn(self, deck: Dict[str, Any]) -> int:
+    def _fillDyn(self, deck: Deck) -> int:
         start = -100000
         total = 0
         for search, limit, order in deck["terms"]:

@@ -2,14 +2,17 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from typing import Optional
+
 import aqt
+from anki.decks import Deck
 from anki.lang import _
 from aqt.qt import *
 from aqt.utils import askUser, openHelp, restoreGeom, saveGeom, showWarning
 
 
 class DeckConf(QDialog):
-    def __init__(self, mw, first=False, search="", deck=None):
+    def __init__(self, mw, first=False, search="", deck: Optional[Deck] = None):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck or self.mw.col.decks.current()

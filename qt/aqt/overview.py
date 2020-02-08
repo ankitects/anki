@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import aqt
+from anki.decks import Deck
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.sound import av_player
@@ -153,7 +154,7 @@ class Overview:
             js=["jquery.js", "overview.js"],
         )
 
-    def _desc(self, deck):
+    def _desc(self, deck: Deck):
         if deck["dyn"]:
             desc = _(
                 """\

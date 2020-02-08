@@ -18,6 +18,7 @@ import decorator
 
 import anki
 from anki.cards import Card
+from anki.decks import Deck
 from anki.models import NoteType
 
 # New hook/filter handling
@@ -135,17 +136,17 @@ card_odue_was_invalid = _CardOdueWasInvalidHook()
 
 
 class _DeckAddedHook:
-    _hooks: List[Callable[[Dict[str, Any]], None]] = []
+    _hooks: List[Callable[[Deck], None]] = []
 
-    def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        """(deck: Dict[str, Any])"""
+    def append(self, cb: Callable[[Deck], None]) -> None:
+        """(deck: Deck)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
+    def remove(self, cb: Callable[[Deck], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, deck: Dict[str, Any]) -> None:
+    def __call__(self, deck: Deck) -> None:
         for hook in self._hooks:
             try:
                 hook(deck)

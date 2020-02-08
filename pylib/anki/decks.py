@@ -18,6 +18,7 @@ from anki.utils import ids2str, intTime
 
 # fixmes:
 # - make sure users can't set grad interval < 1
+Deck = Dict[str, Any]
 
 defaultDeck = {
     "newToday": [0, 0],  # currentDay, count
@@ -94,7 +95,7 @@ defaultConf = {
 
 
 class DeckManager:
-    decks: Dict[str, Any]
+    decks: Dict[str, Deck]
     dconf: Dict[str, Any]
 
     # Registry save/load
@@ -140,7 +141,7 @@ class DeckManager:
     #############################################################
 
     def id(
-        self, name: str, create: bool = True, type: Optional[Dict[str, Any]] = None
+        self, name: str, create: bool = True, type: Optional[Deck] = None
     ) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         if type is None:
@@ -228,7 +229,7 @@ class DeckManager:
                 x["name"] for x in self.all(forceDefault=forceDefault) if not x["dyn"]
             ]
 
-    def all(self, forceDefault: bool = True) -> List:
+    def all(self, forceDefault: bool = True) -> List[Deck]:
         "A list of all decks."
         decks = list(self.decks.values())
         if (
@@ -269,14 +270,14 @@ class DeckManager:
             if self.equalName(m["name"], name):
                 return m
 
-    def update(self, g: Dict[str, Any]) -> None:
+    def update(self, g: Deck) -> None:
         "Add or update an existing deck. Used for syncing and merging."
         self.decks[str(g["id"])] = g
         self.maybeAddToActive()
         # mark registry changed, but don't bump mod time
         self.save()
 
-    def rename(self, g: Dict[str, Any], newName: str) -> None:
+    def rename(self, g: Deck, newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
         if self.byName(newName):
@@ -576,22 +577,23 @@ class DeckManager:
 
         return childMap
 
-    def parents(self, did: int, nameMap: Optional[Any] = None) -> List:
-        "All parents of did."
+    def parents(self, did: int, nameMap: Optional[Any] = None) -> List[Deck]:
+        "All parents decks of did."
         # get parent and grandparent names
-        parents: List[str] = []
+        parents_names: List[str] = []
         for part in self.get(did)["name"].split("::")[:-1]:
-            if not parents:
-                parents.append(part)
+            if not parents_names:
+                parents_names.append(part)
             else:
-                parents.append(parents[-1] + "::" + part)
+                parents_names.append(parents_names[-1] + "::" + part)
         # convert to objects
-        for c, p in enumerate(parents):
+        parents: List[Deck] = []
+        for parent_name in parents_names:
             if nameMap:
-                deck = nameMap[p]
+                deck = nameMap[parent_name]
             else:
-                deck = self.get(self.id(p))
-            parents[c] = deck
+                deck = self.get(self.id(parent_name))
+            parents.append(deck)
         return parents
 
     def parentsByName(self, name: str) -> List:

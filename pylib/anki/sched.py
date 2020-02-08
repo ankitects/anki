@@ -11,6 +11,7 @@ from typing import List, Optional, Set
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.consts import *
+from anki.decks import Deck
 from anki.lang import _
 from anki.notes import NoteId
 from anki.utils import fmtTimeSpan, ids2str, intTime
@@ -1037,7 +1038,7 @@ select id from cards where did in %s and queue = 2 and due <= ? limit ?)"""
         self.col.decks.select(did)
         return ids
 
-    def _fillDyn(self, deck):
+    def _fillDyn(self, deck: Deck):
         search, limit, order = deck["terms"][0]
         orderlimit = self._dynOrder(order, limit)
         if search.strip():
