@@ -5,6 +5,6 @@ create table media (
  dirty int not null
 );
 
-create index idx_media_dirty on media (dirty);
+create index idx_media_dirty on media (dirty) where dirty=1;
 
 create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
