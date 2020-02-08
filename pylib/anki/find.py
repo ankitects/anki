@@ -9,6 +9,7 @@ from typing import Any, List, Optional, Set, Tuple
 from anki import hooks
 from anki.consts import *
 from anki.hooks import *
+from anki.notes import NoteId
 from anki.utils import (
     fieldChecksum,
     ids2str,
@@ -500,7 +501,9 @@ where mid in %s and flds like ? escape '\\'"""
 ##########################################################################
 
 
-def findReplace(col, nids, src, dst, regex=False, field=None, fold=True) -> int:
+def findReplace(
+    col, nids: List[NoteId], src, dst, regex=False, field=None, fold=True
+) -> int:
     "Find and replace fields in a note."
     mmap = {}
     if field:
@@ -563,7 +566,7 @@ def fieldNames(col, downcase=True) -> List:
     return list(fields)
 
 
-def fieldNamesForNotes(col, nids) -> List:
+def fieldNamesForNotes(col, nids: List[NoteId]) -> List:
     fields: Set[str] = set()
     mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
     for mid in mids:

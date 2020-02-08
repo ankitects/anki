@@ -231,7 +231,7 @@ select id from cards where nid in (select id from notes where mid = ?)""",
     # Tools
     ##################################################
 
-    def nids(self, m: NoteType) -> Any:
+    def nids(self, m: NoteType) -> List[anki.notes.NoteId]:
         "Note ids for M."
         return self.col.db.list("select id from notes where mid = ?", m["id"])
 

@@ -22,6 +22,7 @@ from anki.consts import *
 from anki.db import DB, DBError
 from anki.lang import _
 from anki.latex import render_latex
+from anki.notes import NoteId
 from anki.utils import checksum, isMac, isWin
 
 
@@ -342,7 +343,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             )
         return (nohave, unused, warnings)
 
-    def _normalizeNoteRefs(self, nid) -> None:
+    def _normalizeNoteRefs(self, nid: NoteId) -> None:
         note = self.col.getNote(nid)
         for c, fld in enumerate(note.fields):
             nfc = unicodedata.normalize("NFC", fld)

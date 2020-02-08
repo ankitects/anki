@@ -8,7 +8,7 @@ import aqt.editor
 import aqt.forms
 import aqt.modelchooser
 from anki.lang import _
-from anki.notes import Note
+from anki.notes import Note, NoteId
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -159,7 +159,7 @@ class AddCards(QDialog):
         gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
-    def editHistory(self, nid):
+    def editHistory(self, nid: NoteId):
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText("nid:%d" % nid)
         browser.onSearchActivated()

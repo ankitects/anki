@@ -12,6 +12,7 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.consts import *
 from anki.lang import _
+from anki.notes import NoteId
 from anki.utils import fmtTimeSpan, ids2str, intTime
 
 # queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
@@ -1418,7 +1419,7 @@ update cards set queue=-2,mod=?,usn=? where id in """
             self.col.usn(),
         )
 
-    def buryNote(self, nid):
+    def buryNote(self, nid: NoteId):
         "Bury all cards for note until next session."
         cids = self.col.db.list(
             "select id from cards where nid = ? and queue >= 0", nid

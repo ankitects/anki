@@ -17,11 +17,13 @@ from anki.utils import (
     timestampID,
 )
 
+NoteId = int
+
 
 class Note:
     col: anki.storage._Collection
     newlyAdded: bool
-    id: int
+    id: NoteId
     guid: str
     _model: NoteType
     mid: int

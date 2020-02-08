@@ -25,7 +25,7 @@ from anki.errors import AnkiError
 from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager, NoteType, Template
-from anki.notes import Note
+from anki.notes import Note, NoteId
 from anki.rsbackend import RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
@@ -326,7 +326,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     # Deletion logging
     ##########################################################################
 
-    def _logRem(self, ids: Union[List[CardId], List[int]], type: int) -> None:
+    def _logRem(self, ids: Union[List[CardId], List[NoteId], List[int]], type: int) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
             ([x] for x in ids),
@@ -396,7 +396,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 ok.append(t)
         return ok
 
-    def genCards(self, nids: List[int]) -> List[CardId]:
+    def genCards(self, nids: List[NoteId]) -> List[CardId]:
         "Generate cards for non-empty templates, return ids to remove."
         # build map of (nid,ord) so we don't create dupes
         snids = ids2str(nids)
@@ -591,7 +591,7 @@ where c.nid = n.id and c.id in %s group by nid"""
     def _fieldData(self, snids: str) -> Any:
         return self.db.execute("select id, mid, flds from notes where id in " + snids)
 
-    def updateFieldCache(self, nids: List[int]) -> None:
+    def updateFieldCache(self, nids: List[NoteId]) -> None:
         "Update field checksums and sort cache, after find&replace, etc."
         snids = ids2str(nids)
         r = []

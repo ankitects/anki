@@ -22,7 +22,7 @@ from anki.collection import _Collection
 from anki.consts import *
 from anki.lang import _, ngettext
 from anki.models import NoteType
-from anki.notes import Note
+from anki.notes import Note, NoteId
 from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -2299,7 +2299,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
 
 class ChangeModel(QDialog):
-    def __init__(self, browser, nids) -> None:
+    def __init__(self, browser, nids: List[NoteId]) -> None:
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids

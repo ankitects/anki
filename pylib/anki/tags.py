@@ -13,10 +13,11 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
+from anki.notes import NoteId
 from anki.utils import ids2str, intTime
 
 
@@ -55,7 +56,7 @@ class TagManager:
     def all(self) -> List:
         return list(self.tags.keys())
 
-    def registerNotes(self, nids=None) -> None:
+    def registerNotes(self, nids: Optional[List[NoteId]] = None) -> None:
         "Add any missing tags from notes to the tags list."
         # when called without an argument, the old list is cleared first.
         if nids:
@@ -94,7 +95,7 @@ class TagManager:
     # Bulk addition/removal from notes
     #############################################################
 
-    def bulkAdd(self, ids, tags, add=True) -> None:
+    def bulkAdd(self, ids: List[NoteId], tags, add=True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         newTags = self.split(tags)
         if not newTags:

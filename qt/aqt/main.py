@@ -30,6 +30,7 @@ from anki import hooks
 from anki.collection import _Collection
 from anki.hooks import runHook
 from anki.lang import _, ngettext
+from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -1213,7 +1214,7 @@ and if the problem comes up again, please ask on the support site."""
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: _Collection, nids: List[int]) -> None:
+    def onRemNotes(self, col: _Collection, nids: List[NoteId]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:
