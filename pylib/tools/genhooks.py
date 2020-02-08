@@ -44,7 +44,7 @@ hooks = [
     ),
     Hook(
         name="note_type_added",
-        args=["notetype: Dict[str, Any]"],
+        args=["notetype: NoteType"],
         legacy_hook="newModel",
         legacy_no_args=True,
     ),

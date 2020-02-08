@@ -152,7 +152,7 @@ class ModelManager:
         if id in self.models:
             return self.models[id]
 
-    def all(self) -> List:
+    def all(self) -> List[NoteType]:
         "Get all models."
         return list(self.models.values())
 
