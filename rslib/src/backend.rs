@@ -27,7 +27,9 @@ impl std::convert::From<AnkiError> for pt::BackendError {
         use pt::backend_error::Value as V;
         let value = match err {
             AnkiError::InvalidInput { info } => V::InvalidInput(pt::InvalidInputError { info }),
-            AnkiError::TemplateError { info } => V::TemplateParse(pt::TemplateParseError { info }),
+            AnkiError::TemplateError { info, q_side } => {
+                V::TemplateParse(pt::TemplateParseError { info, q_side })
+            }
         };
 
         pt::BackendError { value: Some(value) }
