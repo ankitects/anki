@@ -10,6 +10,7 @@ use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 
 pub mod changetracker;
+pub mod check;
 pub mod database;
 pub mod files;
 pub mod sync;
