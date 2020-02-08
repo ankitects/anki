@@ -20,6 +20,7 @@ NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 FieldName = str
 TemplateName = str
+NoteTypeName = str
 Template = Dict[str, Union[str, int, None]]
 TemplateRequirementType = str  # Union["all", "any", "none"]
 # template ordinal, type, list of field ordinals
@@ -158,16 +159,16 @@ class ModelManager:
         "Get all models."
         return list(self.models.values())
 
-    def allNames(self) -> List:
+    def allNames(self) -> List[NoteTypeName]:
         return [m["name"] for m in self.all()]
 
-    def byName(self, name: str) -> Any:
+    def byName(self, name: NoteTypeName) -> Any:
         "Get model with NAME."
         for m in list(self.models.values()):
             if m["name"] == name:
                 return m
 
-    def new(self, name: str) -> NoteType:
+    def new(self, name: NoteTypeName) -> NoteType:
         "Create a new model, save it in the registry, and return it."
         # caller should call save() after modifying
         m = defaultModel.copy()
