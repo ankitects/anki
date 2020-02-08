@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;
 use std::ptr;
+use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 #[derive(Debug, PartialEq)]
 pub enum AVTag {
@@ -154,6 +155,15 @@ pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
 
 pub(crate) fn contains_latex(text: &str) -> bool {
     LATEX.is_match(text)
+}
+
+#[allow(dead_code)]
+pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
+    if !is_nfc(s) {
+        s.chars().nfc().collect::<String>().into()
+    } else {
+        s.into()
+    }
 }
 
 #[cfg(test)]
