@@ -1,17 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
+use crate::err::Result;
 use lazy_static::lazy_static;
 use log::debug;
 use regex::Regex;
 use sha1::Sha1;
 use std::borrow::Cow;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{fs, io, time};
-use trash::remove_all;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
+use utime;
 
 /// The maximum length we allow a filename to be. When combined
 /// with the rest of the path, the full path needs to be under ~240 chars
@@ -282,12 +282,38 @@ where
         return Ok(());
     }
 
-    let paths = files.iter().map(|f| media_folder.join(f.as_ref()));
+    let trash_folder = trash_folder(media_folder)?;
 
-    debug!("removing {:?}", files);
-    remove_all(paths).map_err(|e| AnkiError::IOError {
-        info: format!("removing files failed: {:?}", e),
-    })
+    for file in files {
+        let src_path = media_folder.join(file.as_ref());
+        let dst_path = trash_folder.join(file.as_ref());
+
+        // move file to trash, clobbering any existing file with the same name
+        fs::rename(&src_path, &dst_path)?;
+
+        // mark it as modified, so we can expire it in the future
+        let secs = time::SystemTime::now()
+            .duration_since(time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        utime::set_file_times(&dst_path, secs, secs)?;
+    }
+
+    Ok(())
+}
+
+fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
+    let trash_folder = media_folder.with_file_name("media.trash");
+    match fs::create_dir(&trash_folder) {
+        Ok(()) => Ok(trash_folder),
+        Err(e) => {
+            if e.kind() == io::ErrorKind::AlreadyExists {
+                Ok(trash_folder)
+            } else {
+                Err(e.into())
+            }
+        }
+    }
 }
 
 pub(super) struct AddedFile {
