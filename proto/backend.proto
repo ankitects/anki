@@ -243,7 +243,5 @@ message AddFileToMediaFolderIn {
 
 message SyncMediaIn {
     string hkey = 1;
-    string media_folder = 2;
-    string media_db = 3;
-    string endpoint = 4;
+    string endpoint = 2;
 }
