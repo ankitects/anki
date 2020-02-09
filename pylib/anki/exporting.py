@@ -21,9 +21,17 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 class Exporter:
     includeHTML: Union[bool, None] = None
 
-    def __init__(self, col: _Collection, did: None = None) -> None:
+    did: Optional[int]
+
+    def __init__(
+        self,
+        col: _Collection,
+        did: Optional[int] = None,
+        cids: Optional[List[int]] = None,
+    ) -> None:
         self.col = col
         self.did = did
+        self.cids = cids
 
     def doExport(self, path) -> None:
         raise Exception("not implemented")
