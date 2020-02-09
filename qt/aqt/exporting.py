@@ -4,6 +4,7 @@
 import os
 import re
 import time
+from typing import List, Optional
 
 import aqt
 from anki import hooks
@@ -14,17 +15,18 @@ from aqt.utils import checkInvalidFilename, getSaveFile, showInfo, showWarning, 
 
 
 class ExportDialog(QDialog):
-    def __init__(self, mw, did=None):
+    def __init__(self, mw, did: Optional[int] = None, cids: Optional[List[int]] = None):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
+        self.cids = cids
         self.setup(did)
         self.exec_()
 
-    def setup(self, did):
+    def setup(self, did: Optional[int]):
         self.exporters = exporters()
         # if a deck specified, start with .apkg type selected
         idx = 0
