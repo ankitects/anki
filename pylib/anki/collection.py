@@ -41,6 +41,8 @@ from anki.utils import (
     stripHTMLMedia,
 )
 
+Usn = int
+
 defaultConf = {
     # review options
     "activeDecks": [1],
@@ -69,7 +71,7 @@ class _Collection:
     mod: int
     scm: int
     dty: bool  # no longer used
-    _usn: int
+    _usn: Usn
     ls: int
     conf: Dict[str, Any]
     _undo: List[Any]
@@ -278,7 +280,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         "True if schema changed since last sync."
         return self.scm > self.ls
 
-    def usn(self) -> Any:
+    def usn(self) -> Usn:
         return self._usn if self.server else -1
 
     def beforeUpload(self) -> None:

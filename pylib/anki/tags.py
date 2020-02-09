@@ -28,7 +28,7 @@ Tags = str
 
 class TagManager:
 
-    tags: Dict[Tag, int]
+    tags: Dict[Tag, anki.collection.Usn]
 
     # Registry save/load
     #############################################################
@@ -49,7 +49,9 @@ class TagManager:
     # Registering and fetching tags
     #############################################################
 
-    def register(self, tags: Collection[Tag], usn=None) -> None:
+    def register(
+        self, tags: Collection[Tag], usn: Optional[anki.collection.Usn] = None
+    ) -> None:
         "Given a list of tags, add any missing ones to tag registry."
         found = False
         for t in tags:

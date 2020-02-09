@@ -526,7 +526,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     def lastUsn(self) -> Any:
         return self.db.scalar("select lastUsn from meta")
 
-    def setLastUsn(self, usn) -> None:
+    def setLastUsn(self, usn: anki.collection.Usn) -> None:
         self.db.execute("update meta set lastUsn = ?", usn)
         self.db.commit()
 
