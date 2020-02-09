@@ -211,7 +211,7 @@ mod test {
         fs::write(&mgr.media_folder.join("zerobytes"), "")?;
         fs::create_dir(&mgr.media_folder.join("folder"))?;
         fs::write(&mgr.media_folder.join("normal.jpg"), "normal")?;
-        fs::write(&mgr.media_folder.join("con.jpg"), "con")?;
+        fs::write(&mgr.media_folder.join("foo[.jpg"), "foo")?;
 
         let progress = |_n| true;
         let mut checker = MediaChecker::new(&mgr, progress);
@@ -221,18 +221,18 @@ mod test {
         assert_eq!(
             output,
             MediaCheckOutput {
-                files: vec!["con_.jpg".to_string(), "normal.jpg".to_string()],
+                files: vec!["foo.jpg".to_string(), "normal.jpg".to_string()],
                 renamed: vec![RenamedFile {
-                    current_fname: "con_.jpg".to_string(),
-                    original_fname: "con.jpg".to_string()
+                    current_fname: "foo.jpg".to_string(),
+                    original_fname: "foo[.jpg".to_string()
                 }],
                 dirs: vec!["folder".to_string()],
                 oversize: vec![]
             }
         );
 
-        assert!(fs::metadata(&mgr.media_folder.join("con.jpg")).is_err());
-        assert!(fs::metadata(&mgr.media_folder.join("con_.jpg")).is_ok());
+        assert!(fs::metadata(&mgr.media_folder.join("foo[.jpg")).is_err());
+        assert!(fs::metadata(&mgr.media_folder.join("foo.jpg")).is_ok());
 
         Ok(())
     }
