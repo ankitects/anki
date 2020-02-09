@@ -10,7 +10,7 @@ from typing import List, Optional
 import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
-from anki.models import NoteType, Template
+from anki.models import FieldOrd, NoteType, Template
 from anki.notes import Note
 from anki.sound import AVTag
 from anki.utils import intTime, joinFields, timestampID
@@ -33,7 +33,7 @@ class Card:
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: int
-    ord: int
+    ord: FieldOrd
     id: CardId
 
     def __init__(

@@ -4,15 +4,16 @@
 import aqt
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.models import FieldOrd
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openHelp, showWarning
 
 
 class FieldDialog(QDialog):
-    def __init__(self, mw, note, ord=0, parent=None):
+    def __init__(self, mw, note, ord: FieldOrd = 0, parent=None):
         QDialog.__init__(self, parent or mw)  # , Qt.Window)
         self.mw = aqt.mw
-        self.parent = parent or mw
+        self.parent = parent or mw  # type: ignore
         self.note = note
         self.col = self.mw.col
         self.mm = self.mw.col.models

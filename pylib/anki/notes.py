@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
-from anki.models import Field, NoteType
+from anki.models import Field, FieldOrd, NoteType
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -141,7 +141,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     def items(self) -> List[Tuple[Any, Any]]:
         return [(f["name"], self.fields[ord]) for ord, f in sorted(self._fmap.values())]
 
-    def _fieldOrd(self, key: str) -> Any:
+    def _fieldOrd(self, key: str) -> FieldOrd:
         try:
             return self._fmap[key][0]
         except:

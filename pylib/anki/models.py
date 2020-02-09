@@ -19,6 +19,7 @@ from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 FieldName = str
+FieldOrd = int
 TemplateName = str
 NoteTypeName = str
 Template = Dict[str, Union[str, int, None]]
@@ -270,7 +271,7 @@ and notes.mid = ? and cards.ord = ?""",
         f["name"] = name
         return f
 
-    def fieldMap(self, m: NoteType) -> Dict[FieldName, Tuple[int, Field]]:
+    def fieldMap(self, m: NoteType) -> Dict[FieldName, Tuple[FieldOrd, Field]]:
         "Mapping of field name -> (ord, field)."
         return dict((f["name"], (f["ord"], f)) for f in m["flds"])
 
