@@ -20,6 +20,7 @@ NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 FieldName = str
 FieldOrd = int
+TmplOrd = int
 TemplateName = str
 NoteTypeName = str
 Template = Dict[str, Union[str, int, None]]
@@ -580,7 +581,7 @@ select id from notes where mid = ?)"""
         reqs = self.col.backend.template_requirements(fronts, field_map)
         m["req"] = [list(l) for l in reqs]
 
-    def availOrds(self, m: NoteType, flds: str) -> List[int]:
+    def availOrds(self, m: NoteType, flds: str) -> List[TmplOrd]:
         "Given a joined field string, return available template ordinals."
         if m["type"] == MODEL_CLOZE:
             return self._availClozeOrds(m, flds)
@@ -616,7 +617,7 @@ select id from notes where mid = ?)"""
 
     def _availClozeOrds(
         self, m: NoteType, flds: str, allowEmpty: bool = True
-    ) -> List[int]:
+    ) -> List[TmplOrd]:
         sflds = splitFields(flds)
         map = self.fieldMap(m)
         ords = set()

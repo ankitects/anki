@@ -11,6 +11,7 @@ import aqt
 from anki.cards import Card, CardId
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.models import TmplOrd
 from anki.utils import isMac, isWin, joinFields
 from aqt import gui_hooks
 from aqt.qt import *
@@ -32,12 +33,13 @@ from aqt.webview import AnkiWebView
 class CardLayout(QDialog):
     card: Optional[Card]
     playedAudio: Dict[CardId, bool]
+    ord: TmplOrd
 
-    def __init__(self, mw, note, ord=0, parent=None, addMode=False):
+    def __init__(self, mw, note, ord: TmplOrd = 0, parent=None, addMode=False):
         QDialog.__init__(self, parent or mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = aqt.mw
-        self.parent = parent or mw
+        self.parent = parent or mw  # type: ignore
         self.note = note
         self.ord = ord
         self.col = self.mw.col
@@ -289,7 +291,7 @@ Please create a new card type first."""
     # Cards
     ##########################################################################
 
-    def onCardSelected(self, idx):
+    def onCardSelected(self, idx: TmplOrd):
         if self.redrawing:
             return
         self.card = self.cards[idx]
