@@ -490,6 +490,7 @@ class Editor:
         form.setupUi(d)
         form.buttonBox.helpRequested.connect(lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[field])
+        d.show()
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
         html = form.textEdit.toPlainText()
