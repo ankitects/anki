@@ -215,7 +215,8 @@ mod test {
 
         let progress = |_n| true;
         let mut checker = MediaChecker::new(&mgr, progress);
-        let output = checker.check()?;
+        let mut output = checker.check()?;
+        output.files.sort();
 
         assert_eq!(
             output,
