@@ -5,7 +5,7 @@
 import collections
 import json
 import re
-from typing import Optional
+from typing import Dict, Optional
 
 import aqt
 from anki.cards import Card
@@ -31,6 +31,7 @@ from aqt.webview import AnkiWebView
 
 class CardLayout(QDialog):
     card: Optional[Card]
+    playedAudio: Dict[CardId, bool]
 
     def __init__(self, mw, note, ord=0, parent=None, addMode=False):
         QDialog.__init__(self, parent or mw, Qt.Window)
