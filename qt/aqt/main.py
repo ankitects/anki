@@ -239,6 +239,9 @@ class AnkiQt(QMainWindow):
         return self.pm.load(name)
 
     def onOpenProfile(self) -> None:
+        self.profileDiag.hide()
+        # code flow is confusing here - if load fails, profile dialog
+        # will be shown again
         self.loadProfile(self.profileDiag.closeWithoutQuitting)
 
     def profileNameOk(self, str):
