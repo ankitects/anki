@@ -11,7 +11,6 @@ from typing import List, Union
 import aqt
 from anki import hooks
 from anki.lang import _
-from anki.media import media_paths_from_col_path
 from anki.rsbackend import (
     DBError,
     Interrupted,
@@ -76,12 +75,8 @@ class MediaSyncer:
         self._want_stop = False
         gui_hooks.media_sync_did_start_or_stop(True)
 
-        (media_folder, media_db) = media_paths_from_col_path(self.mw.col.path)
-
         def run() -> None:
-            self.mw.col.backend.sync_media(
-                hkey, media_folder, media_db, self._endpoint()
-            )
+            self.mw.col.backend.sync_media(hkey, self._endpoint())
 
         self.mw.taskman.run_in_background(run, self._on_finished)
 

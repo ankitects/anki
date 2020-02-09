@@ -276,17 +276,8 @@ class RustBackend:
             )
         ).add_file_to_media_folder
 
-    def sync_media(
-        self, hkey: str, media_folder: str, media_db: str, endpoint: str
-    ) -> None:
+    def sync_media(self, hkey: str, endpoint: str) -> None:
         self._run_command(
-            pb.BackendInput(
-                sync_media=pb.SyncMediaIn(
-                    hkey=hkey,
-                    media_folder=media_folder,
-                    media_db=media_db,
-                    endpoint=endpoint,
-                )
-            ),
+            pb.BackendInput(sync_media=pb.SyncMediaIn(hkey=hkey, endpoint=endpoint,)),
             release_gil=True,
         )

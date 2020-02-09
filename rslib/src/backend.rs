@@ -321,7 +321,7 @@ impl Backend {
     }
 
     fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
-        let mgr = MediaManager::new(&input.media_folder, &input.media_db)?;
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
 
         let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
