@@ -37,6 +37,16 @@ lazy_static! {
         "#
     )
     .unwrap();
+    static ref WINDOWS_TRAILING_CHAR: Regex = Regex::new(
+        r#"(?x)
+            # filenames can't end with a space or period
+            (
+                \x20 | \.
+            )    
+            $
+            "#
+    )
+    .unwrap();
     pub(super) static ref NONSYNCABLE_FILENAME: Regex = Regex::new(
         r#"(?xi)
             ^
@@ -82,6 +92,10 @@ fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
 
     if let Cow::Owned(o) = WINDOWS_DEVICE_NAME.replace_all(fname.as_ref(), "${1}_${2}") {
         fname = o.into();
+    }
+
+    if WINDOWS_TRAILING_CHAR.is_match(fname.as_ref()) {
+        fname = format!("{}_", fname.as_ref()).into();
     }
 
     if let Cow::Owned(o) = truncate_filename(fname.as_ref(), MAX_FILENAME_LENGTH) {
@@ -392,6 +406,9 @@ mod test {
             normalize_filename("con.jpg[]><:\"/?*^\\|\0\r\n").as_ref(),
             "con_.jpg"
         );
+
+        assert_eq!(normalize_filename("test.").as_ref(), "test._");
+        assert_eq!(normalize_filename("test ").as_ref(), "test _");
 
         let expected_stem_len = MAX_FILENAME_LENGTH - ".jpg".len();
         assert_eq!(
