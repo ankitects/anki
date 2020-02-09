@@ -40,7 +40,10 @@ class ExportDialog(QDialog):
         self.frm.format.activated.connect(self.exporterChanged)
         self.exporterChanged(idx)
         # deck list
-        self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
+        if self.cids is None:
+            self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
+        else:
+            self.decks = [_("Browser Selection")]
         self.frm.deck.addItems(self.decks)
         # save button
         b = QPushButton(_("Export..."))
@@ -79,9 +82,18 @@ class ExportDialog(QDialog):
         self.exporter.includeMedia = self.frm.includeMedia.isChecked()
         self.exporter.includeTags = self.frm.includeTags.isChecked()
         self.exporter.includeHTML = self.frm.includeHTML.isChecked()
-        if not self.frm.deck.currentIndex():
+        idx = self.frm.deck.currentIndex()
+        if self.cids is not None:
+            # Browser Selection
+            self.exporter.cids = self.cids
             self.exporter.did = None
+        elif idx == 0:
+            # All decks
+            self.exporter.did = None
+            self.exporter.cids = None
         else:
+            # Deck idx-1 in the list of decks
+            self.exporter.cids = None
             name = self.decks[self.frm.deck.currentIndex()]
             self.exporter.did = self.col.decks.id(name)
         if self.isVerbatim:
