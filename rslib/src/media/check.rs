@@ -4,12 +4,12 @@
 use crate::err::{AnkiError, Result};
 use crate::media::database::MediaDatabaseContext;
 use crate::media::files::{
-    data_for_file, filename_if_normalized, remove_files, MEDIA_SYNC_FILESIZE_LIMIT,
+    data_for_file, filename_if_normalized, remove_files, trash_folder, MEDIA_SYNC_FILESIZE_LIMIT,
 };
 use crate::media::MediaManager;
 use coarsetime::Instant;
 use log::debug;
-use std::borrow::Cow;
+use std::{borrow::Cow, fs, time};
 
 #[derive(Debug, PartialEq)]
 pub struct MediaCheckOutput {
@@ -51,6 +51,8 @@ where
     }
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
+        self.expire_old_trash()?;
+
         // loop through on-disk files
         let mut dirs = vec![];
         let mut oversize = vec![];
@@ -150,6 +152,35 @@ where
         }
         self.progress_updated = now;
         self.fire_progress_cb()
+    }
+
+    fn expire_old_trash(&mut self) -> Result<()> {
+        let trash = trash_folder(&self.mgr.media_folder)?;
+        let now = time::SystemTime::now();
+
+        for dentry in trash.read_dir()? {
+            let dentry = dentry?;
+
+            self.checked += 1;
+            if self.checked % 10 == 0 {
+                self.maybe_fire_progress_cb()?;
+            }
+
+            let meta = dentry.metadata()?;
+            let elap_secs = now
+                .duration_since(meta.modified()?)
+                .map(|d| d.as_secs())
+                .unwrap_or(0);
+            if elap_secs >= 7 * 86_400 {
+                debug!(
+                    "removing {:?} from trash, as 7 days have elapsed",
+                    dentry.path()
+                );
+                fs::remove_file(dentry.path())?;
+            }
+        }
+
+        Ok(())
     }
 }
 

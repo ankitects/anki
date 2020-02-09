@@ -302,7 +302,7 @@ where
     Ok(())
 }
 
-fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
+pub(super) fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
     let trash_folder = media_folder.with_file_name("media.trash");
     match fs::create_dir(&trash_folder) {
         Ok(()) => Ok(trash_folder),
