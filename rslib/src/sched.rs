@@ -122,6 +122,9 @@ mod test {
     }
 
     #[test]
+    #[cfg(target_vendor = "apple")]
+    /// On Linux, TZ needs to be set prior to the process being started to take effect,
+    /// so we limit this test to Macs.
     fn test_local_minutes_west() {
         // -480 throughout the year
         std::env::set_var("TZ", "Australia/Perth");
