@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
+
 import enum
 from dataclasses import dataclass
 from typing import Callable, Dict, List, NewType, NoReturn, Optional, Tuple, Union
@@ -123,15 +124,18 @@ TemplateReplacementList = List[Union[str, TemplateReplacement]]
 
 MediaSyncProgress = pb.MediaSyncProgress
 
+MediaCheckOutput = pb.MediaCheckOut
+
 
 class ProgressKind(enum.Enum):
-    MediaSyncProgress = 0
+    MediaSync = 0
+    MediaCheck = 1
 
 
 @dataclass
 class Progress:
     kind: ProgressKind
-    val: Union[MediaSyncProgress]
+    val: Union[MediaSyncProgress, int]
 
 
 def proto_replacement_list_to_native(
@@ -155,7 +159,9 @@ def proto_replacement_list_to_native(
 def proto_progress_to_native(progress: pb.Progress) -> Progress:
     kind = progress.WhichOneof("value")
     if kind == "media_sync":
-        return Progress(kind=ProgressKind.MediaSyncProgress, val=progress.media_sync)
+        return Progress(kind=ProgressKind.MediaSync, val=progress.media_sync)
+    elif kind == "media_check":
+        return Progress(kind=ProgressKind.MediaCheck, val=progress.media_check)
     else:
         assert_impossible_literal(kind)
 
@@ -174,7 +180,7 @@ class RustBackend:
         progress = pb.Progress()
         progress.ParseFromString(progress_bytes)
         native_progress = proto_progress_to_native(progress)
-        return hooks.rust_progress_callback(True, native_progress)
+        return hooks.bg_thread_progress_callback(True, native_progress)
 
     def _run_command(
         self, input: pb.BackendInput, release_gil: bool = False
@@ -281,3 +287,8 @@ class RustBackend:
             pb.BackendInput(sync_media=pb.SyncMediaIn(hkey=hkey, endpoint=endpoint,)),
             release_gil=True,
         )
+
+    def check_media(self) -> MediaCheckOutput:
+        return self._run_command(
+            pb.BackendInput(check_media=pb.Empty()), release_gil=True,
+        ).check_media

@@ -17,6 +17,7 @@ from anki.consts import *
 from anki.db import DB, DBError
 from anki.lang import _
 from anki.latex import render_latex
+from anki.rsbackend import MediaCheckOutput
 from anki.utils import checksum, isMac
 
 
@@ -199,10 +200,14 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
             string = re.sub(reg, repl, string)
         return string
 
-    # Rebuilding DB
+    # Checking media
     ##########################################################################
 
-    def check(
+    def check(self) -> MediaCheckOutput:
+        "This should be called while the collection is closed."
+        return self.col.backend.check_media()
+
+    def check_old(
         self, local: Optional[List[str]] = None
     ) -> Tuple[List[str], List[str], List[str]]:
         "Return (missingFiles, unusedFiles)."
@@ -264,7 +269,7 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
         # if we renamed any files to nfc format, we must rerun the check
         # to make sure the renamed files are not marked as unused
         if renamedFiles:
-            return self.check(local=local)
+            return self.check_old(local=local)
         nohave = [x for x in allRefs if not x.startswith("_")]
         # make sure the media DB is valid
         try:

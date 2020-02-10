@@ -27,6 +27,7 @@ message BackendInput {
         string expand_clozes_to_reveal_latex = 25;
         AddFileToMediaFolderIn add_file_to_media_folder = 26;
         SyncMediaIn sync_media = 27;
+        Empty check_media = 28;
     }
 }
 
@@ -44,6 +45,7 @@ message BackendOutput {
         string expand_clozes_to_reveal_latex = 25;
         string add_file_to_media_folder = 26;
         Empty sync_media = 27;
+        MediaCheckOut check_media = 28;
 
         BackendError error = 2047;
     }
@@ -65,6 +67,7 @@ message BackendError {
 message Progress {
     oneof value {
         MediaSyncProgress media_sync = 1;
+        uint32 media_check = 2;
     }
 }
 
@@ -244,4 +247,12 @@ message AddFileToMediaFolderIn {
 message SyncMediaIn {
     string hkey = 1;
     string endpoint = 2;
+}
+
+message MediaCheckOut {
+    repeated string unused = 1;
+    repeated string missing = 2;
+    repeated string dirs = 3;
+    repeated string oversize = 4;
+    map<string,string> renamed = 5;
 }

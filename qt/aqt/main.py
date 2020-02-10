@@ -15,8 +15,6 @@ from argparse import Namespace
 from threading import Thread
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-from send2trash import send2trash
-
 import anki
 import aqt
 import aqt.mediasrv
@@ -36,6 +34,7 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.legacy import install_pylib_legacy
+from aqt.media import check_media_db
 from aqt.mediasync import MediaSyncer
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
@@ -1115,7 +1114,7 @@ title="%s" %s>%s</button>""" % (
         if qtminor < 11:
             m.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
         m.actionFullDatabaseCheck.triggered.connect(self.onCheckDB)
-        m.actionCheckMediaDatabase.triggered.connect(self.onCheckMediaDB)
+        m.actionCheckMediaDatabase.triggered.connect(self.on_check_media_db)
         m.actionDocumentation.triggered.connect(self.onDocumentation)
         m.actionDonate.triggered.connect(self.onDonate)
         m.actionStudyDeck.triggered.connect(self.onStudyDeck)
@@ -1290,94 +1289,8 @@ will be lost. Continue?"""
                 continue
         return ret
 
-    def onCheckMediaDB(self):
-        self.progress.start(immediate=True)
-        (nohave, unused, warnings) = self.col.media.check()
-        self.progress.finish()
-        # generate report
-        report = ""
-        if warnings:
-            report += "\n".join(warnings) + "\n"
-        if unused:
-            numberOfUnusedFilesLabel = len(unused)
-            if report:
-                report += "\n\n\n"
-            report += (
-                ngettext(
-                    "%d file found in media folder not used by any cards:",
-                    "%d files found in media folder not used by any cards:",
-                    numberOfUnusedFilesLabel,
-                )
-                % numberOfUnusedFilesLabel
-            )
-            report += "\n" + "\n".join(unused)
-        if nohave:
-            if report:
-                report += "\n\n\n"
-            report += _("Used on cards but missing from media folder:")
-            report += "\n" + "\n".join(nohave)
-        if not report:
-            tooltip(_("No unused or missing files found."))
-            return
-        # show report and offer to delete
-        diag = QDialog(self)
-        diag.setWindowTitle("Anki")
-        layout = QVBoxLayout(diag)
-        diag.setLayout(layout)
-        text = QTextEdit()
-        text.setReadOnly(True)
-        text.setPlainText(report)
-        layout.addWidget(text)
-        box = QDialogButtonBox(QDialogButtonBox.Close)
-        layout.addWidget(box)
-        if unused:
-            b = QPushButton(_("Delete Unused Files"))
-            b.setAutoDefault(False)
-            box.addButton(b, QDialogButtonBox.ActionRole)
-            b.clicked.connect(lambda c, u=unused, d=diag: self.deleteUnused(u, d))
-
-        box.rejected.connect(diag.reject)
-        diag.setMinimumHeight(400)
-        diag.setMinimumWidth(500)
-        restoreGeom(diag, "checkmediadb")
-        diag.exec_()
-        saveGeom(diag, "checkmediadb")
-
-    def deleteUnused(self, unused, diag):
-        if not askUser(_("Delete unused media?")):
-            return
-        mdir = self.col.media.dir()
-        self.progress.start(immediate=True)
-        try:
-            lastProgress = 0
-            for c, f in enumerate(unused):
-                path = os.path.join(mdir, f)
-                if os.path.exists(path):
-                    send2trash(path)
-
-                now = time.time()
-                if now - lastProgress >= 0.3:
-                    numberOfRemainingFilesToBeDeleted = len(unused) - c
-                    lastProgress = now
-                    label = (
-                        ngettext(
-                            "%d file remaining...",
-                            "%d files remaining...",
-                            numberOfRemainingFilesToBeDeleted,
-                        )
-                        % numberOfRemainingFilesToBeDeleted
-                    )
-                    self.progress.update(label)
-        finally:
-            self.progress.finish()
-        # caller must not pass in empty list
-        # pylint: disable=undefined-loop-variable
-        numberOfFilesDeleted = c + 1
-        tooltip(
-            ngettext("Deleted %d file.", "Deleted %d files.", numberOfFilesDeleted)
-            % numberOfFilesDeleted
-        )
-        diag.close()
+    def on_check_media_db(self) -> None:
+        check_media_db(self)
 
     def onStudyDeck(self):
         from aqt.studydeck import StudyDeck
