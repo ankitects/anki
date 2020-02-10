@@ -121,15 +121,10 @@ where
             }
 
             // rename if required
-            let (norm_name, renamed) = self.normalize_and_maybe_rename(ctx, &disk_fname)?;
-            if renamed {
-                let orig_as_nfc = normalize_to_nfc(&disk_fname);
-                // if the only difference is the unicode normalization,
-                // we don't mark the file as a renamed file
-                if orig_as_nfc.as_ref() != norm_name.as_ref() {
-                    out.renamed
-                        .insert(orig_as_nfc.to_string(), norm_name.to_string());
-                }
+            let (norm_name, renamed_on_disk) = self.normalize_and_maybe_rename(ctx, &disk_fname)?;
+            if renamed_on_disk {
+                out.renamed
+                    .insert(disk_fname.to_string(), norm_name.to_string());
             }
 
             out.files.push(norm_name.into_owned());
