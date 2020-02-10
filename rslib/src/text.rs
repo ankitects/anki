@@ -31,8 +31,33 @@ lazy_static! {
     .unwrap();
 
     static ref IMG_TAG: Regex = Regex::new(
-        // group 1 is filename
-        r#"(?i)<img[^>]+src=["']?([^"'>]+)["']?[^>]*>"#
+        r#"(?xsi)
+            # the start of the image tag
+            <img[^>]+src=
+            (?:
+                    # 1: double-quoted filename
+                    "
+                    ([^"]+?)
+                    "
+                    [^>]*>                    
+                |
+                    # 2: single-quoted filename
+                    '
+                    ([^']+?)
+                    '
+                    [^>]*>
+                |
+                    # 3: unquoted filename
+                    ([^ >]+?)
+                    (?:
+                        # then either a space and the rest
+                        \x20[^>]*>
+                        |
+                        # or the tag immediately ends
+                        >
+                    )
+            )
+            "#
     ).unwrap();
 
     // videos are also in sound tags
@@ -106,6 +131,39 @@ pub fn extract_av_tags<'a>(text: &'a str, question_side: bool) -> (Cow<'a, str>,
     (replaced_text, tags)
 }
 
+#[derive(Debug)]
+pub(crate) struct MediaRef<'a> {
+    pub full_ref: &'a str,
+    pub fname: &'a str,
+}
+
+pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
+    let mut out = vec![];
+
+    for caps in IMG_TAG.captures_iter(text) {
+        out.push(MediaRef {
+            full_ref: caps.get(0).unwrap().as_str(),
+            fname: caps
+                .get(1)
+                .or_else(|| caps.get(2))
+                .or_else(|| caps.get(3))
+                .unwrap()
+                .as_str(),
+        });
+    }
+
+    for caps in AV_TAGS.captures_iter(text) {
+        if let Some(m) = caps.get(1) {
+            out.push(MediaRef {
+                full_ref: caps.get(0).unwrap().as_str(),
+                fname: m.as_str(),
+            });
+        }
+    }
+
+    out
+}
+
 fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
     let mut other_args = vec![];
     let mut split_args = args.split_ascii_whitespace();
@@ -141,7 +199,7 @@ fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
 }
 
 pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
-    let without_fnames = IMG_TAG.replace_all(html, r" $1 ");
+    let without_fnames = IMG_TAG.replace_all(html, r" ${1}${2}${3} ");
     let without_html = HTML.replace_all(&without_fnames, "");
     // no changes?
     if let Cow::Borrowed(b) = without_html {
@@ -157,7 +215,6 @@ pub(crate) fn contains_latex(text: &str) -> bool {
     LATEX.is_match(text)
 }
 
-#[allow(dead_code)]
 pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
     if !is_nfc(s) {
         s.chars().nfc().collect::<String>().into()
