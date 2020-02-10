@@ -1898,6 +1898,14 @@ update cards set usn=?, mod=?, did=? where id in """
         self.model.reset()
         self.mw.requireReset()
 
+    # Exporting
+    ######################################################################
+
+    def _exporting(self):
+        cids = self.selectedNotesAsCards()
+        if cids:
+            ExportDialog(self.mw, cids=cids)
+
     # Flags & Marking
     ######################################################################
 
