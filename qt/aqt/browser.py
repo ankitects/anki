@@ -23,6 +23,7 @@ from anki.notes import Note
 from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
+from aqt.exporting import ExportDialog
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
@@ -614,6 +615,7 @@ class Browser(QMainWindow):
         f.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
         f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
         f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
+        f.actionExport.triggered.connect(lambda: self._exporting())
         # jumps
         f.actionPreviousCard.triggered.connect(self.onPreviousCard)
         f.actionNextCard.triggered.connect(self.onNextCard)
