@@ -43,13 +43,14 @@ class MediaSyncer:
         self._syncing: bool = False
         self._log: List[LogEntryWithTime] = []
         self._want_stop = False
-        hooks.rust_progress_callback.append(self._on_rust_progress)
+        hooks.bg_thread_progress_callback.append(self._on_rust_progress)
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
     def _on_rust_progress(self, proceed: bool, progress: Progress) -> bool:
-        if progress.kind != ProgressKind.MediaSyncProgress:
+        if progress.kind != ProgressKind.MediaSync:
             return proceed
 
+        assert isinstance(progress.val, MediaSyncProgress)
         self._log_and_notify(progress.val)
 
         if self._want_stop:

@@ -20,11 +20,11 @@ use std::{borrow::Cow, fs, time};
 
 #[derive(Debug, PartialEq)]
 pub struct MediaCheckOutput {
-    unused: Vec<String>,
-    missing: Vec<String>,
-    renamed: HashMap<String, String>,
-    dirs: Vec<String>,
-    oversize: Vec<String>,
+    pub unused: Vec<String>,
+    pub missing: Vec<String>,
+    pub renamed: HashMap<String, String>,
+    pub dirs: Vec<String>,
+    pub oversize: Vec<String>,
 }
 
 #[derive(Debug, PartialEq, Default)]

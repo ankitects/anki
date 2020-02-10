@@ -28,6 +28,33 @@ from anki.notes import Note
 # @@AUTOGEN@@
 
 
+class _BgThreadProgressCallbackFilter:
+    """Warning: this is called on a background thread."""
+
+    _hooks: List[Callable[[bool, "anki.rsbackend.Progress"], bool]] = []
+
+    def append(self, cb: Callable[[bool, "anki.rsbackend.Progress"], bool]) -> None:
+        """(proceed: bool, progress: anki.rsbackend.Progress)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[bool, "anki.rsbackend.Progress"], bool]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, proceed: bool, progress: anki.rsbackend.Progress) -> bool:
+        for filter in self._hooks:
+            try:
+                proceed = filter(proceed, progress)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return proceed
+
+
+bg_thread_progress_callback = _BgThreadProgressCallbackFilter()
+
+
 class _CardDidLeechHook:
     _hooks: List[Callable[[Card], None]] = []
 
@@ -358,33 +385,6 @@ class _NotesWillBeDeletedHook:
 
 
 notes_will_be_deleted = _NotesWillBeDeletedHook()
-
-
-class _RustProgressCallbackFilter:
-    """Warning: this is called on a background thread."""
-
-    _hooks: List[Callable[[bool, "anki.rsbackend.Progress"], bool]] = []
-
-    def append(self, cb: Callable[[bool, "anki.rsbackend.Progress"], bool]) -> None:
-        """(proceed: bool, progress: anki.rsbackend.Progress)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[bool, "anki.rsbackend.Progress"], bool]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, proceed: bool, progress: anki.rsbackend.Progress) -> bool:
-        for filter in self._hooks:
-            try:
-                proceed = filter(proceed, progress)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return proceed
-
-
-rust_progress_callback = _RustProgressCallbackFilter()
 
 
 class _Schedv2DidAnswerReviewCardHook:

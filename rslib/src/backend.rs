@@ -6,6 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
+use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
@@ -31,6 +32,7 @@ pub struct Backend {
 
 enum Progress<'a> {
     MediaSync(&'a MediaSyncProgress),
+    MediaCheck(u32),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -186,6 +188,7 @@ impl Backend {
                 self.sync_media(input)?;
                 OValue::SyncMedia(Empty {})
             }
+            Value::CheckMedia(_) => OValue::CheckMedia(self.check_media()?),
         })
     }
 
@@ -330,6 +333,23 @@ impl Backend {
         let mut rt = Runtime::new().unwrap();
         rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey))
     }
+
+    fn check_media(&self) -> Result<pt::MediaCheckOut> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback);
+        let output = checker.check()?;
+
+        Ok(pt::MediaCheckOut {
+            unused: output.unused,
+            missing: output.missing,
+            renamed: output.renamed,
+            dirs: output.dirs,
+            oversize: output.oversize,
+        })
+    }
 }
 
 fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
@@ -370,6 +390,7 @@ fn progress_to_proto_bytes(progress: Progress) -> Vec<u8> {
                 uploaded_files: p.uploaded_files as u32,
                 uploaded_deletions: p.uploaded_deletions as u32,
             }),
+            Progress::MediaCheck(n) => pt::progress::Value::MediaCheck(n),
         }),
     };
 
