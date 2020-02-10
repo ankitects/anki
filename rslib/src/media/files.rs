@@ -176,8 +176,8 @@ where
 
 /// Convert foo.jpg into foo-abcde12345679.jpg
 fn add_hash_suffix_to_file_stem(fname: &str, hash: &[u8; 20]) -> String {
-    // when appending a hash to make unique, it will be 20 bytes plus the hyphen.
-    let max_len = MAX_FILENAME_LENGTH - 20 - 1;
+    // when appending a hash to make unique, it will be 40 bytes plus the hyphen.
+    let max_len = MAX_FILENAME_LENGTH - 40 - 1;
 
     let (stem, ext) = split_and_truncate_filename(fname, max_len);
 
