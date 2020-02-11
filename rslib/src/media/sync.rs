@@ -676,13 +676,6 @@ fn zip_files<'a>(
             break;
         }
 
-        let normalized = normalize_filename(&file.fname);
-        if let Cow::Owned(o) = normalized {
-            debug!("media check required: {} should be {}", &file.fname, o);
-            invalid_entries.push(&file.fname);
-            continue;
-        }
-
         let file_data = match data_for_file(media_folder, &file.fname) {
             Ok(data) => data,
             Err(e) => {
@@ -693,6 +686,13 @@ fn zip_files<'a>(
         };
 
         if let Some(data) = &file_data {
+            let normalized = normalize_filename(&file.fname);
+            if let Cow::Owned(o) = normalized {
+                debug!("media check required: {} should be {}", &file.fname, o);
+                invalid_entries.push(&file.fname);
+                continue;
+            }
+
             if data.is_empty() {
                 invalid_entries.push(&file.fname);
                 continue;
