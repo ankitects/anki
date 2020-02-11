@@ -80,12 +80,34 @@ class MediaChecker:
             box.addButton(b, QDialogButtonBox.ActionRole)
             b.clicked.connect(lambda c, u=output.unused, d=diag: deleteUnused(self.mw, u, d))  # type: ignore
 
+        if output.missing:
+            if any(map(lambda x: x.startswith("latex-"), output.missing)):
+                b = QPushButton(_("Render LaTeX"))
+                b.setAutoDefault(False)
+                box.addButton(b, QDialogButtonBox.RejectRole)
+                b.clicked.connect(self._on_render_latex)  # type: ignore
+
         box.rejected.connect(diag.reject)  # type: ignore
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
         restoreGeom(diag, "checkmediadb")
         diag.exec_()
         saveGeom(diag, "checkmediadb")
+
+    def _on_render_latex(self):
+        self.progress_dialog = self.mw.progress.start()
+        try:
+            self.mw.col.media.render_all_latex(self._on_render_latex_progress)
+        finally:
+            self.mw.progress.finish()
+        tooltip(_("LaTeX rendered."))
+
+    def _on_render_latex_progress(self, count: int) -> bool:
+        if self.progress_dialog.wantCancel:
+            return False
+
+        self.mw.progress.update(_("Checked {}...").format(count))
+        return True
 
 
 def describe_output(output: MediaCheckOutput) -> str:

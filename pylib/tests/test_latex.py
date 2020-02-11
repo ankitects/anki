@@ -3,15 +3,11 @@
 import os
 import shutil
 
-from anki.utils import stripHTML
 from tests.shared import getEmptyCol
 
 
 def test_latex():
-    print("** aborting test_latex for now")
-    return
-
-    d = getEmptyCol()  # pylint: disable=unreachable
+    d = getEmptyCol()
     # change latex cmd to simulate broken build
     import anki.latex
 
@@ -33,7 +29,7 @@ def test_latex():
     # fix path
     anki.latex.pngCommands[0][0] = "latex"
     # check media db should cause latex to be generated
-    d.media.check()
+    d.media.render_all_latex()
     assert len(os.listdir(d.media.dir())) == 1
     assert ".png" in f.cards()[0].q()
     # adding new notes should cause generation on question display
@@ -50,13 +46,12 @@ def test_latex():
     oldcard = f.cards()[0]
     assert ".png" in oldcard.q()
     # if we turn off building, then previous cards should work, but cards with
-    # missing media will show the latex
+    # missing media will show a broken image
     anki.latex.build = False
     f = d.newNote()
     f["Front"] = "[latex]foo[/latex]"
     d.addNote(f)
     assert len(os.listdir(d.media.dir())) == 2
-    assert stripHTML(f.cards()[0].q()) == "[latex]foo[/latex]"
     assert ".png" in oldcard.q()
     # turn it on again so other test don't suffer
     anki.latex.build = True
