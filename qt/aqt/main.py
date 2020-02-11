@@ -34,7 +34,7 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.legacy import install_pylib_legacy
-from aqt.media import check_media_db
+from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
