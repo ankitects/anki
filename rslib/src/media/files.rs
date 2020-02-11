@@ -359,7 +359,7 @@ pub(super) fn add_file_from_ankiweb(
         // ankiweb sent us a non-normalized filename, so we'll rename it
         let new_name = add_data_to_folder_uniquely(media_folder, fname, data, sha1)?;
         (
-            Some(new_name.to_string()),
+            Some(fname.to_string()),
             media_folder.join(new_name.as_ref()),
         )
     };
