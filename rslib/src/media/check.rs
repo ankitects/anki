@@ -310,7 +310,7 @@ fn find_unused_and_missing(
     let mut unused = vec![];
 
     for file in files {
-        if !references.contains(&file) {
+        if !file.starts_with('_') && !references.contains(&file) {
             unused.push(file);
         } else {
             references.remove(&file);
@@ -354,6 +354,7 @@ mod test {
         fs::create_dir(&mgr.media_folder.join("folder"))?;
         fs::write(&mgr.media_folder.join("normal.jpg"), "normal")?;
         fs::write(&mgr.media_folder.join("foo[.jpg"), "foo")?;
+        fs::write(&mgr.media_folder.join("_under.jpg"), "foo")?;
 
         let progress = |_n| true;
         let mut checker = MediaChecker::new(&mgr, &col_path, progress);
