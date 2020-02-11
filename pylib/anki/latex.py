@@ -6,7 +6,6 @@ from __future__ import annotations
 import html
 import os
 import re
-import shutil
 from typing import Any, List, Optional, Tuple
 
 import anki
@@ -28,11 +27,6 @@ svgCommands = [
 ]
 
 build = True  # if off, use existing media but don't create new
-regexps = {
-    "standard": re.compile(r"\[latex\](.+?)\[/latex\]", re.DOTALL | re.IGNORECASE),
-    "expression": re.compile(r"\[\$\](.+?)\[/\$\]", re.DOTALL | re.IGNORECASE),
-    "math": re.compile(r"\[\$\$\](.+?)\[/\$\$\]", re.DOTALL | re.IGNORECASE),
-}
 
 # add standard tex install location to osx
 if isMac:
@@ -47,7 +41,7 @@ def on_card_did_render(output: TemplateRenderOutput, ctx: TemplateRenderContext)
 
 
 def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> str:
-    "Convert TEXT with embedded latex tags to image links."
+    "Convert embedded latex tags in text to image links."
     html, err = render_latex_returning_errors(html, model, col)
     if err:
         html += "\n".join(err)
@@ -59,7 +53,7 @@ def render_latex_returning_errors(
 ) -> Tuple[str, List[str]]:
     """Returns (text, errors).
 
-    error_message will be non-empty is LaTeX failed to render."""
+    errors will be non-empty if LaTeX failed to render."""
     svg = model.get("latexsvg", False)
     header = model["latexPre"]
     footer = model["latexPost"]
@@ -130,17 +124,18 @@ package in the LaTeX header instead."""
     texfile = open(texpath, "w", encoding="utf8")
     texfile.write(latex)
     texfile.close()
-    mdir = col.media.dir()
     oldcwd = os.getcwd()
-    png = namedtmp("tmp.%s" % ext)
+    png_or_svg = namedtmp("tmp.%s" % ext)
     try:
-        # generate png
+        # generate png/svg
         os.chdir(tmpdir())
         for latexCmd in latexCmds:
             if call(latexCmd, stdout=log, stderr=log):
                 return _errMsg(latexCmd[0], texpath)
         # add to media
-        shutil.copyfile(png, os.path.join(mdir, extracted.filename))
+        data = open(png_or_svg, "rb").read()
+        col.media.write_data(extracted.filename, data)
+        os.unlink(png_or_svg)
         return None
     finally:
         os.chdir(oldcwd)
