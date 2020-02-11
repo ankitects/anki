@@ -312,3 +312,8 @@ class RustBackend:
         return self._run_command(
             pb.BackendInput(check_media=pb.Empty()), release_gil=True,
         ).check_media
+
+    def trash_media_files(self, fnames: List[str]) -> None:
+        self._run_command(
+            pb.BackendInput(trash_media_files=pb.TrashMediaFilesIn(fnames=fnames))
+        )
