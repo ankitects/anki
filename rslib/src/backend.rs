@@ -180,9 +180,7 @@ impl Backend {
             Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
             Value::ExtractAvTags(input) => OValue::ExtractAvTags(self.extract_av_tags(input)),
             Value::ExtractLatex(input) => OValue::ExtractLatex(self.extract_latex(input)),
-            Value::AddFileToMediaFolder(input) => {
-                OValue::AddFileToMediaFolder(self.add_file_to_media_folder(input)?)
-            }
+            Value::AddMediaFile(input) => OValue::AddMediaFile(self.add_media_file(input)?),
             Value::SyncMedia(input) => {
                 self.sync_media(input)?;
                 OValue::SyncMedia(Empty {})
@@ -333,7 +331,7 @@ impl Backend {
         }
     }
 
-    fn add_file_to_media_folder(&mut self, input: pt::AddFileToMediaFolderIn) -> Result<String> {
+    fn add_media_file(&mut self, input: pt::AddMediaFileIn) -> Result<String> {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         let mut ctx = mgr.dbctx();
         Ok(mgr
