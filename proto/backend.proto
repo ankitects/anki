@@ -24,7 +24,7 @@ message BackendInput {
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsIn extract_av_tags = 24;
-        string expand_clozes_to_reveal_latex = 25;
+        ExtractLatexIn extract_latex = 25;
         AddFileToMediaFolderIn add_file_to_media_folder = 26;
         SyncMediaIn sync_media = 27;
         Empty check_media = 28;
@@ -42,7 +42,7 @@ message BackendOutput {
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsOut extract_av_tags = 24;
-        string expand_clozes_to_reveal_latex = 25;
+        ExtractLatexOut extract_latex = 25;
         string add_file_to_media_folder = 26;
         Empty sync_media = 27;
         MediaCheckOut check_media = 28;
@@ -237,6 +237,21 @@ message TTSTag {
     repeated string voices = 3;
     float speed = 4;
     repeated string other_args = 5;
+}
+
+message ExtractLatexIn {
+    string text = 1;
+    bool svg = 2;
+}
+
+message ExtractLatexOut {
+    string text = 1;
+    repeated ExtractedLatex latex = 2;
+}
+
+message ExtractedLatex {
+    string filename = 1;
+    string latex_body = 2;
 }
 
 message AddFileToMediaFolderIn {
