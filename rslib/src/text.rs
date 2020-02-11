@@ -70,25 +70,26 @@ lazy_static! {
                 (.*?)           # 3 - field text
             \[/anki:tts\]
             "#).unwrap();
-
-    static ref LATEX: Regex = Regex::new(
-        r#"(?xsi)
-            \[latex\](.+?)\[/latex\]     # 1 - standard latex
-            |
-            \[\$\](.+?)\[/\$\]           # 2 - inline math
-            |
-            \[\$\$\](.+?)\[/\$\$\]       # 3 - math environment
-            "#).unwrap();    
 }
 
 pub fn strip_html(html: &str) -> Cow<str> {
-    HTML.replace_all(html, "")
+    let mut out: Cow<str> = html.into();
+
+    if let Cow::Owned(o) = HTML.replace_all(html, "") {
+        out = o.into();
+    }
+
+    if let Cow::Owned(o) = decode_entities(out.as_ref()) {
+        out = o.into();
+    }
+
+    out
 }
 
 pub fn decode_entities(html: &str) -> Cow<str> {
     if html.contains('&') {
         match htmlescape::decode_html(html) {
-            Ok(text) => text,
+            Ok(text) => text.replace("\u{a0}", " "),
             Err(e) => format!("{:?}", e),
         }
         .into()
@@ -209,10 +210,6 @@ pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
     }
     // make borrow checker happy
     without_html.into_owned().into()
-}
-
-pub(crate) fn contains_latex(text: &str) -> bool {
-    LATEX.is_match(text)
 }
 
 pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
