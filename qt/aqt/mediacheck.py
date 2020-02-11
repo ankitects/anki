@@ -98,8 +98,11 @@ class MediaChecker:
         self.progress_dialog = self.mw.progress.start()
         try:
             out = self.mw.col.media.render_all_latex(self._on_render_latex_progress)
+            if self.progress_dialog.wantCancel:
+                return
         finally:
             self.mw.progress.finish()
+            self.progress_dialog = None
 
         if out is not None:
             nid, err = out
