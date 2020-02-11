@@ -287,9 +287,9 @@ where
             // then update the DB
             let dirmod = mtime_as_i64(&self.mgr.media_folder)?;
             self.ctx.transact(|ctx| {
+                record_clean(ctx, &to_remove_pending)?;
                 record_removals(ctx, &to_delete)?;
                 record_additions(ctx, downloaded)?;
-                record_clean(ctx, &to_remove_pending)?;
 
                 // update usn
                 meta.last_sync_usn = last_usn;
