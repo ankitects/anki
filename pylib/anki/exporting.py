@@ -8,7 +8,7 @@ import shutil
 import unicodedata
 import zipfile
 from io import BufferedWriter
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
@@ -21,9 +21,17 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 class Exporter:
     includeHTML: Union[bool, None] = None
 
-    def __init__(self, col: _Collection, did: None = None) -> None:
+    did: Optional[int]
+
+    def __init__(
+        self,
+        col: _Collection,
+        did: Optional[int] = None,
+        cids: Optional[List[int]] = None,
+    ) -> None:
         self.col = col
         self.did = did
+        self.cids = cids
 
     def doExport(self, path) -> None:
         raise Exception("not implemented")
@@ -65,7 +73,9 @@ class Exporter:
         return s
 
     def cardIds(self) -> Any:
-        if not self.did:
+        if self.cids is not None:
+            cids = self.cids
+        elif not self.did:
             cids = self.col.db.list("select id from cards")
         else:
             cids = self.col.decks.cids(self.did, children=True)
@@ -160,10 +170,12 @@ class AnkiExporter(Exporter):
         Exporter.__init__(self, col)
 
     def deckIds(self) -> List[int]:
-        if not self.did:
-            return []
-        else:
+        if self.cids:
+            return self.col.decks.for_card_ids(self.cids)
+        elif self.did:
             return [self.did] + [x[1] for x in self.src.decks.children(self.did)]
+        else:
+            return []
 
     def exportInto(self, path: str) -> None:
         # sched info+v2 scheduler not compatible w/ older clients
