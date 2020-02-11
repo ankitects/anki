@@ -313,6 +313,15 @@ where
         let src_path = media_folder.join(file.as_ref());
         let dst_path = trash_folder.join(file.as_ref());
 
+        // if the file doesn't exist, nothing to do
+        if let Err(e) = fs::metadata(&src_path) {
+            if e.kind() == io::ErrorKind::NotFound {
+                return Ok(());
+            } else {
+                return Err(e.into());
+            }
+        }
+
         // move file to trash, clobbering any existing file with the same name
         fs::rename(&src_path, &dst_path)?;
 
