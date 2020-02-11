@@ -7,7 +7,7 @@ import html
 import os
 import re
 import shutil
-from typing import Any, Optional
+from typing import Any, List, Optional, Tuple
 
 import anki
 from anki import hooks
@@ -48,11 +48,24 @@ def on_card_did_render(output: TemplateRenderOutput, ctx: TemplateRenderContext)
 
 def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> str:
     "Convert TEXT with embedded latex tags to image links."
+    html, err = render_latex_returning_errors(html, model, col)
+    if err:
+        html += "\n".join(err)
+    return html
+
+
+def render_latex_returning_errors(
+    html: str, model: NoteType, col: anki.storage._Collection
+) -> Tuple[str, List[str]]:
+    """Returns (text, errors).
+
+    error_message will be non-empty is LaTeX failed to render."""
     svg = model.get("latexsvg", False)
     header = model["latexPre"]
     footer = model["latexPost"]
 
     out = col.backend.extract_latex(html, svg)
+    errors = []
     html = out.html
 
     for latex in out.latex:
@@ -62,9 +75,9 @@ def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> 
 
         err = _save_latex_image(col, latex, header, footer, svg)
         if err is not None:
-            html += err
+            errors.append(err)
 
-    return html
+    return html, errors
 
 
 def _save_latex_image(

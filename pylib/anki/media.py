@@ -13,7 +13,7 @@ from typing import Any, Callable, List, Optional, Tuple, Union
 
 import anki
 from anki.consts import *
-from anki.latex import render_latex
+from anki.latex import render_latex, render_latex_returning_errors
 from anki.rsbackend import MediaCheckOutput
 from anki.utils import intTime
 
@@ -27,6 +27,8 @@ def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
 # fixme: look into whether we can drop chdir() below
 # - need to check aa89d06304fecd3597da4565330a3e55bdbb91fe
 # - and audio handling code
+
+
 class MediaManager:
 
     soundRegexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
@@ -164,11 +166,15 @@ class MediaManager:
         "This should be called while the collection is closed."
         return self.col.backend.check_media()
 
-    def render_all_latex(self, progress_cb: Optional[Callable[[int], bool]] = None):
+    def render_all_latex(
+        self, progress_cb: Optional[Callable[[int], bool]] = None
+    ) -> Optional[Tuple[int, str]]:
         """Render any LaTeX that is missing.
 
         If a progress callback is provided and it returns false, the operation
         will be aborted.
+
+        If an error is encountered, returns (note_id, error_message)
         """
         last_progress = intTime()
         for c, (nid, mid, flds) in enumerate(
@@ -178,14 +184,18 @@ class MediaManager:
                 continue
 
             model = self.col.models.get(mid)
-            render_latex(flds, model, self.col)
+            _html, errors = render_latex_returning_errors(flds, model, self.col)
+            if errors:
+                return (nid, "\n".join(errors))
 
             if c % 10 == 0:
                 elap = last_progress - intTime()
                 if elap >= 1 and progress_cb is not None:
                     last_progress = intTime()
                     if not progress_cb(c + 1):
-                        return
+                        return None
+
+        return None
 
     # Legacy
     ##########################################################################

@@ -14,7 +14,7 @@ from anki import hooks
 from anki.lang import _, ngettext
 from anki.rsbackend import Interrupted, MediaCheckOutput, Progress, ProgressKind
 from aqt.qt import *
-from aqt.utils import askUser, restoreGeom, saveGeom, tooltip
+from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip
 
 
 def check_media_db(mw: aqt.AnkiQt) -> None:
@@ -97,10 +97,18 @@ class MediaChecker:
     def _on_render_latex(self):
         self.progress_dialog = self.mw.progress.start()
         try:
-            self.mw.col.media.render_all_latex(self._on_render_latex_progress)
+            out = self.mw.col.media.render_all_latex(self._on_render_latex_progress)
         finally:
             self.mw.progress.finish()
-        tooltip(_("LaTeX rendered."))
+
+        if out is not None:
+            nid, err = out
+            browser = aqt.dialogs.open("Browser", self.mw)
+            browser.form.searchEdit.lineEdit().setText("nid:%d" % nid)
+            browser.onSearchActivated()
+            showText(err, type="html")
+        else:
+            tooltip(_("All LaTeX rendered."))
 
     def _on_render_latex_progress(self, count: int) -> bool:
         if self.progress_dialog.wantCancel:
