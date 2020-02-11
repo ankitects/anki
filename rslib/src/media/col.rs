@@ -64,6 +64,15 @@ pub(super) struct NoteType {
     id: ObjID,
     #[serde(rename = "sortf")]
     sort_field_idx: u16,
+
+    #[serde(rename = "latexsvg", default)]
+    latex_svg: bool,
+}
+
+impl NoteType {
+    pub fn latex_uses_svg(&self) -> bool {
+        self.latex_svg
+    }
 }
 
 pub(super) fn get_note_types(db: &Connection) -> Result<HashMap<ObjID, NoteType>> {
