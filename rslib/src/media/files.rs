@@ -192,14 +192,25 @@ fn truncate_filename(fname: &str, max_bytes: usize) -> Cow<str> {
 
     let (stem, ext) = split_and_truncate_filename(fname, max_bytes);
 
-    format!("{}.{}", stem, ext).into()
+    let mut new_name = if ext.is_empty() {
+        stem.to_string()
+    } else {
+        format!("{}.{}", stem, ext)
+    };
+
+    // make sure we don't break Windows by ending with a space or dot
+    if WINDOWS_TRAILING_CHAR.is_match(&new_name) {
+        new_name.push('_');
+    }
+
+    new_name.into()
 }
 
 /// Split filename into stem and extension, and trim both so the
 /// resulting filename would be under max_bytes.
 /// Returns (stem, extension)
 fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
-    // the code assumes the length will be at least 11
+    // the code assumes max_bytes will be at least 11
     debug_assert!(max_bytes > 10);
 
     let mut iter = fname.rsplitn(2, '.');
@@ -216,8 +227,8 @@ fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
     // cap extension to 10 bytes so stem_len can't be negative
     ext = truncate_to_char_boundary(ext, 10);
 
-    // cap stem, allowing for the .
-    let stem_len = max_bytes - ext.len() - 1;
+    // cap stem, allowing for the . and a trailing _
+    let stem_len = max_bytes - ext.len() - 2;
     stem = truncate_to_char_boundary(stem, stem_len);
 
     (stem, ext)
@@ -394,7 +405,7 @@ pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
 mod test {
     use crate::media::files::{
         add_data_to_folder_uniquely, add_hash_suffix_to_file_stem, normalize_filename,
-        remove_files, sha1_of_data, MAX_FILENAME_LENGTH,
+        remove_files, sha1_of_data, truncate_filename, MAX_FILENAME_LENGTH,
     };
     use std::borrow::Cow;
     use tempfile::tempdir;
@@ -410,7 +421,7 @@ mod test {
         assert_eq!(normalize_filename("test.").as_ref(), "test._");
         assert_eq!(normalize_filename("test ").as_ref(), "test _");
 
-        let expected_stem_len = MAX_FILENAME_LENGTH - ".jpg".len();
+        let expected_stem_len = MAX_FILENAME_LENGTH - ".jpg".len() - 1;
         assert_eq!(
             normalize_filename(&format!("{}.jpg", "x".repeat(MAX_FILENAME_LENGTH * 2))),
             "x".repeat(expected_stem_len) + ".jpg"
@@ -466,5 +477,33 @@ mod test {
 
         // remove
         remove_files(dpath, written_files.as_slice()).unwrap();
+    }
+
+    #[test]
+    fn truncation() {
+        let one_less = "x".repeat(MAX_FILENAME_LENGTH - 1);
+        assert_eq!(
+            truncate_filename(&one_less, MAX_FILENAME_LENGTH),
+            Cow::Borrowed(&one_less)
+        );
+        let equal = "x".repeat(MAX_FILENAME_LENGTH);
+        assert_eq!(
+            truncate_filename(&equal, MAX_FILENAME_LENGTH),
+            Cow::Borrowed(&equal)
+        );
+        let equal = format!("{}.jpg", "x".repeat(MAX_FILENAME_LENGTH - 4));
+        assert_eq!(
+            truncate_filename(&equal, MAX_FILENAME_LENGTH),
+            Cow::Borrowed(&equal)
+        );
+        let one_more = "x".repeat(MAX_FILENAME_LENGTH + 1);
+        assert_eq!(
+            truncate_filename(&one_more, MAX_FILENAME_LENGTH),
+            Cow::<str>::Owned("x".repeat(MAX_FILENAME_LENGTH - 2))
+        );
+        assert_eq!(
+            truncate_filename(&" ".repeat(MAX_FILENAME_LENGTH + 1), MAX_FILENAME_LENGTH),
+            Cow::<str>::Owned(format!("{}_", " ".repeat(MAX_FILENAME_LENGTH - 2)))
+        );
     }
 }
