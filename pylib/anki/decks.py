@@ -470,6 +470,9 @@ class DeckManager:
             dids.append(id)
         return self.col.db.list("select id from cards where did in " + ids2str(dids))
 
+    def for_card_ids(self, cids: List[int]) -> List[int]:
+        return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
+
     def _recoverOrphans(self) -> None:
         dids = list(self.decks.keys())
         mod = self.col.db.mod

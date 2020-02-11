@@ -4,6 +4,7 @@
 import os
 import re
 import time
+from typing import List, Optional
 
 import aqt
 from anki import hooks
@@ -14,21 +15,22 @@ from aqt.utils import checkInvalidFilename, getSaveFile, showInfo, showWarning, 
 
 
 class ExportDialog(QDialog):
-    def __init__(self, mw, did=None):
+    def __init__(self, mw, did: Optional[int] = None, cids: Optional[List[int]] = None):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
+        self.cids = cids
         self.setup(did)
         self.exec_()
 
-    def setup(self, did):
+    def setup(self, did: Optional[int]):
         self.exporters = exporters()
         # if a deck specified, start with .apkg type selected
         idx = 0
-        if did:
+        if did or self.cids:
             for c, (k, e) in enumerate(self.exporters):
                 if e.ext == ".apkg":
                     idx = c
@@ -38,7 +40,10 @@ class ExportDialog(QDialog):
         self.frm.format.activated.connect(self.exporterChanged)
         self.exporterChanged(idx)
         # deck list
-        self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
+        if self.cids is None:
+            self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
+        else:
+            self.decks = [_("Browser Selection")]
         self.frm.deck.addItems(self.decks)
         # save button
         b = QPushButton(_("Export..."))
@@ -77,9 +82,18 @@ class ExportDialog(QDialog):
         self.exporter.includeMedia = self.frm.includeMedia.isChecked()
         self.exporter.includeTags = self.frm.includeTags.isChecked()
         self.exporter.includeHTML = self.frm.includeHTML.isChecked()
-        if not self.frm.deck.currentIndex():
+        idx = self.frm.deck.currentIndex()
+        if self.cids is not None:
+            # Browser Selection
+            self.exporter.cids = self.cids
             self.exporter.did = None
+        elif idx == 0:
+            # All decks
+            self.exporter.did = None
+            self.exporter.cids = None
         else:
+            # Deck idx-1 in the list of decks
+            self.exporter.cids = None
             name = self.decks[self.frm.deck.currentIndex()]
             self.exporter.did = self.col.decks.id(name)
         if self.isVerbatim:
