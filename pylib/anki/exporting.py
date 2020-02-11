@@ -21,8 +21,6 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 class Exporter:
     includeHTML: Union[bool, None] = None
 
-    did: Optional[int]
-
     def __init__(
         self,
         col: _Collection,
