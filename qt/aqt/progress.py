@@ -132,7 +132,7 @@ class ProgressManager:
             self._win.form.progressBar.setValue(self._counter)
         if process and elapsed >= 0.2:
             self._updating = True
-            self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+            self.app.processEvents()
             self._updating = False
             self._lastUpdate = time.time()
 
