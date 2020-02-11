@@ -3,7 +3,7 @@
 
 use crate::err::Result;
 use crate::media::database::{open_or_create, MediaDatabaseContext, MediaEntry};
-use crate::media::files::{add_data_to_folder_uniquely, mtime_as_i64, sha1_of_data};
+use crate::media::files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data};
 use crate::media::sync::{MediaSyncProgress, MediaSyncer};
 use rusqlite::Connection;
 use std::borrow::Cow;
@@ -89,6 +89,25 @@ impl MediaManager {
         })?;
 
         Ok(chosen_fname)
+    }
+
+    pub fn remove_files<S>(&self, ctx: &mut MediaDatabaseContext, filenames: &[S]) -> Result<()>
+    where
+        S: AsRef<str> + std::fmt::Debug,
+    {
+        remove_files(&self.media_folder, &filenames)?;
+        ctx.transact(|ctx| {
+            for fname in filenames {
+                if let Some(mut entry) = ctx.get_entry(fname.as_ref())? {
+                    entry.sha1 = None;
+                    entry.mtime = 0;
+                    entry.sync_required = true;
+                    ctx.set_entry(&entry)?;
+                }
+            }
+
+            Ok(())
+        })
     }
 
     /// Sync media.

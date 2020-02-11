@@ -5,7 +5,7 @@ use crate::err::{AnkiError, Result, SyncErrorKind};
 use crate::media::changetracker::ChangeTracker;
 use crate::media::database::{MediaDatabaseContext, MediaDatabaseMetadata, MediaEntry};
 use crate::media::files::{
-    add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, remove_files, AddedFile,
+    add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, AddedFile,
 };
 use crate::media::MediaManager;
 use crate::version;
@@ -259,7 +259,7 @@ where
                 determine_required_changes(&mut self.ctx, &batch)?;
 
             // file removal
-            remove_files(self.mgr.media_folder.as_path(), to_delete.as_slice())?;
+            self.mgr.remove_files(&mut self.ctx, to_delete.as_slice())?;
             self.progress.downloaded_deletions += to_delete.len();
             self.maybe_fire_progress_cb()?;
 

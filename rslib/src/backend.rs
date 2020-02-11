@@ -7,7 +7,6 @@ use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
-use crate::media::files::remove_files;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
@@ -368,7 +367,9 @@ impl Backend {
     }
 
     fn remove_media_files(&self, fnames: &[String]) -> Result<()> {
-        remove_files(&self.media_folder, fnames)
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        let mut ctx = mgr.dbctx();
+        mgr.remove_files(&mut ctx, fnames)
     }
 }
 
