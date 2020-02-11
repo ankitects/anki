@@ -2,12 +2,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import html
 import json
 import re
 import sre_constants
 import time
 import unicodedata
+from dataclasses import dataclass
 from operator import itemgetter
 from typing import Callable, List, Optional, Union
 
@@ -51,12 +54,16 @@ from aqt.utils import (
 from aqt.webview import AnkiWebView
 
 
-class PreviewDialog(QDialog):
-    pass
+@dataclass
+class PreviewDialog:
+    dialog: QDialog
+    browser: Browser
 
 
-class FindDupesDialog(QDialog):
-    pass
+@dataclass
+class FindDupesDialog:
+    dialog: QDialog
+    browser: Browser
 
 
 # Data model
@@ -1547,7 +1554,7 @@ where id in %s"""
     def _openPreview(self):
         self._previewState = "question"
         self._lastPreviewState = None
-        self._previewWindow = PreviewDialog(None, Qt.Window)
+        self._previewWindow = QDialog(None, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
 
         self._previewWindow.finished.connect(self._onPreviewFinished)
@@ -1653,7 +1660,8 @@ where id in %s"""
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
         )
         self._previewWeb.set_bridge_command(
-            self._on_preview_bridge_cmd, self._previewWindow
+            self._on_preview_bridge_cmd,
+            PreviewDialog(dialog=self._previewWindow, browser=self),
         )
 
     def _on_preview_bridge_cmd(self, cmd: str) -> Any:
@@ -2139,7 +2147,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.editor.saveNow(self._onFindDupes)
 
     def _onFindDupes(self):
-        d = FindDupesDialog(self)
+        d = QDialog(self)
         self.mw.setupDialogGC(d)
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
@@ -2150,7 +2158,9 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
-        frm.webView.set_bridge_command(self.dupeLinkClicked, d)
+        frm.webView.set_bridge_command(
+            self.dupeLinkClicked, FindDupesDialog(dialog=d, browser=self)
+        )
 
         def onFin(code):
             saveGeom(d, "findDupes")
