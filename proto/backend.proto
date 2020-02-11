@@ -25,7 +25,7 @@ message BackendInput {
         string strip_av_tags = 23;
         ExtractAVTagsIn extract_av_tags = 24;
         ExtractLatexIn extract_latex = 25;
-        AddFileToMediaFolderIn add_file_to_media_folder = 26;
+        AddMediaFileIn add_media_file = 26;
         SyncMediaIn sync_media = 27;
         Empty check_media = 28;
         TrashMediaFilesIn trash_media_files = 29;
@@ -44,7 +44,7 @@ message BackendOutput {
         string strip_av_tags = 23;
         ExtractAVTagsOut extract_av_tags = 24;
         ExtractLatexOut extract_latex = 25;
-        string add_file_to_media_folder = 26;
+        string add_media_file = 26;
         Empty sync_media = 27;
         MediaCheckOut check_media = 28;
         Empty trash_media_files = 29;
@@ -256,7 +256,7 @@ message ExtractedLatex {
     string latex_body = 2;
 }
 
-message AddFileToMediaFolderIn {
+message AddMediaFileIn {
     string desired_name = 1;
     bytes data = 2;
 }

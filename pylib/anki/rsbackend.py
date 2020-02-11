@@ -296,11 +296,9 @@ class RustBackend:
     def add_file_to_media_folder(self, desired_name: str, data: bytes) -> str:
         return self._run_command(
             pb.BackendInput(
-                add_file_to_media_folder=pb.AddFileToMediaFolderIn(
-                    desired_name=desired_name, data=data
-                )
+                add_media_file=pb.AddMediaFileIn(desired_name=desired_name, data=data)
             )
-        ).add_file_to_media_folder
+        ).add_media_file
 
     def sync_media(self, hkey: str, endpoint: str) -> None:
         self._run_command(
