@@ -38,16 +38,6 @@ if isMac:
     os.environ["PATH"] += ":/usr/texbin:/Library/TeX/texbin"
 
 
-def stripLatex(text) -> Any:
-    for match in regexps["standard"].finditer(text):
-        text = text.replace(match.group(), "")
-    for match in regexps["expression"].finditer(text):
-        text = text.replace(match.group(), "")
-    for match in regexps["math"].finditer(text):
-        text = text.replace(match.group(), "")
-    return text
-
-
 def on_card_did_render(output: TemplateRenderOutput, ctx: TemplateRenderContext):
     output.question_text = render_latex(
         output.question_text, ctx.note_type(), ctx.col()
