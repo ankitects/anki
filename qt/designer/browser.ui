@@ -295,13 +295,13 @@
     <addaction name="menuFlag"/>
     <addaction name="separator"/>
     <addaction name="action_Info"/>
-    <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menu_Notes">
     <property name="title">
      <string>&amp;Notes</string>
     </property>
     <addaction name="actionAdd"/>
+    <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionAdd_Tags"/>
     <addaction name="actionRemove_Tags"/>
@@ -602,7 +602,7 @@
   </action>
   <action name="actionExport">
    <property name="text">
-    <string>&amp;Export Notes</string>
+    <string>&amp;Export Notes...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+E</string>
