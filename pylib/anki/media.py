@@ -155,12 +155,6 @@ create table meta (dirMod int, lastUsn int); insert into meta values (0, 0);
     ) -> List[str]:
         l = []
         model = self.col.models.get(mid)
-        if model["type"] == MODEL_CLOZE and "{{c" in string:
-            # if the field has clozes in it, we'll need to expand the
-            # possibilities so we can render latex
-            strings = self.col.backend.expand_clozes_to_reveal_latex(string)
-        else:
-            strings = string
         # handle latex
         string = render_latex(string, model, self.col)
         # extract filenames

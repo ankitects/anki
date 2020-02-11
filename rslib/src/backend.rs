@@ -4,8 +4,8 @@
 use crate::backend_proto as pt;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
-use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
+use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
@@ -178,9 +178,7 @@ impl Backend {
             }
             Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
             Value::ExtractAvTags(input) => OValue::ExtractAvTags(self.extract_av_tags(input)),
-            Value::ExpandClozesToRevealLatex(input) => {
-                OValue::ExpandClozesToRevealLatex(expand_clozes_to_reveal_latex(&input))
-            }
+            Value::ExtractLatex(input) => OValue::ExtractLatex(self.extract_latex(input)),
             Value::AddFileToMediaFolder(input) => {
                 OValue::AddFileToMediaFolder(self.add_file_to_media_folder(input)?)
             }
@@ -312,6 +310,21 @@ impl Backend {
         pt::ExtractAvTagsOut {
             text: text.into(),
             av_tags: pt_tags,
+        }
+    }
+
+    fn extract_latex(&self, input: pt::ExtractLatexIn) -> pt::ExtractLatexOut {
+        let (text, extracted) = extract_latex(&input.text, input.svg);
+
+        pt::ExtractLatexOut {
+            text,
+            latex: extracted
+                .into_iter()
+                .map(|e: ExtractedLatex| pt::ExtractedLatex {
+                    filename: e.fname,
+                    latex_body: e.latex,
+                })
+                .collect(),
         }
     }
 

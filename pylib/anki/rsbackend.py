@@ -127,6 +127,18 @@ MediaSyncProgress = pb.MediaSyncProgress
 MediaCheckOutput = pb.MediaCheckOut
 
 
+@dataclass
+class ExtractedLatex:
+    filename: str
+    latex_body: str
+
+
+@dataclass
+class ExtractedLatexOutput:
+    html: str
+    latex: List[ExtractedLatex]
+
+
 class ProgressKind(enum.Enum):
     MediaSync = 0
     MediaCheck = 1
@@ -268,10 +280,18 @@ class RustBackend:
 
         return out.text, native_tags
 
-    def expand_clozes_to_reveal_latex(self, text: str) -> str:
-        return self._run_command(
-            pb.BackendInput(expand_clozes_to_reveal_latex=text)
-        ).expand_clozes_to_reveal_latex
+    def extract_latex(self, text: str, svg: bool) -> ExtractedLatexOutput:
+        out = self._run_command(
+            pb.BackendInput(extract_latex=pb.ExtractLatexIn(text=text, svg=svg))
+        ).extract_latex
+
+        return ExtractedLatexOutput(
+            html=out.text,
+            latex=[
+                ExtractedLatex(filename=l.filename, latex_body=l.latex_body)
+                for l in out.latex
+            ],
+        )
 
     def add_file_to_media_folder(self, desired_name: str, data: bytes) -> str:
         return self._run_command(
