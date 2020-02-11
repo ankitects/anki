@@ -2161,6 +2161,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.webView.set_bridge_command(
             self.dupeLinkClicked, FindDupesDialog(dialog=d, browser=self)
         )
+        frm.webView.stdHtml("")
 
         def onFin(code):
             saveGeom(d, "findDupes")
@@ -2183,7 +2184,7 @@ update cards set usn=?, mod=?, did=? where id in """
                 _("Tag Duplicates"), QDialogButtonBox.ActionRole
             )
             b.clicked.connect(lambda: self._onTagDupes(res))
-        t = "<html><body>"
+        t = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
         part1 = ngettext("%d group", "%d groups", groups) % groups
@@ -2200,8 +2201,7 @@ update cards set usn=?, mod=?, did=? where id in """
                 )
             )
         t += "</ol>"
-        t += "</body></html>"
-        web.setHtml(t)
+        web.stdHtml(t)
         self.mw.progress.finish()
 
     def _onTagDupes(self, res):
