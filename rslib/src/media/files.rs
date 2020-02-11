@@ -288,7 +288,7 @@ pub(super) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
         .as_secs() as i64)
 }
 
-pub(super) fn remove_files<S>(media_folder: &Path, files: &[S]) -> Result<()>
+pub fn remove_files<S>(media_folder: &Path, files: &[S]) -> Result<()>
 where
     S: AsRef<str> + std::fmt::Debug,
 {

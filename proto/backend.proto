@@ -28,6 +28,7 @@ message BackendInput {
         AddFileToMediaFolderIn add_file_to_media_folder = 26;
         SyncMediaIn sync_media = 27;
         Empty check_media = 28;
+        TrashMediaFilesIn trash_media_files = 29;
     }
 }
 
@@ -46,6 +47,7 @@ message BackendOutput {
         string add_file_to_media_folder = 26;
         Empty sync_media = 27;
         MediaCheckOut check_media = 28;
+        Empty trash_media_files = 29;
 
         BackendError error = 2047;
     }
@@ -270,4 +272,8 @@ message MediaCheckOut {
     repeated string dirs = 3;
     repeated string oversize = 4;
     map<string,string> renamed = 5;
+}
+
+message TrashMediaFilesIn {
+    repeated string fnames = 1;
 }

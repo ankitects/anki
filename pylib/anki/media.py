@@ -111,6 +111,10 @@ class MediaManager:
     def have(self, fname: str) -> bool:
         return os.path.exists(os.path.join(self.dir(), fname))
 
+    def trash_files(self, fnames: List[str]) -> None:
+        "Move provided files to the trash."
+        self.col.backend.trash_media_files(fnames)
+
     # String manipulation
     ##########################################################################
 

@@ -3,11 +3,10 @@
 
 from __future__ import annotations
 
+import itertools
 import time
 from concurrent.futures import Future
-from typing import Optional
-
-from send2trash import send2trash
+from typing import Iterable, List, Optional, TypeVar
 
 import aqt
 from anki import hooks
@@ -15,6 +14,17 @@ from anki.lang import _, ngettext
 from anki.rsbackend import Interrupted, MediaCheckOutput, Progress, ProgressKind
 from aqt.qt import *
 from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip
+
+T = TypeVar("T")
+
+
+def chunked_list(l: Iterable[T], n: int) -> Iterable[List[T]]:
+    l = iter(l)
+    while True:
+        res = list(itertools.islice(l, n))
+        if not res:
+            return
+        yield res
 
 
 def check_media_db(mw: aqt.AnkiQt) -> None:
@@ -74,11 +84,12 @@ class MediaChecker:
         layout.addWidget(text)
         box = QDialogButtonBox(QDialogButtonBox.Close)
         layout.addWidget(box)
+
         if output.unused:
             b = QPushButton(_("Delete Unused Files"))
             b.setAutoDefault(False)
-            box.addButton(b, QDialogButtonBox.ActionRole)
-            b.clicked.connect(lambda c, u=output.unused, d=diag: deleteUnused(self.mw, u, d))  # type: ignore
+            box.addButton(b, QDialogButtonBox.RejectRole)
+            b.clicked.connect(lambda c: self._on_trash_files(output.unused))  # type: ignore
 
         if output.missing:
             if any(map(lambda x: x.startswith("latex-"), output.missing)):
@@ -119,6 +130,32 @@ class MediaChecker:
 
         self.mw.progress.update(_("Checked {}...").format(count))
         return True
+
+    def _on_trash_files(self, fnames: List[str]):
+        if not askUser(_("Delete unused media?")):
+            return
+
+        self.progress_dialog = self.mw.progress.start()
+
+        last_progress = time.time()
+        remaining = len(fnames)
+        try:
+            for chunk in chunked_list(fnames, 25):
+                self.mw.col.media.trash_files(chunk)
+                remaining -= len(chunk)
+                if time.time() - last_progress >= 0.3:
+                    label = (
+                        ngettext(
+                            "%d file remaining...", "%d files remaining...", remaining,
+                        )
+                        % remaining
+                    )
+                    self.mw.progress.update(label)
+        finally:
+            self.mw.progress.finish()
+            self.progress_dialog = None
+
+        tooltip(_("Files moved to trash."))
 
 
 def describe_output(output: MediaCheckOutput) -> str:
@@ -172,41 +209,3 @@ def describe_output(output: MediaCheckOutput) -> str:
         buf.append("")
 
     return "\n".join(buf)
-
-
-def deleteUnused(self, unused, diag):
-    if not askUser(_("Delete unused media?")):
-        return
-
-    mdir = self.col.media.dir()
-    self.progress.start(immediate=True)
-    try:
-        lastProgress = 0
-        for c, f in enumerate(unused):
-            path = os.path.join(mdir, f)
-            if os.path.exists(path):
-                send2trash(path)
-
-            now = time.time()
-            if now - lastProgress >= 0.3:
-                numberOfRemainingFilesToBeDeleted = len(unused) - c
-                lastProgress = now
-                label = (
-                    ngettext(
-                        "%d file remaining...",
-                        "%d files remaining...",
-                        numberOfRemainingFilesToBeDeleted,
-                    )
-                    % numberOfRemainingFilesToBeDeleted
-                )
-                self.progress.update(label)
-    finally:
-        self.progress.finish()
-    # caller must not pass in empty list
-    # pylint: disable=undefined-loop-variable
-    numberOfFilesDeleted = c + 1
-    tooltip(
-        ngettext("Deleted %d file.", "Deleted %d files.", numberOfFilesDeleted)
-        % numberOfFilesDeleted
-    )
-    diag.close()

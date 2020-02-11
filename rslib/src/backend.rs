@@ -7,6 +7,7 @@ use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
+use crate::media::files::remove_files;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
@@ -25,7 +26,7 @@ pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 pub struct Backend {
     #[allow(dead_code)]
     col_path: PathBuf,
-    media_folder: String,
+    media_folder: PathBuf,
     media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
 }
@@ -187,6 +188,10 @@ impl Backend {
                 OValue::SyncMedia(Empty {})
             }
             Value::CheckMedia(_) => OValue::CheckMedia(self.check_media()?),
+            Value::TrashMediaFiles(input) => {
+                self.remove_media_files(&input.fnames)?;
+                OValue::TrashMediaFiles(Empty {})
+            }
         })
     }
 
@@ -362,6 +367,10 @@ impl Backend {
             dirs: output.dirs,
             oversize: output.oversize,
         })
+    }
+
+    fn remove_media_files(&self, fnames: &[String]) -> Result<()> {
+        remove_files(&self.media_folder, fnames)
     }
 }
 
