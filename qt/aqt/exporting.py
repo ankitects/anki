@@ -43,7 +43,7 @@ class ExportDialog(QDialog):
         if self.cids is None:
             self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
         else:
-            self.decks = [_("Browser Selection")]
+            self.decks = [_("Selected Notes")]
         self.frm.deck.addItems(self.decks)
         # save button
         b = QPushButton(_("Export..."))
