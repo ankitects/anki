@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::backend_proto as pt;
+use crate::backend_proto as pb;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
@@ -37,41 +37,41 @@ enum Progress<'a> {
 }
 
 /// Convert an Anki error to a protobuf error.
-impl std::convert::From<AnkiError> for pt::BackendError {
+impl std::convert::From<AnkiError> for pb::BackendError {
     fn from(err: AnkiError) -> Self {
-        use pt::backend_error::Value as V;
+        use pb::backend_error::Value as V;
         let value = match err {
-            AnkiError::InvalidInput { info } => V::InvalidInput(pt::StringError { info }),
+            AnkiError::InvalidInput { info } => V::InvalidInput(pb::StringError { info }),
             AnkiError::TemplateError { info, q_side } => {
-                V::TemplateParse(pt::TemplateParseError { info, q_side })
+                V::TemplateParse(pb::TemplateParseError { info, q_side })
             }
-            AnkiError::IOError { info } => V::IoError(pt::StringError { info }),
-            AnkiError::DBError { info } => V::DbError(pt::StringError { info }),
-            AnkiError::NetworkError { info, kind } => V::NetworkError(pt::NetworkError {
+            AnkiError::IOError { info } => V::IoError(pb::StringError { info }),
+            AnkiError::DBError { info } => V::DbError(pb::StringError { info }),
+            AnkiError::NetworkError { info, kind } => V::NetworkError(pb::NetworkError {
                 info,
                 kind: kind.into(),
             }),
-            AnkiError::SyncError { info, kind } => V::SyncError(pt::SyncError {
+            AnkiError::SyncError { info, kind } => V::SyncError(pb::SyncError {
                 info,
                 kind: kind.into(),
             }),
             AnkiError::Interrupted => V::Interrupted(Empty {}),
         };
 
-        pt::BackendError { value: Some(value) }
+        pb::BackendError { value: Some(value) }
     }
 }
 
 // Convert an Anki error to a protobuf output.
-impl std::convert::From<AnkiError> for pt::backend_output::Value {
+impl std::convert::From<AnkiError> for pb::backend_output::Value {
     fn from(err: AnkiError) -> Self {
-        pt::backend_output::Value::Error(err.into())
+        pb::backend_output::Value::Error(err.into())
     }
 }
 
 impl std::convert::From<NetworkErrorKind> for i32 {
     fn from(e: NetworkErrorKind) -> Self {
-        use pt::network_error::NetworkErrorKind as V;
+        use pb::network_error::NetworkErrorKind as V;
         (match e {
             NetworkErrorKind::Offline => V::Offline,
             NetworkErrorKind::Timeout => V::Timeout,
@@ -83,7 +83,7 @@ impl std::convert::From<NetworkErrorKind> for i32 {
 
 impl std::convert::From<SyncErrorKind> for i32 {
     fn from(e: SyncErrorKind) -> Self {
-        use pt::sync_error::SyncErrorKind as V;
+        use pb::sync_error::SyncErrorKind as V;
         (match e {
             SyncErrorKind::Conflict => V::Conflict,
             SyncErrorKind::ServerError => V::ServerError,
@@ -98,7 +98,7 @@ impl std::convert::From<SyncErrorKind> for i32 {
 }
 
 pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
-    let input: pt::BackendInit = match pt::BackendInit::decode(init_msg) {
+    let input: pb::BackendInit = match pb::BackendInit::decode(init_msg) {
         Ok(req) => req,
         Err(_) => return Err("couldn't decode init request".into()),
     };
@@ -127,12 +127,12 @@ impl Backend {
     pub fn run_command_bytes(&mut self, req: &[u8]) -> Vec<u8> {
         let mut buf = vec![];
 
-        let req = match pt::BackendInput::decode(req) {
+        let req = match pb::BackendInput::decode(req) {
             Ok(req) => req,
             Err(_e) => {
                 // unable to decode
                 let err = AnkiError::invalid_input("couldn't decode backend request");
-                let output = pt::BackendOutput {
+                let output = pb::BackendOutput {
                     value: Some(err.into()),
                 };
                 output.encode(&mut buf).expect("encode failed");
@@ -145,7 +145,7 @@ impl Backend {
         buf
     }
 
-    fn run_command(&mut self, input: pt::BackendInput) -> pt::BackendOutput {
+    fn run_command(&mut self, input: pb::BackendInput) -> pb::BackendOutput {
         let oval = if let Some(ival) = input.value {
             match self.run_command_inner(ival) {
                 Ok(output) => output,
@@ -155,14 +155,14 @@ impl Backend {
             AnkiError::invalid_input("unrecognized backend input value").into()
         };
 
-        pt::BackendOutput { value: Some(oval) }
+        pb::BackendOutput { value: Some(oval) }
     }
 
     fn run_command_inner(
         &mut self,
-        ival: pt::backend_input::Value,
-    ) -> Result<pt::backend_output::Value> {
-        use pt::backend_output::Value as OValue;
+        ival: pb::backend_input::Value,
+    ) -> Result<pb::backend_output::Value> {
+        use pb::backend_output::Value as OValue;
         Ok(match ival {
             Value::TemplateRequirements(input) => {
                 OValue::TemplateRequirements(self.template_requirements(input)?)
@@ -208,8 +208,8 @@ impl Backend {
 
     fn template_requirements(
         &self,
-        input: pt::TemplateRequirementsIn,
-    ) -> Result<pt::TemplateRequirementsOut> {
+        input: pb::TemplateRequirementsIn,
+    ) -> Result<pb::TemplateRequirementsOut> {
         let map: FieldMap = input
             .field_names_to_ordinals
             .iter()
@@ -225,29 +225,29 @@ impl Backend {
                 if let Ok(tmpl) = ParsedTemplate::from_text(normalized.as_ref()) {
                     // convert the rust structure into a protobuf one
                     let val = match tmpl.requirements(&map) {
-                        FieldRequirements::Any(ords) => Value::Any(pt::TemplateRequirementAny {
+                        FieldRequirements::Any(ords) => Value::Any(pb::TemplateRequirementAny {
                             ords: ords_hash_to_set(ords),
                         }),
-                        FieldRequirements::All(ords) => Value::All(pt::TemplateRequirementAll {
+                        FieldRequirements::All(ords) => Value::All(pb::TemplateRequirementAll {
                             ords: ords_hash_to_set(ords),
                         }),
-                        FieldRequirements::None => Value::None(pt::Empty {}),
+                        FieldRequirements::None => Value::None(pb::Empty {}),
                     };
-                    Ok(pt::TemplateRequirement { value: Some(val) })
+                    Ok(pb::TemplateRequirement { value: Some(val) })
                 } else {
                     // template parsing failures make card unsatisfiable
-                    Ok(pt::TemplateRequirement {
-                        value: Some(Value::None(pt::Empty {})),
+                    Ok(pb::TemplateRequirement {
+                        value: Some(Value::None(pb::Empty {})),
                     })
                 }
             })
             .collect::<Result<Vec<_>>>()?;
-        Ok(pt::TemplateRequirementsOut {
+        Ok(pb::TemplateRequirementsOut {
             requirements: all_reqs,
         })
     }
 
-    fn sched_timing_today(&self, input: pt::SchedTimingTodayIn) -> pt::SchedTimingTodayOut {
+    fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
         let today = sched_timing_today(
             input.created_secs as i64,
             input.created_mins_west,
@@ -255,13 +255,13 @@ impl Backend {
             input.now_mins_west,
             input.rollover_hour as i8,
         );
-        pt::SchedTimingTodayOut {
+        pb::SchedTimingTodayOut {
             days_elapsed: today.days_elapsed,
             next_day_at: today.next_day_at,
         }
     }
 
-    fn render_template(&self, input: pt::RenderCardIn) -> Result<pt::RenderCardOut> {
+    fn render_template(&self, input: pb::RenderCardIn) -> Result<pb::RenderCardOut> {
         // convert string map to &str
         let fields: HashMap<_, _> = input
             .fields
@@ -278,19 +278,19 @@ impl Backend {
         )?;
 
         // return
-        Ok(pt::RenderCardOut {
+        Ok(pb::RenderCardOut {
             question_nodes: rendered_nodes_to_proto(qnodes),
             answer_nodes: rendered_nodes_to_proto(anodes),
         })
     }
 
-    fn extract_av_tags(&self, input: pt::ExtractAvTagsIn) -> pt::ExtractAvTagsOut {
+    fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> pb::ExtractAvTagsOut {
         let (text, tags) = extract_av_tags(&input.text, input.question_side);
         let pt_tags = tags
             .into_iter()
             .map(|avtag| match avtag {
-                AVTag::SoundOrVideo(file) => pt::AvTag {
-                    value: Some(pt::av_tag::Value::SoundOrVideo(file)),
+                AVTag::SoundOrVideo(file) => pb::AvTag {
+                    value: Some(pb::av_tag::Value::SoundOrVideo(file)),
                 },
                 AVTag::TextToSpeech {
                     field_text,
@@ -298,8 +298,8 @@ impl Backend {
                     voices,
                     other_args,
                     speed,
-                } => pt::AvTag {
-                    value: Some(pt::av_tag::Value::Tts(pt::TtsTag {
+                } => pb::AvTag {
+                    value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
                         field_text,
                         lang,
                         voices,
@@ -310,20 +310,20 @@ impl Backend {
             })
             .collect();
 
-        pt::ExtractAvTagsOut {
+        pb::ExtractAvTagsOut {
             text: text.into(),
             av_tags: pt_tags,
         }
     }
 
-    fn extract_latex(&self, input: pt::ExtractLatexIn) -> pt::ExtractLatexOut {
+    fn extract_latex(&self, input: pb::ExtractLatexIn) -> pb::ExtractLatexOut {
         let (text, extracted) = extract_latex(&input.text, input.svg);
 
-        pt::ExtractLatexOut {
+        pb::ExtractLatexOut {
             text,
             latex: extracted
                 .into_iter()
-                .map(|e: ExtractedLatex| pt::ExtractedLatex {
+                .map(|e: ExtractedLatex| pb::ExtractedLatex {
                     filename: e.fname,
                     latex_body: e.latex,
                 })
@@ -331,7 +331,7 @@ impl Backend {
         }
     }
 
-    fn add_media_file(&mut self, input: pt::AddMediaFileIn) -> Result<String> {
+    fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> Result<String> {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         let mut ctx = mgr.dbctx();
         Ok(mgr
@@ -350,7 +350,7 @@ impl Backend {
         rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey))
     }
 
-    fn check_media(&self) -> Result<pt::MediaCheckOut> {
+    fn check_media(&self) -> Result<pb::MediaCheckOut> {
         let callback =
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
@@ -358,7 +358,7 @@ impl Backend {
         let mut checker = MediaChecker::new(&mgr, &self.col_path, callback);
         let output = checker.check()?;
 
-        Ok(pt::MediaCheckOut {
+        Ok(pb::MediaCheckOut {
             unused: output.unused,
             missing: output.missing,
             renamed: output.renamed,
@@ -376,23 +376,23 @@ fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
     ords.iter().map(|ord| *ord as u32).collect()
 }
 
-fn rendered_nodes_to_proto(nodes: Vec<RenderedNode>) -> Vec<pt::RenderedTemplateNode> {
+fn rendered_nodes_to_proto(nodes: Vec<RenderedNode>) -> Vec<pb::RenderedTemplateNode> {
     nodes
         .into_iter()
-        .map(|n| pt::RenderedTemplateNode {
+        .map(|n| pb::RenderedTemplateNode {
             value: Some(rendered_node_to_proto(n)),
         })
         .collect()
 }
 
-fn rendered_node_to_proto(node: RenderedNode) -> pt::rendered_template_node::Value {
+fn rendered_node_to_proto(node: RenderedNode) -> pb::rendered_template_node::Value {
     match node {
-        RenderedNode::Text { text } => pt::rendered_template_node::Value::Text(text),
+        RenderedNode::Text { text } => pb::rendered_template_node::Value::Text(text),
         RenderedNode::Replacement {
             field_name,
             current_text,
             filters,
-        } => pt::rendered_template_node::Value::Replacement(RenderedTemplateReplacement {
+        } => pb::rendered_template_node::Value::Replacement(RenderedTemplateReplacement {
             field_name,
             current_text,
             filters,
@@ -401,16 +401,16 @@ fn rendered_node_to_proto(node: RenderedNode) -> pt::rendered_template_node::Val
 }
 
 fn progress_to_proto_bytes(progress: Progress) -> Vec<u8> {
-    let proto = pt::Progress {
+    let proto = pb::Progress {
         value: Some(match progress {
-            Progress::MediaSync(p) => pt::progress::Value::MediaSync(pt::MediaSyncProgress {
+            Progress::MediaSync(p) => pb::progress::Value::MediaSync(pb::MediaSyncProgress {
                 checked: p.checked as u32,
                 downloaded_files: p.downloaded_files as u32,
                 downloaded_deletions: p.downloaded_deletions as u32,
                 uploaded_files: p.uploaded_files as u32,
                 uploaded_deletions: p.uploaded_deletions as u32,
             }),
-            Progress::MediaCheck(n) => pt::progress::Value::MediaCheck(n),
+            Progress::MediaCheck(n) => pb::progress::Value::MediaCheck(n),
         }),
     };
 
