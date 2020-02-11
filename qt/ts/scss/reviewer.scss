@@ -59,6 +59,9 @@ img {
 
 .replay-button {
     text-decoration: none;
+    display: inline-flex;
+    vertical-align: middle;
+    margin: 3px;
 
     svg {
         width: 40px;
