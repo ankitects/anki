@@ -15,7 +15,7 @@ from anki.lang import _
 from anki.models import NoteType
 from anki.rsbackend import ExtractedLatex
 from anki.template import TemplateRenderContext, TemplateRenderOutput
-from anki.utils import call, checksum, isMac, namedtmp, stripHTML, tmpdir
+from anki.utils import call, isMac, namedtmp, tmpdir
 
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
@@ -66,7 +66,14 @@ def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> 
 
     return html
 
-def _save_latex_image(col: anki.storage._Collection, extracted: ExtractedLatex, header: str, footer: str, svg: bool) -> Optional[str]:
+
+def _save_latex_image(
+    col: anki.storage._Collection,
+    extracted: ExtractedLatex,
+    header: str,
+    footer: str,
+    svg: bool,
+) -> Optional[str]:
     # add header/footer
     latex = header + "\n" + extracted.latex_body + "\n" + footer
     # it's only really secure if run in a jail, but these are the most common
