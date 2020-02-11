@@ -51,10 +51,23 @@ of a line to silence the spurious errors.
 
  # type: ignore
 
-In cases where you have two modules that reference each other, you can't simply
-import the types from each module into the other one, as it can cause a cyclic
-import. An example of how to work around this can be seen at
-https://github.com/dae/anki/commit/ed0b3d337458d7161811547932b6476f2d4bc887
+In cases where you have two modules that reference each other, you can fix the
+import cycle by using fully qualified names in the types, and enabling
+annotations. For example, instead of
+
+  from aqt.browser import Browser
+
+  def myfunc(b: Browser) -> None:
+    pass
+
+use the following instead:
+
+  from __future__ import annotations
+
+  import aqt
+
+  def myfunc(b: aqt.browser.Browser) -> None:
+    pass
 
 Hooks
 -------
