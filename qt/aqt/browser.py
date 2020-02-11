@@ -615,7 +615,7 @@ class Browser(QMainWindow):
         f.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
         f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
         f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
-        f.actionExport.triggered.connect(lambda: self._exporting())
+        f.actionExport.triggered.connect(lambda: self._on_export_notes())
         # jumps
         f.actionPreviousCard.triggered.connect(self.onPreviousCard)
         f.actionNextCard.triggered.connect(self.onNextCard)
@@ -1903,7 +1903,7 @@ update cards set usn=?, mod=?, did=? where id in """
     # Exporting
     ######################################################################
 
-    def _exporting(self):
+    def _on_export_notes(self):
         cids = self.selectedNotesAsCards()
         if cids:
             ExportDialog(self.mw, cids=cids)
