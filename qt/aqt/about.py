@@ -219,5 +219,5 @@ suggestions, bug reports and donations."
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
     dialog.show()
-    abt.label.stdHtml(abouttext, js=" ")
+    abt.label.stdHtml(abouttext, js=[])
     return dialog
