@@ -1382,27 +1382,20 @@ by clicking on one on the left."""
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
 
-        class CardInfoDialog(QDialog):
-            silentlyClose = True
-
-            def reject(self):
-                saveGeom(self, "revlog")
-                return QDialog.reject(self)
-
-        d = CardInfoDialog(self)
+        card_info_dialog = CardInfoDialog(self)
         l = QVBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         w = AnkiWebView(title="browser card info")
         l.addWidget(w)
-        w.stdHtml(info + "<p>" + reps)
+        w.stdHtml(info + "<p>" + reps, context=card_info_dialog)
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         l.addWidget(bb)
-        bb.rejected.connect(d.reject)
-        d.setLayout(l)
-        d.setWindowModality(Qt.WindowModal)
-        d.resize(500, 400)
-        restoreGeom(d, "revlog")
-        d.show()
+        bb.rejected.connect(card_info_dialog.reject)
+        card_info_dialog.setLayout(l)
+        card_info_dialog.setWindowModality(Qt.WindowModal)
+        card_info_dialog.resize(500, 400)
+        restoreGeom(card_info_dialog, "revlog", CardInfoDialog)
+        card_info_dialog.show()
 
     def _cardInfoData(self):
         from anki.stats import CardStats
@@ -2480,3 +2473,18 @@ Are you sure you want to continue?"""
 
     def onHelp(self):
         openHelp("browsermisc")
+
+
+# Card Info Dialog
+######################################################################
+
+class CardInfoDialog(QDialog):
+    silentlyClose = True
+
+    def __init__(self, browser: Browser, *args, **kwargs):
+        super().__init__(browser, *args, **kwargs)
+        self.browser = browser
+
+    def reject(self):
+        saveGeom(self, "revlog")
+        return QDialog.reject(self)
