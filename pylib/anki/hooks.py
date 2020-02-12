@@ -18,6 +18,7 @@ import decorator
 
 import anki
 from anki.cards import Card
+from anki.notes import Note
 
 # New hook/filter handling
 ##############################################################################
@@ -275,6 +276,32 @@ class _NoteTypeAddedHook:
 
 
 note_type_added = _NoteTypeAddedHook()
+
+
+class _NoteWillFlushHook:
+    """Allow to change a note before it is added/updated in the database."""
+
+    _hooks: List[Callable[[Note], None]] = []
+
+    def append(self, cb: Callable[[Note], None]) -> None:
+        """(note: Note)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Note], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, note: Note) -> None:
+        for hook in self._hooks:
+            try:
+                hook(note)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+note_will_flush = _NoteWillFlushHook()
 
 
 class _NotesWillBeDeletedHook:

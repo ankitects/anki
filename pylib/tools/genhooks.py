@@ -68,6 +68,11 @@ hooks = [
         field_text or not before returning it.""",
     ),
     Hook(
+        name="note_will_flush",
+        args=["note: Note"],
+        doc="Allow to change a note before it is added/updated in the database.",
+    ),
+    Hook(
         name="card_did_render",
         args=[
             "output: anki.template.TemplateRenderOutput",
