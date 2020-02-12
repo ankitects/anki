@@ -2478,6 +2478,7 @@ Are you sure you want to continue?"""
 # Card Info Dialog
 ######################################################################
 
+
 class CardInfoDialog(QDialog):
     silentlyClose = True
 

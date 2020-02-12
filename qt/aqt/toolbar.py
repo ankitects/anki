@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Any
+from typing import Any, Optional
 
 import aqt
 from anki.lang import _
@@ -49,7 +49,9 @@ class Toolbar:
         link_handler = link_handler or self._linkHandler
         self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
-            self._body % self._centerLinks(), css=["_anki/toolbar.css"], context=web_context
+            self._body % self._centerLinks(),
+            css=["_anki/toolbar.css"],
+            context=web_context,
         )
         self.web.adjustHeightToFit()
 
