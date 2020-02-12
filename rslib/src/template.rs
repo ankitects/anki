@@ -547,7 +547,7 @@ mod test {
     use std::iter::FromIterator;
 
     #[test]
-    fn test_field_empty() {
+    fn field_empty() {
         assert_eq!(field_is_empty(""), true);
         assert_eq!(field_is_empty(" "), true);
         assert_eq!(field_is_empty("x"), false);
@@ -558,7 +558,7 @@ mod test {
     }
 
     #[test]
-    fn test_parsing() {
+    fn parsing() {
         let tmpl = PT::from_text("foo {{bar}} {{#baz}} quux {{/baz}}").unwrap();
         assert_eq!(
             tmpl.0,
@@ -606,7 +606,7 @@ mod test {
     }
 
     #[test]
-    fn test_nonempty() {
+    fn nonempty() {
         let fields = HashSet::from_iter(vec!["1", "3"].into_iter());
         let mut tmpl = PT::from_text("{{2}}{{1}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), true);
@@ -619,7 +619,7 @@ mod test {
     }
 
     #[test]
-    fn test_requirements() {
+    fn requirements() {
         let field_map: FieldMap = vec!["a", "b"]
             .iter()
             .enumerate()
@@ -680,7 +680,7 @@ mod test {
     }
 
     #[test]
-    fn test_alt_syntax() {
+    fn alt_syntax() {
         let input = "
 {{=<% %>=}}
 <%Front%>
@@ -695,7 +695,7 @@ mod test {
     }
 
     #[test]
-    fn test_render_single() {
+    fn render_single() {
         let map: HashMap<_, _> = vec![("F", "f"), ("B", "b"), ("E", " ")]
             .into_iter()
             .collect();

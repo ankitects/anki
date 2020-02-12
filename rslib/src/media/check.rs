@@ -361,7 +361,7 @@ mod test {
     }
 
     #[test]
-    fn test_media_check() -> Result<()> {
+    fn media_check() -> Result<()> {
         let (_dir, mgr, col_path) = common_setup()?;
 
         // add some test files
@@ -395,7 +395,7 @@ mod test {
     }
 
     #[test]
-    fn test_unicode_normalization() -> Result<()> {
+    fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, col_path) = common_setup()?;
 
         fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
