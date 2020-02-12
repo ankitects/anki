@@ -227,7 +227,7 @@ mod test {
     };
 
     #[test]
-    fn test_stripping() {
+    fn stripping() {
         assert_eq!(strip_html("test"), "test");
         assert_eq!(strip_html("t<b>e</b>st"), "test");
         assert_eq!(strip_html("so<SCRIPT>t<b>e</b>st</script>me"), "some");
@@ -244,7 +244,7 @@ mod test {
     }
 
     #[test]
-    fn test_audio() {
+    fn audio() {
         let s =
             "abc[sound:fo&amp;o.mp3]def[anki:tts][en_US voices=Bob,Jane speed=1.2]foo<br>1&gt;2[/anki:tts]gh";
         assert_eq!(strip_av_tags(s), "abcdefgh");

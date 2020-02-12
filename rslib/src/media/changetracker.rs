@@ -245,7 +245,7 @@ mod test {
     }
 
     #[test]
-    fn test_change_tracking() -> Result<()> {
+    fn change_tracking() -> Result<()> {
         let dir = tempdir()?;
         let media_dir = dir.path().join("media");
         std::fs::create_dir(&media_dir)?;

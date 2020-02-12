@@ -145,7 +145,7 @@ mod test {
     use std::collections::HashSet;
 
     #[test]
-    fn test_cloze() {
+    fn cloze() {
         assert_eq!(
             cloze_numbers_in_string("test"),
             vec![].into_iter().collect::<HashSet<u16>>()

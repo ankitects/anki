@@ -257,7 +257,7 @@ mod test {
     use tempfile::NamedTempFile;
 
     #[test]
-    fn test_database() -> Result<()> {
+    fn database() -> Result<()> {
         let db_file = NamedTempFile::new()?;
         let db_file_path = db_file.path().to_str().unwrap();
         let mut mgr = MediaManager::new("/dummy", db_file_path)?;
