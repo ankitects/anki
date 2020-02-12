@@ -145,21 +145,23 @@ class Reviewer:
         # main window
         self.web.stdHtml(
             self.revHtml(),
-            css=["reviewer.css"],
+            css=["_anki/reviewer.css"],
             js=[
-                "jquery.js",
-                "browsersel.js",
-                "mathjax/conf.js",
-                "mathjax/MathJax.js",
-                "reviewer.js",
+                "_anki/jquery.js",
+                "_anki/browsersel.js",
+                "_anki/mathjax/conf.js",
+                "_anki/mathjax/MathJax.js",
+                "_anki/reviewer.js",
             ],
+            context=self,
         )
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
-            css=["toolbar-bottom.css", "reviewer-bottom.css"],
-            js=["jquery.js", "reviewer-bottom.js"],
+            css=["_anki/toolbar-bottom.css", "_anki/reviewer-bottom.css"],
+            js=["_anki/jquery.js", "_anki/reviewer-bottom.js"],
+            context=ReviewerBottomBar(self),
         )
 
     # Showing the question

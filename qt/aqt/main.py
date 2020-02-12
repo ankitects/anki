@@ -663,9 +663,8 @@ from the profile screen."
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
-        self.web.set_bridge_command(
-            lambda url: self.delayedMaybeReset(), ResetRequired(self)
-        )
+        web_context = ResetRequired(self)
+        self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml(
@@ -676,7 +675,8 @@ from the profile screen."
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """
-            % (i, b)
+            % (i, b),
+            context=web_context,
         )
         self.bottomWeb.hide()
         self.web.setFocus()

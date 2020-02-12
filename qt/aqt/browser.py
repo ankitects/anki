@@ -1650,18 +1650,21 @@ where id in %s"""
 
     def _setupPreviewWebview(self):
         jsinc = [
-            "jquery.js",
-            "browsersel.js",
-            "mathjax/conf.js",
-            "mathjax/MathJax.js",
-            "reviewer.js",
+            "_anki/jquery.js",
+            "_anki/browsersel.js",
+            "_anki/mathjax/conf.js",
+            "_anki/mathjax/MathJax.js",
+            "_anki/reviewer.js",
         ]
+        web_context = PreviewDialog(dialog=self._previewWindow, browser=self)
         self._previewWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
+            self.mw.reviewer.revHtml(),
+            css=["_anki/reviewer.css"],
+            js=jsinc,
+            context=web_context,
         )
         self._previewWeb.set_bridge_command(
-            self._on_preview_bridge_cmd,
-            PreviewDialog(dialog=self._previewWindow, browser=self),
+            self._on_preview_bridge_cmd, web_context,
         )
 
     def _on_preview_bridge_cmd(self, cmd: str) -> Any:
@@ -2159,10 +2162,9 @@ update cards set usn=?, mod=?, did=? where id in """
         self._dupesButton = None
         # links
         frm.webView.title = "find duplicates"
-        frm.webView.set_bridge_command(
-            self.dupeLinkClicked, FindDupesDialog(dialog=d, browser=self)
-        )
-        frm.webView.stdHtml("")
+        web_context = FindDupesDialog(dialog=d, browser=self)
+        frm.webView.set_bridge_command(self.dupeLinkClicked, web_context)
+        frm.webView.stdHtml("", context=web_context)
 
         def onFin(code):
             saveGeom(d, "findDupes")
@@ -2171,13 +2173,15 @@ update cards set usn=?, mod=?, did=? where id in """
 
         def onClick():
             field = fields[frm.fields.currentIndex()]
-            self.duplicatesReport(frm.webView, field, frm.search.text(), frm)
+            self.duplicatesReport(
+                frm.webView, field, frm.search.text(), frm, web_context
+            )
 
         search = frm.buttonBox.addButton(_("Search"), QDialogButtonBox.ActionRole)
         search.clicked.connect(onClick)
         d.show()
 
-    def duplicatesReport(self, web, fname, search, frm):
+    def duplicatesReport(self, web, fname, search, frm, web_context):
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
         if not self._dupesButton:
@@ -2202,7 +2206,7 @@ update cards set usn=?, mod=?, did=? where id in """
                 )
             )
         t += "</ol>"
-        web.stdHtml(t)
+        web.stdHtml(t, context=web_context)
         self.mw.progress.finish()
 
     def _onTagDupes(self, res):
