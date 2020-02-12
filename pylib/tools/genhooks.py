@@ -73,6 +73,11 @@ hooks = [
         doc="Allow to change a note before it is added/updated in the database.",
     ),
     Hook(
+        name="card_will_flush",
+        args=["card: Card"],
+        doc="Allow to change a card before it is added/updated in the database.",
+    ),
+    Hook(
         name="card_did_render",
         args=[
             "output: anki.template.TemplateRenderOutput",

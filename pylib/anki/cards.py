@@ -84,7 +84,8 @@ class Card:
         self._render_output = None
         self._note = None
 
-    def _preFlush(self) -> none:
+    def _preFlush(self) -> None:
+        hooks.card_will_flush(self)
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
