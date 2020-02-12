@@ -84,7 +84,7 @@ class Card:
         self._render_output = None
         self._note = None
 
-    def flush(self) -> None:
+    def _preFlush(self) -> none:
         self.mod = intTime()
         self.usn = self.col.usn()
         # bug check
@@ -95,6 +95,9 @@ class Card:
         ):
             hooks.card_odue_was_invalid()
         assert self.due < 4294967296
+
+    def flush(self) -> None:
+        self._preFlush()
         self.col.db.execute(
             """
 insert or replace into cards values
@@ -121,16 +124,8 @@ insert or replace into cards values
         self.col.log(self)
 
     def flushSched(self) -> None:
-        self.mod = intTime()
-        self.usn = self.col.usn()
+        self._preFlush()
         # bug checks
-        if (
-            self.queue == QUEUE_TYPE_REV
-            and self.odue
-            and not self.col.decks.isDyn(self.did)
-        ):
-            hooks.card_odue_was_invalid()
-        assert self.due < 4294967296
         self.col.db.execute(
             """update cards set
 mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
