@@ -1129,6 +1129,56 @@ class _WebviewDidReceiveJsMessageFilter:
 webview_did_receive_js_message = _WebviewDidReceiveJsMessageFilter()
 
 
+class _WebviewWillSetContentHook:
+    """Used to modify web content before it is rendered.
+
+        Web_content contains the HTML, JS, and CSS the web view will be
+        populated with.
+
+        Context is the instance that was passed to stdHtml().
+        It can be inspected to check which screen this hook is firing
+        in, and to get a reference to the screen. For example, if your
+        code wishes to function only in the review screen, you could do:
+
+            if not isinstance(context, aqt.reviewer.Reviewer):
+                # not reviewer, do not modify content
+                return
+
+            web_content.js.append("my_addon.js")
+            web_content.css.append("my_addon.css")
+            web_content.head += "<script>console.log('my_addon')</script>"
+            web_content.body += "<div id='my-addon'></div>"
+        """
+
+    _hooks: List[Callable[["aqt.webview.WebContent", Optional[Any]], None]] = []
+
+    def append(
+        self, cb: Callable[["aqt.webview.WebContent", Optional[Any]], None]
+    ) -> None:
+        """(web_content: aqt.webview.WebContent, context: Optional[Any])"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.webview.WebContent", Optional[Any]], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, web_content: aqt.webview.WebContent, context: Optional[Any]
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(web_content, context)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+webview_will_set_content = _WebviewWillSetContentHook()
+
+
 class _WebviewWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.webview.AnkiWebView", QMenu], None]] = []
 

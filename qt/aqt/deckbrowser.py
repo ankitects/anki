@@ -107,8 +107,9 @@ class DeckBrowser:
         stats = self._renderStats()
         self.web.stdHtml(
             self._body % dict(tree=tree, stats=stats, countwarn=self._countWarn()),
-            css=["deckbrowser.css"],
-            js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
+            css=["_anki/deckbrowser.css"],
+            js=["_anki/jquery.js", "_anki/jquery-ui.js", "_anki/deckbrowser.js"],
+            context=self,
         )
         self.web.key = "deckBrowser"
         self._drawButtons()
@@ -340,9 +341,10 @@ where id > ?""",
 <button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(
                 b
             )
-        self.bottom.draw(buf)
-        self.bottom.web.set_bridge_command(
-            self._linkHandler, DeckBrowserBottomBar(self)
+        self.bottom.draw(
+            buf=buf,
+            link_handler=self._linkHandler,
+            web_context=DeckBrowserBottomBar(self),
         )
 
     def _onShared(self):

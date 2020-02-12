@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import dataclasses
 import json
 import math
 import sys
@@ -94,6 +95,64 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
 
     def _onCmd(self, str):
         return self._onBridgeCmd(str)
+
+
+# Add-ons
+##########################################################################
+
+
+@dataclasses.dataclass
+class WebContent:
+    """Stores all dynamically modified content that a particular web view will be
+    populated with.
+
+    Attributes:
+        body {str} -- HTML body
+        head {str} -- HTML head
+        css {List[str]} -- List of media server subpaths, each pointing to a CSS file
+        js {List[str]} -- List of media server subpaths, each pointing to a JS file
+
+    Important Notes:
+        - When modifying the attributes specified above, please make sure your changes
+        only perform the minimum requried edits to make your add-on work. You should
+        avoid overwriting or interfering with existing data as much as possible,
+        instead opting to append your own changes, e.g.:
+        
+            def on_webview_will_set_content(web_content: WebContent, context):
+                web_content.body += "<my_html>"
+                web_content.head += "<my_head>"
+                web_content.css.append("my_addon.css")
+                web_content.js.append("my_addon.js")
+
+        - The paths specified in `css` and `js` need to be accessible by Anki's media
+          server. Web components shipping with Anki are located under the `_anki`
+          subpath.
+          
+          Add-ons may expose their own web components by utilizing
+          aqt.addons.AddonManager.setWebExports(). Web exports registered in this
+          manner may then be accessed under the `_addons` subpath.
+          
+          E.g., to allow access to an `addon.js` and `addon.css` residing in a "web"
+          subfolder in your add-on package, first register the corresponding web export:
+          
+          > from aqt import mw
+          > mw.addonManager.setWebExports(__name__, r"web/.*(css|js)")
+          
+          Then append the subpaths to the corresponding web_content fields within a
+          function subscribing to gui_hooks.webview_will_set_content:
+          
+              def on_webview_will_set_content(web_content: WebContent, context):
+                  addon_package = mw.addonManager.addonFromModule(__name__)
+                  web_content.css.append(
+                      f"_addons/{addon_package}/web/addon.css")
+                  web_content.js.append(
+                      f"_addons/{addon_package}/web/addon.js")
+    """
+
+    body: str = ""
+    head: str = ""
+    css: List[str] = dataclasses.field(default_factory=lambda: [])
+    js: List[str] = dataclasses.field(default_factory=lambda: [])
 
 
 # Main web view
@@ -256,11 +315,23 @@ class AnkiWebView(QWebEngineView):  # type: ignore
             return QColor("#ececec")
         return self.style().standardPalette().color(QPalette.Window)
 
-    def stdHtml(self, body, css=None, js=None, head=""):
-        if css is None:
-            css = []
-        if js is None:
-            js = ["jquery.js"]
+    def stdHtml(
+        self,
+        body: str,
+        css: Optional[List[str]] = None,
+        js: Optional[List[str]] = None,
+        head: str = "",
+        context: Optional[Any] = None,
+    ):
+
+        web_content = WebContent(
+            body=body,
+            head=head,
+            js=["_anki/webview.js"] + (["_anki/jquery.js"] if js is None else js),
+            css=["_anki/webview.css"] + ([] if css is None else css),
+        )
+
+        gui_hooks.webview_will_set_content(web_content, context)
 
         palette = self.style().standardPalette()
         color_hl = palette.color(QPalette.Highlight).name()
@@ -301,16 +372,12 @@ div[contenteditable="true"]:focus {
                 "color_hl_txt": color_hl_txt,
             }
 
-        csstxt = "\n".join(
-            [self.bundledCSS("webview.css")] + [self.bundledCSS(fname) for fname in css]
-        )
-        jstxt = "\n".join(
-            [self.bundledScript("webview.js")]
-            + [self.bundledScript(fname) for fname in js]
-        )
+        csstxt = "\n".join(self.bundledCSS(fname) for fname in web_content.css)
+        jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
+
         from aqt import mw
 
-        head = mw.baseHTML() + head + csstxt + jstxt
+        head = mw.baseHTML() + web_content.head + csstxt + jstxt
 
         body_class = theme_manager.body_class()
 
@@ -336,20 +403,20 @@ body {{ zoom: {}; background: {}; {} }}
             widgetspec,
             head,
             body_class,
-            body,
+            web_content.body,
         )
         # print(html)
         self.setHtml(html)
 
-    def webBundlePath(self, path):
+    def webBundlePath(self, path: str) -> str:
         from aqt import mw
 
-        return "http://127.0.0.1:%d/_anki/%s" % (mw.mediaServer.getPort(), path)
+        return "http://127.0.0.1:%d/%s" % (mw.mediaServer.getPort(), path)
 
-    def bundledScript(self, fname):
+    def bundledScript(self, fname: str) -> str:
         return '<script src="%s"></script>' % self.webBundlePath(fname)
 
-    def bundledCSS(self, fname):
+    def bundledCSS(self, fname: str) -> str:
         return '<link rel="stylesheet" type="text/css" href="%s">' % self.webBundlePath(
             fname
         )
