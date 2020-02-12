@@ -101,9 +101,11 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
 
 
 class AnkiWebView(QWebEngineView):  # type: ignore
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self, parent: Optional[QWidget] = None, title: str = "default"
+    ) -> None:
         QWebEngineView.__init__(self, parent=parent)  # type: ignore
-        self.title = "default"
+        self.title = title
         self._page = AnkiWebPage(self._onBridgeCmd)
         self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
 

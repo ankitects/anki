@@ -1392,7 +1392,7 @@ by clicking on one on the left."""
         d = CardInfoDialog(self)
         l = QVBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
-        w = AnkiWebView()
+        w = AnkiWebView(title="browser card info")
         l.addWidget(w)
         w.stdHtml(info + "<p>" + reps)
         bb = QDialogButtonBox(QDialogButtonBox.Close)
@@ -1561,7 +1561,7 @@ where id in %s"""
         self._previewWindow.silentlyClose = True
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
-        self._previewWeb = AnkiWebView()
+        self._previewWeb = AnkiWebView(title="previewer")
         vbox.addWidget(self._previewWeb)
         bbox = QDialogButtonBox()
 
@@ -2158,6 +2158,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
+        frm.webView.title = "find duplicates"
         frm.webView.set_bridge_command(
             self.dupeLinkClicked, FindDupesDialog(dialog=d, browser=self)
         )
