@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
+from anki import hooks
 from anki.models import Field, NoteType
 from anki.utils import (
     fieldChecksum,
@@ -202,6 +203,7 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
     ##################################################
 
     def _preFlush(self) -> None:
+        hooks.note_will_flush(self)
         # have we been added yet?
         self.newlyAdded = not self.col.db.scalar(
             "select 1 from cards where nid = ?", self.id
