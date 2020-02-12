@@ -134,6 +134,32 @@ class _CardOdueWasInvalidHook:
 card_odue_was_invalid = _CardOdueWasInvalidHook()
 
 
+class _CardWillFlushHook:
+    """Allow to change a card before it is added/updated in the database."""
+
+    _hooks: List[Callable[[Card], None]] = []
+
+    def append(self, cb: Callable[[Card], None]) -> None:
+        """(card: Card)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Card], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, card: Card) -> None:
+        for hook in self._hooks:
+            try:
+                hook(card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+card_will_flush = _CardWillFlushHook()
+
+
 class _DeckAddedHook:
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
