@@ -1737,7 +1737,7 @@ where id in %s"""
                 av_player.play_tags(audio)
 
             txt = self.mw.prepare_card_text_for_display(txt)
-            gui_hooks.card_will_show(
+            txt = gui_hooks.card_will_show(
                 txt, c, "preview" + self._previewState.capitalize()
             )
             self._lastPreviewState = self._previewStateAndMod()
