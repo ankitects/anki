@@ -6,11 +6,16 @@ import json
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
+from anki.consts import *
 from anki.lang import _, ngettext
 from anki.utils import fmtTimeSpan, ids2str
 
 # Card stats
 ##########################################################################
+
+PERIOD_MONTH = 0
+PERIOD_YEAR = 1
+PERIOD_LIFE = 2
 
 
 class CardStats:
@@ -30,18 +35,18 @@ class CardStats:
         if first:
             self.addLine(_("First Review"), self.date(first / 1000))
             self.addLine(_("Latest Review"), self.date(last / 1000))
-        if c.type in (1, 2):
-            if c.odid or c.queue < 0:
+        if c.type in (CARD_TYPE_LRN, CARD_TYPE_REV):
+            if c.odid or c.queue < QUEUE_TYPE_NEW:
                 next = None
             else:
-                if c.queue in (2, 3):
+                if c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN):
                     next = time.time() + ((c.due - self.col.sched.today) * 86400)
                 else:
                     next = c.due
                 next = self.date(next)
             if next:
                 self.addLine(_("Due"), next)
-            if c.queue == 2:
+            if c.queue == QUEUE_TYPE_REV:
                 self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor / 10.0))
             self.addLine(_("Reviews"), "%d" % c.reps)
@@ -52,7 +57,7 @@ class CardStats:
             if cnt:
                 self.addLine(_("Average Time"), self.time(total / float(cnt)))
                 self.addLine(_("Total Time"), self.time(total))
-        elif c.queue == 0:
+        elif c.queue == QUEUE_TYPE_NEW:
             self.addLine(_("Position"), c.due)
         self.addLine(_("Card Type"), c.template()["name"])
         self.addLine(_("Note Type"), c.model()["name"])
@@ -102,14 +107,14 @@ class CollectionStats:
     def __init__(self, col) -> None:
         self.col = col
         self._stats = None
-        self.type = 0
+        self.type = PERIOD_MONTH
         self.width = 600
         self.height = 200
         self.wholeCollection = False
 
     # assumes jquery & plot are available in document
-    def report(self, type=0) -> str:
-        # 0=days, 1=weeks, 2=months
+    def report(self, type=PERIOD_MONTH) -> str:
+        # 0=month, 1=year, 2=deck life
         self.type = type
         from .statsbg import bg
 
@@ -149,13 +154,13 @@ body {background-image: url(data:image/png;base64,%s); }
         if lim:
             lim = " and " + lim
         cards, thetime, failed, lrn, rev, relrn, filt = self.col.db.first(
-            """
+            f"""
 select count(), sum(time)/1000,
 sum(case when ease = 1 then 1 else 0 end), /* failed */
-sum(case when type = 0 then 1 else 0 end), /* learning */
-sum(case when type = 1 then 1 else 0 end), /* review */
-sum(case when type = 2 then 1 else 0 end), /* relearn */
-sum(case when type = 3 then 1 else 0 end) /* filter */
+sum(case when type = {REVLOG_LRN} then 1 else 0 end), /* learning */
+sum(case when type = {REVLOG_REV} then 1 else 0 end), /* review */
+sum(case when type = {REVLOG_RELRN} then 1 else 0 end), /* relearn */
+sum(case when type = {REVLOG_CRAM} then 1 else 0 end) /* filter */
 from revlog where id > ? """
             + lim,
             (self.col.sched.dayCutoff - 86400) * 1000,
@@ -215,9 +220,9 @@ from revlog where id > ? """
 
     def get_start_end_chunk(self, by="review") -> Tuple[int, Optional[int], int]:
         start = 0
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             end, chunk = 31, 1
-        elif self.type == 1:
+        elif self.type == PERIOD_YEAR:
             end, chunk = 52, 7
         else:  #  self.type == 2:
             end = None
@@ -279,8 +284,8 @@ from revlog where id > ? """
         self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
-            """
-select count() from cards where did in %s and queue in (2,3)
+            f"""
+select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN})
 and due = ?"""
             % self._limit(),
             self.col.sched.today + 1,
@@ -296,12 +301,12 @@ and due = ?"""
         if end is not None:
             lim += " and day < %d" % end
         return self.col.db.all(
-            """
+            f"""
 select (due-:today)/:chunk as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
-where did in %s and queue in (2,3)
+where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN})
 %s
 group by day order by day"""
             % (self._limit(), lim),
@@ -396,7 +401,7 @@ group by day order by day"""
                 (10, colCram, _("Cram")),
             ),
         )
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             t = _("Minutes")
             convHours = False
         else:
@@ -513,7 +518,7 @@ group by day order by day"""
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             tf = 60.0  # minutes
         else:
             tf = 3600.0  # hours
@@ -543,25 +548,25 @@ group by day order by day"""
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             tf = 60.0  # minutes
         else:
             tf = 3600.0  # hours
         return self.col.db.all(
-            """
+            f"""
 select
 (cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
-sum(case when type = 0 then 1 else 0 end), -- lrn count
-sum(case when type = 1 and lastIvl < 21 then 1 else 0 end), -- yng count
-sum(case when type = 1 and lastIvl >= 21 then 1 else 0 end), -- mtr count
-sum(case when type = 2 then 1 else 0 end), -- lapse count
-sum(case when type = 3 then 1 else 0 end), -- cram count
-sum(case when type = 0 then time/1000.0 else 0 end)/:tf, -- lrn time
+sum(case when type = {REVLOG_LRN} then 1 else 0 end), -- lrn count
+sum(case when type = {REVLOG_REV} and lastIvl < 21 then 1 else 0 end), -- yng count
+sum(case when type = {REVLOG_REV} and lastIvl >= 21 then 1 else 0 end), -- mtr count
+sum(case when type = {REVLOG_RELRN} then 1 else 0 end), -- lapse count
+sum(case when type = {REVLOG_CRAM} then 1 else 0 end), -- cram count
+sum(case when type = {REVLOG_LRN} then time/1000.0 else 0 end)/:tf, -- lrn time
 -- yng + mtr time
-sum(case when type = 1 and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = 1 and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = 2 then time/1000.0 else 0 end)/:tf, -- lapse time
-sum(case when type = 3 then time/1000.0 else 0 end)/:tf -- cram time
+sum(case when type = {REVLOG_REV} and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = {REVLOG_REV} and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
+sum(case when type = {REVLOG_RELRN} then time/1000.0 else 0 end)/:tf, -- lapse time
+sum(case when type = {REVLOG_CRAM} then time/1000.0 else 0 end)/:tf -- cram time
 from revlog %s
 group by day order by day"""
             % lim,
@@ -606,9 +611,9 @@ group by day order by day)"""
         for (grp, cnt) in ivls:
             tot += cnt
             totd.append((grp, tot / float(all) * 100))
-        if self.type == 0:
+        if self.type == PERIOD_MONTH:
             ivlmax = 31
-        elif self.type == 1:
+        elif self.type == PERIOD_YEAR:
             ivlmax = 52
         else:
             ivlmax = max(5, ivls[-1][0])
@@ -643,9 +648,9 @@ group by day order by day)"""
         lim = "and grp <= %d" % end if end else ""
         data = [
             self.col.db.all(
-                """
+                f"""
 select ivl / :chunk as grp, count() from cards
-where did in %s and queue = 2 %s
+where did in %s and queue = {QUEUE_TYPE_REV} %s
 group by grp
 order by grp"""
                 % (self._limit(), lim),
@@ -656,8 +661,8 @@ order by grp"""
             data
             + list(
                 self.col.db.first(
-                    """
-select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
+                    f"""
+select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE_TYPE_REV}"""
                     % self._limit()
                 )
             ),
@@ -675,9 +680,9 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         types = ("lrn", "yng", "mtr")
         eases = self._eases()
         for (type, ease, cnt) in eases:
-            if type == 1:
+            if type == CARD_TYPE_LRN:
                 ease += 5
-            elif type == 2:
+            elif type == CARD_TYPE_REV:
                 ease += 10
             n = types[type]
             d[n].append((ease, cnt))
@@ -714,7 +719,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         return txt
 
     def _easeInfo(self, eases) -> str:
-        types = {0: [0, 0], 1: [0, 0], 2: [0, 0]}
+        types = {PERIOD_MONTH: [0, 0], PERIOD_YEAR: [0, 0], PERIOD_LIFE: [0, 0]}
         for (type, ease, cnt) in eases:
             if ease == 1:
                 types[type][0] += cnt
@@ -759,12 +764,12 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = 2"""
         else:
             ease4repl = "ease"
         return self.col.db.all(
-            """
+            f"""
 select (case
-when type in (0,2) then 0
+when type in ({REVLOG_LRN},{REVLOG_RELRN}) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in (0,2) and ease = 4 then %s else ease end), count() from revlog %s
+(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog %s
 group by thetype, ease
 order by thetype, ease"""
             % (ease4repl, lim)
@@ -853,13 +858,13 @@ order by thetype, ease"""
         if pd:
             lim += " and id > %d" % ((self.col.sched.dayCutoff - (86400 * pd)) * 1000)
         return self.col.db.all(
-            """
+            f"""
 select
 23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
 sum(case when ease = 1 then 0 else 1 end) /
 cast(count() as float) * 100,
 count()
-from revlog where type in (0,1,2) %s
+from revlog where type in ({REVLOG_LRN},{REVLOG_REV},{REVLOG_RELRN}) %s
 group by hour having count() > 30 order by hour"""
             % lim,
             cut=self.col.sched.dayCutoff - (rolloverHour * 3600),
@@ -929,23 +934,23 @@ when you answer "good" on a review."""
 
     def _factors(self) -> Any:
         return self.col.db.first(
-            """
+            f"""
 select
 min(factor) / 10.0,
 avg(factor) / 10.0,
 max(factor) / 10.0
-from cards where did in %s and queue = 2"""
+from cards where did in %s and queue = {QUEUE_TYPE_REV}"""
             % self._limit()
         )
 
     def _cards(self) -> Any:
         return self.col.db.first(
-            """
+            f"""
 select
-sum(case when queue=2 and ivl >= 21 then 1 else 0 end), -- mtr
-sum(case when queue in (1,3) or (queue=2 and ivl < 21) then 1 else 0 end), -- yng/lrn
-sum(case when queue=0 then 1 else 0 end), -- new
-sum(case when queue<0 then 1 else 0 end) -- susp
+sum(case when queue={QUEUE_TYPE_REV} and ivl >= 21 then 1 else 0 end), -- mtr
+sum(case when queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) or (queue={QUEUE_TYPE_REV} and ivl < 21) then 1 else 0 end), -- yng/lrn
+sum(case when queue={QUEUE_TYPE_NEW} then 1 else 0 end), -- new
+sum(case when queue<{QUEUE_TYPE_NEW} then 1 else 0 end) -- susp
 from cards where did in %s"""
             % self._limit()
         )
