@@ -121,17 +121,9 @@ def render_card(
     try:
         output = render_card_from_context(ctx)
     except anki.rsbackend.TemplateError as e:
-        if e.q_side():
-            side = _("Front")
-        else:
-            side = _("Back")
-        errmsg = _("{} template has a problem:").format(side) + f"<br>{e}"
-        errmsg += "<br><a href=https://anki.tenderapp.com/kb/problems/card-template-has-a-problem>{}</a>".format(
-            _("More info")
-        )
         output = TemplateRenderOutput(
-            question_text=errmsg,
-            answer_text=errmsg,
+            question_text=str(e),
+            answer_text=str(e),
             question_av_tags=[],
             answer_av_tags=[],
         )

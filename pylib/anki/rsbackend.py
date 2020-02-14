@@ -46,8 +46,7 @@ class DBError(StringError):
 
 
 class TemplateError(StringError):
-    def q_side(self) -> bool:
-        return self.args[1]
+    pass
 
 
 SyncErrorKind = pb.SyncError.SyncErrorKind
@@ -70,7 +69,7 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
     elif val == "db_error":
         return DBError(err.db_error.info)
     elif val == "template_parse":
-        return TemplateError(err.template_parse.info, err.template_parse.q_side)
+        return TemplateError(err.template_parse.info)
     elif val == "invalid_input":
         return StringError(err.invalid_input.info)
     elif val == "sync_error":

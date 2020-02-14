@@ -34,6 +34,13 @@ pub enum LanguageDialect {
     ChineseTaiwan,
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum TranslationFile {
+    Test,
+    MediaCheck,
+    CardTemplates,
+}
+
 fn lang_dialect(lang: LanguageIdentifier) -> Option<LanguageDialect> {
     use LanguageDialect as L;
     Some(match lang.get_language() {
@@ -54,16 +61,11 @@ fn dialect_file_locale(dialect: LanguageDialect) -> &'static str {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum TranslationFile {
-    Test,
-    MediaCheck,
-}
-
 fn data_for_fallback(file: TranslationFile) -> String {
     match file {
-        TranslationFile::MediaCheck => include_str!("media-check.ftl"),
         TranslationFile::Test => include_str!("../../tests/support/test.ftl"),
+        TranslationFile::MediaCheck => include_str!("media-check.ftl"),
+        TranslationFile::CardTemplates => include_str!("card-templates.ftl"),
     }
     .to_string()
 }
@@ -74,8 +76,9 @@ fn data_for_lang_and_file(
     locales: &Path,
 ) -> Option<String> {
     let path = locales.join(dialect_file_locale(dialect)).join(match file {
-        TranslationFile::MediaCheck => "media-check.ftl",
         TranslationFile::Test => "test.ftl",
+        TranslationFile::MediaCheck => "media-check.ftl",
+        TranslationFile::CardTemplates => "card-templates.ftl",
     });
     fs::read_to_string(&path)
         .map_err(|e| {
