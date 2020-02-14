@@ -34,7 +34,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki import hooks
 from anki.cards import Card
-from anki.lang import _
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TemplateReplacementList
@@ -127,13 +126,6 @@ def render_card(
             question_av_tags=[],
             answer_av_tags=[],
         )
-
-    if not output.question_text.strip():
-        msg = _("The front of this card is blank.")
-        help = _("More info")
-        helplink = CARD_BLANK_HELP
-        msg += f"<br><a href='{helplink}'>{help}</a>"
-        output.question_text = msg
 
     hooks.card_did_render(output, ctx)
 

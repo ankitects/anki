@@ -13,3 +13,5 @@ no-such-field =
   Found '{$found}', but there is no field called '{$field}'
 
 more-info = More information
+
+empty-front = The front of this card is blank.
