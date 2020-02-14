@@ -43,9 +43,7 @@ impl std::convert::From<AnkiError> for pb::BackendError {
         use pb::backend_error::Value as V;
         let value = match err {
             AnkiError::InvalidInput { info } => V::InvalidInput(pb::StringError { info }),
-            AnkiError::TemplateError { info, q_side } => {
-                V::TemplateParse(pb::TemplateParseError { info, q_side })
-            }
+            AnkiError::TemplateError { info } => V::TemplateParse(pb::TemplateParseError { info }),
             AnkiError::IOError { info } => V::IoError(pb::StringError { info }),
             AnkiError::DBError { info } => V::DbError(pb::StringError { info }),
             AnkiError::NetworkError { info, kind } => V::NetworkError(pb::NetworkError {
@@ -280,6 +278,7 @@ impl Backend {
             &input.answer_template,
             &fields,
             input.card_ordinal as u16,
+            &self.i18n,
         )?;
 
         // return

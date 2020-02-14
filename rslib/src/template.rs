@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
+use crate::i18n::{tr_strs, I18n, I18nCategory, TranslationFile};
 use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
 use nom;
@@ -16,6 +17,9 @@ use std::iter;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
+
+static TEMPLATE_ERROR_LINK: &str =
+    "https://anki.tenderapp.com/kb/problems/card-template-has-a-problem";
 
 // Lexing
 //----------------------------------------
@@ -189,30 +193,60 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
     }
 }
 
-fn template_error_to_anki_error(err: TemplateError, q_side: bool) -> AnkiError {
-    AnkiError::TemplateError {
-        info: match err {
-            TemplateError::NoClosingBrackets(context) => format!("Missing '}}}}' in '{}'", context),
-            TemplateError::ConditionalNotClosed(tag) => format!("Missing '{{{{/{}}}}}'", tag),
-            TemplateError::ConditionalNotOpen {
-                closed,
-                currently_open,
-            } => {
-                if let Some(open) = currently_open {
-                    format!("Found {{{{/{}}}}}, but expected {{{{/{}}}}}", closed, open)
-                } else {
-                    format!(
-                        "Found {{{{/{}}}}}, but missing '{{{{#{}}}}}' or '{{{{^{}}}}}'",
-                        closed, closed, closed
-                    )
-                }
+fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -> AnkiError {
+    let cat = i18n.get(TranslationFile::CardTemplates);
+    let header = cat.tr(if q_side {
+        "front-side-problem"
+    } else {
+        "back-side-problem"
+    });
+    let details = localized_template_error(&cat, err);
+    let more_info = cat.tr("more-info");
+    let info = format!(
+        "{}<br>{}<br><a href='{}'>{}</a>",
+        header, details, TEMPLATE_ERROR_LINK, more_info
+    );
+
+    AnkiError::TemplateError { info }
+}
+
+fn localized_template_error(cat: &I18nCategory, err: TemplateError) -> String {
+    match err {
+        TemplateError::NoClosingBrackets(tag) => {
+            cat.trn("no-closing-brackets", tr_strs!("tag"=>tag, "missing"=>"}}"))
+        }
+        TemplateError::ConditionalNotClosed(tag) => cat.trn(
+            "conditional-not-closed",
+            tr_strs!("missing"=>format!("{{{{/{}}}}}", tag)),
+        ),
+        TemplateError::ConditionalNotOpen {
+            closed,
+            currently_open,
+        } => {
+            if let Some(open) = currently_open {
+                cat.trn(
+                    "wrong-conditional-closed",
+                    tr_strs!(
+                "found"=>format!("{{{{/{}}}}}", closed),
+                "expected"=>format!("{{{{/{}}}}}", open)),
+                )
+            } else {
+                cat.trn(
+                    "conditional-not-open",
+                    tr_strs!(
+                    "found"=>format!("{{{{/{}}}}}", closed),
+                    "missing1"=>format!("{{{{#{}}}}}", closed),
+                    "missing2"=>format!("{{{{^{}}}}}", closed)
+                    ),
+                )
             }
-            TemplateError::FieldNotFound { field, filters } => format!(
-                "Found '{{{{{}{}}}}}', but there is no field called '{}'",
-                filters, field, field
-            ),
-        },
-        q_side,
+        }
+        TemplateError::FieldNotFound { field, filters } => cat.trn(
+            "no-such-field",
+            tr_strs!(
+            "found"=>format!("{{{{{}{}}}}}", filters, field),
+            "field"=>field),
+        ),
     }
 }
 
@@ -454,6 +488,7 @@ pub fn render_card(
     afmt: &str,
     field_map: &HashMap<&str, &str>,
     card_ord: u16,
+    i18n: &I18n,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
     let mut context = RenderContext {
@@ -467,14 +502,14 @@ pub fn render_card(
     let qnorm = without_legacy_template_directives(qfmt);
     let qnodes = ParsedTemplate::from_text(qnorm.as_ref())
         .and_then(|tmpl| tmpl.render(&context))
-        .map_err(|e| template_error_to_anki_error(e, true))?;
+        .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
 
     // answer side
     context.question_side = false;
     let anorm = without_legacy_template_directives(afmt);
     let anodes = ParsedTemplate::from_text(anorm.as_ref())
         .and_then(|tmpl| tmpl.render(&context))
-        .map_err(|e| template_error_to_anki_error(e, false))?;
+        .map_err(|e| template_error_to_anki_error(e, false, i18n))?;
 
     Ok((qnodes, anodes))
 }

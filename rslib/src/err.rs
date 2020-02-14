@@ -13,7 +13,7 @@ pub enum AnkiError {
     InvalidInput { info: String },
 
     #[fail(display = "invalid card template: {}", info)]
-    TemplateError { info: String, q_side: bool },
+    TemplateError { info: String },
 
     #[fail(display = "I/O error: {}", info)]
     IOError { info: String },
