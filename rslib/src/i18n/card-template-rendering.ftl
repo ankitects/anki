@@ -1,6 +1,8 @@
 front-side-problem = Front template has a problem:
 back-side-problem = Back template has a problem:
 
+## Error messages
+
 no-closing-brackets =
   Missing '{$missing}' in '{$tag}'
 conditional-not-closed =
@@ -12,6 +14,7 @@ conditional-not-open =
 no-such-field =
   Found '{$found}', but there is no field called '{$field}'
 
+# Label of link users can click on
 more-info = More information
 
 empty-front = The front of this card is blank.
