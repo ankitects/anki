@@ -3,6 +3,7 @@
 
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
+use crate::i18n::I18n;
 use crate::latex::extract_latex;
 use crate::media::col::{
     for_every_note, get_note_types, mark_collection_modified, open_or_create_collection_db,
@@ -46,6 +47,7 @@ where
     progress_cb: P,
     checked: usize,
     progress_updated: Instant,
+    i18n: &'a I18n,
 }
 
 impl<P> MediaChecker<'_, P>
@@ -56,6 +58,7 @@ where
         mgr: &'a MediaManager,
         col_path: &'a Path,
         progress_cb: P,
+        i18n: &'a I18n,
     ) -> MediaChecker<'a, P> {
         MediaChecker {
             mgr,
@@ -63,6 +66,7 @@ where
             progress_cb,
             checked: 0,
             progress_updated: Instant::now(),
+            i18n,
         }
     }
 
@@ -74,6 +78,8 @@ where
         let folder_check = self.check_media_folder(&mut ctx)?;
         let referenced_files = self.check_media_references(&folder_check.renamed)?;
         let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
+
+        let _ = self.i18n;
 
         Ok(MediaCheckOutput {
             unused,
@@ -338,6 +344,7 @@ fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) 
 #[cfg(test)]
 mod test {
     use crate::err::Result;
+    use crate::i18n::I18n;
     use crate::media::check::{MediaCheckOutput, MediaChecker};
     use crate::media::MediaManager;
     use std::fs;
@@ -371,8 +378,10 @@ mod test {
         fs::write(&mgr.media_folder.join("foo[.jpg"), "foo")?;
         fs::write(&mgr.media_folder.join("_under.jpg"), "foo")?;
 
+        let i18n = I18n::new(&["zz"], "dummy");
+
         let progress = |_n| true;
-        let mut checker = MediaChecker::new(&mgr, &col_path, progress);
+        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n);
         let output = checker.check()?;
 
         assert_eq!(
@@ -398,10 +407,12 @@ mod test {
     fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, col_path) = common_setup()?;
 
+        let i18n = I18n::new(&["zz"], "dummy");
+
         fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let progress = |_n| true;
-        let mut checker = MediaChecker::new(&mgr, &col_path, progress);
+        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n);
         let mut output = checker.check()?;
         output.missing.sort();
 
