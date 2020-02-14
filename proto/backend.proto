@@ -271,9 +271,7 @@ message SyncMediaIn {
 message MediaCheckOut {
     repeated string unused = 1;
     repeated string missing = 2;
-    repeated string dirs = 3;
-    repeated string oversize = 4;
-    map<string,string> renamed = 5;
+    string report = 3;
 }
 
 message TrashMediaFilesIn {

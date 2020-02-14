@@ -361,14 +361,14 @@ impl Backend {
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n);
-        let output = checker.check()?;
+        let mut output = checker.check()?;
+
+        let report = checker.summarize_output(&mut output);
 
         Ok(pb::MediaCheckOut {
             unused: output.unused,
             missing: output.missing,
-            renamed: output.renamed,
-            dirs: output.dirs,
-            oversize: output.oversize,
+            report,
         })
     }
 

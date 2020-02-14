@@ -3,7 +3,7 @@
 
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
-use crate::i18n::I18n;
+use crate::i18n::{tr_args, tr_strs, I18n, TranslationFile};
 use crate::latex::extract_latex;
 use crate::media::col::{
     for_every_note, get_note_types, mark_collection_modified, open_or_create_collection_db,
@@ -78,9 +78,6 @@ where
         let folder_check = self.check_media_folder(&mut ctx)?;
         let referenced_files = self.check_media_references(&folder_check.renamed)?;
         let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
-
-        let _ = self.i18n;
-
         Ok(MediaCheckOutput {
             unused,
             missing,
@@ -88,6 +85,88 @@ where
             dirs: folder_check.dirs,
             oversize: folder_check.oversize,
         })
+    }
+
+    pub fn summarize_output(&self, output: &mut MediaCheckOutput) -> String {
+        let mut buf = String::new();
+        let cat = self.i18n.get(TranslationFile::MediaCheck);
+
+        // top summary area
+        buf += &cat.trn("missing-count", tr_args!["count"=>output.missing.len()]);
+        buf.push('\n');
+
+        buf += &cat.trn("unused-count", tr_args!["count"=>output.unused.len()]);
+        buf.push('\n');
+
+        if !output.renamed.is_empty() {
+            buf += &cat.trn("renamed-count", tr_args!["count"=>output.renamed.len()]);
+            buf.push('\n');
+        }
+        if !output.oversize.is_empty() {
+            buf += &cat.trn("oversize-count", tr_args!["count"=>output.oversize.len()]);
+            buf.push('\n');
+        }
+        if !output.dirs.is_empty() {
+            buf += &cat.trn("subfolder-count", tr_args!["count"=>output.dirs.len()]);
+            buf.push('\n');
+        }
+
+        buf.push('\n');
+
+        if !output.renamed.is_empty() {
+            buf += &cat.tr("renamed-header");
+            buf.push('\n');
+            for (old, new) in &output.renamed {
+                buf += &cat.trn("renamed-file", tr_strs!["old"=>old,"new"=>new]);
+                buf.push('\n');
+            }
+            buf.push('\n')
+        }
+
+        if !output.oversize.is_empty() {
+            output.oversize.sort();
+            buf += &cat.tr("oversize-header");
+            buf.push('\n');
+            for fname in &output.oversize {
+                buf += &cat.trn("oversize-file", tr_strs!["filename"=>fname]);
+                buf.push('\n');
+            }
+            buf.push('\n')
+        }
+
+        if !output.dirs.is_empty() {
+            output.dirs.sort();
+            buf += &cat.tr("subfolder-header");
+            buf.push('\n');
+            for fname in &output.dirs {
+                buf += &cat.trn("subfolder-file", tr_strs!["filename"=>fname]);
+                buf.push('\n');
+            }
+            buf.push('\n')
+        }
+
+        if !output.missing.is_empty() {
+            output.missing.sort();
+            buf += &cat.tr("missing-header");
+            buf.push('\n');
+            for fname in &output.missing {
+                buf += &cat.trn("missing-file", tr_strs!["filename"=>fname]);
+                buf.push('\n');
+            }
+            buf.push('\n')
+        }
+
+        if !output.unused.is_empty() {
+            output.unused.sort();
+            buf += &cat.tr("unused-header");
+            buf.push('\n');
+            for fname in &output.unused {
+                buf += &cat.trn("unused-file", tr_strs!["filename"=>fname]);
+                buf.push('\n');
+            }
+        }
+
+        buf
     }
 
     /// Check all the files in the media folder.
@@ -377,17 +456,18 @@ mod test {
         fs::write(&mgr.media_folder.join("normal.jpg"), "normal")?;
         fs::write(&mgr.media_folder.join("foo[.jpg"), "foo")?;
         fs::write(&mgr.media_folder.join("_under.jpg"), "foo")?;
+        fs::write(&mgr.media_folder.join("unused.jpg"), "foo")?;
 
         let i18n = I18n::new(&["zz"], "dummy");
 
         let progress = |_n| true;
         let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n);
-        let output = checker.check()?;
+        let mut output = checker.check()?;
 
         assert_eq!(
             output,
             MediaCheckOutput {
-                unused: vec![],
+                unused: vec!["unused.jpg".into()],
                 missing: vec!["ぱぱ.jpg".into()],
                 renamed: vec![("foo[.jpg".into(), "foo.jpg".into())]
                     .into_iter()
@@ -399,6 +479,28 @@ mod test {
 
         assert!(fs::metadata(&mgr.media_folder.join("foo[.jpg")).is_err());
         assert!(fs::metadata(&mgr.media_folder.join("foo.jpg")).is_ok());
+
+        let report = checker.summarize_output(&mut output);
+        assert_eq!(
+            report,
+            "Missing files: 1
+Unused files: 1
+Renamed files: 1
+Subfolders: 1
+
+Some files have been renamed for compatibility:
+Renamed: foo[.jpg -> foo.jpg
+
+Folders inside the media folder are not supported.
+Folder: folder
+
+The following files are referenced by cards, but were not found in the media folder:
+Missing: ぱぱ.jpg
+
+The following files were found in the media folder, but do not appear to be used on any cards:
+Unused: unused.jpg
+"
+        );
 
         Ok(())
     }

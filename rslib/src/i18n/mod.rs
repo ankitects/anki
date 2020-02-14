@@ -10,6 +10,21 @@ use unic_langid::LanguageIdentifier;
 
 pub use fluent::fluent_args as tr_args;
 
+/// Helper for creating args with &strs
+#[macro_export]
+macro_rules! tr_strs {
+    ( $($key:expr => $value:expr),* ) => {
+        {
+            let mut args: fluent::FluentArgs = fluent::FluentArgs::new();
+            $(
+                args.insert($key, $value.to_string().into());
+            )*
+            args
+        }
+    };
+}
+pub use tr_strs;
+
 /// All languages we (currently) support, excluding the fallback
 /// English.
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -169,8 +184,8 @@ impl I18nCategory {
     }
 
     /// Get translation with one or more arguments.
-    pub fn trn(&self, key: &str, args: FluentArgs) -> Cow<str> {
-        self.tr_(key, Some(args))
+    pub fn trn(&self, key: &str, args: FluentArgs) -> String {
+        self.tr_(key, Some(args)).into()
     }
 
     fn tr_<'a>(&'a self, key: &str, args: Option<FluentArgs>) -> Cow<'a, str> {

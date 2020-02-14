@@ -60,7 +60,7 @@ class MediaChecker:
         "Run the check on a background thread."
         return self.mw.col.media.check()
 
-    def _on_finished(self, future: Future):
+    def _on_finished(self, future: Future) -> None:
         hooks.bg_thread_progress_callback.remove(self._on_progress)
         self.mw.progress.finish()
         self.progress_dialog = None
@@ -70,8 +70,8 @@ class MediaChecker:
         if isinstance(exc, Interrupted):
             return
 
-        output = future.result()
-        report = describe_output(output)
+        output: MediaCheckOutput = future.result()
+        report = output.report
 
         # show report and offer to delete
         diag = QDialog(self.mw)
@@ -156,56 +156,3 @@ class MediaChecker:
             self.progress_dialog = None
 
         tooltip(_("Files moved to trash."))
-
-
-def describe_output(output: MediaCheckOutput) -> str:
-    buf = []
-
-    buf.append(_("Missing files: {}").format(len(output.missing)))
-    buf.append(_("Unused files: {}").format(len(output.unused)))
-    if output.renamed:
-        buf.append(_("Renamed files: {}").format(len(output.renamed)))
-    if output.oversize:
-        buf.append(_("Over 100MB: {}".format(output.oversize)))
-    if output.dirs:
-        buf.append(_("Subfolders: {}".format(output.dirs)))
-
-    buf.append("")
-
-    if output.renamed:
-        buf.append(_("Some files have been renamed for compatibility:"))
-        buf.extend(
-            _("Renamed: %(old)s -> %(new)s") % dict(old=k, new=v)
-            for (k, v) in sorted(output.renamed.items())
-        )
-        buf.append("")
-
-    if output.oversize:
-        buf.append(_("Files over 100MB can not be synced with AnkiWeb."))
-        buf.extend(_("Over 100MB: {}").format(f) for f in sorted(output.oversize))
-        buf.append("")
-
-    if output.dirs:
-        buf.append(_("Folders inside the media folder are not supported."))
-        buf.extend(_("Folder: {}").format(f) for f in sorted(output.dirs))
-        buf.append("")
-
-    if output.missing:
-        buf.append(
-            _(
-                "The following files are referenced by cards, but were not found in the media folder:"
-            )
-        )
-        buf.extend(_("Missing: {}").format(f) for f in sorted(output.missing))
-        buf.append("")
-
-    if output.unused:
-        buf.append(
-            _(
-                "The following files were found in the media folder, but do not appear to be used on any cards:"
-            )
-        )
-        buf.extend(_("Unused: {}").format(f) for f in sorted(output.unused))
-        buf.append("")
-
-    return "\n".join(buf)
