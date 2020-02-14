@@ -30,6 +30,8 @@ serde_tuple = "0.4.0"
 coarsetime = "0.1.12"
 utime = "0.2.1"
 serde-aux = "0.6.1"
+unic-langid = { version = "0.7.0", features = ["macros"] }
+fluent = "0.9.1"
 
 [target.'cfg(target_vendor="apple")'.dependencies]
 rusqlite = { version = "0.21.0", features = ["trace"] }

@@ -12,6 +12,7 @@ pub fn version() -> &'static str {
 pub mod backend;
 pub mod cloze;
 pub mod err;
+pub mod i18n;
 pub mod latex;
 pub mod media;
 pub mod sched;

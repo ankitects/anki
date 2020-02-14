@@ -5,6 +5,7 @@ use crate::backend_proto as pb;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
+use crate::i18n::I18n;
 use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
@@ -28,6 +29,7 @@ pub struct Backend {
     media_folder: PathBuf,
     media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
+    i18n: I18n,
 }
 
 enum Progress<'a> {
@@ -102,10 +104,13 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
+    let i18n = I18n::new(&input.preferred_langs, input.locale_folder_path);
+
     match Backend::new(
         &input.collection_path,
         &input.media_folder_path,
         &input.media_db_path,
+        i18n,
     ) {
         Ok(backend) => Ok(backend),
         Err(e) => Err(format!("{:?}", e)),
@@ -113,12 +118,13 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 }
 
 impl Backend {
-    pub fn new(col_path: &str, media_folder: &str, media_db: &str) -> Result<Backend> {
+    pub fn new(col_path: &str, media_folder: &str, media_db: &str, i18n: I18n) -> Result<Backend> {
         Ok(Backend {
             col_path: col_path.into(),
             media_folder: media_folder.into(),
             media_db: media_db.into(),
             progress_callback: None,
+            i18n,
         })
     }
 
@@ -354,7 +360,7 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback);
+        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n);
         let output = checker.check()?;
 
         Ok(pb::MediaCheckOut {
