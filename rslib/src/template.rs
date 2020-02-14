@@ -20,6 +20,8 @@ type TemplateResult<T> = std::result::Result<T, TemplateError>;
 
 static TEMPLATE_ERROR_LINK: &str =
     "https://anki.tenderapp.com/kb/problems/card-template-has-a-problem";
+static TEMPLATE_BLANK_LINK: &str =
+    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank";
 
 // Lexing
 //----------------------------------------
@@ -500,9 +502,21 @@ pub fn render_card(
 
     // question side
     let qnorm = without_legacy_template_directives(qfmt);
-    let qnodes = ParsedTemplate::from_text(qnorm.as_ref())
-        .and_then(|tmpl| tmpl.render(&context))
+    let (qnodes, qtmpl) = ParsedTemplate::from_text(qnorm.as_ref())
+        .and_then(|tmpl| Ok((tmpl.render(&context)?, tmpl)))
         .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
+
+    // check if the front side was empty
+    if !qtmpl.renders_with_fields(context.nonempty_fields) {
+        let cat = i18n.get(TranslationFile::CardTemplates);
+        let info = format!(
+            "{}<br><a href='{}'>{}</a>",
+            cat.tr("empty-front"),
+            TEMPLATE_BLANK_LINK,
+            cat.tr("more-info")
+        );
+        return Err(AnkiError::TemplateError { info });
+    };
 
     // answer side
     context.question_side = false;
