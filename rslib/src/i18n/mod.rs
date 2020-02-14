@@ -65,7 +65,7 @@ fn data_for_fallback(file: TranslationFile) -> String {
     match file {
         TranslationFile::Test => include_str!("../../tests/support/test.ftl"),
         TranslationFile::MediaCheck => include_str!("media-check.ftl"),
-        TranslationFile::CardTemplates => include_str!("card-templates.ftl"),
+        TranslationFile::CardTemplates => include_str!("card-template-rendering.ftl"),
     }
     .to_string()
 }
@@ -78,7 +78,7 @@ fn data_for_lang_and_file(
     let path = locales.join(dialect_file_locale(dialect)).join(match file {
         TranslationFile::Test => "test.ftl",
         TranslationFile::MediaCheck => "media-check.ftl",
-        TranslationFile::CardTemplates => "card-templates.ftl",
+        TranslationFile::CardTemplates => "card-template-rendering.ftl",
     });
     fs::read_to_string(&path)
         .map_err(|e| {
