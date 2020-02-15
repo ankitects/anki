@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import aqt
 from anki.lang import _
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.webview import AnkiWebView
 
@@ -47,12 +48,13 @@ class Toolbar:
 
     def _centerLinks(self):
         links = [
-            ["decks", _("Decks"), _("Shortcut key: %s") % "D"],
-            ["add", _("Add"), _("Shortcut key: %s") % "A"],
-            ["browse", _("Browse"), _("Shortcut key: %s") % "B"],
-            ["stats", _("Stats"), _("Shortcut key: %s") % "T"],
-            ["sync", _("Sync"), _("Shortcut key: %s") % "Y"],
+            ("decks", _("Decks"), _("Shortcut key: %s") % "D"),
+            ("add", _("Add"), _("Shortcut key: %s") % "A"),
+            ("browse", _("Browse"), _("Shortcut key: %s") % "B"),
+            ("stats", _("Stats"), _("Shortcut key: %s") % "T"),
+            ("sync", _("Sync"), _("Shortcut key: %s") % "Y"),
         ]
+        gui_hooks.top_toolbar_did_init_links(links, self)
         return self._linkHTML(links)
 
     def _linkHTML(self, links):

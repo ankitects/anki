@@ -187,6 +187,10 @@ hooks = [
         return_type="str",
         legacy_hook="setupStyle",
     ),
+    Hook(
+        name="top_toolbar_did_init_links",
+        args=["links: List[Tuple[str, str, str]]", "top_toolbar: aqt.toolbar.Toolbar",],
+    ),
     # Adding cards
     ###################
     Hook(

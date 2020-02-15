@@ -1041,6 +1041,38 @@ class _StyleDidInitFilter:
 style_did_init = _StyleDidInitFilter()
 
 
+class _TopToolbarDidInitLinksHook:
+    _hooks: List[
+        Callable[[List[Tuple[str, str, str]], "aqt.toolbar.Toolbar"], None]
+    ] = []
+
+    def append(
+        self, cb: Callable[[List[Tuple[str, str, str]], "aqt.toolbar.Toolbar"], None]
+    ) -> None:
+        """(links: List[Tuple[str, str, str]], top_toolbar: aqt.toolbar.Toolbar)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[List[Tuple[str, str, str]], "aqt.toolbar.Toolbar"], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, links: List[Tuple[str, str, str]], top_toolbar: aqt.toolbar.Toolbar
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(links, top_toolbar)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+top_toolbar_did_init_links = _TopToolbarDidInitLinksHook()
+
+
 class _UndoStateDidChangeHook:
     _hooks: List[Callable[[bool], None]] = []
 
