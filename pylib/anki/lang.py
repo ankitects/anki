@@ -111,6 +111,7 @@ threadLocal = threading.local()
 # global defaults
 currentLang: Any = None
 currentTranslation: Any = None
+locale_folder: str = ""
 
 
 def localTranslation() -> Any:
@@ -135,10 +136,12 @@ def setLang(lang: str, locale_dir: str, local: bool = True) -> None:
     if local:
         threadLocal.currentLang = lang
         threadLocal.currentTranslation = trans
+        threadLocal.locale_folder = locale_dir
     else:
-        global currentLang, currentTranslation
+        global currentLang, currentTranslation, locale_folder
         currentLang = lang
         currentTranslation = trans
+        locale_folder = locale_dir
 
 
 def getLang() -> str:
